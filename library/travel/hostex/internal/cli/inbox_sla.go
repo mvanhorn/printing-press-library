@@ -68,9 +68,10 @@ func newNovelInboxSlaCmd(flags *rootFlags) *cobra.Command {
 			breachedCount := 0
 			for _, c := range conversations {
 				lm, ok := novTime(c["last_message_at"])
-				ageHours := math.Round(now.Sub(lm).Hours()*10) / 10
+				ageHours := 0.0
 				breached := false
 				if ok {
+					ageHours = math.Round(now.Sub(lm).Hours()*10) / 10
 					breached = now.Sub(lm) >= breach
 				}
 				if breached {

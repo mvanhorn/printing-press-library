@@ -1,0 +1,11 @@
+{
+  "schema_version": 2,
+  "id": "hostex-review-fixes",
+  "applied_at": "2026-06-27",
+  "base_run_id": "20260627-060401-7471d49d",
+  "base_printing_press_version": "4.26.1",
+  "summary": "Correctness fixes from code review on the hand-authored transcendence commands and the error_code envelope.",
+  "reason": "Adversarial review (Greptile + workflow) found: inbox-sla age computed from zero-time; client counted error_code>=400 as limiter success; revenue/price/oversell ignored JSON decode errors; price-parity/oversell-watch used mutating c.Post for the read-only /listings/calendar (verify no-op + cache wipe); ops-gaps included date-less reservations; automation-preview flagged future timestamps; stay-brief swallowed local read errors; oversell-watch swallowed per-property fetch errors.",
+  "files": ["internal/client/client.go","internal/cli/inbox_sla.go","internal/cli/revenue_rollup.go","internal/cli/price_parity.go","internal/cli/oversell_watch.go","internal/cli/stay_brief.go","internal/cli/ops_gaps.go","internal/cli/automation_preview.go"],
+  "validated_outcome": "go vet + tests pass; live sanity on all transcendence commands; full live dogfood re-run."
+}

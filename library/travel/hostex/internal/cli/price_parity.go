@@ -25,7 +25,7 @@ func newNovelPriceParityCmd(flags *rootFlags) *cobra.Command {
 			"Live command (needs a valid token and multi-channel listings). For availability\n" +
 			"vs channel-inventory mismatch use `oversell-watch` instead.",
 		Example:     "  hostex-pp-cli price-parity --property 12345 --days 30 --agent",
-		Annotations: map[string]string{"mcp:read-only": "true"},
+		Annotations: map[string]string{"mcp:read-only": "true", "pp:happy-args": "--property=12704864"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if dryRunOK(flags) {
 				fmt.Fprintf(cmd.OutOrStdout(), "would query pricing_ratios + listings/calendar for property %q over %s days\n", flagProperty, flagDays)
@@ -63,7 +63,9 @@ func newNovelPriceParityCmd(flags *rootFlags) *cobra.Command {
 					Readonly    bool   `json:"readonly"`
 				} `json:"channels"`
 			}
-			_ = json.Unmarshal(novUnwrapData(ratRaw), &rat)
+			if err := json.Unmarshal(novUnwrapData(ratRaw), &rat); err != nil {
+				return fmt.Errorf("decoding pricing ratios: %w", err)
+			}
 			if len(rat.Channels) < 2 {
 				view := map[string]any{
 					"property_id": flagProperty,
@@ -82,7 +84,7 @@ func newNovelPriceParityCmd(flags *rootFlags) *cobra.Command {
 			for _, ch := range rat.Channels {
 				listings = append(listings, map[string]any{"channel_type": ch.ChannelType, "listing_id": ch.ListingID})
 			}
-			calRaw, _, err := c.Post(ctx, "/listings/calendar", map[string]any{
+			calRaw, _, err := c.PostQueryWithParams(ctx, "/listings/calendar", nil, map[string]any{
 				"start_date": start,
 				"end_date":   end,
 				"listings":   listings,
@@ -100,7 +102,9 @@ func newNovelPriceParityCmd(flags *rootFlags) *cobra.Command {
 					} `json:"calendar"`
 				} `json:"listings"`
 			}
-			_ = json.Unmarshal(novUnwrapData(calRaw), &cal)
+			if err := json.Unmarshal(novUnwrapData(calRaw), &cal); err != nil {
+				return fmt.Errorf("decoding listing calendars: %w", err)
+			}
 
 			// 3) Index price per date per channel.
 			type cell struct {

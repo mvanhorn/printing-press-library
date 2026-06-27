@@ -94,6 +94,9 @@ func newNovelOpsGapsCmd(flags *rootFlags) *cobra.Command {
 				}
 				ci, ciOK := novTime(r["check_in_date"])
 				co, coOK := novTime(r["check_out_date"])
+				if !ciOK && !coOK {
+					continue
+				}
 				// Relevant = not already departed, and arriving within the window.
 				if coOK && co.Before(today) {
 					continue

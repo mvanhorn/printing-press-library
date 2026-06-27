@@ -1,12 +1,12 @@
 {
-  "dir": "/Users/bust3r/printing-press/library/hostex",
-  "binary": "/Users/bust3r/printing-press/library/hostex/hostex-pp-cli",
+  "dir": "/Users/bust3r/printing-press/.publish-repo-personal-dadcaade/library/travel/hostex",
+  "binary": "/var/folders/ys/lr3bkj4x2773n5bfchm99wc40000gn/T/hostex-pp-cli-dogfood-2035797548",
   "level": "full",
   "verdict": "PASS",
-  "matrix_size": 255,
-  "passed": 255,
+  "matrix_size": 241,
+  "passed": 241,
   "failed": 0,
-  "skipped": 253,
+  "skipped": 267,
   "commands": [
     "analytics",
     "api",
@@ -297,7 +297,7 @@
         "message"
       ],
       "status": "pass",
-      "output_sample": "{\n  \"meta\": {\n    \"source\": \"live\"\n  },\n  \"results\": {\n    \"request_id\": \"RT2026062714162768212\",\n    \"error_code\": 200,\n    \"error_msg\": \"Done.\",\n    \"data\": {\n      \"actions\": [],\n      \"total\": 0\n    }\n  }\n}\n"
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"live\"\n  },\n  \"results\": {\n    \"request_id\": \"RT2026062715002396607\",\n    \"error_code\": 200,\n    \"error_msg\": \"Done.\",\n    \"data\": {\n      \"actions\": [],\n      \"total\": 0\n    }\n  }\n}\n"
     },
     {
       "command": "automation query-actions",
@@ -310,7 +310,7 @@
         "--json"
       ],
       "status": "pass",
-      "output_sample": "{\n  \"meta\": {\n    \"source\": \"live\"\n  },\n  \"results\": {\n    \"request_id\": \"RT2026062714162768212\",\n    \"error_code\": 200,\n    \"error_msg\": \"Done.\",\n    \"data\": {\n      \"actions\": [],\n      \"total\": 0\n    }\n  }\n}\n"
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"live\"\n  },\n  \"results\": {\n    \"request_id\": \"RT2026062715002396607\",\n    \"error_code\": 200,\n    \"error_msg\": \"Done.\",\n    \"data\": {\n      \"actions\": [],\n      \"total\": 0\n    }\n  }\n}\n"
     },
     {
       "command": "automation query-actions",
@@ -509,14 +509,14 @@
       "kind": "happy_path",
       "args": null,
       "status": "skip",
-      "reason": "blocked-fixture: required API parameter"
+      "reason": "no id parseable from companion at depth 0"
     },
     {
       "command": "calendar-share-links delete",
       "kind": "json_fidelity",
       "args": null,
       "status": "skip",
-      "reason": "blocked-fixture: required API parameter"
+      "reason": "no id parseable from companion at depth 0"
     },
     {
       "command": "calendar-share-links delete",
@@ -530,7 +530,7 @@
       "kind": "error_path_real",
       "args": null,
       "status": "skip",
-      "reason": "blocked-fixture: required API parameter"
+      "reason": "no id parseable from companion at depth 0"
     },
     {
       "command": "calendar-share-links query",
@@ -551,7 +551,7 @@
         "query"
       ],
       "status": "pass",
-      "output_sample": "{\n  \"meta\": {\n    \"source\": \"live\"\n  },\n  \"results\": {\n    \"request_id\": \"RT2026062714163035212\",\n    \"error_code\": 200,\n    \"error_msg\": \"Done.\",\n    \"data\": {\n      \"calendar_share_links\": [],\n      \"total\": 0\n    }\n  }\n}\n"
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"live\"\n  },\n  \"results\": {\n    \"request_id\": \"RT2026062715002894012\",\n    \"error_code\": 200,\n    \"error_msg\": \"Done.\",\n    \"data\": {\n      \"calendar_share_links\": [],\n      \"total\": 0\n    }\n  }\n}\n"
     },
     {
       "command": "calendar-share-links query",
@@ -562,7 +562,7 @@
         "--json"
       ],
       "status": "pass",
-      "output_sample": "{\n  \"meta\": {\n    \"source\": \"live\"\n  },\n  \"results\": {\n    \"request_id\": \"RT2026062714163035212\",\n    \"error_code\": 200,\n    \"error_msg\": \"Done.\",\n    \"data\": {\n      \"calendar_share_links\": [],\n      \"total\": 0\n    }\n  }\n}\n"
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"live\"\n  },\n  \"results\": {\n    \"request_id\": \"RT2026062715002894012\",\n    \"error_code\": 200,\n    \"error_msg\": \"Done.\",\n    \"data\": {\n      \"calendar_share_links\": [],\n      \"total\": 0\n    }\n  }\n}\n"
     },
     {
       "command": "calendar-share-links query",
@@ -588,7 +588,7 @@
         "channel-accounts"
       ],
       "status": "pass",
-      "output_sample": "{\"meta\":{\"source\":\"live\"},\"results\":{\"data\":{\"channel_accounts\":[{\"auth_status\":\"active\",\"channel_type\":\"airbnb\",\"created_at\":\"2026-06-27T02:37:46+00:00\",\"id\":503916,\"origin_account_id\":\"654643520\",\"username\":\"\u003credacted\u003e\"}],\"total\":1},\"error_code\":200,\"error_msg\":\"Done.\",\"request_id\":\"RT2026062714163154210\"}}"
+      "output_sample": "{\"meta\":{\"source\":\"live\"},\"results\":{\"data\":{\"channel_accounts\":[{\"auth_status\":\"active\",\"channel_type\":\"airbnb\",\"created_at\":\"2026-06-27T02:37:46+00:00\",\"id\":503916,\"origin_account_id\":\"654643520\",\"username\":\"\u003credacted\u003e\"}],\"total\":1},\"error_code\":200,\"error_msg\":\"Done.\",\"request_id\":\"RT2026062715003072808b4\"}}"
     },
     {
       "command": "channel-accounts",
@@ -598,7 +598,7 @@
         "--json"
       ],
       "status": "pass",
-      "output_sample": "{\"meta\":{\"source\":\"live\"},\"results\":{\"data\":{\"channel_accounts\":[{\"auth_status\":\"active\",\"channel_type\":\"airbnb\",\"created_at\":\"2026-06-27T02:37:46+00:00\",\"id\":503916,\"origin_account_id\":\"654643520\",\"username\":\"\u003credacted\u003e\"}],\"total\":1},\"error_code\":200,\"error_msg\":\"Done.\",\"request_id\":\"RT2026062714163154210\"}}"
+      "output_sample": "{\"meta\":{\"source\":\"live\"},\"results\":{\"data\":{\"channel_accounts\":[{\"auth_status\":\"active\",\"channel_type\":\"airbnb\",\"created_at\":\"2026-06-27T02:37:46+00:00\",\"id\":503916,\"origin_account_id\":\"654643520\",\"username\":\"\u003credacted\u003e\"}],\"total\":1},\"error_code\":200,\"error_msg\":\"Done.\",\"request_id\":\"RT2026062715003072808b4\"}}"
     },
     {
       "command": "channel-accounts",
@@ -621,27 +621,16 @@
     {
       "command": "conversations get-details",
       "kind": "happy_path",
-      "args": [
-        "conversations",
-        "get-details",
-        "0-2576543425"
-      ],
-      "status": "pass",
-      "fixture_source": "store",
-      "output_sample": "{\"meta\":{\"source\":\"live\"},\"results\":{\"data\":{\"activities\":[{\"activity_type\":\"inquiry\",\"check_in_date\":\"2026-12-05\",\"check_out_date\":\"2026-12-23\",\"listing_id\":\"1715863948130995294\",\"property\":{\"cover_url\":\"https://z1.muscache.cn/im/pictures/hosting/Hosting-1715863948130995294/original/08d16aa9-25ef-403d-9d71-9b124c0ad3c5.jpeg?aki_policy=small\",\"id\":12704864,\"room_type\":null,\"title\":\"Property #1\"},\"reservation_code\":null}],\"channel_type\":\"airbnb\",\"guest\":{\"email\":\"\u003credacted\u003e\",\"name\":\"\u003credacted\u003e\",\"phone\":\"\u003credacted\u003e\"},\"id\":\"0-2576543425\",\"messages\":[{\"attachment\":null,\"content\":\"Sorry it's new listing we still have to change something please can u cancel the reservation will not be available\",\"created_at\":\"2026-06-26T17:13:08+00:00\",\"display_type\":\"Text\",\"id\":\"0-31417587790-654643520\",\"sender_name\":null,\"sender_role\":\"host\",\"sources\":[]},{\"attachment\":null,\"content\":\"Ciao June, ho notato che l'indirizzo indicato su Airbnb (20 Soi King Suksan) sembra corrispondere a un edificio diverso su Google Maps. Potresti confermare che questo è l'indirizzo corretto o inviarmi il pin esatto di Google Maps della villa? Voglio solo assicurarmi che arriviamo nel posto giusto. Grazie!\",\"created_at\":\"2026-06-26T13:34:00+00:00\",\"display_type\":\"Text\",\"id\":\"0-31413882636-654643520\",\"sender_name\":null,\"sender_role\":\"guest\",\"sources\":[]},{\"attachment\":null,\"content\":\"Ciao, avete un sito web o qualcosa di simile? :)\",\"created_at\":\"2026-06-26T12:57:30+00:00\",\"display_type\":\"Text\",\"id\":\"0-31413290370-654643520\",\"sender_name\":null,\"sender_role\":\"guest\",\"sources\":[]}],\"note\":null},\"error_code\":200,\"error_msg\":\"Done.\",\"request_id\":\"RT2026062714163421110\"}}"
+      "args": null,
+      "status": "skip",
+      "reason": "no id parseable from companion at depth 0"
     },
     {
       "command": "conversations get-details",
       "kind": "json_fidelity",
-      "args": [
-        "conversations",
-        "get-details",
-        "0-2576543425",
-        "--json"
-      ],
-      "status": "pass",
-      "fixture_source": "store",
-      "output_sample": "{\"meta\":{\"source\":\"live\"},\"results\":{\"data\":{\"activities\":[{\"activity_type\":\"inquiry\",\"check_in_date\":\"2026-12-05\",\"check_out_date\":\"2026-12-23\",\"listing_id\":\"1715863948130995294\",\"property\":{\"cover_url\":\"https://z1.muscache.cn/im/pictures/hosting/Hosting-1715863948130995294/original/08d16aa9-25ef-403d-9d71-9b124c0ad3c5.jpeg?aki_policy=small\",\"id\":12704864,\"room_type\":null,\"title\":\"Property #1\"},\"reservation_code\":null}],\"channel_type\":\"airbnb\",\"guest\":{\"email\":\"\u003credacted\u003e\",\"name\":\"\u003credacted\u003e\",\"phone\":\"\u003credacted\u003e\"},\"id\":\"0-2576543425\",\"messages\":[{\"attachment\":null,\"content\":\"Sorry it's new listing we still have to change something please can u cancel the reservation will not be available\",\"created_at\":\"2026-06-26T17:13:08+00:00\",\"display_type\":\"Text\",\"id\":\"0-31417587790-654643520\",\"sender_name\":null,\"sender_role\":\"host\",\"sources\":[]},{\"attachment\":null,\"content\":\"Ciao June, ho notato che l'indirizzo indicato su Airbnb (20 Soi King Suksan) sembra corrispondere a un edificio diverso su Google Maps. Potresti confermare che questo è l'indirizzo corretto o inviarmi il pin esatto di Google Maps della villa? Voglio solo assicurarmi che arriviamo nel posto giusto. Grazie!\",\"created_at\":\"2026-06-26T13:34:00+00:00\",\"display_type\":\"Text\",\"id\":\"0-31413882636-654643520\",\"sender_name\":null,\"sender_role\":\"guest\",\"sources\":[]},{\"attachment\":null,\"content\":\"Ciao, avete un sito web o qualcosa di simile? :)\",\"created_at\":\"2026-06-26T12:57:30+00:00\",\"display_type\":\"Text\",\"id\":\"0-31413290370-654643520\",\"sender_name\":null,\"sender_role\":\"guest\",\"sources\":[]}],\"note\":null},\"error_code\":200,\"error_msg\":\"Done.\",\"request_id\":\"RT2026062714163421110\"}}"
+      "args": null,
+      "status": "skip",
+      "reason": "no id parseable from companion at depth 0"
     },
     {
       "command": "conversations get-details",
@@ -670,35 +659,16 @@
     {
       "command": "conversations note update-conversation",
       "kind": "happy_path",
-      "args": [
-        "conversations",
-        "note",
-        "update-conversation",
-        "RT2026062714163421110",
-        "--note",
-        "example-value",
-        "--dry-run"
-      ],
-      "status": "pass",
-      "fixture_source": "store",
-      "output_sample": "{\n  \"action\": \"patch\",\n  \"data\": {\n    \"dry_run\": true\n  },\n  \"dry_run\": true,\n  \"path\": \"/conversations/RT2026062714163421110/note\",\n  \"resource\": \"note\",\n  \"status\": 0,\n  \"success\": false\n}\nPATCH https://api.hostex.io/v3/conversations/RT2026062714163421110/note\n  Body:\n{\n    \"note\": \"example-value\"\n  }\n  Hostex-Access-Token: ****KbdV\n\n(dry run - no request sent)\n"
+      "args": null,
+      "status": "skip",
+      "reason": "blocked-fixture: required API parameter"
     },
     {
       "command": "conversations note update-conversation",
       "kind": "json_fidelity",
-      "args": [
-        "conversations",
-        "note",
-        "update-conversation",
-        "RT2026062714163421110",
-        "--note",
-        "example-value",
-        "--dry-run",
-        "--json"
-      ],
-      "status": "pass",
-      "fixture_source": "store",
-      "output_sample": "{\n  \"action\": \"patch\",\n  \"data\": {\n    \"dry_run\": true\n  },\n  \"dry_run\": true,\n  \"path\": \"/conversations/RT2026062714163421110/note\",\n  \"resource\": \"note\",\n  \"status\": 0,\n  \"success\": false\n}\nPATCH https://api.hostex.io/v3/conversations/RT2026062714163421110/note\n  Body:\n{\n    \"note\": \"example-value\"\n  }\n  Hostex-Access-Token: ****KbdV\n\n(dry run - no request sent)\n"
+      "args": null,
+      "status": "skip",
+      "reason": "blocked-fixture: required API parameter"
     },
     {
       "command": "conversations note update-conversation",
@@ -712,7 +682,7 @@
       "kind": "error_path_real",
       "args": null,
       "status": "skip",
-      "reason": "mutating command dry-run only"
+      "reason": "blocked-fixture: required API parameter"
     },
     {
       "command": "conversations preapprovals send",
@@ -729,31 +699,16 @@
     {
       "command": "conversations preapprovals send",
       "kind": "happy_path",
-      "args": [
-        "conversations",
-        "preapprovals",
-        "send",
-        "RT2026062714163421110",
-        "--dry-run"
-      ],
-      "status": "pass",
-      "fixture_source": "store",
-      "output_sample": "{\n  \"action\": \"post\",\n  \"data\": {\n    \"dry_run\": true\n  },\n  \"dry_run\": true,\n  \"path\": \"/conversations/RT2026062714163421110/preapprovals\",\n  \"resource\": \"preapprovals\",\n  \"status\": 0,\n  \"success\": false\n}\nPOST https://api.hostex.io/v3/conversations/RT2026062714163421110/preapprovals\n  Body:\n{}\n  Hostex-Access-Token: ****KbdV\n\n(dry run - no request sent)\n"
+      "args": null,
+      "status": "skip",
+      "reason": "blocked-fixture: required API parameter"
     },
     {
       "command": "conversations preapprovals send",
       "kind": "json_fidelity",
-      "args": [
-        "conversations",
-        "preapprovals",
-        "send",
-        "RT2026062714163421110",
-        "--dry-run",
-        "--json"
-      ],
-      "status": "pass",
-      "fixture_source": "store",
-      "output_sample": "{\n  \"action\": \"post\",\n  \"data\": {\n    \"dry_run\": true\n  },\n  \"dry_run\": true,\n  \"path\": \"/conversations/RT2026062714163421110/preapprovals\",\n  \"resource\": \"preapprovals\",\n  \"status\": 0,\n  \"success\": false\n}\nPOST https://api.hostex.io/v3/conversations/RT2026062714163421110/preapprovals\n  Body:\n{}\n  Hostex-Access-Token: ****KbdV\n\n(dry run - no request sent)\n"
+      "args": null,
+      "status": "skip",
+      "reason": "blocked-fixture: required API parameter"
     },
     {
       "command": "conversations preapprovals send",
@@ -767,7 +722,7 @@
       "kind": "error_path_real",
       "args": null,
       "status": "skip",
-      "reason": "mutating command dry-run only"
+      "reason": "blocked-fixture: required API parameter"
     },
     {
       "command": "conversations query",
@@ -788,7 +743,7 @@
         "query"
       ],
       "status": "pass",
-      "output_sample": "{\"meta\":{\"source\":\"live\"},\"results\":{\"data\":{\"conversations\":[{\"channel_type\":\"airbnb\",\"check_in_date\":\"\",\"check_out_date\":\"\",\"guest\":{\"email\":\"\u003credacted\u003e\",\"name\":\"\u003credacted\u003e\",\"phone\":\"\u003credacted\u003e\"},\"id\":\"0-2576543425\",\"last_message_at\":\"2026-06-26T17:13:08+00:00\",\"property_title\":\"\"},{\"channel_type\":\"airbnb\",\"check_in_date\":\"\",\"check_out_date\":\"\",\"guest\":{\"email\":\"\u003credacted\u003e\",\"name\":\"\u003credacted\u003e\",\"phone\":\"\u003credacted\u003e\"},\"id\":\"0-2576784888\",\"last_message_at\":\"2026-06-26T17:12:44+00:00\",\"property_title\":\"\"},{\"channel_type\":\"airbnb\",\"check_in_date\":\"\",\"check_out_date\":\"\",\"guest\":{\"email\":\"\u003credacted\u003e\",\"name\":\"\u003credacted\u003e\",\"phone\":\"\u003credacted\u003e\"},\"id\":\"0-2278450380\",\"last_message_at\":\"2025-12-13T11:02:17+00:00\",\"property_title\":\"\"}]},\"error_code\":200,\"error_msg\":\"Done.\",\"request_id\":\"RT2026062714163651907\"}}"
+      "output_sample": "{\"meta\":{\"source\":\"live\"},\"results\":{\"data\":{\"conversations\":[{\"channel_type\":\"airbnb\",\"check_in_date\":\"\",\"check_out_date\":\"\",\"guest\":{\"email\":\"\u003credacted\u003e\",\"name\":\"\u003credacted\u003e\",\"phone\":\"\u003credacted\u003e\"},\"id\":\"0-2576543425\",\"last_message_at\":\"2026-06-26T17:13:08+00:00\",\"property_title\":\"\"},{\"channel_type\":\"airbnb\",\"check_in_date\":\"\",\"check_out_date\":\"\",\"guest\":{\"email\":\"\u003credacted\u003e\",\"name\":\"\u003credacted\u003e\",\"phone\":\"\u003credacted\u003e\"},\"id\":\"0-2576784888\",\"last_message_at\":\"2026-06-26T17:12:44+00:00\",\"property_title\":\"\"},{\"channel_type\":\"airbnb\",\"check_in_date\":\"\",\"check_out_date\":\"\",\"guest\":{\"email\":\"\u003credacted\u003e\",\"name\":\"\u003credacted\u003e\",\"phone\":\"\u003credacted\u003e\"},\"id\":\"0-2278450380\",\"last_message_at\":\"2025-12-13T11:02:17+00:00\",\"property_title\":\"\"}]},\"error_code\":200,\"error_msg\":\"Done.\",\"request_id\":\"RT2026062715003653407\"}}"
     },
     {
       "command": "conversations query",
@@ -799,7 +754,7 @@
         "--json"
       ],
       "status": "pass",
-      "output_sample": "{\"meta\":{\"source\":\"live\"},\"results\":{\"data\":{\"conversations\":[{\"channel_type\":\"airbnb\",\"check_in_date\":\"\",\"check_out_date\":\"\",\"guest\":{\"email\":\"\u003credacted\u003e\",\"name\":\"\u003credacted\u003e\",\"phone\":\"\u003credacted\u003e\"},\"id\":\"0-2576543425\",\"last_message_at\":\"2026-06-26T17:13:08+00:00\",\"property_title\":\"\"},{\"channel_type\":\"airbnb\",\"check_in_date\":\"\",\"check_out_date\":\"\",\"guest\":{\"email\":\"\u003credacted\u003e\",\"name\":\"\u003credacted\u003e\",\"phone\":\"\u003credacted\u003e\"},\"id\":\"0-2576784888\",\"last_message_at\":\"2026-06-26T17:12:44+00:00\",\"property_title\":\"\"},{\"channel_type\":\"airbnb\",\"check_in_date\":\"\",\"check_out_date\":\"\",\"guest\":{\"email\":\"\u003credacted\u003e\",\"name\":\"\u003credacted\u003e\",\"phone\":\"\u003credacted\u003e\"},\"id\":\"0-2278450380\",\"last_message_at\":\"2025-12-13T11:02:17+00:00\",\"property_title\":\"\"}]},\"error_code\":200,\"error_msg\":\"Done.\",\"request_id\":\"RT2026062714163651907\"}}"
+      "output_sample": "{\"meta\":{\"source\":\"live\"},\"results\":{\"data\":{\"conversations\":[{\"channel_type\":\"airbnb\",\"check_in_date\":\"\",\"check_out_date\":\"\",\"guest\":{\"email\":\"\u003credacted\u003e\",\"name\":\"\u003credacted\u003e\",\"phone\":\"\u003credacted\u003e\"},\"id\":\"0-2576543425\",\"last_message_at\":\"2026-06-26T17:13:08+00:00\",\"property_title\":\"\"},{\"channel_type\":\"airbnb\",\"check_in_date\":\"\",\"check_out_date\":\"\",\"guest\":{\"email\":\"\u003credacted\u003e\",\"name\":\"\u003credacted\u003e\",\"phone\":\"\u003credacted\u003e\"},\"id\":\"0-2576784888\",\"last_message_at\":\"2026-06-26T17:12:44+00:00\",\"property_title\":\"\"},{\"channel_type\":\"airbnb\",\"check_in_date\":\"\",\"check_out_date\":\"\",\"guest\":{\"email\":\"\u003credacted\u003e\",\"name\":\"\u003credacted\u003e\",\"phone\":\"\u003credacted\u003e\"},\"id\":\"0-2278450380\",\"last_message_at\":\"2025-12-13T11:02:17+00:00\",\"property_title\":\"\"}]},\"error_code\":200,\"error_msg\":\"Done.\",\"request_id\":\"RT2026062715003653407\"}}"
     },
     {
       "command": "conversations query",
@@ -822,29 +777,16 @@
     {
       "command": "conversations send-message",
       "kind": "happy_path",
-      "args": [
-        "conversations",
-        "send-message",
-        "0-2576543425",
-        "--dry-run"
-      ],
-      "status": "pass",
-      "fixture_source": "store",
-      "output_sample": "{\n  \"action\": \"post\",\n  \"data\": {\n    \"dry_run\": true\n  },\n  \"dry_run\": true,\n  \"path\": \"/conversations/0-2576543425\",\n  \"resource\": \"conversations\",\n  \"status\": 0,\n  \"success\": false\n}\nPOST https://api.hostex.io/v3/conversations/0-2576543425\n  Body:\n{}\n  Hostex-Access-Token: ****KbdV\n\n(dry run - no request sent)\n"
+      "args": null,
+      "status": "skip",
+      "reason": "list companion previously failed at depth 0 for \"conversation_id\""
     },
     {
       "command": "conversations send-message",
       "kind": "json_fidelity",
-      "args": [
-        "conversations",
-        "send-message",
-        "0-2576543425",
-        "--dry-run",
-        "--json"
-      ],
-      "status": "pass",
-      "fixture_source": "store",
-      "output_sample": "{\n  \"action\": \"post\",\n  \"data\": {\n    \"dry_run\": true\n  },\n  \"dry_run\": true,\n  \"path\": \"/conversations/0-2576543425\",\n  \"resource\": \"conversations\",\n  \"status\": 0,\n  \"success\": false\n}\nPOST https://api.hostex.io/v3/conversations/0-2576543425\n  Body:\n{}\n  Hostex-Access-Token: ****KbdV\n\n(dry run - no request sent)\n"
+      "args": null,
+      "status": "skip",
+      "reason": "list companion previously failed at depth 0 for \"conversation_id\""
     },
     {
       "command": "conversations send-message",
@@ -858,7 +800,7 @@
       "kind": "error_path_real",
       "args": null,
       "status": "skip",
-      "reason": "mutating command dry-run only"
+      "reason": "list companion previously failed at depth 0 for \"conversation_id\""
     },
     {
       "command": "conversations special-offers get",
@@ -875,29 +817,16 @@
     {
       "command": "conversations special-offers get",
       "kind": "happy_path",
-      "args": [
-        "conversations",
-        "special-offers",
-        "get",
-        "0-2576543425"
-      ],
-      "status": "pass",
-      "fixture_source": "store",
-      "output_sample": "{\n  \"meta\": {\n    \"source\": \"live\"\n  },\n  \"results\": {\n    \"request_id\": \"RT2026062714163773308b4\",\n    \"error_code\": 200,\n    \"error_msg\": \"Done.\",\n    \"data\": {\n      \"special_offers\": []\n    }\n  }\n}\n"
+      "args": null,
+      "status": "skip",
+      "reason": "blocked-fixture: required API parameter"
     },
     {
       "command": "conversations special-offers get",
       "kind": "json_fidelity",
-      "args": [
-        "conversations",
-        "special-offers",
-        "get",
-        "0-2576543425",
-        "--json"
-      ],
-      "status": "pass",
-      "fixture_source": "store",
-      "output_sample": "{\n  \"meta\": {\n    \"source\": \"live\"\n  },\n  \"results\": {\n    \"request_id\": \"RT2026062714163773308b4\",\n    \"error_code\": 200,\n    \"error_msg\": \"Done.\",\n    \"data\": {\n      \"special_offers\": []\n    }\n  }\n}\n"
+      "args": null,
+      "status": "skip",
+      "reason": "blocked-fixture: required API parameter"
     },
     {
       "command": "conversations special-offers get",
@@ -927,35 +856,16 @@
     {
       "command": "conversations special-offers send",
       "kind": "happy_path",
-      "args": [
-        "conversations",
-        "special-offers",
-        "send",
-        "0-2576543425",
-        "--check-in-date",
-        "2026-01-15",
-        "--dry-run"
-      ],
-      "status": "pass",
-      "fixture_source": "store",
-      "output_sample": "{\n  \"action\": \"post\",\n  \"data\": {\n    \"dry_run\": true\n  },\n  \"dry_run\": true,\n  \"path\": \"/conversations/0-2576543425/special_offers\",\n  \"resource\": \"special-offers\",\n  \"status\": 0,\n  \"success\": false\n}\nPOST https://api.hostex.io/v3/conversations/0-2576543425/special_offers\n  Body:\n{\n    \"check_in_date\": \"2026-01-15\"\n  }\n  Hostex-Access-Token: ****KbdV\n\n(dry run - no request sent)\n"
+      "args": null,
+      "status": "skip",
+      "reason": "blocked-fixture: required API parameter"
     },
     {
       "command": "conversations special-offers send",
       "kind": "json_fidelity",
-      "args": [
-        "conversations",
-        "special-offers",
-        "send",
-        "0-2576543425",
-        "--check-in-date",
-        "2026-01-15",
-        "--dry-run",
-        "--json"
-      ],
-      "status": "pass",
-      "fixture_source": "store",
-      "output_sample": "{\n  \"action\": \"post\",\n  \"data\": {\n    \"dry_run\": true\n  },\n  \"dry_run\": true,\n  \"path\": \"/conversations/0-2576543425/special_offers\",\n  \"resource\": \"special-offers\",\n  \"status\": 0,\n  \"success\": false\n}\nPOST https://api.hostex.io/v3/conversations/0-2576543425/special_offers\n  Body:\n{\n    \"check_in_date\": \"2026-01-15\"\n  }\n  Hostex-Access-Token: ****KbdV\n\n(dry run - no request sent)\n"
+      "args": null,
+      "status": "skip",
+      "reason": "blocked-fixture: required API parameter"
     },
     {
       "command": "conversations special-offers send",
@@ -969,7 +879,7 @@
       "kind": "error_path_real",
       "args": null,
       "status": "skip",
-      "reason": "mutating command dry-run only"
+      "reason": "blocked-fixture: required API parameter"
     },
     {
       "command": "conversations special-offers withdraw",
@@ -988,14 +898,14 @@
       "kind": "happy_path",
       "args": null,
       "status": "skip",
-      "reason": "blocked-fixture: required API parameter"
+      "reason": "list companion previously failed at depth 0 for \"conversation_id\""
     },
     {
       "command": "conversations special-offers withdraw",
       "kind": "json_fidelity",
       "args": null,
       "status": "skip",
-      "reason": "blocked-fixture: required API parameter"
+      "reason": "list companion previously failed at depth 0 for \"conversation_id\""
     },
     {
       "command": "conversations special-offers withdraw",
@@ -1009,7 +919,7 @@
       "kind": "error_path_real",
       "args": null,
       "status": "skip",
-      "reason": "blocked-fixture: required API parameter"
+      "reason": "list companion previously failed at depth 0 for \"conversation_id\""
     },
     {
       "command": "custom-channels",
@@ -1028,7 +938,7 @@
         "custom-channels"
       ],
       "status": "pass",
-      "output_sample": "{\"meta\":{\"source\":\"live\"},\"results\":{\"data\":{\"custom_channels\":[{\"id\":1,\"name\":\"\u003credacted\u003e\"},{\"id\":2,\"name\":\"\u003credacted\u003e\"},{\"id\":8,\"name\":\"\u003credacted\u003e\"},{\"id\":11,\"name\":\"\u003credacted\u003e\"},{\"id\":17,\"name\":\"\u003credacted\u003e\"},{\"id\":26,\"name\":\"\u003credacted\u003e\"},{\"id\":29,\"name\":\"\u003credacted\u003e\"}]},\"error_code\":200,\"error_msg\":\"Done.\",\"request_id\":\"RT202606271416406008b4\"}}"
+      "output_sample": "{\"meta\":{\"source\":\"live\"},\"results\":{\"data\":{\"custom_channels\":[{\"id\":1,\"name\":\"\u003credacted\u003e\"},{\"id\":2,\"name\":\"\u003credacted\u003e\"},{\"id\":8,\"name\":\"\u003credacted\u003e\"},{\"id\":11,\"name\":\"\u003credacted\u003e\"},{\"id\":17,\"name\":\"\u003credacted\u003e\"},{\"id\":26,\"name\":\"\u003credacted\u003e\"},{\"id\":29,\"name\":\"\u003credacted\u003e\"}]},\"error_code\":200,\"error_msg\":\"Done.\",\"request_id\":\"RT2026062715004082807\"}}"
     },
     {
       "command": "custom-channels",
@@ -1038,7 +948,7 @@
         "--json"
       ],
       "status": "pass",
-      "output_sample": "{\"meta\":{\"source\":\"live\"},\"results\":{\"data\":{\"custom_channels\":[{\"id\":1,\"name\":\"\u003credacted\u003e\"},{\"id\":2,\"name\":\"\u003credacted\u003e\"},{\"id\":8,\"name\":\"\u003credacted\u003e\"},{\"id\":11,\"name\":\"\u003credacted\u003e\"},{\"id\":17,\"name\":\"\u003credacted\u003e\"},{\"id\":26,\"name\":\"\u003credacted\u003e\"},{\"id\":29,\"name\":\"\u003credacted\u003e\"}]},\"error_code\":200,\"error_msg\":\"Done.\",\"request_id\":\"RT202606271416406008b4\"}}"
+      "output_sample": "{\"meta\":{\"source\":\"live\"},\"results\":{\"data\":{\"custom_channels\":[{\"id\":1,\"name\":\"\u003credacted\u003e\"},{\"id\":2,\"name\":\"\u003credacted\u003e\"},{\"id\":8,\"name\":\"\u003credacted\u003e\"},{\"id\":11,\"name\":\"\u003credacted\u003e\"},{\"id\":17,\"name\":\"\u003credacted\u003e\"},{\"id\":26,\"name\":\"\u003credacted\u003e\"},{\"id\":29,\"name\":\"\u003credacted\u003e\"}]},\"error_code\":200,\"error_msg\":\"Done.\",\"request_id\":\"RT2026062715004082807\"}}"
     },
     {
       "command": "custom-channels",
@@ -1064,7 +974,7 @@
         "doctor"
       ],
       "status": "pass",
-      "output_sample": "  OK Config: ok\n  OK Auth: configured\n  OK Env Vars: OK HOSTEX_HOSTEX_ACCESS_TOKEN optional\n  OK Verify Mode: normal operation\n  OK API: reachable\n  INFO Credentials: present, not verified. Run any read command to confirm the token works end-to-end.\n  config_path: /var/folders/ys/lr3bkj4x2773n5bfchm99wc40000gn/T/printing-press-subprocess-2132359349/.config/hostex-pp-cli/config.toml\n  base_url: https://api.hostex.io/v3\n  auth_source: env:HOSTEX_ACCESS_TOKEN\n  credentials_location: env:HOSTEX_ACCESS_TOKEN\n  version: 1.0.0\n  OK Cache: fresh\n    db_path: /var/folders/ys/lr3bkj4x2773n5bfchm99wc40000gn/T/printing-press-subprocess-2132359349/.local/share/hostex-pp-cli/data.db\n    schema_version: 4\n    db_bytes: 520192\n    stale_after: 6h0m0s\n    resources:\n      - calendar-share-links: 0 rows, 0s\n      - channel-accounts: 1 rows, 0s\n  Paths:\n    config: /var/folders/ys/lr3bkj4x2773n5bfchm99wc40000gn/T/printing-press-subprocess-2132359349/.config/hostex-pp-cli (XDG_CONFIG_HOME)\n    data: /var/folders/ys/lr3bkj4x2773n5bfchm99wc40000gn/T/printing-press-subprocess-2132359349/.local/share/hostex-pp-cli (XDG_DATA_HOME)\n    state: /var/folders/ys/lr3bkj4x2773n5bfchm99wc40000gn/T/printing-press-subprocess-2132359349/.local/state/hostex-pp-cli (XDG_STATE_HOME)\n    cache: /var/folders/ys/lr3bkj4x2773n5bfchm99wc40000gn/T/printing-press-subprocess-2132359349/.cache/hostex-pp-cli (XDG_CACHE_HOME)\n"
+      "output_sample": "  OK Config: ok\n  OK Auth: configured\n  OK Env Vars: OK HOSTEX_HOSTEX_ACCESS_TOKEN optional\n  OK Verify Mode: normal operation\n  OK API: reachable\n  INFO Credentials: present, not verified. Run any read command to confirm the token works end-to-end.\n  config_path: /var/folders/ys/lr3bkj4x2773n5bfchm99wc40000gn/T/printing-press-subprocess-3828098177/.config/hostex-pp-cli/config.toml\n  base_url: https://api.hostex.io/v3\n  auth_source: env:HOSTEX_ACCESS_TOKEN\n  credentials_location: env:HOSTEX_ACCESS_TOKEN\n  version: 1.0.0\n  INFO Cache: unknown\n    db_path: /var/folders/ys/lr3bkj4x2773n5bfchm99wc40000gn/T/printing-press-subprocess-3828098177/.local/share/hostex-pp-cli/data.db\n    schema_version: 4\n    db_bytes: 512000\n    stale_after: 6h0m0s\n    hint: sync_state is empty; run 'hostex-pp-cli sync' to hydrate.\n  Paths:\n    config: /var/folders/ys/lr3bkj4x2773n5bfchm99wc40000gn/T/printing-press-subprocess-3828098177/.config/hostex-pp-cli (XDG_CONFIG_HOME)\n    data: /var/folders/ys/lr3bkj4x2773n5bfchm99wc40000gn/T/printing-press-subprocess-3828098177/.local/share/hostex-pp-cli (XDG_DATA_HOME)\n    state: /var/folders/ys/lr3bkj4x2773n5bfchm99wc40000gn/T/printing-press-subprocess-3828098177/.local/state/hostex-pp-cli (XDG_STATE_HOME)\n    cache: /var/folders/ys/lr3bkj4x2773n5bfchm99wc40000gn/T/printing-press-subprocess-3828098177/.cache/hostex-pp-cli (XDG_CACHE_HOME)\n"
     },
     {
       "command": "doctor",
@@ -1074,7 +984,7 @@
         "--json"
       ],
       "status": "pass",
-      "output_sample": "{\n  \"agentcookie\": \"not detected (optional)\",\n  \"api\": \"reachable\",\n  \"auth\": \"configured\",\n  \"auth_source\": \"env:HOSTEX_ACCESS_TOKEN\",\n  \"base_url\": \"https://api.hostex.io/v3\",\n  \"cache\": {\n    \"db_bytes\": 520192,\n    \"db_path\": \"/var/folders/ys/lr3bkj4x2773n5bfchm99wc40000gn/T/printing-press-subprocess-2132359349/.local/share/hostex-pp-cli/data.db\",\n    \"resources\": [\n      {\n        \"last_synced_at\": \"2026-06-27T06:16:26Z\",\n        \"rows\": 0,\n        \"staleness\": \"0s\",\n        \"type\": \"calendar-share-links\"\n      },\n      {\n        \"last_synced_at\": \"2026-06-27T06:16:26Z\",\n        \"rows\": 1,\n        \"staleness\": \"0s\",\n        \"type\": \"channel-accounts\"\n      }\n    ],\n    \"schema_version\": 4,\n    \"stale_after\": \"6h0m0s\",\n    \"status\": \"fresh\"\n  },\n  \"config\": \"ok\",\n  \"config_path\": \"/var/folders/ys/lr3bkj4x2773n5bfchm99wc40000gn/T/printing-press-subprocess-2132359349/.config/hostex-pp-cli/config.toml\",\n  \"credentials\": \"present, not verified. Run any read command to confirm the token works end-to-end.\",\n  \"credentials_location\": \"env:HOSTEX_ACCESS_TOKEN\",\n  \"env_vars\": \"OK HOSTEX_HOSTEX_ACCESS_TOKEN optional\",\n  \"paths\": {\n    \"cache\": {\n      \"dir\": \"/var/folders/ys/lr3bkj4x2773n5bfchm99wc40000gn/T/printing-press-subprocess-2132359349/.cache/hostex-pp-cli\",\n      \"rung\": \"xdg-env\",\n      \"source\": \"XDG_CACHE_HOME\"\n    },\n    \"config\": {\n      \"dir\": \"/var/folders/ys/lr3bkj4x2773n5bfchm99wc40000gn/T/printing-press-subprocess-2132359349/.config/hostex-pp-cli\",\n      \"rung\": \"xdg-env\",\n      \"source\": \"XDG_CONFIG_HOME\"\n    },\n    \"data\": {\n      \"dir\": \"/var/folders/ys/lr3bkj4x2773n5bfchm99wc40000gn/T/printing-press-subprocess-2132359349/.local/share/hostex-pp-cli\",\n      \"rung\": \"xdg-env\",\n      \"source\": \"XDG_DATA_HOME\"\n    },\n    \"state\": {\n      \"dir\": \"/var/folders/ys/lr3bkj4x2773n5bfchm99wc40000gn/T/printing-press-subprocess-2132359349/.local/state/hostex-pp-cli\",\n      \"rung\": \"xdg-env\",\n      \"source\": \"XDG_STATE_HOME\"\n    },\n    \"status\": \"ok\"\n  },\n  \"verify_mode\": \"normal operation\",\n  \"version\": \"1.0.0\"\n}\n"
+      "output_sample": "{\n  \"agentcookie\": \"not detected (optional)\",\n  \"api\": \"reachable\",\n  \"auth\": \"configured\",\n  \"auth_source\": \"env:HOSTEX_ACCESS_TOKEN\",\n  \"base_url\": \"https://api.hostex.io/v3\",\n  \"cache\": {\n    \"db_bytes\": 512000,\n    \"db_path\": \"/var/folders/ys/lr3bkj4x2773n5bfchm99wc40000gn/T/printing-press-subprocess-3828098177/.local/share/hostex-pp-cli/data.db\",\n    \"hint\": \"sync_state is empty; run 'hostex-pp-cli sync' to hydrate.\",\n    \"resources\": null,\n    \"schema_version\": 4,\n    \"stale_after\": \"6h0m0s\",\n    \"status\": \"unknown\"\n  },\n  \"config\": \"ok\",\n  \"config_path\": \"/var/folders/ys/lr3bkj4x2773n5bfchm99wc40000gn/T/printing-press-subprocess-3828098177/.config/hostex-pp-cli/config.toml\",\n  \"credentials\": \"present, not verified. Run any read command to confirm the token works end-to-end.\",\n  \"credentials_location\": \"env:HOSTEX_ACCESS_TOKEN\",\n  \"env_vars\": \"OK HOSTEX_HOSTEX_ACCESS_TOKEN optional\",\n  \"paths\": {\n    \"cache\": {\n      \"dir\": \"/var/folders/ys/lr3bkj4x2773n5bfchm99wc40000gn/T/printing-press-subprocess-3828098177/.cache/hostex-pp-cli\",\n      \"rung\": \"xdg-env\",\n      \"source\": \"XDG_CACHE_HOME\"\n    },\n    \"config\": {\n      \"dir\": \"/var/folders/ys/lr3bkj4x2773n5bfchm99wc40000gn/T/printing-press-subprocess-3828098177/.config/hostex-pp-cli\",\n      \"rung\": \"xdg-env\",\n      \"source\": \"XDG_CONFIG_HOME\"\n    },\n    \"data\": {\n      \"dir\": \"/var/folders/ys/lr3bkj4x2773n5bfchm99wc40000gn/T/printing-press-subprocess-3828098177/.local/share/hostex-pp-cli\",\n      \"rung\": \"xdg-env\",\n      \"source\": \"XDG_DATA_HOME\"\n    },\n    \"state\": {\n      \"dir\": \"/var/folders/ys/lr3bkj4x2773n5bfchm99wc40000gn/T/printing-press-subprocess-3828098177/.local/state/hostex-pp-cli\",\n      \"rung\": \"xdg-env\",\n      \"source\": \"XDG_STATE_HOME\"\n    },\n    \"status\": \"ok\"\n  },\n  \"verify_mode\": \"normal operation\",\n  \"version\": \"1.0.0\"\n}\n"
     },
     {
       "command": "doctor",
@@ -1100,7 +1010,7 @@
         "expense-items"
       ],
       "status": "pass",
-      "output_sample": "{\"meta\":{\"source\":\"live\"},\"results\":{\"data\":{\"expense_items\":[{\"id\":0,\"name\":\"\u003credacted\u003e\"},{\"id\":1,\"name\":\"\u003credacted\u003e\"},{\"id\":2,\"name\":\"\u003credacted\u003e\"},{\"id\":3,\"name\":\"\u003credacted\u003e\"},{\"id\":4,\"name\":\"\u003credacted\u003e\"},{\"id\":5,\"name\":\"\u003credacted\u003e\"},{\"id\":14,\"name\":\"\u003credacted\u003e\"},{\"id\":15,\"name\":\"\u003credacted\u003e\"},{\"id\":16,\"name\":\"\u003credacted\u003e\"},{\"id\":17,\"name\":\"\u003credacted\u003e\"},{\"id\":18,\"name\":\"\u003credacted\u003e\"},{\"id\":19,\"name\":\"\u003credacted\u003e\"},{\"id\":20,\"name\":\"\u003credacted\u003e\"}]},\"error_code\":200,\"error_msg\":\"Done.\",\"request_id\":\"RT2026062714164240508b4\"}}"
+      "output_sample": "{\"meta\":{\"source\":\"live\"},\"results\":{\"data\":{\"expense_items\":[{\"id\":0,\"name\":\"\u003credacted\u003e\"},{\"id\":1,\"name\":\"\u003credacted\u003e\"},{\"id\":2,\"name\":\"\u003credacted\u003e\"},{\"id\":3,\"name\":\"\u003credacted\u003e\"},{\"id\":4,\"name\":\"\u003credacted\u003e\"},{\"id\":5,\"name\":\"\u003credacted\u003e\"},{\"id\":14,\"name\":\"\u003credacted\u003e\"},{\"id\":15,\"name\":\"\u003credacted\u003e\"},{\"id\":16,\"name\":\"\u003credacted\u003e\"},{\"id\":17,\"name\":\"\u003credacted\u003e\"},{\"id\":18,\"name\":\"\u003credacted\u003e\"},{\"id\":19,\"name\":\"\u003credacted\u003e\"},{\"id\":20,\"name\":\"\u003credacted\u003e\"}]},\"error_code\":200,\"error_msg\":\"Done.\",\"request_id\":\"RT2026062715004430307\"}}"
     },
     {
       "command": "expense-items",
@@ -1110,7 +1020,7 @@
         "--json"
       ],
       "status": "pass",
-      "output_sample": "{\"meta\":{\"source\":\"live\"},\"results\":{\"data\":{\"expense_items\":[{\"id\":0,\"name\":\"\u003credacted\u003e\"},{\"id\":1,\"name\":\"\u003credacted\u003e\"},{\"id\":2,\"name\":\"\u003credacted\u003e\"},{\"id\":3,\"name\":\"\u003credacted\u003e\"},{\"id\":4,\"name\":\"\u003credacted\u003e\"},{\"id\":5,\"name\":\"\u003credacted\u003e\"},{\"id\":14,\"name\":\"\u003credacted\u003e\"},{\"id\":15,\"name\":\"\u003credacted\u003e\"},{\"id\":16,\"name\":\"\u003credacted\u003e\"},{\"id\":17,\"name\":\"\u003credacted\u003e\"},{\"id\":18,\"name\":\"\u003credacted\u003e\"},{\"id\":19,\"name\":\"\u003credacted\u003e\"},{\"id\":20,\"name\":\"\u003credacted\u003e\"}]},\"error_code\":200,\"error_msg\":\"Done.\",\"request_id\":\"RT2026062714164240508b4\"}}"
+      "output_sample": "{\"meta\":{\"source\":\"live\"},\"results\":{\"data\":{\"expense_items\":[{\"id\":0,\"name\":\"\u003credacted\u003e\"},{\"id\":1,\"name\":\"\u003credacted\u003e\"},{\"id\":2,\"name\":\"\u003credacted\u003e\"},{\"id\":3,\"name\":\"\u003credacted\u003e\"},{\"id\":4,\"name\":\"\u003credacted\u003e\"},{\"id\":5,\"name\":\"\u003credacted\u003e\"},{\"id\":14,\"name\":\"\u003credacted\u003e\"},{\"id\":15,\"name\":\"\u003credacted\u003e\"},{\"id\":16,\"name\":\"\u003credacted\u003e\"},{\"id\":17,\"name\":\"\u003credacted\u003e\"},{\"id\":18,\"name\":\"\u003credacted\u003e\"},{\"id\":19,\"name\":\"\u003credacted\u003e\"},{\"id\":20,\"name\":\"\u003credacted\u003e\"}]},\"error_code\":200,\"error_msg\":\"Done.\",\"request_id\":\"RT2026062715004430307\"}}"
     },
     {
       "command": "expense-items",
@@ -1136,7 +1046,7 @@
         "expense-methods"
       ],
       "status": "pass",
-      "output_sample": "{\"meta\":{\"source\":\"live\"},\"results\":{\"data\":{\"expense_methods\":[{\"id\":23,\"name\":\"\u003credacted\u003e\"},{\"id\":12,\"name\":\"\u003credacted\u003e\"},{\"id\":25,\"name\":\"\u003credacted\u003e\"},{\"id\":26,\"name\":\"\u003credacted\u003e\"},{\"id\":5,\"name\":\"\u003credacted\u003e\"},{\"id\":16,\"name\":\"\u003credacted\u003e\"},{\"id\":9,\"name\":\"\u003credacted\u003e\"},{\"id\":30,\"name\":\"\u003credacted\u003e\"},{\"id\":31,\"name\":\"\u003credacted\u003e\"},{\"id\":153,\"name\":\"\u003credacted\u003e\"},{\"id\":155,\"name\":\"\u003credacted\u003e\"},{\"id\":156,\"name\":\"\u003credacted\u003e\"},{\"id\":157,\"name\":\"\u003credacted\u003e\"},{\"id\":158,\"name\":\"\u003credacted\u003e\"},{\"id\":159,\"name\":\"\u003credacted\u003e\"}]},\"error_code\":200,\"error_msg\":\"Done.\",\"request_id\":\"RT2026062714164346608b4\"}}"
+      "output_sample": "{\"meta\":{\"source\":\"live\"},\"results\":{\"data\":{\"expense_methods\":[{\"id\":23,\"name\":\"\u003credacted\u003e\"},{\"id\":12,\"name\":\"\u003credacted\u003e\"},{\"id\":25,\"name\":\"\u003credacted\u003e\"},{\"id\":26,\"name\":\"\u003credacted\u003e\"},{\"id\":5,\"name\":\"\u003credacted\u003e\"},{\"id\":16,\"name\":\"\u003credacted\u003e\"},{\"id\":9,\"name\":\"\u003credacted\u003e\"},{\"id\":30,\"name\":\"\u003credacted\u003e\"},{\"id\":31,\"name\":\"\u003credacted\u003e\"},{\"id\":153,\"name\":\"\u003credacted\u003e\"},{\"id\":155,\"name\":\"\u003credacted\u003e\"},{\"id\":156,\"name\":\"\u003credacted\u003e\"},{\"id\":157,\"name\":\"\u003credacted\u003e\"},{\"id\":158,\"name\":\"\u003credacted\u003e\"},{\"id\":159,\"name\":\"\u003credacted\u003e\"}]},\"error_code\":200,\"error_msg\":\"Done.\",\"request_id\":\"RT2026062715004591408b4\"}}"
     },
     {
       "command": "expense-methods",
@@ -1146,7 +1056,7 @@
         "--json"
       ],
       "status": "pass",
-      "output_sample": "{\"meta\":{\"source\":\"live\"},\"results\":{\"data\":{\"expense_methods\":[{\"id\":23,\"name\":\"\u003credacted\u003e\"},{\"id\":12,\"name\":\"\u003credacted\u003e\"},{\"id\":25,\"name\":\"\u003credacted\u003e\"},{\"id\":26,\"name\":\"\u003credacted\u003e\"},{\"id\":5,\"name\":\"\u003credacted\u003e\"},{\"id\":16,\"name\":\"\u003credacted\u003e\"},{\"id\":9,\"name\":\"\u003credacted\u003e\"},{\"id\":30,\"name\":\"\u003credacted\u003e\"},{\"id\":31,\"name\":\"\u003credacted\u003e\"},{\"id\":153,\"name\":\"\u003credacted\u003e\"},{\"id\":155,\"name\":\"\u003credacted\u003e\"},{\"id\":156,\"name\":\"\u003credacted\u003e\"},{\"id\":157,\"name\":\"\u003credacted\u003e\"},{\"id\":158,\"name\":\"\u003credacted\u003e\"},{\"id\":159,\"name\":\"\u003credacted\u003e\"}]},\"error_code\":200,\"error_msg\":\"Done.\",\"request_id\":\"RT2026062714164346608b4\"}}"
+      "output_sample": "{\"meta\":{\"source\":\"live\"},\"results\":{\"data\":{\"expense_methods\":[{\"id\":23,\"name\":\"\u003credacted\u003e\"},{\"id\":12,\"name\":\"\u003credacted\u003e\"},{\"id\":25,\"name\":\"\u003credacted\u003e\"},{\"id\":26,\"name\":\"\u003credacted\u003e\"},{\"id\":5,\"name\":\"\u003credacted\u003e\"},{\"id\":16,\"name\":\"\u003credacted\u003e\"},{\"id\":9,\"name\":\"\u003credacted\u003e\"},{\"id\":30,\"name\":\"\u003credacted\u003e\"},{\"id\":31,\"name\":\"\u003credacted\u003e\"},{\"id\":153,\"name\":\"\u003credacted\u003e\"},{\"id\":155,\"name\":\"\u003credacted\u003e\"},{\"id\":156,\"name\":\"\u003credacted\u003e\"},{\"id\":157,\"name\":\"\u003credacted\u003e\"},{\"id\":158,\"name\":\"\u003credacted\u003e\"},{\"id\":159,\"name\":\"\u003credacted\u003e\"}]},\"error_code\":200,\"error_msg\":\"Done.\",\"request_id\":\"RT2026062715004591408b4\"}}"
     },
     {
       "command": "expense-methods",
@@ -1296,14 +1206,14 @@
       "kind": "happy_path",
       "args": null,
       "status": "skip",
-      "reason": "blocked-fixture: required API parameter"
+      "reason": "no id parseable from companion at depth 0"
     },
     {
       "command": "groups delete",
       "kind": "json_fidelity",
       "args": null,
       "status": "skip",
-      "reason": "blocked-fixture: required API parameter"
+      "reason": "no id parseable from companion at depth 0"
     },
     {
       "command": "groups delete",
@@ -1317,7 +1227,7 @@
       "kind": "error_path_real",
       "args": null,
       "status": "skip",
-      "reason": "blocked-fixture: required API parameter"
+      "reason": "no id parseable from companion at depth 0"
     },
     {
       "command": "groups query",
@@ -1338,7 +1248,7 @@
         "query"
       ],
       "status": "pass",
-      "output_sample": "{\n  \"meta\": {\n    \"source\": \"live\"\n  },\n  \"results\": {\n    \"request_id\": \"RT2026062714164575208b3\",\n    \"error_code\": 200,\n    \"error_msg\": \"Done.\",\n    \"data\": {\n      \"groups\": [],\n      \"total\": 0\n    }\n  }\n}\n"
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"live\"\n  },\n  \"results\": {\n    \"request_id\": \"RT2026062715004936208b3\",\n    \"error_code\": 200,\n    \"error_msg\": \"Done.\",\n    \"data\": {\n      \"groups\": [],\n      \"total\": 0\n    }\n  }\n}\n"
     },
     {
       "command": "groups query",
@@ -1349,7 +1259,7 @@
         "--json"
       ],
       "status": "pass",
-      "output_sample": "{\n  \"meta\": {\n    \"source\": \"live\"\n  },\n  \"results\": {\n    \"request_id\": \"RT2026062714164575208b3\",\n    \"error_code\": 200,\n    \"error_msg\": \"Done.\",\n    \"data\": {\n      \"groups\": [],\n      \"total\": 0\n    }\n  }\n}\n"
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"live\"\n  },\n  \"results\": {\n    \"request_id\": \"RT2026062715004936208b3\",\n    \"error_code\": 200,\n    \"error_msg\": \"Done.\",\n    \"data\": {\n      \"groups\": [],\n      \"total\": 0\n    }\n  }\n}\n"
     },
     {
       "command": "groups query",
@@ -1374,14 +1284,14 @@
       "kind": "happy_path",
       "args": null,
       "status": "skip",
-      "reason": "blocked-fixture: required API parameter"
+      "reason": "list companion previously failed at depth 0 for \"id\""
     },
     {
       "command": "groups update",
       "kind": "json_fidelity",
       "args": null,
       "status": "skip",
-      "reason": "blocked-fixture: required API parameter"
+      "reason": "list companion previously failed at depth 0 for \"id\""
     },
     {
       "command": "groups update",
@@ -1395,7 +1305,7 @@
       "kind": "error_path_real",
       "args": null,
       "status": "skip",
-      "reason": "blocked-fixture: required API parameter"
+      "reason": "list companion previously failed at depth 0 for \"id\""
     },
     {
       "command": "import",
@@ -1452,7 +1362,7 @@
         "--agent"
       ],
       "status": "pass",
-      "output_sample": "{\n  \"meta\": {\n    \"source\": \"local\"\n  },\n  \"results\": {\n    \"breach\": \"6h\",\n    \"breached\": 3,\n    \"conversations\": [\n      {\n        \"age_hours\": 2562047.8,\n        \"breached\": false,\n        \"id\": null\n      },\n      {\n        \"age_hours\": 4699.2,\n        \"breached\": true,\n        \"channel_type\": \"airbnb\",\n        \"guest_name\": \"June\",\n        \"id\": \"0-2278450380\",\n        \"last_message_at\": \"2025-12-13T11:02:17+00:00\"\n      },\n      {\n        \"age_hours\": 13.1,\n        \"breached\": true,\n        \"channel_type\": \"airbnb\",\n        \"guest_name\": \"Marco\",\n        \"id\": \"0-2576543425\",\n        \"last_message_at\": \"2026-06-26T17:13:08+00:00\"\n      },\n      {\n        \"age_hours\": 13.1,\n        \"breached\": true,\n        \"channel_type\": \"airbnb\",\n        \"guest_name\": \"Сергей\",\n        \"id\": \"0-2576784888\",\n        \"last_message_at\": \"2026-06-26T17:12:44+00:00\"\n      }\n    ],\n    \"scanned_conversations\": 4\n  }\n}\nhint: local store has not been synced yet. Run 'hostex-pp-cli sync' before trusting local results.\n"
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"local\"\n  },\n  \"results\": {\n    \"breach\": \"6h\",\n    \"breached\": 3,\n    \"conversations\": [\n      {\n        \"age_hours\": 4700,\n        \"breached\": true,\n        \"channel_type\": \"airbnb\",\n        \"guest_name\": \"June\",\n        \"id\": \"0-2278450380\",\n        \"last_message_at\": \"2025-12-13T11:02:17+00:00\"\n      },\n      {\n        \"age_hours\": 13.8,\n        \"breached\": true,\n        \"channel_type\": \"airbnb\",\n        \"guest_name\": \"Marco\",\n        \"id\": \"0-2576543425\",\n        \"last_message_at\": \"2026-06-26T17:13:08+00:00\"\n      },\n      {\n        \"age_hours\": 13.8,\n        \"breached\": true,\n        \"channel_type\": \"airbnb\",\n        \"guest_name\": \"Сергей\",\n        \"id\": \"0-2576784888\",\n        \"last_message_at\": \"2026-06-26T17:12:44+00:00\"\n      }\n    ],\n    \"scanned_conversations\": 3\n  }\n}\nhint: local store has not been synced yet. Run 'hostex-pp-cli sync' before trusting local results.\n"
     },
     {
       "command": "inbox-sla",
@@ -1465,7 +1375,7 @@
         "--json"
       ],
       "status": "pass",
-      "output_sample": "{\n  \"meta\": {\n    \"source\": \"local\"\n  },\n  \"results\": {\n    \"breach\": \"6h\",\n    \"breached\": 3,\n    \"conversations\": [\n      {\n        \"age_hours\": 2562047.8,\n        \"breached\": false,\n        \"id\": null\n      },\n      {\n        \"age_hours\": 4699.2,\n        \"breached\": true,\n        \"channel_type\": \"airbnb\",\n        \"guest_name\": \"June\",\n        \"id\": \"0-2278450380\",\n        \"last_message_at\": \"2025-12-13T11:02:17+00:00\"\n      },\n      {\n        \"age_hours\": 13.1,\n        \"breached\": true,\n        \"channel_type\": \"airbnb\",\n        \"guest_name\": \"Marco\",\n        \"id\": \"0-2576543425\",\n        \"last_message_at\": \"2026-06-26T17:13:08+00:00\"\n      },\n      {\n        \"age_hours\": 13.1,\n        \"breached\": true,\n        \"channel_type\": \"airbnb\",\n        \"guest_name\": \"Сергей\",\n        \"id\": \"0-2576784888\",\n        \"last_message_at\": \"2026-06-26T17:12:44+00:00\"\n      }\n    ],\n    \"scanned_conversations\": 4\n  }\n}\nhint: local store has not been synced yet. Run 'hostex-pp-cli sync' before trusting local results.\n"
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"local\"\n  },\n  \"results\": {\n    \"breach\": \"6h\",\n    \"breached\": 3,\n    \"conversations\": [\n      {\n        \"age_hours\": 4700,\n        \"breached\": true,\n        \"channel_type\": \"airbnb\",\n        \"guest_name\": \"June\",\n        \"id\": \"0-2278450380\",\n        \"last_message_at\": \"2025-12-13T11:02:17+00:00\"\n      },\n      {\n        \"age_hours\": 13.8,\n        \"breached\": true,\n        \"channel_type\": \"airbnb\",\n        \"guest_name\": \"Marco\",\n        \"id\": \"0-2576543425\",\n        \"last_message_at\": \"2026-06-26T17:13:08+00:00\"\n      },\n      {\n        \"age_hours\": 13.8,\n        \"breached\": true,\n        \"channel_type\": \"airbnb\",\n        \"guest_name\": \"Сергей\",\n        \"id\": \"0-2576784888\",\n        \"last_message_at\": \"2026-06-26T17:12:44+00:00\"\n      }\n    ],\n    \"scanned_conversations\": 3\n  }\n}\nhint: local store has not been synced yet. Run 'hostex-pp-cli sync' before trusting local results.\n"
     },
     {
       "command": "inbox-sla",
@@ -1491,7 +1401,7 @@
         "income-items"
       ],
       "status": "pass",
-      "output_sample": "{\"meta\":{\"source\":\"live\"},\"results\":{\"data\":{\"income_items\":[{\"id\":0,\"name\":\"\u003credacted\u003e\"},{\"id\":9,\"name\":\"\u003credacted\u003e\"},{\"id\":10,\"name\":\"\u003credacted\u003e\"},{\"id\":11,\"name\":\"\u003credacted\u003e\"},{\"id\":12,\"name\":\"\u003credacted\u003e\"},{\"id\":13,\"name\":\"\u003credacted\u003e\"},{\"id\":21,\"name\":\"\u003credacted\u003e\"},{\"id\":22,\"name\":\"\u003credacted\u003e\"}]},\"error_code\":200,\"error_msg\":\"Done.\",\"request_id\":\"RT2026062714164735110\"}}"
+      "output_sample": "{\"meta\":{\"source\":\"live\"},\"results\":{\"data\":{\"income_items\":[{\"id\":0,\"name\":\"\u003credacted\u003e\"},{\"id\":9,\"name\":\"\u003credacted\u003e\"},{\"id\":10,\"name\":\"\u003credacted\u003e\"},{\"id\":11,\"name\":\"\u003credacted\u003e\"},{\"id\":12,\"name\":\"\u003credacted\u003e\"},{\"id\":13,\"name\":\"\u003credacted\u003e\"},{\"id\":21,\"name\":\"\u003credacted\u003e\"},{\"id\":22,\"name\":\"\u003credacted\u003e\"}]},\"error_code\":200,\"error_msg\":\"Done.\",\"request_id\":\"RT2026062715005090907\"}}"
     },
     {
       "command": "income-items",
@@ -1501,7 +1411,7 @@
         "--json"
       ],
       "status": "pass",
-      "output_sample": "{\"meta\":{\"source\":\"live\"},\"results\":{\"data\":{\"income_items\":[{\"id\":0,\"name\":\"\u003credacted\u003e\"},{\"id\":9,\"name\":\"\u003credacted\u003e\"},{\"id\":10,\"name\":\"\u003credacted\u003e\"},{\"id\":11,\"name\":\"\u003credacted\u003e\"},{\"id\":12,\"name\":\"\u003credacted\u003e\"},{\"id\":13,\"name\":\"\u003credacted\u003e\"},{\"id\":21,\"name\":\"\u003credacted\u003e\"},{\"id\":22,\"name\":\"\u003credacted\u003e\"}]},\"error_code\":200,\"error_msg\":\"Done.\",\"request_id\":\"RT2026062714164735110\"}}"
+      "output_sample": "{\"meta\":{\"source\":\"live\"},\"results\":{\"data\":{\"income_items\":[{\"id\":0,\"name\":\"\u003credacted\u003e\"},{\"id\":9,\"name\":\"\u003credacted\u003e\"},{\"id\":10,\"name\":\"\u003credacted\u003e\"},{\"id\":11,\"name\":\"\u003credacted\u003e\"},{\"id\":12,\"name\":\"\u003credacted\u003e\"},{\"id\":13,\"name\":\"\u003credacted\u003e\"},{\"id\":21,\"name\":\"\u003credacted\u003e\"},{\"id\":22,\"name\":\"\u003credacted\u003e\"}]},\"error_code\":200,\"error_msg\":\"Done.\",\"request_id\":\"RT2026062715005090907\"}}"
     },
     {
       "command": "income-items",
@@ -1527,7 +1437,7 @@
         "income-methods"
       ],
       "status": "pass",
-      "output_sample": "{\"meta\":{\"source\":\"live\"},\"results\":{\"data\":{\"income_methods\":[{\"id\":25,\"name\":\"\u003credacted\u003e\"},{\"id\":12,\"name\":\"\u003credacted\u003e\"},{\"id\":27,\"name\":\"\u003credacted\u003e\"},{\"id\":28,\"name\":\"\u003credacted\u003e\"},{\"id\":21,\"name\":\"\u003credacted\u003e\"},{\"id\":16,\"name\":\"\u003credacted\u003e\"},{\"id\":9,\"name\":\"\u003credacted\u003e\"},{\"id\":11,\"name\":\"\u003credacted\u003e\"},{\"id\":14,\"name\":\"\u003credacted\u003e\"},{\"id\":34,\"name\":\"\u003credacted\u003e\"},{\"id\":35,\"name\":\"\u003credacted\u003e\"},{\"id\":195,\"name\":\"\u003credacted\u003e\"},{\"id\":196,\"name\":\"\u003credacted\u003e\"},{\"id\":197,\"name\":\"\u003credacted\u003e\"},{\"id\":198,\"name\":\"\u003credacted\u003e\"}]},\"error_code\":200,\"error_msg\":\"Done.\",\"request_id\":\"RT2026062714164849212\"}}"
+      "output_sample": "{\"meta\":{\"source\":\"live\"},\"results\":{\"data\":{\"income_methods\":[{\"id\":25,\"name\":\"\u003credacted\u003e\"},{\"id\":12,\"name\":\"\u003credacted\u003e\"},{\"id\":27,\"name\":\"\u003credacted\u003e\"},{\"id\":28,\"name\":\"\u003credacted\u003e\"},{\"id\":21,\"name\":\"\u003credacted\u003e\"},{\"id\":16,\"name\":\"\u003credacted\u003e\"},{\"id\":9,\"name\":\"\u003credacted\u003e\"},{\"id\":11,\"name\":\"\u003credacted\u003e\"},{\"id\":14,\"name\":\"\u003credacted\u003e\"},{\"id\":34,\"name\":\"\u003credacted\u003e\"},{\"id\":35,\"name\":\"\u003credacted\u003e\"},{\"id\":195,\"name\":\"\u003credacted\u003e\"},{\"id\":196,\"name\":\"\u003credacted\u003e\"},{\"id\":197,\"name\":\"\u003credacted\u003e\"},{\"id\":198,\"name\":\"\u003credacted\u003e\"}]},\"error_code\":200,\"error_msg\":\"Done.\",\"request_id\":\"RT2026062715005236510\"}}"
     },
     {
       "command": "income-methods",
@@ -1537,7 +1447,7 @@
         "--json"
       ],
       "status": "pass",
-      "output_sample": "{\"meta\":{\"source\":\"live\"},\"results\":{\"data\":{\"income_methods\":[{\"id\":25,\"name\":\"\u003credacted\u003e\"},{\"id\":12,\"name\":\"\u003credacted\u003e\"},{\"id\":27,\"name\":\"\u003credacted\u003e\"},{\"id\":28,\"name\":\"\u003credacted\u003e\"},{\"id\":21,\"name\":\"\u003credacted\u003e\"},{\"id\":16,\"name\":\"\u003credacted\u003e\"},{\"id\":9,\"name\":\"\u003credacted\u003e\"},{\"id\":11,\"name\":\"\u003credacted\u003e\"},{\"id\":14,\"name\":\"\u003credacted\u003e\"},{\"id\":34,\"name\":\"\u003credacted\u003e\"},{\"id\":35,\"name\":\"\u003credacted\u003e\"},{\"id\":195,\"name\":\"\u003credacted\u003e\"},{\"id\":196,\"name\":\"\u003credacted\u003e\"},{\"id\":197,\"name\":\"\u003credacted\u003e\"},{\"id\":198,\"name\":\"\u003credacted\u003e\"}]},\"error_code\":200,\"error_msg\":\"Done.\",\"request_id\":\"RT2026062714164849212\"}}"
+      "output_sample": "{\"meta\":{\"source\":\"live\"},\"results\":{\"data\":{\"income_methods\":[{\"id\":25,\"name\":\"\u003credacted\u003e\"},{\"id\":12,\"name\":\"\u003credacted\u003e\"},{\"id\":27,\"name\":\"\u003credacted\u003e\"},{\"id\":28,\"name\":\"\u003credacted\u003e\"},{\"id\":21,\"name\":\"\u003credacted\u003e\"},{\"id\":16,\"name\":\"\u003credacted\u003e\"},{\"id\":9,\"name\":\"\u003credacted\u003e\"},{\"id\":11,\"name\":\"\u003credacted\u003e\"},{\"id\":14,\"name\":\"\u003credacted\u003e\"},{\"id\":34,\"name\":\"\u003credacted\u003e\"},{\"id\":35,\"name\":\"\u003credacted\u003e\"},{\"id\":195,\"name\":\"\u003credacted\u003e\"},{\"id\":196,\"name\":\"\u003credacted\u003e\"},{\"id\":197,\"name\":\"\u003credacted\u003e\"},{\"id\":198,\"name\":\"\u003credacted\u003e\"}]},\"error_code\":200,\"error_msg\":\"Done.\",\"request_id\":\"RT2026062715005236510\"}}"
     },
     {
       "command": "income-methods",
@@ -1562,14 +1472,14 @@
       "kind": "happy_path",
       "args": null,
       "status": "skip",
-      "reason": "blocked-fixture: required API parameter"
+      "reason": "no id parseable from companion at depth 0"
     },
     {
       "command": "jobs get",
       "kind": "json_fidelity",
       "args": null,
       "status": "skip",
-      "reason": "blocked-fixture: required API parameter"
+      "reason": "no id parseable from companion at depth 0"
     },
     {
       "command": "jobs get",
@@ -1733,14 +1643,14 @@
       "kind": "happy_path",
       "args": null,
       "status": "skip",
-      "reason": "blocked-fixture: required API parameter"
+      "reason": "no id parseable from companion at depth 0"
     },
     {
       "command": "knowledge-bases delete",
       "kind": "json_fidelity",
       "args": null,
       "status": "skip",
-      "reason": "blocked-fixture: required API parameter"
+      "reason": "no id parseable from companion at depth 0"
     },
     {
       "command": "knowledge-bases delete",
@@ -1754,7 +1664,7 @@
       "kind": "error_path_real",
       "args": null,
       "status": "skip",
-      "reason": "blocked-fixture: required API parameter"
+      "reason": "no id parseable from companion at depth 0"
     },
     {
       "command": "knowledge-bases get",
@@ -1772,14 +1682,14 @@
       "kind": "happy_path",
       "args": null,
       "status": "skip",
-      "reason": "blocked-fixture: required API parameter"
+      "reason": "list companion previously failed at depth 0 for \"id\""
     },
     {
       "command": "knowledge-bases get",
       "kind": "json_fidelity",
       "args": null,
       "status": "skip",
-      "reason": "blocked-fixture: required API parameter"
+      "reason": "list companion previously failed at depth 0 for \"id\""
     },
     {
       "command": "knowledge-bases get",
@@ -1812,7 +1722,7 @@
         "query"
       ],
       "status": "pass",
-      "output_sample": "{\n  \"meta\": {\n    \"source\": \"live\"\n  },\n  \"results\": {\n    \"request_id\": \"RT202606271416522707\",\n    \"error_code\": 200,\n    \"error_msg\": \"Done.\",\n    \"data\": {\n      \"total\": 0,\n      \"knowledge_bases\": []\n    }\n  }\n}\n"
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"live\"\n  },\n  \"results\": {\n    \"request_id\": \"RT2026062715005975212\",\n    \"error_code\": 200,\n    \"error_msg\": \"Done.\",\n    \"data\": {\n      \"total\": 0,\n      \"knowledge_bases\": []\n    }\n  }\n}\n"
     },
     {
       "command": "knowledge-bases query",
@@ -1823,7 +1733,7 @@
         "--json"
       ],
       "status": "pass",
-      "output_sample": "{\n  \"meta\": {\n    \"source\": \"live\"\n  },\n  \"results\": {\n    \"request_id\": \"RT202606271416522707\",\n    \"error_code\": 200,\n    \"error_msg\": \"Done.\",\n    \"data\": {\n      \"total\": 0,\n      \"knowledge_bases\": []\n    }\n  }\n}\n"
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"live\"\n  },\n  \"results\": {\n    \"request_id\": \"RT2026062715005975212\",\n    \"error_code\": 200,\n    \"error_msg\": \"Done.\",\n    \"data\": {\n      \"total\": 0,\n      \"knowledge_bases\": []\n    }\n  }\n}\n"
     },
     {
       "command": "knowledge-bases query",
@@ -1848,14 +1758,14 @@
       "kind": "happy_path",
       "args": null,
       "status": "skip",
-      "reason": "blocked-fixture: required API parameter"
+      "reason": "list companion previously failed at depth 0 for \"id\""
     },
     {
       "command": "knowledge-bases update",
       "kind": "json_fidelity",
       "args": null,
       "status": "skip",
-      "reason": "blocked-fixture: required API parameter"
+      "reason": "list companion previously failed at depth 0 for \"id\""
     },
     {
       "command": "knowledge-bases update",
@@ -1869,7 +1779,7 @@
       "kind": "error_path_real",
       "args": null,
       "status": "skip",
-      "reason": "blocked-fixture: required API parameter"
+      "reason": "list companion previously failed at depth 0 for \"id\""
     },
     {
       "command": "listings get-airbnb-price-and-rules",
@@ -2424,7 +2334,7 @@
         "--agent"
       ],
       "status": "pass",
-      "output_sample": "{\n  \"meta\": {\n    \"source\": \"local\"\n  },\n  \"results\": {\n    \"oversell_dates\": 0,\n    \"oversells\": [],\n    \"range\": \"2026-06-27..2026-07-04\",\n    \"scanned_properties\": 1\n  }\n}\n"
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"local\"\n  },\n  \"results\": {\n    \"fetch_failures\": 0,\n    \"oversell_dates\": 0,\n    \"oversells\": [],\n    \"range\": \"2026-06-27..2026-07-04\",\n    \"scanned_properties\": 1\n  }\n}\n"
     },
     {
       "command": "oversell-watch",
@@ -2437,7 +2347,7 @@
         "--json"
       ],
       "status": "pass",
-      "output_sample": "{\n  \"meta\": {\n    \"source\": \"local\"\n  },\n  \"results\": {\n    \"oversell_dates\": 0,\n    \"oversells\": [],\n    \"range\": \"2026-06-27..2026-07-04\",\n    \"scanned_properties\": 1\n  }\n}\n"
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"local\"\n  },\n  \"results\": {\n    \"fetch_failures\": 0,\n    \"oversell_dates\": 0,\n    \"oversells\": [],\n    \"range\": \"2026-06-27..2026-07-04\",\n    \"scanned_properties\": 1\n  }\n}\n"
     },
     {
       "command": "oversell-watch",
@@ -2511,7 +2421,7 @@
         "12704864"
       ],
       "status": "pass",
-      "output_sample": "{\n  \"meta\": {\n    \"source\": \"live\"\n  },\n  \"results\": {\n    \"request_id\": \"RT2026062714165623412\",\n    \"error_code\": 200,\n    \"error_msg\": \"Done.\",\n    \"data\": {\n      \"link_type\": \"property\",\n      \"link_id\": 12704864,\n      \"channels\": [\n        {\n          \"channel_type\": \"airbnb\",\n          \"listing_id\": \"1715863948130995294\",\n          \"listing_title\": \"Villa Zumbo \",\n          \"ratio\": 100,\n          \"readonly\": false\n        }\n      ]\n    }\n  }\n}\n"
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"live\"\n  },\n  \"results\": {\n    \"request_id\": \"RT2026062715010760908b4\",\n    \"error_code\": 200,\n    \"error_msg\": \"Done.\",\n    \"data\": {\n      \"link_type\": \"property\",\n      \"link_id\": 12704864,\n      \"channels\": [\n        {\n          \"channel_type\": \"airbnb\",\n          \"listing_id\": \"1715863948130995294\",\n          \"listing_title\": \"Villa Zumbo \",\n          \"ratio\": 100,\n          \"readonly\": false\n        }\n      ]\n    }\n  }\n}\n"
     },
     {
       "command": "pricing-ratios",
@@ -2523,7 +2433,7 @@
         "--json"
       ],
       "status": "pass",
-      "output_sample": "{\n  \"meta\": {\n    \"source\": \"live\"\n  },\n  \"results\": {\n    \"request_id\": \"RT2026062714165623412\",\n    \"error_code\": 200,\n    \"error_msg\": \"Done.\",\n    \"data\": {\n      \"link_type\": \"property\",\n      \"link_id\": 12704864,\n      \"channels\": [\n        {\n          \"channel_type\": \"airbnb\",\n          \"listing_id\": \"1715863948130995294\",\n          \"listing_title\": \"Villa Zumbo \",\n          \"ratio\": 100,\n          \"readonly\": false\n        }\n      ]\n    }\n  }\n}\n"
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"live\"\n  },\n  \"results\": {\n    \"request_id\": \"RT2026062715010760908b4\",\n    \"error_code\": 200,\n    \"error_msg\": \"Done.\",\n    \"data\": {\n      \"link_type\": \"property\",\n      \"link_id\": 12704864,\n      \"channels\": [\n        {\n          \"channel_type\": \"airbnb\",\n          \"listing_id\": \"1715863948130995294\",\n          \"listing_title\": \"Villa Zumbo \",\n          \"ratio\": 100,\n          \"readonly\": false\n        }\n      ]\n    }\n  }\n}\n"
     },
     {
       "command": "pricing-ratios",
@@ -2792,7 +2702,7 @@
         "query"
       ],
       "status": "pass",
-      "output_sample": "{\"meta\":{\"source\":\"live\"},\"results\":{\"data\":{\"properties\":[{\"address\":\"\u003credacted\u003e\",\"channels\":[{\"channel_type\":\"airbnb\",\"currency\":\"THB\",\"listing_id\":\"1715863948130995294\"}],\"cover\":{\"extra_extra_large_url\":\"https://z1.muscache.cn/im/pictures/hosting/Hosting-1715863948130995294/original/08d16aa9-25ef-403d-9d71-9b124c0ad3c5.jpeg?aki_policy=xx_large\",\"extra_large_url\":\"https://z1.muscache.cn/im/pictures/hosting/Hosting-1715863948130995294/original/08d16aa9-25ef-403d-9d71-9b124c0ad3c5.jpeg?aki_policy=x_large\",\"large_url\":\"https://z1.muscache.cn/im/pictures/hosting/Hosting-1715863948130995294/original/08d16aa9-25ef-403d-9d71-9b124c0ad3c5.jpeg?aki_policy=x_medium\",\"original_url\":\"https://z1.muscache.cn/im/pictures/hosting/Hosting-1715863948130995294/original/08d16aa9-25ef-403d-9d71-9b124c0ad3c5.jpeg\",\"small_url\":\"https://z1.muscache.cn/im/pictures/hosting/Hosting-1715863948130995294/original/08d16aa9-25ef-403d-9d71-9b124c0ad3c5.jpeg?aki_policy=small\"},\"default_checkin_time\":\"15:00\",\"default_checkout_time\":\"12:00\",\"google_place_payload\":null,\"groups\":[],\"id\":12704864,\"latitude\":null,\"longitude\":null,\"tags\":[],\"timezone\":\"Europe/Rome\",\"title\":\"Property #1\",\"wifi_password\":\"\",\"wifi_remarks\":\"\",\"wifi_ssid\":\"\"}],\"total\":1},\"error_code\":200,\"error_msg\":\"Done.\",\"request_id\":\"RT2026062714165754312\"}}"
+      "output_sample": "{\"meta\":{\"source\":\"live\"},\"results\":{\"data\":{\"properties\":[{\"address\":\"\u003credacted\u003e\",\"channels\":[{\"channel_type\":\"airbnb\",\"currency\":\"THB\",\"listing_id\":\"1715863948130995294\"}],\"cover\":{\"extra_extra_large_url\":\"https://z1.muscache.cn/im/pictures/hosting/Hosting-1715863948130995294/original/08d16aa9-25ef-403d-9d71-9b124c0ad3c5.jpeg?aki_policy=xx_large\",\"extra_large_url\":\"https://z1.muscache.cn/im/pictures/hosting/Hosting-1715863948130995294/original/08d16aa9-25ef-403d-9d71-9b124c0ad3c5.jpeg?aki_policy=x_large\",\"large_url\":\"https://z1.muscache.cn/im/pictures/hosting/Hosting-1715863948130995294/original/08d16aa9-25ef-403d-9d71-9b124c0ad3c5.jpeg?aki_policy=x_medium\",\"original_url\":\"https://z1.muscache.cn/im/pictures/hosting/Hosting-1715863948130995294/original/08d16aa9-25ef-403d-9d71-9b124c0ad3c5.jpeg\",\"small_url\":\"https://z1.muscache.cn/im/pictures/hosting/Hosting-1715863948130995294/original/08d16aa9-25ef-403d-9d71-9b124c0ad3c5.jpeg?aki_policy=small\"},\"default_checkin_time\":\"15:00\",\"default_checkout_time\":\"12:00\",\"google_place_payload\":null,\"groups\":[],\"id\":12704864,\"latitude\":null,\"longitude\":null,\"tags\":[],\"timezone\":\"Europe/Rome\",\"title\":\"Property #1\",\"wifi_password\":\"\",\"wifi_remarks\":\"\",\"wifi_ssid\":\"\"}],\"total\":1},\"error_code\":200,\"error_msg\":\"Done.\",\"request_id\":\"RT2026062715010971512\"}}"
     },
     {
       "command": "properties query",
@@ -2803,7 +2713,7 @@
         "--json"
       ],
       "status": "pass",
-      "output_sample": "{\"meta\":{\"source\":\"live\"},\"results\":{\"data\":{\"properties\":[{\"address\":\"\u003credacted\u003e\",\"channels\":[{\"channel_type\":\"airbnb\",\"currency\":\"THB\",\"listing_id\":\"1715863948130995294\"}],\"cover\":{\"extra_extra_large_url\":\"https://z1.muscache.cn/im/pictures/hosting/Hosting-1715863948130995294/original/08d16aa9-25ef-403d-9d71-9b124c0ad3c5.jpeg?aki_policy=xx_large\",\"extra_large_url\":\"https://z1.muscache.cn/im/pictures/hosting/Hosting-1715863948130995294/original/08d16aa9-25ef-403d-9d71-9b124c0ad3c5.jpeg?aki_policy=x_large\",\"large_url\":\"https://z1.muscache.cn/im/pictures/hosting/Hosting-1715863948130995294/original/08d16aa9-25ef-403d-9d71-9b124c0ad3c5.jpeg?aki_policy=x_medium\",\"original_url\":\"https://z1.muscache.cn/im/pictures/hosting/Hosting-1715863948130995294/original/08d16aa9-25ef-403d-9d71-9b124c0ad3c5.jpeg\",\"small_url\":\"https://z1.muscache.cn/im/pictures/hosting/Hosting-1715863948130995294/original/08d16aa9-25ef-403d-9d71-9b124c0ad3c5.jpeg?aki_policy=small\"},\"default_checkin_time\":\"15:00\",\"default_checkout_time\":\"12:00\",\"google_place_payload\":null,\"groups\":[],\"id\":12704864,\"latitude\":null,\"longitude\":null,\"tags\":[],\"timezone\":\"Europe/Rome\",\"title\":\"Property #1\",\"wifi_password\":\"\",\"wifi_remarks\":\"\",\"wifi_ssid\":\"\"}],\"total\":1},\"error_code\":200,\"error_msg\":\"Done.\",\"request_id\":\"RT2026062714165754312\"}}"
+      "output_sample": "{\"meta\":{\"source\":\"live\"},\"results\":{\"data\":{\"properties\":[{\"address\":\"\u003credacted\u003e\",\"channels\":[{\"channel_type\":\"airbnb\",\"currency\":\"THB\",\"listing_id\":\"1715863948130995294\"}],\"cover\":{\"extra_extra_large_url\":\"https://z1.muscache.cn/im/pictures/hosting/Hosting-1715863948130995294/original/08d16aa9-25ef-403d-9d71-9b124c0ad3c5.jpeg?aki_policy=xx_large\",\"extra_large_url\":\"https://z1.muscache.cn/im/pictures/hosting/Hosting-1715863948130995294/original/08d16aa9-25ef-403d-9d71-9b124c0ad3c5.jpeg?aki_policy=x_large\",\"large_url\":\"https://z1.muscache.cn/im/pictures/hosting/Hosting-1715863948130995294/original/08d16aa9-25ef-403d-9d71-9b124c0ad3c5.jpeg?aki_policy=x_medium\",\"original_url\":\"https://z1.muscache.cn/im/pictures/hosting/Hosting-1715863948130995294/original/08d16aa9-25ef-403d-9d71-9b124c0ad3c5.jpeg\",\"small_url\":\"https://z1.muscache.cn/im/pictures/hosting/Hosting-1715863948130995294/original/08d16aa9-25ef-403d-9d71-9b124c0ad3c5.jpeg?aki_policy=small\"},\"default_checkin_time\":\"15:00\",\"default_checkout_time\":\"12:00\",\"google_place_payload\":null,\"groups\":[],\"id\":12704864,\"latitude\":null,\"longitude\":null,\"tags\":[],\"timezone\":\"Europe/Rome\",\"title\":\"Property #1\",\"wifi_password\":\"\",\"wifi_remarks\":\"\",\"wifi_ssid\":\"\"}],\"total\":1},\"error_code\":200,\"error_msg\":\"Done.\",\"request_id\":\"RT2026062715010971512\"}}"
     },
     {
       "command": "properties query",
@@ -2878,29 +2788,16 @@
     {
       "command": "reservation-tags delete",
       "kind": "happy_path",
-      "args": [
-        "reservation-tags",
-        "delete",
-        "1",
-        "--dry-run"
-      ],
-      "status": "pass",
-      "fixture_source": "store",
-      "output_sample": "{\n  \"action\": \"delete\",\n  \"data\": {\n    \"dry_run\": true\n  },\n  \"dry_run\": true,\n  \"path\": \"/reservation_tags/1\",\n  \"resource\": \"reservation-tags\",\n  \"status\": 0,\n  \"success\": false\n}\nDELETE https://api.hostex.io/v3/reservation_tags/1\n  Hostex-Access-Token: ****KbdV\n\n(dry run - no request sent)\n"
+      "args": null,
+      "status": "skip",
+      "reason": "no id parseable from companion at depth 0"
     },
     {
       "command": "reservation-tags delete",
       "kind": "json_fidelity",
-      "args": [
-        "reservation-tags",
-        "delete",
-        "1",
-        "--dry-run",
-        "--json"
-      ],
-      "status": "pass",
-      "fixture_source": "store",
-      "output_sample": "{\n  \"action\": \"delete\",\n  \"data\": {\n    \"dry_run\": true\n  },\n  \"dry_run\": true,\n  \"path\": \"/reservation_tags/1\",\n  \"resource\": \"reservation-tags\",\n  \"status\": 0,\n  \"success\": false\n}\nDELETE https://api.hostex.io/v3/reservation_tags/1\n  Hostex-Access-Token: ****KbdV\n\n(dry run - no request sent)\n"
+      "args": null,
+      "status": "skip",
+      "reason": "no id parseable from companion at depth 0"
     },
     {
       "command": "reservation-tags delete",
@@ -2914,7 +2811,7 @@
       "kind": "error_path_real",
       "args": null,
       "status": "skip",
-      "reason": "mutating command dry-run only"
+      "reason": "no id parseable from companion at depth 0"
     },
     {
       "command": "reservation-tags query",
@@ -2935,7 +2832,7 @@
         "query"
       ],
       "status": "pass",
-      "output_sample": "{\n  \"meta\": {\n    \"source\": \"live\"\n  },\n  \"results\": {\n    \"request_id\": \"RT2026062714170022012\",\n    \"error_code\": 200,\n    \"error_msg\": \"Done.\",\n    \"data\": {\n      \"reservation_tags\": [\n        {\n          \"id\": 1,\n          \"tag_name\": \"Conflicted\",\n          \"color\": \"#FD587B\",\n          \"is_default\": true\n        },\n        {\n          \"id\": 2,\n          \"tag_name\": \"****\",\n          \"color\": \"#1BBFA4\",\n          \"is_default\": true\n        },\n        {\n          \"id\": 3,\n          \"tag_name\": \"****\",\n          \"color\": \"#2CBCFD\",\n          \"is_default\": true\n        },\n        {\n          \"id\": 4,\n          \"tag_name\": \"****\",\n          \"color\": \"#7175FA\",\n          \"is_default\": true\n        }\n      ],\n      \"total\": 4\n    }\n  }\n}\n"
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"live\"\n  },\n  \"results\": {\n    \"request_id\": \"RT2026062715011494508b5\",\n    \"error_code\": 200,\n    \"error_msg\": \"Done.\",\n    \"data\": {\n      \"reservation_tags\": [\n        {\n          \"id\": 1,\n          \"tag_name\": \"Conflicted\",\n          \"color\": \"#FD587B\",\n          \"is_default\": true\n        },\n        {\n          \"id\": 2,\n          \"tag_name\": \"****\",\n          \"color\": \"#1BBFA4\",\n          \"is_default\": true\n        },\n        {\n          \"id\": 3,\n          \"tag_name\": \"****\",\n          \"color\": \"#2CBCFD\",\n          \"is_default\": true\n        },\n        {\n          \"id\": 4,\n          \"tag_name\": \"****\",\n          \"color\": \"#7175FA\",\n          \"is_default\": true\n        }\n      ],\n      \"total\": 4\n    }\n  }\n}\n"
     },
     {
       "command": "reservation-tags query",
@@ -2946,7 +2843,7 @@
         "--json"
       ],
       "status": "pass",
-      "output_sample": "{\n  \"meta\": {\n    \"source\": \"live\"\n  },\n  \"results\": {\n    \"request_id\": \"RT2026062714170022012\",\n    \"error_code\": 200,\n    \"error_msg\": \"Done.\",\n    \"data\": {\n      \"reservation_tags\": [\n        {\n          \"id\": 1,\n          \"tag_name\": \"Conflicted\",\n          \"color\": \"#FD587B\",\n          \"is_default\": true\n        },\n        {\n          \"id\": 2,\n          \"tag_name\": \"****\",\n          \"color\": \"#1BBFA4\",\n          \"is_default\": true\n        },\n        {\n          \"id\": 3,\n          \"tag_name\": \"****\",\n          \"color\": \"#2CBCFD\",\n          \"is_default\": true\n        },\n        {\n          \"id\": 4,\n          \"tag_name\": \"****\",\n          \"color\": \"#7175FA\",\n          \"is_default\": true\n        }\n      ],\n      \"total\": 4\n    }\n  }\n}\n"
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"live\"\n  },\n  \"results\": {\n    \"request_id\": \"RT2026062715011494508b5\",\n    \"error_code\": 200,\n    \"error_msg\": \"Done.\",\n    \"data\": {\n      \"reservation_tags\": [\n        {\n          \"id\": 1,\n          \"tag_name\": \"Conflicted\",\n          \"color\": \"#FD587B\",\n          \"is_default\": true\n        },\n        {\n          \"id\": 2,\n          \"tag_name\": \"****\",\n          \"color\": \"#1BBFA4\",\n          \"is_default\": true\n        },\n        {\n          \"id\": 3,\n          \"tag_name\": \"****\",\n          \"color\": \"#2CBCFD\",\n          \"is_default\": true\n        },\n        {\n          \"id\": 4,\n          \"tag_name\": \"****\",\n          \"color\": \"#7175FA\",\n          \"is_default\": true\n        }\n      ],\n      \"total\": 4\n    }\n  }\n}\n"
     },
     {
       "command": "reservation-tags query",
@@ -3636,7 +3533,7 @@
         "50"
       ],
       "status": "pass",
-      "output_sample": "{\n  \"meta\": {\n    \"source\": \"live\"\n  },\n  \"results\": {\n    \"request_id\": \"RT202606271417059207\",\n    \"error_code\": 200,\n    \"error_msg\": \"Done.\",\n    \"data\": {\n      \"reviews\": []\n    }\n  }\n}\n"
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"live\"\n  },\n  \"results\": {\n    \"request_id\": \"RT2026062715012248012\",\n    \"error_code\": 200,\n    \"error_msg\": \"Done.\",\n    \"data\": {\n      \"reviews\": []\n    }\n  }\n}\n"
     },
     {
       "command": "reviews query",
@@ -3651,7 +3548,7 @@
         "--json"
       ],
       "status": "pass",
-      "output_sample": "{\n  \"meta\": {\n    \"source\": \"live\"\n  },\n  \"results\": {\n    \"request_id\": \"RT202606271417059207\",\n    \"error_code\": 200,\n    \"error_msg\": \"Done.\",\n    \"data\": {\n      \"reviews\": []\n    }\n  }\n}\n"
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"live\"\n  },\n  \"results\": {\n    \"request_id\": \"RT2026062715012248012\",\n    \"error_code\": 200,\n    \"error_msg\": \"Done.\",\n    \"data\": {\n      \"reviews\": []\n    }\n  }\n}\n"
     },
     {
       "command": "reviews query",
@@ -3731,7 +3628,7 @@
         "query"
       ],
       "status": "pass",
-      "output_sample": "{\n  \"meta\": {\n    \"source\": \"live\"\n  },\n  \"results\": {\n    \"request_id\": \"RT2026062714170628510\",\n    \"error_code\": 200,\n    \"error_msg\": \"Done.\",\n    \"data\": {\n      \"room_types\": [],\n      \"total\": 0\n    }\n  }\n}\n"
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"live\"\n  },\n  \"results\": {\n    \"request_id\": \"RT2026062715012416010\",\n    \"error_code\": 200,\n    \"error_msg\": \"Done.\",\n    \"data\": {\n      \"room_types\": [],\n      \"total\": 0\n    }\n  }\n}\n"
     },
     {
       "command": "room-types query",
@@ -3742,7 +3639,7 @@
         "--json"
       ],
       "status": "pass",
-      "output_sample": "{\n  \"meta\": {\n    \"source\": \"live\"\n  },\n  \"results\": {\n    \"request_id\": \"RT2026062714170628510\",\n    \"error_code\": 200,\n    \"error_msg\": \"Done.\",\n    \"data\": {\n      \"room_types\": [],\n      \"total\": 0\n    }\n  }\n}\n"
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"live\"\n  },\n  \"results\": {\n    \"request_id\": \"RT2026062715012416010\",\n    \"error_code\": 200,\n    \"error_msg\": \"Done.\",\n    \"data\": {\n      \"room_types\": [],\n      \"total\": 0\n    }\n  }\n}\n"
     },
     {
       "command": "room-types query",
@@ -3784,7 +3681,7 @@
         "--json"
       ],
       "status": "pass",
-      "output_sample": "{\n  \"meta\": {\n    \"reason\": \"no_search_endpoint\",\n    \"resource_type\": \"search\",\n    \"source\": \"local\"\n  },\n  \"results\": []\n}\nThis API has no search endpoint. Searching local data.\n"
+      "output_sample": "{\n  \"meta\": {\n    \"reason\": \"no_search_endpoint\",\n    \"resource_type\": \"search\",\n    \"source\": \"local\"\n  },\n  \"results\": []\n}\nThis API has no search endpoint. Searching local data.\nhint: local store has not been synced yet. Run 'hostex-pp-cli sync' before trusting local results.\n"
     },
     {
       "command": "staffs create",
@@ -3854,14 +3751,14 @@
       "kind": "happy_path",
       "args": null,
       "status": "skip",
-      "reason": "blocked-fixture: required API parameter"
+      "reason": "no id parseable from companion at depth 0"
     },
     {
       "command": "staffs delete",
       "kind": "json_fidelity",
       "args": null,
       "status": "skip",
-      "reason": "blocked-fixture: required API parameter"
+      "reason": "no id parseable from companion at depth 0"
     },
     {
       "command": "staffs delete",
@@ -3875,7 +3772,7 @@
       "kind": "error_path_real",
       "args": null,
       "status": "skip",
-      "reason": "blocked-fixture: required API parameter"
+      "reason": "no id parseable from companion at depth 0"
     },
     {
       "command": "staffs query",
@@ -3896,7 +3793,7 @@
         "query"
       ],
       "status": "pass",
-      "output_sample": "{\n  \"meta\": {\n    \"source\": \"live\"\n  },\n  \"results\": {\n    \"request_id\": \"RT202606271417096212\",\n    \"error_code\": 200,\n    \"error_msg\": \"Done.\",\n    \"data\": {\n      \"staffs\": [],\n      \"total\": 0\n    }\n  }\n}\n"
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"live\"\n  },\n  \"results\": {\n    \"request_id\": \"RT2026062715012735610\",\n    \"error_code\": 200,\n    \"error_msg\": \"Done.\",\n    \"data\": {\n      \"staffs\": [],\n      \"total\": 0\n    }\n  }\n}\n"
     },
     {
       "command": "staffs query",
@@ -3907,7 +3804,7 @@
         "--json"
       ],
       "status": "pass",
-      "output_sample": "{\n  \"meta\": {\n    \"source\": \"live\"\n  },\n  \"results\": {\n    \"request_id\": \"RT202606271417096212\",\n    \"error_code\": 200,\n    \"error_msg\": \"Done.\",\n    \"data\": {\n      \"staffs\": [],\n      \"total\": 0\n    }\n  }\n}\n"
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"live\"\n  },\n  \"results\": {\n    \"request_id\": \"RT2026062715012735610\",\n    \"error_code\": 200,\n    \"error_msg\": \"Done.\",\n    \"data\": {\n      \"staffs\": [],\n      \"total\": 0\n    }\n  }\n}\n"
     },
     {
       "command": "staffs query",
@@ -3932,14 +3829,14 @@
       "kind": "happy_path",
       "args": null,
       "status": "skip",
-      "reason": "blocked-fixture: required API parameter"
+      "reason": "list companion previously failed at depth 0 for \"id\""
     },
     {
       "command": "staffs update",
       "kind": "json_fidelity",
       "args": null,
       "status": "skip",
-      "reason": "blocked-fixture: required API parameter"
+      "reason": "list companion previously failed at depth 0 for \"id\""
     },
     {
       "command": "staffs update",
@@ -3953,7 +3850,7 @@
       "kind": "error_path_real",
       "args": null,
       "status": "skip",
-      "reason": "blocked-fixture: required API parameter"
+      "reason": "list companion previously failed at depth 0 for \"id\""
     },
     {
       "command": "stay-brief",
@@ -4003,7 +3900,7 @@
         "sync"
       ],
       "status": "pass",
-      "output_sample": "{\"event\":\"sync_start\",\"resource\":\"automation\"}\n{\"event\":\"sync_start\",\"resource\":\"channel-accounts\"}\n{\"event\":\"sync_start\",\"resource\":\"calendar-share-links\"}\n{\"event\":\"sync_start\",\"resource\":\"conversations\"}\n{\"event\":\"sync_warning\",\"resource\":\"channel-accounts\",\"reason\":\"resource_not_incremental\",\"message\":\"endpoint does not declare a temporal filter parameter; incremental sync has no effect for this resource\"}\n{\"event\":\"sync_progress\",\"resource\":\"channel-accounts\",\"fetched\":1}\n{\"event\":\"sync_complete\",\"resource\":\"channel-accounts\",\"total\":1,\"duration_ms\":1011}\n{\"event\":\"sync_start\",\"resource\":\"custom-channels\"}\n{\"event\":\"sync_error\",\"resource\":\"conversations\",\"status\":400,\"method\":\"GET\",\"path\":\"/conversations\",\"body\":\"The offset field is required.\",\"error\":\"GET /conversations returned HTTP 400: The offset field is required.\"}\n{\"event\":\"sync_start\",\"resource\":\"expense-items\"}\n{\"event\":\"sync_error\",\"resource\":\"automation\",\"status\":400,\"method\":\"GET\",\"path\":\"/automation/actions\",\"body\":\"The type field is required.\",\"error\":\"GET /automation/actions returned HTTP 400: The type field is required.\"}\n{\"event\":\"sync_start\",\"resource\":\"expense-methods\"}\n{\"event\":\"sync_progress\",\"resource\":\"custom-channels\",\"fetched\":7}\n{\"event\":\"sync_complete\",\"resource\":\"custom-channels\",\"total\":7,\"duration_ms\":597}\n{\"event\":\"sync_start\",\"resource\":\"groups\"}\n{\"event\":\"sync_complete\",\"resource\":\"calendar-share-links\",\"total\":0,\"duration_ms\":1634}\n{\"event\":\"sync_start\",\"resource\":\"income-items\"}\n{\"event\":\"sync_progress\",\"resource\":\"expense-items\",\"fetched\":13}\n{\"event\":\"sync_complete\",\"resource\":\"expense-items\",\"total\":13,\"duration_ms\":592}\n{\"event\":\"sync_start\",\"resource\":\"income-methods\"}\n{\"event\":\"sync_progress\",\"resource\":\"expense-methods\",\"fetched\":15}\n{\"event\":\"sync_complete\",\"resource\":\"expense-methods\",\"total\":15,\"duration_ms\":954}\n{\"event\":\"sync_start\",\"resource\":\"knowledge-bases\"}\n{\"event\":\"sync_progress\",\"resource\":\"income-methods\",\"fetched\":15}\n{\"event\":\"sync_complete\",\"resource\":\"income-methods\",\"total\":15,\"duration_ms\":545}\n{\"event\":\"sync_start\",\"resource\":\"listings\"}\n{\"event\":\"sync_complete\",\"resource\":\"groups\",\"total\":0,\"duration_ms\":618}\n{\"event\":\"sync_start\",\"resource\":\"message\"}\n{\"event\":\"sync_complete\",\"resource\":\"knowledge-bases\",\"total\":0,\"duration_ms\":578}\n{\"event\":\"sync_start\",\"resource\":\"pricing-ratios\"}\n{\"event\":\"sync_complete\",\"resource\":\"message\",\"total\":0,\"duration_ms\":497}\n{\"event\":\"sync_start\",\"resource\":\"properties\"}\n{\"event\":\"sync_progress\",\"resource\":\"listings\",\"fetched\":1}\n{\"event\":\"sync_complete\",\"resource\":\"listings\",\"total\":1,\"duration_ms\":593}\n{\"event\":\"sync_start\",\"resource\":\"reservation-tags\"}\n{\"event\":\"sync_error\",\"resource\":\"pricing-ratios\",\"status\":400,\"method\":\"GET\",\"path\":\"/pricing_ratios\",\"body\":\"The property id field is required when room type id is not present.\",\"error\":\"GET /pricing_ratios returned HTTP 400: The property id field is required when room type id is not present.\"}\n{\"event\":\"sync_start\",\"resource\":\"reservations\"}\n{\"event\":\"sync_progress\",\"resource\":\"reservation-tags\",\"fetched\":4}\n{\"event\":\"sync_complete\",\"resource\":\"reservation-tags\",\"total\":4,\"duration_ms\":576}\n{\"event\":\"sync_start\",\"resource\":\"review\"}\n{\"event\":\"sync_progress\",\"resource\":\"income-items\",\"fetched\":8}\n{\"event\":\"sync_complete\",\"resource\":\"income-items\",\"total\":8,\"duration_ms\":1774}\n{\"event\":\"sync_start\",\"resource\":\"reviews\"}\n{\"event\":\"sync_progress\",\"resource\":\"properties\",\"fetched\":1}\n{\"event\":\"sync_complete\",\"resource\":\"properties\",\"total\":1,\"duration_ms\":721}\n{\"event\":\"sync_start\",\"resource\":\"room-types\"}\n{\"event\":\"sync_complete\",\"resource\":\"reviews\",\"total\":0,\"duration_ms\":678}\n{\"event\":\"sync_start\",\"resource\":\"staffs\"}\n{\"event\":\"sync_complete\",\"resource\":\"review\",\"total\":0,\"duration_ms\":741}\n{\"event\":\"sync_start\",\"resource\":\"tags\"}\n{\"event\":\"sync_complete\",\"resource\":\"reservations\",\"total\":0,\"duration_ms\":1208}\n{\"event\":\"sync_start\",\"resource\":\"tasks\"}\n{\"event\":\"sync_complete\",\"resource\":\"room-types\",\"total\":0,\"duration_ms\":1085}\n{\"event\":\"sync_start\",\"resource\":\"transactions\"}\n{\"event\":\"sync_complete\",\"resource\":\"sta…[truncated]"
+      "output_sample": "{\"event\":\"sync_start\",\"resource\":\"automation\"}\n{\"event\":\"sync_start\",\"resource\":\"conversations\"}\n{\"event\":\"sync_start\",\"resource\":\"calendar-share-links\"}\n{\"event\":\"sync_start\",\"resource\":\"channel-accounts\"}\n{\"event\":\"sync_progress\",\"resource\":\"channel-accounts\",\"fetched\":1}\n{\"event\":\"sync_complete\",\"resource\":\"channel-accounts\",\"total\":1,\"duration_ms\":2465}\n{\"event\":\"sync_start\",\"resource\":\"custom-channels\"}\n{\"event\":\"sync_error\",\"resource\":\"conversations\",\"status\":400,\"method\":\"GET\",\"path\":\"/conversations\",\"body\":\"The offset field is required.\",\"error\":\"GET /conversations returned HTTP 400: The offset field is required.\"}\n{\"event\":\"sync_start\",\"resource\":\"expense-items\"}\n{\"event\":\"sync_complete\",\"resource\":\"calendar-share-links\",\"total\":0,\"duration_ms\":2653}\n{\"event\":\"sync_start\",\"resource\":\"expense-methods\"}\n{\"event\":\"sync_error\",\"resource\":\"automation\",\"status\":400,\"method\":\"GET\",\"path\":\"/automation/actions\",\"body\":\"The type field is required.\",\"error\":\"GET /automation/actions returned HTTP 400: The type field is required.\"}\n{\"event\":\"sync_start\",\"resource\":\"groups\"}\n{\"event\":\"sync_progress\",\"resource\":\"custom-channels\",\"fetched\":7}\n{\"event\":\"sync_complete\",\"resource\":\"custom-channels\",\"total\":7,\"duration_ms\":626}\n{\"event\":\"sync_start\",\"resource\":\"income-items\"}\n{\"event\":\"sync_progress\",\"resource\":\"expense-methods\",\"fetched\":15}\n{\"event\":\"sync_complete\",\"resource\":\"expense-methods\",\"total\":15,\"duration_ms\":626}\n{\"event\":\"sync_start\",\"resource\":\"income-methods\"}\n{\"event\":\"sync_progress\",\"resource\":\"expense-items\",\"fetched\":13}\n{\"event\":\"sync_complete\",\"resource\":\"expense-items\",\"total\":13,\"duration_ms\":695}\n{\"event\":\"sync_start\",\"resource\":\"knowledge-bases\"}\n{\"event\":\"sync_complete\",\"resource\":\"groups\",\"total\":0,\"duration_ms\":652}\n{\"event\":\"sync_start\",\"resource\":\"listings\"}\n{\"event\":\"sync_progress\",\"resource\":\"income-items\",\"fetched\":8}\n{\"event\":\"sync_complete\",\"resource\":\"income-items\",\"total\":8,\"duration_ms\":623}\n{\"event\":\"sync_start\",\"resource\":\"message\"}\n{\"event\":\"sync_progress\",\"resource\":\"income-methods\",\"fetched\":15}\n{\"event\":\"sync_complete\",\"resource\":\"income-methods\",\"total\":15,\"duration_ms\":613}\n{\"event\":\"sync_start\",\"resource\":\"pricing-ratios\"}\n{\"event\":\"sync_complete\",\"resource\":\"knowledge-bases\",\"total\":0,\"duration_ms\":813}\n{\"event\":\"sync_start\",\"resource\":\"properties\"}\n{\"event\":\"sync_complete\",\"resource\":\"message\",\"total\":0,\"duration_ms\":659}\n{\"event\":\"sync_start\",\"resource\":\"reservation-tags\"}\n{\"event\":\"sync_progress\",\"resource\":\"listings\",\"fetched\":1}\n{\"event\":\"sync_complete\",\"resource\":\"listings\",\"total\":1,\"duration_ms\":706}\n{\"event\":\"sync_start\",\"resource\":\"reservations\"}\n{\"event\":\"sync_error\",\"resource\":\"pricing-ratios\",\"status\":400,\"method\":\"GET\",\"path\":\"/pricing_ratios\",\"body\":\"The property id field is required when room type id is not present.\",\"error\":\"GET /pricing_ratios returned HTTP 400: The property id field is required when room type id is not present.\"}\n{\"event\":\"sync_start\",\"resource\":\"review\"}\n{\"event\":\"sync_progress\",\"resource\":\"properties\",\"fetched\":1}\n{\"event\":\"sync_complete\",\"resource\":\"properties\",\"total\":1,\"duration_ms\":726}\n{\"event\":\"sync_start\",\"resource\":\"reviews\"}\n{\"event\":\"sync_progress\",\"resource\":\"reservation-tags\",\"fetched\":4}\n{\"event\":\"sync_complete\",\"resource\":\"reservation-tags\",\"total\":4,\"duration_ms\":650}\n{\"event\":\"sync_start\",\"resource\":\"room-types\"}\n{\"event\":\"sync_complete\",\"resource\":\"reservations\",\"total\":0,\"duration_ms\":699}\n{\"event\":\"sync_start\",\"resource\":\"staffs\"}\n{\"event\":\"sync_complete\",\"resource\":\"review\",\"total\":0,\"duration_ms\":754}\n{\"event\":\"sync_start\",\"resource\":\"tags\"}\n{\"event\":\"sync_complete\",\"resource\":\"reviews\",\"total\":0,\"duration_ms\":666}\n{\"event\":\"sync_start\",\"resource\":\"tasks\"}\n{\"event\":\"sync_complete\",\"resource\":\"room-types\",\"total\":0,\"duration_ms\":696}\n{\"event\":\"sync_start\",\"resource\":\"transactions\"}\n{\"event\":\"sync_complete\",\"resource\":\"staffs\",\"total\":0,\"duration_ms\":643}\n{\"event\":\"sync_start\",\"resource\":\"webhooks\"}\n{\"event\":\"sync_complete\",\"resource\":\"tasks\",\"total\":0,\"duration_ms\":748}\n{\"event\":\"sync_complete\",\"resource\":\"tags\",\"total\":0,\"dura…[truncated]"
     },
     {
       "command": "sync",
@@ -4013,7 +3910,7 @@
         "--json"
       ],
       "status": "pass",
-      "output_sample": "{\"event\":\"sync_start\",\"resource\":\"automation\"}\n{\"event\":\"sync_start\",\"resource\":\"conversations\"}\n{\"event\":\"sync_start\",\"resource\":\"channel-accounts\"}\n{\"event\":\"sync_start\",\"resource\":\"calendar-share-links\"}\n{\"event\":\"sync_warning\",\"resource\":\"channel-accounts\",\"reason\":\"resource_not_incremental\",\"message\":\"endpoint does not declare a temporal filter parameter; incremental sync has no effect for this resource\"}\n{\"event\":\"sync_error\",\"resource\":\"conversations\",\"status\":400,\"method\":\"GET\",\"path\":\"/conversations\",\"body\":\"The offset field is required.\",\"error\":\"GET /conversations returned HTTP 400: The offset field is required.\"}\n{\"event\":\"sync_start\",\"resource\":\"custom-channels\"}\n{\"event\":\"sync_warning\",\"resource\":\"custom-channels\",\"reason\":\"resource_not_incremental\",\"message\":\"endpoint does not declare a temporal filter parameter; incremental sync has no effect for this resource\"}\n{\"event\":\"sync_error\",\"resource\":\"automation\",\"status\":400,\"method\":\"GET\",\"path\":\"/automation/actions\",\"body\":\"The type field is required.\",\"error\":\"GET /automation/actions returned HTTP 400: The type field is required.\"}\n{\"event\":\"sync_start\",\"resource\":\"expense-items\"}\n{\"event\":\"sync_warning\",\"resource\":\"expense-items\",\"reason\":\"resource_not_incremental\",\"message\":\"endpoint does not declare a temporal filter parameter; incremental sync has no effect for this resource\"}\n{\"event\":\"sync_progress\",\"resource\":\"channel-accounts\",\"fetched\":1}\n{\"event\":\"sync_complete\",\"resource\":\"channel-accounts\",\"total\":1,\"duration_ms\":1058}\n{\"event\":\"sync_start\",\"resource\":\"expense-methods\"}\n{\"event\":\"sync_warning\",\"resource\":\"expense-methods\",\"reason\":\"resource_not_incremental\",\"message\":\"endpoint does not declare a temporal filter parameter; incremental sync has no effect for this resource\"}\n{\"event\":\"sync_complete\",\"resource\":\"calendar-share-links\",\"total\":0,\"duration_ms\":1105}\n{\"event\":\"sync_start\",\"resource\":\"groups\"}\n{\"event\":\"sync_progress\",\"resource\":\"custom-channels\",\"fetched\":7}\n{\"event\":\"sync_complete\",\"resource\":\"custom-channels\",\"total\":7,\"duration_ms\":565}\n{\"event\":\"sync_start\",\"resource\":\"income-items\"}\n{\"event\":\"sync_warning\",\"resource\":\"income-items\",\"reason\":\"resource_not_incremental\",\"message\":\"endpoint does not declare a temporal filter parameter; incremental sync has no effect for this resource\"}\n{\"event\":\"sync_progress\",\"resource\":\"expense-items\",\"fetched\":13}\n{\"event\":\"sync_complete\",\"resource\":\"expense-items\",\"total\":13,\"duration_ms\":532}\n{\"event\":\"sync_start\",\"resource\":\"income-methods\"}\n{\"event\":\"sync_warning\",\"resource\":\"income-methods\",\"reason\":\"resource_not_incremental\",\"message\":\"endpoint does not declare a temporal filter parameter; incremental sync has no effect for this resource\"}\n{\"event\":\"sync_complete\",\"resource\":\"groups\",\"total\":0,\"duration_ms\":545}\n{\"event\":\"sync_start\",\"resource\":\"knowledge-bases\"}\n{\"event\":\"sync_progress\",\"resource\":\"expense-methods\",\"fetched\":15}\n{\"event\":\"sync_complete\",\"resource\":\"expense-methods\",\"total\":15,\"duration_ms\":616}\n{\"event\":\"sync_start\",\"resource\":\"listings\"}\n{\"event\":\"sync_warning\",\"resource\":\"listings\",\"reason\":\"resource_not_incremental\",\"message\":\"endpoint does not declare a temporal filter parameter; incremental sync has no effect for this resource\"}\n{\"event\":\"sync_progress\",\"resource\":\"income-items\",\"fetched\":8}\n{\"event\":\"sync_complete\",\"resource\":\"income-items\",\"total\":8,\"duration_ms\":517}\n{\"event\":\"sync_start\",\"resource\":\"message\"}\n{\"event\":\"sync_progress\",\"resource\":\"income-methods\",\"fetched\":15}\n{\"event\":\"sync_complete\",\"resource\":\"income-methods\",\"total\":15,\"duration_ms\":528}\n{\"event\":\"sync_start\",\"resource\":\"pricing-ratios\"}\n{\"event\":\"sync_progress\",\"resource\":\"listings\",\"fetched\":1}\n{\"event\":\"sync_complete\",\"resource\":\"listings\",\"total\":1,\"duration_ms\":549}\n{\"event\":\"sync_start\",\"resource\":\"properties\"}\n{\"event\":\"sync_warning\",\"resource\":\"properties\",\"reason\":\"resource_not_incremental\",\"message\":\"endpoint does not declare a temporal filter parameter; incremental sync has no effect for this resource\"}\n{\"event\":\"sync_complete\",\"resource\":\"knowledge-bases\",\"total\":0,\"duration_ms\":602}\n{\"…[truncated]"
+      "output_sample": "{\"event\":\"sync_start\",\"resource\":\"automation\"}\n{\"event\":\"sync_start\",\"resource\":\"calendar-share-links\"}\n{\"event\":\"sync_start\",\"resource\":\"conversations\"}\n{\"event\":\"sync_start\",\"resource\":\"channel-accounts\"}\n{\"event\":\"sync_warning\",\"resource\":\"channel-accounts\",\"reason\":\"resource_not_incremental\",\"message\":\"endpoint does not declare a temporal filter parameter; incremental sync has no effect for this resource\"}\n{\"event\":\"sync_error\",\"resource\":\"conversations\",\"status\":400,\"method\":\"GET\",\"path\":\"/conversations\",\"body\":\"The offset field is required.\",\"error\":\"GET /conversations returned HTTP 400: The offset field is required.\"}\n{\"event\":\"sync_start\",\"resource\":\"custom-channels\"}\n{\"event\":\"sync_warning\",\"resource\":\"custom-channels\",\"reason\":\"resource_not_incremental\",\"message\":\"endpoint does not declare a temporal filter parameter; incremental sync has no effect for this resource\"}\n{\"event\":\"sync_complete\",\"resource\":\"calendar-share-links\",\"total\":0,\"duration_ms\":1272}\n{\"event\":\"sync_start\",\"resource\":\"expense-items\"}\n{\"event\":\"sync_warning\",\"resource\":\"expense-items\",\"reason\":\"resource_not_incremental\",\"message\":\"endpoint does not declare a temporal filter parameter; incremental sync has no effect for this resource\"}\n{\"event\":\"sync_progress\",\"resource\":\"channel-accounts\",\"fetched\":1}\n{\"event\":\"sync_complete\",\"resource\":\"channel-accounts\",\"total\":1,\"duration_ms\":1329}\n{\"event\":\"sync_start\",\"resource\":\"expense-methods\"}\n{\"event\":\"sync_warning\",\"resource\":\"expense-methods\",\"reason\":\"resource_not_incremental\",\"message\":\"endpoint does not declare a temporal filter parameter; incremental sync has no effect for this resource\"}\n{\"event\":\"sync_error\",\"resource\":\"automation\",\"status\":400,\"method\":\"GET\",\"path\":\"/automation/actions\",\"body\":\"The type field is required.\",\"error\":\"GET /automation/actions returned HTTP 400: The type field is required.\"}\n{\"event\":\"sync_start\",\"resource\":\"groups\"}\n{\"event\":\"sync_progress\",\"resource\":\"expense-items\",\"fetched\":13}\n{\"event\":\"sync_progress\",\"resource\":\"custom-channels\",\"fetched\":7}\n{\"event\":\"sync_complete\",\"resource\":\"custom-channels\",\"total\":7,\"duration_ms\":645}\n{\"event\":\"sync_start\",\"resource\":\"income-items\"}\n{\"event\":\"sync_warning\",\"resource\":\"income-items\",\"reason\":\"resource_not_incremental\",\"message\":\"endpoint does not declare a temporal filter parameter; incremental sync has no effect for this resource\"}\n{\"event\":\"sync_progress\",\"resource\":\"expense-methods\",\"fetched\":15}\n{\"event\":\"sync_complete\",\"resource\":\"expense-items\",\"total\":13,\"duration_ms\":645}\n{\"event\":\"sync_start\",\"resource\":\"income-methods\"}\n{\"event\":\"sync_complete\",\"resource\":\"expense-methods\",\"total\":15,\"duration_ms\":588}\n{\"event\":\"sync_start\",\"resource\":\"knowledge-bases\"}\n{\"event\":\"sync_warning\",\"resource\":\"income-methods\",\"reason\":\"resource_not_incremental\",\"message\":\"endpoint does not declare a temporal filter parameter; incremental sync has no effect for this resource\"}\n{\"event\":\"sync_complete\",\"resource\":\"groups\",\"total\":0,\"duration_ms\":720}\n{\"event\":\"sync_start\",\"resource\":\"listings\"}\n{\"event\":\"sync_warning\",\"resource\":\"listings\",\"reason\":\"resource_not_incremental\",\"message\":\"endpoint does not declare a temporal filter parameter; incremental sync has no effect for this resource\"}\n{\"event\":\"sync_progress\",\"resource\":\"income-items\",\"fetched\":8}\n{\"event\":\"sync_complete\",\"resource\":\"income-items\",\"total\":8,\"duration_ms\":605}\n{\"event\":\"sync_start\",\"resource\":\"message\"}\n{\"event\":\"sync_complete\",\"resource\":\"knowledge-bases\",\"total\":0,\"duration_ms\":611}\n{\"event\":\"sync_start\",\"resource\":\"pricing-ratios\"}\n{\"event\":\"sync_progress\",\"resource\":\"income-methods\",\"fetched\":15}\n{\"event\":\"sync_complete\",\"resource\":\"income-methods\",\"total\":15,\"duration_ms\":671}\n{\"event\":\"sync_start\",\"resource\":\"properties\"}\n{\"event\":\"sync_warning\",\"resource\":\"properties\",\"reason\":\"resource_not_incremental\",\"message\":\"endpoint does not declare a temporal filter parameter; incremental sync has no effect for this resource\"}\n{\"event\":\"sync_progress\",\"resource\":\"listings\",\"fetched\":1}\n{\"event\":\"sync_complete\",\"resource\":\"listings\",\"total\":1,\"duration_ms\":723}\n{\"…[truncated]"
     },
     {
       "command": "sync",
@@ -4090,14 +3987,14 @@
       "kind": "happy_path",
       "args": null,
       "status": "skip",
-      "reason": "blocked-fixture: required API parameter"
+      "reason": "no id parseable from companion at depth 0"
     },
     {
       "command": "tags delete",
       "kind": "json_fidelity",
       "args": null,
       "status": "skip",
-      "reason": "blocked-fixture: required API parameter"
+      "reason": "no id parseable from companion at depth 0"
     },
     {
       "command": "tags delete",
@@ -4111,7 +4008,7 @@
       "kind": "error_path_real",
       "args": null,
       "status": "skip",
-      "reason": "blocked-fixture: required API parameter"
+      "reason": "no id parseable from companion at depth 0"
     },
     {
       "command": "tags query",
@@ -4132,7 +4029,7 @@
         "query"
       ],
       "status": "pass",
-      "output_sample": "{\n  \"meta\": {\n    \"source\": \"live\"\n  },\n  \"results\": {\n    \"request_id\": \"RT2026062714172158410\",\n    \"error_code\": 200,\n    \"error_msg\": \"Done.\",\n    \"data\": {\n      \"tags\": [],\n      \"total\": 0\n    }\n  }\n}\n"
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"live\"\n  },\n  \"results\": {\n    \"request_id\": \"RT2026062715014416708b4\",\n    \"error_code\": 200,\n    \"error_msg\": \"Done.\",\n    \"data\": {\n      \"tags\": [],\n      \"total\": 0\n    }\n  }\n}\n"
     },
     {
       "command": "tags query",
@@ -4143,7 +4040,7 @@
         "--json"
       ],
       "status": "pass",
-      "output_sample": "{\n  \"meta\": {\n    \"source\": \"live\"\n  },\n  \"results\": {\n    \"request_id\": \"RT2026062714172158410\",\n    \"error_code\": 200,\n    \"error_msg\": \"Done.\",\n    \"data\": {\n      \"tags\": [],\n      \"total\": 0\n    }\n  }\n}\n"
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"live\"\n  },\n  \"results\": {\n    \"request_id\": \"RT2026062715014416708b4\",\n    \"error_code\": 200,\n    \"error_msg\": \"Done.\",\n    \"data\": {\n      \"tags\": [],\n      \"total\": 0\n    }\n  }\n}\n"
     },
     {
       "command": "tags query",
@@ -4168,14 +4065,14 @@
       "kind": "happy_path",
       "args": null,
       "status": "skip",
-      "reason": "blocked-fixture: required API parameter"
+      "reason": "list companion previously failed at depth 0 for \"id\""
     },
     {
       "command": "tags update",
       "kind": "json_fidelity",
       "args": null,
       "status": "skip",
-      "reason": "blocked-fixture: required API parameter"
+      "reason": "list companion previously failed at depth 0 for \"id\""
     },
     {
       "command": "tags update",
@@ -4189,7 +4086,7 @@
       "kind": "error_path_real",
       "args": null,
       "status": "skip",
-      "reason": "blocked-fixture: required API parameter"
+      "reason": "list companion previously failed at depth 0 for \"id\""
     },
     {
       "command": "tail",
@@ -4290,14 +4187,14 @@
       "kind": "happy_path",
       "args": null,
       "status": "skip",
-      "reason": "blocked-fixture: required API parameter"
+      "reason": "no id parseable from companion at depth 0"
     },
     {
       "command": "tasks delete",
       "kind": "json_fidelity",
       "args": null,
       "status": "skip",
-      "reason": "blocked-fixture: required API parameter"
+      "reason": "no id parseable from companion at depth 0"
     },
     {
       "command": "tasks delete",
@@ -4311,7 +4208,7 @@
       "kind": "error_path_real",
       "args": null,
       "status": "skip",
-      "reason": "blocked-fixture: required API parameter"
+      "reason": "no id parseable from companion at depth 0"
     },
     {
       "command": "tasks query",
@@ -4332,7 +4229,7 @@
         "query"
       ],
       "status": "pass",
-      "output_sample": "{\n  \"meta\": {\n    \"source\": \"live\"\n  },\n  \"results\": {\n    \"request_id\": \"RT2026062714172372810\",\n    \"error_code\": 200,\n    \"error_msg\": \"Done.\",\n    \"data\": {\n      \"tasks\": [],\n      \"total\": 0\n    }\n  }\n}\n"
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"live\"\n  },\n  \"results\": {\n    \"request_id\": \"RT2026062715014920612\",\n    \"error_code\": 200,\n    \"error_msg\": \"Done.\",\n    \"data\": {\n      \"tasks\": [],\n      \"total\": 0\n    }\n  }\n}\n"
     },
     {
       "command": "tasks query",
@@ -4343,7 +4240,7 @@
         "--json"
       ],
       "status": "pass",
-      "output_sample": "{\n  \"meta\": {\n    \"source\": \"live\"\n  },\n  \"results\": {\n    \"request_id\": \"RT2026062714172372810\",\n    \"error_code\": 200,\n    \"error_msg\": \"Done.\",\n    \"data\": {\n      \"tasks\": [],\n      \"total\": 0\n    }\n  }\n}\n"
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"live\"\n  },\n  \"results\": {\n    \"request_id\": \"RT2026062715014920612\",\n    \"error_code\": 200,\n    \"error_msg\": \"Done.\",\n    \"data\": {\n      \"tasks\": [],\n      \"total\": 0\n    }\n  }\n}\n"
     },
     {
       "command": "tasks query",
@@ -4368,14 +4265,14 @@
       "kind": "happy_path",
       "args": null,
       "status": "skip",
-      "reason": "blocked-fixture: required API parameter"
+      "reason": "list companion previously failed at depth 0 for \"id\""
     },
     {
       "command": "tasks update",
       "kind": "json_fidelity",
       "args": null,
       "status": "skip",
-      "reason": "blocked-fixture: required API parameter"
+      "reason": "list companion previously failed at depth 0 for \"id\""
     },
     {
       "command": "tasks update",
@@ -4389,7 +4286,7 @@
       "kind": "error_path_real",
       "args": null,
       "status": "skip",
-      "reason": "blocked-fixture: required API parameter"
+      "reason": "list companion previously failed at depth 0 for \"id\""
     },
     {
       "command": "transactions create",
@@ -4459,14 +4356,14 @@
       "kind": "happy_path",
       "args": null,
       "status": "skip",
-      "reason": "blocked-fixture: required API parameter"
+      "reason": "list companion failed at depth 0: exit 5"
     },
     {
       "command": "transactions delete",
       "kind": "json_fidelity",
       "args": null,
       "status": "skip",
-      "reason": "blocked-fixture: required API parameter"
+      "reason": "list companion failed at depth 0: exit 5"
     },
     {
       "command": "transactions delete",
@@ -4480,7 +4377,7 @@
       "kind": "error_path_real",
       "args": null,
       "status": "skip",
-      "reason": "blocked-fixture: required API parameter"
+      "reason": "list companion failed at depth 0: exit 5"
     },
     {
       "command": "transactions query",
@@ -4505,7 +4402,7 @@
         "2026-12-31"
       ],
       "status": "pass",
-      "output_sample": "{\n  \"meta\": {\n    \"source\": \"live\"\n  },\n  \"results\": {\n    \"request_id\": \"RT2026062714172594608b3\",\n    \"error_code\": 200,\n    \"error_msg\": \"Done.\",\n    \"data\": {\n      \"transactions\": [],\n      \"total\": 0\n    }\n  }\n}\n"
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"live\"\n  },\n  \"results\": {\n    \"request_id\": \"RT2026062715015341212\",\n    \"error_code\": 200,\n    \"error_msg\": \"Done.\",\n    \"data\": {\n      \"transactions\": [],\n      \"total\": 0\n    }\n  }\n}\n"
     },
     {
       "command": "transactions query",
@@ -4520,7 +4417,7 @@
         "--json"
       ],
       "status": "pass",
-      "output_sample": "{\n  \"meta\": {\n    \"source\": \"live\"\n  },\n  \"results\": {\n    \"request_id\": \"RT2026062714172594608b3\",\n    \"error_code\": 200,\n    \"error_msg\": \"Done.\",\n    \"data\": {\n      \"transactions\": [],\n      \"total\": 0\n    }\n  }\n}\n"
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"live\"\n  },\n  \"results\": {\n    \"request_id\": \"RT2026062715015341212\",\n    \"error_code\": 200,\n    \"error_msg\": \"Done.\",\n    \"data\": {\n      \"transactions\": [],\n      \"total\": 0\n    }\n  }\n}\n"
     },
     {
       "command": "transactions query",
@@ -4545,14 +4442,14 @@
       "kind": "happy_path",
       "args": null,
       "status": "skip",
-      "reason": "blocked-fixture: required API parameter"
+      "reason": "list companion previously failed at depth 0 for \"id\""
     },
     {
       "command": "transactions update",
       "kind": "json_fidelity",
       "args": null,
       "status": "skip",
-      "reason": "blocked-fixture: required API parameter"
+      "reason": "list companion previously failed at depth 0 for \"id\""
     },
     {
       "command": "transactions update",
@@ -4566,7 +4463,7 @@
       "kind": "error_path_real",
       "args": null,
       "status": "skip",
-      "reason": "blocked-fixture: required API parameter"
+      "reason": "list companion previously failed at depth 0 for \"id\""
     },
     {
       "command": "webhooks create",
@@ -4636,14 +4533,14 @@
       "kind": "happy_path",
       "args": null,
       "status": "skip",
-      "reason": "blocked-fixture: required API parameter"
+      "reason": "no id parseable from companion at depth 0"
     },
     {
       "command": "webhooks delete",
       "kind": "json_fidelity",
       "args": null,
       "status": "skip",
-      "reason": "blocked-fixture: required API parameter"
+      "reason": "no id parseable from companion at depth 0"
     },
     {
       "command": "webhooks delete",
@@ -4657,7 +4554,7 @@
       "kind": "error_path_real",
       "args": null,
       "status": "skip",
-      "reason": "blocked-fixture: required API parameter"
+      "reason": "no id parseable from companion at depth 0"
     },
     {
       "command": "webhooks query",
@@ -4678,7 +4575,7 @@
         "query"
       ],
       "status": "pass",
-      "output_sample": "{\n  \"meta\": {\n    \"source\": \"live\"\n  },\n  \"results\": {\n    \"request_id\": \"RT2026062714172711307\",\n    \"error_code\": 200,\n    \"error_msg\": \"Done.\",\n    \"data\": {\n      \"webhooks\": []\n    }\n  }\n}\n"
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"live\"\n  },\n  \"results\": {\n    \"request_id\": \"RT2026062715015533008b4\",\n    \"error_code\": 200,\n    \"error_msg\": \"Done.\",\n    \"data\": {\n      \"webhooks\": []\n    }\n  }\n}\n"
     },
     {
       "command": "webhooks query",
@@ -4689,7 +4586,7 @@
         "--json"
       ],
       "status": "pass",
-      "output_sample": "{\n  \"meta\": {\n    \"source\": \"live\"\n  },\n  \"results\": {\n    \"request_id\": \"RT2026062714172711307\",\n    \"error_code\": 200,\n    \"error_msg\": \"Done.\",\n    \"data\": {\n      \"webhooks\": []\n    }\n  }\n}\n"
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"live\"\n  },\n  \"results\": {\n    \"request_id\": \"RT2026062715015533008b4\",\n    \"error_code\": 200,\n    \"error_msg\": \"Done.\",\n    \"data\": {\n      \"webhooks\": []\n    }\n  }\n}\n"
     },
     {
       "command": "webhooks query",
@@ -4714,14 +4611,14 @@
       "kind": "happy_path",
       "args": null,
       "status": "skip",
-      "reason": "blocked-fixture: required API parameter"
+      "reason": "list companion previously failed at depth 0 for \"id\""
     },
     {
       "command": "webhooks update",
       "kind": "json_fidelity",
       "args": null,
       "status": "skip",
-      "reason": "blocked-fixture: required API parameter"
+      "reason": "list companion previously failed at depth 0 for \"id\""
     },
     {
       "command": "webhooks update",
@@ -4735,7 +4632,7 @@
       "kind": "error_path_real",
       "args": null,
       "status": "skip",
-      "reason": "blocked-fixture: required API parameter"
+      "reason": "list companion previously failed at depth 0 for \"id\""
     },
     {
       "command": "which",
@@ -4791,7 +4688,7 @@
         "archive"
       ],
       "status": "pass",
-      "output_sample": "{\"event\":\"sync_start\",\"resource\":\"automation\"}\n{\"event\":\"sync_error\",\"resource\":\"automation\",\"status\":400,\"method\":\"GET\",\"path\":\"/automation/actions\",\"body\":\"The type field is required.\",\"error\":\"GET /automation/actions returned HTTP 400: The type field is required.\"}\n{\"event\":\"sync_start\",\"resource\":\"calendar-share-links\"}\n{\"event\":\"sync_complete\",\"resource\":\"calendar-share-links\",\"total\":0,\"duration_ms\":551}\n{\"event\":\"sync_start\",\"resource\":\"channel-accounts\"}\n{\"event\":\"sync_warning\",\"resource\":\"channel-accounts\",\"reason\":\"resource_not_incremental\",\"message\":\"endpoint does not declare a temporal filter parameter; incremental sync has no effect for this resource\"}\n{\"event\":\"sync_progress\",\"resource\":\"channel-accounts\",\"fetched\":1}\n{\"event\":\"sync_complete\",\"resource\":\"channel-accounts\",\"total\":1,\"duration_ms\":964}\n{\"event\":\"sync_start\",\"resource\":\"conversations\"}\n{\"event\":\"sync_error\",\"resource\":\"conversations\",\"status\":400,\"method\":\"GET\",\"path\":\"/conversations\",\"body\":\"The offset field is required.\",\"error\":\"GET /conversations returned HTTP 400: The offset field is required.\"}\n{\"event\":\"sync_start\",\"resource\":\"custom-channels\"}\n{\"event\":\"sync_warning\",\"resource\":\"custom-channels\",\"reason\":\"resource_not_incremental\",\"message\":\"endpoint does not declare a temporal filter parameter; incremental sync has no effect for this resource\"}\n{\"event\":\"sync_progress\",\"resource\":\"custom-channels\",\"fetched\":7}\n{\"event\":\"sync_complete\",\"resource\":\"custom-channels\",\"total\":7,\"duration_ms\":534}\n{\"event\":\"sync_start\",\"resource\":\"expense-items\"}\n{\"event\":\"sync_warning\",\"resource\":\"expense-items\",\"reason\":\"resource_not_incremental\",\"message\":\"endpoint does not declare a temporal filter parameter; incremental sync has no effect for this resource\"}\n{\"event\":\"sync_progress\",\"resource\":\"expense-items\",\"fetched\":13}\n{\"event\":\"sync_complete\",\"resource\":\"expense-items\",\"total\":13,\"duration_ms\":518}\n{\"event\":\"sync_start\",\"resource\":\"expense-methods\"}\n{\"event\":\"sync_warning\",\"resource\":\"expense-methods\",\"reason\":\"resource_not_incremental\",\"message\":\"endpoint does not declare a temporal filter parameter; incremental sync has no effect for this resource\"}\n{\"event\":\"sync_progress\",\"resource\":\"expense-methods\",\"fetched\":15}\n{\"event\":\"sync_complete\",\"resource\":\"expense-methods\",\"total\":15,\"duration_ms\":614}\n{\"event\":\"sync_start\",\"resource\":\"groups\"}\n{\"event\":\"sync_complete\",\"resource\":\"groups\",\"total\":0,\"duration_ms\":520}\n{\"event\":\"sync_start\",\"resource\":\"income-items\"}\n{\"event\":\"sync_warning\",\"resource\":\"income-items\",\"reason\":\"resource_not_incremental\",\"message\":\"endpoint does not declare a temporal filter parameter; incremental sync has no effect for this resource\"}\n{\"event\":\"sync_progress\",\"resource\":\"income-items\",\"fetched\":8}\n{\"event\":\"sync_complete\",\"resource\":\"income-items\",\"total\":8,\"duration_ms\":578}\n{\"event\":\"sync_start\",\"resource\":\"income-methods\"}\n{\"event\":\"sync_warning\",\"resource\":\"income-methods\",\"reason\":\"resource_not_incremental\",\"message\":\"endpoint does not declare a temporal filter parameter; incremental sync has no effect for this resource\"}\n{\"event\":\"sync_progress\",\"resource\":\"income-methods\",\"fetched\":15}\n{\"event\":\"sync_complete\",\"resource\":\"income-methods\",\"total\":15,\"duration_ms\":548}\n{\"event\":\"sync_start\",\"resource\":\"knowledge-bases\"}\n{\"event\":\"sync_complete\",\"resource\":\"knowledge-bases\",\"total\":0,\"duration_ms\":597}\n{\"event\":\"sync_start\",\"resource\":\"listings\"}\n{\"event\":\"sync_warning\",\"resource\":\"listings\",\"reason\":\"resource_not_incremental\",\"message\":\"endpoint does not declare a temporal filter parameter; incremental sync has no effect for this resource\"}\n{\"event\":\"sync_progress\",\"resource\":\"listings\",\"fetched\":1}\n{\"event\":\"sync_complete\",\"resource\":\"listings\",\"total\":1,\"duration_ms\":622}\n{\"event\":\"sync_start\",\"resource\":\"message\"}\n{\"event\":\"sync_complete\",\"resource\":\"message\",\"total\":0,\"duration_ms\":585}\n{\"event\":\"sync_start\",\"resource\":\"pricing-ratios\"}\n{\"event\":\"sync_error\",\"resource\":\"pricing-ratios\",\"status\":400,\"method\":\"GET\",\"path\":\"/pricing_ratios\",\"body\":\"The property id field is required when room type id is not present…[truncated]"
+      "output_sample": "{\"event\":\"sync_start\",\"resource\":\"automation\"}\n{\"event\":\"sync_error\",\"resource\":\"automation\",\"status\":400,\"method\":\"GET\",\"path\":\"/automation/actions\",\"body\":\"The type field is required.\",\"error\":\"GET /automation/actions returned HTTP 400: The type field is required.\"}\n{\"event\":\"sync_start\",\"resource\":\"calendar-share-links\"}\n{\"event\":\"sync_complete\",\"resource\":\"calendar-share-links\",\"total\":0,\"duration_ms\":666}\n{\"event\":\"sync_start\",\"resource\":\"channel-accounts\"}\n{\"event\":\"sync_warning\",\"resource\":\"channel-accounts\",\"reason\":\"resource_not_incremental\",\"message\":\"endpoint does not declare a temporal filter parameter; incremental sync has no effect for this resource\"}\n{\"event\":\"sync_progress\",\"resource\":\"channel-accounts\",\"fetched\":1}\n{\"event\":\"sync_complete\",\"resource\":\"channel-accounts\",\"total\":1,\"duration_ms\":631}\n{\"event\":\"sync_start\",\"resource\":\"conversations\"}\n{\"event\":\"sync_error\",\"resource\":\"conversations\",\"status\":400,\"method\":\"GET\",\"path\":\"/conversations\",\"body\":\"The offset field is required.\",\"error\":\"GET /conversations returned HTTP 400: The offset field is required.\"}\n{\"event\":\"sync_start\",\"resource\":\"custom-channels\"}\n{\"event\":\"sync_warning\",\"resource\":\"custom-channels\",\"reason\":\"resource_not_incremental\",\"message\":\"endpoint does not declare a temporal filter parameter; incremental sync has no effect for this resource\"}\n{\"event\":\"sync_progress\",\"resource\":\"custom-channels\",\"fetched\":7}\n{\"event\":\"sync_complete\",\"resource\":\"custom-channels\",\"total\":7,\"duration_ms\":850}\n{\"event\":\"sync_start\",\"resource\":\"expense-items\"}\n{\"event\":\"sync_warning\",\"resource\":\"expense-items\",\"reason\":\"resource_not_incremental\",\"message\":\"endpoint does not declare a temporal filter parameter; incremental sync has no effect for this resource\"}\n{\"event\":\"sync_progress\",\"resource\":\"expense-items\",\"fetched\":13}\n{\"event\":\"sync_complete\",\"resource\":\"expense-items\",\"total\":13,\"duration_ms\":598}\n{\"event\":\"sync_start\",\"resource\":\"expense-methods\"}\n{\"event\":\"sync_warning\",\"resource\":\"expense-methods\",\"reason\":\"resource_not_incremental\",\"message\":\"endpoint does not declare a temporal filter parameter; incremental sync has no effect for this resource\"}\n{\"event\":\"sync_progress\",\"resource\":\"expense-methods\",\"fetched\":15}\n{\"event\":\"sync_complete\",\"resource\":\"expense-methods\",\"total\":15,\"duration_ms\":609}\n{\"event\":\"sync_start\",\"resource\":\"groups\"}\n{\"event\":\"sync_complete\",\"resource\":\"groups\",\"total\":0,\"duration_ms\":686}\n{\"event\":\"sync_start\",\"resource\":\"income-items\"}\n{\"event\":\"sync_warning\",\"resource\":\"income-items\",\"reason\":\"resource_not_incremental\",\"message\":\"endpoint does not declare a temporal filter parameter; incremental sync has no effect for this resource\"}\n{\"event\":\"sync_progress\",\"resource\":\"income-items\",\"fetched\":8}\n{\"event\":\"sync_complete\",\"resource\":\"income-items\",\"total\":8,\"duration_ms\":662}\n{\"event\":\"sync_start\",\"resource\":\"income-methods\"}\n{\"event\":\"sync_warning\",\"resource\":\"income-methods\",\"reason\":\"resource_not_incremental\",\"message\":\"endpoint does not declare a temporal filter parameter; incremental sync has no effect for this resource\"}\n{\"event\":\"sync_progress\",\"resource\":\"income-methods\",\"fetched\":15}\n{\"event\":\"sync_complete\",\"resource\":\"income-methods\",\"total\":15,\"duration_ms\":619}\n{\"event\":\"sync_start\",\"resource\":\"knowledge-bases\"}\n{\"event\":\"sync_complete\",\"resource\":\"knowledge-bases\",\"total\":0,\"duration_ms\":6007}\n{\"event\":\"sync_start\",\"resource\":\"listings\"}\n{\"event\":\"sync_warning\",\"resource\":\"listings\",\"reason\":\"resource_not_incremental\",\"message\":\"endpoint does not declare a temporal filter parameter; incremental sync has no effect for this resource\"}\n{\"event\":\"sync_progress\",\"resource\":\"listings\",\"fetched\":1}\n{\"event\":\"sync_complete\",\"resource\":\"listings\",\"total\":1,\"duration_ms\":823}\n{\"event\":\"sync_start\",\"resource\":\"message\"}\n{\"event\":\"sync_complete\",\"resource\":\"message\",\"total\":0,\"duration_ms\":614}\n{\"event\":\"sync_start\",\"resource\":\"pricing-ratios\"}\n{\"event\":\"sync_error\",\"resource\":\"pricing-ratios\",\"status\":400,\"method\":\"GET\",\"path\":\"/pricing_ratios\",\"body\":\"The property id field is required when room type id is not presen…[truncated]"
     },
     {
       "command": "workflow archive",
@@ -4802,7 +4699,7 @@
         "--json"
       ],
       "status": "pass",
-      "output_sample": "{\n  \"resources_synced\": 25,\n  \"store_path\": \"/var/folders/ys/lr3bkj4x2773n5bfchm99wc40000gn/T/printing-press-subprocess-2132359349/.local/share/hostex-pp-cli/data.db\",\n  \"timestamp\": \"2026-06-27T06:17:57Z\",\n  \"total_items\": 65\n}\n{\"event\":\"sync_start\",\"resource\":\"automation\"}\n{\"event\":\"sync_error\",\"resource\":\"automation\",\"status\":400,\"method\":\"GET\",\"path\":\"/automation/actions\",\"body\":\"The type field is required.\",\"error\":\"GET /automation/actions returned HTTP 400: The type field is required.\"}\n  automation: error: fetching automation: GET /automation/actions returned HTTP 400: The type field is required.\n{\"event\":\"sync_start\",\"resource\":\"calendar-share-links\"}\n{\"event\":\"sync_complete\",\"resource\":\"calendar-share-links\",\"total\":0,\"duration_ms\":521}\n  calendar-share-links: 0 synced\n{\"event\":\"sync_start\",\"resource\":\"channel-accounts\"}\n{\"event\":\"sync_warning\",\"resource\":\"channel-accounts\",\"reason\":\"resource_not_incremental\",\"message\":\"endpoint does not declare a temporal filter parameter; incremental sync has no effect for this resource\"}\n{\"event\":\"sync_progress\",\"resource\":\"channel-accounts\",\"fetched\":1}\n{\"event\":\"sync_complete\",\"resource\":\"channel-accounts\",\"total\":1,\"duration_ms\":610}\n  channel-accounts: 1 synced\n{\"event\":\"sync_start\",\"resource\":\"conversations\"}\n{\"event\":\"sync_error\",\"resource\":\"conversations\",\"status\":400,\"method\":\"GET\",\"path\":\"/conversations\",\"body\":\"The offset field is required.\",\"error\":\"GET /conversations returned HTTP 400: The offset field is required.\"}\n  conversations: error: fetching conversations: GET /conversations returned HTTP 400: The offset field is required.\n{\"event\":\"sync_start\",\"resource\":\"custom-channels\"}\n{\"event\":\"sync_warning\",\"resource\":\"custom-channels\",\"reason\":\"resource_not_incremental\",\"message\":\"endpoint does not declare a temporal filter parameter; incremental sync has no effect for this resource\"}\n{\"event\":\"sync_progress\",\"resource\":\"custom-channels\",\"fetched\":7}\n{\"event\":\"sync_complete\",\"resource\":\"custom-channels\",\"total\":7,\"duration_ms\":592}\n  custom-channels: 7 synced\n{\"event\":\"sync_start\",\"resource\":\"expense-items\"}\n{\"event\":\"sync_warning\",\"resource\":\"expense-items\",\"reason\":\"resource_not_incremental\",\"message\":\"endpoint does not declare a temporal filter parameter; incremental sync has no effect for this resource\"}\n{\"event\":\"sync_progress\",\"resource\":\"expense-items\",\"fetched\":13}\n{\"event\":\"sync_complete\",\"resource\":\"expense-items\",\"total\":13,\"duration_ms\":513}\n  expense-items: 13 synced\n{\"event\":\"sync_start\",\"resource\":\"expense-methods\"}\n{\"event\":\"sync_warning\",\"resource\":\"expense-methods\",\"reason\":\"resource_not_incremental\",\"message\":\"endpoint does not declare a temporal filter parameter; incremental sync has no effect for this resource\"}\n{\"event\":\"sync_progress\",\"resource\":\"expense-methods\",\"fetched\":15}\n{\"event\":\"sync_complete\",\"resource\":\"expense-methods\",\"total\":15,\"duration_ms\":592}\n  expense-methods: 15 synced\n{\"event\":\"sync_start\",\"resource\":\"groups\"}\n{\"event\":\"sync_complete\",\"resource\":\"groups\",\"total\":0,\"duration_ms\":938}\n  groups: 0 synced\n{\"event\":\"sync_start\",\"resource\":\"income-items\"}\n{\"event\":\"sync_warning\",\"resource\":\"income-items\",\"reason\":\"resource_not_incremental\",\"message\":\"endpoint does not declare a temporal filter parameter; incremental sync has no effect for this resource\"}\n{\"event\":\"sync_progress\",\"resource\":\"income-items\",\"fetched\":8}\n{\"event\":\"sync_complete\",\"resource\":\"income-items\",\"total\":8,\"duration_ms\":582}\n  income-items: 8 synced\n{\"event\":\"sync_start\",\"resource\":\"income-methods\"}\n{\"event\":\"sync_warning\",\"resource\":\"income-methods\",\"reason\":\"resource_not_incremental\",\"message\":\"endpoint does not declare a temporal filter parameter; incremental sync has no effect for this resource\"}\n{\"event\":\"sync_progress\",\"resource\":\"income-methods\",\"fetched\":15}\n{\"event\":\"sync_complete\",\"resource\":\"income-methods\",\"total\":15,\"duration_ms\":533}\n  income-methods: 15 synced\n{\"event\":\"sync_start\",\"resource\":\"knowledge-bases\"}\n{\"event\":\"sync_complete\",\"resource\":\"knowledge-bases\",\"total\":0,\"duration_ms\":592}\n  knowledge-bases: 0 synced\n{\"event\":\"sync_start\",\"…[truncated]"
+      "output_sample": "{\n  \"resources_synced\": 25,\n  \"store_path\": \"/var/folders/ys/lr3bkj4x2773n5bfchm99wc40000gn/T/printing-press-subprocess-3828098177/.local/share/hostex-pp-cli/data.db\",\n  \"timestamp\": \"2026-06-27T07:02:47Z\",\n  \"total_items\": 65\n}\n{\"event\":\"sync_start\",\"resource\":\"automation\"}\n{\"event\":\"sync_error\",\"resource\":\"automation\",\"status\":400,\"method\":\"GET\",\"path\":\"/automation/actions\",\"body\":\"The type field is required.\",\"error\":\"GET /automation/actions returned HTTP 400: The type field is required.\"}\n  automation: error: fetching automation: GET /automation/actions returned HTTP 400: The type field is required.\n{\"event\":\"sync_start\",\"resource\":\"calendar-share-links\"}\n{\"event\":\"sync_complete\",\"resource\":\"calendar-share-links\",\"total\":0,\"duration_ms\":717}\n  calendar-share-links: 0 synced\n{\"event\":\"sync_start\",\"resource\":\"channel-accounts\"}\n{\"event\":\"sync_warning\",\"resource\":\"channel-accounts\",\"reason\":\"resource_not_incremental\",\"message\":\"endpoint does not declare a temporal filter parameter; incremental sync has no effect for this resource\"}\n{\"event\":\"sync_progress\",\"resource\":\"channel-accounts\",\"fetched\":1}\n{\"event\":\"sync_complete\",\"resource\":\"channel-accounts\",\"total\":1,\"duration_ms\":901}\n  channel-accounts: 1 synced\n{\"event\":\"sync_start\",\"resource\":\"conversations\"}\n{\"event\":\"sync_error\",\"resource\":\"conversations\",\"status\":400,\"method\":\"GET\",\"path\":\"/conversations\",\"body\":\"The offset field is required.\",\"error\":\"GET /conversations returned HTTP 400: The offset field is required.\"}\n  conversations: error: fetching conversations: GET /conversations returned HTTP 400: The offset field is required.\n{\"event\":\"sync_start\",\"resource\":\"custom-channels\"}\n{\"event\":\"sync_warning\",\"resource\":\"custom-channels\",\"reason\":\"resource_not_incremental\",\"message\":\"endpoint does not declare a temporal filter parameter; incremental sync has no effect for this resource\"}\n{\"event\":\"sync_progress\",\"resource\":\"custom-channels\",\"fetched\":7}\n{\"event\":\"sync_complete\",\"resource\":\"custom-channels\",\"total\":7,\"duration_ms\":683}\n  custom-channels: 7 synced\n{\"event\":\"sync_start\",\"resource\":\"expense-items\"}\n{\"event\":\"sync_warning\",\"resource\":\"expense-items\",\"reason\":\"resource_not_incremental\",\"message\":\"endpoint does not declare a temporal filter parameter; incremental sync has no effect for this resource\"}\n{\"event\":\"sync_progress\",\"resource\":\"expense-items\",\"fetched\":13}\n{\"event\":\"sync_complete\",\"resource\":\"expense-items\",\"total\":13,\"duration_ms\":611}\n  expense-items: 13 synced\n{\"event\":\"sync_start\",\"resource\":\"expense-methods\"}\n{\"event\":\"sync_warning\",\"resource\":\"expense-methods\",\"reason\":\"resource_not_incremental\",\"message\":\"endpoint does not declare a temporal filter parameter; incremental sync has no effect for this resource\"}\n{\"event\":\"sync_progress\",\"resource\":\"expense-methods\",\"fetched\":15}\n{\"event\":\"sync_complete\",\"resource\":\"expense-methods\",\"total\":15,\"duration_ms\":953}\n  expense-methods: 15 synced\n{\"event\":\"sync_start\",\"resource\":\"groups\"}\n{\"event\":\"sync_complete\",\"resource\":\"groups\",\"total\":0,\"duration_ms\":656}\n  groups: 0 synced\n{\"event\":\"sync_start\",\"resource\":\"income-items\"}\n{\"event\":\"sync_warning\",\"resource\":\"income-items\",\"reason\":\"resource_not_incremental\",\"message\":\"endpoint does not declare a temporal filter parameter; incremental sync has no effect for this resource\"}\n{\"event\":\"sync_progress\",\"resource\":\"income-items\",\"fetched\":8}\n{\"event\":\"sync_complete\",\"resource\":\"income-items\",\"total\":8,\"duration_ms\":1194}\n  income-items: 8 synced\n{\"event\":\"sync_start\",\"resource\":\"income-methods\"}\n{\"event\":\"sync_warning\",\"resource\":\"income-methods\",\"reason\":\"resource_not_incremental\",\"message\":\"endpoint does not declare a temporal filter parameter; incremental sync has no effect for this resource\"}\n{\"event\":\"sync_progress\",\"resource\":\"income-methods\",\"fetched\":15}\n{\"event\":\"sync_complete\",\"resource\":\"income-methods\",\"total\":15,\"duration_ms\":629}\n  income-methods: 15 synced\n{\"event\":\"sync_start\",\"resource\":\"knowledge-bases\"}\n{\"event\":\"sync_complete\",\"resource\":\"knowledge-bases\",\"total\":0,\"duration_ms\":6653}\n  knowledge-bases: 0 synced\n{\"event\":\"sync_start\"…[truncated]"
     },
     {
       "command": "workflow archive",
@@ -4830,7 +4727,7 @@
         "status"
       ],
       "status": "pass",
-      "output_sample": "Archive Status:\n  custom-channels                7 items\n  expense-methods                15 items\n  income-items                   8 items\n  income-methods                 15 items\n  channel-accounts               1 items\n  expense-items                  13 items\n  listings                       1 items\n  pricing-ratios                 1 items\n  properties                     1 items\n  reservation-tags               4 items\n  conversations                  4 items\n\n  Total: 70 items\n  Store: /var/folders/ys/lr3bkj4x2773n5bfchm99wc40000gn/T/printing-press-subprocess-2132359349/.local/share/hostex-pp-cli/data.db\n"
+      "output_sample": "Archive Status:\n  channel-accounts               1 items\n  conversations                  3 items\n  custom-channels                7 items\n  income-items                   8 items\n  income-methods                 15 items\n  properties                     1 items\n  reservation-tags               4 items\n  expense-items                  13 items\n  expense-methods                15 items\n  listings                       1 items\n  pricing-ratios                 1 items\n\n  Total: 69 items\n  Store: /var/folders/ys/lr3bkj4x2773n5bfchm99wc40000gn/T/printing-press-subprocess-3828098177/.local/share/hostex-pp-cli/data.db\n"
     },
     {
       "command": "workflow status",
@@ -4841,7 +4738,7 @@
         "--json"
       ],
       "status": "pass",
-      "output_sample": "{\n  \"channel-accounts\": 1,\n  \"conversations\": 4,\n  \"custom-channels\": 7,\n  \"expense-items\": 13,\n  \"expense-methods\": 15,\n  \"income-items\": 8,\n  \"income-methods\": 15,\n  \"listings\": 1,\n  \"pricing-ratios\": 1,\n  \"properties\": 1,\n  \"reservation-tags\": 4\n}\n"
+      "output_sample": "{\n  \"channel-accounts\": 1,\n  \"conversations\": 3,\n  \"custom-channels\": 7,\n  \"expense-items\": 13,\n  \"expense-methods\": 15,\n  \"income-items\": 8,\n  \"income-methods\": 15,\n  \"listings\": 1,\n  \"pricing-ratios\": 1,\n  \"properties\": 1,\n  \"reservation-tags\": 4\n}\n"
     },
     {
       "command": "workflow status",
@@ -4851,5 +4748,5 @@
       "reason": "no positional argument"
     }
   ],
-  "ran_at": "2026-06-27T06:16:21.561467Z"
+  "ran_at": "2026-06-27T07:00:09.570278Z"
 }

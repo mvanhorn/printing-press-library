@@ -114,7 +114,7 @@ func newNovelAutomationPreviewCmd(flags *rootFlags) *cobra.Command {
 						threadLast = lm.Format(time.RFC3339)
 						// Recent thread activity (last 24h) suggests a human may
 						// already be handling this conversation.
-						if now.Sub(lm) <= 24*time.Hour {
+						if d := now.Sub(lm); d >= 0 && d <= 24*time.Hour {
 							possibly = true
 						}
 					}

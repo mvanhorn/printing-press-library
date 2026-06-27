@@ -612,15 +612,15 @@ func (c *Client) doInternal(ctx context.Context, method, path string, params map
 
 		// Success
 		if resp.StatusCode < 400 {
-			c.limiter.OnSuccess()
-			if method != http.MethodGet && !c.DryRun {
-				c.invalidateCache()
-			}
 			// Non-textual bodies (PDF, zip, image, octet-stream) must not be
 			// run through the JSON sanitizer or returned as raw json.RawMessage
 			// — return a self-describing base64 envelope instead. Textual and
 			// JSON responses fall through to the unchanged path.
 			if isBinaryResponseContentType(resp.Header.Get("Content-Type")) {
+				c.limiter.OnSuccess()
+				if method != http.MethodGet && !c.DryRun {
+					c.invalidateCache()
+				}
 				env, encErr := wrapBinaryResponse(resp.Header.Get("Content-Type"), respBody)
 				if encErr != nil {
 					return nil, 0, encErr
@@ -664,6 +664,10 @@ func (c *Client) doInternal(ctx context.Context, method, path string, params map
 					continue
 				}
 				return nil, code, envErr
+			}
+			c.limiter.OnSuccess()
+			if method != http.MethodGet && !c.DryRun {
+				c.invalidateCache()
 			}
 			return json.RawMessage(sanitized), resp.StatusCode, nil
 		}

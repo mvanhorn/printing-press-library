@@ -75,9 +75,18 @@ func newNovelStayBriefCmd(flags *rootFlags) *cobra.Command {
 				return out
 			}
 
-			tasksAll, _ := listObjs(db, "tasks")
-			txAll, _ := listObjs(db, "transactions")
-			reviewsAll, _ := listObjs(db, "reviews")
+			tasksAll, err := listObjs(db, "tasks")
+			if err != nil {
+				return fmt.Errorf("reading tasks: %w", err)
+			}
+			txAll, err := listObjs(db, "transactions")
+			if err != nil {
+				return fmt.Errorf("reading transactions: %w", err)
+			}
+			reviewsAll, err := listObjs(db, "reviews")
+			if err != nil {
+				return fmt.Errorf("reading reviews: %w", err)
+			}
 			tasks := matchStay(tasksAll)
 			transactions := matchStay(txAll)
 
@@ -92,7 +101,10 @@ func newNovelStayBriefCmd(flags *rootFlags) *cobra.Command {
 			var conversation map[string]any
 			convID := novStr(reservation, "conversation_id")
 			if convID != "" {
-				convAll, _ := listObjs(db, "conversations")
+				convAll, err := listObjs(db, "conversations")
+				if err != nil {
+					return fmt.Errorf("reading conversations: %w", err)
+				}
 				for _, c := range convAll {
 					if novStr(c, "id") == convID {
 						conversation = c

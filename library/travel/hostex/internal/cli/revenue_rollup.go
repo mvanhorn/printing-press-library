@@ -107,7 +107,9 @@ func newNovelRevenueRollupCmd(flags *rootFlags) *cobra.Command {
 					Transactions []map[string]any `json:"transactions"`
 					Total        int              `json:"total"`
 				}
-				_ = json.Unmarshal(novUnwrapData(raw), &resp)
+				if err := json.Unmarshal(novUnwrapData(raw), &resp); err != nil {
+					return fmt.Errorf("decoding transactions page %d: %w", page, err)
+				}
 				if len(resp.Transactions) == 0 {
 					break
 				}

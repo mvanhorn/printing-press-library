@@ -4,9 +4,9 @@
   "run_id": "20260627-060401-7471d49d",
   "status": "pass",
   "level": "full",
-  "matrix_size": 255,
-  "tests_passed": 255,
-  "tests_skipped": 253,
+  "matrix_size": 241,
+  "tests_passed": 241,
+  "tests_skipped": 267,
   "auth_context": {
     "type": "api_key",
     "api_key_available": true

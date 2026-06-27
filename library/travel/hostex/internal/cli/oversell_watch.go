@@ -105,6 +105,7 @@ func newNovelOversellWatchCmd(flags *rootFlags) *cobra.Command {
 			}
 			rows := make([]osRow, 0)
 			scannedProps := 0
+			fetchFailures := 0
 
 			for _, pid := range propIDs {
 				scannedProps++
@@ -123,11 +124,21 @@ func newNovelOversellWatchCmd(flags *rootFlags) *cobra.Command {
 					continue
 				}
 				// Per-channel listings + calendar inventory.
-				listings := propertyListings(ctx, c, pid)
+				listings, lerr := propertyListings(ctx, c, pid)
+				if lerr != nil {
+					fmt.Fprintf(cmd.ErrOrStderr(), "warning: pricing ratios for property %s failed: %v\n", pid, lerr)
+					fetchFailures++
+					continue
+				}
 				if len(listings) == 0 {
 					continue
 				}
-				calRows := listingInventory(ctx, c, start, end, listings)
+				calRows, cerr := listingInventory(ctx, c, start, end, listings)
+				if cerr != nil {
+					fmt.Fprintf(cmd.ErrOrStderr(), "warning: listing calendar for property %s failed: %v\n", pid, cerr)
+					fetchFailures++
+					continue
+				}
 				for _, cr := range calRows {
 					if cr.inventory > 0 && blocked[cr.date] {
 						rows = append(rows, osRow{PropertyID: pid, Date: cr.date, ChannelType: cr.channel, Inventory: cr.inventory})
@@ -143,15 +154,17 @@ func newNovelOversellWatchCmd(flags *rootFlags) *cobra.Command {
 			})
 
 			view := struct {
-				Range        string  `json:"range"`
-				ScannedProps int     `json:"scanned_properties"`
-				OversellDays int     `json:"oversell_dates"`
-				Oversells    []osRow `json:"oversells"`
+				Range         string  `json:"range"`
+				ScannedProps  int     `json:"scanned_properties"`
+				OversellDays  int     `json:"oversell_dates"`
+				Oversells     []osRow `json:"oversells"`
+				FetchFailures int     `json:"fetch_failures"`
 			}{
-				Range:        start + ".." + end,
-				ScannedProps: scannedProps,
-				OversellDays: len(rows),
-				Oversells:    rows,
+				Range:         start + ".." + end,
+				ScannedProps:  scannedProps,
+				OversellDays:  len(rows),
+				Oversells:     rows,
+				FetchFailures: fetchFailures,
 			}
 			return novEmit(cmd, flags, view)
 		},
@@ -189,16 +202,18 @@ type pListing struct {
 	ListingID   any    `json:"listing_id"`
 }
 
-func propertyListings(ctx context.Context, c *client.Client, propID string) []pListing {
+func propertyListings(ctx context.Context, c *client.Client, propID string) ([]pListing, error) {
 	raw, err := c.Get(ctx, "/pricing_ratios", map[string]string{"property_id": propID})
 	if err != nil {
-		return nil
+		return nil, err
 	}
 	var rat struct {
 		Channels []pListing `json:"channels"`
 	}
-	_ = json.Unmarshal(novUnwrapData(raw), &rat)
-	return rat.Channels
+	if err := json.Unmarshal(novUnwrapData(raw), &rat); err != nil {
+		return nil, err
+	}
+	return rat.Channels, nil
 }
 
 type invCell struct {
@@ -207,11 +222,11 @@ type invCell struct {
 	inventory float64
 }
 
-func listingInventory(ctx context.Context, c *client.Client, start, end string, listings []pListing) []invCell {
+func listingInventory(ctx context.Context, c *client.Client, start, end string, listings []pListing) ([]invCell, error) {
 	body := map[string]any{"start_date": start, "end_date": end, "listings": listings}
-	raw, _, err := c.Post(ctx, "/listings/calendar", body)
+	raw, _, err := c.PostQueryWithParams(ctx, "/listings/calendar", nil, body)
 	if err != nil {
-		return nil
+		return nil, err
 	}
 	var cal struct {
 		Listings []struct {
@@ -222,7 +237,9 @@ func listingInventory(ctx context.Context, c *client.Client, start, end string, 
 			} `json:"calendar"`
 		} `json:"listings"`
 	}
-	_ = json.Unmarshal(novUnwrapData(raw), &cal)
+	if err := json.Unmarshal(novUnwrapData(raw), &cal); err != nil {
+		return nil, err
+	}
 	out := make([]invCell, 0)
 	for _, l := range cal.Listings {
 		for _, d := range l.Calendar {
@@ -230,5 +247,5 @@ func listingInventory(ctx context.Context, c *client.Client, start, end string, 
 			out = append(out, invCell{date: d.Date, channel: l.ChannelType, inventory: inv})
 		}
 	}
-	return out
+	return out, nil
 }

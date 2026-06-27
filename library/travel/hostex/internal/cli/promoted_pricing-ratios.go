@@ -20,7 +20,7 @@ func newPricingRatiosPromotedCmd(flags *rootFlags) *cobra.Command {
 		Short:       "Return the per-channel pricing ratio of each OTA listing linked to a property (`property_id`)",
 		Long:        "Return the per-channel pricing ratio of each OTA listing linked to a property (`property_id`)",
 		Example:     "  hostex-pp-cli pricing-ratios",
-		Annotations: map[string]string{"pp:endpoint": "pricing-ratios.query", "pp:method": "GET", "pp:path": "/pricing_ratios", "mcp:read-only": "true"},
+		Annotations: map[string]string{"pp:endpoint": "pricing-ratios.query", "pp:method": "GET", "pp:path": "/pricing_ratios", "mcp:read-only": "true", "pp:happy-args": "--property-id=12704864"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()
 			if err != nil {
