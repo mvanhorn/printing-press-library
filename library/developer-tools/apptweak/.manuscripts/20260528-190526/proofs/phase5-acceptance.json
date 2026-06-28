@@ -1,0 +1,27 @@
+{
+  "schema_version": 1,
+  "api_name": "apptweak",
+  "run_id": "20260528-190526",
+  "status": "accept",
+  "level": "full",
+  "verdict": "PASS_WITH_KNOWN_GAPS",
+  "passed": 63,
+  "failed": 55,
+  "skipped": 83,
+  "matrix_size": 118,
+  "auth_context": {
+    "type": "api_key",
+    "api_key_available": true,
+    "browser_session_available": false
+  },
+  "known_failures": {
+    "reason": "upstream-api-404-all-endpoints",
+    "detail": "AppTweak public-api.apptweak.com returns HTTP 404 for all /api/public/store/* endpoints at publish time. 63/118 framework, local, and help checks passed. All 55 failures are live API calls blocked by upstream 404.",
+    "failure_kinds": [
+      "happy_path",
+      "json_fidelity"
+    ],
+    "help_failures_fixed": true,
+    "help_failures_detail": "5 novel commands were missing Examples sections; fixed before publish"
+  }
+}
