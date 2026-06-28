@@ -1,0 +1,72 @@
+{
+  "schema_version": 1,
+  "applied_at": "2026-06-28",
+  "base_run_id": "20260529-060535",
+  "base_printing_press_version": "4.19.0",
+  "patches": [
+    {
+      "id": "apple-search-ads-data-source-annotations",
+      "applied_at": "2026-06-28",
+      "summary": "Added pp:data-source annotations to all 5 novel feature files.",
+      "reason": "Dogfood framework requires pp:data-source (local/live/computed) annotations for novel feature classification.",
+      "files": [
+        "internal/cli/analytics_query.go",
+        "internal/cli/optimize_suggest.go",
+        "internal/cli/keywords_auto_promote.go",
+        "internal/cli/campaigns_forecast_spend.go",
+        "internal/cli/templates_apply.go"
+      ]
+    },
+    {
+      "id": "apple-search-ads-gosec-security-hardening",
+      "applied_at": "2026-06-28",
+      "summary": "Security hardening: path traversal guard, file permissions (0o750/0o600), explicit error discards.",
+      "reason": "gosec scan found G304 path traversal, G301/G306 file permissions, and G104 unhandled errors in hand-authored novel feature files.",
+      "files": [
+        "internal/cli/templates_apply.go",
+        "internal/cli/analytics_query.go",
+        "internal/cli/campaigns_forecast_spend.go",
+        "internal/cli/keywords_auto_promote.go"
+      ]
+    },
+    {
+      "id": "apple-search-ads-go-cve-bump",
+      "applied_at": "2026-06-28",
+      "summary": "Bumped go.mod from go 1.26.3 to go 1.26.4 to fix two stdlib CVEs.",
+      "reason": "govulncheck reported GO-2026-5039 (net/textproto) and GO-2026-5037 (crypto/x509), fixed in Go 1.26.4.",
+      "files": [
+        "go.mod"
+      ]
+    },
+    {
+      "id": "apple-search-ads-skill-md-restore",
+      "applied_at": "2026-06-28",
+      "summary": "Restored SKILL.md canonical install section with correct Go version and PATH guidance.",
+      "reason": "verify-skill reported SKILL.md Prerequisites section had drifted from canonical generator format.",
+      "files": [
+        "SKILL.md"
+      ]
+    },
+    {
+      "id": "apple-search-ads-keywords-dry-run-json-fix",
+      "applied_at": "2026-06-28",
+      "summary": "Removed dryRunOK early exit from keywords auto-promote; command has its own dry-run logic.",
+      "reason": "Live dogfood json_fidelity failure: --dry-run --json produced empty output because dryRunOK() returned nil before the command's own dry-run path could produce JSON.",
+      "files": [
+        "internal/cli/keywords_auto_promote.go"
+      ],
+      "validated_outcome": "keywords auto-promote --campaign-id 12345 --dry-run --json now returns valid JSON"
+    },
+    {
+      "id": "apple-search-ads-search-resource-example-fix",
+      "applied_at": "2026-06-28",
+      "summary": "Fixed Example strings in search-resource list-apps and list-geo to use hyphen not underscore.",
+      "reason": "Generated examples used search_resource (underscore) which does not match the actual command name search-resource (hyphen); caused dogfood happy_path missing-runnable-example failure.",
+      "files": [
+        "internal/cli/search_resource_list_apps.go",
+        "internal/cli/search_resource_list_geo.go"
+      ],
+      "validated_outcome": "Live dogfood happy_path tests for search-resource list-apps and list-geo now pass"
+    }
+  ]
+}

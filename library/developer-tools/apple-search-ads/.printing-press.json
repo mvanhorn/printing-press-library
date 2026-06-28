@@ -1,0 +1,69 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-29T03:11:26.947172Z",
+  "printing_press_version": "4.19.0",
+  "api_name": "apple-search-ads",
+  "display_name": "Apple Search Ads",
+  "cli_name": "apple-search-ads-pp-cli",
+  "creator": {
+    "handle": "rk-labs-tech",
+    "name": "Ryan Kelley"
+  },
+  "owner": "rk-labs-tech",
+  "printer": "rk-labs-tech",
+  "printer_name": "Ryan Kelley",
+  "spec_format": "internal",
+  "spec_checksum": "sha256:7bee37bd6daff0701f9aa8ee7c03aba6b47dfa95be79175af8064233fb23adfc",
+  "run_id": "20260529-060535",
+  "category": "developer-tools",
+  "description": "Every Apple Search Ads feature, plus local cost analytics, bid optimization, and cross-org templating no Python CLI offers.",
+  "mcp_binary": "apple-search-ads-pp-mcp",
+  "mcp_tool_count": 64,
+  "mcp_ready": "full",
+  "api_version": "0.1.0",
+  "auth_type": "bearer_token",
+  "auth_env_vars": [
+    "APPLE_SEARCH_ADS_TOKEN"
+  ],
+  "auth_env_var_specs": [
+    {
+      "name": "ASA_CLIENT_ID",
+      "kind": "per_call",
+      "required": false,
+      "sensitive": true
+    },
+    {
+      "name": "APPLE_SEARCH_ADS_TOKEN",
+      "kind": "per_call",
+      "required": false,
+      "sensitive": true
+    }
+  ],
+  "novel_features": [
+    {
+      "name": "Local Cost Analytics",
+      "command": "analytics query",
+      "description": "Query locally cached reporting data without API rate limit friction."
+    },
+    {
+      "name": "Bid Optimization Suggestions",
+      "command": "optimize suggest",
+      "description": "Get CPA/ROAS-driven bid adjustment suggestions with revenue impact forecast before applying."
+    },
+    {
+      "name": "Search Term Auto-Promotion",
+      "command": "keywords auto-promote",
+      "description": "Batch analyze high-converting search terms and promote them to keywords with smart match-type routing."
+    },
+    {
+      "name": "Budget Burn Forecasting",
+      "command": "campaigns forecast-spend",
+      "description": "Predict daily/monthly spend and flag campaigns on track to overshoot budget caps."
+    },
+    {
+      "name": "Cross-Org Campaign Templates",
+      "command": "templates apply",
+      "description": "Version-control campaign structures and apply them across multiple org IDs with a diff preview."
+    }
+  ]
+}

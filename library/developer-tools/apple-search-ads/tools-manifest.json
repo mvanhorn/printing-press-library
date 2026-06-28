@@ -1,0 +1,926 @@
+{
+  "api_name": "apple-search-ads",
+  "base_url": "https://app-ads.apple.com/cm/api/v1/startup",
+  "description": "Every Apple Search Ads feature, plus local cost analytics, bid optimization, and cross-org templating no Python CLI offers.",
+  "mcp_ready": "full",
+  "http_transport": "browser-chrome-h2",
+  "mcp": {
+    "endpoint_tools": "hidden",
+    "orchestration": "code"
+  },
+  "auth": {
+    "type": "bearer_token",
+    "header": "Authorization",
+    "format": "Bearer {APPLE_SEARCH_ADS_TOKEN}",
+    "in": "header",
+    "env_vars": [
+      "APPLE_SEARCH_ADS_TOKEN"
+    ],
+    "env_var_specs": [
+      {
+        "name": "APPLE_SEARCH_ADS_TOKEN",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    ]
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "adgroups_create_find",
+      "description": "POST /adgroups/find.",
+      "method": "POST",
+      "path": "/adgroups/find",
+      "params": []
+    },
+    {
+      "name": "ads_create_find",
+      "description": "POST /ads/find.",
+      "method": "POST",
+      "path": "/ads/find",
+      "params": []
+    },
+    {
+      "name": "apps_create_find",
+      "description": "POST /apps/{id}/eligibilities/find. Required: id.",
+      "method": "POST",
+      "path": "/apps/{id}/eligibilities/find",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "apps_create_find_2",
+      "description": "POST /apps/{id}/assets/find. Required: id.",
+      "method": "POST",
+      "path": "/apps/{id}/assets/find",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "apps_get_apps",
+      "description": "GET /apps/{id}. Required: id.",
+      "method": "GET",
+      "path": "/apps/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "apps_get_locale_details",
+      "description": "GET /apps/{id}/locale-details. Required: id.",
+      "method": "GET",
+      "path": "/apps/{id}/locale-details",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "apps_get_locale_details_2",
+      "description": "GET /apps/{id}/product-pages/{id}/locale-details. Required: id.",
+      "method": "GET",
+      "path": "/apps/{id}/product-pages/{id}/locale-details",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "apps_get_product_pages",
+      "description": "GET /apps/{id}/product-pages/{id}. Required: id.",
+      "method": "GET",
+      "path": "/apps/{id}/product-pages/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "apps_get_product_pages_2",
+      "description": "GET /apps/{id}/product-pages. Required: id.",
+      "method": "GET",
+      "path": "/apps/{id}/product-pages",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "attribution_list_identify",
+      "description": "GET /attribution/device/identify.",
+      "method": "GET",
+      "path": "/attribution/device/identify",
+      "params": []
+    },
+    {
+      "name": "attribution_list_send_attribute",
+      "description": "GET /attribution/device/send-attribute.",
+      "method": "GET",
+      "path": "/attribution/device/send-attribute",
+      "params": []
+    },
+    {
+      "name": "attribution_list_tracking_consent",
+      "description": "GET /attribution/device/tracking-consent.",
+      "method": "GET",
+      "path": "/attribution/device/tracking-consent",
+      "params": []
+    },
+    {
+      "name": "budgetorders_create_budgetorders",
+      "description": "POST /budgetorders. Optional: bo, orgIds.",
+      "method": "POST",
+      "path": "/budgetorders",
+      "params": [
+        {
+          "name": "bo",
+          "type": "string",
+          "location": "query"
+        },
+        {
+          "name": "orgIds",
+          "type": "string",
+          "location": "query"
+        }
+      ]
+    },
+    {
+      "name": "budgetorders_get_budgetorders",
+      "description": "GET /budgetorders/{id}. Required: id.",
+      "method": "GET",
+      "path": "/budgetorders/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "budgetorders_list_budgetorders",
+      "description": "GET /budgetorders. Optional: limit, offset.",
+      "method": "GET",
+      "path": "/budgetorders",
+      "params": [
+        {
+          "name": "limit",
+          "type": "integer",
+          "location": "query"
+        },
+        {
+          "name": "offset",
+          "type": "integer",
+          "location": "query"
+        }
+      ]
+    },
+    {
+      "name": "budgetorders_update_budgetorders",
+      "description": "PUT /budgetorders/{id}. Required: id. Optional: bo.",
+      "method": "PUT",
+      "path": "/budgetorders/{id}",
+      "params": [
+        {
+          "name": "bo",
+          "type": "string",
+          "location": "query"
+        },
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "campaigns_create_adgroups",
+      "description": "POST /campaigns/{id}/adgroups. Required: id.",
+      "method": "POST",
+      "path": "/campaigns/{id}/adgroups",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "campaigns_create_ads",
+      "description": "POST /campaigns/{id}/adgroups/{id}/ads. Required: id.",
+      "method": "POST",
+      "path": "/campaigns/{id}/adgroups/{id}/ads",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "campaigns_create_bulk",
+      "description": "POST /campaigns/{id}/adgroups/{id}/targetingkeywords/delete/bulk. Required: id.",
+      "method": "POST",
+      "path": "/campaigns/{id}/adgroups/{id}/targetingkeywords/delete/bulk",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "campaigns_create_bulk_2",
+      "description": "POST /campaigns/{id}/adgroups/{id}/targetingkeywords/bulk. Required: id.",
+      "method": "POST",
+      "path": "/campaigns/{id}/adgroups/{id}/targetingkeywords/bulk",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "campaigns_create_campaigns",
+      "description": "POST /campaigns.",
+      "method": "POST",
+      "path": "/campaigns",
+      "params": []
+    },
+    {
+      "name": "campaigns_create_find",
+      "description": "POST /campaigns/{id}/adgroups/find. Required: id.",
+      "method": "POST",
+      "path": "/campaigns/{id}/adgroups/find",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "campaigns_create_find_2",
+      "description": "POST /campaigns/{id}/ads/find. Required: id.",
+      "method": "POST",
+      "path": "/campaigns/{id}/ads/find",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "campaigns_create_find_3",
+      "description": "POST /campaigns/find.",
+      "method": "POST",
+      "path": "/campaigns/find",
+      "params": []
+    },
+    {
+      "name": "campaigns_create_find_4",
+      "description": "POST /campaigns/{id}/adgroups/targetingkeywords/find. Required: id.",
+      "method": "POST",
+      "path": "/campaigns/{id}/adgroups/targetingkeywords/find",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "campaigns_create_find_5",
+      "description": "POST /campaigns/{id}/adgroups/negativekeywords/find. Required: id.",
+      "method": "POST",
+      "path": "/campaigns/{id}/adgroups/negativekeywords/find",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "campaigns_create_find_6",
+      "description": "POST /campaigns/{id}/negativekeywords/find. Required: id.",
+      "method": "POST",
+      "path": "/campaigns/{id}/negativekeywords/find",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "campaigns_delete_adgroups",
+      "description": "DELETE /campaigns/{id}/adgroups/{id}. Required: id. Destructive.",
+      "method": "DELETE",
+      "path": "/campaigns/{id}/adgroups/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "campaigns_delete_ads",
+      "description": "DELETE /campaigns/{id}/adgroups/{id}/ads/{id}. Required: id. Destructive.",
+      "method": "DELETE",
+      "path": "/campaigns/{id}/adgroups/{id}/ads/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "campaigns_delete_campaigns",
+      "description": "DELETE /campaigns/{id}. Required: id. Destructive.",
+      "method": "DELETE",
+      "path": "/campaigns/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "campaigns_get_adgroups",
+      "description": "GET /campaigns/{id}/adgroups. Required: id. Optional: limit, offset.",
+      "method": "GET",
+      "path": "/campaigns/{id}/adgroups",
+      "params": [
+        {
+          "name": "limit",
+          "type": "integer",
+          "location": "query"
+        },
+        {
+          "name": "offset",
+          "type": "integer",
+          "location": "query"
+        },
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "campaigns_get_adgroups_2",
+      "description": "GET /campaigns/{id}/adgroups/{id}. Required: id.",
+      "method": "GET",
+      "path": "/campaigns/{id}/adgroups/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "campaigns_get_ads",
+      "description": "GET /campaigns/{id}/adgroups/{id}/ads. Required: id. Optional: limit.",
+      "method": "GET",
+      "path": "/campaigns/{id}/adgroups/{id}/ads",
+      "params": [
+        {
+          "name": "limit",
+          "type": "integer",
+          "location": "query"
+        },
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "campaigns_get_ads_2",
+      "description": "GET /campaigns/{id}/adgroups/{id}/ads/{id}. Required: id.",
+      "method": "GET",
+      "path": "/campaigns/{id}/adgroups/{id}/ads/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "campaigns_get_campaigns",
+      "description": "GET /campaigns/{id}. Required: id.",
+      "method": "GET",
+      "path": "/campaigns/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "campaigns_get_targetingkeywords",
+      "description": "GET /campaigns/{id}/adgroups/{id}/targetingkeywords. Required: id. Optional: limit.",
+      "method": "GET",
+      "path": "/campaigns/{id}/adgroups/{id}/targetingkeywords",
+      "params": [
+        {
+          "name": "limit",
+          "type": "integer",
+          "location": "query"
+        },
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "campaigns_get_targetingkeywords_2",
+      "description": "GET /campaigns/{id}/adgroups/{id}/targetingkeywords/{id}. Required: id.",
+      "method": "GET",
+      "path": "/campaigns/{id}/adgroups/{id}/targetingkeywords/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "campaigns_list_campaigns",
+      "description": "GET /campaigns. Optional: limit, offset.",
+      "method": "GET",
+      "path": "/campaigns",
+      "params": [
+        {
+          "name": "limit",
+          "type": "integer",
+          "location": "query"
+        },
+        {
+          "name": "offset",
+          "type": "integer",
+          "location": "query"
+        }
+      ]
+    },
+    {
+      "name": "campaigns_update_adgroups",
+      "description": "PUT /campaigns/{id}/adgroups/{id}. Required: id.",
+      "method": "PUT",
+      "path": "/campaigns/{id}/adgroups/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "campaigns_update_ads",
+      "description": "PUT /campaigns/{id}/adgroups/{id}/ads/{id}. Required: id.",
+      "method": "PUT",
+      "path": "/campaigns/{id}/adgroups/{id}/ads/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "campaigns_update_bulk",
+      "description": "PUT /campaigns/{id}/adgroups/{id}/targetingkeywords/bulk. Required: id.",
+      "method": "PUT",
+      "path": "/campaigns/{id}/adgroups/{id}/targetingkeywords/bulk",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "campaigns_update_campaigns",
+      "description": "PUT /campaigns/{id}. Required: id. Optional: campaign, clearGeoTargetingOnCountryOrRegionChange.",
+      "method": "PUT",
+      "path": "/campaigns/{id}",
+      "params": [
+        {
+          "name": "campaign",
+          "type": "string",
+          "location": "query"
+        },
+        {
+          "name": "clearGeoTargetingOnCountryOrRegionChange",
+          "type": "string",
+          "location": "query"
+        },
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "countries-or-regions_list_countries_or_regions",
+      "description": "GET /countries-or-regions.",
+      "method": "GET",
+      "path": "/countries-or-regions",
+      "params": []
+    },
+    {
+      "name": "creativeappmappings_list_devices",
+      "description": "GET /creativeappmappings/devices.",
+      "method": "GET",
+      "path": "/creativeappmappings/devices",
+      "params": []
+    },
+    {
+      "name": "creatives_create_creatives",
+      "description": "POST /creatives.",
+      "method": "POST",
+      "path": "/creatives",
+      "params": []
+    },
+    {
+      "name": "creatives_create_find",
+      "description": "POST /creatives/find.",
+      "method": "POST",
+      "path": "/creatives/find",
+      "params": []
+    },
+    {
+      "name": "creatives_get_creatives",
+      "description": "GET /creatives/{id}. Required: id.",
+      "method": "GET",
+      "path": "/creatives/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "creatives_list_creatives",
+      "description": "GET /creatives.",
+      "method": "GET",
+      "path": "/creatives",
+      "params": []
+    },
+    {
+      "name": "custom-reports_create_custom_reports",
+      "description": "POST /custom-reports.",
+      "method": "POST",
+      "path": "/custom-reports",
+      "params": []
+    },
+    {
+      "name": "custom-reports_get_custom_reports",
+      "description": "GET /custom-reports/{id}. Required: id.",
+      "method": "GET",
+      "path": "/custom-reports/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "custom-reports_list_custom_reports",
+      "description": "GET /custom-reports.",
+      "method": "GET",
+      "path": "/custom-reports",
+      "params": []
+    },
+    {
+      "name": "deferred-deep-link_list_resolve",
+      "description": "GET /deferred-deep-link/resolve.",
+      "method": "GET",
+      "path": "/deferred-deep-link/resolve",
+      "params": []
+    },
+    {
+      "name": "deferred-deep-link_list_store",
+      "description": "GET /deferred-deep-link/store.",
+      "method": "GET",
+      "path": "/deferred-deep-link/store",
+      "params": []
+    },
+    {
+      "name": "me_list_me",
+      "description": "GET /me.",
+      "method": "GET",
+      "path": "/me",
+      "params": []
+    },
+    {
+      "name": "product-page-reasons_create_find",
+      "description": "POST /product-page-reasons/find.",
+      "method": "POST",
+      "path": "/product-page-reasons/find",
+      "params": []
+    },
+    {
+      "name": "product-page-reasons_get_product_page_reasons",
+      "description": "GET /product-page-reasons/{id}. Required: id.",
+      "method": "GET",
+      "path": "/product-page-reasons/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "reports_create_adgroups",
+      "description": "POST /reports/campaigns/{id}/adgroups. Required: id.",
+      "method": "POST",
+      "path": "/reports/campaigns/{id}/adgroups",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "reports_create_ads",
+      "description": "POST /reports/campaigns/{id}/ads. Required: id.",
+      "method": "POST",
+      "path": "/reports/campaigns/{id}/ads",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "reports_create_campaigns",
+      "description": "POST /reports/campaigns. Optional: endTime, granularity, returnRowTotals (plus 2 more).",
+      "method": "POST",
+      "path": "/reports/campaigns",
+      "params": [
+        {
+          "name": "endTime",
+          "type": "string",
+          "location": "query"
+        },
+        {
+          "name": "granularity",
+          "type": "string",
+          "location": "query"
+        },
+        {
+          "name": "returnRowTotals",
+          "type": "boolean",
+          "location": "query"
+        },
+        {
+          "name": "selector",
+          "type": "string",
+          "location": "query"
+        },
+        {
+          "name": "startTime",
+          "type": "string",
+          "location": "query"
+        }
+      ]
+    },
+    {
+      "name": "reports_create_keywords",
+      "description": "POST /reports/campaigns/{id}/keywords. Required: id. Optional: endTime, returnRowTotals, selector (plus 1 more).",
+      "method": "POST",
+      "path": "/reports/campaigns/{id}/keywords",
+      "params": [
+        {
+          "name": "endTime",
+          "type": "string",
+          "location": "query"
+        },
+        {
+          "name": "returnRowTotals",
+          "type": "boolean",
+          "location": "query"
+        },
+        {
+          "name": "selector",
+          "type": "string",
+          "location": "query"
+        },
+        {
+          "name": "startTime",
+          "type": "string",
+          "location": "query"
+        },
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "reports_create_searchterms",
+      "description": "POST /reports/campaigns/{id}/searchterms. Required: id. Optional: endTime, returnRowTotals, selector (plus 1 more).",
+      "method": "POST",
+      "path": "/reports/campaigns/{id}/searchterms",
+      "params": [
+        {
+          "name": "endTime",
+          "type": "string",
+          "location": "query"
+        },
+        {
+          "name": "returnRowTotals",
+          "type": "boolean",
+          "location": "query"
+        },
+        {
+          "name": "selector",
+          "type": "string",
+          "location": "query"
+        },
+        {
+          "name": "startTime",
+          "type": "string",
+          "location": "query"
+        },
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "search_resource_create_geo",
+      "description": "POST /search/geo.",
+      "method": "POST",
+      "path": "/search/geo",
+      "params": []
+    },
+    {
+      "name": "search_resource_list_apps",
+      "description": "GET /search/apps.",
+      "method": "GET",
+      "path": "/search/apps",
+      "params": []
+    },
+    {
+      "name": "search_resource_list_geo",
+      "description": "GET /search/geo.",
+      "method": "GET",
+      "path": "/search/geo",
+      "params": []
+    }
+  ]
+}

@@ -1,0 +1,17 @@
+# agentcookie.toml: secrets-bus adoption manifest v2
+# See docs/spec-agentcookie-secrets-bus-v2-adoption.md
+schema_version = 2
+name = "apple-search-ads-pp-cli"
+display_name = "Apple Search Ads"
+description = "Every Apple Search Ads feature, plus local cost analytics, bid optimization, and cross-org templating no Python CLI offers."
+project_kind = "cli"
+
+[secrets.file]
+path = "~/.config/apple-search-ads-pp-cli/config.toml"
+
+[sync]
+default = false
+
+[sync.keys]
+APPLE_SEARCH_ADS_TOKEN = true
+ASA_CLIENT_ID = true

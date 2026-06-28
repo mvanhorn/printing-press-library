@@ -1,0 +1,1082 @@
+name: apple-search-ads
+description: Discovered API spec for apple-search-ads (crowd-sniff)
+version: 0.1.0
+base_url: https://app-ads.apple.com/cm/api/v1/startup
+spec_source: community
+auth:
+    type: bearer_token
+    header: Authorization
+    format: Bearer {token}
+    env_vars:
+        - APPLE_SEARCH_ADS_TOKEN
+    env_var_specs:
+        - name: APPLE_SEARCH_ADS_TOKEN
+          kind: per_call
+          required: true
+          sensitive: true
+          inferred: true
+    in: header
+config:
+    format: toml
+    path: ~/.config/apple-search-ads-pp-cli/config.toml
+resources:
+    adgroups:
+        description: Operations on find
+        endpoints:
+            create_find:
+                method: POST
+                path: /adgroups/find
+                description: POST /adgroups/find
+                params: []
+                body: []
+                response:
+                    type: ""
+                    item: ""
+                pagination: null
+                meta:
+                    source_count: "1"
+                    source_tier: community-sdk
+    ads:
+        description: Operations on find
+        endpoints:
+            create_find:
+                method: POST
+                path: /ads/find
+                description: POST /ads/find
+                params: []
+                body: []
+                response:
+                    type: ""
+                    item: ""
+                pagination: null
+                meta:
+                    source_count: "1"
+                    source_tier: community-sdk
+    apps:
+        description: Operations on find
+        endpoints:
+            create_find:
+                method: POST
+                path: /apps/{id}/eligibilities/find
+                description: POST /apps/{id}/eligibilities/find
+                params: []
+                body: []
+                response:
+                    type: ""
+                    item: ""
+                pagination: null
+                meta:
+                    source_count: "1"
+                    source_tier: community-sdk
+            create_find_2:
+                method: POST
+                path: /apps/{id}/assets/find
+                description: POST /apps/{id}/assets/find
+                params: []
+                body: []
+                response:
+                    type: ""
+                    item: ""
+                pagination: null
+                meta:
+                    source_count: "1"
+                    source_tier: community-sdk
+            get_apps:
+                method: GET
+                path: /apps/{id}
+                description: GET /apps/{id}
+                params: []
+                body: []
+                response:
+                    type: ""
+                    item: ""
+                pagination: null
+                meta:
+                    source_count: "1"
+                    source_tier: community-sdk
+            get_locale_details:
+                method: GET
+                path: /apps/{id}/locale-details
+                description: GET /apps/{id}/locale-details
+                params: []
+                body: []
+                response:
+                    type: ""
+                    item: ""
+                pagination: null
+                meta:
+                    source_count: "1"
+                    source_tier: community-sdk
+            get_locale_details_2:
+                method: GET
+                path: /apps/{id}/product-pages/{id}/locale-details
+                description: GET /apps/{id}/product-pages/{id}/locale-details
+                params: []
+                body: []
+                response:
+                    type: ""
+                    item: ""
+                pagination: null
+                meta:
+                    source_count: "1"
+                    source_tier: community-sdk
+            get_product_pages:
+                method: GET
+                path: /apps/{id}/product-pages/{id}
+                description: GET /apps/{id}/product-pages/{id}
+                params: []
+                body: []
+                response:
+                    type: ""
+                    item: ""
+                pagination: null
+                meta:
+                    source_count: "1"
+                    source_tier: community-sdk
+            get_product_pages_2:
+                method: GET
+                path: /apps/{id}/product-pages
+                description: GET /apps/{id}/product-pages
+                params: []
+                body: []
+                response:
+                    type: ""
+                    item: ""
+                pagination: null
+                meta:
+                    source_count: "1"
+                    source_tier: community-sdk
+    attribution:
+        description: Operations on identify
+        endpoints:
+            list_identify:
+                method: GET
+                path: /attribution/device/identify
+                description: GET /attribution/device/identify
+                params: []
+                body: []
+                response:
+                    type: ""
+                    item: ""
+                pagination: null
+                meta:
+                    source_count: "2"
+                    source_tier: community-sdk
+            list_send_attribute:
+                method: GET
+                path: /attribution/device/send-attribute
+                description: GET /attribution/device/send-attribute
+                params: []
+                body: []
+                response:
+                    type: ""
+                    item: ""
+                pagination: null
+                meta:
+                    source_count: "2"
+                    source_tier: community-sdk
+            list_tracking_consent:
+                method: GET
+                path: /attribution/device/tracking-consent
+                description: GET /attribution/device/tracking-consent
+                params: []
+                body: []
+                response:
+                    type: ""
+                    item: ""
+                pagination: null
+                meta:
+                    source_count: "2"
+                    source_tier: community-sdk
+    budgetorders:
+        description: Operations on budgetorders
+        endpoints:
+            create_budgetorders:
+                method: POST
+                path: /budgetorders
+                description: POST /budgetorders
+                params:
+                    - name: bo
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: orgIds
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: ""
+                    item: ""
+                pagination: null
+                meta:
+                    source_count: "1"
+                    source_tier: community-sdk
+            get_budgetorders:
+                method: GET
+                path: /budgetorders/{id}
+                description: GET /budgetorders/{id}
+                params: []
+                body: []
+                response:
+                    type: ""
+                    item: ""
+                pagination: null
+                meta:
+                    source_count: "1"
+                    source_tier: community-sdk
+            list_budgetorders:
+                method: GET
+                path: /budgetorders
+                description: GET /budgetorders
+                params:
+                    - name: limit
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: offset
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: ""
+                    item: ""
+                pagination: null
+                meta:
+                    source_count: "1"
+                    source_tier: community-sdk
+            update_budgetorders:
+                method: PUT
+                path: /budgetorders/{id}
+                description: PUT /budgetorders/{id}
+                params:
+                    - name: bo
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: ""
+                    item: ""
+                pagination: null
+                meta:
+                    source_count: "1"
+                    source_tier: community-sdk
+    campaigns:
+        description: Operations on find
+        endpoints:
+            create_adgroups:
+                method: POST
+                path: /campaigns/{id}/adgroups
+                description: POST /campaigns/{id}/adgroups
+                params: []
+                body: []
+                response:
+                    type: ""
+                    item: ""
+                pagination: null
+                meta:
+                    source_count: "1"
+                    source_tier: community-sdk
+            create_ads:
+                method: POST
+                path: /campaigns/{id}/adgroups/{id}/ads
+                description: POST /campaigns/{id}/adgroups/{id}/ads
+                params: []
+                body: []
+                response:
+                    type: ""
+                    item: ""
+                pagination: null
+                meta:
+                    source_count: "1"
+                    source_tier: community-sdk
+            create_bulk:
+                method: POST
+                path: /campaigns/{id}/adgroups/{id}/targetingkeywords/delete/bulk
+                description: POST /campaigns/{id}/adgroups/{id}/targetingkeywords/delete/bulk
+                params: []
+                body: []
+                response:
+                    type: ""
+                    item: ""
+                pagination: null
+                meta:
+                    source_count: "1"
+                    source_tier: community-sdk
+            create_bulk_2:
+                method: POST
+                path: /campaigns/{id}/adgroups/{id}/targetingkeywords/bulk
+                description: POST /campaigns/{id}/adgroups/{id}/targetingkeywords/bulk
+                params: []
+                body: []
+                response:
+                    type: ""
+                    item: ""
+                pagination: null
+                meta:
+                    source_count: "1"
+                    source_tier: community-sdk
+            create_campaigns:
+                method: POST
+                path: /campaigns
+                description: POST /campaigns
+                params: []
+                body: []
+                response:
+                    type: ""
+                    item: ""
+                pagination: null
+                meta:
+                    source_count: "1"
+                    source_tier: community-sdk
+            create_find:
+                method: POST
+                path: /campaigns/{id}/adgroups/find
+                description: POST /campaigns/{id}/adgroups/find
+                params: []
+                body: []
+                response:
+                    type: ""
+                    item: ""
+                pagination: null
+                meta:
+                    source_count: "1"
+                    source_tier: community-sdk
+            create_find_2:
+                method: POST
+                path: /campaigns/{id}/ads/find
+                description: POST /campaigns/{id}/ads/find
+                params: []
+                body: []
+                response:
+                    type: ""
+                    item: ""
+                pagination: null
+                meta:
+                    source_count: "1"
+                    source_tier: community-sdk
+            create_find_3:
+                method: POST
+                path: /campaigns/find
+                description: POST /campaigns/find
+                params: []
+                body: []
+                response:
+                    type: ""
+                    item: ""
+                pagination: null
+                meta:
+                    source_count: "1"
+                    source_tier: community-sdk
+            create_find_4:
+                method: POST
+                path: /campaigns/{id}/adgroups/targetingkeywords/find
+                description: POST /campaigns/{id}/adgroups/targetingkeywords/find
+                params: []
+                body: []
+                response:
+                    type: ""
+                    item: ""
+                pagination: null
+                meta:
+                    source_count: "1"
+                    source_tier: community-sdk
+            create_find_5:
+                method: POST
+                path: /campaigns/{id}/adgroups/negativekeywords/find
+                description: POST /campaigns/{id}/adgroups/negativekeywords/find
+                params: []
+                body: []
+                response:
+                    type: ""
+                    item: ""
+                pagination: null
+                meta:
+                    source_count: "1"
+                    source_tier: community-sdk
+            create_find_6:
+                method: POST
+                path: /campaigns/{id}/negativekeywords/find
+                description: POST /campaigns/{id}/negativekeywords/find
+                params: []
+                body: []
+                response:
+                    type: ""
+                    item: ""
+                pagination: null
+                meta:
+                    source_count: "1"
+                    source_tier: community-sdk
+            delete_adgroups:
+                method: DELETE
+                path: /campaigns/{id}/adgroups/{id}
+                description: DELETE /campaigns/{id}/adgroups/{id}
+                params: []
+                body: []
+                response:
+                    type: ""
+                    item: ""
+                pagination: null
+                meta:
+                    source_count: "1"
+                    source_tier: community-sdk
+            delete_ads:
+                method: DELETE
+                path: /campaigns/{id}/adgroups/{id}/ads/{id}
+                description: DELETE /campaigns/{id}/adgroups/{id}/ads/{id}
+                params: []
+                body: []
+                response:
+                    type: ""
+                    item: ""
+                pagination: null
+                meta:
+                    source_count: "1"
+                    source_tier: community-sdk
+            delete_campaigns:
+                method: DELETE
+                path: /campaigns/{id}
+                description: DELETE /campaigns/{id}
+                params: []
+                body: []
+                response:
+                    type: ""
+                    item: ""
+                pagination: null
+                meta:
+                    source_count: "1"
+                    source_tier: community-sdk
+            get_adgroups:
+                method: GET
+                path: /campaigns/{id}/adgroups
+                description: GET /campaigns/{id}/adgroups
+                params:
+                    - name: limit
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: offset
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: ""
+                    item: ""
+                pagination: null
+                meta:
+                    source_count: "1"
+                    source_tier: community-sdk
+            get_adgroups_2:
+                method: GET
+                path: /campaigns/{id}/adgroups/{id}
+                description: GET /campaigns/{id}/adgroups/{id}
+                params: []
+                body: []
+                response:
+                    type: ""
+                    item: ""
+                pagination: null
+                meta:
+                    source_count: "1"
+                    source_tier: community-sdk
+            get_ads:
+                method: GET
+                path: /campaigns/{id}/adgroups/{id}/ads
+                description: GET /campaigns/{id}/adgroups/{id}/ads
+                params:
+                    - name: limit
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: ""
+                    item: ""
+                pagination: null
+                meta:
+                    source_count: "1"
+                    source_tier: community-sdk
+            get_ads_2:
+                method: GET
+                path: /campaigns/{id}/adgroups/{id}/ads/{id}
+                description: GET /campaigns/{id}/adgroups/{id}/ads/{id}
+                params: []
+                body: []
+                response:
+                    type: ""
+                    item: ""
+                pagination: null
+                meta:
+                    source_count: "1"
+                    source_tier: community-sdk
+            get_campaigns:
+                method: GET
+                path: /campaigns/{id}
+                description: GET /campaigns/{id}
+                params: []
+                body: []
+                response:
+                    type: ""
+                    item: ""
+                pagination: null
+                meta:
+                    source_count: "1"
+                    source_tier: community-sdk
+            get_targetingkeywords:
+                method: GET
+                path: /campaigns/{id}/adgroups/{id}/targetingkeywords
+                description: GET /campaigns/{id}/adgroups/{id}/targetingkeywords
+                params:
+                    - name: limit
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: ""
+                    item: ""
+                pagination: null
+                meta:
+                    source_count: "1"
+                    source_tier: community-sdk
+            get_targetingkeywords_2:
+                method: GET
+                path: /campaigns/{id}/adgroups/{id}/targetingkeywords/{id}
+                description: GET /campaigns/{id}/adgroups/{id}/targetingkeywords/{id}
+                params: []
+                body: []
+                response:
+                    type: ""
+                    item: ""
+                pagination: null
+                meta:
+                    source_count: "1"
+                    source_tier: community-sdk
+            list_campaigns:
+                method: GET
+                path: /campaigns
+                description: GET /campaigns
+                params:
+                    - name: limit
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: offset
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: ""
+                    item: ""
+                pagination: null
+                meta:
+                    source_count: "1"
+                    source_tier: community-sdk
+            update_adgroups:
+                method: PUT
+                path: /campaigns/{id}/adgroups/{id}
+                description: PUT /campaigns/{id}/adgroups/{id}
+                params: []
+                body: []
+                response:
+                    type: ""
+                    item: ""
+                pagination: null
+                meta:
+                    source_count: "1"
+                    source_tier: community-sdk
+            update_ads:
+                method: PUT
+                path: /campaigns/{id}/adgroups/{id}/ads/{id}
+                description: PUT /campaigns/{id}/adgroups/{id}/ads/{id}
+                params: []
+                body: []
+                response:
+                    type: ""
+                    item: ""
+                pagination: null
+                meta:
+                    source_count: "1"
+                    source_tier: community-sdk
+            update_bulk:
+                method: PUT
+                path: /campaigns/{id}/adgroups/{id}/targetingkeywords/bulk
+                description: PUT /campaigns/{id}/adgroups/{id}/targetingkeywords/bulk
+                params: []
+                body: []
+                response:
+                    type: ""
+                    item: ""
+                pagination: null
+                meta:
+                    source_count: "1"
+                    source_tier: community-sdk
+            update_campaigns:
+                method: PUT
+                path: /campaigns/{id}
+                description: PUT /campaigns/{id}
+                params:
+                    - name: campaign
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: clearGeoTargetingOnCountryOrRegionChange
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: ""
+                    item: ""
+                pagination: null
+                meta:
+                    source_count: "1"
+                    source_tier: community-sdk
+    countries-or-regions:
+        description: Operations on countries-or-regions
+        endpoints:
+            list_countries_or_regions:
+                method: GET
+                path: /countries-or-regions
+                description: GET /countries-or-regions
+                params: []
+                body: []
+                response:
+                    type: ""
+                    item: ""
+                pagination: null
+                meta:
+                    source_count: "1"
+                    source_tier: community-sdk
+    creativeappmappings:
+        description: Operations on devices
+        endpoints:
+            list_devices:
+                method: GET
+                path: /creativeappmappings/devices
+                description: GET /creativeappmappings/devices
+                params: []
+                body: []
+                response:
+                    type: ""
+                    item: ""
+                pagination: null
+                meta:
+                    source_count: "1"
+                    source_tier: community-sdk
+    creatives:
+        description: Operations on find
+        endpoints:
+            create_creatives:
+                method: POST
+                path: /creatives
+                description: POST /creatives
+                params: []
+                body: []
+                response:
+                    type: ""
+                    item: ""
+                pagination: null
+                meta:
+                    source_count: "1"
+                    source_tier: community-sdk
+            create_find:
+                method: POST
+                path: /creatives/find
+                description: POST /creatives/find
+                params: []
+                body: []
+                response:
+                    type: ""
+                    item: ""
+                pagination: null
+                meta:
+                    source_count: "1"
+                    source_tier: community-sdk
+            get_creatives:
+                method: GET
+                path: /creatives/{id}
+                description: GET /creatives/{id}
+                params: []
+                body: []
+                response:
+                    type: ""
+                    item: ""
+                pagination: null
+                meta:
+                    source_count: "1"
+                    source_tier: community-sdk
+            list_creatives:
+                method: GET
+                path: /creatives
+                description: GET /creatives
+                params: []
+                body: []
+                response:
+                    type: ""
+                    item: ""
+                pagination: null
+                meta:
+                    source_count: "1"
+                    source_tier: community-sdk
+    custom-reports:
+        description: Operations on custom-reports
+        endpoints:
+            create_custom_reports:
+                method: POST
+                path: /custom-reports
+                description: POST /custom-reports
+                params: []
+                body: []
+                response:
+                    type: ""
+                    item: ""
+                pagination: null
+                meta:
+                    source_count: "1"
+                    source_tier: community-sdk
+            get_custom_reports:
+                method: GET
+                path: /custom-reports/{id}
+                description: GET /custom-reports/{id}
+                params: []
+                body: []
+                response:
+                    type: ""
+                    item: ""
+                pagination: null
+                meta:
+                    source_count: "1"
+                    source_tier: community-sdk
+            list_custom_reports:
+                method: GET
+                path: /custom-reports
+                description: GET /custom-reports
+                params: []
+                body: []
+                response:
+                    type: ""
+                    item: ""
+                pagination: null
+                meta:
+                    source_count: "1"
+                    source_tier: community-sdk
+    deferred-deep-link:
+        description: Operations on resolve
+        endpoints:
+            list_resolve:
+                method: GET
+                path: /deferred-deep-link/resolve
+                description: GET /deferred-deep-link/resolve
+                params: []
+                body: []
+                response:
+                    type: ""
+                    item: ""
+                pagination: null
+                meta:
+                    source_count: "2"
+                    source_tier: community-sdk
+            list_store:
+                method: GET
+                path: /deferred-deep-link/store
+                description: GET /deferred-deep-link/store
+                params: []
+                body: []
+                response:
+                    type: ""
+                    item: ""
+                pagination: null
+                meta:
+                    source_count: "1"
+                    source_tier: community-sdk
+    me:
+        description: Operations on me
+        endpoints:
+            list_me:
+                method: GET
+                path: /me
+                description: GET /me
+                params: []
+                body: []
+                response:
+                    type: ""
+                    item: ""
+                pagination: null
+                meta:
+                    source_count: "1"
+                    source_tier: community-sdk
+    product-page-reasons:
+        description: Operations on product-page-reasons
+        endpoints:
+            create_find:
+                method: POST
+                path: /product-page-reasons/find
+                description: POST /product-page-reasons/find
+                params: []
+                body: []
+                response:
+                    type: ""
+                    item: ""
+                pagination: null
+                meta:
+                    source_count: "1"
+                    source_tier: community-sdk
+            get_product_page_reasons:
+                method: GET
+                path: /product-page-reasons/{id}
+                description: GET /product-page-reasons/{id}
+                params: []
+                body: []
+                response:
+                    type: ""
+                    item: ""
+                pagination: null
+                meta:
+                    source_count: "1"
+                    source_tier: community-sdk
+    reports:
+        description: Operations on adgroups
+        endpoints:
+            create_adgroups:
+                method: POST
+                path: /reports/campaigns/{id}/adgroups
+                description: POST /reports/campaigns/{id}/adgroups
+                params: []
+                body: []
+                response:
+                    type: ""
+                    item: ""
+                pagination: null
+                meta:
+                    source_count: "1"
+                    source_tier: community-sdk
+            create_ads:
+                method: POST
+                path: /reports/campaigns/{id}/ads
+                description: POST /reports/campaigns/{id}/ads
+                params: []
+                body: []
+                response:
+                    type: ""
+                    item: ""
+                pagination: null
+                meta:
+                    source_count: "1"
+                    source_tier: community-sdk
+            create_campaigns:
+                method: POST
+                path: /reports/campaigns
+                description: POST /reports/campaigns
+                params:
+                    - name: endTime
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: granularity
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: returnRowTotals
+                      type: boolean
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: selector
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: startTime
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: ""
+                    item: ""
+                pagination: null
+                meta:
+                    source_count: "1"
+                    source_tier: community-sdk
+            create_keywords:
+                method: POST
+                path: /reports/campaigns/{id}/keywords
+                description: POST /reports/campaigns/{id}/keywords
+                params:
+                    - name: endTime
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: returnRowTotals
+                      type: boolean
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: selector
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: startTime
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: ""
+                    item: ""
+                pagination: null
+                meta:
+                    source_count: "1"
+                    source_tier: community-sdk
+            create_searchterms:
+                method: POST
+                path: /reports/campaigns/{id}/searchterms
+                description: POST /reports/campaigns/{id}/searchterms
+                params:
+                    - name: endTime
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: returnRowTotals
+                      type: boolean
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: selector
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: startTime
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: ""
+                    item: ""
+                pagination: null
+                meta:
+                    source_count: "1"
+                    source_tier: community-sdk
+    search_resource:
+        description: Operations on apps
+        endpoints:
+            create_geo:
+                method: POST
+                path: /search/geo
+                description: POST /search/geo
+                params: []
+                body: []
+                response:
+                    type: ""
+                    item: ""
+                pagination: null
+                meta:
+                    source_count: "1"
+                    source_tier: community-sdk
+            list_apps:
+                method: GET
+                path: /search/apps
+                description: GET /search/apps
+                params: []
+                body: []
+                response:
+                    type: ""
+                    item: ""
+                pagination: null
+                meta:
+                    source_count: "1"
+                    source_tier: community-sdk
+            list_geo:
+                method: GET
+                path: /search/geo
+                description: GET /search/geo
+                params: []
+                body: []
+                response:
+                    type: ""
+                    item: ""
+                pagination: null
+                meta:
+                    source_count: "1"
+                    source_tier: community-sdk
+types: {}

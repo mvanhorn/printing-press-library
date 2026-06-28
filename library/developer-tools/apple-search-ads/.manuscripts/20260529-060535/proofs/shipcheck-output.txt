@@ -1,0 +1,155 @@
+
+=== verify ===
+Runtime Verification: /Users/ryankelley/printing-press/.runstate/ryankelley-c6c47721/runs/20260529-060535/working/apple-search-ads-pp-cli/apple-search-ads-pp-cli
+Mode: mock
+
+COMMAND                        KIND         HELP   DRY-RUN  EXEC     SCORE
+adgroups                       read         PASS   PASS     PASS     3/3
+ads                            read         PASS   PASS     PASS     3/3
+agent-context                  read         PASS   PASS     PASS     3/3
+analytics                      data-layer   PASS   PASS     PASS     3/3
+api                            local        PASS   PASS     PASS     3/3
+auth                           local        PASS   PASS     PASS     3/3
+countries-or-regions           read         PASS   PASS     PASS     3/3
+creativeappmappings            read         PASS   PASS     PASS     3/3
+doctor                         local        PASS   PASS     PASS     3/3
+export                         data-layer   PASS   PASS     PASS     3/3
+feedback                       read         PASS   PASS     PASS     3/3
+import                         data-layer   PASS   PASS     PASS     3/3
+keywords                       read         PASS   PASS     FAIL     2/3
+me                             read         PASS   PASS     PASS     3/3
+optimize                       read         PASS   PASS     FAIL     2/3
+profile                        read         PASS   PASS     FAIL     2/3
+search                         data-layer   PASS   PASS     PASS     3/3
+sync                           data-layer   PASS   PASS     PASS     3/3
+templates                      read         PASS   PASS     FAIL     2/3
+which                          read         PASS   PASS     PASS     3/3
+workflow                       read         PASS   PASS     FAIL     2/3
+
+Path-Param Probes (nested commands with <positional> args):
+  PASS auth set-token
+  PASS profile delete
+  PASS profile save
+  PASS profile show
+  PASS profile use
+  PASS templates apply
+
+Data Pipeline: PASS: sync completed (sql unavailable, table validation skipped)
+Pass Rate: 100% (27/27 passed, 0 critical)
+Verdict: PASS
+
+=== validate-narrative ===
+UNSUPPORTED [recipes]: apple-search-ads-pp-cli optimize suggest --metric cpa --target 2.50 --apply --agent → full-example validation skipped: command is side-effectful (auth/launch/apply)
+DONE: 8 ok, 0 missing, 0 empty-words, 0 failed-examples, 1 unsupported
+
+=== dogfood ===
+dogfood: using spec /Users/ryankelley/printing-press/.runstate/ryankelley-c6c47721/runs/20260529-060535/working/apple-search-ads-pp-cli/spec.yaml (bundled)
+dogfood: synced SKILL.md (Recipes) from research.json narrative
+Dogfood Report: apple-search-ads-pp-cli
+================================
+
+Path Validity:     0/0 valid (SKIP)
+  Detail: internal-yaml spec: paths validated at parse time
+
+Auth Protocol:     MATCH
+  Spec: bearer token format (expects "Bearer " prefix)
+  Generated: Uses "Bearer" prefix
+  Detail: spec and generated client both use "Bearer"
+
+OAuth Scope Cover: 0/0 endpoints covered (SKIP)
+  Detail: no OAuth-scoped endpoints in spec
+
+Dead Flags:        0 dead (PASS)
+
+Dead Functions:    0 dead (PASS)
+
+Data Pipeline:     PARTIAL
+  Sync: calls domain-specific Upsert methods (GOOD)
+  Search: uses generic Search only or direct SQL
+  Domain tables: 1
+
+Examples:          10/10 commands have examples (PASS)
+
+Novel Features:    5/5 survived (PASS)
+
+MCP Surface:       PASS (MCP surface mirrors the Cobra tree at runtime)
+
+Verdict: PASS
+
+=== workflow-verify ===
+Workflow Verification: apple-search-ads-pp-cli
+================================
+
+Overall Verdict: workflow-pass
+  - no workflow manifest found, skipping
+
+=== verify-skill ===
+=== apple-search-ads-pp-cli ===
+  ✓ All checks passed (flag-names, flag-commands, positional-args, shell-var-quotes, unknown-command)
+  ✓ canonical-sections passed
+
+=== scorecard ===
+Quality Scorecard: apple-search-ads
+
+  Output Modes         10/10
+  Auth                 10/10
+  Error Handling       10/10
+  Terminal UX          10/10
+  README               10/10
+  Doctor               10/10
+  Agent Native         10/10
+  MCP Quality          8/10
+  MCP Desc Quality     N/A
+  MCP Token Efficiency N/A
+  MCP Remote Transport 10/10
+  MCP Tool Design      10/10
+  MCP Surface Strategy 10/10
+  Local Cache          10/10
+  Cache Freshness      5/10
+  Breadth              6/10
+  Vision               9/10
+  Workflows            10/10
+  Insight              4/10
+  Agent Workflow       9/10
+
+  Domain Correctness
+  Path Validity           N/A
+  Auth Protocol           N/A
+  Data Pipeline Integrity 7/10
+  Sync Correctness        10/10
+  Live API Verification   N/A
+  Type Fidelity           4/5
+  Dead Code               5/5
+
+  Total: 87/100 - Grade A
+  Note: omitted from denominator: mcp_description_quality, mcp_token_efficiency, path_validity, auth_protocol, live_api_verification
+
+Sample Output Probe (live command sample)
+  Binary refresh: fresh (staged binary is newer than Go sources)
+  Passed: 1/5  (20% pass rate)
+  Failures:
+    - Bid Optimization Suggestions: exit 4: Error: GET /campaigns returned HTTP 403: {"errorMsg":"User is not logged in. Please Refresh","errorCode":"403","internalErrorCode":"REFRESH"}
+hint: permission denied. Your credentials are valid but lack access to this resource.
+      Check that your API key has the required permissions.
+      Set it...
+    - Search Term Auto-Promotion: empty output
+    - Budget Burn Forecasting: exit 4: Error: GET /campaigns returned HTTP 403: {"errorMsg":"User is not logged in. Please Refresh","errorCode":"403","internalErrorCode":"REFRESH"}
+hint: permission denied. Your credentials are valid but lack access to this resource.
+      Check that your API key has the required permissions.
+      Set it...
+    - Cross-Org Campaign Templates: empty output
+
+Gaps:
+  - insight scored 4/10 - needs improvement
+
+Shipcheck Summary
+=================
+  LEG               RESULT  EXIT      ELAPSED
+  verify            PASS    0         13.477s
+  validate-narrative  PASS    0         251ms
+  dogfood           PASS    0         3.372s
+  workflow-verify   PASS    0         15ms
+  verify-skill      PASS    0         1.627s
+  scorecard         PASS    0         1.359s
+
+Verdict: PASS (6/6 legs passed)

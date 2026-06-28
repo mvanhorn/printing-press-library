@@ -1,0 +1,220 @@
+{
+  "api_name": "apple-search-ads",
+  "novelty_score": 0,
+  "alternatives": [
+    {
+      "name": "cameronehrlich/apple-search-ads-cli",
+      "url": "https://github.com/cameronehrlich/apple-search-ads-cli",
+      "language": "Python",
+      "install_method": "",
+      "stars": 15,
+      "last_updated": "",
+      "command_count": 40,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "phiture/searchads_api",
+      "url": "https://github.com/phiture/searchads_api",
+      "language": "Python",
+      "install_method": "",
+      "stars": 61,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "SamPetherbridge/asa-api-client",
+      "url": "https://github.com/SamPetherbridge/asa-api-client",
+      "language": "Python",
+      "install_method": "",
+      "stars": 1,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-05-29T06:05:35Z",
+  "novel_features": [
+    {
+      "name": "Local Cost Analytics",
+      "command": "analytics query",
+      "description": "Query locally cached reporting data without API rate limit friction.",
+      "rationale": "No CLI offers SQLite-backed reporting cache; UA teams hit rate limits on large-scale live queries.",
+      "example": "apple-search-ads-pp-cli analytics query --group-by match_type --limit 20 --agent",
+      "why_it_matters": "Use when you need cross-campaign aggregations or historical trending without burning API quota.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Bid Optimization Suggestions",
+      "command": "optimize suggest",
+      "description": "Get CPA/ROAS-driven bid adjustment suggestions with revenue impact forecast before applying.",
+      "rationale": "UA teams test bids manually; no CLI models bid elasticity or forecasts cost impact per keyword.",
+      "example": "apple-search-ads-pp-cli optimize suggest --metric cpa --target 2.50 --agent",
+      "why_it_matters": "Use before bulk bid changes to preview expected spend delta and install rate impact.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Search Term Auto-Promotion",
+      "command": "keywords auto-promote",
+      "description": "Batch analyze high-converting search terms and promote them to keywords with smart match-type routing.",
+      "rationale": "Existing CLIs have manual promote; no CLI applies match-type heuristics for optimal match-type selection.",
+      "example": "apple-search-ads-pp-cli keywords auto-promote --campaign-id 12345 --min-installs 3 --dry-run",
+      "why_it_matters": "Use weekly to surface converting search terms that should become targeted keywords.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Budget Burn Forecasting",
+      "command": "campaigns forecast-spend",
+      "description": "Predict daily/monthly spend and flag campaigns on track to overshoot budget caps.",
+      "rationale": "No CLI models spend pacing; UA managers discover budget exhaustion after the fact.",
+      "example": "apple-search-ads-pp-cli campaigns forecast-spend --days 30 --alert-threshold 95 --agent",
+      "why_it_matters": "Use at start of month to catch pacing issues before they become wasted budget.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Cross-Org Campaign Templates",
+      "command": "templates apply",
+      "description": "Version-control campaign structures and apply them across multiple org IDs with a diff preview.",
+      "rationale": "Multi-app UA teams manually copy campaign structures across orgs; no CLI offers templating or sync.",
+      "example": "apple-search-ads-pp-cli templates apply brand-baseline --org-ids 111,222 --diff --dry-run",
+      "why_it_matters": "Use when managing multiple apps to ensure consistent campaign structure across all orgs.",
+      "group": "Local state that compounds"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Local Cost Analytics",
+      "command": "analytics query",
+      "description": "Query locally cached reporting data without API rate limit friction.",
+      "rationale": "No CLI offers SQLite-backed reporting cache; UA teams hit rate limits on large-scale live queries.",
+      "example": "apple-search-ads-pp-cli analytics query --group-by match_type --limit 20 --agent",
+      "why_it_matters": "Use when you need cross-campaign aggregations or historical trending without burning API quota.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Bid Optimization Suggestions",
+      "command": "optimize suggest",
+      "description": "Get CPA/ROAS-driven bid adjustment suggestions with revenue impact forecast before applying.",
+      "rationale": "UA teams test bids manually; no CLI models bid elasticity or forecasts cost impact per keyword.",
+      "example": "apple-search-ads-pp-cli optimize suggest --metric cpa --target 2.50 --agent",
+      "why_it_matters": "Use before bulk bid changes to preview expected spend delta and install rate impact.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Search Term Auto-Promotion",
+      "command": "keywords auto-promote",
+      "description": "Batch analyze high-converting search terms and promote them to keywords with smart match-type routing.",
+      "rationale": "Existing CLIs have manual promote; no CLI applies match-type heuristics for optimal match-type selection.",
+      "example": "apple-search-ads-pp-cli keywords auto-promote --campaign-id 12345 --min-installs 3 --dry-run",
+      "why_it_matters": "Use weekly to surface converting search terms that should become targeted keywords.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Budget Burn Forecasting",
+      "command": "campaigns forecast-spend",
+      "description": "Predict daily/monthly spend and flag campaigns on track to overshoot budget caps.",
+      "rationale": "No CLI models spend pacing; UA managers discover budget exhaustion after the fact.",
+      "example": "apple-search-ads-pp-cli campaigns forecast-spend --days 30 --alert-threshold 95 --agent",
+      "why_it_matters": "Use at start of month to catch pacing issues before they become wasted budget.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Cross-Org Campaign Templates",
+      "command": "templates apply",
+      "description": "Version-control campaign structures and apply them across multiple org IDs with a diff preview.",
+      "rationale": "Multi-app UA teams manually copy campaign structures across orgs; no CLI offers templating or sync.",
+      "example": "apple-search-ads-pp-cli templates apply brand-baseline --org-ids 111,222 --diff --dry-run",
+      "why_it_matters": "Use when managing multiple apps to ensure consistent campaign structure across all orgs.",
+      "group": "Local state that compounds"
+    }
+  ],
+  "auth": {
+    "canonical_env_var": "ASA_CLIENT_ID"
+  },
+  "narrative": {
+    "display_name": "Apple Search Ads",
+    "headline": "Every Apple Search Ads feature, plus local cost analytics, bid optimization, and cross-org templating no Python CLI offers.",
+    "value_prop": "apple-search-ads-pp-cli is a native Go CLI covering all campaign, keyword, and reporting operations plus a local SQLite cache for offline analytics. UA teams get bid optimization suggestions, budget pacing forecasts, and cross-org template sync without hitting API rate limits.",
+    "auth_narrative": "Apple Search Ads uses OAuth 2.0 with a private key JWT flow. You need a client ID, team ID, key ID, org ID, and a .p8 private key file. Run `apple-search-ads-pp-cli auth setup` to configure these, or set ASA_CLIENT_ID, ASA_TEAM_ID, ASA_KEY_ID, ASA_ORG_ID, and ASA_PRIVATE_KEY_PATH in your environment.",
+    "quickstart": [
+      {
+        "command": "apple-search-ads-pp-cli doctor --dry-run",
+        "comment": "Verify auth config and API reachability"
+      },
+      {
+        "command": "apple-search-ads-pp-cli campaigns list-campaigns --json",
+        "comment": "List all campaigns across your org"
+      },
+      {
+        "command": "apple-search-ads-pp-cli analytics query --group-by campaign --limit 10 --json",
+        "comment": "See keyword analytics from the local cache"
+      },
+      {
+        "command": "apple-search-ads-pp-cli optimize suggest --metric cpa --target 2.50 --agent",
+        "comment": "Get bid adjustment suggestions"
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "401 Unauthorized on any command",
+        "fix": "Run `apple-search-ads-pp-cli auth setup` -- your private key or client ID may be expired or misconfigured"
+      },
+      {
+        "symptom": "Empty campaign list",
+        "fix": "Check ASA_ORG_ID matches the org you're targeting; different orgs need different credentials"
+      },
+      {
+        "symptom": "Rate limit errors on reporting",
+        "fix": "Use `analytics sync-cache` first, then query locally with `analytics query`"
+      }
+    ],
+    "when_to_use": "Use this CLI when managing Apple Search Ads campaigns from the command line, automating bid adjustments, analyzing keyword performance at scale, or building UA automation pipelines.",
+    "anti_triggers": [
+      "App Store Connect app metadata or screenshots (use App Store Connect CLI or Fastlane)",
+      "TestFlight beta management",
+      "Apple developer account management",
+      "Attribution analytics (use MMP tools like AppsFlyer or Adjust)"
+    ],
+    "recipes": [
+      {
+        "title": "Find underperforming keywords",
+        "command": "apple-search-ads-pp-cli campaigns get-targetingkeywords 12345 --json",
+        "explanation": "Surface keywords with low install rate for bid review or pausing"
+      },
+      {
+        "title": "Promote converting search terms",
+        "command": "apple-search-ads-pp-cli keywords auto-promote --campaign-id 12345 --min-installs 3 --dry-run",
+        "explanation": "Preview search terms that qualify for keyword promotion before committing"
+      },
+      {
+        "title": "Check budget pacing",
+        "command": "apple-search-ads-pp-cli campaigns forecast-spend --days 7 --alert-threshold 90 --agent",
+        "explanation": "Surface campaigns projected to exhaust budget before week end"
+      },
+      {
+        "title": "Apply CPA-optimized bids",
+        "command": "apple-search-ads-pp-cli optimize suggest --metric cpa --target 2.50 --apply --agent",
+        "explanation": "Apply CPA-optimized bid suggestions across all active keywords"
+      },
+      {
+        "title": "Cross-campaign keyword analytics",
+        "command": "apple-search-ads-pp-cli analytics query --group-by keyword_text --limit 20 --agent",
+        "explanation": "Query local cache for top-20 keywords by CPA without API calls"
+      }
+    ],
+    "trigger_phrases": [
+      "check my Apple Search Ads campaigns",
+      "list ASA keywords",
+      "optimize Apple Ads bids",
+      "apple search ads report",
+      "use apple-search-ads",
+      "run apple search ads"
+    ]
+  }
+}

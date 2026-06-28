@@ -1,0 +1,45 @@
+{
+  "manifest_version": "0.3",
+  "name": "apple-search-ads-pp-mcp",
+  "display_name": "Apple Search Ads",
+  "version": "4.19.0",
+  "description": "Every Apple Search Ads feature, plus local cost analytics, bid optimization, and cross-org templating no Python CLI offers.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/apple-search-ads-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/apple-search-ads-pp-mcp",
+      "args": [],
+      "env": {
+        "APPLE_SEARCH_ADS_TOKEN": "${user_config.apple_search_ads_token}",
+        "ASA_CLIENT_ID": "${user_config.asa_client_id}"
+      }
+    }
+  },
+  "user_config": {
+    "apple_search_ads_token": {
+      "type": "string",
+      "title": "APPLE_SEARCH_ADS_TOKEN",
+      "description": "Optional. Sets APPLE_SEARCH_ADS_TOKEN for the Apple Search Ads MCP server.",
+      "sensitive": true
+    },
+    "asa_client_id": {
+      "type": "string",
+      "title": "ASA_CLIENT_ID",
+      "description": "Optional. Sets ASA_CLIENT_ID for the Apple Search Ads MCP server.",
+      "sensitive": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}
