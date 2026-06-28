@@ -1,0 +1,47 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-06-28T09:30:00Z",
+  "printing_press_version": "4.27.0",
+  "api_name": "insurance-finder",
+  "display_name": "Insurance Finder",
+  "cli_name": "insurance-finder-pp-cli",
+  "creator": {
+    "handle": "beetz12",
+    "name": "Weiwei Huang"
+  },
+  "contributors": [],
+  "printer": "beetz12",
+  "printer_name": "Weiwei Huang",
+  "spec_format": "internal",
+  "run_id": "20260628-093000",
+  "category": "other",
+  "description": "Guided assistant that helps a US small business find and apply for commercial insurance (General Liability first): one-time intake, reusable profile, importer-aware provider matching, paste-ready answer sheets, and per-provider manual-action checklists. Guides the user through their own browser; never fills, submits, or pays.",
+  "auth_type": "none",
+  "novel_features": [
+    {
+      "name": "Importer-aware routing",
+      "command": "match",
+      "description": "Ranks providers from a data-driven appetite registry; importers/private-label/manufacturers (deemed manufacturers) are routed to specialty markets and the mainstream instant-quote carriers that decline the class are pushed to an 'avoid' tier."
+    },
+    {
+      "name": "Per-provider answer sheet",
+      "command": "answersheet",
+      "description": "Maps the stored profile to the exact paste-ready values for each provider's quote form, plus provider-specific hints."
+    },
+    {
+      "name": "Manual-actions checklist",
+      "command": "checklist",
+      "description": "Surfaces the human-only steps the tool refuses to do: CAPTCHA, account/password, EIN/SSN, payment, and the two-gate submit approval."
+    },
+    {
+      "name": "Underwriting warnings",
+      "command": "warnings",
+      "description": "Encodes the live-run lessons: foreign-products exclusion (the #1 importer trap), the GL Coverage B IP gap, and lead-capture/consent process traps."
+    },
+    {
+      "name": "End-to-end guide",
+      "command": "guide",
+      "description": "One command that combines warnings plus per-provider URL, answer sheet, and checklist into a guided walkthrough."
+    }
+  ]
+}

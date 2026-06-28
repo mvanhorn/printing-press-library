@@ -1,0 +1,18 @@
+# Applicant profile may contain PII (names, addresses, phone, business details).
+# NEVER commit it.
+profile.json
+*.profile.json
+retail.json
+
+# Build output
+/insurance-finder
+/insurance-finder-pp-cli
+/dist/
+*.out
+
+# OS / editor
+.DS_Store
+*.swp
+
+# OMC scratch state (this project was scaffolded under an OMC session)
+.omc/
