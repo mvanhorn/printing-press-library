@@ -1,0 +1,10 @@
+{
+  "schema_version": 2,
+  "id": "acris-cross-dataset-join-commands",
+  "applied_at": "2026-06-27",
+  "base_run_id": "20260627-172432-3fcb7c76",
+  "base_printing_press_version": "4.27.0",
+  "summary": "The bbl, debt, document, and party-search commands join the Legals, Master, and Parties datasets locally by document_id; the shared SoQL/fan-out helpers live in acris_join.go.",
+  "reason": "ACRIS publishes its records as four separate NYC Open Data (Socrata) datasets with no server-side join endpoint, so a regen that only lists each dataset would lose every cross-dataset command. The durable contract is: resolve a BBL or document/party key in one dataset, collect distinct document IDs, then chunk-fetch the related rows from the others.",
+  "files": ["internal/cli/acris_join.go", "internal/cli/bbl.go", "internal/cli/debt.go", "internal/cli/document.go", "internal/cli/party_search.go", "internal/cli/acris_join_test.go"]
+}

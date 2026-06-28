@@ -1,0 +1,51 @@
+version: 2
+project_name: acris-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: acris-pp-cli
+    main: ./cmd/acris-pp-cli
+    binary: acris-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X github.com/mvanhorn/printing-press-library/library/other/acris/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: acris-pp-mcp
+    main: ./cmd/acris-pp-mcp
+    binary: acris-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X main.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: acris-pp-cli
+    repository:
+      owner: avanderheyde
+      name: homebrew-tap
+    homepage: "https://github.com/mvanhorn/printing-press-library"
+    description: "Query NYC property records — deeds, mortgages, parties, and full BBL history — straight from NYC Open Data, with cross-dataset joins no raw ACRIS query can do."
+    install: |
+      bin.install "acris-pp-cli"
+      bin.install "acris-pp-mcp"

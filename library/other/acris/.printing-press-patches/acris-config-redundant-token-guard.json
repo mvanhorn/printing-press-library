@@ -1,0 +1,10 @@
+{
+  "schema_version": 2,
+  "id": "acris-config-redundant-token-guard",
+  "applied_at": "2026-06-27",
+  "base_run_id": "20260627-172432-3fcb7c76",
+  "base_printing_press_version": "4.27.0",
+  "summary": "Remove the dead second empty-token check in Config.AuthHeader; the earlier token == \"\" guard already returns.",
+  "reason": "AuthHeader assigned token := c.AcrisAppToken and returned early on token == \"\", then immediately re-tested the identical c.AcrisAppToken == \"\" — an unreachable branch. Simplified to the single guard.",
+  "files": ["internal/config/config.go"]
+}

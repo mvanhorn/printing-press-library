@@ -1,0 +1,1010 @@
+{
+  "dir": "/Users/jarvis/printing-press/library/acris",
+  "binary": "/Users/jarvis/printing-press/library/acris/acris-pp-cli",
+  "level": "full",
+  "verdict": "PASS",
+  "matrix_size": 61,
+  "passed": 61,
+  "failed": 0,
+  "skipped": 36,
+  "commands": [
+    "analytics",
+    "api",
+    "bbl",
+    "debt",
+    "doc-types",
+    "doctor",
+    "document",
+    "documents get",
+    "documents list",
+    "feedback list",
+    "legals",
+    "parties",
+    "party-search",
+    "profile delete",
+    "profile list",
+    "profile save",
+    "profile show",
+    "profile use",
+    "search",
+    "sync",
+    "tail",
+    "which",
+    "workflow archive",
+    "workflow status"
+  ],
+  "tests": [
+    {
+      "command": "analytics",
+      "kind": "help",
+      "args": [
+        "analytics",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Analyze locally synced data with count, group-by, and summary operations.\nData must be synced first with the sync command.\n\nUsage:\n  acris-pp-cli analytics [flags]\n\nExamples:\n  # Count records by type\n  acris-pp-cli analytics --type messages\n\n  # Group by a field\n  acris-pp-cli analytics --type messages --group-by author_id\n\n  # Top 10 most frequent values\n  acris-pp-cli analytics --type messages --group-by channel_id --limit 10 --json\n\nFlags:\n      --db string         SQLite database file path (default: resolved data directory data.db)\n      --group-by string   Field to group by\n  -h, --help              help for analytics\n      --limit int         Max groups to show (default 25)\n      --type string       Resource type to analyze\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --home string          Root directory for config, data, state, and cache files\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'acris-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "analytics",
+      "kind": "happy_path",
+      "args": [
+        "analytics",
+        "--type",
+        "messages"
+      ],
+      "status": "pass",
+      "output_sample": "messages: 0 records\nhint: local store has not been synced yet. Run 'acris-pp-cli sync' before trusting local results.\n"
+    },
+    {
+      "command": "analytics",
+      "kind": "json_fidelity",
+      "args": [
+        "analytics",
+        "--type",
+        "messages",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"count\": 0,\n  \"resource_type\": \"messages\"\n}\nhint: local store has not been synced yet. Run 'acris-pp-cli sync' before trusting local results.\n"
+    },
+    {
+      "command": "analytics",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "api",
+      "kind": "help",
+      "args": [
+        "api",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Browse and call any API endpoint using the raw interface names.\n\nThe friendly top-level commands cover the most common operations.\nThis command provides access to ALL endpoints for power users and\nagents that need full API coverage.\n\nRun 'api' with no arguments to list all interfaces.\nRun 'api \u003cinterface\u003e' to see that interface's methods.\n\nUsage:\n  acris-pp-cli api [interface] [flags]\n\nExamples:\n  # List all available interfaces\n  acris-pp-cli api\n\n  # Show methods for a specific interface\n  acris-pp-cli api \u003cinterface-name\u003e\n\nFlags:\n  -h, --help   help for api\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --home string          Root directory for config, data, state, and cache files\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'acris-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "api",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [api] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "api",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [api] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "api",
+      "kind": "error_path",
+      "args": [
+        "api",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "Error: interface \"__printing_press_invalid__\" not found. Run 'acris-pp-cli api' to list all interfaces\n"
+    },
+    {
+      "command": "bbl",
+      "kind": "help",
+      "args": [
+        "bbl",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Resolve a borough/block/lot (BBL) to every recorded ACRIS document for that\ntax lot, joining the Legals dataset (document \u003c-\u003e BBL) to the Master dataset\n(document type, amount, and dates). Block and lot are not zero-padded.\nBorough codes: 1=Manhattan 2=Bronx 3=Brooklyn 4=Queens 5=Staten Island.\n\nUsage:\n  acris-pp-cli bbl [flags]\n\nExamples:\n  acris-pp-cli bbl --borough 1 --block 852 --lot 134 --json\n\nFlags:\n      --block string        Tax block number (not zero-padded)\n      --borough string      Borough code: 1=Manhattan 2=Bronx 3=Brooklyn 4=Queens 5=Staten Island\n  -h, --help                help for bbl\n      --lot string          Tax lot number (not zero-padded)\n      --max-documents int   Maximum documents to resolve for the BBL (default 100)\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --home string          Root directory for config, data, state, and cache files\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'acris-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "bbl",
+      "kind": "happy_path",
+      "args": [
+        "bbl",
+        "--borough",
+        "1",
+        "--block",
+        "852",
+        "--lot",
+        "134",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"bbl\": \"1-852-134\",\n  \"borough\": \"1\",\n  \"borough_name\": \"Manhattan\",\n  \"block\": \"852\",\n  \"lot\": \"134\",\n  \"document_count\": 1,\n  \"documents\": [\n    {\n      \"document_id\": \"FT_1420000338642\",\n      \"doc_type\": \"ASST\",\n      \"document_amt\": \"0\",\n      \"recorded_datetime\": \"1990-04-16T00:00:00.000\"\n    }\n  ]\n}\n"
+    },
+    {
+      "command": "bbl",
+      "kind": "json_fidelity",
+      "args": [
+        "bbl",
+        "--borough",
+        "1",
+        "--block",
+        "852",
+        "--lot",
+        "134",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"bbl\": \"1-852-134\",\n  \"borough\": \"1\",\n  \"borough_name\": \"Manhattan\",\n  \"block\": \"852\",\n  \"lot\": \"134\",\n  \"document_count\": 1,\n  \"documents\": [\n    {\n      \"document_id\": \"FT_1420000338642\",\n      \"doc_type\": \"ASST\",\n      \"document_amt\": \"0\",\n      \"recorded_datetime\": \"1990-04-16T00:00:00.000\"\n    }\n  ]\n}\n"
+    },
+    {
+      "command": "bbl",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "debt",
+      "kind": "help",
+      "args": [
+        "debt",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "List the recorded mortgages and other debt instruments for a borough/block/lot\n(BBL). Joins Legals (document \u003c-\u003e BBL) to Master (amounts, dates) and keeps only\nACRIS mortgage/debt document types (MTGE, M\u0026CON, ASST, SAT, AALR, SUBM, PREL, ...).\ntotal_recorded_mortgage sums only originating mortgage recordings (MTGE, M\u0026CON,\nSMTG) — it indicates recorded principal, not a current payoff balance, and does\nnot net out satisfactions. Block and lot are not zero-padded.\n\nUsage:\n  acris-pp-cli debt [flags]\n\nExamples:\n  acris-pp-cli debt --borough 1 --block 852 --lot 134 --json\n\nFlags:\n      --block string        Tax block number (not zero-padded)\n      --borough string      Borough code: 1=Manhattan 2=Bronx 3=Brooklyn 4=Queens 5=Staten Island\n  -h, --help                help for debt\n      --lot string          Tax lot number (not zero-padded)\n      --max-documents int   Maximum mortgage documents to return (default 100)\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --home string          Root directory for config, data, state, and cache files\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'acris-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "debt",
+      "kind": "happy_path",
+      "args": [
+        "debt",
+        "--borough",
+        "1",
+        "--block",
+        "852",
+        "--lot",
+        "134",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"bbl\": \"1-852-134\",\n  \"borough\": \"1\",\n  \"borough_name\": \"Manhattan\",\n  \"block\": \"852\",\n  \"lot\": \"134\",\n  \"mortgage_count\": 1,\n  \"total_recorded_mortgage\": \"0\",\n  \"documents\": [\n    {\n      \"document_id\": \"FT_1420000338642\",\n      \"doc_type\": \"ASST\",\n      \"doc_type_description\": \"Assignment of Mortgage\",\n      \"document_amt\": \"0\",\n      \"recorded_datetime\": \"1990-04-16T00:00:00.000\"\n    }\n  ]\n}\n"
+    },
+    {
+      "command": "debt",
+      "kind": "json_fidelity",
+      "args": [
+        "debt",
+        "--borough",
+        "1",
+        "--block",
+        "852",
+        "--lot",
+        "134",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"bbl\": \"1-852-134\",\n  \"borough\": \"1\",\n  \"borough_name\": \"Manhattan\",\n  \"block\": \"852\",\n  \"lot\": \"134\",\n  \"mortgage_count\": 1,\n  \"total_recorded_mortgage\": \"0\",\n  \"documents\": [\n    {\n      \"document_id\": \"FT_1420000338642\",\n      \"doc_type\": \"ASST\",\n      \"doc_type_description\": \"Assignment of Mortgage\",\n      \"document_amt\": \"0\",\n      \"recorded_datetime\": \"1990-04-16T00:00:00.000\"\n    }\n  ]\n}\n"
+    },
+    {
+      "command": "debt",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "doc-types",
+      "kind": "help",
+      "args": [
+        "doc-types",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "List document control codes, optionally filtered by class\n\nUsage:\n  acris-pp-cli doc-types [flags]\n\nExamples:\n  acris-pp-cli doc-types list --class-code-description 'MORTGAGES \u0026 INSTRUMENTS'\n\nFlags:\n      --class-code-description string   Class filter: 'DEEDS AND OTHER CONVEYANCES', 'MORTGAGES \u0026 INSTRUMENTS', 'UCC AND FEDERAL LIENS', 'OTHER DOCUMENTS'\n  -h, --help                            help for doc-types\n      --limit int                       Maximum rows to return (default 200)\n      --q string                        Full-text search across code descriptions\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --home string          Root directory for config, data, state, and cache files\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'acris-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "doc-types",
+      "kind": "happy_path",
+      "args": [
+        "doc-types",
+        "list",
+        "--class-code-description",
+        "MORTGAGES \u0026 INSTRUMENTS",
+        "--limit",
+        "10"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"live\"\n  },\n  \"results\": [\n    {\n      \"record_type\": \"D\",\n      \"class_code_description\": \"MORTGAGES \\u0026 INSTRUMENTS\",\n      \"party1_type\": \"MORTGAGER/BORROWER\",\n      \"party2_type\": \"MORTGAGEE/LENDER\"\n    },\n    {\n      \"record_type\": \"D\",\n      \"class_code_description\": \"MORTGAGES \\u0026 INSTRUMENTS\",\n      \"party1_type\": \"MORTGAGER/BORROWER\",\n      \"party2_type\": \"MORTGAGEE/LENDER\"\n    },\n    {\n      \"record_type\": \"D\",\n      \"class_code_description\": \"MORTGAGES \\u0026 INSTRUMENTS\",\n      \"party1_type\": \"MORTGAGER/BORROWER\",\n      \"party2_type\": \"MORTGAGEE/LENDER\"\n    },\n    {\n      \"record_type\": \"D\",\n      \"class_code_description\": \"MORTGAGES \\u0026 INSTRUMENTS\",\n      \"party1_type\": \"MORTGAGER/BORROWER\",\n      \"party2_type\": \"MORTGAGEE/LENDER\"\n    },\n    {\n      \"record_type\": \"D\",\n      \"class_code_description\": \"MORTGAGES \\u0026 INSTRUMENTS\",\n      \"party1_type\": \"MORTGAGER/BORROWER\",\n      \"party2_type\": \"MORTGAGEE/LENDER\"\n    },\n    {\n      \"record_type\": \"D\",\n      \"class_code_description\": \"MORTGAGES \\u0026 INSTRUMENTS\",\n      \"party1_type\": \"MORTGAGER/BORROWER\",\n      \"party2_type\": \"MORTGAGEE/LENDER\"\n    },\n    {\n      \"record_type\": \"D\",\n      \"class_code_description\": \"MORTGAGES \\u0026 INSTRUMENTS\",\n      \"party1_type\": \"MORTGAGER/BORROWER\",\n      \"party2_type\": \"MORTGAGEE/LENDER\"\n    },\n    {\n      \"record_type\": \"D\",\n      \"class_code_description\": \"MORTGAGES \\u0026 INSTRUMENTS\",\n      \"party1_type\": \"MORTGAGER/BORROWER\",\n      \"party2_type\": \"MORTGAGEE/LENDER\"\n    },\n    {\n      \"record_type\": \"D\",\n      \"class_code_description\": \"MORTGAGES \\u0026 INSTRUMENTS\",\n      \"party1_type\": \"PAYER\",\n      \"party2_type\": \"PARTY TWO\"\n    },\n    {\n      \"record_type\": \"D\",\n      \"class_code_description\": \"MORTGAGES \\u0026 INSTRUMENTS\",\n      \"party1_type\": \"PARTY ONE\",\n      \"party2_type\": \"PARTY TWO\"\n    }\n  ]\n}\nwarning: 10/10 doc-types items returned but not cached locally (no extractable ID field; offline lookup against these rows will be incomplete; live queries unaffected)\n"
+    },
+    {
+      "command": "doc-types",
+      "kind": "json_fidelity",
+      "args": [
+        "doc-types",
+        "list",
+        "--class-code-description",
+        "MORTGAGES \u0026 INSTRUMENTS",
+        "--limit",
+        "10",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"live\"\n  },\n  \"results\": [\n    {\n      \"record_type\": \"D\",\n      \"class_code_description\": \"MORTGAGES \\u0026 INSTRUMENTS\",\n      \"party1_type\": \"MORTGAGER/BORROWER\",\n      \"party2_type\": \"MORTGAGEE/LENDER\"\n    },\n    {\n      \"record_type\": \"D\",\n      \"class_code_description\": \"MORTGAGES \\u0026 INSTRUMENTS\",\n      \"party1_type\": \"MORTGAGER/BORROWER\",\n      \"party2_type\": \"MORTGAGEE/LENDER\"\n    },\n    {\n      \"record_type\": \"D\",\n      \"class_code_description\": \"MORTGAGES \\u0026 INSTRUMENTS\",\n      \"party1_type\": \"MORTGAGER/BORROWER\",\n      \"party2_type\": \"MORTGAGEE/LENDER\"\n    },\n    {\n      \"record_type\": \"D\",\n      \"class_code_description\": \"MORTGAGES \\u0026 INSTRUMENTS\",\n      \"party1_type\": \"MORTGAGER/BORROWER\",\n      \"party2_type\": \"MORTGAGEE/LENDER\"\n    },\n    {\n      \"record_type\": \"D\",\n      \"class_code_description\": \"MORTGAGES \\u0026 INSTRUMENTS\",\n      \"party1_type\": \"MORTGAGER/BORROWER\",\n      \"party2_type\": \"MORTGAGEE/LENDER\"\n    },\n    {\n      \"record_type\": \"D\",\n      \"class_code_description\": \"MORTGAGES \\u0026 INSTRUMENTS\",\n      \"party1_type\": \"MORTGAGER/BORROWER\",\n      \"party2_type\": \"MORTGAGEE/LENDER\"\n    },\n    {\n      \"record_type\": \"D\",\n      \"class_code_description\": \"MORTGAGES \\u0026 INSTRUMENTS\",\n      \"party1_type\": \"MORTGAGER/BORROWER\",\n      \"party2_type\": \"MORTGAGEE/LENDER\"\n    },\n    {\n      \"record_type\": \"D\",\n      \"class_code_description\": \"MORTGAGES \\u0026 INSTRUMENTS\",\n      \"party1_type\": \"MORTGAGER/BORROWER\",\n      \"party2_type\": \"MORTGAGEE/LENDER\"\n    },\n    {\n      \"record_type\": \"D\",\n      \"class_code_description\": \"MORTGAGES \\u0026 INSTRUMENTS\",\n      \"party1_type\": \"PAYER\",\n      \"party2_type\": \"PARTY TWO\"\n    },\n    {\n      \"record_type\": \"D\",\n      \"class_code_description\": \"MORTGAGES \\u0026 INSTRUMENTS\",\n      \"party1_type\": \"PARTY ONE\",\n      \"party2_type\": \"PARTY TWO\"\n    }\n  ]\n}\nwarning: 10/10 doc-types items returned but not cached locally (no extractable ID field; offline lookup against these rows will be incomplete; live queries unaffected)\n"
+    },
+    {
+      "command": "doc-types",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "doctor",
+      "kind": "help",
+      "args": [
+        "doctor",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Check CLI health\n\nUsage:\n  acris-pp-cli doctor [flags]\n\nExamples:\n  acris-pp-cli doctor\n  acris-pp-cli doctor --json\n  acris-pp-cli doctor --fail-on warn\n  acris-pp-cli doctor --fail-on stale\n\nFlags:\n      --fail-on string   Exit non-zero for selected health gates. stale: cache freshness plus errors; warn: credential/path warnings plus errors; error: errors only. Default is never.\n  -h, --help             help for doctor\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --home string          Root directory for config, data, state, and cache files\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'acris-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "doctor",
+      "kind": "happy_path",
+      "args": [
+        "doctor"
+      ],
+      "status": "pass",
+      "output_sample": "  OK Config: ok\n  FAIL Auth: not configured\n  FAIL Env Vars: ERROR missing required: ACRIS_APP_TOKEN\n  OK Verify Mode: normal operation\n  OK API: reachable\n  config_path: /var/folders/f5/jt9zhwc90jn4xl29p7prjlwc0000gn/T/printing-press-subprocess-3675777707/.config/acris-pp-cli/config.toml\n  base_url: https://data.cityofnewyork.us/resource\n  credentials_location: none\n  version: 1.0.0\n  hint: Set your API key with: export ACRIS_APP_TOKEN=\"your-token-here\"\n  OK Cache: fresh\n    db_path: /var/folders/f5/jt9zhwc90jn4xl29p7prjlwc0000gn/T/printing-press-subprocess-3675777707/.local/share/acris-pp-cli/data.db\n    schema_version: 4\n    db_bytes: 1511424\n    stale_after: 6h0m0s\n    resources:\n      - documents: 1000 rows, 0s\n  Paths:\n    config: /var/folders/f5/jt9zhwc90jn4xl29p7prjlwc0000gn/T/printing-press-subprocess-3675777707/.config/acris-pp-cli (XDG_CONFIG_HOME)\n    data: /var/folders/f5/jt9zhwc90jn4xl29p7prjlwc0000gn/T/printing-press-subprocess-3675777707/.local/share/acris-pp-cli (XDG_DATA_HOME)\n    state: /var/folders/f5/jt9zhwc90jn4xl29p7prjlwc0000gn/T/printing-press-subprocess-3675777707/.local/state/acris-pp-cli (XDG_STATE_HOME)\n    cache: /var/folders/f5/jt9zhwc90jn4xl29p7prjlwc0000gn/T/printing-press-subprocess-3675777707/.cache/acris-pp-cli (XDG_CACHE_HOME)\n"
+    },
+    {
+      "command": "doctor",
+      "kind": "json_fidelity",
+      "args": [
+        "doctor",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"agentcookie\": \"not detected (optional)\",\n  \"api\": \"reachable\",\n  \"auth\": \"not configured\",\n  \"auth_hint\": \"Set your API key with: export ACRIS_APP_TOKEN=\\\"your-token-here\\\"\",\n  \"base_url\": \"https://data.cityofnewyork.us/resource\",\n  \"cache\": {\n    \"db_bytes\": 1511424,\n    \"db_path\": \"/var/folders/f5/jt9zhwc90jn4xl29p7prjlwc0000gn/T/printing-press-subprocess-3675777707/.local/share/acris-pp-cli/data.db\",\n    \"resources\": [\n      {\n        \"last_synced_at\": \"2026-06-28T03:41:56Z\",\n        \"rows\": 1000,\n        \"staleness\": \"0s\",\n        \"type\": \"documents\"\n      }\n    ],\n    \"schema_version\": 4,\n    \"stale_after\": \"6h0m0s\",\n    \"status\": \"fresh\"\n  },\n  \"config\": \"ok\",\n  \"config_path\": \"/var/folders/f5/jt9zhwc90jn4xl29p7prjlwc0000gn/T/printing-press-subprocess-3675777707/.config/acris-pp-cli/config.toml\",\n  \"credentials_location\": \"none\",\n  \"env_vars\": \"ERROR missing required: ACRIS_APP_TOKEN\",\n  \"paths\": {\n    \"cache\": {\n      \"dir\": \"/var/folders/f5/jt9zhwc90jn4xl29p7prjlwc0000gn/T/printing-press-subprocess-3675777707/.cache/acris-pp-cli\",\n      \"rung\": \"xdg-env\",\n      \"source\": \"XDG_CACHE_HOME\"\n    },\n    \"config\": {\n      \"dir\": \"/var/folders/f5/jt9zhwc90jn4xl29p7prjlwc0000gn/T/printing-press-subprocess-3675777707/.config/acris-pp-cli\",\n      \"rung\": \"xdg-env\",\n      \"source\": \"XDG_CONFIG_HOME\"\n    },\n    \"data\": {\n      \"dir\": \"/var/folders/f5/jt9zhwc90jn4xl29p7prjlwc0000gn/T/printing-press-subprocess-3675777707/.local/share/acris-pp-cli\",\n      \"rung\": \"xdg-env\",\n      \"source\": \"XDG_DATA_HOME\"\n    },\n    \"state\": {\n      \"dir\": \"/var/folders/f5/jt9zhwc90jn4xl29p7prjlwc0000gn/T/printing-press-subprocess-3675777707/.local/state/acris-pp-cli\",\n      \"rung\": \"xdg-env\",\n      \"source\": \"XDG_STATE_HOME\"\n    },\n    \"status\": \"ok\"\n  },\n  \"verify_mode\": \"normal operation\",\n  \"version\": \"1.0.0\"\n}\n"
+    },
+    {
+      "command": "doctor",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "document",
+      "kind": "help",
+      "args": [
+        "document",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Fetch a single recorded document by its ACRIS document ID and merge its Master\nrecord (type, amount, dates), every property (BBL) it touches from Legals, and\nevery party from Parties into one object — the complete picture of one recording.\n\nUsage:\n  acris-pp-cli document \u003cdocument_id\u003e [flags]\n\nExamples:\n  acris-pp-cli document 2023012300123001 --json\n\nFlags:\n  -h, --help   help for document\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --home string          Root directory for config, data, state, and cache files\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'acris-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "document",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [document] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "document",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [document] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "document",
+      "kind": "error_path",
+      "args": [
+        "document",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "Error: document \"__printing_press_invalid__\" not found in ACRIS (no master record); verify the document ID\n"
+    },
+    {
+      "command": "documents get",
+      "kind": "help",
+      "args": [
+        "documents",
+        "get",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Fetch a single document master record by document ID\n\nUsage:\n  acris-pp-cli documents get [flags]\n\nExamples:\n  acris-pp-cli documents get --document-id 2023012300123001\n\nFlags:\n      --document-id string   ACRIS document ID\n  -h, --help                 help for get\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --home string          Root directory for config, data, state, and cache files\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'acris-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "documents get",
+      "kind": "happy_path",
+      "args": [
+        "documents",
+        "get",
+        "--document-id",
+        "2023012300123001"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"live\"\n  },\n  \"results\": []\n}\n"
+    },
+    {
+      "command": "documents get",
+      "kind": "json_fidelity",
+      "args": [
+        "documents",
+        "get",
+        "--document-id",
+        "2023012300123001",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"live\"\n  },\n  \"results\": []\n}\n"
+    },
+    {
+      "command": "documents get",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "documents list",
+      "kind": "help",
+      "args": [
+        "documents",
+        "list",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "List or filter recorded documents by type, borough, CRFN, or SoQL query\n\nUsage:\n  acris-pp-cli documents list [flags]\n\nExamples:\n  acris-pp-cli documents list --doc-type DEED --recorded-borough 1 --limit 25\n\nFlags:\n      --crfn string               City Register File Number\n      --doc-type string           Document type code (e.g. DEED, MTGE, AGMT). See 'acris-pp-cli doc-types list'\n      --document-id string        Exact ACRIS document ID (e.g. 2023012300123001)\n  -h, --help                      help for list\n      --limit int                 Maximum rows to return (Socrata caps at 50000) (default 50)\n      --offset int                Row offset for pagination\n      --order string              Sort expression, e.g. 'recorded_datetime DESC'\n      --q string                  Full-text search across all fields\n      --recorded-borough string   Recording borough code: 1=Manhattan 2=Bronx 3=Brooklyn 4=Queens 5=Staten Island\n      --where string              Raw SoQL filter, e.g. 'document_amt \u003e 1000000 and document_date \u003e '2022-01-01''\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --home string          Root directory for config, data, state, and cache files\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'acris-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "documents list",
+      "kind": "happy_path",
+      "args": [
+        "documents",
+        "list",
+        "--doc-type",
+        "DEED",
+        "--recorded-borough",
+        "1",
+        "--limit",
+        "5"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"live\"\n  },\n  \"results\": [\n    {\n      \"document_id\": \"2026022600002001\",\n      \"record_type\": \"A\",\n      \"crfn\": \"2026000139645\",\n      \"recorded_borough\": \"1\",\n      \"doc_type\": \"DEED\",\n      \"document_date\": \"2026-02-05T00:00:00.000\",\n      \"document_amt\": \"560000\",\n      \"recorded_datetime\": \"2026-05-20T00:00:00.000\",\n      \"modified_date\": \"2026-05-20T00:00:00.000\",\n      \"reel_yr\": \"0\",\n      \"reel_nbr\": \"0\",\n      \"reel_pg\": \"0\",\n      \"percent_trans\": \"100\",\n      \"good_through_date\": \"2026-05-31T00:00:00.000\"\n    },\n    {\n      \"document_id\": \"2026052700127002\",\n      \"record_type\": \"A\",\n      \"crfn\": \"2026000147208\",\n      \"recorded_borough\": \"1\",\n      \"doc_type\": \"DEED\",\n      \"document_date\": \"2026-05-20T00:00:00.000\",\n      \"document_amt\": \"1450000\",\n      \"recorded_datetime\": \"2026-05-29T00:00:00.000\",\n      \"modified_date\": \"2026-05-29T00:00:00.000\",\n      \"reel_yr\": \"0\",\n      \"reel_nbr\": \"0\",\n      \"reel_pg\": \"0\",\n      \"percent_trans\": \"100\",\n      \"good_through_date\": \"2026-05-31T00:00:00.000\"\n    },\n    {\n      \"document_id\": \"2026050400771002\",\n      \"record_type\": \"A\",\n      \"crfn\": \"2026000135293\",\n      \"recorded_borough\": \"1\",\n      \"doc_type\": \"DEED\",\n      \"document_date\": \"2026-04-29T00:00:00.000\",\n      \"document_amt\": \"1395000\",\n      \"recorded_datetime\": \"2026-05-15T00:00:00.000\",\n      \"modified_date\": \"2026-05-15T00:00:00.000\",\n      \"reel_yr\": \"0\",\n      \"reel_nbr\": \"0\",\n      \"reel_pg\": \"0\",\n      \"percent_trans\": \"100\",\n      \"good_through_date\": \"2026-05-31T00:00:00.000\"\n    },\n    {\n      \"document_id\": \"2026050400207001\",\n      \"record_type\": \"A\",\n      \"crfn\": \"2026000141853\",\n      \"recorded_borough\": \"1\",\n      \"doc_type\": \"DEED\",\n      \"document_date\": \"2026-04-22T00:00:00.000\",\n      \"document_amt\": \"0\",\n      \"recorded_datetime\": \"2026-05-21T00:00:00.000\",\n      \"modified_date\": \"2026-05-21T00:00:00.000\",\n      \"reel_yr\": \"0\",\n      \"reel_nbr\": \"0\",\n      \"reel_pg\": \"0\",\n      \"percent_trans\": \"100\",\n      \"good_through_date\": \"2026-05-31T00:00:00.000\"\n    },\n    {\n      \"document_id\": \"2026051200716001\",\n      \"record_type\": \"A\",\n      \"crfn\": \"2026000135231\",\n      \"recorded_borough\": \"1\",\n      \"doc_type\": \"DEED\",\n      \"document_date\": \"2026-04-27T00:00:00.000\",\n      \"document_amt\": \"13250000\",\n      \"recorded_datetime\": \"2026-05-15T00:00:00.000\",\n      \"modified_date\": \"2026-05-15T00:00:00.000\",\n      \"reel_yr\": \"0\",\n      \"reel_nbr\": \"0\",\n      \"reel_pg\": \"0\",\n      \"percent_trans\": \"100\",\n      \"good_through_date\": \"2026-05-31T00:00:00.000\"\n    }\n  ]\n}\n"
+    },
+    {
+      "command": "documents list",
+      "kind": "json_fidelity",
+      "args": [
+        "documents",
+        "list",
+        "--doc-type",
+        "DEED",
+        "--recorded-borough",
+        "1",
+        "--limit",
+        "5",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"live\"\n  },\n  \"results\": [\n    {\n      \"document_id\": \"2026022600002001\",\n      \"record_type\": \"A\",\n      \"crfn\": \"2026000139645\",\n      \"recorded_borough\": \"1\",\n      \"doc_type\": \"DEED\",\n      \"document_date\": \"2026-02-05T00:00:00.000\",\n      \"document_amt\": \"560000\",\n      \"recorded_datetime\": \"2026-05-20T00:00:00.000\",\n      \"modified_date\": \"2026-05-20T00:00:00.000\",\n      \"reel_yr\": \"0\",\n      \"reel_nbr\": \"0\",\n      \"reel_pg\": \"0\",\n      \"percent_trans\": \"100\",\n      \"good_through_date\": \"2026-05-31T00:00:00.000\"\n    },\n    {\n      \"document_id\": \"2026052700127002\",\n      \"record_type\": \"A\",\n      \"crfn\": \"2026000147208\",\n      \"recorded_borough\": \"1\",\n      \"doc_type\": \"DEED\",\n      \"document_date\": \"2026-05-20T00:00:00.000\",\n      \"document_amt\": \"1450000\",\n      \"recorded_datetime\": \"2026-05-29T00:00:00.000\",\n      \"modified_date\": \"2026-05-29T00:00:00.000\",\n      \"reel_yr\": \"0\",\n      \"reel_nbr\": \"0\",\n      \"reel_pg\": \"0\",\n      \"percent_trans\": \"100\",\n      \"good_through_date\": \"2026-05-31T00:00:00.000\"\n    },\n    {\n      \"document_id\": \"2026050400771002\",\n      \"record_type\": \"A\",\n      \"crfn\": \"2026000135293\",\n      \"recorded_borough\": \"1\",\n      \"doc_type\": \"DEED\",\n      \"document_date\": \"2026-04-29T00:00:00.000\",\n      \"document_amt\": \"1395000\",\n      \"recorded_datetime\": \"2026-05-15T00:00:00.000\",\n      \"modified_date\": \"2026-05-15T00:00:00.000\",\n      \"reel_yr\": \"0\",\n      \"reel_nbr\": \"0\",\n      \"reel_pg\": \"0\",\n      \"percent_trans\": \"100\",\n      \"good_through_date\": \"2026-05-31T00:00:00.000\"\n    },\n    {\n      \"document_id\": \"2026050400207001\",\n      \"record_type\": \"A\",\n      \"crfn\": \"2026000141853\",\n      \"recorded_borough\": \"1\",\n      \"doc_type\": \"DEED\",\n      \"document_date\": \"2026-04-22T00:00:00.000\",\n      \"document_amt\": \"0\",\n      \"recorded_datetime\": \"2026-05-21T00:00:00.000\",\n      \"modified_date\": \"2026-05-21T00:00:00.000\",\n      \"reel_yr\": \"0\",\n      \"reel_nbr\": \"0\",\n      \"reel_pg\": \"0\",\n      \"percent_trans\": \"100\",\n      \"good_through_date\": \"2026-05-31T00:00:00.000\"\n    },\n    {\n      \"document_id\": \"2026051200716001\",\n      \"record_type\": \"A\",\n      \"crfn\": \"2026000135231\",\n      \"recorded_borough\": \"1\",\n      \"doc_type\": \"DEED\",\n      \"document_date\": \"2026-04-27T00:00:00.000\",\n      \"document_amt\": \"13250000\",\n      \"recorded_datetime\": \"2026-05-15T00:00:00.000\",\n      \"modified_date\": \"2026-05-15T00:00:00.000\",\n      \"reel_yr\": \"0\",\n      \"reel_nbr\": \"0\",\n      \"reel_pg\": \"0\",\n      \"percent_trans\": \"100\",\n      \"good_through_date\": \"2026-05-31T00:00:00.000\"\n    }\n  ]\n}\n"
+    },
+    {
+      "command": "documents list",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "feedback list",
+      "kind": "help",
+      "args": [
+        "feedback",
+        "list",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "List recent feedback entries\n\nUsage:\n  acris-pp-cli feedback list [flags]\n\nExamples:\n  acris-pp-cli feedback list\n  acris-pp-cli feedback list --limit 5\n  acris-pp-cli feedback list --json\n\nFlags:\n  -h, --help        help for list\n      --limit int   Maximum number of recent entries to return (default 20)\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --home string          Root directory for config, data, state, and cache files\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'acris-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "feedback list",
+      "kind": "happy_path",
+      "args": [
+        "feedback",
+        "list"
+      ],
+      "status": "pass"
+    },
+    {
+      "command": "feedback list",
+      "kind": "json_fidelity",
+      "args": [
+        "feedback",
+        "list",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "[]\n"
+    },
+    {
+      "command": "feedback list",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "legals",
+      "kind": "help",
+      "args": [
+        "legals",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "List property legal records by BBL, address, or document ID\n\nUsage:\n  acris-pp-cli legals [flags]\n\nExamples:\n  acris-pp-cli legals list --borough 1 --block 852 --lot 134\n\nFlags:\n      --block string         Tax block number (not zero-padded)\n      --borough string       Borough code: 1=Manhattan 2=Bronx 3=Brooklyn 4=Queens 5=Staten Island\n      --document-id string   Filter to one document's property records\n  -h, --help                 help for legals\n      --limit int            Maximum rows to return (default 50)\n      --lot string           Tax lot number (not zero-padded)\n      --offset int           Row offset for pagination\n      --order string         Sort expression\n      --q string             Full-text search across all fields\n      --street-name string   Street name as recorded (uppercase, e.g. MADISON AVENUE)\n      --where string         Raw SoQL filter expression\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --home string          Root directory for config, data, state, and cache files\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'acris-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "legals",
+      "kind": "happy_path",
+      "args": [
+        "legals",
+        "list",
+        "--borough",
+        "1",
+        "--block",
+        "852",
+        "--lot",
+        "134",
+        "--limit",
+        "5"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"live\"\n  },\n  \"results\": [\n    {\n      \"document_id\": \"FT_1420000338642\",\n      \"record_type\": \"L\",\n      \"borough\": \"1\",\n      \"block\": \"852\",\n      \"lot\": \"134\",\n      \"easement\": \"N\",\n      \"partial_lot\": \"E\",\n      \"air_rights\": \"N\",\n      \"subterranean_rights\": \"N\",\n      \"property_type\": \"PA\",\n      \"good_through_date\": \"2015-07-31T00:00:00.000\"\n    }\n  ]\n}\nwarning: 1/1 legals items returned but not cached locally (no extractable ID field; offline lookup against these rows will be incomplete; live queries unaffected)\n"
+    },
+    {
+      "command": "legals",
+      "kind": "json_fidelity",
+      "args": [
+        "legals",
+        "list",
+        "--borough",
+        "1",
+        "--block",
+        "852",
+        "--lot",
+        "134",
+        "--limit",
+        "5",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"live\"\n  },\n  \"results\": [\n    {\n      \"document_id\": \"FT_1420000338642\",\n      \"record_type\": \"L\",\n      \"borough\": \"1\",\n      \"block\": \"852\",\n      \"lot\": \"134\",\n      \"easement\": \"N\",\n      \"partial_lot\": \"E\",\n      \"air_rights\": \"N\",\n      \"subterranean_rights\": \"N\",\n      \"property_type\": \"PA\",\n      \"good_through_date\": \"2015-07-31T00:00:00.000\"\n    }\n  ]\n}\nwarning: 1/1 legals items returned but not cached locally (no extractable ID field; offline lookup against these rows will be incomplete; live queries unaffected)\n"
+    },
+    {
+      "command": "legals",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "parties",
+      "kind": "help",
+      "args": [
+        "parties",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "List parties by document ID, exact name, or party type\n\nUsage:\n  acris-pp-cli parties [flags]\n\nExamples:\n  acris-pp-cli parties list --document-id 2023012300123001\n\nFlags:\n      --document-id string   Filter to parties on one document\n  -h, --help                 help for parties\n      --limit int            Maximum rows to return (default 50)\n      --name string          Exact party name as recorded (uppercase). For substring search use 'acris-pp-cli party-search'\n      --offset int           Row offset for pagination\n      --party-type string    Party role code: 1=party-of-the-first-part (grantor/mortgagor) 2=party-of-the-second-part (grantee/mortgagee)\n      --q string             Full-text search across all fields\n      --where string         Raw SoQL filter expression\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --home string          Root directory for config, data, state, and cache files\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'acris-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "parties",
+      "kind": "happy_path",
+      "args": [
+        "parties",
+        "list",
+        "--document-id",
+        "2023012300123001",
+        "--limit",
+        "5"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"live\"\n  },\n  \"results\": []\n}\n"
+    },
+    {
+      "command": "parties",
+      "kind": "json_fidelity",
+      "args": [
+        "parties",
+        "list",
+        "--document-id",
+        "2023012300123001",
+        "--limit",
+        "5",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"live\"\n  },\n  \"results\": []\n}\n"
+    },
+    {
+      "command": "parties",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "party-search",
+      "kind": "help",
+      "args": [
+        "party-search",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Search the ACRIS Parties dataset for a partial (substring) party name and return\nthe matching parties and the document IDs they appear on. The raw dataset only\nsupports exact equality or full-text $q; this builds a case-insensitive\nupper(name) LIKE filter for reliable substring lookups.\n\nUsage:\n  acris-pp-cli party-search [flags]\n\nExamples:\n  acris-pp-cli party-search --name MADISON --limit 25 --json\n\nFlags:\n  -h, --help          help for party-search\n      --limit int     Maximum matching parties to return (default 25)\n      --name string   Partial party name to search for (case-insensitive substring)\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --home string          Root directory for config, data, state, and cache files\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'acris-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "party-search",
+      "kind": "happy_path",
+      "args": [
+        "party-search",
+        "--name",
+        "MADISON",
+        "--limit",
+        "25",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\"count\":10,\"matches\":[{\"address_1\":\"\u003credacted\u003e\",\"city\":\"NEW YORK\",\"document_id\":\"2026051900154001\",\"name\":\"\u003credacted\u003e\",\"party_type\":\"1\",\"state\":\"NY\",\"zip\":\"\u003credacted\u003e\"},{\"address_1\":\"\u003credacted\u003e\",\"city\":\"JAMAICA\",\"document_id\":\"2026051200322001\",\"name\":\"\u003credacted\u003e\",\"party_type\":\"1\",\"state\":\"NY\",\"zip\":\"\u003credacted\u003e\"},{\"address_1\":\"\u003credacted\u003e\",\"city\":\"NEW YORK\",\"document_id\":\"2026052101045005\",\"name\":\"\u003credacted\u003e\",\"party_type\":\"2\",\"state\":\"NY\",\"zip\":\"\u003credacted\u003e\"},{\"address_1\":\"\u003credacted\u003e\",\"city\":\"BROOKLYN\",\"document_id\":\"2026050100804002\",\"name\":\"\u003credacted\u003e\",\"party_type\":\"1\",\"state\":\"NY\",\"zip\":\"\u003credacted\u003e\"},{\"address_1\":\"\u003credacted\u003e\",\"city\":\"NEW YORK\",\"document_id\":\"2026051300390003\",\"name\":\"\u003credacted\u003e\",\"party_type\":\"1\",\"state\":\"NY\",\"zip\":\"\u003credacted\u003e\"},{\"document_id\":\"2026050600103001\",\"name\":\"\u003credacted\u003e\",\"party_type\":\"2\"},{\"address_1\":\"\u003credacted\u003e\",\"city\":\"JAMAICA\",\"document_id\":\"2026051200322002\",\"name\":\"\u003credacted\u003e\",\"party_type\":\"1\",\"state\":\"NY\",\"zip\":\"\u003credacted\u003e\"},{\"address_1\":\"\u003credacted\u003e\",\"city\":\"BROOKLYN\",\"document_id\":\"2026042700135002\",\"name\":\"\u003credacted\u003e\",\"party_type\":\"1\",\"state\":\"NY\",\"zip\":\"\u003credacted\u003e\"},{\"address_1\":\"\u003credacted\u003e\",\"city\":\"CHICAGO\",\"document_id\":\"2026051300390001\",\"name\":\"\u003credacted\u003e\",\"party_type\":\"1\",\"state\":\"IL\",\"zip\":\"\u003credacted\u003e\"},{\"address_1\":\"\u003credacted\u003e\",\"city\":\"NEW YORK\",\"document_id\":\"2026051300390001\",\"name\":\"\u003credacted\u003e\",\"party_type\":\"2\",\"state\":\"NY\",\"zip\":\"\u003credacted\u003e\"}],\"query\":\"MADISON\"}"
+    },
+    {
+      "command": "party-search",
+      "kind": "json_fidelity",
+      "args": [
+        "party-search",
+        "--name",
+        "MADISON",
+        "--limit",
+        "25",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\"count\":10,\"matches\":[{\"address_1\":\"\u003credacted\u003e\",\"city\":\"NEW YORK\",\"document_id\":\"2026051900154001\",\"name\":\"\u003credacted\u003e\",\"party_type\":\"1\",\"state\":\"NY\",\"zip\":\"\u003credacted\u003e\"},{\"address_1\":\"\u003credacted\u003e\",\"city\":\"JAMAICA\",\"document_id\":\"2026051200322001\",\"name\":\"\u003credacted\u003e\",\"party_type\":\"1\",\"state\":\"NY\",\"zip\":\"\u003credacted\u003e\"},{\"address_1\":\"\u003credacted\u003e\",\"city\":\"NEW YORK\",\"document_id\":\"2026052101045005\",\"name\":\"\u003credacted\u003e\",\"party_type\":\"2\",\"state\":\"NY\",\"zip\":\"\u003credacted\u003e\"},{\"address_1\":\"\u003credacted\u003e\",\"city\":\"BROOKLYN\",\"document_id\":\"2026050100804002\",\"name\":\"\u003credacted\u003e\",\"party_type\":\"1\",\"state\":\"NY\",\"zip\":\"\u003credacted\u003e\"},{\"address_1\":\"\u003credacted\u003e\",\"city\":\"NEW YORK\",\"document_id\":\"2026051300390003\",\"name\":\"\u003credacted\u003e\",\"party_type\":\"1\",\"state\":\"NY\",\"zip\":\"\u003credacted\u003e\"},{\"document_id\":\"2026050600103001\",\"name\":\"\u003credacted\u003e\",\"party_type\":\"2\"},{\"address_1\":\"\u003credacted\u003e\",\"city\":\"JAMAICA\",\"document_id\":\"2026051200322002\",\"name\":\"\u003credacted\u003e\",\"party_type\":\"1\",\"state\":\"NY\",\"zip\":\"\u003credacted\u003e\"},{\"address_1\":\"\u003credacted\u003e\",\"city\":\"BROOKLYN\",\"document_id\":\"2026042700135002\",\"name\":\"\u003credacted\u003e\",\"party_type\":\"1\",\"state\":\"NY\",\"zip\":\"\u003credacted\u003e\"},{\"address_1\":\"\u003credacted\u003e\",\"city\":\"CHICAGO\",\"document_id\":\"2026051300390001\",\"name\":\"\u003credacted\u003e\",\"party_type\":\"1\",\"state\":\"IL\",\"zip\":\"\u003credacted\u003e\"},{\"address_1\":\"\u003credacted\u003e\",\"city\":\"NEW YORK\",\"document_id\":\"2026051300390001\",\"name\":\"\u003credacted\u003e\",\"party_type\":\"2\",\"state\":\"NY\",\"zip\":\"\u003credacted\u003e\"}],\"query\":\"MADISON\"}"
+    },
+    {
+      "command": "party-search",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "profile delete",
+      "kind": "help",
+      "args": [
+        "profile",
+        "delete",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Remove a profile\n\nUsage:\n  acris-pp-cli profile delete \u003cname\u003e [flags]\n\nExamples:\n  acris-pp-cli profile delete my-defaults --yes\n  acris-pp-cli profile delete old-profile --yes --json\n\nFlags:\n  -h, --help   help for delete\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --home string          Root directory for config, data, state, and cache files\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'acris-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "profile delete",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile delete",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile delete",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "mutating command; error_path would call live API without --dry-run"
+    },
+    {
+      "command": "profile delete",
+      "kind": "error_path_real",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile list",
+      "kind": "help",
+      "args": [
+        "profile",
+        "list",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "List saved profiles\n\nUsage:\n  acris-pp-cli profile list [flags]\n\nExamples:\n  acris-pp-cli profile list\n  acris-pp-cli profile list --json\n\nFlags:\n  -h, --help   help for list\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --home string          Root directory for config, data, state, and cache files\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'acris-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "profile list",
+      "kind": "happy_path",
+      "args": [
+        "profile",
+        "list"
+      ],
+      "status": "pass",
+      "output_sample": "NAME  FIELDS  DESCRIPTION\n"
+    },
+    {
+      "command": "profile list",
+      "kind": "json_fidelity",
+      "args": [
+        "profile",
+        "list",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "[]\n"
+    },
+    {
+      "command": "profile list",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "profile save",
+      "kind": "help",
+      "args": [
+        "profile",
+        "save",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Captures every flag explicitly set on the invocation and stores\nthem under \u003cname\u003e. To update an existing profile, run save again; the\nentry is replaced.\n\nTo avoid creating empty profiles, at least one non-default flag must be\npresent (other than --profile, --config, and --home, which are never\ncaptured: they control profile/config resolution and would never apply).\n\nUsage:\n  acris-pp-cli profile save \u003cname\u003e [--\u003cflag\u003e \u003cvalue\u003e ...] [flags]\n\nExamples:\n  acris-pp-cli profile save my-defaults --json --compact\n  acris-pp-cli profile save tonight-defaults --region US\n\nFlags:\n      --description string   Short description shown in 'profile list'\n  -h, --help                 help for save\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --home string          Root directory for config, data, state, and cache files\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'acris-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "profile save",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile save",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile save",
+      "kind": "error_path",
+      "args": [
+        "profile",
+        "save",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "Error: no non-default flags set - pass at least one flag to save into \"__printing_press_invalid__\"\n"
+    },
+    {
+      "command": "profile show",
+      "kind": "help",
+      "args": [
+        "profile",
+        "show",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Show a profile's values as JSON\n\nUsage:\n  acris-pp-cli profile show \u003cname\u003e [flags]\n\nExamples:\n  acris-pp-cli profile show my-defaults\n  acris-pp-cli profile show tonight-defaults --json\n\nFlags:\n  -h, --help   help for show\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --home string          Root directory for config, data, state, and cache files\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'acris-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "profile show",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile show",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile show",
+      "kind": "error_path",
+      "args": [
+        "profile",
+        "show",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "Error: profile \"__printing_press_invalid__\" not found\n"
+    },
+    {
+      "command": "profile use",
+      "kind": "help",
+      "args": [
+        "profile",
+        "use",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Print the flag values a profile will apply (does not execute anything)\n\nUsage:\n  acris-pp-cli profile use \u003cname\u003e [flags]\n\nExamples:\n  acris-pp-cli profile use my-defaults\n  acris-pp-cli profile use tonight-defaults --json\n\nFlags:\n  -h, --help   help for use\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --home string          Root directory for config, data, state, and cache files\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'acris-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "profile use",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile use",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile use",
+      "kind": "error_path",
+      "args": [
+        "profile",
+        "use",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "Error: profile \"__printing_press_invalid__\" not found\n"
+    },
+    {
+      "command": "search",
+      "kind": "help",
+      "args": [
+        "search",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Search locally synced data using FTS5 full-text search.\n\nThis API has no dedicated search endpoint, so live mode is unavailable.\nRun sync first to populate the local search index.\n\nUsage:\n  acris-pp-cli search \u003cquery\u003e [flags]\n\nExamples:\n  # Search locally synced data\n  acris-pp-cli search \"status\"\n\n  # Force local search explicitly\n  acris-pp-cli search \"status\" --data-source local\n  # Search a specific resource type locally\n  acris-pp-cli search \"status\" --type doc-types --data-source local\n  # JSON output for piping\n  acris-pp-cli search \"status\" --json --limit 20\n\nFlags:\n      --db string     SQLite database file path (default: resolved data directory data.db)\n  -h, --help          help for search\n      --limit int     Maximum results to return (default 50)\n      --type string   Filter by resource type\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --home string          Root directory for config, data, state, and cache files\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'acris-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "search",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [search] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "search",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [search] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "search",
+      "kind": "error_path",
+      "args": [
+        "search",
+        "__printing_press_invalid__",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"reason\": \"no_search_endpoint\",\n    \"resource_type\": \"search\",\n    \"source\": \"local\"\n  },\n  \"results\": []\n}\nThis API has no search endpoint. Searching local data.\n"
+    },
+    {
+      "command": "sync",
+      "kind": "help",
+      "args": [
+        "sync",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Sync data from the API into a local SQLite database. This API does\nnot declare temporal sync filters, so sync performs full pagination unless an\nexplicit resource declares its own incremental filter.\nOnce synced, use the 'search' command for instant full-text search.\n\nExit codes \u0026 warnings:\n  Resources the API denies access to (HTTP 403, or HTTP 400 with an\n  access-policy body) are reported as warnings rather than failing the\n  run. In --json mode each is emitted as a {\"event\":\"sync_warning\",...}\n  line carrying status, reason, and message fields, and a final\n  {\"event\":\"sync_summary\",...} aggregates the run.\n\n  Exit 0 when at least one resource synced and no resource flagged in\n  the spec as critical (x-critical: true) failed; non-critical failures\n  emit {\"event\":\"sync_warning\",\"reason\":\"exit_policy_default_changed\",\n  ...} so callers can detect that a partial failure was tolerated. Pass\n  --strict to exit non-zero on any per-resource failure. Exit is always\n  non-zero when every selected resource failed, regardless of --strict.\n\nResource scoping:\n  --resources runs the named top-level resources, plus any parent-keyed\n  dependent whose own name is listed OR whose parent table is listed.\n  Naming a parent therefore cascades to its dependents (so \"sync this\n  parent and its children\" works without listing every nested resource\n  by hand). There is no flag today to suppress the cascade for a named\n  parent. To run a dependent without re-syncing its parent, list only\n  the dependent by name; the parent table must already be populated\n  from a prior sync.\n\nUsage:\n  acris-pp-cli sync [flags]\n\nExamples:\n  # Sync all resources\n  acris-pp-cli sync\n\n  # Sync specific resources only\n  acris-pp-cli sync --resources channels,messages\n\n  # Full resync (ignore previous checkpoint)\n  acris-pp-cli sync --full\n\n  # Incremental sync: only records from the last 7 days\n  acris-pp-cli sync --since 7d\n\n  # Parallel sync with 8 workers\n  acris-pp-cli sync --concurrency 8\n\n  # Latest-only: refresh head of each resource, no historical backfill\n  acris-pp-cli sync --latest-only\n\nFlags:\n      --concurrency int              Number of parallel sync workers (default 4)\n      --db string                    SQLite database file path (default: resolved data directory data.db)\n      --full                         Full resync (ignore previous checkpoint)\n      --global-param stringArray     Extra query param to inject into every sync request including dependent path-scoped calls (repeatable, key=value). Use when an API requires a scope on every call regardless of path nesting.\n  -h, --help                         help for sync\n      --latest-only                  Refresh head of each resource only; clears resume cursor and caps pages at 1. Mutually exclusive with --since (--since wins).\n      --max-pages int                Maximum pages to fetch per resource (0 = unlimited; cap-hit emits a sync_warning event)\n      --no-prune                     Disable deletion reconciliation on --full (by default a full sync prunes local rows the API no longer returns for a fully-enumerated parent partition)\n      --param stringArray            Extra query param to inject into flat-list sync requests (repeatable, key=value). Skipped on path-scoped dependent requests so a top-level scope like workspace=\u003cid\u003e does not double up on /parents/\u003cid\u003e/children calls. Use --global-param to inject everywhere. Avoid pagination keys (limit/since/cursor) — overriding them corrupts resume state.\n      --resource-param stringArray   Per-resource extra query param (repeatable, resource:key=value). Wins over --param and --global-param when keys conflict.\n      --resources strings            Comma-separated resource types to sync. Naming a parent also runs its parent-keyed dependents (see Long help for scoping).\n      --since string                 Incremental sync duration (e.g. 7d, 24h, 1w, 30m)\n      --strict                       Exit non-zero on any per-resource failure (default: only critical failures or all-resource failure exit non-zero).\n\nGlobal Flags:\n      --agent           …[truncated]"
+    },
+    {
+      "command": "sync",
+      "kind": "happy_path",
+      "args": [
+        "sync"
+      ],
+      "status": "pass",
+      "output_sample": "{\"event\":\"sync_start\",\"resource\":\"documents\"}\n{\"event\":\"sync_warning\",\"resource\":\"documents\",\"reason\":\"resource_not_incremental\",\"message\":\"endpoint does not declare a temporal filter parameter; incremental sync has no effect for this resource\"}\n{\"event\":\"sync_progress\",\"resource\":\"documents\",\"fetched\":1000}\n{\"event\":\"sync_complete\",\"resource\":\"documents\",\"total\":1000,\"duration_ms\":2025}\n{\"event\":\"sync_summary\",\"total_records\":1000,\"resources\":1,\"success\":1,\"warned\":0,\"errored\":0,\"duration_ms\":2025}\n"
+    },
+    {
+      "command": "sync",
+      "kind": "json_fidelity",
+      "args": [
+        "sync",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\"event\":\"sync_start\",\"resource\":\"documents\"}\n{\"event\":\"sync_warning\",\"resource\":\"documents\",\"reason\":\"resource_not_incremental\",\"message\":\"endpoint does not declare a temporal filter parameter; incremental sync has no effect for this resource\"}\n{\"event\":\"sync_progress\",\"resource\":\"documents\",\"fetched\":1000}\n{\"event\":\"sync_complete\",\"resource\":\"documents\",\"total\":1000,\"duration_ms\":2272}\n{\"event\":\"sync_summary\",\"total_records\":1000,\"resources\":1,\"success\":1,\"warned\":0,\"errored\":0,\"duration_ms\":2272}\n"
+    },
+    {
+      "command": "sync",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "tail",
+      "kind": "help",
+      "args": [
+        "tail",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Tail streams live data changes by polling the API at configurable intervals.\nEvents are emitted as NDJSON to stdout for piping to other tools.\nGracefully shuts down on SIGTERM/SIGINT.\n\nNote: For APIs with WebSocket or SSE support, a future version will use\nnative streaming instead of polling.\n\nUsage:\n  acris-pp-cli tail [resource] [flags]\n\nExamples:\n  # Tail all changes every 10 seconds\n  acris-pp-cli tail --interval 10s\n\n  # Tail a specific resource\n  acris-pp-cli tail messages --interval 5s\n\n  # Pipe to jq for filtering\n  acris-pp-cli tail events --interval 30s | jq 'select(.type == \"error\")'\n\nFlags:\n      --follow              Keep running (set --follow=false for single poll) (default true)\n  -h, --help                help for tail\n      --interval duration   Poll interval (default 10s)\n      --resource string     Resource type to tail\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --home string          Root directory for config, data, state, and cache files\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'acris-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "tail",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [tail] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "tail",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [tail] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "tail",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no-error-path-probe annotation"
+    },
+    {
+      "command": "which",
+      "kind": "help",
+      "args": [
+        "which",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "which resolves a natural-language capability query (for example, \"search messages\" or \"stale tickets\") to the best matching command from this CLI's curated feature index.\n\nExit codes:\n  0  at least one match found\n  2  no confident match - the query did not score against any indexed capability; fall back to '--help' or 'search' if this CLI has one\n\nUsage:\n  acris-pp-cli which [query] [flags]\n\nExamples:\n  acris-pp-cli which \"stale tickets\"\n  acris-pp-cli which \"bottleneck\"\n  acris-pp-cli which --limit 1 \"send message\"\n  acris-pp-cli which                                # list the full capability index\n\nFlags:\n  -h, --help        help for which\n      --limit int   Maximum number of matches to return (default 3)\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --home string          Root directory for config, data, state, and cache files\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'acris-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "which",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [which] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "which",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [which] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "which",
+      "kind": "error_path",
+      "args": [
+        "which",
+        "__printing_press_invalid__",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"matches\": []\n}\n"
+    },
+    {
+      "command": "workflow archive",
+      "kind": "help",
+      "args": [
+        "workflow",
+        "archive",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Archive fetches all syncable resources from the API and stores them in a\nlocal SQLite database. Supports incremental sync (only new data since last run)\nand full resync. After archiving, use 'search' for instant full-text search.\n\nUsage:\n  acris-pp-cli workflow archive [flags]\n\nExamples:\n  # Archive all resources\n  acris-pp-cli workflow archive\n\n  # Full re-archive (ignore previous sync state)\n  acris-pp-cli workflow archive --full\n\nFlags:\n      --db string   SQLite database file path (default: resolved data directory data.db)\n      --full        Full re-archive (ignore previous sync state)\n  -h, --help        help for archive\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --home string          Root directory for config, data, state, and cache files\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'acris-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "workflow archive",
+      "kind": "happy_path",
+      "args": [
+        "workflow",
+        "archive"
+      ],
+      "status": "pass",
+      "output_sample": "{\"event\":\"sync_start\",\"resource\":\"documents\"}\n{\"event\":\"sync_warning\",\"resource\":\"documents\",\"reason\":\"resource_not_incremental\",\"message\":\"endpoint does not declare a temporal filter parameter; incremental sync has no effect for this resource\"}\n{\"event\":\"sync_progress\",\"resource\":\"documents\",\"fetched\":1000}\n{\"event\":\"sync_complete\",\"resource\":\"documents\",\"total\":1000,\"duration_ms\":2230}\nArchived 1000 items across 1 resources to /var/folders/f5/jt9zhwc90jn4xl29p7prjlwc0000gn/T/printing-press-subprocess-3675777707/.local/share/acris-pp-cli/data.db\n  documents: 1000 synced\n"
+    },
+    {
+      "command": "workflow archive",
+      "kind": "json_fidelity",
+      "args": [
+        "workflow",
+        "archive",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"resources_synced\": 1,\n  \"store_path\": \"/var/folders/f5/jt9zhwc90jn4xl29p7prjlwc0000gn/T/printing-press-subprocess-3675777707/.local/share/acris-pp-cli/data.db\",\n  \"timestamp\": \"2026-06-28T03:42:20Z\",\n  \"total_items\": 1000\n}\n{\"event\":\"sync_start\",\"resource\":\"documents\"}\n{\"event\":\"sync_warning\",\"resource\":\"documents\",\"reason\":\"resource_not_incremental\",\"message\":\"endpoint does not declare a temporal filter parameter; incremental sync has no effect for this resource\"}\n{\"event\":\"sync_progress\",\"resource\":\"documents\",\"fetched\":1000}\n{\"event\":\"sync_complete\",\"resource\":\"documents\",\"total\":1000,\"duration_ms\":1507}\n  documents: 1000 synced\n"
+    },
+    {
+      "command": "workflow archive",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "workflow status",
+      "kind": "help",
+      "args": [
+        "workflow",
+        "status",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Show local archive status and sync state for all resources\n\nUsage:\n  acris-pp-cli workflow status [flags]\n\nExamples:\n  # Show archive status\n  acris-pp-cli workflow status\n\n  # Show status as JSON\n  acris-pp-cli workflow status --json\n\nFlags:\n      --db string   SQLite database file path (default: resolved data directory data.db)\n  -h, --help        help for status\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --home string          Root directory for config, data, state, and cache files\n      --human-friendly       Enable colored output and rich formatting\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'acris-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "workflow status",
+      "kind": "happy_path",
+      "args": [
+        "workflow",
+        "status"
+      ],
+      "status": "pass",
+      "output_sample": "Archive Status:\n  documents                      3961 items\n\n  Total: 3961 items\n  Store: /var/folders/f5/jt9zhwc90jn4xl29p7prjlwc0000gn/T/printing-press-subprocess-3675777707/.local/share/acris-pp-cli/data.db\n"
+    },
+    {
+      "command": "workflow status",
+      "kind": "json_fidelity",
+      "args": [
+        "workflow",
+        "status",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"documents\": 3961\n}\n"
+    },
+    {
+      "command": "workflow status",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    }
+  ],
+  "ran_at": "2026-06-28T03:41:54.495709Z"
+}

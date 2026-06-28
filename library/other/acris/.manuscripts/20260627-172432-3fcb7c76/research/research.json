@@ -1,0 +1,159 @@
+{
+  "api_name": "acris",
+  "novelty_score": 0,
+  "alternatives": [],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-06-27T17:25:00Z",
+  "novel_features": [
+    {
+      "name": "BBL document history",
+      "command": "bbl",
+      "description": "Resolve a borough/block/lot to its full recorded-document history in one call.",
+      "rationale": "ACRIS exposes the BBL-to-document map (Legals) and document details (Master) as separate datasets with no joined endpoint; this command chains them locally.",
+      "example": "acris-pp-cli bbl --borough 1 --block 852 --lot 134 --json",
+      "why_it_matters": "When an agent has an address or BBL and needs the chain of title and recordings, this is the single command that returns it.",
+      "group": "Cross-dataset joins"
+    },
+    {
+      "name": "BBL debt \u0026 mortgage history",
+      "command": "debt",
+      "description": "List the mortgage and debt-instrument recordings for a BBL with amounts and dates.",
+      "rationale": "Requires joining Legals to Master and filtering to the MORTGAGES \u0026 INSTRUMENTS document class — the API has no debt-by-property endpoint.",
+      "example": "acris-pp-cli debt --borough 1 --block 852 --lot 134 --json",
+      "why_it_matters": "Surfaces apparent debt attached to a property without manually cross-referencing three datasets.",
+      "group": "Cross-dataset joins"
+    },
+    {
+      "name": "Party substring search",
+      "command": "party-search",
+      "description": "Find recorded documents by partial party name (grantor, grantee, mortgagor, mortgagee).",
+      "rationale": "The Parties dataset only supports exact equality or full-text $q; this builds the proper SoQL upper(name) LIKE filter for reliable substring lookups.",
+      "example": "acris-pp-cli party-search --name \"MADISON\" --limit 25 --json",
+      "why_it_matters": "Entity-driven discovery: find every document an LLC or individual is named on without knowing the exact recorded spelling.",
+      "group": "Entity discovery"
+    },
+    {
+      "name": "Full document view",
+      "command": "document",
+      "description": "Assemble one document's master record, all its property (BBL) legals, and all its parties into a single object.",
+      "rationale": "A complete document view requires three separate ACRIS datasets keyed by document_id; this command fans out and merges them.",
+      "example": "acris-pp-cli document 2023012300123001 --json",
+      "why_it_matters": "Gives an agent the complete picture of a single recording in one call instead of three.",
+      "group": "Cross-dataset joins"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "BBL document history",
+      "command": "bbl",
+      "description": "Resolve a borough/block/lot to its full recorded-document history in one call.",
+      "rationale": "ACRIS exposes the BBL-to-document map (Legals) and document details (Master) as separate datasets with no joined endpoint; this command chains them locally.",
+      "example": "acris-pp-cli bbl --borough 1 --block 852 --lot 134 --json",
+      "why_it_matters": "When an agent has an address or BBL and needs the chain of title and recordings, this is the single command that returns it.",
+      "group": "Cross-dataset joins"
+    },
+    {
+      "name": "BBL debt \u0026 mortgage history",
+      "command": "debt",
+      "description": "List the mortgage and debt-instrument recordings for a BBL with amounts and dates.",
+      "rationale": "Requires joining Legals to Master and filtering to the MORTGAGES \u0026 INSTRUMENTS document class — the API has no debt-by-property endpoint.",
+      "example": "acris-pp-cli debt --borough 1 --block 852 --lot 134 --json",
+      "why_it_matters": "Surfaces apparent debt attached to a property without manually cross-referencing three datasets.",
+      "group": "Cross-dataset joins"
+    },
+    {
+      "name": "Party substring search",
+      "command": "party-search",
+      "description": "Find recorded documents by partial party name (grantor, grantee, mortgagor, mortgagee).",
+      "rationale": "The Parties dataset only supports exact equality or full-text $q; this builds the proper SoQL upper(name) LIKE filter for reliable substring lookups.",
+      "example": "acris-pp-cli party-search --name \"MADISON\" --limit 25 --json",
+      "why_it_matters": "Entity-driven discovery: find every document an LLC or individual is named on without knowing the exact recorded spelling.",
+      "group": "Entity discovery"
+    },
+    {
+      "name": "Full document view",
+      "command": "document",
+      "description": "Assemble one document's master record, all its property (BBL) legals, and all its parties into a single object.",
+      "rationale": "A complete document view requires three separate ACRIS datasets keyed by document_id; this command fans out and merges them.",
+      "example": "acris-pp-cli document 2023012300123001 --json",
+      "why_it_matters": "Gives an agent the complete picture of a single recording in one call instead of three.",
+      "group": "Cross-dataset joins"
+    }
+  ],
+  "auth": {
+    "canonical_env_var": "ACRIS_APP_TOKEN"
+  },
+  "narrative": {
+    "display_name": "ACRIS",
+    "headline": "Query NYC property records — deeds, mortgages, parties, and full BBL history — straight from NYC Open Data, with cross-dataset joins no raw ACRIS query can do.",
+    "value_prop": "ACRIS publishes its property records as four separate NYC Open Data datasets (Master, Legals, Parties, Document Control Codes). This CLI gives you direct, scriptable access to each, plus joined commands — `bbl`, `debt`, `document`, `party-search` — that chain the datasets the way a title search actually needs.",
+    "quickstart": [
+      {
+        "command": "acris-pp-cli doctor --dry-run",
+        "comment": "Confirm the CLI is wired and NYC Open Data is reachable (no credential required)."
+      },
+      {
+        "command": "acris-pp-cli doc-types --class-code-description \"MORTGAGES \u0026 INSTRUMENTS\" --limit 10",
+        "comment": "See the mortgage document type codes you can filter on."
+      },
+      {
+        "command": "acris-pp-cli legals --borough 1 --block 852 --lot 134",
+        "comment": "Resolve a BBL to its recorded documents."
+      },
+      {
+        "command": "acris-pp-cli bbl --borough 1 --block 852 --lot 134 --json",
+        "comment": "Get the full recorded-document history for that BBL in one call."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "HTTP 403 or throttling errors on rapid queries",
+        "fix": "Set an app token: export ACRIS_APP_TOKEN=\u003ctoken from data.cityofnewyork.us\u003e. Anonymous access is rate-limited."
+      },
+      {
+        "symptom": "Empty results for a known property",
+        "fix": "Block and lot are not zero-padded in ACRIS (use 852 and 134, not 00852/0134); confirm the borough code (1=Manhattan ... 5=Staten Island)."
+      }
+    ],
+    "when_to_use": "Use this CLI when an agent needs NYC real-property record data: who owns or recorded against a property, when it last traded, what mortgages or debt instruments are recorded, or which documents name a given party. It is the right tool for title-research, due-diligence, and portfolio-monitoring workflows over NYC deeds and mortgages.",
+    "anti_triggers": [
+      "Do not use for property valuations, assessments, or tax bills — that is NYC DOF assessment data, not ACRIS.",
+      "Do not use for zoning, permits, or violations — those are separate NYC datasets (Zola, DOB).",
+      "Do not use for property records outside the five NYC boroughs — ACRIS is NYC-only.",
+      "Do not treat results as legal title opinion — ACRIS is the recording index, not a guarantee of title."
+    ],
+    "recipes": [
+      {
+        "title": "Mortgage history for a property",
+        "command": "acris-pp-cli debt --borough 1 --block 852 --lot 134 --json",
+        "explanation": "Lists mortgage and debt-instrument recordings for the BBL with amounts and dates."
+      },
+      {
+        "title": "Find documents naming a party",
+        "command": "acris-pp-cli party-search --name \"MADISON\" --limit 25 --json",
+        "explanation": "Substring search over recorded party names; returns the documents they appear on."
+      },
+      {
+        "title": "Recent high-value deeds in Manhattan",
+        "command": "acris-pp-cli documents list --doc-type DEED --recorded-borough 1 --where \"document_amt \u003e 10000000\" --order \"recorded_datetime DESC\" --json --select document_id,document_amt,recorded_datetime",
+        "explanation": "Combines a server-side SoQL filter with --select to keep the payload small for agents."
+      },
+      {
+        "title": "Full picture of one recording",
+        "command": "acris-pp-cli document 2023012300123001 --json",
+        "explanation": "Merges the master record, all property legals (BBLs), and all parties for a single document."
+      }
+    ],
+    "trigger_phrases": [
+      "who owns this NYC property",
+      "mortgage history for this address",
+      "ACRIS document search",
+      "find deeds recorded by this LLC",
+      "NYC property records lookup",
+      "use acris",
+      "run acris"
+    ]
+  }
+}

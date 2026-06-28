@@ -1,0 +1,11 @@
+{
+  "schema_version": 2,
+  "id": "acris-debt-curated-mortgage-codes",
+  "applied_at": "2026-06-27",
+  "base_run_id": "20260627-172432-3fcb7c76",
+  "base_printing_press_version": "4.27.0",
+  "summary": "debt classifies mortgage/debt instruments from a curated static doc-type map (mortgageClassCodes / originatingMortgageCodes), not a live Document-Control-Codes lookup.",
+  "reason": "The Document Control Codes dataset (7isb-wh4c) serves its doc__type column entirely null, so a live mortgage-code lookup builds an empty set and debt would report zero mortgages for every BBL. These ACRIS class codes are a stable published reference; only re-discover them live if that upstream column starts returning values.",
+  "files": ["internal/cli/acris_join.go"],
+  "validated_outcome": "debt on a known-mortgaged Manhattan BBL returns the mortgage recordings with a summed recorded principal; live-verified against NYC Open Data."
+}

@@ -1,0 +1,50 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-06-27T21:57:50.037371Z",
+  "printing_press_version": "4.27.0",
+  "api_name": "acris",
+  "display_name": "ACRIS",
+  "cli_name": "acris-pp-cli",
+  "creator": {
+    "handle": "Avanderheyde",
+    "name": "not0xjarvis"
+  },
+  "owner": "avanderheyde",
+  "printer": "Avanderheyde",
+  "printer_name": "not0xjarvis",
+  "spec_format": "internal",
+  "spec_checksum": "sha256:3a0ecd356270296b911535d1ad76d4e636351f6cd2f0d850f9ef8bbff4394eb9",
+  "run_id": "20260627-172432-3fcb7c76",
+  "category": "other",
+  "description": "Query NYC property records — deeds, mortgages, parties, and full BBL history — straight from NYC Open Data, with cross-dataset joins no raw ACRIS query can do.",
+  "mcp_binary": "acris-pp-mcp",
+  "mcp_tool_count": 5,
+  "mcp_ready": "full",
+  "api_version": "0.1.0",
+  "auth_type": "api_key",
+  "auth_env_vars": [
+    "ACRIS_APP_TOKEN"
+  ],
+  "novel_features": [
+    {
+      "name": "BBL document history",
+      "command": "bbl",
+      "description": "Resolve a borough/block/lot to its full recorded-document history in one call."
+    },
+    {
+      "name": "BBL debt \u0026 mortgage history",
+      "command": "debt",
+      "description": "List the mortgage and debt-instrument recordings for a BBL with amounts and dates."
+    },
+    {
+      "name": "Party substring search",
+      "command": "party-search",
+      "description": "Find recorded documents by partial party name (grantor, grantee, mortgagor, mortgagee)."
+    },
+    {
+      "name": "Full document view",
+      "command": "document",
+      "description": "Assemble one document's master record, all its property (BBL) legals, and all its parties into a single object."
+    }
+  ]
+}

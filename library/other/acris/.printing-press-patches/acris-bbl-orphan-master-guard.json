@@ -1,0 +1,10 @@
+{
+  "schema_version": 2,
+  "id": "acris-bbl-orphan-master-guard",
+  "applied_at": "2026-06-27",
+  "base_run_id": "20260627-172432-3fcb7c76",
+  "base_printing_press_version": "4.27.0",
+  "summary": "bbl skips legal-only document IDs that have no Master row instead of emitting all-empty ghost documents.",
+  "reason": "fetchMastersByID may not return a Master for every distinct document ID found in Legals (orphaned legal rows). The bare map read masters[id] yielded a zero-value Master, producing ghost bblDocument entries with empty fields. An empty RecordedDatetime sorts first under the descending sort, so these ghosts surfaced at the TOP of the result. Mirror the m, ok guard debt.go already uses to drop unresolved IDs.",
+  "files": ["internal/cli/bbl.go"]
+}

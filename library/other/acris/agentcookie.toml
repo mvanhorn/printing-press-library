@@ -1,0 +1,16 @@
+# agentcookie.toml: secrets-bus adoption manifest v2
+# See docs/spec-agentcookie-secrets-bus-v2-adoption.md
+schema_version = 2
+name = "acris-pp-cli"
+display_name = "ACRIS"
+description = "Query NYC property records — deeds, mortgages, parties, and full BBL history — straight from NYC Open Data, with cross-dataset joins no raw ACRIS query can do."
+project_kind = "cli"
+
+[secrets.file]
+path = "~/.config/acris-pp-cli/config.toml"
+
+[sync]
+default = false
+
+[sync.keys]
+ACRIS_APP_TOKEN = true
