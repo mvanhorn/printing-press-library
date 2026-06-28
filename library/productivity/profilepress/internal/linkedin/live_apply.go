@@ -26,14 +26,14 @@ func RequireLiveApplySupported(changes []SectionChange) error {
 	var unsupported []string
 	for _, ch := range changes {
 		switch canonicalApplySection(ch.Section) {
-		case "headline", "about":
+		case "headline", "about", "experience":
 			// supported
 		default:
 			unsupported = append(unsupported, ch.Section)
 		}
 	}
 	if len(unsupported) > 0 {
-		return fmt.Errorf("live LinkedIn apply does not support section(s) %s yet; supported sections are headline and about; experience requires position-level packets", strings.Join(unsupported, ", "))
+		return fmt.Errorf("live LinkedIn apply does not support section(s) %s yet; supported sections are headline, about, and experience", strings.Join(unsupported, ", "))
 	}
 	return nil
 }

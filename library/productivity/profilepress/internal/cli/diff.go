@@ -2,6 +2,8 @@ package cli
 
 import (
 	"fmt"
+	"io"
+	"strings"
 
 	"github.com/spf13/cobra"
 )
@@ -23,7 +25,9 @@ func newDiffCmd() *cobra.Command {
 				return err
 			}
 			for _, ch := range p.Changes {
-				fmt.Fprintf(cmd.OutOrStdout(), "## %s\n- %s\n+ %s\n", ch.Section, ch.Before, ch.After)
+				fmt.Fprintf(cmd.OutOrStdout(), "## %s\n", ch.Section)
+				writeDiffBlock(cmd.OutOrStdout(), "- ", ch.Before)
+				writeDiffBlock(cmd.OutOrStdout(), "+ ", ch.After)
 			}
 			return nil
 		},
@@ -31,4 +35,14 @@ func newDiffCmd() *cobra.Command {
 	cmd.Flags().StringVar(&dbPath, "db", "", "database path")
 	cmd.Flags().StringVar(&packetID, "packet", "", "packet ID")
 	return cmd
+}
+
+func writeDiffBlock(w io.Writer, prefix, body string) {
+	if body == "" {
+		fmt.Fprintln(w, prefix)
+		return
+	}
+	for _, line := range strings.Split(body, "\n") {
+		fmt.Fprintf(w, "%s%s\n", prefix, line)
+	}
 }

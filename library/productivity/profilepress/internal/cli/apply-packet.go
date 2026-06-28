@@ -75,10 +75,15 @@ func newApplyPacketCmd() *cobra.Command {
 			} else if dryRun || simulateLive {
 				adapter = linkedin.DryRunAdapter{}
 			}
+			appliedCount := 0
 			for _, ch := range p.Changes {
 				if err := adapter.Apply(ch.Section, ch.After); err != nil {
+					if liveLinkedIn && !dryRun && appliedCount > 0 {
+						_, _ = db.AddApplyLog(packet.ApplyLog{PacketID: p.ID, PrivacyStatus: string(privacyStatus), SensitiveStatus: sensitiveStatus, Result: fmt.Sprintf("partial-linkedin-apply-failed-after-%d-change(s): %s", appliedCount, ch.Section), DryRun: false, ConfirmationSource: "cli"})
+					}
 					return err
 				}
+				appliedCount++
 			}
 			if dryRun {
 				result = "dry-run-passed"

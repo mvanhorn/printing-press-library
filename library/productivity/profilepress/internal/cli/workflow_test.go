@@ -13,7 +13,10 @@ func captureRun(t *testing.T, args ...string) (string, error) {
 	t.Helper()
 	buf := new(bytes.Buffer)
 	oldOut := os.Stdout
-	r, w, _ := os.Pipe()
+	r, w, err := os.Pipe()
+	if err != nil {
+		t.Fatalf("os.Pipe: %v", err)
+	}
 	os.Stdout = w
 	cmdErr := func() error {
 		// Execute uses os.Stdout through cobra/default helpers.
@@ -87,14 +90,12 @@ func TestPrintedCLIWorkflow(t *testing.T) {
 		t.Fatalf("simulate-live apply should not look real: %s", out)
 	}
 
-	_, err = captureRun(t, "apply-packet", "--db", db, "--packet", pkt["packet_id"].(string), "--privacy-status", "disabled", "--live-linkedin", "--profile-url", "https://www.linkedin.com/in/example/", "--confirm-sensitive", "APPLY-SENSITIVE", "--confirm-apply", "APPLY")
-	if err == nil || !strings.Contains(err.Error(), "experience requires position-level packets") {
-		t.Fatalf("live linkedin apply should fail closed for experience blobs, got %v", err)
+	out, err = captureRun(t, "apply-packet", "--db", db, "--packet", pkt["packet_id"].(string), "--privacy-status", "disabled", "--live-linkedin", "--profile-url", "https://www.linkedin.com/in/example/", "--dry-run", "--confirm-sensitive", "APPLY-SENSITIVE")
+	if err != nil {
+		t.Fatalf("live linkedin dry-run should validate supported sections without writing: %v", err)
 	}
-
-	_, err = captureRun(t, "apply-packet", "--db", db, "--packet", pkt["packet_id"].(string), "--privacy-status", "disabled", "--live-linkedin", "--profile-url", "https://www.linkedin.com/in/example/", "--dry-run", "--confirm-sensitive", "APPLY-SENSITIVE")
-	if err == nil || !strings.Contains(err.Error(), "experience requires position-level packets") {
-		t.Fatalf("live linkedin dry-run should still validate unsupported sections, got %v", err)
+	if !strings.Contains(out, "dry-run-passed") {
+		t.Fatalf("bad live linkedin dry-run: %s", out)
 	}
 }
 

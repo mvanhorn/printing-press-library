@@ -77,7 +77,8 @@ func fakeCDPServer(t *testing.T, pagePayload string) string {
 	mux.HandleFunc("/devtools/page/1", func(w http.ResponseWriter, r *http.Request) {
 		conn, err := upgrader.Upgrade(w, r, nil)
 		if err != nil {
-			t.Fatal(err)
+			t.Error(err)
+			return
 		}
 		defer conn.Close()
 		var msg struct {
@@ -85,10 +86,12 @@ func fakeCDPServer(t *testing.T, pagePayload string) string {
 			Method string `json:"method"`
 		}
 		if err := conn.ReadJSON(&msg); err != nil {
-			t.Fatal(err)
+			t.Error(err)
+			return
 		}
 		if msg.Method != "Runtime.evaluate" {
-			t.Fatalf("unexpected CDP method %s", msg.Method)
+			t.Errorf("unexpected CDP method %s", msg.Method)
+			return
 		}
 		_ = conn.WriteJSON(map[string]any{"id": msg.ID, "result": map[string]any{"result": map[string]any{"type": "string", "value": pagePayload}}})
 	})

@@ -21,7 +21,7 @@ type ChromeSessionApplyAdapter struct {
 
 func (a ChromeSessionApplyAdapter) Apply(section, value string) error {
 	section = canonicalApplySection(section)
-	if section != "headline" && section != "about" {
+	if section != "headline" && section != "about" && section != "experience" {
 		return fmt.Errorf("live LinkedIn apply does not support section %q yet", section)
 	}
 	if a.Domain == "" {
@@ -31,7 +31,7 @@ func (a ChromeSessionApplyAdapter) Apply(section, value string) error {
 		a.Timeout = 30 * time.Second
 	}
 	helper := `
-import browser_cookie3, json, re, requests, sys, urllib.parse
+import asyncio, browser_cookie3, json, re, requests, sys, urllib.parse
 profile_url, domain, section, value, timeout_raw = sys.argv[1:6]
 timeout = float(timeout_raw)
 
@@ -85,6 +85,69 @@ def post_sdui(session, ep, request_id, payload, referer, csrf):
         raise RuntimeError('LinkedIn SDUI request failed status=%s body=%s' % (r.status_code, r.text[:500]))
     return r.text
 
+
+def first_position_description(experience_blob):
+    lines = [line.strip() for line in experience_blob.splitlines() if line.strip()]
+    if len(lines) <= 2:
+        return '\n'.join(lines)
+
+    def is_date_range(line):
+        return bool(re.search(r'\b(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[a-z]*\s+\d{4}\b', line))
+
+    # Snapshot packets may carry the whole Experience section, while LinkedIn's
+    # edit form updates one position description. Use the first substantial
+    # prose/bullet line as the latest position description start, then stop when
+    # the next role title is followed by a date range.
+    start = 0
+    for i, line in enumerate(lines):
+        if len(line) >= 40 and ('.' in line or line.startswith(('*', '-', '•'))):
+            start = i
+            break
+    stop = len(lines)
+    for i in range(start + 1, len(lines) - 1):
+        if is_date_range(lines[i + 1]) and len(lines[i]) < 120:
+            stop = i
+            break
+    desc = '\n'.join(lines[start:stop]).strip()
+    if not desc:
+        raise RuntimeError('could not derive position description from experience packet')
+    return desc
+
+async def apply_experience_with_playwright(profile_url, description, timeout):
+    from playwright.async_api import async_playwright
+    slug = slug_from_url(profile_url)
+    details = s.get('https://www.linkedin.com/in/' + slug + '/details/experience/', timeout=timeout)
+    details.raise_for_status()
+    m = re.search(r'/in/' + re.escape(slug) + r'/details/experience/edit/forms/(\d+)/', details.text)
+    if not m:
+        raise RuntimeError('could not find latest LinkedIn position edit form')
+    edit_url = 'https://www.linkedin.com/in/' + slug + '/details/experience/edit/forms/' + m.group(1) + '/'
+    cookies = []
+    for c in cj:
+        cookies.append({'name': c.name, 'value': c.value, 'domain': c.domain, 'path': c.path, 'secure': bool(c.secure), 'sameSite': 'Lax'})
+    async with async_playwright() as p:
+        browser = await p.chromium.launch(executable_path='/opt/google/chrome/chrome', headless=True, args=['--disable-gpu', '--no-sandbox'])
+        context = await browser.new_context(viewport={'width': 1400, 'height': 1000})
+        await context.add_cookies(cookies)
+        page = await context.new_page()
+        await page.goto(edit_url, wait_until='domcontentloaded', timeout=int(timeout * 1000))
+        await page.wait_for_timeout(10000)
+        editable = page.locator('[contenteditable=true]').first
+        current = await editable.inner_text()
+        if current.strip() == description.strip():
+            await browser.close()
+            return {'section': 'experience', 'result': 'linkedin-section-already-current'}
+        await editable.click()
+        await editable.evaluate("(el, value) => { el.innerText = value; el.dispatchEvent(new InputEvent('input', {bubbles:true, inputType:'insertText', data:value})); el.dispatchEvent(new Event('change', {bubbles:true})); }", description)
+        body = await page.locator('body').inner_text()
+        if 'Notify network' not in body or 'Off' not in body:
+            await browser.close()
+            raise RuntimeError('could not verify LinkedIn network notification toggle is off')
+        await page.get_by_text('Save', exact=True).click(timeout=int(timeout * 1000))
+        await page.wait_for_timeout(8000)
+        await browser.close()
+        return {'section': 'experience', 'result': 'linkedin-section-applied'}
+
 slug = slug_from_url(profile_url)
 cj = browser_cookie3.chrome(domain_name=domain)
 s = requests.Session(); s.cookies.update(cj)
@@ -105,6 +168,11 @@ first = profile.get('firstName') or ''
 last = profile.get('lastName') or ''
 headline = profile.get('headline') or ''
 summary = profile.get('summary') or ''
+
+if section == 'experience':
+    result = asyncio.run(apply_experience_with_playwright(profile_url, first_position_description(value), timeout))
+    print(json.dumps(result))
+    sys.exit(0)
 
 if section == 'headline':
     edit_url = 'https://www.linkedin.com/in/' + slug + '/edit/intro/'
@@ -153,7 +221,7 @@ print(json.dumps({'section': section, 'result': 'linkedin-section-applied'}))
 `
 	ctx, cancel := context.WithTimeout(context.Background(), a.Timeout+15*time.Second)
 	defer cancel()
-	cmd := exec.CommandContext(ctx, "uv", "run", "--with", "browser-cookie3", "--with", "requests", "python3", "-c", helper, a.ProfileURL, a.Domain, section, value, fmt.Sprintf("%.0f", a.Timeout.Seconds()))
+	cmd := exec.CommandContext(ctx, "uv", "run", "--with", "browser-cookie3", "--with", "requests", "--with", "playwright", "python3", "-c", helper, a.ProfileURL, a.Domain, section, value, fmt.Sprintf("%.0f", a.Timeout.Seconds()))
 	out, err := cmd.Output()
 	if err != nil {
 		if exit, ok := err.(*exec.ExitError); ok {

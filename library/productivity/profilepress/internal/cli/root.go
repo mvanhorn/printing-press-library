@@ -33,7 +33,12 @@ func Execute() error {
 	return rootCmd.Execute()
 }
 
-func ExitCode(err error) int { return 1 }
+func ExitCode(err error) int {
+	if err == nil {
+		return 0
+	}
+	return 1
+}
 
 func newVersionCliCmd() *cobra.Command {
 	return &cobra.Command{Use: "version", Short: "Print version", Run: func(cmd *cobra.Command, args []string) { fmt.Printf("profilepress %s\n", version) }}

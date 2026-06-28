@@ -2,20 +2,21 @@ package linkedin
 
 import "testing"
 
-func TestRequireLiveApplySupportedAllowsHeadlineAndAbout(t *testing.T) {
+func TestRequireLiveApplySupportedAllowsHeadlineAboutAndExperience(t *testing.T) {
 	changes := []SectionChange{
 		{Section: "headline", After: "New headline"},
 		{Section: "about", After: "New about"},
+		{Section: "experience", After: "New experience"},
 	}
 	if err := RequireLiveApplySupported(changes); err != nil {
-		t.Fatalf("headline/about should be supported: %v", err)
+		t.Fatalf("headline/about/experience should be supported: %v", err)
 	}
 }
 
-func TestRequireLiveApplySupportedRejectsExperienceBeforeWrites(t *testing.T) {
-	changes := []SectionChange{{Section: "experience", After: "new experience blob"}}
+func TestRequireLiveApplySupportedRejectsUnknownSections(t *testing.T) {
+	changes := []SectionChange{{Section: "education", After: "new education blob"}}
 	if err := RequireLiveApplySupported(changes); err == nil {
-		t.Fatal("experience blob should be rejected until position-level apply is implemented")
+		t.Fatal("unknown sections should be rejected before writes")
 	}
 }
 
