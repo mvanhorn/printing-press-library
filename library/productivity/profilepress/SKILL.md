@@ -61,7 +61,7 @@ Do not use this CLI for bulk automation, scraping at scale, spam, credential ext
 
 ## Auth Setup
 
-ProfilePress uses a user-controlled browser-session model. It must not collect passwords, OAuth tokens, or API secrets. The preferred read path imports the already-authenticated local Chrome LinkedIn session through the OS/browser cookie store, without driving, closing, relaunching, or remote-controlling Chrome. Cookie values stay inside the local helper process and are never printed by ProfilePress.
+ProfilePress uses a user-controlled browser-session model. It must not collect passwords, OAuth tokens, or API secrets. The preferred read/write path imports the already-authenticated local Chrome LinkedIn session through the OS/browser cookie store, without driving, closing, relaunching, or remote-controlling Chrome. Cookie values stay inside the local helper process and are never printed by ProfilePress.
 
 For live profile reads:
 
@@ -116,6 +116,12 @@ profilepress-pp-cli snapshot --fixture profile.json
 profilepress-pp-cli propose-for-job --change 'headline=New headline' --source-note 'user-provided edit'
 profilepress-pp-cli diff
 profilepress-pp-cli apply-packet --privacy-status disabled --dry-run --confirm-sensitive APPLY-SENSITIVE
+profilepress-pp-cli apply-packet \
+  --live-linkedin \
+  --profile-url 'https://www.linkedin.com/in/example/' \
+  --privacy-status disabled \
+  --confirm-sensitive APPLY-SENSITIVE \
+  --confirm-apply APPLY
 profilepress-pp-cli messages draft --to https://www.linkedin.com/in/example --body-file message.md
 profilepress-pp-cli messages send --draft msg_123 --dry-run
 ```
@@ -137,4 +143,5 @@ Set `PROFILEPRESS_DB=/path/to/profilepress.db` or pass `--db /path/to/profilepre
 - No network notification by default.
 - No message sending by default.
 - No bulk social actions.
-- Live LinkedIn mutation and live message send adapters remain disabled until explicitly implemented and tested through a user-controlled browser session.
+- Live LinkedIn profile mutation supports `headline` and `about` via LinkedIn SDUI profile-save requests and explicit confirmation; unsupported sections fail closed.
+- Live message send adapter remains disabled until explicitly implemented and tested.

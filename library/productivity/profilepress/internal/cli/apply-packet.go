@@ -10,8 +10,8 @@ import (
 )
 
 func newApplyPacketCmd() *cobra.Command {
-	var dbPath, packetID, privacyRaw, confirmSensitive, confirmApply, confirmNotify string
-	var override, dryRun, simulateLive, notifyNetwork bool
+	var dbPath, packetID, privacyRaw, confirmSensitive, confirmApply, confirmNotify, profileURL string
+	var override, dryRun, simulateLive, liveLinkedIn, notifyNetwork bool
 	cmd := &cobra.Command{
 		Use:     "apply-packet",
 		Short:   "Apply an approved packet only after privacy preflight, sensitive-change confirmation, and final user approval.",
@@ -51,7 +51,28 @@ func newApplyPacketCmd() *cobra.Command {
 				notifyStatus = "network-notify-confirmed"
 			}
 			adapter := linkedin.ApplyAdapter(linkedin.NotImplementedAdapter{})
-			if dryRun || simulateLive {
+			result := "applied"
+			if liveLinkedIn {
+				if simulateLive {
+					return errors.New("choose either --live-linkedin or --simulate-live, not both")
+				}
+				changes := make([]linkedin.SectionChange, 0, len(p.Changes))
+				for _, ch := range p.Changes {
+					changes = append(changes, linkedin.SectionChange{Section: ch.Section, After: ch.After})
+				}
+				if err := linkedin.RequireLiveApplySupported(changes); err != nil {
+					return err
+				}
+				if !dryRun {
+					if profileURL == "" {
+						return errors.New("--live-linkedin requires --profile-url")
+					}
+					adapter = linkedin.ChromeSessionApplyAdapter{ProfileURL: profileURL}
+					result = "linkedin-apply-passed"
+				} else {
+					adapter = linkedin.DryRunAdapter{}
+				}
+			} else if dryRun || simulateLive {
 				adapter = linkedin.DryRunAdapter{}
 			}
 			for _, ch := range p.Changes {
@@ -59,7 +80,6 @@ func newApplyPacketCmd() *cobra.Command {
 					return err
 				}
 			}
-			result := "applied"
 			if dryRun {
 				result = "dry-run-passed"
 			} else if simulateLive {
@@ -79,6 +99,8 @@ func newApplyPacketCmd() *cobra.Command {
 	cmd.Flags().BoolVar(&override, "override-privacy-risk", false, "override failed/unknown privacy status")
 	cmd.Flags().BoolVar(&dryRun, "dry-run", false, "run checks without writing")
 	cmd.Flags().BoolVar(&simulateLive, "simulate-live", false, "test-only live adapter")
+	cmd.Flags().BoolVar(&liveLinkedIn, "live-linkedin", false, "apply supported sections to LinkedIn using the existing local Chrome session")
+	cmd.Flags().StringVar(&profileURL, "profile-url", "", "LinkedIn /in/<slug> profile URL for --live-linkedin")
 	cmd.Flags().StringVar(&confirmSensitive, "confirm-sensitive", "", "must equal APPLY-SENSITIVE for sensitive changes")
 	cmd.Flags().StringVar(&confirmApply, "confirm-apply", "", "must equal APPLY for non-dry-run apply")
 	cmd.Flags().BoolVar(&notifyNetwork, "notify-network", false, "explicitly allow LinkedIn to notify the user's network if the browser exposes that option; default is false")

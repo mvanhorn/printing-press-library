@@ -18,7 +18,9 @@ Default safety posture:
 - Network notification is off by default.
 - `--notify-network` requires `--confirm-notify NOTIFY-NETWORK`.
 - Message sending is draft-first and requires `--confirm-send SEND-MESSAGE`.
-- Current live browser write/send adapters are intentionally disabled; `--simulate-live` is only for local workflow testing.
+- Live profile writes are available for supported LinkedIn sections only (`headline` and `about`) through `--live-linkedin`.
+- Experience live writes fail closed until ProfilePress emits position-level packets instead of one monolithic Experience blob.
+- `--simulate-live` is only for local workflow testing.
 
 ## Implemented commands
 
@@ -43,7 +45,10 @@ profilepress snapshot --fixture profile.json
 profilepress propose-for-job --change 'headline=Principal Researcher @ Meta | Human-Centered AI Evaluation & Alignment' --source-note 'user requested removing (UX)'
 profilepress diff
 profilepress apply-packet --privacy-status disabled --dry-run --confirm-sensitive APPLY-SENSITIVE
+profilepress apply-packet --live-linkedin --profile-url 'https://www.linkedin.com/in/example/' --privacy-status disabled --confirm-sensitive APPLY-SENSITIVE --confirm-apply APPLY
 ```
+
+`--live-linkedin` is not browser steering: it imports the existing local Chrome LinkedIn session and calls LinkedIn-specific SDUI profile-save requests. It currently supports `headline` and `about`; it refuses `experience` until position-level Experience packets are implemented.
 
 Capture a real authenticated LinkedIn profile read-only from your existing Chrome session:
 

@@ -49,7 +49,7 @@ func TestPrintedCLIWorkflow(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	out, err = captureRun(t, "propose-for-job", "--db", db, "--snapshot", snap["snapshot_id"].(string), "--job-file", job, "--change", "headline=AI Evaluation and Privacy Research Leader", "--source-note", "resume")
+	out, err = captureRun(t, "propose-for-job", "--db", db, "--snapshot", snap["snapshot_id"].(string), "--job-file", job, "--change", "headline=AI Evaluation and Privacy Research Leader", "--change", "experience=New experience blob", "--source-note", "resume")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -85,6 +85,16 @@ func TestPrintedCLIWorkflow(t *testing.T) {
 	}
 	if !strings.Contains(out, "simulated-apply-passed") || strings.Contains(out, `"result": "applied"`) {
 		t.Fatalf("simulate-live apply should not look real: %s", out)
+	}
+
+	_, err = captureRun(t, "apply-packet", "--db", db, "--packet", pkt["packet_id"].(string), "--privacy-status", "disabled", "--live-linkedin", "--profile-url", "https://www.linkedin.com/in/example/", "--confirm-sensitive", "APPLY-SENSITIVE", "--confirm-apply", "APPLY")
+	if err == nil || !strings.Contains(err.Error(), "experience requires position-level packets") {
+		t.Fatalf("live linkedin apply should fail closed for experience blobs, got %v", err)
+	}
+
+	_, err = captureRun(t, "apply-packet", "--db", db, "--packet", pkt["packet_id"].(string), "--privacy-status", "disabled", "--live-linkedin", "--profile-url", "https://www.linkedin.com/in/example/", "--dry-run", "--confirm-sensitive", "APPLY-SENSITIVE")
+	if err == nil || !strings.Contains(err.Error(), "experience requires position-level packets") {
+		t.Fatalf("live linkedin dry-run should still validate unsupported sections, got %v", err)
 	}
 }
 
