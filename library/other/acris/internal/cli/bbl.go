@@ -124,6 +124,9 @@ func newNovelBblCmd(flags *rootFlags) *cobra.Command {
 				return view.Documents[i].RecordedDatetime > view.Documents[j].RecordedDatetime
 			})
 			view.DocumentCount = len(view.Documents)
+			if maxDocs > 0 && len(ids) >= maxDocs {
+				view.Note = fmt.Sprintf("results capped at %d documents; increase --max-documents to see more", maxDocs)
+			}
 
 			return emitBBLView(cmd, flags, view)
 		},
@@ -151,7 +154,13 @@ func emitBBLView(cmd *cobra.Command, flags *rootFlags, view bblView) error {
 				"recorded":     d.RecordedDatetime,
 			})
 		}
-		return printAutoTable(cmd.OutOrStdout(), rows)
+		if err := printAutoTable(cmd.OutOrStdout(), rows); err != nil {
+			return err
+		}
+		if view.Note != "" {
+			fmt.Fprintf(cmd.OutOrStdout(), "note: %s\n", view.Note)
+		}
+		return nil
 	}
 	return printJSONFiltered(cmd.OutOrStdout(), view, flags)
 }

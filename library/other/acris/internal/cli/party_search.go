@@ -74,7 +74,10 @@ func newNovelPartySearchCmd(flags *rootFlags) *cobra.Command {
 			}
 
 			needle := strings.ToUpper(strings.TrimSpace(flagName))
-			where := fmt.Sprintf("upper(name) like '%%%s%%'", soqlQuote(needle))
+			// Socrata SoQL LIKE uses backslash as its default escape character and
+			// rejects an explicit `ESCAPE` clause, so soqlLikePattern backslash-escapes
+			// %, _ and \ and we pass the pattern with no ESCAPE clause.
+			where := fmt.Sprintf("upper(name) like %s", soqlLikePattern(needle))
 			rows, err := fetchACRISRows(ctx, c, acrisPartiesPath, map[string]string{
 				"$where": where,
 				"$limit": strconv.Itoa(limit),

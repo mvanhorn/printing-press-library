@@ -43,6 +43,19 @@ func soqlQuote(s string) string {
 	return strings.ReplaceAll(s, "'", "''")
 }
 
+// soqlLikeEscaper neutralizes LIKE metacharacters (% and _) and the escape
+// character itself so a needle matches literally under a SoQL `like` filter.
+// Socrata SoQL uses backslash as LIKE's default escape character (and rejects
+// an explicit `ESCAPE` clause), so no clause is needed alongside this.
+var soqlLikeEscaper = strings.NewReplacer(`\`, `\\`, `%`, `\%`, `_`, `\_`)
+
+// soqlLikePattern builds a single-quoted SoQL substring `like` pattern for needle,
+// escaping both LIKE wildcards and the string-literal quote so user input is
+// matched as a literal substring rather than a wildcard expression.
+func soqlLikePattern(needle string) string {
+	return "'%" + soqlLikeEscaper.Replace(soqlQuote(needle)) + "%'"
+}
+
 // soqlInClause builds a SoQL `field in('a','b',...)` predicate from values.
 func soqlInClause(field string, values []string) string {
 	quoted := make([]string, 0, len(values))

@@ -1,0 +1,11 @@
+{
+  "schema_version": 2,
+  "id": "acris-party-search-soql-like-escape",
+  "applied_at": "2026-06-28",
+  "base_run_id": "20260627-172432-3fcb7c76",
+  "base_printing_press_version": "4.27.0",
+  "summary": "party-search escapes LIKE wildcards (% and _) and the escape char in user input so the name filter matches a literal substring.",
+  "reason": "soqlQuote only doubles single quotes; it left % and _ as active SoQL LIKE wildcards (e.g. 'MADISON_AVE' matched 'MADISON AVE'). Added soqlLikePattern/soqlLikeEscaper to backslash-escape %, _ and \\. Socrata SoQL uses backslash as LIKE's default escape char and REJECTS an explicit `ESCAPE` clause (HTTP 400), so the clause is omitted — verified live against the real Parties dataset.",
+  "files": ["internal/cli/acris_join.go", "internal/cli/party_search.go", "internal/cli/acris_join_test.go"],
+  "validated_outcome": "go test ./internal/cli (TestSoqlLikePattern) plus live party-search: 'MADISON' returns matches, 'MADISON_AVE' returns 0 (literal underscore), '50%' returns results with no SoQL error."
+}

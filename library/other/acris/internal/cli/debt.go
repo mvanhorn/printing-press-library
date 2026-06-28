@@ -148,6 +148,8 @@ func newNovelDebtCmd(flags *rootFlags) *cobra.Command {
 			view.TotalRecordedMortgage = strconv.FormatInt(total, 10)
 			if view.MortgageCount == 0 {
 				view.Note = "no mortgage or debt-instrument recordings found for this BBL"
+			} else if maxDocs > 0 && view.MortgageCount >= maxDocs {
+				view.Note = fmt.Sprintf("results capped at %d documents; increase --max-documents to see more", maxDocs)
 			}
 
 			return emitDebtView(cmd, flags, view)
@@ -177,7 +179,13 @@ func emitDebtView(cmd *cobra.Command, flags *rootFlags, view debtView) error {
 				"recorded":     d.RecordedDatetime,
 			})
 		}
-		return printAutoTable(cmd.OutOrStdout(), rows)
+		if err := printAutoTable(cmd.OutOrStdout(), rows); err != nil {
+			return err
+		}
+		if view.Note != "" {
+			fmt.Fprintf(cmd.OutOrStdout(), "note: %s\n", view.Note)
+		}
+		return nil
 	}
 	return printJSONFiltered(cmd.OutOrStdout(), view, flags)
 }

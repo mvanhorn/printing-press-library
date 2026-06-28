@@ -18,6 +18,21 @@ func TestSoqlQuote(t *testing.T) {
 	}
 }
 
+func TestSoqlLikePattern(t *testing.T) {
+	cases := []struct{ in, want string }{
+		{"MADISON", "'%MADISON%'"},
+		{"50%", `'%50\%%'`},           // literal % is escaped, only the wrapping %s stay wildcards
+		{"JOHN_DOE", `'%JOHN\_DOE%'`}, // literal _ is escaped so it is not a single-char wildcard
+		{`A\B`, `'%A\\B%'`},           // the escape character itself is escaped
+		{"O'BRIEN", "'%O''BRIEN%'"},   // single quote still doubled for the string literal
+	}
+	for _, c := range cases {
+		if got := soqlLikePattern(c.in); got != c.want {
+			t.Errorf("soqlLikePattern(%q) = %q, want %q", c.in, got, c.want)
+		}
+	}
+}
+
 func TestSoqlInClause(t *testing.T) {
 	got := soqlInClause("document_id", []string{"A1", "B2"})
 	want := "document_id in('A1','B2')"

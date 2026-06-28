@@ -1,0 +1,10 @@
+{
+  "schema_version": 2,
+  "id": "acris-document-truncation-note",
+  "applied_at": "2026-06-28",
+  "base_run_id": "20260627-172432-3fcb7c76",
+  "base_printing_press_version": "4.27.0",
+  "summary": "document view flags a possibly-incomplete result when legals or parties reach the 200-row fetch cap instead of silently truncating.",
+  "reason": "The legals and parties fetches used a hard-coded $limit of 200 with no truncation signal; large condo/portfolio recordings exceed it and produced a silently incomplete documentView. Named the cap (documentFetchLimit) and set a Note (surfaced in JSON and human output) when either slice reaches it.",
+  "files": ["internal/cli/document.go"]
+}

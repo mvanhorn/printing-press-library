@@ -4,6 +4,7 @@ package cli
 
 import (
 	"fmt"
+	"strconv"
 
 	"github.com/spf13/cobra"
 )
@@ -40,7 +41,13 @@ type documentView struct {
 	RecordedBorough  string          `json:"recorded_borough,omitempty"`
 	Legals           []documentLegal `json:"legals"`
 	Parties          []documentParty `json:"parties"`
+	Note             string          `json:"note,omitempty"`
 }
+
+// documentFetchLimit caps the legals and parties fetched for a single document.
+// Large condo or portfolio recordings can exceed it; when reached, documentView.Note
+// flags the result as possibly incomplete rather than silently truncating.
+const documentFetchLimit = 200
 
 func newNovelDocumentCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
@@ -102,7 +109,7 @@ func newNovelDocumentCmd(flags *rootFlags) *cobra.Command {
 
 			legals, err := fetchACRISRows(ctx, c, acrisLegalsPath, map[string]string{
 				"document_id": docID,
-				"$limit":      "200",
+				"$limit":      strconv.Itoa(documentFetchLimit),
 			})
 			if err != nil {
 				return classifyAPIError(err, flags)
@@ -121,7 +128,7 @@ func newNovelDocumentCmd(flags *rootFlags) *cobra.Command {
 
 			parties, err := fetchACRISRows(ctx, c, acrisPartiesPath, map[string]string{
 				"document_id": docID,
-				"$limit":      "200",
+				"$limit":      strconv.Itoa(documentFetchLimit),
 			})
 			if err != nil {
 				return classifyAPIError(err, flags)
@@ -136,6 +143,9 @@ func newNovelDocumentCmd(flags *rootFlags) *cobra.Command {
 					Zip:       strField(p, "zip"),
 				})
 			}
+			if len(legals) >= documentFetchLimit || len(parties) >= documentFetchLimit {
+				view.Note = fmt.Sprintf("legals and/or parties capped at %d rows; this document view may be incomplete", documentFetchLimit)
+			}
 
 			if wantsHumanTable(cmd.OutOrStdout(), flags) {
 				fmt.Fprintf(cmd.OutOrStdout(), "document %s — %s, amount %s, recorded %s\n",
@@ -143,6 +153,9 @@ func newNovelDocumentCmd(flags *rootFlags) *cobra.Command {
 				fmt.Fprintf(cmd.OutOrStdout(), "  %d propert(ies), %d part(ies)\n", len(view.Legals), len(view.Parties))
 				for _, p := range view.Parties {
 					fmt.Fprintf(cmd.OutOrStdout(), "  party %s: %s\n", p.PartyType, p.Name)
+				}
+				if view.Note != "" {
+					fmt.Fprintf(cmd.OutOrStdout(), "note: %s\n", view.Note)
 				}
 				return nil
 			}
