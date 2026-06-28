@@ -1,0 +1,54 @@
+{
+  "dir": "library/other/biz-insurance-finder",
+  "spec_path": "",
+  "verdict": "PASS",
+  "run_id": "20260628-093000",
+  "completed_at": "2026-06-28T09:30:00Z",
+  "path_check": {
+    "tested": 0,
+    "valid": 0,
+    "valid_pct": 0,
+    "skipped": true,
+    "detail": "no HTTP API: data-driven guided CLI over an embedded registry; path validity not applicable"
+  },
+  "auth_check": {
+    "spec_scheme": "",
+    "generated_format": "none",
+    "match": true,
+    "detail": "no auth: the tool wraps no API and makes no network calls"
+  },
+  "browser_session_check": {
+    "required": false,
+    "pass": true,
+    "detail": "browser-session auth not required"
+  },
+  "dead_flags": {
+    "total": 14,
+    "dead": 0
+  },
+  "dead_functions": {
+    "total": 0,
+    "dead": 0,
+    "detail": "go vet + staticcheck (unused) clean"
+  },
+  "pipeline_check": {
+    "sync_calls_domain": false,
+    "search_calls_domain": false,
+    "domain_tables": 0,
+    "detail": "no API/sync pipeline: matching is a pure function over an embedded, editable provider registry"
+  },
+  "example_check": {
+    "tested": 10,
+    "with_examples": 10,
+    "valid_examples": 10,
+    "detail": "10 commands exercised (intake, profile, providers, match, answersheet, checklist, warnings, guide, doctor, version) across json/csv/plain/select output modes; importer and non-importer routing verified in both directions"
+  },
+  "behavioral_matrix": {
+    "commands_tested": 10,
+    "unit_tests_passed": true,
+    "build": "PASS",
+    "vet": "PASS",
+    "govulncheck": "PASS",
+    "detail": "go build, go vet, and govulncheck clean; unit tests cover registry, match (importer/manufacturer-only/private-label-only/retail), answersheet, checklist, warnings, and profile"
+  }
+}
