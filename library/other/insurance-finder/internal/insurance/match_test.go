@@ -144,3 +144,31 @@ func TestShortlist_DropsAvoidTier(t *testing.T) {
 		t.Errorf("shortlist (%d) should be smaller than full list (%d)", len(short), len(recs))
 	}
 }
+
+// A business with only SOME of the importer/private-label/manufacturer flags set
+// must be judged on the appetites that actually apply - not on the importer
+// appetite when it is not an importer.
+func TestMatch_PartialClassFlagsUseOnlyApplicableAppetite(t *testing.T) {
+	reg := mustRegistry(t)
+
+	// Manufacturer-only: The Hartford declines importers but writes
+	// manufacturers (partial), so it must NOT be avoided here.
+	mfg := recByID(Match(manufacturerOnlyProfile(), reg.Providers))
+	if mfg["the-hartford"].Tier == TierAvoid {
+		t.Errorf("manufacturer-only: the-hartford = avoid (score %d); it writes manufacturers and must not be declined", mfg["the-hartford"].Score)
+	}
+	// biBerk declines manufacturers too, so a real decline still fires.
+	if mfg["biberk"].Tier != TierAvoid {
+		t.Errorf("manufacturer-only: biberk should still be avoid (it declines manufacturers)")
+	}
+
+	// Private-label-only: The Hartford declines private-label, so it stays
+	// avoid; Insureon writes private-label (partial) and must not be avoided.
+	pl := recByID(Match(privateLabelOnlyProfile(), reg.Providers))
+	if pl["the-hartford"].Tier != TierAvoid {
+		t.Errorf("private-label-only: the-hartford should be avoid (declines private-label)")
+	}
+	if pl["insureon"].Tier == TierAvoid {
+		t.Errorf("private-label-only: insureon should not be avoid (writes private-label)")
+	}
+}

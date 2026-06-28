@@ -94,8 +94,14 @@ func scoreProvider(p Profile, prov Provider) Recommendation {
 
 // scoreImporter handles the importer / private-label / manufacturer class.
 func scoreImporter(p Profile, prov Provider, rec *Recommendation) {
-	// Collect the appetite ratings that actually apply to this applicant.
-	applicable := []string{prov.Appetite.Importer}
+	// Collect the appetite ratings that actually apply to this applicant. Each
+	// rating is included only when the applicant carries that status, so a
+	// manufacturer-only (or private-label-only) business is not judged against a
+	// carrier's importer appetite. IsImporterClass guarantees at least one is set.
+	applicable := make([]string, 0, 3)
+	if p.Importer {
+		applicable = append(applicable, prov.Appetite.Importer)
+	}
 	if p.PrivateLabel {
 		applicable = append(applicable, prov.Appetite.PrivateLabel)
 	}
