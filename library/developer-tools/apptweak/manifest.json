@@ -1,0 +1,39 @@
+{
+  "manifest_version": "0.3",
+  "name": "apptweak-pp-mcp",
+  "display_name": "AppTweak",
+  "version": "4.19.0",
+  "description": "Every AppTweak endpoint in a local-first CLI — keyword rank fan-outs, competitor metadata diffs, and review mining that no MCP server can do.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/apptweak-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/apptweak-pp-mcp",
+      "args": [],
+      "env": {
+        "APPTWEAK_API_KEY": "${user_config.apptweak_api_key}"
+      }
+    }
+  },
+  "user_config": {
+    "apptweak_api_key": {
+      "type": "string",
+      "title": "APPTWEAK_API_KEY",
+      "description": "Sets APPTWEAK_API_KEY for the AppTweak MCP server.",
+      "sensitive": true,
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

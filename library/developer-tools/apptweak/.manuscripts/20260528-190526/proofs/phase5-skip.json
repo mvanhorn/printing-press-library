@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "api_name": "apptweak",
+  "run_id": "20260528-190526",
+  "status": "skip",
+  "level": "none",
+  "skip_reason": "auth_required_no_credential",
+  "auth_context": {
+    "type": "api_key",
+    "api_key_available": false,
+    "browser_session_available": false
+  }
+}
