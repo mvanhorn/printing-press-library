@@ -1,0 +1,14 @@
+insurance-finder-pp-cli
+Copyright 2026 Weiwei Huang and contributors
+
+Created by Weiwei Huang (@beetz12).
+
+This is a hand-authored, printing-press-compatible CLI submitted to the CLI
+Printing Press Library (https://github.com/mvanhorn/printing-press-library). It
+follows the library's conventions (cobra subcommands, agent-native JSON output,
+a doctor command, the .printing-press.json manifest, and an editable embedded
+data registry), but it wraps no HTTP API: it is a data-driven guided assistant
+over an embedded, editable provider registry.
+
+CLI Printing Press, by Matt Van Horn and Trevin Chow, is licensed separately
+under the MIT License.
