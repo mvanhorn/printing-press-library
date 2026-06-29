@@ -1,0 +1,84 @@
+name: simplefin
+description: "SimpleFIN financial data CLI"
+cli_description: "Pull every bank, card, and brokerage account through SimpleFIN into a local SQLite ledger — net worth, cash flow, recurring charges, and holdings no single bank app can show."
+version: "0.1.0"
+base_url: "https://bridge.simplefin.org/simplefin"
+category: payments
+health_check_path: "/info"
+
+auth:
+  type: api_key
+  header: "Authorization"
+  format: "Basic {token}"
+  in: header
+  env_vars:
+    - SIMPLEFIN_ACCESS_URL
+
+config:
+  format: toml
+  path: "~/.config/simplefin/config.toml"
+
+resources:
+  accounts:
+    description: "Fetch accounts, balances, transactions, and holdings live from the SimpleFIN server"
+    endpoints:
+      list:
+        method: GET
+        path: "/accounts"
+        description: "Live fetch the full Account Set (all institutions) from the SimpleFIN server"
+        example: "  simplefin-pp-cli accounts list --start-date 30d --json"
+        params:
+          - name: start-date
+            type: string
+            required: false
+            description: "Only return transactions on or after this date (unix epoch, or relative like 30d/1w). Max 90-day span per call."
+          - name: end-date
+            type: string
+            required: false
+            description: "Only return transactions before this date (unix epoch, or relative)."
+          - name: pending
+            type: int
+            required: false
+            description: "Set to 1 to include pending transactions."
+          - name: account
+            type: string
+            required: false
+            description: "Restrict to a specific account id. Repeatable upstream; pass comma-separated."
+          - name: balances-only
+            type: int
+            required: false
+            description: "Set to 1 to skip transaction data and return balances only."
+          - name: version
+            type: int
+            required: false
+            default: 2
+            description: "SimpleFIN protocol version (2 recommended)."
+        response:
+          type: object
+          item: AccountSet
+        response_path: accounts
+  info:
+    description: "SimpleFIN server metadata"
+    endpoints:
+      get:
+        method: GET
+        path: "/info"
+        description: "Report which SimpleFIN protocol versions the server supports"
+        example: "  simplefin-pp-cli info get --json"
+        response:
+          type: object
+          item: ServerInfo
+
+types:
+  ServerInfo:
+    fields:
+      - name: versions
+        type: array
+  AccountSet:
+    fields:
+      - name: errlist
+        type: array
+      - name: connections
+        type: array
+      - name: accounts
+        type: array

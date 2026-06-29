@@ -1,0 +1,39 @@
+{
+  "manifest_version": "0.3",
+  "name": "simplefin-pp-mcp",
+  "display_name": "SimpleFIN",
+  "version": "0.1.0",
+  "description": "Pull every bank, card, and brokerage account through SimpleFIN into a local SQLite ledger — with net worth, cash flow, recurring-charge detection, and holdings gain/loss no single bank app can show.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/simplefin-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/simplefin-pp-mcp",
+      "args": [],
+      "env": {
+        "SIMPLEFIN_ACCESS_URL": "${user_config.simplefin_access_url}"
+      }
+    }
+  },
+  "user_config": {
+    "simplefin_access_url": {
+      "type": "string",
+      "title": "SIMPLEFIN_ACCESS_URL",
+      "description": "Sets SIMPLEFIN_ACCESS_URL for the SimpleFIN MCP server.",
+      "sensitive": true,
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}
