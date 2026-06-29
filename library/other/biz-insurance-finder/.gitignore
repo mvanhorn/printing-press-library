@@ -16,3 +16,7 @@ retail.json
 
 # OMC scratch state (this project was scaffolded under an OMC session)
 .omc/
+
+# Browser-demo artifacts
+.playwright-mcp/
+*.png

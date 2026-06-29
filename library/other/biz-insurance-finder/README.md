@@ -3,11 +3,15 @@
 A guided CLI assistant that helps a **US small business find and apply for
 commercial insurance** — starting with General Liability. It interviews the
 business once, saves a reusable applicant profile, then for each matched
-provider gives you the quote-start URL, a paste-ready answer sheet, and a
-checklist of the manual steps it will **not** do for you.
+provider gives you the quote-start URL, a paste-ready answer sheet, a manual-
+actions checklist, and a machine-readable **fill plan**.
 
-It guides you through **your own browser**. It never fills a form, solves a
-CAPTCHA, enters an EIN/SSN or payment, or submits anything on your behalf.
+Paired with a browser agent (see
+[docs/agent-fill-harness.md](docs/agent-fill-harness.md)), it **auto-fills the
+data you already provided** into each carrier's quote form and stops for you at
+the human-only steps: CAPTCHA, account/password, EIN/SSN, payment, and the final
+submit. The agent never solves a CAPTCHA, enters a government ID or payment, or
+submits on your behalf — that's the two-gate rule (it fills; you submit).
 
 > The single most important rule it encodes, learned from a real multi-carrier
 > quote run: an **importer / private-label / manufacturer ("deemed
@@ -46,6 +50,7 @@ Commands:
 | `checklist [<id>]` | The manual actions the tool will NOT do (CAPTCHA, account, EIN/SSN, payment, submit). |
 | `warnings` | Underwriting landmines for your profile (foreign-products exclusion, Coverage B IP gap, ...). |
 | `guide [--top N] [--all]` | End-to-end walkthrough combining all of the above. |
+| `fill-plan [<id>] [--all]` | Machine-readable plan for a browser agent: auto-fill values + the human-gated steps (CAPTCHA/EIN-SSN/payment/submit). See [the fill harness](docs/agent-fill-harness.md). |
 | `doctor` | Health-check the registry, profile, and paths. |
 
 ## Output Formats
@@ -120,10 +125,14 @@ applicant profile loads and validates, and the profile directory is writable.
 
 ## Scope & safety
 
-- **The tool never acts in your browser.** Filling forms, CAPTCHAs, account
-  creation, EIN/SSN, payment, and the final submit are all human steps,
-  surfaced per provider by `checklist`.
-- **Two-gate submit:** review the filled values, then *you* click submit.
+- **The CLI binary never drives a browser.** It emits a `fill-plan`; an
+  agent-driven harness (with a browser tool) auto-fills the data you already
+  provided and stops at the human gates — CAPTCHA, account/password, EIN/SSN,
+  payment, and the final submit. See
+  [docs/agent-fill-harness.md](docs/agent-fill-harness.md).
+- **Two-gate submit:** the agent fills the form and shows you the values; *you*
+  click submit. The agent never submits, solves a CAPTCHA, creates an account,
+  or enters a government ID / payment.
 - **This is not insurance advice.** It organizes your answers and points you at
   markets; confirm coverage terms (especially **no foreign-products exclusion**
   for importers) in writing before you bind.

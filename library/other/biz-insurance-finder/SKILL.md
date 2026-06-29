@@ -62,9 +62,20 @@ biz-insurance-finder-pp-cli guide              # warnings + per-provider URL, an
 biz-insurance-finder-pp-cli answersheet <id>   # paste-ready field values for one provider
 biz-insurance-finder-pp-cli checklist <id>     # manual actions the tool will not do
 biz-insurance-finder-pp-cli warnings           # underwriting landmines for the profile
+biz-insurance-finder-pp-cli fill-plan <id>     # machine-readable fill plan (auto-fill values + human gates)
 biz-insurance-finder-pp-cli providers list     # the editable provider registry
 biz-insurance-finder-pp-cli doctor             # health-check registry + profile + paths
 ```
+
+## Agent-driven form filling
+
+`fill-plan --json` emits everything a browser agent needs to fill a provider's
+quote form: the `quote_url`, the `auto_fill` values (data the user already
+provided), and the `human_gates` it must stop for (CAPTCHA, account/password,
+EIN/SSN, payment, final submit). The CLI never drives a browser itself; a browser
+agent consumes the plan and fills the auto values, pausing at every gate. Full
+protocol: `docs/agent-fill-harness.md`. Hard rule: the agent never solves a
+CAPTCHA, enters a government ID or payment, or clicks the final submit.
 
 ## Output Formats
 

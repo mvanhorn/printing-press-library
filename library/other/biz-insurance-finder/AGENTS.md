@@ -56,10 +56,22 @@ fields:
 
 `0` ok · `2` usage · `3` not found · `5` data error · `10` config error.
 
+## Agent-driven form filling
+
+To fill a provider's quote form, get the plan and drive a browser tool:
+
+```bash
+biz-insurance-finder fill-plan <provider-id> --agent   # JSON: quote_url, auto_fill[], human_gates[]
+```
+
+Type every `auto_fill` value (data the user already provided) into the matching
+field on the live form, then **stop** at every `human_gates` entry. Full protocol
++ hard rules: [`docs/agent-fill-harness.md`](docs/agent-fill-harness.md).
+
 ## Hard boundaries (do not cross)
 
-The tool intentionally does **not** act in a browser. An agent driving this tool
-must still treat these as human-only steps and stop for the user:
+The CLI binary never drives a browser; a browser agent fills the `auto_fill`
+data. These stay human-only — the agent fills everything else and stops here:
 
 - CAPTCHAs / "I'm not a robot"
 - account creation / passwords
@@ -67,4 +79,5 @@ must still treat these as human-only steps and stop for the user:
 - payment / card / bank info
 - the final **submit** (two-gate: show the values, the human clicks submit)
 
-`biz-insurance-finder checklist <id>` returns these per provider as JSON.
+`biz-insurance-finder fill-plan <id>` flags these as `human_gates`;
+`checklist <id>` returns them too.

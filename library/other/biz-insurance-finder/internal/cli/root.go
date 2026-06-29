@@ -105,6 +105,7 @@ Health check: biz-insurance-finder doctor`,
 	rootCmd.AddCommand(newChecklistCmd(f))
 	rootCmd.AddCommand(newWarningsCmd(f))
 	rootCmd.AddCommand(newGuideCmd(f))
+	rootCmd.AddCommand(newFillPlanCmd(f))
 	rootCmd.AddCommand(newDoctorCmd(f))
 	rootCmd.AddCommand(newVersionCmd())
 	return rootCmd
