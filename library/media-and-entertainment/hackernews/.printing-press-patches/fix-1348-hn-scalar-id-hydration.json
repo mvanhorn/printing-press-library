@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "fix-1348-hn-scalar-id-hydration",
+  "applied_at": "2026-06-28",
+  "base_run_id": "20260504-190931",
+  "base_printing_press_version": "3.9.0",
+  "summary": "Hydrate scalar item IDs before upsert so `sync` actually stores HN stories/updates instead of dropping every row.",
+  "reason": "The HN Firebase list endpoints wired into sync (/jobstories.json, /updates.json) return bare scalar item IDs, not objects. The generic sync pipeline extracts a primary key from object fields, so every scalar item was dropped (sync_anomaly all_items_failed_id_extraction, stored=0) — the symptom reported in printing-press-library#1348. Added an itemHydration map plus hydrateScalarItems/scalarItemID helpers in internal/cli/sync.go that fetch each ID's full object from /item/<id>.json before upsert; failed hydrations are folded into the existing extract-failure accounting. The deeper fix belongs upstream in CLI Printing Press: the profiler should recognize fetch-IDs-then-hydrate APIs and emit a hydration pattern (e.g. via an x-hydrate / x-resource-id annotation) rather than wiring scalar-ID list endpoints into the object-shaped sync path.",
+  "files": [
+    "internal/cli/sync.go",
+    "internal/cli/sync_hydration_test.go"
+  ],
+  "validated_outcome": "go build ./..., go vet ./internal/cli/, and gofmt are clean. Unit tests in internal/cli/sync_hydration_test.go pass and cover scalar-ID detection, ID->object hydration, unfetchable-ID failure counting, and object/unknown-resource pass-through. End-to-end `hackernews-pp-cli sync --resources stories --max-pages 1` against the live public Firebase API now reports {\"event\":\"sync_summary\",\"total_records\":31,...} with zero sync_anomaly events (previously 0 stored), and `search local` returns the hydrated rows — confirming the #1348 symptom is resolved. Note: internal/store TestMigrate_ConcurrentFreshDB is pre-existing flaky (SQLITE_BUSY on concurrent Open) and unrelated to this change."
+}

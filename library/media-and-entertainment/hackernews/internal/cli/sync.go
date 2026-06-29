@@ -355,6 +355,19 @@ func syncResource(c interface {
 			break
 		}
 
+		// HN Firebase list endpoints (/jobstories.json, /updates.json)
+		// return bare scalar item IDs (e.g. [39152, 39153, ...]) rather
+		// than full objects. The primary-key extractor can't pull an ID
+		// from a scalar, so without hydration every row is dropped
+		// (all_items_failed_id_extraction, stored=0 — the #1348 symptom).
+		// For resources registered in itemHydration, fetch each ID's full
+		// object from the item endpoint before upserting. Items that are
+		// already objects pass through untouched; IDs that fail to hydrate
+		// are folded into the extract-failure accounting below so the
+		// existing sync_anomaly events still surface them.
+		fetchedThisPage := len(items)
+		items, hydrateFailures := hydrateScalarItems(c, resource, items)
+
 		// Batch upsert all items from this page. UpsertBatch returns
 		// (stored, extractFailures, err): stored counts rows actually
 		// landed; extractFailures counts items that survived JSON
@@ -374,8 +387,8 @@ func syncResource(c interface {
 			return syncResult{Resource: resource, Count: totalCount, Err: fmt.Errorf("upserting batch for %s: %w", resource, err), Duration: time.Since(started)}
 		}
 
-		consumedTotal += len(items)
-		extractFailureTotal += extractFailures
+		consumedTotal += fetchedThisPage
+		extractFailureTotal += extractFailures + hydrateFailures
 
 		// When a non-empty page yielded zero stored rows, the API
 		// returned items in a shape we couldn't extract IDs from —
@@ -808,6 +821,89 @@ func syncResourcePath(resource string) (string, error) {
 		return p, nil
 	}
 	return "", fmt.Errorf("unknown sync resource %q", resource)
+}
+
+// itemHydration maps resources whose list endpoint returns bare scalar item
+// IDs (rather than full objects) to the item-endpoint template used to fetch
+// each object. The HN Firebase API is a two-phase "fetch IDs, then hydrate"
+// shape: /jobstories.json yields [39152, 39153, ...] and /updates.json yields
+// {"items":[...ids...],"profiles":[...]} (extractPageItems pulls the "items"
+// array). %s is replaced with the scalar ID. Resources absent from this map
+// are assumed to already return objects and are left untouched.
+var itemHydration = map[string]string{
+	"stories": "/item/%s.json",
+	"updates": "/item/%s.json",
+}
+
+// hydrateScalarItems replaces bare scalar-ID items with the full objects
+// fetched from the resource's item endpoint. Items that are already JSON
+// objects pass through untouched, so a mixed or future object-shaped response
+// still works without a regen. It returns the hydrated items plus a count of
+// IDs that could not be fetched (transport error, or a "null"/empty body for a
+// deleted item) so the caller can fold those into the existing extract-failure
+// accounting instead of letting them vanish silently.
+func hydrateScalarItems(c interface {
+	Get(string, map[string]string) (json.RawMessage, error)
+}, resource string, items []json.RawMessage) ([]json.RawMessage, int) {
+	tmpl, ok := itemHydration[resource]
+	if !ok {
+		return items, 0
+	}
+	hydrated := make([]json.RawMessage, 0, len(items))
+	failures := 0
+	for _, item := range items {
+		id := scalarItemID(item)
+		if id == "" {
+			// Already an object (or empty/null) — leave it for the normal
+			// extract+upsert path rather than treating it as an ID.
+			hydrated = append(hydrated, item)
+			continue
+		}
+		obj, err := c.Get(fmt.Sprintf(tmpl, id), nil)
+		if err != nil || isNullOrEmptyJSON(obj) {
+			failures++
+			continue
+		}
+		hydrated = append(hydrated, obj)
+	}
+	return hydrated, failures
+}
+
+// scalarItemID returns the string form of a JSON scalar (number or string)
+// item, or "" when the item is an object, array, or null. HN item IDs are
+// integers; decoding via json.Number preserves them exactly instead of
+// risking float64 scientific-notation formatting on large IDs.
+func scalarItemID(item json.RawMessage) string {
+	trimmed := strings.TrimSpace(string(item))
+	if trimmed == "" || trimmed == "null" {
+		return ""
+	}
+	switch trimmed[0] {
+	case '{', '[':
+		return ""
+	case '"':
+		var s string
+		if err := json.Unmarshal(item, &s); err == nil {
+			return s
+		}
+		return ""
+	default:
+		dec := json.NewDecoder(strings.NewReader(trimmed))
+		dec.UseNumber()
+		var n json.Number
+		if err := dec.Decode(&n); err == nil {
+			return n.String()
+		}
+		return ""
+	}
+}
+
+// isNullOrEmptyJSON reports whether a hydration response carried no usable
+// object — an empty body or the literal "null" HN returns for unknown or
+// deleted item IDs.
+func isNullOrEmptyJSON(data json.RawMessage) bool {
+	trimmed := strings.TrimSpace(string(data))
+	return trimmed == "" || trimmed == "null"
 }
 
 // resourceIDFieldOverrides projects per-resource IDField (set by the profiler
