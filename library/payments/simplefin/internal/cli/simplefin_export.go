@@ -104,18 +104,21 @@ func newSimplefinExportCmd(flags *rootFlags) *cobra.Command {
 				if err := db.EnsureSimpleFINSchema(ctx); err != nil {
 					return fmt.Errorf("ensuring schema: %w", err)
 				}
-				txns, err := loadTransactions(ctx, db, account, minP, maxP, false)
-				if err != nil {
-					return err
+				// Assign into the outer txns/cats (no shadowing) so the single
+				// writeExport below always sees the loaded data.
+				loaded, lerr := loadTransactions(ctx, db, account, minP, maxP, false)
+				if lerr != nil {
+					return lerr
 				}
-				cats, err = loadCategoryMap(ctx, db)
-				if err != nil {
-					return err
+				cm, cerr := loadCategoryMap(ctx, db)
+				if cerr != nil {
+					return cerr
 				}
-				sort.Slice(txns, func(i, j int) bool { return txns[i].Posted < txns[j].Posted })
-				return writeExport(cmd.OutOrStdout(), format, txns, cats)
+				sort.Slice(loaded, func(i, j int) bool { return loaded[i].Posted < loaded[j].Posted })
+				txns, cats = loaded, cm
+			} else {
+				fmt.Fprintf(cmd.ErrOrStderr(), "no local data at %s — run: simplefin-pp-cli sync\n", resolved)
 			}
-			fmt.Fprintf(cmd.ErrOrStderr(), "no local data at %s — run: simplefin-pp-cli sync\n", resolved)
 			return writeExport(cmd.OutOrStdout(), format, txns, cats)
 		},
 	}

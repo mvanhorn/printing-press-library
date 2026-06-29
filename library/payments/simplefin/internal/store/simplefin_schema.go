@@ -51,3 +51,11 @@ func (s *Store) EnsureSimpleFINSchema(ctx context.Context) error {
 	_, err := s.DB().ExecContext(ctx, simplefinSchema)
 	return err
 }
+
+// FTSRowID exposes the package-internal resources_fts rowid derivation so
+// hand-authored commands that delete from the generic resources table (e.g.
+// reconcile --fix) can pair the delete with the matching resources_fts delete
+// and avoid leaving stale full-text-search entries.
+func FTSRowID(resourceType, id string) int64 {
+	return ftsRowID(resourceType, id)
+}

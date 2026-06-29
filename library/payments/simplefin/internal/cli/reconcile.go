@@ -50,8 +50,10 @@ func newNovelReconcileCmd(flags *rootFlags) *cobra.Command {
 			"re-introduce removed rows from the API, so treat it as a one-time view cleanup.\n\n" +
 			"Use this command to find duplicate transactions from mirrored IDs. For stale-connection\n" +
 			"(balance-date age) problems use 'stale'.",
-		Example:     "  simplefin-pp-cli reconcile --agent",
-		Annotations: map[string]string{"mcp:read-only": "true"},
+		Example: "  simplefin-pp-cli reconcile --agent",
+		// No mcp:read-only hint: with --fix this command deletes rows from the
+		// local store, so an MCP host must treat it as state-mutating and
+		// prompt for confirmation rather than assume it is safe.
 		RunE: func(cmd *cobra.Command, args []string) error {
 			ctx, cancel := boundCtx(cmd.Context(), flags)
 			defer cancel()
@@ -153,6 +155,12 @@ func deleteTransactions(ctx context.Context, db *store.Store, resourceIDs []stri
 	defer tx.Rollback()
 	for _, id := range resourceIDs {
 		if _, err := tx.ExecContext(ctx, `DELETE FROM resources WHERE resource_type = 'transactions' AND id = ?`, id); err != nil {
+			return err
+		}
+		// Pair every resources delete with its resources_fts row (keyed by the
+		// same ftsRowID the store uses on upsert), or `search` returns ghost
+		// hits for transactions reconcile just removed.
+		if _, err := tx.ExecContext(ctx, `DELETE FROM resources_fts WHERE rowid = ?`, store.FTSRowID("transactions", id)); err != nil {
 			return err
 		}
 		if _, err := tx.ExecContext(ctx, `DELETE FROM transaction_categories WHERE txn_id = ?`, id); err != nil {
