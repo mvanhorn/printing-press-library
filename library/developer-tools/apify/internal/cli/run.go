@@ -367,11 +367,18 @@ func pollRunUntilTerminal(ctx context.Context, c interface {
 		if err := json.Unmarshal(body, &resp); err != nil {
 			return RunData{}, err
 		}
+		// A run that has already finished must be returned as-is — there is
+		// nothing left to abort and its final cost is sunk. Check terminal
+		// status BEFORE the cost watchdog so a run that completes naturally
+		// with a final cost just over the cap is not spuriously "aborted".
+		if isTerminalStatus(resp.Data.Status) {
+			return resp.Data, nil
+		}
 		// PATCH(amend: live cost watchdog. The pre-flight projection cannot
 		// protect the first run of an Actor — it has no cached history to
 		// project from — so enforce --max-cost during --wait by aborting the
-		// run once its reported usageTotalUsd exceeds the cap. Without this a
-		// runaway run bills unbounded until a manual abort.)
+		// still-running Actor once its reported usageTotalUsd exceeds the cap.
+		// Without this a runaway run bills unbounded until a manual abort.)
 		if maxCost > 0 && resp.Data.UsageTotalUsd > maxCost {
 			_, _, abortErr := c.PostWithParams(
 				fmt.Sprintf("/v2/actor-runs/%s/abort", escapeSeg(runID)), nil, map[string]any{})
@@ -383,9 +390,6 @@ func pollRunUntilTerminal(ctx context.Context, c interface {
 			return resp.Data, apiErr(fmt.Errorf(
 				"run cost $%.2f exceeded --max-cost $%.2f; aborted run %s to stop billing",
 				resp.Data.UsageTotalUsd, maxCost, runID))
-		}
-		if isTerminalStatus(resp.Data.Status) {
-			return resp.Data, nil
 		}
 		select {
 		case <-ctx.Done():
