@@ -23,7 +23,7 @@
     "apify_token": {
       "type": "string",
       "title": "APIFY_TOKEN",
-      "description": "Sets APIFY_TOKEN for the Apify MCP server. Get a credential from https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Authorization.",
+      "description": "Sets APIFY_TOKEN for the Apify MCP server. Get a credential from https://console.apify.com/settings/integrations.",
       "sensitive": true,
       "required": true
     }
