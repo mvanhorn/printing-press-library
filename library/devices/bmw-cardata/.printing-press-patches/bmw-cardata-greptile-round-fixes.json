@@ -1,0 +1,15 @@
+{
+  "schema_version": 2,
+  "id": "bmw-cardata-greptile-round-fixes",
+  "applied_at": "2026-06-30",
+  "base_run_id": "20260630-212750-ea90da3f",
+  "base_printing_press_version": "4.24.0",
+  "summary": "Addressed 3 Greptile P2 review findings: cross-platform browser launch (darwin/linux/windows), guard against bogus trip durations on RFC3339 parse failure (emit null + parse error), and switched the telematic dedup unique index to use COALESCE(ts, fetched_at) so NULL-ts rows also dedupe by fetched_at.",
+  "reason": "Greptile review (P2 x3) on PR #1417: (1) openBrowser macOS-only no-op on linux/windows; (2) trips.go silently discards time.Parse errors producing multi-year durations; (3) UNIQUE(vin, descriptor, ts) index doesn't dedupe NULL-ts rows (SQLite NULL distinct) → duplicate points on resync for ts-less descriptors.",
+  "files": [
+    "internal/cli/auth_login.go",
+    "internal/cli/trips.go",
+    "internal/store/extras.go"
+  ],
+  "validated_outcome": "go build ./...  PASS; go vet ./...  PASS; dogfood: re-ran live gate after the fix commit (see PR comment thread for the follow-up gate result)."
+}

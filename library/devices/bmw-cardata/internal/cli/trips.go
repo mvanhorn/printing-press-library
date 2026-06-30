@@ -166,15 +166,25 @@ func segmentTrips(pts []breadcrumb) []map[string]any {
 		for i := 1; i < len(cur); i++ {
 			dist += haversineKm(cur[i-1].lat, cur[i-1].lng, cur[i].lat, cur[i].lng)
 		}
-		startT, _ := time.Parse(time.RFC3339, cur[0].ts)
-		endT, _ := time.Parse(time.RFC3339, cur[len(cur)-1].ts)
-		trips = append(trips, map[string]any{
+		startT, startErr := time.Parse(time.RFC3339, cur[0].ts)
+		endT, endErr := time.Parse(time.RFC3339, cur[len(cur)-1].ts)
+		trip := map[string]any{
 			"start_at":    cur[0].ts,
 			"end_at":      cur[len(cur)-1].ts,
 			"distance_km": dist,
-			"duration":    endT.Sub(startT).Round(time.Second).String(),
 			"points":      len(cur),
-		})
+		}
+		// Emit duration only when both timestamps parsed; otherwise a zero
+		// time.Time (year 0001) would produce a multi-year bogus duration.
+		// Surface the parse error so the reader can correlate it with the
+		// raw start_at / end_at strings.
+		if startErr != nil || endErr != nil {
+			trip["duration"] = nil
+			trip["duration_parse_error"] = fmt.Sprintf("start=%v end=%v", startErr, endErr)
+		} else {
+			trip["duration"] = endT.Sub(startT).Round(time.Second).String()
+		}
+		trips = append(trips, trip)
 		cur = nil
 	}
 	for i, p := range pts {

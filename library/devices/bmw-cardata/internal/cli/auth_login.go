@@ -15,6 +15,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"runtime"
 	"strings"
 	"time"
 
@@ -119,7 +120,9 @@ the CLI polls until the login completes and stores the tokens locally.`,
 				fmt.Fprintf(cmd.OutOrStdout(), "Or enter code %s at %s\n", userCode, dc.VerificationURI)
 			}
 			if flagLaunch {
-				_ = openBrowser(verifyURL)
+				if err := openBrowser(verifyURL); err != nil {
+					fmt.Fprintf(os.Stderr, "warning: could not launch browser (--launch): %v\n  open the URL above manually\n", err)
+				}
 			} else {
 				fmt.Fprintln(cmd.OutOrStdout(), "(pass --launch to open it automatically)")
 			}
@@ -295,10 +298,33 @@ func truncateBody(b []byte) string {
 	return string(b)
 }
 
-// openBrowser opens url in the user's default browser. Best-effort.
+// openBrowser opens url in the user's default browser on macOS, Linux, and
+// Windows. Returns the underlying error so the caller can warn the user
+// instead of silently dropping it.
 func openBrowser(rawURL string) error {
-	// macOS path; extend later for linux/xdg-open if needed.
-	return exec.Command("open", rawURL).Start()
+	var name string
+	var args []string
+	switch runtime.GOOS {
+	case "darwin":
+		name, args = "open", []string{rawURL}
+	case "windows":
+		// The empty-string arg is required so `start` does not treat the URL
+		// as a window title (which breaks for paths with spaces or ampersands).
+		name, args = "cmd", []string{"/c", "start", "", rawURL}
+	default: // linux, freebsd, openbsd, netbsd, ...
+		name, args = "xdg-open", []string{rawURL}
+	}
+	// PATH lookup: prefer /usr/bin and /usr/local/bin before falling back to
+	// exec.LookPath's default $PATH search, so a missing xdg-open on a
+	// minimal container returns a clear "not found" rather than a generic
+	// "no such file".
+	if _, err := exec.LookPath(filepath.Join("/usr/bin", name)); err == nil {
+		return exec.Command(filepath.Join("/usr/bin", name), args...).Start()
+	}
+	if _, err := exec.LookPath(filepath.Join("/usr/local/bin", name)); err == nil {
+		return exec.Command(filepath.Join("/usr/local/bin", name), args...).Start()
+	}
+	return exec.Command(name, args...).Start()
 }
 
 // gcidFromJWT extracts a GCID-like subject claim from a JWT payload. Returns
