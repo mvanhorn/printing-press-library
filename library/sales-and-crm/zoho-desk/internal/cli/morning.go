@@ -36,9 +36,8 @@ func newNovelMorningCmd(flags *rootFlags) *cobra.Command {
 		Example:     "  zoho-desk-pp-cli morning --json",
 		Annotations: map[string]string{"mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
-			if len(args) == 0 && cmd.Flags().NFlag() == 0 {
-				return cmd.Help()
-			}
+			// No help guard: morning's primary use is the zero-argument
+			// dashboard, so a bare invocation must run, not print help.
 			if dryRunOK(flags) {
 				return nil
 			}

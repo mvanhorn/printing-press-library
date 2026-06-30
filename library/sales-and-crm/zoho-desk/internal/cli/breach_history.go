@@ -69,12 +69,14 @@ func newNovelBreachHistoryCmd(flags *rootFlags) *cobra.Command {
 			totalBreaches := 0
 			for _, t := range tickets {
 				key := str(t, keyField)
-				totals[key]++
 
 				due, ok := parseZohoTime(str(t, "dueDate"))
 				if !ok || !due.Before(now) {
+					// No SLA due date, or not yet due: not part of the breach
+					// denominator. Counting these understates the breach rate.
 					continue
 				}
+				totals[key]++
 				breached := false
 				if isClosedStatus(str(t, "status")) {
 					if ct, ok := parseZohoTime(str(t, "closedTime")); ok && ct.After(due) {

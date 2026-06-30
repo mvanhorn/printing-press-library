@@ -50,7 +50,14 @@ func priorityWeight(p string) int {
 
 // isClosedStatus reports whether a ticket status counts as resolved/closed.
 func isClosedStatus(status string) bool {
-	return strings.EqualFold(strings.TrimSpace(status), "closed")
+	// Match common terminal statuses, not just the literal "Closed". Many
+	// portals add "Resolved" or other closed-equivalent statuses; treating
+	// them as open silently corrupts every analytics command.
+	switch strings.ToLower(strings.TrimSpace(status)) {
+	case "closed", "resolved":
+		return true
+	}
+	return false
 }
 
 // str coerces a JSON map value to a string: "" when absent or nil, otherwise

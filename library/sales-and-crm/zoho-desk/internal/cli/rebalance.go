@@ -110,7 +110,13 @@ func newNovelRebalanceCmd(flags *rootFlags) *cobra.Command {
 			mode := "plan"
 			movesApplied := 0
 			failures := make([]map[string]string, 0)
-			if flagApply {
+			// --apply opts into writes; an explicit --plan forces dry-run even
+			// when --apply is also passed, so --plan is honored, not dead.
+			doApply := flagApply
+			if cmd.Flags().Changed("plan") && flagPlan {
+				doApply = false
+			}
+			if doApply {
 				mode = "apply"
 				c, err := flags.newClient()
 				if err != nil {

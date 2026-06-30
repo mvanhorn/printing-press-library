@@ -49,7 +49,7 @@ func TestNovelBreachHistoryBehavior(t *testing.T) {
 	db.Upsert("tickets", "1", mustJSON(t, map[string]any{
 		"id": "1", "status": "Open", "assigneeId": "A1", "dueDate": zohoTime(now.Add(-5 * time.Hour)),
 	}))
-	// Future due -> not a breach, but counts toward A1 total.
+	// Future due -> not yet SLA-applicable; excluded from the breach denominator.
 	db.Upsert("tickets", "2", mustJSON(t, map[string]any{
 		"id": "2", "status": "Open", "assigneeId": "A1", "dueDate": zohoTime(now.Add(50 * time.Hour)),
 	}))
@@ -82,7 +82,7 @@ func TestNovelBreachHistoryBehavior(t *testing.T) {
 		t.Fatalf("expected 1 group, got %+v", view.Groups)
 	}
 	g := view.Groups[0]
-	if g.Key != "A1" || g.Name != "Ada L" || g.Breaches != 1 || g.Total != 3 {
+	if g.Key != "A1" || g.Name != "Ada L" || g.Breaches != 1 || g.Total != 2 {
 		t.Fatalf("unexpected group: %+v", g)
 	}
 }
