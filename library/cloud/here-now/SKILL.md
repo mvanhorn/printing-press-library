@@ -41,6 +41,11 @@ If `--version` reports "command not found" after install, the runtime cannot see
 
 Reach for this CLI whenever an agent needs to turn generated content into a live URL, manage private Drive files, or read back Site Data form submissions. It is the right tool for free-tier-heavy workflows: anonymous-publish-and-claim, drives sync, and staying under plan limits without paid analytics. Prefer it over raw API calls when publishing a directory, syncing files, or reading a site's Site Data records.
 
+## House Rules (default behavior)
+
+1. **Assume we're logged in.** Just publish and hand back the code — do **not** use `--anon` or the claim dance unless explicitly asked. Verify quickly with `here-now-pp-cli doctor` if unsure. `publish dir <path>` (authenticated) creates a permanent site and returns the slug + URL — that's the "code".
+2. **Editing an already-published site → keep the same link.** Re-publish the changed files to the **original slug in place** with `publish update-site <slug>` (replacement-version flow). Do **not** re-run `publish dir` for an edit and do **not** delete + recreate — both produce a *new* code, and deleted slugs are permanently reserved (the old URL is lost for good).
+
 ## Unique Capabilities
 
 These capabilities aren't available in any other tool for this API.
