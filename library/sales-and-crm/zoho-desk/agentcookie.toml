@@ -1,0 +1,18 @@
+# agentcookie.toml: secrets-bus adoption manifest v2
+# See docs/spec-agentcookie-secrets-bus-v2-adoption.md
+schema_version = 2
+name = "zoho-desk-pp-cli"
+display_name = "Zoho Desk"
+description = "The only scriptable, agent-native CLI for Zoho Desk: every ticket operation plus a local SQLite store, offline search, and SLA/triage analytics no help-desk tool ships."
+project_kind = "cli"
+
+[secrets.file]
+path = "~/.config/zoho-desk-pp-cli/config.toml"
+
+[sync]
+default = false
+
+[sync.keys]
+ZOHO_DESK_CLIENT_ID = false
+ZOHO_DESK_CLIENT_SECRET = true
+ZOHO_DESK_REFRESH_TOKEN = true

@@ -1,0 +1,55 @@
+{
+  "manifest_version": "0.3",
+  "name": "zoho-desk-pp-mcp",
+  "display_name": "Zoho Desk",
+  "version": "0.1.0",
+  "description": "The only scriptable, agent-native CLI for Zoho Desk: every ticket operation plus a local SQLite store, offline search, and SLA/triage analytics no help-desk tool ships.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/zoho-desk-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/zoho-desk-pp-mcp",
+      "args": [],
+      "env": {
+        "ZOHO_DESK_CLIENT_ID": "${user_config.zoho_desk_client_id}",
+        "ZOHO_DESK_CLIENT_SECRET": "${user_config.zoho_desk_client_secret}",
+        "ZOHO_DESK_REFRESH_TOKEN": "${user_config.zoho_desk_refresh_token}"
+      }
+    }
+  },
+  "user_config": {
+    "zoho_desk_client_id": {
+      "type": "string",
+      "title": "ZOHO_DESK_CLIENT_ID",
+      "description": "Sets ZOHO_DESK_CLIENT_ID for the Zoho Desk MCP server.",
+      "sensitive": true,
+      "required": true
+    },
+    "zoho_desk_client_secret": {
+      "type": "string",
+      "title": "ZOHO_DESK_CLIENT_SECRET",
+      "description": "Sets ZOHO_DESK_CLIENT_SECRET for the Zoho Desk MCP server.",
+      "sensitive": true,
+      "required": true
+    },
+    "zoho_desk_refresh_token": {
+      "type": "string",
+      "title": "ZOHO_DESK_REFRESH_TOKEN",
+      "description": "Sets ZOHO_DESK_REFRESH_TOKEN for the Zoho Desk MCP server.",
+      "sensitive": true,
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

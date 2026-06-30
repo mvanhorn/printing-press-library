@@ -1,0 +1,1257 @@
+name: zoho-desk
+description: "Zoho Desk help-desk CLI: tickets, contacts, accounts, agents, and SLA analytics with a local SQLite store"
+version: "0.1.0"
+base_url: "https://desk.zoho.com/api/v1"
+health_check_path: "/organizations"
+category: sales-and-crm
+
+auth:
+  type: oauth2_refresh
+  header: "Authorization"
+  format: "Zoho-oauthtoken {token}"
+  token_url: "https://accounts.zoho.com/oauth/v2/token"
+  scopes:
+    - Desk.tickets.ALL
+    - Desk.contacts.ALL
+    - Desk.basic.ALL
+    - Desk.tasks.ALL
+    - Desk.settings.ALL
+    - Desk.search.READ
+    - Desk.articles.ALL
+  env_vars:
+    - ZOHO_DESK_CLIENT_ID
+    - ZOHO_DESK_CLIENT_SECRET
+    - ZOHO_DESK_REFRESH_TOKEN
+
+config:
+  format: toml
+  path: "~/.config/zoho-desk-pp-cli/config.toml"
+
+resources:
+  organizations:
+    description: "Portals/organizations you can access (orgId source)"
+    endpoints:
+      list:
+        method: GET
+        path: "/organizations"
+        description: "List organizations the token can access"
+        response:
+          type: array
+          item: Organization
+        response_path: data
+      get:
+        method: GET
+        path: "/organizations/{org_id}"
+        description: "Get one organization"
+        params:
+          - name: org_id
+            type: string
+            required: true
+            positional: true
+            description: "Organization (portal) ID"
+        response:
+          type: object
+          item: Organization
+      accessible:
+        method: GET
+        path: "/accessibleOrganizations"
+        description: "List all organizations accessible to the user"
+        response:
+          type: array
+          item: Organization
+        response_path: data
+
+  tickets:
+    description: "Manage support tickets"
+    endpoints:
+      list:
+        method: GET
+        path: "/tickets"
+        description: "List tickets"
+        params:
+          - name: from
+            type: int
+            default: 1
+            description: "1-based start index"
+          - name: limit
+            type: int
+            default: 100
+            description: "Max records (max 100)"
+          - name: sortBy
+            flag_name: sort-by
+            type: string
+            description: "Sort field; prefix with - for descending (e.g. -modifiedTime)"
+          - name: status
+            type: string
+            description: "Filter by status (Open, Closed, On Hold, Escalated)"
+          - name: departmentId
+            flag_name: department-id
+            type: string
+            description: "Filter by department ID"
+          - name: assignee
+            type: string
+            description: "Filter by assignee agent ID"
+          - name: include
+            type: string
+            description: "Comma list to embed (contacts,assignee,department,team)"
+        response:
+          type: array
+          item: Ticket
+        response_path: data
+      get:
+        method: GET
+        path: "/tickets/{ticket_id}"
+        description: "Get a ticket by ID"
+        params:
+          - name: ticket_id
+            type: string
+            required: true
+            positional: true
+            description: "Ticket ID"
+          - name: include
+            type: string
+            description: "Comma list to embed (contacts,assignee,team,products)"
+        response:
+          type: object
+          item: Ticket
+      create:
+        method: POST
+        path: "/tickets"
+        description: "Create a ticket"
+        body:
+          - name: subject
+            type: string
+            required: true
+            description: "Ticket subject"
+          - name: departmentId
+            flag_name: department-id
+            type: string
+            required: true
+            description: "Department ID"
+          - name: contactId
+            flag_name: contact-id
+            type: string
+            required: true
+            description: "Contact ID"
+          - name: description
+            type: string
+            description: "Ticket description"
+          - name: priority
+            type: string
+            description: "Priority (High, Medium, Low)"
+          - name: status
+            type: string
+            description: "Status"
+          - name: assigneeId
+            flag_name: assignee-id
+            type: string
+            description: "Assignee agent ID"
+          - name: channel
+            type: string
+            description: "Channel (Email, Phone, Web, Chat)"
+        response:
+          type: object
+          item: Ticket
+      update:
+        method: PATCH
+        path: "/tickets/{ticket_id}"
+        description: "Update a ticket"
+        params:
+          - name: ticket_id
+            type: string
+            required: true
+            positional: true
+            description: "Ticket ID"
+        body:
+          - name: subject
+            type: string
+            description: "Ticket subject"
+          - name: status
+            type: string
+            description: "Status (Open, Closed, On Hold, Escalated)"
+          - name: priority
+            type: string
+            description: "Priority"
+          - name: assigneeId
+            flag_name: assignee-id
+            type: string
+            description: "Assignee agent ID"
+          - name: departmentId
+            flag_name: department-id
+            type: string
+            description: "Department ID"
+        response:
+          type: object
+          item: Ticket
+      close:
+        method: POST
+        path: "/closeTickets"
+        description: "Close one or more tickets"
+        body:
+          - name: ids
+            type: string
+            required: true
+            description: "Comma-separated ticket IDs to close"
+        response:
+          type: object
+          item: ActionResult
+      merge:
+        method: POST
+        path: "/tickets/{ticket_id}/merge"
+        description: "Merge other tickets into this one"
+        params:
+          - name: ticket_id
+            type: string
+            required: true
+            positional: true
+            description: "Primary ticket ID (merge target)"
+        body:
+          - name: ids
+            type: string
+            required: true
+            description: "Comma-separated secondary ticket IDs to merge in"
+        response:
+          type: object
+          item: ActionResult
+      history:
+        method: GET
+        path: "/tickets/{ticket_id}/History"
+        description: "Get a ticket's history/audit trail"
+        params:
+          - name: ticket_id
+            type: string
+            required: true
+            positional: true
+            description: "Ticket ID"
+        response:
+          type: array
+          item: HistoryEntry
+        response_path: data
+      metrics:
+        method: GET
+        path: "/tickets/{ticket_id}/metrics"
+        description: "Get response/resolution time metrics for a ticket"
+        params:
+          - name: ticket_id
+            type: string
+            required: true
+            positional: true
+            description: "Ticket ID"
+        response:
+          type: object
+          item: TicketMetrics
+      send-reply:
+        method: POST
+        path: "/tickets/{ticket_id}/sendReply"
+        description: "Send a reply on a ticket"
+        params:
+          - name: ticket_id
+            type: string
+            required: true
+            positional: true
+            description: "Ticket ID"
+        body:
+          - name: content
+            type: string
+            required: true
+            description: "Reply body (HTML or text)"
+          - name: contentType
+            flag_name: content-type
+            type: string
+            default: "html"
+            description: "Content type (html or plainText)"
+          - name: channel
+            type: string
+            default: "EMAIL"
+            description: "Reply channel"
+          - name: fromEmailAddress
+            flag_name: from-email
+            type: string
+            description: "From email address"
+          - name: to
+            type: string
+            description: "Recipient email address"
+        response:
+          type: object
+          item: Thread
+      draft-reply:
+        method: POST
+        path: "/tickets/{ticket_id}/draftReply"
+        description: "Create a draft reply on a ticket"
+        params:
+          - name: ticket_id
+            type: string
+            required: true
+            positional: true
+            description: "Ticket ID"
+        body:
+          - name: content
+            type: string
+            required: true
+            description: "Draft reply body"
+          - name: channel
+            type: string
+            default: "EMAIL"
+            description: "Reply channel"
+        response:
+          type: object
+          item: Thread
+
+  threads:
+    description: "Ticket conversation threads"
+    endpoints:
+      list:
+        method: GET
+        path: "/tickets/{ticket_id}/threads"
+        description: "List threads on a ticket"
+        params:
+          - name: ticket_id
+            type: string
+            required: true
+            positional: true
+            description: "Ticket ID"
+          - name: limit
+            type: int
+            default: 100
+            description: "Max records"
+        response:
+          type: array
+          item: Thread
+        response_path: data
+      get:
+        method: GET
+        path: "/tickets/{ticket_id}/threads/{thread_id}"
+        description: "Get a thread's full content"
+        params:
+          - name: ticket_id
+            type: string
+            required: true
+            positional: true
+            description: "Ticket ID"
+          - name: thread_id
+            type: string
+            required: true
+            positional: true
+            description: "Thread ID"
+        response:
+          type: object
+          item: Thread
+      latest:
+        method: GET
+        path: "/tickets/{ticket_id}/latestThread"
+        description: "Get the latest thread on a ticket"
+        params:
+          - name: ticket_id
+            type: string
+            required: true
+            positional: true
+            description: "Ticket ID"
+        response:
+          type: object
+          item: Thread
+
+  comments:
+    description: "Internal/public ticket comments"
+    endpoints:
+      list:
+        method: GET
+        path: "/tickets/{ticket_id}/comments"
+        description: "List comments on a ticket"
+        params:
+          - name: ticket_id
+            type: string
+            required: true
+            positional: true
+            description: "Ticket ID"
+          - name: limit
+            type: int
+            default: 100
+            description: "Max records"
+        response:
+          type: array
+          item: Comment
+        response_path: data
+      create:
+        method: POST
+        path: "/tickets/{ticket_id}/comments"
+        description: "Add a comment to a ticket"
+        params:
+          - name: ticket_id
+            type: string
+            required: true
+            positional: true
+            description: "Ticket ID"
+        body:
+          - name: content
+            type: string
+            required: true
+            description: "Comment body"
+          - name: isPublic
+            flag_name: public
+            type: bool
+            default: false
+            description: "Whether the comment is public"
+        response:
+          type: object
+          item: Comment
+      delete:
+        method: DELETE
+        path: "/tickets/{ticket_id}/comments/{comment_id}"
+        description: "Delete a comment"
+        params:
+          - name: ticket_id
+            type: string
+            required: true
+            positional: true
+            description: "Ticket ID"
+          - name: comment_id
+            type: string
+            required: true
+            positional: true
+            description: "Comment ID"
+
+  contacts:
+    description: "Manage contacts (customers)"
+    endpoints:
+      list:
+        method: GET
+        path: "/contacts"
+        description: "List contacts"
+        params:
+          - name: from
+            type: int
+            default: 1
+            description: "1-based start index"
+          - name: limit
+            type: int
+            default: 100
+            description: "Max records (max 100)"
+          - name: sortBy
+            flag_name: sort-by
+            type: string
+            description: "Sort field; prefix - for descending"
+        response:
+          type: array
+          item: Contact
+        response_path: data
+      get:
+        method: GET
+        path: "/contacts/{contact_id}"
+        description: "Get a contact by ID"
+        params:
+          - name: contact_id
+            type: string
+            required: true
+            positional: true
+            description: "Contact ID"
+        response:
+          type: object
+          item: Contact
+      create:
+        method: POST
+        path: "/contacts"
+        description: "Create a contact"
+        body:
+          - name: lastName
+            flag_name: last-name
+            type: string
+            required: true
+            description: "Last name"
+          - name: firstName
+            flag_name: first-name
+            type: string
+            description: "First name"
+          - name: email
+            type: string
+            description: "Email address"
+          - name: phone
+            type: string
+            description: "Phone number"
+          - name: accountId
+            flag_name: account-id
+            type: string
+            description: "Associated account ID"
+        response:
+          type: object
+          item: Contact
+      update:
+        method: PATCH
+        path: "/contacts/{contact_id}"
+        description: "Update a contact"
+        params:
+          - name: contact_id
+            type: string
+            required: true
+            positional: true
+            description: "Contact ID"
+        body:
+          - name: lastName
+            flag_name: last-name
+            type: string
+            description: "Last name"
+          - name: firstName
+            flag_name: first-name
+            type: string
+            description: "First name"
+          - name: email
+            type: string
+            description: "Email address"
+          - name: phone
+            type: string
+            description: "Phone number"
+        response:
+          type: object
+          item: Contact
+      tickets:
+        method: GET
+        path: "/contacts/{contact_id}/tickets"
+        description: "List tickets for a contact"
+        params:
+          - name: contact_id
+            type: string
+            required: true
+            positional: true
+            description: "Contact ID"
+          - name: limit
+            type: int
+            default: 100
+            description: "Max records"
+        response:
+          type: array
+          item: Ticket
+        response_path: data
+
+  accounts:
+    description: "Manage accounts (companies)"
+    endpoints:
+      list:
+        method: GET
+        path: "/accounts"
+        description: "List accounts"
+        params:
+          - name: from
+            type: int
+            default: 1
+            description: "1-based start index"
+          - name: limit
+            type: int
+            default: 100
+            description: "Max records (max 100)"
+        response:
+          type: array
+          item: Account
+        response_path: data
+      get:
+        method: GET
+        path: "/accounts/{account_id}"
+        description: "Get an account by ID"
+        params:
+          - name: account_id
+            type: string
+            required: true
+            positional: true
+            description: "Account ID"
+        response:
+          type: object
+          item: Account
+      create:
+        method: POST
+        path: "/accounts"
+        description: "Create an account"
+        body:
+          - name: accountName
+            flag_name: name
+            type: string
+            required: true
+            description: "Account name"
+          - name: website
+            type: string
+            description: "Website"
+          - name: phone
+            type: string
+            description: "Phone"
+        response:
+          type: object
+          item: Account
+      update:
+        method: PATCH
+        path: "/accounts/{account_id}"
+        description: "Update an account"
+        params:
+          - name: account_id
+            type: string
+            required: true
+            positional: true
+            description: "Account ID"
+        body:
+          - name: accountName
+            flag_name: name
+            type: string
+            description: "Account name"
+          - name: website
+            type: string
+            description: "Website"
+        response:
+          type: object
+          item: Account
+      contacts:
+        method: GET
+        path: "/accounts/{account_id}/contacts"
+        description: "List contacts for an account"
+        params:
+          - name: account_id
+            type: string
+            required: true
+            positional: true
+            description: "Account ID"
+          - name: limit
+            type: int
+            default: 100
+            description: "Max records"
+        response:
+          type: array
+          item: Contact
+        response_path: data
+      tickets:
+        method: GET
+        path: "/accounts/{account_id}/tickets"
+        description: "List tickets for an account"
+        params:
+          - name: account_id
+            type: string
+            required: true
+            positional: true
+            description: "Account ID"
+          - name: limit
+            type: int
+            default: 100
+            description: "Max records"
+        response:
+          type: array
+          item: Ticket
+        response_path: data
+
+  agents:
+    description: "Help-desk agents"
+    endpoints:
+      list:
+        method: GET
+        path: "/agents"
+        description: "List agents"
+        params:
+          - name: from
+            type: int
+            default: 1
+            description: "1-based start index"
+          - name: limit
+            type: int
+            default: 100
+            description: "Max records (max 100)"
+        response:
+          type: array
+          item: Agent
+        response_path: data
+      get:
+        method: GET
+        path: "/agents/{agent_id}"
+        description: "Get an agent by ID"
+        params:
+          - name: agent_id
+            type: string
+            required: true
+            positional: true
+            description: "Agent ID"
+        response:
+          type: object
+          item: Agent
+      count:
+        method: GET
+        path: "/agents/count"
+        description: "Get total agent count"
+        response:
+          type: object
+          item: CountResult
+
+  departments:
+    description: "Departments"
+    endpoints:
+      list:
+        method: GET
+        path: "/departments"
+        description: "List departments"
+        params:
+          - name: from
+            type: int
+            default: 1
+            description: "1-based start index"
+          - name: limit
+            type: int
+            default: 100
+            description: "Max records"
+          - name: isEnabled
+            flag_name: enabled
+            type: bool
+            description: "Filter by enabled state"
+        response:
+          type: array
+          item: Department
+        response_path: data
+      get:
+        method: GET
+        path: "/departments/{department_id}"
+        description: "Get a department by ID"
+        params:
+          - name: department_id
+            type: string
+            required: true
+            positional: true
+            description: "Department ID"
+        response:
+          type: object
+          item: Department
+
+  teams:
+    description: "Agent teams"
+    endpoints:
+      list:
+        method: GET
+        path: "/teams"
+        description: "List teams"
+        params:
+          - name: departmentId
+            flag_name: department-id
+            type: string
+            description: "Filter by department ID"
+        response:
+          type: array
+          item: Team
+        response_path: data
+      get:
+        method: GET
+        path: "/teams/{team_id}"
+        description: "Get a team by ID"
+        params:
+          - name: team_id
+            type: string
+            required: true
+            positional: true
+            description: "Team ID"
+        response:
+          type: object
+          item: Team
+      agents:
+        method: GET
+        path: "/teams/{team_id}/agents"
+        description: "List agents in a team"
+        params:
+          - name: team_id
+            type: string
+            required: true
+            positional: true
+            description: "Team ID"
+        response:
+          type: array
+          item: Agent
+        response_path: data
+
+  tasks:
+    description: "Tasks"
+    endpoints:
+      list:
+        method: GET
+        path: "/tasks"
+        description: "List tasks"
+        params:
+          - name: from
+            type: int
+            default: 1
+            description: "1-based start index"
+          - name: limit
+            type: int
+            default: 100
+            description: "Max records"
+        response:
+          type: array
+          item: Task
+        response_path: data
+      get:
+        method: GET
+        path: "/tasks/{task_id}"
+        description: "Get a task by ID"
+        params:
+          - name: task_id
+            type: string
+            required: true
+            positional: true
+            description: "Task ID"
+        response:
+          type: object
+          item: Task
+      create:
+        method: POST
+        path: "/tasks"
+        description: "Create a task"
+        body:
+          - name: subject
+            type: string
+            required: true
+            description: "Task subject"
+          - name: departmentId
+            flag_name: department-id
+            type: string
+            required: true
+            description: "Department ID"
+          - name: priority
+            type: string
+            description: "Priority"
+          - name: dueDate
+            flag_name: due-date
+            type: string
+            description: "Due date (ISO 8601)"
+          - name: assigneeId
+            flag_name: assignee-id
+            type: string
+            description: "Assignee agent ID"
+        response:
+          type: object
+          item: Task
+
+  timeentries:
+    description: "Ticket time entries"
+    endpoints:
+      list:
+        method: GET
+        path: "/tickets/{ticket_id}/timeEntry"
+        description: "List time entries on a ticket"
+        params:
+          - name: ticket_id
+            type: string
+            required: true
+            positional: true
+            description: "Ticket ID"
+        response:
+          type: array
+          item: TimeEntry
+        response_path: data
+      create:
+        method: POST
+        path: "/tickets/{ticket_id}/timeEntry"
+        description: "Add a time entry to a ticket"
+        params:
+          - name: ticket_id
+            type: string
+            required: true
+            positional: true
+            description: "Ticket ID"
+        body:
+          - name: executedTime
+            flag_name: executed-time
+            type: string
+            required: true
+            description: "When the work was done (ISO 8601)"
+          - name: hours
+            type: string
+            description: "Hours spent (e.g. 1.5)"
+          - name: agentId
+            flag_name: agent-id
+            type: string
+            description: "Agent who logged the time"
+        response:
+          type: object
+          item: TimeEntry
+
+  products:
+    description: "Products"
+    endpoints:
+      list:
+        method: GET
+        path: "/products"
+        description: "List products"
+        params:
+          - name: from
+            type: int
+            default: 1
+            description: "1-based start index"
+          - name: limit
+            type: int
+            default: 100
+            description: "Max records"
+        response:
+          type: array
+          item: Product
+        response_path: data
+      get:
+        method: GET
+        path: "/products/{product_id}"
+        description: "Get a product by ID"
+        params:
+          - name: product_id
+            type: string
+            required: true
+            positional: true
+            description: "Product ID"
+        response:
+          type: object
+          item: Product
+
+  tags:
+    description: "Tags"
+    endpoints:
+      list:
+        method: GET
+        path: "/tags"
+        description: "List tags"
+        params:
+          - name: module
+            type: string
+            default: "tickets"
+            description: "Module to scope tags (tickets, contacts, accounts)"
+        response:
+          type: array
+          item: Tag
+        response_path: data
+
+  ticketfields:
+    description: "Ticket field/layout metadata"
+    endpoints:
+      list:
+        method: GET
+        path: "/ticketFields"
+        description: "List ticket fields"
+        params:
+          - name: departmentId
+            flag_name: department-id
+            type: string
+            description: "Filter by department ID"
+        response:
+          type: array
+          item: TicketField
+        response_path: data
+
+  slas:
+    description: "Service-level agreements"
+    endpoints:
+      list:
+        method: GET
+        path: "/slas"
+        description: "List SLAs"
+        response:
+          type: array
+          item: SLA
+        response_path: data
+
+  search:
+    description: "Cross-module search"
+    endpoints:
+      tickets:
+        method: GET
+        path: "/tickets/search"
+        description: "Search tickets by criteria"
+        params:
+          - name: searchStr
+            flag_name: query
+            type: string
+            description: "Search string"
+          - name: from
+            type: int
+            default: 1
+            description: "1-based start index"
+          - name: limit
+            type: int
+            default: 100
+            description: "Max records"
+          - name: status
+            type: string
+            description: "Filter by status"
+          - name: priority
+            type: string
+            description: "Filter by priority"
+        response:
+          type: array
+          item: Ticket
+        response_path: data
+
+  articles:
+    description: "Knowledge base articles"
+    endpoints:
+      list:
+        method: GET
+        path: "/articles"
+        description: "List KB articles"
+        params:
+          - name: from
+            type: int
+            default: 1
+            description: "1-based start index"
+          - name: limit
+            type: int
+            default: 100
+            description: "Max records"
+        response:
+          type: array
+          item: Article
+        response_path: data
+      get:
+        method: GET
+        path: "/articles/{article_id}"
+        description: "Get a KB article by ID"
+        params:
+          - name: article_id
+            type: string
+            required: true
+            positional: true
+            description: "Article ID"
+        response:
+          type: object
+          item: Article
+      search:
+        method: GET
+        path: "/articles/search"
+        description: "Search KB articles"
+        params:
+          - name: searchStr
+            flag_name: query
+            type: string
+            description: "Search string"
+          - name: limit
+            type: int
+            default: 100
+            description: "Max records"
+        response:
+          type: array
+          item: Article
+        response_path: data
+
+types:
+  Organization:
+    fields:
+      - name: id
+        type: string
+      - name: companyName
+        type: string
+      - name: portalName
+        type: string
+      - name: edition
+        type: string
+  Ticket:
+    fields:
+      - name: id
+        type: string
+      - name: ticketNumber
+        type: string
+      - name: subject
+        type: string
+      - name: status
+        type: string
+      - name: priority
+        type: string
+      - name: channel
+        type: string
+      - name: departmentId
+        type: string
+      - name: assigneeId
+        type: string
+      - name: contactId
+        type: string
+      - name: dueDate
+        type: string
+      - name: createdTime
+        type: string
+      - name: modifiedTime
+        type: string
+      - name: closedTime
+        type: string
+      - name: webUrl
+        type: string
+  TicketMetrics:
+    fields:
+      - name: firstResponseTime
+        type: string
+      - name: responseTime
+        type: string
+      - name: resolutionTime
+        type: string
+      - name: handlingTime
+        type: string
+  Thread:
+    fields:
+      - name: id
+        type: string
+      - name: channel
+        type: string
+      - name: direction
+        type: string
+      - name: content
+        type: string
+      - name: summary
+        type: string
+      - name: author
+        type: string
+      - name: createdTime
+        type: string
+  Comment:
+    fields:
+      - name: id
+        type: string
+      - name: content
+        type: string
+      - name: isPublic
+        type: bool
+      - name: commenterId
+        type: string
+      - name: commentedTime
+        type: string
+  Contact:
+    fields:
+      - name: id
+        type: string
+      - name: firstName
+        type: string
+      - name: lastName
+        type: string
+      - name: email
+        type: string
+      - name: phone
+        type: string
+      - name: accountId
+        type: string
+      - name: createdTime
+        type: string
+      - name: modifiedTime
+        type: string
+  Account:
+    fields:
+      - name: id
+        type: string
+      - name: accountName
+        type: string
+      - name: website
+        type: string
+      - name: phone
+        type: string
+      - name: industry
+        type: string
+      - name: createdTime
+        type: string
+  Agent:
+    fields:
+      - name: id
+        type: string
+      - name: firstName
+        type: string
+      - name: lastName
+        type: string
+      - name: emailId
+        type: string
+      - name: status
+        type: string
+      - name: roleId
+        type: string
+  Department:
+    fields:
+      - name: id
+        type: string
+      - name: name
+        type: string
+      - name: isEnabled
+        type: bool
+      - name: description
+        type: string
+  Team:
+    fields:
+      - name: id
+        type: string
+      - name: name
+        type: string
+      - name: departmentId
+        type: string
+  Task:
+    fields:
+      - name: id
+        type: string
+      - name: subject
+        type: string
+      - name: status
+        type: string
+      - name: priority
+        type: string
+      - name: dueDate
+        type: string
+      - name: assigneeId
+        type: string
+      - name: createdTime
+        type: string
+  TimeEntry:
+    fields:
+      - name: id
+        type: string
+      - name: hours
+        type: string
+      - name: executedTime
+        type: string
+      - name: agentId
+        type: string
+  Product:
+    fields:
+      - name: id
+        type: string
+      - name: productName
+        type: string
+      - name: productCode
+        type: string
+  Tag:
+    fields:
+      - name: id
+        type: string
+      - name: name
+        type: string
+  TicketField:
+    fields:
+      - name: id
+        type: string
+      - name: displayLabel
+        type: string
+      - name: apiName
+        type: string
+      - name: type
+        type: string
+      - name: isMandatory
+        type: bool
+  SLA:
+    fields:
+      - name: id
+        type: string
+      - name: name
+        type: string
+      - name: isActive
+        type: bool
+  Article:
+    fields:
+      - name: id
+        type: string
+      - name: title
+        type: string
+      - name: status
+        type: string
+      - name: viewCount
+        type: int
+      - name: createdTime
+        type: string
+  HistoryEntry:
+    fields:
+      - name: id
+        type: string
+      - name: eventName
+        type: string
+      - name: actor
+        type: string
+      - name: time
+        type: string
+  ActionResult:
+    fields:
+      - name: status
+        type: string
+  CountResult:
+    fields:
+      - name: count
+        type: int

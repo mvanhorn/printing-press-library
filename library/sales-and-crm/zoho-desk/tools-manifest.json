@@ -1,0 +1,1234 @@
+{
+  "api_name": "zoho-desk",
+  "base_url": "https://desk.zoho.com/api/v1",
+  "description": "The only scriptable, agent-native CLI for Zoho Desk: every ticket operation plus a local SQLite store, offline search, and SLA/triage analytics no help-desk tool ships.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "mcp": {
+    "endpoint_tools": "hidden",
+    "orchestration": "code"
+  },
+  "auth": {
+    "type": "oauth2_refresh",
+    "header": "Authorization",
+    "format": "Zoho-oauthtoken {ZOHO_DESK_CLIENT_ID}",
+    "env_vars": [
+      "ZOHO_DESK_CLIENT_ID",
+      "ZOHO_DESK_CLIENT_SECRET",
+      "ZOHO_DESK_REFRESH_TOKEN"
+    ],
+    "env_var_specs": [
+      {
+        "name": "ZOHO_DESK_CLIENT_ID",
+        "kind": "auth_flow_input",
+        "required": true,
+        "sensitive": false,
+        "inferred": true
+      },
+      {
+        "name": "ZOHO_DESK_CLIENT_SECRET",
+        "kind": "auth_flow_input",
+        "required": false,
+        "sensitive": true,
+        "inferred": true
+      },
+      {
+        "name": "ZOHO_DESK_REFRESH_TOKEN",
+        "kind": "auth_flow_input",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    ]
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "accounts_contacts",
+      "description": "List contacts for an account. Required: account_id. Optional: limit (default: 100). Returns array of Contact.",
+      "method": "GET",
+      "path": "/accounts/{account_id}/contacts",
+      "params": [
+        {
+          "name": "account_id",
+          "type": "string",
+          "location": "path",
+          "description": "Account ID",
+          "required": true
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Max records"
+        }
+      ]
+    },
+    {
+      "name": "accounts_create",
+      "description": "Create an account. Required: name. Optional: website, phone. Returns the new Account.",
+      "method": "POST",
+      "path": "/accounts",
+      "params": [
+        {
+          "name": "name",
+          "wire_name": "accountName",
+          "type": "string",
+          "location": "body",
+          "description": "Account name",
+          "required": true
+        },
+        {
+          "name": "website",
+          "type": "string",
+          "location": "body",
+          "description": "Website"
+        },
+        {
+          "name": "phone",
+          "type": "string",
+          "location": "body",
+          "description": "Phone"
+        }
+      ]
+    },
+    {
+      "name": "accounts_get",
+      "description": "Get an account by ID. Required: account_id. Returns the Account.",
+      "method": "GET",
+      "path": "/accounts/{account_id}",
+      "params": [
+        {
+          "name": "account_id",
+          "type": "string",
+          "location": "path",
+          "description": "Account ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "accounts_list",
+      "description": "List accounts. Optional: from (default: 1), limit (default: 100). Returns array of Account.",
+      "method": "GET",
+      "path": "/accounts",
+      "params": [
+        {
+          "name": "from",
+          "type": "int",
+          "location": "query",
+          "description": "1-based start index"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Max records (max 100)"
+        }
+      ]
+    },
+    {
+      "name": "accounts_tickets",
+      "description": "List tickets for an account. Required: account_id. Optional: limit (default: 100). Returns array of Ticket.",
+      "method": "GET",
+      "path": "/accounts/{account_id}/tickets",
+      "params": [
+        {
+          "name": "account_id",
+          "type": "string",
+          "location": "path",
+          "description": "Account ID",
+          "required": true
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Max records"
+        }
+      ]
+    },
+    {
+      "name": "accounts_update",
+      "description": "Update an account. Required: account_id. Optional: name, website. Returns the updated Account.",
+      "method": "PATCH",
+      "path": "/accounts/{account_id}",
+      "params": [
+        {
+          "name": "account_id",
+          "type": "string",
+          "location": "path",
+          "description": "Account ID",
+          "required": true
+        },
+        {
+          "name": "name",
+          "wire_name": "accountName",
+          "type": "string",
+          "location": "body",
+          "description": "Account name"
+        },
+        {
+          "name": "website",
+          "type": "string",
+          "location": "body",
+          "description": "Website"
+        }
+      ]
+    },
+    {
+      "name": "agents_count",
+      "description": "Get total agent count. Returns the CountResult.",
+      "method": "GET",
+      "path": "/agents/count",
+      "params": []
+    },
+    {
+      "name": "agents_get",
+      "description": "Get an agent by ID. Required: agent_id. Returns the Agent.",
+      "method": "GET",
+      "path": "/agents/{agent_id}",
+      "params": [
+        {
+          "name": "agent_id",
+          "type": "string",
+          "location": "path",
+          "description": "Agent ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "agents_list",
+      "description": "List agents. Optional: from (default: 1), limit (default: 100). Returns array of Agent.",
+      "method": "GET",
+      "path": "/agents",
+      "params": [
+        {
+          "name": "from",
+          "type": "int",
+          "location": "query",
+          "description": "1-based start index"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Max records (max 100)"
+        }
+      ]
+    },
+    {
+      "name": "articles_get",
+      "description": "Get a KB article by ID. Required: article_id. Returns the Article.",
+      "method": "GET",
+      "path": "/articles/{article_id}",
+      "params": [
+        {
+          "name": "article_id",
+          "type": "string",
+          "location": "path",
+          "description": "Article ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "articles_list",
+      "description": "List KB articles. Optional: from (default: 1), limit (default: 100). Returns array of Article.",
+      "method": "GET",
+      "path": "/articles",
+      "params": [
+        {
+          "name": "from",
+          "type": "int",
+          "location": "query",
+          "description": "1-based start index"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Max records"
+        }
+      ]
+    },
+    {
+      "name": "articles_search",
+      "description": "Search KB articles. Optional: query, limit (default: 100). Returns array of Article.",
+      "method": "GET",
+      "path": "/articles/search",
+      "params": [
+        {
+          "name": "query",
+          "wire_name": "searchStr",
+          "type": "string",
+          "location": "query",
+          "description": "Search string"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Max records"
+        }
+      ]
+    },
+    {
+      "name": "comments_create",
+      "description": "Add a comment to a ticket. Required: ticket_id, content. Optional: public (default: false). Returns the new Comment.",
+      "method": "POST",
+      "path": "/tickets/{ticket_id}/comments",
+      "params": [
+        {
+          "name": "ticket_id",
+          "type": "string",
+          "location": "path",
+          "description": "Ticket ID",
+          "required": true
+        },
+        {
+          "name": "content",
+          "type": "string",
+          "location": "body",
+          "description": "Comment body",
+          "required": true
+        },
+        {
+          "name": "public",
+          "wire_name": "isPublic",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether the comment is public"
+        }
+      ]
+    },
+    {
+      "name": "comments_delete",
+      "description": "Delete a comment. Required: ticket_id, comment_id. Destructive.",
+      "method": "DELETE",
+      "path": "/tickets/{ticket_id}/comments/{comment_id}",
+      "params": [
+        {
+          "name": "ticket_id",
+          "type": "string",
+          "location": "path",
+          "description": "Ticket ID",
+          "required": true
+        },
+        {
+          "name": "comment_id",
+          "type": "string",
+          "location": "path",
+          "description": "Comment ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "comments_list",
+      "description": "List comments on a ticket. Required: ticket_id. Optional: limit (default: 100). Returns array of Comment.",
+      "method": "GET",
+      "path": "/tickets/{ticket_id}/comments",
+      "params": [
+        {
+          "name": "ticket_id",
+          "type": "string",
+          "location": "path",
+          "description": "Ticket ID",
+          "required": true
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Max records"
+        }
+      ]
+    },
+    {
+      "name": "contacts_create",
+      "description": "Create a contact. Required: last-name. Optional: first-name, email, phone (plus 1 more). Returns the new Contact.",
+      "method": "POST",
+      "path": "/contacts",
+      "params": [
+        {
+          "name": "last-name",
+          "wire_name": "lastName",
+          "type": "string",
+          "location": "body",
+          "description": "Last name",
+          "required": true
+        },
+        {
+          "name": "first-name",
+          "wire_name": "firstName",
+          "type": "string",
+          "location": "body",
+          "description": "First name"
+        },
+        {
+          "name": "email",
+          "type": "string",
+          "location": "body",
+          "description": "Email address"
+        },
+        {
+          "name": "phone",
+          "type": "string",
+          "location": "body",
+          "description": "Phone number"
+        },
+        {
+          "name": "account-id",
+          "wire_name": "accountId",
+          "type": "string",
+          "location": "body",
+          "description": "Associated account ID"
+        }
+      ]
+    },
+    {
+      "name": "contacts_get",
+      "description": "Get a contact by ID. Required: contact_id. Returns the Contact.",
+      "method": "GET",
+      "path": "/contacts/{contact_id}",
+      "params": [
+        {
+          "name": "contact_id",
+          "type": "string",
+          "location": "path",
+          "description": "Contact ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "contacts_list",
+      "description": "List contacts. Optional: from (default: 1), limit (default: 100), sort-by. Returns array of Contact.",
+      "method": "GET",
+      "path": "/contacts",
+      "params": [
+        {
+          "name": "from",
+          "type": "int",
+          "location": "query",
+          "description": "1-based start index"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Max records (max 100)"
+        },
+        {
+          "name": "sort-by",
+          "wire_name": "sortBy",
+          "type": "string",
+          "location": "query",
+          "description": "Sort field; prefix - for descending"
+        }
+      ]
+    },
+    {
+      "name": "contacts_tickets",
+      "description": "List tickets for a contact. Required: contact_id. Optional: limit (default: 100). Returns array of Ticket.",
+      "method": "GET",
+      "path": "/contacts/{contact_id}/tickets",
+      "params": [
+        {
+          "name": "contact_id",
+          "type": "string",
+          "location": "path",
+          "description": "Contact ID",
+          "required": true
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Max records"
+        }
+      ]
+    },
+    {
+      "name": "contacts_update",
+      "description": "Update a contact. Required: contact_id. Optional: last-name, first-name, email (plus 1 more). Returns the updated Contact.",
+      "method": "PATCH",
+      "path": "/contacts/{contact_id}",
+      "params": [
+        {
+          "name": "contact_id",
+          "type": "string",
+          "location": "path",
+          "description": "Contact ID",
+          "required": true
+        },
+        {
+          "name": "last-name",
+          "wire_name": "lastName",
+          "type": "string",
+          "location": "body",
+          "description": "Last name"
+        },
+        {
+          "name": "first-name",
+          "wire_name": "firstName",
+          "type": "string",
+          "location": "body",
+          "description": "First name"
+        },
+        {
+          "name": "email",
+          "type": "string",
+          "location": "body",
+          "description": "Email address"
+        },
+        {
+          "name": "phone",
+          "type": "string",
+          "location": "body",
+          "description": "Phone number"
+        }
+      ]
+    },
+    {
+      "name": "departments_get",
+      "description": "Get a department by ID. Required: department_id. Returns the Department.",
+      "method": "GET",
+      "path": "/departments/{department_id}",
+      "params": [
+        {
+          "name": "department_id",
+          "type": "string",
+          "location": "path",
+          "description": "Department ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "departments_list",
+      "description": "List departments. Optional: from (default: 1), limit (default: 100), enabled. Returns array of Department.",
+      "method": "GET",
+      "path": "/departments",
+      "params": [
+        {
+          "name": "from",
+          "type": "int",
+          "location": "query",
+          "description": "1-based start index"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Max records"
+        },
+        {
+          "name": "enabled",
+          "wire_name": "isEnabled",
+          "type": "bool",
+          "location": "query",
+          "description": "Filter by enabled state"
+        }
+      ]
+    },
+    {
+      "name": "organizations_accessible",
+      "description": "List all organizations accessible to the user. Returns array of Organization.",
+      "method": "GET",
+      "path": "/accessibleOrganizations",
+      "params": []
+    },
+    {
+      "name": "organizations_get",
+      "description": "Get one organization. Required: org_id. Returns the Organization.",
+      "method": "GET",
+      "path": "/organizations/{org_id}",
+      "params": [
+        {
+          "name": "org_id",
+          "type": "string",
+          "location": "path",
+          "description": "Organization (portal) ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "organizations_list",
+      "description": "List organizations the token can access. Returns array of Organization.",
+      "method": "GET",
+      "path": "/organizations",
+      "params": []
+    },
+    {
+      "name": "products_get",
+      "description": "Get a product by ID. Required: product_id. Returns the Product.",
+      "method": "GET",
+      "path": "/products/{product_id}",
+      "params": [
+        {
+          "name": "product_id",
+          "type": "string",
+          "location": "path",
+          "description": "Product ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "products_list",
+      "description": "List products. Optional: from (default: 1), limit (default: 100). Returns array of Product.",
+      "method": "GET",
+      "path": "/products",
+      "params": [
+        {
+          "name": "from",
+          "type": "int",
+          "location": "query",
+          "description": "1-based start index"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Max records"
+        }
+      ]
+    },
+    {
+      "name": "slas_list",
+      "description": "List SLAs. Returns array of SLA.",
+      "method": "GET",
+      "path": "/slas",
+      "params": []
+    },
+    {
+      "name": "tags_list",
+      "description": "List tags. Optional: module (default: tickets). Returns array of Tag.",
+      "method": "GET",
+      "path": "/tags",
+      "params": [
+        {
+          "name": "module",
+          "type": "string",
+          "location": "query",
+          "description": "Module to scope tags (tickets, contacts, accounts)"
+        }
+      ]
+    },
+    {
+      "name": "tasks_create",
+      "description": "Create a task. Required: subject, department-id. Optional: priority, due-date, assignee-id. Returns the new Task.",
+      "method": "POST",
+      "path": "/tasks",
+      "params": [
+        {
+          "name": "subject",
+          "type": "string",
+          "location": "body",
+          "description": "Task subject",
+          "required": true
+        },
+        {
+          "name": "department-id",
+          "wire_name": "departmentId",
+          "type": "string",
+          "location": "body",
+          "description": "Department ID",
+          "required": true
+        },
+        {
+          "name": "priority",
+          "type": "string",
+          "location": "body",
+          "description": "Priority"
+        },
+        {
+          "name": "due-date",
+          "wire_name": "dueDate",
+          "type": "string",
+          "location": "body",
+          "description": "Due date (ISO 8601)"
+        },
+        {
+          "name": "assignee-id",
+          "wire_name": "assigneeId",
+          "type": "string",
+          "location": "body",
+          "description": "Assignee agent ID"
+        }
+      ]
+    },
+    {
+      "name": "tasks_get",
+      "description": "Get a task by ID. Required: task_id. Returns the Task.",
+      "method": "GET",
+      "path": "/tasks/{task_id}",
+      "params": [
+        {
+          "name": "task_id",
+          "type": "string",
+          "location": "path",
+          "description": "Task ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "tasks_list",
+      "description": "List tasks. Optional: from (default: 1), limit (default: 100). Returns array of Task.",
+      "method": "GET",
+      "path": "/tasks",
+      "params": [
+        {
+          "name": "from",
+          "type": "int",
+          "location": "query",
+          "description": "1-based start index"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Max records"
+        }
+      ]
+    },
+    {
+      "name": "teams_agents",
+      "description": "List agents in a team. Required: team_id. Returns array of Agent.",
+      "method": "GET",
+      "path": "/teams/{team_id}/agents",
+      "params": [
+        {
+          "name": "team_id",
+          "type": "string",
+          "location": "path",
+          "description": "Team ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "teams_get",
+      "description": "Get a team by ID. Required: team_id. Returns the Team.",
+      "method": "GET",
+      "path": "/teams/{team_id}",
+      "params": [
+        {
+          "name": "team_id",
+          "type": "string",
+          "location": "path",
+          "description": "Team ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "teams_list",
+      "description": "List teams. Optional: department-id. Returns array of Team.",
+      "method": "GET",
+      "path": "/teams",
+      "params": [
+        {
+          "name": "department-id",
+          "wire_name": "departmentId",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by department ID"
+        }
+      ]
+    },
+    {
+      "name": "threads_get",
+      "description": "Get a thread's full content. Required: ticket_id, thread_id. Returns the Thread.",
+      "method": "GET",
+      "path": "/tickets/{ticket_id}/threads/{thread_id}",
+      "params": [
+        {
+          "name": "ticket_id",
+          "type": "string",
+          "location": "path",
+          "description": "Ticket ID",
+          "required": true
+        },
+        {
+          "name": "thread_id",
+          "type": "string",
+          "location": "path",
+          "description": "Thread ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "threads_latest",
+      "description": "Get the latest thread on a ticket. Required: ticket_id. Returns the Thread.",
+      "method": "GET",
+      "path": "/tickets/{ticket_id}/latestThread",
+      "params": [
+        {
+          "name": "ticket_id",
+          "type": "string",
+          "location": "path",
+          "description": "Ticket ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "threads_list",
+      "description": "List threads on a ticket. Required: ticket_id. Optional: limit (default: 100). Returns array of Thread.",
+      "method": "GET",
+      "path": "/tickets/{ticket_id}/threads",
+      "params": [
+        {
+          "name": "ticket_id",
+          "type": "string",
+          "location": "path",
+          "description": "Ticket ID",
+          "required": true
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Max records"
+        }
+      ]
+    },
+    {
+      "name": "ticketfields_list",
+      "description": "List ticket fields. Optional: department-id. Returns array of TicketField.",
+      "method": "GET",
+      "path": "/ticketFields",
+      "params": [
+        {
+          "name": "department-id",
+          "wire_name": "departmentId",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by department ID"
+        }
+      ]
+    },
+    {
+      "name": "tickets_close",
+      "description": "Close one or more tickets. Required: ids. Returns the new ActionResult.",
+      "method": "POST",
+      "path": "/closeTickets",
+      "params": [
+        {
+          "name": "ids",
+          "type": "string",
+          "location": "body",
+          "description": "Comma-separated ticket IDs to close",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "tickets_create",
+      "description": "Create a ticket. Required: subject, department-id, contact-id. Optional: description, priority, status (plus 2 more). Returns the new Ticket.",
+      "method": "POST",
+      "path": "/tickets",
+      "params": [
+        {
+          "name": "subject",
+          "type": "string",
+          "location": "body",
+          "description": "Ticket subject",
+          "required": true
+        },
+        {
+          "name": "department-id",
+          "wire_name": "departmentId",
+          "type": "string",
+          "location": "body",
+          "description": "Department ID",
+          "required": true
+        },
+        {
+          "name": "contact-id",
+          "wire_name": "contactId",
+          "type": "string",
+          "location": "body",
+          "description": "Contact ID",
+          "required": true
+        },
+        {
+          "name": "description",
+          "type": "string",
+          "location": "body",
+          "description": "Ticket description"
+        },
+        {
+          "name": "priority",
+          "type": "string",
+          "location": "body",
+          "description": "Priority (High, Medium, Low)"
+        },
+        {
+          "name": "status",
+          "type": "string",
+          "location": "body",
+          "description": "Status"
+        },
+        {
+          "name": "assignee-id",
+          "wire_name": "assigneeId",
+          "type": "string",
+          "location": "body",
+          "description": "Assignee agent ID"
+        },
+        {
+          "name": "channel",
+          "type": "string",
+          "location": "body",
+          "description": "Channel (Email, Phone, Web, Chat)"
+        }
+      ]
+    },
+    {
+      "name": "tickets_draft-reply",
+      "description": "Create a draft reply on a ticket. Required: ticket_id, content. Optional: channel (default: EMAIL). Returns the new Thread.",
+      "method": "POST",
+      "path": "/tickets/{ticket_id}/draftReply",
+      "params": [
+        {
+          "name": "ticket_id",
+          "type": "string",
+          "location": "path",
+          "description": "Ticket ID",
+          "required": true
+        },
+        {
+          "name": "content",
+          "type": "string",
+          "location": "body",
+          "description": "Draft reply body",
+          "required": true
+        },
+        {
+          "name": "channel",
+          "type": "string",
+          "location": "body",
+          "description": "Reply channel"
+        }
+      ]
+    },
+    {
+      "name": "tickets_get",
+      "description": "Get a ticket by ID. Required: ticket_id. Optional: include. Returns the Ticket.",
+      "method": "GET",
+      "path": "/tickets/{ticket_id}",
+      "params": [
+        {
+          "name": "ticket_id",
+          "type": "string",
+          "location": "path",
+          "description": "Ticket ID",
+          "required": true
+        },
+        {
+          "name": "include",
+          "type": "string",
+          "location": "query",
+          "description": "Comma list to embed (contacts,assignee,team,products)"
+        }
+      ]
+    },
+    {
+      "name": "tickets_history",
+      "description": "Get a ticket's history/audit trail. Required: ticket_id. Returns array of HistoryEntry.",
+      "method": "GET",
+      "path": "/tickets/{ticket_id}/History",
+      "params": [
+        {
+          "name": "ticket_id",
+          "type": "string",
+          "location": "path",
+          "description": "Ticket ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "tickets_list",
+      "description": "List tickets. Optional: from (default: 1), limit (default: 100), sort-by (plus 4 more). Returns array of Ticket.",
+      "method": "GET",
+      "path": "/tickets",
+      "params": [
+        {
+          "name": "from",
+          "type": "int",
+          "location": "query",
+          "description": "1-based start index"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Max records (max 100)"
+        },
+        {
+          "name": "sort-by",
+          "wire_name": "sortBy",
+          "type": "string",
+          "location": "query",
+          "description": "Sort field; prefix with - for descending (e.g. -modifiedTime)"
+        },
+        {
+          "name": "status",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by status (Open, Closed, On Hold, Escalated)"
+        },
+        {
+          "name": "department-id",
+          "wire_name": "departmentId",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by department ID"
+        },
+        {
+          "name": "assignee",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by assignee agent ID"
+        },
+        {
+          "name": "include",
+          "type": "string",
+          "location": "query",
+          "description": "Comma list to embed (contacts,assignee,department,team)"
+        }
+      ]
+    },
+    {
+      "name": "tickets_merge",
+      "description": "Merge other tickets into this one. Required: ticket_id, ids. Returns the new ActionResult.",
+      "method": "POST",
+      "path": "/tickets/{ticket_id}/merge",
+      "params": [
+        {
+          "name": "ticket_id",
+          "type": "string",
+          "location": "path",
+          "description": "Primary ticket ID (merge target)",
+          "required": true
+        },
+        {
+          "name": "ids",
+          "type": "string",
+          "location": "body",
+          "description": "Comma-separated secondary ticket IDs to merge in",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "tickets_metrics",
+      "description": "Get response/resolution time metrics for a ticket. Required: ticket_id. Returns the TicketMetrics.",
+      "method": "GET",
+      "path": "/tickets/{ticket_id}/metrics",
+      "params": [
+        {
+          "name": "ticket_id",
+          "type": "string",
+          "location": "path",
+          "description": "Ticket ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "tickets_send-reply",
+      "description": "Send a reply on a ticket. Required: ticket_id, content. Optional: content-type (default: html), channel (default: EMAIL), from-email (plus 1 more). Returns the new Thread.",
+      "method": "POST",
+      "path": "/tickets/{ticket_id}/sendReply",
+      "params": [
+        {
+          "name": "ticket_id",
+          "type": "string",
+          "location": "path",
+          "description": "Ticket ID",
+          "required": true
+        },
+        {
+          "name": "content",
+          "type": "string",
+          "location": "body",
+          "description": "Reply body (HTML or text)",
+          "required": true
+        },
+        {
+          "name": "content-type",
+          "wire_name": "contentType",
+          "type": "string",
+          "location": "body",
+          "description": "Content type (html or plainText)"
+        },
+        {
+          "name": "channel",
+          "type": "string",
+          "location": "body",
+          "description": "Reply channel"
+        },
+        {
+          "name": "from-email",
+          "wire_name": "fromEmailAddress",
+          "type": "string",
+          "location": "body",
+          "description": "From email address"
+        },
+        {
+          "name": "to",
+          "type": "string",
+          "location": "body",
+          "description": "Recipient email address"
+        }
+      ]
+    },
+    {
+      "name": "tickets_update",
+      "description": "Update a ticket. Required: ticket_id. Optional: subject, status, priority (plus 2 more). Returns the updated Ticket.",
+      "method": "PATCH",
+      "path": "/tickets/{ticket_id}",
+      "params": [
+        {
+          "name": "ticket_id",
+          "type": "string",
+          "location": "path",
+          "description": "Ticket ID",
+          "required": true
+        },
+        {
+          "name": "subject",
+          "type": "string",
+          "location": "body",
+          "description": "Ticket subject"
+        },
+        {
+          "name": "status",
+          "type": "string",
+          "location": "body",
+          "description": "Status (Open, Closed, On Hold, Escalated)"
+        },
+        {
+          "name": "priority",
+          "type": "string",
+          "location": "body",
+          "description": "Priority"
+        },
+        {
+          "name": "assignee-id",
+          "wire_name": "assigneeId",
+          "type": "string",
+          "location": "body",
+          "description": "Assignee agent ID"
+        },
+        {
+          "name": "department-id",
+          "wire_name": "departmentId",
+          "type": "string",
+          "location": "body",
+          "description": "Department ID"
+        }
+      ]
+    },
+    {
+      "name": "tickets_search_tickets",
+      "description": "Search tickets by criteria. Optional: query, from (default: 1), limit (default: 100) (plus 2 more). Returns array of Ticket.",
+      "method": "GET",
+      "path": "/tickets/search",
+      "params": [
+        {
+          "name": "query",
+          "wire_name": "searchStr",
+          "type": "string",
+          "location": "query",
+          "description": "Search string"
+        },
+        {
+          "name": "from",
+          "type": "int",
+          "location": "query",
+          "description": "1-based start index"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Max records"
+        },
+        {
+          "name": "status",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by status"
+        },
+        {
+          "name": "priority",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by priority"
+        }
+      ]
+    },
+    {
+      "name": "timeentries_create",
+      "description": "Add a time entry to a ticket. Required: ticket_id, executed-time. Optional: hours, agent-id. Returns the new TimeEntry.",
+      "method": "POST",
+      "path": "/tickets/{ticket_id}/timeEntry",
+      "params": [
+        {
+          "name": "ticket_id",
+          "type": "string",
+          "location": "path",
+          "description": "Ticket ID",
+          "required": true
+        },
+        {
+          "name": "executed-time",
+          "wire_name": "executedTime",
+          "type": "string",
+          "location": "body",
+          "description": "When the work was done (ISO 8601)",
+          "required": true
+        },
+        {
+          "name": "hours",
+          "type": "string",
+          "location": "body",
+          "description": "Hours spent (e.g. 1.5)"
+        },
+        {
+          "name": "agent-id",
+          "wire_name": "agentId",
+          "type": "string",
+          "location": "body",
+          "description": "Agent who logged the time"
+        }
+      ]
+    },
+    {
+      "name": "timeentries_list",
+      "description": "List time entries on a ticket. Required: ticket_id. Returns array of TimeEntry.",
+      "method": "GET",
+      "path": "/tickets/{ticket_id}/timeEntry",
+      "params": [
+        {
+          "name": "ticket_id",
+          "type": "string",
+          "location": "path",
+          "description": "Ticket ID",
+          "required": true
+        }
+      ]
+    }
+  ]
+}

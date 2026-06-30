@@ -1,0 +1,271 @@
+{
+  "api_name": "zoho-desk",
+  "novelty_score": 0,
+  "alternatives": [
+    {
+      "name": "thomas-kl1/php-sdk-zoho-desk",
+      "url": "https://github.com/thomas-kl1/php-sdk-zoho-desk",
+      "language": "PHP",
+      "install_method": "",
+      "stars": 6,
+      "last_updated": "",
+      "command_count": 6,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "Trifoia/zoho-desk-sdk",
+      "url": "https://github.com/Trifoia/zoho-desk-sdk",
+      "language": "JavaScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 4,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-06-29T10:50:00Z",
+  "novel_features": [
+    {
+      "name": "SLA breach forecast",
+      "command": "sla-radar",
+      "description": "See which open tickets will breach SLA in the next N hours, ranked by time-to-due, before they breach.",
+      "rationale": "The API only filters already-breached tickets; forecasting needs local dueDate math and ranking across every synced ticket.",
+      "example": "zoho-desk-pp-cli sla-radar --within 2h --agent",
+      "why_it_matters": "Reach for this to act before a breach instead of reporting one after.",
+      "group": "Local analytics no UI exposes"
+    },
+    {
+      "name": "Weighted agent load",
+      "command": "agent-load",
+      "description": "See which agents are actually overloaded right now, weighting open tickets by priority and age versus the team median.",
+      "rationale": "Requires a cross-agent GROUP BY aggregation that no single Desk API endpoint provides.",
+      "example": "zoho-desk-pp-cli agent-load --weighted --agent",
+      "why_it_matters": "Use before reassigning work to find the real bottleneck, not just raw counts.",
+      "group": "Local analytics no UI exposes"
+    },
+    {
+      "name": "Composite triage queue",
+      "command": "triage",
+      "description": "One ranked queue merging unassigned, overdue, and high-priority tickets with a combined score.",
+      "rationale": "A union of three conditions with scoring is not expressible as a single API filter.",
+      "example": "zoho-desk-pp-cli triage --limit 20 --agent",
+      "why_it_matters": "Start the day here: the single list of what needs attention first.",
+      "group": "Local analytics no UI exposes"
+    },
+    {
+      "name": "Overnight changes",
+      "command": "since",
+      "description": "Every ticket modified within a time window, with its current status, priority, and assignee, sorted most-recent first.",
+      "rationale": "A modifiedTime-windowed scan across every synced ticket; the API has no across-tickets recent-activity endpoint.",
+      "example": "zoho-desk-pp-cli since 12h --agent",
+      "why_it_matters": "Use to catch up on what moved while you were away.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Contact 360",
+      "command": "contact-360",
+      "description": "Everything about one customer in one view: their contact record, account, and every ticket with status and priority.",
+      "rationale": "A three-table local join (contacts, accounts, tickets) keyed on a contact email, served offline.",
+      "example": "zoho-desk-pp-cli contact-360 PII_EMAIL_EXAMPLE --agent",
+      "why_it_matters": "Use before a call to load full customer context in one command.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Morning dashboard",
+      "command": "morning",
+      "description": "A single brief composing breach forecast, agent load, and overnight changes.",
+      "rationale": "Pure local orchestration of three queries into one scriptable summary.",
+      "example": "zoho-desk-pp-cli morning --agent",
+      "why_it_matters": "The one command to run at the start of a shift.",
+      "group": "Local analytics no UI exposes"
+    },
+    {
+      "name": "Rebalance planner",
+      "command": "rebalance",
+      "description": "Proposes ticket moves from overloaded agents to idle ones, then optionally applies them in bulk.",
+      "rationale": "Local load optimization producing a move plan, then batched API writes.",
+      "example": "zoho-desk-pp-cli rebalance --plan --agent",
+      "why_it_matters": "Use to even out queues without hand-picking each reassignment.",
+      "group": "Local analytics no UI exposes"
+    },
+    {
+      "name": "Breach history",
+      "command": "breach-history",
+      "description": "Who breached SLA and the trend, grouped by agent or department.",
+      "rationale": "Historical SLA aggregation and trend the API does not compute.",
+      "example": "zoho-desk-pp-cli breach-history --by agent --agent",
+      "why_it_matters": "Use for retrospective SLA accountability.",
+      "group": "Local analytics no UI exposes"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "SLA breach forecast",
+      "command": "sla-radar",
+      "description": "See which open tickets will breach SLA in the next N hours, ranked by time-to-due, before they breach.",
+      "rationale": "The API only filters already-breached tickets; forecasting needs local dueDate math and ranking across every synced ticket.",
+      "example": "zoho-desk-pp-cli sla-radar --within 2h --agent",
+      "why_it_matters": "Reach for this to act before a breach instead of reporting one after.",
+      "group": "Local analytics no UI exposes"
+    },
+    {
+      "name": "Weighted agent load",
+      "command": "agent-load",
+      "description": "See which agents are actually overloaded right now, weighting open tickets by priority and age versus the team median.",
+      "rationale": "Requires a cross-agent GROUP BY aggregation that no single Desk API endpoint provides.",
+      "example": "zoho-desk-pp-cli agent-load --weighted --agent",
+      "why_it_matters": "Use before reassigning work to find the real bottleneck, not just raw counts.",
+      "group": "Local analytics no UI exposes"
+    },
+    {
+      "name": "Composite triage queue",
+      "command": "triage",
+      "description": "One ranked queue merging unassigned, overdue, and high-priority tickets with a combined score.",
+      "rationale": "A union of three conditions with scoring is not expressible as a single API filter.",
+      "example": "zoho-desk-pp-cli triage --limit 20 --agent",
+      "why_it_matters": "Start the day here: the single list of what needs attention first.",
+      "group": "Local analytics no UI exposes"
+    },
+    {
+      "name": "Overnight changes",
+      "command": "since",
+      "description": "Every ticket modified within a time window, with its current status, priority, and assignee, sorted most-recent first.",
+      "rationale": "A modifiedTime-windowed scan across every synced ticket; the API has no across-tickets recent-activity endpoint.",
+      "example": "zoho-desk-pp-cli since 12h --agent",
+      "why_it_matters": "Use to catch up on what moved while you were away.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Contact 360",
+      "command": "contact-360",
+      "description": "Everything about one customer in one view: their contact record, account, and every ticket with status and priority.",
+      "rationale": "A three-table local join (contacts, accounts, tickets) keyed on a contact email, served offline.",
+      "example": "zoho-desk-pp-cli contact-360 PII_EMAIL_EXAMPLE --agent",
+      "why_it_matters": "Use before a call to load full customer context in one command.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Morning dashboard",
+      "command": "morning",
+      "description": "A single brief composing breach forecast, agent load, and overnight changes.",
+      "rationale": "Pure local orchestration of three queries into one scriptable summary.",
+      "example": "zoho-desk-pp-cli morning --agent",
+      "why_it_matters": "The one command to run at the start of a shift.",
+      "group": "Local analytics no UI exposes"
+    },
+    {
+      "name": "Rebalance planner",
+      "command": "rebalance",
+      "description": "Proposes ticket moves from overloaded agents to idle ones, then optionally applies them in bulk.",
+      "rationale": "Local load optimization producing a move plan, then batched API writes.",
+      "example": "zoho-desk-pp-cli rebalance --plan --agent",
+      "why_it_matters": "Use to even out queues without hand-picking each reassignment.",
+      "group": "Local analytics no UI exposes"
+    },
+    {
+      "name": "Breach history",
+      "command": "breach-history",
+      "description": "Who breached SLA and the trend, grouped by agent or department.",
+      "rationale": "Historical SLA aggregation and trend the API does not compute.",
+      "example": "zoho-desk-pp-cli breach-history --by agent --agent",
+      "why_it_matters": "Use for retrospective SLA accountability.",
+      "group": "Local analytics no UI exposes"
+    }
+  ],
+  "auth": {
+    "canonical_env_var": "ZOHO_DESK_REFRESH_TOKEN"
+  },
+  "narrative": {
+    "display_name": "Zoho Desk",
+    "headline": "The only scriptable, agent-native CLI for Zoho Desk: every ticket operation plus a local SQLite store, offline search, and SLA/triage analytics no help-desk tool ships.",
+    "value_prop": "Manage tickets, contacts, accounts, and agents from the command line with automatic OAuth token refresh, multi-data-center handling, and auto-pagination with 429 backoff. Then go beyond the API: sla-radar forecasts breaches before they happen, agent-load finds the real bottleneck, triage builds one ranked queue, and morning composes your whole shift brief.",
+    "auth_narrative": "Zoho Desk uses OAuth2 with a permanent refresh token and 1-hour access tokens. Register a self-client at api-console.zoho.com, grant Desk scopes, and exchange the code for a refresh token. Set ZOHO_DESK_CLIENT_ID, ZOHO_DESK_CLIENT_SECRET, and ZOHO_DESK_REFRESH_TOKEN; the CLI refreshes access tokens automatically. Every call also needs your orgId (run 'organizations list' to find it) and the right data center.",
+    "quickstart": [
+      {
+        "command": "zoho-desk-pp-cli doctor --dry-run",
+        "comment": "Check config and reachability before anything else"
+      },
+      {
+        "command": "zoho-desk-pp-cli organizations list --json",
+        "comment": "Find your orgId (required on every other call)"
+      },
+      {
+        "command": "zoho-desk-pp-cli sync --json",
+        "comment": "Pull tickets/contacts/agents into the local store"
+      },
+      {
+        "command": "zoho-desk-pp-cli triage --limit 20 --agent",
+        "comment": "See the ranked queue of what needs attention first"
+      },
+      {
+        "command": "zoho-desk-pp-cli sla-radar --within 2h --agent",
+        "comment": "Catch tickets about to breach SLA"
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "INVALID_OAUTH or 401 on every call",
+        "fix": "orgId is missing or belongs to a different portal than your token. Run 'organizations list' and set the right orgId."
+      },
+      {
+        "symptom": "invalid_client when refreshing the token",
+        "fix": "Your accounts data center does not match where the client was registered. Set the correct --dc / ZOHO_DC."
+      },
+      {
+        "symptom": "429 TOO_MANY_REQUESTS",
+        "fix": "You hit the concurrency or daily credit cap. The CLI honors Retry-After and backs off; lower --concurrency or wait."
+      },
+      {
+        "symptom": "List returns only 100 records",
+        "fix": "Lists cap at 100 per page. Use 'sync' (auto-paginates) or raise --from to page through."
+      }
+    ],
+    "when_to_use": "Reach for this CLI when you need to script or automate Zoho Desk: bulk ticket operations, scheduled exports, cross-ticket analytics, SLA monitoring, or feeding ticket data to an agent. It is the right tool when the web UI is too slow or cannot express the query, and when you want offline, pipeable, JSON output.",
+    "anti_triggers": [
+      "Do not use for end-user ticket submission portals; use the customer-facing Help Center.",
+      "Do not use for Zoho CRM, Books, or other Zoho products; this is Desk-only.",
+      "Do not use for real-time chat/IM; Desk threads are async email-style conversations."
+    ],
+    "recipes": [
+      {
+        "title": "Morning shift brief",
+        "command": "zoho-desk-pp-cli morning --agent",
+        "explanation": "One command: breach forecast, agent load, and overnight changes."
+      },
+      {
+        "title": "Rebalance an overloaded queue",
+        "command": "zoho-desk-pp-cli rebalance --plan --agent",
+        "explanation": "See proposed moves from overloaded agents to idle ones before applying."
+      },
+      {
+        "title": "Customer context before a call",
+        "command": "zoho-desk-pp-cli contact-360 PII_EMAIL_EXAMPLE --agent",
+        "explanation": "All tickets and account for one customer."
+      },
+      {
+        "title": "Narrow a large ticket list",
+        "command": "zoho-desk-pp-cli tickets list --status Open --limit 50 --agent --select data.id,data.subject,data.status,data.assigneeId",
+        "explanation": "Ticket payloads are large; --select with dotted paths returns only the fields you need."
+      },
+      {
+        "title": "Find forgotten tickets",
+        "command": "zoho-desk-pp-cli stale --days 5 --agent",
+        "explanation": "Tickets with no update in 5 days."
+      }
+    ],
+    "trigger_phrases": [
+      "triage my zoho desk tickets",
+      "which agents are overloaded",
+      "tickets about to breach SLA",
+      "what changed on my tickets overnight",
+      "look up this customer in zoho desk",
+      "use zoho-desk",
+      "run zoho-desk"
+    ]
+  }
+}

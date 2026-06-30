@@ -1,0 +1,246 @@
+{
+  "dir": "C:/Users/kentr/printing-press/.runstate/obsidian-vault-03dfa09f/runs/20260629-104323/working/zoho-desk-pp-cli",
+  "binary": "C:\\Users\\kentr\\printing-press\\.runstate\\obsidian-vault-03dfa09f\\runs\\20260629-104323\\working\\zoho-desk-pp-cli\\zoho-desk-pp-cli",
+  "level": "quick",
+  "verdict": "PASS",
+  "matrix_size": 13,
+  "passed": 13,
+  "failed": 0,
+  "skipped": 11,
+  "commands": [
+    "accounts contacts",
+    "agent-load",
+    "agents count",
+    "analytics",
+    "api",
+    "articles get"
+  ],
+  "tests": [
+    {
+      "command": "accounts contacts",
+      "kind": "help",
+      "args": [
+        "accounts",
+        "contacts",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "List contacts for an account\n\nUsage:\n  zoho-desk-pp-cli accounts contacts \u003caccount_id\u003e [flags]\n\nExamples:\n  zoho-desk-pp-cli accounts contacts 550e8400-e29b-41d4-a716-446655440000\n\nFlags:\n  -h, --help        help for contacts\n      --limit int   Max records (default 100)\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --ignore-missing          Treat missing delete targets as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'zoho-desk-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "accounts contacts",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "blocked-fixture: required API parameter"
+    },
+    {
+      "command": "accounts contacts",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "blocked-fixture: required API parameter"
+    },
+    {
+      "command": "accounts contacts",
+      "kind": "error_path",
+      "args": [
+        "accounts",
+        "contacts",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 3,
+      "output_sample": "Error: GET /accounts/__printing_press_invalid__/contacts returned HTTP 404: {\"errorCode\":\"URL_NOT_FOUND\",\"message\":\"The URL you requested could not be found.\"}\nhint: resource not found. Run the 'list' command to see available items\n"
+    },
+    {
+      "command": "agent-load",
+      "kind": "help",
+      "args": [
+        "agent-load",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "See which agents are actually overloaded right now, weighting open tickets by priority and age versus the team median.\n\nUsage:\n  zoho-desk-pp-cli agent-load [flags]\n\nExamples:\n  zoho-desk-pp-cli agent-load --weighted --json\n\nFlags:\n      --db string   SQLite database file path\n  -h, --help        help for agent-load\n      --weighted    Weight open tickets by priority and age instead of a plain count\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --ignore-missing          Treat missing delete targets as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'zoho-desk-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "agent-load",
+      "kind": "happy_path",
+      "args": [
+        "agent-load",
+        "--weighted",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"weighted\": true,\n  \"median\": 0,\n  \"count\": 0,\n  \"scanned_tickets\": 0,\n  \"agents\": []\n}\n"
+    },
+    {
+      "command": "agent-load",
+      "kind": "json_fidelity",
+      "args": [
+        "agent-load",
+        "--weighted",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"weighted\": true,\n  \"median\": 0,\n  \"count\": 0,\n  \"scanned_tickets\": 0,\n  \"agents\": []\n}\n"
+    },
+    {
+      "command": "agent-load",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "agents count",
+      "kind": "help",
+      "args": [
+        "agents",
+        "count",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Get total agent count\n\nUsage:\n  zoho-desk-pp-cli agents count [flags]\n\nExamples:\n  zoho-desk-pp-cli agents count\n\nFlags:\n  -h, --help   help for count\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --ignore-missing          Treat missing delete targets as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'zoho-desk-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "agents count",
+      "kind": "happy_path",
+      "args": [
+        "agents",
+        "count"
+      ],
+      "status": "skip",
+      "exit_code": 4,
+      "reason": "unavailable for runner credentials",
+      "output_sample": "Error: GET /agents/count returned HTTP 401: {\"errorCode\":\"UNAUTHORIZED\",\"message\":\"You are not authenticated to perform this operation.\"}\nhint: check your API credentials. Run 'zoho-desk-pp-cli auth setup' for credential setup steps.\n      Run 'zoho-desk-pp-cli doctor' to check auth status.\n"
+    },
+    {
+      "command": "agents count",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "unavailable for runner credentials"
+    },
+    {
+      "command": "agents count",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "analytics",
+      "kind": "help",
+      "args": [
+        "analytics",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Analyze locally synced data with count, group-by, and summary operations.\nData must be synced first with the sync command.\n\nUsage:\n  zoho-desk-pp-cli analytics [flags]\n\nExamples:\n  # Count records by type\n  zoho-desk-pp-cli analytics --type messages\n\n  # Group by a field\n  zoho-desk-pp-cli analytics --type messages --group-by author_id\n\n  # Top 10 most frequent values\n  zoho-desk-pp-cli analytics --type messages --group-by channel_id --limit 10 --json\n\nFlags:\n      --db string         SQLite database file path (default: resolved data directory data.db)\n      --group-by string   Field to group by\n  -h, --help              help for analytics\n      --limit int         Max groups to show (default 25)\n      --type string       Resource type to analyze\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --ignore-missing          Treat missing delete targets as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'zoho-desk-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "analytics",
+      "kind": "happy_path",
+      "args": [
+        "analytics",
+        "--type",
+        "messages"
+      ],
+      "status": "pass",
+      "output_sample": "messages: 0 records\nhint: local store has not been synced yet. Run 'zoho-desk-pp-cli sync' before trusting local results.\n"
+    },
+    {
+      "command": "analytics",
+      "kind": "json_fidelity",
+      "args": [
+        "analytics",
+        "--type",
+        "messages",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"count\": 0,\n  \"resource_type\": \"messages\"\n}\nhint: local store has not been synced yet. Run 'zoho-desk-pp-cli sync' before trusting local results.\n"
+    },
+    {
+      "command": "analytics",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "api",
+      "kind": "help",
+      "args": [
+        "api",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Browse and call any API endpoint using the raw interface names.\n\nThe friendly top-level commands cover the most common operations.\nThis command provides access to ALL endpoints for power users and\nagents that need full API coverage.\n\nRun 'api' with no arguments to list all interfaces.\nRun 'api \u003cinterface\u003e' to see that interface's methods.\n\nUsage:\n  zoho-desk-pp-cli api [interface] [flags]\n\nExamples:\n  # List all available interfaces\n  zoho-desk-pp-cli api\n\n  # Show methods for a specific interface\n  zoho-desk-pp-cli api \u003cinterface-name\u003e\n\nFlags:\n  -h, --help   help for api\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --ignore-missing          Treat missing delete targets as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'zoho-desk-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "api",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [api] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "api",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [api] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "api",
+      "kind": "error_path",
+      "args": [
+        "api",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "Error: interface \"__printing_press_invalid__\" not found. Run 'zoho-desk-pp-cli api' to list all interfaces\n"
+    },
+    {
+      "command": "articles get",
+      "kind": "help",
+      "args": [
+        "articles",
+        "get",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Get a KB article by ID\n\nUsage:\n  zoho-desk-pp-cli articles get \u003carticle_id\u003e [flags]\n\nExamples:\n  zoho-desk-pp-cli articles get 550e8400-e29b-41d4-a716-446655440000\n\nFlags:\n  -h, --help   help for get\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --ignore-missing          Treat missing delete targets as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'zoho-desk-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "articles get",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "blocked-fixture: required API parameter"
+    },
+    {
+      "command": "articles get",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "blocked-fixture: required API parameter"
+    },
+    {
+      "command": "articles get",
+      "kind": "error_path",
+      "args": [
+        "articles",
+        "get",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 3,
+      "output_sample": "Error: GET /articles/__printing_press_invalid__ returned HTTP 404: {\"errorCode\":\"URL_NOT_FOUND\",\"message\":\"The URL you requested could not be found.\"}\nhint: resource not found. Run the 'list' command to see available items\n"
+    }
+  ],
+  "ran_at": "2026-06-29T19:35:32.2057993Z"
+}

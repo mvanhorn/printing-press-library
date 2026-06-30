@@ -1,0 +1,72 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-06-29T19:50:02.0692605Z",
+  "printing_press_version": "4.27.0",
+  "api_name": "zoho-desk",
+  "display_name": "Zoho Desk",
+  "cli_name": "zoho-desk-pp-cli",
+  "contributors": null,
+  "printer": "kentrichardmartin",
+  "printer_name": "Kent Martin",
+  "spec_format": "internal",
+  "spec_checksum": "sha256:ad531ac72a405f49aeb7b1f6e18598f9c2aa12a77e297f54fbbf69e770945508",
+  "run_id": "20260629-104323",
+  "category": "sales-and-crm",
+  "description": "The only scriptable, agent-native CLI for Zoho Desk: every ticket operation plus a local SQLite store, offline search, and SLA/triage analytics no help-desk tool ships.",
+  "mcp_binary": "zoho-desk-pp-mcp",
+  "mcp_tool_count": 52,
+  "mcp_ready": "full",
+  "api_version": "0.1.0",
+  "auth_type": "oauth2_refresh",
+  "auth_env_vars": [
+    "ZOHO_DESK_CLIENT_ID",
+    "ZOHO_DESK_CLIENT_SECRET",
+    "ZOHO_DESK_REFRESH_TOKEN"
+  ],
+  "novel_features": [
+    {
+      "name": "SLA breach forecast",
+      "command": "sla-radar",
+      "description": "See which open tickets will breach SLA in the next N hours, ranked by time-to-due, before they breach."
+    },
+    {
+      "name": "Weighted agent load",
+      "command": "agent-load",
+      "description": "See which agents are actually overloaded right now, weighting open tickets by priority and age versus the team median."
+    },
+    {
+      "name": "Composite triage queue",
+      "command": "triage",
+      "description": "One ranked queue merging unassigned, overdue, and high-priority tickets with a combined score."
+    },
+    {
+      "name": "Overnight changes",
+      "command": "since",
+      "description": "Every ticket modified within a time window, with its current status, priority, and assignee, sorted most-recent first."
+    },
+    {
+      "name": "Contact 360",
+      "command": "contact-360",
+      "description": "Everything about one customer in one view: their contact record, account, and every ticket with status and priority."
+    },
+    {
+      "name": "Morning dashboard",
+      "command": "morning",
+      "description": "A single brief composing breach forecast, agent load, and overnight changes."
+    },
+    {
+      "name": "Rebalance planner",
+      "command": "rebalance",
+      "description": "Proposes ticket moves from overloaded agents to idle ones, then optionally applies them in bulk."
+    },
+    {
+      "name": "Breach history",
+      "command": "breach-history",
+      "description": "Who breached SLA and the trend, grouped by agent or department."
+    }
+  ],
+  "creator": {
+    "handle": "kentrichardmartin",
+    "name": "Kent Martin"
+  }
+}
