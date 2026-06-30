@@ -1,0 +1,39 @@
+{
+  "manifest_version": "0.3",
+  "name": "bmw-cardata-pp-mcp",
+  "display_name": "BMW CarData",
+  "version": "0.0.0",
+  "description": "Your BMW's telemetry, on the command line — device-code login, live telematic snapshots, charging history, and a local SQLite store that turns raw VSS data into trends, cost, and fleet insight no other tool gives you.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/bmw-cardata-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/bmw-cardata-pp-mcp",
+      "args": [],
+      "env": {
+        "BMW_CARDATA_ACCESS_TOKEN": "${user_config.bmw_cardata_access_token}"
+      }
+    }
+  },
+  "user_config": {
+    "bmw_cardata_access_token": {
+      "type": "string",
+      "title": "BMW_CARDATA_ACCESS_TOKEN",
+      "description": "Sets BMW_CARDATA_ACCESS_TOKEN for the BMW CarData MCP server.",
+      "sensitive": true,
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

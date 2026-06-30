@@ -1,0 +1,2476 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "CARDATA API",
+    "version": "1.0.0",
+    "description": "BMW CarData customer REST API. Authenticate with a GCDM bearer access token (opaque) obtained via the OAuth2 Device Authorization Grant with PKCE (S256) against customer.bmwgroup.com/gcdm/oauth. Every request requires header x-version: v1 and Authorization: Bearer <token>. Generate a client_id once in the BMW CarData portal; set BMW_CARDATA_ACCESS_TOKEN for the token and BMW_CARDATA_CLIENT_ID for the device-code onboarding."
+  },
+  "servers": [
+    {
+      "url": "https://api-cardata.bmwgroup.com",
+      "description": "Generated server url"
+    }
+  ],
+  "tags": [
+    {
+      "name": "Containers",
+      "description": "Management of containers"
+    },
+    {
+      "name": "Vehicles",
+      "description": "Access vehicle data and information"
+    }
+  ],
+  "paths": {
+    "/customers/containers": {
+      "get": {
+        "tags": [
+          "Containers"
+        ],
+        "summary": "List the containers",
+        "operationId": "listContainers",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "x-version",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "default": "v1"
+            }
+          }
+        ],
+        "responses": {
+          "400": {
+            "description": "Bad request. Please check API specification",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomerErrorResponse"
+                }
+              },
+              "application/xml": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomerErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication Failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomerErrorResponse"
+                }
+              },
+              "application/xml": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomerErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Access to resource is forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomerErrorResponse"
+                }
+              },
+              "application/xml": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomerErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomerErrorResponse"
+                }
+              },
+              "application/xml": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomerErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "A permanent server error occurred. Report this error if it occurs",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomerErrorResponse"
+                }
+              },
+              "application/xml": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomerErrorResponse"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "A temporary server error occurred. Retry again later or report this error if it persists.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomerErrorResponse"
+                }
+              },
+              "application/xml": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomerErrorResponse"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "List of available containers is returned",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ContainerListDto"
+                }
+              },
+              "application/xml": {
+                "schema": {
+                  "$ref": "#/components/schemas/ContainerListDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      },
+      "post": {
+        "tags": [
+          "Containers"
+        ],
+        "summary": "Create a container",
+        "operationId": "createContainer",
+        "description": "Please note that some keys are bound to dedicated endpoints. These keys can be added to a container, but the corresponding endpoint for which the container is an input-parameter (/telematicData/), won't return these keys. For further details, check the Integration Guide (chapter 3.3.2).",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "x-version",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "default": "v1"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateContainerRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "400": {
+            "description": "Bad request. Please check API specification",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomerErrorResponse"
+                }
+              },
+              "application/xml": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomerErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication Failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomerErrorResponse"
+                }
+              },
+              "application/xml": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomerErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Access to resource is forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomerErrorResponse"
+                }
+              },
+              "application/xml": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomerErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomerErrorResponse"
+                }
+              },
+              "application/xml": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomerErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "A permanent server error occurred. Report this error if it occurs",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomerErrorResponse"
+                }
+              },
+              "application/xml": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomerErrorResponse"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "A temporary server error occurred. Retry again later or report this error if it persists.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomerErrorResponse"
+                }
+              },
+              "application/xml": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomerErrorResponse"
+                }
+              }
+            }
+          },
+          "201": {
+            "description": "Successful operation.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ContainerDetailsDto"
+                }
+              },
+              "application/xml": {
+                "schema": {
+                  "$ref": "#/components/schemas/ContainerDetailsDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/customers/vehicles/{vin}/telematicData": {
+      "get": {
+        "tags": [
+          "Vehicles"
+        ],
+        "summary": "Request Vehicle's telematic data for a container, for the specified vehicle.",
+        "operationId": "getTelematicData",
+        "description": "Please note that some keys are bound to dedicated endpoints. These keys can be added to a container, but the corresponding endpoint for which the container is an input-parameter (/telematicData/), won't return these keys. For further details, check the Integration Guide (chapter 3.3.2).",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "x-version",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "default": "v1"
+            }
+          },
+          {
+            "name": "vin",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "containerId",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "400": {
+            "description": "Bad request. Please check API specification",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomerErrorResponse"
+                }
+              },
+              "application/xml": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomerErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication Failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomerErrorResponse"
+                }
+              },
+              "application/xml": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomerErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Access to resource is forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomerErrorResponse"
+                }
+              },
+              "application/xml": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomerErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomerErrorResponse"
+                }
+              },
+              "application/xml": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomerErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "A permanent server error occurred. Report this error if it occurs",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomerErrorResponse"
+                }
+              },
+              "application/xml": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomerErrorResponse"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "A temporary server error occurred. Retry again later or report this error if it persists.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomerErrorResponse"
+                }
+              },
+              "application/xml": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomerErrorResponse"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "A specific list of telematic key and values was returned.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExVeTelematicDataResponseDto"
+                }
+              },
+              "application/xml": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExVeTelematicDataResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/customers/vehicles/{vin}/smartMaintenanceTyreDiagnosis": {
+      "get": {
+        "tags": [
+          "Vehicles"
+        ],
+        "summary": "Request a vehicle Smart Maintenance Tyre Diagnosis for the specified vehicle.",
+        "operationId": "getSmartMaintenanceTyreDiagnosis",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "x-version",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "default": "v1"
+            }
+          },
+          {
+            "name": "vin",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "400": {
+            "description": "Bad request. Please check API specification",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomerErrorResponse"
+                }
+              },
+              "application/xml": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomerErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication Failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomerErrorResponse"
+                }
+              },
+              "application/xml": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomerErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Access to resource is forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomerErrorResponse"
+                }
+              },
+              "application/xml": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomerErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomerErrorResponse"
+                }
+              },
+              "application/xml": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomerErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "A permanent server error occurred. Report this error if it occurs",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomerErrorResponse"
+                }
+              },
+              "application/xml": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomerErrorResponse"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "A temporary server error occurred. Retry again later or report this error if it persists.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomerErrorResponse"
+                }
+              },
+              "application/xml": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomerErrorResponse"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "Specific vehicle Smart Maintenance Tyre Diagnosis Data is provided",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SmartMaintenanceTyreDiagnosisDto"
+                }
+              },
+              "application/xml": {
+                "schema": {
+                  "$ref": "#/components/schemas/SmartMaintenanceTyreDiagnosisDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/customers/vehicles/{vin}/locationBasedChargingSettings": {
+      "get": {
+        "tags": [
+          "Vehicles"
+        ],
+        "summary": "Request Vehicle's location based charging settings",
+        "operationId": "getLocationBasedChargingSettings",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "x-version",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "default": "v1"
+            }
+          },
+          {
+            "name": "vin",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "nextToken",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "400": {
+            "description": "Bad request. Please check API specification",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomerErrorResponse"
+                }
+              },
+              "application/xml": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomerErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication Failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomerErrorResponse"
+                }
+              },
+              "application/xml": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomerErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Access to resource is forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomerErrorResponse"
+                }
+              },
+              "application/xml": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomerErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomerErrorResponse"
+                }
+              },
+              "application/xml": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomerErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "A permanent server error occurred. Report this error if it occurs",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomerErrorResponse"
+                }
+              },
+              "application/xml": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomerErrorResponse"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "A temporary server error occurred. Retry again later or report this error if it persists.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomerErrorResponse"
+                }
+              },
+              "application/xml": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomerErrorResponse"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "List of location based charging settings returned for the VIN.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LocationBasedChargingSettingsDto"
+                }
+              },
+              "application/xml": {
+                "schema": {
+                  "$ref": "#/components/schemas/LocationBasedChargingSettingsDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/customers/vehicles/{vin}/image": {
+      "get": {
+        "tags": [
+          "Vehicles"
+        ],
+        "summary": "Request a vehicle image for the specified vehicle.",
+        "operationId": "getImage",
+        "produces": [
+          "image/png,image/jpeg,application/json"
+        ],
+        "parameters": [
+          {
+            "in": "header",
+            "name": "x-version",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "default": "v1"
+            }
+          },
+          {
+            "name": "vin",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "400": {
+            "description": "Bad request. Please check API specification",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomerErrorResponse"
+                }
+              },
+              "application/xml": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomerErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication Failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomerErrorResponse"
+                }
+              },
+              "application/xml": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomerErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Access to resource is forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomerErrorResponse"
+                }
+              },
+              "application/xml": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomerErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomerErrorResponse"
+                }
+              },
+              "application/xml": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomerErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "A permanent server error occurred. Report this error if it occurs",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomerErrorResponse"
+                }
+              },
+              "application/xml": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomerErrorResponse"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "A temporary server error occurred. Retry again later or report this error if it persists.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomerErrorResponse"
+                }
+              },
+              "application/xml": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomerErrorResponse"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "A specific vehicle image is provided",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "file"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/customers/vehicles/{vin}/chargingHistory": {
+      "get": {
+        "tags": [
+          "Vehicles"
+        ],
+        "summary": "Request the vehicle's Charging History sessions.",
+        "operationId": "getChargingHistory",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "x-version",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "default": "v1"
+            }
+          },
+          {
+            "name": "vin",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "nextToken",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "from",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
+            "name": "to",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          }
+        ],
+        "responses": {
+          "400": {
+            "description": "Bad request. Please check API specification",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomerErrorResponse"
+                }
+              },
+              "application/xml": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomerErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication Failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomerErrorResponse"
+                }
+              },
+              "application/xml": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomerErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Access to resource is forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomerErrorResponse"
+                }
+              },
+              "application/xml": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomerErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomerErrorResponse"
+                }
+              },
+              "application/xml": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomerErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "A permanent server error occurred. Report this error if it occurs",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomerErrorResponse"
+                }
+              },
+              "application/xml": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomerErrorResponse"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "A temporary server error occurred. Retry again later or report this error if it persists.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomerErrorResponse"
+                }
+              },
+              "application/xml": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomerErrorResponse"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "Whatever Charging History respond will be passed on.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ChargingHistoryResponseDto"
+                }
+              },
+              "application/xml": {
+                "schema": {
+                  "$ref": "#/components/schemas/ChargingHistoryResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/customers/vehicles/{vin}/basicData": {
+      "get": {
+        "tags": [
+          "Vehicles"
+        ],
+        "summary": "Request basic vehicle data for the specified vehicle.",
+        "operationId": "getBasicData",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "x-version",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "default": "v1"
+            }
+          },
+          {
+            "name": "vin",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "400": {
+            "description": "Bad request. Please check API specification",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomerErrorResponse"
+                }
+              },
+              "application/xml": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomerErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication Failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomerErrorResponse"
+                }
+              },
+              "application/xml": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomerErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Access to resource is forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomerErrorResponse"
+                }
+              },
+              "application/xml": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomerErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomerErrorResponse"
+                }
+              },
+              "application/xml": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomerErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "A permanent server error occurred. Report this error if it occurs",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomerErrorResponse"
+                }
+              },
+              "application/xml": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomerErrorResponse"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "A temporary server error occurred. Retry again later or report this error if it persists.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomerErrorResponse"
+                }
+              },
+              "application/xml": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomerErrorResponse"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "A VIN specific list of telematic key and values was returned.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VehicleDto"
+                }
+              },
+              "application/xml": {
+                "schema": {
+                  "$ref": "#/components/schemas/VehicleDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/customers/vehicles/mappings": {
+      "get": {
+        "tags": [
+          "Vehicles"
+        ],
+        "summary": "Request mapped vehicles.",
+        "operationId": "getMappings",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "x-version",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "default": "v1"
+            }
+          }
+        ],
+        "responses": {
+          "400": {
+            "description": "Bad request. Please check API specification",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomerErrorResponse"
+                }
+              },
+              "application/xml": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomerErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication Failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomerErrorResponse"
+                }
+              },
+              "application/xml": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomerErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Access to resource is forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomerErrorResponse"
+                }
+              },
+              "application/xml": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomerErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomerErrorResponse"
+                }
+              },
+              "application/xml": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomerErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "A permanent server error occurred. Report this error if it occurs",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomerErrorResponse"
+                }
+              },
+              "application/xml": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomerErrorResponse"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "A temporary server error occurred. Retry again later or report this error if it persists.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomerErrorResponse"
+                }
+              },
+              "application/xml": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomerErrorResponse"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "List of mapped vehicles",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VehicleMappingDto"
+                }
+              },
+              "application/xml": {
+                "schema": {
+                  "$ref": "#/components/schemas/VehicleMappingDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/customers/containers/{containerId}": {
+      "get": {
+        "tags": [
+          "Containers"
+        ],
+        "summary": "Request container details",
+        "operationId": "getContainerDetails",
+        "description": "Please note that some keys are bound to dedicated endpoints. These keys can be added to a container, but the corresponding endpoint for which the container is an input-parameter (/telematicData/), won't return these keys. For further details, check the Integration Guide (chapter 3.3.2).",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "x-version",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "default": "v1"
+            }
+          },
+          {
+            "name": "containerId",
+            "in": "path",
+            "description": "ID that identifies an unique container",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "400": {
+            "description": "Bad request. Please check API specification",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomerErrorResponse"
+                }
+              },
+              "application/xml": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomerErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication Failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomerErrorResponse"
+                }
+              },
+              "application/xml": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomerErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Access to resource is forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomerErrorResponse"
+                }
+              },
+              "application/xml": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomerErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomerErrorResponse"
+                }
+              },
+              "application/xml": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomerErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "A permanent server error occurred. Report this error if it occurs",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomerErrorResponse"
+                }
+              },
+              "application/xml": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomerErrorResponse"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "A temporary server error occurred. Retry again later or report this error if it persists.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomerErrorResponse"
+                }
+              },
+              "application/xml": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomerErrorResponse"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ContainerDetailsDto"
+                }
+              },
+              "application/xml": {
+                "schema": {
+                  "$ref": "#/components/schemas/ContainerDetailsDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      },
+      "delete": {
+        "tags": [
+          "Containers"
+        ],
+        "summary": "Delete container by ID",
+        "operationId": "deleteContainer",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "x-version",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "default": "v1"
+            }
+          },
+          {
+            "name": "containerId",
+            "in": "path",
+            "description": "ID that identifies an unique container",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "400": {
+            "description": "Bad request. Please check API specification",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomerErrorResponse"
+                }
+              },
+              "application/xml": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomerErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication Failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomerErrorResponse"
+                }
+              },
+              "application/xml": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomerErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Access to resource is forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomerErrorResponse"
+                }
+              },
+              "application/xml": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomerErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomerErrorResponse"
+                }
+              },
+              "application/xml": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomerErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "A permanent server error occurred. Report this error if it occurs",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomerErrorResponse"
+                }
+              },
+              "application/xml": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomerErrorResponse"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "A temporary server error occurred. Retry again later or report this error if it persists.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomerErrorResponse"
+                }
+              },
+              "application/xml": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomerErrorResponse"
+                }
+              }
+            }
+          },
+          "204": {
+            "description": "Successful operation, no content"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "CreateContainerRequest": {
+        "type": "object",
+        "description": "Container creation request payload",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "purpose": {
+            "type": "string"
+          },
+          "technicalDescriptors": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "CustomerErrorResponse": {
+        "properties": {
+          "exveErrorId": {
+            "type": "string"
+          },
+          "exveErrorRef": {
+            "type": "string"
+          },
+          "exveErrorMsg": {
+            "type": "string"
+          },
+          "exveNote": {
+            "type": "string"
+          }
+        }
+      },
+      "ContainerDetailsDto": {
+        "type": "object",
+        "properties": {
+          "containerId": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "purpose": {
+            "type": "string"
+          },
+          "state": {
+            "type": "string",
+            "enum": [
+              "ACTIVE",
+              "DELETED"
+            ]
+          },
+          "created": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "technicalDescriptors": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "ExVeTelematicDataResponseDto": {
+        "type": "object",
+        "properties": {
+          "telematicData": {
+            "type": "object",
+            "additionalProperties": {
+              "$ref": "#/components/schemas/TelematicDataEntryDto"
+            }
+          }
+        }
+      },
+      "TelematicDataEntryDto": {
+        "type": "object",
+        "properties": {
+          "value": {
+            "type": "string"
+          },
+          "unit": {
+            "type": "string"
+          },
+          "timestamp": {
+            "type": "string"
+          }
+        }
+      },
+      "AggregatedQualityStatusDto": {
+        "type": "object",
+        "properties": {
+          "label": {
+            "type": "string"
+          },
+          "qualityStatus": {
+            "type": "string"
+          },
+          "value": {
+            "type": "string"
+          }
+        }
+      },
+      "DimensionDto": {
+        "type": "object",
+        "properties": {
+          "aspectRatio": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "constructionType": {
+            "type": "string"
+          },
+          "label": {
+            "type": "string"
+          },
+          "loadIndex": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "rimDiameter": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "sectionWidth": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "speedRating": {
+            "type": "string"
+          },
+          "value": {
+            "type": "string"
+          }
+        }
+      },
+      "MountingDateDto": {
+        "type": "object",
+        "properties": {
+          "label": {
+            "type": "string"
+          },
+          "mountingDate": {
+            "type": "string"
+          },
+          "value": {
+            "type": "string"
+          }
+        }
+      },
+      "OptimizedForOemDto": {
+        "type": "object",
+        "properties": {
+          "label": {
+            "type": "string"
+          },
+          "optimizedForOem": {
+            "type": "string"
+          },
+          "value": {
+            "type": "string"
+          }
+        }
+      },
+      "PartNumberDto": {
+        "type": "object",
+        "properties": {
+          "label": {
+            "type": "string"
+          },
+          "partNumber": {
+            "type": "string"
+          },
+          "value": {
+            "type": "string"
+          }
+        }
+      },
+      "PassengerCarDto": {
+        "type": "object",
+        "properties": {
+          "mountedTyres": {
+            "$ref": "#/components/schemas/PassengerCarTyreSetDto"
+          },
+          "unmountedTyres": {
+            "$ref": "#/components/schemas/PassengerCarTyreSetDto"
+          }
+        }
+      },
+      "PassengerCarTyreSetDto": {
+        "type": "object",
+        "properties": {
+          "aggregatedQualityStatus": {
+            "$ref": "#/components/schemas/AggregatedQualityStatusDto"
+          },
+          "frontLeft": {
+            "$ref": "#/components/schemas/TyreDataDto"
+          },
+          "frontRight": {
+            "$ref": "#/components/schemas/TyreDataDto"
+          },
+          "label": {
+            "type": "string"
+          },
+          "rearLeft": {
+            "$ref": "#/components/schemas/TyreDataDto"
+          },
+          "rearRight": {
+            "$ref": "#/components/schemas/TyreDataDto"
+          }
+        }
+      },
+      "QualityStatusDto": {
+        "type": "object",
+        "properties": {
+          "label": {
+            "type": "string"
+          },
+          "qualityStatus": {
+            "type": "string"
+          },
+          "value": {
+            "type": "string"
+          }
+        }
+      },
+      "RunFlatDto": {
+        "type": "object",
+        "properties": {
+          "label": {
+            "type": "string"
+          },
+          "runFlat": {
+            "type": "boolean"
+          },
+          "value": {
+            "type": "string"
+          }
+        }
+      },
+      "SeasonDto": {
+        "type": "object",
+        "properties": {
+          "label": {
+            "type": "string"
+          },
+          "season": {
+            "type": "string"
+          },
+          "value": {
+            "type": "string"
+          }
+        }
+      },
+      "SmartMaintenanceErrorDto": {
+        "type": "object",
+        "properties": {
+          "eventId": {
+            "type": "string"
+          },
+          "message": {
+            "type": "object"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      },
+      "SmartMaintenanceTyreDiagnosisDto": {
+        "type": "object",
+        "properties": {
+          "passengerCar": {
+            "$ref": "#/components/schemas/PassengerCarDto"
+          },
+          "errors": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SmartMaintenanceErrorDto"
+            }
+          }
+        }
+      },
+      "TreadDto": {
+        "type": "object",
+        "properties": {
+          "carcass": {
+            "type": "string"
+          },
+          "label": {
+            "type": "string"
+          },
+          "manufacturer": {
+            "type": "string"
+          },
+          "treadDesign": {
+            "type": "string"
+          },
+          "value": {
+            "type": "string"
+          }
+        }
+      },
+      "TyreDataDto": {
+        "type": "object",
+        "properties": {
+          "dimension": {
+            "$ref": "#/components/schemas/DimensionDto"
+          },
+          "label": {
+            "type": "string"
+          },
+          "mountingDate": {
+            "$ref": "#/components/schemas/MountingDateDto"
+          },
+          "optimizedForOem": {
+            "$ref": "#/components/schemas/OptimizedForOemDto"
+          },
+          "partNumber": {
+            "$ref": "#/components/schemas/PartNumberDto"
+          },
+          "qualityStatus": {
+            "$ref": "#/components/schemas/QualityStatusDto"
+          },
+          "runFlat": {
+            "$ref": "#/components/schemas/RunFlatDto"
+          },
+          "season": {
+            "$ref": "#/components/schemas/SeasonDto"
+          },
+          "tread": {
+            "$ref": "#/components/schemas/TreadDto"
+          },
+          "tyreDefect": {
+            "$ref": "#/components/schemas/TyreDefectDto"
+          },
+          "tyreProductionDate": {
+            "$ref": "#/components/schemas/TyreProductionDateDto"
+          },
+          "tyreWear": {
+            "$ref": "#/components/schemas/TyreWearDto"
+          }
+        }
+      },
+      "TyreDefectDto": {
+        "type": "object",
+        "properties": {
+          "label": {
+            "type": "string"
+          },
+          "value": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          },
+          "statusColor": {
+            "type": "string",
+            "enum": [
+              "RED",
+              "YELLOW",
+              "GREEN",
+              "GREY"
+            ]
+          }
+        }
+      },
+      "TyreProductionDateDto": {
+        "type": "object",
+        "properties": {
+          "label": {
+            "type": "string"
+          },
+          "statusColor": {
+            "type": "string",
+            "enum": [
+              "RED",
+              "YELLOW",
+              "GREEN",
+              "GREY"
+            ]
+          },
+          "value": {
+            "type": "string"
+          }
+        }
+      },
+      "TyreWearDto": {
+        "type": "object",
+        "properties": {
+          "label": {
+            "type": "string"
+          },
+          "value": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          },
+          "statusColor": {
+            "type": "string",
+            "enum": [
+              "RED",
+              "YELLOW",
+              "GREEN",
+              "GREY"
+            ]
+          },
+          "dueMileage": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "unit": {
+            "type": "string",
+            "enum": [
+              "KILOMETER",
+              "MILE"
+            ]
+          }
+        }
+      },
+      "LocationBasedChargingSettingsDataDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "lastUpdated": {
+            "type": "string"
+          },
+          "clusterLocationId": {
+            "type": "string"
+          },
+          "latitude": {
+            "type": "number",
+            "format": "double"
+          },
+          "longitude": {
+            "type": "number",
+            "format": "double"
+          },
+          "lastVisit": {
+            "type": "string"
+          },
+          "visits": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "chargingMode": {
+            "type": "string"
+          },
+          "optimizedChargingPreference": {
+            "type": "string"
+          },
+          "startChargingTimePeriodHour": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "startChargingTimePeriodMinute": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "stopChargingTimePeriodHour": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "stopChargingTimePeriodMinute": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "vehicleIdWithGcid": {
+            "type": "string"
+          },
+          "chargingTimeWindows": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/LocationBasedChargingTimeWindowDto"
+            }
+          },
+          "acCurrentLimitFlag": {
+            "type": "string"
+          },
+          "acCurrentLimit": {
+            "type": "number",
+            "format": "double"
+          },
+          "acousticLimit": {
+            "type": "string"
+          },
+          "flapLock": {
+            "type": "string"
+          },
+          "chargingPlug": {
+            "type": "string"
+          }
+        }
+      },
+      "LocationBasedChargingSettingsDto": {
+        "type": "object",
+        "properties": {
+          "nextToken": {
+            "type": "string"
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/LocationBasedChargingSettingsDataDto"
+            }
+          }
+        }
+      },
+      "LocationBasedChargingTimeWindowDto": {
+        "type": "object",
+        "properties": {
+          "startChargingTimePeriodHour": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "startChargingTimePeriodMinute": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "stopChargingTimePeriodHour": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "stopChargingTimePeriodMinute": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "BusinessErrorDto": {
+        "type": "object",
+        "properties": {
+          "creationTime": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "hint": {
+            "type": "string"
+          }
+        }
+      },
+      "ChargingBlockDto": {
+        "type": "object",
+        "properties": {
+          "startTime": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "endTime": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "averagePowerGridKw": {
+            "type": "number",
+            "format": "double"
+          }
+        },
+        "required": [
+          "endTime",
+          "startTime"
+        ]
+      },
+      "ChargingHistoryResponseDto": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ChargingSessionDto"
+            }
+          },
+          "next_token": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "data"
+        ]
+      },
+      "ChargingLocationDto": {
+        "type": "object",
+        "properties": {
+          "municipality": {
+            "type": "string"
+          },
+          "formattedAddress": {
+            "type": "string"
+          },
+          "streetAddress": {
+            "type": "string"
+          },
+          "mapMatchedLatitude": {
+            "type": "number"
+          },
+          "mapMatchedLongitude": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "formattedAddress",
+          "municipality",
+          "streetAddress"
+        ]
+      },
+      "ChargingSessionDto": {
+        "type": "object",
+        "properties": {
+          "publicChargingPoint": {
+            "$ref": "#/components/schemas/PublicChargingPointDto"
+          },
+          "displayedSoc": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "displayedStartSoc": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "businessErrors": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/BusinessErrorDto"
+            }
+          },
+          "timeZone": {
+            "type": "string"
+          },
+          "startTime": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "endTime": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "totalChargingDurationSec": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "energyConsumedFromPowerGridKwh": {
+            "type": "number",
+            "format": "double"
+          },
+          "energyDecreaseHvbKwh": {
+            "type": "number",
+            "format": "double",
+            "example": "1.2"
+          },
+          "energyDischargedKwh": {
+            "type": "number",
+            "format": "double",
+            "example": "1.2"
+          },
+          "isPreconditioningActivated": {
+            "type": "boolean"
+          },
+          "mileage": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 0
+          },
+          "mileageUnits": {
+            "type": "string",
+            "enum": [
+              "MileageUnits.KM",
+              "MileageUnits.MI"
+            ]
+          },
+          "chargingLocation": {
+            "$ref": "#/components/schemas/ChargingLocationDto"
+          },
+          "chargingBlocks": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ChargingBlockDto"
+            }
+          }
+        },
+        "required": [
+          "displayedSoc",
+          "displayedStartSoc",
+          "endTime",
+          "isPreconditioningActivated",
+          "mileage",
+          "mileageUnits",
+          "startTime",
+          "timeZone",
+          "totalChargingDurationSec"
+        ]
+      },
+      "PublicChargingPointDto": {
+        "type": "object",
+        "properties": {
+          "potentialChargingPointMatches": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PublicChargingPointMatchesDto"
+            }
+          }
+        },
+        "required": [
+          "potentialChargingPointMatches"
+        ]
+      },
+      "PublicChargingPointMatchesDto": {
+        "type": "object",
+        "properties": {
+          "postalCode": {
+            "type": "string"
+          },
+          "streetAddress": {
+            "type": "string"
+          },
+          "providerName": {
+            "type": "string"
+          },
+          "city": {
+            "type": "string"
+          }
+        }
+      },
+      "VehicleDto": {
+        "type": "object",
+        "properties": {
+          "vin": {
+            "type": "string"
+          },
+          "brand": {
+            "type": "string",
+            "enum": [
+              "BMW",
+              "BMWi",
+              "BMW Motorrad",
+              "Toyota-Supra",
+              "MINI",
+              "Rolls-Royce"
+            ]
+          },
+          "isTelematicsCapable": {
+            "type": "boolean"
+          },
+          "puStep": {
+            "type": "string"
+          },
+          "modelRange": {
+            "type": "string"
+          },
+          "series": {
+            "type": "string"
+          },
+          "modelName": {
+            "type": "string"
+          },
+          "modelKey": {
+            "type": "string"
+          },
+          "bodyType": {
+            "type": "string"
+          },
+          "numberOfDoors": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "hasNavi": {
+            "type": "boolean"
+          },
+          "headUnit": {
+            "type": "string"
+          },
+          "hasSunRoof": {
+            "type": "boolean"
+          },
+          "countryCodeISO": {
+            "type": "string"
+          },
+          "steering": {
+            "type": "string"
+          },
+          "engine": {
+            "type": "string"
+          },
+          "driveTrain": {
+            "type": "string"
+          },
+          "chargingModes": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "propulsionType": {
+            "type": "string"
+          },
+          "colourCode": {
+            "type": "string"
+          },
+          "colourCodeRaw": {
+            "type": "string"
+          },
+          "constructionDate": {
+            "type": "string"
+          },
+          "fullSAList": {
+            "type": "string"
+          },
+          "hvsMaxEnergyAbsolute": {
+            "type": "string"
+          },
+          "simStatus": {
+            "type": "string"
+          },
+          "reessNominalCapacityGross": {
+            "type": "string"
+          }
+        }
+      },
+      "VehicleMappingDto": {
+        "type": "object",
+        "properties": {
+          "vin": {
+            "type": "string"
+          },
+          "mappedSince": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "mappingType": {
+            "type": "string",
+            "enum": [
+              "PRIMARY",
+              "SECONDARY"
+            ]
+          }
+        }
+      },
+      "ContainerDto": {
+        "type": "object",
+        "properties": {
+          "containerId": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "purpose": {
+            "type": "string"
+          },
+          "state": {
+            "type": "string",
+            "enum": [
+              "ACTIVE",
+              "DELETED"
+            ]
+          },
+          "created": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "ContainerListDto": {
+        "type": "object",
+        "properties": {
+          "containers": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ContainerDto"
+            }
+          }
+        }
+      }
+    },
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "description": "GCDM OAuth2 access token (opaque) obtained via the Device Code Flow with PKCE.",
+        "name": "bearerAuth",
+        "scheme": "bearer",
+        "bearerFormat": "opaque",
+        "x-auth-env-vars": [
+          "BMW_CARDATA_ACCESS_TOKEN"
+        ]
+      }
+    }
+  },
+  "security": [
+    {
+      "bearerAuth": []
+    }
+  ]
+}

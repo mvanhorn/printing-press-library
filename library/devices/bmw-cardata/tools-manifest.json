@@ -1,0 +1,224 @@
+{
+  "api_name": "bmw-cardata",
+  "base_url": "https://api-cardata.bmwgroup.com",
+  "description": "Your BMW's telemetry, on the command line — device-code login, live telematic snapshots, charging history, and a local SQLite store that turns raw VSS data into trends, cost, and fleet insight no other tool gives you.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "bearer_token",
+    "header": "Authorization",
+    "env_vars": [
+      "BMW_CARDATA_ACCESS_TOKEN"
+    ],
+    "env_var_specs": [
+      {
+        "name": "BMW_CARDATA_ACCESS_TOKEN",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    ]
+  },
+  "required_headers": [
+    {
+      "name": "x-version",
+      "value": "v1"
+    }
+  ],
+  "tools": [
+    {
+      "name": "customers_create-container",
+      "description": "Please note that some keys are bound to dedicated endpoints. These keys can be added to a container, but the corresponding endpoint for which the container is an input-parameter (/telematicData/), won't return these keys. For further details, check the Integration Guide (chapter 3.3.2). Optional: name, purpose, technicalDescriptors. Returns array of string.",
+      "method": "POST",
+      "path": "/customers/containers",
+      "params": [
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Name"
+        },
+        {
+          "name": "purpose",
+          "type": "string",
+          "location": "body",
+          "description": "Purpose"
+        },
+        {
+          "name": "technicalDescriptors",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Technical descriptors"
+        }
+      ]
+    },
+    {
+      "name": "customers_delete-container",
+      "description": "Delete container by ID. Required: containerId. Destructive.",
+      "method": "DELETE",
+      "path": "/customers/containers/{containerId}",
+      "params": [
+        {
+          "name": "containerId",
+          "type": "string",
+          "location": "path",
+          "description": "ID that identifies an unique container",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "customers_get-basic-data",
+      "description": "Request basic vehicle data for the specified vehicle. Required: vin. Returns array of string.",
+      "method": "GET",
+      "path": "/customers/vehicles/{vin}/basicData",
+      "params": [
+        {
+          "name": "vin",
+          "type": "string",
+          "location": "path",
+          "description": "Vin",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "customers_get-charging-history",
+      "description": "Request the vehicle's Charging History sessions. Required: vin, from, to. Optional: nextToken. Returns array of ChargingSessionDto.",
+      "method": "GET",
+      "path": "/customers/vehicles/{vin}/chargingHistory",
+      "params": [
+        {
+          "name": "vin",
+          "type": "string",
+          "location": "path",
+          "description": "Vin",
+          "required": true
+        },
+        {
+          "name": "nextToken",
+          "type": "string",
+          "location": "query",
+          "description": "Next token"
+        },
+        {
+          "name": "from",
+          "type": "string",
+          "location": "query",
+          "description": "From",
+          "required": true
+        },
+        {
+          "name": "to",
+          "type": "string",
+          "location": "query",
+          "description": "To",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "customers_get-container-details",
+      "description": "Please note that some keys are bound to dedicated endpoints. These keys can be added to a container, but the corresponding endpoint for which the container is an input-parameter (/telematicData/), won't return these keys. For further details, check the Integration Guide (chapter 3.3.2). Required: containerId. Returns array of string.",
+      "method": "GET",
+      "path": "/customers/containers/{containerId}",
+      "params": [
+        {
+          "name": "containerId",
+          "type": "string",
+          "location": "path",
+          "description": "ID that identifies an unique container",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "customers_get-image",
+      "description": "Request a vehicle image for the specified vehicle. Required: vin.",
+      "method": "GET",
+      "path": "/customers/vehicles/{vin}/image",
+      "params": [
+        {
+          "name": "vin",
+          "type": "string",
+          "location": "path",
+          "description": "Vin",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "customers_get-location-based-charging-settings",
+      "description": "Request Vehicle's location based charging settings. Required: vin. Optional: nextToken. Returns array of LocationBasedChargingSettingsDataDto.",
+      "method": "GET",
+      "path": "/customers/vehicles/{vin}/locationBasedChargingSettings",
+      "params": [
+        {
+          "name": "vin",
+          "type": "string",
+          "location": "path",
+          "description": "Vin",
+          "required": true
+        },
+        {
+          "name": "nextToken",
+          "type": "string",
+          "location": "query",
+          "description": "Next token"
+        }
+      ]
+    },
+    {
+      "name": "customers_get-mappings",
+      "description": "Request mapped vehicles. Returns the VehicleMappingDto.",
+      "method": "GET",
+      "path": "/customers/vehicles/mappings",
+      "params": []
+    },
+    {
+      "name": "customers_get-smart-maintenance-tyre-diagnosis",
+      "description": "Request a vehicle Smart Maintenance Tyre Diagnosis for the specified vehicle. Required: vin. Returns array of SmartMaintenanceErrorDto.",
+      "method": "GET",
+      "path": "/customers/vehicles/{vin}/smartMaintenanceTyreDiagnosis",
+      "params": [
+        {
+          "name": "vin",
+          "type": "string",
+          "location": "path",
+          "description": "Vin",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "customers_get-telematic-data",
+      "description": "Please note that some keys are bound to dedicated endpoints. These keys can be added to a container, but the corresponding endpoint for which the container is an input-parameter (/telematicData/), won't return these keys. For further details, check the Integration Guide (chapter 3.3.2). Required: vin, containerId. Returns the ExVeTelematicDataResponseDto.",
+      "method": "GET",
+      "path": "/customers/vehicles/{vin}/telematicData",
+      "params": [
+        {
+          "name": "vin",
+          "type": "string",
+          "location": "path",
+          "description": "Vin",
+          "required": true
+        },
+        {
+          "name": "containerId",
+          "type": "string",
+          "location": "query",
+          "description": "Container id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "customers_list-containers",
+      "description": "List the containers. Returns array of ContainerDto.",
+      "method": "GET",
+      "path": "/customers/containers",
+      "params": []
+    }
+  ]
+}

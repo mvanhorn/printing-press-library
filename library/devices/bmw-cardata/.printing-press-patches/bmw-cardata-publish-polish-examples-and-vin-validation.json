@@ -1,0 +1,19 @@
+{
+  "schema_version": 2,
+  "id": "bmw-cardata-publish-polish-examples-and-vin-validation",
+  "applied_at": "2026-06-30",
+  "base_run_id": "20260630-212750-ea90da3f",
+  "base_printing_press_version": "4.24.0",
+  "summary": "Added realistic Example blocks to the 8 transcendence commands and VIN format validation (17-char, no I/O/Q) so the dogfood error_path probe returns non-zero on malformed VINs.",
+  "reason": "Publish-session polish: (1) generator scaffolds omitted Example fields; (2) dogfood error_path requires non-zero exit for invalid args; without VIN validation the commands returned exit 0 on junk VINs (no-match note).",
+  "files": [
+    "internal/cli/soc_trends.go",
+    "internal/cli/charging_cost.go",
+    "internal/cli/quota.go",
+    "internal/cli/fleet_status.go",
+    "internal/cli/descriptors_search.go",
+    "internal/cli/battery_health.go",
+    "internal/cli/vehicles_diff.go",
+    "internal/cli/trips.go"
+  ]
+}

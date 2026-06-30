@@ -1,0 +1,429 @@
+{
+  "openapi" : "3.0.1",
+  "info" : {
+    "title" : "Customer OAuth2.0 Login - Device Code Flow",
+    "version" : "1.6"
+  },
+  "servers" : [ {
+    "url" : "https://customer.bmwgroup.com"
+  } ],
+  "tags": [
+    {
+      "name": "Device Flow with PKCE",
+      "description": "Authentication via the Device Code Flow"
+    }
+  ],
+  "paths" : {
+    "/gcdm/oauth/device/code" : {
+      "post" : {
+        "tags" : [ "Device Flow with PKCE" ],
+        "summary": "Starts the device code flow",
+        "description" : "Endpoint for OAuth2 Device Code Flow.</br> The device uses this endpoint to initiate the device code flow.",
+        "requestBody" : {
+          "content" : {
+            "application/x-www-form-urlencoded" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/DeviceCodeFlowPart1"
+              }
+            }
+          }
+        },
+        "parameters" : [ {
+          "in" : "header",
+          "name" : "Content-Type",
+          "description" : "Fixed value “application/x-www-form-urlencoded”",
+          "required" : true,
+          "schema" : {
+            "type" : "string",
+            "example" : "application/x-www-form-urlencoded"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Successfully initiated the device code flow.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/DeviceCodeResponse"
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "Bad request. The request is missing a required parameter, includes an unsupported parameter value (other than grant type), repeats a parameter, includes multiple credentials, utilizes more than one mechanism for authenticating the client, or is otherwise malformed.",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "object",
+                  "properties" : {
+                    "error" : {
+                      "type" : "string",
+                      "example" : "invalid_request"
+                    },
+                    "error_description" : {
+                      "type" : "string",
+                      "example" : "The request is missing a required parameter, includes an unsupported parameter value (other than grant type), repeats a parameter, includes multiple credentials, utilizes more than one mechanism for authenticating the client, or is otherwise malformed."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500" : {
+            "description" : "Internal server error."
+          }
+        }
+      }
+    },
+    "/gcdm/oauth/token" : {
+      "post" : {
+        "tags" : [ "Device Flow with PKCE" ],
+        "summary": "Request a token for the device",
+        "description" : "Creates a new OAuth Access Token for OAuth 2.0 Flow <b>Device Code Flow</b>.",
+        "requestBody" : {
+          "content" : {
+            "application/x-www-form-urlencoded" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/DeviceCodeFlowPart3TokenPolling"
+              }
+            }
+          }
+        },
+        "parameters" : [ {
+          "in" : "header",
+          "name" : "Content-Type",
+          "description" : "Fixed value “application/x-www-form-urlencoded”",
+          "required" : true,
+          "schema" : {
+            "type" : "string",
+            "example" : "application/x-www-form-urlencoded"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Success (authentication successful and token was generated)",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "oneOf" : [ {
+                    "$ref" : "#/components/schemas/TokenResponse"
+                  }, {
+                    "$ref" : "#/components/schemas/TokenResponseDeviceCodeFlow"
+                  } ]
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "Bad Request: malformed or polling faster than allowed",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "oneOf" : [ {
+                    "$ref" : "#/components/schemas/TokenBadRequestResponse"
+                  }, {
+                    "$ref" : "#/components/schemas/TokenSlowDownResponse"
+                  } ]
+                }
+              }
+            }
+          },
+          "401" : {
+            "description" : "Unauthorized: invalid client or expired code - can also mean that the account requesting a token is pending activation",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "oneOf" : [ {
+                    "$ref" : "#/components/schemas/TokenInvalidClientResponse"
+                  }, {
+                    "$ref" : "#/components/schemas/TokenExpiredResponse"
+                  } ]
+                }
+              }
+            }
+          },
+          "403" : {
+            "description" : "Forbidden: user has not completed authorization or denied access",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "oneOf" : [ {
+                    "$ref" : "#/components/schemas/TokenAuthorizationPendingResponse"
+                  }, {
+                    "$ref" : "#/components/schemas/TokenAccessDeniedResponse"
+                  } ]
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components" : {
+    "schemas" : {
+      "AuthenticateCodeFlowPart1" : {
+        "type" : "object",
+        "required" : [ "username", "password" ],
+        "properties" : {
+          "username" : {
+            "type" : "string",
+            "description" : "Loginname (email/mobile) or alias of user account."
+          },
+          "password" : {
+            "type" : "string",
+            "description" : "Password of user account."
+          }
+        }
+      },
+      "AuthenticateResponse" : {
+        "type" : "object",
+        "required" : [ "GCDMSSO" ],
+        "properties" : {
+          "GCDMSSO" : {
+            "type" : "string",
+            "example" : "Lp-PLodUNySjuZ6mU_2jUCS23fU.*AAJTSQACMDIAAlNLABxVb040QnFkNmx4YU9xY29uSktlcU1odFlJdW89AAR0eXBlAANDVFMAAlMxAAIwMQ..*"
+          }
+        }
+      },
+      "DeviceCodeFlowPart1" : {
+        "type" : "object",
+        "required" : [ "client_id", "response_type", "scope", "code_challenge", "code_challenge_method" ],
+        "properties" : {
+          "client_id" : {
+            "type" : "string",
+            "format" : "uuid",
+            "description" : "The client id also named api key."
+          },
+          "response_type" : {
+            "type" : "string",
+            "description" : "The response_type as fixed value to device_code.",
+            "enum" : [ "device_code" ],
+            "example" : "device_code"
+          },
+          "scope" : {
+            "type" : "string",
+            "description" : "List of space-delimited, case-sensitive scopes. Specify the scopes linked to the permissions requested by the client to the resource owner. If no scopes are set, all scopes registered for the application (OAuth client_id) will be returned.",
+            "example" : "authenticate_user openid cardata:api:read cardata:streaming:read"
+          },
+          "code_challenge" : {
+            "type" : "string",
+            "description" : "The challenge is derived from the code verifier that is sent in the authorization request during the Device with PKCE flow.",
+            "example" : "6xSQkAzH8oEmFMieIfFjAlAsYMS23uhOCXg70Gf13p8"
+          },
+          "code_challenge_method" : {
+            "type" : "string",
+            "enum" : [ "S256" ],
+            "description" : "Method to create the code challenge."
+          }
+        }
+      },
+      "DeviceCodeResponse" : {
+        "type" : "object",
+        "required" : [ "device_code", "user_code", "verification_uri",  "expires_in" ],
+        "properties" : {
+          "user_code" : {
+            "type" : "string",
+            "example" : "sDzZXXmD",
+            "description" : "The user code presented to the customer as secret to start the login action for this device."
+          },
+          "device_code" : {
+            "type" : "string",
+            "example" : "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJhdWQiOiJodHRwczovL2Zvcmdlcm9jay5hd3MtYmFja2VuZC5jdXN0b21lci1pLmJtd2dyb3VwLmNvbS9hbS9vYXV0aDIiLCJuYmYiOjE2MTI4NTkyOTksInVzZXJfY29kZSI6InNEelpYWG1EIiwiaXNzIjoiaHR0cHM6Ly9mb3JnZXJvY2suYXdzLWJhY2tlbmQuY3VzdG9tZXItaS5ibXdncm91cC5jb20vYW0vb2F1dGgyIiwiZXhwIjoxNjEyODU5NTk5LCJpYXQiOjE2MTI4NTkyOTksImp0aSI6Ijc5YTNhMmZiLWFmODktNDkyNS1hZDIyLTU0NmYwMjY5NWZhZSJ9.iWVFjDneKsX3aQ4Pivn_tNgq9iCqIrMW8DJKozTt_tU",
+            "description" : "The device code to allow the backend (authentication provider) to associate the polling requests from the device with the requests that initiated the code flow."
+          },
+          "interval" : {
+            "type" : "integer",
+            "example" : 5,
+            "description" : "The highest frequency in seconds the device is allowed to poll for the successful authentication of the customer."
+          },
+          "verification_uri" : {
+            "type" : "string",
+            "example" : "https://customer.bmwgroup.com/oneid/link",
+            "description" : "Link to the UI that allows the user to enter the user_code."
+          },
+          "expires_in" : {
+            "type" : "integer",
+            "example" : 300,
+            "description" : "The expiration of the user_code in seconds. Within this time the device code flow needs to be performed."
+          }
+        }
+      },
+      "DeviceCodeFlowPart3TokenPolling" : {
+        "type" : "object",
+        "required" : [ "client_id", "grant_type", "device_code", "code_verifier" ],
+        "properties" : {
+          "client_id" : {
+            "type" : "string",
+            "format" : "uuid",
+            "description" : "The client id also named api key."
+          },
+          "device_code" : {
+            "type" : "string",
+            "description" : "The device code received in the initiation of the device code flow."
+          },
+          "grant_type" : {
+            "type" : "string",
+            "description" : "fixed value to <b>urn:ietf:params:oauth:grant-type:device_code</b> for the device code flow.",
+            "example" : "urn:ietf:params:oauth:grant-type:device_code"
+          },
+          "code_verifier" : {
+            "type" : "string",
+            "description" : "A random string that will allow a correlation between the authorization- and token request. The code_verifier is generated by the client application. Mandatory for the PKCE flow extention.",
+            "example" : "Lc-kVofs3uj2Aj5Yrpd8X8Sa0N6tGmp4VIjflKSbFSQ"
+          }
+        }
+      },
+      "TokenResponse" : {
+        "type" : "object",
+        "required" : [ "access_token", "token_type", "expires_in", "refresh_token", "scope", "gcid" ],
+        "properties" : {
+          "access_token" : {
+            "type" : "string",
+            "example" : "11Y7pXE5FwLtUnOQRpyyxRn9h4p4ctvOuNkVyrEsvtO6vnAdrkXlE"
+          },
+          "token_type" : {
+            "type" : "string",
+            "example" : "Bearer"
+          },
+          "expires_in" : {
+            "type" : "integer",
+            "example" : 3599
+          },
+          "refresh_token" : {
+            "type" : "string",
+            "example" : "c2ZHOV49M9UbENEOr0R1JiIclGx34g8oWQMbbiIloYNffA"
+          },
+          "scope" : {
+            "type" : "string",
+            "example" : "authenticate_user"
+          },
+          "id_token" : {
+            "type" : "string",
+            "description" : "The id_token is only returned if the scope openid was in the authenticate call.",
+            "example" : "eyJ0eXAiOiJKV1QiLCJraWQiOiJvQXc3aW1QMVZPSm95aUcwSHNydkhnaHJmQ1k9IiwiYWxnIjoiUlMyNTYifQ.eyJhdF9oYXNoIjoibzdKTU1pdTdmUlRnbTZDU1RMSTVMUSIsInN1YiI6ImRhbmllbC5wZC5wcmlld2Fzc2VyQGJtdy5kZSIsImF1ZGl0VHJhY2tpbmdJZCI6IjRkZGQ4MTI0LWMyMzMtNGJhOS04NTNmLWVkMGRiN2JkODJjNy0zNDg2NCIsImlzcyI6Imh0dHBzOi8vZm9yZ2Vyb2NrLmF3cy1iYWNrZW5kLmN1c3RvbWVyLWkuYm13Z3JvdXAuY29tL2FtL29hdXRoMiIsInRva2VuTmFtZSI6ImlkX3Rva2VuIiwiYXVkIjoiWExXb0xlak1rR1FoS05Pcm84a2tyek1Hc1NBVXYyVjEiLCJjX2hhc2giOiJTVDBHMGpkRUpBTmlTRW1Sb1lKRzdBIiwiYWNyIjoiMCIsIm9yZy5mb3JnZXJvY2sub3BlbmlkY29ubmVjdC5vcHMiOiJ3dVpyT3MtWUg1VEJ5RENEXzVEZ3Q1SE05bDgiLCJzX2hhc2giOiJ6c0MzYTQ4NUt3TFpsZGY0VktGLXZnIiwiYXpwIjoiWExXb0xlak1rR1FoS05Pcm84a2tyek1Hc1NBVXYyVjEiLCJhdXRoX3RpbWUiOjE2MTM1NTgzNTUsInJlYWxtIjoiL2N1c3RvbWVyIiwiZXhwIjoxNjEzNTYxOTkxLCJ0b2tlblR5cGUiOiJKV1RUb2tlbiIsImlhdCI6MTYxMzU1ODM5MX0.ErJc-2lKF8xoIPFz85lV2tVDrNCWNK0OkJmMOXqIZF-OrCJLoXkqmgcYAJeK7jFWZ-nj9s0J8xJ30FZLGhNqOjFRpSZwPpZWJm63_37T7ooI1PyhduYXpOPpPT8rsKD9WKGWSha7sow9PhickneKNYwe2dUP763ntTTX9FOBDhd0LO82woYKDgWGYnaGYuVdd5Cj7S1NHF2H8Txx9w2NdP53lymOrh5Lfpg89AgxDse21mjPObUxgPDmDyqkJPnYZvu7sGdlhKEHP5mmdLN0DDPef0xDtEoL-n70ZLYkY8SicqJtla4wQwP8whyCbusvDJywQdA-oUdmUdw1J3O50A"
+          },
+          "gcid" : {
+            "type" : "string",
+            "description" : "GCID of user account, formatted as UUID.",
+            "example" : "aa111192-d570-4d3d-8835-656ee00edcd7"
+          }
+        }
+      },
+      "TokenResponseDeviceCodeFlow" : {
+        "type" : "object",
+        "required" : [ "access_token", "token_type", "expires_in", "refresh_token", "scope", "gcid" ],
+        "properties" : {
+          "access_token" : {
+            "type" : "string",
+            "example" : "11Y7pXE5FwLtUnOQRpyyxRn9h4p4ctvOuNkVyrEsvtO6vnAdrkXlE"
+          },
+          "token_type" : {
+            "type" : "string",
+            "example" : "Bearer"
+          },
+          "expires_in" : {
+            "type" : "integer",
+            "example" : 3599
+          },
+          "refresh_token" : {
+            "type" : "string",
+            "example" : "c2ZHOV49M9UbENEOr0R1JiIclGx34g8oWQMbbiIloYNffA"
+          },
+          "scope" : {
+            "type" : "string",
+            "example" : "authenticate_user"
+          },
+          "gcid" : {
+            "type" : "string",
+            "description" : "GCID of user account, formatted as UUID.",
+            "example" : "aa111192-d570-4d3d-8835-656ee00edcd7"
+          },
+          "id_token" : {
+            "type" : "string",
+            "description" : "The id_token is only returned if the scope openid was in the authenticate call.",
+            "example" : "eyJ0eXAiOiJKV1QiLCJraWQiOiJvQXc3aW1QMVZPSm95aUcwSHNydkhnaHJmQ1k9IiwiYWxnIjoiUlMyNTYifQ.eyJhdF9oYXNoIjoibzdKTU1pdTdmUlRnbTZDU1RMSTVMUSIsInN1YiI6ImRhbmllbC5wZC5wcmlld2Fzc2VyQGJtdy5kZSIsImF1ZGl0VHJhY2tpbmdJZCI6IjRkZGQ4MTI0LWMyMzMtNGJhOS04NTNmLWVkMGRiN2JkODJjNy0zNDg2NCIsImlzcyI6Imh0dHBzOi8vZm9yZ2Vyb2NrLmF3cy1iYWNrZW5kLmN1c3RvbWVyLWkuYm13Z3JvdXAuY29tL2FtL29hdXRoMiIsInRva2VuTmFtZSI6ImlkX3Rva2VuIiwiYXVkIjoiWExXb0xlak1rR1FoS05Pcm84a2tyek1Hc1NBVXYyVjEiLCJjX2hhc2giOiJTVDBHMGpkRUpBTmlTRW1Sb1lKRzdBIiwiYWNyIjoiMCIsIm9yZy5mb3JnZXJvY2sub3BlbmlkY29ubmVjdC5vcHMiOiJ3dVpyT3MtWUg1VEJ5RENEXzVEZ3Q1SE05bDgiLCJzX2hhc2giOiJ6c0MzYTQ4NUt3TFpsZGY0VktGLXZnIiwiYXpwIjoiWExXb0xlak1rR1FoS05Pcm84a2tyek1Hc1NBVXYyVjEiLCJhdXRoX3RpbWUiOjE2MTM1NTgzNTUsInJlYWxtIjoiL2N1c3RvbWVyIiwiZXhwIjoxNjEzNTYxOTkxLCJ0b2tlblR5cGUiOiJKV1RUb2tlbiIsImlhdCI6MTYxMzU1ODM5MX0.ErJc-2lKF8xoIPFz85lV2tVDrNCWNK0OkJmMOXqIZF-OrCJLoXkqmgcYAJeK7jFWZ-nj9s0J8xJ30FZLGhNqOjFRpSZwPpZWJm63_37T7ooI1PyhduYXpOPpPT8rsKD9WKGWSha7sow9PhickneKNYwe2dUP763ntTTX9FOBDhd0LO82woYKDgWGYnaGYuVdd5Cj7S1NHF2H8Txx9w2NdP53lymOrh5Lfpg89AgxDse21mjPObUxgPDmDyqkJPnYZvu7sGdlhKEHP5mmdLN0DDPef0xDtEoL-n70ZLYkY8SicqJtla4wQwP8whyCbusvDJywQdA-oUdmUdw1J3O50A"
+          }
+        }
+      },
+      "TokenBadRequestResponse" : {
+        "type" : "object",
+        "properties" : {
+          "error" : {
+            "type" : "string",
+            "example" : "invalid_request, invalid_token"
+          },
+          "error_description" : {
+            "type" : "string",
+            "example" : "Missing parameter, 'password'"
+          }
+        }
+      },
+      "TokenSlowDownResponse" : {
+        "type" : "object",
+        "properties" : {
+          "error" : {
+            "type" : "string",
+            "example" : "slow_down"
+          },
+          "error_description" : {
+            "type" : "string",
+            "example" : "The polling interval has not elapsed since the last request"
+          }
+        }
+      },
+      "TokenInvalidClientResponse" : {
+        "type" : "object",
+        "properties" : {
+          "error" : {
+            "type" : "string",
+            "example" : "invalid_client"
+          },
+          "error_description" : {
+            "type" : "string",
+            "example" : "Client authentication failed (e.g., unknown client, no client authentication included, or unsupported authentication method)."
+          }
+        }
+      },
+      "TokenExpiredResponse" : {
+        "type" : "object",
+        "properties" : {
+          "error" : {
+            "type" : "string",
+            "example" : "expired_token"
+          },
+          "error_description" : {
+            "type" : "string",
+            "example" : "The code is expired"
+          }
+        }
+      },
+      "TokenAuthorizationPendingResponse" : {
+        "type" : "object",
+        "properties" : {
+          "error" : {
+            "type" : "string",
+            "example" : "authorization_pending"
+          },
+          "error_description" : {
+            "type" : "string",
+            "example" : "The user has not yet completed authorization"
+          }
+        }
+      },
+      "TokenAccessDeniedResponse" : {
+        "type" : "object",
+        "properties" : {
+          "error" : {
+            "type" : "string",
+            "example" : "access_denied"
+          },
+          "error_description" : {
+            "type" : "string",
+            "example" : "The user has declined authorization"
+          }
+        }
+      }
+    }
+  }
+}
