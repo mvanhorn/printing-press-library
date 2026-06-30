@@ -11,6 +11,7 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 	"io"
+	"net/url"
 	"os"
 	"sort"
 	"strings"
@@ -198,7 +199,9 @@ func newTabWriter(w io.Writer) *tabwriter.Writer {
 	return tabwriter.NewWriter(w, 2, 4, 2, ' ', 0)
 }
 func replacePathParam(path, name, value string) string {
-	return strings.ReplaceAll(path, "{"+name+"}", value)
+	// Percent-encode the value as a single path segment so URL-shaped path params
+	// (siteUrl "https://site/", feedpath) do not inject extra slashes -> 404 / 0 rows.
+	return strings.ReplaceAll(path, "{"+name+"}", url.QueryEscape(value))
 }
 
 // printJSONFiltered marshals a Go-typed value through the same output

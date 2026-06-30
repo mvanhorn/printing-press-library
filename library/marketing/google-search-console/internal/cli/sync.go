@@ -191,7 +191,7 @@ func syncSearchAnalytics(ctx context.Context, c apiClient, s *store.Store, site,
 		if searchType != "" {
 			body["type"] = searchType
 		}
-		path := strings.ReplaceAll("/webmasters/v3/sites/{siteUrl}/searchAnalytics/query", "{siteUrl}", site)
+		path := replacePathParam("/webmasters/v3/sites/{siteUrl}/searchAnalytics/query", "siteUrl", site)
 		data, _, err := c.Post(path, body)
 		if err != nil {
 			return total, err
@@ -262,7 +262,7 @@ func syncSearchAnalytics(ctx context.Context, c apiClient, s *store.Store, site,
 
 // syncSitemaps pulls the sitemap list for a site and snapshots every entry.
 func syncSitemaps(ctx context.Context, c apiClient, s *store.Store, site string) (int, error) {
-	path := strings.ReplaceAll("/webmasters/v3/sites/{siteUrl}/sitemaps", "{siteUrl}", site)
+	path := replacePathParam("/webmasters/v3/sites/{siteUrl}/sitemaps", "siteUrl", site)
 	data, err := c.Get(path, nil)
 	if err != nil {
 		return 0, err
