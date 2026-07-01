@@ -63,12 +63,15 @@ func extractStringField(obj map[string]json.RawMessage, key string) (string, boo
 // Failures are swallowed: the budget tracker is a convenience feature, and
 // a local-store write error must never fail the live command that already
 // succeeded against the real API.
-func recordSolarEdgeCalls(ctx context.Context, siteID string, n int) {
+func recordSolarEdgeCalls(_ context.Context, siteID string, n int) {
 	dbPath := defaultDBPath("solaredge-pp-cli")
 	if dbPath == "" {
 		return
 	}
-	db, err := store.OpenWithContext(ctx, dbPath)
+	// Use a background context, not the caller's bounded command context: a
+	// tight command timeout that just expired for the live API calls should
+	// not also silently drop this best-effort budget-tracker write.
+	db, err := store.OpenWithContext(context.Background(), dbPath)
 	if err != nil {
 		return
 	}

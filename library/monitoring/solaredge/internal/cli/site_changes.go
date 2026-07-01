@@ -146,8 +146,11 @@ func buildSiteChangesView(siteID, since string, windowDays int, energyRaw, invRa
 	if json.Unmarshal(applyResponsePath(invRaw, "Inventory"), &invObj) == nil {
 		view.CurrentEquipmentCount = countInventoryEquipment(invObj)
 	}
+	equipmentNote := "current_equipment_count is a current snapshot, not a delta — the API exposes no equipment history"
 	if view.Note == "" {
-		view.Note = "current_equipment_count is a current snapshot, not a delta — the API exposes no equipment history"
+		view.Note = equipmentNote
+	} else {
+		view.Note += "; " + equipmentNote
 	}
 
 	return view, nil

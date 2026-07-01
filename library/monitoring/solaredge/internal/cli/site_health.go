@@ -134,6 +134,9 @@ func buildSiteHealthView(siteID string, detailsRaw, overviewRaw, flowRaw, invRaw
 	case view.GridStatus == "Disabled":
 		view.Status = "degraded"
 		view.Notes = append(view.Notes, "GRID element reports Disabled")
+	case view.StorageStatus == "Disabled":
+		view.Status = "degraded"
+		view.Notes = append(view.Notes, "STORAGE element reports Disabled")
 	case view.EquipmentCount == 0:
 		view.Status = "unknown"
 		view.Notes = append(view.Notes, "no equipment found in inventory")
