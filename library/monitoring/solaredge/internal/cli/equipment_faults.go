@@ -60,6 +60,10 @@ func newNovelEquipmentFaultsCmd(flags *rootFlags) *cobra.Command {
 
 			view := equipmentFaultsView{SiteID: siteID, Faults: []equipmentFault{}}
 			calls := 0
+			// Record via defer, not a single call after the last c.Get: quota
+			// calls that already succeeded must still be counted even if a
+			// later call in this sequence fails and the command returns early.
+			defer func() { recordSolarEdgeCalls(ctx, siteID, calls) }()
 
 			invRaw, err := c.Get(ctx, replacePathParam("/site/{siteId}/Inventory", "siteId", siteID), nil)
 			if err != nil {
@@ -97,8 +101,6 @@ func newNovelEquipmentFaultsCmd(flags *rootFlags) *cobra.Command {
 			calls++
 			view.Checked = append(view.Checked, "current-power-flow")
 			view.Faults = append(view.Faults, checkPowerFlowElements(flowRaw)...)
-
-			recordSolarEdgeCalls(ctx, siteID, calls)
 
 			return printJSONFiltered(cmd.OutOrStdout(), view, flags)
 		},

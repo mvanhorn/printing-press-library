@@ -56,24 +56,32 @@ func newNovelSiteHealthCmd(flags *rootFlags) *cobra.Command {
 				return err
 			}
 
+			calls := 0
+			// Record via defer, not a single call after the last c.Get: quota
+			// calls that already succeeded must still be counted even if a
+			// later call in this sequence fails and the command returns early.
+			defer func() { recordSolarEdgeCalls(ctx, siteID, calls) }()
+
 			detailsRaw, err := c.Get(ctx, replacePathParam("/site/{siteId}/details", "siteId", siteID), nil)
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}
+			calls++
 			overviewRaw, err := c.Get(ctx, replacePathParam("/site/{siteId}/overview", "siteId", siteID), nil)
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}
+			calls++
 			flowRaw, err := c.Get(ctx, replacePathParam("/site/{siteId}/currentPowerFlow", "siteId", siteID), nil)
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}
+			calls++
 			invRaw, err := c.Get(ctx, replacePathParam("/site/{siteId}/Inventory", "siteId", siteID), nil)
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}
-
-			recordSolarEdgeCalls(ctx, siteID, 4)
+			calls++
 
 			view := buildSiteHealthView(siteID, detailsRaw, overviewRaw, flowRaw, invRaw)
 			return printJSONFiltered(cmd.OutOrStdout(), view, flags)

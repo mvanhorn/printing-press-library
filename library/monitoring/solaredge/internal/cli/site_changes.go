@@ -85,6 +85,12 @@ func newNovelSiteChangesCmd(flags *rootFlags) *cobra.Command {
 			startDate := now.AddDate(0, 0, -2*windowDays).Format("2006-01-02")
 			endDate := now.Format("2006-01-02")
 
+			calls := 0
+			// Record via defer, not a single call after the last c.Get: quota
+			// calls that already succeeded must still be counted even if a
+			// later call in this sequence fails and the command returns early.
+			defer func() { recordSolarEdgeCalls(ctx, siteID, calls) }()
+
 			energyRaw, err := c.Get(ctx, replacePathParam("/site/{siteId}/energy", "siteId", siteID), map[string]string{
 				"startDate": startDate,
 				"endDate":   endDate,
@@ -93,13 +99,13 @@ func newNovelSiteChangesCmd(flags *rootFlags) *cobra.Command {
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}
+			calls++
 
 			invRaw, err := c.Get(ctx, replacePathParam("/site/{siteId}/Inventory", "siteId", siteID), nil)
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}
-
-			recordSolarEdgeCalls(ctx, siteID, 2)
+			calls++
 
 			view, err := buildSiteChangesView(siteID, since, windowDays, energyRaw, invRaw)
 			if err != nil {
