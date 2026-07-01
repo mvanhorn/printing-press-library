@@ -1,0 +1,801 @@
+name: solaredge
+description: "SolarEdge Monitoring API CLI"
+version: "0.1.0"
+category: monitoring
+base_url: "https://monitoringapi.solaredge.com"
+health_check_path: "/version/current"
+
+auth:
+  type: api_key
+  in: query
+  header: api_key
+  env_vars:
+    - SOLAREDGE_API_KEY
+
+config:
+  format: toml
+  path: "~/.config/solaredge-pp-cli/config.toml"
+
+resources:
+  sites:
+    description: "List and bulk-query SolarEdge sites"
+    endpoints:
+      list:
+        method: GET
+        path: "/sites/list"
+        description: "List all sites visible to this API key, with search/sort/pagination"
+        example: "  solaredge-pp-cli sites list --status Active --size 25"
+        params:
+          - name: size
+            type: int
+            default: 100
+            description: "Maximum number of sites to return (max 100)"
+          - name: startIndex
+            type: int
+            default: 0
+            description: "First site index to return, for paging past 100 results"
+          - name: searchText
+            type: string
+            description: "Search by site name, notes, address, city, zip, or country"
+          - name: sortProperty
+            type: string
+            enum: [Name, Country, State, City, Address, Zip, Status, PeakPower, InstallationDate, Amount, MaxSeverity, CreationTime]
+            description: "Site property to sort by"
+          - name: sortOrder
+            type: string
+            enum: [ASC, DESC]
+            default: ASC
+            description: "Sort order"
+          - name: status
+            type: string
+            default: "Active,Pending"
+            description: "Comma-separated site statuses to include: Active, Pending, Disabled, All"
+        response:
+          type: array
+          item: Site
+        response_path: "Sites.list"
+      data-period:
+        method: GET
+        path: "/sites/{siteIds}/dataPeriod"
+        description: "Bulk: production data start/end dates for multiple sites"
+        example: "  solaredge-pp-cli sites data-period 1223050,1223051"
+        params:
+          - name: siteIds
+            type: string
+            required: true
+            positional: true
+            description: "Comma-separated site IDs (up to 100)"
+        response:
+          type: array
+          item: SiteDataPeriodBulkItem
+        response_path: "dataPeriod.list"
+      energy:
+        method: GET
+        path: "/sites/{siteIds}/energy"
+        description: "Bulk: site energy measurements for multiple sites"
+        happy_args: "siteIds=1223050;--start-date=2026-06-01;--end-date=2026-06-30"
+        params:
+          - name: siteIds
+            type: string
+            required: true
+            positional: true
+            description: "Comma-separated site IDs (up to 100)"
+          - name: startDate
+            type: string
+            required: true
+            description: "Start date, format yyyy-MM-dd"
+          - name: endDate
+            type: string
+            required: true
+            description: "End date, format yyyy-MM-dd"
+          - name: timeUnit
+            type: string
+            enum: [QUARTER_OF_AN_HOUR, HOUR, DAY, WEEK, MONTH, YEAR]
+            default: DAY
+            description: "Aggregation granularity"
+        response:
+          type: array
+          item: SiteEnergyBulkItem
+        response_path: "energy.list"
+      time-frame-energy:
+        method: GET
+        path: "/sites/{siteIds}/timeFrameEnergy"
+        description: "Bulk: total energy produced over a period for multiple sites"
+        params:
+          - name: siteIds
+            type: string
+            required: true
+            positional: true
+            description: "Comma-separated site IDs (up to 100)"
+          - name: startDate
+            type: string
+            required: true
+            description: "Start date, format yyyy-MM-dd"
+          - name: endDate
+            type: string
+            required: true
+            description: "End date, format yyyy-MM-dd"
+        response:
+          type: array
+          item: SiteTimeFrameEnergyBulkItem
+        response_path: "timeFrameEnergy.list"
+      power:
+        method: GET
+        path: "/sites/{siteIds}/power"
+        description: "Bulk: 15-minute resolution power measurements for multiple sites (max 1 month window)"
+        params:
+          - name: siteIds
+            type: string
+            required: true
+            positional: true
+            description: "Comma-separated site IDs (up to 100)"
+          - name: startTime
+            type: string
+            required: true
+            description: "Start time, format yyyy-MM-dd HH:mm:ss"
+          - name: endTime
+            type: string
+            required: true
+            description: "End time, format yyyy-MM-dd HH:mm:ss"
+        response:
+          type: array
+          item: SitePowerBulkItem
+        response_path: "power.list"
+      overview:
+        method: GET
+        path: "/sites/{siteIds}/overview"
+        description: "Bulk: current power and lifetime/yearly/monthly/daily energy for multiple sites"
+        params:
+          - name: siteIds
+            type: string
+            required: true
+            positional: true
+            description: "Comma-separated site IDs (up to 100)"
+        response:
+          type: array
+          item: SiteOverviewBulkItem
+        response_path: "overview.list"
+
+  site:
+    description: "Query a single SolarEdge site"
+    endpoints:
+      details:
+        method: GET
+        path: "/site/{siteId}/details"
+        description: "Site details: name, location, status, peak power"
+        params:
+          - name: siteId
+            type: int
+            required: true
+            positional: true
+            description: "The site identifier"
+        response:
+          type: object
+          item: Site
+        response_path: "details"
+      data-period:
+        method: GET
+        path: "/site/{siteId}/dataPeriod"
+        description: "Production data start/end dates for this site"
+        params:
+          - name: siteId
+            type: int
+            required: true
+            positional: true
+            description: "The site identifier"
+        response:
+          type: object
+          item: DataPeriod
+        response_path: "dataPeriod"
+      energy:
+        method: GET
+        path: "/site/{siteId}/energy"
+        description: "Site energy measurements (1 year max for DAY, 1 month max for QUARTER_OF_AN_HOUR/HOUR)"
+        example: "  solaredge-pp-cli site energy 1223050 --start-date 2026-06-01 --end-date 2026-06-30"
+        happy_args: "siteId=1223050;--start-date=2026-06-01;--end-date=2026-06-30"
+        params:
+          - name: siteId
+            type: int
+            required: true
+            positional: true
+            description: "The site identifier"
+          - name: startDate
+            type: string
+            required: true
+            description: "Start date, format yyyy-MM-dd"
+          - name: endDate
+            type: string
+            required: true
+            description: "End date, format yyyy-MM-dd"
+          - name: timeUnit
+            type: string
+            enum: [QUARTER_OF_AN_HOUR, HOUR, DAY, WEEK, MONTH, YEAR]
+            default: DAY
+            description: "Aggregation granularity"
+        response:
+          type: object
+          item: SiteEnergy
+        response_path: "energy"
+      time-frame-energy:
+        method: GET
+        path: "/site/{siteId}/timeFrameEnergy"
+        description: "Total energy produced over a given period (1 year max)"
+        params:
+          - name: siteId
+            type: int
+            required: true
+            positional: true
+            description: "The site identifier"
+          - name: startDate
+            type: string
+            required: true
+            description: "Start date, format yyyy-MM-dd"
+          - name: endDate
+            type: string
+            required: true
+            description: "End date, format yyyy-MM-dd"
+        response:
+          type: object
+          item: SiteTimeFrameEnergy
+        response_path: "timeFrameEnergy"
+      power:
+        method: GET
+        path: "/site/{siteId}/power"
+        description: "15-minute resolution power measurements (1 month max window)"
+        happy_args: "siteId=1223050;--start-time=2026-06-01 00:00:00;--end-time=2026-06-01 23:59:59"
+        params:
+          - name: siteId
+            type: int
+            required: true
+            positional: true
+            description: "The site identifier"
+          - name: startTime
+            type: string
+            required: true
+            description: "Start time, format yyyy-MM-dd HH:mm:ss"
+          - name: endTime
+            type: string
+            required: true
+            description: "End time, format yyyy-MM-dd HH:mm:ss"
+        response:
+          type: object
+          item: SitePower
+        response_path: "power"
+      overview:
+        method: GET
+        path: "/site/{siteId}/overview"
+        description: "Current power and lifetime/yearly/monthly/daily energy and revenue"
+        example: "  solaredge-pp-cli site overview 1223050 --json"
+        params:
+          - name: siteId
+            type: int
+            required: true
+            positional: true
+            description: "The site identifier"
+        response:
+          type: object
+          item: SiteOverview
+        response_path: "overview"
+      power-details:
+        method: GET
+        path: "/site/{siteId}/powerDetails"
+        description: "Detailed power by meter: production, consumption, self-consumption, feed-in, purchased (1 month max window)"
+        params:
+          - name: siteId
+            type: int
+            required: true
+            positional: true
+            description: "The site identifier"
+          - name: startTime
+            type: string
+            required: true
+            description: "Start time, format yyyy-MM-dd HH:mm:ss"
+          - name: endTime
+            type: string
+            required: true
+            description: "End time, format yyyy-MM-dd HH:mm:ss"
+          - name: meters
+            type: string
+            description: "Comma-separated meters to include: PRODUCTION, CONSUMPTION, SELFCONSUMPTION, FEEDIN, PURCHASED. Omit for all."
+        response:
+          type: object
+          item: PowerDetails
+        response_path: "powerDetails"
+      energy-details:
+        method: GET
+        path: "/site/{siteId}/energyDetails"
+        description: "Detailed energy by meter: production, consumption, self-consumption, feed-in, purchased"
+        params:
+          - name: siteId
+            type: int
+            required: true
+            positional: true
+            description: "The site identifier"
+          - name: startTime
+            type: string
+            required: true
+            description: "Start time, format yyyy-MM-dd HH:mm:ss"
+          - name: endTime
+            type: string
+            required: true
+            description: "End time, format yyyy-MM-dd HH:mm:ss"
+          - name: timeUnit
+            type: string
+            enum: [QUARTER_OF_AN_HOUR, HOUR, DAY, WEEK, MONTH, YEAR]
+            default: DAY
+            description: "Aggregation granularity. 1-year max for DAY, 1-month max for QUARTER_OF_AN_HOUR/HOUR"
+          - name: meters
+            type: string
+            description: "Comma-separated meters to include: PRODUCTION, CONSUMPTION, SELFCONSUMPTION, FEEDIN, PURCHASED. Omit for all."
+        response:
+          type: object
+          item: EnergyDetails
+        response_path: "energyDetails"
+      current-power-flow:
+        method: GET
+        path: "/site/{siteId}/currentPowerFlow"
+        description: "Live power flow between PV, storage, load, and grid"
+        example: "  solaredge-pp-cli site current-power-flow 1223050"
+        params:
+          - name: siteId
+            type: int
+            required: true
+            positional: true
+            description: "The site identifier"
+        response:
+          type: object
+          item: PowerFlow
+        response_path: "siteCurrentPowerFlow"
+      storage-data:
+        method: GET
+        path: "/site/{siteId}/storageData"
+        description: "Battery state of energy, power, and lifetime energy (1 week max window)"
+        happy_args: "siteId=1223050;--start-time=2026-06-23 00:00:00;--end-time=2026-06-30 00:00:00"
+        params:
+          - name: siteId
+            type: int
+            required: true
+            positional: true
+            description: "The site identifier"
+          - name: startTime
+            type: string
+            required: true
+            description: "Start time, format yyyy-MM-dd HH:mm:ss"
+          - name: endTime
+            type: string
+            required: true
+            description: "End time, format yyyy-MM-dd HH:mm:ss"
+          - name: serials
+            type: string
+            description: "Comma-separated battery serial numbers. Omit for all batteries on site."
+        response:
+          type: object
+          item: StorageData
+        response_path: "storageData"
+      site-image:
+        method: GET
+        path: "/site/{siteId}/siteImage/{name}"
+        description: "Site image as uploaded to the monitoring portal"
+        response_format: binary
+        params:
+          - name: siteId
+            type: int
+            required: true
+            positional: true
+            description: "The site identifier"
+          - name: name
+            type: string
+            positional: true
+            description: "Image file name"
+          - name: maxWidth
+            type: int
+            description: "Maximum width to scale this image"
+          - name: maxHeight
+            type: int
+            description: "Maximum height to scale this image"
+          - name: hash
+            type: string
+            description: "Image hash, for conditional re-fetch"
+      installer-image:
+        method: GET
+        path: "/site/{siteId}/installerImage/{name}"
+        description: "Installer logo image as uploaded to the monitoring portal"
+        response_format: binary
+        params:
+          - name: siteId
+            type: int
+            required: true
+            positional: true
+            description: "The site identifier"
+          - name: name
+            type: string
+            positional: true
+            description: "Image file name"
+      inventory:
+        method: GET
+        path: "/site/{siteId}/Inventory"
+        description: "Full equipment inventory: inverters, batteries, meters, gateways, sensors"
+        example: "  solaredge-pp-cli site inventory 1223050 --json"
+        params:
+          - name: siteId
+            type: int
+            required: true
+            positional: true
+            description: "The site identifier"
+        response:
+          type: object
+          item: Inventory
+        response_path: "Inventory"
+      sensor-data:
+        method: GET
+        path: "/site/{siteId}/sensors"
+        description: "Telemetry from all sensors on this site (1 week max window)"
+        params:
+          - name: siteId
+            type: int
+            required: true
+            positional: true
+            description: "The site identifier"
+          - name: startDate
+            type: string
+            required: true
+            description: "Start date, format yyyy-MM-dd HH:mm:ss"
+          - name: endDate
+            type: string
+            required: true
+            description: "End date, format yyyy-MM-dd HH:mm:ss"
+        response:
+          type: object
+          item: SiteSensorData
+        response_path: "siteSensors"
+
+  equipment:
+    description: "Query SolarEdge equipment (inverters, optimizers, sensors)"
+    endpoints:
+      list:
+        method: GET
+        path: "/equipment/{siteId}/list"
+        description: "List inverters/SMIs on this site, with name, model, manufacturer, serial number"
+        params:
+          - name: siteId
+            type: int
+            required: true
+            positional: true
+            description: "The site identifier"
+        response:
+          type: array
+          item: EquipmentComponent
+        response_path: "list"
+      inverter-data:
+        method: GET
+        path: "/equipment/{siteId}/{serialNumber}/data"
+        description: "Technical telemetry for one inverter (voltage, current, power) over a period (1 week max window)"
+        happy_args: "siteId=1223050;serialNumber=example-serial;--start-time=2026-06-23 00:00:00;--end-time=2026-06-30 00:00:00"
+        params:
+          - name: siteId
+            type: int
+            required: true
+            positional: true
+            description: "The site identifier"
+          - name: serialNumber
+            type: string
+            required: true
+            positional: true
+            description: "Inverter short serial number"
+          - name: startTime
+            type: string
+            required: true
+            description: "Start time, format yyyy-MM-dd HH:mm:ss"
+          - name: endTime
+            type: string
+            required: true
+            description: "End time, format yyyy-MM-dd HH:mm:ss"
+        response:
+          type: object
+          item: InverterData
+        response_path: "data"
+      sensors:
+        method: GET
+        path: "/equipment/{siteId}/sensors"
+        description: "List of sensors installed on this site and the gateway they connect to"
+        params:
+          - name: siteId
+            type: int
+            required: true
+            positional: true
+            description: "The site identifier"
+        response:
+          type: object
+          item: SiteSensorList
+        response_path: "SiteSensors"
+
+  accounts:
+    description: "Installer account and sub-account management"
+    endpoints:
+      list:
+        method: GET
+        path: "/accounts/list"
+        description: "List the account and its sub-accounts (requires an account-level API key)"
+        params:
+          - name: size
+            type: int
+            default: 100
+            description: "Maximum number of accounts to return (max 100)"
+          - name: startIndex
+            type: int
+            default: 0
+            description: "First account index to return"
+          - name: searchText
+            type: string
+            description: "Search by account name, notes, email, country, state, city, zip, or address"
+          - name: sortProperty
+            type: string
+            enum: [Name, country, city, address, zip, fax, phone, notes]
+            description: "Account property to sort by"
+          - name: sortOrder
+            type: string
+            enum: [ASC, DESC]
+            default: ASC
+            description: "Sort order"
+        response:
+          type: array
+          item: Account
+        response_path: "accounts.list"
+
+  api-version:
+    description: "Monitoring API version information"
+    endpoints:
+      current:
+        method: GET
+        path: "/version/current"
+        description: "Most up-to-date API version number"
+        response:
+          type: object
+          item: VersionInfo
+      supported:
+        method: GET
+        path: "/version/supported"
+        description: "List of supported API version numbers"
+        response:
+          type: object
+          item: SupportedVersions
+
+types:
+  Site:
+    fields:
+      - name: id
+        type: int
+      - name: name
+        type: string
+      - name: accountId
+        type: int
+      - name: status
+        type: string
+      - name: peakPower
+        type: float
+      - name: currency
+        type: string
+      - name: installationDate
+        type: string
+      - name: notes
+        type: string
+      - name: type
+        type: string
+      - name: location
+        type: object
+      - name: alertQuantity
+        type: int
+      - name: alertSeverity
+        type: string
+      - name: publicSettings
+        type: object
+
+  DataPeriod:
+    fields:
+      - name: startDate
+        type: string
+      - name: endDate
+        type: string
+
+  SiteDataPeriodBulkItem:
+    fields:
+      - name: id
+        type: int
+      - name: startDate
+        type: string
+      - name: endDate
+        type: string
+
+  SiteEnergy:
+    fields:
+      - name: timeUnit
+        type: string
+      - name: unit
+        type: string
+      - name: values
+        type: object
+
+  SiteEnergyBulkItem:
+    fields:
+      - name: id
+        type: int
+      - name: values
+        type: object
+
+  SiteTimeFrameEnergy:
+    fields:
+      - name: energy
+        type: float
+      - name: unit
+        type: string
+
+  SiteTimeFrameEnergyBulkItem:
+    fields:
+      - name: id
+        type: int
+      - name: energy
+        type: float
+
+  SitePower:
+    fields:
+      - name: timeUnit
+        type: string
+      - name: unit
+        type: string
+      - name: values
+        type: object
+
+  SitePowerBulkItem:
+    fields:
+      - name: id
+        type: int
+      - name: values
+        type: object
+
+  SiteOverview:
+    fields:
+      - name: lastUpdateTime
+        type: string
+      - name: lifeTimeData
+        type: object
+      - name: lastYearData
+        type: object
+      - name: lastMonthData
+        type: object
+      - name: lastDayData
+        type: object
+      - name: currentPower
+        type: object
+
+  SiteOverviewBulkItem:
+    fields:
+      - name: id
+        type: int
+      - name: lastUpdateTime
+        type: string
+      - name: lifeTimeData
+        type: object
+      - name: lastYearData
+        type: object
+      - name: lastMonthData
+        type: object
+      - name: lastDayData
+        type: object
+      - name: currentPower
+        type: object
+
+  PowerDetails:
+    fields:
+      - name: timeUnit
+        type: string
+      - name: unit
+        type: string
+      - name: meters
+        type: object
+
+  EnergyDetails:
+    fields:
+      - name: timeUnit
+        type: string
+      - name: unit
+        type: string
+      - name: meters
+        type: object
+
+  PowerFlow:
+    fields:
+      - name: unit
+        type: string
+      - name: connections
+        type: object
+      - name: GRID
+        type: object
+      - name: LOAD
+        type: object
+      - name: PV
+        type: object
+      - name: STORAGE
+        type: object
+
+  StorageData:
+    fields:
+      - name: batteryCount
+        type: int
+      - name: batteries
+        type: object
+
+  Inventory:
+    fields:
+      - name: meters
+        type: object
+      - name: sensors
+        type: object
+      - name: gateways
+        type: object
+      - name: batteries
+        type: object
+      - name: inverters
+        type: object
+
+  SiteSensorData:
+    fields:
+      - name: data
+        type: object
+
+  EquipmentComponent:
+    fields:
+      - name: name
+        type: string
+      - name: manufacturer
+        type: string
+      - name: model
+        type: string
+      - name: serialNumber
+        type: string
+
+  InverterData:
+    fields:
+      - name: count
+        type: int
+      - name: telemetries
+        type: object
+
+  SiteSensorList:
+    fields:
+      - name: count
+        type: int
+      - name: list
+        type: object
+
+  Account:
+    fields:
+      - name: id
+        type: int
+      - name: name
+        type: string
+      - name: location
+        type: object
+      - name: companyWebSite
+        type: string
+      - name: contactPerson
+        type: string
+      - name: email
+        type: string
+      - name: phoneNumber
+        type: string
+      - name: faxNumber
+        type: string
+      - name: notes
+        type: string
+      - name: parentId
+        type: int
+
+  VersionInfo:
+    fields:
+      - name: version
+        type: string
+
+  SupportedVersions:
+    fields:
+      - name: supported
+        type: object

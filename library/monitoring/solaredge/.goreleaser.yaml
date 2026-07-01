@@ -1,0 +1,51 @@
+version: 2
+project_name: solaredge-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: solaredge-pp-cli
+    main: ./cmd/solaredge-pp-cli
+    binary: solaredge-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X github.com/mvanhorn/printing-press-library/library/monitoring/solaredge/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: solaredge-pp-mcp
+    main: ./cmd/solaredge-pp-mcp
+    binary: solaredge-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X main.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: solaredge-pp-cli
+    repository:
+      owner: garrickpg
+      name: homebrew-tap
+    homepage: "https://github.com/mvanhorn/printing-press-library"
+    description: "Every SolarEdge Monitoring API endpoint, plus local history that answers questions the API itself can't."
+    install: |
+      bin.install "solaredge-pp-cli"
+      bin.install "solaredge-pp-mcp"

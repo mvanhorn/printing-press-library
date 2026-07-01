@@ -1,0 +1,682 @@
+{
+  "api_name": "solaredge",
+  "base_url": "https://monitoringapi.solaredge.com",
+  "description": "Every SolarEdge Monitoring API endpoint, plus local history that answers questions the API itself can't.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "api_key",
+    "header": "api_key",
+    "in": "query",
+    "env_vars": [
+      "SOLAREDGE_API_KEY"
+    ],
+    "env_var_specs": [
+      {
+        "name": "SOLAREDGE_API_KEY",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    ]
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "accounts_list",
+      "description": "List the account and its sub-accounts (requires an account-level API key). Optional: size (default: 100), startIndex (default: 0), searchText (plus 2 more). Returns array of Account.",
+      "method": "GET",
+      "path": "/accounts/list",
+      "params": [
+        {
+          "name": "size",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum number of accounts to return (max 100)"
+        },
+        {
+          "name": "startIndex",
+          "type": "int",
+          "location": "query",
+          "description": "First account index to return"
+        },
+        {
+          "name": "searchText",
+          "type": "string",
+          "location": "query",
+          "description": "Search by account name, notes, email, country, state, city, zip, or address"
+        },
+        {
+          "name": "sortProperty",
+          "type": "string",
+          "location": "query",
+          "description": "Account property to sort by"
+        },
+        {
+          "name": "sortOrder",
+          "type": "string",
+          "location": "query",
+          "description": "Sort order"
+        }
+      ]
+    },
+    {
+      "name": "api-version_current",
+      "description": "Most up-to-date API version number. Returns the VersionInfo.",
+      "method": "GET",
+      "path": "/version/current",
+      "params": []
+    },
+    {
+      "name": "api-version_supported",
+      "description": "List of supported API version numbers. Returns the SupportedVersions.",
+      "method": "GET",
+      "path": "/version/supported",
+      "params": []
+    },
+    {
+      "name": "equipment_inverter-data",
+      "description": "Technical telemetry for one inverter (voltage, current, power) over a period (1 week max window). Required: siteId, serialNumber, startTime, endTime. Returns the InverterData.",
+      "method": "GET",
+      "path": "/equipment/{siteId}/{serialNumber}/data",
+      "params": [
+        {
+          "name": "siteId",
+          "type": "int",
+          "location": "path",
+          "description": "The site identifier",
+          "required": true
+        },
+        {
+          "name": "serialNumber",
+          "type": "string",
+          "location": "path",
+          "description": "Inverter short serial number",
+          "required": true
+        },
+        {
+          "name": "startTime",
+          "type": "string",
+          "location": "query",
+          "description": "Start time, format yyyy-MM-dd HH:mm:ss",
+          "required": true
+        },
+        {
+          "name": "endTime",
+          "type": "string",
+          "location": "query",
+          "description": "End time, format yyyy-MM-dd HH:mm:ss",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "equipment_list",
+      "description": "List inverters/SMIs on this site, with name, model, manufacturer, serial number. Required: siteId. Returns array of EquipmentComponent.",
+      "method": "GET",
+      "path": "/equipment/{siteId}/list",
+      "params": [
+        {
+          "name": "siteId",
+          "type": "int",
+          "location": "path",
+          "description": "The site identifier",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "equipment_sensors",
+      "description": "List of sensors installed on this site and the gateway they connect to. Required: siteId. Returns the SiteSensorList.",
+      "method": "GET",
+      "path": "/equipment/{siteId}/sensors",
+      "params": [
+        {
+          "name": "siteId",
+          "type": "int",
+          "location": "path",
+          "description": "The site identifier",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "site_current-power-flow",
+      "description": "Live power flow between PV, storage, load, and grid. Required: siteId. Returns the PowerFlow.",
+      "method": "GET",
+      "path": "/site/{siteId}/currentPowerFlow",
+      "params": [
+        {
+          "name": "siteId",
+          "type": "int",
+          "location": "path",
+          "description": "The site identifier",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "site_data-period",
+      "description": "Production data start/end dates for this site. Required: siteId. Returns the DataPeriod.",
+      "method": "GET",
+      "path": "/site/{siteId}/dataPeriod",
+      "params": [
+        {
+          "name": "siteId",
+          "type": "int",
+          "location": "path",
+          "description": "The site identifier",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "site_details",
+      "description": "Site details: name, location, status, peak power. Required: siteId. Returns the Site.",
+      "method": "GET",
+      "path": "/site/{siteId}/details",
+      "params": [
+        {
+          "name": "siteId",
+          "type": "int",
+          "location": "path",
+          "description": "The site identifier",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "site_energy",
+      "description": "Site energy measurements (1 year max for DAY, 1 month max for QUARTER_OF_AN_HOUR/HOUR). Required: siteId, startDate, endDate. Optional: timeUnit (default: DAY). Returns the SiteEnergy.",
+      "method": "GET",
+      "path": "/site/{siteId}/energy",
+      "params": [
+        {
+          "name": "siteId",
+          "type": "int",
+          "location": "path",
+          "description": "The site identifier",
+          "required": true
+        },
+        {
+          "name": "startDate",
+          "type": "string",
+          "location": "query",
+          "description": "Start date, format yyyy-MM-dd",
+          "required": true
+        },
+        {
+          "name": "endDate",
+          "type": "string",
+          "location": "query",
+          "description": "End date, format yyyy-MM-dd",
+          "required": true
+        },
+        {
+          "name": "timeUnit",
+          "type": "string",
+          "location": "query",
+          "description": "Aggregation granularity"
+        }
+      ]
+    },
+    {
+      "name": "site_energy-details",
+      "description": "Detailed energy by meter: production, consumption, self-consumption, feed-in, purchased. Required: siteId, startTime, endTime. Optional: timeUnit (default: DAY), meters. Returns the EnergyDetails.",
+      "method": "GET",
+      "path": "/site/{siteId}/energyDetails",
+      "params": [
+        {
+          "name": "siteId",
+          "type": "int",
+          "location": "path",
+          "description": "The site identifier",
+          "required": true
+        },
+        {
+          "name": "startTime",
+          "type": "string",
+          "location": "query",
+          "description": "Start time, format yyyy-MM-dd HH:mm:ss",
+          "required": true
+        },
+        {
+          "name": "endTime",
+          "type": "string",
+          "location": "query",
+          "description": "End time, format yyyy-MM-dd HH:mm:ss",
+          "required": true
+        },
+        {
+          "name": "timeUnit",
+          "type": "string",
+          "location": "query",
+          "description": "Aggregation granularity. 1-year max for DAY, 1-month max for QUARTER_OF_AN_HOUR/HOUR"
+        },
+        {
+          "name": "meters",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated meters to include: PRODUCTION, CONSUMPTION, SELFCONSUMPTION, FEEDIN, PURCHASED. Omit for all."
+        }
+      ]
+    },
+    {
+      "name": "site_installer-image",
+      "description": "Installer logo image as uploaded to the monitoring portal. Required: siteId, name.",
+      "method": "GET",
+      "path": "/site/{siteId}/installerImage/{name}",
+      "params": [
+        {
+          "name": "siteId",
+          "type": "int",
+          "location": "path",
+          "description": "The site identifier",
+          "required": true
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "path",
+          "description": "Image file name",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "site_inventory",
+      "description": "Full equipment inventory: inverters, batteries, meters, gateways, sensors. Required: siteId. Returns the Inventory.",
+      "method": "GET",
+      "path": "/site/{siteId}/Inventory",
+      "params": [
+        {
+          "name": "siteId",
+          "type": "int",
+          "location": "path",
+          "description": "The site identifier",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "site_overview",
+      "description": "Current power and lifetime/yearly/monthly/daily energy and revenue. Required: siteId. Returns the SiteOverview.",
+      "method": "GET",
+      "path": "/site/{siteId}/overview",
+      "params": [
+        {
+          "name": "siteId",
+          "type": "int",
+          "location": "path",
+          "description": "The site identifier",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "site_power",
+      "description": "15-minute resolution power measurements (1 month max window). Required: siteId, startTime, endTime. Returns the SitePower.",
+      "method": "GET",
+      "path": "/site/{siteId}/power",
+      "params": [
+        {
+          "name": "siteId",
+          "type": "int",
+          "location": "path",
+          "description": "The site identifier",
+          "required": true
+        },
+        {
+          "name": "startTime",
+          "type": "string",
+          "location": "query",
+          "description": "Start time, format yyyy-MM-dd HH:mm:ss",
+          "required": true
+        },
+        {
+          "name": "endTime",
+          "type": "string",
+          "location": "query",
+          "description": "End time, format yyyy-MM-dd HH:mm:ss",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "site_power-details",
+      "description": "Detailed power by meter: production, consumption, self-consumption, feed-in, purchased (1 month max window). Required: siteId, startTime, endTime. Optional: meters. Returns the PowerDetails.",
+      "method": "GET",
+      "path": "/site/{siteId}/powerDetails",
+      "params": [
+        {
+          "name": "siteId",
+          "type": "int",
+          "location": "path",
+          "description": "The site identifier",
+          "required": true
+        },
+        {
+          "name": "startTime",
+          "type": "string",
+          "location": "query",
+          "description": "Start time, format yyyy-MM-dd HH:mm:ss",
+          "required": true
+        },
+        {
+          "name": "endTime",
+          "type": "string",
+          "location": "query",
+          "description": "End time, format yyyy-MM-dd HH:mm:ss",
+          "required": true
+        },
+        {
+          "name": "meters",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated meters to include: PRODUCTION, CONSUMPTION, SELFCONSUMPTION, FEEDIN, PURCHASED. Omit for all."
+        }
+      ]
+    },
+    {
+      "name": "site_sensor-data",
+      "description": "Telemetry from all sensors on this site (1 week max window). Required: siteId, startDate, endDate. Returns the SiteSensorData.",
+      "method": "GET",
+      "path": "/site/{siteId}/sensors",
+      "params": [
+        {
+          "name": "siteId",
+          "type": "int",
+          "location": "path",
+          "description": "The site identifier",
+          "required": true
+        },
+        {
+          "name": "startDate",
+          "type": "string",
+          "location": "query",
+          "description": "Start date, format yyyy-MM-dd HH:mm:ss",
+          "required": true
+        },
+        {
+          "name": "endDate",
+          "type": "string",
+          "location": "query",
+          "description": "End date, format yyyy-MM-dd HH:mm:ss",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "site_site-image",
+      "description": "Site image as uploaded to the monitoring portal. Required: siteId, name. Optional: maxWidth, maxHeight, hash.",
+      "method": "GET",
+      "path": "/site/{siteId}/siteImage/{name}",
+      "params": [
+        {
+          "name": "siteId",
+          "type": "int",
+          "location": "path",
+          "description": "The site identifier",
+          "required": true
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "path",
+          "description": "Image file name",
+          "required": true
+        },
+        {
+          "name": "maxWidth",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum width to scale this image"
+        },
+        {
+          "name": "maxHeight",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum height to scale this image"
+        },
+        {
+          "name": "hash",
+          "type": "string",
+          "location": "query",
+          "description": "Image hash, for conditional re-fetch"
+        }
+      ]
+    },
+    {
+      "name": "site_storage-data",
+      "description": "Battery state of energy, power, and lifetime energy (1 week max window). Required: siteId, startTime, endTime. Optional: serials. Returns the StorageData.",
+      "method": "GET",
+      "path": "/site/{siteId}/storageData",
+      "params": [
+        {
+          "name": "siteId",
+          "type": "int",
+          "location": "path",
+          "description": "The site identifier",
+          "required": true
+        },
+        {
+          "name": "startTime",
+          "type": "string",
+          "location": "query",
+          "description": "Start time, format yyyy-MM-dd HH:mm:ss",
+          "required": true
+        },
+        {
+          "name": "endTime",
+          "type": "string",
+          "location": "query",
+          "description": "End time, format yyyy-MM-dd HH:mm:ss",
+          "required": true
+        },
+        {
+          "name": "serials",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated battery serial numbers. Omit for all batteries on site."
+        }
+      ]
+    },
+    {
+      "name": "site_time-frame-energy",
+      "description": "Total energy produced over a given period (1 year max). Required: siteId, startDate, endDate. Returns the SiteTimeFrameEnergy.",
+      "method": "GET",
+      "path": "/site/{siteId}/timeFrameEnergy",
+      "params": [
+        {
+          "name": "siteId",
+          "type": "int",
+          "location": "path",
+          "description": "The site identifier",
+          "required": true
+        },
+        {
+          "name": "startDate",
+          "type": "string",
+          "location": "query",
+          "description": "Start date, format yyyy-MM-dd",
+          "required": true
+        },
+        {
+          "name": "endDate",
+          "type": "string",
+          "location": "query",
+          "description": "End date, format yyyy-MM-dd",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "sites_data-period",
+      "description": "Bulk: production data start/end dates for multiple sites. Required: siteIds. Returns array of SiteDataPeriodBulkItem.",
+      "method": "GET",
+      "path": "/sites/{siteIds}/dataPeriod",
+      "params": [
+        {
+          "name": "siteIds",
+          "type": "string",
+          "location": "path",
+          "description": "Comma-separated site IDs (up to 100)",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "sites_energy",
+      "description": "Bulk: site energy measurements for multiple sites. Required: siteIds, startDate, endDate. Optional: timeUnit (default: DAY). Returns array of SiteEnergyBulkItem.",
+      "method": "GET",
+      "path": "/sites/{siteIds}/energy",
+      "params": [
+        {
+          "name": "siteIds",
+          "type": "string",
+          "location": "path",
+          "description": "Comma-separated site IDs (up to 100)",
+          "required": true
+        },
+        {
+          "name": "startDate",
+          "type": "string",
+          "location": "query",
+          "description": "Start date, format yyyy-MM-dd",
+          "required": true
+        },
+        {
+          "name": "endDate",
+          "type": "string",
+          "location": "query",
+          "description": "End date, format yyyy-MM-dd",
+          "required": true
+        },
+        {
+          "name": "timeUnit",
+          "type": "string",
+          "location": "query",
+          "description": "Aggregation granularity"
+        }
+      ]
+    },
+    {
+      "name": "sites_list",
+      "description": "List all sites visible to this API key, with search/sort/pagination. Optional: size (default: 100), startIndex (default: 0), searchText (plus 3 more). Returns array of Site.",
+      "method": "GET",
+      "path": "/sites/list",
+      "params": [
+        {
+          "name": "size",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum number of sites to return (max 100)"
+        },
+        {
+          "name": "startIndex",
+          "type": "int",
+          "location": "query",
+          "description": "First site index to return, for paging past 100 results"
+        },
+        {
+          "name": "searchText",
+          "type": "string",
+          "location": "query",
+          "description": "Search by site name, notes, address, city, zip, or country"
+        },
+        {
+          "name": "sortProperty",
+          "type": "string",
+          "location": "query",
+          "description": "Site property to sort by"
+        },
+        {
+          "name": "sortOrder",
+          "type": "string",
+          "location": "query",
+          "description": "Sort order"
+        },
+        {
+          "name": "status",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated site statuses to include: Active, Pending, Disabled, All"
+        }
+      ]
+    },
+    {
+      "name": "sites_overview",
+      "description": "Bulk: current power and lifetime/yearly/monthly/daily energy for multiple sites. Required: siteIds. Returns array of SiteOverviewBulkItem.",
+      "method": "GET",
+      "path": "/sites/{siteIds}/overview",
+      "params": [
+        {
+          "name": "siteIds",
+          "type": "string",
+          "location": "path",
+          "description": "Comma-separated site IDs (up to 100)",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "sites_power",
+      "description": "Bulk: 15-minute resolution power measurements for multiple sites (max 1 month window). Required: siteIds, startTime, endTime. Returns array of SitePowerBulkItem.",
+      "method": "GET",
+      "path": "/sites/{siteIds}/power",
+      "params": [
+        {
+          "name": "siteIds",
+          "type": "string",
+          "location": "path",
+          "description": "Comma-separated site IDs (up to 100)",
+          "required": true
+        },
+        {
+          "name": "startTime",
+          "type": "string",
+          "location": "query",
+          "description": "Start time, format yyyy-MM-dd HH:mm:ss",
+          "required": true
+        },
+        {
+          "name": "endTime",
+          "type": "string",
+          "location": "query",
+          "description": "End time, format yyyy-MM-dd HH:mm:ss",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "sites_time-frame-energy",
+      "description": "Bulk: total energy produced over a period for multiple sites. Required: siteIds, startDate, endDate. Returns array of SiteTimeFrameEnergyBulkItem.",
+      "method": "GET",
+      "path": "/sites/{siteIds}/timeFrameEnergy",
+      "params": [
+        {
+          "name": "siteIds",
+          "type": "string",
+          "location": "path",
+          "description": "Comma-separated site IDs (up to 100)",
+          "required": true
+        },
+        {
+          "name": "startDate",
+          "type": "string",
+          "location": "query",
+          "description": "Start date, format yyyy-MM-dd",
+          "required": true
+        },
+        {
+          "name": "endDate",
+          "type": "string",
+          "location": "query",
+          "description": "End date, format yyyy-MM-dd",
+          "required": true
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "api_name": "solaredge",
+  "run_id": "20260630-095604-6b32e05e",
+  "status": "skip",
+  "level": "none",
+  "skip_reason": "auth-unavailable",
+  "auth_context": {
+    "type": "api_key",
+    "api_key_available": false,
+    "browser_session_available": false
+  }
+}

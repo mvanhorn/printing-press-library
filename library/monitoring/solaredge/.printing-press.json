@@ -1,0 +1,55 @@
+{
+  "schema_version": 2,
+  "generated_at": "2026-07-01T05:33:42.848598Z",
+  "printing_press_version": "4.27.1",
+  "api_name": "solaredge",
+  "display_name": "SolarEdge",
+  "cli_name": "solaredge-pp-cli",
+  "creator": {
+    "handle": "garrickpg",
+    "name": "garrickpg"
+  },
+  "owner": "garrickpg",
+  "printer": "garrickpg",
+  "printer_name": "garrickpg",
+  "spec_format": "internal",
+  "spec_checksum": "sha256:7f7f1a75b4b1b70e827456986ca59655d53d39ec34b206a3eb506b1ddd6ac0c2",
+  "run_id": "20260630-095604-6b32e05e",
+  "category": "monitoring",
+  "description": "Every SolarEdge Monitoring API endpoint, plus local history that answers questions the API itself can't.",
+  "mcp_binary": "solaredge-pp-mcp",
+  "mcp_tool_count": 26,
+  "mcp_ready": "full",
+  "api_version": "0.1.0",
+  "auth_type": "api_key",
+  "auth_env_vars": [
+    "SOLAREDGE_API_KEY"
+  ],
+  "novel_features": [
+    {
+      "name": "System health check",
+      "command": "site health",
+      "description": "See one combined go/no-go status for a site instead of cross-referencing several separate calls."
+    },
+    {
+      "name": "Underperformance vs baseline",
+      "command": "site underperformance",
+      "description": "Flag days where production fell below this site's own historical average for that time of year."
+    },
+    {
+      "name": "What changed since X",
+      "command": "site changes",
+      "description": "Get a short digest of the energy delta vs the prior period of equal length, plus a current equipment-count snapshot."
+    },
+    {
+      "name": "Rate-limit budget tracker",
+      "command": "budget status",
+      "description": "See how much of today's 300-request quota this CLI has used, per site."
+    },
+    {
+      "name": "Equipment fault digest",
+      "command": "equipment faults",
+      "description": "See only the inverters, batteries, or system elements in a non-nominal state."
+    }
+  ]
+}

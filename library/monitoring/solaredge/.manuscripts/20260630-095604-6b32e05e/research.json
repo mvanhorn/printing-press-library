@@ -1,0 +1,248 @@
+{
+  "api_name": "solaredge",
+  "novelty_score": 0,
+  "alternatives": [
+    {
+      "name": "solaredge-interface",
+      "url": "https://github.com/M-Fatah/solaredge-interface",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 24,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "EVWorth/solaredge",
+      "url": "https://github.com/bertouttier/solaredge",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "pysolaredge",
+      "url": "https://github.com/Yenthe666/pysolaredge",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 3,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "clambin/solaredge",
+      "url": "https://github.com/clambin/solaredge",
+      "language": "Go",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "shaungrady/solaredge-client",
+      "url": "https://github.com/shaungrady/solaredge-client",
+      "language": "JavaScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "se_ms_api",
+      "url": "https://github.com/grtwje/se_ms_api",
+      "language": "Rust",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-06-30T09:58:00Z",
+  "novel_features": [
+    {
+      "name": "System health check",
+      "command": "site health",
+      "description": "See one combined go/no-go status for a site instead of cross-referencing several separate calls.",
+      "rationale": "Combines four live calls (details, overview, current-power-flow, inventory) into one healthy/degraded/unknown view that no single endpoint returns.",
+      "example": "solaredge-pp-cli site health 1223050 --json",
+      "why_it_matters": "Pick this over 'site overview' or 'site current-power-flow' when you need one answer to 'is this site OK right now'.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Underperformance vs baseline",
+      "command": "site underperformance",
+      "description": "Flag days where production fell below this site's own historical average for that time of year.",
+      "rationale": "The raw API has no historical-baseline comparison feature; this computes a trailing average from one 364-day energy call and flags recent days against it.",
+      "example": "solaredge-pp-cli site underperformance 1223050 --since 30d --agent",
+      "why_it_matters": "Pick this when the question is 'is this normal for this site' rather than 'what changed recently' (use 'site changes' for the latter).",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "What changed since X",
+      "command": "site changes",
+      "description": "Get a short digest of the energy delta vs the prior period of equal length, plus a current equipment-count snapshot.",
+      "rationale": "The API has no diff feature of its own and no equipment-history endpoint, so this computes the delta from one energy call spanning both periods and adds a current (non-delta) inventory count for context.",
+      "example": "solaredge-pp-cli site changes 1223050 --since 7d --json",
+      "why_it_matters": "Pick this for a recent-delta digest; pick 'site underperformance' instead for statistical baseline comparisons.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Rate-limit budget tracker",
+      "command": "budget status",
+      "description": "See how much of today's 300-request quota this CLI has used, per site.",
+      "rationale": "No SolarEdge endpoint exposes remaining quota; this is a purely local derived view over a call log that 'site health', 'site underperformance', 'site changes', and 'equipment faults' write to.",
+      "example": "solaredge-pp-cli budget status --json",
+      "why_it_matters": "Check this before running several site commands in a row so a 429 doesn't interrupt you partway through.",
+      "group": "Reachability mitigation"
+    },
+    {
+      "name": "Equipment fault digest",
+      "command": "equipment faults",
+      "description": "See only the inverters, batteries, or system elements in a non-nominal state.",
+      "rationale": "Combines inventory optimizer counts, recent battery telemetry, and current power-flow element status into one filtered view; no endpoint pre-filters to non-nominal equipment.",
+      "example": "solaredge-pp-cli equipment faults 1223050 --json",
+      "why_it_matters": "Use this for a filtered fault list; use 'equipment inventory' for the full unfiltered equipment list.",
+      "group": "Agent-native plumbing"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "System health check",
+      "command": "site health",
+      "description": "See one combined go/no-go status for a site instead of cross-referencing several separate calls.",
+      "rationale": "Combines four live calls (details, overview, current-power-flow, inventory) into one healthy/degraded/unknown view that no single endpoint returns.",
+      "example": "solaredge-pp-cli site health 1223050 --json",
+      "why_it_matters": "Pick this over 'site overview' or 'site current-power-flow' when you need one answer to 'is this site OK right now'.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Underperformance vs baseline",
+      "command": "site underperformance",
+      "description": "Flag days where production fell below this site's own historical average for that time of year.",
+      "rationale": "The raw API has no historical-baseline comparison feature; this computes a trailing average from one 364-day energy call and flags recent days against it.",
+      "example": "solaredge-pp-cli site underperformance 1223050 --since 30d --agent",
+      "why_it_matters": "Pick this when the question is 'is this normal for this site' rather than 'what changed recently' (use 'site changes' for the latter).",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "What changed since X",
+      "command": "site changes",
+      "description": "Get a short digest of the energy delta vs the prior period of equal length, plus a current equipment-count snapshot.",
+      "rationale": "The API has no diff feature of its own and no equipment-history endpoint, so this computes the delta from one energy call spanning both periods and adds a current (non-delta) inventory count for context.",
+      "example": "solaredge-pp-cli site changes 1223050 --since 7d --json",
+      "why_it_matters": "Pick this for a recent-delta digest; pick 'site underperformance' instead for statistical baseline comparisons.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Rate-limit budget tracker",
+      "command": "budget status",
+      "description": "See how much of today's 300-request quota this CLI has used, per site.",
+      "rationale": "No SolarEdge endpoint exposes remaining quota; this is a purely local derived view over a call log that 'site health', 'site underperformance', 'site changes', and 'equipment faults' write to.",
+      "example": "solaredge-pp-cli budget status --json",
+      "why_it_matters": "Check this before running several site commands in a row so a 429 doesn't interrupt you partway through.",
+      "group": "Reachability mitigation"
+    },
+    {
+      "name": "Equipment fault digest",
+      "command": "equipment faults",
+      "description": "See only the inverters, batteries, or system elements in a non-nominal state.",
+      "rationale": "Combines inventory optimizer counts, recent battery telemetry, and current power-flow element status into one filtered view; no endpoint pre-filters to non-nominal equipment.",
+      "example": "solaredge-pp-cli equipment faults 1223050 --json",
+      "why_it_matters": "Use this for a filtered fault list; use 'equipment inventory' for the full unfiltered equipment list.",
+      "group": "Agent-native plumbing"
+    }
+  ],
+  "auth": {
+    "canonical_env_var": "SOLAREDGE_API_KEY"
+  },
+  "narrative": {
+    "display_name": "SolarEdge",
+    "headline": "Every SolarEdge Monitoring API endpoint, plus local history that answers questions the API itself can't.",
+    "value_prop": "Existing SolarEdge wrappers (Python, Node, Go, Rust) are thin 1:1 API clients that return exactly what one endpoint gives you. This CLI computes things the API never does on its own: 'site underperformance' flags days statistically below the site's own trailing average, 'site changes' diffs the current period against the prior one, 'site health' combines four calls into a single go/no-go view, and 'budget status' tracks how much of the 300-request/day quota this CLI has used, since the API exposes no header or endpoint for it.",
+    "auth_narrative": "SolarEdge issues two kinds of API keys: an Account-level key (Account Admin \u003e Company Details \u003e API Access) that can see every site on the account, or a Site-level key (Site Admin \u003e Site Details \u003e API Access) scoped to one site. Either works with `SOLAREDGE_API_KEY`; account-level keys additionally unlock `accounts list` and bulk multi-site commands.",
+    "quickstart": [
+      {
+        "command": "solaredge-pp-cli doctor --dry-run",
+        "comment": "verify the binary and config resolve before touching the network"
+      },
+      {
+        "command": "solaredge-pp-cli sites list --json",
+        "comment": "confirm the API key works and see which sites you can access"
+      },
+      {
+        "command": "solaredge-pp-cli site overview 1223050 --json",
+        "comment": "check current power, today/month/lifetime energy for a known site"
+      },
+      {
+        "command": "solaredge-pp-cli sync --resources sites",
+        "comment": "cache your site list locally so 'sites' searches and lookups work offline"
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "HTTP 429 'too many requests'",
+        "fix": "you've hit the 300-requests/day or 3-concurrent-call limit for this account+site; run `solaredge-pp-cli budget status` to see this CLI's tracked usage before retrying"
+      },
+      {
+        "symptom": "HTTP 403 on a power/energy/storage call",
+        "fix": "check the requested time window against the endpoint's limit (1 week for storage/sensor/inverter data, 1 month for power/powerDetails, 1 year for daily energy) — narrow the range and retry"
+      },
+      {
+        "symptom": "HTTP 401 'Invalid API key'",
+        "fix": "confirm SOLAREDGE_API_KEY is set to a key generated from Account Admin or Site Admin \u003e API Access, not a portal password"
+      }
+    ],
+    "when_to_use": "Use this CLI when you own or manage one or more SolarEdge sites and want offline-queryable production/consumption history, equipment health checks, or fleet-wide rollups without re-deriving them by hand from the raw Monitoring API on every check.",
+    "anti_triggers": [
+      "Do not use this CLI for real-time control of the inverter or battery (the SolarEdge Monitoring API is read-only; use the SetApp mobile app or installer tools for configuration changes)",
+      "Do not use this CLI for live home-automation event triggers (e.g. turning on a load when production spikes) — it polls on demand, it does not push events; use Home Assistant or solaredge2mqtt for that",
+      "Do not use this CLI to bypass the 300-request/day account limit — it tracks the budget, it cannot raise it"
+    ],
+    "recipes": [
+      {
+        "title": "Morning health check",
+        "command": "solaredge-pp-cli site health 1223050",
+        "explanation": "One combined go/no-go status instead of cross-referencing overview, power flow, and equipment calls by hand."
+      },
+      {
+        "title": "Is this normal for this time of year",
+        "command": "solaredge-pp-cli site underperformance 1223050 --since 30d --agent",
+        "explanation": "Flags days statistically below this site's own trailing average, the question the raw API can never answer in one call."
+      },
+      {
+        "title": "Pull only the meter breakdown an agent needs",
+        "command": "solaredge-pp-cli site energy-details 1223050 --start-time '2026-06-01 00:00:00' --end-time '2026-06-30 23:59:59' --agent --select meters.type,meters.values.value",
+        "explanation": "energyDetails returns a verbose nested meters array; --select narrows it to just the meter type and values an agent needs."
+      },
+      {
+        "title": "Check the daily rate-limit budget before a big sync",
+        "command": "solaredge-pp-cli budget status --json",
+        "explanation": "Shows requests used/remaining against the 300/day cap before kicking off a fleet-wide sync that could trigger a 429."
+      }
+    ],
+    "trigger_phrases": [
+      "check my solar production",
+      "is my SolarEdge system underperforming",
+      "check my SolarEdge equipment for faults",
+      "list my SolarEdge sites",
+      "SolarEdge site overview",
+      "use solaredge",
+      "run solaredge"
+    ]
+  }
+}
