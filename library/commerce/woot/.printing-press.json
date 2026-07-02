@@ -1,0 +1,41 @@
+{
+  "schema_version": 2,
+  "generated_at": "2026-07-02T01:10:47.987512Z",
+  "printing_press_version": "4.27.1",
+  "api_name": "woot",
+  "display_name": "Woot",
+  "cli_name": "woot-pp-cli",
+  "creator": {
+    "handle": "TheFabulousMoolah",
+    "name": "Matthew Vassallo"
+  },
+  "owner": "matthew-vassallo",
+  "printer": "TheFabulousMoolah",
+  "printer_name": "Matthew Vassallo",
+  "spec_path": "spec.yaml",
+  "spec_format": "internal",
+  "spec_source": "sniffed",
+  "spec_checksum": "sha256:a76f8a70d49ac046f51709293159cfe8dca90aaab18f6ac1f1a35c659ff6a30d",
+  "run_id": "20260702-011047",
+  "category": "commerce",
+  "description": "Discovered API spec for d24qg5zsx8xdc4-cloudfront",
+  "mcp_binary": "woot-pp-mcp",
+  "mcp_tool_count": 1,
+  "mcp_ready": "full",
+  "api_version": "0.1.0",
+  "auth_type": "api_key",
+  "auth_env_vars": [
+    "D24QG5ZSX8XDC4_CLOUDFRONT_API_KEY"
+  ],
+  "novel_features": [
+    {
+      "name": "Woot All Deals Search",
+      "command": "deals",
+      "description": "Scan Woot's paged All Deals results and filter live offers by keyword.",
+      "rationale": "Uses the same frontend searchOffers paging, category, price, and page filters that Woot's All Deals UI uses.",
+      "example": "woot-pp-cli deals rayon --limit 10000 --agent",
+      "why_it_matters": "Use this when Woot's visible All Deals pages contain an offer that a single GraphQL page or direct offer lookup would miss.",
+      "group": "Live deal discovery"
+    }
+  ]
+}
