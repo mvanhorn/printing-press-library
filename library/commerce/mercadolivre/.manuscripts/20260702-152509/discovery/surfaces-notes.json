@@ -1,0 +1,63 @@
+{
+  "target": "mercadolivre.com.br",
+  "captured_at": "2026-07-02",
+  "reachability": {
+    "mode": "browser_clearance_http",
+    "needs_browser_capture": false,
+    "needs_clearance_cookie": true,
+    "rationale": "Search (lista.mercadolivre.com.br) and product (/p/MLB) pages redirect plain HTTP clients to /captcha/wall. A logged-in Chrome session renders them fully. The generated CLI needs Chrome cookie import (auth login --chrome) plus a Chrome-fingerprint HTTP transport (Surf) to replay these GETs. No resident browser required at runtime."
+  },
+  "hints": {
+    "UsesBrowserHTTPTransport": true,
+    "UsesClearanceCookie": true,
+    "PrimaryExtraction": "json-ld",
+    "ResponseFormats": ["html"]
+  },
+  "surfaces": [
+    {
+      "name": "search",
+      "url_pattern": "https://lista.mercadolivre.com.br/{query}",
+      "method": "GET",
+      "response_format": "html",
+      "extraction": "json-ld",
+      "notes": "HTML document embeds application/ld+json @graph with ~48 Product entries + one SearchResultsPage. Each Product: name, brand.name, image, offers.price (numeric BRL), offers.availability, offers.url (product page, /p/MLB catalog id or /up/MLBU), aggregateRating {ratingValue, ratingCount}. Also embeds _n.ctx.s.q optimizedResponse blob and DOM poly-cards as fallback. Pagination: append _Desde_{offset} (49-per-page).",
+      "captcha_walled_on_plain_http": true
+    },
+    {
+      "name": "product",
+      "url_pattern": "https://www.mercadolivre.com.br/p/{catalog_id}",
+      "method": "GET",
+      "response_format": "html",
+      "extraction": "json-ld+spec-table",
+      "notes": "JSON-LD Product: name, brand, sku (MLB id), aggregateRating {ratingValue, ratingCount, reviewCount}, offers {price, priceCurrency, availability, priceValidUntil, shippingDetails, hasMerchantReturnPolicy}. JSON-LD Table = full technical spec table. DOM spec table rows are 'Attribute :: Value' pairs (~40 attrs, e.g. 'Capacidade de disco SSD :: 1 TB'). BreadcrumbList = category path.",
+      "captcha_walled_on_plain_http": true
+    },
+    {
+      "name": "categories_attributes",
+      "url_pattern": "https://api.mercadolibre.com/categories/{category_id}/attributes",
+      "method": "GET",
+      "response_format": "json",
+      "auth": "none",
+      "notes": "Official API, still open without auth. Returns the attribute SCHEMA for a category (which specs exist, required flags, value types). Used to build comparison column sets."
+    },
+    {
+      "name": "domain_discovery",
+      "url_pattern": "https://api.mercadolibre.com/sites/MLB/domain_discovery/search?q={query}",
+      "method": "GET",
+      "response_format": "json",
+      "auth": "none",
+      "notes": "Official API, open without auth. Maps free-text query -> domain_id/category_id. Only search-ish official endpoint still public."
+    },
+    {
+      "name": "autosuggest",
+      "url_pattern": "https://http2.mlstatic.com/resources/sites/MLB/autosuggest?showFilters=true&limit=6&api_version=2&q={query}",
+      "method": "GET",
+      "response_format": "json",
+      "auth": "none",
+      "notes": "Frontend static endpoint, open without auth. Returns suggested_queries[] with filters. Query expansion helper."
+    }
+  ],
+  "official_api_gated": {
+    "note": "Most of api.mercadolibre.com now returns 403 PolicyAgent without OAuth: /sites/MLB/search, /items/{id}, /products/search, /currencies, /sites, /categories list. Only /categories/{id}, /categories/{id}/attributes, /domain_discovery, autosuggest remain open. OAuth has no client_credentials flow (authorization_code + refresh only), so the website JSON-LD path is the chosen primary."
+  }
+}

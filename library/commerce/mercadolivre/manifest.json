@@ -1,0 +1,27 @@
+{
+  "manifest_version": "0.3",
+  "name": "mercadolivre-pp-mcp",
+  "display_name": "Mercado Livre",
+  "version": "0.1.0",
+  "description": "Search Mercado Livre, compare prices and technical specs across listings, and build cotações — offline-persisted and agent-native, for procurement automation.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/mercadolivre-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/mercadolivre-pp-mcp",
+      "args": []
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

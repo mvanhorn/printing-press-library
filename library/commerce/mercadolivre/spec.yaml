@@ -1,0 +1,237 @@
+name: mercadolivre
+description: "Mercado Livre price & spec comparison CLI for procurement/suprimentos"
+version: "0.1.0"
+base_url: "https://api.mercadolibre.com"
+http_transport: browser-chrome
+health_check_path: "/categories/MLB1648"
+spec_source: browser-sniffed
+
+auth:
+  type: cookie
+  cookie_domain: ".mercadolivre.com.br"
+  cookies:
+    - _d2id
+  in: cookie
+
+config:
+  format: toml
+  path: "~/.config/mercadolivre-pp-cli/config.toml"
+
+resources:
+  listings:
+    description: "Search Mercado Livre listings (JSON-LD extraction from the search page)"
+    base_url: "https://lista.mercadolivre.com.br"
+    endpoints:
+      search:
+        method: GET
+        path: "/{query}"
+        description: "Search listings by term; extracts the search page JSON-LD @graph (name, brand, price BRL, availability, product URL, rating)"
+        example: "  mercadolivre-pp-cli search \"notebook gamer\" --limit 20"
+        happy_args: "query=notebook"
+        response_format: html
+        html_extract:
+          mode: embedded-json
+          script_selector: "script[type=\"application/ld+json\"]"
+        params:
+          - name: query
+            type: string
+            required: true
+            positional: true
+            description: "Search term (spaces become hyphens in the Mercado Livre URL)"
+          - name: limit
+            type: int
+            required: false
+            default: 49
+            description: "Max listings to return (page holds 49)"
+        response:
+          type: array
+          item: SearchResult
+
+  products:
+    description: "Fetch a catalog product page (JSON-LD Product + technical spec table)"
+    base_url: "https://www.mercadolivre.com.br"
+    endpoints:
+      get:
+        method: GET
+        path: "/p/{catalog_id}"
+        description: "Fetch a catalog product's price, rating, shipping and full technical attribute table"
+        example: "  mercadolivre-pp-cli products get MLB51764304"
+        happy_args: "catalog_id=MLB51764304"
+        response_format: html
+        html_extract:
+          mode: embedded-json
+          script_selector: "script[type=\"application/ld+json\"]"
+        params:
+          - name: catalog_id
+            type: string
+            required: true
+            positional: true
+            description: "Catalog product id, e.g. MLB51764304"
+        response:
+          type: object
+          item: Product
+
+  categories:
+    description: "Mercado Livre category metadata and attribute schema (no auth)"
+    endpoints:
+      get:
+        method: GET
+        path: "/categories/{category_id}"
+        description: "Get category metadata by id"
+        example: "  mercadolivre-pp-cli categories get MLB1648"
+        happy_args: "category_id=MLB1648"
+        params:
+          - name: category_id
+            type: string
+            required: true
+            positional: true
+            description: "Category id, e.g. MLB1648"
+        response:
+          type: object
+          item: Category
+      attributes:
+        method: GET
+        path: "/categories/{category_id}/attributes"
+        description: "Get the attribute schema for a category (which specs exist, value types) to normalize comparison columns"
+        example: "  mercadolivre-pp-cli categories attributes MLB1648"
+        happy_args: "category_id=MLB1648"
+        params:
+          - name: category_id
+            type: string
+            required: true
+            positional: true
+            description: "Category id, e.g. MLB1648"
+        response:
+          type: array
+          item: CategoryAttribute
+
+  discovery:
+    description: "Map a free-text query to a Mercado Livre category/domain (no auth)"
+    endpoints:
+      domain:
+        method: GET
+        path: "/sites/MLB/domain_discovery/search"
+        description: "Resolve a free-text query to domain_id/category_id"
+        example: "  mercadolivre-pp-cli discovery domain --q furadeira"
+        happy_args: "--q=furadeira"
+        params:
+          - name: q
+            type: string
+            required: true
+            description: "Free-text query to resolve"
+        response:
+          type: array
+          item: DomainMatch
+
+  autosuggest:
+    description: "Query autosuggest / expansion (no auth)"
+    base_url: "https://http2.mlstatic.com"
+    endpoints:
+      suggest:
+        method: GET
+        path: "/resources/sites/MLB/autosuggest"
+        description: "Suggested queries for a search term"
+        example: "  mercadolivre-pp-cli autosuggest suggest --q notebook"
+        happy_args: "--q=notebook"
+        params:
+          - name: q
+            type: string
+            required: true
+            description: "Partial query to expand"
+          - name: limit
+            type: int
+            required: false
+            default: 6
+            description: "Max suggestions"
+          - name: api_version
+            type: int
+            required: false
+            default: 2
+            description: "Autosuggest API version"
+          - name: showFilters
+            flag_name: show-filters
+            type: bool
+            required: false
+            default: true
+            description: "Include filter suggestions"
+        response:
+          type: object
+          item: Suggestions
+
+types:
+  SearchResult:
+    fields:
+      - name: catalog_id
+        type: string
+      - name: name
+        type: string
+      - name: brand
+        type: string
+      - name: price
+        type: float
+      - name: currency
+        type: string
+      - name: availability
+        type: string
+      - name: url
+        type: string
+      - name: rating_value
+        type: float
+      - name: rating_count
+        type: int
+  Product:
+    fields:
+      - name: catalog_id
+        type: string
+      - name: name
+        type: string
+      - name: brand
+        type: string
+      - name: price
+        type: float
+      - name: currency
+        type: string
+      - name: availability
+        type: string
+      - name: rating_value
+        type: float
+      - name: rating_count
+        type: int
+      - name: review_count
+        type: int
+      - name: url
+        type: string
+      - name: category_path
+        type: string
+  CategoryAttribute:
+    fields:
+      - name: id
+        type: string
+      - name: name
+        type: string
+      - name: value_type
+        type: string
+      - name: tags
+        type: string
+  Category:
+    fields:
+      - name: id
+        type: string
+      - name: name
+        type: string
+      - name: total_items_in_this_category
+        type: int
+  DomainMatch:
+    fields:
+      - name: domain_id
+        type: string
+      - name: domain_name
+        type: string
+      - name: category_id
+        type: string
+      - name: category_name
+        type: string
+  Suggestions:
+    fields:
+      - name: q
+        type: string

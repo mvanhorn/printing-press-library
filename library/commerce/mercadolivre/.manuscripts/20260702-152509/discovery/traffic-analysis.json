@@ -1,0 +1,18 @@
+{
+  "version": "1",
+  "summary": {
+    "target_url": "https://www.mercadolivre.com.br",
+    "entry_count": 3,
+    "api_entry_count": 3,
+    "http_version_distribution": {"h2": 9}
+  },
+  "reachability": {
+    "mode": "browser_clearance_http",
+    "confidence": 0.9,
+    "reasons": [
+      "search (lista.mercadolivre.com.br) and product (/p/MLB) pages redirect plain HTTP clients to /captcha/wall; logged-in Chrome renders fully",
+      "captcha wall is IP-reputation + fingerprint based; clearance carried by imported Chrome cookies + Chrome-fingerprint HTTP transport"
+    ]
+  },
+  "generation_hints": ["browser_clearance_required"]
+}

@@ -1,0 +1,17 @@
+{
+  "api_name": "mercadolivre",
+  "base_url": "https://api.mercadolibre.com",
+  "description": "Search Mercado Livre, compare prices and technical specs across listings, and build cotações — offline-persisted and agent-native, for procurement automation.",
+  "mcp_ready": "partial",
+  "http_transport": "browser-chrome",
+  "auth": {
+    "type": "cookie",
+    "in": "cookie",
+    "cookie_domain": ".mercadolivre.com.br",
+    "cookies": [
+      "_d2id"
+    ]
+  },
+  "required_headers": [],
+  "tools": []
+}

@@ -1,0 +1,245 @@
+{
+  "api_name": "mercadolivre",
+  "novelty_score": 8,
+  "alternatives": [
+    {
+      "name": "linces/MercadoScraper",
+      "url": "https://github.com/linces/MercadoScraper",
+      "language": "Python",
+      "install_method": "",
+      "stars": 24,
+      "last_updated": "",
+      "command_count": 2,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "Menegueli/WebscrapingML",
+      "url": "https://github.com/Menegueli/WebscrapingML",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 1,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "heitornolla/WebScraping-MercadoLivre",
+      "url": "https://github.com/heitornolla/WebScraping-MercadoLivre",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 1,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "newerton/mcp-mercado-livre",
+      "url": "https://github.com/newerton/mcp-mercado-livre",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 8,
+      "last_updated": "",
+      "command_count": 1,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-07-02T19:35:41Z",
+  "novel_features": [
+    {
+      "name": "Aligned spec matrix",
+      "command": "compare",
+      "description": "Compare N products side-by-side as a normalized attribute matrix with a price row, so 'which meets 220V and \u003e=700W' is one command instead of six browser tabs.",
+      "rationale": "Requires a local join of each product's attributes against the category attribute schema to align columns that sellers expose inconsistently — no single Mercado Livre call returns this.",
+      "example": "mercadolivre-pp-cli compare MLB51764304 MLB40287816 --diff --agent",
+      "why_it_matters": "Reach for this when an agent must justify a procurement choice across candidate listings with differing spec labels.",
+      "group": "Procurement comparison"
+    },
+    {
+      "name": "Cheapest meeting spec floor",
+      "command": "cheapest",
+      "description": "Find the lowest-priced listing that satisfies attribute floors like voltage and power, evaluated against locally synced spec data.",
+      "rationale": "Evaluates =/\u003e=/\u003c= predicates over the local attribute table then sorts by price — a mechanical filter no generic API client offers.",
+      "example": "mercadolivre-pp-cli cheapest --query furadeira --spec \"voltagem=220V\" --spec \"potencia\u003e=700W\" --agent",
+      "why_it_matters": "Reach for this to answer 'cheapest that meets spec' without eyeballing mismatched seller attribute sets.",
+      "group": "Procurement comparison"
+    },
+    {
+      "name": "Cross-seller price dispersion",
+      "command": "dispersion",
+      "description": "Report min/max/median/stddev of prices across the multiple sellers a single Mercado Livre catalog product aggregates.",
+      "rationale": "Exploits Mercado Livre's catalog structure where one /p/MLB product page fronts many seller offers; the spread is a local aggregation over synced rows.",
+      "example": "mercadolivre-pp-cli dispersion MLB51764304 --agent",
+      "why_it_matters": "Reach for this to gauge whether a quoted price is competitive against the full seller spread for the same catalog item.",
+      "group": "Price intelligence"
+    },
+    {
+      "name": "Price drift over time",
+      "command": "price-history",
+      "description": "Show how a product's price changed across repeated local snapshots, with an optional --since window.",
+      "rationale": "Delta over locally accumulated price_snapshot rows — history no live API call can reconstruct.",
+      "example": "mercadolivre-pp-cli price-history MLB51764304 --since 30d --agent",
+      "why_it_matters": "Reach for this to catch supplier price creep on recurring consumables before it hits a PO.",
+      "group": "Price intelligence"
+    },
+    {
+      "name": "Cotacao quotation bundle",
+      "command": "cotacao",
+      "description": "Assemble a purchase-request-shaped quotation across chosen products with price, seller, key specs, and captured_at provenance.",
+      "rationale": "Cross-entity join of product+attribute+seller+latest price into the domain artifact procurement actually signs off on, with a decision-time audit trail.",
+      "example": "mercadolivre-pp-cli cotacao MLB51764304 MLB40287816 --format md",
+      "why_it_matters": "Reach for this to emit the final cotação document instead of a raw table dump.",
+      "group": "Procurement comparison"
+    },
+    {
+      "name": "Freshness gate",
+      "command": "stale",
+      "description": "List products whose newest price snapshot is older than a threshold, so a cotacao is never built on cold prices.",
+      "rationale": "Local captured_at query over price_snapshot — a data-validity guard with no API call.",
+      "example": "mercadolivre-pp-cli stale --older-than 7d --agent",
+      "why_it_matters": "Reach for this before finalizing a quote to confirm every price is fresh enough to trust.",
+      "group": "Price intelligence"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Aligned spec matrix",
+      "command": "compare",
+      "description": "Compare N products side-by-side as a normalized attribute matrix with a price row, so 'which meets 220V and \u003e=700W' is one command instead of six browser tabs.",
+      "rationale": "Requires a local join of each product's attributes against the category attribute schema to align columns that sellers expose inconsistently — no single Mercado Livre call returns this.",
+      "example": "mercadolivre-pp-cli compare MLB51764304 MLB40287816 --diff --agent",
+      "why_it_matters": "Reach for this when an agent must justify a procurement choice across candidate listings with differing spec labels.",
+      "group": "Procurement comparison"
+    },
+    {
+      "name": "Cheapest meeting spec floor",
+      "command": "cheapest",
+      "description": "Find the lowest-priced listing that satisfies attribute floors like voltage and power, evaluated against locally synced spec data.",
+      "rationale": "Evaluates =/\u003e=/\u003c= predicates over the local attribute table then sorts by price — a mechanical filter no generic API client offers.",
+      "example": "mercadolivre-pp-cli cheapest --query furadeira --spec \"voltagem=220V\" --spec \"potencia\u003e=700W\" --agent",
+      "why_it_matters": "Reach for this to answer 'cheapest that meets spec' without eyeballing mismatched seller attribute sets.",
+      "group": "Procurement comparison"
+    },
+    {
+      "name": "Cross-seller price dispersion",
+      "command": "dispersion",
+      "description": "Report min/max/median/stddev of prices across the multiple sellers a single Mercado Livre catalog product aggregates.",
+      "rationale": "Exploits Mercado Livre's catalog structure where one /p/MLB product page fronts many seller offers; the spread is a local aggregation over synced rows.",
+      "example": "mercadolivre-pp-cli dispersion MLB51764304 --agent",
+      "why_it_matters": "Reach for this to gauge whether a quoted price is competitive against the full seller spread for the same catalog item.",
+      "group": "Price intelligence"
+    },
+    {
+      "name": "Price drift over time",
+      "command": "price-history",
+      "description": "Show how a product's price changed across repeated local snapshots, with an optional --since window.",
+      "rationale": "Delta over locally accumulated price_snapshot rows — history no live API call can reconstruct.",
+      "example": "mercadolivre-pp-cli price-history MLB51764304 --since 30d --agent",
+      "why_it_matters": "Reach for this to catch supplier price creep on recurring consumables before it hits a PO.",
+      "group": "Price intelligence"
+    },
+    {
+      "name": "Cotacao quotation bundle",
+      "command": "cotacao",
+      "description": "Assemble a purchase-request-shaped quotation across chosen products with price, seller, key specs, and captured_at provenance.",
+      "rationale": "Cross-entity join of product+attribute+seller+latest price into the domain artifact procurement actually signs off on, with a decision-time audit trail.",
+      "example": "mercadolivre-pp-cli cotacao MLB51764304 MLB40287816 --format md",
+      "why_it_matters": "Reach for this to emit the final cotação document instead of a raw table dump.",
+      "group": "Procurement comparison"
+    },
+    {
+      "name": "Freshness gate",
+      "command": "stale",
+      "description": "List products whose newest price snapshot is older than a threshold, so a cotacao is never built on cold prices.",
+      "rationale": "Local captured_at query over price_snapshot — a data-validity guard with no API call.",
+      "example": "mercadolivre-pp-cli stale --older-than 7d --agent",
+      "why_it_matters": "Reach for this before finalizing a quote to confirm every price is fresh enough to trust.",
+      "group": "Price intelligence"
+    }
+  ],
+  "narrative": {
+    "display_name": "Mercado Livre",
+    "headline": "Search Mercado Livre, compare prices and technical specs across listings, and build cotações — offline-persisted and agent-native, for procurement automation.",
+    "value_prop": "A buyer-side CLI for procurement/suprimentos: it extracts stable JSON-LD from Mercado Livre search and product pages (clearing the captcha wall with an imported Chrome session), persists prices and spec attributes to a local SQLite store, and adds comparison commands no scraper offers — an aligned spec matrix (compare), cheapest-meeting-spec (cheapest), cross-seller price dispersion (dispersion), and cotação bundles with decision-time provenance.",
+    "auth_narrative": "Mercado Livre serves search and product pages behind a captcha wall to plain HTTP clients. Run 'auth login --chrome' to import your logged-in Chrome cookies; the CLI replays requests with a Chrome fingerprint (no resident browser). The no-auth helper endpoints (category attributes, domain discovery, autosuggest) work without any login.",
+    "quickstart": [
+      {
+        "command": "mercadolivre-pp-cli auth login --chrome",
+        "comment": "import Chrome cookies to clear the captcha wall"
+      },
+      {
+        "command": "mercadolivre-pp-cli listings \"notebook gamer\" --limit 20",
+        "comment": "search with prices; auto-persists listings + a price snapshot to the local store"
+      },
+      {
+        "command": "mercadolivre-pp-cli products get MLB51764304",
+        "comment": "fetch full technical specs for a candidate; persists product + attributes"
+      },
+      {
+        "command": "mercadolivre-pp-cli compare MLB51764304 MLB40287816 --diff",
+        "comment": "aligned spec matrix, only differing rows"
+      },
+      {
+        "command": "mercadolivre-pp-cli cheapest --query furadeira --spec \"voltagem=220V\"",
+        "comment": "cheapest listing meeting the spec floor"
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "Requests return a captcha/security page",
+        "fix": "Re-run 'auth login --chrome' to refresh imported cookies; ensure you are logged into mercadolivre.com.br in Chrome."
+      },
+      {
+        "symptom": "compare shows empty columns for some attributes",
+        "fix": "Run 'products get \u003cid\u003e' on both products first; sellers expose different attribute sets, and fetching each product populates its spec attributes."
+      },
+      {
+        "symptom": "price-history shows only one point",
+        "fix": "Price history builds from repeated captures; re-run 'listings' or 'products get' on a schedule to accumulate snapshots."
+      }
+    ],
+    "when_to_use": "Use this CLI when an agent or analyst needs to turn Mercado Livre listings into a procurement decision: searching by term, comparing prices and technical specs across candidate products, finding the cheapest option meeting a spec floor, or assembling a cotação with a price-at-decision audit trail. It is the right tool for suprimentos automation where the official API is gated and manual browsing does not scale.",
+    "recipes": [
+      {
+        "title": "Discover and persist candidates",
+        "command": "mercadolivre-pp-cli listings \"furadeira de impacto\" --limit 30",
+        "explanation": "Search, extract JSON-LD, and auto-store listings + a price snapshot for offline comparison."
+      },
+      {
+        "title": "Cheapest meeting a spec floor",
+        "command": "mercadolivre-pp-cli cheapest --query \"furadeira de impacto\" --spec \"voltagem=220V\" --spec \"potencia\u003e=700W\" --agent",
+        "explanation": "Filter synced listings by attribute predicates, then sort by price for the agent."
+      },
+      {
+        "title": "Spec matrix, narrowed fields",
+        "command": "mercadolivre-pp-cli compare MLB51764304 MLB40287816 --agent --select products.name,products.price,attributes.voltagem,attributes.potencia",
+        "explanation": "Emit only the columns the decision needs from a deeply nested comparison payload."
+      },
+      {
+        "title": "Check price spread before quoting",
+        "command": "mercadolivre-pp-cli dispersion MLB51764304",
+        "explanation": "See min/max/median across sellers for the catalog product."
+      },
+      {
+        "title": "Build the cotacao",
+        "command": "mercadolivre-pp-cli cotacao MLB51764304 MLB40287816 --format md",
+        "explanation": "Assemble the purchase-request document with prices, specs, and captured_at provenance."
+      }
+    ],
+    "trigger_phrases": [
+      "cotação no mercado livre",
+      "comparar preços mercado livre",
+      "cheapest mercado livre meeting spec",
+      "compare specs mercado livre",
+      "preço mercado livre",
+      "use mercadolivre",
+      "run mercadolivre"
+    ]
+  }
+}
