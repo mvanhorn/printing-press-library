@@ -19,6 +19,32 @@ import (
 	"github.com/mvanhorn/printing-press-library/library/productivity/zoom/internal/config"
 )
 
+// init wires config.RefreshHook to the same S2S exchange `auth refresh`
+// runs, so internal/config can transparently refresh an expired cached
+// token from inside config.Load() without an import cycle (internal/config
+// cannot import internal/cli, which already imports internal/config).
+//
+// PATCH(amend-2026-07-02: surface refresh-token expiry instead of a raw
+// 401). See .printing-press-patches/s2s-token-cache-refreshes-transparently-on-expiry.json.
+func init() {
+	config.RefreshHook = func() (*config.TokenCache, error) {
+		accountID := os.Getenv("ZOOM_S2S_ACCOUNT_ID")
+		clientID := os.Getenv("ZOOM_S2S_CLIENT_ID")
+		clientSecret := os.Getenv("ZOOM_S2S_CLIENT_SECRET")
+		if accountID == "" || clientID == "" || clientSecret == "" {
+			return nil, errors.New("auth: transparent refresh requires ZOOM_S2S_ACCOUNT_ID / ZOOM_S2S_CLIENT_ID / ZOOM_S2S_CLIENT_SECRET")
+		}
+		tc, err := exchangeS2SToken(context.Background(), accountID, clientID, clientSecret)
+		if err != nil {
+			return nil, err
+		}
+		if err := writeTokenCache(tc); err != nil {
+			return nil, err
+		}
+		return tc, nil
+	}
+}
+
 // newZoomAuthCmd wires up `auth set-token`, `auth status`, `auth refresh`.
 // These sit alongside the framework-emitted commands and own the Server-to-
 // Server OAuth flow that the spec couldn't describe (Swagger 2.0 apiKey

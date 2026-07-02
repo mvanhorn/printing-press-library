@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "s2s-token-cache-refreshes-transparently-on-expiry",
+  "applied_at": "2026-07-02",
+  "base_run_id": "20260519-094503",
+  "base_printing_press_version": "4.9.0",
+  "summary": "The cached-token read path (internal/config, consulted by every cloud-hitting command) must attempt a live S2S refresh when the cache is expired, not silently return an empty auth header. auth status already surfaces cache_expired/cache_expires_at; a regen that regresses this back to a silent empty-header fallthrough reintroduces an opaque HTTP 401 for the common case where refresh credentials are actually available.",
+  "reason": "internal/config/zoom_auth_config.go's tryLoadCachedZoomToken() detected the 60s-buffer expiry window correctly but returned \"\", \"\" on expiry instead of refreshing, so config.Load() left AuthHeaderVal empty and every cloud command sent an unauthenticated request that Zoom answered with an opaque \"HTTP 401: Invalid access token\" -- with no hint that a working `auth refresh` was one command away. Wired via a package-level RefreshHook (internal/config cannot import internal/cli, which already imports internal/config, without an import cycle); internal/cli/zoom_auth.go's init() sets the hook to the same exchangeS2SToken + writeTokenCache the `auth refresh` command already runs, so there is no duplicated OAuth exchange logic.",
+  "files": [
+    "internal/config/zoom_auth_config.go",
+    "internal/cli/zoom_auth.go"
+  ],
+  "validated_outcome": "go build/go vet clean; manual trace of tryLoadCachedZoomToken confirms the refresh branch is skipped under PRINTING_PRESS_VERIFY=1 and no-ops (no network call) when S2S env credentials are absent, so verify-mode and the no-credentials case are unchanged."
+}

@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "recordings-export-falls-back-to-cloud-on-local-miss",
+  "applied_at": "2026-07-02",
+  "base_run_id": "20260519-094503",
+  "base_printing_press_version": "4.9.0",
+  "summary": "recordings export's local-first-then-cloud-fallback is a documented contract (README.md), not optional behavior: a local SQLite miss must attempt GET /meetings/{meetingId}/recordings (treating the query as a literal meeting ID/UUID) and download recording_files[].download_url with the CLI's own auth header before erroring. A regen that drops the cloud attempt silently breaks that documented contract for every cloud-only meeting.",
+  "reason": "newRecordingsExportCmd immediately returned \"no local recording matching %q\" on a local_recordings SQLite miss, with no cloud attempt, despite README.md explicitly documenting \"Resolve a recording ID against local first, fall back to cloud (downloading if needed)\". The reusable building block already existed: GET /meetings/{meetingId}/recordings is generated as `meetings recordings get` and returns recording_files with download_url per file. Zoom's recording download_url values are not pre-signed public URLs -- they require the same S2S bearer credential as the API call itself, so the fallback reuses client.Client's own Config.AuthHeader()/HTTPClient rather than an unauthenticated fetch.",
+  "files": [
+    "internal/cli/zoom_recordings.go"
+  ],
+  "validated_outcome": "go build/go vet clean. Investigated the finding's \"likely\" hedge on `recordings recent --source cloud` separately: that command reads a local cloud_recordings SQLite table populated only by a separate `recordings cloud list` sync step and its own source comment says \"Honest empty list otherwise\" -- by-design local caching, not a documented live-fallback claim, so it was left unchanged."
+}

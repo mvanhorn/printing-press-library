@@ -3,8 +3,10 @@ package cli
 import (
 	"context"
 	"database/sql"
+	"encoding/json"
 	"fmt"
 	"io"
+	"net/http"
 	"os"
 	"path/filepath"
 	"sort"
@@ -14,6 +16,7 @@ import (
 
 	"github.com/spf13/cobra"
 
+	"github.com/mvanhorn/printing-press-library/library/productivity/zoom/internal/client"
 	"github.com/mvanhorn/printing-press-library/library/productivity/zoom/internal/cliutil"
 	"github.com/mvanhorn/printing-press-library/library/productivity/zoom/internal/local/localstore"
 	"github.com/mvanhorn/printing-press-library/library/productivity/zoom/internal/local/recordings"
@@ -548,7 +551,18 @@ func newRecordingsExportCmd(flags *rootFlags) *cobra.Command {
 				query, "%"+query+"%", "%"+query+"%")
 			var id, path, topic, name, transcript, chat string
 			if err := row.Scan(&id, &path, &topic, &name, &transcript, &chat); err != nil {
-				return fmt.Errorf("recordings export: no local recording matching %q (run `recordings local sync` first?)", query)
+				// PATCH(amend-2026-07-02: recordings export cloud fallback) --
+				// README.md documents "Resolve a recording ID against local
+				// first, fall back to cloud (downloading if needed)" but this
+				// used to return straight from the local miss above. Treat the
+				// query as a literal meeting ID/UUID and try the live cloud
+				// recordings API before giving up. See
+				// .printing-press-patches/recordings-export-falls-back-to-cloud-on-local-miss.json.
+				result, cloudErr := exportRecordingFromCloud(cmd.Context(), flags, query, out, withChat, withTranscript)
+				if cloudErr != nil {
+					return fmt.Errorf("recordings export: no local recording matching %q (run `recordings local sync` first?); cloud fallback also failed: %w", query, cloudErr)
+				}
+				return flags.printJSON(cmd, result)
 			}
 
 			if err := os.MkdirAll(out, 0o755); err != nil {
@@ -619,6 +633,162 @@ func newRecordingsExportCmd(flags *rootFlags) *cobra.Command {
 	cmd.Flags().BoolVar(&withChat, "with-chat", false, "Include the meeting_saved_chat.txt file")
 	cmd.Flags().BoolVar(&withTranscript, "with-transcript", false, "Include the .vtt transcript")
 	return cmd
+}
+
+// cloudRecordingMeeting decodes the subset of Zoom's RecordingMeeting /
+// RecordingList schema (GET /meetings/{meetingId}/recordings, the same
+// endpoint the generated `meetings recordings get` command exposes raw)
+// that exportRecordingFromCloud needs to download files and build an index.
+type cloudRecordingMeeting struct {
+	UUID           string `json:"uuid"`
+	ID             string `json:"id"`
+	Topic          string `json:"topic"`
+	StartTime      string `json:"start_time"`
+	RecordingFiles []struct {
+		ID          string `json:"id"`
+		FileType    string `json:"file_type"`
+		DownloadURL string `json:"download_url"`
+	} `json:"recording_files"`
+}
+
+// exportRecordingFromCloud is the fallback newRecordingsExportCmd takes when
+// meetingID has no local_recordings match. Treats meetingID as a literal
+// Zoom meeting ID or UUID (the cloud API has no fuzzy-name search the way
+// the local SQLite LIKE query does) and resolves it against
+// GET /meetings/{meetingId}/recordings, then downloads each
+// recording_files[].download_url with the CLI's own auth header -- Zoom's
+// download links require the same S2S bearer credential as the API call
+// itself, they are not pre-signed public URLs.
+func exportRecordingFromCloud(ctx context.Context, flags *rootFlags, meetingID, out string, withChat, withTranscript bool) (map[string]any, error) {
+	c, err := flags.newClient()
+	if err != nil {
+		return nil, err
+	}
+	path := replacePathParam("/meetings/{meetingId}/recordings", "meetingId", meetingID)
+	data, err := c.Get(path, nil)
+	if err != nil {
+		return nil, classifyAPIError(err, flags)
+	}
+	var meeting cloudRecordingMeeting
+	if err := json.Unmarshal(data, &meeting); err != nil {
+		return nil, fmt.Errorf("parsing cloud recordings response: %w", err)
+	}
+	if len(meeting.RecordingFiles) == 0 {
+		return nil, fmt.Errorf("meeting %s has no cloud recording files", meetingID)
+	}
+	if err := os.MkdirAll(out, 0o755); err != nil {
+		return nil, err
+	}
+
+	var copied []string
+	var copyErrors []string
+	var transcriptPath string
+	for _, rf := range meeting.RecordingFiles {
+		var dst string
+		switch rf.FileType {
+		case "MP4":
+			dst = filepath.Join(out, rf.ID+".mp4")
+		case "TRANSCRIPT":
+			if !withTranscript {
+				continue
+			}
+			dst = filepath.Join(out, rf.ID+".vtt")
+		case "CHAT":
+			if !withChat {
+				continue
+			}
+			dst = filepath.Join(out, rf.ID+".txt")
+		default:
+			continue
+		}
+		if err := downloadCloudFile(ctx, c, rf.DownloadURL, dst); err != nil {
+			copyErrors = append(copyErrors, fmt.Sprintf("%s file %s: %v", rf.FileType, rf.ID, err))
+			continue
+		}
+		copied = append(copied, dst)
+		if rf.FileType == "TRANSCRIPT" {
+			transcriptPath = dst
+		}
+	}
+
+	indexPath := filepath.Join(out, "INDEX.md")
+	if err := writeCloudExportIndex(indexPath, meeting.Topic, meetingID, copied, transcriptPath); err != nil {
+		return nil, fmt.Errorf("copied %d cloud file(s) to %s but INDEX.md write failed: %w", len(copied), out, err)
+	}
+	// Mirror the local path: a requested transcript/chat that failed to copy
+	// makes this a partial export, so it's an error even though some files
+	// landed successfully.
+	if len(copyErrors) > 0 {
+		return nil, fmt.Errorf("exported %d file(s) to %s but %d requested file(s) failed to copy: %s",
+			len(copied), out, len(copyErrors), strings.Join(copyErrors, "; "))
+	}
+	return map[string]any{
+		"status":     "exported",
+		"source":     "cloud",
+		"out":        out,
+		"recording":  map[string]any{"id": meeting.ID, "uuid": meeting.UUID, "topic": meeting.Topic},
+		"files":      copied,
+		"index_path": indexPath,
+	}, nil
+}
+
+// downloadCloudFile GETs a Zoom recording_files[].download_url with the
+// CLI's own bearer auth and streams the body to dst. A bare unauthenticated
+// GET against download_url returns 401 -- Zoom documents passing the same
+// OAuth access token via the Authorization header (or an access_token query
+// param) that the rest of this CLI already uses for api.zoom.us calls.
+func downloadCloudFile(ctx context.Context, c *client.Client, downloadURL, dst string) error {
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, downloadURL, nil)
+	if err != nil {
+		return err
+	}
+	if h := c.Config.AuthHeader(); h != "" {
+		req.Header.Set("Authorization", h)
+	}
+	resp, err := c.HTTPClient.Do(req)
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+	if resp.StatusCode != http.StatusOK {
+		body, _ := io.ReadAll(io.LimitReader(resp.Body, 4096))
+		return fmt.Errorf("HTTP %d: %s", resp.StatusCode, strings.TrimSpace(string(body)))
+	}
+	f, err := os.Create(dst)
+	if err != nil {
+		return err
+	}
+	defer f.Close()
+	_, err = io.Copy(f, resp.Body)
+	return err
+}
+
+// writeCloudExportIndex mirrors writeExportIndex for the cloud-fallback
+// path. There are no local_transcript_segments SQLite rows to draw a TOC
+// from here, so when a transcript file was downloaded it parses the VTT
+// directly with the same recordings.ParseVTTFile the local sync path uses.
+func writeCloudExportIndex(indexPath, topic, meetingID string, copied []string, transcriptPath string) error {
+	var b strings.Builder
+	fmt.Fprintf(&b, "# %s\n\n", strings.TrimSpace(topic))
+	fmt.Fprintf(&b, "Source: cloud recording for meeting %s\n\n", meetingID)
+	fmt.Fprintf(&b, "## Files\n")
+	for _, c := range copied {
+		fmt.Fprintf(&b, "- %s\n", filepath.Base(c))
+	}
+	if transcriptPath != "" {
+		if cues, err := recordings.ParseVTTFile(transcriptPath); err == nil && len(cues) > 0 {
+			fmt.Fprintf(&b, "\n## Timestamped Table of Contents\n\n")
+			for _, cue := range cues {
+				ts := formatHHMMSS(cue.Start.Milliseconds())
+				if cue.Speaker != "" {
+					fmt.Fprintf(&b, "- **%s** _%s_: %s\n", ts, cue.Speaker, cue.Text)
+				} else {
+					fmt.Fprintf(&b, "- **%s**: %s\n", ts, cue.Text)
+				}
+			}
+		}
+	}
+	return os.WriteFile(indexPath, []byte(b.String()), 0o644)
 }
 
 // writeExportIndex builds INDEX.md in a buffer (so a mid-document failure can
