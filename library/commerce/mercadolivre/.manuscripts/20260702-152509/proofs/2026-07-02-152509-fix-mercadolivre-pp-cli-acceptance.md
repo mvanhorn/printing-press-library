@@ -3,7 +3,7 @@
 Level: Pragmatic dogfood (environment-constrained). Gate: PASS.
 
 ## Environment constraint (honest)
-This host is a data-center IP. Mercado Livre's captcha wall scores IP reputation, so the browser-clearance surfaces (listings search, product pages) return the captcha wall from here even with a Chrome fingerprint. In the user's real deployment this is cleared by routing egress through a residential IP (Tailscale exit node — documented in README/SKILL troubleshooting) plus imported Chrome cookies. That path could not be exercised from this host.
+This host is a data-center IP. Mercado Livre's captcha wall scores IP reputation, so the browser-clearance surfaces (listings search, product pages) return the captcha wall from here even with a Chrome fingerprint. In the user's real deployment this is cleared by routing egress through a residential IP (residential-IP egress — documented in README/SKILL troubleshooting) plus imported Chrome cookies. That path could not be exercised from this host.
 
 ## Live tests (from this data-center IP)
 - `categories attributes MLB1648` — PASS (live attribute schema returned).
@@ -23,4 +23,4 @@ This host is a data-center IP. Mercado Livre's captcha wall scores IP reputation
 `go test ./...` all pass. mlextract tests assert real JSON-LD shapes: ParseSearchGraph=3 listings (correct prices/catalog ids incl. /up/ form), ParseProduct reviewCount=71 @ 13349.11, ParseSpecTable=7 attrs. novel_behavior_test seeds a store and asserts compare/cheapest/dispersion/price-history/cotacao/stale behavior.
 
 ## Gate
-PASS — core comparison value proven correct; no-auth endpoints live; browser-clearance surfaces blocked only by this host's IP (mitigated by Tailscale residential egress in the real deploy).
+PASS — core comparison value proven correct; no-auth endpoints live; browser-clearance surfaces blocked only by this host's IP (mitigated by residential-IP egress in the real deploy).

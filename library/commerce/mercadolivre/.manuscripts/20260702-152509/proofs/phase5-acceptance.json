@@ -7,7 +7,7 @@
   "matrix_size": 11,
   "tests_passed": 11,
   "tests_failed": 0,
-  "notes": "Offline comparison core proven at binary level against seeded real-shape data; no-auth endpoints (categories, discovery) live-pass; browser-clearance search/product surfaces blocked by this host's data-center IP captcha (mitigated by Tailscale residential egress in real deploy).",
+  "notes": "Offline comparison core proven at binary level against seeded real-shape data; no-auth endpoints (categories, discovery) live-pass; browser-clearance search/product surfaces blocked by this host's data-center IP captcha (mitigated by residential-IP egress in real deploy).",
   "auth_context": {
     "type": "cookie",
     "api_key_available": false,

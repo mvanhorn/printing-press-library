@@ -183,7 +183,7 @@ Run `mercadolivre-pp-cli doctor` to verify setup.
 
 ## Troubleshooting
 
-- **Requests still hit /captcha/wall even after `auth login --chrome`** — The wall also scores IP reputation. Run the CLI from a host whose egress is a residential IP — e.g. route through a Tailscale exit node on a home router (`tailscale set --exit-node=<node>`). Combined with the imported Chrome cookies and the Chrome-fingerprint transport, residential egress clears the wall. Data-center IPs are challenged regardless of cookies.
+- **Requests still hit /captcha/wall even after `auth login --chrome`** — The wall also scores IP reputation. Run the CLI from a host whose outbound traffic exits through a residential IP (for example, an HTTP/SOCKS proxy or VPN whose exit is on a residential connection). Combined with the imported Chrome cookies and the Chrome-fingerprint transport, residential egress clears the wall. Data-center IPs are challenged regardless of cookies.
 
 ## Agent Mode
 
