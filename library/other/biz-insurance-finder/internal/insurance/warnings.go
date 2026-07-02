@@ -25,7 +25,7 @@ func Warnings(p Profile) []Warning {
 		})
 	}
 
-	if p.IsImporterClass() || p.PrivateLabel || p.DBA != "" {
+	if p.IsImporterClass() || p.DBA != "" {
 		ws = append(ws, Warning{
 			Title:    "GL Coverage B does not protect your brand IP",
 			Severity: SeverityImportant,

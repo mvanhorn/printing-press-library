@@ -251,29 +251,32 @@ func filterFields(data json.RawMessage, fields string) json.RawMessage {
 	return data
 }
 
-// compactFields drops known-verbose fields for minimal agent token usage.
+// compactStrip is the set of verbose fields dropped by --compact.
+var compactStrip = map[string]bool{"notes": true, "detail": true, "reasons": true, "cautions": true, "field_hints": true}
+
+// compactFields drops known-verbose fields for minimal agent token usage. It
+// recurses into nested objects and arrays so verbose fields are stripped at
+// every level (e.g. a recommendation's nested provider.notes), not just the top.
 func compactFields(data json.RawMessage) json.RawMessage {
-	strip := map[string]bool{"notes": true, "detail": true, "reasons": true, "cautions": true, "field_hints": true}
-	var arr []map[string]json.RawMessage
+	var arr []json.RawMessage
 	if json.Unmarshal(data, &arr) == nil {
-		for i := range arr {
-			for k := range arr[i] {
-				if strip[strings.ToLower(k)] {
-					delete(arr[i], k)
-				}
-			}
+		out := make([]json.RawMessage, len(arr))
+		for i, el := range arr {
+			out[i] = compactFields(el)
 		}
-		b, _ := json.Marshal(arr)
+		b, _ := json.Marshal(out)
 		return b
 	}
 	var obj map[string]json.RawMessage
 	if json.Unmarshal(data, &obj) == nil {
-		for k := range obj {
-			if strip[strings.ToLower(k)] {
-				delete(obj, k)
+		kept := make(map[string]json.RawMessage, len(obj))
+		for k, v := range obj {
+			if compactStrip[strings.ToLower(k)] {
+				continue
 			}
+			kept[k] = compactFields(v)
 		}
-		b, _ := json.Marshal(obj)
+		b, _ := json.Marshal(kept)
 		return b
 	}
 	return data

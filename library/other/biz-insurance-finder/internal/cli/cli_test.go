@@ -146,3 +146,18 @@ func TestCLI_UnknownProviderIsNotFound(t *testing.T) {
 		t.Errorf("exit code = %d, want 3 (not found)", ExitCode(err))
 	}
 }
+
+func TestCompactFields_RecursesIntoNested(t *testing.T) {
+	in := json.RawMessage(`{"id":"x","notes":"top","provider":{"name":"P","notes":"nested"},"items":[{"name":"a","detail":"d"}]}`)
+	out := compactFields(in)
+	for _, gone := range []string{"top", "nested", "detail"} {
+		if bytes.Contains(out, []byte(gone)) {
+			t.Errorf("compactFields left verbose %q in output: %s", gone, out)
+		}
+	}
+	for _, kept := range []string{`"id"`, `"name"`} {
+		if !bytes.Contains(out, []byte(kept)) {
+			t.Errorf("compactFields dropped non-verbose %q: %s", kept, out)
+		}
+	}
+}
