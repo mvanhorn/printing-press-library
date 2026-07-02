@@ -4,6 +4,7 @@ package cli
 
 import (
 	"fmt"
+	"math"
 	"strings"
 
 	"github.com/spf13/cobra"
@@ -80,6 +81,8 @@ once, use 'portfolio'.`),
 	return cmd
 }
 
+// round2 rounds to two decimals using math.Round so small negative values
+// (e.g. valuation drift deltas) round correctly instead of truncating to zero.
 func round2(f float64) float64 {
-	return float64(int64(f*100+0.5)) / 100
+	return math.Round(f*100) / 100
 }

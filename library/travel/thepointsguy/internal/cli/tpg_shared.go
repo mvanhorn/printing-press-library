@@ -10,6 +10,7 @@ import (
 	"regexp"
 	"sort"
 	"strings"
+	"time"
 
 	"github.com/spf13/cobra"
 
@@ -258,11 +259,22 @@ func currentValuations(cmd *cobra.Command, flags *rootFlags, c *tpgClientCtx) (m
 	return byProg, month, nil
 }
 
+// firstMonth returns the most recent month label across the given valuations.
+// The store holds one row per program|month, so it iterates in arbitrary order;
+// pick the newest by parsed month so the reported label is never stale.
 func firstMonth(vals []tpg.Valuation) string {
-	if len(vals) == 0 {
-		return ""
+	latest := ""
+	var latestT time.Time
+	for _, v := range vals {
+		if v.Month == "" {
+			continue
+		}
+		t := monthOrder(v.Month)
+		if latest == "" || t.After(latestT) {
+			latest, latestT = v.Month, t
+		}
 	}
-	return vals[0].Month
+	return latest
 }
 
 // openTPGStore opens (creating if needed) the local SQLite mirror.
