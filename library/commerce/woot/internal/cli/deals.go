@@ -6,7 +6,6 @@ import (
 	"math"
 	"net/url"
 	"regexp"
-	"sort"
 	"strconv"
 	"strings"
 	"time"
@@ -367,9 +366,6 @@ func normalizeWootDeals(deals []wootGraphQLDeal) []wootDeal {
 		}
 		out = append(out, deal)
 	}
-	sort.SliceStable(out, func(i, j int) bool {
-		return out[i].Title < out[j].Title
-	})
 	return out
 }
 
@@ -431,7 +427,8 @@ func parseWootAllDealsURL(raw string) (wootAllDealsURLFilters, error) {
 	if err != nil {
 		return wootAllDealsURLFilters{}, fmt.Errorf("parse --from-url: %w", err)
 	}
-	if !strings.Contains(strings.ToLower(parsed.Host), "woot.com") || !strings.Contains(strings.ToLower(parsed.Path), "/alldeals") {
+	host := strings.ToLower(parsed.Hostname())
+	if (host != "woot.com" && !strings.HasSuffix(host, ".woot.com")) || !strings.Contains(strings.ToLower(parsed.Path), "/alldeals") {
 		return wootAllDealsURLFilters{}, fmt.Errorf("--from-url must be a Woot /alldeals URL")
 	}
 	query := parsed.Query()

@@ -51,6 +51,16 @@ func TestContainsGraphQLWriteOperation(t *testing.T) {
 			query: "# mutation ignored\nquery Deals { searchOffers(Filter:{Term:\"subscription mutation\"}, Sort:BestSelling, Limit:1, Skip:0){ TotalHits } }",
 			want:  false,
 		},
+		{
+			name:  "allows read fields named mutation",
+			query: `query Mutation { mutation { id } subscription }`,
+			want:  false,
+		},
+		{
+			name:  "rejects second operation",
+			query: `query Deals { searchOffers(Filter:{}, Sort:BestSelling, Limit:1, Skip:0){ TotalHits } } mutation Bad { nope }`,
+			want:  true,
+		},
 	}
 	for _, tc := range tests {
 		tc := tc

@@ -97,6 +97,8 @@ func newGraphqlPromotedCmd(flags *rootFlags) *cobra.Command {
 }
 
 func containsGraphQLWriteOperation(query string) bool {
+	depth := 0
+	skipNextTopLevelName := false
 	for i := 0; i < len(query); {
 		switch query[i] {
 		case '#':
@@ -126,6 +128,16 @@ func containsGraphQLWriteOperation(query string) bool {
 				}
 				i++
 			}
+		case '{':
+			depth++
+			skipNextTopLevelName = false
+			i++
+		case '}':
+			if depth > 0 {
+				depth--
+			}
+			skipNextTopLevelName = false
+			i++
 		default:
 			if !isGraphQLNameStart(query[i]) {
 				i++
@@ -137,8 +149,17 @@ func containsGraphQLWriteOperation(query string) bool {
 				i++
 			}
 			token := query[start:i]
-			if strings.EqualFold(token, "mutation") || strings.EqualFold(token, "subscription") {
-				return true
+			if depth == 0 {
+				if skipNextTopLevelName {
+					skipNextTopLevelName = false
+					continue
+				}
+				switch strings.ToLower(token) {
+				case "mutation", "subscription":
+					return true
+				case "query", "fragment":
+					skipNextTopLevelName = true
+				}
 			}
 		}
 	}

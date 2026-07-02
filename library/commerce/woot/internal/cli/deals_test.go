@@ -22,6 +22,13 @@ func TestParseWootAllDealsURL(t *testing.T) {
 	}
 }
 
+func TestParseWootAllDealsURLRejectsLookalikeHost(t *testing.T) {
+	t.Parallel()
+	if _, err := parseWootAllDealsURL("https://woot.com.evil.example/alldeals?selectedCategories=sport"); err == nil {
+		t.Fatal("parseWootAllDealsURL accepted lookalike host")
+	}
+}
+
 func TestParseWootPriceRangesFromAllDealsShape(t *testing.T) {
 	t.Parallel()
 	ranges, err := parseWootPriceRanges([]string{"[0,24.99]-[25,49.99]"})
