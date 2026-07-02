@@ -1,0 +1,59 @@
+{
+  "schema_version": 2,
+  "generated_at": "2026-07-02T17:24:34.055539Z",
+  "printing_press_version": "4.27.1",
+  "api_name": "thepointsguy",
+  "display_name": "The Points Guy",
+  "cli_name": "thepointsguy-pp-cli",
+  "creator": {
+    "handle": "megumikuo",
+    "name": "megumikuo"
+  },
+  "owner": "megumikuo",
+  "printer": "megumikuo",
+  "printer_name": "megumikuo",
+  "spec_path": "thepointsguy-spec.yaml",
+  "spec_format": "internal",
+  "spec_checksum": "sha256:1209f2683a3adeb82172b9e5c6b14d38d394662ad5656df6c9351b4732fa3ac5",
+  "run_id": "20260702-084250-52cc6ca5",
+  "category": "travel",
+  "description": "The first CLI and local database for The Points Guy: search every article, look up any card's real terms, and turn points valuations into answers you can script.",
+  "mcp_binary": "thepointsguy-pp-mcp",
+  "mcp_tool_count": 2,
+  "mcp_public_tool_count": 2,
+  "mcp_ready": "full",
+  "api_version": "0.1.0",
+  "auth_type": "none",
+  "novel_features": [
+    {
+      "name": "Redeem-vs-cash checker",
+      "command": "redeem-check",
+      "description": "Tells you whether to use points or pay cash for a specific booking, using TPG's valuation as the baseline."
+    },
+    {
+      "name": "Points value calculator",
+      "command": "worth",
+      "description": "Converts a points/miles balance into an estimated dollar value using TPG's monthly valuation."
+    },
+    {
+      "name": "Multi-program portfolio value",
+      "command": "portfolio",
+      "description": "Values many balances across different programs at once from stdin or a file and totals them."
+    },
+    {
+      "name": "Card side-by-side compare",
+      "command": "cards compare",
+      "description": "Compares two or more credit cards across annual fee, APRs, welcome bonus, and rewards."
+    },
+    {
+      "name": "Valuation drift over time",
+      "command": "valuations drift",
+      "description": "Shows how a program's cents-per-point value changed month over month."
+    },
+    {
+      "name": "Recent publishing window",
+      "command": "since",
+      "description": "Lists everything TPG published in the last N hours or days across all categories."
+    }
+  ]
+}

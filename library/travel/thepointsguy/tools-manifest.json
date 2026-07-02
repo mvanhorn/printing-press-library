@@ -1,0 +1,57 @@
+{
+  "api_name": "thepointsguy",
+  "base_url": "https://thepointsguy.com",
+  "description": "The first CLI and local database for The Points Guy: search every article, look up any card's real terms, and turn points valuations into answers you can script.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "none"
+  },
+  "required_headers": [
+    {
+      "name": "User-Agent",
+      "value": "Mozilla/5.0 (compatible; thepointsguy-pp-cli/0.1)"
+    }
+  ],
+  "tools": [
+    {
+      "name": "articles_get",
+      "description": "Fetch an article's structured page data by section and slug. Required: section, slug.",
+      "method": "GET",
+      "path": "/{section}/{slug}/",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "section",
+          "type": "string",
+          "location": "path",
+          "description": "Section, e.g. news, credit-cards, loyalty-programs",
+          "required": true
+        },
+        {
+          "name": "slug",
+          "type": "string",
+          "location": "path",
+          "description": "Article slug",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "cards_get",
+      "description": "Fetch a credit card's structured page data (fees, APRs, welcome bonus) by slug. Required: slug.",
+      "method": "GET",
+      "path": "/credit-cards/{slug}/",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "slug",
+          "type": "string",
+          "location": "path",
+          "description": "Card slug, e.g. amex-platinum",
+          "required": true
+        }
+      ]
+    }
+  ]
+}

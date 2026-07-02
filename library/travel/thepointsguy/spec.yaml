@@ -1,0 +1,61 @@
+name: thepointsguy
+description: "The Points Guy CLI: points valuations, credit-card terms, and content, offline and agent-native"
+version: "0.1.0"
+base_url: "https://thepointsguy.com"
+http_transport: standard
+health_check_path: "/robots.txt"
+category: travel
+required_headers:
+  - name: User-Agent
+    value: "Mozilla/5.0 (compatible; thepointsguy-pp-cli/0.1)"
+auth:
+  type: none
+config:
+  format: toml
+  path: "~/.config/thepointsguy-pp-cli/config.toml"
+resources:
+  cards:
+    description: "The Points Guy credit-card database"
+    endpoints:
+      get:
+        method: GET
+        path: "/credit-cards/{slug}/"
+        description: "Fetch a credit card's structured page data (fees, APRs, welcome bonus) by slug"
+        params:
+          - name: slug
+            type: string
+            required: true
+            positional: true
+            description: "Card slug, e.g. amex-platinum"
+        response_format: html
+        html_extract:
+          mode: embedded-json
+          script_selector: "script#__NEXT_DATA__"
+          json_path: "props.pageProps.dehydratedState"
+        example: "  thepointsguy-pp-cli cards get amex-platinum"
+        happy_args: "slug=amex-platinum"
+  articles:
+    description: "The Points Guy articles and news"
+    endpoints:
+      get:
+        method: GET
+        path: "/{section}/{slug}/"
+        description: "Fetch an article's structured page data by section and slug"
+        params:
+          - name: section
+            type: string
+            required: true
+            positional: true
+            description: "Section, e.g. news, credit-cards, loyalty-programs"
+          - name: slug
+            type: string
+            required: true
+            positional: true
+            description: "Article slug"
+        response_format: html
+        html_extract:
+          mode: embedded-json
+          script_selector: "script#__NEXT_DATA__"
+          json_path: "props.pageProps.dehydratedState"
+        example: "  thepointsguy-pp-cli articles get loyalty-programs monthly-valuations"
+        happy_args: "section=loyalty-programs;slug=monthly-valuations"

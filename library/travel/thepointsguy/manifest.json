@@ -1,0 +1,27 @@
+{
+  "manifest_version": "0.3",
+  "name": "thepointsguy-pp-mcp",
+  "display_name": "The Points Guy",
+  "version": "0.1.0",
+  "description": "The first CLI and local database for The Points Guy: search every article, look up any card's real terms, and turn points valuations into answers you can script.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/thepointsguy-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/thepointsguy-pp-mcp",
+      "args": []
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "api_name": "thepointsguy",
+  "run_id": "20260702-084250-52cc6ca5",
+  "status": "pass",
+  "level": "full",
+  "matrix_size": 63,
+  "tests_passed": 63,
+  "tests_skipped": 46,
+  "auth_context": {
+    "type": "none"
+  }
+}

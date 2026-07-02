@@ -1,0 +1,196 @@
+{
+  "api_name": "thepointsguy",
+  "novelty_score": 8,
+  "alternatives": [],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-07-02T15:52:32Z",
+  "novel_features": [
+    {
+      "name": "Redeem-vs-cash checker",
+      "command": "redeem-check",
+      "description": "Tells you whether to use points or pay cash for a specific booking, using TPG's valuation as the baseline.",
+      "rationale": "Compares one redemption's cents-per-point against the locally mirrored TPG valuation to give a buy/redeem verdict for YOUR numbers, which no TPG page does.",
+      "example": "thepointsguy-pp-cli redeem-check --program \"Chase Ultimate Rewards\" --points 60000 --cash 900 --agent",
+      "why_it_matters": "Reach for this to answer 'points or cash?' for a concrete fare or rate instead of eyeballing a valuation table.",
+      "group": "Points math that compounds"
+    },
+    {
+      "name": "Points value calculator",
+      "command": "worth",
+      "description": "Converts a points/miles balance into an estimated dollar value using TPG's monthly valuation.",
+      "rationale": "Applies the mirrored valuation rate to an arbitrary balance instantly; the site only publishes the rate, not the math for your amount.",
+      "example": "thepointsguy-pp-cli worth --program \"American AAdvantage\" --points 75000 --agent",
+      "why_it_matters": "Reach for this to turn a balance into dollars in one call.",
+      "group": "Points math that compounds"
+    },
+    {
+      "name": "Multi-program portfolio value",
+      "command": "portfolio",
+      "description": "Values many balances across different programs at once from stdin or a file and totals them.",
+      "rationale": "Joins arbitrary balances against the local valuations table in one pass; TPG has no portfolio view.",
+      "example": "thepointsguy-pp-cli portfolio \"Amex Membership Rewards=120000\" \"United MileagePlus=50000\" --agent",
+      "why_it_matters": "Reach for this to get a single dollar total across every loyalty currency you hold.",
+      "group": "Points math that compounds"
+    },
+    {
+      "name": "Card side-by-side compare",
+      "command": "cards compare",
+      "description": "Compares two or more credit cards across annual fee, APRs, welcome bonus, and rewards.",
+      "rationale": "Local join across mirrored card records; TPG has no multi-card comparison table.",
+      "example": "thepointsguy-pp-cli cards compare chase-sapphire-preferred-card chase-sapphire-reserve --agent",
+      "why_it_matters": "Reach for this to line up two cards' real terms without opening two tabs.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Valuation drift over time",
+      "command": "valuations drift",
+      "description": "Shows how a program's cents-per-point value changed month over month.",
+      "rationale": "Requires historical monthly valuation snapshots in SQLite; a single live page cannot show the trend.",
+      "example": "thepointsguy-pp-cli valuations drift --program \"Marriott Bonvoy\" --months 6 --agent",
+      "why_it_matters": "Reach for this to see whether a currency is being devalued over time.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Recent publishing window",
+      "command": "since",
+      "description": "Lists everything TPG published in the last N hours or days across all categories.",
+      "rationale": "Time-windowed aggregation over synced articles; a single feed page cannot span an arbitrary window across categories.",
+      "example": "thepointsguy-pp-cli since 24h --agent",
+      "why_it_matters": "Reach for this to catch up on new deals and news since you last checked.",
+      "group": "Local state that compounds"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Redeem-vs-cash checker",
+      "command": "redeem-check",
+      "description": "Tells you whether to use points or pay cash for a specific booking, using TPG's valuation as the baseline.",
+      "rationale": "Compares one redemption's cents-per-point against the locally mirrored TPG valuation to give a buy/redeem verdict for YOUR numbers, which no TPG page does.",
+      "example": "thepointsguy-pp-cli redeem-check --program \"Chase Ultimate Rewards\" --points 60000 --cash 900 --agent",
+      "why_it_matters": "Reach for this to answer 'points or cash?' for a concrete fare or rate instead of eyeballing a valuation table.",
+      "group": "Points math that compounds"
+    },
+    {
+      "name": "Points value calculator",
+      "command": "worth",
+      "description": "Converts a points/miles balance into an estimated dollar value using TPG's monthly valuation.",
+      "rationale": "Applies the mirrored valuation rate to an arbitrary balance instantly; the site only publishes the rate, not the math for your amount.",
+      "example": "thepointsguy-pp-cli worth --program \"American AAdvantage\" --points 75000 --agent",
+      "why_it_matters": "Reach for this to turn a balance into dollars in one call.",
+      "group": "Points math that compounds"
+    },
+    {
+      "name": "Multi-program portfolio value",
+      "command": "portfolio",
+      "description": "Values many balances across different programs at once from stdin or a file and totals them.",
+      "rationale": "Joins arbitrary balances against the local valuations table in one pass; TPG has no portfolio view.",
+      "example": "thepointsguy-pp-cli portfolio \"Amex Membership Rewards=120000\" \"United MileagePlus=50000\" --agent",
+      "why_it_matters": "Reach for this to get a single dollar total across every loyalty currency you hold.",
+      "group": "Points math that compounds"
+    },
+    {
+      "name": "Card side-by-side compare",
+      "command": "cards compare",
+      "description": "Compares two or more credit cards across annual fee, APRs, welcome bonus, and rewards.",
+      "rationale": "Local join across mirrored card records; TPG has no multi-card comparison table.",
+      "example": "thepointsguy-pp-cli cards compare chase-sapphire-preferred-card chase-sapphire-reserve --agent",
+      "why_it_matters": "Reach for this to line up two cards' real terms without opening two tabs.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Valuation drift over time",
+      "command": "valuations drift",
+      "description": "Shows how a program's cents-per-point value changed month over month.",
+      "rationale": "Requires historical monthly valuation snapshots in SQLite; a single live page cannot show the trend.",
+      "example": "thepointsguy-pp-cli valuations drift --program \"Marriott Bonvoy\" --months 6 --agent",
+      "why_it_matters": "Reach for this to see whether a currency is being devalued over time.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Recent publishing window",
+      "command": "since",
+      "description": "Lists everything TPG published in the last N hours or days across all categories.",
+      "rationale": "Time-windowed aggregation over synced articles; a single feed page cannot span an arbitrary window across categories.",
+      "example": "thepointsguy-pp-cli since 24h --agent",
+      "why_it_matters": "Reach for this to catch up on new deals and news since you last checked.",
+      "group": "Local state that compounds"
+    }
+  ],
+  "auth": {},
+  "narrative": {
+    "display_name": "The Points Guy",
+    "headline": "The first CLI and local database for The Points Guy: search every article, look up any card's real terms, and turn points valuations into answers you can script.",
+    "value_prop": "The Points Guy is the reference for points valuations and credit-card terms, but that data is buried in long articles and JS-rendered pages. This CLI mirrors TPG's valuations, card database, and content into a local SQLite store so you can search (live Algolia or offline FTS), value a balance with 'worth', decide points-vs-cash with 'redeem-check', and compare cards with 'cards compare' — all agent-native with --json and --select.",
+    "quickstart": [
+      {
+        "command": "thepointsguy-pp-cli doctor --dry-run",
+        "comment": "Health check: confirms the site is reachable and search credentials can be discovered; needs no key."
+      },
+      {
+        "command": "thepointsguy-pp-cli search \"amex platinum\" --limit 5",
+        "comment": "Live full-text search over TPG content."
+      },
+      {
+        "command": "thepointsguy-pp-cli valuations --program \"Chase Ultimate Rewards\"",
+        "comment": "Look up a program's cents-per-point value."
+      },
+      {
+        "command": "thepointsguy-pp-cli sync",
+        "comment": "Mirror articles, cards, and valuations into the local store for offline + transcendence commands."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "search returns nothing / credential error",
+        "fix": "Run 'thepointsguy-pp-cli doctor' to re-discover the public Algolia app id and search key from the site bundle; they rotate with deploys."
+      },
+      {
+        "symptom": "worth/portfolio/drift return empty",
+        "fix": "Run 'thepointsguy-pp-cli sync' first to populate the local valuations and card tables."
+      },
+      {
+        "symptom": "a card slug is not found",
+        "fix": "Run 'thepointsguy-pp-cli cards list' to see valid slugs from the card sitemap."
+      }
+    ],
+    "when_to_use": "Use this CLI when an agent or script needs The Points Guy's points valuations, credit-card terms, or article content as structured data: valuing a balance, deciding points vs cash for a booking, comparing cards, or pulling the latest travel-rewards news. It is read-only and needs no account.",
+    "anti_triggers": [
+      "Do not use this CLI to apply for a credit card or access affiliate/apply links.",
+      "Do not use it to track your personal loyalty account balances automatically (use AwardWallet); it works from balances you supply.",
+      "Do not treat its valuations as offers from card issuers; they are TPG editorial estimates."
+    ],
+    "recipes": [
+      {
+        "title": "Value a balance",
+        "command": "thepointsguy-pp-cli worth --program \"American AAdvantage\" --points 75000 --agent",
+        "explanation": "Turns a mileage balance into an estimated dollar value using TPG's valuation."
+      },
+      {
+        "title": "Points or cash?",
+        "command": "thepointsguy-pp-cli redeem-check --program \"Chase Ultimate Rewards\" --points 60000 --cash 900 --agent",
+        "explanation": "Verdict on whether a specific redemption beats paying cash."
+      },
+      {
+        "title": "Narrow a big search response",
+        "command": "thepointsguy-pp-cli search \"lounge access\" --agent --select hits.title,hits.url,hits.category",
+        "explanation": "Uses --select on the nested Algolia response so an agent only reads the fields it needs."
+      },
+      {
+        "title": "Compare two cards",
+        "command": "thepointsguy-pp-cli cards compare chase-sapphire-preferred-card chase-sapphire-reserve --agent",
+        "explanation": "Side-by-side annual fee, APRs, welcome bonus, and rewards from the local mirror."
+      }
+    ],
+    "trigger_phrases": [
+      "what are my points worth",
+      "should I use points or cash",
+      "look up the amex platinum card",
+      "search the points guy for",
+      "compare these two credit cards",
+      "use the points guy",
+      "run thepointsguy"
+    ]
+  }
+}
