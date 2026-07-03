@@ -1,0 +1,11 @@
+{
+  "schema_version": 2,
+  "id": "tradingview-mcp-trim",
+  "applied_at": "2026-07-04",
+  "base_run_id": "20260703-234106-2ccc769e",
+  "base_printing_press_version": "4.27.1",
+  "summary": "Hid redundant/no-op commands (symbols, market, sync, workflow, api) from the MCP surface.",
+  "reason": "For this 2-endpoint CLI, the raw endpoint mirrors duplicate search/quote, generic sync is a no-op (no bulk-list endpoints), and workflow/api add tokens without agent value. Trimming raised MCP token efficiency 4/10 -> 7/10.",
+  "files": ["internal/cli/root.go"],
+  "validated_outcome": "shipcheck 7/7; scorecard MCP token efficiency improved with no lost agent-facing tools."
+}

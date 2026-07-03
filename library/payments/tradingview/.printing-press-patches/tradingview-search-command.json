@@ -1,0 +1,11 @@
+{
+  "schema_version": 2,
+  "id": "tradingview-search-command",
+  "applied_at": "2026-07-04",
+  "base_run_id": "20260703-234106-2ccc769e",
+  "base_printing_press_version": "4.27.1",
+  "summary": "Replaced the generator's broken framework FTS 'search' with a working TradingView symbol search (aliased 'lookup').",
+  "reason": "The generator wired the framework 'search' command to GET /symbol_search/v3/ against the root scanner host instead of the per-resource symbol-search.tradingview.com host, so it 404'd. Deleted the framework command and promoted the hand-authored symbol resolver to 'search'.",
+  "files": ["internal/cli/root.go", "internal/cli/lookup.go"],
+  "validated_outcome": "'tradingview-pp-cli search AAPL' returns EXCHANGE:TICKER candidates live; verify-skill and validate-narrative pass."
+}

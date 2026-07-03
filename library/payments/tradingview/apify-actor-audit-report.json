@@ -1,0 +1,9 @@
+{
+  "dir": "\u003ccli-dir\u003e\\tradingview-pp-cli",
+  "research_dir": "\u003ccli-dir\u003e\\20260703-234106-2ccc769e",
+  "verdict": "pass",
+  "actors": null,
+  "issues": [
+    "no Apify actor references found, skipping"
+  ]
+}

@@ -1,0 +1,27 @@
+{
+  "manifest_version": "0.3",
+  "name": "tradingview-pp-mcp",
+  "display_name": "TradingView",
+  "version": "0.1.0",
+  "description": "Resolve any ticker and see its price in USD and EUR in one command — stocks, crypto, and forex, no API key.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/tradingview-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/tradingview-pp-mcp",
+      "args": []
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

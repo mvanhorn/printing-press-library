@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "api_name": "tradingview",
+  "run_id": "20260703-234106-2ccc769e",
+  "status": "pass",
+  "level": "full",
+  "matrix_size": 55,
+  "tests_passed": 55,
+  "tests_skipped": 40,
+  "auth_context": {
+    "type": "none"
+  }
+}

@@ -1,0 +1,202 @@
+{
+  "api_name": "tradingview",
+  "novelty_score": 0,
+  "alternatives": [
+    {
+      "name": "TradingView-Screener",
+      "url": "https://github.com/shner-elmo/TradingView-Screener",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "tvscreener",
+      "url": "https://github.com/deepentropy/tvscreener",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "python-tradingview-ta",
+      "url": "https://github.com/AnalyzerREST/python-tradingview-ta",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "tradingview-screener-ts",
+      "url": "https://github.com/jmargieh/tradingview-screener",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-07-03T21:49:15Z",
+  "novel_features": [
+    {
+      "name": "Multi-currency quote",
+      "command": "quote",
+      "description": "See any ticker's last price in its native currency, USD, and EUR in a single command.",
+      "rationale": "Community wrappers return a raw price in the instrument's own currency; only this CLI cross-fetches TradingView's forex rates and presents the price in USD and EUR together.",
+      "example": "tradingview-pp-cli quote NASDAQ:AAPL --agent --select symbol,price_usd,price_eur",
+      "why_it_matters": "Reach for this when an agent needs a symbol's value normalized to USD or EUR without wiring up a separate FX API.",
+      "group": "Multi-currency pricing"
+    },
+    {
+      "name": "TradingView-rate conversion",
+      "command": "convert",
+      "description": "Convert an amount between currencies using TradingView's own live forex rates.",
+      "rationale": "No TradingView wrapper exposes fiat conversion; this reuses TradingView forex symbols (FX_IDC:EURUSD, etc.) as the rate source so quotes and conversions share one data origin.",
+      "example": "tradingview-pp-cli convert 100 USD EUR --agent",
+      "why_it_matters": "Use this to turn any USD figure into EUR (or between other majors) from the same source that priced the instrument.",
+      "group": "Multi-currency pricing"
+    },
+    {
+      "name": "Local watchlist",
+      "command": "watchlist",
+      "description": "Track a list of symbols locally and snapshot their USD/EUR quotes to SQLite for offline querying.",
+      "rationale": "Local state that compounds: no TradingView wrapper persists a personal watchlist with multi-currency snapshots you can query offline.",
+      "example": "tradingview-pp-cli watchlist add AAPL BINANCE:BTCUSDT",
+      "why_it_matters": "Use this to keep a personal set of symbols and their USD/EUR prices without re-resolving them each call.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Snapshot drift",
+      "command": "watchlist changes",
+      "description": "Show how each watched symbol moved in USD between its two most recent snapshots.",
+      "rationale": "Requires a local time series of snapshots that no single TradingView API call provides.",
+      "example": "tradingview-pp-cli watchlist changes --agent",
+      "why_it_matters": "Reach for this to see what moved since your last sync without diffing raw API responses yourself.",
+      "group": "Local state that compounds"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Multi-currency quote",
+      "command": "quote",
+      "description": "See any ticker's last price in its native currency, USD, and EUR in a single command.",
+      "rationale": "Community wrappers return a raw price in the instrument's own currency; only this CLI cross-fetches TradingView's forex rates and presents the price in USD and EUR together.",
+      "example": "tradingview-pp-cli quote NASDAQ:AAPL --agent --select symbol,price_usd,price_eur",
+      "why_it_matters": "Reach for this when an agent needs a symbol's value normalized to USD or EUR without wiring up a separate FX API.",
+      "group": "Multi-currency pricing"
+    },
+    {
+      "name": "TradingView-rate conversion",
+      "command": "convert",
+      "description": "Convert an amount between currencies using TradingView's own live forex rates.",
+      "rationale": "No TradingView wrapper exposes fiat conversion; this reuses TradingView forex symbols (FX_IDC:EURUSD, etc.) as the rate source so quotes and conversions share one data origin.",
+      "example": "tradingview-pp-cli convert 100 USD EUR --agent",
+      "why_it_matters": "Use this to turn any USD figure into EUR (or between other majors) from the same source that priced the instrument.",
+      "group": "Multi-currency pricing"
+    },
+    {
+      "name": "Local watchlist",
+      "command": "watchlist",
+      "description": "Track a list of symbols locally and snapshot their USD/EUR quotes to SQLite for offline querying.",
+      "rationale": "Local state that compounds: no TradingView wrapper persists a personal watchlist with multi-currency snapshots you can query offline.",
+      "example": "tradingview-pp-cli watchlist add AAPL BINANCE:BTCUSDT",
+      "why_it_matters": "Use this to keep a personal set of symbols and their USD/EUR prices without re-resolving them each call.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Snapshot drift",
+      "command": "watchlist changes",
+      "description": "Show how each watched symbol moved in USD between its two most recent snapshots.",
+      "rationale": "Requires a local time series of snapshots that no single TradingView API call provides.",
+      "example": "tradingview-pp-cli watchlist changes --agent",
+      "why_it_matters": "Reach for this to see what moved since your last sync without diffing raw API responses yourself.",
+      "group": "Local state that compounds"
+    }
+  ],
+  "auth": {},
+  "narrative": {
+    "display_name": "TradingView",
+    "headline": "Resolve any ticker and see its price in USD and EUR in one command — stocks, crypto, and forex, no API key.",
+    "value_prop": "TradingView CLI turns a symbol into an answer: search resolves a query to a fully-qualified EXCHANGE:TICKER, quote returns the last price in its native currency plus USD and EUR, and convert does fiat conversion using TradingView's own forex rates. Terminal-first, agent-native --json, no data-API subscription required for the public endpoints. A local watchlist tracks symbols and snapshots their USD/EUR prices to SQLite for offline querying and drift.",
+    "quickstart": [
+      {
+        "command": "tradingview-pp-cli doctor --dry-run",
+        "comment": "confirm the TradingView endpoints are reachable"
+      },
+      {
+        "command": "tradingview-pp-cli search AAPL",
+        "comment": "resolve a query to a fully-qualified ticker like NASDAQ:AAPL (shows candidates)"
+      },
+      {
+        "command": "tradingview-pp-cli quote NASDAQ:AAPL",
+        "comment": "last price in native currency, USD, and EUR"
+      },
+      {
+        "command": "tradingview-pp-cli convert 100 USD EUR",
+        "comment": "convert an amount using TradingView forex rates"
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "quote returns nothing for a bare ticker",
+        "fix": "run 'tradingview-pp-cli search \u003cticker\u003e' first and use the fully-qualified EXCHANGE:TICKER"
+      },
+      {
+        "symptom": "crypto price shows currency USDT not USD",
+        "fix": "use a USD pair (e.g. COINBASE:ETHUSD) or read the price_usd field, which treats USDT as USD-pegged"
+      }
+    ],
+    "when_to_use": "Use this CLI when you need a fast, scriptable answer to 'what is \u003csymbol\u003e worth' in USD or EUR, for stocks, crypto, or forex, without a paid market-data API key. It is ideal for agents that must normalize a quote to a common currency.",
+    "anti_triggers": [
+      "Do not use this CLI for placing trades or accessing a brokerage account — it is read-only market data.",
+      "Do not use it for historical OHLC backtesting datasets — it returns current quotes, not time series.",
+      "Do not use it for authenticated TradingView features like private watchlists or alerts — it targets public endpoints only."
+    ],
+    "recipes": [
+      {
+        "title": "Price in euros",
+        "command": "tradingview-pp-cli quote NASDAQ:MSFT --agent --select symbol,price_eur",
+        "explanation": "Return only the EUR-converted price for scripting."
+      },
+      {
+        "title": "Find then quote",
+        "command": "tradingview-pp-cli search bitcoin --type crypto",
+        "explanation": "Resolve a name to a fully-qualified crypto ticker, then quote it."
+      },
+      {
+        "title": "Currency conversion",
+        "command": "tradingview-pp-cli convert 250 USD EUR --agent",
+        "explanation": "Convert 250 USD to EUR using TradingView's EURUSD forex rate."
+      },
+      {
+        "title": "Track a watchlist",
+        "command": "tradingview-pp-cli watchlist add AAPL BINANCE:BTCUSDT",
+        "explanation": "Add symbols, then 'watchlist sync' and 'watchlist quotes' for offline USD/EUR prices."
+      }
+    ],
+    "trigger_phrases": [
+      "quote AAPL",
+      "price of bitcoin in euros",
+      "what is TSLA worth in EUR",
+      "convert USD to EUR",
+      "use tradingview",
+      "run tradingview",
+      "add to my watchlist",
+      "what moved in my watchlist"
+    ]
+  }
+}

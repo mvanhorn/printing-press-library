@@ -1,0 +1,51 @@
+version: 2
+project_name: tradingview-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: tradingview-pp-cli
+    main: ./cmd/tradingview-pp-cli
+    binary: tradingview-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X github.com/mvanhorn/printing-press-library/library/payments/tradingview/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: tradingview-pp-mcp
+    main: ./cmd/tradingview-pp-mcp
+    binary: tradingview-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X main.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: tradingview-pp-cli
+    repository:
+      owner: jbriaux
+      name: homebrew-tap
+    homepage: "https://github.com/mvanhorn/printing-press-library"
+    description: "Resolve any ticker and see its price in USD and EUR in one command — stocks, crypto, and forex, no API key."
+    install: |
+      bin.install "tradingview-pp-cli"
+      bin.install "tradingview-pp-mcp"

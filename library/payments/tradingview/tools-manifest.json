@@ -1,0 +1,102 @@
+{
+  "api_name": "tradingview",
+  "base_url": "https://scanner.tradingview.com",
+  "description": "Resolve any ticker and see its price in USD and EUR in one command — stocks, crypto, and forex, no API key.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "none"
+  },
+  "required_headers": [
+    {
+      "name": "User-Agent",
+      "value": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0 Safari/537.36"
+    },
+    {
+      "name": "Origin",
+      "value": "https://www.tradingview.com"
+    },
+    {
+      "name": "Referer",
+      "value": "https://www.tradingview.com/"
+    }
+  ],
+  "tools": [
+    {
+      "name": "market_quote",
+      "description": "Get last price and currency for a fully-qualified EXCHANGE:TICKER. Required: symbol. Optional: fields, no-404 (default: true). Returns the Quote.",
+      "method": "GET",
+      "path": "/symbol",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "symbol",
+          "type": "string",
+          "location": "query",
+          "description": "Fully-qualified ticker, e.g. NASDAQ:AAPL or BINANCE:BTCUSDT",
+          "required": true
+        },
+        {
+          "name": "fields",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated fields to return"
+        },
+        {
+          "name": "no-404",
+          "wire_name": "no_404",
+          "type": "bool",
+          "location": "query",
+          "description": "Return empty instead of 404 for unknown symbols"
+        }
+      ]
+    },
+    {
+      "name": "symbols_search",
+      "description": "Search symbols by text (returns exchange, type, currency). Required: text. Optional: search-type, exchange, hl (default: 0) (plus 2 more).",
+      "method": "GET",
+      "path": "/symbol_search/v3/",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "text",
+          "type": "string",
+          "location": "query",
+          "description": "Search text, e.g. AAPL or Bitcoin",
+          "required": true
+        },
+        {
+          "name": "search-type",
+          "wire_name": "search_type",
+          "type": "string",
+          "location": "query",
+          "description": "Restrict by type: stock, crypto, forex, index, fund (blank = all)"
+        },
+        {
+          "name": "exchange",
+          "type": "string",
+          "location": "query",
+          "description": "Restrict to an exchange, e.g. NASDAQ"
+        },
+        {
+          "name": "hl",
+          "type": "int",
+          "location": "query",
+          "description": "Highlight matches with tags (0=off)"
+        },
+        {
+          "name": "lang",
+          "type": "string",
+          "location": "query",
+          "description": "Language code"
+        },
+        {
+          "name": "domain",
+          "type": "string",
+          "location": "query",
+          "description": "TradingView domain"
+        }
+      ]
+    }
+  ]
+}

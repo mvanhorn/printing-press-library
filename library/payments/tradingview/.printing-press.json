@@ -1,0 +1,48 @@
+{
+  "schema_version": 2,
+  "generated_at": "2026-07-03T22:47:54.4500094Z",
+  "printing_press_version": "4.27.1",
+  "api_name": "tradingview",
+  "display_name": "TradingView",
+  "cli_name": "tradingview-pp-cli",
+  "creator": {
+    "handle": "jbriaux",
+    "name": "jbriaux"
+  },
+  "owner": "jbriaux",
+  "printer": "jbriaux",
+  "printer_name": "jbriaux",
+  "spec_format": "internal",
+  "spec_checksum": "sha256:817168da0c915fecea03a6d3fb98a94043f7d96ab14cfd2a828634fc59eb4b74",
+  "run_id": "20260703-234106-2ccc769e",
+  "category": "payments",
+  "description": "Resolve any ticker and see its price in USD and EUR in one command — stocks, crypto, and forex, no API key.",
+  "mcp_binary": "tradingview-pp-mcp",
+  "mcp_tool_count": 2,
+  "mcp_public_tool_count": 2,
+  "mcp_ready": "full",
+  "api_version": "0.1.0",
+  "auth_type": "none",
+  "novel_features": [
+    {
+      "name": "Multi-currency quote",
+      "command": "quote",
+      "description": "See any ticker's last price in its native currency, USD, and EUR in a single command."
+    },
+    {
+      "name": "TradingView-rate conversion",
+      "command": "convert",
+      "description": "Convert an amount between currencies using TradingView's own live forex rates."
+    },
+    {
+      "name": "Local watchlist",
+      "command": "watchlist",
+      "description": "Track a list of symbols locally and snapshot their USD/EUR quotes to SQLite for offline querying."
+    },
+    {
+      "name": "Snapshot drift",
+      "command": "watchlist changes",
+      "description": "Show how each watched symbol moved in USD between its two most recent snapshots."
+    }
+  ]
+}

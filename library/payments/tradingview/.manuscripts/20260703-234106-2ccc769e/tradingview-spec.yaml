@@ -1,0 +1,124 @@
+name: tradingview
+description: "TradingView CLI — resolve tickers and get prices in USD and EUR (stocks, crypto, forex)"
+version: "0.1.0"
+base_url: "https://scanner.tradingview.com"
+health_check_path: "/symbol?symbol=NASDAQ:AAPL&fields=close&no_404=true"
+http_transport: standard
+
+required_headers:
+  - name: User-Agent
+    value: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0 Safari/537.36"
+  - name: Origin
+    value: "https://www.tradingview.com"
+  - name: Referer
+    value: "https://www.tradingview.com/"
+
+auth:
+  type: none
+
+config:
+  format: toml
+  path: "~/.config/tradingview-pp-cli/config.toml"
+
+resources:
+  symbols:
+    description: "Search and resolve TradingView symbols"
+    base_url: "https://symbol-search.tradingview.com"
+    endpoints:
+      search:
+        method: GET
+        path: "/symbol_search/v3/"
+        description: "Search symbols by text (returns exchange, type, currency)"
+        example: "  tradingview-pp-cli symbols search --text AAPL"
+        happy_args: "--text=AAPL"
+        params:
+          - name: text
+            type: string
+            required: true
+            description: "Search text, e.g. AAPL or Bitcoin"
+          - name: search_type
+            flag_name: search-type
+            type: string
+            required: false
+            description: "Restrict by type: stock, crypto, forex, index, fund (blank = all)"
+          - name: exchange
+            type: string
+            required: false
+            description: "Restrict to an exchange, e.g. NASDAQ"
+          - name: hl
+            type: int
+            required: false
+            default: 0
+            description: "Highlight matches with <em> tags (0=off)"
+          - name: lang
+            type: string
+            required: false
+            default: "en"
+            description: "Language code"
+          - name: domain
+            type: string
+            required: false
+            default: "production"
+            description: "TradingView domain"
+        response:
+          type: object
+          item: SymbolSearchResult
+
+  market:
+    description: "Fetch prices and quotes"
+    endpoints:
+      quote:
+        method: GET
+        path: "/symbol"
+        description: "Get last price and currency for a fully-qualified EXCHANGE:TICKER"
+        example: "  tradingview-pp-cli market quote --symbol NASDAQ:AAPL"
+        happy_args: "--symbol=NASDAQ:AAPL"
+        params:
+          - name: symbol
+            type: string
+            required: true
+            description: "Fully-qualified ticker, e.g. NASDAQ:AAPL or BINANCE:BTCUSDT"
+          - name: fields
+            type: string
+            required: false
+            default: "close,currency,change,pricescale,description,type"
+            description: "Comma-separated fields to return"
+          - name: no_404
+            flag_name: no-404
+            type: bool
+            required: false
+            default: true
+            description: "Return empty instead of 404 for unknown symbols"
+        response:
+          type: object
+          item: Quote
+
+types:
+  SymbolSearchResult:
+    fields:
+      - name: symbol
+        type: string
+      - name: description
+        type: string
+      - name: type
+        type: string
+      - name: exchange
+        type: string
+      - name: currency_code
+        type: string
+      - name: country
+        type: string
+  Quote:
+    fields:
+      - name: close
+        type: float
+      - name: currency
+        type: string
+      - name: change
+        type: float
+      - name: pricescale
+        type: int
+      - name: description
+        type: string
+      - name: type
+        type: string
