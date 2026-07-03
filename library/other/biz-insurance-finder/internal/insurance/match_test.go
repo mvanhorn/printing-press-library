@@ -65,8 +65,11 @@ func TestMatch_NonImporterRetailRoutesToMainstream(t *testing.T) {
 	reg := mustRegistry(t)
 	recs := Match(retailProfile(), reg.Providers)
 
-	if recs[0].Provider.ID != "simply-business" {
-		t.Errorf("rank 1 = %q, want simply-business", recs[0].Provider.ID)
+	// hiscox (retail=good, service=best) and simply-business (retail=best,
+	// service=good) both top out at 50 once we score on the better of
+	// retail/service; the deterministic name tiebreak puts hiscox first.
+	if recs[0].Provider.ID != "hiscox" {
+		t.Errorf("rank 1 = %q, want hiscox", recs[0].Provider.ID)
 	}
 
 	wantRecommended := map[string]bool{
@@ -75,6 +78,7 @@ func TestMatch_NonImporterRetailRoutesToMainstream(t *testing.T) {
 		"hiscox":          true,
 		"biberk":          true,
 		"next-insurance":  true,
+		"thimble":         true,
 	}
 	gotRecommended := tierSet(recs, TierRecommended)
 	if !reflect.DeepEqual(gotRecommended, wantRecommended) {
@@ -95,6 +99,26 @@ func TestMatch_NonImporterRetailRoutesToMainstream(t *testing.T) {
 		if avoid[id] {
 			t.Errorf("%q should NOT be avoided for a low-hazard retailer", id)
 		}
+	}
+}
+
+// A service business (no retail, no products) must be scored on each carrier's
+// SERVICE appetite, not its retail appetite. Thimble (retail=partial,
+// service=good) would only reach the consider tier on retail alone, but its
+// good service appetite plus the instant-quote bonus lifts it to recommended;
+// Embroker (retail=poor, service=good) must not land in the avoid tier.
+func TestMatch_ServiceBusinessUsesServiceAppetite(t *testing.T) {
+	reg := mustRegistry(t)
+	recs := Match(serviceProfile(), reg.Providers)
+	byID := recByID(recs)
+
+	if got := byID["thimble"].Tier; got != TierRecommended {
+		t.Errorf("thimble tier for a service business = %q (score %d), want %q - it should be scored on its good service appetite",
+			got, byID["thimble"].Score, TierRecommended)
+	}
+	if got := byID["embroker"].Tier; got == TierAvoid {
+		t.Errorf("embroker tier for a service business = %q (score %d), want anything but %q - its service appetite is good",
+			got, byID["embroker"].Score, TierAvoid)
 	}
 }
 

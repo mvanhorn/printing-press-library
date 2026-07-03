@@ -146,8 +146,8 @@ func scoreImporter(p Profile, prov Provider, rec *Recommendation) {
 // fast mainstream instant-quote carriers are the right first stop.
 func scoreStandard(p Profile, prov Provider, rec *Recommendation) {
 	rating := prov.Appetite.Retail
-	if rating == "" {
-		rating = prov.Appetite.Service
+	if s := prov.Appetite.Service; s != "" && scoreFit(s) > scoreFit(rating) {
+		rating = s
 	}
 	rec.Score = scoreFit(rating)
 	if prov.InstantQuote {

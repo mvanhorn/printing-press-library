@@ -94,6 +94,30 @@ func privateLabelOnlyProfile() Profile {
 	return p
 }
 
+// serviceProfile models a low-hazard service business (e.g. IT consulting) that
+// does NOT import, private-label, or manufacture and sells no products. Carriers
+// must be judged on their service appetite, not their retail appetite.
+func serviceProfile() Profile {
+	return Profile{
+		LegalName:       "Northwind IT Consulting LLC",
+		EntityStructure: "LLC",
+		FormationState:  "Delaware",
+		BusinessAddress: "220 Tech Park Dr, Springfield, IL 62701",
+		ContactName:     "Dana Lee",
+		ContactEmail:    "hello@example.com",
+		ContactPhone:    "(312) 555-0177",
+		YearStarted:     2021,
+		RevenueBand:     "$100k-$175k",
+		IndustryClass:   "IT consulting",
+		Importer:        false,
+		PrivateLabel:    false,
+		Manufacturer:    false,
+		GLPerOccurrence: "$1,000,000",
+		GLAggregate:     "$2,000,000",
+		EffectiveDate:   "2026-06-29",
+	}
+}
+
 func mustRegistry(t interface{ Fatalf(string, ...any) }) Registry {
 	reg, err := EmbeddedRegistry()
 	if err != nil {
