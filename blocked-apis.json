@@ -1,0 +1,10 @@
+[
+  {
+    "slug": "shopee",
+    "attempted_at": "2026-07-03",
+    "verdict": "hold",
+    "reason": "Buyer /api/v4 gated by per-request JS anti-bot tokens (af-ac-enc-dat, x-sap-sec/x-sap-ri) minted client-side with minutes-scale TTL; HTTP-only path killed upstream 2026-04-29; no replayable HTTP/HTML/SSR surface, so it requires a live browser per request and is not shippable as a printed CLI.",
+    "blocking_issue": null,
+    "permanent": false
+  }
+]
