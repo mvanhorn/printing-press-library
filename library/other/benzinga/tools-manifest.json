@@ -1,7 +1,7 @@
 {
   "api_name": "benzinga",
   "base_url": "https://api.benzinga.com",
-  "description": "Every Benzinga calendar, news, fundamentals, and signal endpoint as a typed command — plus an offline SQLite store, full-text search, cross-entity queries, and the first Benzinga MCP server.",
+  "description": "Every Benzinga calendar, news, fundamentals, and signal endpoint as a typed command \u2014 plus an offline SQLite store, full-text search, cross-entity queries, and the first Benzinga MCP server.",
   "mcp_ready": "full",
   "http_transport": "standard",
   "mcp": {
@@ -766,7 +766,7 @@
     },
     {
       "name": "calendar_get-ma",
-      "description": "Returns mergers and acquisitions (M\u0026A) data including deal announcements, completions, and details about acquiring and target companies. Includes deal size, payment type, deal status, and expected/completed dates for corporate consolidation activities. Optional: page (default: 0), parameters[date], parameters[date_from] (plus 5 more).",
+      "description": "Returns mergers and acquisitions (M&A) data including deal announcements, completions, and details about acquiring and target companies. Includes deal size, payment type, deal status, and expected/completed dates for corporate consolidation activities. Optional: page (default: 0), parameters[date], parameters[date_from] (plus 5 more).",
       "method": "GET",
       "path": "/api/v2.1/calendar/ma",
       "params": [
@@ -816,7 +816,7 @@
           "name": "parameters[date_sort]",
           "type": "string",
           "location": "query",
-          "description": "M\u0026A date field to sort on (newest to oldest for expected and completed; oldest to newest for announced)"
+          "description": "M&A date field to sort on (newest to oldest for expected and completed; oldest to newest for announced)"
         }
       ]
     },
@@ -1184,7 +1184,7 @@
     },
     {
       "name": "earnings-call-transcripts_get",
-      "description": "Retrieves earnings call transcripts for specified companies or call IDs. Returns full text transcripts of quarterly and annual earnings calls including Q\u0026A sessions, speaker identification, and timestamps. Use date filters to retrieve transcripts from specific reporting periods or filter by ticker symbols for company-specific earnings discussions. Optional: tickers, call_id, page (plus 3 more).",
+      "description": "Retrieves earnings call transcripts for specified companies or call IDs. Returns full text transcripts of quarterly and annual earnings calls including Q&A sessions, speaker identification, and timestamps. Use date filters to retrieve transcripts from specific reporting periods or filter by ticker symbols for company-specific earnings discussions. Optional: tickers, call_id, page (plus 3 more).",
       "method": "GET",
       "path": "/api/v1/earnings-call-transcripts",
       "params": [
@@ -1228,7 +1228,7 @@
     },
     {
       "name": "earnings-call-transcripts_get-audio-files",
-      "description": "Retrieves downloadable audio file URLs for earnings call recordings. Returns signed URLs for accessing full audio recordings of quarterly and annual earnings calls. Audio files include complete earnings presentations and Q\u0026A sessions. URLs are time-limited and securely signed for authorized access. Optional: tickers, call_id, page (plus 1 more).",
+      "description": "Retrieves downloadable audio file URLs for earnings call recordings. Returns signed URLs for accessing full audio recordings of quarterly and annual earnings calls. Audio files include complete earnings presentations and Q&A sessions. URLs are time-limited and securely signed for authorized access. Optional: tickers, call_id, page (plus 1 more).",
       "method": "GET",
       "path": "/api/v1/earnings-call-transcripts/audio",
       "params": [
@@ -2977,10 +2977,16 @@
     },
     {
       "name": "wiims_get-wiims",
-      "description": "Benzinga WIIM (Why Is It Moving) items: concise, structured explanations of why a security is moving right now, each tagged to a security (symbol, exchange, ISIN, CUSIP) with created/updated/expired timestamps. Optional: page (default: 0), pageSize (default: 15), tickers, updatedSince, date, dateFrom, dateTo.",
+      "description": "Benzinga WIIM (Why Is It Moving) items \u2014 concise, structured explanations of why a security is moving, tagged to the affected tickers. Preset over the news feed's WIIM channel (GET /api/v2/news?channels=WIIM). Requires a WIIM-entitled Benzinga News token (MARKET/EVENTS tokens return nothing). Optional: page (default 0), pageSize (default 15, max 100), tickers, date, dateFrom, dateTo, updatedSince.",
       "method": "GET",
-      "path": "/api/v1/wiims",
+      "path": "/api/v2/news",
       "params": [
+        {
+          "name": "channels",
+          "type": "string",
+          "location": "query",
+          "description": "Preset to WIIM by this command; selects the Why Is It Moving news channel."
+        },
         {
           "name": "page",
           "type": "int",
@@ -2988,40 +2994,40 @@
           "description": "Page offset for pagination."
         },
         {
-          "name": "pagesize",
+          "name": "pageSize",
           "type": "int",
           "location": "query",
-          "description": "Number of results returned per page."
+          "description": "Number of results returned per page. Maximum 100."
         },
         {
           "name": "tickers",
           "type": "string",
           "location": "query",
-          "description": "One or more ticker symbols separated by a comma to filter WIIM items (e.g., TSLA,NVDA)."
+          "description": "One or more ticker symbols separated by a comma to filter WIIM items (e.g., TSLA,NVDA). Maximum 50."
         },
         {
-          "name": "updated_since",
+          "name": "updatedSince",
           "type": "int",
           "location": "query",
-          "description": "Unix timestamp in seconds (UTC). Returns WIIM items updated after this timestamp."
+          "description": "Unix timestamp in seconds (UTC). Returns WIIM items updated at or after this timestamp."
         },
         {
           "name": "date",
           "type": "string",
           "location": "query",
-          "description": "Single date in YYYY-MM-DD format. Shorthand for date_from and date_to when they are the same."
+          "description": "Single date in YYYY-MM-DD format. Shorthand for dateFrom and dateTo when they are the same."
         },
         {
-          "name": "date_from",
+          "name": "dateFrom",
           "type": "string",
           "location": "query",
-          "description": "Start date in YYYY-MM-DD format. Use with date_to for range queries."
+          "description": "Start date in YYYY-MM-DD format. Use with dateTo for range queries."
         },
         {
-          "name": "date_to",
+          "name": "dateTo",
           "type": "string",
           "location": "query",
-          "description": "End date in YYYY-MM-DD format. Use with date_from for range queries."
+          "description": "End date in YYYY-MM-DD format. Use with dateFrom for range queries."
         }
       ]
     }

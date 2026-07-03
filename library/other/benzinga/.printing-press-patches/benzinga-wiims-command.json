@@ -4,18 +4,18 @@
   "applied_at": "2026-07-02",
   "base_run_id": "20260627-034058-2c1f9c5c",
   "base_printing_press_version": "4.27.0",
-  "summary": "Add the wiims command for GET /api/v1/wiims (Why Is It Moving), unwrapping the {\"wiims\":[...]} envelope.",
-  "reason": "WIIM (Why Is It Moving) is a live Benzinga endpoint (/api/v1/wiims) that the ecosystem research called out as a coverage gap, but it is absent from the official OpenAPI specs bundled in the run, so generation could not emit it. The endpoint wraps its list in a single {\"wiims\":[...]} key, which the command unwraps so count/table/JSON output match sibling list commands. A regen must re-add this hand-mapped endpoint and keep the envelope unwrap.",
+  "summary": "Add a wiims convenience command that presets the WIIM channel on GET /api/v2/news (channels=WIIM).",
+  "reason": "WIIM (Why Is It Moving) is not a standalone endpoint: the /api/v2/wiims path 404s on the gateway and /api/v1/wiims is a dead legacy route returning a single stale item. Benzinga delivers WIIM as the `WIIM` channel of the news feed (verified against a live production integration). This command is a thin preset over the news endpoint with channels=WIIM, mirroring news.get's camelCase query params (pageSize/dateFrom/dateTo/updatedSince) and its bare-array response. A regen must keep wiims pointed at /api/v2/news?channels=WIIM, not any /wiims path.",
   "files": [
     "internal/cli/promoted_wiims.go",
     "internal/cli/root.go",
     "tools-manifest.json"
   ],
-  "validated_outcome": "Live GET /api/v1/wiims returns 200; --json output shows the unwrapped item array with description/security fields; go build/vet pass.",
+  "validated_outcome": "With a WIIM-entitled News token, `wiims --date 2026-07-01 --page-size 50 --json` returns 50 items all on the WIIM channel; go build/vet pass. The MARKET/EVENTS super-tokens are NOT WIIM-entitled and return zero items.",
   "deferred_to_upstream": [
     {
-      "feature": "WIIM (/api/v1/wiims) is not in Benzinga's published OpenAPI specs; the path and params were reverse-engineered against the live API.",
-      "reason": "If Benzinga publishes a spec for WIIM (or the generator learns the news-api/wiims surface), this hand-mapped command should be superseded by the generated one."
+      "feature": "WIIM requires a Benzinga News token entitled to the WIIM channel; it is a licensing boundary distinct from the market-data tokens.",
+      "reason": "The CLI has a single credential slot, so wiims and the market-data commands cannot both be authenticated at once without per-product credential support. Track adding a WIIM/news token slot upstream."
     }
   ]
 }

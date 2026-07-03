@@ -224,7 +224,7 @@ These capabilities aren't available in any other tool for this API.
 
 **wiims** — Manage wiims (Why Is It Moving)
 
-- `benzinga-pp-cli wiims` — Why Is It Moving (WIIM): concise structured explanations of why a security is moving now, tagged to a security with created/updated/expired timestamps. Filter with `--tickers`, `--date`/`--date-from`/`--date-to`, `--updated-since`. Complements `why` with editorial context.
+- `benzinga-pp-cli wiims` — Why Is It Moving (WIIM): concise structured explanations of why a security is moving, tagged to the affected tickers. Preset over the news feed's WIIM channel (`GET /api/v2/news?channels=WIIM`). Filter with `--tickers`, `--date`/`--date-from`/`--date-to`, `--updated-since`. Requires a WIIM-entitled Benzinga News token (market-data tokens return nothing). Complements `why` with editorial context.
 
 
 ### Finding the right command

@@ -4,7 +4,6 @@
 package cli
 
 import (
-	"bytes"
 	"encoding/json"
 	"fmt"
 	"os"
@@ -12,29 +11,15 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// unwrapWiimsEnvelope pulls the array out of Benzinga's {"wiims":[...]} response
-// so count, table, and JSON output operate on the item list like sibling
-// list commands. Non-object or differently-shaped bodies pass through unchanged.
-func unwrapWiimsEnvelope(data json.RawMessage) json.RawMessage {
-	leading := bytes.TrimLeft(data, " \t\r\n")
-	if len(leading) == 0 || leading[0] != '{' {
-		return data
-	}
-	var obj map[string]json.RawMessage
-	if err := json.Unmarshal(data, &obj); err != nil {
-		return data
-	}
-	val, ok := obj["wiims"]
-	if !ok {
-		return data
-	}
-	trimmed := bytes.TrimLeft(val, " \t\r\n")
-	if len(trimmed) == 0 || trimmed[0] != '[' {
-		return data
-	}
-	return val
-}
-
+// newWiimsPromotedCmd is a convenience wrapper over the news endpoint preset to
+// the WIIM channel. Benzinga delivers "Why Is It Moving" (WIIM) as news items on
+// the `WIIM` channel of GET /api/v2/news — there is no standalone /wiims endpoint
+// on the gateway (the /api/v2/wiims spec 404s; /api/v1/wiims is a dead legacy
+// route). See .printing-press-patches/benzinga-wiims-command.json.
+//
+// NOTE ON AUTH: the WIIM channel requires a Benzinga News subscription entitled
+// to it. The MARKET/EVENTS super-tokens are NOT WIIM-entitled and return zero
+// items; configure the CLI with a WIIM-entitled News token (BENZINGA_WIIM_TOKEN).
 func newWiimsPromotedCmd(flags *rootFlags) *cobra.Command {
 	var flagPage string
 	var flagPageSize int
@@ -49,31 +34,33 @@ func newWiimsPromotedCmd(flags *rootFlags) *cobra.Command {
 		Use:         "wiims",
 		Aliases:     []string{"wiim", "why-is-it-moving"},
 		Short:       "Why Is It Moving (WIIM) — short structured explanations of why a ticker is moving.",
-		Long:        "Returns Benzinga WIIM (Why Is It Moving) items: concise, structured, human-written explanations of why a security is moving right now, each tagged to a security (symbol, exchange, ISIN, CUSIP) with created/updated/expired timestamps. Complements the 'why' catalyst timeline with editorial context.",
-		Example:     "  benzinga-pp-cli wiims --tickers TSLA,NVDA",
-		Annotations: map[string]string{"pp:endpoint": "wiims.get-wiims", "pp:method": "GET", "pp:path": "/api/v1/wiims", "mcp:read-only": "true"},
+		Long:        "Returns Benzinga WIIM (Why Is It Moving) items: concise, structured explanations of why a security is moving, tagged to the affected tickers. WIIM is delivered as the `WIIM` channel of the news feed (GET /api/v2/news?channels=WIIM); this command presets that channel. Requires a Benzinga News token entitled to the WIIM channel — the MARKET/EVENTS tokens are not entitled and return no items. Complements the 'why' catalyst timeline with editorial context.",
+		Example:     "  benzinga-pp-cli wiims --tickers TSLA,NVDA --date 2026-07-01",
+		Annotations: map[string]string{"pp:endpoint": "news.get", "pp:method": "GET", "pp:path": "/api/v2/news", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()
 			if err != nil {
 				return err
 			}
 
-			path := "/api/v1/wiims"
+			path := "/api/v2/news"
+			// channels is preset to WIIM; all other params mirror the news endpoint's
+			// camelCase query names (pageSize, dateFrom, dateTo, updatedSince).
 			data, prov, err := resolvePaginatedReadWithStrategy(cmd.Context(), c, flags, "auto", "wiims", path, map[string]string{
-				"page":          formatCLIParamValue(flagPage),
-				"pagesize":      formatCLIParamValue(flagPageSize),
-				"tickers":       formatCLIParamValue(flagTickers),
-				"updated_since": formatCLIParamValue(flagUpdatedSince),
-				"date":          formatCLIParamValue(flagDate),
-				"date_from":     formatCLIParamValue(flagDateFrom),
-				"date_to":       formatCLIParamValue(flagDateTo),
-			}, nil, flagAll, "page", "page", "pagesize", "", "", cmd.ErrOrStderr())
+				"channels":     "WIIM",
+				"page":         formatCLIParamValue(flagPage),
+				"pageSize":     formatCLIParamValue(flagPageSize),
+				"tickers":      formatCLIParamValue(flagTickers),
+				"updatedSince": formatCLIParamValue(flagUpdatedSince),
+				"date":         formatCLIParamValue(flagDate),
+				"dateFrom":     formatCLIParamValue(flagDateFrom),
+				"dateTo":       formatCLIParamValue(flagDateTo),
+			}, nil, flagAll, "page", "page", "pageSize", "", "", cmd.ErrOrStderr())
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}
-			// Benzinga wraps the list in {"wiims":[...]}; unwrap so downstream
-			// count/table/JSON handling matches sibling list commands.
-			data = unwrapWiimsEnvelope(data)
+			// The news endpoint returns a bare JSON array; count/table/JSON handling
+			// operates on it directly (no envelope to unwrap).
 			// Print provenance to stderr for human-facing output only.
 			// Machine-format flags (--json, --csv, --compact, --quiet, --plain,
 			// --select) and piped stdout suppress this line; the JSON envelope
@@ -81,10 +68,7 @@ func newWiimsPromotedCmd(flags *rootFlags) *cobra.Command {
 			// SYNC: keep this gate aligned with command_promoted.go.tmpl.
 			if wantsHumanTable(cmd.OutOrStdout(), flags) {
 				var countItems []json.RawMessage
-				if json.Unmarshal(data, &countItems) != nil {
-					// Single object, not an array
-					countItems = []json.RawMessage{data}
-				}
+				_ = json.Unmarshal(data, &countItems)
 				printProvenance(cmd, len(countItems), prov)
 			}
 			// For JSON output, wrap with provenance envelope. --select wins over
@@ -121,9 +105,9 @@ func newWiimsPromotedCmd(flags *rootFlags) *cobra.Command {
 		},
 	}
 	cmd.Flags().StringVar(&flagPage, "page", "0", "Page offset for pagination.")
-	cmd.Flags().IntVar(&flagPageSize, "page-size", 15, "Number of results returned per page.")
-	cmd.Flags().StringVar(&flagTickers, "tickers", "", "One or more ticker symbols separated by a comma to filter WIIM items (e.g., TSLA,NVDA).")
-	cmd.Flags().IntVar(&flagUpdatedSince, "updated-since", 0, "Unix timestamp in seconds (UTC). Returns WIIM items updated after this timestamp.")
+	cmd.Flags().IntVar(&flagPageSize, "page-size", 15, "Number of results returned per page. Maximum 100.")
+	cmd.Flags().StringVar(&flagTickers, "tickers", "", "One or more ticker symbols separated by a comma to filter WIIM items (e.g., TSLA,NVDA). Maximum 50.")
+	cmd.Flags().IntVar(&flagUpdatedSince, "updated-since", 0, "Unix timestamp in seconds (UTC). Returns WIIM items updated at or after this timestamp.")
 	cmd.Flags().StringVar(&flagDate, "date", "", "Single date in YYYY-MM-DD format. Shorthand for date-from and date-to when they are the same.")
 	cmd.Flags().StringVar(&flagDateFrom, "date-from", "", "Start date in YYYY-MM-DD format. Use with date-to for range queries.")
 	cmd.Flags().StringVar(&flagDateTo, "date-to", "", "End date in YYYY-MM-DD format. Use with date-from for range queries.")
