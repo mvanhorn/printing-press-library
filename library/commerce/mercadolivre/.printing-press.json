@@ -53,5 +53,51 @@
       "command": "stale",
       "description": "List products whose newest price snapshot is older than a threshold, so a cotacao is never built on cold prices."
     }
-  ]
+  ],
+  "novel_features_built": [
+    {
+      "name": "Aligned spec matrix",
+      "command": "compare",
+      "description": "Compare N products side-by-side as a normalized attribute matrix with a price row, so 'which meets 220V and \u003e=700W' is one command instead of six browser tabs."
+    },
+    {
+      "name": "Cheapest meeting spec floor",
+      "command": "cheapest",
+      "description": "Find the lowest-priced listing that satisfies attribute floors like voltage and power, evaluated against locally synced spec data."
+    },
+    {
+      "name": "Cross-seller price dispersion",
+      "command": "dispersion",
+      "description": "Report min/max/median/stddev of prices across the multiple sellers a single Mercado Livre catalog product aggregates."
+    },
+    {
+      "name": "Price drift over time",
+      "command": "price-history",
+      "description": "Show how a product's price changed across repeated local snapshots, with an optional --since window."
+    },
+    {
+      "name": "Cotacao quotation bundle",
+      "command": "cotacao",
+      "description": "Assemble a purchase-request-shaped quotation across chosen products with price, seller, key specs, and captured_at provenance."
+    },
+    {
+      "name": "Freshness gate",
+      "command": "stale",
+      "description": "List products whose newest price snapshot is older than a threshold, so a cotacao is never built on cold prices."
+    }
+  ],
+  "verify": {
+    "mode": "mock",
+    "pass_rate": 100,
+    "passed": 25,
+    "total": 25,
+    "verdict": "PASS"
+  },
+  "scorecard": {
+    "steinberger": {
+      "percentage": 76,
+      "grade": "B",
+      "total": 76
+    }
+  }
 }

@@ -249,6 +249,7 @@ See README.md or the bundled SKILL.md for recipes.`,
 	rootCmd.AddCommand(newWhichCmd(flags))
 	rootCmd.AddCommand(newTailCmd(flags))
 	rootCmd.AddCommand(newWorkflowCmd(flags))
+	rootCmd.AddCommand(newCotarCmd(flags))
 	rootCmd.AddCommand(newNovelCheapestCmd(flags))
 	rootCmd.AddCommand(newNovelCompareCmd(flags))
 	rootCmd.AddCommand(newNovelCotacaoCmd(flags))

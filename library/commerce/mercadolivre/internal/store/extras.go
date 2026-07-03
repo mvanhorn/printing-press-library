@@ -33,6 +33,19 @@ func (s *Store) migrateExtras(ctx context.Context, conn *sql.Conn) error {
 			captured_at DATETIME DEFAULT CURRENT_TIMESTAMP
 		)`,
 		`CREATE INDEX IF NOT EXISTS idx_price_snapshot_catalog_id ON price_snapshot(catalog_id)`,
+		// Seller name scraped from a search-page poly-card, keyed by catalog_id.
+		`CREATE TABLE IF NOT EXISTS listing_seller (
+			catalog_id TEXT PRIMARY KEY,
+			seller TEXT,
+			synced_at DATETIME DEFAULT CURRENT_TIMESTAMP
+		)`,
+		// Total shipping window (handling + transit) in days, per catalog_id.
+		`CREATE TABLE IF NOT EXISTS product_delivery (
+			catalog_id TEXT PRIMARY KEY,
+			min_days INTEGER,
+			max_days INTEGER,
+			synced_at DATETIME DEFAULT CURRENT_TIMESTAMP
+		)`,
 	}
 	for _, m := range migrations {
 		if _, err := conn.ExecContext(ctx, m); err != nil {

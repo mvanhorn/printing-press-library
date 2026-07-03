@@ -246,6 +246,68 @@ func (s *Store) ListingsMatching(query string) ([]ListingRow, error) {
 	return out, rows.Err()
 }
 
+// UpsertListingSeller records the seller name observed for a catalog_id from a
+// search-page poly-card. Empty seller strings are ignored (no fabricated blank).
+func (s *Store) UpsertListingSeller(catalogID, seller string) error {
+	if catalogID == "" || seller == "" {
+		return nil
+	}
+	s.writeMu.Lock()
+	defer s.writeMu.Unlock()
+	_, err := s.db.Exec(
+		`INSERT INTO listing_seller (catalog_id, seller, synced_at) VALUES (?, ?, ?)
+		 ON CONFLICT(catalog_id) DO UPDATE SET seller = excluded.seller, synced_at = excluded.synced_at`,
+		catalogID, seller, time.Now().UTC().Format(time.RFC3339),
+	)
+	return err
+}
+
+// ListingSeller returns the stored seller for a catalog_id. ok=false when none.
+func (s *Store) ListingSeller(catalogID string) (string, bool, error) {
+	var seller string
+	err := s.db.QueryRow(`SELECT seller FROM listing_seller WHERE catalog_id = ?`, catalogID).Scan(&seller)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return "", false, nil
+		}
+		return "", false, err
+	}
+	return seller, true, nil
+}
+
+// UpsertProductDelivery records the total shipping window (days) for a
+// catalog_id. A zero/zero window is still stored so a later "consulted but no
+// estimate" reads as present rather than missing.
+func (s *Store) UpsertProductDelivery(catalogID string, minDays, maxDays int) error {
+	if catalogID == "" {
+		return nil
+	}
+	s.writeMu.Lock()
+	defer s.writeMu.Unlock()
+	_, err := s.db.Exec(
+		`INSERT INTO product_delivery (catalog_id, min_days, max_days, synced_at) VALUES (?, ?, ?, ?)
+		 ON CONFLICT(catalog_id) DO UPDATE SET min_days = excluded.min_days, max_days = excluded.max_days, synced_at = excluded.synced_at`,
+		catalogID, minDays, maxDays, time.Now().UTC().Format(time.RFC3339),
+	)
+	return err
+}
+
+// ProductDelivery returns the stored (min, max) day window for a catalog_id.
+// ok=false when no delivery row exists.
+func (s *Store) ProductDelivery(catalogID string) (int, int, bool, error) {
+	var minDays, maxDays int
+	err := s.db.QueryRow(
+		`SELECT min_days, max_days FROM product_delivery WHERE catalog_id = ?`, catalogID,
+	).Scan(&minDays, &maxDays)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return 0, 0, false, nil
+		}
+		return 0, 0, false, err
+	}
+	return minDays, maxDays, true, nil
+}
+
 // StaleProduct pairs a product with the age of its newest price snapshot.
 type StaleProduct struct {
 	CatalogID    string    `json:"catalog_id"`

@@ -41,7 +41,15 @@ func persistListings(ctx context.Context, listings []mlextract.Listing) error {
 		}
 	}
 	for _, l := range listings {
-		if l.CatalogID == "" || l.Price <= 0 {
+		if l.CatalogID == "" {
+			continue
+		}
+		if l.Seller != "" {
+			if err := s.UpsertListingSeller(l.CatalogID, l.Seller); err != nil {
+				return err
+			}
+		}
+		if l.Price <= 0 {
 			continue
 		}
 		if err := s.InsertPriceSnapshot(l.CatalogID, l.Price, l.Currency); err != nil {
@@ -73,6 +81,11 @@ func persistProduct(ctx context.Context, p *mlextract.ProductDetail, attrs []mle
 	}
 	if p.Price > 0 {
 		if err := s.InsertPriceSnapshot(p.CatalogID, p.Price, p.Currency); err != nil {
+			return err
+		}
+	}
+	if p.DeliveryMinDays > 0 || p.DeliveryMaxDays > 0 {
+		if err := s.UpsertProductDelivery(p.CatalogID, p.DeliveryMinDays, p.DeliveryMaxDays); err != nil {
 			return err
 		}
 	}

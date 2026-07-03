@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 )
 
@@ -71,6 +72,158 @@ func TestParseSearchGraph(t *testing.T) {
 	}
 	if rec["id"] != "MLB51764304" || rec["catalog_id"] != "MLB51764304" {
 		t.Errorf("StoreJSON id/catalog_id = %v/%v, want MLB51764304", rec["id"], rec["catalog_id"])
+	}
+}
+
+func TestParseSearchListingsPolycard(t *testing.T) {
+	listings, err := ParseSearchListings(readFixture(t, "search_polycard.html"))
+	if err != nil {
+		t.Fatalf("ParseSearchListings(polycard) error: %v", err)
+	}
+	if len(listings) != 3 {
+		t.Fatalf("expected 3 listings from polycard blob, got %d: %+v", len(listings), listings)
+	}
+
+	// First card: full assertion including the polycard-specific fields.
+	first := listings[0]
+	if !strings.Contains(first.Name, "Martelete") {
+		t.Errorf("listing[0] name = %q, want it to contain %q", first.Name, "Martelete")
+	}
+	if first.Seller != "EINHELL" {
+		t.Errorf("listing[0] seller = %q, want EINHELL", first.Seller)
+	}
+	if first.CatalogID != "MLB16098322" {
+		t.Errorf("listing[0] catalog_id = %q, want MLB16098322 (metadata.product_id)", first.CatalogID)
+	}
+	if first.Price <= 0 {
+		t.Errorf("listing[0] price = %v, want > 0", first.Price)
+	}
+	if first.Price != 420.7 {
+		t.Errorf("listing[0] price = %v, want 420.7", first.Price)
+	}
+	if first.Currency != "BRL" {
+		t.Errorf("listing[0] currency = %q, want BRL", first.Currency)
+	}
+	if first.OriginalPrice != 601 {
+		t.Errorf("listing[0] original_price = %v, want 601 (previous_price)", first.OriginalPrice)
+	}
+	if first.RatingValue != 4.4 {
+		t.Errorf("listing[0] rating_value = %v, want 4.4", first.RatingValue)
+	}
+	if first.URL != "https://www.mercadolivre.com.br/p/MLB16098322" {
+		t.Errorf("listing[0] url = %q, want canonical /p/MLB16098322", first.URL)
+	}
+	if first.ShippingText == "" {
+		t.Errorf("listing[0] shipping_text is empty, want a delivery hint")
+	}
+
+	// Every listing must carry a non-empty seller and a positive price.
+	wantSellers := []string{"EINHELL", "DEWALT", "DEWALT"}
+	wantCatalog := []string{"MLB16098322", "MLB15350706", "MLB29599886"}
+	for i, l := range listings {
+		if l.Seller == "" {
+			t.Errorf("listing[%d] seller is empty", i)
+		}
+		if l.Price <= 0 {
+			t.Errorf("listing[%d] price = %v, want > 0", i, l.Price)
+		}
+		if l.Seller != wantSellers[i] {
+			t.Errorf("listing[%d] seller = %q, want %q", i, l.Seller, wantSellers[i])
+		}
+		if l.CatalogID != wantCatalog[i] {
+			t.Errorf("listing[%d] catalog_id = %q, want %q", i, l.CatalogID, wantCatalog[i])
+		}
+	}
+}
+
+// TestExtractBalancedObject exercises the brace scanner directly, including a
+// polycard whose string VALUES contain literal { and } (which must not throw
+// off the brace count).
+func TestExtractBalancedObject(t *testing.T) {
+	// The title text and a seller "text" field embed braces inside strings.
+	blob := `prefix "polycard":{"metadata":{"id":"MLB1","product_id":"MLB1"},"components":[{"type":"title","title":{"text":"Drill {mega} }brace{ combo"}},{"type":"seller","seller":{"text":"{label}","values":[{"key":"label","label":{"text":"ACME}{"}}]}},{"type":"price","price":{"current_price":{"value":99.5,"currency":"BRL"}}}]} trailing junk`
+
+	marker := `"polycard":`
+	p := strings.Index(blob, marker)
+	obj, next, ok := extractBalancedObject(blob, p+len(marker))
+	if !ok {
+		t.Fatalf("extractBalancedObject returned ok=false")
+	}
+	if next >= len(blob) || blob[next:] != " trailing junk" {
+		t.Errorf("next index wrong: remainder = %q, want %q", blob[next:], " trailing junk")
+	}
+	// The extracted object must be valid, brace-balanced JSON.
+	var pc polycard
+	if err := json.Unmarshal([]byte(obj), &pc); err != nil {
+		t.Fatalf("extracted object is not valid JSON: %v\nobj=%s", err, obj)
+	}
+	l := polycardToListing(pc)
+	if l.CatalogID != "MLB1" {
+		t.Errorf("catalog_id = %q, want MLB1", l.CatalogID)
+	}
+	if !strings.Contains(l.Name, "brace") {
+		t.Errorf("name = %q, want it to contain %q (braces-in-string survived)", l.Name, "brace")
+	}
+	if l.Seller != "ACME}{" {
+		t.Errorf("seller = %q, want %q (braces-in-string survived)", l.Seller, "ACME}{")
+	}
+	if l.Price != 99.5 {
+		t.Errorf("price = %v, want 99.5", l.Price)
+	}
+}
+
+func TestParseSearchListings(t *testing.T) {
+	listings, err := ParseSearchListings(readFixture(t, "search_page.html"))
+	if err != nil {
+		t.Fatalf("ParseSearchListings error: %v", err)
+	}
+	if len(listings) != 3 {
+		t.Fatalf("expected 3 listings, got %d: %+v", len(listings), listings)
+	}
+	cases := []struct {
+		idx       int
+		catalogID string
+		seller    string
+		price     float64
+	}{
+		{0, "MLB1001", "Loja Oficial Bosch", 349.90},
+		{1, "MLB1002", "Ferramentas Vikings", 529.00},
+		{2, "MLB1003", "Mercado Livre", 299.00},
+	}
+	for _, c := range cases {
+		got := listings[c.idx]
+		if got.CatalogID != c.catalogID {
+			t.Errorf("listing[%d] catalog_id = %q, want %q", c.idx, got.CatalogID, c.catalogID)
+		}
+		if got.Seller != c.seller {
+			t.Errorf("listing[%d] seller = %q, want %q", c.idx, got.Seller, c.seller)
+		}
+		if got.Price != c.price {
+			t.Errorf("listing[%d] price = %v, want %v (JSON-LD price intact)", c.idx, got.Price, c.price)
+		}
+	}
+}
+
+func TestParseProductDelivery(t *testing.T) {
+	// product_shipping.json: handling 0-1 + transit 2-4 -> total 2-5 days.
+	p, err := ParseProduct(readFixture(t, "product_shipping.json"))
+	if err != nil {
+		t.Fatalf("ParseProduct(product_shipping) error: %v", err)
+	}
+	if p.DeliveryMinDays != 2 {
+		t.Errorf("DeliveryMinDays = %d, want 2 (0+2)", p.DeliveryMinDays)
+	}
+	if p.DeliveryMaxDays != 5 {
+		t.Errorf("DeliveryMaxDays = %d, want 5 (1+4)", p.DeliveryMaxDays)
+	}
+
+	// product.json has no shippingDetails -> delivery 0/0, still parses.
+	p2, err := ParseProduct(readFixture(t, "product.json"))
+	if err != nil {
+		t.Fatalf("ParseProduct(product) error: %v", err)
+	}
+	if p2.DeliveryMinDays != 0 || p2.DeliveryMaxDays != 0 {
+		t.Errorf("no-shipping product delivery = %d/%d, want 0/0", p2.DeliveryMinDays, p2.DeliveryMaxDays)
 	}
 }
 

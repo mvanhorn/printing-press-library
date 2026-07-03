@@ -42,10 +42,6 @@ func newListingsPromotedCmd(flags *rootFlags) *cobra.Command {
 			// Mercado Livre's /lista path expects a hyphenated slug, not the
 			// raw query with spaces.
 			path = replacePathParam(path, "query", slugifyQuery(args[0]))
-			htmlRequestParams := map[string]string{}
-			if flagLimit != 0 {
-				htmlRequestParams["limit"] = formatCLIParamValue(flagLimit)
-			}
 			params := map[string]string{}
 			if flagLimit != 0 {
 				params["limit"] = formatCLIParamValue(flagLimit)
@@ -60,22 +56,10 @@ func newListingsPromotedCmd(flags *rootFlags) *cobra.Command {
 				return printOutputWithFlagsMeta(cmd.OutOrStdout(), data, flags, map[string]any{"source": "live"})
 			}
 
-			ldjson, err := extractHTMLResponse(data, htmlExtractionOptions{
-				Mode:           "embedded-json",
-				BaseURL:        htmlExtractionRequestURL(c.BaseURL, path, htmlRequestParams),
-				ContentType:    c.LastContentType(),
-				LinkPrefixes:   []string{},
-				Limit:          0,
-				ScriptSelector: "script[type=\"application/ld+json\"]",
-				JSONPath:       "",
-			})
-			if err != nil {
-				return err
-			}
-
-			// The extracted ld+json is the search page @graph object; turn it
-			// into structured listing rows.
-			listings, err := mlextract.ParseSearchGraph(ldjson)
+			// The raw search HTML carries both the JSON-LD @graph and the DOM
+			// poly-cards; ParseSearchListings reads both so each row also
+			// captures its seller.
+			listings, err := mlextract.ParseSearchListings(data)
 			if err != nil {
 				return err
 			}
