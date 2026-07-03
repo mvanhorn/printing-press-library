@@ -1,0 +1,40 @@
+{
+  "schema_version": 2,
+  "generated_at": "2026-05-17T18:15:49.574186Z",
+  "printing_press_version": "4.27.1",
+  "api_name": "catasto",
+  "display_name": "Catasto",
+  "cli_name": "catasto-pp-cli",
+  "owner": "roberto-bissanti",
+  "printer": "robertobissanti",
+  "printer_name": "Roberto Bissanti",
+  "spec_path": "/Users/robertobissanti/printing-press/.runstate/printingpress-56f02692/runs/20260517-193731/research/catasto-spec.yaml",
+  "spec_format": "internal",
+  "spec_checksum": "sha256:b7c03f488e46a6bca7372fe5b9e01a0a9b316a5a0011dbecefc88fc77c9aef60",
+  "run_id": "20260517-193731",
+  "category": "other",
+  "description": "The free, single-binary Italian cadastre CLI — converts between cadastral references and GPS, online or offline, with agent-native JSON.",
+  "mcp_binary": "catasto-pp-mcp",
+  "mcp_tool_count": 1,
+  "mcp_public_tool_count": 1,
+  "mcp_ready": "full",
+  "api_version": "0.1.0",
+  "auth_type": "none",
+  "novel_features": [
+    {
+      "name": "GPS to cadastral lookup",
+      "command": "gps",
+      "description": "Resolve a WGS84 lon/lat point to its Italian cadastral parcel (province, comune, foglio, particella). Supports single-point and streaming batch mode."
+    },
+    {
+      "name": "Cadastral to GPS lookup",
+      "command": "cadastral",
+      "description": "Reverse lookup: given a comune codice belfiore + foglio + particella, return the WGS84 centroid coordinates. Powered by the ondata/dati_catastali Parquet dataset, cached locally on first use."
+    },
+    {
+      "name": "Cadastral syntax validator",
+      "command": "validate",
+      "description": "Parse-only validator for cadastral references. Explains shape rules without hitting any API."
+    }
+  ]
+}
