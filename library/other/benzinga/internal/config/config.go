@@ -39,7 +39,12 @@ type Config struct {
 	envOverrides     map[string]bool `toml:"-"`
 	fileConfig       *Config         `toml:"-"`
 	BenzingaApiKey   string          `toml:"api_key"`
-	CalendarApiKey   string          `toml:"api_key"`
+	CalendarApiKey   string          `toml:"calendar_api_key"`
+	// MarketApiKey is the token used for Benzinga market-data products (movers,
+	// bars, short interest, logos) and the calendar, which are covered by the
+	// market/super-token rather than the news/fundamentals Pro token. Unset
+	// falls back to the default api_key, so single-token setups are unchanged.
+	MarketApiKey string `toml:"market_api_key"`
 }
 
 func Load(configPath string) (*Config, error) {
@@ -120,6 +125,10 @@ func Load(configPath string) (*Config, error) {
 		cfg.markEnvOverride("CalendarApiKey")
 		cfg.AuthSource = "env:CALENDAR_API_KEY"
 		cfg.CredentialSource = "env:CALENDAR_API_KEY"
+	}
+	if v := os.Getenv("BENZINGA_MARKET_API_KEY"); v != "" {
+		cfg.MarketApiKey = v
+		cfg.markEnvOverride("MarketApiKey")
 	}
 	// Label config-file-derived credentials so doctor can distinguish
 	// "credentials persisted on disk" from "no credentials at all" — without
@@ -224,6 +233,31 @@ func (c *Config) AuthHeader() string {
 	return ""
 }
 
+// marketDataPath reports whether a request path targets Benzinga's market-data
+// products (movers, bars, short interest, logos) or the calendar. These are
+// covered by the market/super-token, not the news/fundamentals Pro token, so
+// they route to MarketApiKey when a distinct one is configured.
+func marketDataPath(path string) bool {
+	for _, seg := range []string{"/market/", "/shortinterest", "/bars", "/logos/", "/calendar"} {
+		if strings.Contains(path, seg) {
+			return true
+		}
+	}
+	return false
+}
+
+// TokenForPath returns the API token to use for a given request path. Market-
+// data and calendar endpoints use MarketApiKey when it is set; everything else
+// (news, WIIM, fundamentals, signals, delayed quotes) uses the default token
+// from AuthHeader(). Any product-specific token falls back to the default when
+// unset, so a single-token configuration behaves exactly as before.
+func (c *Config) TokenForPath(path string) string {
+	if marketDataPath(path) && c.MarketApiKey != "" {
+		return c.MarketApiKey
+	}
+	return c.AuthHeader()
+}
+
 func applyAuthFormat(format string, replacements map[string]string) string {
 	if format == "" {
 		return ""
@@ -270,6 +304,9 @@ func (c *Config) hasCredentialFields() bool {
 	if c.CalendarApiKey != "" {
 		return true
 	}
+	if c.MarketApiKey != "" {
+		return true
+	}
 	return false
 }
 
@@ -282,6 +319,7 @@ func (c *Config) clearCredentialFields() {
 	c.ClientSecret = ""
 	c.BenzingaApiKey = ""
 	c.CalendarApiKey = ""
+	c.MarketApiKey = ""
 }
 
 func (c *Config) credentials() *cliutil.Credentials {
@@ -294,6 +332,7 @@ func (c *Config) credentials() *cliutil.Credentials {
 		ClientSecret:   c.ClientSecret,
 		BenzingaApiKey: c.BenzingaApiKey,
 		CalendarApiKey: c.CalendarApiKey,
+		MarketApiKey:   c.MarketApiKey,
 	}
 }
 
@@ -309,6 +348,7 @@ func (c *Config) applyCredentials(creds *cliutil.Credentials) {
 	c.ClientSecret = creds.ClientSecret
 	c.BenzingaApiKey = creds.BenzingaApiKey
 	c.CalendarApiKey = creds.CalendarApiKey
+	c.MarketApiKey = creds.MarketApiKey
 }
 
 func (c *Config) saveCredentialsFirst() error {
@@ -374,6 +414,19 @@ func (c *Config) SaveCredential(token string) error {
 	return c.save()
 }
 
+// SaveMarketCredential persists the market/super-token used for market-data and
+// calendar endpoints (see TokenForPath) without disturbing the default api_key,
+// so a Pro token and a market token can coexist in one credentials file.
+func (c *Config) SaveMarketCredential(token string) error {
+	c.MarketApiKey = token
+	delete(c.envOverrides, "MarketApiKey")
+	c.updateFileConfigField("MarketApiKey")
+	if err := c.saveCredentialsFirst(); err != nil {
+		return err
+	}
+	return c.save()
+}
+
 func (c *Config) ClearTokens() error {
 	// AuthHeader() falls back to the env-var-derived fields when AuthHeaderVal
 	// and AccessToken are empty, so dropping the working credential requires
@@ -405,6 +458,9 @@ func (c *Config) ClearTokens() error {
 	c.CalendarApiKey = ""
 	delete(c.envOverrides, "CalendarApiKey")
 	c.updateFileConfigField("CalendarApiKey")
+	c.MarketApiKey = ""
+	delete(c.envOverrides, "MarketApiKey")
+	c.updateFileConfigField("MarketApiKey")
 	if c.AgentcookieManagedByExternalStore() {
 		c.markAgentcookieManaged()
 		// save() persists the full config (credential fields included) for
@@ -459,6 +515,9 @@ func (c *Config) configForSave() Config {
 		if c.envOverrides["CalendarApiKey"] {
 			out.CalendarApiKey = c.fileConfig.CalendarApiKey
 		}
+		if c.envOverrides["MarketApiKey"] {
+			out.MarketApiKey = c.fileConfig.MarketApiKey
+		}
 	}
 	out.envOverrides = nil
 	out.fileConfig = nil
@@ -486,6 +545,8 @@ func (c *Config) updateFileConfigField(field string) {
 		c.fileConfig.BenzingaApiKey = c.BenzingaApiKey
 	case "CalendarApiKey":
 		c.fileConfig.CalendarApiKey = c.CalendarApiKey
+	case "MarketApiKey":
+		c.fileConfig.MarketApiKey = c.MarketApiKey
 	}
 }
 

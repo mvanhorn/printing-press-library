@@ -29,7 +29,8 @@ type Credentials struct {
 	ClientID       string    `toml:"client_id,omitempty"`
 	ClientSecret   string    `toml:"client_secret,omitempty"`
 	BenzingaApiKey string    `toml:"api_key,omitempty"`
-	CalendarApiKey string    `toml:"api_key,omitempty"`
+	CalendarApiKey string    `toml:"calendar_api_key,omitempty"`
+	MarketApiKey   string    `toml:"market_api_key,omitempty"`
 }
 
 func credentialsPath() (string, error) {
@@ -83,7 +84,8 @@ func (c *Credentials) HasValues() bool {
 		c.ClientID != "" ||
 		c.ClientSecret != "" ||
 		c.BenzingaApiKey != "" ||
-		c.CalendarApiKey != ""
+		c.CalendarApiKey != "" ||
+		c.MarketApiKey != ""
 }
 
 func warnCredentialsIssue(path, action string, err error) {

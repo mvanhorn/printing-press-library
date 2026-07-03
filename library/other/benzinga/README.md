@@ -122,6 +122,23 @@ Add to your Claude Desktop config (`~/Library/Application Support/Claude/claude_
 
 Benzinga uses a static API token passed as a query parameter. Set BENZINGA_API_KEY in your environment (or run benzinga-pp-cli auth set-token) and every command attaches it as ?token=. Access is tier-gated per product, so a valid token can still return 403 on an endpoint your plan does not include — that is a licensing boundary, not a CLI bug.
 
+### Per-product tokens (news/Pro vs market)
+
+Benzinga entitlements are split across two token families and no single token covers everything:
+
+- **News/Pro token** — news, WIIM (`wiims`), fundamentals, signals, and delayed quotes (`--with-points`). Set as the default token (`BENZINGA_API_KEY` / `auth set-token`).
+- **Market/super-token** — market movers (`market`), bars, short interest, logos, and the calendar. Set it separately so both work at once, without swapping:
+
+```bash
+# Default (news/Pro) token — used by wiims, news, fundamentals, signals
+benzinga-pp-cli auth set-token YOUR_PRO_TOKEN
+
+# Market/super-token — used by market movers, bars, short interest, logos, calendar
+benzinga-pp-cli auth set-token --market YOUR_MARKET_TOKEN     # or export BENZINGA_MARKET_API_KEY=...
+```
+
+The CLI routes each request to the right token by endpoint path (`market`/`bars`/`shortinterest`/`logos`/`calendar` → market token; everything else → default). If you set only the default token, every command uses it — single-token setups behave exactly as before. WIIM in particular needs a Pro token: the market/super-tokens are not entitled to the WIIM channel and return no items.
+
 ## Quick Start
 
 ```bash

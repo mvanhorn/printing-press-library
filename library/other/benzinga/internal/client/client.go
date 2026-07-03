@@ -506,7 +506,7 @@ func (c *Client) doInternal(ctx context.Context, method, path string, params map
 	// exactly what would be sent. Uses only cached credentials; a token that
 	// requires a network refresh will be re-fetched on the live request path,
 	// not during dry-run.
-	authHeader, err := c.authHeader(ctx)
+	authHeader, err := c.authHeader(ctx, path)
 	if err != nil {
 		return nil, 0, err
 	}
@@ -716,11 +716,14 @@ func (c *Client) ConfiguredTimeout() time.Duration {
 	return 60 * time.Second
 }
 
-func (c *Client) authHeader(ctx context.Context) (string, error) {
+func (c *Client) authHeader(ctx context.Context, path string) (string, error) {
 	if c.Config == nil {
 		return "", nil
 	}
-	authHeader := c.Config.AuthHeader()
+	// Resolve the token per-path so market-data/calendar requests use the market
+	// token when one is configured, while news/WIIM/fundamentals/signals use the
+	// default. Falls back to the default token when no product token is set.
+	authHeader := c.Config.TokenForPath(path)
 	if authHeaderLooksLikePlaceholderCredential(authHeader) {
 		return "", authPlaceholderCredentialError(c.Config)
 	}
