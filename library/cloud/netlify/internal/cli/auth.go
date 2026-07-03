@@ -217,7 +217,10 @@ func runOAuthLogin(cmd *cobra.Command, flags *rootFlags, clientID, clientSecret 
 
 	server.Shutdown(context.Background())
 
-	tokenURL := ""
+	// PATCH(netlify-oauth-token-url): the generator emitted an empty token URL,
+	// so `login` always failed with "no Host in request URL". Netlify's OAuth
+	// token endpoint is api.netlify.com/oauth/token.
+	tokenURL := "https://api.netlify.com/oauth/token"
 	tokenParams := url.Values{
 		"grant_type":   {"authorization_code"},
 		"code":         {code},
