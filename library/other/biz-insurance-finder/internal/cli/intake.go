@@ -90,12 +90,17 @@ default - useful for agents that will edit the JSON directly afterward.`,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			path := f.resolvedProfilePath()
 
-			// Start from an existing profile (edit mode) or the defaults.
+			// Start from an existing profile (edit mode) or the defaults. If a
+			// profile file exists but cannot be read, stop instead of silently
+			// starting from defaults - in --no-input mode we would otherwise
+			// overwrite the user's saved data with a fully-defaulted profile.
 			base := insurance.DefaultProfile(time.Now())
 			if _, err := os.Stat(path); err == nil {
-				if existing, lerr := insurance.LoadProfile(path); lerr == nil {
-					base = existing
+				existing, lerr := insurance.LoadProfile(path)
+				if lerr != nil {
+					return dataErr(fmt.Errorf("%w\nmove it aside or delete it to start fresh", lerr))
 				}
+				base = existing
 			}
 
 			pr := &prompter{

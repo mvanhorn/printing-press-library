@@ -72,3 +72,24 @@ func TestProfileValidate(t *testing.T) {
 		t.Errorf("empty profile should report missing required fields")
 	}
 }
+
+// A manufacturer-only business is an importer class (deemed manufacturer), so it
+// gets the country-of-origin check - but the message must name the manufacturer
+// class, not just "importer/private-label".
+func TestProfileValidate_ManufacturerOnlyCountryMessage(t *testing.T) {
+	p := manufacturerOnlyProfile()
+	p.CountriesOfOrigin = nil
+
+	var msg string
+	for _, m := range p.Validate() {
+		if containsFold(m, "country of origin") {
+			msg = m
+		}
+	}
+	if msg == "" {
+		t.Fatalf("manufacturer-only profile with no country of origin should report a problem")
+	}
+	if !containsFold(msg, "manufacturer") {
+		t.Errorf("country-of-origin problem should name the manufacturer class, got: %q", msg)
+	}
+}

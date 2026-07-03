@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"io"
+	"os"
 	"path/filepath"
 	"testing"
 	"time"
@@ -87,6 +88,34 @@ func TestCLI_IntakeNoInputWritesProfile(t *testing.T) {
 	}
 	if _, err := insurance.LoadProfile(path); err != nil {
 		t.Errorf("profile not written: %v", err)
+	}
+}
+
+// A profile file that exists but cannot be parsed must NOT be silently
+// overwritten with defaults - in --no-input mode that would clobber the user's
+// saved data with no warning. intake must error and leave the file untouched.
+func TestCLI_IntakeRefusesToClobberUnreadableProfile(t *testing.T) {
+	dir := t.TempDir()
+	path := filepath.Join(dir, "profile.json")
+	corrupt := []byte("{ this is not valid json")
+	if err := os.WriteFile(path, corrupt, 0o600); err != nil {
+		t.Fatalf("seed corrupt profile: %v", err)
+	}
+
+	_, err := run(t, "", "--profile", path, "--no-input", "intake")
+	if err == nil {
+		t.Fatalf("intake should error on an unreadable existing profile instead of overwriting it")
+	}
+	if ExitCode(err) != 5 {
+		t.Errorf("exit code = %d, want 5 (data error)", ExitCode(err))
+	}
+
+	got, rerr := os.ReadFile(path)
+	if rerr != nil {
+		t.Fatalf("read back profile: %v", rerr)
+	}
+	if !bytes.Equal(got, corrupt) {
+		t.Errorf("intake overwrote the unreadable profile; file is now: %s", got)
 	}
 }
 

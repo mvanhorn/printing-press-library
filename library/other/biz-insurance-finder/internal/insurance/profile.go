@@ -87,7 +87,7 @@ func (p Profile) Validate() []string {
 	req(p.GLPerOccurrence != "", "GL per-occurrence limit is missing")
 	req(p.GLAggregate != "", "GL aggregate limit is missing")
 	if p.IsImporterClass() {
-		req(len(p.CountriesOfOrigin) > 0, "importer/private-label set but no country of origin given")
+		req(len(p.CountriesOfOrigin) > 0, "importer/private-label/manufacturer set but no country of origin given")
 	}
 	return problems
 }
