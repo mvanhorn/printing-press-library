@@ -4,10 +4,13 @@
 package cli
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"os"
+	"strings"
 
+	"github.com/mvanhorn/printing-press-library/library/other/benzinga/internal/client"
 	"github.com/spf13/cobra"
 )
 
@@ -19,7 +22,9 @@ import (
 //
 // NOTE ON AUTH: the WIIM channel requires a Benzinga News subscription entitled
 // to it. The MARKET/EVENTS super-tokens are NOT WIIM-entitled and return zero
-// items; configure the CLI with a WIIM-entitled News token (BENZINGA_WIIM_TOKEN).
+// items; configure the CLI with a WIIM-entitled Benzinga Pro token (e.g.
+// BENZINGA_API_KEY_V2 / BENZINGA_WIIM_TOKEN). --with-points reuses the same
+// token to fetch delayed quotes, so a Pro token covers both calls.
 func newWiimsPromotedCmd(flags *rootFlags) *cobra.Command {
 	var flagPage string
 	var flagPageSize int
@@ -28,14 +33,15 @@ func newWiimsPromotedCmd(flags *rootFlags) *cobra.Command {
 	var flagDate string
 	var flagDateFrom string
 	var flagDateTo string
+	var flagWithPoints bool
 	var flagAll bool
 
 	cmd := &cobra.Command{
 		Use:         "wiims",
 		Aliases:     []string{"wiim", "why-is-it-moving"},
 		Short:       "Why Is It Moving (WIIM) — short structured explanations of why a ticker is moving.",
-		Long:        "Returns Benzinga WIIM (Why Is It Moving) items: concise, structured explanations of why a security is moving, tagged to the affected tickers. WIIM is delivered as the `WIIM` channel of the news feed (GET /api/v2/news?channels=WIIM); this command presets that channel. Requires a Benzinga News token entitled to the WIIM channel — the MARKET/EVENTS tokens are not entitled and return no items. Complements the 'why' catalyst timeline with editorial context.",
-		Example:     "  benzinga-pp-cli wiims --tickers TSLA,NVDA --date 2026-07-01",
+		Long:        "Returns Benzinga WIIM (Why Is It Moving) items: concise, structured explanations of why a security is moving, tagged to the affected tickers. WIIM is delivered as the `WIIM` channel of the news feed (GET /api/v2/news?channels=WIIM); this command presets that channel. Requires a Benzinga Pro token entitled to the WIIM channel — the MARKET/EVENTS tokens are not entitled and return no items. Pass --with-points to attach each ticker's delayed-quote price move (the move in points). Complements the 'why' catalyst timeline with editorial context.",
+		Example:     "  benzinga-pp-cli wiims --tickers TSLA,NVDA --date 2026-07-01 --with-points",
 		Annotations: map[string]string{"pp:endpoint": "news.get", "pp:method": "GET", "pp:path": "/api/v2/news", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()
@@ -58,6 +64,14 @@ func newWiimsPromotedCmd(flags *rootFlags) *cobra.Command {
 			}, nil, flagAll, "page", "page", "pageSize", "", "", cmd.ErrOrStderr())
 			if err != nil {
 				return classifyAPIError(err, flags)
+			}
+			// The WIIM feed carries no numeric move; --with-points joins the delayed
+			// quote (same Pro token) to attach the move in points per ticker.
+			if flagWithPoints {
+				data, err = enrichWiimsWithPoints(cmd.Context(), c, data)
+				if err != nil {
+					return classifyAPIError(err, flags)
+				}
 			}
 			// The news endpoint returns a bare JSON array; count/table/JSON handling
 			// operates on it directly (no envelope to unwrap).
@@ -111,9 +125,118 @@ func newWiimsPromotedCmd(flags *rootFlags) *cobra.Command {
 	cmd.Flags().StringVar(&flagDate, "date", "", "Single date in YYYY-MM-DD format. Shorthand for date-from and date-to when they are the same.")
 	cmd.Flags().StringVar(&flagDateFrom, "date-from", "", "Start date in YYYY-MM-DD format. Use with date-to for range queries.")
 	cmd.Flags().StringVar(&flagDateTo, "date-to", "", "End date in YYYY-MM-DD format. Use with date-from for range queries.")
+	cmd.Flags().BoolVar(&flagWithPoints, "with-points", false, "Attach each ticker's delayed-quote price move (points, percent, last) to every WIIM item. Reuses the same Benzinga Pro token (GET /api/v1/quoteDelayed).")
 	cmd.Flags().BoolVar(&flagAll, "all", false, "Fetch all pages")
 
 	// Wire sibling endpoints and sub-resources as subcommands
 
 	return cmd
+}
+
+// enrichWiimsWithPoints attaches the delayed-quote price move (the move "in
+// points") to each WIIM item. The WIIM feed carries no numeric move, so this
+// collects the tickers referenced by the items, fetches /api/v1/quoteDelayed in
+// batches of 50 using the same credential (a Benzinga Pro token entitles both
+// the WIIM news call and delayed quotes), and adds a "price_move" array to each
+// item mapping ticker -> {points, percent, last}. A non-array or empty body is
+// returned unchanged.
+func enrichWiimsWithPoints(ctx context.Context, c *client.Client, data json.RawMessage) (json.RawMessage, error) {
+	var items []map[string]any
+	if err := json.Unmarshal(data, &items); err != nil || len(items) == 0 {
+		return data, nil
+	}
+
+	seen := map[string]bool{}
+	var tickers []string
+	for _, it := range items {
+		for _, s := range wiimStockSymbols(it) {
+			up := strings.ToUpper(s)
+			if up != "" && !seen[up] {
+				seen[up] = true
+				tickers = append(tickers, up)
+			}
+		}
+	}
+	if len(tickers) == 0 {
+		return data, nil
+	}
+
+	moves := map[string]map[string]any{}
+	const batchSize = 50
+	for i := 0; i < len(tickers); i += batchSize {
+		end := i + batchSize
+		if end > len(tickers) {
+			end = len(tickers)
+		}
+		raw, err := c.Get(ctx, "/api/v1/quoteDelayed", map[string]string{"symbols": strings.Join(tickers[i:end], ",")})
+		if err != nil {
+			return nil, fmt.Errorf("fetching delayed quotes for --with-points: %w", err)
+		}
+		var qd struct {
+			Quotes []struct {
+				Security map[string]any `json:"security"`
+				Quote    map[string]any `json:"quote"`
+			} `json:"quotes"`
+		}
+		if err := json.Unmarshal(raw, &qd); err != nil {
+			return nil, fmt.Errorf("parsing delayed quotes for --with-points: %w", err)
+		}
+		for _, q := range qd.Quotes {
+			sym, _ := q.Security["symbol"].(string)
+			sym = strings.ToUpper(sym)
+			if sym == "" {
+				continue
+			}
+			m := map[string]any{}
+			if v, ok := q.Quote["change"]; ok {
+				m["points"] = v
+			}
+			if v, ok := q.Quote["changePercent"]; ok {
+				m["percent"] = v
+			}
+			if v, ok := q.Quote["last"]; ok {
+				m["last"] = v
+			}
+			moves[sym] = m
+		}
+	}
+
+	for _, it := range items {
+		syms := wiimStockSymbols(it)
+		if len(syms) == 0 {
+			continue
+		}
+		pm := make([]map[string]any, 0, len(syms))
+		for _, s := range syms {
+			entry := map[string]any{"ticker": s}
+			for k, v := range moves[strings.ToUpper(s)] {
+				entry[k] = v
+			}
+			pm = append(pm, entry)
+		}
+		it["price_move"] = pm
+	}
+
+	out, err := json.Marshal(items)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+// wiimStockSymbols pulls ticker symbols from a WIIM/news item's stocks[] array.
+func wiimStockSymbols(item map[string]any) []string {
+	raw, ok := item["stocks"].([]any)
+	if !ok {
+		return nil
+	}
+	out := make([]string, 0, len(raw))
+	for _, s := range raw {
+		if m, ok := s.(map[string]any); ok {
+			if name, ok := m["name"].(string); ok && name != "" {
+				out = append(out, name)
+			}
+		}
+	}
+	return out
 }

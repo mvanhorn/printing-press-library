@@ -450,7 +450,7 @@ Manage trending tickers
 
 Manage wiims (Why Is It Moving)
 
-- **`benzinga-pp-cli wiims`** - Why Is It Moving (WIIM): concise, structured explanations of why a security is moving, tagged to the affected tickers. A preset over the news feed's WIIM channel (`GET /api/v2/news?channels=WIIM`). Filter with `--tickers`, `--date`/`--date-from`/`--date-to`, or `--updated-since`. Requires a Benzinga News token entitled to the WIIM channel (the market-data tokens are not entitled and return no items). Complements `why` with editorial context.
+- **`benzinga-pp-cli wiims`** - Why Is It Moving (WIIM): concise, structured explanations of why a security is moving, tagged to the affected tickers. A preset over the news feed's WIIM channel (`GET /api/v2/news?channels=WIIM`). Filter with `--tickers`, `--date`/`--date-from`/`--date-to`, or `--updated-since`. Add `--with-points` to attach each ticker's delayed-quote price move (`price_move: [{ticker, points, percent, last}]`, the day's move in points) via `GET /api/v1/quoteDelayed`. Requires a Benzinga Pro token entitled to the WIIM channel (the market-data tokens are not entitled and return no items); the same Pro token also covers the `--with-points` quote lookup. Complements `why` with editorial context.
 
 
 ## Output Formats

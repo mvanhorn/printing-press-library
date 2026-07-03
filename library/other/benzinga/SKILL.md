@@ -224,7 +224,7 @@ These capabilities aren't available in any other tool for this API.
 
 **wiims** — Manage wiims (Why Is It Moving)
 
-- `benzinga-pp-cli wiims` — Why Is It Moving (WIIM): concise structured explanations of why a security is moving, tagged to the affected tickers. Preset over the news feed's WIIM channel (`GET /api/v2/news?channels=WIIM`). Filter with `--tickers`, `--date`/`--date-from`/`--date-to`, `--updated-since`. Requires a WIIM-entitled Benzinga News token (market-data tokens return nothing). Complements `why` with editorial context.
+- `benzinga-pp-cli wiims` — Why Is It Moving (WIIM): concise structured explanations of why a security is moving, tagged to the affected tickers. Preset over the news feed's WIIM channel (`GET /api/v2/news?channels=WIIM`). Filter with `--tickers`, `--date`/`--date-from`/`--date-to`, `--updated-since`. Add `--with-points` to attach each ticker's delayed-quote move (`price_move: [{ticker, points, percent, last}]`) via `/api/v1/quoteDelayed`. Requires a WIIM-entitled Benzinga Pro token (market-data tokens return nothing); the same token covers `--with-points`. Complements `why` with editorial context.
 
 
 ### Finding the right command
