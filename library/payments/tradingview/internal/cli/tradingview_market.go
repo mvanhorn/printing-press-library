@@ -10,8 +10,8 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/mvanhorn/printing-press-library/library/payments/tradingview/internal/client"
-	"github.com/mvanhorn/printing-press-library/library/payments/tradingview/internal/cliutil"
+	"tradingview-pp-cli/internal/client"
+	"tradingview-pp-cli/internal/cliutil"
 )
 
 const (
@@ -148,7 +148,10 @@ func fetchRawQuote(ctx context.Context, c *client.Client, fqSymbol string) (tvRa
 		"fields": "close,currency,change,description,type",
 		"no_404": "true",
 	}
-	data, err := c.Get(ctx, tvScannerSymbol, params)
+	// Use the no-cache path: prices are the whole point of this CLI, and the
+	// generated client's 5-minute GET cache would otherwise serve a stale
+	// "last price". GetNoCache still refreshes the cache on success.
+	data, err := c.GetNoCache(ctx, tvScannerSymbol, params)
 	if err != nil {
 		return tvRawQuote{}, false, err
 	}

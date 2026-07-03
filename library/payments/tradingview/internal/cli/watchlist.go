@@ -8,11 +8,12 @@ import (
 	"database/sql"
 	"fmt"
 	"os"
+	"strings"
 	"time"
 
-	"github.com/mvanhorn/printing-press-library/library/payments/tradingview/internal/client"
-	"github.com/mvanhorn/printing-press-library/library/payments/tradingview/internal/store"
 	"github.com/spf13/cobra"
+	"tradingview-pp-cli/internal/client"
+	"tradingview-pp-cli/internal/store"
 )
 
 // ensureWatchlistSchema creates the watchlist and quote_snapshots tables if
@@ -183,18 +184,29 @@ func newWatchlistRemoveCmd(flags *rootFlags) *cobra.Command {
 
 			removed := 0
 			for _, a := range args {
-				fq, _, rerr := resolveSymbol(ctx, c, a, "")
-				if rerr != nil {
-					// Fall back to the raw argument if resolution fails.
-					fq = a
+				up := strings.ToUpper(strings.TrimSpace(a))
+				var res sql.Result
+				var err error
+				if strings.Contains(up, ":") {
+					// Fully-qualified EXCHANGE:TICKER — exact match.
+					res, err = db.DB().ExecContext(ctx, `DELETE FROM watchlist WHERE symbol=?`, up)
+				} else {
+					// Bare ticker — try to resolve for an exact match, but also
+					// match any stored EXCHANGE:<ticker> so removal still works
+					// when the symbol-search endpoint is unreachable.
+					fq := ""
+					if r, _, rerr := resolveSymbol(ctx, c, a, ""); rerr == nil {
+						fq = r
+					}
+					res, err = db.DB().ExecContext(ctx,
+						`DELETE FROM watchlist WHERE symbol=? OR symbol LIKE ?`, fq, "%:"+up)
 				}
-				res, err := db.DB().ExecContext(ctx, `DELETE FROM watchlist WHERE symbol=?`, fq)
 				if err != nil {
-					return fmt.Errorf("removing %q: %w", fq, err)
+					return fmt.Errorf("removing %q: %w", a, err)
 				}
 				if n, _ := res.RowsAffected(); n > 0 {
-					removed++
-					fmt.Fprintf(cmd.OutOrStdout(), "removed %s\n", fq)
+					removed += int(n)
+					fmt.Fprintf(cmd.OutOrStdout(), "removed %s\n", up)
 				}
 			}
 			if removed == 0 {
@@ -305,7 +317,14 @@ func newWatchlistSyncCmd(flags *rootFlags) *cobra.Command {
 				return err
 			}
 			now := time.Now().UTC().Format(time.RFC3339)
-			snaps := make([]snapshotView, 0, len(entries))
+
+			// Fetch every quote first (network) so the transaction below only
+			// wraps fast local writes — never a slow API call.
+			type pendingSnap struct {
+				entry watchlistEntry
+				view  quoteView
+			}
+			pending := make([]pendingSnap, 0, len(entries))
 			for _, e := range entries {
 				view, found, verr := buildQuoteView(ctx, c, e.Symbol)
 				if verr != nil {
@@ -315,16 +334,48 @@ func newWatchlistSyncCmd(flags *rootFlags) *cobra.Command {
 					fmt.Fprintf(cmd.ErrOrStderr(), "warning: no price for %s; skipped\n", e.Symbol)
 					continue
 				}
-				if _, err := db.DB().ExecContext(ctx,
-					`INSERT INTO quote_snapshots(symbol, price, currency, price_usd, price_eur, change_pct, ts)
-					 VALUES(?, ?, ?, ?, ?, ?, ?)`,
-					e.Symbol, view.Price, view.Currency, view.PriceUSD, view.PriceEUR, view.ChangePct, now); err != nil {
-					return fmt.Errorf("storing snapshot for %s: %w", e.Symbol, err)
+				pending = append(pending, pendingSnap{entry: e, view: view})
+			}
+
+			// Write all snapshots atomically: an interrupted sync leaves the
+			// store either fully updated or unchanged, never half-written.
+			snaps := make([]snapshotView, 0, len(pending))
+			if len(pending) > 0 {
+				tx, err := db.DB().BeginTx(ctx, nil)
+				if err != nil {
+					return fmt.Errorf("starting snapshot transaction: %w", err)
 				}
-				snaps = append(snaps, snapshotView{
-					Symbol: e.Symbol, Price: view.Price, Currency: view.Currency,
-					PriceUSD: view.PriceUSD, PriceEUR: view.PriceEUR, ChangePct: view.ChangePct, Timestamp: now,
-				})
+				committed := false
+				defer func() {
+					if !committed {
+						_ = tx.Rollback()
+					}
+				}()
+				const keepPerSymbol = 200
+				for _, p := range pending {
+					if _, err := tx.ExecContext(ctx,
+						`INSERT INTO quote_snapshots(symbol, price, currency, price_usd, price_eur, change_pct, ts)
+						 VALUES(?, ?, ?, ?, ?, ?, ?)`,
+						p.entry.Symbol, p.view.Price, p.view.Currency, p.view.PriceUSD, p.view.PriceEUR, p.view.ChangePct, now); err != nil {
+						return fmt.Errorf("storing snapshot for %s: %w", p.entry.Symbol, err)
+					}
+					// Bound history: keep only the most recent snapshots per
+					// symbol so quote_snapshots does not grow without limit.
+					if _, err := tx.ExecContext(ctx,
+						`DELETE FROM quote_snapshots WHERE symbol=? AND rowid NOT IN (
+							SELECT rowid FROM quote_snapshots WHERE symbol=? ORDER BY rowid DESC LIMIT ?
+						)`, p.entry.Symbol, p.entry.Symbol, keepPerSymbol); err != nil {
+						return fmt.Errorf("pruning snapshots for %s: %w", p.entry.Symbol, err)
+					}
+					snaps = append(snaps, snapshotView{
+						Symbol: p.entry.Symbol, Price: p.view.Price, Currency: p.view.Currency,
+						PriceUSD: p.view.PriceUSD, PriceEUR: p.view.PriceEUR, ChangePct: p.view.ChangePct, Timestamp: now,
+					})
+				}
+				if err := tx.Commit(); err != nil {
+					return fmt.Errorf("committing snapshots: %w", err)
+				}
+				committed = true
 			}
 			if !wantsHumanTable(cmd.OutOrStdout(), flags) {
 				return printJSONFiltered(cmd.OutOrStdout(), snaps, flags)
@@ -356,8 +407,8 @@ func latestSnapshot(ctx context.Context, db *store.Store, symbol string) (snapsh
 
 func newWatchlistQuotesCmd(flags *rootFlags) *cobra.Command {
 	return &cobra.Command{
-		Use:   "quotes",
-		Short: "Show the latest price (USD + EUR) for every watched symbol.",
+		Use:         "quotes",
+		Short:       "Show the latest price (USD + EUR) for every watched symbol.",
 		Long: "Show the latest price for each watched symbol. In 'auto' (default) and 'live'\n" +
 			"data-source modes this fetches fresh quotes; in 'local' mode it reads the most\n" +
 			"recent stored snapshot from 'watchlist sync'.",
@@ -425,14 +476,14 @@ func newWatchlistQuotesCmd(flags *rootFlags) *cobra.Command {
 }
 
 type changeView struct {
-	Symbol      string  `json:"symbol"`
-	PreviousUSD float64 `json:"previous_usd"`
-	LatestUSD   float64 `json:"latest_usd"`
-	DeltaUSD    float64 `json:"delta_usd"`
-	DeltaPct    float64 `json:"delta_pct"`
-	FromTS      string  `json:"from_ts"`
-	ToTS        string  `json:"to_ts"`
-	Note        string  `json:"note,omitempty"`
+	Symbol       string  `json:"symbol"`
+	PreviousUSD  float64 `json:"previous_usd"`
+	LatestUSD    float64 `json:"latest_usd"`
+	DeltaUSD     float64 `json:"delta_usd"`
+	DeltaPct     float64 `json:"delta_pct"`
+	FromTS       string  `json:"from_ts"`
+	ToTS         string  `json:"to_ts"`
+	Note         string  `json:"note,omitempty"`
 }
 
 func newWatchlistChangesCmd(flags *rootFlags) *cobra.Command {
