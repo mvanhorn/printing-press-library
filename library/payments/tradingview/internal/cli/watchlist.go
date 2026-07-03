@@ -12,8 +12,8 @@ import (
 	"time"
 
 	"github.com/spf13/cobra"
-	"tradingview-pp-cli/internal/client"
-	"tradingview-pp-cli/internal/store"
+	"github.com/mvanhorn/printing-press-library/library/payments/tradingview/internal/client"
+	"github.com/mvanhorn/printing-press-library/library/payments/tradingview/internal/store"
 )
 
 // ensureWatchlistSchema creates the watchlist and quote_snapshots tables if

@@ -10,8 +10,8 @@ import (
 	"fmt"
 	"strings"
 
-	"tradingview-pp-cli/internal/client"
-	"tradingview-pp-cli/internal/cliutil"
+	"github.com/mvanhorn/printing-press-library/library/payments/tradingview/internal/client"
+	"github.com/mvanhorn/printing-press-library/library/payments/tradingview/internal/cliutil"
 )
 
 const (
