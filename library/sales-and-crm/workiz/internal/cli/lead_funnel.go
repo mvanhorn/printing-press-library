@@ -149,14 +149,17 @@ func newNovelLeadFunnelCmd(flags *rootFlags) *cobra.Command {
 // Collects every contact-matching job rather than returning the first one
 // found: iteration order over synced jobs is not guaranteed chronological, so
 // an early-return could pick an arbitrary older job for a repeat customer.
-// When the lead's own CreatedDate can't be parsed, we can't rule out a
-// candidate by "predates the lead" — but we still pick deterministically
-// (the earliest-created match) rather than silently accepting whichever job
-// the loop happened to hit first.
+// Preference order: a candidate with a known CreatedDate always beats one
+// without (an undated first match must not permanently block a later,
+// dated candidate — the zero time.Time value would otherwise never be
+// "before" by a real date and the undated match would stick). Among two
+// dated candidates, the earliest-created wins. An undated candidate is only
+// used as a last resort when no dated candidate exists.
 func matchLeadToJob(l wzLead, jobs []wzJob) (wzJob, bool) {
 	leadCreated, leadHasCreated := parseWorkizTime(l.CreatedDate)
 	var best wzJob
 	var bestCreated time.Time
+	bestHasCreated := false
 	found := false
 	for _, j := range jobs {
 		sameContact := (l.Email != "" && strings.EqualFold(l.Email, j.Email)) ||
@@ -169,8 +172,13 @@ func matchLeadToJob(l wzLead, jobs []wzJob) (wzJob, bool) {
 		if leadHasCreated && jobHasCreated && jobCreated.Before(leadCreated) {
 			continue // job predates the lead; not a plausible conversion
 		}
-		if !found || (jobHasCreated && jobCreated.Before(bestCreated)) {
-			best, bestCreated, found = j, jobCreated, true
+		switch {
+		case !found:
+			best, bestCreated, bestHasCreated, found = j, jobCreated, jobHasCreated, true
+		case jobHasCreated && !bestHasCreated:
+			best, bestCreated, bestHasCreated = j, jobCreated, true
+		case jobHasCreated && bestHasCreated && jobCreated.Before(bestCreated):
+			best, bestCreated = j, jobCreated
 		}
 	}
 	return best, found

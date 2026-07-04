@@ -171,6 +171,27 @@ func TestMatchLeadToJobMissingCreatedDate(t *testing.T) {
 	}
 }
 
+// TestMatchLeadToJobUndatedFirstDoesNotBlockDatedCandidate regression-tests a
+// Greptile finding on the initial fix: when the first contact-matching job in
+// iteration order has no parseable CreatedDate, bestCreated stayed at the zero
+// time.Time value, and no later job with a real date could satisfy
+// jobCreated.Before(zero) to displace it — an undated match would win forever
+// even when a dated (more trustworthy) candidate existed later in the slice.
+func TestMatchLeadToJobUndatedFirstDoesNotBlockDatedCandidate(t *testing.T) {
+	lead := wzLead{Email: "jane@example.com", CreatedDate: "2026-07-01 10:00:00"}
+	jobs := []wzJob{
+		{UUID: "job-no-date-first", Email: "jane@example.com", CreatedDate: ""},
+		{UUID: "job-dated", Email: "jane@example.com", CreatedDate: "2026-08-01 10:00:00"},
+	}
+	got, found := matchLeadToJob(lead, jobs)
+	if !found {
+		t.Fatal("expected a match")
+	}
+	if got.UUID != "job-dated" {
+		t.Fatalf("expected the dated candidate to win over the undated first match, got %q", got.UUID)
+	}
+}
+
 // TestMatchLeadToJobRejectsJobPredatingLead confirms the chronology guard
 // still rejects an obviously-earlier job when both dates are known.
 func TestMatchLeadToJobRejectsJobPredatingLead(t *testing.T) {
