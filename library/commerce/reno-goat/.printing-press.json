@@ -1,0 +1,71 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-25T23:12:17.593914Z",
+  "printing_press_version": "4.14.0",
+  "api_name": "reno-goat",
+  "display_name": "Reno Goat",
+  "cli_name": "reno-goat-pp-cli",
+  "owner": "h179922",
+  "printer": "H179922",
+  "printer_name": "H179922",
+  "spec_path": "spec.yaml",
+  "spec_format": "internal",
+  "spec_checksum": "sha256:e4fdc107add59f46f56ced3946aa175b5cf638a506bea5d7289c429edc2a5a18",
+  "run_id": "20260525-231217",
+  "category": "commerce",
+  "description": "Multi-source renovation CLI — search, compare, price-watch, model-enrich, and project-track homeowner-visible renovation selections across 33 active sources plus 5 tracked stubs, with category routing and model intelligence across appliances, plumbing, electrical, HVAC, flooring, hardware, materials, furniture, and decor. No API keys required.",
+  "mcp_binary": "reno-goat-pp-mcp",
+  "mcp_tool_count": 26,
+  "mcp_public_tool_count": 26,
+  "mcp_ready": "full",
+  "api_version": "1.0.0",
+  "auth_type": "none",
+  "spec_source": "internal-yaml",
+  "novel_features": [
+    {
+      "name": "Compound Category Search",
+      "command": "product-search --room bathroom",
+      "description": "Room-type shortcuts that expand to multi-category fan-outs across the relevant source fleet."
+    },
+    {
+      "name": "Model Intelligence",
+      "command": "model-intel",
+      "description": "Compound model/SKU lookup for installed-selection decisions, including priced source rows, product-page enrichment, spec/install PDFs, and blocked model-page evidence."
+    },
+    {
+      "name": "Source Probe",
+      "command": "source-probe",
+      "description": "Readable/blocked route triage for appliance, big-box, and bath-showroom source candidates before activation."
+    },
+    {
+      "name": "Price Watch",
+      "command": "watch",
+      "description": "SQLite price history with cron-friendly polling and threshold alerts across all sources."
+    },
+    {
+      "name": "Project Tracker",
+      "command": "project",
+      "description": "Named project grouping with cross-store budget tracking."
+    },
+    {
+      "name": "Stale Detector",
+      "command": "saved --check-stale",
+      "description": "Re-fetches saved products to detect discontinuation, out-of-stock, and price changes."
+    },
+    {
+      "name": "Spec Sheet Export",
+      "command": "product --spec-sheet",
+      "description": "Normalized product specs from unstructured retailer pages."
+    },
+    {
+      "name": "Brand Cross-Reference",
+      "command": "brands --cross-ref",
+      "description": "Cross-retailer brand availability and price comparison."
+    },
+    {
+      "name": "Review Aggregation",
+      "command": "reviews --aggregate",
+      "description": "Cross-source review merging plus external review site integration."
+    }
+  ]
+}

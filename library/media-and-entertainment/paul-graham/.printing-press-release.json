@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "slug": "paul-graham",
+  "cli_name": "paul-graham-pp-cli",
+  "version": "2026.6.1",
+  "released_at": "2026-06-22T21:38:21Z",
+  "source_commit": "f103035c3f7198b6067d0bade888b15ef2d3262a",
+  "printing_press_version": "4.24.0",
+  "run_id": "20260621-202701",
+  "changes": [
+    {
+      "title": "feat(paul-graham): add paul-graham",
+      "pr": 1318,
+      "url": "https://github.com/mvanhorn/printing-press-library/pull/1318",
+      "commit": "f103035c3f7198b6067d0bade888b15ef2d3262a"
+    }
+  ]
+}

@@ -9,8 +9,11 @@ import (
 
 func newLinkedinCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "linkedin",
-		Short: "Scrape LinkedIn",
+		Use:         "linkedin",
+		Short:       "Manage linkedin command groups",
+		Hidden:      true,
+		Annotations: map[string]string{"mcp:read-only": "true", "pp:typed-exit-codes": "0,2"},
+		RunE:        parentNoSubcommandRunE(flags),
 	}
 
 	cmd.AddCommand(newLinkedinListCmd(flags))
@@ -18,6 +21,8 @@ func newLinkedinCmd(flags *rootFlags) *cobra.Command {
 	cmd.AddCommand(newLinkedinListCompanyCmd(flags))
 	cmd.AddCommand(newLinkedinListCompany2Cmd(flags))
 	cmd.AddCommand(newLinkedinListPostCmd(flags))
+	cmd.AddCommand(newLinkedinListPost2Cmd(flags))
 	cmd.AddCommand(newLinkedinListProfileCmd(flags))
+	cmd.AddCommand(newLinkedinListSearchCmd(flags))
 	return cmd
 }

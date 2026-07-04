@@ -1,0 +1,356 @@
+openapi: 3.0.3
+info:
+  title: Help Scout Inbox Read API
+  version: 2.0.0
+  description: Read-first Help Scout Inbox API surface for support operations and agent workflows.
+servers:
+  - url: https://api.helpscout.net/v2
+security:
+  - BearerAuth: []
+tags:
+  - name: Users
+  - name: Mailboxes
+  - name: Conversations
+  - name: Customers
+  - name: Teams
+  - name: Tags
+  - name: Reports
+  - name: Webhooks
+  - name: Workflows
+paths:
+  /users/me:
+    get:
+      operationId: getCurrentUser
+      tags: [Users]
+      summary: Get the authenticated Help Scout user.
+      responses:
+        "200":
+          $ref: "#/components/responses/Success"
+  /users:
+    get:
+      operationId: listUsers
+      tags: [Users]
+      summary: List Help Scout users.
+      parameters:
+        - $ref: "#/components/parameters/Page"
+        - $ref: "#/components/parameters/Embed"
+      responses:
+        "200":
+          $ref: "#/components/responses/Success"
+  /users/{userId}:
+    get:
+      operationId: getUser
+      tags: [Users]
+      summary: Get a Help Scout user by ID.
+      parameters:
+        - $ref: "#/components/parameters/UserId"
+      responses:
+        "200":
+          $ref: "#/components/responses/Success"
+  /mailboxes:
+    get:
+      operationId: listMailboxes
+      tags: [Mailboxes]
+      summary: List Help Scout mailboxes.
+      parameters:
+        - $ref: "#/components/parameters/Page"
+        - $ref: "#/components/parameters/Embed"
+      responses:
+        "200":
+          $ref: "#/components/responses/Success"
+  /mailboxes/{mailboxId}:
+    get:
+      operationId: getMailbox
+      tags: [Mailboxes]
+      summary: Get a Help Scout mailbox by ID.
+      parameters:
+        - $ref: "#/components/parameters/MailboxId"
+      responses:
+        "200":
+          $ref: "#/components/responses/Success"
+  /mailboxes/{mailboxId}/folders:
+    get:
+      operationId: listMailboxFolders
+      tags: [Mailboxes]
+      summary: List folders for a mailbox.
+      parameters:
+        - $ref: "#/components/parameters/MailboxId"
+        - $ref: "#/components/parameters/Page"
+      responses:
+        "200":
+          $ref: "#/components/responses/Success"
+  /mailboxes/{mailboxId}/fields:
+    get:
+      operationId: listMailboxFields
+      tags: [Mailboxes]
+      summary: List custom fields for a mailbox.
+      parameters:
+        - $ref: "#/components/parameters/MailboxId"
+        - $ref: "#/components/parameters/Page"
+      responses:
+        "200":
+          $ref: "#/components/responses/Success"
+  /conversations:
+    get:
+      operationId: listConversations
+      tags: [Conversations]
+      summary: List conversations.
+      parameters:
+        - $ref: "#/components/parameters/Page"
+        - name: mailbox
+          in: query
+          schema:
+            type: integer
+        - name: folder
+          in: query
+          schema:
+            type: integer
+        - name: status
+          in: query
+          schema:
+            type: string
+        - name: tag
+          in: query
+          schema:
+            type: string
+        - name: query
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          $ref: "#/components/responses/Success"
+  /conversations/{conversationId}:
+    get:
+      operationId: getConversation
+      tags: [Conversations]
+      summary: Get a conversation by ID.
+      parameters:
+        - $ref: "#/components/parameters/ConversationId"
+        - $ref: "#/components/parameters/Embed"
+      responses:
+        "200":
+          $ref: "#/components/responses/Success"
+  /v3/conversations/{conversationId}:
+    get:
+      operationId: getConversationV3
+      tags: [Conversations]
+      summary: Get a conversation by ID using the v3 conversation representation.
+      parameters:
+        - $ref: "#/components/parameters/ConversationId"
+      responses:
+        "200":
+          $ref: "#/components/responses/Success"
+  /conversations/{conversationId}/threads:
+    get:
+      operationId: listConversationThreads
+      tags: [Conversations]
+      summary: List threads on a conversation.
+      parameters:
+        - $ref: "#/components/parameters/ConversationId"
+        - $ref: "#/components/parameters/Page"
+      responses:
+        "200":
+          $ref: "#/components/responses/Success"
+  /v3/conversations/{conversationId}/threads:
+    get:
+      operationId: listConversationThreadsV3
+      tags: [Conversations]
+      summary: List threads on a conversation using the v3 thread representation.
+      parameters:
+        - $ref: "#/components/parameters/ConversationId"
+        - $ref: "#/components/parameters/Page"
+      responses:
+        "200":
+          $ref: "#/components/responses/Success"
+  /customers:
+    get:
+      operationId: listCustomers
+      tags: [Customers]
+      summary: List customers.
+      parameters:
+        - $ref: "#/components/parameters/Page"
+        - name: query
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          $ref: "#/components/responses/Success"
+  /customers/{customerId}:
+    get:
+      operationId: getCustomer
+      tags: [Customers]
+      summary: Get a customer by ID.
+      parameters:
+        - $ref: "#/components/parameters/CustomerId"
+      responses:
+        "200":
+          $ref: "#/components/responses/Success"
+  /teams:
+    get:
+      operationId: listTeams
+      tags: [Teams]
+      summary: List Help Scout teams.
+      parameters:
+        - $ref: "#/components/parameters/Page"
+      responses:
+        "200":
+          $ref: "#/components/responses/Success"
+  /teams/{teamId}/members:
+    get:
+      operationId: listTeamMembers
+      tags: [Teams]
+      summary: List users in a team.
+      parameters:
+        - $ref: "#/components/parameters/TeamId"
+        - $ref: "#/components/parameters/Page"
+      responses:
+        "200":
+          $ref: "#/components/responses/Success"
+  /tags:
+    get:
+      operationId: listTags
+      tags: [Tags]
+      summary: List Help Scout tags.
+      parameters:
+        - $ref: "#/components/parameters/Page"
+      responses:
+        "200":
+          $ref: "#/components/responses/Success"
+  /reports/conversations:
+    get:
+      operationId: getConversationReport
+      tags: [Reports]
+      summary: Get conversation reporting metrics.
+      parameters:
+        - $ref: "#/components/parameters/Start"
+        - $ref: "#/components/parameters/End"
+        - $ref: "#/components/parameters/MailboxFilter"
+      responses:
+        "200":
+          $ref: "#/components/responses/Success"
+  /reports/happiness:
+    get:
+      operationId: getHappinessReport
+      tags: [Reports]
+      summary: Get customer happiness reporting metrics.
+      parameters:
+        - $ref: "#/components/parameters/Start"
+        - $ref: "#/components/parameters/End"
+        - $ref: "#/components/parameters/MailboxFilter"
+      responses:
+        "200":
+          $ref: "#/components/responses/Success"
+  /reports/productivity:
+    get:
+      operationId: getProductivityReport
+      tags: [Reports]
+      summary: Get productivity reporting metrics.
+      parameters:
+        - $ref: "#/components/parameters/Start"
+        - $ref: "#/components/parameters/End"
+        - $ref: "#/components/parameters/MailboxFilter"
+      responses:
+        "200":
+          $ref: "#/components/responses/Success"
+  /webhooks:
+    get:
+      operationId: listWebhooks
+      tags: [Webhooks]
+      summary: List webhook subscriptions.
+      parameters:
+        - $ref: "#/components/parameters/Page"
+      responses:
+        "200":
+          $ref: "#/components/responses/Success"
+  /workflows:
+    get:
+      operationId: listWorkflows
+      tags: [Workflows]
+      summary: List Help Scout workflows.
+      parameters:
+        - $ref: "#/components/parameters/Page"
+      responses:
+        "200":
+          $ref: "#/components/responses/Success"
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+  parameters:
+    Page:
+      name: page
+      in: query
+      schema:
+        type: integer
+        minimum: 1
+    Embed:
+      name: embed
+      in: query
+      schema:
+        type: string
+    UserId:
+      name: userId
+      in: path
+      required: true
+      schema:
+        type: integer
+        format: int64
+    MailboxId:
+      name: mailboxId
+      in: path
+      required: true
+      schema:
+        type: integer
+        format: int64
+    ConversationId:
+      name: conversationId
+      in: path
+      required: true
+      schema:
+        type: integer
+        format: int64
+    CustomerId:
+      name: customerId
+      in: path
+      required: true
+      schema:
+        type: integer
+        format: int64
+    TeamId:
+      name: teamId
+      in: path
+      required: true
+      schema:
+        type: integer
+        format: int64
+    Start:
+      name: start
+      in: query
+      schema:
+        type: string
+        format: date-time
+    End:
+      name: end
+      in: query
+      schema:
+        type: string
+        format: date-time
+    MailboxFilter:
+      name: mailbox
+      in: query
+      schema:
+        type: integer
+  responses:
+    Success:
+      description: JSON response from Help Scout.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/GenericObject"
+  schemas:
+    GenericObject:
+      type: object
+      additionalProperties: true

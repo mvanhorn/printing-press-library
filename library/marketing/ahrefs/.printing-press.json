@@ -17,7 +17,7 @@
   "spec_checksum": "sha256:ec46e6814b3488f73dbd28e779bc2bcdc88c8ed4cba54141b0d9d5b28a4c14cc",
   "catalog_entry": "ahrefs",
   "category": "marketing",
-  "description": "Query Ahrefs backlinks, keyword, rank tracking, site audit, and SERP data from the terminal.",
+  "description": "Explore Ahrefs SEO data from the terminal: backlinks, keywords, rank tracking, site audits, SERPs, usage limits, and crawler IP ranges.",
   "mcp_binary": "ahrefs-pp-mcp",
   "mcp_tool_count": 29,
   "mcp_public_tool_count": 2,
@@ -54,5 +54,6 @@
       "command": "keywords-explorer volume-by-country",
       "description": "Compare keyword search volume across countries from Ahrefs Keywords Explorer."
     }
-  ]
+  ],
+  "catalog_description": "Explore Ahrefs SEO data from the terminal: backlinks, keywords, rank tracking, site audits, SERPs, usage limits, and crawler IP ranges."
 }

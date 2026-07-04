@@ -1,0 +1,9 @@
+{
+  "dir": "\u003ccli-dir\u003e/pexels-pp-cli",
+  "research_dir": "\u003ccli-dir\u003e/20260623-122348-b4bba74f",
+  "verdict": "pass",
+  "actors": null,
+  "issues": [
+    "no Apify actor references found, skipping"
+  ]
+}

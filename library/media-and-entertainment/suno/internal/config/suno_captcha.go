@@ -26,7 +26,6 @@ type CaptchaConfig struct {
 type CaptchaProfile struct {
 	UserDataDir  string `toml:"user_data_dir,omitempty"` // empty => derived path
 	CDPPort      int    `toml:"cdp_port"`
-	Seeded       bool   `toml:"seeded"`                  // true after first-use cookie bootstrap
 	AccountLabel string `toml:"account_label,omitempty"` // optional human note
 }
 

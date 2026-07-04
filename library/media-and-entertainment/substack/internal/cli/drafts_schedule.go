@@ -55,7 +55,7 @@ Requires --subdomain <publication-subdomain>.`,
 		Annotations: map[string]string{
 			"pp:endpoint": "drafts.schedule",
 			"pp:method":   "POST",
-			"pp:path":     "/drafts/{id}/scheduled_release",
+			"pp:path":     "https://substack.com/api/v1/drafts/{id}/scheduled_release?publication_id={publication_id}",
 		},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
@@ -73,7 +73,16 @@ Requires --subdomain <publication-subdomain>.`,
 				return usageErr(err)
 			}
 
-			path := "/drafts/" + args[0] + "/scheduled_release"
+			c, err := flags.newClient()
+			if err != nil {
+				return err
+			}
+			path := globalAPIPath("/drafts/" + args[0] + "/scheduled_release")
+			publicationID, err := writerPublicationID(cmd.Context(), c, flags)
+			if err != nil {
+				return err
+			}
+			params := map[string]string{"publication_id": publicationID}
 			body := map[string]any{
 				"trigger_at":    triggerAt.UTC().Format(time.RFC3339),
 				"post_audience": postAudience,
@@ -107,12 +116,7 @@ Requires --subdomain <publication-subdomain>.`,
 				return nil
 			}
 
-			c, err := flags.newClient()
-			if err != nil {
-				return err
-			}
-
-			resp, status, err := c.Post(cmd.Context(), path, body)
+			resp, status, err := c.PostWithParams(cmd.Context(), path, params, body)
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}

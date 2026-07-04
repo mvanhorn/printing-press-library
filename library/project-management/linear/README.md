@@ -6,7 +6,7 @@ Pulls your workspace into a local SQLite store with FTS5 search and runs compoun
 
 Created by [@mvanhorn](https://github.com/mvanhorn) (Matt Van Horn).
 
-Contributors: [@tmchow](https://github.com/tmchow) (Trevin Chow).
+Contributors: [@ericlitman](https://github.com/ericlitman) (Eric Litman), [@tmchow](https://github.com/tmchow) (Trevin Chow).
 
 ## Install
 
@@ -37,7 +37,7 @@ npx -y @mvanhorn/printing-press-library install linear --agent claude-code --age
 
 ### Without Node (Go fallback)
 
-If `npx` isn't available (no Node, offline), install the CLI directly via Go (requires Go 1.26.3 or newer):
+If `npx` isn't available (no Node, offline), install the CLI directly via Go (requires Go 1.26.4 or newer):
 
 ```bash
 go install github.com/mvanhorn/printing-press-library/library/project-management/linear/cmd/linear-pp-cli@latest
@@ -174,13 +174,18 @@ These capabilities aren't available in any other tool for this API.
   ```bash
   linear-pp-cli stale --days 30 --team ENG --json
   ```
-- **`similar`** — Find issues that look like duplicates of a query string using offline FTS5 fuzzy matching.
+- **`issues search` / `similar`** — Find issues that look like duplicates of a query string using local FTS5 search.
 
   _Reach for this during triage when you suspect an incoming bug duplicates an existing issue._
 
   ```bash
+  linear-pp-cli issues search "login redirect bug" --limit 5 --agent
+  linear-pp-cli issues search "pipeline follow-up" --team SYMPH --limit 10 --agent
   linear-pp-cli similar "login redirect bug" --limit 5 --json
+  linear-pp-cli similar "pipeline follow-up" --team SYMPH --limit 10 --agent
   ```
+
+  Prefer `issues search` when checking for existing tickets before creating or updating follow-up work. It coordinates freshness for duplicate checks: fresh local data is searched immediately, stale or empty issue data refreshes behind a cross-process lock before search, and refresh failures return a typed error instead of silently serving stale results. Add `--team <key-name-or-uuid>` when a common project name or label appears across teams and the duplicate check must stay inside the target team's queue. Under `--agent` / `--json`, `issues search` returns a provenance envelope with freshness metadata; `similar` keeps the legacy raw result array. Use `--data-source local` only when stale/offline local results are intentional.
 
 ### Cross-entity rollups
 - **`projects burndown`** — Project a project's landing date by linear-regressing remaining estimate against the team's measured velocity.
@@ -250,6 +255,56 @@ These capabilities aren't available in any other tool for this API.
   ```bash
   linear-pp-cli issues create --title "Test ticket" --team ENG --trust-mode strict
   ```
+- **Parent and sub-issue linking** — Create child issues and set, change, or clear parent links without leaving the CLI for raw GraphQL.
+
+  _Reach for this when an agent is creating issue trees, epics, or follow-up hierarchies and needs parentage wired safely._
+
+  ```bash
+  linear-pp-cli issues create --title "Child task" --team ENG --parent ENG-123 --description-file /tmp/body.md --agent
+  linear-pp-cli issues edit ENG-124 --parent ENG-123 --agent
+  linear-pp-cli issues edit ENG-124 --no-parent --agent
+  ```
+- **Team-safe issue labels** — Discover labels that are valid for the target Linear team, including global labels, before creating or editing issues.
+
+  _Reach for this before passing label UUIDs to `issues create` or `issues edit`; Linear rejects labels owned by another team, and the CLI now preflights label ownership before mutating._
+
+  ```bash
+  linear-pp-cli labels list --team ENG --agent --select id,name,global,team.key
+  linear-pp-cli issues create --title "Title" --team ENG --label <global-or-eng-label-id> --agent
+  ```
+- **Project and initiative name resolution** — Resolve portfolio objects by human name before writing issue relationships.
+
+  _Reach for this when a user gives an issue identifier plus a project or initiative name. `--project` is UUID-only; use `--project-name` when the input is a human project name._
+
+  ```bash
+  linear-pp-cli projects list --agent --select id,name,team.key,state,url
+  linear-pp-cli projects search "Autonomous Backlog Manager & Dispatch Governance" --team SYMPH --agent --select id,name,team.key,initiative.name,url
+  linear-pp-cli initiatives list --agent --select id,name,status,url
+  linear-pp-cli initiatives search "Dispatch Governance" --agent --select id,name,status,url
+  linear-pp-cli issues edit SYMPH-795 --project-name "Autonomous Backlog Manager & Dispatch Governance" --dry-run --agent
+  linear-pp-cli issues edit SYMPH-795 --project-name "Autonomous Backlog Manager & Dispatch Governance" --agent
+  ```
+
+  `--project-name` always performs a live Linear read to resolve the UUID, even when the surrounding issue write is a dry-run. Use `projects search` first when the name is partial; writes require a normalized exact project-name match.
+- **Shell-safe Linear writes with media** — Create and update issue descriptions, comments, and Linear docs without putting Markdown bodies on the shell command line.
+
+  _Reach for this whenever a body contains newlines, quotes, backticks, `$()` expansions, shell commands, images, logs, or agent-generated Markdown._
+
+  ```bash
+  linear-pp-cli issues create --title "Title" --team ENG --description-file /tmp/body.md --media /tmp/screenshot.png --agent
+  linear-pp-cli issues edit ENG-123 --description-file /tmp/body.md --agent
+  linear-pp-cli comments add --issue ENG-123 --body-file /tmp/comment.md --media /tmp/screenshot.png --agent
+  linear-pp-cli documents create --title "Runbook" --issue ENG-123 --content-file /tmp/runbook.md --agent
+  linear-pp-cli documents create --title "Team runbook" --team ENG --content-file /tmp/runbook.md --agent
+  ```
+
+  `documents create` requires exactly one parent (`--issue`, `--project`, `--team`, `--initiative`, `--cycle`, `--release`, or `--folder`); `--team` accepts a key such as `ENG` or a UUID.
+- **Current issue reads and comments** — Read full issue bodies and discussion from live Linear when freshness matters.
+
+  ```bash
+  linear-pp-cli issues ENG-123 --agent --data-source live --select identifier,title,description,state.name,url
+  linear-pp-cli comments list --issue ENG-123 --agent
+  ```
 
 ## Usage
 
@@ -310,6 +365,9 @@ Manage initiative-to-projects
 Manage initiatives
 
 - **`linear-pp-cli initiatives <id>`** - Get a single initiative
+- **`linear-pp-cli initiatives list`** - List Linear initiatives
+- **`linear-pp-cli initiatives search <query>`** - Search Linear initiatives by name
+- **`linear-pp-cli initiatives resolve <name>`** - Resolve one Linear initiative name to its UUID
 
 ### integrations
 
@@ -323,6 +381,12 @@ Manage integrations
 Manage issue-priority-values
 
 - **`linear-pp-cli issue-priority-values`** - Get a single issuepriorityvalue
+
+### labels
+
+List Linear issue labels with team ownership
+
+- **`linear-pp-cli labels list --team ENG`** - List global labels plus labels owned by the target team
 
 ### organizations
 
@@ -359,6 +423,9 @@ Manage project-statuses
 Manage projects
 
 - **`linear-pp-cli projects <id>`** - Get a single project
+- **`linear-pp-cli projects list`** - List Linear projects
+- **`linear-pp-cli projects search <query>`** - Search Linear projects by name
+- **`linear-pp-cli projects resolve <name>`** - Resolve one Linear project name to its UUID
 
 ### release-notes
 
@@ -455,6 +522,16 @@ This CLI is designed for AI agent consumption:
 
 Exit codes: `0` success, `2` usage error, `3` not found, `4` auth error, `5` API error, `7` rate limited, `10` config error.
 
+Agent recipes:
+
+```bash
+# Full current issue body; compact output strips descriptions unless selected
+linear-pp-cli issues ENG-123 --agent --data-source live --select identifier,title,description,state.name,url
+
+# Safe multiline writes; body files preserve shell snippets literally
+linear-pp-cli comments add --issue ENG-123 --body-file /tmp/comment.md --agent
+```
+
 ## Health Check
 
 ```bash
@@ -482,8 +559,13 @@ Read commands fall into three categories with different data-source semantics. T
 | Category | Commands | Default | Override |
 | --- | --- | --- | --- |
 | **Live-first with local fallback** | `attachments`, `projects get`, `teams`, `initiatives get`, `issues`, `issues list` (the v4 refactor) | `--data-source auto`: live API → write-through → fall back to local on network error | `--data-source live` (no fallback), `--data-source local` (no API) |
+| **Freshness-coordinated local search** | `issues search` | Local FTS over synced issues. If issue data is stale or empty, the command refreshes teams, workflow states, labels, and issues behind a cross-process lock before searching; if refresh fails, it returns a typed error. Agent/JSON output is a provenance envelope with freshness metadata; `refreshed` means local issue data changed during the invocation, and `refreshed_by` identifies whether this process, a peer, or an external sync did it. | `--data-source local` explicitly allows stale/offline local results; `--max-age 0` disables the freshness gate and marks `freshness_gate_disabled`. Empty local stores are marked with `unsynced`. |
 | **Snapshot-computational** | `today`, `bottleneck`, `blocking`, `similar`, `velocity`, `slipped`, `cycles compare`, `projects burndown`, `initiatives health`, `milestones at-risk` | Local store only — no live equivalent exists. **Must `sync` first.** | None (flag ignored) |
-| **Mutations** | `issues create`, `pp-cleanup` | Always live; on success, the HTTP cache is invalidated AND the entity is written back to the local store | n/a |
+| **Label discovery** | `labels list --team ENG` | `--data-source auto`: reads live by default; `--data-source local` reads the synced `issue_labels` table | `--data-source live`, `--data-source local` |
+| **Live collaboration reads** | `comments list`, `documents`, `documents list` | Always live; comments and working-session docs are collaboration surfaces where stale local state is misleading | n/a |
+| **Mutations** | `issues create`, `issues edit`, `comments add`, `comments edit`, `documents create`, `documents edit`, `pp-cleanup` | Always live; on success, the HTTP cache is invalidated AND issue mutations are written back to the local store | n/a |
+
+Promoted Linear GraphQL read commands such as `teams` and `projects get` use POST `/graphql` internally. They should not be reimplemented with shell-level GET calls; Linear rejects GET `/graphql` with CSRF/preflight errors.
 
 **`--max-age` (default 30 minutes):**
 

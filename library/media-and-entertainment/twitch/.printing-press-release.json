@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "slug": "twitch",
+  "cli_name": "twitch-pp-cli",
+  "version": "2026.6.1",
+  "released_at": "2026-06-25T07:47:54Z",
+  "source_commit": "57e0f7213e2675d110ac07d25c33922b9176bda1",
+  "printing_press_version": "4.24.0",
+  "run_id": "20260620-151417",
+  "changes": [
+    {
+      "title": "feat(twitch): add twitch",
+      "pr": 1306,
+      "url": "https://github.com/mvanhorn/printing-press-library/pull/1306",
+      "commit": "57e0f7213e2675d110ac07d25c33922b9176bda1"
+    }
+  ]
+}

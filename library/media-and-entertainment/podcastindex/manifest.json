@@ -1,0 +1,69 @@
+{
+  "manifest_version": "0.3",
+  "name": "podcastindex-pp-mcp",
+  "display_name": "PodcastIndex",
+  "version": "0.0.0",
+  "description": "The only PodcastIndex tool that is agent-native and works offline: search, resolve, and analyse any podcast from one signed binary with a local mirror you can FTS and SQL.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/podcastindex-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/podcastindex-pp-mcp",
+      "args": [],
+      "env": {
+        "PODCASTINDEX_KEY": "${user_config.podcastindex_key}",
+        "PODCASTINDEX_ORG_API_KEY": "${user_config.podcastindex_org_api_key}",
+        "PODCASTINDEX_ORG_AUTHORIZATION": "${user_config.podcastindex_org_authorization}",
+        "PODCASTINDEX_ORG_DATE": "${user_config.podcastindex_org_date}",
+        "PODCASTINDEX_ORG_USER_AGENT": "${user_config.podcastindex_org_user_agent}"
+      }
+    }
+  },
+  "user_config": {
+    "podcastindex_key": {
+      "type": "string",
+      "title": "PODCASTINDEX_KEY",
+      "description": "Optional. Sets PODCASTINDEX_KEY for the PodcastIndex MCP server. Get a credential from https://github.com/tbowers/python-podcastindex-org-lambda.",
+      "sensitive": true
+    },
+    "podcastindex_org_api_key": {
+      "type": "string",
+      "title": "PODCASTINDEX_ORG_API_KEY",
+      "description": "Optional. Sets PODCASTINDEX_ORG_API_KEY for the PodcastIndex MCP server. Get a credential from https://github.com/tbowers/python-podcastindex-org-lambda.",
+      "sensitive": true
+    },
+    "podcastindex_org_authorization": {
+      "type": "string",
+      "title": "PODCASTINDEX_ORG_AUTHORIZATION",
+      "description": "Sets PODCASTINDEX_ORG_AUTHORIZATION for the PodcastIndex MCP server. Get a credential from https://github.com/tbowers/python-podcastindex-org-lambda.",
+      "sensitive": true,
+      "required": true
+    },
+    "podcastindex_org_date": {
+      "type": "string",
+      "title": "PODCASTINDEX_ORG_DATE",
+      "description": "Sets PODCASTINDEX_ORG_DATE for the PodcastIndex MCP server. Get a credential from https://github.com/tbowers/python-podcastindex-org-lambda.",
+      "sensitive": true,
+      "required": true
+    },
+    "podcastindex_org_user_agent": {
+      "type": "string",
+      "title": "PODCASTINDEX_ORG_USER_AGENT",
+      "description": "Sets PODCASTINDEX_ORG_USER_AGENT for the PodcastIndex MCP server. Get a credential from https://github.com/tbowers/python-podcastindex-org-lambda.",
+      "sensitive": true,
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

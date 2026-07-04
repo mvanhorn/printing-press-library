@@ -20,22 +20,33 @@ metadata:
 
 ## Prerequisites: Install the CLI
 
-This skill drives the `plane-pp-cli` binary. **You must verify the CLI is installed before invoking any command from this skill.** If it is missing, install it first:
+This skill drives the `plane-pp-cli` binary. **You must verify the CLI is installed before invoking any command from this skill** (`plane-pp-cli --version`). If it is missing, install it by ONE of the paths below. Pick the first one that fits your environment.
 
-1. Install via the Printing Press installer. It defaults binaries to `$HOME/.local/bin` on macOS/Linux and `%LOCALAPPDATA%\Programs\PrintingPress\bin` on Windows:
-   ```bash
-   npx -y @mvanhorn/printing-press-library install plane --cli-only
-   ```
-2. Verify: `plane-pp-cli --version`
-3. Ensure the reported install directory is on `$PATH` for the agent/runtime that will invoke this skill.
+**1. Pre-built binary — no toolchain (best for agents, CI, and sandboxes).** Needs neither Node nor Go. Download the asset for your OS/arch from the rolling `plane-current` release and put it on `$PATH`:
 
-If the `npx` install fails (no Node, offline, etc.), fall back to a direct Go install (requires Go 1.26.3 or newer):
+```bash
+# Linux x86_64 — for other platforms swap the asset name:
+#   plane-pp-cli-{linux,darwin}-{amd64,arm64} | plane-pp-cli-windows-{amd64,arm64}.exe
+curl -fsSL -o plane-pp-cli \
+  https://github.com/mvanhorn/printing-press-library/releases/download/plane-current/plane-pp-cli-linux-amd64
+chmod +x plane-pp-cli && sudo mv plane-pp-cli /usr/local/bin/   # or any dir on $PATH
+```
+
+On macOS also clear the Gatekeeper quarantine: `xattr -d com.apple.quarantine plane-pp-cli`.
+
+**2. Full install (CLI + this skill in one shot) — needs Node AND Go.** The `npx` installer shells into `go install` under the hood, so a Go toolchain (1.26.3+) must already be present; it does **not** download the pre-built binary. Binaries default to `$HOME/.local/bin` (macOS/Linux) or `%LOCALAPPDATA%\Programs\PrintingPress\bin` (Windows):
+
+```bash
+npx -y @mvanhorn/printing-press-library install plane --cli-only
+```
+
+**3. Direct Go install — no Node, but needs Go 1.26.4 or newer:**
 
 ```bash
 go install github.com/mvanhorn/printing-press-library/library/project-management/plane/cmd/plane-pp-cli@latest
 ```
 
-If `--version` reports "command not found" after install, the runtime cannot see the binary directory on `$PATH`. Do not proceed with skill commands until verification succeeds.
+After any path, confirm with `plane-pp-cli --version` and ensure the install directory is on `$PATH` for the agent/runtime that will invoke this skill. If `--version` reports "command not found", the runtime cannot see the binary directory on `$PATH` — fix that before proceeding with skill commands.
 
 ## Command Reference
 
@@ -161,6 +172,32 @@ export PLANE_API_KEY_AUTHENTICATION="<your-key>"
 Or persist it in `~/.config/plane-pp-cli/config.toml`.
 
 Run `plane-pp-cli doctor` to verify setup.
+
+## Workspace targeting
+
+Plane's REST API is workspace-scoped: every request goes to `…/api/v1/workspaces/<slug>/…`. The public API **cannot enumerate** a user's workspaces from an API key, so the slug is user-supplied — take it from the browser URL (`app.plane.so/<slug>/`). Keep `base_url` templated as `https://<host>/api/v1/workspaces/{slug}` (literal `{slug}`); do **not** bake a concrete slug into it (that pins the CLI to one workspace and is flagged by `doctor`).
+
+The active workspace is chosen by precedence: **`--workspace <slug>` flag > `PLANE_SLUG` env > `default_workspace` (config)**.
+
+> **Hitting an unexpected `403`/empty result?** Run `echo $PLANE_SLUG` first. A process-wide `PLANE_SLUG` exported in your shell **silently overrides** `default_workspace`, so commands target that workspace and items in any other one come back as `403 "You do not have permission"` — a wrong-workspace symptom masquerading as a permissions problem, not a key issue. Either unset it, set it per-project (e.g. `PLANE_SLUG=<slug>` in the project's env), or pass `--workspace <slug>` explicitly (the flag always wins). `plane-pp-cli workspaces current` shows the active slug **and where it was resolved from**.
+
+```bash
+# One-time onboarding: probe + enroll your slug(s), write a templated base_url
+plane-pp-cli init --host https://api.plane.so acme bravo --default acme
+
+# Or manage the local registry directly
+plane-pp-cli workspaces add acme bravo   # access-probes each before saving
+plane-pp-cli workspaces use acme         # probe + set as the default
+plane-pp-cli workspaces list             # show enrolled workspaces (the API can't list them for you)
+plane-pp-cli workspaces current          # show active slug + where it was resolved from
+
+# Target a specific workspace for one command (overrides env + default)
+plane-pp-cli members --workspace bravo --agent --select display_name
+```
+
+Enrollment is local-only (a `[[workspaces]]` registry in `config.toml`) because the API can't enumerate workspaces by key. A bad slug fails loudly (the probe rejects it with a non-zero exit) rather than silently returning the wrong workspace.
+
+**Via the MCP server:** the `plane_execute` tool takes an optional top-level `workspace` argument — the MCP twin of `--workspace`, same top precedence over `PLANE_SLUG`/`default_workspace`. Pass it to target one call at a specific workspace; omit it to use the configured default. (Without it the server resolves the slug from `PLANE_SLUG`/`default_workspace` at load time, so the same `403`-as-wrong-workspace trap above applies to MCP calls.)
 
 ## Agent Mode
 

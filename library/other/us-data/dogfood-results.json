@@ -1,0 +1,56 @@
+{
+  "dir": "library/other/us-data",
+  "spec_path": "library/other/us-data/spec.yaml",
+  "verdict": "PASS_WITH_AUTH_GAPS",
+  "path_check": {
+    "tested": 6,
+    "valid": 6,
+    "detail": "Recipe commands are plan-driven; BLS live calls are dogfooded, Census/BEA auth-backed calls return structured setup guidance without local keys."
+  },
+  "auth_check": {
+    "spec_scheme": "optional_api_key",
+    "generated_format": "env",
+    "match": true,
+    "detail": "US_DATA_BLS_API_KEY optional; US_DATA_CENSUS_API_KEY and US_DATA_BEA_API_KEY are required only for Census/BEA live data queries."
+  },
+  "browser_session_check": {
+    "required": false,
+    "pass": true
+  },
+  "dead_flags": {
+    "total": 17,
+    "dead": 0,
+    "detail": "All Cobra flags are read by command handlers or root output handling."
+  },
+  "pipeline_check": {
+    "sync_calls_domain": false,
+    "search_calls_domain": false,
+    "domain_tables": 0,
+    "detail": "First print is live HTTP recipe CLI; no local SQLite sync layer."
+  },
+  "example_check": {
+    "tested": 6,
+    "with_examples": 6,
+    "valid_examples": 6
+  },
+  "wiring_check": {
+    "command_tree": {
+      "defined": 9,
+      "registered": 9,
+      "detail": "cpi, unemployment, population, wages, industry, compare-regions, sources, doctor, version"
+    }
+  },
+  "novel_features_check": {
+    "planned": 5,
+    "found": 5
+  },
+  "mcp_surface_parity": {
+    "state": "not_advertised",
+    "pass": true
+  },
+  "test_presence": {
+    "checked": 2,
+    "detail": "BLS parser/change calculation and Census place/population parsing tests are present."
+  },
+  "issues": []
+}

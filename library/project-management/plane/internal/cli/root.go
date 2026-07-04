@@ -17,7 +17,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var version = "2026.6.1"
+var version = "2026.6.5"
 
 type rootFlags struct {
 	asJSON        bool
@@ -38,14 +38,18 @@ type rootFlags struct {
 	// failures by default.
 	allowPartialFailure bool
 	selectFields        string
-	configPath          string
-	profileName         string
-	deliverSpec         string
-	timeout             time.Duration
-	rateLimit           float64
-	maxAge              time.Duration
-	dataSource          string
-	freshnessMeta       any
+	// PATCH(workspace-flag): top-precedence workspace selector; overrides
+	// PLANE_SLUG and default_workspace by writing TemplateVars["slug"] in
+	// newClient(). Re-apply after regen.
+	workspace     string
+	configPath    string
+	profileName   string
+	deliverSpec   string
+	timeout       time.Duration
+	rateLimit     float64
+	maxAge        time.Duration
+	dataSource    string
+	freshnessMeta any
 
 	// deliverBuf captures command output when --deliver is set to a
 	// non-stdout sink. Flushed to the sink after Execute returns.
@@ -176,6 +180,7 @@ Run 'plane-pp-cli doctor' to verify auth and connectivity.`,
 	rootCmd.PersistentFlags().StringVar(&flags.dataSource, "data-source", "auto", "Data source for read commands: auto (live with local fallback), live (API only), local (synced data only)")
 	rootCmd.PersistentFlags().DurationVar(&flags.maxAge, "max-age", 30*time.Minute, "Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables")
 	rootCmd.PersistentFlags().StringVar(&flags.profileName, "profile", "", "Apply values from a saved profile (see 'plane-pp-cli profile list')")
+	rootCmd.PersistentFlags().StringVarP(&flags.workspace, "workspace", "w", "", "Workspace slug to target (overrides PLANE_SLUG and default_workspace)")
 	rootCmd.PersistentFlags().StringVar(&flags.deliverSpec, "deliver", "", "Route output to a sink: stdout (default), file:<path>, webhook:<url>")
 	rootCmd.PersistentFlags().Float64Var(&flags.rateLimit, "rate-limit", 0, "Max requests per second (0 to disable)")
 
@@ -241,6 +246,8 @@ Run 'plane-pp-cli doctor' to verify auth and connectivity.`,
 	// PATCH(novel): hand-authored relation + module commands; see .printing-press-patches/.
 	rootCmd.AddCommand(newRelationsCmd(flags))
 	rootCmd.AddCommand(newModuleCmd(flags))
+	// PATCH(novel): one-shot file attachment (presign → storage POST → mark uploaded); see .printing-press-patches/.
+	rootCmd.AddCommand(newAttachFileCmd(flags))
 	rootCmd.AddCommand(newDoctorCmd(flags))
 	rootCmd.AddCommand(newAuthCmd(flags))
 	rootCmd.AddCommand(newAgentContextCmd(rootCmd))
@@ -261,6 +268,9 @@ Run 'plane-pp-cli doctor' to verify auth and connectivity.`,
 	rootCmd.AddCommand(newMembersPromotedCmd(flags))
 	rootCmd.AddCommand(newUsersPromotedCmd(flags))
 	rootCmd.AddCommand(newVersionCliCmd())
+	// PATCH(novel): workspace targeting + onboarding (init, workspaces use/add/list/current); see .printing-press-patches/.
+	rootCmd.AddCommand(newInitCmd(flags))
+	rootCmd.AddCommand(newWorkspacesCmd(flags))
 
 	return rootCmd
 }
@@ -281,6 +291,19 @@ func (f *rootFlags) newClient() (*client.Client, error) {
 	c := client.New(cfg, f.timeout, f.rateLimit)
 	c.DryRun = f.dryRun
 	c.NoCache = f.noCache
+	// PATCH(workspace-flag): --workspace is the top of the slug precedence
+	// chain. config.Load already resolved PLANE_SLUG > default_workspace >
+	// sentinel into TemplateVars["slug"]; the flag overrides that here.
+	if f.workspace != "" {
+		if cfg.TemplateVars == nil {
+			cfg.TemplateVars = map[string]string{}
+		}
+		// Normalize like every other slug source (PLANE_SLUG / default_workspace
+		// via config.Load, the MCP workspace arg via applyWorkspaceArg) so a
+		// pasted browser URL or API base (app.plane.so/acme, .../workspaces/acme)
+		// resolves to the bare slug instead of a malformed {slug} path → 404/403.
+		cfg.TemplateVars["slug"] = config.NormalizeWorkspaceSlug(f.workspace)
+	}
 	return c, nil
 }
 

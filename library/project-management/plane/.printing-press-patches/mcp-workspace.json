@@ -1,0 +1,30 @@
+{
+  "schema_version": 2,
+  "id": "mcp-workspace",
+  "applied_at": "2026-06-12",
+  "base_run_id": "20260602-073610",
+  "base_printing_press_version": "4.20.1",
+  "summary": "Give the MCP server the per-call workspace targeting the CLI already has: a top-level \"workspace\" argument on plane_execute (and defensively on the per-endpoint handler) that overrides the {slug} template var for that one call, matching the CLI precedence --workspace > $PLANE_SLUG > default_workspace.",
+  "reason": "newMCPClient() bakes the workspace slug from $PLANE_SLUG / default_workspace at config-load time, with no MCP equivalent of the CLI's --workspace flag. When a process-wide PLANE_SLUG is exported in the environment (a common setup for users who switch workspaces per-shell), every MCP request silently targets that one workspace regardless of the agent's intent, surfacing as a confusing HTTP 403 against the workspace the agent actually wanted. This patch restores the missing axis so an agent can retarget a single call. Builds on slug-env-align (the {slug}-from-PLANE_SLUG resolution this overrides) and novel-workspaces (the CLI-side --workspace flag this mirrors).",
+  "files": [
+    "internal/config/config.go",
+    "internal/mcp/code_orch.go",
+    "internal/mcp/tools.go"
+  ],
+  "patch_tags": [
+    "PATCH(mcp-workspace) in internal/config/config.go: exported NormalizeWorkspaceSlug wrapper over the unexported normalizeWorkspaceSlug so the mcp package reuses the identical bare-slug/browser-URL/API-base normalization.",
+    "PATCH(mcp-workspace) in internal/mcp/code_orch.go: a `workspace` string input on the plane_execute tool, plus an applyWorkspaceArg(c, args) call right after newMCPClient() in handleCodeOrchExecute (before path/query/body assembly).",
+    "PATCH(mcp-workspace) in internal/mcp/tools.go: an applyWorkspaceArg(c, args) call after newMCPClient() in makeAPIHandler, so the per-endpoint orchestration mode honors the same arg and never leaks it into the query string / body."
+  ],
+  "novel_files": [
+    "internal/mcp/workspace_arg.go",
+    "internal/mcp/workspace_arg_test.go"
+  ],
+  "validated_outcome": "go build ./... + go test ./internal/mcp/ ./internal/config/ green. applyWorkspaceArg overrides TemplateVars[\"slug\"] for bare slug / trailing slash / browser URL / API-base-prefix inputs, is a no-op (config-resolved slug preserved) when the arg is absent, blank, or non-string, consumes the arg in every case so it never reaches the query string or request body, and is nil-safe for both client and args.",
+  "deferred_to_upstream": [
+    {
+      "feature": "Advertise the `workspace` input on the generated per-endpoint MCP tools (not just plane_execute).",
+      "reason": "The per-endpoint handler already honors and strips the arg via applyWorkspaceArg, but each generated tool's input schema would need the generator to inject the shared `workspace` string param. Out of scope for a hand-patch; the active code-orchestration surface (plane_execute) advertises it. Candidate for an upstream generator feature so workspace targeting is declared uniformly across orchestration modes."
+    }
+  ]
+}

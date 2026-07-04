@@ -1,0 +1,95 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-06-17T19:30:43.274662Z",
+  "printing_press_version": "4.24.0",
+  "api_name": "linq",
+  "display_name": "Linq",
+  "cli_name": "linq-pp-cli",
+  "creator": {
+    "handle": "cathrynlavery",
+    "name": "Cathryn Lavery"
+  },
+  "owner": "cathrynlavery",
+  "printer": "cathrynlavery",
+  "printer_name": "Cathryn Lavery",
+  "spec_path": "linq-openapi.yaml",
+  "spec_format": "openapi3",
+  "spec_checksum": "sha256:7113cc8bf1c3e05cf26b89588a37e5c5f59522f8215737e1a3382bd2dd686983",
+  "run_id": "20260617-193043",
+  "catalog_entry": "linq",
+  "category": "social-and-messaging",
+  "description": "Agent-native messaging API for chats, messages, attachments, phone numbers, contact cards, capability checks, and webhooks",
+  "mcp_binary": "linq-pp-mcp",
+  "mcp_tool_count": 43,
+  "mcp_ready": "full",
+  "api_version": "3.0.0",
+  "auth_type": "bearer_token",
+  "auth_preference": "bearerAuth",
+  "auth_env_vars": [
+    "LINQ_API_V3_API_KEY",
+    "LINQ_API_KEY"
+  ],
+  "auth_env_var_specs": [
+    {
+      "name": "LINQ_API_V3_API_KEY",
+      "kind": "per_call",
+      "required": false,
+      "sensitive": true
+    },
+    {
+      "name": "LINQ_API_KEY",
+      "kind": "per_call",
+      "required": false,
+      "sensitive": true
+    }
+  ],
+  "auth_key_url": "https://dashboard.linqapp.com/sandbox-signup",
+  "novel_features": [
+    {
+      "name": "Encrypted local mirror",
+      "command": "sync/search/tail",
+      "description": "Caches Linq chats and messages in an encrypted local mirror with searchable text redacted."
+    },
+    {
+      "name": "Generic rich message composer",
+      "command": "compose preview/send",
+      "description": "Builds the documented nested message body for generic Linq text, media, rich links, replies, preferred service, idempotency, effects, and text decorations with shared validation."
+    },
+    {
+      "name": "Protocol-aware typing and effects",
+      "command": "typing start/stop/pulse, effects list/preview",
+      "description": "Adds bounded typing indicators plus iMessage effect and decoration discovery for generic Linq chats."
+    },
+    {
+      "name": "Webhook subscription operations",
+      "command": "webhooks list/show/add-event/remove-event/set-events/doctor",
+      "description": "Wraps webhook subscription management with event-catalog validation, safe read-modify-write event updates, and drift checks for inbound events such as typing indicators."
+    },
+    {
+      "name": "Channel capability check",
+      "command": "capability check",
+      "description": "Resolves addresses to iMessage, RCS, or SMS and reports typing, effects, read-receipt, and rich-message feature support without echoing full addresses."
+    },
+    {
+      "name": "Attachment lifecycle workflow",
+      "command": "attachments plan/upload/send-url/send-id/audit-url/cleanup",
+      "description": "Plans direct URL versus pre-upload paths, enforces HTTPS and size limits, sends media parts, explains persistent/ephemeral lifecycle, and exposes cleanup."
+    },
+    {
+      "name": "Rich link preview workflow",
+      "command": "link-preview audit/send/metadata",
+      "description": "Audits link-only preview rules, blocks first-outbound link openers, sends rich preview parts, and checks Open Graph/Twitter/title/image metadata."
+    },
+    {
+      "name": "Reaction workflow",
+      "command": "react add/remove/custom",
+      "description": "Wraps built-in and custom reactions with validation, part-index support, and outbound sticker blocking."
+    },
+    {
+      "name": "Contact-share workflow",
+      "command": "contact-share preflight/send",
+      "description": "Preflights native iMessage Name and Photo Sharing by checking contact card readiness, local prior-outbound evidence when available, and once-per-day prompt behavior."
+    }
+  ],
+  "contributors": []
+}

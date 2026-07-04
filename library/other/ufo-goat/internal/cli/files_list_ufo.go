@@ -20,6 +20,7 @@ func newUFOFilesListCmd(flags *rootFlags) *cobra.Command {
 	var flagBefore string
 	var flagRedacted bool
 	var flagRedactedSet bool
+	var flagRelease int
 	var flagLimit int
 	var dbPath string
 
@@ -44,7 +45,10 @@ Supports filtering by agency, type, location, date range, and redaction status.`
   ufo-goat-pp-cli files list --after 1947-01-01 --before 1950-12-31
 
   # Show only redacted files
-  ufo-goat-pp-cli files list --redacted`,
+  ufo-goat-pp-cli files list --redacted
+
+  # Show only files from release tranche 1
+  ufo-goat-pp-cli files list --release 1`,
 		Annotations: map[string]string{"mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if dbPath == "" {
@@ -67,12 +71,13 @@ Supports filtering by agency, type, location, date range, and redaction status.`
 			}
 
 			filter := store.FileFilter{
-				Agency:   flagAgency,
-				Type:     flagType,
-				Location: flagLocation,
-				After:    flagAfter,
-				Before:   flagBefore,
-				Limit:    flagLimit,
+				Agency:       flagAgency,
+				Type:         flagType,
+				Location:     flagLocation,
+				After:        flagAfter,
+				Before:       flagBefore,
+				ReleaseBatch: flagRelease,
+				Limit:        flagLimit,
 			}
 
 			if cmd.Flags().Changed("redacted") {
@@ -96,6 +101,10 @@ Supports filtering by agency, type, location, date range, and redaction status.`
 			if flags.csv {
 				data, _ := json.Marshal(files)
 				return printCSV(cmd.OutOrStdout(), json.RawMessage(data))
+			}
+			if flags.plain {
+				data, _ := json.Marshal(files)
+				return printPlain(cmd.OutOrStdout(), json.RawMessage(data))
 			}
 
 			// JSON output
@@ -143,14 +152,15 @@ Supports filtering by agency, type, location, date range, and redaction status.`
 		},
 	}
 
-	cmd.Flags().StringVar(&flagAgency, "agency", "", "Filter by agency (DoD, FBI, NASA, State)")
-	cmd.Flags().StringVar(&flagType, "type", "", "Filter by file type (PDF, VID, IMG)")
-	cmd.Flags().StringVar(&flagLocation, "location", "", "Filter by incident location")
+	cmd.Flags().StringVar(&flagAgency, "agency", "", "Filter results by originating agency, one of DoD, FBI, NASA, or State")
+	cmd.Flags().StringVar(&flagType, "type", "", "Filter results by file type, one of PDF, VID, or IMG")
+	cmd.Flags().StringVar(&flagLocation, "location", "", "Filter by incident location, matched as a case-insensitive substring")
 	cmd.Flags().StringVar(&flagAfter, "after", "", "Show files with incident dates after this date (YYYY-MM-DD)")
 	cmd.Flags().StringVar(&flagBefore, "before", "", "Show files with incident dates before this date (YYYY-MM-DD)")
 	cmd.Flags().BoolVar(&flagRedacted, "redacted", false, "Filter by redaction status")
+	cmd.Flags().IntVar(&flagRelease, "release", 0, "Filter by PURSUE release tranche number (e.g. 1, 2)")
 	cmd.Flags().IntVar(&flagLimit, "limit", 0, "Maximum number of files to return (0 = all)")
-	cmd.Flags().StringVar(&dbPath, "db", "", "Database path")
+	cmd.Flags().StringVar(&dbPath, "db", "", "Override the synced SQLite store path (default: ~/.local/share/ufo-goat-pp-cli/data.db)")
 
 	return cmd
 }

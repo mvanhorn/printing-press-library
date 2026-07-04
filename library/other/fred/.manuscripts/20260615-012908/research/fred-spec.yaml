@@ -1,0 +1,692 @@
+name: fred
+description: "FRED (Federal Reserve Economic Data) CLI — search and pull U.S. and global macroeconomic time series from the St. Louis Fed."
+version: "0.1.0"
+base_url: "https://api.stlouisfed.org/fred"
+health_check_path: "/releases"
+category: other
+
+auth:
+  type: api_key
+  header: api_key
+  in: query
+  env_vars:
+    - FRED_API_KEY
+
+config:
+  format: toml
+  path: "~/.config/fred-pp-cli/config.toml"
+
+resources:
+  series:
+    description: "Economic data series — search, metadata, and observations"
+    endpoints:
+      search:
+        method: GET
+        path: "/series/search"
+        description: "Search for series by full-text query (e.g. 'unemployment rate')"
+        params:
+          - name: search_text
+            type: string
+            required: true
+            positional: true
+            description: "Free-text search query, e.g. 'real gdp'"
+          - name: file_type
+            type: string
+            default: "json"
+            description: "Response format: json or xml"
+          - name: search_type
+            type: string
+            enum: ["full_text", "series_id"]
+            description: "full_text (default) or series_id"
+          - name: limit
+            type: int
+            default: 25
+            description: "Max results (1-1000)"
+          - name: offset
+            type: int
+            description: "Result offset for pagination"
+          - name: order_by
+            type: string
+            description: "Order results by: search_rank, series_id, title, popularity, last_updated, etc."
+          - name: sort_order
+            type: string
+            enum: ["asc", "desc"]
+            description: "Sort ascending or descending"
+          - name: filter_variable
+            type: string
+            description: "Filter field: frequency, units, seasonal_adjustment"
+          - name: filter_value
+            type: string
+            description: "Value to filter the filter_variable on"
+          - name: tag_names
+            type: string
+            description: "Semicolon-delimited tags to match, e.g. 'monthly;sa'"
+        response:
+          type: array
+          item: Series
+        response_path: seriess
+      get:
+        method: GET
+        path: "/series"
+        description: "Get metadata for a single series by ID (e.g. UNRATE, GDP, CPIAUCSL)"
+        params:
+          - name: series_id
+            type: string
+            required: true
+            positional: true
+            description: "Series ID, e.g. UNRATE"
+          - name: file_type
+            type: string
+            default: "json"
+            description: "Response format: json or xml"
+        response:
+          type: array
+          item: Series
+        response_path: seriess
+      observations:
+        method: GET
+        path: "/series/observations"
+        description: "Pull the observation values (the actual time series) for a series"
+        params:
+          - name: series_id
+            type: string
+            required: true
+            positional: true
+            description: "Series ID, e.g. UNRATE"
+          - name: file_type
+            type: string
+            default: "json"
+            description: "Response format: json or xml"
+          - name: observation_start
+            type: string
+            format: date
+            description: "Start date YYYY-MM-DD (default 1776-07-04)"
+          - name: observation_end
+            type: string
+            format: date
+            description: "End date YYYY-MM-DD (default 9999-12-31)"
+          - name: units
+            type: string
+            enum: ["lin", "chg", "ch1", "pch", "pc1", "pca", "cch", "cca", "log"]
+            description: "Data transformation: lin, pch (pct change), pc1 (yoy %), chg, log, etc."
+          - name: frequency
+            type: string
+            enum: ["d", "w", "bw", "m", "q", "sa", "a"]
+            description: "Aggregate to a lower frequency: d, w, m, q, sa, a"
+          - name: aggregation_method
+            type: string
+            enum: ["avg", "sum", "eop"]
+            description: "How to aggregate when frequency is set: avg, sum, eop"
+          - name: limit
+            type: int
+            default: 100000
+            description: "Max observations (1-100000)"
+          - name: offset
+            type: int
+            description: "Observation offset for pagination"
+          - name: sort_order
+            type: string
+            enum: ["asc", "desc"]
+            description: "Sort by observation date asc or desc"
+        response:
+          type: array
+          item: Observation
+        response_path: observations
+      categories:
+        method: GET
+        path: "/series/categories"
+        description: "List the categories a series belongs to"
+        params:
+          - name: series_id
+            type: string
+            required: true
+            positional: true
+            description: "Series ID"
+          - name: file_type
+            type: string
+            default: "json"
+            description: "Response format"
+        response:
+          type: array
+          item: Category
+        response_path: categories
+      release:
+        method: GET
+        path: "/series/release"
+        description: "Get the release that a series belongs to"
+        params:
+          - name: series_id
+            type: string
+            required: true
+            positional: true
+            description: "Series ID"
+          - name: file_type
+            type: string
+            default: "json"
+            description: "Response format"
+        response:
+          type: array
+          item: Release
+        response_path: releases
+      tags:
+        method: GET
+        path: "/series/tags"
+        description: "List FRED tags attached to a series"
+        params:
+          - name: series_id
+            type: string
+            required: true
+            positional: true
+            description: "Series ID"
+          - name: file_type
+            type: string
+            default: "json"
+            description: "Response format"
+        response:
+          type: array
+          item: Tag
+        response_path: tags
+      updates:
+        method: GET
+        path: "/series/updates"
+        description: "List series recently updated on FRED"
+        params:
+          - name: file_type
+            type: string
+            default: "json"
+            description: "Response format"
+          - name: limit
+            type: int
+            default: 25
+            description: "Max results"
+          - name: filter_value
+            type: string
+            enum: ["macro", "regional", "all"]
+            description: "Geography filter: macro, regional, all"
+        response:
+          type: array
+          item: Series
+        response_path: seriess
+      vintagedates:
+        method: GET
+        path: "/series/vintagedates"
+        description: "List real-time vintage dates for a series (when data was revised)"
+        params:
+          - name: series_id
+            type: string
+            required: true
+            positional: true
+            description: "Series ID"
+          - name: file_type
+            type: string
+            default: "json"
+            description: "Response format"
+          - name: limit
+            type: int
+            default: 100
+            description: "Max vintage dates"
+        response:
+          type: array
+          item: VintageDate
+        response_path: vintage_dates
+
+  category:
+    description: "Browse the FRED category tree"
+    endpoints:
+      get:
+        method: GET
+        path: "/category"
+        description: "Get a category by ID (root category is 0)"
+        params:
+          - name: category_id
+            type: int
+            required: true
+            positional: true
+            description: "Category ID (root = 0)"
+          - name: file_type
+            type: string
+            default: "json"
+            description: "Response format"
+        response:
+          type: array
+          item: Category
+        response_path: categories
+      children:
+        method: GET
+        path: "/category/children"
+        description: "List child categories under a category"
+        params:
+          - name: category_id
+            type: int
+            required: true
+            positional: true
+            description: "Parent category ID (root = 0)"
+          - name: file_type
+            type: string
+            default: "json"
+            description: "Response format"
+        response:
+          type: array
+          item: Category
+        response_path: categories
+      related:
+        method: GET
+        path: "/category/related"
+        description: "List categories related to a category"
+        params:
+          - name: category_id
+            type: int
+            required: true
+            positional: true
+            description: "Category ID"
+          - name: file_type
+            type: string
+            default: "json"
+            description: "Response format"
+        response:
+          type: array
+          item: Category
+        response_path: categories
+      series:
+        method: GET
+        path: "/category/series"
+        description: "List the series within a category"
+        params:
+          - name: category_id
+            type: int
+            required: true
+            positional: true
+            description: "Category ID"
+          - name: file_type
+            type: string
+            default: "json"
+            description: "Response format"
+          - name: limit
+            type: int
+            default: 25
+            description: "Max series"
+          - name: order_by
+            type: string
+            description: "Order by: series_id, title, popularity, last_updated, etc."
+          - name: sort_order
+            type: string
+            enum: ["asc", "desc"]
+            description: "Sort order"
+        response:
+          type: array
+          item: Series
+        response_path: seriess
+      tags:
+        method: GET
+        path: "/category/tags"
+        description: "List tags for the series in a category"
+        params:
+          - name: category_id
+            type: int
+            required: true
+            positional: true
+            description: "Category ID"
+          - name: file_type
+            type: string
+            default: "json"
+            description: "Response format"
+        response:
+          type: array
+          item: Tag
+        response_path: tags
+
+  release:
+    description: "Data releases and their schedules"
+    endpoints:
+      list:
+        method: GET
+        path: "/releases"
+        description: "List all data releases on FRED"
+        params:
+          - name: file_type
+            type: string
+            default: "json"
+            description: "Response format"
+          - name: limit
+            type: int
+            default: 25
+            description: "Max releases"
+          - name: order_by
+            type: string
+            description: "Order by: release_id, name, press_release, etc."
+          - name: sort_order
+            type: string
+            enum: ["asc", "desc"]
+            description: "Sort order"
+        response:
+          type: array
+          item: Release
+        response_path: releases
+      dates:
+        method: GET
+        path: "/releases/dates"
+        description: "List release dates for all releases (the economic release calendar)"
+        params:
+          - name: file_type
+            type: string
+            default: "json"
+            description: "Response format"
+          - name: limit
+            type: int
+            default: 25
+            description: "Max dates"
+          - name: sort_order
+            type: string
+            enum: ["asc", "desc"]
+            description: "Sort order"
+          - name: include_release_dates_with_no_data
+            type: bool
+            description: "Include scheduled dates that have no data yet"
+        response:
+          type: array
+          item: ReleaseDate
+        response_path: release_dates
+      get:
+        method: GET
+        path: "/release"
+        description: "Get a single release by ID"
+        params:
+          - name: release_id
+            type: int
+            required: true
+            positional: true
+            description: "Release ID"
+          - name: file_type
+            type: string
+            default: "json"
+            description: "Response format"
+        response:
+          type: array
+          item: Release
+        response_path: releases
+      release_dates:
+        method: GET
+        path: "/release/dates"
+        description: "List release dates for a single release"
+        params:
+          - name: release_id
+            type: int
+            required: true
+            positional: true
+            description: "Release ID"
+          - name: file_type
+            type: string
+            default: "json"
+            description: "Response format"
+          - name: limit
+            type: int
+            default: 25
+            description: "Max dates"
+        response:
+          type: array
+          item: ReleaseDate
+        response_path: release_dates
+      series:
+        method: GET
+        path: "/release/series"
+        description: "List the series in a release"
+        params:
+          - name: release_id
+            type: int
+            required: true
+            positional: true
+            description: "Release ID"
+          - name: file_type
+            type: string
+            default: "json"
+            description: "Response format"
+          - name: limit
+            type: int
+            default: 25
+            description: "Max series"
+        response:
+          type: array
+          item: Series
+        response_path: seriess
+      sources:
+        method: GET
+        path: "/release/sources"
+        description: "List the sources for a release"
+        params:
+          - name: release_id
+            type: int
+            required: true
+            positional: true
+            description: "Release ID"
+          - name: file_type
+            type: string
+            default: "json"
+            description: "Response format"
+        response:
+          type: array
+          item: Source
+        response_path: sources
+
+  source:
+    description: "Sources of economic data"
+    endpoints:
+      list:
+        method: GET
+        path: "/sources"
+        description: "List all sources of economic data on FRED"
+        params:
+          - name: file_type
+            type: string
+            default: "json"
+            description: "Response format"
+          - name: limit
+            type: int
+            default: 25
+            description: "Max sources"
+        response:
+          type: array
+          item: Source
+        response_path: sources
+      get:
+        method: GET
+        path: "/source"
+        description: "Get a single source by ID"
+        params:
+          - name: source_id
+            type: int
+            required: true
+            positional: true
+            description: "Source ID"
+          - name: file_type
+            type: string
+            default: "json"
+            description: "Response format"
+        response:
+          type: array
+          item: Source
+        response_path: sources
+      releases:
+        method: GET
+        path: "/source/releases"
+        description: "List the releases for a source"
+        params:
+          - name: source_id
+            type: int
+            required: true
+            positional: true
+            description: "Source ID"
+          - name: file_type
+            type: string
+            default: "json"
+            description: "Response format"
+          - name: limit
+            type: int
+            default: 25
+            description: "Max releases"
+        response:
+          type: array
+          item: Release
+        response_path: releases
+
+  tags:
+    description: "Discover series via FRED tags"
+    endpoints:
+      list:
+        method: GET
+        path: "/tags"
+        description: "List FRED tags, optionally filtered"
+        params:
+          - name: file_type
+            type: string
+            default: "json"
+            description: "Response format"
+          - name: tag_names
+            type: string
+            description: "Semicolon-delimited tags to match"
+          - name: search_text
+            type: string
+            description: "Free-text to find matching tags"
+          - name: limit
+            type: int
+            default: 25
+            description: "Max tags"
+        response:
+          type: array
+          item: Tag
+        response_path: tags
+      related:
+        method: GET
+        path: "/related_tags"
+        description: "List tags related to a set of tags"
+        params:
+          - name: tag_names
+            type: string
+            required: true
+            description: "Semicolon-delimited tags, e.g. 'monthly;sa'"
+          - name: file_type
+            type: string
+            default: "json"
+            description: "Response format"
+          - name: limit
+            type: int
+            default: 25
+            description: "Max tags"
+        response:
+          type: array
+          item: Tag
+        response_path: tags
+      series:
+        method: GET
+        path: "/tags/series"
+        description: "List series matching a set of tags"
+        params:
+          - name: tag_names
+            type: string
+            required: true
+            description: "Semicolon-delimited tags, e.g. 'gdp;quarterly'"
+          - name: file_type
+            type: string
+            default: "json"
+            description: "Response format"
+          - name: limit
+            type: int
+            default: 25
+            description: "Max series"
+        response:
+          type: array
+          item: Series
+        response_path: seriess
+
+types:
+  Series:
+    fields:
+      - name: id
+        type: string
+      - name: title
+        type: string
+      - name: observation_start
+        type: string
+      - name: observation_end
+        type: string
+      - name: frequency
+        type: string
+      - name: frequency_short
+        type: string
+      - name: units
+        type: string
+      - name: units_short
+        type: string
+      - name: seasonal_adjustment
+        type: string
+      - name: seasonal_adjustment_short
+        type: string
+      - name: last_updated
+        type: string
+      - name: popularity
+        type: int
+      - name: notes
+        type: string
+  Observation:
+    fields:
+      - name: date
+        type: string
+      - name: value
+        type: string
+      - name: realtime_start
+        type: string
+      - name: realtime_end
+        type: string
+  Category:
+    fields:
+      - name: id
+        type: int
+      - name: name
+        type: string
+      - name: parent_id
+        type: int
+  Release:
+    fields:
+      - name: id
+        type: int
+      - name: name
+        type: string
+      - name: press_release
+        type: bool
+      - name: link
+        type: string
+      - name: notes
+        type: string
+  ReleaseDate:
+    fields:
+      - name: release_id
+        type: int
+      - name: release_name
+        type: string
+      - name: date
+        type: string
+  Source:
+    fields:
+      - name: id
+        type: int
+      - name: name
+        type: string
+      - name: link
+        type: string
+  Tag:
+    fields:
+      - name: name
+        type: string
+      - name: group_id
+        type: string
+      - name: notes
+        type: string
+      - name: created
+        type: string
+      - name: popularity
+        type: int
+      - name: series_count
+        type: int
+  VintageDate:
+    fields:
+      - name: date
+        type: string

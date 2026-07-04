@@ -9,12 +9,18 @@ import (
 
 func newYoutubeCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "youtube",
-		Short: "Scrape YouTube channels, videos, and more",
+		Use:         "youtube",
+		Short:       "Scrape YouTube channels, videos, and more",
+		Hidden:      true,
+		Annotations: map[string]string{"mcp:read-only": "true", "pp:typed-exit-codes": "0,2"},
+		RunE:        parentNoSubcommandRunE(flags),
 	}
 
 	cmd.AddCommand(newYoutubeListCmd(flags))
 	cmd.AddCommand(newYoutubeListChannelCmd(flags))
+	cmd.AddCommand(newYoutubeListChannel2Cmd(flags))
+	cmd.AddCommand(newYoutubeListChannel3Cmd(flags))
+	cmd.AddCommand(newYoutubeListChannel4Cmd(flags))
 	cmd.AddCommand(newYoutubeListChannelvideosCmd(flags))
 	cmd.AddCommand(newYoutubeListCommunitypostCmd(flags))
 	cmd.AddCommand(newYoutubeListPlaylistCmd(flags))
@@ -25,5 +31,6 @@ func newYoutubeCmd(flags *rootFlags) *cobra.Command {
 	cmd.AddCommand(newYoutubeListVideo2Cmd(flags))
 	cmd.AddCommand(newYoutubeListVideo3Cmd(flags))
 	cmd.AddCommand(newYoutubeListVideo4Cmd(flags))
+	cmd.AddCommand(newYoutubeListVideo5Cmd(flags))
 	return cmd
 }

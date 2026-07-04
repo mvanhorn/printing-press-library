@@ -1,0 +1,29 @@
+{
+  "api_name": "isitagentready",
+  "base_url": "https://isitagentready.com",
+  "description": "The terminal scanner for AI-agent readiness: every check the web tool runs, plus copy-paste fixes, CI gating, scan history, and a local store the web UI has no answer for.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "none"
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "scan_run",
+      "description": "Scan a URL; returns readiness level (0-5), per-check results across 5 categories, and prioritized fix advice for reaching the next level. Required: url.",
+      "method": "POST",
+      "path": "/api/scan",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "url",
+          "type": "string",
+          "location": "body",
+          "description": "The website URL to scan, e.g. https://example.com",
+          "required": true
+        }
+      ]
+    }
+  ]
+}

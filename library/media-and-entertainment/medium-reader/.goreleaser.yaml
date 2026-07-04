@@ -1,0 +1,51 @@
+version: 2
+project_name: medium-reader-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: medium-reader-pp-cli
+    main: ./cmd/medium-reader-pp-cli
+    binary: medium-reader-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X github.com/mvanhorn/printing-press-library/library/media-and-entertainment/medium-reader/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: medium-reader-pp-mcp
+    main: ./cmd/medium-reader-pp-mcp
+    binary: medium-reader-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X main.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: medium-reader-pp-cli
+    repository:
+      owner: maxswinguy
+      name: homebrew-tap
+    homepage: "https://github.com/mvanhorn/printing-press-library"
+    description: "Read any Medium author, publication, or tag as a local, full-text-searchable corpus — no key, no proxy"
+    install: |
+      bin.install "medium-reader-pp-cli"
+      bin.install "medium-reader-pp-mcp"

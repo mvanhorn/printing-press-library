@@ -8,6 +8,8 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"strconv"
+	"strings"
 
 	"github.com/spf13/cobra"
 )
@@ -15,19 +17,20 @@ import (
 func newVideosClipsCutCmd(flags *rootFlags) *cobra.Command {
 	var bodyFromMs int
 	var bodyToMs int
+	var rangeFlags []string
 	var stdinBody bool
 
 	cmd := &cobra.Command{
 		Use:         "cut <id> <clipId>",
-		Short:       "Cut a time range from a clip. Overlapping or adjacent ranges are merged into the existing cuts. To clear all cuts,...",
-		Example:     "  tella-pp-cli videos clips cut 550e8400-e29b-41d4-a716-446655440000 550e8400-e29b-41d4-a716-446655440000",
+		Short:       "Cut one or more time ranges from a clip. Overlapping or adjacent ranges are merged into the existing cuts. To clear all cuts,...",
+		Example:     "  tella-pp-cli videos clips cut 550e8400-e29b-41d4-a716-446655440000 550e8400-e29b-41d4-a716-446655440000 --from-ms 2000 --to-ms 3500\n  tella-pp-cli videos clips cut vid_abc cl_xyz --range 2000:3500 --range 8000:9200",
 		Annotations: map[string]string{"pp:endpoint": "clips.cut", "pp:method": "POST", "pp:path": "/v1/videos/{id}/clips/{clipId}/cut"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				_ = cmd.Help()
 				return usageErr(fmt.Errorf("missing required positional argument"))
 			}
-			if !stdinBody {
+			if !stdinBody && len(rangeFlags) == 0 {
 				if !cmd.Flags().Changed("from-ms") && !flags.dryRun {
 					return fmt.Errorf("required flag \"%s\" not set", "from-ms")
 				}
@@ -58,12 +61,9 @@ func newVideosClipsCutCmd(flags *rootFlags) *cobra.Command {
 				}
 				body = jsonBody
 			} else {
-				body = map[string]any{}
-				if bodyFromMs != 0 {
-					body["fromMs"] = bodyFromMs
-				}
-				if bodyToMs != 0 {
-					body["toMs"] = bodyToMs
+				body, err = cutRequestBody(bodyFromMs, bodyToMs, rangeFlags)
+				if err != nil {
+					return err
 				}
 			}
 			data, statusCode, err := c.Post(path, body)
@@ -135,7 +135,47 @@ func newVideosClipsCutCmd(flags *rootFlags) *cobra.Command {
 	}
 	cmd.Flags().IntVar(&bodyFromMs, "from-ms", 0, "Start of the range to cut, in milliseconds from the clip's start.")
 	cmd.Flags().IntVar(&bodyToMs, "to-ms", 0, "End of the range to cut, in milliseconds from the clip's start. Clamped to the clip's max duration.")
+	cmd.Flags().StringArrayVar(&rangeFlags, "range", nil, "Range to cut as fromMs:toMs; repeatable. Sends the spec's cuts request body.")
 	cmd.Flags().BoolVar(&stdinBody, "stdin", false, "Read request body as JSON from stdin")
 
 	return cmd
+}
+
+func cutRequestBody(bodyFromMs, bodyToMs int, rangeFlags []string) (map[string]any, error) {
+	body := map[string]any{}
+	if len(rangeFlags) > 0 {
+		ranges, err := parseCutRangeFlags(rangeFlags)
+		if err != nil {
+			return nil, err
+		}
+		body["cuts"] = ranges
+		return body, nil
+	}
+	if bodyFromMs != 0 {
+		body["fromMs"] = bodyFromMs
+	}
+	if bodyToMs != 0 {
+		body["toMs"] = bodyToMs
+	}
+	return body, nil
+}
+
+func parseCutRangeFlags(rawRanges []string) ([]map[string]int, error) {
+	ranges := make([]map[string]int, 0, len(rawRanges))
+	for _, raw := range rawRanges {
+		parts := strings.Split(raw, ":")
+		if len(parts) != 2 {
+			return nil, fmt.Errorf("invalid --range %q: expected fromMs:toMs", raw)
+		}
+		from, err := strconv.Atoi(parts[0])
+		if err != nil {
+			return nil, fmt.Errorf("invalid --range %q fromMs: %w", raw, err)
+		}
+		to, err := strconv.Atoi(parts[1])
+		if err != nil {
+			return nil, fmt.Errorf("invalid --range %q toMs: %w", raw, err)
+		}
+		ranges = append(ranges, map[string]int{"fromMs": from, "toMs": to})
+	}
+	return ranges, nil
 }

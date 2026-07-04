@@ -1,0 +1,293 @@
+{
+  "objectIdFieldName": "objectid",
+  "globalIdFieldName": "",
+  "geometryType": "esriGeometryPoint",
+  "spatialReference": {
+    "wkid": 4326,
+    "latestWkid": 4326
+  },
+  "fields": [
+    {
+      "name": "objectid",
+      "alias": "OBJECTID",
+      "type": "esriFieldTypeOID"
+    },
+    {
+      "name": "shelter_id",
+      "alias": "SHELTER_ID",
+      "type": "esriFieldTypeInteger"
+    },
+    {
+      "name": "shelter_name",
+      "alias": "SHELTER_NAME",
+      "type": "esriFieldTypeString",
+      "length": 255
+    },
+    {
+      "name": "address",
+      "alias": "ADDRESS",
+      "type": "esriFieldTypeString",
+      "length": 255
+    },
+    {
+      "name": "city",
+      "alias": "CITY",
+      "type": "esriFieldTypeString",
+      "length": 28
+    },
+    {
+      "name": "state",
+      "alias": "STATE",
+      "type": "esriFieldTypeString",
+      "length": 2
+    },
+    {
+      "name": "zip",
+      "alias": "ZIP",
+      "type": "esriFieldTypeString",
+      "length": 10
+    },
+    {
+      "name": "shelter_status",
+      "alias": "SHELTER_STATUS",
+      "type": "esriFieldTypeString",
+      "length": 10
+    },
+    {
+      "name": "evacuation_capacity",
+      "alias": "EVACUATION_CAPACITY",
+      "type": "esriFieldTypeInteger"
+    },
+    {
+      "name": "post_impact_capacity",
+      "alias": "POST_IMPACT_CAPACITY",
+      "type": "esriFieldTypeInteger"
+    },
+    {
+      "name": "total_population",
+      "alias": "TOTAL_POPULATION",
+      "type": "esriFieldTypeInteger"
+    },
+    {
+      "name": "hours_open",
+      "alias": "HOURS_OPEN",
+      "type": "esriFieldTypeString",
+      "length": 15
+    },
+    {
+      "name": "hours_close",
+      "alias": "HOURS_CLOSE",
+      "type": "esriFieldTypeString",
+      "length": 15
+    },
+    {
+      "name": "org_name",
+      "alias": "ORG_NAME",
+      "type": "esriFieldTypeString",
+      "length": 75
+    },
+    {
+      "name": "org_id",
+      "alias": "ORG_ID",
+      "type": "esriFieldTypeInteger"
+    },
+    {
+      "name": "match_type",
+      "alias": "MATCH_TYPE",
+      "type": "esriFieldTypeString",
+      "length": 12
+    },
+    {
+      "name": "subfacility_code",
+      "alias": "SUBFACILITY_CODE",
+      "type": "esriFieldTypeString",
+      "length": 20
+    },
+    {
+      "name": "ada_compliant",
+      "alias": "ADA_COMPLIANT",
+      "type": "esriFieldTypeString",
+      "length": 3
+    },
+    {
+      "name": "pet_accommodations_code",
+      "alias": "PET_ACCOMMODATIONS_CODE",
+      "type": "esriFieldTypeString",
+      "length": 10
+    },
+    {
+      "name": "wheelchair_accessible",
+      "alias": "WHEELCHAIR_ACCESSIBLE",
+      "type": "esriFieldTypeString",
+      "length": 3
+    },
+    {
+      "name": "latitude",
+      "alias": "LATITUDE",
+      "type": "esriFieldTypeDouble"
+    },
+    {
+      "name": "longitude",
+      "alias": "LONGITUDE",
+      "type": "esriFieldTypeDouble"
+    }
+  ],
+  "features": [
+    {
+      "attributes": {
+        "objectid": 1960207,
+        "shelter_id": 368133,
+        "shelter_name": "LINCOLN COMMUNITY CENTER",
+        "address": "[address omitted in library copy]",
+        "city": "Highland",
+        "state": "IN",
+        "zip": "46322",
+        "shelter_status": "OPEN",
+        "evacuation_capacity": null,
+        "post_impact_capacity": null,
+        "total_population": null,
+        "hours_open": null,
+        "hours_close": null,
+        "org_name": null,
+        "org_id": null,
+        "match_type": null,
+        "subfacility_code": "GENPOPSHEL",
+        "ada_compliant": "UNK",
+        "pet_accommodations_code": "NONE",
+        "wheelchair_accessible": "UNK",
+        "latitude": null,
+        "longitude": null
+      }
+    },
+    {
+      "attributes": {
+        "objectid": 1960208,
+        "shelter_id": 368134,
+        "shelter_name": "RAUNER CENTER-TRAINING ROOM",
+        "address": "[address omitted in library copy]",
+        "city": "Chicago",
+        "state": "IL",
+        "zip": "60612",
+        "shelter_status": "OPEN",
+        "evacuation_capacity": null,
+        "post_impact_capacity": null,
+        "total_population": null,
+        "hours_open": null,
+        "hours_close": null,
+        "org_name": null,
+        "org_id": null,
+        "match_type": null,
+        "subfacility_code": "GENPOPSHEL",
+        "ada_compliant": "UNK",
+        "pet_accommodations_code": "NONE",
+        "wheelchair_accessible": "UNK",
+        "latitude": null,
+        "longitude": null
+      }
+    },
+    {
+      "attributes": {
+        "objectid": 1960209,
+        "shelter_id": 368135,
+        "shelter_name": "ST PAULS EVANGELICAL LUTHERAN CHURCH",
+        "address": "[address omitted in library copy]",
+        "city": "Streator",
+        "state": "IL",
+        "zip": "61364",
+        "shelter_status": "OPEN",
+        "evacuation_capacity": null,
+        "post_impact_capacity": null,
+        "total_population": null,
+        "hours_open": null,
+        "hours_close": null,
+        "org_name": null,
+        "org_id": null,
+        "match_type": null,
+        "subfacility_code": "GENPOPSHEL",
+        "ada_compliant": "UNK",
+        "pet_accommodations_code": "NONE",
+        "wheelchair_accessible": "UNK",
+        "latitude": null,
+        "longitude": null
+      }
+    },
+    {
+      "attributes": {
+        "objectid": 1960210,
+        "shelter_id": 368142,
+        "shelter_name": "Los Fresnos CISD United Safe Room",
+        "address": "[address omitted in library copy]",
+        "city": "Los Fresnos",
+        "state": "TX",
+        "zip": "78566",
+        "shelter_status": "OPEN",
+        "evacuation_capacity": null,
+        "post_impact_capacity": null,
+        "total_population": null,
+        "hours_open": null,
+        "hours_close": null,
+        "org_name": null,
+        "org_id": null,
+        "match_type": null,
+        "subfacility_code": "GENPOPSHEL",
+        "ada_compliant": "UNK",
+        "pet_accommodations_code": "NONE",
+        "wheelchair_accessible": "UNK",
+        "latitude": null,
+        "longitude": null
+      }
+    },
+    {
+      "attributes": {
+        "objectid": 1960211,
+        "shelter_id": 368140,
+        "shelter_name": "New Morning Star Missionary Baptist Church",
+        "address": "[address omitted in library copy]",
+        "city": "Peoria",
+        "state": "IL",
+        "zip": "61605",
+        "shelter_status": "OPEN",
+        "evacuation_capacity": null,
+        "post_impact_capacity": null,
+        "total_population": null,
+        "hours_open": null,
+        "hours_close": null,
+        "org_name": null,
+        "org_id": null,
+        "match_type": null,
+        "subfacility_code": "GENPOPSHEL",
+        "ada_compliant": "UNK",
+        "pet_accommodations_code": "NONE",
+        "wheelchair_accessible": "UNK",
+        "latitude": null,
+        "longitude": null
+      }
+    },
+    {
+      "attributes": {
+        "objectid": 1960212,
+        "shelter_id": 368141,
+        "shelter_name": "Parkland College",
+        "address": "[address omitted in library copy]",
+        "city": "Champaign",
+        "state": "IL",
+        "zip": "61821",
+        "shelter_status": "OPEN",
+        "evacuation_capacity": null,
+        "post_impact_capacity": null,
+        "total_population": null,
+        "hours_open": null,
+        "hours_close": null,
+        "org_name": null,
+        "org_id": null,
+        "match_type": null,
+        "subfacility_code": "GENPOPSHEL",
+        "ada_compliant": "UNK",
+        "pet_accommodations_code": "NONE",
+        "wheelchair_accessible": "UNK",
+        "latitude": null,
+        "longitude": null
+      }
+    }
+  ]
+}

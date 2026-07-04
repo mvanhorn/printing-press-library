@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "google-flights-compact-blocked-envelope",
+  "applied_at": "2026-06-26",
+  "base_run_id": "2026-05-02T22:09:06.820184Z",
+  "base_printing_press_version": "3.6.0",
+  "summary": "Treat Google Flights wrb.fr envelopes with compact status metadata `[13]` as blocked RPC responses so the existing server-rendered HTML fallback runs.",
+  "reason": "Google now sometimes omits the verbose `travel.frontend.flights.ErrorResponse` type URL and returns only the code-13 metadata slot while keeping the result payload null. The old detector classified that as unrecognized drift, so fare searches failed before reaching the fallback path that still returns itineraries.",
+  "files": [
+    "internal/gflights/html_fallback.go",
+    "internal/gflights/html_fallback_test.go"
+  ],
+  "validated_outcome": "`go test -run TestParseOffersResponseDetectsCompactBlockedEnvelope -v ./internal/gflights/...` passes; live `go run ./cmd/flight-goat-pp-cli flights SEA NRT 2026-12-18 --return 2027-01-01 --passengers 4 --agent` returns 9 itineraries via the HTML fallback."
+}

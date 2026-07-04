@@ -1,0 +1,12 @@
+warning: novel feature command "sleep" maps to generated command path; skipping novel stub
+PASS go mod tidy
+PASS ensure safe golang.org/x/net
+PASS govulncheck ./...
+PASS go vet ./...
+PASS go build ./...
+PASS build runnable binary
+PASS withings-pp-cli --help
+PASS withings-pp-cli version
+PASS withings-pp-cli doctor
+Generated withings at /Users/pbl-dev/printing-press/.runstate/pbl-415c512c/runs/20260614-181724-d301c9dc/working/withings-pp-cli
+Bundled /Users/pbl-dev/printing-press/.runstate/pbl-415c512c/runs/20260614-181724-d301c9dc/working/withings-pp-cli/build/withings-pp-mcp-darwin-arm64.mcpb

@@ -1,0 +1,538 @@
+name: morgen
+description: "Morgen calendar & tasks API CLI — unified access to calendars, events, tasks, and tags across connected providers"
+category: productivity
+version: "0.1.0"
+base_url: "https://api.morgen.so/v3"
+health_check_path: "/integrations/list"
+
+required_headers:
+  - name: Accept
+    value: "application/json"
+
+auth:
+  type: api_key
+  header: "Authorization"
+  format: "ApiKey {token}"
+  env_vars:
+    - MORGEN_API_KEY
+
+config:
+  format: toml
+  path: "~/.config/morgen/config.toml"
+
+resources:
+  integrations:
+    description: "View connected accounts and available providers (read-only; connect/disconnect happens in the Morgen app)"
+    endpoints:
+      providers:
+        method: GET
+        path: "/integrations/list"
+        description: "List available integration providers (Google, Microsoft 365, iCloud, Todoist, etc.)"
+        response:
+          type: array
+          item: Provider
+      accounts:
+        method: GET
+        path: "/integrations/accounts/list"
+        description: "List connected calendar/task accounts"
+        response:
+          type: array
+          item: Account
+
+  calendars:
+    description: "List calendars and update Morgen-specific calendar metadata"
+    endpoints:
+      list:
+        method: GET
+        path: "/calendars/list"
+        description: "List calendars across all connected accounts"
+        response:
+          type: array
+          item: Calendar
+      update:
+        method: POST
+        path: "/calendars/update"
+        description: "Update Morgen-specific metadata for a calendar (busy, color, name overrides)"
+        body:
+          - name: id
+            type: string
+            required: true
+            description: "Calendar identifier"
+          - name: accountId
+            type: string
+            required: true
+            description: "Account identifier the calendar belongs to"
+          - name: metadata
+            body_name: "morgen.so:metadata"
+            type: string
+            required: true
+            description: 'JSON object of Morgen metadata, e.g. {"busy":true,"overrideColor":"#FF0000","overrideName":"Work"}'
+        response:
+          type: object
+          item: Calendar
+
+  events:
+    description: "List, create, update, and delete calendar events"
+    endpoints:
+      list:
+        method: GET
+        path: "/events/list"
+        description: "List events from one or more calendars in a time window"
+        params:
+          - name: accountId
+            type: string
+            required: true
+            description: "Calendar account ID"
+          - name: calendarIds
+            type: string
+            required: true
+            description: "Comma-separated calendar IDs"
+          - name: start
+            type: string
+            required: true
+            format: date-time
+            description: "ISO 8601 window start (e.g. 2026-06-15T00:00:00Z)"
+          - name: end
+            type: string
+            required: true
+            format: date-time
+            description: "ISO 8601 window end"
+        response:
+          type: array
+          item: Event
+      create:
+        method: POST
+        path: "/events/create"
+        description: "Create an event in a calendar"
+        body:
+          - name: accountId
+            type: string
+            required: true
+            description: "Calendar account ID"
+          - name: calendarId
+            type: string
+            required: true
+            description: "Calendar to create the event in"
+          - name: title
+            type: string
+            required: true
+            description: "Event title"
+          - name: start
+            type: string
+            required: true
+            format: date-time
+            description: "ISO 8601 start datetime"
+          - name: duration
+            type: string
+            required: true
+            description: "ISO 8601 duration (e.g. PT30M for 30 minutes)"
+          - name: timeZone
+            type: string
+            required: true
+            description: "IANA time zone (e.g. America/New_York)"
+          - name: showWithoutTime
+            type: bool
+            required: true
+            description: "True for all-day events"
+          - name: description
+            type: string
+            required: false
+            description: "Event description / notes"
+          - name: location
+            type: string
+            required: false
+            description: "Event location"
+        response:
+          type: object
+          item: Event
+      update:
+        method: POST
+        path: "/events/update"
+        description: "Update an event (patch). Use --series-update-mode for recurring events."
+        params:
+          - name: seriesUpdateMode
+            type: string
+            required: false
+            default: "single"
+            enum: ["single", "future", "all"]
+            description: "Scope of update for recurring events"
+        body:
+          - name: accountId
+            type: string
+            required: true
+            description: "Calendar account ID"
+          - name: calendarId
+            type: string
+            required: true
+            description: "Calendar ID"
+          - name: id
+            type: string
+            required: true
+            description: "Event ID to update"
+          - name: title
+            type: string
+            required: false
+            description: "New title"
+          - name: start
+            type: string
+            required: false
+            format: date-time
+            description: "New ISO 8601 start"
+          - name: duration
+            type: string
+            required: false
+            description: "New ISO 8601 duration"
+          - name: timeZone
+            type: string
+            required: false
+            description: "New IANA time zone"
+          - name: description
+            type: string
+            required: false
+            description: "New description"
+          - name: location
+            type: string
+            required: false
+            description: "New location"
+        response:
+          type: object
+          item: Event
+      delete:
+        method: POST
+        path: "/events/delete"
+        description: "Delete an event. Use --series-update-mode for recurring events."
+        params:
+          - name: seriesUpdateMode
+            type: string
+            required: false
+            default: "single"
+            enum: ["single", "future", "all"]
+            description: "Scope of delete for recurring events"
+        body:
+          - name: accountId
+            type: string
+            required: true
+            description: "Calendar account ID"
+          - name: calendarId
+            type: string
+            required: true
+            description: "Calendar ID"
+          - name: id
+            type: string
+            required: true
+            description: "Event ID to delete"
+
+  tasks:
+    description: "Manage tasks across connected task providers"
+    endpoints:
+      list:
+        method: GET
+        path: "/tasks/list"
+        description: "List tasks"
+        params:
+          - name: limit
+            type: int
+            required: false
+            default: 100
+            description: "Max tasks to return (max 100)"
+          - name: updatedAfter
+            type: string
+            required: false
+            format: date-time
+            description: "Only tasks updated after this ISO 8601 datetime"
+        response:
+          type: array
+          item: Task
+      get:
+        method: GET
+        path: "/tasks"
+        description: "Get a single task by ID"
+        params:
+          - name: id
+            type: string
+            required: true
+            description: "Task ID"
+        response:
+          type: object
+          item: Task
+      create:
+        method: POST
+        path: "/tasks/create"
+        description: "Create a task"
+        body:
+          - name: title
+            type: string
+            required: true
+            description: "Task title"
+          - name: description
+            type: string
+            required: false
+            description: "Task description"
+          - name: due
+            type: string
+            required: false
+            format: date-time
+            description: "ISO 8601 due datetime"
+          - name: timeZone
+            type: string
+            required: false
+            description: "IANA time zone"
+          - name: estimatedDuration
+            type: string
+            required: false
+            description: "ISO 8601 estimated duration (e.g. PT1H)"
+          - name: taskListId
+            type: string
+            required: false
+            description: "Task list to create the task in"
+          - name: priority
+            type: int
+            required: false
+            description: "Priority (JSCalendar 0-9; lower is higher priority)"
+        response:
+          type: object
+          item: Task
+      update:
+        method: POST
+        path: "/tasks/update"
+        description: "Update a task (patch)"
+        body:
+          - name: id
+            type: string
+            required: true
+            description: "Task ID to update"
+          - name: title
+            type: string
+            required: false
+            description: "New title"
+          - name: description
+            type: string
+            required: false
+            description: "New description"
+          - name: due
+            type: string
+            required: false
+            format: date-time
+            description: "New ISO 8601 due datetime"
+          - name: timeZone
+            type: string
+            required: false
+            description: "New IANA time zone"
+          - name: taskListId
+            type: string
+            required: false
+            description: "Move to this task list"
+          - name: priority
+            type: int
+            required: false
+            description: "New priority (0-9)"
+        response:
+          type: object
+          item: Task
+      move:
+        method: POST
+        path: "/tasks/move"
+        description: "Reorder or re-parent a task"
+        body:
+          - name: id
+            type: string
+            required: true
+            description: "Task ID to move"
+          - name: previousId
+            type: string
+            required: false
+            description: "Place after this task ID"
+          - name: parentId
+            type: string
+            required: false
+            description: "New parent task ID (for subtasks)"
+        response:
+          type: object
+          item: Task
+      close:
+        method: POST
+        path: "/tasks/close"
+        description: "Mark a task complete"
+        body:
+          - name: id
+            type: string
+            required: true
+            description: "Task ID to close"
+          - name: occurrenceStart
+            type: string
+            required: false
+            format: date-time
+            description: "For recurring tasks, the occurrence start to close"
+        response:
+          type: object
+          item: Task
+      reopen:
+        method: POST
+        path: "/tasks/reopen"
+        description: "Reopen a completed task"
+        body:
+          - name: id
+            type: string
+            required: true
+            description: "Task ID to reopen"
+          - name: occurrenceStart
+            type: string
+            required: false
+            format: date-time
+            description: "For recurring tasks, the occurrence start to reopen"
+        response:
+          type: object
+          item: Task
+      delete:
+        method: POST
+        path: "/tasks/delete"
+        description: "Delete a task"
+        body:
+          - name: id
+            type: string
+            required: true
+            description: "Task ID to delete"
+
+  tags:
+    description: "Manage tags"
+    endpoints:
+      list:
+        method: GET
+        path: "/tags/list"
+        description: "List tags"
+        params:
+          - name: limit
+            type: int
+            required: false
+            description: "Max tags to return"
+          - name: updatedAfter
+            type: string
+            required: false
+            format: date-time
+            description: "Only tags updated after this ISO 8601 datetime (includes deleted tags)"
+        response:
+          type: array
+          item: Tag
+      get:
+        method: GET
+        path: "/tags"
+        description: "Get a single tag by ID"
+        params:
+          - name: id
+            type: string
+            required: true
+            description: "Tag ID"
+        response:
+          type: object
+          item: Tag
+      create:
+        method: POST
+        path: "/tags/create"
+        description: "Create a tag"
+        body:
+          - name: name
+            type: string
+            required: true
+            description: "Tag name"
+          - name: color
+            type: string
+            required: false
+            description: "Hex color code (e.g. #FF0000)"
+        response:
+          type: object
+          item: Tag
+      update:
+        method: POST
+        path: "/tags/update"
+        description: "Update a tag"
+        body:
+          - name: id
+            type: string
+            required: true
+            description: "Tag ID to update"
+          - name: name
+            type: string
+            required: false
+            description: "New tag name"
+          - name: color
+            type: string
+            required: false
+            description: "New hex color code"
+        response:
+          type: object
+          item: Tag
+      delete:
+        method: POST
+        path: "/tags/delete"
+        description: "Delete a tag"
+        body:
+          - name: id
+            type: string
+            required: true
+            description: "Tag ID to delete"
+
+types:
+  Provider:
+    fields:
+      - name: id
+        type: string
+      - name: name
+        type: string
+  Account:
+    fields:
+      - name: id
+        type: string
+      - name: integrationId
+        type: string
+      - name: providerUserId
+        type: string
+  Calendar:
+    fields:
+      - name: id
+        type: string
+      - name: accountId
+        type: string
+      - name: name
+        type: string
+      - name: color
+        type: string
+  Event:
+    fields:
+      - name: id
+        type: string
+      - name: accountId
+        type: string
+      - name: calendarId
+        type: string
+      - name: title
+        type: string
+      - name: start
+        type: string
+      - name: duration
+        type: string
+      - name: timeZone
+        type: string
+  Task:
+    fields:
+      - name: id
+        type: string
+      - name: title
+        type: string
+      - name: description
+        type: string
+      - name: due
+        type: string
+      - name: priority
+        type: int
+      - name: progress
+        type: string
+      - name: taskListId
+        type: string
+  Tag:
+    fields:
+      - name: id
+        type: string
+      - name: name
+        type: string
+      - name: color
+        type: string

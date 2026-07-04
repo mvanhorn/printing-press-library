@@ -1,0 +1,23 @@
+version: 2
+
+builds:
+  - id: fellow-stagg-ekg-pp-cli
+    main: ./cmd/fellow-stagg-ekg-pp-cli
+    binary: fellow-stagg-ekg-pp-cli
+    env:
+      - CGO_ENABLED=0
+    goos:
+      - darwin
+      - linux
+      - windows
+    goarch:
+      - amd64
+      - arm64
+
+archives:
+  - formats:
+      - tar.gz
+
+checksum:
+  name_template: checksums.txt
+

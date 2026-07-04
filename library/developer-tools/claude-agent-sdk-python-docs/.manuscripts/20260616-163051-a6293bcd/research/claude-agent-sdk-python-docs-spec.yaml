@@ -1,0 +1,104 @@
+name: claude-agent-sdk-python-docs
+description: "Source-grounded CLI for exploring and verifying Claude Agent SDK Python docs"
+cli_description: "Explore, read, and verify against the Claude Agent SDK Python docs."
+version: "0.1.0"
+category: developer-tools
+base_url: "https://code.claude.com"
+health_check_path: "/docs/llms.txt"
+http_transport: standard
+
+auth:
+  type: none
+
+cache:
+  enabled: true
+  stale_after: 24h
+
+resources:
+  pages:
+    description: "Fetch Claude Agent SDK documentation pages"
+    endpoints:
+      index:
+        method: GET
+        path: "/docs/llms.txt"
+        description: "Fetch the Claude Code documentation index"
+        response_format: binary
+        response:
+          type: object
+          item: DocPage
+      python:
+        method: GET
+        path: "/docs/en/agent-sdk/python.md"
+        description: "Fetch the Python Agent SDK reference"
+        response_format: binary
+        response:
+          type: object
+          item: DocPage
+      overview:
+        method: GET
+        path: "/docs/en/agent-sdk/overview.md"
+        description: "Fetch the Agent SDK overview"
+        response_format: binary
+        response:
+          type: object
+          item: DocPage
+      quickstart:
+        method: GET
+        path: "/docs/en/agent-sdk/quickstart.md"
+        description: "Fetch the Agent SDK quickstart"
+        response_format: binary
+        response:
+          type: object
+          item: DocPage
+      custom_tools:
+        method: GET
+        path: "/docs/en/agent-sdk/custom-tools.md"
+        description: "Fetch the Agent SDK custom tools guide"
+        response_format: binary
+        response:
+          type: object
+          item: DocPage
+      sessions:
+        method: GET
+        path: "/docs/en/agent-sdk/sessions.md"
+        description: "Fetch the Agent SDK sessions guide"
+        response_format: binary
+        response:
+          type: object
+          item: DocPage
+      permissions:
+        method: GET
+        path: "/docs/en/agent-sdk/permissions.md"
+        description: "Fetch the Agent SDK permissions guide"
+        response_format: binary
+        response:
+          type: object
+          item: DocPage
+      structured_outputs:
+        method: GET
+        path: "/docs/en/agent-sdk/structured-outputs.md"
+        description: "Fetch the Agent SDK structured output guide"
+        response_format: binary
+        response:
+          type: object
+          item: DocPage
+      mcp:
+        method: GET
+        path: "/docs/en/agent-sdk/mcp.md"
+        description: "Fetch the Agent SDK MCP guide"
+        response_format: binary
+        response:
+          type: object
+          item: DocPage
+
+types:
+  DocPage:
+    fields:
+      - name: url
+        type: string
+      - name: title
+        type: string
+      - name: content
+        type: string
+      - name: hash
+        type: string

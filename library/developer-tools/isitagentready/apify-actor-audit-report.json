@@ -1,0 +1,9 @@
+{
+  "dir": "\u003ccli-dir\u003e/isitagentready-pp-cli",
+  "research_dir": "\u003ccli-dir\u003e/20260622-061602-6c74c750",
+  "verdict": "pass",
+  "actors": null,
+  "issues": [
+    "no Apify actor references found, skipping"
+  ]
+}

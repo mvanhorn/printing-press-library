@@ -15,43 +15,43 @@ func newAccountListGetapiusageCmd(flags *rootFlags) *cobra.Command {
 	var flagPage string
 	var flagEndpoint string
 	var flagStatusCode string
+	var flagAll bool
 
 	cmd := &cobra.Command{
 		Use:         "list-getapiusage",
-		Short:       "Returns a paginated list of your API requests, including the endpoint called, status code, credits used, and...",
+		Short:       "Returns a paginated list of your API requests, including the endpoint called, status code, credits used, and timestamp.",
 		Example:     "  scrape-creators-pp-cli account list-getapiusage",
-		Annotations: map[string]string{"pp:endpoint": "account.list-getapiusage", "mcp:read-only": "true"},
+		Annotations: map[string]string{"pp:endpoint": "account.list-getapiusage", "pp:method": "GET", "pp:path": "/v1/account/get-api-usage", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
+			path := "/v1/account/get-api-usage"
 			c, err := flags.newClient()
 			if err != nil {
 				return err
 			}
-
-			path := "/v1/account/get-api-usage"
-			params := map[string]string{}
-			if flagPage != "" {
-				params["page"] = fmt.Sprintf("%v", flagPage)
-			}
-			if flagEndpoint != "" {
-				params["endpoint"] = fmt.Sprintf("%v", flagEndpoint)
-			}
-			if flagStatusCode != "" {
-				params["statusCode"] = fmt.Sprintf("%v", flagStatusCode)
-			}
-			data, prov, err := resolveRead(cmd.Context(), c, flags, "account", false, path, params, nil)
+			data, prov, err := resolvePaginatedReadWithStrategy(cmd.Context(), c, flags, "auto", "account", path, map[string]string{
+				"page":       formatCLIParamValue(flagPage),
+				"endpoint":   formatCLIParamValue(flagEndpoint),
+				"statusCode": formatCLIParamValue(flagStatusCode),
+			}, nil, flagAll, "page", "page", "", "", "", cmd.ErrOrStderr())
 			if err != nil {
-				return classifyAPIError(err)
+				return classifyAPIError(err, flags)
 			}
-			// Print provenance to stderr for human-facing output
-			{
+			// Print provenance to stderr for human-facing output only.
+			// Machine-format flags (--json, --csv, --compact, --quiet, --plain,
+			// --select) and piped stdout suppress this line; the JSON envelope
+			// already carries meta.source for those consumers.
+			// SYNC: keep this gate aligned with command_promoted.go.tmpl.
+			if wantsHumanTable(cmd.OutOrStdout(), flags) {
 				var countItems []json.RawMessage
 				_ = json.Unmarshal(data, &countItems)
 				printProvenance(cmd, len(countItems), prov)
 			}
 			// For JSON output, wrap with provenance envelope before passing through flags.
 			// --select wins over --compact when both are set; --compact only runs when
-			// no explicit fields were requested.
-			if flags.asJSON || !isTerminal(cmd.OutOrStdout()) {
+			// no explicit fields were requested. Explicit format flags (--csv, --quiet,
+			// --plain) opt out of the auto-JSON path so piped consumers that asked for
+			// a non-JSON format reach the standard pipeline below.
+			if flags.asJSON || (!isTerminal(cmd.OutOrStdout()) && !flags.csv && !flags.quiet && !flags.plain) {
 				filtered := data
 				if flags.selectFields != "" {
 					filtered = filterFields(filtered, flags.selectFields)
@@ -77,12 +77,13 @@ func newAccountListGetapiusageCmd(flags *rootFlags) *cobra.Command {
 					return nil
 				}
 			}
-			return printOutputWithFlags(cmd.OutOrStdout(), data, flags)
+			return printOutputWithFlagsMeta(cmd.OutOrStdout(), data, flags, map[string]any{"source": "live"})
 		},
 	}
 	cmd.Flags().StringVar(&flagPage, "page", "", "Page number for pagination (max 100)")
 	cmd.Flags().StringVar(&flagEndpoint, "endpoint", "", "Filter by endpoint name (partial match)")
 	cmd.Flags().StringVar(&flagStatusCode, "status-code", "", "Filter by HTTP status code")
+	cmd.Flags().BoolVar(&flagAll, "all", false, "Fetch all pages")
 
 	return cmd
 }

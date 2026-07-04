@@ -1,0 +1,47 @@
+{
+  "manifest_version": "0.3",
+  "name": "gladly-pp-mcp",
+  "display_name": "Gladly Read",
+  "version": "0.0.0",
+  "description": "Read-first Gladly API surface for customer timelines, conversations, agents, topics, answers, and support operations.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/gladly-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/gladly-pp-mcp",
+      "args": [],
+      "env": {
+        "GLADLY_PASSWORD": "${user_config.gladly_password}",
+        "GLADLY_USERNAME": "${user_config.gladly_username}"
+      }
+    }
+  },
+  "user_config": {
+    "gladly_password": {
+      "type": "string",
+      "title": "GLADLY_PASSWORD",
+      "description": "Sets GLADLY_PASSWORD for the Gladly Read MCP server.",
+      "sensitive": true,
+      "required": true
+    },
+    "gladly_username": {
+      "type": "string",
+      "title": "GLADLY_USERNAME",
+      "description": "Sets GLADLY_USERNAME for the Gladly Read MCP server.",
+      "sensitive": true,
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

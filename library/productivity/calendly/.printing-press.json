@@ -1,0 +1,52 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-06-14T20:58:04.318286Z",
+  "printing_press_version": "4.24.0",
+  "api_name": "calendly",
+  "display_name": "Calendly Read",
+  "cli_name": "calendly-pp-cli",
+  "creator": {
+    "handle": "debgotwired",
+    "name": "Deb Mukherjee"
+  },
+  "owner": "debgotwired",
+  "printer": "debgotwired",
+  "printer_name": "Deb Mukherjee",
+  "spec_url": "https://developer.calendly.com/api-docs",
+  "spec_path": "calendly-read-openapi.yaml",
+  "spec_format": "openapi3",
+  "spec_checksum": "sha256:85ee630ac06e5d6bc93e0bfc30f72a688dacb75ed38a7356e85fa0652ec5c8c3",
+  "run_id": "20260614-205804",
+  "category": "productivity",
+  "description": "Read-first Calendly API surface for scheduling, availability, event, invitee, and webhook inspection.",
+  "mcp_binary": "calendly-pp-mcp",
+  "mcp_tool_count": 19,
+  "mcp_ready": "full",
+  "api_version": "2.0.0",
+  "auth_type": "bearer_token",
+  "auth_env_vars": [
+    "CALENDLY_BEARER_AUTH"
+  ],
+  "novel_features": [
+    {
+      "name": "Local SQLite mirror",
+      "command": "sync",
+      "description": "Sync read endpoints into a local SQLite store for offline search, joins, and repeatable agent analysis."
+    },
+    {
+      "name": "Full-text search across API data",
+      "command": "search",
+      "description": "Search live or locally synced API records from one agent-friendly command."
+    },
+    {
+      "name": "SQL analytics on synced records",
+      "command": "analytics",
+      "description": "Run read-only SQL against the local store for compound questions the upstream API does not expose directly."
+    },
+    {
+      "name": "Agent command discovery",
+      "command": "which",
+      "description": "Map natural-language capabilities to the exact CLI command path before spending tokens on trial and error."
+    }
+  ]
+}

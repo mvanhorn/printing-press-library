@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "pexels-sidecar-attribution-html-escape",
+  "applied_at": "2026-06-23",
+  "base_run_id": "20260623-191116",
+  "base_printing_press_version": "4.20.1",
+  "summary": "Escape API-sourced values in Pexels attribution HTML sidecars.",
+  "reason": "Sidecar attribution_html interpolated photographer names and Pexels URLs directly into HTML text and href attributes. Escaping the API-sourced strings prevents malformed or injectable markup in generated .meta.json sidecars.",
+  "files": [
+    "internal/cli/download.go",
+    "internal/cli/download_test.go"
+  ],
+  "validated_outcome": "go test ./internal/cli/... -count=1; go build ./...; git diff --check"
+}

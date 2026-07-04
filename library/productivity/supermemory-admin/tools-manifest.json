@@ -1,0 +1,1360 @@
+{
+  "api_name": "supermemory-admin",
+  "base_url": "https://api.supermemory.ai",
+  "description": "The Memory API for the AI era",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "bearer_token",
+    "header": "Authorization",
+    "env_vars": [
+      "SUPERMEMORY_ADMIN_TOKEN",
+      "SUPERMEMORY_ADMIN_PROJECT"
+    ],
+    "env_var_specs": [
+      {
+        "name": "SUPERMEMORY_ADMIN_TOKEN",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      },
+      {
+        "name": "SUPERMEMORY_ADMIN_PROJECT",
+        "kind": "per_call",
+        "required": false,
+        "sensitive": false,
+        "description": "Optional Supermemory project id; sent as the x-sm-project header to scope all operations."
+      }
+    ]
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "connection_resources_get-v3-connections-by-connection-id-resources",
+      "description": "Fetch resources for a connection (supported providers: GitHub for now). Required: connectionId. Optional: page (default: 1), parent_id, per_page (default: 30). Returns array of ConnectionResourcesGetV3ConnectionsByConnectionIdResourcesItem.",
+      "method": "GET",
+      "path": "/v3/connections/{connectionId}/resources",
+      "params": [
+        {
+          "name": "connectionId",
+          "type": "string",
+          "location": "path",
+          "description": "Connection id",
+          "required": true
+        },
+        {
+          "name": "page",
+          "type": "float",
+          "location": "query",
+          "description": "Page"
+        },
+        {
+          "name": "parent_id",
+          "type": "string",
+          "location": "query",
+          "description": "Parent id"
+        },
+        {
+          "name": "per_page",
+          "type": "float",
+          "location": "query",
+          "description": "Per page"
+        }
+      ]
+    },
+    {
+      "name": "connections_delete-v3-by-id",
+      "description": "Delete a specific connection by ID. Required: connectionId. Optional: deleteDocuments (default: true). Returns the ConnectionsDeleteV3ByIdResponse. Destructive.",
+      "method": "DELETE",
+      "path": "/v3/connections/{connectionId}",
+      "params": [
+        {
+          "name": "connectionId",
+          "type": "string",
+          "location": "path",
+          "description": "Connection id",
+          "required": true
+        },
+        {
+          "name": "deleteDocuments",
+          "type": "string",
+          "location": "query",
+          "description": "Whether to also delete documents imported by this connection. Defaults to true."
+        }
+      ]
+    },
+    {
+      "name": "connections_delete-v3-by-provider",
+      "description": "Delete connection for a specific provider and container tags. Required: provider (default: notion), containerTags. Returns the ConnectionsDeleteV3ByProviderResponse. Destructive.",
+      "method": "DELETE",
+      "path": "/v3/connections/{provider}",
+      "params": [
+        {
+          "name": "provider",
+          "type": "string",
+          "location": "path",
+          "description": "Provider",
+          "required": true
+        },
+        {
+          "name": "containerTags",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Optional comma-separated list of container tags to filter connections by",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "connections_get-v3-by-id",
+      "description": "Get connection details with id. Required: connectionId. Returns array of string.",
+      "method": "GET",
+      "path": "/v3/connections/{connectionId}",
+      "params": [
+        {
+          "name": "connectionId",
+          "type": "string",
+          "location": "path",
+          "description": "Connection id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "connections_post-v3-by-provider",
+      "description": "Initialize connection and get authorization URL. Required: provider (default: notion). Optional: containerTag, containerTags, documentLimit (plus 2 more). Returns the new ConnectionsPostV3ByProviderResponse.",
+      "method": "POST",
+      "path": "/v3/connections/{provider}",
+      "params": [
+        {
+          "name": "provider",
+          "type": "string",
+          "location": "path",
+          "description": "Provider",
+          "required": true
+        },
+        {
+          "name": "containerTag",
+          "type": "string",
+          "location": "body",
+          "description": "Container tag"
+        },
+        {
+          "name": "containerTags",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Container tags"
+        },
+        {
+          "name": "documentLimit",
+          "type": "int",
+          "location": "body",
+          "description": "Document limit"
+        },
+        {
+          "name": "metadata",
+          "type": "string",
+          "location": "body",
+          "description": "Metadata"
+        },
+        {
+          "name": "redirectUrl",
+          "type": "string",
+          "location": "body",
+          "description": "Redirect url"
+        }
+      ]
+    },
+    {
+      "name": "connections_post-v3-list",
+      "description": "List all connections. Optional: containerTags. Returns array of ConnectionsPostV3ListItem.",
+      "method": "POST",
+      "path": "/v3/connections/list",
+      "params": [
+        {
+          "name": "containerTags",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Optional comma-separated list of container tags to filter documents by"
+        }
+      ]
+    },
+    {
+      "name": "connections_configure_post-v3-connections-by-connection-id",
+      "description": "Configure resources for a connection (supported providers: GitHub for now). Required: connectionId, resources. Returns the new ConfigurePostV3ConnectionsByConnectionIdResponse.",
+      "method": "POST",
+      "path": "/v3/connections/{connectionId}/configure",
+      "params": [
+        {
+          "name": "connectionId",
+          "type": "string",
+          "location": "path",
+          "description": "Connection id",
+          "required": true
+        },
+        {
+          "name": "resources",
+          "type": "array",
+          "location": "body",
+          "description": "Resources",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "connections_connection_post-v3-by-provider",
+      "description": "Get connection details with provider and container tags. Required: provider (default: notion), containerTags. Returns array of string.",
+      "method": "POST",
+      "path": "/v3/connections/{provider}/connection",
+      "params": [
+        {
+          "name": "provider",
+          "type": "string",
+          "location": "path",
+          "description": "Provider",
+          "required": true
+        },
+        {
+          "name": "containerTags",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Comma-separated list of container tags to filter connection by",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "connections_documents_post-v3-connections-by-provider",
+      "description": "List documents indexed for a provider and container tags. Required: provider (default: notion). Optional: containerTags. Returns array of DocumentsPostV3ConnectionsByProviderItem.",
+      "method": "POST",
+      "path": "/v3/connections/{provider}/documents",
+      "params": [
+        {
+          "name": "provider",
+          "type": "string",
+          "location": "path",
+          "description": "Provider",
+          "required": true
+        },
+        {
+          "name": "containerTags",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Optional comma-separated list of container tags to filter documents by"
+        }
+      ]
+    },
+    {
+      "name": "connections_import_post-v3-connections-by-provider",
+      "description": "Initiate a manual sync of connections. Required: provider (default: notion). Optional: containerTags.",
+      "method": "POST",
+      "path": "/v3/connections/{provider}/import",
+      "params": [
+        {
+          "name": "provider",
+          "type": "string",
+          "location": "path",
+          "description": "Provider",
+          "required": true
+        },
+        {
+          "name": "containerTags",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Optional comma-separated list of container tags to filter connections by"
+        }
+      ]
+    },
+    {
+      "name": "container-tags_delete-v3-by",
+      "description": "Delete a container tag and all its documents and memories. Only organization owners and admins can perform this action. Required: containerTag. Returns the ContainerTagsDeleteV3ByResponse. Destructive.",
+      "method": "DELETE",
+      "path": "/v3/container-tags/{containerTag}",
+      "params": [
+        {
+          "name": "containerTag",
+          "type": "string",
+          "location": "path",
+          "description": "Container tag",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "container-tags_get-v3-by",
+      "description": "Get settings for a container tag. Required: containerTag. Returns the ContainerTagsGetV3ByResponse.",
+      "method": "GET",
+      "path": "/v3/container-tags/{containerTag}",
+      "params": [
+        {
+          "name": "containerTag",
+          "type": "string",
+          "location": "path",
+          "description": "Container tag",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "container-tags_patch-v3-by",
+      "description": "Update settings for a container tag. Required: containerTag. Optional: entityContext, memoryFilesystemPaths, name. Returns the updated ContainerTagsPatchV3ByResponse.",
+      "method": "PATCH",
+      "path": "/v3/container-tags/{containerTag}",
+      "params": [
+        {
+          "name": "containerTag",
+          "type": "string",
+          "location": "path",
+          "description": "Container tag",
+          "required": true
+        },
+        {
+          "name": "entityContext",
+          "type": "string",
+          "location": "body",
+          "description": "Custom context prompt for this container tag. Used to provide additional context when processing documents in this container. Maximum 1500 characters."
+        },
+        {
+          "name": "memoryFilesystemPaths",
+          "type": "string",
+          "location": "body",
+          "description": "Per-tag allowlist of filesystem paths that trigger memory generation for mount-ingested documents. Docs whose filepath does not match are ingested as 'superrag' (chunked and searchable, no memory extraction)."
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Display name for this container tag. This does not change the container tag identifier."
+        }
+      ]
+    },
+    {
+      "name": "container-tags_post-v3-merge",
+      "description": "Merge multiple container tags into a target tag. All documents from the source tags will be updated to reference the target tag, and the source tags will be deleted after successful merge. Required: containerTags, targetContainerTag. Returns array of string.",
+      "method": "POST",
+      "path": "/v3/container-tags/merge",
+      "params": [
+        {
+          "name": "containerTags",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "List of container tags to merge (min: 2, max: 2). All documents from these tags will be merged into the target.",
+          "required": true
+        },
+        {
+          "name": "targetContainerTag",
+          "type": "string",
+          "location": "body",
+          "description": "Target container tag",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "conversations_post-v4",
+      "description": "Ingest or update a conversation. Required: conversationId, messages. Optional: containerTags, metadata.",
+      "method": "POST",
+      "path": "/v4/conversations",
+      "params": [
+        {
+          "name": "containerTags",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Container tags"
+        },
+        {
+          "name": "conversationId",
+          "type": "string",
+          "location": "body",
+          "description": "Conversation id",
+          "required": true
+        },
+        {
+          "name": "messages",
+          "type": "array",
+          "location": "body",
+          "description": "Messages",
+          "required": true
+        },
+        {
+          "name": "metadata",
+          "type": "object",
+          "location": "body",
+          "description": "Metadata"
+        }
+      ]
+    },
+    {
+      "name": "documents_delete-v3-bulk",
+      "description": "Bulk delete documents by IDs or container tags. Optional: containerTags, filepath, ids. Returns the DocumentsDeleteV3BulkResponse. Destructive.",
+      "method": "DELETE",
+      "path": "/v3/documents/bulk",
+      "params": [
+        {
+          "name": "containerTags",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Array of container tags - all documents in these containers will be deleted"
+        },
+        {
+          "name": "filepath",
+          "type": "string",
+          "location": "body",
+          "description": "Delete documents matching this filepath. Exact match for full paths, prefix match if ending with /"
+        },
+        {
+          "name": "ids",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Array of document IDs to delete (max 100 at once)"
+        }
+      ]
+    },
+    {
+      "name": "documents_delete-v3-by-id",
+      "description": "Delete a document by ID or customId. Required: id. Destructive.",
+      "method": "DELETE",
+      "path": "/v3/documents/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "documents_get-v3-by-id",
+      "description": "Get a document by ID. Required: id. Returns array of string.",
+      "method": "GET",
+      "path": "/v3/documents/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "documents_get-v3-processing",
+      "description": "Get documents that are currently being processed. Returns array of DocumentsGetV3ProcessingItem.",
+      "method": "GET",
+      "path": "/v3/documents/processing",
+      "params": []
+    },
+    {
+      "name": "documents_patch-v3-by-id",
+      "description": "Update a document with any content type (text, url, file, etc.) and metadata. Required: id. Optional: containerTag, containerTags, content (plus 5 more). Returns the updated DocumentsPatchV3ByIdResponse.",
+      "method": "PATCH",
+      "path": "/v3/documents/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        },
+        {
+          "name": "containerTag",
+          "type": "string",
+          "location": "body",
+          "description": "Optional tag this document should be containerized by. This can be an ID for your user, a project ID, or any other identifier you wish to use to group documents."
+        },
+        {
+          "name": "containerTags",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "(DEPRECATED: Use containerTag instead) Optional tags this document should be containerized by. This can be an ID for your user, a project ID, or any other identifier you wish to use to group documents."
+        },
+        {
+          "name": "content",
+          "type": "string",
+          "location": "body",
+          "description": "The content to extract and process into a document. This can be a URL to a website, a PDF, an image, or a video. Plaintext: Any plaintext format URL: A URL to a website, PDF, image, or video We automatically detect the content type from the url's response format."
+        },
+        {
+          "name": "customId",
+          "type": "string",
+          "location": "body",
+          "description": "Optional custom ID of the document. This could be an ID from your database that will uniquely identify this document."
+        },
+        {
+          "name": "filepath",
+          "type": "string",
+          "location": "body",
+          "description": "Optional file path for the document (e.g., '/documents/reports/file.pdf'). Used by supermemoryfs to map documents to filesystem paths."
+        },
+        {
+          "name": "filterByMetadata",
+          "type": "object",
+          "location": "body",
+          "description": "Optional metadata filter scoping which existing memories are pulled as context during ingestion. Scalar values match exactly (AND across keys); array values match ANY (OR within key). Only memories whose source documents match this filter are used as context."
+        },
+        {
+          "name": "metadata",
+          "type": "object",
+          "location": "body",
+          "description": "Optional metadata for the document. This is used to store additional information about the document. You can use this to store any additional information you need about the document. Metadata can be filtered through. Keys must be strings and are case sensitive. Values can be strings, numbers, or booleans. You cannot nest objects."
+        },
+        {
+          "name": "taskType",
+          "type": "string",
+          "location": "body",
+          "description": "Task type: 'memory' (default) for full context layer with SuperRAG built in, 'superrag' for..."
+        }
+      ]
+    },
+    {
+      "name": "documents_post-v3",
+      "description": "Add a document with any content type (text, url, file, etc.) and metadata. Required: content. Optional: containerTag, containerTags, customId (plus 6 more). Returns the new DocumentsPostV3Response.",
+      "method": "POST",
+      "path": "/v3/documents",
+      "params": [
+        {
+          "name": "containerTag",
+          "type": "string",
+          "location": "body",
+          "description": "Optional tag this document should be containerized by. Max 100 characters, alphanumeric with hyphens, underscores, and dots only."
+        },
+        {
+          "name": "containerTags",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Container tags"
+        },
+        {
+          "name": "content",
+          "type": "string",
+          "location": "body",
+          "description": "The content to extract and process into a document. This can be a URL to a website, a PDF, an image, or a video.",
+          "required": true
+        },
+        {
+          "name": "customId",
+          "type": "string",
+          "location": "body",
+          "description": "Optional custom ID of the document. Max 100 characters, alphanumeric with hyphens, underscores, and dots only."
+        },
+        {
+          "name": "dreaming",
+          "type": "string",
+          "location": "body",
+          "description": "Processing mode. 'dynamic' (default) groups related documents together so memories form from..."
+        },
+        {
+          "name": "entityContext",
+          "type": "string",
+          "location": "body",
+          "description": "Optional entity context for this container tag."
+        },
+        {
+          "name": "filepath",
+          "type": "string",
+          "location": "body",
+          "description": "Optional file path for the document. Used by supermemoryfs to store the full path of the file."
+        },
+        {
+          "name": "filterByMetadata",
+          "type": "object",
+          "location": "body",
+          "description": "Optional metadata filter to apply when pulling related memories and profile during ingestion. Only memories matching these filters will be used as context."
+        },
+        {
+          "name": "metadata",
+          "type": "object",
+          "location": "body",
+          "description": "Optional metadata for the document."
+        },
+        {
+          "name": "taskType",
+          "type": "string",
+          "location": "body",
+          "description": "Task type: 'memory' (default) for full context layer with SuperRAG built in, 'superrag' for..."
+        }
+      ]
+    },
+    {
+      "name": "documents_post-v3-batch",
+      "description": "Add multiple documents in a single request. Each document can have any content type (text, url, file, etc.) and metadata. Required: documents. Optional: containerTag, containerTags, content (plus 6 more). Returns array of DocumentsPostV3BatchItem.",
+      "method": "POST",
+      "path": "/v3/documents/batch",
+      "params": [
+        {
+          "name": "containerTag",
+          "type": "string",
+          "location": "body",
+          "description": "Optional tag this document should be containerized by. This can be an ID for your user, a project ID, or any other identifier you wish to use to group documents."
+        },
+        {
+          "name": "containerTags",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "(DEPRECATED: Use containerTag instead) Optional tags this document should be containerized by. This can be an ID for your user, a project ID, or any other identifier you wish to use to group documents."
+        },
+        {
+          "name": "content",
+          "type": "string",
+          "location": "body",
+          "description": "Content"
+        },
+        {
+          "name": "documents",
+          "type": "string",
+          "location": "body",
+          "description": "Documents",
+          "required": true
+        },
+        {
+          "name": "dreaming",
+          "type": "string",
+          "location": "body",
+          "description": "Processing mode. 'dynamic' (default) groups related documents together so memories form from..."
+        },
+        {
+          "name": "entityContext",
+          "type": "string",
+          "location": "body",
+          "description": "Optional entity context for this container tag."
+        },
+        {
+          "name": "filepath",
+          "type": "string",
+          "location": "body",
+          "description": "Optional file path for the document (e.g., '/documents/reports/file.pdf'). Used by supermemoryfs to map documents to filesystem paths."
+        },
+        {
+          "name": "filterByMetadata",
+          "type": "object",
+          "location": "body",
+          "description": "Optional metadata filter scoping which existing memories are pulled as context during ingestion. Scalar values match exactly (AND across keys); array values match ANY (OR within key). Only memories whose source documents match this filter are used as context."
+        },
+        {
+          "name": "metadata",
+          "type": "object",
+          "location": "body",
+          "description": "Optional metadata for the document. This is used to store additional information about the document. You can use this to store any additional information you need about the document. Metadata can be filtered through. Keys must be strings and are case sensitive. Values can be strings, numbers, or booleans. You cannot nest objects."
+        },
+        {
+          "name": "taskType",
+          "type": "string",
+          "location": "body",
+          "description": "Task type: 'memory' (default) for full context layer with SuperRAG built in, 'superrag' for..."
+        }
+      ]
+    },
+    {
+      "name": "documents_post-v3-file",
+      "description": "Upload a file to be processed. Required: file. Optional: containerTag, containerTags, customId (plus 9 more). Returns the new DocumentsPostV3FileResponse.",
+      "method": "POST",
+      "path": "/v3/documents/file",
+      "params": [
+        {
+          "name": "containerTag",
+          "type": "string",
+          "location": "body",
+          "description": "Optional container tag (e.g., 'user_123'). Use this for a single tag."
+        },
+        {
+          "name": "containerTags",
+          "type": "string",
+          "location": "body",
+          "description": "Optional container tags. Can be either a JSON string of an array (e.g., '['user_123', 'project_123']') or a single string (e.g., 'user_123'). Single strings will be automatically converted to an array."
+        },
+        {
+          "name": "customId",
+          "type": "string",
+          "location": "body",
+          "description": "Optional custom ID of the document. Max 100 characters, alphanumeric with hyphens, underscores, and colons only."
+        },
+        {
+          "name": "dreaming",
+          "type": "string",
+          "location": "body",
+          "description": "Processing mode. 'dynamic' (default) groups related documents together so memories form from..."
+        },
+        {
+          "name": "entityContext",
+          "type": "string",
+          "location": "body",
+          "description": "Optional entity context for this container tag."
+        },
+        {
+          "name": "file",
+          "type": "string",
+          "location": "body",
+          "description": "File to upload and process",
+          "required": true
+        },
+        {
+          "name": "fileType",
+          "type": "string",
+          "location": "body",
+          "description": "Optional file type override to force specific processing behavior. Valid values: text, pdf, tweet, google_doc, google_slide, google_sheet, image, video, notion_doc, webpage, onedrive"
+        },
+        {
+          "name": "filepath",
+          "type": "string",
+          "location": "body",
+          "description": "Optional file path for the uploaded file (e.g., '/documents/reports/file.pdf'). Used by supermemoryfs to map documents to filesystem paths."
+        },
+        {
+          "name": "filterByMetadata",
+          "type": "string",
+          "location": "body",
+          "description": "Optional metadata filter as a JSON string. Scopes which existing memories are pulled as context during ingestion. Scalar values match exactly (AND across keys); array values match ANY (OR within key)."
+        },
+        {
+          "name": "metadata",
+          "type": "string",
+          "location": "body",
+          "description": "Optional metadata for the document as a JSON string. This is used to store additional information about the document. Keys must be strings and values can be strings, numbers, or booleans."
+        },
+        {
+          "name": "mimeType",
+          "type": "string",
+          "location": "body",
+          "description": "Required when fileType is 'image' or 'video'. Specifies the exact MIME type to use (e.g., 'image/png', 'image/jpeg', 'video/mp4', 'video/webm')"
+        },
+        {
+          "name": "taskType",
+          "type": "string",
+          "location": "body",
+          "description": "Task type: 'memory' (default) for full context layer with SuperRAG built in, 'superrag' for..."
+        },
+        {
+          "name": "useAdvancedProcessing",
+          "type": "string",
+          "location": "body",
+          "description": "DEPRECATED: This field is no longer used. Advanced PDF processing is now automatic with our hybrid Mistral OCR + Gemini pipeline. This parameter will be accepted but ignored for backwards compatibility."
+        }
+      ]
+    },
+    {
+      "name": "documents_post-v3-list",
+      "description": "Retrieves a paginated list of documents with their metadata and workflow status. Optional: containerTags, filepath, filters (plus 5 more). Returns array of DocumentsPostV3ListItem.",
+      "method": "POST",
+      "path": "/v3/documents/list",
+      "params": [
+        {
+          "name": "containerTags",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Optional tags this document should be containerized by. This can be an ID for your user, a project ID, or any other identifier you wish to use to group documents."
+        },
+        {
+          "name": "filepath",
+          "type": "string",
+          "location": "body",
+          "description": "Filter documents by filepath. Exact match for full paths, prefix match if ending with /"
+        },
+        {
+          "name": "filters",
+          "type": "string",
+          "location": "body",
+          "description": "Optional filters to apply to the search. Can be a JSON string or Query object."
+        },
+        {
+          "name": "includeContent",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether to include the content field in the response. Warning: This can make responses significantly larger."
+        },
+        {
+          "name": "limit",
+          "type": "string",
+          "location": "body",
+          "description": "Number of items per page"
+        },
+        {
+          "name": "order",
+          "type": "string",
+          "location": "body",
+          "description": "Sort order"
+        },
+        {
+          "name": "page",
+          "type": "string",
+          "location": "body",
+          "description": "Page number to fetch"
+        },
+        {
+          "name": "sort",
+          "type": "string",
+          "location": "body",
+          "description": "Field to sort by"
+        }
+      ]
+    },
+    {
+      "name": "documents_post-v3-search",
+      "description": "Search memories with advanced filtering. Required: q. Optional: categoriesFilter, chunkThreshold (default: 0), containerTag (plus 11 more). Returns array of DocumentsPostV3SearchItem.",
+      "method": "POST",
+      "path": "/v3/search",
+      "params": [
+        {
+          "name": "categoriesFilter",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "DEPRECATED: Optional category filters"
+        },
+        {
+          "name": "chunkThreshold",
+          "type": "float",
+          "location": "body",
+          "description": "Threshold / sensitivity for chunk selection. 0 is least sensitive (returns most chunks, more results), 1 is most sensitive (returns lesser chunks, accurate results)"
+        },
+        {
+          "name": "containerTag",
+          "type": "string",
+          "location": "body",
+          "description": "Optional single container tag. Use this or containerTags."
+        },
+        {
+          "name": "containerTags",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Optional tags this search should be containerized by. This can be an ID for your user, a project ID, or any other identifier you wish to use to filter documents."
+        },
+        {
+          "name": "docId",
+          "type": "string",
+          "location": "body",
+          "description": "Optional document ID to search within. You can use this to find chunks in a very large document."
+        },
+        {
+          "name": "documentThreshold",
+          "type": "float",
+          "location": "body",
+          "description": "DEPRECATED: This field is no longer used in v3 search. The search now uses chunkThreshold only. This parameter will be ignored."
+        },
+        {
+          "name": "filepath",
+          "type": "string",
+          "location": "body",
+          "description": "Filter search results by filepath. Exact match for full paths, prefix match if ending with /"
+        },
+        {
+          "name": "filters",
+          "type": "string",
+          "location": "body",
+          "description": "Optional filters to apply to the search. Can be a JSON string or Query object."
+        },
+        {
+          "name": "includeFullDocs",
+          "type": "bool",
+          "location": "body",
+          "description": "If true, include full document in the response. This is helpful if you want a chatbot to know the full context of the document."
+        },
+        {
+          "name": "includeSummary",
+          "type": "bool",
+          "location": "body",
+          "description": "If true, include document summary in the response. This is helpful if you want a chatbot to know the full context of the document."
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "body",
+          "description": "Maximum number of results to return"
+        },
+        {
+          "name": "onlyMatchingChunks",
+          "type": "bool",
+          "location": "body",
+          "description": "If true, only return matching chunks without context. Normally, we send the previous and next chunk to provide more context for LLMs. If you only want the matching chunk, set this to true."
+        },
+        {
+          "name": "q",
+          "type": "string",
+          "location": "body",
+          "description": "Search query string",
+          "required": true
+        },
+        {
+          "name": "rerank",
+          "type": "bool",
+          "location": "body",
+          "description": "If true, rerank the results based on the query. This is helpful if you want to ensure the most relevant results are returned."
+        },
+        {
+          "name": "rewriteQuery",
+          "type": "bool",
+          "location": "body",
+          "description": "If true, rewrites the query to make it easier to find documents. This increases the latency by about 400ms"
+        }
+      ]
+    },
+    {
+      "name": "documents_chunks_get-v3-documents-by-id",
+      "description": "Get all chunks for a document, ordered by position. Required: id. Returns array of ChunksGetV3DocumentsByIdItem.",
+      "method": "GET",
+      "path": "/v3/documents/{id}/chunks",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "documents_file-url_get-v3-documents-by-id",
+      "description": "Get a fresh presigned URL for a document's file. Returns a time-limited URL (24h) that can be used to download the file. Required: id.",
+      "method": "GET",
+      "path": "/v3/documents/{id}/file-url",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "memories_delete-v4",
+      "description": "Forget (soft delete) a memory entry. The memory is marked as forgotten but not permanently deleted. Required: containerTag. Optional: content, id, reason. Returns the MemoriesDeleteV4Response. Destructive.",
+      "method": "DELETE",
+      "path": "/v4/memories",
+      "params": [
+        {
+          "name": "containerTag",
+          "type": "string",
+          "location": "body",
+          "description": "Container tag / space identifier. Required to scope the operation.",
+          "required": true
+        },
+        {
+          "name": "content",
+          "type": "string",
+          "location": "body",
+          "description": "Exact content match of the memory entry to operate on. Use this when you don't have the ID."
+        },
+        {
+          "name": "id",
+          "type": "string",
+          "location": "body",
+          "description": "ID of the memory entry to operate on"
+        },
+        {
+          "name": "reason",
+          "type": "string",
+          "location": "body",
+          "description": "Optional reason for forgetting this memory"
+        }
+      ]
+    },
+    {
+      "name": "memories_patch-v4",
+      "description": "Update a memory by creating a new version. The original memory is preserved with isLatest=false. Required: containerTag, newContent. Optional: content, forgetAfter, forgetReason (plus 3 more). Returns the updated MemoriesPatchV4Response.",
+      "method": "PATCH",
+      "path": "/v4/memories",
+      "params": [
+        {
+          "name": "containerTag",
+          "type": "string",
+          "location": "body",
+          "description": "Container tag / space identifier. Required to scope the operation.",
+          "required": true
+        },
+        {
+          "name": "content",
+          "type": "string",
+          "location": "body",
+          "description": "Exact content match of the memory entry to operate on. Use this when you don't have the ID."
+        },
+        {
+          "name": "forgetAfter",
+          "type": "string",
+          "location": "body",
+          "description": "ISO 8601 datetime string. The memory will be auto-forgotten after this time. Pass null to clear an existing expiry. Omit to inherit from the previous version."
+        },
+        {
+          "name": "forgetReason",
+          "type": "string",
+          "location": "body",
+          "description": "Optional reason for the scheduled forgetting. Cleared automatically when forgetAfter is set to null."
+        },
+        {
+          "name": "id",
+          "type": "string",
+          "location": "body",
+          "description": "ID of the memory entry to operate on"
+        },
+        {
+          "name": "metadata",
+          "type": "object",
+          "location": "body",
+          "description": "Optional metadata. If not provided, inherits from the previous version."
+        },
+        {
+          "name": "newContent",
+          "type": "string",
+          "location": "body",
+          "description": "The new content that will replace the existing memory",
+          "required": true
+        },
+        {
+          "name": "temporal-context-document-date",
+          "wire_name": "temporalContext.documentDate",
+          "type": "string",
+          "location": "body",
+          "description": "Date the document was authored"
+        },
+        {
+          "name": "temporal-context-event-date",
+          "wire_name": "temporalContext.eventDate",
+          "type": "string",
+          "location": "body",
+          "description": "Dates of events referenced in the memory"
+        }
+      ]
+    },
+    {
+      "name": "memories_post-v4",
+      "description": "Create memories directly, bypassing the document ingestion workflow. Generates embeddings and makes them immediately searchable. Required: containerTag, memories. Returns array of MemoriesPostV4Item.",
+      "method": "POST",
+      "path": "/v4/memories",
+      "params": [
+        {
+          "name": "containerTag",
+          "type": "string",
+          "location": "body",
+          "description": "The space / container tag these memories belong to.",
+          "required": true
+        },
+        {
+          "name": "memories",
+          "type": "array",
+          "location": "body",
+          "description": "Array of memories to create",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "memories_post-v4-list",
+      "description": "List all latest memory entries from specified container tags with their update history and source documents. Required: containerTags. Optional: filters, limit, order (default: desc) (plus 2 more). Returns array of MemoriesPostV4ListItem.",
+      "method": "POST",
+      "path": "/v4/memories/list",
+      "params": [
+        {
+          "name": "containerTags",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Container tags to filter memory entries. At least one tag is required.",
+          "required": true
+        },
+        {
+          "name": "filters",
+          "type": "string",
+          "location": "body",
+          "description": "Optional filters to apply to the search. Can be a JSON string or Query object."
+        },
+        {
+          "name": "limit",
+          "type": "string",
+          "location": "body",
+          "description": "Number of items per page"
+        },
+        {
+          "name": "order",
+          "type": "string",
+          "location": "body",
+          "description": "Sort order"
+        },
+        {
+          "name": "page",
+          "type": "string",
+          "location": "body",
+          "description": "Page number to fetch"
+        },
+        {
+          "name": "sort",
+          "type": "string",
+          "location": "body",
+          "description": "Field to sort by"
+        }
+      ]
+    },
+    {
+      "name": "profiles_post-v4",
+      "description": "Get user profile with optional search results. Required: containerTag. Optional: filters, q, threshold. Returns the new ProfilesPostV4Response.",
+      "method": "POST",
+      "path": "/v4/profile",
+      "params": [
+        {
+          "name": "containerTag",
+          "type": "string",
+          "location": "body",
+          "description": "Tag to filter the profile by. This can be an ID for your user, a project ID, or any other identifier you wish to use to filter memories.",
+          "required": true
+        },
+        {
+          "name": "filters",
+          "type": "string",
+          "location": "body",
+          "description": "Optional metadata filters to apply to profile results and search results. Supports complex AND/OR queries with multiple conditions."
+        },
+        {
+          "name": "q",
+          "type": "string",
+          "location": "body",
+          "description": "Optional search query to include search results in the response"
+        },
+        {
+          "name": "threshold",
+          "type": "float",
+          "location": "body",
+          "description": "Threshold for search results. Only results with a score above this threshold will be included."
+        }
+      ]
+    },
+    {
+      "name": "settings_get-v3",
+      "description": "Get settings for an organization. Returns the SettingsGetV3Response.",
+      "method": "GET",
+      "path": "/v3/settings",
+      "params": []
+    },
+    {
+      "name": "settings_patch-v3",
+      "description": "Update settings for an organization. Optional: chunkSize, excludeItems, filterPrompt (plus 14 more). Returns the updated SettingsPatchV3Response.",
+      "method": "PATCH",
+      "path": "/v3/settings",
+      "params": [
+        {
+          "name": "chunkSize",
+          "type": "string",
+          "location": "body",
+          "description": "Chunk size"
+        },
+        {
+          "name": "excludeItems",
+          "type": "string",
+          "location": "body",
+          "description": "Exclude items"
+        },
+        {
+          "name": "filterPrompt",
+          "type": "string",
+          "location": "body",
+          "description": "Filter prompt"
+        },
+        {
+          "name": "githubClientId",
+          "type": "string",
+          "location": "body",
+          "description": "Github client id"
+        },
+        {
+          "name": "githubClientSecret",
+          "type": "string",
+          "location": "body",
+          "description": "Github client secret"
+        },
+        {
+          "name": "githubCustomKeyEnabled",
+          "type": "string",
+          "location": "body",
+          "description": "Github custom key enabled"
+        },
+        {
+          "name": "googleDriveClientId",
+          "type": "string",
+          "location": "body",
+          "description": "Google drive client id"
+        },
+        {
+          "name": "googleDriveClientSecret",
+          "type": "string",
+          "location": "body",
+          "description": "Google drive client secret"
+        },
+        {
+          "name": "googleDriveCustomKeyEnabled",
+          "type": "string",
+          "location": "body",
+          "description": "Google drive custom key enabled"
+        },
+        {
+          "name": "includeItems",
+          "type": "string",
+          "location": "body",
+          "description": "Include items"
+        },
+        {
+          "name": "notionClientId",
+          "type": "string",
+          "location": "body",
+          "description": "Notion client id"
+        },
+        {
+          "name": "notionClientSecret",
+          "type": "string",
+          "location": "body",
+          "description": "Notion client secret"
+        },
+        {
+          "name": "notionCustomKeyEnabled",
+          "type": "string",
+          "location": "body",
+          "description": "Notion custom key enabled"
+        },
+        {
+          "name": "onedriveClientId",
+          "type": "string",
+          "location": "body",
+          "description": "Onedrive client id"
+        },
+        {
+          "name": "onedriveClientSecret",
+          "type": "string",
+          "location": "body",
+          "description": "Onedrive client secret"
+        },
+        {
+          "name": "onedriveCustomKeyEnabled",
+          "type": "string",
+          "location": "body",
+          "description": "Onedrive custom key enabled"
+        },
+        {
+          "name": "shouldLLMFilter",
+          "type": "string",
+          "location": "body",
+          "description": "Should llmfilter"
+        }
+      ]
+    },
+    {
+      "name": "settings_post-v3-reset",
+      "description": "Reset organization content: removes documents, memories, spaces (except default project), connections, and org settings. Preserves the org, members, and billing. Required: confirmation. Returns the new SettingsPostV3ResetResponse.",
+      "method": "POST",
+      "path": "/v3/settings/reset",
+      "params": [
+        {
+          "name": "confirmation",
+          "type": "string",
+          "location": "body",
+          "description": "Confirmation",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "supermemory_recall_post-v4-search",
+      "description": "Search memory entries - Low latency for conversational. Required: q. Optional: aggregate (default: false), containerTag, filepath (plus 7 more). Returns array of SupermemoryRecallPostV4SearchItem.",
+      "method": "POST",
+      "path": "/v4/search",
+      "params": [
+        {
+          "name": "aggregate",
+          "type": "bool",
+          "location": "body",
+          "description": "If true, aggregates information from multiple memories to create new synthesized memories. The result will be a mix of aggregated and non-aggregated memories, reranked by relevance to the query. Works in conjunction with reranking."
+        },
+        {
+          "name": "containerTag",
+          "type": "string",
+          "location": "body",
+          "description": "Optional tag this search should be containerized by. This can be an ID for your user, a project ID, or any other identifier you wish to use to filter memories."
+        },
+        {
+          "name": "filepath",
+          "type": "string",
+          "location": "body",
+          "description": "Filter search results by filepath. Exact match for full paths, prefix match if ending with /"
+        },
+        {
+          "name": "filters",
+          "type": "string",
+          "location": "body",
+          "description": "Optional filters to apply to the search. Can be a JSON string or Query object."
+        },
+        {
+          "name": "include-chunks",
+          "wire_name": "include.chunks",
+          "type": "bool",
+          "location": "body",
+          "description": "DEPRECATED: Use searchMode='hybrid' instead. If true, automatically switches to hybrid mode. This field is kept for backward compatibility only."
+        },
+        {
+          "name": "include-documents",
+          "wire_name": "include.documents",
+          "type": "bool",
+          "location": "body",
+          "description": "Documents"
+        },
+        {
+          "name": "include-forgotten-memories",
+          "wire_name": "include.forgottenMemories",
+          "type": "bool",
+          "location": "body",
+          "description": "If true, include forgotten memories in search results. Forgotten memories are memories that have been explicitly forgotten or have passed their expiration date."
+        },
+        {
+          "name": "include-related-memories",
+          "wire_name": "include.relatedMemories",
+          "type": "bool",
+          "location": "body",
+          "description": "Related memories"
+        },
+        {
+          "name": "include-summaries",
+          "wire_name": "include.summaries",
+          "type": "bool",
+          "location": "body",
+          "description": "Summaries"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "body",
+          "description": "Maximum number of results to return"
+        },
+        {
+          "name": "q",
+          "type": "string",
+          "location": "body",
+          "description": "Search query string",
+          "required": true
+        },
+        {
+          "name": "rerank",
+          "type": "bool",
+          "location": "body",
+          "description": "If true, rerank the results based on the query. This is helpful if you want to ensure the most relevant results are returned."
+        },
+        {
+          "name": "rewriteQuery",
+          "type": "bool",
+          "location": "body",
+          "description": "If true, rewrites the query to make it easier to find documents. This increases the latency by about 400ms"
+        },
+        {
+          "name": "searchMode",
+          "type": "string",
+          "location": "body",
+          "description": "Search mode. 'memories' searches only memory entries (default). 'hybrid' searches both memories and document chunks. 'documents' searches only document chunks."
+        },
+        {
+          "name": "threshold",
+          "type": "float",
+          "location": "body",
+          "description": "Threshold / sensitivity for memories selection. 0 is least sensitive (returns most memories, more results), 1 is most sensitive (returns lesser memories, accurate results)"
+        }
+      ]
+    }
+  ]
+}

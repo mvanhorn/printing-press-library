@@ -6,7 +6,7 @@ Every existing Anki CLI wraps the desktop AnkiConnect add-on; none touches ankiw
 
 Learn more at [AnkiWeb](https://ankiweb.net).
 
-Created by [@paulb](https://github.com/paulb) (Paul Bockewitz).
+Created by [@paulbockewitz](https://github.com/paulbockewitz) (Paul Bockewitz).
 Contributors: [@tmchow](https://github.com/tmchow) (Trevin Chow).
 
 ## Install
@@ -38,7 +38,7 @@ npx -y @mvanhorn/printing-press-library install ankiweb --agent claude-code --ag
 
 ### Without Node (Go fallback)
 
-If `npx` isn't available (no Node, offline), install the CLI directly via Go (requires Go 1.26.3 or newer):
+If `npx` isn't available (no Node, offline), install the CLI directly via Go (requires Go 1.26.4 or newer):
 
 ```bash
 go install github.com/mvanhorn/printing-press-library/library/education/ankiweb/cmd/ankiweb-pp-cli@latest

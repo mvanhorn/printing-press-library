@@ -124,13 +124,13 @@ Every PR against this repo gets an automated review from **Greptile** alongside 
 
 **The bar is resolving every Greptile finding before merge** — the 0-5 score is a confidence signal, not a guarantee, so don't treat the number itself as the gate. 4/5 and 5/5 are both acceptable end states; the score will land in that range naturally once threads are addressed. A 5/5 with open P1s is still not ready; a 4/5 with everything resolved is ready. Treat every P0 and P1 as blocking; P2s require either a fix or a concrete reply explaining why we're deferring.
 
-Greptile feedback is not limited to GitHub review threads. It also edits top-level PR summary comments, and those summaries can contain actionable issue blocks, including `Comments Outside Diff`, even when the thread list has zero unresolved comments. Before saying a PR is ready, run the repo-owned review-state helper:
+Greptile feedback is not limited to GitHub review threads. It also edits top-level PR summary comments, and those summaries can contain actionable issue blocks, including `Comments Outside Diff`, even when the thread list has zero unresolved comments. Before saying a PR is ready, read the latest `greptile-apps` top-level summary yourself, then run the repo-owned review-state helper:
 
 ```bash
 python3 .github/scripts/pr-review-state/greptile_feedback.py <PR_NUMBER>
 ```
 
-`PR_NUMBER` is the GitHub pull request number, for example `1093` — not a branch name, URL, issue number, or commit SHA. The helper defaults to `mvanhorn/printing-press-library` and exits non-zero until all of these are true: Greptile Review passes, Greptile policy gate passes, there are no unresolved non-outdated review threads, the latest `greptile-apps` top-level comment reviewed the current PR head SHA, and that latest comment has no actionable markers such as `Issue 1 of`, `Fix the following`, `Comments Outside Diff`, `remaining open item`, or `Safe to merge after fixing/reviewing`.
+`PR_NUMBER` is the GitHub pull request number, for example `1093` — not a branch name, URL, issue number, or commit SHA. The helper defaults to `mvanhorn/printing-press-library` and exits non-zero until all of these are true: Greptile Review passes, Greptile policy gate passes, there are no unresolved non-outdated review threads, the latest `greptile-apps` top-level comment reviewed the current PR head SHA, and that latest comment has no actionable markers such as `Issue 1 of`, `Fix the following`, `Comments Outside Diff`, `remaining open item`, or `Safe to merge after fixing/reviewing`. The helper is a guardrail, not a substitute for reading the summary; phrases like `one small fix` or `gap remains` are still blocking.
 
 If you (an agent) opened the PR, you own driving it to ready-to-merge:
 
@@ -458,6 +458,7 @@ Common failure shapes that CI surfaces but local runs catch first:
 - Resource renames driven by framework collisions (e.g., `search` → `<api>-search`, `auth` → `<api>-auth`) leave SKILL.md / README.md referencing the old command path. The verifier flags `[unknown-command]`.
 - A novel command's NOVEL helper file deleted but its `AddCommand` line still in `root.go` → build fail.
 - Body of a templated function modified to call a hand-written helper that got dropped during a regeneration → test fail.
+
 
 ## Pointers to deeper context
 

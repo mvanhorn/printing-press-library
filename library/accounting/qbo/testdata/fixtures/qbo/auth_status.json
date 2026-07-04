@@ -1,7 +1,0 @@
-{
-  "provider": "qbo",
-  "live_oauth": false,
-  "credential_storage": false,
-  "mode": "fixture-only",
-  "read_only": true
-}

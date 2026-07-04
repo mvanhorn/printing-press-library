@@ -12,6 +12,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/mvanhorn/printing-press-library/library/other/ufo-goat/internal/cliutil"
 	"github.com/mvanhorn/printing-press-library/library/other/ufo-goat/internal/store"
 
 	"github.com/spf13/cobra"
@@ -45,6 +46,11 @@ If you encounter 403 errors, you may need to import browser cookies.`,
   # Resume interrupted downloads
   ufo-goat-pp-cli download --resume`,
 		RunE: func(cmd *cobra.Command, args []string) error {
+			// --dry-run short-circuits before touching the store so the
+			// preview works even on a fresh machine that hasn't synced yet.
+			if dryRunOK(flags) {
+				return nil
+			}
 			if dbPath == "" {
 				dbPath = defaultDBPath("ufo-goat-pp-cli")
 			}
@@ -94,6 +100,21 @@ If you encounter 403 errors, you may need to import browser cookies.`,
 
 			if len(downloadable) == 0 {
 				fmt.Fprintln(cmd.OutOrStdout(), "No files to download.")
+				return nil
+			}
+
+			// The verify harness previews the download plan without dialing
+			// out: downloading is a real, rate-limited side effect against
+			// war.gov's CDN, so never perform it under verify.
+			if cliutil.IsVerifyEnv() {
+				if flags.asJSON || !isTerminal(cmd.OutOrStdout()) {
+					return json.NewEncoder(cmd.OutOrStdout()).Encode(map[string]any{
+						"dry_run":    true,
+						"would_get":  len(downloadable),
+						"output_dir": outputDir,
+					})
+				}
+				fmt.Fprintf(cmd.OutOrStdout(), "Dry run: would download %d files to %s (no files fetched).\n", len(downloadable), outputDir)
 				return nil
 			}
 
@@ -166,11 +187,11 @@ If you encounter 403 errors, you may need to import browser cookies.`,
 		},
 	}
 
-	cmd.Flags().StringVar(&flagAgency, "agency", "", "Filter by agency (DoD, FBI, NASA, State)")
-	cmd.Flags().StringVar(&flagType, "type", "", "Filter by file type (PDF, VID, IMG)")
+	cmd.Flags().StringVar(&flagAgency, "agency", "", "Filter results by originating agency, one of DoD, FBI, NASA, or State")
+	cmd.Flags().StringVar(&flagType, "type", "", "Filter results by file type, one of PDF, VID, or IMG")
 	cmd.Flags().StringVar(&outputDir, "output-dir", "", "Output directory (default: ~/ufo-files/)")
 	cmd.Flags().BoolVar(&resume, "resume", false, "Skip files that already exist on disk")
-	cmd.Flags().StringVar(&dbPath, "db", "", "Database path")
+	cmd.Flags().StringVar(&dbPath, "db", "", "Override the synced SQLite store path (default: ~/.local/share/ufo-goat-pp-cli/data.db)")
 
 	return cmd
 }

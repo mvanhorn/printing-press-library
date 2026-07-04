@@ -1,0 +1,16 @@
+{
+  "schema_version": 2,
+  "id": "fred-dogfood-fixture-annotations",
+  "applied_at": "2026-06-15",
+  "base_run_id": "20260615-012908",
+  "base_printing_press_version": "4.24.0",
+  "summary": "Add dogfood/verify annotations so FRED's API behavior maps to honest test outcomes.",
+  "reason": "FRED returns HTTP 200 for any search text and treats tail's initial fetch 404 as a warning, so the synthesized error-path probes have no honest non-zero exit (pp:no-error-path-probe on series search and tail). FRED's /related_tags and /tags/series reject the generic synthesized tag value 'example' with HTTP 400, so the happy-path probes need a real tag fixture (pp:happy-args=--tag-names=monthly on tags related and tags series).",
+  "files": [
+    "internal/cli/series_search.go",
+    "internal/cli/tail.go",
+    "internal/cli/tags_related.go",
+    "internal/cli/tags_series.go"
+  ],
+  "validated_outcome": "Full live dogfood (level full) passes 110/110 against the real FRED API after these annotations."
+}

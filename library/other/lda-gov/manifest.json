@@ -1,0 +1,27 @@
+{
+  "manifest_version": "0.3",
+  "name": "lda-gov-pp-mcp",
+  "display_name": "LDA.gov",
+  "version": "0.0.0",
+  "description": "Lobbying disclosure records with local sync, entity resolution, and evidence-grade exports.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/lda-gov-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/lda-gov-pp-mcp",
+      "args": []
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

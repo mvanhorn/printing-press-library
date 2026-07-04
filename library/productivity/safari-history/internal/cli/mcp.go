@@ -3,8 +3,8 @@ package cli
 import (
 	"strings"
 
-	imcp "github.com/mvanhorn/printing-press-library/library/productivity/safari-history/internal/mcp"
 	"github.com/spf13/cobra"
+	imcp "github.com/mvanhorn/printing-press-library/library/productivity/safari-history/internal/mcp"
 )
 
 func newMCPCmd() *cobra.Command {

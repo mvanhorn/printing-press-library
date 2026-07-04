@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "slug": "gl-inet",
+  "cli_name": "gl-inet-pp-cli",
+  "version": "2026.6.1",
+  "released_at": "2026-06-22T21:40:00Z",
+  "source_commit": "5186e31872760fecd0660d8d072c3af1a632c5b2",
+  "printing_press_version": "4.25.0",
+  "run_id": "20260622-185850",
+  "changes": [
+    {
+      "title": "feat(gl-inet): add gl-inet",
+      "pr": 1332,
+      "url": "https://github.com/mvanhorn/printing-press-library/pull/1332",
+      "commit": "5186e31872760fecd0660d8d072c3af1a632c5b2"
+    }
+  ]
+}

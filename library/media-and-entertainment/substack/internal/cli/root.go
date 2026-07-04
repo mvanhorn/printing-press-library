@@ -12,12 +12,12 @@ import (
 	"text/tabwriter"
 	"time"
 
-	"github.com/spf13/cobra"
 	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/substack/internal/client"
 	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/substack/internal/config"
+	"github.com/spf13/cobra"
 )
 
-var version = "2026.6.1"
+var version = "2026.6.7"
 
 type rootFlags struct {
 	asJSON        bool
@@ -40,6 +40,8 @@ type rootFlags struct {
 	selectFields        string
 	configPath          string
 	profileName         string
+	subdomain           string
+	publicationID       string
 	deliverSpec         string
 	timeout             time.Duration
 	rateLimit           float64
@@ -187,6 +189,8 @@ See README.md or the bundled SKILL.md for recipes.`,
 	rootCmd.PersistentFlags().StringVar(&flags.dataSource, "data-source", "auto", "Data source for read commands: auto (live with local fallback), live (API only), local (synced data only)")
 	rootCmd.PersistentFlags().DurationVar(&flags.maxAge, "max-age", 30*time.Minute, "Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables")
 	rootCmd.PersistentFlags().StringVar(&flags.profileName, "profile", "", "Apply values from a saved profile (see 'substack-pp-cli profile list')")
+	rootCmd.PersistentFlags().StringVar(&flags.subdomain, "subdomain", "", "Publication subdomain for {publication}.substack.com endpoints (overrides SUBSTACK_PUBLICATION)")
+	rootCmd.PersistentFlags().StringVar(&flags.publicationID, "publication-id", "", "Numeric publication_id for global writer endpoints (overrides SUBSTACK_PUBLICATION_ID)")
 	rootCmd.PersistentFlags().StringVar(&flags.deliverSpec, "deliver", "", "Route output to a sink: stdout (default), file:<path>, webhook:<url>")
 	rootCmd.PersistentFlags().Float64Var(&flags.rateLimit, "rate-limit", 0, "Max requests per second (0 to disable)")
 
@@ -311,6 +315,9 @@ func (f *rootFlags) newClient() (*client.Client, error) {
 	cfg, err := config.Load(f.configPath)
 	if err != nil {
 		return nil, configErr(err)
+	}
+	if err := cfg.SetPublication(f.subdomain); err != nil {
+		return nil, usageErr(err)
 	}
 	c := client.New(cfg, f.timeout, f.rateLimit)
 	c.DryRun = f.dryRun

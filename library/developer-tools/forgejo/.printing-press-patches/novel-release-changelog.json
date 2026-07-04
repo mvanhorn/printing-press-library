@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "novel-release-changelog",
+  "applied_at": "2026-05-25",
+  "base_run_id": "20260524-172642",
+  "base_printing_press_version": "4.14.0",
+  "summary": "Add 'repos releases changelog <from-tag> <to-tag>' for changelog generation from issues+PRs.",
+  "reason": "Novel feature T4: 3-entity join (tags × issues × PRs) with label-grouped markdown/json output.",
+  "files": [
+    "internal/cli/novel_release.go",
+    "internal/cli/repos_releases.go"
+  ]
+}

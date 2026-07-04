@@ -1,0 +1,16 @@
+# agentcookie.toml: secrets-bus adoption manifest v2
+# See docs/spec-agentcookie-secrets-bus-v2-adoption.md
+schema_version = 2
+name = "scrape-creators-pp-cli"
+display_name = "Scrape Creators"
+description = "Every Scrape Creators endpoint across 28 platforms, plus a local store with offline transcript search, cross-platform joins, and ad-library diffing no other Scrape Creators tool ships."
+project_kind = "cli"
+
+[secrets.file]
+path = "~/.config/scrape-creators-pp-cli/config.toml"
+
+[sync]
+default = false
+
+[sync.keys]
+SCRAPECREATORS_API_KEY = true

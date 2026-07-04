@@ -144,14 +144,15 @@ These capabilities aren't available in any other tool for this API.
   ```bash
   x-twitter-pp-cli thread compose ./update.md
   ```
-- **`articles-publish-md`** — Parse a markdown file with YAML frontmatter into the Draft.js content_state JSON X's Articles editor accepts; previews by default; --draft saves a draft, --post publishes publicly.
+- **`articles-publish-md`** — Parse a markdown file with YAML frontmatter into the Draft.js content_state JSON X's Articles editor accepts; previews by default; --draft creates a new draft, --update edits an existing draft, --post publishes publicly.
 
-  _The only programmatic way to author a long-form X Article from a document; preview and --draft keep it private until you explicitly --post._
+  _The only programmatic way to author a long-form X Article from a document; preview, --draft, and --update keep it private until you explicitly --post._
 
-  The converter supports paragraphs, `#`/`##` headers, lists, blockquotes, fenced code blocks, tables, dividers, image lines (`![alt](path)`), standalone tweet URLs (native embeds), bold/italic inline styles (including inside blockquotes), and `[text](url)` inline links, which become real LINK entities (working hyperlinks) in the article. Lines that are HTML comments (`<!-- ... -->`) are stripped and never ship as article text.
+  The converter supports paragraphs, `#`/`##` headers (`###` and deeper are downgraded to `##`), lists, blockquotes, fenced code blocks, tables, dividers, image lines (`![alt](path)`), standalone tweet URLs (native embeds), bold/italic/code inline styles (including inside blockquotes), and `[text](url)` inline links, which become real LINK entities (working hyperlinks) in the article. Lines that are HTML comments (`<!-- ... -->`) are stripped and never ship as article text.
 
   ```bash
   x-twitter-pp-cli articles-publish-md ./post.md
+  x-twitter-pp-cli articles-publish-md ./post.md --update 1750000000000000000
   ```
 - **`articles update-md`** — Update an existing X Article draft in place from a markdown file: title (frontmatter), body, links, and new inline images, all in one command. Find the article id via `articles list --agent`.
 

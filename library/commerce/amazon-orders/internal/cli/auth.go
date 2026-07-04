@@ -15,9 +15,11 @@ import (
 	"github.com/mvanhorn/printing-press-library/library/commerce/amazon-orders/internal/client"
 	"github.com/mvanhorn/printing-press-library/library/commerce/amazon-orders/internal/cliutil"
 	"github.com/mvanhorn/printing-press-library/library/commerce/amazon-orders/internal/config"
+	"github.com/mvanhorn/printing-press-library/library/commerce/amazon-orders/internal/parser"
 	"github.com/spf13/cobra"
 	"io"
 	"net/http"
+	"net/url"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -61,33 +63,137 @@ func requiredAuthCookies() []string {
 	return []string{}
 }
 
+func cookieDomainFromConfig(cfg *config.Config) (string, error) {
+	baseURL := "https://www.amazon.com"
+	if cfg != nil && strings.TrimSpace(cfg.BaseURL) != "" {
+		baseURL = cfg.BaseURL
+	}
+	return cookieDomainFromBaseURL(baseURL)
+}
+
+var amazonMarketplaceDomains = map[string]struct{}{
+	"amazon.ae":     {},
+	"amazon.ca":     {},
+	"amazon.cn":     {},
+	"amazon.co.jp":  {},
+	"amazon.co.uk":  {},
+	"amazon.com":    {},
+	"amazon.com.au": {},
+	"amazon.com.be": {},
+	"amazon.com.br": {},
+	"amazon.com.mx": {},
+	"amazon.com.tr": {},
+	"amazon.de":     {},
+	"amazon.eg":     {},
+	"amazon.es":     {},
+	"amazon.fr":     {},
+	"amazon.in":     {},
+	"amazon.it":     {},
+	"amazon.nl":     {},
+	"amazon.pl":     {},
+	"amazon.sa":     {},
+	"amazon.se":     {},
+	"amazon.sg":     {},
+}
+
+func cookieDomainFromBaseURL(baseURL string) (string, error) {
+	text := strings.TrimSpace(baseURL)
+	if text == "" {
+		return ".amazon.com", nil
+	}
+	if !strings.Contains(text, "://") {
+		text = "https://" + text
+	}
+	u, err := url.Parse(text)
+	if err != nil {
+		return "", err
+	}
+	host := strings.ToLower(strings.TrimSpace(u.Hostname()))
+	if host == "" {
+		return "", fmt.Errorf("missing host in base URL %q", baseURL)
+	}
+	return normalizeAmazonCookieDomain(host)
+}
+
+func normalizeAmazonCookieDomain(value string) (string, error) {
+	host := strings.ToLower(strings.TrimSpace(value))
+	host = strings.TrimPrefix(host, "http://")
+	host = strings.TrimPrefix(host, "https://")
+	if idx := strings.IndexAny(host, "/:"); idx >= 0 {
+		host = host[:idx]
+	}
+	host = strings.TrimPrefix(host, ".")
+	host = strings.TrimPrefix(host, "www.")
+	if i := strings.Index(host, ".amazon."); i >= 0 {
+		host = host[i+1:]
+	}
+	if _, ok := amazonMarketplaceDomains[host]; !ok {
+		return "", fmt.Errorf("%q is not an Amazon marketplace domain", value)
+	}
+	return "." + host, nil
+}
+
+func baseURLForCookieDomain(domain string) string {
+	return "https://www." + strings.TrimPrefix(domain, ".")
+}
+
+func domainFlagForHint(domain string) string {
+	if domain == "" || domain == ".amazon.com" {
+		return ""
+	}
+	return " --domain " + strings.TrimPrefix(domain, ".")
+}
+
 func newAuthLoginCmd(flags *rootFlags) *cobra.Command {
 	var browserFlag bool
 	var profileFlag string
+	var domainFlag string
 
 	cmd := &cobra.Command{
 		Use:   "login",
 		Short: "Authenticate with the API",
 		Long: `Authenticate using your browser session.
 
-Use --chrome to read cookies from Chrome for .amazon.com.
+Use --chrome to read cookies from Chrome for the configured Amazon marketplace.
 Use --browser as an alias for --chrome.
+Use --domain for non-US marketplaces, e.g. --domain amazon.in.
+Alternatively set AMAZON_ORDERS_BASE_URL=https://www.amazon.in before login.
 Requires a cookie extraction tool (pycookiecheat, cookies, or cookie-scoop-cli).
 
 If you have multiple Chrome profiles, pycookiecheat and cookie-scoop-cli can
 auto-detect which profile is logged in. Use --profile to select a specific
 profile by name when the installed backend supports it.`,
-		Example: `  amazon-orders-pp-cli auth login --chrome
-  amazon-orders-pp-cli auth login --browser
-  amazon-orders-pp-cli auth login --chrome --profile "Work"`,
+		Example: strings.Join([]string{
+			"  amazon-orders-pp-cli auth login --chrome",
+			"  amazon-orders-pp-cli auth login --browser",
+			"  amazon-orders-pp-cli auth login --chrome --domain amazon.in",
+			"  amazon-orders-pp-cli auth login --chrome --profile \"Work\"",
+		}, "\n"),
 		RunE: func(cmd *cobra.Command, args []string) error {
+			cfg, err := config.Load(flags.configPath)
+			if err != nil {
+				return configErr(err)
+			}
+			var domain string
+			if domainFlag != "" {
+				domain, err = normalizeAmazonCookieDomain(domainFlag)
+				if err != nil {
+					return authErr(err)
+				}
+				cfg.BaseURL = baseURLForCookieDomain(domain)
+			} else {
+				domain, err = cookieDomainFromConfig(cfg)
+				if err != nil {
+					return configErr(fmt.Errorf("invalid base_url: %w", err))
+				}
+			}
 			// Verify-friendly short-circuit: under PRINTING_PRESS_VERIFY=1 or
 			// --dry-run, we don't actually shell out to a cookie tool. This
 			// keeps the validate-narrative full-example walk happy in
 			// environments where pycookiecheat / cookie-scoop-cli aren't
 			// installed.
 			if flags.dryRun || cliutil.IsVerifyEnv() {
-				fmt.Fprintln(cmd.OutOrStdout(), "would import cookies from Chrome (.amazon.com domain)")
+				fmt.Fprintf(cmd.OutOrStdout(), "would import cookies from Chrome (%s domain)\n", domain)
 				return nil
 			}
 			if !browserFlag {
@@ -103,7 +209,6 @@ profile by name when the installed backend supports it.`,
 			}
 
 			w := cmd.OutOrStdout()
-			domain := ".amazon.com"
 
 			// Step 1: Detect cookie extraction tool
 			tool, err := detectCookieTool()
@@ -133,7 +238,7 @@ profile by name when the installed backend supports it.`,
 					fmt.Fprintln(w, "Log in to your account:")
 					fmt.Fprintf(w, "\n  %s\n\n", loginURL)
 					fmt.Fprintln(w, "Then run this command again:")
-					fmt.Fprintf(w, "\n  amazon-orders-pp-cli auth login --chrome\n")
+					fmt.Fprintf(w, "\n  amazon-orders-pp-cli auth login --chrome%s\n", domainFlagForHint(domain))
 					return authErr(fmt.Errorf("not logged in to %s", domain))
 				}
 			}
@@ -154,22 +259,12 @@ profile by name when the installed backend supports it.`,
 				return authErr(fmt.Errorf("cookie tool returned no cookies for %s", domain))
 			}
 			// Step 4: Save to config
-			cfg, err := config.Load(flags.configPath)
-			if err != nil {
-				return configErr(err)
-			}
-
 			if err := cfg.SaveTokens("", "", cookies, "", time.Time{}); err != nil {
 				return configErr(fmt.Errorf("saving cookies: %w", err))
 			}
-			fmt.Fprintf(w, "Validating browser session...")
-			if err := validateAndWriteBrowserSessionProof(cfg, flags); err != nil {
-				_ = cfg.ClearTokens()
-				_ = clearBrowserSessionProof(cfg)
-				fmt.Fprintf(w, " %s\n", red("failed"))
-				return authErr(fmt.Errorf("browser session validation failed: %w", err))
-			}
-			fmt.Fprintf(w, " %s\n", green("valid"))
+			validateBrowserSessionOrWarn(w, cfg, func() error {
+				return validateAndWriteBrowserSessionProof(cfg, flags)
+			})
 
 			count := len(strings.Split(cookies, ";"))
 			fmt.Fprintf(w, "%s Found %d cookies for %s\n", green("OK"), count, domain)
@@ -181,6 +276,7 @@ profile by name when the installed backend supports it.`,
 	cmd.Flags().BoolVar(&browserFlag, "chrome", false, "Read cookies from Chrome")
 	cmd.Flags().BoolVar(&browserFlag, "browser", false, "Alias for --chrome")
 	cmd.Flags().StringVar(&profileFlag, "profile", "", "Chrome profile name (e.g. \"Work\", \"Personal\")")
+	cmd.Flags().StringVar(&domainFlag, "domain", "", "Amazon marketplace domain to read cookies for (e.g. amazon.in, amazon.co.uk)")
 	return cmd
 }
 func newAuthRefreshCmd(flags *rootFlags) *cobra.Command {
@@ -210,13 +306,11 @@ func newAuthRefreshCmd(flags *rootFlags) *cobra.Command {
 				return authErr(err)
 			}
 
-			fmt.Fprintf(w, "Validating browser session...")
-			if err := validateAndWriteBrowserSessionProofWithRetry(cfg, flags, waitTimeout); err != nil {
-				fmt.Fprintf(w, " %s\n", red("failed"))
-				return authErr(fmt.Errorf("browser session validation failed: %w", err))
+			if validateBrowserSessionOrWarn(w, cfg, func() error {
+				return validateAndWriteBrowserSessionProofWithRetry(cfg, flags, waitTimeout)
+			}) {
+				fmt.Fprintf(w, "Browser session proof refreshed at %s\n", browserSessionProofPath(cfg))
 			}
-			fmt.Fprintf(w, " %s\n", green("valid"))
-			fmt.Fprintf(w, "Browser session proof refreshed at %s\n", browserSessionProofPath(cfg))
 			return nil
 		},
 	}
@@ -224,12 +318,25 @@ func newAuthRefreshCmd(flags *rootFlags) *cobra.Command {
 	return cmd
 }
 
+func validateBrowserSessionOrWarn(w io.Writer, cfg *config.Config, validate func() error) bool {
+	fmt.Fprintf(w, "Validating browser session...")
+	if err := validate(); err != nil {
+		_ = clearBrowserSessionProof(cfg)
+		fmt.Fprintf(w, " %s\n", yellow("skipped"))
+		fmt.Fprintf(w, "Warning: saved cookies but could not validate the browser session (%v).\n", err)
+		fmt.Fprintln(w, "Run 'amazon-orders-pp-cli orders list --time-filter months-3 --json' to verify the session against the live orders endpoint.")
+		return false
+	}
+	fmt.Fprintf(w, " %s\n", green("valid"))
+	return true
+}
+
 func browserSessionTargetURL(cfg *config.Config) string {
 	baseURL := strings.TrimRight("https://www.amazon.com", "/")
 	if cfg != nil && cfg.BaseURL != "" {
 		baseURL = strings.TrimRight(cfg.BaseURL, "/")
 	}
-	validationPath := strings.TrimSpace("/gp/your-account/order-history")
+	validationPath := strings.TrimSpace("/your-orders/orders")
 	if validationPath == "" {
 		return baseURL
 	}
@@ -387,9 +494,9 @@ func waitForCookieRefreshBrowser(cmd *cobra.Command, flags *rootFlags, targetURL
 	fmt.Fprintln(w)
 }
 func refreshStoredBrowserCookies(cfg *config.Config, w io.Writer) error {
-	domain := ".amazon.com"
-	if domain == "" {
-		return fmt.Errorf("no cookie domain configured")
+	domain, err := cookieDomainFromConfig(cfg)
+	if err != nil {
+		return fmt.Errorf("invalid base_url: %w", err)
 	}
 
 	cookies, err := extractLiveCookies(domain)
@@ -451,9 +558,13 @@ func newAuthStatusCmd(flags *rootFlags) *cobra.Command {
 				return authErr(fmt.Errorf("no credentials configured"))
 			}
 
+			domain, err := cookieDomainFromConfig(cfg)
+			if err != nil {
+				return configErr(fmt.Errorf("invalid base_url: %w", err))
+			}
 			fmt.Fprintln(w, green("Authenticated"))
 			fmt.Fprintf(w, "  Source: %s\n", cfg.AuthSource)
-			fmt.Fprintf(w, "  Domain: .amazon.com\n")
+			fmt.Fprintf(w, "  Domain: %s\n", domain)
 			fmt.Fprintf(w, "  Config: %s\n", cfg.Path)
 			return nil
 		},
@@ -1123,7 +1234,14 @@ func browserSessionProofStatusForAuth(cfg *config.Config, authHeader string) (bo
 	if err := json.Unmarshal(data, &proof); err != nil {
 		return false, "proof is not valid JSON; re-run amazon-orders-pp-cli auth login --chrome"
 	}
-	if proof.APIName != "amazon-orders" || proof.CookieDomain != ".amazon.com" || proof.ValidationPath != "/gp/your-account/order-history" {
+	domain, err := cookieDomainFromConfig(cfg)
+	if err != nil {
+		return false, fmt.Sprintf("invalid base_url: %v", err)
+	}
+	if proof.APIName == "amazon-orders" && proof.CookieDomain == domain && proof.ValidationPath == "/gp/your-account/order-history" {
+		return false, "proof was written against an older validation endpoint; re-run amazon-orders-pp-cli auth login --chrome to refresh it"
+	}
+	if proof.APIName != "amazon-orders" || proof.CookieDomain != domain || proof.ValidationPath != "/your-orders/orders" {
 		return false, "proof does not match this CLI"
 	}
 	if authHeader != "" && proof.CredentialFingerprint != fingerprintCredential(authHeader) {
@@ -1136,7 +1254,7 @@ func browserSessionProofStatusForAuth(cfg *config.Config, authHeader string) (bo
 }
 
 func validateAndWriteBrowserSessionProof(cfg *config.Config, flags *rootFlags) error {
-	validationPath := strings.TrimSpace("/gp/your-account/order-history")
+	validationPath := strings.TrimSpace("/your-orders/orders")
 	if validationPath == "" {
 		return fmt.Errorf("no browser-session validation endpoint configured in this CLI")
 	}
@@ -1155,17 +1273,28 @@ func validateAndWriteBrowserSessionProof(cfg *config.Config, flags *rootFlags) e
 
 	c := client.New(cfg, flags.timeout, flags.rateLimit)
 	c.NoCache = true
-	status, err := c.ProbeGet(validationPath)
+	body, status, err := c.GetWithStatus(validationPath, map[string]string{"timeFilter": "months-3"})
 	if err != nil {
 		return err
 	}
 	if status < 200 || status >= 300 {
 		return fmt.Errorf("validation endpoint returned HTTP %d", status)
 	}
+	// A logged-out or expired cookie jar is answered with HTTP 200 and an
+	// Amazon sign-in/claim/challenge page, not a 4xx. Treat that as an invalid
+	// session so we don't write a "valid" proof for an unauthenticated jar.
+	if ierr := parser.AuthInterstitialError(body); ierr != nil {
+		return ierr
+	}
+
+	domain, err := cookieDomainFromConfig(cfg)
+	if err != nil {
+		return fmt.Errorf("invalid base_url: %w", err)
+	}
 
 	proof := browserSessionProof{
 		APIName:               "amazon-orders",
-		CookieDomain:          ".amazon.com",
+		CookieDomain:          domain,
 		ValidationMethod:      method,
 		ValidationPath:        validationPath,
 		StatusCode:            status,

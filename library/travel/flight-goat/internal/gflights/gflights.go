@@ -70,6 +70,10 @@ type SearchResult struct {
 	Query      SearchQuery `json:"query"`
 	Count      int         `json:"count"`
 	Flights    []Flight    `json:"flights"`
+	// PATCH(amend-2026-06-11): non-empty when the result was served by the
+	// server-rendered HTML fallback (Google's flights RPC currently rejects
+	// non-interactive clients). See html_fallback.go.
+	Note string `json:"note,omitempty"`
 	// PATCH(library): populated when one or both airport codes were remapped
 	// from a retired IATA code. The Query echo above keeps the user's
 	// original input; AirportRemapped is the only signal of substitution.
@@ -104,6 +108,8 @@ type DatesResult struct {
 	Query      SearchQuery `json:"query"`
 	Count      int         `json:"count"`
 	Dates      []DatePrice `json:"dates"`
+	// PATCH(amend-2026-06-11): see SearchResult.Note.
+	Note string `json:"note,omitempty"`
 	// PATCH(library): see SearchResult.AirportRemapped.
 	AirportRemapped *AirportRemapNote `json:"airport_remapped,omitempty"`
 }

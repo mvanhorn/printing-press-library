@@ -1,0 +1,61 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-06-15T03:47:22.433107Z",
+  "printing_press_version": "4.24.0",
+  "api_name": "withings",
+  "display_name": "Withings",
+  "cli_name": "withings-pp-cli",
+  "creator": {
+    "handle": "stellato",
+    "name": "Greg Stellato"
+  },
+  "owner": "stellato",
+  "printer": "stellato",
+  "printer_name": "Greg Stellato",
+  "spec_path": "withings-spec.yaml",
+  "spec_format": "internal",
+  "spec_checksum": "sha256:cca5375eba74c28637746bfbe01b1307d82b82ac8a7acc5badac44df2653b1db",
+  "run_id": "20260614-181724-d301c9dc",
+  "category": "devices",
+  "description": "Every Withings metric in one offline-first, agent-native CLI — with a local SQLite mirror and recomposition, recovery, sleep-debt and clinician-report analytics no Withings tool has.",
+  "mcp_binary": "withings-pp-mcp",
+  "mcp_tool_count": 14,
+  "mcp_ready": "full",
+  "api_version": "0.1.0",
+  "auth_type": "bearer_token",
+  "auth_env_vars": [
+    "WITHINGS_ACCESS_TOKEN"
+  ],
+  "novel_features": [
+    {
+      "name": "Body-recomposition tracker",
+      "command": "recomp",
+      "description": "See whether you're actually recomposing — fat mass down while lean mass holds — on a de-noised rolling-average weight, not scale-weight whiplash."
+    },
+    {
+      "name": "Training load vs recovery",
+      "command": "recovery",
+      "description": "Weigh recent workout HR-zone load against your recovery markers (resting HR, HRV, sleep score) to catch overtraining before it catches you."
+    },
+    {
+      "name": "Clinician BP/AFib report",
+      "command": "bp-report",
+      "description": "A dated blood-pressure + AFib table with your own annotations (medication changes, symptoms) — the clean history to hand a cardiologist."
+    },
+    {
+      "name": "Sleep-debt rolling window",
+      "command": "sleep debt",
+      "description": "Cumulative sleep deficit against your target over a rolling window — the number the per-night summary never adds up for you."
+    },
+    {
+      "name": "Since-time health digest",
+      "command": "digest",
+      "description": "One structured 'what changed since \u003ctime\u003e across all my metrics' snapshot — built for piping into an agent."
+    },
+    {
+      "name": "Multi-metric correlation",
+      "command": "correlate",
+      "description": "Pearson + best-lag correlation between any two daily metrics (weight vs sleep score, steps vs resting HR)."
+    }
+  ]
+}

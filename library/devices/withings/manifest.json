@@ -1,0 +1,39 @@
+{
+  "manifest_version": "0.3",
+  "name": "withings-pp-mcp",
+  "display_name": "Withings",
+  "version": "0.0.0",
+  "description": "Every Withings metric in one offline-first, agent-native CLI — with a local SQLite mirror and recomposition, recovery, sleep-debt and clinician-report analytics no Withings tool has.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/withings-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/withings-pp-mcp",
+      "args": [],
+      "env": {
+        "WITHINGS_ACCESS_TOKEN": "${user_config.withings_access_token}"
+      }
+    }
+  },
+  "user_config": {
+    "withings_access_token": {
+      "type": "string",
+      "title": "WITHINGS_ACCESS_TOKEN",
+      "description": "Sets WITHINGS_ACCESS_TOKEN for the Withings MCP server.",
+      "sensitive": true,
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

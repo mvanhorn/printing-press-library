@@ -1,0 +1,39 @@
+{
+  "manifest_version": "0.3",
+  "name": "salesloft-pp-mcp",
+  "display_name": "Salesloft Read",
+  "version": "0.0.0",
+  "description": "Read-first Salesloft API surface for agent workflows, based on the public Salesloft v2 developer documentation.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/salesloft-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/salesloft-pp-mcp",
+      "args": [],
+      "env": {
+        "SALESLOFT_BEARER_AUTH": "${user_config.salesloft_bearer_auth}"
+      }
+    }
+  },
+  "user_config": {
+    "salesloft_bearer_auth": {
+      "type": "string",
+      "title": "SALESLOFT_BEARER_AUTH",
+      "description": "Sets SALESLOFT_BEARER_AUTH for the Salesloft Read MCP server.",
+      "sensitive": true,
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

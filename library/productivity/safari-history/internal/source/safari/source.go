@@ -10,8 +10,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/mvanhorn/printing-press-library/library/productivity/safari-history/internal/source"
 	_ "modernc.org/sqlite"
+	"github.com/mvanhorn/printing-press-library/library/productivity/safari-history/internal/source"
 )
 
 type Source struct{}
@@ -61,7 +61,8 @@ func (s *Source) LocateHistoryDB(_ string) (string, error) {
 }
 
 func copySnapshot(src, dst string) error {
-	if err := os.MkdirAll(filepath.Dir(dst), 0o755); err != nil {
+	// 0o700: the snapshot dir holds a copy of the user's private Safari history.
+	if err := os.MkdirAll(filepath.Dir(dst), 0o700); err != nil {
 		return err
 	}
 	// Safari runs History.db in WAL mode, so prefer VACUUM INTO: opened
@@ -74,6 +75,9 @@ func copySnapshot(src, dst string) error {
 		return nil
 	}
 	_ = os.Remove(dst)
+	// #nosec G204 -- src is the located Safari History.db path (LocateHistoryDB),
+	// dst is a program-derived snapshot path under our own cache dir. Neither is
+	// attacker-controlled; this is the WAL-incomplete fallback to VACUUM INTO.
 	cmd := exec.Command("cp", src, dst)
 	if out, err := cmd.CombinedOutput(); err != nil {
 		return fmt.Errorf("cp snapshot: %w: %s", err, strings.TrimSpace(string(out)))
@@ -87,6 +91,10 @@ func vacuumIntoReadOnly(src, dst string) error {
 		return err
 	}
 	defer srcDB.Close()
+	// #nosec G202 -- SQLite's VACUUM INTO takes the destination as a string
+	// literal, not a bindable parameter, so it cannot be parameterized. dst is a
+	// program-derived snapshot path under our own cache dir (not user input), and
+	// embedded single quotes are escaped by doubling per SQLite literal rules.
 	_, err = srcDB.Exec("VACUUM INTO '" + strings.ReplaceAll(dst, "'", "''") + "'")
 	return err
 }
@@ -96,7 +104,8 @@ func (s *Source) Snapshot(dstDir string, profile string) (source.SnapshotInfo, e
 	if err != nil {
 		return source.SnapshotInfo{}, err
 	}
-	if err := os.MkdirAll(dstDir, 0o755); err != nil {
+	// 0o700: the snapshot dir holds a copy of the user's private Safari history.
+	if err := os.MkdirAll(dstDir, 0o700); err != nil {
 		return source.SnapshotInfo{}, err
 	}
 	tmp := filepath.Join(dstDir, fmt.Sprintf("snapshot-tmp-%d.db", time.Now().UnixNano()))
@@ -183,6 +192,8 @@ func (s *Source) RecentVisits(db *sql.DB, f source.VisitFilter) ([]source.VisitR
 	args := []any{since, until, f.MinVisits}
 	args = append(args, originArgs...)
 	args = append(args, max(10000, f.Limit*500))
+	// #nosec G202 -- originClause is a fixed-keyword + placeholder fragment from
+	// safariOriginFilterClause; no user input enters the SQL text (see its doc).
 	rows, err := db.Query(`SELECT hv.id, COALESCE(hi.url,''), COALESCE(hv.title,''), COALESCE(hv.visit_time,0), COALESCE(hv.redirect_source,0), COALESCE(hi.visit_count,0), COALESCE(hv.origin,0)
 	FROM history_visits hv
 	JOIN history_items hi ON hi.id = hv.history_item
@@ -230,6 +241,8 @@ func (s *Source) FullTextSearch(db *sql.DB, query string, f source.VisitFilter) 
 	// Keep bm25() in a CTE that touches only the FTS table — SQLite rejects the
 	// FTS5 ranking functions when the matched table sits inside a JOIN. The
 	// history_items / history_visits joins happen in the outer query.
+	// #nosec G202 -- originClause is a fixed-keyword + placeholder fragment from
+	// safariOriginFilterClause; no user input enters the SQL text (see its doc).
 	rows, err := db.Query(`WITH matches AS MATERIALIZED (
 		SELECT f.url, f.title, bm25(history_fts) AS rank
 		FROM history_fts f
@@ -270,6 +283,8 @@ func (s *Source) DomainStats(db *sql.DB, f source.VisitFilter) ([]source.DomainS
 	}
 	args := []any{since}
 	args = append(args, originArgs...)
+	// #nosec G202 -- originClause is a fixed-keyword + placeholder fragment from
+	// safariOriginFilterClause; no user input enters the SQL text (see its doc).
 	rows, err := db.Query(`SELECT COALESCE(hi.url,''), COALESCE(hv.visit_time,0)
 	FROM history_visits hv
 	JOIN history_items hi ON hi.id = hv.history_item
@@ -463,6 +478,12 @@ func safariOriginLabel(origin int64) string {
 	return "this"
 }
 
+// safariOriginFilterClause returns a SQL fragment and its bind args for the
+// optional origin (this-device vs synced) filter. The returned fragment is made
+// only of fixed SQL keywords plus the caller-fixed `alias` and a `?` placeholder
+// — the user-supplied `device` value never enters the SQL text (it selects which
+// branch runs and supplies a bound arg of 0/1, or yields an error). Callers that
+// concatenate this fragment are therefore safe to mark `#nosec G202`.
 func safariOriginFilterClause(alias, device string) (string, []any, error) {
 	d := strings.TrimSpace(strings.ToLower(device))
 	switch d {

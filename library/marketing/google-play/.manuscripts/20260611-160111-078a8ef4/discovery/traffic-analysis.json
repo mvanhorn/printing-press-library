@@ -1,0 +1,72 @@
+{
+  "version": "1",
+  "summary": {
+    "target_url": "https://play.google.com/store/games",
+    "captured_at": "2026-06-11T11:14:00Z",
+    "entry_count": 8,
+    "api_entry_count": 6,
+    "noise_entry_count": 2,
+    "host_distribution": {"play.google.com": 8}
+  },
+  "reachability": {
+    "mode": "standard_http",
+    "confidence": 0.95,
+    "reasons": [
+      "stdlib HTTP GET on /store/apps/details returned 200 text/html",
+      "surf-chrome GET returned 200 text/html",
+      "batchexecute POST (vyAe2 charts, oCPfdb reviews, IJ4APc suggest) returned 200 with a plain Chrome UA and no cookies"
+    ],
+    "impersonation_safe": true
+  },
+  "protocols": [
+    {
+      "label": "ssr_embedded_data",
+      "confidence": 0.95,
+      "details": {"surface": "AF_initDataCallback ds: keys on /store/apps/details, /store/search, /store/apps/datasafety, /store/apps/developer"}
+    },
+    {
+      "label": "google_batchexecute",
+      "confidence": 0.95,
+      "details": {"endpoint": "/_/PlayStoreUi/data/batchexecute", "rpcids": "vyAe2 (charts), oCPfdb (reviews), IJ4APc (suggest), xdSrCf (permissions), qnKhOb (search/list pagination), ag2B9c (similar cluster service id)"}
+    }
+  ],
+  "auth": {
+    "candidates": [],
+    "captcha_preflight": false
+  },
+  "protections": [],
+  "endpoint_clusters": [
+    {
+      "name": "app-details",
+      "method": "GET",
+      "path": "/store/apps/details",
+      "observed_auth": []
+    },
+    {
+      "name": "search",
+      "method": "GET",
+      "path": "/store/search",
+      "observed_auth": []
+    },
+    {
+      "name": "charts",
+      "method": "POST",
+      "path": "/_/PlayStoreUi/data/batchexecute",
+      "observed_auth": []
+    },
+    {
+      "name": "reviews",
+      "method": "POST",
+      "path": "/_/PlayStoreUi/data/batchexecute",
+      "observed_auth": []
+    }
+  ],
+  "generation_hints": [
+    "standard_http: no browser transport or clearance cookie needed in the printed CLI",
+    "responses are positional protojson (anonymous nested arrays) under AF_initDataCallback or batchexecute framing; the printed CLI must hand-parse with index paths and fallbacks, not generic JSON field mapping",
+    "no auth: all surfaces answer anonymously; rate-limit risk via 429 / 503+captcha / PlayGatewayError-in-200, mitigate with throttle + backoff + caching"
+  ],
+  "warnings": [
+    {"code": "raw_protocol_envelope", "message": "batchexecute responses use the )]}' length-prefixed double-encoded JSON envelope; positional index paths shift on store redesigns roughly once a year"}
+  ]
+}

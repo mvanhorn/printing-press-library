@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "sync-since-param-format-and-webhook-default",
+  "applied_at": "2026-06-18",
+  "base_run_id": "20260618-214839",
+  "base_printing_press_version": "4.24.0",
+  "summary": "Populate the empty sync since-param-format switch and drop webhook from default sync resources.",
+  "reason": "Two defects in internal/cli/sync.go. (1) syncResourceSinceParamFormat had an empty switch and always returned \"\", so formatSyncSinceValue never reformatted RFC3339 cursor/--since values to YYYY-MM-DD for resources whose since param is `start_date` (Oura's v2 date params reject RFC3339 with 422). Delegated to syncResourceSinceParam: `start_date` -> \"date\", `start_datetime` -> \"datetime\". (2) defaultSyncResources included `webhook`, whose subscription routes require a separate x-client-id + x-client-secret credential pair outside the OAuth read surface, so every default `sync` run emitted webhook auth failures. Removed `webhook` from the default set. Both are generator-shaped gaps (empty format switch; resource-selection heuristic including a mutation surface).",
+  "files": [
+    "internal/cli/sync.go"
+  ],
+  "validated_outcome": "go build ./... && go vet ./... && cli-printing-press dogfood --dir . --live"
+}

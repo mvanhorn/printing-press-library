@@ -1,0 +1,358 @@
+openapi: 3.0.3
+info:
+  title: Calendly Read API
+  version: 2.0.0
+  description: Read-first Calendly API surface for scheduling, availability, event, invitee, and webhook inspection.
+servers:
+  - url: https://api.calendly.com
+security:
+  - BearerAuth: []
+tags:
+  - name: Users
+  - name: Organizations
+  - name: Event Types
+  - name: Availability
+  - name: Scheduled Events
+  - name: Webhooks
+  - name: Routing Forms
+paths:
+  /users/me:
+    get:
+      operationId: getCurrentUser
+      tags: [Users]
+      summary: Get the authenticated Calendly user.
+      responses:
+        "200":
+          $ref: "#/components/responses/Success"
+  /users/{uuid}:
+    get:
+      operationId: getUser
+      tags: [Users]
+      summary: Get a Calendly user by UUID.
+      parameters:
+        - $ref: "#/components/parameters/UUID"
+      responses:
+        "200":
+          $ref: "#/components/responses/Success"
+  /organizations/{uuid}:
+    get:
+      operationId: getOrganization
+      tags: [Organizations]
+      summary: Get a Calendly organization by UUID.
+      parameters:
+        - $ref: "#/components/parameters/UUID"
+      responses:
+        "200":
+          $ref: "#/components/responses/Success"
+  /organization_memberships:
+    get:
+      operationId: listOrganizationMemberships
+      tags: [Organizations]
+      summary: List organization memberships.
+      parameters:
+        - name: organization
+          in: query
+          schema:
+            type: string
+        - name: user
+          in: query
+          schema:
+            type: string
+        - $ref: "#/components/parameters/Count"
+        - $ref: "#/components/parameters/PageToken"
+      responses:
+        "200":
+          $ref: "#/components/responses/Success"
+  /organization_memberships/{uuid}:
+    get:
+      operationId: getOrganizationMembership
+      tags: [Organizations]
+      summary: Get an organization membership by UUID.
+      parameters:
+        - $ref: "#/components/parameters/UUID"
+      responses:
+        "200":
+          $ref: "#/components/responses/Success"
+  /event_types:
+    get:
+      operationId: listEventTypes
+      tags: [Event Types]
+      summary: List Calendly event types.
+      parameters:
+        - name: organization
+          in: query
+          schema:
+            type: string
+        - name: user
+          in: query
+          schema:
+            type: string
+        - name: active
+          in: query
+          schema:
+            type: boolean
+        - $ref: "#/components/parameters/Count"
+        - $ref: "#/components/parameters/PageToken"
+      responses:
+        "200":
+          $ref: "#/components/responses/Success"
+  /event_types/{uuid}:
+    get:
+      operationId: getEventType
+      tags: [Event Types]
+      summary: Get an event type by UUID.
+      parameters:
+        - $ref: "#/components/parameters/UUID"
+      responses:
+        "200":
+          $ref: "#/components/responses/Success"
+  /event_type_memberships:
+    get:
+      operationId: listEventTypeMemberships
+      tags: [Event Types]
+      summary: List event type memberships.
+      parameters:
+        - name: event_type
+          in: query
+          schema:
+            type: string
+        - name: organization
+          in: query
+          schema:
+            type: string
+        - name: user
+          in: query
+          schema:
+            type: string
+        - $ref: "#/components/parameters/Count"
+        - $ref: "#/components/parameters/PageToken"
+      responses:
+        "200":
+          $ref: "#/components/responses/Success"
+  /event_type_available_times:
+    get:
+      operationId: listEventTypeAvailableTimes
+      tags: [Availability]
+      summary: List available times for an event type.
+      parameters:
+        - name: event_type
+          in: query
+          required: true
+          schema:
+            type: string
+        - $ref: "#/components/parameters/StartTime"
+        - $ref: "#/components/parameters/EndTime"
+      responses:
+        "200":
+          $ref: "#/components/responses/Success"
+  /user_busy_times:
+    get:
+      operationId: listUserBusyTimes
+      tags: [Availability]
+      summary: List busy times for a user.
+      parameters:
+        - name: user
+          in: query
+          required: true
+          schema:
+            type: string
+        - $ref: "#/components/parameters/StartTime"
+        - $ref: "#/components/parameters/EndTime"
+      responses:
+        "200":
+          $ref: "#/components/responses/Success"
+  /scheduled_events:
+    get:
+      operationId: listScheduledEvents
+      tags: [Scheduled Events]
+      summary: List scheduled events.
+      parameters:
+        - name: organization
+          in: query
+          schema:
+            type: string
+        - name: user
+          in: query
+          schema:
+            type: string
+        - name: invitee_email
+          in: query
+          schema:
+            type: string
+            format: email
+        - name: status
+          in: query
+          schema:
+            type: string
+        - $ref: "#/components/parameters/StartTime"
+        - $ref: "#/components/parameters/EndTime"
+        - $ref: "#/components/parameters/Count"
+        - $ref: "#/components/parameters/PageToken"
+      responses:
+        "200":
+          $ref: "#/components/responses/Success"
+  /scheduled_events/{uuid}:
+    get:
+      operationId: getScheduledEvent
+      tags: [Scheduled Events]
+      summary: Get a scheduled event by UUID.
+      parameters:
+        - $ref: "#/components/parameters/UUID"
+      responses:
+        "200":
+          $ref: "#/components/responses/Success"
+  /scheduled_events/{uuid}/invitees:
+    get:
+      operationId: listScheduledEventInvitees
+      tags: [Scheduled Events]
+      summary: List invitees for a scheduled event.
+      parameters:
+        - $ref: "#/components/parameters/UUID"
+        - name: email
+          in: query
+          schema:
+            type: string
+            format: email
+        - name: status
+          in: query
+          schema:
+            type: string
+        - $ref: "#/components/parameters/Count"
+        - $ref: "#/components/parameters/PageToken"
+      responses:
+        "200":
+          $ref: "#/components/responses/Success"
+  /scheduled_events/{uuid}/invitees/{invitee_uuid}:
+    get:
+      operationId: getScheduledEventInvitee
+      tags: [Scheduled Events]
+      summary: Get an invitee for a scheduled event.
+      parameters:
+        - $ref: "#/components/parameters/UUID"
+        - name: invitee_uuid
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          $ref: "#/components/responses/Success"
+  /webhook_subscriptions:
+    get:
+      operationId: listWebhookSubscriptions
+      tags: [Webhooks]
+      summary: List webhook subscriptions.
+      parameters:
+        - name: organization
+          in: query
+          schema:
+            type: string
+        - name: user
+          in: query
+          schema:
+            type: string
+        - name: scope
+          in: query
+          schema:
+            type: string
+        - $ref: "#/components/parameters/Count"
+        - $ref: "#/components/parameters/PageToken"
+      responses:
+        "200":
+          $ref: "#/components/responses/Success"
+  /webhook_subscriptions/{uuid}:
+    get:
+      operationId: getWebhookSubscription
+      tags: [Webhooks]
+      summary: Get a webhook subscription by UUID.
+      parameters:
+        - $ref: "#/components/parameters/UUID"
+      responses:
+        "200":
+          $ref: "#/components/responses/Success"
+  /routing_forms:
+    get:
+      operationId: listRoutingForms
+      tags: [Routing Forms]
+      summary: List routing forms.
+      parameters:
+        - name: organization
+          in: query
+          schema:
+            type: string
+        - $ref: "#/components/parameters/Count"
+        - $ref: "#/components/parameters/PageToken"
+      responses:
+        "200":
+          $ref: "#/components/responses/Success"
+  /routing_forms/{uuid}:
+    get:
+      operationId: getRoutingForm
+      tags: [Routing Forms]
+      summary: Get a routing form by UUID.
+      parameters:
+        - $ref: "#/components/parameters/UUID"
+      responses:
+        "200":
+          $ref: "#/components/responses/Success"
+  /routing_forms/{uuid}/submissions:
+    get:
+      operationId: listRoutingFormSubmissions
+      tags: [Routing Forms]
+      summary: List routing form submissions.
+      parameters:
+        - $ref: "#/components/parameters/UUID"
+        - $ref: "#/components/parameters/Count"
+        - $ref: "#/components/parameters/PageToken"
+      responses:
+        "200":
+          $ref: "#/components/responses/Success"
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+  parameters:
+    UUID:
+      name: uuid
+      in: path
+      required: true
+      schema:
+        type: string
+    Count:
+      name: count
+      in: query
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 100
+    PageToken:
+      name: page_token
+      in: query
+      schema:
+        type: string
+    StartTime:
+      name: start_time
+      in: query
+      required: true
+      schema:
+        type: string
+        format: date-time
+    EndTime:
+      name: end_time
+      in: query
+      required: true
+      schema:
+        type: string
+        format: date-time
+  responses:
+    Success:
+      description: JSON response from Calendly.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/GenericObject"
+  schemas:
+    GenericObject:
+      type: object
+      additionalProperties: true

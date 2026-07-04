@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "slug": "policy-intel",
+  "cli_name": "policy-intel-pp-cli",
+  "version": "2026.6.1",
+  "released_at": "2026-06-25T22:37:37Z",
+  "source_commit": "65dcc72c59ab6c3d09b72eb18caddc88b31e7ab5",
+  "printing_press_version": "4.18.1",
+  "run_id": "20260618-063000",
+  "changes": [
+    {
+      "title": "feat(policy-intel): add policy-intel",
+      "pr": 1280,
+      "url": "https://github.com/mvanhorn/printing-press-library/pull/1280",
+      "commit": "65dcc72c59ab6c3d09b72eb18caddc88b31e7ab5"
+    }
+  ]
+}

@@ -11,6 +11,10 @@
   },
   "contributors": [
     {
+      "handle": "ericlitman",
+      "name": "Eric Litman"
+    },
+    {
       "handle": "tmchow",
       "name": "Trevin Chow"
     }
@@ -42,6 +46,21 @@
       "name": "Project Burndown",
       "command": "projects burndown",
       "description": "Project a project's landing date by linear-regressing remaining estimate against the team's measured velocity."
+    },
+    {
+      "name": "Project Inventory",
+      "command": "projects list",
+      "description": "List Linear projects live, optionally scoped by team, before attaching or auditing portfolio work."
+    },
+    {
+      "name": "Project Search",
+      "command": "projects search",
+      "description": "Search Linear projects live by name with an optional team filter."
+    },
+    {
+      "name": "Project Name Resolution",
+      "command": "projects resolve",
+      "description": "Resolve one Linear project name to a UUID, preferring exact matches and supporting team scoping."
     },
     {
       "name": "Cycle Comparison",
@@ -77,6 +96,21 @@
       "name": "Initiatives Health",
       "command": "initiatives health",
       "description": "Rolled-up portfolio view per initiative: child project progress, milestone target-vs-projected dates, slippage flags."
+    },
+    {
+      "name": "Initiative Inventory",
+      "command": "initiatives list",
+      "description": "List Linear initiatives live with their current status and URL."
+    },
+    {
+      "name": "Initiative Search",
+      "command": "initiatives search",
+      "description": "Search Linear initiatives live by name."
+    },
+    {
+      "name": "Initiative Name Resolution",
+      "command": "initiatives resolve",
+      "description": "Resolve one Linear initiative name to a UUID, preferring exact matches."
     },
     {
       "name": "At-Risk Milestones",

@@ -4,7 +4,7 @@
   "printing_press_version": "3.8.0",
   "api_name": "tiktok-shop",
   "display_name": "TikTok Shop",
-  "description": "Safe v1 TikTok Shop Seller API CLI/MCP for auth readiness, token exchange and read endpoints; pre-flight checks gate live writes by default.",
+  "description": "Use TikTok Shop Seller API workflows for auth, shops, orders, products, inventory search, fulfillment, warehouses, and safe write preflights.",
   "cli_name": "tiktok-shop-pp-cli",
   "creator": {
     "handle": "cathrynlavery",
@@ -51,5 +51,6 @@
       "command": "inventory update",
       "description": "Expose the confirmed inventory update endpoint as an explicit deferred-mutation status instead of executing stock changes before idempotency and retry safety are designed."
     }
-  ]
+  ],
+  "catalog_description": "Use TikTok Shop Seller API workflows for auth, shops, orders, products, inventory search, fulfillment, warehouses, and safe write preflights."
 }

@@ -1,7 +1,13 @@
 package cli
 
 import (
+	"bytes"
+	"context"
+	"encoding/json"
+	"os"
+	"path/filepath"
 	"strconv"
+	"strings"
 	"testing"
 )
 
@@ -38,6 +44,95 @@ func TestMarkdownBodyToDraftJSImageLine(t *testing.T) {
 	}
 	if entity.Value.Data["alt_text"] != "body alt" {
 		t.Fatalf("expected alt_text to be retained, got %#v", entity.Value.Data["alt_text"])
+	}
+}
+
+func TestArticlesPublishMdUpdateDryRunWithFilePrintsPreview(t *testing.T) {
+	dir := t.TempDir()
+	md := filepath.Join(dir, "article.md")
+	if err := os.WriteFile(md, []byte("---\ntitle: Dry Run\ncover: ./cover.jpg\n---\n\nBody"), 0o600); err != nil {
+		t.Fatalf("write markdown: %v", err)
+	}
+
+	var flags rootFlags
+	cmd := newRootCmd(&flags)
+	var out bytes.Buffer
+	cmd.SetOut(&out)
+	cmd.SetErr(&bytes.Buffer{})
+	cmd.SetArgs([]string{"articles-publish-md", md, "--update", "123", "--dry-run", "--json"})
+	if err := cmd.Execute(); err != nil {
+		t.Fatalf("articles-publish-md dry-run failed: %v\n%s", err, out.String())
+	}
+	if out.Len() == 0 {
+		t.Fatalf("expected dry-run preview output")
+	}
+	var payload map[string]any
+	if err := json.Unmarshal(out.Bytes(), &payload); err != nil {
+		t.Fatalf("preview output is not JSON: %v\n%s", err, out.String())
+	}
+	if payload["article_id"] != "123" || payload["title"] != "Dry Run" || payload["cover"] != "./cover.jpg" {
+		t.Fatalf("unexpected preview payload: %#v", payload)
+	}
+}
+
+func TestArticlesPublishMdUpdateRejectsDraftFlag(t *testing.T) {
+	dir := t.TempDir()
+	md := filepath.Join(dir, "article.md")
+	if err := os.WriteFile(md, []byte("---\ntitle: Dry Run\n---\n\nBody"), 0o600); err != nil {
+		t.Fatalf("write markdown: %v", err)
+	}
+
+	var flags rootFlags
+	cmd := newRootCmd(&flags)
+	var out bytes.Buffer
+	cmd.SetOut(&out)
+	cmd.SetErr(&bytes.Buffer{})
+	cmd.SetArgs([]string{"articles-publish-md", md, "--update", "123", "--draft"})
+	err := cmd.Execute()
+	if err == nil {
+		t.Fatalf("expected --update --draft to fail")
+	}
+	if !strings.Contains(err.Error(), "--update cannot be combined with --draft") {
+		t.Fatalf("unexpected error: %v", err)
+	}
+}
+
+func TestArticlesPublishMdUpdateAcceptsReplaceUnknownEntitiesFlag(t *testing.T) {
+	dir := t.TempDir()
+	md := filepath.Join(dir, "article.md")
+	if err := os.WriteFile(md, []byte("---\ntitle: Dry Run\n---\n\nBody"), 0o600); err != nil {
+		t.Fatalf("write markdown: %v", err)
+	}
+
+	var flags rootFlags
+	cmd := newRootCmd(&flags)
+	var out bytes.Buffer
+	cmd.SetOut(&out)
+	cmd.SetErr(&bytes.Buffer{})
+	cmd.SetArgs([]string{"articles-publish-md", md, "--update", "123", "--replace-unknown-entities", "--dry-run", "--json"})
+	if err := cmd.Execute(); err != nil {
+		t.Fatalf("expected --replace-unknown-entities to be accepted on --update dry-run: %v\n%s", err, out.String())
+	}
+	var payload map[string]any
+	if err := json.Unmarshal(out.Bytes(), &payload); err != nil {
+		t.Fatalf("preview output is not JSON: %v\n%s", err, out.String())
+	}
+	if payload["article_id"] != "123" {
+		t.Fatalf("unexpected preview payload: %#v", payload)
+	}
+}
+
+func TestPublishMarkdownArticleMissingTitleMessageCoversDraft(t *testing.T) {
+	var flags rootFlags
+	_, err := publishMarkdownArticle(context.Background(), &flags, "", "", MarkdownBodyToDraftJS("Body"), false)
+	if err == nil {
+		t.Fatalf("expected missing-title error")
+	}
+	if !strings.Contains(err.Error(), "draft or post") {
+		t.Fatalf("expected title error to cover draft creation, got %v", err)
+	}
+	if strings.Contains(err.Error(), "--post") {
+		t.Fatalf("title error should not mention only --post, got %v", err)
 	}
 }
 
@@ -249,6 +344,25 @@ func TestMarkdownBodyToDraftJSMultipleLinks(t *testing.T) {
 	}
 }
 
+func TestMarkdownBodyToDraftJSNestedBracketLinkText(t *testing.T) {
+	contentState := MarkdownBodyToDraftJS("[text [note](inner)](https://outer.example) done")
+
+	blk := contentState.Blocks[0]
+	if blk.Text != "text [note](inner) done" {
+		t.Fatalf("unexpected text: %q", blk.Text)
+	}
+	if len(blk.EntityRanges) != 1 || len(contentState.EntityMap) != 1 {
+		t.Fatalf("expected one outer link entity, got %d ranges / %d entities", len(blk.EntityRanges), len(contentState.EntityMap))
+	}
+	er := blk.EntityRanges[0]
+	if er["key"] != 0 || er["offset"] != 0 || er["length"] != 18 {
+		t.Fatalf("unexpected entity range: %#v", er)
+	}
+	if contentState.EntityMap[0].Value.Data["url"] != "https://outer.example" {
+		t.Fatalf("unexpected entity url: %#v", contentState.EntityMap[0].Value.Data["url"])
+	}
+}
+
 func TestMarkdownBodyToDraftJSLinkMultibyteOffsets(t *testing.T) {
 	// Two emoji (2 UTF-16 units each) + space = offset 5; link text
 	// "café ☕" = 6 UTF-16 units (é and ☕ are BMP, 1 unit each).
@@ -310,6 +424,52 @@ func TestMarkdownBodyToDraftJSBoldInBlockquote(t *testing.T) {
 	style := blk.InlineStyleRanges[0]
 	if style.Offset != 0 || style.Length != 10 || style.Style != "Bold" {
 		t.Fatalf("unexpected style range: %#v", style)
+	}
+}
+
+func TestMarkdownBodyToDraftJSInlineCode(t *testing.T) {
+	contentState := MarkdownBodyToDraftJS("Run `x-twitter-pp-cli` now")
+
+	blk := contentState.Blocks[0]
+	if blk.Text != "Run x-twitter-pp-cli now" {
+		t.Fatalf("unexpected text: %q", blk.Text)
+	}
+	if len(blk.InlineStyleRanges) != 1 {
+		t.Fatalf("expected one inline code style, got %d", len(blk.InlineStyleRanges))
+	}
+	style := blk.InlineStyleRanges[0]
+	if style.Offset != 4 || style.Length != 16 || style.Style != "CODE" {
+		t.Fatalf("unexpected CODE style range: %#v", style)
+	}
+}
+
+func TestMarkdownBodyToDraftJSEmptyInlineCode(t *testing.T) {
+	contentState := MarkdownBodyToDraftJS("Run `` now")
+
+	blk := contentState.Blocks[0]
+	if blk.Text != "Run  now" {
+		t.Fatalf("unexpected text: %q", blk.Text)
+	}
+	if len(blk.InlineStyleRanges) != 1 {
+		t.Fatalf("expected one empty inline code style, got %d", len(blk.InlineStyleRanges))
+	}
+	style := blk.InlineStyleRanges[0]
+	if style.Offset != 4 || style.Length != 0 || style.Style != "CODE" {
+		t.Fatalf("unexpected CODE style range: %#v", style)
+	}
+}
+
+func TestMarkdownBodyToDraftJSDowngradesDeepHeadings(t *testing.T) {
+	contentState := MarkdownBodyToDraftJS("### Third\n\n#### Fourth")
+
+	if len(contentState.Blocks) != 2 {
+		t.Fatalf("expected 2 blocks, got %d", len(contentState.Blocks))
+	}
+	for i, want := range []string{"Third", "Fourth"} {
+		blk := contentState.Blocks[i]
+		if blk.Type != "header-two" || blk.Text != want {
+			t.Fatalf("block %d = %q/%q, want header-two/%q", i, blk.Type, blk.Text, want)
+		}
 	}
 }
 

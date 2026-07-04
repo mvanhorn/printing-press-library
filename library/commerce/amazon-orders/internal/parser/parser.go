@@ -27,8 +27,9 @@ var orderIDRegex = regexp.MustCompile(`\b\d{3}-\d{7}-\d{7}\b|\bD\d{2}-\d{7}-\d{7
 // asinRegex extracts a 10-char Amazon Standard ID Number (ASIN).
 var asinRegex = regexp.MustCompile(`/dp/([A-Z0-9]{10})`)
 
-// moneyRegex matches USD-style money (e.g. "$1,234.56", "-$5.00").
-var moneyRegex = regexp.MustCompile(`-?\$\s*([0-9][0-9,]*\.\d{2})`)
+// moneyRegex matches currency-marked money across Amazon marketplaces (e.g.
+// "$1,234.56", "-₹1,234.56", "Rs. 999.00", "INR 2,500.00").
+var moneyRegex = regexp.MustCompile(`(?i)(-?)\s*(₹|rs\.?|inr|\$|£|€)\s*([0-9][0-9,]*(?:\.\d{2})?)`)
 
 // dateLikeRegex tolerates "May 5, 2026", "May 5", "Jan 1, 2026".
 var dateLikeRegex = regexp.MustCompile(`\b(?:Jan(?:uary)?|Feb(?:ruary)?|Mar(?:ch)?|Apr(?:il)?|May|Jun(?:e)?|Jul(?:y)?|Aug(?:ust)?|Sep(?:tember)?|Oct(?:ober)?|Nov(?:ember)?|Dec(?:ember)?)\s+\d{1,2}(?:,\s*\d{4})?\b`)
@@ -174,19 +175,44 @@ func ExtractASIN(url string) string {
 // ExtractMoney returns the first money value in text as a float (e.g. 51.46).
 // Returns 0 if no money string is found. Negative for negative amounts.
 func ExtractMoney(text string) float64 {
-	m := moneyRegex.FindStringSubmatch(text)
-	if len(m) < 2 {
+	v, _, ok := ExtractMoneyWithCurrency(text)
+	if !ok {
 		return 0
-	}
-	clean := strings.ReplaceAll(m[1], ",", "")
-	v, err := strconv.ParseFloat(clean, 64)
-	if err != nil {
-		return 0
-	}
-	if strings.HasPrefix(m[0], "-") {
-		v = -v
 	}
 	return v
+}
+
+// ExtractMoneyWithCurrency returns the first money value and detected ISO-ish
+// currency code. ok is false when no supported currency-marked amount exists.
+func ExtractMoneyWithCurrency(text string) (amount float64, currency string, ok bool) {
+	m := moneyRegex.FindStringSubmatch(text)
+	if len(m) < 4 {
+		return 0, "", false
+	}
+	clean := strings.ReplaceAll(m[3], ",", "")
+	v, err := strconv.ParseFloat(clean, 64)
+	if err != nil {
+		return 0, "", false
+	}
+	if m[1] == "-" {
+		v = -v
+	}
+	return v, currencyForMoneyToken(m[2]), true
+}
+
+func currencyForMoneyToken(token string) string {
+	switch strings.ToUpper(strings.TrimSpace(token)) {
+	case "₹", "RS", "RS.", "INR":
+		return "INR"
+	case "$":
+		return "USD"
+	case "£":
+		return "GBP"
+	case "€":
+		return "EUR"
+	default:
+		return ""
+	}
 }
 
 // ParseDate tolerates several Amazon date strings ("May 5, 2026", "May 5",

@@ -258,9 +258,11 @@ func syncOnePublication(ctx context.Context, c *client.Client, s *store.Store, p
 		pr.Posts = n
 	}
 
-	// Drafts: /drafts on the pub host.
+	// Drafts: global /drafts with numeric publication_id avoids custom-domain
+	// Creator-host 403s for publications that serve authoring through a custom
+	// domain.
 	if includeDrafts {
-		drafts := fetchDrafts(ctx, c, warnW)
+		drafts := fetchDrafts(ctx, c, pub.ID, warnW)
 		if n, err := s.UpsertDraftsForPublication(pub.ID, drafts); err != nil {
 			pr.Warning = appendWarning(pr.Warning, fmt.Sprintf("drafts upsert: %v", err))
 		} else {
@@ -392,8 +394,8 @@ func normalizePost(p map[string]any) map[string]any {
 }
 
 // fetchDrafts pulls the publication's drafts.
-func fetchDrafts(ctx context.Context, c *client.Client, warnW interface{ Write([]byte) (int, error) }) []map[string]any {
-	data, err := c.Get(ctx, "https://{publication}.substack.com/api/v1/drafts", nil)
+func fetchDrafts(ctx context.Context, c *client.Client, publicationID string, warnW interface{ Write([]byte) (int, error) }) []map[string]any {
+	data, err := c.Get(ctx, globalAPIPath("/drafts"), map[string]string{"publication_id": publicationID})
 	if err != nil {
 		warnf(warnW, "fetch drafts: %v", err)
 		return nil

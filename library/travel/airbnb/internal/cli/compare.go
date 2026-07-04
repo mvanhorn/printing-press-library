@@ -22,7 +22,12 @@ func newCompareCmd(flags *rootFlags) *cobra.Command {
 					"savings": map[string]any{"absolute": nil, "percent": nil},
 				}, flags)
 			}
-			ch, err := computeCheapest(cmd.Context(), target, cheapestParams{Checkin: checkin, Checkout: checkout, Guests: guests})
+			// PATCH: open store and pass to computeCheapest for best-effort persistence.
+			db := openScrapeStore(cmd.Context())
+			if db != nil {
+				defer db.Close()
+			}
+			ch, err := computeCheapest(cmd.Context(), target, cheapestParams{Checkin: checkin, Checkout: checkout, Guests: guests, store: db})
 			if err != nil {
 				return classifyAPIError(err)
 			}

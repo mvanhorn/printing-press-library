@@ -1,0 +1,26 @@
+{
+  "schema_version": 2,
+  "id": "mob-99-agent-read-write-contract",
+  "applied_at": "2026-06-09",
+  "base_run_id": "20260518-232543",
+  "base_printing_press_version": "4.9.0",
+  "summary": "Harden agent-facing Linear reads and writes: safe FTS duplicate search, selected issue descriptions under --agent, shell-safe issue/comment/document Markdown mutations, media uploads, comment reads, and Linear Docs support.",
+  "reason": "Agents were repeatedly falling back to stale or incomplete Linear reads: FTS MATCH treated issue keys and hyphenated prose as syntax, --agent compact output stripped issue descriptions even when agents requested them, comments were not readable through the printed CLI, and multiline Markdown writes encouraged unsafe shell quoting. This patch keeps the published CLI usable while preserving the generated-tree intent for a future reprint.",
+  "files": [
+    "internal/store/store.go",
+    "internal/store/search_test.go",
+    "internal/client/upload.go",
+    "internal/cli/issues.go",
+    "internal/cli/issues_create.go",
+    "internal/cli/issues_edit.go",
+    "internal/cli/similar.go",
+    "internal/cli/comments.go",
+    "internal/cli/documents.go",
+    "internal/cli/linear_markdown.go",
+    "internal/cli/linear_agent_test.go",
+    "internal/cli/root.go",
+    "SKILL.md",
+    "README.md"
+  ],
+  "validated_outcome": "go test ./... and go build ./cmd/linear-pp-cli pass. Regression tests cover SYMPH-309-style issue-key FTS, hyphenated duplicate-search prose, explicit description selection under --agent compact output, literal body-file comment creation, and agent-mode comment list bodies."
+}

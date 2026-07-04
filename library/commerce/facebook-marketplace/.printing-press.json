@@ -16,7 +16,7 @@
   "spec_checksum": "sha256:ed16c549473dac8185ffaacdf383a34e91c66e55669c3441da51d5afb393437c",
   "run_id": "20260518-135804",
   "category": "commerce",
-  "description": "Search, publish, mirror, and manage Facebook Marketplace seller workflows with explicit write checkpoints.",
+  "description": "Search, draft, publish, mirror, and monitor Facebook Marketplace listings with seller helpers and explicit write checkpoints.",
   "mcp_binary": "facebook-marketplace-pp-mcp",
   "mcp_tool_count": 16,
   "mcp_ready": "partial",
@@ -61,10 +61,5 @@
       "description": "Prepare and send a seller inbox reply only when `--write` and doctor gating both pass."
     }
   ],
-  "contributors": [
-    {
-      "handle": "tmchow",
-      "name": "Trevin Chow"
-    }
-  ]
+  "catalog_description": "Search, draft, publish, mirror, and monitor Facebook Marketplace listings with seller helpers and explicit write checkpoints."
 }

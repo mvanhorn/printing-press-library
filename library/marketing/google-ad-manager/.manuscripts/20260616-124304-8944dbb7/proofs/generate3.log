@@ -1,0 +1,22 @@
+warning: skipping DELETE "/v1/{name}": could not derive resource name
+warning: skipping GET "/v1/{name}": could not derive resource name
+warning: skipping PATCH "/v1/{name}": could not derive resource name
+warning: filtered global query param "access_token" from generated commands: dropped from 111/111 endpoints where present (111 total)
+warning: filtered global query param "callback" from generated commands: dropped from 111/111 endpoints where present (111 total)
+warning: filtered global query param "fields" from generated commands: dropped from 111/111 endpoints where present (111 total)
+warning: filtered global query param "key" from generated commands: dropped from 111/111 endpoints where present (111 total)
+warning: filtered global query param "oauth_token" from generated commands: dropped from 111/111 endpoints where present (111 total)
+warning: filtered global query param "quotaUser" from generated commands: dropped from 111/111 endpoints where present (111 total)
+warning: filtered global query param "upload_protocol" from generated commands: dropped from 111/111 endpoints where present (111 total)
+warning: filtered global query param "uploadType" from generated commands: dropped from 111/111 endpoints where present (111 total)
+PASS go mod tidy
+PASS ensure safe golang.org/x/net
+PASS govulncheck ./...
+PASS go vet ./...
+PASS go build ./...
+PASS build runnable binary
+PASS google-ad-manager-pp-cli --help
+PASS google-ad-manager-pp-cli version
+PASS google-ad-manager-pp-cli doctor
+Generated google-ad-manager at /Users/pbl-dev/printing-press/.runstate/pbl-415c512c/runs/20260616-124304-8944dbb7/working/google-ad-manager-pp-cli
+Bundled /Users/pbl-dev/printing-press/.runstate/pbl-415c512c/runs/20260616-124304-8944dbb7/working/google-ad-manager-pp-cli/build/google-ad-manager-pp-mcp-darwin-arm64.mcpb

@@ -1,0 +1,57 @@
+name: ht-ml
+description: "Publish, manage, and remember single-page HTML sites on ht-ml.app"
+version: "0.1.0"
+base_url: "https://api.ht-ml.app/v1"
+health_check_path: "/help"
+category: cloud
+
+# ht-ml.app has NO global API key. Creating and reading sites needs no
+# credential at all. Writes (update, asset upload) use a per-site update_key
+# minted once at creation. That per-site bearer model is handled by the
+# hand-built publish/update/assets/password commands (which resolve the key
+# from the local store), NOT by global auth — so auth.type is none here.
+auth:
+  type: none
+
+config:
+  format: toml
+  path: "~/.config/ht-ml-pp-cli/config.toml"
+
+resources:
+  sites:
+    description: "Inspect ht-ml.app sites"
+    endpoints:
+      # Only the no-auth GET is a generated endpoint command. It is reachable
+      # without any credential and is safe to expose directly. All site
+      # creation and mutation goes through hand-built, store-aware commands
+      # (publish, update, assets, password) so the once-only update_key is
+      # always captured locally.
+      get:
+        method: GET
+        path: "/sites/{site_id}"
+        description: "Get a site's status and the assets its HTML references (no auth; public read)"
+        example: "  ht-ml-pp-cli sites cb099475 --agent --select status,assets.relative_path,assets.status"
+        happy_args: "site_id=cb099475"
+        params:
+          - name: site_id
+            type: string
+            required: true
+            positional: true
+            description: "Site id (the {site_id} in https://{site_id}.ht-ml.app/)"
+        response:
+          type: object
+          item: Site
+
+types:
+  Site:
+    fields:
+      - name: site_id
+        type: string
+      - name: status
+        type: string
+      - name: url
+        type: string
+      - name: update_key
+        type: string
+      - name: message
+        type: string

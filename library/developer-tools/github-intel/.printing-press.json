@@ -1,0 +1,50 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-06-15T07:01:40.417202Z",
+  "printing_press_version": "4.24.0",
+  "api_name": "github-intel",
+  "display_name": "Github Current Intelligence",
+  "cli_name": "github-intel-pp-cli",
+  "creator": {
+    "handle": "hnshah",
+    "name": "Hiten Shah"
+  },
+  "owner": "hnshah",
+  "printer": "hnshah",
+  "printer_name": "Hiten Shah",
+  "spec_url": "https://docs.github.com/rest",
+  "spec_path": "openapi.yaml",
+  "spec_format": "openapi3",
+  "spec_checksum": "sha256:17f0f275a5e7f4d1bb4e21e5b3cfa035e037a6a09bff892778c736d800a70eb6",
+  "run_id": "20260615-070140",
+  "category": "developer-tools",
+  "description": "Public GitHub repository, release, search, and security advisory signals for agent research.",
+  "mcp_binary": "github-intel-pp-mcp",
+  "mcp_tool_count": 4,
+  "mcp_public_tool_count": 4,
+  "mcp_ready": "full",
+  "api_version": "1.0.0",
+  "auth_type": "none",
+  "novel_features": [
+    {
+      "name": "Repository trend discovery",
+      "command": "trending",
+      "description": "Find recently active repositories by language/topic using GitHub search qualifiers."
+    },
+    {
+      "name": "Release velocity",
+      "command": "releases",
+      "description": "List recent releases for an owner/repo with since filtering."
+    },
+    {
+      "name": "Advisory briefing",
+      "command": "advisories",
+      "description": "Brief security advisories by ecosystem, package, severity, and freshness."
+    },
+    {
+      "name": "Repository health comparison",
+      "command": "compare",
+      "description": "Compare repository adoption, activity, issue load, and latest release signals."
+    }
+  ]
+}

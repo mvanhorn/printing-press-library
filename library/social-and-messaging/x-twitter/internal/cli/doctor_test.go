@@ -127,6 +127,13 @@ oauth2_user_token = "user"
 			t.Fatalf("%s status = %q, want ok (report=%#v)", key, got, report["auth_lanes"])
 		}
 	}
+	cookieLane := laneFromReport(t, report, "x_articles_cookie")
+	if got, _ := cookieLane["write_capability"].(string); !strings.Contains(got, "Articles create/update/title/cover/delete writes") {
+		t.Fatalf("cookie lane write capability missing or vague: %#v", cookieLane)
+	}
+	if got, _ := cookieLane["user_id"].(string); got != "123" {
+		t.Fatalf("cookie lane user_id = %q, want 123", got)
+	}
 }
 
 func TestDoctorReportsProfileUserAndScopeMetadata(t *testing.T) {
@@ -186,6 +193,167 @@ func TestDoctorClassifiesAppOnlyTokenInUserContextLane(t *testing.T) {
 	appLane := laneFromReport(t, report, "app_only_api")
 	if got, _ := appLane["status"].(string); got != "missing" {
 		t.Fatalf("app_only_api status = %q, want missing (lane=%#v)", got, appLane)
+	}
+}
+
+func TestDoctorRefreshesOAuth2UserContextAfterUnauthorized(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		switch r.URL.Path {
+		case "/2/oauth2/token":
+			if err := r.ParseForm(); err != nil {
+				t.Fatalf("ParseForm: %v", err)
+			}
+			if got := r.Form.Get("refresh_token"); got != "doctor-refresh" && got != "doctor-rotated" {
+				t.Fatalf("unexpected refresh token: %#v", r.Form)
+			}
+			if r.Form.Get("client_id") != "doctor-client" {
+				t.Fatalf("unexpected refresh client_id: %#v", r.Form)
+			}
+			w.Header().Set("Content-Type", "application/json")
+			_, _ = w.Write([]byte(`{"access_token":"doctor-fresh","refresh_token":"doctor-rotated","expires_in":3600}`))
+		case "/2/users/me":
+			switch r.Header.Get("Authorization") {
+			case "Bearer doctor-stale":
+				http.Error(w, "expired", http.StatusUnauthorized)
+			case "Bearer doctor-fresh":
+				w.Header().Set("Content-Type", "application/json")
+				_, _ = w.Write([]byte(`{"data":{"id":"123","username":"tester"}}`))
+			default:
+				http.Error(w, "invalid", http.StatusUnauthorized)
+			}
+		case xAppOnlyProbePath:
+			http.Error(w, "missing app token", http.StatusUnauthorized)
+		default:
+			http.NotFound(w, r)
+		}
+	}))
+	defer server.Close()
+	oldEndpoint := client.OAuth2TokenEndpoint
+	client.OAuth2TokenEndpoint = server.URL + "/2/oauth2/token"
+	defer func() { client.OAuth2TokenEndpoint = oldEndpoint }()
+
+	home := t.TempDir()
+	configPath := writeDoctorConfig(t, t.TempDir(), server.URL, `oauth2_user_token = "doctor-stale"
+refresh_token = "doctor-refresh"
+client_id = "doctor-client"
+token_expiry = 2026-06-08T12:00:00Z
+`)
+
+	report := runDoctorJSON(t, home, configPath)
+	userLane := laneFromReport(t, report, "oauth2_user_context")
+	if got, _ := userLane["status"].(string); got != "ok" {
+		t.Fatalf("oauth2_user_context status = %q, want ok after refresh (lane=%#v)", got, userLane)
+	}
+	if userLane["refreshed"] != true {
+		t.Fatalf("refreshed marker = %#v, want true (lane=%#v)", userLane["refreshed"], userLane)
+	}
+	encoded, err := os.ReadFile(configPath)
+	if err != nil {
+		t.Fatalf("read config: %v", err)
+	}
+	text := string(encoded)
+	if strings.Contains(text, "doctor-stale") || !strings.Contains(text, "doctor-fresh") || !strings.Contains(text, "doctor-rotated") {
+		t.Fatalf("config did not persist refreshed user-context tuple: %s", text)
+	}
+	out, err := json.Marshal(report)
+	if err != nil {
+		t.Fatalf("marshal report: %v", err)
+	}
+	for _, secret := range []string{"doctor-stale", "doctor-refresh", "doctor-fresh", "doctor-rotated"} {
+		if strings.Contains(string(out), secret) {
+			t.Fatalf("doctor report leaked secret %q: %s", secret, out)
+		}
+	}
+}
+
+func TestDoctorReportsOAuth2RefreshFailureReason(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		switch r.URL.Path {
+		case "/2/oauth2/token":
+			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(http.StatusUnauthorized)
+			_, _ = w.Write([]byte(`{"error":"invalid_grant","error_description":"refresh token expired"}`))
+		case "/2/users/me":
+			http.Error(w, "expired", http.StatusUnauthorized)
+		case xAppOnlyProbePath:
+			http.Error(w, "missing app token", http.StatusUnauthorized)
+		default:
+			http.NotFound(w, r)
+		}
+	}))
+	defer server.Close()
+	oldEndpoint := client.OAuth2TokenEndpoint
+	client.OAuth2TokenEndpoint = server.URL + "/2/oauth2/token"
+	defer func() { client.OAuth2TokenEndpoint = oldEndpoint }()
+
+	home := t.TempDir()
+	configPath := writeDoctorConfig(t, t.TempDir(), server.URL, `oauth2_user_token = "doctor-stale"
+refresh_token = "doctor-refresh"
+client_id = "doctor-client"
+`)
+
+	report := runDoctorJSON(t, home, configPath)
+	userLane := laneFromReport(t, report, "oauth2_user_context")
+	if got, _ := userLane["status"].(string); got != "invalid" {
+		t.Fatalf("oauth2_user_context status = %q, want invalid (lane=%#v)", got, userLane)
+	}
+	if userLane["refresh_attempted"] != true {
+		t.Fatalf("refresh_attempted = %#v, want true (lane=%#v)", userLane["refresh_attempted"], userLane)
+	}
+	if refreshErr, _ := userLane["refresh_error"].(string); !strings.Contains(refreshErr, "invalid_grant") {
+		t.Fatalf("refresh_error should include sanitized upstream reason, got %q", refreshErr)
+	}
+	if hint, _ := userLane["hint"].(string); !strings.Contains(hint, "oauth2-login") {
+		t.Fatalf("hint should point to oauth2-login, got %q", hint)
+	}
+	out, err := json.Marshal(report)
+	if err != nil {
+		t.Fatalf("marshal report: %v", err)
+	}
+	for _, secret := range []string{"doctor-stale", "doctor-refresh"} {
+		if strings.Contains(string(out), secret) {
+			t.Fatalf("doctor report leaked secret %q: %s", secret, out)
+		}
+	}
+}
+
+func TestDoctorReportsOAuth2RefreshFailureWhenStoredTokenLooksAppOnly(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		switch r.URL.Path {
+		case "/2/oauth2/token":
+			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(http.StatusBadRequest)
+			_, _ = w.Write([]byte(`{"error":"invalid_request","error_description":"Value passed for the token was invalid."}`))
+		case "/2/users/me":
+			http.Error(w, xUnsupportedAppOnlyBody, http.StatusForbidden)
+		case xAppOnlyProbePath:
+			http.Error(w, "missing app token", http.StatusUnauthorized)
+		default:
+			http.NotFound(w, r)
+		}
+	}))
+	defer server.Close()
+	oldEndpoint := client.OAuth2TokenEndpoint
+	client.OAuth2TokenEndpoint = server.URL + "/2/oauth2/token"
+	defer func() { client.OAuth2TokenEndpoint = oldEndpoint }()
+
+	configPath := writeDoctorConfig(t, t.TempDir(), server.URL, `oauth2_user_token = "doctor-app-only"
+refresh_token = "doctor-refresh"
+client_id = "doctor-client"
+`)
+	report := runDoctorJSON(t, t.TempDir(), configPath)
+	userLane := laneFromReport(t, report, "oauth2_user_context")
+	if got, _ := userLane["classification"].(string); got != "app_only_token_used_for_user_context" {
+		t.Fatalf("classification = %q, want app_only_token_used_for_user_context (lane=%#v)", got, userLane)
+	}
+	if userLane["refresh_attempted"] != true {
+		t.Fatalf("refresh_attempted = %#v, want true (lane=%#v)", userLane["refresh_attempted"], userLane)
+	}
+	if refreshErr, _ := userLane["refresh_error"].(string); !strings.Contains(refreshErr, "invalid_request") {
+		t.Fatalf("refresh_error should include sanitized upstream reason, got %q", refreshErr)
+	}
+	if hint, _ := userLane["hint"].(string); !strings.Contains(hint, "oauth2-login") {
+		t.Fatalf("hint should point to oauth2-login, got %q", hint)
 	}
 }
 

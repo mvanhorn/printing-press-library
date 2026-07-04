@@ -18,7 +18,15 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var version = "2026.6.1"
+// version is intentionally left at the last released value; post-merge release
+// automation bumps it (and CHANGELOG.md) — see verify-release-ledger. The
+// User-Agent below tracks whatever version automation lands.
+var version = "2026.6.3"
+
+func init() {
+	// Keep the wire User-Agent in lockstep with the release version.
+	client.UserAgent = "kalshi-pp-cli/" + version
+}
 
 type rootFlags struct {
 	asJSON        bool
@@ -86,14 +94,16 @@ func newRootCmd(flags *rootFlags) *cobra.Command {
 		Long: `Kalshi CLI — Trade prediction markets, persist tick data, and answer category-level P&L questions Kalshi.com cannot.
 
 Highlights (not in the official API docs):
-  • portfolio attribution   See your P&L broken down by market category and series over any time period
-  • markets history   Track how market odds moved over time with price progression charts
-  • portfolio winrate   Calculate your win/loss ratio, expected value, and ROI across all settled positions
-  • portfolio calendar   See upcoming settlements with your positions, expected payouts, and category breakdown
-  • markets movers   Find markets with the biggest price swings since your last sync
-  • markets correlate   Compare price histories of two markets to discover correlated events
-  • portfolio exposure   See your total risk broken down by category, with concentration warnings
-  • portfolio stale   Find positions in markets approaching expiry where you haven't acted recently
+  • portfolio attribution   See your realized P&L broken down by market category and series over any time window — answer 'did politics actually make money this quarter?' in one command.
+  • markets history   Show how a market's yes/no price moved over time, with a sparkline rendering — built from snapshots captured by every markets sync.
+  • portfolio winrate   Calculate your win/loss ratio, expected value, and ROI across all settled positions, optionally sliced by category.
+  • portfolio calendar   See upcoming settlements with your positions, expected payouts, and category breakdown over the next N days.
+  • markets movers   Find markets with the biggest price swings since the last sync — sorted by absolute delta or by volume change.
+  • markets correlate   Compute Pearson correlation of two markets' price histories — find correlated events for hedging or signal discovery.
+  • portfolio exposure   Break down total exposure by category with concentration warnings when any bucket exceeds a configurable risk threshold.
+  • --read-only   Global env-var/flag lock that blocks every mutating command client-side regardless of which key tier is loaded — pair with --dry-run on every mutator for safe scripting against read-only credentials.
+  • subaccounts rollup   Aggregate positions, fills-today, balance, and exposure-by-category across every subaccount you can see — household view of risk and resting orders.
+  • watch diff   Maintain a local watchlist of tickers; 'watch diff' shows price/volume change vs the last sync per watched market — Riley's daily-snapshot ritual reduced to one command.
 
 Agent mode: add --agent to any command for JSON output + non-interactive mode.
 Health check: run 'kalshi-pp-cli doctor' to verify auth and connectivity.

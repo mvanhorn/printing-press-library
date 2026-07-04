@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.17
+
+- Raise the documented direct `go install` floor to Go 1.26.4 so npm installer guidance matches the catalog-wide module enforcement floor.
+
 ## 0.1.16
 
 - Default `install` to a per-user binary directory (`$HOME/.local/bin` on macOS/Linux, `%LOCALAPPDATA%\Programs\PrintingPress\bin` on Windows) instead of Go's `$GOPATH/bin`, so humans, agents, and gateway processes converge on the same install location.

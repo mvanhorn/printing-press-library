@@ -21,8 +21,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"io"
-	"net/http"
 	"net/url"
 	"strings"
 	"time"
@@ -146,43 +144,36 @@ func searchNativeDirect(ctx context.Context, opts SearchOptions) (*SearchResult,
 	}
 	body := "f.req=" + payload
 
-	req, err := http.NewRequestWithContext(ctx, http.MethodPost, offersEndpoint, strings.NewReader(body))
-	if err != nil {
-		return nil, fmt.Errorf("building request: %w", err)
-	}
-	req.Header.Set("Content-Type", "application/x-www-form-urlencoded;charset=UTF-8")
-	req.Header.Set("User-Agent", chromeUserAgent)
-	req.Header.Set("Accept", "*/*")
-	req.Header.Set("Accept-Language", "en-US,en;q=0.9")
-	req.Header.Set("x-goog-ext-259736195-jspb", googleFlightsCurrencyHeader(currencyCode))
-
-	resp, err := utlsClient().Do(req)
-	if err != nil {
-		return nil, fmt.Errorf("calling shopping endpoint: %w", err)
-	}
-	defer func() { _ = resp.Body.Close() }()
-
-	respBody, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return nil, fmt.Errorf("reading response: %w", err)
-	}
-	if resp.StatusCode != http.StatusOK {
-		snippet := string(respBody)
-		if len(snippet) > 200 {
-			snippet = snippet[:200] + "..."
+	note := ""
+	var flights []Flight
+	err = retryBlockedRPC(ctx, func() error {
+		respBody, err := postFlightsFrontendRPC(ctx, offersEndpoint, "shopping", body, currencyCode)
+		if err != nil {
+			return err
 		}
-		return nil, fmt.Errorf("shopping endpoint returned HTTP %d: %s", resp.StatusCode, snippet)
-	}
-
-	flights, err := parseOffersResponse(respBody, currencyCode)
-	if err != nil {
+		flights, err = parseOffersResponse(respBody, currencyCode)
+		return err
+	})
+	switch {
+	case errors.Is(err, errShoppingBlocked):
+		// PATCH(amend-2026-06-26): Google can intermittently return HTTP 200
+		// with a wrb.fr gRPC code-13 envelope. retryBlockedRPC gives the native
+		// RPC a few chances first; if the BotGuard gate persists, serve the
+		// search from the server-rendered HTML page. Page prices are per-person
+		// already, so the group-total divide below is skipped on this path.
+		flights, note, err = searchViaHTML(ctx, opts, currencyCode)
+		if err != nil {
+			return nil, fmt.Errorf("google flights RPC is blocked and the HTML fallback failed: %w", err)
+		}
+	case err != nil:
 		return nil, fmt.Errorf("parsing response: %w", err)
+	default:
+		// PATCH(library): Google Flights returns the group total for `--passengers N`;
+		// divide back down so the JSON `price` field is per-seat. Aligns with the
+		// per-person contract documented in the flight-goat agent skill and matches
+		// dates_native.go (which hardcodes 1 adult and therefore has no analogue).
+		applyPerPassengerPrice(flights, opts.Passengers)
 	}
-	// PATCH(library): Google Flights returns the group total for `--passengers N`;
-	// divide back down so the JSON `price` field is per-seat. Aligns with the
-	// per-person contract documented in the flight-goat agent skill and matches
-	// dates_native.go (which hardcodes 1 adult and therefore has no analogue).
-	applyPerPassengerPrice(flights, opts.Passengers)
 
 	// PATCH(library): attach booking URLs to each flight so callers have a
 	// one-click handoff. See booking_urls.go.
@@ -212,6 +203,7 @@ func searchNativeDirect(ctx context.Context, opts SearchOptions) (*SearchResult,
 		},
 		Count:   len(flights),
 		Flights: flights,
+		Note:    note,
 	}, nil
 }
 
@@ -475,35 +467,20 @@ func parseOffersResponse(body []byte, currency string) ([]Flight, error) {
 	}
 	innerStr, ok := outer[0][2].(string)
 	if !ok {
-		return []Flight{}, nil
+		// PATCH(amend-2026-06-11): a non-string payload slot used to fall
+		// through as a silent empty result ("success" with 0 flights). Since
+		// ~2026-06-09 Google rejects non-interactive RPC calls with an
+		// ErrorResponse envelope that lands exactly here — classify it so
+		// searchNativeDirect can fall back to the server-rendered HTML path,
+		// and never report a blocked request as a legitimate empty result.
+		return nil, envelopeBlockedErr(text)
 	}
 	var inner []any
 	if err := json.Unmarshal([]byte(innerStr), &inner); err != nil {
 		return nil, fmt.Errorf("decoding inner payload: %w", err)
 	}
 
-	var flights []Flight
-	for _, idx := range []int{2, 3} {
-		if idx >= len(inner) {
-			continue
-		}
-		bucket, ok := inner[idx].([]any)
-		if !ok || len(bucket) == 0 {
-			continue
-		}
-		rows, ok := bucket[0].([]any)
-		if !ok {
-			continue
-		}
-		for _, row := range rows {
-			f, ok := parseOfferRow(row, currency)
-			if !ok {
-				continue
-			}
-			flights = append(flights, f)
-		}
-	}
-	return flights, nil
+	return flightsFromEmbeddedPayload(inner, currency), nil
 }
 
 func parseOfferRow(row any, currency string) (Flight, bool) {

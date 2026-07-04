@@ -1,0 +1,11 @@
+{
+  "schema_version": 2,
+  "id": "kalshi-list-endpoints-return-resource-named-envelopes",
+  "applied_at": "2026-06-17",
+  "base_run_id": "20260504-204550",
+  "base_printing_press_version": "3.9.0",
+  "summary": "Kalshi list endpoints wrap rows in a resource-named key alongside a `cursor` field (e.g. {\"fills\":[...],\"cursor\":\"...\"}); --all must extract that named array, follow `cursor`, and return [] (never null) when empty.",
+  "reason": "The generator's paginator looked for a generic wrapper and next-page field Kalshi does not send, so every paginated read returned {\"results\": null}; the same read path also swallowed a 409 on a GET as an idempotent no-op instead of surfacing it.",
+  "files": ["internal/cli/helpers.go", "internal/mcp/tools.go"],
+  "validated_outcome": "internal/cli/paginated_get_test.go exercises envelope cursor-following, the sticky-cursor guard, empty-set null-to-[] conversion, and 409-on-GET surfacing."
+}

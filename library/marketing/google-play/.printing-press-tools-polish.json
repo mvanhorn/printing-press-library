@@ -1,0 +1,9 @@
+{
+  "timestamp": "2026-06-11T12:36:54.940919Z",
+  "cli_dir": "\u003ccli-dir\u003e/google-play-pp-cli",
+  "findings": null,
+  "scorecard_before": {
+    "mcp_description_quality": 10,
+    "captured": "2026-06-11T12:30:18.100018Z"
+  }
+}

@@ -280,12 +280,13 @@ These capabilities aren't available in any other tool for this API.
   ```bash
   x-twitter-pp-cli thread compose ./update.md
   ```
-- **`articles-publish-md`** — Parse a markdown file with YAML frontmatter into the Draft.js content_state JSON X's Articles editor accepts; previews by default; --draft saves a draft, --post publishes publicly.
+- **`articles-publish-md`** — Parse a markdown file with YAML frontmatter into the Draft.js content_state JSON X's Articles editor accepts; previews by default; --draft creates a new draft, --update edits an existing draft, --post publishes publicly.
 
-  _The only programmatic way to author a long-form X Article from a document; preview and --draft keep it private until you explicitly --post._
+  _The only programmatic way to author a long-form X Article from a document; preview, --draft, and --update keep it private until you explicitly --post._
 
   ```bash
   x-twitter-pp-cli articles-publish-md ./post.md
+  x-twitter-pp-cli articles-publish-md ./post.md --update 1750000000000000000
   ```
 
 ## Recipes

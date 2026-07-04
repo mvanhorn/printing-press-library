@@ -1,0 +1,417 @@
+{
+  "api_name": "salesloft",
+  "base_url": "https://api.salesloft.com/v2",
+  "description": "Read-first Salesloft API surface for agent workflows, based on the public Salesloft v2 developer documentation.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "mcp": {
+    "endpoint_tools": "hidden"
+  },
+  "auth": {
+    "type": "bearer_token",
+    "header": "Authorization",
+    "env_vars": [
+      "SALESLOFT_BEARER_AUTH"
+    ],
+    "env_var_specs": [
+      {
+        "name": "SALESLOFT_BEARER_AUTH",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    ]
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "accounts_get",
+      "description": "Get a Salesloft account by ID. Required: id. Returns the GenericObject.",
+      "method": "GET",
+      "path": "/accounts/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "accounts_list",
+      "description": "List Salesloft accounts. Optional: page, per_page, search. Returns the GenericObject.",
+      "method": "GET",
+      "path": "/accounts",
+      "params": [
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page"
+        },
+        {
+          "name": "per_page",
+          "type": "int",
+          "location": "query",
+          "description": "Per page"
+        },
+        {
+          "name": "search",
+          "type": "string",
+          "location": "query",
+          "description": "Search"
+        }
+      ]
+    },
+    {
+      "name": "activities_list",
+      "description": "List recent Salesloft activities. Optional: page, per_page, start_time (plus 1 more). Returns the GenericObject.",
+      "method": "GET",
+      "path": "/activities",
+      "params": [
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page"
+        },
+        {
+          "name": "per_page",
+          "type": "int",
+          "location": "query",
+          "description": "Per page"
+        },
+        {
+          "name": "start_time",
+          "type": "string",
+          "location": "query",
+          "description": "Start time"
+        },
+        {
+          "name": "end_time",
+          "type": "string",
+          "location": "query",
+          "description": "End time"
+        }
+      ]
+    },
+    {
+      "name": "cadences_get",
+      "description": "Get a Salesloft cadence by ID. Required: id. Returns the GenericObject.",
+      "method": "GET",
+      "path": "/cadences/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "cadences_list",
+      "description": "List Salesloft cadences. Optional: page, per_page. Returns the GenericObject.",
+      "method": "GET",
+      "path": "/cadences",
+      "params": [
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page"
+        },
+        {
+          "name": "per_page",
+          "type": "int",
+          "location": "query",
+          "description": "Per page"
+        }
+      ]
+    },
+    {
+      "name": "calls_get",
+      "description": "Get a Salesloft call by ID. Required: id. Returns the GenericObject.",
+      "method": "GET",
+      "path": "/calls/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "calls_list",
+      "description": "List Salesloft calls. Optional: page, per_page, start_time (plus 1 more). Returns the GenericObject.",
+      "method": "GET",
+      "path": "/calls",
+      "params": [
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page"
+        },
+        {
+          "name": "per_page",
+          "type": "int",
+          "location": "query",
+          "description": "Per page"
+        },
+        {
+          "name": "start_time",
+          "type": "string",
+          "location": "query",
+          "description": "Start time"
+        },
+        {
+          "name": "end_time",
+          "type": "string",
+          "location": "query",
+          "description": "End time"
+        }
+      ]
+    },
+    {
+      "name": "me_get",
+      "description": "Get the authenticated Salesloft user. Returns the GenericObject.",
+      "method": "GET",
+      "path": "/me",
+      "params": []
+    },
+    {
+      "name": "meetings_list",
+      "description": "List Salesloft meetings. Optional: page, per_page, start_time (plus 1 more). Returns the GenericObject.",
+      "method": "GET",
+      "path": "/meetings",
+      "params": [
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page"
+        },
+        {
+          "name": "per_page",
+          "type": "int",
+          "location": "query",
+          "description": "Per page"
+        },
+        {
+          "name": "start_time",
+          "type": "string",
+          "location": "query",
+          "description": "Start time"
+        },
+        {
+          "name": "end_time",
+          "type": "string",
+          "location": "query",
+          "description": "End time"
+        }
+      ]
+    },
+    {
+      "name": "notes_get",
+      "description": "Get a Salesloft note by ID. Required: id. Returns the GenericObject.",
+      "method": "GET",
+      "path": "/notes/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "notes_list",
+      "description": "List Salesloft notes. Optional: page, per_page. Returns the GenericObject.",
+      "method": "GET",
+      "path": "/notes",
+      "params": [
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page"
+        },
+        {
+          "name": "per_page",
+          "type": "int",
+          "location": "query",
+          "description": "Per page"
+        }
+      ]
+    },
+    {
+      "name": "opportunities_get-opportunity",
+      "description": "Get a Salesloft opportunity by ID. Required: id. Returns the GenericObject.",
+      "method": "GET",
+      "path": "/opportunities/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "opportunities_list",
+      "description": "List Salesloft opportunities. Optional: page, per_page. Returns the GenericObject.",
+      "method": "GET",
+      "path": "/opportunities",
+      "params": [
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page"
+        },
+        {
+          "name": "per_page",
+          "type": "int",
+          "location": "query",
+          "description": "Per page"
+        }
+      ]
+    },
+    {
+      "name": "people_get-person",
+      "description": "Get a Salesloft person by ID. Required: id. Returns the GenericObject.",
+      "method": "GET",
+      "path": "/people/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "people_list",
+      "description": "List Salesloft people. Optional: page, per_page, search. Returns the GenericObject.",
+      "method": "GET",
+      "path": "/people",
+      "params": [
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page"
+        },
+        {
+          "name": "per_page",
+          "type": "int",
+          "location": "query",
+          "description": "Per page"
+        },
+        {
+          "name": "search",
+          "type": "string",
+          "location": "query",
+          "description": "Search"
+        }
+      ]
+    },
+    {
+      "name": "tasks_get",
+      "description": "Get a Salesloft task by ID. Required: id. Returns the GenericObject.",
+      "method": "GET",
+      "path": "/tasks/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "tasks_list",
+      "description": "List Salesloft tasks. Optional: page, per_page, status. Returns the GenericObject.",
+      "method": "GET",
+      "path": "/tasks",
+      "params": [
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page"
+        },
+        {
+          "name": "per_page",
+          "type": "int",
+          "location": "query",
+          "description": "Per page"
+        },
+        {
+          "name": "status",
+          "type": "string",
+          "location": "query",
+          "description": "Status"
+        }
+      ]
+    },
+    {
+      "name": "team_get",
+      "description": "Get the authenticated user's Salesloft team. Returns the GenericObject.",
+      "method": "GET",
+      "path": "/team",
+      "params": []
+    },
+    {
+      "name": "users_get",
+      "description": "Get a Salesloft user by ID. Required: id. Returns the GenericObject.",
+      "method": "GET",
+      "path": "/users/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "users_list",
+      "description": "List Salesloft users. Optional: page, per_page. Returns the GenericObject.",
+      "method": "GET",
+      "path": "/users",
+      "params": [
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page"
+        },
+        {
+          "name": "per_page",
+          "type": "int",
+          "location": "query",
+          "description": "Per page"
+        }
+      ]
+    }
+  ]
+}

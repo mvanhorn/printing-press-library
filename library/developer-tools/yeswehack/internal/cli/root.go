@@ -18,7 +18,7 @@ import (
 	"github.com/mvanhorn/printing-press-library/library/developer-tools/yeswehack/internal/config"
 )
 
-var version = "2026.6.1"
+var version = "2026.6.2"
 
 type rootFlags struct {
 	asJSON        bool

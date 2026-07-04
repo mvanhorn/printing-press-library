@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "toodledo-tail-unknown-resource",
+  "applied_at": "2026-06-15",
+  "base_run_id": "20260614-215657-3da6c053",
+  "base_printing_press_version": "4.24.0",
+  "summary": "Validate the tail resource argument against tailKnownResources() and fail fast (non-zero) on an unknown name, before binding the poll loop.",
+  "reason": "The generated tail command accepted any resource string and polled GET /<resource>, so an unknown/typo'd resource only ever 404'd while exiting 0 (and, outside dogfood, polled forever). The live-dogfood error-path probe (`tail __printing_press_invalid__`) expects a non-zero exit for an invalid argument. The permanent fix lives in the generator template (templates/tail.go.tmpl); this patch carries the same validation into the already-printed tree and becomes redundant after the next reprint.",
+  "files": [
+    "internal/cli/tail.go"
+  ],
+  "validated_outcome": "Full live dogfood gate green; `tail __printing_press_invalid__` now exits 1 with `unknown resource ...; known resources: [...]`."
+}

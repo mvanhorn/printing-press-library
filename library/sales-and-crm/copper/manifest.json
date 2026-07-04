@@ -1,0 +1,46 @@
+{
+  "manifest_version": "0.3",
+  "name": "copper-pp-mcp",
+  "display_name": "Copper",
+  "version": "0.0.0",
+  "description": "The Copper CRM command line no one else built: full CRUD plus a local database, weighted pipeline forecasting, stale-deal detection, and the bulk operations Copper's own API refuses to provide.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/copper-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/copper-pp-mcp",
+      "args": [],
+      "env": {
+        "COPPER_API_KEY": "${user_config.copper_api_key}",
+        "COPPER_USER_EMAIL": "${user_config.copper_user_email}"
+      }
+    }
+  },
+  "user_config": {
+    "copper_api_key": {
+      "type": "string",
+      "title": "COPPER_API_KEY",
+      "description": "Sets COPPER_API_KEY for the Copper MCP server.",
+      "sensitive": true,
+      "required": true
+    },
+    "copper_user_email": {
+      "type": "string",
+      "title": "COPPER_USER_EMAIL",
+      "description": "Your Copper account email address. Required — Copper's API sends this as X-PW-UserEmail on every request; omitting it yields 401/403 errors.",
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

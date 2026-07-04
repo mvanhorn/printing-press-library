@@ -494,11 +494,17 @@ a range of dates. No API key required. Uses flight-goat's native Go backend
 					Destination string               `json:"destination"`
 					Count       int                  `json:"count"`
 					Dates       []gflights.DatePrice `json:"dates"`
-				}{opts.Origin, opts.Destination, len(dates), dates}, "", "  ")
+					// PATCH(amend-2026-06-11): surface the HTML-fallback note
+					// (set when Google's calendar RPC is blocked) to agents.
+					Note string `json:"note,omitempty"`
+				}{opts.Origin, opts.Destination, len(dates), dates, result.Note}, "", "  ")
 				fmt.Fprintln(cmd.OutOrStdout(), string(bts))
 				return nil
 			}
 
+			if result.Note != "" {
+				fmt.Fprintf(cmd.ErrOrStderr(), "note: %s\n", result.Note)
+			}
 			fmt.Fprintf(cmd.ErrOrStderr(), "%d dates priced for %s -> %s\n", len(dates), opts.Origin, opts.Destination)
 			tw := tabwriter.NewWriter(cmd.OutOrStdout(), 0, 0, 2, ' ', 0)
 			fmt.Fprintln(tw, "DATE\tPRICE")

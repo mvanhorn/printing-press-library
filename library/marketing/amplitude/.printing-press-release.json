@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "slug": "amplitude",
+  "cli_name": "amplitude-pp-cli",
+  "version": "2026.6.1",
+  "released_at": "2026-06-23T17:15:28Z",
+  "source_commit": "8014c77168bae01d6f48599c2eec4b2f13be1cad",
+  "printing_press_version": "4.24.0",
+  "run_id": "20260622-071511",
+  "changes": [
+    {
+      "title": "feat(amplitude): add amplitude",
+      "pr": 1322,
+      "url": "https://github.com/mvanhorn/printing-press-library/pull/1322",
+      "commit": "8014c77168bae01d6f48599c2eec4b2f13be1cad"
+    }
+  ]
+}

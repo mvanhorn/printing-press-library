@@ -1,0 +1,43 @@
+api_name: fellow-stagg-ekg
+display_name: Fellow Stagg EKG
+kind: internal
+base_path: /cli
+transport: http
+commands:
+  - name: state
+    command: state
+    description: Fetch the kettle state.
+  - name: settings
+    command: prtsettings
+    description: Fetch the kettle settings.
+  - name: clock
+    command: prtclock
+    description: Fetch the kettle clock.
+  - name: info
+    command: fwinfo
+    description: Fetch firmware info.
+  - name: heat
+    command: setstate S_Heat
+    description: Start heating.
+  - name: off
+    command: setstate S_Off
+    description: Turn the kettle off.
+  - name: set-temp
+    command: setsettingd settempr
+    description: Set the target temperature.
+  - name: units
+    command: setunitsc / setunitsf
+    description: Switch the display units.
+  - name: button
+    command: 1 / 2 / 1d / 1u / 2d / 2u
+    description: Press or release the kettle buttons.
+  - name: dial
+    command: left / right
+    description: Rotate the kettle dial.
+  - name: beep
+    command: buz sos
+    description: Trigger the buzzer.
+  - name: raw
+    command: arbitrary
+    description: Send any supported kettle command string.
+

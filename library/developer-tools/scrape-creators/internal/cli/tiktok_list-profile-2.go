@@ -13,73 +13,51 @@ import (
 
 func newTiktokListProfile2Cmd(flags *rootFlags) *cobra.Command {
 	var flagHandle string
-	var flagUserId string
-	var flagSortBy string
-	var flagMaxCursor string
-	var flagRegion string
-	var flagTrim bool
 
 	cmd := &cobra.Command{
 		Use:         "list-profile-2",
-		Short:       "Fetches videos posted by a TikTok user, sortable by latest or most popular — use this to get a creator's video...",
-		Example:     "  scrape-creators-pp-cli tiktok list-profile-2",
-		Annotations: map[string]string{"pp:endpoint": "tiktok.list-profile-2", "mcp:read-only": "true"},
+		Short:       "Returns the TikTok region code for a public profile, like `US` for United States or `MX` for Mexico.",
+		Example:     "  scrape-creators-pp-cli tiktok list-profile-2 --handle stoolpresidente",
+		Annotations: map[string]string{"pp:endpoint": "tiktok.list-profile-2", "pp:method": "GET", "pp:path": "/v1/tiktok/profile/region", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
+			// Bare invocation of a command with required input prints help
+			// instead of pflag's terse "required flag not set" error. Optional-
+			// only read commands fall through so a bare call still executes.
+			if cmd.Flags().NFlag() == 0 && len(args) == 0 && !flags.dryRun {
+				return cmd.Help()
+			}
 			if !cmd.Flags().Changed("handle") && !flags.dryRun {
 				return fmt.Errorf("required flag \"%s\" not set", "handle")
 			}
-			if cmd.Flags().Changed("sort-by") {
-				allowedSortBy := []string{"latest", "popular"}
-				validSortBy := false
-				for _, v := range allowedSortBy {
-					if flagSortBy == v {
-						validSortBy = true
-						break
-					}
-				}
-				if !validSortBy {
-					fmt.Fprintf(os.Stderr, "warning: --%s %q not in allowed set %v\n", "sort-by", flagSortBy, allowedSortBy)
-				}
-			}
+			path := "/v1/tiktok/profile/region"
 			c, err := flags.newClient()
 			if err != nil {
 				return err
 			}
-
-			path := "/v3/tiktok/profile/videos"
 			params := map[string]string{}
 			if flagHandle != "" {
-				params["handle"] = fmt.Sprintf("%v", flagHandle)
+				params["handle"] = formatCLIParamValue(flagHandle)
 			}
-			if flagUserId != "" {
-				params["user_id"] = fmt.Sprintf("%v", flagUserId)
-			}
-			if flagSortBy != "" {
-				params["sort_by"] = fmt.Sprintf("%v", flagSortBy)
-			}
-			if flagMaxCursor != "" {
-				params["max_cursor"] = fmt.Sprintf("%v", flagMaxCursor)
-			}
-			if flagRegion != "" {
-				params["region"] = fmt.Sprintf("%v", flagRegion)
-			}
-			if flagTrim != false {
-				params["trim"] = fmt.Sprintf("%v", flagTrim)
-			}
-			data, prov, err := resolveRead(cmd.Context(), c, flags, "tiktok", false, path, params, nil)
+			data, prov, err := resolveReadWithStrategyAndResponsePath(cmd.Context(), c, flags, "auto", "tiktok", false, path, params, nil, "", cmd.ErrOrStderr())
 			if err != nil {
-				return classifyAPIError(err)
+				return classifyAPIError(err, flags)
 			}
-			// Print provenance to stderr for human-facing output
-			{
+			// Print provenance to stderr for human-facing output only.
+			// Machine-format flags (--json, --csv, --compact, --quiet, --plain,
+			// --select) and piped stdout suppress this line; the JSON envelope
+			// already carries meta.source for those consumers.
+			// SYNC: keep this gate aligned with command_promoted.go.tmpl.
+			if wantsHumanTable(cmd.OutOrStdout(), flags) {
 				var countItems []json.RawMessage
 				_ = json.Unmarshal(data, &countItems)
 				printProvenance(cmd, len(countItems), prov)
 			}
 			// For JSON output, wrap with provenance envelope before passing through flags.
 			// --select wins over --compact when both are set; --compact only runs when
-			// no explicit fields were requested.
-			if flags.asJSON || !isTerminal(cmd.OutOrStdout()) {
+			// no explicit fields were requested. Explicit format flags (--csv, --quiet,
+			// --plain) opt out of the auto-JSON path so piped consumers that asked for
+			// a non-JSON format reach the standard pipeline below.
+			if flags.asJSON || (!isTerminal(cmd.OutOrStdout()) && !flags.csv && !flags.quiet && !flags.plain) {
 				filtered := data
 				if flags.selectFields != "" {
 					filtered = filterFields(filtered, flags.selectFields)
@@ -105,15 +83,10 @@ func newTiktokListProfile2Cmd(flags *rootFlags) *cobra.Command {
 					return nil
 				}
 			}
-			return printOutputWithFlags(cmd.OutOrStdout(), data, flags)
+			return printOutputWithFlagsMeta(cmd.OutOrStdout(), data, flags, map[string]any{"source": "live"})
 		},
 	}
 	cmd.Flags().StringVar(&flagHandle, "handle", "", "TikTok handle")
-	cmd.Flags().StringVar(&flagUserId, "user-id", "", "TikTok user id. Use this for faster responses.")
-	cmd.Flags().StringVar(&flagSortBy, "sort-by", "", "What to sort by (one of: latest, popular)")
-	cmd.Flags().StringVar(&flagMaxCursor, "max-cursor", "", "Cursor to get more videos. Get 'max_cursor' from previous response.")
-	cmd.Flags().StringVar(&flagRegion, "region", "", "Region (Country) you want the proxy in. Defaults to US.")
-	cmd.Flags().BoolVar(&flagTrim, "trim", false, "Set to true for a trimmed down version of the response")
 
 	return cmd
 }

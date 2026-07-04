@@ -1,0 +1,26 @@
+{
+  "schema_version": 2,
+  "id": "find-appearances-and-auth-config",
+  "applied_at": "2026-06-14",
+  "base_run_id": "20260610-113323-a453895b",
+  "base_printing_press_version": "4.24.0",
+  "summary": "feat(podcastindex): add workflow find-appearances + auth set-secret; demote search-byperson",
+  "reason": "Dogfooding the CLI to find a person's podcast appearances surfaced three frictions: (1) no first-class command for the proven byterm(show)->episodes-byfeedid->filter chain, so every caller re-derives it; (2) find search-byperson is the obvious-but-wrong path (PodcastIndex byperson fuzzy-matches the first name and is tag-dependent, so it is noisy on common names and misses untagged guests) yet help steered users to it; (3) the signing secret could not be persisted ergonomically (auth set-token saves only the key; auth setup's help wrongly claimed the secret cannot live in config, though PodcastindexSecret() already falls back to client_secret).",
+  "files": [
+    "internal/cli/workflow_find_appearances.go",
+    "internal/cli/channel_workflow.go",
+    "internal/cli/auth_set_secret.go",
+    "internal/cli/auth.go",
+    "internal/config/podcastindex_secret.go",
+    "internal/cli/find_search-byperson.go",
+    "README.md"
+  ],
+  "validated_outcome": "publish validate passed; `workflow find-appearances --match \"Arthur Mensch\" --show \"Big Technology\"` surfaces feed 197340's episode that find search-byperson misses; `auth set-secret` persists client_secret so a non-interactive run authenticates without PODCASTINDEX_SECRET in env.",
+  "findings_addressed": ["F1", "F2", "F3"],
+  "deferred_to_upstream": [
+    {
+      "feature": "Episode-content / guest search at the API layer",
+      "reason": "PodcastIndex has no episode-content search; its only search endpoints (search/byterm, search/bytitle, search/byperson, search/music/byterm) index feed metadata or person tags. find-appearances therefore requires the show context (supplied by an upstream web search) and cannot discover an untagged guest from a name alone. This is an API capability gap, not fixable in the printed CLI; nothing for the generator to learn."
+    }
+  ]
+}

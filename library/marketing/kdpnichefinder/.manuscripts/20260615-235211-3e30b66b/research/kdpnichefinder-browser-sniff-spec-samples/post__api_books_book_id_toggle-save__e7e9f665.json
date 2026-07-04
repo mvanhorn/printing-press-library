@@ -1,0 +1,53 @@
+{
+  "endpoint": "POST /api/books/{book_id}/toggle-save",
+  "method": "POST",
+  "raw_url": "https://kdpnichefinder.com/api/books/2589/toggle-save",
+  "status": 200,
+  "request_headers": {
+    ":authority": "kdpnichefinder.com",
+    ":method": "POST",
+    ":path": "/api/books/2589/toggle-save",
+    ":scheme": "https",
+    "accept": "application/json",
+    "accept-encoding": "gzip, deflate, br, zstd",
+    "accept-language": "en-US,en;q=0.9",
+    "cache-control": "no-cache",
+    "content-length": "18",
+    "content-type": "application/json",
+    "dnt": "1",
+    "origin": "https://kdpnichefinder.com",
+    "pragma": "no-cache",
+    "priority": "u=1, i",
+    "referer": "https://kdpnichefinder.com/app/category/hidden_gems",
+    "sec-ch-ua": "\"Brave\";v=\"149\", \"Chromium\";v=\"149\", \"Not)A;Brand\";v=\"24\"",
+    "sec-ch-ua-mobile": "?0",
+    "sec-ch-ua-platform": "\"macOS\"",
+    "sec-fetch-dest": "empty",
+    "sec-fetch-mode": "cors",
+    "sec-fetch-site": "same-origin",
+    "sec-gpc": "1",
+    "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36",
+    "x-csrf-token": "<redacted>"
+  },
+  "request_body": {
+    "folder_id": null
+  },
+  "response_headers": {
+    "access-control-allow-origin": "*",
+    "cache-control": "no-cache, private",
+    "content-encoding": "gzip",
+    "content-type": "application/json",
+    "date": "Tue, 16 Jun 2026 05:04:38 GMT",
+    "server": "nginx",
+    "strict-transport-security": "max-age=31536000",
+    "vary": "X-Inertia",
+    "x-powered-by": "PHP/8.4.17"
+  },
+  "response_body": {
+    "saved": false
+  },
+  "response_body_known": true,
+  "redactions": [
+    "request_headers.x-csrf-token"
+  ]
+}

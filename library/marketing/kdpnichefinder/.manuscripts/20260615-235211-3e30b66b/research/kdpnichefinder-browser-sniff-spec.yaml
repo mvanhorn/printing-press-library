@@ -1,0 +1,414 @@
+name: kdpnichefinder
+description: Discovered API spec for kdpnichefinder
+version: 0.1.0
+base_url: https://kdpnichefinder.com
+spec_source: sniffed
+auth:
+    type: none
+    header: ""
+    format: ""
+    env_vars: []
+auth_warnings:
+    - 'rejected auth candidate "search" from query: search input'
+config:
+    format: toml
+    path: ~/.config/kdpnichefinder-pp-cli/config.toml
+resources:
+    app:
+        description: Operations on hidden_gems
+        endpoints:
+            list_evergreen:
+                method: GET
+                path: /app/category/evergreen
+                description: GET /app/category/evergreen
+                params: []
+                body: []
+                response:
+                    type: object
+                    item: evergreen
+                pagination: null
+                observed_auth:
+                    - x-xsrf-token
+            list_fresh_money:
+                method: GET
+                path: /app/category/fresh_money
+                description: GET /app/category/fresh_money
+                params: []
+                body: []
+                response:
+                    type: object
+                    item: fresh_money
+                pagination: null
+                observed_auth:
+                    - x-xsrf-token
+            list_hidden_gems:
+                method: GET
+                path: /app/category/hidden_gems
+                description: GET /app/category/hidden_gems
+                params:
+                    - name: search
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: HiddenGem
+                pagination: null
+                observed_auth:
+                    - x-xsrf-token
+            list_high_ticket:
+                method: GET
+                path: /app/category/high_ticket
+                description: GET /app/category/high_ticket
+                params: []
+                body: []
+                response:
+                    type: object
+                    item: high_ticket
+                pagination: null
+                observed_auth:
+                    - x-xsrf-token
+    books:
+        description: Operations on toggle-save
+        endpoints:
+            create_toggle_save:
+                method: POST
+                path: /api/books/{book_id}/toggle-save
+                description: POST /api/books/{book_id}/toggle-save
+                params:
+                    - name: book_id
+                      type: string
+                      required: true
+                      positional: true
+                      default: null
+                      description: The book_id path segment
+                      fields: []
+                body:
+                    - name: folder_id
+                      type: integer
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                response:
+                    type: object
+                    item: ToggleSave
+                pagination: null
+                observed_auth:
+                    - x-csrf-token
+    categories:
+        description: Operations on categories
+        endpoints:
+            list_categories:
+                method: GET
+                path: /api/categories
+                description: GET /api/categories
+                params:
+                    - name: description
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: key
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: name
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: array
+                    item: Category
+                pagination: null
+    dashboard:
+        description: Operations on dashboard
+        endpoints:
+            list_dashboard:
+                method: GET
+                path: /dashboard
+                description: Fetch structured links from /dashboard
+                params: []
+                body: []
+                response:
+                    type: object
+                    item: html
+                response_format: html
+                html_extract:
+                    mode: page
+                    limit: 50
+                pagination: null
+    folders:
+        description: Operations on folders
+        endpoints:
+            create_folders:
+                method: POST
+                path: /api/folders
+                description: POST /api/folders
+                params: []
+                body:
+                    - name: name
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                response:
+                    type: object
+                    item: folders
+                pagination: null
+                observed_auth:
+                    - x-csrf-token
+            list_folders:
+                method: GET
+                path: /api/folders
+                description: GET /api/folders
+                params:
+                    - name: id
+                      type: integer
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: name
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: array
+                    item: Folder
+                pagination: null
+    prompts:
+        description: Operations on prompts
+        endpoints:
+            list_prompts:
+                method: GET
+                path: /prompts
+                description: GET /prompts
+                params:
+                    - name: prompts
+                      type: array
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields:
+                        - name: created_at
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                          format: date-time
+                        - name: id
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                          format: uuid
+                        - name: is_default
+                          type: boolean
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: label
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: prompt
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: rank
+                          type: integer
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: updated_at
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                          format: date-time
+                body: []
+                response:
+                    type: array
+                    item: Prompt
+                pagination: null
+                response_path: prompts
+                observed_auth:
+                    - x-access-token
+    user:
+        description: Operations on user
+        endpoints:
+            list_user:
+                method: GET
+                path: /api/user
+                description: GET /api/user
+                params:
+                    - name: email
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                      format: email
+                    - name: image_url
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: name
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: User
+                pagination: null
+types:
+    Books:
+        fields:
+            - name: current_page
+              type: integer
+            - name: data
+              type: array
+            - name: first_page_url
+              type: string
+              format: url
+            - name: from
+              type: integer
+            - name: last_page
+              type: integer
+            - name: last_page_url
+              type: string
+              format: url
+            - name: links
+              type: array
+            - name: next_page_url
+              type: string
+              format: url
+            - name: path
+              type: string
+              format: url
+            - name: per_page
+              type: integer
+            - name: to
+              type: integer
+            - name: total
+              type: integer
+    Category:
+        fields:
+            - name: description
+              type: string
+            - name: key
+              type: string
+            - name: name
+              type: string
+    Folder:
+        fields:
+            - name: id
+              type: integer
+            - name: name
+              type: string
+    HiddenGem:
+        fields:
+            - name: clearHistory
+              type: bool
+            - name: component
+              type: string
+            - name: encryptHistory
+              type: bool
+            - name: props
+              type: ref:Props
+            - name: url
+              type: string
+            - name: version
+              type: string
+    Prompt:
+        fields:
+            - name: created_at
+              type: string
+              format: date-time
+            - name: id
+              type: string
+              format: uuid
+            - name: is_default
+              type: bool
+            - name: label
+              type: string
+            - name: prompt
+              type: string
+            - name: rank
+              type: integer
+            - name: updated_at
+              type: string
+              format: date-time
+    Props:
+        fields:
+            - name: artistlyRedirectUrl
+              type: string
+              format: url
+            - name: books
+              type: ref:Books
+            - name: errors
+              type: object
+            - name: key
+              type: string
+            - name: savedBookIds
+              type: array
+    ToggleSave:
+        fields:
+            - name: saved
+              type: bool
+    User:
+        fields:
+            - name: email
+              type: string
+              format: email
+            - name: image_url
+              type: string
+            - name: name
+              type: string

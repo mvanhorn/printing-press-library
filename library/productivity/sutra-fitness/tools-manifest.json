@@ -1,0 +1,482 @@
+{
+  "api_name": "sutra-fitness",
+  "base_url": "https://us-central1-sutra-prod.cloudfunctions.net/partnerApi/v0",
+  "description": "Every Sutra (Arketa) Partner API resource, plus a local data mirror and the studio analytics the dashboard buries — no-show rates, capacity, churn, and revenue you can finally query.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "api_key",
+    "header": "X-API-Key",
+    "in": "header",
+    "env_vars": [
+      "SUTRA_API_KEY"
+    ],
+    "env_var_specs": [
+      {
+        "name": "SUTRA_API_KEY",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    ],
+    "key_url": "https://us-central1-sutra-prod.cloudfunctions.net/partnerApi/v0`"
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "classes_get-partner",
+      "description": "Retrieve a paginated list of partner classes with optional filtering. Required: partnerId, locationId. Optional: limit (default: 10), start_after, start_date (plus 2 more). Returns array of Class.",
+      "method": "GET",
+      "path": "/{partnerId}/classes",
+      "params": [
+        {
+          "name": "partnerId",
+          "type": "string",
+          "location": "path",
+          "description": "Partner identifier",
+          "required": true
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Number of items to return (default 10, max 100)"
+        },
+        {
+          "name": "start_after",
+          "type": "string",
+          "location": "query",
+          "description": "ID to start after for pagination"
+        },
+        {
+          "name": "locationId",
+          "type": "string",
+          "location": "path",
+          "description": "Location identifier",
+          "required": true
+        },
+        {
+          "name": "start_date",
+          "type": "string",
+          "location": "query",
+          "description": "Filter classes starting from this date (ISO 8601)"
+        },
+        {
+          "name": "end_date",
+          "type": "string",
+          "location": "query",
+          "description": "Filter classes ending before this date (ISO 8601)"
+        },
+        {
+          "name": "ids",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated list of IDs to fetch"
+        }
+      ]
+    },
+    {
+      "name": "classes_get-partner-class",
+      "description": "Retrieve details for a specific class. Required: partnerId, classId. Returns the ClassesGetPartnerClassResponse.",
+      "method": "GET",
+      "path": "/{partnerId}/classes/{classId}",
+      "params": [
+        {
+          "name": "partnerId",
+          "type": "string",
+          "location": "path",
+          "description": "Partner identifier",
+          "required": true
+        },
+        {
+          "name": "classId",
+          "type": "string",
+          "location": "path",
+          "description": "Class identifier",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "classes_reservations_cancel",
+      "description": "Cancel an existing reservation with optional refund. Required: partnerId, classId, reservationId. Optional: isLateCancel (default: false), issueRefund (default: false). Returns the updated ReservationsCancelResponse.",
+      "method": "PUT",
+      "path": "/{partnerId}/classes/{classId}/reservations/{reservationId}",
+      "params": [
+        {
+          "name": "partnerId",
+          "type": "string",
+          "location": "path",
+          "description": "Partner identifier",
+          "required": true
+        },
+        {
+          "name": "classId",
+          "type": "string",
+          "location": "path",
+          "description": "Class identifier",
+          "required": true
+        },
+        {
+          "name": "reservationId",
+          "type": "string",
+          "location": "path",
+          "description": "Reservation identifier",
+          "required": true
+        },
+        {
+          "name": "isLateCancel",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether this is a late cancellation"
+        },
+        {
+          "name": "issueRefund",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether to issue a refund"
+        }
+      ]
+    },
+    {
+      "name": "classes_reservations_check-in",
+      "description": "Mark a reservation as checked in. Required: partnerId, classId, reservationId. Returns the new ReservationsCheckInResponse.",
+      "method": "POST",
+      "path": "/{partnerId}/classes/{classId}/reservations/{reservationId}/check-in",
+      "params": [
+        {
+          "name": "partnerId",
+          "type": "string",
+          "location": "path",
+          "description": "Partner identifier",
+          "required": true
+        },
+        {
+          "name": "classId",
+          "type": "string",
+          "location": "path",
+          "description": "Class identifier",
+          "required": true
+        },
+        {
+          "name": "reservationId",
+          "type": "string",
+          "location": "path",
+          "description": "Reservation identifier",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "classes_reservations_create",
+      "description": "Create a reservation for a class with either an existing client or new client. Required: partnerId, classId. Returns the new ReservationsCreateResponse.",
+      "method": "POST",
+      "path": "/{partnerId}/classes/{classId}/reservations",
+      "params": [
+        {
+          "name": "partnerId",
+          "type": "string",
+          "location": "path",
+          "description": "Partner identifier",
+          "required": true
+        },
+        {
+          "name": "classId",
+          "type": "string",
+          "location": "path",
+          "description": "Class identifier",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "classes_reservations_get-class",
+      "description": "Retrieve reservations for a specific class. Required: partnerId, classId. Optional: limit (default: 10), start_after. Returns array of Reservation.",
+      "method": "GET",
+      "path": "/{partnerId}/classes/{classId}/reservations",
+      "params": [
+        {
+          "name": "partnerId",
+          "type": "string",
+          "location": "path",
+          "description": "Partner identifier",
+          "required": true
+        },
+        {
+          "name": "classId",
+          "type": "string",
+          "location": "path",
+          "description": "Class identifier",
+          "required": true
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Number of items to return (default 10, max 100)"
+        },
+        {
+          "name": "start_after",
+          "type": "string",
+          "location": "query",
+          "description": "ID to start after for pagination"
+        }
+      ]
+    },
+    {
+      "name": "clients_get-partner",
+      "description": "Retrieve a paginated list of partner clients with optional filtering. Required: partnerId. Optional: limit (default: 10), start_after, updated_at_min (plus 2 more). Returns array of Client.",
+      "method": "GET",
+      "path": "/{partnerId}/clients",
+      "params": [
+        {
+          "name": "partnerId",
+          "type": "string",
+          "location": "path",
+          "description": "Partner identifier",
+          "required": true
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Number of items to return (default 10, max 100)"
+        },
+        {
+          "name": "start_after",
+          "type": "string",
+          "location": "query",
+          "description": "ID to start after for pagination"
+        },
+        {
+          "name": "updated_at_min",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by minimum updated timestamp (ISO 8601)"
+        },
+        {
+          "name": "updated_at_max",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by maximum updated timestamp (ISO 8601)"
+        },
+        {
+          "name": "ids",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated list of IDs to fetch"
+        }
+      ]
+    },
+    {
+      "name": "clients_get-partner-clients",
+      "description": "Retrieve details for a specific client. Required: partnerId, clientId. Returns the ClientsGetPartnerClientsResponse.",
+      "method": "GET",
+      "path": "/{partnerId}/clients/{clientId}",
+      "params": [
+        {
+          "name": "partnerId",
+          "type": "string",
+          "location": "path",
+          "description": "Partner identifier",
+          "required": true
+        },
+        {
+          "name": "clientId",
+          "type": "string",
+          "location": "path",
+          "description": "Client identifier",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "locations_get-partner",
+      "description": "Retrieve a paginated list of partner locations with optional filtering. Required: partnerId. Optional: limit (default: 10), start_after, updated_at_min (plus 2 more). Returns array of Location.",
+      "method": "GET",
+      "path": "/{partnerId}/locations",
+      "params": [
+        {
+          "name": "partnerId",
+          "type": "string",
+          "location": "path",
+          "description": "Partner identifier",
+          "required": true
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Number of items to return (default 10, max 100)"
+        },
+        {
+          "name": "start_after",
+          "type": "string",
+          "location": "query",
+          "description": "ID to start after for pagination"
+        },
+        {
+          "name": "updated_at_min",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by minimum updated timestamp (ISO 8601)"
+        },
+        {
+          "name": "updated_at_max",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by maximum updated timestamp (ISO 8601)"
+        },
+        {
+          "name": "ids",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated list of IDs to fetch"
+        }
+      ]
+    },
+    {
+      "name": "locations_rooms_get-location",
+      "description": "Retrieve a paginated list of rooms for a specific location. Required: partnerId, locationId. Optional: limit (default: 10), start_after, updated_at_min (plus 2 more). Returns array of Room.",
+      "method": "GET",
+      "path": "/{partnerId}/locations/{locationId}/rooms",
+      "params": [
+        {
+          "name": "partnerId",
+          "type": "string",
+          "location": "path",
+          "description": "Partner identifier",
+          "required": true
+        },
+        {
+          "name": "locationId",
+          "type": "string",
+          "location": "path",
+          "description": "Location identifier",
+          "required": true
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Number of items to return (default 10, max 100)"
+        },
+        {
+          "name": "start_after",
+          "type": "string",
+          "location": "query",
+          "description": "ID to start after for pagination"
+        },
+        {
+          "name": "updated_at_min",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by minimum updated timestamp (ISO 8601)"
+        },
+        {
+          "name": "updated_at_max",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by maximum updated timestamp (ISO 8601)"
+        },
+        {
+          "name": "ids",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated list of IDs to fetch"
+        }
+      ]
+    },
+    {
+      "name": "purchases_get-partner",
+      "description": "Retrieve a paginated list of partner purchases with optional filtering. Required: partnerId. Optional: limit (default: 10), start_after, updated_at_min (plus 2 more). Returns array of Purchase.",
+      "method": "GET",
+      "path": "/{partnerId}/purchases",
+      "params": [
+        {
+          "name": "partnerId",
+          "type": "string",
+          "location": "path",
+          "description": "Partner identifier",
+          "required": true
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Number of items to return (default 10, max 100)"
+        },
+        {
+          "name": "start_after",
+          "type": "string",
+          "location": "query",
+          "description": "ID to start after for pagination"
+        },
+        {
+          "name": "updated_at_min",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by minimum updated timestamp (ISO 8601)"
+        },
+        {
+          "name": "updated_at_max",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by maximum updated timestamp (ISO 8601)"
+        },
+        {
+          "name": "ids",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated list of IDs to fetch"
+        }
+      ]
+    },
+    {
+      "name": "referrals_get-partner",
+      "description": "Retrieve a paginated list of partner referrals with optional filtering. Required: partnerId. Optional: limit (default: 10), start_after, updated_at_min (plus 2 more). Returns array of Referral.",
+      "method": "GET",
+      "path": "/{partnerId}/referrals",
+      "params": [
+        {
+          "name": "partnerId",
+          "type": "string",
+          "location": "path",
+          "description": "Partner identifier",
+          "required": true
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Number of items to return (default 10, max 100)"
+        },
+        {
+          "name": "start_after",
+          "type": "string",
+          "location": "query",
+          "description": "ID to start after for pagination"
+        },
+        {
+          "name": "updated_at_min",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by minimum updated timestamp (ISO 8601)"
+        },
+        {
+          "name": "updated_at_max",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by maximum updated timestamp (ISO 8601)"
+        },
+        {
+          "name": "ids",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated list of IDs to fetch"
+        }
+      ]
+    }
+  ]
+}

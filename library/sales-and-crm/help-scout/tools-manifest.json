@@ -1,0 +1,460 @@
+{
+  "api_name": "help-scout",
+  "base_url": "https://api.helpscout.net/v2",
+  "description": "Read-first Help Scout Inbox API surface for support operations and agent workflows.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "mcp": {
+    "endpoint_tools": "hidden"
+  },
+  "auth": {
+    "type": "bearer_token",
+    "header": "Authorization",
+    "env_vars": [
+      "HELP_SCOUT_BEARER_AUTH"
+    ],
+    "env_var_specs": [
+      {
+        "name": "HELP_SCOUT_BEARER_AUTH",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    ]
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "conversations_get",
+      "description": "Get a conversation by ID. Required: conversationId. Optional: embed. Returns the GenericObject.",
+      "method": "GET",
+      "path": "/conversations/{conversationId}",
+      "params": [
+        {
+          "name": "conversationId",
+          "type": "int",
+          "location": "path",
+          "description": "Conversation id",
+          "required": true
+        },
+        {
+          "name": "embed",
+          "type": "string",
+          "location": "query",
+          "description": "Embed"
+        }
+      ]
+    },
+    {
+      "name": "conversations_get-v3",
+      "description": "Get a conversation by ID using the v3 conversation representation. Required: conversationId. Returns the GenericObject.",
+      "method": "GET",
+      "path": "/v3/conversations/{conversationId}",
+      "params": [
+        {
+          "name": "conversationId",
+          "type": "int",
+          "location": "path",
+          "description": "Conversation id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "conversations_list",
+      "description": "List conversations. Optional: page, mailbox, folder (plus 3 more). Returns the GenericObject.",
+      "method": "GET",
+      "path": "/conversations",
+      "params": [
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page"
+        },
+        {
+          "name": "mailbox",
+          "type": "int",
+          "location": "query",
+          "description": "Mailbox"
+        },
+        {
+          "name": "folder",
+          "type": "int",
+          "location": "query",
+          "description": "Folder"
+        },
+        {
+          "name": "status",
+          "type": "string",
+          "location": "query",
+          "description": "Status"
+        },
+        {
+          "name": "tag",
+          "type": "string",
+          "location": "query",
+          "description": "Tag"
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "query",
+          "description": "Query"
+        }
+      ]
+    },
+    {
+      "name": "conversations_threads_list-conversation",
+      "description": "List threads on a conversation. Required: conversationId. Optional: page. Returns the GenericObject.",
+      "method": "GET",
+      "path": "/conversations/{conversationId}/threads",
+      "params": [
+        {
+          "name": "conversationId",
+          "type": "int",
+          "location": "path",
+          "description": "Conversation id",
+          "required": true
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page"
+        }
+      ]
+    },
+    {
+      "name": "conversations_threads_list-conversation-v3",
+      "description": "List threads on a conversation using the v3 thread representation. Required: conversationId. Optional: page. Returns the GenericObject.",
+      "method": "GET",
+      "path": "/v3/conversations/{conversationId}/threads",
+      "params": [
+        {
+          "name": "conversationId",
+          "type": "int",
+          "location": "path",
+          "description": "Conversation id",
+          "required": true
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page"
+        }
+      ]
+    },
+    {
+      "name": "customers_get",
+      "description": "Get a customer by ID. Required: customerId. Returns the GenericObject.",
+      "method": "GET",
+      "path": "/customers/{customerId}",
+      "params": [
+        {
+          "name": "customerId",
+          "type": "int",
+          "location": "path",
+          "description": "Customer id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "customers_list",
+      "description": "List customers. Optional: page, query. Returns the GenericObject.",
+      "method": "GET",
+      "path": "/customers",
+      "params": [
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page"
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "query",
+          "description": "Query"
+        }
+      ]
+    },
+    {
+      "name": "mailboxes_get-mailbox",
+      "description": "Get a Help Scout mailbox by ID. Required: mailboxId. Returns the GenericObject.",
+      "method": "GET",
+      "path": "/mailboxes/{mailboxId}",
+      "params": [
+        {
+          "name": "mailboxId",
+          "type": "int",
+          "location": "path",
+          "description": "Mailbox id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "mailboxes_list",
+      "description": "List Help Scout mailboxes. Optional: page, embed. Returns the GenericObject.",
+      "method": "GET",
+      "path": "/mailboxes",
+      "params": [
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page"
+        },
+        {
+          "name": "embed",
+          "type": "string",
+          "location": "query",
+          "description": "Embed"
+        }
+      ]
+    },
+    {
+      "name": "mailboxes_fields_list-mailbox",
+      "description": "List custom fields for a mailbox. Required: mailboxId. Optional: page. Returns the GenericObject.",
+      "method": "GET",
+      "path": "/mailboxes/{mailboxId}/fields",
+      "params": [
+        {
+          "name": "mailboxId",
+          "type": "int",
+          "location": "path",
+          "description": "Mailbox id",
+          "required": true
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page"
+        }
+      ]
+    },
+    {
+      "name": "mailboxes_folders_list-mailbox",
+      "description": "List folders for a mailbox. Required: mailboxId. Optional: page. Returns the GenericObject.",
+      "method": "GET",
+      "path": "/mailboxes/{mailboxId}/folders",
+      "params": [
+        {
+          "name": "mailboxId",
+          "type": "int",
+          "location": "path",
+          "description": "Mailbox id",
+          "required": true
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page"
+        }
+      ]
+    },
+    {
+      "name": "reports_get-conversation",
+      "description": "Get conversation reporting metrics. Optional: start, end, mailbox. Returns the GenericObject.",
+      "method": "GET",
+      "path": "/reports/conversations",
+      "params": [
+        {
+          "name": "start",
+          "type": "string",
+          "location": "query",
+          "description": "Start"
+        },
+        {
+          "name": "end",
+          "type": "string",
+          "location": "query",
+          "description": "End"
+        },
+        {
+          "name": "mailbox",
+          "type": "int",
+          "location": "query",
+          "description": "Mailbox"
+        }
+      ]
+    },
+    {
+      "name": "reports_get-happiness",
+      "description": "Get customer happiness reporting metrics. Optional: start, end, mailbox. Returns the GenericObject.",
+      "method": "GET",
+      "path": "/reports/happiness",
+      "params": [
+        {
+          "name": "start",
+          "type": "string",
+          "location": "query",
+          "description": "Start"
+        },
+        {
+          "name": "end",
+          "type": "string",
+          "location": "query",
+          "description": "End"
+        },
+        {
+          "name": "mailbox",
+          "type": "int",
+          "location": "query",
+          "description": "Mailbox"
+        }
+      ]
+    },
+    {
+      "name": "reports_get-productivity",
+      "description": "Get productivity reporting metrics. Optional: start, end, mailbox. Returns the GenericObject.",
+      "method": "GET",
+      "path": "/reports/productivity",
+      "params": [
+        {
+          "name": "start",
+          "type": "string",
+          "location": "query",
+          "description": "Start"
+        },
+        {
+          "name": "end",
+          "type": "string",
+          "location": "query",
+          "description": "End"
+        },
+        {
+          "name": "mailbox",
+          "type": "int",
+          "location": "query",
+          "description": "Mailbox"
+        }
+      ]
+    },
+    {
+      "name": "tags_list",
+      "description": "List Help Scout tags. Optional: page. Returns the GenericObject.",
+      "method": "GET",
+      "path": "/tags",
+      "params": [
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page"
+        }
+      ]
+    },
+    {
+      "name": "teams_list",
+      "description": "List Help Scout teams. Optional: page. Returns the GenericObject.",
+      "method": "GET",
+      "path": "/teams",
+      "params": [
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page"
+        }
+      ]
+    },
+    {
+      "name": "teams_members_list-team",
+      "description": "List users in a team. Required: teamId. Optional: page. Returns the GenericObject.",
+      "method": "GET",
+      "path": "/teams/{teamId}/members",
+      "params": [
+        {
+          "name": "teamId",
+          "type": "int",
+          "location": "path",
+          "description": "Team id",
+          "required": true
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page"
+        }
+      ]
+    },
+    {
+      "name": "users_get",
+      "description": "Get a Help Scout user by ID. Required: userId. Returns the GenericObject.",
+      "method": "GET",
+      "path": "/users/{userId}",
+      "params": [
+        {
+          "name": "userId",
+          "type": "int",
+          "location": "path",
+          "description": "User id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "users_get-current",
+      "description": "Get the authenticated Help Scout user. Returns the GenericObject.",
+      "method": "GET",
+      "path": "/users/me",
+      "params": []
+    },
+    {
+      "name": "users_list",
+      "description": "List Help Scout users. Optional: page, embed. Returns the GenericObject.",
+      "method": "GET",
+      "path": "/users",
+      "params": [
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page"
+        },
+        {
+          "name": "embed",
+          "type": "string",
+          "location": "query",
+          "description": "Embed"
+        }
+      ]
+    },
+    {
+      "name": "webhooks_list",
+      "description": "List webhook subscriptions. Optional: page. Returns the GenericObject.",
+      "method": "GET",
+      "path": "/webhooks",
+      "params": [
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page"
+        }
+      ]
+    },
+    {
+      "name": "workflows_list",
+      "description": "List Help Scout workflows. Optional: page. Returns the GenericObject.",
+      "method": "GET",
+      "path": "/workflows",
+      "params": [
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page"
+        }
+      ]
+    }
+  ]
+}

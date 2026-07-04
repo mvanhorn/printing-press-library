@@ -1,6 +1,6 @@
 module github.com/mvanhorn/printing-press-library/library/marketing/google-analytics
 
-go 1.25.11
+go 1.26.4
 
 require github.com/spf13/cobra v1.9.1
 

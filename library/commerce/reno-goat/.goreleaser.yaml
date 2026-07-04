@@ -1,0 +1,51 @@
+version: 2
+project_name: reno-goat-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: reno-goat-pp-cli
+    main: ./cmd/reno-goat-pp-cli
+    binary: reno-goat-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X reno-goat-pp-cli/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: reno-goat-pp-mcp
+    main: ./cmd/reno-goat-pp-mcp
+    binary: reno-goat-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: reno-goat-pp-cli
+    repository:
+      owner: h179922
+      name: homebrew-tap
+    homepage: "https://github.com/h179922/reno-goat-pp-cli"
+    description: "Search, compare, price-watch, and project-track renovation and interior products across 11 retailers"
+    install: |
+      bin.install "reno-goat-pp-cli"
+      bin.install "reno-goat-pp-mcp"

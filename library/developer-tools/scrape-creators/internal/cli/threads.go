@@ -9,8 +9,11 @@ import (
 
 func newThreadsCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "threads",
-		Short: "Get Threads posts",
+		Use:         "threads",
+		Short:       "Manage threads command groups",
+		Hidden:      true,
+		Annotations: map[string]string{"mcp:read-only": "true", "pp:typed-exit-codes": "0,2"},
+		RunE:        parentNoSubcommandRunE(flags),
 	}
 
 	cmd.AddCommand(newThreadsListCmd(flags))

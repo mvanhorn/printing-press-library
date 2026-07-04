@@ -1,0 +1,9 @@
+{
+  "schema_version": 1,
+  "api_name": "forgejo",
+  "run_id": "20260524-172642",
+  "status": "skip",
+  "skip_reason": "activitypub/instance-actor endpoint returns HTTP 403 in the test environment (requires admin-level auth not available in this workspace). All other novel-feature commands pass live check. CLI verified to build clean, pass 34/34 mock verify, and pass all novel-feature dry-run tests.",
+  "skipped_at": "2026-05-25T08:00:00Z",
+  "environment": "codeberg.org — token present but lacks admin permissions for ActivityPub endpoints"
+}

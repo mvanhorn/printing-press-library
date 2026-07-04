@@ -1,0 +1,243 @@
+name: luma
+description: "Browse and search public Luma events — discover events by city and category, fetch event and calendar details. Read-only, no Luma account or API key needed."
+version: "0.1.0"
+base_url: "https://api.luma.com"
+http_transport: standard
+health_check_path: "/discover/bootstrap-page"
+category: social-and-messaging
+
+required_headers:
+  - name: User-Agent
+    value: "Mozilla/5.0 (compatible; luma-pp-cli)"
+  - name: Accept
+    value: "application/json"
+
+auth:
+  type: none
+
+config:
+  format: toml
+  path: "~/.config/luma-pp-cli/config.toml"
+
+resources:
+  discover:
+    description: "Discover featured events, places, and categories on Luma"
+    endpoints:
+      home:
+        method: GET
+        path: "/discover/bootstrap-page"
+        description: "Featured place, popular places, categories, and calendars on the Luma discover home"
+        response:
+          type: object
+          item: DiscoverHome
+      categories:
+        method: GET
+        path: "/discover/category/list-categories"
+        description: "List event categories (AI, Crypto, Tech, Arts, ...) with upcoming-event counts"
+        params:
+          - name: pagination_limit
+            flag_name: limit
+            type: int
+            default: 50
+            description: "Max categories to return"
+          - name: pagination_cursor
+            flag_name: cursor
+            type: string
+            description: "Pagination cursor returned by a previous page (next_cursor)"
+        response:
+          type: array
+          item: Category
+        response_path: entries
+        pagination:
+          type: cursor
+          cursor_field: next_cursor
+          has_more_field: has_more
+
+  places:
+    description: "Browse cities/places that host Luma events"
+    endpoints:
+      get:
+        method: GET
+        path: "/discover/get-place"
+        description: "Get a place (city) by slug (sf, nyc, miami, ...) or place api_id"
+        params:
+          - name: slug
+            flag_name: city
+            type: string
+            description: "City slug, e.g. sf, nyc, miami, london (one of --city or --place-id)"
+          - name: discover_place_api_id
+            flag_name: place-id
+            type: string
+            description: "Place api_id (discplace-...), alternative to --city"
+        response:
+          type: object
+          item: PlaceDetail
+      calendars:
+        method: GET
+        path: "/discover/get-calendars"
+        description: "List calendars (communities) active in a place"
+        params:
+          - name: discover_place_api_id
+            flag_name: place-id
+            type: string
+            required: true
+            description: "Place api_id (discplace-...), from `places get`"
+        response:
+          type: array
+          item: Calendar
+        response_path: calendars
+      map:
+        method: GET
+        path: "/discover/place/get-points-for-mini-map"
+        description: "Geographic points for events in a place, for mapping"
+        params:
+          - name: discover_place_api_id
+            flag_name: place-id
+            type: string
+            required: true
+            description: "Place api_id (discplace-...)"
+        response:
+          type: object
+          item: MapPoints
+
+  events:
+    description: "Browse and fetch public Luma events"
+    endpoints:
+      list:
+        method: GET
+        path: "/discover/get-paginated-events"
+        description: "List upcoming events filtered by city (--city/--place-id) or category (--category)"
+        params:
+          - name: slug
+            flag_name: city
+            type: string
+            description: "City slug, e.g. sf, nyc, miami (filter by place)"
+          - name: discover_place_api_id
+            flag_name: place-id
+            type: string
+            description: "Place api_id (discplace-...), alternative to --city"
+          - name: category_api_id
+            flag_name: category
+            type: string
+            description: "Category api_id (cat-tech, cat-ai, ...) from `discover categories`"
+          - name: pagination_limit
+            flag_name: limit
+            type: int
+            default: 25
+            description: "Max events per page"
+          - name: pagination_cursor
+            flag_name: cursor
+            type: string
+            description: "Pagination cursor returned by a previous page (next_cursor)"
+        response:
+          type: array
+          item: EventEntry
+        response_path: entries
+        pagination:
+          type: cursor
+          cursor_field: next_cursor
+          has_more_field: has_more
+      get:
+        method: GET
+        path: "/event/get"
+        description: "Get full details for an event by its api_id (evt-...)"
+        params:
+          - name: event_api_id
+            flag_name: event-id
+            type: string
+            required: true
+            description: "Event api_id (evt-...), from `events list`"
+        response:
+          type: object
+          item: EventDetail
+
+  calendars:
+    description: "Fetch Luma calendar (community) details"
+    endpoints:
+      get:
+        method: GET
+        path: "/calendar/get"
+        description: "Get a calendar (community) by its api_id (cal-...)"
+        params:
+          - name: api_id
+            flag_name: calendar-id
+            type: string
+            required: true
+            description: "Calendar api_id (cal-...), from event detail or place calendars"
+        response:
+          type: object
+          item: CalendarDetail
+
+types:
+  DiscoverHome:
+    fields:
+      - name: featured_place
+        type: string
+      - name: places
+        type: string
+      - name: categories
+        type: string
+      - name: calendars
+        type: string
+  Category:
+    fields:
+      - name: api_id
+        type: string
+      - name: event_count
+        type: int
+      - name: num_upcoming_events
+        type: int
+      - name: subscriber_count
+        type: int
+  PlaceDetail:
+    fields:
+      - name: api_id
+        type: string
+      - name: slug
+        type: string
+      - name: name
+        type: string
+      - name: num_events
+        type: int
+  Calendar:
+    fields:
+      - name: api_id
+        type: string
+      - name: name
+        type: string
+      - name: slug
+        type: string
+  MapPoints:
+    fields:
+      - name: points
+        type: string
+  EventEntry:
+    fields:
+      - name: api_id
+        type: string
+      - name: start_at
+        type: string
+      - name: guest_count
+        type: int
+      - name: ticket_count
+        type: int
+  EventDetail:
+    fields:
+      - name: api_id
+        type: string
+      - name: start_at
+        type: string
+      - name: guest_count
+        type: int
+      - name: ticket_count
+        type: int
+      - name: sold_out
+        type: bool
+  CalendarDetail:
+    fields:
+      - name: api_id
+        type: string
+      - name: name
+        type: string
+      - name: slug
+        type: string

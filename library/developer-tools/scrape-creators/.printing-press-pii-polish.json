@@ -1,0 +1,17 @@
+{
+  "timestamp": "2026-06-30T01:44:54.846705Z",
+  "cli_dir": "\u003ccli-dir\u003e/scrape-creators",
+  "findings": [
+    {
+      "kind": "email",
+      "file": "README.md",
+      "line": 624,
+      "column": 516,
+      "matched_span": "support@scrapecreators.com",
+      "status": "accepted",
+      "category": "api_provider_data",
+      "evidence_context": "README \"Unique Features\" bullet for youtube list-video-3, quoting the vendor OpenAPI spec's endpoint description verbatim: \"This is inferred, not an official YouTube sponsor field. Feedback welcome: support@scrapecreators.com\". Scrape Creators' own published public support address, not personal PII."
+    }
+  ],
+  "findings_count_before": 1
+}

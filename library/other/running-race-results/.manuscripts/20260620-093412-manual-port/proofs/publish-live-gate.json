@@ -1,0 +1,87 @@
+{
+  "dir": "/Users/jiahongchen/printing-press/.publish-repo-running-race-results-cfee1e60/library/other/running-race-results",
+  "binary": "/Users/jiahongchen/printing-press/.publish-repo-running-race-results-cfee1e60/library/other/running-race-results/running-race-results-pp-cli-dogfood",
+  "level": "full",
+  "verdict": "PASS",
+  "matrix_size": 4,
+  "passed": 4,
+  "failed": 0,
+  "skipped": 4,
+  "commands": [
+    "athlete",
+    "lookup"
+  ],
+  "tests": [
+    {
+      "command": "athlete",
+      "kind": "help",
+      "args": [
+        "athlete",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Show a runner's cross-event race history.\n\nUse --provider to select the athlete-history provider (default: athlinks).\nSupported providers: athlinks, nyrr.\n\nUsage:\n  running-race-results-pp-cli athlete [name] [flags]\n\nExamples:\n  running-race-results-pp-cli athlete \"Sample Runner\" --provider nyrr --json\n  running-race-results-pp-cli athlete --racer-id 123456 --provider athlinks\n\nFlags:\n  -h, --help              help for athlete\n      --json              output JSON\n      --me                use the racer id from ATHLINKS_TOKEN (athlinks only)\n      --provider string   athlete-history provider (athlinks|nyrr) (default \"athlinks\")\n      --racer-id string   Racer id (skip name search)\n"
+    },
+    {
+      "command": "athlete",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [athlete] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "athlete",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [athlete] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "athlete",
+      "kind": "error_path",
+      "args": [
+        "athlete",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "error: no athlete matching \"__printing_press_invalid__\"\n"
+    },
+    {
+      "command": "lookup",
+      "kind": "help",
+      "args": [
+        "lookup",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Resolve a race and return the result for a bib or name\n\nUsage:\n  running-race-results-pp-cli lookup [race-name] [bib] [flags]\n\nExamples:\n  running-race-results-pp-cli lookup \"nyc marathon\" 12345 --year 2024\n  running-race-results-pp-cli lookup \"brooklyn half\" --name \"Sample Runner\" --json\n\nFlags:\n      --date string   race date YYYY-MM-DD (year is derived if --year unset)\n  -h, --help          help for lookup\n      --json          output JSON\n      --name string   look up by runner name instead of bib\n      --year int      race edition year\n"
+    },
+    {
+      "command": "lookup",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [lookup] has fewer segments than placeholders (2)"
+    },
+    {
+      "command": "lookup",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [lookup] has fewer segments than placeholders (2)"
+    },
+    {
+      "command": "lookup",
+      "kind": "error_path",
+      "args": [
+        "lookup",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "error: provide exactly one of \u003cbib\u003e or --name\n"
+    }
+  ],
+  "ran_at": "2026-06-20T14:02:15.874866Z"
+}

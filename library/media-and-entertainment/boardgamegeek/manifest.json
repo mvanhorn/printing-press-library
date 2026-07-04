@@ -1,0 +1,47 @@
+{
+  "manifest_version": "0.3",
+  "name": "boardgamegeek-pp-mcp",
+  "display_name": "Boardgamegeek Xml Api2",
+  "version": "0.0.0",
+  "description": "BoardGameGeek's official XMLAPI2 (https://boardgamegeek.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/boardgamegeek-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/boardgamegeek-pp-mcp",
+      "args": [],
+      "env": {
+        "BGG_TOKEN": "${user_config.bgg_token}",
+        "BOARDGAMEGEEK_TOKEN": "${user_config.boardgamegeek_token}"
+      }
+    }
+  },
+  "user_config": {
+    "bgg_token": {
+      "type": "string",
+      "title": "BGG_TOKEN",
+      "description": "Sets BGG_TOKEN for the Boardgamegeek Xml Api2 MCP server. Get a credential from https://boardgamegeek.com/applications.",
+      "sensitive": true,
+      "required": true
+    },
+    "boardgamegeek_token": {
+      "type": "string",
+      "title": "BOARDGAMEGEEK_TOKEN",
+      "description": "Sets BOARDGAMEGEEK_TOKEN for the Boardgamegeek Xml Api2 MCP server. Optional alias for BGG_TOKEN. Get a credential from https://boardgamegeek.com/applications.",
+      "sensitive": true,
+      "required": false
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

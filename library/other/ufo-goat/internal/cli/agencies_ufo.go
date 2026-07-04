@@ -26,6 +26,9 @@ by file type (PDF, VID, IMG) and date range coverage.`,
   ufo-goat-pp-cli agencies --json`,
 		Annotations: map[string]string{"mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
+			if dryRunOK(flags) {
+				return nil
+			}
 			if dbPath == "" {
 				dbPath = defaultDBPath("ufo-goat-pp-cli")
 			}
@@ -67,6 +70,10 @@ by file type (PDF, VID, IMG) and date range coverage.`,
 				data, _ := json.Marshal(agencies)
 				return printCSV(cmd.OutOrStdout(), json.RawMessage(data))
 			}
+			if flags.plain {
+				data, _ := json.Marshal(agencies)
+				return printPlain(cmd.OutOrStdout(), json.RawMessage(data))
+			}
 
 			// Table output
 			w := cmd.OutOrStdout()
@@ -99,7 +106,7 @@ by file type (PDF, VID, IMG) and date range coverage.`,
 		},
 	}
 
-	cmd.Flags().StringVar(&dbPath, "db", "", "Database path")
+	cmd.Flags().StringVar(&dbPath, "db", "", "Override the synced SQLite store path (default: ~/.local/share/ufo-goat-pp-cli/data.db)")
 	return cmd
 }
 

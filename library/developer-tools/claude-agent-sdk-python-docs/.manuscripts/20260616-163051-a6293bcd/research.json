@@ -1,0 +1,217 @@
+{
+  "api_name": "claude-agent-sdk-python-docs",
+  "novelty_score": 8,
+  "alternatives": [],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-06-16T20:55:00Z",
+  "novel_features": [
+    {
+      "name": "Code usage verifier against documented symbols",
+      "command": "verify",
+      "description": "Check Python code imports and qualified names against documented Claude Agent SDK symbols.",
+      "rationale": "Requires joining local Python identifiers with a docs-derived symbol index.",
+      "example": "claude-agent-sdk-python-docs-pp-cli verify ./src --agent",
+      "why_it_matters": "Use this before trusting generated SDK code or reviewing a PR that imports claude_agent_sdk.",
+      "group": "Docs-grounded verification"
+    },
+    {
+      "name": "Agent-ready task context bundle",
+      "command": "context",
+      "description": "Build a compact source-cited docs bundle for one SDK implementation task.",
+      "rationale": "Requires searching fetched docs sections, symbols, examples, and guide links together.",
+      "example": "claude-agent-sdk-python-docs-pp-cli context \"custom tools\" --agent --select sections.title,examples.code,citations.url",
+      "why_it_matters": "Use this when an agent needs exact docs context without loading full Markdown pages.",
+      "group": "Agent-native context"
+    },
+    {
+      "name": "Doc change diff by content hash",
+      "command": "diff",
+      "description": "Compare current docs entity hashes against an optional baseline file.",
+      "rationale": "Requires entity-level hashing of fetched pages, sections, symbols, examples, and links.",
+      "example": "claude-agent-sdk-python-docs-pp-cli diff --since latest --agent",
+      "why_it_matters": "Use this to detect whether SDK docs facts have changed against a saved baseline.",
+      "group": "Docs-grounded verification"
+    },
+    {
+      "name": "Minimal recipe composer from examples and signatures",
+      "command": "recipe",
+      "description": "Compose a deterministic implementation scaffold from documented snippets and exact signatures.",
+      "rationale": "Requires combining extracted examples with the symbol index without inventing API calls.",
+      "example": "claude-agent-sdk-python-docs-pp-cli recipe \"streaming ClaudeSDKClient\" --agent",
+      "why_it_matters": "Use this when you need a copyable starting point constrained to documented SDK patterns.",
+      "group": "Agent-native context"
+    },
+    {
+      "name": "SDK surface map by entity type",
+      "command": "map",
+      "description": "Map functions, classes, types, options, tools, hooks, and message blocks by entity type.",
+      "rationale": "Requires parsing the docs hierarchy and symbols into a local typed surface inventory.",
+      "example": "claude-agent-sdk-python-docs-pp-cli map --kind classes,types,options --agent",
+      "why_it_matters": "Use this to discover the available SDK surface before choosing an implementation path.",
+      "group": "SDK surface intelligence"
+    },
+    {
+      "name": "Example-to-symbol coverage map",
+      "command": "coverage examples",
+      "description": "Report which documented symbols have extracted examples and which do not.",
+      "rationale": "Requires joining extracted code blocks against the local symbol table.",
+      "example": "claude-agent-sdk-python-docs-pp-cli coverage examples --agent",
+      "why_it_matters": "Use this to find example-backed SDK APIs and documentation coverage gaps.",
+      "group": "SDK surface intelligence"
+    },
+    {
+      "name": "Anchor and link integrity audit",
+      "command": "audit-links",
+      "description": "Validate internal anchors, guide links, and section references in the fetched docs corpus.",
+      "rationale": "Requires page, heading, anchor, and link extraction across the docs corpus.",
+      "example": "claude-agent-sdk-python-docs-pp-cli audit-links --agent",
+      "why_it_matters": "Use this before relying on context bundles or citations in generated code reviews.",
+      "group": "Docs-grounded verification"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Code usage verifier against documented symbols",
+      "command": "verify",
+      "description": "Check Python code imports and qualified names against documented Claude Agent SDK symbols.",
+      "rationale": "Requires joining local Python identifiers with a docs-derived symbol index.",
+      "example": "claude-agent-sdk-python-docs-pp-cli verify ./src --agent",
+      "why_it_matters": "Use this before trusting generated SDK code or reviewing a PR that imports claude_agent_sdk.",
+      "group": "Docs-grounded verification"
+    },
+    {
+      "name": "Agent-ready task context bundle",
+      "command": "context",
+      "description": "Build a compact source-cited docs bundle for one SDK implementation task.",
+      "rationale": "Requires searching fetched docs sections, symbols, examples, and guide links together.",
+      "example": "claude-agent-sdk-python-docs-pp-cli context \"custom tools\" --agent --select sections.title,examples.code,citations.url",
+      "why_it_matters": "Use this when an agent needs exact docs context without loading full Markdown pages.",
+      "group": "Agent-native context"
+    },
+    {
+      "name": "Doc change diff by content hash",
+      "command": "diff",
+      "description": "Compare current docs entity hashes against an optional baseline file.",
+      "rationale": "Requires entity-level hashing of fetched pages, sections, symbols, examples, and links.",
+      "example": "claude-agent-sdk-python-docs-pp-cli diff --since latest --agent",
+      "why_it_matters": "Use this to detect whether SDK docs facts have changed against a saved baseline.",
+      "group": "Docs-grounded verification"
+    },
+    {
+      "name": "Minimal recipe composer from examples and signatures",
+      "command": "recipe",
+      "description": "Compose a deterministic implementation scaffold from documented snippets and exact signatures.",
+      "rationale": "Requires combining extracted examples with the symbol index without inventing API calls.",
+      "example": "claude-agent-sdk-python-docs-pp-cli recipe \"streaming ClaudeSDKClient\" --agent",
+      "why_it_matters": "Use this when you need a copyable starting point constrained to documented SDK patterns.",
+      "group": "Agent-native context"
+    },
+    {
+      "name": "SDK surface map by entity type",
+      "command": "map",
+      "description": "Map functions, classes, types, options, tools, hooks, and message blocks by entity type.",
+      "rationale": "Requires parsing the docs hierarchy and symbols into a local typed surface inventory.",
+      "example": "claude-agent-sdk-python-docs-pp-cli map --kind classes,types,options --agent",
+      "why_it_matters": "Use this to discover the available SDK surface before choosing an implementation path.",
+      "group": "SDK surface intelligence"
+    },
+    {
+      "name": "Example-to-symbol coverage map",
+      "command": "coverage examples",
+      "description": "Report which documented symbols have extracted examples and which do not.",
+      "rationale": "Requires joining extracted code blocks against the local symbol table.",
+      "example": "claude-agent-sdk-python-docs-pp-cli coverage examples --agent",
+      "why_it_matters": "Use this to find example-backed SDK APIs and documentation coverage gaps.",
+      "group": "SDK surface intelligence"
+    },
+    {
+      "name": "Anchor and link integrity audit",
+      "command": "audit-links",
+      "description": "Validate internal anchors, guide links, and section references in the fetched docs corpus.",
+      "rationale": "Requires page, heading, anchor, and link extraction across the docs corpus.",
+      "example": "claude-agent-sdk-python-docs-pp-cli audit-links --agent",
+      "why_it_matters": "Use this before relying on context bundles or citations in generated code reviews.",
+      "group": "Docs-grounded verification"
+    }
+  ],
+  "auth": {},
+  "narrative": {
+    "display_name": "Claude Agent SDK Python Docs",
+    "headline": "A source-grounded CLI for exploring and verifying the Claude Agent SDK Python docs.",
+    "value_prop": "Fetch the raw Claude Code docs index, search the Python Agent SDK reference, and extract exact symbols, examples, and citations. Novel verification and context commands help agents use the SDK without guessing.",
+    "quickstart": [
+      {
+        "command": "claude-agent-sdk-python-docs-pp-cli doctor --dry-run",
+        "comment": "Verify the CLI and local configuration without network or docs writes."
+      },
+      {
+        "command": "claude-agent-sdk-python-docs-pp-cli sync --resources pages --full",
+        "comment": "Fetch the docs index and Python Agent SDK page through the generated docs endpoints."
+      },
+      {
+        "command": "claude-agent-sdk-python-docs-pp-cli search \"ClaudeAgentOptions\" --type pages --agent --select items.title,items.url",
+        "comment": "Find the exact docs page and section for an SDK option or type."
+      },
+      {
+        "command": "claude-agent-sdk-python-docs-pp-cli symbol ClaudeSDKClient --agent",
+        "comment": "Read a symbol with its anchor, examples, and citations."
+      },
+      {
+        "command": "claude-agent-sdk-python-docs-pp-cli context \"custom tools\" --agent --select sections.title,examples.code,citations.url",
+        "comment": "Build a compact task bundle for an agent implementing SDK custom tools."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "Search returns no results.",
+        "fix": "Try a more specific SDK symbol, such as `ClaudeSDKClient` or `ClaudeAgentOptions`."
+      },
+      {
+        "symptom": "A symbol seems missing.",
+        "fix": "Run `claude-agent-sdk-python-docs-pp-cli map --kind classes,types,options --agent` to inspect the parsed docs surface."
+      },
+      {
+        "symptom": "Generated code uses an undocumented SDK name.",
+        "fix": "Run `claude-agent-sdk-python-docs-pp-cli verify ./path --agent` and follow the cited replacement or docs link."
+      }
+    ],
+    "when_to_use": "Use this CLI when you need exact Claude Agent SDK Python documentation, examples, signatures, or citations in an agent-friendly shape. It is strongest for implementation planning, code review, and preventing SDK hallucinations.",
+    "anti_triggers": [
+      "Do not use this CLI to run Claude Agent SDK applications.",
+      "Do not use this CLI for TypeScript SDK questions unless the docs mirror has been expanded to TypeScript pages.",
+      "Do not use this CLI as a replacement for live Claude Code authentication or account setup."
+    ],
+    "recipes": [
+      {
+        "title": "Find the right option fields for a client setup",
+        "command": "claude-agent-sdk-python-docs-pp-cli search \"ClaudeAgentOptions\" --type pages --agent --select items.title,items.url,items.snippet",
+        "explanation": "Returns only the high-signal fields an agent needs instead of the full reference page."
+      },
+      {
+        "title": "Build a custom-tools implementation bundle",
+        "command": "claude-agent-sdk-python-docs-pp-cli context \"custom tools\" --agent --select sections.title,examples.code,citations.url",
+        "explanation": "Pairs `--agent` with `--select` so downstream agents get just examples, section titles, and citations."
+      },
+      {
+        "title": "Verify a Python project against current docs",
+        "command": "claude-agent-sdk-python-docs-pp-cli verify ./src --agent",
+        "explanation": "Flags undocumented Claude Agent SDK Python identifiers with source citations."
+      },
+      {
+        "title": "Inspect documented SDK surface area",
+        "command": "claude-agent-sdk-python-docs-pp-cli map --kind classes,types,options --agent",
+        "explanation": "Shows the SDK inventory by entity type before writing code."
+      }
+    ],
+    "trigger_phrases": [
+      "look up Claude Agent SDK Python",
+      "verify this against Claude Agent SDK docs",
+      "ClaudeSDKClient docs",
+      "ClaudeAgentOptions reference",
+      "use claude agent sdk python docs",
+      "run claude agent sdk python docs"
+    ]
+  }
+}

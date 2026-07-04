@@ -1,0 +1,63 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-06-11T12:42:10.358626Z",
+  "printing_press_version": "4.24.0",
+  "api_name": "google-play",
+  "display_name": "Google Play",
+  "cli_name": "google-play-pp-cli",
+  "creator": {
+    "handle": "qazmataz",
+    "name": "Hamza Qazi"
+  },
+  "owner": "qazmataz",
+  "printer": "qazmataz",
+  "printer_name": "Hamza Qazi",
+  "spec_format": "internal",
+  "spec_checksum": "sha256:ad1343e2269565124f96ecd28520e3f15ebecc5739d00ba059e745a2e40c4689",
+  "run_id": "20260611-160111-078a8ef4",
+  "category": "marketing",
+  "description": "Every public Google Play surface in one Go binary, plus a local SQLite mirror for rank history and listing change detection that no other Play tool keeps.",
+  "mcp_binary": "google-play-pp-mcp",
+  "mcp_tool_count": 1,
+  "mcp_public_tool_count": 1,
+  "mcp_ready": "full",
+  "api_version": "0.1.0",
+  "auth_type": "none",
+  "novel_features": [
+    {
+      "name": "Chart movers",
+      "command": "movers",
+      "description": "See which games climbed, dropped, entered, or fell off a Play chart between two snapshots."
+    },
+    {
+      "name": "Chart rank history",
+      "command": "rank-history",
+      "description": "Show one app's rank trajectory over time within a chart, including first-seen, peak, and last-seen rank."
+    },
+    {
+      "name": "Listing change detection",
+      "command": "watch-listing",
+      "description": "Diff the two latest snapshots of a listing to surface what changed: title, icon, version, IAP range, ads flag, price, screenshots."
+    },
+    {
+      "name": "Keyword rank capture",
+      "command": "keyword-rank",
+      "description": "Run a live store search for a term and record where a target app ranks, persisting the data point for trend analysis."
+    },
+    {
+      "name": "Keyword rank history",
+      "command": "keyword-history",
+      "description": "Show the rank-over-time series for a term, app, and country from captured keyword snapshots."
+    },
+    {
+      "name": "Review digest",
+      "command": "review-digest",
+      "description": "Aggregate synced reviews into star and per-version histograms, developer reply rate, and complaint-term frequency, with no NLP."
+    },
+    {
+      "name": "Compare apps",
+      "command": "compare",
+      "description": "Fetch details for several apps and lay their key fields side by side in one table."
+    }
+  ]
+}

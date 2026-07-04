@@ -7,28 +7,84 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"net/url"
 	"os"
+	"strings"
 
+	"github.com/mvanhorn/printing-press-library/library/food-and-dining/ordertogo/internal/config"
 	"github.com/spf13/cobra"
 )
+
+// PATCH: resolveMeshUserID looks up the caller's restmesh user id, caching it
+// on the Config so subsequent calls skip the handshake. /api/getRestmeshUser
+// expects {fbuser:{uid,phone}, uid} where the phone has the "+1" country code
+// stripped (matches what the web client sends in fbbase.post).
+func resolveMeshUserID(flags *rootFlags) (int, error) {
+	cfg, err := config.Load(flags.configPath)
+	if err != nil {
+		return 0, err
+	}
+	if cfg.MeshUserID != 0 {
+		return cfg.MeshUserID, nil
+	}
+	fbuid, err := config.CookieValueFromStore("", "_fbuid")
+	if err != nil || fbuid == "" {
+		return 0, fmt.Errorf("missing _fbuid cookie; run `ordertogo-pp-cli auth login --chrome` after signing in at ordertogo.com")
+	}
+	fbphone, _ := config.CookieValueFromStore("", "_fbphone")
+	if decoded, err := url.PathUnescape(fbphone); err == nil {
+		fbphone = decoded
+	}
+	fbphone = strings.TrimPrefix(fbphone, "+1")
+	c, err := flags.newClient()
+	if err != nil {
+		return 0, err
+	}
+	body := map[string]any{
+		"fbuser": map[string]any{"uid": fbuid, "phone": fbphone},
+		"uid":    fbuid,
+	}
+	data, _, err := c.Post("/api/getRestmeshUser", body)
+	if err != nil {
+		return 0, fmt.Errorf("getRestmeshUser: %w", err)
+	}
+	var parsed struct {
+		ID int `json:"id"`
+	}
+	if err := json.Unmarshal(data, &parsed); err != nil || parsed.ID == 0 {
+		preview := string(data)
+		if len(preview) > 200 {
+			preview = preview[:200] + "..."
+		}
+		return 0, fmt.Errorf("getRestmeshUser returned no id: %s", preview)
+	}
+	cfg.MeshUserID = parsed.ID
+	if err := cfg.Save(); err != nil {
+		// non-fatal: the value will just be re-fetched next run
+		fmt.Fprintf(os.Stderr, "warning: caching mesh user id failed: %v\n", err)
+	}
+	return parsed.ID, nil
+}
 
 func newOrdersListCmd(flags *rootFlags) *cobra.Command {
 	var stdinBody bool
 
 	cmd := &cobra.Command{
-		Use:         "list",
-		Short:       "List your order history across all restaurants (returns latest N orders, server-paginated)",
-		Example:     "  ordertogo-pp-cli orders list",
-		Annotations: map[string]string{"pp:endpoint": "orders.list", "pp:method": "POST", "pp:path": "/m/api/getmicmeshorders", "mcp:read-only": "true"},
+		Use:     "list",
+		Short:   "List your order history across all restaurants (returns latest N orders, server-paginated)",
+		Example: "  ordertogo-pp-cli orders list",
+		// PATCH: endpoint switched from /m/api/getmicmeshorders (web-app SHOW path, requires orderid+restname)
+		// to /api/getUserOrderHistoryByUserid (the actual LIST endpoint observed in /history page boot).
+		// The old empty-body POST returned "Server communication config missing"; the new endpoint takes
+		// {userid: <meshuser_id>} and returns the user's full order list.
+		Annotations: map[string]string{"pp:endpoint": "orders.list", "pp:method": "POST", "pp:path": "/api/getUserOrderHistoryByUserid", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
-			if !stdinBody {
-			}
 			c, err := flags.newClient()
 			if err != nil {
 				return err
 			}
 
-			path := "/m/api/getmicmeshorders"
+			path := "/api/getUserOrderHistoryByUserid"
 			var body map[string]any
 			if stdinBody {
 				stdinData, err := io.ReadAll(os.Stdin)
@@ -41,7 +97,11 @@ func newOrdersListCmd(flags *rootFlags) *cobra.Command {
 				}
 				body = jsonBody
 			} else {
-				body = map[string]any{}
+				userid, err := resolveMeshUserID(flags)
+				if err != nil {
+					return err
+				}
+				body = map[string]any{"userid": userid}
 			}
 			data, statusCode, err := c.Post(path, body)
 			if err != nil {

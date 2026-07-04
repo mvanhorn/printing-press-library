@@ -1,0 +1,51 @@
+version: 2
+project_name: pangolin-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: pangolin-pp-cli
+    main: ./cmd/pangolin-pp-cli
+    binary: pangolin-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X github.com/mvanhorn/printing-press-library/library/developer-tools/pangolin/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: pangolin-pp-mcp
+    main: ./cmd/pangolin-pp-mcp
+    binary: pangolin-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: pangolin-pp-cli
+    repository:
+      owner: cfinney
+      name: homebrew-tap
+    homepage: "https://github.com/mvanhorn/printing-press-library"
+    description: "The first agent-native CLI for Pangolin — every endpoint, plus offline SQLite, cross-org audits"
+    install: |
+      bin.install "pangolin-pp-cli"
+      bin.install "pangolin-pp-mcp"

@@ -22,11 +22,18 @@ func newYoutubeListSearchCmd(flags *rootFlags) *cobra.Command {
 	var flagIncludeExtras string
 
 	cmd := &cobra.Command{
-		Use:         "list-search",
-		Short:       "Searches YouTube by keyword query and returns matching videos, channels, playlists, shorts, shelves, and live...",
-		Example:     "  scrape-creators-pp-cli youtube list-search",
-		Annotations: map[string]string{"pp:endpoint": "youtube.list-search", "mcp:read-only": "true"},
+		Use:   "list-search",
+		Short: "Searches YouTube by keyword query and returns matching videos, channels, playlists, shorts, shelves, and live streams.",
+		// TODO: replace placeholder example values before relying on this for live dogfood.
+		Example:     "  scrape-creators-pp-cli youtube list-search --query example-value",
+		Annotations: map[string]string{"pp:endpoint": "youtube.list-search", "pp:method": "GET", "pp:path": "/v1/youtube/search", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
+			// Bare invocation of a command with required input prints help
+			// instead of pflag's terse "required flag not set" error. Optional-
+			// only read commands fall through so a bare call still executes.
+			if cmd.Flags().NFlag() == 0 && len(args) == 0 && !flags.dryRun {
+				return cmd.Help()
+			}
 			if !cmd.Flags().Changed("query") && !flags.dryRun {
 				return fmt.Errorf("required flag \"%s\" not set", "query")
 			}
@@ -40,7 +47,7 @@ func newYoutubeListSearchCmd(flags *rootFlags) *cobra.Command {
 					}
 				}
 				if !validUploadDate {
-					fmt.Fprintf(os.Stderr, "warning: --%s %q not in allowed set %v\n", "upload-date", flagUploadDate, allowedUploadDate)
+					return fmt.Errorf("invalid value %q for --%s: must be one of %v", flagUploadDate, "upload-date", allowedUploadDate)
 				}
 			}
 			if cmd.Flags().Changed("sort-by") {
@@ -53,7 +60,7 @@ func newYoutubeListSearchCmd(flags *rootFlags) *cobra.Command {
 					}
 				}
 				if !validSortBy {
-					fmt.Fprintf(os.Stderr, "warning: --%s %q not in allowed set %v\n", "sort-by", flagSortBy, allowedSortBy)
+					return fmt.Errorf("invalid value %q for --%s: must be one of %v", flagSortBy, "sort-by", allowedSortBy)
 				}
 			}
 			if cmd.Flags().Changed("type") {
@@ -66,7 +73,7 @@ func newYoutubeListSearchCmd(flags *rootFlags) *cobra.Command {
 					}
 				}
 				if !validType {
-					fmt.Fprintf(os.Stderr, "warning: --%s %q not in allowed set %v\n", "type", flagType, allowedType)
+					return fmt.Errorf("invalid value %q for --%s: must be one of %v", flagType, "type", allowedType)
 				}
 			}
 			if cmd.Flags().Changed("duration") {
@@ -79,54 +86,59 @@ func newYoutubeListSearchCmd(flags *rootFlags) *cobra.Command {
 					}
 				}
 				if !validDuration {
-					fmt.Fprintf(os.Stderr, "warning: --%s %q not in allowed set %v\n", "duration", flagDuration, allowedDuration)
+					return fmt.Errorf("invalid value %q for --%s: must be one of %v", flagDuration, "duration", allowedDuration)
 				}
 			}
+			path := "/v1/youtube/search"
 			c, err := flags.newClient()
 			if err != nil {
 				return err
 			}
-
-			path := "/v1/youtube/search"
 			params := map[string]string{}
 			if flagQuery != "" {
-				params["query"] = fmt.Sprintf("%v", flagQuery)
+				params["query"] = formatCLIParamValue(flagQuery)
 			}
 			if flagUploadDate != "" {
-				params["uploadDate"] = fmt.Sprintf("%v", flagUploadDate)
+				params["uploadDate"] = formatCLIParamValue(flagUploadDate)
 			}
 			if flagSortBy != "" {
-				params["sortBy"] = fmt.Sprintf("%v", flagSortBy)
+				params["sortBy"] = formatCLIParamValue(flagSortBy)
 			}
 			if flagType != "" {
-				params["type"] = fmt.Sprintf("%v", flagType)
+				params["type"] = formatCLIParamValue(flagType)
 			}
 			if flagDuration != "" {
-				params["duration"] = fmt.Sprintf("%v", flagDuration)
+				params["duration"] = formatCLIParamValue(flagDuration)
 			}
 			if flagRegion != "" {
-				params["region"] = fmt.Sprintf("%v", flagRegion)
+				params["region"] = formatCLIParamValue(flagRegion)
 			}
 			if flagContinuationToken != "" {
-				params["continuationToken"] = fmt.Sprintf("%v", flagContinuationToken)
+				params["continuationToken"] = formatCLIParamValue(flagContinuationToken)
 			}
 			if flagIncludeExtras != "" {
-				params["includeExtras"] = fmt.Sprintf("%v", flagIncludeExtras)
+				params["includeExtras"] = formatCLIParamValue(flagIncludeExtras)
 			}
-			data, prov, err := resolveRead(cmd.Context(), c, flags, "youtube", false, path, params, nil)
+			data, prov, err := resolveReadWithStrategyAndResponsePath(cmd.Context(), c, flags, "auto", "youtube", false, path, params, nil, "", cmd.ErrOrStderr())
 			if err != nil {
-				return classifyAPIError(err)
+				return classifyAPIError(err, flags)
 			}
-			// Print provenance to stderr for human-facing output
-			{
+			// Print provenance to stderr for human-facing output only.
+			// Machine-format flags (--json, --csv, --compact, --quiet, --plain,
+			// --select) and piped stdout suppress this line; the JSON envelope
+			// already carries meta.source for those consumers.
+			// SYNC: keep this gate aligned with command_promoted.go.tmpl.
+			if wantsHumanTable(cmd.OutOrStdout(), flags) {
 				var countItems []json.RawMessage
 				_ = json.Unmarshal(data, &countItems)
 				printProvenance(cmd, len(countItems), prov)
 			}
 			// For JSON output, wrap with provenance envelope before passing through flags.
 			// --select wins over --compact when both are set; --compact only runs when
-			// no explicit fields were requested.
-			if flags.asJSON || !isTerminal(cmd.OutOrStdout()) {
+			// no explicit fields were requested. Explicit format flags (--csv, --quiet,
+			// --plain) opt out of the auto-JSON path so piped consumers that asked for
+			// a non-JSON format reach the standard pipeline below.
+			if flags.asJSON || (!isTerminal(cmd.OutOrStdout()) && !flags.csv && !flags.quiet && !flags.plain) {
 				filtered := data
 				if flags.selectFields != "" {
 					filtered = filterFields(filtered, flags.selectFields)
@@ -152,7 +164,7 @@ func newYoutubeListSearchCmd(flags *rootFlags) *cobra.Command {
 					return nil
 				}
 			}
-			return printOutputWithFlags(cmd.OutOrStdout(), data, flags)
+			return printOutputWithFlagsMeta(cmd.OutOrStdout(), data, flags, map[string]any{"source": "live"})
 		},
 	}
 	cmd.Flags().StringVar(&flagQuery, "query", "", "Search query")
@@ -162,7 +174,7 @@ func newYoutubeListSearchCmd(flags *rootFlags) *cobra.Command {
 	cmd.Flags().StringVar(&flagDuration, "duration", "", "Duration of the video. Only applies to videos (not shorts). (one of: under_3_min, between_3_and_20_min, over_20_min)")
 	cmd.Flags().StringVar(&flagRegion, "region", "", "2 letter country code of the country to put the proxy in.")
 	cmd.Flags().StringVar(&flagContinuationToken, "continuation-token", "", "Continuation token to get more videos. Get 'continuationToken' from previous response.")
-	cmd.Flags().StringVar(&flagIncludeExtras, "include-extras", "", "This will get you the like + comment count and the description. To get the full details of the video, use the...")
+	cmd.Flags().StringVar(&flagIncludeExtras, "include-extras", "", "This will get you the like + comment count and the description.")
 
 	return cmd
 }

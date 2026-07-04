@@ -1,0 +1,16 @@
+# agentcookie.toml: secrets-bus adoption manifest v2
+# See docs/spec-agentcookie-secrets-bus-v2-adoption.md
+schema_version = 2
+name = "withings-pp-cli"
+display_name = "Withings"
+description = "Every Withings metric in one offline-first, agent-native CLI — with a local SQLite mirror and recomposition, recovery, sleep-debt and clinician-report analytics no Withings tool has."
+project_kind = "cli"
+
+[secrets.file]
+path = "~/.config/withings-pp-cli/config.toml"
+
+[sync]
+default = false
+
+[sync.keys]
+WITHINGS_ACCESS_TOKEN = true

@@ -45,7 +45,7 @@ brews:
       owner: cathrynlavery
       name: homebrew-tap
     homepage: "https://github.com/mvanhorn/printing-press-library"
-    description: "TidyCal's REST API provides a handful of endpoints which can be used to get information about your account and bookings."
+    description: "Manage TidyCal scheduling data: bookings, contacts, booking types, team calendars, schedule briefs, triage, and availability shortlists."
     install: |
       bin.install "tidycal-pp-cli"
       bin.install "tidycal-pp-mcp"

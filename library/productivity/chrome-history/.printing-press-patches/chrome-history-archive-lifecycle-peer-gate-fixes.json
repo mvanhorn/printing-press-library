@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "chrome-history-archive-lifecycle-peer-gate-fixes",
+  "applied_at": "2026-06-12T00:00:00Z",
+  "base_run_id": "20260524-023512",
+  "base_printing_press_version": "4.13.0",
+  "summary": "Hardens archive lifecycle backup naming and peer-gate regression coverage.",
+  "reason": "Preserved reset backups are irreplaceable, and lifecycle command/store tests need to lock the FTS, VACUUM, and typed-error contracts.",
+  "files": [
+    "internal/store/archive.go",
+    "internal/store/archive_test.go",
+    "internal/cli/archive_cmd_test.go"
+  ]
+}

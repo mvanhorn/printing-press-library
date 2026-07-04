@@ -1,0 +1,10 @@
+{
+  "descriptions": {
+    "contexts_list": "List all contexts in the account (GTD-style location/situation labels such as @home or @computer). Takes no parameters. Returns an array of contexts, each with id, name, and a private flag. Call this to resolve a context name to its id before filtering tasks by context.",
+    "folders_list": "List all folders in the account (the top-level containers tasks are grouped into). Takes no parameters. Returns an array of folders, each with id, name, ord (sort order), and archived/private flags. Use this to map a folder name to its id before creating or filtering tasks.",
+    "goals_list": "List all goals in the account (long/medium/short-term objectives tasks can contribute to). Takes no parameters. Returns an array of goals, each with id, name, level, contributes (parent goal id), note, and an archived flag. Use this to resolve a goal name to its id when assigning tasks to a goal.",
+    "goals_delete": "Permanently delete a goal by id. Required: id (the goal's numeric id, resolvable via goals_list). Returns the deleted goal's id on success. Irreversible; deleting a goal does not delete tasks that referenced it.",
+    "locations_list": "List all saved locations in the account (named geo-points for location-based reminders). Takes no parameters. Returns an array of locations, each with id, name, description, lat, and lon. Use this to resolve a location name to its id before attaching it to a task.",
+    "locations_delete": "Permanently delete a saved location by id. Required: id (the location's numeric id, resolvable via locations_list). Returns the deleted location's id on success. Irreversible; tasks that referenced the location keep their stored reference."
+  }
+}

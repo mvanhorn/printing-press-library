@@ -1,0 +1,20 @@
+{
+  "schema_version": 2,
+  "id": "withings-transcendence-analytics",
+  "applied_at": "2026-06-14",
+  "base_run_id": "20260614-181724-d301c9dc",
+  "base_printing_press_version": "4.24.0",
+  "summary": "Implemented 6 local-SQLite analytics commands plus shared decode/loader helpers and a lazy bp_notes migration.",
+  "reason": "recomp/recovery/bp-report/sleep-debt/digest/correlate are cross-time/cross-table joins over the local mirror that no single endpoint produces; the generator emits only stubs.",
+  "files": [
+    "internal/cli/recomp.go",
+    "internal/cli/recovery.go",
+    "internal/cli/bp_report.go",
+    "internal/cli/sleep_debt.go",
+    "internal/cli/digest.go",
+    "internal/cli/correlate.go",
+    "internal/cli/withings_decode.go",
+    "internal/cli/analytics_local.go",
+    "internal/store/withings_migrations.go"
+  ]
+}

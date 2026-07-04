@@ -78,10 +78,18 @@ func newPlanCmd(flags *rootFlags) *cobra.Command {
 			if len(urls) > cheapestLimit {
 				urls = urls[:cheapestLimit]
 			}
+			// PATCH: open one store for the whole plan fan-out; computeCheapest
+			// persists each scraped listing + snapshot through it. The store
+			// serializes writes via writeMu, so concurrent leg goroutines are
+			// race-safe. nil (open failed) disables persistence harmlessly.
+			db := openScrapeStore(cmd.Context())
+			if db != nil {
+				defer db.Close()
+			}
 			cheapest, cerrs := cliutil.FanoutRun(cmd.Context(), urls, func(s string) string { return s }, func(ctx context.Context, u string) (map[string]any, error) {
 				legCtx, cancel := context.WithTimeout(ctx, 30*time.Second)
 				defer cancel()
-				ch, err := computeCheapest(legCtx, u, cheapestParams{Checkin: checkin, Checkout: checkout, Guests: guests, SearchBackend: backend, MaxDirectResults: 1})
+				ch, err := computeCheapest(legCtx, u, cheapestParams{Checkin: checkin, Checkout: checkout, Guests: guests, SearchBackend: backend, MaxDirectResults: 1, store: db})
 				if err != nil {
 					return nil, err
 				}

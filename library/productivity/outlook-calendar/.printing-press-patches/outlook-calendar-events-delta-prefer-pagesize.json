@@ -1,0 +1,16 @@
+{
+  "schema_version": 2,
+  "id": "outlook-calendar-events-delta-prefer-pagesize",
+  "applied_at": "2026-06-14",
+  "base_run_id": "20260510-094714",
+  "base_printing_press_version": "4.2.2",
+  "summary": "Fix event delta sync (use Prefer: odata.maxpagesize instead of $top) and resolve relative dates (today/+7d) in events range.",
+  "reason": "Two generator-emitted defects broke calendar reads against Microsoft Graph. (1) `delta events` and the sync `delta` resource sent $top on /me/events/delta, which Graph rejects on the SyncEvents resource with ErrorInvalidUrlQuery ('$top is not supported with change tracking … express page size via the Prefer header'); the event store never populated, disabling conflicts/freetime/review/prep. (2) `events range` forwarded the raw --from/--to flag values to /me/calendarView, so the relative-date shortcuts shown in the CLI's own Quick Start examples (today, +7d, tomorrow) returned ErrorInvalidParameter. The fix sends page size via the Prefer: odata.maxpagesize header on the delta command, drops the $top-bearing delta resource from the default sync set (the events resource already populates the store via /me/events; `delta events` remains the incremental path), and routes events range through the existing resolveWindow() helper so the documented shortcuts resolve to ISO 8601 — the same helper conflicts/freetime already use.",
+  "files": [
+    "internal/cli/delta_events.go",
+    "internal/cli/events_range.go",
+    "internal/cli/sync.go"
+  ],
+  "validated_outcome": "Patch-relevant checks pass: go build ./..., go vet, --help, --version, manifest, phase5, transcendence. Any remaining publish-validate failures match the clean upstream baseline (pre-existing / unrelated). Live test on a personal MSA calendar: `delta events` returned 200 events with no error (previously HTTP 400 ErrorInvalidUrlQuery); `events range --from today --to +7d` returned events (previously HTTP 400 ErrorInvalidParameter).",
+  "findings_addressed": ["F1-events-delta-top-http-400", "F2-events-range-relative-dates", "F3-sync-delta-resource-http-400"]
+}

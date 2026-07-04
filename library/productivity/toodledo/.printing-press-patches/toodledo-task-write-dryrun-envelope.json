@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "toodledo-task-write-dryrun-envelope",
+  "applied_at": "2026-06-15",
+  "base_run_id": "20260614-215657-3da6c053",
+  "base_printing_press_version": "4.24.0",
+  "summary": "Hand-built task write commands (add/edit/delete/complete/reopen) now emit a dry-run envelope via emitTaskDryRun under --dry-run instead of returning nil silently.",
+  "reason": "Under `--dry-run --json` the task write commands returned nil with no output, so a machine caller piping --json got an empty stream that fails JSON parsing (live-dogfood json-fidelity probe). The generated endpoint mirrors already emit a JSON dry-run envelope; this aligns the hand-built task writes (internal/cli/tasks_write.go) with that contract. tasks_write.go is novel-feature code, not generator output, so this is a behavioral fix to preserve across reprints rather than a generator divergence.",
+  "files": [
+    "internal/cli/tasks_write.go"
+  ],
+  "validated_outcome": "Full live dogfood gate green; `tasks edit <id> --priority top --due ... --dry-run --json` and `tasks delete <id> --dry-run --json` emit a valid JSON envelope (action/resource/path/dry_run/success)."
+}

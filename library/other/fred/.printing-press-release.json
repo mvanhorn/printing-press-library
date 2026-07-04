@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "slug": "fred",
+  "cli_name": "fred-pp-cli",
+  "version": "2026.6.2",
+  "released_at": "2026-06-26T07:50:55Z",
+  "source_commit": "f026a8339d712b44c99a86c09e21b2a74ce34ee9",
+  "printing_press_version": "4.24.0",
+  "run_id": "20260615-012908",
+  "changes": [
+    {
+      "title": "fix(fred): honor --csv on series compare",
+      "pr": 1307,
+      "url": "https://github.com/mvanhorn/printing-press-library/pull/1307",
+      "commit": "f026a8339d712b44c99a86c09e21b2a74ce34ee9"
+    }
+  ]
+}

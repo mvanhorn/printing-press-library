@@ -29,7 +29,7 @@ This skill drives the `amazon-orders-pp-cli` binary. **You must verify the CLI i
 2. Verify: `amazon-orders-pp-cli --version`
 3. Ensure the reported install directory is on `$PATH` for the agent/runtime that will invoke this skill.
 
-If the `npx` install fails (no Node, offline, etc.), fall back to a direct Go install (requires Go 1.26.3 or newer):
+If the `npx` install fails (no Node, offline, etc.), fall back to a direct Go install (requires Go 1.26.4 or newer):
 
 ```bash
 go install github.com/mvanhorn/printing-press-library/library/commerce/amazon-orders/cmd/amazon-orders-pp-cli@latest
@@ -228,6 +228,14 @@ Groups every purchased ASIN across history by total spend — surfaces the recur
 ## Auth Setup
 
 Amazon publishes no buyer API. The CLI imports cookies from your logged-in Chrome / Firefox / Safari / Brave session via `auth login --chrome`. Those cookies persist locally, refresh automatically, and authenticate every subsequent fetch — no API key, no OAuth, no resident browser at runtime.
+
+For non-US marketplaces, pass the marketplace domain during login. Example for India:
+
+```bash
+amazon-orders-pp-cli auth login --chrome --domain amazon.in
+```
+
+You can also set `AMAZON_ORDERS_BASE_URL=https://www.amazon.in` before running `auth login --chrome`.
 
 Run `amazon-orders-pp-cli doctor` to verify setup.
 

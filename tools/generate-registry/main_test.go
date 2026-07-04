@@ -109,81 +109,83 @@ func TestFormatDescription(t *testing.T) {
 
 func TestRegistryDescription(t *testing.T) {
 	cases := []struct {
-		name          string
-		prior         string
-		goreleaser    string
-		ppDescription string
-		want          string
+		name               string
+		prior              string
+		goreleaser         string
+		ppDescription      string
+		catalogDescription string
+		want               string
 	}{
 		{
-			name:          "curated copy wins over both fallbacks",
+			name:               "explicit catalog copy wins over prior registry and source fallbacks",
+			prior:              "Curated catalog copy.",
+			goreleaser:         "Goreleaser brews copy.",
+			ppDescription:      "Manifest copy.",
+			catalogDescription: "New website copy.",
+			want:               "New website copy.",
+		},
+		{
+			name:          "non-stale prior registry copy is preserved over source fallbacks",
 			prior:         "Curated catalog copy.",
 			goreleaser:    "Goreleaser brews copy.",
 			ppDescription: "Manifest copy.",
 			want:          "Curated catalog copy.",
 		},
 		{
-			name:          "boilerplate prior falls through to goreleaser",
+			name:          "boilerplate prior is preserved without explicit catalog copy",
 			prior:         "Printing Press CLI for Whoop.",
 			goreleaser:    "Fetch WHOOP recovery, strain, sleep, workout, cycle, profile, and body-measurement data with OAuth-backed API access.",
 			ppDescription: "Manifest copy.",
-			want:          "Fetch WHOOP recovery, strain, sleep, workout, cycle, profile, and body-measurement data with OAuth-backed API access.",
+			want:          "Printing Press CLI for Whoop.",
 		},
 		{
-			name:          "vendor docs welcome prior falls through to goreleaser",
-			prior:         "Welcome to Cloudflare's API documentation site.",
-			goreleaser:    "Agent-ready CLI for Cloudflare accounts, zones, DNS, Workers, Pages, R2, tunnels, Zero Trust, and infrastructure operations.",
-			ppDescription: "Cloudflare API for accounts, zones, DNS, Workers, Pages, R2, Email Routing, tunnels, and Zero Trust operations",
-			want:          "Agent-ready CLI for Cloudflare accounts, zones, DNS, Workers, Pages, R2, tunnels, Zero Trust, and infrastructure operations.",
-		},
-		{
-			name:          "raw-html prior falls through to goreleaser",
+			name:          "raw-html prior is preserved without explicit catalog copy",
 			prior:         "<p>",
 			goreleaser:    "Search setlist.fm artists, setlists, venues, cities, and concert histories through the setlist.fm API.",
 			ppDescription: "Manifest copy.",
-			want:          "Search setlist.fm artists, setlists, venues, cities, and concert histories through the setlist.fm API.",
+			want:          "<p>",
 		},
 		{
-			name:          "truncated prior falls through to goreleaser",
+			name:          "truncated prior is preserved without explicit catalog copy",
 			prior:         "Every EmailOctopus v2 endpoint, plus the cross-list joins, churn diffs, and rate-budgeted bulk operations the API...",
 			goreleaser:    "Manage EmailOctopus lists, contacts, campaigns, automations, reports, and cross-list cleanup workflows from the terminal.",
 			ppDescription: "Manifest copy.",
-			want:          "Manage EmailOctopus lists, contacts, campaigns, automations, reports, and cross-list cleanup workflows from the terminal.",
+			want:          "Every EmailOctopus v2 endpoint, plus the cross-list joins, churn diffs, and rate-budgeted bulk operations the API...",
 		},
 		{
-			name:          "oversized prior falls through to goreleaser",
+			name:          "oversized prior is preserved without explicit catalog copy",
 			prior:         strings.Repeat("Recipe catalog copy ", 20),
 			goreleaser:    "Search trusted recipe sites, rank results, save a local cookbook, and enrich nutrition data with USDA FoodData Central.",
 			ppDescription: "Manifest copy.",
-			want:          "Search trusted recipe sites, rank results, save a local cookbook, and enrich nutrition data with USDA FoodData Central.",
+			want:          strings.Repeat("Recipe catalog copy ", 20),
 		},
 		{
-			name:          "boilerplate prior with no source returns empty for validation",
+			name:          "boilerplate prior with no source is preserved",
 			prior:         "Printing Press CLI for Missing.",
 			goreleaser:    "",
 			ppDescription: "",
-			want:          "",
+			want:          "Printing Press CLI for Missing.",
 		},
 		{
-			name:          "raw-html prior with no source returns empty for validation",
+			name:          "raw-html prior with no source is preserved",
 			prior:         "<p>",
 			goreleaser:    "",
 			ppDescription: "",
-			want:          "",
+			want:          "<p>",
 		},
 		{
-			name:          "bare-heading prior falls through to goreleaser",
+			name:          "bare-heading prior falls through to manifest before goreleaser",
 			prior:         "# Introduction",
 			goreleaser:    "Real catalog copy.",
 			ppDescription: "Manifest copy.",
-			want:          "Real catalog copy.",
+			want:          "Manifest copy.",
 		},
 		{
-			name:          "empty prior falls through to goreleaser",
+			name:          "empty prior falls through to manifest before goreleaser",
 			prior:         "",
 			goreleaser:    "Goreleaser copy.",
 			ppDescription: "Manifest copy.",
-			want:          "Goreleaser copy.",
+			want:          "Manifest copy.",
 		},
 		{
 			name:          "empty prior and goreleaser fall through to pp manifest description (lawhub-shape repair)",
@@ -200,6 +202,13 @@ func TestRegistryDescription(t *testing.T) {
 			want:          "Manifest copy.",
 		},
 		{
+			name:          "empty source falls back to non-stale prior registry copy",
+			prior:         "Legacy but valid catalog copy.",
+			goreleaser:    "",
+			ppDescription: "",
+			want:          "Legacy but valid catalog copy.",
+		},
+		{
 			name:          "all empty returns empty (validation catches this separately)",
 			prior:         "",
 			goreleaser:    "",
@@ -209,9 +218,9 @@ func TestRegistryDescription(t *testing.T) {
 	}
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
-			if got := registryDescription(tc.prior, tc.goreleaser, tc.ppDescription); got != tc.want {
-				t.Errorf("registryDescription(%q, %q, %q) = %q, want %q",
-					tc.prior, tc.goreleaser, tc.ppDescription, got, tc.want)
+			if got := registryDescription(tc.prior, tc.goreleaser, tc.ppDescription, tc.catalogDescription); got != tc.want {
+				t.Errorf("registryDescription(%q, %q, %q, %q) = %q, want %q",
+					tc.prior, tc.goreleaser, tc.ppDescription, tc.catalogDescription, got, tc.want)
 			}
 		})
 	}
@@ -399,6 +408,147 @@ func TestSearchTerms(t *testing.T) {
 	}
 }
 
+func TestBuildEntriesIncludesReleaseMetadataFromReleaseFiles(t *testing.T) {
+	cwd, err := os.Getwd()
+	if err != nil {
+		t.Fatal(err)
+	}
+	repoRoot := filepath.Clean(filepath.Join(cwd, "..", ".."))
+	if err := os.Chdir(repoRoot); err != nil {
+		t.Fatalf("chdir repo root: %v", err)
+	}
+	t.Cleanup(func() { _ = os.Chdir(cwd) })
+
+	generatedEntries, err := buildEntries(libraryDir, loadExistingEntries(registryPath))
+	if err != nil {
+		t.Fatalf("build entries: %v", err)
+	}
+
+	checked := 0
+	var substack *Release
+	for _, generated := range generatedEntries {
+		if generated.Release != nil {
+			checked++
+		}
+		if generated.Name == "substack" {
+			substack = generated.Release
+		}
+	}
+	if checked == 0 {
+		t.Fatal("expected at least one .printing-press-release.json-backed registry entry")
+	}
+	if substack == nil || substack.CLIName != "substack-pp-cli" || strings.TrimSpace(substack.Version) == "" {
+		t.Fatalf("generated substack release = %+v, want substack-pp-cli with non-empty version", substack)
+	}
+}
+
+func TestIsUnreleasedSkeleton(t *testing.T) {
+	cases := []struct {
+		name string
+		r    *Release
+		want bool
+	}{
+		{"nil release is not a skeleton", nil, false},
+		{"cli_name set + blank trio is an unreleased skeleton", &Release{CLIName: "x-pp-cli"}, true},
+		{"whitespace-only trio is an unreleased skeleton", &Release{CLIName: "x-pp-cli", Version: "  ", ReleasedAt: "\t", SourceCommit: "\n"}, true},
+		{"blank cli_name + blank trio is malformed, not a clean skeleton", &Release{}, false},
+		{"whitespace cli_name + blank trio is malformed, not a clean skeleton", &Release{CLIName: "  "}, false},
+		{"version set means released", &Release{CLIName: "x-pp-cli", Version: "2026.6.3"}, false},
+		{"source_commit set means released", &Release{CLIName: "x-pp-cli", SourceCommit: "abc123"}, false},
+	}
+	for _, tc := range cases {
+		if got := isUnreleasedSkeleton(tc.r); got != tc.want {
+			t.Errorf("%s: isUnreleasedSkeleton = %v, want %v", tc.name, got, tc.want)
+		}
+	}
+}
+
+// A freshly-printed CLI ships a blank release skeleton; the post-merge release
+// workflow stamps it later. buildEntries must omit the release block for such an
+// entry so registry.json never carries empty required release fields — the npm
+// installer's parseRegistryEntry rejects a release object with blank
+// version/released_at/source_commit and skips the whole CLI. A genuinely
+// released ledger is still emitted.
+func TestBuildEntriesOmitsReleaseForUnreleasedSkeleton(t *testing.T) {
+	root := t.TempDir()
+	writeCLI := func(category, slug, ppJSON, releaseJSON string) {
+		t.Helper()
+		dir := filepath.Join(root, category, slug)
+		if err := os.MkdirAll(dir, 0o755); err != nil {
+			t.Fatal(err)
+		}
+		if err := os.WriteFile(filepath.Join(dir, ".printing-press.json"), []byte(ppJSON), 0o644); err != nil {
+			t.Fatal(err)
+		}
+		if err := os.WriteFile(filepath.Join(dir, ".printing-press-release.json"), []byte(releaseJSON), 0o644); err != nil {
+			t.Fatal(err)
+		}
+	}
+	writeCLI("ai", "released", `{"display_name":"Released","api_name":"released","description":"Does things."}`,
+		`{"cli_name":"released-pp-cli","version":"2026.6.3","released_at":"2026-06-23T00:00:00Z","source_commit":"abc123"}`)
+	writeCLI("ai", "skeleton", `{"display_name":"Skeleton","api_name":"skeleton","description":"Does things."}`,
+		`{"cli_name":"skeleton-pp-cli","version":"","released_at":"","source_commit":""}`)
+
+	entries, err := buildEntries(root, map[string]RegistryEntry{})
+	if err != nil {
+		t.Fatalf("buildEntries: %v", err)
+	}
+	got := map[string]*Release{}
+	for _, e := range entries {
+		got[e.Name] = e.Release
+	}
+	if got["released"] == nil {
+		t.Errorf("released CLI: want a release block, got nil")
+	} else if got["released"].Version != "2026.6.3" {
+		t.Errorf("released CLI: version = %q, want 2026.6.3", got["released"].Version)
+	}
+	if got["skeleton"] != nil {
+		t.Errorf("unreleased skeleton: want no release block (nil), got %+v", got["skeleton"])
+	}
+	// With the skeleton's release block omitted, the strict validator passes it
+	// via the e.Release == nil path — no false positive on the pre-merge state.
+	if errs := validateEntries(entries); len(errs) != 0 {
+		t.Errorf("validateEntries on built entries: want no errors, got %v", errs)
+	}
+}
+
+// A malformed ledger — trio blank but cli_name ALSO blank (e.g. a printer
+// workflow misfire) — must not be silently omitted. It is kept as a non-nil
+// release block so validateEntries still flags the empty cli_name, preserving
+// the pre-existing gate that the skeleton-omission must not weaken.
+func TestBuildEntriesKeepsReleaseForBlankCLINameSkeleton(t *testing.T) {
+	root := t.TempDir()
+	dir := filepath.Join(root, "ai", "broken")
+	if err := os.MkdirAll(dir, 0o755); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(filepath.Join(dir, ".printing-press.json"),
+		[]byte(`{"display_name":"Broken","api_name":"broken","description":"Does things."}`), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(filepath.Join(dir, ".printing-press-release.json"),
+		[]byte(`{"cli_name":"","version":"","released_at":"","source_commit":""}`), 0o644); err != nil {
+		t.Fatal(err)
+	}
+
+	entries, err := buildEntries(root, map[string]RegistryEntry{})
+	if err != nil {
+		t.Fatalf("buildEntries: %v", err)
+	}
+	var rel *Release
+	for _, e := range entries {
+		if e.Name == "broken" {
+			rel = e.Release
+		}
+	}
+	if rel == nil {
+		t.Fatal("blank cli_name skeleton: release block must be kept (not omitted) so validation can flag it")
+	}
+	if errs := validateEntries(entries); !strings.Contains(strings.Join(errs, "\n"), "broken: release.cli_name is empty") {
+		t.Errorf("want a release.cli_name error for the malformed skeleton, got: %v", errs)
+	}
+}
+
 // TestValidateEntries exercises the source-only validation that backs the
 // --validate flag. The required-field set must stay in lockstep with the
 // npm installer's parseRegistry contract — any new requiredString check
@@ -429,10 +579,10 @@ func TestValidateEntries(t *testing.T) {
 			},
 			wantSubstrs: []string{
 				"lawhub: description is empty",
-				// Sources appear in fallback-resolution order: goreleaser
-				// (second tier) is listed before .printing-press.json (third
-				// tier), matching what registryDescription consults.
-				".goreleaser.yaml brews description, .printing-press.json description",
+				// Sources appear in fallback-resolution order: .printing-press.json
+				// description is listed before goreleaser brews, matching what
+				// registryDescription consults.
+				".printing-press.json description, .goreleaser.yaml brews description",
 			},
 		},
 		{
@@ -514,6 +664,31 @@ func TestValidateEntries(t *testing.T) {
 				{Name: "x", Category: "tools", API: "X", Description: "Has desc.", Path: "library/tools/x", MCP: mcpOK},
 			},
 			wantOK: true,
+		},
+		{
+			name: "valid release block passes",
+			entries: []RegistryEntry{
+				{
+					Name: "x", Category: "tools", API: "X", Description: "Has desc.", Path: "library/tools/x",
+					Release: &Release{CLIName: "x-pp-cli", Version: "2026.6.23", ReleasedAt: "2026-06-23T00:00:00Z", SourceCommit: "abc123"},
+				},
+			},
+			wantOK: true,
+		},
+		{
+			name: "release block required fields fail when blank",
+			entries: []RegistryEntry{
+				{
+					Name: "x", Category: "tools", API: "X", Description: "Has desc.", Path: "library/tools/x",
+					Release: &Release{CLIName: " ", Version: "", ReleasedAt: "	", SourceCommit: "\n"},
+				},
+			},
+			wantSubstrs: []string{
+				"x: release.cli_name is empty",
+				"x: release.version is empty",
+				"x: release.released_at is empty",
+				"x: release.source_commit is empty",
+			},
 		},
 		{
 			name: "unnamed entry reports under (unnamed) prefix",

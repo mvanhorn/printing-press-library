@@ -1,0 +1,96 @@
+{
+  "api_name": "calendly",
+  "novelty_score": 6,
+  "alternatives": [
+
+  ],
+  "gaps": [
+    "Existing vendor APIs expose raw HTTP surfaces; this print packages command discovery, agent defaults, local sync/search, SQL analytics, and MCP access."
+  ],
+  "patterns": [
+    "Read-first GTM and support workflows benefit from compact JSON, --agent defaults, local SQLite mirrors, and deterministic command discovery."
+  ],
+  "recommendation": "proceed",
+  "researched_at": "2026-06-15T00:00:00Z",
+  "novel_features": [
+    {
+      "name": "Local SQLite mirror",
+      "command": "sync",
+      "description": "Sync read endpoints into a local SQLite store for offline search, joins, and repeatable agent analysis.",
+      "rationale": "Agent-native CLI affordance shipped in this print."
+    },
+    {
+      "name": "Full-text search across API data",
+      "command": "search",
+      "description": "Search live or locally synced API records from one agent-friendly command.",
+      "rationale": "Agent-native CLI affordance shipped in this print."
+    },
+    {
+      "name": "SQL analytics on synced records",
+      "command": "analytics",
+      "description": "Run read-only SQL against the local store for compound questions the upstream API does not expose directly.",
+      "rationale": "Agent-native CLI affordance shipped in this print."
+    },
+    {
+      "name": "Agent command discovery",
+      "command": "which",
+      "description": "Map natural-language capabilities to the exact CLI command path before spending tokens on trial and error.",
+      "rationale": "Agent-native CLI affordance shipped in this print."
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Local SQLite mirror",
+      "command": "sync",
+      "description": "Sync read endpoints into a local SQLite store for offline search, joins, and repeatable agent analysis.",
+      "rationale": "Verified present in the generated command tree and publish validation."
+    },
+    {
+      "name": "Full-text search across API data",
+      "command": "search",
+      "description": "Search live or locally synced API records from one agent-friendly command.",
+      "rationale": "Verified present in the generated command tree and publish validation."
+    },
+    {
+      "name": "SQL analytics on synced records",
+      "command": "analytics",
+      "description": "Run read-only SQL against the local store for compound questions the upstream API does not expose directly.",
+      "rationale": "Verified present in the generated command tree and publish validation."
+    },
+    {
+      "name": "Agent command discovery",
+      "command": "which",
+      "description": "Map natural-language capabilities to the exact CLI command path before spending tokens on trial and error.",
+      "rationale": "Verified present in the generated command tree and publish validation."
+    }
+  ],
+  "narrative": {
+    "display_name": "Calendly",
+    "headline": "Calendly scheduling reads and availability context for agents.",
+    "value_prop": "Wraps Calendly read APIs with agent defaults, local SQLite sync, search, analytics, command discovery, and MCP tools so agents can inspect scheduling context without hand-building HTTP calls.",
+    "quickstart": [
+      {
+        "command": "calendly-pp-cli doctor --help",
+        "comment": "Inspect the auth and connectivity diagnostic surface."
+      },
+      {
+        "command": "calendly-pp-cli sync --help",
+        "comment": "Review how to build the local SQLite mirror before offline analysis."
+      },
+      {
+        "command": "calendly-pp-cli which --help",
+        "comment": "Find the exact command path for a natural-language task."
+      }
+    ],
+    "recipes": [
+      {
+        "title": "Search scheduling records",
+        "command": "calendly-pp-cli search --help"
+      },
+      {
+        "title": "Analyze synced records",
+        "command": "calendly-pp-cli analytics --help"
+      }
+    ]
+  }
+}

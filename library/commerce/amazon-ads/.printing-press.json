@@ -19,7 +19,7 @@
   "spec_checksum": "sha256:9bd007613737ce8800f9674b290bccf583650c56ffa8b329e0943228cb71af1e",
   "run_id": "20260527-233111",
   "category": "commerce",
-  "description": "Amazon Ads CLI for OAuth profile setup, reports, profitability analytics, keyword optimization, and guarded campaign automation.",
+  "description": "Plan, measure, and tune Amazon Ads campaigns with OAuth profiles, reports, profitability math, keyword recommendations, and guarded automation.",
   "mcp_binary": "amazon-ads-pp-mcp",
   "mcp_tool_count": 53,
   "mcp_public_tool_count": 53,
@@ -125,5 +125,6 @@
       "command": "auth login, profiles list, profiles select, profiles current",
       "description": "Run Login with Amazon OAuth, persist refresh-token credentials locally, and select the Amazon Ads profile scope used on API calls."
     }
-  ]
+  ],
+  "catalog_description": "Plan, measure, and tune Amazon Ads campaigns with OAuth profiles, reports, profitability math, keyword recommendations, and guarded automation."
 }
