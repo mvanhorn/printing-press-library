@@ -63,14 +63,7 @@ func newNovelLeadFunnelCmd(flags *rootFlags) *cobra.Command {
 					_ = cmd.Usage()
 					return usageErr(fmt.Errorf("invalid --since duration %q: %w", flagSince, perr))
 				}
-				cutoff := time.Now().Add(-dur)
-				filtered := leads[:0]
-				for _, l := range leads {
-					if t, ok := parseWorkizTime(l.CreatedDate); ok && t.Before(cutoff) {
-						continue
-					}
-					filtered = append(filtered, l)
-				}
+				filtered := filterLeadsSince(leads, time.Now().Add(-dur))
 				leads = filtered
 			}
 
@@ -139,6 +132,24 @@ func newNovelLeadFunnelCmd(flags *rootFlags) *cobra.Command {
 	cmd.Flags().StringVar(&flagSince, "since", "", "Only include leads created since this duration ago (e.g. 30d, 24h, 1w)")
 	cmd.Flags().StringVar(&dbPath, "db", "", "Database path (default: ~/.local/share/workiz-pp-cli/data.db)")
 	return cmd
+}
+
+// filterLeadsSince keeps only leads confirmed to have been created at or
+// after cutoff. Leads whose CreatedDate is empty or unparseable are dropped,
+// not passed through: a user who explicitly asked for a --since window wants
+// leads confirmed to be inside it, and silently including undated leads
+// would inflate per-source counts and skew the conversion rate for the exact
+// scoped query they requested.
+func filterLeadsSince(leads []wzLead, cutoff time.Time) []wzLead {
+	filtered := leads[:0]
+	for _, l := range leads {
+		t, ok := parseWorkizTime(l.CreatedDate)
+		if !ok || t.Before(cutoff) {
+			continue
+		}
+		filtered = append(filtered, l)
+	}
+	return filtered
 }
 
 // leadJobChronologyGrace tolerates a job being created slightly before its

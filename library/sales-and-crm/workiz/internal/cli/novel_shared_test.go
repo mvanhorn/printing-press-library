@@ -299,3 +299,25 @@ func TestWzLeadSourceWireTag(t *testing.T) {
 		t.Fatalf("LeadSource = %q, want %q (wire key is JobSource, not LeadSource)", l.LeadSource, "Yelp")
 	}
 }
+
+// TestFilterLeadsSince regression-tests a Greptile finding: the --since
+// window filter's condition `ok && t.Before(cutoff)` short-circuited to false
+// for leads with an empty/unparseable CreatedDate, silently including them
+// regardless of the requested time window.
+func TestFilterLeadsSince(t *testing.T) {
+	cutoff, _ := time.Parse("2006-01-02 15:04:05", "2026-06-01 00:00:00")
+	leads := []wzLead{
+		{UUID: "lead-recent", CreatedDate: "2026-06-15 10:00:00"},
+		{UUID: "lead-old", CreatedDate: "2026-05-01 10:00:00"},
+		{UUID: "lead-undated", CreatedDate: ""},
+		{UUID: "lead-unparseable", CreatedDate: "not-a-date"},
+	}
+	got := filterLeadsSince(leads, cutoff)
+	if len(got) != 1 || got[0].UUID != "lead-recent" {
+		ids := make([]string, len(got))
+		for i, l := range got {
+			ids[i] = l.UUID
+		}
+		t.Fatalf("filterLeadsSince = %v, want only [lead-recent] (old, undated, and unparseable leads must all be excluded)", ids)
+	}
+}
