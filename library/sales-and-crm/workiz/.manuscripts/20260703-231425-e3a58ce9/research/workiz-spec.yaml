@@ -1,0 +1,678 @@
+name: workiz
+description: "Workiz field service management CLI — jobs, leads, clients, crew, and time-off"
+version: "0.1.0"
+category: sales-and-crm
+base_url: "https://api.workiz.com/api/v1"
+health_check_path: "/"
+
+auth:
+  type: api_key
+  in: header
+  header: "Authorization"
+  format: "{token}"
+  env_vars:
+    - WORKIZ_API_TOKEN
+    - WORKIZ_API_SECRET
+
+config:
+  format: toml
+  path: "~/.config/workiz-pp-cli/config.toml"
+
+resources:
+  job:
+    description: "Scheduled service calls (jobs)"
+    endpoints:
+      list:
+        method: GET
+        path: "/job/all/"
+        description: "List jobs (paginated)"
+        example: "  workiz-pp-cli job list --status Submitted --records 50"
+        happy_args: "--records=10"
+        params:
+          - name: records
+            type: int
+            default: 100
+            description: "Max results per page (Workiz caps this at 100)"
+          - name: offset
+            type: int
+            default: 0
+            description: "Page offset"
+          - name: start_date
+            type: string
+            description: "Only include jobs on/after this date (YYYY-MM-DD)"
+          - name: only_open
+            type: bool
+            description: "Only include open (not completed/cancelled) jobs"
+          - name: status
+            type: string
+            description: "Filter by job status (repeatable in the live API; pass one value per call)"
+        response:
+          type: array
+          item: Job
+          # Workiz wraps the array in {flag, has_more, found, data}
+        response_path: data
+        pagination:
+          type: offset
+          has_more_field: has_more
+
+      get:
+        method: GET
+        path: "/job/get/{uuid}/"
+        description: "Get a job by UUID"
+        params:
+          - name: uuid
+            type: string
+            required: true
+            positional: true
+            description: "Job UUID"
+        response:
+          type: object
+          item: Job
+        response_path: data
+
+      create:
+        method: POST
+        path: "/job/create/"
+        description: "Create a new job"
+        happy_args: "--first-name=Jane --last-name=Doe --address=\"Example Service Address\" --city=Chicago --state=IL --postal-code=60614 --job-type=Repair --job-date-time=2026-08-01T09:00:00.000Z"
+        body:
+          - name: FirstName
+            flag_name: first-name
+            type: string
+            required: true
+            description: "Client first name"
+          - name: LastName
+            flag_name: last-name
+            type: string
+            required: true
+            description: "Client last name"
+          - name: Email
+            flag_name: email
+            type: string
+            description: "Client email"
+          - name: Phone
+            flag_name: phone
+            type: string
+            description: "Client phone number"
+          - name: Address
+            flag_name: address
+            type: string
+            required: true
+            description: "Street address of the service location"
+          - name: City
+            flag_name: city
+            type: string
+            required: true
+            description: "City of the service location"
+          - name: State
+            flag_name: state
+            type: string
+            required: true
+            description: "State of the service location"
+          - name: PostalCode
+            flag_name: postal-code
+            type: string
+            required: true
+            description: "Postal code of the service location"
+          - name: JobType
+            flag_name: job-type
+            type: string
+            required: true
+            description: "The type of job"
+          - name: JobDateTime
+            flag_name: job-date-time
+            type: string
+            required: true
+            description: "Job date/time in ISO 8601 format, e.g. 2026-08-29T09:12:33.001Z"
+        response:
+          type: object
+          item: Job
+        response_path: data
+
+      update:
+        method: POST
+        path: "/job/update/"
+        description: "Update a job's schedule"
+        body:
+          - name: UUID
+            flag_name: uuid
+            type: string
+            required: true
+            description: "Job UUID"
+          - name: Timezone
+            flag_name: timezone
+            type: string
+            description: "Timezone for the schedule update (e.g. UTC)"
+          - name: JobDateTime
+            flag_name: job-date-time
+            type: string
+            required: true
+            description: "New job start date/time in ISO 8601 format"
+          - name: JobEndDateTime
+            flag_name: job-end-date-time
+            type: string
+            description: "New job end date/time in ISO 8601 format"
+
+      assign:
+        method: POST
+        path: "/job/assign/"
+        description: "Assign a crew member to a job"
+        body:
+          - name: UUID
+            flag_name: uuid
+            type: string
+            required: true
+            description: "Job UUID"
+          - name: User
+            flag_name: member
+            type: string
+            required: true
+            description: "Full name of the crew member to assign (Workiz identifies crew by name, not id)"
+
+      unassign:
+        method: POST
+        path: "/job/unassign/"
+        description: "Unassign a crew member from a job"
+        body:
+          - name: UUID
+            flag_name: uuid
+            type: string
+            required: true
+            description: "Job UUID"
+          - name: User
+            flag_name: member
+            type: string
+            required: true
+            description: "Full name of the crew member to unassign"
+
+  lead:
+    description: "Pre-job estimates (leads)"
+    endpoints:
+      list:
+        method: GET
+        path: "/lead/all/"
+        description: "List leads (paginated)"
+        example: "  workiz-pp-cli lead list --records 50"
+        happy_args: "--records=10"
+        params:
+          - name: records
+            type: int
+            default: 100
+            description: "Max results per page (Workiz caps this at 100)"
+          - name: offset
+            type: int
+            default: 0
+            description: "Page offset"
+          - name: start_date
+            type: string
+            description: "Only include leads on/after this date (YYYY-MM-DD)"
+          - name: status
+            type: string
+            description: "Filter by lead status"
+        response:
+          type: array
+          item: Lead
+        response_path: data
+        pagination:
+          type: offset
+          has_more_field: has_more
+
+      get:
+        method: GET
+        path: "/lead/get/{uuid}/"
+        description: "Get a lead by UUID"
+        params:
+          - name: uuid
+            type: string
+            required: true
+            positional: true
+            description: "Lead UUID"
+        response:
+          type: object
+          item: Lead
+        response_path: data
+
+      create:
+        method: POST
+        path: "/lead/create/"
+        description: "Create a new lead"
+        happy_args: "--email=jane@example.com --first-name=Jane --last-name=Doe"
+        body:
+          - name: Email
+            flag_name: email
+            type: string
+            required: true
+            description: "Lead email"
+          - name: Phone
+            flag_name: phone
+            type: string
+            description: "Lead phone number"
+          - name: FirstName
+            flag_name: first-name
+            type: string
+            description: "Lead first name"
+          - name: LastName
+            flag_name: last-name
+            type: string
+            description: "Lead last name"
+          - name: Company
+            flag_name: company
+            type: string
+            description: "Lead company name"
+          - name: Address
+            flag_name: address
+            type: string
+            description: "Street address of the service location"
+          - name: City
+            flag_name: city
+            type: string
+            description: "City of the service location"
+          - name: State
+            flag_name: state
+            type: string
+            description: "State of the service location"
+          - name: PostalCode
+            flag_name: postal-code
+            type: string
+            description: "Postal code of the service location"
+          - name: LeadDateTime
+            flag_name: lead-date-time
+            type: string
+            description: "Lead date/time in ISO 8601 format"
+          - name: JobType
+            flag_name: job-type
+            type: string
+            description: "The type of job this lead is interested in"
+          - name: JobSource
+            flag_name: job-source
+            type: string
+            description: "Where the lead came from (e.g. Google Ads, Referral, Yelp)"
+        response:
+          type: object
+          item: Lead
+        response_path: data
+
+      update:
+        method: POST
+        path: "/lead/update/"
+        description: "Update a lead's schedule"
+        body:
+          - name: UUID
+            flag_name: uuid
+            type: string
+            required: true
+            description: "Lead UUID"
+          - name: Timezone
+            flag_name: timezone
+            type: string
+            description: "Timezone for the schedule update (e.g. UTC)"
+          - name: LeadDateTime
+            flag_name: lead-date-time
+            type: string
+            required: true
+            description: "New lead start date/time in ISO 8601 format"
+          - name: LeadEndDateTime
+            flag_name: lead-end-date-time
+            type: string
+            description: "New lead end date/time in ISO 8601 format"
+
+      assign:
+        method: POST
+        path: "/lead/assign/"
+        description: "Assign a crew member to a lead"
+        body:
+          - name: UUID
+            flag_name: uuid
+            type: string
+            required: true
+            description: "Lead UUID"
+          - name: User
+            flag_name: member
+            type: string
+            required: true
+            description: "Full name of the crew member to assign"
+
+      unassign:
+        method: POST
+        path: "/lead/unassign/"
+        description: "Unassign a crew member from a lead"
+        body:
+          - name: UUID
+            flag_name: uuid
+            type: string
+            required: true
+            description: "Lead UUID"
+          - name: User
+            flag_name: member
+            type: string
+            required: true
+            description: "Full name of the crew member to unassign"
+
+  team:
+    description: "Crew (team) members"
+    endpoints:
+      list:
+        method: GET
+        path: "/team/all/"
+        description: "List team members"
+        response:
+          type: array
+          item: TeamMember
+        response_path: data
+
+      get:
+        method: GET
+        path: "/team/get/{user_id}/"
+        description: "Get a team member by id"
+        params:
+          - name: user_id
+            type: string
+            required: true
+            positional: true
+            description: "Team member id"
+        response:
+          type: object
+          item: TeamMember
+        response_path: data
+
+  customer:
+    description: "Customers (clients)"
+    endpoints:
+      create:
+        method: POST
+        path: "/Client/create/"
+        description: "Create a new client"
+        happy_args: "--first-name=Jane --last-name=Doe"
+        body:
+          - name: FirstName
+            flag_name: first-name
+            type: string
+            description: "Client first name"
+          - name: LastName
+            flag_name: last-name
+            type: string
+            description: "Client last name"
+          - name: Email
+            flag_name: email
+            type: string
+            description: "Client email"
+          - name: Address
+            flag_name: address
+            type: string
+            description: "Client street address"
+          - name: City
+            flag_name: city
+            type: string
+            description: "Client city"
+          - name: State
+            flag_name: state
+            type: string
+            description: "Client state"
+          - name: Zip
+            flag_name: zip
+            type: string
+            description: "Client postal code"
+          - name: Source
+            flag_name: source
+            type: string
+            description: "Where this client came from"
+          - name: AllowBilling
+            flag_name: allow-billing
+            type: bool
+            description: "Whether this client can be billed"
+        response:
+          type: object
+          item: Client
+        response_path: data
+
+      get:
+        method: GET
+        path: "/Client/get/{id}/"
+        description: "Get a client by id"
+        params:
+          - name: id
+            type: string
+            required: true
+            positional: true
+            description: "Client id"
+        response:
+          type: object
+          item: Client
+        response_path: data
+
+  timeoff:
+    description: "Crew time-off records"
+    endpoints:
+      list:
+        method: GET
+        path: "/TimeOff/get/"
+        description: "List time-off records"
+        response:
+          type: array
+          item: TimeOff
+        response_path: data
+
+      get:
+        method: GET
+        path: "/TimeOff/get/{username}/"
+        description: "Get time-off records for a specific team member"
+        params:
+          - name: username
+            type: string
+            required: true
+            positional: true
+            description: "Team member username"
+        response:
+          type: array
+          item: TimeOff
+        response_path: data
+
+types:
+  Job:
+    fields:
+      - name: UUID
+        type: string
+      - name: SerialId
+        type: int
+      - name: ClientId
+        type: int
+      - name: JobDateTime
+        type: string
+      - name: JobEndDateTime
+        type: string
+      - name: CreatedDate
+        type: string
+      - name: PaymentDueDate
+        type: string
+      - name: LastStatusUpdate
+        type: string
+      - name: JobTotalPrice
+        type: string
+      - name: JobAmountDue
+        type: string
+      - name: SubTotal
+        type: string
+      - name: Status
+        type: string
+      - name: SubStatus
+        type: string
+      - name: JobType
+        type: string
+      - name: JobSource
+        type: string
+      - name: ReferralCompany
+        type: string
+      - name: Timezone
+        type: string
+      - name: ServiceArea
+        type: string
+      - name: Phone
+        type: string
+      - name: PhoneExt
+        type: string
+      - name: SecondPhone
+        type: string
+      - name: Email
+        type: string
+      - name: FirstName
+        type: string
+      - name: LastName
+        type: string
+      - name: Company
+        type: string
+      - name: JobNotes
+        type: string
+      - name: CreatedBy
+        type: string
+      - name: Address
+        type: string
+      - name: City
+        type: string
+      - name: State
+        type: string
+      - name: PostalCode
+        type: string
+      - name: Country
+        type: string
+      - name: Latitude
+        type: float
+      - name: Longitude
+        type: float
+      - name: Unit
+        type: string
+      - name: ItemCost
+        type: int
+      - name: TechCost
+        type: int
+      - name: Team
+        type: string
+      - name: Comments
+        type: string
+
+  Lead:
+    fields:
+      - name: UUID
+        type: string
+      - name: SerialId
+        type: string
+      - name: ClientId
+        type: string
+      - name: LeadDateTime
+        type: string
+      - name: LeadEndDateTime
+        type: string
+      - name: CreatedDate
+        type: string
+      - name: PaymentDueDate
+        type: string
+      - name: LastStatusUpdate
+        type: string
+      - name: LeadTotalPrice
+        type: string
+      - name: LeadAmountDue
+        type: string
+      - name: SubTotal
+        type: string
+      - name: Status
+        type: string
+      - name: SubStatus
+        type: string
+      - name: LeadType
+        type: string
+      - name: ReferralCompany
+        type: string
+      - name: Timezone
+        type: string
+      - name: ServiceArea
+        type: string
+      - name: Phone
+        type: string
+      - name: PhoneExt
+        type: string
+      - name: SecondPhone
+        type: string
+      - name: Email
+        type: string
+      - name: Comments
+        type: string
+      - name: FirstName
+        type: string
+      - name: LastName
+        type: string
+      - name: Company
+        type: string
+      - name: LeadNotes
+        type: string
+      - name: LeadSource
+        type: string
+      - name: CreatedBy
+        type: string
+      - name: Address
+        type: string
+      - name: City
+        type: string
+      - name: State
+        type: string
+      - name: PostalCode
+        type: string
+      - name: Country
+        type: string
+      - name: Latitude
+        type: string
+      - name: Longitude
+        type: string
+
+  TeamMember:
+    fields:
+      - name: Id
+        type: string
+      - name: Name
+        type: string
+      - name: Role
+        type: string
+      - name: Email
+        type: string
+      - name: Active
+        type: bool
+      - name: FieldTech
+        type: bool
+      - name: ServiceAreas
+        type: string
+      - name: Skills
+        type: string
+
+  Client:
+    fields:
+      - name: Id
+        type: string
+      - name: FirstName
+        type: string
+      - name: LastName
+        type: string
+      - name: Address
+        type: string
+      - name: City
+        type: string
+      - name: State
+        type: string
+      - name: Zip
+        type: string
+      - name: Source
+        type: string
+      - name: Email
+        type: string
+      - name: AllowBilling
+        type: bool
+
+  TimeOff:
+    fields:
+      - name: Id
+        type: string
+      - name: UserName
+        type: string
+      - name: StartDate
+        type: string
+      - name: EndDate
+        type: string
+      - name: Reason
+        type: string

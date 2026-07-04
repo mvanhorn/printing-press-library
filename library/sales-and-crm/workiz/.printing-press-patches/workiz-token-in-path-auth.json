@@ -1,0 +1,15 @@
+{
+  "schema_version": 2,
+  "id": "workiz-token-in-path-auth",
+  "applied_at": "2026-07-04",
+  "base_run_id": "20260703-231425-e3a58ce9",
+  "base_printing_press_version": "4.24.0",
+  "summary": "Added Config.EffectiveBaseURL() to fold the API token into the base URL as a path segment at client-construction time instead of persisting it into BaseURL inside Load().",
+  "reason": "Workiz embeds its API token as a URL path segment on every call (https://api.workiz.com/api/v1/{token}/job/all/), not a header or query param, and the generator has no auth.in mode for path-embedded credentials. An initial version mutated Config.BaseURL directly inside Load(), but BaseURL is a persisted TOML field, so saving after that mutation wrote the token-embedded URL to disk; the next Load() would append a second token on top, and logout never actually cleared the old token from the persisted URL. EffectiveBaseURL() computes the token-folded URL on demand and is only called from client.New(), keeping Config.BaseURL as the clean, persist-safe template.",
+  "files": [
+    "internal/config/config.go",
+    "internal/client/client.go"
+  ],
+  "validated_outcome": "internal/config/config_test.go's TestBaseURLNeverPersistsToken regression-tests token rotation (set-token twice) and logout, asserting BaseURL stays the clean template on disk across all three operations. Also verified live via `auth set-token` x2 + `auth logout` while inspecting config.toml after each step.",
+  "upstream_issue": null
+}

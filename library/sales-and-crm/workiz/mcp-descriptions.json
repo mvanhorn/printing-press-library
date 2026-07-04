@@ -1,0 +1,6 @@
+{
+  "descriptions": {
+    "team_list": "List every crew/team member in the account. No parameters. Returns an array of TeamMember objects (id, name, role, email, active flag, field-tech flag, service areas, skills). Use team_get with a specific user_id when you already have one member's id and only need that record.",
+    "timeoff_list": "List time-off records for all crew members, unfiltered. No parameters. Returns an array of TimeOff objects (id, username, start date, end date, reason). Use timeoff_get with a specific username to scope results to one team member instead of scanning the full list."
+  }
+}

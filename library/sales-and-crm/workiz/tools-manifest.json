@@ -1,0 +1,617 @@
+{
+  "api_name": "workiz",
+  "base_url": "https://api.workiz.com/api/v1",
+  "description": "Every Workiz dispatch and pipeline workflow, plus crew utilization, revenue, and conversion views no other Workiz tool has.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "api_key",
+    "header": "Authorization",
+    "format": "{WORKIZ_API_TOKEN}",
+    "in": "header",
+    "env_vars": [
+      "WORKIZ_API_TOKEN",
+      "WORKIZ_API_SECRET"
+    ],
+    "env_var_specs": [
+      {
+        "name": "WORKIZ_API_TOKEN",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      },
+      {
+        "name": "WORKIZ_API_SECRET",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    ]
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "customer_create",
+      "description": "Create a new client. Optional: first-name, last-name, email (plus 6 more). Returns the new Client.",
+      "method": "POST",
+      "path": "/Client/create/",
+      "params": [
+        {
+          "name": "first-name",
+          "wire_name": "FirstName",
+          "type": "string",
+          "location": "body",
+          "description": "Client first name"
+        },
+        {
+          "name": "last-name",
+          "wire_name": "LastName",
+          "type": "string",
+          "location": "body",
+          "description": "Client last name"
+        },
+        {
+          "name": "email",
+          "wire_name": "Email",
+          "type": "string",
+          "location": "body",
+          "description": "Client email"
+        },
+        {
+          "name": "address",
+          "wire_name": "Address",
+          "type": "string",
+          "location": "body",
+          "description": "Client street address"
+        },
+        {
+          "name": "city",
+          "wire_name": "City",
+          "type": "string",
+          "location": "body",
+          "description": "Client city"
+        },
+        {
+          "name": "state",
+          "wire_name": "State",
+          "type": "string",
+          "location": "body",
+          "description": "Client state"
+        },
+        {
+          "name": "zip",
+          "wire_name": "Zip",
+          "type": "string",
+          "location": "body",
+          "description": "Client postal code"
+        },
+        {
+          "name": "source",
+          "wire_name": "Source",
+          "type": "string",
+          "location": "body",
+          "description": "Where this client came from"
+        },
+        {
+          "name": "allow-billing",
+          "wire_name": "AllowBilling",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether this client can be billed"
+        }
+      ]
+    },
+    {
+      "name": "customer_get",
+      "description": "Get a client by id. Required: id. Returns the Client.",
+      "method": "GET",
+      "path": "/Client/get/{id}/",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Client id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "job_assign",
+      "description": "Assign a crew member to a job. Required: uuid, member.",
+      "method": "POST",
+      "path": "/job/assign/",
+      "params": [
+        {
+          "name": "uuid",
+          "wire_name": "UUID",
+          "type": "string",
+          "location": "body",
+          "description": "Job UUID",
+          "required": true
+        },
+        {
+          "name": "member",
+          "wire_name": "User",
+          "type": "string",
+          "location": "body",
+          "description": "Full name of the crew member to assign (Workiz identifies crew by name, not id)",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "job_create",
+      "description": "Create a new job. Required: first-name, last-name, address, city, state, postal-code, job-type, job-date-time. Optional: email, phone. Returns the new Job.",
+      "method": "POST",
+      "path": "/job/create/",
+      "params": [
+        {
+          "name": "first-name",
+          "wire_name": "FirstName",
+          "type": "string",
+          "location": "body",
+          "description": "Client first name",
+          "required": true
+        },
+        {
+          "name": "last-name",
+          "wire_name": "LastName",
+          "type": "string",
+          "location": "body",
+          "description": "Client last name",
+          "required": true
+        },
+        {
+          "name": "email",
+          "wire_name": "Email",
+          "type": "string",
+          "location": "body",
+          "description": "Client email"
+        },
+        {
+          "name": "phone",
+          "wire_name": "Phone",
+          "type": "string",
+          "location": "body",
+          "description": "Client phone number"
+        },
+        {
+          "name": "address",
+          "wire_name": "Address",
+          "type": "string",
+          "location": "body",
+          "description": "Street address of the service location",
+          "required": true
+        },
+        {
+          "name": "city",
+          "wire_name": "City",
+          "type": "string",
+          "location": "body",
+          "description": "City of the service location",
+          "required": true
+        },
+        {
+          "name": "state",
+          "wire_name": "State",
+          "type": "string",
+          "location": "body",
+          "description": "State of the service location",
+          "required": true
+        },
+        {
+          "name": "postal-code",
+          "wire_name": "PostalCode",
+          "type": "string",
+          "location": "body",
+          "description": "Postal code of the service location",
+          "required": true
+        },
+        {
+          "name": "job-type",
+          "wire_name": "JobType",
+          "type": "string",
+          "location": "body",
+          "description": "The type of job",
+          "required": true
+        },
+        {
+          "name": "job-date-time",
+          "wire_name": "JobDateTime",
+          "type": "string",
+          "location": "body",
+          "description": "Job date/time in ISO 8601 format, e.g. 2026-08-29T09:12:33.001Z",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "job_get",
+      "description": "Get a job by UUID. Required: uuid. Returns the Job.",
+      "method": "GET",
+      "path": "/job/get/{uuid}/",
+      "params": [
+        {
+          "name": "uuid",
+          "type": "string",
+          "location": "path",
+          "description": "Job UUID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "job_list",
+      "description": "List jobs (paginated). Optional: records (default: 100), offset (default: 0), start_date (plus 2 more). Returns array of Job.",
+      "method": "GET",
+      "path": "/job/all/",
+      "params": [
+        {
+          "name": "records",
+          "type": "int",
+          "location": "query",
+          "description": "Max results per page (Workiz caps this at 100)"
+        },
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "Page offset"
+        },
+        {
+          "name": "start_date",
+          "type": "string",
+          "location": "query",
+          "description": "Only include jobs on/after this date (YYYY-MM-DD)"
+        },
+        {
+          "name": "only_open",
+          "type": "bool",
+          "location": "query",
+          "description": "Only include open (not completed/cancelled) jobs"
+        },
+        {
+          "name": "status",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by job status (repeatable in the live API; pass one value per call)"
+        }
+      ]
+    },
+    {
+      "name": "job_unassign",
+      "description": "Unassign a crew member from a job. Required: uuid, member.",
+      "method": "POST",
+      "path": "/job/unassign/",
+      "params": [
+        {
+          "name": "uuid",
+          "wire_name": "UUID",
+          "type": "string",
+          "location": "body",
+          "description": "Job UUID",
+          "required": true
+        },
+        {
+          "name": "member",
+          "wire_name": "User",
+          "type": "string",
+          "location": "body",
+          "description": "Full name of the crew member to unassign",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "job_update",
+      "description": "Update a job's schedule. Required: uuid, job-date-time. Optional: timezone, job-end-date-time.",
+      "method": "POST",
+      "path": "/job/update/",
+      "params": [
+        {
+          "name": "uuid",
+          "wire_name": "UUID",
+          "type": "string",
+          "location": "body",
+          "description": "Job UUID",
+          "required": true
+        },
+        {
+          "name": "timezone",
+          "wire_name": "Timezone",
+          "type": "string",
+          "location": "body",
+          "description": "Timezone for the schedule update (e.g. UTC)"
+        },
+        {
+          "name": "job-date-time",
+          "wire_name": "JobDateTime",
+          "type": "string",
+          "location": "body",
+          "description": "New job start date/time in ISO 8601 format",
+          "required": true
+        },
+        {
+          "name": "job-end-date-time",
+          "wire_name": "JobEndDateTime",
+          "type": "string",
+          "location": "body",
+          "description": "New job end date/time in ISO 8601 format"
+        }
+      ]
+    },
+    {
+      "name": "lead_assign",
+      "description": "Assign a crew member to a lead. Required: uuid, member.",
+      "method": "POST",
+      "path": "/lead/assign/",
+      "params": [
+        {
+          "name": "uuid",
+          "wire_name": "UUID",
+          "type": "string",
+          "location": "body",
+          "description": "Lead UUID",
+          "required": true
+        },
+        {
+          "name": "member",
+          "wire_name": "User",
+          "type": "string",
+          "location": "body",
+          "description": "Full name of the crew member to assign",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "lead_create",
+      "description": "Create a new lead. Required: email. Optional: phone, first-name, last-name (plus 8 more). Returns the new Lead.",
+      "method": "POST",
+      "path": "/lead/create/",
+      "params": [
+        {
+          "name": "email",
+          "wire_name": "Email",
+          "type": "string",
+          "location": "body",
+          "description": "Lead email",
+          "required": true
+        },
+        {
+          "name": "phone",
+          "wire_name": "Phone",
+          "type": "string",
+          "location": "body",
+          "description": "Lead phone number"
+        },
+        {
+          "name": "first-name",
+          "wire_name": "FirstName",
+          "type": "string",
+          "location": "body",
+          "description": "Lead first name"
+        },
+        {
+          "name": "last-name",
+          "wire_name": "LastName",
+          "type": "string",
+          "location": "body",
+          "description": "Lead last name"
+        },
+        {
+          "name": "company",
+          "wire_name": "Company",
+          "type": "string",
+          "location": "body",
+          "description": "Lead company name"
+        },
+        {
+          "name": "address",
+          "wire_name": "Address",
+          "type": "string",
+          "location": "body",
+          "description": "Street address of the service location"
+        },
+        {
+          "name": "city",
+          "wire_name": "City",
+          "type": "string",
+          "location": "body",
+          "description": "City of the service location"
+        },
+        {
+          "name": "state",
+          "wire_name": "State",
+          "type": "string",
+          "location": "body",
+          "description": "State of the service location"
+        },
+        {
+          "name": "postal-code",
+          "wire_name": "PostalCode",
+          "type": "string",
+          "location": "body",
+          "description": "Postal code of the service location"
+        },
+        {
+          "name": "lead-date-time",
+          "wire_name": "LeadDateTime",
+          "type": "string",
+          "location": "body",
+          "description": "Lead date/time in ISO 8601 format"
+        },
+        {
+          "name": "job-type",
+          "wire_name": "JobType",
+          "type": "string",
+          "location": "body",
+          "description": "The type of job this lead is interested in"
+        },
+        {
+          "name": "job-source",
+          "wire_name": "JobSource",
+          "type": "string",
+          "location": "body",
+          "description": "Where the lead came from (e.g. Google Ads, Referral, Yelp)"
+        }
+      ]
+    },
+    {
+      "name": "lead_get",
+      "description": "Get a lead by UUID. Required: uuid. Returns the Lead.",
+      "method": "GET",
+      "path": "/lead/get/{uuid}/",
+      "params": [
+        {
+          "name": "uuid",
+          "type": "string",
+          "location": "path",
+          "description": "Lead UUID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "lead_list",
+      "description": "List leads (paginated). Optional: records (default: 100), offset (default: 0), start_date (plus 1 more). Returns array of Lead.",
+      "method": "GET",
+      "path": "/lead/all/",
+      "params": [
+        {
+          "name": "records",
+          "type": "int",
+          "location": "query",
+          "description": "Max results per page (Workiz caps this at 100)"
+        },
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "Page offset"
+        },
+        {
+          "name": "start_date",
+          "type": "string",
+          "location": "query",
+          "description": "Only include leads on/after this date (YYYY-MM-DD)"
+        },
+        {
+          "name": "status",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by lead status"
+        }
+      ]
+    },
+    {
+      "name": "lead_unassign",
+      "description": "Unassign a crew member from a lead. Required: uuid, member.",
+      "method": "POST",
+      "path": "/lead/unassign/",
+      "params": [
+        {
+          "name": "uuid",
+          "wire_name": "UUID",
+          "type": "string",
+          "location": "body",
+          "description": "Lead UUID",
+          "required": true
+        },
+        {
+          "name": "member",
+          "wire_name": "User",
+          "type": "string",
+          "location": "body",
+          "description": "Full name of the crew member to unassign",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "lead_update",
+      "description": "Update a lead's schedule. Required: uuid, lead-date-time. Optional: timezone, lead-end-date-time.",
+      "method": "POST",
+      "path": "/lead/update/",
+      "params": [
+        {
+          "name": "uuid",
+          "wire_name": "UUID",
+          "type": "string",
+          "location": "body",
+          "description": "Lead UUID",
+          "required": true
+        },
+        {
+          "name": "timezone",
+          "wire_name": "Timezone",
+          "type": "string",
+          "location": "body",
+          "description": "Timezone for the schedule update (e.g. UTC)"
+        },
+        {
+          "name": "lead-date-time",
+          "wire_name": "LeadDateTime",
+          "type": "string",
+          "location": "body",
+          "description": "New lead start date/time in ISO 8601 format",
+          "required": true
+        },
+        {
+          "name": "lead-end-date-time",
+          "wire_name": "LeadEndDateTime",
+          "type": "string",
+          "location": "body",
+          "description": "New lead end date/time in ISO 8601 format"
+        }
+      ]
+    },
+    {
+      "name": "team_get",
+      "description": "Get a team member by id. Required: user_id. Returns the TeamMember.",
+      "method": "GET",
+      "path": "/team/get/{user_id}/",
+      "params": [
+        {
+          "name": "user_id",
+          "type": "string",
+          "location": "path",
+          "description": "Team member id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "team_list",
+      "description": "List team members. Returns array of TeamMember.",
+      "method": "GET",
+      "path": "/team/all/",
+      "params": []
+    },
+    {
+      "name": "timeoff_get",
+      "description": "Get time-off records for a specific team member. Required: username. Returns array of TimeOff.",
+      "method": "GET",
+      "path": "/TimeOff/get/{username}/",
+      "params": [
+        {
+          "name": "username",
+          "type": "string",
+          "location": "path",
+          "description": "Team member username",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "timeoff_list",
+      "description": "List time-off records. Returns array of TimeOff.",
+      "method": "GET",
+      "path": "/TimeOff/get/",
+      "params": []
+    }
+  ]
+}

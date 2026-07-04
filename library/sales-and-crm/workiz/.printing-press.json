@@ -1,0 +1,61 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-07-04T17:28:34.695035Z",
+  "printing_press_version": "4.24.0",
+  "api_name": "workiz",
+  "display_name": "Workiz",
+  "cli_name": "workiz-pp-cli",
+  "creator": {
+    "handle": "eboziev",
+    "name": "Eldar"
+  },
+  "owner": "eboziev",
+  "printer": "eboziev",
+  "printer_name": "Eldar",
+  "spec_format": "internal",
+  "spec_checksum": "sha256:1056f36863a20e279eb0d93084d71397d44d139d5c63e2e7aeebe078a5a1016a",
+  "run_id": "20260703-231425-e3a58ce9",
+  "category": "sales-and-crm",
+  "description": "Every Workiz dispatch and pipeline workflow, plus crew utilization, revenue, and conversion views no other Workiz tool has.",
+  "mcp_binary": "workiz-pp-mcp",
+  "mcp_tool_count": 18,
+  "mcp_ready": "full",
+  "api_version": "0.1.0",
+  "auth_type": "api_key",
+  "auth_env_vars": [
+    "WORKIZ_API_TOKEN",
+    "WORKIZ_API_SECRET"
+  ],
+  "novel_features": [
+    {
+      "name": "Crew utilization \u0026 conflict bottleneck view",
+      "command": "team bottleneck --week",
+      "description": "See per-crew scheduled load and catch double-bookings or time-off conflicts before they become no-shows."
+    },
+    {
+      "name": "Lead-to-job conversion funnel",
+      "command": "lead funnel",
+      "description": "See which lead sources actually turn into paid jobs, with conversion rate and average resulting job value per source."
+    },
+    {
+      "name": "Revenue pipeline by source/status",
+      "command": "job revenue",
+      "description": "Roll up total and outstanding job value by lead source and job status."
+    },
+    {
+      "name": "Missing-data / billing-readiness audit",
+      "command": "job audit",
+      "description": "Find jobs, leads, and clients missing phone, email, amount, or crew fields that would block a downstream billing push."
+    },
+    {
+      "name": "Since change digest",
+      "command": "digest",
+      "description": "See everything new or changed across jobs and leads since your last check, grouped by entity."
+    },
+    {
+      "name": "Full-text search across notes and comments",
+      "command": "job search",
+      "description": "Search job notes, lead notes, and comments for free text across your entire synced history."
+    }
+  ]
+}

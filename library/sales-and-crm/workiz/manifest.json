@@ -1,0 +1,47 @@
+{
+  "manifest_version": "0.3",
+  "name": "workiz-pp-mcp",
+  "display_name": "Workiz",
+  "version": "0.0.0",
+  "description": "Every Workiz dispatch and pipeline workflow, plus crew utilization, revenue, and conversion views no other Workiz tool has.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/workiz-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/workiz-pp-mcp",
+      "args": [],
+      "env": {
+        "WORKIZ_API_SECRET": "${user_config.workiz_api_secret}",
+        "WORKIZ_API_TOKEN": "${user_config.workiz_api_token}"
+      }
+    }
+  },
+  "user_config": {
+    "workiz_api_secret": {
+      "type": "string",
+      "title": "WORKIZ_API_SECRET",
+      "description": "Sets WORKIZ_API_SECRET for the Workiz MCP server.",
+      "sensitive": true,
+      "required": true
+    },
+    "workiz_api_token": {
+      "type": "string",
+      "title": "WORKIZ_API_TOKEN",
+      "description": "Sets WORKIZ_API_TOKEN for the Workiz MCP server.",
+      "sensitive": true,
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

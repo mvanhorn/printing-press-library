@@ -1,0 +1,17 @@
+# agentcookie.toml: secrets-bus adoption manifest v2
+# See docs/spec-agentcookie-secrets-bus-v2-adoption.md
+schema_version = 2
+name = "workiz-pp-cli"
+display_name = "Workiz"
+description = "Every Workiz dispatch and pipeline workflow, plus crew utilization, revenue, and conversion views no other Workiz tool has."
+project_kind = "cli"
+
+[secrets.file]
+path = "~/.config/workiz-pp-cli/config.toml"
+
+[sync]
+default = false
+
+[sync.keys]
+WORKIZ_API_SECRET = true
+WORKIZ_API_TOKEN = true
