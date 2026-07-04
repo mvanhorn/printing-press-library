@@ -328,3 +328,56 @@ test("fetchGoModulePath reads go.mod next to a registry entry", async () => {
 test("parseGoModulePath returns null when no module declaration exists", () => {
   assert.equal(parseGoModulePath("go 1.23\n"), null);
 });
+
+test("parseRegistry preserves optional printing_press_version", () => {
+  const registry = parseRegistry({
+    schema_version: 2,
+    entries: [
+      {
+        name: "espn",
+        category: "sports",
+        api: "ESPN",
+        description: "Sports scores",
+        path: "library/sports/espn",
+        printing_press_version: "4.24.0",
+      },
+    ],
+  });
+
+  assert.equal(registry.entries[0]?.printing_press_version, "4.24.0");
+});
+
+test("parseRegistry leaves printing_press_version undefined when absent", () => {
+  const registry = parseRegistry({
+    schema_version: 2,
+    entries: [
+      {
+        name: "espn",
+        category: "sports",
+        api: "ESPN",
+        description: "Sports scores",
+        path: "library/sports/espn",
+      },
+    ],
+  });
+
+  assert.equal(registry.entries[0]?.printing_press_version, undefined);
+});
+
+test("parseRegistry treats blank printing_press_version as absent", () => {
+  const registry = parseRegistry({
+    schema_version: 2,
+    entries: [
+      {
+        name: "espn",
+        category: "sports",
+        api: "ESPN",
+        description: "Sports scores",
+        path: "library/sports/espn",
+        printing_press_version: "   ",
+      },
+    ],
+  });
+
+  assert.equal(registry.entries[0]?.printing_press_version, undefined);
+});
