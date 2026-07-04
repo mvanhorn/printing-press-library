@@ -94,7 +94,8 @@ func newNovelNextCmd(flags *rootFlags) *cobra.Command {
 			if limit <= 0 {
 				limit = 10
 			}
-			q += ` ORDER BY COALESCE(difficulty,0) ASC, title ASC LIMIT ?`
+			// Unrated videos (NULL or 0 difficulty) sort last so rated picks lead.
+			q += ` ORDER BY (COALESCE(difficulty,0) <= 0) ASC, COALESCE(difficulty,0) ASC, title ASC LIMIT ?`
 			argv = append(argv, limit)
 
 			rows, err := db.DB().QueryContext(cmd.Context(), q, argv...)
