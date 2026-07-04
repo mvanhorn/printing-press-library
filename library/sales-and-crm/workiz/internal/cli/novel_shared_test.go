@@ -50,7 +50,7 @@ func TestParseMoney(t *testing.T) {
 		{"1234.56", 1234.56},
 	}
 	for _, tc := range cases {
-		if got := parseMoney(tc.input); got != tc.want {
+		if got := parseMoney(flexibleMoney(tc.input)); got != tc.want {
 			t.Errorf("parseMoney(%q) = %v, want %v", tc.input, got, tc.want)
 		}
 	}
@@ -66,6 +66,7 @@ func TestWzCommentsUnmarshal(t *testing.T) {
 		{"array of comment objects", `[{"Comment":"first"},{"Comment":"second"}]`, []string{"first", "second"}},
 		{"null", `null`, nil},
 		{"unrecognized shape treated as no comments", `{"unexpected":"object"}`, nil},
+		{"single free-text string (confirmed live wire shape)", `"Left VM for second visit"`, []string{"Left VM for second visit"}},
 	}
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
@@ -82,6 +83,53 @@ func TestWzCommentsUnmarshal(t *testing.T) {
 				}
 			}
 		})
+	}
+}
+
+// TestFlexibleMoneyUnmarshal regression-tests a bug found via live testing:
+// wzJob.JobTotalPrice/JobAmountDue were declared as plain string, but live
+// Workiz responses return these as JSON numbers (int or float), so
+// json.Unmarshal on the whole wzJob struct failed and loadJobs silently
+// dropped every real job row (json.Unmarshal fails the entire struct on any
+// single field type mismatch, not just that field).
+func TestFlexibleMoneyUnmarshal(t *testing.T) {
+	cases := []struct {
+		name  string
+		input string
+		want  flexibleMoney
+	}{
+		{"integer (confirmed live wire shape)", `0`, "0"},
+		{"float (confirmed live wire shape)", `171.36`, "171.36"},
+		{"string", `"450.00"`, "450.00"},
+		{"null", `null`, ""},
+	}
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			var f flexibleMoney
+			if err := json.Unmarshal([]byte(tc.input), &f); err != nil {
+				t.Fatalf("unmarshal error: %v", err)
+			}
+			if f != tc.want {
+				t.Fatalf("got %q, want %q", f, tc.want)
+			}
+		})
+	}
+}
+
+// TestWzJobUnmarshalWithNumericPrice is a regression test at the whole-struct
+// level (not just the flexibleMoney type) for the same live-data bug: this is
+// exactly the JSON shape a real Workiz job returns.
+func TestWzJobUnmarshalWithNumericPrice(t *testing.T) {
+	raw := `{"UUID":"Y388BN","JobTotalPrice":0,"JobAmountDue":0,"Comments":"Left VM for second visit"}`
+	var j wzJob
+	if err := json.Unmarshal([]byte(raw), &j); err != nil {
+		t.Fatalf("unmarshal error (this used to silently drop the whole row): %v", err)
+	}
+	if j.UUID != "Y388BN" {
+		t.Fatalf("UUID = %q, want Y388BN", j.UUID)
+	}
+	if len(j.Comments) != 1 || j.Comments[0] != "Left VM for second visit" {
+		t.Fatalf("Comments = %v, want single free-text comment", []string(j.Comments))
 	}
 }
 
@@ -205,6 +253,26 @@ func TestMatchLeadToJobRejectsJobPredatingLead(t *testing.T) {
 	}
 }
 
+// TestMatchLeadToJobToleratesNearSimultaneousCreation regression-tests a bug
+// found via live testing against a real Workiz account: the "AI Call" intake
+// integration creates the job record 2-3 seconds *before* the lead record
+// for the same contact (both written near-simultaneously by the same
+// automated flow). A strict jobCreated >= leadCreated guard rejected every
+// real conversion from that source across 6 confirmed live examples.
+func TestMatchLeadToJobToleratesNearSimultaneousCreation(t *testing.T) {
+	lead := wzLead{Email: "jane@example.com", CreatedDate: "2026-07-03 10:31:45"}
+	jobs := []wzJob{
+		{UUID: "job-ai-call", Email: "jane@example.com", CreatedDate: "2026-07-03 10:31:43"},
+	}
+	got, found := matchLeadToJob(lead, jobs)
+	if !found {
+		t.Fatal("expected a match: job created 2s before the lead is within the chronology grace window")
+	}
+	if got.UUID != "job-ai-call" {
+		t.Fatalf("got %q, want job-ai-call", got.UUID)
+	}
+}
+
 // TestMatchLeadToJobNoContactMatch confirms unrelated jobs are never matched.
 func TestMatchLeadToJobNoContactMatch(t *testing.T) {
 	lead := wzLead{Email: "jane@example.com", CreatedDate: "2026-07-01 10:00:00"}
@@ -214,5 +282,20 @@ func TestMatchLeadToJobNoContactMatch(t *testing.T) {
 	_, found := matchLeadToJob(lead, jobs)
 	if found {
 		t.Fatal("expected no match: no contact-identity overlap")
+	}
+}
+
+// TestWzLeadSourceWireTag regression-tests a research bug found via live
+// testing: leads report their source under the "JobSource" wire key, not
+// "LeadSource" as originally documented from the create-lead body fields.
+// LeadSource never appears in any real synced lead across 53 live records.
+func TestWzLeadSourceWireTag(t *testing.T) {
+	raw := `{"UUID":"0FX7LS","JobSource":"Yelp"}`
+	var l wzLead
+	if err := json.Unmarshal([]byte(raw), &l); err != nil {
+		t.Fatalf("unmarshal error: %v", err)
+	}
+	if l.LeadSource != "Yelp" {
+		t.Fatalf("LeadSource = %q, want %q (wire key is JobSource, not LeadSource)", l.LeadSource, "Yelp")
 	}
 }

@@ -1584,7 +1584,18 @@ func (s *Store) UpsertTimeoff(data json.RawMessage) error {
 // Includes both flat resources and dependent (parent-child) resources so a
 // child path-item annotated with x-resource-id resolves the same as a flat
 // path-item.
-var resourceIDFieldOverrides = map[string]string{}
+// job and lead responses key on a fully-uppercase "UUID" field. The generic
+// fallback list (below) tries case variants like "id"/"ID"/"uuid"/"Uuid" via
+// LookupFieldValue's exact/camelCase/Pascal-case attempts, but none of those
+// produce "UUID" (all-caps, not just a capitalized first letter), so every
+// job/lead item synced from the live API silently failed the extractable-ID
+// check and never landed in the generic resources table or the ID-keyed
+// typed tables. Confirmed against live data: real job records return
+// {"UUID": "Y388BN", ...} verbatim.
+var resourceIDFieldOverrides = map[string]string{
+	"job":  "UUID",
+	"lead": "UUID",
+}
 
 // genericIDFieldFallbacks is the runtime safety net for resources that did
 // NOT receive a templated IDField. API-specific names belong in spec

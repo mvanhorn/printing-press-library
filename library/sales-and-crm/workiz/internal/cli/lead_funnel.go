@@ -141,10 +141,21 @@ func newNovelLeadFunnelCmd(flags *rootFlags) *cobra.Command {
 	return cmd
 }
 
+// leadJobChronologyGrace tolerates a job being created slightly before its
+// originating lead. Confirmed against live data: Workiz's own "AI Call"
+// intake integration creates the job record 2-3 seconds before the lead
+// record for the same contact (both are written near-simultaneously by the
+// same automated flow), so a strict jobCreated >= leadCreated guard rejected
+// every real conversion from that source. The grace window absorbs
+// same-flow timing noise while still rejecting a genuinely older job from a
+// previous, unrelated visit (typically days or weeks apart).
+const leadJobChronologyGrace = 10 * time.Minute
+
 // matchLeadToJob finds the job a lead likely became: same contact identity
 // (email, or phone, or first+last name) and, when both dates are known, the
-// job was created on or after the lead. Workiz exposes no direct convert-link
-// field between the two resources, so this is a best-effort heuristic.
+// job was created at or after the lead (within leadJobChronologyGrace).
+// Workiz exposes no direct convert-link field between the two resources, so
+// this is a best-effort heuristic.
 //
 // Collects every contact-matching job rather than returning the first one
 // found: iteration order over synced jobs is not guaranteed chronological, so
@@ -169,8 +180,8 @@ func matchLeadToJob(l wzLead, jobs []wzJob) (wzJob, bool) {
 			continue
 		}
 		jobCreated, jobHasCreated := parseWorkizTime(j.CreatedDate)
-		if leadHasCreated && jobHasCreated && jobCreated.Before(leadCreated) {
-			continue // job predates the lead; not a plausible conversion
+		if leadHasCreated && jobHasCreated && jobCreated.Before(leadCreated.Add(-leadJobChronologyGrace)) {
+			continue // job meaningfully predates the lead; not a plausible conversion
 		}
 		switch {
 		case !found:

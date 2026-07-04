@@ -12,8 +12,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/mvanhorn/printing-press-library/library/sales-and-crm/workiz/internal/store"
 	"github.com/spf13/cobra"
+	"github.com/mvanhorn/printing-press-library/library/sales-and-crm/workiz/internal/store"
 )
 
 // flexibleID absorbs Workiz's inconsistent Team[].id wire shape: numeric on
@@ -39,12 +39,24 @@ type wzTeamRef struct {
 	Name string     `json:"name"`
 }
 
-// wzComments absorbs Workiz's Comments field, which is an empty string
-// `""` when there are none, or an array of `{Comment: "..."}` objects.
+// wzComments absorbs Workiz's Comments field. Confirmed against live data to
+// take three shapes: an empty string `""` (no comments), a single non-empty
+// string containing free text (the common live shape — e.g. "Left VM for
+// second visit,leonid-p-and-office..."), or an array of `{Comment: "..."}`
+// objects (the shape documented by community SDKs, possibly an older/other
+// API version). All three are absorbed so `job search` can find text in any
+// of them.
 type wzComments []string
 
 func (c *wzComments) UnmarshalJSON(b []byte) error {
 	if string(b) == `""` || string(b) == "null" {
+		return nil
+	}
+	var single string
+	if err := json.Unmarshal(b, &single); err == nil {
+		if single != "" {
+			*c = append(*c, single)
+		}
 		return nil
 	}
 	var raw []struct {
@@ -59,41 +71,72 @@ func (c *wzComments) UnmarshalJSON(b []byte) error {
 	return nil
 }
 
+// flexibleMoney absorbs Workiz's stringly-inconsistent price fields.
+// Confirmed against live data that JobTotalPrice/JobAmountDue arrive as JSON
+// numbers (int or float), not strings as some community SDK docs suggested —
+// unmarshaling straight into a Go string field fails and (before this type
+// existed) silently dropped the entire job/lead row from loadJobs/loadLeads,
+// since json.Unmarshal on the whole struct returns an error on any field
+// type mismatch. Also accepts a JSON string in case some responses do send
+// one, so either wire shape parses into the same value.
+type flexibleMoney string
+
+func (f *flexibleMoney) UnmarshalJSON(b []byte) error {
+	s := strings.TrimSpace(string(b))
+	if s == "null" || s == "" {
+		*f = ""
+		return nil
+	}
+	if s[0] == '"' {
+		var str string
+		if err := json.Unmarshal(b, &str); err == nil {
+			*f = flexibleMoney(str)
+			return nil
+		}
+	}
+	*f = flexibleMoney(s)
+	return nil
+}
+
 type wzJob struct {
-	UUID             string      `json:"UUID"`
-	JobDateTime      string      `json:"JobDateTime"`
-	JobEndDateTime   string      `json:"JobEndDateTime"`
-	CreatedDate      string      `json:"CreatedDate"`
-	LastStatusUpdate string      `json:"LastStatusUpdate"`
-	JobTotalPrice    string      `json:"JobTotalPrice"`
-	JobAmountDue     string      `json:"JobAmountDue"`
-	Status           string      `json:"Status"`
-	JobType          string      `json:"JobType"`
-	JobSource        string      `json:"JobSource"`
-	Phone            string      `json:"Phone"`
-	Email            string      `json:"Email"`
-	FirstName        string      `json:"FirstName"`
-	LastName         string      `json:"LastName"`
-	JobNotes         string      `json:"JobNotes"`
-	Address          string      `json:"Address"`
-	City             string      `json:"City"`
-	State            string      `json:"State"`
-	PostalCode       string      `json:"PostalCode"`
-	Team             []wzTeamRef `json:"Team"`
-	Comments         wzComments  `json:"Comments"`
+	UUID             string        `json:"UUID"`
+	JobDateTime      string        `json:"JobDateTime"`
+	JobEndDateTime   string        `json:"JobEndDateTime"`
+	CreatedDate      string        `json:"CreatedDate"`
+	LastStatusUpdate string        `json:"LastStatusUpdate"`
+	JobTotalPrice    flexibleMoney `json:"JobTotalPrice"`
+	JobAmountDue     flexibleMoney `json:"JobAmountDue"`
+	Status           string        `json:"Status"`
+	JobType          string        `json:"JobType"`
+	JobSource        string        `json:"JobSource"`
+	Phone            string        `json:"Phone"`
+	Email            string        `json:"Email"`
+	FirstName        string        `json:"FirstName"`
+	LastName         string        `json:"LastName"`
+	JobNotes         string        `json:"JobNotes"`
+	Address          string        `json:"Address"`
+	City             string        `json:"City"`
+	State            string        `json:"State"`
+	PostalCode       string        `json:"PostalCode"`
+	Team             []wzTeamRef   `json:"Team"`
+	Comments         wzComments    `json:"Comments"`
 }
 
 type wzLead struct {
-	UUID             string     `json:"UUID"`
-	LeadDateTime     string     `json:"LeadDateTime"`
-	LeadEndDateTime  string     `json:"LeadEndDateTime"`
-	CreatedDate      string     `json:"CreatedDate"`
-	LastStatusUpdate string     `json:"LastStatusUpdate"`
-	LeadTotalPrice   string     `json:"LeadTotalPrice"`
-	LeadAmountDue    string     `json:"LeadAmountDue"`
-	Status           string     `json:"Status"`
-	LeadType         string     `json:"LeadType"`
-	LeadSource       string     `json:"LeadSource"`
+	UUID             string        `json:"UUID"`
+	LeadDateTime     string        `json:"LeadDateTime"`
+	LeadEndDateTime  string        `json:"LeadEndDateTime"`
+	CreatedDate      string        `json:"CreatedDate"`
+	LastStatusUpdate string        `json:"LastStatusUpdate"`
+	LeadTotalPrice   flexibleMoney `json:"LeadTotalPrice"`
+	LeadAmountDue    flexibleMoney `json:"LeadAmountDue"`
+	Status           string        `json:"Status"`
+	LeadType         string        `json:"LeadType"`
+	// Confirmed against live data: leads report their source under the
+	// "JobSource" wire key, not "LeadSource" (which never appears in any
+	// synced lead). The Go field stays LeadSource for readability in this
+	// package; only the JSON tag needs to match the wire key.
+	LeadSource       string     `json:"JobSource"`
 	Phone            string     `json:"Phone"`
 	Email            string     `json:"Email"`
 	FirstName        string     `json:"FirstName"`
@@ -250,10 +293,11 @@ func parseWorkizTime(s string) (time.Time, bool) {
 	return time.Time{}, false
 }
 
-// parseMoney parses Workiz's stringly-typed price fields, tolerating blank
-// or non-numeric values by returning 0 rather than failing the row.
-func parseMoney(s string) float64 {
-	s = strings.TrimSpace(s)
+// parseMoney parses Workiz's price fields (flexibleMoney absorbs both the
+// JSON-number and JSON-string wire shapes), tolerating blank or non-numeric
+// values by returning 0 rather than failing the row.
+func parseMoney(f flexibleMoney) float64 {
+	s := strings.TrimSpace(string(f))
 	if s == "" {
 		return 0
 	}
