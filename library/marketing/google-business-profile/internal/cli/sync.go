@@ -85,22 +85,22 @@ Resource scoping:
   the dependent by name; the parent table must already be populated
   from a prior sync.`,
 		Example: `  # Sync all resources
-  github.com/mvanhorn/printing-press-library/library/marketing/google-business-profile sync
+  google-business-profile-pp-cli sync
 
   # Sync specific resources only
-  github.com/mvanhorn/printing-press-library/library/marketing/google-business-profile sync --resources channels,messages
+  google-business-profile-pp-cli sync --resources channels,messages
 
   # Full resync (ignore previous checkpoint)
-  github.com/mvanhorn/printing-press-library/library/marketing/google-business-profile sync --full
+  google-business-profile-pp-cli sync --full
 
   # Incremental sync: only records from the last 7 days
-  github.com/mvanhorn/printing-press-library/library/marketing/google-business-profile sync --since 7d
+  google-business-profile-pp-cli sync --since 7d
 
   # Parallel sync with 8 workers
-  github.com/mvanhorn/printing-press-library/library/marketing/google-business-profile sync --concurrency 8
+  google-business-profile-pp-cli sync --concurrency 8
 
   # Latest-only: refresh head of each resource, no historical backfill
-  github.com/mvanhorn/printing-press-library/library/marketing/google-business-profile sync --latest-only`,
+  google-business-profile-pp-cli sync --latest-only`,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			userParams, err := parseSyncUserParams(paramFlags, resourceParamFlags, globalParamFlags)
 			if err != nil {
@@ -114,7 +114,7 @@ Resource scoping:
 			c.NoCache = true
 
 			if dbPath == "" {
-				dbPath = defaultDBPath("github.com/mvanhorn/printing-press-library/library/marketing/google-business-profile")
+				dbPath = defaultDBPath("google-business-profile-pp-cli")
 			}
 
 			db, err := store.OpenWithContext(cmd.Context(), dbPath)
@@ -324,7 +324,7 @@ Resource scoping:
 	cmd.Flags().BoolVar(&full, "full", false, "Full resync (ignore previous checkpoint)")
 	cmd.Flags().StringVar(&since, "since", "", "Incremental sync duration (e.g. 7d, 24h, 1w, 30m)")
 	cmd.Flags().IntVar(&concurrency, "concurrency", 4, "Number of parallel sync workers")
-	cmd.Flags().StringVar(&dbPath, "db", "", "Database path (default: ~/.local/share/github.com/mvanhorn/printing-press-library/library/marketing/google-business-profile/data.db)")
+	cmd.Flags().StringVar(&dbPath, "db", "", "Database path (default: ~/.local/share/google-business-profile-pp-cli/data.db)")
 	cmd.Flags().IntVar(&maxPages, "max-pages", 0, "Maximum pages to fetch per resource (0 = unlimited; cap-hit emits a sync_warning event)")
 	cmd.Flags().BoolVar(&latestOnly, "latest-only", false, "Refresh head of each resource only; clears resume cursor and caps pages at 1. Mutually exclusive with --since (--since wins).")
 	cmd.Flags().BoolVar(&strict, "strict", false, "Exit non-zero on any per-resource failure (default: only critical failures or all-resource failure exit non-zero).")

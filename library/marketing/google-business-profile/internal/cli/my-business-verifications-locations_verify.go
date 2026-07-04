@@ -37,7 +37,7 @@ func newMyBusinessVerificationsLocationsVerifyCmd(flags *rootFlags) *cobra.Comma
 	cmd := &cobra.Command{
 		Use:         "verify <name>",
 		Short:       "Starts the verification process for a location.",
-		Example:     "  github.com/mvanhorn/printing-press-library/library/marketing/google-business-profile my-business-verifications-locations verify example-resource",
+		Example:     "  google-business-profile-pp-cli my-business-verifications-locations verify example-resource",
 		Annotations: map[string]string{"pp:endpoint": "my-business-verifications-locations.verify", "pp:method": "POST", "pp:path": "https://mybusinessverifications.googleapis.com/v1/{name}:verify"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

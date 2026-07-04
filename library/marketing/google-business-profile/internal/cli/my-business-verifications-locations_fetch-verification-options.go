@@ -31,7 +31,7 @@ func newMyBusinessVerificationsLocationsFetchVerificationOptionsCmd(flags *rootF
 	cmd := &cobra.Command{
 		Use:         "fetch-verification-options <location>",
 		Short:       "Reports all eligible verification options for a location in a specific language.",
-		Example:     "  github.com/mvanhorn/printing-press-library/library/marketing/google-business-profile my-business-verifications-locations fetch-verification-options example-value",
+		Example:     "  google-business-profile-pp-cli my-business-verifications-locations fetch-verification-options example-value",
 		Annotations: map[string]string{"pp:endpoint": "my-business-verifications-locations.fetch-verification-options", "pp:method": "POST", "pp:path": "https://mybusinessverifications.googleapis.com/v1/{location}:fetchVerificationOptions"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

@@ -1613,26 +1613,26 @@ func makeAPIHandler(method, pathTemplate string, readOnly bool, binaryResponse b
 			case strings.Contains(msg, "HTTP 400") && cliutil.LooksLikeAuthError(msg):
 				return mcplib.NewToolResultError("authentication error: " + cliutil.SanitizeErrorBody(msg) +
 					"\nhint: the API rejected the request — this usually means auth is missing or invalid." +
-					"\n      Prefer: github.com/mvanhorn/printing-press-library/library/marketing/google-business-profile login --client-id <client-id> --client-secret <client-secret>" +
+					"\n      Prefer: google-business-profile-pp-cli login --client-id <client-id> --client-secret <client-secret>" +
 					"\n      Or set a short-lived access token: export GOOGLE_BUSINESS_PROFILE_OAUTH2=<your-token>" +
 					"\n      Create OAuth credentials at: https://console.cloud.google.com/apis/credentials" +
-					"\n      Create an OAuth 2.0 Desktop App client in Google Cloud, enable the Google Business Profile APIs, then run `github.com/mvanhorn/printing-press-library/library/marketing/google-business-profile login` with your client ID and client secret." +
-					"\n      Run 'github.com/mvanhorn/printing-press-library/library/marketing/google-business-profile doctor' to check auth status."), nil
+					"\n      Create an OAuth 2.0 Desktop App client in Google Cloud, enable the Google Business Profile APIs, then run `google-business-profile-pp-cli login` with your client ID and client secret." +
+					"\n      Run 'google-business-profile-pp-cli doctor' to check auth status."), nil
 			case strings.Contains(msg, "HTTP 401"):
 				return mcplib.NewToolResultError("authentication failed: " + cliutil.SanitizeErrorBody(msg) +
-					"\nhint: check your token. Prefer re-running: github.com/mvanhorn/printing-press-library/library/marketing/google-business-profile login --client-id <client-id> --client-secret <client-secret>" +
+					"\nhint: check your token. Prefer re-running: google-business-profile-pp-cli login --client-id <client-id> --client-secret <client-secret>" +
 					"\n      Or set a short-lived access token: export GOOGLE_BUSINESS_PROFILE_OAUTH2=<your-token>" +
 					"\n      Create OAuth credentials at: https://console.cloud.google.com/apis/credentials" +
-					"\n      Create an OAuth 2.0 Desktop App client in Google Cloud, enable the Google Business Profile APIs, then run `github.com/mvanhorn/printing-press-library/library/marketing/google-business-profile login` with your client ID and client secret." +
-					"\n      Run 'github.com/mvanhorn/printing-press-library/library/marketing/google-business-profile doctor' to check auth status."), nil
+					"\n      Create an OAuth 2.0 Desktop App client in Google Cloud, enable the Google Business Profile APIs, then run `google-business-profile-pp-cli login` with your client ID and client secret." +
+					"\n      Run 'google-business-profile-pp-cli doctor' to check auth status."), nil
 			case strings.Contains(msg, "HTTP 403"):
 				return mcplib.NewToolResultError("permission denied: " + cliutil.SanitizeErrorBody(msg) +
 					"\nhint: your credentials are valid but lack access to this resource." +
-					"\n      Prefer: github.com/mvanhorn/printing-press-library/library/marketing/google-business-profile login --client-id <client-id> --client-secret <client-secret>" +
+					"\n      Prefer: google-business-profile-pp-cli login --client-id <client-id> --client-secret <client-secret>" +
 					"\n      Or set a short-lived access token: export GOOGLE_BUSINESS_PROFILE_OAUTH2=<your-token>" +
 					"\n      Create OAuth credentials at: https://console.cloud.google.com/apis/credentials" +
-					"\n      Create an OAuth 2.0 Desktop App client in Google Cloud, enable the Google Business Profile APIs, then run `github.com/mvanhorn/printing-press-library/library/marketing/google-business-profile login` with your client ID and client secret." +
-					"\n      Run 'github.com/mvanhorn/printing-press-library/library/marketing/google-business-profile doctor' to check auth status."), nil
+					"\n      Create an OAuth 2.0 Desktop App client in Google Cloud, enable the Google Business Profile APIs, then run `google-business-profile-pp-cli login` with your client ID and client secret." +
+					"\n      Run 'google-business-profile-pp-cli doctor' to check auth status."), nil
 			case strings.Contains(msg, "HTTP 404"):
 				if method == "DELETE" {
 					return mcplib.NewToolResultText("already deleted (no-op)"), nil
@@ -1674,7 +1674,7 @@ func makeAPIHandler(method, pathTemplate string, readOnly bool, binaryResponse b
 
 func newMCPClient() (*client.Client, error) {
 	home, _ := os.UserHomeDir()
-	cfgPath := filepath.Join(home, ".config", "github.com/mvanhorn/printing-press-library/library/marketing/google-business-profile", "config.toml")
+	cfgPath := filepath.Join(home, ".config", "google-business-profile-pp-cli", "config.toml")
 	cfg, err := config.Load(cfgPath)
 	if err != nil {
 		return nil, fmt.Errorf("loading config: %w", err)
@@ -1691,7 +1691,7 @@ func newMCPClient() (*client.Client, error) {
 
 func dbPath() string {
 	home, _ := os.UserHomeDir()
-	return filepath.Join(home, ".local", "share", "github.com/mvanhorn/printing-press-library/library/marketing/google-business-profile", "data.db")
+	return filepath.Join(home, ".local", "share", "google-business-profile-pp-cli", "data.db")
 }
 
 // Note: MCP tools use their own dbPath() because they are in a separate package (main, not cli).
@@ -1828,7 +1828,7 @@ func handleContext(_ context.Context, _ mcplib.CallToolRequest) (*mcplib.CallToo
 		"archetype":   "crm",
 		"tool_count":  49,
 		// tool_surface tells agents which surface a capability lives on.
-		"tool_surface": "MCP exposes typed endpoint tools plus a runtime mirror of user-facing CLI commands. Endpoint tools keep typed schemas; command-mirror tools shell out to the companion github.com/mvanhorn/printing-press-library/library/marketing/google-business-profile binary.",
+		"tool_surface": "MCP exposes typed endpoint tools plus a runtime mirror of user-facing CLI commands. Endpoint tools keep typed schemas; command-mirror tools shell out to the companion google-business-profile-pp-cli binary.",
 		"auth": map[string]any{
 			"type": "bearer_token",
 			"env_vars": []map[string]any{
@@ -1841,7 +1841,7 @@ func handleContext(_ context.Context, _ mcplib.CallToolRequest) (*mcplib.CallToo
 				},
 			},
 			"key_url":      "https://console.cloud.google.com/apis/credentials",
-			"instructions": "Create an OAuth 2.0 Desktop App client in Google Cloud, enable the Google Business Profile APIs, then run `github.com/mvanhorn/printing-press-library/library/marketing/google-business-profile login` with your client ID and client secret.",
+			"instructions": "Create an OAuth 2.0 Desktop App client in Google Cloud, enable the Google Business Profile APIs, then run `google-business-profile-pp-cli login` with your client ID and client secret.",
 		},
 		"resources": []map[string]any{
 			{

@@ -28,7 +28,7 @@ func newMyBusinessQLocationsCreateCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:         "create <parent>",
 		Short:       "Adds a question for the specified location.",
-		Example:     "  github.com/mvanhorn/printing-press-library/library/marketing/google-business-profile my-business-q-locations create example-value",
+		Example:     "  google-business-profile-pp-cli my-business-q-locations create example-value",
 		Annotations: map[string]string{"pp:endpoint": "my-business-q-locations.create", "pp:method": "POST", "pp:path": "https://mybusinessqanda.googleapis.com/v1/{parent}"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

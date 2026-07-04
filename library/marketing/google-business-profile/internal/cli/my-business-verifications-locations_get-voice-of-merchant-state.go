@@ -17,7 +17,7 @@ func newMyBusinessVerificationsLocationsGetVoiceOfMerchantStateCmd(flags *rootFl
 		Use:         "get-voice-of-merchant-state <name>",
 		Aliases:     []string{"get"},
 		Short:       "Gets the VoiceOfMerchant state.",
-		Example:     "  github.com/mvanhorn/printing-press-library/library/marketing/google-business-profile my-business-verifications-locations get-voice-of-merchant-state example-resource",
+		Example:     "  google-business-profile-pp-cli my-business-verifications-locations get-voice-of-merchant-state example-resource",
 		Annotations: map[string]string{"pp:endpoint": "my-business-verifications-locations.get-voice-of-merchant-state", "pp:method": "GET", "pp:path": "https://mybusinessverifications.googleapis.com/v1/{name}/VoiceOfMerchantState", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

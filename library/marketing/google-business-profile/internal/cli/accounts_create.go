@@ -41,7 +41,7 @@ func newAccountsCreateCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:         "create",
 		Short:       "Creates an account with the specified name and type under the given parent.",
-		Example:     "  github.com/mvanhorn/printing-press-library/library/marketing/google-business-profile accounts create",
+		Example:     "  google-business-profile-pp-cli accounts create",
 		Annotations: map[string]string{"pp:endpoint": "accounts.create", "pp:method": "POST", "pp:path": "/v1/accounts"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !stdinBody {

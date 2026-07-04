@@ -18,7 +18,7 @@ func newAccountsDeclineCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:         "decline <name>",
 		Short:       "Declines the specified invitation.",
-		Example:     "  github.com/mvanhorn/printing-press-library/library/marketing/google-business-profile accounts decline example-resource",
+		Example:     "  google-business-profile-pp-cli accounts decline example-resource",
 		Annotations: map[string]string{"pp:endpoint": "accounts.decline", "pp:method": "POST", "pp:path": "/v1/{name}:decline"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

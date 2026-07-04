@@ -71,7 +71,7 @@ func newGoogleLocationsSearchCmd(flags *rootFlags) *cobra.Command {
 		Use:         "search",
 		Aliases:     []string{"create"},
 		Short:       "Search all of the possible locations that are a match to the specified request.",
-		Example:     "  github.com/mvanhorn/printing-press-library/library/marketing/google-business-profile google-locations search --query 'Intell Academy Toronto' --page-size 5",
+		Example:     "  google-business-profile-pp-cli google-locations search --query 'Intell Academy Toronto' --page-size 5",
 		Annotations: map[string]string{"pp:endpoint": "google_locations.search", "pp:method": "POST", "pp:path": "https://mybusinessbusinessinformation.googleapis.com/v1/googleLocations:search", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !stdinBody {

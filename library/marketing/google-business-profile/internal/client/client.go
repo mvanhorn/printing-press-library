@@ -64,7 +64,7 @@ func newHTTPClient(timeout time.Duration, jar http.CookieJar) *http.Client {
 
 func New(cfg *config.Config, timeout time.Duration, rateLimit float64) *Client {
 	homeDir, _ := os.UserHomeDir()
-	cacheDir := filepath.Join(homeDir, ".cache", "github.com/mvanhorn/printing-press-library/library/marketing/google-business-profile", "http")
+	cacheDir := filepath.Join(homeDir, ".cache", "google-business-profile-pp-cli", "http")
 	httpClient := newHTTPClient(timeout, nil)
 	c := &Client{
 		BaseURL:    strings.TrimRight(cfg.BaseURL, "/"),
@@ -520,7 +520,7 @@ func (c *Client) doInternal(ctx context.Context, method, path string, params map
 			req.Header.Del(BinaryResponseHeader)
 		}
 		if req.Header.Get("User-Agent") == "" {
-			req.Header.Set("User-Agent", "github.com/mvanhorn/printing-press-library/library/marketing/google-business-profile/v1")
+			req.Header.Set("User-Agent", "google-business-profile-pp-cli/v1")
 		}
 		// Go's net/http omits Accept by default; browsers, curl, and other
 		// stdlibs always send it. Fingerprint-checking WAFs (Imperva, Akamai,
@@ -746,7 +746,7 @@ func looksLikeCredentialPlaceholder(value string) bool {
 }
 
 func authPlaceholderCredentialError(cfg *config.Config) error {
-	return authPlaceholderCredentialErrorWithSetup(cfg, "github.com/mvanhorn/printing-press-library/library/marketing/google-business-profile login --client-id <client-id> --client-secret <client-secret> or export GOOGLE_BUSINESS_PROFILE_OAUTH2=<your-token>")
+	return authPlaceholderCredentialErrorWithSetup(cfg, "google-business-profile-pp-cli login --client-id <client-id> --client-secret <client-secret> or export GOOGLE_BUSINESS_PROFILE_OAUTH2=<your-token>")
 }
 
 func authPlaceholderCredentialErrorWithSetup(cfg *config.Config, setup string) error {

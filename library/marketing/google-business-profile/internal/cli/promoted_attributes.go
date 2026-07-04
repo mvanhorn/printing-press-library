@@ -25,7 +25,7 @@ func newAttributesPromotedCmd(flags *rootFlags) *cobra.Command {
 		Use:         "attributes",
 		Short:       "Returns the list of attributes that would be available for a location with the given primary category and country.",
 		Long:        "Returns the list of attributes that would be available for a location with the given primary category and country.",
-		Example:     "  github.com/mvanhorn/printing-press-library/library/marketing/google-business-profile attributes --category-name categories/gcid:school --region-code CA --language-code en --page-size 5",
+		Example:     "  google-business-profile-pp-cli attributes --category-name categories/gcid:school --region-code CA --language-code en --page-size 5",
 		Annotations: map[string]string{"pp:endpoint": "attributes.list", "pp:method": "GET", "pp:path": "https://mybusinessbusinessinformation.googleapis.com/v1/attributes", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

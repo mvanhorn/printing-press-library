@@ -17,7 +17,7 @@ func newMyBusinessNotificationsAccountsGetNotificationSettingCmd(flags *rootFlag
 		Use:         "get-notification-setting <name>",
 		Aliases:     []string{"get"},
 		Short:       "Returns the pubsub notification settings for the account.",
-		Example:     "  github.com/mvanhorn/printing-press-library/library/marketing/google-business-profile my-business-notifications-accounts get-notification-setting example-resource",
+		Example:     "  google-business-profile-pp-cli my-business-notifications-accounts get-notification-setting example-resource",
 		Annotations: map[string]string{"pp:endpoint": "my-business-notifications-accounts.get-notification-setting", "pp:method": "GET", "pp:path": "https://mybusinessnotifications.googleapis.com/v1/{name}", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

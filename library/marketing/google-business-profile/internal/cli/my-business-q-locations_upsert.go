@@ -26,7 +26,7 @@ func newMyBusinessQLocationsUpsertCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:         "upsert <parent>",
 		Short:       "Creates an answer or updates the existing answer written by the user for the specified question.",
-		Example:     "  github.com/mvanhorn/printing-press-library/library/marketing/google-business-profile my-business-q-locations upsert example-value",
+		Example:     "  google-business-profile-pp-cli my-business-q-locations upsert example-value",
 		Annotations: map[string]string{"pp:endpoint": "my-business-q-locations.upsert", "pp:method": "POST", "pp:path": "https://mybusinessqanda.googleapis.com/v1/{parent}/answers:upsert"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

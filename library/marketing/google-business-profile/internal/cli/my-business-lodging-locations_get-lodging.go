@@ -17,7 +17,7 @@ func newMyBusinessLodgingLocationsGetLodgingCmd(flags *rootFlags) *cobra.Command
 	cmd := &cobra.Command{
 		Use:         "get-lodging <name>",
 		Short:       "Returns the Lodging of a specific location.",
-		Example:     "  github.com/mvanhorn/printing-press-library/library/marketing/google-business-profile my-business-lodging-locations get-lodging example-resource",
+		Example:     "  google-business-profile-pp-cli my-business-lodging-locations get-lodging example-resource",
 		Annotations: map[string]string{"pp:endpoint": "my-business-lodging-locations.get-lodging", "pp:method": "GET", "pp:path": "https://mybusinesslodging.googleapis.com/v1/{name}", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

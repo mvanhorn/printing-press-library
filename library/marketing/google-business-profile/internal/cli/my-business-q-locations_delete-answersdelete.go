@@ -16,7 +16,7 @@ func newMyBusinessQLocationsDeleteAnswersdeleteCmd(flags *rootFlags) *cobra.Comm
 	cmd := &cobra.Command{
 		Use:         "delete-answersdelete <name>",
 		Short:       "Deletes the answer written by the current user to a question.",
-		Example:     "  github.com/mvanhorn/printing-press-library/library/marketing/google-business-profile my-business-q-locations delete-answersdelete example-resource",
+		Example:     "  google-business-profile-pp-cli my-business-q-locations delete-answersdelete example-resource",
 		Annotations: map[string]string{"pp:endpoint": "my-business-q-locations.delete-answersdelete", "pp:method": "DELETE", "pp:path": "https://mybusinessqanda.googleapis.com/v1/{name}/answers:delete"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

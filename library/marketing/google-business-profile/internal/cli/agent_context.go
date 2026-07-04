@@ -123,7 +123,7 @@ func buildAgentContext(rootCmd *cobra.Command) agentContext {
 	return agentContext{
 		SchemaVersion: agentContextSchemaVersion,
 		CLI: agentContextCLI{
-			Name:        "github.com/mvanhorn/printing-press-library/library/marketing/google-business-profile",
+			Name:        "google-business-profile-pp-cli",
 			Description: "Combined CLI for multiple API services",
 			Version:     rootCmd.Version,
 		},

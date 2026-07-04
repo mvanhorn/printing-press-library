@@ -18,7 +18,7 @@ func newVerificationTokensPromotedCmd(flags *rootFlags) *cobra.Command {
 		Use:         "verification-tokens",
 		Short:       "Generate a token for the provided location data to verify the location.",
 		Long:        "Generate a token for the provided location data to verify the location.",
-		Example:     "  github.com/mvanhorn/printing-press-library/library/marketing/google-business-profile verification-tokens",
+		Example:     "  google-business-profile-pp-cli verification-tokens",
 		Annotations: map[string]string{"pp:endpoint": "verification_tokens.generate", "pp:method": "POST", "pp:path": "https://mybusinessverifications.googleapis.com/v1/verificationTokens:generate"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

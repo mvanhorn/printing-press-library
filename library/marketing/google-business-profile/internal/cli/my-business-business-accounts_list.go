@@ -23,7 +23,7 @@ func newMyBusinessBusinessAccountsListCmd(flags *rootFlags) *cobra.Command {
 		Use:         "list <parent>",
 		Aliases:     []string{"get"},
 		Short:       "Lists the locations for the specified account.",
-		Example:     "  github.com/mvanhorn/printing-press-library/library/marketing/google-business-profile my-business-business-accounts list example-value",
+		Example:     "  google-business-profile-pp-cli my-business-business-accounts list example-value",
 		Annotations: map[string]string{"pp:endpoint": "my-business-business-accounts.list", "pp:method": "GET", "pp:path": "https://mybusinessbusinessinformation.googleapis.com/v1/{parent}/locations", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

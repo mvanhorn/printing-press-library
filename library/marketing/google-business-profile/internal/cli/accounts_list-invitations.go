@@ -17,7 +17,7 @@ func newAccountsListInvitationsCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:         "list-invitations <parent>",
 		Short:       "Lists pending invitations for the specified account.",
-		Example:     "  github.com/mvanhorn/printing-press-library/library/marketing/google-business-profile accounts list-invitations example-value",
+		Example:     "  google-business-profile-pp-cli accounts list-invitations example-value",
 		Annotations: map[string]string{"pp:endpoint": "accounts.list-invitations", "pp:method": "GET", "pp:path": "/v1/{parent}/invitations", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

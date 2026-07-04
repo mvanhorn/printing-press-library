@@ -20,7 +20,7 @@ func newCategoriesBatchGetCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:         "batch-get",
 		Short:       "Returns a list of business categories for the provided language and GConcept ids.",
-		Example:     "  github.com/mvanhorn/printing-press-library/library/marketing/google-business-profile categories batch-get --names categories/gcid:school --region-code CA --language-code en --view BASIC",
+		Example:     "  google-business-profile-pp-cli categories batch-get --names categories/gcid:school --region-code CA --language-code en --view BASIC",
 		Annotations: map[string]string{"pp:endpoint": "categories.batch-get", "pp:method": "GET", "pp:path": "https://mybusinessbusinessinformation.googleapis.com/v1/categories:batchGet", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if cmd.Flags().Changed("view") {

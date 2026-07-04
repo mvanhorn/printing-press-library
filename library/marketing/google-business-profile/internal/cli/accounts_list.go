@@ -21,7 +21,7 @@ func newAccountsListCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:         "list",
 		Short:       "Lists all of the accounts for the authenticated user.",
-		Example:     "  github.com/mvanhorn/printing-press-library/library/marketing/google-business-profile accounts list",
+		Example:     "  google-business-profile-pp-cli accounts list",
 		Annotations: map[string]string{"pp:endpoint": "accounts.list", "pp:method": "GET", "pp:path": "/v1/accounts", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

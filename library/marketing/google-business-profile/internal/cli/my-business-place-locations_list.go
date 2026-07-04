@@ -20,7 +20,7 @@ func newMyBusinessPlaceLocationsListCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:         "list <parent>",
 		Short:       "Lists the place action links for the specified location.",
-		Example:     "  github.com/mvanhorn/printing-press-library/library/marketing/google-business-profile my-business-place-locations list example-value",
+		Example:     "  google-business-profile-pp-cli my-business-place-locations list example-value",
 		Annotations: map[string]string{"pp:endpoint": "my-business-place-locations.list", "pp:method": "GET", "pp:path": "https://mybusinessplaceactions.googleapis.com/v1/{parent}/placeActionLinks", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

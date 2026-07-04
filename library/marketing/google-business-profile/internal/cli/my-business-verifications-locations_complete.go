@@ -20,7 +20,7 @@ func newMyBusinessVerificationsLocationsCompleteCmd(flags *rootFlags) *cobra.Com
 		Use:         "complete <name>",
 		Aliases:     []string{"create"},
 		Short:       "Completes a `PENDING` verification. It is only necessary for non `AUTO` verification methods.",
-		Example:     "  github.com/mvanhorn/printing-press-library/library/marketing/google-business-profile my-business-verifications-locations complete example-resource",
+		Example:     "  google-business-profile-pp-cli my-business-verifications-locations complete example-resource",
 		Annotations: map[string]string{"pp:endpoint": "my-business-verifications-locations.complete", "pp:method": "POST", "pp:path": "https://mybusinessverifications.googleapis.com/v1/{name}:complete"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

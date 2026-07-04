@@ -16,7 +16,7 @@ func newChainsGetCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:         "get <name>",
 		Short:       "Gets the specified chain. Returns `NOT_FOUND` if the chain does not exist.",
-		Example:     "  github.com/mvanhorn/printing-press-library/library/marketing/google-business-profile chains get example-resource",
+		Example:     "  google-business-profile-pp-cli chains get example-resource",
 		Annotations: map[string]string{"pp:endpoint": "chains.get", "pp:method": "GET", "pp:path": "https://mybusinessbusinessinformation.googleapis.com/v1/{name}", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

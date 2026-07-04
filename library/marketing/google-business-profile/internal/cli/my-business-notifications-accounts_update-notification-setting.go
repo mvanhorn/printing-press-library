@@ -24,7 +24,7 @@ func newMyBusinessNotificationsAccountsUpdateNotificationSettingCmd(flags *rootF
 		Use:         "update-notification-setting <name>",
 		Aliases:     []string{"update"},
 		Short:       "Sets the pubsub notification setting for the account informing Google which topic to send pubsub notifications for.",
-		Example:     "  github.com/mvanhorn/printing-press-library/library/marketing/google-business-profile my-business-notifications-accounts update-notification-setting example-resource",
+		Example:     "  google-business-profile-pp-cli my-business-notifications-accounts update-notification-setting example-resource",
 		Annotations: map[string]string{"pp:endpoint": "my-business-notifications-accounts.update-notification-setting", "pp:method": "PATCH", "pp:path": "https://mybusinessnotifications.googleapis.com/v1/{name}"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

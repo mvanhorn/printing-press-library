@@ -18,7 +18,7 @@ func newLocationsPromotedCmd(flags *rootFlags) *cobra.Command {
 		Use:         "locations <name>",
 		Short:       "Moves a location from an account that the user owns to another account that the same user administers.",
 		Long:        "Moves a location from an account that the user owns to another account that the same user administers.",
-		Example:     "  github.com/mvanhorn/printing-press-library/library/marketing/google-business-profile locations example-resource",
+		Example:     "  google-business-profile-pp-cli locations example-resource",
 		Annotations: map[string]string{"pp:endpoint": "locations.transfer", "pp:method": "POST", "pp:path": "/v1/{name}:transfer"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

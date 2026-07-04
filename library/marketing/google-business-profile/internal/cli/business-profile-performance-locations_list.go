@@ -25,7 +25,7 @@ func newBusinessProfilePerformanceLocationsListCmd(flags *rootFlags) *cobra.Comm
 	cmd := &cobra.Command{
 		Use:         "list <parent>",
 		Short:       "Returns the search keywords used to find a business in search or maps.",
-		Example:     "  github.com/mvanhorn/printing-press-library/library/marketing/google-business-profile business-profile-performance-locations list example-value",
+		Example:     "  google-business-profile-pp-cli business-profile-performance-locations list example-value",
 		Annotations: map[string]string{"pp:endpoint": "business-profile-performance-locations.list", "pp:method": "GET", "pp:path": "https://businessprofileperformance.googleapis.com/v1/{parent}/searchkeywords/impressions/monthly", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

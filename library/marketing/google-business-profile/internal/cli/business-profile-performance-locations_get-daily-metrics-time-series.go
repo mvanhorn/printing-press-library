@@ -28,7 +28,7 @@ func newBusinessProfilePerformanceLocationsGetDailyMetricsTimeSeriesCmd(flags *r
 	cmd := &cobra.Command{
 		Use:         "get-daily-metrics-time-series <name>",
 		Short:       "Returns the values for each date from a given time range that are associated with the specific daily metric.",
-		Example:     "  github.com/mvanhorn/printing-press-library/library/marketing/google-business-profile business-profile-performance-locations get-daily-metrics-time-series example-resource",
+		Example:     "  google-business-profile-pp-cli business-profile-performance-locations get-daily-metrics-time-series example-resource",
 		Annotations: map[string]string{"pp:endpoint": "business-profile-performance-locations.get-daily-metrics-time-series", "pp:method": "GET", "pp:path": "https://businessprofileperformance.googleapis.com/v1/{name}:getDailyMetricsTimeSeries", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

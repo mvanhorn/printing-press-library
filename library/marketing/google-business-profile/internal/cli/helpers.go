@@ -56,7 +56,7 @@ func isTerminal(w io.Writer) bool {
 	if f, ok := w.(*os.File); ok {
 		fi, err := f.Stat()
 		if err != nil {
-			return true
+			return false
 		}
 		return (fi.Mode() & os.ModeCharDevice) != 0
 	}
@@ -495,26 +495,26 @@ func classifyAPIError(err error, flags *rootFlags) error {
 		return authErr(err)
 	case strings.Contains(msg, "HTTP 400") && cliutil.LooksLikeAuthError(msg):
 		return authErr(fmt.Errorf("%w\nhint: the API rejected the request — this usually means auth is missing or invalid."+
-			"\n      Prefer: github.com/mvanhorn/printing-press-library/library/marketing/google-business-profile login --client-id <client-id> --client-secret <client-secret>"+
+			"\n      Prefer: google-business-profile-pp-cli login --client-id <client-id> --client-secret <client-secret>"+
 			"\n      Or set a short-lived access token: export GOOGLE_BUSINESS_PROFILE_OAUTH2=<your-token>"+
 			"\n      Create OAuth credentials at: https://console.cloud.google.com/apis/credentials"+
-			"\n      Create an OAuth 2.0 Desktop App client in Google Cloud, enable the Google Business Profile APIs, then run `github.com/mvanhorn/printing-press-library/library/marketing/google-business-profile login` with your client ID and client secret."+
-			"\n      Run 'github.com/mvanhorn/printing-press-library/library/marketing/google-business-profile doctor' to check auth status."+
+			"\n      Create an OAuth 2.0 Desktop App client in Google Cloud, enable the Google Business Profile APIs, then run `google-business-profile-pp-cli login` with your client ID and client secret."+
+			"\n      Run 'google-business-profile-pp-cli doctor' to check auth status."+
 			"\n      Response: "+cliutil.SanitizeErrorBody(msg), err))
 	case strings.Contains(msg, "HTTP 401"):
-		return authErr(fmt.Errorf("%w\nhint: check your token. Prefer re-running: github.com/mvanhorn/printing-press-library/library/marketing/google-business-profile login --client-id <client-id> --client-secret <client-secret>"+
+		return authErr(fmt.Errorf("%w\nhint: check your token. Prefer re-running: google-business-profile-pp-cli login --client-id <client-id> --client-secret <client-secret>"+
 			"\n      or set a short-lived access token: export GOOGLE_BUSINESS_PROFILE_OAUTH2=<your-token>"+
 			"\n      Create OAuth credentials at: https://console.cloud.google.com/apis/credentials"+
-			"\n      Create an OAuth 2.0 Desktop App client in Google Cloud, enable the Google Business Profile APIs, then run `github.com/mvanhorn/printing-press-library/library/marketing/google-business-profile login` with your client ID and client secret."+
-			"\n      Run 'github.com/mvanhorn/printing-press-library/library/marketing/google-business-profile doctor' to check auth status.", err))
+			"\n      Create an OAuth 2.0 Desktop App client in Google Cloud, enable the Google Business Profile APIs, then run `google-business-profile-pp-cli login` with your client ID and client secret."+
+			"\n      Run 'google-business-profile-pp-cli doctor' to check auth status.", err))
 	case strings.Contains(msg, "HTTP 403"):
 		return authErr(fmt.Errorf("%w\nhint: permission denied. Your credentials are valid but lack access to this resource."+
 			"\n      Check that your Google Business Profile account can access this resource."+
-			"\n      Prefer: github.com/mvanhorn/printing-press-library/library/marketing/google-business-profile login --client-id <client-id> --client-secret <client-secret>"+
+			"\n      Prefer: google-business-profile-pp-cli login --client-id <client-id> --client-secret <client-secret>"+
 			"\n      Or set a short-lived access token: export GOOGLE_BUSINESS_PROFILE_OAUTH2=<your-token>"+
 			"\n      Create OAuth credentials at: https://console.cloud.google.com/apis/credentials"+
-			"\n      Create an OAuth 2.0 Desktop App client in Google Cloud, enable the Google Business Profile APIs, then run `github.com/mvanhorn/printing-press-library/library/marketing/google-business-profile login` with your client ID and client secret."+
-			"\n      Run 'github.com/mvanhorn/printing-press-library/library/marketing/google-business-profile doctor' to check auth status.", err))
+			"\n      Create an OAuth 2.0 Desktop App client in Google Cloud, enable the Google Business Profile APIs, then run `google-business-profile-pp-cli login` with your client ID and client secret."+
+			"\n      Run 'google-business-profile-pp-cli doctor' to check auth status.", err))
 	case strings.Contains(msg, "HTTP 404"):
 		return notFoundErr(fmt.Errorf("%w\nhint: resource not found. Run the 'list' command to see available items", err))
 	case strings.Contains(msg, "HTTP 429"):

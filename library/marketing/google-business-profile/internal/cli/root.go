@@ -144,7 +144,7 @@ func isCobraUsageError(err error) bool {
 
 func newRootCmd(flags *rootFlags) *cobra.Command {
 	rootCmd := &cobra.Command{
-		Use:   "github.com/mvanhorn/printing-press-library/library/marketing/google-business-profile",
+		Use:   "google-business-profile-pp-cli",
 		Short: "Manage google-business-profile resources via the google-business-profile API",
 		Long: `Manage google-business-profile resources via the google-business-profile API.
 
@@ -156,11 +156,11 @@ Highlights (not in the official API docs):
   • tail   Poll the API and emit NDJSON change events so operators can watch location-related activity in near real time.
 
 Add --agent to any command for JSON output + non-interactive mode.
-Run 'github.com/mvanhorn/printing-press-library/library/marketing/google-business-profile doctor' to verify auth and connectivity.`,
+Run 'google-business-profile-pp-cli doctor' to verify auth and connectivity.`,
 		SilenceUsage: true,
 		Version:      version,
 	}
-	rootCmd.SetVersionTemplate("github.com/mvanhorn/printing-press-library/library/marketing/google-business-profile {{ .Version }}\n")
+	rootCmd.SetVersionTemplate("google-business-profile-pp-cli {{ .Version }}\n")
 
 	rootCmd.PersistentFlags().BoolVar(&flags.asJSON, "json", false, "Output as JSON")
 	rootCmd.PersistentFlags().BoolVar(&flags.compact, "compact", false, "Return only key fields (id, name, status, timestamps) for minimal token usage")
@@ -182,7 +182,7 @@ Run 'github.com/mvanhorn/printing-press-library/library/marketing/google-busines
 	rootCmd.PersistentFlags().BoolVar(&flags.allowPartialFailure, "allow-partial-failure", false, "Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit")
 	rootCmd.PersistentFlags().StringVar(&flags.dataSource, "data-source", "auto", "Data source for read commands: auto (live with local fallback), live (API only), local (synced data only)")
 	rootCmd.PersistentFlags().DurationVar(&flags.maxAge, "max-age", 30*time.Minute, "Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables")
-	rootCmd.PersistentFlags().StringVar(&flags.profileName, "profile", "", "Apply values from a saved profile (see 'github.com/mvanhorn/printing-press-library/library/marketing/google-business-profile profile list')")
+	rootCmd.PersistentFlags().StringVar(&flags.profileName, "profile", "", "Apply values from a saved profile (see 'google-business-profile-pp-cli profile list')")
 	rootCmd.PersistentFlags().StringVar(&flags.deliverSpec, "deliver", "", "Route output to a sink: stdout (default), file:<path>, webhook:<url>")
 	rootCmd.PersistentFlags().Float64Var(&flags.rateLimit, "rate-limit", 0, "Max requests per second (0 to disable)")
 

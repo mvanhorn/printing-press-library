@@ -27,7 +27,7 @@ func newSyncHintTestStore(t *testing.T) *store.Store {
 
 func newSyncHintTestCmd() (*cobra.Command, *bytes.Buffer) {
 	var stderr bytes.Buffer
-	cmd := &cobra.Command{Use: "github.com/mvanhorn/printing-press-library/library/marketing/google-business-profile"}
+	cmd := &cobra.Command{Use: "google-business-profile-pp-cli"}
 	cmd.SetErr(&stderr)
 	return cmd, &stderr
 }
@@ -39,7 +39,7 @@ func TestHintIfUnsynced_EmptySyncStateWritesHintToStderr(t *testing.T) {
 	if !hintIfUnsynced(cmd, db, "") {
 		t.Fatalf("hintIfUnsynced returned false for empty sync_state")
 	}
-	if got := stderr.String(); !strings.Contains(got, "Run 'github.com/mvanhorn/printing-press-library/library/marketing/google-business-profile sync'") {
+	if got := stderr.String(); !strings.Contains(got, "Run 'google-business-profile-pp-cli sync'") {
 		t.Fatalf("stderr = %q, want sync hint", got)
 	}
 }
@@ -61,7 +61,7 @@ func TestHintIfStale_BackdatedSyncStateWritesHintToStderr(t *testing.T) {
 		t.Fatalf("hintIfStale returned false for stale sync_state")
 	}
 	got := stderr.String()
-	if !strings.Contains(got, "older than --max-age=30m0s") || !strings.Contains(got, "Run 'github.com/mvanhorn/printing-press-library/library/marketing/google-business-profile sync'") {
+	if !strings.Contains(got, "older than --max-age=30m0s") || !strings.Contains(got, "Run 'google-business-profile-pp-cli sync'") {
 		t.Fatalf("stderr = %q, want stale sync hint", got)
 	}
 }

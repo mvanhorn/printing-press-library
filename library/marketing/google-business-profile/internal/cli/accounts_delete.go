@@ -16,7 +16,7 @@ func newAccountsDeleteCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:         "delete <name>",
 		Short:       "Removes the specified admin from the specified account.",
-		Example:     "  github.com/mvanhorn/printing-press-library/library/marketing/google-business-profile accounts delete example-resource",
+		Example:     "  google-business-profile-pp-cli accounts delete example-resource",
 		Annotations: map[string]string{"pp:endpoint": "accounts.delete", "pp:method": "DELETE", "pp:path": "/v1/{name}"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

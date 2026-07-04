@@ -16,7 +16,7 @@ func newMyBusinessPlaceLocationsGetCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:         "get <name>",
 		Short:       "Gets the specified place action link.",
-		Example:     "  github.com/mvanhorn/printing-press-library/library/marketing/google-business-profile my-business-place-locations get example-resource",
+		Example:     "  google-business-profile-pp-cli my-business-place-locations get example-resource",
 		Annotations: map[string]string{"pp:endpoint": "my-business-place-locations.get", "pp:method": "GET", "pp:path": "https://mybusinessplaceactions.googleapis.com/v1/{name}", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

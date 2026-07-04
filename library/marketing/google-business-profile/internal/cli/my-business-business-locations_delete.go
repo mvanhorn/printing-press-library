@@ -16,7 +16,7 @@ func newMyBusinessBusinessLocationsDeleteCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:         "delete <name>",
 		Short:       "Deletes a location. If this location cannot be deleted using the API and it is marked so in the `google.mybusiness.",
-		Example:     "  github.com/mvanhorn/printing-press-library/library/marketing/google-business-profile my-business-business-locations delete example-resource",
+		Example:     "  google-business-profile-pp-cli my-business-business-locations delete example-resource",
 		Annotations: map[string]string{"pp:endpoint": "my-business-business-locations.delete", "pp:method": "DELETE", "pp:path": "https://mybusinessbusinessinformation.googleapis.com/v1/{name}"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

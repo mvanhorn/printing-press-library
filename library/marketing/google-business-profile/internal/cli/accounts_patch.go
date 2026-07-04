@@ -25,7 +25,7 @@ func newAccountsPatchCmd(flags *rootFlags) *cobra.Command {
 		Use:         "patch <name>",
 		Aliases:     []string{"update"},
 		Short:       "Updates the Admin for the specified Account Admin.",
-		Example:     "  github.com/mvanhorn/printing-press-library/library/marketing/google-business-profile accounts patch example-resource",
+		Example:     "  google-business-profile-pp-cli accounts patch example-resource",
 		Annotations: map[string]string{"pp:endpoint": "accounts.patch", "pp:method": "PATCH", "pp:path": "/v1/{name}"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

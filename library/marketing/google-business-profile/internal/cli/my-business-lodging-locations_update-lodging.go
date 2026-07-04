@@ -597,7 +597,7 @@ func newMyBusinessLodgingLocationsUpdateLodgingCmd(flags *rootFlags) *cobra.Comm
 		Use:         "update-lodging <name>",
 		Aliases:     []string{"update"},
 		Short:       "Updates the Lodging of a specific location.",
-		Example:     "  github.com/mvanhorn/printing-press-library/library/marketing/google-business-profile my-business-lodging-locations update-lodging example-resource",
+		Example:     "  google-business-profile-pp-cli my-business-lodging-locations update-lodging example-resource",
 		Annotations: map[string]string{"pp:endpoint": "my-business-lodging-locations.update-lodging", "pp:method": "PATCH", "pp:path": "https://mybusinesslodging.googleapis.com/v1/{name}"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

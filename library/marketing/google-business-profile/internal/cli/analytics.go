@@ -26,22 +26,22 @@ func newAnalyticsCmd(flags *rootFlags) *cobra.Command {
 		Long: `Analyze locally synced data with count, group-by, and summary operations.
 Data must be synced first with the sync command.`,
 		Example: `  # Count records by type
-  github.com/mvanhorn/printing-press-library/library/marketing/google-business-profile analytics --type messages
+  google-business-profile-pp-cli analytics --type messages
 
   # Group by a field
-  github.com/mvanhorn/printing-press-library/library/marketing/google-business-profile analytics --type messages --group-by author_id
+  google-business-profile-pp-cli analytics --type messages --group-by author_id
 
   # Top 10 most frequent values
-  github.com/mvanhorn/printing-press-library/library/marketing/google-business-profile analytics --type messages --group-by channel_id --limit 10 --json`,
+  google-business-profile-pp-cli analytics --type messages --group-by channel_id --limit 10 --json`,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			out := cmd.OutOrStdout()
 			if dbPath == "" {
-				dbPath = defaultDBPath("github.com/mvanhorn/printing-press-library/library/marketing/google-business-profile")
+				dbPath = defaultDBPath("google-business-profile-pp-cli")
 			}
 
 			db, err := store.OpenWithContext(cmd.Context(), dbPath)
 			if err != nil {
-				return fmt.Errorf("opening local database: %w\nRun 'github.com/mvanhorn/printing-press-library/library/marketing/google-business-profile sync' first.", err)
+				return fmt.Errorf("opening local database: %w\nRun 'google-business-profile-pp-cli sync' first.", err)
 			}
 			defer db.Close()
 

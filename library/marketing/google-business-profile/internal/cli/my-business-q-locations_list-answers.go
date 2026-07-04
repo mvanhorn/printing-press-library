@@ -20,7 +20,7 @@ func newMyBusinessQLocationsListAnswersCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:         "list-answers <parent>",
 		Short:       "Returns the paginated list of answers for a specified question.",
-		Example:     "  github.com/mvanhorn/printing-press-library/library/marketing/google-business-profile my-business-q-locations list-answers example-value",
+		Example:     "  google-business-profile-pp-cli my-business-q-locations list-answers example-value",
 		Annotations: map[string]string{"pp:endpoint": "my-business-q-locations.list-answers", "pp:method": "GET", "pp:path": "https://mybusinessqanda.googleapis.com/v1/{parent}/answers", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

@@ -35,10 +35,10 @@ func newWorkflowArchiveCmd(flags *rootFlags) *cobra.Command {
 local SQLite database. Supports incremental sync (only new data since last run)
 and full resync. After archiving, use 'search' for instant full-text search.`,
 		Example: `  # Archive all resources
-  github.com/mvanhorn/printing-press-library/library/marketing/google-business-profile workflow archive
+  google-business-profile-pp-cli workflow archive
 
   # Full re-archive (ignore previous sync state)
-  github.com/mvanhorn/printing-press-library/library/marketing/google-business-profile workflow archive --full`,
+  google-business-profile-pp-cli workflow archive --full`,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()
 			if err != nil {
@@ -47,7 +47,7 @@ and full resync. After archiving, use 'search' for instant full-text search.`,
 			c.NoCache = true
 
 			if dbPath == "" {
-				dbPath = defaultDBPath("github.com/mvanhorn/printing-press-library/library/marketing/google-business-profile")
+				dbPath = defaultDBPath("google-business-profile-pp-cli")
 			}
 			s, err := store.OpenWithContext(cmd.Context(), dbPath)
 			if err != nil {
@@ -101,7 +101,7 @@ and full resync. After archiving, use 'search' for instant full-text search.`,
 		},
 	}
 
-	cmd.Flags().StringVar(&dbPath, "db", "", "Database path (default: ~/.local/share/github.com/mvanhorn/printing-press-library/library/marketing/google-business-profile/data.db)")
+	cmd.Flags().StringVar(&dbPath, "db", "", "Database path (default: ~/.local/share/google-business-profile-pp-cli/data.db)")
 	cmd.Flags().BoolVar(&full, "full", false, "Full re-archive (ignore previous sync state)")
 
 	return cmd
@@ -115,13 +115,13 @@ func newWorkflowStatusCmd(flags *rootFlags) *cobra.Command {
 		Short:       "Show local archive status and sync state for all resources",
 		Annotations: map[string]string{"mcp:read-only": "true"},
 		Example: `  # Show archive status
-  github.com/mvanhorn/printing-press-library/library/marketing/google-business-profile workflow status
+  google-business-profile-pp-cli workflow status
 
   # Show status as JSON
-  github.com/mvanhorn/printing-press-library/library/marketing/google-business-profile workflow status --json`,
+  google-business-profile-pp-cli workflow status --json`,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if dbPath == "" {
-				dbPath = defaultDBPath("github.com/mvanhorn/printing-press-library/library/marketing/google-business-profile")
+				dbPath = defaultDBPath("google-business-profile-pp-cli")
 			}
 			s, err := store.OpenWithContext(cmd.Context(), dbPath)
 			if err != nil {

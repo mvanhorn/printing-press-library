@@ -28,7 +28,7 @@ func newMyBusinessPlaceLocationsPatchCmd(flags *rootFlags) *cobra.Command {
 		Use:         "patch <name>",
 		Aliases:     []string{"update"},
 		Short:       "Updates the specified place action link and returns it.",
-		Example:     "  github.com/mvanhorn/printing-press-library/library/marketing/google-business-profile my-business-place-locations patch example-resource",
+		Example:     "  google-business-profile-pp-cli my-business-place-locations patch example-resource",
 		Annotations: map[string]string{"pp:endpoint": "my-business-place-locations.patch", "pp:method": "PATCH", "pp:path": "https://mybusinessplaceactions.googleapis.com/v1/{name}"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

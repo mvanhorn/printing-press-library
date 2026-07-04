@@ -80,7 +80,7 @@ func newMyBusinessBusinessAccountsCreateCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:         "create <parent>",
 		Short:       "Creates a new Location that will be owned by the logged in user.",
-		Example:     "  github.com/mvanhorn/printing-press-library/library/marketing/google-business-profile my-business-business-accounts create example-value",
+		Example:     "  google-business-profile-pp-cli my-business-business-accounts create example-value",
 		Annotations: map[string]string{"pp:endpoint": "my-business-business-accounts.create", "pp:method": "POST", "pp:path": "https://mybusinessbusinessinformation.googleapis.com/v1/{parent}/locations"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

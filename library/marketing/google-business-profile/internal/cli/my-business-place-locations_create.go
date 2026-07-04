@@ -26,7 +26,7 @@ func newMyBusinessPlaceLocationsCreateCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:         "create <parent>",
 		Short:       "Creates a place action link associated with the specified location, and returns it.",
-		Example:     "  github.com/mvanhorn/printing-press-library/library/marketing/google-business-profile my-business-place-locations create example-value",
+		Example:     "  google-business-profile-pp-cli my-business-place-locations create example-value",
 		Annotations: map[string]string{"pp:endpoint": "my-business-place-locations.create", "pp:method": "POST", "pp:path": "https://mybusinessplaceactions.googleapis.com/v1/{parent}/placeActionLinks"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

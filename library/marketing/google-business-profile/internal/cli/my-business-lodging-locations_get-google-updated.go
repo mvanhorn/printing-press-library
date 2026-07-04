@@ -18,7 +18,7 @@ func newMyBusinessLodgingLocationsGetGoogleUpdatedCmd(flags *rootFlags) *cobra.C
 		Use:         "get-google-updated <name>",
 		Aliases:     []string{"get"},
 		Short:       "Returns the Google updated Lodging of a specific location.",
-		Example:     "  github.com/mvanhorn/printing-press-library/library/marketing/google-business-profile my-business-lodging-locations get-google-updated example-resource",
+		Example:     "  google-business-profile-pp-cli my-business-lodging-locations get-google-updated example-resource",
 		Annotations: map[string]string{"pp:endpoint": "my-business-lodging-locations.get-google-updated", "pp:method": "GET", "pp:path": "https://mybusinesslodging.googleapis.com/v1/{name}:getGoogleUpdated", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

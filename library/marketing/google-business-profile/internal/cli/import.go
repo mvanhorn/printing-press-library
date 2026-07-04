@@ -26,13 +26,13 @@ func newImportCmd(flags *rootFlags) *cobra.Command {
 Each line must be a valid JSON object. Failed records are logged to stderr
 but do not stop the import.`,
 		Example: `  # Import from a JSONL file
-  github.com/mvanhorn/printing-press-library/library/marketing/google-business-profile import <resource> --input data.jsonl
+  google-business-profile-pp-cli import <resource> --input data.jsonl
 
   # Dry-run to preview without sending
-  github.com/mvanhorn/printing-press-library/library/marketing/google-business-profile import <resource> --input data.jsonl --dry-run
+  google-business-profile-pp-cli import <resource> --input data.jsonl --dry-run
 
   # Import from stdin
-  cat data.jsonl | github.com/mvanhorn/printing-press-library/library/marketing/google-business-profile import <resource> --input -`,
+  cat data.jsonl | google-business-profile-pp-cli import <resource> --input -`,
 		Args: cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

@@ -16,7 +16,7 @@ func newAccountsListAdminsCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:         "list-admins <parent>",
 		Short:       "Lists the admins for the specified account.",
-		Example:     "  github.com/mvanhorn/printing-press-library/library/marketing/google-business-profile accounts list-admins example-value",
+		Example:     "  google-business-profile-pp-cli accounts list-admins example-value",
 		Annotations: map[string]string{"pp:endpoint": "accounts.list-admins", "pp:method": "GET", "pp:path": "/v1/{parent}/admins", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

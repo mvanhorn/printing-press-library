@@ -20,7 +20,7 @@ func newChainsSearchCmd(flags *rootFlags) *cobra.Command {
 		Use:         "search",
 		Aliases:     []string{"list"},
 		Short:       "Searches the chain based on chain name.",
-		Example:     "  github.com/mvanhorn/printing-press-library/library/marketing/google-business-profile chains search --chain-name Starbucks --page-size 5",
+		Example:     "  google-business-profile-pp-cli chains search --chain-name Starbucks --page-size 5",
 		Annotations: map[string]string{"pp:endpoint": "chains.search", "pp:method": "GET", "pp:path": "https://mybusinessbusinessinformation.googleapis.com/v1/chains:search", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

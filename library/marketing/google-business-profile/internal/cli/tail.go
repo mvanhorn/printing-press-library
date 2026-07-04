@@ -31,13 +31,13 @@ Gracefully shuts down on SIGTERM/SIGINT.
 Note: For APIs with WebSocket or SSE support, a future version will use
 native streaming instead of polling.`,
 		Example: `  # Tail all changes every 10 seconds
-  github.com/mvanhorn/printing-press-library/library/marketing/google-business-profile tail --interval 10s
+  google-business-profile-pp-cli tail --interval 10s
 
   # Tail a specific resource
-  github.com/mvanhorn/printing-press-library/library/marketing/google-business-profile tail messages --interval 5s
+  google-business-profile-pp-cli tail messages --interval 5s
 
   # Pipe to jq for filtering
-  github.com/mvanhorn/printing-press-library/library/marketing/google-business-profile tail events --interval 30s | jq 'select(.type == "error")'`,
+  google-business-profile-pp-cli tail events --interval 30s | jq 'select(.type == "error")'`,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) > 0 {
 				resource = args[0]
@@ -64,20 +64,26 @@ native streaming instead of polling.`,
 
 			path := "/" + resource
 
-			sig := make(chan os.Signal, 1)
-			signal.Notify(sig, syscall.SIGTERM, syscall.SIGINT)
-
-			ticker := time.NewTicker(interval)
-			defer ticker.Stop()
-
 			enc := json.NewEncoder(os.Stdout)
 
-			fmt.Fprintf(os.Stderr, "Tailing %s every %s (Ctrl+C to stop)\n", resource, interval)
+			if follow {
+				fmt.Fprintf(os.Stderr, "Tailing %s every %s (Ctrl+C to stop)\n", resource, interval)
+			}
 
 			// Initial fetch
 			if err := fetchAndEmit(cmd.Context(), c, path, enc); err != nil {
 				fmt.Fprintf(os.Stderr, "warning: initial fetch failed: %v\n", err)
 			}
+			if !follow {
+				return nil
+			}
+
+			sig := make(chan os.Signal, 1)
+			signal.Notify(sig, syscall.SIGTERM, syscall.SIGINT)
+			defer signal.Stop(sig)
+
+			ticker := time.NewTicker(interval)
+			defer ticker.Stop()
 
 			for {
 				select {

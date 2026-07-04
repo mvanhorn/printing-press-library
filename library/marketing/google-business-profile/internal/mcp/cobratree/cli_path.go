@@ -27,7 +27,7 @@ func SiblingCLIPath() (string, error) {
 }
 
 func cliExecutableName(goos string) string {
-	name := "github.com/mvanhorn/printing-press-library/library/marketing/google-business-profile"
+	name := "google-business-profile-pp-cli"
 	if goos == "windows" {
 		return name + ".exe"
 	}

@@ -23,7 +23,7 @@ func newCategoriesListCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:         "list",
 		Short:       "Returns a list of business categories. Search will match the category name but not the category ID.",
-		Example:     "  github.com/mvanhorn/printing-press-library/library/marketing/google-business-profile categories list --region-code CA --language-code en --view BASIC --page-size 5",
+		Example:     "  google-business-profile-pp-cli categories list --region-code CA --language-code en --view BASIC --page-size 5",
 		Annotations: map[string]string{"pp:endpoint": "categories.list", "pp:method": "GET", "pp:path": "https://mybusinessbusinessinformation.googleapis.com/v1/categories", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if cmd.Flags().Changed("view") {

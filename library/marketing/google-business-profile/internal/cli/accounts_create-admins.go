@@ -23,7 +23,7 @@ func newAccountsCreateAdminsCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:         "create-admins <parent>",
 		Short:       "Invites the specified user to become an administrator for the specified account.",
-		Example:     "  github.com/mvanhorn/printing-press-library/library/marketing/google-business-profile accounts create-admins example-value",
+		Example:     "  google-business-profile-pp-cli accounts create-admins example-value",
 		Annotations: map[string]string{"pp:endpoint": "accounts.create-admins", "pp:method": "POST", "pp:path": "/v1/{parent}/admins"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

@@ -24,7 +24,7 @@ func newBusinessProfilePerformanceLocationsFetchMultiDailyMetricsTimeSeriesCmd(f
 		Use:         "fetch-multi-daily-metrics-time-series <location>",
 		Aliases:     []string{"get"},
 		Short:       "Returns the values for each date from a given time range that are associated with the specific daily metrics.",
-		Example:     "  github.com/mvanhorn/printing-press-library/library/marketing/google-business-profile business-profile-performance-locations fetch-multi-daily-metrics-time-series example-value",
+		Example:     "  google-business-profile-pp-cli business-profile-performance-locations fetch-multi-daily-metrics-time-series example-value",
 		Annotations: map[string]string{"pp:endpoint": "business-profile-performance-locations.fetch-multi-daily-metrics-time-series", "pp:method": "GET", "pp:path": "https://businessprofileperformance.googleapis.com/v1/{location}:fetchMultiDailyMetricsTimeSeries", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

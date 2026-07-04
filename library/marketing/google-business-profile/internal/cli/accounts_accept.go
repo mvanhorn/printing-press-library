@@ -18,7 +18,7 @@ func newAccountsAcceptCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:         "accept <name>",
 		Short:       "Accepts the specified invitation.",
-		Example:     "  github.com/mvanhorn/printing-press-library/library/marketing/google-business-profile accounts accept example-resource",
+		Example:     "  google-business-profile-pp-cli accounts accept example-resource",
 		Annotations: map[string]string{"pp:endpoint": "accounts.accept", "pp:method": "POST", "pp:path": "/v1/{name}:accept"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

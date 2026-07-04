@@ -48,14 +48,14 @@ func newAuthSetupCmd(_ *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "setup",
 		Short:   "Print steps for registering an OAuth app (use --launch to open the URL)",
-		Example: "  github.com/mvanhorn/printing-press-library/library/marketing/google-business-profile auth setup\n  github.com/mvanhorn/printing-press-library/library/marketing/google-business-profile auth setup --launch",
+		Example: "  google-business-profile-pp-cli auth setup\n  google-business-profile-pp-cli auth setup --launch",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			w := cmd.OutOrStdout()
 			fmt.Fprintln(w, "Register an app and copy your credentials at: https://console.cloud.google.com/apis/credentials")
-			fmt.Fprintln(w, "  Create an OAuth 2.0 Desktop App client in Google Cloud, enable the Google Business Profile APIs, then run `github.com/mvanhorn/printing-press-library/library/marketing/google-business-profile login` with your client ID and client secret.")
+			fmt.Fprintln(w, "  Create an OAuth 2.0 Desktop App client in Google Cloud, enable the Google Business Profile APIs, then run `google-business-profile-pp-cli login` with your client ID and client secret.")
 			fmt.Fprintln(w, "")
 			fmt.Fprintln(w, "Then run:")
-			fmt.Fprintln(w, "  github.com/mvanhorn/printing-press-library/library/marketing/google-business-profile login")
+			fmt.Fprintln(w, "  google-business-profile-pp-cli login")
 			if !launch {
 				return nil
 			}
@@ -102,7 +102,7 @@ func newAuthLoginCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "login",
 		Short:   "Authenticate via OAuth2",
-		Example: "  github.com/mvanhorn/printing-press-library/library/marketing/google-business-profile login --help",
+		Example: "  google-business-profile-pp-cli login --help",
 		Annotations: map[string]string{
 			"mcp:hidden": "true",
 		},
@@ -218,7 +218,9 @@ func runOAuthLogin(cmd *cobra.Command, flags *rootFlags, clientID, clientSecret 
 		return fmt.Errorf("authentication timed out after 2 minutes")
 	}
 
-	server.Shutdown(context.Background())
+	shutdownCtx, shutdownCancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer shutdownCancel()
+	_ = server.Shutdown(shutdownCtx)
 
 	tokenURL := ""
 	tokenURL = cfg.TokenURL
@@ -293,7 +295,7 @@ func resolveOAuthCredentials(cmd *cobra.Command, flags *rootFlags, cfg *config.C
 		return clientID, clientSecret, nil
 	}
 	if flags.noInput {
-		return "", "", fmt.Errorf("OAuth2 client ID is required; pass --client-id, set GOOGLE_BUSINESS_PROFILE_CLIENT_ID, or run 'github.com/mvanhorn/printing-press-library/library/marketing/google-business-profile login' without --no-input")
+		return "", "", fmt.Errorf("OAuth2 client ID is required; pass --client-id, set GOOGLE_BUSINESS_PROFILE_CLIENT_ID, or run 'google-business-profile-pp-cli login' without --no-input")
 	}
 	reader := bufio.NewReader(cmd.InOrStdin())
 	printOAuthCredentialHint(cmd.ErrOrStderr())
@@ -350,7 +352,7 @@ func newAuthStatusCmd(flags *rootFlags) *cobra.Command {
 			}
 
 			if !authed {
-				fmt.Fprintf(w, "  %s Not authenticated. Run 'github.com/mvanhorn/printing-press-library/library/marketing/google-business-profile login' to authenticate.\n", red("FAIL"))
+				fmt.Fprintf(w, "  %s Not authenticated. Run 'google-business-profile-pp-cli login' to authenticate.\n", red("FAIL"))
 				return nil
 			}
 
@@ -362,7 +364,7 @@ func newAuthStatusCmd(flags *rootFlags) *cobra.Command {
 				if cfg.RefreshToken != "" {
 					fmt.Fprintf(w, "  %s Token expired (will auto-refresh on next request)\n", yellow("WARN"))
 				} else {
-					fmt.Fprintf(w, "  %s Token expired. Run 'github.com/mvanhorn/printing-press-library/library/marketing/google-business-profile login' to re-authenticate.\n", red("FAIL"))
+					fmt.Fprintf(w, "  %s Token expired. Run 'google-business-profile-pp-cli login' to re-authenticate.\n", red("FAIL"))
 				}
 			}
 

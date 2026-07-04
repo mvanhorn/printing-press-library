@@ -22,7 +22,7 @@ func newPlaceActionTypeMetadataPromotedCmd(flags *rootFlags) *cobra.Command {
 		Use:         "place-action-type-metadata",
 		Short:       "Returns the list of available place action types for a location or country.",
 		Long:        "Returns the list of available place action types for a location or country.",
-		Example:     "  github.com/mvanhorn/printing-press-library/library/marketing/google-business-profile place-action-type-metadata",
+		Example:     "  google-business-profile-pp-cli place-action-type-metadata",
 		Annotations: map[string]string{"pp:endpoint": "place_action_type_metadata.list", "pp:method": "GET", "pp:path": "https://mybusinessplaceactions.googleapis.com/v1/placeActionTypeMetadata", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

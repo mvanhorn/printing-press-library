@@ -95,16 +95,16 @@ otherwise searches local data. Falls back to local on network failure.
 In live mode: uses the API search endpoint only.
 In local mode: searches locally synced data only.`,
 		Example: `  # Search (uses API endpoint if available, local FTS otherwise)
-  github.com/mvanhorn/printing-press-library/library/marketing/google-business-profile search "error timeout"
+  google-business-profile-pp-cli search "error timeout"
 
   # Force local search only
-  github.com/mvanhorn/printing-press-library/library/marketing/google-business-profile search "payment failed" --data-source local
+  google-business-profile-pp-cli search "payment failed" --data-source local
 
   # Search a specific resource type locally
-  github.com/mvanhorn/printing-press-library/library/marketing/google-business-profile search "critical" --type transactions --data-source local
+  google-business-profile-pp-cli search "critical" --type transactions --data-source local
 
   # JSON output for piping
-  github.com/mvanhorn/printing-press-library/library/marketing/google-business-profile search "critical" --json --limit 20`,
+  google-business-profile-pp-cli search "critical" --json --limit 20`,
 		Annotations: map[string]string{"mcp:hidden": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
@@ -136,12 +136,12 @@ In local mode: searches locally synced data only.`,
 
 			// Local FTS search
 			if dbPath == "" {
-				dbPath = defaultDBPath("github.com/mvanhorn/printing-press-library/library/marketing/google-business-profile")
+				dbPath = defaultDBPath("google-business-profile-pp-cli")
 			}
 
 			db, err := store.OpenWithContext(cmd.Context(), dbPath)
 			if err != nil {
-				return fmt.Errorf("opening local database: %w\nRun 'github.com/mvanhorn/printing-press-library/library/marketing/google-business-profile sync' first to populate the local database.", err)
+				return fmt.Errorf("opening local database: %w\nRun 'google-business-profile-pp-cli sync' first to populate the local database.", err)
 			}
 			defer db.Close()
 
@@ -221,7 +221,7 @@ In local mode: searches locally synced data only.`,
 
 	cmd.Flags().StringVar(&resourceType, "type", "", "Filter by resource type")
 	cmd.Flags().IntVar(&limit, "limit", 50, "Maximum results to return")
-	cmd.Flags().StringVar(&dbPath, "db", "", "Database path (default: ~/.local/share/github.com/mvanhorn/printing-press-library/library/marketing/google-business-profile/data.db)")
+	cmd.Flags().StringVar(&dbPath, "db", "", "Database path (default: ~/.local/share/google-business-profile-pp-cli/data.db)")
 
 	return cmd
 }
