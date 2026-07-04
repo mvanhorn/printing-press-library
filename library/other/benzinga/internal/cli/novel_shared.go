@@ -38,7 +38,11 @@ func novelStore(cmd *cobra.Command, flags *rootFlags, dbPath, syncHint string) (
 		}
 		return nil, false, nil
 	}
-	db, err := store.OpenWithContext(cmd.Context(), dbPath)
+	// The novel commands are all read-only (mcp:read-only) and only SELECT from
+	// the mirror, so open read-only: this enforces the contract at the driver
+	// level, skips the schema-migration write path on a pure read, and avoids
+	// holding the WAL write lock that a concurrent `sync` would block on.
+	db, err := store.OpenReadOnlyContext(cmd.Context(), dbPath)
 	if err != nil {
 		return nil, false, fmt.Errorf("opening local database: %w", err)
 	}

@@ -90,7 +90,11 @@ Reads the local SQLite mirror. Run 'sync' first:
 
 			for _, m := range rows {
 				when := novelEventTime(m)
-				if !when.IsZero() && when.Before(cutoff) {
+				// A --since window is always active (default 24h). Skip events
+				// outside it — and events whose timestamp cannot be parsed
+				// (zero time): a "what changed since X" digest must not surface
+				// rows it can't place inside the window as if they were recent.
+				if when.IsZero() || when.Before(cutoff) {
 					continue
 				}
 				switch {

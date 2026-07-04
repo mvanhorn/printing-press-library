@@ -88,7 +88,11 @@ Reads the local SQLite mirror. Run 'sync' first:
 			events := make([]whyEvent, 0)
 			for _, m := range rows {
 				when := novelEventTime(m)
-				if !when.IsZero() && when.Before(cutoff) {
+				// The --window cutoff is always active (default 7d). Skip events
+				// outside it — and events whose timestamp cannot be parsed (zero
+				// time): a windowed catalyst timeline must not surface rows it
+				// can't place inside the window.
+				if when.IsZero() || when.Before(cutoff) {
 					continue
 				}
 				matches := false
