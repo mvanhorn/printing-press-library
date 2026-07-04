@@ -1,0 +1,694 @@
+{
+  "dir": "/home/thilo/printing-press/library/immoscout24",
+  "binary": "/home/thilo/printing-press/library/immoscout24/immoscout24-pp-cli",
+  "level": "full",
+  "verdict": "PASS",
+  "matrix_size": 44,
+  "passed": 44,
+  "failed": 0,
+  "skipped": 25,
+  "commands": [
+    "api",
+    "doctor",
+    "expose",
+    "feedback list",
+    "immoscout24-mobile-search list",
+    "immoscout24-mobile-search map",
+    "immoscout24-mobile-search total",
+    "profile delete",
+    "profile list",
+    "profile save",
+    "profile show",
+    "profile use",
+    "search",
+    "sync",
+    "which",
+    "workflow archive",
+    "workflow status"
+  ],
+  "tests": [
+    {
+      "command": "api",
+      "kind": "help",
+      "args": [
+        "api",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Browse and call any API endpoint using the raw interface names.\n\nThe friendly top-level commands cover the most common operations.\nThis command provides access to ALL endpoints for power users and\nagents that need full API coverage.\n\nRun 'api' with no arguments to list all interfaces.\nRun 'api \u003cinterface\u003e' to see that interface's methods.\n\nUsage:\n  immoscout24-pp-cli api [interface] [flags]\n\nExamples:\n  # List all available interfaces\n  immoscout24-pp-cli api\n\n  # Show methods for a specific interface\n  immoscout24-pp-cli api \u003cinterface-name\u003e\n\nFlags:\n  -h, --help   help for api\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'immoscout24-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "api",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [api] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "api",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [api] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "api",
+      "kind": "error_path",
+      "args": [
+        "api",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "Error: interface \"__printing_press_invalid__\" not found. Run 'immoscout24-pp-cli api' to list all interfaces\n"
+    },
+    {
+      "command": "doctor",
+      "kind": "help",
+      "args": [
+        "doctor",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Check CLI health\n\nUsage:\n  immoscout24-pp-cli doctor [flags]\n\nExamples:\n  immoscout24-pp-cli doctor\n  immoscout24-pp-cli doctor --json\n  immoscout24-pp-cli doctor --fail-on warn\n  immoscout24-pp-cli doctor --fail-on stale\n\nFlags:\n      --fail-on string   Exit non-zero for selected health gates. stale: cache freshness plus errors; warn: credential/path warnings plus errors; error: errors only. Default is never.\n  -h, --help             help for doctor\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'immoscout24-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "doctor",
+      "kind": "happy_path",
+      "args": [
+        "doctor"
+      ],
+      "status": "pass",
+      "output_sample": "  OK Config: ok\n  OK Auth: not required\n  OK Verify Mode: normal operation\n  OK API: reachable (HTTP 404 at /)\n  config_path: /tmp/printing-press-subprocess-1949665785/.config/immoscout24-pp-cli/config.toml\n  base_url: https://api.mobile.immobilienscout24.de\n  version: 1.0.0\n  OK Cache: fresh\n    db_path: /tmp/printing-press-subprocess-1949665785/.local/share/immoscout24-pp-cli/data.db\n    schema_version: 4\n    db_bytes: 57344\n    stale_after: 6h0m0s\n    resources:\n      - immoscout24-mobile-search: 4 rows, 0s\n  Paths:\n    config: /tmp/printing-press-subprocess-1949665785/.config/immoscout24-pp-cli (XDG_CONFIG_HOME)\n    data: /tmp/printing-press-subprocess-1949665785/.local/share/immoscout24-pp-cli (XDG_DATA_HOME)\n    state: /tmp/printing-press-subprocess-1949665785/.local/state/immoscout24-pp-cli (XDG_STATE_HOME)\n    cache: /tmp/printing-press-subprocess-1949665785/.cache/immoscout24-pp-cli (XDG_CACHE_HOME)\n"
+    },
+    {
+      "command": "doctor",
+      "kind": "json_fidelity",
+      "args": [
+        "doctor",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"api\": \"reachable (HTTP 404 at /)\",\n  \"auth\": \"not required\",\n  \"base_url\": \"https://api.mobile.immobilienscout24.de\",\n  \"cache\": {\n    \"db_bytes\": 57344,\n    \"db_path\": \"/tmp/printing-press-subprocess-1949665785/.local/share/immoscout24-pp-cli/data.db\",\n    \"resources\": [\n      {\n        \"last_synced_at\": \"2026-07-03T18:51:51Z\",\n        \"rows\": 4,\n        \"staleness\": \"0s\",\n        \"type\": \"immoscout24-mobile-search\"\n      }\n    ],\n    \"schema_version\": 4,\n    \"stale_after\": \"6h0m0s\",\n    \"status\": \"fresh\"\n  },\n  \"config\": \"ok\",\n  \"config_path\": \"/tmp/printing-press-subprocess-1949665785/.config/immoscout24-pp-cli/config.toml\",\n  \"paths\": {\n    \"cache\": {\n      \"dir\": \"/tmp/printing-press-subprocess-1949665785/.cache/immoscout24-pp-cli\",\n      \"rung\": \"xdg-env\",\n      \"source\": \"XDG_CACHE_HOME\"\n    },\n    \"config\": {\n      \"dir\": \"/tmp/printing-press-subprocess-1949665785/.config/immoscout24-pp-cli\",\n      \"rung\": \"xdg-env\",\n      \"source\": \"XDG_CONFIG_HOME\"\n    },\n    \"data\": {\n      \"dir\": \"/tmp/printing-press-subprocess-1949665785/.local/share/immoscout24-pp-cli\",\n      \"rung\": \"xdg-env\",\n      \"source\": \"XDG_DATA_HOME\"\n    },\n    \"state\": {\n      \"dir\": \"/tmp/printing-press-subprocess-1949665785/.local/state/immoscout24-pp-cli\",\n      \"rung\": \"xdg-env\",\n      \"source\": \"XDG_STATE_HOME\"\n    },\n    \"status\": \"ok\"\n  },\n  \"verify_mode\": \"normal operation\",\n  \"version\": \"1.0.0\"\n}\n"
+    },
+    {
+      "command": "doctor",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "expose",
+      "kind": "help",
+      "args": [
+        "expose",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Returns detailed sections, media, contact metadata, map information, and tracking fields for an expose ID.\n\nUsage:\n  immoscout24-pp-cli expose \u003cid\u003e [flags]\n\nExamples:\n  immoscout24-pp-cli expose 168983602\n\nFlags:\n  -h, --help   help for expose\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'immoscout24-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "expose",
+      "kind": "happy_path",
+      "args": [
+        "expose",
+        "168983602"
+      ],
+      "status": "pass",
+      "output_sample": "{\"meta\":{\"source\":\"live\"},\"results\":[{\"featuredBarColor\":\"#7F2345\",\"featuredRealtorLogoUrl\":\"https://pictures.immobilienscout24.de/usercontent/c9e73109-7e88-4e3c-9268-6966f3659c90.JPG/ORIG/resize/%WIDTH%x%HEIGHT%%3E/format/webp/quality/80\",\"media\":[{\"caption\":\"Möblierung WG-Zimmer (Muster)\",\"fullImageUrl\":\"https://pictures.immobilienscout24.de/listings/e9c0445a-1e67-4d7c-874c-a920c907c014-2052659569.jpg/ORIG/resize/1500x1000/format/webp/quality/80\",\"imageUrlForWeb\":\"https://pictures.immobilienscout24.de/listings/e9c0445a-1e67-4d7c-874c-a920c907c014-2052659569.jpg/ORIG/legacy_thumbnail/%WIDTH%x%HEIGHT%/format/jpg\",\"previewImageUrl\":\"https://pictures.immobilienscout24.de/listings/e9c0445a-1e67-4d7c-874c-a920c907c014-2052659569.jpg/ORIG/resize/800x600/format/webp/quality/80\",\"type\":\"PICTURE\"},{\"caption\":\"Möblierung WG-Zimmer (Muster) \",\"fullImageUrl\":\"https://pictures.immobilienscout24.de/listings/f7054b23-d662-4838-9c19-9374531f63cf-2052659575.jpg/ORIG/resize/1500x1000/format/webp/quality/80\",\"imageUrlForWeb\":\"https://pictures.immobilienscout24.de/listings/f7054b23-d662-4838-9c19-9374531f63cf-2052659575.jpg/ORIG/legacy_thumbnail/%WIDTH%x%HEIGHT%/format/jpg\",\"previewImageUrl\":\"https://pictures.immobilienscout24.de/listings/f7054b23-d662-4838-9c19-9374531f63cf-2052659575.jpg/ORIG/resize/800x600/format/webp/quality/80\",\"type\":\"PICTURE\"},{\"caption\":\"WG-Zimmer (Muster)\",\"fullImageUrl\":\"https://pictures.immobilienscout24.de/listings/4e7c13f6-31c6-4e12-97f7-57b0659bad84-2052659582.jpg/ORIG/resize/1500x1000/format/webp/quality/80\",\"imageUrlForWeb\":\"https://pictures.immobilienscout24.de/listings/4e7c13f6-31c6-4e12-97f7-57b0659bad84-2052659582.jpg/ORIG/legacy_thumbnail/%WIDTH%x%HEIGHT%/format/jpg\",\"previewImageUrl\":\"https://pictures.immobilienscout24.de/listings/4e7c13f6-31c6-4e12-97f7-57b0659bad84-2052659582.jpg/ORIG/resize/800x600/format/webp/quality/80\",\"type\":\"PICTURE\"},{\"caption\":\"Gemeinschaftsbereich (Muster)\",\"fullImageUrl\":\"https://pictures.immobilienscout24.de/listings/55dbe4e1-2260-4b38-bdd2-51498dcfc68f-2052659586.jpg/ORIG/resize/1500x1000/format/webp/quality/80\",\"imageUrlForWeb\":\"https://pictures.immobilienscout24.de/listings/55dbe4e1-2260-4b38-bdd2-51498dcfc68f-2052659586.jpg/ORIG/legacy_thumbnail/%WIDTH%x%HEIGHT%/format/jpg\",\"previewImageUrl\":\"https://pictures.immobilienscout24.de/listings/55dbe4e1-2260-4b38-bdd2-51498dcfc68f-2052659586.jpg/ORIG/resize/800x600/format/webp/quality/80\",\"type\":\"PICTURE\"},{\"caption\":\"Kochbereich (Muster)\",\"fullImageUrl\":\"https://pictures.immobilienscout24.de/listings/d4eb67ab-9e10-40d6-925c-b6b11c2e2b8a-2052659591.jpg/ORIG/resize/1500x1000/format/webp/quality/80\",\"imageUrlForWeb\":\"https://pictures.immobilienscout24.de/listings/d4eb67ab-9e10-40d6-925c-b6b11c2e2b8a-2052659591.jpg/ORIG/legacy_thumbnail/%WIDTH%x%HEIGHT%/format/jpg\",\"previewImageUrl\":\"https://pictures.immobilienscout24.de/listings/d4eb67ab-9e10-40d6-925c-b6b11c2e2b8a-2052659591.jpg/ORIG/resize/800x600/format/webp/quality/80\",\"type\":\"PICTURE\"},{\"caption\":\"Duschbad (Muster)\",\"fullImageUrl\":\"https://pictures.immobilienscout24.de/listings/69a85f6a-102f-486d-8c78-64ed64c6233e-2052659597.jpg/ORIG/resize/1500x1000/format/webp/quality/80\",\"imageUrlForWeb\":\"https://pictures.immobilienscout24.de/listings/69a85f6a-102f-486d-8c78-64ed64c6233e-2052659597.jpg/ORIG/legacy_thumbnail/%WIDTH%x%HEIGHT%/format/jpg\",\"previewImageUrl\":\"https://pictures.immobilienscout24.de/listings/69a85f6a-102f-486d-8c78-64ed64c6233e-2052659597.jpg/ORIG/resize/800x600/format/webp/quality/80\",\"type\":\"PICTURE\"},{\"caption\":\"Hausansicht\",\"fullImageUrl\":\"https://pictures.immobilienscout24.de/listings/287b032d-c00a-4155-80d4-4bb739fe6abd-2052659604.png/ORIG/resize/1500x1000/format/webp/quality/80\",\"imageUrlForWeb\":\"https://pictures.immobilienscout24.de/listings/287b032d-c00a-4155-80d4-4bb739fe6abd-2052659604.png/ORIG/legacy_thumbnail/%WIDTH%x%HEIGHT%/format/jpg\",\"previewImageUrl\":\"https://pictures.immobilienscout24.de/listings/287b032d-c00a-4155-80d4-4bb739fe6abd-2052659604.png/ORIG/resize/800x600/format/webp/quality/80\",\"type\":\"PICTURE\"},{\"caption\":\"GESOcampus Wohnen\"…[truncated]"
+    },
+    {
+      "command": "expose",
+      "kind": "json_fidelity",
+      "args": [
+        "expose",
+        "168983602",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\"meta\":{\"source\":\"live\"},\"results\":[{\"featuredBarColor\":\"#7F2345\",\"featuredRealtorLogoUrl\":\"https://pictures.immobilienscout24.de/usercontent/c9e73109-7e88-4e3c-9268-6966f3659c90.JPG/ORIG/resize/%WIDTH%x%HEIGHT%%3E/format/webp/quality/80\",\"media\":[{\"caption\":\"Möblierung WG-Zimmer (Muster)\",\"fullImageUrl\":\"https://pictures.immobilienscout24.de/listings/e9c0445a-1e67-4d7c-874c-a920c907c014-2052659569.jpg/ORIG/resize/1500x1000/format/webp/quality/80\",\"imageUrlForWeb\":\"https://pictures.immobilienscout24.de/listings/e9c0445a-1e67-4d7c-874c-a920c907c014-2052659569.jpg/ORIG/legacy_thumbnail/%WIDTH%x%HEIGHT%/format/jpg\",\"previewImageUrl\":\"https://pictures.immobilienscout24.de/listings/e9c0445a-1e67-4d7c-874c-a920c907c014-2052659569.jpg/ORIG/resize/800x600/format/webp/quality/80\",\"type\":\"PICTURE\"},{\"caption\":\"Möblierung WG-Zimmer (Muster) \",\"fullImageUrl\":\"https://pictures.immobilienscout24.de/listings/f7054b23-d662-4838-9c19-9374531f63cf-2052659575.jpg/ORIG/resize/1500x1000/format/webp/quality/80\",\"imageUrlForWeb\":\"https://pictures.immobilienscout24.de/listings/f7054b23-d662-4838-9c19-9374531f63cf-2052659575.jpg/ORIG/legacy_thumbnail/%WIDTH%x%HEIGHT%/format/jpg\",\"previewImageUrl\":\"https://pictures.immobilienscout24.de/listings/f7054b23-d662-4838-9c19-9374531f63cf-2052659575.jpg/ORIG/resize/800x600/format/webp/quality/80\",\"type\":\"PICTURE\"},{\"caption\":\"WG-Zimmer (Muster)\",\"fullImageUrl\":\"https://pictures.immobilienscout24.de/listings/4e7c13f6-31c6-4e12-97f7-57b0659bad84-2052659582.jpg/ORIG/resize/1500x1000/format/webp/quality/80\",\"imageUrlForWeb\":\"https://pictures.immobilienscout24.de/listings/4e7c13f6-31c6-4e12-97f7-57b0659bad84-2052659582.jpg/ORIG/legacy_thumbnail/%WIDTH%x%HEIGHT%/format/jpg\",\"previewImageUrl\":\"https://pictures.immobilienscout24.de/listings/4e7c13f6-31c6-4e12-97f7-57b0659bad84-2052659582.jpg/ORIG/resize/800x600/format/webp/quality/80\",\"type\":\"PICTURE\"},{\"caption\":\"Gemeinschaftsbereich (Muster)\",\"fullImageUrl\":\"https://pictures.immobilienscout24.de/listings/55dbe4e1-2260-4b38-bdd2-51498dcfc68f-2052659586.jpg/ORIG/resize/1500x1000/format/webp/quality/80\",\"imageUrlForWeb\":\"https://pictures.immobilienscout24.de/listings/55dbe4e1-2260-4b38-bdd2-51498dcfc68f-2052659586.jpg/ORIG/legacy_thumbnail/%WIDTH%x%HEIGHT%/format/jpg\",\"previewImageUrl\":\"https://pictures.immobilienscout24.de/listings/55dbe4e1-2260-4b38-bdd2-51498dcfc68f-2052659586.jpg/ORIG/resize/800x600/format/webp/quality/80\",\"type\":\"PICTURE\"},{\"caption\":\"Kochbereich (Muster)\",\"fullImageUrl\":\"https://pictures.immobilienscout24.de/listings/d4eb67ab-9e10-40d6-925c-b6b11c2e2b8a-2052659591.jpg/ORIG/resize/1500x1000/format/webp/quality/80\",\"imageUrlForWeb\":\"https://pictures.immobilienscout24.de/listings/d4eb67ab-9e10-40d6-925c-b6b11c2e2b8a-2052659591.jpg/ORIG/legacy_thumbnail/%WIDTH%x%HEIGHT%/format/jpg\",\"previewImageUrl\":\"https://pictures.immobilienscout24.de/listings/d4eb67ab-9e10-40d6-925c-b6b11c2e2b8a-2052659591.jpg/ORIG/resize/800x600/format/webp/quality/80\",\"type\":\"PICTURE\"},{\"caption\":\"Duschbad (Muster)\",\"fullImageUrl\":\"https://pictures.immobilienscout24.de/listings/69a85f6a-102f-486d-8c78-64ed64c6233e-2052659597.jpg/ORIG/resize/1500x1000/format/webp/quality/80\",\"imageUrlForWeb\":\"https://pictures.immobilienscout24.de/listings/69a85f6a-102f-486d-8c78-64ed64c6233e-2052659597.jpg/ORIG/legacy_thumbnail/%WIDTH%x%HEIGHT%/format/jpg\",\"previewImageUrl\":\"https://pictures.immobilienscout24.de/listings/69a85f6a-102f-486d-8c78-64ed64c6233e-2052659597.jpg/ORIG/resize/800x600/format/webp/quality/80\",\"type\":\"PICTURE\"},{\"caption\":\"Hausansicht\",\"fullImageUrl\":\"https://pictures.immobilienscout24.de/listings/287b032d-c00a-4155-80d4-4bb739fe6abd-2052659604.png/ORIG/resize/1500x1000/format/webp/quality/80\",\"imageUrlForWeb\":\"https://pictures.immobilienscout24.de/listings/287b032d-c00a-4155-80d4-4bb739fe6abd-2052659604.png/ORIG/legacy_thumbnail/%WIDTH%x%HEIGHT%/format/jpg\",\"previewImageUrl\":\"https://pictures.immobilienscout24.de/listings/287b032d-c00a-4155-80d4-4bb739fe6abd-2052659604.png/ORIG/resize/800x600/format/webp/quality/80\",\"type\":\"PICTURE\"},{\"caption\":\"GESOcampus Wohnen\"…[truncated]"
+    },
+    {
+      "command": "expose",
+      "kind": "error_path",
+      "args": [
+        "expose",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 3,
+      "output_sample": "Error: GET /expose/__printing_press_invalid__ returned HTTP 404: \nhint: resource not found. Run the 'list' command to see available items\n"
+    },
+    {
+      "command": "feedback list",
+      "kind": "help",
+      "args": [
+        "feedback",
+        "list",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "List recent feedback entries\n\nUsage:\n  immoscout24-pp-cli feedback list [flags]\n\nExamples:\n  immoscout24-pp-cli feedback list\n  immoscout24-pp-cli feedback list --limit 5\n  immoscout24-pp-cli feedback list --json\n\nFlags:\n  -h, --help        help for list\n      --limit int   Maximum number of recent entries to return (default 20)\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'immoscout24-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "feedback list",
+      "kind": "happy_path",
+      "args": [
+        "feedback",
+        "list"
+      ],
+      "status": "pass"
+    },
+    {
+      "command": "feedback list",
+      "kind": "json_fidelity",
+      "args": [
+        "feedback",
+        "list",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "[]\n"
+    },
+    {
+      "command": "feedback list",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "immoscout24-mobile-search list",
+      "kind": "help",
+      "args": [
+        "immoscout24-mobile-search",
+        "list",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Retrieves listing cards for a mobile search query. Use a small pagesize and respect rate limits.\n\nUsage:\n  immoscout24-pp-cli immoscout24-mobile-search list [flags]\n\nExamples:\n  immoscout24-pp-cli immoscout24-mobile-search list\n\nFlags:\n      --apartmenttypes string                Comma-separated apartment type filters.\n      --buildingtypes string                 Comma-separated building type filters.\n      --channel string                       Channel, usually is24. (default \"is24\")\n      --equipment string                     Comma-separated equipment filters.\n      --features string                      Comma-separated mobile feature flags.\n      --fulltext string                      Full-text query term.\n      --geocodes string                      Region path, for example /de/berlin/berlin.\n      --geocoordinates string                Radius search coordinates as latitude;longitude;radiusKm.\n  -h, --help                                 help for list\n      --livingspace string                   Living-space range in square meters.\n      --numberofrooms string                 Room-count range.\n      --pagenumber int                       One-based page number. (default 1)\n      --pagesize int                         Page size. Keep small for list views; map endpoints commonly use up to 300. (default 20)\n      --price string                         Price range. Use start-end, start-, or -end.\n      --pricetype string                     Price interpretation. For rent, calculatedtotalrent is warm rent. (one of: calculatedtotalrent, rentpermonth, purchaseprice) (default \"calculatedtotalrent\")\n      --publishedafter string                Lower bound for publication date.\n      --realestatetype string                Lowercase mobile API real-estate type. (one of: apartmentrent, apartmentbuy, houserent, housebuy) (default \"apartmentrent\")\n      --search-type string                   Search mode used by the mobile API. (one of: region, radius, shape) (default \"region\")\n      --shape string                         Encoded polyline shape for shape searches.\n      --sorting string                       Sort order, for example standard or -firstactivation. (default \"standard\")\n      --stdin                                Read request body as JSON from stdin\n      --supported-result-list-types string   Supported result list types\n      --user-data string                     User data\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'immoscout24-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select st…[truncated]"
+    },
+    {
+      "command": "immoscout24-mobile-search list",
+      "kind": "happy_path",
+      "args": [
+        "immoscout24-mobile-search",
+        "list",
+        "--geocodes",
+        "/de/berlin/berlin",
+        "--pagesize",
+        "2"
+      ],
+      "status": "pass",
+      "output_sample": "{\"meta\":{\"method\":\"POST\",\"path\":\"/search/list\",\"source\":\"live\",\"status\":200},\"results\":{\"numberOfListings\":8491,\"numberOfPages\":4246,\"pageNumber\":1,\"pageSize\":2,\"quickFilterStatistics\":[],\"reporting\":{},\"resultListItems\":[{\"item\":{\"address\":\"\u003credacted\u003e\",\"attributes\":[{\"label\":\"\",\"value\":\"380 €\"},{\"label\":\"\",\"value\":\"29,08 m²\"},{\"label\":\"\",\"value\":\"1 Zi.\"}],\"id\":\"168983602\",\"isNewObject\":false,\"isPrivate\":false,\"isProject\":false,\"listOnlyOnIs24\":false,\"listingType\":\"XL\",\"liveVideoTourAvailable\":false,\"pictures\":[{\"urlScaleAndCrop\":\"https://pictures.immobilienscout24.de/listings/e9c0445a-1e67-4d7c-874c-a920c907c014-2052659569.jpg/ORIG/legacy_thumbnail/%WIDTH%x%HEIGHT%/format/webp/quality/80\"}],\"published\":\"vor 2 Tagen\",\"realEstateType\":\"apartmentrent\",\"realtor\":{\"logoUrlScale\":\"https://pictures.immobilienscout24.de/usercontent/9e2ab332-4e91-4991-ac70-0dc4ce04280c.PNG/ORIG/resize/%WIDTH%x%HEIGHT%%3E/format/webp/quality/80\",\"showcasePlacementColor\":\"#7F2345\"},\"reportUrl\":\"https://angebot-melden.immobilienscout24.de/report?realEstateId=168983602\u0026publicationState=live\",\"tags\":[],\"title\":\"Wohnplatz für Studis/Azubis - Helles Zimmer in einer 3er-WG\",\"titlePicture\":{\"full\":\"https://pictures.immobilienscout24.de/listings/e9c0445a-1e67-4d7c-874c-a920c907c014-2052659569.jpg/ORIG/resize/800x600\u003e/format/webp/quality/80\",\"preview\":\"https://pictures.immobilienscout24.de/listings/e9c0445a-1e67-4d7c-874c-a920c907c014-2052659569.jpg/ORIG/resize/800x600\u003e/format/webp/quality/20\"}},\"type\":\"EXPOSE_RESULT\"},{\"item\":{\"address\":\"\u003credacted\u003e\",\"attributes\":[{\"label\":\"\",\"value\":\"380 €\"},{\"label\":\"\",\"value\":\"32,51 m²\"},{\"label\":\"\",\"value\":\"1 Zi.\"}],\"id\":\"168960677\",\"isNewObject\":false,\"isPrivate\":false,\"isProject\":false,\"listOnlyOnIs24\":false,\"listingType\":\"XL\",\"liveVideoTourAvailable\":false,\"pictures\":[],\"published\":\"vor 3 Tagen\",\"realEstateType\":\"apartmentrent\",\"realtor\":{\"logoUrlScale\":\"https://pictures.immobilienscout24.de/usercontent/9e2ab332-4e91-4991-ac70-0dc4ce04280c.PNG/ORIG/resize/%WIDTH%x%HEIGHT%%3E/format/webp/quality/80\",\"showcasePlacementColor\":\"#7F2345\"},\"reportUrl\":\"https://angebot-melden.immobilienscout24.de/report?realEstateId=168960677\u0026publicationState=live\",\"tags\":[],\"title\":\"Wohnplatz für Studis/Azubis - gemütliches Zimmer in 2er-WG zu vermieten\"},\"type\":\"EXPOSE_RESULT\"}],\"shapes\":[],\"totalResults\":8491}}"
+    },
+    {
+      "command": "immoscout24-mobile-search list",
+      "kind": "json_fidelity",
+      "args": [
+        "immoscout24-mobile-search",
+        "list",
+        "--geocodes",
+        "/de/berlin/berlin",
+        "--pagesize",
+        "2",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\"meta\":{\"method\":\"POST\",\"path\":\"/search/list\",\"source\":\"live\",\"status\":200},\"results\":{\"numberOfListings\":8491,\"numberOfPages\":4246,\"pageNumber\":1,\"pageSize\":2,\"quickFilterStatistics\":[],\"reporting\":{},\"resultListItems\":[{\"item\":{\"address\":\"\u003credacted\u003e\",\"attributes\":[{\"label\":\"\",\"value\":\"380 €\"},{\"label\":\"\",\"value\":\"29,08 m²\"},{\"label\":\"\",\"value\":\"1 Zi.\"}],\"id\":\"168983602\",\"isNewObject\":false,\"isPrivate\":false,\"isProject\":false,\"listOnlyOnIs24\":false,\"listingType\":\"XL\",\"liveVideoTourAvailable\":false,\"pictures\":[{\"urlScaleAndCrop\":\"https://pictures.immobilienscout24.de/listings/e9c0445a-1e67-4d7c-874c-a920c907c014-2052659569.jpg/ORIG/legacy_thumbnail/%WIDTH%x%HEIGHT%/format/webp/quality/80\"}],\"published\":\"vor 2 Tagen\",\"realEstateType\":\"apartmentrent\",\"realtor\":{\"logoUrlScale\":\"https://pictures.immobilienscout24.de/usercontent/9e2ab332-4e91-4991-ac70-0dc4ce04280c.PNG/ORIG/resize/%WIDTH%x%HEIGHT%%3E/format/webp/quality/80\",\"showcasePlacementColor\":\"#7F2345\"},\"reportUrl\":\"https://angebot-melden.immobilienscout24.de/report?realEstateId=168983602\u0026publicationState=live\",\"tags\":[],\"title\":\"Wohnplatz für Studis/Azubis - Helles Zimmer in einer 3er-WG\",\"titlePicture\":{\"full\":\"https://pictures.immobilienscout24.de/listings/e9c0445a-1e67-4d7c-874c-a920c907c014-2052659569.jpg/ORIG/resize/800x600\u003e/format/webp/quality/80\",\"preview\":\"https://pictures.immobilienscout24.de/listings/e9c0445a-1e67-4d7c-874c-a920c907c014-2052659569.jpg/ORIG/resize/800x600\u003e/format/webp/quality/20\"}},\"type\":\"EXPOSE_RESULT\"},{\"item\":{\"address\":\"\u003credacted\u003e\",\"attributes\":[{\"label\":\"\",\"value\":\"380 €\"},{\"label\":\"\",\"value\":\"32,51 m²\"},{\"label\":\"\",\"value\":\"1 Zi.\"}],\"id\":\"168960677\",\"isNewObject\":false,\"isPrivate\":false,\"isProject\":false,\"listOnlyOnIs24\":false,\"listingType\":\"XL\",\"liveVideoTourAvailable\":false,\"pictures\":[],\"published\":\"vor 3 Tagen\",\"realEstateType\":\"apartmentrent\",\"realtor\":{\"logoUrlScale\":\"https://pictures.immobilienscout24.de/usercontent/9e2ab332-4e91-4991-ac70-0dc4ce04280c.PNG/ORIG/resize/%WIDTH%x%HEIGHT%%3E/format/webp/quality/80\",\"showcasePlacementColor\":\"#7F2345\"},\"reportUrl\":\"https://angebot-melden.immobilienscout24.de/report?realEstateId=168960677\u0026publicationState=live\",\"tags\":[],\"title\":\"Wohnplatz für Studis/Azubis - gemütliches Zimmer in 2er-WG zu vermieten\"},\"type\":\"EXPOSE_RESULT\"}],\"shapes\":[],\"totalResults\":8491}}"
+    },
+    {
+      "command": "immoscout24-mobile-search list",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "immoscout24-mobile-search map",
+      "kind": "help",
+      "args": [
+        "immoscout24-mobile-search",
+        "map",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Returns map markers and paging metadata for broad searches.\n\nUsage:\n  immoscout24-pp-cli immoscout24-mobile-search map [flags]\n\nExamples:\n  immoscout24-pp-cli immoscout24-mobile-search map\n\nFlags:\n      --all                       Fetch all pages\n      --features string           Comma-separated mobile feature flags.\n      --geocodes string           Region path, for example /de/berlin/berlin.\n      --geocoordinates string     Radius search coordinates as latitude;longitude;radiusKm.\n  -h, --help                      help for map\n      --pagenumber int            One-based page number. (default 1)\n      --pagesize int              Page size. Keep small for list views; map endpoints commonly use up to 300. (default 20)\n      --publishedafter string     Lower bound for publication date.\n      --real-estate-type string   Camel-case spelling used by map endpoints. (one of: apartmentrent, apartmentbuy, houserent, housebuy) (default \"apartmentrent\")\n      --search-type string        Search mode used by the mobile API. (one of: region, radius, shape) (default \"region\")\n      --shape string              Encoded polyline shape for shape searches.\n      --sorting string            Sort order, for example standard or -firstactivation. (default \"standard\")\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'immoscout24-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "immoscout24-mobile-search map",
+      "kind": "happy_path",
+      "args": [
+        "immoscout24-mobile-search",
+        "map",
+        "--geocodes",
+        "/de/berlin/berlin",
+        "--pagesize",
+        "2"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"live\"\n  },\n  \"results\": {\n    \"paging\": {\n      \"pageNumber\": 1,\n      \"pageSize\": 2,\n      \"numberOfPages\": 4246,\n      \"numberOfHits\": 8491,\n      \"numberOfListings\": 8491\n    },\n    \"markers\": [\n      {\n        \"type\": \"cluster\",\n        \"lat\": 52.5893,\n        \"lon\": 13.3387,\n        \"objects\": [\n          {\n            \"id\": \"168983602\",\n            \"isNewObject\": false\n          },\n          {\n            \"id\": \"168960677\",\n            \"isNewObject\": false\n          }\n        ]\n      }\n    ]\n  }\n}\nwarning: 1/1 immoscout24-mobile-search items returned but not cached locally (no extractable ID field; offline lookup against these rows will be incomplete; live queries unaffected)\n"
+    },
+    {
+      "command": "immoscout24-mobile-search map",
+      "kind": "json_fidelity",
+      "args": [
+        "immoscout24-mobile-search",
+        "map",
+        "--geocodes",
+        "/de/berlin/berlin",
+        "--pagesize",
+        "2",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"live\"\n  },\n  \"results\": {\n    \"paging\": {\n      \"pageNumber\": 1,\n      \"pageSize\": 2,\n      \"numberOfPages\": 4246,\n      \"numberOfHits\": 8491,\n      \"numberOfListings\": 8491\n    },\n    \"markers\": [\n      {\n        \"type\": \"cluster\",\n        \"lat\": 52.5893,\n        \"lon\": 13.3387,\n        \"objects\": [\n          {\n            \"id\": \"168983602\",\n            \"isNewObject\": false\n          },\n          {\n            \"id\": \"168960677\",\n            \"isNewObject\": false\n          }\n        ]\n      }\n    ]\n  }\n}\nwarning: 1/1 immoscout24-mobile-search items returned but not cached locally (no extractable ID field; offline lookup against these rows will be incomplete; live queries unaffected)\n"
+    },
+    {
+      "command": "immoscout24-mobile-search map",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "immoscout24-mobile-search total",
+      "kind": "help",
+      "args": [
+        "immoscout24-mobile-search",
+        "total",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Returns the total number of listings matching a mobile search query.\n\nUsage:\n  immoscout24-pp-cli immoscout24-mobile-search total [flags]\n\nExamples:\n  immoscout24-pp-cli immoscout24-mobile-search total\n\nFlags:\n      --fulltext string         Full-text query term.\n      --geocodes string         Region path, for example /de/berlin/berlin.\n      --geocoordinates string   Radius search coordinates as latitude;longitude;radiusKm.\n  -h, --help                    help for total\n      --livingspace string      Living-space range in square meters.\n      --numberofrooms string    Room-count range.\n      --price string            Price range. Use start-end, start-, or -end.\n      --pricetype string        Price interpretation. For rent, calculatedtotalrent is warm rent. (one of: calculatedtotalrent, rentpermonth, purchaseprice) (default \"calculatedtotalrent\")\n      --realestatetype string   Lowercase mobile API real-estate type. (one of: apartmentrent, apartmentbuy, houserent, housebuy) (default \"apartmentrent\")\n      --search-type string      Search mode used by the mobile API. (one of: region, radius, shape) (default \"region\")\n      --shape string            Encoded polyline shape for shape searches.\n      --sorting string          Sort order, for example standard or -firstactivation. (default \"standard\")\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'immoscout24-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "immoscout24-mobile-search total",
+      "kind": "happy_path",
+      "args": [
+        "immoscout24-mobile-search",
+        "total",
+        "--geocodes",
+        "/de/berlin/berlin"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"live\"\n  },\n  \"results\": {\n    \"totalResults\": 8491\n  }\n}\nwarning: 1/1 immoscout24-mobile-search items returned but not cached locally (no extractable ID field; offline lookup against these rows will be incomplete; live queries unaffected)\n"
+    },
+    {
+      "command": "immoscout24-mobile-search total",
+      "kind": "json_fidelity",
+      "args": [
+        "immoscout24-mobile-search",
+        "total",
+        "--geocodes",
+        "/de/berlin/berlin",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"live\"\n  },\n  \"results\": {\n    \"totalResults\": 8491\n  }\n}\nwarning: 1/1 immoscout24-mobile-search items returned but not cached locally (no extractable ID field; offline lookup against these rows will be incomplete; live queries unaffected)\n"
+    },
+    {
+      "command": "immoscout24-mobile-search total",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "profile delete",
+      "kind": "help",
+      "args": [
+        "profile",
+        "delete",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Remove a profile\n\nUsage:\n  immoscout24-pp-cli profile delete \u003cname\u003e [flags]\n\nExamples:\n  immoscout24-pp-cli profile delete my-defaults --yes\n  immoscout24-pp-cli profile delete old-profile --yes --json\n\nFlags:\n  -h, --help   help for delete\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'immoscout24-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "profile delete",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile delete",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile delete",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "mutating command; error_path would call live API without --dry-run"
+    },
+    {
+      "command": "profile delete",
+      "kind": "error_path_real",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile list",
+      "kind": "help",
+      "args": [
+        "profile",
+        "list",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "List saved profiles\n\nUsage:\n  immoscout24-pp-cli profile list [flags]\n\nExamples:\n  immoscout24-pp-cli profile list\n  immoscout24-pp-cli profile list --json\n\nFlags:\n  -h, --help   help for list\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'immoscout24-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "profile list",
+      "kind": "happy_path",
+      "args": [
+        "profile",
+        "list"
+      ],
+      "status": "pass",
+      "output_sample": "NAME  FIELDS  DESCRIPTION\n"
+    },
+    {
+      "command": "profile list",
+      "kind": "json_fidelity",
+      "args": [
+        "profile",
+        "list",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "[]\n"
+    },
+    {
+      "command": "profile list",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "profile save",
+      "kind": "help",
+      "args": [
+        "profile",
+        "save",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Captures every flag explicitly set on the invocation and stores\nthem under \u003cname\u003e. To update an existing profile, run save again; the\nentry is replaced.\n\nTo avoid creating empty profiles, at least one non-default flag must be\npresent (other than --profile, --config, and --home, which are never\ncaptured: they control profile/config resolution and would never apply).\n\nUsage:\n  immoscout24-pp-cli profile save \u003cname\u003e [--\u003cflag\u003e \u003cvalue\u003e ...] [flags]\n\nExamples:\n  immoscout24-pp-cli profile save my-defaults --json --compact\n  immoscout24-pp-cli profile save tonight-defaults --region US\n\nFlags:\n      --description string   Short description shown in 'profile list'\n  -h, --help                 help for save\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'immoscout24-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "profile save",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile save",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile save",
+      "kind": "error_path",
+      "args": [
+        "profile",
+        "save",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "Error: no non-default flags set - pass at least one flag to save into \"__printing_press_invalid__\"\n"
+    },
+    {
+      "command": "profile show",
+      "kind": "help",
+      "args": [
+        "profile",
+        "show",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Show a profile's values as JSON\n\nUsage:\n  immoscout24-pp-cli profile show \u003cname\u003e [flags]\n\nExamples:\n  immoscout24-pp-cli profile show my-defaults\n  immoscout24-pp-cli profile show tonight-defaults --json\n\nFlags:\n  -h, --help   help for show\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'immoscout24-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "profile show",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile show",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile show",
+      "kind": "error_path",
+      "args": [
+        "profile",
+        "show",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "Error: profile \"__printing_press_invalid__\" not found\n"
+    },
+    {
+      "command": "profile use",
+      "kind": "help",
+      "args": [
+        "profile",
+        "use",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Print the flag values a profile will apply (does not execute anything)\n\nUsage:\n  immoscout24-pp-cli profile use \u003cname\u003e [flags]\n\nExamples:\n  immoscout24-pp-cli profile use my-defaults\n  immoscout24-pp-cli profile use tonight-defaults --json\n\nFlags:\n  -h, --help   help for use\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'immoscout24-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "profile use",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile use",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile use",
+      "kind": "error_path",
+      "args": [
+        "profile",
+        "use",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "Error: profile \"__printing_press_invalid__\" not found\n"
+    },
+    {
+      "command": "search",
+      "kind": "help",
+      "args": [
+        "search",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Search data using FTS5 full-text search on locally synced data,\nor hit the API's search endpoint when available.\n\nIn auto mode (default): uses the API search endpoint if the API has one,\notherwise searches local data. Falls back to local on network failure.\nIn live mode: uses the API search endpoint only.\nIn local mode: searches locally synced data only.\n\nUsage:\n  immoscout24-pp-cli search \u003cquery\u003e [flags]\n\nExamples:\n  # Search (uses API endpoint if available, local FTS otherwise)\n  immoscout24-pp-cli search \"error timeout\"\n\n  # Force local search only\n  immoscout24-pp-cli search \"status\" --data-source local\n  # Search a specific resource type locally\n  immoscout24-pp-cli search \"status\" --type expose --data-source local\n  # JSON output for piping\n  immoscout24-pp-cli search \"critical\" --json --limit 20\n\nFlags:\n      --db string     SQLite database file path (default: resolved data directory data.db)\n  -h, --help          help for search\n      --limit int     Maximum results to return (default 50)\n      --type string   Filter by resource type\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'immoscout24-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "search",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [search] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "search",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [search] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "search",
+      "kind": "error_path",
+      "args": [
+        "search",
+        "__printing_press_invalid__",
+        "--json"
+      ],
+      "status": "pass",
+      "exit_code": 5,
+      "output_sample": "Error: POST /search/list returned HTTP 500: {\"error\":\"value not defined\"}\n"
+    },
+    {
+      "command": "sync",
+      "kind": "help",
+      "args": [
+        "sync",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Sync data from the API into a local SQLite database. This API does\nnot declare temporal sync filters, so sync performs full pagination unless an\nexplicit resource declares its own incremental filter.\nOnce synced, use the 'search' command for instant full-text search.\n\nExit codes \u0026 warnings:\n  Resources the API denies access to (HTTP 403, or HTTP 400 with an\n  access-policy body) are reported as warnings rather than failing the\n  run. In --json mode each is emitted as a {\"event\":\"sync_warning\",...}\n  line carrying status, reason, and message fields, and a final\n  {\"event\":\"sync_summary\",...} aggregates the run.\n\n  Exit 0 when at least one resource synced and no resource flagged in\n  the spec as critical (x-critical: true) failed; non-critical failures\n  emit {\"event\":\"sync_warning\",\"reason\":\"exit_policy_default_changed\",\n  ...} so callers can detect that a partial failure was tolerated. Pass\n  --strict to exit non-zero on any per-resource failure. Exit is always\n  non-zero when every selected resource failed, regardless of --strict.\n\nResource scoping:\n  --resources runs the named top-level resources, plus any parent-keyed\n  dependent whose own name is listed OR whose parent table is listed.\n  Naming a parent therefore cascades to its dependents (so \"sync this\n  parent and its children\" works without listing every nested resource\n  by hand). There is no flag today to suppress the cascade for a named\n  parent. To run a dependent without re-syncing its parent, list only\n  the dependent by name; the parent table must already be populated\n  from a prior sync.\n\nUsage:\n  immoscout24-pp-cli sync [flags]\n\nExamples:\n  # Sync all resources\n  immoscout24-pp-cli sync\n\n  # Sync specific resources only\n  immoscout24-pp-cli sync --resources channels,messages\n\n  # Full resync (ignore previous checkpoint)\n  immoscout24-pp-cli sync --full\n\n  # Incremental sync: only records from the last 7 days\n  immoscout24-pp-cli sync --since 7d\n\n  # Parallel sync with 8 workers\n  immoscout24-pp-cli sync --concurrency 8\n\n  # Latest-only: refresh head of each resource, no historical backfill\n  immoscout24-pp-cli sync --latest-only\n\nFlags:\n      --concurrency int              Number of parallel sync workers (default 4)\n      --db string                    SQLite database file path (default: resolved data directory data.db)\n      --full                         Full resync (ignore previous checkpoint)\n      --global-param stringArray     Extra query param to inject into every sync request including dependent path-scoped calls (repeatable, key=value). Use when an API requires a scope on every call regardless of path nesting.\n  -h, --help                         help for sync\n      --latest-only                  Refresh head of each resource only; clears resume cursor and caps pages at 1. Mutually exclusive with --since (--since wins).\n      --max-pages int                Maximum pages to fetch per resource (0 = unlimited; cap-hit emits a sync_warning event)\n      --no-prune                     Disable deletion reconciliation on --full (by default a full sync prunes local rows the API no longer returns for a fully-enumerated parent partition)\n      --param stringArray            Extra query param to inject into flat-list sync requests (repeatable, key=value). Skipped on path-scoped dependent requests so a top-level scope like workspace=\u003cid\u003e does not double up on /parents/\u003cid\u003e/children calls. Use --global-param to inject everywhere. Avoid pagination keys (limit/since/cursor) — overriding them corrupts resume state.\n      --resource-param stringArray   Per-resource extra query param (repeatable, resource:key=value). Wins over --param and --global-param when keys conflict.\n      --resources strings            Comma-separated resource types to sync. Naming a parent also runs its parent-keyed dependents (see Long help for scoping).\n      --since string                 Incremental sync duration (e.g. 7d, 24h, 1w, 30m)\n      --strict                       Exit non-zero on any per-resource failure (default: only critical failures or all-resource failure exit non-zero…[truncated]"
+    },
+    {
+      "command": "sync",
+      "kind": "happy_path",
+      "args": [
+        "sync"
+      ],
+      "status": "pass",
+      "output_sample": "{\"event\":\"sync_start\",\"resource\":\"immoscout24-mobile-search\"}\n{\"event\":\"sync_warning\",\"resource\":\"immoscout24-mobile-search\",\"reason\":\"resource_not_incremental\",\"message\":\"endpoint does not declare a temporal filter parameter; incremental sync has no effect for this resource\"}\n{\"event\":\"sync_progress\",\"resource\":\"immoscout24-mobile-search\",\"fetched\":4}\n{\"event\":\"sync_complete\",\"resource\":\"immoscout24-mobile-search\",\"total\":4,\"duration_ms\":92}\n{\"event\":\"sync_summary\",\"total_records\":4,\"resources\":1,\"success\":1,\"warned\":0,\"errored\":0,\"duration_ms\":92}\n"
+    },
+    {
+      "command": "sync",
+      "kind": "json_fidelity",
+      "args": [
+        "sync",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\"event\":\"sync_start\",\"resource\":\"immoscout24-mobile-search\"}\n{\"event\":\"sync_warning\",\"resource\":\"immoscout24-mobile-search\",\"reason\":\"resource_not_incremental\",\"message\":\"endpoint does not declare a temporal filter parameter; incremental sync has no effect for this resource\"}\n{\"event\":\"sync_progress\",\"resource\":\"immoscout24-mobile-search\",\"fetched\":4}\n{\"event\":\"sync_complete\",\"resource\":\"immoscout24-mobile-search\",\"total\":4,\"duration_ms\":84}\n{\"event\":\"sync_summary\",\"total_records\":4,\"resources\":1,\"success\":1,\"warned\":0,\"errored\":0,\"duration_ms\":84}\n"
+    },
+    {
+      "command": "sync",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "which",
+      "kind": "help",
+      "args": [
+        "which",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "which resolves a natural-language capability query (for example, \"search messages\" or \"stale tickets\") to the best matching command from this CLI's curated feature index.\n\nExit codes:\n  0  at least one match found\n  2  no confident match - the query did not score against any indexed capability; fall back to '--help' or 'search' if this CLI has one\n\nUsage:\n  immoscout24-pp-cli which [query] [flags]\n\nExamples:\n  immoscout24-pp-cli which \"stale tickets\"\n  immoscout24-pp-cli which \"bottleneck\"\n  immoscout24-pp-cli which --limit 1 \"send message\"\n  immoscout24-pp-cli which                                # list the full capability index\n\nFlags:\n  -h, --help        help for which\n      --limit int   Maximum number of matches to return (default 3)\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'immoscout24-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "which",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [which] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "which",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [which] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "which",
+      "kind": "error_path",
+      "args": [
+        "which",
+        "__printing_press_invalid__",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"matches\": []\n}\n"
+    },
+    {
+      "command": "workflow archive",
+      "kind": "help",
+      "args": [
+        "workflow",
+        "archive",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Archive fetches all syncable resources from the API and stores them in a\nlocal SQLite database. Supports incremental sync (only new data since last run)\nand full resync. After archiving, use 'search' for instant full-text search.\n\nUsage:\n  immoscout24-pp-cli workflow archive [flags]\n\nExamples:\n  # Archive all resources\n  immoscout24-pp-cli workflow archive\n\n  # Full re-archive (ignore previous sync state)\n  immoscout24-pp-cli workflow archive --full\n\nFlags:\n      --db string   SQLite database file path (default: resolved data directory data.db)\n      --full        Full re-archive (ignore previous sync state)\n  -h, --help        help for archive\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'immoscout24-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "workflow archive",
+      "kind": "happy_path",
+      "args": [
+        "workflow",
+        "archive"
+      ],
+      "status": "pass",
+      "output_sample": "{\"event\":\"sync_start\",\"resource\":\"immoscout24-mobile-search\"}\n{\"event\":\"sync_warning\",\"resource\":\"immoscout24-mobile-search\",\"reason\":\"resource_not_incremental\",\"message\":\"endpoint does not declare a temporal filter parameter; incremental sync has no effect for this resource\"}\n{\"event\":\"sync_progress\",\"resource\":\"immoscout24-mobile-search\",\"fetched\":4}\n{\"event\":\"sync_complete\",\"resource\":\"immoscout24-mobile-search\",\"total\":4,\"duration_ms\":86}\nArchived 4 items across 1 resources to /tmp/printing-press-subprocess-1949665785/.local/share/immoscout24-pp-cli/data.db\n  immoscout24-mobile-search: 4 synced\n"
+    },
+    {
+      "command": "workflow archive",
+      "kind": "json_fidelity",
+      "args": [
+        "workflow",
+        "archive",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"resources_synced\": 1,\n  \"store_path\": \"/tmp/printing-press-subprocess-1949665785/.local/share/immoscout24-pp-cli/data.db\",\n  \"timestamp\": \"2026-07-03T18:51:53Z\",\n  \"total_items\": 4\n}\n{\"event\":\"sync_start\",\"resource\":\"immoscout24-mobile-search\"}\n{\"event\":\"sync_warning\",\"resource\":\"immoscout24-mobile-search\",\"reason\":\"resource_not_incremental\",\"message\":\"endpoint does not declare a temporal filter parameter; incremental sync has no effect for this resource\"}\n{\"event\":\"sync_progress\",\"resource\":\"immoscout24-mobile-search\",\"fetched\":4}\n{\"event\":\"sync_complete\",\"resource\":\"immoscout24-mobile-search\",\"total\":4,\"duration_ms\":91}\n  immoscout24-mobile-search: 4 synced\n"
+    },
+    {
+      "command": "workflow archive",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "workflow status",
+      "kind": "help",
+      "args": [
+        "workflow",
+        "status",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Show local archive status and sync state for all resources\n\nUsage:\n  immoscout24-pp-cli workflow status [flags]\n\nExamples:\n  # Show archive status\n  immoscout24-pp-cli workflow status\n\n  # Show status as JSON\n  immoscout24-pp-cli workflow status --json\n\nFlags:\n      --db string   SQLite database file path (default: resolved data directory data.db)\n  -h, --help        help for status\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'immoscout24-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "workflow status",
+      "kind": "happy_path",
+      "args": [
+        "workflow",
+        "status"
+      ],
+      "status": "pass",
+      "output_sample": "Archive Status:\n  immoscout24-mobile-search      4 items\n  expose                         4 items\n\n  Total: 8 items\n  Store: /tmp/printing-press-subprocess-1949665785/.local/share/immoscout24-pp-cli/data.db\n"
+    },
+    {
+      "command": "workflow status",
+      "kind": "json_fidelity",
+      "args": [
+        "workflow",
+        "status",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"expose\": 4,\n  \"immoscout24-mobile-search\": 4\n}\n"
+    },
+    {
+      "command": "workflow status",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    }
+  ],
+  "ran_at": "2026-07-03T18:51:51.681218386Z"
+}

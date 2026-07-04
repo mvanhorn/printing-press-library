@@ -1,0 +1,23 @@
+{
+  "schema_version": 2,
+  "id": "immoscout24-structured-expose-texts",
+  "applied_at": "2026-07-04",
+  "base_run_id": "20260703-202702-8d004d3c",
+  "base_printing_press_version": "4.27.1",
+  "summary": "feat(immoscout24): group expose inspect texts by property-facing section",
+  "reason": "The previous expose inspect text output recursively emitted every scalar string from the mobile expose JSON, so agent workflows saw ad-targeting metadata, form states, and UI labels before the actual listing wording. Apartment review needs the visible expose sections, attributes, and descriptions in source order.",
+  "files": [
+    "README.md",
+    "SKILL.md",
+    "internal/cli/expose_inspect.go",
+    "internal/cli/expose_inspect_test.go",
+    "internal/cli/which.go"
+  ],
+  "validated_outcome": "go test ./... passed; live expose inspect 168983602 changed from 533 recursive text hits to 45 structured text items with TOP_ATTRIBUTES, TITLE, Hauptkriterien, Kosten, and TEXT_AREA groups; live expose inspect 169007317 returned structured TOP_ATTRIBUTES, TITLE, and Hauptkriterien groups; --max-texts 8 returned exactly 8 structured items.",
+  "findings_addressed": [
+    "Replace recursive text hits with grouped property-facing text sections in expose inspect output",
+    "Exclude adTargetingParameters, contact form state, ads, tracking, and service-provider payloads from texts",
+    "Keep image, floorplan, and link extraction behavior intact while preserving useful section paths",
+    "Update agent-facing examples from texts.value to texts.title and texts.items.value"
+  ]
+}

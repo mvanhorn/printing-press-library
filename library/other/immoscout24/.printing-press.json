@@ -1,0 +1,105 @@
+{
+  "schema_version": 2,
+  "generated_at": "2026-07-03T18:50:15.989574025Z",
+  "printing_press_version": "4.27.1",
+  "api_name": "immoscout24",
+  "display_name": "ImmoScout24",
+  "cli_name": "immoscout24-pp-cli",
+  "creator": {
+    "handle": "Elandrya2711",
+    "name": "Thilo"
+  },
+  "owner": "elandrya2711",
+  "printer": "Elandrya2711",
+  "printer_name": "Thilo",
+  "spec_path": "immoscout24-mobile-openapi.yaml",
+  "spec_format": "openapi3",
+  "spec_checksum": "sha256:93c900ac47b5791defa6ff740678aa648573265242e67668382ed0b7ca03ab63",
+  "run_id": "20260703-202702-8d004d3c",
+  "category": "other",
+  "description": "Search ImmoScout24 through the replayable mobile JSON API, not brittle blocked HTML.",
+  "mcp_binary": "immoscout24-pp-mcp",
+  "mcp_tool_count": 15,
+  "mcp_public_tool_count": 15,
+  "mcp_ready": "full",
+  "api_version": "0.1.0",
+  "auth_type": "none",
+  "novel_features": [
+    {
+      "name": "Mobile search counts",
+      "command": "immoscout24-mobile-search total",
+      "description": "Count matching ImmoScout24 mobile listings before paging through results."
+    },
+    {
+      "name": "Listing cards from mobile JSON",
+      "command": "immoscout24-mobile-search list",
+      "description": "Fetch listing cards with IDs, titles, address snippets, prices, room counts, thumbnails, and shareable expose links."
+    },
+    {
+      "name": "Map marker paging",
+      "command": "immoscout24-mobile-search map",
+      "description": "Retrieve map markers and paging metadata for broad regional searches."
+    },
+    {
+      "name": "Expose section inspection",
+      "command": "expose",
+      "description": "Inspect detailed mobile expose sections for a real listing ID."
+    },
+    {
+      "name": "Expose text and media inspection",
+      "command": "expose inspect",
+      "description": "Extract grouped expose text sections plus deduplicated property image/media URLs and separately detected floorplans for careful property review."
+    },
+    {
+      "name": "ImmoScout24 link translation",
+      "command": "translate-url",
+      "description": "Convert between ImmoScout24 web links, mobile API URLs, expose IDs, and CLI commands."
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Mobile search counts",
+      "command": "immoscout24-mobile-search total",
+      "description": "Count matching ImmoScout24 mobile listings before paging through results."
+    },
+    {
+      "name": "Listing cards from mobile JSON",
+      "command": "immoscout24-mobile-search list",
+      "description": "Fetch listing cards with IDs, titles, address snippets, prices, room counts, thumbnails, and shareable expose links."
+    },
+    {
+      "name": "Map marker paging",
+      "command": "immoscout24-mobile-search map",
+      "description": "Retrieve map markers and paging metadata for broad regional searches."
+    },
+    {
+      "name": "Expose section inspection",
+      "command": "expose",
+      "description": "Inspect detailed mobile expose sections for a real listing ID."
+    },
+    {
+      "name": "Expose text and media inspection",
+      "command": "expose inspect",
+      "description": "Extract grouped expose text sections plus deduplicated property image/media URLs and separately detected floorplans for careful property review."
+    },
+    {
+      "name": "ImmoScout24 link translation",
+      "command": "translate-url",
+      "description": "Convert between ImmoScout24 web links, mobile API URLs, expose IDs, and CLI commands."
+    }
+  ],
+  "verify": {
+    "mode": "mock",
+    "pass_rate": 100,
+    "passed": 17,
+    "total": 17,
+    "verdict": "PASS"
+  },
+  "scorecard": {
+    "steinberger": {
+      "percentage": 86,
+      "grade": "A",
+      "total": 86
+    }
+  }
+}

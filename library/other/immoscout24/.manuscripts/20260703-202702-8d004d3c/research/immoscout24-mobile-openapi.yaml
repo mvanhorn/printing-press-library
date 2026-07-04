@@ -1,0 +1,380 @@
+openapi: 3.0.3
+category: other
+info:
+  title: ImmoScout24 Mobile API
+  version: "0.1.0"
+  description: Unofficial, replayable mobile JSON surface for searching ImmobilienScout24 listings and retrieving expose details. This spec is based on public reverse-engineering notes, open-source clients, and live no-auth probes against api.mobile.immobilienscout24.de.
+  x-cli-description: Search ImmoScout24 listings through the mobile JSON API with local sync, filtering, and expose detail workflows.
+servers:
+  - url: https://api.mobile.immobilienscout24.de
+security: []
+tags:
+  - name: mobile-search
+    description: Search and count listing results through the mobile JSON API.
+  - name: expose
+    description: Retrieve expose detail records.
+paths:
+  /search/total:
+    get:
+      operationId: searchTotal
+      tags: [mobile-search]
+      summary: Count listings for a search query
+      description: Returns the total number of listings matching a mobile search query.
+      parameters:
+        - $ref: "#/components/parameters/SearchType"
+        - $ref: "#/components/parameters/RealEstateTypeLower"
+        - $ref: "#/components/parameters/PriceTypeLower"
+        - $ref: "#/components/parameters/GeoCodes"
+        - $ref: "#/components/parameters/GeoCoordinates"
+        - $ref: "#/components/parameters/Shape"
+        - $ref: "#/components/parameters/Price"
+        - $ref: "#/components/parameters/LivingSpace"
+        - $ref: "#/components/parameters/NumberOfRooms"
+        - $ref: "#/components/parameters/Sorting"
+        - $ref: "#/components/parameters/FullText"
+      responses:
+        "200":
+          description: Total count response.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SearchTotalResponse"
+  /search/list:
+    post:
+      operationId: searchList
+      tags: [mobile-search]
+      summary: List listings for a search query
+      description: Retrieves listing cards for a mobile search query. Use a small pagesize and respect rate limits.
+      parameters:
+        - $ref: "#/components/parameters/SearchType"
+        - $ref: "#/components/parameters/RealEstateTypeLower"
+        - $ref: "#/components/parameters/PriceTypeLower"
+        - $ref: "#/components/parameters/GeoCodes"
+        - $ref: "#/components/parameters/GeoCoordinates"
+        - $ref: "#/components/parameters/Shape"
+        - $ref: "#/components/parameters/PageNumber"
+        - $ref: "#/components/parameters/PageSize"
+        - $ref: "#/components/parameters/Price"
+        - $ref: "#/components/parameters/LivingSpace"
+        - $ref: "#/components/parameters/NumberOfRooms"
+        - $ref: "#/components/parameters/Sorting"
+        - $ref: "#/components/parameters/Features"
+        - $ref: "#/components/parameters/Channel"
+        - $ref: "#/components/parameters/PublishedAfter"
+        - $ref: "#/components/parameters/FullText"
+        - $ref: "#/components/parameters/Equipment"
+        - $ref: "#/components/parameters/ApartmentTypes"
+        - $ref: "#/components/parameters/BuildingTypes"
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SearchListRequest"
+            example:
+              supportedResultListTypes: []
+              userData: {}
+      responses:
+        "200":
+          description: Listing-card response.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SearchListResponse"
+  /search/map/v3:
+    get:
+      operationId: searchMap
+      tags: [mobile-search]
+      summary: Retrieve map markers for a search query
+      description: Returns map markers and paging metadata for broad searches.
+      parameters:
+        - $ref: "#/components/parameters/SearchType"
+        - $ref: "#/components/parameters/RealEstateTypeCamel"
+        - $ref: "#/components/parameters/GeoCodes"
+        - $ref: "#/components/parameters/GeoCoordinates"
+        - $ref: "#/components/parameters/Shape"
+        - $ref: "#/components/parameters/PageNumber"
+        - $ref: "#/components/parameters/PageSize"
+        - $ref: "#/components/parameters/Sorting"
+        - $ref: "#/components/parameters/Features"
+        - $ref: "#/components/parameters/PublishedAfter"
+      responses:
+        "200":
+          description: Map marker response.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SearchMapResponse"
+  /expose/{id}:
+    get:
+      operationId: getExpose
+      tags: [expose]
+      summary: Retrieve an expose detail record
+      description: Returns detailed sections, media, contact metadata, map information, and tracking fields for an expose ID.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: ImmoScout24 expose/listing ID.
+      responses:
+        "200":
+          description: Expose detail response.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ExposeResponse"
+        "404":
+          description: Expose not found or no longer active.
+components:
+  parameters:
+    SearchType:
+      name: searchType
+      in: query
+      schema:
+        type: string
+        enum: [region, radius, shape]
+        default: region
+      description: Search mode used by the mobile API.
+    RealEstateTypeLower:
+      name: realestatetype
+      in: query
+      schema:
+        type: string
+        enum: [apartmentrent, apartmentbuy, houserent, housebuy]
+        default: apartmentrent
+      description: Lowercase mobile API real-estate type.
+    RealEstateTypeCamel:
+      name: realEstateType
+      in: query
+      schema:
+        type: string
+        enum: [apartmentrent, apartmentbuy, houserent, housebuy]
+        default: apartmentrent
+      description: Camel-case spelling used by map endpoints.
+    PriceTypeLower:
+      name: pricetype
+      in: query
+      schema:
+        type: string
+        enum: [calculatedtotalrent, rentpermonth, purchaseprice]
+        default: calculatedtotalrent
+      description: Price interpretation. For rent, calculatedtotalrent is warm rent.
+    GeoCodes:
+      name: geocodes
+      in: query
+      schema:
+        type: string
+        example: /de/berlin/berlin
+      description: Region path, for example /de/berlin/berlin.
+    GeoCoordinates:
+      name: geocoordinates
+      in: query
+      schema:
+        type: string
+        example: "52.520008;13.404954;5.0"
+      description: Radius search coordinates as latitude;longitude;radiusKm.
+    Shape:
+      name: shape
+      in: query
+      schema:
+        type: string
+      description: Encoded polyline shape for shape searches.
+    PageNumber:
+      name: pagenumber
+      in: query
+      schema:
+        type: integer
+        minimum: 1
+        default: 1
+      description: One-based page number.
+    PageSize:
+      name: pagesize
+      in: query
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 300
+        default: 20
+      description: Page size. Keep small for list views; map endpoints commonly use up to 300.
+    Price:
+      name: price
+      in: query
+      schema:
+        type: string
+        example: "500-1500"
+      description: Price range. Use start-end, start-, or -end.
+    LivingSpace:
+      name: livingspace
+      in: query
+      schema:
+        type: string
+        example: "40-120"
+      description: Living-space range in square meters.
+    NumberOfRooms:
+      name: numberofrooms
+      in: query
+      schema:
+        type: string
+        example: "2-"
+      description: Room-count range.
+    Sorting:
+      name: sorting
+      in: query
+      schema:
+        type: string
+        default: standard
+        example: -firstactivation
+      description: Sort order, for example standard or -firstactivation.
+    Features:
+      name: features
+      in: query
+      schema:
+        type: string
+        example: adKeysAndStringValues,virtualTour,contactDetails,nextgen,calculatedTotalRent
+      description: Comma-separated mobile feature flags.
+    Channel:
+      name: channel
+      in: query
+      schema:
+        type: string
+        default: is24
+      description: Channel, usually is24.
+    PublishedAfter:
+      name: publishedafter
+      in: query
+      schema:
+        type: string
+        format: date-time
+      description: Lower bound for publication date.
+    FullText:
+      name: fulltext
+      in: query
+      schema:
+        type: string
+      description: Full-text query term.
+    Equipment:
+      name: equipment
+      in: query
+      schema:
+        type: string
+        example: balcony,builtInKitchen
+      description: Comma-separated equipment filters.
+    ApartmentTypes:
+      name: apartmenttypes
+      in: query
+      schema:
+        type: string
+      description: Comma-separated apartment type filters.
+    BuildingTypes:
+      name: buildingtypes
+      in: query
+      schema:
+        type: string
+      description: Comma-separated building type filters.
+  schemas:
+    SearchTotalResponse:
+      type: object
+      additionalProperties: true
+      properties:
+        totalResults:
+          type: integer
+    SearchListRequest:
+      type: object
+      additionalProperties: true
+      properties:
+        supportedResultListTypes:
+          type: array
+          items:
+            type: string
+        userData:
+          type: object
+          additionalProperties: true
+    SearchListResponse:
+      type: object
+      additionalProperties: true
+      properties:
+        totalResults:
+          type: integer
+        numberOfListings:
+          type: integer
+        numberOfPages:
+          type: integer
+        pageNumber:
+          type: integer
+        pageSize:
+          type: integer
+        searchId:
+          type: string
+        resultListItems:
+          type: array
+          items:
+            $ref: "#/components/schemas/SearchResultListItem"
+    SearchResultListItem:
+      type: object
+      additionalProperties: true
+      properties:
+        type:
+          type: string
+        item:
+          $ref: "#/components/schemas/ListingCard"
+    ListingCard:
+      type: object
+      additionalProperties: true
+      properties:
+        id:
+          type: string
+        title:
+          type: string
+        realEstateType:
+          type: string
+        published:
+          type: string
+        address:
+          type: object
+          additionalProperties: true
+          properties:
+            line:
+              type: string
+            lat:
+              type: number
+            lon:
+              type: number
+            postcode:
+              type: string
+        attributes:
+          type: array
+          items:
+            type: object
+            additionalProperties: true
+    SearchMapResponse:
+      type: object
+      additionalProperties: true
+      properties:
+        markers:
+          type: array
+          items:
+            type: object
+            additionalProperties: true
+        paging:
+          type: object
+          additionalProperties: true
+    ExposeResponse:
+      type: object
+      additionalProperties: true
+      properties:
+        header:
+          type: object
+          additionalProperties: true
+        sections:
+          type: array
+          items:
+            type: object
+            additionalProperties: true
+        contact:
+          type: object
+          additionalProperties: true
+        tracking:
+          type: object
+          additionalProperties: true

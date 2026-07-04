@@ -1,0 +1,28 @@
+{
+  "schema_version": 2,
+  "id": "immoscout24-link-and-expose-inspection",
+  "applied_at": "2026-07-03",
+  "base_run_id": "20260703-202702-8d004d3c",
+  "base_printing_press_version": "4.27.1",
+  "summary": "feat(immoscout24): add link translation and recursive expose text/media inspection",
+  "reason": "Apartment-search workflows need to translate shared ImmoScout24 links into replayable mobile API calls, send web links back to users, and inspect expose text plus images before recommending listings.",
+  "files": [
+    ".printing-press.json",
+    "README.md",
+    "SKILL.md",
+    "internal/cli/expose_inspect.go",
+    "internal/cli/expose_inspect_test.go",
+    "internal/cli/immoscout24-mobile-search_list.go",
+    "internal/cli/immoscout_links.go",
+    "internal/cli/promoted_expose.go",
+    "internal/cli/root.go",
+    "internal/cli/translate_url.go",
+    "internal/cli/which.go"
+  ],
+  "validated_outcome": "go test ./... passed; cli-printing-press shipcheck passed 7/7; live search around Kriftel/Hattersheim/Hofheim returned 8 listings with web_url fields; expose inspect returned deduplicated property media only (168376945: 29 images, bad_assets=0; 168983602: 11 images, bad_assets=0)",
+  "findings_addressed": [
+    "Generate web/mobile/CLI links in both directions",
+    "Surface shareable web expose links in search result cards",
+    "Extract all expose texts, image URLs, and non-image links for careful listing review"
+  ]
+}

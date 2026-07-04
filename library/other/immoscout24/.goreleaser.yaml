@@ -1,0 +1,51 @@
+version: 2
+project_name: immoscout24-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: immoscout24-pp-cli
+    main: ./cmd/immoscout24-pp-cli
+    binary: immoscout24-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X github.com/mvanhorn/printing-press-library/library/other/immoscout24/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: immoscout24-pp-mcp
+    main: ./cmd/immoscout24-pp-mcp
+    binary: immoscout24-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X main.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: immoscout24-pp-cli
+    repository:
+      owner: elandrya2711
+      name: homebrew-tap
+    homepage: "https://github.com/mvanhorn/printing-press-library"
+    description: "Search ImmoScout24 through the replayable mobile JSON API, not brittle blocked HTML."
+    install: |
+      bin.install "immoscout24-pp-cli"
+      bin.install "immoscout24-pp-mcp"

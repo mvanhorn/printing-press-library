@@ -1,0 +1,39 @@
+{
+  "schema_version": 2,
+  "id": "immoscout24-cli-polish-live-search-and-mcp-surface",
+  "applied_at": "2026-07-04",
+  "base_run_id": "20260703-202702-8d004d3c",
+  "base_printing_press_version": "4.27.1",
+  "summary": "fix(immoscout24): align live search, output envelopes, and MCP surface",
+  "reason": "A holistic pass after grouped expose texts found that the generic search command was posting an invalid mobile search payload, expose inspect JSON output was shaped differently from endpoint reads, total/map emitted noisy cache warnings, version ignored --json, and MCP metadata did not reflect runtime command-mirror tools.",
+  "files": [
+    ".printing-press.json",
+    "README.md",
+    "SKILL.md",
+    "internal/cli/expose_inspect.go",
+    "internal/cli/expose_inspect_test.go",
+    "internal/cli/immoscout24-mobile-search_map.go",
+    "internal/cli/immoscout24-mobile-search_total.go",
+    "internal/cli/immoscout_mobile_search_params_test.go",
+    "internal/cli/root.go",
+    "internal/cli/search.go",
+    "internal/cli/search_output_test.go",
+    "internal/cli/version.go",
+    "internal/mcp/tools.go",
+    "internal/mcp/tools_test.go"
+  ],
+  "validated_outcome": "go test ./... passed; go vet ./... passed; git diff --check passed; live expose inspect 168983602 returned meta.source=live and grouped text titles/items under results.texts; live expose inspect 168685497 returned floorplan_document_count=1 with Grundrisse IS24.pdf; legacy expose inspect --select id,texts.value returned results.id and text item values; live search balkon --agent --geocodes /de/berlin/berlin returned a single live envelope with no nested meta and web_url on the first item; live search with --realestatetype nope exited non-zero on HTTP 412 instead of falling back to local results; live search without a scope exits 2 with an actionable scope error; total/map live commands completed with empty stderr; version --json returned a parseable name/version object; Python MCP client listed 15 tools including expose_inspect and translate_url, and context reported tool_count=15; cli-printing-press dogfood PASS; verify PASS 17/17; workflow-verify workflow-pass; verify-skill reported no findings; scorecard stayed A/86; tools-audit returned null findings; shipcheck passed 7/7.",
+  "findings_addressed": [
+    "Expose inspect JSON now uses the same meta/results provenance envelope as endpoint reads",
+    "Expose inspect maps legacy direct --select fields such as id,texts.value to the enveloped grouped-text shape",
+    "Expose inspect surfaces floorplan PDF documents separately via floorplan_document_count and floorplan_documents",
+    "Generic search now calls the mobile /search/list endpoint with fulltext plus an explicit region/radius/shape scope instead of a synthetic q body",
+    "Generic live search reuses listing link enrichment so hits include web URLs and replayable expose inspect commands",
+    "Generic search --agent no longer double-wraps live results with an outer local provenance envelope",
+    "Generic search auto mode falls back to local only for network errors, not HTTP validation errors",
+    "Live total and map helper commands no longer try to cache ID-less aggregate responses",
+    "The version command honors --json and --agent",
+    "MCP runtime metadata reflects the command-mirror surface and keeps expose_inspect visible",
+    "Agent-facing docs and examples use real expose IDs and results.* select paths for enveloped output"
+  ]
+}

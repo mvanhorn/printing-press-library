@@ -1,0 +1,196 @@
+{
+  "api_name": "immoscout24",
+  "novelty_score": 7,
+  "alternatives": [
+    {
+      "name": "Fredy",
+      "url": "https://github.com/orangecoding/fredy",
+      "language": "JavaScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 3,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "ImmoScout",
+      "url": "https://github.com/wiestju/ImmoScout",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 2,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [
+    "The generated surface covers confirmed mobile endpoints plus hand-coded link translation and expose media inspection. Higher-level watch monitoring remains a future follow-up."
+  ],
+  "patterns": [
+    "mobile-json-api",
+    "no-auth-read"
+  ],
+  "recommendation": "proceed",
+  "researched_at": "2026-07-03T20:27:02+02:00",
+  "novel_features": [
+    {
+      "name": "Mobile search counts",
+      "command": "immoscout24-mobile-search total",
+      "description": "Count matching ImmoScout24 mobile listings before paging through results.",
+      "rationale": "Uses the replayable mobile JSON endpoint rather than blocked website HTML.",
+      "example": "immoscout24-pp-cli immoscout24-mobile-search total --geocodes /de/berlin/berlin --realestatetype apartmentrent --pricetype calculatedtotalrent --json --select results.totalResults",
+      "why_it_matters": "Use this first to understand query size and avoid unnecessarily paging broad searches.",
+      "group": "Mobile JSON search"
+    },
+    {
+      "name": "Listing cards from mobile JSON",
+      "command": "immoscout24-mobile-search list",
+      "description": "Fetch listing cards with IDs, titles, address snippets, prices, room counts, thumbnails, and shareable expose links.",
+      "rationale": "Replays the mobile list endpoint with bounded pagesize and agent-friendly JSON selection.",
+      "example": "immoscout24-pp-cli immoscout24-mobile-search list --geocodes /de/berlin/berlin --realestatetype apartmentrent --pricetype calculatedtotalrent --pagesize 1 --json --select results.resultListItems.item.id,results.resultListItems.item.title,results.resultListItems.item.web_url",
+      "why_it_matters": "Use this when an agent needs real listing IDs and summaries to inspect or compare.",
+      "group": "Mobile JSON search"
+    },
+    {
+      "name": "Map marker paging",
+      "command": "immoscout24-mobile-search map",
+      "description": "Retrieve map markers and paging metadata for broad regional searches.",
+      "rationale": "Keeps geo overview data in structured JSON without scraping client-rendered map pages.",
+      "example": "immoscout24-pp-cli immoscout24-mobile-search map --geocodes /de/berlin/berlin --real-estate-type apartmentrent --pagesize 2 --json --select results.paging.numberOfHits,results.markers.type",
+      "why_it_matters": "Use this to estimate geographic spread and map hit counts before fetching details.",
+      "group": "Mobile JSON search"
+    },
+    {
+      "name": "Expose section inspection",
+      "command": "expose",
+      "description": "Inspect detailed mobile expose sections for a real listing ID.",
+      "rationale": "The mobile expose endpoint returns structured sections, contact metadata, map data, and service blocks.",
+      "example": "immoscout24-pp-cli expose 168983602 --json --compact",
+      "why_it_matters": "Use this after listing search when an agent needs detail sections for one property.",
+      "group": "Expose details"
+    },
+    {
+      "name": "Expose text and media inspection",
+      "command": "expose inspect",
+      "description": "Extract all expose text values plus deduplicated property image/media URLs for careful property review.",
+      "rationale": "Recursively walks the mobile expose JSON while keeping images scoped to listing media, excluding logos and service artwork.",
+      "example": "immoscout24-pp-cli expose inspect 168983602 --json --select id,web_url,text_count,image_count,images.render_url",
+      "why_it_matters": "Use this when an agent must inspect wording, amenities, captions, pictures, floorplans, and other media before recommending a property.",
+      "group": "Expose details"
+    },
+    {
+      "name": "ImmoScout24 link translation",
+      "command": "translate-url",
+      "description": "Convert between ImmoScout24 web links, mobile API URLs, expose IDs, and CLI commands.",
+      "rationale": "Apartment-search workflows need both directions: ingest shared links and send web links back from CLI/API searches.",
+      "example": "immoscout24-pp-cli translate-url --search-type radius --geocoordinates '50.078;8.445;8' --realestatetype apartmentrent --pricetype calculatedtotalrent --price=-2500 --numberofrooms=3- --livingspace=100- --equipment=parking --fulltext modern --json --select web_url,mobile_urls.list,cli_commands.list",
+      "why_it_matters": "Use this to turn a shared web link into replayable mobile API calls, or turn CLI search parameters back into links you can send.",
+      "group": "Link translation"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Mobile search counts",
+      "command": "immoscout24-mobile-search total",
+      "description": "Count matching ImmoScout24 mobile listings before paging through results.",
+      "rationale": "Uses the replayable mobile JSON endpoint rather than blocked website HTML.",
+      "example": "immoscout24-pp-cli immoscout24-mobile-search total --geocodes /de/berlin/berlin --realestatetype apartmentrent --pricetype calculatedtotalrent --json --select results.totalResults",
+      "why_it_matters": "Use this first to understand query size and avoid unnecessarily paging broad searches.",
+      "group": "Mobile JSON search"
+    },
+    {
+      "name": "Listing cards from mobile JSON",
+      "command": "immoscout24-mobile-search list",
+      "description": "Fetch listing cards with IDs, titles, address snippets, prices, room counts, thumbnails, and shareable expose links.",
+      "rationale": "Replays the mobile list endpoint with bounded pagesize and agent-friendly JSON selection.",
+      "example": "immoscout24-pp-cli immoscout24-mobile-search list --geocodes /de/berlin/berlin --realestatetype apartmentrent --pricetype calculatedtotalrent --pagesize 1 --json --select results.resultListItems.item.id,results.resultListItems.item.title,results.resultListItems.item.web_url",
+      "why_it_matters": "Use this when an agent needs real listing IDs and summaries to inspect or compare.",
+      "group": "Mobile JSON search"
+    },
+    {
+      "name": "Map marker paging",
+      "command": "immoscout24-mobile-search map",
+      "description": "Retrieve map markers and paging metadata for broad regional searches.",
+      "rationale": "Keeps geo overview data in structured JSON without scraping client-rendered map pages.",
+      "example": "immoscout24-pp-cli immoscout24-mobile-search map --geocodes /de/berlin/berlin --real-estate-type apartmentrent --pagesize 2 --json --select results.paging.numberOfHits,results.markers.type",
+      "why_it_matters": "Use this to estimate geographic spread and map hit counts before fetching details.",
+      "group": "Mobile JSON search"
+    },
+    {
+      "name": "Expose section inspection",
+      "command": "expose",
+      "description": "Inspect detailed mobile expose sections for a real listing ID.",
+      "rationale": "The mobile expose endpoint returns structured sections, contact metadata, map data, and service blocks.",
+      "example": "immoscout24-pp-cli expose 168983602 --json --compact",
+      "why_it_matters": "Use this after listing search when an agent needs detail sections for one property.",
+      "group": "Expose details"
+    },
+    {
+      "name": "Expose text and media inspection",
+      "command": "expose inspect",
+      "description": "Extract all expose text values plus deduplicated property image/media URLs for careful property review.",
+      "rationale": "Recursively walks the mobile expose JSON while keeping images scoped to listing media, excluding logos and service artwork.",
+      "example": "immoscout24-pp-cli expose inspect 168983602 --json --select id,web_url,text_count,image_count,images.render_url",
+      "why_it_matters": "Use this when an agent must inspect wording, amenities, captions, pictures, floorplans, and other media before recommending a property.",
+      "group": "Expose details"
+    },
+    {
+      "name": "ImmoScout24 link translation",
+      "command": "translate-url",
+      "description": "Convert between ImmoScout24 web links, mobile API URLs, expose IDs, and CLI commands.",
+      "rationale": "Apartment-search workflows need both directions: ingest shared links and send web links back from CLI/API searches.",
+      "example": "immoscout24-pp-cli translate-url --search-type radius --geocoordinates '50.078;8.445;8' --realestatetype apartmentrent --pricetype calculatedtotalrent --price=-2500 --numberofrooms=3- --livingspace=100- --equipment=parking --fulltext modern --json --select web_url,mobile_urls.list,cli_commands.list",
+      "why_it_matters": "Use this to turn a shared web link into replayable mobile API calls, or turn CLI search parameters back into links you can send.",
+      "group": "Link translation"
+    }
+  ],
+  "auth": {},
+  "narrative": {
+    "display_name": "ImmoScout24",
+    "headline": "Search ImmoScout24 through the replayable mobile JSON API, not brittle blocked HTML.",
+    "value_prop": "Use the mobile JSON surface behind ImmoScout24 to count searches, list fresh listing cards, retrieve map markers, and inspect expose details. The CLI keeps responses agent-friendly with JSON, selection, bounded paging, and local sync conventions.",
+    "quickstart": [
+      {
+        "command": "immoscout24-pp-cli doctor --dry-run",
+        "comment": "Verify the CLI is installed without making a network call"
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "Direct website requests return CloudFront 401",
+        "fix": "Use the generated mobile API commands; do not scrape the HTML website transport."
+      },
+      {
+        "symptom": "A search returns no listings",
+        "fix": "Check that the region path starts with /de/ and that realestatetype matches one of apartmentrent, apartmentbuy, houserent, or housebuy."
+      }
+    ],
+    "when_to_use": "Use this CLI when a task needs ImmoScout24 listing search, expose detail inspection, or repeatable apartment-hunt monitoring from agent workflows. Prefer it over website scraping because the mobile JSON API is replayable and structured.",
+    "anti_triggers": [
+      "Do not use this CLI to bypass paywalls, CAPTCHA, login gates, or contact restrictions.",
+      "Do not use this CLI for official business listing insertion/export workflows that require ImmoScout24 OAuth credentials.",
+      "Do not use this CLI for high-volume scraping or proxy rotation."
+    ],
+    "recipes": [
+      {
+        "title": "Check install health",
+        "command": "immoscout24-pp-cli doctor --dry-run --agent",
+        "explanation": "Run a no-network health check in agent-friendly mode."
+      },
+      {
+        "title": "Search around Kriftel, Hattersheim, and Hofheim",
+        "command": "immoscout24-pp-cli immoscout24-mobile-search list --search-type radius --geocoordinates '50.078;8.445;8' --realestatetype apartmentrent --pricetype calculatedtotalrent --price=-2500 --numberofrooms=3- --livingspace=100- --equipment=parking --fulltext modern --pagesize 20 --json --select results.resultListItems.item.id,results.resultListItems.item.title,results.resultListItems.item.attributes,results.resultListItems.item.web_url",
+        "explanation": "Use this for a rental apartment search near Kriftel/Hattersheim/Hofheim with at least 3 rooms, at least 100 sqm, warm rent below 2500 EUR, and a fixed parking-space filter. Then inspect candidate exposes for kitchen layout and modern condition with: immoscout24-pp-cli expose inspect <id> --json --select web_url,text_count,image_count,texts.value,images.render_url"
+      }
+    ],
+    "trigger_phrases": [
+      "search ImmoScout24",
+      "find apartments on ImmobilienScout24",
+      "check this ImmoScout expose",
+      "use immoscout24",
+      "run immoscout24"
+    ]
+  }
+}

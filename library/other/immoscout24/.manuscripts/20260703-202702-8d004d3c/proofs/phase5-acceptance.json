@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "api_name": "immoscout24",
+  "run_id": "20260703-202702-8d004d3c",
+  "status": "pass",
+  "level": "full",
+  "matrix_size": 44,
+  "tests_passed": 44,
+  "tests_skipped": 25,
+  "auth_context": {
+    "type": "none"
+  }
+}

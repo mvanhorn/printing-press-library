@@ -1,0 +1,308 @@
+{
+  "api_name": "immoscout24",
+  "base_url": "https://api.mobile.immobilienscout24.de",
+  "description": "Search ImmoScout24 through the replayable mobile JSON API, not brittle blocked HTML.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "none"
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "expose_get",
+      "description": "Returns detailed sections, media, contact metadata, map information, and tracking fields for an expose ID. Required: id.",
+      "method": "GET",
+      "path": "/expose/{id}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "ImmoScout24 expose/listing ID.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "immoscout24-mobile-search_list",
+      "description": "Retrieves listing cards for a mobile search query. Use a small pagesize and respect rate limits. Optional: searchType (default: region), realestatetype (default: apartmentrent), pricetype (default: calculatedtotalrent) (plus 18 more). Returns array of SearchResultListItem.",
+      "method": "POST",
+      "path": "/search/list",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "searchType",
+          "type": "string",
+          "location": "query",
+          "description": "Search mode used by the mobile API."
+        },
+        {
+          "name": "realestatetype",
+          "type": "string",
+          "location": "query",
+          "description": "Lowercase mobile API real-estate type."
+        },
+        {
+          "name": "pricetype",
+          "type": "string",
+          "location": "query",
+          "description": "Price interpretation. For rent, calculatedtotalrent is warm rent."
+        },
+        {
+          "name": "geocodes",
+          "type": "string",
+          "location": "query",
+          "description": "Region path, for example /de/berlin/berlin."
+        },
+        {
+          "name": "geocoordinates",
+          "type": "string",
+          "location": "query",
+          "description": "Radius search coordinates as latitude;longitude;radiusKm."
+        },
+        {
+          "name": "shape",
+          "type": "string",
+          "location": "query",
+          "description": "Encoded polyline shape for shape searches."
+        },
+        {
+          "name": "pagenumber",
+          "type": "int",
+          "location": "query",
+          "description": "One-based page number."
+        },
+        {
+          "name": "pagesize",
+          "type": "int",
+          "location": "query",
+          "description": "Page size. Keep small for list views; map endpoints commonly use up to 300."
+        },
+        {
+          "name": "price",
+          "type": "string",
+          "location": "query",
+          "description": "Price range. Use start-end, start-, or -end."
+        },
+        {
+          "name": "livingspace",
+          "type": "string",
+          "location": "query",
+          "description": "Living-space range in square meters."
+        },
+        {
+          "name": "numberofrooms",
+          "type": "string",
+          "location": "query",
+          "description": "Room-count range."
+        },
+        {
+          "name": "sorting",
+          "type": "string",
+          "location": "query",
+          "description": "Sort order, for example standard or -firstactivation."
+        },
+        {
+          "name": "features",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated mobile feature flags."
+        },
+        {
+          "name": "channel",
+          "type": "string",
+          "location": "query",
+          "description": "Channel, usually is24."
+        },
+        {
+          "name": "publishedafter",
+          "type": "string",
+          "location": "query",
+          "description": "Lower bound for publication date."
+        },
+        {
+          "name": "fulltext",
+          "type": "string",
+          "location": "query",
+          "description": "Full-text query term."
+        },
+        {
+          "name": "equipment",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated equipment filters."
+        },
+        {
+          "name": "apartmenttypes",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated apartment type filters."
+        },
+        {
+          "name": "buildingtypes",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated building type filters."
+        },
+        {
+          "name": "supportedResultListTypes",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Supported result list types"
+        },
+        {
+          "name": "userData",
+          "type": "object",
+          "location": "body",
+          "description": "User data"
+        }
+      ]
+    },
+    {
+      "name": "immoscout24-mobile-search_map",
+      "description": "Returns map markers and paging metadata for broad searches. Optional: searchType (default: region), realEstateType (default: apartmentrent), geocodes (plus 7 more).",
+      "method": "GET",
+      "path": "/search/map/v3",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "searchType",
+          "type": "string",
+          "location": "query",
+          "description": "Search mode used by the mobile API."
+        },
+        {
+          "name": "realEstateType",
+          "type": "string",
+          "location": "query",
+          "description": "Camel-case spelling used by map endpoints."
+        },
+        {
+          "name": "geocodes",
+          "type": "string",
+          "location": "query",
+          "description": "Region path, for example /de/berlin/berlin."
+        },
+        {
+          "name": "geocoordinates",
+          "type": "string",
+          "location": "query",
+          "description": "Radius search coordinates as latitude;longitude;radiusKm."
+        },
+        {
+          "name": "shape",
+          "type": "string",
+          "location": "query",
+          "description": "Encoded polyline shape for shape searches."
+        },
+        {
+          "name": "pagenumber",
+          "type": "int",
+          "location": "query",
+          "description": "One-based page number."
+        },
+        {
+          "name": "pagesize",
+          "type": "int",
+          "location": "query",
+          "description": "Page size. Keep small for list views; map endpoints commonly use up to 300."
+        },
+        {
+          "name": "sorting",
+          "type": "string",
+          "location": "query",
+          "description": "Sort order, for example standard or -firstactivation."
+        },
+        {
+          "name": "features",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated mobile feature flags."
+        },
+        {
+          "name": "publishedafter",
+          "type": "string",
+          "location": "query",
+          "description": "Lower bound for publication date."
+        }
+      ]
+    },
+    {
+      "name": "immoscout24-mobile-search_total",
+      "description": "Returns the total number of listings matching a mobile search query. Optional: searchType (default: region), realestatetype (default: apartmentrent), pricetype (default: calculatedtotalrent) (plus 8 more).",
+      "method": "GET",
+      "path": "/search/total",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "searchType",
+          "type": "string",
+          "location": "query",
+          "description": "Search mode used by the mobile API."
+        },
+        {
+          "name": "realestatetype",
+          "type": "string",
+          "location": "query",
+          "description": "Lowercase mobile API real-estate type."
+        },
+        {
+          "name": "pricetype",
+          "type": "string",
+          "location": "query",
+          "description": "Price interpretation. For rent, calculatedtotalrent is warm rent."
+        },
+        {
+          "name": "geocodes",
+          "type": "string",
+          "location": "query",
+          "description": "Region path, for example /de/berlin/berlin."
+        },
+        {
+          "name": "geocoordinates",
+          "type": "string",
+          "location": "query",
+          "description": "Radius search coordinates as latitude;longitude;radiusKm."
+        },
+        {
+          "name": "shape",
+          "type": "string",
+          "location": "query",
+          "description": "Encoded polyline shape for shape searches."
+        },
+        {
+          "name": "price",
+          "type": "string",
+          "location": "query",
+          "description": "Price range. Use start-end, start-, or -end."
+        },
+        {
+          "name": "livingspace",
+          "type": "string",
+          "location": "query",
+          "description": "Living-space range in square meters."
+        },
+        {
+          "name": "numberofrooms",
+          "type": "string",
+          "location": "query",
+          "description": "Room-count range."
+        },
+        {
+          "name": "sorting",
+          "type": "string",
+          "location": "query",
+          "description": "Sort order, for example standard or -firstactivation."
+        },
+        {
+          "name": "fulltext",
+          "type": "string",
+          "location": "query",
+          "description": "Full-text query term."
+        }
+      ]
+    }
+  ]
+}

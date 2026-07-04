@@ -1,0 +1,24 @@
+{
+  "schema_version": 2,
+  "id": "immoscout24-floorplan-expose-inspection",
+  "applied_at": "2026-07-03",
+  "base_run_id": "20260703-202702-8d004d3c",
+  "base_printing_press_version": "4.27.1",
+  "summary": "feat(immoscout24): expose floorplans separately from listing photos",
+  "reason": "Apartment-search workflows need floorplans to judge room layout and whether the kitchen is separated from the living area. ImmoScout24 mobile exposes often represent floorplans as normal PICTURE media with captions such as Grundriss, so agents need a separate extracted floorplans field instead of scanning every image manually.",
+  "files": [
+    ".printing-press.json",
+    "README.md",
+    "SKILL.md",
+    "internal/cli/expose_inspect.go",
+    "internal/cli/expose_inspect_test.go",
+    "internal/cli/root.go",
+    "internal/cli/which.go"
+  ],
+  "validated_outcome": "go test ./... passed; cli-printing-press shipcheck passed 7/7; live expose inspect returned floorplan_count=1 with floorplans.render_url for 167947477, 168376945, 168633359, and 167901345, and floorplan_count=0 for listings without floorplan media such as 169007317 and 168902145.",
+  "findings_addressed": [
+    "Expose floorplan_count and floorplans in expose inspect output",
+    "Detect ImmoScout24 floorplans represented as PICTURE media with Grundriss/floorplan captions",
+    "Add --max-floorplans and documented select examples for apartment layout review"
+  ]
+}
