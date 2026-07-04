@@ -10,8 +10,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/mvanhorn/printing-press-library/library/sales-and-crm/workiz/internal/cliutil"
 	"github.com/spf13/cobra"
+	"github.com/mvanhorn/printing-press-library/library/sales-and-crm/workiz/internal/cliutil"
 )
 
 type funnelSource struct {
@@ -74,25 +74,8 @@ func newNovelLeadFunnelCmd(flags *rootFlags) *cobra.Command {
 				leads = filtered
 			}
 
-			// Match a lead to the job it likely became: same contact identity
-			// (email, or phone, or first+last name) and the job was created
-			// on or after the lead. Workiz exposes no direct convert-link
-			// field between the two resources.
 			matchJob := func(l wzLead) (wzJob, bool) {
-				leadCreated, _ := parseWorkizTime(l.CreatedDate)
-				for _, j := range jobs {
-					sameContact := (l.Email != "" && strings.EqualFold(l.Email, j.Email)) ||
-						(l.Phone != "" && l.Phone == j.Phone) ||
-						(l.FirstName != "" && l.LastName != "" && strings.EqualFold(l.FirstName, j.FirstName) && strings.EqualFold(l.LastName, j.LastName))
-					if !sameContact {
-						continue
-					}
-					if jobCreated, ok := parseWorkizTime(j.CreatedDate); ok && !leadCreated.IsZero() && jobCreated.Before(leadCreated) {
-						continue // job predates the lead; not a plausible conversion
-					}
-					return j, true
-				}
-				return wzJob{}, false
+				return matchLeadToJob(l, jobs)
 			}
 
 			type agg struct {
@@ -156,4 +139,39 @@ func newNovelLeadFunnelCmd(flags *rootFlags) *cobra.Command {
 	cmd.Flags().StringVar(&flagSince, "since", "", "Only include leads created since this duration ago (e.g. 30d, 24h, 1w)")
 	cmd.Flags().StringVar(&dbPath, "db", "", "Database path (default: ~/.local/share/workiz-pp-cli/data.db)")
 	return cmd
+}
+
+// matchLeadToJob finds the job a lead likely became: same contact identity
+// (email, or phone, or first+last name) and, when both dates are known, the
+// job was created on or after the lead. Workiz exposes no direct convert-link
+// field between the two resources, so this is a best-effort heuristic.
+//
+// Collects every contact-matching job rather than returning the first one
+// found: iteration order over synced jobs is not guaranteed chronological, so
+// an early-return could pick an arbitrary older job for a repeat customer.
+// When the lead's own CreatedDate can't be parsed, we can't rule out a
+// candidate by "predates the lead" — but we still pick deterministically
+// (the earliest-created match) rather than silently accepting whichever job
+// the loop happened to hit first.
+func matchLeadToJob(l wzLead, jobs []wzJob) (wzJob, bool) {
+	leadCreated, leadHasCreated := parseWorkizTime(l.CreatedDate)
+	var best wzJob
+	var bestCreated time.Time
+	found := false
+	for _, j := range jobs {
+		sameContact := (l.Email != "" && strings.EqualFold(l.Email, j.Email)) ||
+			(l.Phone != "" && l.Phone == j.Phone) ||
+			(l.FirstName != "" && l.LastName != "" && strings.EqualFold(l.FirstName, j.FirstName) && strings.EqualFold(l.LastName, j.LastName))
+		if !sameContact {
+			continue
+		}
+		jobCreated, jobHasCreated := parseWorkizTime(j.CreatedDate)
+		if leadHasCreated && jobHasCreated && jobCreated.Before(leadCreated) {
+			continue // job predates the lead; not a plausible conversion
+		}
+		if !found || (jobHasCreated && jobCreated.Before(bestCreated)) {
+			best, bestCreated, found = j, jobCreated, true
+		}
+	}
+	return best, found
 }

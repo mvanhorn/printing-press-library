@@ -5,9 +5,9 @@ package cli
 
 import (
 	"fmt"
-	"github.com/mvanhorn/printing-press-library/library/sales-and-crm/workiz/internal/config"
 	"github.com/spf13/cobra"
 	"os"
+	"github.com/mvanhorn/printing-press-library/library/sales-and-crm/workiz/internal/config"
 )
 
 func newAuthCmd(flags *rootFlags) *cobra.Command {
@@ -40,7 +40,7 @@ func newAuthSetupCmd(_ *rootFlags) *cobra.Command {
 			fmt.Fprintln(w, "")
 			fmt.Fprintln(w, "Then set:")
 			fmt.Fprintln(w, "  export WORKIZ_API_TOKEN=\"<your-token>\"")
-			fmt.Fprintln(w, "  export WORKIZ_API_SECRET=\"<your-token>\"")
+			fmt.Fprintln(w, "  export WORKIZ_API_SECRET=\"<your-secret>\"")
 			fmt.Fprintln(w, "  workiz-pp-cli auth set-token <token>")
 			if !launch {
 				return nil
@@ -90,7 +90,7 @@ func newAuthStatusCmd(flags *rootFlags) *cobra.Command {
 				fmt.Fprintln(w, "")
 				fmt.Fprintln(w, "Set your token:")
 				fmt.Fprintln(w, "  export WORKIZ_API_TOKEN=\"your-token-here\"")
-				fmt.Fprintln(w, "  export WORKIZ_API_SECRET=\"your-token-here\"")
+				fmt.Fprintln(w, "  export WORKIZ_API_SECRET=\"your-secret-here\"")
 				fmt.Fprintf(w, "  workiz-pp-cli auth set-token <token>\n")
 				return authErr(fmt.Errorf("no credentials configured"))
 			}

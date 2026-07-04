@@ -111,3 +111,25 @@ func TestDisplayBaseURLMasksToken(t *testing.T) {
 		t.Fatalf("DisplayBaseURL() = %q, want %q", got, want)
 	}
 }
+
+// TestAuthHeaderRequiresToken regression-tests a Greptile finding: AuthHeader()
+// used to fall back to returning WorkizApiSecret alone when the token was
+// absent, which made `auth status` report "credentials present" for a
+// secret-only config even though every real request would fail (the secret is
+// only ever sent as a POST-body field, never a header, and EffectiveBaseURL()
+// omits the required token path segment without a token).
+func TestAuthHeaderRequiresToken(t *testing.T) {
+	dir := t.TempDir()
+	path := filepath.Join(dir, "config.toml")
+	os.Unsetenv("WORKIZ_BASE_URL")
+	os.Unsetenv("WORKIZ_API_TOKEN")
+	t.Setenv("WORKIZ_API_SECRET", "onlysecretnoToken")
+
+	cfg, err := Load(path)
+	if err != nil {
+		t.Fatalf("Load: %v", err)
+	}
+	if got := cfg.AuthHeader(); got != "" {
+		t.Fatalf("AuthHeader() with secret but no token = %q, want empty (secret alone is not a usable credential)", got)
+	}
+}

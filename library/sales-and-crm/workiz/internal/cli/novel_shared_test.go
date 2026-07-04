@@ -148,3 +148,50 @@ func TestSnippetAroundUnicodePanicRegression(t *testing.T) {
 		t.Fatal("expected non-empty snippet")
 	}
 }
+
+// TestMatchLeadToJobMissingCreatedDate regression-tests a Greptile finding:
+// when a lead's CreatedDate is missing/unparseable, the chronology guard used
+// to short-circuit entirely, silently accepting the first contact-matching
+// job in iteration order regardless of when it was created. matchLeadToJob
+// must instead pick deterministically (the earliest-created match) rather
+// than depend on iteration order.
+func TestMatchLeadToJobMissingCreatedDate(t *testing.T) {
+	lead := wzLead{Email: "jane@example.com", CreatedDate: "not-a-date"}
+	jobs := []wzJob{
+		{UUID: "job-late", Email: "jane@example.com", CreatedDate: "2026-08-01 10:00:00"},
+		{UUID: "job-early", Email: "jane@example.com", CreatedDate: "2026-07-01 10:00:00"},
+		{UUID: "job-no-date", Email: "jane@example.com", CreatedDate: ""},
+	}
+	got, found := matchLeadToJob(lead, jobs)
+	if !found {
+		t.Fatal("expected a match")
+	}
+	if got.UUID != "job-early" {
+		t.Fatalf("expected the earliest-created contact match (job-early), got %q", got.UUID)
+	}
+}
+
+// TestMatchLeadToJobRejectsJobPredatingLead confirms the chronology guard
+// still rejects an obviously-earlier job when both dates are known.
+func TestMatchLeadToJobRejectsJobPredatingLead(t *testing.T) {
+	lead := wzLead{Email: "jane@example.com", CreatedDate: "2026-07-01 10:00:00"}
+	jobs := []wzJob{
+		{UUID: "job-before-lead", Email: "jane@example.com", CreatedDate: "2026-06-01 10:00:00"},
+	}
+	_, found := matchLeadToJob(lead, jobs)
+	if found {
+		t.Fatal("expected no match: the only candidate job predates the lead")
+	}
+}
+
+// TestMatchLeadToJobNoContactMatch confirms unrelated jobs are never matched.
+func TestMatchLeadToJobNoContactMatch(t *testing.T) {
+	lead := wzLead{Email: "jane@example.com", CreatedDate: "2026-07-01 10:00:00"}
+	jobs := []wzJob{
+		{UUID: "job-unrelated", Email: "someone-else@example.com", CreatedDate: "2026-08-01 10:00:00"},
+	}
+	_, found := matchLeadToJob(lead, jobs)
+	if found {
+		t.Fatal("expected no match: no contact-identity overlap")
+	}
+}

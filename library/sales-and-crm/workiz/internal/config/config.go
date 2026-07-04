@@ -162,13 +162,14 @@ func (c *Config) AuthHeader() string {
 			"token":            c.WorkizApiToken,
 		})
 	}
-	if c.WorkizApiSecret != "" {
-		return applyAuthFormat("{token}", map[string]string{
-			"api_secret":        c.WorkizApiSecret,
-			"WORKIZ_API_SECRET": c.WorkizApiSecret,
-			"token":             c.WorkizApiSecret,
-		})
-	}
+	// Deliberately no WorkizApiSecret-only fallback here: the secret is only
+	// ever sent as a POST-body field (see client.go's doInternal), never as a
+	// header value, so a secret with no token is not a usable credential.
+	// Returning non-empty here previously made `auth status` and
+	// validateCachedRequestAuth report "credentials present" for a
+	// secret-only config, while EffectiveBaseURL() still omitted the token
+	// path segment (guaranteed 404) and the secret leaked into an
+	// Authorization header on GETs where Workiz doesn't expect it.
 	return ""
 }
 
