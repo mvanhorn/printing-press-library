@@ -321,3 +321,34 @@ func TestFilterLeadsSince(t *testing.T) {
 		t.Fatalf("filterLeadsSince = %v, want only [lead-recent] (old, undated, and unparseable leads must all be excluded)", ids)
 	}
 }
+
+// TestResolveTimeOffOwner regression-tests a Greptile finding: TimeOff.UserName
+// is a login/username, not the display name job.Team[].Name reports, so a bare
+// string comparison between the two never matched and time_off_conflict
+// entries in team bottleneck were unreachable in practice. Resolution goes
+// through the shared team roster's email field (the only field common to
+// both the timeoff and team resources).
+func TestResolveTimeOffOwner(t *testing.T) {
+	roster := buildUsernameToDisplayName([]wzTeamMember{
+		{Name: "Dmitriy Petrenko", Email: "dmitriy.petrenko@example.com"},
+		{Name: "No Email Member", Email: ""},
+	})
+
+	cases := []struct {
+		name     string
+		userName string
+		want     string
+	}{
+		{"matches full email case-insensitively", "Dmitriy.Petrenko@Example.com", "Dmitriy Petrenko"},
+		{"matches email local-part", "dmitriy.petrenko", "Dmitriy Petrenko"},
+		{"no roster match falls back to raw value", "someone.else", "someone.else"},
+	}
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			got := resolveTimeOffOwner(tc.userName, roster)
+			if got != tc.want {
+				t.Fatalf("resolveTimeOffOwner(%q) = %q, want %q", tc.userName, got, tc.want)
+			}
+		})
+	}
+}

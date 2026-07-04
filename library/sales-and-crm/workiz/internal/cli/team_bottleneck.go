@@ -7,6 +7,7 @@ package cli
 import (
 	"fmt"
 	"sort"
+	"strings"
 	"time"
 
 	"github.com/spf13/cobra"
@@ -59,6 +60,10 @@ func newNovelTeamBottleneckCmd(flags *rootFlags) *cobra.Command {
 			if err != nil {
 				return fmt.Errorf("loading time off: %w", err)
 			}
+			teamMembers, err := loadTeamMembers(ctx, db.DB())
+			if err != nil {
+				return fmt.Errorf("loading team: %w", err)
+			}
 
 			now := time.Now()
 			windowStart, windowEnd := now, now.AddDate(0, 0, 7)
@@ -95,13 +100,14 @@ func newNovelTeamBottleneckCmd(flags *rootFlags) *cobra.Command {
 				}
 			}
 
-			// timeoff by member name (Workiz keys time-off by username)
+			usernameToDisplayName := buildUsernameToDisplayName(teamMembers)
 			offByMember := map[string][]wzTimeOff{}
 			for _, t := range timeoffs {
 				if t.UserName == "" {
 					continue
 				}
-				offByMember[t.UserName] = append(offByMember[t.UserName], t)
+				owner := resolveTimeOffOwner(t.UserName, usernameToDisplayName)
+				offByMember[owner] = append(offByMember[owner], t)
 			}
 
 			members := make([]string, 0, len(byMember))
@@ -171,4 +177,39 @@ func newNovelTeamBottleneckCmd(flags *rootFlags) *cobra.Command {
 	cmd.Flags().BoolVar(&flagWeek, "week", false, "Restrict to the current calendar week (Monday-Sunday) instead of the rolling next 7 days")
 	cmd.Flags().StringVar(&dbPath, "db", "", "Database path (default: ~/.local/share/workiz-pp-cli/data.db)")
 	return cmd
+}
+
+// buildUsernameToDisplayName maps a team roster into a lookup from login
+// identifiers to display names. TimeOff.UserName is a login/username, not
+// the display name job.Team[].Name reports (confirmed by the community PHP
+// SDK, which calls the TimeOff lookup parameter "username" — a separate
+// identifier space from Team.Name). A bare UserName-to-Name comparison would
+// never match, silently making every time_off_conflict unreachable. Email is
+// the only field shared between the timeoff and team resources, so both the
+// full email and its local-part (before "@") are indexed, case-insensitive.
+func buildUsernameToDisplayName(teamMembers []wzTeamMember) map[string]string {
+	usernameToDisplayName := map[string]string{}
+	for _, m := range teamMembers {
+		if m.Name == "" || m.Email == "" {
+			continue
+		}
+		email := strings.ToLower(m.Email)
+		usernameToDisplayName[email] = m.Name
+		if local, _, ok := strings.Cut(email, "@"); ok && local != "" {
+			usernameToDisplayName[local] = m.Name
+		}
+	}
+	return usernameToDisplayName
+}
+
+// resolveTimeOffOwner resolves a TimeOff.UserName to the display name used to
+// key scheduled-job conflicts, falling back to the raw value when no roster
+// match is found (better an unmatched-but-visible key than silently dropping
+// the time-off record).
+func resolveTimeOffOwner(userName string, usernameToDisplayName map[string]string) string {
+	key := strings.ToLower(strings.TrimSpace(userName))
+	if name, ok := usernameToDisplayName[key]; ok {
+		return name
+	}
+	return userName
 }
