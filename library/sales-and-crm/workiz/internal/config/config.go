@@ -230,6 +230,19 @@ func (c *Config) SaveCredential(token string) error {
 	return c.save()
 }
 
+// SaveSecret persists the API secret to the config file. Workiz requires
+// this as a second credential (the token alone authenticates reads, but
+// every write call needs auth_secret in the body too) — without a way to
+// persist it, a user who only ran `auth set-token` would have every write
+// silently rejected by Workiz in any shell where WORKIZ_API_SECRET isn't
+// exported, with no CLI-side indication of why.
+func (c *Config) SaveSecret(secret string) error {
+	c.WorkizApiSecret = secret
+	delete(c.envOverrides, "WorkizApiSecret")
+	c.updateFileConfigField("WorkizApiSecret")
+	return c.save()
+}
+
 func (c *Config) ClearTokens() error {
 	// AuthHeader() falls back to the env-var-derived fields when AuthHeaderVal
 	// and AccessToken are empty, so dropping the working credential requires

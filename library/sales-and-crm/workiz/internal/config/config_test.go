@@ -118,6 +118,50 @@ func TestDisplayBaseURLMasksToken(t *testing.T) {
 // secret-only config even though every real request would fail (the secret is
 // only ever sent as a POST-body field, never a header, and EffectiveBaseURL()
 // omits the required token path segment without a token).
+// TestSaveSecretPersists regression-tests a Greptile finding: there was no way
+// to persist WorkizApiSecret to config.toml, so a user who ran `auth
+// set-token` but not `export WORKIZ_API_SECRET` in every shell had every
+// write request silently sent without the required auth_secret body field.
+// SaveSecret must persist across reload and must not disturb the token.
+func TestSaveSecretPersists(t *testing.T) {
+	dir := t.TempDir()
+	path := filepath.Join(dir, "config.toml")
+	os.Unsetenv("WORKIZ_API_SECRET")
+
+	cfg, err := Load(path)
+	if err != nil {
+		t.Fatalf("initial Load: %v", err)
+	}
+	if err := cfg.SaveCredential("TOKEN1AAAAAAAAAAAAAAA"); err != nil {
+		t.Fatalf("SaveCredential: %v", err)
+	}
+	if err := cfg.SaveSecret("SECRET1AAAAAAAAAAAAAA"); err != nil {
+		t.Fatalf("SaveSecret: %v", err)
+	}
+
+	cfg, err = Load(path)
+	if err != nil {
+		t.Fatalf("reload: %v", err)
+	}
+	if cfg.WorkizApiSecret != "SECRET1AAAAAAAAAAAAAA" {
+		t.Fatalf("WorkizApiSecret after reload = %q, want persisted secret", cfg.WorkizApiSecret)
+	}
+	if cfg.WorkizApiToken != "TOKEN1AAAAAAAAAAAAAAA" {
+		t.Fatalf("WorkizApiToken after secret save = %q, want unchanged token", cfg.WorkizApiToken)
+	}
+
+	if err := cfg.SaveSecret("SECRET2BBBBBBBBBBBBBB"); err != nil {
+		t.Fatalf("SaveSecret rotation: %v", err)
+	}
+	cfg, err = Load(path)
+	if err != nil {
+		t.Fatalf("reload after rotation: %v", err)
+	}
+	if cfg.WorkizApiSecret != "SECRET2BBBBBBBBBBBBBB" {
+		t.Fatalf("WorkizApiSecret after rotation = %q, want new secret only", cfg.WorkizApiSecret)
+	}
+}
+
 func TestAuthHeaderRequiresToken(t *testing.T) {
 	dir := t.TempDir()
 	path := filepath.Join(dir, "config.toml")

@@ -20,6 +20,7 @@ func newAuthCmd(flags *rootFlags) *cobra.Command {
 	cmd.AddCommand(newAuthSetupCmd(flags))
 	cmd.AddCommand(newAuthStatusCmd(flags))
 	cmd.AddCommand(newAuthSetTokenCmd(flags))
+	cmd.AddCommand(newAuthSetSecretCmd(flags))
 	cmd.AddCommand(newAuthLogoutCmd(flags))
 
 	return cmd
@@ -42,6 +43,7 @@ func newAuthSetupCmd(_ *rootFlags) *cobra.Command {
 			fmt.Fprintln(w, "  export WORKIZ_API_TOKEN=\"<your-token>\"")
 			fmt.Fprintln(w, "  export WORKIZ_API_SECRET=\"<your-secret>\"")
 			fmt.Fprintln(w, "  workiz-pp-cli auth set-token <token>")
+			fmt.Fprintln(w, "  workiz-pp-cli auth set-secret <secret>")
 			if !launch {
 				return nil
 			}
@@ -92,6 +94,7 @@ func newAuthStatusCmd(flags *rootFlags) *cobra.Command {
 				fmt.Fprintln(w, "  export WORKIZ_API_TOKEN=\"your-token-here\"")
 				fmt.Fprintln(w, "  export WORKIZ_API_SECRET=\"your-secret-here\"")
 				fmt.Fprintf(w, "  workiz-pp-cli auth set-token <token>\n")
+				fmt.Fprintf(w, "  workiz-pp-cli auth set-secret <secret>\n")
 				return authErr(fmt.Errorf("no credentials configured"))
 			}
 
@@ -138,6 +141,40 @@ func newAuthSetTokenCmd(flags *rootFlags) *cobra.Command {
 				}, flags)
 			}
 			fmt.Fprintf(cmd.OutOrStdout(), "Token saved to %s\n", cfg.Path)
+			return nil
+		},
+	}
+}
+
+func newAuthSetSecretCmd(flags *rootFlags) *cobra.Command {
+	return &cobra.Command{
+		Use:     "set-secret <secret>",
+		Short:   "Save an API secret to the config file",
+		Example: "  workiz-pp-cli auth set-secret YOUR_SECRET_HERE",
+		Args:    cobra.ExactArgs(1),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			cfg, err := config.Load(flags.configPath)
+			if err != nil {
+				return configErr(err)
+			}
+
+			// Workiz requires auth_secret as a second credential on every
+			// write call. Without a persisted slot, a user who only ran
+			// `auth set-token` has every write silently rejected in any
+			// shell where WORKIZ_API_SECRET isn't exported, with no
+			// CLI-side indication of why.
+			if err := cfg.SaveSecret(args[0]); err != nil {
+				return configErr(fmt.Errorf("saving secret: %w", err))
+			}
+
+			// JSON envelope: {saved, config_path}.
+			if flags.asJSON {
+				return printJSONFiltered(cmd.OutOrStdout(), map[string]any{
+					"saved":       true,
+					"config_path": cfg.Path,
+				}, flags)
+			}
+			fmt.Fprintf(cmd.OutOrStdout(), "Secret saved to %s\n", cfg.Path)
 			return nil
 		},
 	}
