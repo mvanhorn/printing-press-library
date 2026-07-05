@@ -20,7 +20,7 @@ These are the commands to try first:
 
 ```bash
 # Search Google Flights for a specific itinerary. Free; no API key required.
-flight-goat-pp-cli flights SEA LHR 2026-06-15 --sort cheapest
+flight-goat-pp-cli flights SEA LHR 2026-06-15 --sort=cheapest
 
 # Find the cheapest dates across a window. Free; no API key required.
 flight-goat-pp-cli dates JFK CDG --from 2026-07-01 --to 2026-07-31 --sort
@@ -175,7 +175,7 @@ See [Install](#install) above.
 Most headline fare and route-discovery commands do not need credentials:
 
 ```bash
-flight-goat-pp-cli flights SEA LHR 2026-06-15 --sort cheapest
+flight-goat-pp-cli flights SEA LHR 2026-06-15 --sort=cheapest
 flight-goat-pp-cli dates JFK CDG --from 2026-07-01 --to 2026-07-31 --sort
 flight-goat-pp-cli explore SEA --agent
 ```
