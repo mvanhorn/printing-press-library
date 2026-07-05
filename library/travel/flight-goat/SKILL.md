@@ -77,8 +77,66 @@ flight-goat-pp-cli compare SEA LHR 2026-06-15 --currency GBP --agent
 ```
 
 The flag is only valid on Google Flights price commands: `flights`, `dates`,
-`compare`, `gf-search`, and `cheapest-longhaul`. Do not add it to AeroAPI or
-Kayak-only commands.
+`compare`, `gf-search`, and `cheapest-longhaul`. Do not add it to AeroAPI,
+Kayak-only, or `soar` commands (FlySoar prices in USD only — see below).
+
+## FlySoar (Duffel) Price Search
+
+`soar` is a third price source alongside Google Flights (`flights`) and Kayak.
+It queries [FlySoar.ai](https://flysoar.ai) — a Duffel-backed metasearch whose
+fares come from Duffel's aggregated NDC + GDS content — for a specific route and
+date. No API key, no auth. Use it as a second opinion on price when Google
+Flights and FlySoar may surface different fares for the same itinerary.
+
+```bash
+# Cheapest SEA -> DEN on Sep 21 (JSON for agents)
+flight-goat-pp-cli soar SEA DEN 2026-09-21 --agent
+
+# First class one-way
+flight-goat-pp-cli soar SEA DEN 2026-09-21 --class first --agent
+
+# Round trip business class
+flight-goat-pp-cli soar JFK LHR 2026-07-15 --return 2026-07-22 --class business --agent
+```
+
+Cabin values: `economy` (default), `premium_economy`, `business`, `first`.
+Flags mirror `flights` where they overlap (`--return`, `--class`,
+`--passengers`). There is no `--currency`: FlySoar's anonymous endpoint prices
+every offer in USD regardless of any requested currency. Results are normalized
+to the same leg/itinerary shape as `flights`, sorted cheapest-first, with
+identical itineraries deduped to the lowest fare. `price` is **per-seat** (as in
+`flights`): FlySoar quotes the party total, and `soar` divides by `--passengers`,
+so multiply by passenger count for the trip total.
+
+**Booking is a handoff, not an API call.** FlySoar has no anonymous booking
+endpoint — the actual purchase runs through its conversational **iMessage agent**
+or its authenticated web app (both need a FlySoar account with a saved traveler +
+payment method). `soar` prices the search and hands off: the `booking` block
+carries a pre-composed natural-language `request`, an `imessage_url` that opens a
+new iMessage to FlySoar's agent with the request filled in, and a `web_url` deep
+link. `search_url` is the same web deep link at the top level.
+
+```json
+{
+  "success": true,
+  "source": "flysoar",
+  "trip_type": "one_way",
+  "count": 96,
+  "flights": [ { "price": 94.98, "currency": "USD", "stops": 0, "legs": [ ... ] } ],
+  "search_url": "https://flysoar.ai/flights/sea/den/260921/?cabin=economy&trip=oneway",
+  "booking": {
+    "method": "handoff",
+    "request": "DEN -> SEA on 2026-09-28, first class",
+    "imessage_agent": "+14156299322",
+    "imessage_url": "sms:+14156299322&body=DEN+-%3E+SEA+on+2026-09-28%2C+first+class",
+    "web_url": "https://flysoar.ai/flights/den/sea/260928/?cabin=first&trip=oneway"
+  }
+}
+```
+
+To book: send `booking.request` to `booking.imessage_agent` over iMessage (or
+open `booking.imessage_url`), then complete traveler/payment/verification in the
+chat; or open `booking.web_url`. Never claim `soar` itself placed a booking.
 
 ## Delay Assessment
 

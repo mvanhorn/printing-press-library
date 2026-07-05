@@ -48,7 +48,7 @@ flight-goat-pp-cli assess --origin SFO --destination DCA --delayed-flight UA123 
 | Compound decisions like `compare`, `assess`, `digest`, `monitor`, and `ontime-now` | Google Flights/Kayak plus AeroAPI/FAA/weather where relevant | Partial results without every source; AeroAPI improves operational depth |
 
 Created by [@mvanhorn](https://github.com/mvanhorn) (Matt Van Horn).
-Contributors: [@lloydarmbrust](https://github.com/lloydarmbrust) (Lloyd Armbrust), [@tmchow](https://github.com/tmchow) (Trevin Chow).
+Contributors: [@lloydarmbrust](https://github.com/lloydarmbrust) (Lloyd Armbrust), [@tmchow](https://github.com/tmchow) (Trevin Chow), [@omarshahine](https://github.com/omarshahine) (Omar Shahine).
 
 ## Install
 
@@ -235,7 +235,35 @@ flight-goat-pp-cli compare SEA LHR 2026-06-15 --currency GBP
 
 `--currency` is intentionally command-scoped. It is available on commands that
 ask Google Flights for prices (`flights`, `dates`, `compare`, `gf-search`, and
-`cheapest-longhaul`), not on AeroAPI or Kayak-only commands.
+`cheapest-longhaul`), not on AeroAPI, Kayak-only, or `soar` commands (FlySoar
+prices in USD only).
+
+### FlySoar (Duffel) Price Search
+
+`soar` is a third price source alongside Google Flights and Kayak. It queries
+[FlySoar.ai](https://flysoar.ai) — a Duffel-backed metasearch whose fares come
+from Duffel's aggregated NDC + GDS content — for a route and date. No API key,
+no auth. Reach for it as a second opinion on price: FlySoar and Google Flights
+often surface different fares for the same itinerary.
+
+```bash
+flight-goat-pp-cli soar SEA DEN 2026-09-21 --agent
+flight-goat-pp-cli soar SEA DEN 2026-09-21 --class first --agent
+flight-goat-pp-cli soar JFK LHR 2026-07-15 --return 2026-07-22 --class business --agent
+```
+
+Cabins: `economy` (default), `premium_economy`, `business`, `first`. Prices are
+always USD (FlySoar's anonymous endpoint is USD-only, so there is no `--currency`
+flag). Results use the same leg/itinerary shape as `flights`, sorted
+cheapest-first with identical itineraries deduped to the lowest fare.
+
+FlySoar has no anonymous booking API — the purchase happens through its
+conversational **iMessage agent** or its authenticated web app. `soar` prices the
+search and hands off: the response `booking` block carries a pre-composed
+`request`, an `imessage_url` that opens a new iMessage to the FlySoar agent with
+that request filled in, and a `web_url` deep link (also surfaced at the top level
+as `search_url`, e.g. `https://flysoar.ai/flights/sea/den/260921/?cabin=first&trip=oneway`).
+`soar` never places a booking itself.
 
 ## Commands
 
