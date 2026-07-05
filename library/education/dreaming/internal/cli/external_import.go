@@ -156,8 +156,9 @@ func parseExternalCSV(path string) ([]externalRow, error) {
 	typeCol, hasType := idx["type"]
 
 	var out []externalRow
-	line := 1
+	line := 1 // header consumed above; incremented before each Read so errors name the right line
 	for {
+		line++
 		rec, err := r.Read()
 		if err == io.EOF {
 			break
@@ -165,7 +166,6 @@ func parseExternalCSV(path string) ([]externalRow, error) {
 		if err != nil {
 			return nil, fmt.Errorf("CSV line %d: %w", line, err)
 		}
-		line++
 		get := func(i int, ok bool) string {
 			if !ok || i >= len(rec) {
 				return ""
