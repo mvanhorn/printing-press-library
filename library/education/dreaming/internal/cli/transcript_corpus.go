@@ -322,8 +322,13 @@ func importCorpusInto(ctx context.Context, db *store.Store, src string) (int, er
 }
 
 // openCorpusSource returns a reader for a local path or an https:// URL.
+// Plain http is rejected: the fetched corpus is merged persistently into the
+// local store, so an unencrypted channel would let an observer inject cues.
 func openCorpusSource(ctx context.Context, src string) (io.ReadCloser, error) {
-	if strings.HasPrefix(src, "http://") || strings.HasPrefix(src, "https://") {
+	if strings.HasPrefix(src, "http://") {
+		return nil, usageErr(fmt.Errorf("refusing to fetch corpus over unencrypted http: %s — use https, or download the file and pass its path", src))
+	}
+	if strings.HasPrefix(src, "https://") {
 		req, err := http.NewRequestWithContext(ctx, http.MethodGet, src, nil)
 		if err != nil {
 			return nil, usageErr(err)
