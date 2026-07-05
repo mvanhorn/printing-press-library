@@ -128,7 +128,7 @@ link. `search_url` is the same web deep link at the top level.
     "method": "handoff",
     "request": "DEN -> SEA on 2026-09-28, first class",
     "imessage_agent": "+14156299322",
-    "imessage_url": "sms:+14156299322&body=DEN+-%3E+SEA+on+2026-09-28%2C+first+class",
+    "imessage_url": "sms:+14156299322?body=DEN+-%3E+SEA+on+2026-09-28%2C+first+class",
     "web_url": "https://flysoar.ai/flights/den/sea/260928/?cabin=first&trip=oneway"
   }
 }

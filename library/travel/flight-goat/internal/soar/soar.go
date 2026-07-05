@@ -259,6 +259,10 @@ func Search(ctx context.Context, opts SearchOptions) (*SearchResult, error) {
 		defer cancel()
 	}
 
+	// Airport codes are forwarded raw: FlySoar's Duffel backend resolves
+	// IATA/renamed codes itself, so (unlike the gflights/kayak backends) soar
+	// keeps no retired-code alias table and emits no airport_remapped note. See
+	// the "Airport alias maintenance" section in AGENTS.md.
 	origin := strings.ToUpper(strings.TrimSpace(opts.Origin))
 	dest := strings.ToUpper(strings.TrimSpace(opts.Destination))
 	cabin := normalizeCabin(opts.CabinClass)
@@ -410,9 +414,10 @@ func prettyCabin(cabin string) string {
 }
 
 // IMessageURL builds an sms: URL that opens a new iMessage/SMS to number with
-// body pre-filled — the same scheme FlySoar's own site uses to reach its agent.
+// body pre-filled. Per RFC 5724 the query string starts with '?' (a leading
+// '&' would fold body into the recipient path and defeat the pre-fill).
 func IMessageURL(number, body string) string {
-	return fmt.Sprintf("sms:%s&body=%s", number, url.QueryEscape(body))
+	return fmt.Sprintf("sms:%s?body=%s", number, url.QueryEscape(body))
 }
 
 // SearchURL builds a browser deep link to a FlySoar search, e.g.

@@ -59,6 +59,8 @@ flight-goat-pp-cli flights SEA <retired-code> 2026-12-24 --return 2027-01-01 --a
 
 The response should populate `airport_remapped: {destination: {from: "<old>", to: "<new>"}}` and `query.destination` should still echo the user-supplied code unchanged.
 
+**`soar` intentionally has no alias table.** The FlySoar backend (`internal/soar`) forwards the raw IATA codes to FlySoar's Duffel-backed endpoint, which does its own airport/code resolution (Duffel is a live GDS/NDC aggregator, unlike Google's shopping RPC that returns empty for unknown codes). Retired-code remapping is therefore delegated to Duffel by design, so there is no `airportAliases`-style map for `soar` and no `airport_remapped` annotation in its envelope. If FlySoar is ever observed returning empty for a retired code that Duffel does not resolve, revisit this and add a soar-side table then — not preemptively.
+
 ## Airline URL maintenance
 
 Each `Flight` result carries `booking_urls` with an optional airline-direct URL when the itinerary is operated end-to-end by a single carrier in the curated table at `internal/gflights/booking_urls.go` (`airlineTemplates` map). Source of truth for each entry is `internal/gflights/testdata/airline_url_captures.md`, which classifies each URL as:

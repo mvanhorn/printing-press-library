@@ -237,7 +237,7 @@ func TestBookingRequest(t *testing.T) {
 
 func TestIMessageURL(t *testing.T) {
 	got := IMessageURL("+14156299322", "DEN -> SEA on 2026-09-28, first class")
-	want := "sms:+14156299322&body=DEN+-%3E+SEA+on+2026-09-28%2C+first+class"
+	want := "sms:+14156299322?body=DEN+-%3E+SEA+on+2026-09-28%2C+first+class"
 	if got != want {
 		t.Fatalf("IMessageURL:\n got %q\nwant %q", got, want)
 	}
