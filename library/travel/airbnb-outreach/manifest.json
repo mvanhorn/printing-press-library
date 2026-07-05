@@ -1,0 +1,27 @@
+{
+  "manifest_version": "0.3",
+  "name": "airbnb-outreach-pp-mcp",
+  "display_name": "Airbnb",
+  "version": "4.8.0",
+  "description": "Airbnb API surface as MCP tools.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/airbnb-outreach-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/airbnb-outreach-pp-mcp",
+      "args": []
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

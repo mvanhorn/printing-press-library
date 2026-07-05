@@ -1,0 +1,51 @@
+version: 2
+project_name: airbnb-outreach-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: airbnb-outreach-pp-cli
+    main: ./cmd/airbnb-outreach-pp-cli
+    binary: airbnb-outreach-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X github.com/mvanhorn/printing-press-library/library/travel/airbnb/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: airbnb-outreach-pp-mcp
+    main: ./cmd/airbnb-outreach-pp-mcp
+    binary: airbnb-outreach-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: airbnb-outreach-pp-cli
+    repository:
+      owner: jimpresting
+      name: homebrew-tap
+    homepage: "https://github.com/mvanhorn/printing-press-library"
+    description: "Script Airbnb's real authenticated surface — search stays, contact hosts and property owners with templated..."
+    install: |
+      bin.install "airbnb-outreach-pp-cli"
+      bin.install "airbnb-outreach-pp-mcp"

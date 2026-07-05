@@ -1,0 +1,99 @@
+name: airbnb
+description: "Script Airbnb's real authenticated surface — search stays, contact hosts and property owners with templated messages and photos, and keep an offline searchable archive of every conversation and saved listing."
+version: "0.1.0"
+kind: synthetic
+spec_source: sniffed
+http_transport: standard
+website_url: "https://www.airbnb.com"
+category: travel
+base_url: "https://www.airbnb.com"
+
+# Auth model: the CLI works read-only for public data using Airbnb's public web
+# API key (baked into the client). Private features (inbox, messaging, trips,
+# wishlists) are unlocked by importing the user's logged-in Chrome session
+# cookies via `airbnb-outreach-pp-cli auth login --chrome`. No password handling. The
+# cookie import + all GraphQL persisted-query transport is hand-built in the
+# internal/airbnb package (auth: none keeps the generator from emitting an
+# api-key prompt for a key the user never supplies).
+auth:
+  type: none
+
+config:
+  format: toml
+  path: "~/.config/airbnb-outreach-pp-cli/config.toml"
+
+resources:
+  markets:
+    description: "Public locale/market metadata (used for the health check)"
+    endpoints:
+      list:
+        method: GET
+        path: "/api/v2/user_markets"
+        description: "Fetch Airbnb locale/market metadata (public, no auth)"
+        params:
+          - name: locale
+            in: query
+            required: false
+            type: string
+            description: "Locale code, e.g. en, de"
+          - name: currency
+            in: query
+            required: false
+            type: string
+            description: "ISO currency code, e.g. USD, EUR"
+        response:
+          type: object
+          item: markets
+        pagination: null
+
+# Real command surface — all hand-built in Phase 3 against the internal/airbnb
+# GraphQL persisted-query client. Declared here so README/SKILL/help describe
+# the true surface. Multi-word groups (message, wishlist, trips, outreach, ops,
+# auth) are wired as Cobra subcommand trees during the build.
+extra_commands:
+  - name: search
+    args: "<location>"
+    description: "Search Airbnb stays by location, dates, guests, price and filters"
+  - name: listing
+    args: "<listing-id>"
+    description: "Show full detail for a listing (host, amenities, house rules, location)"
+  - name: quote
+    args: "<listing-id>"
+    description: "Get a price breakdown quote for a listing and date range (read-only)"
+  - name: inbox
+    description: "List your Airbnb message threads (requires auth login)"
+  - name: thread
+    args: "<thread-id>"
+    description: "Read a conversation with a host, newest messages first"
+  - name: contact
+    args: "<listing-id>"
+    description: "Start a conversation with a host / property owner (dry-run by default)"
+  - name: message
+    args: "send|send-image|mark-read <thread-id>"
+    description: "Send a message, send photo(s), or mark a thread read (writes need --confirm)"
+  - name: wishlist
+    args: "list|items"
+    description: "List your wishlists and their saved listings"
+  - name: trips
+    description: "List your upcoming and past reservations"
+  - name: me
+    description: "Show the signed-in account (name, id, host status)"
+  - name: outreach
+    args: "run|crm"
+    description: "Bulk-contact hosts from a search with a templated message + photo, and track replies (CRM)"
+  - name: archive
+    args: "<query>"
+    description: "Offline full-text search across every synced conversation and saved listing"
+  - name: watch
+    args: "<listing-id>"
+    description: "Track a listing's price over time and alert on drops"
+  - name: sync
+    description: "Sync inbox, wishlists, trips and watched listings into the local store"
+  - name: ops
+    args: "refresh|list"
+    description: "Self-heal the GraphQL operation-hash registry by re-harvesting Airbnb's current hashes"
+  - name: auth
+    args: "login|status|logout"
+    description: "Import your logged-in Chrome Airbnb session (login --chrome), check or clear it"
+
+types: {}

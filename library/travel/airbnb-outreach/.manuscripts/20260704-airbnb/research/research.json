@@ -1,0 +1,201 @@
+{
+  "api_name": "airbnb",
+  "novelty_score": 9,
+  "alternatives": [
+    {
+      "name": "pyairbnb",
+      "url": "https://github.com/johnbalvin/pyairbnb",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 4,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "airbnb-cli (various)",
+      "url": "https://github.com/topics/airbnb",
+      "language": "JavaScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 3,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-07-04T13:00:00Z",
+  "novel_features": [
+    {
+      "name": "Bulk host outreach",
+      "command": "outreach run",
+      "description": "Search a location and message the top hosts with a templated message in one command.",
+      "rationale": "Only possible because search results and the messaging API live behind one authenticated client — the website makes you open each listing and type each message by hand.",
+      "example": "airbnb-pp-cli outreach run \"Berlin, Germany\" --message \"Hi {name} team, interested in a monthly stay — possible?\" --limit 5",
+      "why_it_matters": "Reach for this when a user wants to contact many property owners at once (relocation, long-stay, business inquiry).",
+      "group": "Outreach that scales"
+    },
+    {
+      "name": "Outreach CRM",
+      "command": "outreach crm",
+      "description": "Local record of every host you contacted, when, and about which listing.",
+      "rationale": "Requires persisting each contact locally — the website has no outreach history view.",
+      "example": "airbnb-pp-cli outreach crm --json",
+      "why_it_matters": "Use after an outreach run to track who was contacted before following up.",
+      "group": "Outreach that scales"
+    },
+    {
+      "name": "Offline conversation archive",
+      "command": "archive search",
+      "description": "Full-text search across every message thread you've synced, offline.",
+      "rationale": "Requires a local SQLite FTS index of your threads and messages — Airbnb has no cross-conversation search.",
+      "example": "airbnb-pp-cli archive search \"early check-in\"",
+      "why_it_matters": "Use to find what a host promised across months of conversations without scrolling the web inbox.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Listing price watch",
+      "command": "watch check",
+      "description": "Track saved listings' prices over time and report drops.",
+      "rationale": "Requires local price snapshots over time — the website shows only the current price, no history.",
+      "example": "airbnb-pp-cli watch add 49070135 --checkin 2026-08-10 --checkout 2026-08-14 \u0026\u0026 airbnb-pp-cli watch check",
+      "why_it_matters": "Use to catch a price drop on a listing a user is considering.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Self-healing operation registry",
+      "command": "ops refresh",
+      "description": "Re-harvest Airbnb's current GraphQL persisted-query hashes from its own JS so the CLI survives Airbnb deploys.",
+      "rationale": "Airbnb rotates persisted-query hashes on deploy; harvesting them at runtime is only possible because we parse the live web bundles.",
+      "example": "airbnb-pp-cli ops refresh",
+      "why_it_matters": "Run this if commands start failing after an Airbnb update, before assuming the CLI is broken.",
+      "group": "Reachability mitigation"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Bulk host outreach",
+      "command": "outreach run",
+      "description": "Search a location and message the top hosts with a templated message in one command.",
+      "rationale": "Only possible because search results and the messaging API live behind one authenticated client — the website makes you open each listing and type each message by hand.",
+      "example": "airbnb-pp-cli outreach run \"Berlin, Germany\" --message \"Hi {name} team, interested in a monthly stay — possible?\" --limit 5",
+      "why_it_matters": "Reach for this when a user wants to contact many property owners at once (relocation, long-stay, business inquiry).",
+      "group": "Outreach that scales"
+    },
+    {
+      "name": "Outreach CRM",
+      "command": "outreach crm",
+      "description": "Local record of every host you contacted, when, and about which listing.",
+      "rationale": "Requires persisting each contact locally — the website has no outreach history view.",
+      "example": "airbnb-pp-cli outreach crm --json",
+      "why_it_matters": "Use after an outreach run to track who was contacted before following up.",
+      "group": "Outreach that scales"
+    },
+    {
+      "name": "Offline conversation archive",
+      "command": "archive search",
+      "description": "Full-text search across every message thread you've synced, offline.",
+      "rationale": "Requires a local SQLite FTS index of your threads and messages — Airbnb has no cross-conversation search.",
+      "example": "airbnb-pp-cli archive search \"early check-in\"",
+      "why_it_matters": "Use to find what a host promised across months of conversations without scrolling the web inbox.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Listing price watch",
+      "command": "watch check",
+      "description": "Track saved listings' prices over time and report drops.",
+      "rationale": "Requires local price snapshots over time — the website shows only the current price, no history.",
+      "example": "airbnb-pp-cli watch add 49070135 --checkin 2026-08-10 --checkout 2026-08-14 \u0026\u0026 airbnb-pp-cli watch check",
+      "why_it_matters": "Use to catch a price drop on a listing a user is considering.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Self-healing operation registry",
+      "command": "ops refresh",
+      "description": "Re-harvest Airbnb's current GraphQL persisted-query hashes from its own JS so the CLI survives Airbnb deploys.",
+      "rationale": "Airbnb rotates persisted-query hashes on deploy; harvesting them at runtime is only possible because we parse the live web bundles.",
+      "example": "airbnb-pp-cli ops refresh",
+      "why_it_matters": "Run this if commands start failing after an Airbnb update, before assuming the CLI is broken.",
+      "group": "Reachability mitigation"
+    }
+  ],
+  "narrative": {
+    "display_name": "Airbnb",
+    "headline": "Script Airbnb's real logged-in surface — search stays, contact hosts with templated messages and photos, and keep an offline archive of every conversation.",
+    "value_prop": "Airbnb has no public API, so this CLI drives its internal GraphQL surface directly: it authenticates by importing your logged-in Chrome session (no password), searches stays, reads and sends messages, and adds bulk host outreach, a local CRM, offline conversation search, and price watching that the website has no equivalent for.",
+    "auth_narrative": "No password is handled. Run 'auth login --chrome' to import your Airbnb session cookies from Chrome (close Chrome first, or paste a Cookie header with 'auth login --cookies'). Public search works with no login; private data (inbox, messages, trips, wishlists) needs the session.",
+    "quickstart": [
+      {
+        "command": "airbnb-pp-cli auth login --chrome",
+        "comment": "import your logged-in Airbnb session from Chrome"
+      },
+      {
+        "command": "airbnb-pp-cli me --json",
+        "comment": "confirm you're authenticated"
+      },
+      {
+        "command": "airbnb-pp-cli search \"Berlin, Germany\" --checkin 2026-08-10 --checkout 2026-08-14 --adults 2 --json --select id,name,price,rating",
+        "comment": "search stays; note listing ids"
+      },
+      {
+        "command": "airbnb-pp-cli inbox --json",
+        "comment": "list your message threads"
+      },
+      {
+        "command": "airbnb-pp-cli outreach run \"Berlin, Germany\" --message \"Hi {name}, interested in a long stay\" --limit 5",
+        "comment": "preview a bulk outreach (add --confirm to send)"
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "auth login --chrome: 'cannot access the file'",
+        "fix": "Close Chrome (it locks the cookie DB), then re-run; or use 'auth login --cookies \"\u003cheader\u003e\"'."
+      },
+      {
+        "symptom": "A command returns 'blocked by Airlock'",
+        "fix": "Open airbnb.com in a browser, pass the human check, then run 'auth login --chrome' again."
+      },
+      {
+        "symptom": "'unknown operation' or a command suddenly fails",
+        "fix": "Run 'airbnb-pp-cli ops refresh' to re-harvest Airbnb's current operation hashes."
+      }
+    ],
+    "when_to_use": "Use this CLI to automate Airbnb tasks that the website forces you to do by hand: searching many stays, contacting property owners at scale, keeping a searchable archive of host conversations, or watching listing prices. It is the right tool when a user is doing outreach to hosts/owners or wants their Airbnb data locally and scriptable.",
+    "recipes": [
+      {
+        "title": "Search and narrow with --select",
+        "command": "airbnb-pp-cli search \"Lisbon\" --price-max 120 --agent --select searchResults.demandStayListing.id,searchResults.title,searchResults.structuredDisplayPrice.primaryLine.accessibilityLabel",
+        "explanation": "Search returns large nested payloads; --agent with --select keeps only the fields you need."
+      },
+      {
+        "title": "Contact one host (guarded)",
+        "command": "airbnb-pp-cli contact 49070135 --message \"Hi, is a monthly stay possible?\" --confirm",
+        "explanation": "Opens a conversation with a listing's host; without --confirm it only previews."
+      },
+      {
+        "title": "Archive then search conversations",
+        "command": "airbnb-pp-cli archive index \u0026\u0026 airbnb-pp-cli archive search \"deposit\"",
+        "explanation": "Pull your inbox into local SQLite, then full-text search it offline."
+      },
+      {
+        "title": "Watch a listing's price",
+        "command": "airbnb-pp-cli watch add 49070135 --checkin 2026-08-10 --checkout 2026-08-14 \u0026\u0026 airbnb-pp-cli watch check --json",
+        "explanation": "Snapshot a listing's price and detect changes on later checks."
+      }
+    ],
+    "trigger_phrases": [
+      "search airbnb",
+      "find an airbnb in",
+      "contact airbnb hosts",
+      "message airbnb host",
+      "airbnb outreach",
+      "check my airbnb messages",
+      "use airbnb-pp-cli",
+      "run airbnb-pp-cli"
+    ]
+  }
+}

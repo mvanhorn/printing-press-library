@@ -1,0 +1,47 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-07-04T13:23:28.9655876Z",
+  "printing_press_version": "4.8.0",
+  "api_name": "airbnb-outreach",
+  "display_name": "Airbnb",
+  "cli_name": "airbnb-outreach-pp-cli",
+  "owner": "jimpresting",
+  "printer": "jimpresting",
+  "printer_name": "JimPresting",
+  "spec_format": "internal",
+  "spec_checksum": "sha256:20e2cac84f14c38a2bb3968b8a0ce0dd38a7b9b1bbcbd51d9878be25fdd153e7",
+  "run_id": "20260704-airbnb",
+  "category": "travel",
+  "mcp_binary": "airbnb-outreach-pp-mcp",
+  "mcp_tool_count": 1,
+  "mcp_public_tool_count": 1,
+  "mcp_ready": "full",
+  "auth_type": "none",
+  "novel_features": [
+    {
+      "name": "Bulk host outreach",
+      "command": "outreach run",
+      "description": "Search a location and message the top hosts with a templated message in one command."
+    },
+    {
+      "name": "Outreach CRM",
+      "command": "outreach crm",
+      "description": "Local record of every host you contacted, when, and about which listing."
+    },
+    {
+      "name": "Offline conversation archive",
+      "command": "archive search",
+      "description": "Full-text search across every message thread you've synced, offline."
+    },
+    {
+      "name": "Listing price watch",
+      "command": "watch check",
+      "description": "Track saved listings' prices over time and report drops."
+    },
+    {
+      "name": "Self-healing operation registry",
+      "command": "ops refresh",
+      "description": "Re-harvest Airbnb's current GraphQL persisted-query hashes from its own JS so the CLI survives Airbnb deploys."
+    }
+  ]
+}

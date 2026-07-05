@@ -1,0 +1,5 @@
+This CLI's internal/airbnb transport, auth, and all command logic are
+hand-authored against Airbnb's internal /api/v3 persisted-query GraphQL surface
+(no public API / OpenAPI spec exists). The generator produced the scaffolding
+(config, store, MCP cobra-tree, output helpers); the Airbnb client and commands
+are hand-built customizations.
