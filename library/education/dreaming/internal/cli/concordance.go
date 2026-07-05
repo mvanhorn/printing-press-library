@@ -35,7 +35,8 @@ func newNovelConcordanceCmd(flags *rootFlags) *cobra.Command {
 			"video, level, guide, and cue timestamp. Provide a word/phrase (FTS5), a\n" +
 			"--regex, or a --tense preset. Verb-tense presets are heuristic regexes over\n" +
 			"Spanish conjugation endings (they over-match nouns sharing endings), useful\n" +
-			"as a first-order filter. Build the corpus first with 'transcript sync'.\n\n" +
+			"as a first-order filter. Given several of query/--regex/--tense, hits must\n" +
+			"match all of them. Build the corpus first with 'transcript sync'.\n\n" +
 			"Tense presets: " + tensePresetNames(),
 		Example: strings.Trim(`
   dreaming-pp-cli concordance "entonces"
@@ -91,30 +92,47 @@ func newNovelConcordanceCmd(flags *rootFlags) *cobra.Command {
 			var hits []store.ConcordanceHit
 			switch {
 			case flagRegex != "" || flagTense != "":
-				pattern := flagRegex
-				if flagTense != "" {
-					pattern = tensePresets[flagTense]
+				// When both are given, hits must match both — mirroring how a
+				// plain query ANDs with either flag below.
+				var patterns []*regexp.Regexp
+				if flagRegex != "" {
+					re, cerr := regexp.Compile(flagRegex)
+					if cerr != nil {
+						return usageErr(fmt.Errorf("invalid --regex %q: %w", flagRegex, cerr))
+					}
+					patterns = append(patterns, re)
 				}
-				re, cerr := regexp.Compile(pattern)
-				if cerr != nil {
-					return usageErr(fmt.Errorf("invalid --regex %q: %w", pattern, cerr))
+				if flagTense != "" {
+					re, cerr := regexp.Compile(tensePresets[flagTense])
+					if cerr != nil {
+						return fmt.Errorf("compiling --tense %q preset: %w", flagTense, cerr)
+					}
+					patterns = append(patterns, re)
 				}
 				all, serr := db.AllCuesForScan(filter)
 				if serr != nil {
 					return serr
 				}
 				for _, h := range all {
-					if re.MatchString(h.Text) {
-						// If a plain query was ALSO given, require it as a substring.
-						if query != "" && !strings.Contains(strings.ToLower(h.Text), strings.ToLower(query)) {
-							continue
-						}
-						h.Timestamp = formatTimestamp(h.StartMS)
-						h.VideoURL = cfg.VideoWebURL(h.VideoID)
-						hits = append(hits, h)
-						if len(hits) >= limit {
+					matched := true
+					for _, re := range patterns {
+						if !re.MatchString(h.Text) {
+							matched = false
 							break
 						}
+					}
+					if !matched {
+						continue
+					}
+					// If a plain query was ALSO given, require it as a substring.
+					if query != "" && !strings.Contains(strings.ToLower(h.Text), strings.ToLower(query)) {
+						continue
+					}
+					h.Timestamp = formatTimestamp(h.StartMS)
+					h.VideoURL = cfg.VideoWebURL(h.VideoID)
+					hits = append(hits, h)
+					if len(hits) >= limit {
+						break
 					}
 				}
 			default:
