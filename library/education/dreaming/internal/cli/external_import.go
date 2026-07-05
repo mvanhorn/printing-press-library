@@ -188,7 +188,9 @@ func parseExternalCSV(path string) ([]externalRow, error) {
 			seconds = int(h * 3600)
 		}
 		if seconds <= 0 {
-			return nil, fmt.Errorf("CSV line %d: non-positive duration", line)
+			// Skip like blank-date rows: a summary/note row with 0 minutes
+			// should not abort the whole import.
+			continue
 		}
 		typ := get(typeCol, hasType)
 		if typ == "" {

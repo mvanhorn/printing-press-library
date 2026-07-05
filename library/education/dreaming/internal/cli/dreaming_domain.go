@@ -8,6 +8,7 @@ package cli
 import (
 	"context"
 	"fmt"
+	"math"
 	"regexp"
 	"sort"
 	"strings"
@@ -212,7 +213,14 @@ func tensePresetNames() string {
 // hoursFromSeconds is a tiny readability helper for converting stored seconds.
 func hoursFromSeconds(sec int64) float64 { return float64(sec) / 3600.0 }
 
-// daysBetween returns whole days from now until t (negative if in the past).
+// daysToDate returns whole calendar days from today until t (negative if in
+// the past). It compares local-timezone midnights: t arrives as UTC midnight
+// from a date-only time.Parse, so measuring from the local wall clock would
+// skew the count by the timezone offset. Rounding absorbs DST-transition
+// days (23/25 hours).
 func daysToDate(t time.Time) int {
-	return int(time.Until(t).Hours() / 24)
+	now := time.Now()
+	today := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, now.Location())
+	target := time.Date(t.Year(), t.Month(), t.Day(), 0, 0, 0, 0, now.Location())
+	return int(math.Round(target.Sub(today).Hours() / 24))
 }

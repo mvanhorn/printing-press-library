@@ -172,15 +172,15 @@ func newNovelConcordanceCmd(flags *rootFlags) *cobra.Command {
 	return cmd
 }
 
-// ftsQuery wraps a multi-word query as an FTS5 phrase so spaces mean "phrase"
-// rather than implicit AND; single tokens pass through unquoted.
+// ftsQuery phrase-quotes the query so FTS5 treats it as a literal phrase:
+// spaces mean "phrase" rather than implicit AND, and special characters
+// (*, -, +, parens, AND/OR/NOT/NEAR) match literally instead of surfacing a
+// cryptic "fts5: syntax error". Power users who want pattern matching have
+// --regex.
 func ftsQuery(q string) string {
 	q = strings.TrimSpace(q)
 	if q == "" {
 		return q
 	}
-	if strings.ContainsAny(q, " \t") {
-		return `"` + strings.ReplaceAll(q, `"`, `""`) + `"`
-	}
-	return q
+	return `"` + strings.ReplaceAll(q, `"`, `""`) + `"`
 }

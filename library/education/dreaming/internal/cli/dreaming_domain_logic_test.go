@@ -169,3 +169,53 @@ func TestRecentAverageSeconds(t *testing.T) {
 		t.Error("zero days should average 0")
 	}
 }
+
+// daysToDate must count local calendar days. The target arrives as UTC
+// midnight (date-only time.Parse, as plan --by does), so a wall-clock
+// subtraction is off by the timezone offset: in UTC-8 at 10 PM, "tomorrow"
+// computed 0 days and plan reported a future date as not feasible.
+func TestDaysToDateLocalCalendarDays(t *testing.T) {
+	parse := func(offsetDays int) time.Time {
+		d := time.Now().AddDate(0, 0, offsetDays).Format("2006-01-02")
+		tt, err := time.Parse("2006-01-02", d)
+		if err != nil {
+			t.Fatalf("parse %s: %v", d, err)
+		}
+		return tt
+	}
+	cases := []struct {
+		offset int
+		want   int
+	}{
+		{0, 0},
+		{1, 1},
+		{-1, -1},
+		{30, 30},
+		{365, 365},
+	}
+	for _, tc := range cases {
+		if got := daysToDate(parse(tc.offset)); got != tc.want {
+			t.Errorf("daysToDate(today%+dd as UTC midnight) = %d, want %d", tc.offset, got, tc.want)
+		}
+	}
+}
+
+// ftsQuery must phrase-quote every input so FTS5 operators and special
+// characters match literally instead of raising "fts5: syntax error".
+func TestFTSQueryQuoting(t *testing.T) {
+	cases := []struct{ in, want string }{
+		{"entonces", `"entonces"`},
+		{"me gusta", `"me gusta"`},
+		{"*", `"*"`},
+		{"(foo", `"(foo"`},
+		{"-bar", `"-bar"`},
+		{`say "hola"`, `"say ""hola"""`},
+		{"  padded  ", `"padded"`},
+		{"", ""},
+	}
+	for _, tc := range cases {
+		if got := ftsQuery(tc.in); got != tc.want {
+			t.Errorf("ftsQuery(%q) = %s, want %s", tc.in, got, tc.want)
+		}
+	}
+}

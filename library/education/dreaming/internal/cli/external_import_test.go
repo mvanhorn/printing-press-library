@@ -60,9 +60,12 @@ func TestParseExternalCSV(t *testing.T) {
 			wantErr: "'seconds', 'minutes', or 'hours'",
 		},
 		{
-			name:    "non-positive duration names its file line",
-			csv:     "date,minutes\n2026-01-01,10\n2026-01-02,0\n",
-			wantErr: "CSV line 3: non-positive duration",
+			name: "zero-duration rows are skipped, not fatal",
+			csv:  "date,minutes\n2026-01-01,10\n2026-01-02,0\n2026-01-03,20\n",
+			want: []externalRow{
+				{Date: "2026-01-01", TimeSeconds: 600, Type: "watching"},
+				{Date: "2026-01-03", TimeSeconds: 1200, Type: "watching"},
+			},
 		},
 		{
 			// Malformed quoting on file line 3. Before the line counter fix
