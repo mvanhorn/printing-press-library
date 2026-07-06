@@ -115,7 +115,10 @@ func TestCliArgsFromMCP_AllowsPerCommandFlags(t *testing.T) {
 		"tags":    []any{"a", "b"},
 	}
 	got := cliArgsFromMCP(in, map[string]bool{"args": true})
-	want := []string{"--limit", "25", "--query", "alpha", "--tags", "a,b", "--verbose"}
+	// A []any array is emitted as one --flag per element (not comma-joined),
+	// so pflag stringArray receives discrete values and commas inside a value
+	// are preserved.
+	want := []string{"--limit", "25", "--query", "alpha", "--tags", "a", "--tags", "b", "--verbose"}
 	if !reflect.DeepEqual(got, want) {
 		t.Fatalf("cliArgsFromMCP per-command passthrough: got %v, want %v", got, want)
 	}

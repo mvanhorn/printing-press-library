@@ -203,12 +203,14 @@ func cliArgsFromMCP(args map[string]any, blocked map[string]bool) []string {
 				out = append(out, "--"+k, tv)
 			}
 		case []any:
-			if len(tv) > 0 {
-				parts := make([]string, 0, len(tv))
-				for _, item := range tv {
-					parts = append(parts, fmt.Sprintf("%v", item))
+			// Emit one --flag per element. pflag stringArray does not split on
+			// commas, so joining would collapse a multi-value array into a
+			// single element; repeating the flag preserves both distinct values
+			// and commas within a value. stringSlice also accumulates repeats.
+			for _, item := range tv {
+				if s := fmt.Sprintf("%v", item); s != "" {
+					out = append(out, "--"+k, s)
 				}
-				out = append(out, "--"+k, strings.Join(parts, ","))
 			}
 		default:
 			if v != nil {

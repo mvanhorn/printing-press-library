@@ -63,9 +63,14 @@ func newNovelPurchaseReconcileCmd(flags *rootFlags) *cobra.Command {
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}
-			_, userMatches, err := fetchSearch(ctx, c, "user", `{"limit":1000}`)
+			totalUsers, userMatches, err := fetchSearch(ctx, c, "user", fmt.Sprintf(`{"limit":%d}`, flagLimit))
 			if err != nil {
 				return classifyAPIError(err, flags)
+			}
+			if totalUsers > len(userMatches) {
+				fmt.Fprintf(cmd.ErrOrStderr(),
+					"warning: fetched %d of %d users (--limit %d); buyers beyond the limit will show as unmatched — raise --limit to include them\n",
+					len(userMatches), totalUsers, flagLimit)
 			}
 			userByID := make(map[string]rosterUser, len(userMatches))
 			for _, m := range userMatches {
@@ -118,6 +123,6 @@ func newNovelPurchaseReconcileCmd(flags *rootFlags) *cobra.Command {
 			return nil
 		},
 	}
-	cmd.Flags().IntVar(&flagLimit, "limit", 500, "Maximum purchases to reconcile")
+	cmd.Flags().IntVar(&flagLimit, "limit", 500, "Maximum purchases and users to fetch for reconciliation")
 	return cmd
 }
