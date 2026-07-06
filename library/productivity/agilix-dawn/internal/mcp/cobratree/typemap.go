@@ -92,8 +92,15 @@ func toolOptionForFlag(flag *pflag.Flag) mcplib.ToolOption {
 		"uint", "uint8", "uint16", "uint32", "uint64",
 		"float32", "float64", "count":
 		return mcplib.WithNumber(flag.Name, propOpts...)
-	case "string", "stringSlice", "stringArray", "duration":
+	case "string", "duration":
 		return mcplib.WithString(flag.Name, propOpts...)
+	case "stringSlice", "stringArray":
+		// Repeatable flags: expose as a JSON array of strings so MCP callers
+		// pass discrete values. cliArgsFromMCP emits one --flag per element,
+		// which lets pflag stringArray (which does not comma-split) receive
+		// each value intact — important where commas are legitimate content
+		// (e.g. quiz option/answer text).
+		return mcplib.WithArray(flag.Name, append(propOpts, mcplib.WithStringItems())...)
 	default:
 		propOpts[0] = mcplib.Description(flagDescription(flag) + " (unknown Cobra flag type " + flag.Value.Type() + "; pass as a string)")
 		return mcplib.WithString(flag.Name, propOpts...)

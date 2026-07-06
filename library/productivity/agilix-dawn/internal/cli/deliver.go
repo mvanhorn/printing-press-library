@@ -79,11 +79,25 @@ func deliverFile(path string, body []byte) error {
 			return fmt.Errorf("creating deliver dir: %w", err)
 		}
 	}
-	tmp := path + ".tmp"
-	if err := os.WriteFile(tmp, body, 0o600); err != nil {
+	// Unique temp name (os.CreateTemp adds a random suffix, mode 0600) so two
+	// concurrent delivers to the same path can't collide on one .tmp file and
+	// truncate each other before the rename.
+	f, err := os.CreateTemp(dir, "."+filepath.Base(path)+".*.tmp")
+	if err != nil {
+		return fmt.Errorf("creating deliver tmp: %w", err)
+	}
+	tmp := f.Name()
+	if _, err := f.Write(body); err != nil {
+		f.Close()
+		os.Remove(tmp)
 		return fmt.Errorf("writing deliver tmp: %w", err)
 	}
+	if err := f.Close(); err != nil {
+		os.Remove(tmp)
+		return fmt.Errorf("closing deliver tmp: %w", err)
+	}
 	if err := os.Rename(tmp, path); err != nil {
+		os.Remove(tmp)
 		return fmt.Errorf("replacing deliver file: %w", err)
 	}
 	return nil

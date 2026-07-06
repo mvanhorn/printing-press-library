@@ -212,9 +212,6 @@ func (c *Config) AuthHeader() string {
 	if token == "" {
 		return ""
 	}
-	if c.AgilixDawnToken == "" {
-		return ""
-	}
 	replacements := map[string]string{
 		"token":             token,
 		"dawn_token":        c.AgilixDawnToken,
