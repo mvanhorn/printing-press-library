@@ -1,0 +1,51 @@
+version: 2
+project_name: agilix-dawn-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: agilix-dawn-pp-cli
+    main: ./cmd/agilix-dawn-pp-cli
+    binary: agilix-dawn-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X github.com/mvanhorn/printing-press-library/library/productivity/agilix-dawn/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: agilix-dawn-pp-mcp
+    main: ./cmd/agilix-dawn-pp-mcp
+    binary: agilix-dawn-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X main.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: agilix-dawn-pp-cli
+    repository:
+      owner: idahocapitolwatch
+      name: homebrew-tap
+    homepage: "https://github.com/mvanhorn/printing-press-library"
+    description: "The only CLI for the modern Agilix Dawn API — render a course's full structure, export curriculum and rosters, and mirror your catalog offline."
+    install: |
+      bin.install "agilix-dawn-pp-cli"
+      bin.install "agilix-dawn-pp-mcp"

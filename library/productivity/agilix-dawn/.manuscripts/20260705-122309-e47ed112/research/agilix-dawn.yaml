@@ -1,0 +1,312 @@
+name: agilix-dawn
+description: "Agilix Dawn LMS CLI — browse courses/content, users, orgs, purchases, and progress via the Dawn REST API"
+version: "0.1.0"
+base_url: "https://drivered.agilixdawn.com/api"
+http_transport: standard
+health_check_path: "/config"
+category: productivity
+
+auth:
+  type: api_key
+  header: "Authorization"
+  format: "{token}"
+  in: header
+  env_vars:
+    - AGILIX_DAWN_TOKEN
+
+config:
+  format: toml
+  path: "~/.config/agilix-dawn-pp-cli/config.toml"
+
+resources:
+  concept:
+    description: "Browse the course/content catalog (Dawn concepts)"
+    endpoints:
+      list:
+        method: GET
+        path: "/concept"
+        description: "List catalog concepts (courses/content). Uses the Dawn search DSL."
+        example: "  agilix-dawn-pp-cli concept list --search '{\"query\":\"status:enabled\",\"limit\":25}'"
+        happy_args: "--search={\"limit\":5}"
+        params:
+          - name: search
+            type: string
+            required: false
+            default: '{"limit":100}'
+            description: "Dawn search DSL as JSON: {query,start,limit,sort,join,include}. query is Lucene (e.g. title:driver, status:enabled)."
+          - name: orderFeatured
+            flag_name: order-featured
+            type: bool
+            required: false
+            description: "Order results by featured flag"
+        response:
+          type: array
+          item: Concept
+        response_path: matches
+      get:
+        method: GET
+        path: "/concept/{id}"
+        description: "Get one concept (course) by id, including full section/instruction structure"
+        example: "  agilix-dawn-pp-cli concept get c_7666e422b4b94b3f840a250cb923a1a6"
+        happy_args: "id=c_7666e422b4b94b3f840a250cb923a1a6"
+        params:
+          - name: id
+            type: string
+            required: true
+            positional: true
+            description: "Concept id (c_...)"
+        response:
+          type: object
+          item: Concept
+
+  user:
+    description: "Look up users in the tenant"
+    endpoints:
+      list:
+        method: GET
+        path: "/user"
+        description: "List/search users. Uses the Dawn search DSL."
+        example: "  agilix-dawn-pp-cli user list --search '{\"query\":\"status:enabled\",\"limit\":25}'"
+        happy_args: "--search={\"limit\":5}"
+        params:
+          - name: search
+            type: string
+            required: false
+            default: '{"limit":100}'
+            description: "Dawn search DSL as JSON: {query,start,limit,sort,include}."
+        response:
+          type: array
+          item: User
+        response_path: matches
+      me:
+        method: GET
+        path: "/user/me"
+        description: "Show the authenticated user (whoami)"
+        response:
+          type: object
+          item: User
+
+  organization:
+    description: "List organizations/domains in the tenant"
+    endpoints:
+      list:
+        method: GET
+        path: "/organization"
+        description: "List organizations. Uses the Dawn search DSL."
+        happy_args: "--search={\"limit\":5}"
+        params:
+          - name: search
+            type: string
+            required: false
+            default: '{"limit":100}'
+            description: "Dawn search DSL as JSON: {query,start,limit,sort,include}."
+        response:
+          type: array
+          item: Organization
+        response_path: matches
+
+  purchase:
+    description: "List purchases (Stripe-backed commerce records)"
+    endpoints:
+      list:
+        method: GET
+        path: "/purchase"
+        description: "List purchases. Uses the Dawn search DSL."
+        happy_args: "--search={\"limit\":5}"
+        params:
+          - name: search
+            type: string
+            required: false
+            default: '{"limit":100}'
+            description: "Dawn search DSL as JSON: {query,start,limit,sort,include}."
+        response:
+          type: array
+          item: Purchase
+        response_path: matches
+
+  progress:
+    description: "List learner progress records"
+    endpoints:
+      list:
+        method: GET
+        path: "/progress"
+        description: "List learner progress. Uses the Dawn search DSL (e.g. query:\"user:u_... AND NOT state:preview\")."
+        happy_args: "--search={\"limit\":5}"
+        params:
+          - name: search
+            type: string
+            required: false
+            default: '{"limit":100}'
+            description: "Dawn search DSL as JSON: {query,start,limit,sort,join,include}."
+        response:
+          type: array
+          item: Progress
+        response_path: matches
+
+  conversation:
+    description: "List conversations/messages"
+    endpoints:
+      list:
+        method: GET
+        path: "/conversation"
+        description: "List conversations. Uses the Dawn search DSL."
+        happy_args: "--search={\"limit\":5}"
+        params:
+          - name: search
+            type: string
+            required: false
+            default: '{"limit":100}'
+            description: "Dawn search DSL as JSON: {query,start,limit,sort,include}."
+        response:
+          type: array
+          item: Conversation
+        response_path: matches
+
+  config:
+    description: "Show tenant configuration"
+    endpoints:
+      get:
+        method: GET
+        path: "/config"
+        description: "Show the tenant's public configuration (name, root org, version, auth providers, payment)"
+        response:
+          type: object
+          item: Config
+
+types:
+  Concept:
+    fields:
+      - name: id
+        type: string
+      - name: title
+        type: string
+      - name: shortDescription
+        type: string
+      - name: description
+        type: string
+      - name: status
+        type: string
+      - name: price
+        type: int
+      - name: fullPrice
+        type: int
+      - name: publisher
+        type: string
+      - name: defaultLanguage
+        type: string
+      - name: enrollmentExpirationDays
+        type: int
+      - name: enrollmentGraceDays
+        type: int
+      - name: requiredAwardPercentage
+        type: float
+      - name: launch
+        type: string
+      - name: created
+        type: string
+      - name: modified
+        type: string
+      - name: modifiedBy
+        type: string
+      - name: version
+        type: int
+
+  User:
+    fields:
+      - name: id
+        type: string
+      - name: givenName
+        type: string
+      - name: familyName
+        type: string
+      - name: email
+        type: string
+      - name: status
+        type: string
+      - name: verified
+        type: bool
+      - name: created
+        type: string
+      - name: modified
+        type: string
+      - name: modifiedBy
+        type: string
+      - name: version
+        type: int
+
+  Organization:
+    fields:
+      - name: id
+        type: string
+      - name: name
+        type: string
+      - name: email
+        type: string
+      - name: status
+        type: string
+      - name: created
+        type: string
+      - name: modified
+        type: string
+      - name: modifiedBy
+        type: string
+      - name: version
+        type: int
+
+  Purchase:
+    fields:
+      - name: id
+        type: string
+      - name: charge
+        type: string
+      - name: currency
+        type: string
+      - name: state
+        type: string
+      - name: status
+        type: string
+      - name: purchasingUser
+        type: string
+      - name: source
+        type: string
+      - name: created
+        type: string
+      - name: modified
+        type: string
+      - name: version
+        type: int
+
+  Progress:
+    fields:
+      - name: id
+        type: string
+      - name: user
+        type: string
+      - name: object
+        type: string
+      - name: state
+        type: string
+      - name: created
+        type: string
+      - name: modified
+        type: string
+
+  Conversation:
+    fields:
+      - name: id
+        type: string
+      - name: created
+        type: string
+      - name: modified
+        type: string
+
+  Config:
+    fields:
+      - name: name
+        type: string
+      - name: rootOrg
+        type: string
+      - name: version
+        type: string
+      - name: applicationDnsCname
+        type: string

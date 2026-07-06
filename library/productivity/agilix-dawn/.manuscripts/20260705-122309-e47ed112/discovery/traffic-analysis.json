@@ -1,0 +1,5 @@
+{
+  "reachability": { "mode": "standard_http" },
+  "notes": "Plain HTTPS, no bot protection. Same-origin REST BFF with mandatory search={JSON} query param. Auth via raw Authorization header token.",
+  "endpoint_clusters": []
+}
