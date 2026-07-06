@@ -1,0 +1,11 @@
+{
+  "schema_version": 2,
+  "id": "agilix-dawn-authoring",
+  "applied_at": "2026-07-05",
+  "base_run_id": "20260705-122309-e47ed112",
+  "base_printing_press_version": "4.27.1",
+  "summary": "Added the 'edit' command group for course authoring (metadata, sections, instructions, publish) via read-modify-write PUT /concept.",
+  "reason": "Course authoring is not a spec endpoint; Dawn persists the whole course document, so authoring needs a hand-written safe read-modify-write layer with preview-by-default/--apply.",
+  "files": ["internal/cli/dawn_authoring.go", "internal/cli/dawn_authoring_test.go", "internal/cli/dawn_structure.go", "internal/cli/root.go"],
+  "validated_outcome": "Live-verified against a test course: preview never wrote; --apply wrote; sections/instructions round-tripped; course restored to empty after."
+}

@@ -1,0 +1,100 @@
+{
+  "schema_version": 2,
+  "generated_at": "2026-07-06T05:23:59.502531Z",
+  "printing_press_version": "4.27.1",
+  "api_name": "agilix-dawn",
+  "display_name": "Agilix Dawn",
+  "cli_name": "agilix-dawn-pp-cli",
+  "creator": {
+    "handle": "idahocapitolwatch",
+    "name": "Ryan Gravette"
+  },
+  "owner": "idahocapitolwatch",
+  "printer": "idahocapitolwatch",
+  "printer_name": "Ryan Gravette",
+  "spec_format": "internal",
+  "spec_checksum": "sha256:844bb2035bc176361649a13bd57bc13ec3e51aa390f17c5cdb6ad869156a17bb",
+  "run_id": "20260705-122309-e47ed112",
+  "category": "productivity",
+  "description": "The only CLI for the modern Agilix Dawn API — render a course's full structure, export curriculum and rosters, and mirror your catalog offline.",
+  "mcp_binary": "agilix-dawn-pp-mcp",
+  "mcp_tool_count": 9,
+  "mcp_ready": "full",
+  "api_version": "0.1.0",
+  "auth_type": "api_key",
+  "auth_env_vars": [
+    "AGILIX_DAWN_TOKEN"
+  ],
+  "novel_features": [
+    {
+      "name": "Course structure tree",
+      "command": "course tree",
+      "description": "Render a course's full section → instruction → interaction hierarchy as a tree."
+    },
+    {
+      "name": "Course stats rollup",
+      "command": "course stats",
+      "description": "Aggregate total instruction time, points, and section/instruction/interaction counts for a course."
+    },
+    {
+      "name": "Curriculum export",
+      "command": "course outline",
+      "description": "Flatten a course's section/instruction tree into a Markdown or CSV curriculum."
+    },
+    {
+      "name": "Catalog drift",
+      "command": "catalog diff",
+      "description": "Show what changed in the catalog since the last local sync (new/removed courses, price/status/title changes)."
+    },
+    {
+      "name": "Roster export",
+      "command": "roster export",
+      "description": "Export users (id, name, email, status, verified) to CSV for reporting."
+    },
+    {
+      "name": "Purchase reconcile",
+      "command": "purchase reconcile",
+      "description": "Join purchases against user records to show who paid for what."
+    },
+    {
+      "name": "Edit course metadata",
+      "command": "edit concept",
+      "description": "Update a course's title, description, price, or status (preview by default; --apply to write)."
+    },
+    {
+      "name": "Author sections",
+      "command": "edit section add",
+      "description": "Add, rename, or remove sections in a course (preview by default; --apply to write)."
+    },
+    {
+      "name": "Author instructions",
+      "command": "edit instruction add",
+      "description": "Add or remove instructions (lessons) within a section (preview by default; --apply to write)."
+    },
+    {
+      "name": "Add quiz question",
+      "command": "edit interaction add-choice",
+      "description": "Add a typed multiple-choice question to a lesson (options + correct answers), preview by default; --apply to write."
+    },
+    {
+      "name": "Add short-answer question",
+      "command": "edit interaction add-response",
+      "description": "Add a typed short-answer question to a lesson (accepted answers or coach review), preview by default; --apply to write."
+    },
+    {
+      "name": "Resource inventory",
+      "command": "resource list",
+      "description": "List the file resources (video, images, PDFs, SCORM) attached to a course, with sizes and content types."
+    },
+    {
+      "name": "Enrollment groups",
+      "command": "enrollment group create",
+      "description": "List, create, or delete enrollment groups for a course (preview by default; --apply to write)."
+    },
+    {
+      "name": "Enroll and unenroll users",
+      "command": "enrollment add",
+      "description": "Enroll or unenroll a user in a course by adding/removing them from an enrollment group (preview by default; --apply to write)."
+    }
+  ]
+}
