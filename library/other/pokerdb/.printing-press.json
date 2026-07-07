@@ -1,0 +1,20 @@
+{
+  "schema_version": 2,
+  "generated_at": "2026-07-06T00:00:00Z",
+  "printing_press_version": "manual-local-only",
+  "api_name": "pokerdb",
+  "display_name": "PokerDB Local",
+  "cli_name": "pokerdb-pp-cli",
+  "creator": {
+    "handle": "drake",
+    "name": "Jonathan Drake"
+  },
+  "printer": "drake",
+  "printer_name": "Jonathan Drake",
+  "spec_format": "local-export",
+  "spec_source": "user-provided-files",
+  "category": "other",
+  "description": "Local-only CLI for searching PokerDB/Hendon Mob-style CSV and JSON exports without using an API.",
+  "auth_type": "none",
+  "auth_env_vars": []
+}
