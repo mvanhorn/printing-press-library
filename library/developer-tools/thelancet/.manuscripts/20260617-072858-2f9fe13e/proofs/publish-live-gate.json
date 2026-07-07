@@ -1,0 +1,1105 @@
+{
+  "dir": "C:/Users/LACI/printing-press/library/thelancet",
+  "binary": "C:\\Users\\LACI\\printing-press\\library\\thelancet\\thelancet-pp-cli",
+  "level": "full",
+  "verdict": "PASS",
+  "matrix_size": 68,
+  "passed": 68,
+  "failed": 0,
+  "skipped": 45,
+  "commands": [
+    "affiliation-growth",
+    "api",
+    "authors get",
+    "authors search",
+    "cited-by",
+    "curate",
+    "doctor",
+    "drift",
+    "export",
+    "feedback list",
+    "import",
+    "journals",
+    "mesh",
+    "profile delete",
+    "profile list",
+    "profile save",
+    "profile show",
+    "profile use",
+    "rank-authors",
+    "refresh",
+    "sources",
+    "sync",
+    "visibility-gap",
+    "which",
+    "workflow archive",
+    "workflow status",
+    "works get",
+    "works search"
+  ],
+  "tests": [
+    {
+      "command": "affiliation-growth",
+      "kind": "help",
+      "args": [
+        "affiliation-growth",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Compare institutional publication counts between the most recent N years and\nthe equal-length window before it, surfacing rising research centers. Reads\nthe local mirror; run 'thelancet-pp-cli refresh' first.\n\nUsage:\n  thelancet-pp-cli affiliation-growth [flags]\n\nExamples:\n  thelancet-pp-cli affiliation-growth --journal lancet-neurology --years 5 --json\n  thelancet-pp-cli affiliation-growth --years 4 --threshold 3\n\nFlags:\n      --db string        Database path (default ~/.local/share/thelancet-pp-cli/data.db)\n  -h, --help             help for affiliation-growth\n      --journal string   Scope to a Lancet journal slug, or omit for all\n      --limit int        Maximum institutions to return (default 25)\n      --threshold int    Minimum recent-window publication count to include an institution (default 2)\n      --years int        Window length in years (recent vs prior window of the same length) (default 5)\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'thelancet-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "affiliation-growth",
+      "kind": "happy_path",
+      "args": [
+        "affiliation-growth",
+        "--journal",
+        "lancet-neurology",
+        "--years",
+        "5",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "[]\nlocal store empty; auto-syncing a flagship Lancet sample (run 'thelancet-pp-cli refresh --journal all' for full coverage)\n"
+    },
+    {
+      "command": "affiliation-growth",
+      "kind": "json_fidelity",
+      "args": [
+        "affiliation-growth",
+        "--journal",
+        "lancet-neurology",
+        "--years",
+        "5",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "[]\n"
+    },
+    {
+      "command": "affiliation-growth",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "api",
+      "kind": "help",
+      "args": [
+        "api",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Browse and call any API endpoint using the raw interface names.\n\nThe friendly top-level commands cover the most common operations.\nThis command provides access to ALL endpoints for power users and\nagents that need full API coverage.\n\nRun 'api' with no arguments to list all interfaces.\nRun 'api \u003cinterface\u003e' to see that interface's methods.\n\nUsage:\n  thelancet-pp-cli api [interface] [flags]\n\nExamples:\n  # List all available interfaces\n  thelancet-pp-cli api\n\n  # Show methods for a specific interface\n  thelancet-pp-cli api \u003cinterface-name\u003e\n\nFlags:\n  -h, --help   help for api\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'thelancet-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "api",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [api] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "api",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [api] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "api",
+      "kind": "error_path",
+      "args": [
+        "api",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "Error: interface \"__printing_press_invalid__\" not found. Run 'thelancet-pp-cli api' to list all interfaces\n"
+    },
+    {
+      "command": "authors get",
+      "kind": "help",
+      "args": [
+        "authors",
+        "get",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Get a single author by OpenAlex ID\n\nUsage:\n  thelancet-pp-cli authors get \u003cid\u003e [flags]\n\nExamples:\n  thelancet-pp-cli authors get 550e8400-e29b-41d4-a716-446655440000\n\nFlags:\n  -h, --help   help for get\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'thelancet-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "authors get",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no id parseable from companion at depth 0"
+    },
+    {
+      "command": "authors get",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "no id parseable from companion at depth 0"
+    },
+    {
+      "command": "authors get",
+      "kind": "error_path",
+      "args": [
+        "authors",
+        "get",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 3,
+      "output_sample": "Error: GET /authors/__printing_press_invalid__ returned HTTP 404: \u003c!doctype html\u003e\n\u003chtml lang=en\u003e\n\u003ctitle\u003e404 Not Found\u003c/title\u003e\n\u003ch1\u003eNot Found\u003c/h1\u003e\n\u003cp\u003eThe requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.\u003c/p\u003e\n\nhint: resource not found. Run the 'list' command to see available items\n"
+    },
+    {
+      "command": "authors search",
+      "kind": "help",
+      "args": [
+        "authors",
+        "search",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Search authors\n\nUsage:\n  thelancet-pp-cli authors search [flags]\n\nAliases:\n  search, list\n\nExamples:\n  thelancet-pp-cli authors search\n\nFlags:\n      --all             Fetch all pages\n      --filter string   OpenAlex author filter (e.g. last_known_institution.id:I123)\n  -h, --help            help for search\n      --page string     Page (default \"1\")\n      --per-page int    Per page (default 25)\n      --search string   Author name search\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'thelancet-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "authors search",
+      "kind": "happy_path",
+      "args": [
+        "authors",
+        "search"
+      ],
+      "status": "pass",
+      "output_sample": "{\"meta\":{\"source\":\"live\"},\"results\":{\"group_by\":[],\"meta\":{\"cost_usd\":0.0001,\"count\":118190083,\"db_response_time_ms\":303,\"groups_count\":null,\"page\":1,\"per_page\":25,\"x_query\":{\"oql\":\"authors\",\"oqo\":{\"get_rows\":\"authors\",\"page\":1,\"per_page\":25},\"url\":\"/authors?per_page=25\u0026page=1\"}},\"results\":[{\"affiliations\":[{\"institution\":{\"country_code\":\"JP\",\"display_name\":\"National Institutes of Natural Sciences\",\"id\":\"https://openalex.org/I199525922\",\"lineage\":[\"https://openalex.org/I1319490839\",\"https://openalex.org/I199525922\"],\"ror\":\"https://ror.org/055n47h92\",\"type\":\"facility\"},\"years\":[2025,2024,2022,2021,2019]},{\"institution\":{\"country_code\":\"JP\",\"display_name\":\"The Graduate University for Advanced Studies, SOKENDAI\",\"id\":\"https://openalex.org/I200475212\",\"lineage\":[\"https://openalex.org/I200475212\"],\"ror\":\"https://ror.org/0516ah480\",\"type\":\"education\"},\"years\":[2025,2024,2021,2019]},{\"institution\":{\"country_code\":\"JP\",\"display_name\":\"Tohoku University\",\"id\":\"https://openalex.org/I201537933\",\"lineage\":[\"https://openalex.org/I201537933\"],\"ror\":\"https://ror.org/01dq60k83\",\"type\":\"education\"},\"years\":[2001,1999]},{\"institution\":{\"country_code\":\"JP\",\"display_name\":\"National Institute for Fusion Science\",\"id\":\"https://openalex.org/I4210108322\",\"lineage\":[\"https://openalex.org/I1319490839\",\"https://openalex.org/I199525922\",\"https://openalex.org/I4210108322\"],\"ror\":\"https://ror.org/01t3wyv61\",\"type\":\"facility\"},\"years\":[2026,2025,2024,2022,2021,2020,2019,2018,2017,2016,2015,2013,2010,2008,2004,2003]}],\"block_key\":\"m yoshinuma\",\"cited_by_count\":185,\"counts_by_year\":[{\"cited_by_count\":0,\"oa_works_count\":0,\"works_count\":1,\"year\":1998},{\"cited_by_count\":9,\"oa_works_count\":0,\"works_count\":1,\"year\":1999},{\"cited_by_count\":0,\"oa_works_count\":0,\"works_count\":2,\"year\":2000},{\"cited_by_count\":7,\"oa_works_count\":0,\"works_count\":5,\"year\":2001},{\"cited_by_count\":19,\"oa_works_count\":1,\"works_count\":1,\"year\":2003},{\"cited_by_count\":22,\"oa_works_count\":1,\"works_count\":1,\"year\":2004},{\"cited_by_count\":0,\"oa_works_count\":1,\"works_count\":1,\"year\":2006},{\"cited_by_count\":58,\"oa_works_count\":4,\"works_count\":6,\"year\":2008},{\"cited_by_count\":0,\"oa_works_count\":0,\"works_count\":1,\"year\":2009},{\"cited_by_count\":0,\"oa_works_count\":0,\"works_count\":1,\"year\":2010},{\"cited_by_count\":2,\"oa_works_count\":3,\"works_count\":4,\"year\":2013},{\"cited_by_count\":3,\"oa_works_count\":1,\"works_count\":1,\"year\":2015},{\"cited_by_count\":9,\"oa_works_count\":1,\"works_count\":2,\"year\":2016},{\"cited_by_count\":1,\"oa_works_count\":1,\"works_count\":1,\"year\":2017},{\"cited_by_count\":8,\"oa_works_count\":1,\"works_count\":1,\"year\":2018},{\"cited_by_count\":16,\"oa_works_count\":2,\"works_count\":2,\"year\":2019},{\"cited_by_count\":7,\"oa_works_count\":1,\"works_count\":4,\"year\":2020},{\"cited_by_count\":2,\"oa_works_count\":2,\"works_count\":2,\"year\":2021},{\"cited_by_count\":11,\"oa_works_count\":2,\"works_count\":2,\"year\":2022},{\"cited_by_count\":0,\"oa_works_count\":1,\"works_count\":1,\"year\":2023},{\"cited_by_count\":10,\"oa_works_count\":3,\"works_count\":3,\"year\":2024},{\"cited_by_count\":1,\"oa_works_count\":5,\"works_count\":5,\"year\":2025},{\"cited_by_count\":0,\"oa_works_count\":1898681,\"works_count\":1898683,\"year\":2026}],\"created_date\":\"2025-10-10T00:00:00\",\"display_name\":\"Mikirou Yoshinuma\",\"display_name_alternatives\":[\"EMOTO, Masahiko\",\"Mikirou YOSHINUMA\",\"Mikirou Yoshinuma\",\"YOSHINUMA, Mikirou\",\"Yoshinuma, Mikirou\"],\"full_name\":\"\u003credacted\u003e\",\"id\":\"https://openalex.org/A5103423779\",\"ids\":{\"openalex\":\"https://openalex.org/A5103423779\",\"orcid\":null},\"last_known_institutions\":[{\"country_code\":\"JP\",\"display_name\":\"National Institute for Fusion Science\",\"id\":\"https://openalex.org/I4210108322\",\"lineage\":[\"https://openalex.org/I1319490839\",\"https://openalex.org/I199525922\",\"https://openalex.org/I4210108322\"],\"ror\":\"https://ror.org/01t3wyv61\",\"type\":\"facility\"}],\"orcid\":null,\"raw_author_names\":[\"EMOTO, Masahiko\",\"Mikirou YOSHINUMA\",\"Mikirou Yoshinuma\",\"YOSHINUMA, Mikirou\",\"Yoshinuma, Mikirou\"],\"summary_stats\":{\"2yr_mean_citedness\":0.000005793465076729178,\"h_index\":8,\"i10_index\":7},\"topic_share\":[{\"display_name\":\"Magnetic confinement fusion resear…[truncated]"
+    },
+    {
+      "command": "authors search",
+      "kind": "json_fidelity",
+      "args": [
+        "authors",
+        "search",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\"meta\":{\"source\":\"live\"},\"results\":{\"group_by\":[],\"meta\":{\"cost_usd\":0.0001,\"count\":118190083,\"db_response_time_ms\":303,\"groups_count\":null,\"page\":1,\"per_page\":25,\"x_query\":{\"oql\":\"authors\",\"oqo\":{\"get_rows\":\"authors\",\"page\":1,\"per_page\":25},\"url\":\"/authors?per_page=25\u0026page=1\"}},\"results\":[{\"affiliations\":[{\"institution\":{\"country_code\":\"JP\",\"display_name\":\"National Institutes of Natural Sciences\",\"id\":\"https://openalex.org/I199525922\",\"lineage\":[\"https://openalex.org/I1319490839\",\"https://openalex.org/I199525922\"],\"ror\":\"https://ror.org/055n47h92\",\"type\":\"facility\"},\"years\":[2025,2024,2022,2021,2019]},{\"institution\":{\"country_code\":\"JP\",\"display_name\":\"The Graduate University for Advanced Studies, SOKENDAI\",\"id\":\"https://openalex.org/I200475212\",\"lineage\":[\"https://openalex.org/I200475212\"],\"ror\":\"https://ror.org/0516ah480\",\"type\":\"education\"},\"years\":[2025,2024,2021,2019]},{\"institution\":{\"country_code\":\"JP\",\"display_name\":\"Tohoku University\",\"id\":\"https://openalex.org/I201537933\",\"lineage\":[\"https://openalex.org/I201537933\"],\"ror\":\"https://ror.org/01dq60k83\",\"type\":\"education\"},\"years\":[2001,1999]},{\"institution\":{\"country_code\":\"JP\",\"display_name\":\"National Institute for Fusion Science\",\"id\":\"https://openalex.org/I4210108322\",\"lineage\":[\"https://openalex.org/I1319490839\",\"https://openalex.org/I199525922\",\"https://openalex.org/I4210108322\"],\"ror\":\"https://ror.org/01t3wyv61\",\"type\":\"facility\"},\"years\":[2026,2025,2024,2022,2021,2020,2019,2018,2017,2016,2015,2013,2010,2008,2004,2003]}],\"block_key\":\"m yoshinuma\",\"cited_by_count\":185,\"counts_by_year\":[{\"cited_by_count\":0,\"oa_works_count\":0,\"works_count\":1,\"year\":1998},{\"cited_by_count\":9,\"oa_works_count\":0,\"works_count\":1,\"year\":1999},{\"cited_by_count\":0,\"oa_works_count\":0,\"works_count\":2,\"year\":2000},{\"cited_by_count\":7,\"oa_works_count\":0,\"works_count\":5,\"year\":2001},{\"cited_by_count\":19,\"oa_works_count\":1,\"works_count\":1,\"year\":2003},{\"cited_by_count\":22,\"oa_works_count\":1,\"works_count\":1,\"year\":2004},{\"cited_by_count\":0,\"oa_works_count\":1,\"works_count\":1,\"year\":2006},{\"cited_by_count\":58,\"oa_works_count\":4,\"works_count\":6,\"year\":2008},{\"cited_by_count\":0,\"oa_works_count\":0,\"works_count\":1,\"year\":2009},{\"cited_by_count\":0,\"oa_works_count\":0,\"works_count\":1,\"year\":2010},{\"cited_by_count\":2,\"oa_works_count\":3,\"works_count\":4,\"year\":2013},{\"cited_by_count\":3,\"oa_works_count\":1,\"works_count\":1,\"year\":2015},{\"cited_by_count\":9,\"oa_works_count\":1,\"works_count\":2,\"year\":2016},{\"cited_by_count\":1,\"oa_works_count\":1,\"works_count\":1,\"year\":2017},{\"cited_by_count\":8,\"oa_works_count\":1,\"works_count\":1,\"year\":2018},{\"cited_by_count\":16,\"oa_works_count\":2,\"works_count\":2,\"year\":2019},{\"cited_by_count\":7,\"oa_works_count\":1,\"works_count\":4,\"year\":2020},{\"cited_by_count\":2,\"oa_works_count\":2,\"works_count\":2,\"year\":2021},{\"cited_by_count\":11,\"oa_works_count\":2,\"works_count\":2,\"year\":2022},{\"cited_by_count\":0,\"oa_works_count\":1,\"works_count\":1,\"year\":2023},{\"cited_by_count\":10,\"oa_works_count\":3,\"works_count\":3,\"year\":2024},{\"cited_by_count\":1,\"oa_works_count\":5,\"works_count\":5,\"year\":2025},{\"cited_by_count\":0,\"oa_works_count\":1898681,\"works_count\":1898683,\"year\":2026}],\"created_date\":\"2025-10-10T00:00:00\",\"display_name\":\"Mikirou Yoshinuma\",\"display_name_alternatives\":[\"EMOTO, Masahiko\",\"Mikirou YOSHINUMA\",\"Mikirou Yoshinuma\",\"YOSHINUMA, Mikirou\",\"Yoshinuma, Mikirou\"],\"full_name\":\"\u003credacted\u003e\",\"id\":\"https://openalex.org/A5103423779\",\"ids\":{\"openalex\":\"https://openalex.org/A5103423779\",\"orcid\":null},\"last_known_institutions\":[{\"country_code\":\"JP\",\"display_name\":\"National Institute for Fusion Science\",\"id\":\"https://openalex.org/I4210108322\",\"lineage\":[\"https://openalex.org/I1319490839\",\"https://openalex.org/I199525922\",\"https://openalex.org/I4210108322\"],\"ror\":\"https://ror.org/01t3wyv61\",\"type\":\"facility\"}],\"orcid\":null,\"raw_author_names\":[\"EMOTO, Masahiko\",\"Mikirou YOSHINUMA\",\"Mikirou Yoshinuma\",\"YOSHINUMA, Mikirou\",\"Yoshinuma, Mikirou\"],\"summary_stats\":{\"2yr_mean_citedness\":0.000005793465076729178,\"h_index\":8,\"i10_index\":7},\"topic_share\":[{\"display_name\":\"Magnetic confinement fusion resear…[truncated]"
+    },
+    {
+      "command": "authors search",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "cited-by",
+      "kind": "help",
+      "args": [
+        "cited-by",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Resolve a DOI or OpenAlex work ID, then list the works that cite it (newest\nfirst) via OpenAlex. Live query; no local mirror required.\n\nUsage:\n  thelancet-pp-cli cited-by \u003cdoi-or-id\u003e [flags]\n\nExamples:\n  thelancet-pp-cli cited-by 10.1016/S0140-6736(20)30183-5 --json\n  thelancet-pp-cli cited-by W3009563180 --limit 50\n\nFlags:\n  -h, --help        help for cited-by\n      --limit int   Maximum citing works to return (default 25)\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'thelancet-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "cited-by",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [cited-by] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "cited-by",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [cited-by] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "cited-by",
+      "kind": "error_path",
+      "args": [
+        "cited-by",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 3,
+      "output_sample": "Error: GET /works/doi:__printing_press_invalid__ returned HTTP 404: \u003c!doctype html\u003e\n\u003chtml lang=en\u003e\n\u003ctitle\u003e404 Not Found\u003c/title\u003e\n\u003ch1\u003eNot Found\u003c/h1\u003e\n\u003cp\u003eThe requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.\u003c/p\u003e\n\nhint: resource not found. Run the 'list' command to see available items\n"
+    },
+    {
+      "command": "curate",
+      "kind": "help",
+      "args": [
+        "curate",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Select Lancet works matching a topic or keyword and rank them by citations or\ndate, exportable as a Markdown list, BibTeX, or JSON. Reads the local mirror;\nrun 'thelancet-pp-cli refresh' first.\n\nUsage:\n  thelancet-pp-cli curate [flags]\n\nExamples:\n  thelancet-pp-cli curate --topic 'gene therapy' --sort citations --output bibtex\n  thelancet-pp-cli curate --topic immunotherapy --journal lancet-oncology --output markdown\n\nFlags:\n      --db string        Database path (default ~/.local/share/thelancet-pp-cli/data.db)\n  -h, --help             help for curate\n      --journal string   Scope to a Lancet journal slug, or omit for all\n      --limit int        Maximum works to include (default 25)\n      --open-access      Only include open-access works\n      --output string    Output format: json (default), markdown, or bibtex\n      --sort string      Sort order: citations or date (default \"citations\")\n      --topic string     Topic or keyword to curate (matches title or topic)\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'thelancet-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "curate",
+      "kind": "happy_path",
+      "args": [
+        "curate",
+        "--topic",
+        "cancer"
+      ],
+      "status": "pass",
+      "output_sample": "[\n  {\n    \"title\": \"Proton beam therapy for oropharyngeal cancer (TORPEdO): a phase 3, randomised controlled trial\",\n    \"doi\": \"10.1016/s0140-6736(26)00314-4\",\n    \"journal\": \"The Lancet\",\n    \"year\": 2026,\n    \"cited_by_count\": 6,\n    \"topic\": \"Head and Neck Cancer Studies\"\n  },\n  {\n    \"title\": \"Pembrolizumab plus weekly paclitaxel in platinum-resistant recurrent ovarian cancer (ENGOT-ov65/KEYNOTE-B96): a multicentre, randomised, double-blind, phase 3 study\",\n    \"doi\": \"10.1016/s0140-6736(26)00602-1\",\n    \"journal\": \"The Lancet\",\n    \"year\": 2026,\n    \"cited_by_count\": 5,\n    \"topic\": \"Ovarian cancer diagnosis and treatment\"\n  },\n  {\n    \"title\": \"Overall survival with relacorilant and nab-paclitaxel in patients with platinum-resistant ovarian cancer (ROSELLA): a phase 3 randomised controlled trial\",\n    \"doi\": \"10.1016/s0140-6736(26)00462-9\",\n    \"journal\": \"The Lancet\",\n    \"year\": 2026,\n    \"cited_by_count\": 4,\n    \"topic\": \"Ovarian cancer diagnosis and treatment\"\n  },\n  {\n    \"title\": \"Global burden of cancer in children and adolescents aged 0–19 years, 1990–2023: a systematic analysis for the Global Burden of Disease Study 2023\",\n    \"doi\": \"10.1016/s0140-6736(26)00200-x\",\n    \"journal\": \"The Lancet\",\n    \"year\": 2026,\n    \"cited_by_count\": 2,\n    \"topic\": \"Acute Lymphoblastic Leukemia research\"\n  },\n  {\n    \"title\": \"Survival outcome of VATS compared with open lobectomy for lung cancer: an individual patient data meta-analysis of randomised trials\",\n    \"doi\": \"10.1016/s0140-6736(26)00031-0\",\n    \"journal\": \"The Lancet\",\n    \"year\": 2026,\n    \"cited_by_count\": 2,\n    \"topic\": \"Lung Cancer Diagnosis and Treatment\"\n  },\n  {\n    \"title\": \"Perioperative serplulimab with neoadjuvant chemotherapy versus perioperative chemotherapy in PD-L1-positive gastric cancer (ASTRUM-006): a randomised, double-blind, multicentre, phase 3 study\",\n    \"doi\": \"10.1016/s0140-6736(26)00974-8\",\n    \"journal\": \"The Lancet\",\n    \"year\": 2026,\n    \"cited_by_count\": 1,\n    \"topic\": \"Gastric Cancer Management and Outcomes\"\n  },\n  {\n    \"title\": \"Sacituzumab tirumotecan plus pembrolizumab versus pembrolizumab in PD-L1-positive advanced non-small-cell lung cancer (OptiTROP-Lung05): interim analysis of a randomised, open-label, phase 3 trial\",\n    \"doi\": \"10.1016/s0140-6736(26)00968-2\",\n    \"journal\": \"The Lancet\",\n    \"year\": 2026,\n    \"cited_by_count\": 1,\n    \"topic\": \"Cancer Immunotherapy and Biomarkers\"\n  },\n  {\n    \"title\": \"Ivonescimab plus chemotherapy versus tislelizumab plus chemotherapy in advanced squamous non-small-cell lung cancer (HARMONi-6): interim overall survival analysis of a randomised, double-blind, phase 3 trial in China\",\n    \"doi\": \"10.1016/s0140-6736(26)00966-9\",\n    \"journal\": \"The Lancet\",\n    \"year\": 2026,\n    \"cited_by_count\": 1,\n    \"topic\": \"Cancer Immunotherapy and Biomarkers\"\n  },\n  {\n    \"title\": \"Substantial increases in cervical cancer inequalities worldwide without enhanced human papillomavirus vaccination and screening efforts: a global modelling study\",\n    \"doi\": \"10.1016/s0140-6736(26)00410-1\",\n    \"journal\": \"The Lancet\",\n    \"year\": 2026,\n    \"cited_by_count\": 1,\n    \"topic\": \"Cervical Cancer and HPV Research\"\n  },\n  {\n    \"title\": \"5-year results of hypofractionated locoregional radiotherapy in early breast cancer HypoG-01 (UNICANCER): a French multicentre, randomised, non-inferiority, phase 3, open-label, controlled trial\",\n    \"doi\": \"10.1016/s0140-6736(25)02597-8\",\n    \"journal\": \"The Lancet\",\n    \"year\": 2026,\n    \"cited_by_count\": 1,\n    \"topic\": \"Breast Cancer Treatment Studies\"\n  },\n  {\n    \"title\": \"Multireceptor modulation in metabolic disease: are more targets better?\",\n    \"doi\": \"10.1016/s0140-6736(26)01136-0\",\n    \"journal\": \"The Lancet\",\n    \"year\": 2026,\n    \"cited_by_count\": 0,\n    \"topic\": \"Metabolism, Diabetes, and Cancer\"\n  },\n  {\n    \"title\": \"Long-term effects of colonoscopy screening on colorectal cancer incidence and mortality: a multicountry, population-based randomised controlled trial\",\n    \"doi\": \"10.1016/s0140-6736(26)00508-8\",\n    \"journal\": \"The Lancet\",\n    \"year\": 2…[truncated]"
+    },
+    {
+      "command": "curate",
+      "kind": "json_fidelity",
+      "args": [
+        "curate",
+        "--topic",
+        "cancer",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "[\n  {\n    \"title\": \"Proton beam therapy for oropharyngeal cancer (TORPEdO): a phase 3, randomised controlled trial\",\n    \"doi\": \"10.1016/s0140-6736(26)00314-4\",\n    \"journal\": \"The Lancet\",\n    \"year\": 2026,\n    \"cited_by_count\": 6,\n    \"topic\": \"Head and Neck Cancer Studies\"\n  },\n  {\n    \"title\": \"Pembrolizumab plus weekly paclitaxel in platinum-resistant recurrent ovarian cancer (ENGOT-ov65/KEYNOTE-B96): a multicentre, randomised, double-blind, phase 3 study\",\n    \"doi\": \"10.1016/s0140-6736(26)00602-1\",\n    \"journal\": \"The Lancet\",\n    \"year\": 2026,\n    \"cited_by_count\": 5,\n    \"topic\": \"Ovarian cancer diagnosis and treatment\"\n  },\n  {\n    \"title\": \"Overall survival with relacorilant and nab-paclitaxel in patients with platinum-resistant ovarian cancer (ROSELLA): a phase 3 randomised controlled trial\",\n    \"doi\": \"10.1016/s0140-6736(26)00462-9\",\n    \"journal\": \"The Lancet\",\n    \"year\": 2026,\n    \"cited_by_count\": 4,\n    \"topic\": \"Ovarian cancer diagnosis and treatment\"\n  },\n  {\n    \"title\": \"Global burden of cancer in children and adolescents aged 0–19 years, 1990–2023: a systematic analysis for the Global Burden of Disease Study 2023\",\n    \"doi\": \"10.1016/s0140-6736(26)00200-x\",\n    \"journal\": \"The Lancet\",\n    \"year\": 2026,\n    \"cited_by_count\": 2,\n    \"topic\": \"Acute Lymphoblastic Leukemia research\"\n  },\n  {\n    \"title\": \"Survival outcome of VATS compared with open lobectomy for lung cancer: an individual patient data meta-analysis of randomised trials\",\n    \"doi\": \"10.1016/s0140-6736(26)00031-0\",\n    \"journal\": \"The Lancet\",\n    \"year\": 2026,\n    \"cited_by_count\": 2,\n    \"topic\": \"Lung Cancer Diagnosis and Treatment\"\n  },\n  {\n    \"title\": \"Perioperative serplulimab with neoadjuvant chemotherapy versus perioperative chemotherapy in PD-L1-positive gastric cancer (ASTRUM-006): a randomised, double-blind, multicentre, phase 3 study\",\n    \"doi\": \"10.1016/s0140-6736(26)00974-8\",\n    \"journal\": \"The Lancet\",\n    \"year\": 2026,\n    \"cited_by_count\": 1,\n    \"topic\": \"Gastric Cancer Management and Outcomes\"\n  },\n  {\n    \"title\": \"Sacituzumab tirumotecan plus pembrolizumab versus pembrolizumab in PD-L1-positive advanced non-small-cell lung cancer (OptiTROP-Lung05): interim analysis of a randomised, open-label, phase 3 trial\",\n    \"doi\": \"10.1016/s0140-6736(26)00968-2\",\n    \"journal\": \"The Lancet\",\n    \"year\": 2026,\n    \"cited_by_count\": 1,\n    \"topic\": \"Cancer Immunotherapy and Biomarkers\"\n  },\n  {\n    \"title\": \"Ivonescimab plus chemotherapy versus tislelizumab plus chemotherapy in advanced squamous non-small-cell lung cancer (HARMONi-6): interim overall survival analysis of a randomised, double-blind, phase 3 trial in China\",\n    \"doi\": \"10.1016/s0140-6736(26)00966-9\",\n    \"journal\": \"The Lancet\",\n    \"year\": 2026,\n    \"cited_by_count\": 1,\n    \"topic\": \"Cancer Immunotherapy and Biomarkers\"\n  },\n  {\n    \"title\": \"Substantial increases in cervical cancer inequalities worldwide without enhanced human papillomavirus vaccination and screening efforts: a global modelling study\",\n    \"doi\": \"10.1016/s0140-6736(26)00410-1\",\n    \"journal\": \"The Lancet\",\n    \"year\": 2026,\n    \"cited_by_count\": 1,\n    \"topic\": \"Cervical Cancer and HPV Research\"\n  },\n  {\n    \"title\": \"5-year results of hypofractionated locoregional radiotherapy in early breast cancer HypoG-01 (UNICANCER): a French multicentre, randomised, non-inferiority, phase 3, open-label, controlled trial\",\n    \"doi\": \"10.1016/s0140-6736(25)02597-8\",\n    \"journal\": \"The Lancet\",\n    \"year\": 2026,\n    \"cited_by_count\": 1,\n    \"topic\": \"Breast Cancer Treatment Studies\"\n  },\n  {\n    \"title\": \"Multireceptor modulation in metabolic disease: are more targets better?\",\n    \"doi\": \"10.1016/s0140-6736(26)01136-0\",\n    \"journal\": \"The Lancet\",\n    \"year\": 2026,\n    \"cited_by_count\": 0,\n    \"topic\": \"Metabolism, Diabetes, and Cancer\"\n  },\n  {\n    \"title\": \"Long-term effects of colonoscopy screening on colorectal cancer incidence and mortality: a multicountry, population-based randomised controlled trial\",\n    \"doi\": \"10.1016/s0140-6736(26)00508-8\",\n    \"journal\": \"The Lancet\",\n    \"year\": 2…[truncated]"
+    },
+    {
+      "command": "curate",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "doctor",
+      "kind": "help",
+      "args": [
+        "doctor",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Check CLI health\n\nUsage:\n  thelancet-pp-cli doctor [flags]\n\nExamples:\n  thelancet-pp-cli doctor\n  thelancet-pp-cli doctor --json\n  thelancet-pp-cli doctor --fail-on warn\n\nFlags:\n      --fail-on string   Exit non-zero when a health level is reached: stale, error. Default is never.\n  -h, --help             help for doctor\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'thelancet-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "doctor",
+      "kind": "happy_path",
+      "args": [
+        "doctor"
+      ],
+      "status": "pass",
+      "output_sample": "  OK Config: ok\n  OK Auth: not required\n  OK Verify Mode: normal operation\n  OK API: reachable\n  config_path: C:\\Users\\LACI\\AppData\\Local\\Temp\\printing-press-subprocess-407375027\\.config\\thelancet-pp-cli\\config.toml\n  base_url: https://api.openalex.org\n  version: 1.0.0\n  OK Cache: fresh\n    db_path: C:\\Users\\LACI\\AppData\\Local\\Temp\\printing-press-subprocess-407375027\\.local\\share\\thelancet-pp-cli\\data.db\n    schema_version: 4\n    db_bytes: 13787136\n    stale_after: 6h0m0s\n    resources:\n      - authors: 200 rows, 0s\n      - works: 200 rows, 0s\n"
+    },
+    {
+      "command": "doctor",
+      "kind": "json_fidelity",
+      "args": [
+        "doctor",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"api\": \"reachable\",\n  \"auth\": \"not required\",\n  \"base_url\": \"https://api.openalex.org\",\n  \"cache\": {\n    \"db_bytes\": 13787136,\n    \"db_path\": \"C:\\\\Users\\\\LACI\\\\AppData\\\\Local\\\\Temp\\\\printing-press-subprocess-407375027\\\\.local\\\\share\\\\thelancet-pp-cli\\\\data.db\",\n    \"resources\": [\n      {\n        \"last_synced_at\": \"2026-06-17T09:58:03Z\",\n        \"rows\": 200,\n        \"staleness\": \"0s\",\n        \"type\": \"authors\"\n      },\n      {\n        \"last_synced_at\": \"2026-06-17T09:58:03Z\",\n        \"rows\": 200,\n        \"staleness\": \"0s\",\n        \"type\": \"works\"\n      }\n    ],\n    \"schema_version\": 4,\n    \"stale_after\": \"6h0m0s\",\n    \"status\": \"fresh\"\n  },\n  \"config\": \"ok\",\n  \"config_path\": \"C:\\\\Users\\\\LACI\\\\AppData\\\\Local\\\\Temp\\\\printing-press-subprocess-407375027\\\\.config\\\\thelancet-pp-cli\\\\config.toml\",\n  \"verify_mode\": \"normal operation\",\n  \"version\": \"1.0.0\"\n}\n"
+    },
+    {
+      "command": "doctor",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "drift",
+      "kind": "help",
+      "args": [
+        "drift",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Show how a Lancet journal's topic mix shifts between two publication-year\nwindows (positive delta = rising in the later window). Reads the local\nmirror; run 'thelancet-pp-cli refresh' first.\n\nUsage:\n  thelancet-pp-cli drift [flags]\n\nExamples:\n  thelancet-pp-cli drift --journal lancet-oncology --window1 2018:2020 --window2 2023:2024\n  thelancet-pp-cli drift --window1 2015:2019 --window2 2020:2024 --top-n 15 --json\n\nFlags:\n      --db string        Database path (default ~/.local/share/thelancet-pp-cli/data.db)\n  -h, --help             help for drift\n      --journal string   Scope to a Lancet journal slug, or omit for all\n      --top-n int        Maximum topics to return (largest absolute share change) (default 20)\n      --window1 string   Earlier year window, YYYY:YYYY (e.g. 2018:2020)\n      --window2 string   Later year window, YYYY:YYYY (e.g. 2023:2024)\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'thelancet-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "drift",
+      "kind": "happy_path",
+      "args": [
+        "drift",
+        "--window1",
+        "2018:2021",
+        "--window2",
+        "2022:2026"
+      ],
+      "status": "pass",
+      "output_sample": "[\n  {\n    \"topic\": \"Viral Infections and Outbreaks Research\",\n    \"window1_count\": 0,\n    \"window2_count\": 16,\n    \"window1_share\": 0,\n    \"window2_share\": 0.04,\n    \"delta_share\": 0.04\n  },\n  {\n    \"topic\": \"Diabetes Treatment and Management\",\n    \"window1_count\": 0,\n    \"window2_count\": 14,\n    \"window1_share\": 0,\n    \"window2_share\": 0.035,\n    \"delta_share\": 0.035\n  },\n  {\n    \"topic\": \"Health and Conflict Studies\",\n    \"window1_count\": 0,\n    \"window2_count\": 10,\n    \"window1_share\": 0,\n    \"window2_share\": 0.025,\n    \"delta_share\": 0.025\n  },\n  {\n    \"topic\": \"Global Health and Surgery\",\n    \"window1_count\": 0,\n    \"window2_count\": 9,\n    \"window1_share\": 0,\n    \"window2_share\": 0.0225,\n    \"delta_share\": 0.0225\n  },\n  {\n    \"topic\": \"Acute Myocardial Infarction Research\",\n    \"window1_count\": 0,\n    \"window2_count\": 9,\n    \"window1_share\": 0,\n    \"window2_share\": 0.0225,\n    \"delta_share\": 0.0225\n  },\n  {\n    \"topic\": \"Consumer Attitudes and Food Labeling\",\n    \"window1_count\": 0,\n    \"window2_count\": 8,\n    \"window1_share\": 0,\n    \"window2_share\": 0.02,\n    \"delta_share\": 0.02\n  },\n  {\n    \"topic\": \"Climate Change and Health Impacts\",\n    \"window1_count\": 0,\n    \"window2_count\": 7,\n    \"window1_share\": 0,\n    \"window2_share\": 0.0175,\n    \"delta_share\": 0.0175\n  },\n  {\n    \"topic\": \"Alzheimer's disease research and treatments\",\n    \"window1_count\": 0,\n    \"window2_count\": 6,\n    \"window1_share\": 0,\n    \"window2_share\": 0.015,\n    \"delta_share\": 0.015\n  },\n  {\n    \"topic\": \"Artificial Intelligence in Healthcare and Education\",\n    \"window1_count\": 0,\n    \"window2_count\": 6,\n    \"window1_share\": 0,\n    \"window2_share\": 0.015,\n    \"delta_share\": 0.015\n  },\n  {\n    \"topic\": \"Liver Disease Diagnosis and Treatment\",\n    \"window1_count\": 0,\n    \"window2_count\": 5,\n    \"window1_share\": 0,\n    \"window2_share\": 0.0125,\n    \"delta_share\": 0.0125\n  },\n  {\n    \"topic\": \"Chronic Kidney Disease and Diabetes\",\n    \"window1_count\": 0,\n    \"window2_count\": 5,\n    \"window1_share\": 0,\n    \"window2_share\": 0.0125,\n    \"delta_share\": 0.0125\n  },\n  {\n    \"topic\": \"\",\n    \"window1_count\": 0,\n    \"window2_count\": 5,\n    \"window1_share\": 0,\n    \"window2_share\": 0.0125,\n    \"delta_share\": 0.0125\n  },\n  {\n    \"topic\": \"Acute Ischemic Stroke Management\",\n    \"window1_count\": 0,\n    \"window2_count\": 5,\n    \"window1_share\": 0,\n    \"window2_share\": 0.0125,\n    \"delta_share\": 0.0125\n  },\n  {\n    \"topic\": \"Blood Pressure and Hypertension Studies\",\n    \"window1_count\": 0,\n    \"window2_count\": 5,\n    \"window1_share\": 0,\n    \"window2_share\": 0.0125,\n    \"delta_share\": 0.0125\n  },\n  {\n    \"topic\": \"Acute Lymphoblastic Leukemia research\",\n    \"window1_count\": 0,\n    \"window2_count\": 5,\n    \"window1_share\": 0,\n    \"window2_share\": 0.0125,\n    \"delta_share\": 0.0125\n  },\n  {\n    \"topic\": \"Colorectal Cancer Screening and Detection\",\n    \"window1_count\": 0,\n    \"window2_count\": 4,\n    \"window1_share\": 0,\n    \"window2_share\": 0.01,\n    \"delta_share\": 0.01\n  },\n  {\n    \"topic\": \"Viral Infections and Vectors\",\n    \"window1_count\": 0,\n    \"window2_count\": 4,\n    \"window1_share\": 0,\n    \"window2_share\": 0.01,\n    \"delta_share\": 0.01\n  },\n  {\n    \"topic\": \"Zoonotic diseases and public health\",\n    \"window1_count\": 0,\n    \"window2_count\": 4,\n    \"window1_share\": 0,\n    \"window2_share\": 0.01,\n    \"delta_share\": 0.01\n  },\n  {\n    \"topic\": \"Urinary Tract Infections Management\",\n    \"window1_count\": 0,\n    \"window2_count\": 4,\n    \"window1_share\": 0,\n    \"window2_share\": 0.01,\n    \"delta_share\": 0.01\n  },\n  {\n    \"topic\": \"Maternal and fetal healthcare\",\n    \"window1_count\": 0,\n    \"window2_count\": 4,\n    \"window1_share\": 0,\n    \"window2_share\": 0.01,\n    \"delta_share\": 0.01\n  }\n]\n"
+    },
+    {
+      "command": "drift",
+      "kind": "json_fidelity",
+      "args": [
+        "drift",
+        "--window1",
+        "2018:2021",
+        "--window2",
+        "2022:2026",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "[\n  {\n    \"topic\": \"Viral Infections and Outbreaks Research\",\n    \"window1_count\": 0,\n    \"window2_count\": 16,\n    \"window1_share\": 0,\n    \"window2_share\": 0.04,\n    \"delta_share\": 0.04\n  },\n  {\n    \"topic\": \"Diabetes Treatment and Management\",\n    \"window1_count\": 0,\n    \"window2_count\": 14,\n    \"window1_share\": 0,\n    \"window2_share\": 0.035,\n    \"delta_share\": 0.035\n  },\n  {\n    \"topic\": \"Health and Conflict Studies\",\n    \"window1_count\": 0,\n    \"window2_count\": 10,\n    \"window1_share\": 0,\n    \"window2_share\": 0.025,\n    \"delta_share\": 0.025\n  },\n  {\n    \"topic\": \"Global Health and Surgery\",\n    \"window1_count\": 0,\n    \"window2_count\": 9,\n    \"window1_share\": 0,\n    \"window2_share\": 0.0225,\n    \"delta_share\": 0.0225\n  },\n  {\n    \"topic\": \"Acute Myocardial Infarction Research\",\n    \"window1_count\": 0,\n    \"window2_count\": 9,\n    \"window1_share\": 0,\n    \"window2_share\": 0.0225,\n    \"delta_share\": 0.0225\n  },\n  {\n    \"topic\": \"Consumer Attitudes and Food Labeling\",\n    \"window1_count\": 0,\n    \"window2_count\": 8,\n    \"window1_share\": 0,\n    \"window2_share\": 0.02,\n    \"delta_share\": 0.02\n  },\n  {\n    \"topic\": \"Climate Change and Health Impacts\",\n    \"window1_count\": 0,\n    \"window2_count\": 7,\n    \"window1_share\": 0,\n    \"window2_share\": 0.0175,\n    \"delta_share\": 0.0175\n  },\n  {\n    \"topic\": \"Artificial Intelligence in Healthcare and Education\",\n    \"window1_count\": 0,\n    \"window2_count\": 6,\n    \"window1_share\": 0,\n    \"window2_share\": 0.015,\n    \"delta_share\": 0.015\n  },\n  {\n    \"topic\": \"Alzheimer's disease research and treatments\",\n    \"window1_count\": 0,\n    \"window2_count\": 6,\n    \"window1_share\": 0,\n    \"window2_share\": 0.015,\n    \"delta_share\": 0.015\n  },\n  {\n    \"topic\": \"Acute Lymphoblastic Leukemia research\",\n    \"window1_count\": 0,\n    \"window2_count\": 5,\n    \"window1_share\": 0,\n    \"window2_share\": 0.0125,\n    \"delta_share\": 0.0125\n  },\n  {\n    \"topic\": \"Acute Ischemic Stroke Management\",\n    \"window1_count\": 0,\n    \"window2_count\": 5,\n    \"window1_share\": 0,\n    \"window2_share\": 0.0125,\n    \"delta_share\": 0.0125\n  },\n  {\n    \"topic\": \"Chronic Kidney Disease and Diabetes\",\n    \"window1_count\": 0,\n    \"window2_count\": 5,\n    \"window1_share\": 0,\n    \"window2_share\": 0.0125,\n    \"delta_share\": 0.0125\n  },\n  {\n    \"topic\": \"\",\n    \"window1_count\": 0,\n    \"window2_count\": 5,\n    \"window1_share\": 0,\n    \"window2_share\": 0.0125,\n    \"delta_share\": 0.0125\n  },\n  {\n    \"topic\": \"Blood Pressure and Hypertension Studies\",\n    \"window1_count\": 0,\n    \"window2_count\": 5,\n    \"window1_share\": 0,\n    \"window2_share\": 0.0125,\n    \"delta_share\": 0.0125\n  },\n  {\n    \"topic\": \"Liver Disease Diagnosis and Treatment\",\n    \"window1_count\": 0,\n    \"window2_count\": 5,\n    \"window1_share\": 0,\n    \"window2_share\": 0.0125,\n    \"delta_share\": 0.0125\n  },\n  {\n    \"topic\": \"Maternal and fetal healthcare\",\n    \"window1_count\": 0,\n    \"window2_count\": 4,\n    \"window1_share\": 0,\n    \"window2_share\": 0.01,\n    \"delta_share\": 0.01\n  },\n  {\n    \"topic\": \"Cardiac Imaging and Diagnostics\",\n    \"window1_count\": 0,\n    \"window2_count\": 4,\n    \"window1_share\": 0,\n    \"window2_share\": 0.01,\n    \"delta_share\": 0.01\n  },\n  {\n    \"topic\": \"Influenza Virus Research Studies\",\n    \"window1_count\": 0,\n    \"window2_count\": 4,\n    \"window1_share\": 0,\n    \"window2_share\": 0.01,\n    \"delta_share\": 0.01\n  },\n  {\n    \"topic\": \"Urinary Tract Infections Management\",\n    \"window1_count\": 0,\n    \"window2_count\": 4,\n    \"window1_share\": 0,\n    \"window2_share\": 0.01,\n    \"delta_share\": 0.01\n  },\n  {\n    \"topic\": \"Zoonotic diseases and public health\",\n    \"window1_count\": 0,\n    \"window2_count\": 4,\n    \"window1_share\": 0,\n    \"window2_share\": 0.01,\n    \"delta_share\": 0.01\n  }\n]\n"
+    },
+    {
+      "command": "drift",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "export",
+      "kind": "help",
+      "args": [
+        "export",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Export paginated API data to a local file. Supports JSONL (one JSON object\nper line, streaming-friendly) and JSON (array). JSONL is recommended for\nlarge datasets as it has no memory pressure.\n\nUsage:\n  thelancet-pp-cli export \u003cresource\u003e [id] [flags]\n\nExamples:\n  # Export all items as JSONL (streaming, recommended for large datasets)\n  thelancet-pp-cli export \u003cresource\u003e --format jsonl --output data.jsonl\n\n  # Export with limit\n  thelancet-pp-cli export \u003cresource\u003e --format jsonl --limit 1000\n\n  # Pipe to another tool\n  thelancet-pp-cli export \u003cresource\u003e --format jsonl | jq '.id'\n\nFlags:\n      --format string   Output format: jsonl or json (default \"jsonl\")\n  -h, --help            help for export\n      --limit int       Maximum records to export (0 = unlimited)\n      --no-cache        Bypass response cache for fresh data\n  -o, --output string   Output file path (default: stdout)\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'thelancet-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "export",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [export] has fewer segments than placeholders (2)"
+    },
+    {
+      "command": "export",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [export] has fewer segments than placeholders (2)"
+    },
+    {
+      "command": "export",
+      "kind": "error_path",
+      "args": [
+        "export",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 2,
+      "output_sample": "Error: unknown resource \"__printing_press_invalid__\"; valid: authors, works\n"
+    },
+    {
+      "command": "feedback list",
+      "kind": "help",
+      "args": [
+        "feedback",
+        "list",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "List recent feedback entries\n\nUsage:\n  thelancet-pp-cli feedback list [flags]\n\nExamples:\n  thelancet-pp-cli feedback list\n  thelancet-pp-cli feedback list --limit 5\n  thelancet-pp-cli feedback list --json\n\nFlags:\n  -h, --help        help for list\n      --limit int   Maximum number of recent entries to return (default 20)\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'thelancet-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "feedback list",
+      "kind": "happy_path",
+      "args": [
+        "feedback",
+        "list"
+      ],
+      "status": "pass"
+    },
+    {
+      "command": "feedback list",
+      "kind": "json_fidelity",
+      "args": [
+        "feedback",
+        "list",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "[]\n"
+    },
+    {
+      "command": "feedback list",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "import",
+      "kind": "help",
+      "args": [
+        "import",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Import data from a JSONL file by issuing POST requests for each record.\nEach line must be a valid JSON object. Failed records are logged to stderr\nbut do not stop the import.\n\nUsage:\n  thelancet-pp-cli import \u003cresource\u003e [flags]\n\nExamples:\n  # Import from a JSONL file\n  thelancet-pp-cli import \u003cresource\u003e --input data.jsonl\n\n  # Dry-run to preview without sending\n  thelancet-pp-cli import \u003cresource\u003e --input data.jsonl --dry-run\n\n  # Import from stdin\n  cat data.jsonl | thelancet-pp-cli import \u003cresource\u003e --input -\n\nFlags:\n      --batch-size int   Records per batch (future: batch API support) (default 1)\n      --dry-run          Preview import without sending requests\n  -h, --help             help for import\n  -i, --input string     Input JSONL file path (use - for stdin)\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'thelancet-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "import",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [import] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "import",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [import] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "import",
+      "kind": "error_path",
+      "args": [
+        "import",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 2,
+      "output_sample": "Error: required flag(s) \"input\" not set\n"
+    },
+    {
+      "command": "journals",
+      "kind": "help",
+      "args": [
+        "journals",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "List every journal in the curated Lancet family registry. Use a slug with\nother commands' --journal flag to scope queries to that title.\n\nUsage:\n  thelancet-pp-cli journals [flags]\n\nAliases:\n  journals, journal-list\n\nExamples:\n  thelancet-pp-cli journals\n  thelancet-pp-cli journals --json\n\nFlags:\n  -h, --help   help for journals\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'thelancet-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "journals",
+      "kind": "happy_path",
+      "args": [
+        "journals"
+      ],
+      "status": "pass",
+      "output_sample": "[\n  {\n    \"slug\": \"ebiomedicine\",\n    \"issn\": \"2352-3964\",\n    \"display\": \"eBioMedicine\"\n  },\n  {\n    \"slug\": \"eclinicalmedicine\",\n    \"issn\": \"2589-5370\",\n    \"display\": \"eClinicalMedicine\"\n  },\n  {\n    \"slug\": \"lancet\",\n    \"issn\": \"0140-6736\",\n    \"display\": \"The Lancet\"\n  },\n  {\n    \"slug\": \"lancet-child-adolescent\",\n    \"issn\": \"2352-4642\",\n    \"display\": \"The Lancet Child \\u0026 Adolescent Health\"\n  },\n  {\n    \"slug\": \"lancet-diabetes-endocrinology\",\n    \"issn\": \"2213-8587\",\n    \"display\": \"The Lancet Diabetes \\u0026 Endocrinology\"\n  },\n  {\n    \"slug\": \"lancet-digital-health\",\n    \"issn\": \"2589-7500\",\n    \"display\": \"The Lancet Digital Health\"\n  },\n  {\n    \"slug\": \"lancet-gastroenterology-hepatology\",\n    \"issn\": \"2468-1253\",\n    \"display\": \"The Lancet Gastroenterology \\u0026 Hepatology\"\n  },\n  {\n    \"slug\": \"lancet-global-health\",\n    \"issn\": \"2214-109X\",\n    \"display\": \"The Lancet Global Health\"\n  },\n  {\n    \"slug\": \"lancet-haematology\",\n    \"issn\": \"2352-3026\",\n    \"display\": \"The Lancet Haematology\"\n  },\n  {\n    \"slug\": \"lancet-healthy-longevity\",\n    \"issn\": \"2666-7568\",\n    \"display\": \"The Lancet Healthy Longevity\"\n  },\n  {\n    \"slug\": \"lancet-hiv\",\n    \"issn\": \"2352-3018\",\n    \"display\": \"The Lancet HIV\"\n  },\n  {\n    \"slug\": \"lancet-infectious-diseases\",\n    \"issn\": \"1473-3099\",\n    \"display\": \"The Lancet Infectious Diseases\"\n  },\n  {\n    \"slug\": \"lancet-neurology\",\n    \"issn\": \"1474-4422\",\n    \"display\": \"The Lancet Neurology\"\n  },\n  {\n    \"slug\": \"lancet-oncology\",\n    \"issn\": \"1470-2045\",\n    \"display\": \"The Lancet Oncology\"\n  },\n  {\n    \"slug\": \"lancet-planetary-health\",\n    \"issn\": \"2542-5196\",\n    \"display\": \"The Lancet Planetary Health\"\n  },\n  {\n    \"slug\": \"lancet-psychiatry\",\n    \"issn\": \"2215-0366\",\n    \"display\": \"The Lancet Psychiatry\"\n  },\n  {\n    \"slug\": \"lancet-public-health\",\n    \"issn\": \"2468-2667\",\n    \"display\": \"The Lancet Public Health\"\n  },\n  {\n    \"slug\": \"lancet-respiratory\",\n    \"issn\": \"2213-2600\",\n    \"display\": \"The Lancet Respiratory Medicine\"\n  },\n  {\n    \"slug\": \"lancet-rheumatology\",\n    \"issn\": \"2665-9913\",\n    \"display\": \"The Lancet Rheumatology\"\n  }\n]\n"
+    },
+    {
+      "command": "journals",
+      "kind": "json_fidelity",
+      "args": [
+        "journals",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "[\n  {\n    \"slug\": \"ebiomedicine\",\n    \"issn\": \"2352-3964\",\n    \"display\": \"eBioMedicine\"\n  },\n  {\n    \"slug\": \"eclinicalmedicine\",\n    \"issn\": \"2589-5370\",\n    \"display\": \"eClinicalMedicine\"\n  },\n  {\n    \"slug\": \"lancet\",\n    \"issn\": \"0140-6736\",\n    \"display\": \"The Lancet\"\n  },\n  {\n    \"slug\": \"lancet-child-adolescent\",\n    \"issn\": \"2352-4642\",\n    \"display\": \"The Lancet Child \\u0026 Adolescent Health\"\n  },\n  {\n    \"slug\": \"lancet-diabetes-endocrinology\",\n    \"issn\": \"2213-8587\",\n    \"display\": \"The Lancet Diabetes \\u0026 Endocrinology\"\n  },\n  {\n    \"slug\": \"lancet-digital-health\",\n    \"issn\": \"2589-7500\",\n    \"display\": \"The Lancet Digital Health\"\n  },\n  {\n    \"slug\": \"lancet-gastroenterology-hepatology\",\n    \"issn\": \"2468-1253\",\n    \"display\": \"The Lancet Gastroenterology \\u0026 Hepatology\"\n  },\n  {\n    \"slug\": \"lancet-global-health\",\n    \"issn\": \"2214-109X\",\n    \"display\": \"The Lancet Global Health\"\n  },\n  {\n    \"slug\": \"lancet-haematology\",\n    \"issn\": \"2352-3026\",\n    \"display\": \"The Lancet Haematology\"\n  },\n  {\n    \"slug\": \"lancet-healthy-longevity\",\n    \"issn\": \"2666-7568\",\n    \"display\": \"The Lancet Healthy Longevity\"\n  },\n  {\n    \"slug\": \"lancet-hiv\",\n    \"issn\": \"2352-3018\",\n    \"display\": \"The Lancet HIV\"\n  },\n  {\n    \"slug\": \"lancet-infectious-diseases\",\n    \"issn\": \"1473-3099\",\n    \"display\": \"The Lancet Infectious Diseases\"\n  },\n  {\n    \"slug\": \"lancet-neurology\",\n    \"issn\": \"1474-4422\",\n    \"display\": \"The Lancet Neurology\"\n  },\n  {\n    \"slug\": \"lancet-oncology\",\n    \"issn\": \"1470-2045\",\n    \"display\": \"The Lancet Oncology\"\n  },\n  {\n    \"slug\": \"lancet-planetary-health\",\n    \"issn\": \"2542-5196\",\n    \"display\": \"The Lancet Planetary Health\"\n  },\n  {\n    \"slug\": \"lancet-psychiatry\",\n    \"issn\": \"2215-0366\",\n    \"display\": \"The Lancet Psychiatry\"\n  },\n  {\n    \"slug\": \"lancet-public-health\",\n    \"issn\": \"2468-2667\",\n    \"display\": \"The Lancet Public Health\"\n  },\n  {\n    \"slug\": \"lancet-respiratory\",\n    \"issn\": \"2213-2600\",\n    \"display\": \"The Lancet Respiratory Medicine\"\n  },\n  {\n    \"slug\": \"lancet-rheumatology\",\n    \"issn\": \"2665-9913\",\n    \"display\": \"The Lancet Rheumatology\"\n  }\n]\n"
+    },
+    {
+      "command": "journals",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "mesh",
+      "kind": "help",
+      "args": [
+        "mesh",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Find researchers affiliated with an institution who co-author Lancet papers,\nranked by the number of papers they share. Reads the local mirror; run\n'thelancet-pp-cli refresh' first.\n\nUsage:\n  thelancet-pp-cli mesh [flags]\n\nExamples:\n  thelancet-pp-cli mesh --org 'Stanford University' --json\n  thelancet-pp-cli mesh --org 'Oxford' --limit 30\n\nFlags:\n      --db string    Database path (default ~/.local/share/thelancet-pp-cli/data.db)\n  -h, --help         help for mesh\n      --limit int    Maximum co-authorship pairs to return (default 25)\n      --org string   Institution to map (substring match against OpenAlex display names)\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'thelancet-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "mesh",
+      "kind": "happy_path",
+      "args": [
+        "mesh",
+        "--org",
+        "University College London"
+      ],
+      "status": "pass",
+      "output_sample": "[\n  {\n    \"author_a\": \"Marina Romanello\",\n    \"author_b\": \"Ian Hamilton\",\n    \"shared_works\": 1\n  },\n  {\n    \"author_a\": \"Marina Romanello\",\n    \"author_b\": \"Shih-Che Hsu\",\n    \"shared_works\": 1\n  },\n  {\n    \"author_a\": \"Rochelle A. Burgess\",\n    \"author_b\": \"Jennie Gamlin\",\n    \"shared_works\": 1\n  },\n  {\n    \"author_a\": \"Gabriella Conti\",\n    \"author_b\": \"Geraldine Barrett\",\n    \"shared_works\": 1\n  },\n  {\n    \"author_a\": \"Gabriella Conti\",\n    \"author_b\": \"Jennifer Hall\",\n    \"shared_works\": 1\n  },\n  {\n    \"author_a\": \"Gabriella Conti\",\n    \"author_b\": \"Judith Stephenson\",\n    \"shared_works\": 1\n  },\n  {\n    \"author_a\": \"Shabbar Jaffar\",\n    \"author_b\": \"Anupam Garrib\",\n    \"shared_works\": 1\n  },\n  {\n    \"author_a\": \"Shabbar Jaffar\",\n    \"author_b\": \"Erik van Widenfelt\",\n    \"shared_works\": 1\n  },\n  {\n    \"author_a\": \"Shabbar Jaffar\",\n    \"author_b\": \"Sayoki Mfinanga\",\n    \"shared_works\": 1\n  },\n  {\n    \"author_a\": \"Anupam Garrib\",\n    \"author_b\": \"Erik van Widenfelt\",\n    \"shared_works\": 1\n  },\n  {\n    \"author_a\": \"Anupam Garrib\",\n    \"author_b\": \"Sayoki Mfinanga\",\n    \"shared_works\": 1\n  },\n  {\n    \"author_a\": \"Geraldine Barrett\",\n    \"author_b\": \"Jennifer Hall\",\n    \"shared_works\": 1\n  },\n  {\n    \"author_a\": \"Geraldine Barrett\",\n    \"author_b\": \"Judith Stephenson\",\n    \"shared_works\": 1\n  },\n  {\n    \"author_a\": \"Mirko Zoncapè\",\n    \"author_b\": \"Maykon Diego Melo\",\n    \"shared_works\": 1\n  },\n  {\n    \"author_a\": \"Mirko Zoncapè\",\n    \"author_b\": \"Emmanuel Tsochatzis\",\n    \"shared_works\": 1\n  },\n  {\n    \"author_a\": \"Suvankar Pal\",\n    \"author_b\": \"Thomas Foltynie\",\n    \"shared_works\": 1\n  },\n  {\n    \"author_a\": \"Suvankar Pal\",\n    \"author_b\": \"Paresh Malhotra\",\n    \"shared_works\": 1\n  },\n  {\n    \"author_a\": \"Suvankar Pal\",\n    \"author_b\": \"James Carpenter\",\n    \"shared_works\": 1\n  },\n  {\n    \"author_a\": \"Suvankar Pal\",\n    \"author_b\": \"Jeremy Chataway\",\n    \"shared_works\": 1\n  },\n  {\n    \"author_a\": \"Suvankar Pal\",\n    \"author_b\": \"Mahesh Parmar\",\n    \"shared_works\": 1\n  },\n  {\n    \"author_a\": \"Erik van Widenfelt\",\n    \"author_b\": \"Sayoki Mfinanga\",\n    \"shared_works\": 1\n  },\n  {\n    \"author_a\": \"Ian Hamilton\",\n    \"author_b\": \"Shih-Che Hsu\",\n    \"shared_works\": 1\n  },\n  {\n    \"author_a\": \"Jennifer Hall\",\n    \"author_b\": \"Judith Stephenson\",\n    \"shared_works\": 1\n  },\n  {\n    \"author_a\": \"Maykon Diego Melo\",\n    \"author_b\": \"Emmanuel Tsochatzis\",\n    \"shared_works\": 1\n  },\n  {\n    \"author_a\": \"Nick C Fox\",\n    \"author_b\": \"Jonathan M Schott\",\n    \"shared_works\": 1\n  }\n]\n"
+    },
+    {
+      "command": "mesh",
+      "kind": "json_fidelity",
+      "args": [
+        "mesh",
+        "--org",
+        "University College London",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "[\n  {\n    \"author_a\": \"Marina Romanello\",\n    \"author_b\": \"Ian Hamilton\",\n    \"shared_works\": 1\n  },\n  {\n    \"author_a\": \"Marina Romanello\",\n    \"author_b\": \"Shih-Che Hsu\",\n    \"shared_works\": 1\n  },\n  {\n    \"author_a\": \"Rochelle A. Burgess\",\n    \"author_b\": \"Jennie Gamlin\",\n    \"shared_works\": 1\n  },\n  {\n    \"author_a\": \"Gabriella Conti\",\n    \"author_b\": \"Geraldine Barrett\",\n    \"shared_works\": 1\n  },\n  {\n    \"author_a\": \"Gabriella Conti\",\n    \"author_b\": \"Jennifer Hall\",\n    \"shared_works\": 1\n  },\n  {\n    \"author_a\": \"Gabriella Conti\",\n    \"author_b\": \"Judith Stephenson\",\n    \"shared_works\": 1\n  },\n  {\n    \"author_a\": \"Shabbar Jaffar\",\n    \"author_b\": \"Anupam Garrib\",\n    \"shared_works\": 1\n  },\n  {\n    \"author_a\": \"Shabbar Jaffar\",\n    \"author_b\": \"Erik van Widenfelt\",\n    \"shared_works\": 1\n  },\n  {\n    \"author_a\": \"Shabbar Jaffar\",\n    \"author_b\": \"Sayoki Mfinanga\",\n    \"shared_works\": 1\n  },\n  {\n    \"author_a\": \"Anupam Garrib\",\n    \"author_b\": \"Erik van Widenfelt\",\n    \"shared_works\": 1\n  },\n  {\n    \"author_a\": \"Anupam Garrib\",\n    \"author_b\": \"Sayoki Mfinanga\",\n    \"shared_works\": 1\n  },\n  {\n    \"author_a\": \"Geraldine Barrett\",\n    \"author_b\": \"Jennifer Hall\",\n    \"shared_works\": 1\n  },\n  {\n    \"author_a\": \"Geraldine Barrett\",\n    \"author_b\": \"Judith Stephenson\",\n    \"shared_works\": 1\n  },\n  {\n    \"author_a\": \"Mirko Zoncapè\",\n    \"author_b\": \"Maykon Diego Melo\",\n    \"shared_works\": 1\n  },\n  {\n    \"author_a\": \"Mirko Zoncapè\",\n    \"author_b\": \"Emmanuel Tsochatzis\",\n    \"shared_works\": 1\n  },\n  {\n    \"author_a\": \"Suvankar Pal\",\n    \"author_b\": \"Thomas Foltynie\",\n    \"shared_works\": 1\n  },\n  {\n    \"author_a\": \"Suvankar Pal\",\n    \"author_b\": \"Paresh Malhotra\",\n    \"shared_works\": 1\n  },\n  {\n    \"author_a\": \"Suvankar Pal\",\n    \"author_b\": \"James Carpenter\",\n    \"shared_works\": 1\n  },\n  {\n    \"author_a\": \"Suvankar Pal\",\n    \"author_b\": \"Jeremy Chataway\",\n    \"shared_works\": 1\n  },\n  {\n    \"author_a\": \"Suvankar Pal\",\n    \"author_b\": \"Mahesh Parmar\",\n    \"shared_works\": 1\n  },\n  {\n    \"author_a\": \"Erik van Widenfelt\",\n    \"author_b\": \"Sayoki Mfinanga\",\n    \"shared_works\": 1\n  },\n  {\n    \"author_a\": \"Ian Hamilton\",\n    \"author_b\": \"Shih-Che Hsu\",\n    \"shared_works\": 1\n  },\n  {\n    \"author_a\": \"Jennifer Hall\",\n    \"author_b\": \"Judith Stephenson\",\n    \"shared_works\": 1\n  },\n  {\n    \"author_a\": \"Maykon Diego Melo\",\n    \"author_b\": \"Emmanuel Tsochatzis\",\n    \"shared_works\": 1\n  },\n  {\n    \"author_a\": \"Nick C Fox\",\n    \"author_b\": \"Jonathan M Schott\",\n    \"shared_works\": 1\n  }\n]\n"
+    },
+    {
+      "command": "mesh",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "profile delete",
+      "kind": "help",
+      "args": [
+        "profile",
+        "delete",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Remove a profile\n\nUsage:\n  thelancet-pp-cli profile delete \u003cname\u003e [flags]\n\nExamples:\n  thelancet-pp-cli profile delete my-defaults --yes\n  thelancet-pp-cli profile delete old-profile --yes --json\n\nFlags:\n  -h, --help   help for delete\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'thelancet-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "profile delete",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile delete",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile delete",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "mutating command; error_path would call live API without --dry-run"
+    },
+    {
+      "command": "profile delete",
+      "kind": "error_path_real",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile list",
+      "kind": "help",
+      "args": [
+        "profile",
+        "list",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "List saved profiles\n\nUsage:\n  thelancet-pp-cli profile list [flags]\n\nExamples:\n  thelancet-pp-cli profile list\n  thelancet-pp-cli profile list --json\n\nFlags:\n  -h, --help   help for list\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'thelancet-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "profile list",
+      "kind": "happy_path",
+      "args": [
+        "profile",
+        "list"
+      ],
+      "status": "pass",
+      "output_sample": "NAME  FIELDS  DESCRIPTION\n"
+    },
+    {
+      "command": "profile list",
+      "kind": "json_fidelity",
+      "args": [
+        "profile",
+        "list",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "[]\n"
+    },
+    {
+      "command": "profile list",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "profile save",
+      "kind": "help",
+      "args": [
+        "profile",
+        "save",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Captures every flag explicitly set on the invocation and stores\nthem under \u003cname\u003e. To update an existing profile, run save again; the\nentry is replaced.\n\nTo avoid creating empty profiles, at least one non-default flag must be\npresent (other than --profile and --config).\n\nUsage:\n  thelancet-pp-cli profile save \u003cname\u003e [--\u003cflag\u003e \u003cvalue\u003e ...] [flags]\n\nExamples:\n  thelancet-pp-cli profile save my-defaults --json --compact\n  thelancet-pp-cli profile save tonight-defaults --region US\n\nFlags:\n      --description string   Short description shown in 'profile list'\n  -h, --help                 help for save\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'thelancet-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "profile save",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile save",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile save",
+      "kind": "error_path",
+      "args": [
+        "profile",
+        "save",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "Error: no non-default flags set - pass at least one flag to save into \"__printing_press_invalid__\"\n"
+    },
+    {
+      "command": "profile show",
+      "kind": "help",
+      "args": [
+        "profile",
+        "show",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Show a profile's values as JSON\n\nUsage:\n  thelancet-pp-cli profile show \u003cname\u003e [flags]\n\nExamples:\n  thelancet-pp-cli profile show my-defaults\n  thelancet-pp-cli profile show tonight-defaults --json\n\nFlags:\n  -h, --help   help for show\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'thelancet-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "profile show",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile show",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile show",
+      "kind": "error_path",
+      "args": [
+        "profile",
+        "show",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "Error: profile \"__printing_press_invalid__\" not found\n"
+    },
+    {
+      "command": "profile use",
+      "kind": "help",
+      "args": [
+        "profile",
+        "use",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Print the flag values a profile will apply (does not execute anything)\n\nUsage:\n  thelancet-pp-cli profile use \u003cname\u003e [flags]\n\nExamples:\n  thelancet-pp-cli profile use my-defaults\n  thelancet-pp-cli profile use tonight-defaults --json\n\nFlags:\n  -h, --help   help for use\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'thelancet-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "profile use",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile use",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile use",
+      "kind": "error_path",
+      "args": [
+        "profile",
+        "use",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "Error: profile \"__printing_press_invalid__\" not found\n"
+    },
+    {
+      "command": "rank-authors",
+      "kind": "help",
+      "args": [
+        "rank-authors",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Rank researchers by total citations across the local store, optionally scoped\nto a Lancet journal (--journal) and/or an institution (--institution). Reads\nthe local mirror; run 'thelancet-pp-cli refresh' first.\n\nUsage:\n  thelancet-pp-cli rank-authors [flags]\n\nExamples:\n  thelancet-pp-cli rank-authors --journal lancet-oncology --json\n  thelancet-pp-cli rank-authors --institution 'Harvard' --limit 20\n\nFlags:\n      --db string            Database path (default ~/.local/share/thelancet-pp-cli/data.db)\n  -h, --help                 help for rank-authors\n      --institution string   Filter to authors affiliated with this institution (substring match)\n      --journal string       Scope to a Lancet journal slug (e.g. lancet-oncology), or omit for all\n      --limit int            Maximum authors to return (default 25)\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'thelancet-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "rank-authors",
+      "kind": "happy_path",
+      "args": [
+        "rank-authors",
+        "--journal",
+        "lancet-oncology",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "[]\n"
+    },
+    {
+      "command": "rank-authors",
+      "kind": "json_fidelity",
+      "args": [
+        "rank-authors",
+        "--journal",
+        "lancet-oncology",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "[]\n"
+    },
+    {
+      "command": "rank-authors",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "refresh",
+      "kind": "help",
+      "args": null,
+      "status": "skip",
+      "reason": "destructive-at-auth"
+    },
+    {
+      "command": "refresh",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "destructive-at-auth"
+    },
+    {
+      "command": "refresh",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "destructive-at-auth"
+    },
+    {
+      "command": "refresh",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "destructive-at-auth"
+    },
+    {
+      "command": "sources",
+      "kind": "help",
+      "args": [
+        "sources",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Get a journal (source) by ISSN or OpenAlex ID\n\nUsage:\n  thelancet-pp-cli sources \u003cid\u003e [flags]\n\nExamples:\n  thelancet-pp-cli sources 550e8400-e29b-41d4-a716-446655440000\n\nFlags:\n  -h, --help   help for sources\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'thelancet-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "sources",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [sources] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "sources",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [sources] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "sources",
+      "kind": "error_path",
+      "args": [
+        "sources",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 3,
+      "output_sample": "Error: GET /sources/__printing_press_invalid__ returned HTTP 404: \u003c!doctype html\u003e\n\u003chtml lang=en\u003e\n\u003ctitle\u003e404 Not Found\u003c/title\u003e\n\u003ch1\u003eNot Found\u003c/h1\u003e\n\u003cp\u003eThe requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.\u003c/p\u003e\n\nhint: resource not found. Run the 'list' command to see available items\n"
+    },
+    {
+      "command": "sync",
+      "kind": "help",
+      "args": [
+        "sync",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Sync data from the API into a local SQLite database. Supports resumable\nincremental sync (only fetches new data since last sync) and full resync.\n\nExit codes \u0026 warnings:\n  Resources the API denies access to (HTTP 403, or HTTP 400 with an\n  access-policy body) are reported as warnings rather than failing the\n  run. In --json mode each is emitted as a {\"event\":\"sync_warning\",...}\n  line carrying status, reason, and message fields, and a final\n  {\"event\":\"sync_summary\",...} aggregates the run.\n\n  Exit 0 when at least one resource synced and no resource flagged in\n  the spec as critical (x-critical: true) failed; non-critical failures\n  emit {\"event\":\"sync_warning\",\"reason\":\"exit_policy_default_changed\",\n  ...} so callers can detect that a partial failure was tolerated. Pass\n  --strict to exit non-zero on any per-resource failure. Exit is always\n  non-zero when every selected resource failed, regardless of --strict.\n\nResource scoping:\n  --resources runs the named top-level resources, plus any parent-keyed\n  dependent whose own name is listed OR whose parent table is listed.\n  Naming a parent therefore cascades to its dependents (so \"sync this\n  parent and its children\" works without listing every nested resource\n  by hand). There is no flag today to suppress the cascade for a named\n  parent. To run a dependent without re-syncing its parent, list only\n  the dependent by name; the parent table must already be populated\n  from a prior sync.\n\nUsage:\n  thelancet-pp-cli sync [flags]\n\nExamples:\n  # Sync all resources\n  thelancet-pp-cli sync\n\n  # Sync specific resources only\n  thelancet-pp-cli sync --resources channels,messages\n\n  # Full resync (ignore previous checkpoint)\n  thelancet-pp-cli sync --full\n\n  # Incremental sync: only records from the last 7 days\n  thelancet-pp-cli sync --since 7d\n\n  # Parallel sync with 8 workers\n  thelancet-pp-cli sync --concurrency 8\n\n  # Latest-only: refresh head of each resource, no historical backfill\n  thelancet-pp-cli sync --latest-only\n\nFlags:\n      --concurrency int              Number of parallel sync workers (default 4)\n      --db string                    Database path (default: ~/.local/share/thelancet-pp-cli/data.db)\n      --full                         Full resync (ignore previous checkpoint)\n      --global-param stringArray     Extra query param to inject into every sync request including dependent path-scoped calls (repeatable, key=value). Use when an API requires a scope on every call regardless of path nesting.\n  -h, --help                         help for sync\n      --latest-only                  Refresh head of each resource only; clears resume cursor and caps pages at 1. Mutually exclusive with --since (--since wins).\n      --max-pages int                Maximum pages to fetch per resource (0 = unlimited; cap-hit emits a sync_warning event)\n      --param stringArray            Extra query param to inject into flat-list sync requests (repeatable, key=value). Skipped on path-scoped dependent requests so a top-level scope like workspace=\u003cid\u003e does not double up on /parents/\u003cid\u003e/children calls. Use --global-param to inject everywhere. Avoid pagination keys (limit/since/cursor) — overriding them corrupts resume state.\n      --resource-param stringArray   Per-resource extra query param (repeatable, resource:key=value). Wins over --param and --global-param when keys conflict.\n      --resources strings            Comma-separated resource types to sync. Naming a parent also runs its parent-keyed dependents (see Long help for scoping).\n      --since string                 Incremental sync duration (e.g. 7d, 24h, 1w, 30m)\n      --strict                       Exit non-zero on any per-resource failure (default: only critical failures or all-resource failure exit non-zero).\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table…[truncated]"
+    },
+    {
+      "command": "sync",
+      "kind": "happy_path",
+      "args": [
+        "sync"
+      ],
+      "status": "pass",
+      "output_sample": "{\"event\":\"sync_start\",\"resource\":\"authors\"}\n{\"event\":\"sync_start\",\"resource\":\"works\"}\n{\"event\":\"sync_warning\",\"resource\":\"authors\",\"reason\":\"resource_not_incremental\",\"message\":\"endpoint does not declare a temporal filter parameter; incremental sync has no effect for this resource\"}\n{\"event\":\"sync_warning\",\"resource\":\"works\",\"reason\":\"resource_not_incremental\",\"message\":\"endpoint does not declare a temporal filter parameter; incremental sync has no effect for this resource\"}\n{\"event\":\"sync_progress\",\"resource\":\"authors\",\"fetched\":100}\n{\"event\":\"sync_progress\",\"resource\":\"works\",\"fetched\":100}\n{\"event\":\"sync_progress\",\"resource\":\"authors\",\"fetched\":200}\n{\"event\":\"sync_warning\",\"resource\":\"authors\",\"reason\":\"max_pages_cap_hit\",\"message\":\"reached --max-pages cap of 2; data may be truncated. Re-run with --max-pages 0 (unlimited) or higher to verify.\"}\n{\"event\":\"sync_complete\",\"resource\":\"authors\",\"total\":200,\"duration_ms\":3136}\n{\"event\":\"sync_progress\",\"resource\":\"works\",\"fetched\":200}\n{\"event\":\"sync_warning\",\"resource\":\"works\",\"reason\":\"max_pages_cap_hit\",\"message\":\"reached --max-pages cap of 2; data may be truncated. Re-run with --max-pages 0 (unlimited) or higher to verify.\"}\n{\"event\":\"sync_complete\",\"resource\":\"works\",\"total\":200,\"duration_ms\":4053}\n{\"event\":\"sync_summary\",\"total_records\":400,\"resources\":2,\"success\":2,\"warned\":0,\"errored\":0,\"duration_ms\":4053}\n"
+    },
+    {
+      "command": "sync",
+      "kind": "json_fidelity",
+      "args": [
+        "sync",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\"event\":\"sync_start\",\"resource\":\"authors\"}\n{\"event\":\"sync_start\",\"resource\":\"works\"}\n{\"event\":\"sync_warning\",\"resource\":\"authors\",\"reason\":\"resource_not_incremental\",\"message\":\"endpoint does not declare a temporal filter parameter; incremental sync has no effect for this resource\"}\n{\"event\":\"sync_warning\",\"resource\":\"works\",\"reason\":\"resource_not_incremental\",\"message\":\"endpoint does not declare a temporal filter parameter; incremental sync has no effect for this resource\"}\n{\"event\":\"sync_progress\",\"resource\":\"authors\",\"fetched\":100}\n{\"event\":\"sync_progress\",\"resource\":\"works\",\"fetched\":100}\n{\"event\":\"sync_progress\",\"resource\":\"authors\",\"fetched\":200}\n{\"event\":\"sync_warning\",\"resource\":\"authors\",\"reason\":\"max_pages_cap_hit\",\"message\":\"reached --max-pages cap of 2; data may be truncated. Re-run with --max-pages 0 (unlimited) or higher to verify.\"}\n{\"event\":\"sync_complete\",\"resource\":\"authors\",\"total\":200,\"duration_ms\":3810}\n{\"event\":\"sync_progress\",\"resource\":\"works\",\"fetched\":200}\n{\"event\":\"sync_warning\",\"resource\":\"works\",\"reason\":\"max_pages_cap_hit\",\"message\":\"reached --max-pages cap of 2; data may be truncated. Re-run with --max-pages 0 (unlimited) or higher to verify.\"}\n{\"event\":\"sync_complete\",\"resource\":\"works\",\"total\":200,\"duration_ms\":4654}\n{\"event\":\"sync_summary\",\"total_records\":400,\"resources\":2,\"success\":2,\"warned\":0,\"errored\":0,\"duration_ms\":4654}\n"
+    },
+    {
+      "command": "sync",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "visibility-gap",
+      "kind": "help",
+      "args": [
+        "visibility-gap",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Compare each author's average citations against the average citations of the\nLancet journals they publish in (a prestige proxy), surfacing authors most\nout of step. Optionally scope to an institution. Reads the local mirror; run\n'thelancet-pp-cli refresh' first.\n\nUsage:\n  thelancet-pp-cli visibility-gap [flags]\n\nExamples:\n  thelancet-pp-cli visibility-gap --institution 'Oxford' --json\n  thelancet-pp-cli visibility-gap --min-works 3 --limit 30\n\nFlags:\n      --db string            Database path (default ~/.local/share/thelancet-pp-cli/data.db)\n  -h, --help                 help for visibility-gap\n      --institution string   Scope to authors affiliated with this institution (substring match)\n      --limit int            Maximum authors to return (default 25)\n      --min-works int        Minimum works an author must have to be included (default 2)\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'thelancet-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "visibility-gap",
+      "kind": "happy_path",
+      "args": [
+        "visibility-gap",
+        "--institution",
+        "Oxford",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "[\n  {\n    \"author_id\": \"A5011316765\",\n    \"author_name\": \"Kulandaipalayam Natarajan Sindhu\",\n    \"works\": 3,\n    \"author_avg_citations\": 1.6666666666666667,\n    \"journal_avg_citations\": 0.565,\n    \"gap\": 1.1016666666666668\n  },\n  {\n    \"author_id\": \"A5020215736\",\n    \"author_name\": \"Idnan Yunas\",\n    \"works\": 3,\n    \"author_avg_citations\": 1.6666666666666667,\n    \"journal_avg_citations\": 0.565,\n    \"gap\": 1.1016666666666668\n  },\n  {\n    \"author_id\": \"A5138554599\",\n    \"author_name\": \"Arri Coomarasamy\",\n    \"works\": 3,\n    \"author_avg_citations\": 1.6666666666666667,\n    \"journal_avg_citations\": 0.565,\n    \"gap\": 1.1016666666666668\n  },\n  {\n    \"author_id\": \"A5011467466\",\n    \"author_name\": \"Adam Devall\",\n    \"works\": 3,\n    \"author_avg_citations\": 1.6666666666666667,\n    \"journal_avg_citations\": 0.565,\n    \"gap\": 1.1016666666666668\n  },\n  {\n    \"author_id\": \"A5085009349\",\n    \"author_name\": \"Alex Zimmermann\",\n    \"works\": 2,\n    \"author_avg_citations\": 1,\n    \"journal_avg_citations\": 0.565,\n    \"gap\": 0.43500000000000005\n  }\n]\n"
+    },
+    {
+      "command": "visibility-gap",
+      "kind": "json_fidelity",
+      "args": [
+        "visibility-gap",
+        "--institution",
+        "Oxford",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "[\n  {\n    \"author_id\": \"A5138554599\",\n    \"author_name\": \"Arri Coomarasamy\",\n    \"works\": 3,\n    \"author_avg_citations\": 1.6666666666666667,\n    \"journal_avg_citations\": 0.565,\n    \"gap\": 1.1016666666666668\n  },\n  {\n    \"author_id\": \"A5020215736\",\n    \"author_name\": \"Idnan Yunas\",\n    \"works\": 3,\n    \"author_avg_citations\": 1.6666666666666667,\n    \"journal_avg_citations\": 0.565,\n    \"gap\": 1.1016666666666668\n  },\n  {\n    \"author_id\": \"A5011467466\",\n    \"author_name\": \"Adam Devall\",\n    \"works\": 3,\n    \"author_avg_citations\": 1.6666666666666667,\n    \"journal_avg_citations\": 0.565,\n    \"gap\": 1.1016666666666668\n  },\n  {\n    \"author_id\": \"A5011316765\",\n    \"author_name\": \"Kulandaipalayam Natarajan Sindhu\",\n    \"works\": 3,\n    \"author_avg_citations\": 1.6666666666666667,\n    \"journal_avg_citations\": 0.565,\n    \"gap\": 1.1016666666666668\n  },\n  {\n    \"author_id\": \"A5085009349\",\n    \"author_name\": \"Alex Zimmermann\",\n    \"works\": 2,\n    \"author_avg_citations\": 1,\n    \"journal_avg_citations\": 0.565,\n    \"gap\": 0.43500000000000005\n  }\n]\n"
+    },
+    {
+      "command": "visibility-gap",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "which",
+      "kind": "help",
+      "args": [
+        "which",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "which resolves a natural-language capability query (for example, \"search messages\" or \"stale tickets\") to the best matching command from this CLI's curated feature index.\n\nExit codes:\n  0  at least one match found\n  2  no confident match - the query did not score against any indexed capability; fall back to '--help' or 'search' if this CLI has one\n\nUsage:\n  thelancet-pp-cli which [query] [flags]\n\nExamples:\n  thelancet-pp-cli which \"stale tickets\"\n  thelancet-pp-cli which \"bottleneck\"\n  thelancet-pp-cli which --limit 1 \"send message\"\n  thelancet-pp-cli which                                # list the full capability index\n\nFlags:\n  -h, --help        help for which\n      --limit int   Maximum number of matches to return (default 3)\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'thelancet-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "which",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [which] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "which",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [which] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "which",
+      "kind": "error_path",
+      "args": [
+        "which",
+        "__printing_press_invalid__",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"matches\": []\n}\n"
+    },
+    {
+      "command": "workflow archive",
+      "kind": "help",
+      "args": [
+        "workflow",
+        "archive",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Archive fetches all syncable resources from the API and stores them in a\nlocal SQLite database. Supports incremental sync (only new data since last run)\nand full resync. After archiving, use 'search' for instant full-text search.\n\nUsage:\n  thelancet-pp-cli workflow archive [flags]\n\nExamples:\n  # Archive all resources\n  thelancet-pp-cli workflow archive\n\n  # Full re-archive (ignore previous sync state)\n  thelancet-pp-cli workflow archive --full\n\nFlags:\n      --db string   Database path (default: ~/.local/share/thelancet-pp-cli/data.db)\n      --full        Full re-archive (ignore previous sync state)\n  -h, --help        help for archive\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'thelancet-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "workflow archive",
+      "kind": "happy_path",
+      "args": [
+        "workflow",
+        "archive"
+      ],
+      "status": "pass",
+      "output_sample": "{\"event\":\"sync_start\",\"resource\":\"authors\"}\n{\"event\":\"sync_warning\",\"resource\":\"authors\",\"reason\":\"resource_not_incremental\",\"message\":\"endpoint does not declare a temporal filter parameter; incremental sync has no effect for this resource\"}\n{\"event\":\"sync_progress\",\"resource\":\"authors\",\"fetched\":100}\n{\"event\":\"sync_progress\",\"resource\":\"authors\",\"fetched\":200}\n{\"event\":\"sync_warning\",\"resource\":\"authors\",\"reason\":\"max_pages_cap_hit\",\"message\":\"reached --max-pages cap of 2; data may be truncated. Re-run with --max-pages 0 (unlimited) or higher to verify.\"}\n{\"event\":\"sync_complete\",\"resource\":\"authors\",\"total\":200,\"duration_ms\":4692}\n{\"event\":\"sync_start\",\"resource\":\"works\"}\n{\"event\":\"sync_warning\",\"resource\":\"works\",\"reason\":\"resource_not_incremental\",\"message\":\"endpoint does not declare a temporal filter parameter; incremental sync has no effect for this resource\"}\n{\"event\":\"sync_progress\",\"resource\":\"works\",\"fetched\":100}\n{\"event\":\"sync_progress\",\"resource\":\"works\",\"fetched\":200}\n{\"event\":\"sync_warning\",\"resource\":\"works\",\"reason\":\"max_pages_cap_hit\",\"message\":\"reached --max-pages cap of 2; data may be truncated. Re-run with --max-pages 0 (unlimited) or higher to verify.\"}\n{\"event\":\"sync_complete\",\"resource\":\"works\",\"total\":200,\"duration_ms\":4326}\nArchived 400 items across 2 resources to C:\\Users\\LACI\\AppData\\Local\\Temp\\printing-press-subprocess-407375027\\.local\\share\\thelancet-pp-cli\\data.db\n  authors: 200 synced\n  works: 200 synced\n"
+    },
+    {
+      "command": "workflow archive",
+      "kind": "json_fidelity",
+      "args": [
+        "workflow",
+        "archive",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"resources_synced\": 2,\n  \"store_path\": \"C:\\\\Users\\\\LACI\\\\AppData\\\\Local\\\\Temp\\\\printing-press-subprocess-407375027\\\\.local\\\\share\\\\thelancet-pp-cli\\\\data.db\",\n  \"timestamp\": \"2026-06-17T09:58:40Z\",\n  \"total_items\": 400\n}\n{\"event\":\"sync_start\",\"resource\":\"authors\"}\n{\"event\":\"sync_warning\",\"resource\":\"authors\",\"reason\":\"resource_not_incremental\",\"message\":\"endpoint does not declare a temporal filter parameter; incremental sync has no effect for this resource\"}\n{\"event\":\"sync_progress\",\"resource\":\"authors\",\"fetched\":100}\n{\"event\":\"sync_progress\",\"resource\":\"authors\",\"fetched\":200}\n{\"event\":\"sync_warning\",\"resource\":\"authors\",\"reason\":\"max_pages_cap_hit\",\"message\":\"reached --max-pages cap of 2; data may be truncated. Re-run with --max-pages 0 (unlimited) or higher to verify.\"}\n{\"event\":\"sync_complete\",\"resource\":\"authors\",\"total\":200,\"duration_ms\":5964}\n  authors: 200 synced\n{\"event\":\"sync_start\",\"resource\":\"works\"}\n{\"event\":\"sync_warning\",\"resource\":\"works\",\"reason\":\"resource_not_incremental\",\"message\":\"endpoint does not declare a temporal filter parameter; incremental sync has no effect for this resource\"}\n{\"event\":\"sync_progress\",\"resource\":\"works\",\"fetched\":100}\n{\"event\":\"sync_progress\",\"resource\":\"works\",\"fetched\":200}\n{\"event\":\"sync_warning\",\"resource\":\"works\",\"reason\":\"max_pages_cap_hit\",\"message\":\"reached --max-pages cap of 2; data may be truncated. Re-run with --max-pages 0 (unlimited) or higher to verify.\"}\n{\"event\":\"sync_complete\",\"resource\":\"works\",\"total\":200,\"duration_ms\":4156}\n  works: 200 synced\n"
+    },
+    {
+      "command": "workflow archive",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "workflow status",
+      "kind": "help",
+      "args": [
+        "workflow",
+        "status",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Show local archive status and sync state for all resources\n\nUsage:\n  thelancet-pp-cli workflow status [flags]\n\nExamples:\n  # Show archive status\n  thelancet-pp-cli workflow status\n\n  # Show status as JSON\n  thelancet-pp-cli workflow status --json\n\nFlags:\n      --db string   Database path\n  -h, --help        help for status\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'thelancet-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "workflow status",
+      "kind": "happy_path",
+      "args": [
+        "workflow",
+        "status"
+      ],
+      "status": "pass",
+      "output_sample": "Archive Status:\n  authors                        1000 items\n  works                          1000 items\n\n  Total: 2000 items\n  Store: C:\\Users\\LACI\\AppData\\Local\\Temp\\printing-press-subprocess-407375027\\.local\\share\\thelancet-pp-cli\\data.db\n"
+    },
+    {
+      "command": "workflow status",
+      "kind": "json_fidelity",
+      "args": [
+        "workflow",
+        "status",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"authors\": 1000,\n  \"works\": 1000\n}\n"
+    },
+    {
+      "command": "workflow status",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "works get",
+      "kind": "help",
+      "args": [
+        "works",
+        "get",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Get a single article by OpenAlex ID or DOI\n\nUsage:\n  thelancet-pp-cli works get \u003cid\u003e [flags]\n\nExamples:\n  thelancet-pp-cli works get 550e8400-e29b-41d4-a716-446655440000\n\nFlags:\n  -h, --help   help for get\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'thelancet-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "works get",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no id parseable from companion at depth 0"
+    },
+    {
+      "command": "works get",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "no id parseable from companion at depth 0"
+    },
+    {
+      "command": "works get",
+      "kind": "error_path",
+      "args": [
+        "works",
+        "get",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 3,
+      "output_sample": "Error: GET /works/__printing_press_invalid__ returned HTTP 404: \u003c!doctype html\u003e\n\u003chtml lang=en\u003e\n\u003ctitle\u003e404 Not Found\u003c/title\u003e\n\u003ch1\u003eNot Found\u003c/h1\u003e\n\u003cp\u003eThe requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.\u003c/p\u003e\n\nhint: resource not found. Run the 'list' command to see available items\n"
+    },
+    {
+      "command": "works search",
+      "kind": "help",
+      "args": [
+        "works",
+        "search",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Search Lancet articles (works)\n\nUsage:\n  thelancet-pp-cli works search [flags]\n\nAliases:\n  search, list\n\nExamples:\n  thelancet-pp-cli works search --search 'CRISPR gene therapy' --per-page 5\n\nFlags:\n      --all             Fetch all pages\n      --filter string   OpenAlex filter expression. Scope to a journal with primary_location.source.\n  -h, --help            help for search\n      --page string     Page number for pagination (default \"1\")\n      --per-page int    Results per page (max 200) (default 25)\n      --search string   Full-text search across title, abstract, and fulltext\n      --select string   Comma-separated fields to return (reduces payload size)\n      --sort string     Sort order for results (one of: cited_by_count:desc, publication_date:desc, relevance_score:desc)\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'thelancet-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "works search",
+      "kind": "happy_path",
+      "args": [
+        "works",
+        "search",
+        "--search",
+        "CRISPR gene therapy",
+        "--per-page",
+        "5"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"live\"\n  },\n  \"results\": {\n    \"meta\": {\n      \"count\": 207,\n      \"db_response_time_ms\": 209,\n      \"page\": 1,\n      \"per_page\": 5,\n      \"groups_count\": null,\n      \"x_query\": {\n        \"oql\": \"works where full text has (CRISPR gene therapy)\\n  and ISSN is (\\n    0140-6736 or 1470-2045 or 1473-3099 or 1474-4422 or 2213-2600 or 2213-8587\\n    or 2214-109X or 2215-0366 or 2352-3018 or 2352-3026 or 2352-3964\\n    or 2352-4642 or 2468-1253 or 2468-2667 or 2542-5196 or 2589-5370\\n    or 2589-7500 or 2665-9913 or 2666-7568\\n  )\",\n        \"oqo\": {\n          \"get_rows\": \"works\",\n          \"filter_rows\": [\n            {\n              \"column_id\": \"default.search\",\n              \"value\": \"CRISPR gene therapy\",\n              \"operator\": \"has\"\n            },\n            {\n              \"join\": \"or\",\n              \"filters\": [\n                {\n                  \"column_id\": \"primary_location.source.issn\",\n                  \"value\": \"0140-6736\"\n                },\n                {\n                  \"column_id\": \"primary_location.source.issn\",\n                  \"value\": \"1470-2045\"\n                },\n                {\n                  \"column_id\": \"primary_location.source.issn\",\n                  \"value\": \"1473-3099\"\n                },\n                {\n                  \"column_id\": \"primary_location.source.issn\",\n                  \"value\": \"1474-4422\"\n                },\n                {\n                  \"column_id\": \"primary_location.source.issn\",\n                  \"value\": \"2213-2600\"\n                },\n                {\n                  \"column_id\": \"primary_location.source.issn\",\n                  \"value\": \"2213-8587\"\n                },\n                {\n                  \"column_id\": \"primary_location.source.issn\",\n                  \"value\": \"2214-109X\"\n                },\n                {\n                  \"column_id\": \"primary_location.source.issn\",\n                  \"value\": \"2215-0366\"\n                },\n                {\n                  \"column_id\": \"primary_location.source.issn\",\n                  \"value\": \"2352-3018\"\n                },\n                {\n                  \"column_id\": \"primary_location.source.issn\",\n                  \"value\": \"2352-3026\"\n                },\n                {\n                  \"column_id\": \"primary_location.source.issn\",\n                  \"value\": \"2352-3964\"\n                },\n                {\n                  \"column_id\": \"primary_location.source.issn\",\n                  \"value\": \"2352-4642\"\n                },\n                {\n                  \"column_id\": \"primary_location.source.issn\",\n                  \"value\": \"2468-1253\"\n                },\n                {\n                  \"column_id\": \"primary_location.source.issn\",\n                  \"value\": \"2468-2667\"\n                },\n                {\n                  \"column_id\": \"primary_location.source.issn\",\n                  \"value\": \"2542-5196\"\n                },\n                {\n                  \"column_id\": \"primary_location.source.issn\",\n                  \"value\": \"2589-5370\"\n                },\n                {\n                  \"column_id\": \"primary_location.source.issn\",\n                  \"value\": \"2589-7500\"\n                },\n                {\n                  \"column_id\": \"primary_location.source.issn\",\n                  \"value\": \"2665-9913\"\n                },\n                {\n                  \"column_id\": \"primary_location.source.issn\",\n                  \"value\": \"2666-7568\"\n                }\n              ]\n            }\n          ],\n          \"per_page\": 5,\n          \"page\": 1\n        },\n        \"url\": \"/works?filter=default.search:CRISPR gene therapy,primary_location.source.issn:0140-6736|1470-2045|1473-3099|1474-4422|2213-2600|2213-8587|2214-109X|2215-0366|2352-3018|2352-3026|2352-3964|2352-4642|2468-1253|2468-2667|2542-5196|2589-5370|2589-7500|2665-9913|2666-7568\\u0026per_page=5\\u0026page=1\"\n      },\n      \"cost_usd\": 0.001\n    },\n    \"results\": [\n      {\n        \"id\": \"https://openalex.org/W3044883641\",\n        \"doi\": \"https://doi.org/10.1016/j.ebiom.2020.102897\",\n        \"ti…[truncated]"
+    },
+    {
+      "command": "works search",
+      "kind": "json_fidelity",
+      "args": [
+        "works",
+        "search",
+        "--search",
+        "CRISPR gene therapy",
+        "--per-page",
+        "5",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"live\"\n  },\n  \"results\": {\n    \"meta\": {\n      \"count\": 207,\n      \"db_response_time_ms\": 209,\n      \"page\": 1,\n      \"per_page\": 5,\n      \"groups_count\": null,\n      \"x_query\": {\n        \"oql\": \"works where full text has (CRISPR gene therapy)\\n  and ISSN is (\\n    0140-6736 or 1470-2045 or 1473-3099 or 1474-4422 or 2213-2600 or 2213-8587\\n    or 2214-109X or 2215-0366 or 2352-3018 or 2352-3026 or 2352-3964\\n    or 2352-4642 or 2468-1253 or 2468-2667 or 2542-5196 or 2589-5370\\n    or 2589-7500 or 2665-9913 or 2666-7568\\n  )\",\n        \"oqo\": {\n          \"get_rows\": \"works\",\n          \"filter_rows\": [\n            {\n              \"column_id\": \"default.search\",\n              \"value\": \"CRISPR gene therapy\",\n              \"operator\": \"has\"\n            },\n            {\n              \"join\": \"or\",\n              \"filters\": [\n                {\n                  \"column_id\": \"primary_location.source.issn\",\n                  \"value\": \"0140-6736\"\n                },\n                {\n                  \"column_id\": \"primary_location.source.issn\",\n                  \"value\": \"1470-2045\"\n                },\n                {\n                  \"column_id\": \"primary_location.source.issn\",\n                  \"value\": \"1473-3099\"\n                },\n                {\n                  \"column_id\": \"primary_location.source.issn\",\n                  \"value\": \"1474-4422\"\n                },\n                {\n                  \"column_id\": \"primary_location.source.issn\",\n                  \"value\": \"2213-2600\"\n                },\n                {\n                  \"column_id\": \"primary_location.source.issn\",\n                  \"value\": \"2213-8587\"\n                },\n                {\n                  \"column_id\": \"primary_location.source.issn\",\n                  \"value\": \"2214-109X\"\n                },\n                {\n                  \"column_id\": \"primary_location.source.issn\",\n                  \"value\": \"2215-0366\"\n                },\n                {\n                  \"column_id\": \"primary_location.source.issn\",\n                  \"value\": \"2352-3018\"\n                },\n                {\n                  \"column_id\": \"primary_location.source.issn\",\n                  \"value\": \"2352-3026\"\n                },\n                {\n                  \"column_id\": \"primary_location.source.issn\",\n                  \"value\": \"2352-3964\"\n                },\n                {\n                  \"column_id\": \"primary_location.source.issn\",\n                  \"value\": \"2352-4642\"\n                },\n                {\n                  \"column_id\": \"primary_location.source.issn\",\n                  \"value\": \"2468-1253\"\n                },\n                {\n                  \"column_id\": \"primary_location.source.issn\",\n                  \"value\": \"2468-2667\"\n                },\n                {\n                  \"column_id\": \"primary_location.source.issn\",\n                  \"value\": \"2542-5196\"\n                },\n                {\n                  \"column_id\": \"primary_location.source.issn\",\n                  \"value\": \"2589-5370\"\n                },\n                {\n                  \"column_id\": \"primary_location.source.issn\",\n                  \"value\": \"2589-7500\"\n                },\n                {\n                  \"column_id\": \"primary_location.source.issn\",\n                  \"value\": \"2665-9913\"\n                },\n                {\n                  \"column_id\": \"primary_location.source.issn\",\n                  \"value\": \"2666-7568\"\n                }\n              ]\n            }\n          ],\n          \"per_page\": 5,\n          \"page\": 1\n        },\n        \"url\": \"/works?filter=default.search:CRISPR gene therapy,primary_location.source.issn:0140-6736|1470-2045|1473-3099|1474-4422|2213-2600|2213-8587|2214-109X|2215-0366|2352-3018|2352-3026|2352-3964|2352-4642|2468-1253|2468-2667|2542-5196|2589-5370|2589-7500|2665-9913|2666-7568\\u0026per_page=5\\u0026page=1\"\n      },\n      \"cost_usd\": 0.001\n    },\n    \"results\": [\n      {\n        \"id\": \"https://openalex.org/W3044883641\",\n        \"doi\": \"https://doi.org/10.1016/j.ebiom.2020.102897\",\n        \"ti…[truncated]"
+    },
+    {
+      "command": "works search",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    }
+  ],
+  "ran_at": "2026-06-17T09:57:59.7726119Z"
+}
