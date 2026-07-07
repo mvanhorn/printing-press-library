@@ -1,0 +1,10 @@
+{
+  "schema_version": 2,
+  "id": "kalshi-portfolio-reads-must-bypass-cache",
+  "applied_at": "2026-06-17",
+  "base_run_id": "20260504-204550",
+  "base_printing_press_version": "3.9.0",
+  "summary": "Responses under /portfolio/* must never be served from the on-disk response cache, and account-data cache files are written mode 0600.",
+  "reason": "The generator's 5-minute read cache made fill verification unsafe -- a cached pre-trade balance or position was indistinguishable from \"the order never filled\" -- so portfolio reads must always hit the live API.",
+  "files": ["internal/client/client.go"]
+}

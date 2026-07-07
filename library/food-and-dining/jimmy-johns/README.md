@@ -7,6 +7,7 @@ Browse stores and menus, build carts, view rewards, and one-shot reorders from t
 Learn more at [Jimmy John's](https://www.jimmyjohns.com).
 
 Created by [@omarshahine](https://github.com/omarshahine) (Omar Shahine).
+Contributors: [@tmchow](https://github.com/tmchow) (Trevin Chow).
 
 ## Install
 
@@ -37,7 +38,7 @@ npx -y @mvanhorn/printing-press-library install jimmy-johns --agent claude-code 
 
 ### Without Node (Go fallback)
 
-If `npx` isn't available (no Node, offline), install the CLI directly via Go (requires Go 1.26.3 or newer):
+If `npx` isn't available (no Node, offline), install the CLI directly via Go (requires Go 1.26.4 or newer):
 
 ```bash
 go install github.com/mvanhorn/printing-press-library/library/food-and-dining/jimmy-johns/cmd/jimmy-johns-pp-cli@latest

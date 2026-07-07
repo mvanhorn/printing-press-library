@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "full-latest-only-reset-per-parent-cursors",
+  "applied_at": "2026-05-10",
+  "base_run_id": "20260510-202319",
+  "base_printing_press_version": "4.2.2",
+  "summary": "Make `--full` and `--latest-only` restart hierarchical resources from the head. `syncResource` now ignores the stored resume cursor whenever full or latestOnly is set, instead of relying on caller-side clearing loops that only zeroed top-level sync_state keys.",
+  "reason": "Greptile findings on PR #433. The hierarchical-sync-traversal patch keys resume cursors per (resource, parentID) as `resource:parentID`. Both the `--full` clearing loop and the `--latest-only` clearing loop in `newSyncCmd` only called SaveSyncState/GetSyncState on the bare `resource` key, never the per-parent keys. If a prior hierarchical sync was interrupted mid-resource, `--full` and `--latest-only` left those `resource:parentID` cursors intact and `syncResource` resumed affected lists from page N instead of page 0 — contradicting `--full`'s documented 'ignore previous checkpoint' and `--latest-only`'s 'refresh the head'. Fixed at the point of use: `syncResource` takes a `latestOnly` parameter and zeroes the cursor whenever `full || latestOnly`, covering every target — global and per-parent alike. The redundant and incomplete caller-side clearing loops are removed; `newWorkflowArchiveCmd` passes latestOnly=false since `workflow archive` has no such flag.",
+  "files": [
+    "internal/cli/sync.go",
+    "internal/cli/channel_workflow.go"
+  ]
+}

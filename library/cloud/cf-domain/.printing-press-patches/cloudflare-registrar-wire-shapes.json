@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "cloudflare-registrar-wire-shapes",
+  "applied_at": "2026-05-11",
+  "base_run_id": "local-generate",
+  "base_printing_press_version": "4.3.0",
+  "summary": "Match Cloudflare Registrar wire params for search and check.",
+  "reason": "Live API requires q for domain-search and domains[] for domain-check; generated spec used query/domain_name.",
+  "files": [
+    "internal/cli/registrar_domain-search.go",
+    "internal/cli/registrar_domain-check.go"
+  ],
+  "validated_outcome": "Live domain-search and domain-check for domainpress.dev returned registrable with USD pricing."
+}

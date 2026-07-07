@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "id": "greptile-8-serialize-token-refresh",
+  "applied_at": "2026-05-13",
+  "base_run_id": "20260512-171718",
+  "base_printing_press_version": "4.5.0",
+  "summary": "Guard authHeader's read-and-maybe-refresh sequence with a Client-level sync.Mutex so concurrent fan-out workers can't double-refresh.",
+  "reason": "cliutil.FanoutRun runs worker goroutines that share one *client.Client. When the access token is expired at fan-out start, multiple goroutines would simultaneously enter refreshAccessToken and race on cfg.AccessToken / cfg.RefreshToken writes (a Go data race). Worse, most OAuth servers issue single-use refresh tokens: the second concurrent call arrives after rotation and returns 400 invalid_grant, failing every subsequent worker until the user re-runs `auth login`.",
+  "files": [
+    "internal/client/client.go"
+  ]
+}

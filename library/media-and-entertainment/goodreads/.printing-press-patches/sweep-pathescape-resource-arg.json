@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "sweep-pathescape-resource-arg",
+  "applied_at": "2026-05-27",
+  "base_run_id": "20260522-095940",
+  "base_printing_press_version": "4.11.0",
+  "summary": "tail and import now percent-encode the user-supplied <resource> arg via url.PathEscape before concatenating it into the request path.",
+  "reason": "Same path/query-injection class as the export-path-escape fix; a resource arg with space/'/'/'?' could corrupt the path or inject query params.",
+  "files": [
+    "internal/cli/tail.go",
+    "internal/cli/import.go"
+  ]
+}

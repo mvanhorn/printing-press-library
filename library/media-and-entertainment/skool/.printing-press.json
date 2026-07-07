@@ -55,5 +55,11 @@
       "command": "classroom export",
       "description": "Export an entire course to a markdown bundle (modules, lessons, attachments, video URLs)."
     }
+  ],
+  "contributors": [
+    {
+      "handle": "tmchow",
+      "name": "Trevin Chow"
+    }
   ]
 }

@@ -1,0 +1,15 @@
+{
+  "schema_version": 2,
+  "id": "empty-enrichment-notices",
+  "applied_at": "2026-05-15",
+  "base_run_id": "20260515-075905",
+  "base_printing_press_version": "4.6.1",
+  "summary": "Adds notices for empty Trustpilot histogram, AI summary, and topic summary fields.",
+  "reason": "Agents need to distinguish genuine empty enrichment from parser or upstream drift.",
+  "files": [
+    "internal/cli/agent_bundle.go",
+    "internal/cli/info.go",
+    "internal/cli/topics.go"
+  ],
+  "validated_outcome": "go build ./... and go vet ./... pass."
+}

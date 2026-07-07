@@ -37,6 +37,13 @@ type Client struct {
 	NoCache    bool
 	cacheDir   string
 	limiter    *cliutil.AdaptiveLimiter
+	// sunoRT is the installed studio transport (nil for non-Suno clients); its
+	// cookie header is swappable for on-failure re-pull.
+	sunoRT *sunoRoundTripper
+	// refreshStudioCookies force-repulls cookies from the browser on a stale-
+	// cookie rejection and returns the fresh header (nil when not a managed
+	// Suno session). Set by the CLI layer to avoid an auth->client import.
+	refreshStudioCookies func() string
 }
 
 // APIError carries HTTP status information for structured exit codes.
@@ -99,6 +106,13 @@ func New(cfg *config.Config, timeout time.Duration, rateLimit float64) *Client {
 // RateLimit returns the current effective rate limit in req/s. Returns 0 if disabled.
 func (c *Client) RateLimit() float64 {
 	return c.limiter.Rate()
+}
+
+// SetStudioCookieRefresher wires the on-failure cookie re-pull callback. The
+// client calls it at most once per request when the studio API rejects the
+// request as a stale-cookie validation failure.
+func (c *Client) SetStudioCookieRefresher(fn func() string) {
+	c.refreshStudioCookies = fn
 }
 
 func (c *Client) Get(ctx context.Context, path string, params map[string]string) (json.RawMessage, error) {
@@ -455,6 +469,7 @@ func (c *Client) doInternal(ctx context.Context, method, path string, params map
 
 	const maxRetries = 3
 	var lastErr error
+	cookieRetried := false
 
 	for attempt := 0; attempt <= maxRetries; attempt++ {
 		// Proactive rate limiting — wait before sending
@@ -592,11 +607,33 @@ func (c *Client) doInternal(ctx context.Context, method, path string, params map
 			continue
 		}
 
+		// Stale studio cookies - the durable suno.com cookies essentially never
+		// expire, but on the rare 422 token_validation_failed (logout, or a
+		// months-stale snapshot) re-pull them from the browser once and retry.
+		if resp.StatusCode == 422 && !cookieRetried && c.sunoRT != nil &&
+			c.refreshStudioCookies != nil && isCookieRetrySafe(method, path) &&
+			bytes.Contains(respBody, []byte("token_validation_failed")) {
+			if fresh := c.refreshStudioCookies(); fresh != "" {
+				c.sunoRT.setCookieHeader(fresh)
+				cookieRetried = true
+				lastErr = apiErr
+				continue
+			}
+		}
+
 		// Client error or retries exhausted - return the error
 		return nil, resp.StatusCode, apiErr
 	}
 
 	return nil, 0, lastErr
+}
+
+// isCookieRetrySafe reports whether a 422 cookie-staleness re-pull may safely
+// retry this request. Only GET reads and the feed list (a read-only POST) are
+// safe; generate/edit/gen mutations use 422 for captcha and/or consume credits,
+// so a speculative retry there is never correct.
+func isCookieRetrySafe(method, path string) bool {
+	return method == http.MethodGet || strings.HasPrefix(path, "/api/feed")
 }
 
 // dryRun prints the outgoing request exactly as the live path would send it,

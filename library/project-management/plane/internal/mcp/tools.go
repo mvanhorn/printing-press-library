@@ -106,6 +106,11 @@ func makeAPIHandler(method, pathTemplate string, readOnly bool, binaryResponse b
 		// we rely on here (or an empty map when the payload is something else).
 		args := req.GetArguments()
 
+		// PATCH(mcp-workspace): honor a per-call "workspace" arg (the MCP twin of
+		// the CLI's --workspace flag) and strip it before the binding loops below
+		// route unknown args into the query string or request body.
+		applyWorkspaceArg(c, args)
+
 		// positionalParams mixes real URL path params with CLI positional
 		// args that map to query params (e.g. `search <query>` -> ?query=);
 		// the placeholder check below disambiguates them at runtime.

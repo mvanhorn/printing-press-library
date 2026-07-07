@@ -1,0 +1,39 @@
+{
+  "manifest_version": "0.3",
+  "name": "sutra-fitness-pp-mcp",
+  "display_name": "Sutra",
+  "version": "0.0.0",
+  "description": "Every Sutra (Arketa) Partner API resource, plus a local data mirror and the studio analytics the dashboard buries — no-show rates, capacity, churn, and revenue you can finally query.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/sutra-fitness-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/sutra-fitness-pp-mcp",
+      "args": [],
+      "env": {
+        "SUTRA_API_KEY": "${user_config.sutra_api_key}"
+      }
+    }
+  },
+  "user_config": {
+    "sutra_api_key": {
+      "type": "string",
+      "title": "SUTRA_API_KEY",
+      "description": "Sets SUTRA_API_KEY for the Sutra MCP server. Get a credential from https://us-central1-sutra-prod.cloudfunctions.net/partnerApi/v0`.",
+      "sensitive": true,
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

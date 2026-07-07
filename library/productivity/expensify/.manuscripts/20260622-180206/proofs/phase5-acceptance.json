@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "api_name": "expensify",
+  "run_id": "20260622-180206",
+  "status": "pass",
+  "level": "full",
+  "matrix_size": 1,
+  "tests_passed": 1,
+  "tests_failed": 0,
+  "note": "Live write-proof completed against the real Expensify account (the authenticated test account) using the CLI's exact wire format (path-style /api/RequestMoney, form-encoded, authToken in body, NO cookies, referer=ecash, created=2025-11-17). Created PP-REPRINT-TEST $42.42 -> read back created=2025-11-17 (NOT today) -> deleted via the delete-resolve-refs flow (reportID + resolved reportActionID). Authoritative OldDot Expenses UI confirms the expense dated 'Nov 17 2025' under the Deleted filter: headline date->created fix and delete patch BOTH proven live; test data cleaned up.",
+  "manually_verified_live": true,
+  "auth_context": {
+    "type": "api_key",
+    "api_key_available": true,
+    "browser_session_available": true
+  }
+}

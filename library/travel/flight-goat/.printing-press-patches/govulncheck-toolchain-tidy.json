@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "govulncheck-toolchain-tidy",
+  "applied_at": "2026-06-23",
+  "base_run_id": "",
+  "base_printing_press_version": "3.6.0",
+  "summary": "Keep flight-goat's module file tidy after the catalog Go 1.26.4 floor update.",
+  "reason": "Govulncheck loads each published CLI module before scanning. With go 1.26.4 already declared, the redundant toolchain go1.26.4 line made `go list` report that go.mod needed tidying, which failed the repository-wide Govulncheck job before vulnerability analysis could complete.",
+  "files": [
+    "go.mod"
+  ],
+  "validated_outcome": "`go list ./...` from library/travel/flight-goat succeeds after `go mod tidy` removes the redundant toolchain directive."
+}

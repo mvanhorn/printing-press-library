@@ -22,6 +22,7 @@ See [Known Limitations](#known-limitations) for what doesn't work today.
 ![ebay-pp-cli discovery flow](docs/discovery-demo.gif)
 
 Created by [@mvanhorn](https://github.com/mvanhorn) (Matt Van Horn).
+Contributors: [@tmchow](https://github.com/tmchow) (Trevin Chow).
 
 ## Install
 
@@ -52,7 +53,7 @@ npx -y @mvanhorn/printing-press-library install ebay --agent claude-code --agent
 
 ### Without Node (Go fallback)
 
-If `npx` isn't available (no Node, offline), install the CLI directly via Go (requires Go 1.26.3 or newer):
+If `npx` isn't available (no Node, offline), install the CLI directly via Go (requires Go 1.26.4 or newer):
 
 ```bash
 go install github.com/mvanhorn/printing-press-library/library/commerce/ebay/cmd/ebay-pp-cli@latest

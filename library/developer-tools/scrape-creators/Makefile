@@ -1,7 +1,9 @@
 .PHONY: build test lint install clean
 
+BIN_EXT := $(if $(filter windows,$(shell go env GOOS)),.exe,)
+
 build:
-	go build -o bin/scrape-creators-pp-cli ./cmd/scrape-creators-pp-cli
+	go build -o bin/scrape-creators-pp-cli$(BIN_EXT) ./cmd/scrape-creators-pp-cli
 
 test:
 	go test ./...
@@ -16,7 +18,7 @@ clean:
 	rm -rf bin/
 
 build-mcp:
-	go build -o bin/scrape-creators-pp-mcp ./cmd/scrape-creators-pp-mcp
+	go build -o bin/scrape-creators-pp-mcp$(BIN_EXT) ./cmd/scrape-creators-pp-mcp
 
 install-mcp:
 	go install ./cmd/scrape-creators-pp-mcp

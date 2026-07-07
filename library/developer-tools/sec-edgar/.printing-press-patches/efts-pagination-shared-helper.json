@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "efts-pagination-shared-helper",
+  "applied_at": "2026-05-12",
+  "base_run_id": "20260511-180534",
+  "base_printing_press_version": "4.2.2",
+  "summary": "Extract `fetchAllEFTSHits` shared pagination helper and route insider-cluster, restatements, and late-filers through it.",
+  "reason": "restatements and late-filers each called `resp.Flatten()` on a single un-paginated EFTS response, silently capping results at the EFTS default of 10 hits per query. insider-cluster paginated correctly but kept its own inlined copy of the loop. One shared helper now drives all three and emits a truncation warning to stderr when totalAvailable exceeds what was fetched.",
+  "files": [
+    "internal/cli/sec_helpers.go",
+    "internal/cli/sec_transcendence.go"
+  ]
+}

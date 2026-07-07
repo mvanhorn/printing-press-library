@@ -1,0 +1,29 @@
+{
+  "dir": "library/media-and-entertainment/foxnews",
+  "spec_path": "library/media-and-entertainment/foxnews/spec.yaml",
+  "verdict": "PASS",
+  "path_check": {
+    "tested": 1,
+    "valid": 1,
+    "valid_pct": 100
+  },
+  "auth_check": {
+    "spec_scheme": "",
+    "generated_format": "unknown",
+    "match": true,
+    "detail": "no auth required"
+  },
+  "browser_session_check": {
+    "required": false,
+    "pass": true,
+    "detail": "browser-session auth not required"
+  },
+  "dead_flags": {
+    "total": 8,
+    "dead": 0
+  },
+  "dead_functions": {
+    "total": 4,
+    "dead": 0
+  }
+}

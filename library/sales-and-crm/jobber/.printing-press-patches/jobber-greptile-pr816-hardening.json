@@ -1,0 +1,15 @@
+{
+  "schema_version": 2,
+  "id": "jobber-greptile-pr816-hardening",
+  "applied_at": "2026-05-24",
+  "base_run_id": "20260522-234028",
+  "base_printing_press_version": "4.10.0",
+  "summary": "Address all four Greptile findings from PR #816: serialize OAuth refresh under a sync.Mutex with stale-token double-check, tighten cache file permissions to 0o600/0o700, gate the Windows-only PowerShell token-persist on runtime.GOOS, and add WITH to the read-only SQL validator's banned-token regex.",
+  "reason": "PR #816 surfaced one P0 (concurrent RefreshAccessToken can race the rotation chain — directly violates the standing refresh-token persistence constraint), two P1 hardening items (cache files were 0o644 world-readable; PowerShell exec ran unconditionally on non-Windows hosts and produced noisy stderr), and a defense-in-depth item on the SQL allowlist (CTE-wrapped writes like `WITH x AS (...) DELETE FROM t` were caught by SQLite read-only mode but bypassed the validator regex). All four must land before resubmission so the Greptile thread is fully resolved.",
+  "files": [
+    "internal/client/client.go",
+    "internal/client/oauth.go",
+    "internal/cli/sql.go"
+  ],
+  "validated_outcome": "go build ./... clean; refreshIfStale double-checks Config.AuthHeader() under the lock so a second concurrent 401 reuses the rotated token instead of replaying the invalidated one; cache writes now use 0o700/0o600; PowerShell persist is no-op outside windows; SQL validator rejects WITH in addition to the prior DML/DDL/PRAGMA set."
+}

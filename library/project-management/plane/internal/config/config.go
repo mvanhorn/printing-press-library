@@ -13,6 +13,15 @@ import (
 	"github.com/pelletier/go-toml/v2"
 )
 
+// WorkspaceEntry is one enrolled workspace in the local registry. Slug is the
+// user-supplied workspace identifier (from the browser URL); ID caches the
+// workspace UUID discovered during the enrollment probe (best-effort, may be
+// empty). PATCH(workspace-registry): hand-added; re-apply after regen.
+type WorkspaceEntry struct {
+	Slug string `toml:"slug" json:"slug"`
+	ID   string `toml:"id,omitempty" json:"id,omitempty"`
+}
+
 type Config struct {
 	BaseURL                   string            `toml:"base_url"`
 	AuthHeaderVal             string            `toml:"auth_header"`
@@ -30,6 +39,11 @@ type Config struct {
 	// at Load() time from env vars; consumed by the client's buildURL helper.
 	// Stored as a serializable map so non-default values survive a config save.
 	TemplateVars map[string]string `toml:"template_vars,omitempty"`
+	// PATCH(workspace-registry): default_workspace seeds {slug} when PLANE_SLUG
+	// is unset; workspaces is the locally-enrolled registry shown by
+	// `workspaces list` (the public API cannot enumerate workspaces by key).
+	DefaultWorkspace string           `toml:"default_workspace,omitempty"`
+	Workspaces       []WorkspaceEntry `toml:"workspaces,omitempty"`
 }
 
 func Load(configPath string) (*Config, error) {
@@ -111,33 +125,63 @@ func Load(configPath string) (*Config, error) {
 	if cfg.TemplateVars == nil {
 		cfg.TemplateVars = map[string]string{}
 	}
+	// PATCH(workspace-registry): precedence PLANE_SLUG env > default_workspace
+	// (persisted) > "my-workspace" sentinel. The flag layer (--workspace) sits
+	// above this and overrides TemplateVars["slug"] in rootFlags.newClient().
 	if v := strings.TrimSpace(os.Getenv("PLANE_SLUG")); v != "" {
-		cfg.TemplateVars["slug"] = normalizeEndpointTemplateValue(v)
+		cfg.TemplateVars["slug"] = normalizeWorkspaceSlug(v)
+	} else if cfg.DefaultWorkspace != "" {
+		cfg.TemplateVars["slug"] = normalizeWorkspaceSlug(cfg.DefaultWorkspace)
 	} else {
 		cfg.TemplateVars["slug"] = "my-workspace"
 	}
 	return cfg, nil
 }
 
-// normalizeEndpointTemplateValue cleans up a server-URL template value the
-// user has likely pasted from a browser address bar; drops the scheme prefix
-// and trailing slash so a placeholder like {domain} resolves to a bare host
-// whether the user typed `acme.example.com`, `https://acme.example.com`, or
-// `https://acme.example.com/`. Applied only to placeholders carrying a
-// spec-declared default (server-URL variables); path-positional placeholders
-// like {tenant} pass through unchanged because their accepted shapes are
-// API-specific.
-func normalizeEndpointTemplateValue(v string) string {
-	// Strip scheme prefix case-insensitively: users paste `HTTPS://` from
-	// some browsers' address bars, and Go's TrimPrefix is exact-match.
-	// Callers TrimSpace the env-var value before passing it in.
-	if len(v) >= 8 && strings.EqualFold(v[:8], "https://") {
-		v = v[8:]
-	} else if len(v) >= 7 && strings.EqualFold(v[:7], "http://") {
-		v = v[7:]
+// normalizeWorkspaceSlug extracts a bare Plane workspace slug from whatever the
+// user supplied. A Plane workspace slug is a single URL path segment (no scheme,
+// host, or slashes), but people routinely paste more than that into PLANE_SLUG /
+// default_workspace:
+//   - a bare slug          → "acme"                                  → "acme"
+//   - a stray trailing slash → "acme/"                               → "acme"
+//   - a full browser URL   → "https://app.plane.so/acme/projects/…"  → "acme"
+//   - the API base prefix   → "https://host/api/v1/workspaces/acme"  → "acme"
+//
+// A domain-style normalizer (strip scheme + trailing slash) is wrong here: for a
+// browser URL it would yield "app.plane.so/acme/projects/…" instead of "acme".
+// So we strip the scheme, then resolve the slug positionally: prefer the segment
+// after a "workspaces" path element (the API-base form), otherwise drop a leading
+// host-like segment (one containing a dot, e.g. "app.plane.so") and take the
+// first remaining segment.
+func normalizeWorkspaceSlug(v string) string {
+	v = strings.TrimSpace(v)
+	if i := strings.Index(v, "://"); i >= 0 {
+		v = v[i+3:]
 	}
-	return strings.TrimRight(v, "/")
+	v = strings.Trim(v, "/")
+	if v == "" {
+		return ""
+	}
+	parts := strings.Split(v, "/")
+	// API-base paste: .../workspaces/<slug>[/...] — the slug is the next segment.
+	for i := 0; i+1 < len(parts); i++ {
+		if parts[i] == "workspaces" {
+			return parts[i+1]
+		}
+	}
+	// Browser-URL paste: <host>/<slug>/... — drop the leading host-like segment.
+	if len(parts) > 1 && strings.Contains(parts[0], ".") {
+		parts = parts[1:]
+	}
+	return parts[0]
 }
+
+// NormalizeWorkspaceSlug exposes the workspace-slug normalizer to sibling
+// packages. PATCH(mcp-workspace): the MCP execute handlers reuse it to honor a
+// per-call "workspace" argument (overriding $PLANE_SLUG / default_workspace),
+// so a slug pasted as a bare segment, a browser URL, or the API base prefix all
+// resolve identically to the CLI's --workspace flag.
+func NormalizeWorkspaceSlug(v string) string { return normalizeWorkspaceSlug(v) }
 
 func (c *Config) AuthHeader() string {
 	if c.AuthHeaderVal != "" {
@@ -218,6 +262,11 @@ func (c *Config) save() error {
 	}
 	return os.WriteFile(c.Path, data, 0o600)
 }
+
+// Save persists the config to disk. PATCH(workspace-registry): exposes the
+// private save() so novel workspace commands can mutate DefaultWorkspace /
+// Workspaces and write back without duplicating the toml round-trip.
+func (c *Config) Save() error { return c.save() }
 
 // Ensure strings import is used
 var _ = strings.ReplaceAll

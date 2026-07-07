@@ -1,0 +1,218 @@
+{
+  "api_name": "pangolin",
+  "novelty_score": 8,
+  "alternatives": [],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-05-23T00:00:00Z",
+  "novel_features": [
+    {
+      "name": "Cross-org health audit",
+      "command": "audit",
+      "description": "Find stale targets, orphaned resources, and missing role bindings across every org you administer, in one command.",
+      "rationale": "Requires joining resources, targets, and roles across all orgs in the local SQLite store; no single Pangolin endpoint returns this.",
+      "example": "pangolin-pp-cli audit --json --select issues",
+      "why_it_matters": "When the user asks 'is anything broken in my Pangolin stack?', this is the single command that answers it — no dashboard tab-clicking.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Certificate expiry watch",
+      "command": "cert-watch",
+      "description": "List certificates sorted by days-until-expiry across every org, with a configurable warning window.",
+      "rationale": "Requires fetching certs per org+domain and joining with local-store metadata to sort by expiry — Pangolin's UI shows certs only per-resource.",
+      "example": "pangolin-pp-cli cert-watch --days 30 --json",
+      "why_it_matters": "When the user asks 'what certs expire soon?', skip the dashboard and get an actionable list with one call.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Full config backup",
+      "command": "backup",
+      "description": "Export the complete Pangolin configuration — orgs, sites, resources, targets, roles, IdPs — as version-controllable JSON.",
+      "rationale": "Walks all 14 entity types and emits a normalized tree the user can diff in git; no Pangolin endpoint returns a full-config snapshot.",
+      "example": "pangolin-pp-cli backup --out pangolin-backup.json",
+      "why_it_matters": "When the user wants a disaster-recovery snapshot or a config diff between dates, this is the artifact.",
+      "group": "Disaster recovery"
+    },
+    {
+      "name": "Config restore from backup",
+      "command": "restore",
+      "description": "Re-apply a backup against a fresh Pangolin install, in the correct dependency order, with dry-run preview.",
+      "rationale": "Sequences mutations (org first, then site, resource, target, role bindings) with rollback-on-error — impossible without local dependency graph.",
+      "example": "pangolin-pp-cli restore pangolin-backup.json --dry-run",
+      "why_it_matters": "When the user rebuilds a Pangolin host or moves between machines, this is the way back up.",
+      "group": "Disaster recovery"
+    },
+    {
+      "name": "Access graph",
+      "command": "access-graph",
+      "description": "Answer 'who can reach what' by joining users, roles, resources, and orgs into one queryable view.",
+      "rationale": "Pure local-store join across four entity types; the API exposes each piece separately but no endpoint returns the joined access view.",
+      "example": "pangolin-pp-cli access-graph --user $USER_ID --json",
+      "why_it_matters": "When the user asks 'what does $person have access to?' or 'who can hit this resource?', this is the answer.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "One-shot expose",
+      "command": "expose",
+      "description": "Create site (if needed), create resource, attach target, bind a role — in one command, with dry-run preview.",
+      "rationale": "Sequences 3-5 API calls atomically with rollback-on-error; replaces a 5-tab dashboard dance with a single scriptable invocation.",
+      "example": "pangolin-pp-cli expose grafana --target 192.168.1.50:3000 --site site_42 --role admins --dry-run",
+      "why_it_matters": "When the user (or an agent) wants to expose a homelab service, this is the entire workflow in one line.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Doctor with base-URL discovery",
+      "command": "doctor",
+      "description": "Validate auth, probe both /v1 and /api/v1 mount paths, and report the working integration-API base URL with environment-variable guidance.",
+      "rationale": "Pangolin's spec advertises /v1 but most deployments mount it at /api/v1. Doctor detects the mismatch and tells the user exactly what PANGOLIN_BASE_URL should be.",
+      "example": "pangolin-pp-cli doctor",
+      "why_it_matters": "When the user sets up the CLI for the first time, this catches the single most common misconfiguration before any other command fails.",
+      "group": "Agent-native plumbing"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Cross-org health audit",
+      "command": "audit",
+      "description": "Find stale targets, orphaned resources, and missing role bindings across every org you administer, in one command.",
+      "rationale": "Requires joining resources, targets, and roles across all orgs in the local SQLite store; no single Pangolin endpoint returns this.",
+      "example": "pangolin-pp-cli audit --json --select issues",
+      "why_it_matters": "When the user asks 'is anything broken in my Pangolin stack?', this is the single command that answers it — no dashboard tab-clicking.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Certificate expiry watch",
+      "command": "cert-watch",
+      "description": "List certificates sorted by days-until-expiry across every org, with a configurable warning window.",
+      "rationale": "Requires fetching certs per org+domain and joining with local-store metadata to sort by expiry — Pangolin's UI shows certs only per-resource.",
+      "example": "pangolin-pp-cli cert-watch --days 30 --json",
+      "why_it_matters": "When the user asks 'what certs expire soon?', skip the dashboard and get an actionable list with one call.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Full config backup",
+      "command": "backup",
+      "description": "Export the complete Pangolin configuration — orgs, sites, resources, targets, roles, IdPs — as version-controllable JSON.",
+      "rationale": "Walks all 14 entity types and emits a normalized tree the user can diff in git; no Pangolin endpoint returns a full-config snapshot.",
+      "example": "pangolin-pp-cli backup --out pangolin-backup.json",
+      "why_it_matters": "When the user wants a disaster-recovery snapshot or a config diff between dates, this is the artifact.",
+      "group": "Disaster recovery"
+    },
+    {
+      "name": "Config restore from backup",
+      "command": "restore",
+      "description": "Re-apply a backup against a fresh Pangolin install, in the correct dependency order, with dry-run preview.",
+      "rationale": "Sequences mutations (org first, then site, resource, target, role bindings) with rollback-on-error — impossible without local dependency graph.",
+      "example": "pangolin-pp-cli restore pangolin-backup.json --dry-run",
+      "why_it_matters": "When the user rebuilds a Pangolin host or moves between machines, this is the way back up.",
+      "group": "Disaster recovery"
+    },
+    {
+      "name": "Access graph",
+      "command": "access-graph",
+      "description": "Answer 'who can reach what' by joining users, roles, resources, and orgs into one queryable view.",
+      "rationale": "Pure local-store join across four entity types; the API exposes each piece separately but no endpoint returns the joined access view.",
+      "example": "pangolin-pp-cli access-graph --user $USER_ID --json",
+      "why_it_matters": "When the user asks 'what does $person have access to?' or 'who can hit this resource?', this is the answer.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "One-shot expose",
+      "command": "expose",
+      "description": "Create site (if needed), create resource, attach target, bind a role — in one command, with dry-run preview.",
+      "rationale": "Sequences 3-5 API calls atomically with rollback-on-error; replaces a 5-tab dashboard dance with a single scriptable invocation.",
+      "example": "pangolin-pp-cli expose grafana --target 192.168.1.50:3000 --site site_42 --role admins --dry-run",
+      "why_it_matters": "When the user (or an agent) wants to expose a homelab service, this is the entire workflow in one line.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Doctor with base-URL discovery",
+      "command": "doctor",
+      "description": "Validate auth, probe both /v1 and /api/v1 mount paths, and report the working integration-API base URL with environment-variable guidance.",
+      "rationale": "Pangolin's spec advertises /v1 but most deployments mount it at /api/v1. Doctor detects the mismatch and tells the user exactly what PANGOLIN_BASE_URL should be.",
+      "example": "pangolin-pp-cli doctor",
+      "why_it_matters": "When the user sets up the CLI for the first time, this catches the single most common misconfiguration before any other command fails.",
+      "group": "Agent-native plumbing"
+    }
+  ],
+  "narrative": {
+    "display_name": "Pangolin",
+    "headline": "The first agent-native CLI for Pangolin — every endpoint, plus offline SQLite, cross-org audits, and one-shot config backup and restore the dashboard cannot do.",
+    "value_prop": "Pangolin is the open-source, self-hosted alternative to Cloudflare Tunnels. This CLI exposes all 157 integration-API endpoints with --json, --select, --csv, and --dry-run, mirrors the full configuration into a local SQLite store, and adds commands that span orgs — audit, cert-watch, access-graph, backup, restore, expose — that no Pangolin tool offers today.",
+    "auth_narrative": "Authentication is a single Bearer integration token. Set PANGOLIN_TOKEN in your environment; the base URL is typically https://\u003cyour-dashboard\u003e/api/v1 (note: the OpenAPI spec advertises /v1 but real EE deployments mount the API under /api/v1). Set PANGOLIN_BASE_URL accordingly and run `pangolin-pp-cli doctor` to confirm.",
+    "quickstart": [
+      {
+        "command": "pangolin-pp-cli doctor",
+        "comment": "Confirm auth and base URL are correct before doing anything else"
+      },
+      {
+        "command": "pangolin-pp-cli sync --full",
+        "comment": "Mirror every org, site, resource, target, role, and IdP into local SQLite"
+      },
+      {
+        "command": "pangolin-pp-cli audit --json",
+        "comment": "Cross-org health: stale targets, missing roles, orphaned resources"
+      },
+      {
+        "command": "pangolin-pp-cli cert-watch --days 30 --json",
+        "comment": "List certificates expiring in the next 30 days"
+      },
+      {
+        "command": "pangolin-pp-cli backup --out pangolin-backup.json",
+        "comment": "Snapshot the full configuration for version control or DR"
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "404 on every command",
+        "fix": "The OpenAPI spec says /v1 but most EE deployments mount the API at /api/v1. Set PANGOLIN_BASE_URL=https://\u003cyour-host\u003e/api/v1 and rerun `pangolin-pp-cli doctor`."
+      },
+      {
+        "symptom": "401 unauthorized",
+        "fix": "Verify PANGOLIN_TOKEN is set to a valid integration token (created in the dashboard under Integration Tokens). Run `pangolin-pp-cli doctor` to confirm."
+      },
+      {
+        "symptom": "Empty results from a list command",
+        "fix": "Local store may be stale. Run `pangolin-pp-cli sync --full` first, then retry."
+      }
+    ],
+    "when_to_use": "Reach for this CLI whenever the user mentions Pangolin, exposing a homelab service through a tunnel, managing reverse-proxy resources, or auditing who can reach what on a self-hosted edge proxy. The CLI is the right tool for any Pangolin workflow that involves more than a single resource or a single org, or anything an agent should drive programmatically.",
+    "recipes": [
+      {
+        "title": "Expose a homelab service in one command",
+        "command": "pangolin-pp-cli expose grafana --target 192.168.1.50:3000 --site site_42 --role admins --dry-run",
+        "explanation": "Previews the full create-site-resource-target-role chain; drop --dry-run to apply."
+      },
+      {
+        "title": "Find expiring certs across every org",
+        "command": "pangolin-pp-cli cert-watch --days 30 --json --select domain,daysUntilExpiry",
+        "explanation": "Returns a compact JSON array of certs expiring within 30 days. Pair with --select to shrink the agent's context cost."
+      },
+      {
+        "title": "Audit access for a specific user",
+        "command": "pangolin-pp-cli access-graph --user $USER_ID --json --select resource,org,role",
+        "explanation": "Joins users x roles x resources x orgs into a single answer for 'what can this person reach?'."
+      },
+      {
+        "title": "Disaster-recovery backup",
+        "command": "pangolin-pp-cli backup --out backups/pangolin-$(date +%F).json",
+        "explanation": "Snapshots the entire Pangolin configuration as JSON; commit to git for diffable history."
+      },
+      {
+        "title": "Search resources by partial name",
+        "command": "pangolin-pp-cli search 'grafana' --json --select id,name,fullDomain",
+        "explanation": "FTS over the local store finds resources without paginating the live API."
+      }
+    ],
+    "trigger_phrases": [
+      "expose service through pangolin",
+      "back up pangolin config",
+      "audit pangolin access",
+      "which pangolin certs expire",
+      "list pangolin resources",
+      "use pangolin",
+      "run pangolin"
+    ]
+  }
+}

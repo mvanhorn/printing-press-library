@@ -1,0 +1,23 @@
+000
+ABPZ20 KNHC 160503
+TWOEP 
+
+Tropical Weather Outlook
+NWS National Hurricane Center Miami FL
+1100 PM PDT Mon Jun 15 2026
+
+For the eastern and central North Pacific east of 180 longitude:
+
+Well East-Southeast of the Hawaiian Islands (EP93):
+A broad area of low pressure located well east-southeast of the 
+Hawaiian Islands is producing disorganized showers and 
+thunderstorms. Some slight development of this system is still 
+possible over the next day while it moves northwestward at 5 to 10 
+mph. Thereafter, increasingly dry mid-level air is expected to limit 
+further development.
+* Formation chance through 48 hours...low...20 percent.
+* Formation chance through 7 days...low...20 percent.
+
+$$
+Forecaster Adams/Pasch
+  

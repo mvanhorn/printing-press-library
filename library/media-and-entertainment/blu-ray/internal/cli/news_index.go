@@ -27,7 +27,7 @@ func newNewsIndexCmd(flags *rootFlags) *cobra.Command {
 			path := "/news/"
 			htmlRequestParams := map[string]string{}
 			params := map[string]string{}
-			data, prov, err := resolveRead(cmd.Context(), c, flags, "news", false, path, params, nil)
+			data, prov, err := resolveReadWithStrategy(cmd.Context(), c, flags, "auto", "news", false, path, params, nil, cmd.ErrOrStderr())
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}

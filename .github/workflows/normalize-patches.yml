@@ -48,13 +48,13 @@ jobs:
   normalize:
     name: Normalize and commit
     runs-on: ubuntu-latest
-    # Share one push lane with generate-registry.yml / generate-skills.yml. All
-    # three commit back to main after a library/** change; serializing avoids
-    # non-fast-forward push failures. The three touch disjoint paths
-    # (.printing-press-patches/ vs registry.json+README.md vs cli-skills/), so
-    # the rebase-before-push below is conflict-free in practice.
+    # Queue patch-normalization runs, but do not share this group with sibling
+    # generated-artifact workflows. GitHub keeps only one pending run per
+    # concurrency group, so a shared group lets unrelated workflows evict a
+    # pending normalizer run. Push races with sibling workflows are handled by
+    # the rebase-before-push step below.
     concurrency:
-      group: generated-artifact-push-main
+      group: normalize-patches-main
       cancel-in-progress: false
     steps:
       - uses: actions/checkout@v6
@@ -142,9 +142,8 @@ jobs:
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           # [skip ci] suppresses a re-trigger of this workflow on its own commit.
           git commit -m "chore(patches): normalize patches manifests to per-patch dirs [skip ci]"
-          # Defense-in-depth against the cross-workflow race with the sibling
-          # generated-artifact workflows — the concurrency group serializes most
-          # runs; the rebase handles a sibling landing between checkout and push.
-          # Paths are disjoint, so the rebase is conflict-free.
+          # Defense-in-depth against sibling generated-artifact workflows
+          # landing between checkout and push. Paths are disjoint, so the rebase
+          # is conflict-free.
           git pull --rebase origin main
           git push

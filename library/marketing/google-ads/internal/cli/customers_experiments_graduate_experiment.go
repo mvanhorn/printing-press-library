@@ -20,7 +20,7 @@ func newCustomersExperimentsGraduateExperimentCmd(flags *rootFlags) *cobra.Comma
 	cmd := &cobra.Command{
 		Use:         "graduate-experiment <experiment>",
 		Short:       "Graduates an experiment to a full campaign.",
-		Example:     "  google-ads-pp-cli customers_experiments graduate_experiment example-value",
+		Example:     "  google-ads-pp-cli customers-experiments graduate-experiment example-value",
 		Annotations: map[string]string{"pp:endpoint": "customers_experiments.graduate_experiment", "pp:method": "POST", "pp:path": "/v22/{experiment}:graduateExperiment"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "id": "auth-narrative-and-quickstart-realism",
+  "applied_at": "2026-05-26",
+  "base_run_id": "20260526-094831",
+  "base_printing_press_version": "4.11.0",
+  "summary": "research.json narrative quickstart updated to use real command paths (auth status, sync --resources tags,fields,broadcasts) instead of placeholders; README + SKILL regenerated.",
+  "reason": "validate-narrative was failing on placeholder examples (--pk/--sk/--site-uuid flags that don't exist).",
+  "files": [
+    "research.json"
+  ]
+}

@@ -1,0 +1,15 @@
+{
+  "schema_version": 2,
+  "id": "greptile-review-followup",
+  "applied_at": "2026-06-16",
+  "base_run_id": "20260615-070140",
+  "base_printing_press_version": "4.24.0",
+  "summary": "Address Greptile review feedback for GitHub Intel: fetch full release pages before applying --since/--limit, fan out compare repo lookups, and remove unused config persistence helpers.",
+  "reason": "The initial printed CLI passed validation but review found novel-command behavior and dead generated config helpers that could mislead future maintainers. The releases command used --limit as GitHub's server-side per_page before applying --since, compare serialized independent repo lookups, and config.go carried unreachable save/update helpers despite auth being optional.",
+  "files": [
+    "internal/cli/intel.go",
+    "internal/cli/intel_test.go",
+    "internal/config/config.go"
+  ],
+  "validated_outcome": "go test ./..., go vet ./..., go build ./..., verify_skill.py for github-intel, and publish validation passed locally."
+}

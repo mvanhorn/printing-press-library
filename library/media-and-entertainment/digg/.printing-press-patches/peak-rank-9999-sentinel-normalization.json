@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "peak-rank-9999-sentinel-normalization",
+  "applied_at": "2026-05-24",
+  "base_run_id": "20260508-234057",
+  "base_printing_press_version": "4.0.6",
+  "summary": "ExtractClusters normalizes PeakRank=9999 to 0 at parse time (next to the existing Rank->CurrentRank normalization) so the sentinel does not block a later occurrence's legitimate PeakRank via the first-non-zero-wins merge guard, and so the json:peakRank,omitempty tag drops it from CLI JSON output.",
+  "reason": "9999 is Digg's internal placeholder for newly-detected clusters with no tracked all-time peak. Leaking it into CLI JSON forces every downstream agent to special-case the value. Normalizing at parse time (rather than at the output boundary) also prevents a sentinel occurrence from blocking a legitimate later PeakRank under the first-non-zero-wins merge guard introduced in the sibling rank-merge patch.",
+  "files": [
+    "internal/diggparse/parser.go",
+    "internal/diggparse/parser_rank_test.go"
+  ],
+  "validated_outcome": "TestExtractClustersNormalizesPeakRankSentinel verifies normalization + JSON omission; TestExtractClustersSentinelDoesNotBlockLaterPeakRank verifies the parse-time placement (sentinel-then-real interaction); TestExtractClustersPreservesLegitimatePeakRank confirms non-sentinel values pass through unchanged; TestExtractClustersOmitsAbsentPeakRank confirms absent-field behavior is unchanged."
+}

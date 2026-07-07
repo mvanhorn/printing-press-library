@@ -1,0 +1,9 @@
+{
+  "schema_version": 2,
+  "id": "expense-untagged-refresh-before-auto-fix",
+  "applied_at": "2026-05-23",
+  "base_run_id": "20260523-163843",
+  "base_printing_press_version": "4.12.0",
+  "summary": "expense-untagged --auto-fix refreshes the expenses table first so it cannot overwrite categories a user set in the Zoho UI since the last sync.",
+  "reason": "Without the refresh, the local store can be up to cache.stale_after hours old. A user who tagged an expense manually in Zoho since the last sync still appears category_id= locally, and --auto-fix PUTs the merchant-memory category onto it, silently overwriting the manual choice. Plain listing (no --auto-fix) keeps the normal freshness policy because stale data is acceptable for review. Filed per Greptile P1."
+}

@@ -1,0 +1,16 @@
+{
+  "schema_version": 2,
+  "id": "doctor-encrypted-store-and-sync-state",
+  "applied_at": "2026-05-12",
+  "base_run_id": "20260511-211333",
+  "base_printing_press_version": "4.4.0",
+  "files": [
+    "internal/granola/syncstate.go",
+    "internal/granola/syncstate_test.go",
+    "internal/cli/doctor.go",
+    "internal/cli/doctor_encrypted_store.go",
+    "internal/cli/sync_cache.go"
+  ],
+  "summary": "New SyncState helper writes ~/.local/share/granola-pp-cli/sync_state.json (atomic tmp+rename) capturing last sync timestamp, decrypt status, error class on failure, token source, and documents fetched. sync_cache.go writes on every run (success or decrypt failure). doctor.go adds an EncryptedStore check that distinguishes no-install / pre-encryption / present-no-sync / ok / failed-with-class states by reading the sync state file - never invoking safestorage.Decrypt, so doctor never triggers the Keychain prompt.",
+  "reason": "Plan U5 requirement: doctor must surface the four-state encrypted-store diagnostic without prompting the user, so it stays a pure observation command. The previous design (attempt-with-timeout) was unachievable because /usr/bin/security either blocks on prompt or succeeds silently."
+}

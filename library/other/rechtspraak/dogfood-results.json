@@ -1,0 +1,168 @@
+{
+  "dir": "\u003ccli-dir\u003e/rechtspraak",
+  "spec_path": "\u003crunstate\u003e/rechtspraak.yaml",
+  "spec_source": "caller",
+  "verdict": "WARN",
+  "path_check": {
+    "tested": 0,
+    "valid": 0,
+    "valid_pct": 0,
+    "skipped": true,
+    "detail": "internal-yaml spec: paths validated at parse time"
+  },
+  "auth_check": {
+    "spec_scheme": "",
+    "generated_format": "unknown",
+    "match": true,
+    "detail": "no bot/bearer/basic scheme detected"
+  },
+  "browser_session_check": {
+    "required": false,
+    "pass": true,
+    "detail": "browser-session auth not required"
+  },
+  "oauth_scope_coverage_check": {
+    "checked": 0,
+    "covered": 0,
+    "skipped": true,
+    "detail": "no OAuth-scoped endpoints in spec"
+  },
+  "dead_flags": {
+    "total": 19,
+    "dead": 0
+  },
+  "dead_functions": {
+    "total": 62,
+    "dead": 0
+  },
+  "pipeline_check": {
+    "sync_calls_domain": true,
+    "search_calls_domain": true,
+    "domain_tables": 1,
+    "sync_file_emitted": true,
+    "sync_resources_present": true,
+    "detail": "sync uses domain-specific Upsert methods; search uses domain-specific Search methods; 1 domain tables found"
+  },
+  "example_check": {
+    "tested": 10,
+    "with_examples": 10,
+    "valid_examples": 10,
+    "detail": "10/10 commands have examples"
+  },
+  "wiring_check": {
+    "command_tree": {
+      "defined": 44,
+      "registered": 44
+    },
+    "config_consistency": {
+      "consistent": true
+    },
+    "workflow_completeness": {
+      "skipped": true,
+      "total_steps": 0,
+      "mapped_steps": 0,
+      "detail": "no workflow_verify.yaml found"
+    }
+  },
+  "novel_features_check": {
+    "planned": 10,
+    "found": 10
+  },
+  "mcp_surface_parity": {
+    "state": "runtime_walking",
+    "pass": true,
+    "detail": "MCP surface mirrors the Cobra tree at runtime"
+  },
+  "reimplementation_check": {
+    "checked": 10,
+    "exempted_via_store": 1,
+    "suspicious": [
+      {
+        "command": "watch",
+        "file": "watch.go",
+        "reason": "hand-rolled response: no API client call, no store access"
+      },
+      {
+        "command": "code",
+        "file": "code.go",
+        "reason": "hand-rolled response: no API client call, no store access"
+      },
+      {
+        "command": "mcp serve",
+        "file": "mcp_serve.go",
+        "reason": "hand-rolled response: no API client call, no store access"
+      }
+    ],
+    "missing_data_source_strategy": [
+      {
+        "command": "chain",
+        "file": "chain.go",
+        "reason": "missing // pp:data-source \u003cauto|local|live\u003e annotation"
+      },
+      {
+        "command": "citations",
+        "file": "citations.go",
+        "reason": "missing // pp:data-source \u003cauto|local|live\u003e annotation"
+      },
+      {
+        "command": "dossier",
+        "file": "dossier.go",
+        "reason": "missing // pp:data-source \u003cauto|local|live\u003e annotation"
+      },
+      {
+        "command": "watch",
+        "file": "watch.go",
+        "reason": "missing // pp:data-source \u003cauto|local|live\u003e annotation"
+      },
+      {
+        "command": "conclusie",
+        "file": "conclusie.go",
+        "reason": "missing // pp:data-source \u003cauto|local|live\u003e annotation"
+      },
+      {
+        "command": "sync archive",
+        "file": "sync_archive.go",
+        "reason": "missing // pp:data-source \u003cauto|local|live\u003e annotation"
+      },
+      {
+        "command": "code",
+        "file": "code.go",
+        "reason": "missing // pp:data-source \u003cauto|local|live\u003e annotation"
+      },
+      {
+        "command": "mcp serve",
+        "file": "mcp_serve.go",
+        "reason": "missing // pp:data-source \u003cauto|local|live\u003e annotation"
+      },
+      {
+        "command": "ecli parse",
+        "file": "ecli_parse.go",
+        "reason": "missing // pp:data-source \u003cauto|local|live\u003e annotation"
+      },
+      {
+        "command": "narrow",
+        "file": "narrow.go",
+        "reason": "missing // pp:data-source \u003cauto|local|live\u003e annotation"
+      }
+    ]
+  },
+  "source_client_check": {
+    "checked": 5
+  },
+  "print_json_filtered_check": {
+    "checked": 41
+  },
+  "test_presence": {
+    "checked": 1
+  },
+  "naming_check": {
+    "checked": 41
+  },
+  "sync_param_drop_check": {
+    "checked": 0,
+    "skipped": true
+  },
+  "issues": [
+    "3/10 novel features look reimplemented: watch (watch.go) — hand-rolled response: no API client call, no store access; code (code.go) — hand-rolled response: no API client call, no store access; mcp serve (mcp_serve.go) — hand-rolled response: no API client call, no store access"
+  ]
+}

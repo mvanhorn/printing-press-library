@@ -1,0 +1,63 @@
+{
+  "endpoint": "GET /api/categories",
+  "method": "GET",
+  "raw_url": "https://kdpnichefinder.com/api/categories",
+  "status": 200,
+  "request_headers": {
+    ":authority": "kdpnichefinder.com",
+    ":method": "GET",
+    ":path": "/api/categories",
+    ":scheme": "https",
+    "accept": "*/*",
+    "accept-encoding": "gzip, deflate, br, zstd",
+    "accept-language": "en-US,en;q=0.9",
+    "cache-control": "no-cache",
+    "dnt": "1",
+    "pragma": "no-cache",
+    "priority": "u=1, i",
+    "referer": "https://kdpnichefinder.com/app/category/hidden_gems",
+    "sec-ch-ua": "\"Brave\";v=\"149\", \"Chromium\";v=\"149\", \"Not)A;Brand\";v=\"24\"",
+    "sec-ch-ua-mobile": "?0",
+    "sec-ch-ua-platform": "\"macOS\"",
+    "sec-fetch-dest": "empty",
+    "sec-fetch-mode": "cors",
+    "sec-fetch-site": "same-origin",
+    "sec-gpc": "1",
+    "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36"
+  },
+  "request_body": null,
+  "response_headers": {
+    "access-control-allow-origin": "*",
+    "cache-control": "no-cache, private",
+    "content-encoding": "gzip",
+    "content-type": "application/json",
+    "date": "Tue, 16 Jun 2026 05:04:34 GMT",
+    "server": "nginx",
+    "strict-transport-security": "max-age=31536000",
+    "vary": "X-Inertia",
+    "x-powered-by": "PHP/8.4.17"
+  },
+  "response_body": [
+    {
+      "description": "Discover low-competition, high-yield niches that others have overlooked. Perfect for new launches.",
+      "key": "hidden_gems",
+      "name": "Hidden Gems 💎"
+    },
+    {
+      "description": "Analyze recently published cookbooks gaining rapid momentum. Ride the wave of new trends.",
+      "key": "fresh_money",
+      "name": "Fresh Money 🚀"
+    },
+    {
+      "description": "Uncover premium-priced digital products with loyal buyers. Target affluent audiences willing to invest in quality.",
+      "key": "high_ticket",
+      "name": "High-Ticket Heavyweights 💰"
+    },
+    {
+      "description": "Discover digital product niches that maintain steady sales regardless of season or trend cycles.",
+      "key": "evergreen",
+      "name": "Evergreen Cash Cows 🐄"
+    }
+  ],
+  "response_body_known": true
+}

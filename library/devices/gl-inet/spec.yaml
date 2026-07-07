@@ -1,0 +1,56 @@
+name: gl-inet
+display_name: GL.iNet
+cli_description: "Manage a GL.iNet travel router from the terminal — config snapshots, travel macros, and version-aware diagnostics over the local API"
+description: "Local-API CLI for GL.iNet travel routers (GL firmware 4.x, OpenWrt-based). Talks the on-device GL JSON-RPC API and the OpenWrt/UCI layer over SSH for named config profiles, travel onboarding, and version/model-aware diagnostics."
+version: "0.1.0"
+base_url: "http://192.168.8.1"
+kind: synthetic
+source: local-sqlite
+
+auth:
+  type: none
+
+config:
+  format: toml
+  path: "~/.config/gl-inet/config.toml"
+
+resources:
+  system:
+    description: "Router system info and live status"
+    endpoints:
+      info:
+        method: GET
+        path: /system/info
+        description: "Model, firmware, OpenWrt version, hardware/software capability maps"
+      status:
+        method: GET
+        path: /system/status
+        description: "Live CPU, memory, clients, services, WAN/internet state"
+  clients:
+    description: "Connected client devices"
+    endpoints:
+      list:
+        method: GET
+        path: /clients
+        description: "List connected clients (ip, mac, name, tx/rx, online)"
+  wifi:
+    description: "WiFi radios and SSIDs"
+    endpoints:
+      status:
+        method: GET
+        path: /wifi/status
+        description: "Radio states, channels, bands"
+  vpn:
+    description: "VPN tunnels (WireGuard / OpenVPN clients)"
+    endpoints:
+      list:
+        method: GET
+        path: /vpn/tunnels
+        description: "Configured VPN client tunnels and their status"
+  snapshots:
+    description: "Named config profiles captured from the router"
+    endpoints:
+      list:
+        method: GET
+        path: /snapshots
+        description: "Saved config snapshots (local store)"

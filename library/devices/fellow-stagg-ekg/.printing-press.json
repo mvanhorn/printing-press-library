@@ -1,0 +1,44 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-06-15T18:35:00Z",
+  "printing_press_version": "4.24.0",
+  "api_name": "fellow-stagg-ekg",
+  "display_name": "Fellow Stagg EKG",
+  "cli_name": "fellow-stagg-ekg-pp-cli",
+  "creator": {
+    "handle": "erikrogne",
+    "name": "Erik Rogne"
+  },
+  "owner": "erikrogne",
+  "printer": "erikrogne",
+  "printer_name": "Erik Rogne",
+  "spec_path": "spec.yaml",
+  "spec_format": "internal",
+  "spec_checksum": "sha256:b49b9c599ad524e992b878300783fce9ac867e6172ff5bfdb64c7e5e565a1766",
+  "run_id": "20260615-183500",
+  "api_version": "0.1.0",
+  "auth_type": "none",
+  "description": "Control a Fellow Stagg EKG kettle over its local HTTP command interface from the terminal.",
+  "novel_features": [
+    {
+      "name": "Status snapshot",
+      "command": "status",
+      "description": "One-shot state, settings, and firmware view for a quick kettle check."
+    },
+    {
+      "name": "Heat with target temperature",
+      "command": "heat",
+      "description": "Set the kettle target temperature and then start heating in one invocation."
+    },
+    {
+      "name": "Direct hardware controls",
+      "command": "button",
+      "description": "Press or release the kettle buttons and rotate the dial without opening the app."
+    },
+    {
+      "name": "Raw recovery path",
+      "command": "raw",
+      "description": "Send an arbitrary local HTTP command string when you need a recovery or debugging escape hatch."
+    }
+  ]
+}

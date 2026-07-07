@@ -1,0 +1,39 @@
+{
+  "manifest_version": "0.3",
+  "name": "tripadvisor-pp-mcp",
+  "display_name": "Tripadvisor",
+  "version": "4.22.1",
+  "description": "Every Tripadvisor Content API endpoint, plus a local store and ranked compare/best/drift commands no other Tripadvisor tool has.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/tripadvisor-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/tripadvisor-pp-mcp",
+      "args": [],
+      "env": {
+        "TRIPADVISOR_API_KEY": "${user_config.tripadvisor_api_key}"
+      }
+    }
+  },
+  "user_config": {
+    "tripadvisor_api_key": {
+      "type": "string",
+      "title": "Tripadvisor Content API key",
+      "description": "Sets TRIPADVISOR_API_KEY for the Tripadvisor MCP server. Get a credential from https://www.tripadvisor.com/developers.",
+      "sensitive": true,
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

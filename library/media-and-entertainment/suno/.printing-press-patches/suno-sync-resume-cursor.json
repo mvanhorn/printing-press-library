@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "id": "suno-sync-resume-cursor",
+  "applied_at": "2026-05-29",
+  "base_run_id": "20260528-222057",
+  "base_printing_press_version": "4.14.0",
+  "summary": "The sync resume cursor is cleared only after a clean full feed walk; a --max-pages-capped walk keeps its last cursor so the next incremental run resumes.",
+  "reason": "The cursor was unconditionally cleared after the loop, so --max-pages syncs always restarted from the beginning.",
+  "files": [
+    "internal/cli/suno_sync.go"
+  ]
+}

@@ -1,0 +1,11 @@
+{
+  "id": "canonical-module-path",
+  "summary": "Use the published library import path as the Go module and internal import path.",
+  "reason": "The generated package kept the local binary module name, but the published catalog supply-chain verifier requires new CLI modules to live under github.com/mvanhorn/printing-press-library/library/<category>/<slug>. Internal package imports must move with go.mod so the package still builds.",
+  "files": [
+    "go.mod",
+    "cmd/*/main.go",
+    "internal/**/*.go"
+  ],
+  "reprint_guard": "When packaging into the public library, keep go.mod module paths canonical to the destination library directory instead of the local binary name."
+}

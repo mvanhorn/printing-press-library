@@ -21,7 +21,7 @@ func newGoogleAdsFieldsSearchCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:         "search",
 		Short:       "Returns all fields that match the search query.",
-		Example:     "  google-ads-pp-cli google_ads_fields search",
+		Example:     "  google-ads-pp-cli google-ads-fields search",
 		Annotations: map[string]string{"pp:endpoint": "google_ads_fields.search", "pp:method": "POST", "pp:path": "/v22/googleAdsFields:search", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !stdinBody {

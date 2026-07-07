@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "id": "refresh-token-flow-not-wired",
+  "applied_at": "2026-05-15",
+  "base_run_id": "20260511-095555",
+  "base_printing_press_version": "4.2.2",
+  "summary": "Return a clear error from refreshAccessToken instead of silently no-oping when the token is expired.",
+  "reason": "greatclips mints tokens via the auth0silent /authorize flow, not OAuth2 refresh_token exchange, so tokenURL was hardcoded to '' and the function returned nil. Callers got a silent no-op and the next API call produced an opaque 401. The function now returns an explicit error telling the user to re-run `greatclips auth login` (greptile P1).",
+  "files": [
+    "internal/client/client.go"
+  ]
+}

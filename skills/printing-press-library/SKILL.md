@@ -10,7 +10,7 @@ tags:
   - agent-skill
   - tool-discovery
   - install
-version: 0.2.1
+version: 0.2.2
 metadata:
   hermes:
     tags:
@@ -142,6 +142,22 @@ Use `update` when the user asks to refresh or reinstall existing tools:
 npx -y @mvanhorn/printing-press-library update flight-goat
 npx -y @mvanhorn/printing-press-library update
 ```
+
+When deciding whether a local CLI is stale, compare the installed binary's reported version with the catalog release metadata before falling back to source inspection:
+
+```bash
+<slug>-pp-cli --version
+npx -y @mvanhorn/printing-press-library search <slug> --json
+npx -y @mvanhorn/printing-press-library list --json
+```
+
+In `search --json` or `list --json`, read `release.version` for the catalog version and `release.cli_name` for the binary name. If the local `--version` is older than the catalog `release.version`, update the tool with the user's intended binary directory, usually:
+
+```bash
+npx -y @mvanhorn/printing-press-library update <slug> --bin-dir ~/.local/bin
+```
+
+Only fall back to `go version -m <binary>`, repo inspection, or direct `.printing-press-release.json` reads when the catalog entry lacks `release` metadata or the binary's version string is missing, non-semver-like, or otherwise suspicious. For example, Substack can be checked with `substack-pp-cli --version` locally and `npx -y @mvanhorn/printing-press-library search substack --json` remotely; update with `npx -y @mvanhorn/printing-press-library update substack --bin-dir ~/.local/bin` when the catalog version is newer.
 
 `update <slug>` delegates to install semantics for that tool. `update` with no args discovers Printing Press CLIs currently on PATH and refreshes all of them, including their matching focused skills.
 

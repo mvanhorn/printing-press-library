@@ -1,0 +1,102 @@
+{
+  "api_name": "supermemory-admin",
+  "novelty_score": 0,
+  "alternatives": [],
+  "gaps": [
+    "OpenAPI resource aliases"
+  ],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-06-16T21:20:00Z",
+  "novel_features": [
+    {
+      "name": "Project-scoped Memory Admin",
+      "command": "SUPERMEMORY_ADMIN_PROJECT=\u003cproject-id\u003e supermemory-admin-pp-cli supermemory-recall",
+      "description": "Scope every CLI and MCP request to one Supermemory project with the x-sm-project header, without hand-editing raw headers.",
+      "rationale": "Supermemory project scoping is documented for MCP users but is not represented as a first-class OpenAPI parameter; operators need a safe per-project boundary for daily agent memory work.",
+      "example": "SUPERMEMORY_ADMIN_PROJECT=project_123 supermemory-admin-pp-cli supermemory-recall --q \"deployment context\" --agent",
+      "why_it_matters": "Keeps agent memories partitioned by project/codebase while preserving the same CLI surface.",
+      "group": "Operator Safety"
+    },
+    {
+      "name": "Recall Search for Agents",
+      "command": "supermemory-recall",
+      "description": "Run low-latency memory recall from a compact, agent-friendly CLI surface with selectable JSON output.",
+      "rationale": "The API exposes recall, but the generated CLI turns it into a repeatable terminal/MCP workflow with auth setup, dry runs, output selection, and local validation.",
+      "example": "supermemory-admin-pp-cli supermemory-recall --q \"deployment context\" --agent --select results.id,results.memory,results.similarity",
+      "why_it_matters": "Lets agents retrieve focused memory context without opening a dashboard or carrying broad history in prompt context.",
+      "group": "Recall"
+    },
+    {
+      "name": "Local Memory Operations Cache",
+      "command": "sync + search",
+      "description": "Sync compatible Supermemory resources into local SQLite for offline search and inspection.",
+      "rationale": "A local cache lets agents inspect recent memory operations without repeatedly hitting live API endpoints or carrying large response payloads in context.",
+      "example": "supermemory-admin-pp-cli sync --agent \u0026\u0026 supermemory-admin-pp-cli search \"project context\" --agent",
+      "why_it_matters": "Gives operators a local audit/search loop for memory-adjacent resources.",
+      "group": "Local Intelligence"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Project-scoped Memory Admin",
+      "command": "SUPERMEMORY_ADMIN_PROJECT=\u003cproject-id\u003e supermemory-admin-pp-cli supermemory-recall",
+      "description": "Scope every CLI and MCP request to one Supermemory project with the x-sm-project header, without hand-editing raw headers.",
+      "rationale": "Supermemory project scoping is documented for MCP users but is not represented as a first-class OpenAPI parameter; operators need a safe per-project boundary for daily agent memory work.",
+      "example": "SUPERMEMORY_ADMIN_PROJECT=project_123 supermemory-admin-pp-cli supermemory-recall --q \"deployment context\" --agent",
+      "why_it_matters": "Keeps agent memories partitioned by project/codebase while preserving the same CLI surface.",
+      "group": "Operator Safety"
+    },
+    {
+      "name": "Recall Search for Agents",
+      "command": "supermemory-recall",
+      "description": "Run low-latency memory recall from a compact, agent-friendly CLI surface with selectable JSON output.",
+      "rationale": "The API exposes recall, but the generated CLI turns it into a repeatable terminal/MCP workflow with auth setup, dry runs, output selection, and local validation.",
+      "example": "supermemory-admin-pp-cli supermemory-recall --q \"deployment context\" --agent --select results.id,results.memory,results.similarity",
+      "why_it_matters": "Lets agents retrieve focused memory context without opening a dashboard or carrying broad history in prompt context.",
+      "group": "Recall"
+    },
+    {
+      "name": "Local Memory Operations Cache",
+      "command": "sync + search",
+      "description": "Sync compatible Supermemory resources into local SQLite for offline search and inspection.",
+      "rationale": "A local cache lets agents inspect recent memory operations without repeatedly hitting live API endpoints or carrying large response payloads in context.",
+      "example": "supermemory-admin-pp-cli sync --agent \u0026\u0026 supermemory-admin-pp-cli search \"project context\" --agent",
+      "why_it_matters": "Gives operators a local audit/search loop for memory-adjacent resources.",
+      "group": "Local Intelligence"
+    }
+  ],
+  "auth": {
+    "canonical_env_var": "SUPERMEMORY_ADMIN_TOKEN"
+  },
+  "narrative": {
+    "display_name": "Supermemory",
+    "headline": "A project-scoped admin CLI for Supermemory memory, recall, documents, profiles, and container tags.",
+    "value_prop": "Supermemory's API is powerful, but agents need a repeatable operator surface: auth setup, project scoping, dry runs, compact JSON output, local sync/search, and MCP parity.",
+    "auth_narrative": "Create a Supermemory API key and set SUPERMEMORY_ADMIN_TOKEN. Optionally set SUPERMEMORY_ADMIN_PROJECT to scope every request with x-sm-project.",
+    "quickstart": [
+      {
+        "command": "supermemory-admin-pp-cli doctor --agent",
+        "comment": "Verify config, base URL reachability, and auth hints."
+      },
+      {
+        "command": "supermemory-admin-pp-cli supermemory-recall --q \"deployment context\" --agent --dry-run",
+        "comment": "Preview the recall request body without sending credentials or making a live call."
+      },
+      {
+        "command": "supermemory-admin-pp-cli profiles --container-tag project_123 --agent --dry-run",
+        "comment": "Preview a project-scoped profile request using the x-sm-project header."
+      }
+    ],
+    "recipes": [
+      {
+        "title": "Search project-scoped memory",
+        "command": "supermemory-admin-pp-cli supermemory-recall --q \"launch notes\" --agent --select results.id,results.memory,results.similarity"
+      },
+      {
+        "title": "Audit local synced data",
+        "command": "supermemory-admin-pp-cli sync --agent \u0026\u0026 supermemory-admin-pp-cli search \"customer research\" --agent"
+      }
+    ]
+  }
+}

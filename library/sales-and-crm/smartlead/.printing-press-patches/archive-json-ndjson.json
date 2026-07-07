@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "archive-json-ndjson",
+  "applied_at": "2026-05-16",
+  "base_run_id": "20260516-065803",
+  "base_printing_press_version": "4.8.0",
+  "files": [
+    "internal/cli/channel_workflow.go"
+  ],
+  "summary": "Emit 'workflow archive --json' as compact (one-line) JSON instead of indented.",
+  "reason": "syncResource streams NDJSON sync events to stdout; an indented multi-line final object broke line-delimited JSON parsing of the combined stream.",
+  "validated_outcome": "'workflow archive --json' output parses as valid line-delimited JSON."
+}

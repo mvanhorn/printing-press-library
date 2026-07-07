@@ -1,0 +1,33 @@
+{
+  "query_family_examples": [
+    "all sibling markets for the World Cup",
+    "all sibling markets for the NBA Draft",
+    "all sibling markets for the FIFA World Cup",
+    "all sibling markets for the 2026 NBA Finals",
+    "all sibling markets for the US Presidential Election"
+  ],
+  "steps": [
+    {
+      "cmd": "prediction-goat-pp-cli topic '$EVENT.canonical' --expand --with-prices --limit 100 --agent",
+      "purpose": "Topic search with --expand (default true) live-walks any Polymarket multi-outcome event hit (marketCount > 2) and merges every sibling market into the hits array. --with-prices resolves Kalshi series shells to top-priced active market. --limit 100 raises the cap so 40+ team World Cup events don't truncate.",
+      "failure_modes": "topic's force-include pass only catches whole-word title hits; long-tail siblings can still get dropped at the truncation tail. If you suspect a known outcome is missing, switch to the polymarket-siblings seed walk (step 2)."
+    },
+    {
+      "cmd": "prediction-goat-pp-cli polymarket siblings <any-known-sibling-slug> --agent",
+      "purpose": "FALLBACK / coverage check. When topic missed an outcome the user named (`...what about Cambodia?`), walk from any known sibling slug; the response carries every outcome in the parent event independent of FTS ranking.",
+      "fallback_for": "topic step returned < marketCount sibling markets, or user asked about a specific outcome that didn't appear in the topic result.",
+      "failure_modes": "If you don't know any sibling slug, search Polymarket's gamma UI conventions: `will-<outcome>-win-the-<year>-<event>` is the dominant slug shape."
+    },
+    {
+      "client_side": "merge_dedupe_by_slug",
+      "args": {
+        "key": "slug",
+        "sort": "volumeNum",
+        "order": "desc"
+      },
+      "purpose": "Combine topic.hits[] + polymarket-siblings.markets[] into one deduped list sorted by 24h volume. Drop closed markets unless the user explicitly asked for resolved outcomes."
+    }
+  ],
+  "entity_slots": ["$EVENT"],
+  "expected_tool_calls": 1
+}

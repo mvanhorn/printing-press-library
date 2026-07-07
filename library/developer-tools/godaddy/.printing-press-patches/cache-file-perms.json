@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "id": "cache-file-perms",
+  "applied_at": "2026-05-28",
+  "base_run_id": "20260522-124732",
+  "base_printing_press_version": "4.11.0",
+  "summary": "Cache dir/file permissions tightened to 0o700/0o600 from 0o755/0o644.",
+  "reason": "Greptile P1/security: world-readable cache files leaked GoDaddy API responses (domain ownership, shopper, certificate data) to other local users on a shared machine.",
+  "files": [
+    "internal/cache/cache.go"
+  ]
+}

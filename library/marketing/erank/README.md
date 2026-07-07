@@ -7,6 +7,7 @@ Use eRank from a terminal to capture keyword stats, top listings, tags, related 
 Learn more at [eRank](https://members.erank.com).
 
 Created by [@horknfbr](https://github.com/horknfbr) (horknfbr).
+Contributors: [@tmchow](https://github.com/tmchow) (Trevin Chow).
 
 ## Install
 
@@ -37,7 +38,7 @@ npx -y @mvanhorn/printing-press-library install erank --agent claude-code --agen
 
 ### Without Node (Go fallback)
 
-If `npx` isn't available (no Node, offline), install the CLI directly via Go (requires Go 1.26.3 or newer):
+If `npx` isn't available (no Node, offline), install the CLI directly via Go (requires Go 1.26.4 or newer):
 
 ```bash
 go install github.com/mvanhorn/printing-press-library/library/marketing/erank/cmd/erank-pp-cli@latest

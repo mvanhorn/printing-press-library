@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "id": "wavespeed-novel-variants",
+  "applied_at": "2026-05-28",
+  "base_run_id": "20260527-214905",
+  "base_printing_press_version": "4.18.1",
+  "summary": "Added variants: seed/style/model sweep off a base shot with side-by-side metadata.",
+  "reason": "Comparative generation so an agent can pick the best output.",
+  "files": [
+    "internal/cli/novel_variants.go"
+  ]
+}

@@ -1,0 +1,1169 @@
+{
+  "schema_version": 1,
+  "applied_at": "2026-05-27",
+  "base_run_id": "20260525-231217",
+  "base_printing_press_version": "4.14.0",
+  "patches": [
+    {
+      "id": "fanout-search",
+      "summary": "Wired parent product-search RunE to fan-out search when positional query arg is present.",
+      "reason": "The generator emits product-search as a parent group with per-source subcommands. The fan-out novel feature needs the parent command to dispatch concurrent searches across all sources when a bare query is given.",
+      "files": ["internal/cli/product-search.go"]
+    },
+    {
+      "id": "lowes-stub-source",
+      "summary": "Added Lowe's as stub source with standalone autocomplete and store locator commands.",
+      "reason": "Printing Press printer protocol (probe-reachability + browser-sniff on Firefox HAR) confirmed autocomplete and store locator are standard_http (User-Agent only, no auth). Product search is SSR behind Akamai; recommendation engine (pythia-recs-svc, 14 endpoints) requires browser session cookies. Lowe's is stub — not in the fan-out — because only utility endpoints (suggest, stores) are viable, not product search.",
+      "files": [
+        "internal/cli/novel_lowes.go",
+        "internal/cli/novel_sources.go",
+        "internal/cli/novel_store.go",
+        "internal/cli/suggest.go",
+        "internal/cli/stores.go"
+      ]
+    },
+    {
+      "id": "home-depot-stub",
+      "summary": "Added Home Depot as stub with ssr_only transport and assessment notes.",
+      "reason": "Printing Press printer protocol confirmed all HD endpoints (autocomplete, store finder, GraphQL) return 403. Firefox HAR captured zero www.homedepot.com requests — HD renders everything server-side. No viable path without HTML scraping.",
+      "files": ["internal/cli/novel_sources.go", "internal/cli/novel_store.go"]
+    },
+    {
+      "id": "infer-source-fix",
+      "summary": "Added missing fergusonhome.com to inferSource domain map (Greptile P1).",
+      "reason": "Ferguson products from fergusonhome.com were classified as 'unknown' source. Also added lowes.com and homedepot.com domains.",
+      "files": ["internal/cli/novel_store.go"]
+    },
+    {
+      "id": "rename-home-goat-to-reno-goat",
+      "summary": "Renamed CLI from home-goat to reno-goat across all files, directories, and module path.",
+      "reason": "Reviewer feedback on PR #855 — 'home-goat' was too ambiguous for a home renovation/furnishing CLI.",
+      "files": ["go.mod", "cmd/reno-goat-pp-cli/main.go", "cmd/reno-goat-pp-mcp/main.go", ".printing-press.json"]
+    },
+    {
+      "id": "greptile-p1-p2-fixes",
+      "summary": "Resolved all Greptile P1 and P2 findings: search_history writes, context propagation, timeout flags, FK cascade, Shopify error pipeline.",
+      "reason": "Greptile review flagged: search_history never written (P1), HEAD requests ignoring cmd context and --timeout flag (P2), price_history missing ON DELETE CASCADE (P2), Shopify errors bypassing fanout pipeline (P2).",
+      "files": [
+        "internal/cli/novel_fanout_search.go",
+        "internal/cli/novel_watch.go",
+        "internal/cli/novel_saved.go",
+        "internal/cli/novel_store.go"
+      ]
+    },
+    {
+      "id": "shopify-dtc-domain-fix",
+      "summary": "Fixed inferSource to map myshopify.com → shopify-dtc instead of shopify.com → shopify.",
+      "reason": "Greptile P1: containsDomain checks for '.shopify.com' but Shopify DTC stores use 'myshopify.com' — the char before 'shopify' is 'y' not '.', so the match silently failed. All five DTC stores were classified as 'unknown'.",
+      "files": ["internal/cli/novel_store.go"]
+    },
+    {
+      "id": "watch-add-price-seeding",
+      "summary": "Added --price and --title flags to watch add; seeds current_price, original_price, and price_history on insert.",
+      "reason": "Greptile P1: watch add never stored current_price, so the currentPrice.Valid guard in watch check never fired and price_history stayed empty. watch history returned zero rows. The --price flag seeds both the watches row and a baseline price_history entry.",
+      "files": ["internal/cli/novel_watch.go"]
+    },
+    {
+      "id": "reno-source-expansion-ikea-ge-flooranddecor-superbrightleds-prolighting-1000bulbs-plumbersstock-faucetdepot-pioneer-sylvane-iwae-hardwarehut",
+      "summary": "Activated IKEA SIK search, GE Appliances Searchspring, Floor & Decor Algolia, Super Bright LEDs Algolia, PROLIGHTING Klevu, 1000Bulbs HTML product cards, PlumbersStock SSR fixture cards, FaucetDepot Algolia, Pioneer/Sylvane Shopify suggest HVAC search, IWAe Hyva HVAC product cards, and The Hardware Hut embedded JSON as fan-out product sources.",
+      "reason": "Printing Press source exploration found replayable anonymous product search surfaces for IKEA appliances/kitchen/furniture/decor, GE Appliances dishwasher/refrigerator/range/range-hood Searchspring product rows, Floor & Decor flooring/tile/materials, Super Bright LEDs electrical/lighting components, PROLIGHTING task/recessed/under-cabinet lighting, 1000Bulbs recessed/commercial lighting, PlumbersStock faucet/sink/toilet/tub-shower fixture category cards, FaucetDepot price-bearing faucet/sink/shower rough-in plumbing rows, Pioneer Mini Split ductless/heat-pump equipment, Sylvane whole-house dehumidifier/bath-fan/HVAC products, IWAe HVAC full-system product cards, and The Hardware Hut cabinet/door/bath hardware and renovation components. Adds source clients, explicit contractor category routing, README/spec metadata, and manuscript evidence.",
+      "files": [
+        "internal/cli/novel_sources.go",
+        "internal/cli/novel_fanout_search.go",
+        "spec.yaml",
+        "README.md",
+        ".manuscripts/20260601-source-exploration/research/source-viability-matrix.md",
+        ".manuscripts/20260601-source-exploration/discovery/ge-appliances-dishwasher-response.json",
+        ".manuscripts/20260601-source-exploration/discovery/superbrightleds-algolia-recessed-light-response.json",
+        ".manuscripts/20260601-source-exploration/discovery/prolighting-klevu-recessed-light-response.json",
+        ".manuscripts/20260601-source-exploration/discovery/1000bulbs-html-recessed-light-response.json",
+        ".manuscripts/20260601-source-exploration/discovery/plumbersstock-sink-response.json",
+        ".manuscripts/20260601-source-exploration/discovery/faucetdepot-bathroom-faucet-response.json",
+        ".manuscripts/20260601-source-exploration/discovery/pioneer-mini-split-ductless-response.json",
+        ".manuscripts/20260601-source-exploration/discovery/sylvane-bath-fan-response.json",
+        ".manuscripts/20260601-source-exploration/discovery/iwae-mini-split-heat-pump-response.json",
+        ".manuscripts/20260601-source-exploration/discovery/hardwarehut-hinge-response.json"
+      ]
+    },
+    {
+      "id": "reno-model-intel-compound-lookup",
+      "summary": "Added a model-intel command that turns installed-selection searches into routed model/SKU discovery, finish-selection SKU fallback, returned product-page and offer-page spec enrichment, search-result model/offer fallback, and predictable model-page probing where appropriate.",
+      "reason": "Testing `JOESC330RM`, 36-inch induction cooktop discovery, mini split HVAC discovery, recessed-light electrical discovery, bathroom faucet plumbing discovery, porcelain tile flooring discovery, and cabinet hinge hardware discovery showed that broad source fanout is not enough for high-value installed selections. These decisions often start with a category, require model or SKU candidates and spec sheets, and then need retailer model-page price probes where a readable model endpoint exists. The command infers installed-selection categories from natural queries in auto mode, falls back to GE Appliances and Bosch for broad appliance searches, can reuse Reno Goat's category/room source routing for explicit HVAC/electrical/plumbing/flooring/hardware searches, preserves source product IDs and URL SKU tokens for finish selections that lack appliance-style model numbers, carries GE spec/install PDFs, fetches returned product pages and bounded search-result offer pages to capture linked PDF documents, adds labeled Brave Search product-result model/price evidence for category and exact-model lookups, filters generic measurement tokens, overlong SEO slugs, sibling model URLs, and sibling/promo PDFs, and records blocked retailer model or offer pages explicitly when WAF/CAPTCHA responses prevent direct CLI replay.",
+      "files": [
+        "internal/cli/novel_model_intel.go",
+        "internal/cli/novel_model_intel_test.go",
+        "internal/cli/root.go",
+        "spec.yaml",
+        "README.md",
+        ".manuscripts/20260601-source-exploration/research/source-viability-matrix.md",
+        ".manuscripts/20260601-source-exploration/discovery/bing-joesc330rm-search.html",
+        ".manuscripts/20260601-source-exploration/discovery/brave-36-induction-cooktop-search.html",
+        ".manuscripts/20260601-source-exploration/discovery/brave-joesc330rm-search.html",
+        ".manuscripts/20260601-source-exploration/discovery/model-intel-36-induction-cooktop-response.json",
+        ".manuscripts/20260601-source-exploration/discovery/model-intel-joesc330rm-response.json",
+        ".manuscripts/20260601-source-exploration/discovery/model-intel-hvac-mini-split-response.json",
+        ".manuscripts/20260601-source-exploration/discovery/model-intel-electrical-recessed-light-response.json",
+        ".manuscripts/20260601-source-exploration/discovery/model-intel-plumbing-bathroom-faucet-response.json",
+        ".manuscripts/20260601-source-exploration/discovery/model-intel-flooring-porcelain-tile-response.json",
+        ".manuscripts/20260601-source-exploration/discovery/model-intel-hardware-cabinet-hinge-response.json"
+      ]
+    },
+    {
+      "id": "reno-source-probe-showroom-triage",
+      "summary": "Added a source-probe command for appliance and bath showroom route triage under Reno Goat's current plain HTTP transport.",
+      "reason": "ABW, ADU, AJ Madison, Abt, Bray & Scarff, Ferguson Home, Plesser's, Build.com, QualityBath, Signature Hardware, and related showroom sources need explicit readable/blocked evidence before being promoted. The command probes curated candidate groups or custom URLs, reuses the doctor interstitial classifier for Cloudflare/PerimeterX-style blockers, reports HTTP 403/429 route blockers, and documents readable roots such as Bray & Scarff and QualityBath as candidates for product/API extraction before source activation.",
+      "files": [
+        "internal/cli/novel_source_probe.go",
+        "internal/cli/novel_source_probe_test.go",
+        "internal/cli/root.go",
+        "spec.yaml",
+        "README.md",
+        ".manuscripts/20260601-source-exploration/research/source-viability-matrix.md",
+        ".manuscripts/20260601-source-exploration/discovery/source-probe-showroom-routes-response.json"
+      ]
+    },
+    {
+      "id": "reno-bray-and-scarff-nmg-hasura-source",
+      "summary": "Activated Bray & Scarff as an appliance source through its public NMG Platform Hasura GraphQL product flow.",
+      "reason": "Follow-up chunk inspection on Bray & Scarff's readable Next.js product listing pages found the NMG/Hasura sequence used by the browser: `search_products_materialized` discovers matching product IDs and `get_products` hydrates dealer override rows. The printed CLI now replays that flow anonymously, normalizes current dealer pricing from the override row, pulls model/title/brand/image/attributes from `default_source_product`, routes Bray through the appliance category, and preserves model-specific product URLs when direct product-page fetches redirect to a generic cooktops listing. Live `model-intel \"36 induction cooktop\" --category appliances --sources routed` evidence returns priced Bray rows for Maytag `MCIT8036SB` and Whirlpool `WCIT7536SS` while continuing to label blocked Ferguson/AJ Madison routes separately.",
+      "files": [
+        "internal/cli/novel_sources.go",
+        "internal/cli/novel_fanout_search.go",
+        "internal/cli/novel_fanout_search_test.go",
+        "internal/cli/novel_model_intel.go",
+        "internal/cli/novel_model_intel_test.go",
+        "spec.yaml",
+        "README.md",
+        ".manuscripts/20260601-source-exploration/research/source-viability-matrix.md",
+        ".manuscripts/20260601-source-exploration/discovery/brayandscarff-search-products-response.json",
+        ".manuscripts/20260601-source-exploration/discovery/brayandscarff-36-induction-products-response.json",
+        ".manuscripts/20260601-source-exploration/discovery/model-intel-36-induction-cooktop-bray-response.json"
+      ]
+    },
+    {
+      "id": "reno-shopify-plumbing-showroom-sources",
+      "summary": "Activated FaucetList and PlumbTile as plumbing showroom sources through Shopify suggest and preserved SKU/MPN/spec-sheet metadata.",
+      "reason": "Source exploration found readable Shopify suggest endpoints for FaucetList and PlumbTile. The printed CLI now routes them through the plumbing category, skips rows explicitly marked unavailable, prefers real variant/body SKU or MPN identifiers over opaque Shopify IDs, and appends linked PDF documents from product body HTML so model-intel can surface spec sheets. Live `model-intel \"shower valve\" --category plumbing --sources routed` evidence returns priced plumbing rows across the routed category, and focused `model-intel \"newport brass thermostatic valve\" --sources plumbtile` evidence shows PlumbTile contributing Newport Brass `1-540` pricing plus the matching spec PDF while Brave Search contributes comparable Ferguson snippet pricing.",
+      "files": [
+        "internal/cli/novel_sources.go",
+        "internal/cli/novel_fanout_search.go",
+        "internal/cli/novel_fanout_search_test.go",
+        "internal/cli/novel_model_intel.go",
+        "spec.yaml",
+        "README.md",
+        ".manuscripts/20260601-source-exploration/research/source-viability-matrix.md",
+        ".manuscripts/20260601-source-exploration/discovery/faucetlist-search-json-shower-valve-response.json",
+        ".manuscripts/20260601-source-exploration/discovery/model-intel-plumbing-shower-valve-shopify-response.json",
+        ".manuscripts/20260601-source-exploration/discovery/model-intel-plumbtile-newport-brass-response.json"
+      ]
+    },
+    {
+      "id": "reno-bees-lighting-shopify-electrical-source",
+      "summary": "Activated Bees Lighting as an electrical source through Shopify suggest and improved Shopify handle SKU extraction for installed lighting rows.",
+      "reason": "Bees Lighting root, search HTML, and Shopify suggest endpoints are readable under the current plain transport and return price-bearing installed lighting rows. The printed CLI now routes Bees through the electrical category, extracts compact and multipart model/SKU identifiers from Shopify handles, skips under-cabinet power-strip rows for light queries, and relies on product-page enrichment to capture Plytix spec/install PDFs. Live `model-intel \"under cabinet light\" --category electrical --sources routed` evidence shows Bees contributing American Lighting `MLINK-120-30-12`, Sylvania `SYLV-62440`, and American Lighting `MLINK-120-30-36` with prices and linked spec/install documents. QualityBath was still deferred during this earlier pass, then later moved to active through React Query hydration extraction from the corrected `/search/<query>` route.",
+      "files": [
+        "internal/cli/novel_sources.go",
+        "internal/cli/novel_fanout_search.go",
+        "internal/cli/novel_fanout_search_test.go",
+        "spec.yaml",
+        "README.md",
+        ".manuscripts/20260601-source-exploration/research/source-viability-matrix.md",
+        ".manuscripts/20260601-source-exploration/discovery/model-intel-electrical-under-cabinet-light-bees-response.json"
+      ]
+    },
+    {
+      "id": "reno-modern-bathroom-shopify-vanity-source",
+      "summary": "Activated Modern Bathroom as a plumbing/bath showroom source through Shopify suggest and normalized vanity handles into compact selection IDs.",
+      "reason": "Modern Bathroom search and Shopify suggest routes are readable under the current plain transport and return price-bearing bath showroom rows for vanity and shower-valve queries. The printed CLI now routes Modern Bathroom through the plumbing category, filters vanity sidesplash/countertop accessory rows for vanity queries, preserves shower valve/trim parts when the query asks for them, and converts long Shopify vanity handles into compact selection identifiers such as `BECKETT-VANITY-54-SINGLE-SINK` so model-intel avoids generic title tokens like `COUNTERTOP-30` while still reporting sourceable priced rows. Live `model-intel \"bathroom vanity\" --category plumbing --sources routed` evidence shows Modern Bathroom contributing Janna and Beckett vanity rows with compact IDs, sale prices, and linked PDF metadata.",
+      "files": [
+        "internal/cli/novel_sources.go",
+        "internal/cli/novel_fanout_search.go",
+        "internal/cli/novel_fanout_search_test.go",
+        "internal/cli/novel_model_intel.go",
+        "internal/cli/novel_model_intel_test.go",
+        "spec.yaml",
+        "README.md",
+        ".manuscripts/20260601-source-exploration/research/source-viability-matrix.md",
+        ".manuscripts/20260601-source-exploration/discovery/model-intel-plumbing-bathroom-vanity-modernbathroom-response.json"
+      ]
+    },
+    {
+      "id": "reno-lighting-new-york-demandware-source",
+      "summary": "Activated Lighting New York as an electrical/decor lighting source through Demandware embedded product JSON.",
+      "reason": "Lighting New York's public Salesforce Commerce Cloud/Demandware search pages render price-bearing product tiles with `data-gtmdata` JSON containing SKU, brand, category, current price, compare-at price, image URL, and product URL. The printed CLI now routes Lighting New York through electrical and decor, parses those structured payloads instead of scraping display text, and contributes designer lighting fixture SKUs to model-intel. Live `model-intel \"pendant light\" --sources lighting-new-york` evidence returns priced pendant rows such as Justice Design `CER-6510-WHT-NCKL-RIGID` at $178.20, Modern Forms `PD-41737-PN` at $397 with linked PDFs, and Quoizel `QP5597W` at $539.99 with linked PDFs.",
+      "files": [
+        "internal/cli/novel_sources.go",
+        "internal/cli/novel_fanout_search.go",
+        "internal/cli/novel_fanout_search_test.go",
+        "spec.yaml",
+        "README.md",
+        ".manuscripts/20260601-source-exploration/research/source-viability-matrix.md",
+        ".manuscripts/20260601-source-exploration/discovery/model-intel-electrical-pendant-light-lightingnewyork-response.json",
+        ".manuscripts/20260601-source-exploration/discovery/model-intel-electrical-pendant-light-lightingnewyork-direct-response.json"
+      ]
+    },
+    {
+      "id": "reno-kbauthority-searchspring-vanity-source",
+      "summary": "Activated KBAuthority as a plumbing/decor bath showroom source through Searchspring autocomplete product fragments.",
+      "reason": "KBAuthority's public Searchspring autocomplete endpoint returns price-bearing HTML product fragments for bath showroom queries even when broad search pages redirect category-aware terms. The printed CLI now routes KBAuthority through plumbing and decor, parses title, product URL, image URL, current price, brand, and model-like SKU tokens from those fragments, and contributes vanity rows to model-intel. Live `model-intel \"bathroom vanity\" --category plumbing --sources kbauthority` evidence returns priced rows including Elegant and Furniture Lighting `VF29624` at $844, OVE Decors `15VVA-BERK30` at $964.71, Legion Furniture `WS2518-36` at $1,105.35, OVE Decors `15VVA-BERK48-YJ` at $1,379.54, and Bemma Design `V-DM30SFM` at $1,391.01.",
+      "files": [
+        "internal/cli/novel_sources.go",
+        "internal/cli/novel_fanout_search.go",
+        "internal/cli/novel_fanout_search_test.go",
+        "spec.yaml",
+        "README.md",
+        ".manuscripts/20260601-source-exploration/research/source-viability-matrix.md",
+        ".manuscripts/20260601-source-exploration/discovery/model-intel-plumbing-bathroom-vanity-kbauthority-response.json"
+      ]
+    },
+    {
+      "id": "reno-lightology-gtm-lighting-source",
+      "kind": "novel-source",
+      "summary": "Activated Lightology as an electrical/decor designer-lighting source through server-rendered GTM product cards.",
+      "reason": "Lightology's public pendant/chandelier category page renders price-bearing product cards with `data-gtm_list_item` JSON and product links. The printed CLI now routes proven pendant, chandelier, hanging-light, and ceiling-light queries to that category page, parses SKU-like item IDs, brand, title, category path, price ranges, image URLs, and product URLs, and contributes designer fixture rows to model-intel. Live `model-intel \"pendant light\" --sources lightology` evidence returns priced rows including Muuto `MAMBPDLP09-ROS` at $314, Pablo `BOLA-SPH-4-CRM` at $340, Kuzco Lighting `PD87118-WH-UNV-010` at $446, Resident Lighting `BLM001` at $695, and Visual Comfort Modern `700GRC30BW-LED930` at $1,899.",
+      "files": [
+        "internal/cli/novel_fanout_search.go",
+        "internal/cli/novel_sources.go",
+        "internal/cli/novel_fanout_search_test.go",
+        "README.md",
+        "spec.yaml",
+        ".manuscripts/20260601-source-exploration/research/source-viability-matrix.md"
+      ],
+      "verification": [
+        ".manuscripts/20260601-source-exploration/discovery/model-intel-electrical-pendant-light-lightology-response.json"
+      ]
+    },
+    {
+      "id": "reno-broan-compound-model-discovery",
+      "kind": "novel-workflow",
+      "summary": "Added Broan-NuTone as a discovery-only model-intel source paired with exact-model retailer offer fallback.",
+      "reason": "Broan-NuTone's public bath fan and range hood pages expose useful model numbers, product URLs, images, and spec/install documents but no prices. Instead of promoting manufacturer-only rows as an active source, Reno Goat now uses Broan-NuTone only inside model-intel for HVAC/appliance ventilation queries, marks those rows as model discovery, and runs a deterministic bounded batch of exact-model Brave Search offer enrichment when `--search-offers=true`. Live `model-intel \"bath fan\"` evidence shows Broan-NuTone `BEL7A` priced through retailer fallback evidence from Sylvane, Jackson Systems, McCoy's, Ace Hardware, Ferguson Home, and Home Depot, while direct Broan range-hood evidence records spec-rich model rows and explicit pricing blockers when Brave rate-limits or AJ Madison is blocked. Fresh Delta Faucet captures were kept as viability evidence but not activated because separate shower-valve and bathroom-faucet searches returned the same default kitchen/touchless product IDs.",
+      "files": [
+        "internal/cli/novel_model_intel.go",
+        "internal/cli/novel_model_intel_test.go",
+        "README.md",
+        "spec.yaml",
+        ".manuscripts/20260601-source-exploration/research/source-viability-matrix.md"
+      ],
+      "verification": [
+        ".manuscripts/20260601-source-exploration/discovery/model-intel-hvac-bath-fan-broan-compound-response.json",
+        ".manuscripts/20260601-source-exploration/discovery/model-intel-appliances-range-hood-broan-direct-response.json",
+        ".manuscripts/20260601-source-exploration/discovery/delta-search-shower-valve.html",
+        ".manuscripts/20260601-source-exploration/discovery/delta-search-bathroom-faucet.html"
+      ]
+    },
+    {
+      "id": "reno-kohler-plumbing-manufacturer-evaluation",
+      "kind": "source-evaluation",
+      "summary": "Evaluated Kohler as a plumbing-side manufacturer discovery source and deferred activation pending transport work.",
+      "reason": "Kohler's MasterShower shower-valve category page is promising: live curl capture returned query-faithful model rows, product URLs, image URLs, embedded prices, and verified predictable base-model spec PDFs. It was not promoted to model-intel routing because repeated live Go-client checks against both experience.kohler.com and the canonical www.kohler.com host hung even with bounded CLI timeouts and an HTTP/1 transport attempt. This belongs with the shared browser-like/Surf transport work before user-facing activation.",
+      "files": [
+        ".manuscripts/20260601-source-exploration/research/source-viability-matrix.md"
+      ],
+      "verification": [
+        ".manuscripts/20260601-source-exploration/discovery/kohler-shower-trims-valves-mastershower.html"
+      ]
+    },
+    {
+      "id": "reno-moen-plumbing-product-page-enrichment",
+      "kind": "novel-workflow",
+      "summary": "Added Moen product-page enrichment for already-priced plumbing model-intel rows.",
+      "reason": "Moen shower-valve rows are already discoverable and priced through active plumbing sources such as KBAuthority and FaucetDepot, but some lacked manufacturer spec/install documents. Reno Goat now detects Moen model rows, probes the matching `shop.moen.com/products/<base-model>` Shopify product page, adds Moen product-page price evidence where available, and captures canonical `assets.moen.com` product-specification, instruction-sheet, and exploded-parts PDFs. This proves the non-appliance compound pattern without promoting a manufacturer-only catalog as an active source: retailer/source rows provide pricing and sourceability, while manufacturer pages enrich specs.",
+      "files": [
+        "internal/cli/novel_model_intel.go",
+        "internal/cli/novel_model_intel_test.go",
+        "README.md",
+        "spec.yaml",
+        ".manuscripts/20260601-source-exploration/research/source-viability-matrix.md"
+      ],
+      "verification": [
+        ".manuscripts/20260601-source-exploration/discovery/moen-shop-ut3691.html",
+        ".manuscripts/20260601-source-exploration/discovery/model-intel-plumbing-moen-shower-valve-before-response.json",
+        ".manuscripts/20260601-source-exploration/discovery/model-intel-plumbing-moen-shower-valve-after-response.json"
+      ]
+    },
+    {
+      "id": "reno-leviton-electrical-product-page-enrichment",
+      "kind": "novel-workflow",
+      "summary": "Added Leviton product-page enrichment for already-priced electrical control model-intel rows.",
+      "reason": "Leviton dimmer/control rows are already discoverable and priced through active electrical sources such as 1000Bulbs, but manufacturer product pages expose useful product bulletin/specification and instruction-sheet PDFs. Reno Goat now detects Leviton model rows, probes `leviton.com/products/<model>`, records successful manufacturer enrichment, captures Leviton product-specification and English instruction-sheet PDFs, and filters generic credit-application documents from retailer product-page PDF extraction. This keeps pricing/sourceability anchored to active retailer rows while adding manufacturer spec evidence without promoting Leviton as an active source.",
+      "files": [
+        "internal/cli/novel_model_intel.go",
+        "internal/cli/novel_model_intel_test.go",
+        "README.md",
+        "spec.yaml",
+        ".manuscripts/20260601-source-exploration/research/source-viability-matrix.md"
+      ],
+      "verification": [
+        ".manuscripts/20260601-source-exploration/discovery/leviton-ipl06-10z.html",
+        ".manuscripts/20260601-source-exploration/discovery/model-intel-electrical-leviton-dimmer-before-response.json",
+        ".manuscripts/20260601-source-exploration/discovery/model-intel-electrical-leviton-dimmer-after-response.json"
+      ]
+    },
+    {
+      "id": "reno-ceiling-fan-model-intel-routing",
+      "kind": "novel-workflow",
+      "summary": "Improved ceiling-fan model-intel so auto routing returns actual fan selections and Lightology contributes its fan category.",
+      "reason": "The `ceiling fan` compound workflow initially routed through electrical sources but cheap false-positive bulbs, headlight/fog-light conversion kits, and mounts sorted ahead of real ceiling-fan rows. Reno Goat now infers `ceiling fan` as an electrical installed-selection query, filters non-fan rows before model/SKU extraction for that query, and routes Lightology ceiling-fan searches to the proven `cat_id=49` product-card category. Live evidence now returns sourceable priced ceiling fan rows from 1000Bulbs, Bees Lighting, Lighting New York, and Lightology without unrelated bulb/headlight rows.",
+      "files": [
+        "internal/cli/novel_model_intel.go",
+        "internal/cli/novel_model_intel_test.go",
+        "internal/cli/novel_fanout_search.go",
+        "internal/cli/novel_fanout_search_test.go",
+        "README.md",
+        "spec.yaml",
+        ".manuscripts/20260601-source-exploration/research/source-viability-matrix.md"
+      ],
+      "verification": [
+        ".manuscripts/20260601-source-exploration/discovery/model-intel-electrical-ceiling-fan-before-response.json",
+        ".manuscripts/20260601-source-exploration/discovery/model-intel-electrical-ceiling-fan-after-response.json"
+      ]
+    },
+    {
+      "id": "reno-floor-warming-model-intel-routing",
+      "kind": "novel-workflow",
+      "summary": "Improved floor-warming model-intel so auto routing uses flooring sources instead of appliance fallback.",
+      "reason": "The `floor warming` compound workflow initially failed category inference and fell back to appliance discovery, returning GE Zoneline air conditioners. Reno Goat now treats floor warming, heated floor, radiant floor, and floor heat as flooring installed-selection queries. Live evidence now routes `model-intel \"floor warming\" --sources auto` to Floor & Decor and returns sourceable Schluter/Laticrete floor-warming membranes and heating cables with prices and product URLs.",
+      "files": [
+        "internal/cli/novel_model_intel.go",
+        "internal/cli/novel_model_intel_test.go",
+        "README.md",
+        ".manuscripts/20260601-source-exploration/research/source-viability-matrix.md"
+      ],
+      "verification": [
+        ".manuscripts/20260601-source-exploration/discovery/model-intel-flooring-floor-warming-before-response.json",
+        ".manuscripts/20260601-source-exploration/discovery/model-intel-flooring-floor-warming-after-response.json"
+      ]
+    },
+    {
+      "id": "reno-thermostat-model-intel-routing",
+      "kind": "novel-workflow",
+      "summary": "Improved thermostat model-intel so auto routing uses HVAC sources instead of appliance fallback.",
+      "reason": "The `thermostat` compound workflow initially failed category inference and fell back to appliance discovery, returning GE window air conditioners whose descriptions mentioned thermostat controls. Reno Goat now treats thermostat as an HVAC installed-selection query, routes auto model-intel through the HVAC source set, and filters replacement defrost/service-part rows before model/SKU extraction. Live evidence now returns sourceable Sylvane Honeywell/Amana thermostat rows with prices, product URLs, and linked spec evidence where exposed.",
+      "files": [
+        "internal/cli/novel_model_intel.go",
+        "internal/cli/novel_model_intel_test.go",
+        "README.md",
+        ".manuscripts/20260601-source-exploration/research/source-viability-matrix.md"
+      ],
+      "verification": [
+        ".manuscripts/20260601-source-exploration/discovery/model-intel-hvac-thermostat-before-response.json",
+        ".manuscripts/20260601-source-exploration/discovery/model-intel-hvac-thermostat-after-response.json"
+      ]
+    },
+    {
+      "id": "reno-floor-register-model-intel-routing",
+      "kind": "novel-workflow",
+      "summary": "Improved floor-register model-intel so auto routing treats visible HVAC registers as HVAC finish selections and filters unrelated IKEA rows.",
+      "reason": "The `floor register` compound workflow initially routed only through hardware sources and sorted low-price IKEA false positives such as plastic bag dispensers, cable boxes, storage boxes, water traps, and cabinet drawer fronts ahead of actual register rows. Reno Goat now treats floor-register, air-register, wall-register, ceiling-register, return-grille, register-grille, floor-vent, wall-vent, and vent-cover queries as HVAC installed-selection queries while preserving hardware routing for decorative register sources. Query-aware filtering keeps register, grille, vent, and diffuser rows and drops unrelated cabinet/storage/plumbing products. Live evidence now returns sourceable Rejuvenation and Hardware Hut register rows with prices and product URLs.",
+      "files": [
+        "internal/cli/novel_model_intel.go",
+        "internal/cli/novel_model_intel_test.go",
+        "README.md",
+        ".manuscripts/20260601-source-exploration/research/source-viability-matrix.md"
+      ],
+      "verification": [
+        ".manuscripts/20260601-source-exploration/discovery/model-intel-hvac-floor-register-before-response.json",
+        ".manuscripts/20260601-source-exploration/discovery/model-intel-hvac-floor-register-hvac-only-response.json",
+        ".manuscripts/20260601-source-exploration/discovery/model-intel-hvac-floor-register-after-response.json"
+      ]
+    },
+    {
+      "id": "reno-linear-drain-model-intel-routing",
+      "kind": "novel-workflow",
+      "summary": "Improved linear-drain model-intel so auto routing uses plumbing and flooring sources instead of appliance fallback.",
+      "reason": "The `linear drain` compound workflow initially failed category inference and fell back to appliance discovery, returning unpriced GE appliance drain-liner parts. Reno Goat now treats linear-drain, shower-drain, tile-drain, and drain-grate queries as plumbing and flooring installed-selection queries, and query-aware filtering rejects appliance drain-liner, dishwasher-drain, refrigerator-drain, and washer-drain false positives. Live evidence now returns sourceable Floor & Decor, FaucetDepot, KBAuthority, and PlumbTile linear shower drain rows with prices and product URLs.",
+      "files": [
+        "internal/cli/novel_model_intel.go",
+        "internal/cli/novel_model_intel_test.go",
+        "README.md",
+        ".manuscripts/20260601-source-exploration/research/source-viability-matrix.md"
+      ],
+      "verification": [
+        ".manuscripts/20260601-source-exploration/discovery/model-intel-plumbing-linear-drain-before-response.json",
+        ".manuscripts/20260601-source-exploration/discovery/model-intel-plumbing-linear-drain-plumbing-only-response.json",
+        ".manuscripts/20260601-source-exploration/discovery/model-intel-plumbing-linear-drain-flooring-only-response.json",
+        ".manuscripts/20260601-source-exploration/discovery/model-intel-plumbing-linear-drain-after-response.json"
+      ]
+    },
+    {
+      "id": "reno-shower-niche-model-intel-filtering",
+      "kind": "novel-workflow",
+      "summary": "Improved shower-niche model-intel so plumbing routing keeps shower-system niche rows and filters shower-trim false positives.",
+      "reason": "The `shower niche` workflow already routed through plumbing and found sourceable Floor & Decor shower niche rows, but a broad shower-term match allowed a FaucetDepot Symmons shower-trim row to sort into the top results. Reno Goat now treats shower-niche, wall-niche, tile-niche, and niche-shelf queries as niche-specific model-intel queries, preserving niche, wall-shelf, Kerdi, Hydro Ban, and framed niche rows while rejecting shower trim, valve trim, handle, volume-control, diverter, and tub-spout false positives. Live evidence now returns ten priced Floor & Decor shower niche/wall shelf rows with no shower-trim false positives.",
+      "files": [
+        "internal/cli/novel_model_intel.go",
+        "internal/cli/novel_model_intel_test.go",
+        "README.md",
+        ".manuscripts/20260601-source-exploration/research/source-viability-matrix.md"
+      ],
+      "verification": [
+        ".manuscripts/20260601-source-exploration/discovery/model-intel-plumbing-shower-niche-before-response.json",
+        ".manuscripts/20260601-source-exploration/discovery/model-intel-plumbing-shower-niche-after-response.json"
+      ]
+    },
+    {
+      "id": "reno-medicine-cabinet-model-intel-routing",
+      "kind": "novel-workflow",
+      "summary": "Improved medicine-cabinet model-intel so auto routing uses plumbing and decor sources instead of appliance fallback.",
+      "reason": "The `medicine cabinet` workflow initially failed category inference and fell back to appliance discovery, returning no rows. Routed plumbing evidence showed sourceable Floor & Decor and PlumbTile medicine cabinets but also shelf-kit false positives, while routed decor evidence showed IKEA mirror cabinets but also generic kitchen/display cabinet false positives. Reno Goat now treats medicine-cabinet and mirror-cabinet queries as plumbing and decor installed-selection queries, preserving real medicine/mirror cabinet rows while rejecting shelf kits and generic kitchen/display/storage cabinets. Live evidence now returns sourceable IKEA, PlumbTile, Lighting New York, and Floor & Decor medicine/mirror cabinet rows with prices and product URLs.",
+      "files": [
+        "internal/cli/novel_model_intel.go",
+        "internal/cli/novel_model_intel_test.go",
+        "README.md",
+        ".manuscripts/20260601-source-exploration/research/source-viability-matrix.md"
+      ],
+      "verification": [
+        ".manuscripts/20260601-source-exploration/discovery/model-intel-plumbing-medicine-cabinet-before-response.json",
+        ".manuscripts/20260601-source-exploration/discovery/model-intel-plumbing-medicine-cabinet-plumbing-only-response.json",
+        ".manuscripts/20260601-source-exploration/discovery/model-intel-plumbing-medicine-cabinet-decor-only-response.json",
+        ".manuscripts/20260601-source-exploration/discovery/model-intel-plumbing-medicine-cabinet-after-response.json"
+      ]
+    },
+    {
+      "id": "reno-grab-bar-model-intel-routing",
+      "kind": "novel-workflow",
+      "summary": "Improved grab-bar model-intel so auto routing uses plumbing and hardware sources instead of appliance fallback.",
+      "reason": "The `grab bar` workflow initially failed category inference and fell back to appliance discovery, returning GE water heaters, a water dispenser, and dishwashers because `BAR` appeared in appliance model numbers. Routed plumbing evidence showed Floor & Decor has sourceable priced grab-bar rows, while routed hardware evidence showed IKEA/Rejuvenation handle, rail, step-stool, stop-bar, shower-glass clamp, and shower-door hinge false positives. Reno Goat now treats grab-bar, ADA-bar, and safety-bar queries as plumbing and hardware installed-selection queries, preserving actual grab-bar rows while rejecting appliance and generic hardware false positives. Live evidence now returns ten priced Floor & Decor grab-bar rows with prices and product URLs.",
+      "files": [
+        "internal/cli/novel_model_intel.go",
+        "internal/cli/novel_model_intel_test.go",
+        "README.md",
+        ".manuscripts/20260601-source-exploration/research/source-viability-matrix.md"
+      ],
+      "verification": [
+        ".manuscripts/20260601-source-exploration/discovery/model-intel-plumbing-grab-bar-before-response.json",
+        ".manuscripts/20260601-source-exploration/discovery/model-intel-plumbing-grab-bar-plumbing-only-response.json",
+        ".manuscripts/20260601-source-exploration/discovery/model-intel-plumbing-grab-bar-hardware-only-response.json",
+        ".manuscripts/20260601-source-exploration/discovery/model-intel-plumbing-grab-bar-after-response.json"
+      ]
+    },
+    {
+      "id": "reno-towel-warmer-model-intel-routing",
+      "kind": "novel-workflow",
+      "summary": "Improved towel-warmer model-intel so auto routing uses electrical and plumbing sources instead of appliance fallback.",
+      "reason": "The `towel warmer` workflow initially failed category inference and fell back to appliance discovery, returning a GE Profile steam closet. Routed plumbing evidence showed sourceable KBAuthority and PlumbTile towel warmer rows but also switches, mounting kits, replacement elements, extensions, valve housings, and a flooring false positive, while routed electrical/hardware evidence showed bulbs, towel rings/hooks/rails, and generic bathroom hardware noise. Reno Goat now treats towel-warmer, heated-towel, and towel-radiator queries as electrical and plumbing installed-selection queries, preserving actual towel warmer rows while rejecting appliance, bulb, towel ring/rail, and accessory false positives. Live evidence now returns priced KBAuthority and PlumbTile towel warmer rows with product URLs.",
+      "files": [
+        "internal/cli/novel_model_intel.go",
+        "internal/cli/novel_model_intel_test.go",
+        "README.md",
+        ".manuscripts/20260601-source-exploration/research/source-viability-matrix.md"
+      ],
+      "verification": [
+        ".manuscripts/20260601-source-exploration/discovery/model-intel-electrical-towel-warmer-before-response.json",
+        ".manuscripts/20260601-source-exploration/discovery/model-intel-electrical-towel-warmer-plumbing-only-response.json",
+        ".manuscripts/20260601-source-exploration/discovery/model-intel-electrical-towel-warmer-electrical-only-response.json",
+        ".manuscripts/20260601-source-exploration/discovery/model-intel-electrical-towel-warmer-hardware-only-response.json",
+        ".manuscripts/20260601-source-exploration/discovery/model-intel-electrical-towel-warmer-after-response.json"
+      ]
+    },
+    {
+      "id": "reno-shower-door-model-intel-filtering",
+      "kind": "novel-workflow",
+      "summary": "Improved shower-door model-intel so plumbing routing keeps full door/screen rows and filters component hardware.",
+      "reason": "The `shower door` workflow already routed through plumbing and found sourceable shower door rows, but PlumbTile shower-door handle and escutcheon component rows sorted ahead of full doors. Reno Goat now treats shower-door and shower-screen queries as door-specific model-intel queries, preserving shower doors, screens, panels, hinged/sliding/bypass units, and frameless screens while rejecting handles, escutcheons, pulls, clamps, hinges, seals, and sweeps. Live evidence now returns ten priced Floor & Decor, KBAuthority, and FaucetDepot shower door/screen rows with no handle or escutcheon false positives.",
+      "files": [
+        "internal/cli/novel_model_intel.go",
+        "internal/cli/novel_model_intel_test.go",
+        "README.md",
+        ".manuscripts/20260601-source-exploration/research/source-viability-matrix.md"
+      ],
+      "verification": [
+        ".manuscripts/20260601-source-exploration/discovery/model-intel-plumbing-shower-door-before-response.json",
+        ".manuscripts/20260601-source-exploration/discovery/model-intel-plumbing-shower-door-after-response.json"
+      ]
+    },
+    {
+      "id": "reno-lighted-mirror-model-intel-routing",
+      "kind": "novel-workflow",
+      "summary": "Improved lighted-mirror model-intel so auto routing uses electrical, plumbing, and decor sources while filtering plain mirrors and lighting fixtures.",
+      "reason": "The `lighted mirror` workflow initially routed only through decor sources and sorted plain mirrors, a wall lamp, and plain vanity mirrors ahead of actual built-in-light mirror rows. Routed plumbing and electrical comparisons showed Floor & Decor, IKEA, and PROLIGHTING can supply sourceable priced LED/illuminated mirror rows, but also expose bulbs, wall lamps, plain mirrors, and bathroom vanity-light fixture noise. Reno Goat now treats lighted-mirror, LED-mirror, and illuminated-mirror queries as electrical, plumbing, and decor installed selections, preserving LED, lighted, illuminated, built-in-light, and integrated-lighting mirror rows while rejecting bulbs, wall lamps/sconces, plain mirrors, mirror shelves, and bath vanity light fixtures. Live evidence now returns priced IKEA, Floor & Decor, and PROLIGHTING lighted/LED/illuminated mirror rows with no saved plain-mirror or vanity-light false positives.",
+      "files": [
+        "internal/cli/novel_model_intel.go",
+        "internal/cli/novel_model_intel_test.go",
+        "README.md",
+        ".manuscripts/20260601-source-exploration/research/source-viability-matrix.md"
+      ],
+      "verification": [
+        ".manuscripts/20260601-source-exploration/discovery/model-intel-electrical-lighted-mirror-before-response.json",
+        ".manuscripts/20260601-source-exploration/discovery/model-intel-electrical-lighted-mirror-plumbing-only-response.json",
+        ".manuscripts/20260601-source-exploration/discovery/model-intel-electrical-lighted-mirror-electrical-only-response.json",
+        ".manuscripts/20260601-source-exploration/discovery/model-intel-electrical-lighted-mirror-after-response.json"
+      ]
+    },
+    {
+      "id": "reno-vanity-light-model-intel-routing",
+      "kind": "novel-workflow",
+      "summary": "Improved vanity-light model-intel so auto routing uses electrical and plumbing showroom sources instead of plumbing-only vanity routing.",
+      "reason": "The `vanity light` workflow initially inferred only plumbing from the word `vanity` and sorted Floor & Decor outdoor sconces ahead of actual KBAuthority vanity-light rows. Routed electrical evidence showed Bees Lighting and Lighting New York have sourceable priced bathroom vanity light rows, but the electrical source set also exposed an automotive LED bulb and generic wall-sconce noise. Reno Goat now treats vanity-light, bath-vanity-light, and bathroom-vanity-light queries as electrical and plumbing installed selections, preserving bathroom vanity light, bath vanity light, bath bar, and vanity-light rows while rejecting bulbs, vehicle lighting, outdoor sconces, generic wall sconces, and vanity furniture. Live evidence now returns priced Bees Lighting, Lighting New York, and KBAuthority vanity light rows with no saved bulb or sconce false positives.",
+      "files": [
+        "internal/cli/novel_model_intel.go",
+        "internal/cli/novel_model_intel_test.go",
+        "README.md",
+        ".manuscripts/20260601-source-exploration/research/source-viability-matrix.md"
+      ],
+      "verification": [
+        ".manuscripts/20260601-source-exploration/discovery/model-intel-electrical-vanity-light-before-response.json",
+        ".manuscripts/20260601-source-exploration/discovery/model-intel-electrical-vanity-light-electrical-only-response.json",
+        ".manuscripts/20260601-source-exploration/discovery/model-intel-electrical-vanity-light-after-response.json"
+      ]
+    },
+    {
+      "id": "reno-bidet-seat-model-intel-routing",
+      "kind": "novel-workflow",
+      "summary": "Improved bidet-seat model-intel so auto routing uses plumbing showroom sources instead of appliance fallback.",
+      "reason": "The `bidet seat` workflow initially failed installed-selection category inference and fell back to GE Appliances and Bosch, returning zero rows. Routed plumbing evidence showed PlumbTile, PlumbersStock, and KBAuthority can source priced bidet-seat and Washlet rows, while routed electrical evidence was only `Bizet` lighting false positives. Reno Goat now treats bidet-seat, electronic-bidet, electric-bidet, and Washlet queries as plumbing installed selections, preserving bidet-seat, bidet-toilet-seat, electronic-bidet, electric-bidet, and Washlet rows while rejecting ordinary one-piece/two-piece toilets, toilet tanks/bowls, and lighting rows. Live evidence now returns priced PlumbTile, KBAuthority, and PlumbersStock bidet seat rows with no saved ordinary-toilet or lighting false positives.",
+      "files": [
+        "internal/cli/novel_model_intel.go",
+        "internal/cli/novel_model_intel_test.go",
+        "README.md",
+        ".manuscripts/20260601-source-exploration/research/source-viability-matrix.md"
+      ],
+      "verification": [
+        ".manuscripts/20260601-source-exploration/discovery/model-intel-plumbing-bidet-seat-before-response.json",
+        ".manuscripts/20260601-source-exploration/discovery/model-intel-plumbing-bidet-seat-plumbing-only-response.json",
+        ".manuscripts/20260601-source-exploration/discovery/model-intel-plumbing-bidet-seat-electrical-only-response.json",
+        ".manuscripts/20260601-source-exploration/discovery/model-intel-plumbing-bidet-seat-after-response.json"
+      ]
+    },
+    {
+      "id": "reno-pot-filler-model-intel-filtering",
+      "kind": "novel-workflow",
+      "summary": "Improved pot-filler model-intel so plumbing routing keeps full fixtures and filters component kits.",
+      "reason": "The `pot filler` workflow already inferred plumbing routing and found sourceable priced pot filler rows, but a Brizo pot-filler handle kit sorted ahead of full fixture rows. Reno Goat now treats pot-filler and potfiller queries as selection-specific plumbing lookups, preserving full deck-mount and wall-mount pot fillers while rejecting handle kits, repair kits, cartridges, spout kits, and replacement-part rows. Live evidence now returns priced PlumbTile and KBAuthority pot filler rows with no saved handle-kit false positives.",
+      "files": [
+        "internal/cli/novel_model_intel.go",
+        "internal/cli/novel_model_intel_test.go",
+        "README.md",
+        ".manuscripts/20260601-source-exploration/research/source-viability-matrix.md"
+      ],
+      "verification": [
+        ".manuscripts/20260601-source-exploration/discovery/model-intel-plumbing-pot-filler-before-response.json",
+        ".manuscripts/20260601-source-exploration/discovery/model-intel-plumbing-pot-filler-after-response.json"
+      ]
+    },
+    {
+      "id": "reno-shower-head-model-intel-filtering",
+      "kind": "novel-workflow",
+      "summary": "Improved shower-head model-intel so plumbing routing keeps shower head/spray selections and filters broad shower assemblies.",
+      "reason": "The `shower head` workflow already inferred plumbing routing and found sourceable priced shower-head rows, but a Floor & Decor tub-and-shower combination and a FaucetDepot bathcock/diverter/riser assembly could sort into the top results because broad shower matching was too permissive. Reno Goat now treats shower-head, showerhead, rain-shower, and hand-shower queries as selection-specific plumbing lookups, preserving shower heads, spray heads, rain showers, and hand showers while rejecting tub/shower combinations, trim/valve rows, bathcock/diverter/riser assemblies, shower arms, hoses, slide bars, wall supplies, and drop elbows. Live evidence now returns priced PlumbTile, FaucetDepot, and Floor & Decor shower-head rows with no saved tub-combo/diverter/accessory false positives.",
+      "files": [
+        "internal/cli/novel_model_intel.go",
+        "internal/cli/novel_model_intel_test.go",
+        "README.md",
+        ".manuscripts/20260601-source-exploration/research/source-viability-matrix.md"
+      ],
+      "verification": [
+        ".manuscripts/20260601-source-exploration/discovery/model-intel-plumbing-shower-head-before-response.json",
+        ".manuscripts/20260601-source-exploration/discovery/model-intel-plumbing-shower-head-after-response.json"
+      ]
+    },
+    {
+      "id": "reno-shower-panel-model-intel-filtering",
+      "kind": "novel-workflow",
+      "summary": "Improved shower-panel model-intel so plumbing/materials routing keeps shower wall and shower panel rows while filtering hooks and placeholders.",
+      "reason": "The `shower panel` workflow already inferred plumbing and materials routing and found sourceable priced Floor & Decor shower wall panel rows, but IKEA bathroom hooks, curtain hardware, and Floor & Decor `LOAD IN CRATE` placeholder rows sorted into the top results because broad panel/material matching was too permissive. Reno Goat now treats shower-panel, shower-wall-panel, and wall-panel queries as selection-specific shower panel lookups, preserving shower wall panels, shower-and-wall panels, waterproof shower panels, and shower panels while rejecting hooks, curtain hardware, crate placeholders, door hardware, trim, and valve rows. Live evidence now returns priced Floor & Decor shower wall panels and PlumbTile shower panels with no saved hook/curtain/crate false positives.",
+      "files": [
+        "internal/cli/novel_model_intel.go",
+        "internal/cli/novel_model_intel_test.go",
+        "README.md",
+        ".manuscripts/20260601-source-exploration/research/source-viability-matrix.md"
+      ],
+      "verification": [
+        ".manuscripts/20260601-source-exploration/discovery/model-intel-plumbing-shower-panel-before-response.json",
+        ".manuscripts/20260601-source-exploration/discovery/model-intel-plumbing-shower-panel-after-response.json"
+      ]
+    },
+    {
+      "id": "reno-cabinet-pull-model-intel-filtering",
+      "kind": "novel-workflow",
+      "summary": "Improved cabinet-pull model-intel so hardware routing keeps pull selections and filters screws, collection pages, and knobs.",
+      "reason": "The `cabinet pull` workflow already inferred hardware routing, but QuickScrews machine screws, Rejuvenation collection landing pages, an IKEA clip-on kids-storage handle, and IKEA knobs sorted ahead of actual pulls. Reno Goat now treats cabinet-pull, drawer-pull, and appliance-pull queries as selection-specific hardware lookups, preserving cabinet pulls, drawer pulls, appliance pulls, cabinet handles, and drawer handles while rejecting screws, collection pages, clip-on handles, kids-storage handles, knobs, hinges, drawer slides, and rails. Live evidence now returns priced Hardware Hut cabinet pull rows with no saved screw/collection/clip-on/knob false positives.",
+      "files": [
+        "internal/cli/novel_model_intel.go",
+        "internal/cli/novel_model_intel_test.go",
+        "README.md",
+        ".manuscripts/20260601-source-exploration/research/source-viability-matrix.md"
+      ],
+      "verification": [
+        ".manuscripts/20260601-source-exploration/discovery/model-intel-hardware-cabinet-pull-before-response.json",
+        ".manuscripts/20260601-source-exploration/discovery/model-intel-hardware-cabinet-pull-after-response.json"
+      ]
+    },
+    {
+      "id": "reno-door-hinge-model-intel-filtering",
+      "kind": "novel-workflow",
+      "summary": "Improved door-hinge model-intel so hardware routing keeps architectural door hinges and filters stops, slides, cabinet hinges, and shower glass hinges.",
+      "reason": "The `door hinge` workflow already inferred hardware routing, but hinge-pin door stops, pocket-door slides, IKEA cabinet/wardrobe hinges, and a Salice cabinet `Super Hinge` sorted into the top results. A related `door lever` probe also showed a sourceability gap at this point in the pass: auto mode fell back to GE/Bosch appliance parts, while routed hardware returned IKEA cabinet/kids hardware instead of locksets. Reno Goat now treats door-hinge queries as selection-specific hardware lookups, preserving architectural and screen door hinges while rejecting door stops, pocket-door slides, cabinet hinges, wardrobe hinges, kitchen-cabinet hinges, and shower-door glass hinges. Later door-lever work added hardware inference and Hardware Hut product-page price enrichment, so the old lockset gap is no longer total.",
+      "files": [
+        "internal/cli/novel_model_intel.go",
+        "internal/cli/novel_model_intel_test.go",
+        "README.md",
+        ".manuscripts/20260601-source-exploration/research/source-viability-matrix.md"
+      ],
+      "verification": [
+        ".manuscripts/20260601-source-exploration/discovery/model-intel-hardware-door-lever-before-response.json",
+        ".manuscripts/20260601-source-exploration/discovery/model-intel-hardware-interior-door-lever-hardware-only-response.json",
+        ".manuscripts/20260601-source-exploration/discovery/model-intel-hardware-door-hinge-before-response.json",
+        ".manuscripts/20260601-source-exploration/discovery/model-intel-hardware-door-hinge-after-response.json"
+      ]
+    },
+    {
+      "id": "reno-picture-light-model-intel-routing",
+      "kind": "novel-workflow",
+      "summary": "Improved picture-light model-intel so auto mode routes through electrical fixture sources and filters bulbs plus appliance fallback rows.",
+      "reason": "The `picture light` workflow initially had no installed-selection category inference and fell back to GE/Bosch appliance discovery, returning Kitchen Hub, range-hood, and refrigerator rows. Routed electrical evidence showed Bees Lighting and Lighting New York can source priced picture-light fixtures, but 1000Bulbs incandescent/T5/T8 bulb rows could sort ahead of real fixtures; routed decor evidence mostly returned picture ledges, wardrobe lighting, nightlights, and cabinet lighting. Reno Goat now treats picture-light and art-light queries as selection-specific electrical lookups, preserving picture-light/art-light rows while rejecting bulb and appliance fallback rows. Live evidence now returns ten priced Bees Lighting and Lighting New York picture-light rows with no saved Kitchen Hub, hood, refrigerator, incandescent, T5, T8, or pygmy-bulb false positives.",
+      "files": [
+        "internal/cli/novel_model_intel.go",
+        "internal/cli/novel_model_intel_test.go",
+        "README.md",
+        ".manuscripts/20260601-source-exploration/research/source-viability-matrix.md"
+      ],
+      "verification": [
+        ".manuscripts/20260601-source-exploration/discovery/model-intel-electrical-picture-light-before-response.json",
+        ".manuscripts/20260601-source-exploration/discovery/model-intel-electrical-picture-light-electrical-only-response.json",
+        ".manuscripts/20260601-source-exploration/discovery/model-intel-electrical-picture-light-decor-only-response.json",
+        ".manuscripts/20260601-source-exploration/discovery/model-intel-electrical-picture-light-after-response.json"
+      ]
+    },
+    {
+      "id": "reno-robe-hook-model-intel-routing",
+      "kind": "novel-workflow",
+      "summary": "Improved robe-hook model-intel so auto mode routes through bath accessory sources and filters generic hook noise.",
+      "reason": "The `robe hook` workflow initially had no installed-selection category inference and fell back to GE/Bosch appliance discovery, returning zero rows. Routed plumbing evidence showed Floor & Decor can source clean priced robe hooks; routed hardware evidence showed Hardware Hut and IKEA can add hook breadth, but generic wall/door hooks, suction hooks, purse/ceiling hooks, and pot-lid rows can sort cheaply. Reno Goat now treats robe-hook, bath-hook, and wardrobe-hook queries as selection-specific plumbing/hardware lookups, preserving robe, wardrobe, bath, and bathroom double hook rows while rejecting generic hook, suction, purse/ceiling, pot-lid, and bathrobe false positives. Live evidence now returns ten priced Hardware Hut, IKEA bathroom, and Floor & Decor hook rows with no saved generic hook false positives. A parallel toilet-paper-holder probe documented that plumbing-only auto routing already returns priced Floor & Decor and FaucetDepot toilet paper holders, while hardware broadening would add IKEA noise.",
+      "files": [
+        "internal/cli/novel_model_intel.go",
+        "internal/cli/novel_model_intel_test.go",
+        "README.md",
+        ".manuscripts/20260601-source-exploration/research/source-viability-matrix.md"
+      ],
+      "verification": [
+        ".manuscripts/20260601-source-exploration/discovery/model-intel-plumbing-robe-hook-before-response.json",
+        ".manuscripts/20260601-source-exploration/discovery/model-intel-plumbing-robe-hook-plumbing-only-response.json",
+        ".manuscripts/20260601-source-exploration/discovery/model-intel-plumbing-robe-hook-hardware-only-response.json",
+        ".manuscripts/20260601-source-exploration/discovery/model-intel-plumbing-robe-hook-after-response.json",
+        ".manuscripts/20260601-source-exploration/discovery/model-intel-plumbing-toilet-paper-holder-before-response.json",
+        ".manuscripts/20260601-source-exploration/discovery/model-intel-plumbing-toilet-paper-holder-hardware-only-response.json"
+      ]
+    },
+    {
+      "id": "reno-towel-bar-model-intel-routing",
+      "kind": "novel-workflow",
+      "summary": "Improved towel-bar model-intel so auto mode routes through bath accessory sources and filters dishwashers plus generic rails.",
+      "reason": "The `towel bar` workflow initially had no installed-selection category inference and fell back to GE/Bosch appliance discovery, returning GE dishwashers. Routed plumbing evidence showed Floor & Decor can source clean priced towel bars; routed hardware evidence showed IKEA bathroom towel holders and rails but also hooks, clothes hangers, kitchen rails, and a kitchen-cabinet UTRUSTA towel rail. Reno Goat now treats towel-bar, towel-rail, and towel-holder queries as selection-specific plumbing/hardware lookups, preserving bathroom towel bars, rails, and holders while rejecting dishwashers, hooks, hangers, kitchen wall organizers, and kitchen-system towel rails. Live evidence now returns ten priced IKEA bathroom and Floor & Decor towel rows with no saved dishwasher, hook, hanger, kitchen-rail, or UTRUSTA false positives.",
+      "files": [
+        "internal/cli/novel_model_intel.go",
+        "internal/cli/novel_model_intel_test.go",
+        "README.md",
+        ".manuscripts/20260601-source-exploration/research/source-viability-matrix.md"
+      ],
+      "verification": [
+        ".manuscripts/20260601-source-exploration/discovery/model-intel-plumbing-towel-bar-before-response.json",
+        ".manuscripts/20260601-source-exploration/discovery/model-intel-plumbing-towel-bar-plumbing-only-response.json",
+        ".manuscripts/20260601-source-exploration/discovery/model-intel-plumbing-towel-bar-hardware-only-response.json",
+        ".manuscripts/20260601-source-exploration/discovery/model-intel-plumbing-towel-bar-after-response.json"
+      ]
+    },
+    {
+      "id": "reno-towel-ring-model-intel-routing",
+      "kind": "novel-workflow",
+      "summary": "Improved towel-ring model-intel so auto mode routes through plumbing bath accessory sources and filters hook/textile noise.",
+      "reason": "The `towel ring` workflow initially had no installed-selection category inference and fell back to GE/Bosch appliance discovery, returning zero rows. Routed plumbing evidence showed Floor & Decor can source clean priced towel rings; routed hardware evidence was mostly IKEA hooks, hand towels, clips, spoon rests, and kitchen organization noise. Reno Goat now treats towel-ring queries as selection-specific plumbing lookups, preserving towel-ring rows while rejecting hook, clip, textile, towel-hanger, and kitchen false positives. Live evidence now returns ten priced Floor & Decor towel rings with no saved hook, clip, hand-towel, spoon-rest, SMÅSTAD, or towel-hanger false positives.",
+      "files": [
+        "internal/cli/novel_model_intel.go",
+        "internal/cli/novel_model_intel_test.go",
+        "README.md",
+        ".manuscripts/20260601-source-exploration/research/source-viability-matrix.md"
+      ],
+      "verification": [
+        ".manuscripts/20260601-source-exploration/discovery/model-intel-plumbing-towel-ring-before-response.json",
+        ".manuscripts/20260601-source-exploration/discovery/model-intel-plumbing-towel-ring-plumbing-only-response.json",
+        ".manuscripts/20260601-source-exploration/discovery/model-intel-plumbing-towel-ring-hardware-only-response.json",
+        ".manuscripts/20260601-source-exploration/discovery/model-intel-plumbing-towel-ring-after-response.json"
+      ]
+    },
+    {
+      "id": "reno-soap-dispenser-model-intel-routing",
+      "kind": "novel-workflow",
+      "summary": "Improved soap-dispenser model-intel so auto mode routes through plumbing sources and filters appliance/decor accessory noise.",
+      "reason": "The `soap dispenser` workflow initially had no installed-selection category inference and fell back to GE/Bosch appliance discovery, returning GE washers. Routed plumbing evidence showed PlumbTile, KBAuthority, and FaucetDepot can source priced deck-mounted and bathroom soap/lotion dispensers; routed hardware and decor evidence mostly added IKEA dish brushes, drying mats, brush refills, oil/vinegar bottles, soap dishes, and bathroom-set noise. Reno Goat now treats soap-dispenser and lotion-dispenser queries as selection-specific plumbing lookups, preserving soap/lotion dispenser rows while rejecting washers, dish brushes, drying mats, brush refills, oil/vinegar bottles, soap dishes, and bathroom sets. Live evidence now returns ten priced PlumbTile, KBAuthority, and FaucetDepot soap/lotion dispensers with no saved washer, brush, mat, refill, oil-bottle, soap-dish, or set false positives.",
+      "files": [
+        "internal/cli/novel_model_intel.go",
+        "internal/cli/novel_model_intel_test.go",
+        "README.md",
+        ".manuscripts/20260601-source-exploration/research/source-viability-matrix.md"
+      ],
+      "verification": [
+        ".manuscripts/20260601-source-exploration/discovery/model-intel-plumbing-soap-dispenser-before-response.json",
+        ".manuscripts/20260601-source-exploration/discovery/model-intel-plumbing-soap-dispenser-plumbing-only-response.json",
+        ".manuscripts/20260601-source-exploration/discovery/model-intel-plumbing-soap-dispenser-hardware-only-response.json",
+        ".manuscripts/20260601-source-exploration/discovery/model-intel-plumbing-soap-dispenser-decor-only-response.json",
+        ".manuscripts/20260601-source-exploration/discovery/model-intel-plumbing-soap-dispenser-after-response.json"
+      ]
+    },
+    {
+      "id": "reno-model-intel-coverage-audit",
+      "kind": "novel-workflow",
+      "summary": "Added a model-intel coverage audit that converts the live evidence set into a reprint readiness checklist.",
+      "reason": "The non-appliance sourceability work had grown from one-off category fixes into a broad live evidence set. Reno Goat now has an explicit audit that names covered query families, lower-count acceptable artifacts, residual deferred sources, and reprint closeout items. The audit recommends stopping open-ended accessory expansion, keeping source cycles focused on the renovation middle and prioritized showroom gaps, then running a final representative matrix before reprint closeout.",
+      "files": [
+        ".manuscripts/20260601-source-exploration/research/model-intel-coverage-audit.md",
+        ".manuscripts/20260601-source-exploration/research/source-viability-matrix.md",
+        ".printing-press-patches.json"
+      ],
+      "verification": [
+        ".manuscripts/20260601-source-exploration/research/model-intel-coverage-audit.md",
+        ".manuscripts/20260601-source-exploration/discovery/model-intel-plumbing-moen-shower-valve-after-response.json"
+      ]
+    },
+    {
+      "id": "reno-source-probe-priority-gaps",
+      "kind": "novel-workflow",
+      "summary": "Expanded source-probe with explicit local showroom, big-box, and bath-showroom priority gap groups.",
+      "reason": "Reno Goat's next useful source cycles are ABW, ADU, AJ Madison, Abt, Costco, PC Richard, Spencer's, Grand Appliance, Warners' Stellian, QualityBath, Vintage Tub, HomePerfect, DecorPlanet, Build.com, and Signature Hardware. Best Buy was part of this priority probe set at the time and was later promoted through source-specific SSR extraction. The printed CLI now exposes those targets as first-class `source-probe` groups instead of burying them in manuscript notes, and `source-probe --candidate all` includes both the seed groups and the priority-gap groups so live transport blockers remain measurable during reprint closeout.",
+      "files": [
+        "internal/cli/novel_source_probe.go",
+        "internal/cli/novel_source_probe_test.go",
+        "README.md",
+        "spec.yaml",
+        ".printing-press-patches.json",
+        ".manuscripts/20260601-source-exploration/research/source-viability-matrix.md"
+      ],
+      "verification": [
+        "go test ./internal/cli -run 'TestResolveSourceProbeCandidatesCoversPriorityGapGroups|TestResolveSourceProbeCandidatesAllowsCustomOnly|TestClassifySourceProbeResponse'",
+        ".manuscripts/20260601-source-exploration/discovery/source-probe-appliance-priority-gaps-response.json",
+        ".manuscripts/20260601-source-exploration/discovery/source-probe-bath-priority-gaps-response.json"
+      ]
+    },
+    {
+      "id": "reno-vintage-tub-searchspring-source",
+      "kind": "novel-source",
+      "summary": "Activated Vintage Tub as a bath-showroom Searchspring source for plumbing and decor routing.",
+      "reason": "The priority-gap pass found Vintage Tub's root readable and exposing Searchspring site `yncuaq`; direct Searchspring replay for `shower valve` returned price-bearing JSON rows with SKU, child SKUs, brand, product URL, image URL, category hierarchy, and description fields. The printed CLI now routes `vintage-tub` through plumbing and decor, normalizes Searchspring JSON directly, and moves Vintage Tub out of the deferred clearance-only bucket. PC Richard was also identified as parseable Demandware category/search HTML, but it remains a next appliance-source extraction candidate rather than being promoted in this bath-showroom increment.",
+      "files": [
+        "internal/cli/novel_fanout_search.go",
+        "internal/cli/novel_fanout_search_test.go",
+        "internal/cli/novel_sources.go",
+        "README.md",
+        "spec.yaml",
+        ".manuscripts/20260601-source-exploration/research/source-viability-matrix.md",
+        ".printing-press-patches.json"
+      ],
+      "verification": [
+        ".manuscripts/20260601-source-exploration/discovery/readable-gap-vintagetub-searchspring-shower-valve.json",
+        "go test ./internal/cli -run 'TestNormalizeVintageTubProductUsesSearchspringFields|TestResolveSourceProbeCandidatesCoversPriorityGapGroups'",
+        ".manuscripts/20260601-source-exploration/discovery/model-intel-plumbing-shower-valve-vintagetub-response.json"
+      ]
+    },
+    {
+      "id": "reno-pc-richard-demandware-appliance-source",
+      "kind": "novel-source",
+      "summary": "Activated PC Richard as an appliance source through Demandware embedded product JSON.",
+      "reason": "The priority-gap pass found PC Richard category/search HTML readable under the current plain transport, and follow-up captures showed Salesforce Commerce Cloud/Demandware product tiles with `data-ga4-select-item` JSON containing appliance model IDs, titles, brands, category path, and prices. The printed CLI now routes `pc-richard` through appliances, parses the structured GA4 tile payload plus product URL/image/compare-at price, and moves PC Richard out of the deferred clearance-only bucket. Live model-intel evidence for `dishwasher` returns nine priced PC Richard appliance rows.",
+      "files": [
+        "internal/cli/novel_fanout_search.go",
+        "internal/cli/novel_fanout_search_test.go",
+        "internal/cli/novel_sources.go",
+        "README.md",
+        "spec.yaml",
+        ".manuscripts/20260601-source-exploration/research/source-viability-matrix.md",
+        ".printing-press-patches.json"
+      ],
+      "verification": [
+        ".manuscripts/20260601-source-exploration/discovery/readable-gap-pcrichard-dishwashers.html",
+        "go test ./internal/cli -run 'TestNormalizePCRichardProductUsesGA4TileData|TestNormalizeVintageTubProductUsesSearchspringFields'",
+        ".manuscripts/20260601-source-exploration/discovery/model-intel-appliance-dishwasher-pcrichard-response.json"
+      ]
+    },
+    {
+      "id": "reno-shower-valve-model-intel-filter",
+      "kind": "novel-workflow",
+      "summary": "Tightened shower-valve model-intel filtering and recaptured the Moen valve evidence artifact.",
+      "reason": "The saved `moen shower valve` after artifact still admitted a Floor & Decor `Moon River II Honed Marble Tile` row because shower-valve queries fell through to the broad default product matcher. Reno Goat now treats shower-valve, valve-trim, control-trim, rough-in, pressure-balance, thermostatic-valve, diverter-valve, transfer-valve, and M-CORE queries as valve-specific plumbing selections. The filter keeps valve trim, M-CORE valve-only, transfer-valve trim, rough-in, and tub/shower valve rows while rejecting tile, shower heads, shower doors, panels, niches, and other nearby shower-selection false positives. The recaptured live artifact returns 12 priced valve/trim/rough-in rows from FaucetDepot, KBAuthority, Moen enrichment, and Vintage Tub with the tile row removed.",
+      "files": [
+        "internal/cli/novel_model_intel.go",
+        "internal/cli/novel_model_intel_test.go",
+        ".manuscripts/20260601-source-exploration/research/model-intel-coverage-audit.md",
+        ".manuscripts/20260601-source-exploration/research/source-viability-matrix.md",
+        ".printing-press-patches.json"
+      ],
+      "verification": [
+        "go test ./internal/cli -run 'TestModelIntelProductMatchesShowerValveQuery|TestModelIntelProductMatchesShowerHeadQuery|TestModelIntelProductMatchesShowerPanelQuery|TestModelIntelProductMatchesShowerNicheQuery'",
+        ".manuscripts/20260601-source-exploration/discovery/model-intel-plumbing-moen-shower-valve-after-response.json"
+      ]
+    },
+    {
+      "id": "reno-final-representative-model-intel-matrix",
+      "kind": "novel-workflow",
+      "summary": "Ran the final representative model-intel matrix and fixed a medicine-cabinet accessory false positive.",
+      "reason": "Reprint closeout needed one current post-fix matrix across the renovation middle instead of more open-ended accessory expansion. Reno Goat now has final-matrix evidence for thermostat, floor register, ceiling fan, linear drain, shower valve, shower door, shower head, medicine cabinet, vanity light, picture light, cabinet pull, door hinge, grab bar, and soap dispenser using the printed CLI with search-result offer fallback disabled. Semantic inspection found one real false positive: West Elm medicine-cabinet risers. The medicine-cabinet filter now rejects risers and organizer-style rows while preserving cabinet and mirror-cabinet selections. The recaptured medicine-cabinet matrix returns 12 priced cabinet/mirror-cabinet rows from IKEA, PlumbTile, Lighting New York, and Floor & Decor.",
+      "files": [
+        "internal/cli/novel_model_intel.go",
+        "internal/cli/novel_model_intel_test.go",
+        "README.md",
+        ".manuscripts/20260601-source-exploration/research/final-representative-matrix.md",
+        ".manuscripts/20260601-source-exploration/research/model-intel-coverage-audit.md",
+        ".manuscripts/20260601-source-exploration/research/source-viability-matrix.md",
+        ".printing-press-patches.json"
+      ],
+      "verification": [
+        "go test ./internal/cli -run 'TestModelIntelProductMatchesMedicineCabinetQuery'",
+        ".manuscripts/20260601-source-exploration/final-matrix/model-intel-thermostat-response.json",
+        ".manuscripts/20260601-source-exploration/final-matrix/model-intel-floor-register-response.json",
+        ".manuscripts/20260601-source-exploration/final-matrix/model-intel-ceiling-fan-response.json",
+        ".manuscripts/20260601-source-exploration/final-matrix/model-intel-linear-drain-response.json",
+        ".manuscripts/20260601-source-exploration/final-matrix/model-intel-shower-valve-response.json",
+        ".manuscripts/20260601-source-exploration/final-matrix/model-intel-shower-door-response.json",
+        ".manuscripts/20260601-source-exploration/final-matrix/model-intel-shower-head-response.json",
+        ".manuscripts/20260601-source-exploration/final-matrix/model-intel-medicine-cabinet-response.json",
+        ".manuscripts/20260601-source-exploration/final-matrix/model-intel-vanity-light-response.json",
+        ".manuscripts/20260601-source-exploration/final-matrix/model-intel-picture-light-response.json",
+        ".manuscripts/20260601-source-exploration/final-matrix/model-intel-cabinet-pull-response.json",
+        ".manuscripts/20260601-source-exploration/final-matrix/model-intel-door-hinge-response.json",
+        ".manuscripts/20260601-source-exploration/final-matrix/model-intel-grab-bar-response.json",
+        ".manuscripts/20260601-source-exploration/final-matrix/model-intel-soap-dispenser-response.json"
+      ]
+    },
+    {
+      "id": "reno-reprint-metadata-refresh",
+      "kind": "novel-workflow",
+      "summary": "Refreshed reprint-facing metadata and agent docs for the expanded Reno Goat sourceability surface.",
+      "reason": "The runtime CLI and evidence set had moved from the original 11-retailer product search into a multi-source renovation-middle CLI with model-intel and source-probe, but top-level help, SKILL.md, manifest descriptions, tools-manifest description, product-search help, and Printing Press metadata still described the old surface. Reno Goat now presents the current active sources plus tracked stubs in reprint-facing metadata, documents model-intel/source-probe in the skill, updates the spec checksum recorded in `.printing-press.json`, replaces stale `Tier 1` wording with `active sources`, and marks the `sources` command as MCP read-only because it only lists local source registry metadata.",
+      "files": [
+        "internal/cli/root.go",
+        "internal/cli/agent_context.go",
+        "internal/cli/product-search.go",
+        "internal/cli/novel_fanout_search.go",
+        "internal/cli/novel_sources.go",
+        "internal/cli/novel_source_probe_test.go",
+        "SKILL.md",
+        "spec.yaml",
+        "manifest.json",
+        "tools-manifest.json",
+        ".printing-press.json",
+        ".printing-press-patches.json"
+      ],
+      "verification": [
+        "go test ./internal/cli -run 'TestSourcesCommandIsMCPReadOnly'",
+        "reno-goat-pp-cli --help",
+        "reno-goat-pp-cli agent-context --json",
+        "reno-goat-pp-cli sources --json"
+      ]
+    },
+    {
+      "id": "reno-reprint-closeout-notes",
+      "kind": "novel-workflow",
+      "summary": "Added release-style reprint closeout notes that make the covered surface and deferred gaps explicit.",
+      "reason": "The coverage audit required explicit release notes for deferred WAF/browser-only sources and incomplete local-showroom breadth before claiming reprint readiness. Reno Goat now has `reprint-closeout-notes.md`, which summarizes the active-source surface, final model-intel matrix proof, pre-reprint fixes, active promoted sources, deferred appliance/local showroom gaps, deferred bath showroom gaps, broader big-box gaps, door-lever/lockset coverage, Designer Appliances as a transport candidate only, and GHST-293 as the continuing shared-transport follow-up. The audit and source viability matrix now point to these notes as the release/reprint note source.",
+      "files": [
+        ".manuscripts/20260601-source-exploration/research/reprint-closeout-notes.md",
+        ".manuscripts/20260601-source-exploration/research/model-intel-coverage-audit.md",
+        ".manuscripts/20260601-source-exploration/research/source-viability-matrix.md",
+        ".printing-press-patches.json"
+      ],
+      "verification": [
+        ".manuscripts/20260601-source-exploration/research/reprint-closeout-notes.md",
+        ".manuscripts/20260601-source-exploration/research/final-representative-matrix.md",
+        "go test ./..."
+      ]
+    },
+    {
+      "id": "reno-priority-source-gap-ledger",
+      "kind": "novel-workflow",
+      "summary": "Added a priority source-gap ledger for the appliance/local-showroom and bath-showroom gaps that remain worth source-extraction cycles.",
+      "reason": "The reprint closeout had documented blocked source candidates, but future work needed a sharper shortlist that matches Reno Goat's intended Ferguson Home-style sweet spot instead of drifting into commodity supplies or low-value accessory examples. The new ledger separates appliance/local-showroom breadth from bath-showroom depth, records what is promoted today, what remains blocked under the current plain CLI transport, and what next action is useful for ABW, ADU, AJ Madison, Abt, Costco, PC Richard, Spencer's, Grand Appliance, Warners' Stellian, QualityBath, Vintage Tub, HomePerfect, DecorPlanet, Build.com, and Signature Hardware. Best Buy was later promoted through source-specific SSR extraction and remains in the probe set as a regression check. The audit, source viability matrix, and closeout notes now point future work at that ledger.",
+      "files": [
+        ".manuscripts/20260601-source-exploration/research/priority-source-gaps.md",
+        ".manuscripts/20260601-source-exploration/research/reprint-closeout-notes.md",
+        ".manuscripts/20260601-source-exploration/research/model-intel-coverage-audit.md",
+        ".manuscripts/20260601-source-exploration/research/source-viability-matrix.md",
+        ".printing-press-patches.json"
+      ],
+      "verification": [
+        "jq empty .printing-press-patches.json",
+        "rg -n \"priority-source-gaps|appliance/local-showroom|bath-showroom depth\" .manuscripts/20260601-source-exploration/research"
+      ]
+    },
+    {
+      "id": "reno-source-probe-blocker-classification",
+      "kind": "novel-workflow",
+      "summary": "Tightened source-probe blocker classification for the priority showroom and big-box gap routes.",
+      "reason": "The priority-gap probe artifacts were too coarse for the remaining sourceability work: ABW appeared as a generic HTTP 403 instead of DataDome/captcha-delivery, Costco/Build.com/Signature Hardware category pages appeared as generic HTTP 403 instead of AccessDenied/Akamai-style blockers, and Warners' Stellian returned HTTP 200 while serving a JavaScript browser-security proof-of-work challenge. Reno Goat now recognizes captcha-delivery/DataDome, generic AccessDenied pages, and browser proof-of-work challenge pages through the shared doctor interstitial classifier. Later source work promoted Best Buy through SSR extraction and Signature Hardware through its readable Demandware suggestions endpoint; the remaining named gaps need browser-resource/API extraction or GHST-293 transport work.",
+      "files": [
+        "internal/cli/doctor.go",
+        "internal/cli/novel_source_probe_test.go",
+        ".manuscripts/20260601-source-exploration/discovery/source-probe-appliance-priority-gaps-response.json",
+        ".manuscripts/20260601-source-exploration/discovery/source-probe-bath-priority-gaps-response.json",
+        ".manuscripts/20260601-source-exploration/research/priority-source-gaps.md",
+        ".printing-press-patches.json"
+      ],
+      "verification": [
+        "go test ./internal/cli -run 'TestClassifySourceProbeResponse|TestResolveSourceProbeCandidatesCoversPriorityGapGroups|TestSourcesCommandIsMCPReadOnly'",
+        "reno-goat-pp-cli source-probe --candidate appliance-priority-gaps --json",
+        "reno-goat-pp-cli source-probe --candidate bath-priority-gaps --json"
+      ]
+    },
+    {
+      "id": "reno-appliancefactory-catalog-endpoint-triage",
+      "kind": "novel-workflow",
+      "summary": "Activated Appliance Factory as an appliance source through AVB/LINQ REST replay over HTTP/1.1.",
+      "reason": "The high-value source gap pass evaluated Appliance Factory because it sits in the same appliance/local-showroom bucket as the named priority sources. The `/dishwashers` capture returned a large Next.js shell with empty SSR product state, but follow-up chunk inspection found the public `/api/rest` client, search/category endpoints, and storefront `x-px-access-token`. Reno Goat now replays `/search/<query>?limit=N&embed=products` over HTTP/1.1 with storefront headers, follows did-you-mean catalog links to `/categories/<key>?limit=N&embed=products`, and normalizes model numbers, manufacturer, final/regular prices, product URLs, images, inventory labels, reviews, and rebate links. Live CLI evidence returned Jennair `JOESC330RM` at $3,899 and priced dishwasher category rows from Appliance Factory.",
+      "files": [
+        "internal/cli/novel_sources.go",
+        "internal/cli/novel_fanout_search.go",
+        "internal/cli/novel_fanout_search_test.go",
+        "spec.yaml",
+        "README.md",
+        ".manuscripts/20260601-source-exploration/discovery/live-gap-appliancefactory-dishwashers.html",
+        ".manuscripts/20260601-source-exploration/discovery/appliancefactory-chunks/",
+        ".manuscripts/20260601-source-exploration/discovery/live-appliancefactory-search-joesc330rm-response.json",
+        ".manuscripts/20260601-source-exploration/discovery/live-appliancefactory-category-dishwashers-response.json",
+        ".manuscripts/20260601-source-exploration/research/priority-source-gaps.md",
+        ".manuscripts/20260601-source-exploration/research/source-viability-matrix.md",
+        ".printing-press-patches.json"
+      ],
+      "verification": [
+        "go test ./internal/cli -run 'TestNormalizeApplianceFactory|TestApplianceFactoryCategoryKey|TestApplyApplianceFactoryHeaders'",
+        "reno-goat-pp-cli product-search all joesc330rm --source appliance-factory --per-page 2 --json",
+        "reno-goat-pp-cli product-search all dishwasher --source appliance-factory --per-page 2 --json",
+        "jq empty .printing-press-patches.json"
+      ]
+    },
+    {
+      "id": "reno-priority-probe-appliancefactory-regression",
+      "kind": "novel-workflow",
+      "summary": "Added Appliance Factory to the appliance priority source-probe regression set and refreshed priority gap artifacts.",
+      "reason": "After Appliance Factory was promoted through source-specific AVB/LINQ REST replay, the priority source-probe group still omitted it even though the gap ledger called for promoted showroom sources to remain regression checks. Reno Goat now probes Appliance Factory's stable `/catalog/dishwashers` storefront route alongside PC Richard and the blocked appliance/local-showroom gaps. Later source work promoted Best Buy through SSR extraction, Signature Hardware through its readable Demandware suggestions endpoint, and QualityBath through React Query hydration extraction. Current refreshed artifacts keep promoted routes in the probe set while HomePerfect is Cloudflare, DecorPlanet is 522, and Build.com redirects to Ferguson Home and blocks under plain transport.",
+      "files": [
+        "internal/cli/novel_source_probe.go",
+        "internal/cli/novel_source_probe_test.go",
+        "README.md",
+        "SKILL.md",
+        ".manuscripts/20260601-source-exploration/discovery/source-probe-appliance-priority-gaps-response.json",
+        ".manuscripts/20260601-source-exploration/discovery/source-probe-bath-priority-gaps-response.json",
+        ".manuscripts/20260601-source-exploration/research/source-viability-matrix.md",
+        ".printing-press-patches.json"
+      ],
+      "verification": [
+        "go test ./internal/cli -run 'TestResolveSourceProbeCandidatesCoversPriorityGapGroups|TestClassifySourceProbeResponse|TestProbeSourceURLUsesBrowserUserAgentAndFinalURL'",
+        "reno-goat-pp-cli source-probe --candidate appliance-priority-gaps --json --timeout 20s",
+        "reno-goat-pp-cli source-probe --candidate bath-priority-gaps --json --timeout 20s",
+        "jq empty .manuscripts/20260601-source-exploration/discovery/source-probe-appliance-priority-gaps-response.json .manuscripts/20260601-source-exploration/discovery/source-probe-bath-priority-gaps-response.json .printing-press-patches.json"
+      ]
+    },
+    {
+      "id": "reno-bestbuy-ssr-product-extraction",
+      "kind": "novel-workflow",
+      "summary": "Activated Best Buy as an appliance source through Next/Apollo SSR product extraction.",
+      "reason": "Best Buy was previously listed as readable-but-unextracted in the appliance/local-showroom priority gaps. Follow-up printed-Go capture of `/site/searchpage.jsp?st=dishwasher` showed the page includes server-rendered Apollo data with product rows, manufacturer model numbers, Best Buy SKU URLs, image URLs, ratings, and price objects. Reno Goat now parses that SSR payload, skips open-box price variants, and exposes Best Buy as an active appliance source. Live CLI evidence returned priced dishwasher rows including Insignia `NS-DWF2SS26` at $299.99 and GE `GDT650SYVFS` at $568.99.",
+      "files": [
+        "internal/cli/novel_sources.go",
+        "internal/cli/novel_fanout_search.go",
+        "internal/cli/novel_fanout_search_test.go",
+        "spec.yaml",
+        "README.md",
+        "SKILL.md",
+        "manifest.json",
+        "tools-manifest.json",
+        ".printing-press.json",
+        ".manuscripts/20260601-source-exploration/discovery/live-bestbuy-dishwasher-go.html",
+        ".manuscripts/20260601-source-exploration/discovery/product-search-bestbuy-dishwasher-response.json",
+        ".manuscripts/20260601-source-exploration/research/priority-source-gaps.md",
+        ".manuscripts/20260601-source-exploration/research/source-viability-matrix.md",
+        ".manuscripts/20260601-source-exploration/research/reprint-closeout-notes.md",
+        ".manuscripts/20260601-source-exploration/research/model-intel-coverage-audit.md",
+        ".printing-press-patches.json"
+      ],
+      "verification": [
+        "go test ./internal/cli -run 'TestBestBuyProductsFromHTML|TestNormalizeApplianceFactory|TestNormalizePCRichard'",
+        "reno-goat-pp-cli product-search all dishwasher --source best-buy --per-page 2 --json",
+        "jq empty .manuscripts/20260601-source-exploration/discovery/product-search-bestbuy-dishwasher-response.json .printing-press-patches.json"
+      ]
+    },
+    {
+      "id": "reno-signaturehardware-demandware-suggestions",
+      "kind": "novel-workflow",
+      "summary": "Activated Signature Hardware as a bath-showroom source through Demandware suggestion tiles.",
+      "reason": "Signature Hardware was previously listed as a deferred bath-showroom priority gap because normal search and category pages returned Akamai 403 under the plain client. A reachable Demandware not-found shell exposed `/on/demandware.store/Sites-SignatureHardware-Site/default/SearchServices-GetSuggestions`, and direct replay of that endpoint for `shower valve` returned price-bearing product tiles. Reno Goat now parses those suggestion rows and exposes Signature Hardware as an active plumbing/decor source for bath showroom selections. Live CLI evidence returned priced shower-valve rows including `948545` Thermostatic Rough-In Shower Valve at $299, `948890` Greyfield Pressure Balance Shower Valve at $483.19, `948689` Beasley Pressure Balance Shower Valve at $401.40, and `953773` Lexia Thermostatic Shower Valve Trim at $348.61.",
+      "files": [
+        "internal/cli/novel_sources.go",
+        "internal/cli/novel_fanout_search.go",
+        "internal/cli/novel_fanout_search_test.go",
+        "spec.yaml",
+        "README.md",
+        "SKILL.md",
+        "manifest.json",
+        "tools-manifest.json",
+        ".printing-press.json",
+        ".manuscripts/20260601-source-exploration/discovery/live-signaturehardware-suggestions-shower-valve.html",
+        ".manuscripts/20260601-source-exploration/discovery/product-search-signaturehardware-shower-valve-response.json",
+        ".manuscripts/20260601-source-exploration/research/priority-source-gaps.md",
+        ".manuscripts/20260601-source-exploration/research/source-viability-matrix.md",
+        ".manuscripts/20260601-source-exploration/research/reprint-closeout-notes.md",
+        ".manuscripts/20260601-source-exploration/research/model-intel-coverage-audit.md",
+        ".printing-press-patches.json"
+      ],
+      "verification": [
+        "go test ./internal/cli -run 'TestSignatureHardwareProductsFromHTML|TestBestBuyProductsFromHTML'",
+        "reno-goat-pp-cli product-search all 'shower valve' --source signature-hardware --per-page 4 --json",
+        "jq empty .manuscripts/20260601-source-exploration/discovery/product-search-signaturehardware-shower-valve-response.json .printing-press-patches.json"
+      ]
+    },
+    {
+      "id": "reno-abt-http1-appliance-extraction",
+      "kind": "novel-workflow",
+      "summary": "Activated Abt as an appliance source through HTTP/1.1 search and product-schema extraction.",
+      "reason": "Abt was previously tracked as an appliance/local-showroom gap because stale product URLs and default HTTP/2 curl requests returned Cloudflare challenge or dead-route evidence. Follow-up probing found that `/resources/pages/search.php?keywords=<query>` replays over HTTP/1.1 with browser headers: exact-model searches can redirect to product pages with schema.org product data, and category searches return server-rendered appliance rows with Abt model numbers, product URLs, images, current/regular prices, sale status, and availability labels. Reno Goat now exposes Abt as an active appliance source. Live CLI evidence returned `JOESC330RM` at $3,899 and dishwasher rows including Bosch `SHP78CM5SS` at $1,349, GE `GDT535PYVFSS` at $394, and Frigidaire `FDPC4221SS` at $329.",
+      "files": [
+        "internal/cli/novel_sources.go",
+        "internal/cli/novel_fanout_search.go",
+        "internal/cli/novel_fanout_search_test.go",
+        "internal/cli/novel_source_probe.go",
+        "internal/cli/novel_source_probe_test.go",
+        "spec.yaml",
+        "README.md",
+        "SKILL.md",
+        "manifest.json",
+        "tools-manifest.json",
+        ".printing-press.json",
+        ".manuscripts/20260601-source-exploration/discovery/live-abt-search-dishwasher.html",
+        ".manuscripts/20260601-source-exploration/discovery/product-search-abt-joesc330rm-response.json",
+        ".manuscripts/20260601-source-exploration/discovery/product-search-abt-dishwasher-response.json",
+        ".manuscripts/20260601-source-exploration/discovery/source-probe-appliance-priority-gaps-response.json",
+        ".manuscripts/20260601-source-exploration/research/priority-source-gaps.md",
+        ".manuscripts/20260601-source-exploration/research/source-viability-matrix.md",
+        ".manuscripts/20260601-source-exploration/research/reprint-closeout-notes.md",
+        ".manuscripts/20260601-source-exploration/research/model-intel-coverage-audit.md",
+        ".manuscripts/20260601-source-exploration/research/final-representative-matrix.md",
+        ".printing-press-patches.json"
+      ],
+      "verification": [
+        "go test ./internal/cli -run 'TestAbtProductsFromHTML|TestBestBuyProductsFromHTML|TestResolveSourceProbeCandidatesCoversPriorityGapGroups' -count=1",
+        "reno-goat-pp-cli product-search all JOESC330RM --source abt --per-page 2 --json",
+        "reno-goat-pp-cli product-search all dishwasher --source abt --per-page 3 --json",
+        "jq empty .manuscripts/20260601-source-exploration/discovery/product-search-abt-joesc330rm-response.json .manuscripts/20260601-source-exploration/discovery/product-search-abt-dishwasher-response.json .printing-press-patches.json"
+      ]
+    },
+    {
+      "id": "reno-source-probe-larger-body-window",
+      "kind": "novel-workflow",
+      "summary": "Widened source-probe response capture and exposed body truncation in priority gap diagnostics.",
+      "reason": "QualityBath's replayable React Query product payload appears deep in a large HTML response, so the prior small source-probe body slice could make a useful route look less actionable than it was. Reno Goat now reads up to 256KB per probe, reports `body_truncated` when the page exceeds that window, and refreshes the appliance and bath priority artifacts so remaining blockers are separated from large-but-readable SSR/hydration pages. The refreshed evidence keeps QualityBath promoted, treats Vintage Tub's Searchspring endpoint as the source of truth despite root-route challenge noise, and leaves ABW, ADU catalog, AJ Madison, Costco, Spencer's, Grand Appliance, Warners' Stellian, HomePerfect, DecorPlanet, and Build.com as deferred source gaps.",
+      "files": [
+        "internal/cli/novel_source_probe.go",
+        "internal/cli/novel_source_probe_test.go",
+        "README.md",
+        "SKILL.md",
+        "spec.yaml",
+        ".manuscripts/20260601-source-exploration/discovery/source-probe-appliance-priority-gaps-response.json",
+        ".manuscripts/20260601-source-exploration/discovery/source-probe-bath-priority-gaps-response.json",
+        ".manuscripts/20260601-source-exploration/research/priority-source-gaps.md",
+        ".manuscripts/20260601-source-exploration/research/source-viability-matrix.md",
+        ".manuscripts/20260601-source-exploration/research/reprint-closeout-notes.md",
+        ".printing-press-patches.json"
+      ],
+      "verification": [
+        "go test ./internal/cli -run 'TestProbeSourceURL|TestClassifySourceProbe|TestResolveSourceProbe' -count=1",
+        "go test ./...",
+        "jq empty .printing-press-patches.json .printing-press.json manifest.json tools-manifest.json .manuscripts/20260601-source-exploration/discovery/source-probe-bath-priority-gaps-response.json .manuscripts/20260601-source-exploration/discovery/source-probe-appliance-priority-gaps-response.json"
+      ]
+    },
+    {
+      "id": "reno-hardware-door-lever-model-intel",
+      "kind": "novel-workflow",
+      "summary": "Closed the door-lever and lockset sourceability gap for model-intel through Hardware Hut routing and product-page price enrichment.",
+      "reason": "Earlier evidence showed `door lever` falling back to appliance parts in auto mode and routed hardware returning IKEA cabinet/kids hardware rather than locksets. Hardware Hut already exposes real Schlage, Grandeur, Sure-Loc, Emtek, and Brass Accents door-entry, passage, privacy, and lever-set rows, but many configurable search rows carry empty search-page prices. Reno Goat now infers hardware for door lever, handleset, lockset, door knob, and deadbolt queries, filters adjacent cabinet/shower/door-part false positives, and enriches unpriced Hardware Hut product pages from schema.org offer prices. Live `model-intel` evidence for `interior door lever`, `passage door lever`, and `privacy door lever` returns priced Hardware Hut rows from $27.87 to $731.26 with product URLs and selected spec/install documents.",
+      "files": [
+        "internal/cli/novel_model_intel.go",
+        "internal/cli/novel_model_intel_test.go",
+        ".manuscripts/20260601-source-exploration/discovery/model-intel-hardware-interior-door-lever-after-response.json",
+        ".manuscripts/20260601-source-exploration/discovery/model-intel-hardware-passage-door-lever-response.json",
+        ".manuscripts/20260601-source-exploration/discovery/model-intel-hardware-privacy-door-lever-response.json",
+        ".manuscripts/20260601-source-exploration/research/model-intel-coverage-audit.md",
+        ".manuscripts/20260601-source-exploration/research/source-viability-matrix.md",
+        ".manuscripts/20260601-source-exploration/research/final-representative-matrix.md",
+        ".manuscripts/20260601-source-exploration/research/reprint-closeout-notes.md",
+        ".printing-press-patches.json"
+      ],
+      "verification": [
+        "go test ./internal/cli -run 'TestResolveModelIntelSources|TestModelIntelProductMatchesDoor|TestHardwareHutProductPagePrice' -count=1",
+        "reno-goat-pp-cli model-intel 'interior door lever' --sources auto --search-offers=false --limit 5 --json",
+        "reno-goat-pp-cli model-intel 'passage door lever' --sources auto --search-offers=false --limit 8 --json",
+        "reno-goat-pp-cli model-intel 'privacy door lever' --sources auto --search-offers=false --limit 8 --json",
+        "jq empty .manuscripts/20260601-source-exploration/discovery/model-intel-hardware-interior-door-lever-after-response.json .manuscripts/20260601-source-exploration/discovery/model-intel-hardware-passage-door-lever-response.json .manuscripts/20260601-source-exploration/discovery/model-intel-hardware-privacy-door-lever-response.json .printing-press-patches.json"
+      ]
+    },
+    {
+      "id": "reno-qualitybath-react-query-search",
+      "kind": "novel-workflow",
+      "summary": "Activated QualityBath as a bath-showroom source through hydrated React Query search extraction.",
+      "reason": "QualityBath was previously tracked as a bath-showroom gap because the old querystring search route returned 404 and earlier root/category checks were challenge-prone. The corrected `/search/<query>` route replays under the printed Go HTTP/1.1 client and exposes a `window.__INITIAL_QUERIES__` React Query hydration payload with `search.getFull` product rows. Reno Goat now parses those rows and exposes QualityBath as an active plumbing/decor source for shower controls, shower sets, tub/shower sets, hand showers, exposed/steam showers, faucets, vanities, tubs, and other bath-showroom searches. Live CLI evidence for `shower valve` returned California Faucets `2-VR` at $351.75, Latoscana `73CR690` at $143, and Grohe `34150003` at $423.30.",
+      "files": [
+        "internal/cli/novel_sources.go",
+        "internal/cli/novel_fanout_search.go",
+        "internal/cli/novel_fanout_search_test.go",
+        "internal/cli/novel_source_probe.go",
+        "internal/cli/novel_source_probe_test.go",
+        "spec.yaml",
+        "README.md",
+        "SKILL.md",
+        "manifest.json",
+        "tools-manifest.json",
+        ".printing-press.json",
+        ".manuscripts/20260601-source-exploration/discovery/live-qualitybath-search-shower-valve.html",
+        ".manuscripts/20260601-source-exploration/discovery/product-search-qualitybath-shower-valve-response.json",
+        ".manuscripts/20260601-source-exploration/discovery/source-probe-bath-priority-gaps-response.json",
+        ".manuscripts/20260601-source-exploration/research/priority-source-gaps.md",
+        ".manuscripts/20260601-source-exploration/research/source-viability-matrix.md",
+        ".manuscripts/20260601-source-exploration/research/reprint-closeout-notes.md",
+        ".manuscripts/20260601-source-exploration/research/model-intel-coverage-audit.md",
+        ".manuscripts/20260601-source-exploration/research/final-representative-matrix.md",
+        ".printing-press-patches.json"
+      ],
+      "verification": [
+        "go test ./internal/cli -run 'TestQualityBathProductsFromHTML|TestSourceProbe|TestAbt|TestSignatureHardware' -count=1",
+        "reno-goat-pp-cli product-search all 'shower valve' --source qualitybath --per-page 3 --json",
+        "reno-goat-pp-cli sources --json",
+        "jq empty .manuscripts/20260601-source-exploration/discovery/product-search-qualitybath-shower-valve-response.json .manuscripts/20260601-source-exploration/discovery/source-probe-bath-priority-gaps-response.json .printing-press-patches.json"
+      ]
+    },
+    {
+      "id": "reno-homewise-appliance-bloomreach-source",
+      "kind": "novel-workflow",
+      "summary": "Activated Homewise Appliance as an appliance source through its public API Gateway/Bloomreach endpoint.",
+      "reason": "The appliance/local-showroom gap pass found Airport/Homewise category pages replaying as skeleton-heavy Next.js HTML with no server-rendered product rows. Follow-up chunk inspection exposed RTK `bloomreach-hw` endpoints, and shared chunk `7383` revealed the public API Gateway base URL. Reno Goat now replays `/hw-prod/bloomreach-hw?action=search&limit=N&page=1&q=<query>&tag=&slug=&isLuxury=false` with Homewise storefront origin/referer headers and normalizes SKU/model, brand, title, current price, MSRP, product URL, image URL, category, sellable quantity, and top-six specs. Live API evidence returned Jennair `JOESC330RM` at $3,899 and Whirlpool dishwasher `WDTS7024RZ` at $709.",
+      "files": [
+        "internal/cli/novel_sources.go",
+        "internal/cli/novel_fanout_search.go",
+        "internal/cli/novel_fanout_search_test.go",
+        "internal/cli/novel_source_probe.go",
+        "internal/cli/novel_source_probe_test.go",
+        "README.md",
+        "SKILL.md",
+        "spec.yaml",
+        "manifest.json",
+        "tools-manifest.json",
+        ".printing-press.json",
+        "internal/cli/root.go",
+        "internal/cli/agent_context.go",
+        ".manuscripts/20260601-source-exploration/discovery/live-homewise-bloomreach-joesc330rm-response.json",
+        ".manuscripts/20260601-source-exploration/discovery/live-homewise-bloomreach-dishwasher-response.json",
+        ".manuscripts/20260601-source-exploration/discovery/product-search-homewise-joesc330rm-response.json",
+        ".manuscripts/20260601-source-exploration/discovery/product-search-homewise-dishwasher-response.json",
+        ".manuscripts/20260601-source-exploration/research/priority-source-gaps.md",
+        ".manuscripts/20260601-source-exploration/research/source-viability-matrix.md",
+        ".manuscripts/20260601-source-exploration/research/reprint-closeout-notes.md",
+        ".manuscripts/20260601-source-exploration/research/model-intel-coverage-audit.md",
+        ".manuscripts/20260601-source-exploration/research/final-representative-matrix.md",
+        ".printing-press-patches.json"
+      ],
+      "verification": [
+        "go test ./internal/cli -run 'TestHomewise|TestNormalizeHomewise|TestApplyHomewise|TestResolveSourceProbeCandidatesCoversPriorityGapGroups' -count=1",
+        "reno-goat-pp-cli product-search all JOESC330RM --source homewise-appliance --per-page 2 --json",
+        "reno-goat-pp-cli product-search all dishwasher --source homewise-appliance --per-page 2 --json",
+        "reno-goat-pp-cli sources --json",
+        "jq empty .manuscripts/20260601-source-exploration/discovery/live-homewise-bloomreach-joesc330rm-response.json .manuscripts/20260601-source-exploration/discovery/live-homewise-bloomreach-dishwasher-response.json .manuscripts/20260601-source-exploration/discovery/product-search-homewise-joesc330rm-response.json .manuscripts/20260601-source-exploration/discovery/product-search-homewise-dishwasher-response.json .printing-press-patches.json"
+      ]
+    }
+  ]
+}

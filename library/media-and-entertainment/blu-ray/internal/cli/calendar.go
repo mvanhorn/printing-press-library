@@ -9,10 +9,11 @@ import (
 
 func newCalendarCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:    "calendar",
-		Short:  "Release calendar (by year + format + country).",
-		Hidden: true,
-		RunE:   parentNoSubcommandRunE(flags),
+		Use:         "calendar",
+		Short:       "Release calendar (by year + format + country).",
+		Hidden:      true,
+		Annotations: map[string]string{"mcp:read-only": "true"},
+		RunE:        parentNoSubcommandRunE(flags),
 	}
 
 	cmd.AddCommand(newCalendarDigitalCmd(flags))

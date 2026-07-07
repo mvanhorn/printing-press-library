@@ -19,7 +19,7 @@ func newCustomersExperimentsPromoteExperimentCmd(flags *rootFlags) *cobra.Comman
 	cmd := &cobra.Command{
 		Use:         "promote-experiment <resourceName>",
 		Short:       "Promotes the trial campaign thus applying changes in the trial campaign to the base campaign. This method returns a...",
-		Example:     "  google-ads-pp-cli customers_experiments promote_experiment example-resource",
+		Example:     "  google-ads-pp-cli customers-experiments promote-experiment example-resource",
 		Annotations: map[string]string{"pp:endpoint": "customers_experiments.promote_experiment", "pp:method": "POST", "pp:path": "/v22/{resourceName}:promoteExperiment"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

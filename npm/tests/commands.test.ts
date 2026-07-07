@@ -18,6 +18,12 @@ const registry: Registry = {
       api: "ESPN",
       description: "Live sports scores",
       path: "library/sports/espn",
+      release: {
+        cli_name: "espn-pp-cli",
+        version: "2026.6.1",
+        released_at: "2026-06-01T00:00:00Z",
+        source_commit: "0123456789abcdef0123456789abcdef01234567",
+      },
     },
     {
       name: "dominos-pp-cli",
@@ -79,6 +85,19 @@ test("list command can filter catalog CLIs by category", async () => {
   assert.doesNotMatch(stdout.join("\n"), /dominos/);
 });
 
+test("list --json includes catalog release metadata", async () => {
+  const stdout: string[] = [];
+  const command = createListCommand({
+    fetchRegistry: async () => registry,
+    stdout: (message) => stdout.push(message),
+  });
+
+  assert.equal(await command(["--category", "sports", "--json"]), 0);
+  const entries = JSON.parse(stdout.join("\n"));
+  assert.equal(entries[0].release.version, "2026.6.1");
+  assert.equal(entries[0].release.cli_name, "espn-pp-cli");
+});
+
 test("list command reports installed CLIs with --installed", async () => {
   const stdout: string[] = [];
   const command = createListCommand({
@@ -137,6 +156,19 @@ test("search command ranks registry matches", async () => {
   assert.equal(await command(["pizza"]), 0);
   assert.match(stdout.join("\n"), /dominos-pp-cli/);
   assert.match(stdout.join("\n"), /install: printing-press-library install dominos-pp-cli/);
+});
+
+test("search --json includes catalog release metadata", async () => {
+  const stdout: string[] = [];
+  const command = createSearchCommand({
+    fetchRegistry: async () => registry,
+    stdout: (message) => stdout.push(message),
+  });
+
+  assert.equal(await command(["espn", "--json"]), 0);
+  const entries = JSON.parse(stdout.join("\n"));
+  assert.equal(entries[0].release.version, "2026.6.1");
+  assert.equal(entries[0].release.source_commit, "0123456789abcdef0123456789abcdef01234567");
 });
 
 test("catalog hints preserve npx when the wrapper is running through npx", async () => {

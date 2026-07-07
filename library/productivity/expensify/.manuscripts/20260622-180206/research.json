@@ -1,0 +1,312 @@
+{
+  "api_name": "expensify",
+  "novelty_score": 9,
+  "alternatives": [
+    {
+      "name": "primrose-mcp-expensify",
+      "url": "https://github.com/primrose-mcp/primrose-mcp-expensify",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 22,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "expensify-mcp-http",
+      "url": "https://github.com/agenticledger/expensify-mcp-http",
+      "language": "JavaScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 13,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "justexpenseit",
+      "url": "https://github.com/meyskens/justexpenseit",
+      "language": "Go",
+      "install_method": "",
+      "stars": 1,
+      "last_updated": "",
+      "command_count": 5,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-06-23T01:19:56Z",
+  "novel_features": [
+    {
+      "name": "Quick expense from natural language",
+      "command": "expense quick",
+      "description": "File an expense with one line: amount, merchant, and category parsed from a short prompt — no forms, no web UI.",
+      "rationale": "Local parser extracts amount/merchant/category/date before hitting the API, so agents can one-shot file expenses without interactive forms the Expensify web app demands.",
+      "example": "expensify-pp-cli expense quick \"Dinner at Maya $42.50\" --agent",
+      "why_it_matters": "When a user tells an agent 'I just expensed dinner at Maya for $42.50,' the agent should file it in one call — not walk through six fields.",
+      "group": "Filing at thought speed"
+    },
+    {
+      "name": "Draft report from date range",
+      "command": "report draft",
+      "description": "Create a report and auto-attach every un-reported expense from a date range in a single command.",
+      "rationale": "Requires local expense cache + a single transactional attach — web UI requires clicking each expense one at a time.",
+      "example": "expensify-pp-cli report draft --since 2026-04-01 --title \"April expenses\" --policy YOUR_POLICY_ID",
+      "why_it_matters": "End-of-month submission turns from 45 clicks into one command.",
+      "group": "Filing at thought speed"
+    },
+    {
+      "name": "What's the damage",
+      "command": "damage",
+      "description": "Single-glance summary: total expensed, pending, approved, paid for the current month (or a custom range).",
+      "rationale": "Local rollup over cached reports + expenses; web dashboard scatters these numbers across three screens.",
+      "example": "expensify-pp-cli damage --month current --json",
+      "why_it_matters": "Agents asked 'how much did I expense this month' get one answer in one call.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Expense from bank line",
+      "command": "expense from-line",
+      "description": "Paste a raw bank or card CSV row and the CLI extracts date/merchant/amount/currency and files the expense.",
+      "rationale": "Local regex + heuristics; no API has a 'parse this bank line' endpoint.",
+      "example": "expensify-pp-cli expense from-line \"2026-04-18 DOORDASH*JOES $14.25\" --category Meals",
+      "why_it_matters": "Reconciling AmEx? Paste a row, file an expense. No copy-paste-copy-paste.",
+      "group": "Filing at thought speed"
+    },
+    {
+      "name": "Offline expense search",
+      "command": "expense search",
+      "description": "FTS5 search over all your expenses by merchant, comment, category, or tag. Regex-friendly.",
+      "rationale": "Local SQLite store indexed with FTS5; Expensify's API has only exact-match filtering.",
+      "example": "expensify-pp-cli expense search \"coffee\" --since 2026-01-01 --json",
+      "why_it_matters": "Agents asked 'did I expense that Starbucks last month' get an answer in one local query.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Missing receipts",
+      "command": "expense missing-receipts",
+      "description": "Lists expenses without attached receipts so you can catch them before submitting a report.",
+      "rationale": "Local query across the expense store; web UI only surfaces this per-report, not globally.",
+      "example": "expensify-pp-cli expense missing-receipts --json",
+      "why_it_matters": "Submit-report-and-get-bounced feels bad; surface missing receipts upfront.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Monthly rollup",
+      "command": "expense rollup",
+      "description": "Pivot-table expenses by category, tag, or merchant for any time range.",
+      "rationale": "Local SQL aggregate; Expensify web has report-level totals but not cross-report rollups.",
+      "example": "expensify-pp-cli expense rollup --month 2026-04 --by category",
+      "why_it_matters": "Build your own spending dashboard without burning API budget.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Duplicate detection",
+      "command": "expense dupes",
+      "description": "Finds expenses that look like duplicates by (merchant, amount, date±window).",
+      "rationale": "Local fuzzy match across the expense store; nothing similar in the API or web UI.",
+      "example": "expensify-pp-cli expense dupes --window 3d --json",
+      "why_it_matters": "Accidental double-file is a top AP pain point; surface it before submission.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Bulk expense create",
+      "command": "expense bulk",
+      "description": "File a whole list of expenses in a single Expense_Create request.",
+      "rationale": "One transactionList request is the reliable shape; per-row sequential creates are fragile and rate-limit-prone.",
+      "example": "expensify-pp-cli expense bulk --input rows.jsonl --dry-run",
+      "why_it_matters": "Reach for this when filing many expenses at once instead of looping create — it is one atomic request.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Submit and wait",
+      "command": "report submit",
+      "description": "Submit a report and optionally poll until it leaves SUBMITTED.",
+      "rationale": "Approval status changes asynchronously; --wait turns a fire-and-forget submit into a blocking call agents can branch on.",
+      "example": "expensify-pp-cli report submit --report-id 1587860702457827 --wait --timeout 1h",
+      "why_it_matters": "Use --wait when a downstream step depends on the report actually being approved/rejected, not just submitted.",
+      "group": "Agent-native plumbing"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Quick expense from natural language",
+      "command": "expense quick",
+      "description": "File an expense with one line: amount, merchant, and category parsed from a short prompt — no forms, no web UI.",
+      "rationale": "Local parser extracts amount/merchant/category/date before hitting the API, so agents can one-shot file expenses without interactive forms the Expensify web app demands.",
+      "example": "expensify-pp-cli expense quick \"Dinner at Maya $42.50\" --agent",
+      "why_it_matters": "When a user tells an agent 'I just expensed dinner at Maya for $42.50,' the agent should file it in one call — not walk through six fields.",
+      "group": "Filing at thought speed"
+    },
+    {
+      "name": "Draft report from date range",
+      "command": "report draft",
+      "description": "Create a report and auto-attach every un-reported expense from a date range in a single command.",
+      "rationale": "Requires local expense cache + a single transactional attach — web UI requires clicking each expense one at a time.",
+      "example": "expensify-pp-cli report draft --since 2026-04-01 --title \"April expenses\" --policy YOUR_POLICY_ID",
+      "why_it_matters": "End-of-month submission turns from 45 clicks into one command.",
+      "group": "Filing at thought speed"
+    },
+    {
+      "name": "What's the damage",
+      "command": "damage",
+      "description": "Single-glance summary: total expensed, pending, approved, paid for the current month (or a custom range).",
+      "rationale": "Local rollup over cached reports + expenses; web dashboard scatters these numbers across three screens.",
+      "example": "expensify-pp-cli damage --month current --json",
+      "why_it_matters": "Agents asked 'how much did I expense this month' get one answer in one call.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Expense from bank line",
+      "command": "expense from-line",
+      "description": "Paste a raw bank or card CSV row and the CLI extracts date/merchant/amount/currency and files the expense.",
+      "rationale": "Local regex + heuristics; no API has a 'parse this bank line' endpoint.",
+      "example": "expensify-pp-cli expense from-line \"2026-04-18 DOORDASH*JOES $14.25\" --category Meals",
+      "why_it_matters": "Reconciling AmEx? Paste a row, file an expense. No copy-paste-copy-paste.",
+      "group": "Filing at thought speed"
+    },
+    {
+      "name": "Offline expense search",
+      "command": "expense search",
+      "description": "FTS5 search over all your expenses by merchant, comment, category, or tag. Regex-friendly.",
+      "rationale": "Local SQLite store indexed with FTS5; Expensify's API has only exact-match filtering.",
+      "example": "expensify-pp-cli expense search \"coffee\" --since 2026-01-01 --json",
+      "why_it_matters": "Agents asked 'did I expense that Starbucks last month' get an answer in one local query.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Missing receipts",
+      "command": "expense missing-receipts",
+      "description": "Lists expenses without attached receipts so you can catch them before submitting a report.",
+      "rationale": "Local query across the expense store; web UI only surfaces this per-report, not globally.",
+      "example": "expensify-pp-cli expense missing-receipts --json",
+      "why_it_matters": "Submit-report-and-get-bounced feels bad; surface missing receipts upfront.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Monthly rollup",
+      "command": "expense rollup",
+      "description": "Pivot-table expenses by category, tag, or merchant for any time range.",
+      "rationale": "Local SQL aggregate; Expensify web has report-level totals but not cross-report rollups.",
+      "example": "expensify-pp-cli expense rollup --month 2026-04 --by category",
+      "why_it_matters": "Build your own spending dashboard without burning API budget.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Duplicate detection",
+      "command": "expense dupes",
+      "description": "Finds expenses that look like duplicates by (merchant, amount, date±window).",
+      "rationale": "Local fuzzy match across the expense store; nothing similar in the API or web UI.",
+      "example": "expensify-pp-cli expense dupes --window 3d --json",
+      "why_it_matters": "Accidental double-file is a top AP pain point; surface it before submission.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Bulk expense create",
+      "command": "expense bulk",
+      "description": "File a whole list of expenses in a single Expense_Create request.",
+      "rationale": "One transactionList request is the reliable shape; per-row sequential creates are fragile and rate-limit-prone.",
+      "example": "expensify-pp-cli expense bulk --input rows.jsonl --dry-run",
+      "why_it_matters": "Reach for this when filing many expenses at once instead of looping create — it is one atomic request.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Submit and wait",
+      "command": "report submit",
+      "description": "Submit a report and optionally poll until it leaves SUBMITTED.",
+      "rationale": "Approval status changes asynchronously; --wait turns a fire-and-forget submit into a blocking call agents can branch on.",
+      "example": "expensify-pp-cli report submit --report-id 1587860702457827 --wait --timeout 1h",
+      "why_it_matters": "Use --wait when a downstream step depends on the report actually being approved/rejected, not just submitted.",
+      "group": "Agent-native plumbing"
+    }
+  ],
+  "narrative": {
+    "headline": "File expenses and submit reports to Expensify in one line. Every command an agent should need, with a local cache so searches stay offline.",
+    "value_prop": "expensify-pp-cli turns the Expensify web app into a terminal. Log in once, and every filing/reviewing/submitting task that used to require clicking through forms becomes a single command. A local SQLite store gives you offline search, rollups, dupe detection, and missing-receipt alerts that no other Expensify tool has.",
+    "auth_narrative": "Two ways to authenticate: (1) `expensify auth login` opens a browser, you log in, the CLI captures your session token — works immediately for all filing/submitting commands; (2) `expensify auth set-keys` stores your Integration Server partner credentials (get them at https://www.expensify.com/tools/integrations/) — required only for export/admin commands. Most users only need option 1.",
+    "quickstart": [
+      {
+        "command": "expensify-pp-cli doctor",
+        "comment": "Check auth + connectivity before anything else"
+      },
+      {
+        "command": "expensify-pp-cli auth login --from-chrome",
+        "comment": "Capture your Expensify session straight from Chrome — no token paste"
+      },
+      {
+        "command": "expensify-pp-cli sync",
+        "comment": "Pull workspaces, expenses, and reports into the local cache"
+      },
+      {
+        "command": "expensify-pp-cli expense quick \"Dinner at Maya $42.50\"",
+        "comment": "File your first expense in one line"
+      },
+      {
+        "command": "expensify-pp-cli damage",
+        "comment": "See the month's total expensed/pending/approved at a glance"
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "`403 Forbidden` on every command",
+        "fix": "Your session expired. Run `expensify-pp-cli auth login` again."
+      },
+      {
+        "symptom": "`429 Too Many Requests`",
+        "fix": "Integration Server enforces 5 req / 10s and 20 req / 60s. The CLI backs off automatically; if you see this, wait 60 seconds before retrying."
+      },
+      {
+        "symptom": "`export run` asks for partner credentials",
+        "fix": "Export commands use the Integration Server, not your session. Run `expensify-pp-cli auth set-keys` with credentials from https://www.expensify.com/tools/integrations/."
+      },
+      {
+        "symptom": "`expense quick` can't parse my input",
+        "fix": "Format: `\u003cdescription\u003e \u003cmerchant\u003e $\u003camount\u003e`. Example: `\"Dinner at Maya $42.50\"`. Use `--amount/--merchant/--category` flags for explicit control."
+      },
+      {
+        "symptom": "Policy/category autocomplete is empty",
+        "fix": "Run `expensify-pp-cli sync` to refresh the local cache."
+      }
+    ],
+    "when_to_use": "Pick this CLI when you want to file, review, or submit Expensify expenses and reports without leaving the terminal. It excels at one-liner expense filing from natural language, end-of-month report drafting from a date range, offline search across years of expenses, and orchestrating accounting-system exports. Agents can drive it through the standard --json output and typed exit codes, or through the built-in MCP bridge mode.",
+    "recipes": [
+      {
+        "title": "File a quick expense",
+        "command": "expensify-pp-cli expense quick \"Lunch at Joe's $18.50\"",
+        "explanation": "One line, one call, one expense. Category auto-suggested from your history."
+      },
+      {
+        "title": "Draft this month's report",
+        "command": "expensify-pp-cli report draft --since 2026-04-01 --until 2026-04-30 --title \"April\" --policy 1234567",
+        "explanation": "Creates a report and attaches every un-reported April expense in a single command."
+      },
+      {
+        "title": "Submit for approval and wait",
+        "command": "expensify-pp-cli report submit --report-id 1587860702457827 --wait --timeout 1h",
+        "explanation": "Blocks until approval arrives — drop this in CI after a closing script."
+      },
+      {
+        "title": "Find expenses with no receipt",
+        "command": "expensify-pp-cli expense missing-receipts --json",
+        "explanation": "Catches receipt gaps before they bounce your report."
+      },
+      {
+        "title": "Search your offline expense cache",
+        "command": "expensify-pp-cli expense search \"coffee\" --json",
+        "explanation": "FTS5 search over every synced expense — merchant, comment, category, tag — with no network call."
+      }
+    ],
+    "trigger_phrases": [
+      "file an expense",
+      "submit my expense report",
+      "expense that",
+      "what did I expense this month",
+      "use expensify",
+      "run expensify"
+    ]
+  }
+}

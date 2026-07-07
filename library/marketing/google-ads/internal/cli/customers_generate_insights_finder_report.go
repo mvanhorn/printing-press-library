@@ -22,7 +22,7 @@ func newCustomersGenerateInsightsFinderReportCmd(flags *rootFlags) *cobra.Comman
 	cmd := &cobra.Command{
 		Use:         "generate-insights-finder-report <customerId>",
 		Short:       "Creates a saved report that can be viewed in the Insights Finder tool.",
-		Example:     "  google-ads-pp-cli customers generate_insights_finder_report 550e8400-e29b-41d4-a716-446655440000",
+		Example:     "  google-ads-pp-cli customers generate-insights-finder-report 550e8400-e29b-41d4-a716-446655440000",
 		Annotations: map[string]string{"pp:endpoint": "customers.generate_insights_finder_report", "pp:method": "POST", "pp:path": "/v22/customers/{customerId}:generateInsightsFinderReport"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

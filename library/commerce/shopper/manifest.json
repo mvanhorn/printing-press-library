@@ -1,0 +1,55 @@
+{
+  "manifest_version": "0.3",
+  "name": "shopper-pp-mcp",
+  "display_name": "Shopper",
+  "version": "4.20.1",
+  "description": "The first CLI for Shopper — every catalog, cart, and delivery surface plus a local price/basket history the web app throws away each cycle.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/shopper-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/shopper-pp-mcp",
+      "args": [],
+      "env": {
+        "SHOPPER_CLUSTER_ID": "${user_config.shopper_cluster_id}",
+        "SHOPPER_STORE_ID": "${user_config.shopper_store_id}",
+        "SHOPPER_TOKEN": "${user_config.shopper_token}"
+      }
+    }
+  },
+  "user_config": {
+    "shopper_cluster_id": {
+      "type": "string",
+      "title": "SHOPPER_CLUSTER_ID",
+      "description": "Sets SHOPPER_CLUSTER_ID for the Shopper MCP server. Required by the generated client for credential refresh or hand-written auth flow.",
+      "sensitive": true,
+      "required": true
+    },
+    "shopper_store_id": {
+      "type": "string",
+      "title": "SHOPPER_STORE_ID",
+      "description": "Sets SHOPPER_STORE_ID for the Shopper MCP server. Required by the generated client for credential refresh or hand-written auth flow.",
+      "sensitive": true,
+      "required": true
+    },
+    "shopper_token": {
+      "type": "string",
+      "title": "SHOPPER_TOKEN",
+      "description": "Sets SHOPPER_TOKEN for the Shopper MCP server.",
+      "sensitive": true,
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

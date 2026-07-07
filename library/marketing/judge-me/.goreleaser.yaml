@@ -1,0 +1,51 @@
+version: 2
+project_name: judge-me-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: judge-me-pp-cli
+    main: ./cmd/judge-me-pp-cli
+    binary: judge-me-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X github.com/mvanhorn/printing-press-library/library/marketing/judge-me/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: judge-me-pp-mcp
+    main: ./cmd/judge-me-pp-mcp
+    binary: judge-me-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X main.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: judge-me-pp-cli
+    repository:
+      owner: cathrynlavery
+      name: homebrew-tap
+    homepage: "https://github.com/mvanhorn/printing-press-library"
+    description: "Our REST API lets you access to resources and perform actions on behalf of a store."
+    install: |
+      bin.install "judge-me-pp-cli"
+      bin.install "judge-me-pp-mcp"

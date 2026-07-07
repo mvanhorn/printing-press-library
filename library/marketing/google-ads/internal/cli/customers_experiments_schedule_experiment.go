@@ -19,7 +19,7 @@ func newCustomersExperimentsScheduleExperimentCmd(flags *rootFlags) *cobra.Comma
 	cmd := &cobra.Command{
 		Use:         "schedule-experiment <resourceName>",
 		Short:       "Schedule an experiment. The in design campaign will be converted into a real campaign (called the experiment...",
-		Example:     "  google-ads-pp-cli customers_experiments schedule_experiment example-resource",
+		Example:     "  google-ads-pp-cli customers-experiments schedule-experiment example-resource",
 		Annotations: map[string]string{"pp:endpoint": "customers_experiments.schedule_experiment", "pp:method": "POST", "pp:path": "/v22/{resourceName}:scheduleExperiment"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

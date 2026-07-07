@@ -1,0 +1,16 @@
+# agentcookie.toml: secrets-bus adoption manifest v2
+# See docs/spec-agentcookie-secrets-bus-v2-adoption.md
+schema_version = 2
+name = "sutra-fitness-pp-cli"
+display_name = "Sutra"
+description = "Every Sutra (Arketa) Partner API resource, plus a local data mirror and the studio analytics the dashboard buries — no-show rates, capacity, churn, and revenue you can finally query."
+project_kind = "cli"
+
+[secrets.file]
+path = "~/.config/sutra-fitness-pp-cli/config.toml"
+
+[sync]
+default = false
+
+[sync.keys]
+SUTRA_API_KEY = true

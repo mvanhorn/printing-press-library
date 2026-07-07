@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "p1-no-sentinel-leak-on-inverted-bounds",
+  "applied_at": "2026-05-18",
+  "base_run_id": "20260518-214920",
+  "base_printing_press_version": "4.8.0",
+  "summary": "Reject inverted bounds (`--tilt-min > --tilt-max`, `--azimuth-min > --azimuth-max`) in `production sweep` and `production optimal-tilt` so the sentinel `e_y_kwh: -1` cannot leak into JSON output.",
+  "reason": "Greptile review (P1) flagged that `best` was initialized with `EY: -1` (sweep) / `bestEY: -1.0` (optimal-tilt). With inverted bounds the loop body never executes, leaving the sentinel in place; the JSON output then carried `\"e_y_kwh\": -1` / `\"best_e_y\": -1` with `count: 0`. A machine consumer would have to cross-check `count` to know the value is bogus. Added an explicit pre-check that returns a clear `--tilt-min (X) must be <= --tilt-max (Y)` error before any API call.",
+  "files": [
+    "internal/cli/novel.go"
+  ],
+  "validated_outcome": "`production sweep --tilt-min 60 --tilt-max 0` now exits with `Error: --tilt-min (60) must be <= --tilt-max (0)`; same shape for `--azimuth-min > --azimuth-max` and for `production optimal-tilt`. Normal-case dry-runs still succeed."
+}

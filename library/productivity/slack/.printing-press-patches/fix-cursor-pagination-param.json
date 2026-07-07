@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "id": "fix-cursor-pagination-param",
+  "applied_at": "2026-05-08",
+  "base_run_id": "20260409-073625",
+  "base_printing_press_version": "1.2.1",
+  "summary": "Change pagination cursor param from 'after' to 'cursor' for Slack API compatibility.",
+  "reason": "The generated determinePaginationDefaults() returned cursorParam: 'after', but Slack's conversations.list uses 'cursor'. This caused pagination to silently restart from page 1 on every request, making it impossible to sync more than one page of results.",
+  "files": [
+    "internal/cli/sync.go"
+  ]
+}

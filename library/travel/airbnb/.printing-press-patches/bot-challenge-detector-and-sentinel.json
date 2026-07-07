@@ -1,0 +1,15 @@
+{
+  "schema_version": 2,
+  "id": "bot-challenge-detector-and-sentinel",
+  "applied_at": "2026-05-20",
+  "base_run_id": "2026-05-03T06:03:12.15145Z",
+  "base_printing_press_version": "3.6.1",
+  "summary": "Detect datadome and Akamai bot-defense responses; return a typed cliutil.BotChallengeError with a remediation hint. Previously, any 4xx other than 429 collapsed into a raw HTTP-status string with a 300-char body truncation, so a datadome challenge looked indistinguishable from a generic forbidden.",
+  "reason": "The CLI's source/airbnb path had no awareness of Airbnb's (or any other site's) bot-defense layer. A datadome 403 with a JSON {url: 'https://geo.captcha-delivery.com/captcha/...'} body would surface to the user as 'GET https://www.airbnb.com/api/v3/X returned HTTP 403: {url:\\\"https...\"'. Adding a typed sentinel lets callers errors.As-route on it, lets the limiter halve its adaptive rate on bot challenges (treating them like 429 for ramp purposes), and lets us print a remediation hint pointing at 'auth login --chrome'. Detector matches three datadome signatures (Set-Cookie: datadome=, Server: dd-*, geo.captcha-delivery.com in body) and two Akamai signatures (<title>Bot or Not, captcha-pwa script reference), mirroring the existing VRBO detector pattern.",
+  "files": [
+    "internal/cliutil/ratelimit.go",
+    "internal/source/airbnb/client.go",
+    "internal/source/airbnb/bot_challenge_test.go"
+  ],
+  "validated_outcome": "9 new TestIsBotChallenge_* and TestBotChallengeError_* tests pass: datadome cookie/server-header/body-marker detection, Akamai title/captcha-pwa detection, generic-forbidden negative case, 200-OK negative case, nil-resp guard, errors.As routing. Full suite 157 tests / 21 packages green; headline `airbnb-listing get` still returns total=$514 / per_night=$171.18 (no regression)."
+}

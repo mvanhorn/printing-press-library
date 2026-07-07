@@ -1,0 +1,19 @@
+{
+  "Invoices": [
+    {
+      "AmountDue": 200,
+      "Contact": {
+        "ContactID": "c-1",
+        "Name": "Acme Customer"
+      },
+      "CurrencyCode": "USD",
+      "DateString": "2026-05-02",
+      "DueDateString": "2026-06-01",
+      "InvoiceID": "inv-1",
+      "InvoiceNumber": "INV-100",
+      "Status": "AUTHORISED",
+      "Total": 1200,
+      "Type": "ACCREC"
+    }
+  ]
+}

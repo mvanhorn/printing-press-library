@@ -38,8 +38,9 @@ func newSunoDescribeCmd(flags *rootFlags) *cobra.Command {
 The description can be given positionally or with --prompt. This uses Suno's
 "inspiration" create mode; the model writes its own lyrics from your prompt.
 
-Captcha-gated: pass --token <hcaptcha-token> or --no-captcha. This command
-never launches a browser or solver.`,
+Captcha-gated: when Suno's hCaptcha gate trips, the CLI auto-solves it with a
+dedicated piloted-Chrome profile (see 'auth captcha'). Use --captcha-profile to
+pick an account, or pass a pre-solved --token to skip the browser.`,
 		Example: `  suno-pp-cli generate describe "an upbeat lo-fi track about rainy mornings" --token <hc>
   suno-pp-cli generate describe --prompt "epic orchestral battle theme" --model v5 --no-captcha`,
 		Annotations: map[string]string{"pp:method": "POST", "pp:path": "/api/generate/v2-web/"},
@@ -63,7 +64,6 @@ never launches a browser or solver.`,
 
 			// Optimistic captcha: attempt without a token; runGenerationFlow
 			// surfaces captchaRequiredError only if Suno actually challenges it.
-			_ = noCaptcha
 			if dryRunOK(flags) {
 				return nil
 			}
@@ -83,7 +83,7 @@ never launches a browser or solver.`,
 				token:        token,
 				variation:    variationVal,
 			})
-			return runGenerationFlow(cmd, flags, body, wait, downloadDir, workspace)
+			return runGenerationFlow(cmd, flags, body, wait, downloadDir, workspace, noCaptcha)
 		},
 	}
 
@@ -94,6 +94,7 @@ never launches a browser or solver.`,
 	cmd.Flags().BoolVar(&instrumental, "instrumental", false, "Generate an instrumental (no vocals)")
 	cmd.Flags().StringVar(&token, "token", "", "hCaptcha token (required unless --no-captcha)")
 	cmd.Flags().BoolVar(&noCaptcha, "no-captcha", false, "Bypass the hCaptcha requirement")
+	cmd.Flags().StringVar(&captchaProfileFlag, "captcha-profile", "", "Solver profile (Chrome account) to use when the gate trips")
 	cmd.Flags().StringVar(&workspace, "workspace", "", "Workspace (project) ID to add the generated clip(s) to")
 	cmd.Flags().StringVar(&variation, "variation", "", "Advanced variation preset: high, normal, or subtle (best-effort)")
 	cmd.Flags().BoolVar(&wait, "wait", false, "Poll until generation completes")

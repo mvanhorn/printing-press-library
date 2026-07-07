@@ -21,7 +21,7 @@ func newCustomersAccountLinksMutateCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:         "mutate <customerId>",
 		Short:       "Creates or removes an account link. From V5, create is not supported through AccountLinkService.MutateAccountLink....",
-		Example:     "  google-ads-pp-cli customers_account_links mutate 550e8400-e29b-41d4-a716-446655440000",
+		Example:     "  google-ads-pp-cli customers-account-links mutate 550e8400-e29b-41d4-a716-446655440000",
 		Annotations: map[string]string{"pp:endpoint": "customers_account_links.mutate", "pp:method": "POST", "pp:path": "/v22/customers/{customerId}/accountLinks:mutate"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

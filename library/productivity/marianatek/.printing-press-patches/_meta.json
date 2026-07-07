@@ -1,0 +1,23 @@
+{
+  "schema_version": 2,
+  "upstream_followups": [
+    {
+      "type": "generator-template-bug",
+      "summary": "OpenAPI nested-vs-flat alias for same property emits duplicate Go declarations + duplicate Cobra flag bindings",
+      "where": "Generator codegen for request-body fields (probably internal/codegen/cli/body_flags.go) walks both `classroom.name` and `classroom_name` into the same Go identifier without deduplication.",
+      "evidence": "All 4 reservation request-body commands hit the same dup; classroom.name + classroom_name in the Reservation request schema is the trigger."
+    },
+    {
+      "type": "spec-over-required-pattern",
+      "summary": "OpenAPI request body marked every nested field required, but the live API treats most as optional or server-derived",
+      "where": "The Mariana Tek Customer API's UserReservation schema (and likely many other vendor specs) defines a flat property required list that includes derived/readonly fields. The generator should distinguish writable-required from readonly-required, or default to optional when in doubt.",
+      "evidence": "/me/reservations real-API minimal body = {reservation_type, class_session: {id}, payment_option: {id}}. Generator emitted 50+ required flags from the spec."
+    },
+    {
+      "type": "auth-template-missing-bearer-prefix",
+      "summary": "When a spec declares `bearer auth` with the standard security scheme, the generated AuthHeader() should auto-prefix `Bearer ` for the raw-token storage field.",
+      "where": "config-template in the generator. Today the AuthHeader() function returns the raw token unchanged.",
+      "evidence": "Spec-declared `OAuth Authorization` security scheme used bearer scheme. Users storing a raw token in oauth_authorization got 401s. Workaround: set auth_header = \"Bearer <token>\" verbatim."
+    }
+  ]
+}

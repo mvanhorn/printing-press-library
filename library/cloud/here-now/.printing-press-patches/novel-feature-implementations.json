@@ -1,0 +1,16 @@
+{
+  "schema_version": 2,
+  "id": "novel-feature-implementations",
+  "applied_at": "2026-05-30",
+  "base_run_id": "20260530-170355",
+  "base_printing_press_version": "4.19.0",
+  "summary": "Implemented the 7 transcendence commands (publish dir, publish resume, claims/expiring/redeem, drives sync/diff, usage) in hand-authored files; generated newNovel*Cmd stubs delegate to them.",
+  "reason": "The generator scaffolds novel features as TODO stubs; real logic must be hand-written. Logic lives in separate files (here_now_novel.go, store/here_now_store.go, publish_dir.go, claims_redeem.go) so it survives regen as whole hand-authored units.",
+  "files": [
+    "internal/cli/here_now_novel.go",
+    "internal/cli/publish_dir.go",
+    "internal/cli/claims_redeem.go",
+    "internal/store/here_now_store.go"
+  ],
+  "validated_outcome": "All 7 commands verified live against https://here.now: anonymous publish produces a live site (HTTP 200, marker matched), claim vault + redeem work, drives sync sha256-diff uploads only drift, usage reports free-plan metrics. Full live dogfood: 161/161."
+}

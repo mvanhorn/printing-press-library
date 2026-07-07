@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "fix-command-log-replay",
+  "applied_at": "2026-05-13",
+  "base_run_id": "20260510-160303",
+  "base_printing_press_version": "4.2.2",
+  "summary": "Wire the previously-advertised `command-log --replay <id>` flag with a full dispatcher that routes every persisted Set* op back through the live omnilogic.Client, and drop the mcp:read-only annotation because --replay writes.",
+  "reason": "Greptile P1 #3216047858 + P1 #3216424950. The command-log Long help and README promised `--replay <id> re-issues a prior command for quick undo or redo`, but the flag was never registered — running `command-log --replay 5` failed with 'unknown flag: --replay'. Fix part 1: register --replay <id> + --dry-run (preview which client method would fire and the resolved args without dispatching). Fix part 2: runReplay loads the stored row, parses params_json (numbers come back as float64; intFromAny/boolFromAny/stringFromAny coerce), resolves the dispatching MspSystemID, and dispatchReplay routes to the right omnilogic.Client method for every Set* op the CLI persists (SetHeaterEnable, SetUIHeaterCmd, SetUIEquipmentCmd, SetUISpilloverCmd, SetUISuperCHLORCmd, SetStandAloneLightShow/V2, SetCHLORParams). logResult/logDryRun now take siteMspSystemID and inject it into every persisted params_json via withSiteParam(), updated at all 17 call sites. The replay is itself logged as a new command_log row with replay_of: <orig-id>. Fix part 3: removed the mcp:read-only annotation from newCommandLogCmd — the list-history path is read-only, but --replay dispatches live equipment-control calls, and a false readOnlyHint would let MCP hosts skip permission prompts on a write path.",
+  "files": [
+    "internal/cli/omnilogic_commands.go",
+    "internal/cli/transcendence.go"
+  ],
+  "validated_outcome": "Live-verified against the printer's pool: pump set-speed (row 27) -> equipment off -> command-log --replay 27 round-trips back to speed 60 with status ok. TestCommandLogNotAnnotatedReadOnly locks the annotation absence."
+}

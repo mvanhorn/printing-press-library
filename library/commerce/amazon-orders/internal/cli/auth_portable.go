@@ -19,7 +19,7 @@ import (
 // future format bump can be detected.
 type PortableSession struct {
 	Schema     string    `json:"schema"`  // "amazon-orders-session/v1"
-	Domain     string    `json:"domain"`  // .amazon.com
+	Domain     string    `json:"domain"`  // .amazon.com, .amazon.in, etc.
 	Cookies    string    `json:"cookies"` // semicolon-joined "k=v" pairs
 	ExportedAt time.Time `json:"exported_at"`
 	Source     string    `json:"source,omitempty"` // "chrome", "manual", "1password", etc.
@@ -108,9 +108,14 @@ inject into any other host via 'op read | auth import --stdin').`,
 			if src == "" {
 				src = "chrome"
 			}
+			domain, err := cookieDomainFromConfig(cfg)
+			if err != nil {
+				return configErr(fmt.Errorf("invalid base_url: %w", err))
+			}
+
 			session := PortableSession{
 				Schema:     "amazon-orders-session/v1",
-				Domain:     ".amazon.com",
+				Domain:     domain,
 				Cookies:    cookies,
 				ExportedAt: time.Now().UTC(),
 				Source:     src,
@@ -218,6 +223,7 @@ setup with 1Password" for the full roundtrip and refresh recipe.`,
 			}
 
 			var cookies string
+			var importedDomain string
 			if rawCookies || (blob[0] != '{' && blob[0] != '[') {
 				cookies = string(blob)
 			} else {
@@ -229,10 +235,18 @@ setup with 1Password" for the full roundtrip and refresh recipe.`,
 					return fmt.Errorf("session JSON has no cookies field")
 				}
 				cookies = session.Cookies
+				importedDomain = session.Domain
 			}
 			cfg, err := config.Load(flags.configPath)
 			if err != nil {
 				return configErr(err)
+			}
+			if importedDomain != "" {
+				domain, err := normalizeAmazonCookieDomain(importedDomain)
+				if err != nil {
+					return authErr(err)
+				}
+				cfg.BaseURL = baseURLForCookieDomain(domain)
 			}
 			if err := cfg.SaveTokens("", "", cookies, "", time.Time{}); err != nil {
 				return configErr(fmt.Errorf("saving cookies: %w", err))

@@ -1,0 +1,435 @@
+{
+  "api_name": "azure-devops",
+  "novelty_score": 0,
+  "alternatives": [
+    {
+      "name": "azure-devops-cli-extension",
+      "url": "https://github.com/Azure/azure-devops-cli-extension",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 95,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "azure-devops-mcp",
+      "url": "https://github.com/microsoft/azure-devops-mcp",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 1800,
+      "last_updated": "",
+      "command_count": 95,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "mcp-server-azure-devops",
+      "url": "https://github.com/Tiberriver256/mcp-server-azure-devops",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 374,
+      "last_updated": "",
+      "command_count": 40,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "azure-devops-go-api",
+      "url": "https://github.com/microsoft/azure-devops-go-api",
+      "language": "Go",
+      "install_method": "",
+      "stars": 224,
+      "last_updated": "",
+      "command_count": 50,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "mcp-for-azure-devops-boards",
+      "url": "https://github.com/danielealbano/mcp-for-azure-devops-boards",
+      "language": "Rust",
+      "install_method": "",
+      "stars": 6,
+      "last_updated": "",
+      "command_count": 20,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-06-16T11:52:00Z",
+  "novel_features": [
+    {
+      "name": "Daily Standup Digest",
+      "command": "standup",
+      "description": "See your PRs awaiting review, in-progress work items, and newly failed builds in one command — ready before the standup meeting.",
+      "rationale": "Requires cross-entity aggregation across PRs, work items, and builds that only the local SQLite mirror can join in a single query.",
+      "example": "azure-devops-pp-cli standup --agent",
+      "why_it_matters": "Use this when an agent needs a quick briefing on a developer's current work state before creating tasks or PRs on their behalf.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "PR Review Readiness Queue",
+      "command": "pr review-queue",
+      "description": "See only the PRs where you are a required reviewer, the build is passing, and no other required reviewer has voted yet — ordered by readiness.",
+      "rationale": "Joins local PR reviewer/vote state against live build status; no API endpoint or existing tool combines these signals into a prioritized queue.",
+      "example": "azure-devops-pp-cli pr review-queue --agent --select title,buildStatus,waitingReviewers",
+      "why_it_matters": "Use this when an agent needs to identify which PRs a developer should review first to unblock teammates.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Sprint Velocity Trend",
+      "command": "velocity",
+      "description": "See sprint-over-sprint velocity with trend line for the current team — points completed vs committed, across the last N sprints.",
+      "rationale": "Requires cross-sprint join of work_items + state_history + iterations tables in local SQLite; infeasible to compute live without O(N*M) API calls.",
+      "example": "azure-devops-pp-cli velocity --sprints 6 --agent",
+      "why_it_matters": "Use this when an agent needs to assess team capacity or forecast delivery dates based on historical throughput.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Sprint Scope Creep Detector",
+      "command": "work sprint-creep",
+      "description": "See which work items were added to the current sprint after it started, with total story points of scope added mid-sprint.",
+      "rationale": "Joins work_item_revisions (IterationPath timestamp changes) against the sprint start date — a cross-table query that no single ADO API provides.",
+      "example": "azure-devops-pp-cli work sprint-creep --team ENG --json",
+      "why_it_matters": "Use this when an agent needs to identify whether a sprint is at risk due to scope expansion after commit.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Sprint Rollover Counter",
+      "command": "work rollover",
+      "description": "Find work items that have been moved to a new sprint more than once — the chronic blockers that keep slipping through sprint planning.",
+      "rationale": "Aggregates IterationPath field changes across revision history; requires local revision storage to count across multiple sprints.",
+      "example": "azure-devops-pp-cli work rollover --min-rollovers 2 --agent",
+      "why_it_matters": "Use this when an agent needs to identify persistent delivery risks before sprint planning.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Cross-Pipeline Pending Approvals",
+      "command": "release gate-queue",
+      "description": "See all release gates and YAML pipeline stages currently waiting for your approval across every pipeline, with how long each has been waiting.",
+      "rationale": "Merges the classic release approvals API and YAML pipeline approvals API — two different endpoint shapes that no existing CLI or MCP unifies.",
+      "example": "azure-devops-pp-cli release gate-queue --agent --select pipelineName,stageName,waitMinutes",
+      "why_it_matters": "Use this when an agent needs to identify which deployments are blocked on human approval and how urgent each is.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Work Item Revision Diff",
+      "command": "work diff",
+      "description": "Show exactly which fields changed between two revisions of a work item — a git-style diff for specification and acceptance criteria.",
+      "rationale": "Fetches two revision snapshots via /wit/workItems/{id}/revisions/{n} and diffs the field maps locally; the API returns raw snapshots but no diff surface.",
+      "example": "azure-devops-pp-cli work diff --id 4812 --from 3 --to 7 --agent",
+      "why_it_matters": "Use this when an agent needs to understand what changed in a work item's requirements between two points in time.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Pipeline Flakiness Score",
+      "command": "pipeline flaky",
+      "description": "Identify build stages with the highest intermittent failure rate over the last N runs — the stages that fail and then pass without code changes.",
+      "rationale": "Joins build_history by pipeline definition and computes per-stage failure alternation rate; requires build history volume that is infeasible to compute from live APIs.",
+      "example": "azure-devops-pp-cli pipeline flaky --definition-id 42 --last 30 --agent",
+      "why_it_matters": "Use this when an agent needs to identify which pipeline stages are unreliable test signals before acting on build failures.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Work Item Cycle Time",
+      "command": "wit cycle-time",
+      "description": "Measure average time from Active to Done per work item type over a date range — the team's true delivery throughput.",
+      "rationale": "Joins work_item_revisions to compute Active→Done duration per item; revision history is prohibitively expensive to paginate live for trend analysis.",
+      "example": "azure-devops-pp-cli wit cycle-time --type Bug --weeks 12 --agent",
+      "why_it_matters": "Use this when an agent needs to estimate realistic delivery timelines based on historical cycle time.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Commit-to-Build Traceability",
+      "command": "git commit-builds",
+      "description": "Given a commit SHA, see every build and pipeline run that included that commit and whether it passed or failed.",
+      "rationale": "Joins local builds × build_changes tables on commit SHA; no ADO endpoint offers reverse-lookup 'builds that contain this commit'.",
+      "example": "azure-devops-pp-cli git commit-builds --sha a1b2c3d4 --repo myapp --agent",
+      "why_it_matters": "Use this when an agent needs to determine whether a specific code change has been validated by CI.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Cross-Repo Branch Health",
+      "command": "git branch-health",
+      "description": "See a health dashboard for every repo in the project: default branch build status, last commit age, and open PR count — in one table.",
+      "rationale": "Four-way SQLite join across repos, branches, builds, and PRs; no existing tool produces a cross-repo health view without clicking through each repo.",
+      "example": "azure-devops-pp-cli git branch-health --agent --select repo,buildStatus,lastCommitDays,openPRs",
+      "why_it_matters": "Use this when an agent needs to assess overall code health across a multi-repo project before planning changes.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Area Path Work Item Load",
+      "command": "work area-load",
+      "description": "See open work item counts and total story points grouped by area path — to spot overloaded teams or abandoned backlogs.",
+      "rationale": "SQLite GROUP BY aggregation over synced work_items; WIQL cannot return group-by aggregations, only individual items.",
+      "example": "azure-devops-pp-cli work area-load --state Active --agent",
+      "why_it_matters": "Use this when an agent needs to identify which teams have the most outstanding work before assigning new items.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "PR Aging Report",
+      "command": "pr aging",
+      "description": "Find pull requests with no reviewer activity for N or more days, grouped by author — to surface forgotten PRs before they go stale.",
+      "rationale": "Cross-joins local PRs × timeline events to identify inactivity gaps; requires PR history that is expensive to retrieve and aggregate live.",
+      "example": "azure-devops-pp-cli pr aging --days 3 --agent",
+      "why_it_matters": "Use this when an agent needs to identify PRs that are at risk of losing context due to review delays.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Branch Stale Cleanup Plan",
+      "command": "branches stale",
+      "description": "List branches that are safe to delete: already merged into default, no open PRs, and no commits in the last N days.",
+      "rationale": "Joins synced branches × merged PRs × last-commit timestamps; no ADO API endpoint or existing CLI identifies candidates for deletion across all three criteria.",
+      "example": "azure-devops-pp-cli branches stale --repo myapp --days 30 --agent",
+      "why_it_matters": "Use this when an agent is helping clean up a repository's branch proliferation.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Build Cost Trend",
+      "command": "builds cost",
+      "description": "See agent minutes consumed per pipeline per week over the last N weeks — to find pipelines that are growing in CI cost.",
+      "rationale": "Joins agent_queue + build_history + duration data; ADO Analytics has the raw data but no CLI surfaces it as a weekly trend view.",
+      "example": "azure-devops-pp-cli builds cost --weeks 8 --agent",
+      "why_it_matters": "Use this when an agent needs to identify which pipelines are contributing to growing CI/CD costs.",
+      "group": "Local state that compounds"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Daily Standup Digest",
+      "command": "standup",
+      "description": "See your PRs awaiting review, in-progress work items, and newly failed builds in one command — ready before the standup meeting.",
+      "rationale": "Requires cross-entity aggregation across PRs, work items, and builds that only the local SQLite mirror can join in a single query.",
+      "example": "azure-devops-pp-cli standup --agent",
+      "why_it_matters": "Use this when an agent needs a quick briefing on a developer's current work state before creating tasks or PRs on their behalf.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "PR Review Readiness Queue",
+      "command": "pr review-queue",
+      "description": "See only the PRs where you are a required reviewer, the build is passing, and no other required reviewer has voted yet — ordered by readiness.",
+      "rationale": "Joins local PR reviewer/vote state against live build status; no API endpoint or existing tool combines these signals into a prioritized queue.",
+      "example": "azure-devops-pp-cli pr review-queue --agent --select title,buildStatus,waitingReviewers",
+      "why_it_matters": "Use this when an agent needs to identify which PRs a developer should review first to unblock teammates.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Sprint Velocity Trend",
+      "command": "velocity",
+      "description": "See sprint-over-sprint velocity with trend line for the current team — points completed vs committed, across the last N sprints.",
+      "rationale": "Requires cross-sprint join of work_items + state_history + iterations tables in local SQLite; infeasible to compute live without O(N*M) API calls.",
+      "example": "azure-devops-pp-cli velocity --sprints 6 --agent",
+      "why_it_matters": "Use this when an agent needs to assess team capacity or forecast delivery dates based on historical throughput.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Sprint Scope Creep Detector",
+      "command": "work sprint-creep",
+      "description": "See which work items were added to the current sprint after it started, with total story points of scope added mid-sprint.",
+      "rationale": "Joins work_item_revisions (IterationPath timestamp changes) against the sprint start date — a cross-table query that no single ADO API provides.",
+      "example": "azure-devops-pp-cli work sprint-creep --team ENG --json",
+      "why_it_matters": "Use this when an agent needs to identify whether a sprint is at risk due to scope expansion after commit.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Sprint Rollover Counter",
+      "command": "work rollover",
+      "description": "Find work items that have been moved to a new sprint more than once — the chronic blockers that keep slipping through sprint planning.",
+      "rationale": "Aggregates IterationPath field changes across revision history; requires local revision storage to count across multiple sprints.",
+      "example": "azure-devops-pp-cli work rollover --min-rollovers 2 --agent",
+      "why_it_matters": "Use this when an agent needs to identify persistent delivery risks before sprint planning.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Cross-Pipeline Pending Approvals",
+      "command": "release gate-queue",
+      "description": "See all release gates and YAML pipeline stages currently waiting for your approval across every pipeline, with how long each has been waiting.",
+      "rationale": "Merges the classic release approvals API and YAML pipeline approvals API — two different endpoint shapes that no existing CLI or MCP unifies.",
+      "example": "azure-devops-pp-cli release gate-queue --agent --select pipelineName,stageName,waitMinutes",
+      "why_it_matters": "Use this when an agent needs to identify which deployments are blocked on human approval and how urgent each is.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Work Item Revision Diff",
+      "command": "work diff",
+      "description": "Show exactly which fields changed between two revisions of a work item — a git-style diff for specification and acceptance criteria.",
+      "rationale": "Fetches two revision snapshots via /wit/workItems/{id}/revisions/{n} and diffs the field maps locally; the API returns raw snapshots but no diff surface.",
+      "example": "azure-devops-pp-cli work diff --id 4812 --from 3 --to 7 --agent",
+      "why_it_matters": "Use this when an agent needs to understand what changed in a work item's requirements between two points in time.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Pipeline Flakiness Score",
+      "command": "pipeline flaky",
+      "description": "Identify build stages with the highest intermittent failure rate over the last N runs — the stages that fail and then pass without code changes.",
+      "rationale": "Joins build_history by pipeline definition and computes per-stage failure alternation rate; requires build history volume that is infeasible to compute from live APIs.",
+      "example": "azure-devops-pp-cli pipeline flaky --definition-id 42 --last 30 --agent",
+      "why_it_matters": "Use this when an agent needs to identify which pipeline stages are unreliable test signals before acting on build failures.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Work Item Cycle Time",
+      "command": "wit cycle-time",
+      "description": "Measure average time from Active to Done per work item type over a date range — the team's true delivery throughput.",
+      "rationale": "Joins work_item_revisions to compute Active→Done duration per item; revision history is prohibitively expensive to paginate live for trend analysis.",
+      "example": "azure-devops-pp-cli wit cycle-time --type Bug --weeks 12 --agent",
+      "why_it_matters": "Use this when an agent needs to estimate realistic delivery timelines based on historical cycle time.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Commit-to-Build Traceability",
+      "command": "git commit-builds",
+      "description": "Given a commit SHA, see every build and pipeline run that included that commit and whether it passed or failed.",
+      "rationale": "Joins local builds × build_changes tables on commit SHA; no ADO endpoint offers reverse-lookup 'builds that contain this commit'.",
+      "example": "azure-devops-pp-cli git commit-builds --sha a1b2c3d4 --repo myapp --agent",
+      "why_it_matters": "Use this when an agent needs to determine whether a specific code change has been validated by CI.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Cross-Repo Branch Health",
+      "command": "git branch-health",
+      "description": "See a health dashboard for every repo in the project: default branch build status, last commit age, and open PR count — in one table.",
+      "rationale": "Four-way SQLite join across repos, branches, builds, and PRs; no existing tool produces a cross-repo health view without clicking through each repo.",
+      "example": "azure-devops-pp-cli git branch-health --agent --select repo,buildStatus,lastCommitDays,openPRs",
+      "why_it_matters": "Use this when an agent needs to assess overall code health across a multi-repo project before planning changes.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Area Path Work Item Load",
+      "command": "work area-load",
+      "description": "See open work item counts and total story points grouped by area path — to spot overloaded teams or abandoned backlogs.",
+      "rationale": "SQLite GROUP BY aggregation over synced work_items; WIQL cannot return group-by aggregations, only individual items.",
+      "example": "azure-devops-pp-cli work area-load --state Active --agent",
+      "why_it_matters": "Use this when an agent needs to identify which teams have the most outstanding work before assigning new items.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "PR Aging Report",
+      "command": "pr aging",
+      "description": "Find pull requests with no reviewer activity for N or more days, grouped by author — to surface forgotten PRs before they go stale.",
+      "rationale": "Cross-joins local PRs × timeline events to identify inactivity gaps; requires PR history that is expensive to retrieve and aggregate live.",
+      "example": "azure-devops-pp-cli pr aging --days 3 --agent",
+      "why_it_matters": "Use this when an agent needs to identify PRs that are at risk of losing context due to review delays.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Branch Stale Cleanup Plan",
+      "command": "branches stale",
+      "description": "List branches that are safe to delete: already merged into default, no open PRs, and no commits in the last N days.",
+      "rationale": "Joins synced branches × merged PRs × last-commit timestamps; no ADO API endpoint or existing CLI identifies candidates for deletion across all three criteria.",
+      "example": "azure-devops-pp-cli branches stale --repo myapp --days 30 --agent",
+      "why_it_matters": "Use this when an agent is helping clean up a repository's branch proliferation.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Build Cost Trend",
+      "command": "builds cost",
+      "description": "See agent minutes consumed per pipeline per week over the last N weeks — to find pipelines that are growing in CI cost.",
+      "rationale": "Joins agent_queue + build_history + duration data; ADO Analytics has the raw data but no CLI surfaces it as a weekly trend view.",
+      "example": "azure-devops-pp-cli builds cost --weeks 8 --agent",
+      "why_it_matters": "Use this when an agent needs to identify which pipelines are contributing to growing CI/CD costs.",
+      "group": "Local state that compounds"
+    }
+  ],
+  "auth": {
+    "canonical_env_var": "AZURE_DEVOPS_TOKEN"
+  },
+  "narrative": {
+    "display_name": "Azure DevOps",
+    "headline": "The fastest Azure DevOps CLI — offline-first, agent-native, and the only one that answers 'why is this sprint burning' without opening a browser.",
+    "value_prop": "azure-devops-pp-cli syncs your work items, builds, and PRs to a local SQLite mirror and lets you query them with SQL or structured --agent output. It matches everything `az devops` and the Microsoft MCP server can do, then adds fifteen cross-entity analytics commands that require no live API calls — sprint velocity, PR review queues, scope creep detection, cycle time analysis, and more.",
+    "auth_narrative": "Set AZURE_DEVOPS_TOKEN to a Personal Access Token. Generate one at dev.azure.com/{org}/_usersSettings/tokens with scopes: Work Items (read/write), Code (read), Build (read), Release (read/execute). Run `azure-devops-pp-cli auth setup --launch` to open the token page. Save with `azure-devops-pp-cli auth set-token \u003cyour-pat\u003e`.",
+    "quickstart": [
+      {
+        "command": "azure-devops-pp-cli doctor --dry-run",
+        "comment": "Verify config and connectivity before syncing"
+      },
+      {
+        "command": "azure-devops-pp-cli standup --dry-run",
+        "comment": "Preview what standup will fetch once auth is configured"
+      },
+      {
+        "command": "azure-devops-pp-cli standup --agent",
+        "comment": "Morning digest: your PRs, work items, and failed builds"
+      },
+      {
+        "command": "azure-devops-pp-cli pr review-queue --agent",
+        "comment": "Which PRs need your review right now (build green + no votes yet)"
+      },
+      {
+        "command": "azure-devops-pp-cli velocity --sprints 6 --agent",
+        "comment": "Team velocity trend over the last 6 sprints"
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "401 Unauthorized on every request",
+        "fix": "Check AZURE_DEVOPS_TOKEN is set and contains a valid PAT. Regenerate at dev.azure.com/{org}/_usersSettings/tokens."
+      },
+      {
+        "symptom": "doctor reports 'project not found'",
+        "fix": "Set AZURE_DEVOPS_PROJECT to the exact project name (case-sensitive). Run `azure-devops-pp-cli projects list` to see available projects."
+      },
+      {
+        "symptom": "sync returns 429 Too Many Requests",
+        "fix": "Azure DevOps rate-limits at 200 TSTUs per 5 minutes. Add --max-pages 5 to limit sync volume, or wait 5 minutes and retry."
+      },
+      {
+        "symptom": "standup returns empty results after sync",
+        "fix": "Run `azure-devops-pp-cli standup --dry-run` to verify the command resolves, then run without --dry-run once AZURE_DEVOPS_TOKEN, AZURE_DEVOPS_ORG, and AZURE_DEVOPS_PROJECT are set."
+      },
+      {
+        "symptom": "auth set-token shows 'credential saved' but doctor still shows 'not configured'",
+        "fix": "Restart the terminal to clear any old AZURE_DEVOPS_TOKEN env var that overrides the saved credential. Run `azure-devops-pp-cli auth status` to see which source is active."
+      }
+    ],
+    "when_to_use": "Use azure-devops-pp-cli when an agent needs to read or write Azure DevOps data: work items, pull requests, pipelines, builds, or sprint state. It is the fastest path to structured JSON output for ADO data without a browser or the Python-based az devops extension. Use it especially for cross-entity analytics (velocity, cycle time, scope creep) that require the local SQLite mirror. Prefer `az devops` only when you need features this CLI does not yet cover (migrations, live entitlement management).",
+    "anti_triggers": [
+      "Do not use this CLI for Azure resource management (VMs, storage, AKS) — use the `az` CLI instead.",
+      "Do not use this CLI for GitHub repositories — use the `gh` CLI.",
+      "Do not use this CLI for reading raw file content from Azure Blob Storage.",
+      "Do not use this CLI for Azure Boards queries that require real-time board state not yet synced."
+    ],
+    "recipes": [
+      {
+        "title": "Morning standup in one command",
+        "command": "azure-devops-pp-cli standup --agent --select myPRs,myWorkItems,failedBuilds",
+        "explanation": "Returns your daily briefing as structured JSON: PRs waiting for your review, work items in progress, and builds that failed since yesterday."
+      },
+      {
+        "title": "Find PRs ready for your review",
+        "command": "azure-devops-pp-cli pr review-queue --agent --select title,repo,buildStatus,waitingReviewers",
+        "explanation": "Shows only PRs where you are required, the build is green, and no other required reviewer has voted — ordered by most ready first."
+      },
+      {
+        "title": "Sprint velocity trend for capacity planning",
+        "command": "azure-devops-pp-cli velocity --sprints 8 --team ENG --agent --select sprint,committed,completed,velocityPoints",
+        "explanation": "Returns 8-sprint velocity history as structured JSON for an agent to compute averages and forecast next sprint capacity."
+      },
+      {
+        "title": "Scope creep check at sprint mid-point",
+        "command": "azure-devops-pp-cli work sprint-creep --team ENG --agent --select addedItems,addedPoints,percentCreep",
+        "explanation": "Shows what was added to the current sprint after it started, with story points and percentage of total sprint scope that crept in."
+      },
+      {
+        "title": "Cross-repo health before a release",
+        "command": "azure-devops-pp-cli git branch-health --agent --select repo,buildStatus,lastCommitDays,openPRs",
+        "explanation": "One-line summary of all repos: default branch build status, days since last commit, and open PR count — to confirm everything is green before a release."
+      }
+    ],
+    "trigger_phrases": [
+      "show my Azure DevOps work items",
+      "check my ADO pull requests",
+      "what's the sprint velocity",
+      "which PRs need my review",
+      "check Azure DevOps pipeline status",
+      "use azure-devops",
+      "run azure-devops"
+    ]
+  }
+}

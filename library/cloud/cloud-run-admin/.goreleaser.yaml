@@ -45,7 +45,7 @@ brews:
       owner: user
       name: homebrew-tap
     homepage: "https://github.com/mvanhorn/printing-press-library"
-    description: "Deploy and manage user provided container images that scale automatically based on incoming requests. The Cloud Run Admin API v1 follows the Knative Serving API specification, while v2 is aligned with Google Cloud AIP-based API standards, as described in https://google.aip.dev/."
+    description: "Inspect and operate Google Cloud Run services, jobs, revisions, executions, and local inventory for serverless container fleets."
     install: |
       bin.install "cloud-run-admin-pp-cli"
       bin.install "cloud-run-admin-pp-mcp"

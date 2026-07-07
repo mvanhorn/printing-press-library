@@ -1,0 +1,17 @@
+{
+  "schema_version": 2,
+  "id": "credits-plan-from-nested-object",
+  "applied_at": "2026-06-06",
+  "base_run_id": "20260528-222057",
+  "base_printing_press_version": "4.14.0",
+  "summary": "credits reports the real plan name (plan.name / plan.plan_key) and surfaces the billing period separately, instead of mislabeling the billing interval as the plan.",
+  "reason": "Suno's live /api/billing/info/ response nests the plan under a 'plan' object (plan.name = 'Premier Plan', plan.plan_key = 'premier'), sets subscription_type to a bool, and carries the billing interval in 'period' (e.g. 'year'). parseCredits only matched string-valued keys in the order {plan, subscription_type, subscription, tier, period}: the plan object and bool subscription_type were skipped, so 'period' won and the command reported plan='year'. planName now reads the nested plan object first (name, then plan_key), falls back to legacy top-level string shapes, and excludes 'period'; period is reported in its own field. Verified live: {credits:8855, plan:'Premier Plan', period:'year'}.",
+  "files": [
+    "internal/cli/suno_credits.go",
+    "internal/cli/suno_novel_test.go"
+  ],
+  "validated_outcome": "go test ./...",
+  "findings_addressed": [
+    "credits-plan-from-nested-object"
+  ]
+}

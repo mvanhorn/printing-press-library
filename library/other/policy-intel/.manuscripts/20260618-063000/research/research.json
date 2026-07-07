@@ -1,0 +1,31 @@
+{
+  "run_id": "20260618-063000",
+  "api_name": "policy-intel",
+  "sources": [
+    {
+      "name": "FederalRegister.gov API",
+      "url": "https://www.federalregister.gov/developers/documentation/api/v1",
+      "auth": "none",
+      "notes": [
+        "Docs state FederalRegister.gov APIs do not require API keys.",
+        "Live document search, rule/proposed-rule filter, and agency filter were validated."
+      ]
+    },
+    {
+      "name": "Regulations.gov API v4",
+      "url": "https://open.gsa.gov/api/regulationsgov/",
+      "auth": "api.data.gov key; DEMO_KEY for samples",
+      "notes": [
+        "Docs require an API key via X-Api-Key or sample api_key query usage.",
+        "Live docket detail, comments by docket, and comment deadline filters were validated with DEMO_KEY.",
+        "Page size must be 5 or greater."
+      ]
+    }
+  ],
+  "non_goals": [
+    "legal advice",
+    "comment submission",
+    "compliance certification",
+    "policy forecasting"
+  ]
+}

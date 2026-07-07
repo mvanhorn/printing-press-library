@@ -1,11 +1,9 @@
 package cli
 
 import (
-	"errors"
 	"strings"
 
 	"github.com/mvanhorn/printing-press-library/library/productivity/chrome-history/internal/output"
-	"github.com/mvanhorn/printing-press-library/library/productivity/chrome-history/internal/store"
 	"github.com/spf13/cobra"
 )
 
@@ -16,15 +14,8 @@ func newDevicesCmd(opts *RootOptions) *cobra.Command {
 		Example:     strings.Trim("chrome-history-pp-cli devices --json", "\n"),
 		Annotations: map[string]string{"pp:typed-exit-codes": "0,3", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
-			snapshot, err := snapshotPath()
+			st, err := openSnapshotStore()
 			if err != nil {
-				return err
-			}
-			st, err := store.OpenExisting(snapshot)
-			if err != nil {
-				if errors.Is(err, store.ErrNoSnapshot) {
-					return ErrNoSnapshot
-				}
 				return err
 			}
 			defer st.Close()

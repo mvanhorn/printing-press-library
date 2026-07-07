@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "messages-db-flag-root-scope",
+  "applied_at": "2026-05-23",
+  "base_run_id": "hand-written",
+  "base_printing_press_version": "0.1.3",
+  "summary": "--messages-db is registered on the root command's persistent flag set so doctor and other siblings can read the override.",
+  "reason": "Previously registered on the messages persistent flag set, which made `doctor --messages-db ...` exit with `unknown flag` even though doctor's body reads f.messagesDBPath and AGENTS.md documents the override at the root level. Greptile G3 on PR #766.",
+  "files": [
+    "internal/cli/root.go",
+    "internal/cli/messages.go"
+  ]
+}

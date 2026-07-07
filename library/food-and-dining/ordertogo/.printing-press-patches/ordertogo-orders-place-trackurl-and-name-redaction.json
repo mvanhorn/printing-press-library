@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "ordertogo-orders-place-trackurl-and-name-redaction",
+  "applied_at": "2026-05-12",
+  "base_run_id": "20260510-083403",
+  "base_printing_press_version": "4.2.2",
+  "summary": "Populate checkout TrackURL and redact remaining customer-name fields in verify-mode dumps.",
+  "reason": "Agent callers needed the order tracking URL after checkout, and PRINTING_PRESS_VERIFY=1 output still exposed CustomerName plus paymentCard firstname and lastname.",
+  "files": [
+    "internal/cli/orders_place.go"
+  ],
+  "validated_outcome": "Build and vet passed. Verify-mode dry-run redacted all customer and payment name/phone fields, and response parsing populated TrackURL from order.orderToken."
+}

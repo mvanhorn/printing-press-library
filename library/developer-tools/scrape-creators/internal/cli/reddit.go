@@ -9,14 +9,16 @@ import (
 
 func newRedditCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "reddit",
-		Short: "Scrape Reddit posts and comments",
+		Use:         "reddit",
+		Short:       "Scrape Reddit posts and comments",
+		Hidden:      true,
+		Annotations: map[string]string{"mcp:read-only": "true", "pp:typed-exit-codes": "0,2"},
+		RunE:        parentNoSubcommandRunE(flags),
 	}
 
 	cmd.AddCommand(newRedditListCmd(flags))
-	cmd.AddCommand(newRedditListAdsCmd(flags))
 	cmd.AddCommand(newRedditListPostCmd(flags))
-	cmd.AddCommand(newRedditListSearchCmd(flags))
+	cmd.AddCommand(newRedditListPost2Cmd(flags))
 	cmd.AddCommand(newRedditListSubredditCmd(flags))
 	cmd.AddCommand(newRedditListSubreddit2Cmd(flags))
 	cmd.AddCommand(newRedditListSubreddit3Cmd(flags))

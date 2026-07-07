@@ -1,8 +1,10 @@
 # Compiled Go binaries (generated CLIs)
 *-pp-cli
+*-pp-mcp
 *-pp-cli-[0-9]*
 # But allow CLI source directories in the library
 !library/**/*-pp-cli/
+!library/**/*-pp-mcp/
 *.exe
 *.test
 *.out
@@ -52,7 +54,22 @@ Thumbs.db
 # Conductor workspace state
 .conductor/
 
+# Local Git worktrees
+.worktrees/
+
 # Local AI agent instructions (not for sharing)
 CLAUDE.local.md
 AGENTS.override.md
 .claude/settings.local.json
+
+# Local project-scoped agent skill installs. These let private or
+# experimental skills live next to this checkout without being published from
+# this public repo. Already-tracked files remain tracked unless intentionally
+# removed from git later.
+.claude/skills/
+.skills/
+.agents/skills/
+.codex/skills/
+.cursor/skills/
+.gemini/skills/
+/skills-lock.json

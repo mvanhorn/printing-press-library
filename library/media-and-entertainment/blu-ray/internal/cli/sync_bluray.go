@@ -56,7 +56,7 @@ func newSyncCmd(flags *rootFlags) *cobra.Command {
 			if err != nil {
 				return err
 			}
-			indexRaw, err := bluRayGet(c, "https://www.blu-ray.com/sitemap.xml", false)
+			indexRaw, err := bluRayGet(cmd.Context(), c, bluRaySiteURL(c, "/sitemap.xml"), false)
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}
@@ -88,9 +88,11 @@ func newSyncCmd(flags *rootFlags) *cobra.Command {
 			}
 			for _, child := range children {
 				if wait > 0 {
+					// #nosec G404 -- rand is used only to add crawl-politeness jitter to
+					// the inter-shard delay; it is not security-sensitive and needs no CSPRNG.
 					time.Sleep(wait + time.Duration(rand.Intn(250))*time.Millisecond)
 				}
-				raw, err := bluRayGet(c, child, true)
+				raw, err := bluRayGet(cmd.Context(), c, child, true)
 				if err != nil {
 					return classifyAPIError(err, flags)
 				}

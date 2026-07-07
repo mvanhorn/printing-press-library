@@ -19,7 +19,7 @@ func newCustomersOperationsWaitCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:         "wait <name>",
 		Short:       "Waits until the specified long-running operation is done or reaches at most a specified timeout, returning the...",
-		Example:     "  google-ads-pp-cli customers_operations wait example-resource",
+		Example:     "  google-ads-pp-cli customers-operations wait example-resource",
 		Annotations: map[string]string{"pp:endpoint": "customers_operations.wait", "pp:method": "POST", "pp:path": "/v22/{name}:wait"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

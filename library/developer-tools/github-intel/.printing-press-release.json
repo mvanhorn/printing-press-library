@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "slug": "github-intel",
+  "cli_name": "github-intel-pp-cli",
+  "version": "2026.6.1",
+  "released_at": "2026-06-25T07:33:37Z",
+  "source_commit": "437b90c47d09c1fe0b7533cbd7f049de9be8e0de",
+  "printing_press_version": "4.24.0",
+  "run_id": "20260615-070140",
+  "changes": [
+    {
+      "title": "Add GitHub intelligence CLI",
+      "pr": 1202,
+      "url": "https://github.com/mvanhorn/printing-press-library/pull/1202",
+      "commit": "437b90c47d09c1fe0b7533cbd7f049de9be8e0de"
+    }
+  ]
+}

@@ -1,0 +1,16 @@
+# agentcookie.toml: secrets-bus adoption manifest v2
+# See docs/spec-agentcookie-secrets-bus-v2-adoption.md
+schema_version = 2
+name = "help-scout-pp-cli"
+display_name = "Help Scout Inbox"
+description = "Read-first Help Scout Inbox API surface for support operations and agent workflows."
+project_kind = "cli"
+
+[secrets.file]
+path = "~/.config/github.com/mvanhorn/printing-press-library/library/sales-and-crm/help-scout/config.toml"
+
+[sync]
+default = false
+
+[sync.keys]
+HELP_SCOUT_BEARER_AUTH = true

@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "id": "fix-releases-since-pagination",
+  "applied_at": "2026-05-12",
+  "base_run_id": "20260512-184940",
+  "base_printing_press_version": "4.5.2",
+  "summary": "Paginate /artists/{id}/albums in `releases since` with newest-first early-stop instead of taking only the first page.",
+  "reason": "The original call used a hard-coded limit=20 with no pagination, so any followed artist with more than 20 releases (counting singles + EPs + compilations + appears_on) in the window silently lost the tail. Spotify returns albums newest-first by release_date, so the loop can short-circuit as soon as a page's items fall before `since` — no need to walk the full back-catalog. limit=10 matches the post-2024-11-27 new-app cap on this endpoint.",
+  "files": [
+    "internal/cli/transcendence_t5_releases_since.go"
+  ]
+}

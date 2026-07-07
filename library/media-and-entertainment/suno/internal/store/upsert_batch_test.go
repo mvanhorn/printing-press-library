@@ -467,3 +467,19 @@ func TestUpsertBatch_PopulatesWorkspaceTable(t *testing.T) {
 		t.Fatalf("workspace count = %d, want %d (typed table not populated by UpsertBatch)", typed, len(items))
 	}
 }
+
+func TestUpsertBatchQuietSkipsWithoutWarning(t *testing.T) {
+	s, err := Open(filepath.Join(t.TempDir(), "data.db"))
+	if err != nil {
+		t.Fatalf("open: %v", err)
+	}
+	defer s.Close()
+	// A single object with no id field must be skipped without error.
+	stored, skipped, err := s.UpsertBatchQuiet("clips", []json.RawMessage{json.RawMessage(`{"wav_file_url":"https://x/y.wav"}`)})
+	if err != nil {
+		t.Fatalf("UpsertBatchQuiet: %v", err)
+	}
+	if stored != 0 || skipped != 1 {
+		t.Errorf("stored=%d skipped=%d, want 0/1", stored, skipped)
+	}
+}

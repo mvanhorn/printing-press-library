@@ -1,35 +1,21 @@
 {
-  "schema_version": 1,
-  "generated_at": "2026-05-17T06:54:36.538063Z",
-  "printing_press_version": "4.8.0",
   "api_name": "blu-ray",
-  "display_name": "Blu-ray.com",
+  "api_version": "0.1.0",
+  "auth_type": "none",
+  "category": "media-and-entertainment",
   "cli_name": "blu-ray-pp-cli",
   "creator": {
     "handle": "vinnyp",
     "name": "Vinny Pasceri"
   },
-  "owner": "vinny-pasceri",
-  "printer": "vinnyp",
-  "printer_name": "Vinny Pasceri",
-  "spec_path": "/Users/vinnypasceri/printing-press/.runstate/blu-ray-7d95b723/runs/20260517-014459/research/blu-ray-spec.yaml",
-  "spec_format": "internal",
-  "spec_checksum": "sha256:67dbbf5c18ff5633f7336cca68fa0edb47e9afe64af0c91a1e578784b584c7bf",
-  "run_id": "20260517-014459",
-  "category": "media-and-entertainment",
-  "description": "Blu-ray.com disc database CLI \u2014 local catalog, listings, deals, news, and price-drop watchlist for every Blu-ray, 4K, DVD, and digital release.",
+  "description": "The disc-collector's CLI for Blu-ray.com — offline catalog, live deals, and a price-drop watchlist with zero account required.",
+  "display_name": "Blu-ray.com",
+  "generated_at": "2026-06-11T07:33:50.145062Z",
   "mcp_binary": "blu-ray-pp-mcp",
-  "mcp_tool_count": 11,
   "mcp_public_tool_count": 11,
   "mcp_ready": "full",
-  "api_version": "0.1.0",
-  "auth_type": "none",
+  "mcp_tool_count": 11,
   "novel_features": [
-    {
-      "name": "Offline FTS5 Search",
-      "command": "search",
-      "description": "Instant offline search across every Blu-ray release in Blu-ray.com's published sitemap (~400k+ entries). Faster than the site's JS-rendered search and works without a network round-trip after one sync."
-    },
     {
       "name": "Price-Drop Watchlist",
       "command": "watch check",
@@ -55,5 +41,14 @@
       "command": "history",
       "description": "Shows per-retailer price history for a release id, captured automatically by watch check + deals --record. Optional inline ASCII spark plot."
     }
-  ]
+  ],
+  "owner": "vinnyp",
+  "printer": "vinnyp",
+  "printer_name": "Vinny Pasceri",
+  "printing_press_version": "4.24.0",
+  "run_id": "20260611-022446",
+  "schema_version": 1,
+  "spec_checksum": "sha256:67dbbf5c18ff5633f7336cca68fa0edb47e9afe64af0c91a1e578784b584c7bf",
+  "spec_format": "internal",
+  "spec_path": "blu-ray-spec.yaml"
 }

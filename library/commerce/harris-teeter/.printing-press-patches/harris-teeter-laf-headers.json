@@ -1,0 +1,15 @@
+{
+  "schema_version": 2,
+  "id": "harris-teeter-laf-headers",
+  "applied_at": "2026-05-17",
+  "base_run_id": "20260517-190052-harris-teeter",
+  "base_printing_press_version": "4.0.2",
+  "summary": "Add Harris Teeter LAF and modality headers to Atlas API requests.",
+  "reason": "Live product, coupon, and product-detail endpoints returned LAF_OBJECTS_REQUIRED unless requests included the browser-observed location/availability/fulfillment header set.",
+  "files": [
+    "internal/client/client.go",
+    "README.md",
+    "SKILL.md"
+  ],
+  "validated_outcome": "Live smoke tests passed for stores, products search, products get, and coupons."
+}

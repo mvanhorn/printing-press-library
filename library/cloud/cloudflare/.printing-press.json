@@ -1,0 +1,80 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-06-08T22:30:04.539644Z",
+  "printing_press_version": "4.24.0",
+  "api_name": "cloudflare",
+  "display_name": "Cloudflare",
+  "cli_name": "cloudflare-pp-cli",
+  "creator": {
+    "handle": "cathrynlavery",
+    "name": "Cathryn Lavery"
+  },
+  "printer": "cathrynlavery",
+  "printer_name": "Cathryn Lavery",
+  "spec_url": "https://raw.githubusercontent.com/cloudflare/api-schemas/main/openapi.json",
+  "run_id": "20260608-223004",
+  "catalog_entry": "cloudflare",
+  "category": "cloud",
+  "description": "Cloudflare API for accounts, zones, DNS, Workers, Pages, R2, Email Routing, tunnels, and Zero Trust operations",
+  "mcp_binary": "cloudflare-pp-mcp",
+  "mcp_tool_count": 3106,
+  "mcp_public_tool_count": 4,
+  "mcp_ready": "full",
+  "api_version": "4.0.0",
+  "auth_type": "bearer_token",
+  "auth_preference": "api_token",
+  "auth_env_vars": [
+    "CLOUDFLARE_API_TOKEN"
+  ],
+  "auth_env_var_specs": [
+    {
+      "name": "CLOUDFLARE_API_TOKEN",
+      "kind": "per_call",
+      "required": false,
+      "sensitive": true
+    }
+  ],
+  "auth_key_url": "https://dash.cloudflare.com/profile/api-tokens",
+  "novel_features": [
+    {
+      "name": "Token recipes and diagnostics",
+      "command": "token doctor --recipe site-launch --account <id>",
+      "description": "Resolve Cloudflare token permission recipes through live permission group IDs and report whether the current token can support the workflow."
+    },
+    {
+      "name": "Agent-admin token bootstrap",
+      "command": "agent admin --write-env .env.cloudflare-admin",
+      "description": "Create or guide a token-management bootstrap token that can mint recipe-scoped API tokens for other agents, with redaction and dashboard fallback."
+    },
+    {
+      "name": "Project launch and preview",
+      "command": "project launch ./dist --project <name> --account <id> --domain <host>",
+      "description": "Plan or launch a Cloudflare Pages/Workers project, including static output detection, deployment mode choice, and optional domain attachment."
+    },
+    {
+      "name": "Domain connect",
+      "command": "domain connect <host> --target pages --project <name> --account <id> --zone <id>",
+      "description": "Connect hostnames to Pages, Workers, tunnels, or R2 with product-specific API calls instead of dashboard spelunking."
+    },
+    {
+      "name": "Worker secrets",
+      "command": "worker secret put <name> --script <worker> --account <id> --from-env <ENV>",
+      "description": "Set, list, and delete Worker secrets with redacted output and explicit confirmation gates."
+    },
+    {
+      "name": "AI and agent infrastructure bootstrap",
+      "command": "agent memory bootstrap --account <id> --name <name>",
+      "description": "Plan or create Cloudflare resources for AI agents and RAG stacks, including R2, D1, Vectorize, AI Gateway, KV, and Queues."
+    },
+    {
+      "name": "Operations diagnostics",
+      "command": "zone doctor --zone <id> --hostname <host>",
+      "description": "Inspect Cloudflare zone, DNS, SSL/settings, Email Routing, and Worker-route readiness through one read-only command."
+    },
+    {
+      "name": "Cost and deployment controls",
+      "command": "cost scan --account <id>",
+      "description": "Read billable usage and AI Gateway usage signals, with deployment rollback workflows for Pages production releases."
+    }
+  ]
+}

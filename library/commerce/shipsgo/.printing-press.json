@@ -1,0 +1,87 @@
+{
+  "api_name": "shipsgo",
+  "api_version": "2.0",
+  "auth_env_vars": [
+    "SHIPSGO_USER_TOKEN"
+  ],
+  "auth_key_url": "https://shipsgo.com/dashboard/air/integrations/api-tokens",
+  "auth_type": "api_key",
+  "category": "commerce",
+  "cli_name": "shipsgo-pp-cli",
+  "creator": {
+    "handle": "WerkstoffClub",
+    "name": "WerkstoffClub"
+  },
+  "description": "Every ShipsGo endpoint, plus an RFQ workspace, lane analytics, and an offline shipment book no other tool offers.",
+  "display_name": "ShipsGo",
+  "generated_at": "2026-06-04T08:25:31.266549Z",
+  "mcp_binary": "shipsgo-pp-mcp",
+  "mcp_ready": "full",
+  "mcp_tool_count": 22,
+  "novel_features": [
+    {
+      "name": "RFQ workspace",
+      "command": "rfq new",
+      "description": "Create, populate, and inspect an RFQ workspace that groups multiple tracked shipments under one quote slug."
+    },
+    {
+      "name": "RFQ carrier comparison",
+      "command": "rfq compare",
+      "description": "For one RFQ slug, group its shipments by carrier and emit mean actual transit days, ETA-vs-actual delta, and shipment count."
+    },
+    {
+      "name": "Lane statistics",
+      "command": "lane stats",
+      "description": "Across all locally tracked shipments on an origin\u2192destination lane, report p50/p90 transit days with per-carrier breakdown."
+    },
+    {
+      "name": "ETA drift detector",
+      "command": "eta-drift",
+      "description": "List shipments whose ETA shifted by more than N days since the last sync \u2014 sorted by drift magnitude."
+    },
+    {
+      "name": "Credit budget guardrail",
+      "command": "credit-budget",
+      "description": "Read ShipsGo X-RateLimit-* headers from the last response, combine with local dedupe state, and refuse new POSTs when the reserve would be breached."
+    },
+    {
+      "name": "Unified shipment book",
+      "command": "book",
+      "description": "Single view across ocean + air shipments, filterable by ETA window, status, tag, port, or carrier \u2014 backed by FTS5 and local indices."
+    },
+    {
+      "name": "Carrier reliability score",
+      "command": "reliability",
+      "description": "Median(actual_delivery \u2212 original_eta) and on-time percentage for a carrier, optionally scoped to a specific lane."
+    },
+    {
+      "name": "Webhook event tail",
+      "command": "webhook tail",
+      "description": "Tail the locally stored webhook_events table chronologically; supports --since, --shipment, and --watch."
+    },
+    {
+      "name": "Pre-write dupe check",
+      "command": "dupe-check",
+      "description": "Look up a container number or AWB in the local store and exit non-zero with the existing shipment id if already tracked."
+    },
+    {
+      "name": "RFQ stakeholder digest",
+      "command": "digest",
+      "description": "Emit a structured table of shipment id, last milestone, current ETA, and ETA-delta since last digest, scoped to an RFQ or a time window."
+    },
+    {
+      "name": "RFQ follower fan-out",
+      "command": "followers-broadcast",
+      "description": "Add or remove one follower email across every shipment in an RFQ in one command, gated by credit-budget and --dry-run."
+    }
+  ],
+  "owner": "werkstoffclub",
+  "printer": "WerkstoffClub",
+  "printer_name": "WerkstoffClub",
+  "printing_press_version": "4.20.1",
+  "run_id": "20260604-150435",
+  "schema_version": 1,
+  "spec_checksum": "sha256:2f3f890efcce3bdd7d4192d34f919cdb8f9413fca3d32fca678a9bd482543657",
+  "spec_format": "openapi3",
+  "spec_path": "shipsgo-openapi.json"
+}

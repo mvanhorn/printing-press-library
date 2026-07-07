@@ -1,0 +1,39 @@
+{
+  "manifest_version": "0.3",
+  "name": "uk-train-goat-pp-mcp",
+  "display_name": "UK Train Goat",
+  "version": "4.20.1",
+  "description": "The only Go-native, agent-native, MCP-exposed UK rail CLI; live boards, journey planning, and a local SQLite store that remembers your commute.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/uk-train-goat-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/uk-train-goat-pp-mcp",
+      "args": [],
+      "env": {
+        "LDBWS_API_TOKEN": "${user_config.ldbws_api_token}"
+      }
+    }
+  },
+  "user_config": {
+    "ldbws_api_token": {
+      "type": "string",
+      "title": "LDBWS_API_TOKEN",
+      "description": "Sets LDBWS_API_TOKEN for the UK Train Goat MCP server.",
+      "sensitive": true,
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

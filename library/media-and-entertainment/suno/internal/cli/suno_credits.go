@@ -62,16 +62,21 @@ func newSunoCreditsCmd(flags *rootFlags) *cobra.Command {
 
 			if forecast {
 				generations, ferr := countRecentClipsImpl(dbPath, windowDur, time.Now())
+				fc := &creditsForecast{
+					Window:            window,
+					ThrottleThreshold: captchaThrottleThreshold,
+				}
 				if ferr != nil {
 					// Forecast is best-effort: a missing/empty local store should
-					// not fail the live credits read.
+					// not fail the live credits read. Report the volume as
+					// unavailable rather than a measured zero so a consumer
+					// reading only the note isn't misled into thinking no
+					// generations occurred.
 					fmt.Fprintf(cmd.ErrOrStderr(), "hint: forecast unavailable: %v\n", ferr)
-				}
-				fc := &creditsForecast{
-					Window:              window,
-					GenerationsInWindow: generations,
-					ThrottleThreshold:   captchaThrottleThreshold,
-					Note:                fmt.Sprintf("%d credits left; %d generations in last %s; throttle typically ~%d credits of use", result.Credits, generations, window, captchaThrottleThreshold),
+					fc.Note = fmt.Sprintf("%d credits left; recent generation volume unavailable (local store unreadable); throttle typically ~%d credits of use", result.Credits, captchaThrottleThreshold)
+				} else {
+					fc.GenerationsInWindow = generations
+					fc.Note = fmt.Sprintf("%d credits left; %d generations in last %s; throttle typically ~%d credits of use", result.Credits, generations, window, captchaThrottleThreshold)
 				}
 				result.Forecast = fc
 			}
@@ -89,6 +94,7 @@ func newSunoCreditsCmd(flags *rootFlags) *cobra.Command {
 type creditsResult struct {
 	Credits  int64            `json:"credits"`
 	Plan     string           `json:"plan,omitempty"`
+	Period   string           `json:"period,omitempty"`
 	Forecast *creditsForecast `json:"forecast,omitempty"`
 }
 
@@ -99,21 +105,37 @@ type creditsForecast struct {
 	Note                string `json:"note"`
 }
 
-// parseCredits tolerantly extracts credits and plan from the billing body.
-// Fields may be absent; total_credits_left falls back to credits. The plan is
-// read from any of the common plan-name fields.
+// parseCredits tolerantly extracts credits, plan, and billing period from the
+// billing body. Fields may be absent; total_credits_left falls back to credits.
 func parseCredits(data json.RawMessage) creditsResult {
 	var obj map[string]any
 	_ = json.Unmarshal(data, &obj)
 
 	res := creditsResult{Credits: creditsFromBilling(obj)}
-	for _, key := range []string{"plan", "subscription_type", "subscription", "tier", "period"} {
-		if v, ok := obj[key].(string); ok && v != "" {
-			res.Plan = v
-			break
+	res.Plan = planName(obj)
+	res.Period, _ = obj["period"].(string)
+	return res
+}
+
+// planName extracts a human plan name from the billing body. Suno's live shape
+// nests the plan under a "plan" object (plan.name, e.g. "Premier Plan", or
+// plan.plan_key, e.g. "premier"); simpler/legacy shapes expose it as a
+// top-level string. "period" (the billing interval, e.g. "year") is the
+// account's billing cadence, not its plan, so it is deliberately excluded.
+func planName(obj map[string]any) string {
+	if plan, ok := obj["plan"].(map[string]any); ok {
+		for _, key := range []string{"name", "plan_key"} {
+			if v, ok := plan[key].(string); ok && v != "" {
+				return v
+			}
 		}
 	}
-	return res
+	for _, key := range []string{"plan", "subscription_type", "subscription", "tier"} {
+		if v, ok := obj[key].(string); ok && v != "" {
+			return v
+		}
+	}
+	return ""
 }
 
 // creditsFromBilling reads the remaining-credit count, preferring

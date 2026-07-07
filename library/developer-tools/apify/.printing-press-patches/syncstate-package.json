@@ -1,0 +1,15 @@
+{
+  "schema_version": 2,
+  "id": "syncstate-package",
+  "applied_at": "2026-05-18",
+  "base_run_id": "20260518-132617",
+  "base_printing_press_version": "4.8.0",
+  "summary": "New internal/syncstate package: persists last-sync state to ~/.local/share/apify-pp-cli/sync_state.json (atomic tmp+rename). The run and workflow run commands write a record after they hydrate the local store (last_synced_at, ok flag, items hydrated, token source); the file is consumable by doctor and external tooling without a fresh API call.",
+  "rationale": "Surfacing when fresh data last landed without re-invoking sync. Pattern adopted from the granola printed CLI's post-print patch set.",
+  "files": [
+    "internal/syncstate/syncstate.go",
+    "internal/cli/run.go",
+    "internal/cli/workflow_run.go"
+  ],
+  "upstream_issue": ""
+}

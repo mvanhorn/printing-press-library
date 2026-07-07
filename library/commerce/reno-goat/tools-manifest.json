@@ -1,0 +1,873 @@
+{
+  "api_name": "reno-goat",
+  "base_url": "https://ac.cnstrc.com",
+  "description": "Search, compare, price-watch, model-enrich, and project-track homeowner-visible renovation selections across 33 active sources plus 5 tracked stubs. Reno Goat adds category-routed product search and compound model intelligence across appliances, plumbing, electrical, HVAC, flooring, hardware, materials, furniture, and decor.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "none"
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "brands_ferguson-brands",
+      "description": "List brands available at Ferguson by searching with a brand filter. Returns brand facets from search results. Optional: source (default: ferguson), cross-ref.",
+      "method": "POST",
+      "path": "/graphql/ProductSearch",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "source",
+          "type": "string",
+          "location": "body",
+          "description": "Source to list brands for."
+        },
+        {
+          "name": "cross-ref",
+          "type": "string",
+          "location": "body",
+          "description": "Brand name to cross-reference across all sources. Returns availability and price ranges at each retailer carrying this brand."
+        }
+      ]
+    },
+    {
+      "name": "brands_rejuvenation-brands",
+      "description": "List brands available at Rejuvenation via Constructor.io brand facets. Optional: key (default: key_9BhS51IOFNhJejk4), source (default: rejuvenation), cross-ref. Returns the BrandListResult.",
+      "method": "GET",
+      "path": "/search/brands",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "key",
+          "type": "string",
+          "location": "query",
+          "description": "Constructor.io API key for Rejuvenation."
+        },
+        {
+          "name": "source",
+          "type": "string",
+          "location": "query",
+          "description": "Source to list brands for."
+        },
+        {
+          "name": "cross-ref",
+          "type": "string",
+          "location": "query",
+          "description": "Brand name to cross-reference across sources."
+        }
+      ]
+    },
+    {
+      "name": "brands_westelm-brands",
+      "description": "List brands available at West Elm via Constructor.io brand facets. Optional: key (default: key_SQBuGmXjiXmP0UNI), source (default: west-elm), cross-ref. Returns the BrandListResult.",
+      "method": "GET",
+      "path": "/search/brands",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "key",
+          "type": "string",
+          "location": "query",
+          "description": "Constructor.io API key."
+        },
+        {
+          "name": "source",
+          "type": "string",
+          "location": "query",
+          "description": "Source to list brands for."
+        },
+        {
+          "name": "cross-ref",
+          "type": "string",
+          "location": "query",
+          "description": "Brand name to cross-reference across sources."
+        }
+      ]
+    },
+    {
+      "name": "categories_rejuvenation-categories",
+      "description": "Browse the Rejuvenation product category tree. Returns subcategories, product counts, and navigation paths. Required: category. Optional: source (default: rejuvenation).",
+      "method": "GET",
+      "path": "/api/catalog/v1/category/inspiration/shop/{category}/data.json",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "category",
+          "type": "string",
+          "location": "path",
+          "description": "Category slug to browse (e.g. lighting, hardware, bath). Omit for top-level category listing.",
+          "required": true
+        },
+        {
+          "name": "source",
+          "type": "string",
+          "location": "query",
+          "description": "Source to browse categories for (currently Rejuvenation only)."
+        }
+      ]
+    },
+    {
+      "name": "compare_multi-product-compare",
+      "description": "Compare 2+ products side-by-side. Each URL is resolved to its source, fetched in parallel, and rendered in a comparison table. Works across different sources. Required: urls. Returns the CompareResult.",
+      "method": "GET",
+      "path": "/compare",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "urls",
+          "type": "string",
+          "location": "path",
+          "description": "Space-separated product URLs to compare (2 or more). Each URL is resolved to its source automatically.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "deals_westelm-deals",
+      "description": "Check eligible promotions for a West Elm product or category. Returns active sales, discount percentages, and promo codes. Required: category. Optional: price, source (default: west-elm).",
+      "method": "GET",
+      "path": "/promotion/eligibility/group/{slug}/eligiblePromotions.json",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "category",
+          "wire_name": "slug",
+          "type": "string",
+          "location": "path",
+          "description": "Product or category slug to check promotions for.",
+          "required": true
+        },
+        {
+          "name": "price",
+          "type": "float",
+          "location": "query",
+          "description": "Product price to check promotion eligibility against."
+        },
+        {
+          "name": "source",
+          "type": "string",
+          "location": "query",
+          "description": "Source to check deals for (currently West Elm only)."
+        }
+      ]
+    },
+    {
+      "name": "delivery_rejuvenation-delivery",
+      "description": "Check delivery availability and options from Rejuvenation by postal code. Required: zip, product_url. Returns the DeliveryInfoResult.",
+      "method": "GET",
+      "path": "/cacheable/availability/getDeliveryInformationByPostalCode.json",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "zip",
+          "wire_name": "postalCode",
+          "type": "string",
+          "location": "path",
+          "description": "Postal code to check delivery for.",
+          "required": true
+        },
+        {
+          "name": "product_url",
+          "type": "string",
+          "location": "query",
+          "description": "Product URL to check delivery availability for.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "delivery_westelm-delivery",
+      "description": "Check delivery availability and options from West Elm by postal code. Required: zip, product_url. Returns the DeliveryInfoResult.",
+      "method": "GET",
+      "path": "/cacheable/availability/getDeliveryInformationByPostalCode.json",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "zip",
+          "wire_name": "postalCode",
+          "type": "string",
+          "location": "path",
+          "description": "Postal code to check delivery for.",
+          "required": true
+        },
+        {
+          "name": "product_url",
+          "type": "string",
+          "location": "query",
+          "description": "Product URL to check delivery availability for.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "find-related_article-related",
+      "description": "Find cross-sell/related products from Article via APQ CROSS_SELL query. Returns complementary items for the given product. Required: product_url. Optional: extensions.",
+      "method": "GET",
+      "path": "/graphql",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "product_url",
+          "type": "string",
+          "location": "path",
+          "description": "Article product URL to find related products for.",
+          "required": true
+        },
+        {
+          "name": "extensions",
+          "type": "string",
+          "location": "query",
+          "description": "APQ extensions JSON. Auto-generated: {'persistedQuery':{'version':1,'sha256Hash':'\u003cCROSS_SELL_HASH\u003e'}}."
+        }
+      ]
+    },
+    {
+      "name": "find-similar_article-similar",
+      "description": "Find similar products from Article via APQ SIMILAR_PRODUCTS query. Returns visually and categorically similar items. Required: product_url. Optional: extensions.",
+      "method": "GET",
+      "path": "/graphql",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "product_url",
+          "type": "string",
+          "location": "path",
+          "description": "Article product URL to find similar products for.",
+          "required": true
+        },
+        {
+          "name": "extensions",
+          "type": "string",
+          "location": "query",
+          "description": "APQ extensions JSON. Auto-generated: {'persistedQuery':{'version':1,'sha256Hash':'\u003cSIMILAR_PRODUCTS_HASH\u003e'}}."
+        }
+      ]
+    },
+    {
+      "name": "product_article-product",
+      "description": "Get full product details from Article via APQ PRODUCT query. Returns 50+ fields including specs, reviews summary, delivery estimates, and customization options. Required: url. Optional: extensions, images (default: false), spec-sheet (default: false).",
+      "method": "GET",
+      "path": "/graphql",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "url",
+          "type": "string",
+          "location": "path",
+          "description": "Article product URL or product handle.",
+          "required": true
+        },
+        {
+          "name": "extensions",
+          "type": "string",
+          "location": "query",
+          "description": "APQ extensions JSON. Auto-generated: {'persistedQuery':{'version':1,'sha256Hash':'\u003cPRODUCT_HASH\u003e'}}."
+        },
+        {
+          "name": "images",
+          "type": "bool",
+          "location": "query",
+          "description": "Include full image gallery."
+        },
+        {
+          "name": "spec-sheet",
+          "type": "bool",
+          "location": "query",
+          "description": "Extract and normalize product specifications."
+        }
+      ]
+    },
+    {
+      "name": "product_ferguson-product",
+      "description": "Get full product details from Ferguson via GraphQL ProductDetail query. Required: url. Optional: images (default: false), spec-sheet (default: false). Returns the new FergusonProductDetail.",
+      "method": "POST",
+      "path": "/graphql/ProductDetail",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "url",
+          "type": "string",
+          "location": "path",
+          "description": "Ferguson product URL or product slug.",
+          "required": true
+        },
+        {
+          "name": "images",
+          "type": "bool",
+          "location": "body",
+          "description": "Include full image gallery URLs."
+        },
+        {
+          "name": "spec-sheet",
+          "type": "bool",
+          "location": "body",
+          "description": "Extract and normalize product specifications into a structured sheet."
+        }
+      ]
+    },
+    {
+      "name": "product_rejuvenation-product",
+      "description": "Get full product details from Rejuvenation. Required: url, slug. Optional: images (default: false), spec-sheet (default: false). Returns the RejuvenationProductDetail.",
+      "method": "GET",
+      "path": "/api/catalog/v1/product/{slug}/data.json",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "url",
+          "type": "string",
+          "location": "path",
+          "description": "Rejuvenation product URL or product slug.",
+          "required": true
+        },
+        {
+          "name": "images",
+          "type": "bool",
+          "location": "query",
+          "description": "Include full image gallery."
+        },
+        {
+          "name": "spec-sheet",
+          "type": "bool",
+          "location": "query",
+          "description": "Extract and normalize product specifications."
+        },
+        {
+          "name": "slug",
+          "type": "string",
+          "location": "path",
+          "description": "slug",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "product_shopify-product",
+      "description": "Get full product details from a Shopify DTC store via Storefront API. Resolves store from URL. Required: url. Optional: handle, store, images (default: false) (plus 1 more). Returns the new ShopifyProductDetail.",
+      "method": "POST",
+      "path": "/api/2025-01/graphql.json",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "url",
+          "type": "string",
+          "location": "path",
+          "description": "Shopify product URL (store resolved from domain).",
+          "required": true
+        },
+        {
+          "name": "handle",
+          "type": "string",
+          "location": "body",
+          "description": "Product handle (alternative to URL if store is also specified)."
+        },
+        {
+          "name": "store",
+          "type": "string",
+          "location": "body",
+          "description": "Shopify store domain (required if using handle instead of URL)."
+        },
+        {
+          "name": "images",
+          "type": "bool",
+          "location": "body",
+          "description": "Include full image gallery with variant images."
+        },
+        {
+          "name": "spec-sheet",
+          "type": "bool",
+          "location": "body",
+          "description": "Extract and normalize product specifications."
+        }
+      ]
+    },
+    {
+      "name": "product_westelm-product",
+      "description": "Get full product details from West Elm. Required: url, slug. Optional: images (default: false), spec-sheet (default: false). Returns the WestElmProductDetail.",
+      "method": "GET",
+      "path": "/api/catalog/v1/product/{slug}/data.json",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "url",
+          "type": "string",
+          "location": "path",
+          "description": "West Elm product URL or product slug.",
+          "required": true
+        },
+        {
+          "name": "images",
+          "type": "bool",
+          "location": "query",
+          "description": "Include full image gallery and swatch URLs."
+        },
+        {
+          "name": "spec-sheet",
+          "type": "bool",
+          "location": "query",
+          "description": "Extract and normalize product specifications."
+        },
+        {
+          "name": "slug",
+          "type": "string",
+          "location": "path",
+          "description": "slug",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "product-search_article-search",
+      "description": "Search products via Article APQ GraphQL. Uses SEARCH_PRODUCTS persisted query hash. Returns paginated product results with pricing and ratings. Required: query. Optional: extensions, variables, per-page (default: 20) (plus 1 more).",
+      "method": "GET",
+      "path": "/graphql",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "query",
+          "type": "string",
+          "location": "path",
+          "description": "Product search query text.",
+          "required": true
+        },
+        {
+          "name": "extensions",
+          "type": "string",
+          "location": "query",
+          "description": "APQ extensions JSON containing the persisted query hash. Auto-generated: {'persistedQuery':{'version':1,'sha256Hash':'\u003cSEARCH_PRODUCTS_HASH\u003e'}}."
+        },
+        {
+          "name": "variables",
+          "type": "string",
+          "location": "query",
+          "description": "GraphQL variables JSON. Auto-generated from flags: {'query':'...','pageSize':N,'page':N}."
+        },
+        {
+          "name": "per-page",
+          "wire_name": "pageSize",
+          "type": "int",
+          "location": "query",
+          "description": "Number of results per page."
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page number (1-indexed)."
+        }
+      ]
+    },
+    {
+      "name": "product-search_ferguson-search",
+      "description": "Search products via Ferguson GraphQL. Returns ProductSearchResult (count + products) or SearchRedirect. Primary source for foundational fixtures and appliances. Required: query. Optional: per-page (default: 20), offset (default: 0), sort (default: relevance).",
+      "method": "POST",
+      "path": "/graphql/ProductSearch",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "query",
+          "type": "string",
+          "location": "path",
+          "description": "Product search query text.",
+          "required": true
+        },
+        {
+          "name": "per-page",
+          "wire_name": "first",
+          "type": "int",
+          "location": "body",
+          "description": "Number of results per page."
+        },
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "body",
+          "description": "Pagination offset (0-indexed)."
+        },
+        {
+          "name": "sort",
+          "type": "string",
+          "location": "body",
+          "description": "Sort order for results."
+        }
+      ]
+    },
+    {
+      "name": "product-search_rejuvenation-search",
+      "description": "Search products via Rejuvenation Constructor.io API. Same API shape as West Elm with different key. Primary source for foundational hardware and decor. Required: query. Optional: key (default: key_9BhS51IOFNhJejk4), per-page (default: 20), page (default: 1) (plus 4 more). Returns the ConstructorSearchResult.",
+      "method": "GET",
+      "path": "/search/{query}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "query",
+          "type": "string",
+          "location": "path",
+          "description": "Product search query text.",
+          "required": true
+        },
+        {
+          "name": "key",
+          "type": "string",
+          "location": "query",
+          "description": "Constructor.io API key for Rejuvenation."
+        },
+        {
+          "name": "per-page",
+          "wire_name": "num_results_per_page",
+          "type": "int",
+          "location": "query",
+          "description": "Number of results per page."
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page number (1-indexed)."
+        },
+        {
+          "name": "sort",
+          "wire_name": "sort_by",
+          "type": "string",
+          "location": "query",
+          "description": "Sort field."
+        },
+        {
+          "name": "sort_order",
+          "type": "string",
+          "location": "query",
+          "description": "Sort direction."
+        },
+        {
+          "name": "facet",
+          "wire_name": "filters",
+          "type": "string",
+          "location": "query",
+          "description": "Facet filter expression (e.g. 'Product Type=Lighting', 'Room=Bathroom')."
+        },
+        {
+          "name": "i",
+          "type": "string",
+          "location": "query",
+          "description": "Client identifier for Constructor.io analytics."
+        }
+      ]
+    },
+    {
+      "name": "product-search_shopify-search",
+      "description": "Search products across Shopify DTC stores via Storefront API GraphQL. Fans out to all configured stores (Schoolhouse, Blu Dot, Gus Modern, Floyd, Lulu \u0026 Georgia). Required: query. Optional: per-page (default: 20), store. Returns the new ShopifySearchResult.",
+      "method": "POST",
+      "path": "/api/2025-01/graphql.json",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "query",
+          "type": "string",
+          "location": "path",
+          "description": "Product search query text.",
+          "required": true
+        },
+        {
+          "name": "per-page",
+          "wire_name": "first",
+          "type": "int",
+          "location": "body",
+          "description": "Number of results per page per store."
+        },
+        {
+          "name": "store",
+          "type": "string",
+          "location": "body",
+          "description": "Restrict to a specific Shopify store domain (e.g. schoolhouseelectric, floyd-home). Omit to fan out to all stores."
+        }
+      ]
+    },
+    {
+      "name": "product-search_westelm-search",
+      "description": "Search products via West Elm Constructor.io API. Returns faceted results with product data, prices, and images. Required: query. Optional: key (default: key_SQBuGmXjiXmP0UNI), per-page (default: 20), page (default: 1) (plus 6 more).",
+      "method": "GET",
+      "path": "/search/{query}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "query",
+          "type": "string",
+          "location": "path",
+          "description": "Product search query text.",
+          "required": true
+        },
+        {
+          "name": "key",
+          "type": "string",
+          "location": "query",
+          "description": "Constructor.io API key."
+        },
+        {
+          "name": "per-page",
+          "wire_name": "num_results_per_page",
+          "type": "int",
+          "location": "query",
+          "description": "Number of results per page."
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page number (1-indexed)."
+        },
+        {
+          "name": "sort",
+          "wire_name": "sort_by",
+          "type": "string",
+          "location": "query",
+          "description": "Sort field."
+        },
+        {
+          "name": "sort_order",
+          "type": "string",
+          "location": "query",
+          "description": "Sort direction (used with sort_by)."
+        },
+        {
+          "name": "facet",
+          "wire_name": "filters",
+          "type": "string",
+          "location": "query",
+          "description": "Facet filter expression. Format: facet_name=value (e.g. 'Product Type=Vanities', 'Material=Wood', 'Color=White')."
+        },
+        {
+          "name": "i",
+          "type": "string",
+          "location": "query",
+          "description": "Client identifier for Constructor.io analytics."
+        },
+        {
+          "name": "session-id",
+          "wire_name": "s",
+          "type": "int",
+          "location": "query",
+          "description": "Session ID for Constructor.io analytics."
+        },
+        {
+          "name": "_dt",
+          "type": "int",
+          "location": "query",
+          "description": "Timestamp for request deduplication."
+        }
+      ]
+    },
+    {
+      "name": "reviews_article-reviews",
+      "description": "Get product reviews from Article via APQ getProductReviewsByProductId query. Includes ratings, review text, and UGC media. Required: product_url. Optional: extensions, aggregate (default: false). Returns the ArticleReviewsResult.",
+      "method": "GET",
+      "path": "/graphql",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "product_url",
+          "type": "string",
+          "location": "path",
+          "description": "Article product URL to fetch reviews for.",
+          "required": true
+        },
+        {
+          "name": "extensions",
+          "type": "string",
+          "location": "query",
+          "description": "APQ extensions JSON. Auto-generated: {'persistedQuery':{'version':1,'sha256Hash':'\u003cPRODUCT_REVIEWS_HASH\u003e'}}."
+        },
+        {
+          "name": "aggregate",
+          "type": "bool",
+          "location": "query",
+          "description": "When true, cross-source review aggregation is performed. Finds the same product at other retailers by title/brand match and merges reviews."
+        }
+      ]
+    },
+    {
+      "name": "reviews_ferguson-reviews",
+      "description": "Get product reviews from Ferguson via the ProductDetail GraphQL query (reviews are embedded in product detail response). Required: product_url. Optional: aggregate (default: false). Returns the new FergusonReviewsResult.",
+      "method": "POST",
+      "path": "/graphql/ProductDetail",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "product_url",
+          "type": "string",
+          "location": "path",
+          "description": "Ferguson product URL to fetch reviews for.",
+          "required": true
+        },
+        {
+          "name": "aggregate",
+          "type": "bool",
+          "location": "body",
+          "description": "When true, cross-source review aggregation is performed."
+        }
+      ]
+    },
+    {
+      "name": "stores_rejuvenation-stores",
+      "description": "Find Rejuvenation stores near a location. Required: zip. Optional: brands (default: RJ), lat, lng (plus 1 more). Returns the StoreLocatorResult.",
+      "method": "GET",
+      "path": "/search/stores.json",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "zip",
+          "type": "string",
+          "location": "path",
+          "description": "ZIP code or postal code to search near.",
+          "required": true
+        },
+        {
+          "name": "brands",
+          "type": "string",
+          "location": "query",
+          "description": "Brand filter (RJ for Rejuvenation)."
+        },
+        {
+          "name": "lat",
+          "type": "float",
+          "location": "query",
+          "description": "Latitude for proximity search."
+        },
+        {
+          "name": "lng",
+          "type": "float",
+          "location": "query",
+          "description": "Longitude for proximity search."
+        },
+        {
+          "name": "radius",
+          "type": "int",
+          "location": "query",
+          "description": "Search radius in miles."
+        }
+      ]
+    },
+    {
+      "name": "stores_westelm-stores",
+      "description": "Find West Elm stores near a location. Required: zip. Optional: brands (default: WE), lat, lng (plus 1 more). Returns the StoreLocatorResult.",
+      "method": "GET",
+      "path": "/search/stores.json",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "zip",
+          "type": "string",
+          "location": "path",
+          "description": "ZIP code or postal code to search near.",
+          "required": true
+        },
+        {
+          "name": "brands",
+          "type": "string",
+          "location": "query",
+          "description": "Brand filter (WE for West Elm)."
+        },
+        {
+          "name": "lat",
+          "type": "float",
+          "location": "query",
+          "description": "Latitude for proximity search (alternative to ZIP)."
+        },
+        {
+          "name": "lng",
+          "type": "float",
+          "location": "query",
+          "description": "Longitude for proximity search."
+        },
+        {
+          "name": "radius",
+          "type": "int",
+          "location": "query",
+          "description": "Search radius in miles."
+        }
+      ]
+    },
+    {
+      "name": "suggest_rejuvenation-suggest",
+      "description": "Autocomplete suggestions from Rejuvenation via Constructor.io. Required: query. Optional: key (default: key_9BhS51IOFNhJejk4), num-products (default: 0), num-suggestions (default: 5) (plus 1 more). Returns the ConstructorAutocompleteResult.",
+      "method": "GET",
+      "path": "/autocomplete/{query}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "query",
+          "type": "string",
+          "location": "path",
+          "description": "Partial search query for autocomplete.",
+          "required": true
+        },
+        {
+          "name": "key",
+          "type": "string",
+          "location": "query",
+          "description": "Constructor.io API key for Rejuvenation."
+        },
+        {
+          "name": "num-products",
+          "wire_name": "num_results_Products",
+          "type": "int",
+          "location": "query",
+          "description": "Number of product results to include."
+        },
+        {
+          "name": "num-suggestions",
+          "wire_name": "num_results_Search+Suggestions",
+          "type": "int",
+          "location": "query",
+          "description": "Number of search suggestions to return."
+        },
+        {
+          "name": "i",
+          "type": "string",
+          "location": "query",
+          "description": "Client identifier."
+        }
+      ]
+    },
+    {
+      "name": "suggest_westelm-suggest",
+      "description": "Autocomplete suggestions from West Elm via Constructor.io. Required: query. Optional: key (default: key_SQBuGmXjiXmP0UNI), num-products (default: 0), num-suggestions (default: 5) (plus 1 more). Returns the ConstructorAutocompleteResult.",
+      "method": "GET",
+      "path": "/autocomplete/{query}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "query",
+          "type": "string",
+          "location": "path",
+          "description": "Partial search query for autocomplete.",
+          "required": true
+        },
+        {
+          "name": "key",
+          "type": "string",
+          "location": "query",
+          "description": "Constructor.io API key."
+        },
+        {
+          "name": "num-products",
+          "wire_name": "num_results_Products",
+          "type": "int",
+          "location": "query",
+          "description": "Number of product results to include alongside suggestions."
+        },
+        {
+          "name": "num-suggestions",
+          "wire_name": "num_results_Search+Suggestions",
+          "type": "int",
+          "location": "query",
+          "description": "Number of search suggestions to return."
+        },
+        {
+          "name": "i",
+          "type": "string",
+          "location": "query",
+          "description": "Client identifier."
+        }
+      ]
+    }
+  ]
+}

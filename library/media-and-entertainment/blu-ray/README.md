@@ -37,10 +37,10 @@ npx -y @mvanhorn/printing-press-library install blu-ray --agent claude-code --ag
 
 ### Without Node (Go fallback)
 
-If `npx` isn't available (no Node, offline), install the CLI directly via Go (requires Go 1.26.3 or newer):
+If `npx` isn't available (no Node, offline), install the CLI directly via Go (requires Go 1.26.4 or newer):
 
 ```bash
-go install github.com/mvanhorn/printing-press-library/library/media-and-entertainment/blu-ray/cmd/blu-ray-pp-cli@latest
+go install github.com/mvanhorn/printing-press-library/library/media/blu-ray/cmd/blu-ray-pp-cli@latest
 ```
 
 This installs the CLI only — no skill.
@@ -75,7 +75,6 @@ Inside a Hermes chat session:
 Restart the Hermes session or gateway if the newly installed skill is not visible immediately.
 
 ## Install for OpenClaw
-
 Install both the CLI binary and the focused OpenClaw skill. The installer defaults binaries to a per-user bin directory (`$HOME/.local/bin` on macOS/Linux, `%LOCALAPPDATA%\Programs\PrintingPress\bin` on Windows):
 
 ```bash
@@ -102,7 +101,7 @@ If you can't use the MCPB bundle (older Claude Desktop, unsupported platform), i
 
 
 ```bash
-go install github.com/mvanhorn/printing-press-library/library/media-and-entertainment/blu-ray/cmd/blu-ray-pp-mcp@latest
+go install github.com/mvanhorn/printing-press-library/library/media/blu-ray/cmd/blu-ray-pp-mcp@latest
 ```
 
 Add to your Claude Desktop config (`~/Library/Application Support/Claude/claude_desktop_config.json`):
@@ -148,13 +147,6 @@ blu-ray-pp-cli watch add 406956 --target-price 14.99 && blu-ray-pp-cli watch che
 These capabilities aren't available in any other tool for this API.
 
 ### Local state that compounds
-- **`search`** — Instant offline search across every Blu-ray release in Blu-ray.com's published sitemap (~400k+ entries). Faster than the site's JS-rendered search and works without a network round-trip after one sync.
-
-  _Reach for this whenever an agent needs to resolve a title to a release id, list every edition of a film, or filter the catalog by year/format/country. Single round-trip vs. the dozens of network hits the website does._
-
-  ```bash
-  blu-ray-pp-cli search 'fight club' --format 4k --year 2025 --json
-  ```
 - **`watch check`** — Local watchlist of release ids; re-scans Blu-ray.com deals on demand and alerts when any watched disc hits its target price or a new historical low.
 
   _Use this whenever a user wants notifications about disc prices without polling third-party services. Pairs naturally with cron or a launchd job._
@@ -195,45 +187,48 @@ These capabilities aren't available in any other tool for this API.
   blu-ray-pp-cli upc ./my-collection.csv --dry-run --json
   ```
 
-## Cookbook
+## Recipes
+
 
 ### Find every 4K UHD release of Fight Club
-Resolve a title to local release ids, narrowed to the format a collector actually wants.
 
 ```bash
 blu-ray-pp-cli search 'fight club' --format 4k --json --select id,title,year,distributor,country
 ```
 
-### Track a target price
-Add a release to the local watchlist, scan current deals, then inspect the stored price curve later.
+Offline FTS5 lookup narrowed to 4K — returns each id you can then `releases get` for full specs.
+
+### Daily 4K UHD preorder digest
 
 ```bash
-blu-ray-pp-cli watch add 9929 --target-price 14.99
-blu-ray-pp-cli watch check --agent
-blu-ray-pp-cli history 9929 --plot
+blu-ray-pp-cli releases new --show comingsoon --format 4k --json --select title,release_date,distributor | jq '.[:20]'
 ```
 
-### Import and enrich a UPC export
-Turn a UPC-only collection export into structured local release records.
+Pipe to jq for the top 20 — drop into cron for a daily digest, no Discord webhook needed.
+
+### Spot a real deal vs. a fake one
 
 ```bash
-blu-ray-pp-cli upc ./my-bluray-collection.csv --enrich --json > collection.json
+blu-ray-pp-cli deals --country USA --format 4k --json --select release_id,title,sale_price,percent_off | jq '.[] | select(.percent_off>40)'
 ```
 
-### Build a weekly catalog drift count
-Use sitemap snapshots to count new releases added since the last weekly sync.
+Filters deals to >40% off, then cross-reference each `release_id` with `blu-ray-pp-cli history <id> --plot` to confirm it's a real historical low.
+
+### Import a Blu-ray.com UPC export and enrich it
 
 ```bash
-blu-ray-pp-cli sync --kind bluray --quiet
+blu-ray-pp-cli upc ./my-bluray-collection.csv --dry-run --json > collection.json
+```
+
+Round-trips Blu-ray.com's UPC-only export back into structured release data — titles, formats, ratings, current prices.
+
+### What dropped this week?
+
+```bash
 blu-ray-pp-cli drift --since 2026-05-10 --kind bluray --json | jq '.added | length'
 ```
 
-### Export a portable catalog slice
-Save the local 4K catalog as a file another tool can consume without touching the network.
-
-```bash
-blu-ray-pp-cli export --format csv --kind 4k --output 4k-releases.csv
-```
+Counts new Blu-ray releases added to the catalog in the past 7 days. Replace `.added` with `.removed` or `.changed` for the other slices.
 
 ## Usage
 
@@ -276,6 +271,7 @@ Public XML sitemaps. Used by `sync` to enumerate every release id; safe to fetch
 - **`blu-ray-pp-cli sitemap bluraymovies`** - One of nine gzipped Blu-ray release shards (50,000 URLs each). Pull all nine for the full Blu-ray catalog.
 - **`blu-ray-pp-cli sitemap index`** - Sitemap index — points at gzipped sub-sitemaps for main, news, bluraymovies (9 shards), dvdmovies (7), itunesmovies (5), digitalmovies (2), cast (11), ma, games, other.
 - **`blu-ray-pp-cli sitemap news`** - Compressed news sitemap — each entry has title + publication_date inline (no per-story fetch needed for enumeration).
+
 
 ## Output Formats
 
@@ -330,13 +326,10 @@ Static request headers can be configured under `headers`; per-command header ove
 - Run the `list` command to see available items
 
 ### API-specific
-
 - **HTTP 403 / suddenly empty deals** — You hit Blu-ray.com's per-IP throttle (~4,000 pages/day). Wait 24h, lower concurrency (`--wait 3`), or set BLURAY_PP_PROXY.
 - **Garbled accented characters in titles** — Pages are ISO-8859-1; the parser handles this automatically. If you see mojibake, ensure your terminal is UTF-8 (`echo $LANG` should include UTF-8) — the CLI re-encodes before printing.
 - **`search` returns nothing** — Run `blu-ray-pp-cli sync` once — the offline index is empty until you've synced the sitemap. After sync, `\bdoctor\b` reports the local catalog size.
 - **A movie's URL has changed** — The numeric `id` is stable. `releases get <stale-slug> <id>` follows the 301 to the current slug; or look up the current slug with `search` first.
-
----
 
 ## Sources & Inspiration
 

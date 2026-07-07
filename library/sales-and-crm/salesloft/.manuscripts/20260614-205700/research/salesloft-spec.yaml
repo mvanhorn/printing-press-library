@@ -1,0 +1,294 @@
+openapi: 3.0.3
+info:
+  title: Salesloft Read API
+  version: 2.0.0
+  description: Read-first Salesloft API surface for agent workflows, based on the public Salesloft v2 developer documentation.
+servers:
+  - url: https://api.salesloft.com/v2
+security:
+  - BearerAuth: []
+tags:
+  - name: Identity
+  - name: Users
+  - name: People
+  - name: Accounts
+  - name: Cadences
+  - name: Activities
+  - name: Tasks
+  - name: Calls
+  - name: Notes
+  - name: Meetings
+  - name: Opportunities
+paths:
+  /me:
+    get:
+      operationId: getMe
+      tags: [Identity]
+      summary: Get the authenticated Salesloft user.
+      responses:
+        "200":
+          $ref: "#/components/responses/Success"
+  /team:
+    get:
+      operationId: getTeam
+      tags: [Identity]
+      summary: Get the authenticated user's Salesloft team.
+      responses:
+        "200":
+          $ref: "#/components/responses/Success"
+  /users:
+    get:
+      operationId: listUsers
+      tags: [Users]
+      summary: List Salesloft users.
+      parameters:
+        - $ref: "#/components/parameters/Page"
+        - $ref: "#/components/parameters/PerPage"
+      responses:
+        "200":
+          $ref: "#/components/responses/Success"
+  /users/{id}:
+    get:
+      operationId: getUser
+      tags: [Users]
+      summary: Get a Salesloft user by ID.
+      parameters:
+        - $ref: "#/components/parameters/NumericId"
+      responses:
+        "200":
+          $ref: "#/components/responses/Success"
+  /people:
+    get:
+      operationId: listPeople
+      tags: [People]
+      summary: List Salesloft people.
+      parameters:
+        - $ref: "#/components/parameters/Page"
+        - $ref: "#/components/parameters/PerPage"
+        - $ref: "#/components/parameters/Search"
+      responses:
+        "200":
+          $ref: "#/components/responses/Success"
+  /people/{id}:
+    get:
+      operationId: getPerson
+      tags: [People]
+      summary: Get a Salesloft person by ID.
+      parameters:
+        - $ref: "#/components/parameters/NumericId"
+      responses:
+        "200":
+          $ref: "#/components/responses/Success"
+  /accounts:
+    get:
+      operationId: listAccounts
+      tags: [Accounts]
+      summary: List Salesloft accounts.
+      parameters:
+        - $ref: "#/components/parameters/Page"
+        - $ref: "#/components/parameters/PerPage"
+        - $ref: "#/components/parameters/Search"
+      responses:
+        "200":
+          $ref: "#/components/responses/Success"
+  /accounts/{id}:
+    get:
+      operationId: getAccount
+      tags: [Accounts]
+      summary: Get a Salesloft account by ID.
+      parameters:
+        - $ref: "#/components/parameters/NumericId"
+      responses:
+        "200":
+          $ref: "#/components/responses/Success"
+  /activities:
+    get:
+      operationId: listActivities
+      tags: [Activities]
+      summary: List recent Salesloft activities.
+      parameters:
+        - $ref: "#/components/parameters/Page"
+        - $ref: "#/components/parameters/PerPage"
+        - $ref: "#/components/parameters/StartTime"
+        - $ref: "#/components/parameters/EndTime"
+      responses:
+        "200":
+          $ref: "#/components/responses/Success"
+  /cadences:
+    get:
+      operationId: listCadences
+      tags: [Cadences]
+      summary: List Salesloft cadences.
+      parameters:
+        - $ref: "#/components/parameters/Page"
+        - $ref: "#/components/parameters/PerPage"
+      responses:
+        "200":
+          $ref: "#/components/responses/Success"
+  /cadences/{id}:
+    get:
+      operationId: getCadence
+      tags: [Cadences]
+      summary: Get a Salesloft cadence by ID.
+      parameters:
+        - $ref: "#/components/parameters/NumericId"
+      responses:
+        "200":
+          $ref: "#/components/responses/Success"
+  /tasks:
+    get:
+      operationId: listTasks
+      tags: [Tasks]
+      summary: List Salesloft tasks.
+      parameters:
+        - $ref: "#/components/parameters/Page"
+        - $ref: "#/components/parameters/PerPage"
+        - name: status
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          $ref: "#/components/responses/Success"
+  /tasks/{id}:
+    get:
+      operationId: getTask
+      tags: [Tasks]
+      summary: Get a Salesloft task by ID.
+      parameters:
+        - $ref: "#/components/parameters/NumericId"
+      responses:
+        "200":
+          $ref: "#/components/responses/Success"
+  /calls:
+    get:
+      operationId: listCalls
+      tags: [Calls]
+      summary: List Salesloft calls.
+      parameters:
+        - $ref: "#/components/parameters/Page"
+        - $ref: "#/components/parameters/PerPage"
+        - $ref: "#/components/parameters/StartTime"
+        - $ref: "#/components/parameters/EndTime"
+      responses:
+        "200":
+          $ref: "#/components/responses/Success"
+  /calls/{id}:
+    get:
+      operationId: getCall
+      tags: [Calls]
+      summary: Get a Salesloft call by ID.
+      parameters:
+        - $ref: "#/components/parameters/NumericId"
+      responses:
+        "200":
+          $ref: "#/components/responses/Success"
+  /notes:
+    get:
+      operationId: listNotes
+      tags: [Notes]
+      summary: List Salesloft notes.
+      parameters:
+        - $ref: "#/components/parameters/Page"
+        - $ref: "#/components/parameters/PerPage"
+      responses:
+        "200":
+          $ref: "#/components/responses/Success"
+  /notes/{id}:
+    get:
+      operationId: getNote
+      tags: [Notes]
+      summary: Get a Salesloft note by ID.
+      parameters:
+        - $ref: "#/components/parameters/NumericId"
+      responses:
+        "200":
+          $ref: "#/components/responses/Success"
+  /meetings:
+    get:
+      operationId: listMeetings
+      tags: [Meetings]
+      summary: List Salesloft meetings.
+      parameters:
+        - $ref: "#/components/parameters/Page"
+        - $ref: "#/components/parameters/PerPage"
+        - $ref: "#/components/parameters/StartTime"
+        - $ref: "#/components/parameters/EndTime"
+      responses:
+        "200":
+          $ref: "#/components/responses/Success"
+  /opportunities:
+    get:
+      operationId: listOpportunities
+      tags: [Opportunities]
+      summary: List Salesloft opportunities.
+      parameters:
+        - $ref: "#/components/parameters/Page"
+        - $ref: "#/components/parameters/PerPage"
+      responses:
+        "200":
+          $ref: "#/components/responses/Success"
+  /opportunities/{id}:
+    get:
+      operationId: getOpportunity
+      tags: [Opportunities]
+      summary: Get a Salesloft opportunity by ID.
+      parameters:
+        - $ref: "#/components/parameters/NumericId"
+      responses:
+        "200":
+          $ref: "#/components/responses/Success"
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+  parameters:
+    NumericId:
+      name: id
+      in: path
+      required: true
+      schema:
+        type: integer
+        format: int64
+    Page:
+      name: page
+      in: query
+      schema:
+        type: integer
+        minimum: 1
+    PerPage:
+      name: per_page
+      in: query
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 100
+    Search:
+      name: search
+      in: query
+      schema:
+        type: string
+    StartTime:
+      name: start_time
+      in: query
+      schema:
+        type: string
+        format: date-time
+    EndTime:
+      name: end_time
+      in: query
+      schema:
+        type: string
+        format: date-time
+  responses:
+    Success:
+      description: JSON response from Salesloft.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/GenericObject"
+  schemas:
+    GenericObject:
+      type: object
+      additionalProperties: true

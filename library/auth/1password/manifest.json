@@ -1,0 +1,27 @@
+{
+  "manifest_version": "0.3",
+  "name": "1password-pp-mcp",
+  "display_name": "1Password Agent Secrets",
+  "version": "0.0.0",
+  "description": "Agent-safe command layer over the official 1Password CLI and SDK service-account workflows.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/1password-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/1password-pp-mcp",
+      "args": []
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

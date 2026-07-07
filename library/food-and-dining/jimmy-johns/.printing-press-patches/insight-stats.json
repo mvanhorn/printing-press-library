@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "id": "insight-stats",
+  "applied_at": "2026-05-11",
+  "base_run_id": "20260511-034611",
+  "base_printing_press_version": "4.2.2",
+  "files": [
+    "internal/cli/stats.go"
+  ],
+  "summary": "Add `stats` — local SQL aggregation over synced stores/products/orders/rewards.",
+  "reason": "Insight scorer requires a top-line aggregation command that reads from the local store."
+}

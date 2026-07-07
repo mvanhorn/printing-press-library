@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "namecheap-deterministic-cache-key",
+  "applied_at": "2026-05-14",
+  "base_run_id": "20260514-namecheap",
+  "base_printing_press_version": "4.6.0",
+  "summary": "Sort GET query parameters before hashing cache keys.",
+  "reason": "Go map iteration order is randomized, so cache reads and writes for the same Namecheap request could otherwise hash to different filenames.",
+  "files": [
+    "internal/client/client.go",
+    "internal/client/cache_test.go"
+  ],
+  "validated_outcome": "TestCacheKeySortsParameters verifies equivalent parameter maps produce the same cache key."
+}

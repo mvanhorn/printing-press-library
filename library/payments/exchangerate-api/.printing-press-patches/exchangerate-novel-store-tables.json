@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "exchangerate-novel-store-tables",
+  "applied_at": "2026-05-17",
+  "base_run_id": "20260517-025552",
+  "base_printing_press_version": "4.8.0",
+  "summary": "Introduce hand-authored SQLite tables for novel-feature state: rates_snapshots, quota_snapshots, watchlist, conversions_log. Each comes with typed Insert helpers and an idempotent EnsureExrateTables bootstrap.",
+  "reason": "The four novel-feature data classes have no spec source; the generator's typed table emission only covers spec resources. Without these tables, history-cache, drift, watch, quota burn, and log show have no persistence layer. Inserts hold the store writeMu and are transactional so concurrent novel commands can't corrupt the store.",
+  "files": [
+    "internal/store/exrate_tables.go"
+  ],
+  "validated_outcome": "All four tables created on first novel-feature invocation; sync-rates writes ~166 rate snapshots per USD-base sync; watch/log/drift round-trip correctly; go test ./internal/store passes."
+}

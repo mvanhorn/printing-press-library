@@ -1,0 +1,64 @@
+{
+  "api_name": "xai",
+  "api_version": "1.0.0",
+  "auth_env_vars": [
+    "XAI_API_KEY"
+  ],
+  "auth_preference": "bearerAuth",
+  "auth_title": "xAI API key",
+  "auth_type": "bearer_token",
+  "category": "ai",
+  "cli_name": "xai-pp-cli",
+  "creator": {
+    "handle": "cathrynlavery",
+    "name": "Cathryn Lavery"
+  },
+  "description": "REST API for xAI compatible with other providers.",
+  "display_name": "xAI",
+  "generated_at": "2026-06-08T20:16:52.784762Z",
+  "mcp_binary": "xai-pp-mcp",
+  "mcp_ready": "full",
+  "mcp_tool_count": 41,
+  "novel_features": [
+    {
+      "name": "Model picker",
+      "command": "model-picker",
+      "description": "Rank live xAI models for a task using the authenticated model catalog."
+    },
+    {
+      "name": "Cost preview",
+      "command": "cost-preview",
+      "description": "Estimate xAI token cost from live model pricing metadata before sending a request."
+    },
+    {
+      "name": "Model capability matrix",
+      "command": "model-capabilities",
+      "description": "Build a live capability matrix across chat, reasoning, vision, embedding, image, and video models."
+    },
+    {
+      "name": "Smoke chat",
+      "command": "smoke-chat",
+      "description": "Verify that the authenticated key can run a tiny xAI chat completion."
+    },
+    {
+      "name": "Credential capability audit",
+      "command": "api-key",
+      "description": "Inspect the authenticated xAI API key status and permissions without exposing the secret value."
+    },
+    {
+      "name": "Agent raw endpoint browser",
+      "command": "api",
+      "description": "Browse the complete generated xAI endpoint surface by interface for agent planning and fallback calls."
+    }
+  ],
+  "owner": "cathrynlavery",
+  "printer": "cathrynlavery",
+  "printer_name": "Cathryn Lavery",
+  "printing_press_version": "4.24.0",
+  "run_id": "20260608-201652",
+  "schema_version": 1,
+  "spec_checksum": "sha256:86a22c122ae624d5b2f160884242a4743a1caee63294a0059b8146ca1c4754ba",
+  "spec_format": "openapi3",
+  "spec_path": "xai-openapi.normalized.json",
+  "spec_url": "https://docs.x.ai/openapi.json"
+}

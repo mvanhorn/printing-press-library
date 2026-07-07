@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "snapshot-nanos-precision",
+  "applied_at": "2026-05-14",
+  "base_run_id": "20260514-073613",
+  "base_printing_press_version": "4.6.1",
+  "summary": "Snapshot() formats snapshot_at with time.RFC3339Nano so sub-second concurrent Snapshot() calls cannot collide on the composite PK.",
+  "reason": "Greptile review (PR #576): RFC3339 (second precision) + INSERT OR IGNORE on (snapshot_at, sku_kind, sku_id) silently dropped any row whose timestamp collided with an existing one. Agent-loop modes (--tail, parallel health checks) hit this window. RFC3339Nano keeps the same TEXT column shape but makes real collisions astronomically unlikely.",
+  "files": [
+    "internal/pricebook/costhistory.go"
+  ],
+  "validated_outcome": "go build, go vet, go test ./internal/pricebook/ all clean"
+}

@@ -18,7 +18,7 @@ func newCustomersOperationsCancelCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:         "cancel <name>",
 		Short:       "Starts asynchronous cancellation on a long-running operation. The server makes a best effort to cancel the...",
-		Example:     "  google-ads-pp-cli customers_operations cancel example-resource",
+		Example:     "  google-ads-pp-cli customers-operations cancel example-resource",
 		Annotations: map[string]string{"pp:endpoint": "customers_operations.cancel", "pp:method": "POST", "pp:path": "/v22/{name}:cancel"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

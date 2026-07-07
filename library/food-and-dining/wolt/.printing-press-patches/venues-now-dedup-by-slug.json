@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "venues-now-dedup-by-slug",
+  "applied_at": "2026-05-23",
+  "base_run_id": "20260523T141801Z-fb7995c2",
+  "base_printing_press_version": "4.12.0",
+  "summary": "venues-now and cuisine-bottleneck now dedupe by venue slug across sections of /v1/pages/restaurants.",
+  "reason": "Wolt groups the same venue into multiple thematic sections (Featured, Top Rated, cuisine buckets). Without dedup, venues-now could return the same venue multiple times and cuisine-bottleneck would count one venue N times per tag, skewing VenueCount, OpenCount, and AvgETAMin. Verified live against Helsinki: 170 venues returned, 0 duplicate slugs.",
+  "files": [
+    "internal/cli/venues_now.go",
+    "internal/cli/cuisine_bottleneck.go"
+  ]
+}

@@ -1,0 +1,39 @@
+{
+  "manifest_version": "0.3",
+  "name": "function-health-pp-mcp",
+  "display_name": "Function Health",
+  "version": "4.19.0",
+  "description": "Every Function Health feature, plus a local SQLite store with biomarker trends across every round you've ever drawn, plus a branded shareable PDF your doctor will actually read.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/function-health-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/function-health-pp-mcp",
+      "args": [],
+      "env": {
+        "FUNCTION_HEALTH_TOKEN": "${user_config.function_health_token}"
+      }
+    }
+  },
+  "user_config": {
+    "function_health_token": {
+      "type": "string",
+      "title": "FUNCTION_HEALTH_TOKEN",
+      "description": "Sets FUNCTION_HEALTH_TOKEN for the Function Health MCP server.",
+      "sensitive": true,
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

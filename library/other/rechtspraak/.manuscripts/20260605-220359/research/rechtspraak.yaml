@@ -1,0 +1,309 @@
+name: rechtspraak
+description: "Dutch court decisions CLI - data.rechtspraak.nl Open Data with local FTS narrowing and an appeal-chain walker"
+version: "0.1.0"
+base_url: "https://data.rechtspraak.nl"
+http_transport: standard
+health_check_path: "/uitspraken/zoeken?max=1"
+
+required_headers:
+  - name: User-Agent
+    value: "rechtspraak-pp-cli/0.1.0 (+printing-press)"
+  - name: Accept
+    value: "application/atom+xml, application/xml;q=0.9, */*;q=0.5"
+
+auth:
+  type: none
+
+config:
+  format: toml
+  path: "~/.config/rechtspraak-pp-cli/config.toml"
+
+mcp:
+  transport: [stdio, http]
+
+resources:
+  uitspraken:
+    description: "Search and fetch Dutch court decisions (ECLI register)"
+    endpoints:
+      search:
+        method: GET
+        path: "/uitspraken/zoeken"
+        description: "Search the ECLI index by date, court, subject, type. Per IVO 1.15: same-type params are OR-unioned, cross-type params are AND-combined. Local --keyword/--exclude/--phrase/--regex/--procedure flags narrow results against the synced FTS5 index after the API returns."
+        params:
+          - name: max
+            type: int
+            default: 1000
+            description: "Maximum results per page (server caps at 1000)"
+          - name: from
+            type: int
+            default: 0
+            description: "Pagination offset for results beyond max"
+          - name: date
+            type: string
+            description: "Decision date (Uitspraakdatum). One value = exact day; pass twice for a range. Format: YYYY-MM-DD."
+          - name: modified
+            type: string
+            description: "Modification date. One value = from that point until now; pass twice for a range. Format: YYYY-MM-DDTHH:MM:SS."
+          - name: subject
+            type: string
+            description: "Subject area (rechtsgebied) PSI URI. Repeat for multi-subject OR-union."
+          - name: creator
+            type: string
+            description: "Court (instantie) PSI URI. Repeat for multi-court OR-union."
+          - name: type
+            type: string
+            enum: ["Uitspraak", "Conclusie"]
+            description: "Document type: Uitspraak (decision) or Conclusie (A-G conclusion)"
+          - name: replaces
+            type: string
+            description: "Old LJN code. Returns the ECLI(s) that superseded that LJN."
+          - name: return
+            type: string
+            enum: ["DOC"]
+            description: "DOC = only return ECLIs that have a document body (subset)"
+          - name: sort
+            type: string
+            enum: ["ASC", "DESC"]
+            default: "ASC"
+            description: "Sort by modification date - ASC oldest-first (default) or DESC newest-first"
+        response:
+          type: array
+          item: SearchEntry
+
+      get:
+        method: GET
+        path: "/uitspraken/content"
+        description: "Fetch a single decision by ECLI - returns full RDF metadata plus the inhoudsindicatie summary and the uitspraak body when available."
+        params:
+          - name: id
+            type: string
+            required: true
+            description: "The ECLI to fetch, e.g. ECLI:NL:HR:2024:1"
+          - name: return
+            type: string
+            enum: ["META"]
+            description: "META = metadata only (skip body, saves bandwidth on large decisions)"
+        response:
+          type: object
+          item: Decision
+
+      image:
+        method: GET
+        path: "/uitspraken/image"
+        description: "Fetch an embedded image from a decision body by its imagedata identifier"
+        params:
+          - name: id
+            type: string
+            required: true
+            description: "Image identifier from an imagedata element inside a decision body"
+        response:
+          type: object
+          item: Image
+
+  courts:
+    description: "Dutch courts (Instanties) controlled vocabulary - 79KB authoritative list"
+    endpoints:
+      list:
+        method: GET
+        path: "/Waardelijst/Instanties"
+        description: "List every Dutch rechtsprekende instantie with PSI URI, full name, afkorting code, type, and Begin/EndDate. Begin/EndDate enable court-succession lookup (Wet Herziening Gerechtelijke Kaart)."
+        response:
+          type: array
+          item: Court
+
+  foreign-courts:
+    description: "Foreign courts (BuitenlandseInstanties) referenced by Dutch decisions"
+    endpoints:
+      list:
+        method: GET
+        path: "/Waardelijst/InstantiesBuitenlands"
+        description: "Foreign court catalog: ECHR, CJEU, and ~5000 EU member-state courts with PSI URI, multilingual name, and country code"
+        response:
+          type: array
+          item: ForeignCourt
+
+  subjects:
+    description: "Subject areas (Rechtsgebieden) controlled vocabulary - hierarchical"
+    endpoints:
+      list:
+        method: GET
+        path: "/Waardelijst/Rechtsgebieden"
+        description: "Subject-area taxonomy with PSI URIs, names, and parent-child hierarchy"
+        response:
+          type: array
+          item: Subject
+
+  procedures:
+    description: "Procedure types (Proceduresoorten) controlled vocabulary"
+    endpoints:
+      list:
+        method: GET
+        path: "/Waardelijst/Proceduresoorten"
+        description: "Procedure types (cassatie, hoger beroep, kort geding, etc.) with PSI URIs"
+        response:
+          type: array
+          item: Procedure
+
+  relations:
+    description: "Formal relation types (FormeleRelaties) between decisions"
+    endpoints:
+      list:
+        method: GET
+        path: "/Waardelijst/FormeleRelaties"
+        description: "Relation taxonomy: each relation type pairs from/to court tiers and lists the canonical AfhandelingsWijze (disposition outcomes: bekrachtiging, vernietiging, niet ontvankelijk, etc.)"
+        response:
+          type: array
+          item: Relation
+
+  foreign-decisions:
+    description: "Non-Dutch decisions registered with LJN codes (NietNederlandseUitspraken)"
+    endpoints:
+      list:
+        method: GET
+        path: "/Waardelijst/NietNederlandseUitspraken"
+        description: "Bridge from foreign ECLIs (CJEU, ECHR) to old Dutch LJN codes - ~173k entries"
+        response:
+          type: array
+          item: ForeignDecision
+
+types:
+  SearchEntry:
+    fields:
+      - name: ecli
+        type: string
+      - name: title
+        type: string
+      - name: summary
+        type: string
+      - name: updated
+        type: string
+      - name: link
+        type: string
+      - name: deleted
+        type: string
+
+  Decision:
+    fields:
+      - name: ecli
+        type: string
+      - name: court
+        type: string
+      - name: court_uri
+        type: string
+      - name: decision_date
+        type: string
+      - name: publication_date
+        type: string
+      - name: modified
+        type: string
+      - name: subject
+        type: string
+      - name: subject_uri
+        type: string
+      - name: procedure
+        type: string
+      - name: procedure_uri
+        type: string
+      - name: type
+        type: string
+      - name: zaaknummer
+        type: string
+      - name: title
+        type: string
+      - name: alternative_title
+        type: string
+      - name: summary
+        type: string
+      - name: body
+        type: string
+      - name: contributors
+        type: string
+      - name: spatial
+        type: string
+      - name: relations
+        type: string
+      - name: references
+        type: string
+      - name: vindplaatsen
+        type: string
+      - name: replaces
+        type: string
+      - name: is_replaced_by
+        type: string
+      - name: language
+        type: string
+      - name: access_rights
+        type: string
+
+  Image:
+    fields:
+      - name: id
+        type: string
+      - name: content_type
+        type: string
+      - name: size
+        type: int
+
+  Court:
+    fields:
+      - name: identifier
+        type: string
+      - name: name
+        type: string
+      - name: afkorting
+        type: string
+      - name: type
+        type: string
+      - name: begin_date
+        type: string
+      - name: end_date
+        type: string
+
+  ForeignCourt:
+    fields:
+      - name: identifier
+        type: string
+      - name: name
+        type: string
+      - name: afkorting
+        type: string
+      - name: type
+        type: string
+      - name: begin_date
+        type: string
+
+  Subject:
+    fields:
+      - name: identifier
+        type: string
+      - name: name
+        type: string
+      - name: parent_identifier
+        type: string
+
+  Procedure:
+    fields:
+      - name: identifier
+        type: string
+      - name: name
+        type: string
+
+  Relation:
+    fields:
+      - name: name
+        type: string
+      - name: identifier
+        type: string
+      - name: label_earlier
+        type: string
+      - name: label_later
+        type: string
+      - name: outcomes
+        type: string
+
+  ForeignDecision:
+    fields:
+      - name: ecli
+        type: string
+      - name: ljn
+        type: string

@@ -20,7 +20,7 @@ func newReleasesNewCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:         "new",
 		Short:       "List recent Blu-ray, 4K, DVD, and digital releases (paginated). Returns release page links from the static template.",
-		Example:     "  blu-ray-pp-cli releases new",
+		Example:     "  blu-ray-pp-cli releases new --show comingsoon --format 4k --json --select title,release_date,distributor",
 		Annotations: map[string]string{"pp:endpoint": "releases.new", "pp:method": "GET", "pp:path": "/movies/movies.php", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if cmd.Flags().Changed("show") {
@@ -33,7 +33,7 @@ func newReleasesNewCmd(flags *rootFlags) *cobra.Command {
 					}
 				}
 				if !validShow {
-					fmt.Fprintf(os.Stderr, "warning: --%s %q not in allowed set %v\n", "show", flagShow, allowedShow)
+					return fmt.Errorf("invalid value %q for --%s: must be one of %v", flagShow, "show", allowedShow)
 				}
 			}
 			if cmd.Flags().Changed("format") {
@@ -46,7 +46,7 @@ func newReleasesNewCmd(flags *rootFlags) *cobra.Command {
 					}
 				}
 				if !validFormat {
-					fmt.Fprintf(os.Stderr, "warning: --%s %q not in allowed set %v\n", "format", flagFormat, allowedFormat)
+					return fmt.Errorf("invalid value %q for --%s: must be one of %v", flagFormat, "format", allowedFormat)
 				}
 			}
 			c, err := flags.newClient()
@@ -57,31 +57,31 @@ func newReleasesNewCmd(flags *rootFlags) *cobra.Command {
 			path := "/movies/movies.php"
 			htmlRequestParams := map[string]string{}
 			if flagShow != "" {
-				htmlRequestParams["show"] = fmt.Sprintf("%v", flagShow)
+				htmlRequestParams["show"] = formatCLIParamValue(flagShow)
 			}
 			if flagPage != "" {
-				htmlRequestParams["page"] = fmt.Sprintf("%v", flagPage)
+				htmlRequestParams["page"] = formatCLIParamValue(flagPage)
 			}
 			if flagCountry != "" {
-				htmlRequestParams["country"] = fmt.Sprintf("%v", flagCountry)
+				htmlRequestParams["country"] = formatCLIParamValue(flagCountry)
 			}
 			if flagFormat != "" {
-				htmlRequestParams["format"] = fmt.Sprintf("%v", flagFormat)
+				htmlRequestParams["format"] = formatCLIParamValue(flagFormat)
 			}
 			params := map[string]string{}
 			if flagShow != "" {
-				params["show"] = fmt.Sprintf("%v", flagShow)
+				params["show"] = formatCLIParamValue(flagShow)
 			}
 			if flagPage != "" {
-				params["page"] = fmt.Sprintf("%v", flagPage)
+				params["page"] = formatCLIParamValue(flagPage)
 			}
 			if flagCountry != "" {
-				params["country"] = fmt.Sprintf("%v", flagCountry)
+				params["country"] = formatCLIParamValue(flagCountry)
 			}
 			if flagFormat != "" {
-				params["format"] = fmt.Sprintf("%v", flagFormat)
+				params["format"] = formatCLIParamValue(flagFormat)
 			}
-			data, prov, err := resolveRead(cmd.Context(), c, flags, "releases", false, path, params, nil)
+			data, prov, err := resolveReadWithStrategy(cmd.Context(), c, flags, "auto", "releases", false, path, params, nil, cmd.ErrOrStderr())
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}

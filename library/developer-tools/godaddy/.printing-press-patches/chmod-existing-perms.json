@@ -1,0 +1,17 @@
+{
+  "schema_version": 2,
+  "id": "chmod-existing-perms",
+  "applied_at": "2026-05-28",
+  "base_run_id": "20260522-124732",
+  "base_printing_press_version": "4.11.0",
+  "summary": "Re-assert owner-only mode on cache/config/store/state paths via os.Chmod after MkdirAll/WriteFile/OpenFile, since those calls only set mode at creation time.",
+  "reason": "Security: os.WriteFile/os.MkdirAll/O_CREATE do not change the mode of an existing file or dir. Files/dirs left from an older 0o644/0o755 build therefore stayed world-readable despite the perms tightening. Added best-effort os.Chmod after each sensitive write/mkdir in cache.go, config.go, client.go, store.go (db dir), profile.go and feedback.go (state dir + appended ledger). store.go already chmod'd the SQLite file + WAL/SHM sidecars; this adds the missing db-dir chmod.",
+  "files": [
+    "internal/cache/cache.go",
+    "internal/config/config.go",
+    "internal/client/client.go",
+    "internal/store/store.go",
+    "internal/cli/profile.go",
+    "internal/cli/feedback.go"
+  ]
+}

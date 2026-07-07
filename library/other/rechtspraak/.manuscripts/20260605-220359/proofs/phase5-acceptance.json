@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "api_name": "rechtspraak",
+  "run_id": "20260605-220359",
+  "status": "pass",
+  "level": "quick",
+  "matrix_size": 13,
+  "tests_passed": 13,
+  "tests_skipped": 11,
+  "auth_context": {
+    "type": "none"
+  }
+}

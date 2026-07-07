@@ -1,0 +1,458 @@
+{
+  "schema_version": 1,
+  "applied_at": "2026-05-26",
+  "base_run_id": "20260522-175728",
+  "base_printing_press_version": "4.10.0",
+  "upstream_tracking": [
+    "ESPN PR #851 HEAD 9bb0a40a (mvanhorn/printing-press-library): source-of-truth for the learn-loop backport patches (U1-U11) under docs/plans/2026-05-25-001-feat-prediction-goat-learn-loop-backport-plan.md. Each `learn-loop-backport-uN-*` patch entry mirrors the corresponding ESPN file under library/media-and-entertainment/espn/ at that HEAD."
+  ],
+  "patches": [
+    {
+      "id": "dogfood-fixes-2026-05-22",
+      "summary": "Patch topic/compare/mispriced and add Polymarket+Kalshi discovery helpers to close the 16 gaps surfaced by live dogfooding (NBA WCF, Kanye, NBA draft, World Cup).",
+      "reason": "topic FTS query AND-joined hyphenated terms and the BM25-only ranker buried high-volume series markets, dropping participants from multi-outcome events. Kalshi sync wrote list-shape payloads with null prices. compare and mispriced returned opaque empty results on no-pair. The /public-search proxy missed Polymarket celebrity hub topics. Discovery commands (polymarket event-of, polymarket siblings, kalshi-series-search) were missing.",
+      "files": [
+        "internal/cli/topic.go",
+        "internal/cli/topic_test.go",
+        "internal/cli/compare.go",
+        "internal/cli/compare_test.go",
+        "internal/cli/mispriced.go",
+        "internal/cli/mispriced_test.go",
+        "internal/cli/liquid.go",
+        "internal/cli/trending.go",
+        "internal/cli/kalshi.go",
+        "internal/cli/polymarket_walk.go",
+        "internal/cli/kalshi_series_search.go",
+        "internal/cli/root.go",
+        "internal/source/kalshi/client.go",
+        "internal/source/kalshi/backfill.go",
+        "internal/source/kalshi/backfill_test.go",
+        "internal/source/polymarket/walk.go",
+        "internal/source/polymarket/walk_test.go",
+        "SKILL.md",
+        "README.md"
+      ],
+      "validated_outcome": "topic kanye returns the same hit count as topic kanye-west; topic 'NBA Western Conference Finals' surfaces KXNBAWEST; topic 2026-world-cup force-includes USA; polymarket siblings will-ghana-win-the-2026-fifa-world-cup includes the USA market with non-null yesPercent; kalshi sync backfills active high-volume markets; compare returns structured unpaired diagnostic on no-pair; mispriced skips untraded; new commands registered.",
+      "upstream_issue": "Pending: file against mvanhorn/cli-printing-press to backport ranker + discovery shape into the generator templates."
+    },
+    {
+      "id": "wal-pragmas-via-connection-hook",
+      "summary": "Apply journal_mode=WAL and busy_timeout=5000 via sqlite.RegisterConnectionHook because DSN-level _journal_mode/_busy_timeout params are silently ignored by modernc.org/sqlite v1.37.0.",
+      "reason": "Live store opened with the DSN-style pragma params still reported PRAGMA journal_mode=delete and busy_timeout=0, which is the root cause of the SQLITE_BUSY failures observed during concurrent topic queries and during kalshi sync. Connection hook is the only reliable path.",
+      "files": [
+        "internal/store/store.go",
+        "internal/store/store_concurrency_test.go"
+      ],
+      "validated_outcome": "go test ./internal/store/... passes (76 tests including 4 new concurrency tests). Live db now reports journal_mode=wal, busy_timeout=5000.",
+      "upstream_issue": "Generator template should switch from DSN-pragma to connection-hook approach for all printed CLIs that use modernc.org/sqlite."
+    },
+    {
+      "id": "kalshi-events-with-markets-and-series-filter",
+      "summary": "Add --with-markets to `kalshi events get` (passes with_nested_markets=true upstream) and implement --series on `kalshi events list` (advertised in --help pre-fix but never declared as a flag).",
+      "reason": "Before this patch the only way to enumerate every child market under a Kalshi event was raw curl against the upstream API. The CLI now returns all 56 KXMENWORLDCUP-26 child markets in one call. The --series filter on list completes the series \u2192 event \u2192 markets walk that the existing CLI surface implied but couldn't actually execute.",
+      "files": [
+        "internal/cli/kalshi_events.go",
+        "internal/cli/kalshi_events_test.go",
+        "SKILL.md"
+      ],
+      "validated_outcome": "End-to-end smoke against live Kalshi API: `kalshi events get KXMENWORLDCUP-26 --with-markets --agent` returns 56 markets including KXMENWORLDCUP-26-PT; `kalshi events list --series KXMENWORLDCUP --data-source live --agent` returns the 2026 event. go test passes; verify_skill.py still passes after SKILL.md additions."
+    },
+    {
+      "id": "venue-scoping-flags",
+      "summary": "Add --venue, --polymarket, --kalshi flags to topic, compare, liquid, movers, resolving, trending, new via a shared addVenueFlags + resolveVenue helper. Default behavior (no flag) stays cross-venue.",
+      "reason": "Agents that already know which venue they want should be able to skip the second one to halve query latency. compare additionally errors when scoped to a single venue (it requires both).",
+      "files": [
+        "internal/cli/venue.go",
+        "internal/cli/venue_test.go",
+        "internal/cli/topic.go",
+        "internal/cli/compare.go",
+        "internal/cli/liquid.go",
+        "internal/cli/movers.go",
+        "internal/cli/resolving.go",
+        "internal/cli/trending.go",
+        "internal/cli/new_markets.go"
+      ],
+      "validated_outcome": "go test ./... passes. verify_skill.py still passes."
+    },
+    {
+      "id": "live-on-read-freshness",
+      "summary": "Refresh price-bearing fields from upstream APIs at command time for topic / compare / mispriced / trending / movers / resolving / liquid / new. Surface index age and refresh outcome in meta.price_source and meta.index_synced_at.",
+      "reason": "The local SQLite store is a discovery index but doubled as the price source. A user asking 'what are the odds Lakers win tonight' could be served hours-old cached prices with no signal they were stale. The refresher batches hits by venue and fires one /markets?slug= (Polymarket) or /markets?tickers= (Kalshi) call per venue, replacing cached values on the in-memory hits before serialization. A failed live fetch degrades affected rows to price_source: stale rather than failing the whole command. Complements the existing kalshi sync-time price backfill (which fills nulls in the cache) by ensuring the displayed price reflects current upstream state at command time.",
+      "files": [
+        "internal/cli/freshness.go",
+        "internal/cli/freshness_test.go",
+        "internal/cli/topic.go",
+        "internal/cli/compare.go",
+        "internal/cli/mispriced.go",
+        "internal/cli/trending.go",
+        "internal/cli/movers.go",
+        "internal/cli/resolving.go",
+        "internal/cli/liquid.go",
+        "internal/cli/new_markets.go",
+        "internal/cli/agent_context.go"
+      ],
+      "validated_outcome": "go test ./... passes with new freshness assertions. agent-context schema_version bumped with new top-level freshness block enumerating the commands that emit meta.price_source. Human-mode terminal output prints a 'Index synced Xh ago, prices live' footer; --json / --agent mode does not.",
+      "upstream_issue": "Generator template for CLIs that maintain a local discovery index alongside a price-bearing upstream should adopt the live-on-read pattern by default."
+    },
+    {
+      "id": "select-paths-cheatsheet",
+      "summary": "Generate a per-command --select cheatsheet from JSON-tagged response structs and expose it via agent-context.commands.<name>.select_paths. Adds tools/select-paths-gen/, the generated internal/cli/select_paths.go, a drift-guard test, and a `which <cmd> --select-paths` flag. agent-context schema bumped 5->6.",
+      "reason": "Agents passing --select today guess dotted paths against response shapes they have not introspected; a wrong path returns {} silently (not an error), forcing re-fetches that burned ~25% of wall-clock on two of three smart-learning failure traces. The CLI already knows its response shapes (typed Go structs with JSON tags) \u2014 this patch surfaces them at agent-context time so an agent's first --select call lands. Per docs/plans/2026-05-23-002 section U7.",
+      "files": [
+        "internal/cli/select_paths.go",
+        "internal/cli/select_paths_test.go",
+        "internal/cli/agent_context.go",
+        "internal/cli/which.go",
+        "tools/select-paths-gen/main.go"
+      ],
+      "validated_outcome": "go test ./... passes (451 tests, 11 new across select_paths_test.go covering pinned commands, slice/pointer/embedded expansion, nested meta envelope, sort+unique invariants, agent-context round-trip, JSON marshal shape, and a generator drift guard). agent-context --pretty surfaces commands.topic.select_paths (22 entries) and commands.markets.subcommands[get-by-slug].select_paths (140 entries including question/slug/outcomes/outcomePrices/lastTradePrice/bestBid/bestAsk/volume/liquidity/endDate). `which markets get-by-slug --select-paths` dumps the same set. Running `go generate ./internal/cli/...` from either the CLI root or internal/cli/ produces zero diff.",
+      "upstream_issue": "Generator template should consider emitting per-CLI select-paths cheatsheets via the same build-time AST walk; pattern generalizes to any printed CLI with typed response structs."
+    },
+    {
+      "id": "llm-driven-learning-pipeline",
+      "summary": "Add `teach` (LLM-fired, silent, backgroundable) and `recall` (LLM-fired, pre-discovery) plus a rerank layer in topic/compare that applies the resulting boost/hide/alias rules. schema bumped 3->4 with the search_learnings table; agent-context schema bumped 4->5 to advertise the contract.",
+      "reason": "The agent paid the 'took forever to find Portugal's ticker' tax on every session because the central FTS index has no signal that the LLM already found the right ticker last time. Now the LLM teaches the CLI at response-time with the user's natural-language question and the tickers that made it into the answer; future overlapping queries (token-set Jaccard >= 0.6) short-circuit discovery via `recall` and rerank surfaces the right tickers via the apply layer. Per-user, fire-and-forget, silent on success, inspectable via `learnings list`, undoable via `forget`, and disableable via --no-learn / PREDICTION_GOAT_NO_LEARN.",
+      "files": [
+        "internal/store/learnings.go",
+        "internal/store/learnings_test.go",
+        "internal/store/store.go",
+        "internal/cli/teach.go",
+        "internal/cli/teach_test.go",
+        "internal/cli/root.go",
+        "internal/cli/topic.go",
+        "internal/cli/compare.go",
+        "internal/cli/freshness.go",
+        "internal/cli/agent_context.go",
+        "SKILL.md"
+      ],
+      "validated_outcome": "go test ./... passes (416 tests, 33 new across teach/recall/learnings/forget/apply). verify_skill.py passes. End-to-end: a `teach` for 'portugal world cup odds' lands a row that subsequent `recall` calls find by token overlap; the rerank layer surfaces it at position 0 in `topic` output regardless of FTS ranking; `--no-learn` and PREDICTION_GOAT_NO_LEARN both disable the surface. teach.log captures background failures; learnings.jsonl mirrors every teach/forget for grep-without-SQL inspection.",
+      "upstream_issue": "Generator template for printed CLIs that ship a discovery index should consider adopting the LLM-driven teach/recall pattern: per-user, fire-and-forget write surface plus pre-discovery read surface, fed by the LLM's act of responding rather than CLI-side heuristics. Generalizes to any read-mostly catalog CLI."
+    },
+    {
+      "id": "entity-aware-recall",
+      "summary": "Make recall entity-aware: filter cross-entity matches into a debug-only mismatches array, attach per-row entity_match (exact/partial/mismatch/unknown) and warnings, and rank exact > partial > unknown. Add --debug-mismatches flag. Wire UpsertLearning to persist query_entities at teach time so cold first-recall has the entity signal it needs.",
+      "reason": "Before this patch the v3 recall returned any Jaccard-positive learning regardless of which entity the resource carried, so 'odds England wins world cup' returned a Portugal-tagged learning at the documented threshold. U3 splits the recall match into Jaccard (token-set, non-entity normalized) AND entity overlap (case-insensitive against the resource's entity-bearing fields), surfacing mismatches separately so the LLM can tell 'good answer' from 'noise that looks like a good answer'. Per docs/plans/2026-05-23-002 section U3.",
+      "files": [
+        "internal/learn/match.go",
+        "internal/learn/match_test.go",
+        "internal/learn/recall.go",
+        "internal/learn/recall_test.go",
+        "internal/cli/teach.go",
+        "internal/cli/teach_test.go",
+        "internal/cli/select_paths.go",
+        "internal/store/learnings.go"
+      ],
+      "validated_outcome": "go test ./... passes (500 tests, +34 over baseline 466 across new match/recall surfaces and CLI tests). go vet clean. verify_skill.py passes. End-to-end: a Portugal learning + an England query returns found=false by default; --debug-mismatches surfaces the Portugal row in mismatches[]. A Kalshi parent-event learning with a matching child market keeps entity_match=exact and attaches parent_event_when_child_exists:<child-ticker> as a warning. UpsertLearning now persists query_entities so a fresh teach's first recall has the right entity signal without waiting for a re-migration.",
+      "upstream_issue": "Same liftability target as the entities + normalizer patches: internal/learn/{match,recall}.go depends only on database/sql + the entities extractor + Normalize; ready to lift into the generator template alongside U1/U2."
+    },
+    {
+      "id": "entity-preserving-normalizer",
+      "summary": "Replace lowercase+stopword normalization in the learning subsystem with an entity-preserving normalizer (internal/learn/normalize.go) that splits queries into Entities, Tickers, and a stable NonEntityNormalized form. Schema v3->v4 adds search_learnings.query_entities (JSON array) and backfills existing rows by running the extractor against their stored query_pattern.",
+      "reason": "The v3 normalizer destroyed entity tokens: 'odds England wins the world cup' collapsed to 'england cup world' and Jaccard-matched a stored Portugal learning at >=0.6, surfacing the wrong ticker on recall. Preserving entities case-intact in a separate slice lets U3's match validator reject cross-entity matches even at high non-entity Jaccard. The Kalshi/Polymarket ticker patterns and prediction-market stopword vocabulary live in internal/learn/ (one layer above the domain-agnostic entities extractor) so the extractor stays liftable into a future generator template.",
+      "files": [
+        "internal/learn/normalize.go",
+        "internal/learn/normalize_test.go",
+        "internal/store/store.go",
+        "internal/store/learnings_v4_test.go"
+      ],
+      "validated_outcome": "go test ./... passes (454 tests, 15 new: 10 normalize, 5 v3->v4 migration). go vet clean. verify_skill.py passes. The 'odds England wins the world cup' and 'odds Portugal wins the world cup' queries normalize to the same NonEntityNormalized ('cup world') but different Entities (['England'] vs ['Portugal']). A v3 DB with pre-existing search_learnings rows opens cleanly, the query_entities column is added, and every row is backfilled (entity-bearing rows get JSON arrays like '[\"Portugal\"]', stopword-only rows get '[]'). Re-Open is a no-op.",
+      "upstream_issue": "Pending: the learn package's prediction-goat-specific config (Kalshi/Polymarket ticker patterns + odds/wins/beats stopwords) is the consumer-side wrapper; the domain-agnostic entities extractor (internal/learn/entities) should lift into the generator template so future CLIs that ship a discovery index inherit the entity-preserving Jaccard contract."
+    },
+    {
+      "id": "entity-lookups-seeded",
+      "summary": "Add the entity_lookups table seeded with canonical ISO 3166-1 country codes and current-season major-league sports team aliases (~900 rows), plus a Lookup/LookupAll/Upsert API in internal/learn/lookups and a teach-lookup CLI command for per-user additions. Schema v4->v5.",
+      "reason": "The recipe inference engine planned for U10 needs canonical entity-substitution data so it can take a learned pattern from one entity (Portugal -> KXMENWORLDCUP-26-PT) and apply it to any other entity in the same kind (England -> KXMENWORLDCUP-26-GB) without re-learning. Shipping the data inside SQLite (instead of a JSON file or an embed.FS scan) lets per-user teach-lookup rows coexist with seeded rows in one table queried through one surface. Computed kinds (lowercase, kebab-case, capitalize-first, uppercase, slug) short-circuit the DB via in-package string transforms \u2014 the table holds only canonical reference data, never domain logic. Per docs/plans/2026-05-23-002 section U9; correction from plan: actual on-disk baseline was v4 (not v5), so this bumps v4->v5 not v5->v6.",
+      "files": [
+        "internal/learn/lookups/doc.go",
+        "internal/learn/lookups/store.go",
+        "internal/learn/lookups/store_test.go",
+        "internal/learn/lookups/seeds/doc.go",
+        "internal/learn/lookups/seeds/countries.go",
+        "internal/learn/lookups/seeds/sports.go",
+        "internal/learn/lookups/seeds/generic.go",
+        "internal/learn/lookups/seeds/init.go",
+        "internal/learn/lookups/seeds/seeds_test.go",
+        "internal/store/store.go",
+        "internal/store/learnings_v4_test.go",
+        "internal/store/learnings_v5_test.go",
+        "internal/store/seed_count_diag_test.go",
+        "internal/cli/teach_lookup.go",
+        "internal/cli/teach_lookup_test.go",
+        "internal/cli/root.go"
+      ],
+      "validated_outcome": "go test ./... passes (501 tests, +35 across lookups CRUD, computed kinds, seed counts, v4->v5 migration, teach-lookup CLI). go vet clean. verify_skill.py passes. Fresh DB at v5 inserts 923 entity_lookup rows: country_iso2 (236), country_iso3 (205), country_lowercase (145), NFL/NBA/MLB/MLS team abbrev+lowercase combined (337). Computed-kind Lookup never touches the DB (nil-DB tests pass). User taught rows coexist with seeded rows under the (kind, canonical, value) PK; INSERT OR IGNORE makes re-seeding idempotent.",
+      "upstream_issue": "Pending: lift internal/learn/lookups + its seeds subpackage into the generator template as an opt-in 'reference-data' module. The domain-agnostic API surface (Lookup/LookupAll/Upsert/IsComputedKind) plus the seed-file convention (one .go file per domain, []LookupRow at compile time) generalizes to any CLI that benefits from canonical name->code mappings (stock tickers, currency codes, etc.)."
+    },
+    {
+      "id": "teach-time-resource-shape-validation",
+      "summary": "Add teach-time resource-shape validator (U6): emits structured warnings to teach.log when an LLM teaches against a Kalshi parent event AND a child market matches the query entity, or when query entities don't overlap with the resource's entities. Teach succeeds silently; warnings are diagnostic. Adds --no-validate flag to teach and --warnings flag to learnings list.",
+      "reason": "Pre-U6 the parent-vs-child guard fired at recall time, which meant an LLM that taught the parent ticker once never learned to teach the child. The validator runs after upsert, so an offline grep of teach.log surfaces the pattern of LLMs taking the lazy path. Soft warning by design -- a teach against the parent IS legitimate when the query is categorical (no entities), so the validator only fires when the query has entities AND a strictly-better child exists. Per docs/plans/2026-05-23-002 section U6.",
+      "files": [
+        "internal/learn/teach.go",
+        "internal/learn/teach_test.go",
+        "internal/learn/teach_log.go",
+        "internal/learn/teach_log_test.go",
+        "internal/cli/teach.go",
+        "internal/cli/teach_test.go"
+      ],
+      "validated_outcome": "go test ./... passes (560 tests, +24 across validator/log/CLI). go vet clean. verify_skill.py passes. Flagship replay: teach KXMENWORLDCUP-26 against 'odds USA wins world cup' when child KXMENWORLDCUP-26-US carries yes_sub_title=USA produces a parent_event_when_child_exists JSONL entry in teach.log naming the child. --no-validate suppresses cleanly. learnings list --warnings --agent returns {warnings: [...]} with the same entries, filterable by --resource. Polymarket-side parent detection is intentionally deferred (TODO referenced in teach.go), matching the U6 plan's Deferred section.",
+      "upstream_issue": "Liftable target: internal/learn/teach.go + teach_log.go depend only on database/sql, the entities extractor, and match.go's IsKalshiParentTicker / ResourceEntities / ClassifyEntityMatch. Ready to lift into the generator template alongside U1/U2/U3 once the broader learn-package template extraction lands."
+    },
+    {
+      "id": "recipe-inference-engine",
+      "summary": "Add the search_recipes generalization layer: Extract walks recent search_learnings rows, groups them by structural shape, and writes substitute / substitute-then-search-prefix recipes; Apply substitutes the live query's entity into matching recipes and verifies against resources; recall.go merges recipe hits after the direct-lookup pass. Adds the teach-recipe CLI command for explicit template authorship. Schema v5->v6.",
+      "reason": "Without templating, teaching one country's World Cup ticker (Portugal -> KXMENWORLDCUP-26-PT) leaves every other country needing its own teach. The recipe engine generalizes a learned pattern across the country_iso2 (and other) entity_lookups kinds so a single Portugal+USA teach pair unlocks England, Germany, Brazil, etc. for free. Per docs/plans/2026-05-23-002 section U10; correction from plan: actual on-disk baseline was v5 (not v6), so this bumps v5->v6 not v6->v7.",
+      "files": [
+        "internal/learn/recipes/doc.go",
+        "internal/learn/recipes/store.go",
+        "internal/learn/recipes/store_test.go",
+        "internal/learn/recipes/extract.go",
+        "internal/learn/recipes/extract_test.go",
+        "internal/learn/recipes/apply.go",
+        "internal/learn/recipes/apply_test.go",
+        "internal/learn/recipes/generalization_test.go",
+        "internal/learn/recall.go",
+        "internal/learn/recall_test.go",
+        "internal/cli/teach_recipe.go",
+        "internal/cli/teach.go",
+        "internal/cli/root.go",
+        "internal/store/store.go",
+        "internal/store/learnings_v5_test.go"
+      ],
+      "validated_outcome": "go test ./... passes (562 tests, +26 across recipes CRUD/extract/apply/generalization regression and recall+recipe integration). go vet clean. verify_skill.py passes. Fresh DB at v6 includes search_recipes table; v5->v6 upgrade adds the table via CREATE TABLE IF NOT EXISTS (no backfill needed). Flagship regression: teach Portugal+USA (Kalshi+Polymarket each), call recall on 'odds England wins world cup' \u2014 returns Found=true with both KXMENWORLDCUP-26-GB (substitute) and the England Polymarket slug (substitute-then-search-prefix) tagged source='recipe'. Direct teaches outrank recipe hits within the same entity_match tier.",
+      "upstream_issue": "Pending: lift internal/learn/recipes into the generator template alongside lookups + entities + match + normalize. The recipe engine is the most-domain-agnostic of the four: it operates on the abstract LearningRow shape, resolves entities via the lookups package's Lookup/IsComputedKind contract, and verifies candidates via the generic resources table. Future CLIs that ship a discovery index inherit the generalization layer by plugging in their own seed lookups + entity extractor config."
+    },
+    {
+      "id": "multi-outcome-preseed",
+      "summary": "Pre-populate search_learnings at sync time for multi-outcome event families (Kalshi mutually_exclusive=true, Polymarket negRisk=true) so cold-start queries like 'odds USA wins world cup' hit the fast path on the first invocation without any explicit teach.",
+      "reason": "The biggest cold-start failure pattern in the learning subsystem is multi-outcome events: a World Cup family with 48 teams or an NBA championship family with 30 teams. Each child market carries the entity (yes_sub_title on Kalshi, 'Will the {entity} ...' question shape on Polymarket) the user will ask about. The mapping is mechanically derivable; the LLM should not have to discover it via a search + teach loop. The preseed driver registers per-source scanners against a generic learn.Run entry point; scanners are wired via init() so importing the source package is enough.",
+      "files": [
+        "internal/learn/preseed.go",
+        "internal/learn/preseed_test.go",
+        "internal/source/kalshi/preseed.go",
+        "internal/source/kalshi/preseed_test.go",
+        "internal/source/polymarket/preseed.go",
+        "internal/source/polymarket/preseed_test.go",
+        "internal/cli/kalshi.go",
+        "internal/cli/sync.go"
+      ],
+      "validated_outcome": "go test ./... passes (556 tests, +20 across the preseed driver, Kalshi scanner, Polymarket scanner, and an end-to-end smoke that confirms recall returns KXMENWORLDCUP-26-US for 'odds USA wins world cup' after a preseed run with no teach). go vet clean. verify_skill.py passes. Preseed is gated on three orthogonal switches: --no-preseed flag, PRESEED_DISABLED env var, dogfood/verify env detection. Idempotency: re-running on an unchanged corpus inserts zero rows and never bumps confidence on existing rows (preseed is pure-insert; the bump path is reserved for taught observations). User-taught rows at any confidence are preserved verbatim.",
+      "upstream_issue": "Pending: lift internal/learn/preseed.go into the generator template once the per-source scanner contract proves out across a second multi-outcome API beyond Kalshi/Polymarket. The driver is domain-agnostic; the scanners are CLI-specific."
+    },
+    {
+      "id": "skill-protocol-rewrite",
+      "summary": "Rewrite SKILL.md \"Automatic learning\" section as a four-branch decision-tree protocol document, add internal/learn/doc.go package design doc.",
+      "reason": "Prior \"Automatic learning\" section described the lifecycle in two short paragraphs; U1-U10 landed entity_match/warnings/teach-recipe/teach-lookup/--debug-mismatches/learnings list --warnings surfaces the agent needs to consume. The rewrite documents the recall envelope shape, the four-branch decision tree (exact/partial/mismatch/cold), the three worked failure-trace examples (USA cold / Portugal warm / England mismatch), the teach-most-specific rule, and the new explicit teach-recipe/teach-lookup surfaces. internal/learn/doc.go is the package-level design doc for a future generator-template lift.",
+      "files": [
+        "SKILL.md",
+        "internal/learn/doc.go",
+        "internal/learn/normalize.go"
+      ],
+      "validated_outcome": "verify_skill.py passes; go build/vet/test all green at 606 tests (no behavior change)."
+    },
+    {
+      "id": "liquid-24h-volume-symmetric",
+      "summary": "marketScreenSQL liquid branch filters PM rows on 'volume24hr' instead of lifetime 'volumeNum' so --min-volume has consistent 24h-rolling semantics across both venues.",
+      "reason": "PM was filtered on 'volumeNum' (cumulative lifetime) while Kalshi was filtered on 'volume_24h_fp' (rolling 24h). A single --min-volume value imposed two different liquidity bars on the result set, surfacing stale PM markets alongside actively-trading Kalshi ones. The liquid screen's purpose is recent liquidity; PM rows without 'volume24hr' now correctly fall below the floor. Also tightened the --min-volume flag help to spell out the unit. Greptile P1 on PR #780.",
+      "files": [
+        "internal/cli/trending.go",
+        "internal/cli/liquid.go"
+      ]
+    },
+    {
+      "id": "compare-refresh-yespercent",
+      "summary": "refreshComparePairs recomputes the YesPercent companion field after a live refresh so agent-facing JSON never reports yesProbability and yesPercent disagreeing.",
+      "reason": "The refresh loop updated YesProbability and recomputed DeltaPct but left the cached YesPercent untouched, so JSON output of `compare` showed yesProbability=0.60 alongside yesPercent=55.0 (the pre-refresh value) whenever the live price had moved. Mirrors the post-refresh loop already in topic.go. Greptile P1 on PR #780.",
+      "files": [
+        "internal/cli/compare.go"
+      ]
+    },
+    {
+      "id": "mispriced-refresh-derived-fields",
+      "summary": "refreshMispricedPairs recomputes YesPercent and DeltaPercent from refreshed YesProbability/Delta so agent-facing JSON stays internally consistent.",
+      "reason": "Same family-of-fields-out-of-sync bug as compare.go: applyLiveValuesIfPresent updated YesProbability but the YesPercent companion and DeltaPercent stayed at pre-refresh values, so a JSON consumer saw yesProbability=0.60 alongside yesPercent=55.0 after a refresh. Same fix shape as compare-refresh-yespercent. Greptile P1 on PR #780.",
+      "files": [
+        "internal/cli/mispriced.go"
+      ]
+    },
+    {
+      "id": "learn-loop-backport-u1-learning-playbooks-table",
+      "summary": "Schema v6->v7 adds learning_playbooks table (id / query_family UNIQUE / playbook_json / notes_text / source / confidence / created_at / last_observed_at) plus three supporting indexes (query_family unique, source, last_observed_at). Bumps StoreSchemaVersion from 6 to 7.",
+      "reason": "U1 of the ESPN learn-loop backport (docs/plans/2026-05-25-001). Backports the hand-authored playbook primitive from ESPN's PR #851 cascade so prediction-goat can attach choreography + free-text gotchas per query family at recall time. Table shape mirrors ESPN's learning_playbooks verbatim. prediction-goat keeps its explicit version-stepped migration style (no reflective ALTER TABLE heal); fresh DBs get the table on first Open via the migrations[] CREATE TABLE IF NOT EXISTS loop and existing v6 DBs gain the table the same way on next Open (idempotent re-runs are a no-op).",
+      "files": [
+        "internal/store/store.go",
+        "internal/store/schema_version_test.go"
+      ],
+      "validated_outcome": "go test ./internal/store/... passes (existing schema_version tests plus 4 new TestMigrate_LearningPlaybooks_* tests covering fresh-DB shape, v6->v7 upgrade without data loss, re-Open idempotency, and older-binary refusal on a future-stamped DB). Fresh DB stamps user_version=7 and creates learning_playbooks with all 8 expected columns. Synthetic v6 DB upgrades cleanly, gains learning_playbooks, and preserves pre-existing search_learnings / entity_lookups / search_recipes rows."
+    },
+    {
+      "id": "learn-loop-backport-u3-cross-alias-recall-similar-shape-warning",
+      "summary": "Extend Recall() with the cross-alias fallback switch: three-case post-Jaccard branch (canonicalOverlap with Greptile round-4 same-entity guard, similar-shape mismatch with Greptile round-3 same-entity guard, default-drop). Add setIntersects / entitySlicesIntersect (case-insensitive) / canonicalJaccard helpers. Surface similar_shape_different_entity envelope warning when same-shape rows resolved to a different canonical (replaces misleading no_learnings_for_query_family). Per-result cross_alias_match warning when EntityMatch is promoted Mismatch -> Exact via canonical overlap. Add ambiguous_alias envelope warning that fires ONLY when a SINGLE query entity resolves to multiple canonicals (Greptile round 2 narrow trigger). Add CrossAliasJaccardMin Opts field with 0.3 default.",
+      "reason": "U3 of the ESPN learn-loop backport (docs/plans/2026-05-25-001). Without cross-alias resolution at recall time, a query taught under one alias (United States) misses on another alias (USA) even when both resolve to the same canonical via entity_lookups. The case-1 / case-2 entitySlicesIntersect guards close the Greptile round-3 and round-4 bug classes: same-literal-entity rows that miss jMin must drop, not get inflated by canonicalJaccard (1.0 when single canonical on each side) or admitted via the looser crossAliasMin floor. The ambiguous_alias narrow trigger avoids the round-2 over-fire on ordinary multi-entity queries.",
+      "files": [
+        "internal/learn/recall.go",
+        "internal/learn/recall_canonical_test.go",
+        "internal/learn/match.go"
+      ],
+      "validated_outcome": "go test ./... passes (631 tests, +11 new across recall_canonical_test.go covering cross-alias hit + EntityMatch promotion + cross_alias_match warning, similar_shape_different_entity envelope warning, case-1 same-entity guard, case-2 same-entity guard, case-insensitive entitySlicesIntersect, ambiguous_alias narrow trigger (single-entity-multi-canonical fires; multi-entity-distinct-canonicals does NOT), no-similar-shape-on-real-hit guard, empty-entity_lookups literal fallback, legacy-null-entity opportunistic backfill end-to-end). go vet clean."
+    },
+    {
+      "id": "learn-loop-backport-u2-promote-entities-canonical-resolver",
+      "summary": "Add PromoteEntities helper + CanonicalResolver per-call resolver wrapping entity_lookups. Wire PromoteEntities into Recall() (after Normalize, before Jaccard) and into the CLI teach path (after Normalize, before UpsertLearning) so stored query_entities is symmetric with what recall sees. Add opportunistic backfill of legacy null-entity rows at recall time (read-only). Strip resolver-confirmed stored entities from the stored non-entity comparison surface so the Jaccard ratio stays symmetric when PromoteEntities pulls a token out of the live query.",
+      "reason": "U2 of the ESPN learn-loop backport (docs/plans/2026-05-25-001). The capitalization-based entity extractor misses lowercase aliases ('usa', '49ers'); without the symmetric PromoteEntities step a query taught as 'usa wins world cup' stores query_entities=[] and recall can't cross-alias against it later. PromoteEntities runs the same resolver lookup at both sites and produces identical query_entities. CanonicalResolver caches per-call but invalidates on error / scan-failure / rows.Err() so a transient sqlite hiccup can't poison subsequent lookups (Greptile P0 from PR #851 rounds 2-3).",
+      "files": [
+        "internal/learn/promote.go",
+        "internal/learn/promote_test.go",
+        "internal/learn/recall.go",
+        "internal/cli/teach.go"
+      ],
+      "validated_outcome": "go test ./... passes (620 tests, +10 new across promote_test.go: PromoteEntities happy path / no-match / nil-resolver / empty-query / multi-entity / preserves-existing-entities / teach-recall symmetry, plus CanonicalResolver happy path / error retry (cache invalidation under DB failure) / scan error. -race clean on the new tests. No regression in TestRecallCommand_FoundAndNotFound or TestNormalizationSymmetry_TeachAndRecall after restoring symmetric Jaccard surface (only resolver-confirmed entities are stripped from storedNonEntityTokens so capitalization-only mid-sentence entities like 'World'/'Cup' stay countable on both sides)."
+    },
+    {
+      "id": "learn-loop-backport-u4-recipes-multi-entity-generalization",
+      "summary": "Generalize recipes.queryStructural and recipes.buildQueryTemplate to take an entity slice (strip every entity from the structural form, not just queryEntities[0]). Remove the collection-time len(ents)>1 skip so multi-entity rows participate in grouping and share a structural stem with their single-entity shape-peers. Add anyMulti guard in the group-iteration loop so single-slot template inference is skipped for any group whose members carry more than one entity.",
+      "reason": "U4 of the ESPN learn-loop backport (docs/plans/2026-05-25-001). The prior single-entity-only stripping kept multi-entity rows from sharing a structural bucket with their shape-peers (the second entity stayed as a literal in the stem), blocking pattern emergence in mixed-shape teaches. Letting multi-entity rows flow into grouping while skipping inference via anyMulti preserves the existing single-slot binding behavior (tryExactBinding / tryPrefixBinding still index queryEntities[0] only) and lays groundwork for future multi-entity binding without re-bucketing teaches.",
+      "files": [
+        "internal/learn/recipes/extract.go",
+        "internal/learn/recipes/extract_test.go"
+      ],
+      "validated_outcome": "go test ./... passes (634 tests, +3 new across extract_test.go: TestExtract_MultiEntity_NoSingleSlotRecipe (two multi-entity rows in a shared shape do not synthesize a recipe), TestExtract_MultiEntityPoisonsSingleEntityGroup (a multi-entity row that lands in the same structural bucket as two single-entity rows blocks inference for the whole group), TestExtract_SingleEntityPathStillWorks (regression guard: two single-entity teaches in the same shape still produce a country_iso2 substitute recipe with the expected query_template after the slice-signature refactor). All existing recipes tests pass without modification, including TestExtract_KalshiCountryTicker_ExactSubstitute, TestExtract_PolymarketSlug_PrefixSearch, TestExtract_Idempotent, and TestGeneralization_PortugalPlusUSATeachesUnlocksEngland."
+    },
+    {
+      "id": "learn-loop-backport-u5-learning-playbooks-store-layer",
+      "summary": "Add store-layer surface for learning_playbooks: PlaybookRow type, UpsertPlaybookInput struct, UpsertPlaybook (partial-update CASE WHEN semantics + PreserveExistingNotes seed affordance), AppendPlaybookNotes (atomic COALESCE-append under writeMu, fixes the race-condition class Greptile flagged on `playbook amend`), GetPlaybookByFamily (resolves sentinel rows for internal callers), ListPlaybooks (hides `__`-prefixed sentinel rows from agent output).",
+      "reason": "U5 of the ESPN learn-loop backport (docs/plans/2026-05-25-001). The v7 table landed in U1 but no Go surface existed to write or read rows; U5 ports the entire playbooks.go store-layer file from ESPN PR #851 HEAD 9bb0a40a verbatim, adapting only the test-helper name to avoid colliding with the existing internal/store openLearnings helper. Partial-update CASE WHEN semantics preserve unsupplied columns across re-teach (notes-only amend doesn't wipe the choreography, playbook-only re-teach doesn't wipe agent notes). PreserveExistingNotes is the seed-loop affordance for U9's embed-FS install path (binary upgrade with new embedded notes doesn't clobber agent-authored gotchas). AppendPlaybookNotes uses COALESCE(notes_text, '') || ? inside a single transaction under writeMu so 8 concurrent appends never lose a marker. ListPlaybooks filters sentinel rows via `WHERE query_family NOT LIKE '\\_\\_%' ESCAPE '\\'` so the U9 __seed_meta__ version tracker doesn't leak to agent-facing JSON.",
+      "files": [
+        "internal/store/playbooks.go",
+        "internal/store/playbooks_test.go"
+      ],
+      "validated_outcome": "go test ./... passes (649 tests, +15 new across playbooks_test.go: Happy / Idempotent / RejectsEmptyContent / RejectsEmptyFamily / NotesOnly / PartialUpdate / PreserveExistingNotes_Seed / PreserveExistingNotes_EmptyFills / Concurrent (5-way concurrent upsert produces exactly 1 row) / GetPlaybookByFamily_NotFound / AppendPlaybookNotes_InsertsWhenAbsent (leading newlines trimmed on insert) / AppendPlaybookNotes_AppendsToExisting / AppendPlaybookNotes_ConcurrentNoLoss (8 goroutines, all 8 markers survive) / ListPlaybooks_HidesSentinelFamilies / PlaybooksTable_LegacyDBHeal). -race clean on the concurrent-append test."
+    },
+    {
+      "id": "learn-loop-backport-u6-playbook-types-and-resolveslots",
+      "summary": "Add in-process Playbook / PlaybookStep / ResolvedPlaybook types, ParsePlaybook / ParsePlaybookFile / MarshalPlaybook helpers, QueryFamily derivation (returns NonEntityNormalized so teach and recall key consistently), and ResolveSlots with the Greptile-round-3 entity-only candidate pool (a non-entity token that happens to resolve through entity_lookups cannot win a slot intended for a real entity).",
+      "reason": "U6 of the ESPN learn-loop backport (docs/plans/2026-05-25-001). U5 landed the store-layer surface; U6 is the in-process layer the recall envelope (U7) and the teach-playbook CLI (U8) compose against. Ported verbatim from ESPN PR #851 HEAD 9bb0a40a (library/media-and-entertainment/espn/internal/learn/playbooks.go), with the Greptile PR #851 round 3 F2 fix already in place: ResolveSlots' queryTokens pool is restricted to normalized.Entities only and explicitly does NOT include strings.Fields(normalized.NonEntityNormalized). The contract is enforced by TestResolveSlots_OnlyConsidersEntities, which seeds 'ppg' as a secondary alias of an unrelated canonical and constructs a NormalizedQuery directly so 'ppg' stays in NonEntityNormalized while 'portugal' is the only entity \u2014 the $COUNTRY slot must bind to 'portugal', not the spurious 'ppg' alias.",
+      "files": [
+        "internal/learn/playbooks.go",
+        "internal/learn/playbooks_test.go"
+      ],
+      "validated_outcome": "go test ./... passes (662 tests, +13 new across playbooks_test.go: ParsePlaybook_HappyPath / ParsePlaybookFile_HappyPath / ParsePlaybookFile_NonExistent / ParsePlaybook_Malformed / ParsePlaybook_Empty / MarshalPlaybook_RoundTrip (full field-by-field) / QueryFamily_UsesNonEntityNormalized / ResolveSlots_SingleEntity (Portugal\u2192Portugal canonical) / ResolveSlots_MultiEntity ($A + $B distinct tokens) / ResolveSlots_UnresolvableSkipped / ResolveSlots_EmptySlots / ResolveSlots_OnlyConsidersEntities (Greptile round 3 F2: 'ppg' aliased in entity_lookups loses to real 'portugal' entity) / ResolveSlots_NilResolver). go vet ./... clean. go build ./... clean."
+    },
+    {
+      "id": "learn-loop-backport-u7-recall-envelope-playbook-surface",
+      "summary": "Recall envelope attaches Playbook (ResolvedPlaybook with ParsePlaybook + ResolveSlots output) and Notes (verbatim notes_text) when the query's QueryFamily matches a learning_playbooks row; surfaces both in agent-mode JSON via the recallEnvelope in teach.go. Notes-only rows (empty playbook_json) still attach the Playbook wrapper carrying Notes so guidance lands even without structured choreography. Lookup is a single SELECT by query_family; sql.ErrNoRows and other DB errors fall through silently per the legacy contract that recall doesn't fail when an optional table is absent. Generator-regenerated internal/cli/select_paths.go to surface the new envelope fields under recall's --select cheatsheet.",
+      "reason": "U7 of the ESPN learn-loop backport (docs/plans/2026-05-25-001). U6 landed Playbook types + ResolveSlots; this unit finishes the read-side composition: recall's structurally-keyed lookup attaches the playbook on every query whose family matches, regardless of whether per-resource hits exist. Critical for the cross-entity replay killer-feature: an author writes one playbook ('odds Portugal wins world cup') and every structurally-identical query for a different country ('odds Brazil wins world cup') retrieves it via the entity-stripped family key with $COUNTRY bound to the query's canonical, not the author's. Ported from ESPN PR #851 HEAD 9bb0a40a (library/media-and-entertainment/espn/internal/learn/recall.go envelope-build section at end of Recall()), with the prediction-goat adaptations: ResolvedPlaybook field order matches prediction-goat's playbooks.go (Playbook value, not pointer), JSON tag names match ESPN exactly so agent-mode output stays consistent across the two CLIs.",
+      "files": [
+        "internal/learn/recall.go",
+        "internal/learn/recall_canonical_test.go",
+        "internal/cli/teach.go",
+        "internal/cli/select_paths.go"
+      ],
+      "validated_outcome": "go test ./... passes (667 tests, +5 new across recall_canonical_test.go: TestRecall_PlaybookSurfaces_OnFamilyMatch / TestRecall_PlaybookSurfaces_DifferentEntitySameFamily (KILLER FEATURE: Portugal-authored playbook hits on Brazil query with $COUNTRY canonical = Brazil) / TestRecall_PlaybookAbsent_NoMatch / TestRecall_PlaybookNotesOnly (empty playbook_json, populated notes_text \u2192 Notes attached, zero-step Playbook wrapper) / TestRecall_PlaybookCoexistsWithResourceHit (search_learnings hit + playbook for same family both surface)). go vet ./... clean. go build ./... clean. Smoke test: real binary `go run ./cmd/prediction-goat-pp-cli recall '<query>' --agent` omits playbook+notes fields when no row exists (omitempty)."
+    },
+    {
+      "id": "learn-loop-backport-u8-teach-playbook-and-playbook-commands",
+      "summary": "Add agent-facing teach-playbook, playbook list, and playbook amend commands. teach-playbook writes a single learning_playbooks row via store.UpsertPlaybook keyed on QueryFamily(Normalize+PromoteEntities). playbook amend uses store.AppendPlaybookNotes (atomic read+update inside a single transaction under writeMu) to append a timestamped '[amend YYYY-MM-DDTHH:MMZ]: <note>' marker to the family's notes_text -- never the read-then-Upsert composition that would race-overwrite under concurrent backgrounded amends. playbook list filters '__'-prefixed sentinel families via ListPlaybooks; emits JSON or tab-separated rows. All three commands honor --no-learn and PREDICTION_GOAT_NO_LEARN; teach-playbook surfaces errors through usageErr while playbook amend has fire-and-forget posture (silent on success, errors to teach.log, returns silentCodeErr so backgrounded amends don't pollute the parent shell's stderr). Every command appends a structured row to the learnings.jsonl audit log (action=playbook-teach / playbook-amend / playbook-list).",
+      "reason": "U8 of the ESPN learn-loop backport (docs/plans/2026-05-25-001). U7 landed the recall-side playbook surface; U8 ships the write-side so agents and users can author and amend playbooks at runtime. Ported from ESPN PR #851 HEAD 9bb0a40a (library/media-and-entertainment/espn/internal/cli/teach_playbook.go), with import paths adapted to prediction-goat and constructor signatures matching prediction-goat's existing newTeach* shape (rootFlags pointer only, no separate learnCfg -- Normalize calls learn.DefaultPredictionGoatConfig() inline). CLI binary name in --help / Example text changed from espn-pp-cli to prediction-goat-pp-cli. Examples reference prediction-goat shapes (markets get-by-slug, kalshi events pagination) instead of ESPN's (teams basketball, byathlete seasontype). The CRITICAL atomic-amend contract from Greptile PR #851 round 3 is preserved: playbook amend calls store.AppendPlaybookNotes(family, marker) which runs read+update inside a single transaction under writeMu, NOT GetPlaybookByFamily + UpsertPlaybook.",
+      "files": [
+        "internal/cli/teach_playbook.go",
+        "internal/cli/teach_playbook_test.go",
+        "internal/cli/root.go"
+      ],
+      "validated_outcome": "go test ./... passes (684 tests, +17 new across teach_playbook_test.go: TestTeachPlaybook_HappyPath (file-based playbook+notes, JSON envelope, SQL-inspect row) / TestTeachPlaybook_NotesOnly / TestTeachPlaybook_MissingFile / TestTeachPlaybook_MalformedJSON / TestTeachPlaybook_RequiresContent / TestTeachPlaybook_RequiresQuery / TestTeachPlaybook_RespectsNoLearn / TestTeachPlaybook_AppendsAuditLog / TestPlaybookAmend_HappyPath_ExistingPlaybook (original notes + new amend both present + [amend timestamp] marker) / TestPlaybookAmend_EmptyFamily_CreatesNotesOnly / TestPlaybookAmend_RequiresQuery (silent stdout/stderr per fire-and-forget contract) / TestPlaybookAmend_RequiresAddNote / TestPlaybookAmend_MultipleAmendsTimestamped (3 sequential amends to same family all preserved) / TestPlaybookAmend_RespectsNoLearn / TestPlaybookAmend_AppendsAuditLog / TestPlaybookList_Empty (empty array) / TestPlaybookList_WithRows). go vet ./... clean. go build ./... clean. Manual smoke: `go run ./cmd/prediction-goat-pp-cli playbook --help` surfaces amend + list subcommands; `teach-playbook --help` surfaces the new flags."
+    },
+    {
+      "id": "learn-loop-backport-u9-embed-fs-playbook-auto-install",
+      "summary": "Add per-CLI embed-FS auto-install for hand-authored playbooks: internal/cli/playbooks/{embed.go, MANIFEST.md} carry an embed.FS + SeedVersion sentinel; internal/cli/playbook_init.go ships installPlaybooksFromEmbed(ctx, store, fs.FS) gated by sync.Once and a `__seed_meta__` sentinel row; root.go's PersistentPreRunE invokes runPlaybookInitOnce(cmd.Context()) after --no-learn evaluation. Re-seed only fires when SeedVersion changes; per-family upserts honor PreserveExistingNotes when the stored notes carry a `[amend ` marker so agent-authored amends survive binary upgrades. Until U10 ships JSONs, the embed pattern is `*.md` only (MANIFEST.md sole match) and the sentinel row is the only artifact a fresh install writes.",
+      "reason": "U9 of the ESPN learn-loop backport (docs/plans/2026-05-25-001). The store-layer surface (U5) and the in-process Playbook types (U6) landed but had no automatic seeding path; without U9, every prediction-goat install ships zero playbooks until a user runs teach-playbook by hand. Ported from ESPN PR #851 HEAD 9bb0a40a (library/media-and-entertainment/espn/internal/cli/playbook_init.go), with all four Greptile round-4 hygiene fixes applied at port time: (1) ctx is honored at install entry and between bases so SIGINT cancels cleanly instead of completing the loop; (2) the [amend marker heuristic uses a regex anchor `\\n\\[amend \\d{4}-` so a literal '[amend ' token in user-authored notes content can't trip preservation; (3) the sentinel row writes ONLY when every per-file upsert succeeds, so a partial failure leaves the sentinel stale and the next install retries; (4) installPlaybooksFromEmbed takes an fs.FS parameter so tests inject an fstest.MapFS rather than reading the real playbooks.FS (PRAGMA parameterization N/A in this file).",
+      "files": [
+        "internal/cli/playbooks/embed.go",
+        "internal/cli/playbooks/MANIFEST.md",
+        "internal/cli/playbook_init.go",
+        "internal/cli/playbook_init_test.go",
+        "internal/cli/root.go"
+      ],
+      "validated_outcome": "go test ./... passes (693 tests, +9 new across playbook_init_test.go: TestPlaybookInit_SeedsAllPlaybooks / TestPlaybookInit_Idempotent (re-run produces zero drift) / TestPlaybookInit_ConcurrentSafe (5 goroutines: exactly 1 sentinel, no duplicate playbook rows) / TestPlaybookInit_ReseedReplacesNotesWithoutAmend (SeedVersion bump overwrites stale notes when no [amend marker) / TestPlaybookInit_ReseedPreservesNotesWithAmend (marker shape `\\n[amend 2026-` triggers preserve=true) / TestPlaybookInit_AmendMarkerSpecificity (loose '[amend foo]' literal in prose does NOT trip preservation, Greptile round-4 finding) / TestPlaybookInit_SkipsPlaybookWithoutExamples (Greptile round-2 finding: refuse to seed under an unreachable key) / TestPlaybookInit_FailureLeavesSentinelStale (per-file parse error returns error AND skips sentinel write so next install retries, Greptile round-4 finding) / TestPlaybookInit_HonorsContextCancel (pre-canceled ctx returns context.Canceled and no sentinel)). go vet ./... clean. -race clean on the new tests. Manual smoke: HOME=$(mktemp -d) go run ./cmd/prediction-goat-pp-cli playbook list returns '[]' against a fresh DB (zero non-sentinel rows because U10 hasn't shipped real JSONs yet, but the sentinel writes cleanly and PersistentPreRunE doesn't error)."
+    },
+    {
+      "id": "learn-loop-backport-u10-hand-authored-playbooks",
+      "summary": "Ship 3 hand-authored playbooks (odds_for_team, event_markets, series_summary) and bump embed pattern to *.json *.md.",
+      "reason": "U10 of the learn-loop backport plan: prediction-goat ships canonical choreography + free-text gotchas for its three highest-value repeat-query shapes so recall envelopes carry actionable playbooks the agent follows verbatim.",
+      "files": [
+        "internal/cli/playbooks/embed.go",
+        "internal/cli/playbooks/odds_for_team.json",
+        "internal/cli/playbooks/odds_for_team_notes.md",
+        "internal/cli/playbooks/event_markets.json",
+        "internal/cli/playbooks/event_markets_notes.md",
+        "internal/cli/playbooks/series_summary.json",
+        "internal/cli/playbooks/series_summary_notes.md",
+        "internal/cli/playbooks_authored_test.go"
+      ],
+      "validated_outcome": "go test ./... passes 699/699. Fresh $HOME smoke test: playbook list --agent returns 4 rows (3 playbooks; event_markets seeds under 2 family keys). Recall for each example query surfaces playbook + notes + (where the slot binds) resolved entity."
+    },
+    {
+      "id": "learn-loop-backport-u11-skill-decision-tree-extension",
+      "summary": "Extend SKILL.md \"Automatic learning\" section from a four-branch to a six-branch decision tree that surfaces the playbook + notes envelope fields landed in U7. Document the new recall envelope shape (playbook, slots_resolved, notes), the Step 5 `teach-playbook` self-record protocol (used when discovery took >5 calls), the Step 6 `playbook amend` self-correction protocol (used when debug-protocol identifies a concrete correction worth persisting), and the three new top-level warnings (cross_alias_match, similar_shape_different_entity, ambiguous_alias). Reference the three playbooks shipped in U10 by family name (odds_for_team, event_markets, series_summary).",
+      "reason": "U11 of the ESPN learn-loop backport (docs/plans/2026-05-25-001). U7 wired the recall envelope to carry playbook + notes; U8 shipped the teach-playbook + playbook amend commands; U10 shipped the three hand-authored playbooks. Without the SKILL.md extension agents have no way to learn the new envelope shape, the playbook decision branch, or the `playbook amend &` self-correction protocol. Voice + structure adapted from ESPN's SKILL.md decision-tree section (library/media-and-entertainment/espn/SKILL.md) but the examples, the gotchas-list, and the family-name references are prediction-goat-specific. The existing Step 1 / Step 3 / Step 4 / Step 4-sub-sections (teach-recipe, teach-lookup, --no-learn, learnings list) are preserved verbatim so the recipes generalization layer and the new playbooks primitive coexist without semantic confusion (Decision 1 in the plan).",
+      "files": [
+        "SKILL.md",
+        ".printing-press-patches.json"
+      ],
+      "validated_outcome": "python3 .github/scripts/verify-skill/verify_skill.py --dir library/payments/prediction-goat/ passes clean (flag-names, flag-commands, positional-args, unknown-command). The new --playbook-file, --notes-file, --add-note, --debug-mismatches flag references all resolve to declarations in internal/cli/teach_playbook.go and existing teach.go. go build / go vet / go test ./... still green at 699/699 (U11 is documentation, no behavior changes)."
+    },
+    {
+      "id": "learn-loop-backport-u12-dogfood-validation",
+      "summary": "Real-binary dogfood + retrospective gating the U1-U11 backport. Fresh-$HOME exercises against 8 distinct queries covering all 3 hand-authored playbook shapes (odds_for_team / event_markets / series_summary), cross-alias hit (Lusitania -> Portugal), similar-shape mismatch (Brazil-recall on Portugal-taught), cold path (dogecoin), ambiguous-alias narrow trigger (Cards->{Arizona, St.Louis} fires; multi-entity Brazil-vs-Portugal does NOT), and end-to-end playbook amend.",
+      "reason": "U12 of the ESPN learn-loop backport (docs/plans/2026-05-25-001). Validation gate after U1-U11 land structural+behavioral changes; confirms every Greptile-found correctness fix (case-1/case-2 same-entity guards, case-insensitive entitySlicesIntersect, atomic AppendPlaybookNotes, ListPlaybooks sentinel filter, ResolveSlots entity-only pool, similar_shape_different_entity envelope warning, ambiguous_alias narrow trigger, embed-FS [amend marker preservation) is exercised end-to-end at the agent surface, not just via the test suite. Retrospective recommendation: ship to PR #780.",
+      "files": [
+        "docs/decisions/2026-05-26-prediction-goat-learn-loop-backport-findings.md",
+        "dogfood-results.json"
+      ],
+      "validated_outcome": "go build ./... clean, go vet ./... clean, go test ./... 699/699 passing. 3/3 hand-authored playbooks attach to their canonical example query (odds_for_team -> 'odds Brazil wins world cup' binds $TEAM=Brazil; event_markets -> 'all sibling markets for the NBA Draft'; series_summary -> 'summarize kalshi series KXMENWORLDCUP'). Cross-alias: 'Lusitania odds world cup' against 'Portugal odds world cup' taught row emits cross_alias_match warning and promotes EntityMatch to Exact. Similar-shape: 'Brazil odds world cup' against Portugal-taught row drops correctly with similar_shape_different_entity:Portugal envelope warning. Ambiguous-alias narrow trigger: Cards->{Arizona Cardinals, St. Louis Cardinals} fires ambiguous_alias; Brazil-vs-Portugal multi-entity does NOT (Greptile round-2 guard confirmed). playbook amend writes [amend 2026-05-26THH:MMZ]: marker visible in playbook list --agent. playbook list returns 4 rows (3 playbooks, event_markets seeds under 2 family keys); sentinel __seed_meta__ correctly hidden."
+    },
+    {
+      "id": "greptile-pr780-markets-diff-pm-fallback-timeout",
+      "summary": "Add 15s HTTP timeout to livePolymarketBySlug (markets diff PM fallback path).",
+      "reason": "http.DefaultClient has Timeout: 0, so a slow or unreachable Gamma API would block markets diff indefinitely. Other live HTTP paths use 15-60s timeouts (freshness.go, kalshi.Client). Greptile P1 on PR #780.",
+      "files": [
+        "internal/cli/markets_diff.go"
+      ],
+      "upstream_issue": "Pending: backport into cli-printing-press generator templates if the markets-diff scaffold ships there."
+    },
+    {
+      "id": "greptile-pr780-refresh-market-screen-items-yespercent",
+      "summary": "Recompute YesPercent after live refresh in refreshMarketScreenItems (trending/liquid/movers etc).",
+      "reason": "YesProbability gets refreshed via applyLiveValuesIfPresent but the derived YesPercent field stayed stale, so agent-facing JSON could report yesProbability=0.60 alongside yesPercent=55.0 (the pre-refresh value). Mirrors the post-refresh recompute already in compare.go and mispriced.go. Greptile P1 on PR #780.",
+      "files": [
+        "internal/cli/trending.go"
+      ]
+    },
+    {
+      "id": "learn-loop-backport-u13-integrated-teach-playbook-flags",
+      "summary": "Port ESPN integrated teach --playbook-file / --playbook-notes-file flags onto regular teach command so SKILL.md Step 5 works in one call.",
+      "reason": "U8 only added the standalone teach-playbook command. ESPN ships the integrated path: teach --query --resource --playbook-file --playbook-notes-file records both the resource learning AND the structured playbook in one CLI call. SKILL.md Step 5 invokes that integrated form. Missing this in prediction-goat forced agents into two calls (teach + teach-playbook) and broke parity with the ESPN self-teaching loop. Helper upsertPlaybookFromTeach reuses resolvePlaybookInputs (already in teach_playbook.go).",
+      "files": [
+        "internal/cli/teach.go",
+        "SKILL.md"
+      ]
+    },
+    {
+      "id": "compare-pair-path-live-refresh",
+      "summary": "The --pair explicit-match path runs the same live-on-read refresh and freshness Meta pipeline as the FTS compare path.",
+      "reason": "runComparePair served prices straight from the local SQLite index with a nil Meta, so agents doing arbitrage math on --pair output could read stale prices with no staleness signal. Greptile P1 on PR #780.",
+      "files": [
+        "internal/cli/compare.go"
+      ]
+    },
+    {
+      "id": "compare-pair-limit-counts-matches-only",
+      "summary": "pairCompareMarkets counts only confident two-sided matches toward --limit and no longer emits one-sided pairs.",
+      "reason": "Unmatched PM-only leaders consumed the cap, so 20 low-scoring FTS leaders could mask real pairs deeper in the 10x over-fetched candidates and produce a false no_confident_pair. One-sided rows were dead weight: the caller filtered them and surfaces per-venue leftovers via buildUnpaired. Greptile P1 on PR #780.",
+      "files": [
+        "internal/cli/compare.go",
+        "internal/cli/compare_test.go"
+      ],
+      "validated_outcome": "TestPairCompareMarkets_LimitCountsOnlyMatches places the only 2 confident matches after 3 unmatchable PM leaders with limit=2 and asserts both surface."
+    }
+  ]
+}

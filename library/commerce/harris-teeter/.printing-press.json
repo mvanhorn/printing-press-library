@@ -49,5 +49,11 @@
       "command": "cart",
       "description": "Inspect the authenticated Harris Teeter cart and shopping-list surfaces without exposing mutating checkout or order actions."
     }
+  ],
+  "contributors": [
+    {
+      "handle": "tmchow",
+      "name": "Trevin Chow"
+    }
   ]
 }

@@ -10,6 +10,7 @@ import (
 	"io"
 	"os"
 	"strings"
+	"sync"
 	"text/tabwriter"
 	"time"
 
@@ -20,7 +21,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var version = "1.0.0"
+var version = "2026.6.3"
 
 type rootFlags struct {
 	asJSON     bool
@@ -309,19 +310,32 @@ func (f *rootFlags) newClient() (*client.Client, error) {
 	if err != nil {
 		return nil, configErr(err)
 	}
-	// Hand-built Suno wiring: re-mint an expired Clerk JWT before constructing
-	// the client, and install the transport that stamps Device-Id + a fresh
-	// Browser-Token on every studio-api request. Skipped under --dry-run (no
-	// network) and when the verifier is driving a mock subprocess.
+	cookieHeader := ""
 	if !f.dryRun && !cliutil.IsVerifyEnv() {
-		if rerr := auth.EnsureFreshJWT(context.Background(), cfg); rerr != nil {
-			fmt.Fprintf(os.Stderr, "warning: JWT refresh failed, continuing with stored token: %v\n", rerr)
+		if cfg.IsEnvAuth() {
+			// Env-supplied tokens are unmanaged: keep the per-run browser pull.
+			cookieHeader = auth.SunoStudioCookieHeader(context.Background())
+		} else {
+			// Managed Clerk session: refresh JWT + reuse the stored cookie pair,
+			// reading the browser only when the pair is missing/stale.
+			if rerr := auth.EnsureFreshSession(context.Background(), cfg); rerr != nil {
+				fmt.Fprintf(os.Stderr, "warning: session refresh failed, continuing with stored token: %v\n", rerr)
+			}
+			cookieHeader = cfg.StudioCookieHeader()
 		}
 	}
 	c := client.New(cfg, f.timeout, f.rateLimit)
 	c.DryRun = f.dryRun
 	c.NoCache = f.noCache
-	client.InstallSunoTransport(c, cfg.DeviceID())
+	client.InstallSunoTransport(c, cfg.DeviceID(), cookieHeader)
+	if !f.dryRun && !cliutil.IsVerifyEnv() && !cfg.IsEnvAuth() {
+		var refreshMu sync.Mutex
+		c.SetStudioCookieRefresher(func() string {
+			refreshMu.Lock()
+			defer refreshMu.Unlock()
+			return auth.RefreshStudioCookies(context.Background(), cfg)
+		})
+	}
 	return c, nil
 }
 

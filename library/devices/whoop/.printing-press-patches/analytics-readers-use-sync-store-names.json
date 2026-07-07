@@ -1,0 +1,11 @@
+{
+  "schema_version": 2,
+  "id": "analytics-readers-use-sync-store-names",
+  "applied_at": "2026-06-05",
+  "base_run_id": "20260509-091026",
+  "base_printing_press_version": "4.1.0",
+  "summary": "Local-analytics readers must query the resource names sync actually writes (cycle, recovery, activity=sleeps, activity-workout) and timestamp extraction must fall back to created_at, because recovery records carry no start field.",
+  "reason": "The novel analytics shipped reading cycle_recovery and sleep — store names sync never writes — so sleep-debt, strain-budget, digest, trend, correlate and classify saw zero rows on every synced mirror and emitted recovery 0 / observations 0; classify additionally read sleeps (activity) where it expected workouts. A regen must keep reader resource names aligned with defaultSyncResources()/syncResourcePath() and keep the created_at fallback for time-windowed series.",
+  "files": ["internal/cli/novel_whoop.go", "internal/cli/novel_resources_test.go"],
+  "validated_outcome": "Against a freshly synced mirror: sleep-debt now reports baseline_recovery 53.6 with 15 observations and strain-budget latest_recovery 54 (yellow x0.7), where both previously returned the constant 0 (red). Regression test seeds the store under sync's exact resource names."
+}

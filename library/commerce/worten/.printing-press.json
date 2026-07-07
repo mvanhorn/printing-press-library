@@ -1,0 +1,49 @@
+{
+  "api_name": "worten",
+  "api_version": "0.1.0",
+  "auth_type": "none",
+  "category": "commerce",
+  "cli_name": "worten-pp-cli",
+  "creator": {
+    "handle": "asantos00",
+    "name": "Alexandre Santos"
+  },
+  "description": "Local OpenAPI seed extracted from the working housebuy Worten CLI.",
+  "display_name": "Worten Reverse Engineered",
+  "generated_at": "2026-06-04T22:42:05.087765Z",
+  "mcp_binary": "worten-pp-mcp",
+  "mcp_public_tool_count": 5,
+  "mcp_ready": "full",
+  "mcp_tool_count": 5,
+  "novel_features": [
+    {
+      "name": "Canonical product resolution",
+      "command": "resolve",
+      "description": "Resolve a Worten product URL slug or UUID to the canonical product identifier the other commands use."
+    },
+    {
+      "name": "Normalized buyer view",
+      "command": "buyer",
+      "description": "Return a stable retailer-normalized buyer view instead of raw storefront payloads so downstream tooling can compare products consistently."
+    },
+    {
+      "name": "Persistent product snapshots",
+      "command": "snapshot",
+      "description": "Capture and reuse normalized product snapshots on disk so agents can refresh or inspect prior product state without rebuilding the view by hand."
+    },
+    {
+      "name": "Normalized stock context",
+      "command": "stock",
+      "description": "Combine product, seller, shipping, and optional nearby-store stock context behind one command instead of stitching endpoint calls manually."
+    }
+  ],
+  "owner": "asantos00",
+  "printer": "asantos00",
+  "printer_name": "Alexandre Santos",
+  "printing_press_version": "4.20.1",
+  "run_id": "20260604-224205",
+  "schema_version": 1,
+  "spec_checksum": "sha256:7bc0265f483455b86c859cea553ec1941d177818e0aa31bd475e61209ef16236",
+  "spec_format": "openapi3",
+  "spec_path": "worten-openapi.yaml"
+}

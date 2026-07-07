@@ -34,7 +34,7 @@ This skill drives the `everbee-pp-cli` binary. **You must verify the CLI is inst
 2. Verify: `everbee-pp-cli --version`
 3. Ensure the reported install directory is on `$PATH` for the agent/runtime that will invoke this skill.
 
-If the `npx` install fails (no Node, offline, etc.), fall back to a direct Go install (requires Go 1.26.3 or newer):
+If the `npx` install fails (no Node, offline, etc.), fall back to a direct Go install (requires Go 1.26.4 or newer):
 
 ```bash
 go install github.com/mvanhorn/printing-press-library/library/marketing/everbee/cmd/everbee-pp-cli@latest

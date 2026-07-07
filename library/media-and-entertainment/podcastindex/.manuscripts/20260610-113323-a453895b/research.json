@@ -1,0 +1,178 @@
+{
+  "api_name": "podcastindex",
+  "novelty_score": 0,
+  "alternatives": [
+    {
+      "name": "podcast-index-api",
+      "url": "https://github.com/comster/podcast-index-api",
+      "language": "JavaScript",
+      "install_method": "",
+      "stars": 26,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "python-podcastindex",
+      "url": "https://github.com/SarvagyaVaish/python-podcastindex",
+      "language": "Python",
+      "install_method": "",
+      "stars": 25,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "PodcastIndexKit",
+      "url": "https://github.com/SparrowTek/PodcastIndexKit",
+      "language": "Swift",
+      "install_method": "",
+      "stars": 10,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "PodcastIndex-SDK",
+      "url": "https://github.com/mr3y-the-programmer/PodcastIndex-SDK",
+      "language": "Kotlin",
+      "install_method": "",
+      "stars": 7,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "podcast-index",
+      "url": "https://github.com/jasonyork/podcast-index",
+      "language": "Ruby",
+      "install_method": "",
+      "stars": 5,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "PodcastIndexSharp",
+      "url": "https://github.com/brb3/PodcastIndexSharp",
+      "language": "C#",
+      "install_method": "",
+      "stars": 5,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "podcast-index-client",
+      "url": "https://github.com/kilobit/podcast-index-client",
+      "language": "Go",
+      "install_method": "",
+      "stars": 2,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-06-10T09:40:28Z",
+  "novel_features": [
+    {
+      "name": "Transcript grep",
+      "command": "tgrep",
+      "description": "Search inside actual episode transcripts, not just titles and descriptions.",
+      "rationale": "Downloads the transcripts[] URLs the API never indexes and full-text-searches them locally.",
+      "example": "podcastindex-pp-cli tgrep \"jepa\" --cat Technology --agent",
+      "why_it_matters": "Reach for this when the user wants what was *said* in episodes, not show metadata.",
+      "group": "Mine data wrappers ignore"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Transcript grep",
+      "command": "tgrep",
+      "description": "Search inside actual episode transcripts, not just titles and descriptions.",
+      "rationale": "Downloads the transcripts[] URLs the API never indexes and full-text-searches them locally.",
+      "example": "podcastindex-pp-cli tgrep \"jepa\" --cat Technology --agent",
+      "why_it_matters": "Reach for this when the user wants what was *said* in episodes, not show metadata.",
+      "group": "Mine data wrappers ignore"
+    }
+  ],
+  "auth": {
+    "canonical_env_var": "PODCASTINDEX_KEY"
+  },
+  "narrative": {
+    "display_name": "PodcastIndex",
+    "headline": "The only PodcastIndex tool that is agent-native and works offline: search, resolve, and analyse any podcast from one signed binary with a local mirror you can FTS and SQL.",
+    "value_prop": "Every existing PodcastIndex tool is a language SDK that mirrors the endpoints and returns raw JSON in-process. This CLI adds a local SQLite mirror, full-text search over synced shows and episodes, agent-native output, and compound commands no wrapper has: tgrep searches inside transcripts, cadence and dead-watch reason over publish history, guest-graph joins people across feeds.",
+    "auth_narrative": "PodcastIndex signs every request with four headers: X-Auth-Key, X-Auth-Date (unix now), Authorization (sha1 of key+secret+date), and User-Agent. Set PODCASTINDEX_KEY and PODCASTINDEX_SECRET and the CLI computes the signature for you on each call.",
+    "quickstart": [
+      {
+        "command": "podcastindex-pp-cli doctor --dry-run",
+        "comment": "verify the signer and credentials without hitting the API"
+      },
+      {
+        "command": "podcastindex-pp-cli find search-byterm --q \"batman university\" --max 5",
+        "comment": "search podcasts by term"
+      },
+      {
+        "command": "podcastindex-pp-cli find search-byperson --q \"adam curry\" --max 5",
+        "comment": "find episodes featuring a person"
+      },
+      {
+        "command": "podcastindex-pp-cli episodes byfeedid --id 75075 --newest --max 10",
+        "comment": "resolve a show to its recent episodes"
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "401 / authorization error",
+        "fix": "ensure PODCASTINDEX_KEY and PODCASTINDEX_SECRET are exported; run doctor to check clock skew on X-Auth-Date"
+      },
+      {
+        "symptom": "empty results on a known term",
+        "fix": "drop --clean or add --fulltext; the API truncates descriptions unless --fulltext is set"
+      }
+    ],
+    "when_to_use": "Use this CLI when an agent or user needs to discover podcasts, resolve a show to its episodes, or analyse podcast metadata, publish cadence, guests, value4value splits, or transcript content from the PodcastIndex database. It is the right tool when offline reuse, full-text search, or cross-feed analysis matters.",
+    "anti_triggers": [
+      "Do not use this CLI to download or play audio files; it returns enclosure URLs, not media.",
+      "Do not use it to add or manage feeds in PodcastIndex; the add/* endpoints need publisher auth and are out of scope.",
+      "Do not use it for Apple Podcasts-only metadata beyond the iTunes lookup passthrough."
+    ],
+    "recipes": [
+      {
+        "title": "Resolve a show in one step",
+        "command": "podcastindex-pp-cli find search-byterm --q \"no agenda\" --max 1 --json --select feeds.id,feeds.title",
+        "explanation": "Get the feedId for a show by name, ready to pass to episodes byfeedid."
+      },
+      {
+        "title": "Catch up on a show",
+        "command": "podcastindex-pp-cli episodes byfeedid --id 920666 --newest --max 10 --json --select items.title,items.datePublished,items.enclosureUrl",
+        "explanation": "List a show's newest episodes with just the fields an agent needs."
+      },
+      {
+        "title": "Search inside transcripts",
+        "command": "podcastindex-pp-cli tgrep \"interest rates\" --feed 920666 --agent",
+        "explanation": "Full-text search the actual transcript files of a show, not just metadata."
+      }
+    ],
+    "trigger_phrases": [
+      "search podcasts for",
+      "find episodes with",
+      "resolve this show to its episodes",
+      "what podcasts mention",
+      "podcast cadence for",
+      "use podcastindex",
+      "run podcastindex"
+    ]
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "schema_version": 2,
+  "id": "novel-features",
+  "applied_at": "2026-05-11",
+  "base_run_id": "20260511-114028",
+  "base_printing_press_version": "4.3.0",
+  "summary": "Add cycle-time, workload, blocked, stale (Jira-specific), worklog-summary; fix blocked empty-message; cycle-time --last accepts duration strings.",
+  "reason": "Hand-authored analytics not produced by generator.",
+  "files": [
+    "internal/cli/pm_cycle_time.go",
+    "internal/cli/pm_workload.go",
+    "internal/cli/pm_blocked.go",
+    "internal/cli/pm_stale.go",
+    "internal/cli/pm_worklog_summary.go",
+    "internal/cli/root.go",
+    "internal/cli/issue_worklog.go"
+  ]
+}

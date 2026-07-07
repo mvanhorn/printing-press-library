@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "slug": "agent-desktop",
+  "cli_name": "agent-desktop-pp-cli",
+  "version": "2026.6.1",
+  "released_at": "2026-06-11T23:13:02Z",
+  "source_commit": "7addd9fd600965a9da978f2783a8b1f85d083373",
+  "printing_press_version": "4.24.0",
+  "run_id": "20260611T104457Z-agent-desktop-pp",
+  "changes": [
+    {
+      "title": "feat(agent-desktop): add agent-desktop",
+      "pr": 1144,
+      "url": "https://github.com/mvanhorn/printing-press-library/pull/1144",
+      "commit": "7addd9fd600965a9da978f2783a8b1f85d083373"
+    }
+  ]
+}

@@ -1,0 +1,16 @@
+{
+  "schema_version": 2,
+  "id": "novel-feature-commands",
+  "applied_at": "2026-05-18",
+  "base_run_id": "20260518-214920",
+  "base_printing_press_version": "4.8.0",
+  "summary": "Add 6 hand-written transcendence commands: `sites rank`, `sites diff`, `production sweep`, `production compare`, `production optimal-tilt`, `weather similar`.",
+  "reason": "These commands compose multiple PVGIS calls in ways no single endpoint supports (multi-site batch ranking, 2D tilt/azimuth grid, three-database side-by-side compare, baseline-vs-target site diff, TMY climate similarity search, tilt-only sweep). They were approved at the Phase 1.5 absorb gate and are the CLI's main differentiator vs the existing Python pvgis-mcp and pvlib's PVGIS adapter.",
+  "files": [
+    "internal/cli/novel.go",
+    "internal/cli/production.go",
+    "internal/cli/promoted_weather.go",
+    "internal/cli/root.go"
+  ],
+  "validated_outcome": "Each command was live-tested against PVGIS v5_3: `sites diff` Milano→Roma reports +9.7%, `production compare` correctly surfaces NSRDB's HTTP 400 for EU coordinates, `production optimal-tilt` finds the yearly-energy peak in a 0-60° sweep. Recorded in the Phase 5 acceptance report."
+}

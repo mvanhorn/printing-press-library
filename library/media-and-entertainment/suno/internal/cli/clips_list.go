@@ -4,6 +4,7 @@
 package cli
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -11,6 +12,17 @@ import (
 
 	"github.com/spf13/cobra"
 )
+
+// drainAllClips walks every feed page via walkFeed and returns the combined
+// clip records. Backs `clips list --all`.
+func drainAllClips(ctx context.Context, fetch feedFetcher, limit int, startCursor string) ([]json.RawMessage, error) {
+	var all []json.RawMessage
+	err := walkFeed(ctx, fetch, limit, startCursor, func(clips []json.RawMessage) (bool, error) {
+		all = append(all, clips...)
+		return true, nil
+	})
+	return all, err
+}
 
 func newClipsListCmd(flags *rootFlags) *cobra.Command {
 	var bodyCursor string
@@ -53,9 +65,30 @@ func newClipsListCmd(flags *rootFlags) *cobra.Command {
 					body["limit"] = bodyLimit
 				}
 			}
-			data, statusCode, err := c.PostQueryWithParams(cmd.Context(), path, params, body)
-			if err != nil {
-				return classifyAPIError(err, flags)
+			var data json.RawMessage
+			var statusCode int
+			if flagAll && stdinBody {
+				fmt.Fprintln(os.Stderr, "warning: --all ignored when --stdin is set (the supplied body controls pagination)")
+			}
+			if flagAll && !stdinBody {
+				all, derr := drainAllClips(cmd.Context(), feedFetcherFor(c), bodyLimit, bodyCursor)
+				if derr != nil {
+					return classifyAPIError(derr, flags)
+				}
+				// Render the drained set as the same {clips:[...]} shape a single
+				// page returns, so all downstream rendering behaves identically.
+				combined, merr := json.Marshal(map[string]any{"clips": all})
+				if merr != nil {
+					return merr
+				}
+				data = combined
+				statusCode = 200
+			} else {
+				var ferr error
+				data, statusCode, ferr = c.PostQueryWithParams(cmd.Context(), path, params, body)
+				if ferr != nil {
+					return classifyAPIError(ferr, flags)
+				}
 			}
 			// Inspect the mutate response body for a partial-failure-shaped
 			// field (e.g. Google Ads `partialFailureError`). Several Google

@@ -1,0 +1,271 @@
+{
+  "api_name": "google-play",
+  "novelty_score": 8,
+  "alternatives": [
+    {
+      "name": "google-play-scraper (JS)",
+      "url": "https://github.com/facundoolano/google-play-scraper",
+      "language": "JavaScript",
+      "install_method": "",
+      "stars": 2887,
+      "last_updated": "",
+      "command_count": 10,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "google-play-scraper (Python)",
+      "url": "https://github.com/JoMingyu/google-play-scraper",
+      "language": "Python",
+      "install_method": "",
+      "stars": 981,
+      "last_updated": "",
+      "command_count": 5,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "aso",
+      "url": "https://github.com/facundoolano/aso",
+      "language": "JavaScript",
+      "install_method": "",
+      "stars": 848,
+      "last_updated": "",
+      "command_count": 4,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "mcp-appstore",
+      "url": "https://github.com/appreply-co/mcp-appstore",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 57,
+      "last_updated": "",
+      "command_count": 17,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "google-play-scraper (Go)",
+      "url": "https://github.com/n0madic/google-play-scraper",
+      "language": "Go",
+      "install_method": "",
+      "stars": 84,
+      "last_updated": "",
+      "command_count": 9,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-06-11T11:20:00Z",
+  "novel_features": [
+    {
+      "name": "Chart movers",
+      "command": "movers",
+      "description": "See which games climbed, dropped, entered, or fell off a Play chart between two snapshots.",
+      "rationale": "Requires diffing two locally-persisted chart snapshots; the live store shows only the current ranking, so no single API call gives rank deltas.",
+      "example": "google-play-pp-cli movers --collection TOP_GROSSING --category GAME_PUZZLE --country us --agent",
+      "why_it_matters": "Reach for this when an agent needs week-over-week rank movement that Play never exposes and Sensor Tower paywalls.",
+      "group": "Local history that compounds"
+    },
+    {
+      "name": "Chart rank history",
+      "command": "rank-history",
+      "description": "Show one app's rank trajectory over time within a chart, including first-seen, peak, and last-seen rank.",
+      "rationale": "Requires chart snapshots persisted locally over time; the Play Store shows only live state.",
+      "example": "google-play-pp-cli rank-history com.dreamgames.royalkingdom --collection TOP_GROSSING --category GAME --country us --agent",
+      "why_it_matters": "Pick this when you need the trend line for a single title, not the whole chart.",
+      "group": "Local history that compounds"
+    },
+    {
+      "name": "Listing change detection",
+      "command": "watch-listing",
+      "description": "Diff the two latest snapshots of a listing to surface what changed: title, icon, version, IAP range, ads flag, price, screenshots.",
+      "rationale": "Requires a field-by-field diff of two locally-stored app-detail snapshots over time, which no single store request can provide.",
+      "example": "google-play-pp-cli watch-listing com.yalla.yallagames --agent",
+      "why_it_matters": "Use this to catch a competitor's monetization or positioning shift the moment it ships, instead of eyeballing screenshots.",
+      "group": "Local history that compounds"
+    },
+    {
+      "name": "Keyword rank capture",
+      "command": "keyword-rank",
+      "description": "Run a live store search for a term and record where a target app ranks, persisting the data point for trend analysis.",
+      "rationale": "Live search plus a written keyword-rank snapshot that nothing in the ecosystem keeps.",
+      "example": "google-play-pp-cli keyword-rank \"merge puzzle\" --country us --app com.yalla.yallagames --agent",
+      "why_it_matters": "Reach for this to log today's keyword position so tomorrow's metadata change can be measured.",
+      "group": "ASO rank tracking"
+    },
+    {
+      "name": "Keyword rank history",
+      "command": "keyword-history",
+      "description": "Show the rank-over-time series for a term, app, and country from captured keyword snapshots.",
+      "rationale": "Requires a keyword-rank time series in local SQLite.",
+      "example": "google-play-pp-cli keyword-history \"merge puzzle\" --country us --app com.yalla.yallagames --agent",
+      "why_it_matters": "Use this to prove whether a listing change actually moved a keyword over time.",
+      "group": "ASO rank tracking"
+    },
+    {
+      "name": "Review digest",
+      "command": "review-digest",
+      "description": "Aggregate synced reviews into star and per-version histograms, developer reply rate, and complaint-term frequency, with no NLP.",
+      "rationale": "Local aggregation across the synced reviews table by version and star, which the stateless scrapers cannot do.",
+      "example": "google-play-pp-cli review-digest com.yalla.yallagames --agent",
+      "why_it_matters": "Pick this for mechanical post-update sentiment stats; pipe the output to an LLM if you want prose.",
+      "group": "Review intelligence"
+    },
+    {
+      "name": "Compare apps",
+      "command": "compare",
+      "description": "Fetch details for several apps and lay their key fields side by side in one table.",
+      "rationale": "Agent-shaped transpose of N live detail fetches into one selectable table.",
+      "example": "google-play-pp-cli compare com.yalla.yallagames com.dreamgames.royalkingdom --agent --select items.appId,items.score,items.installs,items.offersIAP",
+      "why_it_matters": "Use this to benchmark a title against its competitive set in a single call.",
+      "group": "Review intelligence"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Chart movers",
+      "command": "movers",
+      "description": "See which games climbed, dropped, entered, or fell off a Play chart between two snapshots.",
+      "rationale": "Requires diffing two locally-persisted chart snapshots; the live store shows only the current ranking, so no single API call gives rank deltas.",
+      "example": "google-play-pp-cli movers --collection TOP_GROSSING --category GAME_PUZZLE --country us --agent",
+      "why_it_matters": "Reach for this when an agent needs week-over-week rank movement that Play never exposes and Sensor Tower paywalls.",
+      "group": "Local history that compounds"
+    },
+    {
+      "name": "Chart rank history",
+      "command": "rank-history",
+      "description": "Show one app's rank trajectory over time within a chart, including first-seen, peak, and last-seen rank.",
+      "rationale": "Requires chart snapshots persisted locally over time; the Play Store shows only live state.",
+      "example": "google-play-pp-cli rank-history com.dreamgames.royalkingdom --collection TOP_GROSSING --category GAME --country us --agent",
+      "why_it_matters": "Pick this when you need the trend line for a single title, not the whole chart.",
+      "group": "Local history that compounds"
+    },
+    {
+      "name": "Listing change detection",
+      "command": "watch-listing",
+      "description": "Diff the two latest snapshots of a listing to surface what changed: title, icon, version, IAP range, ads flag, price, screenshots.",
+      "rationale": "Requires a field-by-field diff of two locally-stored app-detail snapshots over time, which no single store request can provide.",
+      "example": "google-play-pp-cli watch-listing com.yalla.yallagames --agent",
+      "why_it_matters": "Use this to catch a competitor's monetization or positioning shift the moment it ships, instead of eyeballing screenshots.",
+      "group": "Local history that compounds"
+    },
+    {
+      "name": "Keyword rank capture",
+      "command": "keyword-rank",
+      "description": "Run a live store search for a term and record where a target app ranks, persisting the data point for trend analysis.",
+      "rationale": "Live search plus a written keyword-rank snapshot that nothing in the ecosystem keeps.",
+      "example": "google-play-pp-cli keyword-rank \"merge puzzle\" --country us --app com.yalla.yallagames --agent",
+      "why_it_matters": "Reach for this to log today's keyword position so tomorrow's metadata change can be measured.",
+      "group": "ASO rank tracking"
+    },
+    {
+      "name": "Keyword rank history",
+      "command": "keyword-history",
+      "description": "Show the rank-over-time series for a term, app, and country from captured keyword snapshots.",
+      "rationale": "Requires a keyword-rank time series in local SQLite.",
+      "example": "google-play-pp-cli keyword-history \"merge puzzle\" --country us --app com.yalla.yallagames --agent",
+      "why_it_matters": "Use this to prove whether a listing change actually moved a keyword over time.",
+      "group": "ASO rank tracking"
+    },
+    {
+      "name": "Review digest",
+      "command": "review-digest",
+      "description": "Aggregate synced reviews into star and per-version histograms, developer reply rate, and complaint-term frequency, with no NLP.",
+      "rationale": "Local aggregation across the synced reviews table by version and star, which the stateless scrapers cannot do.",
+      "example": "google-play-pp-cli review-digest com.yalla.yallagames --agent",
+      "why_it_matters": "Pick this for mechanical post-update sentiment stats; pipe the output to an LLM if you want prose.",
+      "group": "Review intelligence"
+    },
+    {
+      "name": "Compare apps",
+      "command": "compare",
+      "description": "Fetch details for several apps and lay their key fields side by side in one table.",
+      "rationale": "Agent-shaped transpose of N live detail fetches into one selectable table.",
+      "example": "google-play-pp-cli compare com.yalla.yallagames com.dreamgames.royalkingdom --agent --select items.appId,items.score,items.installs,items.offersIAP",
+      "why_it_matters": "Use this to benchmark a title against its competitive set in a single call.",
+      "group": "Review intelligence"
+    }
+  ],
+  "auth": {},
+  "narrative": {
+    "display_name": "Google Play",
+    "headline": "Every public Google Play surface in one Go binary, plus a local SQLite mirror for rank history and listing change detection that no other Play tool keeps.",
+    "value_prop": "Pull app details, top charts, search, reviews, similar apps, developer portfolios, permissions, and data safety from the public Play Store with no API key. Then go further than any existing scraper: snapshot charts and listings into a local database so 'movers', 'rank-history', 'keyword-history', and 'watch-listing' can answer week-over-week questions Google never exposes and commercial tools paywall.",
+    "auth_narrative": "No authentication. Every command reads the public Play Store anonymously. The CLI throttles to about two requests per second by default (set with --rate-limit) and backs off on rate-limit responses, including the PlayGatewayError that Google returns inside an HTTP 200 body.",
+    "quickstart": [
+      {
+        "command": "google-play-pp-cli doctor --dry-run",
+        "comment": "Confirm the binary runs and the store is reachable before anything else."
+      },
+      {
+        "command": "google-play-pp-cli app com.dreamgames.royalkingdom --agent",
+        "comment": "Resolve an appId to structured detail JSON."
+      },
+      {
+        "command": "google-play-pp-cli top --collection TOP_GROSSING --category GAME_PUZZLE --country us --limit 20",
+        "comment": "Pull the live top-grossing puzzle games chart for the US."
+      },
+      {
+        "command": "google-play-pp-cli reviews com.dreamgames.royalkingdom --sort NEWEST --limit 50 --agent",
+        "comment": "Fetch the newest reviews as structured JSON."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "Commands return a rate-limit error or stop after many calls.",
+        "fix": "Lower request volume; the CLI already throttles to ~2 req/s and backs off, but Google can IP-ban aggressive fan-out for about an hour. Wait, then retry."
+      },
+      {
+        "symptom": "An app command returns empty or a 404.",
+        "fix": "Check the appId is the package name (com.example.app), and try without --country or with a different --country value."
+      },
+      {
+        "symptom": "movers or rank-history returns nothing.",
+        "fix": "These read local snapshots. Run 'google-play-pp-cli top --collection TOP_FREE --category GAME' at two different times first so there is chart history to diff."
+      }
+    ],
+    "when_to_use": "Use this CLI when you need structured, scriptable Google Play Store data without an API key: profiling an app and its competitive set, tracking chart and keyword rank over time, detecting listing changes, or mining reviews. It is built for mobile game and app market intelligence, ASO research, and AI agents that need clean JSON and a typed rate-limit signal.",
+    "anti_triggers": [
+      "Do not use this CLI to manage your own published apps (releases, store listings, replying to reviews) — that needs the Google Play Developer API and a service-account key, not the public store.",
+      "Do not use it for download or revenue estimates, DAU/MAU, retention, or demographics — those come from panels and models, not the public store, and this CLI does not fabricate them.",
+      "Do not point it at the Apple App Store; it only reads Google Play."
+    ],
+    "recipes": [
+      {
+        "title": "Profile an app for an agent",
+        "command": "google-play-pp-cli app com.dreamgames.royalkingdom --agent --select appId,title,developer,score,realInstalls,offersIAP,containsAds",
+        "explanation": "Narrow a verbose detail payload to the fields an agent actually needs."
+      },
+      {
+        "title": "This week's grossing movers",
+        "command": "google-play-pp-cli movers --collection TOP_GROSSING --category GAME --country us --agent",
+        "explanation": "Diff the two most recent chart snapshots to see who climbed and who fell off."
+      },
+      {
+        "title": "Track a keyword over time",
+        "command": "google-play-pp-cli keyword-rank \"merge puzzle\" --country us --app com.yalla.yallagames \u0026\u0026 google-play-pp-cli keyword-history \"merge puzzle\" --country us --app com.yalla.yallagames --agent",
+        "explanation": "Capture today's rank, then read the trend series back."
+      },
+      {
+        "title": "Narrow a big reviews payload",
+        "command": "google-play-pp-cli reviews com.dreamgames.royalkingdom --limit 100 --agent --select userName,score,text,at",
+        "explanation": "Reviews return tens of KB; --select with --agent keeps only the fields you parse."
+      }
+    ],
+    "trigger_phrases": [
+      "top grossing games on google play",
+      "google play app details for",
+      "track this app's rank over time",
+      "what changed on this play store listing",
+      "reviews for this android app",
+      "use google-play",
+      "run google-play"
+    ]
+  }
+}

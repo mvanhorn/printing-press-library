@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "id": "messages-readonly-chatdb",
+  "applied_at": "2026-05-23",
+  "base_run_id": "hand-written",
+  "base_printing_press_version": "0.1.3",
+  "summary": "messages_db.go opens ~/Library/Messages/chat.db read-only via the file: URI prefix with mode=ro and _query_only=1 PRAGMA.",
+  "reason": "chat.db is a system-owned SQLite database read by imagent in WAL mode. The file: URI prefix is load-bearing on modernc.org/sqlite; bare ?mode=ro is silently dropped and the driver returns a read-write handle. _query_only=1 is a second belt at the connection level.",
+  "files": [
+    "internal/cli/messages_db.go"
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "id": "watch-since-source-from-store",
+  "applied_at": "2026-05-19",
+  "base_run_id": "20260513-134344",
+  "base_printing_press_version": "4.5.1",
+  "summary": "Source watch --since from the local store's first_seen rather than RSS PubDate; upsert all fetched category trends, then return the recency window from the store.",
+  "reason": "Category-card HTML has no per-trend publication dates, so the previous withinPubDateCutoff check was always lenient and --since was effectively a no-op. first_seen is the only reliable time signal we have for category-page sources, and it gives --since the obvious meaning of \"trends discovered in my store in the last N time\". Greptile blocking finding on PR #548.",
+  "files": [
+    "internal/cli/trendhunter_commands.go"
+  ]
+}

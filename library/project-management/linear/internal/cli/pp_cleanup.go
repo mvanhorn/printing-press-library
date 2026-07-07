@@ -61,7 +61,7 @@ func archiveIssueGraphQL(c interface {
 		return fmt.Errorf("parsing issueArchive response: %w", err)
 	}
 	if !parsed.IssueArchive.Success {
-		return fmt.Errorf("Linear reported issueArchive(%s) success=false", issueID)
+		return apiErr(fmt.Errorf("Linear reported issueArchive(%s) success=false", issueID))
 	}
 	return nil
 }

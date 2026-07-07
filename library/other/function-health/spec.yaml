@@ -1,0 +1,244 @@
+name: function-health
+display_name: Function Health
+description: Pull every lab round from your Function Health account, store every biomarker in a local SQLite with FTS5, compare biomarker drift across rounds, and export branded PDFs for your doctors.
+version: 0.1.0
+base_url: https://member-app-mid.functionhealth.com/api/v1
+spec_source: sniffed
+http_transport: standard
+health_check_path: /user
+required_headers:
+  - name: Accept
+    value: application/json, text/plain, */*
+  - name: fe-app-version
+    value: "0.84.0"
+  - name: X-Backend-Skip-Cache
+    value: "true"
+  - name: referer
+    value: https://my.functionhealth.com/
+  - name: User-Agent
+    value: "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36"
+
+auth:
+  type: bearer_token
+  header: Authorization
+  format: "Bearer {token}"
+  in: header
+  env_vars:
+    - FUNCTION_HEALTH_TOKEN
+
+config:
+  format: toml
+  path: ~/.config/function-health-pp-cli/config.toml
+
+cli_description: Pull every lab round from your Function Health account, store every biomarker in a local SQLite with FTS5, compare biomarker drift across rounds, and export branded PDFs for your doctors.
+
+resources:
+  user:
+    description: Your Function Health member profile (id, name, contact info, membership status).
+    endpoints:
+      get:
+        method: GET
+        path: /user
+        description: Get the authenticated member profile. Used by doctor for reachability + auth check.
+
+  biomarkers:
+    description: Function Health's full biomarker catalog with names, units, reference ranges, and Function's "optimal" ranges.
+    endpoints:
+      list:
+        method: GET
+        path: /biomarkers
+        description: List every biomarker the platform knows about (across all categories).
+      get:
+        method: GET
+        path: /biomarker-data/{biomarker_id}
+        description: Get one biomarker's full result history across every round you've drawn, with values, units, status, and ranges.
+        params:
+          - name: biomarker_id
+            type: string
+            required: true
+            positional: true
+            description: Biomarker UUID (from /biomarkers list)
+
+  categories:
+    description: The ~13 medical categories biomarkers are organized into (Heart, Hormones, Thyroid, Metabolic, Liver, Kidney, etc.).
+    endpoints:
+      list:
+        method: GET
+        path: /categories
+        description: List every biomarker category with the biomarkers nested under it.
+
+  results:
+    description: Lab results — both the structured biomarker-level data and the raw requisition documents.
+    endpoints:
+      list:
+        method: GET
+        path: /results
+        description: Raw requisition / PDF result data (less useful for queries; see results-report for structured values).
+      report:
+        method: GET
+        path: /results-report
+        description: The structured lab-results report — every biomarker, every round, with value, unit, status, Quest reference range, and Function's optimal range. The headline endpoint for sync.
+
+  recommendations:
+    description: Personalized health recommendations tied to your results.
+    endpoints:
+      list:
+        method: GET
+        path: /recommendations
+        description: Per-category health guidance. May 404 if Function hasn't computed any yet.
+
+  biological_age:
+    description: Biological-age and BMI calculations Function derives from your panels.
+    endpoints:
+      bio_age:
+        method: GET
+        path: /biological-calculations/biological-age
+        description: Your biological age vs. chronological age. 404 if not yet calculated.
+      bmi:
+        method: GET
+        path: /biological-calculations/bmi
+        description: BMI with the weight and height inputs Function recorded.
+
+  notes:
+    description: Clinician notes attached to your results.
+    endpoints:
+      list:
+        method: GET
+        path: /notes
+        description: List all clinician notes (annotations on biomarkers / rounds).
+
+  requisitions:
+    description: Lab requisitions — pending (in-progress draws) and completed (rounds with results).
+    endpoints:
+      pending:
+        method: GET
+        path: /requisitions
+        description: Currently in-progress requisitions (lab orders awaiting completion).
+        params:
+          - name: pending
+            type: bool
+            required: true
+            default: true
+            description: Always pass true to filter to in-progress requisitions.
+      completed:
+        method: GET
+        path: /requisitions
+        description: Completed requisitions (your past test rounds, keyed by requisitionId).
+        params:
+          - name: pending
+            type: bool
+            required: true
+            default: false
+            description: Always pass false to filter to completed requisitions.
+
+  schedules:
+    description: Upcoming scheduled lab-draw appointments.
+    endpoints:
+      list:
+        method: GET
+        path: /pending-schedules
+        description: Upcoming scheduled lab visits you've booked.
+
+  notifications:
+    description: Change notifications (new results landing, biomarker direction changes).
+    endpoints:
+      list:
+        method: GET
+        path: /notifications
+        description: Read all unread/read notifications about result changes.
+
+  visits:
+    description: Individual lab-collection events within a test round.
+    endpoints:
+      list:
+        method: GET
+        path: /visits
+        description: List every visit (draw event) — useful when a round has multiple draws.
+
+  wearables:
+    description: Wearable-device integrations (Apple Health, Garmin, Whoop, Oura, etc.).
+    endpoints:
+      supported_apps:
+        method: GET
+        path: /wearables/supported-apps
+        description: List the wearable apps Function currently supports for integration.
+
+types:
+  Member:
+    fields:
+      - name: id
+        type: string
+      - name: email
+        type: string
+      - name: firstName
+        type: string
+      - name: lastName
+        type: string
+      - name: dateOfBirth
+        type: string
+      - name: membershipStatus
+        type: string
+  Biomarker:
+    fields:
+      - name: id
+        type: string
+      - name: name
+        type: string
+      - name: category
+        type: string
+      - name: unit
+        type: string
+      - name: questTestCode
+        type: string
+      - name: optimalRangeLow
+        type: float
+      - name: optimalRangeHigh
+        type: float
+      - name: questRangeLow
+        type: float
+      - name: questRangeHigh
+        type: float
+  Result:
+    fields:
+      - name: biomarkerId
+        type: string
+      - name: requisitionId
+        type: string
+      - name: value
+        type: float
+      - name: unit
+        type: string
+      - name: status
+        type: string
+      - name: direction
+        type: string
+      - name: drawDate
+        type: string
+  Requisition:
+    fields:
+      - name: id
+        type: string
+      - name: roundType
+        type: string
+      - name: status
+        type: string
+      - name: drawDate
+        type: string
+  Recommendation:
+    fields:
+      - name: id
+        type: string
+      - name: category
+        type: string
+      - name: title
+        type: string
+      - name: body
+        type: string
+  Category:
+    fields:
+      - name: id
+        type: string
+      - name: name
+        type: string
+      - name: biomarkerCount
+        type: int

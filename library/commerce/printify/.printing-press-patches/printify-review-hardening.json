@@ -1,0 +1,24 @@
+{
+  "schema_version": 2,
+  "id": "printify-review-hardening",
+  "applied_at": "2026-05-24",
+  "base_run_id": "20260524-134133",
+  "base_printing_press_version": "4.14.0",
+  "summary": "Addressed review findings around rate limiting, local reads, money conversion, product risk states, and batch output collisions.",
+  "reason": "Generated helpers needed Printify-specific safety fixes before publication.",
+  "files": [
+    "internal/cli/data_source.go",
+    "internal/cli/data_source_test.go",
+    "internal/cli/transcend_batch.go",
+    "internal/cli/transcend_helpers.go",
+    "internal/cli/transcend_ops.go",
+    "internal/cli/transcend_product.go",
+    "internal/cli/transcend_test.go",
+    "internal/cli/uploads_an-image.go",
+    "internal/cliutil/ratelimit.go",
+    "internal/cliutil/ratelimit_test.go",
+    "internal/store/store.go",
+    "internal/store/upsert_batch_test.go"
+  ],
+  "validated_outcome": "go test ./..."
+}

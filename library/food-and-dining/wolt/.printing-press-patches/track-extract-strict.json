@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "id": "track-extract-strict",
+  "applied_at": "2026-05-23",
+  "base_run_id": "20260523T141801Z-fb7995c2",
+  "base_printing_press_version": "4.12.0",
+  "summary": "Tighten extractTrackID to require a 'track' or 'tracking' path segment.",
+  "reason": "The original fallback returned the last path segment for any URL with >=1 segment, silently producing wrong order IDs for non-tracking URLs (e.g. wolt.com/en/foo/menu -> 'menu'). Return empty instead so the command errors honestly.",
+  "files": [
+    "internal/cli/track.go"
+  ]
+}

@@ -1,0 +1,16 @@
+# agentcookie.toml: secrets-bus adoption manifest v2
+# See docs/spec-agentcookie-secrets-bus-v2-adoption.md
+schema_version = 2
+name = "oura-pp-cli"
+display_name = "Oura"
+description = "Personal health data from the Oura Ring - sleep, readiness, daily activity, heart rate, workouts, SpO2, stress, and resilience."
+project_kind = "cli"
+
+[secrets.file]
+path = "~/.config/oura-pp-cli/config.toml"
+
+[sync]
+default = false
+
+[sync.keys]
+OURA_OAUTH2 = true

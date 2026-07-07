@@ -1,0 +1,16 @@
+{
+  "schema_version": 2,
+  "id": "ratelimit-plumbing-and-setrate",
+  "applied_at": "2026-05-20",
+  "base_run_id": "2026-05-03T06:03:12.15145Z",
+  "base_printing_press_version": "3.6.1",
+  "summary": "Add SetRate method on cliutil.AdaptiveLimiter; thread --rate-limit through source/airbnb scrape client; gate on cmd.Flags().Changed so default invocations keep the existing 0.5 rps baseline.",
+  "reason": "The --rate-limit flag was wired to internal/client/client.go (the generated REST client) but the actual airbnb traffic goes through internal/source/airbnb/client.go's package-global defaultClient with a hardcoded 0.5 rps limiter that never saw the flag. Users following SKILL.md's --rate-limit docs got no behavior change. SetRate as a method on AdaptiveLimiter (mutates rate/floor under existing mu, sets a disabled flag for rps<=0) preserves the limiter's adaptive-ramp history across rate changes; no pointer swap on defaultClient.limiter, so concurrent in-flight do() calls do not race. Gated on cmd.Flags().Changed('rate-limit') in PersistentPreRunE so default invocations stay non-regressive.",
+  "files": [
+    "internal/cliutil/ratelimit.go",
+    "internal/cliutil/cliutil_test.go",
+    "internal/source/airbnb/client.go",
+    "internal/cli/root.go"
+  ],
+  "validated_outcome": "7 new TestAdaptiveLimiter_SetRate* tests pass including race-detector. Full suite (146 tests / 21 packages) clean. Live: `airbnb-listing search ... --rate-limit 4.0` completes faster than default; `--rate-limit 0` disables waiting; unset flag preserves existing 0.5 rps baseline."
+}

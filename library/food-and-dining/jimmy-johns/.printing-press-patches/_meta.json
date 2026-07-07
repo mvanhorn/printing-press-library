@@ -1,0 +1,17 @@
+{
+  "schema_version": 2,
+  "deferred_to_upstream": [
+    {
+      "summary": "Press v4.2.2 cookie-auth flow templates",
+      "reason": "`auth.type: cookie` should fully drive the generated auth flow (set-cookie, refresh-cookie, login-cookie) the way api_key/oauth2 do. Currently only the spec is annotated; the flow is hand-authored. Generator-side fix."
+    },
+    {
+      "summary": "MCP Token Efficiency scorer + Cloudflare-orchestration `execute` tool description",
+      "reason": "Cloudflare-pattern `execute` tool embeds the full endpoint registry (~1037 tokens) in its description; the scorer's 320 tokens/tool budget caps this CLI at 0/10. Likely needs the registry externalized or a scorer carve-out for orchestrated MCP."
+    },
+    {
+      "summary": "Type Fidelity scorer regex on consecutive Flags().StringVar() calls",
+      "reason": "Scorer misidentifies adjacent flag names as the previous flag's description on consecutive declarations; small upstream regex fix."
+    }
+  ]
+}

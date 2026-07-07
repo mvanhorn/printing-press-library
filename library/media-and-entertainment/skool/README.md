@@ -5,6 +5,7 @@
 Pulls every post, comment, member, course, lesson, and calendar event into a local SQLite store with FTS5 so you can query historical state, compute leaderboard deltas, and surface at-risk members the native UI cannot show. One auth_token cookie, two hosts (www.skool.com reads, api2.skool.com writes), zero CloudFront friction.
 
 Created by [@quoxientzero](https://github.com/quoxientzero) (Zain Haseeb).
+Contributors: [@tmchow](https://github.com/tmchow) (Trevin Chow).
 
 ## Install
 
@@ -35,7 +36,7 @@ npx -y @mvanhorn/printing-press-library install skool --agent claude-code --agen
 
 ### Without Node (Go fallback)
 
-If `npx` isn't available (no Node, offline), install the CLI directly via Go (requires Go 1.26.3 or newer):
+If `npx` isn't available (no Node, offline), install the CLI directly via Go (requires Go 1.26.4 or newer):
 
 ```bash
 go install github.com/mvanhorn/printing-press-library/library/media-and-entertainment/skool/cmd/skool-pp-cli@latest

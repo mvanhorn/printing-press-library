@@ -1,0 +1,23 @@
+{
+  "schema_version": 2,
+  "id": "client-context-propagation",
+  "applied_at": "2026-05-19",
+  "base_run_id": "20260513-134344",
+  "base_printing_press_version": "4.5.1",
+  "summary": "Threaded context.Context through the generated HTTP client so Ctrl+C and command-level timeouts cancel in-flight requests.",
+  "reason": "Generated client built requests via http.NewRequest with context.Background(), so multi-hop commands (megatrend-map, sync) could hold the terminal hostage for the full HTTPClient.Timeout after SIGINT. Greptile P1 on PR #548.",
+  "files": [
+    "internal/client/client.go",
+    "internal/cli/data_source.go",
+    "internal/cli/doctor.go",
+    "internal/cli/export.go",
+    "internal/cli/helpers.go",
+    "internal/cli/import.go",
+    "internal/cli/channel_workflow.go",
+    "internal/cli/sync.go",
+    "internal/cli/trendhunter_commands.go",
+    "internal/mcp/tools.go"
+  ],
+  "validated_outcome": "go build/vet/test pass for the full module.",
+  "upstream_issue": "Generator template internal/generator/templates/client.go.tmpl emits http.NewRequest without ctx for every printed CLI; upstream fix would replace this single-CLI patch across the catalog."
+}

@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "escape-path-segments",
+  "applied_at": "2026-05-28",
+  "base_run_id": "20260512-123445",
+  "base_printing_press_version": "4.5.1",
+  "summary": "replacePathParam now URL-escapes user-supplied values via escapePathSegment before splicing into URL path segments; commas in CSV id params are preserved by escaping each element individually.",
+  "reason": "Raw strings.ReplaceAll let an id containing '/', '?', '#', '%', or whitespace break out of its path segment or alter routing across ~25 generated commands. CSV path params (variantIdCsvs/profileIdCsvs/productIdCsvs/documentIds) require literal commas.",
+  "files": [
+    "internal/cli/helpers.go",
+    "internal/cli/pathescape_test.go"
+  ],
+  "validated_outcome": "escapePathSegment('id/2,id3') == 'id%2F2,id3'; replacePathParam neutralizes path traversal in ids."
+}

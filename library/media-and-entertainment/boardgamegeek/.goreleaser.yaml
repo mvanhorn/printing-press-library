@@ -1,0 +1,51 @@
+version: 2
+project_name: boardgamegeek-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: boardgamegeek-pp-cli
+    main: ./cmd/boardgamegeek-pp-cli
+    binary: boardgamegeek-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X github.com/mvanhorn/printing-press-library/library/media-and-entertainment/boardgamegeek/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: boardgamegeek-pp-mcp
+    main: ./cmd/boardgamegeek-pp-mcp
+    binary: boardgamegeek-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X main.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: boardgamegeek-pp-cli
+    repository:
+      owner: ryan-cooper
+      name: homebrew-tap
+    homepage: "https://github.com/mvanhorn/printing-press-library"
+    description: "BoardGameGeek's official XMLAPI2 (https://boardgamegeek."
+    install: |
+      bin.install "boardgamegeek-pp-cli"
+      bin.install "boardgamegeek-pp-mcp"

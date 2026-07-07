@@ -1,0 +1,27 @@
+openapi: 3.1.0
+info:
+  title: Policy Intel Public Data Plan
+  version: 0.1.0
+  description: >
+    Plan-driven first print for federal rulemaking and policy-monitoring workflows
+    using FederalRegister.gov public APIs and Regulations.gov v4 APIs.
+servers:
+  - url: https://www.federalregister.gov/api/v1
+    description: FederalRegister.gov public API
+  - url: https://api.regulations.gov/v4
+    description: Regulations.gov public API
+paths:
+  /documents.json:
+    get:
+      summary: Search Federal Register documents
+      description: Supports full-text, agency, publication date, and document type filters.
+  /documents:
+    get:
+      summary: Search Regulations.gov documents
+      description: Supports search terms, docket filters, agency filters, comment deadlines, and pagination.
+  /dockets/{docketId}:
+    get:
+      summary: Fetch Regulations.gov docket details
+  /comments:
+    get:
+      summary: Search Regulations.gov comments

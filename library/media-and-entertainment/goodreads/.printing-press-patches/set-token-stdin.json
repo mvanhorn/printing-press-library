@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "id": "set-token-stdin",
+  "applied_at": "2026-05-27",
+  "base_run_id": "20260522-095940",
+  "base_printing_press_version": "4.11.0",
+  "summary": "auth set-token reads the session cookie from stdin (positional now optional).",
+  "reason": "Greptile P1/security: a session cookie passed as a positional arg is written to shell history and visible in the process table; piping via stdin keeps it out of both.",
+  "files": [
+    "internal/cli/auth.go"
+  ]
+}

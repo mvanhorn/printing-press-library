@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "subscribers-fetch-batch-and-import-csv",
+  "applied_at": "2026-05-26",
+  "base_run_id": "20260526-094831",
+  "base_printing_press_version": "4.11.0",
+  "summary": "Two new novel commands for populating local subscriber store without Enterprise tier: subscribers fetch-batch (--emails-from file, one-by-one /fetch/subscribers?email=X), subscribers import-csv (--from bento-export.csv).",
+  "reason": "Bento's /fetch/search bulk endpoint is Enterprise-only; without these, the 4 analytical novel commands (churn-risk, winback, pre-delete, find) had no data source.",
+  "files": [
+    "internal/cli/subscribers.go",
+    "internal/store/store.go"
+  ]
+}

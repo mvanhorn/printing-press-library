@@ -1,0 +1,37 @@
+{
+  "api_name": "reno-goat",
+  "novelty_score": 0,
+  "alternatives": [
+    {"name": "constructorio-node", "url": "https://github.com/Constructor-io/constructorio-node", "language": "JavaScript", "stars": 30, "command_count": 12},
+    {"name": "wayfair-scrapers", "url": "https://github.com/scraper-bank/Wayfair.com-scrapers", "language": "Python", "stars": 10, "command_count": 3},
+    {"name": "wayfair-api-client", "url": "https://github.com/sathouel/wayfair_api_client", "language": "Python", "stars": 2, "command_count": 5},
+    {"name": "shopify-cli", "url": "https://github.com/Shopify/cli", "language": "TypeScript", "stars": 5000, "command_count": 40}
+  ],
+  "novel_features": [
+    {"name": "Price Watch", "command": "watch <product-url>", "description": "SQLite price history with cron-friendly polling and threshold alerts across all sources"},
+    {"name": "Project Tracker", "command": "project create \"Kitchen Reno\"", "description": "Group saved products into named projects with cross-store running budget totals"},
+    {"name": "Stale Detector", "command": "saved --check-stale", "description": "Re-fetches saved products and flags discontinued, out-of-stock, or price-changed items"},
+    {"name": "Spec Sheet Export", "command": "product --spec-sheet <url>", "description": "Normalized product dimensions, materials, finishes extracted from unstructured retailer pages"},
+    {"name": "Brand Cross-Reference", "command": "brands --cross-ref \"Kohler\"", "description": "Shows which retailers carry a brand and at what price points across all sources"},
+    {"name": "Compound Category Search", "command": "search --room bathroom \"vanity\"", "description": "Multi-category fan-out with room-type shortcuts that chain searches across product categories to relevant sources"},
+    {"name": "Review Aggregation", "command": "reviews --aggregate <url>", "description": "Cross-source review merging plus external review site integration for comprehensive product review coverage"}
+  ],
+  "narrative": {
+    "display_name": "Home GOAT",
+    "headline": "Search every major home furnishing retailer from one command line.",
+    "value_prop": "reno-goat fans out a single product search query to Ferguson, West Elm, Rejuvenation, Article, and 8+ Shopify DTC stores in parallel, returning normalized results with prices, ratings, and availability. Category-based routing automatically sends your query to the retailers that carry that type of product. Local SQLite stores search history, price snapshots, and saved products for offline comparison.",
+    "auth_narrative": "No API keys required. All sources use anonymous access or public tokens.",
+    "quickstart": [
+      {"command": "reno-goat-pp-cli search \"floating vanity 24 inch\"", "comment": "Search all sources for a specific product"},
+      {"command": "reno-goat-pp-cli search --category foundational \"rain shower head\"", "comment": "Search only foundational (fixture) sources"},
+      {"command": "reno-goat-pp-cli search --source west-elm,article \"mid-century sofa\" --sort price-asc", "comment": "Compare specific retailers sorted by price"},
+      {"command": "reno-goat-pp-cli deals --category furniture", "comment": "Find active promotions across furniture retailers"},
+      {"command": "reno-goat-pp-cli saved --json", "comment": "Export your saved products as JSON"}
+    ],
+    "troubleshoots": [
+      {"symptom": "Ferguson returns 0 results", "fix": "Ferguson redirects broad queries to category pages. Try a more specific product name."},
+      {"symptom": "Wayfair/AllModern/RH return 'source unavailable'", "fix": "These sources require browser clearance cookies and are stubbed in v1."},
+      {"symptom": "Shopify DTC store returns 403", "fix": "The storefront access token may have rotated. Run `reno-goat-pp-cli sources refresh` to re-discover tokens."}
+    ]
+  }
+}

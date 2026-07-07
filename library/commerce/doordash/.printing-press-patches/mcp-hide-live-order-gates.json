@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "mcp-hide-live-order-gates",
+  "applied_at": "2026-05-24",
+  "base_run_id": "2026-05-13T21:47:44.838084603Z",
+  "base_printing_press_version": "4.6.1",
+  "summary": "Hide live order placement confirmation flags from the cobratree MCP schema.",
+  "reason": "Greptile flagged that cart_place exposed the exact live-order gate flags as MCP parameters, letting an agent satisfy all confirmation gates through one structured MCP call.",
+  "files": [
+    "internal/cli/cart.go",
+    "internal/cli/cart_test.go"
+  ],
+  "validated_outcome": "go test ./... passed in library/commerce/doordash before updating PR #784."
+}

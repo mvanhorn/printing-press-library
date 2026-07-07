@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "namecheap-mcp-sql-row-errors",
+  "applied_at": "2026-05-14",
+  "base_run_id": "20260514-namecheap",
+  "base_printing_press_version": "4.6.0",
+  "summary": "Return MCP SQL row, column, and JSON encoding errors instead of silently emitting partial results.",
+  "reason": "The MCP SQL tool should not hide scan or iteration failures when agents use it for local analysis.",
+  "files": [
+    "internal/mcp/tools.go"
+  ],
+  "validated_outcome": "go test ./internal/mcp and go test ./... pass."
+}

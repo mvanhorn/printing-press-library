@@ -19,7 +19,7 @@ func newCustomersOfflineUserDataJobsRunCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:         "run <resourceName>",
 		Short:       "Runs the offline user data job. When finished, the long running operation will contain the processing result or...",
-		Example:     "  google-ads-pp-cli customers_offline_user_data_jobs run example-resource",
+		Example:     "  google-ads-pp-cli customers-offline-user-data-jobs run example-resource",
 		Annotations: map[string]string{"pp:endpoint": "customers_offline_user_data_jobs.run", "pp:method": "POST", "pp:path": "/v22/{resourceName}:run"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

@@ -1,0 +1,12 @@
+HTTP/2 403 
+server: AkamaiGHost
+mime-version: 1.0
+content-type: text/html
+content-length: 391
+cache-control: max-age=0
+expires: Tue, 16 Jun 2026 06:05:03 GMT
+date: Tue, 16 Jun 2026 06:05:03 GMT
+x-edge-request-id: c794b04f
+vary: Accept,Feature-Flags,Accept-Language
+strict-transport-security: max-age=31536000 ; includeSubDomains ; preload
+

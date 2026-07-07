@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "dedup-classroom-name-flag",
+  "applied_at": "2026-05-12T02:55:00Z",
+  "reason": "Same root cause as dedup-classroom-name-vars: duplicate `cmd.Flags().StringVar(&bodyClassSessionClassroomName, \"class-session-classroom-name\", \"\", \"Classroom name\")` registration would panic Cobra at command init on duplicate flag.",
+  "files": [
+    "internal/cli/me_reservations-assign-to-spot-create.go",
+    "internal/cli/me_reservations-cancel-create.go",
+    "internal/cli/me_reservations-check-in-create.go",
+    "internal/cli/me_reservations-create.go"
+  ],
+  "change": "Removed the duplicate StringVar registration with description \"Classroom name\" in each file. Kept the registration with description \"Name\"."
+}

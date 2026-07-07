@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "triage-parent-tier-20260517",
+  "applied_at": "2026-05-13",
+  "base_run_id": "20260513-094903",
+  "base_printing_press_version": "4.5.2",
+  "summary": "Excluded split parents and group children from isUnreviewedForTriage.",
+  "reason": "Triage was the only counts predicate that did not align with budget burn / subscription / duplicate / retag on the canonical-transaction-tier rule. A single split receipt produced one inbox entry per child plus a duplicate for the parent total, polluting suggested-category confidence. Closes Greptile fourth re-review P1 on PR #624.",
+  "files": [
+    "internal/cli/triage.go"
+  ],
+  "validated_outcome": "go test ./internal/cli passes."
+}

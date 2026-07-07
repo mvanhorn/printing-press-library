@@ -19,13 +19,25 @@ import (
 func shellOutToCLI(cliPath func() (string, error), commandPath []string) server.ToolHandlerFunc {
 	lookupPath, lookupErr := cliPath()
 	prefixArgs := append([]string{}, commandPath...)
+	cmdKey := pathKey(commandPath)
+	postProc, hasPostProc := lookupPostProcessor(cmdKey)
 	return func(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.CallToolResult, error) {
 		if lookupErr != nil {
 			return mcplib.NewToolResultError(fmt.Sprintf("companion CLI binary not found: %v\nTried sibling lookup, DICE_FM_CLI_PATH env var, and PATH.", lookupErr)), nil
 		}
 		args := req.GetArguments()
 		finalArgs := append([]string{}, prefixArgs...)
-		finalArgs = append(finalArgs, cliArgsFromMCP(args)...)
+		// A registered post-processor (e.g. the PII pseudonymizer) consumes its
+		// own structured args (like include_pii); those must NOT be forwarded as
+		// CLI flags. Pass a filtered copy to cliArgsFromMCP.
+		cliArgs := args
+		if hasPostProc {
+			cliArgs = withoutPostProcessorArgs(args)
+		}
+		finalArgs = append(finalArgs, cliArgsFromMCP(cliArgs)...)
+		if hasPostProc {
+			finalArgs = append(finalArgs, lookupForcedCLIArgs(cmdKey)...)
+		}
 		if raw, _ := args["args"].(string); strings.TrimSpace(raw) != "" {
 			tokens := SplitShellArgs(raw)
 			for _, t := range tokens {
@@ -39,8 +51,37 @@ func shellOutToCLI(cliPath func() (string, error), commandPath []string) server.
 		if err != nil {
 			return mcplib.NewToolResultError(err.Error()), nil
 		}
+		if hasPostProc {
+			processed, perr := postProc(out, args)
+			if perr != nil {
+				return mcplib.NewToolResultError(fmt.Sprintf("post-processing failed: %v", perr)), nil
+			}
+			out = processed
+		}
 		return mcplib.NewToolResultText(out), nil
 	}
+}
+
+// postProcessorOnlyArgs are structured tool args consumed by a registered
+// post-processor (not real CLI flags) and therefore stripped before shelling
+// out. Kept here so cobratree stays generic (it doesn't know what the arg
+// means, only that it must not become a --flag).
+var postProcessorOnlyArgs = map[string]bool{
+	"include_pii": true,
+	"csv":         true,
+	"plain":       true,
+	"quiet":       true,
+}
+
+func withoutPostProcessorArgs(args map[string]any) map[string]any {
+	out := make(map[string]any, len(args))
+	for k, v := range args {
+		if postProcessorOnlyArgs[k] {
+			continue
+		}
+		out[k] = v
+	}
+	return out
 }
 
 // blockedRootFlags are root-level CLI flags that an MCP client must not be
@@ -50,13 +91,14 @@ func shellOutToCLI(cliPath func() (string, error), commandPath []string) server.
 // target, all of which sit outside the per-command surface the agent is
 // supposed to be calling.
 var blockedRootFlags = map[string]bool{
-	"args":     true,
-	"base-url": true,
-	"client":   true,
-	"config":   true,
-	"deliver":  true,
-	"profile":  true,
-	"token":    true,
+	"args":                  true,
+	"base-url":              true,
+	"client":                true,
+	"config":                true,
+	"deliver":               true,
+	"allow-private-webhook": true,
+	"profile":               true,
+	"token":                 true,
 }
 
 func cliArgsFromMCP(args map[string]any) []string {

@@ -1,0 +1,11 @@
+{
+  "schema_version": 2,
+  "id": "shopper-catalog-search-required-flags",
+  "applied_at": "2026-06-04",
+  "base_run_id": "20260604-074112",
+  "base_printing_press_version": "4.20.1",
+  "summary": "catalog search now requires only a query (positional or --query); brands/metadata/types are optional filters.",
+  "reason": "The generator marked the empty filter arrays brands/metadata/types as required, so 'catalog search arroz' failed with 'required flag brands not set'. Query is the only real required input.",
+  "files": ["internal/cli/catalog_create_search.go"],
+  "validated_outcome": "Live: 'catalog search arroz' returns real products with prices."
+}

@@ -1,0 +1,314 @@
+{
+  "api_name": "yeswehack",
+  "base_url": "https://api.yeswehack.com",
+  "description": "Researcher-side CLI for the YesWeHack bug bounty platform. Discover programs, read scope, draft and submit reports, browse hacktivity, track payouts.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "bearer_token",
+    "header": "Authorization",
+    "env_vars": [
+      "YESWEHACK_JWT"
+    ],
+    "env_var_specs": [
+      {
+        "name": "YESWEHACK_JWT",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    ]
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "business_units_list",
+      "description": "List business units visible to the user. Returns the BusinessUnitList. (requires auth)",
+      "method": "GET",
+      "path": "/business-units",
+      "params": []
+    },
+    {
+      "name": "events_list",
+      "description": "List YesWeHack events. Optional: page, itemsPerPage. Returns the EventListPage.",
+      "method": "GET",
+      "path": "/events",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page number"
+        },
+        {
+          "name": "itemsPerPage",
+          "type": "int",
+          "location": "query",
+          "description": "Page size"
+        }
+      ]
+    },
+    {
+      "name": "hacktivity_by_hunter",
+      "description": "List a hunter's disclosed reports. Required: username. Optional: page, resultsPerPage. Returns the HacktivityListPage.",
+      "method": "GET",
+      "path": "/v2/hacktivity/{username}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "username",
+          "type": "string",
+          "location": "path",
+          "description": "Hunter username",
+          "required": true
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page number"
+        },
+        {
+          "name": "resultsPerPage",
+          "type": "int",
+          "location": "query",
+          "description": "Page size"
+        }
+      ]
+    },
+    {
+      "name": "hacktivity_list",
+      "description": "List recently disclosed reports across all public programs. Optional: page, resultsPerPage, programs (plus 1 more). Returns the HacktivityListPage.",
+      "method": "GET",
+      "path": "/v2/hacktivity",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page number"
+        },
+        {
+          "name": "resultsPerPage",
+          "type": "int",
+          "location": "query",
+          "description": "Page size"
+        },
+        {
+          "name": "programs",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by program slug (CSV)"
+        },
+        {
+          "name": "vulnerable_part",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by CWE / vulnerability-part id"
+        }
+      ]
+    },
+    {
+      "name": "hunters_get",
+      "description": "Get a hunter's public profile (points, rank, impact, achievements). Required: username. Returns the Hunter.",
+      "method": "GET",
+      "path": "/hunters/{username}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "username",
+          "type": "string",
+          "location": "path",
+          "description": "Hunter username",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "hunters_list_achievements",
+      "description": "List a hunter's earned achievement badges. Required: username. Returns the AchievementList.",
+      "method": "GET",
+      "path": "/hunters/{username}/achievements",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "username",
+          "type": "string",
+          "location": "path",
+          "description": "Hunter username",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "programs_get",
+      "description": "Get a program's full detail (rules, reward grid, scope counts, BU, etc.). Required: slug. Returns the Program.",
+      "method": "GET",
+      "path": "/programs/{slug}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "slug",
+          "type": "string",
+          "location": "path",
+          "description": "Program slug (e.g. yes-we-hack, gojek)",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "programs_list",
+      "description": "List bug bounty programs the user can see. Optional: page, itemsPerPage, disabled (plus 4 more). Returns the ProgramListPage.",
+      "method": "GET",
+      "path": "/programs",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page number"
+        },
+        {
+          "name": "itemsPerPage",
+          "type": "int",
+          "location": "query",
+          "description": "Page size"
+        },
+        {
+          "name": "disabled",
+          "type": "int",
+          "location": "query",
+          "description": "Set to 0 to exclude disabled programs"
+        },
+        {
+          "name": "search",
+          "type": "string",
+          "location": "query",
+          "description": "Free-text search across program titles"
+        },
+        {
+          "name": "business_unit",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by business unit slug"
+        },
+        {
+          "name": "bounty",
+          "type": "int",
+          "location": "query",
+          "description": "1 = bounty programs only"
+        },
+        {
+          "name": "vdp",
+          "type": "int",
+          "location": "query",
+          "description": "1 = vulnerability-disclosure programs only"
+        }
+      ]
+    },
+    {
+      "name": "programs_list_scopes",
+      "description": "List the in-scope and out-of-scope assets for a program. Required: slug. Returns the ScopeList. (requires auth)",
+      "method": "GET",
+      "path": "/programs/{slug}/scopes",
+      "params": [
+        {
+          "name": "slug",
+          "type": "string",
+          "location": "path",
+          "description": "Program slug",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "ranking_list",
+      "description": "Top hunters by points. Optional: page, itemsPerPage. Returns the RankingPage.",
+      "method": "GET",
+      "path": "/ranking",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page number"
+        },
+        {
+          "name": "itemsPerPage",
+          "type": "int",
+          "location": "query",
+          "description": "Page size"
+        }
+      ]
+    },
+    {
+      "name": "taxonomies_list_countries",
+      "description": "Country reference list (codes, names). Returns the CountryList.",
+      "method": "GET",
+      "path": "/utils/countries",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "taxonomies_list_profile_url_types",
+      "description": "Allowed profile URL types (twitter, github, linkedin, etc.). Returns the ProfileUrlTypeList.",
+      "method": "GET",
+      "path": "/utils/profile/urls",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "taxonomies_list_vulnerable_parts",
+      "description": "List vulnerability parts (CWE-like taxonomy used when filing reports). Returns the VulnerablePartList. (requires auth)",
+      "method": "GET",
+      "path": "/types/vulnerable-part",
+      "params": []
+    },
+    {
+      "name": "user_get_self",
+      "description": "Get the authenticated user. Returns the User. (requires auth)",
+      "method": "GET",
+      "path": "/user",
+      "params": []
+    },
+    {
+      "name": "user_list_email_aliases",
+      "description": "List the authenticated user's email aliases (per-program forwarding addresses). Returns the EmailAliases. (requires auth)",
+      "method": "GET",
+      "path": "/user/email-aliases",
+      "params": []
+    },
+    {
+      "name": "user_list_invitations",
+      "description": "List the authenticated user's program invitations. Returns the Invitations. (requires auth)",
+      "method": "GET",
+      "path": "/user/invitations",
+      "params": []
+    },
+    {
+      "name": "user_list_reports",
+      "description": "List reports the authenticated user has submitted. Optional: page, itemsPerPage. Returns the ReportListPage. (requires auth)",
+      "method": "GET",
+      "path": "/user/reports",
+      "params": [
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page number (1-indexed)"
+        },
+        {
+          "name": "itemsPerPage",
+          "type": "int",
+          "location": "query",
+          "description": "Page size"
+        }
+      ]
+    }
+  ]
+}

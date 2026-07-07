@@ -1,0 +1,19 @@
+{
+  "schema_version": 2,
+  "applied_at": "2026-05-19",
+  "base_run_id": "20260519-151335",
+  "base_printing_press_version": "4.9.0",
+  "date": "2026-05-20",
+  "amend_run_id": "amend-2026-05-20-greptile-715",
+  "summary": "fix(gohighlevel): address Greptile PR #715 review — remove contacts_tags from defaultSyncResources (Issue 1), confirm locationId POST-body path (Issue 2), guard Strategy-2 cursor hasMore on full-page count (Issue 3)",
+  "files": [
+    "internal/cli/sync.go"
+  ],
+  "findings_addressed": [
+    "greptile-715-issue1",
+    "greptile-715-issue2",
+    "greptile-715-issue3"
+  ],
+  "patch_count": 8,
+  "notes": "Issue 1 (P1): contacts_tags was listed in defaultSyncResources(), syncResourcePath(), and syncResourceMethod() as if it were a standalone API resource. It is not — it is derived from every contacts page by deriveContactsTagsFromPage. Removing it from the default list eliminates the second /contacts/search crawl and stops contact JSON blobs from being stored under resource_type='contacts_tags' in the generic resources table. Issue 2 (P1 verify): applyTo(resource, params, false) with isDependent=false propagates both flatGlobal (--param) and trueGlobal (--global-param) into params. locationId from --global-param reaches params[\"locationId\"], which fetchSyncPage reads into the POST body. No bug found; clarifying comment added. Issue 3 (P2): extractSearchAfterCursor Strategy 2 (derive cursor from last contact id) returned hasMore=true unconditionally, causing one extra /contacts/search call when the final page had exactly pageSize.limit items. Fixed by guarding hasMore on len(items) >= pageSize.limit at the call site."
+}

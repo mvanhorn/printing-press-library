@@ -1,0 +1,51 @@
+version: 2
+project_name: lda-gov-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: lda-gov-pp-cli
+    main: ./cmd/lda-gov-pp-cli
+    binary: lda-gov-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X github.com/mvanhorn/printing-press-library/library/other/lda-gov/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: lda-gov-pp-mcp
+    main: ./cmd/lda-gov-pp-mcp
+    binary: lda-gov-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X main.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: lda-gov-pp-cli
+    repository:
+      owner: mherzog4
+      name: homebrew-tap
+    homepage: "https://github.com/mvanhorn/printing-press-library"
+    description: "Lobbying disclosure records with local sync, entity resolution, and evidence-grade exports."
+    install: |
+      bin.install "lda-gov-pp-cli"
+      bin.install "lda-gov-pp-mcp"

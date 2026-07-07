@@ -45,7 +45,7 @@ brews:
       owner: cathrynlavery
       name: homebrew-tap
     homepage: "https://github.com/mvanhorn/printing-press-library"
-    description: "Docs-derived OpenAPI spec for WaveSpeed AI's REST API."
+    description: "Run WaveSpeed AI models with schema-aware inputs, prompt shortcuts, price estimates, wait/download helpers, aliases, and media uploads."
     install: |
       bin.install "wavespeed-pp-cli"
       bin.install "wavespeed-pp-mcp"

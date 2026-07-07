@@ -1,0 +1,21 @@
+{
+  "schema_version": 2,
+  "id": "session-store-and-verify",
+  "applied_at": "2026-06-06",
+  "base_run_id": "20260528-222057",
+  "base_printing_press_version": "4.14.0",
+  "summary": "Persist the studio cookie header + JWT expiry as a matched triple with the JWT; read the browser at most once per JWT lifetime via EnsureFreshSession.",
+  "reason": "newClient re-read Chrome's cookie store on every run. The browser-derived cookie header had no stored expiration and no verification. Storing {jwt, studio_cookie_header, jwt_expiry} as a matched triple (cleared whenever the JWT changes) lets routine runs reuse the cached pair and only re-pull when the JWT re-mints, on fresh login, or first run post-upgrade. Env-supplied tokens stay on the per-run pull (unmanaged). When the browser pull returns empty, nothing is persisted (retry next run) rather than writing a broken header-empty/exp-set triple.",
+  "files": [
+    "internal/config/config.go",
+    "internal/config/suno_config.go",
+    "internal/config/suno_config_test.go",
+    "internal/auth/refresh.go",
+    "internal/auth/refresh_test.go",
+    "internal/cli/root.go"
+  ],
+  "validated_outcome": "go test ./internal/config/ ./internal/auth/ ./internal/cli/",
+  "findings_addressed": [
+    "session-store-and-verify"
+  ]
+}

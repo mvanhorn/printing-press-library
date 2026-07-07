@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "sqlite-write-serialization",
+  "applied_at": "2026-05-08",
+  "base_run_id": "20260429-230407",
+  "base_printing_press_version": "3.0.1",
+  "summary": "Serialized Store write transactions to prevent SQLITE_BUSY failures during default parallel sync.",
+  "reason": "Default sync concurrency can run multiple resource writers against the same SQLite database; WAL does not allow concurrent writers, so one resource can fail with database is locked.",
+  "files": [
+    "internal/store/store.go"
+  ],
+  "validated_outcome": "Fresh-head repro failed with SQLITE_BUSY; patched live smoke synced category,collection,workspace,api,flow with default concurrency: success=5 errored=0 total_records=412."
+}

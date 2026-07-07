@@ -1,6 +1,6 @@
 ---
 name: pp-blu-ray
-description: "The disc-collector's CLI for Blu-ray.com — offline catalog, live deals, and a price-drop watchlist with zero... Trigger phrases: `blu-ray`, `bluray`, `4k uhd`, `disc collection`, `blu-ray deal`, `price drop alert blu-ray`, `what 4k comes out`, `blu-ray release calendar`, `use blu-ray`, `run blu-ray-pp-cli`."
+description: "The disc-collector's CLI for Blu-ray.com — offline catalog, live deals, and a price-drop watchlist with zero account required. Trigger phrases: `blu-ray`, `bluray`, `4k uhd`, `disc collection`, `blu-ray deal`, `price drop alert blu-ray`, `what 4k comes out`, `blu-ray release calendar`, `use blu-ray`, `run blu-ray-pp-cli`."
 author: "Vinny Pasceri"
 license: "Apache-2.0"
 argument-hint: "<command> [args] | install cli|mcp"
@@ -13,7 +13,7 @@ metadata:
     install:
       - kind: go
         bins: [blu-ray-pp-cli]
-        module: github.com/mvanhorn/printing-press-library/library/media-and-entertainment/blu-ray/cmd/blu-ray-pp-cli
+        module: github.com/mvanhorn/printing-press-library/library/media/blu-ray/cmd/blu-ray-pp-cli
 ---
 <!-- GENERATED FILE — DO NOT EDIT.
      This file is a verbatim mirror of library/media-and-entertainment/blu-ray/SKILL.md,
@@ -34,13 +34,15 @@ This skill drives the `blu-ray-pp-cli` binary. **You must verify the CLI is inst
 2. Verify: `blu-ray-pp-cli --version`
 3. Ensure the reported install directory is on `$PATH` for the agent/runtime that will invoke this skill.
 
-If the `npx` install fails (no Node, offline, etc.), fall back to a direct Go install (requires Go 1.26.3 or newer):
+If the `npx` install fails (no Node, offline, etc.), fall back to a direct Go install (requires Go 1.26.4 or newer). This installs into `$GOPATH/bin` (default `$HOME/go/bin`), so add that directory to `$PATH` instead:
 
 ```bash
-go install github.com/mvanhorn/printing-press-library/library/media-and-entertainment/blu-ray/cmd/blu-ray-pp-cli@latest
+go install github.com/mvanhorn/printing-press-library/library/media/blu-ray/cmd/blu-ray-pp-cli@latest
 ```
 
 If `--version` reports "command not found" after install, the runtime cannot see the binary directory on `$PATH`. Do not proceed with skill commands until verification succeeds.
+
+Sync the public Blu-ray.com sitemap into a local SQLite + FTS5 index and search ~400,000 releases without a network round-trip. Track prices with a local watchlist that pings you on new historical lows. Pipe everything as JSON.
 
 ## When to Use This CLI
 
@@ -55,13 +57,6 @@ Do not activate this CLI for requests that require creating, updating, deleting,
 These capabilities aren't available in any other tool for this API.
 
 ### Local state that compounds
-- **`search`** — Instant offline search across every Blu-ray release in Blu-ray.com's published sitemap (~400k+ entries). Faster than the site's JS-rendered search and works without a network round-trip after one sync.
-
-  _Reach for this whenever an agent needs to resolve a title to a release id, list every edition of a film, or filter the catalog by year/format/country. Single round-trip vs. the dozens of network hits the website does._
-
-  ```bash
-  blu-ray-pp-cli search 'fight club' --format 4k --year 2025 --json
-  ```
 - **`watch check`** — Local watchlist of release ids; re-scans Blu-ray.com deals on demand and alerts when any watched disc hits its target price or a new historical low.
 
   _Use this whenever a user wants notifications about disc prices without polling third-party services. Pairs naturally with cron or a launchd job._
@@ -107,12 +102,12 @@ These capabilities aren't available in any other tool for this API.
 **calendar** — Release calendar (by year + format + country).
 
 - `blu-ray-pp-cli calendar digital` — Digital release calendar (streaming/rental window opens).
-- `blu-ray-pp-cli calendar releases` — Release calendar page for a given year, optionally filtered by country and format. JS-driven UI; the raw HTML still...
+- `blu-ray-pp-cli calendar releases` — Release calendar page for a given year, optionally filtered by country and format.
 - `blu-ray-pp-cli calendar theatrical` — Theatrical release calendar.
 
 **deals** — Live disc deals (sale prices across retailers).
 
-- `blu-ray-pp-cli deals` — Current Blu-ray.com deals, filterable by country and format. Each row carries the underlying release id and the...
+- `blu-ray-pp-cli deals` — Current Blu-ray.com deals, filterable by country and format.
 
 **news** — Blu-ray.com news stories.
 
@@ -121,13 +116,13 @@ These capabilities aren't available in any other tool for this API.
 
 **releases** — Disc release pages and listings (Blu-ray, 4K, 3D, DVD, digital, iTunes, MA, UV).
 
-- `blu-ray-pp-cli releases get` — Fetch the canonical release detail page by URL slug and id. The id is stable; slug is documented for redirect-safe...
+- `blu-ray-pp-cli releases get` — Fetch the canonical release detail page by URL slug and id.
 - `blu-ray-pp-cli releases new` — List recent Blu-ray, 4K, DVD, and digital releases (paginated). Returns release page links from the static template.
 
 **sitemap** — Public XML sitemaps. Used by `sync` to enumerate every release id; safe to fetch (allowed by robots.txt).
 
 - `blu-ray-pp-cli sitemap bluraymovies` — One of nine gzipped Blu-ray release shards (50,000 URLs each). Pull all nine for the full Blu-ray catalog.
-- `blu-ray-pp-cli sitemap index` — Sitemap index — points at gzipped sub-sitemaps for main, news, bluraymovies (9 shards), dvdmovies (7),...
+- `blu-ray-pp-cli sitemap index` — Sitemap index — points at gzipped sub-sitemaps for main, news, bluraymovies (9 shards), dvdmovies (7), itunesmovies (5)
 - `blu-ray-pp-cli sitemap news` — Compressed news sitemap — each entry has title + publication_date inline (no per-story fetch needed for enumeration).
 
 
@@ -145,16 +140,15 @@ blu-ray-pp-cli which "<capability in your own words>"
 
 These commands are declared by the spec author and require separate hand-written wiring; the generator does not emit Cobra registration for them. They are listed here for discoverability and are intentionally outside `## Command Reference` so the verify-skill unknown-command check does not treat them as generator-owned paths.
 
-- `blu-ray-pp-cli sync` — Sync the published XML sitemap into a local SQLite catalog (~400-450k Blu-ray releases). Incremental by sitemap...
-- `blu-ray-pp-cli search` — Offline title search across the local catalog (FTS5). Filters: --format, --country, --year. Faster than...
-- `blu-ray-pp-cli editions` — Given a movie umbrella id, list every disc edition (4K UHD, Blu-ray, Steelbook, Director's Cut, country) with...
-- `blu-ray-pp-cli watch` — Local price-drop watchlist. Subcommands: add <id> [--target-price N], list, rm <id>, check (re-scan deals; alert...
-- `blu-ray-pp-cli upc` — Resolve a CSV of UPC codes (e.g. exported from another collection tool) to local release records, hydrating...
+- `blu-ray-pp-cli sync` — Sync the published XML sitemap into a local SQLite catalog (~400-450k Blu-ray releases).
+- `blu-ray-pp-cli search` — Offline title search across the local catalog (FTS5). Filters: --format, --country, --year. Faster than blu-ray.
+- `blu-ray-pp-cli editions` — Given a movie umbrella id, list every disc edition (4K UHD, Blu-ray, Steelbook, Director's Cut, country)
+- `blu-ray-pp-cli watch` — Local price-drop watchlist.
+- `blu-ray-pp-cli upc` — Resolve a CSV of UPC codes (e.g. exported from another collection tool) to local release records, hydrating metadata.
 - `blu-ray-pp-cli drift` — Diff this week's sitemap against the last sync. Surfaces 'new in catalog this week', 'removed', and 'metadata changed'.
-- `blu-ray-pp-cli history` — Show the local price history for a release id (recorded by `watch check` and `deals --record`). Per-retailer,...
+- `blu-ray-pp-cli history` — Show the local price history for a release id (recorded by `watch check` and `deals --record`).
 
 ## Recipes
-
 
 ### Find every 4K UHD release of Fight Club
 
@@ -183,7 +177,7 @@ Filters deals to >40% off, then cross-reference each `release_id` with `blu-ray-
 ### Import a Blu-ray.com UPC export and enrich it
 
 ```bash
-blu-ray-pp-cli upc ./my-bluray-collection.csv --enrich --json > collection.json
+blu-ray-pp-cli upc ./my-bluray-collection.csv --dry-run --json > collection.json
 ```
 
 Round-trips Blu-ray.com's UPC-only export back into structured release data — titles, formats, ratings, current prices.
@@ -198,7 +192,7 @@ Counts new Blu-ray releases added to the catalog in the past 7 days. Replace `.a
 
 ## Auth Setup
 
-No authentication required.
+No account, no API key, no OAuth — Blu-ray.com is read from its published HTML and XML sitemap. The CLI sends a normal browser User-Agent (configurable), throttles itself to stay under the site's per-IP budget (~4,000 pages/day), and never touches robots-disallowed paths.
 
 Run `blu-ray-pp-cli doctor` to verify setup.
 
@@ -240,7 +234,7 @@ blu-ray-pp-cli feedback --stdin < notes.txt
 blu-ray-pp-cli feedback list --json --limit 10
 ```
 
-Entries are stored locally at `~/.blu-ray-pp-cli/feedback.jsonl`. They are never POSTed unless `BLU_RAY_FEEDBACK_ENDPOINT` is set AND either `--send` is passed or `BLU_RAY_FEEDBACK_AUTO_SEND=true`. Default behavior is local-only.
+Entries are stored locally at `~/.local/share/blu-ray-pp-cli/feedback.jsonl`. They are never POSTed unless `BLU_RAY_FEEDBACK_ENDPOINT` is set AND either `--send` is passed or `BLU_RAY_FEEDBACK_AUTO_SEND=true`. Default behavior is local-only.
 
 Write what *surprised* you, not a bug report. Short, specific, one line: that is the part that compounds.
 
@@ -293,7 +287,7 @@ Parse `$ARGUMENTS`:
 
 1. Install the MCP server:
    ```bash
-   go install github.com/mvanhorn/printing-press-library/library/media-and-entertainment/blu-ray/cmd/blu-ray-pp-mcp@latest
+   go install github.com/mvanhorn/printing-press-library/library/media/blu-ray/cmd/blu-ray-pp-mcp@latest
    ```
 2. Register with Claude Code:
    ```bash

@@ -5,6 +5,7 @@ Harris Teeter grocery shopping API discovered from the logged-in web app
 Learn more at [Harris Teeter](https://www.harristeeter.com).
 
 Created by [@jwmoss](https://github.com/jwmoss) (Jonathan Moss).
+Contributors: [@tmchow](https://github.com/tmchow) (Trevin Chow).
 
 ## Install
 
@@ -35,7 +36,7 @@ npx -y @mvanhorn/printing-press-library install harris-teeter --agent claude-cod
 
 ### Without Node (Go fallback)
 
-If `npx` isn't available (no Node, offline), install the CLI directly via Go (requires Go 1.26.3 or newer):
+If `npx` isn't available (no Node, offline), install the CLI directly via Go (requires Go 1.26.4 or newer):
 
 ```bash
 go install github.com/mvanhorn/printing-press-library/library/commerce/harris-teeter/cmd/harris-teeter-pp-cli@latest

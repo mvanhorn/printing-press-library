@@ -1,0 +1,17 @@
+{
+  "schema_version": 2,
+  "id": "sync-warn-explicit-since-only",
+  "applied_at": "2026-06-06",
+  "base_run_id": "20260528-222057",
+  "base_printing_press_version": "4.14.0",
+  "summary": "Emit the resource_not_incremental sync warning only for an explicit --since; the automatic stored-cursor re-sync path falls back to full pagination silently.",
+  "reason": "No Suno list endpoint declares a temporal-filter param, so syncResourceSinceParam is correctly empty and incremental sync always degrades to full pagination. A stored last_synced_at cursor makes every routine `sync` request incremental, so the warning fired on each run — notably for the 'workspace' resource (/api/project/me) — reading as a workspace failure when sync was actually fine. Gating on an explicit --since keeps the informative case (the user's flag had no effect) and removes the routine noise.",
+  "files": [
+    "internal/cli/sync.go",
+    "internal/cli/sync_incremental_test.go"
+  ],
+  "validated_outcome": "go test ./internal/cli/",
+  "findings_addressed": [
+    "sync-warn-explicit-since-only"
+  ]
+}

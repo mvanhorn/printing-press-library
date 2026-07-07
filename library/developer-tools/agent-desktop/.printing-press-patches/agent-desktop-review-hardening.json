@@ -1,0 +1,18 @@
+{
+  "schema_version": 2,
+  "id": "agent-desktop-review-hardening",
+  "applied_at": "2026-06-11",
+  "base_run_id": "20260611T104457Z-agent-desktop-pp",
+  "base_printing_press_version": "4.24.0",
+  "summary": "Harden agent-desktop bridge review findings and agent-facing docs.",
+  "reason": "Greptile identified that delegated nonzero exits should not call os.Exit from Cobra RunE, and review context needed the skill to document the real agent-desktop workflow instead of only the bridge wrapper.",
+  "files": [
+    "README.md",
+    "SKILL.md",
+    "cmd/agent-desktop-pp-cli/main.go",
+    "internal/cli/root.go",
+    "internal/cli/root_test.go",
+    "internal/cli/run.go"
+  ],
+  "validated_outcome": "go test ./..., printing-press publish validate, verify-publish-package, and verify-supply-chain all passed."
+}

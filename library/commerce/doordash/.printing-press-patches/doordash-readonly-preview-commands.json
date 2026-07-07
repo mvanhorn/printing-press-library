@@ -1,0 +1,21 @@
+{
+  "schema_version": 2,
+  "id": "doordash-readonly-preview-commands",
+  "applied_at": "2026-05-24",
+  "base_run_id": "2026-05-13T21:47:44.838084603Z",
+  "base_printing_press_version": "4.6.1",
+  "summary": "Add curated read-only commands and checkout preview helpers for safe DoorDash agent use.",
+  "reason": "Agents need higher-level read-only search/menu/item/recent-order/address/payment flows and a fee/checkout preview that cannot place an order; raw GraphQL commands are too easy to misuse.",
+  "files": [
+    "DOORDASH_CLI_STATUS.md",
+    "README.md",
+    "SKILL.md",
+    "internal/cli/cart.go",
+    "internal/cli/read_commands.go",
+    "internal/cli/read_commands_test.go",
+    "internal/cli/root.go",
+    "internal/cli/which.go",
+    "scripts/smoke-doordash-cli.sh"
+  ],
+  "validated_outcome": "go test -vet=off ./internal/cli -run 'TestReadOnlyCommandsRegistered|TestParse' passed; ./scripts/smoke-doordash-cli.sh passed; installed CLI which resolves 'search restaurants' and 'checkout preview'"
+}

@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "sync-paths-registry",
+  "applied_at": "2026-05-14",
+  "base_run_id": "20260514-073613",
+  "base_printing_press_version": "4.6.1",
+  "summary": "Populates syncResourcePath() with the seven resource→/tenant/{tenant}/... path mappings and substitutes ST_TENANT_ID at call time.",
+  "reason": "Companion to sync-default-resources: every Pricebook path is tenant-scoped, but the generator left the path registry empty and did not handle the {tenant} placeholder (#1305 / #1332).",
+  "files": [
+    "internal/cli/sync.go"
+  ],
+  "validated_outcome": "sync resolves each resource to its tenant-scoped endpoint and writes to the local store"
+}

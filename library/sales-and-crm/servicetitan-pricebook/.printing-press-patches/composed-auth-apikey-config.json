@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "composed-auth-apikey-config",
+  "applied_at": "2026-05-14",
+  "base_run_id": "20260514-073613",
+  "base_printing_press_version": "4.6.1",
+  "summary": "Adds StAppKey (ST-App-Key apiKey header) and TenantID fields plus ST_APP_KEY/ST_TENANT_ID env reads to Config.",
+  "reason": "ServiceTitan uses composed auth (static ST-App-Key apiKey header AND OAuth2 client_credentials bearer), but the v4.6.1 generator wired only the OAuth half (#1303 apiKey half). Every Pricebook path is also tenant-scoped (/tenant/{tenant}/...), which needs a TenantID surface (#1332).",
+  "files": [
+    "internal/config/config.go"
+  ],
+  "validated_outcome": "go test ./internal/config/, end-to-end auth login + categories get-list against live JKA tenant"
+}

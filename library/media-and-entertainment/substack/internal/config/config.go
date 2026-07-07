@@ -89,10 +89,15 @@ func Load(configPath string) (*Config, error) {
 		cfg.TemplateVars = map[string]string{}
 	}
 	verifyMode := os.Getenv("PRINTING_PRESS_VERIFY") == "1"
-	if v := strings.TrimSpace(os.Getenv("SUBSTACK_PUBLICATION")); validPublicationLabel(v) {
-		cfg.TemplateVars["publication"] = v
+	if v := strings.TrimSpace(os.Getenv("SUBSTACK_PUBLICATION")); v != "" {
+		if err := cfg.SetPublication(v); err != nil {
+			return nil, fmt.Errorf("SUBSTACK_PUBLICATION: %w", err)
+		}
 	} else if verifyMode {
 		cfg.TemplateVars["publication"] = "publication_placeholder"
+	}
+	if v := strings.TrimSpace(os.Getenv("SUBSTACK_PUBLICATION_ID")); v != "" {
+		cfg.TemplateVars["publication_id"] = v
 	}
 	return cfg, nil
 }

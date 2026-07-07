@@ -1,0 +1,15 @@
+{
+  "schema_version": 2,
+  "id": "mcp-intent-tools",
+  "applied_at": "2026-05-17",
+  "base_run_id": "20260516-193948",
+  "base_printing_press_version": "4.8.0",
+  "summary": "Added internal/mcp/intents.go with 3 intent tools (pcgs_verify_and_extract, pcgs_batch_with_quota_guard, pcgs_pop_scarcity_report) and registered them in cmd/pcgs-pp-mcp/main.go.",
+  "reason": "Endpoint-mirror MCP surface (14 tools) scored 5/10 on MCP Tool Design. Three hand-built intents compose multiple endpoints into agent-facing workflows (verify+extract chains facts-cert + images + apr-cert; quota-guard chains batch dry-run + execute; pop-scarcity wraps pop-curve + scarcity-bucket ranking). Filed as separate retro finding #1552 for the generator to auto-emit intents from research.json recipes.",
+  "files": [
+    "internal/mcp/intents.go",
+    "internal/mcp/intents_runner.go",
+    "cmd/pcgs-pp-mcp/main.go"
+  ],
+  "validated_outcome": "Scorecard MCP Tool Design 5→7; MCP surface mirrors 14 endpoints + 3 intents"
+}

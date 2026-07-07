@@ -1,0 +1,14 @@
+{
+  "reachability": { "mode": "standard_http", "evidence": "plain curl 200 with real JSON results, no challenge" },
+  "auth": { "type": "none" },
+  "custom_signing": {
+    "endpoints": ["/queue-results", "/api/facebookMarketplace", "/api/searchtempest/direct"],
+    "scheme": "sha256_hex(decodeURIComponent(query_minus_token) + salt)",
+    "salt": "d8007486d73c168684860aae427ea1f9d74e502b06d94609691f5f4f2704a07f",
+    "note": "server validates against received param order; any consistent order works"
+  },
+  "required_headers": {
+    "x-requested-with": "XMLHttpRequest",
+    "referer": "https://www.autotempest.com/"
+  }
+}

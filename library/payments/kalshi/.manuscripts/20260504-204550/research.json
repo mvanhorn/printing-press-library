@@ -99,10 +99,10 @@
     {
       "name": "Portfolio Attribution",
       "command": "portfolio attribution",
-      "description": "See your realized P&L broken down by market category and series over any time window — answer 'did politics actually make money this quarter?' in one command.",
+      "description": "See your realized P\u0026L broken down by market category and series over any time window — answer 'did politics actually make money this quarter?' in one command.",
       "rationale": "Joins fills + settlements + events + series in the local store; no Kalshi tool persists this data together.",
       "example": "kalshi-pp-cli portfolio attribution --since 2026-01-01 --by category --json",
-      "why_it_matters": "Use when an agent needs realized P&L sliced by Kalshi taxonomy — the API returns flat fills and settlements; this command joins them with the category metadata required to attribute correctly.",
+      "why_it_matters": "Use when an agent needs realized P\u0026L sliced by Kalshi taxonomy — the API returns flat fills and settlements; this command joins them with the category metadata required to attribute correctly.",
       "group": "Local state that compounds"
     },
     {
@@ -164,7 +164,7 @@
       "command": "--read-only",
       "description": "Global env-var/flag lock that blocks every mutating command client-side regardless of which key tier is loaded — pair with --dry-run on every mutator for safe scripting against read-only credentials.",
       "rationale": "Generator emits --dry-run on every mutating endpoint mirror; the safe-mode env lock short-circuits before the request is signed.",
-      "example": "KALSHI_READ_ONLY=1 kalshi-pp-cli orders create --ticker KXTEST --side yes --count 1 --price 50",
+      "example": "kalshi-pp-cli --read-only portfolio create-order --ticker KXTEST --side yes --count 1 --yes-price 50 --dry-run",
       "why_it_matters": "Use when an agent runs against an unknown Kalshi key tier — the read-only key tier exists and mid-script 403s are common; this surfaces the constraint client-side before the API is hit.",
       "group": "Honest auth"
     },
@@ -182,7 +182,7 @@
       "command": "watch diff",
       "description": "Maintain a local watchlist of tickers; `watch diff` shows price/volume change vs the last sync per watched market — Riley's daily-snapshot ritual reduced to one command.",
       "rationale": "Local watchlist table joined to market_price_history snapshots; pure local query.",
-      "example": "kalshi-pp-cli watch add KXPRES-2028-DJT && kalshi-pp-cli watch diff --since 24h",
+      "example": "kalshi-pp-cli watch diff --since 24h",
       "why_it_matters": "Use when an agent tracks a stable set of markets across runs; the API has no watchlist concept.",
       "group": "Local state that compounds"
     }
@@ -191,10 +191,10 @@
     {
       "name": "Portfolio Attribution",
       "command": "portfolio attribution",
-      "description": "See your realized P&L broken down by market category and series over any time window — answer 'did politics actually make money this quarter?' in one command.",
+      "description": "See your realized P\u0026L broken down by market category and series over any time window — answer 'did politics actually make money this quarter?' in one command.",
       "rationale": "Joins fills + settlements + events + series in the local store; no Kalshi tool persists this data together.",
       "example": "kalshi-pp-cli portfolio attribution --since 2026-01-01 --by category --json",
-      "why_it_matters": "Use when an agent needs realized P&L sliced by Kalshi taxonomy — the API returns flat fills and settlements; this command joins them with the category metadata required to attribute correctly.",
+      "why_it_matters": "Use when an agent needs realized P\u0026L sliced by Kalshi taxonomy — the API returns flat fills and settlements; this command joins them with the category metadata required to attribute correctly.",
       "group": "Local state that compounds"
     },
     {
@@ -252,6 +252,15 @@
       "group": "Local state that compounds"
     },
     {
+      "name": "Read-only safe mode",
+      "command": "--read-only",
+      "description": "Global env-var/flag lock that blocks every mutating command client-side regardless of which key tier is loaded — pair with --dry-run on every mutator for safe scripting against read-only credentials.",
+      "rationale": "Generator emits --dry-run on every mutating endpoint mirror; the safe-mode env lock short-circuits before the request is signed.",
+      "example": "kalshi-pp-cli --read-only portfolio create-order --ticker KXTEST --side yes --count 1 --yes-price 50 --dry-run",
+      "why_it_matters": "Use when an agent runs against an unknown Kalshi key tier — the read-only key tier exists and mid-script 403s are common; this surfaces the constraint client-side before the API is hit.",
+      "group": "Honest auth"
+    },
+    {
       "name": "Subaccount roll-up",
       "command": "subaccounts rollup",
       "description": "Aggregate positions, fills-today, balance, and exposure-by-category across every subaccount you can see — household view of risk and resting orders.",
@@ -265,14 +274,14 @@
       "command": "watch diff",
       "description": "Maintain a local watchlist of tickers; `watch diff` shows price/volume change vs the last sync per watched market — Riley's daily-snapshot ritual reduced to one command.",
       "rationale": "Local watchlist table joined to market_price_history snapshots; pure local query.",
-      "example": "kalshi-pp-cli watch add KXPRES-2028-DJT && kalshi-pp-cli watch diff --since 24h",
+      "example": "kalshi-pp-cli watch diff --since 24h",
       "why_it_matters": "Use when an agent tracks a stable set of markets across runs; the API has no watchlist concept.",
       "group": "Local state that compounds"
     }
   ],
   "narrative": {
     "display_name": "Kalshi",
-    "headline": "Trade prediction markets, persist tick data, and answer category-level P&L questions Kalshi.com cannot.",
+    "headline": "Trade prediction markets, persist tick data, and answer category-level P\u0026L questions Kalshi.com cannot.",
     "value_prop": "Every Kalshi feature, plus a local SQLite store that records market prices on every sync — so movers, correlations, and price history work offline. Honest about read-only vs read/write keys, with --dry-run on every mutator and a global --read-only safe-mode lock for newsroom and bot deployments.",
     "auth_narrative": "Kalshi requires composed RSA-PSS signature auth: a UUID access key id (KALSHI_API_KEY) plus an RSA private key file (KALSHI_PRIVATE_KEY_PATH or KALSHI_PRIVATE_KEY). Kalshi issues two key tiers — read-only and read/write — and the CLI honors KALSHI_READ_ONLY=1 (or --read-only) as a client-side lock that blocks every POST/PUT/PATCH/DELETE before signing, regardless of which tier is loaded. Write commands run against a read-only key will surface a 403 from Kalshi; pair with --dry-run while debugging.",
     "quickstart": [
@@ -294,7 +303,7 @@
       },
       {
         "command": "kalshi-pp-cli portfolio attribution --by category --since 2026-01-01 --json",
-        "comment": "compute realized P&L grouped by Kalshi category"
+        "comment": "compute realized P\u0026L grouped by Kalshi category"
       }
     ],
     "troubleshoots": [
@@ -316,19 +325,19 @@
       },
       {
         "symptom": "rate-limit errors during sync",
-        "fix": "run kalshi-pp-cli account get-api-limits --json to inspect your tier; tune --workers down"
+        "fix": "run kalshi-pp-cli account get-api-limits --json to inspect your tier; lower sync parallelism with kalshi-pp-cli sync --concurrency 2"
       }
     ],
     "when_to_use": "Reach for kalshi-pp-cli when an agent needs price-over-time or category-level analytics on Kalshi markets — the public API only returns current prices and flat positions, so historical and aggregated questions require the local snapshot store. Use it for daily portfolio reconciliation, signal discovery via correlation across markets, and safe scripting against read-only API credentials.",
     "recipes": [
       {
-        "title": "Politics-category P&L this quarter",
+        "title": "Politics-category P\u0026L this quarter",
         "command": "kalshi-pp-cli portfolio attribution --since 2026-01-01 --by category --agent --select 'rows.category,rows.realized_pnl,rows.fills'",
-        "explanation": "Realized P&L attributed to Kalshi taxonomy; --select narrows the response to the three fields agents need."
+        "explanation": "Realized P\u0026L attributed to Kalshi taxonomy; --select narrows the response to the three fields agents need."
       },
       {
         "title": "Track the Fed-cut market on a watchlist",
-        "command": "kalshi-pp-cli watch add KXFEDFUNDS-26FEB && kalshi-pp-cli watch diff --since 24h --agent",
+        "command": "kalshi-pp-cli watch add KXFEDFUNDS-26FEB \u0026\u0026 kalshi-pp-cli watch diff --since 24h --agent",
         "explanation": "Add ticker to local watchlist, then ask for the per-ticker delta since yesterday."
       },
       {
@@ -350,7 +359,7 @@
     "trigger_phrases": [
       "kalshi market price",
       "track prediction market",
-      "kalshi portfolio P&L",
+      "kalshi portfolio P\u0026L",
       "kalshi correlate markets",
       "use kalshi",
       "run kalshi"

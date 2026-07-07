@@ -1,0 +1,16 @@
+# agentcookie.toml: secrets-bus adoption manifest v2
+# See docs/spec-agentcookie-secrets-bus-v2-adoption.md
+schema_version = 2
+name = "vercel-admin-pp-cli"
+display_name = "Vercel"
+description = "Vercel combines the best developer experience with an obsessive focus on end-user performance."
+project_kind = "cli"
+
+[secrets.file]
+path = "~/.config/vercel-admin-pp-cli/config.toml"
+
+[sync]
+default = false
+
+[sync.keys]
+VERCEL_ADMIN_TOKEN = true

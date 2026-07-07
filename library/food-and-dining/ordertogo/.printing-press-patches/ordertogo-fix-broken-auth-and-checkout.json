@@ -1,0 +1,16 @@
+{
+  "schema_version": 2,
+  "id": "ordertogo-fix-broken-auth-and-checkout",
+  "applied_at": "2026-05-22",
+  "base_run_id": "20260510-083403",
+  "base_printing_press_version": "4.2.2",
+  "summary": "Repair Chrome cookie import, browser-like API headers, and live Stripe saved-card checkout for OrderToGo.",
+  "reason": "The published CLI could not import macOS Chrome cookies, was rejected by ordertogo.com without browser-like User-Agent, Origin, and Referer headers, and attempted a generated Braintree flow while the live checkout uses postmicmeshorder with Stripe saved-card auth.",
+  "files": [
+    "internal/cli/orders_place.go",
+    "internal/client/client.go",
+    "internal/config/config.go",
+    "third_party/kooky/browser/chrome/chrome.go"
+  ],
+  "validated_outcome": "Build and vet passed. Live auth login --chrome imported cookies, live /m/api/* calls returned real responses instead of 403, and PRINTING_PRESS_VERIFY=1 dry-run produced a postmicmeshorder body matching a captured successful checkout."
+}

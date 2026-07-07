@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "id": "diary-scrape-shared-surf-client",
+  "applied_at": "2026-05-12",
+  "base_run_id": "20260508-133559",
+  "base_printing_press_version": "4.0.6",
+  "summary": "Promote the Surf-backed *http.Client in diary_get_day.go to a package-level sync.Once singleton so multi-date reads reuse TLS connections; extract only Surf's Transport and wrap it in a jar-less *http.Client.",
+  "reason": "fetchAuthenticatedHTML previously built a fresh Surf client (and its TLS connection pool) on every call, costing a full TLS handshake per date. Reusing the full Surf *http.Client (which carries a CookieJar from Impersonate().Chrome()) would have accumulated Set-Cookie responses from MFP and re-sent them alongside the manually-set Cookie: <session> header on subsequent calls, producing duplicate/conflicting cookies. Mirrors newHTTPClient's pattern in internal/client/client.go.",
+  "files": [
+    "internal/cli/diary_get_day.go"
+  ]
+}

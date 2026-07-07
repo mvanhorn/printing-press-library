@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "composed-auth-doctor",
+  "applied_at": "2026-05-14",
+  "base_run_id": "20260514-073613",
+  "base_printing_press_version": "4.6.1",
+  "summary": "doctor recognizes composed auth as configured when ST_APP_KEY + ST_CLIENT_ID + ST_CLIENT_SECRET are all present, even before the bearer has been minted; also surfaces ST_TENANT_ID readiness.",
+  "reason": "The generator's doctor only recognized a bearer token as 'configured', so fresh installs of a composed-auth CLI always reported 'unconfigured' until the first call minted a token (#1303 / inventory-retro anti-pattern). Tenant readiness is part of the same readiness check (#1332).",
+  "files": [
+    "internal/cli/doctor.go"
+  ],
+  "validated_outcome": "doctor reports 'configured (composed: ST-App-Key + OAuth2 client_credentials; bearer minted on first call)' when env vars are set"
+}

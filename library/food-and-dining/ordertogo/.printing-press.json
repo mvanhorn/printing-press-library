@@ -64,5 +64,11 @@
       "description": "All side-effect commands short-circuit when PRINTING_PRESS_VERIFY=1 is set, printing 'would place: <plan>' instead of submitting."
     }
   ],
-  "category": "food-and-dining"
+  "category": "food-and-dining",
+  "contributors": [
+    {
+      "handle": "tmchow",
+      "name": "Trevin Chow"
+    }
+  ]
 }

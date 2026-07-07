@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "slug": "plane",
+  "cli_name": "plane-pp-cli",
+  "version": "2026.6.5",
+  "released_at": "2026-06-25T17:56:53Z",
+  "source_commit": "8d159d34dd38989214bef0d7904a9ab61c4b06f8",
+  "printing_press_version": "4.20.1",
+  "run_id": "20260602-073610",
+  "changes": [
+    {
+      "title": "feat(plane): tenant resolver + flat tenant-scoped reconcile",
+      "pr": 1361,
+      "url": "https://github.com/mvanhorn/printing-press-library/pull/1361",
+      "commit": "8d159d34dd38989214bef0d7904a9ab61c4b06f8"
+    }
+  ]
+}

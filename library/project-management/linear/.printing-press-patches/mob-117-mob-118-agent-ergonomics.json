@@ -1,0 +1,26 @@
+{
+  "schema_version": 2,
+  "id": "mob-117-mob-118-agent-ergonomics",
+  "applied_at": "2026-06-12",
+  "base_run_id": "20260518-232543",
+  "base_printing_press_version": "4.9.0",
+  "summary": "Agent duplicate search and document creation must expose safe, team-scoped shortcuts instead of forcing agents into raw local SQL or failing GraphQL retries.",
+  "reason": "Agents were still losing time on team disambiguation and Linear Docs creation: `similar` could only search all teams, while `documents create` allowed parentless requests that Linear rejected and required UUID-only team parents.",
+  "files": [
+    "internal/store/store.go",
+    "internal/store/search_test.go",
+    "internal/cli/similar.go",
+    "internal/cli/documents.go",
+    "internal/cli/comments.go",
+    "internal/cli/issues_edit.go",
+    "internal/cli/issues.go",
+    "internal/cli/labels.go",
+    "internal/cli/linear_markdown.go",
+    "internal/cli/root.go",
+    "internal/cli/helpers.go",
+    "internal/cli/linear_agent_test.go",
+    "SKILL.md",
+    "README.md"
+  ],
+  "validated_outcome": "Focused regression tests cover team-scoped FTS ranking, `similar --team`, document-create parent preflight, team-key resolution before `documentCreate`, and typed API exit codes for Linear `success=false` mutation responses."
+}

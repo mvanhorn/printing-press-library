@@ -16,7 +16,7 @@ func newCustomersOperationsGetCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:         "get <name>",
 		Short:       "Gets the latest state of a long-running operation. Clients can use this method to poll the operation result at...",
-		Example:     "  google-ads-pp-cli customers_operations get example-resource",
+		Example:     "  google-ads-pp-cli customers-operations get example-resource",
 		Annotations: map[string]string{"pp:endpoint": "customers_operations.get", "pp:method": "GET", "pp:path": "/v22/{name}", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

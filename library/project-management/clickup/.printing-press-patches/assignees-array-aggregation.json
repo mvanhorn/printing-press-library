@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "assignees-array-aggregation",
+  "applied_at": "2026-06-16",
+  "base_run_id": "20260510-202319",
+  "base_printing_press_version": "4.2.2",
+  "summary": "Make `load` (workload distribution) and `orphans` read ClickUp's `assignees[]` array of {id, username, ...} instead of a non-existent scalar `assignee`/`owner` field. `load` now counts a task once per assignee (resolving username -> name -> displayName -> id) and only falls back to the legacy scalar keys for non-task resources, preserving an \"(unassigned)\" bucket. `orphans` adds `$.assignees` as the first assignee path so a task with a populated assignees array is no longer flagged missing-assignee.",
+  "reason": "Live-data audit (2026-06-16): `clickup-pp-cli load` reported all 1121 resources as \"(unassigned)\" and `orphans` flagged every task as missing an assignee, even though the mirror correctly stores assignees. ClickUp task records have NO singular `assignee`/`owner` field; the real data is the `assignees[]` array, which neither command inspected. Generic gap worth backporting upstream (any ClickUp-shaped API with array-valued assignees).",
+  "files": [
+    "internal/cli/pm_load.go",
+    "internal/cli/pm_orphans.go"
+  ],
+  "upstream_issue": "https://github.com/mvanhorn/cli-printing-press/issues/TBD-assignees-array-aggregation"
+}

@@ -1532,6 +1532,56 @@ func TestUpsertBatch_TypedFailureDoesNotStrandModulesGeneric(t *testing.T) {
 	}
 }
 
+// TestUpsertBatch_DerivesChildScopeFromProjectField covers the write-through
+// cache shape: RAW API items carry the parent UUID under the singular "project"
+// key (never "projects_id"), so the typed upsert used to violate NOT NULL and
+// strand the row in the generic resources table with no typed projection.
+// deriveScopeColumns must derive "projects_id" from "project" so the typed row
+// lands. Regression for the write-through stranding bug (Bug #2).
+func TestUpsertBatch_DerivesChildScopeFromProjectField(t *testing.T) {
+	dbPath := filepath.Join(t.TempDir(), "data.db")
+	s, err := Open(dbPath)
+	if err != nil {
+		t.Fatalf("open: %v", err)
+	}
+	defer s.Close()
+
+	// Raw write-through shape: carries "project" (the parent UUID) but NOT the
+	// path-injected "projects_id" the dependent sync would have added.
+	items := []json.RawMessage{
+		json.RawMessage(`{"id": "wt-001", "project": "proj-X", "name": "Mod 1"}`),
+		json.RawMessage(`{"id": "wt-002", "project": "proj-X", "name": "Mod 2"}`),
+	}
+	stored, extractFailures, err := s.UpsertBatch("modules", items)
+	if err != nil {
+		t.Fatalf("UpsertBatch: %v", err)
+	}
+	if stored != len(items) {
+		t.Fatalf("stored = %d, want %d", stored, len(items))
+	}
+	if extractFailures != 0 {
+		t.Fatalf("extractFailures = %d, want 0", extractFailures)
+	}
+
+	db := s.DB()
+
+	var typed int
+	if err := db.QueryRow(`SELECT COUNT(*) FROM "modules"`).Scan(&typed); err != nil {
+		t.Fatalf("count modules: %v", err)
+	}
+	if typed != len(items) {
+		t.Fatalf("typed modules = %d, want %d (projects_id not derived from project; rows stranded in generic)", typed, len(items))
+	}
+
+	var scoped int
+	if err := db.QueryRow(`SELECT COUNT(*) FROM "modules" WHERE projects_id = ?`, "proj-X").Scan(&scoped); err != nil {
+		t.Fatalf("count by projects_id: %v", err)
+	}
+	if scoped != len(items) {
+		t.Fatalf("modules with projects_id=proj-X = %d, want %d (scope column not populated from project)", scoped, len(items))
+	}
+}
+
 // TestUpsertBatch_SetsModulesParentID verifies that dependent-resource
 // sync (which injects parent_id into each item's JSON) populates the typed
 // parent_id column when items go through UpsertBatch. Regression for issue #268.

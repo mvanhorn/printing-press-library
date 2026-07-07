@@ -1,0 +1,16 @@
+{
+  "schema_version": 2,
+  "id": "x-twitter-oauth2-refresh-command",
+  "applied_at": "2026-06-23",
+  "base_run_id": "20260603-230951",
+  "base_printing_press_version": "4.20.1",
+  "summary": "Add an explicit OAuth2 user-context refresh command and report refresh failures in doctor output.",
+  "reason": "Public-read fallback alone does not fix stale or rejected OAuth2 user-context credentials. Operators need a direct `auth refresh` path that forces refresh-token exchange, persists rotated token tuples, and tells them when X rejects the refresh token so they can rerun OAuth2 login. Doctor previously attempted refresh after /2/users/me returned 401 but collapsed refresh-token failures into a generic invalid-token hint.",
+  "files": [
+    "internal/cli/auth.go",
+    "internal/cli/auth_test.go",
+    "internal/cli/doctor.go",
+    "internal/cli/doctor_test.go"
+  ],
+  "validated_outcome": "go test ./internal/cli/... -count=1 -run 'TestAuthRefresh|TestDoctorReportsOAuth2RefreshFailureReason|TestDoctorRefreshesOAuth2UserContextAfterUnauthorized'; go test ./internal/client/... ./internal/cli/... -count=1; go build ./..."
+}

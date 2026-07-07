@@ -1,0 +1,17 @@
+{
+  "schema_version": 2,
+  "id": "outputformat-default-json",
+  "applied_at": "2026-05-18",
+  "base_run_id": "20260518-214920",
+  "base_printing_press_version": "4.8.0",
+  "summary": "Default `outputformat` flag to `\"json\"` on all 5 PVGIS endpoint commands so the CLI sends `outputformat=json` automatically.",
+  "reason": "PVGIS endpoints return CSV-style tab-separated text when `outputformat` is omitted, even though the CLI asks for JSON via `--json`. The generator left the flag default empty and gated the query param on `flagOutputformat != \"\"`, so the param was never sent. Changing the default to `\"json\"` flows through the existing gate and makes the CLI's JSON output match the spec without requiring users to pass `--outputformat json` explicitly.",
+  "files": [
+    "internal/cli/promoted_radiation.go",
+    "internal/cli/promoted_horizon.go",
+    "internal/cli/promoted_weather.go",
+    "internal/cli/production_monthly.go",
+    "internal/cli/production_hourly.go"
+  ],
+  "validated_outcome": "After the patch, `radiation --lat 45 --lon 9 --horizontal 1 --json` returns the documented JSON shape (inputs/outputs/meta) instead of plaintext CSV embedded in a JSON string."
+}

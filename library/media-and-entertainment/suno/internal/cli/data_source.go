@@ -258,7 +258,7 @@ func writeThroughCache(ctx context.Context, resourceType string, data json.RawMe
 					}
 				}
 				if !looksLikeListEnvelope {
-					_, _, _ = db.UpsertBatch(resourceType, []json.RawMessage{data})
+					_, _, _ = db.UpsertBatchQuiet(resourceType, []json.RawMessage{data})
 					return
 				}
 			}
@@ -266,7 +266,7 @@ func writeThroughCache(ctx context.Context, resourceType string, data json.RawMe
 	}
 
 	if len(items) > 0 {
-		_, _, _ = db.UpsertBatch(resourceType, items)
+		_, _, _ = db.UpsertBatchQuiet(resourceType, items)
 	}
 }
 

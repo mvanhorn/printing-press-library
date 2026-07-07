@@ -19,7 +19,7 @@ func newCustomersProductLinkInvitationsRemoveCmd(flags *rootFlags) *cobra.Comman
 	cmd := &cobra.Command{
 		Use:         "remove <customerId>",
 		Short:       "Remove a product link invitation.",
-		Example:     "  google-ads-pp-cli customers_product_link_invitations remove 550e8400-e29b-41d4-a716-446655440000",
+		Example:     "  google-ads-pp-cli customers-product-link-invitations remove 550e8400-e29b-41d4-a716-446655440000",
 		Annotations: map[string]string{"pp:endpoint": "customers_product_link_invitations.remove", "pp:method": "POST", "pp:path": "/v22/customers/{customerId}/productLinkInvitations:remove"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

@@ -1,0 +1,306 @@
+{
+  "api_name": "nutrition",
+  "base_url": "https://api.nal.usda.gov/fdc",
+  "description": "One agent-native CLI over USDA FoodData Central and NutritionValue.org - with cross-source enrichment, protein-density comparison, nutrient ranking, and a local SQLite cache no other nutrition tool ships.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "api_key",
+    "header": "api_key",
+    "in": "query",
+    "env_vars": [
+      "FDC_API_KEY",
+      "USDA_API_KEY"
+    ],
+    "env_var_specs": [
+      {
+        "name": "FDC_API_KEY",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      },
+      {
+        "name": "USDA_API_KEY",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    ]
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "food_get",
+      "description": "Retrieves a single food item by an FDC ID. Optional format and nutrients can be specified. Required: fdcId. Optional: format, nutrients.",
+      "method": "GET",
+      "path": "/v1/food/{fdcId}",
+      "params": [
+        {
+          "name": "fdcId",
+          "type": "string",
+          "location": "path",
+          "description": "FDC id of the food to retrieve",
+          "required": true
+        },
+        {
+          "name": "format",
+          "type": "string",
+          "location": "query",
+          "description": "Optional. 'abridged' for an abridged set of elements, 'full' for all elements (default)."
+        },
+        {
+          "name": "nutrients",
+          "type": "array",
+          "location": "query",
+          "description": "Optional. List of up to 25 nutrient numbers. Only the nutrient information for the specified nutrients will be returned. Should be comma separated list (e.g. nutrients=203,204) or repeating parameters (e.g. nutrients=203\u0026nutrients=204). If a food does not have any matching nutrients, the food will be returned with an empty foodNutrients element."
+        }
+      ]
+    },
+    {
+      "name": "foods_get",
+      "description": "Retrieves a list of food items by a list of up to 20 FDC IDs. Optional format and nutrients can be specified. Invalid FDC ID's or ones that are not found are omitted and an empty set is returned if there are no matches. Required: fdcIds. Optional: format, nutrients. Returns array of FoodsGetItem.",
+      "method": "GET",
+      "path": "/v1/foods",
+      "params": [
+        {
+          "name": "fdcIds",
+          "type": "array",
+          "location": "query",
+          "description": "List of multiple FDC ID's. Should be comma separated list (e.g. fdcIds=534358,373052) or repeating parameters (e.g. fdcIds=534358\u0026fdcIds=373052).",
+          "required": true
+        },
+        {
+          "name": "format",
+          "type": "string",
+          "location": "query",
+          "description": "Optional. 'abridged' for an abridged set of elements, 'full' for all elements (default)."
+        },
+        {
+          "name": "nutrients",
+          "type": "array",
+          "location": "query",
+          "description": "Optional. List of up to 25 nutrient numbers. Only the nutrient information for the specified nutrients will be returned. Should be comma separated list (e.g. nutrients=203,204) or repeating parameters (e.g. nutrients=203\u0026nutrients=204). If a food does not have any matching nutrients, the food will be returned with an empty foodNutrients element."
+        }
+      ]
+    },
+    {
+      "name": "foods_get-list",
+      "description": "Retrieves a paged list of foods. Use the pageNumber parameter to page through the entire result set. Optional: dataType, pageSize, pageNumber (plus 2 more). Returns array of AbridgedFoodItem.",
+      "method": "GET",
+      "path": "/v1/foods/list",
+      "params": [
+        {
+          "name": "dataType",
+          "type": "array",
+          "location": "query",
+          "description": "Optional. Filter on a specific data type; specify one or more values in an array."
+        },
+        {
+          "name": "pageSize",
+          "type": "int",
+          "location": "query",
+          "description": "Optional. Maximum number of results to return for the current page. Default is 50."
+        },
+        {
+          "name": "pageNumber",
+          "type": "int",
+          "location": "query",
+          "description": "Optional. Page number to retrieve. The offset into the overall result set is expressed as..."
+        },
+        {
+          "name": "sortBy",
+          "type": "string",
+          "location": "query",
+          "description": "Optional. Specify one of the possible values to sort by that field. Note, dataType.keyword..."
+        },
+        {
+          "name": "sortOrder",
+          "type": "string",
+          "location": "query",
+          "description": "Optional. The sort direction for the results. Only applicable if sortBy is specified."
+        }
+      ]
+    },
+    {
+      "name": "foods_get-search",
+      "description": "Search for foods using keywords. Results can be filtered by dataType and there are options for result page sizes or sorting. Required: query. Optional: dataType, pageSize, pageNumber (plus 3 more). Returns array of SearchResult.",
+      "method": "GET",
+      "path": "/v1/foods/search",
+      "params": [
+        {
+          "name": "query",
+          "type": "string",
+          "location": "query",
+          "description": "One or more search terms. The string may include [search operators](https://fdc.nal.usda.gov/help.html#bkmk-2)",
+          "required": true
+        },
+        {
+          "name": "dataType",
+          "type": "array",
+          "location": "query",
+          "description": "Optional. Filter on a specific data type; specify one or more values in an array."
+        },
+        {
+          "name": "pageSize",
+          "type": "int",
+          "location": "query",
+          "description": "Optional. Maximum number of results to return for the current page. Default is 50."
+        },
+        {
+          "name": "pageNumber",
+          "type": "int",
+          "location": "query",
+          "description": "Optional. Page number to retrieve. The offset into the overall result set is expressed as..."
+        },
+        {
+          "name": "sortBy",
+          "type": "string",
+          "location": "query",
+          "description": "Optional. Specify one of the possible values to sort by that field. Note, dataType.keyword..."
+        },
+        {
+          "name": "sortOrder",
+          "type": "string",
+          "location": "query",
+          "description": "Optional. The sort direction for the results. Only applicable if sortBy is specified."
+        },
+        {
+          "name": "brandOwner",
+          "type": "string",
+          "location": "query",
+          "description": "Optional. Filter results based on the brand owner of the food. Only applies to Branded Foods"
+        }
+      ]
+    },
+    {
+      "name": "foods_post",
+      "description": "Retrieves a list of food items by a list of up to 20 FDC IDs. Optional format and nutrients can be specified. Invalid FDC ID's or ones that are not found are omitted and an empty set is returned if there are no matches. Optional: fdcIds, format, nutrients. Returns array of FoodsPostItem.",
+      "method": "POST",
+      "path": "/v1/foods",
+      "params": [
+        {
+          "name": "fdcIds",
+          "type": "array",
+          "location": "body",
+          "description": "List of multiple FDC ID's"
+        },
+        {
+          "name": "format",
+          "type": "string",
+          "location": "body",
+          "description": "Optional. 'abridged' for an abridged set of elements, 'full' for all elements (default)."
+        },
+        {
+          "name": "nutrients",
+          "type": "array",
+          "location": "body",
+          "description": "Optional. List of up to 25 nutrient numbers. Only the nutrient information for the specified nutrients will be returned. If a food does not have any matching nutrients, the food will be returned with an empty foodNutrients element."
+        }
+      ]
+    },
+    {
+      "name": "foods_post-list",
+      "description": "Retrieves a paged list of foods. Use the pageNumber parameter to page through the entire result set. Optional: dataType, pageNumber, pageSize (plus 2 more). Returns array of AbridgedFoodItem.",
+      "method": "POST",
+      "path": "/v1/foods/list",
+      "params": [
+        {
+          "name": "dataType",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Optional. Filter on a specific data type; specify one or more values in an array."
+        },
+        {
+          "name": "pageNumber",
+          "type": "int",
+          "location": "body",
+          "description": "Optional. Page number to retrieve. The offset into the overall result set is expressed as..."
+        },
+        {
+          "name": "pageSize",
+          "type": "int",
+          "location": "body",
+          "description": "Optional. Maximum number of results to return for the current page. Default is 50."
+        },
+        {
+          "name": "sortBy",
+          "type": "string",
+          "location": "body",
+          "description": "Optional. Specify one of the possible values to sort by that field. Note, dataType.keyword..."
+        },
+        {
+          "name": "sortOrder",
+          "type": "string",
+          "location": "body",
+          "description": "Optional. The sort direction for the results. Only applicable if sortBy is specified."
+        }
+      ]
+    },
+    {
+      "name": "foods_post-search",
+      "description": "Search for foods using keywords. Results can be filtered by dataType and there are options for result page sizes or sorting. Optional: brandOwner, dataType, pageNumber (plus 4 more). Returns array of SearchResult.",
+      "method": "POST",
+      "path": "/v1/foods/search",
+      "params": [
+        {
+          "name": "brandOwner",
+          "type": "string",
+          "location": "body",
+          "description": "Optional. Filter results based on the brand owner of the food. Only applies to Branded Foods."
+        },
+        {
+          "name": "dataType",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Optional. Filter on a specific data type; specify one or more values in an array."
+        },
+        {
+          "name": "pageNumber",
+          "type": "int",
+          "location": "body",
+          "description": "Optional. Page number to retrieve. The offset into the overall result set is expressed as..."
+        },
+        {
+          "name": "pageSize",
+          "type": "int",
+          "location": "body",
+          "description": "Optional. Maximum number of results to return for the current page. Default is 50."
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "Search terms to use in the search. The string may also include standard [search operators](https://fdc.nal.usda.gov/help.html#bkmk-2)"
+        },
+        {
+          "name": "sortBy",
+          "type": "string",
+          "location": "body",
+          "description": "Optional. Specify one of the possible values to sort by that field. Note, dataType.keyword..."
+        },
+        {
+          "name": "sortOrder",
+          "type": "string",
+          "location": "body",
+          "description": "Optional. The sort direction for the results. Only applicable if sortBy is specified."
+        }
+      ]
+    },
+    {
+      "name": "json-spec_get",
+      "description": "The OpenAPI 3.0 specification for the FDC API rendered as JSON (JavaScript Object Notation).",
+      "method": "GET",
+      "path": "/v1/json-spec",
+      "params": []
+    },
+    {
+      "name": "yaml-spec_get",
+      "description": "The OpenAPI 3.0 specification for the FDC API rendered as YAML (YAML Ain't Markup Language).",
+      "method": "GET",
+      "path": "/v1/yaml-spec",
+      "params": []
+    }
+  ]
+}

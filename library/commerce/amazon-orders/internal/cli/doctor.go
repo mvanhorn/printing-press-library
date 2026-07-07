@@ -100,7 +100,12 @@ func newDoctorCmd(flags *rootFlags) *cobra.Command {
 					authConfigured = true
 					report["auth"] = "configured (browser session)"
 					report["auth_source"] = cfg.AuthSource
-					report["auth_domain"] = ".amazon.com"
+					domain, domainErr := cookieDomainFromConfig(cfg)
+					if domainErr != nil {
+						report["auth"] = fmt.Sprintf("error: invalid base_url: %s", domainErr)
+					} else {
+						report["auth_domain"] = domain
+					}
 					if proofOK, proofDetail := browserSessionProofStatus(cfg, header); proofOK {
 						report["browser_session_proof"] = "valid"
 						report["browser_session_proof_detail"] = proofDetail
@@ -320,10 +325,17 @@ func browserSessionProofStatus(cfg *config.Config, authHeader string) (bool, str
 	if proof.APIName != "amazon-orders" {
 		return false, "proof belongs to a different CLI"
 	}
-	if proof.CookieDomain != ".amazon.com" {
+	domain, err := cookieDomainFromConfig(cfg)
+	if err != nil {
+		return false, fmt.Sprintf("invalid base_url: %v", err)
+	}
+	if proof.CookieDomain != domain {
 		return false, "proof belongs to a different cookie domain"
 	}
-	if proof.ValidationPath != "/gp/your-account/order-history" {
+	if proof.ValidationPath == "/gp/your-account/order-history" {
+		return false, "proof was written against an older validation endpoint; re-run amazon-orders-pp-cli auth login --chrome to refresh it"
+	}
+	if proof.ValidationPath != "/your-orders/orders" {
 		return false, "proof was captured for a different validation endpoint"
 	}
 	if authHeader != "" && proof.CredentialFingerprint != doctorFingerprintCredential(authHeader) {

@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "internal-request-return-errors-20260515",
+  "applied_at": "2026-05-13",
+  "base_run_id": "20260513-094903",
+  "base_printing_press_version": "4.5.2",
+  "summary": "Made internal request return typed API errors instead of exiting the process from command code.",
+  "reason": "Commands must let Execute, tests, MCP wrappers, and delivery cleanup observe failures instead of terminating the host process directly.",
+  "files": [
+    "internal/cli/internal.go"
+  ],
+  "validated_outcome": "go test ./... passes; static scan finds no os.Exit calls inside internal/cli."
+}

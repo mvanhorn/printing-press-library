@@ -7,6 +7,7 @@ MyFitnessPal closed their API, gates per-food export behind premium, and ships p
 Learn more at [MyFitnessPal](https://www.myfitnesspal.com).
 
 Created by [@nickscarabosio](https://github.com/nickscarabosio) (Nick Scarabosio).
+Contributors: [@tmchow](https://github.com/tmchow) (Trevin Chow).
 
 ## Install
 
@@ -37,7 +38,7 @@ npx -y @mvanhorn/printing-press-library install myfitnesspal --agent claude-code
 
 ### Without Node (Go fallback)
 
-If `npx` isn't available (no Node, offline), install the CLI directly via Go (requires Go 1.26.3 or newer):
+If `npx` isn't available (no Node, offline), install the CLI directly via Go (requires Go 1.26.4 or newer):
 
 ```bash
 go install github.com/mvanhorn/printing-press-library/library/productivity/myfitnesspal/cmd/myfitnesspal-pp-cli@latest

@@ -1,0 +1,27 @@
+{
+  "manifest_version": "0.3",
+  "name": "ht-ml-pp-mcp",
+  "display_name": "ht-ml.app",
+  "version": "0.0.0",
+  "description": "The only ht-ml.app tool that remembers what you published, a local registry of every site, its once-only update_key, and full version history, plus one-command publish-with-assets.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/ht-ml-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/ht-ml-pp-mcp",
+      "args": []
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

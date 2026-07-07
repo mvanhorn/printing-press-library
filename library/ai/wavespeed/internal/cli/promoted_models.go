@@ -16,6 +16,7 @@ func newModelsPromotedCmd(flags *rootFlags) *cobra.Command {
 	var category string
 	var popular bool
 	var refresh bool
+	var capability string
 
 	cmd := &cobra.Command{
 		Use:         "models",
@@ -46,6 +47,12 @@ func newModelsPromotedCmd(flags *rootFlags) *cobra.Command {
 			data, err = filterModelsForCLI(data, query, modelType, category, popular)
 			if err != nil {
 				return err
+			}
+			if capability != "" {
+				data, err = summarizeModelsForCapability(data, capability)
+				if err != nil {
+					return err
+				}
 			}
 			// Print provenance to stderr for human-facing output only.
 			// Machine-format flags (--json, --csv, --compact, --quiet, --plain,
@@ -97,6 +104,7 @@ func newModelsPromotedCmd(flags *rootFlags) *cobra.Command {
 	cmd.Flags().StringVar(&category, "category", "", "Alias for --type")
 	cmd.Flags().BoolVar(&popular, "popular", false, "Sort popular models first when sort metadata is available")
 	cmd.Flags().BoolVar(&refresh, "refresh", false, "Refresh the model catalog instead of using the local HTTP cache")
+	cmd.Flags().StringVar(&capability, "capability", "", "Filter to a workflow capability (for example image-edit) and print model_id + price guidance")
 
 	// Wire sibling endpoints and sub-resources as subcommands
 

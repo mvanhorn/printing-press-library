@@ -1,0 +1,122 @@
+name: Update per-CLI release ledger
+
+# Assigns per-CLI release versions after library changes merge to main. This
+# keeps CHANGELOG.md, .printing-press-release.json, and the compiled runtime
+# version in sync without making contributors manually bump 233 independent
+# CLIs or fight changelog conflicts in feature PRs.
+#
+# Source of truth: tools/release-ledger/main.go.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'library/**'
+      - 'tools/release-ledger/**'
+      - '.github/workflows/update-cli-release-ledger.yml'
+  workflow_dispatch:
+    inputs:
+      changed_from:
+        description: 'Base ref/sha to diff from'
+        required: false
+      changed_to:
+        description: 'Head ref/sha to diff to'
+        required: false
+
+permissions:
+  contents: write
+  pull-requests: read
+
+jobs:
+  update:
+    name: Update and commit
+    runs-on: ubuntu-latest
+    # Queue release-ledger runs, but do not share this group with sibling
+    # generated-artifact workflows. GitHub keeps only one pending run per
+    # concurrency group, so a shared group lets unrelated workflows evict a
+    # pending release-ledger run. Push races with sibling workflows are handled
+    # by the rebase-before-push step below.
+    concurrency:
+      group: update-cli-release-ledger-main
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: main
+          token: ${{ secrets.ADMIN_PUSH_PAT }}
+          fetch-depth: 0
+      - uses: actions/setup-go@v6
+        with:
+          go-version: '1.26.4'
+      - name: Resolve release metadata
+        id: meta
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+
+          changed_from="${{ inputs.changed_from || github.event.before }}"
+          changed_to="${{ inputs.changed_to || github.sha }}"
+          if [ -z "$changed_from" ] || [ "$changed_from" = "0000000000000000000000000000000000000000" ]; then
+            changed_from="$(git rev-list --max-parents=0 HEAD | tail -n 1)"
+          fi
+          if [ -z "$changed_to" ]; then
+            changed_to="$(git rev-parse HEAD)"
+          fi
+
+          pr_number="$(gh api \
+            -H 'Accept: application/vnd.github+json' \
+            "repos/${GITHUB_REPOSITORY}/commits/${changed_to}/pulls" \
+            --jq '.[0].number // ""' 2>/dev/null || true)"
+          pr_title="$(gh api \
+            -H 'Accept: application/vnd.github+json' \
+            "repos/${GITHUB_REPOSITORY}/commits/${changed_to}/pulls" \
+            --jq '.[0].title // ""' 2>/dev/null || true)"
+          pr_url="$(gh api \
+            -H 'Accept: application/vnd.github+json' \
+            "repos/${GITHUB_REPOSITORY}/commits/${changed_to}/pulls" \
+            --jq '.[0].html_url // ""' 2>/dev/null || true)"
+          if [ -z "$pr_title" ]; then
+            pr_title="$(git log -1 --pretty=%s "$changed_to")"
+          fi
+
+          {
+            echo "changed_from=$changed_from"
+            echo "changed_to=$changed_to"
+            echo "released_at=$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+            echo "pr_number=$pr_number"
+            echo "pr_title<<EOF"
+            echo "$pr_title"
+            echo "EOF"
+            echo "pr_url=$pr_url"
+          } >> "$GITHUB_OUTPUT"
+      - name: Run release-ledger
+        run: |
+          set -euo pipefail
+          args=(
+            --changed-from "${{ steps.meta.outputs.changed_from }}"
+            --changed-to "${{ steps.meta.outputs.changed_to }}"
+            --released-at "${{ steps.meta.outputs.released_at }}"
+            --source-commit "${{ steps.meta.outputs.changed_to }}"
+            --change-title "${{ steps.meta.outputs.pr_title }}"
+          )
+          if [ -n "${{ steps.meta.outputs.pr_number }}" ]; then
+            args+=(--change-pr "${{ steps.meta.outputs.pr_number }}")
+          fi
+          if [ -n "${{ steps.meta.outputs.pr_url }}" ]; then
+            args+=(--change-url "${{ steps.meta.outputs.pr_url }}")
+          fi
+          go run ./tools/release-ledger/main.go "${args[@]}"
+      - name: Commit if changed
+        run: |
+          set -euo pipefail
+          if git diff --quiet -- library; then
+            echo "No release-ledger changes; nothing to commit."
+            exit 0
+          fi
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add library
+          git commit -m "chore(releases): update CLI release ledger [skip ci]"
+          git pull --rebase origin main
+          git push

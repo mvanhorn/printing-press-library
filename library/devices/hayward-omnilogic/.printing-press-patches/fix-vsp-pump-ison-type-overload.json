@@ -1,0 +1,17 @@
+{
+  "schema_version": 2,
+  "id": "fix-vsp-pump-ison-type-overload",
+  "applied_at": "2026-05-13",
+  "base_run_id": "20260510-160303",
+  "base_printing_press_version": "4.2.2",
+  "summary": "SetPumpSpeed drops the bogus Speed parameter and sends IsOn as dataType=int (0-100) matching Hayward's overloaded SetUIEquipmentCmd contract; `equipment on/off` routes VSP pumps through SetPumpSpeed with speed=100 (on) or 0 (off).",
+  "reason": "Root cause of every 'Input string was not in a correct format' (Hayward .NET status 6) on VSP pump operations. Side-by-side packet capture against the canonical Python wrapper (djtimca/omnilogic-api 0.6.1) showed Hayward overloads IsOn on SetUIEquipmentCmd: dataType=int with 0-100 sets a VSP speed; dataType=bool with True/False toggles non-VSP equipment. There is NO separate Speed param — the previous Go code sent BOTH IsOn=bool AND Speed=int, which Hayward's handler rejected. Even the Python wrapper's set_equipment(isOn=bool) fails against a VSP (Hayward quirk, not a Go bug). Fix: SetPumpSpeed drops Speed, sends IsOn=int; SetEquipment documented as non-VSP-only; IsVSPPump(cfg, equipmentID) detects VSPs by MSP-config type prefix (FMT_VARIABLE_SPEED / PMP_VARIABLE_SPEED); equipment on/off routes VSPs through SetPumpSpeed with DefaultVSPOnSpeed (100) for on and 0 for off.",
+  "files": [
+    "internal/omnilogic/operations.go",
+    "internal/omnilogic/resolve.go",
+    "internal/omnilogic/envelope_test.go",
+    "internal/cli/omnilogic_commands.go",
+    "SKILL.md"
+  ],
+  "validated_outcome": "Live-verified: pump set-speed 'Filter Pump' --bow Pool --speed 50 returns status:ok and telemetry confirms filterSpeed=50. equipment on/off rounds-trip to speed 100/0. TestIsVSPPump and TestSetPumpSpeed_IsOnAsInt lock the detection + envelope shape."
+}

@@ -1,0 +1,51 @@
+version: 2
+project_name: yeswehack-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: yeswehack-pp-cli
+    main: ./cmd/yeswehack-pp-cli
+    binary: yeswehack-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X github.com/mvanhorn/printing-press-library/library/developer-tools/yeswehack/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: yeswehack-pp-mcp
+    main: ./cmd/yeswehack-pp-mcp
+    binary: yeswehack-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: yeswehack-pp-cli
+    repository:
+      owner: matt-van-horn
+      name: homebrew-tap
+    homepage: "https://github.com/mvanhorn/printing-press-library"
+    description: "Every YesWeHack researcher feature, plus an offline SQLite-backed cockpit for scope cartography, drift detection,..."
+    install: |
+      bin.install "yeswehack-pp-cli"
+      bin.install "yeswehack-pp-mcp"

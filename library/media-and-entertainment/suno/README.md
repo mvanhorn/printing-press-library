@@ -1,10 +1,10 @@
 # Suno CLI
 
-**The correct, offline-first Suno CLI — every feature the abandoned clients have, plus a local SQLite library, full-text search, and agent-native output none of them ship.**
+**The correct, offline-first Suno CLI: every feature the abandoned clients have, plus a local SQLite library, full-text search, and agent-native output none of them ship.**
 
-Suno has no official API and every reverse-engineered client is abandoned and wrong in ways that matter today — broken pagination, broken cover, stale pre-2026 auth, no local persistence. This CLI is built from the current contract: it walks the real opaque feed cursor, sends the now-required cover title, tolerates the drifted billing schema, authenticates against the current auth.suno.com Clerk flow via your logged-in browser, and persists your whole library to local SQLite for offline grep, SQL, lineage, and analytics. Generate, extend, cover, remaster, stems, lyrics, download — all with --json, --select, --dry-run, and typed exit codes.
+Suno has no official API and every reverse-engineered client is abandoned and wrong in ways that matter today: broken pagination, broken cover, stale pre-2026 auth, no local persistence. This CLI is built from the current contract. It walks the real opaque feed cursor, sends the now-required cover title, tolerates the drifted billing schema, authenticates against the current auth.suno.com Clerk flow via your logged-in browser, and persists your whole library to local SQLite for offline grep, SQL, lineage, and analytics. Generate, extend, cover, remaster, stems, lyrics, WAV download, and workspaces, all with --json, --select, --dry-run, and typed exit codes.
 
-Created by [@mvanhorn](https://github.com/mvanhorn) (Matt Van Horn).
+Printed by [@horknfbr](https://github.com/horknfbr) (horknfbr).
 
 ## Install
 
@@ -35,7 +35,7 @@ npx -y @mvanhorn/printing-press-library install suno --agent claude-code --agent
 
 ### Without Node (Go fallback)
 
-If `npx` isn't available (no Node, offline), install the CLI directly via Go (requires Go 1.26.3 or newer):
+If `npx` isn't available (no Node, offline), install the CLI directly via Go (requires Go 1.26.4 or newer):
 
 ```bash
 go install github.com/mvanhorn/printing-press-library/library/media-and-entertainment/suno/cmd/suno-pp-cli@latest
@@ -50,14 +50,6 @@ Download a pre-built binary for your platform from the [latest release](https://
 <!-- pp-hermes-install-anchor -->
 ## Install for Hermes
 
-Install the CLI binary first. The installer writes binaries to a per-user managed bin directory by default: `$HOME/.local/bin` on macOS/Linux and `%LOCALAPPDATA%\Programs\PrintingPress\bin` on Windows.
-
-```bash
-npx -y @mvanhorn/printing-press-library install suno --cli-only
-```
-
-Then install the focused Hermes skill.
-
 From the Hermes CLI:
 
 ```bash
@@ -70,17 +62,13 @@ Inside a Hermes chat session:
 /skills install mvanhorn/printing-press-library/cli-skills/pp-suno --force
 ```
 
-Restart the Hermes session or gateway if the newly installed skill is not visible immediately.
-
 ## Install for OpenClaw
 
-Install both the CLI binary and the focused OpenClaw skill. The installer defaults binaries to a per-user bin directory (`$HOME/.local/bin` on macOS/Linux, `%LOCALAPPDATA%\Programs\PrintingPress\bin` on Windows):
+Tell your OpenClaw agent (copy this):
 
-```bash
-npx -y @mvanhorn/printing-press-library install suno --agent openclaw
 ```
-
-Restart the OpenClaw session or gateway if the newly installed skill is not visible immediately.
+Install the pp-suno skill from https://github.com/mvanhorn/printing-press-library/tree/main/cli-skills/pp-suno. The skill defines how its required CLI can be installed.
+```
 
 ## Use with Claude Desktop
 
@@ -123,7 +111,7 @@ Add to your Claude Desktop config (`~/Library/Application Support/Claude/claude_
 
 ## Authentication
 
-Suno uses Clerk session auth (auth.suno.com). Run `suno-pp-cli auth login --chrome` to capture your logged-in session cookie from Chrome; the CLI mints and refreshes the short-lived JWT for you. No password or API key is stored. Music generation is attempted optimistically with no token. Suno gates generation adaptively (an hCaptcha anti-bot challenge that usually fires only after sustained use), so many generations succeed outright; if Suno challenges a request, the CLI tells you to retry with `--token` carrying an hCaptcha token (e.g. solved via 2Captcha). All read, library, and metadata commands never need a captcha.
+Suno uses Clerk session auth (auth.suno.com). Run `suno-pp-cli auth login --chrome` to capture your logged-in session cookie from Chrome; the CLI mints and refreshes the short-lived JWT for you. No password or API key is stored. Music generation is attempted optimistically with no token. Suno gates generation adaptively (an hCaptcha anti-bot challenge that usually fires only after sustained use), so many generations succeed outright. When the gate does trip, the CLI automatically solves it using a dedicated piloted-Chrome profile — run `suno-pp-cli auth captcha login --profile <name>` to sign a profile in, then pass `--captcha-profile <name>` on any gated command to select that account. Under `--agent`/`--no-input` the visible browser fallback is suppressed and a structured `{"error_type":"captcha_required","retriable":true}` envelope is emitted on stdout (exit 2). To skip the auto-solver entirely, pass `--no-captcha` or supply a pre-solved token with `--token`. All read, library, and metadata commands never need a captcha.
 
 ## Quick Start
 
@@ -193,6 +181,7 @@ These capabilities aren't available in any other tool for this API.
   ```
 
 ## Recipes
+
 
 ### Generate a custom song and wait for it
 
@@ -342,6 +331,7 @@ Parity with the 2026-05-15 build — these coexist with the novel commands (`gre
 - **`suno-pp-cli tree <clip-id>`** - Render a clip's local lineage tree (legacy view; see also `lineage`)
 - **`suno-pp-cli custom-model`** - List pending custom-model training jobs
 
+
 ## Output Formats
 
 ```bash
@@ -407,7 +397,7 @@ Environment variables:
 
 ### API-specific
 - **auth login fails or commands return 401 or Token validation failed** — Re-run `suno-pp-cli auth login --chrome` while logged in to suno.com in Chrome; JWTs are short-lived and refreshed from the captured Clerk cookie.
-- **generate returns a captcha-required error** — Supply an hCaptcha token with `--token <token>` (e.g. from 2Captcha) or pass `--no-captcha` if your environment provides one; read/library commands never need it.
+- **generate returns a captcha-required error** — The CLI auto-solves the gate using a piloted-Chrome profile; run `suno-pp-cli auth captcha login --profile default` once to set one up, then pass `--captcha-profile default` on gated commands. In agent/no-input mode the solver is suppressed and a `{"error_type":"captcha_required","retriable":true}` envelope is returned (exit 2) — retry with a signed-in captcha profile or supply `--token <token>` directly. Read/library commands never need a captcha.
 - **list or sync only returns the first page** — This CLI walks the opaque next_cursor automatically; pass `--all` to drain the entire library, or `--full` on sync.
 - **cover returns HTTP 422** — This CLI sends the now-required title field automatically; pass `--title` if you want a specific cover title.
 

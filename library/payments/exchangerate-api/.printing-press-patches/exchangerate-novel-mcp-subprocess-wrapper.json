@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "exchangerate-novel-mcp-subprocess-wrapper",
+  "applied_at": "2026-05-17",
+  "base_run_id": "20260517-025552",
+  "base_printing_press_version": "4.8.0",
+  "summary": "Add mcp serve subcommand on the main CLI that execs the standalone exchangerate-api-pp-mcp binary. Documents PATH-substitution risk in --help; --bin overrides for hardened deployments.",
+  "reason": "research.json declared mcp serve as a novel feature, so users expect to invoke exchangerate-api-pp-cli mcp serve in MCP host configs. Cannot embed mcp tools in-process because internal/mcp imports internal/cli (cobratree walker), so direct embed creates an import cycle. Subprocess exec is the clean workaround. --json detection short-circuits to a friendly envelope rather than streaming MCP wire frames.",
+  "files": [
+    "internal/cli/mcp_cmd.go",
+    "internal/cli/root.go"
+  ],
+  "validated_outcome": "mcp serve --help shows --bin override and PATH-substitution note; subprocess discovery prefers sibling of os.Executable before $PATH. mcp serve --json returns clean envelope without starting the server (fixes dogfood --json fidelity probe)."
+}

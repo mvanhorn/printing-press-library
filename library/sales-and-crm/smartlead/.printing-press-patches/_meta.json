@@ -1,0 +1,9 @@
+{
+  "schema_version": 2,
+  "deferred_to_upstream": [
+    {
+      "summary": "Profiler should emit resourceIDFieldOverrides for dependent resources and recognize NOT NULL parent FK columns on typed dependent tables.",
+      "reason": "Generator-shaped — same root cause as cli-printing-press#689. The idfield-overrides and dependent-fk patches are local repairs until the profiler descends into dependent path-items."
+    }
+  ]
+}

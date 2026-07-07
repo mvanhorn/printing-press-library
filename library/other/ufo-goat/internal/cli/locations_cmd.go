@@ -26,6 +26,9 @@ and date ranges. Useful for mapping and spatial analysis.`,
   ufo-goat-pp-cli locations --json`,
 		Annotations: map[string]string{"mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
+			if dryRunOK(flags) {
+				return nil
+			}
 			if dbPath == "" {
 				dbPath = defaultDBPath("ufo-goat-pp-cli")
 			}
@@ -67,6 +70,10 @@ and date ranges. Useful for mapping and spatial analysis.`,
 				data, _ := json.Marshal(locations)
 				return printCSV(cmd.OutOrStdout(), json.RawMessage(data))
 			}
+			if flags.plain {
+				data, _ := json.Marshal(locations)
+				return printPlain(cmd.OutOrStdout(), json.RawMessage(data))
+			}
 
 			// Table output
 			w := cmd.OutOrStdout()
@@ -94,7 +101,7 @@ and date ranges. Useful for mapping and spatial analysis.`,
 		},
 	}
 
-	cmd.Flags().StringVar(&dbPath, "db", "", "Database path")
+	cmd.Flags().StringVar(&dbPath, "db", "", "Override the synced SQLite store path (default: ~/.local/share/ufo-goat-pp-cli/data.db)")
 	return cmd
 }
 

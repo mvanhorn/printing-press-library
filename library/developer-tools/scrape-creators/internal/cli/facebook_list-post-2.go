@@ -13,40 +13,45 @@ import (
 
 func newFacebookListPost2Cmd(flags *rootFlags) *cobra.Command {
 	var flagUrl string
+	var flagFeedbackId string
+	var flagCursor string
+	var flagAll bool
 
 	cmd := &cobra.Command{
 		Use:         "list-post-2",
-		Short:       "Extracts the transcript text from a Facebook video post or reel. Returns the transcript as a single text string with...",
-		Example:     "  scrape-creators-pp-cli facebook list-post-2",
-		Annotations: map[string]string{"pp:endpoint": "facebook.list-post-2", "mcp:read-only": "true"},
+		Short:       "Fetches comments from a Facebook post or reel with cursor-based pagination.",
+		Example:     "  scrape-creators-pp-cli facebook list-post-2 --url https://www.facebook.com/reel/2166091230582141/",
+		Annotations: map[string]string{"pp:endpoint": "facebook.list-post-2", "pp:method": "GET", "pp:path": "/v1/facebook/post/comments", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
-			if !cmd.Flags().Changed("url") && !flags.dryRun {
-				return fmt.Errorf("required flag \"%s\" not set", "url")
-			}
+			path := "/v1/facebook/post/comments"
 			c, err := flags.newClient()
 			if err != nil {
 				return err
 			}
-
-			path := "/v1/facebook/post/transcript"
-			params := map[string]string{}
-			if flagUrl != "" {
-				params["url"] = fmt.Sprintf("%v", flagUrl)
-			}
-			data, prov, err := resolveRead(cmd.Context(), c, flags, "facebook", false, path, params, nil)
+			data, prov, err := resolvePaginatedReadWithStrategy(cmd.Context(), c, flags, "auto", "facebook", path, map[string]string{
+				"url":         formatCLIParamValue(flagUrl),
+				"feedback_id": formatCLIParamValue(flagFeedbackId),
+				"cursor":      formatCLIParamValue(flagCursor),
+			}, nil, flagAll, "cursor", "cursor", "", "", "", cmd.ErrOrStderr())
 			if err != nil {
-				return classifyAPIError(err)
+				return classifyAPIError(err, flags)
 			}
-			// Print provenance to stderr for human-facing output
-			{
+			// Print provenance to stderr for human-facing output only.
+			// Machine-format flags (--json, --csv, --compact, --quiet, --plain,
+			// --select) and piped stdout suppress this line; the JSON envelope
+			// already carries meta.source for those consumers.
+			// SYNC: keep this gate aligned with command_promoted.go.tmpl.
+			if wantsHumanTable(cmd.OutOrStdout(), flags) {
 				var countItems []json.RawMessage
 				_ = json.Unmarshal(data, &countItems)
 				printProvenance(cmd, len(countItems), prov)
 			}
 			// For JSON output, wrap with provenance envelope before passing through flags.
 			// --select wins over --compact when both are set; --compact only runs when
-			// no explicit fields were requested.
-			if flags.asJSON || !isTerminal(cmd.OutOrStdout()) {
+			// no explicit fields were requested. Explicit format flags (--csv, --quiet,
+			// --plain) opt out of the auto-JSON path so piped consumers that asked for
+			// a non-JSON format reach the standard pipeline below.
+			if flags.asJSON || (!isTerminal(cmd.OutOrStdout()) && !flags.csv && !flags.quiet && !flags.plain) {
 				filtered := data
 				if flags.selectFields != "" {
 					filtered = filterFields(filtered, flags.selectFields)
@@ -72,10 +77,13 @@ func newFacebookListPost2Cmd(flags *rootFlags) *cobra.Command {
 					return nil
 				}
 			}
-			return printOutputWithFlags(cmd.OutOrStdout(), data, flags)
+			return printOutputWithFlagsMeta(cmd.OutOrStdout(), data, flags, map[string]any{"source": "live"})
 		},
 	}
-	cmd.Flags().StringVar(&flagUrl, "url", "", "Facebook post URL")
+	cmd.Flags().StringVar(&flagUrl, "url", "", "Facebook post URL (or reel URL)")
+	cmd.Flags().StringVar(&flagFeedbackId, "feedback-id", "", "Using feedback_id (instead of url) will *really* speed up the request.")
+	cmd.Flags().StringVar(&flagCursor, "cursor", "", "Cursor to get more comments. Get 'cursor' from previous response.")
+	cmd.Flags().BoolVar(&flagAll, "all", false, "Fetch all pages")
 
 	return cmd
 }

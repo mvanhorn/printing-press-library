@@ -130,6 +130,38 @@ func TestRequestSchemaForModel(t *testing.T) {
 	}
 }
 
+func TestModelHelpShowsResolutionEnumAndPricing(t *testing.T) {
+	models := json.RawMessage(`{"data":[{"model_id":"google/nano-banana-pro/edit","name":"Nano Banana Pro Edit","type":"image-to-image","base_price":0.04,"formula":"base_price * resolution_multiplier","api_schema":{"api_schemas":[{"request_schema":{"type":"object","required":["prompt","images"],"properties":{"prompt":{"type":"string"},"images":{"type":"array","items":{"type":"string"}},"resolution":{"type":"string","enum":["1k","2k","4k"],"default":"2k"}}}}]}}]}`)
+	model, ok := findModelObject(models, "google/nano-banana-pro/edit")
+	if !ok {
+		t.Fatal("model not found")
+	}
+	text := modelHelpText("google/nano-banana-pro/edit", model)
+	for _, want := range []string{"price: 0.04", "resolution: 1k | 2k | 4k", "enum=1k|2k|4k"} {
+		if !strings.Contains(text, want) {
+			t.Fatalf("help text missing %q:\n%s", want, text)
+		}
+	}
+}
+
+func TestSummarizeModelsForCapabilityReturnsModelIDAndPrice(t *testing.T) {
+	models := json.RawMessage(`{"data":[{"model_id":"cheap/edit","type":"image-to-image","base_price":0.01,"api_schema":{"api_schemas":[{"request_schema":{"type":"object","properties":{"images":{"type":"array","items":{"type":"string"}},"size":{"type":"string","enum":["1024x1024","1792x1024"]}}}}]}},{"model_id":"video/t2v","type":"text-to-video","base_price":1.25}]}`)
+	raw, err := summarizeModelsForCapability(models, "image-edit")
+	if err != nil {
+		t.Fatal(err)
+	}
+	var got []modelCatalogSummary
+	if err := json.Unmarshal(raw, &got); err != nil {
+		t.Fatal(err)
+	}
+	if len(got) != 1 || got[0].ModelID != "cheap/edit" || got[0].Price != "0.01" {
+		t.Fatalf("summary = %#v", got)
+	}
+	if got[0].Resolutions["size"][1] != "1792x1024" {
+		t.Fatalf("resolutions = %#v", got[0].Resolutions)
+	}
+}
+
 func TestDownloadOutputPath(t *testing.T) {
 	if got := downloadOutputPath("./out/{index}.{ext}", "https://example.com/a/photo.png", 0, 2); got != "out/1.png" {
 		t.Fatalf("templated path = %q", got)
@@ -173,6 +205,7 @@ func TestCollectURLStringsSkipsEchoedInputs(t *testing.T) {
 }
 
 func TestRunWaitDownloadPrintsResultAndDownloadsCDNWithoutAuth(t *testing.T) {
+	t.Setenv("HOME", t.TempDir())
 	t.Chdir(t.TempDir())
 	outPath := filepath.Join(t.TempDir(), "generated.png")
 

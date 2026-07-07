@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "slug": "context-dev",
+  "cli_name": "context-dev-pp-cli",
+  "version": "2026.6.1",
+  "released_at": "2026-06-24T15:51:28Z",
+  "source_commit": "28b7a92c628453afa6f7221bd612d26ab5512390",
+  "printing_press_version": "4.25.0",
+  "run_id": "20260623-222307",
+  "changes": [
+    {
+      "title": "feat(context-dev): add context-dev",
+      "pr": 1353,
+      "url": "https://github.com/mvanhorn/printing-press-library/pull/1353",
+      "commit": "28b7a92c628453afa6f7221bd612d26ab5512390"
+    }
+  ]
+}

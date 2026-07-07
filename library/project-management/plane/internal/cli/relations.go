@@ -84,9 +84,9 @@ func newRelationsListCmd(flags *rootFlags) *cobra.Command {
 			if len(args) < 1 {
 				return usageErr(fmt.Errorf("issue_uuid is required\nUsage: %s <issue_uuid>", cmd.CommandPath()))
 			}
-			slug = resolveSlug(slug)
-			if slug == "" {
-				return usageErr(fmt.Errorf("workspace slug not set: pass --slug or export %s", envWorkspaceSlug))
+			slug = effectiveSlug(flags, slug)
+			if slug == "" || slug == "my-workspace" {
+				return usageErr(fmt.Errorf("workspace not set: pass --workspace <slug>, --slug <slug>, export %s, or run 'plane-pp-cli workspaces use <slug>'", envWorkspaceSlug))
 			}
 			if projectID == "" {
 				return usageErr(fmt.Errorf("--project is required (Plane API needs project_id in the path)"))
@@ -108,7 +108,7 @@ func newRelationsListCmd(flags *rootFlags) *cobra.Command {
 			return printOutputWithFlags(cmd.OutOrStdout(), data, flags)
 		},
 	}
-	cmd.Flags().StringVar(&slug, "slug", "", "Workspace slug (defaults to $"+envWorkspaceSlug+")")
+	cmd.Flags().StringVar(&slug, "slug", "", "Workspace slug; overridden by the global --workspace (defaults to $"+envWorkspaceSlug+")")
 	cmd.Flags().StringVar(&projectID, "project", "", "Project UUID (required)")
 	return cmd
 }
@@ -137,9 +137,9 @@ Idempotent — re-running the same set is a no-op at the DB level (get_or_create
 			if len(args) < 1 {
 				return usageErr(fmt.Errorf("issue_uuid is required\nUsage: %s <issue_uuid>", cmd.CommandPath()))
 			}
-			slug = resolveSlug(slug)
-			if slug == "" {
-				return usageErr(fmt.Errorf("workspace slug not set: pass --slug or export %s", envWorkspaceSlug))
+			slug = effectiveSlug(flags, slug)
+			if slug == "" || slug == "my-workspace" {
+				return usageErr(fmt.Errorf("workspace not set: pass --workspace <slug>, --slug <slug>, export %s, or run 'plane-pp-cli workspaces use <slug>'", envWorkspaceSlug))
 			}
 			if projectID == "" {
 				return usageErr(fmt.Errorf("--project is required"))
@@ -171,7 +171,7 @@ Idempotent — re-running the same set is a no-op at the DB level (get_or_create
 			return printOutputWithFlags(cmd.OutOrStdout(), data, flags)
 		},
 	}
-	cmd.Flags().StringVar(&slug, "slug", "", "Workspace slug (defaults to $"+envWorkspaceSlug+")")
+	cmd.Flags().StringVar(&slug, "slug", "", "Workspace slug; overridden by the global --workspace (defaults to $"+envWorkspaceSlug+")")
 	cmd.Flags().StringVar(&projectID, "project", "", "Project UUID (required)")
 	cmd.Flags().StringVar(&relType, "type", "", "Relation type (required): blocking | blocked_by | duplicate | relates_to | start_after | start_before | finish_after | finish_before")
 	cmd.Flags().StringSliceVar(&related, "related", nil, "UUID of related work item (repeatable)")
@@ -269,13 +269,6 @@ deployment you can reach (Plane Cloud has no container shell).`,
 	cmd.Flags().StringVar(&related, "related", "", "UUID of related work item (required)")
 	cmd.Flags().StringVar(&shellCmd, "shell-cmd", "", "Override $"+envRelationShellCmd+"; must accept a Python script on stdin and run it in Plane's Django shell")
 	return cmd
-}
-
-func resolveSlug(flagVal string) string {
-	if flagVal != "" {
-		return flagVal
-	}
-	return os.Getenv(envWorkspaceSlug)
 }
 
 func isWindows() bool {

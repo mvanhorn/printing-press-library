@@ -1,0 +1,68 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-23T04:25:55.781971Z",
+  "printing_press_version": "4.10.0",
+  "api_name": "prediction-goat",
+  "display_name": "Markets",
+  "cli_name": "prediction-goat-pp-cli",
+  "owner": "mvanhorn",
+  "printer": "mvanhorn",
+  "printer_name": "Matt Van Horn",
+  "spec_format": "openapi3",
+  "spec_checksum": "sha256:670e62d2ad80afcde8eb19c3211c618b3542874e431333401fed5e25e2604fcf",
+  "run_id": "20260522-175728",
+  "mcp_binary": "prediction-goat-pp-mcp",
+  "mcp_tool_count": 42,
+  "mcp_public_tool_count": 42,
+  "mcp_ready": "full",
+  "api_version": "1.0.0",
+  "auth_type": "none",
+  "novel_features": [
+    {
+      "name": "Cross-venue topic bundle",
+      "command": "topic",
+      "description": "Get every related Polymarket and Kalshi market for a topic in one slim ranked ~3KB bundle — kanye-west, argentina, chatgpt-5."
+    },
+    {
+      "name": "Mispriced screen",
+      "command": "mispriced",
+      "description": "Find same-outcome markets where Polymarket and Kalshi disagree on implied probability by more than a threshold."
+    },
+    {
+      "name": "Cross-venue compare",
+      "command": "compare",
+      "description": "Side-by-side YES/NO and implied probability for the same topic across Polymarket and Kalshi."
+    },
+    {
+      "name": "Trending screen",
+      "command": "trending",
+      "description": "Top movers by 24h volume across both venues, ranked."
+    },
+    {
+      "name": "Resolving screen",
+      "command": "resolving",
+      "description": "Markets resolving in the next week/month/days, sorted by liquidity."
+    },
+    {
+      "name": "Liquid screen",
+      "command": "liquid",
+      "description": "Markets above a normalized volume/liquidity floor across both venues."
+    },
+    {
+      "name": "Movers screen",
+      "command": "movers",
+      "description": "Biggest implied-probability deltas over a 24h or 7d window across both venues."
+    },
+    {
+      "name": "New screen",
+      "command": "new",
+      "description": "Markets created in the last N days across both venues."
+    },
+    {
+      "name": "Markets diff",
+      "command": "markets diff",
+      "description": "Field-by-field structural diff between a specific Polymarket market and a specific Kalshi market."
+    }
+  ],
+  "category": "payments"
+}

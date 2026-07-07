@@ -1,0 +1,63 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-06-06T22:57:27.323989Z",
+  "printing_press_version": "4.22.1",
+  "api_name": "atlas-obscura",
+  "display_name": "Atlas Obscura",
+  "cli_name": "atlas-obscura-pp-cli",
+  "creator": {
+    "handle": "dbryson",
+    "name": "David Bryson"
+  },
+  "owner": "dbryson",
+  "printer": "dbryson",
+  "printer_name": "David Bryson",
+  "spec_format": "internal",
+  "spec_checksum": "sha256:9df510664c1f4456f96e1cd3c4a9bb2eca63f7bc4e518a04cbf69a1af5adca32",
+  "run_id": "20260606-104318-ao87811-27595",
+  "category": "travel",
+  "description": "Every Atlas Obscura search, plus a local database, road-trip corridor routing, and saved trips no other Atlas Obscura tool has.",
+  "mcp_binary": "atlas-obscura-pp-mcp",
+  "mcp_tool_count": 3,
+  "mcp_public_tool_count": 3,
+  "mcp_ready": "full",
+  "api_version": "0.1.0",
+  "auth_type": "none",
+  "novel_features": [
+    {
+      "name": "Road-trip corridor",
+      "command": "route",
+      "description": "Find Atlas Obscura wonders along the driving corridor between two cities, not just in one place."
+    },
+    {
+      "name": "Saved trips",
+      "command": "trip",
+      "description": "Accumulate places into named itineraries that persist across sessions."
+    },
+    {
+      "name": "Visited tracking",
+      "command": "visited",
+      "description": "Record which wonders you've seen, with optional date and note."
+    },
+    {
+      "name": "Unvisited gaps",
+      "command": "gaps",
+      "description": "Show good wonders near a point that you haven't visited yet, ranked by interestingness."
+    },
+    {
+      "name": "Walkable clusters",
+      "command": "cluster",
+      "description": "Group nearby wonders into spatially tight clusters that make a walkable half-day."
+    },
+    {
+      "name": "Daily surprise",
+      "command": "surprise",
+      "description": "Pick one high-interest wonder you haven't visited, seeded by date so it's stable per day."
+    },
+    {
+      "name": "Export trip",
+      "command": "export",
+      "description": "Serialize a saved trip to GPX, GeoJSON, or a markdown itinerary, fully offline."
+    }
+  ]
+}

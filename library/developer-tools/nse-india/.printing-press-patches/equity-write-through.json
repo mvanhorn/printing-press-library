@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "equity-write-through",
+  "applied_at": "2026-05-10",
+  "base_run_id": "20260508-113209",
+  "base_printing_press_version": "4.0.4",
+  "summary": "Project equityResponse items to the flat shape novel analysis commands query before storing in writeThroughCache.",
+  "reason": "NSE India equity quote responses wrap data under 'equityResponse' with nested fields; writeThroughCache only handled 'results'/'data'/'items'/'id' envelopes so equity data was never persisted, causing all eight novel commands to always return empty results.",
+  "files": [
+    "internal/cli/data_source.go"
+  ],
+  "validated_outcome": "After running equity quote, SELECT from resources WHERE resource_type='equity' returns rows keyed symbol_YYYYMMDD with correct symbol, lastPrice, deliveryToTradedQty, varMargin, extremeLossMargin, and metadata.preOpenMarket.IEP fields. delivery-spike returns spike signals after 2+ sessions."
+}

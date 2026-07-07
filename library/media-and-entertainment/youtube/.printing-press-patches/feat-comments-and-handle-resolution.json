@@ -1,0 +1,21 @@
+{
+  "schema_version": 2,
+  "id": "feat-comments-and-handle-resolution",
+  "applied_at": "2026-05-15",
+  "base_run_id": "20260515-050804",
+  "base_printing_press_version": "4.2.2",
+  "summary": "Add commentThreads typed endpoint, --for-handle flag on channels-list, novel videos-comments (top by likeCount), novel channel-uploads (resolves @handle -> uploads playlist -> recent uploads in one call), and opt-in cmd.Context() propagation through the HTTP client for novel commands.",
+  "reason": "The trimmed YouTube spec in this CLI did not include /youtube/v3/commentThreads, blocking the most common audience-signal use case ('what do people say about this video'). channels.list also wired the deprecated --for-username but not the modern --for-handle, forcing fuzzy search for any @handle resolution. The standard 'recent uploads from channel X' workflow required two API calls (channels.list -> contentDetails.relatedPlaylists.uploads, then playlistItems.list) which novel channel-uploads collapses. Greptile P2 (2026-05-15 PR #585) flagged that internal/client/client.go discarded cmd.Context(), so Ctrl+C and --timeout did not cancel in-flight Data API calls; opt-in WithContext lets novel commands honor cancellation while leaving generated typed endpoints unchanged (full ctx propagation through resolvePaginatedRead is a generator-side fix, not a per-CLI fix).",
+  "files": [
+    "spec.yaml",
+    "internal/client/client.go",
+    "internal/cli/youtube.go",
+    "internal/cli/youtube_channels-list.go",
+    "internal/cli/youtube_comment-threads-list.go",
+    "internal/cli/videos_comments.go",
+    "internal/cli/channel_uploads.go",
+    "internal/cli/search_bulk.go",
+    "internal/cli/videos_embed.go"
+  ],
+  "validated_outcome": "go build ./... and go vet ./... clean. Polish skill scorecard 77/100 (B). videos-comments returns top-10-by-likeCount JSON for any public video (verified against dQw4w9WgXcQ). channel-uploads @veritasium returns recent uploads in one call. channels-list --for-handle @veritasium resolves the channel without forUsername. search-bulk titles render apostrophes as ' instead of &#39;."
+}

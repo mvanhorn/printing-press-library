@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "advisor-fallback-distinct-from-recommendation",
+  "applied_at": "2026-05-29",
+  "base_run_id": "20260524-003533",
+  "base_printing_press_version": "4.19.0",
+  "summary": "Recommendation.Fallback picks the first live candidate that differs from the recommendation.",
+  "reason": "PR #805 review (advisor logic): fallback was hardcoded to live[1], which equals the recommendation once the tiebreaker promotes live[1] to winner (the len>=3 guard does not fire with exactly two live models), leaving a routing retry with no escape path.",
+  "files": [
+    "internal/advisor/advise.go",
+    "internal/advisor/advisor_test.go"
+  ],
+  "validated_outcome": "go test ./internal/advisor/ -run Fallback (TestAdviseFallbackDiffersFromRecommendedAfterTiebreak)"
+}

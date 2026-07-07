@@ -19,7 +19,7 @@ func newCustomersDataLinksCreateCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:         "create <customerId>",
 		Short:       "Creates a data link. The requesting Google Ads account name and account ID will be shared with the third party (such...",
-		Example:     "  google-ads-pp-cli customers_data_links create 550e8400-e29b-41d4-a716-446655440000",
+		Example:     "  google-ads-pp-cli customers-data-links create 550e8400-e29b-41d4-a716-446655440000",
 		Annotations: map[string]string{"pp:endpoint": "customers_data_links.create", "pp:method": "POST", "pp:path": "/v22/customers/{customerId}/dataLinks:create"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

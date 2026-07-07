@@ -1,0 +1,24 @@
+{
+  "reachability": { "mode": "standard_http", "needs_browser_capture": false, "needs_clearance_cookie": false },
+  "auth": { "type": "session_handshake", "note": "GET form page -> capture ApplicationGatewayAffinity* cookies + p_auth token (regex from HTML) -> reuse across POST/GET searches; refresh on 403" },
+  "endpoints": [
+    {
+      "name": "search",
+      "method": "POST",
+      "url": "https://www.giustizia-amministrativa.it/web/guest/dcsnprr",
+      "phase": "liferay action (p_p_lifecycle=1, javax.portlet.action=search)",
+      "response_format": "html",
+      "pagination": "GET same action URL with _cur=<page>&changePage=true (delta=20)",
+      "params": ["searchtextProvvedimenti","searchAllWords","searchAnyWords","searchNotWords","searchPhrase","TipoProvvedimentoItem","sedeProvvedimenti","numeroProvvedimenti","DataYearItem","DataYearItem2","numeroNrg","DataNrgItem","DataNrgItem2","pageSize","asSearchMode","isAdvancedSearch"]
+    },
+    {
+      "name": "document",
+      "method": "GET",
+      "url": "https://mdp.giustizia-amministrativa.it/visualizzah2/",
+      "response_format": "html",
+      "params": ["schema","nrg","nomeFile","subDir","nodeRef"],
+      "note": "full text of provvedimento; clean HTML -> convertible to markdown"
+    }
+  ],
+  "result_item_fields": ["idprovv","nrg","sede/schema","sezione","tipo","formato(html/pdf)","numeroProvvedimento","ecli","snippet","docUrl"]
+}

@@ -1,0 +1,15 @@
+{
+  "schema_version": 2,
+  "id": "transactions-retag-notes",
+  "applied_at": "2026-05-13",
+  "base_run_id": "20260513-094903",
+  "base_printing_press_version": "4.5.2",
+  "summary": "Allowed transactions retag to set notes while applying local-match bulk updates.",
+  "reason": "Agents were falling back to brittle raw sqlite and hand-built JSON payloads when a category reframing also needed notes.",
+  "files": [
+    "internal/cli/transactions_retag.go",
+    "internal/cli/transactions_retag_test.go",
+    "internal/cli/transcendence_helpers.go"
+  ],
+  "validated_outcome": "go test ./internal/cli passes, including retag payload and dry-run JSON coverage for notes."
+}

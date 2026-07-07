@@ -1,0 +1,105 @@
+{
+  "dir": "C:/Users/lukej/printing-press/.publish-repo-fred/library/other/fred",
+  "spec_path": "C:\\Users\\lukej\\printing-press\\.publish-repo-fred\\library\\other\\fred\\spec.yaml",
+  "spec_source": "bundled",
+  "verdict": "WARN",
+  "path_check": {
+    "tested": 0,
+    "valid": 0,
+    "valid_pct": 0,
+    "skipped": true,
+    "detail": "internal-yaml spec: paths validated at parse time"
+  },
+  "auth_check": {
+    "spec_scheme": "",
+    "generated_format": "unknown",
+    "match": true,
+    "detail": "no bot/bearer/basic scheme detected"
+  },
+  "browser_session_check": {
+    "required": false,
+    "pass": true,
+    "detail": "browser-session auth not required"
+  },
+  "oauth_scope_coverage_check": {
+    "checked": 0,
+    "covered": 0,
+    "skipped": true,
+    "detail": "no OAuth-scoped endpoints in spec"
+  },
+  "dead_flags": {
+    "total": 19,
+    "dead": 0
+  },
+  "dead_functions": {
+    "total": 69,
+    "dead": 1,
+    "items": [
+      "replacePathParam"
+    ]
+  },
+  "pipeline_check": {
+    "sync_calls_domain": true,
+    "search_calls_domain": true,
+    "domain_tables": 1,
+    "sync_file_emitted": true,
+    "sync_resources_present": true,
+    "detail": "sync uses domain-specific Upsert methods; search uses domain-specific Search methods; 1 domain tables found"
+  },
+  "example_check": {
+    "tested": 10,
+    "with_examples": 10,
+    "valid_examples": 10,
+    "detail": "10/10 commands have examples"
+  },
+  "wiring_check": {
+    "command_tree": {
+      "defined": 64,
+      "registered": 64
+    },
+    "config_consistency": {
+      "consistent": true
+    },
+    "workflow_completeness": {
+      "skipped": true,
+      "total_steps": 0,
+      "mapped_steps": 0,
+      "detail": "no workflow_verify.yaml found"
+    }
+  },
+  "novel_features_check": {
+    "planned": 0,
+    "found": 0,
+    "skipped": true
+  },
+  "mcp_surface_parity": {
+    "state": "runtime_walking",
+    "pass": true,
+    "detail": "MCP surface mirrors the Cobra tree at runtime"
+  },
+  "reimplementation_check": {
+    "checked": 0,
+    "exempted_via_store": 0,
+    "skipped": true
+  },
+  "source_client_check": {
+    "checked": 0,
+    "skipped": true
+  },
+  "print_json_filtered_check": {
+    "checked": 55
+  },
+  "test_presence": {
+    "checked": 0
+  },
+  "naming_check": {
+    "checked": 55
+  },
+  "sync_param_drop_check": {
+    "checked": 0,
+    "skipped": true
+  },
+  "issues": [
+    "1 dead helper functions found"
+  ]
+}

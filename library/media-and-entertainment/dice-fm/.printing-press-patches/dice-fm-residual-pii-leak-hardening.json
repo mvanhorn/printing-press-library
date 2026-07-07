@@ -1,0 +1,15 @@
+{
+  "schema_version": 2,
+  "id": "dice-fm-residual-pii-leak-hardening",
+  "applied_at": "2026-06-09",
+  "base_run_id": "20260511-193451",
+  "base_printing_press_version": "4.12.0",
+  "summary": "MCP pseudonymization must fail closed on non-JSON mirrored PII output, ignore inherited format overrides for mirrored PII commands, and redact direct identifier columns even when email/id token seeds are absent.",
+  "reason": "MCP clients can pass inherited csv/plain/quiet flags to mirrored commands, and DICE door/search/sql rows can contain only names or phones; without layered guards those default paths can emit raw identifiers into model context.",
+  "files": [
+    "internal/cli/helpers.go",
+    "internal/mcp/tools.go",
+    "internal/mcp/pseudonymize.go",
+    "internal/mcp/cobratree/shellout.go"
+  ]
+}

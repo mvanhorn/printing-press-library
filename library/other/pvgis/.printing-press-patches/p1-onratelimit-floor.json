@@ -1,0 +1,15 @@
+{
+  "schema_version": 2,
+  "id": "p1-onratelimit-floor",
+  "applied_at": "2026-05-18",
+  "base_run_id": "20260518-214920",
+  "base_printing_press_version": "4.8.0",
+  "summary": "Clamp the post-429 halved rate to `l.floor` (the user-configured starting rate) instead of the hard-coded 0.5.",
+  "reason": "Greptile review (P1) flagged that for `--rate-limit < 0.5`, `OnRateLimit` divided the rate by 2 and then clamped UP to 0.5 — making a 429 *increase* the rate above the user's intended ceiling. Using `l.floor` preserves user intent: a 429 can never push the rate above where it started. Required updating two unit tests in `cliutil_test.go` that encoded the old buggy semantics (`TestAdaptiveLimiter_HalvesOnRateLimit` and renamed `TestAdaptiveLimiter_FloorsAtUserConfiguredFloor`). Originally deferred to upstream; applied locally for the same reason as the TOCTOU fix above.",
+  "files": [
+    "internal/cliutil/ratelimit.go",
+    "internal/cliutil/cliutil_test.go"
+  ],
+  "validated_outcome": "Updated tests pass; `go test ./...` clean across all packages.",
+  "upstream_issue": "TBD — same generator-template fix as p2-toctou-window."
+}

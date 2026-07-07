@@ -19,7 +19,7 @@ func newCustomersCampaignDraftsPromoteCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:         "promote <campaignDraft>",
 		Short:       "Promotes the changes in a draft back to the base campaign. This method returns a Long Running Operation (LRO)...",
-		Example:     "  google-ads-pp-cli customers_campaign_drafts promote example-value",
+		Example:     "  google-ads-pp-cli customers-campaign-drafts promote example-value",
 		Annotations: map[string]string{"pp:endpoint": "customers_campaign_drafts.promote", "pp:method": "POST", "pp:path": "/v22/{campaignDraft}:promote"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

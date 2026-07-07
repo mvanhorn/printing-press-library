@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "surface-jsoncode-errors",
+  "applied_at": "2026-06-22",
+  "base_run_id": "20260622-180206",
+  "base_printing_press_version": "4.25.0",
+  "summary": "Client surfaces ANY in-body jsonCode >= 400 (returned with HTTP 200) as an error — 407 session-expired, 400 bad policyID, 403 permission, 666 referer, etc.",
+  "reason": "Expensify carries the real status in jsonCode, not the HTTP status; a 2xx HTTP alone is not success. Surfacing only 407 left mutating commands (quick/from-line/bulk/create) printing a false 'Created expense…' when the API rejected the request. Fixed at the client layer so every command benefits.",
+  "files": [
+    "internal/client/client.go",
+    "internal/client/expensify_request.go"
+  ],
+  "validated_outcome": "verify mock (no jsonCode) still PASS 27/27; live 407 surfaces as a clear re-auth error."
+}

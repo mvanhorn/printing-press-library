@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "id": "billable-pending-range-filter-order",
+  "applied_at": "2026-05-24",
+  "base_run_id": "20260520-224501",
+  "base_printing_press_version": "4.9.0",
+  "summary": "billable pending: apply range/workspace filters before counting locked entries so lockedSkipped reflects only the requested range.",
+  "reason": "Greptile pass-2 P1 (logic). The lockedSkipped counter incremented inside the billable/locked continue branch, which ran before the date-range and workspace filters, so 'last-month' and per-workspace runs reported the locked-entry count from the entire local store.",
+  "files": [
+    "internal/cli/billable.go"
+  ]
+}

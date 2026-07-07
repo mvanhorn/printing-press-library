@@ -1,0 +1,15 @@
+{
+  "schema_version": 2,
+  "id": "basic-auth-set-token-pair",
+  "applied_at": "2026-06-22",
+  "base_run_id": "20260622-071511",
+  "base_printing_press_version": "4.24.0",
+  "summary": "Persist both Basic auth credential fields when users run `auth set-token` so file-backed authentication produces an Authorization header.",
+  "reason": "Amplitude Basic auth requires an API key and secret key. Saving only one value leaves the generated `AuthHeader()` path empty after reload, so users who follow CLI setup instructions remain unauthenticated.",
+  "files": [
+    "internal/cli/auth.go",
+    "internal/config/config.go",
+    "internal/config/config_test.go"
+  ],
+  "validated_outcome": "`go test ./...`, `cli-printing-press publish validate`, `verify-skill`, and `verify-publish-package` pass with a regression test covering the persisted Basic auth pair."
+}

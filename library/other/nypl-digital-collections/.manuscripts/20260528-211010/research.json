@@ -1,0 +1,30 @@
+{
+  "schema_version": 1,
+  "api_name": "nypl-digital-collections",
+  "run_id": "20260528-211010",
+  "status": "pass",
+  "summary": "Generated and curated a NYPL Digital Collections CLI with story discovery, plan execution, workspaces, and dossier workflows.",
+  "source": "https://api.repo.nypl.org/",
+  "novel_features": [
+    {
+      "name": "Story discovery plans",
+      "command": "stories discover",
+      "description": "Expand a seed person or topic into NYPL-friendly narrative clusters, related characters, and archive search queries."
+    },
+    {
+      "name": "Research plan execution",
+      "command": "search run-plan",
+      "description": "Execute or preview story discovery plans against NYPL item search with public-domain filtering and bounded per-query limits."
+    },
+    {
+      "name": "Local research workspaces",
+      "command": "workspace",
+      "description": "Save search runs and deduped evidence items into local reusable research workspaces."
+    },
+    {
+      "name": "Story dossiers",
+      "command": "stories dossier",
+      "description": "Emit Markdown or JSON research dossiers combining narrative clusters, related figures, search prompts, and ranked item candidates."
+    }
+  ]
+}

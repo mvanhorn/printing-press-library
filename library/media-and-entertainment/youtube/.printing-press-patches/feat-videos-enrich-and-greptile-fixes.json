@@ -1,0 +1,22 @@
+{
+  "schema_version": 2,
+  "id": "feat-videos-enrich-and-greptile-fixes",
+  "applied_at": "2026-05-15",
+  "base_run_id": "20260515-050804",
+  "base_printing_press_version": "4.2.2",
+  "summary": "Add a third novel read-only command, videos-enrich (single-video analog of playlist-enrich: one call -> one video's metadata + transcript + description in the same enrichedVideo shape, --lang/--no-transcript), and resolve the three Greptile P2 findings on the playlist-enrich/videos-links commits.",
+  "reason": "playlist-enrich only handled whole playlists; the single-video path still required chaining videos-list + videos-transcript, so videos-enrich collapses that into one call by reusing fetchVideoMetadata and fetchTranscriptForVideo (no new payloads). Greptile P2 (PR #803): (1) resolveRedirect set http.Client.Timeout equal to the rctx context deadline, which was dead/misleading since both requests run under rctx via NewRequestWithContext; removed it. (2) parseVideoID accepted any final path segment, so /c/Name, /channel/UC..., /user/Name, @handle, and /playlist returned a bogus ID that reached videos.list and produced a confusing 'video X not found'; tightened to require an 11-char video-ID shape and to read a path segment only for known video URLs (youtu.be/, /embed/, /shorts/, /live/), returning '' otherwise so the caller emits a clear 'could not extract a video ID' error. (3) playlist-enrich reported totalItems as the scanned count, capping at the page window; now reads the true playlist length from playlistItems.list pageInfo.totalResults so startIndex+returned < totalItems is a valid has-more test.",
+  "files": [
+    "internal/cli/videos_enrich.go",
+    "internal/cli/videos_enrich_test.go",
+    "internal/cli/videos_links.go",
+    "internal/cli/playlist_enrich.go",
+    "internal/cli/playlist_enrich_test.go",
+    "internal/cli/youtube.go"
+  ],
+  "validated_outcome": "go build ./..., go vet ./..., go test ./..., and gofmt clean on the youtube module. Added 7 parseVideoID regression cases (channel/playlist/user/@handle URLs and bad-length bare tokens all -> '') and a new videos_enrich_test.go fakeAPIGetter suite covering fetchVideoMetadata field mapping, HTML-entity unescaping, thumbnail priority (high>medium>default), and the missing-video case. videos-enrich live-verified against dQw4w9WgXcQ (metadata + 458-word transcript + 332-word description in one call; --no-transcript drops the transcript). All 5 PR CI checks green (Verify, Validate SKILL.md, Govulncheck, Greptile Review, Greptile policy gate).",
+  "findings_addressed": [
+    "F3"
+  ],
+  "patch_count": 1
+}

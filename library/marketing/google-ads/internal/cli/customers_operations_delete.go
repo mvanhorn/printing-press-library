@@ -16,7 +16,7 @@ func newCustomersOperationsDeleteCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:         "delete <name>",
 		Short:       "Deletes a long-running operation. This method indicates that the client is no longer interested in the operation...",
-		Example:     "  google-ads-pp-cli customers_operations delete example-resource",
+		Example:     "  google-ads-pp-cli customers-operations delete example-resource",
 		Annotations: map[string]string{"pp:endpoint": "customers_operations.delete", "pp:method": "DELETE", "pp:path": "/v22/{name}"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

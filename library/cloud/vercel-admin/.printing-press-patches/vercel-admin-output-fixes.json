@@ -1,0 +1,21 @@
+{
+  "id": "vercel-admin-output-fixes",
+  "title": "Patch Vercel generated output for reserved names and operator briefs",
+  "reason": "Vercel's OpenAPI surface contains a command named test, a child resource named resources, and a response field named data. Those collide with Go test-file naming and the generated SQLite generic resources/data columns. This patch also adds the approved read-only ops brief commands and hardens their partial-failure behavior.",
+  "files": [
+    "internal/cli/drains_test_cmd.go",
+    "internal/cli/ops.go",
+    "internal/cli/ops_test.go",
+    "internal/cli/root.go",
+    "internal/store/store.go",
+    "internal/store/schema_version_test.go",
+    "internal/store/upsert_batch_test.go",
+    ".printing-press.json",
+    "AGENTS.md"
+  ],
+  "verification": [
+    "go test ./...",
+    "go vet ./...",
+    "go build ./..."
+  ]
+}

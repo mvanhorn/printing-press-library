@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "cost-package",
+  "applied_at": "2026-05-18",
+  "base_run_id": "20260518-132617",
+  "base_printing_press_version": "4.8.0",
+  "summary": "New internal/cost package: per-run USD cost estimation (compute units + RAM-GB-hours) plus p50/p90 projection from local run history and a group-by ledger rollup. Powers the `cost report` command, `run`'s pre-flight cost projection, `run --max-cost` budget enforcement, and `ab run`'s cost-per-novel-item judge.",
+  "rationale": "Apify bills in compute units + RAM + storage + transfer + PPE; the dashboard shows monthly aggregates and the API exposes raw numbers with no per-run rollup. Cost surprise is the most-cited Apify complaint.",
+  "files": [
+    "internal/cost/cost.go"
+  ],
+  "upstream_issue": ""
+}

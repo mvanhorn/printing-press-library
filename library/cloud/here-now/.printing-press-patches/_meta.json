@@ -1,0 +1,30 @@
+{
+  "schema_version": 2,
+  "upstream_tracking": [
+    {
+      "issue": "Reserved-name collision: an API resource named 'profile' hard-fails generation (reserved template) instead of auto-suffixing (compare: 'analytics'/'auth' auto-rename to here-now-analytics/here-now-auth). here.now's spec needed x-pp-resource=profile_resource by hand.",
+      "status": "to-file-in-retro",
+      "affected_cli": "library/cloud/here-now"
+    },
+    {
+      "issue": "x-pp-resource values containing an underscore leak the underscore into generated Example strings while Cobra normalizes the command name to hyphenated form, producing dogfood 'missing runnable example' happy_path failures. Generator should hyphenate Example command paths to match the normalized command name, or reject underscore x-pp-resource values.",
+      "status": "to-file-in-retro",
+      "affected_cli": "library/cloud/here-now"
+    },
+    {
+      "issue": "Generator scaffolds novel features but mis-parents them: drive sync/diff registered under a new singular 'drive' group and sites stale / publish resume at top level instead of under their resource parents.",
+      "status": "to-file-in-retro",
+      "affected_cli": "library/cloud/here-now"
+    },
+    {
+      "issue": "Dependent-resource typed upsert (upsertFilesTx/upsertDataTx) rolls back on the parent-id NOT NULL constraint when sync injects parent_id instead of drives_id/publishes_id (TestUpsertBatch_Sets{Files,Data}ParentID). Generator template bug in internal/store/store.go.",
+      "status": "to-file-in-retro",
+      "affected_cli": "library/cloud/here-now"
+    },
+    {
+      "issue": "generator de-slugs collision-renamed resource names into space-separated fallback descriptions, mangling brand names that contain non-alphanumerics (here.now -> 'here now'). Should use the narrative display_name, or skip de-slugging for renamed resources.",
+      "status": "to-file-in-retro",
+      "affected_cli": "library/cloud/here-now"
+    }
+  ]
+}

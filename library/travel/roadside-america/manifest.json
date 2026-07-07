@@ -1,0 +1,27 @@
+{
+  "manifest_version": "0.3",
+  "name": "roadside-america-pp-mcp",
+  "display_name": "Roadside America",
+  "version": "4.22.1",
+  "description": "Every offbeat roadside attraction on RoadsideAmerica.com — with a local SQLite cache, offline search, and superlative categories no other tool offers.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/roadside-america-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/roadside-america-pp-mcp",
+      "args": []
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

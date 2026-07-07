@@ -1,0 +1,52 @@
+{
+  "api_name": "xai",
+  "display_name": "xAI",
+  "auth": {
+    "canonical_env_var": "XAI_API_KEY"
+  },
+  "novel_features": [
+    {
+      "name": "Authenticated model catalog",
+      "command": "models handle-list-request",
+      "description": "List the xAI models available to the authenticated API key with pricing and ownership metadata.",
+      "rationale": "Agents can inspect the live model catalog before choosing a model instead of relying on stale hardcoded model names.",
+      "example": "xai-pp-cli models handle-list-request --json --select id,owned_by",
+      "why_it_matters": "Use this before generation or embedding workflows when an agent needs to choose a currently available xAI model.",
+      "group": "Live API inspection"
+    },
+    {
+      "name": "Credential capability audit",
+      "command": "api-key",
+      "description": "Inspect the authenticated xAI API key status and permissions without exposing the secret value.",
+      "rationale": "The CLI can confirm whether a key is blocked, disabled, or permission-limited before an agent attempts expensive calls.",
+      "example": "xai-pp-cli api-key --json --select api_key_blocked,api_key_disabled,acls",
+      "why_it_matters": "Use this when a workflow fails with authorization errors and the agent needs a safe credential-health check.",
+      "group": "Live API inspection"
+    },
+    {
+      "name": "Agent raw endpoint browser",
+      "command": "api",
+      "description": "Browse the complete generated xAI endpoint surface by interface for agent planning and fallback calls.",
+      "rationale": "Agents get a discoverable route to every generated endpoint, including less common image, video, skills, and response operations.",
+      "example": "xai-pp-cli api",
+      "why_it_matters": "Use this when a task needs an endpoint that is not obvious from the top-level command list.",
+      "group": "Agent readiness"
+    }
+  ],
+  "narrative": {
+    "display_name": "xAI",
+    "headline": "OpenAI-compatible xAI operations from a local, agent-ready CLI.",
+    "value_prop": "Use xAI's REST API from scripts and agents with JSON-first output, local cache support, and MCP tooling. The CLI keeps the official bearer-token contract and exposes read-only inspection commands for model and credential health checks.",
+    "quickstart": [
+      {"command": "xai-pp-cli doctor", "comment": "Verify configuration and API reachability."},
+      {"command": "xai-pp-cli models handle-list-request --json --select id,owned_by", "comment": "Inspect available models before choosing one."},
+      {"command": "xai-pp-cli api-key --json --select api_key_blocked,api_key_disabled,acls", "comment": "Confirm credential status without exposing the secret."}
+    ],
+    "troubleshoots": [
+      {"symptom": "doctor reports missing credentials", "fix": "Set XAI_API_KEY or run xai-pp-cli auth set-token <token>."},
+      {"symptom": "a model command returns an authorization error", "fix": "Run xai-pp-cli api-key --json to check whether the key is blocked, disabled, or permission-limited."}
+    ],
+    "when_to_use": "Use this CLI when an agent or script needs direct access to xAI's OpenAI-compatible REST endpoints, especially model discovery, embeddings, responses, files, images, videos, and credential diagnostics.",
+    "anti_triggers": ["Do not use this CLI to synthesize model lists locally; call the live model endpoints.", "Do not use mutating generation or delete commands in verification unless explicitly approved."]
+  }
+}

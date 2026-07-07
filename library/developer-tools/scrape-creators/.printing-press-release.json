@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "slug": "scrape-creators",
+  "cli_name": "scrape-creators-pp-cli",
+  "version": "2026.6.3",
+  "released_at": "2026-06-30T02:33:04Z",
+  "source_commit": "4ffe11c721d403474099c95793bf94837176b075",
+  "printing_press_version": "4.27.0",
+  "run_id": "20260629-130731-9b35150a",
+  "changes": [
+    {
+      "title": "feat(scrape-creators): add scrape-creators",
+      "pr": 1408,
+      "url": "https://github.com/mvanhorn/printing-press-library/pull/1408",
+      "commit": "4ffe11c721d403474099c95793bf94837176b075"
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "id": "close-refresh-expenses-before-bundle",
+  "applied_at": "2026-05-23",
+  "base_run_id": "20260523-163843",
+  "base_printing_press_version": "4.12.0",
+  "summary": "close ALWAYS calls forceRefreshExpenses before reading the local store; dead 1h threshold constant removed.",
+  "reason": "Three-iteration patch (Greptile flagged across three review rounds): (1) original commit added ensureFreshForResources for the default path but routed --no-cache through it with dataSource=live, which short-circuits at the data-source guard. (2) second iteration extracted forceRefreshExpenses() so --no-cache actually triggered runAutoRefresh directly, but kept a closeStalenessThreshold constant that was never wired (ensureFreshForResources still used the global 168h policy, so the default-path back-to-back close double-bundled). (3) final iteration: close always calls forceRefreshExpenses unconditionally; --no-cache is retained as a no-op flag for back-compat but routes through the same path. Dead constant removed. Trade-off: one extra GET per monthly close run, which is negligible compared to the data-corruption mode it prevents.",
+  "files": [
+    "internal/cli/zoho_close.go"
+  ]
+}

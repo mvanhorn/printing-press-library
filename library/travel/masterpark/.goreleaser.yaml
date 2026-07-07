@@ -1,0 +1,36 @@
+version: 2
+project_name: masterpark-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: masterpark-pp-cli
+    main: ./cmd/masterpark-pp-cli
+    binary: masterpark-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X github.com/mvanhorn/printing-press-library/library/travel/masterpark/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: masterpark-pp-cli
+    repository:
+      owner: matt-van-horn
+      name: homebrew-tap
+    homepage: "https://github.com/mvanhorn/printing-press-library"
+    description: "Unofficial CLI for MasterPark airport parking locations, quotes, profile sync, and safe gated reservation booking."
+    install: |
+      bin.install "masterpark-pp-cli"

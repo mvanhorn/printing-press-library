@@ -1,0 +1,58 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-06-14T23:13:54.726688Z",
+  "printing_press_version": "4.24.0",
+  "api_name": "judge-me",
+  "display_name": "Judge Me",
+  "cli_name": "judge-me-pp-cli",
+  "creator": {
+    "handle": "cathrynlavery",
+    "name": "Cathryn Lavery"
+  },
+  "owner": "cathrynlavery",
+  "owner_name": "Cathryn Lavery",
+  "printer": "cathrynlavery",
+  "printer_name": "Cathryn Lavery",
+  "spec_url": "https://judge.me/api/docs.yaml",
+  "run_id": "20260614-231354",
+  "category": "marketing",
+  "description": "Our REST API lets you access to resources and perform actions on behalf of a store.",
+  "mcp_binary": "judge-me-pp-mcp",
+  "mcp_tool_count": 34,
+  "mcp_public_tool_count": 1,
+  "mcp_ready": "full",
+  "auth_type": "api_key",
+  "auth_env_vars": [
+    "JUDGE_ME_API_TOKEN",
+    "JUDGE_ME_PRIVATE_APIKEY",
+    "JUDGE_ME_SHOP_DOMAIN"
+  ],
+  "auth_key_url": "https://help.judge.me/en/articles/8278390-integrating-with-judge-me",
+  "novel_features": [
+    {
+      "name": "Reputation summary",
+      "command": "reputation summary",
+      "description": "One read-only dashboard for store-level review count, rating, shop metadata, settings, and local review stats."
+    },
+    {
+      "name": "Product reputation hotspots",
+      "command": "reputation products",
+      "description": "Ranks synced products by low-rating rate, average rating, verified rate, and newest review recency."
+    },
+    {
+      "name": "Moderation attention queue",
+      "command": "reputation moderation-queue",
+      "description": "Surfaces low-rated, hidden, spam-marked, or not-yet-curated synced reviews for human attention."
+    },
+    {
+      "name": "Trust settings audit",
+      "command": "reputation settings-audit",
+      "description": "Audits Judge.me settings that affect trust presentation, including autopublish, picture reviews, star color, and admin email presence when returned."
+    },
+    {
+      "name": "Product evidence view",
+      "command": "reputation product",
+      "description": "Fetches product-level count/histogram evidence when product ID is known and widget availability/byte evidence for handles or external IDs."
+    }
+  ]
+}

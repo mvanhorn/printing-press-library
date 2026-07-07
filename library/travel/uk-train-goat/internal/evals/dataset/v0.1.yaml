@@ -1,0 +1,89 @@
+# uk-train-goat agent eval dataset v0.1.
+#
+# Despite the .yaml extension, v0.1 ships TOML-shape fixtures (the loader
+# uses go-toml/v2 to avoid adding a YAML dep). The parser keeps the
+# schema described in the design spec (id / prompt / expected / rubric);
+# v0.2 may switch to true YAML once gopkg.in/yaml.v3 is added.
+#
+# Each fixture asserts: given <prompt>, an LLM agent should pick the
+# typed MCP tool named <expected.tool> with arguments matching
+# <expected.args_subset>. v0.1 grades these structurally (the tool must
+# exist in the CLI command tree); v0.2 will run the model under test
+# and compare its actual tool call.
+
+[[fixtures]]
+id = "nl-001"
+prompt = "next train from Paddington to Reading"
+rubric = ["tool_name_match", "args_subset_match", "exit_code_match"]
+
+  [fixtures.expected]
+  tool = "journey"
+  exit_code = 0
+
+    [fixtures.expected.args_subset]
+    from = "PAD"
+    to = "RDG"
+
+[[fixtures]]
+id = "nl-002"
+prompt = "what's leaving King's Cross in the next 30 minutes"
+rubric = ["tool_name_match", "args_subset_match", "exit_code_match"]
+
+  [fixtures.expected]
+  tool = "board"
+  exit_code = 0
+
+    [fixtures.expected.args_subset]
+    crs = "KGX"
+
+[[fixtures]]
+id = "nl-003"
+prompt = "is the 18:32 to Manchester Piccadilly running on time"
+rubric = ["tool_name_match", "exit_code_match"]
+
+  [fixtures.expected]
+  tool = "service"
+  exit_code = 0
+
+[[fixtures]]
+id = "nl-004"
+prompt = "arrivals at Edinburgh from London King's Cross"
+rubric = ["tool_name_match", "args_subset_match", "exit_code_match"]
+
+  [fixtures.expected]
+  tool = "arrivals"
+  exit_code = 0
+
+    [fixtures.expected.args_subset]
+    crs = "EDB"
+    from = "KGX"
+
+[[fixtures]]
+id = "nl-005"
+prompt = "find the CRS code for paddington station"
+rubric = ["tool_name_match", "args_subset_match", "exit_code_match"]
+
+  [fixtures.expected]
+  tool = "stations"
+  exit_code = 0
+
+    [fixtures.expected.args_subset]
+    search = "paddington"
+
+[[fixtures]]
+id = "nl-006"
+prompt = "run my saved morning commute"
+rubric = ["tool_name_match", "args_subset_match", "exit_code_match"]
+
+  [fixtures.expected]
+  tool = "go"
+  exit_code = 0
+
+[[fixtures]]
+id = "nl-007"
+prompt = "why is service L8rW0bMonHt3K4IengVPQw== late"
+rubric = ["tool_name_match", "exit_code_match"]
+
+  [fixtures.expected]
+  tool = "why"
+  exit_code = 0

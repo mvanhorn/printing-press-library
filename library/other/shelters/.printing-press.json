@@ -1,0 +1,54 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-06-17T01:56:07.116251Z",
+  "printing_press_version": "4.24.0",
+  "api_name": "shelters",
+  "display_name": "Shelters",
+  "cli_name": "shelters-pp-cli",
+  "creator": {
+    "name": "Abe Diaz (@abe238)",
+    "handle": "abe238"
+  },
+  "owner": "abe-diaz-abe238",
+  "printer_name": "Abe Diaz (@abe238)",
+  "spec_path": "shelters.spec.yaml",
+  "spec_format": "internal",
+  "spec_checksum": "sha256:4e0bf899ad31d57296c6666858744b72d5048306c8b1bb0bec626c4a406a1bf7",
+  "run_id": "20260617-015607",
+  "category": "other",
+  "description": "Credible, real-time disaster shelter information for AI agents and people",
+  "mcp_binary": "shelters-pp-mcp",
+  "mcp_tool_count": 1,
+  "mcp_public_tool_count": 1,
+  "mcp_ready": "full",
+  "api_version": "0.1.0",
+  "auth_type": "none",
+  "novel_features": [
+    {
+      "name": "Closest open shelter, including pet-friendly",
+      "command": "near",
+      "description": "Ranks open shelters by straight-line distance from a lat,lon, ZIP, or street address; geocodes shelters that are missing coordinates and reports any it cannot locate rather than dropping them."
+    },
+    {
+      "name": "Honest capacity, never a fabricated denominator",
+      "command": "capacity",
+      "description": "Computes utilization only where both a population and a capacity are reported, labeling the denominator (evacuation vs post-impact), and surfaces shelters reported FULL without asserting it as ground truth."
+    },
+    {
+      "name": "One-call situational briefing",
+      "command": "brief",
+      "description": "One command returns the open count, a breakdown by state, pet-friendly and accessible counts, and the capacity picture, with an optional human briefing."
+    },
+    {
+      "name": "Filtered open-shelter listing",
+      "command": "shelters",
+      "description": "Open shelters flattened from the feed and filterable by state, pets, ADA, wheelchair, managing org, and status."
+    },
+    {
+      "name": "Flattened shelter detail by stable id",
+      "command": "shelter",
+      "description": "Full detail for one shelter joined on the stable shelter_id rather than the churning objectid, with unreported fields as explicit null."
+    }
+  ],
+  "printer": "abe238"
+}

@@ -1,0 +1,18 @@
+{
+  "schema_version": 2,
+  "id": "safari-history-archive-vacuum-guard-clobber-force",
+  "applied_at": "2026-05-24T00:00:00Z",
+  "base_run_id": "20260523-231334",
+  "base_printing_press_version": "4.13.0",
+  "summary": "Guarded archive vacuum against creating an empty store, and added a --force guard to archive clobber matching archive reset.",
+  "reason": "Greptile review: VacuumArchive silently created an empty archive.db (making the CLI's os.IsNotExist guard dead code), and the destructive archive clobber ran without the --force confirmation that the structurally-identical archive reset requires.",
+  "files": [
+    "internal/store/archive.go",
+    "internal/cli/archive.go",
+    "internal/store/archive_test.go",
+    "internal/cli/archive_cmd_test.go",
+    "README.md",
+    "SKILL.md"
+  ],
+  "validated_outcome": "GOFLAGS=-mod=readonly go build ./..., go vet ./..., go test ./..., gofmt -l, and verify_skill.py all passed; new tests mutation-proven (vacuum-on-absent returns error + no file created; clobber-without-force returns ErrUsage + rows survive). Peer-gated (code+test), no Blocker/Major."
+}

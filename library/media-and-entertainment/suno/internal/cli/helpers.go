@@ -1752,7 +1752,11 @@ func wrapWithProvenance(data json.RawMessage, prov DataProvenance) (json.RawMess
 	}
 	envelope := map[string]any{
 		"results": results,
-		"meta":    meta,
+		// data mirrors results as a stable top-level alias so JSON consumers can
+		// read .data uniformly across every command. Non-breaking: "results"
+		// stays for existing consumers.
+		"data": results,
+		"meta": meta,
 	}
 	return json.Marshal(envelope)
 }

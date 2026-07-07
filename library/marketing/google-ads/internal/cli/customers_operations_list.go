@@ -20,7 +20,7 @@ func newCustomersOperationsListCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:         "list <name>",
 		Short:       "Lists operations that match the specified filter in the request. If the server doesn't support this method, it...",
-		Example:     "  google-ads-pp-cli customers_operations list example-resource",
+		Example:     "  google-ads-pp-cli customers-operations list example-resource",
 		Annotations: map[string]string{"pp:endpoint": "customers_operations.list", "pp:method": "GET", "pp:path": "/v22/{name}", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

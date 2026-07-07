@@ -1,0 +1,19 @@
+{
+  "schema_version": 2,
+  "id": "auth-interstitial-detection",
+  "applied_at": "2026-06-16",
+  "base_run_id": "20260510-105710",
+  "base_printing_press_version": "4.2.2",
+  "summary": "A logged-out/expired Amazon buyer session is answered with HTTP 200 and a sign-in/claim/challenge page, so session validity must be judged by response content, not status code alone.",
+  "reason": "Amazon serves the sign-in form, the /ax/claim re-auth interstitial, CAPTCHA, and identity-challenge pages all with HTTP 200. Browser-session validation passed on any 2xx, and orders list / spend silently parsed zero order cards out of those interstitials and returned []. Content detection (title markers, sign-in form, /ax/claim, captcha/cvf markers) now fails validation and the order-list walk with a re-auth hint. No final-redirect URL is exposed by the HTTP client, so content detection is the only available signal.",
+  "files": [
+    "internal/parser/auth_interstitial.go",
+    "internal/parser/auth_interstitial_test.go",
+    "internal/client/client.go",
+    "internal/cli/auth.go",
+    "internal/cli/orders_list.go",
+    "internal/cli/novel_helpers.go",
+    "internal/cli/auth_interstitial_cli_test.go"
+  ],
+  "validated_outcome": "go build/vet/test ./... pass from this CLI directory. New tests confirm DetectAuthInterstitial flags Amazon Sign-In/ax-claim/captcha/cvf pages while leaving authenticated 'Your Orders' HTML (and INR order parsing) intact, and fetchOrderListPages surfaces a sign-in/interstitial error instead of an empty spend rollup when a sign-in page is served with HTTP 200."
+}

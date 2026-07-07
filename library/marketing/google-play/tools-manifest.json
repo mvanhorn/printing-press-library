@@ -1,0 +1,21 @@
+{
+  "api_name": "google-play",
+  "base_url": "https://play.google.com",
+  "description": "Every public Google Play surface in one Go binary, plus a local SQLite mirror for rank history and listing change detection that no other Play tool keeps.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "none"
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "categories_list",
+      "description": "List Google Play category slugs (GAME_ACTION, GAME_PUZZLE, ...) scraped from the store nav.",
+      "method": "GET",
+      "path": "/store/apps",
+      "no_auth": true,
+      "params": []
+    }
+  ]
+}

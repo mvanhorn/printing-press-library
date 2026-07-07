@@ -1,0 +1,15 @@
+{
+  "schema_version": 2,
+  "id": "suno-surface-core-commands",
+  "applied_at": "2026-05-29",
+  "base_run_id": "20260528-222057",
+  "base_printing_press_version": "4.14.0",
+  "summary": "Unhid the generate, clips, and project (workspace) command groups so the CLI's primary capabilities — create a track, manage songs including WAV export, and organize workspaces — appear in top-level --help; added a 'workspace' alias for 'project'.",
+  "reason": "The generated parent commands were Hidden:true, leaving the core use cases (generation, clip management, workspaces) undiscoverable from `suno-pp-cli --help`.",
+  "files": [
+    "internal/cli/generate.go",
+    "internal/cli/clips.go",
+    "internal/cli/workspace.go"
+  ],
+  "validated_outcome": "`suno-pp-cli --help` lists generate, clips, and project; `suno-pp-cli workspace --help` resolves via alias; full live dogfood passes."
+}

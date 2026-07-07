@@ -1,0 +1,19 @@
+{
+  "schema_version": 2,
+  "id": "sync-results-report",
+  "applied_at": "2026-05-28",
+  "base_run_id": "20260528-084148",
+  "base_printing_press_version": "4.19.0",
+  "summary": "Sync the headline /results-report endpoint (and store /recommendations) as single envelopes under a fixed key; results-report replaces the ID-less /results list in the default sync set.",
+  "reason": "loadAllResults reads resource_type='results-report' but sync only fetched /results (ID-less, stored 0 rows), so every transcend command (PDF, trends, goat, oscillating, recs) had no data. This is retro item #3, which was believed worked-around but was live and unfixed.",
+  "files": [
+    "internal/cli/sync.go"
+  ],
+  "validated_outcome": "Live full sync stores results-report=1 and recommendations=1; PDF/trends/recs now return real data.",
+  "deferred_to_upstream": [
+    {
+      "feature": "Single-envelope (non-paginated, ID-less) resources should be sync-able without a per-CLI special-case",
+      "reason": "The generic pagination/ID-extraction path drops single-object endpoints like results-report and recommendations; the generator should recognize the spec's report endpoint as the sync target."
+    }
+  ]
+}

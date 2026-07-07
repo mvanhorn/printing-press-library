@@ -1,0 +1,16 @@
+{
+  "schema_version": 1,
+  "api_name": "function-health",
+  "run_id": "20260528-084148",
+  "status": "pass",
+  "level": "quick",
+  "matrix_size": 6,
+  "tests_passed": 6,
+  "tests_failed": 0,
+  "auth_context": {
+    "type": "bearer_token",
+    "api_key_available": true,
+    "browser_session_available": false
+  },
+  "notes": "Canonical Quick Check (all 6 passed live against a real Function Health account, real Firebase idToken, real API calls): (1) doctor — auth valid + API reachable; (2) sync --full — pulled 742 biomarkers + 29 categories + 1 rec + 1 schedule; (3) biomarkers list / categories list — returned real data; (4) goat / biomarker trend / category trend (transcendence sample) produced relevant output from synced data; (5) goat --json produced valid JSON; (6) export pdf-for-doctor wrote 20K PDF with name + DOB + 128 biomarkers + 3 rounds. Additional bonus tests on 7 of 8 novel features all passed; 1 documented gap (recommendations stale field-name mismatch) and 1 inconclusive (biomarkers oscillating may be correct empty result) — both fix-in-polish-candidates, neither blocks ship."
+}

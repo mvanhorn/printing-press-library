@@ -16,6 +16,9 @@ import (
 
 func newArticlesUpdateContentCmd(flags *rootFlags) *cobra.Command {
 	var flagData string
+	var articleID string
+	var markdownPath string
+	var contentStatePath string
 	var bodyFeatures string
 	var bodyQueryId string
 	var bodyVariables string
@@ -27,6 +30,38 @@ func newArticlesUpdateContentCmd(flags *rootFlags) *cobra.Command {
 		Example:     "  x-twitter-pp-cli articles update-content --data example-value --query-id 550e8400-e29b-41d4-a716-446655440000",
 		Annotations: map[string]string{"pp:endpoint": "articles.update_content", "pp:method": "POST", "pp:path": "/i/api/graphql/M7N2FrPrlOmu-YrVIBxFnQ/ArticleEntityUpdateContent"},
 		RunE: func(cmd *cobra.Command, args []string) error {
+			friendly := cmd.Flags().Changed("id") || cmd.Flags().Changed("md") || cmd.Flags().Changed("content-state")
+			if friendly {
+				if cmd.Flags().Changed("md") && cmd.Flags().Changed("content-state") {
+					return usageErr(fmt.Errorf("use only one of --md or --content-state"))
+				}
+				var cs draftContentState
+				switch {
+				case cmd.Flags().Changed("md"):
+					data, err := os.ReadFile(markdownPath)
+					if err != nil {
+						return fmt.Errorf("read %s: %w", markdownPath, err)
+					}
+					parsed, err := ParseArticleMarkdown(string(data))
+					if err != nil {
+						return err
+					}
+					cs = MarkdownBodyToDraftJS(parsed.Body)
+				case cmd.Flags().Changed("content-state"):
+					var err error
+					cs, err = readArticleContentStateFile(contentStatePath)
+					if err != nil {
+						return err
+					}
+				default:
+					return usageErr(fmt.Errorf("one of --md or --content-state is required with --id"))
+				}
+				body, err := articleUpdateContentRequestBody(articleID, cs)
+				if err != nil {
+					return err
+				}
+				return runArticleGraphQLMutation(cmd, flags, "ArticleEntityUpdateContent", body)
+			}
 			if !cmd.Flags().Changed("data") && !flags.dryRun {
 				return fmt.Errorf("required flag \"%s\" not set", "data")
 			}
@@ -146,6 +181,9 @@ func newArticlesUpdateContentCmd(flags *rootFlags) *cobra.Command {
 		},
 	}
 	cmd.Flags().StringVar(&flagData, "data", "", "")
+	cmd.Flags().StringVar(&articleID, "id", "", "Article rest_id to update")
+	cmd.Flags().StringVar(&markdownPath, "md", "", "Markdown file to convert and send as the replacement content_state")
+	cmd.Flags().StringVar(&contentStatePath, "content-state", "", "Draft.js content_state JSON file to send as the replacement body")
 	cmd.Flags().StringVar(&bodyFeatures, "features", "", "")
 	cmd.Flags().StringVar(&bodyQueryId, "query-id", "", "")
 	cmd.Flags().StringVar(&bodyVariables, "variables", "", "")

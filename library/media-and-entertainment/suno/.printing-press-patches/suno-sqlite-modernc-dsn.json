@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "suno-sqlite-modernc-dsn",
+  "applied_at": "2026-05-29",
+  "base_run_id": "20260528-222057",
+  "base_printing_press_version": "4.14.0",
+  "summary": "Switched both store Open paths from mattn-style _journal_mode/_busy_timeout/_foreign_keys underscore DSN params to modernc's _pragma=name(value) form (file: prefix).",
+  "reason": "modernc.org/sqlite silently ignores the underscore params (verified: journal_mode stayed 'delete', foreign_keys 0, busy_timeout 0), so WAL, busy timeout, and FK enforcement were never applied.",
+  "files": [
+    "internal/store/store.go"
+  ],
+  "validated_outcome": "Empirical probe shows journal_mode=wal, foreign_keys=1, busy_timeout=5000 with the _pragma form; mode=ro still blocks writes."
+}

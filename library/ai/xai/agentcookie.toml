@@ -1,0 +1,16 @@
+# agentcookie.toml: secrets-bus adoption manifest v2
+# See docs/spec-agentcookie-secrets-bus-v2-adoption.md
+schema_version = 2
+name = "xai-pp-cli"
+display_name = "xAI"
+description = "REST API for xAI compatible with other providers."
+project_kind = "cli"
+
+[secrets.file]
+path = "~/.config/xai-pp-cli/config.toml"
+
+[sync]
+default = false
+
+[sync.keys]
+XAI_API_KEY = true

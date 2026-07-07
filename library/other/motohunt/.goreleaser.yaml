@@ -1,0 +1,51 @@
+version: 2
+project_name: motohunt-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: motohunt-pp-cli
+    main: ./cmd/motohunt-pp-cli
+    binary: motohunt-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X github.com/mvanhorn/printing-press-library/library/other/motohunt/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: motohunt-pp-mcp
+    main: ./cmd/motohunt-pp-mcp
+    binary: motohunt-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X main.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: motohunt-pp-cli
+    repository:
+      owner: richardadonnell
+      name: homebrew-tap
+    homepage: "https://github.com/mvanhorn/printing-press-library"
+    description: "Search motorcycle and ATV listings from the terminal — with MotoHunt's MSRP/average-price/deal-rating data exposed as"
+    install: |
+      bin.install "motohunt-pp-cli"
+      bin.install "motohunt-pp-mcp"

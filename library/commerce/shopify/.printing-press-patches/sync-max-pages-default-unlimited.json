@@ -1,0 +1,18 @@
+{
+  "schema_version": 2,
+  "id": "sync-max-pages-default-unlimited",
+  "applied_at": "2026-05-24",
+  "base_run_id": "20260524-085902",
+  "base_printing_press_version": "4.14.0",
+  "author": "@benjaminn8",
+  "summary": "sync --max-pages default changed from 10 to 0 (unlimited).",
+  "reason": "Default --max-pages 10 multiplied by default page size 50 silently caps every sync to 500 rows. Full-store backfills appear successful but return partial data with no warning. Default 0 (unlimited) matches operator intent; users who need a cap pass a positive number explicitly. Generator template bug filed as cli-printing-press#2057, not yet absorbed.",
+  "validated_outcome": "shopify-pp-cli sync orders against a live store's full order history returns all rows, not the first 500.",
+  "files": [
+    "internal/cli/sync.go"
+  ],
+  "applies_to_template": true,
+  "issue_refs": [
+    "mvanhorn/cli-printing-press#2057"
+  ]
+}

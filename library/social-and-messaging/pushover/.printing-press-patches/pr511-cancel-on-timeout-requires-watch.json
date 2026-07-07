@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "pr511-cancel-on-timeout-requires-watch",
+  "applied_at": "2026-05-13",
+  "base_run_id": "20260512-140827",
+  "base_printing_press_version": "4.5.1",
+  "summary": "Reject --cancel-on-timeout without --watch under --priority emergency in validateNotifyOptions.",
+  "reason": "The cancel-on-timeout path only fires from inside the watchEmergencyReceipt poll loop. The non-emergency branch already rejected --cancel-on-timeout (it routed through the catch-all emergency-only flags check), but the emergency branch had no guard for cancelOnTimeout-without-watch: the flag was silently accepted, the cancellation never fired, and an emergency retry chain kept paging the recipient while the user believed it was cancelled.",
+  "files": [
+    "internal/cli/pushover_notify.go",
+    "internal/cli/pushover_notify_test.go"
+  ],
+  "validated_outcome": "go test ./internal/cli -run TestValidateNotifyEmergencyOptions -count=1 covers the rejection (emergency + cancel-on-timeout - watch) and the still-accepted shape (emergency + cancel-on-timeout + watch)."
+}

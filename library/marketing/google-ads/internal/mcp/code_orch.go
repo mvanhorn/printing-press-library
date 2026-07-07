@@ -1504,17 +1504,13 @@ func handleCodeOrchExecute(ctx context.Context, req mcplib.CallToolRequest) (*mc
 	case "DELETE":
 		data, _, err = c.Delete(path)
 	default:
-		body, mErr := json.Marshal(params)
-		if mErr != nil {
-			return mcplib.NewToolResultError(fmt.Sprintf("marshaling body: %v", mErr)), nil
-		}
 		switch ep.Method {
 		case "POST":
-			data, _, err = c.Post(path, body)
+			data, _, err = c.Post(path, params)
 		case "PUT":
-			data, _, err = c.Put(path, body)
+			data, _, err = c.Put(path, params)
 		case "PATCH":
-			data, _, err = c.Patch(path, body)
+			data, _, err = c.Patch(path, params)
 		default:
 			return mcplib.NewToolResultError(fmt.Sprintf("unsupported method %q", ep.Method)), nil
 		}

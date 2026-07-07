@@ -240,10 +240,23 @@ func scanNotices(rows *sql.Rows) ([]Notice, error) {
 func ResolveMultilingual(v interface{}) string {
 	switch t := v.(type) {
 	case map[string]interface{}:
+		// PATCH(amend-2026-06-09: handle scalar-string language values) — TED v3
+		// returns some multilingual fields as map[lang] -> []string (e.g.
+		// title-lot) and others as map[lang] -> string (e.g. title-proc). The
+		// original code only unwrapped the array shape, so scalar fields like
+		// title-proc silently resolved to "" and the title fallback chain skipped
+		// them. Handle both shapes per language.
 		for _, lang := range []string{"eng", "deu", "fra", "nld"} {
-			if arr, ok := t[lang].([]interface{}); ok && len(arr) > 0 {
-				if s, ok := arr[0].(string); ok {
-					return s
+			switch lv := t[lang].(type) {
+			case []interface{}:
+				if len(lv) > 0 {
+					if s, ok := lv[0].(string); ok && s != "" {
+						return s
+					}
+				}
+			case string:
+				if lv != "" {
+					return lv
 				}
 			}
 		}

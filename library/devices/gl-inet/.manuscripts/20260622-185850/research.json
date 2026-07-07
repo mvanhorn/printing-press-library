@@ -1,0 +1,409 @@
+{
+  "api_name": "gl-inet",
+  "novelty_score": 9,
+  "alternatives": [
+    {
+      "name": "python-glinet",
+      "url": "https://github.com/tomtana/python-glinet",
+      "language": "Python",
+      "install_method": "",
+      "stars": 31,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "gli4py",
+      "url": "https://github.com/HarvsG/gli4py",
+      "language": "Python",
+      "install_method": "",
+      "stars": 2,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "glinet_api-hass",
+      "url": "https://github.com/spusuf/glinet_api-hass",
+      "language": "Python",
+      "install_method": "",
+      "stars": 4,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "GL-iNet_utils",
+      "url": "https://github.com/GLiNet-Community-Scripts/GL-iNet_utils",
+      "language": "Shell",
+      "install_method": "",
+      "stars": 1,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "glinet",
+      "url": "https://github.com/johnhalbert/glinet",
+      "language": "JavaScript",
+      "install_method": "",
+      "stars": 3,
+      "last_updated": "",
+      "command_count": 2,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-06-22T19:20:00Z",
+  "novel_features": [
+    {
+      "name": "Named config profile capture",
+      "command": "snapshot save",
+      "description": "Capture your whole router config as a named, reusable profile.",
+      "rationale": "Only possible by serializing the UCI tree + GL module configs into a local store with a model/firmware provenance stamp; the GL UI has no named/versioned profiles.",
+      "example": "gl-inet-pp-cli snapshot save home --agent",
+      "why_it_matters": "Reach for this when the user wants to bank a known-good config before changing anything on the road.",
+      "group": "Travel config profiles"
+    },
+    {
+      "name": "Version+model-gated restore",
+      "command": "snapshot apply",
+      "description": "Restore a saved profile, with a safety check that it matches this device.",
+      "rationale": "Replays stored UCI and checks the snapshot's model/firmware provenance — warns on firmware drift, refuses on model mismatch without --force, mirroring sysupgrade's same-model lock.",
+      "example": "gl-inet-pp-cli snapshot apply home --agent",
+      "why_it_matters": "Use to revert cleanly to a standard config without risking a mismatched-device restore.",
+      "group": "Travel config profiles"
+    },
+    {
+      "name": "Option-level config diff",
+      "command": "snapshot diff",
+      "description": "See exactly which settings a venue changed vs your standard config.",
+      "rationale": "Parses UCI change-tuples into the local store and diffs at option granularity, snapshot-vs-current or snapshot-vs-snapshot — no single API call provides this.",
+      "example": "gl-inet-pp-cli snapshot diff home --agent",
+      "why_it_matters": "Use to answer 'what did this hotel network change?' before reverting.",
+      "group": "Travel config profiles"
+    },
+    {
+      "name": "WiFi region diagnose + fix",
+      "command": "wifi region diagnose",
+      "description": "Find out why a foreign network is invisible and fix the regulatory domain in one command.",
+      "rationale": "Cross-references an iwinfo scan against a static country-\u003eallowed-channels table to name the country that would unhide a network, then sets the regdomain and reloads.",
+      "example": "gl-inet-pp-cli wifi region diagnose --agent",
+      "why_it_matters": "Use when repeater mode can't see a network abroad (e.g. EU 2.4GHz ch12/13 under a US regdomain).",
+      "group": "Travel macros"
+    },
+    {
+      "name": "Venue onboarding macro",
+      "command": "venue connect",
+      "description": "One command to get online at a new venue: scan, region-check, join, and prep for captive portals.",
+      "rationale": "Orchestrates repeater scan -\u003e region check -\u003e join -\u003e captive-portal prep (MAC clone, drop VPN/AdGuard DNS) -\u003e restore as a single sequenced macro over existing endpoints.",
+      "example": "gl-inet-pp-cli venue connect \"Hotel WiFi\" --agent",
+      "why_it_matters": "Use on arrival at a hotel/cafe to skip the multi-step LuCI dance.",
+      "group": "Travel macros"
+    },
+    {
+      "name": "VPN toggle + egress verify",
+      "command": "vpn toggle",
+      "description": "Start a VPN tunnel, arm the kill-switch, and confirm your public IP actually changed.",
+      "rationale": "Combines tunnel start + kill-switch + a before/after public egress-IP check; returns a typed exit code on leak.",
+      "example": "gl-inet-pp-cli vpn toggle mullvad --agent",
+      "why_it_matters": "Use to trust that the VPN is really protecting traffic, not just 'connected'.",
+      "group": "Travel macros"
+    },
+    {
+      "name": "Connection fidelity / leak check",
+      "command": "vpn verify",
+      "description": "Verify the VPN is up and your connection isn't leaking: egress country, DNS leaks, and STUN/UDP (WebRTC-style) leaks.",
+      "rationale": "Combines real egress geolocation, a STUN/UDP public-IP probe, a DNS-leak test, and the router's VPN client status into one verdict with a typed exit code on leak; no single endpoint provides this.",
+      "example": "gl-inet-pp-cli vpn verify --expect-country US --agent",
+      "why_it_matters": "Use to confirm a VPN is actually protecting all traffic (no IP/DNS/WebRTC leak) before trusting it on an untrusted network.",
+      "group": "Travel macros"
+    },
+    {
+      "name": "Connectivity troubleshooter",
+      "command": "troubleshoot",
+      "description": "Diagnose why the router has no internet and get the exact fix command.",
+      "rationale": "Walks a decision tree across netmode, WAN/internet, repeater source, cable, tethering, DNS, kill-switch, and region; names the most likely cause and the command to fix it (--fix auto-applies safe remedies).",
+      "example": "gl-inet-pp-cli troubleshoot --agent",
+      "why_it_matters": "Use first whenever the router is up but there's no internet — most often it's not connected in repeater mode.",
+      "group": "Diagnostics"
+    },
+    {
+      "name": "Source-uplink quality + improvements",
+      "command": "uplink",
+      "description": "Diagnose a weak/slow venue WiFi uplink and get ranked ways to improve it.",
+      "rationale": "Joins iwinfo info/scan/assoclist + repeater status into RSSI, band, link rate/PHY, channel congestion and latency, then ranks improvement suggestions; local metrics only.",
+      "example": "gl-inet-pp-cli uplink --agent",
+      "why_it_matters": "Use when you have internet but it's bad and you want to know whether to move, switch bands, or tether.",
+      "group": "Diagnostics"
+    },
+    {
+      "name": "Doctor / capability probe",
+      "command": "doctor",
+      "description": "Report this router's model, firmware, OpenWrt/LuCI versions, reachable surfaces, and per-feature availability.",
+      "rationale": "Probes get_info, openwrt_release, opkg, and /rpc vs SSH reachability to show exactly what this firmware/model supports before you act.",
+      "example": "gl-inet-pp-cli doctor --agent",
+      "why_it_matters": "Use to confirm what a given firmware supports before relying on a feature.",
+      "group": "Diagnostics"
+    },
+    {
+      "name": "Current-config summary",
+      "command": "config summary",
+      "description": "A structured, per-subsystem report of the router's current configuration.",
+      "rationale": "Renders live uci show + GL status modules into a wifi/wan/vpn/firewall/lan digest in one read.",
+      "example": "gl-inet-pp-cli config summary --agent",
+      "why_it_matters": "Use to quickly understand or capture the current state of a router.",
+      "group": "Power-user + config"
+    },
+    {
+      "name": "Config option search",
+      "command": "config find",
+      "description": "Find any config option anywhere across the whole router config tree.",
+      "rationale": "FTS over captured snapshot sections/options locates an option across the UCI tree + 43 GL modules in one query.",
+      "example": "gl-inet-pp-cli config find country --agent",
+      "why_it_matters": "Use to locate where a setting lives when config is spread across dozens of modules.",
+      "group": "Power-user + config"
+    },
+    {
+      "name": "Raw passthrough escape hatch",
+      "command": "rpc call",
+      "description": "Call any GL RPC module/function or any UCI option directly.",
+      "rationale": "Thin authed transport over the hand-built GL /rpc and SSH uci layers reaches any of 43 modules or any UCI option the CLI doesn't wrap.",
+      "example": "gl-inet-pp-cli rpc call system get_status --agent",
+      "why_it_matters": "Use as the power-user fallback for anything not covered by a typed command.",
+      "group": "Power-user + config"
+    },
+    {
+      "name": "WAN source switch",
+      "command": "wan mode",
+      "description": "Switch the router's WAN source and verify it reconnected.",
+      "rationale": "Sets the netmode/WAN source then confirms reconnect + internet state in one step.",
+      "example": "gl-inet-pp-cli wan mode repeater --agent",
+      "why_it_matters": "Use when changing how the router gets upstream internet at a new venue.",
+      "group": "Travel macros"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Named config profile capture",
+      "command": "snapshot save",
+      "description": "Capture your whole router config as a named, reusable profile.",
+      "rationale": "Only possible by serializing the UCI tree + GL module configs into a local store with a model/firmware provenance stamp; the GL UI has no named/versioned profiles.",
+      "example": "gl-inet-pp-cli snapshot save home --agent",
+      "why_it_matters": "Reach for this when the user wants to bank a known-good config before changing anything on the road.",
+      "group": "Travel config profiles"
+    },
+    {
+      "name": "Version+model-gated restore",
+      "command": "snapshot apply",
+      "description": "Restore a saved profile, with a safety check that it matches this device.",
+      "rationale": "Replays stored UCI and checks the snapshot's model/firmware provenance — warns on firmware drift, refuses on model mismatch without --force, mirroring sysupgrade's same-model lock.",
+      "example": "gl-inet-pp-cli snapshot apply home --agent",
+      "why_it_matters": "Use to revert cleanly to a standard config without risking a mismatched-device restore.",
+      "group": "Travel config profiles"
+    },
+    {
+      "name": "Option-level config diff",
+      "command": "snapshot diff",
+      "description": "See exactly which settings a venue changed vs your standard config.",
+      "rationale": "Parses UCI change-tuples into the local store and diffs at option granularity, snapshot-vs-current or snapshot-vs-snapshot — no single API call provides this.",
+      "example": "gl-inet-pp-cli snapshot diff home --agent",
+      "why_it_matters": "Use to answer 'what did this hotel network change?' before reverting.",
+      "group": "Travel config profiles"
+    },
+    {
+      "name": "WiFi region diagnose + fix",
+      "command": "wifi region diagnose",
+      "description": "Find out why a foreign network is invisible and fix the regulatory domain in one command.",
+      "rationale": "Cross-references an iwinfo scan against a static country-\u003eallowed-channels table to name the country that would unhide a network, then sets the regdomain and reloads.",
+      "example": "gl-inet-pp-cli wifi region diagnose --agent",
+      "why_it_matters": "Use when repeater mode can't see a network abroad (e.g. EU 2.4GHz ch12/13 under a US regdomain).",
+      "group": "Travel macros"
+    },
+    {
+      "name": "Venue onboarding macro",
+      "command": "venue connect",
+      "description": "One command to get online at a new venue: scan, region-check, join, and prep for captive portals.",
+      "rationale": "Orchestrates repeater scan -\u003e region check -\u003e join -\u003e captive-portal prep (MAC clone, drop VPN/AdGuard DNS) -\u003e restore as a single sequenced macro over existing endpoints.",
+      "example": "gl-inet-pp-cli venue connect \"Hotel WiFi\" --agent",
+      "why_it_matters": "Use on arrival at a hotel/cafe to skip the multi-step LuCI dance.",
+      "group": "Travel macros"
+    },
+    {
+      "name": "VPN toggle + egress verify",
+      "command": "vpn toggle",
+      "description": "Start a VPN tunnel, arm the kill-switch, and confirm your public IP actually changed.",
+      "rationale": "Combines tunnel start + kill-switch + a before/after public egress-IP check; returns a typed exit code on leak.",
+      "example": "gl-inet-pp-cli vpn toggle mullvad --agent",
+      "why_it_matters": "Use to trust that the VPN is really protecting traffic, not just 'connected'.",
+      "group": "Travel macros"
+    },
+    {
+      "name": "Connection fidelity / leak check",
+      "command": "vpn verify",
+      "description": "Verify the VPN is up and your connection isn't leaking: egress country, DNS leaks, and STUN/UDP (WebRTC-style) leaks.",
+      "rationale": "Combines real egress geolocation, a STUN/UDP public-IP probe, a DNS-leak test, and the router's VPN client status into one verdict with a typed exit code on leak; no single endpoint provides this.",
+      "example": "gl-inet-pp-cli vpn verify --expect-country US --agent",
+      "why_it_matters": "Use to confirm a VPN is actually protecting all traffic (no IP/DNS/WebRTC leak) before trusting it on an untrusted network.",
+      "group": "Travel macros"
+    },
+    {
+      "name": "Connectivity troubleshooter",
+      "command": "troubleshoot",
+      "description": "Diagnose why the router has no internet and get the exact fix command.",
+      "rationale": "Walks a decision tree across netmode, WAN/internet, repeater source, cable, tethering, DNS, kill-switch, and region; names the most likely cause and the command to fix it (--fix auto-applies safe remedies).",
+      "example": "gl-inet-pp-cli troubleshoot --agent",
+      "why_it_matters": "Use first whenever the router is up but there's no internet — most often it's not connected in repeater mode.",
+      "group": "Diagnostics"
+    },
+    {
+      "name": "Source-uplink quality + improvements",
+      "command": "uplink",
+      "description": "Diagnose a weak/slow venue WiFi uplink and get ranked ways to improve it.",
+      "rationale": "Joins iwinfo info/scan/assoclist + repeater status into RSSI, band, link rate/PHY, channel congestion and latency, then ranks improvement suggestions; local metrics only.",
+      "example": "gl-inet-pp-cli uplink --agent",
+      "why_it_matters": "Use when you have internet but it's bad and you want to know whether to move, switch bands, or tether.",
+      "group": "Diagnostics"
+    },
+    {
+      "name": "Doctor / capability probe",
+      "command": "doctor",
+      "description": "Report this router's model, firmware, OpenWrt/LuCI versions, reachable surfaces, and per-feature availability.",
+      "rationale": "Probes get_info, openwrt_release, opkg, and /rpc vs SSH reachability to show exactly what this firmware/model supports before you act.",
+      "example": "gl-inet-pp-cli doctor --agent",
+      "why_it_matters": "Use to confirm what a given firmware supports before relying on a feature.",
+      "group": "Diagnostics"
+    },
+    {
+      "name": "Current-config summary",
+      "command": "config summary",
+      "description": "A structured, per-subsystem report of the router's current configuration.",
+      "rationale": "Renders live uci show + GL status modules into a wifi/wan/vpn/firewall/lan digest in one read.",
+      "example": "gl-inet-pp-cli config summary --agent",
+      "why_it_matters": "Use to quickly understand or capture the current state of a router.",
+      "group": "Power-user + config"
+    },
+    {
+      "name": "Config option search",
+      "command": "config find",
+      "description": "Find any config option anywhere across the whole router config tree.",
+      "rationale": "FTS over captured snapshot sections/options locates an option across the UCI tree + 43 GL modules in one query.",
+      "example": "gl-inet-pp-cli config find country --agent",
+      "why_it_matters": "Use to locate where a setting lives when config is spread across dozens of modules.",
+      "group": "Power-user + config"
+    },
+    {
+      "name": "Raw passthrough escape hatch",
+      "command": "rpc call",
+      "description": "Call any GL RPC module/function or any UCI option directly.",
+      "rationale": "Thin authed transport over the hand-built GL /rpc and SSH uci layers reaches any of 43 modules or any UCI option the CLI doesn't wrap.",
+      "example": "gl-inet-pp-cli rpc call system get_status --agent",
+      "why_it_matters": "Use as the power-user fallback for anything not covered by a typed command.",
+      "group": "Power-user + config"
+    },
+    {
+      "name": "WAN source switch",
+      "command": "wan mode",
+      "description": "Switch the router's WAN source and verify it reconnected.",
+      "rationale": "Sets the netmode/WAN source then confirms reconnect + internet state in one step.",
+      "example": "gl-inet-pp-cli wan mode repeater --agent",
+      "why_it_matters": "Use when changing how the router gets upstream internet at a new venue.",
+      "group": "Travel macros"
+    }
+  ],
+  "narrative": {
+    "display_name": "GL.iNet",
+    "headline": "The first maintained CLI for GL.iNet travel routers — named config profiles, travel macros, and version-aware diagnostics no other GL.iNet tool ships.",
+    "value_prop": "Save a known-good 'home' config, adjust it at a hotel or abroad, then revert in one command with snapshot save/apply/diff. Get online at a new venue and fix the 'my foreign network is invisible' regulatory-domain problem instantly. Every command probes your exact model and firmware first, so it adapts instead of assuming — and it all runs locally over the router's own API, no GoodCloud.",
+    "auth_narrative": "Authenticates against the router's local admin password via GL's challenge/crypt/sha256 handshake (read from the live challenge, so it works across firmware versions). Config snapshots and UCI access use SSH to the router. No cloud account needed.",
+    "quickstart": [
+      {
+        "command": "gl-inet-pp-cli doctor",
+        "comment": "confirm reachability, model, firmware, and what this device supports"
+      },
+      {
+        "command": "gl-inet-pp-cli snapshot save home",
+        "comment": "bank your current known-good config as a named profile"
+      },
+      {
+        "command": "gl-inet-pp-cli config summary",
+        "comment": "see the current configuration at a glance"
+      },
+      {
+        "command": "gl-inet-pp-cli troubleshoot",
+        "comment": "diagnose 'router up but no internet' and get the fix"
+      },
+      {
+        "command": "gl-inet-pp-cli snapshot diff home",
+        "comment": "after a venue changes things, see exactly what differs from home"
+      },
+      {
+        "command": "gl-inet-pp-cli snapshot apply home",
+        "comment": "revert cleanly back to your standard config"
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "Login fails / 'access denied' from the router",
+        "fix": "The admin password is the router's web-UI password (RPC user is 'root'). Set GL_INET_PASSWORD or pass --password."
+      },
+      {
+        "symptom": "Repeater can't see a network abroad",
+        "fix": "Run 'gl-inet-pp-cli wifi region diagnose' — the network is likely on a channel your current regulatory domain forbids; it will name the country to switch to."
+      },
+      {
+        "symptom": "snapshot apply refuses with a model mismatch",
+        "fix": "Snapshots are model+firmware stamped; restore on the same model, or pass --force to override (settings may not map cleanly)."
+      },
+      {
+        "symptom": "Config/snapshot commands fail to connect",
+        "fix": "Those use SSH (port 22). Ensure SSH is enabled on the router LAN and your key or password works."
+      }
+    ],
+    "when_to_use": "Use gl-inet for managing a GL.iNet travel router from the terminal or an agent: capturing and reverting config profiles while traveling, getting online at new venues, fixing regulatory-domain repeater problems, diagnosing 'no internet' and weak-uplink situations, and version/model-aware inspection of what a given firmware supports. It is local-only (the router's own API + SSH), with no GoodCloud dependency.",
+    "recipes": [
+      {
+        "title": "Bank home, travel, revert",
+        "command": "gl-inet-pp-cli snapshot save home \u0026\u0026 gl-inet-pp-cli snapshot diff home \u0026\u0026 gl-inet-pp-cli snapshot apply home",
+        "explanation": "Capture a known-good profile, see what a venue changed, then revert cleanly."
+      },
+      {
+        "title": "Get online abroad",
+        "command": "gl-inet-pp-cli venue connect \"Hotel WiFi\"",
+        "explanation": "Scan, region-check, join, and prep for the captive portal in one command."
+      },
+      {
+        "title": "Fix an invisible foreign network",
+        "command": "gl-inet-pp-cli wifi region diagnose --fix",
+        "explanation": "Detects a network hidden by your regulatory domain and switches the region to unhide it."
+      },
+      {
+        "title": "Why is there no internet?",
+        "command": "gl-inet-pp-cli troubleshoot --fix",
+        "explanation": "Walks the connectivity decision tree and applies safe remedies (most often: not joined in repeater mode)."
+      },
+      {
+        "title": "Narrow a verbose status payload for an agent",
+        "command": "gl-inet-pp-cli system status --agent --select clients.online,wan.proto,wan.ip,memory.free",
+        "explanation": "Use --select with dotted paths to return only the fields an agent needs from a large status response."
+      }
+    ],
+    "trigger_phrases": [
+      "save my router config",
+      "revert to my home config",
+      "what did this network change",
+      "get online at this hotel",
+      "fix repeater region",
+      "why is my router offline",
+      "use gl-inet",
+      "run gl-inet"
+    ]
+  }
+}

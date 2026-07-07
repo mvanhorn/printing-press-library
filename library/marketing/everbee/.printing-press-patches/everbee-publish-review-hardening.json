@@ -1,0 +1,32 @@
+{
+  "schema_version": 2,
+  "id": "everbee-publish-review-hardening",
+  "applied_at": "2026-06-01",
+  "base_run_id": "20260522-153448",
+  "base_printing_press_version": "4.19.0",
+  "summary": "Hardened redirect auth handling, refresh persistence fallback, and auto-refresh policy after publish review.",
+  "reason": "Greptile flagged credential re-injection after cross-host redirect bounces, dropping fresh API data when snapshot persistence fails, and redundant per-resource stale windows that matched the global default.",
+  "files": [
+    "internal/client/client.go",
+    "internal/client/client_redirect_test.go",
+    "internal/cli/auto_refresh.go",
+    "internal/cli/everbee_research_runtime.go",
+    "internal/cli/everbee_research_runtime_test.go"
+  ],
+  "validated_outcome": "go test ./... and go vet ./... passed in the source checkout and packaged library copy; govulncheck ./... passed in the packaged library copy.",
+  "deferred_to_upstream": [
+    {
+      "feature": "Generated HTTP client redirect handling should compare against the immediately previous redirect hop before re-adding auth.",
+      "reason": "This security hardening belongs in generated runtime code so future CLIs do not need local review patches."
+    },
+    {
+      "feature": "Generated research refresh runtime should preserve usable fetched evidence when snapshot persistence fails.",
+      "reason": "A local cache write failure should warn while still returning live API data to the command result."
+    },
+    {
+      "feature": "Generator should omit per-resource cache freshness overrides when they equal the global stale-after default.",
+      "reason": "No-op generated overrides confuse review and carry no runtime behavior."
+    }
+  ],
+  "upstream_issue": "https://github.com/mvanhorn/cli-printing-press/issues/2577"
+}

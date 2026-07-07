@@ -23,7 +23,7 @@ func newGoogleAdsListPlannableUserInterestsCmd(flags *rootFlags) *cobra.Command 
 	cmd := &cobra.Command{
 		Use:         "list-plannable-user-interests",
 		Short:       "Returns the list of plannable user interests. A plannable user interest is one that can be targeted in a reach...",
-		Example:     "  google-ads-pp-cli google_ads list_plannable_user_interests",
+		Example:     "  google-ads-pp-cli google-ads list-plannable-user-interests",
 		Annotations: map[string]string{"pp:endpoint": "google_ads.list_plannable_user_interests", "pp:method": "POST", "pp:path": "/v22:listPlannableUserInterests"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !stdinBody {

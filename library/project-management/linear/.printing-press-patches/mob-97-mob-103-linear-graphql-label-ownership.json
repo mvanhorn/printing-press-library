@@ -1,0 +1,19 @@
+{
+  "schema_version": 2,
+  "id": "mob-97-mob-103-linear-graphql-label-ownership",
+  "applied_at": "2026-06-10",
+  "base_run_id": "20260518-232543",
+  "base_printing_press_version": "4.9.0",
+  "summary": "Promoted Linear GraphQL reads must use POST /graphql, and issue label workflows must preserve team ownership so agents only attach labels valid for the target team.",
+  "reason": "Linear rejects GET /graphql with CSRF/preflight errors, and team-owned issue labels are not portable across Linear teams. Without these guards, agents guess failing read syntax and can create/edit issues with label UUIDs from the wrong team.",
+  "files": [
+    "internal/cli/data_source.go",
+    "internal/cli/labels.go",
+    "internal/cli/linear_graphql_promoted.go",
+    "internal/cli/issues_create.go",
+    "internal/cli/issues_edit.go",
+    "internal/client/queries.go",
+    "internal/store/store.go"
+  ],
+  "validated_outcome": "Focused tests cover POST-only promoted GraphQL reads, team-filtered label discovery from live/local sources, cross-team label rejection before issueCreate, and sync persistence of label team ownership."
+}

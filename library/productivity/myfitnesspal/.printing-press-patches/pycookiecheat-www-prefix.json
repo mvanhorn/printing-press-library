@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "id": "pycookiecheat-www-prefix",
+  "applied_at": "2026-05-12",
+  "base_run_id": "20260508-133559",
+  "base_printing_press_version": "4.0.6",
+  "summary": "Prepend www. when the cookie domain begins with . (parent-domain notation) before passing the URL to pycookiecheat.",
+  "reason": "pycookiecheat's chrome_cookies('https://myfitnesspal.com') returns a different (smaller) cookie set than chrome_cookies('https://www.myfitnesspal.com') — the bare-domain form misses parent-domain cookies, which include the __Secure-next-auth.session-token MFP needs to recognize the request as logged-in. Auth login was reporting success but storing 12 of the wrong cookies.",
+  "files": [
+    "internal/cli/auth.go"
+  ]
+}

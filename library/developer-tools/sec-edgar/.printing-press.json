@@ -68,6 +68,11 @@
       "name": "13F holdings delta",
       "command": "holdings delta",
       "description": "Diff an institutional investor's 13F holdings across two consecutive quarters. Categorize each issuer as ADD / EXIT / INCREASE / DECREASE with share-count delta."
+    },
+    {
+      "name": "Beneficial-ownership section extraction",
+      "command": "ownership",
+      "description": "Resolve a ticker, name, or CIK, find the latest DEF 14A proxy, fetch the document, and extract the \"Security Ownership of Certain Beneficial Owners\" section as readable text."
     }
   ]
 }

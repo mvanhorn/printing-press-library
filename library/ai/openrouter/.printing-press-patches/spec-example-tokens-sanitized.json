@@ -1,0 +1,15 @@
+{
+  "schema_version": 2,
+  "id": "spec-example-tokens-sanitized",
+  "applied_at": "2026-05-09",
+  "base_run_id": "20260509-165428",
+  "base_printing_press_version": "4.2.0",
+  "summary": "Replaced `sk-or-v1-<token>` example values in spec.json (and the same strings in .manuscripts/.../openrouter-openapi.json + openrouter-trimmed.json) with `sk-or-v1-EXAMPLE-KEY-REDACTED` placeholder.",
+  "reason": "OpenRouter's published OpenAPI spec embeds illustrative bearer tokens in its `examples:` blocks. Whether they're revoked or live, they match the OpenRouter vendor-prefix shape and triggered GitHub Push Protection. The spec field semantics (request shape, schema) are unchanged; only docs strings were redacted. Tracked upstream as cli-printing-press#829 (publish secret-scan should be pattern-based, not exact-value-only).",
+  "files": [
+    "spec.json",
+    ".manuscripts/20260509-165428/research/openrouter-openapi.json",
+    ".manuscripts/20260509-165428/research/openrouter-trimmed.json"
+  ],
+  "validated_outcome": "Vendor-prefix scan shows zero real-shaped tokens remaining in this CLI dir. CLI behavior unchanged (example values are docs strings, not consumed by client code)."
+}

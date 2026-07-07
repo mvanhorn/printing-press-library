@@ -77,3 +77,18 @@ func TestPrintOutputWithFlagsJSONWinsOverPlain(t *testing.T) {
 		t.Errorf("expected JSON output when --json set alongside --plain, got: %q", buf.String())
 	}
 }
+
+func TestPrintOutputWithFlagsJSONWinsOverCSV(t *testing.T) {
+	t.Parallel()
+	// --json is the more explicit machine format and wins when both are set.
+	flags := &rootFlags{csv: true, asJSON: true}
+	data := json.RawMessage(`[{"id":"evt_1","name":"Show A"}]`)
+	var buf bytes.Buffer
+	if err := printOutputWithFlags(&buf, data, flags); err != nil {
+		t.Fatalf("printOutputWithFlags returned error: %v", err)
+	}
+	out := buf.String()
+	if !strings.Contains(out, "{") || strings.Contains(out, "id,name\n") {
+		t.Errorf("expected JSON output when --json set alongside --csv, got: %q", out)
+	}
+}

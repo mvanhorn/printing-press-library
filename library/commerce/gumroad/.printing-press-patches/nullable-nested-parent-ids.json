@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "nullable-nested-parent-ids",
+  "applied_at": "2026-05-14",
+  "base_run_id": "20260511-134339",
+  "base_printing_press_version": "4.3.0",
+  "summary": "Allow Gumroad nested-resource store rows when responses omit parent IDs.",
+  "reason": "Gumroad nested endpoints are scoped by URL path, but their response bodies do not consistently echo product or sale parent IDs. Nullable indexed parent columns keep sync/search usable without rejecting otherwise valid rows.",
+  "files": [
+    "internal/store/store.go"
+  ],
+  "validated_outcome": "go test ./... passes for the generated Gumroad CLI."
+}

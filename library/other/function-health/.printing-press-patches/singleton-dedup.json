@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "singleton-dedup",
+  "applied_at": "2026-05-28",
+  "base_run_id": "20260528-084148",
+  "base_printing_press_version": "4.19.0",
+  "summary": "Add Store.ReplaceSingleton and use it for the single-envelope resources so each holds exactly one canonical row.",
+  "reason": "An earlier sync stored recommendations/results-report under id=<resource-name> via the generic id-extraction fallback; the new code stored id='current', leaving TWO rows per type. loadAllResults concatenates every results-report row, so draws were silently DOUBLE-COUNTED across every transcend command (bundle/trend/goat/oscillating/pdf). ReplaceSingleton atomically purges prior rows + FTS entries before writing the canonical row.",
+  "files": [
+    "internal/store/store.go",
+    "internal/cli/sync.go"
+  ],
+  "validated_outcome": "Live: exactly 1 row per type after --full; ApoB trend shows 2 draws (was 4); PDF 128 biomarkers / 3 rounds."
+}

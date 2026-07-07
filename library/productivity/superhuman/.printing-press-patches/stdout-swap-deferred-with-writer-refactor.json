@@ -1,0 +1,11 @@
+{
+  "schema_version": 2,
+  "id": "stdout-swap-deferred-with-writer-refactor",
+  "applied_at": "2026-05-27",
+  "base_run_id": "20260512-165241",
+  "base_printing_press_version": "4.5.1",
+  "summary": "Recording the os.Stdout/os.Stderr swap in runSyncResourceQuiet as a known limitation deferred to a syncResource(io.Writer, ...) refactor across all 3 call sites.",
+  "reason": "Greptile P1 round-3 on PR #595 raised that swapping process-global os.Stdout/Stderr affects every goroutine in the process, not just the runSyncResourceQuiet caller. The existing mitigation (sync.Mutex serializing the swap; PATCH comment naming the constraint) bounds the blast radius to the autorefresh path which is single-goroutine today. The principled fix is to thread an io.Writer through syncResource(c, db, resource, sinceTS, full, maxPages, latestOnly, userParams) so output goes to a per-call sink. That touches 3 caller sites (channel_workflow, sync, sync_autorefresh) and ~15 fmt.Fprintf(os.Stdout, ...) emissions inside syncResource and its helpers; out of scope for this PR.",
+  "files": [],
+  "validated_outcome": "No code change; documented limitation."
+}

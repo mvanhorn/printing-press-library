@@ -8,7 +8,9 @@ import (
 	"context"
 	"crypto/sha256"
 	"database/sql"
+	"encoding/base64"
 	"encoding/hex"
+	"encoding/json"
 	"encoding/xml"
 	"errors"
 	"fmt"
@@ -53,6 +55,8 @@ func openBluRayStore(ctx context.Context) (*store.Store, error) {
 		return nil, err
 	}
 	if err := db.MigrateBluRayCatalog(); err != nil {
+		// #nosec G104 -- best-effort cleanup close on the error path; the
+		// migrate error below is the one the caller acts on.
 		db.Close()
 		return nil, err
 	}
@@ -71,7 +75,21 @@ func bluRayHeaders(binary bool) map[string]string {
 	return h
 }
 
-func bluRayGet(c *client.Client, rawURL string, binary bool) ([]byte, error) {
+// bluRaySiteURL builds an absolute Blu-ray.com URL from the client's
+// configured base (honoring a BLU_RAY_BASE_URL override) and a site-relative
+// path. Call sites must use this instead of hardcoding the production host so
+// that a base-URL override (the verifier's mock server, a self-hosted mirror,
+// or a test harness) is respected and the bluRayGet host guard does not reject
+// the request. relPath is the site path, e.g. "/sitemap.xml" or "/main/123/".
+func bluRaySiteURL(c *client.Client, relPath string) string {
+	base := strings.TrimRight(c.BaseURL, "/")
+	if !strings.HasPrefix(relPath, "/") {
+		relPath = "/" + relPath
+	}
+	return base + relPath
+}
+
+func bluRayGet(ctx context.Context, c *client.Client, rawURL string, binary bool) ([]byte, error) {
 	u, err := url.Parse(rawURL)
 	if err != nil {
 		return nil, err
@@ -84,8 +102,48 @@ func bluRayGet(c *client.Client, rawURL string, binary bool) ([]byte, error) {
 		return nil, fmt.Errorf("bluRayGet: URL host %q does not match expected %q", u.Host, expectedHost)
 	}
 	p := u.Path
-	data, err := c.GetWithHeadersValues(p, u.Query(), bluRayHeaders(binary))
-	return []byte(data), err
+	params := map[string]string{}
+	for k := range u.Query() {
+		params[k] = u.Query().Get(k)
+	}
+	data, err := c.GetWithHeaders(ctx, p, params, bluRayHeaders(binary))
+	if err != nil {
+		return nil, err
+	}
+	decoded, decErr := decodeMaybeBinaryEnvelope([]byte(data))
+	if decErr != nil {
+		return nil, decErr
+	}
+	return decoded, nil
+}
+
+// decodeMaybeBinaryEnvelope unwraps the 4.24.0 client's base64 binary-response
+// envelope ({"_pp_binary":true,"encoding":"base64","data":"<base64>"}) into raw
+// bytes. The framework wraps any response whose Content-Type is non-textual —
+// e.g. the gzipped Blu-ray.com sitemap shards — so the gzip magic bytes survive
+// the json.RawMessage contract. Non-envelope bodies (HTML, XML, text) pass
+// through untouched.
+func decodeMaybeBinaryEnvelope(raw []byte) ([]byte, error) {
+	trimmed := bytes.TrimSpace(raw)
+	if len(trimmed) == 0 || trimmed[0] != '{' || !bytes.Contains(trimmed, []byte(`"_pp_binary"`)) {
+		return raw, nil
+	}
+	var env struct {
+		PPBinary bool   `json:"_pp_binary"`
+		Encoding string `json:"encoding"`
+		Data     string `json:"data"`
+	}
+	if err := json.Unmarshal(trimmed, &env); err != nil || !env.PPBinary {
+		return raw, nil
+	}
+	if env.Encoding == "base64" {
+		decoded, decErr := base64.StdEncoding.DecodeString(env.Data)
+		if decErr != nil {
+			return nil, fmt.Errorf("decode base64 binary envelope: %w", decErr)
+		}
+		return decoded, nil
+	}
+	return nil, fmt.Errorf("unsupported binary envelope encoding %q", env.Encoding)
 }
 
 func decodeLatin1(raw []byte) string {
@@ -202,7 +260,9 @@ func absoluteBluRayURL(raw string) string {
 func hashLines(lines []string) string {
 	h := sha256.New()
 	for _, line := range lines {
+		// #nosec G104 -- hash.Hash.Write is documented never to return an error.
 		io.WriteString(h, line)
+		// #nosec G104 -- hash.Hash.Write is documented never to return an error.
 		io.WriteString(h, "\n")
 	}
 	return hex.EncodeToString(h.Sum(nil))

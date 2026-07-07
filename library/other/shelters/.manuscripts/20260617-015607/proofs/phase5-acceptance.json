@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "api_name": "shelters",
+  "run_id": "20260617-015607",
+  "status": "pass",
+  "level": "full",
+  "matrix_size": 50,
+  "tests_passed": 50,
+  "tests_skipped": 31,
+  "auth_context": {
+    "type": "none"
+  }
+}

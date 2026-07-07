@@ -1,0 +1,16 @@
+# agentcookie.toml: secrets-bus adoption manifest v2
+# See docs/spec-agentcookie-secrets-bus-v2-adoption.md
+schema_version = 2
+name = "tripadvisor-pp-cli"
+display_name = "Tripadvisor"
+description = "Every Tripadvisor Content API endpoint, plus a local store and ranked compare/best/drift commands no other Tripadvisor tool has."
+project_kind = "cli"
+
+[secrets.file]
+path = "~/.config/tripadvisor-pp-cli/config.toml"
+
+[sync]
+default = false
+
+[sync.keys]
+TRIPADVISOR_API_KEY = true

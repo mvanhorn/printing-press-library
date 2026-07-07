@@ -1,0 +1,21 @@
+{
+  "id": "sendfox-novel-workflows",
+  "description": "Add SendFox-specific compound workflow commands, public API capability matrix, CSV audit/reconciliation, safe bulk contact import/onboarding, signup-form and webhook handoffs, visible core resource commands, and SENDFOX_API_TOKEN alias support.",
+  "files": [
+    "internal/cli/sendfox_novel_commands.go",
+    "internal/cli/sendfox_novel_helpers.go",
+    "internal/cli/sendfox_agent_commands.go",
+    "internal/cli/sendfox_novel_helpers_test.go",
+    "internal/config/config.go",
+    "internal/config/config_test.go",
+    "internal/cli/channel_workflow.go",
+    "internal/cli/campaigns.go",
+    "internal/cli/contacts.go",
+    "internal/cli/lists.go",
+    "internal/cli/root.go",
+    "README.md",
+    "SKILL.md",
+    ".printing-press.json"
+  ],
+  "upstream_shape": "single-cli SendFox ergonomics over a very small official endpoint surface; campaign and webhook writes are dashboard handoffs, not fake API calls"
+}

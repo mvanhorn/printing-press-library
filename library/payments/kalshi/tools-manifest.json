@@ -5,11 +5,13 @@
   "mcp_ready": "full",
   "http_transport": "standard",
   "auth": {
-    "type": "api_key",
+    "type": "rsa_pss_signed",
     "header": "KALSHI-ACCESS-KEY",
     "in": "header",
     "env_vars": [
-      "KALSHI_TRADE_MANUAL_KALSHI_ACCESS_KEY"
+      "KALSHI_API_KEY",
+      "KALSHI_PRIVATE_KEY_PATH",
+      "KALSHI_PRIVATE_KEY"
     ]
   },
   "required_headers": [],

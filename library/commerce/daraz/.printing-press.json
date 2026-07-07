@@ -1,0 +1,63 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-06-09T06:56:12.299945Z",
+  "printing_press_version": "4.24.0",
+  "api_name": "daraz",
+  "display_name": "Daraz.pk",
+  "cli_name": "daraz-pp-cli",
+  "creator": {
+    "handle": "qazmataz",
+    "name": "Hamza Qazi"
+  },
+  "owner": "qazmataz",
+  "printer": "qazmataz",
+  "printer_name": "Hamza Qazi",
+  "spec_format": "internal",
+  "spec_checksum": "sha256:898a7c2647bbc9dd8969f4d3bc1246e2861b4dd2607b21565e628bf8b58b3361",
+  "run_id": "20260609-111047-f0fd648a",
+  "category": "commerce",
+  "description": "Every Daraz product search, plus a local price database, real-deal ranking, and drop alerts no Daraz scraper has.",
+  "mcp_binary": "daraz-pp-mcp",
+  "mcp_tool_count": 2,
+  "mcp_public_tool_count": 2,
+  "mcp_ready": "full",
+  "api_version": "0.1.0",
+  "auth_type": "none",
+  "novel_features": [
+    {
+      "name": "Price history",
+      "command": "price-history",
+      "description": "See a product's recorded price trend and its lowest-ever price from your local store."
+    },
+    {
+      "name": "Price watch",
+      "command": "watch",
+      "description": "Record current prices for every item matching a search into the local store so price history builds over time."
+    },
+    {
+      "name": "Saved-search change alerts",
+      "command": "since",
+      "description": "Diff a saved search against its last local snapshot to show new listings and price moves since you last checked."
+    },
+    {
+      "name": "Real-deal ranking",
+      "command": "deals",
+      "description": "Rank a search by a composite of discount, rating, and units sold to surface genuinely good deals."
+    },
+    {
+      "name": "Fake-discount / value detector",
+      "command": "value",
+      "description": "Flag inflated original-price discounts by comparing each item's claimed original price to the local median for that query."
+    },
+    {
+      "name": "Cross-seller compare",
+      "command": "compare",
+      "description": "Find the same item across sellers and show the cheapest and best-rated side by side."
+    },
+    {
+      "name": "Seller scorecard",
+      "command": "seller stats",
+      "description": "Aggregate a seller's catalog from the local store: average rating, price range, listing count, discount pattern."
+    }
+  ]
+}

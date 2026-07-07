@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "id": "fix-token-refresh-buffer",
+  "applied_at": "2026-05-12",
+  "base_run_id": "20260512-184940",
+  "base_printing_press_version": "4.5.2",
+  "summary": "Refresh access token when fewer than 60s remain rather than waiting for expiry.",
+  "reason": "authHeader() previously refreshed only AFTER time.Now().After(c.Config.TokenExpiry). A token valid at authHeader() time could expire mid-flight on a slow request (large sync batch, paginated walk), and the client doesn't retry 401s. A 60s proactive buffer trades one extra refresh per session for elimination of mid-request 401s on long-running commands. Greptile review caught this.",
+  "files": [
+    "internal/client/client.go"
+  ]
+}

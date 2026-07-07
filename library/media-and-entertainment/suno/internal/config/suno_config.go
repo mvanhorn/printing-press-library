@@ -32,6 +32,21 @@ func (c *Config) ClerkSessionID() string {
 	return c.ClerkSessionIDVal
 }
 
+// StudioCookieHeader returns the cached studio-api Cookie header, or "".
+func (c *Config) StudioCookieHeader() string {
+	if c == nil {
+		return ""
+	}
+	return c.StudioCookieHeaderVal
+}
+
+// IsEnvAuth reports whether auth came from an environment variable
+// (SUNO_TOKEN / SUNO_JWT). Env tokens are not ours to manage, so the session
+// cache does not persist cookies for them.
+func (c *Config) IsEnvAuth() bool {
+	return c != nil && strings.HasPrefix(c.AuthSource, "env:")
+}
+
 // DeviceID returns the stored device id, falling back to the zero UUID.
 func (c *Config) DeviceID() string {
 	if c == nil || strings.TrimSpace(c.DeviceIDVal) == "" {
@@ -48,6 +63,15 @@ func DeviceIDFor(configPath string) string {
 		return DefaultDeviceID
 	}
 	return cfg.DeviceID()
+}
+
+// SaveStudioSession persists the studio Cookie header and the JWT expiry as the
+// pair that matches the current SunoJwt. Called by auth.EnsureFreshSession after
+// it (re)captures cookies from the browser.
+func (c *Config) SaveStudioSession(cookieHeader string, jwtExpiry int64) error {
+	c.StudioCookieHeaderVal = cookieHeader
+	c.SunoJwtExpiry = jwtExpiry
+	return c.save()
 }
 
 // SaveSunoSession persists the full Clerk-derived session: the minted JWT, the
@@ -82,5 +106,7 @@ func (c *Config) SaveSunoJWTOnly(jwt string) error {
 	c.ClerkClientCookieVal = ""
 	c.ClerkSessionIDVal = ""
 	c.AuthHeaderVal = ""
+	c.StudioCookieHeaderVal = ""
+	c.SunoJwtExpiry = 0
 	return c.save()
 }

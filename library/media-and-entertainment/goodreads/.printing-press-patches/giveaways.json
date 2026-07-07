@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "giveaways",
+  "applied_at": "2026-05-27",
+  "base_run_id": "20260522-095940",
+  "base_printing_press_version": "4.11.0",
+  "summary": "Added 'giveaway list' (GET /giveaway) and 'giveaway show <id>' (GET /giveaway/:id); scaffolded 'giveaway enter <id>' which refuses live execution and documents the missing capture.",
+  "reason": "Goodreads Giveaways surface was absent. list/show are confirmed GET pages; the enter-giveaway POST body/CSRF shape was not captured live, so enter is dry-run-only until a real submission is captured.",
+  "files": [
+    "internal/cli/giveaway.go",
+    "internal/cli/root.go",
+    "internal/cli/which.go"
+  ]
+}

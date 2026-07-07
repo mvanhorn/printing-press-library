@@ -45,7 +45,7 @@ brews:
       owner: cathryn-lavery
       name: homebrew-tap
     homepage: "https://github.com/cathryn-lavery/seats-aero-pp-cli"
-    description: "Seats.aero Partner API for award travel availability, cached search, route lists, and trip revalidation details."
+    description: "Search Seats.aero award-flight availability, route coverage, mileage-program feeds, and trip details from the terminal."
     install: |
       bin.install "seats-aero-pp-cli"
       bin.install "seats-aero-pp-mcp"

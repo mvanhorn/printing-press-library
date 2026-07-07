@@ -1,0 +1,195 @@
+{
+  "api_name": "giustizia-amministrativa",
+  "novelty_score": 0,
+  "alternatives": [],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-06-21T07:53:27Z",
+  "novel_features": [
+    {
+      "name": "Testo integrale in Markdown",
+      "command": "get",
+      "description": "Scarica il testo completo di una sentenza/ordinanza/decreto/parere e lo restituisce in Markdown pulito.",
+      "rationale": "Il form web mostra solo HTML a video; nessuno strumento esporta il provvedimento in markdown citabile.",
+      "example": "giustizia-amministrativa-pp-cli get --sede tar_rm --nrg 202600422 --file 202611307_01.html --format md",
+      "why_it_matters": "Quando l'agente deve leggere o citare il testo di un provvedimento senza rumore HTML.",
+      "group": "Output agent-native"
+    },
+    {
+      "name": "Watch \u0026 Diff query salvate",
+      "command": "watch run",
+      "description": "Salva una ricerca e a ogni esecuzione mostra solo i provvedimenti nuovi dall'ultima volta.",
+      "rationale": "Il form e' stateless e non puo' dire cosa e' comparso da ieri; serve lo store locale.",
+      "example": "giustizia-amministrativa-pp-cli watch run appalti-rm --testo appalto --sede roma --limit 20",
+      "why_it_matters": "Per monitorare nuove decisioni su un tema o una sede senza rileggere tutto.",
+      "group": "Stato locale che si accumula"
+    },
+    {
+      "name": "Corpus export",
+      "command": "corpus build",
+      "description": "Assembla N provvedimenti su un tema in una cartella di Markdown + un CSV manifest (ECLI, sede, data, url).",
+      "rationale": "Il form mostra un atto alla volta e non offre export massivo.",
+      "example": "giustizia-amministrativa-pp-cli corpus build --testo \"soccorso istruttorio\" --tipo sentenza --limit 3 --out ./corpus",
+      "why_it_matters": "Per costruire un fascicolo citabile o un dataset di ricerca in un colpo solo.",
+      "group": "Stato locale che si accumula"
+    },
+    {
+      "name": "Grep sui testi integrali",
+      "command": "grep",
+      "description": "Ricerca regex/prossimita' sui testi integrali scaricati localmente, non solo sugli snippet.",
+      "rationale": "Possibile solo sul full-text in store locale; il form indicizza campi propri e mostra solo un teaser.",
+      "example": "giustizia-amministrativa-pp-cli grep -e \"soccorso istruttorio\" --select ecli,url",
+      "why_it_matters": "Per trovare una frase normativa esatta dentro il corpo dei provvedimenti.",
+      "group": "Ricerca offline"
+    },
+    {
+      "name": "Estrazione massime",
+      "command": "massime",
+      "description": "Estrae i paragrafi 'principio di diritto'/massima da un corpus in un unico digest.",
+      "rationale": "Richiede parsing aggregato su molti testi che il form non offre.",
+      "example": "giustizia-amministrativa-pp-cli massime --testo \"clausola sociale\" --limit 30",
+      "why_it_matters": "Per ottenere i principi di diritto su un tema senza leggere ogni sentenza.",
+      "group": "Ricerca offline"
+    },
+    {
+      "name": "Appeal-chain tracer",
+      "command": "appeal-chain",
+      "description": "Esegue il 'verifica appello' in batch e ricostruisce la catena TAR-\u003eConsiglio di Stato.",
+      "rationale": "Il 'verifica appello' del form e' manuale e uno alla volta.",
+      "example": "giustizia-amministrativa-pp-cli appeal-chain --testo \"project financing\" --limit 40",
+      "why_it_matters": "Per sapere quali sentenze di primo grado sono state appellate e con quale esito.",
+      "group": "Analisi sul corpus"
+    },
+    {
+      "name": "Statistiche corpus",
+      "command": "stats",
+      "description": "Distribuzione di un tema per sede, sezione, tipo e anno.",
+      "rationale": "Aggregazione sull'intera popolazione; il form da' solo lista e conteggio.",
+      "example": "giustizia-amministrativa-pp-cli stats --testo \"appalto\" --by sede,anno",
+      "why_it_matters": "Per capire quale sede/sezione decide un tema e se il volume cresce.",
+      "group": "Analisi sul corpus"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Testo integrale in Markdown",
+      "command": "get",
+      "description": "Scarica il testo completo di una sentenza/ordinanza/decreto/parere e lo restituisce in Markdown pulito.",
+      "rationale": "Il form web mostra solo HTML a video; nessuno strumento esporta il provvedimento in markdown citabile.",
+      "example": "giustizia-amministrativa-pp-cli get --sede tar_rm --nrg 202600422 --file 202611307_01.html --format md",
+      "why_it_matters": "Quando l'agente deve leggere o citare il testo di un provvedimento senza rumore HTML.",
+      "group": "Output agent-native"
+    },
+    {
+      "name": "Watch \u0026 Diff query salvate",
+      "command": "watch run",
+      "description": "Salva una ricerca e a ogni esecuzione mostra solo i provvedimenti nuovi dall'ultima volta.",
+      "rationale": "Il form e' stateless e non puo' dire cosa e' comparso da ieri; serve lo store locale.",
+      "example": "giustizia-amministrativa-pp-cli watch run appalti-rm --testo appalto --sede roma --limit 20",
+      "why_it_matters": "Per monitorare nuove decisioni su un tema o una sede senza rileggere tutto.",
+      "group": "Stato locale che si accumula"
+    },
+    {
+      "name": "Corpus export",
+      "command": "corpus build",
+      "description": "Assembla N provvedimenti su un tema in una cartella di Markdown + un CSV manifest (ECLI, sede, data, url).",
+      "rationale": "Il form mostra un atto alla volta e non offre export massivo.",
+      "example": "giustizia-amministrativa-pp-cli corpus build --testo \"soccorso istruttorio\" --tipo sentenza --limit 3 --out ./corpus",
+      "why_it_matters": "Per costruire un fascicolo citabile o un dataset di ricerca in un colpo solo.",
+      "group": "Stato locale che si accumula"
+    },
+    {
+      "name": "Grep sui testi integrali",
+      "command": "grep",
+      "description": "Ricerca regex/prossimita' sui testi integrali scaricati localmente, non solo sugli snippet.",
+      "rationale": "Possibile solo sul full-text in store locale; il form indicizza campi propri e mostra solo un teaser.",
+      "example": "giustizia-amministrativa-pp-cli grep -e \"soccorso istruttorio\" --select ecli,url",
+      "why_it_matters": "Per trovare una frase normativa esatta dentro il corpo dei provvedimenti.",
+      "group": "Ricerca offline"
+    },
+    {
+      "name": "Estrazione massime",
+      "command": "massime",
+      "description": "Estrae i paragrafi 'principio di diritto'/massima da un corpus in un unico digest.",
+      "rationale": "Richiede parsing aggregato su molti testi che il form non offre.",
+      "example": "giustizia-amministrativa-pp-cli massime --testo \"clausola sociale\" --limit 30",
+      "why_it_matters": "Per ottenere i principi di diritto su un tema senza leggere ogni sentenza.",
+      "group": "Ricerca offline"
+    },
+    {
+      "name": "Appeal-chain tracer",
+      "command": "appeal-chain",
+      "description": "Esegue il 'verifica appello' in batch e ricostruisce la catena TAR-\u003eConsiglio di Stato.",
+      "rationale": "Il 'verifica appello' del form e' manuale e uno alla volta.",
+      "example": "giustizia-amministrativa-pp-cli appeal-chain --testo \"project financing\" --limit 40",
+      "why_it_matters": "Per sapere quali sentenze di primo grado sono state appellate e con quale esito.",
+      "group": "Analisi sul corpus"
+    },
+    {
+      "name": "Statistiche corpus",
+      "command": "stats",
+      "description": "Distribuzione di un tema per sede, sezione, tipo e anno.",
+      "rationale": "Aggregazione sull'intera popolazione; il form da' solo lista e conteggio.",
+      "example": "giustizia-amministrativa-pp-cli stats --testo \"appalto\" --by sede,anno",
+      "why_it_matters": "Per capire quale sede/sezione decide un tema e se il volume cresce.",
+      "group": "Analisi sul corpus"
+    }
+  ],
+  "narrative": {
+    "display_name": "Giustizia Amministrativa",
+    "headline": "La giurisprudenza amministrativa italiana (TAR, Consiglio di Stato) da terminale: ricerca, testo integrale in Markdown, store locale e ricerca offline.",
+    "value_prop": "Cerca sentenze, ordinanze, decreti e pareri con filtri per tipo, sede e anno; ottieni il testo integrale in Markdown pulito con il suo URL pubblico; accumula i risultati in un database SQLite locale per ricerca offline, monitoraggio nel tempo ed export di corpus.",
+    "auth_narrative": "Nessuna autenticazione: ricerca e testi sono pubblici. Il CLF gestisce internamente l'handshake di sessione (token p_auth + cookie) del portale.",
+    "quickstart": [
+      {
+        "command": "giustizia-amministrativa-pp-cli search \"appalto soccorso istruttorio\" --tipo sentenza --sede roma --limit 10",
+        "comment": "ricerca filtrata, ogni risultato porta ECLI e url pubblico"
+      },
+      {
+        "command": "giustizia-amministrativa-pp-cli get IT:TARLAZ:2026:11307SENT --format md",
+        "comment": "testo integrale in Markdown pulito"
+      },
+      {
+        "command": "giustizia-amministrativa-pp-cli search \"clausola sociale\" --all --json --select ecli,tipo,sede,data,url",
+        "comment": "output agent-native filtrato sui campi utili"
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "403 sulle ricerche",
+        "fix": "il token p_auth e' scaduto: il CLI lo rinnova automaticamente al refresh dell'handshake; riprova."
+      },
+      {
+        "symptom": "nessun risultato per una query certa",
+        "fix": "verifica i filtri --tipo/--sede e prova la ricerca avanzata --all/--phrase."
+      }
+    ],
+    "when_to_use": "Usalo quando devi cercare giurisprudenza amministrativa italiana, recuperare il testo integrale di un provvedimento in markdown, costruire un corpus citabile su un tema, o monitorare nel tempo nuove decisioni di una sede o su un argomento.",
+    "recipes": [
+      {
+        "title": "Testo integrale in markdown",
+        "command": "giustizia-amministrativa-pp-cli get IT:TARLAZ:2026:11307SENT --format md",
+        "explanation": "Recupera e converte in Markdown pulito il provvedimento."
+      },
+      {
+        "title": "Output agent-native con select su risposta ricca",
+        "command": "giustizia-amministrativa-pp-cli search \"appalto\" --all --json --select results.ecli,results.tipo,results.sede,results.url",
+        "explanation": "Restringe i campi della risposta ricca della ricerca per non sprecare contesto."
+      },
+      {
+        "title": "Monitoraggio nel tempo",
+        "command": "giustizia-amministrativa-pp-cli watch run appalti-lazio --json",
+        "explanation": "Mostra solo i provvedimenti nuovi dall'ultima esecuzione."
+      }
+    ],
+    "trigger_phrases": [
+      "cerca sentenze TAR",
+      "trova giurisprudenza consiglio di stato",
+      "testo integrale di una sentenza amministrativa",
+      "cerca ordinanze appalto",
+      "usa giustizia-amministrativa",
+      "run giustizia-amministrativa"
+    ]
+  }
+}

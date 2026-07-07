@@ -1,0 +1,11 @@
+{
+  "reachability": {
+    "mode": "standard_http",
+    "confidence": 0.95,
+    "needs_browser_capture": false,
+    "needs_clearance_cookie": false
+  },
+  "uses_browser_http_transport": false,
+  "client_pattern": "rest",
+  "endpoint_count": 16
+}

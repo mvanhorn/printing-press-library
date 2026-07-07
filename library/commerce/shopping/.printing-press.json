@@ -1,0 +1,67 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-06-06T02:29:31.233033Z",
+  "printing_press_version": "4.22.1",
+  "api_name": "shopping",
+  "display_name": "Shopping",
+  "cli_name": "shopping-pp-cli",
+  "creator": {
+    "handle": "NicholasSpisak",
+    "name": "NicholasSpisak"
+  },
+  "owner": "nicholasspisak",
+  "printer": "NicholasSpisak",
+  "printer_name": "NicholasSpisak",
+  "spec_url": "https://api.lemmebuyit.com/openapi.yaml",
+  "spec_path": "openapi.yaml",
+  "spec_format": "openapi3",
+  "spec_checksum": "sha256:f81494c63141fb48eece3503a185a4986d8bc578d75057e9e942a7e84546fb9c",
+  "run_id": "20260605-212010",
+  "category": "commerce",
+  "description": "Every LemmeBuyIt retail endpoint, plus a local store that compares one UPC across 70+ retailers, ranks weekly price drops, and computes Amazon FBA arbitrage margin — compound queries the per-retailer API can't answer.",
+  "mcp_binary": "shopping-pp-mcp",
+  "mcp_tool_count": 9,
+  "mcp_ready": "full",
+  "api_version": "1.0.0",
+  "auth_type": "api_key",
+  "auth_env_vars": [
+    "SHOPPING_API_KEY"
+  ],
+  "novel_features": [
+    {
+      "name": "Local retail index sync",
+      "command": "index",
+      "description": "Pull products (and optional price history) from one or more retailers into a fast local SQLite store so every other query runs instantly and offline."
+    },
+    {
+      "name": "Cross-retailer identifier compare",
+      "command": "compare",
+      "description": "See which synced retailer sells the exact same item (by UPC/EAN/GTIN/ASIN) cheapest right now, ranked, with the savings spread."
+    },
+    {
+      "name": "Compound deal finder",
+      "command": "deals",
+      "description": "Surface deals that clear several bars at once — deep discount, under a price ceiling, well-reviewed, in stock — across all tracked retailers in one ranked list."
+    },
+    {
+      "name": "FBA arbitrage margin",
+      "command": "arbitrage",
+      "description": "Rank synced products by what you would net reselling them on Amazon after referral and FBA fees, filtered by ROI and buy price."
+    },
+    {
+      "name": "Weekly price-drop ranking",
+      "command": "price-drops",
+      "description": "Rank the products that fell the most over the last week (or N weeks) across everything synced, by both dollar and percent drop."
+    },
+    {
+      "name": "Retailer \u0026 category discount leaderboard",
+      "command": "leaderboard",
+      "description": "Show which retailers and categories are consistently the deepest-discount buckets in your synced data, by average discount, on-sale count, or average price."
+    },
+    {
+      "name": "Price watch tracker",
+      "command": "watch status",
+      "description": "Pin items you care about and, after each index refresh, see which ones moved, by how much, and which hit your target price."
+    }
+  ]
+}
