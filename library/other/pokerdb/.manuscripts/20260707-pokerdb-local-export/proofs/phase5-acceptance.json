@@ -1,0 +1,30 @@
+{
+  "schema_version": 1,
+  "api_name": "pokerdb",
+  "run_id": "20260707-pokerdb-local-export",
+  "status": "blocked-local-toolchain",
+  "level": "local-only",
+  "matrix_size": 4,
+  "tests_passed": 1,
+  "tests_skipped": 0,
+  "tests_failed": 0,
+  "tests_blocked": 3,
+  "auth_context": {
+    "type": "none",
+    "api_keys_available": false,
+    "secret_material": "none committed",
+    "notes": [
+      "This print intentionally uses no API and makes no network requests.",
+      "Static inspection found no runtime networking imports or API-key paths.",
+      "Local Go test, vet, and build invocations hung before output in this environment."
+    ]
+  },
+  "validated_commands": [
+    "static no-api scan"
+  ],
+  "blocked_commands": [
+    "go test ./...",
+    "go vet ./...",
+    "go build -o /tmp/pokerdb-pp-cli ./cmd/pokerdb-pp-cli"
+  ]
+}

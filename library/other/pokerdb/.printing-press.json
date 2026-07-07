@@ -1,7 +1,7 @@
 {
-  "schema_version": 2,
-  "generated_at": "2026-07-06T00:00:00Z",
-  "printing_press_version": "manual-local-only",
+  "schema_version": 1,
+  "generated_at": "2026-07-07T00:00:00Z",
+  "printing_press_version": "4.27.1",
   "api_name": "pokerdb",
   "display_name": "PokerDB Local",
   "cli_name": "pokerdb-pp-cli",
@@ -9,12 +9,38 @@
     "handle": "drake",
     "name": "Jonathan Drake"
   },
+  "owner": "drake",
   "printer": "drake",
   "printer_name": "Jonathan Drake",
-  "spec_format": "local-export",
-  "spec_source": "user-provided-files",
+  "spec_format": "plan",
+  "spec_source": ".manuscripts/20260707-pokerdb-local-export/research/pokerdb-local-plan.md",
+  "spec_checksum": "9943bea8ddf2bc30704a98b38231c6da77e28e9075c704b050850473968a04eb",
+  "run_id": "20260707-pokerdb-local-export",
   "category": "other",
   "description": "Local-only CLI for searching PokerDB/Hendon Mob-style CSV and JSON exports without using an API.",
+  "api_version": "0.1.0",
   "auth_type": "none",
-  "auth_env_vars": []
+  "auth_env_vars": [],
+  "novel_features": [
+    {
+      "name": "Local export normalization",
+      "command": "import",
+      "description": "Normalizes user-supplied CSV/JSON exports with common PokerDB/Hendon Mob column aliases into a portable local JSON cache."
+    },
+    {
+      "name": "Cross-surface local search",
+      "command": "players/events/results search",
+      "description": "Searches players, events, and result rows from the same local data file without network access."
+    },
+    {
+      "name": "Compliance doctor",
+      "command": "doctor",
+      "description": "Reports the local-only mode, selected data file, and disabled network/API status."
+    },
+    {
+      "name": "Schema explainer",
+      "command": "schema",
+      "description": "Documents accepted local formats and field aliases for user-provided exports."
+    }
+  ]
 }

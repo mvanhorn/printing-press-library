@@ -1,0 +1,12 @@
+version: 2
+builds:
+  - id: pokerdb-pp-cli
+    main: ./cmd/pokerdb-pp-cli
+    binary: pokerdb-pp-cli
+    goos:
+      - darwin
+      - linux
+      - windows
+    goarch:
+      - amd64
+      - arm64

@@ -1,0 +1,22 @@
+{
+  "run_id": "20260707-pokerdb-local-export",
+  "api_name": "pokerdb",
+  "mode": "local-only",
+  "summary": "No public API is used. The CLI works only with user-provided local CSV/JSON exports and avoids scraping or browser automation against PokerDB/Hendon Mob.",
+  "constraints": [
+    "No network calls",
+    "No API keys",
+    "No scraping or Cloudflare bypass",
+    "No bundled poker data"
+  ],
+  "sources": [
+    {
+      "name": "User requirement",
+      "finding": "The requested implementation must use no API at all."
+    },
+    {
+      "name": "Local CLI validation",
+      "finding": "The command surface can satisfy search, list, import, schema, and doctor workflows from local files."
+    }
+  ]
+}

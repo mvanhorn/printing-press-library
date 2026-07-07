@@ -17,20 +17,20 @@ import (
 const version = "0.1.0"
 
 type row struct {
-	Player    string `json:"player,omitempty"`
-	PlayerID  string `json:"player_id,omitempty"`
-	Country   string `json:"country,omitempty"`
-	Earnings  string `json:"earnings,omitempty"`
-	Rank      string `json:"rank,omitempty"`
-	Event     string `json:"event,omitempty"`
-	EventID   string `json:"event_id,omitempty"`
-	Date      string `json:"date,omitempty"`
-	Venue     string `json:"venue,omitempty"`
-	City      string `json:"city,omitempty"`
-	Place     string `json:"place,omitempty"`
-	Buyin     string `json:"buyin,omitempty"`
-	SourceURL string `json:"source_url,omitempty"`
-	Kind      string `json:"kind,omitempty"`
+	Player    string            `json:"player,omitempty"`
+	PlayerID  string            `json:"player_id,omitempty"`
+	Country   string            `json:"country,omitempty"`
+	Earnings  string            `json:"earnings,omitempty"`
+	Rank      string            `json:"rank,omitempty"`
+	Event     string            `json:"event,omitempty"`
+	EventID   string            `json:"event_id,omitempty"`
+	Date      string            `json:"date,omitempty"`
+	Venue     string            `json:"venue,omitempty"`
+	City      string            `json:"city,omitempty"`
+	Place     string            `json:"place,omitempty"`
+	Buyin     string            `json:"buyin,omitempty"`
+	SourceURL string            `json:"source_url,omitempty"`
+	Kind      string            `json:"kind,omitempty"`
 	Raw       map[string]string `json:"raw,omitempty"`
 }
 
@@ -97,6 +97,9 @@ func run(args []string, stdout, stderr io.Writer) error {
 		}
 		if len(rest) != 1 {
 			return usageError("import requires exactly one CSV or JSON input file")
+		}
+		if opts.out == "" {
+			return usageError("import requires --out")
 		}
 		return importRows(rest[0], opts, stdout)
 	case "players", "events", "results":
@@ -428,16 +431,34 @@ func importRows(input string, opts options, w io.Writer) error {
 	if err != nil {
 		return err
 	}
-	out, err := os.Create(opts.out)
+	dir := filepath.Dir(opts.out)
+	if dir == "" {
+		dir = "."
+	}
+	out, err := os.CreateTemp(dir, ".pokerdb-import-*.json")
 	if err != nil {
 		return err
 	}
-	defer out.Close()
+	tmpPath := out.Name()
+	committed := false
+	defer func() {
+		if !committed {
+			_ = os.Remove(tmpPath)
+		}
+	}()
 	enc := json.NewEncoder(out)
 	enc.SetIndent("", "  ")
 	if err := enc.Encode(compactRows(rows)); err != nil {
+		_ = out.Close()
 		return err
 	}
+	if err := out.Close(); err != nil {
+		return err
+	}
+	if err := os.Rename(tmpPath, opts.out); err != nil {
+		return err
+	}
+	committed = true
 	fmt.Fprintf(w, "Imported %d rows to %s\n", len(rows), opts.out)
 	return nil
 }
