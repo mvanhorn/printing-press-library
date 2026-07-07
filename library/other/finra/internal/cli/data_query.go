@@ -21,7 +21,7 @@ func newDataQueryCmd(flags *rootFlags) *cobra.Command {
 	var bodyOrFilters string
 	var bodySortFields string
 	var bodyLimit int
-	var bodyOffset string
+	var bodyOffset int
 	var bodyQuoteValues bool
 	var bodyAsync bool
 	var stdinBody bool
@@ -109,7 +109,7 @@ func newDataQueryCmd(flags *rootFlags) *cobra.Command {
 				if bodyLimit != 0 {
 					body["limit"] = bodyLimit
 				}
-				if bodyOffset != "" {
+				if bodyOffset != 0 {
 					body["offset"] = bodyOffset
 				}
 				if cmd.Flags().Changed("quote-values") {
@@ -266,7 +266,7 @@ func newDataQueryCmd(flags *rootFlags) *cobra.Command {
 	cmd.Flags().StringVar(&bodyOrFilters, "or-filters", "", "JSON array of OR-grouped compareFilters/domainFilters objects")
 	cmd.Flags().StringVar(&bodySortFields, "sort-fields", "", "Sort fields, prefix with - for descending. Requires an EQUAL compareFilter on every partition field.")
 	cmd.Flags().IntVar(&bodyLimit, "limit", 0, "Max records to return (sync max 5000, async max 100000)")
-	cmd.Flags().StringVar(&bodyOffset, "offset", "", "Pagination offset (max 500000 sync)")
+	cmd.Flags().IntVar(&bodyOffset, "offset", 0, "Pagination offset (max 500000 sync)")
 	cmd.Flags().BoolVar(&bodyQuoteValues, "quote-values", false, "Quote string values in text/plain responses")
 	cmd.Flags().BoolVar(&bodyAsync, "async", false, "Run as an async job for bulk extracts (>5000 records); poll via 'async'")
 	cmd.Flags().BoolVar(&stdinBody, "stdin", false, "Read request body as JSON from stdin")

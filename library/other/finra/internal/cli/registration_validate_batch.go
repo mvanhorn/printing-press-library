@@ -149,7 +149,7 @@ func parseCRDFile(raw []byte) ([]string, error) {
 	if idx := strings.IndexAny(text, "\r\n"); idx >= 0 {
 		firstLine = text[:idx]
 	}
-	if strings.Contains(strings.ToLower(firstLine), "crd") {
+	if firstLineHasCRDColumn(firstLine) {
 		return parseCRDCSV(text)
 	}
 	var out []string
@@ -161,6 +161,29 @@ func parseCRDFile(raw []byte) ([]string, error) {
 		out = append(out, line)
 	}
 	return out, nil
+}
+
+// firstLineHasCRDColumn reports whether firstLine looks like a CSV header
+// row that should route into CSV parsing. Two cases route to CSV: (a) an
+// exact "crd" column (case-insensitive, comma-split), or (b) a comma-
+// separated line that merely contains "crd" as a substring of some field
+// (e.g. "name,crd_number") — kept for a clear "no exact crd column found"
+// error instead of silently mis-parsing an evidently CSV-shaped header. A
+// line with no comma is never routed to CSV: a plain newline-delimited
+// batch's first CRD value is a single bare token, and a bare substring
+// check against it (the prior implementation) could misroute a numeric
+// or comment token that happens to contain the letters "crd".
+func firstLineHasCRDColumn(firstLine string) bool {
+	fields := strings.Split(firstLine, ",")
+	if len(fields) < 2 {
+		return false
+	}
+	for _, field := range fields {
+		if strings.Contains(strings.ToLower(field), "crd") {
+			return true
+		}
+	}
+	return false
 }
 
 func parseCRDCSV(text string) ([]string, error) {

@@ -8,7 +8,6 @@ import (
 	"fmt"
 	"io"
 	"net/http"
-	"net/url"
 	"os"
 	"strings"
 	"time"
@@ -120,7 +119,7 @@ Credentials default to FINRA_CLIENT_ID (Client ID) and FINRA_CLIENT_SECRET (Clie
 
 type tokenResponse struct {
 	AccessToken string `json:"access_token"`
-	ExpiresIn   int    `json:"expires_in"`
+	ExpiresIn   int64  `json:"-"`
 }
 
 func resolveClientCredentialsScope() string {
@@ -137,20 +136,21 @@ func resolveClientCredentialsUserAgent() string {
 	return "finra-pp-cli/0.1.0"
 }
 
-// mintClientCredentialsToken POSTs grant_type=client_credentials to the
-// token endpoint and returns the parsed token response.
+// mintClientCredentialsToken mints a token via the client_credentials grant.
+//
+// FINRA's FIP token endpoint expects grant_type ONLY as a query parameter on
+// tokenURL (already embedded there) with an EMPTY POST body. Sending a
+// form-encoded body — including one whose grant_type value matches the query
+// string — makes FIP reject the request with
+// {"error":"unsupported_grant_type"}; confirmed via direct curl testing
+// against the QA/test environment. This mirrors the fix in
+// internal/client/client.go's mintClientCredentials; that path handles
+// automatic re-mints for ordinary commands, this one handles `auth login`.
 func mintClientCredentialsToken(httpClient *http.Client, tokenURL, clientID, clientSecret string) (*tokenResponse, error) {
-	form := url.Values{
-		"grant_type": {"client_credentials"},
-	}
-	if scope := resolveClientCredentialsScope(); scope != "" {
-		form.Set("scope", scope)
-	}
-	req, err := http.NewRequest(http.MethodPost, tokenURL, strings.NewReader(form.Encode()))
+	req, err := http.NewRequest(http.MethodPost, tokenURL, nil)
 	if err != nil {
 		return nil, fmt.Errorf("building token request: %w", err)
 	}
-	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 	req.Header.Set("User-Agent", resolveClientCredentialsUserAgent())
 	req.SetBasicAuth(clientID, clientSecret)
 
@@ -170,6 +170,14 @@ func mintClientCredentialsToken(httpClient *http.Client, tokenURL, clientID, cli
 	}
 	if tok.AccessToken == "" {
 		return nil, fmt.Errorf("token response missing access_token")
+	}
+	// FINRA returns expires_in as a JSON-encoded string (e.g. "43170"), not a
+	// JSON number, despite RFC 6749 §6 describing it as a number; confirmed
+	// via a live token mint. cliutil.ExtractInt accepts either shape.
+	var rawFields map[string]json.RawMessage
+	_ = json.Unmarshal(body, &rawFields)
+	if expiresIn, ok := cliutil.ExtractInt(rawFields, "expires_in"); ok {
+		tok.ExpiresIn = expiresIn
 	}
 	return &tok, nil
 }

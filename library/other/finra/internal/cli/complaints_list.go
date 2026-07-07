@@ -86,7 +86,12 @@ func newNovelComplaintsListCmd(flags *rootFlags) *cobra.Command {
 
 			if hasWindow {
 				now := time.Now().UTC()
-				filings = filterRecordsByDateWindow(filings, now.Add(-window), now)
+				// submissionDate is the confirmed filing-date field for
+				// 4530FILINGS (per /metadata); preferred over the generic
+				// date-key scan since a filing record also carries
+				// discoveryDate, and picking the wrong one alphabetically
+				// would filter by the wrong semantic date.
+				filings = filterRecordsByDateWindowPreferField(filings, "submissionDate", now.Add(-window), now)
 			}
 
 			view := complaintsListView{FirmCRD: flagFirm, Filings: filings, Count: len(filings)}

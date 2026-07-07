@@ -84,7 +84,11 @@ func newNovelComplaintsNewCmd(flags *rootFlags) *cobra.Command {
 			if err != nil {
 				return apiErr(fmt.Errorf("parsing %s/%s response: %w", flagGroup, flagName, err))
 			}
-			filings = filterRecordsByDateWindow(filings, cutoff, now)
+			// submissionDate is the confirmed filing-date field for 4530FILINGS
+			// (per /metadata); preferred over the generic date-key scan since a
+			// filing record also carries discoveryDate, and picking the wrong
+			// one alphabetically would filter by the wrong semantic date.
+			filings = filterRecordsByDateWindowPreferField(filings, "submissionDate", cutoff, now)
 
 			view := complaintsNewView{
 				FirmCRD:    flagFirm,

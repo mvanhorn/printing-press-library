@@ -60,7 +60,7 @@ func newDataListCmd(flags *rootFlags) *cobra.Command {
 			if flagQuoteValues != false {
 				params["quoteValues"] = formatCLIParamValue(flagQuoteValues)
 			}
-			data, prov, err := resolveReadWithStrategyAndResponsePath(cmd.Context(), c, flags, "auto", "data", false, path, params, nil, "", cmd.ErrOrStderr())
+			data, prov, err := resolveReadWithStrategyAndResponsePath(cmd.Context(), c, flags, "auto", "data", true, path, params, nil, "", cmd.ErrOrStderr())
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}

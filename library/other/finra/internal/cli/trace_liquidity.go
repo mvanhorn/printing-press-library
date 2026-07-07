@@ -6,6 +6,7 @@ package cli
 
 import (
 	"fmt"
+	"strconv"
 	"strings"
 	"time"
 
@@ -177,12 +178,21 @@ func computeLiquidityTrend(records []map[string]any, windowStart, windowEnd time
 }
 
 // sumNumericField adds up a named numeric field across records, skipping
-// records where the field is absent or not a number.
+// records where the field is absent or unparseable. FINRA can encode a
+// numeric field as either a JSON number or a JSON-encoded string (confirmed
+// pattern for expires_in elsewhere in this CLI), so both shapes are accepted
+// rather than silently dropping string-encoded values via a bare float64
+// type assertion.
 func sumNumericField(records []map[string]any, field string) float64 {
 	var total float64
 	for _, rec := range records {
-		if f, ok := rec[field].(float64); ok {
-			total += f
+		switch v := rec[field].(type) {
+		case float64:
+			total += v
+		case string:
+			if f, err := strconv.ParseFloat(v, 64); err == nil {
+				total += f
+			}
 		}
 	}
 	return total

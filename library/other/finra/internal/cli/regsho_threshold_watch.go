@@ -213,6 +213,28 @@ func filterRecordsByDateWindow(records []map[string]any, start, end time.Time) [
 	return out
 }
 
+// filterRecordsByDateWindowPreferField behaves like filterRecordsByDateWindow
+// but tries the confirmed field name first via recordDateAtField, falling
+// back to findRecordDate's generic "date"-suffixed key scan only when the
+// preferred field is absent from a record. Use this when a dataset's real
+// date field is confirmed (e.g. via /metadata) AND a record may carry more
+// than one date-like key, where findRecordDate's alphabetical tie-break could
+// otherwise pick a different, semantically-wrong date field.
+func filterRecordsByDateWindowPreferField(records []map[string]any, preferredField string, start, end time.Time) []map[string]any {
+	var out []map[string]any
+	for _, rec := range records {
+		d, ok := recordDateAtField(rec, preferredField)
+		if !ok {
+			d, ok = findRecordDate(rec)
+		}
+		if !ok || d.Before(start) || d.After(end) {
+			continue
+		}
+		out = append(out, rec)
+	}
+	return out
+}
+
 // filterDatesByWindow keeps only dates within [start, end] inclusive.
 func filterDatesByWindow(dates []time.Time, start, end time.Time) []time.Time {
 	var out []time.Time
