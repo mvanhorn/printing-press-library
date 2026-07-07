@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "duplicates-member-level-handled-filter",
+  "applied_at": "2026-05-13",
+  "base_run_id": "20260513-094903",
+  "base_printing_press_version": "4.5.2",
+  "summary": "Filtered split/group transactions out of duplicate clusters at the member level.",
+  "reason": "A handled split or group transaction can share a merchant/date/amount cluster with genuine duplicates; excluding the whole cluster hides the duplicate charges.",
+  "files": [
+    "internal/cli/transactions_duplicates.go",
+    "internal/cli/transactions_duplicates_test.go"
+  ],
+  "validated_outcome": "go test ./internal/cli passes, including duplicate clustering with a handled split member."
+}

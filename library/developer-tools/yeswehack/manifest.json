@@ -1,0 +1,39 @@
+{
+  "manifest_version": "0.3",
+  "name": "yeswehack-pp-mcp",
+  "display_name": "YesWeHack",
+  "version": "4.2.2",
+  "description": "Every YesWeHack researcher feature, plus an offline SQLite-backed cockpit for scope cartography, drift detection, draft reports, and hacktivity learning.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/yeswehack-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/yeswehack-pp-mcp",
+      "args": [],
+      "env": {
+        "YESWEHACK_JWT": "${user_config.yeswehack_jwt}"
+      }
+    }
+  },
+  "user_config": {
+    "yeswehack_jwt": {
+      "type": "string",
+      "title": "YESWEHACK_JWT",
+      "description": "Sets YESWEHACK_JWT for the YesWeHack MCP server.",
+      "sensitive": true,
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

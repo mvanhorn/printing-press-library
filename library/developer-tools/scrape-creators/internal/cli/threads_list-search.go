@@ -19,46 +19,57 @@ func newThreadsListSearchCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:         "list-search",
-		Short:       "Searches Threads for posts matching a keyword, returning up to 10 results with caption text, like_count,...",
-		Example:     "  scrape-creators-pp-cli threads list-search",
-		Annotations: map[string]string{"pp:endpoint": "threads.list-search", "mcp:read-only": "true"},
+		Short:       "Searches Threads for posts matching a keyword, returning up to 10 results with caption text, like_count, reshare_count",
+		Example:     "  scrape-creators-pp-cli threads list-search --query basketball",
+		Annotations: map[string]string{"pp:endpoint": "threads.list-search", "pp:method": "GET", "pp:path": "/v1/threads/search", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
+			// Bare invocation of a command with required input prints help
+			// instead of pflag's terse "required flag not set" error. Optional-
+			// only read commands fall through so a bare call still executes.
+			if cmd.Flags().NFlag() == 0 && len(args) == 0 && !flags.dryRun {
+				return cmd.Help()
+			}
 			if !cmd.Flags().Changed("query") && !flags.dryRun {
 				return fmt.Errorf("required flag \"%s\" not set", "query")
 			}
+			path := "/v1/threads/search"
 			c, err := flags.newClient()
 			if err != nil {
 				return err
 			}
-
-			path := "/v1/threads/search"
 			params := map[string]string{}
 			if flagQuery != "" {
-				params["query"] = fmt.Sprintf("%v", flagQuery)
+				params["query"] = formatCLIParamValue(flagQuery)
 			}
 			if flagStartDate != "" {
-				params["start_date"] = fmt.Sprintf("%v", flagStartDate)
+				params["start_date"] = formatCLIParamValue(flagStartDate)
 			}
 			if flagEndDate != "" {
-				params["end_date"] = fmt.Sprintf("%v", flagEndDate)
+				params["end_date"] = formatCLIParamValue(flagEndDate)
 			}
 			if flagTrim != false {
-				params["trim"] = fmt.Sprintf("%v", flagTrim)
+				params["trim"] = formatCLIParamValue(flagTrim)
 			}
-			data, prov, err := resolveRead(cmd.Context(), c, flags, "threads", false, path, params, nil)
+			data, prov, err := resolveReadWithStrategyAndResponsePath(cmd.Context(), c, flags, "auto", "threads", false, path, params, nil, "", cmd.ErrOrStderr())
 			if err != nil {
-				return classifyAPIError(err)
+				return classifyAPIError(err, flags)
 			}
-			// Print provenance to stderr for human-facing output
-			{
+			// Print provenance to stderr for human-facing output only.
+			// Machine-format flags (--json, --csv, --compact, --quiet, --plain,
+			// --select) and piped stdout suppress this line; the JSON envelope
+			// already carries meta.source for those consumers.
+			// SYNC: keep this gate aligned with command_promoted.go.tmpl.
+			if wantsHumanTable(cmd.OutOrStdout(), flags) {
 				var countItems []json.RawMessage
 				_ = json.Unmarshal(data, &countItems)
 				printProvenance(cmd, len(countItems), prov)
 			}
 			// For JSON output, wrap with provenance envelope before passing through flags.
 			// --select wins over --compact when both are set; --compact only runs when
-			// no explicit fields were requested.
-			if flags.asJSON || !isTerminal(cmd.OutOrStdout()) {
+			// no explicit fields were requested. Explicit format flags (--csv, --quiet,
+			// --plain) opt out of the auto-JSON path so piped consumers that asked for
+			// a non-JSON format reach the standard pipeline below.
+			if flags.asJSON || (!isTerminal(cmd.OutOrStdout()) && !flags.csv && !flags.quiet && !flags.plain) {
 				filtered := data
 				if flags.selectFields != "" {
 					filtered = filterFields(filtered, flags.selectFields)
@@ -84,7 +95,7 @@ func newThreadsListSearchCmd(flags *rootFlags) *cobra.Command {
 					return nil
 				}
 			}
-			return printOutputWithFlags(cmd.OutOrStdout(), data, flags)
+			return printOutputWithFlagsMeta(cmd.OutOrStdout(), data, flags, map[string]any{"source": "live"})
 		},
 	}
 	cmd.Flags().StringVar(&flagQuery, "query", "", "Keyword to search for")

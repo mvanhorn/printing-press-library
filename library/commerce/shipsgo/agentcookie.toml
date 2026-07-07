@@ -1,0 +1,16 @@
+# agentcookie.toml: secrets-bus adoption manifest v2
+# See docs/spec-agentcookie-secrets-bus-v2-adoption.md
+schema_version = 2
+name = "shipsgo-pp-cli"
+display_name = "ShipsGo"
+description = "Every ShipsGo endpoint, plus an RFQ workspace, lane analytics, and an offline shipment book no other tool offers."
+project_kind = "cli"
+
+[secrets.file]
+path = "~/.config/shipsgo-pp-cli/config.toml"
+
+[sync]
+default = false
+
+[sync.keys]
+SHIPSGO_USER_TOKEN = true

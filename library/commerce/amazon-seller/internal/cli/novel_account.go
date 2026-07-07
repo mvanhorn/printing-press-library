@@ -18,10 +18,10 @@ func newAccountHealthCmd(flags *rootFlags) *cobra.Command {
 	dashboard := &cobra.Command{Use: "dashboard", Short: "Show account health summary", RunE: func(cmd *cobra.Command, args []string) error {
 		return runNovelCommand(cmd, flags, novelRunOptions{DBPath: dbPath, MarketplaceID: marketplaceID, ReportTimeout: reportTimeout}, func(ctx context.Context, r *novelCommandRunner) (any, error) {
 			if err := r.ensureReports(ctx,
-				marketSpec("GET_MERCHANTS_LISTINGS_FYP_REPORT", marketplaceID, 1),
-				marketSpec("GET_STRANDED_INVENTORY_UI_DATA", marketplaceID, 1),
-				marketSpec("GET_FBA_FULFILLMENT_CUSTOMER_RETURNS_DATA", marketplaceID, 30),
-				marketSpec("GET_FBA_REIMBURSEMENTS_DATA", marketplaceID, 30),
+				optionalMarketSpec("GET_MERCHANTS_LISTINGS_FYP_REPORT", marketplaceID, 1),
+				optionalMarketSpec("GET_STRANDED_INVENTORY_UI_DATA", marketplaceID, 1),
+				optionalMarketSpec("GET_FBA_FULFILLMENT_CUSTOMER_RETURNS_DATA", marketplaceID, 30),
+				optionalMarketSpec("GET_FBA_REIMBURSEMENTS_DATA", marketplaceID, 30),
 			); err != nil {
 				return nil, err
 			}

@@ -7,6 +7,7 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
+	"sort"
 	"strings"
 	"time"
 )
@@ -18,6 +19,7 @@ type UFOFile struct {
 	Type             string `json:"type"`
 	Agency           string `json:"agency"`
 	ReleaseDate      string `json:"release_date"`
+	ReleaseBatch     int    `json:"release_batch"`
 	IncidentDate     string `json:"incident_date"`
 	ParsedDate       string `json:"parsed_date,omitempty"`
 	IncidentLocation string `json:"incident_location"`
@@ -37,13 +39,14 @@ type UFOFile struct {
 
 // FileFilter holds filter criteria for listing files.
 type FileFilter struct {
-	Agency   string
-	Type     string
-	Location string
-	After    string // parsed date >= after
-	Before   string // parsed date <= before
-	Redacted *bool
-	Limit    int
+	Agency       string
+	Type         string
+	Location     string
+	After        string // parsed date >= after
+	Before       string // parsed date <= before
+	Redacted     *bool
+	ReleaseBatch int // 0 = no batch filter
+	Limit        int
 }
 
 // LocationSummary aggregates incidents by location.
@@ -80,6 +83,7 @@ func (s *Store) EnsureUFOSchema() error {
 	columns := []struct{ name, decl string }{
 		{"title", "TEXT"},
 		{"release_date", "TEXT"},
+		{"release_batch", "INTEGER DEFAULT 0"},
 		{"incident_date", "TEXT"},
 		{"parsed_date", "TEXT"},
 		{"incident_location", "TEXT"},
@@ -163,12 +167,13 @@ func (s *Store) UpsertUFOFile(f UFOFile) error {
 	}
 
 	_, err = tx.Exec(
-		`INSERT INTO files (id, data, synced_at, agency, type, location, redacted, title, release_date, incident_date, parsed_date, incident_location, description, download_url, thumbnail_url, dvids_video_id, video_title, video_pairing, pdf_pairing, modal_image, pdf_image_link, downloaded)
-		 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+		`INSERT INTO files (id, data, synced_at, agency, type, location, redacted, title, release_date, release_batch, incident_date, parsed_date, incident_location, description, download_url, thumbnail_url, dvids_video_id, video_title, video_pairing, pdf_pairing, modal_image, pdf_image_link, downloaded)
+		 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
 		 ON CONFLICT(id) DO UPDATE SET
 		   data = excluded.data, synced_at = excluded.synced_at, agency = excluded.agency,
 		   type = excluded.type, location = excluded.location, redacted = excluded.redacted,
 		   title = excluded.title, release_date = excluded.release_date,
+		   release_batch = excluded.release_batch,
 		   incident_date = excluded.incident_date, parsed_date = excluded.parsed_date,
 		   incident_location = excluded.incident_location, description = excluded.description,
 		   download_url = excluded.download_url, thumbnail_url = excluded.thumbnail_url,
@@ -178,7 +183,7 @@ func (s *Store) UpsertUFOFile(f UFOFile) error {
 		   downloaded = excluded.downloaded`,
 		f.ID, string(data), time.Now().Format(time.RFC3339),
 		f.Agency, f.Type, f.IncidentLocation, redacted,
-		f.Title, f.ReleaseDate, f.IncidentDate, f.ParsedDate,
+		f.Title, f.ReleaseDate, f.ReleaseBatch, f.IncidentDate, f.ParsedDate,
 		f.IncidentLocation, f.Description, f.DownloadURL, f.ThumbnailURL,
 		f.DVIDSVideoID, f.VideoTitle, f.VideoPairing, f.PDFPairing,
 		f.ModalImage, f.PDFImageLink, 0,
@@ -219,12 +224,13 @@ func (s *Store) UpsertUFOFileBatch(files []UFOFile) (int, error) {
 		}
 
 		_, err = tx.Exec(
-			`INSERT INTO files (id, data, synced_at, agency, type, location, redacted, title, release_date, incident_date, parsed_date, incident_location, description, download_url, thumbnail_url, dvids_video_id, video_title, video_pairing, pdf_pairing, modal_image, pdf_image_link, downloaded)
-			 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+			`INSERT INTO files (id, data, synced_at, agency, type, location, redacted, title, release_date, release_batch, incident_date, parsed_date, incident_location, description, download_url, thumbnail_url, dvids_video_id, video_title, video_pairing, pdf_pairing, modal_image, pdf_image_link, downloaded)
+			 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
 			 ON CONFLICT(id) DO UPDATE SET
 			   data = excluded.data, synced_at = excluded.synced_at, agency = excluded.agency,
 			   type = excluded.type, location = excluded.location, redacted = excluded.redacted,
 			   title = excluded.title, release_date = excluded.release_date,
+			   release_batch = excluded.release_batch,
 			   incident_date = excluded.incident_date, parsed_date = excluded.parsed_date,
 			   incident_location = excluded.incident_location, description = excluded.description,
 			   download_url = excluded.download_url, thumbnail_url = excluded.thumbnail_url,
@@ -234,7 +240,7 @@ func (s *Store) UpsertUFOFileBatch(files []UFOFile) (int, error) {
 			   downloaded = excluded.downloaded`,
 			f.ID, string(data), time.Now().Format(time.RFC3339),
 			f.Agency, f.Type, f.IncidentLocation, redacted,
-			f.Title, f.ReleaseDate, f.IncidentDate, f.ParsedDate,
+			f.Title, f.ReleaseDate, f.ReleaseBatch, f.IncidentDate, f.ParsedDate,
 			f.IncidentLocation, f.Description, f.DownloadURL, f.ThumbnailURL,
 			f.DVIDSVideoID, f.VideoTitle, f.VideoPairing, f.PDFPairing,
 			f.ModalImage, f.PDFImageLink, 0,
@@ -288,7 +294,7 @@ func (s *Store) ListUFOFiles(filter FileFilter) ([]UFOFile, error) {
 		COALESCE(download_url,''), COALESCE(thumbnail_url,''), COALESCE(dvids_video_id,''),
 		COALESCE(video_title,''), COALESCE(video_pairing,''), COALESCE(pdf_pairing,''),
 		COALESCE(modal_image,''), COALESCE(pdf_image_link,''), COALESCE(synced_at,''),
-		COALESCE(downloaded,0)
+		COALESCE(downloaded,0), COALESCE(release_batch,0)
 		FROM files WHERE 1=1`
 	var args []any
 
@@ -319,6 +325,10 @@ func (s *Store) ListUFOFiles(filter FileFilter) ([]UFOFile, error) {
 			query += ` AND (redacted = 0 OR redacted IS NULL)`
 		}
 	}
+	if filter.ReleaseBatch > 0 {
+		query += ` AND release_batch = ?`
+		args = append(args, filter.ReleaseBatch)
+	}
 
 	query += ` ORDER BY COALESCE(NULLIF(parsed_date,''), '9999-99-99') ASC, title ASC`
 
@@ -345,7 +355,7 @@ func (s *Store) GetUFOFileByID(idOrTitle string) (*UFOFile, error) {
 		COALESCE(download_url,''), COALESCE(thumbnail_url,''), COALESCE(dvids_video_id,''),
 		COALESCE(video_title,''), COALESCE(video_pairing,''), COALESCE(pdf_pairing,''),
 		COALESCE(modal_image,''), COALESCE(pdf_image_link,''), COALESCE(synced_at,''),
-		COALESCE(downloaded,0)
+		COALESCE(downloaded,0), COALESCE(release_batch,0)
 		FROM files WHERE id = ?`, idOrTitle)
 
 	f, err := scanSingleUFOFile(row)
@@ -361,7 +371,7 @@ func (s *Store) GetUFOFileByID(idOrTitle string) (*UFOFile, error) {
 		COALESCE(download_url,''), COALESCE(thumbnail_url,''), COALESCE(dvids_video_id,''),
 		COALESCE(video_title,''), COALESCE(video_pairing,''), COALESCE(pdf_pairing,''),
 		COALESCE(modal_image,''), COALESCE(pdf_image_link,''), COALESCE(synced_at,''),
-		COALESCE(downloaded,0)
+		COALESCE(downloaded,0), COALESCE(release_batch,0)
 		FROM files WHERE id LIKE ?`, idOrTitle+"%")
 
 	f, err = scanSingleUFOFile(row)
@@ -377,7 +387,7 @@ func (s *Store) GetUFOFileByID(idOrTitle string) (*UFOFile, error) {
 		COALESCE(download_url,''), COALESCE(thumbnail_url,''), COALESCE(dvids_video_id,''),
 		COALESCE(video_title,''), COALESCE(video_pairing,''), COALESCE(pdf_pairing,''),
 		COALESCE(modal_image,''), COALESCE(pdf_image_link,''), COALESCE(synced_at,''),
-		COALESCE(downloaded,0)
+		COALESCE(downloaded,0), COALESCE(release_batch,0)
 		FROM files WHERE LOWER(title) LIKE LOWER(?)`, "%"+idOrTitle+"%")
 
 	f, err = scanSingleUFOFile(row)
@@ -388,9 +398,13 @@ func (s *Store) GetUFOFileByID(idOrTitle string) (*UFOFile, error) {
 }
 
 // SearchUFOFiles performs full-text search across titles, descriptions, locations.
-func (s *Store) SearchUFOFiles(query string, limit int) ([]UFOFile, error) {
+func (s *Store) SearchUFOFiles(query string, limit int, releaseBatch int) ([]UFOFile, error) {
 	if limit <= 0 {
 		limit = 50
+	}
+	batchFilter := 0
+	if releaseBatch > 0 {
+		batchFilter = 1
 	}
 
 	// Try FTS5 first
@@ -401,28 +415,33 @@ func (s *Store) SearchUFOFiles(query string, limit int) ([]UFOFile, error) {
 		COALESCE(f.download_url,''), COALESCE(f.thumbnail_url,''), COALESCE(f.dvids_video_id,''),
 		COALESCE(f.video_title,''), COALESCE(f.video_pairing,''), COALESCE(f.pdf_pairing,''),
 		COALESCE(f.modal_image,''), COALESCE(f.pdf_image_link,''), COALESCE(f.synced_at,''),
-		COALESCE(f.downloaded,0)
+		COALESCE(f.downloaded,0), COALESCE(f.release_batch,0)
 		FROM files_fts fts
 		JOIN files f ON fts.id = f.id
 		WHERE files_fts MATCH ?
+		  AND (? = 0 OR f.release_batch = ?)
 		ORDER BY rank
-		LIMIT ?`, query, limit)
+		LIMIT ?`, query, batchFilter, releaseBatch, limit)
 	if err != nil {
 		// Fallback to LIKE search if FTS fails
-		return s.searchUFOFilesLike(query, limit)
+		return s.searchUFOFilesLike(query, limit, releaseBatch)
 	}
 	defer rows.Close()
 
 	files, err := scanUFOFiles(rows)
 	if err != nil || len(files) == 0 {
 		// Fallback to LIKE search
-		return s.searchUFOFilesLike(query, limit)
+		return s.searchUFOFilesLike(query, limit, releaseBatch)
 	}
 	return files, nil
 }
 
-func (s *Store) searchUFOFilesLike(query string, limit int) ([]UFOFile, error) {
+func (s *Store) searchUFOFilesLike(query string, limit int, releaseBatch int) ([]UFOFile, error) {
 	pattern := "%" + query + "%"
+	batchFilter := 0
+	if releaseBatch > 0 {
+		batchFilter = 1
+	}
 	rows, err := s.db.Query(
 		`SELECT id, COALESCE(title,''), COALESCE(type,''), COALESCE(agency,''),
 		COALESCE(release_date,''), COALESCE(incident_date,''), COALESCE(parsed_date,''),
@@ -430,15 +449,16 @@ func (s *Store) searchUFOFilesLike(query string, limit int) ([]UFOFile, error) {
 		COALESCE(download_url,''), COALESCE(thumbnail_url,''), COALESCE(dvids_video_id,''),
 		COALESCE(video_title,''), COALESCE(video_pairing,''), COALESCE(pdf_pairing,''),
 		COALESCE(modal_image,''), COALESCE(pdf_image_link,''), COALESCE(synced_at,''),
-		COALESCE(downloaded,0)
+		COALESCE(downloaded,0), COALESCE(release_batch,0)
 		FROM files
-		WHERE LOWER(title) LIKE LOWER(?)
+		WHERE (LOWER(title) LIKE LOWER(?)
 		   OR LOWER(description) LIKE LOWER(?)
 		   OR LOWER(incident_location) LIKE LOWER(?)
 		   OR LOWER(video_title) LIKE LOWER(?)
-		   OR LOWER(agency) LIKE LOWER(?)
+		   OR LOWER(agency) LIKE LOWER(?))
+		  AND (? = 0 OR release_batch = ?)
 		ORDER BY title ASC
-		LIMIT ?`, pattern, pattern, pattern, pattern, pattern, limit)
+		LIMIT ?`, pattern, pattern, pattern, pattern, pattern, batchFilter, releaseBatch, limit)
 	if err != nil {
 		return nil, fmt.Errorf("searching files: %w", err)
 	}
@@ -447,14 +467,14 @@ func (s *Store) searchUFOFilesLike(query string, limit int) ([]UFOFile, error) {
 }
 
 // GetTimeline returns files ordered by parsed incident date.
-func (s *Store) GetTimeline(after, before string) ([]UFOFile, error) {
+func (s *Store) GetTimeline(after, before string, releaseBatch int) ([]UFOFile, error) {
 	query := `SELECT id, COALESCE(title,''), COALESCE(type,''), COALESCE(agency,''),
 		COALESCE(release_date,''), COALESCE(incident_date,''), COALESCE(parsed_date,''),
 		COALESCE(incident_location,''), COALESCE(description,''), COALESCE(redacted,0),
 		COALESCE(download_url,''), COALESCE(thumbnail_url,''), COALESCE(dvids_video_id,''),
 		COALESCE(video_title,''), COALESCE(video_pairing,''), COALESCE(pdf_pairing,''),
 		COALESCE(modal_image,''), COALESCE(pdf_image_link,''), COALESCE(synced_at,''),
-		COALESCE(downloaded,0)
+		COALESCE(downloaded,0), COALESCE(release_batch,0)
 		FROM files WHERE parsed_date != '' AND parsed_date IS NOT NULL`
 	var args []any
 
@@ -465,6 +485,10 @@ func (s *Store) GetTimeline(after, before string) ([]UFOFile, error) {
 	if before != "" {
 		query += ` AND parsed_date <= ?`
 		args = append(args, before)
+	}
+	if releaseBatch > 0 {
+		query += ` AND release_batch = ?`
+		args = append(args, releaseBatch)
 	}
 
 	query += ` ORDER BY parsed_date ASC`
@@ -650,7 +674,7 @@ func (s *Store) GetNewFiles(since time.Time) ([]UFOFile, error) {
 		COALESCE(download_url,''), COALESCE(thumbnail_url,''), COALESCE(dvids_video_id,''),
 		COALESCE(video_title,''), COALESCE(video_pairing,''), COALESCE(pdf_pairing,''),
 		COALESCE(modal_image,''), COALESCE(pdf_image_link,''), COALESCE(synced_at,''),
-		COALESCE(downloaded,0)
+		COALESCE(downloaded,0), COALESCE(release_batch,0)
 		FROM files WHERE synced_at > ?
 		ORDER BY synced_at DESC`, since.Format(time.RFC3339))
 	if err != nil {
@@ -658,6 +682,128 @@ func (s *Store) GetNewFiles(since time.Time) ([]UFOFile, error) {
 	}
 	defer rows.Close()
 	return scanUFOFiles(rows)
+}
+
+// ReleaseSummary aggregates files by PURSUE release tranche (batch).
+type ReleaseSummary struct {
+	Batch       int            `json:"batch"`
+	ReleaseDate string         `json:"release_date"`
+	FileCount   int            `json:"file_count"`
+	Agencies    map[string]int `json:"agencies"`
+	Types       map[string]int `json:"types"`
+}
+
+// GetReleases returns one summary per release tranche, ordered by batch number.
+// Batch 0 (files with no derivable tranche) is reported as an "unknown" group.
+func (s *Store) GetReleases() ([]ReleaseSummary, error) {
+	rows, err := s.db.Query(
+		`SELECT COALESCE(release_batch,0), COALESCE(release_date,''),
+		 COALESCE(agency,'Unknown'), COALESCE(type,'')
+		 FROM files`)
+	if err != nil {
+		return nil, fmt.Errorf("querying releases: %w", err)
+	}
+	defer rows.Close()
+
+	byBatch := map[int]*ReleaseSummary{}
+	for rows.Next() {
+		var batch int
+		var rdate, agency, ftype string
+		if err := rows.Scan(&batch, &rdate, &agency, &ftype); err != nil {
+			continue
+		}
+		rs, ok := byBatch[batch]
+		if !ok {
+			rs = &ReleaseSummary{Batch: batch, Agencies: map[string]int{}, Types: map[string]int{}}
+			byBatch[batch] = rs
+		}
+		rs.FileCount++
+		if rs.ReleaseDate == "" && rdate != "" {
+			rs.ReleaseDate = rdate
+		}
+		if agency != "" {
+			rs.Agencies[agency]++
+		}
+		if ftype != "" {
+			rs.Types[ftype]++
+		}
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+
+	batches := make([]int, 0, len(byBatch))
+	for b := range byBatch {
+		batches = append(batches, b)
+	}
+	sort.Ints(batches)
+
+	out := make([]ReleaseSummary, 0, len(batches))
+	for _, b := range batches {
+		out = append(out, *byBatch[b])
+	}
+	return out, nil
+}
+
+// GetMaxReleaseBatch returns the highest tranche number present in the store
+// (0 if there are no files, or none carry a derivable batch).
+func (s *Store) GetMaxReleaseBatch() (int, error) {
+	var max sql.NullInt64
+	err := s.db.QueryRow(`SELECT MAX(release_batch) FROM files`).Scan(&max)
+	if err != nil {
+		return 0, err
+	}
+	if !max.Valid {
+		return 0, nil
+	}
+	return int(max.Int64), nil
+}
+
+// GetReleaseBatches returns the distinct tranche numbers present, ascending,
+// excluding the unknown (0) group.
+func (s *Store) GetReleaseBatches() ([]int, error) {
+	rows, err := s.db.Query(
+		`SELECT DISTINCT release_batch FROM files
+		 WHERE release_batch > 0 ORDER BY release_batch`)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var out []int
+	for rows.Next() {
+		var b int
+		if err := rows.Scan(&b); err != nil {
+			continue
+		}
+		out = append(out, b)
+	}
+	return out, rows.Err()
+}
+
+// ClearFiles wipes all synced file data: the files table, its FTS index, the
+// generic resources rows for files, and the release-tracking sync state. Used by
+// 'sync --full' so a full resync (or a switch between manifest sources) starts
+// from a clean slate instead of accumulating near-duplicate rows across sources.
+func (s *Store) ClearFiles() error {
+	s.writeMu.Lock()
+	defer s.writeMu.Unlock()
+
+	tx, err := s.db.Begin()
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+
+	if _, err := tx.Exec(`DELETE FROM files`); err != nil {
+		return fmt.Errorf("clearing files: %w", err)
+	}
+	// FTS + generic resource mirror; ignore "no such table" on fresh DBs.
+	tx.Exec(`DELETE FROM files_fts`)
+	tx.Exec(`DELETE FROM resources WHERE resource_type = 'files'`)
+	// Reset release-tranche tracking so detection re-baselines after a full sync.
+	tx.Exec(`DELETE FROM sync_state WHERE resource_type = 'releases_seen'`)
+
+	return tx.Commit()
 }
 
 // MarkDownloaded marks a file as downloaded.
@@ -688,7 +834,7 @@ func scanUFOFiles(rows *sql.Rows) ([]UFOFile, error) {
 			&f.DownloadURL, &f.ThumbnailURL, &f.DVIDSVideoID,
 			&f.VideoTitle, &f.VideoPairing, &f.PDFPairing,
 			&f.ModalImage, &f.PDFImageLink, &f.SyncedAt,
-			&downloaded,
+			&downloaded, &f.ReleaseBatch,
 		); err != nil {
 			continue
 		}
@@ -710,7 +856,7 @@ func scanSingleUFOFile(row *sql.Row) (*UFOFile, error) {
 		&f.DownloadURL, &f.ThumbnailURL, &f.DVIDSVideoID,
 		&f.VideoTitle, &f.VideoPairing, &f.PDFPairing,
 		&f.ModalImage, &f.PDFImageLink, &f.SyncedAt,
-		&downloaded,
+		&downloaded, &f.ReleaseBatch,
 	); err != nil {
 		return nil, err
 	}

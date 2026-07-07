@@ -1,0 +1,179 @@
+openapi: 3.0.3
+info:
+  title: Gainsight Read API
+  version: 1.0.0
+  description: Read-first Gainsight NXT API surface for customer success account, relationship, person, timeline, and Cockpit inspection.
+servers:
+  - url: https://example.gainsightcloud.com
+security:
+  - AccessKeyAuth: []
+tags:
+  - name: Companies
+  - name: Relationships
+  - name: People
+  - name: Cockpit
+  - name: Timeline
+  - name: Success Plans
+  - name: Health
+  - name: Data
+paths:
+  /v1/companies:
+    get:
+      operationId: listCompanies
+      tags: [Companies]
+      summary: List Gainsight companies.
+      parameters:
+        - $ref: "#/components/parameters/Limit"
+        - $ref: "#/components/parameters/Offset"
+      responses:
+        "200":
+          $ref: "#/components/responses/Success"
+  /v1/companies/{id}:
+    get:
+      operationId: getCompany
+      tags: [Companies]
+      summary: Get a company by ID.
+      parameters:
+        - $ref: "#/components/parameters/StringId"
+      responses:
+        "200":
+          $ref: "#/components/responses/Success"
+  /v1/relationships:
+    get:
+      operationId: listRelationships
+      tags: [Relationships]
+      summary: List relationships.
+      parameters:
+        - $ref: "#/components/parameters/Limit"
+        - $ref: "#/components/parameters/Offset"
+      responses:
+        "200":
+          $ref: "#/components/responses/Success"
+  /v1/relationships/{id}:
+    get:
+      operationId: getRelationship
+      tags: [Relationships]
+      summary: Get a relationship by ID.
+      parameters:
+        - $ref: "#/components/parameters/StringId"
+      responses:
+        "200":
+          $ref: "#/components/responses/Success"
+  /v1/people:
+    get:
+      operationId: listPeople
+      tags: [People]
+      summary: List people.
+      parameters:
+        - $ref: "#/components/parameters/Limit"
+        - $ref: "#/components/parameters/Offset"
+      responses:
+        "200":
+          $ref: "#/components/responses/Success"
+  /v1/people/{id}:
+    get:
+      operationId: getPerson
+      tags: [People]
+      summary: Get a person by ID.
+      parameters:
+        - $ref: "#/components/parameters/StringId"
+      responses:
+        "200":
+          $ref: "#/components/responses/Success"
+  /v1/cockpit/ctas:
+    get:
+      operationId: listCallsToAction
+      tags: [Cockpit]
+      summary: List Cockpit calls to action.
+      parameters:
+        - $ref: "#/components/parameters/Limit"
+        - $ref: "#/components/parameters/Offset"
+        - name: status
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          $ref: "#/components/responses/Success"
+  /v1/timeline/activities:
+    get:
+      operationId: listTimelineActivities
+      tags: [Timeline]
+      summary: List Timeline activities.
+      parameters:
+        - $ref: "#/components/parameters/Limit"
+        - $ref: "#/components/parameters/Offset"
+        - name: companyId
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          $ref: "#/components/responses/Success"
+  /v1/successplans:
+    get:
+      operationId: listSuccessPlans
+      tags: [Success Plans]
+      summary: List success plans.
+      parameters:
+        - $ref: "#/components/parameters/Limit"
+        - $ref: "#/components/parameters/Offset"
+      responses:
+        "200":
+          $ref: "#/components/responses/Success"
+  /v1/healthscores:
+    get:
+      operationId: listHealthScores
+      tags: [Health]
+      summary: List customer health score records.
+      parameters:
+        - $ref: "#/components/parameters/Limit"
+        - $ref: "#/components/parameters/Offset"
+      responses:
+        "200":
+          $ref: "#/components/responses/Success"
+  /v1/data/objects:
+    get:
+      operationId: listObjects
+      tags: [Data]
+      summary: List Gainsight data objects.
+      responses:
+        "200":
+          $ref: "#/components/responses/Success"
+components:
+  securitySchemes:
+    AccessKeyAuth:
+      type: apiKey
+      in: header
+      name: accesskey
+  parameters:
+    StringId:
+      name: id
+      in: path
+      required: true
+      schema:
+        type: string
+    Limit:
+      name: limit
+      in: query
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 1000
+    Offset:
+      name: offset
+      in: query
+      schema:
+        type: integer
+        minimum: 0
+  responses:
+    Success:
+      description: Successful Gainsight response.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/AnyObject"
+  schemas:
+    AnyObject:
+      type: object
+      additionalProperties: true

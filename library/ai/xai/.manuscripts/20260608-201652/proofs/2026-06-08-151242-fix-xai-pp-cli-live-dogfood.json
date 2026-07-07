@@ -1,0 +1,270 @@
+{
+  "dir": "/Users/cathrynlavery/printing-press/library/xai",
+  "binary": "/Users/cathrynlavery/printing-press/library/xai/xai-pp-cli",
+  "level": "quick",
+  "verdict": "PASS",
+  "matrix_size": 17,
+  "passed": 17,
+  "failed": 0,
+  "skipped": 10,
+  "commands": [
+    "analytics",
+    "api",
+    "api-key",
+    "chat handle-generic-completion-request",
+    "complete",
+    "completions"
+  ],
+  "tests": [
+    {
+      "command": "analytics",
+      "kind": "help",
+      "args": [
+        "analytics",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Analyze locally synced data with count, group-by, and summary operations.\nData must be synced first with the sync command.\n\nUsage:\n  xai-pp-cli analytics [flags]\n\nExamples:\n  # Count records by type\n  xai-pp-cli analytics --type messages\n\n  # Group by a field\n  xai-pp-cli analytics --type messages --group-by author_id\n\n  # Top 10 most frequent values\n  xai-pp-cli analytics --type messages --group-by channel_id --limit 10 --json\n\nFlags:\n      --db string         Database path\n      --group-by string   Field to group by\n  -h, --help              help for analytics\n      --limit int         Max groups to show (default 25)\n      --type string       Resource type to analyze\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --ignore-missing          Treat missing delete targets as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'xai-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "analytics",
+      "kind": "happy_path",
+      "args": [
+        "analytics",
+        "--type",
+        "messages"
+      ],
+      "status": "pass",
+      "output_sample": "messages: 0 records\nhint: local store has not been synced yet. Run 'xai-pp-cli sync' before trusting local results.\n"
+    },
+    {
+      "command": "analytics",
+      "kind": "json_fidelity",
+      "args": [
+        "analytics",
+        "--type",
+        "messages",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"count\": 0,\n  \"resource_type\": \"messages\"\n}\nhint: local store has not been synced yet. Run 'xai-pp-cli sync' before trusting local results.\n"
+    },
+    {
+      "command": "analytics",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "api",
+      "kind": "help",
+      "args": [
+        "api",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Browse and call any API endpoint using the raw interface names.\n\nThe friendly top-level commands cover the most common operations.\nThis command provides access to ALL endpoints for power users and\nagents that need full API coverage.\n\nRun 'api' with no arguments to list all interfaces.\nRun 'api \u003cinterface\u003e' to see that interface's methods.\n\nUsage:\n  xai-pp-cli api [interface] [flags]\n\nExamples:\n  # List all available interfaces\n  xai-pp-cli api\n\n  # Show methods for a specific interface\n  xai-pp-cli api \u003cinterface-name\u003e\n\nFlags:\n  -h, --help   help for api\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --ignore-missing          Treat missing delete targets as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'xai-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "api",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [api] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "api",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [api] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "api",
+      "kind": "error_path",
+      "args": [
+        "api",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "Error: interface \"__printing_press_invalid__\" not found. Run 'xai-pp-cli api' to list all interfaces\n"
+    },
+    {
+      "command": "api-key",
+      "kind": "help",
+      "args": [
+        "api-key",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Get information about an API key, including name, status, permissions and users who created or modified this key.\n\nUsage:\n  xai-pp-cli api-key [flags]\n\nExamples:\n  xai-pp-cli api-key\n\nFlags:\n  -h, --help   help for api-key\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --ignore-missing          Treat missing delete targets as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'xai-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "api-key",
+      "kind": "happy_path",
+      "args": [
+        "api-key"
+      ],
+      "status": "pass",
+      "output_sample": "{\"meta\":{\"source\":\"live\"},\"results\":{\"acls\":[\"api-key:model:*\",\"api-key:endpoint:*\",\"\"],\"api_key_blocked\":false,\"api_key_disabled\":false,\"api_key_id\":\"<REDACTED:uuid>\",\"create_time\":\"\",\"modified_by\":\"<REDACTED:uuid>\",\"modify_time\":\"\",\"name\":\"\u003credacted\u003e\",\"redacted_api_key\":\"<REDACTED:xai-key-tail>\",\"team_blocked\":false,\"team_id\":\"<REDACTED:uuid>\",\"user_id\":\"<REDACTED:uuid>\"}}"
+    },
+    {
+      "command": "api-key",
+      "kind": "json_fidelity",
+      "args": [
+        "api-key",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\"meta\":{\"source\":\"live\"},\"results\":{\"acls\":[\"api-key:model:*\",\"api-key:endpoint:*\",\"\"],\"api_key_blocked\":false,\"api_key_disabled\":false,\"api_key_id\":\"<REDACTED:uuid>\",\"create_time\":\"\",\"modified_by\":\"<REDACTED:uuid>\",\"modify_time\":\"\",\"name\":\"\u003credacted\u003e\",\"redacted_api_key\":\"<REDACTED:xai-key-tail>\",\"team_blocked\":false,\"team_id\":\"<REDACTED:uuid>\",\"user_id\":\"<REDACTED:uuid>\"}}"
+    },
+    {
+      "command": "api-key",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "chat handle-generic-completion-request",
+      "kind": "help",
+      "args": [
+        "chat",
+        "handle-generic-completion-request",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Create a chat response from text/image chat prompts.\n\nUsage:\n  xai-pp-cli chat handle-generic-completion-request [flags]\n\nAliases:\n  handle-generic-completion-request, create\n\nExamples:\n  xai-pp-cli chat handle-generic-completion-request\n\nFlags:\n      --deferred true               If set to true, the request returns a `request_id`.\n      --frequency-penalty float     (Not supported by reasoning models) Number between -2.0 and 2.0.\n  -h, --help                        help for handle-generic-completion-request\n      --logit-bias string           (Unsupported) A JSON object that maps tokens (specified by their token ID in the tokenizer)\n      --logprobs                    Whether to return log probabilities of the output tokens or not.\n      --max-completion-tokens int   An upper bound for the number of tokens that can be generated for a completion\n      --max-tokens int              [DEPRECATED] The maximum number of tokens that can be generated in the chat completion.\n      --messages string             A list of messages that make up the chat conversation.\n      --model string                Model name for the model to use. Obtainable from \u003chttps://console.x.ai/team/default/models\u003e or \u003chttps://docs.x.\n      --n int                       How many chat completion choices to generate for each input message. (default 1)\n      --parallel-tool-calls         If set to false, the model can perform maximum one tool call. (default true)\n      --presence-penalty grok-3     (Not supported by grok-3 and reasoning models) Number between -2.0 and 2.0.\n      --reasoning-effort grok-4.3   Constrains how hard a reasoning model thinks before responding. Only supported by grok-4.3.\n      --response-format string      Response format\n      --search-parameters string    Search parameters\n      --seed int                    If specified, our system will make a best effort to sample deterministically\n      --service-tier string         Service tier\n      --stdin                       Read request body as JSON from stdin\n      --stop string                 (Not supported by reasoning models) Up to 4 sequences where the API will stop generating further tokens.\n      --stream                      If set, partial message deltas will be sent.\n      --stream-options string       Stream options\n      --temperature float           What sampling temperature to use, between 0 and 2. Higher values like 0. (default 1)\n      --tool-choice string          Tool choice\n      --tools string                A list of tools the model may call in JSON-schema. Currently, only functions are supported as a tool.\n      --top-logprobs int            An integer between 0 and 8 specifying the number of most likely tokens to return at each token position\n      --top-p temperature           An alternative to sampling with temperature, called nucleus sampling (default 1)\n      --user string                 A unique identifier representing your end-user, which can help xAI to monitor and detect abuse.\n      --web-search-options string   Web search options\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --ignore-missing          Treat missing delete target…[truncated]"
+    },
+    {
+      "command": "chat handle-generic-completion-request",
+      "kind": "happy_path",
+      "args": [
+        "chat",
+        "handle-generic-completion-request",
+        "--dry-run"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"action\": \"post\",\n  \"data\": {\n    \"dry_run\": true\n  },\n  \"dry_run\": true,\n  \"path\": \"/v1/chat/completions\",\n  \"resource\": \"chat\",\n  \"status\": 0,\n  \"success\": false\n}\nPOST https://api.x.ai/v1/chat/completions\n  Body:\n{\n    \"n\": 1,\n    \"temperature\": 1,\n    \"top_p\": 1\n  }\n  Authorization: <REDACTED>\n\n(dry run - no request sent)\n"
+    },
+    {
+      "command": "chat handle-generic-completion-request",
+      "kind": "json_fidelity",
+      "args": [
+        "chat",
+        "handle-generic-completion-request",
+        "--dry-run",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"action\": \"post\",\n  \"data\": {\n    \"dry_run\": true\n  },\n  \"dry_run\": true,\n  \"path\": \"/v1/chat/completions\",\n  \"resource\": \"chat\",\n  \"status\": 0,\n  \"success\": false\n}\nPOST https://api.x.ai/v1/chat/completions\n  Body:\n{\n    \"n\": 1,\n    \"temperature\": 1,\n    \"top_p\": 1\n  }\n  Authorization: <REDACTED>\n\n(dry run - no request sent)\n"
+    },
+    {
+      "command": "chat handle-generic-completion-request",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "chat handle-generic-completion-request",
+      "kind": "error_path_real",
+      "args": null,
+      "status": "skip",
+      "reason": "mutating command dry-run only"
+    },
+    {
+      "command": "complete",
+      "kind": "help",
+      "args": [
+        "complete",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "(Legacy - Not supported by reasoning models) Create a text completion response.\n\nUsage:\n  xai-pp-cli complete [flags]\n\nExamples:\n  xai-pp-cli complete\n\nFlags:\n  -h, --help                       help for complete\n      --max-tokens-to-sample int   The maximum number of tokens to generate before stopping.\n      --metadata string            Metadata\n      --model string               Model to use for completion.\n      --prompt string              Prompt for the model to perform completion on.\n      --stop-sequences string      (Not supported by reasoning models) Up to 4 sequences where the API will stop generating further tokens.\n      --stream                     (Unsupported) If set, partial message deltas will be sent.\n      --temperature float          What sampling temperature to use, between 0 and 2. Higher values like 0. (default 1)\n      --top-k int                  (Unsupported) When generating next tokens, randomly selecting the next token from the k most likely options.\n      --top-p temperature          An alternative to sampling with temperature, called nucleus sampling (default 1)\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --ignore-missing          Treat missing delete targets as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'xai-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "complete",
+      "kind": "happy_path",
+      "args": [
+        "complete",
+        "--dry-run"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"live\"\n  },\n  \"results\": {\n    \"dry_run\": true\n  }\n}\nPOST https://api.x.ai/v1/complete\n  Body:\n{\n    \"temperature\": 1,\n    \"top_p\": 1\n  }\n  Authorization: <REDACTED>\n\n(dry run - no request sent)\n"
+    },
+    {
+      "command": "complete",
+      "kind": "json_fidelity",
+      "args": [
+        "complete",
+        "--dry-run",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"live\"\n  },\n  \"results\": {\n    \"dry_run\": true\n  }\n}\nPOST https://api.x.ai/v1/complete\n  Body:\n{\n    \"temperature\": 1,\n    \"top_p\": 1\n  }\n  Authorization: <REDACTED>\n\n(dry run - no request sent)\n"
+    },
+    {
+      "command": "complete",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "complete",
+      "kind": "error_path_real",
+      "args": null,
+      "status": "skip",
+      "reason": "mutating command dry-run only"
+    },
+    {
+      "command": "completions",
+      "kind": "help",
+      "args": [
+        "completions",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "(Legacy - Not supported by reasoning models) Create a text completion response for a given prompt.\n\nUsage:\n  xai-pp-cli completions [flags]\n\nExamples:\n  xai-pp-cli completions\n\nFlags:\n      --best-of int               (Unsupported) Generates multiple completions internally and returns the top-scoring one. Not functional yet.\n      --echo                      Option to include the original prompt in the response along with the generated completion.\n      --frequency-penalty float   (Unsupported) Number between -2.0 and 2.0.\n  -h, --help                      help for completions\n      --logit-bias string         (Unsupported) Accepts a JSON object that maps tokens to an associated bias value from -100 to 100.\n      --logprobs logprobs         Include the log probabilities on the logprobs most likely output tokens, as well the chosen tokens.\n      --max-tokens int            Limits the number of tokens that can be produced in the output.\n      --model string              Specifies the model to be used for the request.\n      --n int                     Determines how many completion sequences to produce for each prompt.\n      --presence-penalty grok-3   (Not supported by grok-3 and reasoning models) Number between -2.0 and 2.0.\n      --prompt string             Input for generating completions, which can be a string, list of strings, token list, or list of token lists.\n      --seed int                  If specified, our system will make a best effort to sample deterministically\n      --stop string               (Not supported by reasoning models) Up to 4 sequences where the API will stop generating further tokens.\n      --stream                    Whether to stream back partial progress.\n      --stream-options string     Stream options\n      --suffix string             (Unsupported) Optional string to append after the generated text.\n      --temperature float         What sampling temperature to use, between 0 and 2. Higher values like 0. (default 1)\n      --top-p float               An alternative to sampling with temperature, called nucleus sampling\n      --user string               A unique identifier representing your end-user, which can help xAI to monitor and detect abuse.\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --ignore-missing          Treat missing delete targets as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'xai-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Reque…[truncated]"
+    },
+    {
+      "command": "completions",
+      "kind": "happy_path",
+      "args": [
+        "completions",
+        "--dry-run"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"live\"\n  },\n  \"results\": {\n    \"dry_run\": true\n  }\n}\nPOST https://api.x.ai/v1/completions\n  Body:\n{\n    \"temperature\": 1\n  }\n  Authorization: <REDACTED>\n\n(dry run - no request sent)\n"
+    },
+    {
+      "command": "completions",
+      "kind": "json_fidelity",
+      "args": [
+        "completions",
+        "--dry-run",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"live\"\n  },\n  \"results\": {\n    \"dry_run\": true\n  }\n}\nPOST https://api.x.ai/v1/completions\n  Body:\n{\n    \"temperature\": 1\n  }\n  Authorization: <REDACTED>\n\n(dry run - no request sent)\n"
+    },
+    {
+      "command": "completions",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "completions",
+      "kind": "error_path_real",
+      "args": null,
+      "status": "skip",
+      "reason": "mutating command dry-run only"
+    }
+  ],
+  "ran_at": "2026-06-08T20:18:33.867987Z"
+}

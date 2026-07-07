@@ -1,0 +1,17 @@
+{
+  "schema_version": 2,
+  "id": "authenticity-token-env-stdin",
+  "applied_at": "2026-05-27",
+  "base_run_id": "20260522-095940",
+  "base_printing_press_version": "4.11.0",
+  "summary": "The Rails CSRF authenticity_token is resolved from the GOODREADS_AUTHENTICITY_TOKEN env var or stdin (shared helpers readAuthenticityToken / readAuthenticityTokenWithStdin); the --authenticity-token / --body... flags are deprecated and warn when used. Also taught client dryRun to print non-JSON (form) bodies.",
+  "reason": "Greptile P2: a CSRF token passed as a CLI flag leaks into shell history and the process table (ps aux), the same risk auth.go documents for credentials-as-args. Applied to review create, review create-update, and shelf create.",
+  "files": [
+    "internal/cli/helpers.go",
+    "internal/cli/review_create.go",
+    "internal/cli/review_create-update.go",
+    "internal/cli/shelf_create.go",
+    "internal/client/client.go"
+  ],
+  "validated_outcome": "review/shelf create read the token from GOODREADS_AUTHENTICITY_TOKEN with no flag; passing --authenticity-token still works but prints a deprecation warning to stderr."
+}

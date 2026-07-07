@@ -1,0 +1,18 @@
+# agentcookie.toml: secrets-bus adoption manifest v2
+# See docs/spec-agentcookie-secrets-bus-v2-adoption.md
+schema_version = 2
+name = "expensify-pp-cli"
+display_name = "Expensify"
+description = "File expenses and submit reports to Expensify from the command line"
+project_kind = "cli"
+
+[secrets.file]
+path = "~/.config/expensify-pp-cli/config.toml"
+
+[sync]
+default = false
+
+[sync.keys]
+EXPENSIFY_AUTH_TOKEN = true
+EXPENSIFY_PARTNER_USER_ID = true
+EXPENSIFY_PARTNER_USER_SECRET = true

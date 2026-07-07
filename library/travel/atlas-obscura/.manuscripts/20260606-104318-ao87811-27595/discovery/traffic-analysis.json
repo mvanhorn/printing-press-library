@@ -1,0 +1,10 @@
+{
+  "reachability": { "mode": "standard_http" },
+  "notes": "Atlas Obscura undocumented JSON search + HTML place pages. Plain HTTP with browser-like UA + Accept:application/json + X-Requested-With:XMLHttpRequest. No auth.",
+  "endpoint_clusters": [
+    { "method": "GET", "path": "/search", "observed_auth": [], "response_format": "json",
+      "params": ["q","lat","lng","page","kind"] },
+    { "method": "GET", "path": "/places/{id_or_slug}", "observed_auth": [], "response_format": "html" },
+    { "method": "GET", "path": "/categories/{slug}", "observed_auth": [], "response_format": "html" }
+  ]
+}

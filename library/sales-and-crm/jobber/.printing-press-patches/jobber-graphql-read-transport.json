@@ -1,0 +1,17 @@
+{
+  "schema_version": 2,
+  "id": "jobber-graphql-read-transport",
+  "applied_at": "2026-05-24",
+  "base_run_id": "20260522-234028",
+  "base_printing_press_version": "4.10.0",
+  "summary": "Route generated read endpoints through Jobber GraphQL queries with OAuth refresh handling.",
+  "reason": "Jobber is GraphQL-only, while the generated CLI emitted REST-shaped paths; the CLI must remain read-only.",
+  "files": [
+    "internal/client/client.go",
+    "internal/client/graphql_ops.go",
+    "internal/client/graphql_queries.go",
+    "internal/client/oauth.go",
+    "internal/config/config.go"
+  ],
+  "validated_outcome": "go build ./... and go vet ./... pass with GOCACHE set to a writable temp directory."
+}

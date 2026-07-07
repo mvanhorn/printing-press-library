@@ -1,0 +1,15 @@
+{
+  "schema_version": 1,
+  "api_name": "pipedrive",
+  "cli_name": "pipedrive-pp-cli",
+  "run_id": "20260614-204447",
+  "status": "skip",
+  "skip_reason": "auth_required_no_credential",
+  "auth_context": {
+    "type": "api_key",
+    "api_key_available": false,
+    "browser_session_available": false,
+    "local_sqlite": true,
+    "local_network_only": false
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "slug": "uk-train-goat",
+  "cli_name": "uk-train-goat-pp-cli",
+  "version": "2026.6.2",
+  "released_at": "2026-06-17T07:09:23Z",
+  "source_commit": "edf9fe4e4795f08310b06c9d93e1a945bea30956",
+  "printing_press_version": "4.20.1",
+  "run_id": "20260603-220423",
+  "changes": [
+    {
+      "title": "docs(uk-train-goat): correct why command capability claims",
+      "pr": 1070,
+      "url": "https://github.com/mvanhorn/printing-press-library/pull/1070",
+      "commit": "edf9fe4e4795f08310b06c9d93e1a945bea30956"
+    }
+  ]
+}

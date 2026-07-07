@@ -24,7 +24,7 @@ func newCustomersAssetGenerationsGenerateTextCmd(flags *rootFlags) *cobra.Comman
 	cmd := &cobra.Command{
 		Use:         "generate-text <customerId>",
 		Short:       "Uses generative AI to generate text that can be used as assets in a campaign.",
-		Example:     "  google-ads-pp-cli customers_asset_generations generate_text 550e8400-e29b-41d4-a716-446655440000",
+		Example:     "  google-ads-pp-cli customers-asset-generations generate-text 550e8400-e29b-41d4-a716-446655440000",
 		Annotations: map[string]string{"pp:endpoint": "customers_asset_generations.generate_text", "pp:method": "POST", "pp:path": "/v22/customers/{customerId}/assetGenerations:generateText"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

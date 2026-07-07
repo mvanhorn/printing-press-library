@@ -13,6 +13,7 @@ import (
 	"github.com/mvanhorn/printing-press-library/library/food-and-dining/ordertogo/internal/config"
 	"io"
 	"math"
+	"math/rand"
 	"net/http"
 	"net/url"
 	"os"
@@ -21,6 +22,9 @@ import (
 	"strings"
 	"time"
 )
+
+// PATCH: small non-crypto random for __requestid idempotency suffix.
+func randInt() int { return rand.Intn(10000) }
 
 type Client struct {
 	BaseURL    string
@@ -206,6 +210,15 @@ func (c *Client) do(method, path string, params map[string]string, body any, hea
 	const maxRetries = 3
 	var lastErr error
 
+	// PATCH: hoist the __requestid above the retry loop so all retries
+	// for the same logical request share the same idempotency token.
+	// Generating it inline would assign a new id on each retry, defeating
+	// the server-side idempotency check (greptile P1 on PR #471).
+	requestID := ""
+	if method != http.MethodGet {
+		requestID = fmt.Sprintf("%d_%d", time.Now().UnixMilli(), randInt())
+	}
+
 	for attempt := 0; attempt <= maxRetries; attempt++ {
 		// Proactive rate limiting — wait before sending
 		c.limiter.Wait()
@@ -244,8 +257,34 @@ func (c *Client) do(method, path string, params map[string]string, body any, hea
 		for k, v := range headerOverrides {
 			req.Header.Set(k, v)
 		}
+		// PATCH: ordertogo.com gates every /m/api/* request on browser-like
+		// UA + Origin + Referer headers. The CLI's "ordertogo-pp-cli/0.1.0"
+		// returned 403 Access denied even with a valid Chrome cookie session.
 		if req.Header.Get("User-Agent") == "" {
-			req.Header.Set("User-Agent", "ordertogo-pp-cli/0.1.0")
+			req.Header.Set("User-Agent", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36")
+		}
+		if req.Header.Get("Origin") == "" && c.BaseURL != "" {
+			req.Header.Set("Origin", c.BaseURL)
+		}
+		if req.Header.Get("Referer") == "" && c.BaseURL != "" {
+			req.Header.Set("Referer", c.BaseURL+"/")
+		}
+		// PATCH: /api/* endpoints (getRestmeshUser, getUserOrderHistoryByUserid,
+		// etc.) gate on Authorization = <_fbtoken> (the Firebase ID JWT from
+		// the cookie), not on the cookie itself. The web client lifts the
+		// cookie value into the header in fbbase.post; without it the server
+		// returns "Server communication config missing".
+		if req.Header.Get("Authorization") == "" {
+			if fbtoken, err := config.CookieValueFromStore("", "_fbtoken"); err == nil && fbtoken != "" {
+				req.Header.Set("Authorization", fbtoken)
+			}
+		}
+		// PATCH: ordertogo.com uses an `__requestid` header for idempotency
+		// on POSTs (epoch_ms + random int). Format: <epoch_ms>_<random>.
+		// requestID is hoisted above the retry loop so all attempts share
+		// the same token (greptile P1 on PR #471).
+		if requestID != "" && req.Header.Get("__requestid") == "" {
+			req.Header.Set("__requestid", requestID)
 		}
 
 		resp, err := c.HTTPClient.Do(req)

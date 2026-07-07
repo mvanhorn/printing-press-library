@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "slug": "linq",
+  "cli_name": "linq-pp-cli",
+  "version": "2026.6.1",
+  "released_at": "2026-06-24T00:47:48Z",
+  "source_commit": "79ac14ff1cd4ee8b54eb48ee18675cdf2a731300",
+  "printing_press_version": "4.24.0",
+  "run_id": "20260617-193043",
+  "changes": [
+    {
+      "title": "feat(linq): add linq",
+      "pr": 1342,
+      "url": "https://github.com/mvanhorn/printing-press-library/pull/1342",
+      "commit": "79ac14ff1cd4ee8b54eb48ee18675cdf2a731300"
+    }
+  ]
+}

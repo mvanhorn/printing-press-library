@@ -23,7 +23,7 @@ func newCustomersGenerateTrendingInsightsCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:         "generate-trending-insights <customerId>",
 		Short:       "Returns insights for trending content on YouTube.",
-		Example:     "  google-ads-pp-cli customers generate_trending_insights 550e8400-e29b-41d4-a716-446655440000",
+		Example:     "  google-ads-pp-cli customers generate-trending-insights 550e8400-e29b-41d4-a716-446655440000",
 		Annotations: map[string]string{"pp:endpoint": "customers.generate_trending_insights", "pp:method": "POST", "pp:path": "/v22/customers/{customerId}:generateTrendingInsights"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

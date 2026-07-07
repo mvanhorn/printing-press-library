@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "orphan-sku-health-dedup",
+  "applied_at": "2026-05-14",
+  "base_run_id": "20260514-073613",
+  "base_printing_press_version": "4.6.1",
+  "summary": "Health.OrphanSKUs now counts distinct (Kind, ID) SKUs instead of (SKU, bad-ref) pairs, so a SKU in two inactive categories contributes 1 to the rollup, not 2.",
+  "reason": "Greptile review (PR #576): the orphan-skus command still emits one row per bad reference (agents need to see every broken assignment), but the health report is the agent-priming signal and over-reporting drives redundant fix attempts in automated pipelines.",
+  "files": [
+    "internal/pricebook/audits.go"
+  ],
+  "validated_outcome": "go build, go vet, go test ./internal/pricebook/ all clean"
+}

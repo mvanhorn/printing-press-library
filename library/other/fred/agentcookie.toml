@@ -1,0 +1,16 @@
+# agentcookie.toml: secrets-bus adoption manifest v2
+# See docs/spec-agentcookie-secrets-bus-v2-adoption.md
+schema_version = 2
+name = "fred-pp-cli"
+display_name = "FRED"
+description = "Every FRED endpoint, plus a local SQLite store, offline search, and macro commands no other FRED tool has."
+project_kind = "cli"
+
+[secrets.file]
+path = "~/.config/fred-pp-cli/config.toml"
+
+[sync]
+default = false
+
+[sync.keys]
+FRED_API_KEY = true

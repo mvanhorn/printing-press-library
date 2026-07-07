@@ -17,7 +17,7 @@
   "spec_checksum": "sha256:b50d97a8c28e654959756607ead7c7ccfb98d9edf9e26eaf7613bcb132c45f0e",
   "run_id": "20260527-214905",
   "category": "ai",
-  "description": "Docs-derived OpenAPI spec for WaveSpeed AI's REST API.",
+  "description": "Run WaveSpeed AI models with schema-aware inputs, prompt shortcuts, price estimates, wait/download helpers, aliases, and media uploads.",
   "mcp_binary": "wavespeed-pp-mcp",
   "mcp_tool_count": 9,
   "mcp_ready": "full",
@@ -120,5 +120,6 @@
       "command": "brand",
       "description": "Create, inspect, apply, and edit brand profiles that auto-merge into pack, compose, variants, restyle, and run."
     }
-  ]
+  ],
+  "catalog_description": "Run WaveSpeed AI models with schema-aware inputs, prompt shortcuts, price estimates, wait/download helpers, aliases, and media uploads."
 }

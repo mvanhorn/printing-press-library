@@ -1,0 +1,183 @@
+{
+  "api_name": "roadside-america",
+  "novelty_score": 0,
+  "alternatives": [],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-06-06T17:30:00Z",
+  "novel_features": [
+    {
+      "name": "Superlative \u0026 keyword categories",
+      "command": "category",
+      "description": "Find the biggest, smallest, tallest, or weird-food attractions (and more) by classifying cached attractions locally.",
+      "rationale": "The site's theme slugs are internal and undocumented; we classify by name/description patterns over the local cache, which the website offers no command for.",
+      "example": "roadside-america-pp-cli category biggest --json",
+      "why_it_matters": "Reach for this when the user wants superlatives or a themed slice (giants, muffler-men, weird-food) rather than a place- or state-scoped list.",
+      "group": "Local cache intelligence"
+    },
+    {
+      "name": "Quirk leaderboard / rollups",
+      "command": "stats",
+      "description": "Summarize the local cache: counts by state and by category, plus totals.",
+      "rationale": "Requires aggregation across cached attractions that the site never exposes.",
+      "example": "roadside-america-pp-cli stats --agent",
+      "why_it_matters": "Use to understand coverage of the local cache before planning, or to answer 'which state has the most offbeat stuff cached'.",
+      "group": "Local cache intelligence"
+    },
+    {
+      "name": "Surprise-me",
+      "command": "random",
+      "description": "Pick a random offbeat attraction, optionally constrained by state or category.",
+      "rationale": "Weighted random selection over the local cache with structured output; the site's 'roll the dice' has no machine-readable form.",
+      "example": "roadside-america-pp-cli random --state TX",
+      "why_it_matters": "Use for serendipity or road-trip inspiration when the user has no specific target.",
+      "group": "Local cache intelligence"
+    },
+    {
+      "name": "Road-trip stops",
+      "command": "trip",
+      "description": "Collect quirky stops near a list of cities or coordinates in one call, deduped and labeled by stop.",
+      "rationale": "Aggregates nearby results across multiple geocoded stops, turning the catalog into a route-planning primitive no UI offers.",
+      "example": "roadside-america-pp-cli trip \"Austin, TX\" \"Waco, TX\" --radius 15 --json",
+      "why_it_matters": "Reach for this when planning a route and the user wants offbeat stops across several waypoints at once.",
+      "group": "Route \u0026 comparison"
+    },
+    {
+      "name": "State quirk comparison",
+      "command": "compare",
+      "description": "Compare two states by offbeat-attraction count and surface a few top picks from each.",
+      "rationale": "Cross-state counts and top picks in a single local join; the site has no compare view.",
+      "example": "roadside-america-pp-cli compare TX CA",
+      "why_it_matters": "Use when the user is deciding between regions or wants a quick 'which state is weirder' answer.",
+      "group": "Route \u0026 comparison"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Superlative \u0026 keyword categories",
+      "command": "category",
+      "description": "Find the biggest, smallest, tallest, or weird-food attractions (and more) by classifying cached attractions locally.",
+      "rationale": "The site's theme slugs are internal and undocumented; we classify by name/description patterns over the local cache, which the website offers no command for.",
+      "example": "roadside-america-pp-cli category biggest --json",
+      "why_it_matters": "Reach for this when the user wants superlatives or a themed slice (giants, muffler-men, weird-food) rather than a place- or state-scoped list.",
+      "group": "Local cache intelligence"
+    },
+    {
+      "name": "Quirk leaderboard / rollups",
+      "command": "stats",
+      "description": "Summarize the local cache: counts by state and by category, plus totals.",
+      "rationale": "Requires aggregation across cached attractions that the site never exposes.",
+      "example": "roadside-america-pp-cli stats --agent",
+      "why_it_matters": "Use to understand coverage of the local cache before planning, or to answer 'which state has the most offbeat stuff cached'.",
+      "group": "Local cache intelligence"
+    },
+    {
+      "name": "Surprise-me",
+      "command": "random",
+      "description": "Pick a random offbeat attraction, optionally constrained by state or category.",
+      "rationale": "Weighted random selection over the local cache with structured output; the site's 'roll the dice' has no machine-readable form.",
+      "example": "roadside-america-pp-cli random --state TX",
+      "why_it_matters": "Use for serendipity or road-trip inspiration when the user has no specific target.",
+      "group": "Local cache intelligence"
+    },
+    {
+      "name": "Road-trip stops",
+      "command": "trip",
+      "description": "Collect quirky stops near a list of cities or coordinates in one call, deduped and labeled by stop.",
+      "rationale": "Aggregates nearby results across multiple geocoded stops, turning the catalog into a route-planning primitive no UI offers.",
+      "example": "roadside-america-pp-cli trip \"Austin, TX\" \"Waco, TX\" --radius 15 --json",
+      "why_it_matters": "Reach for this when planning a route and the user wants offbeat stops across several waypoints at once.",
+      "group": "Route \u0026 comparison"
+    },
+    {
+      "name": "State quirk comparison",
+      "command": "compare",
+      "description": "Compare two states by offbeat-attraction count and surface a few top picks from each.",
+      "rationale": "Cross-state counts and top picks in a single local join; the site has no compare view.",
+      "example": "roadside-america-pp-cli compare TX CA",
+      "why_it_matters": "Use when the user is deciding between regions or wants a quick 'which state is weirder' answer.",
+      "group": "Route \u0026 comparison"
+    }
+  ],
+  "auth": {},
+  "narrative": {
+    "display_name": "Roadside America",
+    "headline": "Every offbeat roadside attraction on RoadsideAmerica.com — with a local SQLite cache, offline search, and superlative categories no other tool offers.",
+    "value_prop": "RoadsideAmerica.com is the web's best catalog of quirky US \u0026 Canada tourist attractions, but it has no API and a paywalled app. This CLI turns it into an agent-native, pipe-friendly tool: find what's near a place or coordinates, browse a whole state, pull the full writeup, and slice by superlative categories like biggest/smallest/tallest/weird-food. Everything is cached locally (fresh-on-read), every record links back to its source, and the scraper stays a polite, attributing, user-initiated citizen of the site.",
+    "quickstart": [
+      {
+        "command": "roadside-america-pp-cli doctor",
+        "comment": "health + reachability check; no auth needed"
+      },
+      {
+        "command": "roadside-america-pp-cli near \"Austin, TX\" --radius 20",
+        "comment": "quirky attractions near a city (geocoded), within 20 miles"
+      },
+      {
+        "command": "roadside-america-pp-cli state TX --limit 10",
+        "comment": "browse offbeat attractions in a state"
+      },
+      {
+        "command": "roadside-america-pp-cli show 2055",
+        "comment": "full writeup + location + source link for one attraction"
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "Slow responses or HTTP 429",
+        "fix": "The CLI self-limits to ~1 request/3s and caches in SQLite; let it back off, or rely on cached data (results show fetched_at)."
+      },
+      {
+        "symptom": "near \"\u003cplace\u003e\" returns nothing",
+        "fix": "Widen --radius, or pass coordinates directly: near 30.27,-97.74 --radius 25."
+      },
+      {
+        "symptom": "Geocoding a place name fails",
+        "fix": "Pass latitude,longitude directly to near/trip; geocoding uses keyless OSM Nominatim which may rate-limit."
+      },
+      {
+        "symptom": "category returns few results",
+        "fix": "Categories classify the LOCAL cache; run state/sync/near first to populate, then re-run category."
+      }
+    ],
+    "when_to_use": "Use this CLI to discover offbeat, quirky, community-sourced roadside attractions in the US and Canada from RoadsideAmerica.com: what's near a place or coordinates, what's in a given state, the full writeup for a specific attraction, or superlative slices like the biggest/smallest/tallest things and weird food stops. It is ideal for road-trip planning and 'find me something weird nearby' tasks, and it caches everything locally for fast, repeatable, offline-friendly queries.",
+    "anti_triggers": [
+      "Do not use for booking, ticketing, hours, or live availability — the data is descriptive, community-sourced, and not real-time.",
+      "Do not treat addresses as authoritative for navigation; verify before driving.",
+      "Do not use outside the US and Canada (the source only covers those).",
+      "Do not use for mainstream tourism, restaurant reviews, or hotels — this is offbeat oddities only."
+    ],
+    "recipes": [
+      {
+        "title": "Quirky stops near coordinates, agent-friendly fields",
+        "command": "roadside-america-pp-cli near 30.27,-97.74 --radius 25 --agent --select name,city,distance,source_url",
+        "explanation": "Pass raw lat,lng to skip geocoding and select only the fields an agent needs."
+      },
+      {
+        "title": "Weird food across a cached state",
+        "command": "roadside-america-pp-cli category weird-food --json",
+        "explanation": "Classifies cached attractions by food keywords; populate the cache with state/near first."
+      },
+      {
+        "title": "Plan offbeat stops across a route",
+        "command": "roadside-america-pp-cli trip \"Austin, TX\" \"Waco, TX\" \"Dallas, TX\" --radius 15 --json",
+        "explanation": "Aggregates nearby attractions for each waypoint, deduped and labeled by stop."
+      },
+      {
+        "title": "Full writeup with source attribution",
+        "command": "roadside-america-pp-cli show 2055 --json",
+        "explanation": "Returns structured name/address/writeup plus the RoadsideAmerica.com source URL."
+      }
+    ],
+    "trigger_phrases": [
+      "quirky attractions near me",
+      "weird roadside stuff in Texas",
+      "world's largest things nearby",
+      "offbeat roadside attractions for my road trip",
+      "biggest tourist traps in a state",
+      "use roadside-america",
+      "run roadside-america"
+    ]
+  }
+}

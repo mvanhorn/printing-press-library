@@ -176,7 +176,7 @@ Exit codes & warnings:
 				go func() {
 					defer wg.Done()
 					for resource := range work {
-						res := syncResource(c, db, resource, sinceTS, full, maxPages)
+						res := syncResource(c, db, resource, sinceTS, full, maxPages, flags)
 						results <- res
 					}
 				}()
@@ -292,7 +292,7 @@ func syncResource(c interface {
 	Get(string, map[string]string) (json.RawMessage, error)
 	Post(string, any) (json.RawMessage, int, error)
 	RateLimit() float64
-}, db *store.Store, resource, sinceTS string, full bool, maxPages int) syncResult {
+}, db *store.Store, resource, sinceTS string, full bool, maxPages int, flags *rootFlags) syncResult {
 	started := time.Now()
 
 	if !humanFriendly {
@@ -304,7 +304,14 @@ func syncResource(c interface {
 		return syncResult{Resource: resource, Err: err, Duration: time.Since(started)}
 	}
 	if resource == "orders" {
-		data, _, err := c.Post(path, map[string]any{})
+		// PATCH: orders list endpoint moved from /m/api/getmicmeshorders (SHOW path requiring orderid+restname)
+		// to /api/getUserOrderHistoryByUserid (the LIST endpoint observed in the web client). The body must
+		// carry the meshuser id, looked up once via /api/getRestmeshUser and cached on Config.
+		userid, err := resolveMeshUserID(flags)
+		if err != nil {
+			return syncResult{Resource: resource, Err: fmt.Errorf("resolving mesh user id: %w", err), Duration: time.Since(started)}
+		}
+		data, _, err := c.Post("/api/getUserOrderHistoryByUserid", map[string]any{"userid": userid})
 		if err != nil {
 			return syncResult{Resource: resource, Err: fmt.Errorf("fetching orders: %w", err), Duration: time.Since(started)}
 		}

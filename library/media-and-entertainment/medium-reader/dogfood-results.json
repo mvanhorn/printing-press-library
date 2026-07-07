@@ -1,0 +1,121 @@
+{
+  "dir": "<cli-dir>/medium-reader-pp-cli",
+  "verdict": "FAIL",
+  "path_check": {
+    "tested": 0,
+    "valid": 0,
+    "valid_pct": 0
+  },
+  "auth_check": {
+    "spec_scheme": "",
+    "generated_format": "",
+    "match": true,
+    "detail": "spec not provided; auth protocol check skipped"
+  },
+  "browser_session_check": {
+    "required": false,
+    "pass": true,
+    "detail": "spec not provided; browser-session auth check skipped"
+  },
+  "oauth_scope_coverage_check": {
+    "checked": 0,
+    "covered": 0,
+    "skipped": true,
+    "detail": "spec not provided; OAuth scope coverage check skipped"
+  },
+  "dead_flags": {
+    "total": 20,
+    "dead": 3,
+    "items": [
+      "configPath",
+      "idempotent",
+      "noCache"
+    ]
+  },
+  "dead_functions": {
+    "total": 40,
+    "dead": 0
+  },
+  "pipeline_check": {
+    "sync_calls_domain": false,
+    "search_calls_domain": false,
+    "domain_tables": 1,
+    "sync_file_emitted": false,
+    "sync_resources_present": false,
+    "detail": "sync Upsert calls not found; search uses generic Search only; 1 domain tables found"
+  },
+  "example_check": {
+    "tested": 7,
+    "with_examples": 7,
+    "valid_examples": 7,
+    "detail": "7/7 commands have examples"
+  },
+  "wiring_check": {
+    "command_tree": {
+      "defined": 22,
+      "registered": 22
+    },
+    "config_consistency": {
+      "consistent": true
+    },
+    "workflow_completeness": {
+      "skipped": true,
+      "total_steps": 0,
+      "mapped_steps": 0,
+      "detail": "no workflow_verify.yaml found"
+    }
+  },
+  "novel_features_check": {
+    "planned": 0,
+    "found": 0,
+    "skipped": true
+  },
+  "mcp_surface_parity": {
+    "state": "runtime_walking",
+    "pass": true,
+    "detail": "MCP surface mirrors the Cobra tree at runtime"
+  },
+  "reimplementation_check": {
+    "checked": 0,
+    "exempted_via_store": 0,
+    "skipped": true
+  },
+  "source_client_check": {
+    "checked": 8,
+    "findings": [
+      {
+        "package": "source/graphql",
+        "file": "internal/source/graphql/graphql.go",
+        "reason": "outbound HTTP without rate limiter or typed 429 handling"
+      },
+      {
+        "package": "source/page",
+        "file": "internal/source/page/page.go",
+        "reason": "outbound HTTP without rate limiter or typed 429 handling"
+      },
+      {
+        "package": "source/rss",
+        "file": "internal/source/rss/rss.go",
+        "reason": "outbound HTTP without rate limiter or typed 429 handling"
+      }
+    ]
+  },
+  "print_json_filtered_check": {
+    "checked": 21
+  },
+  "test_presence": {
+    "checked": 2
+  },
+  "naming_check": {
+    "checked": 21
+  },
+  "sync_param_drop_check": {
+    "checked": 0,
+    "skipped": true
+  },
+  "issues": [
+    "3 dead flags found",
+    "sync uses generic Upsert only",
+    "3 source client file(s) without rate-limit handling: internal/source/graphql/graphql.go \u2014 outbound HTTP without rate limiter or typed 429 handling; internal/source/page/page.go \u2014 outbound HTTP without rate limiter or typed 429 handling; internal/source/rss/rss.go \u2014 outbound HTTP without rate limiter or typed 429 handling"
+  ]
+}

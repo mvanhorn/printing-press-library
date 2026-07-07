@@ -1,0 +1,352 @@
+{
+  "api_name": "yeswehack",
+  "novelty_score": 8,
+  "alternatives": [
+    {
+      "name": "yeswehack-mcp",
+      "url": "https://github.com/sebastianolaru3008/yeswehack-mcp",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 12,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "ywh_program_selector",
+      "url": "https://github.com/jdouliez/ywh_program_selector",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 6,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "YesWeBurp",
+      "url": "https://github.com/yeswehack/YesWeBurp",
+      "language": "Kotlin",
+      "install_method": "",
+      "stars": 108,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "yeswecaido",
+      "url": "https://github.com/yeswehack/yeswecaido",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 26,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "ywh2bugtracker",
+      "url": "https://github.com/yeswehack/ywh2bugtracker",
+      "language": "Python",
+      "install_method": "",
+      "stars": 21,
+      "last_updated": "",
+      "command_count": 5,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-05-11T05:55:00Z",
+  "novel_features": [
+    {
+      "name": "Scope drift report",
+      "command": "programs scope-drift",
+      "description": "See what changed in any program's scope this week — assets added, removed, or modified, with first-seen dates.",
+      "rationale": "Requires periodic snapshots of every program's scope table and a local diff. No YesWeHack tool stores scope history; the API only returns current state.",
+      "example": "yeswehack-pp-cli programs scope-drift --since-days 7 --json",
+      "why_it_matters": "When an agent triages where to spend the hunter's week, drift is the highest-signal source of fresh attack surface. Pick this over a generic program list when the user has already chosen programs and wants to know what changed.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Cross-program shared assets",
+      "command": "scopes overlap",
+      "description": "Surface assets (host or wildcard) that appear in two or more of your invited programs, ranked by best payout.",
+      "rationale": "Requires a SQL self-join across all synced program scopes. A generic API client cannot ask 'where does this asset show up' without N calls.",
+      "example": "yeswehack-pp-cli scopes overlap --min-programs 2 --json",
+      "why_it_matters": "When the agent finds a candidate finding on an asset, this answers 'which program pays the most for this asset' before drafting the report.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Weekend slate",
+      "command": "triage weekend",
+      "description": "Ranked plan for a short hunting session - newly added scope, reports needing your response, and trending CWEs in your specialty.",
+      "rationale": "Composes scope_drift + user_reports + hacktivity_trends into one ranked list. No single API call returns this; the value is in the local composition.",
+      "example": "yeswehack-pp-cli triage weekend --hours 6 --json",
+      "why_it_matters": "Picks the right starting move when the hunter (or their agent) has limited time and needs a confidence-weighted plan, not a feed.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Pre-submit dedupe",
+      "command": "report dedupe",
+      "description": "FTS5 search over the public hacktivity feed plus your own reports for title, asset, or CWE overlap — exits 2 if a high-confidence collision exists.",
+      "rationale": "Requires local FTS5 indexes over hacktivity and user reports, BM25 ranking, and exit-code signaling. No API endpoint returns 'is this a duplicate' across both sources.",
+      "example": "yeswehack-pp-cli report dedupe --title 'SQLi in /api/users/{id}' --asset api.example.com --cwe CWE-89 --json",
+      "why_it_matters": "Aligns with the YesWeHack Platform Code of Conduct's anti-spam rule. Before an agent drafts a report, this answers 'has someone already filed this' deterministically.",
+      "group": "Anti-spam guard-rails"
+    },
+    {
+      "name": "Program fit ranker",
+      "command": "programs fit",
+      "description": "Rank invited and public programs by how well your historical CWE specialties match each program's hacktivity payout pattern.",
+      "rationale": "Joins user.reports CWE histogram x program.hacktivity CWE histogram x program reward tier. Cross-entity join no API exposes.",
+      "example": "yeswehack-pp-cli programs fit --specialty xss,ssrf,idor --json",
+      "why_it_matters": "Answers 'which program am I most likely to land on this week' before time is spent on scope reading or report drafting.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Hacktivity CWE trends per program",
+      "command": "hacktivity trends",
+      "description": "Histogram of disclosed report categories and average bounty for one program over a time window.",
+      "rationale": "GROUP BY over hacktivity items filtered to one program. An aggregation a generic API client cannot do without paginating thousands of rows.",
+      "example": "yeswehack-pp-cli hacktivity trends gojek --since-days 90 --json",
+      "why_it_matters": "Calibrates severity expectations and report-style for a target program before the agent starts hunting it.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Calendar of program events",
+      "command": "events calendar",
+      "description": "Chronological view of platform events, payout deadlines, and CTFs gating private invites - filtered to programs you are invited to.",
+      "rationale": "Joins events x invited programs x reports awaiting payout. Three-table local join.",
+      "example": "yeswehack-pp-cli events calendar --mine --json",
+      "why_it_matters": "Surfaces time-bound opportunities (renewal bumps, CTF gates) the hunter would otherwise miss until after the fact.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "CVSS sanity check",
+      "command": "report cvss-check",
+      "description": "Parse a CVSS 3.1 vector, recompute its base score, and flag impossible combinations against report steps text - rule-based, no LLM.",
+      "rationale": "Deterministic CVSS arithmetic plus keyword/regex contradictions. Auditable, reproducible, no model dependency.",
+      "example": "yeswehack-pp-cli report cvss-check 'CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H' --steps draft.md --json",
+      "why_it_matters": "Catches CVSS misrepresentations before the report is filed - the kind of mistake that loses credibility with triagers.",
+      "group": "Anti-spam guard-rails"
+    },
+    {
+      "name": "Draft report scaffold",
+      "command": "report draft",
+      "description": "Create a markdown draft pre-filled with the program's reward grid, accepted severity levels, and an allowed asset picker from local scopes - no network call.",
+      "rationale": "Reads from local programs and scopes tables; writes a single file under ~/yeswehack-drafts/. The draft is local-only by design.",
+      "example": "yeswehack-pp-cli report draft yes-we-hack --output ./my-draft.md",
+      "why_it_matters": "Gives an agent a deterministic shape for a report instead of letting it fabricate the structure. Quality multiplier per the Platform CoC.",
+      "group": "Anti-spam guard-rails"
+    },
+    {
+      "name": "Submit a draft (guard-railed)",
+      "command": "report submit",
+      "description": "Submit a drafted report after dry-run preview, in-scope validation, and automatic pre-submit dedupe. Requires --confirm.",
+      "rationale": "Composes dedupe + scope validation + POST. Dry-run is the default; the verbs only fire with explicit consent.",
+      "example": "yeswehack-pp-cli report submit ./my-draft.md --confirm",
+      "why_it_matters": "Lets an agent close the loop on submission without violating the platform's anti-AI-slop policy. No batch flag, no template-flood.",
+      "group": "Anti-spam guard-rails"
+    },
+    {
+      "name": "Hacktivity learning brief",
+      "command": "hacktivity learn",
+      "description": "Filtered slice of disclosed reports for a program and CWE - top N by bounty, with severity and writeup links, in pipe-friendly JSON.",
+      "rationale": "FTS5 + GROUP BY filtered to (program, cwe, window). Externalizes any summarization step so the CLI stays deterministic.",
+      "example": "yeswehack-pp-cli hacktivity learn --program gojek --cwe CWE-89 --since-days 90 --json | claude 'summarize what worked'",
+      "why_it_matters": "Lets the agent calibrate from prior art before the hunter writes a single line - turning hacktivity into a learning surface, not just a feed.",
+      "group": "Agent-native plumbing"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Scope drift report",
+      "command": "programs scope-drift",
+      "description": "See what changed in any program's scope this week — assets added, removed, or modified, with first-seen dates.",
+      "rationale": "Requires periodic snapshots of every program's scope table and a local diff. No YesWeHack tool stores scope history; the API only returns current state.",
+      "example": "yeswehack-pp-cli programs scope-drift --since-days 7 --json",
+      "why_it_matters": "When an agent triages where to spend the hunter's week, drift is the highest-signal source of fresh attack surface. Pick this over a generic program list when the user has already chosen programs and wants to know what changed.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Cross-program shared assets",
+      "command": "scopes overlap",
+      "description": "Surface assets (host or wildcard) that appear in two or more of your invited programs, ranked by best payout.",
+      "rationale": "Requires a SQL self-join across all synced program scopes. A generic API client cannot ask 'where does this asset show up' without N calls.",
+      "example": "yeswehack-pp-cli scopes overlap --min-programs 2 --json",
+      "why_it_matters": "When the agent finds a candidate finding on an asset, this answers 'which program pays the most for this asset' before drafting the report.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Weekend slate",
+      "command": "triage weekend",
+      "description": "Ranked plan for a short hunting session - newly added scope, reports needing your response, and trending CWEs in your specialty.",
+      "rationale": "Composes scope_drift + user_reports + hacktivity_trends into one ranked list. No single API call returns this; the value is in the local composition.",
+      "example": "yeswehack-pp-cli triage weekend --hours 6 --json",
+      "why_it_matters": "Picks the right starting move when the hunter (or their agent) has limited time and needs a confidence-weighted plan, not a feed.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Pre-submit dedupe",
+      "command": "report dedupe",
+      "description": "FTS5 search over the public hacktivity feed plus your own reports for title, asset, or CWE overlap — exits 2 if a high-confidence collision exists.",
+      "rationale": "Requires local FTS5 indexes over hacktivity and user reports, BM25 ranking, and exit-code signaling. No API endpoint returns 'is this a duplicate' across both sources.",
+      "example": "yeswehack-pp-cli report dedupe --title 'SQLi in /api/users/{id}' --asset api.example.com --cwe CWE-89 --json",
+      "why_it_matters": "Aligns with the YesWeHack Platform Code of Conduct's anti-spam rule. Before an agent drafts a report, this answers 'has someone already filed this' deterministically.",
+      "group": "Anti-spam guard-rails"
+    },
+    {
+      "name": "Program fit ranker",
+      "command": "programs fit",
+      "description": "Rank invited and public programs by how well your historical CWE specialties match each program's hacktivity payout pattern.",
+      "rationale": "Joins user.reports CWE histogram x program.hacktivity CWE histogram x program reward tier. Cross-entity join no API exposes.",
+      "example": "yeswehack-pp-cli programs fit --specialty xss,ssrf,idor --json",
+      "why_it_matters": "Answers 'which program am I most likely to land on this week' before time is spent on scope reading or report drafting.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Hacktivity CWE trends per program",
+      "command": "hacktivity trends",
+      "description": "Histogram of disclosed report categories and average bounty for one program over a time window.",
+      "rationale": "GROUP BY over hacktivity items filtered to one program. An aggregation a generic API client cannot do without paginating thousands of rows.",
+      "example": "yeswehack-pp-cli hacktivity trends gojek --since-days 90 --json",
+      "why_it_matters": "Calibrates severity expectations and report-style for a target program before the agent starts hunting it.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Calendar of program events",
+      "command": "events calendar",
+      "description": "Chronological view of platform events, payout deadlines, and CTFs gating private invites - filtered to programs you are invited to.",
+      "rationale": "Joins events x invited programs x reports awaiting payout. Three-table local join.",
+      "example": "yeswehack-pp-cli events calendar --mine --json",
+      "why_it_matters": "Surfaces time-bound opportunities (renewal bumps, CTF gates) the hunter would otherwise miss until after the fact.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "CVSS sanity check",
+      "command": "report cvss-check",
+      "description": "Parse a CVSS 3.1 vector, recompute its base score, and flag impossible combinations against report steps text - rule-based, no LLM.",
+      "rationale": "Deterministic CVSS arithmetic plus keyword/regex contradictions. Auditable, reproducible, no model dependency.",
+      "example": "yeswehack-pp-cli report cvss-check 'CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H' --steps draft.md --json",
+      "why_it_matters": "Catches CVSS misrepresentations before the report is filed - the kind of mistake that loses credibility with triagers.",
+      "group": "Anti-spam guard-rails"
+    },
+    {
+      "name": "Draft report scaffold",
+      "command": "report draft",
+      "description": "Create a markdown draft pre-filled with the program's reward grid, accepted severity levels, and an allowed asset picker from local scopes - no network call.",
+      "rationale": "Reads from local programs and scopes tables; writes a single file under ~/yeswehack-drafts/. The draft is local-only by design.",
+      "example": "yeswehack-pp-cli report draft yes-we-hack --output ./my-draft.md",
+      "why_it_matters": "Gives an agent a deterministic shape for a report instead of letting it fabricate the structure. Quality multiplier per the Platform CoC.",
+      "group": "Anti-spam guard-rails"
+    },
+    {
+      "name": "Submit a draft (guard-railed)",
+      "command": "report submit",
+      "description": "Submit a drafted report after dry-run preview, in-scope validation, and automatic pre-submit dedupe. Requires --confirm.",
+      "rationale": "Composes dedupe + scope validation + POST. Dry-run is the default; the verbs only fire with explicit consent.",
+      "example": "yeswehack-pp-cli report submit ./my-draft.md --confirm",
+      "why_it_matters": "Lets an agent close the loop on submission without violating the platform's anti-AI-slop policy. No batch flag, no template-flood.",
+      "group": "Anti-spam guard-rails"
+    },
+    {
+      "name": "Hacktivity learning brief",
+      "command": "hacktivity learn",
+      "description": "Filtered slice of disclosed reports for a program and CWE - top N by bounty, with severity and writeup links, in pipe-friendly JSON.",
+      "rationale": "FTS5 + GROUP BY filtered to (program, cwe, window). Externalizes any summarization step so the CLI stays deterministic.",
+      "example": "yeswehack-pp-cli hacktivity learn --program gojek --cwe CWE-89 --since-days 90 --json | claude 'summarize what worked'",
+      "why_it_matters": "Lets the agent calibrate from prior art before the hunter writes a single line - turning hacktivity into a learning surface, not just a feed.",
+      "group": "Agent-native plumbing"
+    }
+  ],
+  "narrative": {
+    "display_name": "YesWeHack",
+    "headline": "Every YesWeHack researcher feature, plus an offline SQLite-backed cockpit for scope cartography, drift detection, draft reports, and hacktivity learning that no Burp/Caido extension can match.",
+    "value_prop": "yeswehack-pp-cli is the researcher-side cockpit for the YesWeHack bug bounty platform. It syncs every program you can see, every scope, every hacktivity disclosure into a local SQLite store so an agent can answer 'what should I work on', 'has this been reported', and 'what is in scope here' in milliseconds, offline. Submit and draft commands are guard-railed by design - the goal is better reports, not more reports.",
+    "auth_narrative": "Authentication is JWT-based and tied to your logged-in browser session. Run `yeswehack-pp-cli auth login --chrome` and the CLI reads the access_token from your Chrome profile's localStorage - no copy-paste from DevTools. The JWT refreshes automatically against the OAuth2 token endpoint when it expires. YesWeHack's Personal Access Tokens are gated to manager-tier accounts; the CLI does not support them for the researcher surface.",
+    "quickstart": [
+      {
+        "command": "yeswehack-pp-cli auth login --chrome",
+        "comment": "Pulls your JWT from Chrome's localStorage. No DevTools needed."
+      },
+      {
+        "command": "yeswehack-pp-cli sync",
+        "comment": "Builds the local store: programs, scopes, hacktivity, user reports, business units."
+      },
+      {
+        "command": "yeswehack-pp-cli triage weekend --hours 6 --json",
+        "comment": "The single command that says 'here is your weekend slate' - scope drift, reports needing reply, trending CWEs in your specialty."
+      },
+      {
+        "command": "yeswehack-pp-cli programs scope-drift --since-days 7",
+        "comment": "What changed in your invited programs' scope this week."
+      },
+      {
+        "command": "yeswehack-pp-cli report dedupe --title 'SQLi in /api/users/{id}' --asset api.example.com --cwe CWE-89",
+        "comment": "Before you draft anything, see if it's already disclosed. Exit code 2 if a high-confidence collision exists."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "`auth login --chrome` says 'access_token not found in localStorage'",
+        "fix": "Open yeswehack.com in Chrome and sign in (or refresh the tab). The token lives in localStorage under the key `access_token`; the CLI reads it from the Chrome profile after login."
+      },
+      {
+        "symptom": "`401 unauthorized` on a private-program endpoint",
+        "fix": "JWT expired - run `yeswehack-pp-cli auth refresh` to re-pull from Chrome, or sign in to yeswehack.com again."
+      },
+      {
+        "symptom": "`programs scopes \u003cslug\u003e` returns 401 for a public program",
+        "fix": "Scope listing requires JWT even for public programs. Run `auth login --chrome` first."
+      },
+      {
+        "symptom": "`report submit` refuses with 'asset not in scope'",
+        "fix": "Run `programs scopes \u003cslug\u003e` to verify the target asset, or `scopes find \u003cpattern\u003e` to find the program where the asset is in scope."
+      }
+    ],
+    "when_to_use": "Reach for this CLI when a security researcher (or their agent) is qualifying YesWeHack programs, drafting a report, or trying to calibrate severity from prior disclosures. Particularly strong for agent-driven triage workflows where the agent needs structured local state to answer 'has this been reported', 'what is in scope', and 'which program pays the most for this asset'. Skip it for program-manager workflows (use ywh2bugtracker) and for one-off curl calls to the public API.",
+    "recipes": [
+      {
+        "title": "Triage a hunting session",
+        "command": "yeswehack-pp-cli triage weekend --hours 6 --json --select programs,reports,cwes",
+        "explanation": "Single ranked plan for a time-boxed session. --select narrows the JSON to the three high-gravity fields so agents don't burn context on full payloads."
+      },
+      {
+        "title": "Detect new scope before competitors do",
+        "command": "yeswehack-pp-cli programs scope-drift --since-days 7 --json",
+        "explanation": "Compares this week's scope snapshot to last week's. Catches the asset that quietly got added between Sunday syncs."
+      },
+      {
+        "title": "Pre-submit dedupe before drafting",
+        "command": "yeswehack-pp-cli report dedupe --title 'SQLi /api/users/{id}' --asset api.example.com --cwe CWE-89 --json",
+        "explanation": "Run before you spend an hour drafting. Exit 2 = high-confidence collision; the agent should stop and look at the matching disclosure."
+      },
+      {
+        "title": "Calibrate severity from disclosed reports",
+        "command": "yeswehack-pp-cli hacktivity learn --program gojek --cwe CWE-89 --since-days 90 --json | claude 'summarize the highest-bounty tactics'",
+        "explanation": "Pipes a deterministic data slice into an LLM for synthesis - the CLI stays auditable; the model only sees the curated slice."
+      },
+      {
+        "title": "Pick the right program for an asset finding",
+        "command": "yeswehack-pp-cli scopes find 'api-v3.*example\\\\.com' --json --select asset,program_slug,bounty_reward_max",
+        "explanation": "Regex lookup across every synced scope. Picks the program with the highest payout when the asset is in multiple scopes."
+      }
+    ],
+    "trigger_phrases": [
+      "hunt on yeswehack",
+      "qualify a yeswehack program",
+      "triage my yeswehack programs",
+      "draft a yeswehack report",
+      "is this yeswehack bug a duplicate",
+      "what changed in yeswehack scope",
+      "yeswehack hacktivity for fintech",
+      "use yeswehack",
+      "run yeswehack-pp-cli"
+    ]
+  }
+}

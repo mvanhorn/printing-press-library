@@ -1,0 +1,12 @@
+{
+  "descriptions": {
+    "constants_list-contribution-item-types": "List the official LD-203 contribution item type constants. No parameters are required. Returns code/name pairs used to interpret contribution_items.contribution_type values in contribution reports.",
+    "constants_list-countries": "List country constants accepted by LDA.gov filters and returned in client, registrant, and contribution address fields. No parameters are required. Returns code/name pairs for normalizing country values.",
+    "constants_list-filing-types": "List official filing type constants for LDA reports, including original and amended filing codes. No parameters are required. Use this before filtering filings or contribution reports by filing_type.",
+    "constants_list-government-entities": "List official government entity constants referenced by lobbying activity disclosures. No parameters are required. Returns entity IDs and names for interpreting government_entities in filing records.",
+    "constants_list-lobbying-activity-general-issues": "List official general issue codes used in lobbying activity disclosures. No parameters are required. Returns code/name pairs for filtering filings by issue and decoding lobbying_activities.general_issue_code.",
+    "constants_list-lobbyist-prefixes": "List allowed lobbyist name prefix constants such as honorifics. No parameters are required. Returns code/name pairs used when normalizing lobbyist records.",
+    "constants_list-lobbyist-suffixes": "List allowed lobbyist name suffix constants such as professional or generational suffixes. No parameters are required. Returns code/name pairs used when normalizing lobbyist records.",
+    "constants_list-states": "List state and territory constants accepted by LDA.gov filters and returned in address fields. No parameters are required. Returns code/name pairs for normalizing client, registrant, and contribution locations."
+  }
+}

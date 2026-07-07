@@ -1,0 +1,18 @@
+{
+  "schema_version": 2,
+  "id": "multipart-file-upload-routing",
+  "applied_at": "2026-06-06",
+  "base_run_id": "20260513T152516Z-e836a3fe",
+  "base_printing_press_version": "4.5.2",
+  "summary": "Route single-path file params through fileFields (real multipart upload) instead of fields (text), so the file bytes are sent rather than the literal path string.",
+  "reason": "speech-to-text, dubbing create, pronunciation-dictionaries add-from-file, and studio add-project/edit-project-content placed single-path file params in the text-field map; encodeMultipartBody writes those with WriteField, so the upload transmitted the path string (e.g. \"/x.mp3\") instead of the file. Confirmed against client.go encodeMultipartBody (fields->WriteField, fileFields->os.Open+CreateFormFile). Sibling commands (audio-isolation, forced-alignment, music separate-song-stems) already use fileFields correctly. Generator-template-shaped: file-typed multipart params should default to fileFields. The studio from_document cases were surfaced by a second Codex review pass.",
+  "files": [
+    "internal/cli/speech-to-text_speech_to_text.go",
+    "internal/cli/dubbing_create.go",
+    "internal/cli/pronunciation-dictionaries_add-from-file.go",
+    "internal/cli/studio_add-project.go",
+    "internal/cli/studio_edit-project-content.go"
+  ],
+  "validated_outcome": "go build ./... && go vet ./... && go test ./... all pass. STT --file, dubbing --file/--csv-file/--foreground-audio-file/--background-audio-file, pronunciation add-from-file --file, and studio add-project/edit-project-content --from-document now upload the file contents.",
+  "notes": "Not fixed here (separate, larger change requiring a multipart client that can emit repeated form parts): multi-file ARRAY params that are JSON-array-of-paths guarded by json.Valid — voices add/add-pvc-samples/edit_voice/request-pvc-manual-verification (--files) and music video-to (--videos). The client's fileFields map[string]string cannot express repeated parts, so these remain a known limitation. audio-native --image is a URL (not a file) and is correctly a text field."
+}

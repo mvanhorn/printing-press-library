@@ -11,6 +11,11 @@ import (
 	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/dice-fm/internal/store"
 )
 
+// defaultFuzzyThreshold is the Jaro-Winkler similarity bar used by the fuzzy
+// clustering pass when --fuzzy-threshold is not set. Two canonical names cluster
+// together only when their similarity is >= this value.
+const defaultFuzzyThreshold = 0.92
+
 // classifyOpts controls the classify pipeline run.
 type classifyOpts struct {
 	// ClassifierVersion is stamped onto every row written by this run.
@@ -19,6 +24,20 @@ type classifyOpts struct {
 	// canonical names into a shared canonical ID. Off by default so the
 	// primary path is fully deterministic.
 	Fuzzy bool
+	// FuzzyThreshold is the Jaro-Winkler similarity bar for the fuzzy pass. A
+	// zero (unset) value resolves to defaultFuzzyThreshold via fuzzyThreshold().
+	FuzzyThreshold float64
+}
+
+// fuzzyThreshold returns the effective clustering threshold: the configured
+// value when set to a positive number, otherwise defaultFuzzyThreshold. A value
+// outside (0,1] is treated as unset so a stray 0 or a nonsensical bound cannot
+// silently collapse every name into one cluster or disable clustering.
+func (o classifyOpts) fuzzyThreshold() float64 {
+	if o.FuzzyThreshold > 0 && o.FuzzyThreshold <= 1 {
+		return o.FuzzyThreshold
+	}
+	return defaultFuzzyThreshold
 }
 
 // classifyResult summarises what the classify pipeline produced.

@@ -1,0 +1,9 @@
+{
+  "staged_dir": "/tmp/printing-press/publish/1password-tMqwax/package/library/auth/1password",
+  "cli_name": "1password-pp-cli",
+  "api_name": "1password",
+  "category": "auth",
+  "module_path": "github.com/mvanhorn/printing-press-library/library/auth/1password",
+  "manuscripts_included": true,
+  "run_id": "20260608-220213"
+}

@@ -1,0 +1,71 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-06-16T20:30:56.140769Z",
+  "printing_press_version": "4.24.0",
+  "api_name": "google-ad-manager",
+  "display_name": "Google Ad Manager",
+  "cli_name": "google-ad-manager-pp-cli",
+  "creator": {
+    "handle": "stellato",
+    "name": "Greg Stellato"
+  },
+  "owner": "stellato",
+  "printer": "stellato",
+  "printer_name": "Greg Stellato",
+  "spec_path": "google-ad-manager-spec.json",
+  "spec_format": "openapi3",
+  "spec_checksum": "sha256:a27103efb063561866334ec35c3c5d596cb875d63934b7f27b24f379e6e9e494",
+  "run_id": "20260616-124304-8944dbb7",
+  "category": "marketing",
+  "description": "The only REST-native Google Ad Manager CLI: report, search, and manage publisher inventory from the terminal, backed by a local mirror the web console can't match.",
+  "mcp_binary": "google-ad-manager-pp-mcp",
+  "mcp_tool_count": 111,
+  "mcp_ready": "full",
+  "api_version": "v1",
+  "auth_type": "bearer_token",
+  "auth_env_vars": [
+    "GOOGLE_AD_MANAGER_ACCESS_TOKEN"
+  ],
+  "novel_features": [
+    {
+      "name": "One-Shot Async Report",
+      "command": "report run",
+      "description": "Create, run, poll, and fetch every row of a GAM report in a single blocking command instead of the four-step UI slog."
+    },
+    {
+      "name": "Saved Report Rerun",
+      "command": "report rerun",
+      "description": "Re-execute an existing saved report definition by ID and stream fresh rows, so the morning revenue pull is one short command."
+    },
+    {
+      "name": "Daily Report Diff",
+      "command": "report watch",
+      "description": "Re-run a saved report and diff it against the last cached run to surface what moved in revenue, impressions, or eCPM since yesterday."
+    },
+    {
+      "name": "Order Expansion Graph",
+      "command": "order graph",
+      "description": "Expand one order into its line items (goal, type, flight dates) in one structured object."
+    },
+    {
+      "name": "Ad-Unit Tree View",
+      "command": "adunits tree",
+      "description": "Render the full hierarchical ad-unit tree (or any subtree) from cache, with status and depth, in one offline call."
+    },
+    {
+      "name": "Inventory Orphan Audit",
+      "command": "inventory orphans",
+      "description": "Tree-walk the ad-unit hierarchy to flag active units with no placement coverage."
+    },
+    {
+      "name": "Local Resync Diff",
+      "command": "since",
+      "description": "Show which mirrored entities were added or changed (by updateTime) since a cutoff — a changelog the platform does not keep."
+    },
+    {
+      "name": "Line-Item Pacing Join",
+      "command": "lineitem pace",
+      "description": "Join read-only line-item goals against a delivery report to show each line item's pace versus goal, ranked by risk."
+    }
+  ]
+}

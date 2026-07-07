@@ -1,0 +1,85 @@
+{
+  "api_name": "roadside-america",
+  "base_url": "https://www.roadsideamerica.com",
+  "description": "Every offbeat roadside attraction on RoadsideAmerica.com — with a local SQLite cache, offline search, and superlative categories no other tool offers.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "none"
+  },
+  "required_headers": [
+    {
+      "name": "User-Agent",
+      "value": "roadside-america-pp-cli/0.1.0 (user-initiated roadside-attraction lookup; polite, cached, rate-limited)"
+    }
+  ],
+  "tools": [
+    {
+      "name": "raw_by-state",
+      "description": "Raw attraction links for a US/Canada state (HTML fragment). Required: state.",
+      "method": "GET",
+      "path": "/map/attractionsByState.php",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "state",
+          "type": "string",
+          "location": "query",
+          "description": "Two-letter state or province code, e.g. TX, CA, ON",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "raw_detail",
+      "description": "Raw attraction detail page (HTML). Required: id.",
+      "method": "GET",
+      "path": "/tip/{id}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Attraction id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "raw_nearby",
+      "description": "Raw nearby attraction links for coordinates (HTML fragment). Required: long, lat. Optional: delta (default: 0.5), id (default: 0).",
+      "method": "GET",
+      "path": "/map/nearbyAttractions.php",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "long",
+          "type": "float",
+          "location": "query",
+          "description": "Longitude (decimal degrees)",
+          "required": true
+        },
+        {
+          "name": "lat",
+          "type": "float",
+          "location": "query",
+          "description": "Latitude (decimal degrees)",
+          "required": true
+        },
+        {
+          "name": "delta",
+          "type": "float",
+          "location": "query",
+          "description": "Bounding half-size in degrees (radius proxy)"
+        },
+        {
+          "name": "id",
+          "type": "int",
+          "location": "query",
+          "description": "Reference attraction id (0 for none)"
+        }
+      ]
+    }
+  ]
+}

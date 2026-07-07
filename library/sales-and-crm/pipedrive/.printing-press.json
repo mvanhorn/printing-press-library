@@ -1,0 +1,51 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-06-14T20:44:47.571206Z",
+  "printing_press_version": "4.24.0",
+  "api_name": "pipedrive",
+  "display_name": "Pipedrive",
+  "cli_name": "pipedrive-pp-cli",
+  "creator": {
+    "handle": "debgotwired",
+    "name": "Deb Mukherjee"
+  },
+  "owner": "debgotwired",
+  "printer": "debgotwired",
+  "printer_name": "Deb Mukherjee",
+  "spec_url": "https://developers.pipedrive.com/docs/api/v1/openapi.yaml",
+  "run_id": "20260614-204447",
+  "catalog_entry": "pipedrive",
+  "category": "sales-and-crm",
+  "description": "CRM for sales teams - deals, contacts, pipelines, activities, and organizations",
+  "mcp_binary": "pipedrive-pp-mcp",
+  "mcp_tool_count": 213,
+  "mcp_ready": "full",
+  "api_version": "1.0.0",
+  "auth_type": "api_key",
+  "auth_env_vars": [
+    "PIPEDRIVE_API_KEY"
+  ],
+  "auth_key_url": "https://app.pipedrive.com/settings/personal/api",
+  "novel_features": [
+    {
+      "name": "Local SQLite mirror",
+      "command": "sync",
+      "description": "Sync read endpoints into a local SQLite store for offline search, joins, and repeatable agent analysis."
+    },
+    {
+      "name": "Full-text search across API data",
+      "command": "search",
+      "description": "Search live or locally synced API records from one agent-friendly command."
+    },
+    {
+      "name": "SQL analytics on synced records",
+      "command": "analytics",
+      "description": "Run read-only SQL against the local store for compound questions the upstream API does not expose directly."
+    },
+    {
+      "name": "Agent command discovery",
+      "command": "which",
+      "description": "Map natural-language capabilities to the exact CLI command path before spending tokens on trial and error."
+    }
+  ]
+}

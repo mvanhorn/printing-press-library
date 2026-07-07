@@ -7,21 +7,35 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"strings"
 
 	"github.com/spf13/cobra"
 )
+
+// resolveClipIDs lets `clips get` accept ids via --ids or as positional args,
+// matching convert-wav / wav-url / project get. --ids wins when both are given.
+func resolveClipIDs(flagIds string, args []string) string {
+	if flagIds != "" {
+		return flagIds
+	}
+	return strings.Join(args, ",")
+}
 
 func newClipsGetCmd(flags *rootFlags) *cobra.Command {
 	var flagIds string
 
 	cmd := &cobra.Command{
-		Use:         "get",
+		Use:         "get [clip_id...]",
 		Short:       "Fetch clip(s) by ID (comma-separated; Suno batches 2 at a time)",
-		Example:     "  suno-pp-cli clips get --ids 7d869de4-9476-4a4d-a6f2-c0eec968a3e2 --agent --select id,title,status,audio_url,metadata.duration,metadata.tags",
+		Example:     "  suno-pp-cli clips get <clip_id>\n  suno-pp-cli clips get --ids 7d869de4-9476-4a4d-a6f2-c0eec968a3e2 --agent --select id,title,status,audio_url,metadata.duration,metadata.tags",
+		Args:        cobra.ArbitraryArgs,
 		Annotations: map[string]string{"pp:endpoint": "clips.get", "pp:method": "GET", "pp:path": "/api/feed/", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
-			if !cmd.Flags().Changed("ids") && !flags.dryRun {
-				return fmt.Errorf("required flag \"%s\" not set", "ids")
+			if !cmd.Flags().Changed("ids") {
+				flagIds = resolveClipIDs(flagIds, args)
+			}
+			if flagIds == "" && !flags.dryRun {
+				return fmt.Errorf("provide clip id(s) via --ids or as positional argument(s)")
 			}
 			c, err := flags.newClient()
 			if err != nil {

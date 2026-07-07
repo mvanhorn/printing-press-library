@@ -1,6 +1,6 @@
 ---
-name: pp-ufo-goat
-description: "The declassified UAP file archive in your terminal — browse, search, and download 162+ files from the PURSUE initiative Trigger phrases: `check UFO files`, `search declassified UAP`, `download PURSUE files`, `war.gov UFO`, `browse UFO archive`, `use ufo`."
+name: pp-ufo
+description: "The declassified UAP file archive in your terminal — browse, search, and download 162+ files from the PURSUE initiative, organized by government release tranche. Trigger phrases: `check UFO files`, `search declassified UAP`, `download PURSUE files`, `war.gov UFO`, `browse UFO archive`, `latest UFO release`, `did a new UFO batch drop`, `compare UFO releases`, `use ufo`."
 author: "Dave Morin"
 license: "Apache-2.0"
 argument-hint: "<command> [args] | install cli|mcp"
@@ -22,20 +22,22 @@ metadata:
 
 This skill drives the `ufo-goat-pp-cli` binary. **You must verify the CLI is installed before invoking any command from this skill.** If it is missing, install it first:
 
-1. Install via the Printing Press installer. It defaults binaries to `$HOME/.local/bin` on macOS/Linux and `%LOCALAPPDATA%\Programs\PrintingPress\bin` on Windows:
+1. Install via the Printing Press installer:
    ```bash
-   npx -y @mvanhorn/printing-press-library install ufo-goat --cli-only
+   npx -y @mvanhorn/printing-press install ufo-goat --cli-only
    ```
 2. Verify: `ufo-goat-pp-cli --version`
-3. Ensure the reported install directory is on `$PATH` for the agent/runtime that will invoke this skill.
+3. Ensure `$GOPATH/bin` (or `$HOME/go/bin`) is on `$PATH`.
 
-If the `npx` install fails (no Node, offline, etc.), fall back to a direct Go install (requires Go 1.26.3 or newer):
+If the `npx` install fails (no Node, offline, etc.), fall back to a direct Go install (requires Go 1.26.4 or newer):
 
 ```bash
 go install github.com/mvanhorn/printing-press-library/library/other/ufo-goat/cmd/ufo-goat-pp-cli@latest
 ```
 
-If `--version` reports "command not found" after install, the runtime cannot see the binary directory on `$PATH`. Do not proceed with skill commands until verification succeeds.
+If `--version` reports "command not found" after install, the install step did not put the binary on `$PATH`. Do not proceed with skill commands until verification succeeds.
+
+The first CLI for the War.gov/UFO declassified files portal. Search across every contributing agency (DoD/DoW, FBI, NASA, State, CIA, DOE, ODNI, and more), download files with resume support, track new release tranches, and discover video-PDF pairings — all from a single binary with offline SQLite storage.
 
 ## When to Use This CLI
 
@@ -57,16 +59,26 @@ These capabilities aren't available in any other tool for this API.
   ```bash
   ufo-goat-pp-cli sync
   ```
-- **`new`** — See exactly which files were added since your last sync — the 'what did I miss' command for rolling releases
+- **`new`** — Show the files in the latest government release tranche — the 'what just dropped' command, scoped to the batch instead of your sync timing
 
-  _When an agent needs to check for new declassified files without re-scanning the entire archive_
+  _When an agent needs to see exactly what the most recent PURSUE batch contained, regardless of when it last synced. Use `--release N` for an older tranche, or `--since`/`--since-sync` for the old sync-timing behavior._
 
   ```bash
-  ufo-goat-pp-cli new --since 7d
+  ufo-goat-pp-cli new --agent
+  ufo-goat-pp-cli new --release 1 --agent
+  ```
+- **`releases`** — Treat the PURSUE batch as a first-class lens: list every tranche, compare two, and detect when a new one lands
+
+  _The government declassifies files in batches (release_1, release_2, …). `releases` summarizes each batch's date, file count, and agency/type mix; `releases check` is the cron-friendly "did a new batch drop?" probe that exits 3 when nothing is new._
+
+  ```bash
+  ufo-goat-pp-cli releases --agent
+  ufo-goat-pp-cli releases diff 1 2 --agent
+  ufo-goat-pp-cli releases check --exit-code --agent
   ```
 
 ### Cross-agency intelligence
-- **`timeline`** — View a chronological incident timeline spanning 1944-2025 across all four agencies
+- **`timeline`** — View a chronological incident timeline spanning 1944-2025 across every contributing agency
 
   _Researchers need to see the full picture: FBI case from 1947 next to a DoW mission report from 2024_
 
@@ -113,8 +125,23 @@ These capabilities aren't available in any other tool for this API.
 **files** — Declassified UAP files (PDFs, videos, images) from FBI, DoD, NASA, State Department
 
 - `ufo-goat-pp-cli files get` — Get details of a specific file
-- `ufo-goat-pp-cli files list` — List all declassified UAP files
-- `ufo-goat-pp-cli files search` — Full-text search across file titles, descriptions, and locations
+- `ufo-goat-pp-cli files list` — List all declassified UAP files (filter by `--agency`, `--type`, `--location`, `--release`)
+- `ufo-goat-pp-cli files search` — Full-text search across file titles, descriptions, and locations (`--release` scopes to a tranche)
+
+**releases** — Browse the archive by government release tranche (batch)
+
+- `ufo-goat-pp-cli releases` — Summarize every release tranche (number, date, file count, agency/type mix)
+- `ufo-goat-pp-cli releases diff <from> <to>` — Compare the composition of two tranches
+- `ufo-goat-pp-cli releases check` — Detect whether a new tranche has landed (`--exit-code` exits 3 when nothing new; `--no-sync` skips the fetch)
+
+**new** — Show files in the latest release tranche
+
+- `ufo-goat-pp-cli new` — Files in the latest tranche (`--release N`, or `--since`/`--since-sync` for sync-timing)
+
+**sources** — Configure where the manifest is synced from
+
+- `ufo-goat-pp-cli sources` — List known manifest sources (community/legacy/wargov)
+- `ufo-goat-pp-cli sync --source <name>` — Sync from a named source (or `--manifest-url <url>`; env `UFO_SOURCE` / `UFO_MANIFEST_URL`). Default `community` tracks every release tranche.
 
 
 ### Finding the right command
@@ -162,13 +189,30 @@ ufo-goat-pp-cli pairs --json --select video_title,pdf_title,agency
 
 Discover which videos have accompanying PDF reports
 
-### Track new releases
+### Track new releases by batch
 
 ```bash
-ufo-goat-pp-cli sync && ufo-goat-pp-cli new
+ufo-goat-pp-cli sync && ufo-goat-pp-cli releases --agent
 ```
 
-Fetch latest manifest and see what's been added since last check
+Fetch the latest manifest, then summarize every government release tranche. `sync` reports any newly-landed batch; `releases` shows the full batch breakdown. The default `community` source tracks every tranche; run `ufo-goat-pp-cli sources` to see or change it.
+
+### Detect a newly-dropped batch on a schedule
+
+```bash
+ufo-goat-pp-cli releases check --exit-code --agent
+```
+
+Cron/scheduler-friendly: syncs, reports any new tranche as JSON, and exits 3 when nothing is new so a wrapper can branch on it.
+
+### Browse one release tranche
+
+```bash
+ufo-goat-pp-cli new --release 1 --agent
+ufo-goat-pp-cli files list --release 1 --json --select title,agency,type
+```
+
+Scope any listing to a single PURSUE batch via `--release N` (also on `search` and `timeline`).
 
 ## Auth Setup
 

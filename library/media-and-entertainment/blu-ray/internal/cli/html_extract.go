@@ -4,6 +4,7 @@
 package cli
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	stdhtml "html"
@@ -13,14 +14,16 @@ import (
 	"strings"
 
 	xhtml "golang.org/x/net/html"
+	"golang.org/x/net/html/charset"
 )
 
 type htmlExtractionOptions struct {
 	Mode           string
 	BaseURL        string
+	ContentType    string
 	LinkPrefixes   []string
 	Limit          int
-	ScriptSelector string // for mode: embedded-json — selector "tag" or "tag#id"
+	ScriptSelector string // for mode: embedded-json — selector "tag", "tag#id", "tag.class", or "tag[attr=\"value\"]"
 	JSONPath       string // for mode: embedded-json — dot-notation walk
 }
 
@@ -74,7 +77,7 @@ func extractHTMLResponse(raw []byte, opts htmlExtractionOptions) (json.RawMessag
 // Both require parsing the HTML and walking the DOM; the only difference
 // is what they return at the end.
 func extractHTMLPageOrLinks(raw []byte, opts htmlExtractionOptions) (json.RawMessage, error) {
-	doc, err := xhtml.Parse(strings.NewReader(string(raw)))
+	doc, err := parseHTMLDocument(raw, opts.ContentType)
 	if err != nil {
 		return nil, fmt.Errorf("parsing HTML response: %w", err)
 	}
@@ -203,6 +206,17 @@ func normalizeHTMLURL(raw string, base string) string {
 		return ref.String()
 	}
 	return baseURL.ResolveReference(ref).String()
+}
+
+func parseHTMLDocument(raw []byte, contentType string) (*xhtml.Node, error) {
+	if strings.TrimSpace(contentType) == "" {
+		contentType = "text/html"
+	}
+	reader, err := charset.NewReader(bytes.NewReader(raw), contentType)
+	if err != nil {
+		reader = bytes.NewReader(raw)
+	}
+	return xhtml.Parse(reader)
 }
 
 func htmlExtractionRequestURL(base string, path string, params map[string]string) string {

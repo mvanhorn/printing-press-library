@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "id": "applescript-delete",
+  "applied_at": "2026-05-23",
+  "base_run_id": "hand-written",
+  "base_printing_press_version": "0.1.3",
+  "summary": "photos_delete.go drives Photos.app via osascript to move items to Recently Deleted.",
+  "reason": "There is no public iCloud API or CLI for deletion. AppleScript is the only supported path that preserves the 30-day recovery window and keeps iCloud sync intact.",
+  "files": [
+    "internal/cli/photos_delete.go"
+  ]
+}

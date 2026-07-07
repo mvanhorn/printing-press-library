@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "composed-auth-apikey-wire",
+  "applied_at": "2026-05-14",
+  "base_run_id": "20260514-073613",
+  "base_printing_press_version": "4.6.1",
+  "summary": "Wires the ST-App-Key header into every HTTP request (do() and the dry-run preview).",
+  "reason": "ServiceTitan rejects calls that present only the OAuth bearer; both halves of the composed auth must be on every request. The generator emitted the bearer half but not the apiKey half (#1303 apiKey half).",
+  "files": [
+    "internal/client/client.go"
+  ],
+  "validated_outcome": "live categories get-list returned real JKA data with both headers present"
+}

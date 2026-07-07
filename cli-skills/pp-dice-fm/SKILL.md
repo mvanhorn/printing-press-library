@@ -34,7 +34,7 @@ This skill drives the `dice-fm-pp-cli` binary. **You must verify the CLI is inst
 2. Verify: `dice-fm-pp-cli --version`
 3. Ensure the reported install directory is on `$PATH` for the agent/runtime that will invoke this skill.
 
-If the `npx` install fails (no Node, offline, etc.), fall back to a direct Go install (requires Go 1.26.3 or newer):
+If the `npx` install fails (no Node, offline, etc.), fall back to a direct Go install (requires Go 1.26.4 or newer):
 
 ```bash
 go install github.com/mvanhorn/printing-press-library/library/media-and-entertainment/dice-fm/cmd/dice-fm-pp-cli@latest
@@ -120,7 +120,7 @@ These capabilities aren't available in any other tool for this API.
   ```bash
   dice-fm-pp-cli tier-performance --limit 20 --json
   ```
-- **`normalize`** — Canonicalize free-text ticket-type and venue names into structured axes (parallel, re-runnable, local-only); `normalize recommend` emits a starter config and `normalize stats` shows coverage.
+- **`normalize`** — Canonicalize free-text ticket-type and venue names into structured axes (parallel, re-runnable, local-only); `normalize recommend` emits a starter config, `normalize stats` shows coverage, and `normalize promote-rules` learns reusable regex rules from manual classifications.
 
   ```bash
   dice-fm-pp-cli normalize --tiers --fuzzy
@@ -159,9 +159,10 @@ These capabilities aren't available in any other tool for this API.
 
 **normalize** — Canonicalize manually-entered ticket-type and venue names into structured axes (parallel and re-runnable; raw synced data is never modified)
 
-- `dice-fm-pp-cli normalize` — Resolve raw names → canonical entities + axes (`--tiers`, `--venues`, `--all`, `--entity`, `--fuzzy`, `--export-unmatched <file>`, `--export-format prompt|names`, `--import <file.csv|.json>`)
+- `dice-fm-pp-cli normalize` — Resolve raw names → canonical entities + axes (`--tiers`, `--venues`, `--all`, `--entity`, `--fuzzy`, `--fuzzy-threshold <float>`, `--export-unmatched <file>`, `--export-format prompt|names`, `--import <file.csv|.json>`)
 - `dice-fm-pp-cli normalize stats` — Show the normalized axis distribution (`--entity`)
 - `dice-fm-pp-cli normalize recommend` — Profile the store and emit a starter normalization config (`--print` previews without writing)
+- `dice-fm-pp-cli normalize promote-rules` — Graduate method=manual classifications into validated regex rules (`--entity <type>`, `--write`, `--min-support <int>` default `2`)
 
   Query the normalized view via `revenue summary --by-axis <access_class|sales_stage|entry_window_type|group_size|comp_flag>`. Raw is the default; `--by-axis` falls back to raw (with a warning) if `normalize` has not been run. Normalization is local-only — resolved name mappings never leave your machine.
 
@@ -249,10 +250,15 @@ Per price-tier redemptions and each tier's share of total sales — which price 
 
 ```bash
 dice-fm-pp-cli normalize --tiers --venues --fuzzy
+dice-fm-pp-cli normalize --export-unmatched unmatched.json
+# classify externally, then import the result as method=manual
+dice-fm-pp-cli normalize --import classified.json
+dice-fm-pp-cli normalize promote-rules --entity ticket_type --write
+dice-fm-pp-cli normalize --tiers --venues --fuzzy
 dice-fm-pp-cli revenue summary --from 2026-01-01 --by-axis access_class --json
 ```
 
-Canonicalizes free-text ticket-type and venue names into structured axes (parallel and local-only; raw data untouched), then groups a revenue report on a clean axis. Run `normalize recommend --print` first to preview a starter config.
+Canonicalizes free-text ticket-type and venue names into structured axes (parallel and local-only; raw data untouched), then groups a revenue report on a clean axis. Run `normalize recommend --print` first to preview a starter config; after importing manual classifications, `normalize promote-rules --entity <type> --write` promotes repeat tokens into deterministic regex rules.
 
 ### Via the MCP server
 
@@ -263,7 +269,9 @@ After installing `dice-fm-pp-mcp` (see **MCP Server Installation** below), call 
 - `tier_performance` with `{ "limit": 20 }` — price-tier sales mix
 - `normalize_stats` with `{ "entity": "ticket_type" }` — normalized coverage by axis
 
-These (plus the eight typed `*_list` / `events_get` resource tools) are read-only. `normalize` writes the local store, so call it from the CLI. Custom SQL is out of scope here.
+These (plus the eight typed `*_list` / `events_get` resource tools) are read-only. `normalize` writes the local store, and `normalize_promote_rules` is a write tool when writing promoted rules, so call them from the CLI or invoke them deliberately. Custom SQL is out of scope here.
+
+**Personal data is pseudonymized by default.** Tools that can return fan/holder PII — `tickets_list`, `orders_list`, `returns_list`, `transfers_list`, `extras_list`, `search`, `sql`, and the mirrored `fans_top` / `fans_profile` / `fans_optin` / `fans_repeat` / `fans_segment` / `door_list` — replace buyer/holder `email`, `phone`, and name with a stable `fan_ref` token (e.g. `fan:1a2b3c4d5e6f708192`) and omit `dob`. The token is deterministic per fan, so you can dedup/correlate the same person across calls without raw identifiers entering the model context. Pass `include_pii: true` on any of these to get raw values **plus** the token. The plain CLI is unaffected — it always emits raw output to the operator's terminal. `sql` redaction is best-effort (known PII columns + nested JSON `data` cells); a column alias or computed expression can slip past it, so prefer the typed tools or `search` when you need a guarantee.
 
 ## Auth Setup
 
@@ -309,7 +317,7 @@ dice-fm-pp-cli feedback --stdin < notes.txt
 dice-fm-pp-cli feedback list --json --limit 10
 ```
 
-Entries are stored locally at `~/.dice-fm-pp-cli/feedback.jsonl`. They are never POSTed unless `DICE_FM_FEEDBACK_ENDPOINT` is set AND either `--send` is passed or `DICE_FM_FEEDBACK_AUTO_SEND=true`. Default behavior is local-only.
+Entries are stored locally at `~/.dice-fm-pp-cli/feedback.jsonl`. They are never POSTed unless `DICE_FM_FEEDBACK_ENDPOINT` is set (must be `https://`) AND either `--send` is passed or `DICE_FM_FEEDBACK_AUTO_SEND=true`. Default behavior is local-only.
 
 Write what *surprised* you, not a bug report. Short, specific, one line: that is the part that compounds.
 
@@ -320,10 +328,18 @@ Every command accepts `--deliver <sink>`. The output goes to the named sink in a
 | Sink | Effect |
 |------|--------|
 | `stdout` | Default; write to stdout only |
-| `file:<path>` | Atomically write output to `<path>` (tmp + rename) |
+| `file:<path>` | Atomically write output to `<path>` (tmp + rename; created dirs `0700`, file `0600`) |
 | `webhook:<url>` | POST the output body to the URL (`application/json` or `application/x-ndjson` when `--compact`) |
 
 Unknown schemes are refused with a structured error naming the supported set. Webhook failures return non-zero and log the URL + HTTP status on stderr.
+
+Webhook delivery is hardened because command output can carry personal data:
+
+- **https only** — cleartext `http://` is refused.
+- **SSRF guard** — a host that resolves to a private (RFC-1918), loopback, link-local, or cloud-metadata (`169.254.169.254`) address is refused unless you pass `--allow-private-webhook` (opt-in for a trusted internal endpoint).
+- **Audit** — a `delivered N bytes to <host>` line is written to stderr on success.
+
+`--deliver` is blocked on the MCP surface, so an agent cannot use it to exfiltrate output; it is a human/CLI feature.
 
 ## Named Profiles
 

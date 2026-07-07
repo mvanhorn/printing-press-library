@@ -1,0 +1,20 @@
+{
+  "schema_version": 2,
+  "id": "ga4-publish-grade-rebuild",
+  "applied_at": "2026-06-12",
+  "base_run_id": "ga4-20260612",
+  "base_printing_press_version": "4.20.1",
+  "summary": "Rebuilds the GA4 CLI from a single-file draft into a typed, tested, publish-grade command tree.",
+  "reason": "The original generated artifact had the right command surface but was not publicly publishable: one 1,037-line root.go, no typed API layer, no tests, and draft-only proofs.",
+  "files": [
+    "internal/ga4/types.go",
+    "internal/ga4/client.go",
+    "internal/ga4/auth.go",
+    "internal/cli/*.go",
+    "internal/cli/*_test.go",
+    "internal/ga4/*_test.go",
+    ".manuscripts/ga4-20260612/research/research.md",
+    ".manuscripts/ga4-20260612/proofs/proofs.md"
+  ],
+  "validated_outcome": "go test ./..., go build ./..., verify-skill, and 40 live smoke commands across two authorized GA4 properties passed."
+}

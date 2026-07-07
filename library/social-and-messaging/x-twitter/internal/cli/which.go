@@ -27,9 +27,34 @@ type whichEntry struct {
 // `--help`; `which` exists to resolve a natural-language capability
 // query to one of the commands the skill says matter most.
 var whichIndex = []whichEntry{
+	{Command: "auth oauth2-login", Description: "Run the OAuth2 authorization-code + PKCE browser flow, capture the localhost callback, exchange the code for user-context tokens, and save them for /2/users/me, personal reads, writes, bookmarks, and owned metrics.", Group: "Auth readiness", WhyItMatters: "Use this when doctor says the OAuth2 user-context lane is missing and you need to obtain a real user-context token from X."},
+	{Command: "auth import-oauth2", Description: "Import an OAuth2 user-context access token, optional refresh token, scopes, and expiry metadata for /2/users/me, personal reads, writes, bookmarks, and owned metrics.", Group: "Auth readiness", WhyItMatters: "Use this non-interactive path when you already have tokens from another OAuth2 authorization-code + PKCE flow."},
+	{Command: "doctor --json", Description: "Report selected profile, auth lanes, user-context probe status, scopes, missing workflow scopes, token expiry, refresh-token presence, X Articles cookie status, cache health, and transport state.", Group: "Auth readiness", WhyItMatters: "This is the preflight gate before agents run personal reads, public mutations, or X Content Engine migration checks."},
+	{Command: "raw", Description: "Call a raw X API path or allowlisted HTTPS X absolute URL with query params, headers, JSON bodies, dry-run previews, and the same auth lanes as generated commands.", Group: "Debugging", WhyItMatters: "Use this as the escape hatch for new endpoints, auth-lane diagnosis, and reproducing API errors when no generated command fits yet."},
+	{Command: "users get-me", Description: "Call /2/users/me with OAuth2 user-context auth and return the authenticated account identity.", Group: "Personal read surfaces", WhyItMatters: "This is the hard migration gate that proves the configured credential is user-context, not app-only or browser-cookie auth."},
+	{Command: "users timelines get-users", Description: "Read a user's reverse-chronological home/user timeline where X allows it; requires OAuth2 user-context for personal timeline surfaces.", Group: "Personal read surfaces", WhyItMatters: "Route queries like 'home timeline' or 'show my timeline' here instead of inventing an xurl-shaped wrapper."},
+	{Command: "users mentions get-users", Description: "Read mentions for a user ID with pagination and agent-readable output; requires OAuth2 user-context for the authenticated user's personal mentions.", Group: "Personal read surfaces", WhyItMatters: "Route 'show my mentions' and launch-feedback collection to the generated endpoint command."},
+	{Command: "users bookmarks get-users", Description: "List bookmarks for a user ID when the selected OAuth2 user-context token has bookmark scopes.", Group: "Personal read surfaces", WhyItMatters: "Use this for 'sync bookmarks' after doctor confirms bookmark.read is available."},
+	{Command: "users liked-tweets get-users-liked-posts", Description: "List liked posts for a user ID when the selected OAuth2 user-context token has like/read scopes.", Group: "Personal read surfaces", WhyItMatters: "Use this for voice refresh, source enrichment, and local collection seeding from liked posts."},
+	{Command: "users tweets get-users-posts", Description: "List posts owned by a user ID, suitable for owned-post backfills and source enrichment.", Group: "Personal read surfaces", WhyItMatters: "Use this when an agent needs the authenticated user's own posts before performance snapshots."},
+	{Command: "tweets create-posts", Description: "Create a public post, reply, or quote post with OAuth2 user-context auth; use --dry-run --agent first to preview method, path, profile, auth lane, public action, and body without sending.", Group: "Safe public mutations", WhyItMatters: "Route 'post a reply', 'quote this', or 'draft a tweet' here, and never treat --agent as approval to publish."},
+	{Command: "users likes post", Description: "Like a post for a source user ID; public/account mutation requiring OAuth2 user-context auth and safe dry-run preview.", Group: "Safe public mutations", WhyItMatters: "Agents should classify this as a public/account mutation before execution."},
+	{Command: "users retweets repost-post", Description: "Repost a post for a source user ID; public/account mutation requiring OAuth2 user-context auth and safe dry-run preview.", Group: "Safe public mutations", WhyItMatters: "Agents should preview reposts and require explicit approval before live execution."},
+	{Command: "users following follow-user", Description: "Follow a target user from a source user ID; account mutation requiring OAuth2 user-context auth and safe dry-run preview.", Group: "Safe public mutations", WhyItMatters: "Agents should not run follows from broad intent alone."},
+	{Command: "post resolve", Description: "Normalize any X post URL or post ID into a canonical structured record with provenance, author context, metrics, and suggested next workflow commands.", Group: "Power-user workflows", WhyItMatters: "Use this as the universal entry point when an agent starts from a pasted X link and needs a stable v2 post object without hand-parsing URLs."},
+	{Command: "thread context", Description: "Resolve a post URL or ID, include parent and quote context when available, and optionally pull bounded replies from local store or recent search.", Group: "Power-user workflows", WhyItMatters: "Helps an agent understand what a post is replying to, quoting, or sitting inside before summarizing or drafting a response."},
+	{Command: "collection save/list/export", Description: "Save resolved X posts into durable local named collections, list saved source material, and export it as markdown, JSON, JSONL, or CSV.", Group: "Local state that compounds", WhyItMatters: "Turns bookmarks, launch mentions, research examples, and source links into an offline working set that can be reused without relying on X bookmarks."},
+	{Command: "monitor create/run/list", Description: "Create named query, account, or URL monitors, run them with watermarks and dedupe, and list local monitor state.", Group: "Ongoing monitoring", WhyItMatters: "Scheduled agents can track launches, accounts, products, and topics over time without rebuilding since-id and dedupe logic."},
+	{Command: "brief", Description: "Package monitor results, collections, or explicit post IDs into deterministic source-backed JSON or markdown briefs.", Group: "Power-user workflows", WhyItMatters: "Turns noisy saved X activity into a compact daily or weekly briefing with links and metrics but no LLM-dependent claims."},
+	{Command: "account snapshot", Description: "Capture profile basics, public metrics, pinned post, and recent posts for a username or user ID.", Group: "Research workflows", WhyItMatters: "Useful before meetings, replies, recruiting outreach, support escalations, or investment research when an agent needs account context quickly."},
+	{Command: "url mentions", Description: "Find recent posts mentioning a URL, domain, repo, or product page and optionally save results into a collection or monitor.", Group: "Launch and feedback tracking", WhyItMatters: "Tracks who is sharing or discussing a launch, article, docs page, or OSS repository from the terminal."},
+	{Command: "performance snapshot/backfill/analyze", Description: "Store timestamped owned post metrics, backfill recent account posts when auth allows, and analyze local performance snapshots by type, hour, media, links, or label.", Group: "Performance tracking", WhyItMatters: "Creators, founders, and developer advocates can measure owned post metrics, launches, and content performance without custom JSONL scripts."},
+	{Command: "timeline export", Description: "Export account or query timelines as markdown, JSON, or JSONL using local data where possible and live search when needed.", Group: "Research workflows", WhyItMatters: "Moves X timelines into notes, docs, archives, or downstream analysis without hand-formatting API responses."},
 	{Command: "thread show", Description: "Rebuild a full conversation thread from your locally synced posts — ordered and depth-tagged — without re-spending API read credits.", Group: "Local state that compounds", WhyItMatters: "When an agent needs the shape of a discussion (who replied to whom, in order), reach for this instead of paginating the search API and re-assembling the tree by hand."},
 	{Command: "thread compose", Description: "Split a markdown file into a numbered, 280-char-packed self-reply thread; prints by default and only posts with --post.", Group: "Authoring workflows", WhyItMatters: "Compose a thread from a document deterministically; the dry-run default lets an agent preview the exact tweets before any write."},
 	{Command: "articles-publish-md", Description: "Parse a markdown file with YAML frontmatter into the Draft.js content_state JSON X's Articles editor accepts; saves a draft by default and only publishes with explicit opt-in.", Group: "Authoring workflows", WhyItMatters: "The only programmatic way to author a long-form X Article from a document; draft-first so nothing publishes without an explicit flag."},
+	// PATCH: in-place markdown update lane for existing drafts.
+	{Command: "articles update-md", Description: "Update an existing X Article draft in place from a markdown file (title, body, links, new inline images), replacing the entire body. Preflights the draft for entity types the converter cannot reproduce and refuses unless --replace-unknown-entities is passed; --republish handles published articles via Unpublish -> UpdateContent -> Publish.", Group: "Authoring workflows", WhyItMatters: "Edit a draft by editing the markdown and re-running one command instead of re-creating drafts or hand-driving the composer; reuses the create path's proven GraphQL composition."},
 }
 
 // whichMatch pairs an index entry with its ranking score for a query.
@@ -95,7 +120,7 @@ func whichScoreEntry(e whichEntry, query string, qTokens []string) int {
 	score := 0
 	cmd := strings.ToLower(e.Command)
 	cmdTokens := strings.Fields(cmd)
-	desc := strings.ToLower(e.Description)
+	desc := strings.ToLower(e.Description + " " + e.WhyItMatters)
 	group := strings.ToLower(e.Group)
 
 	// Exact token match on the command path (any token).
@@ -111,9 +136,20 @@ func whichScoreEntry(e whichEntry, query string, qTokens []string) int {
 	if strings.Contains(cmd, query) {
 		score += 2
 	}
+	for _, qt := range qTokens {
+		if len(qt) <= 2 {
+			continue
+		}
+		if strings.Contains(cmd, qt) {
+			score++
+		}
+		if strings.Contains(desc, qt) {
+			score++
+		}
+	}
 	// Substring match on the description.
 	if strings.Contains(desc, query) {
-		score += 2
+		score += 4
 	}
 	// Group tag match.
 	if group != "" {

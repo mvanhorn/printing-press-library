@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "id": "production-parent-unhide",
+  "applied_at": "2026-05-18",
+  "base_run_id": "20260518-214920",
+  "base_printing_press_version": "4.8.0",
+  "summary": "Unhide the `production` parent command so its subcommands (`monthly`, `hourly`, plus the four novel ones) are visible in `--help`.",
+  "reason": "The generator marked `production` as `Hidden: true` because radiation/weather/horizon were single-endpoint resources promoted to root shortcuts. With 6 subcommands under production (2 generated + 4 novel), hiding the parent makes the novel commands undiscoverable from `--help`. Unhiding restores normal Cobra `production --help` discovery.",
+  "files": [
+    "internal/cli/production.go"
+  ]
+}

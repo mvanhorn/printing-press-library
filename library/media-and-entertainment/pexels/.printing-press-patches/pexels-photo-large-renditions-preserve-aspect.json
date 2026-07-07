@@ -1,0 +1,11 @@
+{
+  "schema_version": 2,
+  "id": "pexels-photo-large-renditions-preserve-aspect",
+  "applied_at": "2026-06-23",
+  "base_run_id": "20260623-122348-b4bba74f",
+  "base_printing_press_version": "4.25.0",
+  "summary": "Pexels photo large and large2x rendition dimensions must be derived as aspect-preserving fits inside the documented size boxes, not as fixed landscape dimensions.",
+  "reason": "Portrait photos served through Pexels large renditions are much narrower than the landscape nominal widths; using hardcoded dimensions makes resolution picking select URLs that do not actually meet requested width targets.",
+  "files": ["internal/pexels/sizes.go", "internal/pexels/sizes_test.go"],
+  "validated_outcome": "go test ./internal/pexels covers portrait originals where large is 325x650 and large2x is 650x1300, so an 800px width target falls back to original."
+}

@@ -1,0 +1,14 @@
+# Compiled binaries at the CLI root (release builds come from CI; never committed)
+/daraz
+/daraz-pp-cli
+/daraz-pp-mcp
+/daraz-pp-cli-dogfood
+/build/
+# Local SQLite stores / caches
+*.db
+*.db-shm
+*.db-wal
+# Transient, path-leaking run logs
+*.err
+dogfood-results.json
+publish-live-gate.json

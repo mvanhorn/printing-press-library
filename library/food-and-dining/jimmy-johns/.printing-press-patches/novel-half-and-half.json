@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "novel-half-and-half",
+  "applied_at": "2026-05-11",
+  "base_run_id": "20260511-034611",
+  "base_printing_press_version": "4.2.2",
+  "files": [
+    "internal/cli/menu_half_and_half.go",
+    "internal/cli/menu_half_and_half_test.go"
+  ],
+  "summary": "Add `menu half-and-half` — compose a two-product share order with an explicit note that JJ doesn't slice half-and-half natively.",
+  "reason": "Transcendence command. Two-person sharing is a real workflow but JJ's data model has no half-and-half representation; emitting the cart + human-facing constraint note keeps agents from silently pretending it's a first-class option."
+}

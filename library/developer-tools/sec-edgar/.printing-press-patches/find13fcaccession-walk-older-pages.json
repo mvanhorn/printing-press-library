@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "find13fcaccession-walk-older-pages",
+  "applied_at": "2026-05-12",
+  "base_run_id": "20260511-180534",
+  "base_printing_press_version": "4.2.2",
+  "summary": "Extend `find13FAccession` (holdings delta) to fall through to older `Filings.Files` pages when the target period falls outside `Filings.Recent`.",
+  "reason": "SEC submissions JSON caps `filings.recent` at the most recent ~400 filings; active large institutional filers exhaust Recent within a few years, so any `--period` or `--vs` older than that window silently returned 'no 13F-HR filing found'. Now we scan Recent first, then walk `filings.files[]` page refs whose [FilingFrom, FilingTo] overlaps the target quarter, fetching each via the new `fetchSubmissionPage`.",
+  "files": [
+    "internal/cli/sec_absorbed.go",
+    "internal/cli/sec_transcendence.go"
+  ]
+}

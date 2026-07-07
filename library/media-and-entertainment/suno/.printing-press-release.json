@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "slug": "suno",
+  "cli_name": "suno-pp-cli",
+  "version": "2026.6.3",
+  "released_at": "2026-06-21T22:12:23Z",
+  "source_commit": "97a8e4f3a4c3fbbb7f3a62987b752a6c07ae0de7",
+  "printing_press_version": "4.14.0",
+  "run_id": "20260528-222057",
+  "changes": [
+    {
+      "title": "fix(suno): re-seed captcha cookies + repair interactive recovery + wire --exclude (supersedes #1159)",
+      "pr": 1313,
+      "url": "https://github.com/mvanhorn/printing-press-library/pull/1313",
+      "commit": "97a8e4f3a4c3fbbb7f3a62987b752a6c07ae0de7"
+    }
+  ]
+}

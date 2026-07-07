@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "id": "sort-cache-key-params",
+  "applied_at": "2026-05-10",
+  "base_run_id": "20260508-113209",
+  "base_printing_press_version": "4.0.4",
+  "summary": "Sort map keys before hashing in cacheKey to produce a deterministic cache key.",
+  "reason": "Go map iteration is randomized; multi-param requests produced different keys on every call, making the 5-minute response cache always miss.",
+  "files": [
+    "internal/client/client.go"
+  ]
+}

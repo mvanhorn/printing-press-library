@@ -1,0 +1,21 @@
+{
+  "schema_version": 2,
+  "id": "clips-feed-walk-and-incremental",
+  "applied_at": "2026-06-06",
+  "base_run_id": "20260528-222057",
+  "base_printing_press_version": "4.14.0",
+  "summary": "Add a walkFeed primitive, make 'clips list --all' actually drain every page, and give sync client-side incremental clips sync via early-stop on created_at. Extends sync-warn-explicit-since-only: the warning now lives in the no-timestamp-field branch.",
+  "reason": "'clips list --all' was an inert flag (declared, never read) that returned only the first page on a ~1000-track account. Sync re-drained the entire library every run because no Suno endpoint declares a server temporal-filter param. The clips feed is a reverse-chron cursor feed with per-record created_at, so incremental works via client-side early-stop: walk newest->oldest and stop once a page's oldest record predates the boundary (last_synced_at minus a 5m clock-skew margin on the automatic path, or an explicit --since). Workspaces have no payload timestamp and stay full-pull. walkFeed guards against limit==0 disabling its short-page check and against a sticky (non-advancing) cursor.",
+  "files": [
+    "internal/cli/feed_walk.go",
+    "internal/cli/feed_walk_test.go",
+    "internal/cli/clips_list.go",
+    "internal/cli/clips_list_test.go",
+    "internal/cli/sync.go",
+    "internal/cli/sync_incremental_test.go"
+  ],
+  "validated_outcome": "go test ./internal/cli/",
+  "findings_addressed": [
+    "clips-feed-walk-and-incremental"
+  ]
+}

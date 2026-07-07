@@ -72,6 +72,10 @@ func appendFeedback(entry FeedbackEntry) error {
 }
 
 func postFeedback(url string, entry FeedbackEntry) error {
+	// https-only: refuse to POST feedback over cleartext.
+	if !strings.HasPrefix(url, "https://") {
+		return fmt.Errorf("feedback endpoint must be https:// (got %q)", url)
+	}
 	body, err := json.Marshal(entry)
 	if err != nil {
 		return err

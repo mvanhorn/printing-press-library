@@ -1,0 +1,52 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-06-14T20:57:00.662698Z",
+  "printing_press_version": "4.24.0",
+  "api_name": "salesloft",
+  "display_name": "Salesloft Read",
+  "cli_name": "salesloft-pp-cli",
+  "creator": {
+    "handle": "debgotwired",
+    "name": "Deb Mukherjee"
+  },
+  "owner": "debgotwired",
+  "printer": "debgotwired",
+  "printer_name": "Deb Mukherjee",
+  "spec_url": "https://developers.salesloft.com/docs/api/",
+  "spec_path": "salesloft-read-openapi.yaml",
+  "spec_format": "openapi3",
+  "spec_checksum": "sha256:1886e5945b10321c0860a19b08107a72cb9008ad8b45171c3ff102896c41015f",
+  "run_id": "20260614-205700",
+  "category": "sales-and-crm",
+  "description": "Read-first Salesloft API surface for agent workflows, based on the public Salesloft v2 developer documentation.",
+  "mcp_binary": "salesloft-pp-mcp",
+  "mcp_tool_count": 20,
+  "mcp_ready": "full",
+  "api_version": "2.0.0",
+  "auth_type": "bearer_token",
+  "auth_env_vars": [
+    "SALESLOFT_BEARER_AUTH"
+  ],
+  "novel_features": [
+    {
+      "name": "Local SQLite mirror",
+      "command": "sync",
+      "description": "Sync read endpoints into a local SQLite store for offline search, joins, and repeatable agent analysis."
+    },
+    {
+      "name": "Full-text search across API data",
+      "command": "search",
+      "description": "Search live or locally synced API records from one agent-friendly command."
+    },
+    {
+      "name": "SQL analytics on synced records",
+      "command": "analytics",
+      "description": "Run read-only SQL against the local store for compound questions the upstream API does not expose directly."
+    },
+    {
+      "name": "Agent command discovery",
+      "command": "which",
+      "description": "Map natural-language capabilities to the exact CLI command path before spending tokens on trial and error."
+    }
+  ]
+}

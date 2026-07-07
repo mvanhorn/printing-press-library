@@ -1,0 +1,19 @@
+{
+  "schema_version": 2,
+  "id": "pr850-review-fixes",
+  "applied_at": "2026-05-25",
+  "base_run_id": "20260409-121709",
+  "base_printing_press_version": "1.2.1-0.20260409145412-b1128d0e07fd+dirty",
+  "summary": "Address PR #850 Greptile review: env-var placeholder, ctx propagation in UpsertLearning/ListLearnings, sync.Once retry on failed init, and applied-count inflation in search rerank.",
+  "reason": "(1) noLearnEnvVar held the template placeholder 'LEARN_LOOP_EXAMPLE_NO_LEARN', silently breaking the documented ESPN_PP_CLI_NO_LEARN escape hatch. (2) UpsertLearning opened transactions with s.db.Begin(), ignoring caller ctx so Ctrl+C couldn't interrupt teach writes. (3) ListLearnings used s.db.Query without ctx for the same reason. (4) sync.Once marked init complete on OpenWithContext/initLearn failure, leaving entity_lookups empty for the rest of an MCP session with no recovery. (5) searchApplier returned nil on no-op paths (cross-group + missing-resource), inflating Apply's count and emitting spurious 'low_confidence' teach_hint on untouched bundles. Introduced ErrApplierSkip sentinel so Apply distinguishes 'no-op' from 'failed' without changing the public Applier interface.",
+  "files": [
+    "internal/cli/teach.go",
+    "internal/cli/teach_test.go",
+    "internal/cli/learn_init.go",
+    "internal/cli/search_rerank.go",
+    "internal/cli/search_rerank_integration_test.go",
+    "internal/store/learnings.go",
+    "internal/store/learnings_test.go"
+  ],
+  "validated_outcome": "go build + go vet clean; go test ./... passes 184/184; TestApplyLearningsForSearch_MissingResourceSoftFails now asserts applied=0 and hint='empty' instead of ignoring both."
+}

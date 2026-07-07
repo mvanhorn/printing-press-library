@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "id": "greptile-2026-05-21-on-date-exit-code",
+  "applied_at": "2026-05-21",
+  "base_run_id": "20260521-061607",
+  "base_printing_press_version": "4.10.0",
+  "summary": "`on-date` returns exit 3 (not found) instead of exit 4 (auth) when the local store is empty.",
+  "reason": "Exit code 4 is the framework's auth-error code; using it for the missing-data case made shell scripts that branch on exit code conflate \"please sync\" with \"your credentials are bad.\" Exit 3 = not-found is conventional and accurate.",
+  "files": [
+    "internal/cli/on_date.go"
+  ]
+}

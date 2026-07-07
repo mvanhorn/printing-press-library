@@ -1,0 +1,41 @@
+name: google-play
+description: "Google Play Store intelligence from the public store: charts, search, app details, reviews, similar apps, developer portfolios, with a local SQLite mirror for rank history and listing change detection."
+version: "0.1.0"
+base_url: "https://play.google.com"
+http_transport: standard
+category: marketing
+health_check_path: "/store/apps"
+
+auth:
+  type: none
+
+config:
+  format: toml
+  path: "~/.config/google-play-pp-cli/config.toml"
+
+resources:
+  categories:
+    description: "Enumerate Google Play app/game categories from the public store"
+    endpoints:
+      list:
+        method: GET
+        path: "/store/apps"
+        description: "List Google Play category slugs (GAME_ACTION, GAME_PUZZLE, ...) scraped from the store nav"
+        response_format: html
+        html_extract:
+          mode: links
+          link_prefixes: ["/store/apps/category"]
+
+types:
+  App:
+    fields:
+      - name: appId
+        type: string
+      - name: title
+        type: string
+      - name: developer
+        type: string
+      - name: score
+        type: float
+      - name: installs
+        type: string

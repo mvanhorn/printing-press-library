@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "novel-cost-command",
+  "applied_at": "2026-05-18",
+  "base_run_id": "20260518-132617",
+  "base_printing_press_version": "4.8.0",
+  "summary": "New `cost` parent + `cost report` subcommand (internal/cli/cost.go): rolls up pp_actor_run_history into a USD ledger grouped by actor, with a --since window and per-actor filter. Read-only (mcp:read-only annotation).",
+  "rationale": "Per-run cost rollup is derived from locally persisted run history; no equivalent API endpoint.",
+  "files": [
+    "internal/cli/cost.go",
+    "internal/cli/root.go"
+  ],
+  "upstream_issue": ""
+}

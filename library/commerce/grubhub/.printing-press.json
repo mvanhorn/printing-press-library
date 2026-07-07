@@ -1,0 +1,51 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-06-17T20:05:46.382493Z",
+  "printing_press_version": "4.24.0",
+  "api_name": "grubhub",
+  "display_name": "Grubhub",
+  "cli_name": "grubhub-pp-cli",
+  "creator": {
+    "handle": "vcolombo",
+    "name": "Vincent Colombo"
+  },
+  "owner": "vcolombo",
+  "printer": "vcolombo",
+  "printer_name": "Vincent Colombo",
+  "spec_path": "grubhub-spec.yaml",
+  "spec_format": "internal",
+  "spec_checksum": "sha256:ea226d47e12ef5725b36fd4aff155b030d637148d3abd708a3140b93b6996619",
+  "run_id": "20260617-131936-fe708d45",
+  "category": "commerce",
+  "description": "Every Grubhub restaurant search, plus a sortable delivery-fee comparison board, a cross-restaurant deal radar, and offline menu-item search no Grubhub tool has.",
+  "mcp_binary": "grubhub-pp-mcp",
+  "mcp_tool_count": 4,
+  "mcp_ready": "full",
+  "api_version": "0.1.0",
+  "auth_type": "bearer_token",
+  "auth_env_vars": [
+    "GRUBHUB_TOKEN"
+  ],
+  "novel_features": [
+    {
+      "name": "Delivery comparison board",
+      "command": "compare",
+      "description": "See delivery fee, minimum, ETA, rating, and distance for every nearby restaurant side by side, sorted however you want."
+    },
+    {
+      "name": "Offline dish search",
+      "command": "dish",
+      "description": "Find which nearby restaurants carry a specific dish, with price, by full-text searching cached menus across the neighborhood."
+    },
+    {
+      "name": "Deal radar",
+      "command": "deals",
+      "description": "Rank every nearby restaurant currently running an offer, coupon, or promo code in one sweep."
+    },
+    {
+      "name": "Best-value picker",
+      "command": "pick",
+      "description": "Get one recommended restaurant from a transparent score over fee, rating, active deals, and ETA."
+    }
+  ]
+}

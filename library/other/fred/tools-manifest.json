@@ -1,0 +1,739 @@
+{
+  "api_name": "fred",
+  "base_url": "https://api.stlouisfed.org/fred",
+  "description": "Every FRED endpoint, plus a local SQLite store, offline search, and macro commands no other FRED tool has.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "api_key",
+    "header": "api_key",
+    "in": "query",
+    "env_vars": [
+      "FRED_API_KEY"
+    ],
+    "env_var_specs": [
+      {
+        "name": "FRED_API_KEY",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    ]
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "category_children",
+      "description": "List child categories under a category. Required: category_id. Optional: file_type (default: json). Returns array of Category.",
+      "method": "GET",
+      "path": "/category/children",
+      "params": [
+        {
+          "name": "category_id",
+          "type": "int",
+          "location": "path",
+          "description": "Parent category ID (root = 0)",
+          "required": true
+        },
+        {
+          "name": "file_type",
+          "type": "string",
+          "location": "query",
+          "description": "Response format"
+        }
+      ]
+    },
+    {
+      "name": "category_get",
+      "description": "Get a category by ID (root category is 0). Required: category_id. Optional: file_type (default: json). Returns array of Category.",
+      "method": "GET",
+      "path": "/category",
+      "params": [
+        {
+          "name": "category_id",
+          "type": "int",
+          "location": "path",
+          "description": "Category ID (root = 0)",
+          "required": true
+        },
+        {
+          "name": "file_type",
+          "type": "string",
+          "location": "query",
+          "description": "Response format"
+        }
+      ]
+    },
+    {
+      "name": "category_related",
+      "description": "List categories related to a category. Required: category_id. Optional: file_type (default: json). Returns array of Category.",
+      "method": "GET",
+      "path": "/category/related",
+      "params": [
+        {
+          "name": "category_id",
+          "type": "int",
+          "location": "path",
+          "description": "Category ID",
+          "required": true
+        },
+        {
+          "name": "file_type",
+          "type": "string",
+          "location": "query",
+          "description": "Response format"
+        }
+      ]
+    },
+    {
+      "name": "category_series",
+      "description": "List the series within a category. Required: category_id. Optional: file_type (default: json), limit (default: 25), order_by (plus 1 more). Returns array of Series.",
+      "method": "GET",
+      "path": "/category/series",
+      "params": [
+        {
+          "name": "category_id",
+          "type": "int",
+          "location": "path",
+          "description": "Category ID",
+          "required": true
+        },
+        {
+          "name": "file_type",
+          "type": "string",
+          "location": "query",
+          "description": "Response format"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Max series"
+        },
+        {
+          "name": "order_by",
+          "type": "string",
+          "location": "query",
+          "description": "Order by: series_id, title, popularity, last_updated, etc."
+        },
+        {
+          "name": "sort_order",
+          "type": "string",
+          "location": "query",
+          "description": "Sort order"
+        }
+      ]
+    },
+    {
+      "name": "category_tags",
+      "description": "List tags for the series in a category. Required: category_id. Optional: file_type (default: json). Returns array of Tag.",
+      "method": "GET",
+      "path": "/category/tags",
+      "params": [
+        {
+          "name": "category_id",
+          "type": "int",
+          "location": "path",
+          "description": "Category ID",
+          "required": true
+        },
+        {
+          "name": "file_type",
+          "type": "string",
+          "location": "query",
+          "description": "Response format"
+        }
+      ]
+    },
+    {
+      "name": "release_dates",
+      "description": "List release dates for all releases (the economic release calendar). Optional: file_type (default: json), limit (default: 25), sort_order (plus 1 more). Returns array of ReleaseDate.",
+      "method": "GET",
+      "path": "/releases/dates",
+      "params": [
+        {
+          "name": "file_type",
+          "type": "string",
+          "location": "query",
+          "description": "Response format"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Max dates"
+        },
+        {
+          "name": "sort_order",
+          "type": "string",
+          "location": "query",
+          "description": "Sort order"
+        },
+        {
+          "name": "include_release_dates_with_no_data",
+          "type": "bool",
+          "location": "query",
+          "description": "Include scheduled dates that have no data yet"
+        }
+      ]
+    },
+    {
+      "name": "release_get",
+      "description": "Get a single release by ID. Required: release_id. Optional: file_type (default: json). Returns array of Release.",
+      "method": "GET",
+      "path": "/release",
+      "params": [
+        {
+          "name": "release_id",
+          "type": "int",
+          "location": "path",
+          "description": "Release ID",
+          "required": true
+        },
+        {
+          "name": "file_type",
+          "type": "string",
+          "location": "query",
+          "description": "Response format"
+        }
+      ]
+    },
+    {
+      "name": "release_list",
+      "description": "List all data releases on FRED. Optional: file_type (default: json), limit (default: 25), order_by (plus 1 more). Returns array of Release.",
+      "method": "GET",
+      "path": "/releases",
+      "params": [
+        {
+          "name": "file_type",
+          "type": "string",
+          "location": "query",
+          "description": "Response format"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Max releases"
+        },
+        {
+          "name": "order_by",
+          "type": "string",
+          "location": "query",
+          "description": "Order by: release_id, name, press_release, etc."
+        },
+        {
+          "name": "sort_order",
+          "type": "string",
+          "location": "query",
+          "description": "Sort order"
+        }
+      ]
+    },
+    {
+      "name": "release_release_dates",
+      "description": "List release dates for a single release. Required: release_id. Optional: file_type (default: json), limit (default: 25). Returns array of ReleaseDate.",
+      "method": "GET",
+      "path": "/release/dates",
+      "params": [
+        {
+          "name": "release_id",
+          "type": "int",
+          "location": "path",
+          "description": "Release ID",
+          "required": true
+        },
+        {
+          "name": "file_type",
+          "type": "string",
+          "location": "query",
+          "description": "Response format"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Max dates"
+        }
+      ]
+    },
+    {
+      "name": "release_series",
+      "description": "List the series in a release. Required: release_id. Optional: file_type (default: json), limit (default: 25). Returns array of Series.",
+      "method": "GET",
+      "path": "/release/series",
+      "params": [
+        {
+          "name": "release_id",
+          "type": "int",
+          "location": "path",
+          "description": "Release ID",
+          "required": true
+        },
+        {
+          "name": "file_type",
+          "type": "string",
+          "location": "query",
+          "description": "Response format"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Max series"
+        }
+      ]
+    },
+    {
+      "name": "release_sources",
+      "description": "List the sources for a release. Required: release_id. Optional: file_type (default: json). Returns array of Source.",
+      "method": "GET",
+      "path": "/release/sources",
+      "params": [
+        {
+          "name": "release_id",
+          "type": "int",
+          "location": "path",
+          "description": "Release ID",
+          "required": true
+        },
+        {
+          "name": "file_type",
+          "type": "string",
+          "location": "query",
+          "description": "Response format"
+        }
+      ]
+    },
+    {
+      "name": "series_categories",
+      "description": "List the categories a series belongs to. Required: series_id. Optional: file_type (default: json). Returns array of Category.",
+      "method": "GET",
+      "path": "/series/categories",
+      "params": [
+        {
+          "name": "series_id",
+          "type": "string",
+          "location": "path",
+          "description": "Series ID",
+          "required": true
+        },
+        {
+          "name": "file_type",
+          "type": "string",
+          "location": "query",
+          "description": "Response format"
+        }
+      ]
+    },
+    {
+      "name": "series_get",
+      "description": "Get metadata for a single series by ID (e.g. UNRATE, GDP, CPIAUCSL). Required: series_id. Optional: file_type (default: json). Returns array of Series.",
+      "method": "GET",
+      "path": "/series",
+      "params": [
+        {
+          "name": "series_id",
+          "type": "string",
+          "location": "path",
+          "description": "Series ID, e.g. UNRATE",
+          "required": true
+        },
+        {
+          "name": "file_type",
+          "type": "string",
+          "location": "query",
+          "description": "Response format: json or xml"
+        }
+      ]
+    },
+    {
+      "name": "series_observations",
+      "description": "Pull the observation values (the actual time series) for a series. Required: series_id. Optional: file_type (default: json), observation_start, observation_end (plus 6 more). Returns array of Observation.",
+      "method": "GET",
+      "path": "/series/observations",
+      "params": [
+        {
+          "name": "series_id",
+          "type": "string",
+          "location": "path",
+          "description": "Series ID, e.g. UNRATE",
+          "required": true
+        },
+        {
+          "name": "file_type",
+          "type": "string",
+          "location": "query",
+          "description": "Response format: json or xml"
+        },
+        {
+          "name": "observation_start",
+          "type": "string",
+          "location": "query",
+          "description": "Start date YYYY-MM-DD (default 1776-07-04)"
+        },
+        {
+          "name": "observation_end",
+          "type": "string",
+          "location": "query",
+          "description": "End date YYYY-MM-DD (default 9999-12-31)"
+        },
+        {
+          "name": "units",
+          "type": "string",
+          "location": "query",
+          "description": "Data transformation: lin, pch (pct change), pc1 (yoy %), chg, log, etc."
+        },
+        {
+          "name": "frequency",
+          "type": "string",
+          "location": "query",
+          "description": "Aggregate to a lower frequency: d, w, m, q, sa, a"
+        },
+        {
+          "name": "aggregation_method",
+          "type": "string",
+          "location": "query",
+          "description": "How to aggregate when frequency is set: avg, sum, eop"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Max observations (1-100000)"
+        },
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "Observation offset for pagination"
+        },
+        {
+          "name": "sort_order",
+          "type": "string",
+          "location": "query",
+          "description": "Sort by observation date asc or desc"
+        }
+      ]
+    },
+    {
+      "name": "series_release",
+      "description": "Get the release that a series belongs to. Required: series_id. Optional: file_type (default: json). Returns array of Release.",
+      "method": "GET",
+      "path": "/series/release",
+      "params": [
+        {
+          "name": "series_id",
+          "type": "string",
+          "location": "path",
+          "description": "Series ID",
+          "required": true
+        },
+        {
+          "name": "file_type",
+          "type": "string",
+          "location": "query",
+          "description": "Response format"
+        }
+      ]
+    },
+    {
+      "name": "series_search",
+      "description": "Search for series by full-text query (e.g. 'unemployment rate'). Required: search_text. Optional: file_type (default: json), search_type, limit (default: 25) (plus 6 more). Returns array of Series.",
+      "method": "GET",
+      "path": "/series/search",
+      "params": [
+        {
+          "name": "search_text",
+          "type": "string",
+          "location": "path",
+          "description": "Free-text search query, e.g. 'real gdp'",
+          "required": true
+        },
+        {
+          "name": "file_type",
+          "type": "string",
+          "location": "query",
+          "description": "Response format: json or xml"
+        },
+        {
+          "name": "search_type",
+          "type": "string",
+          "location": "query",
+          "description": "full_text (default) or series_id"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Max results (1-1000)"
+        },
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "Result offset for pagination"
+        },
+        {
+          "name": "order_by",
+          "type": "string",
+          "location": "query",
+          "description": "Order results by: search_rank, series_id, title, popularity, last_updated, etc."
+        },
+        {
+          "name": "sort_order",
+          "type": "string",
+          "location": "query",
+          "description": "Sort ascending or descending"
+        },
+        {
+          "name": "filter_variable",
+          "type": "string",
+          "location": "query",
+          "description": "Filter field: frequency, units, seasonal_adjustment"
+        },
+        {
+          "name": "filter_value",
+          "type": "string",
+          "location": "query",
+          "description": "Value to filter the filter_variable on"
+        },
+        {
+          "name": "tag_names",
+          "type": "string",
+          "location": "query",
+          "description": "Semicolon-delimited tags to match, e.g. 'monthly;sa'"
+        }
+      ]
+    },
+    {
+      "name": "series_tags",
+      "description": "List FRED tags attached to a series. Required: series_id. Optional: file_type (default: json). Returns array of Tag.",
+      "method": "GET",
+      "path": "/series/tags",
+      "params": [
+        {
+          "name": "series_id",
+          "type": "string",
+          "location": "path",
+          "description": "Series ID",
+          "required": true
+        },
+        {
+          "name": "file_type",
+          "type": "string",
+          "location": "query",
+          "description": "Response format"
+        }
+      ]
+    },
+    {
+      "name": "series_updates",
+      "description": "List series recently updated on FRED. Optional: file_type (default: json), limit (default: 25), filter_value. Returns array of Series.",
+      "method": "GET",
+      "path": "/series/updates",
+      "params": [
+        {
+          "name": "file_type",
+          "type": "string",
+          "location": "query",
+          "description": "Response format"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Max results"
+        },
+        {
+          "name": "filter_value",
+          "type": "string",
+          "location": "query",
+          "description": "Geography filter: macro, regional, all"
+        }
+      ]
+    },
+    {
+      "name": "series_vintagedates",
+      "description": "List real-time vintage dates for a series (when data was revised). Required: series_id. Optional: file_type (default: json), limit (default: 100). Returns array of VintageDate.",
+      "method": "GET",
+      "path": "/series/vintagedates",
+      "params": [
+        {
+          "name": "series_id",
+          "type": "string",
+          "location": "path",
+          "description": "Series ID",
+          "required": true
+        },
+        {
+          "name": "file_type",
+          "type": "string",
+          "location": "query",
+          "description": "Response format"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Max vintage dates"
+        }
+      ]
+    },
+    {
+      "name": "source_get",
+      "description": "Get a single source by ID. Required: source_id. Optional: file_type (default: json). Returns array of Source.",
+      "method": "GET",
+      "path": "/source",
+      "params": [
+        {
+          "name": "source_id",
+          "type": "int",
+          "location": "path",
+          "description": "Source ID",
+          "required": true
+        },
+        {
+          "name": "file_type",
+          "type": "string",
+          "location": "query",
+          "description": "Response format"
+        }
+      ]
+    },
+    {
+      "name": "source_list",
+      "description": "List all sources of economic data on FRED. Optional: file_type (default: json), limit (default: 25). Returns array of Source.",
+      "method": "GET",
+      "path": "/sources",
+      "params": [
+        {
+          "name": "file_type",
+          "type": "string",
+          "location": "query",
+          "description": "Response format"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Max sources"
+        }
+      ]
+    },
+    {
+      "name": "source_releases",
+      "description": "List the releases for a source. Required: source_id. Optional: file_type (default: json), limit (default: 25). Returns array of Release.",
+      "method": "GET",
+      "path": "/source/releases",
+      "params": [
+        {
+          "name": "source_id",
+          "type": "int",
+          "location": "path",
+          "description": "Source ID",
+          "required": true
+        },
+        {
+          "name": "file_type",
+          "type": "string",
+          "location": "query",
+          "description": "Response format"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Max releases"
+        }
+      ]
+    },
+    {
+      "name": "tags_list",
+      "description": "List FRED tags, optionally filtered. Optional: file_type (default: json), tag_names, search_text (plus 1 more). Returns array of Tag.",
+      "method": "GET",
+      "path": "/tags",
+      "params": [
+        {
+          "name": "file_type",
+          "type": "string",
+          "location": "query",
+          "description": "Response format"
+        },
+        {
+          "name": "tag_names",
+          "type": "string",
+          "location": "query",
+          "description": "Semicolon-delimited tags to match"
+        },
+        {
+          "name": "search_text",
+          "type": "string",
+          "location": "query",
+          "description": "Free-text to find matching tags"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Max tags"
+        }
+      ]
+    },
+    {
+      "name": "tags_related",
+      "description": "List tags related to a set of tags. Required: tag_names. Optional: file_type (default: json), limit (default: 25). Returns array of Tag.",
+      "method": "GET",
+      "path": "/related_tags",
+      "params": [
+        {
+          "name": "tag_names",
+          "type": "string",
+          "location": "query",
+          "description": "Semicolon-delimited tags, e.g. 'monthly;sa'",
+          "required": true
+        },
+        {
+          "name": "file_type",
+          "type": "string",
+          "location": "query",
+          "description": "Response format"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Max tags"
+        }
+      ]
+    },
+    {
+      "name": "tags_series",
+      "description": "List series matching a set of tags. Required: tag_names. Optional: file_type (default: json), limit (default: 25). Returns array of Series.",
+      "method": "GET",
+      "path": "/tags/series",
+      "params": [
+        {
+          "name": "tag_names",
+          "type": "string",
+          "location": "query",
+          "description": "Semicolon-delimited tags, e.g. 'gdp;quarterly'",
+          "required": true
+        },
+        {
+          "name": "file_type",
+          "type": "string",
+          "location": "query",
+          "description": "Response format"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Max series"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,20 @@
+{
+  "schema_version": 2,
+  "id": "catalog-read-only-handoff-and-checkouts",
+  "applied_at": "2026-06-11",
+  "base_run_id": "20260529-160048",
+  "base_printing_press_version": "4.19.0",
+  "summary": "Preserve Lemon Squeezy catalog reality: products, variants, and files are public-API read-only; agents need capability metadata, dashboard handoff packets, and safe checkout creation after a variant exists.",
+  "reason": "Lemon Squeezy's public API supports list/get for catalog resources and POST /v1/checkouts for existing variants, so generic import/create affordances otherwise send agents down impossible product-create and file-upload paths.",
+  "files": [
+    "internal/cli/catalog_capabilities.go",
+    "internal/cli/dashboard_handoff.go",
+    "internal/cli/checkouts_create.go",
+    "internal/cli/import.go",
+    "internal/cli/which.go",
+    "internal/cli/agent_context.go",
+    "internal/cli/root.go",
+    "internal/cli/catalog_capabilities_test.go"
+  ],
+  "validated_outcome": "go test ./..., go build ./..., go vet ./..., verify_skill.py, and smoke commands confirm read-only import refusal, negative which guidance, dashboard handoff output, and checkout dry-run JSON:API payload."
+}

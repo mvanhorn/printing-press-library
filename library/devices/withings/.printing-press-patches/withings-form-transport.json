@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "withings-form-transport",
+  "applied_at": "2026-06-14",
+  "base_run_id": "20260614-181724-d301c9dc",
+  "base_printing_press_version": "4.24.0",
+  "summary": "Hand-authored Withings form-POST transport + OAuth2 token exchange/refresh.",
+  "reason": "Withings is action-RPC: form-urlencoded POST with a {status,body} envelope; the generic generated client JSON-encodes and treats HTTP<400 as success. WithingsForm + the non-standard requesttoken/single-use-refresh token flow replace it.",
+  "files": [
+    "internal/client/withings_call.go",
+    "internal/client/withings_token.go"
+  ]
+}

@@ -23,6 +23,7 @@ func newPlaylistsCmd(flags *rootFlags) *cobra.Command {
 	cmd.AddCommand(newPlaylistsGetCmd(flags))
 	cmd.AddCommand(newPlaylistsListCmd(flags))
 	cmd.AddCommand(newPlaylistsUpdateCmd(flags))
+	cmd.AddCommand(newPlaylistsEditPassCmd(flags))
 	cmd.AddCommand(newPlaylistsVideosCmd(flags))
 	return cmd
 }

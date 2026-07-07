@@ -1,0 +1,19 @@
+{
+  "Reports": [
+    {
+      "ReportID": "ProfitAndLoss",
+      "ReportName": "ProfitAndLoss",
+      "Rows": [
+        {"RowType": "Header", "Cells": [{"Value": ""}, {"Value": "Total"}]},
+        {"RowType": "Section", "Title": "Income", "Rows": [
+          {"RowType": "Row", "Cells": [{"Value": "Sales"}, {"Value": "1000.00"}]},
+          {"RowType": "SummaryRow", "Cells": [{"Value": "Total Income"}, {"Value": "1000.00"}]}
+        ]},
+        {"RowType": "Section", "Title": "Expenses", "Rows": [
+          {"RowType": "Row", "Cells": [{"Value": "COGS"}, {"Value": "400.00"}]},
+          {"RowType": "SummaryRow", "Cells": [{"Value": "Total Expenses"}, {"Value": "400.00"}]}
+        ]}
+      ]
+    }
+  ]
+}

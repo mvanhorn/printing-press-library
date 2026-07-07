@@ -147,10 +147,23 @@ Resource scoping:
 				resources = defaultSyncResources()
 			}
 
+			// Resolve --since into an RFC3339 timestamp. Computed here (ahead of
+			// the clip sync) so both the hand-built clip walk and the generic
+			// resource pool share one boundary.
+			sinceTS := ""
+			if since != "" {
+				ts, err := parseSinceDuration(since)
+				if err != nil {
+					return fmt.Errorf("invalid --since value %q: %w", since, err)
+				}
+				sinceTS = ts.Format(time.RFC3339)
+			}
+
 			// Hand-built Suno clip sync: the generic syncer can't walk
 			// POST /api/feed/v3's cursor pagination, so drive 'clips' here and
-			// let the generic pool handle the remaining resources.
-			resources, err = runSunoClipsSync(cmd.Context(), c, db, flags.configPath, resources, full, maxPages, syncEventWriter)
+			// let the generic pool handle the remaining resources. sinceTS bounds
+			// the clip walk via client-side early-stop on created_at.
+			resources, err = runSunoClipsSync(cmd.Context(), c, db, flags.configPath, resources, full, maxPages, sinceTS, syncEventWriter)
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}
@@ -203,16 +216,6 @@ Resource scoping:
 			// cap hit reflects the default --max-pages 100 limit, which is
 			// a real anomaly worth surfacing.
 			effectiveLatestOnly := latestOnly && since == ""
-
-			// Resolve --since into an RFC3339 timestamp
-			sinceTS := ""
-			if since != "" {
-				ts, err := parseSinceDuration(since)
-				if err != nil {
-					return fmt.Errorf("invalid --since value %q: %w", since, err)
-				}
-				sinceTS = ts.Format(time.RFC3339)
-			}
 
 			// Worker pool: produce resources, N workers consume
 			if concurrency < 1 {
@@ -441,26 +444,46 @@ func syncResource(ctx context.Context, c interface {
 	// Resume cursor from sync_state (unless --full cleared it)
 	existingCursor, lastSynced, _, _ := db.GetSyncState(resource)
 
-	// Determine the since param value:
-	// 1. Explicit --since flag takes priority
-	// 2. Otherwise use last_synced_at from sync_state for incremental sync
 	sinceParam := syncResourceSinceParam(resource)
+	tsField := syncResourceTimestampField(resource)
 	effectiveSince := sinceTS
 	if effectiveSince == "" && !lastSynced.IsZero() && !full {
 		effectiveSince = lastSynced.Format(time.RFC3339)
 	}
-	// Resources whose list endpoint declares no temporal-filter parameter
-	// fall back to plain pagination — sending a synthetic since=... would
-	// reach the API as an unknown query param and (for strict APIs like
-	// Notion) fail the whole resource with a 400. Warn once per resource
-	// when the user expected incremental behavior.
+
+	// Client-side incremental for reverse-chron feeds that declare no server
+	// temporal param: keep effectiveSince as an early-stop boundary instead of
+	// nulling it. For resources with no timestamp field, preserve the prior
+	// behavior (warn only on explicit --since, then fall back to full pagination).
+	var earlyStopSince time.Time
+	earlyStop := false
 	if effectiveSince != "" && sinceParam == "" {
-		if humanFriendly {
-			fmt.Fprintf(os.Stderr, "  %s: incremental sync ignored (endpoint declares no temporal filter; falling back to full pagination)\n", resource)
+		if tsField != "" {
+			// On the unlikely parse failure, earlyStop stays false and the
+			// resource falls back to a full drain (fail-open, not closed).
+			if ts, perr := time.Parse(time.RFC3339Nano, effectiveSince); perr == nil {
+				earlyStopSince = ts
+				if sinceTS == "" {
+					// Automatic (stored-cursor) path: subtract a clock-skew margin
+					// so a local clock ahead of the server can't skip boundary
+					// records. Over-fetch is idempotent.
+					earlyStopSince = earlyStopSince.Add(-5 * time.Minute)
+				}
+				earlyStop = true
+				// Incremental walks start at the head; a stale resume cursor would
+				// point mid-feed and skip the newest records.
+				existingCursor = ""
+			}
 		} else {
-			fmt.Fprintf(syncEvents, `{"event":"sync_warning","resource":"%s","reason":"resource_not_incremental","message":"endpoint does not declare a temporal filter parameter; incremental sync has no effect for this resource"}`+"\n", resource)
+			if nonIncrementalWarnRequested(sinceParam, sinceTS) {
+				if humanFriendly {
+					fmt.Fprintf(os.Stderr, "  %s: incremental sync ignored (endpoint declares no temporal filter; falling back to full pagination)\n", resource)
+				} else {
+					fmt.Fprintf(syncEvents, `{"event":"sync_warning","resource":"%s","reason":"resource_not_incremental","message":"endpoint does not declare a temporal filter parameter; incremental sync has no effect for this resource"}`+"\n", resource)
+				}
+			}
+			effectiveSince = ""
 		}
-		effectiveSince = ""
 	}
 
 	cursor := existingCursor
@@ -491,8 +514,9 @@ func syncResource(ctx context.Context, c interface {
 			}
 		}
 
-		// Set since filter
-		if effectiveSince != "" {
+		// Set since filter (only when the endpoint declares a server temporal
+		// param; early-stop mode filters client-side instead).
+		if effectiveSince != "" && sinceParam != "" {
 			params[sinceParam] = effectiveSince
 		}
 
@@ -630,6 +654,12 @@ func syncResource(ctx context.Context, c interface {
 		}
 
 		pagesFetched++
+
+		// Client-side incremental: the feed is descending, so once this page's
+		// oldest record predates the boundary, every later record is older too.
+		if earlyStop && pageOldestBefore(items, tsField, earlyStopSince) {
+			break
+		}
 
 		// Enforce page ceiling to prevent runaway syncs on large-catalog APIs.
 		// Suppress the cap-hit warning when --latest-only is the cap source:
@@ -827,6 +857,57 @@ func syncResourceSinceParam(resource string) string {
 	switch resource {
 	}
 	return ""
+}
+
+// syncResourceTimestampField returns the per-record timestamp field a resource's
+// list endpoint sorts by (descending), enabling client-side incremental sync via
+// early-stop pagination when the API declares no server temporal-filter param.
+// "" means the resource is not early-stoppable and must be fully re-pulled.
+func syncResourceTimestampField(resource string) string {
+	switch resource {
+	case "clips":
+		return "created_at"
+	}
+	return ""
+}
+
+// pageOldestBefore reports whether the oldest record on a descending page has a
+// timestamp strictly before boundary — the signal that a reverse-chron feed has
+// passed the incremental cutoff and pagination can stop. Records with a missing
+// or unparseable timestamp are skipped; if none are usable it returns false.
+func pageOldestBefore(items []json.RawMessage, field string, boundary time.Time) bool {
+	for i := len(items) - 1; i >= 0; i-- {
+		var rec map[string]any
+		if err := json.Unmarshal(items[i], &rec); err != nil {
+			continue
+		}
+		s, ok := rec[field].(string)
+		if !ok || s == "" {
+			continue
+		}
+		// Use the shared Suno created_at parser, not a bare RFC3339 layout:
+		// Suno timestamps carry fractional seconds, which time.RFC3339 rejects.
+		// A strict-RFC3339 parse would skip every such record, so the early-stop
+		// never fires and clips --since re-drains the whole feed every run.
+		ts, tsOK := parseClipTime(s)
+		if !tsOK {
+			continue
+		}
+		return ts.Before(boundary)
+	}
+	return false
+}
+
+// nonIncrementalWarnRequested reports whether sync should surface the
+// "endpoint declares no temporal filter" warning. It fires only when the user
+// EXPLICITLY asked for incremental via --since (sinceTS != "") against a
+// resource whose list endpoint declares no temporal-filter param (sinceParam
+// == "") — there the warning tells them their flag had no effect. On the
+// automatic stored-cursor path (sinceTS == "", effectiveSince derived from
+// last_synced_at) it stays silent: Suno declares no temporal filter on any
+// endpoint, so warning on every routine re-sync would be pure noise.
+func nonIncrementalWarnRequested(sinceParam, sinceTS string) bool {
+	return sinceTS != "" && sinceParam == ""
 }
 
 // extractPageItems attempts to extract an array of items and pagination cursor from a response.

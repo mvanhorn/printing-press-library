@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "id": "keychain-access-must-be-bounded",
+  "applied_at": "2026-06-03",
+  "base_run_id": "20260511-211333",
+  "base_printing_press_version": "4.4.0",
+  "files": [
+    "internal/granola/safestorage/safestorage_darwin.go"
+  ],
+  "summary": "Every macOS Keychain access the CLI makes (to read Granola's Safe Storage key) must be time-bounded. In headless/agent environments there is no human to approve the Keychain GUI prompt, so an unbounded call hangs indefinitely; the bounded call must instead fail with an actionable 'approve the prompt or use a token override' error.",
+  "reason": "A fresh print that reads the encrypted store without a timeout reintroduces an indefinite hang on any machine without an interactive desktop session. This is the headless-safety half of the encrypted-storage handling already flagged for the generator template under deferred_to_upstream."
+}

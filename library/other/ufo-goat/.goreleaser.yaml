@@ -44,7 +44,7 @@ brews:
     repository:
       owner: dave-morin
       name: homebrew-tap
-    homepage: "https://github.com/mvanhorn/printing-press-library"
+    homepage: "https://github.com/dave-morin/ufo-goat-pp-cli"
     description: "Browse, search, and download declassified UAP files from the War.gov PURSUE archive"
     install: |
       bin.install "ufo-goat-pp-cli"

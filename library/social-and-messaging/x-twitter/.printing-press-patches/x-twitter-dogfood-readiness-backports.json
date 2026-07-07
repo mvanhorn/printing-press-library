@@ -1,0 +1,20 @@
+{
+  "schema_version": 2,
+  "id": "x-twitter-dogfood-readiness-backports",
+  "applied_at": "2026-06-04",
+  "base_run_id": "20260603-230951",
+  "base_printing_press_version": "4.20.1",
+  "summary": "pp:happy-args fixtures on strict-validation reads; Examples on jobs novels; syncWarningJSON backport for valid sync_warning JSON.",
+  "reason": "Make the CLI pass its own Phase 5 acceptance. pp:happy-args + jobs Examples pending generator emit (cli-printing-press#2636); syncWarningJSON mirrors the merged cli-printing-press#2643 and is absorbed on next regen.",
+  "files": [
+    "internal/cli/users_get-by-ids.go",
+    "internal/cli/users_get-by-usernames.go",
+    "internal/cli/tweets_get-posts-by-ids.go",
+    "internal/cli/spaces_get-by-creator-ids.go",
+    "internal/cli/jobs.go",
+    "internal/cli/sync.go",
+    "internal/cli/helpers.go"
+  ],
+  "upstream_issue": "https://github.com/mvanhorn/cli-printing-press/issues/2636",
+  "validated_outcome": "phase5-acceptance.json status:pass (351/351, 0 failed)."
+}

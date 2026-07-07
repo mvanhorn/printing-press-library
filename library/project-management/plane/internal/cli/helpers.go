@@ -507,6 +507,11 @@ func classifyAPIError(err error, flags *rootFlags) error {
 			"\n      Plane Cloud: Profile → API tokens. Self-hosted: Workspace settings → API tokens. Send as header `X-API-Key: <token>` (NOT `Authorization: Bearer`)."+
 			"\n      Run 'plane-pp-cli doctor' to check auth status.", err))
 	case strings.Contains(msg, "HTTP 403"):
+		// PATCH(workspace-error-hint): a 403 with no workspace selected is a
+		// missing --workspace (sentinel slug), not an API-key problem.
+		if noWorkspaceSelected(flags) {
+			return workspaceHintErr(err)
+		}
 		return authErr(fmt.Errorf("%w\nhint: permission denied. Your credentials are valid but lack access to this resource."+
 			"\n      Check that your API key has the required permissions."+
 			"\n      Set it with: export PLANE_API_KEY_AUTHENTICATION=<your-key>"+
@@ -514,6 +519,10 @@ func classifyAPIError(err error, flags *rootFlags) error {
 			"\n      Plane Cloud: Profile → API tokens. Self-hosted: Workspace settings → API tokens. Send as header `X-API-Key: <token>` (NOT `Authorization: Bearer`)."+
 			"\n      Run 'plane-pp-cli doctor' to check auth status.", err))
 	case strings.Contains(msg, "HTTP 404"):
+		// PATCH(workspace-error-hint): same sentinel trap can surface as a 404.
+		if noWorkspaceSelected(flags) {
+			return workspaceHintErr(err)
+		}
 		return notFoundErr(fmt.Errorf("%w\nhint: resource not found. Run the 'list' command to see available items", err))
 	case strings.Contains(msg, "HTTP 429"):
 		return rateLimitErr(err)

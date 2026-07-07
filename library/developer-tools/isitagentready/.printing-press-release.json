@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "slug": "isitagentready",
+  "cli_name": "isitagentready-pp-cli",
+  "version": "2026.6.1",
+  "released_at": "2026-06-23T17:16:31Z",
+  "source_commit": "bf29d66ced25fbd0bcae008d15ba87bf39ba7c63",
+  "printing_press_version": "4.25.0",
+  "run_id": "20260622-061602-6c74c750",
+  "changes": [
+    {
+      "title": "feat(isitagentready): add isitagentready",
+      "pr": 1327,
+      "url": "https://github.com/mvanhorn/printing-press-library/pull/1327",
+      "commit": "bf29d66ced25fbd0bcae008d15ba87bf39ba7c63"
+    }
+  ]
+}

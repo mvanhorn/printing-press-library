@@ -16,13 +16,14 @@ func newYoutubeListChannelvideosCmd(flags *rootFlags) *cobra.Command {
 	var flagHandle string
 	var flagSort string
 	var flagContinuationToken string
+	var flagIsPaidPromotions string
 	var flagIncludeExtras string
 
 	cmd := &cobra.Command{
 		Use:         "list-channelvideos",
-		Short:       "Fetches a paginated list of videos uploaded by a YouTube channel, including each video's title, URL, thumbnail, view...",
-		Example:     "  scrape-creators-pp-cli youtube list-channelvideos",
-		Annotations: map[string]string{"pp:endpoint": "youtube.list-channelvideos", "mcp:read-only": "true"},
+		Short:       "Fetches a paginated list of videos uploaded by a YouTube channel, including each video's title, URL, thumbnail",
+		Example:     "  scrape-creators-pp-cli youtube list-channelvideos --handle @mkbhd",
+		Annotations: map[string]string{"pp:endpoint": "youtube.list-channelvideos", "pp:method": "GET", "pp:path": "/v1/youtube/channel-videos", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if cmd.Flags().Changed("sort") {
 				allowedSort := []string{"latest", "popular"}
@@ -34,45 +35,53 @@ func newYoutubeListChannelvideosCmd(flags *rootFlags) *cobra.Command {
 					}
 				}
 				if !validSort {
-					fmt.Fprintf(os.Stderr, "warning: --%s %q not in allowed set %v\n", "sort", flagSort, allowedSort)
+					return fmt.Errorf("invalid value %q for --%s: must be one of %v", flagSort, "sort", allowedSort)
 				}
 			}
+			path := "/v1/youtube/channel-videos"
 			c, err := flags.newClient()
 			if err != nil {
 				return err
 			}
-
-			path := "/v1/youtube/channel-videos"
 			params := map[string]string{}
 			if flagChannelId != "" {
-				params["channelId"] = fmt.Sprintf("%v", flagChannelId)
+				params["channelId"] = formatCLIParamValue(flagChannelId)
 			}
 			if flagHandle != "" {
-				params["handle"] = fmt.Sprintf("%v", flagHandle)
+				params["handle"] = formatCLIParamValue(flagHandle)
 			}
 			if flagSort != "" {
-				params["sort"] = fmt.Sprintf("%v", flagSort)
+				params["sort"] = formatCLIParamValue(flagSort)
 			}
 			if flagContinuationToken != "" {
-				params["continuationToken"] = fmt.Sprintf("%v", flagContinuationToken)
+				params["continuationToken"] = formatCLIParamValue(flagContinuationToken)
+			}
+			if flagIsPaidPromotions != "" {
+				params["is_paid_promotions"] = formatCLIParamValue(flagIsPaidPromotions)
 			}
 			if flagIncludeExtras != "" {
-				params["includeExtras"] = fmt.Sprintf("%v", flagIncludeExtras)
+				params["includeExtras"] = formatCLIParamValue(flagIncludeExtras)
 			}
-			data, prov, err := resolveRead(cmd.Context(), c, flags, "youtube", false, path, params, nil)
+			data, prov, err := resolveReadWithStrategyAndResponsePath(cmd.Context(), c, flags, "auto", "youtube", false, path, params, nil, "", cmd.ErrOrStderr())
 			if err != nil {
-				return classifyAPIError(err)
+				return classifyAPIError(err, flags)
 			}
-			// Print provenance to stderr for human-facing output
-			{
+			// Print provenance to stderr for human-facing output only.
+			// Machine-format flags (--json, --csv, --compact, --quiet, --plain,
+			// --select) and piped stdout suppress this line; the JSON envelope
+			// already carries meta.source for those consumers.
+			// SYNC: keep this gate aligned with command_promoted.go.tmpl.
+			if wantsHumanTable(cmd.OutOrStdout(), flags) {
 				var countItems []json.RawMessage
 				_ = json.Unmarshal(data, &countItems)
 				printProvenance(cmd, len(countItems), prov)
 			}
 			// For JSON output, wrap with provenance envelope before passing through flags.
 			// --select wins over --compact when both are set; --compact only runs when
-			// no explicit fields were requested.
-			if flags.asJSON || !isTerminal(cmd.OutOrStdout()) {
+			// no explicit fields were requested. Explicit format flags (--csv, --quiet,
+			// --plain) opt out of the auto-JSON path so piped consumers that asked for
+			// a non-JSON format reach the standard pipeline below.
+			if flags.asJSON || (!isTerminal(cmd.OutOrStdout()) && !flags.csv && !flags.quiet && !flags.plain) {
 				filtered := data
 				if flags.selectFields != "" {
 					filtered = filterFields(filtered, flags.selectFields)
@@ -98,14 +107,15 @@ func newYoutubeListChannelvideosCmd(flags *rootFlags) *cobra.Command {
 					return nil
 				}
 			}
-			return printOutputWithFlags(cmd.OutOrStdout(), data, flags)
+			return printOutputWithFlagsMeta(cmd.OutOrStdout(), data, flags, map[string]any{"source": "live"})
 		},
 	}
 	cmd.Flags().StringVar(&flagChannelId, "channel-id", "", "YouTube channel ID")
 	cmd.Flags().StringVar(&flagHandle, "handle", "", "YouTube channel handle")
 	cmd.Flags().StringVar(&flagSort, "sort", "", "Sort by latest or popular (one of: latest, popular)")
 	cmd.Flags().StringVar(&flagContinuationToken, "continuation-token", "", "Continuation token to get more videos. Get 'continuationToken' from previous response.")
-	cmd.Flags().StringVar(&flagIncludeExtras, "include-extras", "", "This will get you the like + comment count and the description. To get the full details of the video, use the...")
+	cmd.Flags().StringVar(&flagIsPaidPromotions, "is-paid-promotions", "", "Set to 'true' to search YouTube's public paid product placement / sponsorship / endorsement search surface.")
+	cmd.Flags().StringVar(&flagIncludeExtras, "include-extras", "", "This will get you the like + comment count and the description.")
 
 	return cmd
 }

@@ -1,0 +1,16 @@
+{
+  "schema_version": 2,
+  "id": "sync-rescrapes-known-store-entries",
+  "applied_at": "2026-06-13",
+  "base_run_id": "2026-05-03T06:03:12.15145Z",
+  "base_printing_press_version": "3.6.1",
+  "summary": "Default `sync` (no --resources) re-scrapes what the store already knows — watchlist entries (with saved dates) plus previously-scraped airbnb_listing rows, de-duplicated by URL — and persists fresh snapshots via the scrape-persist path. An empty store is reported honestly (sync_warning reason=empty_store) with no network call. The auth-gated Airbnb wishlist sync stays selectable as `sync --resources airbnb_wishlist`. In machine mode the scrape-sync path emits ONLY JSON events (no plain-text line), and a failure reading the listing table is surfaced as a sync_warning rather than silently dropping targets.",
+  "reason": "Airbnb has no public paginated collection, so the generated default (defaultSyncResources -> airbnb_wishlist -> a GraphQL persisted-query path) 404s/auth-gates on every default run. A scraper's 'sync' must mean 'refresh what you have already seen', driven off store state (ListWatchlist + the airbnb_listing table), not a remote cursor. The auth-gated wishlist path is real functionality and must stay selectable and documented-as-requiring-auth, not deleted. A regen must keep the store-driven default with an honest empty-store report, keep machine-mode output pure JSON (humanFriendly gates the human summary line), and never swallow the listing-table read error (return a warning, keep the watchlist targets).",
+  "files": [
+    "internal/cli/scrape_sync.go",
+    "internal/cli/sync.go",
+    "internal/cli/watch_test.go"
+  ],
+  "validated_outcome": "go build/vet green; collectScrapeTargets test covers empty store (zero targets, no warning) and watchlist + known listings de-duplicated by URL with watchlist dates winning.",
+  "upstream_issue": ""
+}

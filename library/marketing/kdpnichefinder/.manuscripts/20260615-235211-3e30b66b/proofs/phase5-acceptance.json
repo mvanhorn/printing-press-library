@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "api_name": "kdpnichefinder",
+  "run_id": "20260615-235211-3e30b66b",
+  "status": "pass",
+  "level": "full",
+  "matrix_size": 71,
+  "tests_passed": 71,
+  "tests_skipped": 48,
+  "auth_context": {
+    "type": "cookie"
+  }
+}

@@ -1370,6 +1370,17 @@ func ExtractResourceID(resourceType string, obj map[string]any) string {
 // downstream typed table is misconfigured. Failures are surfaced via a
 // trailing stderr warning rather than aborting the batch.
 func (s *Store) UpsertBatch(resourceType string, items []json.RawMessage) (int, int, error) {
+	return s.upsertBatch(resourceType, items, true)
+}
+
+// UpsertBatchQuiet behaves like UpsertBatch but suppresses the skipped-items
+// warning. Used by the best-effort write-through read cache, where a single
+// non-entity response (e.g. a wav-url's {wav_file_url}) legitimately has no id.
+func (s *Store) UpsertBatchQuiet(resourceType string, items []json.RawMessage) (int, int, error) {
+	return s.upsertBatch(resourceType, items, false)
+}
+
+func (s *Store) upsertBatch(resourceType string, items []json.RawMessage, warn bool) (int, int, error) {
 	s.writeMu.Lock()
 	defer s.writeMu.Unlock()
 	tx, err := s.db.Begin()
@@ -1440,7 +1451,7 @@ func (s *Store) UpsertBatch(resourceType string, items []json.RawMessage) (int, 
 
 	// Warn when most items in a batch lack an extractable ID — this likely
 	// means the API uses a primary key field we don't recognize yet.
-	if skippedCount > 0 && len(items) > 0 && skippedCount*2 > len(items) {
+	if warn && skippedCount > 0 && len(items) > 0 && skippedCount*2 > len(items) {
 		fmt.Fprintf(os.Stderr, "warning: %d/%d %s items skipped (no extractable ID field found)\n", skippedCount, len(items), resourceType)
 	}
 	// Surface typed-table failures without aborting the batch. Generic rows

@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "api_name": "autotempest",
+  "run_id": "20260610-145059-888b2895",
+  "status": "pass",
+  "level": "full",
+  "matrix_size": 56,
+  "tests_passed": 56,
+  "tests_skipped": 49,
+  "auth_context": {
+    "type": "none"
+  }
+}

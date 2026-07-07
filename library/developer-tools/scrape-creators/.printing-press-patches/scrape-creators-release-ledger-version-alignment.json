@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "id": "scrape-creators-release-ledger-version-alignment",
+  "applied_at": "2026-06-29",
+  "base_run_id": "20260629-130731-9b35150a",
+  "base_printing_press_version": "4.27.0",
+  "summary": "Keep the runtime version declaration in root.go (var version = \"2026.6.2\", matching the published entry and library convention) instead of the 4.27.0 generator's new version.go; drop the standalone declaration from version.go and inline the MCP server version literal.",
+  "reason": "The library's verify-release-ledger guard flags any added/removed 'var version =' line for an existing CLI (post-merge automation owns version stamping). The 4.27.0 generator moved the version var from root.go to a new version.go and added one to cmd/<cli>-pp-mcp/main.go; on a reprint of a CLI last printed pre-4.27, that shows as moved/added version lines and fails the guard. Aligning to the established library layout (version in root.go, MCP literal) preserves the stamped value and passes the guard.",
+  "files": ["internal/cli/root.go", "internal/cli/version.go", "cmd/scrape-creators-pp-mcp/main.go"],
+  "validated_outcome": "go build ./... passes; 'version' prints 2026.6.2; git diff vs origin/main shows no added/removed 'var version =' line in any runtime-version-candidate file.",
+  "upstream_issue": "generator 4.27.0 version.go placement breaks the library release-ledger guard for cross-version reprints"
+}

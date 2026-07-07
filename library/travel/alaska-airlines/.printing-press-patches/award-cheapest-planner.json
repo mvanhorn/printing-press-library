@@ -1,0 +1,15 @@
+{
+  "schema_version": 2,
+  "id": "award-cheapest-planner",
+  "applied_at": "2026-05-19",
+  "base_run_id": "20260512-151223",
+  "base_printing_press_version": "4.5.1",
+  "summary": "New flights award-cheapest command iterates (depart, return) date pairs across multiple destination airports in parallel and returns the cheapest round-trip in miles.",
+  "reason": "Killer use case: find the cheapest round-trip to a region (e.g. Japan) in a calendar month using miles. --destination-region japan expands to HND,NRT,KIX,ITM,NGO,FUK,CTS,OKA; --month YYYY-MM enumerates the full month with default 5-21 night trip lengths; --concurrency N + the existing AdaptiveLimiter keep the fan-out polite. Tolerant JSON extractor walks the SvelteKit deflated response for the lowest miles+cash combo.",
+  "files": [
+    "internal/cli/flights_award_cheapest.go",
+    "internal/cli/flights_award_cheapest_test.go",
+    "internal/cli/flights.go"
+  ],
+  "validated_outcome": "Unit tests cover date-window resolution, date-pair enumeration, region expansion, JSON extractor. Dry-run against SFO + japan-region + 2026-08 emits a 4216-job plan."
+}

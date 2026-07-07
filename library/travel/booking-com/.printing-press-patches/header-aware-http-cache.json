@@ -1,0 +1,15 @@
+{
+  "schema_version": 2,
+  "id": "header-aware-http-cache",
+  "applied_at": "2026-05-20",
+  "base_run_id": "20260519-175228",
+  "base_printing_press_version": "4.9.0",
+  "summary": "Included custom request headers in the Booking.com HTTP cache key.",
+  "reason": "The mobile-rates deal comparison fetches the same search URL with desktop and mobile user agents; sharing one cache entry made the mobile response reuse desktop HTML.",
+  "files": [
+    "internal/cli/deals.go",
+    "internal/client/client.go",
+    "internal/client/client_test.go"
+  ],
+  "validated_outcome": "go test ./internal/client -run TestCacheKeyIncludesHeaders and go test ./internal/cli succeeded."
+}

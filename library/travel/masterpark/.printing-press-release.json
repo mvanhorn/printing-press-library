@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "slug": "masterpark",
+  "cli_name": "masterpark-pp-cli",
+  "version": "2026.6.1",
+  "released_at": "2026-06-10T18:25:48Z",
+  "source_commit": "8071ed0d142d19b1dbfe9ba7903d702f18d421e0",
+  "printing_press_version": "4.24.0",
+  "run_id": "manual-masterpark-20260609T023930Z",
+  "changes": [
+    {
+      "title": "feat(masterpark): add masterpark",
+      "pr": 1119,
+      "url": "https://github.com/mvanhorn/printing-press-library/pull/1119",
+      "commit": "8071ed0d142d19b1dbfe9ba7903d702f18d421e0"
+    }
+  ]
+}

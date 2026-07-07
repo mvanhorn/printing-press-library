@@ -1,0 +1,16 @@
+{
+  "schema_version": 2,
+  "id": "changed-local-triage",
+  "applied_at": "2026-05-13",
+  "base_run_id": "20260513-094903",
+  "base_printing_press_version": "4.5.2",
+  "summary": "Added a changed command that lists locally synced records updated since a cutoff.",
+  "reason": "Agents need an offline morning-triage affordance that summarizes what changed in the SQLite store after sync.",
+  "files": [
+    "internal/cli/changed.go",
+    "internal/cli/changed_helpers.go",
+    "internal/cli/changed_test.go",
+    "internal/cli/root.go"
+  ],
+  "validated_outcome": "go test ./... && go build ./... && go vet ./... passed; changed help and JSON smoke checks passed."
+}

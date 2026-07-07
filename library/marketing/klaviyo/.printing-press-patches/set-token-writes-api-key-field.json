@@ -1,0 +1,11 @@
+{
+  "schema_version": 2,
+  "id": "set-token-writes-api-key-field",
+  "applied_at": "2026-06-03",
+  "base_run_id": "2026-05-02T18:02:09.219489Z",
+  "base_printing_press_version": "3.5.0",
+  "summary": "auth set-token now persists the token to the api_key field that AuthHeader() reads (via a new Config.SaveCredential), instead of the unread access_token field; auth logout clears that api_key field as well.",
+  "reason": "For api_key auth, AuthHeader() builds the header from the env-var-derived api_key field and has no AccessToken fallback; set-token wrote the token to access_token via SaveTokens, so the saved value never reached the header and auth status/doctor reported 'not configured'. This output predates the generator's api_key SaveCredential branch.",
+  "files": ["internal/cli/auth.go", "internal/config/config.go"],
+  "validated_outcome": "go test ./...; auth set-token writes the api_key field (access_token left empty); auth logout clears the api_key field; auth status reports Authenticated from the config file before logout."
+}

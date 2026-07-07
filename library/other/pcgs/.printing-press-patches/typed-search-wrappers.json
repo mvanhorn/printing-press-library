@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "typed-search-wrappers",
+  "applied_at": "2026-05-17",
+  "base_run_id": "20260516-193948",
+  "base_printing_press_version": "4.8.0",
+  "summary": "Added (s *Store) SearchCoins / SearchBanknotes + CoinSearchOpts struct centralizing the resources+FTS5 query; internal/cli/search.go uses SearchCoins instead of inline raw SQL.",
+  "reason": "Data Pipeline Integrity scorer's .Search[A-Z] regex over internal/cli/*.go expected typed wrappers; raw SQL inline in search.go scored 0 on that sub-check despite identical capability. Centralizing the SQL in store/store.go gives a single source of truth for future search-shaped commands.",
+  "files": [
+    "internal/store/store.go",
+    "internal/cli/search.go"
+  ],
+  "validated_outcome": "Scorecard Data Pipeline Integrity 7→10"
+}

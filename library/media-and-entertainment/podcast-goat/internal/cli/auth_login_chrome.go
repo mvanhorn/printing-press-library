@@ -70,7 +70,7 @@ Equivalent shorthand: ` + "`auth login --chrome --service <name>`" + ` (use this
 			if err != nil {
 				return authErr(fmt.Errorf("no cookie extraction tool found: %w", err))
 			}
-			profileDir, err := resolveChromeProfile(cmd.OutOrStdout(), os.Stdin, domain, flagProfile)
+			profileDir, err := resolveChromeProfile(cmd.OutOrStdout(), os.Stdin, domain, flagProfile, requiredAuthCookies())
 			if err != nil {
 				return authErr(err)
 			}

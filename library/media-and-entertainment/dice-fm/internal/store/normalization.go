@@ -345,6 +345,14 @@ func (s *Store) ListVenueAttributes(entityType string) ([]VenueAttributesRow, er
 
 // UpsertEntityAttribute inserts or replaces a single generic attribute row
 // keyed by (canonical_id, attr_key). All writes are serialized through writeMu.
+//
+// entity_type is intentionally NOT updated on conflict: the canonical_id is a
+// type-prefixed SHA1 ("<entity_type>:<hash>"), so a given canonical_id belongs
+// to exactly one entity type for its whole life. Rewriting entity_type on
+// conflict could only do harm — in the (astronomically unlikely) event of a
+// minting collision across two types it would silently relabel the row's type
+// rather than surfacing the clash — so the column is set once at insert and
+// left immutable thereafter.
 func (s *Store) UpsertEntityAttribute(canonicalID, entityType, key, value, method string, classifierVersion int) error {
 	s.writeMu.Lock()
 	defer s.writeMu.Unlock()
@@ -353,7 +361,6 @@ func (s *Store) UpsertEntityAttribute(canonicalID, entityType, key, value, metho
 			(canonical_id, entity_type, attr_key, attr_value, method, classifier_version)
 		 VALUES (?, ?, ?, ?, ?, ?)
 		 ON CONFLICT(canonical_id, attr_key) DO UPDATE SET
-			entity_type        = excluded.entity_type,
 			attr_value         = excluded.attr_value,
 			method             = excluded.method,
 			classifier_version = excluded.classifier_version`,
@@ -398,13 +405,25 @@ func (s *Store) ListEntityAttributes(entityType string) ([]EntityAttrRow, error)
 // entity type from entity_crosswalk and the corresponding attribute tables.
 // Rows with method='manual' are preserved so operator overrides survive a
 // re-classification run.
+//
+// The whole multi-table clear runs inside a single transaction so the store is
+// never observed in a half-cleared state (e.g. crosswalk rows gone but attribute
+// rows still present): either every non-manual row is removed or none is. Writes
+// are also serialized through writeMu, matching the locking contract of the
+// other store mutators.
 func (s *Store) ClearNormalization(entityType string) error {
 	s.writeMu.Lock()
 	defer s.writeMu.Unlock()
 
+	tx, err := s.db.Begin()
+	if err != nil {
+		return fmt.Errorf("begin clear normalization: %w", err)
+	}
+	defer tx.Rollback()
+
 	// Collect canonical IDs that are exclusively non-manual before deleting,
 	// so we can clean up the attribute tables without touching manual entries.
-	rows, err := s.db.Query(
+	rows, err := tx.Query(
 		`SELECT DISTINCT canonical_id FROM entity_crosswalk
 		 WHERE entity_type = ? AND method <> 'manual'
 		   AND canonical_id NOT IN (
@@ -432,7 +451,7 @@ func (s *Store) ClearNormalization(entityType string) error {
 	rows.Close()
 
 	// Delete non-manual crosswalk rows.
-	if _, err := s.db.Exec(
+	if _, err := tx.Exec(
 		`DELETE FROM entity_crosswalk WHERE entity_type = ? AND method <> 'manual'`,
 		entityType,
 	); err != nil {
@@ -442,12 +461,12 @@ func (s *Store) ClearNormalization(entityType string) error {
 	// Delete tier/venue attributes only for canonical IDs that had no manual
 	// crosswalk row (collected above).
 	for _, id := range ids {
-		if _, err := s.db.Exec(
+		if _, err := tx.Exec(
 			`DELETE FROM tier_attributes WHERE canonical_id = ?`, id,
 		); err != nil {
 			return fmt.Errorf("clear tier attributes for %s: %w", id, err)
 		}
-		if _, err := s.db.Exec(
+		if _, err := tx.Exec(
 			`DELETE FROM venue_attributes WHERE canonical_id = ?`, id,
 		); err != nil {
 			return fmt.Errorf("clear venue attributes for %s: %w", id, err)
@@ -458,11 +477,15 @@ func (s *Store) ClearNormalization(entityType string) error {
 	// typed tier/venue tables (which key manual-preservation off the crosswalk
 	// method), entity_attributes carries its own per-row method, so manual rows
 	// are identified directly and left in place.
-	if _, err := s.db.Exec(
+	if _, err := tx.Exec(
 		`DELETE FROM entity_attributes WHERE entity_type = ? AND method <> 'manual'`,
 		entityType,
 	); err != nil {
 		return fmt.Errorf("clear entity attributes: %w", err)
+	}
+
+	if err := tx.Commit(); err != nil {
+		return fmt.Errorf("commit clear normalization: %w", err)
 	}
 	return nil
 }

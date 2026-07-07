@@ -22,7 +22,7 @@ func newCustomersGenerateSuggestedTargetingInsightsCmd(flags *rootFlags) *cobra.
 	cmd := &cobra.Command{
 		Use:         "generate-suggested-targeting-insights <customerId>",
 		Short:       "Returns a collection of targeting insights (e.g. targetable audiences) that are relevant to the requested audience.",
-		Example:     "  google-ads-pp-cli customers generate_suggested_targeting_insights 550e8400-e29b-41d4-a716-446655440000",
+		Example:     "  google-ads-pp-cli customers generate-suggested-targeting-insights 550e8400-e29b-41d4-a716-446655440000",
 		Annotations: map[string]string{"pp:endpoint": "customers.generate_suggested_targeting_insights", "pp:method": "POST", "pp:path": "/v22/customers/{customerId}:generateSuggestedTargetingInsights"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

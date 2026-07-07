@@ -1,0 +1,40 @@
+{
+  "Reports": [
+    {
+      "ReportID": "TrialBalance",
+      "ReportName": "TrialBalance",
+      "Rows": [
+        {
+          "RowType": "Header",
+          "Cells": [
+            {"Value": "Account"},
+            {"Value": "Debit"},
+            {"Value": "Credit"}
+          ]
+        },
+        {
+          "RowType": "Section",
+          "Title": "Trial Balance",
+          "Rows": [
+            {
+              "RowType": "Row",
+              "Cells": [
+                {"Value": "Business Bank"},
+                {"Value": "1250.00"},
+                {"Value": ""}
+              ]
+            },
+            {
+              "RowType": "Row",
+              "Cells": [
+                {"Value": "Sales"},
+                {"Value": ""},
+                {"Value": "1250.00"}
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

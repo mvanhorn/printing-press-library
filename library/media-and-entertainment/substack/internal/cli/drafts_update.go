@@ -62,7 +62,7 @@ full field list.`,
 		Annotations: map[string]string{
 			"pp:endpoint":  "drafts.update",
 			"pp:method":    "PUT",
-			"pp:path":      "/drafts/{id}",
+			"pp:path":      "https://substack.com/api/v1/drafts/{id}?publication_id={publication_id}",
 			"pp:novel-ext": "full-field-coverage",
 		},
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -74,8 +74,13 @@ full field list.`,
 				return err
 			}
 
-			path := "/drafts/{id}"
+			path := globalAPIPath("/drafts/{id}")
 			path = replacePathParam(path, "id", args[0])
+			publicationID, err := writerPublicationID(cmd.Context(), c, flags)
+			if err != nil {
+				return err
+			}
+			params := map[string]string{"publication_id": publicationID}
 			var body map[string]any
 
 			if stdinBody {
@@ -193,7 +198,7 @@ full field list.`,
 				}
 			}
 
-			data, statusCode, err := c.Put(cmd.Context(), path, body)
+			data, statusCode, err := c.PutWithParams(cmd.Context(), path, params, body)
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}

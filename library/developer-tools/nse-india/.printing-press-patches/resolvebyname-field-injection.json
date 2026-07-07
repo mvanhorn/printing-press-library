@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "id": "resolvebyname-field-injection",
+  "applied_at": "2026-05-10",
+  "base_run_id": "20260508-113209",
+  "base_printing_press_version": "4.0.4",
+  "summary": "Guard ResolveByName against SQL injection by validating matchFields entries against ^[a-zA-Z0-9_]+$ before interpolating into the json_extract path.",
+  "reason": "field was interpolated directly into the json_extract path expression; a crafted value like name')) OR 1=1-- could break out of the json_extract context.",
+  "files": [
+    "internal/store/store.go"
+  ]
+}

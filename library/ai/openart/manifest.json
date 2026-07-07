@@ -1,0 +1,27 @@
+{
+  "manifest_version": "0.3",
+  "name": "openart-pp-mcp",
+  "display_name": "OpenArt",
+  "version": "4.5.1",
+  "description": "Generate videos and images on OpenArt from the terminal. Spend your existing OpenArt credits across Seedance, Kling, Veo, Wan, Grok Imagine and more.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/openart-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/openart-pp-mcp",
+      "args": []
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

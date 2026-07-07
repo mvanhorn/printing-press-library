@@ -1,0 +1,16 @@
+{
+  "schema_version": 2,
+  "id": "jobber-novel-local-analysis-commands",
+  "applied_at": "2026-05-24",
+  "base_run_id": "20260522-234028",
+  "base_printing_press_version": "4.10.0",
+  "summary": "Add local read-only AR aging, invoice trace, and snapshot save/diff commands.",
+  "reason": "These novel commands answer offline analysis workflows that are not generated from Jobber's GraphQL API surface and must survive regeneration as local customizations.",
+  "files": [
+    "internal/cli/ar_aging.go",
+    "internal/cli/invoices_trace.go",
+    "internal/cli/snapshot.go",
+    "internal/cli/root.go"
+  ],
+  "validated_outcome": "go build ./..., go vet ./..., staged binary rebuild, and help checks for root/ar aging/invoices trace/snapshot all pass; invoices list resolves."
+}

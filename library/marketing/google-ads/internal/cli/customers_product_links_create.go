@@ -19,7 +19,7 @@ func newCustomersProductLinksCreateCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:         "create <customerId>",
 		Short:       "Creates a product link.",
-		Example:     "  google-ads-pp-cli customers_product_links create 550e8400-e29b-41d4-a716-446655440000",
+		Example:     "  google-ads-pp-cli customers-product-links create 550e8400-e29b-41d4-a716-446655440000",
 		Annotations: map[string]string{"pp:endpoint": "customers_product_links.create", "pp:method": "POST", "pp:path": "/v22/customers/{customerId}/productLinks:create"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

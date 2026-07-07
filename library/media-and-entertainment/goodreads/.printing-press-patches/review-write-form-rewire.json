@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "id": "review-write-form-rewire",
+  "applied_at": "2026-05-27",
+  "base_run_id": "20260522-095940",
+  "base_printing_press_version": "4.11.0",
+  "summary": "Rewired 'review create' from the dead /review/update_session_shelf_settings route to the legacy POST /review/update/:book_id form with named flags (--review, --spoiler, --publicize, --add-to-blog, --shelf, --notes, --authenticity-token).",
+  "reason": "Generated command pointed at a transient shelf-table UI settings POST that does not write a review; the live capture documented the real review-write/publicize/spoiler form fields.",
+  "files": [
+    "internal/cli/review_create.go"
+  ]
+}

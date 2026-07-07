@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "equity-offline-fallback",
+  "applied_at": "2026-05-10",
+  "base_run_id": "20260508-113209",
+  "base_printing_press_version": "4.0.4",
+  "summary": "Fix resolveLocal to look up equity snapshots by symbol param rather than URL path segment.",
+  "reason": "The generic fallback extracted the last URL path segment (GetQuoteApi) as the store ID, but equity rows are keyed symbol_YYYYMMDD — offline fallback always returned not-found even when cached data existed.",
+  "files": [
+    "internal/cli/data_source.go"
+  ],
+  "validated_outcome": "equity quote --symbol RELIANCE --data-source local returns cached snapshot with source=local."
+}

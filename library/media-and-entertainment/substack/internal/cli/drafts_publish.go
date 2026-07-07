@@ -21,7 +21,7 @@ func newDraftsPublishCmd(flags *rootFlags) *cobra.Command {
 		Use:         "publish <draft_id>",
 		Short:       "Publish a draft now",
 		Example:     "  substack-pp-cli drafts publish 550e8400-e29b-41d4-a716-446655440000",
-		Annotations: map[string]string{"pp:endpoint": "drafts.publish", "pp:method": "POST", "pp:path": "https://{publication}.substack.com/api/v1/drafts/{draft_id}/publish"},
+		Annotations: map[string]string{"pp:endpoint": "drafts.publish", "pp:method": "POST", "pp:path": "https://substack.com/api/v1/drafts/{draft_id}/publish?publication_id={publication_id}"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				return cmd.Help()
@@ -33,9 +33,13 @@ func newDraftsPublishCmd(flags *rootFlags) *cobra.Command {
 				return err
 			}
 
-			path := "https://{publication}.substack.com/api/v1/drafts/{draft_id}/publish"
+			path := globalAPIPath("/drafts/{draft_id}/publish")
 			path = replacePathParam(path, "draft_id", args[0])
-			params := map[string]string{}
+			publicationID, err := writerPublicationID(cmd.Context(), c, flags)
+			if err != nil {
+				return err
+			}
+			params := map[string]string{"publication_id": publicationID}
 			var body map[string]any
 			if stdinBody {
 				stdinData, err := io.ReadAll(os.Stdin)

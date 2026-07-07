@@ -32,13 +32,21 @@ func RegisterAll(s *server.MCPServer, root *cobra.Command, cliPath func() (strin
 		}
 		options := []mcplib.ToolOption{mcplib.WithDescription(descriptionFor(cmd))}
 		options = append(options, toolOptionsForFlags(cmd)...)
-		if commandTakesArgs(cmd) {
-			options = append(options, mcplib.WithString("args", mcplib.Description("Additional positional arguments or raw CLI flags to append to the command.")))
+		// Extract named positional args from Use string (e.g. "search <query>")
+		// and register them as typed MCP params instead of the catch-all "args".
+		positionalNames := parsePositionalArgNames(cmd.Use)
+		for _, name := range positionalNames {
+			options = append(options, mcplib.WithString(name, mcplib.Required(), mcplib.Description("Positional argument: "+name)))
+		}
+		// Keep generic "args" for commands with no named positionals (including
+		// variadic commands where parsePositionalArgNames returns nil).
+		if len(positionalNames) == 0 && commandTakesArgs(cmd) {
+			options = append(options, mcplib.WithString("args", mcplib.Description("Space-separated positional arguments (e.g. \"TSLA AAPL NVDA\" for variadic symbol lists).")))
 		}
 		if isMCPReadOnly(cmd) {
 			options = append(options, mcplib.WithReadOnlyHintAnnotation(true), mcplib.WithDestructiveHintAnnotation(false))
 		}
-		s.AddTool(mcplib.NewTool(toolName, options...), shellOutToCLI(cliPath, path))
+		s.AddTool(mcplib.NewTool(toolName, options...), shellOutToCLI(cliPath, path, positionalNames))
 	})
 }
 

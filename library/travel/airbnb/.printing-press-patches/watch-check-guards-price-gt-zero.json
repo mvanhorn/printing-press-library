@@ -1,0 +1,15 @@
+{
+  "schema_version": 2,
+  "id": "watch-check-guards-price-gt-zero",
+  "applied_at": "2026-06-13",
+  "base_run_id": "2026-05-03T06:03:12.15145Z",
+  "base_printing_press_version": "3.6.1",
+  "summary": "watch check treats a non-positive scraped price as 'no price data', never a drop: such items get hit=false, land in a top-level no_price[] bucket (reason no_price_data), and never trigger the exit-7 drop sentinel. Exit 7 fires only when a real positive price is at or below a positive max-price. The decision is the pure helper classifyWatchPrice(price, maxPrice) -> (hasPrice, hit).",
+  "reason": "firstPlatformTotals returns 0 both for a genuinely-free listing and for one whose SSR price was unavailable for the dates. The old `price <= MaxPrice` was always true for price==0 against any positive threshold, so an unavailable price produced a false hit and a spurious exit 7 (the watch drop signal) on every cron run. Exit 7 is dual-purpose (HTTP 429 AND the watch drop-hit success signal), so the guard must live in watch check where the watchlist intent is known. A regen must keep classifyWatchPrice's price>0 guard and the {hits,no_price} top-level object envelope (bare arrays lose non-allowlisted fields under --agent/--compact).",
+  "files": [
+    "internal/cli/watch.go",
+    "internal/cli/watch_test.go"
+  ],
+  "validated_outcome": "go build/vet green; classifyWatchPrice table test: price 0/negative => no hit for any threshold; positive price hits only at or under a positive threshold.",
+  "upstream_issue": ""
+}

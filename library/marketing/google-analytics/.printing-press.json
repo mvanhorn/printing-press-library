@@ -1,0 +1,70 @@
+{
+  "api_name": "google-analytics",
+  "cli_name": "google-analytics-pp-cli",
+  "category": "marketing",
+  "description": "Agent-first Google Analytics 4 CLI with typed Data/Admin/Funnel API coverage and one-call reports for channels, pages, funnels, anomalies, revenue, and health.",
+  "spec_format": "openapi3-curated",
+  "spec_source": "curated-ga4-data-admin-apis",
+  "spec_checksum": "sha256:2dfe6cb7ef79f217ae73793eda907af9aa0f5368f4fa9a41ed16a89e62089da0",
+  "printing_press_version": "4.20.1",
+  "run_id": "ga4-20260612",
+  "printer": "cathrynlavery",
+  "creator": {
+    "handle": "cathrynlavery",
+    "name": "Cathryn Lavery"
+  },
+  "contributors": [
+    {
+      "handle": "cathrynlavery",
+      "name": "Cathryn Lavery"
+    }
+  ],
+  "auth_env_vars": [
+    "GOOGLE_APPLICATION_CREDENTIALS",
+    "GA4_PROPERTY_ID",
+    "GA4_PROPERTY_IDS"
+  ],
+  "novel_features": [
+    {
+      "name": "Health/Doctor",
+      "command": "health",
+      "description": "health/doctor distinguishes token/API errors from property-level GA4 access grant failures"
+    },
+    {
+      "name": "Channels,",
+      "command": "channels",
+      "description": "channels, sources, top-pages, revenue produce curated acquisition/ecommerce tables"
+    },
+    {
+      "name": "Compare",
+      "command": "compare",
+      "description": "compare calculates period-over-period deltas and percentage changes in one call"
+    },
+    {
+      "name": "Whats-Changed",
+      "command": "whats-changed",
+      "description": "whats-changed scans movers across channels, source/medium, and landing pages"
+    },
+    {
+      "name": "Funnel",
+      "command": "funnel",
+      "description": "funnel wraps v1alpha runFunnelReport for named event sequences"
+    },
+    {
+      "name": "Agent-Context",
+      "command": "agent-context",
+      "description": "agent-context emits structured tool metadata for agents"
+    }
+  ],
+  "mcp": false,
+  "schema_version": 1,
+  "generated_at": "2026-06-12T12:00:00Z",
+  "display_name": "Google Analytics 4",
+  "printer_name": "Cathryn Lavery",
+  "owner": "cathrynlavery",
+  "owner_name": "Cathryn Lavery",
+  "auth_type": "service_account_jwt",
+  "spec_url": "https://developers.google.com/analytics/devguides/reporting/data/v1",
+  "version": "1.1.0",
+  "catalog_description": "Agent-first Google Analytics 4 CLI with typed Data/Admin/Funnel API coverage and one-call reports for channels, pages, funnels, anomalies, revenue, and health."
+}

@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "id": "insider-cluster-within-subday-warn",
+  "applied_at": "2026-05-12",
+  "base_run_id": "20260511-180534",
+  "base_printing_press_version": "4.2.2",
+  "summary": "Warn when `insider-cluster --within` parses to less than 24h before silently rounding the clustering window to 1 day.",
+  "reason": "Clustering math operates on whole-day buckets so sub-day `--within` values (e.g., 12h) were clamped to 1 day with no indication to the user. Now we emit a stderr warning naming the parsed hours and the rounded floor.",
+  "files": [
+    "internal/cli/sec_transcendence.go"
+  ]
+}

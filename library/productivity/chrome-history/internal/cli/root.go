@@ -72,6 +72,7 @@ func NewRootCmd() *cobra.Command {
 
 	root.AddCommand(
 		newSyncCmd(opts),
+		newArchiveCmd(opts),
 		newDoctorCmd(opts),
 		newSearchCmd(opts),
 		newSQLCmd(opts),
@@ -98,6 +99,7 @@ func NewRootCmd() *cobra.Command {
 }
 
 func newSyncCmd(opts *RootOptions) *cobra.Command {
+	var accumulate bool
 	cmd := &cobra.Command{
 		Use:   "sync",
 		Short: "Snapshot Chrome history and build FTS",
@@ -122,6 +124,22 @@ func newSyncCmd(opts *RootOptions) *cobra.Command {
 				_ = os.Remove(si.SnapshotPath)
 				return err
 			}
+			archiveStatus, err := store.ReadArchiveStatus()
+			if err != nil {
+				return err
+			}
+			var archiveCounts store.ArchiveCounts
+			var archivePath string
+			if accumulate || archiveStatus.Enabled {
+				archivePath, err = store.ArchivePath()
+				if err != nil {
+					return err
+				}
+				archiveCounts, err = store.AccumulateFromSource(archivePath, snapshot, time.Now().UTC())
+				if err != nil {
+					return err
+				}
+			}
 			rows := []map[string]any{{
 				"snapshot":                       snapshot,
 				"profile":                        meta.Profile,
@@ -132,10 +150,19 @@ func newSyncCmd(opts *RootOptions) *cobra.Command {
 				"chrome_schema_version":          meta.ChromeSchemaVersion,
 				"chrome_last_compatible_version": meta.ChromeLastCompatibleVersion,
 			}}
+			if archivePath != "" {
+				rows[0]["archive_enabled"] = true
+				rows[0]["archive_path"] = archivePath
+				rows[0]["archive_appended"] = archiveCounts.Appended
+				rows[0]["archive_visits"] = archiveCounts.Total
+			} else {
+				rows[0]["archive_enabled"] = archiveStatus.Enabled
+			}
 			output.DefaultToJSONIfNotTTY(&opts.Output)
 			return output.Render(opts.Output, rows)
 		},
 	}
+	cmd.Flags().BoolVar(&accumulate, "accumulate", false, "append current history into the sticky archive")
 	return cmd
 }
 
@@ -155,6 +182,11 @@ func newDoctorCmd(opts *RootOptions) *cobra.Command {
 				status["chrome_db_error"] = srcErr.Error()
 			} else {
 				status["chrome_db"] = src
+			}
+			activePath, activeIsArchive, activeErr := store.ActiveStorePath()
+			if activeErr == nil {
+				status["active_store"] = activePath
+				status["archive_enabled"] = activeIsArchive
 			}
 			st, err := os.Stat(snapshot)
 			if err != nil {
@@ -199,6 +231,19 @@ func newDoctorCmd(opts *RootOptions) *cobra.Command {
 					}
 				}
 			}
+			if activeErr == nil {
+				if info, err := os.Stat(activePath); err == nil {
+					status["active_store_age"] = time.Since(info.ModTime()).String()
+				}
+				activeStore, openErr := store.OpenExisting(activePath)
+				if openErr == nil {
+					defer activeStore.Close()
+					status["active_fts_ready"] = activeStore.IsFTSReady()
+					status["active_urls_count"] = activeStore.RowCount("urls")
+					status["active_visits_count"] = activeStore.RowCount("visits")
+					status["active_history_fts_count"] = activeStore.RowCount("history_fts")
+				}
+			}
 			status["healthy"] = status["chrome_db"] != "missing" && status["snapshot"] != "missing"
 			rows := []map[string]any{status}
 			output.DefaultToJSONIfNotTTY(&opts.Output)
@@ -225,15 +270,8 @@ func newSearchCmd(opts *RootOptions) *cobra.Command {
 					return errors.Join(ErrUsage, err)
 				}
 			}
-			snapshot, err := snapshotPath()
+			st, _, err := openCoreHistoryStore(opts.Device)
 			if err != nil {
-				return err
-			}
-			st, err := store.OpenExisting(snapshot)
-			if err != nil {
-				if errors.Is(err, store.ErrNoSnapshot) {
-					return ErrNoSnapshot
-				}
 				return err
 			}
 			defer st.Close()
@@ -269,7 +307,7 @@ func newSearchCmd(opts *RootOptions) *cobra.Command {
 func newSQLCmd(opts *RootOptions) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:         "sql <SELECT...>",
-		Short:       "Run a read-only SELECT query against the snapshot's urls/visits/downloads/history_fts tables (non-SELECT statements are rejected)",
+		Short:       "Run a read-only SELECT query against the active store; archive mode exposes url/time/title history tables (non-SELECT statements are rejected)",
 		Args:        usageMinArgs(1),
 		Annotations: map[string]string{"pp:typed-exit-codes": "0,2,3", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -277,15 +315,8 @@ func newSQLCmd(opts *RootOptions) *cobra.Command {
 			if !store.IsSelectOnly(q) {
 				return fmt.Errorf("%w: only SELECT statements are allowed", ErrUsage)
 			}
-			snapshot, err := snapshotPath()
+			st, _, err := openActiveStore()
 			if err != nil {
-				return err
-			}
-			st, err := store.OpenExisting(snapshot)
-			if err != nil {
-				if errors.Is(err, store.ErrNoSnapshot) {
-					return ErrNoSnapshot
-				}
 				return err
 			}
 			defer st.Close()

@@ -51,9 +51,9 @@ func newWorkspaceCreateCmd(flags *rootFlags) *cobra.Command {
 				if bodyName != "" {
 					body["name"] = bodyName
 				}
-				if bodyDescription != "" {
-					body["description"] = bodyDescription
-				}
+				// Suno's /api/project requires the description field to be present
+				// (HTTP 422 "Field required" when omitted); send it even if empty.
+				body["description"] = bodyDescription
 			}
 			data, statusCode, err := c.PostWithParams(cmd.Context(), path, params, body)
 			if err != nil {

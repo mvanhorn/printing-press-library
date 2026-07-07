@@ -26,6 +26,9 @@ that accompanies a video and vice versa.`,
   ufo-goat-pp-cli pairs --json`,
 		Annotations: map[string]string{"mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
+			if dryRunOK(flags) {
+				return nil
+			}
 			if dbPath == "" {
 				dbPath = defaultDBPath("ufo-goat-pp-cli")
 			}
@@ -90,7 +93,7 @@ that accompanies a video and vice versa.`,
 		},
 	}
 
-	cmd.Flags().StringVar(&dbPath, "db", "", "Database path")
+	cmd.Flags().StringVar(&dbPath, "db", "", "Override the synced SQLite store path (default: ~/.local/share/ufo-goat-pp-cli/data.db)")
 	return cmd
 }
 

@@ -1,0 +1,22 @@
+{
+  "agentcookie": "not detected (optional)",
+  "api": "reachable",
+  "auth": "configured",
+  "auth_source": "env:XAI_API_KEY",
+  "base_url": "https://api.x.ai",
+  "cache": {
+    "db_bytes": 282624,
+    "db_path": "/Users/cathrynlavery/.local/share/xai-pp-cli/data.db",
+    "hint": "sync_state is empty; run 'xai-pp-cli sync' to hydrate.",
+    "resources": null,
+    "schema_version": 4,
+    "stale_after": "6h0m0s",
+    "status": "unknown"
+  },
+  "config": "ok",
+  "config_path": "/Users/cathrynlavery/.config/xai-pp-cli/config.toml",
+  "credentials": "valid",
+  "env_vars": "OK 1/1 available",
+  "verify_mode": "normal operation",
+  "version": "1.0.0"
+}

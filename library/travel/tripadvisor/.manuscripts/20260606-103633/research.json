@@ -1,0 +1,225 @@
+{
+  "api_name": "tripadvisor",
+  "novelty_score": 0,
+  "alternatives": [
+    {
+      "name": "tripadvisor-mcp",
+      "url": "https://github.com/pab1it0/tripadvisor-mcp",
+      "language": "Python",
+      "install_method": "",
+      "stars": 56,
+      "last_updated": "",
+      "command_count": 5,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-06-06T00:00:00Z",
+  "novel_features": [
+    {
+      "name": "Ranked best-of search",
+      "command": "best",
+      "description": "Search a place type, auto-fetch details for the top hits, and return them ranked by rating, review count, or Tripadvisor ranking in one table.",
+      "rationale": "Requires fanning out N detail calls with a bounded scan cap and sorting locally; a thin API wrapper returns name-only stubs and makes the agent rank by hand.",
+      "example": "tripadvisor-pp-cli best \"Paris\" --category hotels --top 5 --sort rating --agent",
+      "why_it_matters": "Reach for this when the task is 'find the best X in Y' instead of calling find then show ten times yourself.",
+      "group": "Compare options"
+    },
+    {
+      "name": "Side-by-side compare",
+      "command": "compare",
+      "description": "Pull details (and subratings + trip-type mix) for 2-5 location IDs and emit one structured comparison table.",
+      "rationale": "Joins details across multiple cached/live records into a single view; the API exposes each location only one call at a time.",
+      "example": "tripadvisor-pp-cli compare 93450 258705 1641927 --agent",
+      "why_it_matters": "Reach for this to decide between specific places an agent already shortlisted.",
+      "group": "Compare options"
+    },
+    {
+      "name": "Geo-ranked shortlist",
+      "command": "nearby-best",
+      "description": "From a lat/long, find nearby places, batch-fetch details up to a scan cap, filter by category and minimum rating, return the top K.",
+      "rationale": "Composes the nearby endpoint with a bounded detail fan-out plus local filter/sort; doing this by hand burns many agent turns.",
+      "example": "tripadvisor-pp-cli nearby-best \"48.8606,2.3376\" --category restaurants --min-rating 4.0 --top 5 --agent",
+      "why_it_matters": "Reach for this for 'best-rated \u003ctype\u003e near here' from coordinates.",
+      "group": "Compare options"
+    },
+    {
+      "name": "Rating drift",
+      "command": "drift",
+      "description": "Compare a location's stored rating/review-count snapshot against a fresh fetch and report the delta, flagging drops past a threshold.",
+      "rationale": "Only possible with a historical snapshot in the local store; the live API has no versioning and thin wrappers keep no state.",
+      "example": "tripadvisor-pp-cli drift 93450 --threshold 0.2 --agent",
+      "why_it_matters": "Reach for this to detect whether a place you tracked has slipped since you last checked.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Location digest",
+      "command": "digest",
+      "description": "One location ID to a single agent-friendly payload combining details, top reviews (user-generated), and photo URLs.",
+      "rationale": "Composes details + reviews + photos into one response so an agent makes one call instead of three.",
+      "example": "tripadvisor-pp-cli digest 93450 --reviews 3 --agent",
+      "why_it_matters": "Reach for this when you need the full picture of one place without three round trips.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Traveler fit ranking",
+      "command": "fit",
+      "description": "Rank search results by how well their trip-type mix matches a declared traveler profile (families, couples, solo, business).",
+      "rationale": "Weights the trip_types distribution (only surfaced in details) across N fetched records; no thin wrapper accumulates or weights this.",
+      "example": "tripadvisor-pp-cli fit \"Orlando\" --category hotels --traveler families --top 5 --agent",
+      "why_it_matters": "Reach for this to bias a shortlist toward who is actually traveling.",
+      "group": "Compare options"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Ranked best-of search",
+      "command": "best",
+      "description": "Search a place type, auto-fetch details for the top hits, and return them ranked by rating, review count, or Tripadvisor ranking in one table.",
+      "rationale": "Requires fanning out N detail calls with a bounded scan cap and sorting locally; a thin API wrapper returns name-only stubs and makes the agent rank by hand.",
+      "example": "tripadvisor-pp-cli best \"Paris\" --category hotels --top 5 --sort rating --agent",
+      "why_it_matters": "Reach for this when the task is 'find the best X in Y' instead of calling find then show ten times yourself.",
+      "group": "Compare options"
+    },
+    {
+      "name": "Side-by-side compare",
+      "command": "compare",
+      "description": "Pull details (and subratings + trip-type mix) for 2-5 location IDs and emit one structured comparison table.",
+      "rationale": "Joins details across multiple cached/live records into a single view; the API exposes each location only one call at a time.",
+      "example": "tripadvisor-pp-cli compare 93450 258705 1641927 --agent",
+      "why_it_matters": "Reach for this to decide between specific places an agent already shortlisted.",
+      "group": "Compare options"
+    },
+    {
+      "name": "Geo-ranked shortlist",
+      "command": "nearby-best",
+      "description": "From a lat/long, find nearby places, batch-fetch details up to a scan cap, filter by category and minimum rating, return the top K.",
+      "rationale": "Composes the nearby endpoint with a bounded detail fan-out plus local filter/sort; doing this by hand burns many agent turns.",
+      "example": "tripadvisor-pp-cli nearby-best \"48.8606,2.3376\" --category restaurants --min-rating 4.0 --top 5 --agent",
+      "why_it_matters": "Reach for this for 'best-rated \u003ctype\u003e near here' from coordinates.",
+      "group": "Compare options"
+    },
+    {
+      "name": "Rating drift",
+      "command": "drift",
+      "description": "Compare a location's stored rating/review-count snapshot against a fresh fetch and report the delta, flagging drops past a threshold.",
+      "rationale": "Only possible with a historical snapshot in the local store; the live API has no versioning and thin wrappers keep no state.",
+      "example": "tripadvisor-pp-cli drift 93450 --threshold 0.2 --agent",
+      "why_it_matters": "Reach for this to detect whether a place you tracked has slipped since you last checked.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Location digest",
+      "command": "digest",
+      "description": "One location ID to a single agent-friendly payload combining details, top reviews (user-generated), and photo URLs.",
+      "rationale": "Composes details + reviews + photos into one response so an agent makes one call instead of three.",
+      "example": "tripadvisor-pp-cli digest 93450 --reviews 3 --agent",
+      "why_it_matters": "Reach for this when you need the full picture of one place without three round trips.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Traveler fit ranking",
+      "command": "fit",
+      "description": "Rank search results by how well their trip-type mix matches a declared traveler profile (families, couples, solo, business).",
+      "rationale": "Weights the trip_types distribution (only surfaced in details) across N fetched records; no thin wrapper accumulates or weights this.",
+      "example": "tripadvisor-pp-cli fit \"Orlando\" --category hotels --traveler families --top 5 --agent",
+      "why_it_matters": "Reach for this to bias a shortlist toward who is actually traveling.",
+      "group": "Compare options"
+    }
+  ],
+  "auth": {
+    "canonical_env_var": "TRIPADVISOR_API_KEY"
+  },
+  "narrative": {
+    "display_name": "Tripadvisor",
+    "headline": "Every Tripadvisor Content API endpoint, plus a local store and ranked compare/best/drift commands no other Tripadvisor tool has.",
+    "value_prop": "Search hotels, restaurants, and attractions and get rating, review count, and ranking up front so an agent can rank and choose. Beyond the raw five endpoints, `best` and `nearby-best` search-then-rank in one call, `compare` puts places side by side, and `drift` flags a rating that slipped since you last looked — all backed by a local SQLite cache so repeat lookups are free and offline.",
+    "auth_narrative": "Uses an official Tripadvisor Content API key passed as the `key` query parameter (set TRIPADVISOR_API_KEY). Create a key at tripadvisor.com/developers; you must add an IP restriction (your public IPv4 as a /32) or a domain restriction before the key is shown. Domain-restricted keys also require a Referer header on every request.",
+    "quickstart": [
+      {
+        "command": "tripadvisor-pp-cli doctor",
+        "comment": "Check the key is set and the API is reachable before anything else"
+      },
+      {
+        "command": "tripadvisor-pp-cli find \"Boston Harbor Hotel\" --category hotels",
+        "comment": "Search by name to get a location_id"
+      },
+      {
+        "command": "tripadvisor-pp-cli show 89575",
+        "comment": "Full details: rating, review count, ranking, address, price level"
+      },
+      {
+        "command": "tripadvisor-pp-cli best \"Paris\" --category hotels --top 5 --sort rating",
+        "comment": "Search and rank the top hotels by rating in one call"
+      },
+      {
+        "command": "tripadvisor-pp-cli compare 93450 258705 --agent",
+        "comment": "Put two places side by side for a decision"
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "401 Unauthorized on every call",
+        "fix": "Set TRIPADVISOR_API_KEY, and confirm the key's IP restriction matches your current public IPv4 (it changes on many networks)."
+      },
+      {
+        "symptom": "403 Forbidden with a domain-restricted key",
+        "fix": "Domain-restricted keys require a Referer header; switch the key to an IP restriction for CLI use, or set the configured Referer."
+      },
+      {
+        "symptom": "reviews or photos returns only a few items",
+        "fix": "The free Content API hard-caps reviews and photos at 5 per location; this is expected, not a bug."
+      },
+      {
+        "symptom": "429 Too Many Requests",
+        "fix": "You hit the daily budget or 50 req/s limit; budgets reset at midnight UTC. Cached locations still serve offline."
+      }
+    ],
+    "when_to_use": "Use this CLI when an agent needs to search Tripadvisor places and compare them by rating, review count, or ranking — picking the best hotel/restaurant/attraction in a city or near a point, putting specific options side by side, or pulling a place's details, recent traveler reviews, and photos. The local cache makes repeat comparisons fast and offline.",
+    "anti_triggers": [
+      "Do not use this CLI to book hotels, tables, or tours — the Content API is read-only and this tool performs no bookings.",
+      "Do not use it to fetch full review histories; the free Content API returns at most 5 recent reviews per location.",
+      "Do not use it to scrape tripadvisor.com directly; that is bot-protected and out of scope.",
+      "Do not use it to summarize or judge review sentiment; it returns the raw user-generated text for the agent to interpret."
+    ],
+    "recipes": [
+      {
+        "title": "Best-rated restaurants in a city",
+        "command": "tripadvisor-pp-cli best \"Lisbon\" --category restaurants --top 5 --sort rating --agent",
+        "explanation": "Searches, auto-fetches details for the top hits, and returns them ranked by rating with review counts."
+      },
+      {
+        "title": "Decide between two hotels",
+        "command": "tripadvisor-pp-cli compare 93450 258705 --agent --select name,rating,num_reviews,ranking",
+        "explanation": "Pulls both detail records and narrows the comparison to the fields that drive the choice."
+      },
+      {
+        "title": "Best near a coordinate",
+        "command": "tripadvisor-pp-cli nearby-best \"48.8606,2.3376\" --category attractions --min-rating 4.5 --top 5 --agent",
+        "explanation": "Finds nearby attractions, ranks the highly-rated ones, all from a lat/long."
+      },
+      {
+        "title": "Has this place slipped?",
+        "command": "tripadvisor-pp-cli drift 93450 --threshold 0.2 --agent",
+        "explanation": "Compares the cached rating snapshot against a fresh fetch and flags a meaningful drop."
+      },
+      {
+        "title": "One-call full picture",
+        "command": "tripadvisor-pp-cli digest 93450 --reviews 3 --agent --select name,rating,reviews",
+        "explanation": "Combines details, recent reviews, and photos in a single payload narrowed to what you need."
+      }
+    ],
+    "trigger_phrases": [
+      "best hotels in Paris on tripadvisor",
+      "compare these restaurants on tripadvisor",
+      "what's the tripadvisor rating for",
+      "find attractions near these coordinates",
+      "tripadvisor reviews for",
+      "use tripadvisor",
+      "run tripadvisor"
+    ]
+  }
+}

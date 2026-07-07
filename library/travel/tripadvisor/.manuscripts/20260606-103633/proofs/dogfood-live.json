@@ -1,0 +1,995 @@
+{
+  "dir": "/Users/dwb/printing-press/.runstate/obsidian/runs/20260606-103633/working/tripadvisor-pp-cli",
+  "binary": "/Users/dwb/printing-press/.runstate/obsidian/runs/20260606-103633/working/tripadvisor-pp-cli/tripadvisor-pp-cli",
+  "level": "full",
+  "verdict": "PASS",
+  "matrix_size": 63,
+  "passed": 63,
+  "failed": 0,
+  "skipped": 38,
+  "commands": [
+    "api",
+    "best",
+    "compare",
+    "digest",
+    "doctor",
+    "drift",
+    "feedback list",
+    "find",
+    "fit",
+    "import",
+    "near",
+    "nearby-best",
+    "photos",
+    "profile delete",
+    "profile list",
+    "profile save",
+    "profile show",
+    "profile use",
+    "reviews",
+    "search",
+    "show",
+    "sync",
+    "which",
+    "workflow archive",
+    "workflow status"
+  ],
+  "tests": [
+    {
+      "command": "api",
+      "kind": "help",
+      "args": [
+        "api",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Browse and call any API endpoint using the raw interface names.\n\nThe friendly top-level commands cover the most common operations.\nThis command provides access to ALL endpoints for power users and\nagents that need full API coverage.\n\nRun 'api' with no arguments to list all interfaces.\nRun 'api \u003cinterface\u003e' to see that interface's methods.\n\nUsage:\n  tripadvisor-pp-cli api [interface] [flags]\n\nExamples:\n  # List all available interfaces\n  tripadvisor-pp-cli api\n\n  # Show methods for a specific interface\n  tripadvisor-pp-cli api \u003cinterface-name\u003e\n\nFlags:\n  -h, --help   help for api\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'tripadvisor-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "api",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [api] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "api",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [api] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "api",
+      "kind": "error_path",
+      "args": [
+        "api",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "Error: interface \"__printing_press_invalid__\" not found. Run 'tripadvisor-pp-cli api' to list all interfaces\n"
+    },
+    {
+      "command": "best",
+      "kind": "help",
+      "args": [
+        "best",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Search Tripadvisor, auto-fetch details for the matching locations (bounded by --max-scan because the Content API is metered), and return them ranked by --sort. Use this when the task is 'find the best X in Y' instead of calling find then show repeatedly.\n\nUsage:\n  tripadvisor-pp-cli best \u003cquery\u003e [flags]\n\nExamples:\n  tripadvisor-pp-cli best \"Paris\" --category hotels --top 5 --sort rating --agent\n\nFlags:\n      --category string   Place type: hotels, restaurants, attractions, geos\n  -h, --help              help for best\n      --language string   Language code (default \"en\")\n      --max-scan int      Max locations to fetch details for before ranking (metered API) (default 10)\n      --sort string       Rank by: rating, reviews, ranking (default \"rating\")\n      --top int           Number of ranked results to return (default 5)\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'tripadvisor-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "best",
+      "kind": "happy_path",
+      "args": [
+        "best",
+        "Paris",
+        "--category",
+        "hotels"
+      ],
+      "status": "pass",
+      "output_sample": "{\"category\":\"hotels\",\"fetch_failures\":[],\"max_scan\":3,\"query\":\"Paris\",\"results\":[{\"address\":\"\u003credacted\u003e\",\"location_id\":\"188729\",\"name\":\"\u003credacted\u003e\",\"num_reviews\":2462,\"price_level\":\"$$$$\",\"ranking\":\"#175 of 1,998 hotels in Paris\",\"ranking_out_of\":1998,\"ranking_position\":175,\"rating\":4.9,\"subratings\":{\"Cleanliness\":4.9,\"Location\":4.9,\"Rooms\":4.8,\"Service\":4.9,\"Sleep Quality\":4.9,\"Value\":4.4},\"trip_types\":{\"business\":333,\"couples\":973,\"family\":461,\"friends\":210,\"solo\":149},\"web_url\":\"https://www.tripadvisor.com/Hotel_Review-g187147-d188729-Reviews-Le_Bristol_Paris-Paris_Ile_de_France.html?m=66827\"},{\"address\":\"\u003credacted\u003e\",\"location_id\":\"188728\",\"name\":\"\u003credacted\u003e\",\"num_reviews\":1063,\"price_level\":\"$$$$\",\"ranking\":\"#514 of 1,998 hotels in Paris\",\"ranking_out_of\":1998,\"ranking_position\":514,\"rating\":4.5,\"subratings\":{\"Cleanliness\":4.9,\"Location\":4.9,\"Rooms\":4.8,\"Service\":4.6,\"Sleep Quality\":4.8,\"Value\":4.3},\"trip_types\":{\"business\":93,\"couples\":403,\"family\":202,\"friends\":140,\"solo\":82},\"web_url\":\"https://www.tripadvisor.com/Hotel_Review-g187147-d188728-Reviews-Ritz_Paris-Paris_Ile_de_France.html?m=66827\"},{\"address\":\"\u003credacted\u003e\",\"location_id\":\"143336\",\"name\":\"\u003credacted\u003e\",\"num_reviews\":39750,\"price_level\":\"$$$\",\"ranking\":\"#191 of 304 hotels in Las Vegas\",\"ranking_out_of\":304,\"ranking_position\":191,\"rating\":3.9,\"subratings\":{\"Cleanliness\":4.2,\"Location\":4.7,\"Rooms\":4,\"Service\":3.9,\"Sleep Quality\":4.2,\"Value\":3.9},\"trip_types\":{\"business\":3935,\"couples\":14487,\"family\":8402,\"friends\":6965,\"solo\":1699},\"web_url\":\"https://www.tripadvisor.com/Hotel_Review-g45963-d143336-Reviews-Paris_Las_Vegas-Las_Vegas_Nevada.html?m=66827\"}],\"scanned_locations\":3,\"sort\":\"rating\"}"
+    },
+    {
+      "command": "best",
+      "kind": "json_fidelity",
+      "args": [
+        "best",
+        "Paris",
+        "--category",
+        "hotels",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\"category\":\"hotels\",\"fetch_failures\":[],\"max_scan\":3,\"query\":\"Paris\",\"results\":[{\"address\":\"\u003credacted\u003e\",\"location_id\":\"188729\",\"name\":\"\u003credacted\u003e\",\"num_reviews\":2462,\"price_level\":\"$$$$\",\"ranking\":\"#175 of 1,998 hotels in Paris\",\"ranking_out_of\":1998,\"ranking_position\":175,\"rating\":4.9,\"subratings\":{\"Cleanliness\":4.9,\"Location\":4.9,\"Rooms\":4.8,\"Service\":4.9,\"Sleep Quality\":4.9,\"Value\":4.4},\"trip_types\":{\"business\":333,\"couples\":973,\"family\":461,\"friends\":210,\"solo\":149},\"web_url\":\"https://www.tripadvisor.com/Hotel_Review-g187147-d188729-Reviews-Le_Bristol_Paris-Paris_Ile_de_France.html?m=66827\"},{\"address\":\"\u003credacted\u003e\",\"location_id\":\"188728\",\"name\":\"\u003credacted\u003e\",\"num_reviews\":1063,\"price_level\":\"$$$$\",\"ranking\":\"#514 of 1,998 hotels in Paris\",\"ranking_out_of\":1998,\"ranking_position\":514,\"rating\":4.5,\"subratings\":{\"Cleanliness\":4.9,\"Location\":4.9,\"Rooms\":4.8,\"Service\":4.6,\"Sleep Quality\":4.8,\"Value\":4.3},\"trip_types\":{\"business\":93,\"couples\":403,\"family\":202,\"friends\":140,\"solo\":82},\"web_url\":\"https://www.tripadvisor.com/Hotel_Review-g187147-d188728-Reviews-Ritz_Paris-Paris_Ile_de_France.html?m=66827\"},{\"address\":\"\u003credacted\u003e\",\"location_id\":\"143336\",\"name\":\"\u003credacted\u003e\",\"num_reviews\":39750,\"price_level\":\"$$$\",\"ranking\":\"#191 of 304 hotels in Las Vegas\",\"ranking_out_of\":304,\"ranking_position\":191,\"rating\":3.9,\"subratings\":{\"Cleanliness\":4.2,\"Location\":4.7,\"Rooms\":4,\"Service\":3.9,\"Sleep Quality\":4.2,\"Value\":3.9},\"trip_types\":{\"business\":3935,\"couples\":14487,\"family\":8402,\"friends\":6965,\"solo\":1699},\"web_url\":\"https://www.tripadvisor.com/Hotel_Review-g45963-d143336-Reviews-Paris_Las_Vegas-Las_Vegas_Nevada.html?m=66827\"}],\"scanned_locations\":3,\"sort\":\"rating\"}"
+    },
+    {
+      "command": "best",
+      "kind": "error_path",
+      "args": [
+        "best",
+        "__printing_press_invalid__",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"query\": \"__printing_press_invalid__\",\n  \"sort\": \"rating\",\n  \"scanned_locations\": 0,\n  \"max_scan\": 3,\n  \"results\": [],\n  \"fetch_failures\": [],\n  \"note\": \"no locations matched \\\"__printing_press_invalid__\\\"; try a broader query or a different --category\"\n}\n"
+    },
+    {
+      "command": "compare",
+      "kind": "help",
+      "args": [
+        "compare",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Fetch details for several location IDs and emit one structured comparison so an agent can choose between specific places it already shortlisted, without joining multiple calls itself.\n\nUsage:\n  tripadvisor-pp-cli compare \u003clocationId\u003e \u003clocationId\u003e [locationId...] [flags]\n\nExamples:\n  tripadvisor-pp-cli compare 93450 258705 --agent\n\nFlags:\n      --currency string   ISO 4217 currency for price fields (default \"USD\")\n  -h, --help              help for compare\n      --language string   Language code (default \"en\")\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'tripadvisor-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "compare",
+      "kind": "happy_path",
+      "args": [
+        "compare",
+        "89575",
+        "89620"
+      ],
+      "status": "pass",
+      "output_sample": "{\"compared\":2,\"fetch_failures\":[],\"location_ids\":[\"89575\",\"89620\"],\"results\":[{\"address\":\"\u003credacted\u003e\",\"location_id\":\"89575\",\"name\":\"\u003credacted\u003e\",\"num_reviews\":2503,\"price_level\":\"$$$$\",\"ranking\":\"#22 of 102 hotels in Boston\",\"ranking_out_of\":102,\"ranking_position\":22,\"rating\":4.7,\"subratings\":{\"Cleanliness\":4.8,\"Location\":4.8,\"Rooms\":4.7,\"Service\":4.8,\"Sleep Quality\":4.7,\"Value\":4.3},\"trip_types\":{\"business\":477,\"couples\":915,\"family\":614,\"friends\":131,\"solo\":105},\"web_url\":\"https://www.tripadvisor.com/Hotel_Review-g60745-d89575-Reviews-Boston_Harbor_Hotel-Boston_Massachusetts.html?m=66827\"},{\"address\":\"\u003credacted\u003e\",\"location_id\":\"89620\",\"name\":\"\u003credacted\u003e\",\"num_reviews\":4604,\"price_level\":\"$$$$\",\"ranking\":\"#46 of 102 hotels in Boston\",\"ranking_out_of\":102,\"ranking_position\":46,\"rating\":4.2,\"subratings\":{\"Cleanliness\":4.5,\"Location\":4.5,\"Rooms\":4.4,\"Service\":4.4,\"Sleep Quality\":4.4,\"Value\":4},\"trip_types\":{\"business\":1133,\"couples\":1059,\"family\":937,\"friends\":226,\"solo\":307},\"web_url\":\"https://www.tripadvisor.com/Hotel_Review-g60745-d89620-Reviews-Hyatt_Regency_Boston_Harbor-Boston_Massachusetts.html?m=66827\"}]}"
+    },
+    {
+      "command": "compare",
+      "kind": "json_fidelity",
+      "args": [
+        "compare",
+        "89575",
+        "89620",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\"compared\":2,\"fetch_failures\":[],\"location_ids\":[\"89575\",\"89620\"],\"results\":[{\"address\":\"\u003credacted\u003e\",\"location_id\":\"89575\",\"name\":\"\u003credacted\u003e\",\"num_reviews\":2503,\"price_level\":\"$$$$\",\"ranking\":\"#22 of 102 hotels in Boston\",\"ranking_out_of\":102,\"ranking_position\":22,\"rating\":4.7,\"subratings\":{\"Cleanliness\":4.8,\"Location\":4.8,\"Rooms\":4.7,\"Service\":4.8,\"Sleep Quality\":4.7,\"Value\":4.3},\"trip_types\":{\"business\":477,\"couples\":915,\"family\":614,\"friends\":131,\"solo\":105},\"web_url\":\"https://www.tripadvisor.com/Hotel_Review-g60745-d89575-Reviews-Boston_Harbor_Hotel-Boston_Massachusetts.html?m=66827\"},{\"address\":\"\u003credacted\u003e\",\"location_id\":\"89620\",\"name\":\"\u003credacted\u003e\",\"num_reviews\":4604,\"price_level\":\"$$$$\",\"ranking\":\"#46 of 102 hotels in Boston\",\"ranking_out_of\":102,\"ranking_position\":46,\"rating\":4.2,\"subratings\":{\"Cleanliness\":4.5,\"Location\":4.5,\"Rooms\":4.4,\"Service\":4.4,\"Sleep Quality\":4.4,\"Value\":4},\"trip_types\":{\"business\":1133,\"couples\":1059,\"family\":937,\"friends\":226,\"solo\":307},\"web_url\":\"https://www.tripadvisor.com/Hotel_Review-g60745-d89620-Reviews-Hyatt_Regency_Boston_Harbor-Boston_Massachusetts.html?m=66827\"}]}"
+    },
+    {
+      "command": "compare",
+      "kind": "error_path",
+      "args": [
+        "compare",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 2,
+      "output_sample": "Usage:\n  tripadvisor-pp-cli compare \u003clocationId\u003e \u003clocationId\u003e [locationId...] [flags]\n\nExamples:\n  tripadvisor-pp-cli compare 93450 258705 --agent\n\nFlags:\n      --currency string   ISO 4217 currency for price fields (default \"USD\")\n  -h, --help              help for compare\n      --language string   Language code (default \"en\")\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'tripadvisor-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\nError: compare needs at least 2 location IDs\n"
+    },
+    {
+      "command": "digest",
+      "kind": "help",
+      "args": [
+        "digest",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Combine a location's details, its most recent traveler reviews (user-generated content), and its photo URLs into one response, so an agent makes a single call instead of three. Review and photo counts are hard-capped at 5 by the free Content API.\n\nUsage:\n  tripadvisor-pp-cli digest \u003clocationId\u003e [flags]\n\nExamples:\n  tripadvisor-pp-cli digest 93450 --reviews 3 --agent\n\nFlags:\n      --currency string   ISO 4217 currency for price fields (default \"USD\")\n  -h, --help              help for digest\n      --language string   Language code (default \"en\")\n      --photos int        Photos to include (max 5) (default 3)\n      --reviews int       Recent reviews to include (max 5) (default 3)\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'tripadvisor-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "digest",
+      "kind": "happy_path",
+      "args": [
+        "digest",
+        "89575"
+      ],
+      "status": "pass",
+      "output_sample": "{\"details\":{\"address\":\"\u003credacted\u003e\",\"location_id\":\"89575\",\"name\":\"\u003credacted\u003e\",\"num_reviews\":2503,\"price_level\":\"$$$$\",\"ranking\":\"#22 of 102 hotels in Boston\",\"ranking_out_of\":102,\"ranking_position\":22,\"rating\":4.7,\"subratings\":{\"Cleanliness\":4.8,\"Location\":4.8,\"Rooms\":4.7,\"Service\":4.8,\"Sleep Quality\":4.7,\"Value\":4.3},\"trip_types\":{\"business\":477,\"couples\":915,\"family\":614,\"friends\":131,\"solo\":105},\"web_url\":\"https://www.tripadvisor.com/Hotel_Review-g60745-d89575-Reviews-Boston_Harbor_Hotel-Boston_Massachusetts.html?m=66827\"},\"location_id\":\"89575\",\"photos\":[{\"album\":\"Room/Suite\",\"caption\":\"BOSTONHARBORHOTEL ROOMSHOOT\",\"id\":863365256,\"images\":{\"large\":{\"height\":367,\"url\":\"https://media-cdn.tripadvisor.com/media/photo-s/33/75/e8/88/bostonharborhotel-roomshoot.jpg\",\"width\":550},\"medium\":{\"height\":167,\"url\":\"https://media-cdn.tripadvisor.com/media/photo-f/33/75/e8/88/bostonharborhotel-roomshoot.jpg\",\"width\":250},\"original\":{\"height\":854,\"url\":\"https://media-cdn.tripadvisor.com/media/photo-m/1280/33/75/e8/88/bostonharborhotel-roomshoot.jpg\",\"width\":1280},\"small\":{\"height\":150,\"url\":\"https://media-cdn.tripadvisor.com/media/photo-l/33/75/e8/88/bostonharborhotel-roomshoot.jpg\",\"width\":150},\"thumbnail\":{\"height\":50,\"url\":\"https://media-cdn.tripadvisor.com/media/photo-t/33/75/e8/88/bostonharborhotel-roomshoot.jpg\",\"width\":50}},\"is_blessed\":false,\"published_date\":\"2026-06-05T22:35:52.072Z\",\"source\":{\"localized_name\":\"Management\",\"name\":\"\u003credacted\u003e\"}},{\"album\":\"The Hotel\",\"caption\":\"Lobby at the Boston Harbor Hotel\",\"id\":273900720,\"images\":{\"large\":{\"height\":367,\"url\":\"https://media-cdn.tripadvisor.com/media/oyster/550/10/53/64/b0/lobby--v17159725.jpg\",\"width\":550},\"medium\":{\"height\":205,\"url\":\"https://media-cdn.tripadvisor.com/media/photo-f/10/53/64/b0/lobby--v17159725.jpg\",\"width\":250},\"original\":{\"height\":1733,\"url\":\"https://media-cdn.tripadvisor.com/media/photo-o/10/53/64/b0/lobby--v17159725.jpg\",\"width\":2600},\"small\":{\"height\":150,\"url\":\"https://media-cdn.tripadvisor.com/media/photo-l/10/53/64/b0/lobby--v17159725.jpg\",\"width\":150},\"thumbnail\":{\"height\":50,\"url\":\"https://media-cdn.tripadvisor.com/media/photo-t/10/53/64/b0/lobby--v17159725.jpg\",\"width\":50}},\"is_blessed\":false,\"published_date\":\"2017-08-18T14:48:20.294Z\",\"source\":{\"localized_name\":\"Expert\",\"name\":\"\u003credacted\u003e\"}},{\"album\":\"The Hotel\",\"caption\":\"Lobby at the Boston Harbor Hotel\",\"id\":273900714,\"images\":{\"large\":{\"height\":367,\"url\":\"https://media-cdn.tripadvisor.com/media/oyster/550/10/53/64/aa/lobby--v17159715.jpg\",\"width\":550},\"medium\":{\"height\":205,\"url\":\"https://media-cdn.tripadvisor.com/media/photo-f/10/53/64/aa/lobby--v17159715.jpg\",\"width\":250},\"original\":{\"height\":1733,\"url\":\"https://media-cdn.tripadvisor.com/media/photo-o/10/53/64/aa/lobby--v17159715.jpg\",\"width\":2600},\"small\":{\"height\":150,\"url\":\"https://media-cdn.tripadvisor.com/media/photo-l/10/53/64/aa/lobby--v17159715.jpg\",\"width\":150},\"thumbnail\":{\"height\":50,\"url\":\"https://media-cdn.tripadvisor.com/media/photo-t/10/53/64/aa/lobby--v17159715.jpg\",\"width\":50}},\"is_blessed\":false,\"published_date\":\"2017-08-18T14:48:19.551Z\",\"source\":{\"localized_name\":\"Expert\",\"name\":\"\u003credacted\u003e\"}}],\"reviews\":[{\"helpful_votes\":0,\"id\":1062818199,\"lang\":\"en\",\"location_id\":89575,\"owner_response\":{\"author\":\"Hotel Management\",\"id\":1062952751,\"lang\":\"en\",\"published_date\":\"2026-06-04T09:52:05Z\",\"text\":\"Robin, it was truly our pleasure to host your daughter's wedding at Boston Harbor Hotel at Rowes Wharf, and your kind remarks mean the world to us. Our team understands the importance of making a bride's dreams come true, and we will celebrate your praise and five-star score with them. We hope you'll plan another visit soon.\\n\\n\",\"title\":\"Owner response\"},\"published_date\":\"2026-06-03T08:24:25Z\",\"rating\":5,\"rating_image_url\":\"https://www.tripadvisor.com/img/cdsi/img2/ratings/traveler/s5.0-66827-5.svg\",\"subratings\":{\"0\":{\"localized_name\":\"Value\",\"name\":\"\u003credacted\u003e\",\"rating_image_url\":\"https://www.tripadvisor.com/img/cdsi/img2/ratings/traveler/s5.0-66827-5.svg\",\"value\":5},\"1\":{\"localized_name\":\"Rooms\",\"name\":\"\u003credacted\u003e\",\"rating_image_ur…[truncated]"
+    },
+    {
+      "command": "digest",
+      "kind": "json_fidelity",
+      "args": [
+        "digest",
+        "89575",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\"details\":{\"address\":\"\u003credacted\u003e\",\"location_id\":\"89575\",\"name\":\"\u003credacted\u003e\",\"num_reviews\":2503,\"price_level\":\"$$$$\",\"ranking\":\"#22 of 102 hotels in Boston\",\"ranking_out_of\":102,\"ranking_position\":22,\"rating\":4.7,\"subratings\":{\"Cleanliness\":4.8,\"Location\":4.8,\"Rooms\":4.7,\"Service\":4.8,\"Sleep Quality\":4.7,\"Value\":4.3},\"trip_types\":{\"business\":477,\"couples\":915,\"family\":614,\"friends\":131,\"solo\":105},\"web_url\":\"https://www.tripadvisor.com/Hotel_Review-g60745-d89575-Reviews-Boston_Harbor_Hotel-Boston_Massachusetts.html?m=66827\"},\"location_id\":\"89575\",\"photos\":[{\"album\":\"Room/Suite\",\"caption\":\"BOSTONHARBORHOTEL ROOMSHOOT\",\"id\":863365256,\"images\":{\"large\":{\"height\":367,\"url\":\"https://media-cdn.tripadvisor.com/media/photo-s/33/75/e8/88/bostonharborhotel-roomshoot.jpg\",\"width\":550},\"medium\":{\"height\":167,\"url\":\"https://media-cdn.tripadvisor.com/media/photo-f/33/75/e8/88/bostonharborhotel-roomshoot.jpg\",\"width\":250},\"original\":{\"height\":854,\"url\":\"https://media-cdn.tripadvisor.com/media/photo-m/1280/33/75/e8/88/bostonharborhotel-roomshoot.jpg\",\"width\":1280},\"small\":{\"height\":150,\"url\":\"https://media-cdn.tripadvisor.com/media/photo-l/33/75/e8/88/bostonharborhotel-roomshoot.jpg\",\"width\":150},\"thumbnail\":{\"height\":50,\"url\":\"https://media-cdn.tripadvisor.com/media/photo-t/33/75/e8/88/bostonharborhotel-roomshoot.jpg\",\"width\":50}},\"is_blessed\":false,\"published_date\":\"2026-06-05T22:35:52.072Z\",\"source\":{\"localized_name\":\"Management\",\"name\":\"\u003credacted\u003e\"}},{\"album\":\"The Hotel\",\"caption\":\"Lobby at the Boston Harbor Hotel\",\"id\":273900720,\"images\":{\"large\":{\"height\":367,\"url\":\"https://media-cdn.tripadvisor.com/media/oyster/550/10/53/64/b0/lobby--v17159725.jpg\",\"width\":550},\"medium\":{\"height\":205,\"url\":\"https://media-cdn.tripadvisor.com/media/photo-f/10/53/64/b0/lobby--v17159725.jpg\",\"width\":250},\"original\":{\"height\":1733,\"url\":\"https://media-cdn.tripadvisor.com/media/photo-o/10/53/64/b0/lobby--v17159725.jpg\",\"width\":2600},\"small\":{\"height\":150,\"url\":\"https://media-cdn.tripadvisor.com/media/photo-l/10/53/64/b0/lobby--v17159725.jpg\",\"width\":150},\"thumbnail\":{\"height\":50,\"url\":\"https://media-cdn.tripadvisor.com/media/photo-t/10/53/64/b0/lobby--v17159725.jpg\",\"width\":50}},\"is_blessed\":false,\"published_date\":\"2017-08-18T14:48:20.294Z\",\"source\":{\"localized_name\":\"Expert\",\"name\":\"\u003credacted\u003e\"}},{\"album\":\"The Hotel\",\"caption\":\"Lobby at the Boston Harbor Hotel\",\"id\":273900714,\"images\":{\"large\":{\"height\":367,\"url\":\"https://media-cdn.tripadvisor.com/media/oyster/550/10/53/64/aa/lobby--v17159715.jpg\",\"width\":550},\"medium\":{\"height\":205,\"url\":\"https://media-cdn.tripadvisor.com/media/photo-f/10/53/64/aa/lobby--v17159715.jpg\",\"width\":250},\"original\":{\"height\":1733,\"url\":\"https://media-cdn.tripadvisor.com/media/photo-o/10/53/64/aa/lobby--v17159715.jpg\",\"width\":2600},\"small\":{\"height\":150,\"url\":\"https://media-cdn.tripadvisor.com/media/photo-l/10/53/64/aa/lobby--v17159715.jpg\",\"width\":150},\"thumbnail\":{\"height\":50,\"url\":\"https://media-cdn.tripadvisor.com/media/photo-t/10/53/64/aa/lobby--v17159715.jpg\",\"width\":50}},\"is_blessed\":false,\"published_date\":\"2017-08-18T14:48:19.551Z\",\"source\":{\"localized_name\":\"Expert\",\"name\":\"\u003credacted\u003e\"}}],\"reviews\":[{\"helpful_votes\":0,\"id\":1062818199,\"lang\":\"en\",\"location_id\":89575,\"owner_response\":{\"author\":\"Hotel Management\",\"id\":1062952751,\"lang\":\"en\",\"published_date\":\"2026-06-04T09:52:05Z\",\"text\":\"Robin, it was truly our pleasure to host your daughter's wedding at Boston Harbor Hotel at Rowes Wharf, and your kind remarks mean the world to us. Our team understands the importance of making a bride's dreams come true, and we will celebrate your praise and five-star score with them. We hope you'll plan another visit soon.\\n\\n\",\"title\":\"Owner response\"},\"published_date\":\"2026-06-03T08:24:25Z\",\"rating\":5,\"rating_image_url\":\"https://www.tripadvisor.com/img/cdsi/img2/ratings/traveler/s5.0-66827-5.svg\",\"subratings\":{\"0\":{\"localized_name\":\"Value\",\"name\":\"\u003credacted\u003e\",\"rating_image_url\":\"https://www.tripadvisor.com/img/cdsi/img2/ratings/traveler/s5.0-66827-5.svg\",\"value\":5},\"1\":{\"localized_name\":\"Rooms\",\"name\":\"\u003credacted\u003e\",\"rating_image_ur…[truncated]"
+    },
+    {
+      "command": "digest",
+      "kind": "error_path",
+      "args": [
+        "digest",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 5,
+      "output_sample": "Error: GET /location/__printing_press_invalid__/details returned HTTP 400: {\n  \"error\": {\n    \"message\": \"Required parameter locationId should be a valid number to fetch location details\",\n    \"type\": \"BadRequestException\",\n    \"code\": 400\n  }\n}\n"
+    },
+    {
+      "command": "doctor",
+      "kind": "help",
+      "args": [
+        "doctor",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Check CLI health\n\nUsage:\n  tripadvisor-pp-cli doctor [flags]\n\nExamples:\n  tripadvisor-pp-cli doctor\n  tripadvisor-pp-cli doctor --json\n  tripadvisor-pp-cli doctor --fail-on warn\n\nFlags:\n      --fail-on string   Exit non-zero when a health level is reached: stale, error. Default is never.\n  -h, --help             help for doctor\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'tripadvisor-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "doctor",
+      "kind": "happy_path",
+      "args": [
+        "doctor"
+      ],
+      "status": "pass",
+      "output_sample": "  OK Config: ok\n  OK Auth: configured\n  OK Env Vars: OK 1/1 available\n  OK Verify Mode: normal operation\n  OK API: reachable (HTTP 400 at /)\n  INFO Credentials: present, not verified. Run any read command to confirm the token works end-to-end.\n  config_path: /var/folders/hc/db5_12gs091g66qj7m6b_f240000gn/T/printing-press-subprocess-756775199/.config/tripadvisor-pp-cli/config.toml\n  base_url: https://api.content.tripadvisor.com/api/v1\n  auth_source: env:TRIPADVISOR_API_KEY\n  version: 1.0.0\n  INFO Cache: unknown\n    db_path: /var/folders/hc/db5_12gs091g66qj7m6b_f240000gn/T/printing-press-subprocess-756775199/.local/share/tripadvisor-pp-cli/data.db\n    hint: Database not created yet; run 'tripadvisor-pp-cli sync' to hydrate.\n"
+    },
+    {
+      "command": "doctor",
+      "kind": "json_fidelity",
+      "args": [
+        "doctor",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"agentcookie\": \"not detected (optional)\",\n  \"api\": \"reachable (HTTP 400 at /)\",\n  \"auth\": \"configured\",\n  \"auth_source\": \"env:TRIPADVISOR_API_KEY\",\n  \"base_url\": \"https://api.content.tripadvisor.com/api/v1\",\n  \"cache\": {\n    \"db_path\": \"/var/folders/hc/db5_12gs091g66qj7m6b_f240000gn/T/printing-press-subprocess-756775199/.local/share/tripadvisor-pp-cli/data.db\",\n    \"hint\": \"Database not created yet; run 'tripadvisor-pp-cli sync' to hydrate.\",\n    \"status\": \"unknown\"\n  },\n  \"config\": \"ok\",\n  \"config_path\": \"/var/folders/hc/db5_12gs091g66qj7m6b_f240000gn/T/printing-press-subprocess-756775199/.config/tripadvisor-pp-cli/config.toml\",\n  \"credentials\": \"present, not verified. Run any read command to confirm the token works end-to-end.\",\n  \"env_vars\": \"OK 1/1 available\",\n  \"verify_mode\": \"normal operation\",\n  \"version\": \"1.0.0\"\n}\n"
+    },
+    {
+      "command": "doctor",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "drift",
+      "kind": "help",
+      "args": [
+        "drift",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Fetch a location's current rating/review-count/ranking, compare against the most recent snapshot saved locally on a previous run, and flag a meaningful drop. Each run also records a new snapshot, so drift compounds over time. The first run for a location establishes the baseline.\n\nUsage:\n  tripadvisor-pp-cli drift \u003clocationId\u003e [flags]\n\nExamples:\n  tripadvisor-pp-cli drift 93450 --threshold 0.2 --agent\n\nFlags:\n  -h, --help              help for drift\n      --language string   Language code (default \"en\")\n      --no-record         Do not save a new snapshot this run\n      --since string      Compare against the last snapshot before this RFC3339 timestamp\n      --threshold float   Flag a rating drop of at least this much (default 0.2)\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'tripadvisor-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "drift",
+      "kind": "happy_path",
+      "args": [
+        "drift",
+        "89575"
+      ],
+      "status": "pass",
+      "output_sample": "{\"current_num_reviews\":2503,\"current_ranking\":22,\"current_rating\":4.7,\"has_baseline\":false,\"location_id\":\"89575\",\"name\":\"\u003credacted\u003e\",\"note\":\"no prior snapshot; recorded a baseline. Run drift again later to detect movement.\",\"ranking_delta\":0,\"rating_delta\":0,\"rating_dropped\":false,\"reviews_delta\":0,\"threshold\":0.2}"
+    },
+    {
+      "command": "drift",
+      "kind": "json_fidelity",
+      "args": [
+        "drift",
+        "89575",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\"baseline\":{\"captured_at\":\"2026-06-06T22:38:57Z\",\"location_id\":\"89575\",\"name\":\"\u003credacted\u003e\",\"num_reviews\":2503,\"ranking\":22,\"rating\":4.7},\"current_num_reviews\":2503,\"current_ranking\":22,\"current_rating\":4.7,\"has_baseline\":true,\"location_id\":\"89575\",\"name\":\"\u003credacted\u003e\",\"ranking_delta\":0,\"rating_delta\":0,\"rating_dropped\":false,\"reviews_delta\":0,\"threshold\":0.2}"
+    },
+    {
+      "command": "drift",
+      "kind": "error_path",
+      "args": [
+        "drift",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 5,
+      "output_sample": "Error: GET /location/__printing_press_invalid__/details returned HTTP 400: {\n  \"error\": {\n    \"message\": \"Required parameter locationId should be a valid number to fetch location details\",\n    \"type\": \"BadRequestException\",\n    \"code\": 400\n  }\n}\n"
+    },
+    {
+      "command": "feedback list",
+      "kind": "help",
+      "args": [
+        "feedback",
+        "list",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "List recent feedback entries\n\nUsage:\n  tripadvisor-pp-cli feedback list [flags]\n\nExamples:\n  tripadvisor-pp-cli feedback list\n  tripadvisor-pp-cli feedback list --limit 5\n  tripadvisor-pp-cli feedback list --json\n\nFlags:\n  -h, --help        help for list\n      --limit int   Maximum number of recent entries to return (default 20)\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'tripadvisor-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "feedback list",
+      "kind": "happy_path",
+      "args": [
+        "feedback",
+        "list"
+      ],
+      "status": "pass"
+    },
+    {
+      "command": "feedback list",
+      "kind": "json_fidelity",
+      "args": [
+        "feedback",
+        "list",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "[]\n"
+    },
+    {
+      "command": "feedback list",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "find",
+      "kind": "help",
+      "args": [
+        "find",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Search locations by name. Returns location_id + name + address you can pass to show/reviews/photos.\n\nUsage:\n  tripadvisor-pp-cli find \u003csearchQuery\u003e [flags]\n\nExamples:\n  tripadvisor-pp-cli find \"Boston Harbor Hotel\" --category hotels\n\nFlags:\n      --address string       Filter by address string\n      --category string      Restrict results to a place type (one of: hotels, restaurants, attractions, geos)\n  -h, --help                 help for find\n      --language string      Language code for results (default \"en\")\n      --lat-long string      Bias results near 'lat,long' e.g. '42.3455,-71.10767'\n      --phone string         Filter by phone number\n      --radius string        Radius from lat-long (use with --radius-unit)\n      --radius-unit string   Unit for --radius (one of: km, mi, m)\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'tripadvisor-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "find",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [find] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "find",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [find] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "find",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no-error-path-probe annotation"
+    },
+    {
+      "command": "fit",
+      "kind": "help",
+      "args": [
+        "fit",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Search Tripadvisor, fetch details up to --max-scan (metered API), and rank results by the share of reviews from your declared traveler type. The fit score is that share (0-1); higher means a larger fraction of travelers like you reviewed the place.\n\nUsage:\n  tripadvisor-pp-cli fit \u003cquery\u003e [flags]\n\nExamples:\n  tripadvisor-pp-cli fit \"Orlando\" --category hotels --traveler families --top 5 --agent\n\nFlags:\n      --category string   Place type: hotels, restaurants, attractions, geos\n  -h, --help              help for fit\n      --language string   Language code (default \"en\")\n      --max-scan int      Max locations to fetch details for before ranking (metered API) (default 15)\n      --top int           Number of ranked results to return (default 5)\n      --traveler string   Traveler profile: families, couples, solo, business, friends\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'tripadvisor-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "fit",
+      "kind": "happy_path",
+      "args": [
+        "fit",
+        "Orlando",
+        "--traveler",
+        "families",
+        "--category",
+        "hotels"
+      ],
+      "status": "pass",
+      "output_sample": "{\"category\":\"hotels\",\"fetch_failures\":[],\"max_scan\":3,\"query\":\"Orlando\",\"results\":[{\"address\":\"\u003credacted\u003e\",\"fit_score\":0,\"location_id\":\"1382900\",\"name\":\"\u003credacted\u003e\",\"num_reviews\":8015,\"price_level\":\"$$$$\",\"ranking\":\"#6 of 410 hotels in Orlando\",\"ranking_out_of\":410,\"ranking_position\":6,\"rating\":4.5,\"subratings\":{\"Cleanliness\":4.7,\"Location\":4.5,\"Rooms\":4.5,\"Service\":4.5,\"Sleep Quality\":4.6,\"Value\":4.2},\"traveler_share\":0,\"trip_types\":{\"business\":2866,\"couples\":1104,\"family\":2774,\"friends\":476,\"solo\":209},\"web_url\":\"https://www.tripadvisor.com/Hotel_Review-g34515-d1382900-Reviews-Hilton_Orlando-Orlando_Florida.html?m=66827\"},{\"address\":\"\u003credacted\u003e\",\"fit_score\":0,\"location_id\":\"612781\",\"name\":\"\u003credacted\u003e\",\"num_reviews\":12140,\"price_level\":\"$$$\",\"ranking\":\"#48 of 410 hotels in Orlando\",\"ranking_out_of\":410,\"ranking_position\":48,\"rating\":4.5,\"subratings\":{\"Cleanliness\":4.4,\"Location\":4.6,\"Rooms\":4.6,\"Service\":4.5,\"Sleep Quality\":4.5,\"Value\":4.6},\"traveler_share\":0,\"trip_types\":{\"business\":344,\"couples\":652,\"family\":9106,\"friends\":833,\"solo\":68},\"web_url\":\"https://www.tripadvisor.com/Hotel_Review-g34515-d612781-Reviews-Floridays_Resort_Orlando-Orlando_Florida.html?m=66827\"},{\"address\":\"\u003credacted\u003e\",\"fit_score\":0,\"location_id\":\"112092\",\"name\":\"\u003credacted\u003e\",\"num_reviews\":12123,\"price_level\":\"$$$$\",\"ranking\":\"#47 of 410 hotels in Orlando\",\"ranking_out_of\":410,\"ranking_position\":47,\"rating\":4.4,\"subratings\":{\"Cleanliness\":4.6,\"Location\":4.7,\"Rooms\":4.5,\"Service\":4.5,\"Sleep Quality\":4.6,\"Value\":4.2},\"traveler_share\":0,\"trip_types\":{\"business\":6641,\"couples\":1198,\"family\":1764,\"friends\":360,\"solo\":229},\"web_url\":\"https://www.tripadvisor.com/Hotel_Review-g34515-d112092-Reviews-Hyatt_Regency_Orlando-Orlando_Florida.html?m=66827\"}],\"scanned_locations\":3,\"traveler\":\"families\"}"
+    },
+    {
+      "command": "fit",
+      "kind": "json_fidelity",
+      "args": [
+        "fit",
+        "Orlando",
+        "--traveler",
+        "families",
+        "--category",
+        "hotels",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\"category\":\"hotels\",\"fetch_failures\":[],\"max_scan\":3,\"query\":\"Orlando\",\"results\":[{\"address\":\"\u003credacted\u003e\",\"fit_score\":0,\"location_id\":\"1382900\",\"name\":\"\u003credacted\u003e\",\"num_reviews\":8015,\"price_level\":\"$$$$\",\"ranking\":\"#6 of 410 hotels in Orlando\",\"ranking_out_of\":410,\"ranking_position\":6,\"rating\":4.5,\"subratings\":{\"Cleanliness\":4.7,\"Location\":4.5,\"Rooms\":4.5,\"Service\":4.5,\"Sleep Quality\":4.6,\"Value\":4.2},\"traveler_share\":0,\"trip_types\":{\"business\":2866,\"couples\":1104,\"family\":2774,\"friends\":476,\"solo\":209},\"web_url\":\"https://www.tripadvisor.com/Hotel_Review-g34515-d1382900-Reviews-Hilton_Orlando-Orlando_Florida.html?m=66827\"},{\"address\":\"\u003credacted\u003e\",\"fit_score\":0,\"location_id\":\"612781\",\"name\":\"\u003credacted\u003e\",\"num_reviews\":12140,\"price_level\":\"$$$\",\"ranking\":\"#48 of 410 hotels in Orlando\",\"ranking_out_of\":410,\"ranking_position\":48,\"rating\":4.5,\"subratings\":{\"Cleanliness\":4.4,\"Location\":4.6,\"Rooms\":4.6,\"Service\":4.5,\"Sleep Quality\":4.5,\"Value\":4.6},\"traveler_share\":0,\"trip_types\":{\"business\":344,\"couples\":652,\"family\":9106,\"friends\":833,\"solo\":68},\"web_url\":\"https://www.tripadvisor.com/Hotel_Review-g34515-d612781-Reviews-Floridays_Resort_Orlando-Orlando_Florida.html?m=66827\"},{\"address\":\"\u003credacted\u003e\",\"fit_score\":0,\"location_id\":\"112092\",\"name\":\"\u003credacted\u003e\",\"num_reviews\":12123,\"price_level\":\"$$$$\",\"ranking\":\"#47 of 410 hotels in Orlando\",\"ranking_out_of\":410,\"ranking_position\":47,\"rating\":4.4,\"subratings\":{\"Cleanliness\":4.6,\"Location\":4.7,\"Rooms\":4.5,\"Service\":4.5,\"Sleep Quality\":4.6,\"Value\":4.2},\"traveler_share\":0,\"trip_types\":{\"business\":6641,\"couples\":1198,\"family\":1764,\"friends\":360,\"solo\":229},\"web_url\":\"https://www.tripadvisor.com/Hotel_Review-g34515-d112092-Reviews-Hyatt_Regency_Orlando-Orlando_Florida.html?m=66827\"}],\"scanned_locations\":3,\"traveler\":\"families\"}"
+    },
+    {
+      "command": "fit",
+      "kind": "error_path",
+      "args": [
+        "fit",
+        "__printing_press_invalid__",
+        "--json"
+      ],
+      "status": "pass",
+      "exit_code": 2,
+      "output_sample": "Usage:\n  tripadvisor-pp-cli fit \u003cquery\u003e [flags]\n\nExamples:\n  tripadvisor-pp-cli fit \"Orlando\" --category hotels --traveler families --top 5 --agent\n\nFlags:\n      --category string   Place type: hotels, restaurants, attractions, geos\n  -h, --help              help for fit\n      --language string   Language code (default \"en\")\n      --max-scan int      Max locations to fetch details for before ranking (metered API) (default 15)\n      --top int           Number of ranked results to return (default 5)\n      --traveler string   Traveler profile: families, couples, solo, business, friends\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'tripadvisor-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\nError: --traveler must be one of families, couples, solo, business, friends\n"
+    },
+    {
+      "command": "import",
+      "kind": "help",
+      "args": [
+        "import",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Import data from a JSONL file by issuing POST requests for each record.\nEach line must be a valid JSON object. Failed records are logged to stderr\nbut do not stop the import.\n\nUsage:\n  tripadvisor-pp-cli import \u003cresource\u003e [flags]\n\nExamples:\n  # Import from a JSONL file\n  tripadvisor-pp-cli import \u003cresource\u003e --input data.jsonl\n\n  # Dry-run to preview without sending\n  tripadvisor-pp-cli import \u003cresource\u003e --input data.jsonl --dry-run\n\n  # Import from stdin\n  cat data.jsonl | tripadvisor-pp-cli import \u003cresource\u003e --input -\n\nFlags:\n      --batch-size int   Records per batch (future: batch API support) (default 1)\n      --dry-run          Preview import without sending requests\n  -h, --help             help for import\n  -i, --input string     Input JSONL file path (use - for stdin)\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'tripadvisor-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "import",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [import] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "import",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [import] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "import",
+      "kind": "error_path",
+      "args": [
+        "import",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 2,
+      "output_sample": "Error: required flag(s) \"input\" not set\n"
+    },
+    {
+      "command": "near",
+      "kind": "help",
+      "args": [
+        "near",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Find locations near 'lat,long'. Returns location_id + name + address.\n\nUsage:\n  tripadvisor-pp-cli near \u003clatLong\u003e [flags]\n\nExamples:\n  tripadvisor-pp-cli near example-value\n\nFlags:\n      --address string       Filter by address string\n      --category string      Restrict results to a place type (one of: hotels, restaurants, attractions, geos)\n  -h, --help                 help for near\n      --language string      Language code for results (default \"en\")\n      --phone string         Filter by phone number\n      --radius string        Radius from the center point (use with --radius-unit)\n      --radius-unit string   Unit for --radius (one of: km, mi, m)\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'tripadvisor-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "near",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [near] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "near",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [near] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "near",
+      "kind": "error_path",
+      "args": [
+        "near",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 5,
+      "output_sample": "Error: GET /location/nearby_search returned HTTP 400: {\n  \"error\": {\n    \"message\": \"This resource requires the presence of a longitude parameter.\",\n    \"type\": \"BadRequestException\",\n    \"code\": \"110\"\n  }\n}\n"
+    },
+    {
+      "command": "nearby-best",
+      "kind": "help",
+      "args": [
+        "nearby-best",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "From a lat/long point, find nearby locations, fetch their details up to --max-scan (the API is metered), drop anything below --min-rating, and return the top --top sorted by --sort.\n\nUsage:\n  tripadvisor-pp-cli nearby-best \u003clat,long\u003e [flags]\n\nExamples:\n  tripadvisor-pp-cli nearby-best \"48.8606,2.3376\" --category restaurants --min-rating 4.0 --top 5 --agent\n\nFlags:\n      --category string      Place type: hotels, restaurants, attractions, geos\n  -h, --help                 help for nearby-best\n      --language string      Language code (default \"en\")\n      --max-scan int         Max nearby locations to fetch details for (metered API) (default 20)\n      --min-rating float     Drop locations rated below this (1-5)\n      --radius string        Search radius from the point (use with --radius-unit)\n      --radius-unit string   Unit for --radius: km, mi, m\n      --sort string          Rank by: ranking, rating, reviews (default \"ranking\")\n      --top int              Number of ranked results to return (default 5)\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'tripadvisor-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "nearby-best",
+      "kind": "happy_path",
+      "args": [
+        "nearby-best",
+        "42.35,-71.05",
+        "--category",
+        "restaurants"
+      ],
+      "status": "pass",
+      "output_sample": "{\"category\":\"restaurants\",\"fetch_failures\":[],\"lat_long\":\"42.35,-71.05\",\"max_scan\":3,\"min_rating\":0,\"results\":[{\"address\":\"\u003credacted\u003e\",\"location_id\":\"12620185\",\"name\":\"\u003credacted\u003e\",\"num_reviews\":20,\"price_level\":\"$\",\"ranking\":\"#748 of 3,077 Places to Eat in Boston\",\"ranking_out_of\":3077,\"ranking_position\":748,\"rating\":4,\"subratings\":{\"Food\":4.1,\"Service\":4.3,\"Value\":4},\"trip_types\":{\"business\":0,\"couples\":4,\"family\":7,\"friends\":1,\"solo\":3},\"web_url\":\"https://www.tripadvisor.com/Restaurant_Review-g60745-d12620185-Reviews-Bon_Me_Fort_Point-Boston_Massachusetts.html?m=66827\"},{\"address\":\"\u003credacted\u003e\",\"location_id\":\"4134779\",\"name\":\"\u003credacted\u003e\",\"num_reviews\":11,\"price_level\":\"$\",\"ranking\":\"#1,355 of 3,077 Places to Eat in Boston\",\"ranking_out_of\":3077,\"ranking_position\":1355,\"rating\":3.8,\"subratings\":{\"Atmosphere\":3,\"Food\":3.8,\"Service\":4.3,\"Value\":4.5},\"trip_types\":{\"business\":1,\"couples\":2,\"family\":6,\"friends\":0,\"solo\":1},\"web_url\":\"https://www.tripadvisor.com/Restaurant_Review-g60745-d4134779-Reviews-Dunkin_Donuts-Boston_Massachusetts.html?m=66827\"},{\"address\":\"\u003credacted\u003e\",\"location_id\":\"321764\",\"name\":\"\u003credacted\u003e\",\"num_reviews\":3,\"ranking\":\"#1,855 of 3,077 Places to Eat in Boston\",\"ranking_out_of\":3077,\"ranking_position\":1855,\"rating\":3,\"subratings\":{\"Atmosphere\":2.5,\"Food\":4,\"Service\":4.5,\"Value\":3.5},\"trip_types\":{\"business\":1,\"couples\":0,\"family\":0,\"friends\":1,\"solo\":0},\"web_url\":\"https://www.tripadvisor.com/Restaurant_Review-g60745-d321764-Reviews-Marco_Polo_Incorporated-Boston_Massachusetts.html?m=66827\"}],\"scanned_locations\":3,\"sort\":\"ranking\"}"
+    },
+    {
+      "command": "nearby-best",
+      "kind": "json_fidelity",
+      "args": [
+        "nearby-best",
+        "42.35,-71.05",
+        "--category",
+        "restaurants",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\"category\":\"restaurants\",\"fetch_failures\":[],\"lat_long\":\"42.35,-71.05\",\"max_scan\":3,\"min_rating\":0,\"results\":[{\"address\":\"\u003credacted\u003e\",\"location_id\":\"12620185\",\"name\":\"\u003credacted\u003e\",\"num_reviews\":20,\"price_level\":\"$\",\"ranking\":\"#748 of 3,077 Places to Eat in Boston\",\"ranking_out_of\":3077,\"ranking_position\":748,\"rating\":4,\"subratings\":{\"Food\":4.1,\"Service\":4.3,\"Value\":4},\"trip_types\":{\"business\":0,\"couples\":4,\"family\":7,\"friends\":1,\"solo\":3},\"web_url\":\"https://www.tripadvisor.com/Restaurant_Review-g60745-d12620185-Reviews-Bon_Me_Fort_Point-Boston_Massachusetts.html?m=66827\"},{\"address\":\"\u003credacted\u003e\",\"location_id\":\"4134779\",\"name\":\"\u003credacted\u003e\",\"num_reviews\":11,\"price_level\":\"$\",\"ranking\":\"#1,355 of 3,077 Places to Eat in Boston\",\"ranking_out_of\":3077,\"ranking_position\":1355,\"rating\":3.8,\"subratings\":{\"Atmosphere\":3,\"Food\":3.8,\"Service\":4.3,\"Value\":4.5},\"trip_types\":{\"business\":1,\"couples\":2,\"family\":6,\"friends\":0,\"solo\":1},\"web_url\":\"https://www.tripadvisor.com/Restaurant_Review-g60745-d4134779-Reviews-Dunkin_Donuts-Boston_Massachusetts.html?m=66827\"},{\"address\":\"\u003credacted\u003e\",\"location_id\":\"321764\",\"name\":\"\u003credacted\u003e\",\"num_reviews\":3,\"ranking\":\"#1,855 of 3,077 Places to Eat in Boston\",\"ranking_out_of\":3077,\"ranking_position\":1855,\"rating\":3,\"subratings\":{\"Atmosphere\":2.5,\"Food\":4,\"Service\":4.5,\"Value\":3.5},\"trip_types\":{\"business\":1,\"couples\":0,\"family\":0,\"friends\":1,\"solo\":0},\"web_url\":\"https://www.tripadvisor.com/Restaurant_Review-g60745-d321764-Reviews-Marco_Polo_Incorporated-Boston_Massachusetts.html?m=66827\"}],\"scanned_locations\":3,\"sort\":\"ranking\"}"
+    },
+    {
+      "command": "nearby-best",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "photos",
+      "kind": "help",
+      "args": [
+        "photos",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Photos for a location_id with thumbnail/medium/large/original URLs. Content API caps at 5.\n\nUsage:\n  tripadvisor-pp-cli photos \u003clocationId\u003e [flags]\n\nExamples:\n  tripadvisor-pp-cli photos 550e8400-e29b-41d4-a716-446655440000\n\nFlags:\n  -h, --help              help for photos\n      --language string   Language code (default \"en\")\n      --limit int         Max photos to return (Content API hard-caps at 5) (default 5)\n      --offset string     Index of first photo for pagination\n      --source string     Comma-separated source filter: Expert, Management, Traveler\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'tripadvisor-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "photos",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [photos] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "photos",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [photos] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "photos",
+      "kind": "error_path",
+      "args": [
+        "photos",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 5,
+      "output_sample": "Error: GET /location/__printing_press_invalid__/photos returned HTTP 400: {\n  \"error\": {\n    \"message\": \"Required parameter locationId should be a valid number to fetch location photos\",\n    \"type\": \"BadRequestException\",\n    \"code\": 400\n  }\n}\n"
+    },
+    {
+      "command": "profile delete",
+      "kind": "help",
+      "args": [
+        "profile",
+        "delete",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Remove a profile\n\nUsage:\n  tripadvisor-pp-cli profile delete \u003cname\u003e [flags]\n\nExamples:\n  tripadvisor-pp-cli profile delete my-defaults --yes\n  tripadvisor-pp-cli profile delete old-profile --yes --json\n\nFlags:\n  -h, --help   help for delete\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'tripadvisor-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "profile delete",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile delete",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile delete",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "mutating command; error_path would call live API without --dry-run"
+    },
+    {
+      "command": "profile delete",
+      "kind": "error_path_real",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile list",
+      "kind": "help",
+      "args": [
+        "profile",
+        "list",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "List saved profiles\n\nUsage:\n  tripadvisor-pp-cli profile list [flags]\n\nExamples:\n  tripadvisor-pp-cli profile list\n  tripadvisor-pp-cli profile list --json\n\nFlags:\n  -h, --help   help for list\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'tripadvisor-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "profile list",
+      "kind": "happy_path",
+      "args": [
+        "profile",
+        "list"
+      ],
+      "status": "pass",
+      "output_sample": "NAME  FIELDS  DESCRIPTION\n"
+    },
+    {
+      "command": "profile list",
+      "kind": "json_fidelity",
+      "args": [
+        "profile",
+        "list",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "[]\n"
+    },
+    {
+      "command": "profile list",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "profile save",
+      "kind": "help",
+      "args": [
+        "profile",
+        "save",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Captures every flag explicitly set on the invocation and stores\nthem under \u003cname\u003e. To update an existing profile, run save again; the\nentry is replaced.\n\nTo avoid creating empty profiles, at least one non-default flag must be\npresent (other than --profile and --config).\n\nUsage:\n  tripadvisor-pp-cli profile save \u003cname\u003e [--\u003cflag\u003e \u003cvalue\u003e ...] [flags]\n\nExamples:\n  tripadvisor-pp-cli profile save my-defaults --json --compact\n  tripadvisor-pp-cli profile save tonight-defaults --region US\n\nFlags:\n      --description string   Short description shown in 'profile list'\n  -h, --help                 help for save\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'tripadvisor-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "profile save",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile save",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile save",
+      "kind": "error_path",
+      "args": [
+        "profile",
+        "save",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "Error: no non-default flags set - pass at least one flag to save into \"__printing_press_invalid__\"\n"
+    },
+    {
+      "command": "profile show",
+      "kind": "help",
+      "args": [
+        "profile",
+        "show",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Show a profile's values as JSON\n\nUsage:\n  tripadvisor-pp-cli profile show \u003cname\u003e [flags]\n\nExamples:\n  tripadvisor-pp-cli profile show my-defaults\n  tripadvisor-pp-cli profile show tonight-defaults --json\n\nFlags:\n  -h, --help   help for show\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'tripadvisor-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "profile show",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile show",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile show",
+      "kind": "error_path",
+      "args": [
+        "profile",
+        "show",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "Error: profile \"__printing_press_invalid__\" not found\n"
+    },
+    {
+      "command": "profile use",
+      "kind": "help",
+      "args": [
+        "profile",
+        "use",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Print the flag values a profile will apply (does not execute anything)\n\nUsage:\n  tripadvisor-pp-cli profile use \u003cname\u003e [flags]\n\nExamples:\n  tripadvisor-pp-cli profile use my-defaults\n  tripadvisor-pp-cli profile use tonight-defaults --json\n\nFlags:\n  -h, --help   help for use\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'tripadvisor-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "profile use",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile use",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile use",
+      "kind": "error_path",
+      "args": [
+        "profile",
+        "use",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "Error: profile \"__printing_press_invalid__\" not found\n"
+    },
+    {
+      "command": "reviews",
+      "kind": "help",
+      "args": [
+        "reviews",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Recent reviews for a location_id.\n\nUsage:\n  tripadvisor-pp-cli reviews \u003clocationId\u003e [flags]\n\nExamples:\n  tripadvisor-pp-cli reviews 550e8400-e29b-41d4-a716-446655440000\n\nFlags:\n  -h, --help              help for reviews\n      --language string   Language code (default \"en\")\n      --limit int         Max reviews to return (Content API hard-caps at 5) (default 5)\n      --offset string     Index of first review for pagination\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'tripadvisor-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "reviews",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [reviews] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "reviews",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [reviews] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "reviews",
+      "kind": "error_path",
+      "args": [
+        "reviews",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 5,
+      "output_sample": "Error: GET /location/__printing_press_invalid__/reviews returned HTTP 400: {\n  \"error\": {\n    \"message\": \"Required parameter locationId should be a valid number to fetch location reviews\",\n    \"type\": \"BadRequestException\",\n    \"code\": 400\n  }\n}\n"
+    },
+    {
+      "command": "search",
+      "kind": "help",
+      "args": [
+        "search",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Search data using FTS5 full-text search on locally synced data,\nor hit the API's search endpoint when available.\n\nIn auto mode (default): uses the API search endpoint if the API has one,\notherwise searches local data. Falls back to local on network failure.\nIn live mode: uses the API search endpoint only.\nIn local mode: searches locally synced data only.\n\nUsage:\n  tripadvisor-pp-cli search \u003cquery\u003e [flags]\n\nExamples:\n  # Search (uses API endpoint if available, local FTS otherwise)\n  tripadvisor-pp-cli search \"error timeout\"\n\n  # Force local search only\n  tripadvisor-pp-cli search \"payment failed\" --data-source local\n\n  # Search a specific resource type locally\n  tripadvisor-pp-cli search \"critical\" --type transactions --data-source local\n\n  # JSON output for piping\n  tripadvisor-pp-cli search \"critical\" --json --limit 20\n\nFlags:\n      --db string     Database path (default: ~/.local/share/tripadvisor-pp-cli/data.db)\n  -h, --help          help for search\n      --limit int     Maximum results to return (default 50)\n      --type string   Filter by resource type\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'tripadvisor-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "search",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [search] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "search",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [search] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "search",
+      "kind": "error_path",
+      "args": [
+        "search",
+        "__printing_press_invalid__",
+        "--json"
+      ],
+      "status": "pass",
+      "exit_code": 5,
+      "output_sample": "Error: GET /location/search returned HTTP 400: {\n  \"error\": {\n    \"message\": \"Required parameter searchQuery was null or undefined when trying to search for locations.\",\n    \"type\": \"BadRequestException\",\n    \"code\": 400\n  }\n}\n"
+    },
+    {
+      "command": "show",
+      "kind": "help",
+      "args": [
+        "show",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Full details for one location_id. Leads with rating, num_reviews, and ranking so agents can compare options.\n\nUsage:\n  tripadvisor-pp-cli show \u003clocationId\u003e [flags]\n\nExamples:\n  tripadvisor-pp-cli show 89575\n\nFlags:\n      --currency string   ISO 4217 currency for price fields (default \"USD\")\n  -h, --help              help for show\n      --language string   Language code (default \"en\")\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'tripadvisor-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "show",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [show] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "show",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [show] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "show",
+      "kind": "error_path",
+      "args": [
+        "show",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 5,
+      "output_sample": "Error: GET /location/__printing_press_invalid__/details returned HTTP 400: {\n  \"error\": {\n    \"message\": \"Required parameter locationId should be a valid number to fetch location details\",\n    \"type\": \"BadRequestException\",\n    \"code\": 400\n  }\n}\n"
+    },
+    {
+      "command": "sync",
+      "kind": "help",
+      "args": [
+        "sync",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Sync data from the API into a local SQLite database. Supports resumable\nincremental sync (only fetches new data since last sync) and full resync.\nOnce synced, use the 'search' command for instant full-text search.\n\nExit codes \u0026 warnings:\n  Resources the API denies access to (HTTP 403, or HTTP 400 with an\n  access-policy body) are reported as warnings rather than failing the\n  run. In --json mode each is emitted as a {\"event\":\"sync_warning\",...}\n  line carrying status, reason, and message fields, and a final\n  {\"event\":\"sync_summary\",...} aggregates the run.\n\n  Exit 0 when at least one resource synced and no resource flagged in\n  the spec as critical (x-critical: true) failed; non-critical failures\n  emit {\"event\":\"sync_warning\",\"reason\":\"exit_policy_default_changed\",\n  ...} so callers can detect that a partial failure was tolerated. Pass\n  --strict to exit non-zero on any per-resource failure. Exit is always\n  non-zero when every selected resource failed, regardless of --strict.\n\nResource scoping:\n  --resources runs the named top-level resources, plus any parent-keyed\n  dependent whose own name is listed OR whose parent table is listed.\n  Naming a parent therefore cascades to its dependents (so \"sync this\n  parent and its children\" works without listing every nested resource\n  by hand). There is no flag today to suppress the cascade for a named\n  parent. To run a dependent without re-syncing its parent, list only\n  the dependent by name; the parent table must already be populated\n  from a prior sync.\n\nUsage:\n  tripadvisor-pp-cli sync [flags]\n\nExamples:\n  # Sync all resources\n  tripadvisor-pp-cli sync\n\n  # Sync specific resources only\n  tripadvisor-pp-cli sync --resources channels,messages\n\n  # Full resync (ignore previous checkpoint)\n  tripadvisor-pp-cli sync --full\n\n  # Incremental sync: only records from the last 7 days\n  tripadvisor-pp-cli sync --since 7d\n\n  # Parallel sync with 8 workers\n  tripadvisor-pp-cli sync --concurrency 8\n\n  # Latest-only: refresh head of each resource, no historical backfill\n  tripadvisor-pp-cli sync --latest-only\n\nFlags:\n      --concurrency int              Number of parallel sync workers (default 4)\n      --db string                    Database path (default: ~/.local/share/tripadvisor-pp-cli/data.db)\n      --full                         Full resync (ignore previous checkpoint)\n      --global-param stringArray     Extra query param to inject into every sync request including dependent path-scoped calls (repeatable, key=value). Use when an API requires a scope on every call regardless of path nesting.\n  -h, --help                         help for sync\n      --latest-only                  Refresh head of each resource only; clears resume cursor and caps pages at 1. Mutually exclusive with --since (--since wins).\n      --max-pages int                Maximum pages to fetch per resource (0 = unlimited; cap-hit emits a sync_warning event)\n      --param stringArray            Extra query param to inject into flat-list sync requests (repeatable, key=value). Skipped on path-scoped dependent requests so a top-level scope like workspace=\u003cid\u003e does not double up on /parents/\u003cid\u003e/children calls. Use --global-param to inject everywhere. Avoid pagination keys (limit/since/cursor) — overriding them corrupts resume state.\n      --resource-param stringArray   Per-resource extra query param (repeatable, resource:key=value). Wins over --param and --global-param when keys conflict.\n      --resources strings            Comma-separated resource types to sync. Naming a parent also runs its parent-keyed dependents (see Long help for scoping).\n      --since string                 Incremental sync duration (e.g. 7d, 24h, 1w, 30m)\n      --strict                       Exit non-zero on any per-resource failure (default: only critical failures or all-resource failure exit non-zero).\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --con…[truncated]"
+    },
+    {
+      "command": "sync",
+      "kind": "happy_path",
+      "args": [
+        "sync"
+      ],
+      "status": "skip",
+      "exit_code": 1,
+      "reason": "blocked-fixture: required API parameter",
+      "output_sample": "{\"event\":\"sync_start\",\"resource\":\"find\"}\n{\"event\":\"sync_start\",\"resource\":\"near\"}\n{\"event\":\"sync_error\",\"resource\":\"near\",\"status\":400,\"method\":\"GET\",\"path\":\"/location/nearby_search\",\"body\":\"{\\n  \\\"error\\\": {\\n    \\\"message\\\": \\\"Required parameter latLong was null or undefined when trying to search for nearby locations.\\\",\\n    \\\"type\\\": \\\"BadRequestException\\\",\\n    \\\"code\\\": 400\\n  }\\n}\",\"error\":\"GET /location/nearby_search returned HTTP 400: {\\n  \\\"error\\\": {\\n    \\\"message\\\": \\\"Required parameter latLong was null or undefined when trying to search for nearby locations.\\\",\\n    \\\"type\\\": \\\"BadRequestException\\\",\\n    \\\"code\\\": 400\\n  }\\n}\"}\n{\"event\":\"sync_error\",\"resource\":\"find\",\"status\":400,\"method\":\"GET\",\"path\":\"/location/search\",\"body\":\"{\\n  \\\"error\\\": {\\n    \\\"message\\\": \\\"Required parameter searchQuery was null or undefined when trying to search for locations.\\\",\\n    \\\"type\\\": \\\"BadRequestException\\\",\\n    \\\"code\\\": 400\\n  }\\n}\",\"error\":\"GET /location/search returned HTTP 400: {\\n  \\\"error\\\": {\\n    \\\"message\\\": \\\"Required parameter searchQuery was null or undefined when trying to search for locations.\\\",\\n    \\\"type\\\": \\\"BadRequestException\\\",\\n    \\\"code\\\": 400\\n  }\\n}\"}\n{\"event\":\"sync_summary\",\"total_records\":0,\"resources\":2,\"success\":0,\"warned\":0,\"errored\":2,\"duration_ms\":256}\nError: 2 resource(s) failed to sync\n"
+    },
+    {
+      "command": "sync",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "blocked-fixture: required API parameter"
+    },
+    {
+      "command": "sync",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "which",
+      "kind": "help",
+      "args": [
+        "which",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "which resolves a natural-language capability query (for example, \"search messages\" or \"stale tickets\") to the best matching command from this CLI's curated feature index.\n\nExit codes:\n  0  at least one match found\n  2  no confident match - the query did not score against any indexed capability; fall back to '--help' or 'search' if this CLI has one\n\nUsage:\n  tripadvisor-pp-cli which [query] [flags]\n\nExamples:\n  tripadvisor-pp-cli which \"stale tickets\"\n  tripadvisor-pp-cli which \"bottleneck\"\n  tripadvisor-pp-cli which --limit 1 \"send message\"\n  tripadvisor-pp-cli which                                # list the full capability index\n\nFlags:\n  -h, --help        help for which\n      --limit int   Maximum number of matches to return (default 3)\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'tripadvisor-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "which",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [which] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "which",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [which] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "which",
+      "kind": "error_path",
+      "args": [
+        "which",
+        "__printing_press_invalid__",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"matches\": []\n}\n"
+    },
+    {
+      "command": "workflow archive",
+      "kind": "help",
+      "args": [
+        "workflow",
+        "archive",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Archive fetches all syncable resources from the API and stores them in a\nlocal SQLite database. Supports incremental sync (only new data since last run)\nand full resync. After archiving, use 'search' for instant full-text search.\n\nUsage:\n  tripadvisor-pp-cli workflow archive [flags]\n\nExamples:\n  # Archive all resources\n  tripadvisor-pp-cli workflow archive\n\n  # Full re-archive (ignore previous sync state)\n  tripadvisor-pp-cli workflow archive --full\n\nFlags:\n      --db string   Database path (default: ~/.local/share/tripadvisor-pp-cli/data.db)\n      --full        Full re-archive (ignore previous sync state)\n  -h, --help        help for archive\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'tripadvisor-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "workflow archive",
+      "kind": "happy_path",
+      "args": [
+        "workflow",
+        "archive"
+      ],
+      "status": "pass",
+      "output_sample": "{\"event\":\"sync_start\",\"resource\":\"find\"}\n{\"event\":\"sync_error\",\"resource\":\"find\",\"status\":400,\"method\":\"GET\",\"path\":\"/location/search\",\"body\":\"{\\n  \\\"error\\\": {\\n    \\\"message\\\": \\\"Required parameter searchQuery was null or undefined when trying to search for locations.\\\",\\n    \\\"type\\\": \\\"BadRequestException\\\",\\n    \\\"code\\\": 400\\n  }\\n}\",\"error\":\"GET /location/search returned HTTP 400: {\\n  \\\"error\\\": {\\n    \\\"message\\\": \\\"Required parameter searchQuery was null or undefined when trying to search for locations.\\\",\\n    \\\"type\\\": \\\"BadRequestException\\\",\\n    \\\"code\\\": 400\\n  }\\n}\"}\n{\"event\":\"sync_start\",\"resource\":\"near\"}\n{\"event\":\"sync_error\",\"resource\":\"near\",\"status\":400,\"method\":\"GET\",\"path\":\"/location/nearby_search\",\"body\":\"{\\n  \\\"error\\\": {\\n    \\\"message\\\": \\\"Required parameter latLong was null or undefined when trying to search for nearby locations.\\\",\\n    \\\"type\\\": \\\"BadRequestException\\\",\\n    \\\"code\\\": 400\\n  }\\n}\",\"error\":\"GET /location/nearby_search returned HTTP 400: {\\n  \\\"error\\\": {\\n    \\\"message\\\": \\\"Required parameter latLong was null or undefined when trying to search for nearby locations.\\\",\\n    \\\"type\\\": \\\"BadRequestException\\\",\\n    \\\"code\\\": 400\\n  }\\n}\"}\nArchived 0 items across 2 resources to /var/folders/hc/db5_12gs091g66qj7m6b_f240000gn/T/printing-press-subprocess-756775199/.local/share/tripadvisor-pp-cli/data.db\n  find: error: fetching find: GET /location/search returned HTTP 400: {\n  \"error\": {\n    \"message\": \"Required parameter searchQuery was null or undefined when trying to search for locations.\",\n    \"type\": \"BadRequestException\",\n    \"code\": 400\n  }\n}\n  near: error: fetching near: GET /location/nearby_search returned HTTP 400: {\n  \"error\": {\n    \"message\": \"Required parameter latLong was null or undefined when trying to search for nearby locations.\",\n    \"type\": \"BadRequestException\",\n    \"code\": 400\n  }\n}\n"
+    },
+    {
+      "command": "workflow archive",
+      "kind": "json_fidelity",
+      "args": [
+        "workflow",
+        "archive",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"resources_synced\": 2,\n  \"store_path\": \"/var/folders/hc/db5_12gs091g66qj7m6b_f240000gn/T/printing-press-subprocess-756775199/.local/share/tripadvisor-pp-cli/data.db\",\n  \"timestamp\": \"2026-06-06T22:39:02Z\",\n  \"total_items\": 0\n}\n{\"event\":\"sync_start\",\"resource\":\"find\"}\n{\"event\":\"sync_error\",\"resource\":\"find\",\"status\":400,\"method\":\"GET\",\"path\":\"/location/search\",\"body\":\"{\\n  \\\"error\\\": {\\n    \\\"message\\\": \\\"Required parameter searchQuery was null or undefined when trying to search for locations.\\\",\\n    \\\"type\\\": \\\"BadRequestException\\\",\\n    \\\"code\\\": 400\\n  }\\n}\",\"error\":\"GET /location/search returned HTTP 400: {\\n  \\\"error\\\": {\\n    \\\"message\\\": \\\"Required parameter searchQuery was null or undefined when trying to search for locations.\\\",\\n    \\\"type\\\": \\\"BadRequestException\\\",\\n    \\\"code\\\": 400\\n  }\\n}\"}\n  find: error: fetching find: GET /location/search returned HTTP 400: {\n  \"error\": {\n    \"message\": \"Required parameter searchQuery was null or undefined when trying to search for locations.\",\n    \"type\": \"BadRequestException\",\n    \"code\": 400\n  }\n}\n{\"event\":\"sync_start\",\"resource\":\"near\"}\n{\"event\":\"sync_error\",\"resource\":\"near\",\"status\":400,\"method\":\"GET\",\"path\":\"/location/nearby_search\",\"body\":\"{\\n  \\\"error\\\": {\\n    \\\"message\\\": \\\"Required parameter latLong was null or undefined when trying to search for nearby locations.\\\",\\n    \\\"type\\\": \\\"BadRequestException\\\",\\n    \\\"code\\\": 400\\n  }\\n}\",\"error\":\"GET /location/nearby_search returned HTTP 400: {\\n  \\\"error\\\": {\\n    \\\"message\\\": \\\"Required parameter latLong was null or undefined when trying to search for nearby locations.\\\",\\n    \\\"type\\\": \\\"BadRequestException\\\",\\n    \\\"code\\\": 400\\n  }\\n}\"}\n  near: error: fetching near: GET /location/nearby_search returned HTTP 400: {\n  \"error\": {\n    \"message\": \"Required parameter latLong was null or undefined when trying to search for nearby locations.\",\n    \"type\": \"BadRequestException\",\n    \"code\": 400\n  }\n}\n"
+    },
+    {
+      "command": "workflow archive",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "workflow status",
+      "kind": "help",
+      "args": [
+        "workflow",
+        "status",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Show local archive status and sync state for all resources\n\nUsage:\n  tripadvisor-pp-cli workflow status [flags]\n\nExamples:\n  # Show archive status\n  tripadvisor-pp-cli workflow status\n\n  # Show status as JSON\n  tripadvisor-pp-cli workflow status --json\n\nFlags:\n      --db string   Database path\n  -h, --help        help for status\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --max-age duration     Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'tripadvisor-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 1m0s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "workflow status",
+      "kind": "happy_path",
+      "args": [
+        "workflow",
+        "status"
+      ],
+      "status": "pass",
+      "output_sample": "No archived data. Run 'workflow archive' to sync.\n"
+    },
+    {
+      "command": "workflow status",
+      "kind": "json_fidelity",
+      "args": [
+        "workflow",
+        "status",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{}\n"
+    },
+    {
+      "command": "workflow status",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    }
+  ],
+  "ran_at": "2026-06-06T22:38:53.590748Z"
+}

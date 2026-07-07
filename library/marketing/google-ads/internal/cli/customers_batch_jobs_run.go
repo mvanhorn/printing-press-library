@@ -18,7 +18,7 @@ func newCustomersBatchJobsRunCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:         "run <resourceName>",
 		Short:       "Runs the batch job. The Operation.metadata field type is BatchJobMetadata. When finished, the long running operation...",
-		Example:     "  google-ads-pp-cli customers_batch_jobs run example-resource",
+		Example:     "  google-ads-pp-cli customers-batch-jobs run example-resource",
 		Annotations: map[string]string{"pp:endpoint": "customers_batch_jobs.run", "pp:method": "POST", "pp:path": "/v22/{resourceName}:run"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

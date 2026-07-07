@@ -1,0 +1,23 @@
+{
+  "schema_version": 2,
+  "id": "fix-videoarg-commands-parse-urls",
+  "applied_at": "2026-05-15",
+  "base_run_id": "20260515-050804",
+  "base_printing_press_version": "4.2.2",
+  "summary": "Route videos-transcript, videos-comments, videos-related, and videos-embed through parseVideoID (with the shared 'could not extract a video ID from %q' usage error) instead of forwarding the raw positional arg, and teach parseVideoID to handle scheme-less YouTube URLs (youtu.be/<id>, www.youtube.com/watch?v=<id>, etc.).",
+  "reason": "Library issue #875: these four commands set videoID := args[0] and passed the raw string straight to InnerTube/the Data API, so every YouTube URL form failed with 'video unavailable' and only a bare 11-char ID worked — even though videos-enrich and videos-links already parsed URLs via parseVideoID. parseVideoID itself gated its URL branch on the presence of '://', so scheme-less copy-paste shapes (youtu.be/<id>, www.youtube.com/watch?v=<id>) fell through to the bare-ID regex and were dropped. The fix normalizes a known YouTube host prefix without a scheme to an absolute URL before parsing (a bare ID never contains '/' or '?', so valid IDs are never rewritten) and aligns all four commands with the established videos-enrich/videos-links pattern, returning a clear exit-2 usage error for unparseable input.",
+  "files": [
+    "internal/cli/videos_links.go",
+    "internal/cli/videos_transcript.go",
+    "internal/cli/videos_comments.go",
+    "internal/cli/videos_related.go",
+    "internal/cli/videos_embed.go",
+    "internal/cli/playlist_enrich_test.go"
+  ],
+  "validated_outcome": "go build ./..., go vet ./..., go test ./..., and gofmt clean on the youtube module. TestParseVideoID extended with 8 scheme-less cases (youtu.be/<id>, youtu.be/<id>?si=..., www.youtube.com/watch?v=<id>, youtube.com/watch?v=<id>, www.youtube.com/embed/<id>, watch?v=<id>&t=..., m.youtube.com/watch?v=<id>, plus the scheme-full m.youtube.com variant) — all 24 cases pass. Built binary verified: scheme-full and scheme-less watch/youtu.be/embed URLs across all four commands now extract the ID (exit 0); too-short tokens and channel/playlist/user URLs return 'could not extract a video ID from %q' with exit 2. Greptile P2 follow-up (PR #914): added m.youtube.com test coverage and updated the Use field to '<videoId|url>' plus a URL Example on all four commands so --help advertises URL input.",
+  "findings_addressed": [
+    "F1",
+    "F2",
+    "F3"
+  ]
+}

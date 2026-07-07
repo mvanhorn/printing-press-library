@@ -1,0 +1,4 @@
+{
+  "status": "pass",
+  "notes": "Publish-grade rebuild validated with go test/build, verify-skill, lint, and redacted local smoke checks. Private live GA4 output is intentionally not committed."
+}

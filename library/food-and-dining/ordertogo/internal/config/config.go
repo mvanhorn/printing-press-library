@@ -30,6 +30,12 @@ type Config struct {
 	DefaultLocationCode string            `toml:"default_location_code"`
 	DefaultMax          float64           `toml:"default_max"`
 	DefaultTipPct       float64           `toml:"default_tip_pct"`
+	StripeCustomerID    string            `toml:"stripe_customer_id"`
+	StripeDefaultCard   string            `toml:"stripe_default_card"`
+	CustomerFirstName   string            `toml:"customer_firstname"`
+	CustomerLastName    string            `toml:"customer_lastname"`
+	CustomerPhone       string            `toml:"customer_phone"`
+	MeshUserID          int               `toml:"mesh_user_id"`
 	Path                string            `toml:"-"`
 }
 
@@ -174,6 +180,26 @@ func CookieHeaderFromStore(path string) (string, error) {
 	return strings.Join(parts, "; "), nil
 }
 
+// PATCH: CookieValueFromStore returns the raw value of a single cookie by
+// name. Used by the client to lift `_fbtoken` into the Authorization header
+// (the ordertogo.com API gates POST /api/* on a Firebase JWT header, not the
+// cookie itself) and `_fbuid` / `_fbphone` for the meshuser handshake.
+func CookieValueFromStore(path, name string) (string, error) {
+	cookies, err := LoadCookies(path)
+	if err != nil {
+		if os.IsNotExist(err) {
+			return "", nil
+		}
+		return "", err
+	}
+	for _, cookie := range cookies {
+		if cookie.Name == name {
+			return cookie.Value, nil
+		}
+	}
+	return "", nil
+}
+
 func (c *Config) SetKey(key, value string) error {
 	switch key {
 	case "base_url":
@@ -194,6 +220,17 @@ func (c *Config) SetKey(key, value string) error {
 			return err
 		}
 		c.DefaultTipPct = v
+	// PATCH: payment + customer fields for the postmicmeshorder checkout flow.
+	case "stripe_customer_id":
+		c.StripeCustomerID = value
+	case "stripe_default_card":
+		c.StripeDefaultCard = value
+	case "customer_firstname":
+		c.CustomerFirstName = value
+	case "customer_lastname":
+		c.CustomerLastName = value
+	case "customer_phone":
+		c.CustomerPhone = value
 	default:
 		return fmt.Errorf("unsupported config key %q", key)
 	}

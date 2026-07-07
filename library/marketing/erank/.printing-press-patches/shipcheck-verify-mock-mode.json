@@ -1,0 +1,15 @@
+{
+  "schema_version": 2,
+  "id": "shipcheck-verify-mock-mode",
+  "applied_at": "2026-05-31",
+  "base_run_id": "20260531-142147",
+  "base_printing_press_version": "4.19.0",
+  "summary": "Kept structural verify independent of live browser-session credentials.",
+  "reason": "cli-printing-press verify runs in a temporary mock context; browser-session proof checks must validate command shape without requiring a real browser proof file.",
+  "files": [
+    "internal/cli/doctor.go",
+    "internal/cli/browser_session_proof.go",
+    "internal/cli/root.go"
+  ],
+  "validated_outcome": "go test ./..., cli-printing-press verify --fix, and shipcheck pass."
+}

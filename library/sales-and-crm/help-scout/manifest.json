@@ -1,0 +1,39 @@
+{
+  "manifest_version": "0.3",
+  "name": "help-scout-pp-mcp",
+  "display_name": "Help Scout Inbox",
+  "version": "0.0.0",
+  "description": "Read-first Help Scout Inbox API surface for support operations and agent workflows.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/help-scout-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/help-scout-pp-mcp",
+      "args": [],
+      "env": {
+        "HELP_SCOUT_BEARER_AUTH": "${user_config.help_scout_bearer_auth}"
+      }
+    }
+  },
+  "user_config": {
+    "help_scout_bearer_auth": {
+      "type": "string",
+      "title": "HELP_SCOUT_BEARER_AUTH",
+      "description": "Sets HELP_SCOUT_BEARER_AUTH for the Help Scout Inbox MCP server.",
+      "sensitive": true,
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

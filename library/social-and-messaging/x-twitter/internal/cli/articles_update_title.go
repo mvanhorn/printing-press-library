@@ -16,6 +16,8 @@ import (
 
 func newArticlesUpdateTitleCmd(flags *rootFlags) *cobra.Command {
 	var flagData string
+	var articleID string
+	var title string
 	var bodyFeatures string
 	var bodyQueryId string
 	var bodyVariables string
@@ -27,6 +29,14 @@ func newArticlesUpdateTitleCmd(flags *rootFlags) *cobra.Command {
 		Example:     "  x-twitter-pp-cli articles update-title --data example-value --query-id 550e8400-e29b-41d4-a716-446655440000",
 		Annotations: map[string]string{"pp:endpoint": "articles.update_title", "pp:method": "POST", "pp:path": "/i/api/graphql/x75E2ABzm8_mGTg1bz8hcA/ArticleEntityUpdateTitle"},
 		RunE: func(cmd *cobra.Command, args []string) error {
+			friendly := cmd.Flags().Changed("id") || cmd.Flags().Changed("title")
+			if friendly {
+				body, err := articleUpdateTitleRequestBody(articleID, title)
+				if err != nil {
+					return err
+				}
+				return runArticleGraphQLMutation(cmd, flags, "ArticleEntityUpdateTitle", body)
+			}
 			if !cmd.Flags().Changed("data") && !flags.dryRun {
 				return fmt.Errorf("required flag \"%s\" not set", "data")
 			}
@@ -146,6 +156,8 @@ func newArticlesUpdateTitleCmd(flags *rootFlags) *cobra.Command {
 		},
 	}
 	cmd.Flags().StringVar(&flagData, "data", "", "")
+	cmd.Flags().StringVar(&articleID, "id", "", "Article rest_id to update")
+	cmd.Flags().StringVar(&title, "title", "", "New article title")
 	cmd.Flags().StringVar(&bodyFeatures, "features", "", "")
 	cmd.Flags().StringVar(&bodyQueryId, "query-id", "", "")
 	cmd.Flags().StringVar(&bodyVariables, "variables", "", "")

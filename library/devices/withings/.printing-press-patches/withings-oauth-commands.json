@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "withings-oauth-commands",
+  "applied_at": "2026-06-14",
+  "base_run_id": "20260614-181724-d301c9dc",
+  "base_printing_press_version": "4.24.0",
+  "summary": "Added 'auth login' (browser + manual flows) and 'auth refresh'; wired into the auth parent.",
+  "reason": "Withings OAuth2 (account.withings.com authorize + action=requesttoken) is too API-specific for the generator's default OAuth; the auth.go parent needed the two extra subcommands registered.",
+  "files": [
+    "internal/cli/withings_oauth.go",
+    "internal/cli/auth.go"
+  ]
+}

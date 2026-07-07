@@ -1,0 +1,25 @@
+{
+  "schema_version": 2,
+  "id": "release-review-correctness",
+  "applied_at": "2026-06-17",
+  "base_run_id": "20260508-101534",
+  "base_printing_press_version": "4.0.3",
+  "summary": "Release-aware commands must preserve tranche semantics, source availability must follow the source registry flag, and all published docs/metadata/help text must use the ufo-goat binary/module names from the provenance manifest.",
+  "reason": "ufo-goat exposes PURSUE release tranches as user-facing release numbers, while release_batch=0 is reserved for files without a derivable tranche; filtering after the FTS limit, filtering timeline rows after fetching the full timeline, or writing during dry-run can produce misleading command results. The source registry has an explicit Available flag for provisional sources, so source resolution must reject unavailable sources even if a future URL is pre-populated. The published package also ships cmd/ufo-goat-pp-* binaries under library/other/ufo-goat, so CLI help, README/SKILL install paths, manifest, GoReleaser, Makefile, and MCP docs must not point at stale ufo-pp-* names or the stale library/other/ufo module path.",
+  "files": [
+    "internal/cli/releases_cmd.go",
+    "internal/cli/files_search_ufo.go",
+    "internal/cli/api_discovery.go",
+    "internal/cli/timeline.go",
+    "internal/manifest/source.go",
+    "internal/store/ufo_store.go",
+    "internal/manifest/source_test.go",
+    "internal/store/ufo_search_test.go",
+    "README.md",
+    "SKILL.md",
+    "manifest.json",
+    ".goreleaser.yaml",
+    "Makefile"
+  ],
+  "validated_outcome": "go test ./internal/manifest ./internal/store ./internal/cli; make build-all"
+}

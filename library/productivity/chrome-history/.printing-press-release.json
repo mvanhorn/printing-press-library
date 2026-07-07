@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "slug": "chrome-history",
+  "cli_name": "chrome-history-pp-cli",
+  "version": "2026.6.2",
+  "released_at": "2026-06-16T15:43:02Z",
+  "source_commit": "17d572aae2823717c23a2695b43215cc13684506",
+  "printing_press_version": "4.13.0",
+  "run_id": "20260524-023512",
+  "changes": [
+    {
+      "title": "feat(chrome-history): opt-in accumulating archive that outlives Chrome's pruning",
+      "pr": 1155,
+      "url": "https://github.com/mvanhorn/printing-press-library/pull/1155",
+      "commit": "17d572aae2823717c23a2695b43215cc13684506"
+    }
+  ]
+}

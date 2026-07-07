@@ -297,7 +297,12 @@ func TestFansSegmentAxisNoopWhenNoCrosswalk(t *testing.T) {
 // TestFansSegmentAxisNoCrosswalkWarnOnCmd verifies the newFansSegmentCmd warns
 // to stderr when axis flags are used but normalization has not been run.
 func TestFansSegmentAxisNoCrosswalkWarnOnCmd(t *testing.T) {
-	// Use dry-run to bypass the store open, so we just test flag acceptance.
+	// Isolate from the operator's real default-path store. The --dry-run flag is
+	// never actually passed in SetArgs below, so without a $HOME override the
+	// command would open ~/.local/share/dice-fm-pp-cli/data.db. A temp $HOME
+	// yields no data.db, so the store open is a graceful no-op and this stays a
+	// pure flag-acceptance test.
+	t.Setenv("HOME", t.TempDir())
 	flags := &rootFlags{dryRun: true}
 	root := newRootCmd(flags)
 	var outBuf, errBuf bytes.Buffer

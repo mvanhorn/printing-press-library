@@ -1,0 +1,359 @@
+name: qbo
+display_name: "QuickBooks Online"
+description: "QuickBooks Online CLI — sync full ledger, query SQLite locally, run duplicate expenses audit, and manage accounting from the terminal."
+cli_description: "Interact with QuickBooks Online directly. Query ledger items, sync transactions locally, and run advanced reconciliation triage."
+version: "0.1.0"
+category: payments
+base_url: "https://sandbox-quickbooks.api.intuit.com"
+
+auth:
+  type: bearer_token
+  header: Authorization
+  format: "Bearer {token}"
+  env_vars:
+    - QBO_CLIENT_ID
+    - QBO_CLIENT_SECRET
+    - QBO_REALM_ID
+  token_url: "https://oauth.platform.intuit.com/oauth2/v1/tokens/bearer"
+
+config:
+  format: toml
+  path: "~/.config/qbo-pp-cli/config.toml"
+
+cache:
+  enabled: true
+  stale_after: "1h"
+  refresh_timeout: "60s"
+  env_opt_out: QBO_NO_AUTO_REFRESH
+  resources:
+    customers: "1h"
+    vendors: "1h"
+    accounts: "1h"
+    invoices: "1h"
+    payments: "1h"
+    bills: "1h"
+    purchases: "1h"
+    journal_entries: "1h"
+
+resources:
+  query:
+    description: "Run raw SQL queries against QBO (limitations apply; sync first to query SQLite locally)"
+    endpoints:
+      execute:
+        method: GET
+        path: "/query"
+        description: "Run raw QuickBooks SQL query"
+        params:
+          - name: query
+            type: string
+            required: true
+            query: true
+            description: "The QBO SQL query string"
+        response:
+          type: object
+          item: QueryResponse
+
+  cdc:
+    description: "Change Data Capture (CDC) endpoints for incremental syncs"
+    endpoints:
+      sync:
+        method: GET
+        path: "/cdc"
+        description: "Query changed entities since a timestamp"
+        params:
+          - name: entities
+            type: string
+            required: true
+            query: true
+            description: "Comma-separated list of entities to check"
+          - name: changedSince
+            type: string
+            required: true
+            query: true
+            description: "Timestamp in ISO-8601 format"
+        response:
+          type: object
+          item: CDCResponse
+
+  customers:
+    description: "Manage customers"
+    endpoints:
+      get:
+        method: GET
+        path: "/customer/{id}"
+        description: "Get a customer by ID"
+        params:
+          - name: id
+            type: string
+            required: true
+            positional: true
+            description: "Customer ID"
+        response:
+          type: object
+          item: CustomerResponse
+      create:
+        method: POST
+        path: "/customer"
+        description: "Create or update a customer"
+        body:
+          - name: customer
+            type: object
+            required: true
+            description: "Customer payload"
+        response:
+          type: object
+          item: CustomerResponse
+
+  vendors:
+    description: "Manage vendors"
+    endpoints:
+      get:
+        method: GET
+        path: "/vendor/{id}"
+        description: "Get a vendor by ID"
+        params:
+          - name: id
+            type: string
+            required: true
+            positional: true
+            description: "Vendor ID"
+        response:
+          type: object
+          item: VendorResponse
+      create:
+        method: POST
+        path: "/vendor"
+        description: "Create or update a vendor"
+        body:
+          - name: vendor
+            type: object
+            required: true
+            description: "Vendor payload"
+        response:
+          type: object
+          item: VendorResponse
+
+  accounts:
+    description: "Manage accounts"
+    endpoints:
+      get:
+        method: GET
+        path: "/account/{id}"
+        description: "Get an account by ID"
+        params:
+          - name: id
+            type: string
+            required: true
+            positional: true
+            description: "Account ID"
+        response:
+          type: object
+          item: AccountResponse
+      create:
+        method: POST
+        path: "/account"
+        description: "Create or update an account"
+        body:
+          - name: account
+            type: object
+            required: true
+            description: "Account payload"
+        response:
+          type: object
+          item: AccountResponse
+
+  invoices:
+    description: "Manage invoices"
+    endpoints:
+      get:
+        method: GET
+        path: "/invoice/{id}"
+        description: "Get an invoice by ID"
+        params:
+          - name: id
+            type: string
+            required: true
+            positional: true
+            description: "Invoice ID"
+        response:
+          type: object
+          item: InvoiceResponse
+      create:
+        method: POST
+        path: "/invoice"
+        description: "Create or update an invoice"
+        body:
+          - name: invoice
+            type: object
+            required: true
+            description: "Invoice payload"
+        response:
+          type: object
+          item: InvoiceResponse
+
+  payments:
+    description: "Manage customer payments"
+    endpoints:
+      get:
+        method: GET
+        path: "/payment/{id}"
+        description: "Get a payment by ID"
+        params:
+          - name: id
+            type: string
+            required: true
+            positional: true
+            description: "Payment ID"
+        response:
+          type: object
+          item: PaymentResponse
+      create:
+        method: POST
+        path: "/payment"
+        description: "Create or update a payment"
+        body:
+          - name: payment
+            type: object
+            required: true
+            description: "Payment payload"
+        response:
+          type: object
+          item: PaymentResponse
+
+  bills:
+    description: "Manage vendor bills"
+    endpoints:
+      get:
+        method: GET
+        path: "/bill/{id}"
+        description: "Get a bill by ID"
+        params:
+          - name: id
+            type: string
+            required: true
+            positional: true
+            description: "Bill ID"
+        response:
+          type: object
+          item: BillResponse
+      create:
+        method: POST
+        path: "/bill"
+        description: "Create or update a bill"
+        body:
+          - name: bill
+            type: object
+            required: true
+            description: "Bill payload"
+        response:
+          type: object
+          item: BillResponse
+
+  purchases:
+    description: "Manage purchases (Expenses)"
+    endpoints:
+      get:
+        method: GET
+        path: "/purchase/{id}"
+        description: "Get a purchase by ID"
+        params:
+          - name: id
+            type: string
+            required: true
+            positional: true
+            description: "Purchase ID"
+        response:
+          type: object
+          item: PurchaseResponse
+      create:
+        method: POST
+        path: "/purchase"
+        description: "Create or update a purchase"
+        body:
+          - name: purchase
+            type: object
+            required: true
+            description: "Purchase payload"
+        response:
+          type: object
+          item: PurchaseResponse
+
+  journal_entries:
+    description: "Manage journal entries"
+    endpoints:
+      get:
+        method: GET
+        path: "/journalentry/{id}"
+        description: "Get a journal entry by ID"
+        params:
+          - name: id
+            type: string
+            required: true
+            positional: true
+            description: "Journal Entry ID"
+        response:
+          type: object
+          item: JournalEntryResponse
+      create:
+        method: POST
+        path: "/journalentry"
+        description: "Create or update a journal entry"
+        body:
+          - name: journalentry
+            type: object
+            required: true
+            description: "Journal Entry payload"
+        response:
+          type: object
+          item: JournalEntryResponse
+
+types:
+  QueryResponse:
+    fields:
+      - name: QueryResponse
+        type: object
+
+  CDCResponse:
+    fields:
+      - name: CDCResponse
+        type: array
+
+  CustomerResponse:
+    fields:
+      - name: Customer
+        type: object
+
+  VendorResponse:
+    fields:
+      - name: Vendor
+        type: object
+
+  AccountResponse:
+    fields:
+      - name: Account
+        type: object
+
+  InvoiceResponse:
+    fields:
+      - name: Invoice
+        type: object
+
+  PaymentResponse:
+    fields:
+      - name: Payment
+        type: object
+
+  BillResponse:
+    fields:
+      - name: Bill
+        type: object
+
+  PurchaseResponse:
+    fields:
+      - name: Purchase
+        type: object
+
+  JournalEntryResponse:
+    fields:
+      - name: JournalEntry
+        type: object

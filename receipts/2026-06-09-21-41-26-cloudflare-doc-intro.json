@@ -1,0 +1,14 @@
+{
+  "timestamp": "2026-06-09T21:41:26-04:00",
+  "action": "cloudflare-doc-intro-copy",
+  "repo": "printing-press-library",
+  "branch": "fix/cloudflare-doc-intro",
+  "summary": "Replaced Cloudflare printed CLI boilerplate intro/description with agent-ready Cloudflare operations copy across README, skill, catalog metadata, MCP/tool manifests, and release description. Added registry stale-description detection for vendor API-doc welcome text.",
+  "validation": [
+    "go test ./... from tools/generate-registry: passed",
+    "go run ./tools/generate-registry/main.go --check: passed",
+    "go test ./... from library/cloud/cloudflare: passed",
+    "go vet ./... from library/cloud/cloudflare: passed",
+    "python3 .github/scripts/verify-skill/verify_skill.py --dir library/cloud/cloudflare: passed"
+  ]
+}

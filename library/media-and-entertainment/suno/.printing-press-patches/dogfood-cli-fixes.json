@@ -1,0 +1,24 @@
+{
+  "schema_version": 2,
+  "id": "dogfood-cli-fixes",
+  "applied_at": "2026-06-06",
+  "base_run_id": "20260528-222057",
+  "base_printing_press_version": "4.14.0",
+  "summary": "project create always sends required description; clips get accepts a positional id; read-cache writes no longer warn on no-id single-object responses; captcha solve budget raised to 180s with a clear approve-Chrome-access message.",
+  "reason": "Real generate->poll->WAV dogfood surfaced: (1) POST /api/project 422s without a description field; (2) 'clips get' required --ids while every other clip/project command takes a positional id; (3) 'clips wav-url' printed a spurious 'items skipped (no extractable ID field)' warning because the best-effort write-through read cache upserts a {wav_file_url} object with no id; (4) the hCaptcha solver's 90s budget could expire while the user approved the macOS Chrome-private-storage prompt, surfacing only 'context deadline exceeded'.",
+  "files": [
+    "internal/cli/workspace_create.go",
+    "internal/cli/clips_get.go",
+    "internal/cli/clips_get_test.go",
+    "internal/store/store.go",
+    "internal/store/upsert_batch_test.go",
+    "internal/cli/data_source.go",
+    "internal/captcha/config.go",
+    "internal/cli/suno_captcha_solver.go",
+    "internal/captcha/config_test.go"
+  ],
+  "validated_outcome": "go test ./...",
+  "findings_addressed": [
+    "dogfood-cli-fixes"
+  ]
+}

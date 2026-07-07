@@ -1,0 +1,15 @@
+{
+  "schema_version": 2,
+  "id": "transactions-updated-at-index",
+  "applied_at": "2026-05-13",
+  "base_run_id": "20260513-094903",
+  "base_printing_press_version": "4.5.2",
+  "summary": "Added and indexed a typed transactions.updated_at column for changed-since queries.",
+  "reason": "Filtering transactions with json_extract(data, '$.updated_at') forces a full table scan; an indexed column keeps changed --since bounded by the updated_at index.",
+  "files": [
+    "internal/cli/changed.go",
+    "internal/store/store.go",
+    "internal/store/upsert_batch_test.go"
+  ],
+  "validated_outcome": "go test ./internal/store passes, including query-plan coverage for idx_transactions_updated_at."
+}

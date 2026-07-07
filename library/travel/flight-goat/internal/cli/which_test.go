@@ -50,6 +50,16 @@ func TestRankWhich_MultiTokenQuery(t *testing.T) {
 	}
 }
 
+func TestRankWhich_AssessDelayQuery(t *testing.T) {
+	got := rankWhich(whichIndex, "is my delay systemic should I rebook", 1)
+	if len(got) == 0 {
+		t.Fatal("expected assess match, got zero")
+	}
+	if got[0].Entry.Command != "assess" {
+		t.Fatalf("top match = %s, want assess; matches=%+v", got[0].Entry.Command, got)
+	}
+}
+
 // Edge case: empty query should surface the full index (listing mode)
 // rather than treating as no-match. Agents use this for broad discovery.
 func TestRankWhich_EmptyQueryListsIndex(t *testing.T) {

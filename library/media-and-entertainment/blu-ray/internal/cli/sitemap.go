@@ -9,10 +9,11 @@ import (
 
 func newSitemapCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:    "sitemap",
-		Short:  "Public XML sitemaps. Used by `sync` to enumerate every release id; safe to fetch (allowed by robots.txt).",
-		Hidden: true,
-		RunE:   parentNoSubcommandRunE(flags),
+		Use:         "sitemap",
+		Short:       "Public XML sitemaps. Used by `sync` to enumerate every release id; safe to fetch (allowed by robots.txt).",
+		Hidden:      true,
+		Annotations: map[string]string{"mcp:read-only": "true"},
+		RunE:        parentNoSubcommandRunE(flags),
 	}
 
 	cmd.AddCommand(newSitemapBluraymoviesCmd(flags))

@@ -214,13 +214,19 @@ func splitArrayPath(path string) (arrayField, leafField string) {
 	return path[:dot], path[dot+1:]
 }
 
-// candidateSources maps entity names to source paths for the dice-fm CLI.
-// These mirror the source paths used by classifyTiers / classifyVenues.
+// candidateSources maps entity names to source paths for the dice-fm CLI. The
+// set mirrors the entities declared in the embedded starter config
+// (normalize_starter.yaml) so `normalize recommend` profiles every entity the
+// operator can wire — including price_tier and ticket_pool, which were
+// previously absent here and so were invisible to the recommend→classify
+// bootstrap.
 var candidateSources = map[string]string{
 	"ticket_type": "tickets.ticketType.name",
+	"price_tier":  "tickets.ticketType.price",
 	"venue":       "events.venues[*].name",
 	"genre":       "events.genres[*]",
 	"artist":      "events.artists[*].name",
+	"ticket_pool": "events.ticketPools[*].name",
 }
 
 // runRecommend profiles each candidate source against the store and returns a

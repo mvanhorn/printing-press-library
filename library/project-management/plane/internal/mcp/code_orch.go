@@ -44,6 +44,10 @@ func RegisterCodeOrchestrationTools(s *server.MCPServer) {
 			mcplib.WithDescription("Execute one plane API endpoint by its endpoint_id (from plane_search). Params are passed as a JSON object; path placeholders and query strings are resolved automatically."),
 			mcplib.WithString("endpoint_id", mcplib.Required(), mcplib.Description("Endpoint identifier returned by plane_search (e.g., \"users.list\").")),
 			mcplib.WithObject("params", mcplib.Description("Parameters for the endpoint. Path placeholders match by name; remaining entries become query string on GET/DELETE or JSON body on POST/PUT/PATCH.")),
+			// PATCH(mcp-workspace): per-call workspace targeting, the MCP twin of
+			// the CLI's --workspace flag (top precedence over $PLANE_SLUG and the
+			// config default_workspace).
+			mcplib.WithString("workspace", mcplib.Description("Plane workspace slug to target for THIS call (top precedence: overrides $PLANE_SLUG and the config default_workspace, like the CLI's --workspace flag). Take it from the browser URL app.plane.so/<slug>/. Omit to use the configured default. The public API cannot enumerate workspaces, so a wrong slug fails loudly (404/403) rather than silently hitting the wrong one.")),
 		),
 		handleCodeOrchExecute,
 	)
@@ -1461,6 +1465,9 @@ func handleCodeOrchExecute(ctx context.Context, req mcplib.CallToolRequest) (*mc
 	if err != nil {
 		return mcplib.NewToolResultError(err.Error()), nil
 	}
+	// PATCH(mcp-workspace): honor a per-call "workspace" arg before issuing the
+	// request, and strip it so it never leaks into the path/query/body below.
+	applyWorkspaceArg(c, args)
 
 	path := ep.Path
 	for _, p := range ep.Positional {

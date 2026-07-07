@@ -73,6 +73,28 @@
         ],
         "type": "object"
       },
+      "AddClipRequest": {
+        "additionalProperties": false,
+        "description": "Add a new clip from an uploaded source.",
+        "properties": {
+          "name": {
+            "description": "Clip name. Defaults to the next `Clip N`.",
+            "example": "Intro",
+            "maxLength": 255,
+            "minLength": 1,
+            "type": "string"
+          },
+          "sourceId": {
+            "description": "Source ID from `POST /v1/sources`.",
+            "minLength": 1,
+            "type": "string"
+          }
+        },
+        "required": [
+          "sourceId"
+        ],
+        "type": "object"
+      },
       "AddClipZoomRequest": {
         "additionalProperties": false,
         "description": "Add a zoom to the clip's screen layer (does not affect the camera). Use `manualZoom` with a `focusPoint`, or `trackingZoom` to follow the cursor.",
@@ -697,16 +719,20 @@
         "type": "object"
       },
       "ClipMedia": {
-        "description": "Media content shown during a layout. Discriminated by `type`; currently only `image` is supported.",
+        "description": "Media shown during a layout. `image` (hosted URL) or `video` (uploaded source).",
         "discriminator": {
           "mapping": {
-            "image": "#/components/schemas/ClipMediaImage"
+            "image": "#/components/schemas/ClipMediaImage",
+            "video": "#/components/schemas/ClipMediaVideo"
           },
           "propertyName": "type"
         },
         "oneOf": [
           {
             "$ref": "#/components/schemas/ClipMediaImage"
+          },
+          {
+            "$ref": "#/components/schemas/ClipMediaVideo"
           }
         ],
         "type": "object"
@@ -746,6 +772,29 @@
           "height"
         ],
         "title": "ClipMediaImage",
+        "type": "object"
+      },
+      "ClipMediaVideo": {
+        "additionalProperties": false,
+        "description": "Video media.",
+        "properties": {
+          "sourceId": {
+            "description": "Source ID from `POST /v1/sources`.",
+            "minLength": 1,
+            "type": "string"
+          },
+          "type": {
+            "enum": [
+              "video"
+            ],
+            "type": "string"
+          }
+        },
+        "required": [
+          "type",
+          "sourceId"
+        ],
+        "title": "ClipMediaVideo",
         "type": "object"
       },
       "ClipSource": {
@@ -973,7 +1022,7 @@
           },
           "emoji": {
             "description": "Unicode emoji character for the playlist",
-            "example": "\ud83c\udfac",
+            "example": "🎬",
             "maxLength": 10,
             "type": "string"
           },
@@ -1018,6 +1067,69 @@
         ],
         "type": "object"
       },
+      "CreateSourceRequest": {
+        "additionalProperties": false,
+        "description": "Create a new video source upload.",
+        "properties": {
+          "duration": {
+            "description": "Duration in seconds.",
+            "exclusiveMinimum": true,
+            "minimum": 0,
+            "type": "number"
+          },
+          "height": {
+            "description": "Height in pixels.",
+            "exclusiveMinimum": true,
+            "maximum": 9007199254740991,
+            "type": "integer"
+          },
+          "kind": {
+            "description": "Source kind. Only `video` is supported.",
+            "enum": [
+              "video"
+            ],
+            "type": "string"
+          },
+          "width": {
+            "description": "Width in pixels.",
+            "exclusiveMinimum": true,
+            "maximum": 9007199254740991,
+            "type": "integer"
+          }
+        },
+        "required": [
+          "width",
+          "height",
+          "duration"
+        ],
+        "type": "object"
+      },
+      "CreateSourceResponse": {
+        "additionalProperties": false,
+        "properties": {
+          "expiresAt": {
+            "description": "ISO-8601 timestamp at which `uploadUrl` stops accepting uploads.",
+            "format": "date-time",
+            "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
+            "type": "string"
+          },
+          "sourceId": {
+            "description": "ID of the new source.",
+            "type": "string"
+          },
+          "uploadUrl": {
+            "description": "Pre-signed S3 URL. PUT the video bytes here (single PUT, max ~5GB).",
+            "format": "uri",
+            "type": "string"
+          }
+        },
+        "required": [
+          "sourceId",
+          "uploadUrl",
+          "expiresAt"
+        ],
+        "type": "object"
+      },
       "Cut": {
         "description": "A range of time removed from the clip",
         "properties": {
@@ -1042,34 +1154,56 @@
         ],
         "type": "object"
       },
+      "CutClipByTranscriptRequest": {
+        "additionalProperties": false,
+        "description": "Cut one or more ranges from the clip by referencing word indices in the uncut transcript. The server resolves each range to exact word `startTimeMs`/`endTimeMs` and merges the resulting cuts.",
+        "properties": {
+          "wordRanges": {
+            "description": "Word ranges to cut. Each range's start and end ms are read directly from the uncut transcript — no padding is applied.",
+            "items": {
+              "$ref": "#/components/schemas/TranscriptWordRange"
+            },
+            "minItems": 1,
+            "type": "array"
+          }
+        },
+        "required": [
+          "wordRanges"
+        ],
+        "type": "object"
+      },
       "CutClipRequest": {
         "additionalProperties": false,
-        "description": "Cut a time range from the clip. Overlapping or adjacent ranges are merged into the existing cuts.",
+        "description": "Cut one or more time ranges from the clip in a single request. Provide either `cuts: [{fromMs, toMs}, ...]` (preferred) or the legacy single-range `fromMs`/`toMs` pair. Overlapping or adjacent ranges are merged into the clip's existing cuts.",
         "properties": {
+          "cuts": {
+            "description": "Time ranges to cut from the clip. Merged with the clip's existing cuts; overlapping or adjacent ranges are joined.",
+            "items": {
+              "$ref": "#/components/schemas/CutRange"
+            },
+            "minItems": 1,
+            "type": "array"
+          },
           "fromMs": {
-            "description": "Start of the range to cut, in milliseconds from the clip's start.",
+            "description": "Single-range shortcut for `cuts: [{fromMs, toMs}]`. Use `cuts` for multiple ranges.",
             "example": 2000,
             "maximum": 9007199254740991,
             "minimum": 0,
             "type": "integer"
           },
           "toMs": {
-            "description": "End of the range to cut, in milliseconds from the clip's start. Clamped to the clip's max duration.",
+            "description": "Single-range shortcut for `cuts: [{fromMs, toMs}]`. Use `cuts` for multiple ranges.",
             "example": 3500,
             "exclusiveMinimum": true,
             "maximum": 9007199254740991,
             "type": "integer"
           }
         },
-        "required": [
-          "fromMs",
-          "toMs"
-        ],
         "type": "object"
       },
       "CutClipTranscriptResponse": {
         "additionalProperties": false,
-        "description": "Clip transcript with cuts applied \u2014 what viewers hear.",
+        "description": "Clip transcript with cuts applied — what viewers hear.",
         "properties": {
           "words": {
             "description": "Words on the playback timeline (cuts removed, times relative to the clip's playback start).",
@@ -1106,6 +1240,30 @@
         "required": [
           "startTimeMs",
           "durationMs"
+        ],
+        "type": "object"
+      },
+      "CutRange": {
+        "description": "A single time range to cut from the clip.",
+        "properties": {
+          "fromMs": {
+            "description": "Start of the range to cut, in milliseconds from the clip's start.",
+            "example": 2000,
+            "maximum": 9007199254740991,
+            "minimum": 0,
+            "type": "integer"
+          },
+          "toMs": {
+            "description": "End of the range to cut, in milliseconds from the clip's start. Clamped to the clip's max duration.",
+            "example": 3500,
+            "exclusiveMinimum": true,
+            "maximum": 9007199254740991,
+            "type": "integer"
+          }
+        },
+        "required": [
+          "fromMs",
+          "toMs"
         ],
         "type": "object"
       },
@@ -1683,7 +1841,7 @@
           },
           "emoji": {
             "description": "Unicode emoji character for the playlist",
-            "example": "\ud83c\udfac",
+            "example": "🎬",
             "maxLength": 10,
             "type": "string"
           },
@@ -1802,7 +1960,7 @@
           },
           "emoji": {
             "description": "Unicode emoji character for the playlist",
-            "example": "\ud83c\udfac",
+            "example": "🎬",
             "maxLength": 10,
             "type": "string"
           },
@@ -1967,7 +2125,7 @@
       },
       "SideBySideLayout": {
         "additionalProperties": false,
-        "description": "Camera and screen side by side. Combi (landscape) only. `style` chooses the weighting; `overlap` also takes a `size`.",
+        "description": "Camera and screen side by side. Combi (all ratios). Landscape splits horizontally (`position: left/right`, style regular/even/overlap); portrait and square split vertically 50/50 (`position: top/bottom` for the camera half, `style: even` only).",
         "properties": {
           "kind": {
             "enum": [
@@ -1976,9 +2134,12 @@
             "type": "string"
           },
           "position": {
+            "description": "Where the camera sits. `left`/`right` on landscape clips; `top`/`bottom` on portrait and square clips.",
             "enum": [
               "left",
-              "right"
+              "right",
+              "top",
+              "bottom"
             ],
             "type": "string"
           },
@@ -1992,7 +2153,7 @@
             "type": "string"
           },
           "style": {
-            "description": "`regular` weights camera and screen unevenly, `even` splits 50/50, `overlap` lets the camera bleed over the screen edge (and requires `size`).",
+            "description": "`regular` weights camera and screen unevenly, `even` splits 50/50, `overlap` lets the camera bleed over the screen edge (and requires `size`). Portrait and square clips support `even` only.",
             "enum": [
               "regular",
               "even",
@@ -2313,6 +2474,30 @@
         ],
         "type": "object"
       },
+      "TranscriptWordRange": {
+        "description": "A range of words to cut, identified by indices from the clip's uncut transcript.",
+        "properties": {
+          "fromWordIndex": {
+            "description": "Index of the first word to cut (inclusive), as reported by the uncut transcript.",
+            "example": 12,
+            "maximum": 9007199254740991,
+            "minimum": 0,
+            "type": "integer"
+          },
+          "toWordIndex": {
+            "description": "Index of the last word to cut (inclusive), as reported by the uncut transcript.",
+            "example": 17,
+            "maximum": 9007199254740991,
+            "minimum": 0,
+            "type": "integer"
+          }
+        },
+        "required": [
+          "fromWordIndex",
+          "toWordIndex"
+        ],
+        "type": "object"
+      },
       "TrimRequest": {
         "additionalProperties": false,
         "description": "Trim parameters. Use either startTime+endTime for time range or chapterIndex for chapter extraction.",
@@ -2594,6 +2779,34 @@
             "maxLength": 5000,
             "type": "string"
           },
+          "dimensions": {
+            "description": "Canvas size in pixels. Changing it also remaps every clip and section layout to a ratio-appropriate equivalent (clips using a custom layout fall back to a standard one), exactly like switching size in the editor's Setup → Size. No-op when the video already has the requested size. The editor's presets: 1920x1080 (16:9), 1920x1200 (16:10), 1440x1080 (4:3), 1080x1080 (1:1), 1080x1350 (4:5), 1080x1920 (9:16).",
+            "example": {
+              "height": 1920,
+              "width": 1080
+            },
+            "properties": {
+              "height": {
+                "description": "Canvas height in pixels",
+                "example": 1920,
+                "maximum": 4096,
+                "minimum": 16,
+                "type": "number"
+              },
+              "width": {
+                "description": "Canvas width in pixels",
+                "example": 1080,
+                "maximum": 4096,
+                "minimum": 16,
+                "type": "number"
+              }
+            },
+            "required": [
+              "width",
+              "height"
+            ],
+            "type": "object"
+          },
           "downloadsEnabled": {
             "description": "Allow viewers to download the video",
             "example": true,
@@ -2691,6 +2904,27 @@
             "maxLength": 5000,
             "type": "string"
           },
+          "dimensions": {
+            "additionalProperties": false,
+            "description": "Canvas size in pixels",
+            "example": {
+              "height": 1080,
+              "width": 1920
+            },
+            "properties": {
+              "height": {
+                "type": "number"
+              },
+              "width": {
+                "type": "number"
+              }
+            },
+            "required": [
+              "width",
+              "height"
+            ],
+            "type": "object"
+          },
           "durationSeconds": {
             "description": "Video duration in seconds",
             "example": 125.5,
@@ -2777,6 +3011,7 @@
           "description",
           "views",
           "aspectRatio",
+          "dimensions",
           "createdAt",
           "updatedAt",
           "durationSeconds",
@@ -2835,6 +3070,27 @@
             "maxLength": 5000,
             "type": "string"
           },
+          "dimensions": {
+            "additionalProperties": false,
+            "description": "Canvas size in pixels",
+            "example": {
+              "height": 1080,
+              "width": 1920
+            },
+            "properties": {
+              "height": {
+                "type": "number"
+              },
+              "width": {
+                "type": "number"
+              }
+            },
+            "required": [
+              "width",
+              "height"
+            ],
+            "type": "object"
+          },
           "id": {
             "description": "Unique video identifier",
             "example": "vid_abc123def456",
@@ -2875,6 +3131,7 @@
           "description",
           "views",
           "aspectRatio",
+          "dimensions",
           "createdAt",
           "updatedAt",
           "links"
@@ -3070,10 +3327,7 @@
       "BearerAuth": {
         "description": "API key obtained from your Tella account settings",
         "scheme": "bearer",
-        "type": "http",
-        "x-auth-env-vars": [
-          "TELLA_API_KEY"
-        ]
+        "type": "http"
       }
     }
   },
@@ -4288,6 +4542,161 @@
         ]
       }
     },
+    "/v1/sources": {
+      "post": {
+        "description": "Returns a `sourceId` and a pre-signed S3 URL. PUT the video bytes to `uploadUrl`, then reference `sourceId` from `add_layout` or `POST /v1/videos/{id}/clips`.",
+        "operationId": "createSource",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateSourceRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreateSourceResponse"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "example": {
+                  "error": {
+                    "code": "bad_request",
+                    "doc_url": "https://tella.tv/docs/api-reference/errors#bad-request",
+                    "message": "The request was malformed or contained invalid parameters."
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "The request was malformed or contained invalid parameters."
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "example": {
+                  "error": {
+                    "code": "unauthorized",
+                    "doc_url": "https://tella.tv/docs/api-reference/errors#unauthorized",
+                    "message": "Authentication is required. Provide a valid API key."
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Authentication is required. Provide a valid API key."
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "example": {
+                  "error": {
+                    "code": "forbidden",
+                    "doc_url": "https://tella.tv/docs/api-reference/errors#forbidden",
+                    "message": "You don't have permission to access this resource."
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "You don't have permission to access this resource."
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "example": {
+                  "error": {
+                    "code": "not_found",
+                    "doc_url": "https://tella.tv/docs/api-reference/errors#not-found",
+                    "message": "The requested resource was not found."
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "The requested resource was not found."
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "example": {
+                  "error": {
+                    "code": "unprocessable_entity",
+                    "doc_url": "https://tella.tv/docs/api-reference/errors#unprocessable-entity",
+                    "message": "The request was well-formed but contained semantic errors."
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "The request was well-formed but contained semantic errors."
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "example": {
+                  "error": {
+                    "code": "rate_limit_exceeded",
+                    "doc_url": "https://tella.tv/docs/api-reference/errors#rate-limit-exceeded",
+                    "message": "You have exceeded the rate limit. Please slow down."
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "You have exceeded the rate limit. Please slow down."
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "example": {
+                  "error": {
+                    "code": "internal_server_error",
+                    "doc_url": "https://tella.tv/docs/api-reference/errors#internal-server-error",
+                    "message": "An unexpected error occurred on the server."
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "An unexpected error occurred on the server."
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "summary": "Create a new video source upload",
+        "tags": [
+          "Sources"
+        ]
+      }
+    },
     "/v1/videos": {
       "get": {
         "description": "Returns a paginated list of all videos for the authenticated user. Use playlistId query parameter to filter videos by playlist.",
@@ -5140,6 +5549,172 @@
           }
         ],
         "summary": "List clips for a video",
+        "tags": [
+          "Clips"
+        ]
+      },
+      "post": {
+        "description": "Add a new clip to a video. Create a source via `POST /v1/sources`, PUT the bytes, then pass the returned `sourceId` here.",
+        "operationId": "addClip",
+        "parameters": [
+          {
+            "description": "Video identifier",
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "description": "Video identifier",
+              "example": "vid_abc123def456",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AddClipRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetClipResponse"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "example": {
+                  "error": {
+                    "code": "bad_request",
+                    "doc_url": "https://tella.tv/docs/api-reference/errors#bad-request",
+                    "message": "The request was malformed or contained invalid parameters."
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "The request was malformed or contained invalid parameters."
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "example": {
+                  "error": {
+                    "code": "unauthorized",
+                    "doc_url": "https://tella.tv/docs/api-reference/errors#unauthorized",
+                    "message": "Authentication is required. Provide a valid API key."
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Authentication is required. Provide a valid API key."
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "example": {
+                  "error": {
+                    "code": "forbidden",
+                    "doc_url": "https://tella.tv/docs/api-reference/errors#forbidden",
+                    "message": "You don't have permission to access this resource."
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "You don't have permission to access this resource."
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "example": {
+                  "error": {
+                    "code": "not_found",
+                    "doc_url": "https://tella.tv/docs/api-reference/errors#not-found",
+                    "message": "The requested resource was not found."
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "The requested resource was not found."
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "example": {
+                  "error": {
+                    "code": "unprocessable_entity",
+                    "doc_url": "https://tella.tv/docs/api-reference/errors#unprocessable-entity",
+                    "message": "The request was well-formed but contained semantic errors."
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "The request was well-formed but contained semantic errors."
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "example": {
+                  "error": {
+                    "code": "rate_limit_exceeded",
+                    "doc_url": "https://tella.tv/docs/api-reference/errors#rate-limit-exceeded",
+                    "message": "You have exceeded the rate limit. Please slow down."
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "You have exceeded the rate limit. Please slow down."
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "example": {
+                  "error": {
+                    "code": "internal_server_error",
+                    "doc_url": "https://tella.tv/docs/api-reference/errors#internal-server-error",
+                    "message": "An unexpected error occurred on the server."
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "An unexpected error occurred on the server."
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "summary": "Add a clip from an uploaded source",
         "tags": [
           "Clips"
         ]
@@ -6372,7 +6947,7 @@
     },
     "/v1/videos/{id}/clips/{clipId}/cut": {
       "post": {
-        "description": "Cut a time range from a clip. Overlapping or adjacent ranges are merged into the existing cuts. To clear all cuts, call updateClip with cuts: [].",
+        "description": "Cut one or more time ranges from a clip in a single request. Pass `cuts: [{fromMs, toMs}, ...]` for multiple ranges or the legacy `fromMs`/`toMs` pair for a single range. Overlapping or adjacent ranges are merged into the clip's existing cuts. To clear all cuts, call updateClip with cuts: [].",
         "operationId": "cutClip",
         "parameters": [
           {
@@ -6544,7 +7119,187 @@
             "BearerAuth": []
           }
         ],
-        "summary": "Cut a time range from a clip",
+        "summary": "Cut one or more time ranges from a clip",
+        "tags": [
+          "Clips"
+        ]
+      }
+    },
+    "/v1/videos/{id}/clips/{clipId}/cut-by-transcript": {
+      "post": {
+        "description": "Cut one or more ranges from a clip by referencing word indices in the uncut transcript. The server reads each word's exact `startTimeMs` / `endTimeMs` and merges the resulting cuts — no padding is applied to word boundaries.",
+        "operationId": "cutClipByTranscript",
+        "parameters": [
+          {
+            "description": "Video identifier",
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "description": "Video identifier",
+              "example": "vid_abc123def456",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Clip identifier",
+            "in": "path",
+            "name": "clipId",
+            "required": true,
+            "schema": {
+              "description": "Clip identifier",
+              "example": "cl_xyz789ghi012",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CutClipByTranscriptRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetClipResponse"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "example": {
+                  "error": {
+                    "code": "bad_request",
+                    "doc_url": "https://tella.tv/docs/api-reference/errors#bad-request",
+                    "message": "The request was malformed or contained invalid parameters."
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "The request was malformed or contained invalid parameters."
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "example": {
+                  "error": {
+                    "code": "unauthorized",
+                    "doc_url": "https://tella.tv/docs/api-reference/errors#unauthorized",
+                    "message": "Authentication is required. Provide a valid API key."
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Authentication is required. Provide a valid API key."
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "example": {
+                  "error": {
+                    "code": "forbidden",
+                    "doc_url": "https://tella.tv/docs/api-reference/errors#forbidden",
+                    "message": "You don't have permission to access this resource."
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "You don't have permission to access this resource."
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "example": {
+                  "error": {
+                    "code": "not_found",
+                    "doc_url": "https://tella.tv/docs/api-reference/errors#not-found",
+                    "message": "The requested resource was not found."
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "The requested resource was not found."
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "example": {
+                  "error": {
+                    "code": "unprocessable_entity",
+                    "doc_url": "https://tella.tv/docs/api-reference/errors#unprocessable-entity",
+                    "message": "The request was well-formed but contained semantic errors."
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "The request was well-formed but contained semantic errors."
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "example": {
+                  "error": {
+                    "code": "rate_limit_exceeded",
+                    "doc_url": "https://tella.tv/docs/api-reference/errors#rate-limit-exceeded",
+                    "message": "You have exceeded the rate limit. Please slow down."
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "You have exceeded the rate limit. Please slow down."
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "example": {
+                  "error": {
+                    "code": "internal_server_error",
+                    "doc_url": "https://tella.tv/docs/api-reference/errors#internal-server-error",
+                    "message": "An unexpected error occurred on the server."
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "An unexpected error occurred on the server."
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "summary": "Cut clip ranges by transcript word indices",
         "tags": [
           "Clips"
         ]
@@ -8928,9 +9683,11 @@
             }
           },
           {
+            "description": "Output width in pixels. The thumbnail keeps the source's aspect ratio; a missing side is derived from it.",
             "in": "query",
             "name": "width",
             "schema": {
+              "description": "Output width in pixels. The thumbnail keeps the source's aspect ratio; a missing side is derived from it.",
               "example": 1280,
               "exclusiveMinimum": true,
               "maximum": 9007199254740991,
@@ -8938,9 +9695,11 @@
             }
           },
           {
+            "description": "Output height in pixels. Derived from the source's aspect ratio when omitted.",
             "in": "query",
             "name": "height",
             "schema": {
+              "description": "Output height in pixels. Derived from the source's aspect ratio when omitted.",
               "example": 720,
               "exclusiveMinimum": true,
               "maximum": 9007199254740991,
@@ -9307,7 +10066,7 @@
     },
     "/v1/videos/{id}/clips/{clipId}/thumbnail": {
       "get": {
-        "description": "Returns a signed CDN URL for a still image (jpg/png/webp) or animated preview (gif/mp4) of a clip. By default returns a 302 redirect to the URL \u2014 set `?response=json` to get `{url}` JSON instead. `inpointMs` is clip-relative (recording time, ignores cuts). `durationMs` only applies to gif/mp4.",
+        "description": "Returns a signed CDN URL for a still image (jpg/png/webp) or animated preview (gif/mp4) of a clip. By default returns a 302 redirect to the URL — set `?response=json` to get `{url}` JSON instead. `inpointMs` is clip-relative (recording time, ignores cuts). `durationMs` only applies to gif/mp4.",
         "operationId": "getClipThumbnail",
         "parameters": [
           {
@@ -9374,11 +10133,11 @@
             }
           },
           {
-            "description": "Output width in pixels",
+            "description": "Output width in pixels. The thumbnail keeps the video's aspect ratio; a missing side is derived from it.",
             "in": "query",
             "name": "width",
             "schema": {
-              "description": "Output width in pixels",
+              "description": "Output width in pixels. The thumbnail keeps the video's aspect ratio; a missing side is derived from it.",
               "example": 1280,
               "exclusiveMinimum": true,
               "maximum": 9007199254740991,
@@ -9386,11 +10145,11 @@
             }
           },
           {
-            "description": "Output height in pixels",
+            "description": "Output height in pixels. Derived from the video's aspect ratio when omitted.",
             "in": "query",
             "name": "height",
             "schema": {
-              "description": "Output height in pixels",
+              "description": "Output height in pixels. Derived from the video's aspect ratio when omitted.",
               "example": 720,
               "exclusiveMinimum": true,
               "maximum": 9007199254740991,
@@ -9581,7 +10340,7 @@
     },
     "/v1/videos/{id}/clips/{clipId}/transcript/cut": {
       "get": {
-        "description": "Returns the words spoken in a clip with cuts applied \u2014 what viewers actually hear. Times are in ms relative to the clip's playback start.",
+        "description": "Returns the words spoken in a clip with cuts applied — what viewers actually hear. Times are in ms relative to the clip's playback start.",
         "operationId": "getCutClipTranscript",
         "parameters": [
           {
@@ -11146,7 +11905,7 @@
     },
     "/v1/videos/{id}/thumbnail": {
       "get": {
-        "description": "Returns a signed CDN URL for a still image (jpg/png/webp) or animated preview (gif/mp4) of a video at a video-relative time. By default returns a 302 redirect \u2014 set `?response=json` to get `{url}` JSON instead.",
+        "description": "Returns a signed CDN URL for a still image (jpg/png/webp) or animated preview (gif/mp4) of a video at a video-relative time. By default returns a 302 redirect — set `?response=json` to get `{url}` JSON instead.",
         "operationId": "getVideoThumbnail",
         "parameters": [
           {
@@ -11202,11 +11961,11 @@
             }
           },
           {
-            "description": "Output width in pixels",
+            "description": "Output width in pixels. The thumbnail keeps the video's aspect ratio; a missing side is derived from it.",
             "in": "query",
             "name": "width",
             "schema": {
-              "description": "Output width in pixels",
+              "description": "Output width in pixels. The thumbnail keeps the video's aspect ratio; a missing side is derived from it.",
               "example": 1280,
               "exclusiveMinimum": true,
               "maximum": 9007199254740991,
@@ -11214,11 +11973,11 @@
             }
           },
           {
-            "description": "Output height in pixels",
+            "description": "Output height in pixels. Derived from the video's aspect ratio when omitted.",
             "in": "query",
             "name": "height",
             "schema": {
-              "description": "Output height in pixels",
+              "description": "Output height in pixels. Derived from the video's aspect ratio when omitted.",
               "example": 720,
               "exclusiveMinimum": true,
               "maximum": 9007199254740991,
@@ -12232,21 +12991,5 @@
       "description": "Webhook endpoint management",
       "name": "Webhooks"
     }
-  ],
-  "x-mcp": {
-    "transport": [
-      "stdio",
-      "http"
-    ],
-    "orchestration": "code",
-    "endpoint_tools": "hidden"
-  },
-  "mcp": {
-    "transport": [
-      "stdio",
-      "http"
-    ],
-    "orchestration": "code",
-    "endpoint_tools": "hidden"
-  }
+  ]
 }

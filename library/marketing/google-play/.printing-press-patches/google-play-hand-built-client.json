@@ -1,0 +1,21 @@
+{
+  "schema_version": 2,
+  "id": "google-play-hand-built-client",
+  "applied_at": "2026-06-11",
+  "base_run_id": "20260611-160111-078a8ef4",
+  "base_printing_press_version": "4.24.0",
+  "summary": "Hand-built internal/gplay Play Store client and all 16 commands; only 'categories list' is generator-emitted.",
+  "reason": "Play serves positional protojson (AF_initDataCallback ds: keys + batchexecute RPC framing), which the generator's typed-endpoint path cannot parse, so the client, snapshot store, and command layer were authored by hand and the 7 generated novel stubs were replaced in place.",
+  "files": [
+    "internal/gplay/client.go", "internal/gplay/parse.go", "internal/gplay/types.go",
+    "internal/gplay/app.go", "internal/gplay/charts.go", "internal/gplay/charts_payload.go",
+    "internal/gplay/search.go", "internal/gplay/reviews.go", "internal/gplay/suggest.go",
+    "internal/gplay/similar.go", "internal/gplay/permissions.go", "internal/gplay/datasafety.go",
+    "internal/gplay/developer.go", "internal/store/gplay_store.go",
+    "internal/cli/gplay_shared.go", "internal/cli/gplay_lookup.go", "internal/cli/gplay_discover.go",
+    "internal/cli/gplay_reviews.go", "internal/cli/movers.go", "internal/cli/rank_history.go",
+    "internal/cli/watch_listing.go", "internal/cli/keyword_rank.go", "internal/cli/keyword_history.go",
+    "internal/cli/review_digest.go", "internal/cli/compare.go", "internal/cli/root.go"
+  ],
+  "validated_outcome": "All 10 absorbed + 7 transcendence commands verified live against play.google.com; shipcheck 6/6, full dogfood 61/61."
+}

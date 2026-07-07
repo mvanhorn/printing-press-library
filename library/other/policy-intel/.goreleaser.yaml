@@ -1,0 +1,13 @@
+version: 2
+
+builds:
+  - id: policy-intel-pp-cli
+    main: ./cmd/policy-intel-pp-cli
+    binary: policy-intel-pp-cli
+    goos:
+      - darwin
+      - linux
+      - windows
+    goarch:
+      - amd64
+      - arm64

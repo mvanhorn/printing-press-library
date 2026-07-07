@@ -44,7 +44,7 @@ The `messages` subcommands (`list-chats`, `search`, `stats`, `export`) are read-
 
 ## Local Customizations
 
-This CLI is hand-written (not generated), so all code is intentional. The `.printing-press-patches.json` at this directory's root documents the design decisions that differ from a typical generated CLI:
+This CLI is hand-written (not generated), so all code is intentional. The `.printing-press-patches/` directory at this directory's root documents the design decisions that differ from a typical generated CLI:
 
 1. `macos-only-guard` — structured error on non-Darwin
 2. `applescript-delete` — Photos.app scripting for deletion

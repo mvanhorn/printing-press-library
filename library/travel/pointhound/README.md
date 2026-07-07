@@ -7,6 +7,7 @@ Pointhound's web search is great for one-off lookups but doesn't compound. This 
 Learn more at [Pointhound](https://www.pointhound.com).
 
 Created by [@salmonumbrella](https://github.com/salmonumbrella) (salmonumbrella).
+Contributors: [@tmchow](https://github.com/tmchow) (Trevin Chow).
 
 ## Install
 
@@ -37,7 +38,7 @@ npx -y @mvanhorn/printing-press-library install pointhound --agent claude-code -
 
 ### Without Node (Go fallback)
 
-If `npx` isn't available (no Node, offline), install the CLI directly via Go (requires Go 1.26.3 or newer):
+If `npx` isn't available (no Node, offline), install the CLI directly via Go (requires Go 1.26.4 or newer):
 
 ```bash
 go install github.com/mvanhorn/printing-press-library/library/travel/pointhound/cmd/pointhound-pp-cli@latest

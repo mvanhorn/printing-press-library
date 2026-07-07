@@ -1,0 +1,39 @@
+{
+  "manifest_version": "0.3",
+  "name": "mixlayer-pp-mcp",
+  "display_name": "Mixlayer",
+  "version": "0.0.0",
+  "description": "Privacy-first Mixlayer CLI for OpenAI-compatible chat, local PII redaction and vaulting, reasoning-aware model ladders, live model catalog refresh, and ledger-backed cost proofs.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/mixlayer-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/mixlayer-pp-mcp",
+      "args": [],
+      "env": {
+        "MIXLAYER_API_KEY": "${user_config.mixlayer_api_key}"
+      }
+    }
+  },
+  "user_config": {
+    "mixlayer_api_key": {
+      "type": "string",
+      "title": "MIXLAYER_API_KEY",
+      "description": "Sets MIXLAYER_API_KEY for the Mixlayer MCP server.",
+      "sensitive": true,
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

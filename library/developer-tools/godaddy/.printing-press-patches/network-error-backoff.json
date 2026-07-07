@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "network-error-backoff",
+  "applied_at": "2026-05-28",
+  "base_run_id": "20260522-124732",
+  "base_printing_press_version": "4.11.0",
+  "summary": "Transport-level request failures back off (2^attempt seconds) before retry, matching the 5xx path; added regression tests.",
+  "reason": "Greptile: network errors (connection refused, DNS failure, timeout) previously retried with only the rate-limiter delay, producing up to four rapid-fire retries that hammer a recovering endpoint.",
+  "files": [
+    "internal/client/client.go",
+    "internal/client/client_network_backoff_test.go"
+  ]
+}

@@ -1,0 +1,16 @@
+{
+  "schema_version": 2,
+  "id": "pr511-db-file-perms",
+  "applied_at": "2026-05-13",
+  "base_run_id": "20260512-140827",
+  "base_printing_press_version": "4.5.1",
+  "summary": "Lock down SQLite DB files (and WAL/SHM sidecars) to 0o600 in both store and CLI-local open paths.",
+  "reason": "sql.Open is lazy: the underlying SQLite file is created on first I/O via the process umask, which on default systems lands at 0o644 — world-readable next to data that can include the Open Client session secret (users.secret) and notification metadata. The earlier cache-permission fix only covered the HTTP cache; the database files themselves still inherited the umask. WAL/SHM sidecars carry the same sensitivity (WAL holds uncommitted writes; SHM holds the index mapping WAL frames to pages), so all three files need 0o600. Both open paths now touch the main file at 0o600 before sql.Open and chmod the file + sidecars after migration; the helper is inline in each package rather than a shared API to keep their lifecycles decoupled.",
+  "files": [
+    "internal/store/store.go",
+    "internal/store/store_perms_test.go",
+    "internal/cli/pushover_history.go",
+    "internal/cli/pushover_history_perms_test.go"
+  ],
+  "validated_outcome": "go test ./internal/store -run TestOpenWithContextLocksDownDBFilePermissions -count=1 and go test ./internal/cli -run TestOpenPushoverLocalDBLocksDownFilePermissions -count=1 both stat the on-disk file (and any sidecars SQLite created during migration) and assert mode == 0o600. The tests skip on Windows where POSIX modes aren't meaningful."
+}

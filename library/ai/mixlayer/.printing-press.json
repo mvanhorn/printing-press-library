@@ -1,0 +1,116 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-06-24T02:32:38.111234Z",
+  "printing_press_version": "4.25.0",
+  "api_name": "mixlayer",
+  "display_name": "Mixlayer",
+  "cli_name": "mixlayer-pp-cli",
+  "creator": {
+    "handle": "cathrynlavery",
+    "name": "Cathryn Lavery"
+  },
+  "owner": "cathrynlavery",
+  "printer": "cathrynlavery",
+  "printer_name": "Cathryn Lavery",
+  "spec_url": "https://docs.mixlayer.com",
+  "spec_format": "docs",
+  "run_id": "20260624-023238",
+  "category": "ai",
+  "catalog_description": "Privacy-first Mixlayer CLI for OpenAI-compatible chat, local PII redaction and vaulting, reasoning-aware model ladders, live model catalog refresh, and ledger-backed cost proofs.",
+  "description": "Privacy-first Mixlayer CLI for OpenAI-compatible chat, local PII redaction and vaulting, reasoning-aware model ladders, live model catalog refresh, and ledger-backed cost proofs.",
+  "novel_features": [
+    {
+      "name": "Large-data privacy ingest",
+      "command": "shield ingest",
+      "description": "Split large CSV/text inputs into deterministic tranches, redact each tranche through one shared local vault, and reassemble a masked corpus with a manifest."
+    },
+    {
+      "name": "Shielded frontier ask",
+      "command": "shield ask",
+      "description": "Redact local data, run an outbound PII tripwire, send only the masked payload to a frontier model, rehydrate the answer locally, and save a privacy receipt."
+    },
+    {
+      "name": "PII scan tripwire",
+      "command": "shield scan",
+      "description": "Detect high-risk PII locally with CI-friendly exit codes and no upstream model call."
+    },
+    {
+      "name": "Reversible redaction",
+      "command": "shield redact",
+      "description": "Write a masked copy of a file and populate the local token-to-value vault with stable pseudonyms."
+    },
+    {
+      "name": "Shape coarsening",
+      "command": "shield restructure",
+      "description": "Drop columns, bucket numeric values, and coarsen dates to reduce re-identification risk before prompting."
+    },
+    {
+      "name": "Local vault management",
+      "command": "vault",
+      "description": "List, rehydrate, rotate, or purge the local reversible pseudonym vault without sending values upstream."
+    },
+    {
+      "name": "Privacy receipt ledger",
+      "command": "shield audit",
+      "description": "Inspect outbound payload hashes, byte counts, model IDs, masked entity counts, and residual leak counts for shielded sends."
+    },
+    {
+      "name": "Model ladder comparison",
+      "command": "ladder",
+      "description": "Run one prompt across selected Mixlayer model rungs, optionally comparing reasoning_content, latency, token usage, and cost."
+    },
+    {
+      "name": "Confidence-gated escalation",
+      "command": "escalate",
+      "description": "Start on a cheap rung and climb only when the prior answer appears insufficiently confident."
+    },
+    {
+      "name": "Reasoning council",
+      "command": "council",
+      "description": "Fan out to member model rungs and ask a judge model to synthesize answers and flag disagreements."
+    },
+    {
+      "name": "Everyday reasoning ask",
+      "command": "ask",
+      "description": "Ask Mixlayer, optionally request reasoning_content, and save prompt, answer, model, seed, token usage, cost, and raw response locally."
+    },
+    {
+      "name": "Seed replay",
+      "command": "replay",
+      "description": "Re-run a saved prompt with its original model and seed to check determinism or drift."
+    },
+    {
+      "name": "Reasoning grep",
+      "command": "grep",
+      "description": "Search saved prompts, answers, and reasoning traces through the local FTS ledger."
+    },
+    {
+      "name": "Cached model DSL",
+      "command": "models query",
+      "description": "Query a local model cache with DSL terms like ctx>=128k tools reasoning, seed it with documented and console-visible model IDs, and optionally refresh it from live /models."
+    },
+    {
+      "name": "Read-only ledger SQL",
+      "command": "sql",
+      "description": "Run SELECT-only SQLite queries over the local ledger, vault, audit, ladder, and model cache tables."
+    },
+    {
+      "name": "Savings rollup",
+      "command": "savings",
+      "description": "Roll up saved ledger cost against static GPT or Claude frontier baselines."
+    },
+    {
+      "name": "Cheap-vs-frontier compare",
+      "command": "compare",
+      "description": "Run a prompt through a cheap rung and frontier rung, report the cost delta, and attach a local-history quality note."
+    }
+  ],
+  "mcp_binary": "mixlayer-pp-mcp",
+  "mcp_tool_count": 3,
+  "mcp_ready": "full",
+  "api_version": "1.0.0",
+  "auth_type": "bearer_token",
+  "auth_env_vars": [
+    "MIXLAYER_API_KEY"
+  ]
+}

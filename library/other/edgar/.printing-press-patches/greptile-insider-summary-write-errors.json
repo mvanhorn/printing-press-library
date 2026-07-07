@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "id": "greptile-insider-summary-write-errors",
+  "applied_at": "2026-05-13",
+  "base_run_id": "20260513-115144",
+  "base_printing_press_version": "4.3.0",
+  "summary": "Surface UpsertEdgarInsiderTransaction failures in Form4SkipReport instead of discarding them.",
+  "reason": "The previous `_ = db.UpsertEdgarInsiderTransaction(...)` swallowed write errors so silently-missing transactions had no diagnostic in the skip report — same loud-skip discipline now applies to writes.",
+  "files": [
+    "internal/cli/insider_summary.go"
+  ]
+}

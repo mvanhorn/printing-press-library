@@ -1,0 +1,26 @@
+{
+  "schema_version": 2,
+  "id": "x-twitter-expanded-power-workflows",
+  "applied_at": "2026-06-08",
+  "base_run_id": "20260603-230951",
+  "base_printing_press_version": "4.20.1",
+  "summary": "Expanded novel power-user workflow layer: monitors, briefs, account snapshots, URL mentions, performance tracking, and timeline export.",
+  "reason": "The PRD's remaining X power-user scenarios need durable local workflow objects and agent-friendly commands on top of generated endpoint primitives: watermarked monitoring, source-backed packaging, account context, URL mention tracking, post metric snapshots, and portable timeline exports.",
+  "files": [
+    ".printing-press.json",
+    "internal/cli/workflow_helpers.go",
+    "internal/cli/monitor_workflow.go",
+    "internal/cli/brief_workflow.go",
+    "internal/cli/account_snapshot_workflow.go",
+    "internal/cli/url_workflow.go",
+    "internal/cli/performance_workflow.go",
+    "internal/cli/timeline_export_workflow.go",
+    "internal/cli/expanded_workflows_test.go",
+    "internal/cli/root.go",
+    "internal/cli/which.go",
+    "internal/store/store.go",
+    "SKILL.md",
+    "README.md"
+  ],
+  "validated_outcome": "Focused tests cover monitor definitions/dedupe, preview duplicate checks, URL query normalization, RFC3339 since parsing, account profile normalization, brief construction, performance grouping, timeline export formatting and LIKE escaping, plus go test ./..., go build, and strict SKILL.md verification."
+}

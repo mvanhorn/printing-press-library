@@ -1,0 +1,39 @@
+{
+  "manifest_version": "0.3",
+  "name": "calendly-pp-mcp",
+  "display_name": "Calendly Read",
+  "version": "0.0.0",
+  "description": "Read-first Calendly API surface for scheduling, availability, event, invitee, and webhook inspection.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/calendly-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/calendly-pp-mcp",
+      "args": [],
+      "env": {
+        "CALENDLY_BEARER_AUTH": "${user_config.calendly_bearer_auth}"
+      }
+    }
+  },
+  "user_config": {
+    "calendly_bearer_auth": {
+      "type": "string",
+      "title": "CALENDLY_BEARER_AUTH",
+      "description": "Sets CALENDLY_BEARER_AUTH for the Calendly Read MCP server.",
+      "sensitive": true,
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

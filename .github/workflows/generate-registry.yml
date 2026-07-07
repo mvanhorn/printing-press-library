@@ -42,12 +42,13 @@ jobs:
   regenerate:
     name: Regenerate and commit
     runs-on: ubuntu-latest
-    # Share one push lane with generate-skills.yml. Both workflows
-    # commit generated artifacts back to main after the same source
-    # changes, so letting them run concurrently causes non-fast-forward
-    # push failures when one generated commit lands first.
+    # Queue registry regenerations, but do not share this group with sibling
+    # generated-artifact workflows. GitHub keeps only one pending run per
+    # concurrency group, so a shared group lets a skills or release-ledger run
+    # evict the pending registry run and leave registry.json stale. Push races
+    # with sibling workflows are handled by the rebase-before-push step below.
     concurrency:
-      group: generated-artifact-push-main
+      group: generate-registry-main
       cancel-in-progress: false
     steps:
       - uses: actions/checkout@v6
@@ -61,7 +62,7 @@ jobs:
           token: ${{ secrets.ADMIN_PUSH_PAT }}
       - uses: actions/setup-go@v6
         with:
-          go-version: '1.26.3'
+          go-version: '1.26.4'
       - name: Run generator
         run: go run ./tools/generate-registry/main.go
       - name: Commit if changed
@@ -81,12 +82,9 @@ jobs:
           # the sentinel region would normally re-trigger; this commit
           # itself is suppressed by [skip ci] so we don't loop.
           git commit -m "chore(registry): regenerate from library/ [skip ci]"
-          # Defense-in-depth against the cross-workflow race with
-          # generate-skills.yml — the concurrency group serializes most
-          # runs, but a rebase before push handles the moment when the
-          # sibling workflow lands between our checkout and our push.
-          # The two workflows touch disjoint paths (registry.json +
-          # README.md vs cli-skills/), so the rebase is conflict-free
-          # in practice.
+          # Defense-in-depth against sibling generated-artifact workflows
+          # landing between our checkout and push. They touch disjoint paths
+          # (registry.json + README.md vs cli-skills/ or library release
+          # metadata), so the rebase is conflict-free in practice.
           git pull --rebase origin main
           git push

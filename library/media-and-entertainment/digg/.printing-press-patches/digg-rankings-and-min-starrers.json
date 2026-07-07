@@ -1,0 +1,33 @@
+{
+  "schema_version": 2,
+  "id": "digg-rankings-and-min-starrers",
+  "applied_at": "2026-05-24",
+  "base_run_id": "20260508-234057",
+  "base_printing_press_version": "4.0.6",
+  "summary": "Add a `rankings` parent command with three subcommands (emerging, movers, list) backed by an RSC parser for /ai/x/rankings/companies, plus a `--min-starrers N` flag on `github stars` for smart-money-convergence filtering. Adds a ParseStats type + --max-skip-ratio schema-drift gate shared by the new commands.",
+  "reason": "Two high-signal UI surfaces on digg.com weren't exposed by the CLI. (1) /ai/x/rankings/companies has a curated 'EMERGING STARTUPS' list and follower-velocity Movers section that map directly to VC deal-sourcing use cases; the CLI only had the AI 1000 leaderboard at /ai/1000. (2) The github stars feed surfaces a right-rail multi-starrer rollup on the website which is just the same feed filtered by distinct_starrers >= 2; users have no way to get that slice from the CLI without post-processing. Both gaps are addressed by reading existing fields out of the same RSC payloads — no new endpoints, no breaking changes.",
+  "files": [
+    "spec.yaml",
+    "manifest.json",
+    ".printing-press.json",
+    ".printing-press-patches.json",
+    "tools-manifest.json",
+    "README.md",
+    "SKILL.md",
+    "internal/cli/root.go",
+    "internal/cli/rankings.go",
+    "internal/cli/rankings_test.go",
+    "internal/cli/github.go",
+    "internal/cli/github_test.go",
+    "internal/cli/which.go",
+    "internal/diggparse/parse_stats.go",
+    "internal/diggparse/parse_stats_test.go",
+    "internal/diggparse/rankings_companies.go",
+    "internal/diggparse/rankings_companies_test.go",
+    "testdata/rankings-companies-fixture.html",
+    "testdata/rankings-companies-dirty-fixture.html",
+    "testdata/rankings-companies-empty-fixture.html"
+  ],
+  "validated_outcome": "Live smoke against digg.com at PR time: 'rankings emerging' returns 10 entries (Inspired Cognition, Evolving Programs, Shadow Robot, Tavus, etc.); 'rankings movers --direction up' returns 10 gainers (rank 76 aclanthology, rank 4 GoogleAI...); 'rankings list --limit 3' returns OpenAI(#1), GoogleDeepMind(#2), AnthropicAI(#3); 'github stars --min-starrers 2' narrows 114 unfiltered rows to 6 with distinct_starrers >= 2.",
+  "scope_note": "Rankings leaf commands intentionally OMIT the pp:endpoint annotation. The MCP cobratree walker treats pp:endpoint-tagged commands as 'covered by a typed MCP tool' and skips registering a shell-out tool; until a typed rankings tool ships, the rankings commands need shell-out MCP exposure. The existing github stars/new/activity/recent commands have the same annotation/MCP-skip behavior as a known issue, not as precedent."
+}

@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "id": "industry-bench-sic-warn",
+  "applied_at": "2026-05-12",
+  "base_run_id": "20260511-180534",
+  "base_printing_press_version": "4.2.2",
+  "summary": "Emit a stderr warning and reword `--help` when `--sic` is set in `industry-bench`.",
+  "reason": "The XBRL frame endpoint does not carry SIC codes; deriving them per-CIK via the submissions endpoint would cost thousands of HTTP calls per run. Previously the flag was silently ignored with only `sic_note` in the meta output; now it warns on stderr and the `--help` text states 'NOT APPLIED in v1' unambiguously.",
+  "files": [
+    "internal/cli/sec_transcendence.go"
+  ]
+}

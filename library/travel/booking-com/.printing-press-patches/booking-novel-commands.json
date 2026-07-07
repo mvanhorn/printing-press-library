@@ -1,0 +1,27 @@
+{
+  "schema_version": 2,
+  "id": "booking-novel-commands",
+  "applied_at": "2026-05-20",
+  "base_run_id": "20260519-175228",
+  "base_printing_press_version": "4.9.0",
+  "summary": "Added hand-coded Booking.com price, watch, trip, deal, search, and review analysis commands promised by the generated docs.",
+  "reason": "The generated CLI advertised these transcendence workflows in help and README, but only the absorbed endpoint commands were wired.",
+  "files": [
+    "internal/store/booking_migrations.go",
+    "internal/cli/booking_novel_helpers.go",
+    "internal/cli/prices.go",
+    "internal/cli/watch.go",
+    "internal/cli/wishlist_drops.go",
+    "internal/cli/compare.go",
+    "internal/cli/trips_deadlines.go",
+    "internal/cli/trip_plan.go",
+    "internal/cli/genius_impact.go",
+    "internal/cli/deals.go",
+    "internal/cli/destinations_price_band.go",
+    "internal/cli/trips_export.go",
+    "internal/cli/search.go",
+    "internal/cli/reviews_stats.go",
+    "internal/cli/root.go"
+  ],
+  "validated_outcome": "go build ./... && go vet ./... succeeded."
+}

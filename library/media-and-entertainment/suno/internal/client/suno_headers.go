@@ -24,6 +24,7 @@ import (
 	"encoding/json"
 	"net/http"
 	"strings"
+	"sync"
 	"time"
 )
 
@@ -59,8 +60,22 @@ func SunoDynamicHeaders(deviceID string) map[string]string {
 // to the Suno studio API host. Requests to any other host pass through
 // untouched so the Clerk auth flow (auth.suno.com) is not affected.
 type sunoRoundTripper struct {
-	base     http.RoundTripper
-	deviceID string
+	base         http.RoundTripper
+	deviceID     string
+	mu           sync.RWMutex
+	cookieHeader string
+}
+
+func (t *sunoRoundTripper) setCookieHeader(h string) {
+	t.mu.Lock()
+	t.cookieHeader = h
+	t.mu.Unlock()
+}
+
+func (t *sunoRoundTripper) getCookieHeader() string {
+	t.mu.RLock()
+	defer t.mu.RUnlock()
+	return t.cookieHeader
 }
 
 func (t *sunoRoundTripper) RoundTrip(req *http.Request) (*http.Response, error) {
@@ -72,6 +87,12 @@ func (t *sunoRoundTripper) RoundTrip(req *http.Request) (*http.Response, error) 
 				req.Header.Set(k, v)
 			}
 		}
+		// The browser sends its suno.com session/analytics cookies to the
+		// studio API; the WAF cross-checks them against the Bearer JWT and
+		// returns 422 token_validation_failed without them.
+		if h := t.getCookieHeader(); h != "" && req.Header.Get("Cookie") == "" {
+			req.Header.Set("Cookie", h)
+		}
 	}
 	return t.base.RoundTrip(req)
 }
@@ -79,7 +100,7 @@ func (t *sunoRoundTripper) RoundTrip(req *http.Request) (*http.Response, error) 
 // InstallSunoTransport wraps the Client's HTTPClient transport so every
 // outbound request to the Suno studio API carries Device-Id + a fresh
 // Browser-Token. Idempotent: calling it twice does not double-wrap.
-func InstallSunoTransport(c *Client, deviceID string) {
+func InstallSunoTransport(c *Client, deviceID, cookieHeader string) {
 	if c == nil || c.HTTPClient == nil {
 		return
 	}
@@ -90,5 +111,7 @@ func InstallSunoTransport(c *Client, deviceID string) {
 	if base == nil {
 		base = http.DefaultTransport
 	}
-	c.HTTPClient.Transport = &sunoRoundTripper{base: base, deviceID: deviceID}
+	rt := &sunoRoundTripper{base: base, deviceID: deviceID, cookieHeader: cookieHeader}
+	c.HTTPClient.Transport = rt
+	c.sunoRT = rt
 }

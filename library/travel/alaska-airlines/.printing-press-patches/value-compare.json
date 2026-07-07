@@ -1,0 +1,30 @@
+{
+  "schema_version": 2,
+  "id": "value-compare",
+  "applied_at": "2026-05-19",
+  "base_run_id": "20260512-151223",
+  "base_printing_press_version": "4.5.1",
+  "summary": "New flights value-compare command runs paired cash + award searches and applies a TPG cents-per-point valuation, with a 30-day on-disk cache and a soft-fallback chain (override -> fresh cache -> live TPG fetch -> stale cache -> constant).",
+  "reason": "Manual ritual of running cash search + award search + cents-per-point math + TPG lookup recurs constantly. Now one command emits an apples-to-apples comparison: cash_usd, miles + taxes_usd, effective_cpp, multiple over TPG baseline, tpg_valued_usd. A new internal/valuation/ package holds the pluggable program registry so a future amend can add United/AAdvantage/etc. by appending one struct row.",
+  "files": [
+    "internal/cli/flights_value_compare.go",
+    "internal/cli/flights_value_compare_test.go",
+    "internal/cli/flights_fare_extract.go",
+    "internal/cli/flights_fare_extract_test.go",
+    "internal/cli/flights_award_cheapest.go",
+    "internal/cli/flights_award_cheapest_test.go",
+    "internal/cli/flights.go",
+    "internal/valuation/program.go",
+    "internal/valuation/tpg.go",
+    "internal/valuation/cache.go",
+    "internal/valuation/lookup.go",
+    "internal/valuation/compare.go",
+    "internal/valuation/program_test.go",
+    "internal/valuation/tpg_test.go",
+    "internal/valuation/lookup_test.go",
+    "internal/valuation/compare_test.go",
+    "go.mod",
+    "go.sum"
+  ],
+  "validated_outcome": "End-to-end live: FCO->SEA 2026-08-30 returns cash $1626.23 (SAVER) + award 30000mi + $64.53, TPG cpp 1.4c (live-scraped), effective cpp 5.21c, multiple 3.72x, tpg_valued_usd $484.53. Replaces the previously-broken extractLowestAwardPrice (whose synthetic-test field names did not match the live SvelteKit response; award-cheapest was silently returning empty results) with a structured hydrate+walk over the actual rows[].solutions.<CABIN> shape."
+}

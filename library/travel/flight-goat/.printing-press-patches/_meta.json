@@ -1,0 +1,8 @@
+{
+  "schema_version": 2,
+  "upstream_tracking": [
+    "https://github.com/mvanhorn/printing-press-library/issues/293",
+    "https://github.com/mvanhorn/cli-printing-press/issues/804",
+    "https://github.com/mvanhorn/printing-press-library/issues/772"
+  ]
+}

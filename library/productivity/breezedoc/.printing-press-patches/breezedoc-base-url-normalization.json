@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "breezedoc-base-url-normalization",
+  "applied_at": "2026-06-01",
+  "base_run_id": "20260601-002955",
+  "base_printing_press_version": "4.19.0",
+  "summary": "Normalized BreezeDoc base URL/base path handling so saved configs do not double-prefix /api.",
+  "reason": "The printed CLI could persist base_url=https://breezedoc.com/api with base_path=/api, which caused live requests to hit /api/api/*.",
+  "files": [
+    "internal/config/config.go"
+  ],
+  "validated_outcome": "doctor --json reported credentials valid and live client-workspace-snapshot returned account counts from https://breezedoc.com/api/*."
+}

@@ -9,13 +9,17 @@ import (
 
 func newAccountCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "account",
-		Short: "Manage account",
+		Use:         "account",
+		Short:       "Manage account command groups",
+		Hidden:      true,
+		Annotations: map[string]string{"mcp:read-only": "true", "pp:typed-exit-codes": "0,2"},
+		RunE:        parentNoSubcommandRunE(flags),
 	}
 
 	cmd.AddCommand(newAccountListCmd(flags))
 	cmd.AddCommand(newAccountListGetapiusageCmd(flags))
 	cmd.AddCommand(newAccountListGetdailyusagecountCmd(flags))
 	cmd.AddCommand(newAccountListGetmostusedroutesCmd(flags))
+	cmd.AddCommand(newNovelAccountBudgetCmd(flags))
 	return cmd
 }

@@ -18,40 +18,45 @@ func newYoutubeListCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:         "list",
-		Short:       "Retrieves comprehensive YouTube channel profile data including name, avatar images, subscriber count (subscribers),...",
-		Example:     "  scrape-creators-pp-cli youtube list",
-		Annotations: map[string]string{"pp:endpoint": "youtube.list", "mcp:read-only": "true"},
+		Short:       "Retrieves comprehensive YouTube channel profile data including name, avatar images, subscriber count (subscribers)",
+		Example:     "  scrape-creators-pp-cli youtube list --handle @mkbhd",
+		Annotations: map[string]string{"pp:endpoint": "youtube.list", "pp:method": "GET", "pp:path": "/v1/youtube/channel", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
+			path := "/v1/youtube/channel"
 			c, err := flags.newClient()
 			if err != nil {
 				return err
 			}
-
-			path := "/v1/youtube/channel"
 			params := map[string]string{}
 			if flagChannelId != "" {
-				params["channelId"] = fmt.Sprintf("%v", flagChannelId)
+				params["channelId"] = formatCLIParamValue(flagChannelId)
 			}
 			if flagHandle != "" {
-				params["handle"] = fmt.Sprintf("%v", flagHandle)
+				params["handle"] = formatCLIParamValue(flagHandle)
 			}
 			if flagUrl != "" {
-				params["url"] = fmt.Sprintf("%v", flagUrl)
+				params["url"] = formatCLIParamValue(flagUrl)
 			}
-			data, prov, err := resolveRead(cmd.Context(), c, flags, "youtube", false, path, params, nil)
+			data, prov, err := resolveReadWithStrategyAndResponsePath(cmd.Context(), c, flags, "auto", "youtube", true, path, params, nil, "", cmd.ErrOrStderr())
 			if err != nil {
-				return classifyAPIError(err)
+				return classifyAPIError(err, flags)
 			}
-			// Print provenance to stderr for human-facing output
-			{
+			// Print provenance to stderr for human-facing output only.
+			// Machine-format flags (--json, --csv, --compact, --quiet, --plain,
+			// --select) and piped stdout suppress this line; the JSON envelope
+			// already carries meta.source for those consumers.
+			// SYNC: keep this gate aligned with command_promoted.go.tmpl.
+			if wantsHumanTable(cmd.OutOrStdout(), flags) {
 				var countItems []json.RawMessage
 				_ = json.Unmarshal(data, &countItems)
 				printProvenance(cmd, len(countItems), prov)
 			}
 			// For JSON output, wrap with provenance envelope before passing through flags.
 			// --select wins over --compact when both are set; --compact only runs when
-			// no explicit fields were requested.
-			if flags.asJSON || !isTerminal(cmd.OutOrStdout()) {
+			// no explicit fields were requested. Explicit format flags (--csv, --quiet,
+			// --plain) opt out of the auto-JSON path so piped consumers that asked for
+			// a non-JSON format reach the standard pipeline below.
+			if flags.asJSON || (!isTerminal(cmd.OutOrStdout()) && !flags.csv && !flags.quiet && !flags.plain) {
 				filtered := data
 				if flags.selectFields != "" {
 					filtered = filterFields(filtered, flags.selectFields)
@@ -77,7 +82,7 @@ func newYoutubeListCmd(flags *rootFlags) *cobra.Command {
 					return nil
 				}
 			}
-			return printOutputWithFlags(cmd.OutOrStdout(), data, flags)
+			return printOutputWithFlagsMeta(cmd.OutOrStdout(), data, flags, map[string]any{"source": "live"})
 		},
 	}
 	cmd.Flags().StringVar(&flagChannelId, "channel-id", "", "YouTube channel ID. Can pass a channelId, handle or url")

@@ -1,0 +1,83 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-11T14:55:07.170368Z",
+  "printing_press_version": "4.10.0",
+  "api_name": "yeswehack",
+  "display_name": "YesWeHack",
+  "cli_name": "yeswehack-pp-cli",
+  "owner": "matt-van-horn",
+  "printer": "mvanhorn",
+  "printer_name": "Matt Van Horn",
+  "spec_path": "/Users/mvanhorn/printing-press/.runstate/mvanhorn-eb6a05f2/runs/20260510-215840/research/yeswehack-browser-sniff-spec.yaml",
+  "spec_format": "internal",
+  "spec_checksum": "sha256:a14f798be9a0a0f5a7371470b6a375653c88923f767d2b646869f23d9cf22d3c",
+  "run_id": "20260510-215840",
+  "description": "Every YesWeHack researcher feature, plus an offline SQLite-backed cockpit for scope cartography, drift detection, draft reports, and hacktivity learning.",
+  "mcp_binary": "yeswehack-pp-mcp",
+  "mcp_tool_count": 17,
+  "mcp_public_tool_count": 10,
+  "mcp_ready": "full",
+  "api_version": "0.1.0",
+  "auth_type": "bearer_token",
+  "auth_env_vars": [
+    "YESWEHACK_JWT"
+  ],
+  "novel_features": [
+    {
+      "name": "Scope drift report",
+      "command": "programs scope-drift",
+      "description": "See what changed in any program's scope this week \u2014 assets added, removed, or modified, with first-seen dates."
+    },
+    {
+      "name": "Cross-program shared assets",
+      "command": "scopes overlap",
+      "description": "Surface assets (host or wildcard) that appear in two or more of your invited programs, ranked by best payout."
+    },
+    {
+      "name": "Weekend slate",
+      "command": "triage weekend",
+      "description": "Ranked plan for a short hunting session - newly added scope, reports needing your response, and trending CWEs in your specialty."
+    },
+    {
+      "name": "Pre-submit dedupe",
+      "command": "report dedupe",
+      "description": "FTS5 search over the public hacktivity feed plus your own reports for title, asset, or CWE overlap \u2014 exits 2 if a high-confidence collision exists."
+    },
+    {
+      "name": "Program fit ranker",
+      "command": "programs fit",
+      "description": "Rank invited and public programs by how well your historical CWE specialties match each program's hacktivity payout pattern."
+    },
+    {
+      "name": "Hacktivity CWE trends per program",
+      "command": "hacktivity trends",
+      "description": "Histogram of disclosed report categories and average bounty for one program over a time window."
+    },
+    {
+      "name": "Calendar of program events",
+      "command": "events calendar",
+      "description": "Chronological view of platform events, payout deadlines, and CTFs gating private invites - filtered to programs you are invited to."
+    },
+    {
+      "name": "CVSS sanity check",
+      "command": "report cvss-check",
+      "description": "Parse a CVSS 3.1 vector, recompute its base score, and flag impossible combinations against report steps text - rule-based, no LLM."
+    },
+    {
+      "name": "Draft report scaffold",
+      "command": "report draft",
+      "description": "Create a markdown draft pre-filled with the program's reward grid, accepted severity levels, and an allowed asset picker from local scopes - no network call."
+    },
+    {
+      "name": "Submit a draft (guard-railed)",
+      "command": "report submit",
+      "description": "Submit a drafted report after dry-run preview, in-scope validation, and automatic pre-submit dedupe. Requires --confirm."
+    },
+    {
+      "name": "Hacktivity learning brief",
+      "command": "hacktivity learn",
+      "description": "Filtered slice of disclosed reports for a program and CWE - top N by bounty, with severity and writeup links, in pipe-friendly JSON."
+    }
+  ],
+  "category": "developer-tools"
+}

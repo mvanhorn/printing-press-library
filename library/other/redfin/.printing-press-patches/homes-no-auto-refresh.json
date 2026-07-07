@@ -1,0 +1,16 @@
+{
+  "schema_version": 2,
+  "id": "homes-no-auto-refresh",
+  "applied_at": "2026-05-17",
+  "base_run_id": "20260504-175601",
+  "base_printing_press_version": "3.8.0",
+  "summary": "Remove `homes` from readCommandResources so the generic auto-refresh path no longer fires syncResource(\"homes\") against /stingray/api/gis.",
+  "reason": "The generic syncResource path builds params with only pageSize/cursor/since — none of the Stingray gis arguments (al, region_id, region_type, filters). Every `redfin-pp-cli homes` invocation produced a noisy `HTTP 400: Request was missing a required argument named 'al'` from the auto-refresh hook followed by a misleading `warning: using stale redfin-pp-cli cache` line on stderr — even on success. `homes` is a per-call search endpoint, not a list-all resource that can be backfilled into a local table; it should never have been registered for auto-refresh.",
+  "files": [
+    "internal/cli/auto_refresh.go",
+    "internal/cli/auto_refresh_test.go",
+    "README.md",
+    "SKILL.md"
+  ],
+  "validated_outcome": "TestReadCommandResources_HomesNotRegistered passes; `redfin-pp-cli homes --region-slug ... --dry-run` no longer emits sync_start/sync_error events on stderr; the auto-refresh hook short-circuits with `unregistered_command` for the homes path."
+}

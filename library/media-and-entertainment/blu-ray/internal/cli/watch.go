@@ -1,6 +1,8 @@
 package cli
 
 // PATCH: Hand-built local price watchlist commands backed by SQLite.
+// pp:data-source live -- "watch check" fetches the live Blu-ray.com deals page
+// to re-price watched releases; the watchlist itself is stored locally.
 
 import (
 	"context"
@@ -22,7 +24,7 @@ type watchRow struct {
 	AlertedAt   string  `json:"alerted_at,omitempty"`
 }
 
-func newWatchCmd(flags *rootFlags) *cobra.Command {
+func newNovelWatchCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "watch",
 		Short: "Manage a local Blu-ray.com price-drop watchlist.",
@@ -46,12 +48,18 @@ func newWatchAddCmd(flags *rootFlags) *cobra.Command {
 			if len(args) == 0 {
 				return cmd.Help()
 			}
-			if dryRunOK(flags) {
-				return nil
-			}
+			// Validate the id BEFORE the dry-run branch so dry-run rejects
+			// non-numeric input like the live path does, and emits release_id
+			// as an int (matching the live success JSON shape).
 			id, err := strconv.Atoi(args[0])
 			if err != nil {
 				return usageErr(fmt.Errorf("release-id must be numeric"))
+			}
+			if dryRunOK(flags) {
+				if flags.asJSON || flags.selectFields != "" || flags.csv || flags.quiet || flags.plain {
+					return flags.printJSON(cmd, map[string]any{"dry_run": true, "release_id": id})
+				}
+				return nil
 			}
 			s, err := store.OpenWithContext(cmd.Context(), defaultDBPath("blu-ray-pp-cli"))
 			if err != nil {
@@ -63,6 +71,9 @@ func newWatchAddCmd(flags *rootFlags) *cobra.Command {
 			}
 			if err := s.AddToWatchlist(cmd.Context(), id, target); err != nil {
 				return err
+			}
+			if flags.asJSON || flags.selectFields != "" || flags.csv || flags.quiet || flags.plain {
+				return flags.printJSON(cmd, map[string]any{"release_id": id, "target_price": target, "status": "watching"})
 			}
 			fmt.Fprintf(cmd.OutOrStdout(), "Watching release %d\n", id)
 			return nil
@@ -115,12 +126,18 @@ func newWatchRmCmd(flags *rootFlags) *cobra.Command {
 			if len(args) == 0 {
 				return cmd.Help()
 			}
-			if dryRunOK(flags) {
-				return nil
-			}
+			// Validate the id BEFORE the dry-run branch so dry-run rejects
+			// non-numeric input like the live path does, and emits release_id
+			// as an int (matching the live success JSON shape).
 			id, err := strconv.Atoi(args[0])
 			if err != nil {
 				return usageErr(fmt.Errorf("release-id must be numeric"))
+			}
+			if dryRunOK(flags) {
+				if flags.asJSON || flags.selectFields != "" || flags.csv || flags.quiet || flags.plain {
+					return flags.printJSON(cmd, map[string]any{"dry_run": true, "release_id": id})
+				}
+				return nil
 			}
 			s, err := store.OpenWithContext(cmd.Context(), defaultDBPath("blu-ray-pp-cli"))
 			if err != nil {
@@ -133,11 +150,37 @@ func newWatchRmCmd(flags *rootFlags) *cobra.Command {
 			if _, err := s.RemoveFromWatchlist(cmd.Context(), id); err != nil {
 				return err
 			}
+			if flags.asJSON || flags.selectFields != "" || flags.csv || flags.quiet || flags.plain {
+				return flags.printJSON(cmd, map[string]any{"release_id": id, "status": "removed"})
+			}
 			fmt.Fprintf(cmd.OutOrStdout(), "Removed release %d\n", id)
 			return nil
 		},
 	}
 	return cmd
+}
+
+// watchEntry is a watched release's alert state during a `watch check` scan: its
+// --target-price (0 = none) and the running historical low seen so far.
+type watchEntry struct {
+	target     float64
+	prevLow    float64
+	hasPrevLow bool
+}
+
+// evalDeal reports whether a deal at salePrice should fire an alert for this
+// entry — true when the price is at/below a set target, OR strictly below the
+// running historical low — and returns the entry with its running low advanced
+// so a later, higher deal in the same scan can't re-fire a new-low alert.
+func (e watchEntry) evalDeal(salePrice float64) (alert bool, updated watchEntry) {
+	hitTarget := e.target > 0 && salePrice <= e.target
+	newLow := e.hasPrevLow && salePrice < e.prevLow
+	alert = hitTarget || newLow
+	if !e.hasPrevLow || salePrice < e.prevLow {
+		e.prevLow = salePrice
+		e.hasPrevLow = true
+	}
+	return alert, e
 }
 
 func newWatchCheckCmd(flags *rootFlags) *cobra.Command {
@@ -168,11 +211,6 @@ func newWatchCheckCmd(flags *rootFlags) *cobra.Command {
 			// --target-price was set. Fixes Greptile P1 on PR #634 — without
 			// this, releases added via `watch add <id>` (target=0) never alerted
 			// because the prior code only checked `target > 0 && sale <= target`.
-			type watchEntry struct {
-				target     float64
-				prevLow    float64
-				hasPrevLow bool
-			}
 			watched := map[int]watchEntry{}
 			watchRows, err := s.ListWatchlist(cmd.Context())
 			if err != nil {
@@ -198,7 +236,7 @@ func newWatchCheckCmd(flags *rootFlags) *cobra.Command {
 			if err != nil {
 				return err
 			}
-			body, err := bluRayGet(c, "https://www.blu-ray.com/deals/", false)
+			body, err := bluRayGet(cmd.Context(), c, bluRaySiteURL(c, "/deals/"), false)
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}
@@ -239,24 +277,20 @@ func newWatchCheckCmd(flags *rootFlags) *cobra.Command {
 					persistenceErrors++
 					fmt.Fprintf(cmd.ErrOrStderr(), "warning: failed to persist low_seen for release %d: %v\n", d.ReleaseID, err)
 				}
-				hitTarget := entry.target > 0 && d.SalePrice <= entry.target
-				newLow := entry.hasPrevLow && d.SalePrice < entry.prevLow
-				if hitTarget || newLow {
+				// Alert decision + running-low advance are extracted into
+				// watchEntry.evalDeal (unit-tested in watch_check_test.go). The
+				// running low is scan-local so a later, higher deal row for the
+				// same release (e.g. another retailer) can't re-fire a new-low
+				// alert — prevLow=$20 + rows at $18 then $19 alerts only on $18.
+				// Fixes Greptile P1 + follow-up on PR #634.
+				alert, updatedEntry := entry.evalDeal(d.SalePrice)
+				watched[d.ReleaseID] = updatedEntry
+				if alert {
 					alerts = append(alerts, d)
 					if err := s.MarkWatchlistAlerted(cmd.Context(), d.ReleaseID, d.SalePrice); err != nil {
 						persistenceErrors++
 						fmt.Fprintf(cmd.ErrOrStderr(), "warning: failed to persist alerted_at for release %d: %v\n", d.ReleaseID, err)
 					}
-				}
-				// PATCH: Update the in-memory snapshot so the next deal row for this
-				// same release (e.g. another retailer) compares against the running
-				// low for this scan, not the pre-scan baseline. Fixes Greptile P1
-				// follow-up on PR #634 — without this, prevLow=$20 + rows at $18
-				// then $19 would fire two new-low alerts; the $19 row should not.
-				if !entry.hasPrevLow || d.SalePrice < entry.prevLow {
-					entry.prevLow = d.SalePrice
-					entry.hasPrevLow = true
-					watched[d.ReleaseID] = entry
 				}
 			}
 			if flags.asJSON || flags.selectFields != "" || flags.csv || flags.quiet || flags.plain {

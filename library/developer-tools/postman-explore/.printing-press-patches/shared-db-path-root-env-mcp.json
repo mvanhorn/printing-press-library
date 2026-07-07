@@ -1,0 +1,21 @@
+{
+  "schema_version": 2,
+  "id": "shared-db-path-root-env-mcp",
+  "applied_at": "2026-05-08",
+  "base_run_id": "20260429-230407",
+  "base_printing_press_version": "3.0.1",
+  "summary": "Made the local SQLite DB path shared across CLI root flags, local read commands, doctor/workflow helpers, and MCP.",
+  "reason": "Previously sync/search/workflow could use one DB while novel commands and MCP silently read the default DB, making --db unreliable for agents and tests.",
+  "files": [
+    "internal/cli/root.go",
+    "internal/cli/novel_helpers.go",
+    "internal/cli/data_source.go",
+    "internal/cli/search.go",
+    "internal/cli/sync.go",
+    "internal/cli/doctor.go",
+    "internal/cli/channel_workflow.go",
+    "internal/mcp/tools.go",
+    "internal/store/path.go"
+  ],
+  "validated_outcome": "go test ./... passed; live smoke confirmed top --db reads the DB populated by sync --db; POSTMAN_EXPLORE_DB works for sync and top."
+}

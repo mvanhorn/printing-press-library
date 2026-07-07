@@ -6,17 +6,48 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"path/filepath"
 	"regexp"
 	"strings"
 	"time"
 
-	"github.com/mvanhorn/printing-press-library/library/productivity/safari-history/internal/source"
 	_ "modernc.org/sqlite"
+	"github.com/mvanhorn/printing-press-library/library/productivity/safari-history/internal/source"
 )
 
 type Store struct{ db *sql.DB }
 
 func (s *Store) DB() *sql.DB { return s.db }
+
+// SnapshotPath returns the generated CLI's snapshot location.
+func SnapshotPath() (string, error) {
+	dir, err := cacheDir()
+	if err != nil {
+		return "", err
+	}
+	return filepath.Join(dir, "snapshot.db"), nil
+}
+
+func cacheDir() (string, error) {
+	base := os.Getenv("XDG_CACHE_HOME")
+	if strings.TrimSpace(base) == "" {
+		home, err := os.UserHomeDir()
+		if err != nil {
+			return "", err
+		}
+		base = filepath.Join(home, ".cache")
+	}
+	dir := filepath.Join(base, "safari-history")
+	// 0o700: this cache dir holds the user's private browsing-history snapshot
+	// and FTS index — restrict access to the owner.
+	// #nosec G703 -- the "taint" is the user's own $XDG_CACHE_HOME (or ~/.cache);
+	// this is a single-user local CLI writing under the user's own cache, not a
+	// service handling untrusted path input.
+	if err := os.MkdirAll(dir, 0o700); err != nil {
+		return "", err
+	}
+	return dir, nil
+}
 
 type SyncMeta struct {
 	SyncedAt                    string `json:"synced_at"`
@@ -247,6 +278,10 @@ func (s *Store) RunSelect(query string, limit int) ([]map[string]any, error) {
 	if _, err := conn.ExecContext(ctx, "PRAGMA query_only=ON"); err != nil {
 		return nil, err
 	}
+	// #nosec G201 -- This is the user-facing read-only SQL console (`sql` cmd):
+	// the query is intentionally user-supplied. It is constrained two ways:
+	// IsSelectOnly rejects non-SELECT text above, and PRAGMA query_only=ON makes
+	// the connection reject any write regardless of text. %d is an int limit.
 	wrapped := fmt.Sprintf("SELECT * FROM (%s) LIMIT %d", query, limit)
 	rows, err := conn.QueryContext(ctx, wrapped)
 	if err != nil {

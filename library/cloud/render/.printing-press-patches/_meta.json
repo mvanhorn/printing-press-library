@@ -1,0 +1,9 @@
+{
+  "schema_version": 2,
+  "deferred_to_upstream": [
+    {
+      "summary": "Generator emitted mcp_binary 'render-public-pp-mcp' (from the spec title 'Render Public'), but the actual cmd/ directory, .goreleaser.yaml, and SKILL.md all use 'render-pp-mcp'. .printing-press.json and manifest.json were aligned to 'render-pp-mcp' to satisfy the MCPB manifest contract.",
+      "reason": "cleanSpecName() / mcp_binary derivation in the generator should normalize 'Render Public' to the same slug used by cmd/ and the goreleaser binary."
+    }
+  ]
+}

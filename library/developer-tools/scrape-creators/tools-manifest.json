@@ -1,15 +1,28 @@
 {
   "api_name": "scrape-creators",
   "base_url": "https://api.scrapecreators.com",
-  "description": "The easiest way to scrape public social media data at scale. Extract profiles, posts, videos, comments, and more from TikTok, Instagram, YouTube, Twitter, LinkedIn, Facebook, Reddit, and 27+ platforms.",
+  "description": "Every Scrape Creators endpoint across 28 platforms, plus a local store with offline transcript search, cross-platform joins, and ad-library diffing no other Scrape Creators tool ships.",
   "mcp_ready": "full",
   "http_transport": "standard",
+  "mcp": {
+    "endpoint_tools": "hidden",
+    "orchestration": "code"
+  },
   "auth": {
     "type": "api_key",
     "header": "x-api-key",
     "in": "header",
     "env_vars": [
-      "SCRAPE_CREATORS_API_KEY_AUTH"
+      "SCRAPECREATORS_API_KEY"
+    ],
+    "env_var_specs": [
+      {
+        "name": "SCRAPECREATORS_API_KEY",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
     ]
   },
   "required_headers": [],
@@ -156,22 +169,34 @@
     },
     {
       "name": "facebook_list",
-      "description": "Retrieves a single public Facebook post or reel by URL. Returns post_id, like_count, comment_count, share_count, view_count, description, creation_time, and author details. For video posts, includes video sd_url, hd_url, thumbnail, and length_in_second. Optionally fetches comments and transcript via get_comments and get_transcript parameters. Required: url.",
+      "description": "Get the events of a city. Check out this [link](https://www.facebook.com/events/explore/saint-petersburg-florida/111326725552547) for an example of where we are getting the data from. Required: url. Optional: time, cursor.",
       "method": "GET",
-      "path": "/v1/facebook/post",
+      "path": "/v1/facebook/events",
       "params": [
         {
           "name": "url",
           "type": "string",
           "location": "query",
-          "description": "The URL of the post to get",
+          "description": "The URL of the city's Facebook Events page",
           "required": true
+        },
+        {
+          "name": "time",
+          "type": "string",
+          "location": "query",
+          "description": "The time frame to search for. Defaults to all time"
+        },
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "The cursor to paginate to the next page"
         }
       ]
     },
     {
       "name": "facebook_list-adlibrary",
-      "description": "Retrieves detailed information about a specific Facebook ad by its ID or URL. Returns adArchiveID, pageName, isActive, startDate, endDate, and a snapshot containing body, images, videos, display_format, link_url, and cta_text. For ads with multiple versions, the ad creative is found in the snapshot.cards array rather than snapshot.body. Optional: id, url, get_transcript (plus 1 more).",
+      "description": "Retrieves detailed information about a specific Facebook ad by its ID or URL. Returns adArchiveID, pageName, isActive, startDate, endDate, and a snapshot containing body, images, videos, display_format, link_url, and cta_text. For ads with multiple versions, the ad creative is found in the snapshot.cards array rather than snapshot.body. Optional: id, url, trim.",
       "method": "GET",
       "path": "/v1/facebook/adLibrary/ad",
       "params": [
@@ -188,12 +213,6 @@
           "description": "Facebook Ad URL"
         },
         {
-          "name": "get_transcript",
-          "type": "bool",
-          "location": "query",
-          "description": "Get the transcript of the ad. Only works if the video is under 2 minutes."
-        },
-        {
           "name": "trim",
           "type": "bool",
           "location": "query",
@@ -203,6 +222,26 @@
     },
     {
       "name": "facebook_list-adlibrary-2",
+      "description": "Retrieves a transcript for a single Facebook Ad Library video ad by ID or URL. If Facebook exposes captions, those are used. Otherwise we try to transcribe the public video URL. Credits are only deducted when transcript is returned. If the ad has no video or no transcript is available, transcript will be null and no credit is charged. Optional: id, url.",
+      "method": "GET",
+      "path": "/v1/facebook/adLibrary/ad/transcript",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "query",
+          "description": "Facebook Ad Id"
+        },
+        {
+          "name": "url",
+          "type": "string",
+          "location": "query",
+          "description": "Facebook Ad URL"
+        }
+      ]
+    },
+    {
+      "name": "facebook_list-adlibrary-3",
       "description": "Fetches all ads currently running for a specific company from the Meta Ad Library. Each ad includes ad_archive_id, page_name, is_active, publisher_platform, and a snapshot with body, images, videos, and display_format. Supports filtering by country, media_type, date range, and language with cursor-based pagination. Optional: pageId, companyName, country (plus 8 more).",
       "method": "GET",
       "path": "/v1/facebook/adLibrary/company/ads",
@@ -276,7 +315,7 @@
       ]
     },
     {
-      "name": "facebook_list-adlibrary-3",
+      "name": "facebook_list-adlibrary-4",
       "description": "Searches the Meta Ad Library by keyword and returns matching ads. Each result includes ad_archive_id, page_name, is_active, publisher_platform, and a snapshot with body text, images, videos, and cta_text. Results cap around 1,500 via GET due to cursor size limits; switch to POST method with body params for larger result sets. Required: query. Optional: sort_by, search_type, ad_type (plus 7 more).",
       "method": "GET",
       "path": "/v1/facebook/adLibrary/search/ads",
@@ -351,7 +390,7 @@
       ]
     },
     {
-      "name": "facebook_list-adlibrary-4",
+      "name": "facebook_list-adlibrary-5",
       "description": "Searches for companies by name in the Meta Ad Library and returns their page IDs for use with other ad library endpoints. Each result includes page_id, name, category, likes, verification status, and Instagram details like ig_username and ig_followers. Required: query.",
       "method": "GET",
       "path": "/v1/facebook/adLibrary/search/companies",
@@ -362,6 +401,47 @@
           "location": "query",
           "description": "Keyword to search for",
           "required": true
+        }
+      ]
+    },
+    {
+      "name": "facebook_list-event",
+      "description": "Get a specific event by its URL or id. Optional: id, url.",
+      "method": "GET",
+      "path": "/v1/facebook/event/details",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "query",
+          "description": "The ID of the event"
+        },
+        {
+          "name": "url",
+          "type": "string",
+          "location": "query",
+          "description": "The URL of the event"
+        }
+      ]
+    },
+    {
+      "name": "facebook_list-events",
+      "description": "Search for events by name. You can take a look at the page from Facebook we are getting the data from [here](https://www.facebook.com/events/search/?q=dogs). Required: query. Optional: cursor.",
+      "method": "GET",
+      "path": "/v1/facebook/events/search",
+      "params": [
+        {
+          "name": "query",
+          "type": "string",
+          "location": "query",
+          "description": "The query to search for",
+          "required": true
+        },
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "The cursor to paginate to the next page"
         }
       ]
     },
@@ -398,7 +478,146 @@
       ]
     },
     {
+      "name": "facebook_list-marketplace",
+      "description": "Fetches details for a Facebook Marketplace item by item id or Marketplace item URL, including title, description, price, location, condition, photos, seller, and availability flags. Rental listings can include listing_date_text and availability_text from Facebook's Marketplace GraphQL response, for example 'Listed over a week ago' and 'Available now'. creation_time can still be null when Facebook does not expose an exact timestamp. Optional: id, url.",
+      "method": "GET",
+      "path": "/v1/facebook/marketplace/item",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "query",
+          "description": "Facebook Marketplace item id"
+        },
+        {
+          "name": "url",
+          "type": "string",
+          "location": "query",
+          "description": "Facebook Marketplace item URL"
+        }
+      ]
+    },
+    {
+      "name": "facebook_list-marketplace-2",
+      "description": "Searches Facebook Marketplace listings by keyword and lat/lng. Supports pagination with the returned cursor. Pass the cursor value back as-is. When sort_by is creation_time_descend, Facebook can still return slightly different ordering between identical requests. For alerting/new-item workflows, scrape multiple pages and dedupe by listing id instead of relying on page 1 item order being identical every run. Required: query, lat, lng. Optional: radius_km, min_price, max_price (plus 7 more).",
+      "method": "GET",
+      "path": "/v1/facebook/marketplace/search",
+      "params": [
+        {
+          "name": "query",
+          "type": "string",
+          "location": "query",
+          "description": "Search keyword",
+          "required": true
+        },
+        {
+          "name": "lat",
+          "type": "float",
+          "location": "query",
+          "description": "Latitude for the search location",
+          "required": true
+        },
+        {
+          "name": "lng",
+          "type": "float",
+          "location": "query",
+          "description": "Longitude for the search location",
+          "required": true
+        },
+        {
+          "name": "radius_km",
+          "type": "float",
+          "location": "query",
+          "description": "Search radius in kilometers"
+        },
+        {
+          "name": "min_price",
+          "type": "float",
+          "location": "query",
+          "description": "Minimum listing price"
+        },
+        {
+          "name": "max_price",
+          "type": "float",
+          "location": "query",
+          "description": "Maximum listing price"
+        },
+        {
+          "name": "count",
+          "type": "float",
+          "location": "query",
+          "description": "Number of listings to return"
+        },
+        {
+          "name": "sort_by",
+          "type": "string",
+          "location": "query",
+          "description": "Sort order"
+        },
+        {
+          "name": "delivery_method",
+          "type": "string",
+          "location": "query",
+          "description": "Delivery filter"
+        },
+        {
+          "name": "condition",
+          "type": "string",
+          "location": "query",
+          "description": "Condition filter"
+        },
+        {
+          "name": "date_listed",
+          "type": "string",
+          "location": "query",
+          "description": "Date listed filter"
+        },
+        {
+          "name": "availability",
+          "type": "string",
+          "location": "query",
+          "description": "Availability filter"
+        },
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "Opaque pagination cursor returned from the previous response. Pass it back as-is."
+        }
+      ]
+    },
+    {
+      "name": "facebook_list-marketplace-3",
+      "description": "Searches Facebook Marketplace locations/cities and returns coordinates you can use with the Marketplace Search endpoint. Required: query.",
+      "method": "GET",
+      "path": "/v1/facebook/marketplace/location/search",
+      "params": [
+        {
+          "name": "query",
+          "type": "string",
+          "location": "query",
+          "description": "Location search query",
+          "required": true
+        }
+      ]
+    },
+    {
       "name": "facebook_list-post",
+      "description": "Retrieves a single public Facebook post or reel by URL. Returns post_id, like_count, comment_count, share_count, view_count, description, creation_time, and author details. For some reels, Facebook does not expose the same view count on the individual post page that it shows on the profile Reels grid. This value can be null or lower than the public Reels badge. If you need the public Reel badge count, call /v1/facebook/profile/reels with the author URL and match the reel by post_id. For video posts, includes video sd_url, hd_url, thumbnail, and length_in_second. Optionally fetches comments and transcript via get_comments and get_transcript parameters. Required: url.",
+      "method": "GET",
+      "path": "/v1/facebook/post",
+      "params": [
+        {
+          "name": "url",
+          "type": "string",
+          "location": "query",
+          "description": "The URL of the post to get",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "facebook_list-post-2",
       "description": "Fetches comments from a Facebook post or reel with cursor-based pagination. Each comment includes id, text, created_at, reply_count, reaction_count, and author details with name and profile_picture. Passing a feedback_id instead of a url significantly speeds up the request. Optional: url, feedback_id, cursor.",
       "method": "GET",
       "path": "/v1/facebook/post/comments",
@@ -424,7 +643,7 @@
       ]
     },
     {
-      "name": "facebook_list-post-2",
+      "name": "facebook_list-post-3",
       "description": "Extracts the transcript text from a Facebook video post or reel. Returns the transcript as a single text string with line breaks. Only works on videos under 2 minutes in length. Required: url.",
       "method": "GET",
       "path": "/v1/facebook/post/transcript",
@@ -439,8 +658,36 @@
       ]
     },
     {
+      "name": "facebook_list-post-4",
+      "description": "Get the replies to a comment. Required: feedback_id, expansion_token. Optional: cursor.",
+      "method": "GET",
+      "path": "/v1/facebook/post/comment/replies",
+      "params": [
+        {
+          "name": "feedback_id",
+          "type": "string",
+          "location": "query",
+          "description": "The *feedback_id* of the comment. Be careful, this is not the comment id. You can get the feedback_id from the /v1/facebook/post/comments endpoint.",
+          "required": true
+        },
+        {
+          "name": "expansion_token",
+          "type": "string",
+          "location": "query",
+          "description": "The expansion_token of the comment. You can get the expansion_token from the /v1/facebook/post/comments endpoint.",
+          "required": true
+        },
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "The cursor to paginate to the next page"
+        }
+      ]
+    },
+    {
       "name": "facebook_list-profile",
-      "description": "Retrieves public Facebook page details including category, address, email, phone, website, services, priceRange, rating, likeCount, and followerCount. Also returns adLibrary status with the page's ad activity and pageId. Optionally includes businessHours when get_business_hours is set to true. Required: url. Optional: get_business_hours.",
+      "description": "Retrieves public Facebook page details including category, address, email, phone, website, services, priceRange, rating, likeCount, and followerCount. Also returns adLibrary status with the page's ad activity and pageId. Optionally includes businessHours when get_business_hours is set to true. If Facebook shows an 18+ or private content gate, the response is still 200 and includes isPrivate: true. If the page is not found, the response is 404 with accountDoesNotExist: true and isPrivate: false. Required: url. Optional: get_business_hours.",
       "method": "GET",
       "path": "/v1/facebook/profile",
       "params": [
@@ -461,6 +708,27 @@
     },
     {
       "name": "facebook_list-profile-2",
+      "description": "Get the events of a public Facebook page. Required: url. Optional: cursor.",
+      "method": "GET",
+      "path": "/v1/facebook/profile/events",
+      "params": [
+        {
+          "name": "url",
+          "type": "string",
+          "location": "query",
+          "description": "The URL of the public Facebook page",
+          "required": true
+        },
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "The cursor to paginate to get more events"
+        }
+      ]
+    },
+    {
+      "name": "facebook_list-profile-3",
       "description": "Fetches photos from a public Facebook page with pagination support. Each photo includes photo_id, accessibility_caption, viewer_image with uri, height, and width, plus a thumbnail and direct url. Pagination requires passing both next_page_id and cursor from the previous response. Required: url. Optional: next_page_id, cursor.",
       "method": "GET",
       "path": "/v1/facebook/profile/photos",
@@ -487,7 +755,7 @@
       ]
     },
     {
-      "name": "facebook_list-profile-3",
+      "name": "facebook_list-profile-4",
       "description": "Returns publicly visible Facebook profile posts, limited to 3 posts per page due to API limitations. Each post includes id, text, url, reactionCount, commentCount, publishTime, videoDetails with sdUrl, hdUrl, and thumbnailUrl, plus topComments. Accepts either a url or pageId parameter, where pageId is faster. Optional: url, pageId, cursor.",
       "method": "GET",
       "path": "/v1/facebook/profile/posts",
@@ -513,7 +781,7 @@
       ]
     },
     {
-      "name": "facebook_list-profile-4",
+      "name": "facebook_list-profile-5",
       "description": "Fetches up to 10 reels per request from a public Facebook page. Each reel includes id, url, view_count, description, creation_time, video_url, thumbnail, play_time_in_ms, and music details. Pagination requires passing both next_page_id and cursor from the previous response. Required: url. Optional: next_page_id, cursor.",
       "method": "GET",
       "path": "/v1/facebook/profile/reels",
@@ -540,6 +808,274 @@
       ]
     },
     {
+      "name": "github_list",
+      "description": "Retrieves public metadata for one GitHub repository, including owner, description, language, stars, forks, topics, license, visibility, default branch, open issues, and timestamps. Pass a full GitHub repository url. Required: url.",
+      "method": "GET",
+      "path": "/v1/github/repository",
+      "params": [
+        {
+          "name": "url",
+          "type": "string",
+          "location": "query",
+          "description": "GitHub repository URL",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "github_list-trending",
+      "description": "Scrapes GitHub's public Trending developers page. Returns ranked developers with username, name, public profile URL, avatar, and the popular repository GitHub shows for that developer when available. Use language for paths like javascript or python and since for daily/weekly/monthly. Optional: language, since.",
+      "method": "GET",
+      "path": "/v1/github/trending/developers",
+      "params": [
+        {
+          "name": "language",
+          "type": "string",
+          "location": "query",
+          "description": "Optional trending coding language, e.g. javascript, python, or go."
+        },
+        {
+          "name": "since",
+          "type": "string",
+          "location": "query",
+          "description": "Trending range: daily, weekly, or monthly. Defaults to daily."
+        }
+      ]
+    },
+    {
+      "name": "github_list-trending-2",
+      "description": "Scrapes GitHub's public Trending repositories page. Returns ranked repositories with public URLs, descriptions, language, star/fork counts, stars for the selected range, and built-by users when GitHub shows them. Use language for paths like JavaScript or Python, since for daily/weekly/monthly, and spoken_language_code for GitHub's spoken language filter. Optional: language, since, spoken_language_code.",
+      "method": "GET",
+      "path": "/v1/github/trending/repositories",
+      "params": [
+        {
+          "name": "language",
+          "type": "string",
+          "location": "query",
+          "description": "Optional coding language, e.g. javascript, python, or go."
+        },
+        {
+          "name": "since",
+          "type": "string",
+          "location": "query",
+          "description": "Trending range: daily, weekly, or monthly. Defaults to daily."
+        },
+        {
+          "name": "spoken_language_code",
+          "type": "string",
+          "location": "query",
+          "description": "Optional spoken language code filter, e.g. en."
+        }
+      ]
+    },
+    {
+      "name": "github_list-user",
+      "description": "Retrieves public GitHub user details including name, bio, avatar, company, location, blog, follower counts, public repo counts, and account timestamps. Pass username, handle, or a full GitHub user url. Optional: handle, url.",
+      "method": "GET",
+      "path": "/v1/github/user",
+      "params": [
+        {
+          "name": "handle",
+          "type": "string",
+          "location": "query",
+          "description": "GitHub username/handle of the user you want the details for"
+        },
+        {
+          "name": "url",
+          "type": "string",
+          "location": "query",
+          "description": "GitHub user URL, e.g. https://github.com/torvalds."
+        }
+      ]
+    },
+    {
+      "name": "github_list-user-2",
+      "description": "Retrieves GitHub profile contribution activity for a user from the public profile activity timeline. Defaults to the current year when year is not provided. Results come back one month at a time in the activity array. Pass cursor from the previous response to page backward through the year. Optional: handle, url, year (plus 1 more).",
+      "method": "GET",
+      "path": "/v1/github/user/activity",
+      "params": [
+        {
+          "name": "handle",
+          "type": "string",
+          "location": "query",
+          "description": "GitHub handle"
+        },
+        {
+          "name": "url",
+          "type": "string",
+          "location": "query",
+          "description": "GitHub user URL, e.g. https://github.com/kentcdodds."
+        },
+        {
+          "name": "year",
+          "type": "float",
+          "location": "query",
+          "description": "When provided, returns profile contribution activity for that year. Defaults to the current year."
+        },
+        {
+          "name": "cursor",
+          "type": "float",
+          "location": "query",
+          "description": "Cursor from the previous response. Pages backward by month through the selected year."
+        }
+      ]
+    },
+    {
+      "name": "github_list-user-3",
+      "description": "Retrieves the public GitHub contribution graph for a user and year, including total contributions and daily contribution counts/intensity. Pass github handle, or a full GitHub profile url. Defaults to the current year when year is not provided. Optional: handle, url, year.",
+      "method": "GET",
+      "path": "/v1/github/user/contributions",
+      "params": [
+        {
+          "name": "handle",
+          "type": "string",
+          "location": "query",
+          "description": "GitHub handle"
+        },
+        {
+          "name": "url",
+          "type": "string",
+          "location": "query",
+          "description": "GitHub profile URL"
+        },
+        {
+          "name": "year",
+          "type": "float",
+          "location": "query",
+          "description": "Contribution graph year. Defaults to the current year."
+        }
+      ]
+    },
+    {
+      "name": "github_list-user-4",
+      "description": "Retrieves public GitHub followers for a user. Each follower includes login, avatar, user URL, type, and GitHub IDs. Pass username, handle, or a full GitHub user url. Supports cursor pagination. Optional: handle, url, cursor.",
+      "method": "GET",
+      "path": "/v1/github/user/followers",
+      "params": [
+        {
+          "name": "handle",
+          "type": "string",
+          "location": "query",
+          "description": "GitHub username/handle of the user you want the followers for"
+        },
+        {
+          "name": "url",
+          "type": "string",
+          "location": "query",
+          "description": "GitHub user URL, e.g. https://github.com/torvalds."
+        },
+        {
+          "name": "cursor",
+          "type": "float",
+          "location": "query",
+          "description": "Cursor from the previous response. Defaults to 1."
+        }
+      ]
+    },
+    {
+      "name": "github_list-user-5",
+      "description": "Retrieves public accounts followed by a GitHub user. Each account includes login, avatar, profile URL, type, and GitHub IDs. Pass username, handle, or a full GitHub profile url. Supports cursor pagination. Optional: handle, url, cursor.",
+      "method": "GET",
+      "path": "/v1/github/user/following",
+      "params": [
+        {
+          "name": "handle",
+          "type": "string",
+          "location": "query",
+          "description": "GitHub handle"
+        },
+        {
+          "name": "url",
+          "type": "string",
+          "location": "query",
+          "description": "GitHub profile URL"
+        },
+        {
+          "name": "cursor",
+          "type": "float",
+          "location": "query",
+          "description": "Cursor from the previous response. Defaults to 1."
+        }
+      ]
+    },
+    {
+      "name": "github_list-user-6",
+      "description": "Searches public GitHub pull requests authored by a user using GitHub's public search index. Pass username, handle, or url. Optional since and until filters use YYYY-MM-DD created dates. Results include the PR title, repo, state, created_at, and url, sorted by newest created first. Required: handle. Optional: since, until, cursor.",
+      "method": "GET",
+      "path": "/v1/github/user/pull-requests",
+      "params": [
+        {
+          "name": "handle",
+          "type": "string",
+          "location": "query",
+          "description": "GitHub username/handle of the user you want pull requests for",
+          "required": true
+        },
+        {
+          "name": "since",
+          "type": "string",
+          "location": "query",
+          "description": "Only return pull requests created on or after this date. Use YYYY-MM-DD."
+        },
+        {
+          "name": "until",
+          "type": "string",
+          "location": "query",
+          "description": "Only return pull requests created on or before this date. Use YYYY-MM-DD."
+        },
+        {
+          "name": "cursor",
+          "type": "float",
+          "location": "query",
+          "description": "Cursor from the previous response. Defaults to 1."
+        }
+      ]
+    },
+    {
+      "name": "github_list-user-7",
+      "description": "Retrieves a user's public repositories with repo metadata like description, language, stars, forks, topics, license, visibility, default branch, and timestamps. Pass username, handle, or url. Supports pagination with cursor, plus GitHub's type, sort, and direction parameters. Optional: handle, url, type (plus 3 more).",
+      "method": "GET",
+      "path": "/v1/github/user/repositories",
+      "params": [
+        {
+          "name": "handle",
+          "type": "string",
+          "location": "query",
+          "description": "GitHub username/handle of the user you want the repositories for"
+        },
+        {
+          "name": "url",
+          "type": "string",
+          "location": "query",
+          "description": "GitHub user URL, e.g. https://github.com/kentcdodds."
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "location": "query",
+          "description": "Repository type. Defaults to owner. GitHub also supports all and member."
+        },
+        {
+          "name": "sort",
+          "type": "string",
+          "location": "query",
+          "description": "Sort by created, updated, pushed, or full_name. Defaults to updated."
+        },
+        {
+          "name": "direction",
+          "type": "string",
+          "location": "query",
+          "description": "Sort direction: ascending or descending."
+        },
+        {
+          "name": "cursor",
+          "type": "float",
+          "location": "query",
+          "description": "Cursor from the previous response. Defaults to 1."
+        }
+      ]
+    },
+    {
       "name": "google_list",
       "description": "Retrieves detailed information about a specific Google ad including advertiserId, creativeId, format, firstShown, lastShown, and overallImpressions. Returns creativeRegions, regionStats with per-region impression data, and variations with destinationUrl, headline, description, and imageUrl. Text extraction uses OCR, so accuracy may vary. Required: url.",
       "method": "GET",
@@ -556,7 +1092,7 @@
     },
     {
       "name": "google_list-adlibrary",
-      "description": "Searches the Google Ad Transparency Library for advertisers by name. Returns a list of matching advertisers with their name, advertiser_id, and region, plus a list of associated website domains. Use the returned advertiser_id to look up a company's ads. Required: query.",
+      "description": "Searches the Google Ad Transparency Library for advertisers by name. Returns a list of matching advertisers with their name, advertiser_id, and region, plus a list of associated website domains. Use the returned advertiser_id to look up a company's ads. Defaults to US when region is not passed, so pass a 2-letter country code like AU or CA when searching for advertisers in another region. Required: query. Optional: region.",
       "method": "GET",
       "path": "/v1/google/adLibrary/advertisers/search",
       "params": [
@@ -566,12 +1102,18 @@
           "location": "query",
           "description": "The query to search for",
           "required": true
+        },
+        {
+          "name": "region",
+          "type": "string",
+          "location": "query",
+          "description": "2-letter country code to search in. Defaults to US when omitted."
         }
       ]
     },
     {
       "name": "google_list-company",
-      "description": "Fetches public ads for a company from the Google Ad Transparency Library by domain or advertiser_id. Each ad includes advertiserId, creativeId, format, adUrl, advertiserName, domain, firstShown, and lastShown. Costs 25 credits per request when get_ad_details=true; without it, only advertiserId and creativeId are returned at 1 credit. Optional: domain, advertiser_id, topic (plus 5 more).",
+      "description": "Fetches public ads for a company from the Google Ad Transparency Library by domain or advertiser_id. Each ad includes advertiserId, creativeId, format, adUrl, advertiserName, domain, firstShown, and lastShown. Costs 25 credits per request when get_ad_details=true; without it, only advertiserId and creativeId are returned at 1 credit. Optional: domain, advertiser_id, topic (plus 7 more).",
       "method": "GET",
       "path": "/v1/google/company/ads",
       "params": [
@@ -610,6 +1152,18 @@
           "type": "string",
           "location": "query",
           "description": "End date to search for. Format: YYYY-MM-DD"
+        },
+        {
+          "name": "platform",
+          "type": "string",
+          "location": "query",
+          "description": "Platform to search for."
+        },
+        {
+          "name": "format",
+          "type": "string",
+          "location": "query",
+          "description": "Ad format to search for."
         },
         {
           "name": "get_ad_details",
@@ -669,6 +1223,27 @@
           "type": "string",
           "location": "query",
           "description": "Instagram user id"
+        }
+      ]
+    },
+    {
+      "name": "instagram_list-audio",
+      "description": "Fetches the reels Instagram exposes for an audio page like instagram.com/reels/audio/{audio_id}/. Pass the audio_id from that URL. Use cursor from the previous response to request the next page when Instagram returns one. Required: audio_id. Optional: cursor.",
+      "method": "GET",
+      "path": "/v1/instagram/audio/reels",
+      "params": [
+        {
+          "name": "audio_id",
+          "type": "string",
+          "location": "query",
+          "description": "The audio id from the Instagram audio page URL.",
+          "required": true
+        },
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "Pagination cursor returned by Instagram from the previous response."
         }
       ]
     },
@@ -764,6 +1339,13 @@
     },
     {
       "name": "instagram_list-reels",
+      "description": "Fetches trending reels from Instagram's public instagram.com/reels page. Instagram only gives a small batch at a time and the results can overlap, so call this endpoint over and over when you want more. Each call should return new-ish results, but expect some duplicates because that is how Instagram's reels page behaves too. Returns `reels`, an array of reel objects with shortcode, URL, caption, media URLs, engagement counts when Instagram exposes them, and user info.",
+      "method": "GET",
+      "path": "/v1/instagram/reels/trending",
+      "params": []
+    },
+    {
+      "name": "instagram_list-reels-2",
       "description": "Searches for Instagram reels matching a keyword or phrase via Google Search, bypassing Instagram's login-gated search. Returns a list of reels with shortcode, caption, thumbnail, video URL, play count, like count, comment count, video duration, owner details, location, and audio attribution info. Play counts are Instagram-only views and exclude cross-posted Facebook views. Supports page-based pagination for browsing additional results. Required: query. Optional: date_posted, page.",
       "method": "GET",
       "path": "/v2/instagram/reels/search",
@@ -790,23 +1372,56 @@
       ]
     },
     {
-      "name": "instagram_list-song",
-      "description": "DEPRECATED — this endpoint is no longer functional. Instagram removed the public audio pages that this endpoint relied on, so it cannot return data. Do not use this endpoint; there is currently no replacement available. Required: audio_id. Optional: max_id.",
+      "name": "instagram_list-search",
+      "description": "Finds public Instagram posts for a hashtag using Google Search, then returns post details such as caption, play count when available, like count, comment count, owner, and post time. Results depend on what Google has indexed, so this is best-effort and not a complete Instagram-native hashtag search. Pass media_type=reels if you only want reels. Use date_posted for recent posts and pass the returned cursor to fetch the next page. Required: hashtag. Optional: date_posted, media_type, cursor.",
       "method": "GET",
-      "path": "/v1/instagram/song/reels",
+      "path": "/v1/instagram/search/hashtag",
       "params": [
         {
-          "name": "audio_id",
+          "name": "hashtag",
           "type": "string",
           "location": "query",
-          "description": "If you're looking for this, it is sometimes called 'audio_cluster_id', or it can be just 'audio_id'.",
+          "description": "The hashtag to search for. Include or omit the #.",
           "required": true
         },
         {
-          "name": "max_id",
+          "name": "date_posted",
           "type": "string",
           "location": "query",
-          "description": "How you paginate the results. Pass the max_id from the previous response to get the next set of reels."
+          "description": "Only return Google-indexed posts found in this relative window."
+        },
+        {
+          "name": "media_type",
+          "type": "string",
+          "location": "query",
+          "description": "Use all to search public posts and reels, or reels to only return reels. Defaults to all."
+        },
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "The cursor returned by the previous response. In this version, it is the next Google results page number."
+        }
+      ]
+    },
+    {
+      "name": "instagram_list-search-2",
+      "description": "Searches Google for public Instagram results matching a keyword or phrase, then returns matching public profiles. Profile-page matches are marked matched_from=profile. Reel/post caption matches are enriched into the creator profile and marked matched_from=caption. This is best-effort and depends on what Google has indexed; it is not a complete native Instagram profile search. Required: query. Optional: cursor.",
+      "method": "GET",
+      "path": "/v1/instagram/search/profiles",
+      "params": [
+        {
+          "name": "query",
+          "type": "string",
+          "location": "query",
+          "description": "Bio or caption keyword/phrase to search for.",
+          "required": true
+        },
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "The cursor returned by the previous response. In this version, it is the next Google results page number."
         }
       ]
     },
@@ -879,7 +1494,7 @@
     },
     {
       "name": "instagram_list-user-4",
-      "description": "Returns a paginated feed of a user's public Instagram posts, including photos, videos, and carousels. Each item includes media type, shortcode, caption text, like count, comment count, play count, video URLs, image URLs, and tagged users. Play counts reflect Instagram-only views and exclude cross-posted Facebook views. Supports cursor-based pagination via next_max_id for scrolling through the full timeline. Required: handle. Optional: next_max_id, trim.",
+      "description": "Returns a paginated feed of a user's public Instagram posts, including reels, photos, videos, and carousels. Each item includes media type, shortcode, caption text, like count, comment count, play count, video URLs, image URLs, and tagged users. Play counts reflect Instagram-only views and exclude cross-posted Facebook views. Supports cursor-based pagination via next_max_id for scrolling through the full timeline. Required: handle. Optional: next_max_id, trim.",
       "method": "GET",
       "path": "/v2/instagram/user/posts",
       "params": [
@@ -945,6 +1560,72 @@
           "location": "query",
           "description": "URL to Komi page",
           "required": true
+        }
+      ]
+    },
+    {
+      "name": "kwai_list",
+      "description": "Fetches public Kwai post details including caption, media URLs, cover images, counts, author info, and music metadata. Uses Kwai's public web API endpoint, not HTML scraping. Optional: url.",
+      "method": "GET",
+      "path": "/v1/kwai/post",
+      "params": [
+        {
+          "name": "url",
+          "type": "string",
+          "location": "query",
+          "description": "Kwai post URL"
+        }
+      ]
+    },
+    {
+      "name": "kwai_list-profile",
+      "description": "Fetches public Kwai profile data including username, bio, avatar, verification status, gender, and public counts. Uses Kwai's public web API endpoint, not HTML scraping. Optional: handle, url.",
+      "method": "GET",
+      "path": "/v1/kwai/profile",
+      "params": [
+        {
+          "name": "handle",
+          "type": "string",
+          "location": "query",
+          "description": "Kwai profile handle. Use this or url."
+        },
+        {
+          "name": "url",
+          "type": "string",
+          "location": "query",
+          "description": "Kwai profile URL. Use this or handle."
+        }
+      ]
+    },
+    {
+      "name": "kwai_list-user",
+      "description": "Fetches a paginated list of public Kwai posts for a user, including captions, media URLs, covers, counts, author info, and the next cursor when more results are available. Uses Kwai's public web API endpoint, not HTML scraping. Optional: handle, url, cursor (plus 1 more).",
+      "method": "GET",
+      "path": "/v1/kwai/user/posts",
+      "params": [
+        {
+          "name": "handle",
+          "type": "string",
+          "location": "query",
+          "description": "Kwai profile handle. Use this or url."
+        },
+        {
+          "name": "url",
+          "type": "string",
+          "location": "query",
+          "description": "Kwai profile URL. Use this or handle."
+        },
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "Cursor from the previous response for the next page"
+        },
+        {
+          "name": "count",
+          "type": "float",
+          "location": "query",
+          "description": "Number of posts to return, max 50"
         }
       ]
     },
@@ -1080,6 +1761,21 @@
       ]
     },
     {
+      "name": "linkedin_list-post-2",
+      "description": "Fetches the transcript from a LinkedIn post video when LinkedIn exposes one publicly. Returns null with transcriptNotAvailable when the post has no transcript, and only deducts credits when a transcript is returned. Required: url.",
+      "method": "GET",
+      "path": "/v1/linkedin/post/transcript",
+      "params": [
+        {
+          "name": "url",
+          "type": "string",
+          "location": "query",
+          "description": "The URL of the LinkedIn post to get the transcript from",
+          "required": true
+        }
+      ]
+    },
+    {
       "name": "linkedin_list-profile",
       "description": "Retrieves a person's public LinkedIn profile data, including their name, photo, location, follower count (followers), about/bio summary, recent posts, work experience, education, articles, activity feed, publications, projects, recommendations, and similar profiles. Only returns publicly available information visible in an incognito browser. Required: url.",
       "method": "GET",
@@ -1091,6 +1787,33 @@
           "location": "query",
           "description": "The URL of the LinkedIn profile to get",
           "required": true
+        }
+      ]
+    },
+    {
+      "name": "linkedin_list-search",
+      "description": "Finds public LinkedIn posts, feed updates, and Pulse articles by keyword using Google Search, then returns post details such as description, author, media, images, like count, comment count, and published date when LinkedIn exposes them publicly. Results depend on what Google has indexed, so this is best-effort and not a complete LinkedIn-native search. Use date_posted for recent posts and pass the returned cursor to fetch the next page. Required: query. Optional: date_posted, cursor.",
+      "method": "GET",
+      "path": "/v1/linkedin/search/posts",
+      "params": [
+        {
+          "name": "query",
+          "type": "string",
+          "location": "query",
+          "description": "Keyword or phrase to search for in public LinkedIn posts",
+          "required": true
+        },
+        {
+          "name": "date_posted",
+          "type": "string",
+          "location": "query",
+          "description": "Date posted filter based on Google-indexed results"
+        },
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "The cursor returned from the previous response"
         }
       ]
     },
@@ -1237,93 +1960,6 @@
     },
     {
       "name": "reddit_list",
-      "description": "Retrieves detailed information about a specific Reddit ad by its id. Returns an analysis_summary with headline and media insights, plus the full inspiration_creative object containing id, budget_category, industry, placements, objective, and creative details (headline, body, type, thumbnail_url, created_at, post_url). Also includes profile_info with the advertiser's name. Required: id.",
-      "method": "GET",
-      "path": "/v1/reddit/ad",
-      "params": [
-        {
-          "name": "id",
-          "type": "string",
-          "location": "query",
-          "description": "Ad id",
-          "required": true
-        }
-      ]
-    },
-    {
-      "name": "reddit_list-ads",
-      "description": "Searches the Reddit Ad Library for ads matching a query, returning a maximum of 30 results. Each ad includes id, budget_category, industry, placements, objective, and a creative object with headline, body, thumbnail_url, type, created_at, and post_url. Also includes profile_info with the advertiser's name. Supports filtering by industries, budgets, formats, placements, and objectives. Required: query. Optional: industries, budgets, formats (plus 2 more).",
-      "method": "GET",
-      "path": "/v1/reddit/ads/search",
-      "params": [
-        {
-          "name": "query",
-          "type": "string",
-          "location": "query",
-          "description": "Search query",
-          "required": true
-        },
-        {
-          "name": "industries",
-          "type": "string",
-          "location": "query",
-          "description": "Industries to filter by"
-        },
-        {
-          "name": "budgets",
-          "type": "string",
-          "location": "query",
-          "description": "Budgets to filter by"
-        },
-        {
-          "name": "formats",
-          "type": "string",
-          "location": "query",
-          "description": "Formats to filter by"
-        },
-        {
-          "name": "placements",
-          "type": "string",
-          "location": "query",
-          "description": "Placements to filter by"
-        },
-        {
-          "name": "objectives",
-          "type": "string",
-          "location": "query",
-          "description": "Objectives to filter by"
-        }
-      ]
-    },
-    {
-      "name": "reddit_list-post",
-      "description": "Retrieves comments and post details from a Reddit post by URL. Returns the post with title, author, score, ups, upvote_ratio, num_comments, and created_utc, plus a comments array where each comment includes author, body, body_html, score, created_utc, parent_id, permalink, and nested replies. Supports cursor-based pagination for loading more comments and a trim parameter for lighter responses. Required: url. Optional: cursor, trim.",
-      "method": "GET",
-      "path": "/v1/reddit/post/comments",
-      "params": [
-        {
-          "name": "url",
-          "type": "string",
-          "location": "query",
-          "description": "Reddit post URL",
-          "required": true
-        },
-        {
-          "name": "cursor",
-          "type": "string",
-          "location": "query",
-          "description": "Cursor to get more comments, or replies."
-        },
-        {
-          "name": "trim",
-          "type": "bool",
-          "location": "query",
-          "description": "Set to true for a trimmed down version of the response"
-        }
-      ]
-    },
-    {
-      "name": "reddit_list-search",
       "description": "Searches across all of Reddit for posts matching a query. Each post includes title, author, selftext, subreddit, score, ups, upvote_ratio, num_comments, created_utc, url, permalink, and is_video. Supports sort (relevance, new, top, comment_count), timeframe filtering, pagination via the after token, and a trim parameter for lighter responses. Required: query. Optional: sort, timeframe, after (plus 1 more).",
       "method": "GET",
       "path": "/v1/reddit/search",
@@ -1358,6 +1994,54 @@
           "type": "bool",
           "location": "query",
           "description": "Set to true for a trimmed down version of the response"
+        }
+      ]
+    },
+    {
+      "name": "reddit_list-post",
+      "description": "Retrieves comments and post details from a Reddit post by URL. Returns the post with title, author, score, ups, upvote_ratio, num_comments, and created_utc, plus a comments array where each comment includes author, body, body_html, score, created_utc, parent_id, permalink, and nested replies. Supports cursor-based pagination for loading more comments and a trim parameter for lighter responses. Required: url. Optional: cursor, trim.",
+      "method": "GET",
+      "path": "/v1/reddit/post/comments",
+      "params": [
+        {
+          "name": "url",
+          "type": "string",
+          "location": "query",
+          "description": "Reddit post URL",
+          "required": true
+        },
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "Cursor to get more comments, or replies."
+        },
+        {
+          "name": "trim",
+          "type": "bool",
+          "location": "query",
+          "description": "Set to true for a trimmed down version of the response"
+        }
+      ]
+    },
+    {
+      "name": "reddit_list-post-2",
+      "description": "Gets the transcript from a Reddit video post or direct v.redd.it URL when Reddit exposes a VTT caption file. Returns the raw WebVTT in raw_vtt plus a parsed plain-text transcript. If Reddit does not expose captions for the video, transcript is null and transcriptNotAvailable is true. Required: url. Optional: language.",
+      "method": "GET",
+      "path": "/v1/reddit/post/transcript",
+      "params": [
+        {
+          "name": "url",
+          "type": "string",
+          "location": "query",
+          "description": "Reddit post URL or direct v.redd.it video URL",
+          "required": true
+        },
+        {
+          "name": "language",
+          "type": "string",
+          "location": "query",
+          "description": "2 letter language code. Defaults to en."
         }
       ]
     },
@@ -1460,6 +2144,98 @@
       ]
     },
     {
+      "name": "rumble_list",
+      "description": "Searches Rumble videos by keyword. Returns matching videos and shorts with title, URL, thumbnail, channel, published date, viewCountText, viewCountInt, and a numeric cursor for the next page. Required: query. Optional: cursor.",
+      "method": "GET",
+      "path": "/v1/rumble/search",
+      "params": [
+        {
+          "name": "query",
+          "type": "string",
+          "location": "query",
+          "description": "Search query.",
+          "required": true
+        },
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "Cursor from the previous response. This is the next page number, like 2 or 3."
+        }
+      ]
+    },
+    {
+      "name": "rumble_list-channel",
+      "description": "Gets videos from a Rumble channel by handle or URL. Returns channel metadata, videos, shorts, and a numeric cursor for the next page. Optional: handle, url, cursor.",
+      "method": "GET",
+      "path": "/v1/rumble/channel/videos",
+      "params": [
+        {
+          "name": "handle",
+          "type": "string",
+          "location": "query",
+          "description": "Rumble channel handle. If you'd prefer to use the URL instead, use the url parameter."
+        },
+        {
+          "name": "url",
+          "type": "string",
+          "location": "query",
+          "description": "Rumble channel URL. If you'd prefer to use the handle instead, use the handle parameter."
+        },
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "Cursor from the previous response. This is the next page number, like 2 or 3."
+        }
+      ]
+    },
+    {
+      "name": "rumble_list-video",
+      "description": "Gets Rumble video details by URL. Returns title, description, thumbnail, channel, publish date, view count, likes, dislikes, captions, and media metadata when available. Required: url.",
+      "method": "GET",
+      "path": "/v1/rumble/video",
+      "params": [
+        {
+          "name": "url",
+          "type": "string",
+          "location": "query",
+          "description": "Rumble video URL.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "rumble_list-video-2",
+      "description": "Gets all top level comments for a Rumble video by URL. Returns comment text, author, createdAt, createdAtText, likeCount, dislikeCount, and replyCount when comment bodies are public. Required: url.",
+      "method": "GET",
+      "path": "/v1/rumble/video/comments",
+      "params": [
+        {
+          "name": "url",
+          "type": "string",
+          "location": "query",
+          "description": "Rumble video URL.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "rumble_list-video-3",
+      "description": "Gets a Rumble video's transcript when captions are available. If Rumble does not expose captions for the video, transcript will be null and you will not be charged. Required: url.",
+      "method": "GET",
+      "path": "/v1/rumble/video/transcript",
+      "params": [
+        {
+          "name": "url",
+          "type": "string",
+          "location": "query",
+          "description": "Rumble video URL.",
+          "required": true
+        }
+      ]
+    },
+    {
       "name": "snapchat_list",
       "description": "Retrieves a Snapchat user's public profile by handle, including identity, stories, and spotlight content. Returns userProfile with username, title, snapcodeImageUrl, subscriberCount, bio, and profilePictureUrl. Also includes highlightStoryMetadata with individual story snaps (mediaUrl, mediaType, thumbnailUrl) and spotlightStoryMetadata with video details and engagement stats (viewCount, shareCount, commentCount). Required: handle.",
       "method": "GET",
@@ -1471,6 +2247,188 @@
           "location": "query",
           "description": "Snapchat username",
           "required": true
+        }
+      ]
+    },
+    {
+      "name": "soundcloud_list",
+      "description": "Fetches detailed information about a SoundCloud artist by its handle or URL. Returns artist metadata including id, name, followers, etc. Optional: handle, url.",
+      "method": "GET",
+      "path": "/v1/soundcloud/artist",
+      "params": [
+        {
+          "name": "handle",
+          "type": "string",
+          "location": "query",
+          "description": "SoundCloud artist handle. If you'd prefer to use the URL instead, you can use the url parameter instead."
+        },
+        {
+          "name": "url",
+          "type": "string",
+          "location": "query",
+          "description": "SoundCloud artist URL. If you'd prefer to use the handle instead, you can use the handle parameter instead."
+        }
+      ]
+    },
+    {
+      "name": "soundcloud_list-artist",
+      "description": "Fetches tracks/songs for a SoundCloud artist by handle or URL. Returns the artist profile, track list, and pagination info from SoundCloud. Optional: handle, url, cursor.",
+      "method": "GET",
+      "path": "/v1/soundcloud/artist/tracks",
+      "params": [
+        {
+          "name": "handle",
+          "type": "string",
+          "location": "query",
+          "description": "SoundCloud artist handle. If you'd prefer to use the URL instead, you can use the url parameter instead."
+        },
+        {
+          "name": "url",
+          "type": "string",
+          "location": "query",
+          "description": "SoundCloud artist tracks URL. If you'd prefer to use the handle instead, you can use the handle parameter instead."
+        },
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "Cursor to get more tracks. Get 'cursor' from previous response."
+        }
+      ]
+    },
+    {
+      "name": "soundcloud_list-track",
+      "description": "Fetches detailed information about a SoundCloud track/song by URL. Returns track title, plays, likes, reposts, comments, artwork, artist, and other SoundCloud metadata. Required: url.",
+      "method": "GET",
+      "path": "/v1/soundcloud/track",
+      "params": [
+        {
+          "name": "url",
+          "type": "string",
+          "location": "query",
+          "description": "SoundCloud track URL.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "spotify_list",
+      "description": "Retrieves detailed information about a Spotify album by its id or URL, including album metadata, artists, release date, cover art, copyright info, tracks, and sharing details. Optional: id, url.",
+      "method": "GET",
+      "path": "/v1/spotify/album",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "query",
+          "description": "Spotify album id. If you'd prefer to use the URL instead, you can use the url parameter instead."
+        },
+        {
+          "name": "url",
+          "type": "string",
+          "location": "query",
+          "description": "Spotify album URL. If you'd prefer to use the id instead, you can use the id parameter instead."
+        }
+      ]
+    },
+    {
+      "name": "spotify_list-artist",
+      "description": "Retrieves detailed information about a Spotify artist by their handle, including name, followers count, genres, and related artists. Accepts a handle as input and returns artist metadata such as id, name, followers, genres, and related artists. Optional: id, url.",
+      "method": "GET",
+      "path": "/v1/spotify/artist",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "query",
+          "description": "Spotify artist id. If you'd prefer to use the URL instead, you can use the url parameter instead."
+        },
+        {
+          "name": "url",
+          "type": "string",
+          "location": "query",
+          "description": "Spotify artist URL. If you'd prefer to use the id instead, you can use the id parameter instead."
+        }
+      ]
+    },
+    {
+      "name": "spotify_list-podcast",
+      "description": "Retrieves detailed information about a Spotify podcast by its id or URL. Spotify calls podcasts shows internally, so Spotify podcast URLs use /show/. Optional: id, url.",
+      "method": "GET",
+      "path": "/v1/spotify/podcast",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "query",
+          "description": "Spotify podcast id. If you'd prefer to use the URL instead, you can use the url parameter instead."
+        },
+        {
+          "name": "url",
+          "type": "string",
+          "location": "query",
+          "description": "Spotify podcast URL. If you'd prefer to use the id instead, you can use the id parameter instead."
+        }
+      ]
+    },
+    {
+      "name": "spotify_list-podcast-2",
+      "description": "Returns episodes for a Spotify podcast. Pass the cursor returned by a response to get the next page. Optional: id, url, cursor.",
+      "method": "GET",
+      "path": "/v1/spotify/podcast/episodes",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "query",
+          "description": "Spotify podcast id. If you'd prefer to use the URL instead, you can use the url parameter instead."
+        },
+        {
+          "name": "url",
+          "type": "string",
+          "location": "query",
+          "description": "Spotify podcast URL. If you'd prefer to use the id instead, you can use the id parameter instead."
+        },
+        {
+          "name": "cursor",
+          "type": "float",
+          "location": "query",
+          "description": "Cursor returned by the previous response. Omit for the first page."
+        }
+      ]
+    },
+    {
+      "name": "spotify_list-search",
+      "description": "Search Spotify for tracks, artists, albums, episodes, podcasts, and audiobooks. Use type=podcasts when you need podcast ids for the podcast endpoints. Required: query.",
+      "method": "GET",
+      "path": "/v1/spotify/search",
+      "params": [
+        {
+          "name": "query",
+          "type": "string",
+          "location": "query",
+          "description": "Search query",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "spotify_list-track",
+      "description": "Retrieves detailed information about a Spotify track by its id or URL, including track metadata, artists, album info, duration, playability, and sharing details. Optional: id, url.",
+      "method": "GET",
+      "path": "/v1/spotify/track",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "query",
+          "description": "Spotify track id. If you'd prefer to use the URL instead, you can use the url parameter instead."
+        },
+        {
+          "name": "url",
+          "type": "string",
+          "location": "query",
+          "description": "Spotify song URL. If you'd prefer to use the id instead, you can use the id parameter instead."
         }
       ]
     },
@@ -1601,6 +2559,101 @@
       ]
     },
     {
+      "name": "tiktok_list-adlibrary",
+      "description": "Fetches one TikTok Creative Center Top Ad by material/ad ID or URL. Uses the same Creative Center data behind pages like ads.tiktok.com/business/creativecenter/topads/{id}/pc/en, including title, metrics, video info, landing page, country codes, objective, industry, source, the Creative Center URL, summary/analysis, interactive time analysis graph data, and recommended-for-you ads when TikTok provides them. Required: ad_id.",
+      "method": "GET",
+      "path": "/v1/tiktok/ad-library/ad",
+      "params": [
+        {
+          "name": "ad_id",
+          "type": "string",
+          "location": "query",
+          "description": "TikTok Top Ads material/ad ID, or a Top Ads detail URL.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "tiktok_list-adlibrary-2",
+      "description": "Searches TikTok Creative Center Top Ads, the ad library page at ads.tiktok.com/business/creativecenter/inspiration/topads. Supports US and other 2-letter regions, period filters, sorting, keyword search, and cursor pagination. Returns TikTok's public top ad material objects, including ad title, metrics, video info, landing page, and pagination. Optional: region, period, query (plus 9 more).",
+      "method": "GET",
+      "path": "/v1/tiktok/ad-library/search",
+      "params": [
+        {
+          "name": "region",
+          "type": "string",
+          "location": "query",
+          "description": "Country code. Defaults to US."
+        },
+        {
+          "name": "period",
+          "type": "string",
+          "location": "query",
+          "description": "Time window for Top Ads."
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "query",
+          "description": "Optional keyword to search ad titles/content."
+        },
+        {
+          "name": "order_by",
+          "type": "string",
+          "location": "query",
+          "description": "Sort metric. Defaults to for_you."
+        },
+        {
+          "name": "industry",
+          "type": "string",
+          "location": "query",
+          "description": "Industry filter."
+        },
+        {
+          "name": "objective",
+          "type": "string",
+          "location": "query",
+          "description": "Campaign objective filter."
+        },
+        {
+          "name": "duration",
+          "type": "string",
+          "location": "query",
+          "description": "Video duration filter."
+        },
+        {
+          "name": "likes",
+          "type": "string",
+          "location": "query",
+          "description": "Likes percentile filter."
+        },
+        {
+          "name": "ad_format",
+          "type": "string",
+          "location": "query",
+          "description": "Ad format filter."
+        },
+        {
+          "name": "ad_language",
+          "type": "string",
+          "location": "query",
+          "description": "Ad language filter."
+        },
+        {
+          "name": "cursor",
+          "type": "float",
+          "location": "query",
+          "description": "Page number to fetch. Use the cursor returned from the previous response, like 3 for page 3."
+        },
+        {
+          "name": "limit",
+          "type": "float",
+          "location": "query",
+          "description": "Number of ads to return, max 50. Defaults to 20."
+        }
+      ]
+    },
+    {
       "name": "tiktok_list-creators",
       "description": "Discovers trending and popular TikTok creators, filterable by follower count range, creator country, and audience country. Returns `creator_list`, an array of creator objects each with `nickname`, `unique_id`, `follower_count`, `likes_count`, `video_views`, `engagement_rate`, and avatar URLs. Sortable by engagement, follower count, or average views. Optional: page, sortBy, followerCount (plus 2 more).",
       "method": "GET",
@@ -1677,8 +2730,30 @@
       ]
     },
     {
+      "name": "tiktok_list-live",
+      "description": "Gets curated room-level info for a TikTok live using TokAPI's live info endpoint. Use `/v1/tiktok/user/live` first to find the `room_id`. If you only have a TikTok handle and need the user's numeric id, use `/v1/tiktok/profile` first to get `user.id`. This endpoint is separate from `/v1/tiktok/user/live` because it uses a different upstream call and returns a smaller response with the most relevant fields: `room_id`, `like_count`, `viewer_count`, `status`, `title`, `cover_url`, and `owner`. Required: room_id, user_id.",
+      "method": "GET",
+      "path": "/v1/tiktok/live",
+      "params": [
+        {
+          "name": "room_id",
+          "type": "string",
+          "location": "query",
+          "description": "TikTok live room id. Get this from `/v1/tiktok/user/live` in `liveRoomUserInfo.roomId` or `liveRoom.id` when the user is live.",
+          "required": true
+        },
+        {
+          "name": "user_id",
+          "type": "string",
+          "location": "query",
+          "description": "TikTok numeric user id for the live owner. Get this from `/v1/tiktok/profile` in `user.id`.",
+          "required": true
+        }
+      ]
+    },
+    {
       "name": "tiktok_list-product",
-      "description": "Fetches full details for a specific TikTok Shop product by its URL, including stock levels and affiliate videos. Returns `product_info` with `product_base` (title, images, sold_count, price), `skus` (variants with exact `stock` counts), and `product_detail_review` (product_rating, review_count, sample reviews); also returns `shop_info` (shop_name, shop_rating, followers_count) and `related_videos` (affiliate TikToks promoting the product). Related videos are only available in the US region. Required: url. Optional: region.",
+      "description": "Fetches full details for a specific US TikTok Shop product by its URL, including stock levels and affiliate videos. Returns `product_info` with `product_base` (title, images, sold_count, price), `skus` (variants with exact `stock` counts), and `product_detail_review` (product_rating, review_count, sample reviews); also returns `shop_info` (shop_name, shop_rating, followers_count) and `related_videos` (affiliate TikToks promoting the product). This endpoint currently supports the US region only. Required: url. Optional: region.",
       "method": "GET",
       "path": "/v1/tiktok/product",
       "params": [
@@ -1693,15 +2768,35 @@
           "name": "region",
           "type": "string",
           "location": "query",
-          "description": "Region the proxy will be set to so you can access products from that country. Use 2 letter country codes like US, GB, FR, etc. For England, don't use UK, use GB."
+          "description": "Region for the product details request. US is the reliable region right now; non-US regions should not be considered reliable and may return `bad_request` or missing product data. Sorry for the inconvenience."
         }
       ]
     },
     {
       "name": "tiktok_list-profile",
-      "description": "Fetches public profile data for a TikTok user by their handle — useful for looking up a creator's identity, bio, and account stats. Returns a `user` object (display name, avatar URLs, bio/signature, verification status, bio link) and a `stats` object (followerCount, followingCount, heartCount/total likes, videoCount). This only returns profile metadata, not the user's actual videos or followers list. Required: handle.",
+      "description": "Fetches public profile data for a TikTok user by their handle or user_id — useful for looking up a creator's identity, bio, and account stats. Returns a `user` object (display name, avatar URLs, bio/signature, verification status, bio link) and a `stats` object (followerCount, followingCount, heartCount/total likes, videoCount). This only returns profile metadata, not the user's actual videos or followers list. Optional: handle, user_id.",
       "method": "GET",
       "path": "/v1/tiktok/profile",
+      "params": [
+        {
+          "name": "handle",
+          "type": "string",
+          "location": "query",
+          "description": "TikTok handle. You can pass handle or user_id."
+        },
+        {
+          "name": "user_id",
+          "type": "string",
+          "location": "query",
+          "description": "TikTok user id."
+        }
+      ]
+    },
+    {
+      "name": "tiktok_list-profile-2",
+      "description": "Returns the TikTok region code for a public profile, like `US` for United States or `MX` for Mexico. Required: handle.",
+      "method": "GET",
+      "path": "/v1/tiktok/profile/region",
       "params": [
         {
           "name": "handle",
@@ -1713,7 +2808,7 @@
       ]
     },
     {
-      "name": "tiktok_list-profile-2",
+      "name": "tiktok_list-profile-3",
       "description": "Fetches videos posted by a TikTok user, sortable by latest or most popular — use this to get a creator's video feed or TikToks. Returns `aweme_list`, an array of video objects each containing `aweme_id`, `desc` (caption), `statistics` (play_count, digg_count/likes, comment_count, share_count, collect_count/saves), and `video` (download URLs, duration, cover image). Paginate with `max_cursor` from the previous response. Required: handle. Optional: user_id, sort_by, max_cursor (plus 2 more).",
       "method": "GET",
       "path": "/v3/tiktok/profile/videos",
@@ -1759,7 +2854,7 @@
     },
     {
       "name": "tiktok_list-search",
-      "description": "Searches for TikTok videos under a specific hashtag — useful for finding content by topic or trend. Returns `aweme_list`, an array of video objects each with `aweme_id`, `desc` (caption), `statistics` (play_count, digg_count/likes, comment_count, share_count), `video` info, and `author` details. Paginate with `cursor` from the previous response. Required: hashtag. Optional: region, cursor, trim.",
+      "description": "Searches for TikTok videos under a specific hashtag — useful for finding content by topic or trend. Returns `aweme_list`, an array of video objects each with `aweme_id`, `desc` (caption), `statistics` (play_count, digg_count/likes, comment_count, share_count), `video` info, and `author` details. Paginate with `cursor` from the previous response. TikTok may return duplicate results. Required: hashtag. Optional: region, cursor, trim.",
       "method": "GET",
       "path": "/v1/tiktok/search/hashtag",
       "params": [
@@ -1792,7 +2887,7 @@
     },
     {
       "name": "tiktok_list-search-2",
-      "description": "Searches for TikTok videos by keyword or phrase — the general video search across all of TikTok. Returns `search_item_list`, an array of objects each containing `aweme_info` with `aweme_id`, `desc` (caption), `statistics` (play_count, digg_count/likes, comment_count, share_count), `video` info, and `author` details. Paginate with `cursor`. Required: query. Optional: date_posted, sort_by, region (plus 2 more).",
+      "description": "Searches for TikTok videos by keyword or phrase — the general video search across all of TikTok. Returns `search_item_list`, an array of objects each containing `aweme_info` with `aweme_id`, `desc` (caption), `statistics` (play_count, digg_count/likes, comment_count, share_count), `video` info, and `author` details. Paginate with `cursor`. TikTok may return duplicate results. Required: query. Optional: date_posted, sort_by, region (plus 2 more).",
       "method": "GET",
       "path": "/v1/tiktok/search/keyword",
       "params": [
@@ -1837,7 +2932,28 @@
     },
     {
       "name": "tiktok_list-search-3",
-      "description": "Searches TikTok's 'Top' results by query — returns both videos and photo carousels, unlike keyword search which only returns videos. Returns `items`, an array of objects each with `id`, `desc` (caption), `content_type` (video or photo carousel), `statistics` (play_count, digg_count/likes, comment_count, share_count), `video` info, and `images` for carousels. Paginate with `cursor`. Required: query. Optional: publish_time, sort_by, region (plus 1 more).",
+      "description": "Gets the autocomplete suggestions TikTok shows while someone is typing in search. Returns `suggestions`, a clean array of suggested search terms and the most useful metadata for each suggestion. Required: query. Optional: region.",
+      "method": "GET",
+      "path": "/v1/tiktok/search/suggestions",
+      "params": [
+        {
+          "name": "query",
+          "type": "string",
+          "location": "query",
+          "description": "Search query to get suggestions for",
+          "required": true
+        },
+        {
+          "name": "region",
+          "type": "string",
+          "location": "query",
+          "description": "Region code for suggestions"
+        }
+      ]
+    },
+    {
+      "name": "tiktok_list-search-4",
+      "description": "Searches TikTok's 'Top' results by query — returns both videos and photo carousels, unlike keyword search which only returns videos. Returns `items`, an array of objects each with `id`, `desc` (caption), `content_type` (video or photo carousel), `statistics` (play_count, digg_count/likes, comment_count, share_count), `video` info, and `images` for carousels. Paginate with `cursor`. TikTok may return duplicate results. Required: query. Optional: publish_time, sort_by, region (plus 1 more).",
       "method": "GET",
       "path": "/v1/tiktok/search/top",
       "params": [
@@ -1875,7 +2991,7 @@
       ]
     },
     {
-      "name": "tiktok_list-search-4",
+      "name": "tiktok_list-search-5",
       "description": "Searches for TikTok users by keyword or name — useful for finding creators or accounts matching a query. Returns `users`, an array of objects each containing `user_info` (nickname, unique_id, signature/bio, follower_count, following_count, avatar) and associated `items`. Paginate with `cursor` from the previous response. Required: query. Optional: cursor, trim.",
       "method": "GET",
       "path": "/v1/tiktok/search/users",
@@ -1903,7 +3019,7 @@
     },
     {
       "name": "tiktok_list-shop",
-      "description": "Lists all products from a specific TikTok Shop store by its URL. Returns an array of product objects each with `title`, `cover` images, `url`, `price` info, `sold_count`, `review_count`, and `rating`. Paginate with `cursor` from the previous response; filter by region. Required: url. Optional: cursor, region.",
+      "description": "Lists all products from a specific TikTok Shop store by its URL. Returns an array of product objects each with `title`, `cover` images, `url`, `price` info, `sold_count`, `review_count`, and `rating`. Paginate with `cursor` from the previous response; filter by region; use `sort_by=top` for best-selling products or `sort_by=new_releases` for newest products. Non-US shop catalog coverage depends on TikTok exposing that shop in the selected region, so some shops can return `not_found` outside the US even when they appear in shop search. Required: url. Optional: cursor, sort_by, region.",
       "method": "GET",
       "path": "/v1/tiktok/shop/products",
       "params": [
@@ -1921,10 +3037,16 @@
           "description": "Cursor parameter from the previous response to retrieve the next page of products. Omit for the first page."
         },
         {
+          "name": "sort_by",
+          "type": "string",
+          "location": "query",
+          "description": "Sort products by best-selling items (`top`) or newest products (`new_releases`). Defaults to `top`."
+        },
+        {
           "name": "region",
           "type": "string",
           "location": "query",
-          "description": "Region to get shop products from. Defaults to US if not provided."
+          "description": "Region to get shop products from. Defaults to US if not provided. Non-US regions are not reliable right now and may return `not_found` or limited catalog data even when the shop appears in search. Sorry for the inconvenience."
         }
       ]
     },
@@ -1951,7 +3073,7 @@
           "name": "region",
           "type": "string",
           "location": "query",
-          "description": "Region to search shop products in."
+          "description": "Region to search shop products in. Non-US TikTok Shop regions are not reliable right now and may return limited or inconsistent results. Sorry for the inconvenience."
         }
       ]
     },
@@ -1977,7 +3099,7 @@
           "name": "region",
           "type": "string",
           "location": "query",
-          "description": "The region of the product. This is *very* important."
+          "description": "The region of the product. US is the reliable region right now; non-US regions should not be considered reliable and may return limited or inconsistent review data. Sorry for the inconvenience."
         },
         {
           "name": "page",
@@ -2128,7 +3250,7 @@
           "name": "region",
           "type": "string",
           "location": "query",
-          "description": "Region to put the proxy in"
+          "description": "Region to put the proxy in. Non-US TikTok Shop regions are not reliable right now and may return limited or inconsistent showcase data. Sorry for the inconvenience."
         },
         {
           "name": "cursor",
@@ -2140,7 +3262,7 @@
     },
     {
       "name": "tiktok_list-video",
-      "description": "Fetches detailed data for a single TikTok video by URL, including its metadata, engagement stats, and optionally its transcript/captions. Returns `aweme_detail` with `desc` (caption), `statistics` (play_count, digg_count/likes, comment_count, share_count, collect_count), `video` (download URLs including no-watermark), `author` info, and `music` info; also returns `transcript` in WEBVTT format if `get_transcript=true`. Required: url. Optional: get_transcript, region, trim (plus 1 more).",
+      "description": "Fetches detailed data for a single TikTok video by URL, including its metadata, engagement stats, and optionally its transcript/captions. Returns `aweme_detail` with `desc` (caption), `statistics` (play_count, digg_count/likes, comment_count, share_count, collect_count), `video` URLs, `author` info, and `music` info; also returns `transcript` in WEBVTT format if `get_transcript=true`. For no-watermark video URLs, use `aweme_detail.video.download_no_watermark_addr.url_list[0]` when it exists. If it is missing and `aweme_detail.video.has_watermark` is false, use `aweme_detail.video.play_addr.url_list[0]` instead. If `has_watermark` is true and `download_no_watermark_addr` is missing, TikTok did not return a no-watermark URL for that video. Required: url. Optional: get_transcript, region, trim (plus 1 more).",
       "method": "GET",
       "path": "/v2/tiktok/video",
       "params": [
@@ -2353,6 +3475,21 @@
     },
     {
       "name": "twitch_list-user",
+      "description": "Fetches a user's schedule by handle, returning a list of scheduled events with start time, end time, title, description, and thumbnail URL. Supports pagination via cursor and a trim option for lighter responses. Required: handle.",
+      "method": "GET",
+      "path": "/v1/twitch/user/schedule",
+      "params": [
+        {
+          "name": "handle",
+          "type": "string",
+          "location": "query",
+          "description": "Twitch handle",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "twitch_list-user-2",
       "description": "Fetches a list of videos (100 max) for a Twitch user, returning each video's id, slug, url, embedURL, title, viewCount, language, durationSeconds, game info, broadcaster details with follower count, thumbnailURL, and videoQualities at multiple resolutions with a signed videoURL for playback. Supports pagination via cursor and a trim option for lighter responses. Required: handle. Optional: filter_by, sort_by.",
       "method": "GET",
       "path": "/v1/twitch/user/videos",
@@ -2508,6 +3645,84 @@
     },
     {
       "name": "youtube_list-channel",
+      "description": "Fetches community posts from a YouTube channel's Posts tab, including post ID, URL, content, images, attached video, like count, publish time, channel info, and a continuationToken when YouTube has more results. Pass a handle or channelId for the first page, then pass continuationToken to page through more posts. Optional: channelId, handle, continuationToken.",
+      "method": "GET",
+      "path": "/v1/youtube/channel/community-posts",
+      "params": [
+        {
+          "name": "channelId",
+          "type": "string",
+          "location": "query",
+          "description": "YouTube channel ID"
+        },
+        {
+          "name": "handle",
+          "type": "string",
+          "location": "query",
+          "description": "YouTube channel handle"
+        },
+        {
+          "name": "continuationToken",
+          "type": "string",
+          "location": "query",
+          "description": "Continuation token to get more community posts. Get 'continuationToken' from previous response."
+        }
+      ]
+    },
+    {
+      "name": "youtube_list-channel-2",
+      "description": "Fetches live streams and past streams from a YouTube channel's Live tab, including title, URL, thumbnail, view count, publish time, duration, and a continuationToken when YouTube has more results. Pass a handle or channelId for the first page, then pass continuationToken to page through more lives. Optional: channelId, handle, continuationToken.",
+      "method": "GET",
+      "path": "/v1/youtube/channel/lives",
+      "params": [
+        {
+          "name": "channelId",
+          "type": "string",
+          "location": "query",
+          "description": "YouTube channel ID"
+        },
+        {
+          "name": "handle",
+          "type": "string",
+          "location": "query",
+          "description": "YouTube channel handle"
+        },
+        {
+          "name": "continuationToken",
+          "type": "string",
+          "location": "query",
+          "description": "Continuation token to get more lives. Get 'continuationToken' from previous response."
+        }
+      ]
+    },
+    {
+      "name": "youtube_list-channel-3",
+      "description": "Fetches playlists from a YouTube channel's Playlists tab, including playlist ID, title, thumbnail, video count, channel info, playlist URL, and a continuationToken when YouTube has more results. Pass a handle or channelId for the first page, then pass continuationToken to page through more playlists. Optional: channelId, handle, continuationToken.",
+      "method": "GET",
+      "path": "/v1/youtube/channel/playlists",
+      "params": [
+        {
+          "name": "channelId",
+          "type": "string",
+          "location": "query",
+          "description": "YouTube channel ID"
+        },
+        {
+          "name": "handle",
+          "type": "string",
+          "location": "query",
+          "description": "YouTube channel handle"
+        },
+        {
+          "name": "continuationToken",
+          "type": "string",
+          "location": "query",
+          "description": "Continuation token to get more playlists. Get 'continuationToken' from previous response."
+        }
+      ]
+    },
+    {
+      "name": "youtube_list-channel-4",
       "description": "Retrieves a paginated list of short-form videos (Shorts) from a YouTube channel, including each short's title, URL, view count (views), likes, comments, and description. Supports sorting by newest or popular, and use the continuationToken to page through all results. Returns data in the shorts array. Optional: handle, channelId, sort (plus 1 more).",
       "method": "GET",
       "path": "/v1/youtube/channel/shorts",
@@ -2540,7 +3755,7 @@
     },
     {
       "name": "youtube_list-channelvideos",
-      "description": "Fetches a paginated list of videos uploaded by a YouTube channel, including each video's title, URL, thumbnail, view count (views), publish date, duration, and description. Supports sorting by latest or popular, and use the continuationToken to page through all results. Optionally include extras like like count, comment count, and descriptions for each video. Optional: channelId, handle, sort (plus 2 more).",
+      "description": "Fetches a paginated list of videos uploaded by a YouTube channel, including each video's title, URL, thumbnail, view count (views), publish date, duration, and description. Supports sorting by latest or popular, and use the continuationToken to page through all results. Optionally include extras like like count, comment count, and descriptions for each video. Optional: channelId, handle, sort (plus 3 more).",
       "method": "GET",
       "path": "/v1/youtube/channel-videos",
       "params": [
@@ -2569,10 +3784,16 @@
           "description": "Continuation token to get more videos. Get 'continuationToken' from previous response."
         },
         {
+          "name": "is_paid_promotions",
+          "type": "string",
+          "location": "query",
+          "description": "Set to 'true' to search YouTube's public paid product placement / sponsorship / endorsement search surface. This returns normal YouTube videos where the creator declared paid promotion. Cannot be combined with filter, uploadDate, sortBy, type, duration, or includeExtras."
+        },
+        {
           "name": "includeExtras",
           "type": "string",
           "location": "query",
-          "description": "This will get you the like + comment count and the description. To get the full details of the video, use the /v1/youtube/video endpoint. This will slow down the response slightly."
+          "description": "This will get you the like + comment count and the description. To get the full details of the video, use the /v1/youtube/video endpoint. Honestly, if you use this param, the error rate is higher. We might deprecate this param in the future."
         }
       ]
     },
@@ -2608,7 +3829,7 @@
     },
     {
       "name": "youtube_list-search",
-      "description": "Searches YouTube by keyword query and returns matching videos, channels, playlists, shorts, shelves, and live streams. Each video result includes title, URL, thumbnail, view count (views), publish date, duration, channel info, and badges. Supports filtering by upload date, sorting by relevance or popularity, and paginating with continuationToken. Required: query. Optional: uploadDate, sortBy, type (plus 4 more).",
+      "description": "Searches YouTube by keyword query and returns matching videos, channels, playlists, shorts, shelves, and live streams. Each video result includes title, URL, thumbnail, view count (views), publish date, duration, channel info, and badges. Supports filtering by upload date, sorting by relevance or popularity, and paginating with continuationToken. Set is_paid_promotions=true to search YouTube videos with the paid product placement / sponsorship disclosure. Required: query. Optional: uploadDate, sortBy, type (plus 4 more).",
       "method": "GET",
       "path": "/v1/youtube/search",
       "params": [
@@ -2747,6 +3968,27 @@
     },
     {
       "name": "youtube_list-video-3",
+      "description": "Experimental endpoint. Checks a YouTube video for the paid-promotion disclosure and infers likely sponsors/promoted brands from the public description, description links, promo-code text, and transcript. YouTube tells us that a video contains paid promotion, but it does not always tell us the sponsor directly, so this endpoint returns suspected sponsors with confidence and evidence. This is inferred, not an official YouTube sponsor field. Feedback welcome: support@scrapecreators.com. Required: url. Optional: language.",
+      "method": "GET",
+      "path": "/v1/youtube/video/sponsors",
+      "params": [
+        {
+          "name": "url",
+          "type": "string",
+          "location": "query",
+          "description": "YouTube video or short URL",
+          "required": true
+        },
+        {
+          "name": "language",
+          "type": "string",
+          "location": "query",
+          "description": "2 letter language code used for transcript lookup, ie 'en', 'es', 'fr' etc."
+        }
+      ]
+    },
+    {
+      "name": "youtube_list-video-4",
       "description": "Retrieves the captions, subtitles, or transcript of a YouTube video or short. Returns both a timestamped transcript array with start/end times and a plain-text version in transcript_only_text. Supports specifying a language code. Note: the video must be under 2 minutes for transcript extraction to work. Required: url. Optional: language.",
       "method": "GET",
       "path": "/v1/youtube/video/transcript",
@@ -2767,7 +4009,7 @@
       ]
     },
     {
-      "name": "youtube_list-video-4",
+      "name": "youtube_list-video-5",
       "description": "Fetches replies to a specific comment on a YouTube video, including each reply's text content, author details (name, channel ID, avatar, verified/creator status), like count, and publish date. Requires a continuationToken obtained from the 'repliesContinuationToken' field on comments returned by the Comments endpoint. Supports paginating through additional replies with the continuationToken returned in each response. Required: continuationToken.",
       "method": "GET",
       "path": "/v1/youtube/video/comment/replies",

@@ -1,0 +1,19 @@
+{
+  "schema_version": 2,
+  "id": "google-flights-rpc-retry-and-ds1-fallback",
+  "applied_at": "2026-06-26",
+  "base_run_id": "2026-05-02T22:09:06.820184Z",
+  "base_printing_press_version": "3.6.0",
+  "summary": "Retry transient Google Flights RPC code-13 envelopes before falling back, and harden the HTML fallback against ds:1 script, malformed-script, and page-error variants.",
+  "reason": "Google's FlightsFrontendService can alternate between a valid response and HTTP 200 wrb.fr code-13 errors for the same request, so one blocked envelope should not immediately force the lower-fidelity HTML path. When fallback is needed, Google page data can appear as a direct script.ds:1 data payload, after unrelated malformed script blocks, or as an embedded errorHasStatus page; these cases must be handled explicitly so usable page data is parsed and page-level errors are not reported as legitimate empty results.",
+  "files": [
+    "internal/gflights/flights_native.go",
+    "internal/gflights/dates_native.go",
+    "internal/gflights/rpc_http.go",
+    "internal/gflights/rpc_retry.go",
+    "internal/gflights/rpc_retry_test.go",
+    "internal/gflights/html_fallback.go",
+    "internal/gflights/html_fallback_test.go"
+  ],
+  "validated_outcome": "`go test ./internal/gflights/...` and `go test ./...` pass; live `go run ./cmd/flight-goat-pp-cli flights SEA NRT 2026-12-18 --return 2027-01-01 --passengers 4 --agent` returns success with 9 itineraries via the HTML fallback after RPC retry attempts."
+}

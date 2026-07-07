@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "chrome-history-device-origin",
+  "applied_at": "2026-05-24T00:00:00Z",
+  "base_run_id": "20260524-023512",
+  "base_printing_press_version": "4.12.0",
+  "summary": "Cross-device (origin) partitioning via visit_source/originator_cache_guid + --device filter + devices command.",
+  "reason": "Browser history includes synced other-device activity; surfaced as a first-class dimension.",
+  "files": [
+    "internal/cli/devices.go",
+    "internal/source/chrome/source.go"
+  ]
+}

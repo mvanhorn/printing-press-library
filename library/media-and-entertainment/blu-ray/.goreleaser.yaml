@@ -23,7 +23,7 @@ builds:
     env:
       - CGO_ENABLED=0
     ldflags:
-      - -s -w
+      - -s -w -X main.version={{ .Version }}
     targets:
       - darwin_amd64
       - darwin_arm64
@@ -42,10 +42,10 @@ checksum:
 brews:
   - name: blu-ray-pp-cli
     repository:
-      owner: vinny-pasceri
+      owner: vinnyp
       name: homebrew-tap
     homepage: "https://github.com/mvanhorn/printing-press-library"
-    description: "The disc-collector's CLI for Blu-ray.com — offline catalog, live deals, and a price-drop watchlist with zero..."
+    description: "The disc-collector's CLI for Blu-ray.com — offline catalog, live deals, and a price-drop watchlist with zero account required."
     install: |
       bin.install "blu-ray-pp-cli"
       bin.install "blu-ray-pp-mcp"

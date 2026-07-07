@@ -21,7 +21,7 @@ func newCustomersGenerateKeywordForecastMetricsCmd(flags *rootFlags) *cobra.Comm
 	cmd := &cobra.Command{
 		Use:         "generate-keyword-forecast-metrics <customerId>",
 		Short:       "Returns metrics (such as impressions, clicks, total cost) of a keyword forecast for the given campaign.",
-		Example:     "  google-ads-pp-cli customers generate_keyword_forecast_metrics 550e8400-e29b-41d4-a716-446655440000",
+		Example:     "  google-ads-pp-cli customers generate-keyword-forecast-metrics 550e8400-e29b-41d4-a716-446655440000",
 		Annotations: map[string]string{"pp:endpoint": "customers.generate_keyword_forecast_metrics", "pp:method": "POST", "pp:path": "/v22/customers/{customerId}:generateKeywordForecastMetrics"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

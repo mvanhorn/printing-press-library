@@ -15,7 +15,7 @@ func newSitemapIndexCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:         "index",
-		Short:       "Sitemap index — points at gzipped sub-sitemaps for main, news, bluraymovies (9 shards), dvdmovies (7),...",
+		Short:       "Sitemap index — points at gzipped sub-sitemaps for main, news, bluraymovies (9 shards), dvdmovies (7), itunesmovies (5)",
 		Example:     "  blu-ray-pp-cli sitemap index",
 		Annotations: map[string]string{"pp:endpoint": "sitemap.index", "pp:method": "GET", "pp:path": "/sitemap.xml", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -27,7 +27,7 @@ func newSitemapIndexCmd(flags *rootFlags) *cobra.Command {
 			path := "/sitemap.xml"
 			htmlRequestParams := map[string]string{}
 			params := map[string]string{}
-			data, prov, err := resolveRead(cmd.Context(), c, flags, "sitemap", false, path, params, nil)
+			data, prov, err := resolveReadWithStrategy(cmd.Context(), c, flags, "auto", "sitemap", false, path, params, nil, cmd.ErrOrStderr())
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}

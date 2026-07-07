@@ -1,0 +1,236 @@
+{
+  "api_name": "fred",
+  "novelty_score": 0,
+  "alternatives": [
+    {
+      "name": "fredapi",
+      "url": "https://github.com/mortada/fredapi",
+      "language": "Python",
+      "install_method": "",
+      "stars": 1000,
+      "last_updated": "",
+      "command_count": 20,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "fredr",
+      "url": "https://github.com/sboysel/fredr",
+      "language": "R",
+      "install_method": "",
+      "stars": 140,
+      "last_updated": "",
+      "command_count": 22,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "pyfredapi",
+      "url": "https://github.com/gw-moore/pyfredapi",
+      "language": "Python",
+      "install_method": "",
+      "stars": 60,
+      "last_updated": "",
+      "command_count": 18,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "node-fred",
+      "url": "https://github.com/ScottRFrost/node-fred",
+      "language": "JavaScript",
+      "install_method": "",
+      "stars": 40,
+      "last_updated": "",
+      "command_count": 20,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "fred-mcp-server",
+      "url": "https://github.com/stefanoamorelli/fred-mcp-server",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 30,
+      "last_updated": "",
+      "command_count": 12,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-06-15T00:00:00Z",
+  "novel_features": [
+    {
+      "name": "Macro dashboard",
+      "command": "dashboard",
+      "description": "Latest value of a curated set of headline U.S. indicators (unemployment, CPI, GDP, fed funds, 10Y, payrolls) in one call.",
+      "rationale": "Existing FRED tools return one series per call; only a local aggregator fans out and assembles a single macro snapshot.",
+      "example": "fred-pp-cli dashboard --json",
+      "why_it_matters": "Reach for this when an agent needs a quick read on the U.S. economy without choosing and fetching individual series IDs.",
+      "group": "Aggregation only we do"
+    },
+    {
+      "name": "Series compare",
+      "command": "series compare",
+      "description": "Pull observations for multiple series and align them by date into one table or JSON for correlation.",
+      "rationale": "FRED has no multi-series endpoint; aligning N series by date requires a local join across N observation calls.",
+      "example": "fred-pp-cli series compare UNRATE CPIAUCSL --start 2020-01-01 --json",
+      "why_it_matters": "Use when comparing or correlating two or more indicators over the same window.",
+      "group": "Aggregation only we do"
+    },
+    {
+      "name": "Series latest",
+      "command": "series latest",
+      "description": "The single most recent observation (date + value) for a series, as a one-liner.",
+      "rationale": "Agent-native shortcut that avoids pulling and parsing the full observation history just to read the current value.",
+      "example": "fred-pp-cli series latest UNRATE --json",
+      "why_it_matters": "Use when you only need the current print of an indicator, not its history.",
+      "group": "Agent-native shortcuts"
+    },
+    {
+      "name": "Watchlist",
+      "command": "watchlist sync",
+      "description": "Persist a set of series locally, sync their latest observations into SQLite, and report which ones moved since the last sync.",
+      "rationale": "Detecting what changed between runs requires local state that no single FRED API call provides.",
+      "example": "fred-pp-cli watchlist sync --json",
+      "why_it_matters": "Use to track a personal set of indicators and surface only the ones that changed.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Release calendar",
+      "command": "release calendar",
+      "description": "Recent and upcoming economic data release dates within a day window, aggregated across all releases.",
+      "rationale": "Requires time-windowed aggregation over the full release-dates feed that the raw endpoint does not summarize.",
+      "example": "fred-pp-cli release calendar --days 7 --json",
+      "why_it_matters": "Use to see what economic data is dropping soon without scanning hundreds of releases.",
+      "group": "Local state that compounds"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Macro dashboard",
+      "command": "dashboard",
+      "description": "Latest value of a curated set of headline U.S. indicators (unemployment, CPI, GDP, fed funds, 10Y, payrolls) in one call.",
+      "rationale": "Existing FRED tools return one series per call; only a local aggregator fans out and assembles a single macro snapshot.",
+      "example": "fred-pp-cli dashboard --json",
+      "why_it_matters": "Reach for this when an agent needs a quick read on the U.S. economy without choosing and fetching individual series IDs.",
+      "group": "Aggregation only we do"
+    },
+    {
+      "name": "Series compare",
+      "command": "series compare",
+      "description": "Pull observations for multiple series and align them by date into one table or JSON for correlation.",
+      "rationale": "FRED has no multi-series endpoint; aligning N series by date requires a local join across N observation calls.",
+      "example": "fred-pp-cli series compare UNRATE CPIAUCSL --start 2020-01-01 --json",
+      "why_it_matters": "Use when comparing or correlating two or more indicators over the same window.",
+      "group": "Aggregation only we do"
+    },
+    {
+      "name": "Series latest",
+      "command": "series latest",
+      "description": "The single most recent observation (date + value) for a series, as a one-liner.",
+      "rationale": "Agent-native shortcut that avoids pulling and parsing the full observation history just to read the current value.",
+      "example": "fred-pp-cli series latest UNRATE --json",
+      "why_it_matters": "Use when you only need the current print of an indicator, not its history.",
+      "group": "Agent-native shortcuts"
+    },
+    {
+      "name": "Watchlist",
+      "command": "watchlist sync",
+      "description": "Persist a set of series locally, sync their latest observations into SQLite, and report which ones moved since the last sync.",
+      "rationale": "Detecting what changed between runs requires local state that no single FRED API call provides.",
+      "example": "fred-pp-cli watchlist sync --json",
+      "why_it_matters": "Use to track a personal set of indicators and surface only the ones that changed.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Release calendar",
+      "command": "release calendar",
+      "description": "Recent and upcoming economic data release dates within a day window, aggregated across all releases.",
+      "rationale": "Requires time-windowed aggregation over the full release-dates feed that the raw endpoint does not summarize.",
+      "example": "fred-pp-cli release calendar --days 7 --json",
+      "why_it_matters": "Use to see what economic data is dropping soon without scanning hundreds of releases.",
+      "group": "Local state that compounds"
+    }
+  ],
+  "auth": {
+    "canonical_env_var": "FRED_API_KEY"
+  },
+  "narrative": {
+    "display_name": "FRED",
+    "headline": "Every FRED endpoint, plus a local SQLite store, offline search, and macro commands no other FRED tool has.",
+    "value_prop": "Search and pull U.S. and global economic time series from the St. Louis Fed's FRED API. Beyond mirroring every endpoint, it adds a macro dashboard, multi-series compare, a latest-value shortcut, a persistent watchlist that reports what changed, and a release calendar — all agent-native with --json and --select.",
+    "quickstart": [
+      {
+        "command": "fred-pp-cli doctor --dry-run",
+        "comment": "Check the API key and reachability before anything else."
+      },
+      {
+        "command": "fred-pp-cli series search 'unemployment rate'",
+        "comment": "Find a series ID by text."
+      },
+      {
+        "command": "fred-pp-cli series observations UNRATE --sort-order desc --limit 12",
+        "comment": "Pull the last 12 monthly observations."
+      },
+      {
+        "command": "fred-pp-cli dashboard --json",
+        "comment": "Snapshot the headline macro indicators in one call."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "400 Bad Request: api_key required",
+        "fix": "Set FRED_API_KEY (free key at https://fredaccount.stlouisfed.org/apikeys)."
+      },
+      {
+        "symptom": "Response is XML instead of JSON",
+        "fix": "Pass --file-type json (it is the default; only an explicit override changes it)."
+      },
+      {
+        "symptom": "Series not found",
+        "fix": "Use 'series search \u003ctext\u003e' to find the exact series ID; IDs are case-sensitive (e.g. UNRATE, CPIAUCSL)."
+      }
+    ],
+    "when_to_use": "Use this CLI when an agent or analyst needs U.S. or global macroeconomic time series — unemployment, inflation, GDP, interest rates, and tens of thousands more — programmatically. It is ideal for fetching current indicator values, pulling historical series for analysis, comparing indicators, and tracking a watchlist over time.",
+    "anti_triggers": [
+      "Do not use this CLI for company financials or stock prices — use an equities/SEC tool.",
+      "Do not use it for FRED's GeoFRED/Maps regional-choropleth API — this CLI covers the core time-series API.",
+      "Do not use it to write or publish data — FRED is read-only."
+    ],
+    "recipes": [
+      {
+        "title": "Current unemployment rate",
+        "command": "fred-pp-cli series latest UNRATE --json",
+        "explanation": "One-liner for the most recent print of any indicator."
+      },
+      {
+        "title": "Year-over-year CPI inflation",
+        "command": "fred-pp-cli series observations CPIAUCSL --units pc1 --sort-order desc --limit 12 --json --select observations.date,observations.value",
+        "explanation": "Uses FRED's pc1 transform for YoY percent change and --select to trim the payload."
+      },
+      {
+        "title": "Compare unemployment and inflation",
+        "command": "fred-pp-cli series compare UNRATE CPIAUCSL --start 2020-01-01 --json",
+        "explanation": "Aligns multiple series by date into one structure for correlation."
+      },
+      {
+        "title": "This week's data releases",
+        "command": "fred-pp-cli release calendar --days 7 --json",
+        "explanation": "Windowed view of upcoming and recent economic releases."
+      }
+    ],
+    "trigger_phrases": [
+      "what's the unemployment rate",
+      "pull CPI from FRED",
+      "fred series UNRATE",
+      "macro dashboard",
+      "compare GDP and inflation",
+      "use fred",
+      "run fred"
+    ]
+  }
+}

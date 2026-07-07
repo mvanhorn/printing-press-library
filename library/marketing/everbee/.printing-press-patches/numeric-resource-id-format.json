@@ -1,0 +1,16 @@
+{
+  "schema_version": 2,
+  "id": "numeric-resource-id-format",
+  "applied_at": "2026-06-01",
+  "base_run_id": "20260522-153448",
+  "base_printing_press_version": "4.19.0",
+  "summary": "Preserved integer JSON resource IDs without scientific notation.",
+  "reason": "EverBee listing IDs can arrive as JSON numbers; using fmt.Sprint on decoded float64 values changed IDs like 55043301 into 5.5043301e+07 and broke sync/store identity.",
+  "files": [
+    "internal/store/store.go",
+    "internal/cli/sync.go",
+    "internal/store/upsert_batch_test.go",
+    "internal/cli/sync_numeric_id_test.go"
+  ],
+  "validated_outcome": "go test ./... passed, including large integer ID preservation tests for batch and single-object sync paths."
+}

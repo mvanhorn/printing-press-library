@@ -26,6 +26,7 @@ type agentContext struct {
 	CLI                        agentContextCLI        `json:"cli"`
 	Auth                       agentContextAuth       `json:"auth"`
 	Discovery                  *agentContextDiscovery `json:"discovery,omitempty"`
+	Capabilities               []resourceCapability   `json:"capabilities"`
 	Commands                   []agentContextCommand  `json:"commands"`
 	AvailableProfiles          []string               `json:"available_profiles"`
 	FeedbackEndpointConfigured bool                   `json:"feedback_endpoint_configured"`
@@ -132,6 +133,7 @@ func buildAgentContext(rootCmd *cobra.Command) agentContext {
 			EnvVars: envVars,
 		},
 		Discovery:                  buildAgentDiscoveryContext(),
+		Capabilities:               sortedCapabilities(),
 		Commands:                   collectAgentCommands(rootCmd),
 		AvailableProfiles:          profiles,
 		FeedbackEndpointConfigured: FeedbackEndpointConfigured(),

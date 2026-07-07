@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "id": "mcp-sql-scan-errors",
+  "applied_at": "2026-05-28",
+  "base_run_id": "20260522-124732",
+  "base_printing_press_version": "4.11.0",
+  "summary": "MCP read-only SQL tool surfaces rows.Columns/rows.Scan/rows.Err errors instead of silently discarding them.",
+  "reason": "Greptile: discarded Scan errors returned rows with partial zero-value data and no warning; a Columns error yielded nil columns and silently no-op scans for every row.",
+  "files": [
+    "internal/mcp/tools.go"
+  ]
+}

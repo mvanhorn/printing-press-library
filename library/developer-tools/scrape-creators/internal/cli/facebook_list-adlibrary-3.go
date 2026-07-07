@@ -12,13 +12,13 @@ import (
 )
 
 func newFacebookListAdlibrary3Cmd(flags *rootFlags) *cobra.Command {
-	var flagQuery string
-	var flagSortBy string
-	var flagSearchType string
-	var flagAdType string
+	var flagPageId string
+	var flagCompanyName string
 	var flagCountry string
 	var flagStatus string
 	var flagMediaType string
+	var flagLanguage string
+	var flagSortBy string
 	var flagStartDate string
 	var flagEndDate string
 	var flagCursor string
@@ -27,52 +27,10 @@ func newFacebookListAdlibrary3Cmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:         "list-adlibrary-3",
-		Short:       "Searches the Meta Ad Library by keyword and returns matching ads. Each result includes ad_archive_id, page_name,...",
-		Example:     "  scrape-creators-pp-cli facebook list-adlibrary-3",
-		Annotations: map[string]string{"pp:endpoint": "facebook.list-adlibrary-3", "mcp:read-only": "true"},
+		Short:       "Fetches all ads currently running for a specific company from the Meta Ad Library.",
+		Example:     "  scrape-creators-pp-cli facebook list-adlibrary-3 --company-name Nike",
+		Annotations: map[string]string{"pp:endpoint": "facebook.list-adlibrary-3", "pp:method": "GET", "pp:path": "/v1/facebook/adLibrary/company/ads", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
-			if !cmd.Flags().Changed("query") && !flags.dryRun {
-				return fmt.Errorf("required flag \"%s\" not set", "query")
-			}
-			if cmd.Flags().Changed("sort-by") {
-				allowedSortBy := []string{"total_impressions", "relevancy_monthly_grouped"}
-				validSortBy := false
-				for _, v := range allowedSortBy {
-					if flagSortBy == v {
-						validSortBy = true
-						break
-					}
-				}
-				if !validSortBy {
-					fmt.Fprintf(os.Stderr, "warning: --%s %q not in allowed set %v\n", "sort-by", flagSortBy, allowedSortBy)
-				}
-			}
-			if cmd.Flags().Changed("search-type") {
-				allowedSearchType := []string{"keyword_unordered", "keyword_exact_phrase"}
-				validSearchType := false
-				for _, v := range allowedSearchType {
-					if flagSearchType == v {
-						validSearchType = true
-						break
-					}
-				}
-				if !validSearchType {
-					fmt.Fprintf(os.Stderr, "warning: --%s %q not in allowed set %v\n", "search-type", flagSearchType, allowedSearchType)
-				}
-			}
-			if cmd.Flags().Changed("ad-type") {
-				allowedAdType := []string{"all", "political_and_issue_ads"}
-				validAdType := false
-				for _, v := range allowedAdType {
-					if flagAdType == v {
-						validAdType = true
-						break
-					}
-				}
-				if !validAdType {
-					fmt.Fprintf(os.Stderr, "warning: --%s %q not in allowed set %v\n", "ad-type", flagAdType, allowedAdType)
-				}
-			}
 			if cmd.Flags().Changed("status") {
 				allowedStatus := []string{"ALL", "ACTIVE", "INACTIVE"}
 				validStatus := false
@@ -83,7 +41,7 @@ func newFacebookListAdlibrary3Cmd(flags *rootFlags) *cobra.Command {
 					}
 				}
 				if !validStatus {
-					fmt.Fprintf(os.Stderr, "warning: --%s %q not in allowed set %v\n", "status", flagStatus, allowedStatus)
+					return fmt.Errorf("invalid value %q for --%s: must be one of %v", flagStatus, "status", allowedStatus)
 				}
 			}
 			if cmd.Flags().Changed("media-type") {
@@ -96,41 +54,59 @@ func newFacebookListAdlibrary3Cmd(flags *rootFlags) *cobra.Command {
 					}
 				}
 				if !validMediaType {
-					fmt.Fprintf(os.Stderr, "warning: --%s %q not in allowed set %v\n", "media-type", flagMediaType, allowedMediaType)
+					return fmt.Errorf("invalid value %q for --%s: must be one of %v", flagMediaType, "media-type", allowedMediaType)
 				}
 			}
+			if cmd.Flags().Changed("sort-by") {
+				allowedSortBy := []string{"total_impressions", "relevancy_monthly_grouped"}
+				validSortBy := false
+				for _, v := range allowedSortBy {
+					if flagSortBy == v {
+						validSortBy = true
+						break
+					}
+				}
+				if !validSortBy {
+					return fmt.Errorf("invalid value %q for --%s: must be one of %v", flagSortBy, "sort-by", allowedSortBy)
+				}
+			}
+			path := "/v1/facebook/adLibrary/company/ads"
 			c, err := flags.newClient()
 			if err != nil {
 				return err
 			}
-
-			path := "/v1/facebook/adLibrary/search/ads"
-			data, prov, err := resolvePaginatedRead(cmd.Context(), c, flags, "facebook", path, map[string]string{
-				"query":       fmt.Sprintf("%v", flagQuery),
-				"sort_by":     fmt.Sprintf("%v", flagSortBy),
-				"search_type": fmt.Sprintf("%v", flagSearchType),
-				"ad_type":     fmt.Sprintf("%v", flagAdType),
-				"country":     fmt.Sprintf("%v", flagCountry),
-				"status":      fmt.Sprintf("%v", flagStatus),
-				"media_type":  fmt.Sprintf("%v", flagMediaType),
-				"start_date":  fmt.Sprintf("%v", flagStartDate),
-				"end_date":    fmt.Sprintf("%v", flagEndDate),
-				"cursor":      fmt.Sprintf("%v", flagCursor),
-				"trim":        fmt.Sprintf("%v", flagTrim),
-			}, nil, flagAll, "cursor", "", "")
+			data, prov, err := resolvePaginatedReadWithStrategy(cmd.Context(), c, flags, "auto", "facebook", path, map[string]string{
+				"pageId":      formatCLIParamValue(flagPageId),
+				"companyName": formatCLIParamValue(flagCompanyName),
+				"country":     formatCLIParamValue(flagCountry),
+				"status":      formatCLIParamValue(flagStatus),
+				"media_type":  formatCLIParamValue(flagMediaType),
+				"language":    formatCLIParamValue(flagLanguage),
+				"sort_by":     formatCLIParamValue(flagSortBy),
+				"start_date":  formatCLIParamValue(flagStartDate),
+				"end_date":    formatCLIParamValue(flagEndDate),
+				"cursor":      formatCLIParamValue(flagCursor),
+				"trim":        formatCLIParamValue(flagTrim),
+			}, nil, flagAll, "cursor", "cursor", "", "", "", cmd.ErrOrStderr())
 			if err != nil {
-				return classifyAPIError(err)
+				return classifyAPIError(err, flags)
 			}
-			// Print provenance to stderr for human-facing output
-			{
+			// Print provenance to stderr for human-facing output only.
+			// Machine-format flags (--json, --csv, --compact, --quiet, --plain,
+			// --select) and piped stdout suppress this line; the JSON envelope
+			// already carries meta.source for those consumers.
+			// SYNC: keep this gate aligned with command_promoted.go.tmpl.
+			if wantsHumanTable(cmd.OutOrStdout(), flags) {
 				var countItems []json.RawMessage
 				_ = json.Unmarshal(data, &countItems)
 				printProvenance(cmd, len(countItems), prov)
 			}
 			// For JSON output, wrap with provenance envelope before passing through flags.
 			// --select wins over --compact when both are set; --compact only runs when
-			// no explicit fields were requested.
-			if flags.asJSON || !isTerminal(cmd.OutOrStdout()) {
+			// no explicit fields were requested. Explicit format flags (--csv, --quiet,
+			// --plain) opt out of the auto-JSON path so piped consumers that asked for
+			// a non-JSON format reach the standard pipeline below.
+			if flags.asJSON || (!isTerminal(cmd.OutOrStdout()) && !flags.csv && !flags.quiet && !flags.plain) {
 				filtered := data
 				if flags.selectFields != "" {
 					filtered = filterFields(filtered, flags.selectFields)
@@ -156,18 +132,18 @@ func newFacebookListAdlibrary3Cmd(flags *rootFlags) *cobra.Command {
 					return nil
 				}
 			}
-			return printOutputWithFlags(cmd.OutOrStdout(), data, flags)
+			return printOutputWithFlagsMeta(cmd.OutOrStdout(), data, flags, map[string]any{"source": "live"})
 		},
 	}
-	cmd.Flags().StringVar(&flagQuery, "query", "", "Keyword to search for")
-	cmd.Flags().StringVar(&flagSortBy, "sort-by", "", "Sort by impressions (high to low), or Most Recent (relevancy_monthly_grouped). Defaults to impressions. (one of: total_impressions, relevancy_monthly_grouped)")
-	cmd.Flags().StringVar(&flagSearchType, "search-type", "", "If you want to search by exact phrase or not (one of: keyword_unordered, keyword_exact_phrase)")
-	cmd.Flags().StringVar(&flagAdType, "ad-type", "", "Search for all ads or only political and issue ads (one of: all, political_and_issue_ads)")
+	cmd.Flags().StringVar(&flagPageId, "page-id", "", "The companies ad library page id. You can get this with my Search For Companies Endpoint.")
+	cmd.Flags().StringVar(&flagCompanyName, "company-name", "", "The name of the company. Can either use this or pageId")
 	cmd.Flags().StringVar(&flagCountry, "country", "", "This can only be one country. It has to be the 2 letter code for the country. It defaults to ALL.")
 	cmd.Flags().StringVar(&flagStatus, "status", "", "Status of the ad. Defaults to ACTIVE. (one of: ALL, ACTIVE, INACTIVE)")
-	cmd.Flags().StringVar(&flagMediaType, "media-type", "", "Media type of the ad. Defaults to ALL. Meme just means the ad has text and an image. No clue why they call it meme. (one of: ALL, IMAGE, VIDEO, MEME, IMAGE_AND_MEME, NONE)")
-	cmd.Flags().StringVar(&flagStartDate, "start-date", "", "Impressions start date. Needs to be in YYYY-MM-DD format.")
-	cmd.Flags().StringVar(&flagEndDate, "end-date", "", "Impressions end date. Needs to be in YYYY-MM-DD format.")
+	cmd.Flags().StringVar(&flagMediaType, "media-type", "", "Media type of the ad. Defaults to ALL. Meme refers to ads with image and text. Not sure why they call it meme. (one of: ALL, IMAGE, VIDEO, MEME, IMAGE_AND_MEME, NONE)")
+	cmd.Flags().StringVar(&flagLanguage, "language", "", "Language to filter ads on. Needs to be 2 letter language code, ie EN, ES, FR, etc")
+	cmd.Flags().StringVar(&flagSortBy, "sort-by", "", "Sort by impressions (high to low), or Most Recent (relevancy_monthly_grouped). Defaults to impressions. (one of: total_impressions, relevancy_monthly_grouped)")
+	cmd.Flags().StringVar(&flagStartDate, "start-date", "", "Start date to search for. Format: YYYY-MM-DD")
+	cmd.Flags().StringVar(&flagEndDate, "end-date", "", "End date to search for. Format: YYYY-MM-DD")
 	cmd.Flags().StringVar(&flagCursor, "cursor", "", "Cursor to paginate through results")
 	cmd.Flags().BoolVar(&flagTrim, "trim", false, "Set to true for a trimmed down version of the response")
 	cmd.Flags().BoolVar(&flagAll, "all", false, "Fetch all pages")

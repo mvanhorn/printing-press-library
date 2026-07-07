@@ -22,7 +22,7 @@
   "mcp_ready": "partial",
   "api_version": "0.1.0",
   "auth_type": "cookie",
-  "auth_description": "Public search, hotel detail, reviews, and destination lookup require no auth. Authenticated features (My Trips, Saved/Wishlist, Genius rewards, profile) use cookie import via `auth login --chrome` — Booking.com gates these on `bkng` session cookies plus an `aws-waf-token` cookie that clears AWS WAF.",
+  "auth_description": "Public search, hotel detail, reviews, and destination lookup require no auth. Authenticated features (My Trips, Saved/Wishlist, Genius rewards, profile) use cookie import via `auth login --chrome` \u2014 Booking.com gates these on `bkng` session cookies plus an `aws-waf-token` cookie that clears AWS WAF.",
   "novel_features": [
     {
       "name": "Cheapest-dates for one hotel",
@@ -47,7 +47,7 @@
     {
       "name": "Compare two hotels side-by-side",
       "command": "compare",
-      "description": "Fetches detail + reviews for two hotels in parallel and emits a paired struct (price, score, amenity Δ, distance, free-cancellation, breakfast, recent-review counts)."
+      "description": "Fetches detail + reviews for two hotels in parallel and emits a paired struct (price, score, amenity \u0394, distance, free-cancellation, breakfast, recent-review counts)."
     },
     {
       "name": "Free-cancellation deadline alarm",
@@ -62,7 +62,7 @@
     {
       "name": "Genius-tier price-impact estimator",
       "command": "genius impact",
-      "description": "Runs an absorbed search twice — once with the authenticated cookie (Genius rates applied) and once anonymously — and diffs price-per-property to surface the Genius savings delta."
+      "description": "Runs an absorbed search twice \u2014 once with the authenticated cookie (Genius rates applied) and once anonymously \u2014 and diffs price-per-property to surface the Genius savings delta."
     },
     {
       "name": "Mobile-only rate detector",
@@ -88,6 +88,12 @@
       "name": "Review stats rollup",
       "command": "reviews stats",
       "description": "Local SQL group-by over synced reviews; counts and median score per score-band, language, and traveler-type bucket. Mechanical, no NLP."
+    }
+  ],
+  "contributors": [
+    {
+      "handle": "tmchow",
+      "name": "Trevin Chow"
     }
   ]
 }

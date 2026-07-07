@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "brokeragemap-build-direct-plan",
+  "applied_at": "2026-05-29",
+  "base_run_id": "20260522-162911",
+  "base_printing_press_version": "4.11.0",
+  "summary": "Added brokeragemap.BuildDirectPlan(host, pathTemplate, method, risk, params, query) to construct a Plan for an explicit captured endpoint, plus unit tests.",
+  "reason": "Typed brokerage commands need to target captured endpoints by host+path (with {placeholder} resolution and query assembly) instead of looking them up in the embedded route list. Foundation shared by every typed command.",
+  "files": [
+    "internal/brokeragemap/route_map.go",
+    "internal/brokeragemap/direct_plan_test.go"
+  ]
+}

@@ -1,0 +1,15 @@
+{
+  "schema_version": 2,
+  "id": "policy-intel-plan-curation",
+  "applied_at": "2026-06-18",
+  "base_run_id": "20260618-063000",
+  "base_printing_press_version": "4.18.1",
+  "summary": "Curated the first-print command surface around source-backed Federal Register and Regulations.gov recipes, with clean agent-ready text and explicit comment-window booleans.",
+  "reason": "Policy monitoring workflows need stable agent-ready outputs with explicit source caveats, readable excerpt text, and visible false comment-window states, not raw endpoint mirroring that pushes upstream filter details and JSON cleanup into every caller.",
+  "files": [
+    "internal/cli/federal_register.go",
+    "internal/cli/regulations.go",
+    "internal/cli/commands.go"
+  ],
+  "validated_outcome": "Live validation covered Federal Register search/rules plus Regulations.gov docket and comments reads; unit tests cover Federal Register span stripping, HTML entity unescaping, and explicit false comment-window JSON booleans. Deadline polling is documented for a configured api.data.gov key because DEMO_KEY can rate-limit."
+}

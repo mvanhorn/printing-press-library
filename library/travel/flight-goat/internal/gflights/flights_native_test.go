@@ -5,6 +5,7 @@ package gflights
 import (
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 )
 
@@ -138,5 +139,130 @@ func TestParseOffersResponseEmptyBody(t *testing.T) {
 	_, err := parseOffersResponse([]byte(""), "USD")
 	if err == nil {
 		t.Error("empty body should error, got nil")
+	}
+}
+
+// Regression for #1084. Google's batchexecute payload drops trailing
+// zero-valued elements (jspb encoding), so a whole-hour time such as 17:00
+// arrives as a single-element array [17] rather than [17, 0]. The parser must
+// read the hour from t[0] regardless of whether the minute element is present;
+// otherwise ~10-14% of legs (every whole-hour departure/arrival) silently
+// default to 00:00.
+func TestFormatLegDateTimeWholeHourMinuteOmitted(t *testing.T) {
+	date := []any{float64(2026), float64(12), float64(26)}
+	cases := []struct {
+		name    string
+		timeArr any
+		want    string
+	}{
+		{"whole-hour evening (17:00) encoded as [17]", []any{float64(17)}, "2026-12-26T17:00:00"},
+		{"whole-hour early morning (5:00) encoded as [5]", []any{float64(5)}, "2026-12-26T05:00:00"},
+		{"midnight hour with non-zero minute [0,30] kept intact", []any{float64(0), float64(30)}, "2026-12-26T00:30:00"},
+		{"normal time with minutes [15,5] untouched", []any{float64(15), float64(5)}, "2026-12-26T15:05:00"},
+	}
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			if got := formatLegDateTime(date, tc.timeArr); got != tc.want {
+				t.Errorf("formatLegDateTime(%v) = %q, want %q", tc.timeArr, got, tc.want)
+			}
+		})
+	}
+}
+
+// A leg whose time-of-day is genuinely absent from the source (empty/missing
+// time array) must return an empty string, never a fabricated 00:00 that is
+// indistinguishable from a real midnight.
+func TestFormatLegDateTimeMissingTimeReturnsEmpty(t *testing.T) {
+	for _, tc := range []struct {
+		name    string
+		date    any
+		timeArr any
+	}{
+		{"empty date and time", []any{}, []any{}},
+		{"nil date and time", nil, nil},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			if got := formatLegDateTime(tc.date, tc.timeArr); got != "" {
+				t.Errorf("formatLegDateTime(%v,%v) = %q, want \"\" (no fabricated 00:00)", tc.date, tc.timeArr, got)
+			}
+		})
+	}
+}
+
+// parseOfferLeg-level proof: a leg array whose departure-time element is the
+// truncated whole-hour form [17] yields a real 17:00 departure, while the
+// minute-bearing arrival [20,55] is unaffected.
+func TestParseOfferLegWholeHourDeparture(t *testing.T) {
+	leg := make([]any, 23)
+	leg[3] = "ICN"
+	leg[6] = "BKK"
+	leg[8] = []any{float64(17)}               // departure time-of-day, minute omitted (17:00)
+	leg[10] = []any{float64(20), float64(55)} // arrival time-of-day (20:55)
+	leg[11] = float64(355)                    // duration minutes
+	leg[20] = []any{float64(2026), float64(12), float64(26)}
+	leg[21] = []any{float64(2026), float64(12), float64(26)}
+
+	got, ok := parseOfferLeg(leg)
+	if !ok {
+		t.Fatal("parseOfferLeg returned ok=false")
+	}
+	if got.DepartureTime != "2026-12-26T17:00:00" {
+		t.Errorf("DepartureTime = %q, want 2026-12-26T17:00:00 (must not default to 00:00)", got.DepartureTime)
+	}
+	if got.ArrivalTime != "2026-12-26T20:55:00" {
+		t.Errorf("ArrivalTime = %q, want 2026-12-26T20:55:00", got.ArrivalTime)
+	}
+}
+
+// End-to-end regression on the captured dense response: before the #1084 fix,
+// 26 of 251 leg departures (and 21 arrivals) carried whole-hour times that the
+// parser truncated to 00:00. After the fix no leg in this fixture should report
+// a midnight departure or arrival, because every leg in the capture has a real
+// time-of-day in the source.
+func TestParseOffersResponseNoFabricatedMidnight(t *testing.T) {
+	body, err := os.ReadFile(filepath.Join("testdata", "sea_bkk_2026-12-24_response.json"))
+	if err != nil {
+		t.Fatalf("read fixture: %v", err)
+	}
+	flights, err := parseOffersResponse(body, "USD")
+	if err != nil {
+		t.Fatalf("parseOffersResponse: %v", err)
+	}
+	// Count T00:00:00 occurrences rather than failing on each one.
+	// A jspb time array of [] with a present date is a *genuine* midnight and
+	// correctly produces T00:00:00 — that is not a bug. We only want to catch
+	// the pre-#1084 regression where a whole-hour time like [17] was silently
+	// truncated to T00:00:00.
+	//
+	// For this specific SEA-BKK fixture (2026-12-24) every leg has a real
+	// non-midnight time-of-day in the source, so the expected count is 0.
+	// A fixture that genuinely includes a midnight departure would require a
+	// different assertion strategy (e.g. cross-referencing the raw jspb array).
+	midnightDeps := 0
+	midnightArrs := 0
+	wholeHourDeps := 0
+	for _, f := range flights {
+		for _, leg := range f.Legs {
+			if strings.HasSuffix(leg.DepartureTime, "T00:00:00") {
+				midnightDeps++
+			}
+			if strings.HasSuffix(leg.ArrivalTime, "T00:00:00") {
+				midnightArrs++
+			}
+			if strings.HasSuffix(leg.DepartureTime, ":00:00") && leg.DepartureTime != "" {
+				wholeHourDeps++
+			}
+		}
+	}
+	if midnightDeps != 0 {
+		t.Errorf("got %d midnight departures (T00:00:00), want 0 — fabricated midnights still present in fixture", midnightDeps)
+	}
+	if midnightArrs != 0 {
+		t.Errorf("got %d midnight arrivals (T00:00:00), want 0 — fabricated midnights still present in fixture", midnightArrs)
+	}
+	// Sanity: the capture genuinely contains whole-hour departures (the [HH]
+	// truncated form), so this regression is actually exercising the fix.
+	if wholeHourDeps == 0 {
+		t.Error("expected at least one whole-hour departure in fixture; regression not exercised")
 	}
 }

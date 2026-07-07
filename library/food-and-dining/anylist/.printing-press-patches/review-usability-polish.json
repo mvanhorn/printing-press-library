@@ -1,0 +1,16 @@
+{
+  "schema_version": 2,
+  "id": "review-usability-polish",
+  "applied_at": "2026-05-18",
+  "base_run_id": "20260514-120439",
+  "base_printing_press_version": "4.6.1",
+  "summary": "Addressed follow-up usability review findings in terminal detection, recipe dedup flags, and sync help.",
+  "reason": "Greptile noted that terminal detection failed open on stat errors, recipe add-to-list deduplication could not be disabled by either flag alone, and sync exposed a no-op --force flag.",
+  "files": [
+    "README.md",
+    "internal/cli/helpers.go",
+    "internal/cli/recipes_add-to-list.go",
+    "internal/cli/sync.go"
+  ],
+  "validated_outcome": "Local validation rerun covers tests, vet, govulncheck, verify-skill, publish validate, publish-package verifier, attribution guard, generated-artifact guard, and diff hygiene."
+}

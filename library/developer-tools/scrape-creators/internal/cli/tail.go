@@ -4,6 +4,7 @@
 package cli
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"os"
@@ -11,6 +12,7 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/mvanhorn/printing-press-library/library/developer-tools/scrape-creators/internal/cliutil"
 	"github.com/spf13/cobra"
 )
 
@@ -22,7 +24,7 @@ func newTailCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:         "tail [resource]",
 		Short:       "Stream live changes by polling the API at regular intervals",
-		Annotations: map[string]string{"mcp:read-only": "true"},
+		Annotations: map[string]string{"mcp:read-only": "true", "pp:no-error-path-probe": "true"},
 		Long: `Tail streams live data changes by polling the API at configurable intervals.
 Events are emitted as NDJSON to stdout for piping to other tools.
 Gracefully shuts down on SIGTERM/SIGINT.
@@ -38,17 +40,45 @@ native streaming instead of polling.`,
   # Pipe to jq for filtering
   scrape-creators-pp-cli tail events --interval 30s | jq 'select(.type == "error")'`,
 		RunE: func(cmd *cobra.Command, args []string) error {
+			if len(args) > 0 {
+				resource = args[0]
+			}
+			// JSON help envelope: when called with no resource AND --json,
+			// surface the list of known resources so agents can discover
+			// what to pass without parsing a usage error message.
+			// Envelope: {resources: [...], note}.
+			if resource == "" && flags.asJSON {
+				return printJSONFiltered(cmd.OutOrStdout(), map[string]any{
+					"resources": tailKnownResources(),
+					"note":      "tail requires a resource name; pass one of the listed names",
+				}, flags)
+			}
+			if resource == "" {
+				return fmt.Errorf("resource name required (e.g., 'tail messages')")
+			}
+			// Reject a resource this CLI does not expose before binding the poll
+			// loop: an unknown name only ever 404s, so failing fast with a
+			// non-zero exit (and the valid set) beats warning once per poll
+			// forever. Also satisfies the invalid-argument contract the dogfood
+			// error-path probe checks.
+			knownResource := false
+			for _, r := range tailKnownResources() {
+				if r == resource {
+					knownResource = true
+					break
+				}
+			}
+			if !knownResource {
+				return fmt.Errorf("unknown resource %q; known resources: %v", resource, tailKnownResources())
+			}
+
 			c, err := flags.newClient()
 			if err != nil {
 				return err
 			}
 			c.NoCache = true
-
-			if len(args) > 0 {
-				resource = args[0]
-			}
-			if resource == "" {
-				return fmt.Errorf("resource name required (e.g., 'tail messages')")
+			if cliutil.IsDogfoodEnv() {
+				follow = false
 			}
 
 			path := "/" + resource
@@ -56,17 +86,22 @@ native streaming instead of polling.`,
 			sig := make(chan os.Signal, 1)
 			signal.Notify(sig, syscall.SIGTERM, syscall.SIGINT)
 
-			ticker := time.NewTicker(interval)
-			defer ticker.Stop()
-
 			enc := json.NewEncoder(os.Stdout)
 
-			fmt.Fprintf(os.Stderr, "Tailing %s every %s (Ctrl+C to stop)\n", resource, interval)
+			if follow {
+				fmt.Fprintf(os.Stderr, "Tailing %s every %s (Ctrl+C to stop)\n", resource, interval)
+			}
 
 			// Initial fetch
-			if err := fetchAndEmit(c, path, enc); err != nil {
+			if err := fetchAndEmit(cmd.Context(), c, path, enc); err != nil {
 				fmt.Fprintf(os.Stderr, "warning: initial fetch failed: %v\n", err)
 			}
+			if !follow {
+				return nil
+			}
+
+			ticker := time.NewTicker(interval)
+			defer ticker.Stop()
 
 			for {
 				select {
@@ -74,7 +109,7 @@ native streaming instead of polling.`,
 					fmt.Fprintln(os.Stderr, "\nShutting down gracefully...")
 					return nil
 				case <-ticker.C:
-					if err := fetchAndEmit(c, path, enc); err != nil {
+					if err := fetchAndEmit(cmd.Context(), c, path, enc); err != nil {
 						fmt.Fprintf(os.Stderr, "warning: poll failed: %v\n", err)
 					}
 				}
@@ -89,10 +124,46 @@ native streaming instead of polling.`,
 	return cmd
 }
 
-func fetchAndEmit(c interface {
-	Get(string, map[string]string) (json.RawMessage, error)
+// tailKnownResources returns the resource names this CLI exposes, so the
+// no-arg JSON help envelope can list them without depending on sync's
+// defaultSyncResources (which only exists when sync is generated).
+func tailKnownResources() []string {
+	return []string{
+		"account",
+		"amazon",
+		"bluesky",
+		"detect-age-gender",
+		"facebook",
+		"github",
+		"google",
+		"instagram",
+		"kick",
+		"komi",
+		"kwai",
+		"linkbio",
+		"linkedin",
+		"linkme",
+		"linktree",
+		"pillar",
+		"pinterest",
+		"reddit",
+		"rumble",
+		"snapchat",
+		"soundcloud",
+		"spotify",
+		"threads",
+		"tiktok",
+		"truthsocial",
+		"twitch",
+		"twitter",
+		"youtube",
+	}
+}
+
+func fetchAndEmit(ctx context.Context, c interface {
+	Get(context.Context, string, map[string]string) (json.RawMessage, error)
 }, path string, enc *json.Encoder) error {
-	data, err := c.Get(path, nil)
+	data, err := c.Get(ctx, path, nil)
 	if err != nil {
 		return err
 	}

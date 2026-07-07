@@ -1,0 +1,8 @@
+{
+  "api_name": "airflow-admin",
+  "research_path": "research/research.json",
+  "brief_path": "research/airflow-admin-brief.md",
+  "researched_at": "2026-06-15T00:00:00Z",
+  "summary": "Airflow Admin is a read-first operations CLI for Apache Airflow pipeline triage: health checks, DAG inventory, DAG run inspection, task instance inspection, pool checks, metadata sync, and local search.",
+  "validation": "Validated locally against Apache Airflow 3.0.0 in a disposable Docker container with test-only credentials and no committed secrets."
+}

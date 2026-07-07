@@ -1,0 +1,19 @@
+{
+  "schema_version": 2,
+  "id": "instacart-address-profiles",
+  "applied_at": "2026-05-14",
+  "base_run_id": "2026-04-11T06:12:25Z",
+  "base_printing_press_version": "1.2.1",
+  "summary": "Add a named-address profile store under `instacart config profiles` (list / show / add / use / rm / import) plus a `--profile <name>` per-call persistent flag so users with multiple delivery addresses can switch without re-running `config set-address` each time.",
+  "reason": "Single-address config forces a destructive overwrite every time a user switches addresses (home vs. work vs. vacation house). The fix-instacart-location-config-546 patch already added a CurrentUserAddresses lookup; this builds on it to persist named profiles, with `import` reusing the same GraphQL query to seed one profile per saved Instacart address. Backwards-compatible: when `profiles` and `active_profile` are absent from config.json, behavior is identical to today.",
+  "files": [
+    "internal/config/config.go",
+    "internal/config/profiles_test.go",
+    "internal/cli/config.go",
+    "internal/cli/profiles.go",
+    "internal/cli/profiles_test.go",
+    "internal/cli/root.go",
+    "SKILL.md"
+  ],
+  "validated_outcome": "Unit tests cover profile CRUD, --use side-effects, JSON output shape, slug generation, and the --profile root flag applying through newAppContext."
+}

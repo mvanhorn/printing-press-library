@@ -1,0 +1,15 @@
+{
+  "schema_version": 2,
+  "id": "idfield-overrides",
+  "applied_at": "2026-05-16",
+  "base_run_id": "20260516-065803",
+  "base_printing_press_version": "4.8.0",
+  "files": [
+    "internal/cli/sync.go",
+    "internal/store/store.go"
+  ],
+  "summary": "Add statistics and campaigns_leads to resourceIDFieldOverrides with their real PKs (stats_id, campaign_lead_map_id).",
+  "reason": "The generator profiler did not emit ID-field overrides for these dependent resources; their PKs match none of the generic id fallbacks, so every row was dropped at upsert and both tables synced empty.",
+  "validated_outcome": "statistics and campaigns_leads tables populate during 'workflow archive'; novel-feature commands (health, drift) now have data to query.",
+  "upstream_issue": "Same class as cli-printing-press#689 (Kalshi resourceIDFieldOverrides); no smartlead-specific issue filed yet."
+}

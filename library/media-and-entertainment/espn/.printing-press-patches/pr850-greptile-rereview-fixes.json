@@ -1,0 +1,18 @@
+{
+  "schema_version": 2,
+  "id": "pr850-greptile-rereview-fixes",
+  "applied_at": "2026-05-25",
+  "base_run_id": "20260409-121709",
+  "base_printing_press_version": "1.2.1-0.20260409145412-b1128d0e07fd+dirty",
+  "summary": "Address Greptile re-review on PR #850: ForgetLearnings ctx, resolveSearchLearnedHit reaches the events/news_domain tables, and the untyped-learning triple-insert is gated to one group.",
+  "reason": "Greptile's re-review dropped to 3/5 on three new findings: (a) ForgetLearnings still used s.db.Exec without ctx -- the only write path in the file not fixed in the prior pass; (b) resolveSearchLearnedHit only queried the generic resources table via db.Get, so any taught boost for a domain-synced event (events table via UpsertEvent) or news item (news_domain via UpsertNews) silently returned ErrApplierSkip and the rerank never fired; (c) an untyped learning (empty resource_type) matched matchesKind in all three applier instances and the same raw JSON got prepended to events + news + general. Fixes: ForgetLearnings now takes ctx + uses ExecContext; resolveSearchLearnedHit returns (raw, kind, ok) and probes events -> news_domain -> resources (with resources fallback under each kind tag so Upsert-seeded events keep working); InsertLearnedHit gates the untyped path on `foundKind == a.kind`. Added TestApplyLearningsForSearch_UntypedLearningLandsInOneGroup to pin the gating against regression.",
+  "files": [
+    "internal/cli/teach.go",
+    "internal/cli/teach_playbook_test.go",
+    "internal/cli/search_rerank.go",
+    "internal/cli/search_rerank_integration_test.go",
+    "internal/store/learnings.go",
+    "internal/store/learnings_test.go"
+  ],
+  "validated_outcome": "go build + go vet clean; go test ./... passes 276/276; verify_skill.py + govulncheck clean; new integration test pins the untyped-learning single-group behavior."
+}

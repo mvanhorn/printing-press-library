@@ -1,0 +1,266 @@
+{
+  "api_name": "google-ad-manager",
+  "novelty_score": 9,
+  "alternatives": [
+    {
+      "name": "googleads-python-lib",
+      "url": "https://github.com/googleads/googleads-python-lib",
+      "language": "Python",
+      "install_method": "",
+      "stars": 742,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "dfp-api",
+      "url": "https://github.com/publica-project/dfp-api",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-06-16T16:55:00Z",
+  "novel_features": [
+    {
+      "name": "One-Shot Async Report",
+      "command": "report run",
+      "description": "Create, run, poll, and fetch every row of a GAM report in a single blocking command instead of the four-step UI slog.",
+      "rationale": "Our async orchestrator chains create then run then operation-poll then paginated fetch into one call with typed exit codes; the raw API forces four manual round-trips and the UI makes you babysit a spinner.",
+      "example": "google-ad-manager-pp-cli report run --dimensions AD_UNIT_NAME,DATE --metrics IMPRESSIONS,REVENUE --date-range YESTERDAY --network 123456 --json",
+      "why_it_matters": "Reach for this whenever an agent needs actual GAM revenue or delivery numbers; it turns the hardest API workflow into one deterministic step.",
+      "group": "Async report orchestration"
+    },
+    {
+      "name": "Saved Report Rerun",
+      "command": "report rerun",
+      "description": "Re-execute an existing saved report definition by ID and stream fresh rows, so the morning revenue pull is one short command.",
+      "rationale": "Combines a report fetch of the stored definition with the full run/poll/fetch cycle locally; the API can re-run a report but still makes you re-poll and re-paginate by hand every time.",
+      "example": "google-ad-manager-pp-cli report rerun 988877 --network 123456 --agent",
+      "why_it_matters": "Use when the user references a named or standing report they run repeatedly; it replays a known-good definition without rebuilding it.",
+      "group": "Async report orchestration"
+    },
+    {
+      "name": "Daily Report Diff",
+      "command": "report watch",
+      "description": "Re-run a saved report and diff it against the last cached run to surface what moved in revenue, impressions, or eCPM since yesterday.",
+      "rationale": "Requires the local SQLite store to retain prior run rows and diff them offline; neither the API nor the UI keeps your last result to compare against.",
+      "example": "google-ad-manager-pp-cli report watch 988877 --metric 0 --threshold 15 --network 123456 --json",
+      "why_it_matters": "Reach for this to answer what changed or dropped overnight without an analyst manually eyeballing two exports.",
+      "group": "Async report orchestration"
+    },
+    {
+      "name": "Order Expansion Graph",
+      "command": "order graph",
+      "description": "Expand one order into its line items (goal, type, flight dates) in one structured object.",
+      "rationale": "Joins the order with its line items in a single call; the API and UI keep order and line-item detail on separate screens. REST v1 line items do not expose targeting, so the graph stops at line items.",
+      "example": "google-ad-manager-pp-cli order graph 554433 --agent --select order.lineItems.id,order.lineItems.name --network 123456",
+      "why_it_matters": "Reach for this to give an agent the complete picture of what a campaign actually touches in one structured object.",
+      "group": "Offline cross-entity intelligence"
+    },
+    {
+      "name": "Ad-Unit Tree View",
+      "command": "adunits tree",
+      "description": "Render the full hierarchical ad-unit tree (or any subtree) from cache, with status and depth, in one offline call.",
+      "rationale": "Reassembles parent/child ad-unit relationships locally in a single render; the API returns flat pages requiring client-side stitching and repeated paging.",
+      "example": "google-ad-manager-pp-cli adunits tree --root 21700000 --status ACTIVE --network 123456",
+      "why_it_matters": "Reach for this to orient an agent in the inventory hierarchy before it reasons about placements or subtree revenue.",
+      "group": "Inventory hygiene"
+    },
+    {
+      "name": "Inventory Orphan Audit",
+      "command": "inventory orphans",
+      "description": "Tree-walk the ad-unit hierarchy to flag active units with no placement coverage and stale or empty branches.",
+      "rationale": "Needs an offline join of the full ad-unit tree against placements and sites in one pass; impossible in a single API call and tedious to assemble in the UI.",
+      "example": "google-ad-manager-pp-cli inventory orphans --root 21700000 --network 123456 --json",
+      "why_it_matters": "Use during inventory cleanups to hand an agent a concrete list of misconfigured or dead units to investigate.",
+      "group": "Inventory hygiene"
+    },
+    {
+      "name": "Local Resync Diff",
+      "command": "since",
+      "description": "Show which mirrored entities were added or changed (by updateTime) since a cutoff — a changelog the platform does not keep.",
+      "rationale": "Diffs two local snapshots in SQLite; GAM exposes no per-entity change feed, so this view exists only because we retain prior state.",
+      "example": "google-ad-manager-pp-cli since --since last-sync --network 123456 --json",
+      "why_it_matters": "Use to catch what trafficking or another team changed out from under you between two points in time.",
+      "group": "Offline cross-entity intelligence"
+    },
+    {
+      "name": "Line-Item Pacing Join",
+      "command": "lineitem pace",
+      "description": "Join read-only line-item goals against a delivery report to show each line item's pace versus goal, ranked by risk.",
+      "rationale": "Fuses line-item metadata with async report delivery rows in the local store; the API keeps goals and delivery in different subsystems and never joins them for you.",
+      "example": "google-ad-manager-pp-cli lineitem pace --order 554433 --date-range MONTH_TO_DATE --network 123456 --agent",
+      "why_it_matters": "Reach for this to let an agent triage which campaigns are at delivery risk without opening the delivery UI.",
+      "group": "Async report orchestration"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "One-Shot Async Report",
+      "command": "report run",
+      "description": "Create, run, poll, and fetch every row of a GAM report in a single blocking command instead of the four-step UI slog.",
+      "rationale": "Our async orchestrator chains create then run then operation-poll then paginated fetch into one call with typed exit codes; the raw API forces four manual round-trips and the UI makes you babysit a spinner.",
+      "example": "google-ad-manager-pp-cli report run --dimensions AD_UNIT_NAME,DATE --metrics IMPRESSIONS,REVENUE --date-range YESTERDAY --network 123456 --json",
+      "why_it_matters": "Reach for this whenever an agent needs actual GAM revenue or delivery numbers; it turns the hardest API workflow into one deterministic step.",
+      "group": "Async report orchestration"
+    },
+    {
+      "name": "Saved Report Rerun",
+      "command": "report rerun",
+      "description": "Re-execute an existing saved report definition by ID and stream fresh rows, so the morning revenue pull is one short command.",
+      "rationale": "Combines a report fetch of the stored definition with the full run/poll/fetch cycle locally; the API can re-run a report but still makes you re-poll and re-paginate by hand every time.",
+      "example": "google-ad-manager-pp-cli report rerun 988877 --network 123456 --agent",
+      "why_it_matters": "Use when the user references a named or standing report they run repeatedly; it replays a known-good definition without rebuilding it.",
+      "group": "Async report orchestration"
+    },
+    {
+      "name": "Daily Report Diff",
+      "command": "report watch",
+      "description": "Re-run a saved report and diff it against the last cached run to surface what moved in revenue, impressions, or eCPM since yesterday.",
+      "rationale": "Requires the local SQLite store to retain prior run rows and diff them offline; neither the API nor the UI keeps your last result to compare against.",
+      "example": "google-ad-manager-pp-cli report watch 988877 --metric 0 --threshold 15 --network 123456 --json",
+      "why_it_matters": "Reach for this to answer what changed or dropped overnight without an analyst manually eyeballing two exports.",
+      "group": "Async report orchestration"
+    },
+    {
+      "name": "Order Expansion Graph",
+      "command": "order graph",
+      "description": "Expand one order into its line items (goal, type, flight dates) in one structured object.",
+      "rationale": "Joins the order with its line items in a single call; the API and UI keep order and line-item detail on separate screens. REST v1 line items do not expose targeting, so the graph stops at line items.",
+      "example": "google-ad-manager-pp-cli order graph 554433 --agent --select order.lineItems.id,order.lineItems.name --network 123456",
+      "why_it_matters": "Reach for this to give an agent the complete picture of what a campaign actually touches in one structured object.",
+      "group": "Offline cross-entity intelligence"
+    },
+    {
+      "name": "Ad-Unit Tree View",
+      "command": "adunits tree",
+      "description": "Render the full hierarchical ad-unit tree (or any subtree) from cache, with status and depth, in one offline call.",
+      "rationale": "Reassembles parent/child ad-unit relationships locally in a single render; the API returns flat pages requiring client-side stitching and repeated paging.",
+      "example": "google-ad-manager-pp-cli adunits tree --root 21700000 --status ACTIVE --network 123456",
+      "why_it_matters": "Reach for this to orient an agent in the inventory hierarchy before it reasons about placements or subtree revenue.",
+      "group": "Inventory hygiene"
+    },
+    {
+      "name": "Inventory Orphan Audit",
+      "command": "inventory orphans",
+      "description": "Tree-walk the ad-unit hierarchy to flag active units with no placement coverage and stale or empty branches.",
+      "rationale": "Needs an offline join of the full ad-unit tree against placements and sites in one pass; impossible in a single API call and tedious to assemble in the UI.",
+      "example": "google-ad-manager-pp-cli inventory orphans --root 21700000 --network 123456 --json",
+      "why_it_matters": "Use during inventory cleanups to hand an agent a concrete list of misconfigured or dead units to investigate.",
+      "group": "Inventory hygiene"
+    },
+    {
+      "name": "Local Resync Diff",
+      "command": "since",
+      "description": "Show which mirrored entities were added or changed (by updateTime) since a cutoff — a changelog the platform does not keep.",
+      "rationale": "Diffs two local snapshots in SQLite; GAM exposes no per-entity change feed, so this view exists only because we retain prior state.",
+      "example": "google-ad-manager-pp-cli since --since last-sync --network 123456 --json",
+      "why_it_matters": "Use to catch what trafficking or another team changed out from under you between two points in time.",
+      "group": "Offline cross-entity intelligence"
+    },
+    {
+      "name": "Line-Item Pacing Join",
+      "command": "lineitem pace",
+      "description": "Join read-only line-item goals against a delivery report to show each line item's pace versus goal, ranked by risk.",
+      "rationale": "Fuses line-item metadata with async report delivery rows in the local store; the API keeps goals and delivery in different subsystems and never joins them for you.",
+      "example": "google-ad-manager-pp-cli lineitem pace --order 554433 --date-range MONTH_TO_DATE --network 123456 --agent",
+      "why_it_matters": "Reach for this to let an agent triage which campaigns are at delivery risk without opening the delivery UI.",
+      "group": "Async report orchestration"
+    }
+  ],
+  "auth": {
+    "canonical_env_var": "GOOGLE_AD_MANAGER_ACCESS_TOKEN"
+  },
+  "narrative": {
+    "display_name": "Google Ad Manager",
+    "headline": "The only REST-native Google Ad Manager CLI: report, search, and manage publisher inventory from the terminal, backed by a local mirror the web console can't match.",
+    "value_prop": "Wraps the Ad Manager REST v1 API with a local SQLite mirror, offline full-text search across inventory, targeting, and orders, and one-shot async report orchestration where `report run` chains create, run, poll, and fetch into a single command. Built for publisher ad-ops who want to observe and manage a GAM360 network without living in the console. Covers reporting, inventory and targeting management (including the writes the REST API supports), and orders, line-item, and PMP visibility; trafficking, forecasting, and creative creation remain in the legacy SOAP API and are intentionally out of scope.",
+    "auth_narrative": "Authenticate with a Google OAuth2 access token for the admanager scope (or admanager.readonly for read-only use). Set GOOGLE_AD_MANAGER_ACCESS_TOKEN, for example `export GOOGLE_AD_MANAGER_ACCESS_TOKEN=$(gcloud auth print-access-token --scopes=https://www.googleapis.com/auth/admanager.readonly)`, or mint one from a service account reused from your SOAP setup. Every command is scoped to a network code: set GOOGLE_AD_MANAGER_NETWORK_CODE or pass --network \u003ccode\u003e. Access tokens are short-lived (about an hour); re-export when you see a 401.",
+    "quickstart": [
+      {
+        "command": "google-ad-manager-pp-cli doctor",
+        "comment": "Verify your token, scope, network code, and API reachability before anything else."
+      },
+      {
+        "command": "google-ad-manager-pp-cli adunits tree --network 123456 --json",
+        "comment": "Browse the ad-unit hierarchy; the first run fetches live and seeds the local mirror."
+      },
+      {
+        "command": "google-ad-manager-pp-cli search \"holiday\" --json",
+        "comment": "Grep across the seeded local mirror at once, no per-resource list calls."
+      },
+      {
+        "command": "google-ad-manager-pp-cli report run --dimensions AD_UNIT_NAME,DATE --metrics IMPRESSIONS,REVENUE --date-range YESTERDAY --network 123456 --json",
+        "comment": "Pull yesterday's revenue by ad unit in one shot instead of the four-step UI wizard."
+      },
+      {
+        "command": "google-ad-manager-pp-cli inventory orphans --network 123456 --json",
+        "comment": "Flag active ad units with no placement coverage."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "401 Unauthorized on every call",
+        "fix": "Your access token expired (they last about an hour). Re-export GOOGLE_AD_MANAGER_ACCESS_TOKEN with a fresh `gcloud auth print-access-token`."
+      },
+      {
+        "symptom": "403 PERMISSION_DENIED or wrong network",
+        "fix": "Confirm the token's Google account has access to that network and the API is enabled in its Cloud project; check the code with `google-ad-manager-pp-cli networks list`."
+      },
+      {
+        "symptom": "Command needs a network code",
+        "fix": "Set GOOGLE_AD_MANAGER_NETWORK_CODE or pass --network \u003ccode\u003e; every resource path is scoped to a network."
+      },
+      {
+        "symptom": "Report run seems to hang",
+        "fix": "Reports are async; run keeps polling the operation until rows are ready. Add --timeout to bound the wait or run without --wait to get the operation name and fetch later."
+      },
+      {
+        "symptom": "search returns nothing",
+        "fix": "Run `sync` first; search reads the local mirror, not the live API."
+      }
+    ],
+    "when_to_use": "Use for observing and reporting on a Google Ad Manager (publisher) network: pulling revenue and delivery reports, browsing and searching inventory and custom targeting, checking order and line-item status, and inspecting PMP deals, plus the inventory and targeting writes the REST API supports. Ideal when an agent needs real GAM numbers or inventory context without navigating the web console, or when a question spans multiple entity types the UI keeps on separate screens.",
+    "anti_triggers": [
+      "Google Ads / AdWords advertiser campaigns: that is a different product (the advertiser side) with a different API; use a Google Ads tool instead.",
+      "Booking or editing line items, orders, or creatives, or creating creative associations: those writes are SOAP-only and not supported here.",
+      "Availability or delivery forecasting: the forecast service is SOAP-only and out of scope.",
+      "Header-bidding or real-time-bidding configuration: not part of the Ad Manager REST API."
+    ],
+    "recipes": [
+      {
+        "title": "Yesterday's revenue by ad unit",
+        "command": "google-ad-manager-pp-cli report run --dimensions AD_UNIT_NAME,DATE --metrics IMPRESSIONS,REVENUE --date-range YESTERDAY --network 123456 --json",
+        "explanation": "Builds, runs, polls, and fetches the report in one call and emits machine-readable rows."
+      },
+      {
+        "title": "Expand an order for an agent, narrowed",
+        "command": "google-ad-manager-pp-cli order graph 554433 --agent --select order.lineItems.id,order.lineItems.name --network 123456",
+        "explanation": "Returns the order and its line items (goal, type, dates); --select narrows the nested response to the fields an agent needs."
+      },
+      {
+        "title": "What changed since the last sync",
+        "command": "google-ad-manager-pp-cli since --since last-sync --network 123456 --json",
+        "explanation": "Surfaces entities added or changed (by updateTime) since the cutoff; refreshes live when --network is set. It cannot detect removals."
+      }
+    ],
+    "trigger_phrases": [
+      "run a GAM report",
+      "google ad manager revenue by ad unit",
+      "check line item delivery in ad manager",
+      "search my ad manager inventory",
+      "what targeting does this order use",
+      "use google-ad-manager",
+      "run google ad manager"
+    ]
+  }
+}

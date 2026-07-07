@@ -1,0 +1,287 @@
+{
+  "api_name": "instagram",
+  "novelty_score": 0,
+  "alternatives": [
+    {
+      "name": "facebook-nodejs-business-sdk",
+      "url": "https://github.com/facebook/facebook-nodejs-business-sdk",
+      "language": "JavaScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "instagram-analytics-mcp",
+      "url": "https://github.com/BilalTariq01/instagram-analytics-mcp",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "ig-mcp",
+      "url": "https://github.com/jlbadano/ig-mcp",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "instagram-mcp",
+      "url": "https://github.com/AleemHaider/instagram-mcp",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "instagram-api-go-client",
+      "url": "https://github.com/qcserestipy/instagram-api-go-client",
+      "language": "Go",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-06-07T09:55:00Z",
+  "novel_features": [
+    {
+      "name": "Cross-account engagement compare",
+      "command": "compare",
+      "description": "Rank all your brand accounts side by side by reach, interactions, and engagement rate over a window.",
+      "rationale": "Requires joining each owned account's snapshot history in the local store — Meta Business Suite shows one account at a time and no API call returns a cross-account view.",
+      "example": "instagram-pp-cli compare --since 30d --agent",
+      "why_it_matters": "Reach for this when an agent needs 'which of my brands is winning' in one ranked table instead of N separate account-insights calls.",
+      "group": "Cross-account portfolio analytics"
+    },
+    {
+      "name": "Follower-growth week-over-week",
+      "command": "growth",
+      "description": "Track follower-count growth over time per brand, week over week.",
+      "rationale": "Graph deprecated the follower time-series in 2025; the local snapshot store is the only source of historical follower deltas.",
+      "example": "instagram-pp-cli growth --since 8w --agent",
+      "why_it_matters": "Reach for this when the question is trend (are we growing?), not a point-in-time count the profile field already gives.",
+      "group": "Cross-account portfolio analytics"
+    },
+    {
+      "name": "Best-time-to-post",
+      "command": "best-time",
+      "description": "Surface the weekday/hour slots where your posts historically earn the most engagement.",
+      "rationale": "Graph has no best-time metric; this is derived locally by bucketing every post's interactions by the hour and weekday of its timestamp.",
+      "example": "instagram-pp-cli best-time --account acme --agent",
+      "why_it_matters": "Reach for this to recommend a posting schedule grounded in that account's own data, not generic folklore.",
+      "group": "Derived-from-local-history"
+    },
+    {
+      "name": "Top-posts ranking",
+      "command": "top-posts",
+      "description": "Rank individual posts across your brands by reach, interactions, saves, or shares over a window.",
+      "rationale": "Cross-brand, windowed post ranking by an arbitrary metric is a local query over synced media and media-insights — the API offers no such ranked endpoint.",
+      "example": "instagram-pp-cli top-posts --since 30d --metric reach --agent",
+      "why_it_matters": "Reach for this to find the highest-performing content fast instead of paging and sorting media by hand.",
+      "group": "Derived-from-local-history"
+    },
+    {
+      "name": "Format performance breakdown",
+      "command": "formats",
+      "description": "Compare Reels vs Feed vs Story vs Carousel by reach, engagement, and Reels watch-time.",
+      "rationale": "Groups synced media by media_product_type and joins Reels watch-time metrics locally — Graph returns no format-level breakdown.",
+      "example": "instagram-pp-cli formats --account bistro --agent",
+      "why_it_matters": "Reach for this to answer 'which content format works for this brand' in one aggregate instead of per-post insight calls.",
+      "group": "Derived-from-local-history"
+    },
+    {
+      "name": "Competitor delta over time",
+      "command": "rivals",
+      "description": "Track rival public accounts' follower and engagement growth across syncs, benchmarked against your brands.",
+      "rationale": "business_discovery is point-in-time only; the delta exists solely in the local competitor-snapshot store accumulated across syncs.",
+      "example": "instagram-pp-cli rivals --since 30d --agent",
+      "why_it_matters": "Reach for this for competitive trend questions a single business_discovery call cannot answer.",
+      "group": "Cross-account portfolio analytics"
+    },
+    {
+      "name": "Hashtag-performance ranking",
+      "command": "hashtag-perf",
+      "description": "Rank the hashtags you track by the reach and engagement of their top media.",
+      "rationale": "Aggregates locally cached hashtag_media across syncs while respecting Graph's 30-tag / 7-day query caps — a ranking the API does not provide.",
+      "example": "instagram-pp-cli hashtag-perf --agent",
+      "why_it_matters": "Reach for this to compare hashtag ROI; use the absorbed hashtag search to discover new tags instead.",
+      "group": "Derived-from-local-history"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Cross-account engagement compare",
+      "command": "compare",
+      "description": "Rank all your brand accounts side by side by reach, interactions, and engagement rate over a window.",
+      "rationale": "Requires joining each owned account's snapshot history in the local store — Meta Business Suite shows one account at a time and no API call returns a cross-account view.",
+      "example": "instagram-pp-cli compare --since 30d --agent",
+      "why_it_matters": "Reach for this when an agent needs 'which of my brands is winning' in one ranked table instead of N separate account-insights calls.",
+      "group": "Cross-account portfolio analytics"
+    },
+    {
+      "name": "Follower-growth week-over-week",
+      "command": "growth",
+      "description": "Track follower-count growth over time per brand, week over week.",
+      "rationale": "Graph deprecated the follower time-series in 2025; the local snapshot store is the only source of historical follower deltas.",
+      "example": "instagram-pp-cli growth --since 8w --agent",
+      "why_it_matters": "Reach for this when the question is trend (are we growing?), not a point-in-time count the profile field already gives.",
+      "group": "Cross-account portfolio analytics"
+    },
+    {
+      "name": "Best-time-to-post",
+      "command": "best-time",
+      "description": "Surface the weekday/hour slots where your posts historically earn the most engagement.",
+      "rationale": "Graph has no best-time metric; this is derived locally by bucketing every post's interactions by the hour and weekday of its timestamp.",
+      "example": "instagram-pp-cli best-time --account acme --agent",
+      "why_it_matters": "Reach for this to recommend a posting schedule grounded in that account's own data, not generic folklore.",
+      "group": "Derived-from-local-history"
+    },
+    {
+      "name": "Top-posts ranking",
+      "command": "top-posts",
+      "description": "Rank individual posts across your brands by reach, interactions, saves, or shares over a window.",
+      "rationale": "Cross-brand, windowed post ranking by an arbitrary metric is a local query over synced media and media-insights — the API offers no such ranked endpoint.",
+      "example": "instagram-pp-cli top-posts --since 30d --metric reach --agent",
+      "why_it_matters": "Reach for this to find the highest-performing content fast instead of paging and sorting media by hand.",
+      "group": "Derived-from-local-history"
+    },
+    {
+      "name": "Format performance breakdown",
+      "command": "formats",
+      "description": "Compare Reels vs Feed vs Story vs Carousel by reach, engagement, and Reels watch-time.",
+      "rationale": "Groups synced media by media_product_type and joins Reels watch-time metrics locally — Graph returns no format-level breakdown.",
+      "example": "instagram-pp-cli formats --account bistro --agent",
+      "why_it_matters": "Reach for this to answer 'which content format works for this brand' in one aggregate instead of per-post insight calls.",
+      "group": "Derived-from-local-history"
+    },
+    {
+      "name": "Competitor delta over time",
+      "command": "rivals",
+      "description": "Track rival public accounts' follower and engagement growth across syncs, benchmarked against your brands.",
+      "rationale": "business_discovery is point-in-time only; the delta exists solely in the local competitor-snapshot store accumulated across syncs.",
+      "example": "instagram-pp-cli rivals --since 30d --agent",
+      "why_it_matters": "Reach for this for competitive trend questions a single business_discovery call cannot answer.",
+      "group": "Cross-account portfolio analytics"
+    },
+    {
+      "name": "Hashtag-performance ranking",
+      "command": "hashtag-perf",
+      "description": "Rank the hashtags you track by the reach and engagement of their top media.",
+      "rationale": "Aggregates locally cached hashtag_media across syncs while respecting Graph's 30-tag / 7-day query caps — a ranking the API does not provide.",
+      "example": "instagram-pp-cli hashtag-perf --agent",
+      "why_it_matters": "Reach for this to compare hashtag ROI; use the absorbed hashtag search to discover new tags instead.",
+      "group": "Derived-from-local-history"
+    }
+  ],
+  "auth": {
+    "canonical_env_var": "INSTAGRAM_ACCESS_TOKEN"
+  },
+  "narrative": {
+    "display_name": "Instagram",
+    "headline": "Every Instagram Business metric across all your brand accounts, with the cross-account comparison and follower-growth history Meta Business Suite never gives you.",
+    "value_prop": "A local-first analytics CLI for the Instagram Graph API built for managers who run several owned Business/Creator accounts. It syncs accounts, media, insights, and competitor snapshots into a queryable SQLite store, then adds the views the official tools lack: rank your brands side by side (compare), follower-growth over time (growth), best-time-to-post, format breakdowns, and competitor deltas. Agent-native output, offline search, and typed exit codes throughout.",
+    "auth_narrative": "Auth is a Meta Graph API access token from a Business-type app on the Facebook-Login path. Set INSTAGRAM_ACCESS_TOKEN to a long-lived user or (recommended) non-expiring system-user token with scopes instagram_basic, instagram_manage_insights, pages_show_list, pages_read_engagement, business_management. The CLI resolves each brand's IG user id from your Pages via /me/accounts and never performs writes unless you explicitly run a publish command. Run 'doctor' to verify token scopes, expiry, and resolved account ids.",
+    "quickstart": [
+      {
+        "command": "instagram-pp-cli doctor --dry-run",
+        "comment": "Confirm the binary works before wiring auth (no token needed)."
+      },
+      {
+        "command": "instagram-pp-cli brands discover",
+        "comment": "Auto-register the Instagram Business accounts linked to your Pages as brands."
+      },
+      {
+        "command": "instagram-pp-cli pull",
+        "comment": "Collect each brand's profile, insights, and media into the local snapshot store."
+      },
+      {
+        "command": "instagram-pp-cli compare --since 30d --agent",
+        "comment": "Rank your brands by engagement over the collected window."
+      },
+      {
+        "command": "instagram-pp-cli top-posts --since 30d --metric reach --agent",
+        "comment": "Find the highest-reach posts across all brands."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "OAuthException 'active access token must be used' (code 2500)",
+        "fix": "Set INSTAGRAM_ACCESS_TOKEN; run 'instagram-pp-cli doctor' to verify the token resolves."
+      },
+      {
+        "symptom": "Metric returns empty where you expected impressions",
+        "fix": "Use 'views' — Graph deprecated impressions/plays/video_views in 2025; the CLI requests 'views' by default."
+      },
+      {
+        "symptom": "growth or rivals returns an empty series on a fresh install",
+        "fix": "These read accrued snapshots; run 'pull' on a schedule first so the local time-series can build up."
+      },
+      {
+        "symptom": "HTTP 4xx with x-business-use-case-usage near 100%",
+        "fix": "You hit the Business Use Case rate limit; wait for estimated_time_to_regain_access (doctor prints it) or pull fewer brands."
+      }
+    ],
+    "when_to_use": "Use this CLI when an agent or operator needs analytics across multiple owned Instagram Business/Creator accounts: comparing brands, tracking follower growth and engagement trends over time, ranking posts, analyzing content formats, or benchmarking competitors. It is the right tool when the question spans accounts or needs history the Graph API's short windows cannot answer.",
+    "anti_triggers": [
+      "Do not use this CLI to scrape or analyze arbitrary public profiles you do not own — only accounts linked to your Pages, plus public business_discovery snapshots, are supported.",
+      "Do not use it as a primary content scheduler; publishing exists with --dry-run but the CLI is analytics-first.",
+      "Do not use it for Facebook Page or Meta Ads analytics — it covers the Instagram organic surface only.",
+      "Do not use it for real-time/streaming metrics — Graph insights are daily/aggregate, not live."
+    ],
+    "recipes": [
+      {
+        "title": "Rank brands by engagement this month",
+        "command": "instagram-pp-cli compare --since 30d --agent",
+        "explanation": "One ranked table across every owned account — the view Meta Business Suite never shows."
+      },
+      {
+        "title": "Narrow nested media insights for an agent",
+        "command": "instagram-pp-cli media list 17841400000000000 --agent --select data.caption,data.media_product_type,data.like_count,data.comments_count",
+        "explanation": "Pass a brand's IG user id (from 'brands list'); media responses are deeply nested, so --select trims to the high-gravity fields and keeps an agent from parsing tens of KB."
+      },
+      {
+        "title": "Find when this brand should post",
+        "command": "instagram-pp-cli best-time --account bistro --agent",
+        "explanation": "Buckets the brand's own post history by weekday and hour to recommend slots, not generic advice."
+      },
+      {
+        "title": "Track a competitor's growth",
+        "command": "instagram-pp-cli rivals --since 30d --agent",
+        "explanation": "Diffs accumulated business_discovery snapshots into rival follower/engagement deltas."
+      },
+      {
+        "title": "Compare content formats",
+        "command": "instagram-pp-cli formats --account cafe --agent",
+        "explanation": "Aggregates Reels vs Feed vs Story vs Carousel including Reels watch-time."
+      }
+    ],
+    "trigger_phrases": [
+      "compare my instagram brands",
+      "instagram follower growth",
+      "best time to post on instagram",
+      "top instagram posts this month",
+      "instagram competitor analytics",
+      "use instagram-pp-cli",
+      "run instagram analytics"
+    ]
+  }
+}

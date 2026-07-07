@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "api_name": "oura",
+  "run_id": "20260618-214839",
+  "status": "pass",
+  "level": "quick",
+  "matrix_size": 15,
+  "tests_passed": 15,
+  "tests_skipped": 10,
+  "auth_context": {
+    "type": "bearer_token"
+  }
+}

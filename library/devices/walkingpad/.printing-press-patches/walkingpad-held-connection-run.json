@@ -1,0 +1,15 @@
+{
+  "schema_version": 2,
+  "id": "walkingpad-held-connection-run",
+  "applied_at": "2026-06-04T06:21:03Z",
+  "base_run_id": "20260603-000413",
+  "base_printing_press_version": "4.20.0",
+  "summary": "Held-connection run/stop choreography (subscribe -> handshake -> manual -> settle -> start -> wait-for-running -> speed; stop ceremony) and local walk recording, on the novelCommands hook.",
+  "reason": "A one-shot write cannot sustain the belt; reliable control needs a sustained connection following the proven workflow spine, plus a history/profile store.",
+  "files": [
+    "internal/cli/run.go",
+    "internal/cli/commands.go",
+    "internal/history/store.go",
+    "internal/profile/profile.go"
+  ]
+}

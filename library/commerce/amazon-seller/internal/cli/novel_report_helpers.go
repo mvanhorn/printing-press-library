@@ -26,10 +26,11 @@ import (
 )
 
 const (
-	reportCreateMinGap     = 60 * time.Second
-	defaultReportTimeout   = 15 * time.Minute
-	defaultReportPollEvery = 15 * time.Second
-	maxReportDownloadBytes = 50 << 20
+	defaultAmazonSellerMarketplaceID = "ATVPDKIKX0DER"
+	reportCreateMinGap               = 60 * time.Second
+	defaultReportTimeout             = 15 * time.Minute
+	defaultReportPollEvery           = 15 * time.Second
+	maxReportDownloadBytes           = 50 << 20
 )
 
 type reportAPIClient interface {
@@ -68,6 +69,7 @@ type reportSpec struct {
 	EndTime       string
 	Options       map[string]any
 	ListOnly      bool
+	Optional      bool
 	MaxAge        time.Duration
 }
 
@@ -149,7 +151,7 @@ func runNovelCommand(cmd *cobra.Command, flags *rootFlags, opts novelRunOptions,
 		sqlDB:        db.DB(),
 		orchestrator: o,
 		timeout:      opts.ReportTimeout,
-		marketplace:  opts.MarketplaceID,
+		marketplace:  strings.TrimSpace(opts.MarketplaceID),
 	}
 	result, err := fn(cmd.Context(), runner)
 	if err != nil {
@@ -171,7 +173,11 @@ func (r *novelCommandRunner) ensureReports(ctx context.Context, specs ...reportS
 			continue
 		}
 		if spec.MarketplaceID == "" {
-			spec.MarketplaceID = r.marketplace
+			marketplaceID, err := r.resolveMarketplaceID(ctx)
+			if err != nil {
+				return err
+			}
+			spec.MarketplaceID = marketplaceID
 		}
 		if spec.MaxAge <= 0 {
 			spec.MaxAge = 24 * time.Hour
@@ -206,11 +212,147 @@ func (r *novelCommandRunner) ensureReports(ctx context.Context, specs ...reportS
 	}
 	for i, rows := range results {
 		spec := pending[i]
+		if rows == nil {
+			continue
+		}
 		if err := cacheReportData(r.sqlDB, spec.Type, spec.MarketplaceID, spec.StartTime, spec.EndTime, rows); err != nil {
 			return err
 		}
 	}
 	return nil
+}
+
+func (r *novelCommandRunner) resolveMarketplaceID(ctx context.Context) (string, error) {
+	if marketplaceID := strings.TrimSpace(r.marketplace); marketplaceID != "" {
+		return marketplaceID, nil
+	}
+	if r.flags == nil || r.flags.dataSource == "local" || r.orchestrator == nil {
+		r.marketplace = defaultAmazonSellerMarketplaceID
+		return r.marketplace, nil
+	}
+	raw, err := r.orchestrator.api.Get("/sellers/v1/marketplaceParticipations", nil)
+	if err != nil {
+		if r.flags.dataSource == "auto" {
+			fmt.Fprintf(os.Stderr, "warning: could not resolve marketplace from Seller participations; defaulting to %s: %v\n", defaultAmazonSellerMarketplaceID, err)
+			r.marketplace = defaultAmazonSellerMarketplaceID
+			return r.marketplace, nil
+		}
+		return "", classifyAPIError(err, r.flags)
+	}
+	if marketplaceID := preferredMarketplaceID(raw); marketplaceID != "" {
+		r.marketplace = marketplaceID
+		return marketplaceID, nil
+	}
+	r.marketplace = defaultAmazonSellerMarketplaceID
+	return r.marketplace, nil
+}
+
+func preferredMarketplaceID(raw json.RawMessage) string {
+	items := marketplaceParticipationItems(raw)
+	var firstParticipating, firstRetailAmazon, firstUS string
+	for _, item := range items {
+		id := nestedString(item, "marketplace", "id")
+		if id == "" || !isParticipatingMarketplace(item) {
+			continue
+		}
+		if id == defaultAmazonSellerMarketplaceID {
+			return id
+		}
+		name := strings.ToLower(nestedString(item, "marketplace", "name"))
+		domain := strings.ToLower(nestedString(item, "marketplace", "domainName"))
+		country := strings.ToUpper(nestedString(item, "marketplace", "countryCode"))
+		if firstParticipating == "" {
+			firstParticipating = id
+		}
+		if firstRetailAmazon == "" && strings.HasPrefix(name, "amazon.") && strings.Contains(domain, "amazon.") {
+			firstRetailAmazon = id
+		}
+		if firstUS == "" && country == "US" {
+			firstUS = id
+		}
+	}
+	return firstNonEmpty(firstRetailAmazon, firstUS, firstParticipating)
+}
+
+func marketplaceParticipationItems(raw json.RawMessage) []map[string]any {
+	var decoded any
+	if err := json.Unmarshal(raw, &decoded); err != nil {
+		return nil
+	}
+	return marketplaceParticipationItemsFromAny(decoded)
+}
+
+func marketplaceParticipationItemsFromAny(value any) []map[string]any {
+	switch typed := value.(type) {
+	case []any:
+		items := make([]map[string]any, 0, len(typed))
+		for _, item := range typed {
+			if obj, ok := item.(map[string]any); ok {
+				items = append(items, obj)
+			}
+		}
+		return items
+	case map[string]any:
+		for _, key := range []string{"payload", "data", "items", "results"} {
+			if nested, ok := typed[key]; ok {
+				if items := marketplaceParticipationItemsFromAny(nested); len(items) > 0 {
+					return items
+				}
+			}
+		}
+	}
+	return nil
+}
+
+func isParticipatingMarketplace(item map[string]any) bool {
+	participation, ok := item["participation"].(map[string]any)
+	if !ok {
+		return true
+	}
+	if value, ok := participation["isParticipating"]; ok {
+		return boolValue(value, true)
+	}
+	return true
+}
+
+func nestedString(item map[string]any, path ...string) string {
+	var current any = item
+	for _, part := range path {
+		obj, ok := current.(map[string]any)
+		if !ok {
+			return ""
+		}
+		current = obj[part]
+	}
+	return stringValue(current)
+}
+
+func stringValue(value any) string {
+	switch typed := value.(type) {
+	case string:
+		return strings.TrimSpace(typed)
+	case float64:
+		return strconv.FormatFloat(typed, 'f', -1, 64)
+	case nil:
+		return ""
+	default:
+		return strings.TrimSpace(fmt.Sprint(typed))
+	}
+}
+
+func boolValue(value any, fallback bool) bool {
+	switch typed := value.(type) {
+	case bool:
+		return typed
+	case string:
+		switch strings.ToLower(strings.TrimSpace(typed)) {
+		case "true", "yes", "1":
+			return true
+		case "false", "no", "0":
+			return false
+		}
+	}
+	return fallback
 }
 
 func (r *novelCommandRunner) handleReportFetchError(reportType string, err error) error {
@@ -233,15 +375,18 @@ func (o *ReportOrchestrator) RequestBatchAndDownload(ctx context.Context, specs 
 		spec     reportSpec
 		reportID string
 	}
+	results := make([][]map[string]string, len(specs))
 	created := make([]createdReport, 0, len(specs))
 	for i, spec := range specs {
 		reportID, err := o.createReport(ctx, spec)
 		if err != nil {
+			if o.handleOptionalReport(ctx, spec, err, results, i) {
+				continue
+			}
 			return nil, err
 		}
 		created = append(created, createdReport{index: i, spec: spec, reportID: reportID})
 	}
-	results := make([][]map[string]string, len(specs))
 	errCh := make(chan error, len(created))
 	var wg sync.WaitGroup
 	for _, item := range created {
@@ -251,19 +396,17 @@ func (o *ReportOrchestrator) RequestBatchAndDownload(ctx context.Context, specs 
 			defer wg.Done()
 			documentID, err := o.pollUntilDone(ctx, item.reportID, timeout)
 			if err != nil {
-				if isLatestReportFallbackType(item.spec.Type) {
-					o.progress("report %s failed; trying latest completed %s report", item.reportID, item.spec.Type)
-					rows, fallbackErr := o.FindLatestReportRows(ctx, item.spec.Type, []string{item.spec.MarketplaceID}, 1)
-					if fallbackErr == nil {
-						results[item.index] = rows
-						return
-					}
+				if o.handleOptionalReport(ctx, item.spec, err, results, item.index) {
+					return
 				}
 				errCh <- err
 				return
 			}
 			data, err := o.DownloadReportDocument(ctx, documentID)
 			if err != nil {
+				if o.handleOptionalReport(ctx, item.spec, err, results, item.index) {
+					return
+				}
 				errCh <- err
 				return
 			}
@@ -274,6 +417,9 @@ func (o *ReportOrchestrator) RequestBatchAndDownload(ctx context.Context, specs 
 				rows, err = parseTSV(data)
 			}
 			if err != nil {
+				if o.handleOptionalReport(ctx, item.spec, err, results, item.index) {
+					return
+				}
 				errCh <- err
 				return
 			}
@@ -288,6 +434,23 @@ func (o *ReportOrchestrator) RequestBatchAndDownload(ctx context.Context, specs 
 		}
 	}
 	return results, nil
+}
+
+func (o *ReportOrchestrator) handleOptionalReport(ctx context.Context, spec reportSpec, cause error, results [][]map[string]string, index int) bool {
+	if !spec.Optional && !isLatestReportFallbackType(spec.Type) {
+		return false
+	}
+	o.progress("report %s unavailable; trying latest completed %s report", spec.Type, spec.Type)
+	rows, fallbackErr := o.FindLatestReportRows(ctx, spec.Type, []string{spec.MarketplaceID}, 1)
+	if fallbackErr == nil {
+		results[index] = rows
+		return true
+	}
+	if spec.Optional {
+		o.progress("warning: optional report %s unavailable; continuing with cached/local data if present: %v", spec.Type, cause)
+		return true
+	}
+	return false
 }
 
 func isLatestReportFallbackType(reportType string) bool {
@@ -719,6 +882,12 @@ func novelSinceDate(days int) string {
 func marketSpec(reportType, marketplaceID string, days int) reportSpec {
 	start, end := reportDateRange(days)
 	return reportSpec{Type: reportType, MarketplaceID: marketplaceID, StartTime: start, EndTime: end}
+}
+
+func optionalMarketSpec(reportType, marketplaceID string, days int) reportSpec {
+	spec := marketSpec(reportType, marketplaceID, days)
+	spec.Optional = true
+	return spec
 }
 
 func salesTrafficSpecs(marketplaceID string, days int) []reportSpec {

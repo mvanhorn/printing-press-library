@@ -1,0 +1,17 @@
+{
+  "schema_version": 2,
+  "id": "module-path-published",
+  "applied_at": "2026-05-11",
+  "base_run_id": "20260511-034611",
+  "base_printing_press_version": "4.2.2",
+  "files": [
+    "go.mod",
+    "cmd/jimmy-johns-pp-cli/main.go",
+    "cmd/jimmy-johns-pp-mcp/main.go",
+    "internal/mcp/tools.go",
+    "internal/cli/auth.go",
+    "internal/cli/sync.go"
+  ],
+  "summary": "Rewrite the Go module path to github.com/mvanhorn/printing-press-library/library/food-and-dining/jimmy-johns and update all internal imports.",
+  "reason": "The npm installer resolves install targets from the published module path (`go install <module>/cmd/<binary>@latest`). A bare `module jimmy-johns-pp-cli` declaration left `npx ... install jimmy-johns` running `go install jimmy-johns-pp-cli/cmd/jimmy-johns-pp-cli@latest`, which Go rejects as a malformed/undownloadable path. Found by codex review."
+}

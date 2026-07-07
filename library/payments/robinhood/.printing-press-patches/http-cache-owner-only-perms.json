@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "id": "http-cache-owner-only-perms",
+  "applied_at": "2026-05-29",
+  "base_run_id": "20260522-162911",
+  "base_printing_press_version": "4.11.0",
+  "summary": "client.writeCache creates the HTTP response cache dir/files as 0o700/0o600 instead of 0o755/0o644.",
+  "reason": "Repo-wide perms sweep: the prior session hardened internal/store and internal/cache but missed the client's own ~/.cache/robinhood-pp-cli/http writer, which mirrors live account/portfolio/order/quote responses and was left world-readable.",
+  "files": [
+    "internal/client/client.go"
+  ]
+}

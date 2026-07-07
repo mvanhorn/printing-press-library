@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "requestid-hoist-above-retry-loop",
+  "applied_at": "2026-05-22",
+  "base_run_id": "20260510-083403",
+  "base_printing_press_version": "4.2.2",
+  "summary": "Hoist the __requestid generation above the retry loop so retries for one logical request share an idempotency token.",
+  "reason": "Generating __requestid inside the retry loop made each retry look like a fresh write to the server, defeating the idempotency behavior the header is meant to provide.",
+  "files": [
+    "internal/client/client.go"
+  ],
+  "validated_outcome": "Build, vet, 92 tests, and verify-skill all passed after the change."
+}

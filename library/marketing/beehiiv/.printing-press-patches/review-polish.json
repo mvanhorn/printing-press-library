@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "review-polish",
+  "applied_at": "2026-05-10",
+  "base_run_id": "20260510-144732",
+  "base_printing_press_version": "4.2.2",
+  "summary": "Removes dead generated scaffolding from refresh-token and update-by-email paths.",
+  "reason": "Beehiiv uses bearer-token auth in this CLI, so unsupported OAuth refresh tokens should fail explicitly instead of silently no-oping; empty generated conditionals should not ship.",
+  "files": [
+    "internal/client/client.go",
+    "internal/cli/subscriptions_update-by-email.go"
+  ],
+  "validated_outcome": "go test ./... passes for the published Beehiiv CLI."
+}

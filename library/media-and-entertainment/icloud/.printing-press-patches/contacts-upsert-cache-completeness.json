@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "contacts-upsert-cache-completeness",
+  "applied_at": "2026-05-23",
+  "base_run_id": "hand-written",
+  "base_printing_press_version": "0.1.3",
+  "summary": "UpsertOne re-inserts addresses and URLs (not just phones and emails); merge command nil-guards both GetByAny results; FTS body includes MiddleName; GetByAny prefix LIKE escapes wildcards and pairs with ESCAPE '\\'; analytics countries propagates the unresolved-count Scan error.",
+  "reason": "Greptile PR #872 second-round findings: (1) UpsertOne deleted contact_addresses and contact_urls but only re-inserted phones and emails, so every `contacts update` and `contacts merge --confirm` silently wiped the affected rows in the local cache until the next full sync — most visible on merge, which explicitly aggregates addresses/URLs before writing. Fix: mirror the SyncAll insert loops for addresses and URLs. (2) merge dereferenced primary.Phones / absorbed.Phones without checking the (nil, nil) shape Get returns on sql.ErrNoRows when GetByAny delegates to Get for a full Apple ID not in the local cache — every other write command already guards this. Fix: explicit `if primary == nil` / `if absorbed == nil` returns. (3) UpsertOne's FTS body omitted c.MiddleName, so contacts indexed only by middle name were unsearchable via FTS5 MATCH. (4) GetByAny's UUID-prefix lookup interpolated input directly into LIKE without escaping % and _, so `contacts get %` would match every contact and trip the ambiguous-prefix path instead of returning not-found. Fix: escapeLike(input) + explicit `ESCAPE '\\'` clause. (5) analytics countries swallowed the Scan error on the unresolved-country query — a missing table in an old DB would print 0 instead of erroring.",
+  "files": [
+    "internal/cli/contacts.go",
+    "internal/cli/contacts_db.go",
+    "internal/cli/contacts_analytics.go"
+  ]
+}

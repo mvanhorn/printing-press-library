@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "messages-failures-since-filter-hardening",
+  "applied_at": "2026-05-15",
+  "base_run_id": "20260513-091340",
+  "base_printing_press_version": "4.5.2",
+  "summary": "messages failures --since now skips messages whose timestamp can't be resolved, instead of silently including them.",
+  "reason": "Same pattern as the earlier compliance_auto_block fix: the guard `!t.IsZero() && t.Before(cutoff)` evaluated false for zero times (when both `timestamp` and `created_at` were NULL or non-RFC3339), so undated messages bypassed the --since window entirely. With --group-by reason, this silently inflated counts with arbitrarily old failures. Fix: invert the polarity to `t.IsZero() || t.Before(cutoff) -> continue`, dropping any row whose timestamp cannot be resolved. Surfaced by Greptile P1 in the PR #417 sixth review pass.",
+  "files": [
+    "internal/cli/messages_failures.go"
+  ],
+  "validated_outcome": "go build ./... succeeds; go test ./... passes; go vet clean."
+}

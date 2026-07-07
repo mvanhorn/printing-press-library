@@ -1,0 +1,16 @@
+# agentcookie.toml: secrets-bus adoption manifest v2
+# See docs/spec-agentcookie-secrets-bus-v2-adoption.md
+schema_version = 2
+name = "salesloft-pp-cli"
+display_name = "Salesloft Read"
+description = "Read-first Salesloft API surface for agent workflows, based on the public Salesloft v2 developer documentation."
+project_kind = "cli"
+
+[secrets.file]
+path = "~/.config/github.com/mvanhorn/printing-press-library/library/sales-and-crm/salesloft/config.toml"
+
+[sync]
+default = false
+
+[sync.keys]
+SALESLOFT_BEARER_AUTH = true

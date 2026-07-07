@@ -1,0 +1,5965 @@
+{
+  "api_name": "pangolin",
+  "base_url": "",
+  "description": "Authentication: Set the PANGOLIN_TOKEN environment variable to your integration token. Base URL: most Pangolin Enterprise Edition deployments mount the integration API at /api/v1 under the dashboard host (e.g. https://\u003cyour-dashboard\u003e/api/v1) — set PANGOLIN_BASE_URL accordingly.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "mcp": {
+    "endpoint_tools": "hidden",
+    "orchestration": "code"
+  },
+  "auth": {
+    "type": "bearer_token",
+    "header": "Authorization",
+    "env_vars": [
+      "PANGOLIN_TOKEN"
+    ],
+    "env_var_specs": [
+      {
+        "name": "PANGOLIN_TOKEN",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    ],
+    "key_url": "https://\u003cyour-dashboard"
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "access-token_delete",
+      "description": "Delete a access token. Required: accessTokenId. Destructive.",
+      "method": "DELETE",
+      "path": "/access-token/{accessTokenId}",
+      "params": [
+        {
+          "name": "accessTokenId",
+          "type": "string",
+          "location": "path",
+          "description": "Access token id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "certificate_create",
+      "description": "Restart a certificate by ID. Required: certId, orgId.",
+      "method": "POST",
+      "path": "/certificate/{certId}",
+      "params": [
+        {
+          "name": "certId",
+          "type": "string",
+          "location": "path",
+          "description": "Cert id",
+          "required": true
+        },
+        {
+          "name": "orgId",
+          "type": "string",
+          "location": "path",
+          "description": "Org id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "client_create",
+      "description": "Update a client by its client ID. Required: clientId. Optional: name, niceId.",
+      "method": "POST",
+      "path": "/client/{clientId}",
+      "params": [
+        {
+          "name": "clientId",
+          "type": "string",
+          "location": "path",
+          "description": "Client id",
+          "required": true
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Name"
+        },
+        {
+          "name": "niceId",
+          "type": "string",
+          "location": "body",
+          "description": "Nice id"
+        }
+      ]
+    },
+    {
+      "name": "client_delete",
+      "description": "Delete a client by its client ID. Required: clientId. Destructive.",
+      "method": "DELETE",
+      "path": "/client/{clientId}",
+      "params": [
+        {
+          "name": "clientId",
+          "type": "string",
+          "location": "path",
+          "description": "Client id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "client_get",
+      "description": "Get a client by its client ID. Required: clientId.",
+      "method": "GET",
+      "path": "/client/{clientId}",
+      "params": [
+        {
+          "name": "clientId",
+          "type": "float",
+          "location": "path",
+          "description": "Client id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "client_archive_create",
+      "description": "Archive a client by its client ID. Required: clientId.",
+      "method": "POST",
+      "path": "/client/{clientId}/archive",
+      "params": [
+        {
+          "name": "clientId",
+          "type": "string",
+          "location": "path",
+          "description": "Client id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "client_block_create",
+      "description": "Block a client by its client ID. Required: clientId.",
+      "method": "POST",
+      "path": "/client/{clientId}/block",
+      "params": [
+        {
+          "name": "clientId",
+          "type": "string",
+          "location": "path",
+          "description": "Client id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "client_site-resources_create",
+      "description": "Add a machine client to multiple site resources at once. Required: clientId, siteResourceIds.",
+      "method": "POST",
+      "path": "/client/{clientId}/site-resources",
+      "params": [
+        {
+          "name": "clientId",
+          "type": "string",
+          "location": "path",
+          "description": "Client id",
+          "required": true
+        },
+        {
+          "name": "siteResourceIds",
+          "type": "array",
+          "location": "body",
+          "description": "Site resource ids",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "client_unarchive_create",
+      "description": "Unarchive a client by its client ID. Required: clientId.",
+      "method": "POST",
+      "path": "/client/{clientId}/unarchive",
+      "params": [
+        {
+          "name": "clientId",
+          "type": "string",
+          "location": "path",
+          "description": "Client id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "client_unblock_create",
+      "description": "Unblock a client by its client ID. Required: clientId.",
+      "method": "POST",
+      "path": "/client/{clientId}/unblock",
+      "params": [
+        {
+          "name": "clientId",
+          "type": "string",
+          "location": "path",
+          "description": "Client id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "domain_list",
+      "description": "Check if a domain namespace is available based on subdomain. Required: subdomain.",
+      "method": "GET",
+      "path": "/domain/check-namespace-availability",
+      "params": [
+        {
+          "name": "subdomain",
+          "type": "string",
+          "location": "query",
+          "description": "Subdomain",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "domains_list",
+      "description": "List all domain namespaces in the system. Optional: limit (default: 1000), offset (default: 0).",
+      "method": "GET",
+      "path": "/domains/namepaces",
+      "params": [
+        {
+          "name": "limit",
+          "type": "string",
+          "location": "query",
+          "description": "Limit"
+        },
+        {
+          "name": "offset",
+          "type": "string",
+          "location": "query",
+          "description": "Offset"
+        }
+      ]
+    },
+    {
+      "name": "idp_delete",
+      "description": "Delete IDP. Required: orgId, idpId. Destructive.",
+      "method": "DELETE",
+      "path": "/idp/{idpId}",
+      "params": [
+        {
+          "name": "orgId",
+          "type": "string",
+          "location": "path",
+          "description": "Org id",
+          "required": true
+        },
+        {
+          "name": "idpId",
+          "type": "float",
+          "location": "path",
+          "description": "Idp id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "idp_get",
+      "description": "Get an IDP by its IDP ID. Required: idpId.",
+      "method": "GET",
+      "path": "/idp/{idpId}",
+      "params": [
+        {
+          "name": "idpId",
+          "type": "float",
+          "location": "path",
+          "description": "Idp id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "idp_list",
+      "description": "List all IDP in the system. Optional: limit (default: 1000), offset (default: 0).",
+      "method": "GET",
+      "path": "/idp",
+      "params": [
+        {
+          "name": "limit",
+          "type": "string",
+          "location": "query",
+          "description": "Limit"
+        },
+        {
+          "name": "offset",
+          "type": "string",
+          "location": "query",
+          "description": "Offset"
+        }
+      ]
+    },
+    {
+      "name": "idp_update",
+      "description": "Create an OIDC IdP. Required: authUrl, clientId, clientSecret, identifierPath, name, scopes, tokenUrl. Optional: autoProvision, emailPath, namePath (plus 2 more).",
+      "method": "PUT",
+      "path": "/idp/oidc",
+      "params": [
+        {
+          "name": "authUrl",
+          "type": "string",
+          "location": "body",
+          "description": "Auth url",
+          "required": true
+        },
+        {
+          "name": "autoProvision",
+          "type": "bool",
+          "location": "body",
+          "description": "Auto provision"
+        },
+        {
+          "name": "clientId",
+          "type": "string",
+          "location": "body",
+          "description": "Client id",
+          "required": true
+        },
+        {
+          "name": "clientSecret",
+          "type": "string",
+          "location": "body",
+          "description": "Client secret",
+          "required": true
+        },
+        {
+          "name": "emailPath",
+          "type": "string",
+          "location": "body",
+          "description": "Email path"
+        },
+        {
+          "name": "identifierPath",
+          "type": "string",
+          "location": "body",
+          "description": "Identifier path",
+          "required": true
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Name",
+          "required": true
+        },
+        {
+          "name": "namePath",
+          "type": "string",
+          "location": "body",
+          "description": "Name path"
+        },
+        {
+          "name": "scopes",
+          "type": "string",
+          "location": "body",
+          "description": "Scopes",
+          "required": true
+        },
+        {
+          "name": "tags",
+          "type": "string",
+          "location": "body",
+          "description": "Tags"
+        },
+        {
+          "name": "tokenUrl",
+          "type": "string",
+          "location": "body",
+          "description": "Token url",
+          "required": true
+        },
+        {
+          "name": "variant",
+          "type": "string",
+          "location": "body",
+          "description": "Variant"
+        }
+      ]
+    },
+    {
+      "name": "idp_oidc_create",
+      "description": "Update an OIDC IdP. Required: idpId. Optional: authUrl, autoProvision, clientId (plus 11 more).",
+      "method": "POST",
+      "path": "/idp/{idpId}/oidc",
+      "params": [
+        {
+          "name": "idpId",
+          "type": "float",
+          "location": "path",
+          "description": "Idp id",
+          "required": true
+        },
+        {
+          "name": "authUrl",
+          "type": "string",
+          "location": "body",
+          "description": "Auth url"
+        },
+        {
+          "name": "autoProvision",
+          "type": "bool",
+          "location": "body",
+          "description": "Auto provision"
+        },
+        {
+          "name": "clientId",
+          "type": "string",
+          "location": "body",
+          "description": "Client id"
+        },
+        {
+          "name": "clientSecret",
+          "type": "string",
+          "location": "body",
+          "description": "Client secret"
+        },
+        {
+          "name": "defaultOrgMapping",
+          "type": "string",
+          "location": "body",
+          "description": "Default org mapping"
+        },
+        {
+          "name": "defaultRoleMapping",
+          "type": "string",
+          "location": "body",
+          "description": "Default role mapping"
+        },
+        {
+          "name": "emailPath",
+          "type": "string",
+          "location": "body",
+          "description": "Email path"
+        },
+        {
+          "name": "identifierPath",
+          "type": "string",
+          "location": "body",
+          "description": "Identifier path"
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Name"
+        },
+        {
+          "name": "namePath",
+          "type": "string",
+          "location": "body",
+          "description": "Name path"
+        },
+        {
+          "name": "scopes",
+          "type": "string",
+          "location": "body",
+          "description": "Scopes"
+        },
+        {
+          "name": "tags",
+          "type": "string",
+          "location": "body",
+          "description": "Tags"
+        },
+        {
+          "name": "tokenUrl",
+          "type": "string",
+          "location": "body",
+          "description": "Token url"
+        },
+        {
+          "name": "variant",
+          "type": "string",
+          "location": "body",
+          "description": "Variant"
+        }
+      ]
+    },
+    {
+      "name": "idp_org_create",
+      "description": "Update an IDP org policy. Required: idpId, orgId. Optional: orgMapping, roleMapping.",
+      "method": "POST",
+      "path": "/idp/{idpId}/org/{orgId}",
+      "params": [
+        {
+          "name": "idpId",
+          "type": "float",
+          "location": "path",
+          "description": "Idp id",
+          "required": true
+        },
+        {
+          "name": "orgId",
+          "type": "string",
+          "location": "path",
+          "description": "Org id",
+          "required": true
+        },
+        {
+          "name": "orgMapping",
+          "type": "string",
+          "location": "body",
+          "description": "Org mapping"
+        },
+        {
+          "name": "roleMapping",
+          "type": "string",
+          "location": "body",
+          "description": "Role mapping"
+        }
+      ]
+    },
+    {
+      "name": "idp_org_delete",
+      "description": "Create an OIDC IdP for an organization. Required: idpId, orgId. Destructive.",
+      "method": "DELETE",
+      "path": "/idp/{idpId}/org/{orgId}",
+      "params": [
+        {
+          "name": "idpId",
+          "type": "float",
+          "location": "path",
+          "description": "Idp id",
+          "required": true
+        },
+        {
+          "name": "orgId",
+          "type": "string",
+          "location": "path",
+          "description": "Org id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "idp_org_get",
+      "description": "List all org policies on an IDP. Required: idpId. Optional: limit (default: 1000), offset (default: 0).",
+      "method": "GET",
+      "path": "/idp/{idpId}/org",
+      "params": [
+        {
+          "name": "idpId",
+          "type": "float",
+          "location": "path",
+          "description": "Idp id",
+          "required": true
+        },
+        {
+          "name": "limit",
+          "type": "string",
+          "location": "query",
+          "description": "Limit"
+        },
+        {
+          "name": "offset",
+          "type": "string",
+          "location": "query",
+          "description": "Offset"
+        }
+      ]
+    },
+    {
+      "name": "idp_org_update",
+      "description": "Create an IDP policy for an existing IDP on an organization. Required: idpId, orgId. Optional: orgMapping, roleMapping.",
+      "method": "PUT",
+      "path": "/idp/{idpId}/org/{orgId}",
+      "params": [
+        {
+          "name": "idpId",
+          "type": "float",
+          "location": "path",
+          "description": "Idp id",
+          "required": true
+        },
+        {
+          "name": "orgId",
+          "type": "string",
+          "location": "path",
+          "description": "Org id",
+          "required": true
+        },
+        {
+          "name": "orgMapping",
+          "type": "string",
+          "location": "body",
+          "description": "Org mapping"
+        },
+        {
+          "name": "roleMapping",
+          "type": "string",
+          "location": "body",
+          "description": "Role mapping"
+        }
+      ]
+    },
+    {
+      "name": "maintenance_list",
+      "description": "Get maintenance information for a resource by domain. Required: fullDomain.",
+      "method": "GET",
+      "path": "/maintenance/info",
+      "params": [
+        {
+          "name": "fullDomain",
+          "type": "string",
+          "location": "query",
+          "description": "Full domain",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "openapi-json_list",
+      "description": "Get OpenAPI specification as JSON. Returns the OpenapiJsonListResponse.",
+      "method": "GET",
+      "path": "/openapi.json",
+      "params": []
+    },
+    {
+      "name": "openapi-yaml_list",
+      "description": "Get OpenAPI specification as YAML.",
+      "method": "GET",
+      "path": "/openapi.yaml",
+      "params": [],
+      "header_overrides": [
+        {
+          "name": "Accept",
+          "value": "application/yaml"
+        }
+      ]
+    },
+    {
+      "name": "org_create",
+      "description": "Update an organization. Required: orgId. Optional: maxSessionLengthHours, name, passwordExpiryDays (plus 5 more).",
+      "method": "POST",
+      "path": "/org/{orgId}",
+      "params": [
+        {
+          "name": "orgId",
+          "type": "string",
+          "location": "path",
+          "description": "Org id",
+          "required": true
+        },
+        {
+          "name": "maxSessionLengthHours",
+          "type": "float",
+          "location": "body",
+          "description": "Max session length hours"
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Name"
+        },
+        {
+          "name": "passwordExpiryDays",
+          "type": "float",
+          "location": "body",
+          "description": "Password expiry days"
+        },
+        {
+          "name": "requireTwoFactor",
+          "type": "bool",
+          "location": "body",
+          "description": "Require two factor"
+        },
+        {
+          "name": "settingsLogRetentionDaysAccess",
+          "type": "float",
+          "location": "body",
+          "description": "Settings log retention days access"
+        },
+        {
+          "name": "settingsLogRetentionDaysAction",
+          "type": "float",
+          "location": "body",
+          "description": "Settings log retention days action"
+        },
+        {
+          "name": "settingsLogRetentionDaysConnection",
+          "type": "float",
+          "location": "body",
+          "description": "Settings log retention days connection"
+        },
+        {
+          "name": "settingsLogRetentionDaysRequest",
+          "type": "float",
+          "location": "body",
+          "description": "Settings log retention days request"
+        }
+      ]
+    },
+    {
+      "name": "org_delete",
+      "description": "Delete an organization. Required: orgId. Destructive.",
+      "method": "DELETE",
+      "path": "/org/{orgId}",
+      "params": [
+        {
+          "name": "orgId",
+          "type": "string",
+          "location": "path",
+          "description": "Org id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "org_get",
+      "description": "Get an organization. Required: orgId.",
+      "method": "GET",
+      "path": "/org/{orgId}",
+      "params": [
+        {
+          "name": "orgId",
+          "type": "string",
+          "location": "path",
+          "description": "Org id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "org_update",
+      "description": "Create a new organization. Required: name, orgId, subnet, utilitySubnet.",
+      "method": "PUT",
+      "path": "/org",
+      "params": [
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Name",
+          "required": true
+        },
+        {
+          "name": "orgId",
+          "type": "string",
+          "location": "body",
+          "description": "Org id",
+          "required": true
+        },
+        {
+          "name": "subnet",
+          "type": "string",
+          "location": "body",
+          "description": "Subnet",
+          "required": true
+        },
+        {
+          "name": "utilitySubnet",
+          "type": "string",
+          "location": "body",
+          "description": "Utility subnet",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "org_access-tokens_get",
+      "description": "List all access tokens in an organization. Required: orgId. Optional: limit (default: 1000), offset (default: 0).",
+      "method": "GET",
+      "path": "/org/{orgId}/access-tokens",
+      "params": [
+        {
+          "name": "orgId",
+          "type": "string",
+          "location": "path",
+          "description": "Org id",
+          "required": true
+        },
+        {
+          "name": "limit",
+          "type": "string",
+          "location": "query",
+          "description": "Limit"
+        },
+        {
+          "name": "offset",
+          "type": "string",
+          "location": "query",
+          "description": "Offset"
+        }
+      ]
+    },
+    {
+      "name": "org_alert-rule_create",
+      "description": "Update an alert rule for a specific organization. Required: orgId, alertRuleId. Optional: allHealthChecks, allResources, allSites (plus 11 more).",
+      "method": "POST",
+      "path": "/org/{orgId}/alert-rule/{alertRuleId}",
+      "params": [
+        {
+          "name": "orgId",
+          "type": "string",
+          "location": "path",
+          "description": "Org id",
+          "required": true
+        },
+        {
+          "name": "alertRuleId",
+          "type": "float",
+          "location": "path",
+          "description": "Alert rule id",
+          "required": true
+        },
+        {
+          "name": "allHealthChecks",
+          "type": "bool",
+          "location": "body",
+          "description": "All health checks"
+        },
+        {
+          "name": "allResources",
+          "type": "bool",
+          "location": "body",
+          "description": "All resources"
+        },
+        {
+          "name": "allSites",
+          "type": "bool",
+          "location": "body",
+          "description": "All sites"
+        },
+        {
+          "name": "cooldownSeconds",
+          "type": "int",
+          "location": "body",
+          "description": "Cooldown seconds"
+        },
+        {
+          "name": "emails",
+          "type": "array",
+          "location": "body",
+          "description": "Emails"
+        },
+        {
+          "name": "enabled",
+          "type": "bool",
+          "location": "body",
+          "description": "Enabled"
+        },
+        {
+          "name": "eventType",
+          "type": "string",
+          "location": "body",
+          "description": "Event type"
+        },
+        {
+          "name": "healthCheckIds",
+          "type": "array",
+          "location": "body",
+          "description": "Health check ids"
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Name"
+        },
+        {
+          "name": "resourceIds",
+          "type": "array",
+          "location": "body",
+          "description": "Resource ids"
+        },
+        {
+          "name": "roleIds",
+          "type": "array",
+          "location": "body",
+          "description": "Role ids"
+        },
+        {
+          "name": "siteIds",
+          "type": "array",
+          "location": "body",
+          "description": "Site ids"
+        },
+        {
+          "name": "userIds",
+          "type": "array",
+          "location": "body",
+          "description": "User ids"
+        },
+        {
+          "name": "webhookActions",
+          "type": "array",
+          "location": "body",
+          "description": "Webhook actions"
+        }
+      ]
+    },
+    {
+      "name": "org_alert-rule_delete",
+      "description": "Delete an alert rule for a specific organization. Required: orgId, alertRuleId. Destructive.",
+      "method": "DELETE",
+      "path": "/org/{orgId}/alert-rule/{alertRuleId}",
+      "params": [
+        {
+          "name": "orgId",
+          "type": "string",
+          "location": "path",
+          "description": "Org id",
+          "required": true
+        },
+        {
+          "name": "alertRuleId",
+          "type": "float",
+          "location": "path",
+          "description": "Alert rule id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "org_alert-rule_get",
+      "description": "Get a specific alert rule for an organization. Required: orgId, alertRuleId.",
+      "method": "GET",
+      "path": "/org/{orgId}/alert-rule/{alertRuleId}",
+      "params": [
+        {
+          "name": "orgId",
+          "type": "string",
+          "location": "path",
+          "description": "Org id",
+          "required": true
+        },
+        {
+          "name": "alertRuleId",
+          "type": "float",
+          "location": "path",
+          "description": "Alert rule id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "org_alert-rule_update",
+      "description": "Create an alert rule for a specific organization. Required: orgId, eventType, name. Optional: allHealthChecks (default: false), allResources (default: false), allSites (default: false) (plus 9 more).",
+      "method": "PUT",
+      "path": "/org/{orgId}/alert-rule",
+      "params": [
+        {
+          "name": "orgId",
+          "type": "string",
+          "location": "path",
+          "description": "Org id",
+          "required": true
+        },
+        {
+          "name": "allHealthChecks",
+          "type": "bool",
+          "location": "body",
+          "description": "All health checks"
+        },
+        {
+          "name": "allResources",
+          "type": "bool",
+          "location": "body",
+          "description": "All resources"
+        },
+        {
+          "name": "allSites",
+          "type": "bool",
+          "location": "body",
+          "description": "All sites"
+        },
+        {
+          "name": "cooldownSeconds",
+          "type": "int",
+          "location": "body",
+          "description": "Cooldown seconds"
+        },
+        {
+          "name": "emails",
+          "type": "array",
+          "location": "body",
+          "description": "Emails"
+        },
+        {
+          "name": "enabled",
+          "type": "bool",
+          "location": "body",
+          "description": "Enabled"
+        },
+        {
+          "name": "eventType",
+          "type": "string",
+          "location": "body",
+          "description": "Event type",
+          "required": true
+        },
+        {
+          "name": "healthCheckIds",
+          "type": "array",
+          "location": "body",
+          "description": "Health check ids"
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Name",
+          "required": true
+        },
+        {
+          "name": "resourceIds",
+          "type": "array",
+          "location": "body",
+          "description": "Resource ids"
+        },
+        {
+          "name": "roleIds",
+          "type": "array",
+          "location": "body",
+          "description": "Role ids"
+        },
+        {
+          "name": "siteIds",
+          "type": "array",
+          "location": "body",
+          "description": "Site ids"
+        },
+        {
+          "name": "userIds",
+          "type": "array",
+          "location": "body",
+          "description": "User ids"
+        },
+        {
+          "name": "webhookActions",
+          "type": "array",
+          "location": "body",
+          "description": "Webhook actions"
+        }
+      ]
+    },
+    {
+      "name": "org_alert-rules_get",
+      "description": "List all alert rules for a specific organization. Required: orgId. Optional: limit (default: 1000), offset (default: 0), query (plus 6 more).",
+      "method": "GET",
+      "path": "/org/{orgId}/alert-rules",
+      "params": [
+        {
+          "name": "orgId",
+          "type": "string",
+          "location": "path",
+          "description": "Org id",
+          "required": true
+        },
+        {
+          "name": "limit",
+          "type": "string",
+          "location": "query",
+          "description": "Limit"
+        },
+        {
+          "name": "offset",
+          "type": "string",
+          "location": "query",
+          "description": "Offset"
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "query",
+          "description": "Query"
+        },
+        {
+          "name": "siteId",
+          "type": "string",
+          "location": "query",
+          "description": "Site id"
+        },
+        {
+          "name": "resourceId",
+          "type": "string",
+          "location": "query",
+          "description": "Resource id"
+        },
+        {
+          "name": "healthCheckId",
+          "type": "string",
+          "location": "query",
+          "description": "Health check id"
+        },
+        {
+          "name": "sort_by",
+          "type": "string",
+          "location": "query",
+          "description": "Sort by"
+        },
+        {
+          "name": "order",
+          "type": "string",
+          "location": "query",
+          "description": "Order"
+        },
+        {
+          "name": "enabled",
+          "type": "string",
+          "location": "query",
+          "description": "Enabled"
+        }
+      ]
+    },
+    {
+      "name": "org_api-key_create",
+      "description": "Set actions for an API key. This will replace any existing actions. Required: apiKeyId, orgId, actionIds.",
+      "method": "POST",
+      "path": "/org/{orgId}/api-key/{apiKeyId}/actions",
+      "params": [
+        {
+          "name": "apiKeyId",
+          "type": "string",
+          "location": "path",
+          "description": "Api key id",
+          "required": true
+        },
+        {
+          "name": "orgId",
+          "type": "string",
+          "location": "path",
+          "description": "orgId",
+          "required": true
+        },
+        {
+          "name": "actionIds",
+          "type": "array",
+          "location": "body",
+          "description": "Action ids",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "org_api-key_delete",
+      "description": "Delete an API key. Required: apiKeyId, orgId. Destructive.",
+      "method": "DELETE",
+      "path": "/org/{orgId}/api-key/{apiKeyId}",
+      "params": [
+        {
+          "name": "apiKeyId",
+          "type": "string",
+          "location": "path",
+          "description": "Api key id",
+          "required": true
+        },
+        {
+          "name": "orgId",
+          "type": "string",
+          "location": "path",
+          "description": "orgId",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "org_api-key_get",
+      "description": "List all actions set for an API key. Required: apiKeyId, orgId. Optional: limit (default: 1000), offset (default: 0).",
+      "method": "GET",
+      "path": "/org/{orgId}/api-key/{apiKeyId}/actions",
+      "params": [
+        {
+          "name": "apiKeyId",
+          "type": "string",
+          "location": "path",
+          "description": "Api key id",
+          "required": true
+        },
+        {
+          "name": "limit",
+          "type": "string",
+          "location": "query",
+          "description": "Limit"
+        },
+        {
+          "name": "offset",
+          "type": "string",
+          "location": "query",
+          "description": "Offset"
+        },
+        {
+          "name": "orgId",
+          "type": "string",
+          "location": "path",
+          "description": "orgId",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "org_api-key_update",
+      "description": "Create a new API key scoped to the organization. Required: orgId, name.",
+      "method": "PUT",
+      "path": "/org/{orgId}/api-key",
+      "params": [
+        {
+          "name": "orgId",
+          "type": "string",
+          "location": "path",
+          "description": "Org id",
+          "required": true
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Name",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "org_api-keys_get",
+      "description": "List all API keys for an organization. Required: orgId. Optional: limit (default: 1000), offset (default: 0).",
+      "method": "GET",
+      "path": "/org/{orgId}/api-keys",
+      "params": [
+        {
+          "name": "orgId",
+          "type": "string",
+          "location": "path",
+          "description": "Org id",
+          "required": true
+        },
+        {
+          "name": "limit",
+          "type": "string",
+          "location": "query",
+          "description": "Limit"
+        },
+        {
+          "name": "offset",
+          "type": "string",
+          "location": "query",
+          "description": "Offset"
+        }
+      ]
+    },
+    {
+      "name": "org_blueprint_get",
+      "description": "Get a blueprint by its blueprint ID. Required: blueprintId, orgId.",
+      "method": "GET",
+      "path": "/org/{orgId}/blueprint/{blueprintId}",
+      "params": [
+        {
+          "name": "blueprintId",
+          "type": "string",
+          "location": "path",
+          "description": "Blueprint id",
+          "required": true
+        },
+        {
+          "name": "orgId",
+          "type": "string",
+          "location": "path",
+          "description": "Org id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "org_blueprint_update",
+      "description": "Apply a base64 encoded JSON blueprint to an organization. Required: orgId, blueprint.",
+      "method": "PUT",
+      "path": "/org/{orgId}/blueprint",
+      "params": [
+        {
+          "name": "orgId",
+          "type": "string",
+          "location": "path",
+          "description": "Org id",
+          "required": true
+        },
+        {
+          "name": "blueprint",
+          "type": "string",
+          "location": "body",
+          "description": "Blueprint",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "org_blueprints_get",
+      "description": "List all blueprints for a organization. Required: orgId. Optional: limit (default: 1000), offset (default: 0).",
+      "method": "GET",
+      "path": "/org/{orgId}/blueprints",
+      "params": [
+        {
+          "name": "orgId",
+          "type": "string",
+          "location": "path",
+          "description": "Org id",
+          "required": true
+        },
+        {
+          "name": "limit",
+          "type": "string",
+          "location": "query",
+          "description": "Limit"
+        },
+        {
+          "name": "offset",
+          "type": "string",
+          "location": "query",
+          "description": "Offset"
+        }
+      ]
+    },
+    {
+      "name": "org_certificate_get",
+      "description": "Get a certificate by domain. Required: domainId, domain, orgId.",
+      "method": "GET",
+      "path": "/org/{orgId}/certificate/{domainId}/{domain}",
+      "params": [
+        {
+          "name": "domainId",
+          "type": "string",
+          "location": "path",
+          "description": "Domain id",
+          "required": true
+        },
+        {
+          "name": "domain",
+          "type": "string",
+          "location": "path",
+          "description": "Domain",
+          "required": true
+        },
+        {
+          "name": "orgId",
+          "type": "string",
+          "location": "path",
+          "description": "Org id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "org_client_get",
+      "description": "Get a client by orgId and niceId. NiceId is a readable ID for the site and unique on a per org basis. Required: orgId, niceId.",
+      "method": "GET",
+      "path": "/org/{orgId}/client/{niceId}",
+      "params": [
+        {
+          "name": "orgId",
+          "type": "string",
+          "location": "path",
+          "description": "Org id",
+          "required": true
+        },
+        {
+          "name": "niceId",
+          "type": "string",
+          "location": "path",
+          "description": "Nice id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "org_client_update",
+      "description": "Create a new client for an organization. Required: orgId, name, olmId, secret, subnet, type.",
+      "method": "PUT",
+      "path": "/org/{orgId}/client",
+      "params": [
+        {
+          "name": "orgId",
+          "type": "string",
+          "location": "path",
+          "description": "Org id",
+          "required": true
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Name",
+          "required": true
+        },
+        {
+          "name": "olmId",
+          "type": "string",
+          "location": "body",
+          "description": "Olm id",
+          "required": true
+        },
+        {
+          "name": "secret",
+          "type": "string",
+          "location": "body",
+          "description": "Secret",
+          "required": true
+        },
+        {
+          "name": "subnet",
+          "type": "string",
+          "location": "body",
+          "description": "Subnet",
+          "required": true
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "location": "body",
+          "description": "Type",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "org_clients_get",
+      "description": "List all clients for an organization. Required: orgId. Optional: pageSize (default: 20), page (default: 1), query (plus 4 more).",
+      "method": "GET",
+      "path": "/org/{orgId}/clients",
+      "params": [
+        {
+          "name": "orgId",
+          "type": "string",
+          "location": "path",
+          "description": "Org id",
+          "required": true
+        },
+        {
+          "name": "pageSize",
+          "type": "int",
+          "location": "query",
+          "description": "Number of items per page"
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page number to retrieve"
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "query",
+          "description": "Query"
+        },
+        {
+          "name": "sort_by",
+          "type": "string",
+          "location": "query",
+          "description": "Field to sort by"
+        },
+        {
+          "name": "order",
+          "type": "string",
+          "location": "query",
+          "description": "Sort order"
+        },
+        {
+          "name": "online",
+          "type": "bool",
+          "location": "query",
+          "description": "Filter by online status"
+        },
+        {
+          "name": "status",
+          "type": "array",
+          "location": "query",
+          "description": "Filter by client status. Can be a comma-separated list of values. Defaults to 'active'."
+        }
+      ]
+    },
+    {
+      "name": "org_create-invite_create",
+      "description": "Invite a user to join an organization. Required: orgId, email, validHours. Optional: regenerate, roleId, roleIds (plus 1 more).",
+      "method": "POST",
+      "path": "/org/{orgId}/create-invite",
+      "params": [
+        {
+          "name": "orgId",
+          "type": "string",
+          "location": "path",
+          "description": "Org id",
+          "required": true
+        },
+        {
+          "name": "email",
+          "type": "string",
+          "location": "body",
+          "description": "Email",
+          "required": true
+        },
+        {
+          "name": "regenerate",
+          "type": "bool",
+          "location": "body",
+          "description": "Regenerate"
+        },
+        {
+          "name": "roleId",
+          "type": "int",
+          "location": "body",
+          "description": "Role id"
+        },
+        {
+          "name": "roleIds",
+          "type": "array",
+          "location": "body",
+          "description": "Role ids"
+        },
+        {
+          "name": "sendEmail",
+          "type": "bool",
+          "location": "body",
+          "description": "Send email"
+        },
+        {
+          "name": "validHours",
+          "type": "float",
+          "location": "body",
+          "description": "Valid hours",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "org_domain_get",
+      "description": "Get a domain by domainId. Required: domainId, orgId.",
+      "method": "GET",
+      "path": "/org/{orgId}/domain/{domainId}",
+      "params": [
+        {
+          "name": "domainId",
+          "type": "string",
+          "location": "path",
+          "description": "Domain id",
+          "required": true
+        },
+        {
+          "name": "orgId",
+          "type": "string",
+          "location": "path",
+          "description": "Org id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "org_domain_get-org",
+      "description": "Get all DNS records for a domain by domainId. Required: domainId, orgId.",
+      "method": "GET",
+      "path": "/org/{orgId}/domain/{domainId}/dns-records",
+      "params": [
+        {
+          "name": "domainId",
+          "type": "string",
+          "location": "path",
+          "description": "Domain id",
+          "required": true
+        },
+        {
+          "name": "orgId",
+          "type": "string",
+          "location": "path",
+          "description": "Org id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "org_domain_update",
+      "description": "Update a domain by domainId. Required: domainId, orgId. Partial update.",
+      "method": "PATCH",
+      "path": "/org/{orgId}/domain/{domainId}",
+      "params": [
+        {
+          "name": "domainId",
+          "type": "string",
+          "location": "path",
+          "description": "Domain id",
+          "required": true
+        },
+        {
+          "name": "orgId",
+          "type": "string",
+          "location": "path",
+          "description": "Org id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "org_domains_get",
+      "description": "List all domains for a organization. Required: orgId. Optional: limit (default: 1000), offset (default: 0).",
+      "method": "GET",
+      "path": "/org/{orgId}/domains",
+      "params": [
+        {
+          "name": "orgId",
+          "type": "string",
+          "location": "path",
+          "description": "Org id",
+          "required": true
+        },
+        {
+          "name": "limit",
+          "type": "string",
+          "location": "query",
+          "description": "Limit"
+        },
+        {
+          "name": "offset",
+          "type": "string",
+          "location": "query",
+          "description": "Offset"
+        }
+      ]
+    },
+    {
+      "name": "org_event-streaming-destination_create",
+      "description": "Update an event streaming destination for a specific organization. Required: orgId, destinationId. Optional: config, enabled, sendAccessLogs (plus 4 more).",
+      "method": "POST",
+      "path": "/org/{orgId}/event-streaming-destination/{destinationId}",
+      "params": [
+        {
+          "name": "orgId",
+          "type": "string",
+          "location": "path",
+          "description": "Org id",
+          "required": true
+        },
+        {
+          "name": "destinationId",
+          "type": "float",
+          "location": "path",
+          "description": "Destination id",
+          "required": true
+        },
+        {
+          "name": "config",
+          "type": "string",
+          "location": "body",
+          "description": "Config"
+        },
+        {
+          "name": "enabled",
+          "type": "bool",
+          "location": "body",
+          "description": "Enabled"
+        },
+        {
+          "name": "sendAccessLogs",
+          "type": "bool",
+          "location": "body",
+          "description": "Send access logs"
+        },
+        {
+          "name": "sendActionLogs",
+          "type": "bool",
+          "location": "body",
+          "description": "Send action logs"
+        },
+        {
+          "name": "sendConnectionLogs",
+          "type": "bool",
+          "location": "body",
+          "description": "Send connection logs"
+        },
+        {
+          "name": "sendRequestLogs",
+          "type": "bool",
+          "location": "body",
+          "description": "Send request logs"
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "location": "body",
+          "description": "Type"
+        }
+      ]
+    },
+    {
+      "name": "org_event-streaming-destination_delete",
+      "description": "Delete an event streaming destination for a specific organization. Required: orgId, destinationId. Destructive.",
+      "method": "DELETE",
+      "path": "/org/{orgId}/event-streaming-destination/{destinationId}",
+      "params": [
+        {
+          "name": "orgId",
+          "type": "string",
+          "location": "path",
+          "description": "Org id",
+          "required": true
+        },
+        {
+          "name": "destinationId",
+          "type": "float",
+          "location": "path",
+          "description": "Destination id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "org_event-streaming-destination_get",
+      "description": "List all event streaming destinations for a specific organization. Required: orgId. Optional: limit (default: 1000), offset (default: 0).",
+      "method": "GET",
+      "path": "/org/{orgId}/event-streaming-destination",
+      "params": [
+        {
+          "name": "orgId",
+          "type": "string",
+          "location": "path",
+          "description": "Org id",
+          "required": true
+        },
+        {
+          "name": "limit",
+          "type": "string",
+          "location": "query",
+          "description": "Limit"
+        },
+        {
+          "name": "offset",
+          "type": "string",
+          "location": "query",
+          "description": "Offset"
+        }
+      ]
+    },
+    {
+      "name": "org_event-streaming-destination_update",
+      "description": "Create an event streaming destination for a specific organization. Required: orgId, config, type. Optional: enabled (default: true), sendAccessLogs (default: false), sendActionLogs (default: false) (plus 2 more).",
+      "method": "PUT",
+      "path": "/org/{orgId}/event-streaming-destination",
+      "params": [
+        {
+          "name": "orgId",
+          "type": "string",
+          "location": "path",
+          "description": "Org id",
+          "required": true
+        },
+        {
+          "name": "config",
+          "type": "string",
+          "location": "body",
+          "description": "Config",
+          "required": true
+        },
+        {
+          "name": "enabled",
+          "type": "bool",
+          "location": "body",
+          "description": "Enabled"
+        },
+        {
+          "name": "sendAccessLogs",
+          "type": "bool",
+          "location": "body",
+          "description": "Send access logs"
+        },
+        {
+          "name": "sendActionLogs",
+          "type": "bool",
+          "location": "body",
+          "description": "Send action logs"
+        },
+        {
+          "name": "sendConnectionLogs",
+          "type": "bool",
+          "location": "body",
+          "description": "Send connection logs"
+        },
+        {
+          "name": "sendRequestLogs",
+          "type": "bool",
+          "location": "body",
+          "description": "Send request logs"
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "location": "body",
+          "description": "Type",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "org_health-check_create",
+      "description": "Update a health check for a specific organization. Required: orgId, healthCheckId. Optional: hcEnabled, hcFollowRedirects, hcHeaders (plus 15 more).",
+      "method": "POST",
+      "path": "/org/{orgId}/health-check/{healthCheckId}",
+      "params": [
+        {
+          "name": "orgId",
+          "type": "string",
+          "location": "path",
+          "description": "Org id",
+          "required": true
+        },
+        {
+          "name": "healthCheckId",
+          "type": "string",
+          "location": "path",
+          "description": "Health check id",
+          "required": true
+        },
+        {
+          "name": "hcEnabled",
+          "type": "bool",
+          "location": "body",
+          "description": "Hc enabled"
+        },
+        {
+          "name": "hcFollowRedirects",
+          "type": "bool",
+          "location": "body",
+          "description": "Hc follow redirects"
+        },
+        {
+          "name": "hcHeaders",
+          "type": "string",
+          "location": "body",
+          "description": "Hc headers"
+        },
+        {
+          "name": "hcHealthyThreshold",
+          "type": "int",
+          "location": "body",
+          "description": "Hc healthy threshold"
+        },
+        {
+          "name": "hcHostname",
+          "type": "string",
+          "location": "body",
+          "description": "Hc hostname"
+        },
+        {
+          "name": "hcInterval",
+          "type": "int",
+          "location": "body",
+          "description": "Hc interval"
+        },
+        {
+          "name": "hcMethod",
+          "type": "string",
+          "location": "body",
+          "description": "Hc method"
+        },
+        {
+          "name": "hcMode",
+          "type": "string",
+          "location": "body",
+          "description": "Hc mode"
+        },
+        {
+          "name": "hcPath",
+          "type": "string",
+          "location": "body",
+          "description": "Hc path"
+        },
+        {
+          "name": "hcPort",
+          "type": "int",
+          "location": "body",
+          "description": "Hc port"
+        },
+        {
+          "name": "hcScheme",
+          "type": "string",
+          "location": "body",
+          "description": "Hc scheme"
+        },
+        {
+          "name": "hcStatus",
+          "type": "int",
+          "location": "body",
+          "description": "Hc status"
+        },
+        {
+          "name": "hcTimeout",
+          "type": "int",
+          "location": "body",
+          "description": "Hc timeout"
+        },
+        {
+          "name": "hcTlsServerName",
+          "type": "string",
+          "location": "body",
+          "description": "Hc tls server name"
+        },
+        {
+          "name": "hcUnhealthyInterval",
+          "type": "int",
+          "location": "body",
+          "description": "Hc unhealthy interval"
+        },
+        {
+          "name": "hcUnhealthyThreshold",
+          "type": "int",
+          "location": "body",
+          "description": "Hc unhealthy threshold"
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Name"
+        },
+        {
+          "name": "siteId",
+          "type": "int",
+          "location": "body",
+          "description": "Site id"
+        }
+      ]
+    },
+    {
+      "name": "org_health-check_delete",
+      "description": "Delete a health check for a specific organization. Required: orgId, healthCheckId. Destructive.",
+      "method": "DELETE",
+      "path": "/org/{orgId}/health-check/{healthCheckId}",
+      "params": [
+        {
+          "name": "orgId",
+          "type": "string",
+          "location": "path",
+          "description": "Org id",
+          "required": true
+        },
+        {
+          "name": "healthCheckId",
+          "type": "string",
+          "location": "path",
+          "description": "Health check id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "org_health-check_update",
+      "description": "Create a health check for a specific organization. Required: orgId, name, siteId. Optional: hcEnabled (default: false), hcFollowRedirects (default: true), hcHeaders (plus 13 more).",
+      "method": "PUT",
+      "path": "/org/{orgId}/health-check",
+      "params": [
+        {
+          "name": "orgId",
+          "type": "string",
+          "location": "path",
+          "description": "Org id",
+          "required": true
+        },
+        {
+          "name": "hcEnabled",
+          "type": "bool",
+          "location": "body",
+          "description": "Hc enabled"
+        },
+        {
+          "name": "hcFollowRedirects",
+          "type": "bool",
+          "location": "body",
+          "description": "Hc follow redirects"
+        },
+        {
+          "name": "hcHeaders",
+          "type": "string",
+          "location": "body",
+          "description": "Hc headers"
+        },
+        {
+          "name": "hcHealthyThreshold",
+          "type": "int",
+          "location": "body",
+          "description": "Hc healthy threshold"
+        },
+        {
+          "name": "hcHostname",
+          "type": "string",
+          "location": "body",
+          "description": "Hc hostname"
+        },
+        {
+          "name": "hcInterval",
+          "type": "int",
+          "location": "body",
+          "description": "Hc interval"
+        },
+        {
+          "name": "hcMethod",
+          "type": "string",
+          "location": "body",
+          "description": "Hc method"
+        },
+        {
+          "name": "hcMode",
+          "type": "string",
+          "location": "body",
+          "description": "Hc mode"
+        },
+        {
+          "name": "hcPath",
+          "type": "string",
+          "location": "body",
+          "description": "Hc path"
+        },
+        {
+          "name": "hcPort",
+          "type": "int",
+          "location": "body",
+          "description": "Hc port"
+        },
+        {
+          "name": "hcScheme",
+          "type": "string",
+          "location": "body",
+          "description": "Hc scheme"
+        },
+        {
+          "name": "hcStatus",
+          "type": "int",
+          "location": "body",
+          "description": "Hc status"
+        },
+        {
+          "name": "hcTimeout",
+          "type": "int",
+          "location": "body",
+          "description": "Hc timeout"
+        },
+        {
+          "name": "hcTlsServerName",
+          "type": "string",
+          "location": "body",
+          "description": "Hc tls server name"
+        },
+        {
+          "name": "hcUnhealthyInterval",
+          "type": "int",
+          "location": "body",
+          "description": "Hc unhealthy interval"
+        },
+        {
+          "name": "hcUnhealthyThreshold",
+          "type": "int",
+          "location": "body",
+          "description": "Hc unhealthy threshold"
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Name",
+          "required": true
+        },
+        {
+          "name": "siteId",
+          "type": "int",
+          "location": "body",
+          "description": "Site id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "org_health-checks_get",
+      "description": "List health checks for an organization. Required: orgId. Optional: limit (default: 1000), offset (default: 0), query (plus 5 more).",
+      "method": "GET",
+      "path": "/org/{orgId}/health-checks",
+      "params": [
+        {
+          "name": "orgId",
+          "type": "string",
+          "location": "path",
+          "description": "Org id",
+          "required": true
+        },
+        {
+          "name": "limit",
+          "type": "string",
+          "location": "query",
+          "description": "Limit"
+        },
+        {
+          "name": "offset",
+          "type": "string",
+          "location": "query",
+          "description": "Offset"
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "query",
+          "description": "Query"
+        },
+        {
+          "name": "hcMode",
+          "type": "string",
+          "location": "query",
+          "description": "Hc mode"
+        },
+        {
+          "name": "siteId",
+          "type": "string",
+          "location": "query",
+          "description": "Site id"
+        },
+        {
+          "name": "resourceId",
+          "type": "string",
+          "location": "query",
+          "description": "Resource id"
+        },
+        {
+          "name": "hcHealth",
+          "type": "string",
+          "location": "query",
+          "description": "Hc health"
+        },
+        {
+          "name": "hcEnabled",
+          "type": "string",
+          "location": "query",
+          "description": "Hc enabled"
+        }
+      ]
+    },
+    {
+      "name": "org_idp_create",
+      "description": "Update an OIDC IdP for a specific organization. Required: orgId, idpId. Optional: authUrl, autoProvision, clientId (plus 10 more).",
+      "method": "POST",
+      "path": "/org/{orgId}/idp/{idpId}/oidc",
+      "params": [
+        {
+          "name": "orgId",
+          "type": "string",
+          "location": "path",
+          "description": "Org id",
+          "required": true
+        },
+        {
+          "name": "idpId",
+          "type": "float",
+          "location": "path",
+          "description": "Idp id",
+          "required": true
+        },
+        {
+          "name": "authUrl",
+          "type": "string",
+          "location": "body",
+          "description": "Auth url"
+        },
+        {
+          "name": "autoProvision",
+          "type": "bool",
+          "location": "body",
+          "description": "Auto provision"
+        },
+        {
+          "name": "clientId",
+          "type": "string",
+          "location": "body",
+          "description": "Client id"
+        },
+        {
+          "name": "clientSecret",
+          "type": "string",
+          "location": "body",
+          "description": "Client secret"
+        },
+        {
+          "name": "emailPath",
+          "type": "string",
+          "location": "body",
+          "description": "Email path"
+        },
+        {
+          "name": "identifierPath",
+          "type": "string",
+          "location": "body",
+          "description": "Identifier path"
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Name"
+        },
+        {
+          "name": "namePath",
+          "type": "string",
+          "location": "body",
+          "description": "Name path"
+        },
+        {
+          "name": "orgMapping",
+          "type": "string",
+          "location": "body",
+          "description": "Org mapping"
+        },
+        {
+          "name": "roleMapping",
+          "type": "string",
+          "location": "body",
+          "description": "Role mapping"
+        },
+        {
+          "name": "scopes",
+          "type": "string",
+          "location": "body",
+          "description": "Scopes"
+        },
+        {
+          "name": "tags",
+          "type": "string",
+          "location": "body",
+          "description": "Tags"
+        },
+        {
+          "name": "tokenUrl",
+          "type": "string",
+          "location": "body",
+          "description": "Token url"
+        }
+      ]
+    },
+    {
+      "name": "org_idp_delete",
+      "description": "Delete IDP for a specific organization. Required: orgId, idpId. Destructive.",
+      "method": "DELETE",
+      "path": "/org/{orgId}/idp/{idpId}",
+      "params": [
+        {
+          "name": "orgId",
+          "type": "string",
+          "location": "path",
+          "description": "Org id",
+          "required": true
+        },
+        {
+          "name": "idpId",
+          "type": "float",
+          "location": "path",
+          "description": "Idp id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "org_idp_get",
+      "description": "List all IDP for a specific organization. Required: orgId. Optional: limit (default: 1000), offset (default: 0).",
+      "method": "GET",
+      "path": "/org/{orgId}/idp",
+      "params": [
+        {
+          "name": "orgId",
+          "type": "string",
+          "location": "path",
+          "description": "Org id",
+          "required": true
+        },
+        {
+          "name": "limit",
+          "type": "string",
+          "location": "query",
+          "description": "Limit"
+        },
+        {
+          "name": "offset",
+          "type": "string",
+          "location": "query",
+          "description": "Offset"
+        }
+      ]
+    },
+    {
+      "name": "org_idp_get-org",
+      "description": "Get an IDP by its IDP ID for a specific organization. Required: orgId, idpId.",
+      "method": "GET",
+      "path": "/org/{orgId}/idp/{idpId}",
+      "params": [
+        {
+          "name": "orgId",
+          "type": "string",
+          "location": "path",
+          "description": "Org id",
+          "required": true
+        },
+        {
+          "name": "idpId",
+          "type": "float",
+          "location": "path",
+          "description": "Idp id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "org_idp_update",
+      "description": "Create an OIDC IdP for a specific organization. Required: orgId, authUrl, clientId, clientSecret, identifierPath, name, scopes, tokenUrl. Optional: autoProvision, emailPath, namePath (plus 4 more).",
+      "method": "PUT",
+      "path": "/org/{orgId}/idp/oidc",
+      "params": [
+        {
+          "name": "orgId",
+          "type": "string",
+          "location": "path",
+          "description": "Org id",
+          "required": true
+        },
+        {
+          "name": "authUrl",
+          "type": "string",
+          "location": "body",
+          "description": "Auth url",
+          "required": true
+        },
+        {
+          "name": "autoProvision",
+          "type": "bool",
+          "location": "body",
+          "description": "Auto provision"
+        },
+        {
+          "name": "clientId",
+          "type": "string",
+          "location": "body",
+          "description": "Client id",
+          "required": true
+        },
+        {
+          "name": "clientSecret",
+          "type": "string",
+          "location": "body",
+          "description": "Client secret",
+          "required": true
+        },
+        {
+          "name": "emailPath",
+          "type": "string",
+          "location": "body",
+          "description": "Email path"
+        },
+        {
+          "name": "identifierPath",
+          "type": "string",
+          "location": "body",
+          "description": "Identifier path",
+          "required": true
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Name",
+          "required": true
+        },
+        {
+          "name": "namePath",
+          "type": "string",
+          "location": "body",
+          "description": "Name path"
+        },
+        {
+          "name": "orgMapping",
+          "type": "string",
+          "location": "body",
+          "description": "Org mapping"
+        },
+        {
+          "name": "roleMapping",
+          "type": "string",
+          "location": "body",
+          "description": "Role mapping"
+        },
+        {
+          "name": "scopes",
+          "type": "string",
+          "location": "body",
+          "description": "Scopes",
+          "required": true
+        },
+        {
+          "name": "tags",
+          "type": "string",
+          "location": "body",
+          "description": "Tags"
+        },
+        {
+          "name": "tokenUrl",
+          "type": "string",
+          "location": "body",
+          "description": "Token url",
+          "required": true
+        },
+        {
+          "name": "variant",
+          "type": "string",
+          "location": "body",
+          "description": "Variant"
+        }
+      ]
+    },
+    {
+      "name": "org_invitations_delete",
+      "description": "Remove an open invitation from an organization. Required: orgId, inviteId. Destructive.",
+      "method": "DELETE",
+      "path": "/org/{orgId}/invitations/{inviteId}",
+      "params": [
+        {
+          "name": "orgId",
+          "type": "string",
+          "location": "path",
+          "description": "Org id",
+          "required": true
+        },
+        {
+          "name": "inviteId",
+          "type": "string",
+          "location": "path",
+          "description": "Invite id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "org_invitations_get",
+      "description": "List invitations in an organization. Required: orgId. Optional: limit (default: 1000), offset (default: 0).",
+      "method": "GET",
+      "path": "/org/{orgId}/invitations",
+      "params": [
+        {
+          "name": "orgId",
+          "type": "string",
+          "location": "path",
+          "description": "Org id",
+          "required": true
+        },
+        {
+          "name": "limit",
+          "type": "string",
+          "location": "query",
+          "description": "Limit"
+        },
+        {
+          "name": "offset",
+          "type": "string",
+          "location": "query",
+          "description": "Offset"
+        }
+      ]
+    },
+    {
+      "name": "org_logs_get",
+      "description": "Query the access audit log for an organization. Required: orgId. Optional: timeStart, timeEnd, action (plus 8 more).",
+      "method": "GET",
+      "path": "/org/{orgId}/logs/access",
+      "params": [
+        {
+          "name": "orgId",
+          "type": "string",
+          "location": "path",
+          "description": "Org id",
+          "required": true
+        },
+        {
+          "name": "timeStart",
+          "type": "string",
+          "location": "query",
+          "description": "Start time as ISO date string (defaults to 7 days ago)"
+        },
+        {
+          "name": "timeEnd",
+          "type": "string",
+          "location": "query",
+          "description": "End time as ISO date string (defaults to current time)"
+        },
+        {
+          "name": "action",
+          "type": "string",
+          "location": "query",
+          "description": "Action"
+        },
+        {
+          "name": "actorType",
+          "type": "string",
+          "location": "query",
+          "description": "Actor type"
+        },
+        {
+          "name": "actorId",
+          "type": "string",
+          "location": "query",
+          "description": "Actor id"
+        },
+        {
+          "name": "resourceId",
+          "type": "string",
+          "location": "query",
+          "description": "Resource id"
+        },
+        {
+          "name": "actor",
+          "type": "string",
+          "location": "query",
+          "description": "Actor"
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "location": "query",
+          "description": "Type"
+        },
+        {
+          "name": "location",
+          "type": "string",
+          "location": "query",
+          "description": "Location"
+        },
+        {
+          "name": "limit",
+          "type": "string",
+          "location": "query",
+          "description": "Limit"
+        },
+        {
+          "name": "offset",
+          "type": "string",
+          "location": "query",
+          "description": "Offset"
+        }
+      ]
+    },
+    {
+      "name": "org_logs_get-org",
+      "description": "Query the action audit log for an organization. Required: orgId. Optional: timeStart, timeEnd, action (plus 5 more).",
+      "method": "GET",
+      "path": "/org/{orgId}/logs/action",
+      "params": [
+        {
+          "name": "orgId",
+          "type": "string",
+          "location": "path",
+          "description": "Org id",
+          "required": true
+        },
+        {
+          "name": "timeStart",
+          "type": "string",
+          "location": "query",
+          "description": "Start time as ISO date string (defaults to 7 days ago)"
+        },
+        {
+          "name": "timeEnd",
+          "type": "string",
+          "location": "query",
+          "description": "End time as ISO date string (defaults to current time)"
+        },
+        {
+          "name": "action",
+          "type": "string",
+          "location": "query",
+          "description": "Action"
+        },
+        {
+          "name": "actorType",
+          "type": "string",
+          "location": "query",
+          "description": "Actor type"
+        },
+        {
+          "name": "actorId",
+          "type": "string",
+          "location": "query",
+          "description": "Actor id"
+        },
+        {
+          "name": "actor",
+          "type": "string",
+          "location": "query",
+          "description": "Actor"
+        },
+        {
+          "name": "limit",
+          "type": "string",
+          "location": "query",
+          "description": "Limit"
+        },
+        {
+          "name": "offset",
+          "type": "string",
+          "location": "query",
+          "description": "Offset"
+        }
+      ]
+    },
+    {
+      "name": "org_logs_get-org-2",
+      "description": "Query the request audit analytics for an organization. Required: orgId. Optional: timeStart, timeEnd, resourceId.",
+      "method": "GET",
+      "path": "/org/{orgId}/logs/analytics",
+      "params": [
+        {
+          "name": "orgId",
+          "type": "string",
+          "location": "path",
+          "description": "Org id",
+          "required": true
+        },
+        {
+          "name": "timeStart",
+          "type": "string",
+          "location": "query",
+          "description": "Start time as ISO date string (defaults to 7 days ago)"
+        },
+        {
+          "name": "timeEnd",
+          "type": "string",
+          "location": "query",
+          "description": "End time as ISO date string (defaults to current time)"
+        },
+        {
+          "name": "resourceId",
+          "type": "string",
+          "location": "query",
+          "description": "Resource id"
+        }
+      ]
+    },
+    {
+      "name": "org_logs_get-org-3",
+      "description": "Query the connection audit log for an organization. Required: orgId. Optional: timeStart, timeEnd, protocol (plus 8 more).",
+      "method": "GET",
+      "path": "/org/{orgId}/logs/connection",
+      "params": [
+        {
+          "name": "orgId",
+          "type": "string",
+          "location": "path",
+          "description": "Org id",
+          "required": true
+        },
+        {
+          "name": "timeStart",
+          "type": "string",
+          "location": "query",
+          "description": "Start time as ISO date string (defaults to 7 days ago)"
+        },
+        {
+          "name": "timeEnd",
+          "type": "string",
+          "location": "query",
+          "description": "End time as ISO date string (defaults to current time)"
+        },
+        {
+          "name": "protocol",
+          "type": "string",
+          "location": "query",
+          "description": "Protocol"
+        },
+        {
+          "name": "sourceAddr",
+          "type": "string",
+          "location": "query",
+          "description": "Source addr"
+        },
+        {
+          "name": "destAddr",
+          "type": "string",
+          "location": "query",
+          "description": "Dest addr"
+        },
+        {
+          "name": "clientId",
+          "type": "string",
+          "location": "query",
+          "description": "Client id"
+        },
+        {
+          "name": "siteId",
+          "type": "string",
+          "location": "query",
+          "description": "Site id"
+        },
+        {
+          "name": "siteResourceId",
+          "type": "string",
+          "location": "query",
+          "description": "Site resource id"
+        },
+        {
+          "name": "userId",
+          "type": "string",
+          "location": "query",
+          "description": "User id"
+        },
+        {
+          "name": "limit",
+          "type": "string",
+          "location": "query",
+          "description": "Limit"
+        },
+        {
+          "name": "offset",
+          "type": "string",
+          "location": "query",
+          "description": "Offset"
+        }
+      ]
+    },
+    {
+      "name": "org_logs_get-org-4",
+      "description": "Query the request audit log for an organization. Required: orgId. Optional: timeStart, timeEnd, action (plus 7 more).",
+      "method": "GET",
+      "path": "/org/{orgId}/logs/request",
+      "params": [
+        {
+          "name": "orgId",
+          "type": "string",
+          "location": "path",
+          "description": "Org id",
+          "required": true
+        },
+        {
+          "name": "timeStart",
+          "type": "string",
+          "location": "query",
+          "description": "Start time as ISO date string (defaults to 7 days ago)"
+        },
+        {
+          "name": "timeEnd",
+          "type": "string",
+          "location": "query",
+          "description": "End time as ISO date string (defaults to current time)"
+        },
+        {
+          "name": "action",
+          "type": "string",
+          "location": "query",
+          "description": "Action"
+        },
+        {
+          "name": "method",
+          "type": "string",
+          "location": "query",
+          "description": "Method"
+        },
+        {
+          "name": "reason",
+          "type": "string",
+          "location": "query",
+          "description": "Reason"
+        },
+        {
+          "name": "resourceId",
+          "type": "string",
+          "location": "query",
+          "description": "Resource id"
+        },
+        {
+          "name": "actor",
+          "type": "string",
+          "location": "query",
+          "description": "Actor"
+        },
+        {
+          "name": "location",
+          "type": "string",
+          "location": "query",
+          "description": "Location"
+        },
+        {
+          "name": "host",
+          "type": "string",
+          "location": "query",
+          "description": "Host"
+        },
+        {
+          "name": "path",
+          "type": "string",
+          "location": "query",
+          "description": "Path"
+        }
+      ]
+    },
+    {
+      "name": "org_logs_get-org-5",
+      "description": "Export the access audit log for an organization as CSV. Required: orgId. Optional: timeStart, timeEnd, action (plus 8 more).",
+      "method": "GET",
+      "path": "/org/{orgId}/logs/access/export",
+      "params": [
+        {
+          "name": "orgId",
+          "type": "string",
+          "location": "path",
+          "description": "Org id",
+          "required": true
+        },
+        {
+          "name": "timeStart",
+          "type": "string",
+          "location": "query",
+          "description": "Start time as ISO date string (defaults to 7 days ago)"
+        },
+        {
+          "name": "timeEnd",
+          "type": "string",
+          "location": "query",
+          "description": "End time as ISO date string (defaults to current time)"
+        },
+        {
+          "name": "action",
+          "type": "string",
+          "location": "query",
+          "description": "Action"
+        },
+        {
+          "name": "actorType",
+          "type": "string",
+          "location": "query",
+          "description": "Actor type"
+        },
+        {
+          "name": "actorId",
+          "type": "string",
+          "location": "query",
+          "description": "Actor id"
+        },
+        {
+          "name": "resourceId",
+          "type": "string",
+          "location": "query",
+          "description": "Resource id"
+        },
+        {
+          "name": "actor",
+          "type": "string",
+          "location": "query",
+          "description": "Actor"
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "location": "query",
+          "description": "Type"
+        },
+        {
+          "name": "location",
+          "type": "string",
+          "location": "query",
+          "description": "Location"
+        },
+        {
+          "name": "limit",
+          "type": "string",
+          "location": "query",
+          "description": "Limit"
+        },
+        {
+          "name": "offset",
+          "type": "string",
+          "location": "query",
+          "description": "Offset"
+        }
+      ]
+    },
+    {
+      "name": "org_logs_get-org-6",
+      "description": "Export the action audit log for an organization as CSV. Required: orgId. Optional: timeStart, timeEnd, action (plus 5 more).",
+      "method": "GET",
+      "path": "/org/{orgId}/logs/action/export",
+      "params": [
+        {
+          "name": "orgId",
+          "type": "string",
+          "location": "path",
+          "description": "Org id",
+          "required": true
+        },
+        {
+          "name": "timeStart",
+          "type": "string",
+          "location": "query",
+          "description": "Start time as ISO date string (defaults to 7 days ago)"
+        },
+        {
+          "name": "timeEnd",
+          "type": "string",
+          "location": "query",
+          "description": "End time as ISO date string (defaults to current time)"
+        },
+        {
+          "name": "action",
+          "type": "string",
+          "location": "query",
+          "description": "Action"
+        },
+        {
+          "name": "actorType",
+          "type": "string",
+          "location": "query",
+          "description": "Actor type"
+        },
+        {
+          "name": "actorId",
+          "type": "string",
+          "location": "query",
+          "description": "Actor id"
+        },
+        {
+          "name": "actor",
+          "type": "string",
+          "location": "query",
+          "description": "Actor"
+        },
+        {
+          "name": "limit",
+          "type": "string",
+          "location": "query",
+          "description": "Limit"
+        },
+        {
+          "name": "offset",
+          "type": "string",
+          "location": "query",
+          "description": "Offset"
+        }
+      ]
+    },
+    {
+      "name": "org_logs_get-org-7",
+      "description": "Export the connection audit log for an organization as CSV. Required: orgId. Optional: timeStart, timeEnd, protocol (plus 8 more).",
+      "method": "GET",
+      "path": "/org/{orgId}/logs/connection/export",
+      "params": [
+        {
+          "name": "orgId",
+          "type": "string",
+          "location": "path",
+          "description": "Org id",
+          "required": true
+        },
+        {
+          "name": "timeStart",
+          "type": "string",
+          "location": "query",
+          "description": "Start time as ISO date string (defaults to 7 days ago)"
+        },
+        {
+          "name": "timeEnd",
+          "type": "string",
+          "location": "query",
+          "description": "End time as ISO date string (defaults to current time)"
+        },
+        {
+          "name": "protocol",
+          "type": "string",
+          "location": "query",
+          "description": "Protocol"
+        },
+        {
+          "name": "sourceAddr",
+          "type": "string",
+          "location": "query",
+          "description": "Source addr"
+        },
+        {
+          "name": "destAddr",
+          "type": "string",
+          "location": "query",
+          "description": "Dest addr"
+        },
+        {
+          "name": "clientId",
+          "type": "string",
+          "location": "query",
+          "description": "Client id"
+        },
+        {
+          "name": "siteId",
+          "type": "string",
+          "location": "query",
+          "description": "Site id"
+        },
+        {
+          "name": "siteResourceId",
+          "type": "string",
+          "location": "query",
+          "description": "Site resource id"
+        },
+        {
+          "name": "userId",
+          "type": "string",
+          "location": "query",
+          "description": "User id"
+        },
+        {
+          "name": "limit",
+          "type": "string",
+          "location": "query",
+          "description": "Limit"
+        },
+        {
+          "name": "offset",
+          "type": "string",
+          "location": "query",
+          "description": "Offset"
+        }
+      ]
+    },
+    {
+      "name": "org_pick-client-defaults_get",
+      "description": "Return pre-requisite data for creating a client. Required: orgId.",
+      "method": "GET",
+      "path": "/org/{orgId}/pick-client-defaults",
+      "params": [
+        {
+          "name": "orgId",
+          "type": "string",
+          "location": "path",
+          "description": "Org id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "org_pick-site-defaults_get",
+      "description": "Return pre-requisite data for creating a site, such as the exit node, subnet, Newt credentials, etc. Required: orgId.",
+      "method": "GET",
+      "path": "/org/{orgId}/pick-site-defaults",
+      "params": [
+        {
+          "name": "orgId",
+          "type": "string",
+          "location": "path",
+          "description": "Org id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "org_reset-bandwidth_create",
+      "description": "Reset all sites in selected organization bandwidth counters. Required: orgId.",
+      "method": "POST",
+      "path": "/org/{orgId}/reset-bandwidth",
+      "params": [
+        {
+          "name": "orgId",
+          "type": "string",
+          "location": "path",
+          "description": "Org id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "org_resource_get",
+      "description": "Get a resource by orgId and niceId. NiceId is a readable ID for the resource and unique on a per org basis. Required: orgId, niceId.",
+      "method": "GET",
+      "path": "/org/{orgId}/resource/{niceId}",
+      "params": [
+        {
+          "name": "orgId",
+          "type": "string",
+          "location": "path",
+          "description": "Org id",
+          "required": true
+        },
+        {
+          "name": "niceId",
+          "type": "string",
+          "location": "path",
+          "description": "Nice id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "org_resource_update",
+      "description": "Create a resource. Required: orgId.",
+      "method": "PUT",
+      "path": "/org/{orgId}/resource",
+      "params": [
+        {
+          "name": "orgId",
+          "type": "string",
+          "location": "path",
+          "description": "Org id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "org_resources_get",
+      "description": "List resources for an organization. Required: orgId. Optional: pageSize (default: 20), page (default: 1), query (plus 6 more).",
+      "method": "GET",
+      "path": "/org/{orgId}/resources",
+      "params": [
+        {
+          "name": "orgId",
+          "type": "string",
+          "location": "path",
+          "description": "Org id",
+          "required": true
+        },
+        {
+          "name": "pageSize",
+          "type": "int",
+          "location": "query",
+          "description": "Number of items per page"
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page number to retrieve"
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "query",
+          "description": "Query"
+        },
+        {
+          "name": "sort_by",
+          "type": "string",
+          "location": "query",
+          "description": "Field to sort by"
+        },
+        {
+          "name": "order",
+          "type": "string",
+          "location": "query",
+          "description": "Sort order"
+        },
+        {
+          "name": "enabled",
+          "type": "bool",
+          "location": "query",
+          "description": "Filter resources based on enabled status"
+        },
+        {
+          "name": "authState",
+          "type": "string",
+          "location": "query",
+          "description": "Filter resources based on authentication state. `protected` means the resource has at least one auth mechanism (password, pincode, header auth, SSO, or email whitelist). `not_protected` means the resource has no auth mechanisms. `none` means the resource is not protected by HTTP (i.e. it has no auth mechanisms and http is false)."
+        },
+        {
+          "name": "healthStatus",
+          "type": "string",
+          "location": "query",
+          "description": "Filter resources based on health status of their targets. `healthy` means all targets are healthy. `degraded` means at least one target is unhealthy, but not all are unhealthy. `offline` means all targets are unhealthy. `unknown` means all targets have unknown health status."
+        },
+        {
+          "name": "siteId",
+          "type": "int",
+          "location": "query",
+          "description": "When set, only resources that have at least one target on this site are returned"
+        }
+      ]
+    },
+    {
+      "name": "org_resources-names_get",
+      "description": "List all resource names for an organization. Required: orgId.",
+      "method": "GET",
+      "path": "/org/{orgId}/resources-names",
+      "params": [
+        {
+          "name": "orgId",
+          "type": "string",
+          "location": "path",
+          "description": "Org id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "org_role_update",
+      "description": "Create a role. Required: orgId, name. Optional: allowSsh, description, requireDeviceApproval (plus 4 more).",
+      "method": "PUT",
+      "path": "/org/{orgId}/role",
+      "params": [
+        {
+          "name": "orgId",
+          "type": "string",
+          "location": "path",
+          "description": "Org id",
+          "required": true
+        },
+        {
+          "name": "allowSsh",
+          "type": "bool",
+          "location": "body",
+          "description": "Allow ssh"
+        },
+        {
+          "name": "description",
+          "type": "string",
+          "location": "body",
+          "description": "Description"
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Name",
+          "required": true
+        },
+        {
+          "name": "requireDeviceApproval",
+          "type": "bool",
+          "location": "body",
+          "description": "Require device approval"
+        },
+        {
+          "name": "sshCreateHomeDir",
+          "type": "bool",
+          "location": "body",
+          "description": "Ssh create home dir"
+        },
+        {
+          "name": "sshSudoCommands",
+          "type": "array",
+          "location": "body",
+          "description": "Ssh sudo commands"
+        },
+        {
+          "name": "sshSudoMode",
+          "type": "string",
+          "location": "body",
+          "description": "Ssh sudo mode"
+        },
+        {
+          "name": "sshUnixGroups",
+          "type": "array",
+          "location": "body",
+          "description": "Ssh unix groups"
+        }
+      ]
+    },
+    {
+      "name": "org_roles_get",
+      "description": "List roles. Required: orgId. Optional: pageSize (default: 20), page (default: 1), query (plus 2 more).",
+      "method": "GET",
+      "path": "/org/{orgId}/roles",
+      "params": [
+        {
+          "name": "orgId",
+          "type": "string",
+          "location": "path",
+          "description": "Org id",
+          "required": true
+        },
+        {
+          "name": "pageSize",
+          "type": "int",
+          "location": "query",
+          "description": "Number of items per page"
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page number to retrieve"
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "query",
+          "description": "Query"
+        },
+        {
+          "name": "sort_by",
+          "type": "string",
+          "location": "query",
+          "description": "Field to sort by"
+        },
+        {
+          "name": "order",
+          "type": "string",
+          "location": "query",
+          "description": "Sort order"
+        }
+      ]
+    },
+    {
+      "name": "org_site_get",
+      "description": "Get a site by orgId and niceId. NiceId is a readable ID for the site and unique on a per org basis. Required: orgId, niceId.",
+      "method": "GET",
+      "path": "/org/{orgId}/site/{niceId}",
+      "params": [
+        {
+          "name": "orgId",
+          "type": "string",
+          "location": "path",
+          "description": "Org id",
+          "required": true
+        },
+        {
+          "name": "niceId",
+          "type": "string",
+          "location": "path",
+          "description": "Nice id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "org_site_get-org",
+      "description": "List site resources for a site. Required: siteId, orgId. Optional: limit (default: 100), offset (default: 0), sort_by (plus 1 more).",
+      "method": "GET",
+      "path": "/org/{orgId}/site/{siteId}/resources",
+      "params": [
+        {
+          "name": "siteId",
+          "type": "string",
+          "location": "path",
+          "description": "Site id",
+          "required": true
+        },
+        {
+          "name": "orgId",
+          "type": "string",
+          "location": "path",
+          "description": "Org id",
+          "required": true
+        },
+        {
+          "name": "limit",
+          "type": "string",
+          "location": "query",
+          "description": "Limit"
+        },
+        {
+          "name": "offset",
+          "type": "string",
+          "location": "query",
+          "description": "Offset"
+        },
+        {
+          "name": "sort_by",
+          "type": "string",
+          "location": "query",
+          "description": "Field to sort by"
+        },
+        {
+          "name": "order",
+          "type": "string",
+          "location": "query",
+          "description": "Sort order"
+        }
+      ]
+    },
+    {
+      "name": "org_site_get-org-2",
+      "description": "Get a specific site resource by niceId. Required: niceId, orgId, siteId.",
+      "method": "GET",
+      "path": "/org/{orgId}/site/{siteId}/resource/nice/{niceId}",
+      "params": [
+        {
+          "name": "niceId",
+          "type": "string",
+          "location": "path",
+          "description": "Nice id",
+          "required": true
+        },
+        {
+          "name": "orgId",
+          "type": "string",
+          "location": "path",
+          "description": "Org id",
+          "required": true
+        },
+        {
+          "name": "siteId",
+          "type": "string",
+          "location": "path",
+          "description": "siteId",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "org_site_update",
+      "description": "Create a new site. Required: orgId, name, type. Optional: address, exitNodeId, newtId (plus 4 more).",
+      "method": "PUT",
+      "path": "/org/{orgId}/site",
+      "params": [
+        {
+          "name": "orgId",
+          "type": "string",
+          "location": "path",
+          "description": "Org id",
+          "required": true
+        },
+        {
+          "name": "address",
+          "type": "string",
+          "location": "body",
+          "description": "Address"
+        },
+        {
+          "name": "exitNodeId",
+          "type": "int",
+          "location": "body",
+          "description": "Exit node id"
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Name",
+          "required": true
+        },
+        {
+          "name": "newtId",
+          "type": "string",
+          "location": "body",
+          "description": "Newt id"
+        },
+        {
+          "name": "niceId",
+          "type": "string",
+          "location": "body",
+          "description": "Nice id"
+        },
+        {
+          "name": "pubKey",
+          "type": "string",
+          "location": "body",
+          "description": "Pub key"
+        },
+        {
+          "name": "secret",
+          "type": "string",
+          "location": "body",
+          "description": "Secret"
+        },
+        {
+          "name": "subnet",
+          "type": "string",
+          "location": "body",
+          "description": "Subnet"
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "location": "body",
+          "description": "Type",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "org_site-resource_update",
+      "description": "Create a new site resource. Required: orgId, clientIds, destination, mode, name, roleIds, userIds. Optional: alias, authDaemonMode, authDaemonPort (plus 12 more).",
+      "method": "PUT",
+      "path": "/org/{orgId}/site-resource",
+      "params": [
+        {
+          "name": "orgId",
+          "type": "string",
+          "location": "path",
+          "description": "Org id",
+          "required": true
+        },
+        {
+          "name": "alias",
+          "type": "string",
+          "location": "body",
+          "description": "Alias"
+        },
+        {
+          "name": "authDaemonMode",
+          "type": "string",
+          "location": "body",
+          "description": "Auth daemon mode"
+        },
+        {
+          "name": "authDaemonPort",
+          "type": "int",
+          "location": "body",
+          "description": "Auth daemon port"
+        },
+        {
+          "name": "clientIds",
+          "type": "array",
+          "location": "body",
+          "description": "Client ids",
+          "required": true
+        },
+        {
+          "name": "destination",
+          "type": "string",
+          "location": "body",
+          "description": "Destination",
+          "required": true
+        },
+        {
+          "name": "destinationPort",
+          "type": "int",
+          "location": "body",
+          "description": "Destination port"
+        },
+        {
+          "name": "disableIcmp",
+          "type": "bool",
+          "location": "body",
+          "description": "Disable icmp"
+        },
+        {
+          "name": "domainId",
+          "type": "string",
+          "location": "body",
+          "description": "Domain id"
+        },
+        {
+          "name": "enabled",
+          "type": "bool",
+          "location": "body",
+          "description": "Enabled"
+        },
+        {
+          "name": "mode",
+          "type": "string",
+          "location": "body",
+          "description": "Mode",
+          "required": true
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Name",
+          "required": true
+        },
+        {
+          "name": "niceId",
+          "type": "string",
+          "location": "body",
+          "description": "Nice id"
+        },
+        {
+          "name": "roleIds",
+          "type": "array",
+          "location": "body",
+          "description": "Role ids",
+          "required": true
+        },
+        {
+          "name": "scheme",
+          "type": "string",
+          "location": "body",
+          "description": "Scheme"
+        },
+        {
+          "name": "siteId",
+          "type": "int",
+          "location": "body",
+          "description": "Site id"
+        },
+        {
+          "name": "siteIds",
+          "type": "array",
+          "location": "body",
+          "description": "Site ids"
+        },
+        {
+          "name": "ssl",
+          "type": "bool",
+          "location": "body",
+          "description": "Ssl"
+        },
+        {
+          "name": "subdomain",
+          "type": "string",
+          "location": "body",
+          "description": "Subdomain"
+        },
+        {
+          "name": "tcpPortRangeString",
+          "type": "string",
+          "location": "body",
+          "description": "Tcp port range string"
+        },
+        {
+          "name": "udpPortRangeString",
+          "type": "string",
+          "location": "body",
+          "description": "Udp port range string"
+        },
+        {
+          "name": "userIds",
+          "type": "array",
+          "location": "body",
+          "description": "User ids",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "org_site-resources_get",
+      "description": "List all site resources for an organization. Required: orgId. Optional: pageSize (default: 20), page (default: 1), query (plus 4 more).",
+      "method": "GET",
+      "path": "/org/{orgId}/site-resources",
+      "params": [
+        {
+          "name": "orgId",
+          "type": "string",
+          "location": "path",
+          "description": "Org id",
+          "required": true
+        },
+        {
+          "name": "pageSize",
+          "type": "int",
+          "location": "query",
+          "description": "Number of items per page"
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page number to retrieve"
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "query",
+          "description": "Query"
+        },
+        {
+          "name": "mode",
+          "type": "string",
+          "location": "query",
+          "description": "Filter site resources by mode"
+        },
+        {
+          "name": "sort_by",
+          "type": "string",
+          "location": "query",
+          "description": "Field to sort by"
+        },
+        {
+          "name": "order",
+          "type": "string",
+          "location": "query",
+          "description": "Sort order"
+        },
+        {
+          "name": "siteId",
+          "type": "int",
+          "location": "query",
+          "description": "When set, only site resources associated with this site (via network) are returned"
+        }
+      ]
+    },
+    {
+      "name": "org_sites_get",
+      "description": "List all sites in an organization. Required: orgId. Optional: pageSize (default: 20), page (default: 1), query (plus 4 more).",
+      "method": "GET",
+      "path": "/org/{orgId}/sites",
+      "params": [
+        {
+          "name": "orgId",
+          "type": "string",
+          "location": "path",
+          "description": "Org id",
+          "required": true
+        },
+        {
+          "name": "pageSize",
+          "type": "int",
+          "location": "query",
+          "description": "Number of items per page"
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page number to retrieve"
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "query",
+          "description": "Query"
+        },
+        {
+          "name": "sort_by",
+          "type": "string",
+          "location": "query",
+          "description": "Field to sort by"
+        },
+        {
+          "name": "order",
+          "type": "string",
+          "location": "query",
+          "description": "Sort order"
+        },
+        {
+          "name": "online",
+          "type": "bool",
+          "location": "query",
+          "description": "Filter by online status"
+        },
+        {
+          "name": "status",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by site status"
+        }
+      ]
+    },
+    {
+      "name": "org_user_create",
+      "description": "Update a user in an org. Required: userId, orgId. Optional: autoProvisioned.",
+      "method": "POST",
+      "path": "/org/{orgId}/user/{userId}",
+      "params": [
+        {
+          "name": "userId",
+          "type": "string",
+          "location": "path",
+          "description": "User id",
+          "required": true
+        },
+        {
+          "name": "orgId",
+          "type": "string",
+          "location": "path",
+          "description": "Org id",
+          "required": true
+        },
+        {
+          "name": "autoProvisioned",
+          "type": "bool",
+          "location": "body",
+          "description": "Auto provisioned"
+        }
+      ]
+    },
+    {
+      "name": "org_user_delete",
+      "description": "Remove a user from an organization. Required: userId, orgId. Destructive.",
+      "method": "DELETE",
+      "path": "/org/{orgId}/user/{userId}",
+      "params": [
+        {
+          "name": "userId",
+          "type": "string",
+          "location": "path",
+          "description": "User id",
+          "required": true
+        },
+        {
+          "name": "orgId",
+          "type": "string",
+          "location": "path",
+          "description": "Org id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "org_user_get",
+      "description": "Get a user in an organization. Required: userId, orgId.",
+      "method": "GET",
+      "path": "/org/{orgId}/user/{userId}",
+      "params": [
+        {
+          "name": "userId",
+          "type": "string",
+          "location": "path",
+          "description": "User id",
+          "required": true
+        },
+        {
+          "name": "orgId",
+          "type": "string",
+          "location": "path",
+          "description": "Org id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "org_user_get-org",
+      "description": "Check a user's access in an organization. Required: userId, orgId.",
+      "method": "GET",
+      "path": "/org/{orgId}/user/{userId}/check",
+      "params": [
+        {
+          "name": "userId",
+          "type": "string",
+          "location": "path",
+          "description": "User id",
+          "required": true
+        },
+        {
+          "name": "orgId",
+          "type": "string",
+          "location": "path",
+          "description": "Org id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "org_user_update",
+      "description": "Create an organization user. Required: orgId, username. Optional: email, idpId, name (plus 3 more).",
+      "method": "PUT",
+      "path": "/org/{orgId}/user",
+      "params": [
+        {
+          "name": "orgId",
+          "type": "string",
+          "location": "path",
+          "description": "Org id",
+          "required": true
+        },
+        {
+          "name": "email",
+          "type": "string",
+          "location": "body",
+          "description": "Email"
+        },
+        {
+          "name": "idpId",
+          "type": "float",
+          "location": "body",
+          "description": "Idp id"
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Name"
+        },
+        {
+          "name": "roleId",
+          "type": "int",
+          "location": "body",
+          "description": "Role id"
+        },
+        {
+          "name": "roleIds",
+          "type": "array",
+          "location": "body",
+          "description": "Role ids"
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "location": "body",
+          "description": "Type"
+        },
+        {
+          "name": "username",
+          "type": "string",
+          "location": "body",
+          "description": "Username",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "org_user_update-org",
+      "description": "Create a new client for a user and associate it with an existing olm. Required: orgId, userId, name, olmId, subnet, type.",
+      "method": "PUT",
+      "path": "/org/{orgId}/user/{userId}/client",
+      "params": [
+        {
+          "name": "orgId",
+          "type": "string",
+          "location": "path",
+          "description": "Org id",
+          "required": true
+        },
+        {
+          "name": "userId",
+          "type": "string",
+          "location": "path",
+          "description": "User id",
+          "required": true
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Name",
+          "required": true
+        },
+        {
+          "name": "olmId",
+          "type": "string",
+          "location": "body",
+          "description": "Olm id",
+          "required": true
+        },
+        {
+          "name": "subnet",
+          "type": "string",
+          "location": "body",
+          "description": "Subnet",
+          "required": true
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "location": "body",
+          "description": "Type",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "org_user-by-username_get",
+      "description": "Get a user in an organization by username. When idpId is not passed, only internal users are searched (username is globally unique for them). For external (OIDC) users, pass idpId to search by username within that identity provider. Required: orgId, username. Optional: idpId.",
+      "method": "GET",
+      "path": "/org/{orgId}/user-by-username",
+      "params": [
+        {
+          "name": "orgId",
+          "type": "string",
+          "location": "path",
+          "description": "Org id",
+          "required": true
+        },
+        {
+          "name": "username",
+          "type": "string",
+          "location": "query",
+          "description": "Username",
+          "required": true
+        },
+        {
+          "name": "idpId",
+          "type": "string",
+          "location": "query",
+          "description": "Idp id"
+        }
+      ]
+    },
+    {
+      "name": "org_user-devices_get",
+      "description": "List all user devices for an organization. Required: orgId. Optional: pageSize (default: 20), page (default: 1), query (plus 5 more).",
+      "method": "GET",
+      "path": "/org/{orgId}/user-devices",
+      "params": [
+        {
+          "name": "orgId",
+          "type": "string",
+          "location": "path",
+          "description": "Org id",
+          "required": true
+        },
+        {
+          "name": "pageSize",
+          "type": "int",
+          "location": "query",
+          "description": "Number of items per page"
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page number to retrieve"
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "query",
+          "description": "Query"
+        },
+        {
+          "name": "sort_by",
+          "type": "string",
+          "location": "query",
+          "description": "Field to sort by"
+        },
+        {
+          "name": "order",
+          "type": "string",
+          "location": "query",
+          "description": "Sort order"
+        },
+        {
+          "name": "online",
+          "type": "bool",
+          "location": "query",
+          "description": "Filter by online status"
+        },
+        {
+          "name": "agent",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by agent type. Use 'unknown' to filter clients with no agent detected."
+        },
+        {
+          "name": "status",
+          "type": "array",
+          "location": "query",
+          "description": "Filter by device status. Can include multiple values separated by commas. 'active' means not archived, not blocked, and if approval is enabled, approved. 'pending' and 'denied' are only applicable if approval is enabled."
+        }
+      ]
+    },
+    {
+      "name": "org_users_get",
+      "description": "List users in an organization. Required: orgId. Optional: pageSize (default: 20), page (default: 1), query (plus 4 more).",
+      "method": "GET",
+      "path": "/org/{orgId}/users",
+      "params": [
+        {
+          "name": "orgId",
+          "type": "string",
+          "location": "path",
+          "description": "Org id",
+          "required": true
+        },
+        {
+          "name": "pageSize",
+          "type": "int",
+          "location": "query",
+          "description": "Number of items per page"
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page number to retrieve"
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "query",
+          "description": "Query"
+        },
+        {
+          "name": "sort_by",
+          "type": "string",
+          "location": "query",
+          "description": "Field to sort by"
+        },
+        {
+          "name": "order",
+          "type": "string",
+          "location": "query",
+          "description": "Sort order"
+        },
+        {
+          "name": "idp_id",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by identity provider id, or 'internal' for internal users"
+        },
+        {
+          "name": "role_id",
+          "type": "array",
+          "location": "query",
+          "description": "Filter users who have any of these role ids in the organization (repeat query param)"
+        }
+      ]
+    },
+    {
+      "name": "orgs_list",
+      "description": "List all organizations in the system. Optional: limit (default: 1000), offset (default: 0).",
+      "method": "GET",
+      "path": "/orgs",
+      "params": [
+        {
+          "name": "limit",
+          "type": "string",
+          "location": "query",
+          "description": "Limit"
+        },
+        {
+          "name": "offset",
+          "type": "string",
+          "location": "query",
+          "description": "Offset"
+        }
+      ]
+    },
+    {
+      "name": "resource_create",
+      "description": "Update a resource. Required: resourceId. Optional: applyRules, blockAccess, domainId (plus 21 more).",
+      "method": "POST",
+      "path": "/resource/{resourceId}",
+      "params": [
+        {
+          "name": "resourceId",
+          "type": "string",
+          "location": "path",
+          "description": "Resource id",
+          "required": true
+        },
+        {
+          "name": "applyRules",
+          "type": "bool",
+          "location": "body",
+          "description": "Apply rules"
+        },
+        {
+          "name": "blockAccess",
+          "type": "bool",
+          "location": "body",
+          "description": "Block access"
+        },
+        {
+          "name": "domainId",
+          "type": "string",
+          "location": "body",
+          "description": "Domain id"
+        },
+        {
+          "name": "emailWhitelistEnabled",
+          "type": "bool",
+          "location": "body",
+          "description": "Email whitelist enabled"
+        },
+        {
+          "name": "enabled",
+          "type": "bool",
+          "location": "body",
+          "description": "Enabled"
+        },
+        {
+          "name": "headers",
+          "type": "array",
+          "location": "body",
+          "description": "Headers"
+        },
+        {
+          "name": "maintenanceEstimatedTime",
+          "type": "string",
+          "location": "body",
+          "description": "Maintenance estimated time"
+        },
+        {
+          "name": "maintenanceMessage",
+          "type": "string",
+          "location": "body",
+          "description": "Maintenance message"
+        },
+        {
+          "name": "maintenanceModeEnabled",
+          "type": "bool",
+          "location": "body",
+          "description": "Maintenance mode enabled"
+        },
+        {
+          "name": "maintenanceModeType",
+          "type": "string",
+          "location": "body",
+          "description": "Maintenance mode type"
+        },
+        {
+          "name": "maintenanceTitle",
+          "type": "string",
+          "location": "body",
+          "description": "Maintenance title"
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Name"
+        },
+        {
+          "name": "niceId",
+          "type": "string",
+          "location": "body",
+          "description": "Nice id"
+        },
+        {
+          "name": "postAuthPath",
+          "type": "string",
+          "location": "body",
+          "description": "Post auth path"
+        },
+        {
+          "name": "proxyPort",
+          "type": "int",
+          "location": "body",
+          "description": "Proxy port"
+        },
+        {
+          "name": "proxyProtocol",
+          "type": "bool",
+          "location": "body",
+          "description": "Proxy protocol"
+        },
+        {
+          "name": "proxyProtocolVersion",
+          "type": "int",
+          "location": "body",
+          "description": "Proxy protocol version"
+        },
+        {
+          "name": "setHostHeader",
+          "type": "string",
+          "location": "body",
+          "description": "Set host header"
+        },
+        {
+          "name": "skipToIdpId",
+          "type": "int",
+          "location": "body",
+          "description": "Skip to idp id"
+        },
+        {
+          "name": "ssl",
+          "type": "bool",
+          "location": "body",
+          "description": "Ssl"
+        },
+        {
+          "name": "sso",
+          "type": "bool",
+          "location": "body",
+          "description": "Sso"
+        },
+        {
+          "name": "stickySession",
+          "type": "bool",
+          "location": "body",
+          "description": "Sticky session"
+        },
+        {
+          "name": "subdomain",
+          "type": "string",
+          "location": "body",
+          "description": "Subdomain"
+        },
+        {
+          "name": "tlsServerName",
+          "type": "string",
+          "location": "body",
+          "description": "Tls server name"
+        }
+      ]
+    },
+    {
+      "name": "resource_delete",
+      "description": "Delete a resource. Required: resourceId. Destructive.",
+      "method": "DELETE",
+      "path": "/resource/{resourceId}",
+      "params": [
+        {
+          "name": "resourceId",
+          "type": "string",
+          "location": "path",
+          "description": "Resource id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "resource_get",
+      "description": "Get a resource by resourceId. Required: resourceId.",
+      "method": "GET",
+      "path": "/resource/{resourceId}",
+      "params": [
+        {
+          "name": "resourceId",
+          "type": "float",
+          "location": "path",
+          "description": "Resource id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "resource_access-token_create",
+      "description": "Generate a new access token for a resource. Required: resourceId. Optional: description, title, validForSeconds.",
+      "method": "POST",
+      "path": "/resource/{resourceId}/access-token",
+      "params": [
+        {
+          "name": "resourceId",
+          "type": "string",
+          "location": "path",
+          "description": "Resource id",
+          "required": true
+        },
+        {
+          "name": "description",
+          "type": "string",
+          "location": "body",
+          "description": "Description"
+        },
+        {
+          "name": "title",
+          "type": "string",
+          "location": "body",
+          "description": "Title"
+        },
+        {
+          "name": "validForSeconds",
+          "type": "int",
+          "location": "body",
+          "description": "Valid for seconds"
+        }
+      ]
+    },
+    {
+      "name": "resource_access-tokens_get",
+      "description": "List all access tokens for a resource. Required: resourceId. Optional: limit (default: 1000), offset (default: 0).",
+      "method": "GET",
+      "path": "/resource/{resourceId}/access-tokens",
+      "params": [
+        {
+          "name": "resourceId",
+          "type": "float",
+          "location": "path",
+          "description": "Resource id",
+          "required": true
+        },
+        {
+          "name": "limit",
+          "type": "string",
+          "location": "query",
+          "description": "Limit"
+        },
+        {
+          "name": "offset",
+          "type": "string",
+          "location": "query",
+          "description": "Offset"
+        }
+      ]
+    },
+    {
+      "name": "resource_header-auth_create",
+      "description": "Set or update the header authentication for a resource. If user and password is not provided, it will remove the header authentication. Required: resourceId, extendedCompatibility, password, user.",
+      "method": "POST",
+      "path": "/resource/{resourceId}/header-auth",
+      "params": [
+        {
+          "name": "resourceId",
+          "type": "string",
+          "location": "path",
+          "description": "Resource id",
+          "required": true
+        },
+        {
+          "name": "extendedCompatibility",
+          "type": "bool",
+          "location": "body",
+          "description": "Extended compatibility",
+          "required": true
+        },
+        {
+          "name": "password",
+          "type": "string",
+          "location": "body",
+          "description": "Password",
+          "required": true
+        },
+        {
+          "name": "user",
+          "type": "string",
+          "location": "body",
+          "description": "User",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "resource_password_create",
+      "description": "Set the password for a resource. Setting the password to null will remove it. Required: resourceId, password.",
+      "method": "POST",
+      "path": "/resource/{resourceId}/password",
+      "params": [
+        {
+          "name": "resourceId",
+          "type": "string",
+          "location": "path",
+          "description": "Resource id",
+          "required": true
+        },
+        {
+          "name": "password",
+          "type": "string",
+          "location": "body",
+          "description": "Password",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "resource_pincode_create",
+      "description": "Set the PIN code for a resource. Setting the PIN code to null will remove it. Required: resourceId, pincode.",
+      "method": "POST",
+      "path": "/resource/{resourceId}/pincode",
+      "params": [
+        {
+          "name": "resourceId",
+          "type": "string",
+          "location": "path",
+          "description": "Resource id",
+          "required": true
+        },
+        {
+          "name": "pincode",
+          "type": "string",
+          "location": "body",
+          "description": "Pincode",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "resource_roles_create",
+      "description": "Set roles for a resource. This will replace all existing roles. Required: resourceId, roleIds.",
+      "method": "POST",
+      "path": "/resource/{resourceId}/roles",
+      "params": [
+        {
+          "name": "resourceId",
+          "type": "string",
+          "location": "path",
+          "description": "Resource id",
+          "required": true
+        },
+        {
+          "name": "roleIds",
+          "type": "array",
+          "location": "body",
+          "description": "Role ids",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "resource_roles_create-resource",
+      "description": "Add a single role to a resource. Required: resourceId, roleId.",
+      "method": "POST",
+      "path": "/resource/{resourceId}/roles/add",
+      "params": [
+        {
+          "name": "resourceId",
+          "type": "string",
+          "location": "path",
+          "description": "Resource id",
+          "required": true
+        },
+        {
+          "name": "roleId",
+          "type": "int",
+          "location": "body",
+          "description": "Role id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "resource_roles_create-resource-2",
+      "description": "Remove a single role from a resource. Required: resourceId, roleId.",
+      "method": "POST",
+      "path": "/resource/{resourceId}/roles/remove",
+      "params": [
+        {
+          "name": "resourceId",
+          "type": "string",
+          "location": "path",
+          "description": "Resource id",
+          "required": true
+        },
+        {
+          "name": "roleId",
+          "type": "int",
+          "location": "body",
+          "description": "Role id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "resource_roles_get",
+      "description": "List all roles for a resource. Required: resourceId.",
+      "method": "GET",
+      "path": "/resource/{resourceId}/roles",
+      "params": [
+        {
+          "name": "resourceId",
+          "type": "string",
+          "location": "path",
+          "description": "Resource id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "resource_rule_create",
+      "description": "Update a resource rule. Required: ruleId, resourceId, priority. Optional: action, enabled, match (plus 1 more).",
+      "method": "POST",
+      "path": "/resource/{resourceId}/rule/{ruleId}",
+      "params": [
+        {
+          "name": "ruleId",
+          "type": "string",
+          "location": "path",
+          "description": "Rule id",
+          "required": true
+        },
+        {
+          "name": "resourceId",
+          "type": "string",
+          "location": "path",
+          "description": "Resource id",
+          "required": true
+        },
+        {
+          "name": "action",
+          "type": "string",
+          "location": "body",
+          "description": "Action"
+        },
+        {
+          "name": "enabled",
+          "type": "bool",
+          "location": "body",
+          "description": "Enabled"
+        },
+        {
+          "name": "match",
+          "type": "string",
+          "location": "body",
+          "description": "Match"
+        },
+        {
+          "name": "priority",
+          "type": "int",
+          "location": "body",
+          "description": "Priority",
+          "required": true
+        },
+        {
+          "name": "value",
+          "type": "string",
+          "location": "body",
+          "description": "Value"
+        }
+      ]
+    },
+    {
+      "name": "resource_rule_delete",
+      "description": "Delete a resource rule. Required: ruleId, resourceId. Destructive.",
+      "method": "DELETE",
+      "path": "/resource/{resourceId}/rule/{ruleId}",
+      "params": [
+        {
+          "name": "ruleId",
+          "type": "string",
+          "location": "path",
+          "description": "Rule id",
+          "required": true
+        },
+        {
+          "name": "resourceId",
+          "type": "string",
+          "location": "path",
+          "description": "Resource id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "resource_rule_update",
+      "description": "Create a resource rule. Required: resourceId, action, match, priority, value. Optional: enabled.",
+      "method": "PUT",
+      "path": "/resource/{resourceId}/rule",
+      "params": [
+        {
+          "name": "resourceId",
+          "type": "string",
+          "location": "path",
+          "description": "Resource id",
+          "required": true
+        },
+        {
+          "name": "action",
+          "type": "string",
+          "location": "body",
+          "description": "Action",
+          "required": true
+        },
+        {
+          "name": "enabled",
+          "type": "bool",
+          "location": "body",
+          "description": "Enabled"
+        },
+        {
+          "name": "match",
+          "type": "string",
+          "location": "body",
+          "description": "Match",
+          "required": true
+        },
+        {
+          "name": "priority",
+          "type": "int",
+          "location": "body",
+          "description": "Priority",
+          "required": true
+        },
+        {
+          "name": "value",
+          "type": "string",
+          "location": "body",
+          "description": "Value",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "resource_rules_get",
+      "description": "List rules for a resource. Required: resourceId. Optional: limit (default: 1000), offset (default: 0).",
+      "method": "GET",
+      "path": "/resource/{resourceId}/rules",
+      "params": [
+        {
+          "name": "resourceId",
+          "type": "string",
+          "location": "path",
+          "description": "Resource id",
+          "required": true
+        },
+        {
+          "name": "limit",
+          "type": "string",
+          "location": "query",
+          "description": "Limit"
+        },
+        {
+          "name": "offset",
+          "type": "string",
+          "location": "query",
+          "description": "Offset"
+        }
+      ]
+    },
+    {
+      "name": "resource_target_update",
+      "description": "Create a target for a resource. Required: resourceId, ip, port, siteId. Optional: enabled (default: true), hcEnabled, hcFollowRedirects (plus 20 more).",
+      "method": "PUT",
+      "path": "/resource/{resourceId}/target",
+      "params": [
+        {
+          "name": "resourceId",
+          "type": "string",
+          "location": "path",
+          "description": "Resource id",
+          "required": true
+        },
+        {
+          "name": "enabled",
+          "type": "bool",
+          "location": "body",
+          "description": "Enabled"
+        },
+        {
+          "name": "hcEnabled",
+          "type": "bool",
+          "location": "body",
+          "description": "Hc enabled"
+        },
+        {
+          "name": "hcFollowRedirects",
+          "type": "bool",
+          "location": "body",
+          "description": "Hc follow redirects"
+        },
+        {
+          "name": "hcHeaders",
+          "type": "array",
+          "location": "body",
+          "description": "Hc headers"
+        },
+        {
+          "name": "hcHealthyThreshold",
+          "type": "int",
+          "location": "body",
+          "description": "Hc healthy threshold"
+        },
+        {
+          "name": "hcHostname",
+          "type": "string",
+          "location": "body",
+          "description": "Hc hostname"
+        },
+        {
+          "name": "hcInterval",
+          "type": "int",
+          "location": "body",
+          "description": "Hc interval"
+        },
+        {
+          "name": "hcMethod",
+          "type": "string",
+          "location": "body",
+          "description": "Hc method"
+        },
+        {
+          "name": "hcMode",
+          "type": "string",
+          "location": "body",
+          "description": "Hc mode"
+        },
+        {
+          "name": "hcPath",
+          "type": "string",
+          "location": "body",
+          "description": "Hc path"
+        },
+        {
+          "name": "hcPort",
+          "type": "int",
+          "location": "body",
+          "description": "Hc port"
+        },
+        {
+          "name": "hcScheme",
+          "type": "string",
+          "location": "body",
+          "description": "Hc scheme"
+        },
+        {
+          "name": "hcStatus",
+          "type": "int",
+          "location": "body",
+          "description": "Hc status"
+        },
+        {
+          "name": "hcTimeout",
+          "type": "int",
+          "location": "body",
+          "description": "Hc timeout"
+        },
+        {
+          "name": "hcTlsServerName",
+          "type": "string",
+          "location": "body",
+          "description": "Hc tls server name"
+        },
+        {
+          "name": "hcUnhealthyInterval",
+          "type": "int",
+          "location": "body",
+          "description": "Hc unhealthy interval"
+        },
+        {
+          "name": "hcUnhealthyThreshold",
+          "type": "int",
+          "location": "body",
+          "description": "Hc unhealthy threshold"
+        },
+        {
+          "name": "ip",
+          "type": "string",
+          "location": "body",
+          "description": "Ip",
+          "required": true
+        },
+        {
+          "name": "method",
+          "type": "string",
+          "location": "body",
+          "description": "Method"
+        },
+        {
+          "name": "path",
+          "type": "string",
+          "location": "body",
+          "description": "Path"
+        },
+        {
+          "name": "pathMatchType",
+          "type": "string",
+          "location": "body",
+          "description": "Path match type"
+        },
+        {
+          "name": "port",
+          "type": "int",
+          "location": "body",
+          "description": "Port",
+          "required": true
+        },
+        {
+          "name": "priority",
+          "type": "int",
+          "location": "body",
+          "description": "Priority"
+        },
+        {
+          "name": "rewritePath",
+          "type": "string",
+          "location": "body",
+          "description": "Rewrite path"
+        },
+        {
+          "name": "rewritePathType",
+          "type": "string",
+          "location": "body",
+          "description": "Rewrite path type"
+        },
+        {
+          "name": "siteId",
+          "type": "int",
+          "location": "body",
+          "description": "Site id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "resource_targets_get",
+      "description": "List targets for a resource. Required: resourceId. Optional: limit (default: 1000), offset (default: 0).",
+      "method": "GET",
+      "path": "/resource/{resourceId}/targets",
+      "params": [
+        {
+          "name": "resourceId",
+          "type": "string",
+          "location": "path",
+          "description": "Resource id",
+          "required": true
+        },
+        {
+          "name": "limit",
+          "type": "string",
+          "location": "query",
+          "description": "Limit"
+        },
+        {
+          "name": "offset",
+          "type": "string",
+          "location": "query",
+          "description": "Offset"
+        }
+      ]
+    },
+    {
+      "name": "resource_users_create",
+      "description": "Set users for a resource. This will replace all existing users. Required: resourceId, userIds.",
+      "method": "POST",
+      "path": "/resource/{resourceId}/users",
+      "params": [
+        {
+          "name": "resourceId",
+          "type": "string",
+          "location": "path",
+          "description": "Resource id",
+          "required": true
+        },
+        {
+          "name": "userIds",
+          "type": "array",
+          "location": "body",
+          "description": "User ids",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "resource_users_create-resource",
+      "description": "Add a single user to a resource. Required: resourceId, userId.",
+      "method": "POST",
+      "path": "/resource/{resourceId}/users/add",
+      "params": [
+        {
+          "name": "resourceId",
+          "type": "string",
+          "location": "path",
+          "description": "Resource id",
+          "required": true
+        },
+        {
+          "name": "userId",
+          "type": "string",
+          "location": "body",
+          "description": "User id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "resource_users_create-resource-2",
+      "description": "Remove a single user from a resource. Required: resourceId, userId.",
+      "method": "POST",
+      "path": "/resource/{resourceId}/users/remove",
+      "params": [
+        {
+          "name": "resourceId",
+          "type": "string",
+          "location": "path",
+          "description": "Resource id",
+          "required": true
+        },
+        {
+          "name": "userId",
+          "type": "string",
+          "location": "body",
+          "description": "User id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "resource_users_get",
+      "description": "List all users for a resource. Required: resourceId.",
+      "method": "GET",
+      "path": "/resource/{resourceId}/users",
+      "params": [
+        {
+          "name": "resourceId",
+          "type": "string",
+          "location": "path",
+          "description": "Resource id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "resource_whitelist_create",
+      "description": "Set email whitelist for a resource. This will replace all existing emails. Required: resourceId, emails.",
+      "method": "POST",
+      "path": "/resource/{resourceId}/whitelist",
+      "params": [
+        {
+          "name": "resourceId",
+          "type": "string",
+          "location": "path",
+          "description": "Resource id",
+          "required": true
+        },
+        {
+          "name": "emails",
+          "type": "array",
+          "location": "body",
+          "description": "Emails",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "resource_whitelist_create-resource",
+      "description": "Add a single email to the resource whitelist. Required: resourceId, email.",
+      "method": "POST",
+      "path": "/resource/{resourceId}/whitelist/add",
+      "params": [
+        {
+          "name": "resourceId",
+          "type": "string",
+          "location": "path",
+          "description": "Resource id",
+          "required": true
+        },
+        {
+          "name": "email",
+          "type": "string",
+          "location": "body",
+          "description": "Email",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "resource_whitelist_create-resource-2",
+      "description": "Remove a single email from the resource whitelist. Required: resourceId, email.",
+      "method": "POST",
+      "path": "/resource/{resourceId}/whitelist/remove",
+      "params": [
+        {
+          "name": "resourceId",
+          "type": "string",
+          "location": "path",
+          "description": "Resource id",
+          "required": true
+        },
+        {
+          "name": "email",
+          "type": "string",
+          "location": "body",
+          "description": "Email",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "resource_whitelist_get",
+      "description": "Get the whitelist of emails for a specific resource. Required: resourceId.",
+      "method": "GET",
+      "path": "/resource/{resourceId}/whitelist",
+      "params": [
+        {
+          "name": "resourceId",
+          "type": "string",
+          "location": "path",
+          "description": "Resource id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "role_create",
+      "description": "Update a role. Required: roleId. Optional: allowSsh, description, name (plus 5 more).",
+      "method": "POST",
+      "path": "/role/{roleId}",
+      "params": [
+        {
+          "name": "roleId",
+          "type": "string",
+          "location": "path",
+          "description": "Role id",
+          "required": true
+        },
+        {
+          "name": "allowSsh",
+          "type": "bool",
+          "location": "body",
+          "description": "Allow ssh"
+        },
+        {
+          "name": "description",
+          "type": "string",
+          "location": "body",
+          "description": "Description"
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Name"
+        },
+        {
+          "name": "requireDeviceApproval",
+          "type": "bool",
+          "location": "body",
+          "description": "Require device approval"
+        },
+        {
+          "name": "sshCreateHomeDir",
+          "type": "bool",
+          "location": "body",
+          "description": "Ssh create home dir"
+        },
+        {
+          "name": "sshSudoCommands",
+          "type": "array",
+          "location": "body",
+          "description": "Ssh sudo commands"
+        },
+        {
+          "name": "sshSudoMode",
+          "type": "string",
+          "location": "body",
+          "description": "Ssh sudo mode"
+        },
+        {
+          "name": "sshUnixGroups",
+          "type": "array",
+          "location": "body",
+          "description": "Ssh unix groups"
+        }
+      ]
+    },
+    {
+      "name": "role_delete",
+      "description": "Delete a role. Required: roleId. Destructive.",
+      "method": "DELETE",
+      "path": "/role/{roleId}",
+      "params": [
+        {
+          "name": "roleId",
+          "type": "string",
+          "location": "path",
+          "description": "Role id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "role_get",
+      "description": "Get a role. Required: roleId.",
+      "method": "GET",
+      "path": "/role/{roleId}",
+      "params": [
+        {
+          "name": "roleId",
+          "type": "string",
+          "location": "path",
+          "description": "Role id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "role_add_create",
+      "description": "Legacy: set exactly one role for the user (replaces any other roles the user has in the org). Required: roleId, userId.",
+      "method": "POST",
+      "path": "/role/{roleId}/add/{userId}",
+      "params": [
+        {
+          "name": "roleId",
+          "type": "string",
+          "location": "path",
+          "description": "Role id",
+          "required": true
+        },
+        {
+          "name": "userId",
+          "type": "string",
+          "location": "path",
+          "description": "User id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "site_create",
+      "description": "Update a site. Required: siteId. Optional: dockerSocketEnabled, name, niceId (plus 1 more).",
+      "method": "POST",
+      "path": "/site/{siteId}",
+      "params": [
+        {
+          "name": "siteId",
+          "type": "string",
+          "location": "path",
+          "description": "Site id",
+          "required": true
+        },
+        {
+          "name": "dockerSocketEnabled",
+          "type": "bool",
+          "location": "body",
+          "description": "Docker socket enabled"
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Name"
+        },
+        {
+          "name": "niceId",
+          "type": "string",
+          "location": "body",
+          "description": "Nice id"
+        },
+        {
+          "name": "status",
+          "type": "string",
+          "location": "body",
+          "description": "Status"
+        }
+      ]
+    },
+    {
+      "name": "site_delete",
+      "description": "Delete a site and all its associated data. Required: siteId. Destructive.",
+      "method": "DELETE",
+      "path": "/site/{siteId}",
+      "params": [
+        {
+          "name": "siteId",
+          "type": "string",
+          "location": "path",
+          "description": "Site id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "site_get",
+      "description": "Get a site by siteId. Required: siteId.",
+      "method": "GET",
+      "path": "/site/{siteId}",
+      "params": [
+        {
+          "name": "siteId",
+          "type": "float",
+          "location": "path",
+          "description": "Site id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "site-resource_create",
+      "description": "Update a site resource. Required: siteResourceId, clientIds, roleIds, userIds. Optional: alias, authDaemonMode, authDaemonPort (plus 15 more).",
+      "method": "POST",
+      "path": "/site-resource/{siteResourceId}",
+      "params": [
+        {
+          "name": "siteResourceId",
+          "type": "string",
+          "location": "path",
+          "description": "Site resource id",
+          "required": true
+        },
+        {
+          "name": "alias",
+          "type": "string",
+          "location": "body",
+          "description": "Alias"
+        },
+        {
+          "name": "authDaemonMode",
+          "type": "string",
+          "location": "body",
+          "description": "Auth daemon mode"
+        },
+        {
+          "name": "authDaemonPort",
+          "type": "int",
+          "location": "body",
+          "description": "Auth daemon port"
+        },
+        {
+          "name": "clientIds",
+          "type": "array",
+          "location": "body",
+          "description": "Client ids",
+          "required": true
+        },
+        {
+          "name": "destination",
+          "type": "string",
+          "location": "body",
+          "description": "Destination"
+        },
+        {
+          "name": "destinationPort",
+          "type": "int",
+          "location": "body",
+          "description": "Destination port"
+        },
+        {
+          "name": "disableIcmp",
+          "type": "bool",
+          "location": "body",
+          "description": "Disable icmp"
+        },
+        {
+          "name": "domainId",
+          "type": "string",
+          "location": "body",
+          "description": "Domain id"
+        },
+        {
+          "name": "enabled",
+          "type": "bool",
+          "location": "body",
+          "description": "Enabled"
+        },
+        {
+          "name": "mode",
+          "type": "string",
+          "location": "body",
+          "description": "Mode"
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Name"
+        },
+        {
+          "name": "niceId",
+          "type": "string",
+          "location": "body",
+          "description": "Nice id"
+        },
+        {
+          "name": "roleIds",
+          "type": "array",
+          "location": "body",
+          "description": "Role ids",
+          "required": true
+        },
+        {
+          "name": "scheme",
+          "type": "string",
+          "location": "body",
+          "description": "Scheme"
+        },
+        {
+          "name": "siteId",
+          "type": "int",
+          "location": "body",
+          "description": "Site id"
+        },
+        {
+          "name": "siteIds",
+          "type": "array",
+          "location": "body",
+          "description": "Site ids"
+        },
+        {
+          "name": "ssl",
+          "type": "bool",
+          "location": "body",
+          "description": "Ssl"
+        },
+        {
+          "name": "subdomain",
+          "type": "string",
+          "location": "body",
+          "description": "Subdomain"
+        },
+        {
+          "name": "tcpPortRangeString",
+          "type": "string",
+          "location": "body",
+          "description": "Tcp port range string"
+        },
+        {
+          "name": "udpPortRangeString",
+          "type": "string",
+          "location": "body",
+          "description": "Udp port range string"
+        },
+        {
+          "name": "userIds",
+          "type": "array",
+          "location": "body",
+          "description": "User ids",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "site-resource_delete",
+      "description": "Delete a site resource. Required: siteResourceId. Destructive.",
+      "method": "DELETE",
+      "path": "/site-resource/{siteResourceId}",
+      "params": [
+        {
+          "name": "siteResourceId",
+          "type": "string",
+          "location": "path",
+          "description": "Site resource id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "site-resource_get",
+      "description": "Get a specific site resource by siteResourceId. Required: siteResourceId, siteId, orgId.",
+      "method": "GET",
+      "path": "/site-resource/{siteResourceId}",
+      "params": [
+        {
+          "name": "siteResourceId",
+          "type": "float",
+          "location": "path",
+          "description": "Site resource id",
+          "required": true
+        },
+        {
+          "name": "siteId",
+          "type": "float",
+          "location": "path",
+          "description": "Site id",
+          "required": true
+        },
+        {
+          "name": "orgId",
+          "type": "string",
+          "location": "path",
+          "description": "Org id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "site-resource_clients_create",
+      "description": "Set clients for a site resource. This will replace all existing clients. Clients with a userId cannot be added. Required: siteResourceId, clientIds.",
+      "method": "POST",
+      "path": "/site-resource/{siteResourceId}/clients",
+      "params": [
+        {
+          "name": "siteResourceId",
+          "type": "string",
+          "location": "path",
+          "description": "Site resource id",
+          "required": true
+        },
+        {
+          "name": "clientIds",
+          "type": "array",
+          "location": "body",
+          "description": "Client ids",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "site-resource_clients_create-siteresource",
+      "description": "Add a single client to a site resource. Clients with a userId cannot be added. Required: siteResourceId, clientId.",
+      "method": "POST",
+      "path": "/site-resource/{siteResourceId}/clients/add",
+      "params": [
+        {
+          "name": "siteResourceId",
+          "type": "string",
+          "location": "path",
+          "description": "Site resource id",
+          "required": true
+        },
+        {
+          "name": "clientId",
+          "type": "int",
+          "location": "body",
+          "description": "Client id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "site-resource_clients_create-siteresource-2",
+      "description": "Remove a single client from a site resource. Clients with a userId cannot be removed. Required: siteResourceId, clientId.",
+      "method": "POST",
+      "path": "/site-resource/{siteResourceId}/clients/remove",
+      "params": [
+        {
+          "name": "siteResourceId",
+          "type": "string",
+          "location": "path",
+          "description": "Site resource id",
+          "required": true
+        },
+        {
+          "name": "clientId",
+          "type": "int",
+          "location": "body",
+          "description": "Client id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "site-resource_clients_get",
+      "description": "List all clients for a site resource. Required: siteResourceId.",
+      "method": "GET",
+      "path": "/site-resource/{siteResourceId}/clients",
+      "params": [
+        {
+          "name": "siteResourceId",
+          "type": "string",
+          "location": "path",
+          "description": "Site resource id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "site-resource_roles_create",
+      "description": "Set roles for a site resource. This will replace all existing roles. Required: siteResourceId, roleIds.",
+      "method": "POST",
+      "path": "/site-resource/{siteResourceId}/roles",
+      "params": [
+        {
+          "name": "siteResourceId",
+          "type": "string",
+          "location": "path",
+          "description": "Site resource id",
+          "required": true
+        },
+        {
+          "name": "roleIds",
+          "type": "array",
+          "location": "body",
+          "description": "Role ids",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "site-resource_roles_create-siteresource",
+      "description": "Add a single role to a site resource. Required: siteResourceId, roleId.",
+      "method": "POST",
+      "path": "/site-resource/{siteResourceId}/roles/add",
+      "params": [
+        {
+          "name": "siteResourceId",
+          "type": "string",
+          "location": "path",
+          "description": "Site resource id",
+          "required": true
+        },
+        {
+          "name": "roleId",
+          "type": "int",
+          "location": "body",
+          "description": "Role id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "site-resource_roles_create-siteresource-2",
+      "description": "Remove a single role from a site resource. Required: siteResourceId, roleId.",
+      "method": "POST",
+      "path": "/site-resource/{siteResourceId}/roles/remove",
+      "params": [
+        {
+          "name": "siteResourceId",
+          "type": "string",
+          "location": "path",
+          "description": "Site resource id",
+          "required": true
+        },
+        {
+          "name": "roleId",
+          "type": "int",
+          "location": "body",
+          "description": "Role id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "site-resource_roles_get",
+      "description": "List all roles for a site resource. Required: siteResourceId.",
+      "method": "GET",
+      "path": "/site-resource/{siteResourceId}/roles",
+      "params": [
+        {
+          "name": "siteResourceId",
+          "type": "string",
+          "location": "path",
+          "description": "Site resource id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "site-resource_users_create",
+      "description": "Set users for a site resource. This will replace all existing users. Required: siteResourceId, userIds.",
+      "method": "POST",
+      "path": "/site-resource/{siteResourceId}/users",
+      "params": [
+        {
+          "name": "siteResourceId",
+          "type": "string",
+          "location": "path",
+          "description": "Site resource id",
+          "required": true
+        },
+        {
+          "name": "userIds",
+          "type": "array",
+          "location": "body",
+          "description": "User ids",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "site-resource_users_create-siteresource",
+      "description": "Add a single user to a site resource. Required: siteResourceId, userId.",
+      "method": "POST",
+      "path": "/site-resource/{siteResourceId}/users/add",
+      "params": [
+        {
+          "name": "siteResourceId",
+          "type": "string",
+          "location": "path",
+          "description": "Site resource id",
+          "required": true
+        },
+        {
+          "name": "userId",
+          "type": "string",
+          "location": "body",
+          "description": "User id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "site-resource_users_create-siteresource-2",
+      "description": "Remove a single user from a site resource. Required: siteResourceId, userId.",
+      "method": "POST",
+      "path": "/site-resource/{siteResourceId}/users/remove",
+      "params": [
+        {
+          "name": "siteResourceId",
+          "type": "string",
+          "location": "path",
+          "description": "Site resource id",
+          "required": true
+        },
+        {
+          "name": "userId",
+          "type": "string",
+          "location": "body",
+          "description": "User id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "site-resource_users_get",
+      "description": "List all users for a site resource. Required: siteResourceId.",
+      "method": "GET",
+      "path": "/site-resource/{siteResourceId}/users",
+      "params": [
+        {
+          "name": "siteResourceId",
+          "type": "string",
+          "location": "path",
+          "description": "Site resource id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "target_create",
+      "description": "Update a target. Required: targetId, ip, siteId. Optional: enabled, hcEnabled, hcFollowRedirects (plus 21 more).",
+      "method": "POST",
+      "path": "/target/{targetId}",
+      "params": [
+        {
+          "name": "targetId",
+          "type": "string",
+          "location": "path",
+          "description": "Target id",
+          "required": true
+        },
+        {
+          "name": "enabled",
+          "type": "bool",
+          "location": "body",
+          "description": "Enabled"
+        },
+        {
+          "name": "hcEnabled",
+          "type": "bool",
+          "location": "body",
+          "description": "Hc enabled"
+        },
+        {
+          "name": "hcFollowRedirects",
+          "type": "bool",
+          "location": "body",
+          "description": "Hc follow redirects"
+        },
+        {
+          "name": "hcHeaders",
+          "type": "array",
+          "location": "body",
+          "description": "Hc headers"
+        },
+        {
+          "name": "hcHealthyThreshold",
+          "type": "int",
+          "location": "body",
+          "description": "Hc healthy threshold"
+        },
+        {
+          "name": "hcHostname",
+          "type": "string",
+          "location": "body",
+          "description": "Hc hostname"
+        },
+        {
+          "name": "hcInterval",
+          "type": "int",
+          "location": "body",
+          "description": "Hc interval"
+        },
+        {
+          "name": "hcMethod",
+          "type": "string",
+          "location": "body",
+          "description": "Hc method"
+        },
+        {
+          "name": "hcMode",
+          "type": "string",
+          "location": "body",
+          "description": "Hc mode"
+        },
+        {
+          "name": "hcPath",
+          "type": "string",
+          "location": "body",
+          "description": "Hc path"
+        },
+        {
+          "name": "hcPort",
+          "type": "int",
+          "location": "body",
+          "description": "Hc port"
+        },
+        {
+          "name": "hcScheme",
+          "type": "string",
+          "location": "body",
+          "description": "Hc scheme"
+        },
+        {
+          "name": "hcStatus",
+          "type": "int",
+          "location": "body",
+          "description": "Hc status"
+        },
+        {
+          "name": "hcTimeout",
+          "type": "int",
+          "location": "body",
+          "description": "Hc timeout"
+        },
+        {
+          "name": "hcTlsServerName",
+          "type": "string",
+          "location": "body",
+          "description": "Hc tls server name"
+        },
+        {
+          "name": "hcUnhealthyInterval",
+          "type": "int",
+          "location": "body",
+          "description": "Hc unhealthy interval"
+        },
+        {
+          "name": "hcUnhealthyThreshold",
+          "type": "int",
+          "location": "body",
+          "description": "Hc unhealthy threshold"
+        },
+        {
+          "name": "ip",
+          "type": "string",
+          "location": "body",
+          "description": "Ip",
+          "required": true
+        },
+        {
+          "name": "method",
+          "type": "string",
+          "location": "body",
+          "description": "Method"
+        },
+        {
+          "name": "path",
+          "type": "string",
+          "location": "body",
+          "description": "Path"
+        },
+        {
+          "name": "pathMatchType",
+          "type": "string",
+          "location": "body",
+          "description": "Path match type"
+        },
+        {
+          "name": "port",
+          "type": "int",
+          "location": "body",
+          "description": "Port"
+        },
+        {
+          "name": "priority",
+          "type": "int",
+          "location": "body",
+          "description": "Priority"
+        },
+        {
+          "name": "rewritePath",
+          "type": "string",
+          "location": "body",
+          "description": "Rewrite path"
+        },
+        {
+          "name": "rewritePathType",
+          "type": "string",
+          "location": "body",
+          "description": "Rewrite path type"
+        },
+        {
+          "name": "siteId",
+          "type": "int",
+          "location": "body",
+          "description": "Site id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "target_delete",
+      "description": "Delete a target. Required: targetId. Destructive.",
+      "method": "DELETE",
+      "path": "/target/{targetId}",
+      "params": [
+        {
+          "name": "targetId",
+          "type": "string",
+          "location": "path",
+          "description": "Target id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "target_get",
+      "description": "Get a target. Required: targetId.",
+      "method": "GET",
+      "path": "/target/{targetId}",
+      "params": [
+        {
+          "name": "targetId",
+          "type": "string",
+          "location": "path",
+          "description": "Target id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "user_get",
+      "description": "Get a user by ID. Required: userId.",
+      "method": "GET",
+      "path": "/user/{userId}",
+      "params": [
+        {
+          "name": "userId",
+          "type": "string",
+          "location": "path",
+          "description": "User id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "user_2fa_create",
+      "description": "Update a user's 2FA status. Required: userId, twoFactorSetupRequested.",
+      "method": "POST",
+      "path": "/user/{userId}/2fa",
+      "params": [
+        {
+          "name": "userId",
+          "type": "string",
+          "location": "path",
+          "description": "User id",
+          "required": true
+        },
+        {
+          "name": "twoFactorSetupRequested",
+          "type": "bool",
+          "location": "body",
+          "description": "Two factor setup requested",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "user_add-role_create",
+      "description": "Add a role to a user. Required: userId, roleId.",
+      "method": "POST",
+      "path": "/user/{userId}/add-role/{roleId}",
+      "params": [
+        {
+          "name": "userId",
+          "type": "string",
+          "location": "path",
+          "description": "User id",
+          "required": true
+        },
+        {
+          "name": "roleId",
+          "type": "string",
+          "location": "path",
+          "description": "Role id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "user_remove-role_delete",
+      "description": "Remove a role from a user. User must have at least one role left in the org. Required: userId, roleId. Destructive.",
+      "method": "DELETE",
+      "path": "/user/{userId}/remove-role/{roleId}",
+      "params": [
+        {
+          "name": "userId",
+          "type": "string",
+          "location": "path",
+          "description": "User id",
+          "required": true
+        },
+        {
+          "name": "roleId",
+          "type": "string",
+          "location": "path",
+          "description": "Role id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "users_list",
+      "description": "List non–server-admin users (server admin). Optional: pageSize (default: 20), page (default: 1), query (plus 4 more).",
+      "method": "GET",
+      "path": "/users",
+      "params": [
+        {
+          "name": "pageSize",
+          "type": "int",
+          "location": "query",
+          "description": "Number of items per page"
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page number to retrieve"
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "query",
+          "description": "Query"
+        },
+        {
+          "name": "sort_by",
+          "type": "string",
+          "location": "query",
+          "description": "Field to sort by"
+        },
+        {
+          "name": "order",
+          "type": "string",
+          "location": "query",
+          "description": "Sort order"
+        },
+        {
+          "name": "idp_id",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by identity provider id, or 'internal' for internal users"
+        },
+        {
+          "name": "two_factor",
+          "type": "bool",
+          "location": "query",
+          "description": "Filter by 2FA state matching: enabled if twoFactorEnabled or twoFactorSetupRequested"
+        }
+      ]
+    }
+  ]
+}

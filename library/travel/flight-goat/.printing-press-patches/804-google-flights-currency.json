@@ -1,0 +1,17 @@
+{
+  "schema_version": 2,
+  "id": "804-google-flights-currency",
+  "applied_at": "2026-05-12",
+  "base_run_id": "2026-05-02T22:09:06.820184Z",
+  "base_printing_press_version": "3.6.0",
+  "upstream_issue": "https://github.com/mvanhorn/cli-printing-press/issues/804",
+  "files": [
+    "internal/gflights/gflights.go",
+    "internal/gflights/dates_native.go",
+    "internal/cli/primary.go",
+    "internal/cli/transcend.go"
+  ],
+  "summary": "Add command-scoped ISO 4217 currency support for Google Flights price commands.",
+  "reason": "Flight GOAT's Google Flights backend hard-coded USD, so international users could not request native Google Flights prices in their preferred currency.",
+  "validated_outcome": "go test ./...; go build ./...; go vet ./...; govulncheck ./...; python3 .github/scripts/verify-skill/verify_skill.py --dir library/travel/flight-goat/"
+}

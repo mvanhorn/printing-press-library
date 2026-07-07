@@ -1,0 +1,11 @@
+{
+  "schema_version": 2,
+  "id": "roadside-america-wiring-and-sync",
+  "applied_at": "2026-06-06",
+  "base_run_id": "20260606-102010",
+  "base_printing_press_version": "4.22.1",
+  "summary": "root.go registers the hand-authored near/state/show/search/sql commands, swaps the generated no-op sync for newRoadsideSyncCmd (per-state cache population + verify-mode seed), and sets a polite default --rate-limit of 0.34 req/s.",
+  "reason": "AddCommand wiring for hand-authored commands lives in root.go; the generated no-op sync was replaced; scrape CLIs need a non-zero polite rate-limit default.",
+  "files": ["internal/cli/root.go", "internal/cli/roadside_sync.go"],
+  "upstream_issue": "https://github.com/mvanhorn/cli-printing-press/issues/2722"
+}

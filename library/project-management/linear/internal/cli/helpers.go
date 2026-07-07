@@ -8,6 +8,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/mvanhorn/printing-press-library/library/project-management/linear/internal/client"
 	"github.com/mvanhorn/printing-press-library/library/project-management/linear/internal/cliutil"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
@@ -213,9 +214,12 @@ func parentNoSubcommandRunE(flags *rootFlags) func(*cobra.Command, []string) err
 			}
 			sort.Strings(subs)
 			_ = json.NewEncoder(cmd.OutOrStdout()).Encode(map[string]any{
+				"code":              2,
 				"error":             "subcommand required",
+				"type":              "usage",
 				"valid_subcommands": subs,
 			})
+			flags.errorWritten = true
 			return usageErr(fmt.Errorf("subcommand required for %q", cmd.CommandPath()))
 		}
 		return cmd.Help()
@@ -236,13 +240,85 @@ func writeNoop(flags *rootFlags, reason, prose string) error {
 }
 
 func writeAPIErrorEnvelope(flags *rootFlags, err error, code int) {
+	writeCLIErrorEnvelope(flags, err, code)
+}
+
+func writeCLIErrorEnvelope(flags *rootFlags, err error, code int) {
 	if flags == nil || !flags.asJSON {
 		return
 	}
+	flags.errorWritten = true
 	_ = json.NewEncoder(os.Stdout).Encode(map[string]any{
 		"error": err.Error(),
 		"code":  code,
+		"type":  cliErrorType(code),
 	})
+}
+
+func cliErrorType(code int) string {
+	switch code {
+	case 2:
+		return "usage"
+	case 3:
+		return "not_found"
+	case 4:
+		return "auth"
+	case 5:
+		return "api"
+	case 6:
+		return "partial_failure"
+	case 7:
+		return "rate_limit"
+	case 10:
+		return "config"
+	default:
+		return "error"
+	}
+}
+
+// jsonErrorMode reports whether a failed invocation should emit a JSON error
+// envelope. The parsed flags are authoritative, but flag parsing itself can
+// fail before --agent/--json are bound (unknown flag, bad value), so the raw
+// args are scanned as a fallback. Agents that asked for JSON must never get
+// plain text on a typed failure.
+func jsonErrorMode(flags *rootFlags, args []string) bool {
+	if flags != nil && (flags.agent || flags.asJSON) {
+		return true
+	}
+	for _, a := range args {
+		if a == "--" {
+			break
+		}
+		if a == "--agent" || a == "--json" || a == "--agent=true" || a == "--json=true" {
+			return true
+		}
+	}
+	return false
+}
+
+// finalizeError gives every failure a consistent surface now that the root
+// command silences cobra's own error printing. In JSON/agent mode the error
+// is a machine-parseable envelope on stdout ({"error","code","type"}) so
+// agents piping stdout never JSON-decode plain text; otherwise the
+// conventional "Error: ..." line goes to stderr. Errors that already wrote
+// an envelope mid-command (writeAPIErrorEnvelope) are not double-emitted.
+func finalizeError(flags *rootFlags, args []string, stdout, stderr io.Writer, err error) {
+	if err == nil {
+		return
+	}
+	if jsonErrorMode(flags, args) {
+		if flags != nil && flags.errorWritten {
+			return
+		}
+		code := ExitCode(err)
+		_ = json.NewEncoder(stdout).Encode(map[string]any{
+			"error": err.Error(),
+			"code":  code,
+			"type":  cliErrorType(code),
+		})
+		return
+	}
+	fmt.Fprintf(stderr, "Error: %v\n", err)
 }
 
 // classifyAPIError maps API errors to structured exit codes with actionable hints.
@@ -277,6 +353,26 @@ func classifyAPIError(err error, flags *rootFlags) error {
 	default:
 		return apiErr(err)
 	}
+}
+
+func classifyLiveReadError(err error, flags *rootFlags) error {
+	if err == nil || ExitCode(err) != 1 {
+		return err
+	}
+	var apiErr *client.APIError
+	if As(err, &apiErr) || strings.Contains(err.Error(), "graphql: ") {
+		return classifyAPIError(err, flags)
+	}
+	return err
+}
+
+func classifyMutationError(operation string, err error, flags *rootFlags, uploaded []client.UploadedFile) error {
+	if err == nil {
+		return nil
+	}
+	wrapped := fmt.Errorf("%s failed: %w", operation, err)
+	wrapped = mediaUploadFailure(wrapped, uploaded)
+	return classifyLiveReadError(wrapped, flags)
 }
 
 // classifyDeleteError maps DELETE errors and supports explicit idempotent no-op handling.

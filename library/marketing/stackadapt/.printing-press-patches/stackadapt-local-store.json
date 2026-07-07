@@ -1,0 +1,20 @@
+{
+  "schema_version": 2,
+  "id": "stackadapt-local-store",
+  "applied_at": "2026-05-30",
+  "base_run_id": "20260530-185509",
+  "base_printing_press_version": "4.18.1",
+  "summary": "Added a SQLite store (internal/store) plus sync/search/sql commands and --data-source local wiring so the live-query GraphQL CLI has an offline spine.",
+  "reason": "StackAdapt is a single GraphQL endpoint with no syncable REST resources, so the generator emitted no store/sync/search/sql layer (Priority 0). Without it, verify's data-pipeline gate failed and the brief's promised local-store analysis was missing.",
+  "files": [
+    "internal/store/store.go",
+    "internal/store/store_test.go",
+    "internal/cli/stackadapt_sync.go",
+    "internal/cli/stackadapt_query.go",
+    "internal/cli/stackadapt_read.go",
+    "internal/cli/root.go",
+    "go.mod",
+    "go.sum"
+  ],
+  "validated_outcome": "Live sync pulled 427 real objects; verify data_pipeline PASS (resources has 427 rows); sql/search/--data-source local all return real data."
+}

@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "private-response-cache",
+  "applied_at": "2026-05-10",
+  "base_run_id": "20260510-144732",
+  "base_printing_press_version": "4.2.2",
+  "summary": "Restricts Beehiiv response-cache directories and files to the current user.",
+  "reason": "Beehiiv API responses can contain subscriber emails and other PII, so cache files must not be world-readable on multi-user systems.",
+  "files": [
+    "internal/client/client.go",
+    "internal/cache/cache.go"
+  ],
+  "validated_outcome": "go test ./... passes for the published Beehiiv CLI."
+}

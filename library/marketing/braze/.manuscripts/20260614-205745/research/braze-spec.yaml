@@ -1,0 +1,391 @@
+openapi: 3.0.3
+info:
+  title: Braze Read API
+  version: 1.0.0
+  description: Read-first Braze REST API surface for marketing analytics, campaign inspection, content assets, and catalog lookup.
+servers:
+  - url: https://rest.iad-01.braze.com
+security:
+  - BearerAuth: []
+tags:
+  - name: Campaigns
+  - name: Canvas
+  - name: Segments
+  - name: Events
+  - name: KPIs
+  - name: Templates
+  - name: Content Blocks
+  - name: Catalogs
+  - name: Preference Centers
+paths:
+  /campaigns/list:
+    get:
+      operationId: listCampaigns
+      tags: [Campaigns]
+      summary: Export a list of Braze campaigns.
+      parameters:
+        - $ref: "#/components/parameters/Page"
+        - $ref: "#/components/parameters/IncludeArchived"
+      responses:
+        "200":
+          $ref: "#/components/responses/Success"
+  /campaigns/details:
+    get:
+      operationId: getCampaignDetails
+      tags: [Campaigns]
+      summary: Export metadata and configuration for a campaign.
+      parameters:
+        - $ref: "#/components/parameters/CampaignId"
+      responses:
+        "200":
+          $ref: "#/components/responses/Success"
+  /campaigns/data_series:
+    get:
+      operationId: getCampaignDataSeries
+      tags: [Campaigns]
+      summary: Export campaign analytics over time.
+      parameters:
+        - $ref: "#/components/parameters/CampaignId"
+        - $ref: "#/components/parameters/Length"
+        - $ref: "#/components/parameters/EndingAt"
+      responses:
+        "200":
+          $ref: "#/components/responses/Success"
+  /canvas/list:
+    get:
+      operationId: listCanvases
+      tags: [Canvas]
+      summary: Export a list of Braze Canvases.
+      parameters:
+        - $ref: "#/components/parameters/Page"
+        - $ref: "#/components/parameters/IncludeArchived"
+      responses:
+        "200":
+          $ref: "#/components/responses/Success"
+  /canvas/details:
+    get:
+      operationId: getCanvasDetails
+      tags: [Canvas]
+      summary: Export metadata and configuration for a Canvas.
+      parameters:
+        - $ref: "#/components/parameters/CanvasId"
+      responses:
+        "200":
+          $ref: "#/components/responses/Success"
+  /canvas/data_series:
+    get:
+      operationId: getCanvasDataSeries
+      tags: [Canvas]
+      summary: Export Canvas analytics over time.
+      parameters:
+        - $ref: "#/components/parameters/CanvasId"
+        - $ref: "#/components/parameters/Length"
+        - $ref: "#/components/parameters/EndingAt"
+      responses:
+        "200":
+          $ref: "#/components/responses/Success"
+  /canvas/data_summary:
+    get:
+      operationId: getCanvasDataSummary
+      tags: [Canvas]
+      summary: Export summarized Canvas analytics.
+      parameters:
+        - $ref: "#/components/parameters/CanvasId"
+        - $ref: "#/components/parameters/Length"
+        - $ref: "#/components/parameters/EndingAt"
+      responses:
+        "200":
+          $ref: "#/components/responses/Success"
+  /segments/list:
+    get:
+      operationId: listSegments
+      tags: [Segments]
+      summary: Export a list of Braze segments.
+      parameters:
+        - $ref: "#/components/parameters/Page"
+      responses:
+        "200":
+          $ref: "#/components/responses/Success"
+  /segments/details:
+    get:
+      operationId: getSegmentDetails
+      tags: [Segments]
+      summary: Export metadata for a segment.
+      parameters:
+        - $ref: "#/components/parameters/SegmentId"
+      responses:
+        "200":
+          $ref: "#/components/responses/Success"
+  /segments/data_series:
+    get:
+      operationId: getSegmentDataSeries
+      tags: [Segments]
+      summary: Export estimated segment size over time.
+      parameters:
+        - $ref: "#/components/parameters/SegmentId"
+        - $ref: "#/components/parameters/Length"
+        - $ref: "#/components/parameters/EndingAt"
+      responses:
+        "200":
+          $ref: "#/components/responses/Success"
+  /events/list:
+    get:
+      operationId: listCustomEventNames
+      tags: [Events]
+      summary: Export names of custom events recorded for an app group.
+      responses:
+        "200":
+          $ref: "#/components/responses/Success"
+  /events:
+    get:
+      operationId: listCustomEvents
+      tags: [Events]
+      summary: Export custom event definitions and metadata.
+      responses:
+        "200":
+          $ref: "#/components/responses/Success"
+  /events/data_series:
+    get:
+      operationId: getEventDataSeries
+      tags: [Events]
+      summary: Export custom event analytics over time.
+      parameters:
+        - name: event
+          in: query
+          required: true
+          schema:
+            type: string
+        - $ref: "#/components/parameters/Length"
+        - $ref: "#/components/parameters/EndingAt"
+      responses:
+        "200":
+          $ref: "#/components/responses/Success"
+  /custom_attributes:
+    get:
+      operationId: listCustomAttributes
+      tags: [Events]
+      summary: Export custom attributes and metadata.
+      responses:
+        "200":
+          $ref: "#/components/responses/Success"
+  /kpi/dau/data_series:
+    get:
+      operationId: getDailyActiveUsers
+      tags: [KPIs]
+      summary: Export daily active user counts.
+      parameters:
+        - $ref: "#/components/parameters/Length"
+        - $ref: "#/components/parameters/EndingAt"
+      responses:
+        "200":
+          $ref: "#/components/responses/Success"
+  /kpi/mau/data_series:
+    get:
+      operationId: getMonthlyActiveUsers
+      tags: [KPIs]
+      summary: Export monthly active user counts.
+      parameters:
+        - $ref: "#/components/parameters/Length"
+        - $ref: "#/components/parameters/EndingAt"
+      responses:
+        "200":
+          $ref: "#/components/responses/Success"
+  /kpi/new_users/data_series:
+    get:
+      operationId: getNewUsers
+      tags: [KPIs]
+      summary: Export daily new user counts.
+      parameters:
+        - $ref: "#/components/parameters/Length"
+        - $ref: "#/components/parameters/EndingAt"
+      responses:
+        "200":
+          $ref: "#/components/responses/Success"
+  /sessions/data_series:
+    get:
+      operationId: getSessionsDataSeries
+      tags: [KPIs]
+      summary: Export app session counts over time.
+      parameters:
+        - name: app_id
+          in: query
+          schema:
+            type: string
+        - $ref: "#/components/parameters/Length"
+        - $ref: "#/components/parameters/EndingAt"
+      responses:
+        "200":
+          $ref: "#/components/responses/Success"
+  /templates/email/list:
+    get:
+      operationId: listEmailTemplates
+      tags: [Templates]
+      summary: List email templates.
+      parameters:
+        - $ref: "#/components/parameters/Page"
+      responses:
+        "200":
+          $ref: "#/components/responses/Success"
+  /templates/email/info:
+    get:
+      operationId: getEmailTemplateInfo
+      tags: [Templates]
+      summary: Get email template details.
+      parameters:
+        - name: email_template_id
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          $ref: "#/components/responses/Success"
+  /content_blocks/list:
+    get:
+      operationId: listContentBlocks
+      tags: [Content Blocks]
+      summary: List content blocks.
+      parameters:
+        - $ref: "#/components/parameters/Page"
+      responses:
+        "200":
+          $ref: "#/components/responses/Success"
+  /content_blocks/info:
+    get:
+      operationId: getContentBlockInfo
+      tags: [Content Blocks]
+      summary: Get content block details.
+      parameters:
+        - name: content_block_id
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          $ref: "#/components/responses/Success"
+  /catalogs:
+    get:
+      operationId: listCatalogs
+      tags: [Catalogs]
+      summary: List catalogs.
+      responses:
+        "200":
+          $ref: "#/components/responses/Success"
+  /catalogs/{catalog_name}/items:
+    get:
+      operationId: listCatalogItems
+      tags: [Catalogs]
+      summary: List items in a catalog.
+      parameters:
+        - $ref: "#/components/parameters/CatalogName"
+        - $ref: "#/components/parameters/Cursor"
+      responses:
+        "200":
+          $ref: "#/components/responses/Success"
+  /catalogs/{catalog_name}/items/{item_id}:
+    get:
+      operationId: getCatalogItem
+      tags: [Catalogs]
+      summary: Get a catalog item.
+      parameters:
+        - $ref: "#/components/parameters/CatalogName"
+        - name: item_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          $ref: "#/components/responses/Success"
+  /preference_center/v1/list:
+    get:
+      operationId: listPreferenceCenters
+      tags: [Preference Centers]
+      summary: List preference centers.
+      responses:
+        "200":
+          $ref: "#/components/responses/Success"
+  /preference_center/v1/{preferenceCenterExternalId}:
+    get:
+      operationId: getPreferenceCenter
+      tags: [Preference Centers]
+      summary: Get preference center details.
+      parameters:
+        - name: preferenceCenterExternalId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          $ref: "#/components/responses/Success"
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+  parameters:
+    Page:
+      name: page
+      in: query
+      schema:
+        type: integer
+        minimum: 0
+    Cursor:
+      name: cursor
+      in: query
+      schema:
+        type: string
+    IncludeArchived:
+      name: include_archived
+      in: query
+      schema:
+        type: boolean
+    CampaignId:
+      name: campaign_id
+      in: query
+      required: true
+      schema:
+        type: string
+    CanvasId:
+      name: canvas_id
+      in: query
+      required: true
+      schema:
+        type: string
+    SegmentId:
+      name: segment_id
+      in: query
+      required: true
+      schema:
+        type: string
+    Length:
+      name: length
+      in: query
+      schema:
+        type: integer
+        minimum: 1
+    EndingAt:
+      name: ending_at
+      in: query
+      schema:
+        type: string
+        format: date-time
+    CatalogName:
+      name: catalog_name
+      in: path
+      required: true
+      schema:
+        type: string
+  responses:
+    Success:
+      description: JSON response from Braze.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/GenericObject"
+  schemas:
+    GenericObject:
+      type: object
+      additionalProperties: true

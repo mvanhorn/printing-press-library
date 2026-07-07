@@ -1,0 +1,15 @@
+{
+  "schema_version": 2,
+  "id": "review-webhook-context-timeout",
+  "applied_at": "2026-05-18",
+  "base_run_id": "20260514-120439",
+  "base_printing_press_version": "4.6.1",
+  "summary": "Passed command cancellation and timeout through webhook delivery.",
+  "reason": "Greptile noted that webhook delivery used a hardcoded HTTP timeout and ignored the command context after command execution completed.",
+  "files": [
+    "internal/cli/deliver.go",
+    "internal/cli/root.go",
+    "internal/cli/root_test.go"
+  ],
+  "validated_outcome": "Added regression coverage proving canceled contexts abort webhook delivery before the POST is sent."
+}

@@ -11,7 +11,7 @@
   "tools": [
     {
       "name": "search",
-      "description": "FTS search over URL/title/search terms.",
+      "description": "Full-text (FTS5) search over visited URLs, page titles, and search terms, ranked by relevance. Required: query. Optional: domain, device, since, limit. Returns matching visits with URL, title, visit time, and visit count. Prefer this for keyword lookups; use 'visited' when checking one specific URL/domain.",
       "method": "GET",
       "path": "/search",
       "no_auth": true,
@@ -51,7 +51,7 @@
     },
     {
       "name": "list",
-      "description": "Recent history list.",
+      "description": "List recent individual visits from the synced snapshot, newest first. Optional filters: since/until window, domain, device, transition, min_visits, limit. Returns per-visit URL, title, visit time, and visit count. Use 'domains' or 'report' for aggregates instead of raw rows.",
       "method": "GET",
       "path": "/list",
       "no_auth": true,
@@ -102,7 +102,7 @@
     },
     {
       "name": "domains",
-      "description": "Domain frequency ranking.",
+      "description": "Rank the most-visited registrable domains over the --since window, with page counts, visit sums, and a productive/neutral/distracting category per domain. Optional: since, device, limit. Returns one ranked row per domain.",
       "method": "GET",
       "path": "/domains",
       "no_auth": true,
@@ -129,7 +129,7 @@
     },
     {
       "name": "searches",
-      "description": "Search terms from browser history.",
+      "description": "List the keyword search-engine queries the user ran over the --since window, optionally filtered by --domain. Optional: since, domain, device, limit. Returns each query term with its engine and visit time. Note: unavailable on Safari, which omits search terms from History.db (reports unavailable).",
       "method": "GET",
       "path": "/searches",
       "no_auth": true,
@@ -162,7 +162,7 @@
     },
     {
       "name": "downloads",
-      "description": "Download history.",
+      "description": "List downloaded files over the --since window with filename, size, MIME type, and download state. Optional: since, device, limit. Note: unavailable on Safari, which omits downloads from History.db (reports unavailable).",
       "method": "GET",
       "path": "/downloads",
       "no_auth": true,
@@ -189,7 +189,7 @@
     },
     {
       "name": "visited",
-      "description": "Check whether a URL or domain was visited.",
+      "description": "Check whether a specific URL or domain was visited, returning first/last seen, total and typed visit counts, and referrer examples. Required: target (URL or domain). Optional: limit. Use 'search' for keyword lookups across many pages instead.",
       "method": "GET",
       "path": "/visited",
       "no_auth": true,
@@ -211,7 +211,7 @@
     },
     {
       "name": "report",
-      "description": "Activity report.",
+      "description": "Summarize browsing activity over the --since window: per-day and per-hour visit counts, top domains, and a productive/neutral/distracting split. Optional: since, device, limit. Use 'profile' for a higher-level behavioral summary instead.",
       "method": "GET",
       "path": "/report",
       "no_auth": true,
@@ -238,7 +238,7 @@
     },
     {
       "name": "heatmap",
-      "description": "Hour x weekday activity grid.",
+      "description": "Render a weekday-by-hour activity heatmap of visit counts over the --since window. Optional: since, device, limit. Returns a 7x24 grid of counts (request --json for the raw grid). Shows when during the week the user browses most.",
       "method": "GET",
       "path": "/heatmap",
       "no_auth": true,
@@ -265,7 +265,7 @@
     },
     {
       "name": "journeys",
-      "description": "Chrome journeys cluster listing.",
+      "description": "List the browser's own topic clusters (Journeys) over the --since window, with cluster labels and top pages. Optional: since, limit. Note: unavailable on Safari, which has no journeys tables (reports unavailable); use 'topic' for FTS-based topic grouping instead.",
       "method": "GET",
       "path": "/journeys",
       "no_auth": true,
@@ -286,7 +286,7 @@
     },
     {
       "name": "timeline",
-      "description": "Sessionized browsing timeline.",
+      "description": "Reconstruct ordered browsing sessions for a date or since/until window, splitting into sessions on a --gap idle threshold (e.g. 30m). Optional: since, until, device, gap, limit. Returns sessions with their ordered page visits. Use for 'what was I doing on <day>' narratives.",
       "method": "GET",
       "path": "/timeline",
       "no_auth": true,
@@ -325,7 +325,7 @@
     },
     {
       "name": "rabbitholes",
-      "description": "Detect productive-to-distracting drift.",
+      "description": "Find browsing sessions over the --since window that started on productive pages and drifted into distracting ones, split on a --gap idle threshold. Optional: since, device, gap, limit. Note: unavailable on Safari, which omits navigation transition types from History.db (reports unavailable).",
       "method": "GET",
       "path": "/rabbitholes",
       "no_auth": true,
@@ -358,7 +358,7 @@
     },
     {
       "name": "dwell",
-      "description": "Derived dwell-time estimate.",
+      "description": "Estimate time-on-site per domain over the --since window by differencing consecutive visit timestamps, capping each visit's dwell at --gap (default 30m). Optional: since, device, gap, limit. Returns ranked domains with estimated total dwell. Note: an inference from visit gaps, not a precise measurement.",
       "method": "GET",
       "path": "/dwell",
       "no_auth": true,
@@ -391,7 +391,7 @@
     },
     {
       "name": "graph",
-      "description": "Navigation graph from visit referrers.",
+      "description": "Build a navigation graph of page nodes and referrer edges (which page led to which) over the --since window. Optional: since, domain, device, format (json|dot for Graphviz), limit. Note: edges are sparse on Safari, which lacks from_visit referrer links in History.db.",
       "method": "GET",
       "path": "/graph",
       "no_auth": true,
@@ -430,7 +430,7 @@
     },
     {
       "name": "profile",
-      "description": "Behavioral self-profile.",
+      "description": "Summarize the user's browsing self over the --since window: peak hours, busiest weekday, top domains, and the productive/neutral/distracting split. Optional: since, device, limit. The highest-level behavioral summary; use 'report' for raw per-day/per-hour counts.",
       "method": "GET",
       "path": "/profile",
       "no_auth": true,
@@ -457,7 +457,7 @@
     },
     {
       "name": "devices",
-      "description": "List local/synced/imported/extension origin buckets.",
+      "description": "List visit-origin buckets (this-device vs synced) with visit counts, first/last seen, and top domains. Optional: limit. Note: Safari reports a single local origin and a synced bucket, with no per-device identity (unlike Chrome). Use the 'device' filter on other commands to scope by origin.",
       "method": "GET",
       "path": "/devices",
       "no_auth": true,
@@ -472,7 +472,7 @@
     },
     {
       "name": "topic",
-      "description": "Merge FTS and journeys by topic.",
+      "description": "Gather everything the user browsed about a named topic over the --since window via full-text page matches, merging in the browser's Journeys clusters when the source has them. Required: name. Optional: since, limit. Returns the matching pages grouped under the topic.",
       "method": "GET",
       "path": "/topic",
       "no_auth": true,
@@ -500,7 +500,7 @@
     },
     {
       "name": "sql",
-      "description": "Run SELECT-only SQL on snapshot.",
+      "description": "Run a read-only SELECT query against the snapshot's history tables for custom analysis the other tools don't cover. Required: query (non-SELECT statements are rejected). Optional: limit. Returns the result rows as JSON. The connection is enforced read-only via PRAGMA query_only.",
       "method": "GET",
       "path": "/sql",
       "no_auth": true,
@@ -522,7 +522,7 @@
     },
     {
       "name": "sync",
-      "description": "Snapshot and index browser history.",
+      "description": "Snapshot the live Safari history DB into the local cache and rebuild the FTS index; run this first so the read tools have fresh data. Optional: profile, accumulate (pass true to also append into the durable archive). Writes local state (not read-only). Returns the synced page/visit counts.",
       "method": "POST",
       "path": "/sync",
       "no_auth": true,
@@ -537,7 +537,7 @@
     },
     {
       "name": "doctor",
-      "description": "Health-check source and snapshot.",
+      "description": "Health-check the Safari history source and the local snapshot: reports whether the source DB is reachable, snapshot freshness, row counts, and archive state. Optional: profile. Run this to diagnose empty results or 'db not found' errors before other tools.",
       "method": "GET",
       "path": "/doctor",
       "no_auth": true,

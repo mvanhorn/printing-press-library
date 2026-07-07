@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "freshservice-ratelimit-toctou",
+  "applied_at": "2026-05-13",
+  "base_run_id": "20260512-170855",
+  "base_printing_press_version": "4.5.0",
+  "summary": "Replace `Wait()`'s lock/unlock/sleep/lock pattern with atomic next-slot reservation. Each caller now claims a specific wall-clock slot under the lock; the post-lock sleep waits until that slot, so concurrent callers cannot all wake at the same instant.",
+  "reason": "Greptile blocking (concurrency) finding on PR #533 (round 3). The generator's rate-limiter template read `lastRequest` under the lock, released the lock, then slept. Concurrent sync goroutines (default 4) all read the same `lastRequest`, slept the same duration, and fired together — defeating the rate-limit guarantee entirely and risking 429 bursts on every sync. The fix is the standard token-bucket-style reservation: under the lock, compute the next available slot from `lastRequest`, update `lastRequest` to that slot, release the lock, then sleep until the assigned slot.",
+  "files": [
+    "internal/cliutil/ratelimit.go"
+  ],
+  "validated_outcome": "Concurrent callers of `Wait()` now serialize to distinct wall-clock slots spaced by `1/rate` seconds. Verified via mental execution: 4 goroutines entering simultaneously now get slots `now`, `now+delay`, `now+2*delay`, `now+3*delay` rather than all firing at `now+delay`."
+}

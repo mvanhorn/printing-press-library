@@ -18,7 +18,7 @@
   "run_id": "20260601-020228",
   "catalog_entry": "tidycal",
   "category": "productivity",
-  "description": "Scheduling and booking API for meetings, contacts, booking types, and team calendars.",
+  "description": "Manage TidyCal scheduling data: bookings, contacts, booking types, team calendars, schedule briefs, triage, and availability shortlists.",
   "mcp_binary": "tidycal-pp-mcp",
   "mcp_tool_count": 18,
   "mcp_ready": "full",
@@ -69,5 +69,6 @@
       "command": "assisted-book",
       "description": "Book on behalf of a contact through an inspectable dry-run and explicit confirmation gate."
     }
-  ]
+  ],
+  "catalog_description": "Manage TidyCal scheduling data: bookings, contacts, booking types, team calendars, schedule briefs, triage, and availability shortlists."
 }

@@ -21,6 +21,12 @@ test("parseRegistry validates and returns registry entries", () => {
         description: "Sports scores",
         search_terms: ["NBA scores", "sports standings"],
         path: "library/sports/espn",
+        release: {
+          cli_name: "espn-pp-cli",
+          version: "2026.6.1",
+          released_at: "2026-06-01T00:00:00Z",
+          source_commit: "0123456789abcdef0123456789abcdef01234567",
+        },
       },
     ],
   });
@@ -28,6 +34,12 @@ test("parseRegistry validates and returns registry entries", () => {
   assert.equal(registry.entries.length, 1);
   assert.equal(registry.entries[0]?.name, "espn");
   assert.deepEqual(registry.entries[0]?.search_terms, ["NBA scores", "sports standings"]);
+  assert.deepEqual(registry.entries[0]?.release, {
+    cli_name: "espn-pp-cli",
+    version: "2026.6.1",
+    released_at: "2026-06-01T00:00:00Z",
+    source_commit: "0123456789abcdef0123456789abcdef01234567",
+  });
 });
 
 test("parseRegistry treats null optional search_terms as absent", () => {

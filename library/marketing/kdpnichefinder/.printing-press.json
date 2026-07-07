@@ -1,0 +1,63 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-06-16T07:32:31.559915Z",
+  "printing_press_version": "4.24.0",
+  "api_name": "kdpnichefinder",
+  "display_name": "KDP Niche Finder",
+  "cli_name": "kdpnichefinder-pp-cli",
+  "creator": {
+    "handle": "vcolombo",
+    "name": "Vincent Colombo"
+  },
+  "owner": "vcolombo",
+  "printer": "vcolombo",
+  "printer_name": "Vincent Colombo",
+  "spec_path": "kdpnichefinder-spec.yaml",
+  "spec_format": "internal",
+  "spec_checksum": "sha256:a2c82b1b980503c30e3fa427c347dfa3814429d90df5c1d8a68329b3ef34af95",
+  "run_id": "20260615-235211-3e30b66b",
+  "category": "marketing",
+  "description": "Every KDP Niche Finder bucket as a local research database — rank niches across buckets, track whether revenue is rising or fading, and export shortlists, none of which the web tool does.",
+  "mcp_binary": "kdpnichefinder-pp-mcp",
+  "mcp_tool_count": 7,
+  "mcp_ready": "partial",
+  "api_version": "0.1.0",
+  "auth_type": "cookie",
+  "novel_features": [
+    {
+      "name": "Opportunity rank",
+      "command": "rank",
+      "description": "Rank niches across all four buckets at once by a composite of estimated revenue, sales, and price."
+    },
+    {
+      "name": "Revenue drift",
+      "command": "drift",
+      "description": "Show which synced niches are rising or fading in estimated revenue versus an earlier snapshot."
+    },
+    {
+      "name": "Cross-bucket dedup",
+      "command": "dupes",
+      "description": "Find books that appear in more than one niche bucket (same ASIN) and show which buckets."
+    },
+    {
+      "name": "Publisher saturation",
+      "command": "saturation",
+      "description": "Per bucket, show how concentrated estimated revenue is among publishers (whale vs fragmented)."
+    },
+    {
+      "name": "Competitor inspect",
+      "command": "competitors",
+      "description": "For a focus book, list same-publisher and same-price-band competitors using the extracted ASIN."
+    },
+    {
+      "name": "KDP keyword CSV export",
+      "command": "export",
+      "description": "Export title, ASIN, price, estimated sales, and revenue as CSV for KDP backend keyword and cover work."
+    },
+    {
+      "name": "Title keyword frequency",
+      "command": "keywords",
+      "description": "Tokenize synced book titles and count keyword frequency to surface hot terms for a niche."
+    }
+  ]
+}

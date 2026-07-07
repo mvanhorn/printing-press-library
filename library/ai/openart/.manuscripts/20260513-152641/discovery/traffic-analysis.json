@@ -1,0 +1,100 @@
+{
+  "version": "1",
+  "schema_version": 1,
+  "api_name": "openart",
+  "base_url": "https://openart.ai",
+  "api_prefix": "/suite/api",
+  "auth_provider": "clerk",
+  "auth": {
+    "type": "cookie",
+    "session_cookie": "__session",
+    "anchor_cookies": ["__client_uat", "__client_uat_*"],
+    "import_via": "chrome"
+  },
+  "reachability": {
+    "mode": "browser_clearance_http",
+    "needs_browser_capture": false,
+    "needs_clearance_cookie": true,
+    "rationale": "API endpoints require Clerk session cookies (HttpOnly __session). Marketing pages clear plain HTTP. The printed CLI must import Chrome cookies and replay through standard HTTP or Surf."
+  },
+  "client_pattern": "rest",
+  "transport_hints": {
+    "uses_browser_http_transport": false,
+    "uses_chrome_cookie_import": true,
+    "supports_sse": true,
+    "sse_endpoint": "/suite/api/server-events",
+    "supports_websocket": true,
+    "websocket_endpoint": "/suite/api/realtime"
+  },
+  "submit_contract": {
+    "endpoint_template": "/suite/api/forms/creations/{capability_id_url_encoded}",
+    "method": "POST",
+    "capability_id_format": "<model-slug>:<form-type>",
+    "form_types_observed": ["text2video"],
+    "form_types_inferred": ["image2video", "image2image", "lipsync", "motionsync", "edit-image", "edit-video", "audio"],
+    "request_body_text2video": {
+      "prompt": "string",
+      "videoCount": "int",
+      "duration": "int (seconds)",
+      "aspectRatio": "string (e.g. 16:9)",
+      "resolution": "string (e.g. 720p, 1080p)",
+      "autoEnhancePrompt": "bool",
+      "enableUnlimited": "bool",
+      "model": "string (matches the slug part of capability_id)",
+      "projectId": "string",
+      "folderId": "string|null"
+    },
+    "response": {
+      "historyId": "string",
+      "resourceIds": "[]string"
+    }
+  },
+  "polling_contract": {
+    "per_resource_endpoint": "/suite/api/resources/{resource_id}",
+    "per_history_endpoint": "/suite/api/history/{history_id}",
+    "method": "GET",
+    "status_field": "data.status",
+    "completed_value": "completed",
+    "url_field": "data.url",
+    "thumbnail_field": "data.thumbnailUrl",
+    "metadata_field": "data.metadata",
+    "recommended_interval_seconds": 5,
+    "max_wait_seconds": 1200,
+    "rationale": "Grok Imagine completed in ~16s for a 5s 720p video. Seedance 2 is reported by the user to take ~10 minutes per video at default settings. Cap at 20 minutes to cover the slowest case."
+  },
+  "credit_contract": {
+    "balance_endpoint": "/suite/api/user/my-info",
+    "balance_field": "free_credit_balance",
+    "ledger_endpoint": "/suite/api/credits/logs",
+    "ledger_entry_shape": {
+      "type": "CONSUME|RECHARGE|REFUND",
+      "amount": "int (negative for spend)",
+      "balanceBefore": "int",
+      "balanceAfter": "int",
+      "reference": {"businessType": "<capability_id>", "businessId": "string"},
+      "businessDetails": [{"subBusinessType": "<capability_id>", "unitCredits": "int", "quantity": "int"}]
+    }
+  },
+  "media_library_contract": {
+    "list_endpoint": "/suite/api/resources",
+    "query_params": ["cursor", "folderIdNull", "limit", "projectId", "resourceType", "tool"],
+    "page_size_default": 20,
+    "cursor_field_in_response": "cursor"
+  },
+  "endpoints_observed_count": 38,
+  "models_observed": [
+    {"slug": "byte-plus-seedance-2", "name": "Seedance 2.0", "vendor": "BytePlus", "family": "video", "features": ["Reference", "Start/End", "Audio"], "resolution_range": "480-1080p", "duration_range": "4-15s", "credits_per_video_default": 800, "default_resolution": "720p", "default_duration": 10, "user_headline_model": true},
+    {"slug": "kling2-6", "name": "Kling 2.6", "vendor": "Kling", "family": "video", "features": ["Start/End", "Audio"], "resolution_range": "720-1080p", "duration_range": "5-10s", "credits_per_video_default": 100},
+    {"slug": "grok-imagine", "name": "Grok Imagine", "vendor": "xAI", "family": "video", "features": ["Start Frame", "Audio"], "resolution_range": "480-720p", "duration_range": "1-15s", "credits_per_video_default": 150, "tier": "fast"}
+  ],
+  "models_seen_in_picker_inferred_slugs": [
+    {"name": "Kling 3.0 Omni", "vendor": "Kling", "family": "video"},
+    {"name": "Kling 3.0", "vendor": "Kling", "family": "video"},
+    {"name": "HappyHorse", "vendor": "?", "family": "video"},
+    {"name": "Wan 2.7", "vendor": "Wan", "family": "video"},
+    {"name": "Wan 2.6", "vendor": "Wan", "family": "video"},
+    {"name": "Veo 3.1", "vendor": "Google DeepMind", "family": "video"},
+    {"name": "Seedance 1.5 Pro", "vendor": "BytePlus", "family": "video"}
+  ],
+  "captured_at": "2026-05-13T15:32:00Z"
+}

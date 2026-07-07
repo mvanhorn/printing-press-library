@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "id": "greptile-config-dead-check",
+  "applied_at": "2026-05-13",
+  "base_run_id": "20260513-115144",
+  "base_printing_press_version": "4.3.0",
+  "summary": "Drop redundant second `c.CompanyPpContactEmail == \"\"` check in AuthHeader (token already aliases the field; earlier guard returned).",
+  "reason": "Dead-code cleanup flagged by Greptile review.",
+  "files": [
+    "internal/config/config.go"
+  ]
+}

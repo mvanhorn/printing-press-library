@@ -1,0 +1,11 @@
+{
+  "schema_version": 2,
+  "id": "isitagentready-novel-command-impls",
+  "applied_at": "2026-06-22",
+  "base_run_id": "20260622-061602-6c74c750",
+  "base_printing_press_version": "4.25.0",
+  "summary": "Implemented the six generator-scaffolded novel-command stubs (gate, open-advice, history, diff, compare, batch) with real logic, plus pp:no-error-path-probe annotations.",
+  "reason": "The generator emits TODO stubs for novel_features; the transcendence logic is hand-built on the local scan store, and the scan API returns 200+siteError for any URL so these commands opt out of the dogfood error-path probe.",
+  "files": ["internal/cli/gate.go", "internal/cli/open_advice.go", "internal/cli/history.go", "internal/cli/diff.go", "internal/cli/compare.go", "internal/cli/batch.go"],
+  "validated_outcome": "go test ./internal/cli (incl. seeded-store behavior tests) and full live dogfood pass."
+}

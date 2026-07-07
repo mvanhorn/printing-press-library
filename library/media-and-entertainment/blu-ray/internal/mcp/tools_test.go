@@ -4,8 +4,12 @@
 package mcp
 
 import (
+	"context"
+	"encoding/json"
 	"strings"
 	"testing"
+
+	mcplib "github.com/mark3labs/mcp-go/mcp"
 )
 
 // TestValidateReadOnlyQuery_AllowsSelectAndWITH pins the contract: the MCP
@@ -30,6 +34,13 @@ func TestValidateReadOnlyQuery_AllowsSelectAndWITH(t *testing.T) {
 		"/* a *//* b */ SELECT 1",
 		"WITH r AS (SELECT 1) SELECT * FROM r",
 		"with r as (select 1) select * from r",
+		"SELECT 1;",
+		"SELECT 1; -- trailing comment",
+		"SELECT 1; /* trailing comment */",
+		"SELECT * FROM resources WHERE id = 'a;b'",
+		`SELECT * FROM "semi;colon"`,
+		"SELECT * FROM `semi;colon`",
+		"SELECT * FROM [semi;colon]",
 	}
 	for _, q := range allowed {
 		if err := validateReadOnlyQuery(q); err != nil {
@@ -64,6 +75,13 @@ func TestValidateReadOnlyQuery_RejectsBypassVectors(t *testing.T) {
 		"-- x\nATTACH DATABASE '/tmp/x.db' AS evil",
 		";VACUUM INTO '/tmp/x.db'",
 		"; ; VACUUM INTO '/tmp/x.db'",
+		"SELECT 1; ATTACH DATABASE 'file:/tmp/x?mode=rwc' AS evil; CREATE TABLE evil.t(x)",
+		"SELECT 1; DROP TABLE resources",
+		"SELECT 1; VACUUM INTO '/tmp/x.db'",
+		"WITH r AS (SELECT 1) SELECT * FROM r; ATTACH DATABASE '/tmp/x.db' AS evil",
+		"SELECT 1 /* c */ ; ATTACH DATABASE '/tmp/x.db' AS evil",
+		"SELECT 'a;b'; VACUUM INTO '/tmp/x.db'",
+		`SELECT * FROM "semi;colon"; ATTACH DATABASE '/tmp/x.db' AS evil`,
 		"/* a */ /* b */ INSERT INTO t VALUES (1)",
 		"/* outer /* not nested */ */ SELECT 1", // SQLite doesn't nest, so trailing "*/" closes; second SELECT remains. Reject — the gate must err on the side of caution when the leading shape is suspicious.
 		"-- only a comment",
@@ -75,6 +93,36 @@ func TestValidateReadOnlyQuery_RejectsBypassVectors(t *testing.T) {
 	for _, q := range rejected {
 		if err := validateReadOnlyQuery(q); err == nil {
 			t.Errorf("validateReadOnlyQuery(%q) = nil, want error", q)
+		}
+	}
+}
+
+func TestHasTrailingSQLStatement(t *testing.T) {
+	cases := []struct {
+		name  string
+		query string
+		want  bool
+	}{
+		{name: "single select", query: "SELECT 1", want: false},
+		{name: "trailing terminator", query: "SELECT 1;", want: false},
+		{name: "trailing terminator and comment", query: "SELECT 1; -- ok", want: false},
+		{name: "two statements", query: "SELECT 1; SELECT 2", want: true},
+		{name: "attach after select", query: "SELECT 1; ATTACH DATABASE '/tmp/x.db' AS evil", want: true},
+		{name: "semicolon in single quote", query: "SELECT 'a;b'", want: false},
+		{name: "escaped single quote", query: "SELECT 'a'';b'", want: false},
+		{name: "semicolon in double quote", query: `SELECT * FROM "a;b"`, want: false},
+		{name: "escaped double quote", query: `SELECT * FROM "a"";b"`, want: false},
+		{name: "semicolon in backtick", query: "SELECT * FROM `a;b`", want: false},
+		{name: "escaped backtick", query: "SELECT * FROM `a``;b`", want: false},
+		{name: "semicolon in bracket", query: "SELECT * FROM [a;b]", want: false},
+		{name: "semicolon in line comment", query: "SELECT 1 -- ;\n", want: false},
+		{name: "statement after line comment", query: "SELECT 1 -- ;\n; SELECT 2", want: true},
+		{name: "semicolon in block comment", query: "SELECT 1 /* ; */", want: false},
+		{name: "statement after block comment", query: "SELECT 1 /* ; */; SELECT 2", want: true},
+	}
+	for _, c := range cases {
+		if got := hasTrailingSQLStatement(c.query); got != c.want {
+			t.Errorf("hasTrailingSQLStatement(%q) [%s] = %v, want %v", c.query, c.name, got, c.want)
 		}
 	}
 }
@@ -107,4 +155,202 @@ func TestStripLeadingSQLNoise(t *testing.T) {
 			t.Errorf("stripLeadingSQLNoise(%q) = %q, want %q", c.in, got, c.want)
 		}
 	}
+}
+
+// TestHandleContext_SurfacesReleasesCatalogSchema guards the DEV-87 schema
+// surfacing so future changes keep steering agents to the canonical local
+// catalog table instead of probing the resources response cache.
+func TestHandleContext_SurfacesReleasesCatalogSchema(t *testing.T) {
+	res, err := handleContext(context.Background(), mcplib.CallToolRequest{})
+	if err != nil {
+		t.Fatalf("handleContext: %v", err)
+	}
+	var ctx map[string]any
+	if err := json.Unmarshal([]byte(mcpTextContent(t, res)), &ctx); err != nil {
+		t.Fatalf("unmarshal context: %v", err)
+	}
+	tables, ok := ctx["local_tables"].([]any)
+	if !ok || len(tables) == 0 {
+		t.Fatalf("local_tables missing or empty: %v", ctx["local_tables"])
+	}
+	found := false
+	for _, e := range tables {
+		if m, ok := e.(map[string]any); ok && m["name"] == "releases_catalog" {
+			found = true
+			break
+		}
+	}
+	if !found {
+		t.Error("local_tables must surface releases_catalog so agents stop probing the empty resources scaffold")
+	}
+	tips, _ := ctx["query_tips"].([]any)
+	if len(tips) == 0 {
+		t.Fatal("query_tips missing")
+	}
+	if first, _ := tips[0].(string); !strings.Contains(first, "releases_catalog") {
+		t.Errorf("first query_tip should steer to releases_catalog, got: %q", first)
+	}
+}
+
+func TestMCPToolResultTextBoundsListResponses(t *testing.T) {
+	items := make([]string, 0, mcpToolResultMaxItems+25)
+	for i := 0; i < mcpToolResultMaxItems+25; i++ {
+		items = append(items, strings.Repeat("x", 1600))
+	}
+	data, err := json.Marshal(items)
+	if err != nil {
+		t.Fatalf("marshal fixture: %v", err)
+	}
+
+	text := mcpTextContent(t, mcpToolResultText("GET", data))
+	if len(text) > mcpToolResultMaxBytes {
+		t.Fatalf("bounded result length = %d, want <= %d", len(text), mcpToolResultMaxBytes)
+	}
+
+	var envelope struct {
+		Count         int               `json:"count"`
+		Items         []json.RawMessage `json:"items"`
+		Truncated     bool              `json:"truncated"`
+		ReturnedCount int               `json:"returned_count"`
+		OriginalBytes int               `json:"original_bytes"`
+	}
+	if err := json.Unmarshal([]byte(text), &envelope); err != nil {
+		t.Fatalf("bounded list result must remain valid JSON: %v\n%s", err, text)
+	}
+	if !envelope.Truncated {
+		t.Fatalf("bounded list result did not mark truncation: %s", text)
+	}
+	if envelope.Count != len(items) {
+		t.Fatalf("count = %d, want %d", envelope.Count, len(items))
+	}
+	if envelope.ReturnedCount != len(envelope.Items) {
+		t.Fatalf("returned_count = %d, want item count %d", envelope.ReturnedCount, len(envelope.Items))
+	}
+	if envelope.OriginalBytes != len(data) {
+		t.Fatalf("original_bytes = %d, want %d", envelope.OriginalBytes, len(data))
+	}
+}
+
+func TestMCPToolResultTextBoundsSingleArrayEnvelope(t *testing.T) {
+	groups := make([]map[string]string, 0, mcpToolResultMaxItems+25)
+	for i := 0; i < mcpToolResultMaxItems+25; i++ {
+		groups = append(groups, map[string]string{
+			"id":   strings.Repeat("g", 8),
+			"name": strings.Repeat("verbose group name ", 90),
+		})
+	}
+	data, err := json.Marshal(map[string]any{
+		"groups": groups,
+		"cursor": "next-page",
+	})
+	if err != nil {
+		t.Fatalf("marshal fixture: %v", err)
+	}
+
+	text := mcpTextContent(t, mcpToolResultText("GET", data))
+	if len(text) > mcpToolResultMaxBytes {
+		t.Fatalf("bounded result length = %d, want <= %d", len(text), mcpToolResultMaxBytes)
+	}
+
+	var envelope struct {
+		Groups        []json.RawMessage `json:"groups"`
+		Cursor        string            `json:"cursor"`
+		Truncated     bool              `json:"_pp_truncated"`
+		TotalCount    int               `json:"_pp_total_count"`
+		ReturnedCount int               `json:"_pp_returned_count"`
+	}
+	if err := json.Unmarshal([]byte(text), &envelope); err != nil {
+		t.Fatalf("bounded envelope result must remain valid JSON: %v\n%s", err, text)
+	}
+	if !envelope.Truncated {
+		t.Fatalf("bounded envelope result did not mark truncation: %s", text)
+	}
+	if envelope.Cursor != "next-page" {
+		t.Fatalf("cursor = %q, want preserved metadata", envelope.Cursor)
+	}
+	if envelope.TotalCount != len(groups) {
+		t.Fatalf("total_count = %d, want %d", envelope.TotalCount, len(groups))
+	}
+	if envelope.ReturnedCount != len(envelope.Groups) {
+		t.Fatalf("returned_count = %d, want group count %d", envelope.ReturnedCount, len(envelope.Groups))
+	}
+}
+
+func TestMCPToolResultTextFallsBackToOversizedPreview(t *testing.T) {
+	data, err := json.Marshal(map[string]string{
+		"blob": strings.Repeat("z", mcpToolResultMaxBytes+10000),
+	})
+	if err != nil {
+		t.Fatalf("marshal fixture: %v", err)
+	}
+
+	text := mcpTextContent(t, mcpToolResultText("GET", data))
+	if len(text) > mcpToolResultMaxBytes {
+		t.Fatalf("preview result length = %d, want <= %d", len(text), mcpToolResultMaxBytes)
+	}
+
+	var envelope struct {
+		Truncated     bool   `json:"truncated"`
+		OriginalBytes int    `json:"original_bytes"`
+		Preview       string `json:"preview"`
+	}
+	if err := json.Unmarshal([]byte(text), &envelope); err != nil {
+		t.Fatalf("preview result must remain valid JSON: %v\n%s", err, text)
+	}
+	if !envelope.Truncated {
+		t.Fatalf("preview result did not mark truncation: %s", text)
+	}
+	if envelope.OriginalBytes != len(data) {
+		t.Fatalf("original_bytes = %d, want %d", envelope.OriginalBytes, len(data))
+	}
+	if envelope.Preview == "" {
+		t.Fatalf("preview result should include a bounded preview")
+	}
+}
+
+func TestMCPToolResultTextBoundsOversizedNonGETResponses(t *testing.T) {
+	data, err := json.Marshal(map[string]string{
+		"blob": strings.Repeat("z", mcpToolResultMaxBytes+10000),
+	})
+	if err != nil {
+		t.Fatalf("marshal fixture: %v", err)
+	}
+
+	text := mcpTextContent(t, mcpToolResultText("POST", data))
+	if len(text) > mcpToolResultMaxBytes {
+		t.Fatalf("preview result length = %d, want <= %d", len(text), mcpToolResultMaxBytes)
+	}
+
+	var envelope struct {
+		Truncated     bool   `json:"truncated"`
+		OriginalBytes int    `json:"original_bytes"`
+		Preview       string `json:"preview"`
+	}
+	if err := json.Unmarshal([]byte(text), &envelope); err != nil {
+		t.Fatalf("preview result must remain valid JSON: %v\n%s", err, text)
+	}
+	if !envelope.Truncated {
+		t.Fatalf("preview result did not mark truncation: %s", text)
+	}
+	if envelope.OriginalBytes != len(data) {
+		t.Fatalf("original_bytes = %d, want %d", envelope.OriginalBytes, len(data))
+	}
+	if envelope.Preview == "" {
+		t.Fatalf("preview result should include a bounded preview")
+	}
+}
+
+func mcpTextContent(t *testing.T, result *mcplib.CallToolResult) string {
+	t.Helper()
+	if result == nil {
+		t.Fatalf("result is nil")
+	}
+	if len(result.Content) != 1 {
+		t.Fatalf("result content length = %d, want 1", len(result.Content))
+	}
+	content, ok := result.Content[0].(mcplib.TextContent)
+	if !ok {
+		t.Fatalf("result content type = %T, want mcp.TextContent", result.Content[0])
+	}
+	return content.Text
 }

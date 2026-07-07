@@ -1,0 +1,256 @@
+{
+  "api_name": "intervals.icu",
+  "novelty_score": 0,
+  "alternatives": [
+    {
+      "name": "hhopke/intervals-icu-mcp",
+      "url": "https://github.com/hhopke/intervals-icu-mcp",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 58,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "eddmann/intervals-icu-mcp",
+      "url": "https://github.com/eddmann/intervals-icu-mcp",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 48,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "mvilanova/intervals-mcp-server",
+      "url": "https://github.com/mvilanova/intervals-mcp-server",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "q050cr/intervals-icu",
+      "url": "https://github.com/q050cr/intervals-icu",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "rday/py-intervalsicu",
+      "url": "https://github.com/rday/py-intervalsicu",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "freekode/tp2intervals",
+      "url": "https://github.com/freekode/tp2intervals",
+      "language": "Kotlin",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-06-02T00:00:00Z",
+  "novel_features": [
+    {
+      "name": "Local training database",
+      "command": "sync",
+      "description": "Sync your full activity, wellness, event, workout and gear history into a local SQLite database for offline search and SQL.",
+      "rationale": "Every existing intervals.icu tool proxies live API calls; none persists a local store, so none supports offline query or cross-season analysis.",
+      "example": "intervals-icu-pp-cli sync --since 365d",
+      "why_it_matters": "Reach for this first so search/sql/form work offline without hammering the API on every query.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Fitness \u0026 form trend",
+      "command": "form",
+      "description": "Compute CTL (fitness), ATL (fatigue) and TSB/form from your synced activity load and show the trend.",
+      "rationale": "Requires a local time series of training load that only exists once activities are persisted locally; no other CLI computes it.",
+      "example": "intervals-icu-pp-cli form --days 90 --json",
+      "why_it_matters": "Use to answer 'am I fresh enough to race / overreaching?' without opening the web UI.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Season curve comparison",
+      "command": "curve compare",
+      "description": "Compare best power/pace/HR curves between two date ranges from the local store.",
+      "rationale": "Requires joining best-effort curves across arbitrary historical ranges held locally; the API returns one range at a time.",
+      "example": "intervals-icu-pp-cli curve compare --metric power --this 90d --vs 365d --json",
+      "why_it_matters": "Use to quantify season-over-season fitness change for a given duration.",
+      "group": "Offline analysis"
+    },
+    {
+      "name": "Wellness vs load correlation",
+      "command": "wellness trends",
+      "description": "Correlate HRV / resting HR / sleep against training load over a window from the local store.",
+      "rationale": "Requires joining the wellness and activity time series locally; no single API call returns the correlation.",
+      "example": "intervals-icu-pp-cli wellness trends --days 60 --json",
+      "why_it_matters": "Use to spot whether HRV/resting-HR are tracking accumulated fatigue.",
+      "group": "Offline analysis"
+    },
+    {
+      "name": "Calendar catch-up window",
+      "command": "since",
+      "description": "Show planned workouts, completed activities, and what was missed within a recent time window.",
+      "rationale": "Requires time-windowed aggregation across events and activities that no single endpoint provides.",
+      "example": "intervals-icu-pp-cli since 7d --json",
+      "why_it_matters": "Use for a quick 'what happened / what's coming' digest after time away.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Gear mileage rollup",
+      "command": "gear status",
+      "description": "Roll up distance/time per gear component against reminders to flag what needs service or replacement.",
+      "rationale": "Requires aggregating gear usage and reminders locally into one view; the API exposes them piecemeal.",
+      "example": "intervals-icu-pp-cli gear status --json",
+      "why_it_matters": "Use to catch chain/tyre/shoe replacement thresholds before they are overdue.",
+      "group": "Offline analysis"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Local training database",
+      "command": "sync",
+      "description": "Sync your full activity, wellness, event, workout and gear history into a local SQLite database for offline search and SQL.",
+      "rationale": "Every existing intervals.icu tool proxies live API calls; none persists a local store, so none supports offline query or cross-season analysis.",
+      "example": "intervals-icu-pp-cli sync --since 365d",
+      "why_it_matters": "Reach for this first so search/sql/form work offline without hammering the API on every query.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Fitness \u0026 form trend",
+      "command": "form",
+      "description": "Compute CTL (fitness), ATL (fatigue) and TSB/form from your synced activity load and show the trend.",
+      "rationale": "Requires a local time series of training load that only exists once activities are persisted locally; no other CLI computes it.",
+      "example": "intervals-icu-pp-cli form --days 90 --json",
+      "why_it_matters": "Use to answer 'am I fresh enough to race / overreaching?' without opening the web UI.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Season curve comparison",
+      "command": "curve compare",
+      "description": "Compare best power/pace/HR curves between two date ranges from the local store.",
+      "rationale": "Requires joining best-effort curves across arbitrary historical ranges held locally; the API returns one range at a time.",
+      "example": "intervals-icu-pp-cli curve compare --metric power --this 90d --vs 365d --json",
+      "why_it_matters": "Use to quantify season-over-season fitness change for a given duration.",
+      "group": "Offline analysis"
+    },
+    {
+      "name": "Wellness vs load correlation",
+      "command": "wellness trends",
+      "description": "Correlate HRV / resting HR / sleep against training load over a window from the local store.",
+      "rationale": "Requires joining the wellness and activity time series locally; no single API call returns the correlation.",
+      "example": "intervals-icu-pp-cli wellness trends --days 60 --json",
+      "why_it_matters": "Use to spot whether HRV/resting-HR are tracking accumulated fatigue.",
+      "group": "Offline analysis"
+    },
+    {
+      "name": "Calendar catch-up window",
+      "command": "since",
+      "description": "Show planned workouts, completed activities, and what was missed within a recent time window.",
+      "rationale": "Requires time-windowed aggregation across events and activities that no single endpoint provides.",
+      "example": "intervals-icu-pp-cli since 7d --json",
+      "why_it_matters": "Use for a quick 'what happened / what's coming' digest after time away.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Gear mileage rollup",
+      "command": "gear status",
+      "description": "Roll up distance/time per gear component against reminders to flag what needs service or replacement.",
+      "rationale": "Requires aggregating gear usage and reminders locally into one view; the API exposes them piecemeal.",
+      "example": "intervals-icu-pp-cli gear status --json",
+      "why_it_matters": "Use to catch chain/tyre/shoe replacement thresholds before they are overdue.",
+      "group": "Offline analysis"
+    }
+  ],
+  "auth": {
+    "canonical_env_var": "INTERVALS_ICU_API_KEY"
+  },
+  "narrative": {
+    "display_name": "Intervals.icu",
+    "headline": "The first intervals.icu CLI with a local training database — offline search, SQL, and fitness/form analytics no other tool has.",
+    "value_prop": "Sync your activities, wellness, calendar, workouts and gear into local SQLite, then search, run SQL, and compute fitness/form trends offline. Wraps the full intervals.icu REST API for live reads and writes, and adds analytics every existing MCP server and wrapper leaves on the table.",
+    "quickstart": [
+      {
+        "command": "intervals-icu-pp-cli doctor --dry-run",
+        "comment": "Check auth and API reachability first."
+      },
+      {
+        "command": "intervals-icu-pp-cli sync --since 365d",
+        "comment": "Populate the local store so offline commands work."
+      },
+      {
+        "command": "intervals-icu-pp-cli search \"threshold\"",
+        "comment": "Find activities by name/tag offline."
+      },
+      {
+        "command": "intervals-icu-pp-cli form --days 90",
+        "comment": "See your fitness/fatigue/form trend."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "401 Unauthorized",
+        "fix": "Set INTERVALS_ICU_API_KEY to your key from intervals.icu Settings - Developer; username is the literal API_KEY."
+      },
+      {
+        "symptom": "search/sql return nothing",
+        "fix": "Run sync first; those commands read the local store, not the live API."
+      }
+    ],
+    "when_to_use": "Use when an agent or user needs to query intervals.icu training data programmatically: pulling activities, wellness, calendar and workouts, computing fitness/form, or comparing performance curves across seasons. Best when repeated queries make a local synced store worthwhile.",
+    "anti_triggers": [
+      "Do not use for real-time device streaming during a ride",
+      "Do not use to edit another athlete's data without coach permissions",
+      "Do not use as a replacement for the web UI's interactive charts"
+    ],
+    "recipes": [
+      {
+        "title": "Season-over-season power",
+        "command": "intervals-icu-pp-cli curve compare --metric power --this 90d --vs 365d --json --select this.peaks,vs.peaks",
+        "explanation": "Compare recent best power against a year ago, selecting just the peak arrays."
+      },
+      {
+        "title": "Fresh enough to race?",
+        "command": "intervals-icu-pp-cli form --days 42 --json",
+        "explanation": "Show six weeks of fitness/fatigue/form to judge taper readiness."
+      },
+      {
+        "title": "Catch up after a break",
+        "command": "intervals-icu-pp-cli since 14d",
+        "explanation": "Digest of planned, completed and missed sessions over two weeks."
+      }
+    ],
+    "trigger_phrases": [
+      "sync my intervals.icu data",
+      "what's my form",
+      "compare my power this season",
+      "show my wellness trends",
+      "what training did I miss",
+      "use intervals.icu",
+      "run intervals.icu"
+    ]
+  }
+}

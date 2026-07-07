@@ -1,0 +1,4 @@
+{
+  "schema_version": 2,
+  "note": "Hand-authored novel layer + Expensify wire-protocol patches carried onto the 4.25.0 base. The Expensify API is non-RESTful (form-encoded bodies with authToken in the body, jsonCode in a 200 response), which the spec format cannot express; those request/response patches must be re-applied on every reprint until the generator gains a form-encoding option."
+}

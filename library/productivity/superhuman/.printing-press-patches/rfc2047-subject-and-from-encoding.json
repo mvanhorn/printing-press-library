@@ -1,0 +1,15 @@
+{
+  "schema_version": 2,
+  "id": "rfc2047-subject-and-from-encoding",
+  "applied_at": "2026-05-27",
+  "base_run_id": "20260512-165241",
+  "base_printing_press_version": "4.5.1",
+  "summary": "RFC 2047 B-encode non-ASCII Subject and From-display headers in the Gmail-API RFC822 builder. Adds mime.BEncoding.Encode + (&mail.Address{}).String() wrapping at both sendViaGmailAPI and sendGmailWithRefresh; ASCII-only headers stay unchanged.",
+  "reason": "2026-05-22 Esper-to-Gradle send: subject contained 'Pricing -> consumption' (U+2192). Recipients saw the two-round CP-1252 -> UTF-8 mojibake cascade 'Pricing C-tilde-2 Aacute-...' on the wire. Root cause was raw concatenation of UTF-8 bytes onto RFC 5322 header lines, which mandates 7-bit ASCII; downstream MTAs each apply heuristic charset decoding, producing the cascade. mime.BEncoding.Encode short-circuits to the raw string for pure ASCII (no test regressions); wraps non-ASCII as =?UTF-8?B?...?= encoded-words that round-trip cleanly through net/mail.ParseAddress and mime.WordDecoder.",
+  "files": [
+    "internal/cli/send.go",
+    "internal/cli/send_rfc2047_test.go"
+  ],
+  "validated_outcome": "send_rfc2047_test.go: TestEncodeRFC2047Subject_NoMojibakeSequence asserts the cascade fingerprint bytes are absent from the encoded output. TestGmailWirePayload_SubjectAndFromEncoded asserts the base64url-decoded RFC822 carries =?UTF-8?... for non-ASCII subject and 6 of 6 round-trip tests pass.",
+  "upstream_issue": "TODO: file generator follow-up on cli-printing-press to fix the same defect in every printed CLI's Gmail raw-body path"
+}

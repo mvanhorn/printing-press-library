@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "api-key-authheader-dead-code",
+  "applied_at": "2026-06-22",
+  "base_run_id": "20260622-071510",
+  "base_printing_press_version": "4.24.0",
+  "summary": "Keep the api_key `AuthHeader()` path minimal: return the saved access-key header value directly and omit OAuth-format helper code that the CLI never calls.",
+  "reason": "Gainsight uses a single API key credential, so the generated OAuth formatting helper and duplicate empty-token guard are dead code in this published CLI.",
+  "files": [
+    "internal/config/config.go"
+  ],
+  "validated_outcome": "`go test ./...`, `cli-printing-press publish validate`, `verify-skill`, and `verify-publish-package` pass after removing the unreachable guard and unused helper."
+}

@@ -1,0 +1,500 @@
+{
+  "api_name": "braze",
+  "base_url": "https://rest.iad-01.braze.com",
+  "description": "Read-first Braze REST API surface for marketing analytics, campaign inspection, content assets, and catalog lookup.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "mcp": {
+    "endpoint_tools": "hidden"
+  },
+  "auth": {
+    "type": "bearer_token",
+    "header": "Authorization",
+    "env_vars": [
+      "BRAZE_BEARER_AUTH"
+    ],
+    "env_var_specs": [
+      {
+        "name": "BRAZE_BEARER_AUTH",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    ]
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "campaigns_get-data-series",
+      "description": "Export campaign analytics over time. Required: campaign_id. Optional: length, ending_at. Returns the GenericObject.",
+      "method": "GET",
+      "path": "/campaigns/data_series",
+      "params": [
+        {
+          "name": "campaign_id",
+          "type": "string",
+          "location": "query",
+          "description": "Campaign id",
+          "required": true
+        },
+        {
+          "name": "length",
+          "type": "int",
+          "location": "query",
+          "description": "Length"
+        },
+        {
+          "name": "ending_at",
+          "type": "string",
+          "location": "query",
+          "description": "Ending at"
+        }
+      ]
+    },
+    {
+      "name": "campaigns_get-details",
+      "description": "Export metadata and configuration for a campaign. Required: campaign_id. Returns the GenericObject.",
+      "method": "GET",
+      "path": "/campaigns/details",
+      "params": [
+        {
+          "name": "campaign_id",
+          "type": "string",
+          "location": "query",
+          "description": "Campaign id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "campaigns_list",
+      "description": "Export a list of Braze campaigns. Optional: page, include_archived. Returns the GenericObject.",
+      "method": "GET",
+      "path": "/campaigns/list",
+      "params": [
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page"
+        },
+        {
+          "name": "include_archived",
+          "type": "bool",
+          "location": "query",
+          "description": "Include archived"
+        }
+      ]
+    },
+    {
+      "name": "canvas_get-data-series",
+      "description": "Export Canvas analytics over time. Required: canvas_id. Optional: length, ending_at. Returns the GenericObject.",
+      "method": "GET",
+      "path": "/canvas/data_series",
+      "params": [
+        {
+          "name": "canvas_id",
+          "type": "string",
+          "location": "query",
+          "description": "Canvas id",
+          "required": true
+        },
+        {
+          "name": "length",
+          "type": "int",
+          "location": "query",
+          "description": "Length"
+        },
+        {
+          "name": "ending_at",
+          "type": "string",
+          "location": "query",
+          "description": "Ending at"
+        }
+      ]
+    },
+    {
+      "name": "canvas_get-data-summary",
+      "description": "Export summarized Canvas analytics. Required: canvas_id. Optional: length, ending_at. Returns the GenericObject.",
+      "method": "GET",
+      "path": "/canvas/data_summary",
+      "params": [
+        {
+          "name": "canvas_id",
+          "type": "string",
+          "location": "query",
+          "description": "Canvas id",
+          "required": true
+        },
+        {
+          "name": "length",
+          "type": "int",
+          "location": "query",
+          "description": "Length"
+        },
+        {
+          "name": "ending_at",
+          "type": "string",
+          "location": "query",
+          "description": "Ending at"
+        }
+      ]
+    },
+    {
+      "name": "canvas_get-details",
+      "description": "Export metadata and configuration for a Canvas. Required: canvas_id. Returns the GenericObject.",
+      "method": "GET",
+      "path": "/canvas/details",
+      "params": [
+        {
+          "name": "canvas_id",
+          "type": "string",
+          "location": "query",
+          "description": "Canvas id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "canvas_list-canvases",
+      "description": "Export a list of Braze Canvases. Optional: page, include_archived. Returns the GenericObject.",
+      "method": "GET",
+      "path": "/canvas/list",
+      "params": [
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page"
+        },
+        {
+          "name": "include_archived",
+          "type": "bool",
+          "location": "query",
+          "description": "Include archived"
+        }
+      ]
+    },
+    {
+      "name": "catalogs_list",
+      "description": "List catalogs. Returns the GenericObject.",
+      "method": "GET",
+      "path": "/catalogs",
+      "params": []
+    },
+    {
+      "name": "catalogs_items_get-catalog",
+      "description": "Get a catalog item. Required: catalog_name, item_id. Returns the GenericObject.",
+      "method": "GET",
+      "path": "/catalogs/{catalog_name}/items/{item_id}",
+      "params": [
+        {
+          "name": "catalog_name",
+          "type": "string",
+          "location": "path",
+          "description": "Catalog name",
+          "required": true
+        },
+        {
+          "name": "item_id",
+          "type": "string",
+          "location": "path",
+          "description": "Item id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "catalogs_items_list-catalog",
+      "description": "List items in a catalog. Required: catalog_name. Optional: cursor. Returns the GenericObject.",
+      "method": "GET",
+      "path": "/catalogs/{catalog_name}/items",
+      "params": [
+        {
+          "name": "catalog_name",
+          "type": "string",
+          "location": "path",
+          "description": "Catalog name",
+          "required": true
+        },
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "Cursor"
+        }
+      ]
+    },
+    {
+      "name": "content-blocks_get-info",
+      "description": "Get content block details. Required: content_block_id. Returns the GenericObject.",
+      "method": "GET",
+      "path": "/content_blocks/info",
+      "params": [
+        {
+          "name": "content_block_id",
+          "type": "string",
+          "location": "query",
+          "description": "Content block id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "content-blocks_list",
+      "description": "List content blocks. Optional: page. Returns the GenericObject.",
+      "method": "GET",
+      "path": "/content_blocks/list",
+      "params": [
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page"
+        }
+      ]
+    },
+    {
+      "name": "custom-attributes_list",
+      "description": "Export custom attributes and metadata. Returns the GenericObject.",
+      "method": "GET",
+      "path": "/custom_attributes",
+      "params": []
+    },
+    {
+      "name": "events_get-data-series",
+      "description": "Export custom event analytics over time. Required: event. Optional: length, ending_at. Returns the GenericObject.",
+      "method": "GET",
+      "path": "/events/data_series",
+      "params": [
+        {
+          "name": "event",
+          "type": "string",
+          "location": "query",
+          "description": "Event",
+          "required": true
+        },
+        {
+          "name": "length",
+          "type": "int",
+          "location": "query",
+          "description": "Length"
+        },
+        {
+          "name": "ending_at",
+          "type": "string",
+          "location": "query",
+          "description": "Ending at"
+        }
+      ]
+    },
+    {
+      "name": "events_list-custom",
+      "description": "Export custom event definitions and metadata. Returns the GenericObject.",
+      "method": "GET",
+      "path": "/events",
+      "params": []
+    },
+    {
+      "name": "events_list-custom-names",
+      "description": "Export names of custom events recorded for an app group. Returns the GenericObject.",
+      "method": "GET",
+      "path": "/events/list",
+      "params": []
+    },
+    {
+      "name": "kpi_get-daily-active-users",
+      "description": "Export daily active user counts. Optional: length, ending_at. Returns the GenericObject.",
+      "method": "GET",
+      "path": "/kpi/dau/data_series",
+      "params": [
+        {
+          "name": "length",
+          "type": "int",
+          "location": "query",
+          "description": "Length"
+        },
+        {
+          "name": "ending_at",
+          "type": "string",
+          "location": "query",
+          "description": "Ending at"
+        }
+      ]
+    },
+    {
+      "name": "kpi_get-monthly-active-users",
+      "description": "Export monthly active user counts. Optional: length, ending_at. Returns the GenericObject.",
+      "method": "GET",
+      "path": "/kpi/mau/data_series",
+      "params": [
+        {
+          "name": "length",
+          "type": "int",
+          "location": "query",
+          "description": "Length"
+        },
+        {
+          "name": "ending_at",
+          "type": "string",
+          "location": "query",
+          "description": "Ending at"
+        }
+      ]
+    },
+    {
+      "name": "kpi_get-new-users",
+      "description": "Export daily new user counts. Optional: length, ending_at. Returns the GenericObject.",
+      "method": "GET",
+      "path": "/kpi/new_users/data_series",
+      "params": [
+        {
+          "name": "length",
+          "type": "int",
+          "location": "query",
+          "description": "Length"
+        },
+        {
+          "name": "ending_at",
+          "type": "string",
+          "location": "query",
+          "description": "Ending at"
+        }
+      ]
+    },
+    {
+      "name": "preference-center_get",
+      "description": "Get preference center details. Required: preferenceCenterExternalId. Returns the GenericObject.",
+      "method": "GET",
+      "path": "/preference_center/v1/{preferenceCenterExternalId}",
+      "params": [
+        {
+          "name": "preferenceCenterExternalId",
+          "type": "string",
+          "location": "path",
+          "description": "Preference center external id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "preference-center_list",
+      "description": "List preference centers. Returns the GenericObject.",
+      "method": "GET",
+      "path": "/preference_center/v1/list",
+      "params": []
+    },
+    {
+      "name": "segments_get-data-series",
+      "description": "Export estimated segment size over time. Required: segment_id. Optional: length, ending_at. Returns the GenericObject.",
+      "method": "GET",
+      "path": "/segments/data_series",
+      "params": [
+        {
+          "name": "segment_id",
+          "type": "string",
+          "location": "query",
+          "description": "Segment id",
+          "required": true
+        },
+        {
+          "name": "length",
+          "type": "int",
+          "location": "query",
+          "description": "Length"
+        },
+        {
+          "name": "ending_at",
+          "type": "string",
+          "location": "query",
+          "description": "Ending at"
+        }
+      ]
+    },
+    {
+      "name": "segments_get-details",
+      "description": "Export metadata for a segment. Required: segment_id. Returns the GenericObject.",
+      "method": "GET",
+      "path": "/segments/details",
+      "params": [
+        {
+          "name": "segment_id",
+          "type": "string",
+          "location": "query",
+          "description": "Segment id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "segments_list",
+      "description": "Export a list of Braze segments. Optional: page. Returns the GenericObject.",
+      "method": "GET",
+      "path": "/segments/list",
+      "params": [
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page"
+        }
+      ]
+    },
+    {
+      "name": "sessions_get-data-series",
+      "description": "Export app session counts over time. Optional: app_id, length, ending_at. Returns the GenericObject.",
+      "method": "GET",
+      "path": "/sessions/data_series",
+      "params": [
+        {
+          "name": "app_id",
+          "type": "string",
+          "location": "query",
+          "description": "App id"
+        },
+        {
+          "name": "length",
+          "type": "int",
+          "location": "query",
+          "description": "Length"
+        },
+        {
+          "name": "ending_at",
+          "type": "string",
+          "location": "query",
+          "description": "Ending at"
+        }
+      ]
+    },
+    {
+      "name": "templates_get-email-info",
+      "description": "Get email template details. Required: email_template_id. Returns the GenericObject.",
+      "method": "GET",
+      "path": "/templates/email/info",
+      "params": [
+        {
+          "name": "email_template_id",
+          "type": "string",
+          "location": "query",
+          "description": "Email template id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "templates_list-email",
+      "description": "List email templates. Optional: page. Returns the GenericObject.",
+      "method": "GET",
+      "path": "/templates/email/list",
+      "params": [
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page"
+        }
+      ]
+    }
+  ]
+}

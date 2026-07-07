@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "api_name": "morgen",
+  "run_id": "20260615-105603",
+  "status": "pass",
+  "level": "full",
+  "matrix_size": 107,
+  "tests_passed": 107,
+  "tests_skipped": 71,
+  "auth_context": {
+    "type": "api_key",
+    "api_key_available": true
+  }
+}

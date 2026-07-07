@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "novel-notification-inbox",
+  "applied_at": "2026-05-25",
+  "base_run_id": "20260524-172642",
+  "base_printing_press_version": "4.14.0",
+  "summary": "Add 'notifications inbox' unified inbox command with --unread, --since, --limit.",
+  "reason": "Novel feature T2: cross-host notification aggregation not available in any existing Forgejo CLI tool.",
+  "files": [
+    "internal/cli/novel_notifications.go",
+    "internal/cli/notifications.go"
+  ]
+}

@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "standard-cloudflare-token-env",
+  "applied_at": "2026-05-11",
+  "base_run_id": "local-generate",
+  "base_printing_press_version": "4.3.0",
+  "summary": "Accept CLOUDFLARE_API_TOKEN for bearer auth.",
+  "reason": "Cloudflare docs and Hermes workflows use CLOUDFLARE_API_TOKEN, not the generated long env var.",
+  "files": [
+    "internal/config/config.go",
+    "internal/cli/doctor.go"
+  ],
+  "validated_outcome": "go test ./... and go build ./cmd/cf-domain-pp-cli pass."
+}

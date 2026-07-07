@@ -14,48 +14,49 @@ import (
 func newFacebookListAdlibraryCmd(flags *rootFlags) *cobra.Command {
 	var flagId string
 	var flagUrl string
-	var flagGetTranscript bool
 	var flagTrim bool
 
 	cmd := &cobra.Command{
 		Use:         "list-adlibrary",
-		Short:       "Retrieves detailed information about a specific Facebook ad by its ID or URL. Returns adArchiveID, pageName,...",
-		Example:     "  scrape-creators-pp-cli facebook list-adlibrary",
-		Annotations: map[string]string{"pp:endpoint": "facebook.list-adlibrary", "mcp:read-only": "true"},
+		Short:       "Retrieves detailed information about a specific Facebook ad by its ID or URL.",
+		Example:     "  scrape-creators-pp-cli facebook list-adlibrary --id 1702938977100376",
+		Annotations: map[string]string{"pp:endpoint": "facebook.list-adlibrary", "pp:method": "GET", "pp:path": "/v1/facebook/adLibrary/ad", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
+			path := "/v1/facebook/adLibrary/ad"
 			c, err := flags.newClient()
 			if err != nil {
 				return err
 			}
-
-			path := "/v1/facebook/adLibrary/ad"
 			params := map[string]string{}
 			if flagId != "" {
-				params["id"] = fmt.Sprintf("%v", flagId)
+				params["id"] = formatCLIParamValue(flagId)
 			}
 			if flagUrl != "" {
-				params["url"] = fmt.Sprintf("%v", flagUrl)
-			}
-			if flagGetTranscript != false {
-				params["get_transcript"] = fmt.Sprintf("%v", flagGetTranscript)
+				params["url"] = formatCLIParamValue(flagUrl)
 			}
 			if flagTrim != false {
-				params["trim"] = fmt.Sprintf("%v", flagTrim)
+				params["trim"] = formatCLIParamValue(flagTrim)
 			}
-			data, prov, err := resolveRead(cmd.Context(), c, flags, "facebook", false, path, params, nil)
+			data, prov, err := resolveReadWithStrategyAndResponsePath(cmd.Context(), c, flags, "auto", "facebook", false, path, params, nil, "", cmd.ErrOrStderr())
 			if err != nil {
-				return classifyAPIError(err)
+				return classifyAPIError(err, flags)
 			}
-			// Print provenance to stderr for human-facing output
-			{
+			// Print provenance to stderr for human-facing output only.
+			// Machine-format flags (--json, --csv, --compact, --quiet, --plain,
+			// --select) and piped stdout suppress this line; the JSON envelope
+			// already carries meta.source for those consumers.
+			// SYNC: keep this gate aligned with command_promoted.go.tmpl.
+			if wantsHumanTable(cmd.OutOrStdout(), flags) {
 				var countItems []json.RawMessage
 				_ = json.Unmarshal(data, &countItems)
 				printProvenance(cmd, len(countItems), prov)
 			}
 			// For JSON output, wrap with provenance envelope before passing through flags.
 			// --select wins over --compact when both are set; --compact only runs when
-			// no explicit fields were requested.
-			if flags.asJSON || !isTerminal(cmd.OutOrStdout()) {
+			// no explicit fields were requested. Explicit format flags (--csv, --quiet,
+			// --plain) opt out of the auto-JSON path so piped consumers that asked for
+			// a non-JSON format reach the standard pipeline below.
+			if flags.asJSON || (!isTerminal(cmd.OutOrStdout()) && !flags.csv && !flags.quiet && !flags.plain) {
 				filtered := data
 				if flags.selectFields != "" {
 					filtered = filterFields(filtered, flags.selectFields)
@@ -81,12 +82,11 @@ func newFacebookListAdlibraryCmd(flags *rootFlags) *cobra.Command {
 					return nil
 				}
 			}
-			return printOutputWithFlags(cmd.OutOrStdout(), data, flags)
+			return printOutputWithFlagsMeta(cmd.OutOrStdout(), data, flags, map[string]any{"source": "live"})
 		},
 	}
 	cmd.Flags().StringVar(&flagId, "id", "", "Facebook Ad Id")
 	cmd.Flags().StringVar(&flagUrl, "url", "", "Facebook Ad URL")
-	cmd.Flags().BoolVar(&flagGetTranscript, "get-transcript", false, "Get the transcript of the ad. Only works if the video is under 2 minutes.")
 	cmd.Flags().BoolVar(&flagTrim, "trim", false, "Set to true for a trimmed down version of the response")
 
 	return cmd

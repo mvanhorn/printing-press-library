@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "doctor-probe-uses-client-auth-refresh",
+  "applied_at": "2026-06-17",
+  "base_run_id": "20260509-091026",
+  "base_printing_press_version": "4.1.0",
+  "summary": "Doctor credential probes must let the WHOOP client inject Authorization so expired OAuth tokens refresh before the probe request.",
+  "reason": "WHOOP OAuth access tokens expire quickly and the client refreshes them while resolving request auth. A doctor-side Authorization override captures the pre-refresh token and replays it after refresh, causing false invalid/inconclusive credential results.",
+  "files": [
+    "internal/cli/doctor.go"
+  ],
+  "validated_outcome": "go build, go vet, go test, and verify-skill pass for library/devices/whoop."
+}

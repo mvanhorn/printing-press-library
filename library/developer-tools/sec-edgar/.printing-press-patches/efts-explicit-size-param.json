@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "id": "efts-explicit-size-param",
+  "applied_at": "2026-05-12",
+  "base_run_id": "20260511-180534",
+  "base_printing_press_version": "4.2.2",
+  "summary": "Pin EFTS page size explicitly via a new `efTSPageSize=100` constant and `size=` URL param.",
+  "reason": "fetchAllEFTSHits' 'less than a full page → done' termination heuristic relied on EFTS's implicit default of 10 hits per page. If EFTS ever changed the default the heuristic would silently terminate at the wrong boundary, hiding hits. Setting size= explicitly pins both ends of the contract. 100 is EFTS's documented maximum and cuts the worst-case full-1000-hit fetch from 100 HTTP calls to 10.",
+  "files": [
+    "internal/cli/sec_helpers.go"
+  ]
+}

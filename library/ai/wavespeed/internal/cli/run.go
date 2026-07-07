@@ -12,8 +12,10 @@ import (
 	"net/http"
 	"net/url"
 	"os"
+	"os/exec"
 	"path"
 	"path/filepath"
+	"runtime"
 	"sort"
 	"strconv"
 	"strings"
@@ -110,8 +112,11 @@ func newRunCmd(flags *rootFlags) *cobra.Command {
 				return err
 			}
 
-			if opts.schema || opts.helpModel {
+			if opts.schema {
 				return printModelSchema(cmd, flags, c, modelID)
+			}
+			if opts.helpModel {
+				return printModelHelp(cmd, flags, c, modelID)
 			}
 
 			changed := runChangedFlags(cmd)
@@ -154,6 +159,9 @@ func newRunCmd(flags *rootFlags) *cobra.Command {
 			for _, item := range res.Downloads {
 				fmt.Fprintf(cmd.ErrOrStderr(), "downloaded %s\n", item.Path)
 			}
+			if err := rememberDownloads(res.Downloads); err != nil {
+				fmt.Fprintf(cmd.ErrOrStderr(), "warning: recording last download failed: %v\n", err)
+			}
 
 			// run records to the library only when --record is passed (opt-in),
 			// the inverse of novel commands which record by default. A record
@@ -182,6 +190,9 @@ func newRunCmd(flags *rootFlags) *cobra.Command {
 				downloads, err := downloadPlannedRunOutputs(cmd.Context(), c, plannedDownloads)
 				for _, item := range downloads {
 					fmt.Fprintf(cmd.ErrOrStderr(), "downloaded %s\n", item.Path)
+				}
+				if recErr := rememberDownloads(downloads); recErr != nil {
+					fmt.Fprintf(cmd.ErrOrStderr(), "warning: recording last download failed: %v\n", recErr)
 				}
 				if err != nil {
 					fmt.Fprintf(cmd.ErrOrStderr(), "warning: download failed: %v\n", err)
@@ -290,12 +301,12 @@ func installRunModelHelp(cmd *cobra.Command, flags *rootFlags, opts *runCommandO
 			fmt.Fprintf(helpCmd.ErrOrStderr(), "\nModel schema unavailable: %v\n", err)
 			return
 		}
-		schema, err := requestSchemaForModel(models, modelID)
-		if err != nil {
-			fmt.Fprintf(helpCmd.ErrOrStderr(), "\nModel schema unavailable: %v\n", err)
+		model, ok := findModelObject(models, modelID)
+		if !ok {
+			fmt.Fprintf(helpCmd.ErrOrStderr(), "\nModel schema unavailable: model %q not found in /models response\n", modelID)
 			return
 		}
-		fmt.Fprintf(helpCmd.OutOrStdout(), "\nModel Inputs for %s:\n%s", modelID, schemaHelpText(schema))
+		fmt.Fprintf(helpCmd.OutOrStdout(), "\n%s", modelHelpText(modelID, model))
 	})
 }
 
@@ -382,6 +393,146 @@ func newPriceCmd(flags *rootFlags) *cobra.Command {
 	return cmd
 }
 
+type lastDownloadState struct {
+	UpdatedAt string           `json:"updated_at"`
+	Downloads []downloadedFile `json:"downloads"`
+}
+
+func lastDownloadStatePath() (string, error) {
+	home, err := os.UserHomeDir()
+	if err != nil {
+		return "", fmt.Errorf("resolving home dir: %w", err)
+	}
+	dir := filepath.Join(home, ".wavespeed-pp-cli")
+	if err := os.MkdirAll(dir, 0o700); err != nil {
+		return "", fmt.Errorf("creating state dir: %w", err)
+	}
+	return filepath.Join(dir, "last-download.json"), nil
+}
+
+func rememberDownloads(downloads []downloadedFile) error {
+	if len(downloads) == 0 {
+		return nil
+	}
+	p, err := lastDownloadStatePath()
+	if err != nil {
+		return err
+	}
+	state := lastDownloadState{UpdatedAt: time.Now().Format(time.RFC3339), Downloads: downloads}
+	raw, err := json.MarshalIndent(state, "", "  ")
+	if err != nil {
+		return err
+	}
+	return os.WriteFile(p, raw, 0o600)
+}
+
+func loadLastDownloadState() (lastDownloadState, error) {
+	p, err := lastDownloadStatePath()
+	if err != nil {
+		return lastDownloadState{}, err
+	}
+	raw, err := os.ReadFile(p)
+	if err != nil {
+		return lastDownloadState{}, err
+	}
+	var state lastDownloadState
+	if err := json.Unmarshal(raw, &state); err != nil {
+		return lastDownloadState{}, err
+	}
+	return state, nil
+}
+
+func lastDownloadedPath() (string, error) {
+	state, err := loadLastDownloadState()
+	if err != nil {
+		if os.IsNotExist(err) {
+			return "", fmt.Errorf("no downloaded image recorded yet; run with --download first")
+		}
+		return "", err
+	}
+	for i := len(state.Downloads) - 1; i >= 0; i-- {
+		if strings.TrimSpace(state.Downloads[i].Path) != "" {
+			return state.Downloads[i].Path, nil
+		}
+	}
+	return "", fmt.Errorf("last download record contains no local path")
+}
+
+func newLastCmd(flags *rootFlags) *cobra.Command {
+	return &cobra.Command{
+		Use:         "last",
+		Short:       "Print the most recently downloaded WaveSpeed output path",
+		Annotations: map[string]string{"mcp:read-only": "true"},
+		RunE: func(cmd *cobra.Command, args []string) error {
+			state, err := loadLastDownloadState()
+			if err != nil {
+				if os.IsNotExist(err) {
+					return fmt.Errorf("no downloaded image recorded yet; run with --download first")
+				}
+				return err
+			}
+			if flags.asJSON {
+				return printJSONFiltered(cmd.OutOrStdout(), state, flags)
+			}
+			p, err := lastDownloadedPath()
+			if err != nil {
+				return err
+			}
+			fmt.Fprintln(cmd.OutOrStdout(), p)
+			return nil
+		},
+	}
+}
+
+func newOpenCmd(flags *rootFlags) *cobra.Command {
+	return &cobra.Command{
+		Use:   "open [path]",
+		Short: "Open the most recently downloaded WaveSpeed output (or a supplied path)",
+		Args:  cobra.MaximumNArgs(1),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			p := ""
+			if len(args) > 0 {
+				p = args[0]
+			} else {
+				var err error
+				p, err = lastDownloadedPath()
+				if err != nil {
+					return err
+				}
+			}
+			if _, err := os.Stat(p); err != nil {
+				return fmt.Errorf("opening %s: %w", p, err)
+			}
+			if flags.dryRun {
+				name, args, err := openCommand(p, runtime.GOOS)
+				if err != nil {
+					return err
+				}
+				fmt.Fprintf(cmd.OutOrStdout(), "%s %s\n", name, strings.Join(args, " "))
+				return nil
+			}
+			name, args, err := openCommand(p, runtime.GOOS)
+			if err != nil {
+				return err
+			}
+			return exec.CommandContext(cmd.Context(), name, args...).Run()
+		},
+	}
+}
+
+func openCommand(p, goos string) (string, []string, error) {
+	switch goos {
+	case "darwin":
+		return "open", []string{p}, nil
+	case "windows":
+		return "rundll32", []string{"url.dll,FileProtocolHandler", p}, nil
+	case "linux":
+		return "xdg-open", []string{p}, nil
+	default:
+		return "", nil, fmt.Errorf("opening files is not supported on %s", goos)
+	}
+}
+
 func newUploadCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "upload <file>...",
@@ -462,6 +613,9 @@ func newDownloadCmd(flags *rootFlags) *cobra.Command {
 			downloads, err := downloadRunOutputs(cmd.Context(), c, json.RawMessage(raw), spec)
 			if err != nil {
 				return err
+			}
+			if err := rememberDownloads(downloads); err != nil {
+				fmt.Fprintf(cmd.ErrOrStderr(), "warning: recording last download failed: %v\n", err)
 			}
 			if flags.quiet {
 				for _, item := range downloads {
@@ -1062,6 +1216,26 @@ func printModelSchema(cmd *cobra.Command, flags *rootFlags, c *client.Client, mo
 	return printOutputWithFlags(cmd.OutOrStdout(), schema, flags)
 }
 
+func printModelHelp(cmd *cobra.Command, flags *rootFlags, c *client.Client, modelID string) error {
+	models, err := c.Get(cmd.Context(), "/models", nil)
+	if err != nil {
+		return classifyAPIError(err, flags)
+	}
+	model, ok := findModelObject(models, modelID)
+	if !ok {
+		return fmt.Errorf("model %q not found in /models response", modelID)
+	}
+	if flags.asJSON {
+		raw, err := json.MarshalIndent(modelHelpSummary(modelID, model), "", "  ")
+		if err != nil {
+			return err
+		}
+		return printOutput(cmd.OutOrStdout(), raw, true)
+	}
+	_, err = fmt.Fprint(cmd.OutOrStdout(), modelHelpText(modelID, model))
+	return err
+}
+
 func requestSchemaForModel(models json.RawMessage, modelID string) (json.RawMessage, error) {
 	model, ok := findModelObject(models, modelID)
 	if !ok {
@@ -1076,6 +1250,188 @@ func requestSchemaForModel(models json.RawMessage, modelID string) (json.RawMess
 		return nil, err
 	}
 	return json.RawMessage(raw), nil
+}
+
+type modelHelpField struct {
+	Name        string   `json:"name"`
+	Type        string   `json:"type"`
+	Required    bool     `json:"required"`
+	Default     any      `json:"default,omitempty"`
+	Enum        []string `json:"enum,omitempty"`
+	Description string   `json:"description,omitempty"`
+}
+
+type modelHelpInfo struct {
+	ModelID           string              `json:"model_id"`
+	Name              string              `json:"name,omitempty"`
+	Type              string              `json:"type,omitempty"`
+	Price             string              `json:"price"`
+	BasePrice         any                 `json:"base_price,omitempty"`
+	Formula           string              `json:"formula,omitempty"`
+	ResolutionOptions map[string][]string `json:"resolution_options,omitempty"`
+	Fields            []modelHelpField    `json:"fields"`
+}
+
+func modelHelpSummary(modelID string, model map[string]any) modelHelpInfo {
+	schema, _ := schemaFromModelObject(model)
+	fields := schemaFields(schema)
+	info := modelHelpInfo{
+		ModelID:   modelID,
+		Name:      stringFromAny(model["name"]),
+		Type:      stringFromAny(model["type"]),
+		Price:     modelPriceText(model),
+		BasePrice: model["base_price"],
+		Formula:   stringFromAny(model["formula"]),
+		Fields:    fields,
+	}
+	resolution := map[string][]string{}
+	for _, f := range fields {
+		key := strings.ToLower(f.Name)
+		if (strings.Contains(key, "resolution") || strings.Contains(key, "size")) && len(f.Enum) > 0 {
+			resolution[f.Name] = f.Enum
+		}
+	}
+	if len(resolution) > 0 {
+		info.ResolutionOptions = resolution
+	}
+	return info
+}
+
+func modelHelpText(modelID string, model map[string]any) string {
+	info := modelHelpSummary(modelID, model)
+	var b strings.Builder
+	fmt.Fprintf(&b, "Model Inputs for %s:\n", modelID)
+	if info.Name != "" || info.Type != "" {
+		fmt.Fprintf(&b, "  model: %s", info.Name)
+		if info.Type != "" {
+			fmt.Fprintf(&b, " (%s)", info.Type)
+		}
+		b.WriteByte('\n')
+	}
+	fmt.Fprintf(&b, "  price: %s", info.Price)
+	if info.Formula != "" {
+		fmt.Fprintf(&b, " (%s)", info.Formula)
+	}
+	b.WriteString("\n")
+	if len(info.ResolutionOptions) > 0 {
+		b.WriteString("  resolution/size options (affect cost when the formula references them):\n")
+		keys := make([]string, 0, len(info.ResolutionOptions))
+		for k := range info.ResolutionOptions {
+			keys = append(keys, k)
+		}
+		sort.Strings(keys)
+		for _, k := range keys {
+			fmt.Fprintf(&b, "    - %s: %s\n", k, strings.Join(info.ResolutionOptions[k], " | "))
+		}
+	}
+	for _, f := range info.Fields {
+		req := ""
+		if f.Required {
+			req = " required"
+		}
+		fmt.Fprintf(&b, "  - %s (%s%s)", f.Name, f.Type, req)
+		if f.Default != nil {
+			fmt.Fprintf(&b, " default=%v", f.Default)
+		}
+		if len(f.Enum) > 0 {
+			fmt.Fprintf(&b, " enum=%s", strings.Join(f.Enum, "|"))
+		}
+		if f.Description != "" {
+			fmt.Fprintf(&b, " - %s", f.Description)
+		}
+		b.WriteByte('\n')
+	}
+	return b.String()
+}
+
+func schemaFromModelObject(model map[string]any) (json.RawMessage, bool) {
+	schema, ok := nestedValue(model, "api_schema", "api_schemas", "0", "request_schema")
+	if !ok {
+		return nil, false
+	}
+	raw, err := json.Marshal(schema)
+	if err != nil {
+		return nil, false
+	}
+	return json.RawMessage(raw), true
+}
+
+func schemaFields(schema json.RawMessage) []modelHelpField {
+	var root map[string]any
+	if len(schema) == 0 || json.Unmarshal(schema, &root) != nil {
+		return nil
+	}
+	props, _ := root["properties"].(map[string]any)
+	required := map[string]bool{}
+	if items, ok := root["required"].([]any); ok {
+		for _, item := range items {
+			if s, ok := item.(string); ok {
+				required[s] = true
+			}
+		}
+	}
+	names := orderedSchemaPropertyNames(root, props)
+	fields := make([]modelHelpField, 0, len(names))
+	for _, name := range names {
+		prop, _ := props[name].(map[string]any)
+		field := modelHelpField{Name: name, Type: schemaTypeName(prop), Required: required[name], Description: oneline(stringFromAny(prop["description"]))}
+		if def, ok := prop["default"]; ok {
+			field.Default = def
+		}
+		if enum, ok := prop["enum"].([]any); ok {
+			for _, item := range enum {
+				field.Enum = append(field.Enum, fmt.Sprintf("%v", item))
+			}
+		}
+		fields = append(fields, field)
+	}
+	return fields
+}
+
+func modelPriceText(model map[string]any) string {
+	for _, key := range []string{"unit_price", "price", "base_price", "cost"} {
+		if v, ok := model[key]; ok {
+			if s := stringFromAny(v); s != "" && s != "0" {
+				return s
+			}
+			if n, ok := numberFromAny(v); ok {
+				return strconv.FormatFloat(n, 'f', -1, 64)
+			}
+		}
+	}
+	if f := stringFromAny(model["formula"]); f != "" {
+		return f
+	}
+	return "?"
+}
+
+func stringFromAny(v any) string {
+	switch t := v.(type) {
+	case string:
+		return strings.TrimSpace(t)
+	case json.Number:
+		return t.String()
+	case float64:
+		return strconv.FormatFloat(t, 'f', -1, 64)
+	case int:
+		return strconv.Itoa(t)
+	default:
+		return ""
+	}
+}
+
+func numberFromAny(v any) (float64, bool) {
+	switch t := v.(type) {
+	case json.Number:
+		f, err := t.Float64()
+		return f, err == nil
+	case float64:
+		return t, true
+	case int:
+		return float64(t), true
+	default:
+		return 0, false
+	}
 }
 
 func schemaHelpText(schema json.RawMessage) string {
@@ -1108,7 +1464,7 @@ func schemaHelpText(schema json.RawMessage) string {
 		if def, ok := prop["default"]; ok {
 			fmt.Fprintf(&b, " default=%v", def)
 		}
-		if enum, ok := prop["enum"].([]any); ok && len(enum) > 0 && len(enum) <= 8 {
+		if enum, ok := prop["enum"].([]any); ok && len(enum) > 0 {
 			parts := make([]string, 0, len(enum))
 			for _, item := range enum {
 				parts = append(parts, fmt.Sprintf("%v", item))
@@ -1216,6 +1572,116 @@ func modelItems(models json.RawMessage) []map[string]any {
 		}
 	}
 	return items
+}
+
+type modelCatalogSummary struct {
+	ModelID     string              `json:"model_id"`
+	Name        string              `json:"name,omitempty"`
+	Type        string              `json:"type,omitempty"`
+	Price       string              `json:"price"`
+	BasePrice   any                 `json:"base_price,omitempty"`
+	Formula     string              `json:"formula,omitempty"`
+	Resolutions map[string][]string `json:"resolutions,omitempty"`
+}
+
+func summarizeModelsForCapability(data json.RawMessage, capability string) (json.RawMessage, error) {
+	items := modelItems(data)
+	out := make([]modelCatalogSummary, 0, len(items))
+	for _, model := range items {
+		if !modelMatchesCapability(model, capability) {
+			continue
+		}
+		id := modelIDFromObject(model)
+		if id == "" {
+			continue
+		}
+		info := modelHelpSummary(id, model)
+		out = append(out, modelCatalogSummary{
+			ModelID:     id,
+			Name:        info.Name,
+			Type:        info.Type,
+			Price:       info.Price,
+			BasePrice:   info.BasePrice,
+			Formula:     info.Formula,
+			Resolutions: info.ResolutionOptions,
+		})
+	}
+	sort.SliceStable(out, func(i, j int) bool {
+		pi, iok := numericSummaryPrice(out[i])
+		pj, jok := numericSummaryPrice(out[j])
+		if iok && jok && pi != pj {
+			return pi < pj
+		}
+		if iok != jok {
+			return iok
+		}
+		return out[i].ModelID < out[j].ModelID
+	})
+	raw, err := json.Marshal(out)
+	if err != nil {
+		return nil, err
+	}
+	return json.RawMessage(raw), nil
+}
+
+func modelIDFromObject(model map[string]any) string {
+	for _, key := range []string{"model_id", "id", "path", "model", "name"} {
+		if s := stringFromAny(model[key]); s != "" {
+			return s
+		}
+	}
+	return ""
+}
+
+func numericSummaryPrice(s modelCatalogSummary) (float64, bool) {
+	switch v := s.BasePrice.(type) {
+	case json.Number:
+		f, err := v.Float64()
+		return f, err == nil
+	case float64:
+		return v, true
+	case int:
+		return float64(v), true
+	}
+	if s.Price != "" && s.Price != "?" {
+		f, err := strconv.ParseFloat(strings.TrimPrefix(s.Price, "$"), 64)
+		return f, err == nil
+	}
+	return 0, false
+}
+
+func modelMatchesCapability(model map[string]any, capability string) bool {
+	capability = strings.ToLower(strings.TrimSpace(capability))
+	if capability == "" {
+		return true
+	}
+	textParts := []string{}
+	for _, key := range []string{"model_id", "id", "name", "description", "type", "category"} {
+		if s := stringFromAny(model[key]); s != "" {
+			textParts = append(textParts, strings.ToLower(s))
+		}
+	}
+	text := strings.Join(textParts, " ")
+	schema, _ := schemaFromModelObject(model)
+	fields := schemaFields(schema)
+	fieldNames := map[string]bool{}
+	for _, f := range fields {
+		fieldNames[strings.ToLower(f.Name)] = true
+	}
+	switch capability {
+	case "image-edit", "image_edit", "edit", "image-to-image", "i2i":
+		if strings.Contains(text, "image-to-image") || strings.Contains(text, "image edit") || strings.Contains(text, "edit") {
+			return true
+		}
+		return fieldNames["image"] || fieldNames["images"] || fieldNames["reference_images"] || fieldNames["reference_image"]
+	case "text-to-image", "t2i", "image-generate", "image-generation":
+		return strings.Contains(text, "text-to-image") || strings.Contains(text, "image") && fieldNames["prompt"]
+	case "video", "text-to-video", "t2v":
+		return strings.Contains(text, "video") || fieldNames["video"]
+	default:
+		needle := strings.ReplaceAll(capability, "-", " ")
+		return strings.Contains(text, capability) || strings.Contains(text, needle)
+	}
 }
 
 func filterModelsForCLI(data json.RawMessage, query, modelType, category string, popular bool) (json.RawMessage, error) {

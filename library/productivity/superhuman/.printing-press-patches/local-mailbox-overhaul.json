@@ -1,0 +1,23 @@
+{
+  "schema_version": 2,
+  "id": "local-mailbox-overhaul",
+  "applied_at": "2026-05-27",
+  "base_run_id": "20260512-165241",
+  "base_printing_press_version": "4.5.1",
+  "summary": "Add local-store-backed folder, search, thread filter, participant, awaiting-reply, RFC822 lookup, watch, and bootstrap workflows.",
+  "reason": "Agent workflows need composable local mailbox operations with explicit freshness metadata and Gmail history deltas.",
+  "files": [
+    "internal/cli/bootstrap.go",
+    "internal/cli/threads.go",
+    "internal/cli/threads_list.go",
+    "internal/cli/messages_list.go",
+    "internal/cli/participants.go",
+    "internal/cli/awaiting_reply.go",
+    "internal/cli/watch.go",
+    "internal/store/messages.go",
+    "internal/store/participants.go",
+    "internal/store/threads.go",
+    "internal/gmail/history.go"
+  ],
+  "validated_outcome": "PII scrub gate and full module tests pass."
+}

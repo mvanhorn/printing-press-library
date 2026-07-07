@@ -20,7 +20,7 @@ func newCustomersRecommendationsApplyCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:         "apply <customerId>",
 		Short:       "Applies given recommendations with corresponding apply parameters.",
-		Example:     "  google-ads-pp-cli customers_recommendations apply 550e8400-e29b-41d4-a716-446655440000",
+		Example:     "  google-ads-pp-cli customers-recommendations apply 550e8400-e29b-41d4-a716-446655440000",
 		Annotations: map[string]string{"pp:endpoint": "customers_recommendations.apply", "pp:method": "POST", "pp:path": "/v22/customers/{customerId}/recommendations:apply"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

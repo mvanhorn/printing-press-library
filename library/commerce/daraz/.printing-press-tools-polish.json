@@ -1,0 +1,9 @@
+{
+  "timestamp": "2026-06-09T07:22:05.940769Z",
+  "cli_dir": "\u003ccli-dir\u003e/daraz",
+  "findings": null,
+  "scorecard_before": {
+    "mcp_description_quality": 10,
+    "captured": "2026-06-09T07:22:05.94077Z"
+  }
+}

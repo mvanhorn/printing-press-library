@@ -1,0 +1,18 @@
+# binaries
+/medium
+/medium-pp-cli
+/medium-pp-mcp
+/medium-reader-pp-cli
+/medium-reader-pp-mcp
+/medium-v2
+/medium-v2-cli
+/medium-v2-mcp
+/bin/
+/build/
+# local state
+*.db
+*.db-*
+.cache/
+dogfood-results.json
+workflow-verify-report.json
+*.log

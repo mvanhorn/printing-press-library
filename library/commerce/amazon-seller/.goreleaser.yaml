@@ -45,7 +45,7 @@ brews:
       owner: user
       name: homebrew-tap
     homepage: "https://github.com/user/amazon-seller-pp-cli"
-    description: "Read FBA inventory, orders, sales reports, listings, and catalog data for an Amazon seller account."
+    description: "Run Amazon seller workflows from the terminal: FBA inventory, orders, sales reports, listings, catalog lookup, and account operations."
     install: |
       bin.install "amazon-seller-pp-cli"
       bin.install "amazon-seller-pp-mcp"

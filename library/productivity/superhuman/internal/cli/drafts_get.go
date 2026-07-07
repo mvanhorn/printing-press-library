@@ -21,17 +21,17 @@ func newDraftsGetCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "get <draft-id>",
 		Short: "Fetch one draft by id (subject, body, recipients)",
-		Long: `Fetch a single draft via /v3/userdata.read at
-users/<provider-id>/threads/<draft-id>/messages/<draft-id>/draft.
+		Long: `Fetch a single draft by resolving it through /v3/userdata.getThreads
+(the draft list), matching on either the thread id or the message id.
 
 The "draft00..." form returned by 'drafts list' or 'drafts new --json'
-is what to pass. Use --json for the full structured payload (writeMessage
-schema, every field).`,
+is what to pass — the thread id and message id both resolve. Use --json
+for the full structured payload (writeMessage schema, every field).`,
 		Example: "  superhuman-pp-cli drafts get draft0012ab34cd56ef\n  superhuman-pp-cli drafts get draft0012ab34cd56ef --json",
 		Annotations: map[string]string{
 			"pp:endpoint":   "drafts.get",
 			"pp:method":     "POST",
-			"pp:path":       "/v3/userdata.read",
+			"pp:path":       "/v3/userdata.getThreads",
 			"mcp:read-only": "true",
 		},
 		Args: func(cmd *cobra.Command, args []string) error {
@@ -52,12 +52,8 @@ func runDraftsGet(cmd *cobra.Command, flags *rootFlags, draftID string) error {
 	if err != nil {
 		return err
 	}
-	providerID, perr := resolveProviderID(flags)
-	if perr != nil {
-		return authErr(fmt.Errorf("drafts get: %w", perr))
-	}
 
-	dv, statusCode, err := readDraft(c, providerID, draftID)
+	dv, statusCode, err := resolveDraftViaThreadList(c, draftID)
 	if err != nil {
 		if errors.Is(err, ErrDraftNotFound) {
 			return notFoundErr(fmt.Errorf("drafts get: %s not found", draftID))
@@ -72,7 +68,7 @@ func runDraftsGet(cmd *cobra.Command, flags *rootFlags, draftID string) error {
 		envelope := map[string]any{
 			"action":   "drafts.get",
 			"resource": "drafts",
-			"path":     "/v3/userdata.read",
+			"path":     "/v3/userdata.getThreads",
 			"draft_id": draftID,
 			"status":   statusCode,
 			"success":  statusCode >= 200 && statusCode < 300,

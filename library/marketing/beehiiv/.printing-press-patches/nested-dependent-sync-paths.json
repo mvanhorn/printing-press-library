@@ -1,0 +1,15 @@
+{
+  "schema_version": 2,
+  "id": "nested-dependent-sync-paths",
+  "applied_at": "2026-05-10",
+  "base_run_id": "20260510-144732",
+  "base_printing_press_version": "4.2.2",
+  "summary": "Resolves multi-placeholder dependent sync paths using intermediate resource IDs and their publication parent IDs.",
+  "reason": "Nested Beehiiv resources such as automation emails, segment members, poll responses, and newsletter-list subscriptions require both the intermediate resource ID and publication ID; leaving either placeholder unresolved causes invalid API paths.",
+  "files": [
+    "internal/cli/sync.go",
+    "internal/cli/sync_dependent_test.go",
+    "internal/store/store.go"
+  ],
+  "validated_outcome": "go test ./... passes for the published Beehiiv CLI."
+}

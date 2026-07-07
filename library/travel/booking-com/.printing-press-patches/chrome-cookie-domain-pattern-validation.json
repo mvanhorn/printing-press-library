@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "chrome-cookie-domain-pattern-validation",
+  "applied_at": "2026-05-20",
+  "base_run_id": "20260519-175228",
+  "base_printing_press_version": "4.9.0",
+  "summary": "Allowed the generated Chrome cookie LIKE pattern while preserving the sqlite3 host_key validation gate.",
+  "reason": "Chrome profile auto-detection builds %booking.com% before counting cookies; rejecting a leading wildcard made pycookiecheat and cookie-scoop profiles look empty.",
+  "files": [
+    "internal/cli/auth.go",
+    "internal/cli/auth_test.go"
+  ],
+  "validated_outcome": "go test ./internal/cli -run TestHostKeyPatternREAllowsGeneratedLikePattern succeeded."
+}

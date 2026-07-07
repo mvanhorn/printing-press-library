@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "quote-engine",
+  "applied_at": "2026-06-01",
+  "base_run_id": "20260601-000336",
+  "base_printing_press_version": "4.19.1",
+  "summary": "Hand-authored friendly 'quote' command (transfer + hourly) plus compare/fit/trip: geocode pickup/dropoff via OpenStreetMap Nominatim, POST /prices, render vehicle classes.",
+  "reason": "The /prices request body is deeply nested (pickup/dropoff objects, seconds-based hourly duration) and needs free geocoding to be usable; the generator's templated 'prices' command can't express this.",
+  "files": [
+    "internal/cli/quote.go",
+    "internal/cli/root.go"
+  ],
+  "validated_outcome": "Live: JFK->Times Square transfer and Union Square SF 3h hourly both return real USD prices; fit picks the cheapest class that seats N."
+}

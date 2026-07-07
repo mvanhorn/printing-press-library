@@ -34,7 +34,11 @@ func IsUUID(s string) bool {
 // shape — adding columns, dropping indexes, changing FTS5 tokenizers —
 // so an older binary refuses to open a newer database rather than silently
 // producing wrong results against a schema it cannot read.
-const StoreSchemaVersion = 1
+// StoreSchemaVersion 2 (2026-06-09): resources PK became (resource_type, id);
+// FTS rowids derive from the composite key. v1 binaries refuse v2 databases
+// via the version gate in ensureSchema (their ON CONFLICT(id) upserts would
+// error against the composite PK anyway).
+const StoreSchemaVersion = 2
 
 type Store struct {
 	db *sql.DB
@@ -184,6 +188,16 @@ func (s *Store) ensureColumn(ctx context.Context, conn *sql.Conn, table, column,
 // word.
 func (s *Store) backfillColumns(ctx context.Context, conn *sql.Conn) error {
 	for _, c := range []struct{ table, column, decl string }{
+		// resources.updated_at is absent in stores created before it was added.
+		// It must exist before migrateResourcesCompositePK reads it: SQLite
+		// resolves column names at prepare time, so a SELECT naming a missing
+		// updated_at aborts the rebuild (a COALESCE/WHERE 1=0 guard does not
+		// dodge that resolution). backfillColumns runs before that migration
+		// (see Open), so adding it here guarantees the column for the copy.
+		// Declared without a DEFAULT: SQLite forbids a non-constant default
+		// (CURRENT_TIMESTAMP) on ALTER TABLE ADD COLUMN, so rows backfilled
+		// here land NULL and the rebuild's COALESCE supplies the timestamp.
+		{table: "resources", column: "updated_at", decl: "DATETIME"},
 		{table: "structured_targets", column: "type", decl: "TEXT"},
 		{table: "structured_targets", column: "competition", decl: "TEXT"},
 		{table: "structured_targets", column: "page_size", decl: "INTEGER"},
@@ -379,12 +393,19 @@ func (s *Store) migrate(ctx context.Context) error {
 	}
 
 	migrations := []string{
+		// Composite PK (audit 2026-06-09 / schema v2): markets and
+		// portfolio-settlements share ticker ids, so an id-only PK let a
+		// settlement upsert OVERWRITE the market row (and vice versa) while
+		// keeping the other row's resource_type — silently corrupting every
+		// winrate/attribution/movers query. Existing v1 databases are
+		// rebuilt by migrateResourcesCompositePK before this runs.
 		`CREATE TABLE IF NOT EXISTS resources (
-			id TEXT PRIMARY KEY,
+			id TEXT NOT NULL,
 			resource_type TEXT NOT NULL,
 			data JSON NOT NULL,
 			synced_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-			updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+			updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+			PRIMARY KEY (resource_type, id)
 		)`,
 		`CREATE INDEX IF NOT EXISTS idx_resources_type ON resources(resource_type)`,
 		`CREATE INDEX IF NOT EXISTS idx_resources_synced ON resources(synced_at)`,
@@ -733,6 +754,11 @@ func (s *Store) migrate(ctx context.Context) error {
 		if err := s.backfillColumns(ctx, conn); err != nil {
 			return fmt.Errorf("backfilling columns: %w", err)
 		}
+		// v1 -> v2: rebuild resources with the composite (resource_type, id)
+		// PK before the idempotent CREATEs below run.
+		if err := migrateResourcesCompositePK(ctx, conn); err != nil {
+			return fmt.Errorf("migrating resources to composite PK: %w", err)
+		}
 		for _, m := range migrations {
 			if _, err := conn.ExecContext(ctx, m); err != nil {
 				return fmt.Errorf("migration failed: %w", err)
@@ -755,6 +781,96 @@ const (
 	migrationLockBackoffMin = 5 * time.Millisecond
 	migrationLockBackoffMax = 100 * time.Millisecond
 )
+
+// migrateResourcesCompositePK rebuilds a v1 resources table (id-only PRIMARY
+// KEY) into the v2 composite (resource_type, id) form. No-op on fresh
+// databases and on already-migrated ones. Rows clobbered by the v1 collision
+// bug migrate as-is — the next sync re-fetches and lands them correctly under
+// both types. The FTS index is rebuilt because its rowids derive from
+// (resource_type, id) as of v2; very large stores get a wipe + notice instead
+// of a minutes-long rebuild inside the migration lock.
+func migrateResourcesCompositePK(ctx context.Context, conn *sql.Conn) error {
+	var ddl sql.NullString
+	err := conn.QueryRowContext(ctx,
+		`SELECT sql FROM sqlite_master WHERE type='table' AND name='resources'`).Scan(&ddl)
+	if err == sql.ErrNoRows {
+		return nil // fresh DB: the CREATE in migrations builds v2 directly
+	}
+	if err != nil {
+		return err
+	}
+	if !ddl.Valid || strings.Contains(ddl.String, "PRIMARY KEY (resource_type, id)") {
+		return nil // already v2
+	}
+
+	for _, q := range []string{
+		`ALTER TABLE resources RENAME TO resources_v1_migrating`,
+		`CREATE TABLE resources (
+			id TEXT NOT NULL,
+			resource_type TEXT NOT NULL,
+			data JSON NOT NULL,
+			synced_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+			updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+			PRIMARY KEY (resource_type, id)
+		)`,
+		// backfillColumns (run before this migration) guarantees updated_at
+		// exists on the legacy table, so this COALESCE always compiles — it is
+		// the column's presence, not the COALESCE, that makes the read safe.
+		// Rows backfilled as NULL (DBs predating the column) get a timestamp
+		// here; the next sync re-stamps every row regardless.
+		`INSERT OR REPLACE INTO resources (id, resource_type, data, synced_at, updated_at)
+			SELECT id, resource_type, data, synced_at, COALESCE(updated_at, CURRENT_TIMESTAMP) FROM resources_v1_migrating`,
+		`DROP TABLE resources_v1_migrating`,
+	} {
+		if _, err := conn.ExecContext(ctx, q); err != nil {
+			return fmt.Errorf("composite-PK rebuild: %w", err)
+		}
+	}
+
+	// Rebuild the FTS index under the new composite rowids. resources_fts is a
+	// regular (content-bearing) fts5 table, so clear it with a plain DELETE —
+	// the 'delete-all' special command is only valid for contentless/external-
+	// content fts5 tables and returned "SQL logic error" here, which silently
+	// left pre-migration FTS rows in place. (polish 2026-06-09)
+	if _, err := conn.ExecContext(ctx, `DELETE FROM resources_fts`); err != nil {
+		// Non-fatal: search degrades until the next sync; data is intact.
+		fmt.Fprintf(os.Stderr, "warning: clearing FTS index during migration failed: %v\n", err)
+		return nil
+	}
+	var n int64
+	if err := conn.QueryRowContext(ctx, `SELECT COUNT(*) FROM resources`).Scan(&n); err != nil {
+		return err
+	}
+	if n > 500000 {
+		fmt.Fprintf(os.Stderr, "note: search index cleared during schema migration (%d rows); run 'sync --full' to rebuild search.\n", n)
+		return nil
+	}
+	rows, err := conn.QueryContext(ctx, `SELECT resource_type, id, data FROM resources`)
+	if err != nil {
+		return err
+	}
+	defer rows.Close()
+	type ftsRow struct{ typ, id, data string }
+	var all []ftsRow
+	for rows.Next() {
+		var r ftsRow
+		if err := rows.Scan(&r.typ, &r.id, &r.data); err != nil {
+			return err
+		}
+		all = append(all, r)
+	}
+	if err := rows.Err(); err != nil {
+		return err
+	}
+	for _, r := range all {
+		if _, err := conn.ExecContext(ctx,
+			`INSERT INTO resources_fts (rowid, id, resource_type, content) VALUES (?, ?, ?, ?)`,
+			ftsRowID(r.typ+"\x00"+r.id), r.id, r.typ, r.data); err != nil {
+			fmt.Fprintf(os.Stderr, "warning: FTS rebuild insert failed for %s/%s: %v\n", r.typ, r.id, err)
+		}
+	}
+	return nil
+}
 
 // withMigrationLock runs fn inside a BEGIN IMMEDIATE / COMMIT pair on
 // conn, retrying both BEGIN and COMMIT on SQLITE_BUSY against the
@@ -858,17 +974,21 @@ func isSQLiteBusy(err error) bool {
 }
 
 func (s *Store) upsertGenericResourceTx(tx *sql.Tx, resourceType, id string, data json.RawMessage) error {
+	// Conflict target matches the v2 composite PK: same ticker under a
+	// different resource_type is a DIFFERENT row, not an overwrite.
 	_, err := tx.Exec(
 		`INSERT INTO resources (id, resource_type, data, synced_at, updated_at)
 		 VALUES (?, ?, ?, ?, ?)
-		 ON CONFLICT(id) DO UPDATE SET data = excluded.data, synced_at = excluded.synced_at, updated_at = excluded.updated_at`,
+		 ON CONFLICT(resource_type, id) DO UPDATE SET data = excluded.data, synced_at = excluded.synced_at, updated_at = excluded.updated_at`,
 		id, resourceType, string(data), time.Now(), time.Now(),
 	)
 	if err != nil {
 		return err
 	}
 
-	ftsRowid := ftsRowID(id)
+	// FTS rowid derives from (resource_type, id) so a market and a settlement
+	// sharing a ticker keep separate index rows (v2).
+	ftsRowid := ftsRowID(resourceType + "\x00" + id)
 	// Use explicit rowid for FTS5 compatibility with modernc.org/sqlite.
 	// Standard DELETE WHERE column=? may not work on FTS5 virtual tables.
 	if _, err = tx.Exec(`DELETE FROM resources_fts WHERE rowid = ?`, ftsRowid); err != nil {

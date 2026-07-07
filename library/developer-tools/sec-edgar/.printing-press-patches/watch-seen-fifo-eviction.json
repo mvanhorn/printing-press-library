@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "id": "watch-seen-fifo-eviction",
+  "applied_at": "2026-05-12",
+  "base_run_id": "20260511-180534",
+  "base_printing_press_version": "4.2.2",
+  "summary": "Cap `watch` dedup set at 4096 entries with FIFO eviction.",
+  "reason": "`seen` accumulated every observed accession across all polling iterations and was never evicted, growing unboundedly on long-running watch processes. The Atom feed returns at most 100 entries per poll, so a cap well above that window preserves correct dedup semantics.",
+  "files": [
+    "internal/cli/sec_transcendence.go"
+  ]
+}

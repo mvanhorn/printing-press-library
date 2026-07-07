@@ -1,0 +1,38 @@
+{
+  "api_name": "oura",
+  "novelty_score": 7,
+  "alternatives": [
+    {"name": "turing-complet/python-ouraring", "url": "https://github.com/turing-complet/python-ouraring", "language": "Python", "stars": 140, "command_count": 0},
+    {"name": "hedgertronic/oura-ring", "url": "https://github.com/hedgertronic/oura-ring", "language": "Python", "stars": 84, "command_count": 0},
+    {"name": "Pinta365/oura_api", "url": "https://github.com/Pinta365/oura_api", "language": "TypeScript", "stars": 40, "command_count": 0},
+    {"name": "arzzen/oura", "url": "https://github.com/arzzen/oura", "language": "Shell", "stars": 9, "command_count": 1},
+    {"name": "ruhrpotter/oura-cli", "url": "https://github.com/ruhrpotter/oura-cli", "language": "Go", "stars": 4, "command_count": 1}
+  ],
+  "novel_features": [
+    {"name": "Local SQLite Sync", "command": "sync", "description": "Mirror Oura usercollection data into a local SQLite store for offline search and analysis", "rationale": "No competing tool offers a local data mirror; the popular wrappers are stateless API clients"},
+    {"name": "Full-Text Search", "command": "search", "description": "FTS5 full-text search across locally synced Oura records", "rationale": "Requires the local SQLite index; not offered by any existing Python/TS wrapper or thin CLI"},
+    {"name": "Local Analytics", "command": "analytics", "description": "Aggregate group-by and count queries over locally synced health data", "rationale": "Only possible with a local store populated from the API; absent from all alternatives"},
+    {"name": "Compound Workflows", "command": "workflow", "description": "Chain multiple Oura API operations into one agent-friendly command", "rationale": "Combines several usercollection calls behind a single invocation for agents"}
+  ],
+  "gaps": [
+    {"name": "sync default resources", "reason": "defaultSyncResources is empty out of the box, so sync is a no-op until per-resource population is wired; the transcend layer (search/analytics) has no default data path until then"},
+    {"name": "analytics examples", "reason": "scorecard insight scored 4/10; analytics ships generic placeholder examples that are not Oura-specific yet"},
+    {"name": "webhook auth", "reason": "webhook subscription routes require a separate x-client-id + x-client-secret pair and are not part of the default OAuth-authenticated read surface"}
+  ],
+  "patterns": [],
+  "narrative": {
+    "quickstart": [
+      {"command": "oura-pp-cli usercollection multiple-daily-sleep-documents --json", "description": "List daily sleep summaries (score, contributors) as JSON"},
+      {"command": "oura-pp-cli usercollection multiple-daily-readiness-documents --json", "description": "List daily readiness scores and contributors"},
+      {"command": "oura-pp-cli usercollection multiple-daily-activity-documents --json", "description": "List daily activity summaries"},
+      {"command": "oura-pp-cli doctor", "description": "Check CLI health and auth status"}
+    ],
+    "recipes": [
+      {"command": "oura-pp-cli usercollection multiple-heartrate-documents --json", "description": "Pull time-series heart rate samples"},
+      {"command": "oura-pp-cli usercollection multiple-workout-documents --json", "description": "List auto-detected and user-entered workouts"},
+      {"command": "oura-pp-cli usercollection single-personal-info-document --json", "description": "Fetch personal info (age, biological sex, height, weight)"}
+    ]
+  },
+  "recommendation": "proceed",
+  "researched_at": "2026-06-18T21:48:39Z"
+}

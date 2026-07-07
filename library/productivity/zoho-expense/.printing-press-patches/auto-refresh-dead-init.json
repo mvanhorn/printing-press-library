@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "auto-refresh-dead-init",
+  "applied_at": "2026-05-23",
+  "base_run_id": "20260523-163843",
+  "base_printing_press_version": "4.12.0",
+  "summary": "Collapse the dead 6h initializer; staleAfter is just the 168h literal.",
+  "reason": "Template emitted `staleAfter := 6*time.Hour; if d, err := time.ParseDuration(\"168h\"); err == nil { staleAfter = d }` — the literal ParseDuration never errors, so 6h was always overwritten. Patched per Greptile P2.",
+  "files": [
+    "internal/cli/auto_refresh.go"
+  ],
+  "upstream_issue": "TODO: file upstream — generator's auto_refresh template should emit the literal directly when the cache stale_after is a constant."
+}

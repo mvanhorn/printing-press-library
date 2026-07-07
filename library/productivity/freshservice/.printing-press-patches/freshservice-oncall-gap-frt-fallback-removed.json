@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "freshservice-oncall-gap-frt-fallback-removed",
+  "applied_at": "2026-05-13",
+  "base_run_id": "20260512-170855",
+  "base_printing_press_version": "4.5.0",
+  "summary": "Remove the `frt_escalated_at` fallback from on-call gap detection. SLA-escalation time is when the breach timer fired, not when an agent responded; using it as a fallback excluded tickets that escalated without ever being responded to from the gap report.",
+  "reason": "Greptile round-4 P1 on PR #533. Hand-authored novel-command logic in `oncall-gap`: tickets with no `first_responded_at` should fall into the `time.Since(created)` branch (which correctly measures elapsed-since-creation against `--ack-minutes`). The earlier code instead read `frt_escalated_at` as a response timestamp, producing false negatives whenever the SLA escalation fell inside the ack window.",
+  "files": [
+    "internal/cli/freshservice_novel.go"
+  ],
+  "validated_outcome": "Tickets that were never responded to now appear in the gap report when their elapsed-since-creation exceeds `--ack-minutes`, regardless of whether the FRT SLA escalation fired in the meantime."
+}

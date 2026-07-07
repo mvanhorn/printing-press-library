@@ -1,0 +1,34 @@
+{
+  "target_url": "https://yeswehack.com/programs?disabled=0",
+  "api_base_url": "https://api.yeswehack.com",
+  "capture_backend": "chrome-mcp",
+  "captured_at": "2026-05-11T05:50:00Z",
+  "interaction_rounds": 6,
+  "reachability": {
+    "mode": "standard_http",
+    "evidence": "Direct HTTP probes against api.yeswehack.com return 200 with valid JSON when Authorization: Bearer <jwt> is provided. No Cloudflare/Vercel/DataDome challenge observed. CORS preflight (OPTIONS) returns 200. Plain net/http transport in the printed CLI is sufficient.",
+    "browser_required": false,
+    "uses_browser_http_transport": false,
+    "uses_browser_clearance": false
+  },
+  "auth": {
+    "type": "bearer_token",
+    "header": "Authorization",
+    "format": "Bearer {token}",
+    "token_source": "localStorage_access_token",
+    "site": "yeswehack.com",
+    "env_var": "YESWEHACK_JWT",
+    "notes": "JWT is stored in localStorage.access_token on yeswehack.com. The printed CLI ships an 'auth login --chrome' command that reads it from the user's Chrome profile so they do not have to copy-paste from DevTools. Refresh path is documented at apps.yeswehack.com/oauth/v2/token. PATs are out of scope because researchers cannot generate them."
+  },
+  "client_pattern": "rest",
+  "pagination_styles": [
+    {"resources": ["programs", "user.reports", "ranking", "events"], "page_param": "page", "size_param": "itemsPerPage"},
+    {"resources": ["hacktivity"], "page_param": "page", "size_param": "resultsPerPage"}
+  ],
+  "rate_limiting": {
+    "documented": false,
+    "observed_during_sniff": false,
+    "recommendation": "Use adaptive limiter (cliutil.AdaptiveLimiter). Start at 1 req/s, back off on 429, raise on sustained success."
+  },
+  "code_of_conduct_constraint": "YesWeHack platform recently published a Code of Conduct that explicitly calls out program spamming and AI slop. The printed CLI must NOT enable bulk-submit, template-flood, or any 'submit N reports at once' workflow. Submit/draft commands are guarded with dry-run defaults and explicit confirmation, no batch mode."
+}

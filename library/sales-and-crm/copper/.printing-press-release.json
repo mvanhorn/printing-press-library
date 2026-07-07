@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "slug": "copper",
+  "cli_name": "copper-pp-cli",
+  "version": "2026.6.1",
+  "released_at": "2026-06-25T07:44:42Z",
+  "source_commit": "9b3a67884ba679043574ebabd44b9e74b5961966",
+  "printing_press_version": "4.25.0",
+  "run_id": "20260623-105449-202981ca",
+  "changes": [
+    {
+      "title": "feat(copper): add copper",
+      "pr": 1337,
+      "url": "https://github.com/mvanhorn/printing-press-library/pull/1337",
+      "commit": "9b3a67884ba679043574ebabd44b9e74b5961966"
+    }
+  ]
+}

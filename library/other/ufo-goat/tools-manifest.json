@@ -1,5 +1,5 @@
 {
-  "api_name": "ufo-goat",
+  "api_name": "ufo",
   "base_url": "https://raw.githubusercontent.com/DenisSergeevitch/UFO-USA/main/metadata",
   "description": "Browse, search, and download declassified UAP files from the War.gov PURSUE archive",
   "mcp_ready": "full",
@@ -11,7 +11,7 @@
   "tools": [
     {
       "name": "agencies_list",
-      "description": "List all contributing agencies with file counts.",
+      "description": "List every government agency that contributed files to the PURSUE archive, with per-agency file counts and a breakdown by file type.",
       "method": "GET",
       "path": "/agencies",
       "no_auth": true,

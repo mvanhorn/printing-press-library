@@ -1,0 +1,259 @@
+{
+  "id": "https://api.weather.gov/alerts/urn:oid:2.49.0.1.840.0.dce81a3bb9b6799d1245572d061e9320a40ed6a2.011.1",
+  "type": "Feature",
+  "geometry": {
+    "type": "MultiPolygon",
+    "coordinates": [
+      [
+        [
+          [
+            -82.762,
+            27.603
+          ],
+          [
+            -82.758,
+            27.577
+          ],
+          [
+            -82.767,
+            27.585
+          ],
+          [
+            -82.762,
+            27.603
+          ]
+        ]
+      ],
+      [
+        [
+          [
+            -82.592,
+            28.096
+          ],
+          [
+            -82.541,
+            28.074
+          ],
+          [
+            -82.4599999,
+            28.076
+          ],
+          [
+            -82.416,
+            28.065
+          ],
+          [
+            -82.37299999999999,
+            28.044
+          ],
+          [
+            -82.34099989999999,
+            27.987000000000002
+          ],
+          [
+            -82.32999999999998,
+            27.942
+          ],
+          [
+            -82.34299999999999,
+            27.907
+          ],
+          [
+            -82.34199999999998,
+            27.896
+          ],
+          [
+            -82.34899999999999,
+            27.894000000000002
+          ],
+          [
+            -82.34599999999999,
+            27.858
+          ],
+          [
+            -82.35499999999999,
+            27.796
+          ],
+          [
+            -82.362,
+            27.771
+          ],
+          [
+            -82.38199999999999,
+            27.743000000000002
+          ],
+          [
+            -82.38399999999999,
+            27.716
+          ],
+          [
+            -82.41599999999998,
+            27.696
+          ],
+          [
+            -82.43599999999998,
+            27.667
+          ],
+          [
+            -82.46199999999997,
+            27.646
+          ],
+          [
+            -82.55399999999997,
+            27.645
+          ],
+          [
+            -82.52399999999997,
+            27.714
+          ],
+          [
+            -82.44599999999997,
+            27.782999999999998
+          ],
+          [
+            -82.45499999999997,
+            27.807
+          ],
+          [
+            -82.43999999999997,
+            27.866999999999997
+          ],
+          [
+            -82.44799989999997,
+            27.900999999999996
+          ],
+          [
+            -82.48999999999997,
+            27.919999999999995
+          ],
+          [
+            -82.48699999999997,
+            27.894999999999996
+          ],
+          [
+            -82.48099999999997,
+            27.887999999999995
+          ],
+          [
+            -82.48799999999997,
+            27.863999999999994
+          ],
+          [
+            -82.46899999999997,
+            27.842999999999993
+          ],
+          [
+            -82.47299999999997,
+            27.820999999999994
+          ],
+          [
+            -82.53399999999998,
+            27.832999999999995
+          ],
+          [
+            -82.55599999999998,
+            27.841999999999995
+          ],
+          [
+            -82.56499999999998,
+            27.935999999999996
+          ],
+          [
+            -82.61999999999999,
+            27.969999999999995
+          ],
+          [
+            -82.648,
+            28.017999999999994
+          ],
+          [
+            -82.651,
+            28.172999999999995
+          ],
+          [
+            -82.624,
+            28.153999999999996
+          ],
+          [
+            -82.592,
+            28.096
+          ]
+        ]
+      ]
+    ]
+  },
+  "properties": {
+    "@id": "https://api.weather.gov/alerts/urn:oid:2.49.0.1.840.0.dce81a3bb9b6799d1245572d061e9320a40ed6a2.011.1",
+    "@type": "wx:Alert",
+    "id": "urn:oid:2.49.0.1.840.0.dce81a3bb9b6799d1245572d061e9320a40ed6a2.011.1",
+    "areaDesc": "Coastal Hillsborough",
+    "geocode": {
+      "SAME": [
+        "012057"
+      ],
+      "UGC": [
+        "FLZ151"
+      ]
+    },
+    "affectedZones": [
+      "https://api.weather.gov/zones/forecast/FLZ151"
+    ],
+    "references": [
+      {
+        "@id": "https://api.weather.gov/alerts/urn:oid:2.49.0.1.840.0.d7c2b27e0227eff320ab3b62d4d70a88eb45d781.011.1",
+        "identifier": "urn:oid:2.49.0.1.840.0.d7c2b27e0227eff320ab3b62d4d70a88eb45d781.011.1",
+        "sender": "noaa-webmaster@example.com",
+        "sent": "2024-10-09T11:13:00-04:00"
+      },
+      {
+        "@id": "https://api.weather.gov/alerts/urn:oid:2.49.0.1.840.0.e2fb69cabfe3b7b0f595dc818beaa43b3a7af7dd.011.1",
+        "identifier": "urn:oid:2.49.0.1.840.0.e2fb69cabfe3b7b0f595dc818beaa43b3a7af7dd.011.1",
+        "sender": "noaa-webmaster@example.com",
+        "sent": "2024-10-09T08:09:00-04:00"
+      }
+    ],
+    "sent": "2024-10-09T14:10:00-04:00",
+    "effective": "2024-10-09T14:10:00-04:00",
+    "onset": "2024-10-09T14:10:00-04:00",
+    "expires": "2024-10-09T22:15:00-04:00",
+    "ends": null,
+    "status": "Actual",
+    "messageType": "Update",
+    "category": "Met",
+    "severity": "Extreme",
+    "certainty": "Likely",
+    "urgency": "Immediate",
+    "event": "Hurricane Warning",
+    "sender": "noaa-webmaster@example.com",
+    "senderName": "NWS Tampa Bay Ruskin FL",
+    "headline": "Hurricane Warning issued October 9 at 2:10PM EDT by NWS Tampa Bay Ruskin FL",
+    "description": "* LOCATIONS AFFECTED\n- Tampa\n- Apollo Beach\n- Westchase\n\n* WIND\n- LATEST LOCAL FORECAST: Equivalent Cat 1 Hurricane force wind\n- Peak Wind Forecast: 55-75 mph with gusts to 90 mph\n- Window for Tropical Storm force winds: until Thursday\nevening\n\n- THREAT TO LIFE AND PROPERTY THAT INCLUDES TYPICAL FORECAST\nUNCERTAINTY IN TRACK, SIZE AND INTENSITY: Potential for wind\ngreater than 110 mph\n- The wind threat has remained nearly steady from the\nprevious assessment.\n- PLAN: Plan for extreme wind of equivalent CAT 3 hurricane\nforce or higher.\n- PREPARE: Last minute efforts should solely focus on\nprotecting life. The area remains subject to catastrophic\nwind damage.\n- ACT: Now is the time to shelter from life-threatening wind.\nBe ready to move to the safest place inside your shelter if\nnecessary.\n\n- POTENTIAL IMPACTS: Unfolding\n- Potential impacts from the main wind event are unfolding.\n\n* STORM SURGE\n- LATEST LOCAL FORECAST: Life-threatening and historic storm\nsurge possible\n- Peak Storm Surge Inundation: The potential for 8-12 feet\nabove ground somewhere within surge prone areas\n- Window of concern: through Thursday evening\n\n- THREAT TO LIFE AND PROPERTY THAT INCLUDES TYPICAL FORECAST\nUNCERTAINTY IN TRACK, SIZE AND INTENSITY: Potential for storm\nsurge flooding greater than 9 feet above ground\n- The storm surge threat has remained nearly steady from the\nprevious assessment.\n- PLAN: Shelter against extreme life-threatening storm surge\nflooding greater than 9 feet above ground.\n- PREPARE: All ordered evacuations should be complete.\nEvacuees should be in shelters well away from storm surge\nflooding.\n- ACT: Remain sheltered in a safe location. Do not venture\noutside. Move to upper floors to escape rising water if\nnecessary.\n\n- POTENTIAL IMPACTS: Unfolding\n- Potential impacts from the main surge event are unfolding.\n\n* FLOODING RAIN\n- LATEST LOCAL FORECAST: Flood Watch is in effect\n- Peak Rainfall Amounts: Additional 6-10 inches, with locally\nhigher amounts\n\n- THREAT TO LIFE AND PROPERTY THAT INCLUDES TYPICAL FORECAST\nUNCERTAINTY IN TRACK, SIZE AND INTENSITY: Potential for extreme\nflooding rain\n- The flooding rain threat has remained nearly steady from\nthe previous assessment.\n- PLAN: Emergency plans should include the potential for\nextreme flooding from heavy rain. Evacuations and rescues\nare likely.\n- PREPARE: Urgently consider protective actions from extreme\nand widespread rainfall flooding.\n- ACT: Heed any flood watches and warnings. Failure to take\naction will likely result in serious injury or loss of life.\n\n- POTENTIAL IMPACTS: Devastating to Catastrophic\n- Extreme rainfall flooding may prompt numerous evacuations\nand rescues.\n- Rivers and tributaries may overwhelmingly overflow their\nbanks in many places with deep moving water. Small streams,\ncreeks, canals, and ditches may become raging rivers. Flood\ncontrol systems and barriers may become stressed.\n- Flood waters can enter numerous structures within multiple\ncommunities, some structures becoming uninhabitable or\nwashed away. Numerous places where flood waters may cover\nescape routes. Streets and parking lots become rivers of\nraging water with underpasses submerged. Driving conditions\nbecome very dangerous. Numerous road and bridge closures\nwith some weakened or washed out.\n\n* TORNADO\n- LATEST LOCAL FORECAST: Tornado Watch is in effect\n- Situation is favorable for tornadoes\n\n- THREAT TO LIFE AND PROPERTY THAT INCLUDES TYPICAL FORECAST\nUNCERTAINTY IN TRACK, SIZE AND INTENSITY: Potential for several\ntornadoes\n- The tornado threat has remained nearly steady from the\nprevious assessment.\n- PLAN: Emergency plans should continue to include the\npotential for several tornadoes.\n- PREPARE: Stay within your shelter keeping informed of the\nlatest tornado situation.\n- ACT: Move quickly to the safest place within your shelter\nif a tornado warning is issued.\n\n- POTENTIAL IMPACTS: Significant\n- The occurrence of scattered tornadoes can hinder the\nexecution of emergency plans during tropical events.\n- Several places may experience tornado damage with a few\nspots of considerable damage, power loss, and\ncommunications failures.\n- Locations could realize roofs torn off frame houses, mobile\nhomes demolished, boxcars overturned, large trees snapped\nor uprooted, vehicles tumbled, and boats tossed about.\nDangerous projectiles can add to the toll.\n\n* FOR MORE INFORMATION:\n- https://www.weather.gov/tbw",
+    "instruction": null,
+    "response": "Avoid",
+    "parameters": {
+      "AWIPSidentifier": [
+        "TCVTBW"
+      ],
+      "WMOidentifier": [
+        "WTUS82 KTBW 091810"
+      ],
+      "NWSheadline": [
+        "HURRICANE WARNING REMAINS IN EFFECT... ...STORM SURGE WARNING REMAINS IN EFFECT"
+      ],
+      "BLOCKCHANNEL": [
+        "EAS",
+        "NWEM",
+        "CMAS"
+      ],
+      "EAS-ORG": [
+        "WXR"
+      ],
+      "VTEC": [
+        "/O.CON.KTBW.HU.W.1014.000000T0000Z-000000T0000Z/"
+      ],
+      "expiredReferences": [
+        "noaa-webmaster@example.com,urn:oid:2.49.0.1.840.0.4060d5fd64f83f60aa99716af440c8036a79f80c.011.1,2024-10-09T05:06:00-04:00 noaa-webmaster@example.com,urn:oid:2.49.0.1.840.0.673d1351a61a4a432cf288658165ae733a1dca6a.011.1,2024-10-08T23:23:00-04:00 noaa-webmaster@example.com,urn:oid:2.49.0.1.840.0.f0d114496d6a19f63d9b8d261eae647359869b6c.011.1,2024-10-08T17:10:00-04:00 noaa-webmaster@example.com,urn:oid:2.49.0.1.840.0.f530de6d022a31a249eb87e4df5577279bf9742d.011.1,2024-10-08T11:09:00-04:00 noaa-webmaster@example.com,urn:oid:2.49.0.1.840.0.78be198598dd9623ab9bef2b5a65a580659534ce.011.1,2024-10-08T04:57:00-04:00 noaa-webmaster@example.com,urn:oid:2.49.0.1.840.0.5cd3347acc69a23b8b1ca80a7673940302486e6b.011.1,2024-10-07T23:00:00-04:00 noaa-webmaster@example.com,urn:oid:2.49.0.1.840.0.5fcd051068228a55caa84add3fa564cd0f119338.011.1,2024-10-07T17:07:00-04:00"
+      ]
+    }
+  }
+}

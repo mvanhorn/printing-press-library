@@ -21,11 +21,18 @@ func newTiktokListSearch2Cmd(flags *rootFlags) *cobra.Command {
 	var flagAll bool
 
 	cmd := &cobra.Command{
-		Use:         "list-search-2",
-		Short:       "Searches for TikTok videos by keyword or phrase — the general video search across all of TikTok. Returns...",
-		Example:     "  scrape-creators-pp-cli tiktok list-search-2",
-		Annotations: map[string]string{"pp:endpoint": "tiktok.list-search-2", "mcp:read-only": "true"},
+		Use:   "list-search-2",
+		Short: "Searches for TikTok videos by keyword or phrase — the general video search across all of TikTok.",
+		// TODO: replace placeholder example values before relying on this for live dogfood.
+		Example:     "  scrape-creators-pp-cli tiktok list-search-2 --query example-value",
+		Annotations: map[string]string{"pp:endpoint": "tiktok.list-search-2", "pp:method": "GET", "pp:path": "/v1/tiktok/search/keyword", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
+			// Bare invocation of a command with required input prints help
+			// instead of pflag's terse "required flag not set" error. Optional-
+			// only read commands fall through so a bare call still executes.
+			if cmd.Flags().NFlag() == 0 && len(args) == 0 && !flags.dryRun {
+				return cmd.Help()
+			}
 			if !cmd.Flags().Changed("query") && !flags.dryRun {
 				return fmt.Errorf("required flag \"%s\" not set", "query")
 			}
@@ -39,7 +46,7 @@ func newTiktokListSearch2Cmd(flags *rootFlags) *cobra.Command {
 					}
 				}
 				if !validDatePosted {
-					fmt.Fprintf(os.Stderr, "warning: --%s %q not in allowed set %v\n", "date-posted", flagDatePosted, allowedDatePosted)
+					return fmt.Errorf("invalid value %q for --%s: must be one of %v", flagDatePosted, "date-posted", allowedDatePosted)
 				}
 			}
 			if cmd.Flags().Changed("sort-by") {
@@ -52,36 +59,41 @@ func newTiktokListSearch2Cmd(flags *rootFlags) *cobra.Command {
 					}
 				}
 				if !validSortBy {
-					fmt.Fprintf(os.Stderr, "warning: --%s %q not in allowed set %v\n", "sort-by", flagSortBy, allowedSortBy)
+					return fmt.Errorf("invalid value %q for --%s: must be one of %v", flagSortBy, "sort-by", allowedSortBy)
 				}
 			}
+			path := "/v1/tiktok/search/keyword"
 			c, err := flags.newClient()
 			if err != nil {
 				return err
 			}
-
-			path := "/v1/tiktok/search/keyword"
-			data, prov, err := resolvePaginatedRead(cmd.Context(), c, flags, "tiktok", path, map[string]string{
-				"query":       fmt.Sprintf("%v", flagQuery),
-				"date_posted": fmt.Sprintf("%v", flagDatePosted),
-				"sort_by":     fmt.Sprintf("%v", flagSortBy),
-				"region":      fmt.Sprintf("%v", flagRegion),
-				"cursor":      fmt.Sprintf("%v", flagCursor),
-				"trim":        fmt.Sprintf("%v", flagTrim),
-			}, nil, flagAll, "cursor", "", "")
+			data, prov, err := resolvePaginatedReadWithStrategy(cmd.Context(), c, flags, "auto", "tiktok", path, map[string]string{
+				"query":       formatCLIParamValue(flagQuery),
+				"date_posted": formatCLIParamValue(flagDatePosted),
+				"sort_by":     formatCLIParamValue(flagSortBy),
+				"region":      formatCLIParamValue(flagRegion),
+				"cursor":      formatCLIParamValue(flagCursor),
+				"trim":        formatCLIParamValue(flagTrim),
+			}, nil, flagAll, "cursor", "cursor", "", "", "", cmd.ErrOrStderr())
 			if err != nil {
-				return classifyAPIError(err)
+				return classifyAPIError(err, flags)
 			}
-			// Print provenance to stderr for human-facing output
-			{
+			// Print provenance to stderr for human-facing output only.
+			// Machine-format flags (--json, --csv, --compact, --quiet, --plain,
+			// --select) and piped stdout suppress this line; the JSON envelope
+			// already carries meta.source for those consumers.
+			// SYNC: keep this gate aligned with command_promoted.go.tmpl.
+			if wantsHumanTable(cmd.OutOrStdout(), flags) {
 				var countItems []json.RawMessage
 				_ = json.Unmarshal(data, &countItems)
 				printProvenance(cmd, len(countItems), prov)
 			}
 			// For JSON output, wrap with provenance envelope before passing through flags.
 			// --select wins over --compact when both are set; --compact only runs when
-			// no explicit fields were requested.
-			if flags.asJSON || !isTerminal(cmd.OutOrStdout()) {
+			// no explicit fields were requested. Explicit format flags (--csv, --quiet,
+			// --plain) opt out of the auto-JSON path so piped consumers that asked for
+			// a non-JSON format reach the standard pipeline below.
+			if flags.asJSON || (!isTerminal(cmd.OutOrStdout()) && !flags.csv && !flags.quiet && !flags.plain) {
 				filtered := data
 				if flags.selectFields != "" {
 					filtered = filterFields(filtered, flags.selectFields)
@@ -107,13 +119,13 @@ func newTiktokListSearch2Cmd(flags *rootFlags) *cobra.Command {
 					return nil
 				}
 			}
-			return printOutputWithFlags(cmd.OutOrStdout(), data, flags)
+			return printOutputWithFlagsMeta(cmd.OutOrStdout(), data, flags, map[string]any{"source": "live"})
 		},
 	}
 	cmd.Flags().StringVar(&flagQuery, "query", "", "Keyword to search for")
 	cmd.Flags().StringVar(&flagDatePosted, "date-posted", "", "Time Frame (one of: yesterday, this-week, this-month, last-3-months, last-6-months, all-time)")
 	cmd.Flags().StringVar(&flagSortBy, "sort-by", "", "Sort by (one of: relevance, most-liked, date-posted)")
-	cmd.Flags().StringVar(&flagRegion, "region", "", "Note, this doesn't filter the tiktoks only in a specfic region, it puts the proxy there. Use it in case you want to...")
+	cmd.Flags().StringVar(&flagRegion, "region", "", "Note, this doesn't filter the tiktoks only in a specfic region, it puts the proxy there.")
 	cmd.Flags().StringVar(&flagCursor, "cursor", "", "Cursor to get more videos. Get 'cursor' from previous response.")
 	cmd.Flags().BoolVar(&flagTrim, "trim", false, "Set to true to get a trimmed response")
 	cmd.Flags().BoolVar(&flagAll, "all", false, "Fetch all pages")

@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "v3-docs-chat-aliases",
+  "applied_at": "2026-05-10",
+  "base_run_id": "20260510-202319",
+  "base_printing_press_version": "4.2.2",
+  "summary": "Top-level `docs` and `chat` commands with idiomatic verbs (search, get, pages, page, listing, send, react, reply, members, followers, messages, etc.) replacing the spec-derived `workspaces docs <verb>-public` and `workspaces chat get-channels` paths. Original verbs preserved as Cobra aliases for back-compat.",
+  "reason": "The generator names commands after API operationIds. ClickUp's v3 docs and chat operations carry the `-public` suffix and live deeply nested under `workspaces`, which is rough on humans and on agent prompts. The aliases give a flatter, more memorable surface without losing the original paths.",
+  "files": [
+    "internal/cli/clickup_aliases.go",
+    "internal/cli/root.go"
+  ]
+}

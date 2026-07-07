@@ -1,0 +1,176 @@
+openapi: 3.0.3
+info:
+  title: Gladly Read API
+  version: 1.0.0
+  description: Read-first Gladly API surface for customer timelines, conversations, agents, topics, answers, and support operations.
+servers:
+  - url: https://api.gladly.com
+security:
+  - BasicAuth: []
+tags:
+  - name: Customers
+  - name: Conversations
+  - name: Agents
+  - name: Answers
+  - name: Topics
+  - name: Inboxes
+  - name: Tasks
+  - name: Reports
+paths:
+  /api/v1/customers:
+    get:
+      operationId: listCustomers
+      tags: [Customers]
+      summary: List Gladly customers.
+      parameters:
+        - $ref: "#/components/parameters/Page"
+        - $ref: "#/components/parameters/PageSize"
+        - $ref: "#/components/parameters/Query"
+      responses:
+        "200":
+          $ref: "#/components/responses/Success"
+  /api/v1/customers/{id}:
+    get:
+      operationId: getCustomer
+      tags: [Customers]
+      summary: Get a Gladly customer profile.
+      parameters:
+        - $ref: "#/components/parameters/StringId"
+      responses:
+        "200":
+          $ref: "#/components/responses/Success"
+  /api/v1/conversations:
+    get:
+      operationId: listConversations
+      tags: [Conversations]
+      summary: List customer conversations.
+      parameters:
+        - $ref: "#/components/parameters/Page"
+        - $ref: "#/components/parameters/PageSize"
+        - name: status
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          $ref: "#/components/responses/Success"
+  /api/v1/conversations/{id}:
+    get:
+      operationId: getConversation
+      tags: [Conversations]
+      summary: Get a conversation.
+      parameters:
+        - $ref: "#/components/parameters/StringId"
+      responses:
+        "200":
+          $ref: "#/components/responses/Success"
+  /api/v1/conversation-items:
+    get:
+      operationId: listConversationItems
+      tags: [Conversations]
+      summary: List conversation timeline items.
+      parameters:
+        - name: conversationId
+          in: query
+          schema:
+            type: string
+        - $ref: "#/components/parameters/Page"
+        - $ref: "#/components/parameters/PageSize"
+      responses:
+        "200":
+          $ref: "#/components/responses/Success"
+  /api/v1/agents:
+    get:
+      operationId: listAgents
+      tags: [Agents]
+      summary: List agents.
+      responses:
+        "200":
+          $ref: "#/components/responses/Success"
+  /api/v1/answers:
+    get:
+      operationId: listAnswers
+      tags: [Answers]
+      summary: List knowledge answers.
+      parameters:
+        - $ref: "#/components/parameters/Page"
+        - $ref: "#/components/parameters/PageSize"
+      responses:
+        "200":
+          $ref: "#/components/responses/Success"
+  /api/v1/topics:
+    get:
+      operationId: listTopics
+      tags: [Topics]
+      summary: List conversation topics.
+      responses:
+        "200":
+          $ref: "#/components/responses/Success"
+  /api/v1/inboxes:
+    get:
+      operationId: listInboxes
+      tags: [Inboxes]
+      summary: List inboxes.
+      responses:
+        "200":
+          $ref: "#/components/responses/Success"
+  /api/v1/tasks:
+    get:
+      operationId: listTasks
+      tags: [Tasks]
+      summary: List Gladly tasks.
+      parameters:
+        - $ref: "#/components/parameters/Page"
+        - $ref: "#/components/parameters/PageSize"
+      responses:
+        "200":
+          $ref: "#/components/responses/Success"
+  /api/v1/reports:
+    get:
+      operationId: listReports
+      tags: [Reports]
+      summary: List available reports.
+      responses:
+        "200":
+          $ref: "#/components/responses/Success"
+components:
+  securitySchemes:
+    BasicAuth:
+      type: http
+      scheme: basic
+  parameters:
+    StringId:
+      name: id
+      in: path
+      required: true
+      schema:
+        type: string
+    Page:
+      name: page
+      in: query
+      schema:
+        type: integer
+        minimum: 1
+    PageSize:
+      name: pageSize
+      in: query
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 100
+    Query:
+      name: query
+      in: query
+      schema:
+        type: string
+  responses:
+    Success:
+      description: Successful Gladly response.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/AnyObject"
+  schemas:
+    AnyObject:
+      type: object
+      additionalProperties: true

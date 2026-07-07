@@ -9,20 +9,28 @@ import (
 
 func newTiktokCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "tiktok",
-		Short: "Scrape TikTok profiles, videos, and more",
+		Use:         "tiktok",
+		Short:       "Scrape TikTok profiles, videos, and more",
+		Hidden:      true,
+		Annotations: map[string]string{"mcp:read-only": "true", "pp:typed-exit-codes": "0,2"},
+		RunE:        parentNoSubcommandRunE(flags),
 	}
 
 	cmd.AddCommand(newTiktokListCmd(flags))
+	cmd.AddCommand(newTiktokListAdlibraryCmd(flags))
+	cmd.AddCommand(newTiktokListAdlibrary2Cmd(flags))
 	cmd.AddCommand(newTiktokListCreatorsCmd(flags))
 	cmd.AddCommand(newTiktokListHashtagsCmd(flags))
+	cmd.AddCommand(newTiktokListLiveCmd(flags))
 	cmd.AddCommand(newTiktokListProductCmd(flags))
 	cmd.AddCommand(newTiktokListProfileCmd(flags))
 	cmd.AddCommand(newTiktokListProfile2Cmd(flags))
+	cmd.AddCommand(newTiktokListProfile3Cmd(flags))
 	cmd.AddCommand(newTiktokListSearchCmd(flags))
 	cmd.AddCommand(newTiktokListSearch2Cmd(flags))
 	cmd.AddCommand(newTiktokListSearch3Cmd(flags))
 	cmd.AddCommand(newTiktokListSearch4Cmd(flags))
+	cmd.AddCommand(newTiktokListSearch5Cmd(flags))
 	cmd.AddCommand(newTiktokListShopCmd(flags))
 	cmd.AddCommand(newTiktokListShop2Cmd(flags))
 	cmd.AddCommand(newTiktokListShop3Cmd(flags))

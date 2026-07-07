@@ -1,0 +1,736 @@
+{
+  "api_name": "lda-gov",
+  "base_url": "https://lda.gov",
+  "description": "Lobbying disclosure records with local sync, entity resolution, and evidence-grade exports.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "none"
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "clients_list",
+      "description": "Returns all clients matching the provided filters. Optional: page, page_size, ordering (plus 8 more).",
+      "method": "GET",
+      "path": "/api/v1/clients/",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "A page number within the paginated result set."
+        },
+        {
+          "name": "page_size",
+          "type": "int",
+          "location": "query",
+          "description": "Number of results to return per page."
+        },
+        {
+          "name": "ordering",
+          "type": "string",
+          "location": "query",
+          "description": "Which field to use when ordering the results."
+        },
+        {
+          "name": "id",
+          "type": "int",
+          "location": "query",
+          "description": "ID"
+        },
+        {
+          "name": "client_name",
+          "type": "string",
+          "location": "query",
+          "description": "Client Name"
+        },
+        {
+          "name": "client_state",
+          "type": "string",
+          "location": "query",
+          "description": "Client State"
+        },
+        {
+          "name": "client_country",
+          "type": "string",
+          "location": "query",
+          "description": "Client Country"
+        },
+        {
+          "name": "client_ppb_state",
+          "type": "string",
+          "location": "query",
+          "description": "Client PPB State"
+        },
+        {
+          "name": "client_ppb_country",
+          "type": "string",
+          "location": "query",
+          "description": "Client PPB Country"
+        },
+        {
+          "name": "registrant_id",
+          "type": "int",
+          "location": "query",
+          "description": "Registrant ID"
+        },
+        {
+          "name": "registrant_name",
+          "type": "string",
+          "location": "query",
+          "description": "Registrant Name"
+        }
+      ]
+    },
+    {
+      "name": "clients_retrieve",
+      "description": "Returns all clients matching the provided filters. Required: id.",
+      "method": "GET",
+      "path": "/api/v1/clients/{id}/",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "A unique integer value identifying this Client.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "constants_list-contribution-item-types",
+      "description": "Returns all ContributionItemTypes.",
+      "method": "GET",
+      "path": "/api/v1/constants/contribution/itemtypes/",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "constants_list-countries",
+      "description": "Returns all Countries.",
+      "method": "GET",
+      "path": "/api/v1/constants/general/countries/",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "constants_list-filing-types",
+      "description": "Returns all FilingTypes.",
+      "method": "GET",
+      "path": "/api/v1/constants/filing/filingtypes/",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "constants_list-government-entities",
+      "description": "Returns all GovernmentEntities.",
+      "method": "GET",
+      "path": "/api/v1/constants/filing/governmententities/",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "constants_list-lobbying-activity-general-issues",
+      "description": "Returns all LobbyingActivityGeneralIssues.",
+      "method": "GET",
+      "path": "/api/v1/constants/filing/lobbyingactivityissues/",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "constants_list-lobbyist-prefixes",
+      "description": "Returns all LobbyistPrefixes.",
+      "method": "GET",
+      "path": "/api/v1/constants/lobbyist/prefixes/",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "constants_list-lobbyist-suffixes",
+      "description": "Returns all LobbyistSuffixes.",
+      "method": "GET",
+      "path": "/api/v1/constants/lobbyist/suffixes/",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "constants_list-states",
+      "description": "Returns all States.",
+      "method": "GET",
+      "path": "/api/v1/constants/general/states/",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "contributions_list-reports",
+      "description": "List reports. Optional: page, page_size, ordering (plus 19 more). Returns array of ContributionReport.",
+      "method": "GET",
+      "path": "/api/v1/contributions/",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "A page number within the paginated result set."
+        },
+        {
+          "name": "page_size",
+          "type": "int",
+          "location": "query",
+          "description": "Number of results to return per page."
+        },
+        {
+          "name": "ordering",
+          "type": "string",
+          "location": "query",
+          "description": "Which field to use when ordering the results."
+        },
+        {
+          "name": "filing_uuid",
+          "type": "string",
+          "location": "query",
+          "description": "filing_uuid"
+        },
+        {
+          "name": "filing_type",
+          "type": "string",
+          "location": "query",
+          "description": "Filing Type"
+        },
+        {
+          "name": "filing_year",
+          "type": "string",
+          "location": "query",
+          "description": "Filing Year"
+        },
+        {
+          "name": "filing_period",
+          "type": "string",
+          "location": "query",
+          "description": "Filing Period"
+        },
+        {
+          "name": "filing_dt_posted_after",
+          "type": "string",
+          "location": "query",
+          "description": "Filing Date Posted Range (Before / After): yyyy-mm-dd"
+        },
+        {
+          "name": "filing_dt_posted_before",
+          "type": "string",
+          "location": "query",
+          "description": "Filing Date Posted Range (Before / After): yyyy-mm-dd"
+        },
+        {
+          "name": "registrant_id",
+          "type": "int",
+          "location": "query",
+          "description": "Registrant ID"
+        },
+        {
+          "name": "registrant_name",
+          "type": "string",
+          "location": "query",
+          "description": "Registrant Name"
+        },
+        {
+          "name": "lobbyist_id",
+          "type": "int",
+          "location": "query",
+          "description": "Lobbyist ID"
+        },
+        {
+          "name": "lobbyist_name",
+          "type": "string",
+          "location": "query",
+          "description": "Lobbyist Name"
+        },
+        {
+          "name": "lobbyist_exclude",
+          "type": "bool",
+          "location": "query",
+          "description": "Exclude reports filed by the lobbyists."
+        },
+        {
+          "name": "contribution_date_after",
+          "type": "string",
+          "location": "query",
+          "description": "Contribution Date Range (Before / After): yyyy-mm-dd"
+        },
+        {
+          "name": "contribution_date_before",
+          "type": "string",
+          "location": "query",
+          "description": "Contribution Date Range (Before / After): yyyy-mm-dd"
+        },
+        {
+          "name": "contribution_amount_min",
+          "type": "string",
+          "location": "query",
+          "description": "Contribution Amount Range"
+        },
+        {
+          "name": "contribution_amount_max",
+          "type": "string",
+          "location": "query",
+          "description": "Contribution Amount Range"
+        },
+        {
+          "name": "contribution_type",
+          "type": "string",
+          "location": "query",
+          "description": "Contribution Type"
+        },
+        {
+          "name": "contribution_contributor",
+          "type": "string",
+          "location": "query",
+          "description": "Contribution Contributor Name"
+        },
+        {
+          "name": "contribution_payee",
+          "type": "string",
+          "location": "query",
+          "description": "Contribution Payee Name"
+        },
+        {
+          "name": "contribution_honoree",
+          "type": "string",
+          "location": "query",
+          "description": "Contribution Honoree Name"
+        }
+      ]
+    },
+    {
+      "name": "contributions_retrieve-report",
+      "description": "Returns all contributions matching the provided filters. Required: filing_uuid.",
+      "method": "GET",
+      "path": "/api/v1/contributions/{filing_uuid}/",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "filing_uuid",
+          "type": "string",
+          "location": "path",
+          "description": "Filing uuid",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "filings_list",
+      "description": "List filings. Optional: page, page_size, ordering (plus 36 more). Returns array of Filing.",
+      "method": "GET",
+      "path": "/api/v1/filings/",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "A page number within the paginated result set."
+        },
+        {
+          "name": "page_size",
+          "type": "int",
+          "location": "query",
+          "description": "Number of results to return per page."
+        },
+        {
+          "name": "ordering",
+          "type": "string",
+          "location": "query",
+          "description": "Which field to use when ordering the results."
+        },
+        {
+          "name": "filing_uuid",
+          "type": "string",
+          "location": "query",
+          "description": "filing_uuid"
+        },
+        {
+          "name": "registrant_id",
+          "type": "int",
+          "location": "query",
+          "description": "Registrant ID"
+        },
+        {
+          "name": "registrant_name",
+          "type": "string",
+          "location": "query",
+          "description": "Registrant Name"
+        },
+        {
+          "name": "registrant_country",
+          "type": "string",
+          "location": "query",
+          "description": "Registrant Country"
+        },
+        {
+          "name": "registrant_ppb_country",
+          "type": "string",
+          "location": "query",
+          "description": "Registrant PPB Country"
+        },
+        {
+          "name": "client_id",
+          "type": "int",
+          "location": "query",
+          "description": "Client ID"
+        },
+        {
+          "name": "client_name",
+          "type": "string",
+          "location": "query",
+          "description": "Client Name"
+        },
+        {
+          "name": "client_state",
+          "type": "string",
+          "location": "query",
+          "description": "Client State"
+        },
+        {
+          "name": "client_country",
+          "type": "string",
+          "location": "query",
+          "description": "Client Country"
+        },
+        {
+          "name": "client_ppb_state",
+          "type": "string",
+          "location": "query",
+          "description": "Client PPB State"
+        },
+        {
+          "name": "client_ppb_country",
+          "type": "string",
+          "location": "query",
+          "description": "Client PPB Country"
+        },
+        {
+          "name": "lobbyist_id",
+          "type": "int",
+          "location": "query",
+          "description": "Lobbyist ID"
+        },
+        {
+          "name": "lobbyist_name",
+          "type": "string",
+          "location": "query",
+          "description": "Lobbyist Name"
+        },
+        {
+          "name": "lobbyist_covered_position",
+          "type": "string",
+          "location": "query",
+          "description": "Lobbyist Covered Position (Supports Advanced Text Searching)"
+        },
+        {
+          "name": "lobbyist_covered_position_indicator",
+          "type": "bool",
+          "location": "query",
+          "description": "Any Covered Government Position(s)"
+        },
+        {
+          "name": "lobbyist_conviction_disclosure",
+          "type": "string",
+          "location": "query",
+          "description": "Lobbyist Conviction Description (Supports Advanced Text Searching)"
+        },
+        {
+          "name": "lobbyist_conviction_disclosure_indicator",
+          "type": "bool",
+          "location": "query",
+          "description": "Lobbyist Any Disclosed Conviction(s)"
+        },
+        {
+          "name": "lobbyist_conviction_date_range_after",
+          "type": "string",
+          "location": "query",
+          "description": "Lobbyist Conviction Date Range (Before / After): yyyy-mm-dd"
+        },
+        {
+          "name": "lobbyist_conviction_date_range_before",
+          "type": "string",
+          "location": "query",
+          "description": "Lobbyist Conviction Date Range (Before / After): yyyy-mm-dd"
+        },
+        {
+          "name": "filing_type",
+          "type": "string",
+          "location": "query",
+          "description": "Filing Type"
+        },
+        {
+          "name": "filing_year",
+          "type": "string",
+          "location": "query",
+          "description": "Filing Year"
+        },
+        {
+          "name": "filing_period",
+          "type": "string",
+          "location": "query",
+          "description": "Filing Period"
+        },
+        {
+          "name": "filing_dt_posted_after",
+          "type": "string",
+          "location": "query",
+          "description": "Filing Date Posted Range (Before / After): yyyy-mm-dd"
+        },
+        {
+          "name": "filing_dt_posted_before",
+          "type": "string",
+          "location": "query",
+          "description": "Filing Date Posted Range (Before / After): yyyy-mm-dd"
+        },
+        {
+          "name": "filing_amount_reported_min",
+          "type": "string",
+          "location": "query",
+          "description": "Filing Amount Reported Range (Min / Max)"
+        },
+        {
+          "name": "filing_amount_reported_max",
+          "type": "string",
+          "location": "query",
+          "description": "Filing Amount Reported Range (Min / Max)"
+        },
+        {
+          "name": "filing_specific_lobbying_issues",
+          "type": "string",
+          "location": "query",
+          "description": "Filing Specific Lobbying Issues (Supports Advanced Text Searching)"
+        },
+        {
+          "name": "affiliated_organization_name",
+          "type": "string",
+          "location": "query",
+          "description": "Affiliated Organization Name"
+        },
+        {
+          "name": "affiliated_organization_country",
+          "type": "string",
+          "location": "query",
+          "description": "Affiliated Organization Country"
+        },
+        {
+          "name": "affiliated_organization_listed_indicator",
+          "type": "bool",
+          "location": "query",
+          "description": "Any Affiliated Organizations Listed"
+        },
+        {
+          "name": "foreign_entity_name",
+          "type": "string",
+          "location": "query",
+          "description": "Foreign Entity Name"
+        },
+        {
+          "name": "foreign_entity_country",
+          "type": "string",
+          "location": "query",
+          "description": "Foreign Entity Country"
+        },
+        {
+          "name": "foreign_entity_listed_indicator",
+          "type": "bool",
+          "location": "query",
+          "description": "Any Foreign Entities Listed"
+        },
+        {
+          "name": "foreign_entity_ppb_country",
+          "type": "string",
+          "location": "query",
+          "description": "Foreign Entity PPB Country"
+        },
+        {
+          "name": "foreign_entity_ownership_percentage_min",
+          "type": "string",
+          "location": "query",
+          "description": "Foreign Entity Ownership Percentage"
+        },
+        {
+          "name": "foreign_entity_ownership_percentage_max",
+          "type": "string",
+          "location": "query",
+          "description": "Foreign Entity Ownership Percentage"
+        }
+      ]
+    },
+    {
+      "name": "filings_retrieve",
+      "description": "Returns all filings matching the provided filters. Required: filing_uuid.",
+      "method": "GET",
+      "path": "/api/v1/filings/{filing_uuid}/",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "filing_uuid",
+          "type": "string",
+          "location": "path",
+          "description": "Filing uuid",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "lobbyists_list",
+      "description": "Returns all lobbyists matching the provided filters. The ID is a unique integer value identifying this Lobbyist Name as reported by this Registrant. Optional: page, page_size, ordering (plus 4 more).",
+      "method": "GET",
+      "path": "/api/v1/lobbyists/",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "A page number within the paginated result set."
+        },
+        {
+          "name": "page_size",
+          "type": "int",
+          "location": "query",
+          "description": "Number of results to return per page."
+        },
+        {
+          "name": "ordering",
+          "type": "string",
+          "location": "query",
+          "description": "Which field to use when ordering the results."
+        },
+        {
+          "name": "id",
+          "type": "int",
+          "location": "query",
+          "description": "ID"
+        },
+        {
+          "name": "lobbyist_name",
+          "type": "string",
+          "location": "query",
+          "description": "Lobbyist Name"
+        },
+        {
+          "name": "registrant_id",
+          "type": "int",
+          "location": "query",
+          "description": "Registrant ID"
+        },
+        {
+          "name": "registrant_name",
+          "type": "string",
+          "location": "query",
+          "description": "Registrant Name"
+        }
+      ]
+    },
+    {
+      "name": "lobbyists_retrieve",
+      "description": "Returns all lobbyists matching the provided filters. The ID is a unique integer value identifying this Lobbyist Name as reported by this Registrant. Required: id.",
+      "method": "GET",
+      "path": "/api/v1/lobbyists/{id}/",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "A unique integer value identifying this Lobbyist.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "registrants_list",
+      "description": "Returns all registrants matching the provided filters. Optional: page, page_size, ordering (plus 7 more).",
+      "method": "GET",
+      "path": "/api/v1/registrants/",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "A page number within the paginated result set."
+        },
+        {
+          "name": "page_size",
+          "type": "int",
+          "location": "query",
+          "description": "Number of results to return per page."
+        },
+        {
+          "name": "ordering",
+          "type": "string",
+          "location": "query",
+          "description": "Which field to use when ordering the results."
+        },
+        {
+          "name": "id",
+          "type": "int",
+          "location": "query",
+          "description": "ID"
+        },
+        {
+          "name": "registrant_name",
+          "type": "string",
+          "location": "query",
+          "description": "Name"
+        },
+        {
+          "name": "state",
+          "type": "string",
+          "location": "query",
+          "description": "State"
+        },
+        {
+          "name": "country",
+          "type": "string",
+          "location": "query",
+          "description": "Country"
+        },
+        {
+          "name": "ppb_country",
+          "type": "string",
+          "location": "query",
+          "description": "PPB Country"
+        },
+        {
+          "name": "dt_updated_after",
+          "type": "string",
+          "location": "query",
+          "description": "Date Update Range (Before / After): yyyy-mm-dd"
+        },
+        {
+          "name": "dt_updated_before",
+          "type": "string",
+          "location": "query",
+          "description": "Date Update Range (Before / After): yyyy-mm-dd"
+        }
+      ]
+    },
+    {
+      "name": "registrants_retrieve",
+      "description": "Returns all registrants matching the provided filters. Required: id.",
+      "method": "GET",
+      "path": "/api/v1/registrants/{id}/",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "A unique integer value identifying this Registrant.",
+          "required": true
+        }
+      ]
+    }
+  ]
+}

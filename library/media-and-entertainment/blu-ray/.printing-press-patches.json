@@ -21,7 +21,8 @@
         "internal/cli/drift.go",
         "internal/cli/history.go",
         "internal/cli/deals_parse.go",
-        "internal/cli/promoted_deals.go"
+        "internal/cli/promoted_deals.go",
+        "internal/cli/watch_check_test.go"
       ],
       "validated_outcome": "go build ./... and go vet ./... pass with GOCACHE=/tmp/blu-ray-pp-cli-gocache; touched package tests pass."
     },
@@ -148,6 +149,17 @@
         "internal/cliutil/freshness.go"
       ],
       "validated_outcome": "go build ./..., go vet ./..., and go test ./... pass with GOCACHE=/tmp/blu-ray-pp-cli-gocache; manual search/export/help checks pass with a temp HOME; scorecard cache_freshness is 10/10."
+    },
+    {
+      "id": "mcp-domain-search-and-schema",
+      "summary": "MCP context tool surfaces the local_tables schema; MCP search tool queries releases_catalog via SearchCatalog, not the empty generic resources_fts.",
+      "reason": "Generated MCP tools target the generic resources store; for this sitemap/domain-table CLI agents must reach releases_catalog. Without this, MCP search returns empty after sync and agents probe the empty resources scaffold.",
+      "files": [
+        "internal/mcp/tools.go",
+        "internal/cli/search.go"
+      ],
+      "validated_outcome": "MCP search returns catalog rows over stdio; AQL steering A/B M2 50->100%.",
+      "upstream_issue": "https://github.com/mvanhorn/cli-printing-press/issues/2965"
     }
   ]
 }

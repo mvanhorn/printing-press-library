@@ -1,0 +1,20 @@
+{
+  "schema_version": 2,
+  "id": "fix-heater-bow-and-resolver",
+  "applied_at": "2026-05-13",
+  "base_run_id": "20260510-160303",
+  "base_printing_press_version": "4.2.2",
+  "summary": "Heater commands gain --bow Pool|Spa via ResolveHeaterInBoW (parity with pump/equipment); ready-by surfaces SetHeaterTemp errors instead of silently reporting success; sweep honors per-site capabilities; deterministic XML param order across every Set* op; response cache chmod'd 0o700/0o600; ChemistryVerdict no longer drops mixed-direction findings.",
+  "reason": "Bundle of P1/P2 review fixes from PR #431. (1) Hayward's BOW_SHARED_EQUIPMENT pattern lets a single named heater appear under multiple BoWs ('Gas' is the name on both Pool and Spa on the printer's real install); ResolveHeater returned 'matched multiple' with no disambiguation, so heater enable/disable/set-temp were unusable on shared installs. Fix: ResolveHeaterInBoW with optional case-insensitive bow filter; ResolveHeader preserved as a thin wrapper. (2) In ready-by, the setpoint write was `_, _ = c.SetHeaterTemp(...)` — both result and error discarded — then heater_enabled=true was set unconditionally. Fix: propagate tempErr and tempResult.Status into the report with setpoint_set:true/false + setpoint_error detail, and log the actual status to command_log. (3) sweep called ChemistryVerdict(raw.PH, raw.ORP, raw.SaltPPM) directly so it ignored capabilities; fix routes through loadEffectiveCapabilities + buildChemistryForBow, and 'unknown'/'not_equipped' no longer bump priority. (4) buildRequest used a Go map (randomized iteration), and Hayward's .NET handler is order-sensitive; every Set* now uses buildOrderedRequest with the Python wrapper's insertion order, locked by TestBuildRequest_SortedOrder over 20 iterations. (5) internal/cache/cache.go writes 0o700 dir + 0o600 file matching the auth cache. (6) bumpVerdict kept the first non-ok verdict and dropped subsequent findings; fix folds same-direction findings to one word and mixed-direction findings to 'mixed' so verdict matches reasons. Also adds HAYWARD_DEBUG=1 opt-in payload dump in sendOpRequest, --bow on equipment on/off and pump set-speed (BOW_SHARED_EQUIPMENT dedupe by kind+systemId), ResolveEquipmentInBoW, and callOpOrdered/runSetOpOrdered shared infrastructure.",
+  "files": [
+    "internal/cli/omnilogic_commands.go",
+    "internal/cli/transcendence.go",
+    "internal/omnilogic/client.go",
+    "internal/omnilogic/envelope.go",
+    "internal/omnilogic/envelope_test.go",
+    "internal/omnilogic/operations.go",
+    "internal/omnilogic/resolve.go",
+    "internal/cache/cache.go"
+  ],
+  "validated_outcome": "Live-verified end-to-end on the printer's account: heater enable Gas --bow Pool fires heater 4; heater enable Gas --bow Spa fires heater 10 (separate physical heater). sweep --json reports chemistry_verdict:not_equipped/priority:0 instead of the bug-state unknown/1. TestBuildRequest_SortedOrder, TestChemistryVerdict_MixedDirections, TestChemistryVerdict_SameDirection all pass."
+}

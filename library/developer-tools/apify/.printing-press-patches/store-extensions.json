@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "store-extensions",
+  "applied_at": "2026-05-18",
+  "base_run_id": "20260518-132617",
+  "base_printing_press_version": "4.8.0",
+  "summary": "New internal/store/extensions.go: pp_-prefixed tables that don't map to a spec endpoint — pp_dataset_items (normalized cross-Actor items) with an FTS5 index + insert/delete triggers, pp_actor_run_history (cost-relevant run metadata), pp_presets (named Actor input presets), pp_workflow_runs (workflow execution log). Exposes EnsureExtensions, UpsertNormalizedItem, HashesSeen, RecordActorRun, LoadActorRunHistory, SavePreset, LoadPreset.",
+  "rationale": "The generator's store mirrors spec endpoints; the novel features need a normalized item table with full-text search plus run-history and preset persistence.",
+  "files": [
+    "internal/store/extensions.go"
+  ],
+  "upstream_issue": ""
+}

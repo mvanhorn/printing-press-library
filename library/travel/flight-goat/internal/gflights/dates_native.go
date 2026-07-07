@@ -25,8 +25,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"io"
-	"net/http"
 	"net/url"
 	"strings"
 	"time"
@@ -87,6 +85,7 @@ func datesNative(ctx context.Context, opts DatesOptions) (*DatesResult, error) {
 
 	// Chunk ranges > maxDaysPerSearch. Google rejects single requests spanning
 	// more than 61 days; fli does the same chunking in its Python loop.
+	note := ""
 	var all []DatePrice
 	cur := from
 	for !cur.After(to) {
@@ -99,6 +98,16 @@ func datesNative(ctx context.Context, opts DatesOptions) (*DatesResult, error) {
 		// the equivalent inside its loop.
 		chunk, err := datesChunk(ctx, opts, cur, chunkEnd)
 		if err != nil {
+			// PATCH(amend-2026-06-26): datesChunk retries transient code-13
+			// envelopes internally. If the BotGuard gate persists, serve the
+			// whole requested range from per-day server-rendered pages instead.
+			if errors.Is(err, errShoppingBlocked) {
+				all, note, err = datesViaHTML(ctx, opts, from, to, currencyCode)
+				if err != nil {
+					return nil, fmt.Errorf("google flights calendar RPC is blocked and the HTML fallback failed: %w", err)
+				}
+				break
+			}
 			return nil, err
 		}
 		all = append(all, chunk...)
@@ -117,6 +126,7 @@ func datesNative(ctx context.Context, opts DatesOptions) (*DatesResult, error) {
 		},
 		Count: len(all),
 		Dates: all,
+		Note:  note,
 	}, nil
 }
 
@@ -129,36 +139,17 @@ func datesChunk(ctx context.Context, opts DatesOptions, from, to time.Time) ([]D
 	}
 	body := "f.req=" + payload
 
-	req, err := http.NewRequestWithContext(ctx, http.MethodPost, calendarEndpoint, strings.NewReader(body))
-	if err != nil {
-		return nil, fmt.Errorf("building request: %w", err)
-	}
-	req.Header.Set("Content-Type", "application/x-www-form-urlencoded;charset=UTF-8")
-	req.Header.Set("User-Agent", chromeUserAgent)
-	req.Header.Set("Accept", "*/*")
-	req.Header.Set("Accept-Language", "en-US,en;q=0.9")
 	_, currencyCode, _ := normalizeCurrency(opts.Currency)
-	req.Header.Set("x-goog-ext-259736195-jspb", googleFlightsCurrencyHeader(currencyCode))
-
-	resp, err := utlsClient().Do(req)
-	if err != nil {
-		return nil, fmt.Errorf("calling calendar endpoint: %w", err)
-	}
-	defer func() { _ = resp.Body.Close() }()
-
-	respBody, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return nil, fmt.Errorf("reading response: %w", err)
-	}
-	if resp.StatusCode != http.StatusOK {
-		snippet := string(respBody)
-		if len(snippet) > 200 {
-			snippet = snippet[:200] + "..."
+	var rows []DatePrice
+	err = retryBlockedRPC(ctx, func() error {
+		respBody, err := postFlightsFrontendRPC(ctx, calendarEndpoint, "calendar", body, currencyCode)
+		if err != nil {
+			return err
 		}
-		return nil, fmt.Errorf("calendar endpoint returned HTTP %d: %s", resp.StatusCode, snippet)
-	}
-
-	return parseDatesResponse(respBody, currencyCode)
+		rows, err = parseDatesResponse(respBody, currencyCode)
+		return err
+	})
+	return rows, err
 }
 
 // buildDatesPayload constructs the URL-encoded `f.req` value for a single
@@ -303,8 +294,13 @@ func parseDatesResponse(body []byte, defaultCurrency string) ([]DatePrice, error
 		return nil, errors.New("response envelope missing wrb.fr entry")
 	}
 	innerStr, ok := outer[0][2].(string)
-	if !ok || innerStr == "" {
-		return nil, errors.New("response wrb.fr payload is not a string")
+	if !ok {
+		// PATCH(amend-2026-06-11): since ~2026-06-09 Google rejects
+		// non-interactive calendar RPC calls with an ErrorResponse envelope
+		// whose payload slot is null — classify it so datesNative can fall
+		// back to per-day server-rendered pages instead of dying with the
+		// bare "payload is not a string" error users hit in the field.
+		return nil, envelopeBlockedErr(stripped)
 	}
 
 	var inner []any

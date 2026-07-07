@@ -1,0 +1,26 @@
+{
+  "schema_version": 2,
+  "id": "digg-rename-drop-ai-1000-branding",
+  "applied_at": "2026-05-24",
+  "base_run_id": "20260508-234057",
+  "base_printing_press_version": "4.0.6",
+  "summary": "Drop 'Digg AI' / 'Digg AI 1000' / '1,000 AI accounts' product branding from prose surfaces; the CLI is now called 'Digg'.",
+  "reason": "Upstream Digg's AI-news leaderboard now markets itself as plain 'Digg' (with /ai/ as the URL prefix). The 'AI 1000' framing was inherited from an earlier iteration of the product. Keeping it in display strings was confusing users.",
+  "files": [
+    "spec.yaml",
+    "manifest.json",
+    ".printing-press.json",
+    "tools-manifest.json",
+    ".goreleaser.yaml",
+    "README.md",
+    "SKILL.md",
+    "internal/cli/root.go",
+    "internal/cli/agent_context.go",
+    "internal/cli/which.go",
+    "internal/cli/digg_commands.go",
+    "internal/mcp/tools.go",
+    "internal/diggstore/store.go"
+  ],
+  "validated_outcome": "agent-context, --help, and SKILL.md frontmatter all now read 'Digg' and reference the four GitHub feeds.",
+  "scope_note": "Internal code identifiers (roster_1000.go, the /ai/1000 endpoint path, ai_1000_fixture.html) are left alone — they describe the upstream endpoint, not user-facing prose."
+}

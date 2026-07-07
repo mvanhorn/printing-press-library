@@ -1,0 +1,9 @@
+{
+  "dir": "\u003ccli-dir\u003e/xai",
+  "research_dir": "\u003ccli-dir\u003e/20260608-151052-ab0cd810",
+  "verdict": "pass",
+  "actors": null,
+  "issues": [
+    "no Apify actor references found, skipping"
+  ]
+}

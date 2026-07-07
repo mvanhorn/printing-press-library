@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "mcpb-cookie-user-config",
+  "applied_at": "2026-05-18",
+  "base_run_id": "20260518-135804",
+  "base_printing_press_version": "4.6.1",
+  "summary": "Add the cookie auth env var to the MCPB user configuration.",
+  "reason": "The manifest declared only debug and OS-path settings, so the MCPB manifest verifier rejected the package even though the CLI requires FACEBOOK_MARKET_COOKIES for browser-session auth.",
+  "files": [
+    "manifest.json"
+  ],
+  "validated_outcome": "python3 .github/scripts/verify-manifest/verify_manifest.py passed across the library."
+}

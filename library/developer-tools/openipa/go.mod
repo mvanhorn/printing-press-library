@@ -1,6 +1,6 @@
 module github.com/mvanhorn/printing-press-library/library/developer-tools/openipa
 
-go 1.23.0
+go 1.26.4
 
 toolchain go1.24.1
 

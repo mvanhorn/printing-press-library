@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "midjourney-submit-jobs",
+  "applied_at": "2026-05-23",
+  "base_run_id": "20260523-212652",
+  "base_printing_press_version": "4.13.0",
+  "reason": "Add local CLI support for sniffed Midjourney /api/submit-jobs imagine and rerun flows, including style references, omni references, and image prompts.",
+  "files": [
+    "internal/cli/imagine.go",
+    "internal/cli/imagine_test.go",
+    "internal/cli/root.go"
+  ]
+}

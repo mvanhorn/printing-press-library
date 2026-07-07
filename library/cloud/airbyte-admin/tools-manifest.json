@@ -1,0 +1,334 @@
+{
+  "api_name": "airbyte-admin",
+  "base_url": "https://cloud.airbyte.com/api",
+  "description": "Read-only Airbyte administration tools for inspecting workspaces, connector definitions, sources, destinations, connections, sync jobs, users, organizations, permissions, and tags via the official Airbyte Public API.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "mcp": {
+    "orchestration": "endpoint-mirror"
+  },
+  "auth": {
+    "type": "bearer_token",
+    "env_vars": [
+      "AIRBYTE_ADMIN_TOKEN",
+      "AIRBYTE_ADMIN_AUTH_HEADER",
+      "AIRBYTE_ADMIN_BASE_URL"
+    ]
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "public_get-application",
+      "description": "Get an Application detail. Required: applicationId. Returns the ApplicationRead.",
+      "method": "GET",
+      "path": "/public/v1/applications/{applicationId}",
+      "no_auth": false,
+      "params": [
+        {
+          "name": "applicationId",
+          "type": "string",
+          "location": "path",
+          "description": "applicationId",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "public_get-connection",
+      "description": "Get Connection details. Required: connectionId. Returns the ConnectionResponse.",
+      "method": "GET",
+      "path": "/public/v1/connections/{connectionId}",
+      "no_auth": false,
+      "params": [
+        {
+          "name": "connectionId",
+          "type": "string",
+          "location": "path",
+          "description": "connectionId",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "public_get-destination",
+      "description": "Get Destination details. Required: destinationId. Optional: includeSecretCoordinates. Returns the DestinationResponse.",
+      "method": "GET",
+      "path": "/public/v1/destinations/{destinationId}",
+      "no_auth": false,
+      "params": [
+        {
+          "name": "includeSecretCoordinates",
+          "type": "bool",
+          "location": "query",
+          "description": "Rather than return *** for secret properties include the secret coordinate information"
+        },
+        {
+          "name": "destinationId",
+          "type": "string",
+          "location": "path",
+          "description": "destinationId",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "public_get-documentation",
+      "description": "Root path, currently returns a redirect to the documentation.",
+      "method": "GET",
+      "path": "/public",
+      "no_auth": false,
+      "params": []
+    },
+    {
+      "name": "public_get-health-check",
+      "description": "Health Check.",
+      "method": "GET",
+      "path": "/public/v1/health",
+      "no_auth": false,
+      "params": []
+    },
+    {
+      "name": "public_get-job",
+      "description": "Get Job status and details. Required: jobId. Returns the JobResponse.",
+      "method": "GET",
+      "path": "/public/v1/jobs/{jobId}",
+      "no_auth": false,
+      "params": [
+        {
+          "name": "jobId",
+          "type": "string",
+          "location": "path",
+          "description": "jobId",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "public_get-source",
+      "description": "Get Source details. Required: sourceId. Optional: includeSecretCoordinates. Returns the SourceResponse.",
+      "method": "GET",
+      "path": "/public/v1/sources/{sourceId}",
+      "no_auth": false,
+      "params": [
+        {
+          "name": "includeSecretCoordinates",
+          "type": "bool",
+          "location": "query",
+          "description": "Rather than return *** for secret properties include the secret coordinate information"
+        },
+        {
+          "name": "sourceId",
+          "type": "string",
+          "location": "path",
+          "description": "sourceId",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "public_get-stream-properties",
+      "description": "Get stream properties. Required: sourceId. Returns the StreamPropertiesResponse.",
+      "method": "GET",
+      "path": "/public/v1/streams",
+      "no_auth": false,
+      "params": [
+        {
+          "name": "sourceId",
+          "type": "string",
+          "location": "query",
+          "description": "ID of the source",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "public_list-applications",
+      "description": "List Applications. Returns the ApplicationReadList.",
+      "method": "GET",
+      "path": "/public/v1/applications",
+      "no_auth": false,
+      "params": []
+    },
+    {
+      "name": "public_list-connector-definitions",
+      "description": "List connector definitions. Required: type. Optional: workspaceId. Returns the ConnectorDefinitionsResponse.",
+      "method": "GET",
+      "path": "/public/v1/connector_definitions",
+      "no_auth": false,
+      "params": [
+        {
+          "name": "type",
+          "type": "string",
+          "location": "query",
+          "description": "The type of connector definition to list",
+          "required": true
+        },
+        {
+          "name": "workspaceId",
+          "type": "string",
+          "location": "query",
+          "description": "The UUID of the workspace you wish to list connector definitions for. One of this or organizationId must be populated."
+        }
+      ]
+    },
+    {
+      "name": "public_list-destinations",
+      "description": "List destinations. Optional: workspaceIds. Returns the DestinationsResponse.",
+      "method": "GET",
+      "path": "/public/v1/destinations",
+      "no_auth": false,
+      "params": [
+        {
+          "name": "workspaceIds",
+          "type": "array",
+          "location": "query",
+          "description": "The UUIDs of the workspaces you wish to list destinations for. Empty list will retrieve all allowed workspaces."
+        }
+      ]
+    },
+    {
+      "name": "public_list-jobs",
+      "description": "List Jobs. Optional: connectionId, limit (default: 20), offset (default: 0). Returns the JobResponse.",
+      "method": "GET",
+      "path": "/public/v1/jobs",
+      "no_auth": false,
+      "params": [
+        {
+          "name": "connectionId",
+          "type": "string",
+          "location": "query",
+          "description": "Filter the Jobs by connectionId."
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Set the limit on the number of Jobs returned. The default is 20 Jobs."
+        },
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "Set the offset to start at when returning Jobs. The default is 0."
+        }
+      ]
+    },
+    {
+      "name": "public_list-organizations-for-user",
+      "description": "List all organizations for a user. Returns the OrganizationsResponse.",
+      "method": "GET",
+      "path": "/public/v1/organizations",
+      "no_auth": false,
+      "params": []
+    },
+    {
+      "name": "public_list-permissions",
+      "description": "List permissions. Optional: userId, organizationId. Returns the PermissionsResponse.",
+      "method": "GET",
+      "path": "/public/v1/permissions",
+      "no_auth": false,
+      "params": [
+        {
+          "name": "userId",
+          "type": "string",
+          "location": "query",
+          "description": "User Id in permission."
+        },
+        {
+          "name": "organizationId",
+          "type": "string",
+          "location": "query",
+          "description": "This is required if you want to read someone else's permissions, and you should have organization admin or a higher role."
+        }
+      ]
+    },
+    {
+      "name": "public_list-sources",
+      "description": "List sources. Optional: workspaceIds. Returns the SourcesResponse.",
+      "method": "GET",
+      "path": "/public/v1/sources",
+      "no_auth": false,
+      "params": [
+        {
+          "name": "workspaceIds",
+          "type": "array",
+          "location": "query",
+          "description": "The UUIDs of the workspaces you wish to list sources for. Empty list will retrieve all allowed workspaces."
+        }
+      ]
+    },
+    {
+      "name": "public_list-tags",
+      "description": "Lists all tags. Optional: workspaceIds. Returns the TagsResponse.",
+      "method": "GET",
+      "path": "/public/v1/tags",
+      "no_auth": false,
+      "params": [
+        {
+          "name": "workspaceIds",
+          "type": "array",
+          "location": "query",
+          "description": "Workspace ids"
+        }
+      ]
+    },
+    {
+      "name": "public_list-users",
+      "description": "Organization Admin user can list all users within the same organization. Also provide filtering on a list of user IDs or/and a list of user emails. Required: organizationId. Optional: ids, emails. Returns the UsersResponse.",
+      "method": "GET",
+      "path": "/public/v1/users",
+      "no_auth": false,
+      "params": [
+        {
+          "name": "organizationId",
+          "type": "string",
+          "location": "query",
+          "description": "Organization id",
+          "required": true
+        },
+        {
+          "name": "ids",
+          "type": "array",
+          "location": "query",
+          "description": "List of user IDs to filter by"
+        },
+        {
+          "name": "emails",
+          "type": "array",
+          "location": "query",
+          "description": "List of user emails to filter by"
+        }
+      ]
+    },
+    {
+      "name": "public_list-workspaces",
+      "description": "List workspaces. Optional: workspaceIds. Returns the WorkspacesResponse.",
+      "method": "GET",
+      "path": "/public/v1/workspaces",
+      "no_auth": false,
+      "params": [
+        {
+          "name": "workspaceIds",
+          "type": "array",
+          "location": "query",
+          "description": "The UUIDs of the workspaces you wish to fetch. Empty list will retrieve all allowed workspaces."
+        }
+      ]
+    },
+    {
+      "name": "public_oauth-callback",
+      "description": "Redirected to by identity providers after authentication. Optional: queryParams.",
+      "method": "GET",
+      "path": "/public/v1/oauth/callback",
+      "no_auth": false,
+      "params": [
+        {
+          "name": "queryParams",
+          "type": "object",
+          "location": "query",
+          "description": "Query parameters. Should contain state and code."
+        }
+      ]
+    }
+  ]
+}

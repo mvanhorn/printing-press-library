@@ -1,0 +1,52 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-06-22T07:15:10.872521Z",
+  "printing_press_version": "4.24.0",
+  "api_name": "gainsight",
+  "display_name": "Gainsight Read",
+  "cli_name": "gainsight-pp-cli",
+  "creator": {
+    "handle": "debgotwired",
+    "name": "Deb Mukherjee"
+  },
+  "owner": "debgotwired",
+  "printer": "debgotwired",
+  "printer_name": "Deb Mukherjee",
+  "spec_url": "https://example.gainsightcloud.com",
+  "spec_path": "gainsight-read-openapi.yaml",
+  "spec_format": "openapi3",
+  "spec_checksum": "sha256:3b9b4ba178090d6b3bf2940a48f1b5296cdc76004c865a179b52d42dbaa44e8a",
+  "run_id": "20260622-071510",
+  "category": "sales-and-crm",
+  "description": "Read-first Gainsight NXT API surface for customer success account, relationship, person, timeline",
+  "mcp_binary": "gainsight-pp-mcp",
+  "mcp_tool_count": 11,
+  "mcp_ready": "full",
+  "api_version": "1.0.0",
+  "auth_type": "api_key",
+  "auth_env_vars": [
+    "GAINSIGHT_ACCESS_KEY_AUTH"
+  ],
+  "novel_features": [
+    {
+      "name": "Agent command discovery",
+      "command": "which",
+      "description": "Map a natural-language capability request to the exact generated CLI command before executing it."
+    },
+    {
+      "name": "Structured agent context",
+      "command": "agent-context",
+      "description": "Emit machine-readable command, auth, and profile metadata so agents can plan calls without scraping help text."
+    },
+    {
+      "name": "Local SQLite sync framework",
+      "command": "sync",
+      "description": "Sync selected API resources into a local SQLite store for repeatable offline inspection and analysis."
+    },
+    {
+      "name": "SQL analytics on synced records",
+      "command": "analytics",
+      "description": "Run read-only SQL against synced API records for compound questions the upstream API does not expose directly."
+    }
+  ]
+}

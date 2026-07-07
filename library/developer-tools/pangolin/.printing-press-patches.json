@@ -1,0 +1,68 @@
+{
+  "schema_version": 1,
+  "applied_at": "2026-05-23",
+  "base_run_id": "20260522-221421",
+  "base_printing_press_version": "4.12.0",
+  "patches": [
+    {
+      "id": "jsend-envelope-unwrap-sync",
+      "summary": "Add Strategy 3 (nested-data envelope) to extractPageItems so JSend-style {success, data: {<plural>: [...]}} responses yield items.",
+      "reason": "Pangolin's list endpoints return a two-level envelope. The generator-emitted single-level extractor returned zero items, causing silent zero-row syncs. Upstream issue: mvanhorn/cli-printing-press#2013.",
+      "files": ["internal/cli/sync.go"]
+    },
+    {
+      "id": "jsend-envelope-unwrap-data-source",
+      "summary": "Add nested-data envelope unwrap to writeListResponseToStore so read-command upserts persist rows from JSend-style responses.",
+      "reason": "Mirrors the sync.go fix in the read-command upsert path. Without it, every `org sites get` / `org resources get` warned '1/N items skipped (no extractable ID field found)'. Upstream issue: mvanhorn/cli-printing-press#2013.",
+      "files": ["internal/cli/data_source.go"]
+    },
+    {
+      "id": "populate-resource-id-field-overrides",
+      "summary": "Populate resourceIDFieldOverrides with Pangolin's typed primary keys (siteId, resourceId, domainId, clientId, targetId, roleId, idpId, accessTokenId, certId).",
+      "reason": "Generator emits an empty map; Pangolin's resources use typed *Id PKs rather than the generic `id`. Without these entries, the store's typed upsert path can't resolve primary keys and falls back to skipping rows. Upstream issue: mvanhorn/cli-printing-press#2016.",
+      "files": ["internal/cli/sync.go", "internal/store/store.go"]
+    },
+    {
+      "id": "jsend-envelope-unwrap-expose",
+      "summary": "Teach extractIDField in expose.go to look one level into a JSend `data` envelope and to accept numeric IDs.",
+      "reason": "Pangolin returns `{success, data: {resourceId: 12, ...}}` from create-resource. The original extractIDField only checked top-level string fields, so the post-create target-attach and role-bind steps fired with an empty resourceId. Found by Greptile.",
+      "files": ["internal/cli/expose.go"]
+    },
+    {
+      "id": "expose-honor-step-method",
+      "summary": "Use step.Method when executing the expose plan instead of unconditionally POSTing.",
+      "reason": "The plan correctly encodes Method=PUT for the create-resource and attach-target steps (matching the spec), but the live-execution loop ignored Method and always called c.Post(). Found by Greptile.",
+      "files": ["internal/cli/expose.go"]
+    },
+    {
+      "id": "restore-honor-step-method",
+      "summary": "Use the per-resource method in restore (PUT for Pangolin creates) instead of unconditionally POSTing, and skip records whose path requires unsatisfied parent context.",
+      "reason": "Pangolin's create endpoints are PUT-shaped and most live under /org/{orgId}/<resource> or deeper. The original restore POSTed to a bare collection path which doesn't exist on Pangolin. v0.1 restore is best-effort for top-level creates (orgs, idp); deeper creates emit a skipped-count and require explicit per-record parent context that the backup file doesn't carry yet. Found by Greptile.",
+      "files": ["internal/cli/restore.go"]
+    },
+    {
+      "id": "audit-wire-org-filter",
+      "summary": "Wire the --org flag into the audit SQL so resources whose data.orgId or data.orgName matches the filter actually narrow the scan.",
+      "reason": "The flag was registered and stored in the report struct but the SQL query ignored it (`_ = orgFilter`), so passing --org appeared to work but had no effect on what was audited. Found by Greptile.",
+      "files": ["internal/cli/audit.go"]
+    },
+    {
+      "id": "access-graph-filter-warnings",
+      "summary": "Wire --org into access-graph SQL and emit an actionable warning when --user is set but no user-role mappings are synced.",
+      "reason": "Both filters were registered but `_ = orgID` discarded one outright and the `--user` filter caused every row to `continue` (silently empty output) because the user-role join isn't populated for org-scoped read-only keys. Now: --org filters the resource lookup and downstream join; --user emits a stderr warning naming the sync prerequisite. Found by Greptile.",
+      "files": ["internal/cli/access_graph.go"]
+    },
+    {
+      "id": "audit-org-empty-filter",
+      "summary": "Apply --org filter to the org_empty resource COUNT query and fallback org-listing query.",
+      "reason": "The org_empty block used a global COUNT(*) that ignored orgFilter. When --org=foo was passed and foo had no resources but other orgs did, resourceCount>0 so the empty-org block was never entered and foo was never flagged. Fix: pass orgFilter as a WHERE clause arg to both the count query and the org row-listing fallback. Found by Greptile.",
+      "files": ["internal/cli/audit.go"]
+    },
+    {
+      "id": "expose-org-required-with-site",
+      "summary": "Require --org when --site is provided; expose.go previously allowed --site alone, producing a literal '<orgId>' in the API path.",
+      "reason": "orgValueOr(orgID, \"<orgId>\") substitutes the placeholder string when orgID is empty. In dry-run mode this is informative, but in live mode it sends /org/<orgId>/site/<siteId>/resource to Pangolin. Fix: add a guard that returns a usage error when --site is given without --org. Found by Greptile.",
+      "files": ["internal/cli/expose.go"]
+    }
+  ]
+}

@@ -1,0 +1,15 @@
+{
+  "schema_version": 2,
+  "id": "envelope-classifier",
+  "applied_at": "2026-05-17",
+  "base_run_id": "20260516-193948",
+  "base_printing_press_version": "4.8.0",
+  "summary": "Added classifyPCGSEnvelope helper + wired into resolveRead so HTTP 200 + IsValidRequest=false surfaces as usageErr (exit 2), No data found surfaces as notFoundErr (exit 3), and the images-endpoint heuristic catches bogus certs.",
+  "reason": "PCGS uses HTTP 200 + envelope to communicate both classes of expected failure. Without this classifier the CLI exits 0 on bad input and the typed exit codes promised in help text and SKILL.md are a lie. Surfaced during Phase 5 live dogfood when 8 error_path tests failed with exit 0 against a real PCGS rejection.",
+  "files": [
+    "internal/cli/pcgs_envelope.go",
+    "internal/cli/data_source.go",
+    "internal/cli/helpers.go"
+  ],
+  "validated_outcome": "Live dogfood 121/121 PASS, scorecard 87/100 Grade A"
+}

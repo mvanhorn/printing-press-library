@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "namecheap-client-ip-cache",
+  "applied_at": "2026-05-14",
+  "base_run_id": "20260514-namecheap",
+  "base_printing_press_version": "4.6.0",
+  "summary": "Cache the auto-detected public ClientIp once per Client instance.",
+  "reason": "Repeated calls to api.ipify.org add latency and make commands fragile when NAMECHEAP_CLIENT_IP is not explicitly configured.",
+  "files": [
+    "internal/client/client.go",
+    "internal/client/review_regression_test.go"
+  ],
+  "validated_outcome": "TestPrepareNamecheapRequestCachesDetectedClientIP verifies two prepared requests perform one ipify lookup."
+}

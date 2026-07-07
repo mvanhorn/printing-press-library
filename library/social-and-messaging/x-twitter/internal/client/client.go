@@ -22,10 +22,13 @@ import (
 	"path/filepath"
 	"sort"
 	"strings"
+	"sync"
 	"time"
 )
 
 const BinaryResponseHeader = "X-Printing-Press-Binary-Response"
+
+var OAuth2TokenEndpoint = "https://api.twitter.com/2/oauth2/token"
 
 var ErrPlaceholderCredential = errors.New("auth placeholder credential")
 
@@ -37,6 +40,7 @@ type Client struct {
 	NoCache    bool
 	cacheDir   string
 	limiter    *cliutil.AdaptiveLimiter
+	refreshMu  sync.Mutex
 }
 
 // RequestBaseURL returns the base URL used for requests.
@@ -88,6 +92,11 @@ func New(cfg *config.Config, timeout time.Duration, rateLimit float64) *Client {
 			// would then classify as a successful response and hand the HTML
 			// "Moved Permanently" body back to the caller.
 			return errors.New("stopped after 10 redirects")
+		}
+		if via[0].URL.Scheme == "https" && req.URL.Scheme != "https" {
+			req.Header.Del("Authorization")
+			req.Header.Del("Cookie")
+			return fmt.Errorf("refusing HTTPS-to-%s redirect for %s", req.URL.Scheme, req.URL.Host)
 		}
 		// Same-host gate mirrors Go's shouldCopyHeaderOnRedirect: a
 		// cross-domain 3xx (open redirect or partner handoff) must not
@@ -191,6 +200,15 @@ func binaryResponseHeaderValue(headers map[string]string) (bool, bool) {
 		}
 	}
 	return false, found
+}
+
+func authorizationHeaderOverride(headers map[string]string) string {
+	for k, v := range headers {
+		if strings.EqualFold(k, "Authorization") {
+			return v
+		}
+	}
+	return ""
 }
 
 func (c *Client) validateCachedRequestAuth(ctx context.Context) error {
@@ -357,6 +375,27 @@ func (c *Client) PatchWithParamsAndHeaders(ctx context.Context, path string, par
 	return c.do(ctx, "PATCH", path, params, body, headers)
 }
 
+// Request issues an arbitrary HTTP method through the same transport path as
+// generated commands. Raw/debug CLI surfaces use this to keep auth selection,
+// host allowlisting, dry-run previews, retries, binary wrapping, and cache
+// invalidation consistent with the typed endpoint commands.
+func (c *Client) Request(ctx context.Context, method, path string, params map[string]string, body any, headers map[string]string) (json.RawMessage, int, error) {
+	method = strings.ToUpper(strings.TrimSpace(method))
+	if method == "" {
+		return nil, 0, fmt.Errorf("method is required")
+	}
+	if strings.HasPrefix(path, "http://") || strings.HasPrefix(path, "https://") {
+		parsed, err := url.Parse(path)
+		if err != nil {
+			return nil, 0, fmt.Errorf("invalid absolute URL: %w", err)
+		}
+		if parsed.Scheme != "https" {
+			return nil, 0, fmt.Errorf("absolute URL must use https")
+		}
+	}
+	return c.doInternal(ctx, method, path, params, body, headers, false)
+}
+
 // isMutatingVerb reports whether the HTTP method writes server state.
 // Used by do()'s verify-mode short-circuit to gate dial-out: under
 // PRINTING_PRESS_VERIFY=1 (without LIVE_HTTP=1 opt-in), generated
@@ -476,7 +515,9 @@ func (c *Client) doInternal(ctx context.Context, method, path string, params map
 	// media-upload calls; their auth is injected per-request below via
 	// cookies.apply().
 	var authHeader string
-	if !hostUsesCookieAuth(hostFromURL(targetURL)) {
+	if overrideAuth := authorizationHeaderOverride(headerOverrides); overrideAuth != "" {
+		authHeader = overrideAuth
+	} else if !hostUsesCookieAuth(hostFromURL(targetURL)) {
 		h, err := c.authHeader(ctx)
 		if err != nil {
 			return nil, 0, err
@@ -491,6 +532,8 @@ func (c *Client) doInternal(ctx context.Context, method, path string, params map
 
 	const maxRetries = 3
 	var lastErr error
+	refreshedAfterUnauthorized := false
+	retriedAsAppOnly := false
 
 	for attempt := 0; attempt <= maxRetries; attempt++ {
 		// Proactive rate limiting — wait before sending
@@ -537,6 +580,9 @@ func (c *Client) doInternal(ctx context.Context, method, path string, params map
 		}
 		// Per-endpoint header overrides (e.g., different API version per resource)
 		for k, v := range headerOverrides {
+			if strings.EqualFold(k, "Authorization") && authHeader != "" && v != authHeader {
+				continue
+			}
 			req.Header.Set(k, v)
 		}
 		binaryResponse := strings.EqualFold(req.Header.Get(BinaryResponseHeader), "true")
@@ -611,6 +657,35 @@ func (c *Client) doInternal(ctx context.Context, method, path string, params map
 			Body:       c.maskCredentialText(truncateBody(respBody), authHeader),
 		}
 
+		if resp.StatusCode == http.StatusUnauthorized && !refreshedAfterUnauthorized && authorizationHeaderOverride(headerOverrides) == "" && !hostUsesCookieAuth(req.URL.Host) {
+			refreshed, refreshErr := c.RefreshOAuth2UserContext(ctx, true)
+			if refreshErr == nil && refreshed {
+				// The forced refresh above already exchanged and persisted the token.
+				// Read the current header directly so the retry does not perform a
+				// second proactive refresh before sending the recovered request.
+				if h, err := c.currentAuthHeader(); err == nil && h != "" {
+					authHeader = h
+					refreshedAfterUnauthorized = true
+					lastErr = apiErr
+					continue
+				}
+			}
+		}
+
+		// App-only fallback: when OAuth2 user-context token is expired/stale
+		// and refresh was unavailable or failed, retry public v2 reads with
+		// the app-only Bearer token. Only fires when both credentials exist
+		// so single-credential setups are unaffected. User-context-only
+		// endpoints (e.g. /2/users/me) will return 403 Unsupported Authentication
+		// on retry — the existing classifyAPIError handler converts that to a
+		// better error hint than the original 401.
+		if resp.StatusCode == http.StatusUnauthorized && !retriedAsAppOnly && authorizationHeaderOverride(headerOverrides) == "" && !hostUsesCookieAuth(req.URL.Host) && c.Config != nil && c.Config.XOauth2UserToken != "" && c.Config.XBearerToken != "" {
+			authHeader = "Bearer " + c.Config.XBearerToken
+			retriedAsAppOnly = true
+			lastErr = apiErr
+			continue
+		}
+
 		// Rate limited - adjust adaptive limiter and retry
 		if resp.StatusCode == 429 && attempt < maxRetries {
 			c.limiter.OnRateLimit()
@@ -665,9 +740,12 @@ func (c *Client) dryRun(method, targetURL, path string, params map[string]string
 		}
 	}
 	_ = queryPrinted
+	var bodyValue any
 	if body != nil {
 		var pretty json.RawMessage
-		if json.Unmarshal(body, &pretty) == nil {
+		if json.Unmarshal(body, &bodyValue) == nil {
+			redacted, _ := json.Marshal(c.redactDryRunBodyValue(bodyValue))
+			pretty = json.RawMessage(redacted)
 			enc := json.NewEncoder(os.Stderr)
 			enc.SetIndent("  ", "  ")
 			fmt.Fprintf(os.Stderr, "  Body:\n")
@@ -678,7 +756,134 @@ func (c *Client) dryRun(method, targetURL, path string, params map[string]string
 		fmt.Fprintf(os.Stderr, "  %s: %s\n", "Authorization", maskToken(authHeader))
 	}
 	fmt.Fprintf(os.Stderr, "\n(dry run - no request sent)\n")
-	return json.RawMessage(`{"dry_run": true}`), 0, nil
+	envelope := map[string]any{
+		"dry_run": true,
+		"sent":    false,
+		"request": map[string]any{
+			"method": method,
+			"path":   path,
+		},
+		"meta": map[string]any{
+			"auth_lane":        c.dryRunAuthLane(targetURL, authHeader),
+			"selected_profile": c.selectedProfile(),
+		},
+	}
+	if params != nil {
+		cleanParams := map[string]string{}
+		for k, v := range params {
+			if v != "" {
+				cleanParams[k] = c.maskCredentialText(v, authHeader)
+			}
+		}
+		if len(cleanParams) > 0 {
+			envelope["request"].(map[string]any)["params"] = cleanParams
+		}
+	}
+	if bodyValue != nil {
+		envelope["request"].(map[string]any)["body"] = c.redactDryRunBodyValue(bodyValue)
+	}
+	if action := inferXPublicAction(method, path, bodyValue); action != "" {
+		envelope["public_action"] = action
+	}
+	if isMutatingVerb(method) {
+		envelope["mutation"] = true
+	}
+	data, err := json.Marshal(envelope)
+	if err != nil {
+		return nil, 0, err
+	}
+	return json.RawMessage(data), 0, nil
+}
+
+func (c *Client) selectedProfile() string {
+	if c != nil && c.Config != nil && c.Config.SelectedProfile != "" {
+		return c.Config.SelectedProfile
+	}
+	return "default"
+}
+
+func (c *Client) dryRunAuthLane(targetURL, authHeader string) string {
+	if hostUsesCookieAuth(hostFromURL(targetURL)) {
+		return "x_articles_cookie"
+	}
+	if c == nil || c.Config == nil || authHeader == "" {
+		return "none"
+	}
+	switch authHeader {
+	case c.Config.UserContextAuthHeader():
+		return "oauth2_user_context"
+	case c.Config.AppOnlyAuthHeader():
+		return "app_only_api"
+	default:
+		return "custom"
+	}
+}
+
+func inferXPublicAction(method, path string, body any) string {
+	switch {
+	case method == http.MethodPost && path == "/2/tweets":
+		bodyMap, _ := body.(map[string]any)
+		if _, ok := bodyMap["quote_tweet_id"]; ok {
+			return "quote"
+		}
+		if _, ok := bodyMap["reply"]; ok {
+			return "reply"
+		}
+		return "post"
+	case method == http.MethodDelete && strings.HasPrefix(path, "/2/tweets/"):
+		return "delete_post"
+	case method == http.MethodPost && strings.Contains(path, "/likes"):
+		return "like"
+	case method == http.MethodDelete && strings.Contains(path, "/likes/"):
+		return "unlike"
+	case method == http.MethodPost && strings.Contains(path, "/retweets"):
+		return "repost"
+	case method == http.MethodDelete && strings.Contains(path, "/retweets/"):
+		return "unrepost"
+	case method == http.MethodPost && strings.Contains(path, "/following"):
+		return "follow"
+	case method == http.MethodDelete && strings.Contains(path, "/following/"):
+		return "unfollow"
+	case method == http.MethodPost && strings.Contains(path, "/dm_"):
+		return "dm"
+	}
+	return ""
+}
+
+func (c *Client) redactDryRunBodyValue(value any) any {
+	switch typed := value.(type) {
+	case map[string]any:
+		out := make(map[string]any, len(typed))
+		for k, v := range typed {
+			if dryRunSecretBodyKey(k) {
+				out[k] = "[REDACTED]"
+				continue
+			}
+			out[k] = c.redactDryRunBodyValue(v)
+		}
+		return out
+	case []any:
+		out := make([]any, len(typed))
+		for i, v := range typed {
+			out[i] = c.redactDryRunBodyValue(v)
+		}
+		return out
+	case string:
+		return c.maskCredentialText(typed)
+	default:
+		return value
+	}
+}
+
+func dryRunSecretBodyKey(key string) bool {
+	normalized := strings.ToLower(strings.TrimSpace(key))
+	normalized = strings.ReplaceAll(normalized, "-", "_")
+	for _, marker := range []string{"authorization", "cookie", "token", "secret", "password"} {
+		if strings.Contains(normalized, marker) {
+			return true
+		}
+	}
+	return false
 }
 
 func (c *Client) ConfiguredTimeout() time.Duration {
@@ -692,11 +897,97 @@ func (c *Client) authHeader(ctx context.Context) (string, error) {
 	if c.Config == nil {
 		return "", nil
 	}
+	if _, err := c.RefreshOAuth2UserContext(ctx, false); err != nil {
+		// Proactive refresh is best-effort. If the token endpoint is briefly
+		// unavailable, keep the current access token on the wire and let the
+		// normal 401 path decide whether a forced refresh is actually required.
+		// This avoids turning a likely-successful near-expiry request into an
+		// immediate local failure.
+		return c.currentAuthHeader()
+	}
+	return c.currentAuthHeader()
+}
+
+func (c *Client) currentAuthHeader() (string, error) {
+	if c == nil || c.Config == nil {
+		return "", nil
+	}
 	authHeader := c.Config.AuthHeader()
 	if authHeaderLooksLikePlaceholderCredential(authHeader) {
 		return "", authPlaceholderCredentialError(c.Config)
 	}
 	return authHeader, nil
+}
+
+func (c *Client) RefreshOAuth2UserContext(ctx context.Context, force bool) (bool, error) {
+	if c == nil || c.Config == nil {
+		return false, nil
+	}
+	c.refreshMu.Lock()
+	defer c.refreshMu.Unlock()
+
+	cfg := c.Config
+	if strings.TrimSpace(cfg.RefreshToken) == "" || strings.TrimSpace(cfg.ClientID) == "" {
+		return false, nil
+	}
+	if !force && (cfg.TokenExpiry.IsZero() || time.Until(cfg.TokenExpiry) > time.Minute) {
+		return false, nil
+	}
+	form := url.Values{}
+	form.Set("grant_type", "refresh_token")
+	form.Set("refresh_token", strings.TrimSpace(cfg.RefreshToken))
+	form.Set("client_id", strings.TrimSpace(cfg.ClientID))
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost, OAuth2TokenEndpoint, strings.NewReader(form.Encode()))
+	if err != nil {
+		return false, err
+	}
+	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+	if strings.TrimSpace(cfg.ClientSecret) != "" {
+		req.SetBasicAuth(strings.TrimSpace(cfg.ClientID), strings.TrimSpace(cfg.ClientSecret))
+	}
+	httpClient := c.HTTPClient
+	if httpClient == nil {
+		httpClient = http.DefaultClient
+	}
+	resp, err := httpClient.Do(req)
+	if err != nil {
+		return false, fmt.Errorf("refreshing OAuth2 user-context token: %w", err)
+	}
+	defer resp.Body.Close()
+	body, _ := io.ReadAll(io.LimitReader(resp.Body, 64*1024))
+	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
+		return false, fmt.Errorf("refreshing OAuth2 user-context token failed: HTTP %d: %s", resp.StatusCode, strings.TrimSpace(string(body)))
+	}
+	var token struct {
+		TokenType    string `json:"token_type"`
+		ExpiresIn    int    `json:"expires_in"`
+		AccessToken  string `json:"access_token"`
+		RefreshToken string `json:"refresh_token"`
+		Scope        string `json:"scope"`
+	}
+	if err := json.Unmarshal(body, &token); err != nil {
+		return false, fmt.Errorf("parsing OAuth2 refresh response: %w", err)
+	}
+	accessToken := strings.TrimSpace(token.AccessToken)
+	if accessToken == "" {
+		return false, fmt.Errorf("OAuth2 refresh response did not include access_token")
+	}
+	refreshToken := strings.TrimSpace(token.RefreshToken)
+	if refreshToken == "" {
+		refreshToken = strings.TrimSpace(cfg.RefreshToken)
+	}
+	expiry := time.Time{}
+	if token.ExpiresIn > 0 {
+		expiry = time.Now().UTC().Add(time.Duration(token.ExpiresIn) * time.Second)
+	}
+	scopes := cfg.Scopes
+	if strings.TrimSpace(token.Scope) != "" {
+		scopes = strings.Fields(strings.ReplaceAll(token.Scope, ",", " "))
+	}
+	if err := cfg.SaveOAuth2UserContext(cfg.ClientID, cfg.ClientSecret, accessToken, refreshToken, expiry, scopes); err != nil {
+		return false, fmt.Errorf("saving refreshed OAuth2 user-context token: %w", err)
+	}
+	return true, nil
 }
 
 func authHeaderLooksLikePlaceholderCredential(header string) bool {
@@ -745,7 +1036,7 @@ func looksLikeCredentialPlaceholder(value string) bool {
 }
 
 func authPlaceholderCredentialError(cfg *config.Config) error {
-	return authPlaceholderCredentialErrorWithSetup(cfg, "export X_BEARER_TOKEN=<your-token> or x-twitter-pp-cli auth set-token <token>")
+	return authPlaceholderCredentialErrorWithSetup(cfg, "export X_BEARER_TOKEN=<your-token> or x-twitter-pp-cli auth set-bearer-token <token>")
 }
 
 func authPlaceholderCredentialErrorWithSetup(cfg *config.Config, setup string) error {

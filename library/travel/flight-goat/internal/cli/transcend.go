@@ -42,32 +42,46 @@ func registerTranscendCommands(rootCmd *cobra.Command, flags *rootFlags) {
 	rootCmd.AddCommand(newEtaCmd(flags))
 	rootCmd.AddCommand(newGfSearchCmd(flags))
 	rootCmd.AddCommand(newDigestCmd(flags))
+	rootCmd.AddCommand(newAssessCmd(flags))
 }
 
 // ----- shared helpers -----
 
 // scheduledDeparture is a minimal view of an AeroAPI scheduled departure.
 type scheduledDeparture struct {
-	Ident          string     `json:"ident"`
-	IdentICAO      string     `json:"ident_icao"`
-	FAFlightID     string     `json:"fa_flight_id"`
-	Operator       string     `json:"operator"`
-	OperatorIATA   string     `json:"operator_iata"`
-	Origin         airportRef `json:"origin"`
-	Destination    airportRef `json:"destination"`
-	ScheduledOut   string     `json:"scheduled_out"`
-	ScheduledIn    string     `json:"scheduled_in"`
-	ScheduledOff   string     `json:"scheduled_off"`
-	ScheduledOn    string     `json:"scheduled_on"`
-	EstimatedOut   string     `json:"estimated_out"`
-	ActualOut      string     `json:"actual_out"`
-	ActualOff      string     `json:"actual_off"`
-	ActualOn       string     `json:"actual_on"`
-	ActualIn       string     `json:"actual_in"`
-	AircraftType   string     `json:"aircraft_type"`
-	DepartureDelay int        `json:"departure_delay"`
-	ArrivalDelay   int        `json:"arrival_delay"`
-	Status         string     `json:"status"`
+	Ident           string     `json:"ident"`
+	IdentICAO       string     `json:"ident_icao"`
+	FAFlightID      string     `json:"fa_flight_id"`
+	Operator        string     `json:"operator"`
+	OperatorIATA    string     `json:"operator_iata"`
+	OperatorICAO    string     `json:"operator_icao"`
+	Origin          airportRef `json:"origin"`
+	Destination     airportRef `json:"destination"`
+	ScheduledOut    string     `json:"scheduled_out"`
+	ScheduledIn     string     `json:"scheduled_in"`
+	ScheduledOff    string     `json:"scheduled_off"`
+	ScheduledOn     string     `json:"scheduled_on"`
+	EstimatedOut    string     `json:"estimated_out"`
+	EstimatedOff    string     `json:"estimated_off"`
+	EstimatedOn     string     `json:"estimated_on"`
+	EstimatedIn     string     `json:"estimated_in"`
+	ActualOut       string     `json:"actual_out"`
+	ActualOff       string     `json:"actual_off"`
+	ActualOn        string     `json:"actual_on"`
+	ActualIn        string     `json:"actual_in"`
+	AircraftType    string     `json:"aircraft_type"`
+	Registration    string     `json:"registration"`
+	InboundFAID     string     `json:"inbound_fa_flight_id"`
+	GateOrigin      string     `json:"gate_origin"`
+	GateDestination string     `json:"gate_destination"`
+	TerminalOrigin  string     `json:"terminal_origin"`
+	TerminalDest    string     `json:"terminal_destination"`
+	Cancelled       bool       `json:"cancelled"`
+	Blocked         bool       `json:"blocked"`
+	Diverted        bool       `json:"diverted"`
+	DepartureDelay  int        `json:"departure_delay"`
+	ArrivalDelay    int        `json:"arrival_delay"`
+	Status          string     `json:"status"`
 }
 
 type airportRef struct {
@@ -96,6 +110,60 @@ type scheduledDeparturesPage struct {
 	Departures          []scheduledDeparture `json:"departures"`
 	Arrivals            []scheduledDeparture `json:"arrivals"`
 	Flights             []scheduledDeparture `json:"flights"`
+}
+
+func (p *scheduledDeparturesPage) UnmarshalJSON(data []byte) error {
+	var raw struct {
+		Links               map[string]string    `json:"links"`
+		NumPages            int                  `json:"num_pages"`
+		ScheduledDepartures []scheduledDeparture `json:"scheduled_departures"`
+		Departures          []scheduledDeparture `json:"departures"`
+		Arrivals            []scheduledDeparture `json:"arrivals"`
+		Flights             json.RawMessage      `json:"flights"`
+	}
+	if err := json.Unmarshal(data, &raw); err != nil {
+		return err
+	}
+
+	p.Links = raw.Links
+	p.NumPages = raw.NumPages
+	p.ScheduledDepartures = raw.ScheduledDepartures
+	p.Departures = raw.Departures
+	p.Arrivals = raw.Arrivals
+	p.Flights = nil
+
+	if len(raw.Flights) == 0 || string(raw.Flights) == "null" {
+		return nil
+	}
+
+	var routeFlights []map[string]json.RawMessage
+	if err := json.Unmarshal(raw.Flights, &routeFlights); err == nil && len(routeFlights) > 0 {
+		routeShape := false
+		var routeSegments []scheduledDeparture
+		for _, flight := range routeFlights {
+			segmentsRaw, ok := flight["segments"]
+			if !ok {
+				continue
+			}
+			routeShape = true
+			var segments []scheduledDeparture
+			if err := json.Unmarshal(segmentsRaw, &segments); err != nil {
+				return err
+			}
+			routeSegments = append(routeSegments, segments...)
+		}
+		if routeShape {
+			p.Flights = routeSegments
+			return nil
+		}
+	}
+
+	var directFlights []scheduledDeparture
+	if err := json.Unmarshal(raw.Flights, &directFlights); err != nil {
+		return err
+	}
+	p.Flights = directFlights
+	return nil
 }
 
 func (p scheduledDeparturesPage) items() []scheduledDeparture {

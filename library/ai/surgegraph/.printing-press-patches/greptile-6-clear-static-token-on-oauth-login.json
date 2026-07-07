@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "id": "greptile-6-clear-static-token-on-oauth-login",
+  "applied_at": "2026-05-13",
+  "base_run_id": "20260512-171718",
+  "base_printing_press_version": "4.5.0",
+  "summary": "Clear cfg.SurgegraphToken (and re-stamp AuthSource) before saveConfigTOML in auth login.",
+  "reason": "config.Load() preserves any token = \"…\" entry written by a prior `auth set-token`, and AuthHeader() checks SurgegraphToken before AccessToken. Without clearing it on the OAuth-login transition the stale static credential would silently win on the next CLI invocation and the OAuth login would be a no-op from the caller's perspective.",
+  "files": [
+    "internal/cli/auth_login.go"
+  ]
+}

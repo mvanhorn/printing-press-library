@@ -18,15 +18,17 @@ func newGoogleListCompanyCmd(flags *rootFlags) *cobra.Command {
 	var flagRegion string
 	var flagStartDate string
 	var flagEndDate string
+	var flagPlatform string
+	var flagFormat string
 	var flagGetAdDetails string
 	var flagCursor string
 	var flagAll bool
 
 	cmd := &cobra.Command{
 		Use:         "list-company",
-		Short:       "Fetches public ads for a company from the Google Ad Transparency Library by domain or advertiser_id. Each ad...",
-		Example:     "  scrape-creators-pp-cli google list-company",
-		Annotations: map[string]string{"pp:endpoint": "google.list-company", "mcp:read-only": "true"},
+		Short:       "Fetches public ads for a company from the Google Ad Transparency Library by domain or advertiser_id.",
+		Example:     "  scrape-creators-pp-cli google list-company --domain nike.com",
+		Annotations: map[string]string{"pp:endpoint": "google.list-company", "pp:method": "GET", "pp:path": "/v1/google/company/ads", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if cmd.Flags().Changed("topic") {
 				allowedTopic := []string{"all", "political"}
@@ -38,38 +40,71 @@ func newGoogleListCompanyCmd(flags *rootFlags) *cobra.Command {
 					}
 				}
 				if !validTopic {
-					fmt.Fprintf(os.Stderr, "warning: --%s %q not in allowed set %v\n", "topic", flagTopic, allowedTopic)
+					return fmt.Errorf("invalid value %q for --%s: must be one of %v", flagTopic, "topic", allowedTopic)
 				}
 			}
+			if cmd.Flags().Changed("platform") {
+				allowedPlatform := []string{"google_maps", "google_play", "google_search", "google_shopping", "youtube"}
+				validPlatform := false
+				for _, v := range allowedPlatform {
+					if flagPlatform == v {
+						validPlatform = true
+						break
+					}
+				}
+				if !validPlatform {
+					return fmt.Errorf("invalid value %q for --%s: must be one of %v", flagPlatform, "platform", allowedPlatform)
+				}
+			}
+			if cmd.Flags().Changed("format") {
+				allowedFormat := []string{"text", "image", "video"}
+				validFormat := false
+				for _, v := range allowedFormat {
+					if flagFormat == v {
+						validFormat = true
+						break
+					}
+				}
+				if !validFormat {
+					return fmt.Errorf("invalid value %q for --%s: must be one of %v", flagFormat, "format", allowedFormat)
+				}
+			}
+			path := "/v1/google/company/ads"
 			c, err := flags.newClient()
 			if err != nil {
 				return err
 			}
-
-			path := "/v1/google/company/ads"
-			data, prov, err := resolvePaginatedRead(cmd.Context(), c, flags, "google", path, map[string]string{
-				"domain":         fmt.Sprintf("%v", flagDomain),
-				"advertiser_id":  fmt.Sprintf("%v", flagAdvertiserId),
-				"topic":          fmt.Sprintf("%v", flagTopic),
-				"region":         fmt.Sprintf("%v", flagRegion),
-				"start_date":     fmt.Sprintf("%v", flagStartDate),
-				"end_date":       fmt.Sprintf("%v", flagEndDate),
-				"get_ad_details": fmt.Sprintf("%v", flagGetAdDetails),
-				"cursor":         fmt.Sprintf("%v", flagCursor),
-			}, nil, flagAll, "cursor", "", "")
+			data, prov, err := resolvePaginatedReadWithStrategy(cmd.Context(), c, flags, "auto", "google", path, map[string]string{
+				"domain":         formatCLIParamValue(flagDomain),
+				"advertiser_id":  formatCLIParamValue(flagAdvertiserId),
+				"topic":          formatCLIParamValue(flagTopic),
+				"region":         formatCLIParamValue(flagRegion),
+				"start_date":     formatCLIParamValue(flagStartDate),
+				"end_date":       formatCLIParamValue(flagEndDate),
+				"platform":       formatCLIParamValue(flagPlatform),
+				"format":         formatCLIParamValue(flagFormat),
+				"get_ad_details": formatCLIParamValue(flagGetAdDetails),
+				"cursor":         formatCLIParamValue(flagCursor),
+			}, nil, flagAll, "cursor", "cursor", "", "", "", cmd.ErrOrStderr())
 			if err != nil {
-				return classifyAPIError(err)
+				return classifyAPIError(err, flags)
 			}
-			// Print provenance to stderr for human-facing output
-			{
+			// Print provenance to stderr for human-facing output only.
+			// Machine-format flags (--json, --csv, --compact, --quiet, --plain,
+			// --select) and piped stdout suppress this line; the JSON envelope
+			// already carries meta.source for those consumers.
+			// SYNC: keep this gate aligned with command_promoted.go.tmpl.
+			if wantsHumanTable(cmd.OutOrStdout(), flags) {
 				var countItems []json.RawMessage
 				_ = json.Unmarshal(data, &countItems)
 				printProvenance(cmd, len(countItems), prov)
 			}
 			// For JSON output, wrap with provenance envelope before passing through flags.
 			// --select wins over --compact when both are set; --compact only runs when
-			// no explicit fields were requested.
-			if flags.asJSON || !isTerminal(cmd.OutOrStdout()) {
+			// no explicit fields were requested. Explicit format flags (--csv, --quiet,
+			// --plain) opt out of the auto-JSON path so piped consumers that asked for
+			// a non-JSON format reach the standard pipeline below.
+			if flags.asJSON || (!isTerminal(cmd.OutOrStdout()) && !flags.csv && !flags.quiet && !flags.plain) {
 				filtered := data
 				if flags.selectFields != "" {
 					filtered = filterFields(filtered, flags.selectFields)
@@ -95,7 +130,7 @@ func newGoogleListCompanyCmd(flags *rootFlags) *cobra.Command {
 					return nil
 				}
 			}
-			return printOutputWithFlags(cmd.OutOrStdout(), data, flags)
+			return printOutputWithFlagsMeta(cmd.OutOrStdout(), data, flags, map[string]any{"source": "live"})
 		},
 	}
 	cmd.Flags().StringVar(&flagDomain, "domain", "", "The domain of the company")
@@ -104,6 +139,8 @@ func newGoogleListCompanyCmd(flags *rootFlags) *cobra.Command {
 	cmd.Flags().StringVar(&flagRegion, "region", "", "The region to search for. Defaults to anywhere")
 	cmd.Flags().StringVar(&flagStartDate, "start-date", "", "Start date to search for. Format: YYYY-MM-DD")
 	cmd.Flags().StringVar(&flagEndDate, "end-date", "", "End date to search for. Format: YYYY-MM-DD")
+	cmd.Flags().StringVar(&flagPlatform, "platform", "", "Platform to search for. (one of: google_maps, google_play, google_search, google_shopping, youtube)")
+	cmd.Flags().StringVar(&flagFormat, "format", "", "Ad format to search for. (one of: text, image, video)")
 	cmd.Flags().StringVar(&flagGetAdDetails, "get-ad-details", "", "Set to true to get the ad details. Will cost 25 credits.")
 	cmd.Flags().StringVar(&flagCursor, "cursor", "", "Cursor to paginate through results")
 	cmd.Flags().BoolVar(&flagAll, "all", false, "Fetch all pages")

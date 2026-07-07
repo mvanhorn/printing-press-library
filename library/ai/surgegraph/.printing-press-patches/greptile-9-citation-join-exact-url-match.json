@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "id": "greptile-9-citation-join-exact-url-match",
+  "applied_at": "2026-05-13",
+  "base_run_id": "20260512-171718",
+  "base_printing_press_version": "4.5.0",
+  "summary": "visibility traffic-citations parses citation_snapshots.raw_json and exact-matches URL fields instead of substring-matching the whole blob.",
+  "reason": "strings.Contains(string(c.RawJSON), p.URL) attributed citations to the wrong page whenever a short page URL like example.com/blog appeared as a prefix of a longer citation URL (example.com/blog/post-a) or as a substring inside an image src, canonical tag, or author link embedded in the raw JSON. The walker recurses through the parsed JSON and exact-matches normalized URLs, eliminating prefix-and-substring false positives.",
+  "files": [
+    "internal/cli/visibility_novel.go"
+  ]
+}

@@ -1,0 +1,429 @@
+{
+  "api_name": "nypl-digital-collections",
+  "base_url": "https://api.repo.nypl.org/api/v2",
+  "description": "New York Public Library Digital Collections API. Source docs: https://api.repo.nypl.org/. Note: NYPL states the Repo API is being deprecated and will no longer be available starting August 1st, 2026.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "api_key",
+    "header": "Authorization",
+    "in": "header",
+    "env_vars": [
+      "NYPL_DIGITAL_COLLECTIONS_NYPL_TOKEN"
+    ],
+    "env_var_specs": [
+      {
+        "name": "NYPL_DIGITAL_COLLECTIONS_NYPL_TOKEN",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    ]
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "collections_get",
+      "description": "Returns paginated child captures for a collection or subcollection/container UUID. Required: uuid. Optional: page (default: 1), per_page (default: 10).",
+      "method": "GET",
+      "path": "/collections/{uuid}",
+      "params": [
+        {
+          "name": "uuid",
+          "type": "string",
+          "location": "path",
+          "description": "NYPL collection, container, item, or capture UUID as documented for the endpoint.",
+          "required": true
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page number, starts at 1."
+        },
+        {
+          "name": "per_page",
+          "type": "int",
+          "location": "query",
+          "description": "Rows to return per page, maximum 500."
+        }
+      ]
+    },
+    {
+      "name": "collections_list",
+      "description": "Returns paginated information about collections. Optional: q, page (default: 1), per_page (default: 10) (plus 1 more).",
+      "method": "GET",
+      "path": "/collections",
+      "params": [
+        {
+          "name": "q",
+          "type": "string",
+          "location": "query",
+          "description": "Search titles of collections or containers."
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page number, starts at 1."
+        },
+        {
+          "name": "per_page",
+          "type": "int",
+          "location": "query",
+          "description": "Rows to return per page, maximum 500."
+        },
+        {
+          "name": "search_recursive",
+          "type": "bool",
+          "location": "query",
+          "description": "Whether mid-level container information is searched."
+        }
+      ]
+    },
+    {
+      "name": "collections_items_list-collection",
+      "description": "Returns items directly attached to a collection or container. Required: uuid. Optional: page (default: 1), per_page (default: 10).",
+      "method": "GET",
+      "path": "/collections/{uuid}/items",
+      "params": [
+        {
+          "name": "uuid",
+          "type": "string",
+          "location": "path",
+          "description": "NYPL collection, container, item, or capture UUID as documented for the endpoint.",
+          "required": true
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page number, starts at 1."
+        },
+        {
+          "name": "per_page",
+          "type": "int",
+          "location": "query",
+          "description": "Rows to return per page, maximum 500."
+        }
+      ]
+    },
+    {
+      "name": "collections_subcollections_list",
+      "description": "Returns immediate child containers of a collection or container; does not return items or captures. Required: uuid. Optional: page (default: 1), per_page (default: 10).",
+      "method": "GET",
+      "path": "/collections/{uuid}/subcollections",
+      "params": [
+        {
+          "name": "uuid",
+          "type": "string",
+          "location": "path",
+          "description": "NYPL collection, container, item, or capture UUID as documented for the endpoint.",
+          "required": true
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page number, starts at 1."
+        },
+        {
+          "name": "per_page",
+          "type": "int",
+          "location": "query",
+          "description": "Rows to return per page, maximum 500."
+        }
+      ]
+    },
+    {
+      "name": "items_get-counts",
+      "description": "Returns collection item counts.",
+      "method": "POST",
+      "path": "/items/counts",
+      "params": []
+    },
+    {
+      "name": "items_get-details",
+      "description": "Returns MODS for a capture UUID plus related capture information. UUID must belong to a valid capture. Required: uuid. Optional: show_mods.",
+      "method": "GET",
+      "path": "/items/item_details/{uuid}",
+      "params": [
+        {
+          "name": "uuid",
+          "type": "string",
+          "location": "path",
+          "description": "NYPL collection, container, item, or capture UUID as documented for the endpoint.",
+          "required": true
+        },
+        {
+          "name": "show_mods",
+          "type": "string",
+          "location": "query",
+          "description": "Pass no to suppress MODS data where supported."
+        }
+      ]
+    },
+    {
+      "name": "items_get-featured",
+      "description": "Returns featured items.",
+      "method": "GET",
+      "path": "/items/featured",
+      "params": []
+    },
+    {
+      "name": "items_get-mets-alto",
+      "description": "Returns METS ALTO for a given capture UUID. Required: uuid.",
+      "method": "GET",
+      "path": "/items/mets_alto/{uuid}",
+      "params": [
+        {
+          "name": "uuid",
+          "type": "string",
+          "location": "path",
+          "description": "NYPL collection, container, item, or capture UUID as documented for the endpoint.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "items_get-minified-alto",
+      "description": "Returns minified ALTO for a given capture UUID. Required: uuid.",
+      "method": "GET",
+      "path": "/items/minified_alto/{uuid}",
+      "params": [
+        {
+          "name": "uuid",
+          "type": "string",
+          "location": "path",
+          "description": "NYPL collection, container, item, or capture UUID as documented for the endpoint.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "items_get-mods-captures",
+      "description": "Returns MODS and capture information for a capture, item, container, or collection UUID. Required: uuid. Optional: show_mods.",
+      "method": "GET",
+      "path": "/items/mods_captures/{uuid}",
+      "params": [
+        {
+          "name": "uuid",
+          "type": "string",
+          "location": "path",
+          "description": "NYPL collection, container, item, or capture UUID as documented for the endpoint.",
+          "required": true
+        },
+        {
+          "name": "show_mods",
+          "type": "string",
+          "location": "query",
+          "description": "Pass no to suppress MODS data where supported."
+        }
+      ]
+    },
+    {
+      "name": "items_get-plain-text",
+      "description": "Returns parsed plain text ALTO for a given capture UUID. Required: uuid.",
+      "method": "GET",
+      "path": "/items/plain_text/{uuid}",
+      "params": [
+        {
+          "name": "uuid",
+          "type": "string",
+          "location": "path",
+          "description": "NYPL collection, container, item, or capture UUID as documented for the endpoint.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "items_get-rights",
+      "description": "Returns rights profile information for a UUID. Required: uuid.",
+      "method": "GET",
+      "path": "/items/rights/{uuid}",
+      "params": [
+        {
+          "name": "uuid",
+          "type": "string",
+          "location": "path",
+          "description": "NYPL collection, container, item, or capture UUID as documented for the endpoint.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "items_get-total",
+      "description": "Returns the total number of digitized items.",
+      "method": "GET",
+      "path": "/items/total",
+      "params": []
+    },
+    {
+      "name": "items_list-all-collection-captures",
+      "description": "Returns all capture UUIDs, image IDs, item links, and titles for a capture, item, container, or collection UUID. Required: uuid.",
+      "method": "GET",
+      "path": "/items/collection/all/{uuid}",
+      "params": [
+        {
+          "name": "uuid",
+          "type": "string",
+          "location": "path",
+          "description": "NYPL collection, container, item, or capture UUID as documented for the endpoint.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "items_list-captures",
+      "description": "Returns capture UUIDs, image IDs, item links, and titles for an item, container, or collection UUID. Capture UUIDs are not valid input values. Required: uuid.",
+      "method": "GET",
+      "path": "/items/{uuid}",
+      "params": [
+        {
+          "name": "uuid",
+          "type": "string",
+          "location": "path",
+          "description": "NYPL collection, container, item, or capture UUID as documented for the endpoint.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "items_list-collection-captures",
+      "description": "Returns capture UUIDs, image IDs, item links, and titles for a capture, item, container, or collection UUID. Required: uuid.",
+      "method": "GET",
+      "path": "/items/collection/{uuid}",
+      "params": [
+        {
+          "name": "uuid",
+          "type": "string",
+          "location": "path",
+          "description": "NYPL collection, container, item, or capture UUID as documented for the endpoint.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "items_list-recent",
+      "description": "Returns the most recently added captures. Optional: page (default: 1), per_page (default: 10), publicDomainOnly.",
+      "method": "GET",
+      "path": "/items/recent",
+      "params": [
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page number, starts at 1."
+        },
+        {
+          "name": "per_page",
+          "type": "int",
+          "location": "query",
+          "description": "Rows to return per page, maximum 500."
+        },
+        {
+          "name": "publicDomainOnly",
+          "type": "bool",
+          "location": "query",
+          "description": "Return only Public Domain results."
+        }
+      ]
+    },
+    {
+      "name": "items_list-root",
+      "description": "Returns all top-level UUIDs for collections and orphan items.",
+      "method": "GET",
+      "path": "/items/roots",
+      "params": []
+    },
+    {
+      "name": "items_lookup-identifier",
+      "description": "Returns UUIDs for a given identifier type and identifier value such as local_image_id, local_bnumber, local_barcode, oclc, isbn, or lccn. Required: type, id.",
+      "method": "GET",
+      "path": "/items/{type}/{id}",
+      "params": [
+        {
+          "name": "type",
+          "type": "string",
+          "location": "path",
+          "description": "Identifier type.",
+          "required": true
+        },
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Identifier value.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "items_search-digital",
+      "description": "Returns results matching keywords anywhere in a MODS metadata record. Supports field-specific search, fuzzy/exact field type, optional filters, pagination, and public-domain filtering. Required: q. Optional: field, ftype, filter[] (plus 3 more).",
+      "method": "GET",
+      "path": "/items/search",
+      "params": [
+        {
+          "name": "q",
+          "type": "string",
+          "location": "query",
+          "description": "Search terms.",
+          "required": true
+        },
+        {
+          "name": "field",
+          "type": "string",
+          "location": "query",
+          "description": "Optional MODS field to search, such as topic."
+        },
+        {
+          "name": "ftype",
+          "type": "string",
+          "location": "query",
+          "description": "Field type; defaults to fuzzy."
+        },
+        {
+          "name": "filter[]",
+          "type": "array",
+          "location": "query",
+          "description": "Optional filters on results, e.g. typeOfResource:still image."
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page number, starts at 1."
+        },
+        {
+          "name": "per_page",
+          "type": "int",
+          "location": "query",
+          "description": "Rows to return per page, maximum 500."
+        },
+        {
+          "name": "publicDomainOnly",
+          "type": "bool",
+          "location": "query",
+          "description": "Return only Public Domain results."
+        }
+      ]
+    },
+    {
+      "name": "mods_get",
+      "description": "Returns MODS bibliographic data for a capture, item, container, or collection UUID. Required: uuid.",
+      "method": "GET",
+      "path": "/mods/{uuid}",
+      "params": [
+        {
+          "name": "uuid",
+          "type": "string",
+          "location": "path",
+          "description": "NYPL collection, container, item, or capture UUID as documented for the endpoint.",
+          "required": true
+        }
+      ]
+    }
+  ]
+}

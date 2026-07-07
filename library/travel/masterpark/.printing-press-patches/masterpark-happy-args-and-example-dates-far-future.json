@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "masterpark-happy-args-and-example-dates-far-future",
+  "applied_at": "2026-06-10",
+  "base_run_id": "manual-masterpark-20260609T023930Z",
+  "base_printing_press_version": "4.24.0",
+  "summary": "The quote command's pp:happy-args annotation and example date range must stay clearly in the future so the live verify harness never sends past-date getQuotes requests; near-publish-date examples must not be used.",
+  "reason": "Greptile flagged that pp:happy-args in agent-context drives a live getQuotes call during the Printing Press verify harness, so dates only two days after the publish date would become past dates within a day and could make the smoke test fail; the same literal dates were duplicated across user-facing examples (quote Example, README, SKILL, AGENTS).",
+  "files": [
+    "internal/cli/agent_context.go",
+    "internal/cli/quote.go"
+  ],
+  "validated_outcome": "go test/vet/build pass; example date range now sits years ahead of the publish date so live verify quote runs target valid future dates."
+}

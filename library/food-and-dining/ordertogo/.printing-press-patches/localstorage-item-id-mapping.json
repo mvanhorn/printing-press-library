@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "localstorage-item-id-mapping",
+  "applied_at": "2026-05-15",
+  "base_run_id": "20260510-083403",
+  "base_printing_press_version": "4.2.2",
+  "summary": "Remove the dead localStorage cart item_id string field and document that the integer id is the menu-item id used for checkout.",
+  "reason": "The localStorage cart shape had both id and item_id fields, but captured checkout validation showed the integer id is the value required by postmicmeshorder; keeping the unused string field made future mapping changes ambiguous.",
+  "files": [
+    "internal/cli/orders_place.go"
+  ],
+  "validated_outcome": "Build and vet passed. The request body remained byte-for-byte identical to the captured real checkout body, and PRINTING_PRESS_VERIFY=1 dry-run output was unchanged."
+}

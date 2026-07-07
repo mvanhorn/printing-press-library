@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "id": "http-403-hint",
+  "applied_at": "2026-05-28",
+  "base_run_id": "20260522-124732",
+  "base_printing_press_version": "4.11.0",
+  "summary": "403 error hint tells users GoDaddy requires GODADDY_API_KEY/GODADDY_API_SECRET and to verify key scope/account eligibility.",
+  "reason": "Greptile P1: the old hint claimed \"This API is configured without credentials\", which is wrong for GoDaddy (credentials are required) and misled users into ignoring missing or under-scoped keys.",
+  "files": [
+    "internal/cli/helpers.go"
+  ]
+}

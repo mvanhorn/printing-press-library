@@ -21,7 +21,7 @@ func newGoogleAdsListPlannableUserListsCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:         "list-plannable-user-lists",
 		Short:       "Returns the list of plannable user lists with their plannable status. User lists may not be plannable for a number...",
-		Example:     "  google-ads-pp-cli google_ads list_plannable_user_lists",
+		Example:     "  google-ads-pp-cli google-ads list-plannable-user-lists",
 		Annotations: map[string]string{"pp:endpoint": "google_ads.list_plannable_user_lists", "pp:method": "POST", "pp:path": "/v22:listPlannableUserLists"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !stdinBody {

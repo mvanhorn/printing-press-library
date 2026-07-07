@@ -1,6 +1,8 @@
 package cli
 
 // PATCH: Hand-built umbrella-page edition comparison command.
+// pp:data-source live -- editions fetches the live Blu-ray.com umbrella page
+// (/main/<id>/) and parses every disc edition from the response HTML.
 
 import (
 	"database/sql"
@@ -30,7 +32,7 @@ type editionRow struct {
 	URL string `json:"url"`
 }
 
-func newEditionsCmd(flags *rootFlags) *cobra.Command {
+func newNovelEditionsCmd(flags *rootFlags) *cobra.Command {
 	var country string
 	var noEnrich bool
 	cmd := &cobra.Command{
@@ -72,7 +74,7 @@ func newEditionsCmd(flags *rootFlags) *cobra.Command {
 			if err != nil {
 				return err
 			}
-			body, err := bluRayGet(c, fmt.Sprintf("https://www.blu-ray.com/main/%d/", id), false)
+			body, err := bluRayGet(cmd.Context(), c, bluRaySiteURL(c, fmt.Sprintf("/main/%d/", id)), false)
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}
