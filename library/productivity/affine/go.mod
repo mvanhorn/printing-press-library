@@ -1,6 +1,6 @@
 module github.com/mvanhorn/printing-press-library/library/productivity/affine
 
-go 1.26
+go 1.26.5
 
 require (
 	github.com/dop251/goja v0.0.0-20260305124333-6a7976c22267
