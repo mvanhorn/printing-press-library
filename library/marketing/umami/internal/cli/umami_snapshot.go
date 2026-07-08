@@ -203,15 +203,28 @@ func snapshotMetrics(ctx context.Context, c *client.Client, db *store.Store, sit
 			if err != nil {
 				return count, fmt.Errorf("metrics %s day %s: %w", mt, key, err)
 			}
+			// Write the whole (day, metric_type) pair in one transaction so an
+			// interrupted run leaves no partial rows: the existing-pair skip
+			// above then correctly means "complete", never "frozen partial".
+			tx, err := db.DB().BeginTx(ctx, nil)
+			if err != nil {
+				return count, fmt.Errorf("beginning metrics tx %s day %s: %w", mt, key, err)
+			}
+			wrote := 0
 			for _, r := range metricRows {
 				if r.X == "" {
 					continue
 				}
-				if err := db.UpsertUmamiMetricDay(ctx, nil, site.ID, key, mt, r.X, r.Y); err != nil {
+				if err := db.UpsertUmamiMetricDay(ctx, tx, site.ID, key, mt, r.X, r.Y); err != nil {
+					_ = tx.Rollback()
 					return count, err
 				}
-				count++
+				wrote++
 			}
+			if err := tx.Commit(); err != nil {
+				return count, fmt.Errorf("committing metrics %s day %s: %w", mt, key, err)
+			}
+			count += wrote
 		}
 	}
 	return count, nil

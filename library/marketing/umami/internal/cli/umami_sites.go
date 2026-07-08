@@ -25,19 +25,34 @@ type umamiSite struct {
 	Domain string `json:"domain"`
 }
 
-// fetchAllWebsites lists every website the account can access (first 200).
+// fetchAllWebsites lists every website the account can access, paginating
+// through /api/websites until the reported count is reached (capped at 50
+// pages = 10k sites as a runaway guard).
 func fetchAllWebsites(ctx context.Context, c *client.Client) ([]umamiSite, error) {
-	data, err := c.Get(ctx, "/api/websites", map[string]string{"pageSize": "200", "includeTeams": "true"})
-	if err != nil {
-		return nil, fmt.Errorf("listing websites: %w", err)
+	const pageSize = 200
+	var all []umamiSite
+	for page := 1; page <= 50; page++ {
+		data, err := c.Get(ctx, "/api/websites", map[string]string{
+			"pageSize":     strconv.Itoa(pageSize),
+			"page":         strconv.Itoa(page),
+			"includeTeams": "true",
+		})
+		if err != nil {
+			return nil, fmt.Errorf("listing websites (page %d): %w", page, err)
+		}
+		var envelope struct {
+			Data  []umamiSite `json:"data"`
+			Count int         `json:"count"`
+		}
+		if err := json.Unmarshal(data, &envelope); err != nil {
+			return nil, fmt.Errorf("parsing websites list (page %d): %w", page, err)
+		}
+		all = append(all, envelope.Data...)
+		if len(envelope.Data) < pageSize || (envelope.Count > 0 && len(all) >= envelope.Count) {
+			break
+		}
 	}
-	var envelope struct {
-		Data []umamiSite `json:"data"`
-	}
-	if err := json.Unmarshal(data, &envelope); err != nil {
-		return nil, fmt.Errorf("parsing websites list: %w", err)
-	}
-	return envelope.Data, nil
+	return all, nil
 }
 
 // resolveWebsiteID accepts a website UUID, domain, or display name and
