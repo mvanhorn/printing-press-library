@@ -11,6 +11,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"sort"
+	"strconv"
 	"strings"
 	"text/tabwriter"
 
@@ -27,6 +28,7 @@ import (
 func newSoarCmd(flags *rootFlags) *cobra.Command {
 	var returnDate, cabin string
 	var passengers int
+	var stopsTokens, airlines []string
 
 	cmd := &cobra.Command{
 		Use:         "soar <origin> <destination> <date>",
@@ -47,6 +49,9 @@ flysoar.ai. Prices are always in USD (FlySoar's anonymous endpoint is USD-only).
   # Round trip in business class
   flight-goat-pp-cli soar JFK LHR 2026-07-15 --return 2026-07-22 --class business
 
+  # Nonstop or one-stop, on Delta or United only
+  flight-goat-pp-cli soar DCA IAH 2026-09-23 --class first --stops 0,1 --airlines DL,UA
+
   # Two passengers
   flight-goat-pp-cli soar LHR DXB 2026-05-10 --passengers 2`,
 		Args: cobra.ExactArgs(3),
@@ -55,6 +60,14 @@ flysoar.ai. Prices are always in USD (FlySoar's anonymous endpoint is USD-only).
 			destination := strings.ToUpper(args[1])
 			departureDate := args[2]
 
+			stops, err := parseSoarStops(stopsTokens)
+			if err != nil {
+				return err
+			}
+			for i := range airlines {
+				airlines[i] = strings.ToUpper(strings.TrimSpace(airlines[i]))
+			}
+
 			opts := soar.SearchOptions{
 				Origin:        origin,
 				Destination:   destination,
@@ -62,6 +75,8 @@ flysoar.ai. Prices are always in USD (FlySoar's anonymous endpoint is USD-only).
 				ReturnDate:    returnDate,
 				CabinClass:    cabin,
 				Passengers:    passengers,
+				Stops:         stops,
+				Airlines:      airlines,
 			}
 
 			if flags.dryRun {
@@ -72,8 +87,14 @@ flysoar.ai. Prices are always in USD (FlySoar's anonymous endpoint is USD-only).
 				if opts.CabinClass != "" {
 					fmt.Fprintf(cmd.OutOrStdout(), " class=%s", strings.ToLower(opts.CabinClass))
 				}
+				if len(opts.Stops) > 0 {
+					fmt.Fprintf(cmd.OutOrStdout(), " stops=%v", opts.Stops)
+				}
+				if len(opts.Airlines) > 0 {
+					fmt.Fprintf(cmd.OutOrStdout(), " airlines=%s", strings.Join(opts.Airlines, ","))
+				}
 				fmt.Fprintf(cmd.OutOrStdout(), "\nurl: %s\n(dry run - no request sent)\n",
-					soar.SearchURL(opts.Origin, opts.Destination, opts.DepartureDate, opts.ReturnDate, opts.CabinClass))
+					soar.SearchURL(opts.Origin, opts.Destination, opts.DepartureDate, opts.ReturnDate, opts.CabinClass, opts.Stops, opts.Airlines))
 				return nil
 			}
 
@@ -144,7 +165,36 @@ flysoar.ai. Prices are always in USD (FlySoar's anonymous endpoint is USD-only).
 	cmd.Flags().StringVarP(&returnDate, "return", "r", "", "Return date for round-trip (YYYY-MM-DD)")
 	cmd.Flags().StringVarP(&cabin, "class", "c", "", "Cabin class: economy, premium_economy, business, first")
 	cmd.Flags().IntVarP(&passengers, "passengers", "p", 1, "Number of passengers")
+	cmd.Flags().StringSliceVar(&stopsTokens, "stops", nil, "Allowed stop counts (comma list): 0=nonstop, 1, 2. E.g. --stops 0,1")
+	cmd.Flags().StringSliceVarP(&airlines, "airlines", "a", nil, "Whitelist airlines by IATA code (comma list): e.g. --airlines DL,UA")
 	return cmd
+}
+
+// parseSoarStops turns --stops tokens into a set of allowed stop counts,
+// matching FlySoar's ?stops=0,1 GUI param. Accepts integers (0, 1, 2, …) and
+// the aliases "nonstop"/"non_stop"/"non-stop"/"direct" for 0.
+func parseSoarStops(tokens []string) ([]int, error) {
+	if len(tokens) == 0 {
+		return nil, nil
+	}
+	out := make([]int, 0, len(tokens))
+	for _, t := range tokens {
+		tok := strings.ToLower(strings.TrimSpace(t))
+		if tok == "" {
+			continue
+		}
+		switch tok {
+		case "nonstop", "non_stop", "non-stop", "direct":
+			out = append(out, 0)
+			continue
+		}
+		n, err := strconv.Atoi(tok)
+		if err != nil || n < 0 {
+			return nil, fmt.Errorf("invalid --stops value %q: use stop counts like 0, 1, 2 (0 = nonstop)", t)
+		}
+		out = append(out, n)
+	}
+	return out, nil
 }
 
 // soarPrice formats a FlySoar fare with cents. The shared formatPrice helper

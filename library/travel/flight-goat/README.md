@@ -250,12 +250,17 @@ often surface different fares for the same itinerary.
 flight-goat-pp-cli soar SEA DEN 2026-09-21 --agent
 flight-goat-pp-cli soar SEA DEN 2026-09-21 --class first --agent
 flight-goat-pp-cli soar JFK LHR 2026-07-15 --return 2026-07-22 --class business --agent
+flight-goat-pp-cli soar DCA IAH 2026-09-23 --class first --stops 0,1 --airlines DL,UA --agent
 ```
 
 Cabins: `economy` (default), `premium_economy`, `business`, `first`. Prices are
 always USD (FlySoar's anonymous endpoint is USD-only, so there is no `--currency`
-flag). Results use the same leg/itinerary shape as `flights`, sorted
-cheapest-first with identical itineraries deduped to the lowest fare.
+flag). `--stops` is a comma list of allowed stop counts (`0` = nonstop, `1`, `2`;
+a set, not a max) and `--airlines` is a whitelist of two-letter IATA codes — both
+filter the results and are encoded into `search_url` as FlySoar's `stops=0,1` /
+`airlines=DL,UA` GUI params. Results use the same leg/itinerary shape as
+`flights`, sorted cheapest-first with identical itineraries deduped to the lowest
+fare.
 
 FlySoar has no anonymous booking API — the purchase happens through its
 conversational **iMessage agent** or its authenticated web app. `soar` prices the

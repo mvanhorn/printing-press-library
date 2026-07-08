@@ -97,11 +97,23 @@ flight-goat-pp-cli soar SEA DEN 2026-09-21 --class first --agent
 
 # Round trip business class
 flight-goat-pp-cli soar JFK LHR 2026-07-15 --return 2026-07-22 --class business --agent
+
+# Nonstop or one-stop, on Delta or United only
+flight-goat-pp-cli soar DCA IAH 2026-09-23 --class first --stops 0,1 --airlines DL,UA --agent
 ```
 
 Cabin values: `economy` (default), `premium_economy`, `business`, `first`.
 Flags mirror `flights` where they overlap (`--return`, `--class`,
-`--passengers`). There is no `--currency`: FlySoar's anonymous endpoint prices
+`--passengers`, `--airlines`). Two more map FlySoar's GUI filters:
+
+- `--stops` — a comma list of **allowed** stop counts (`0` = nonstop, `1`, `2`).
+  `--stops 0,1` keeps nonstop and one-stop itineraries. It is a set, not a max.
+- `--airlines` — a whitelist of two-letter IATA carrier codes (`--airlines DL,UA`);
+  keeps itineraries flown end-to-end by those carriers.
+
+Both filter the returned results **and** are encoded in `search_url` (as FlySoar's
+`stops=0,1` / `airlines=DL,UA` query params), so opening the link shows the same
+filtered search. There is no `--currency`: FlySoar's anonymous endpoint prices
 every offer in USD regardless of any requested currency. Results are normalized
 to the same leg/itinerary shape as `flights`, sorted cheapest-first, with
 identical itineraries deduped to the lowest fare. `price` is **per-seat** (as in

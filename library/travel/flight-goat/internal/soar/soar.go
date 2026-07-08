@@ -85,10 +85,15 @@ type Flight struct {
 	Price           float64 `json:"price"`
 	Currency        string  `json:"currency"`
 	DurationMinutes int     `json:"duration"`
-	Stops           int     `json:"stops"`
-	SliceCount      int     `json:"slice_count"`
-	Owner           string  `json:"owner,omitempty"`
-	Legs            []Leg   `json:"legs"`
+	// Stops is the total number of connections across all slices.
+	Stops int `json:"stops"`
+	// SliceStops is the connection count per slice (per direction), e.g. [0,1]
+	// for a round-trip that is nonstop out and one-stop back. FlySoar's stops
+	// filter applies per direction, so this drives the --stops filter.
+	SliceStops []int  `json:"slice_stops,omitempty"`
+	SliceCount int    `json:"slice_count"`
+	Owner      string `json:"owner,omitempty"`
+	Legs       []Leg  `json:"legs"`
 }
 
 // SearchQuery echoes the request back in the response envelope. Currency is
@@ -103,6 +108,10 @@ type SearchQuery struct {
 	CabinClass    string `json:"cabin_class"`
 	Passengers    int    `json:"passengers"`
 	Currency      string `json:"currency"`
+	// Stops echoes the allowed stop counts (0 = nonstop, 1, 2, …); empty = any.
+	Stops []int `json:"stops,omitempty"`
+	// Airlines echoes the airline whitelist (IATA codes), empty when unset.
+	Airlines []string `json:"airlines,omitempty"`
 }
 
 // SearchResult is the normalized envelope returned by Search.
@@ -156,6 +165,13 @@ type SearchOptions struct {
 	ReturnDate    string // YYYY-MM-DD, empty for one-way
 	CabinClass    string // economy | premium_economy | business | first
 	Passengers    int    // defaults to 1 when <= 0
+	// Stops filters results and the deep link to itineraries whose stop count
+	// is in this set (0 = nonstop, 1, 2, …). Empty means no stops filter.
+	// Matches FlySoar's ?stops=0,1 GUI param (a set of allowed counts).
+	Stops []int
+	// Airlines whitelists marketing carriers by IATA code (e.g. UA, DL).
+	// Empty means no airline filter. Matches FlySoar's ?airlines=DL,UA param.
+	Airlines []string
 }
 
 // priceCurrency is the only currency FlySoar's anonymous endpoint returns.
@@ -310,7 +326,13 @@ func Search(ctx context.Context, opts SearchOptions) (*SearchResult, error) {
 		return nil, fmt.Errorf("soar: reading stream: %w", err)
 	}
 
-	flights := normalizeOffers(offers, priceCurrency, passengers)
+	// Apply the same stop/airline filters the deep link encodes, so the CLI's
+	// results match what opening search_url in the browser would show. FlySoar's
+	// stream endpoint returns the unfiltered set; these are GUI-side filters.
+	stops := normalizeStops(opts.Stops)
+	airlines := normalizeAirlines(opts.Airlines)
+	unfiltered := normalizeOffers(offers, priceCurrency, passengers)
+	flights := filterFlights(unfiltered, stops, airlines)
 	// Cheapest-first, matching the other price backends' default ordering.
 	sort.SliceStable(flights, func(i, j int) bool {
 		return flights[i].Price < flights[j].Price
@@ -334,14 +356,22 @@ func Search(ctx context.Context, opts SearchOptions) (*SearchResult, error) {
 			CabinClass:    cabin,
 			Passengers:    passengers,
 			Currency:      priceCurrency,
+			Stops:         stops,
+			Airlines:      airlines,
 		},
 		Count:     len(flights),
 		Flights:   flights,
-		SearchURL: SearchURL(origin, dest, opts.DepartureDate, opts.ReturnDate, cabin),
+		SearchURL: SearchURL(origin, dest, opts.DepartureDate, opts.ReturnDate, cabin, stops, airlines),
 	}
 	res.Booking = buildBookingHandoff(res.Query, res.SearchURL)
 	if len(flights) == 0 {
-		res.Note = "FlySoar returned no offers for this search"
+		if len(unfiltered) > 0 && (len(stops) > 0 || len(airlines) > 0) {
+			// Offers existed but the stops/airlines filters removed them all —
+			// don't mislead the caller into thinking the route has no service.
+			res.Note = fmt.Sprintf("FlySoar returned %d offer(s), but none matched the selected filters (stops/airlines); widen or drop --stops/--airlines", len(unfiltered))
+		} else {
+			res.Note = "FlySoar returned no offers for this search"
+		}
 	}
 	return res, nil
 }
@@ -392,10 +422,36 @@ func BookingRequest(q SearchQuery) string {
 	if cabin := prettyCabin(q.CabinClass); cabin != "" {
 		b += ", " + cabin
 	}
+	if s := stopsPhrase(q.Stops); s != "" {
+		b += ", " + s
+	}
+	if len(q.Airlines) > 0 {
+		b += ", on " + strings.Join(q.Airlines, "/")
+	}
 	if q.Passengers > 1 {
 		b += fmt.Sprintf(", %d passengers", q.Passengers)
 	}
 	return b
+}
+
+// stopsPhrase renders the allowed stop counts in natural language for the
+// booking request, e.g. [0] -> "nonstop", [0,1] -> "nonstop or 1 stop".
+func stopsPhrase(stops []int) string {
+	if len(stops) == 0 {
+		return ""
+	}
+	parts := make([]string, len(stops))
+	for i, s := range stops {
+		switch s {
+		case 0:
+			parts[i] = "nonstop"
+		case 1:
+			parts[i] = "1 stop"
+		default:
+			parts[i] = fmt.Sprintf("%d stops", s)
+		}
+	}
+	return strings.Join(parts, " or ")
 }
 
 // prettyCabin turns a normalized cabin token into agent-friendly prose, e.g.
@@ -422,9 +478,11 @@ func IMessageURL(number, body string) string {
 
 // SearchURL builds a browser deep link to a FlySoar search, e.g.
 // https://flysoar.ai/flights/sea/den/260921/?cabin=first&trip=oneway .
-// cabin should already be normalized (see normalizeCabin); an empty cabin
-// omits the cabin query param.
-func SearchURL(origin, dest, depDate, retDate, cabin string) string {
+// It mirrors FlySoar's GUI filter params: cabin, trip, stops (a set of allowed
+// stop counts, e.g. stops=0,1), and airlines (an IATA whitelist, e.g.
+// airlines=DL,UA). cabin/stops/airlines should already be normalized; empty
+// values omit their param. Commas are URL-encoded as %2C by url.Values.
+func SearchURL(origin, dest, depDate, retDate, cabin string, stops []int, airlines []string) string {
 	trip := "oneway"
 	if strings.TrimSpace(retDate) != "" {
 		trip = "roundtrip"
@@ -434,7 +492,119 @@ func SearchURL(origin, dest, depDate, retDate, cabin string) string {
 		q.Set("cabin", c)
 	}
 	q.Set("trip", trip)
+	if len(stops) > 0 {
+		parts := make([]string, len(stops))
+		for i, s := range stops {
+			parts[i] = strconv.Itoa(s)
+		}
+		q.Set("stops", strings.Join(parts, ","))
+	}
+	if len(airlines) > 0 {
+		q.Set("airlines", strings.Join(airlines, ","))
+	}
 	return fmt.Sprintf("%s%s?%s", baseURL, flightPath(origin, dest, depDate, retDate), q.Encode())
+}
+
+// normalizeStops sorts and de-dupes the allowed stop counts, dropping negatives.
+// Returns nil for empty/all-invalid input (no stops filter).
+func normalizeStops(stops []int) []int {
+	if len(stops) == 0 {
+		return nil
+	}
+	seen := make(map[int]bool, len(stops))
+	out := make([]int, 0, len(stops))
+	for _, s := range stops {
+		if s < 0 || seen[s] {
+			continue
+		}
+		seen[s] = true
+		out = append(out, s)
+	}
+	if len(out) == 0 {
+		return nil
+	}
+	sort.Ints(out)
+	return out
+}
+
+// normalizeAirlines upper-cases, trims, and de-dupes IATA codes, preserving
+// input order. Returns nil for empty input (no airline filter).
+func normalizeAirlines(airlines []string) []string {
+	if len(airlines) == 0 {
+		return nil
+	}
+	seen := make(map[string]bool, len(airlines))
+	out := make([]string, 0, len(airlines))
+	for _, a := range airlines {
+		code := strings.ToUpper(strings.TrimSpace(a))
+		if code == "" || seen[code] {
+			continue
+		}
+		seen[code] = true
+		out = append(out, code)
+	}
+	if len(out) == 0 {
+		return nil
+	}
+	return out
+}
+
+// filterFlights keeps itineraries matching the stop-count set (if any) and the
+// airline whitelist (if any). The stops filter is per direction — FlySoar's
+// stops=N applies to each slice — so an itinerary passes only when every slice's
+// connection count is in the set. The airline filter passes when every leg's
+// marketing carrier is in the whitelist.
+func filterFlights(flights []Flight, stops []int, airlines []string) []Flight {
+	if len(stops) == 0 && len(airlines) == 0 {
+		return flights
+	}
+	stopSet := make(map[int]bool, len(stops))
+	for _, s := range stops {
+		stopSet[s] = true
+	}
+	airlineSet := make(map[string]bool, len(airlines))
+	for _, a := range airlines {
+		airlineSet[a] = true
+	}
+	out := make([]Flight, 0, len(flights))
+	for _, f := range flights {
+		if len(stopSet) > 0 && !sliceStopsAllowed(f, stopSet) {
+			continue
+		}
+		if len(airlineSet) > 0 && !allLegsInAirlines(f, airlineSet) {
+			continue
+		}
+		out = append(out, f)
+	}
+	return out
+}
+
+// sliceStopsAllowed reports whether every slice's connection count is in the
+// allowed set (FlySoar's stops filter is per direction). Falls back to the total
+// stop count when per-slice data is unavailable.
+func sliceStopsAllowed(f Flight, set map[int]bool) bool {
+	if len(f.SliceStops) == 0 {
+		return set[f.Stops]
+	}
+	for _, c := range f.SliceStops {
+		if !set[c] {
+			return false
+		}
+	}
+	return true
+}
+
+// allLegsInAirlines reports whether every leg's airline code is in the set.
+func allLegsInAirlines(f Flight, set map[string]bool) bool {
+	if len(f.Legs) == 0 {
+		return false
+	}
+	for _, l := range f.Legs {
+		if !set[strings.ToUpper(l.Airline.Code)] {
+			return false
+		}
+	}
+	return true
 }
 
 // yymmdd turns "2026-07-15" into "260715". Falls back to the digit-stripped
@@ -557,23 +727,29 @@ func normalizeOffer(o rawOffer, fallbackCurrency string, passengers int) (Flight
 	}
 
 	var legs []Leg
+	var sliceStops []int
 	segCount := 0
 	for _, s := range o.Slices {
+		n := len(s.Segments)
 		for _, seg := range s.Segments {
 			legs = append(legs, normalizeSegment(seg))
 			segCount++
 		}
+		// Connections within this slice (this direction): segments - 1.
+		conns := n - 1
+		if conns < 0 {
+			conns = 0
+		}
+		sliceStops = append(sliceStops, conns)
 	}
 	if len(legs) == 0 {
 		return Flight{}, false
 	}
 
-	// Stops are connections within the trip: total segments minus one per
-	// slice. For a one-way with N segments that's N-1; for a round-trip the
-	// per-slice connections sum, which (segments - slices) captures.
-	stops := segCount - len(o.Slices)
-	if stops < 0 {
-		stops = 0
+	// Stops are total connections within the trip: sum of per-slice connections.
+	stops := 0
+	for _, c := range sliceStops {
+		stops += c
 	}
 
 	total := 0
@@ -587,6 +763,7 @@ func normalizeOffer(o rawOffer, fallbackCurrency string, passengers int) (Flight
 		Currency:        cur,
 		DurationMinutes: total,
 		Stops:           stops,
+		SliceStops:      sliceStops,
 		SliceCount:      len(o.Slices),
 		Owner:           firstNonEmpty(o.Owner.Name, o.Owner.IATACode),
 		Legs:            legs,

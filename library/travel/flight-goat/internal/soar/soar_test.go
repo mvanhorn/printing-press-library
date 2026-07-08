@@ -205,14 +205,134 @@ func TestNormalizeFlightNumber(t *testing.T) {
 }
 
 func TestSearchURL(t *testing.T) {
-	got := SearchURL("SEA", "DEN", "2026-09-21", "", "first")
+	got := SearchURL("SEA", "DEN", "2026-09-21", "", "first", nil, nil)
 	want := "https://flysoar.ai/flights/sea/den/260921/?cabin=first&trip=oneway"
 	if got != want {
 		t.Fatalf("SearchURL one-way:\n got %q\nwant %q", got, want)
 	}
-	rt := SearchURL("JFK", "LHR", "2026-07-15", "2026-07-22", "business")
+	rt := SearchURL("JFK", "LHR", "2026-07-15", "2026-07-22", "business", nil, nil)
 	if !strings.Contains(rt, "/flights/jfk/lhr/260715/260722/?") || !strings.Contains(rt, "trip=roundtrip") || !strings.Contains(rt, "cabin=business") {
 		t.Fatalf("SearchURL round-trip wrong: %q", rt)
+	}
+}
+
+func TestSearchURLStopsAirlines(t *testing.T) {
+	// Mirrors the FlySoar GUI URLs: commas URL-encoded as %2C.
+	u := SearchURL("DCA", "IAH", "2026-09-23", "", "first", []int{0, 1}, []string{"DL", "UA"})
+	for _, want := range []string{"/flights/dca/iah/260923/?", "cabin=first", "trip=oneway", "stops=0%2C1", "airlines=DL%2CUA"} {
+		if !strings.Contains(u, want) {
+			t.Fatalf("SearchURL missing %q in %q", want, u)
+		}
+	}
+	// Single airline, single stop count.
+	u2 := SearchURL("DCA", "IAH", "2026-09-23", "", "first", []int{0}, []string{"UA"})
+	if !strings.Contains(u2, "stops=0") || !strings.Contains(u2, "airlines=UA") {
+		t.Fatalf("single-value stops/airlines wrong: %q", u2)
+	}
+	// No filters → no stops/airlines params.
+	u3 := SearchURL("SEA", "DEN", "2026-09-21", "", "economy", nil, nil)
+	if strings.Contains(u3, "stops=") || strings.Contains(u3, "airlines=") {
+		t.Fatalf("expected no stops/airlines params: %q", u3)
+	}
+}
+
+func TestNormalizeStops(t *testing.T) {
+	cases := []struct {
+		in   []int
+		want []int
+	}{
+		{nil, nil},
+		{[]int{}, nil},
+		{[]int{1, 2}, []int{1, 2}},
+		{[]int{2, 0, 1}, []int{0, 1, 2}},   // sorted
+		{[]int{1, 1, 0}, []int{0, 1}},      // de-duped
+		{[]int{-1, 0, -3, 2}, []int{0, 2}}, // negatives dropped
+		{[]int{-1}, nil},
+	}
+	for _, c := range cases {
+		got := normalizeStops(c.in)
+		if len(got) != len(c.want) {
+			t.Fatalf("normalizeStops(%v) = %v, want %v", c.in, got, c.want)
+		}
+		for i := range got {
+			if got[i] != c.want[i] {
+				t.Fatalf("normalizeStops(%v) = %v, want %v", c.in, got, c.want)
+			}
+		}
+	}
+}
+
+func TestNormalizeAirlines(t *testing.T) {
+	got := normalizeAirlines([]string{"dl", " ua ", "DL", ""})
+	want := []string{"DL", "UA"} // upper, trimmed, de-duped, order preserved
+	if len(got) != len(want) {
+		t.Fatalf("normalizeAirlines = %v, want %v", got, want)
+	}
+	for i := range got {
+		if got[i] != want[i] {
+			t.Fatalf("normalizeAirlines = %v, want %v", got, want)
+		}
+	}
+	if normalizeAirlines(nil) != nil {
+		t.Fatal("normalizeAirlines(nil) should be nil")
+	}
+}
+
+func TestFilterFlights(t *testing.T) {
+	// One-way helper: a single slice, so SliceStops = [stops].
+	mk := func(stops int, carriers ...string) Flight {
+		legs := make([]Leg, len(carriers))
+		for i, c := range carriers {
+			legs[i] = Leg{Airline: Airline{Code: c}}
+		}
+		return Flight{Stops: stops, SliceStops: []int{stops}, Legs: legs}
+	}
+	flights := []Flight{
+		mk(0, "UA"),       // nonstop UA
+		mk(1, "UA", "UA"), // 1-stop UA
+		mk(1, "AA", "DL"), // 1-stop AA+DL
+		mk(2, "DL", "DL", "DL"),
+	}
+	// stops {0,1}, airlines {UA}: only the nonstop UA and 1-stop UA.
+	got := filterFlights(flights, []int{0, 1}, []string{"UA"})
+	if len(got) != 2 {
+		t.Fatalf("stops+airlines filter: want 2, got %d", len(got))
+	}
+	// stops {1} only.
+	if got := filterFlights(flights, []int{1}, nil); len(got) != 2 {
+		t.Fatalf("stops-only filter: want 2, got %d", len(got))
+	}
+	// airlines {DL} only: itineraries whose every leg is DL → the 2-stop one.
+	if got := filterFlights(flights, nil, []string{"DL"}); len(got) != 1 {
+		t.Fatalf("airlines-only filter: want 1, got %d", len(got))
+	}
+	// no filters → unchanged.
+	if got := filterFlights(flights, nil, nil); len(got) != len(flights) {
+		t.Fatalf("no filter should pass all, got %d", len(got))
+	}
+}
+
+func TestFilterFlightsRoundTripPerSlice(t *testing.T) {
+	// Round trip, one connection each way: total Stops == 2 but each direction
+	// is a single stop. FlySoar's stops=1 (per direction) should keep it.
+	rt := Flight{Stops: 2, SliceStops: []int{1, 1}, Legs: []Leg{
+		{Airline: Airline{Code: "UA"}}, {Airline: Airline{Code: "UA"}},
+		{Airline: Airline{Code: "UA"}}, {Airline: Airline{Code: "UA"}},
+	}}
+	// nonstop-out, one-stop-back mixed itinerary.
+	mixed := Flight{Stops: 1, SliceStops: []int{0, 1}}
+	flights := []Flight{rt, mixed}
+
+	if got := filterFlights(flights, []int{1}, nil); len(got) != 1 || got[0].Stops != 2 {
+		t.Fatalf("stops=1 per-slice should keep the 1-each-way round trip, got %d", len(got))
+	}
+	// stops=0 (nonstop both ways) keeps neither.
+	if got := filterFlights(flights, []int{0}, nil); len(got) != 0 {
+		t.Fatalf("stops=0 should drop both, got %d", len(got))
+	}
+	// stops={0,1} keeps both (each slice is 0 or 1).
+	if got := filterFlights(flights, []int{0, 1}, nil); len(got) != 2 {
+		t.Fatalf("stops=0,1 should keep both, got %d", len(got))
 	}
 }
 
@@ -227,6 +347,10 @@ func TestBookingRequest(t *testing.T) {
 			"JFK -> LHR on 2026-07-15, returning 2026-07-22, business class, 2 passengers"},
 		{SearchQuery{Origin: "SEA", Destination: "DEN", DepartureDate: "2026-09-21", CabinClass: "economy", Passengers: 1},
 			"SEA -> DEN on 2026-09-21"},
+		{SearchQuery{Origin: "DCA", Destination: "IAH", DepartureDate: "2026-09-23", CabinClass: "first", Passengers: 1, Stops: []int{0}, Airlines: []string{"UA"}},
+			"DCA -> IAH on 2026-09-23, first class, nonstop, on UA"},
+		{SearchQuery{Origin: "DCA", Destination: "IAH", DepartureDate: "2026-09-23", CabinClass: "first", Passengers: 2, Stops: []int{0, 1}, Airlines: []string{"DL", "UA"}},
+			"DCA -> IAH on 2026-09-23, first class, nonstop or 1 stop, on DL/UA, 2 passengers"},
 	}
 	for _, c := range cases {
 		if got := BookingRequest(c.q); got != c.want {
