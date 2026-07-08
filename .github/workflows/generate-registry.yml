@@ -62,7 +62,7 @@ jobs:
           token: ${{ secrets.ADMIN_PUSH_PAT }}
       - uses: actions/setup-go@v6
         with:
-          go-version: '1.26.4'
+          go-version-file: .go-version
       - name: Run generator
         run: go run ./tools/generate-registry/main.go
       - name: Commit if changed
