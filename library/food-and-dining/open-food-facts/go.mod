@@ -1,6 +1,6 @@
 module github.com/mvanhorn/printing-press-library/library/food-and-dining/open-food-facts
 
-go 1.26.4
+go 1.26.5
 
 require github.com/spf13/cobra v1.9.1
 
