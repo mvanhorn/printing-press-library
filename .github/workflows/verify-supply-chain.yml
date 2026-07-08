@@ -24,6 +24,7 @@ on:
     paths:
       - '.github/workflows/**'
       - '.github/scripts/verify-supply-chain/**'
+      - '.go-version'
       - 'library/**/go.mod'
       - 'npm/package.json'
   workflow_dispatch:
