@@ -1,0 +1,17 @@
+# agentcookie.toml: secrets-bus adoption manifest v2
+# See docs/spec-agentcookie-secrets-bus-v2-adoption.md
+schema_version = 2
+name = "umami-pp-cli"
+display_name = "Umami"
+description = "Every Umami v3 API surface, plus the portfolio rollup, SEO deltas, and anomaly watch that self-hosted Umami never shipped."
+project_kind = "cli"
+
+[secrets.file]
+path = "~/.config/umami-pp-cli/config.toml"
+
+[sync]
+default = false
+
+[sync.keys]
+UMAMI_API_KEY = true
+UMAMI_TOKEN = true

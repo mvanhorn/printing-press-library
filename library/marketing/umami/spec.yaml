@@ -1,0 +1,2652 @@
+name: umami
+description: "Umami Analytics v3 CLI — full API coverage with a local mirror for portfolio rollups, SEO deltas, and anomaly detection"
+version: "0.1.0"
+base_url: "http://localhost:3000"
+health_check_path: "/api/heartbeat"
+category: marketing
+
+auth:
+  type: bearer_token
+  header: "Authorization"
+  format: "Bearer {token}"
+  env_vars:
+    - UMAMI_TOKEN
+    - UMAMI_API_KEY
+
+config:
+  format: toml
+  path: "~/.config/umami-pp-cli/config.toml"
+
+cache:
+  enabled: true
+  stale_after: 24h
+
+mcp:
+  transport: [stdio, http]
+  orchestration: code
+  endpoint_tools: hidden
+
+resources:
+  websites:
+    description: "Manage websites and query their traffic stats"
+    endpoints:
+      list:
+        method: GET
+        path: "/api/websites"
+        description: "List all websites the account can access"
+        example: "  umami-pp-cli websites list --page-size 50"
+        params:
+          - name: search
+            type: string
+            description: "Filter websites by name or domain"
+          - name: page
+            type: int
+            default: 1
+            description: "Page number"
+          - name: pageSize
+            flag_name: page-size
+            type: int
+            default: 20
+            description: "Results per page"
+          - name: includeTeams
+            flag_name: include-teams
+            type: bool
+            description: "Include team-owned websites"
+        response:
+          type: array
+          item: Website
+        response_path: data
+      get:
+        method: GET
+        path: "/api/websites/{website_id}"
+        description: "Get a website by ID"
+        params:
+          - name: website_id
+            type: string
+            required: true
+            positional: true
+            description: "Website UUID"
+        happy_args: "website_id=f1fa838a-fc6a-49c1-bdef-c3688dc92574"
+        response:
+          type: object
+          item: Website
+      create:
+        method: POST
+        path: "/api/websites"
+        description: "Create a new website"
+        body:
+          - name: name
+            type: string
+            required: true
+            description: "Website display name"
+          - name: domain
+            type: string
+            required: true
+            description: "Website domain (e.g. example.com)"
+          - name: teamId
+            flag_name: team-id
+            type: string
+            description: "Team UUID to own the website"
+        response:
+          type: object
+          item: Website
+      update:
+        method: POST
+        path: "/api/websites/{website_id}"
+        description: "Update a website's name, domain, or share ID"
+        params:
+          - name: website_id
+            type: string
+            required: true
+            positional: true
+            description: "Website UUID"
+        body:
+          - name: name
+            type: string
+            description: "New display name"
+          - name: domain
+            type: string
+            description: "New domain"
+          - name: shareId
+            flag_name: share-id
+            type: string
+            description: "Public share ID"
+        response:
+          type: object
+          item: Website
+      delete:
+        method: DELETE
+        path: "/api/websites/{website_id}"
+        description: "Delete a website and all its data"
+        params:
+          - name: website_id
+            type: string
+            required: true
+            positional: true
+            description: "Website UUID"
+      reset:
+        method: POST
+        path: "/api/websites/{website_id}/reset"
+        description: "Wipe all collected data for a website (irreversible)"
+        params:
+          - name: website_id
+            type: string
+            required: true
+            positional: true
+            description: "Website UUID"
+      transfer:
+        method: POST
+        path: "/api/websites/{website_id}/transfer"
+        description: "Transfer a website to a user or a team"
+        params:
+          - name: website_id
+            type: string
+            required: true
+            positional: true
+            description: "Website UUID"
+        body:
+          - name: userId
+            flag_name: user-id
+            type: string
+            description: "Destination user UUID (exactly one of --user-id / --team-id)"
+          - name: teamId
+            flag_name: team-id
+            type: string
+            description: "Destination team UUID (exactly one of --user-id / --team-id)"
+      active:
+        method: GET
+        path: "/api/websites/{website_id}/active"
+        description: "Visitors active in the last 5 minutes"
+        params:
+          - name: website_id
+            type: string
+            required: true
+            positional: true
+            description: "Website UUID"
+        happy_args: "website_id=f1fa838a-fc6a-49c1-bdef-c3688dc92574"
+      daterange:
+        method: GET
+        path: "/api/websites/{website_id}/daterange"
+        description: "First and last collected data timestamps"
+        params:
+          - name: website_id
+            type: string
+            required: true
+            positional: true
+            description: "Website UUID"
+        happy_args: "website_id=f1fa838a-fc6a-49c1-bdef-c3688dc92574"
+      values:
+        method: GET
+        path: "/api/websites/{website_id}/values"
+        description: "Distinct values for a filter field (autocomplete helper)"
+        params:
+          - name: website_id
+            type: string
+            required: true
+            positional: true
+            description: "Website UUID"
+          - name: type
+            type: string
+            required: true
+            enum: [path, referrer, title, query, os, browser, device, country, region, city, tag, hostname, distinctId, language, event, utmSource, utmMedium, utmCampaign, utmContent, utmTerm]
+            description: "Field to list distinct values for"
+          - name: startAt
+            flag_name: start-at
+            type: int
+            required: true
+            description: "Range start (epoch milliseconds)"
+          - name: endAt
+            flag_name: end-at
+            type: int
+            required: true
+            description: "Range end (epoch milliseconds)"
+          - name: search
+            type: string
+            description: "Filter values containing this text"
+        happy_args: "website_id=f1fa838a-fc6a-49c1-bdef-c3688dc92574;--type=path;--start-at=1746000000000;--end-at=1783500000000"
+      stats:
+        method: GET
+        path: "/api/websites/{website_id}/stats"
+        description: "Traffic summary: pageviews, visitors, visits, bounces, total time (with optional prev/yoy comparison)"
+        example: "  umami-pp-cli websites stats f1fa838a-fc6a-49c1-bdef-c3688dc92574 --start-at 1746000000000 --end-at 1783500000000 --compare prev"
+        params:
+          - name: website_id
+            type: string
+            required: true
+            positional: true
+            description: "Website UUID"
+          - name: startAt
+            flag_name: start-at
+            type: int
+            required: true
+            description: "Range start (epoch milliseconds)"
+          - name: endAt
+            flag_name: end-at
+            type: int
+            required: true
+            description: "Range end (epoch milliseconds)"
+          - name: compare
+            type: string
+            enum: [prev, yoy]
+            description: "Add a comparison period: prev (previous equal-length) or yoy (one year back)"
+          - name: path
+            type: string
+            description: "Filter by URL path (v3 name; operator prefixes like c.blog supported)"
+          - name: referrer
+            type: string
+            description: "Filter by referrer domain"
+          - name: country
+            type: string
+            description: "Filter by 2-letter country code"
+          - name: browser
+            type: string
+            description: "Filter by browser name"
+          - name: os
+            type: string
+            description: "Filter by operating system"
+          - name: device
+            type: string
+            description: "Filter by device type (desktop, mobile, tablet)"
+          - name: event
+            type: string
+            description: "Filter by custom event name"
+          - name: hostname
+            type: string
+            description: "Filter by hostname (v3 name for host)"
+          - name: tag
+            type: string
+            description: "Filter by tag"
+          - name: utmSource
+            flag_name: utm-source
+            type: string
+            description: "Filter by utm_source"
+          - name: utmMedium
+            flag_name: utm-medium
+            type: string
+            description: "Filter by utm_medium"
+          - name: utmCampaign
+            flag_name: utm-campaign
+            type: string
+            description: "Filter by utm_campaign"
+          - name: segment
+            type: string
+            description: "Saved segment UUID to apply"
+          - name: cohort
+            type: string
+            description: "Saved cohort UUID to apply"
+        happy_args: "website_id=f1fa838a-fc6a-49c1-bdef-c3688dc92574;--start-at=1746000000000;--end-at=1783500000000"
+      pageviews:
+        method: GET
+        path: "/api/websites/{website_id}/pageviews"
+        description: "Pageviews and sessions time series"
+        params:
+          - name: website_id
+            type: string
+            required: true
+            positional: true
+            description: "Website UUID"
+          - name: startAt
+            flag_name: start-at
+            type: int
+            required: true
+            description: "Range start (epoch milliseconds)"
+          - name: endAt
+            flag_name: end-at
+            type: int
+            required: true
+            description: "Range end (epoch milliseconds)"
+          - name: unit
+            type: string
+            default: day
+            enum: [year, month, day, hour, minute]
+            description: "Series bucket size"
+          - name: timezone
+            type: string
+            default: UTC
+            description: "IANA timezone for bucketing (e.g. Europe/Paris)"
+          - name: compare
+            type: string
+            enum: [prev, yoy]
+            description: "Add a comparison series"
+          - name: path
+            type: string
+            description: "Filter by URL path"
+          - name: referrer
+            type: string
+            description: "Filter by referrer domain"
+          - name: country
+            type: string
+            description: "Filter by 2-letter country code"
+          - name: event
+            type: string
+            description: "Filter by custom event name"
+        happy_args: "website_id=f1fa838a-fc6a-49c1-bdef-c3688dc92574;--start-at=1746000000000;--end-at=1783500000000"
+      metrics:
+        method: GET
+        path: "/api/websites/{website_id}/metrics"
+        description: "Top-N breakdown for one dimension (path, referrer, country, channel, event, ...)"
+        example: "  umami-pp-cli websites metrics f1fa838a-fc6a-49c1-bdef-c3688dc92574 --type referrer --start-at 1746000000000 --end-at 1783500000000 --limit 10"
+        params:
+          - name: website_id
+            type: string
+            required: true
+            positional: true
+            description: "Website UUID"
+          - name: type
+            type: string
+            required: true
+            enum: [path, fullPath, entry, exit, referrer, domain, title, query, event, tag, hostname, utmSource, utmMedium, utmCampaign, utmContent, utmTerm, browser, os, device, screen, language, country, city, region, distinctId, channel]
+            description: "Dimension to break down by (v3 names: path not url, hostname not host)"
+          - name: startAt
+            flag_name: start-at
+            type: int
+            required: true
+            description: "Range start (epoch milliseconds)"
+          - name: endAt
+            flag_name: end-at
+            type: int
+            required: true
+            description: "Range end (epoch milliseconds)"
+          - name: limit
+            type: int
+            default: 500
+            description: "Max rows returned"
+          - name: offset
+            type: int
+            description: "Rows to skip"
+          - name: search
+            type: string
+            description: "Contains-match on the dimension value"
+          - name: path
+            type: string
+            description: "Filter by URL path"
+          - name: referrer
+            type: string
+            description: "Filter by referrer domain"
+          - name: country
+            type: string
+            description: "Filter by 2-letter country code"
+          - name: event
+            type: string
+            description: "Filter by custom event name"
+          - name: segment
+            type: string
+            description: "Saved segment UUID to apply"
+        happy_args: "website_id=f1fa838a-fc6a-49c1-bdef-c3688dc92574;--type=referrer;--start-at=1746000000000;--end-at=1783500000000;--limit=10"
+        response:
+          type: array
+          item: MetricRow
+      metrics-expanded:
+        method: GET
+        path: "/api/websites/{website_id}/metrics/expanded"
+        description: "Top-N breakdown with full per-item stats (pageviews, visitors, visits, bounces, totaltime)"
+        params:
+          - name: website_id
+            type: string
+            required: true
+            positional: true
+            description: "Website UUID"
+          - name: type
+            type: string
+            required: true
+            enum: [path, entry, exit, referrer, title, query, event, tag, hostname, browser, os, device, country, city, region, channel]
+            description: "Dimension to break down by"
+          - name: startAt
+            flag_name: start-at
+            type: int
+            required: true
+            description: "Range start (epoch milliseconds)"
+          - name: endAt
+            flag_name: end-at
+            type: int
+            required: true
+            description: "Range end (epoch milliseconds)"
+          - name: limit
+            type: int
+            default: 100
+            description: "Max rows returned"
+          - name: search
+            type: string
+            description: "Contains-match on the dimension value"
+        happy_args: "website_id=f1fa838a-fc6a-49c1-bdef-c3688dc92574;--type=path;--start-at=1746000000000;--end-at=1783500000000;--limit=10"
+        response:
+          type: array
+          item: ExpandedMetric
+
+  sessions:
+    description: "Query visitor sessions"
+    endpoints:
+      list:
+        method: GET
+        path: "/api/websites/{website_id}/sessions"
+        description: "List sessions in a time range"
+        params:
+          - name: website_id
+            type: string
+            required: true
+            positional: true
+            description: "Website UUID"
+          - name: startAt
+            flag_name: start-at
+            type: int
+            required: true
+            description: "Range start (epoch milliseconds)"
+          - name: endAt
+            flag_name: end-at
+            type: int
+            required: true
+            description: "Range end (epoch milliseconds)"
+          - name: search
+            type: string
+            description: "Match on distinct ID, city, browser, OS, or device"
+          - name: page
+            type: int
+            default: 1
+            description: "Page number"
+          - name: pageSize
+            flag_name: page-size
+            type: int
+            default: 20
+            description: "Results per page"
+          - name: country
+            type: string
+            description: "Filter by 2-letter country code"
+          - name: browser
+            type: string
+            description: "Filter by browser name"
+        happy_args: "website_id=f1fa838a-fc6a-49c1-bdef-c3688dc92574;--start-at=1746000000000;--end-at=1783500000000;--page-size=5"
+        response:
+          type: array
+          item: Session
+        response_path: data
+      stats:
+        method: GET
+        path: "/api/websites/{website_id}/sessions/stats"
+        description: "Session-level summary: pageviews, visitors, visits, countries, events"
+        params:
+          - name: website_id
+            type: string
+            required: true
+            positional: true
+            description: "Website UUID"
+          - name: startAt
+            flag_name: start-at
+            type: int
+            required: true
+            description: "Range start (epoch milliseconds)"
+          - name: endAt
+            flag_name: end-at
+            type: int
+            required: true
+            description: "Range end (epoch milliseconds)"
+        happy_args: "website_id=f1fa838a-fc6a-49c1-bdef-c3688dc92574;--start-at=1746000000000;--end-at=1783500000000"
+      weekly:
+        method: GET
+        path: "/api/websites/{website_id}/sessions/weekly"
+        description: "7x24 day-of-week by hour session heatmap counts"
+        params:
+          - name: website_id
+            type: string
+            required: true
+            positional: true
+            description: "Website UUID"
+          - name: startAt
+            flag_name: start-at
+            type: int
+            required: true
+            description: "Range start (epoch milliseconds)"
+          - name: endAt
+            flag_name: end-at
+            type: int
+            required: true
+            description: "Range end (epoch milliseconds)"
+          - name: timezone
+            type: string
+            default: UTC
+            description: "IANA timezone (e.g. Europe/Paris)"
+        happy_args: "website_id=f1fa838a-fc6a-49c1-bdef-c3688dc92574;--start-at=1746000000000;--end-at=1783500000000"
+      get:
+        method: GET
+        path: "/api/websites/{website_id}/sessions/{session_id}"
+        description: "Single session detail (totals, first/last seen, device, geo)"
+        params:
+          - name: website_id
+            type: string
+            required: true
+            positional: true
+            description: "Website UUID"
+          - name: session_id
+            type: string
+            required: true
+            positional: true
+            description: "Session UUID"
+        response:
+          type: object
+          item: SessionDetail
+      activity:
+        method: GET
+        path: "/api/websites/{website_id}/sessions/{session_id}/activity"
+        description: "Chronological pageviews and events of one session"
+        params:
+          - name: website_id
+            type: string
+            required: true
+            positional: true
+            description: "Website UUID"
+          - name: session_id
+            type: string
+            required: true
+            positional: true
+            description: "Session UUID"
+          - name: startAt
+            flag_name: start-at
+            type: int
+            required: true
+            description: "Range start (epoch milliseconds)"
+          - name: endAt
+            flag_name: end-at
+            type: int
+            required: true
+            description: "Range end (epoch milliseconds)"
+      properties:
+        method: GET
+        path: "/api/websites/{website_id}/sessions/{session_id}/properties"
+        description: "Identify-data properties attached to one session"
+        params:
+          - name: website_id
+            type: string
+            required: true
+            positional: true
+            description: "Website UUID"
+          - name: session_id
+            type: string
+            required: true
+            positional: true
+            description: "Session UUID"
+
+  events:
+    description: "Query tracked events"
+    endpoints:
+      list:
+        method: GET
+        path: "/api/websites/{website_id}/events"
+        description: "List raw pageview/custom events in a time range"
+        params:
+          - name: website_id
+            type: string
+            required: true
+            positional: true
+            description: "Website UUID"
+          - name: startAt
+            flag_name: start-at
+            type: int
+            required: true
+            description: "Range start (epoch milliseconds)"
+          - name: endAt
+            flag_name: end-at
+            type: int
+            required: true
+            description: "Range end (epoch milliseconds)"
+          - name: search
+            type: string
+            description: "Filter events by name or path"
+          - name: page
+            type: int
+            default: 1
+            description: "Page number"
+          - name: pageSize
+            flag_name: page-size
+            type: int
+            default: 20
+            description: "Results per page"
+        happy_args: "website_id=f1fa838a-fc6a-49c1-bdef-c3688dc92574;--start-at=1746000000000;--end-at=1783500000000;--page-size=5"
+        response:
+          type: array
+          item: Event
+        response_path: data
+      series:
+        method: GET
+        path: "/api/websites/{website_id}/events/series"
+        description: "Custom event counts bucketed over time"
+        params:
+          - name: website_id
+            type: string
+            required: true
+            positional: true
+            description: "Website UUID"
+          - name: startAt
+            flag_name: start-at
+            type: int
+            required: true
+            description: "Range start (epoch milliseconds)"
+          - name: endAt
+            flag_name: end-at
+            type: int
+            required: true
+            description: "Range end (epoch milliseconds)"
+          - name: unit
+            type: string
+            default: day
+            enum: [year, month, day, hour, minute]
+            description: "Series bucket size"
+          - name: timezone
+            type: string
+            default: UTC
+            description: "IANA timezone"
+        happy_args: "website_id=f1fa838a-fc6a-49c1-bdef-c3688dc92574;--start-at=1746000000000;--end-at=1783500000000"
+      stats:
+        method: GET
+        path: "/api/websites/{website_id}/events/stats"
+        description: "Event totals: events, visitors, visits, unique events (with optional comparison)"
+        params:
+          - name: website_id
+            type: string
+            required: true
+            positional: true
+            description: "Website UUID"
+          - name: startAt
+            flag_name: start-at
+            type: int
+            required: true
+            description: "Range start (epoch milliseconds)"
+          - name: endAt
+            flag_name: end-at
+            type: int
+            required: true
+            description: "Range end (epoch milliseconds)"
+          - name: compare
+            type: string
+            enum: [prev, yoy]
+            description: "Add a comparison period"
+        happy_args: "website_id=f1fa838a-fc6a-49c1-bdef-c3688dc92574;--start-at=1746000000000;--end-at=1783500000000"
+
+  event-data:
+    description: "Explore custom event properties"
+    endpoints:
+      events:
+        method: GET
+        path: "/api/websites/{website_id}/event-data/events"
+        description: "Event names with their property names and totals"
+        params:
+          - name: website_id
+            type: string
+            required: true
+            positional: true
+            description: "Website UUID"
+          - name: startAt
+            flag_name: start-at
+            type: int
+            required: true
+            description: "Range start (epoch milliseconds)"
+          - name: endAt
+            flag_name: end-at
+            type: int
+            required: true
+            description: "Range end (epoch milliseconds)"
+          - name: event
+            type: string
+            description: "Restrict to one event name"
+        happy_args: "website_id=f1fa838a-fc6a-49c1-bdef-c3688dc92574;--start-at=1746000000000;--end-at=1793500000000;--event=cli_smoke"
+      fields:
+        method: GET
+        path: "/api/websites/{website_id}/event-data/fields"
+        description: "Property fields with data types and totals"
+        params:
+          - name: website_id
+            type: string
+            required: true
+            positional: true
+            description: "Website UUID"
+          - name: startAt
+            flag_name: start-at
+            type: int
+            required: true
+            description: "Range start (epoch milliseconds)"
+          - name: endAt
+            flag_name: end-at
+            type: int
+            required: true
+            description: "Range end (epoch milliseconds)"
+        happy_args: "website_id=f1fa838a-fc6a-49c1-bdef-c3688dc92574;--start-at=1746000000000;--end-at=1783500000000"
+      properties:
+        method: GET
+        path: "/api/websites/{website_id}/event-data/properties"
+        description: "Event-name x property-name totals"
+        params:
+          - name: website_id
+            type: string
+            required: true
+            positional: true
+            description: "Website UUID"
+          - name: startAt
+            flag_name: start-at
+            type: int
+            required: true
+            description: "Range start (epoch milliseconds)"
+          - name: endAt
+            flag_name: end-at
+            type: int
+            required: true
+            description: "Range end (epoch milliseconds)"
+        happy_args: "website_id=f1fa838a-fc6a-49c1-bdef-c3688dc92574;--start-at=1746000000000;--end-at=1783500000000"
+      values:
+        method: GET
+        path: "/api/websites/{website_id}/event-data/values"
+        description: "Distinct values of one property for one event"
+        params:
+          - name: website_id
+            type: string
+            required: true
+            positional: true
+            description: "Website UUID"
+          - name: startAt
+            flag_name: start-at
+            type: int
+            required: true
+            description: "Range start (epoch milliseconds)"
+          - name: endAt
+            flag_name: end-at
+            type: int
+            required: true
+            description: "Range end (epoch milliseconds)"
+          - name: event
+            type: string
+            required: true
+            description: "Event name"
+          - name: propertyName
+            flag_name: property-name
+            type: string
+            required: true
+            description: "Property name"
+      stats:
+        method: GET
+        path: "/api/websites/{website_id}/event-data/stats"
+        description: "Totals of events, properties, and records"
+        params:
+          - name: website_id
+            type: string
+            required: true
+            positional: true
+            description: "Website UUID"
+          - name: startAt
+            flag_name: start-at
+            type: int
+            required: true
+            description: "Range start (epoch milliseconds)"
+          - name: endAt
+            flag_name: end-at
+            type: int
+            required: true
+            description: "Range end (epoch milliseconds)"
+        happy_args: "website_id=f1fa838a-fc6a-49c1-bdef-c3688dc92574;--start-at=1746000000000;--end-at=1783500000000"
+      pivot:
+        method: GET
+        path: "/api/websites/{website_id}/event-data-pivot"
+        description: "Pivoted event rows with property keys and values"
+        happy_args: "website_id=f1fa838a-fc6a-49c1-bdef-c3688dc92574;--start-at=1746000000000;--end-at=1793500000000;--event-name=cli_smoke"
+        params:
+          - name: website_id
+            type: string
+            required: true
+            positional: true
+            description: "Website UUID"
+          - name: startAt
+            flag_name: start-at
+            type: int
+            required: true
+            description: "Range start (epoch milliseconds)"
+          - name: endAt
+            flag_name: end-at
+            type: int
+            required: true
+            description: "Range end (epoch milliseconds)"
+          - name: eventName
+            flag_name: event-name
+            type: string
+            description: "Restrict to one event name"
+          - name: page
+            type: int
+            default: 1
+            description: "Page number"
+          - name: pageSize
+            flag_name: page-size
+            type: int
+            default: 20
+            description: "Results per page"
+        response_path: data
+
+  session-data:
+    description: "Explore identify (session) properties"
+    endpoints:
+      properties:
+        method: GET
+        path: "/api/websites/{website_id}/session-data/properties"
+        description: "Session property names with totals"
+        params:
+          - name: website_id
+            type: string
+            required: true
+            positional: true
+            description: "Website UUID"
+          - name: startAt
+            flag_name: start-at
+            type: int
+            required: true
+            description: "Range start (epoch milliseconds)"
+          - name: endAt
+            flag_name: end-at
+            type: int
+            required: true
+            description: "Range end (epoch milliseconds)"
+        happy_args: "website_id=f1fa838a-fc6a-49c1-bdef-c3688dc92574;--start-at=1746000000000;--end-at=1783500000000"
+      values:
+        method: GET
+        path: "/api/websites/{website_id}/session-data/values"
+        description: "Distinct values of one session property"
+        params:
+          - name: website_id
+            type: string
+            required: true
+            positional: true
+            description: "Website UUID"
+          - name: startAt
+            flag_name: start-at
+            type: int
+            required: true
+            description: "Range start (epoch milliseconds)"
+          - name: endAt
+            flag_name: end-at
+            type: int
+            required: true
+            description: "Range end (epoch milliseconds)"
+          - name: propertyName
+            flag_name: property-name
+            type: string
+            required: true
+            description: "Property name"
+      stats:
+        method: GET
+        path: "/api/websites/{website_id}/session-data/stats"
+        description: "Activity summary per session property value"
+        params:
+          - name: website_id
+            type: string
+            required: true
+            positional: true
+            description: "Website UUID"
+          - name: startAt
+            flag_name: start-at
+            type: int
+            required: true
+            description: "Range start (epoch milliseconds)"
+          - name: endAt
+            flag_name: end-at
+            type: int
+            required: true
+            description: "Range end (epoch milliseconds)"
+          - name: propertyName
+            flag_name: property-name
+            type: string
+            required: true
+            description: "Property name"
+
+  realtime:
+    description: "Realtime activity (last 30 minutes)"
+    endpoints:
+      get:
+        method: GET
+        path: "/api/realtime/{website_id}"
+        description: "Realtime snapshot: countries, urls, referrers, events, series, totals"
+        params:
+          - name: website_id
+            type: string
+            required: true
+            positional: true
+            description: "Website UUID"
+          - name: timezone
+            type: string
+            default: UTC
+            description: "IANA timezone"
+        happy_args: "website_id=f1fa838a-fc6a-49c1-bdef-c3688dc92574"
+
+  reports:
+    description: "Saved reports and report runners (funnel, retention, UTM, goals, journey, revenue, attribution, breakdown, performance, heatmap)"
+    endpoints:
+      list:
+        method: GET
+        path: "/api/reports"
+        description: "List saved reports (servers require --website-id)"
+        happy_args: "--website-id=f1fa838a-fc6a-49c1-bdef-c3688dc92574"
+        params:
+          - name: websiteId
+            flag_name: website-id
+            type: string
+            description: "Website UUID (required by the server)"
+          - name: type
+            type: string
+            enum: [attribution, breakdown, funnel, goal, heatmap, journey, performance, retention, revenue, utm]
+            description: "Filter by report type"
+          - name: page
+            type: int
+            default: 1
+            description: "Page number"
+          - name: pageSize
+            flag_name: page-size
+            type: int
+            default: 20
+            description: "Results per page"
+        response:
+          type: array
+          item: Report
+        response_path: data
+      get:
+        method: GET
+        path: "/api/reports/{report_id}"
+        description: "Get a saved report"
+        params:
+          - name: report_id
+            type: string
+            required: true
+            positional: true
+            description: "Report UUID"
+        response:
+          type: object
+          item: Report
+      create:
+        method: POST
+        path: "/api/reports"
+        description: "Save a report definition"
+        body:
+          - name: websiteId
+            flag_name: website-id
+            type: string
+            required: true
+            description: "Website UUID"
+          - name: type
+            type: string
+            required: true
+            enum: [attribution, breakdown, funnel, goal, heatmap, journey, performance, retention, revenue, utm]
+            description: "Report type"
+          - name: name
+            type: string
+            required: true
+            description: "Report name"
+          - name: description
+            type: string
+            description: "Report description"
+          - name: parameters
+            type: object
+            required: true
+            description: "Report parameters JSON (per-type shape)"
+        response:
+          type: object
+          item: Report
+      update:
+        method: POST
+        path: "/api/reports/{report_id}"
+        description: "Update a saved report"
+        params:
+          - name: report_id
+            type: string
+            required: true
+            positional: true
+            description: "Report UUID"
+        body:
+          - name: websiteId
+            flag_name: website-id
+            type: string
+            description: "Website UUID"
+          - name: type
+            type: string
+            description: "Report type"
+          - name: name
+            type: string
+            description: "Report name"
+          - name: description
+            type: string
+            description: "Report description"
+          - name: parameters
+            type: object
+            description: "Report parameters JSON"
+      delete:
+        method: DELETE
+        path: "/api/reports/{report_id}"
+        description: "Delete a saved report"
+        params:
+          - name: report_id
+            type: string
+            required: true
+            positional: true
+            description: "Report UUID"
+      for-website:
+        method: GET
+        path: "/api/websites/{website_id}/reports"
+        description: "List one website's saved reports"
+        params:
+          - name: website_id
+            type: string
+            required: true
+            positional: true
+            description: "Website UUID"
+          - name: page
+            type: int
+            default: 1
+            description: "Page number"
+          - name: pageSize
+            flag_name: page-size
+            type: int
+            default: 20
+            description: "Results per page"
+        happy_args: "website_id=f1fa838a-fc6a-49c1-bdef-c3688dc92574"
+        response_path: data
+      run-funnel:
+        method: POST
+        path: "/api/reports/funnel"
+        description: "Run a funnel report: conversion and drop-off across 2-8 steps"
+        example: "  umami-pp-cli reports run-funnel --website-id f1fa838a-fc6a-49c1-bdef-c3688dc92574 --parameters '{\"startDate\":\"2026-06-01\",\"endDate\":\"2026-06-30\",\"window\":1,\"steps\":[{\"type\":\"path\",\"value\":\"/\"},{\"type\":\"path\",\"value\":\"/contact\"}]}'"
+        body:
+          - name: websiteId
+            flag_name: website-id
+            type: string
+            required: true
+            description: "Website UUID"
+          - name: type
+            type: string
+            required: true
+            default: funnel
+            description: "Report type (funnel)"
+          - name: filters
+            type: object
+            default: {}
+            description: "Filters JSON object (the API requires it; {} means no filters)"
+          - name: parameters
+            type: object
+            required: true
+            description: "JSON: {startDate, endDate, window (days), steps: [{type: path|event, value}] (2-8)}"
+      run-breakdown:
+        method: POST
+        path: "/api/reports/breakdown"
+        description: "Run a breakdown report: metrics grouped by one or more fields (v3 name for insights)"
+        example: "  umami-pp-cli reports run-breakdown --website-id f1fa838a-fc6a-49c1-bdef-c3688dc92574 --parameters '{\"startDate\":\"2026-06-01\",\"endDate\":\"2026-06-30\",\"fields\":[\"path\"]}'"
+        body:
+          - name: websiteId
+            flag_name: website-id
+            type: string
+            required: true
+            description: "Website UUID"
+          - name: type
+            type: string
+            required: true
+            default: breakdown
+            description: "Report type (breakdown)"
+          - name: filters
+            type: object
+            default: {}
+            description: "Filters JSON object (the API requires it; {} means no filters)"
+          - name: parameters
+            type: object
+            required: true
+            description: "JSON: {startDate, endDate, fields: [path|referrer|country|...]}"
+        happy_args: "--website-id=f1fa838a-fc6a-49c1-bdef-c3688dc92574;--parameters={\"startDate\":\"2026-06-01\",\"endDate\":\"2026-06-30\",\"fields\":[\"path\"]}"
+      run-retention:
+        method: POST
+        path: "/api/reports/retention"
+        description: "Run a retention report: returning-visitor cohorts by month"
+        body:
+          - name: websiteId
+            flag_name: website-id
+            type: string
+            required: true
+            description: "Website UUID"
+          - name: type
+            type: string
+            required: true
+            default: retention
+            description: "Report type (retention)"
+          - name: filters
+            type: object
+            default: {}
+            description: "Filters JSON object (the API requires it; {} means no filters)"
+          - name: parameters
+            type: object
+            required: true
+            description: "JSON: {startDate, endDate, timezone?}"
+      run-utm:
+        method: POST
+        path: "/api/reports/utm"
+        description: "Run a UTM report: views per utm_source/medium/campaign/term/content"
+        body:
+          - name: websiteId
+            flag_name: website-id
+            type: string
+            required: true
+            description: "Website UUID"
+          - name: type
+            type: string
+            required: true
+            default: utm
+            description: "Report type (utm)"
+          - name: filters
+            type: object
+            default: {}
+            description: "Filters JSON object (the API requires it; {} means no filters)"
+          - name: parameters
+            type: object
+            required: true
+            description: "JSON: {startDate, endDate}"
+      run-goal:
+        method: POST
+        path: "/api/reports/goal"
+        description: "Run a goal report: count of visitors reaching a path or event (v3: single goal)"
+        body:
+          - name: websiteId
+            flag_name: website-id
+            type: string
+            required: true
+            description: "Website UUID"
+          - name: type
+            type: string
+            required: true
+            default: goal
+            description: "Report type (goal)"
+          - name: filters
+            type: object
+            default: {}
+            description: "Filters JSON object (the API requires it; {} means no filters)"
+          - name: parameters
+            type: object
+            required: true
+            description: "JSON: {startDate, endDate, type: path|event, value}"
+      run-journey:
+        method: POST
+        path: "/api/reports/journey"
+        description: "Run a journey report: most common navigation paths (3-7 steps)"
+        body:
+          - name: websiteId
+            flag_name: website-id
+            type: string
+            required: true
+            description: "Website UUID"
+          - name: type
+            type: string
+            required: true
+            default: journey
+            description: "Report type (journey)"
+          - name: filters
+            type: object
+            default: {}
+            description: "Filters JSON object (the API requires it; {} means no filters)"
+          - name: parameters
+            type: object
+            required: true
+            description: "JSON: {startDate, endDate, steps (2-7), startStep?, endStep?}"
+      run-revenue:
+        method: POST
+        path: "/api/reports/revenue"
+        description: "Run a revenue report (requires revenue events with currency data)"
+        body:
+          - name: websiteId
+            flag_name: website-id
+            type: string
+            required: true
+            description: "Website UUID"
+          - name: type
+            type: string
+            required: true
+            default: revenue
+            description: "Report type (revenue)"
+          - name: filters
+            type: object
+            default: {}
+            description: "Filters JSON object (the API requires it; {} means no filters)"
+          - name: parameters
+            type: object
+            required: true
+            description: "JSON: {startDate, endDate, currency, unit?, timezone?, compare?}"
+      run-attribution:
+        method: POST
+        path: "/api/reports/attribution"
+        description: "Run an attribution report: first-click or last-click credit by referrer and UTM"
+        body:
+          - name: websiteId
+            flag_name: website-id
+            type: string
+            required: true
+            description: "Website UUID"
+          - name: type
+            type: string
+            required: true
+            default: attribution
+            description: "Report type (attribution)"
+          - name: filters
+            type: object
+            default: {}
+            description: "Filters JSON object (the API requires it; {} means no filters)"
+          - name: parameters
+            type: object
+            required: true
+            description: "JSON: {startDate, endDate, model: first-click|last-click, type: path|event, step, currency?}"
+      run-performance:
+        method: POST
+        path: "/api/reports/performance"
+        description: "Run a Core Web Vitals report: LCP, INP, CLS, FCP, TTFB percentiles"
+        body:
+          - name: websiteId
+            flag_name: website-id
+            type: string
+            required: true
+            description: "Website UUID"
+          - name: type
+            type: string
+            required: true
+            default: performance
+            description: "Report type (performance)"
+          - name: filters
+            type: object
+            default: {}
+            description: "Filters JSON object (the API requires it; {} means no filters)"
+          - name: parameters
+            type: object
+            required: true
+            description: "JSON: {startDate, endDate, unit?, timezone?, metric?: lcp|inp|cls|fcp|ttfb}"
+      run-heatmap:
+        method: POST
+        path: "/api/reports/heatmap"
+        description: "Run a heatmap report: click/scroll point data for a page"
+        body:
+          - name: websiteId
+            flag_name: website-id
+            type: string
+            required: true
+            description: "Website UUID"
+          - name: type
+            type: string
+            required: true
+            default: heatmap
+            description: "Report type (heatmap)"
+          - name: filters
+            type: object
+            default: {}
+            description: "Filters JSON object (the API requires it; {} means no filters)"
+          - name: parameters
+            type: object
+            required: true
+            description: "JSON: {startDate, endDate, urlPath?, mode?: click|scroll}"
+
+  revenue:
+    description: "Revenue analytics (websites with revenue events)"
+    endpoints:
+      chart:
+        method: GET
+        path: "/api/websites/{website_id}/revenue/chart"
+        description: "Revenue over time"
+        params:
+          - name: website_id
+            type: string
+            required: true
+            positional: true
+            description: "Website UUID"
+          - name: startAt
+            flag_name: start-at
+            type: int
+            required: true
+            description: "Range start (epoch milliseconds)"
+          - name: endAt
+            flag_name: end-at
+            type: int
+            required: true
+            description: "Range end (epoch milliseconds)"
+          - name: currency
+            type: string
+            required: true
+            description: "Currency code (e.g. EUR)"
+          - name: timezone
+            type: string
+            default: UTC
+            description: "IANA timezone"
+      stats:
+        method: GET
+        path: "/api/websites/{website_id}/revenue/stats"
+        description: "Revenue totals: sum, count, average, ARPU"
+        params:
+          - name: website_id
+            type: string
+            required: true
+            positional: true
+            description: "Website UUID"
+          - name: startAt
+            flag_name: start-at
+            type: int
+            required: true
+            description: "Range start (epoch milliseconds)"
+          - name: endAt
+            flag_name: end-at
+            type: int
+            required: true
+            description: "Range end (epoch milliseconds)"
+          - name: currency
+            type: string
+            required: true
+            description: "Currency code (e.g. EUR)"
+          - name: timezone
+            type: string
+            default: UTC
+            description: "IANA timezone"
+      metrics:
+        method: GET
+        path: "/api/websites/{website_id}/revenue/metrics"
+        description: "Revenue by country, region, referrer, or channel"
+        params:
+          - name: website_id
+            type: string
+            required: true
+            positional: true
+            description: "Website UUID"
+          - name: type
+            type: string
+            required: true
+            enum: [country, region, referrer, channel]
+            description: "Breakdown dimension"
+          - name: startAt
+            flag_name: start-at
+            type: int
+            required: true
+            description: "Range start (epoch milliseconds)"
+          - name: endAt
+            flag_name: end-at
+            type: int
+            required: true
+            description: "Range end (epoch milliseconds)"
+          - name: currency
+            type: string
+            required: true
+            description: "Currency code (e.g. EUR)"
+          - name: timezone
+            type: string
+            default: UTC
+            description: "IANA timezone"
+      sessions:
+        method: GET
+        path: "/api/websites/{website_id}/revenue/sessions"
+        description: "Sessions that generated revenue"
+        params:
+          - name: website_id
+            type: string
+            required: true
+            positional: true
+            description: "Website UUID"
+          - name: startAt
+            flag_name: start-at
+            type: int
+            required: true
+            description: "Range start (epoch milliseconds)"
+          - name: endAt
+            flag_name: end-at
+            type: int
+            required: true
+            description: "Range end (epoch milliseconds)"
+          - name: currency
+            type: string
+            required: true
+            description: "Currency code (e.g. EUR)"
+          - name: timezone
+            type: string
+            default: UTC
+            description: "IANA timezone"
+          - name: page
+            type: int
+            default: 1
+            description: "Page number"
+          - name: pageSize
+            flag_name: page-size
+            type: int
+            default: 20
+            description: "Results per page"
+
+  segments:
+    description: "Saved segments and cohorts (v3)"
+    endpoints:
+      list:
+        method: GET
+        path: "/api/websites/{website_id}/segments"
+        description: "List segments or cohorts for a website"
+        params:
+          - name: website_id
+            type: string
+            required: true
+            positional: true
+            description: "Website UUID"
+          - name: type
+            type: string
+            required: true
+            default: segment
+            enum: [segment, cohort]
+            description: "segment or cohort"
+        happy_args: "website_id=f1fa838a-fc6a-49c1-bdef-c3688dc92574;--type=segment"
+      create:
+        method: POST
+        path: "/api/websites/{website_id}/segments"
+        description: "Create a segment or cohort"
+        params:
+          - name: website_id
+            type: string
+            required: true
+            positional: true
+            description: "Website UUID"
+        body:
+          - name: type
+            type: string
+            required: true
+            enum: [segment, cohort]
+            description: "segment or cohort"
+          - name: name
+            type: string
+            required: true
+            description: "Segment name"
+          - name: parameters
+            type: object
+            required: true
+            description: "JSON: {filters: [{name, operator, value}], match: all|any}"
+      get:
+        method: GET
+        path: "/api/websites/{website_id}/segments/{segment_id}"
+        description: "Get a segment"
+        params:
+          - name: website_id
+            type: string
+            required: true
+            positional: true
+            description: "Website UUID"
+          - name: segment_id
+            type: string
+            required: true
+            positional: true
+            description: "Segment UUID"
+      update:
+        method: POST
+        path: "/api/websites/{website_id}/segments/{segment_id}"
+        description: "Update a segment"
+        params:
+          - name: website_id
+            type: string
+            required: true
+            positional: true
+            description: "Website UUID"
+          - name: segment_id
+            type: string
+            required: true
+            positional: true
+            description: "Segment UUID"
+        body:
+          - name: type
+            type: string
+            enum: [segment, cohort]
+            description: "segment or cohort"
+          - name: name
+            type: string
+            description: "Segment name"
+          - name: parameters
+            type: object
+            description: "Filter parameters JSON"
+      delete:
+        method: DELETE
+        path: "/api/websites/{website_id}/segments/{segment_id}"
+        description: "Delete a segment"
+        params:
+          - name: website_id
+            type: string
+            required: true
+            positional: true
+            description: "Website UUID"
+          - name: segment_id
+            type: string
+            required: true
+            positional: true
+            description: "Segment UUID"
+
+  users:
+    description: "User accounts (self-hosted admin)"
+    endpoints:
+      create:
+        method: POST
+        path: "/api/users"
+        description: "Create a user (admin only)"
+        body:
+          - name: username
+            type: string
+            required: true
+            description: "Username"
+          - name: password
+            type: string
+            required: true
+            description: "Password (min 8 chars)"
+          - name: role
+            type: string
+            required: true
+            default: user
+            enum: [admin, user, view-only]
+            description: "User role"
+        response:
+          type: object
+          item: User
+      get:
+        method: GET
+        path: "/api/users/{user_id}"
+        description: "Get a user (self or admin)"
+        params:
+          - name: user_id
+            type: string
+            required: true
+            positional: true
+            description: "User UUID"
+        response:
+          type: object
+          item: User
+      update:
+        method: POST
+        path: "/api/users/{user_id}"
+        description: "Update a user's username, password, or role"
+        params:
+          - name: user_id
+            type: string
+            required: true
+            positional: true
+            description: "User UUID"
+        body:
+          - name: username
+            type: string
+            description: "New username (admin only)"
+          - name: password
+            type: string
+            description: "New password"
+          - name: role
+            type: string
+            enum: [admin, user, view-only]
+            description: "New role (admin only)"
+      delete:
+        method: DELETE
+        path: "/api/users/{user_id}"
+        description: "Delete a user (admin only, cannot delete self)"
+        params:
+          - name: user_id
+            type: string
+            required: true
+            positional: true
+            description: "User UUID"
+      websites:
+        method: GET
+        path: "/api/users/{user_id}/websites"
+        description: "Websites owned by a user"
+        params:
+          - name: user_id
+            type: string
+            required: true
+            positional: true
+            description: "User UUID"
+          - name: page
+            type: int
+            default: 1
+            description: "Page number"
+          - name: pageSize
+            flag_name: page-size
+            type: int
+            default: 20
+            description: "Results per page"
+        response_path: data
+      teams:
+        method: GET
+        path: "/api/users/{user_id}/teams"
+        description: "Teams a user belongs to"
+        params:
+          - name: user_id
+            type: string
+            required: true
+            positional: true
+            description: "User UUID"
+          - name: page
+            type: int
+            default: 1
+            description: "Page number"
+          - name: pageSize
+            flag_name: page-size
+            type: int
+            default: 20
+            description: "Results per page"
+        response_path: data
+
+  admin:
+    description: "Instance-wide admin listings (admin role, v3)"
+    endpoints:
+      users:
+        method: GET
+        path: "/api/admin/users"
+        description: "List all users on the instance (v3 replacement for GET /api/users)"
+        params:
+          - name: search
+            type: string
+            description: "Filter by username"
+          - name: page
+            type: int
+            default: 1
+            description: "Page number"
+          - name: pageSize
+            flag_name: page-size
+            type: int
+            default: 20
+            description: "Results per page"
+        response:
+          type: array
+          item: User
+        response_path: data
+      websites:
+        method: GET
+        path: "/api/admin/websites"
+        description: "List all websites on the instance with owners"
+        params:
+          - name: search
+            type: string
+            description: "Filter by name or domain"
+          - name: page
+            type: int
+            default: 1
+            description: "Page number"
+          - name: pageSize
+            flag_name: page-size
+            type: int
+            default: 20
+            description: "Results per page"
+        response:
+          type: array
+          item: Website
+        response_path: data
+      teams:
+        method: GET
+        path: "/api/admin/teams"
+        description: "List all teams on the instance"
+        params:
+          - name: search
+            type: string
+            description: "Filter by team name"
+          - name: page
+            type: int
+            default: 1
+            description: "Page number"
+          - name: pageSize
+            flag_name: page-size
+            type: int
+            default: 20
+            description: "Results per page"
+        response:
+          type: array
+          item: Team
+        response_path: data
+
+  teams:
+    description: "Teams and memberships"
+    endpoints:
+      list:
+        method: GET
+        path: "/api/teams"
+        description: "List teams the account belongs to"
+        params:
+          - name: page
+            type: int
+            default: 1
+            description: "Page number"
+          - name: pageSize
+            flag_name: page-size
+            type: int
+            default: 20
+            description: "Results per page"
+        response:
+          type: array
+          item: Team
+        response_path: data
+      create:
+        method: POST
+        path: "/api/teams"
+        description: "Create a team (access code is auto-generated)"
+        body:
+          - name: name
+            type: string
+            required: true
+            description: "Team name"
+      join:
+        method: POST
+        path: "/api/teams/join"
+        description: "Join a team with its access code"
+        body:
+          - name: accessCode
+            flag_name: access-code
+            type: string
+            required: true
+            description: "Team access code (team_...)"
+      get:
+        method: GET
+        path: "/api/teams/{team_id}"
+        description: "Get a team with its members"
+        params:
+          - name: team_id
+            type: string
+            required: true
+            positional: true
+            description: "Team UUID"
+        response:
+          type: object
+          item: Team
+      update:
+        method: POST
+        path: "/api/teams/{team_id}"
+        description: "Update team name or access code (owner)"
+        params:
+          - name: team_id
+            type: string
+            required: true
+            positional: true
+            description: "Team UUID"
+        body:
+          - name: name
+            type: string
+            description: "New team name"
+          - name: accessCode
+            flag_name: access-code
+            type: string
+            description: "New access code"
+      delete:
+        method: DELETE
+        path: "/api/teams/{team_id}"
+        description: "Delete a team (owner only)"
+        params:
+          - name: team_id
+            type: string
+            required: true
+            positional: true
+            description: "Team UUID"
+      users:
+        method: GET
+        path: "/api/teams/{team_id}/users"
+        description: "List team members with roles"
+        params:
+          - name: team_id
+            type: string
+            required: true
+            positional: true
+            description: "Team UUID"
+          - name: page
+            type: int
+            default: 1
+            description: "Page number"
+          - name: pageSize
+            flag_name: page-size
+            type: int
+            default: 20
+            description: "Results per page"
+        response_path: data
+      user-add:
+        method: POST
+        path: "/api/teams/{team_id}/users"
+        description: "Add a user to a team"
+        params:
+          - name: team_id
+            type: string
+            required: true
+            positional: true
+            description: "Team UUID"
+        body:
+          - name: userId
+            flag_name: user-id
+            type: string
+            required: true
+            description: "User UUID"
+          - name: role
+            type: string
+            required: true
+            default: team-member
+            enum: [team-member, team-view-only, team-manager]
+            description: "Team role"
+      user-update:
+        method: POST
+        path: "/api/teams/{team_id}/users/{user_id}"
+        description: "Change a team member's role"
+        params:
+          - name: team_id
+            type: string
+            required: true
+            positional: true
+            description: "Team UUID"
+          - name: user_id
+            type: string
+            required: true
+            positional: true
+            description: "User UUID"
+        body:
+          - name: role
+            type: string
+            required: true
+            enum: [team-member, team-view-only, team-manager]
+            description: "New team role"
+      user-remove:
+        method: DELETE
+        path: "/api/teams/{team_id}/users/{user_id}"
+        description: "Remove a user from a team"
+        params:
+          - name: team_id
+            type: string
+            required: true
+            positional: true
+            description: "Team UUID"
+          - name: user_id
+            type: string
+            required: true
+            positional: true
+            description: "User UUID"
+      websites:
+        method: GET
+        path: "/api/teams/{team_id}/websites"
+        description: "List a team's websites"
+        params:
+          - name: team_id
+            type: string
+            required: true
+            positional: true
+            description: "Team UUID"
+          - name: search
+            type: string
+            description: "Filter by name or domain"
+          - name: page
+            type: int
+            default: 1
+            description: "Page number"
+          - name: pageSize
+            flag_name: page-size
+            type: int
+            default: 20
+            description: "Results per page"
+        response_path: data
+
+  links:
+    description: "Short links (v3)"
+    endpoints:
+      list:
+        method: GET
+        path: "/api/links"
+        description: "List short links"
+        params:
+          - name: search
+            type: string
+            description: "Filter by name or URL"
+          - name: page
+            type: int
+            default: 1
+            description: "Page number"
+          - name: pageSize
+            flag_name: page-size
+            type: int
+            default: 20
+            description: "Results per page"
+        response:
+          type: array
+          item: Link
+        response_path: data
+      create:
+        method: POST
+        path: "/api/links"
+        description: "Create a short link"
+        body:
+          - name: name
+            type: string
+            required: true
+            description: "Link name"
+          - name: url
+            type: string
+            required: true
+            description: "Destination URL"
+          - name: slug
+            type: string
+            required: true
+            description: "Link slug (min 8 chars)"
+          - name: teamId
+            flag_name: team-id
+            type: string
+            description: "Team UUID"
+        response:
+          type: object
+          item: Link
+      get:
+        method: GET
+        path: "/api/links/{link_id}"
+        description: "Get a link"
+        params:
+          - name: link_id
+            type: string
+            required: true
+            positional: true
+            description: "Link UUID"
+        response:
+          type: object
+          item: Link
+      update:
+        method: POST
+        path: "/api/links/{link_id}"
+        description: "Update a link"
+        params:
+          - name: link_id
+            type: string
+            required: true
+            positional: true
+            description: "Link UUID"
+        body:
+          - name: name
+            type: string
+            description: "Link name"
+          - name: url
+            type: string
+            description: "Destination URL"
+          - name: slug
+            type: string
+            description: "Link slug"
+      delete:
+        method: DELETE
+        path: "/api/links/{link_id}"
+        description: "Delete a link"
+        params:
+          - name: link_id
+            type: string
+            required: true
+            positional: true
+            description: "Link UUID"
+
+  pixels:
+    description: "Tracking pixels (v3)"
+    endpoints:
+      list:
+        method: GET
+        path: "/api/pixels"
+        description: "List tracking pixels"
+        params:
+          - name: search
+            type: string
+            description: "Filter by name"
+          - name: page
+            type: int
+            default: 1
+            description: "Page number"
+          - name: pageSize
+            flag_name: page-size
+            type: int
+            default: 20
+            description: "Results per page"
+        response:
+          type: array
+          item: Pixel
+        response_path: data
+      create:
+        method: POST
+        path: "/api/pixels"
+        description: "Create a tracking pixel"
+        body:
+          - name: name
+            type: string
+            required: true
+            description: "Pixel name"
+          - name: slug
+            type: string
+            required: true
+            description: "Pixel slug (min 8 chars)"
+          - name: teamId
+            flag_name: team-id
+            type: string
+            description: "Team UUID"
+        response:
+          type: object
+          item: Pixel
+      get:
+        method: GET
+        path: "/api/pixels/{pixel_id}"
+        description: "Get a pixel"
+        params:
+          - name: pixel_id
+            type: string
+            required: true
+            positional: true
+            description: "Pixel UUID"
+        response:
+          type: object
+          item: Pixel
+      update:
+        method: POST
+        path: "/api/pixels/{pixel_id}"
+        description: "Update a pixel"
+        params:
+          - name: pixel_id
+            type: string
+            required: true
+            positional: true
+            description: "Pixel UUID"
+        body:
+          - name: name
+            type: string
+            description: "Pixel name"
+          - name: slug
+            type: string
+            description: "Pixel slug"
+      delete:
+        method: DELETE
+        path: "/api/pixels/{pixel_id}"
+        description: "Delete a pixel"
+        params:
+          - name: pixel_id
+            type: string
+            required: true
+            positional: true
+            description: "Pixel UUID"
+
+  boards:
+    description: "Dashboards / boards (v3)"
+    endpoints:
+      list:
+        method: GET
+        path: "/api/boards"
+        description: "List boards"
+        params:
+          - name: search
+            type: string
+            description: "Filter by name"
+          - name: page
+            type: int
+            default: 1
+            description: "Page number"
+          - name: pageSize
+            flag_name: page-size
+            type: int
+            default: 20
+            description: "Results per page"
+        response:
+          type: array
+          item: Board
+        response_path: data
+      create:
+        method: POST
+        path: "/api/boards"
+        description: "Create a board"
+        body:
+          - name: type
+            type: string
+            required: true
+            default: mixed
+            enum: [mixed, website, pixel, link, open]
+            description: "Board type"
+          - name: name
+            type: string
+            required: true
+            description: "Board name"
+          - name: description
+            type: string
+            description: "Board description"
+          - name: teamId
+            flag_name: team-id
+            type: string
+            description: "Team UUID"
+          - name: parameters
+            type: object
+            description: "Board parameters JSON (websiteId, pixelId, linkId, ...)"
+      get:
+        method: GET
+        path: "/api/boards/{board_id}"
+        description: "Get a board"
+        params:
+          - name: board_id
+            type: string
+            required: true
+            positional: true
+            description: "Board UUID"
+      update:
+        method: POST
+        path: "/api/boards/{board_id}"
+        description: "Update a board"
+        params:
+          - name: board_id
+            type: string
+            required: true
+            positional: true
+            description: "Board UUID"
+        body:
+          - name: name
+            type: string
+            description: "Board name"
+          - name: description
+            type: string
+            description: "Board description"
+          - name: parameters
+            type: object
+            description: "Board parameters JSON"
+      delete:
+        method: DELETE
+        path: "/api/boards/{board_id}"
+        description: "Delete a board"
+        params:
+          - name: board_id
+            type: string
+            required: true
+            positional: true
+            description: "Board UUID"
+
+  dashboard:
+    description: "Personal dashboard board (v3)"
+    endpoints:
+      get:
+        method: GET
+        path: "/api/dashboard"
+        description: "Get the current user's personal dashboard board"
+      set:
+        method: POST
+        path: "/api/dashboard"
+        description: "Create or update the personal dashboard board"
+        body:
+          - name: name
+            type: string
+            description: "Dashboard name"
+          - name: description
+            type: string
+            description: "Dashboard description"
+          - name: parameters
+            type: object
+            description: "Dashboard parameters JSON"
+
+  shares:
+    description: "Public share pages (v3 entity shares)"
+    endpoints:
+      create:
+        method: POST
+        path: "/api/share"
+        description: "Create a public share page for a website, link, pixel, or board"
+        body:
+          - name: entityId
+            flag_name: entity-id
+            type: string
+            required: true
+            description: "UUID of the shared entity"
+          - name: shareType
+            flag_name: share-type
+            type: int
+            required: true
+            default: 1
+            description: "Entity type: 1=website 2=link 3=pixel 4=board"
+          - name: name
+            type: string
+            required: true
+            description: "Share page name"
+          - name: slug
+            type: string
+            description: "Custom slug (auto-generated when omitted)"
+          - name: parameters
+            type: object
+            description: "Section toggles JSON (overview, events, sessions, ...)"
+        response:
+          type: object
+          item: Share
+      get:
+        method: GET
+        path: "/api/share/id/{share_id}"
+        description: "Get a share by ID"
+        params:
+          - name: share_id
+            type: string
+            required: true
+            positional: true
+            description: "Share UUID"
+        response:
+          type: object
+          item: Share
+      update:
+        method: POST
+        path: "/api/share/id/{share_id}"
+        description: "Update a share"
+        params:
+          - name: share_id
+            type: string
+            required: true
+            positional: true
+            description: "Share UUID"
+        body:
+          - name: name
+            type: string
+            description: "Share name"
+          - name: slug
+            type: string
+            description: "Share slug"
+          - name: parameters
+            type: object
+            description: "Section toggles JSON"
+      delete:
+        method: DELETE
+        path: "/api/share/id/{share_id}"
+        description: "Delete a share"
+        params:
+          - name: share_id
+            type: string
+            required: true
+            positional: true
+            description: "Share UUID"
+      resolve:
+        method: GET
+        path: "/api/share/{slug}"
+        description: "Resolve a public share slug (no auth required)"
+        no_auth: true
+        params:
+          - name: slug
+            type: string
+            required: true
+            positional: true
+            description: "Public share slug"
+      for-website:
+        method: GET
+        path: "/api/websites/{website_id}/shares"
+        description: "List a website's shares"
+        params:
+          - name: website_id
+            type: string
+            required: true
+            positional: true
+            description: "Website UUID"
+          - name: page
+            type: int
+            default: 1
+            description: "Page number"
+          - name: pageSize
+            flag_name: page-size
+            type: int
+            default: 20
+            description: "Results per page"
+        happy_args: "website_id=f1fa838a-fc6a-49c1-bdef-c3688dc92574"
+        response_path: data
+      create-for-website:
+        method: POST
+        path: "/api/websites/{website_id}/shares"
+        description: "Create a share for a website (slug auto-generated)"
+        params:
+          - name: website_id
+            type: string
+            required: true
+            positional: true
+            description: "Website UUID"
+        body:
+          - name: name
+            type: string
+            required: true
+            description: "Share page name"
+          - name: parameters
+            type: object
+            description: "Section toggles JSON"
+
+  replays:
+    description: "Session replays (v3, requires replay-enabled websites)"
+    endpoints:
+      list:
+        method: GET
+        path: "/api/websites/{website_id}/replays"
+        description: "List session replays"
+        params:
+          - name: website_id
+            type: string
+            required: true
+            positional: true
+            description: "Website UUID"
+          - name: startAt
+            flag_name: start-at
+            type: int
+            required: true
+            description: "Range start (epoch milliseconds)"
+          - name: endAt
+            flag_name: end-at
+            type: int
+            required: true
+            description: "Range end (epoch milliseconds)"
+          - name: minDuration
+            flag_name: min-duration
+            type: int
+            description: "Minimum replay duration (seconds)"
+          - name: page
+            type: int
+            default: 1
+            description: "Page number"
+          - name: pageSize
+            flag_name: page-size
+            type: int
+            default: 20
+            description: "Results per page"
+        response_path: data
+      saved:
+        method: GET
+        path: "/api/websites/{website_id}/replays/saved"
+        description: "List saved replays"
+        params:
+          - name: website_id
+            type: string
+            required: true
+            positional: true
+            description: "Website UUID"
+          - name: page
+            type: int
+            default: 1
+            description: "Page number"
+          - name: pageSize
+            flag_name: page-size
+            type: int
+            default: 20
+            description: "Results per page"
+        response_path: data
+
+  me:
+    description: "Current account"
+    endpoints:
+      get:
+        method: GET
+        path: "/api/me"
+        description: "Current auth context: user, share token"
+      websites:
+        method: GET
+        path: "/api/me/websites"
+        description: "Websites owned by the current user"
+        params:
+          - name: search
+            type: string
+            description: "Filter by name or domain"
+          - name: includeTeams
+            flag_name: include-teams
+            type: bool
+            description: "Include team-owned websites"
+          - name: page
+            type: int
+            default: 1
+            description: "Page number"
+          - name: pageSize
+            flag_name: page-size
+            type: int
+            default: 20
+            description: "Results per page"
+        response:
+          type: array
+          item: Website
+        response_path: data
+      teams:
+        method: GET
+        path: "/api/me/teams"
+        description: "Teams the current user belongs to"
+        params:
+          - name: page
+            type: int
+            default: 1
+            description: "Page number"
+          - name: pageSize
+            flag_name: page-size
+            type: int
+            default: 20
+            description: "Results per page"
+        response:
+          type: array
+          item: Team
+        response_path: data
+      password:
+        method: POST
+        path: "/api/me/password"
+        description: "Change the current user's password"
+        body:
+          - name: currentPassword
+            flag_name: current-password
+            type: string
+            required: true
+            description: "Current password"
+          - name: newPassword
+            flag_name: new-password
+            type: string
+            required: true
+            description: "New password (min 8 chars)"
+
+  send:
+    description: "Send tracking data (no auth; the collection endpoint)"
+    endpoints:
+      event:
+        method: POST
+        path: "/api/send"
+        description: "Send a pageview, custom event, or identify payload (requires a realistic User-Agent)"
+        no_auth: true
+        example: "  umami-pp-cli send --type event --payload '{\"website\":\"f1fa838a-fc6a-49c1-bdef-c3688dc92574\",\"url\":\"/cli-test\",\"name\":\"cli_smoke\"}'"
+        body:
+          - name: type
+            type: string
+            required: true
+            default: event
+            enum: [event, identify, performance]
+            description: "Payload type"
+          - name: payload
+            type: object
+            required: true
+            description: "JSON: {website (uuid), url?, referrer?, title?, hostname?, name? (event), data?, tag?, id?}"
+
+  config:
+    description: "Instance configuration"
+    endpoints:
+      get:
+        method: GET
+        path: "/api/config"
+        description: "Public instance config: cloud mode, private mode, tracker script name"
+        no_auth: true
+
+types:
+  Website:
+    fields:
+      - name: id
+        type: string
+      - name: name
+        type: string
+      - name: domain
+        type: string
+      - name: shareId
+        type: string
+      - name: teamId
+        type: string
+      - name: userId
+        type: string
+      - name: createdAt
+        type: string
+      - name: updatedAt
+        type: string
+  MetricRow:
+    fields:
+      - name: x
+        type: string
+      - name: y
+        type: float
+  ExpandedMetric:
+    fields:
+      - name: name
+        type: string
+      - name: pageviews
+        type: string
+      - name: visitors
+        type: float
+      - name: visits
+        type: float
+      - name: bounces
+        type: float
+      - name: totaltime
+        type: string
+  Session:
+    fields:
+      - name: id
+        type: string
+      - name: websiteId
+        type: string
+      - name: browser
+        type: string
+      - name: os
+        type: string
+      - name: device
+        type: string
+      - name: screen
+        type: string
+      - name: language
+        type: string
+      - name: country
+        type: string
+      - name: region
+        type: string
+      - name: city
+        type: string
+      - name: firstAt
+        type: string
+      - name: lastAt
+        type: string
+      - name: visits
+        type: int
+      - name: views
+        type: int
+  SessionDetail:
+    fields:
+      - name: id
+        type: string
+      - name: websiteId
+        type: string
+      - name: distinctId
+        type: string
+      - name: browser
+        type: string
+      - name: os
+        type: string
+      - name: device
+        type: string
+      - name: country
+        type: string
+      - name: city
+        type: string
+      - name: firstAt
+        type: string
+      - name: lastAt
+        type: string
+      - name: visits
+        type: int
+      - name: views
+        type: int
+      - name: events
+        type: int
+      - name: totaltime
+        type: float
+  Event:
+    fields:
+      - name: id
+        type: string
+      - name: websiteId
+        type: string
+      - name: sessionId
+        type: string
+      - name: createdAt
+        type: string
+      - name: urlPath
+        type: string
+      - name: referrerDomain
+        type: string
+      - name: pageTitle
+        type: string
+      - name: eventType
+        type: int
+      - name: eventName
+        type: string
+  Report:
+    fields:
+      - name: id
+        type: string
+      - name: userId
+        type: string
+      - name: websiteId
+        type: string
+      - name: type
+        type: string
+      - name: name
+        type: string
+      - name: description
+        type: string
+      - name: createdAt
+        type: string
+  Team:
+    fields:
+      - name: id
+        type: string
+      - name: name
+        type: string
+      - name: accessCode
+        type: string
+      - name: createdAt
+        type: string
+  User:
+    fields:
+      - name: id
+        type: string
+      - name: username
+        type: string
+      - name: role
+        type: string
+      - name: createdAt
+        type: string
+  Link:
+    fields:
+      - name: id
+        type: string
+      - name: name
+        type: string
+      - name: url
+        type: string
+      - name: slug
+        type: string
+      - name: teamId
+        type: string
+      - name: createdAt
+        type: string
+  Pixel:
+    fields:
+      - name: id
+        type: string
+      - name: name
+        type: string
+      - name: slug
+        type: string
+      - name: teamId
+        type: string
+      - name: createdAt
+        type: string
+  Segment:
+    fields:
+      - name: id
+        type: string
+      - name: websiteId
+        type: string
+      - name: type
+        type: string
+      - name: name
+        type: string
+      - name: createdAt
+        type: string
+  Board:
+    fields:
+      - name: id
+        type: string
+      - name: type
+        type: string
+      - name: name
+        type: string
+      - name: description
+        type: string
+      - name: createdAt
+        type: string
+  Share:
+    fields:
+      - name: id
+        type: string
+      - name: shareType
+        type: int
+      - name: name
+        type: string
+      - name: slug
+        type: string
+      - name: createdAt
+        type: string

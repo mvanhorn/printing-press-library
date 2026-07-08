@@ -1,0 +1,9 @@
+{
+  "dir": "\u003ccli-dir\u003e/umami-pp-cli",
+  "research_dir": "\u003ccli-dir\u003e/20260707-191920-01784e58",
+  "verdict": "pass",
+  "actors": null,
+  "issues": [
+    "no Apify actor references found, skipping"
+  ]
+}

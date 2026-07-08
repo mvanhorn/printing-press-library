@@ -1,0 +1,62 @@
+{
+  "schema_version": 2,
+  "generated_at": "2026-07-08T08:58:07.232411Z",
+  "printing_press_version": "4.27.1",
+  "api_name": "umami",
+  "display_name": "Umami",
+  "cli_name": "umami-pp-cli",
+  "creator": {
+    "handle": "davidbarbi3r",
+    "name": "David Barbier"
+  },
+  "owner": "davidbarbi3r",
+  "printer": "davidbarbi3r",
+  "printer_name": "David Barbier",
+  "spec_format": "internal",
+  "spec_checksum": "sha256:76f9ee63711b683ada5b6a7dcdbf081c9db511d4f13d87f87f1bbfa84be0b191",
+  "run_id": "20260707-191920-01784e58",
+  "category": "marketing",
+  "description": "Every Umami v3 API surface, plus the portfolio rollup, SEO deltas, and anomaly watch that self-hosted Umami never shipped.",
+  "mcp_binary": "umami-pp-mcp",
+  "mcp_tool_count": 110,
+  "mcp_public_tool_count": 3,
+  "mcp_ready": "full",
+  "api_version": "0.1.0",
+  "auth_type": "bearer_token",
+  "auth_env_vars": [
+    "UMAMI_TOKEN",
+    "UMAMI_API_KEY"
+  ],
+  "novel_features": [
+    {
+      "name": "Portfolio anomaly watch",
+      "command": "watch",
+      "description": "Scan every site against its own 28-day per-weekday baseline and report only the sites that deviate. Requires local history: run 'umami-pp-cli snapshot' first (daily via cron)."
+    },
+    {
+      "name": "SEO acquisition report",
+      "command": "seo",
+      "description": "Per-site organic report: channel mix with week-over-week deltas, Google share, top organic entry pages, and top referrers in one command."
+    },
+    {
+      "name": "Tracker health check",
+      "command": "coverage",
+      "description": "Flag sites whose tracking script went silent — zero traffic in the recent window, with the timestamp of their last collected data."
+    },
+    {
+      "name": "Movers report",
+      "command": "movers",
+      "description": "Biggest page- and referrer-level risers and fallers this period vs the previous one, with absolute and percentage deltas."
+    },
+    {
+      "name": "New-referrer discovery",
+      "command": "new-referrers",
+      "description": "List referrer domains appearing for the first time in the current window — mechanical backlink and mention discovery. Requires local history: run 'umami-pp-cli snapshot --metric-days 14' first."
+    },
+    {
+      "name": "Month pacing",
+      "command": "pace",
+      "description": "Month-to-date traffic projected to month-end and compared against the prior full month, with an on-track/behind verdict per site."
+    }
+  ]
+}

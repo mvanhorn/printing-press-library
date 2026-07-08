@@ -1,0 +1,3454 @@
+{
+  "api_name": "umami",
+  "base_url": "http://localhost:3000",
+  "description": "Every Umami v3 API surface, plus the portfolio rollup, SEO deltas, and anomaly watch that self-hosted Umami never shipped.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "mcp": {
+    "endpoint_tools": "hidden",
+    "orchestration": "code"
+  },
+  "auth": {
+    "type": "bearer_token",
+    "header": "Authorization",
+    "format": "Bearer {UMAMI_TOKEN}",
+    "env_vars": [
+      "UMAMI_TOKEN",
+      "UMAMI_API_KEY"
+    ],
+    "env_var_specs": [
+      {
+        "name": "UMAMI_TOKEN",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      },
+      {
+        "name": "UMAMI_API_KEY",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    ]
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "admin_teams",
+      "description": "List all teams on the instance. Optional: search, page (default: 1), page-size (default: 20). Returns array of Team.",
+      "method": "GET",
+      "path": "/api/admin/teams",
+      "params": [
+        {
+          "name": "search",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by team name"
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page number"
+        },
+        {
+          "name": "page-size",
+          "wire_name": "pageSize",
+          "type": "int",
+          "location": "query",
+          "description": "Results per page"
+        }
+      ]
+    },
+    {
+      "name": "admin_users",
+      "description": "List all users on the instance (v3 replacement for GET /api/users). Optional: search, page (default: 1), page-size (default: 20). Returns array of User.",
+      "method": "GET",
+      "path": "/api/admin/users",
+      "params": [
+        {
+          "name": "search",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by username"
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page number"
+        },
+        {
+          "name": "page-size",
+          "wire_name": "pageSize",
+          "type": "int",
+          "location": "query",
+          "description": "Results per page"
+        }
+      ]
+    },
+    {
+      "name": "admin_websites",
+      "description": "List all websites on the instance with owners. Optional: search, page (default: 1), page-size (default: 20). Returns array of Website.",
+      "method": "GET",
+      "path": "/api/admin/websites",
+      "params": [
+        {
+          "name": "search",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by name or domain"
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page number"
+        },
+        {
+          "name": "page-size",
+          "wire_name": "pageSize",
+          "type": "int",
+          "location": "query",
+          "description": "Results per page"
+        }
+      ]
+    },
+    {
+      "name": "boards_create",
+      "description": "Create a board. Required: type (default: mixed), name. Optional: description, team-id, parameters.",
+      "method": "POST",
+      "path": "/api/boards",
+      "params": [
+        {
+          "name": "type",
+          "type": "string",
+          "location": "body",
+          "description": "Board type",
+          "required": true
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Board name",
+          "required": true
+        },
+        {
+          "name": "description",
+          "type": "string",
+          "location": "body",
+          "description": "Board description"
+        },
+        {
+          "name": "team-id",
+          "wire_name": "teamId",
+          "type": "string",
+          "location": "body",
+          "description": "Team UUID"
+        },
+        {
+          "name": "parameters",
+          "type": "object",
+          "location": "body",
+          "description": "Board parameters JSON (websiteId, pixelId, linkId, ...)"
+        }
+      ]
+    },
+    {
+      "name": "boards_delete",
+      "description": "Delete a board. Required: board_id. Destructive.",
+      "method": "DELETE",
+      "path": "/api/boards/{board_id}",
+      "params": [
+        {
+          "name": "board_id",
+          "type": "string",
+          "location": "path",
+          "description": "Board UUID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "boards_get",
+      "description": "Get a board. Required: board_id.",
+      "method": "GET",
+      "path": "/api/boards/{board_id}",
+      "params": [
+        {
+          "name": "board_id",
+          "type": "string",
+          "location": "path",
+          "description": "Board UUID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "boards_list",
+      "description": "List boards. Optional: search, page (default: 1), page-size (default: 20). Returns array of Board.",
+      "method": "GET",
+      "path": "/api/boards",
+      "params": [
+        {
+          "name": "search",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by name"
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page number"
+        },
+        {
+          "name": "page-size",
+          "wire_name": "pageSize",
+          "type": "int",
+          "location": "query",
+          "description": "Results per page"
+        }
+      ]
+    },
+    {
+      "name": "boards_update",
+      "description": "Update a board. Required: board_id. Optional: name, description, parameters.",
+      "method": "POST",
+      "path": "/api/boards/{board_id}",
+      "params": [
+        {
+          "name": "board_id",
+          "type": "string",
+          "location": "path",
+          "description": "Board UUID",
+          "required": true
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Board name"
+        },
+        {
+          "name": "description",
+          "type": "string",
+          "location": "body",
+          "description": "Board description"
+        },
+        {
+          "name": "parameters",
+          "type": "object",
+          "location": "body",
+          "description": "Board parameters JSON"
+        }
+      ]
+    },
+    {
+      "name": "config_get",
+      "description": "Public instance config: cloud mode, private mode, tracker script name. (public)",
+      "method": "GET",
+      "path": "/api/config",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "dashboard_get",
+      "description": "Get the current user's personal dashboard board.",
+      "method": "GET",
+      "path": "/api/dashboard",
+      "params": []
+    },
+    {
+      "name": "dashboard_set",
+      "description": "Create or update the personal dashboard board. Optional: name, description, parameters.",
+      "method": "POST",
+      "path": "/api/dashboard",
+      "params": [
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Dashboard name"
+        },
+        {
+          "name": "description",
+          "type": "string",
+          "location": "body",
+          "description": "Dashboard description"
+        },
+        {
+          "name": "parameters",
+          "type": "object",
+          "location": "body",
+          "description": "Dashboard parameters JSON"
+        }
+      ]
+    },
+    {
+      "name": "event-data_events",
+      "description": "Event names with their property names and totals. Required: website_id, start-at, end-at. Optional: event.",
+      "method": "GET",
+      "path": "/api/websites/{website_id}/event-data/events",
+      "params": [
+        {
+          "name": "website_id",
+          "type": "string",
+          "location": "path",
+          "description": "Website UUID",
+          "required": true
+        },
+        {
+          "name": "start-at",
+          "wire_name": "startAt",
+          "type": "int",
+          "location": "query",
+          "description": "Range start (epoch milliseconds)",
+          "required": true
+        },
+        {
+          "name": "end-at",
+          "wire_name": "endAt",
+          "type": "int",
+          "location": "query",
+          "description": "Range end (epoch milliseconds)",
+          "required": true
+        },
+        {
+          "name": "event",
+          "type": "string",
+          "location": "query",
+          "description": "Restrict to one event name"
+        }
+      ]
+    },
+    {
+      "name": "event-data_fields",
+      "description": "Property fields with data types and totals. Required: website_id, start-at, end-at.",
+      "method": "GET",
+      "path": "/api/websites/{website_id}/event-data/fields",
+      "params": [
+        {
+          "name": "website_id",
+          "type": "string",
+          "location": "path",
+          "description": "Website UUID",
+          "required": true
+        },
+        {
+          "name": "start-at",
+          "wire_name": "startAt",
+          "type": "int",
+          "location": "query",
+          "description": "Range start (epoch milliseconds)",
+          "required": true
+        },
+        {
+          "name": "end-at",
+          "wire_name": "endAt",
+          "type": "int",
+          "location": "query",
+          "description": "Range end (epoch milliseconds)",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "event-data_pivot",
+      "description": "Pivoted event rows with property keys and values. Required: website_id, start-at, end-at. Optional: event-name, page (default: 1), page-size (default: 20).",
+      "method": "GET",
+      "path": "/api/websites/{website_id}/event-data-pivot",
+      "params": [
+        {
+          "name": "website_id",
+          "type": "string",
+          "location": "path",
+          "description": "Website UUID",
+          "required": true
+        },
+        {
+          "name": "start-at",
+          "wire_name": "startAt",
+          "type": "int",
+          "location": "query",
+          "description": "Range start (epoch milliseconds)",
+          "required": true
+        },
+        {
+          "name": "end-at",
+          "wire_name": "endAt",
+          "type": "int",
+          "location": "query",
+          "description": "Range end (epoch milliseconds)",
+          "required": true
+        },
+        {
+          "name": "event-name",
+          "wire_name": "eventName",
+          "type": "string",
+          "location": "query",
+          "description": "Restrict to one event name"
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page number"
+        },
+        {
+          "name": "page-size",
+          "wire_name": "pageSize",
+          "type": "int",
+          "location": "query",
+          "description": "Results per page"
+        }
+      ]
+    },
+    {
+      "name": "event-data_properties",
+      "description": "Event-name x property-name totals. Required: website_id, start-at, end-at.",
+      "method": "GET",
+      "path": "/api/websites/{website_id}/event-data/properties",
+      "params": [
+        {
+          "name": "website_id",
+          "type": "string",
+          "location": "path",
+          "description": "Website UUID",
+          "required": true
+        },
+        {
+          "name": "start-at",
+          "wire_name": "startAt",
+          "type": "int",
+          "location": "query",
+          "description": "Range start (epoch milliseconds)",
+          "required": true
+        },
+        {
+          "name": "end-at",
+          "wire_name": "endAt",
+          "type": "int",
+          "location": "query",
+          "description": "Range end (epoch milliseconds)",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "event-data_stats",
+      "description": "Totals of events, properties, and records. Required: website_id, start-at, end-at.",
+      "method": "GET",
+      "path": "/api/websites/{website_id}/event-data/stats",
+      "params": [
+        {
+          "name": "website_id",
+          "type": "string",
+          "location": "path",
+          "description": "Website UUID",
+          "required": true
+        },
+        {
+          "name": "start-at",
+          "wire_name": "startAt",
+          "type": "int",
+          "location": "query",
+          "description": "Range start (epoch milliseconds)",
+          "required": true
+        },
+        {
+          "name": "end-at",
+          "wire_name": "endAt",
+          "type": "int",
+          "location": "query",
+          "description": "Range end (epoch milliseconds)",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "event-data_values",
+      "description": "Distinct values of one property for one event. Required: website_id, start-at, end-at, event, property-name.",
+      "method": "GET",
+      "path": "/api/websites/{website_id}/event-data/values",
+      "params": [
+        {
+          "name": "website_id",
+          "type": "string",
+          "location": "path",
+          "description": "Website UUID",
+          "required": true
+        },
+        {
+          "name": "start-at",
+          "wire_name": "startAt",
+          "type": "int",
+          "location": "query",
+          "description": "Range start (epoch milliseconds)",
+          "required": true
+        },
+        {
+          "name": "end-at",
+          "wire_name": "endAt",
+          "type": "int",
+          "location": "query",
+          "description": "Range end (epoch milliseconds)",
+          "required": true
+        },
+        {
+          "name": "event",
+          "type": "string",
+          "location": "query",
+          "description": "Event name",
+          "required": true
+        },
+        {
+          "name": "property-name",
+          "wire_name": "propertyName",
+          "type": "string",
+          "location": "query",
+          "description": "Property name",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "events_list",
+      "description": "List raw pageview/custom events in a time range. Required: website_id, start-at, end-at. Optional: search, page (default: 1), page-size (default: 20). Returns array of Event.",
+      "method": "GET",
+      "path": "/api/websites/{website_id}/events",
+      "params": [
+        {
+          "name": "website_id",
+          "type": "string",
+          "location": "path",
+          "description": "Website UUID",
+          "required": true
+        },
+        {
+          "name": "start-at",
+          "wire_name": "startAt",
+          "type": "int",
+          "location": "query",
+          "description": "Range start (epoch milliseconds)",
+          "required": true
+        },
+        {
+          "name": "end-at",
+          "wire_name": "endAt",
+          "type": "int",
+          "location": "query",
+          "description": "Range end (epoch milliseconds)",
+          "required": true
+        },
+        {
+          "name": "search",
+          "type": "string",
+          "location": "query",
+          "description": "Filter events by name or path"
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page number"
+        },
+        {
+          "name": "page-size",
+          "wire_name": "pageSize",
+          "type": "int",
+          "location": "query",
+          "description": "Results per page"
+        }
+      ]
+    },
+    {
+      "name": "events_series",
+      "description": "Custom event counts bucketed over time. Required: website_id, start-at, end-at. Optional: unit (default: day), timezone (default: UTC).",
+      "method": "GET",
+      "path": "/api/websites/{website_id}/events/series",
+      "params": [
+        {
+          "name": "website_id",
+          "type": "string",
+          "location": "path",
+          "description": "Website UUID",
+          "required": true
+        },
+        {
+          "name": "start-at",
+          "wire_name": "startAt",
+          "type": "int",
+          "location": "query",
+          "description": "Range start (epoch milliseconds)",
+          "required": true
+        },
+        {
+          "name": "end-at",
+          "wire_name": "endAt",
+          "type": "int",
+          "location": "query",
+          "description": "Range end (epoch milliseconds)",
+          "required": true
+        },
+        {
+          "name": "unit",
+          "type": "string",
+          "location": "query",
+          "description": "Series bucket size"
+        },
+        {
+          "name": "timezone",
+          "type": "string",
+          "location": "query",
+          "description": "IANA timezone"
+        }
+      ]
+    },
+    {
+      "name": "events_stats",
+      "description": "Event totals: events, visitors, visits, unique events (with optional comparison). Required: website_id, start-at, end-at. Optional: compare.",
+      "method": "GET",
+      "path": "/api/websites/{website_id}/events/stats",
+      "params": [
+        {
+          "name": "website_id",
+          "type": "string",
+          "location": "path",
+          "description": "Website UUID",
+          "required": true
+        },
+        {
+          "name": "start-at",
+          "wire_name": "startAt",
+          "type": "int",
+          "location": "query",
+          "description": "Range start (epoch milliseconds)",
+          "required": true
+        },
+        {
+          "name": "end-at",
+          "wire_name": "endAt",
+          "type": "int",
+          "location": "query",
+          "description": "Range end (epoch milliseconds)",
+          "required": true
+        },
+        {
+          "name": "compare",
+          "type": "string",
+          "location": "query",
+          "description": "Add a comparison period"
+        }
+      ]
+    },
+    {
+      "name": "links_create",
+      "description": "Create a short link. Required: name, url, slug. Optional: team-id. Returns the new Link.",
+      "method": "POST",
+      "path": "/api/links",
+      "params": [
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Link name",
+          "required": true
+        },
+        {
+          "name": "url",
+          "type": "string",
+          "location": "body",
+          "description": "Destination URL",
+          "required": true
+        },
+        {
+          "name": "slug",
+          "type": "string",
+          "location": "body",
+          "description": "Link slug (min 8 chars)",
+          "required": true
+        },
+        {
+          "name": "team-id",
+          "wire_name": "teamId",
+          "type": "string",
+          "location": "body",
+          "description": "Team UUID"
+        }
+      ]
+    },
+    {
+      "name": "links_delete",
+      "description": "Delete a link. Required: link_id. Destructive.",
+      "method": "DELETE",
+      "path": "/api/links/{link_id}",
+      "params": [
+        {
+          "name": "link_id",
+          "type": "string",
+          "location": "path",
+          "description": "Link UUID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "links_get",
+      "description": "Get a link. Required: link_id. Returns the Link.",
+      "method": "GET",
+      "path": "/api/links/{link_id}",
+      "params": [
+        {
+          "name": "link_id",
+          "type": "string",
+          "location": "path",
+          "description": "Link UUID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "links_list",
+      "description": "List short links. Optional: search, page (default: 1), page-size (default: 20). Returns array of Link.",
+      "method": "GET",
+      "path": "/api/links",
+      "params": [
+        {
+          "name": "search",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by name or URL"
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page number"
+        },
+        {
+          "name": "page-size",
+          "wire_name": "pageSize",
+          "type": "int",
+          "location": "query",
+          "description": "Results per page"
+        }
+      ]
+    },
+    {
+      "name": "links_update",
+      "description": "Update a link. Required: link_id. Optional: name, url, slug.",
+      "method": "POST",
+      "path": "/api/links/{link_id}",
+      "params": [
+        {
+          "name": "link_id",
+          "type": "string",
+          "location": "path",
+          "description": "Link UUID",
+          "required": true
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Link name"
+        },
+        {
+          "name": "url",
+          "type": "string",
+          "location": "body",
+          "description": "Destination URL"
+        },
+        {
+          "name": "slug",
+          "type": "string",
+          "location": "body",
+          "description": "Link slug"
+        }
+      ]
+    },
+    {
+      "name": "me_get",
+      "description": "Current auth context: user, share token.",
+      "method": "GET",
+      "path": "/api/me",
+      "params": []
+    },
+    {
+      "name": "me_password",
+      "description": "Change the current user's password. Required: current-password, new-password.",
+      "method": "POST",
+      "path": "/api/me/password",
+      "params": [
+        {
+          "name": "current-password",
+          "wire_name": "currentPassword",
+          "type": "string",
+          "location": "body",
+          "description": "Current password",
+          "required": true
+        },
+        {
+          "name": "new-password",
+          "wire_name": "newPassword",
+          "type": "string",
+          "location": "body",
+          "description": "New password (min 8 chars)",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "me_teams",
+      "description": "Teams the current user belongs to. Optional: page (default: 1), page-size (default: 20). Returns array of Team.",
+      "method": "GET",
+      "path": "/api/me/teams",
+      "params": [
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page number"
+        },
+        {
+          "name": "page-size",
+          "wire_name": "pageSize",
+          "type": "int",
+          "location": "query",
+          "description": "Results per page"
+        }
+      ]
+    },
+    {
+      "name": "me_websites",
+      "description": "Websites owned by the current user. Optional: search, include-teams, page (default: 1) (plus 1 more). Returns array of Website.",
+      "method": "GET",
+      "path": "/api/me/websites",
+      "params": [
+        {
+          "name": "search",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by name or domain"
+        },
+        {
+          "name": "include-teams",
+          "wire_name": "includeTeams",
+          "type": "bool",
+          "location": "query",
+          "description": "Include team-owned websites"
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page number"
+        },
+        {
+          "name": "page-size",
+          "wire_name": "pageSize",
+          "type": "int",
+          "location": "query",
+          "description": "Results per page"
+        }
+      ]
+    },
+    {
+      "name": "pixels_create",
+      "description": "Create a tracking pixel. Required: name, slug. Optional: team-id. Returns the new Pixel.",
+      "method": "POST",
+      "path": "/api/pixels",
+      "params": [
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Pixel name",
+          "required": true
+        },
+        {
+          "name": "slug",
+          "type": "string",
+          "location": "body",
+          "description": "Pixel slug (min 8 chars)",
+          "required": true
+        },
+        {
+          "name": "team-id",
+          "wire_name": "teamId",
+          "type": "string",
+          "location": "body",
+          "description": "Team UUID"
+        }
+      ]
+    },
+    {
+      "name": "pixels_delete",
+      "description": "Delete a pixel. Required: pixel_id. Destructive.",
+      "method": "DELETE",
+      "path": "/api/pixels/{pixel_id}",
+      "params": [
+        {
+          "name": "pixel_id",
+          "type": "string",
+          "location": "path",
+          "description": "Pixel UUID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "pixels_get",
+      "description": "Get a pixel. Required: pixel_id. Returns the Pixel.",
+      "method": "GET",
+      "path": "/api/pixels/{pixel_id}",
+      "params": [
+        {
+          "name": "pixel_id",
+          "type": "string",
+          "location": "path",
+          "description": "Pixel UUID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "pixels_list",
+      "description": "List tracking pixels. Optional: search, page (default: 1), page-size (default: 20). Returns array of Pixel.",
+      "method": "GET",
+      "path": "/api/pixels",
+      "params": [
+        {
+          "name": "search",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by name"
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page number"
+        },
+        {
+          "name": "page-size",
+          "wire_name": "pageSize",
+          "type": "int",
+          "location": "query",
+          "description": "Results per page"
+        }
+      ]
+    },
+    {
+      "name": "pixels_update",
+      "description": "Update a pixel. Required: pixel_id. Optional: name, slug.",
+      "method": "POST",
+      "path": "/api/pixels/{pixel_id}",
+      "params": [
+        {
+          "name": "pixel_id",
+          "type": "string",
+          "location": "path",
+          "description": "Pixel UUID",
+          "required": true
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Pixel name"
+        },
+        {
+          "name": "slug",
+          "type": "string",
+          "location": "body",
+          "description": "Pixel slug"
+        }
+      ]
+    },
+    {
+      "name": "realtime_get",
+      "description": "Realtime snapshot: countries, urls, referrers, events, series, totals. Required: website_id. Optional: timezone (default: UTC).",
+      "method": "GET",
+      "path": "/api/realtime/{website_id}",
+      "params": [
+        {
+          "name": "website_id",
+          "type": "string",
+          "location": "path",
+          "description": "Website UUID",
+          "required": true
+        },
+        {
+          "name": "timezone",
+          "type": "string",
+          "location": "query",
+          "description": "IANA timezone"
+        }
+      ]
+    },
+    {
+      "name": "replays_list",
+      "description": "List session replays. Required: website_id, start-at, end-at. Optional: min-duration, page (default: 1), page-size (default: 20).",
+      "method": "GET",
+      "path": "/api/websites/{website_id}/replays",
+      "params": [
+        {
+          "name": "website_id",
+          "type": "string",
+          "location": "path",
+          "description": "Website UUID",
+          "required": true
+        },
+        {
+          "name": "start-at",
+          "wire_name": "startAt",
+          "type": "int",
+          "location": "query",
+          "description": "Range start (epoch milliseconds)",
+          "required": true
+        },
+        {
+          "name": "end-at",
+          "wire_name": "endAt",
+          "type": "int",
+          "location": "query",
+          "description": "Range end (epoch milliseconds)",
+          "required": true
+        },
+        {
+          "name": "min-duration",
+          "wire_name": "minDuration",
+          "type": "int",
+          "location": "query",
+          "description": "Minimum replay duration (seconds)"
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page number"
+        },
+        {
+          "name": "page-size",
+          "wire_name": "pageSize",
+          "type": "int",
+          "location": "query",
+          "description": "Results per page"
+        }
+      ]
+    },
+    {
+      "name": "replays_saved",
+      "description": "List saved replays. Required: website_id. Optional: page (default: 1), page-size (default: 20).",
+      "method": "GET",
+      "path": "/api/websites/{website_id}/replays/saved",
+      "params": [
+        {
+          "name": "website_id",
+          "type": "string",
+          "location": "path",
+          "description": "Website UUID",
+          "required": true
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page number"
+        },
+        {
+          "name": "page-size",
+          "wire_name": "pageSize",
+          "type": "int",
+          "location": "query",
+          "description": "Results per page"
+        }
+      ]
+    },
+    {
+      "name": "reports_create",
+      "description": "Save a report definition. Required: website-id, type, name, parameters. Optional: description. Returns the new Report.",
+      "method": "POST",
+      "path": "/api/reports",
+      "params": [
+        {
+          "name": "website-id",
+          "wire_name": "websiteId",
+          "type": "string",
+          "location": "body",
+          "description": "Website UUID",
+          "required": true
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "location": "body",
+          "description": "Report type",
+          "required": true
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Report name",
+          "required": true
+        },
+        {
+          "name": "description",
+          "type": "string",
+          "location": "body",
+          "description": "Report description"
+        },
+        {
+          "name": "parameters",
+          "type": "object",
+          "location": "body",
+          "description": "Report parameters JSON (per-type shape)",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "reports_delete",
+      "description": "Delete a saved report. Required: report_id. Destructive.",
+      "method": "DELETE",
+      "path": "/api/reports/{report_id}",
+      "params": [
+        {
+          "name": "report_id",
+          "type": "string",
+          "location": "path",
+          "description": "Report UUID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "reports_for-website",
+      "description": "List one website's saved reports. Required: website_id. Optional: page (default: 1), page-size (default: 20).",
+      "method": "GET",
+      "path": "/api/websites/{website_id}/reports",
+      "params": [
+        {
+          "name": "website_id",
+          "type": "string",
+          "location": "path",
+          "description": "Website UUID",
+          "required": true
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page number"
+        },
+        {
+          "name": "page-size",
+          "wire_name": "pageSize",
+          "type": "int",
+          "location": "query",
+          "description": "Results per page"
+        }
+      ]
+    },
+    {
+      "name": "reports_get",
+      "description": "Get a saved report. Required: report_id. Returns the Report.",
+      "method": "GET",
+      "path": "/api/reports/{report_id}",
+      "params": [
+        {
+          "name": "report_id",
+          "type": "string",
+          "location": "path",
+          "description": "Report UUID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "reports_list",
+      "description": "List saved reports (servers require --website-id). Optional: website-id, type, page (default: 1) (plus 1 more). Returns array of Report.",
+      "method": "GET",
+      "path": "/api/reports",
+      "params": [
+        {
+          "name": "website-id",
+          "wire_name": "websiteId",
+          "type": "string",
+          "location": "query",
+          "description": "Website UUID (required by the server)"
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by report type"
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page number"
+        },
+        {
+          "name": "page-size",
+          "wire_name": "pageSize",
+          "type": "int",
+          "location": "query",
+          "description": "Results per page"
+        }
+      ]
+    },
+    {
+      "name": "reports_run-attribution",
+      "description": "Run an attribution report: first-click or last-click credit by referrer and UTM. Required: website-id, type (default: attribution), parameters. Optional: filters (default: map[]).",
+      "method": "POST",
+      "path": "/api/reports/attribution",
+      "params": [
+        {
+          "name": "website-id",
+          "wire_name": "websiteId",
+          "type": "string",
+          "location": "body",
+          "description": "Website UUID",
+          "required": true
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "location": "body",
+          "description": "Report type (attribution)",
+          "required": true
+        },
+        {
+          "name": "filters",
+          "type": "object",
+          "location": "body",
+          "description": "Filters JSON object (the API requires it; {} means no filters)"
+        },
+        {
+          "name": "parameters",
+          "type": "object",
+          "location": "body",
+          "description": "JSON: {startDate, endDate, model: first-click|last-click, type: path|event, step, currency?}",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "reports_run-breakdown",
+      "description": "Run a breakdown report: metrics grouped by one or more fields (v3 name for insights). Required: website-id, type (default: breakdown), parameters. Optional: filters (default: map[]).",
+      "method": "POST",
+      "path": "/api/reports/breakdown",
+      "params": [
+        {
+          "name": "website-id",
+          "wire_name": "websiteId",
+          "type": "string",
+          "location": "body",
+          "description": "Website UUID",
+          "required": true
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "location": "body",
+          "description": "Report type (breakdown)",
+          "required": true
+        },
+        {
+          "name": "filters",
+          "type": "object",
+          "location": "body",
+          "description": "Filters JSON object (the API requires it; {} means no filters)"
+        },
+        {
+          "name": "parameters",
+          "type": "object",
+          "location": "body",
+          "description": "JSON: {startDate, endDate, fields: [path|referrer|country|...]}",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "reports_run-funnel",
+      "description": "Run a funnel report: conversion and drop-off across 2-8 steps. Required: website-id, type (default: funnel), parameters. Optional: filters (default: map[]).",
+      "method": "POST",
+      "path": "/api/reports/funnel",
+      "params": [
+        {
+          "name": "website-id",
+          "wire_name": "websiteId",
+          "type": "string",
+          "location": "body",
+          "description": "Website UUID",
+          "required": true
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "location": "body",
+          "description": "Report type (funnel)",
+          "required": true
+        },
+        {
+          "name": "filters",
+          "type": "object",
+          "location": "body",
+          "description": "Filters JSON object (the API requires it; {} means no filters)"
+        },
+        {
+          "name": "parameters",
+          "type": "object",
+          "location": "body",
+          "description": "JSON: {startDate, endDate, window (days), steps: [{type: path|event, value}] (2-8)}",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "reports_run-goal",
+      "description": "Run a goal report: count of visitors reaching a path or event (v3: single goal). Required: website-id, type (default: goal), parameters. Optional: filters (default: map[]).",
+      "method": "POST",
+      "path": "/api/reports/goal",
+      "params": [
+        {
+          "name": "website-id",
+          "wire_name": "websiteId",
+          "type": "string",
+          "location": "body",
+          "description": "Website UUID",
+          "required": true
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "location": "body",
+          "description": "Report type (goal)",
+          "required": true
+        },
+        {
+          "name": "filters",
+          "type": "object",
+          "location": "body",
+          "description": "Filters JSON object (the API requires it; {} means no filters)"
+        },
+        {
+          "name": "parameters",
+          "type": "object",
+          "location": "body",
+          "description": "JSON: {startDate, endDate, type: path|event, value}",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "reports_run-heatmap",
+      "description": "Run a heatmap report: click/scroll point data for a page. Required: website-id, type (default: heatmap), parameters. Optional: filters (default: map[]).",
+      "method": "POST",
+      "path": "/api/reports/heatmap",
+      "params": [
+        {
+          "name": "website-id",
+          "wire_name": "websiteId",
+          "type": "string",
+          "location": "body",
+          "description": "Website UUID",
+          "required": true
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "location": "body",
+          "description": "Report type (heatmap)",
+          "required": true
+        },
+        {
+          "name": "filters",
+          "type": "object",
+          "location": "body",
+          "description": "Filters JSON object (the API requires it; {} means no filters)"
+        },
+        {
+          "name": "parameters",
+          "type": "object",
+          "location": "body",
+          "description": "JSON: {startDate, endDate, urlPath?, mode?: click|scroll}",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "reports_run-journey",
+      "description": "Run a journey report: most common navigation paths (3-7 steps). Required: website-id, type (default: journey), parameters. Optional: filters (default: map[]).",
+      "method": "POST",
+      "path": "/api/reports/journey",
+      "params": [
+        {
+          "name": "website-id",
+          "wire_name": "websiteId",
+          "type": "string",
+          "location": "body",
+          "description": "Website UUID",
+          "required": true
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "location": "body",
+          "description": "Report type (journey)",
+          "required": true
+        },
+        {
+          "name": "filters",
+          "type": "object",
+          "location": "body",
+          "description": "Filters JSON object (the API requires it; {} means no filters)"
+        },
+        {
+          "name": "parameters",
+          "type": "object",
+          "location": "body",
+          "description": "JSON: {startDate, endDate, steps (2-7), startStep?, endStep?}",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "reports_run-performance",
+      "description": "Run a Core Web Vitals report: LCP, INP, CLS, FCP, TTFB percentiles. Required: website-id, type (default: performance), parameters. Optional: filters (default: map[]).",
+      "method": "POST",
+      "path": "/api/reports/performance",
+      "params": [
+        {
+          "name": "website-id",
+          "wire_name": "websiteId",
+          "type": "string",
+          "location": "body",
+          "description": "Website UUID",
+          "required": true
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "location": "body",
+          "description": "Report type (performance)",
+          "required": true
+        },
+        {
+          "name": "filters",
+          "type": "object",
+          "location": "body",
+          "description": "Filters JSON object (the API requires it; {} means no filters)"
+        },
+        {
+          "name": "parameters",
+          "type": "object",
+          "location": "body",
+          "description": "JSON: {startDate, endDate, unit?, timezone?, metric?: lcp|inp|cls|fcp|ttfb}",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "reports_run-retention",
+      "description": "Run a retention report: returning-visitor cohorts by month. Required: website-id, type (default: retention), parameters. Optional: filters (default: map[]).",
+      "method": "POST",
+      "path": "/api/reports/retention",
+      "params": [
+        {
+          "name": "website-id",
+          "wire_name": "websiteId",
+          "type": "string",
+          "location": "body",
+          "description": "Website UUID",
+          "required": true
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "location": "body",
+          "description": "Report type (retention)",
+          "required": true
+        },
+        {
+          "name": "filters",
+          "type": "object",
+          "location": "body",
+          "description": "Filters JSON object (the API requires it; {} means no filters)"
+        },
+        {
+          "name": "parameters",
+          "type": "object",
+          "location": "body",
+          "description": "JSON: {startDate, endDate, timezone?}",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "reports_run-revenue",
+      "description": "Run a revenue report (requires revenue events with currency data). Required: website-id, type (default: revenue), parameters. Optional: filters (default: map[]).",
+      "method": "POST",
+      "path": "/api/reports/revenue",
+      "params": [
+        {
+          "name": "website-id",
+          "wire_name": "websiteId",
+          "type": "string",
+          "location": "body",
+          "description": "Website UUID",
+          "required": true
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "location": "body",
+          "description": "Report type (revenue)",
+          "required": true
+        },
+        {
+          "name": "filters",
+          "type": "object",
+          "location": "body",
+          "description": "Filters JSON object (the API requires it; {} means no filters)"
+        },
+        {
+          "name": "parameters",
+          "type": "object",
+          "location": "body",
+          "description": "JSON: {startDate, endDate, currency, unit?, timezone?, compare?}",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "reports_run-utm",
+      "description": "Run a UTM report: views per utm_source/medium/campaign/term/content. Required: website-id, type (default: utm), parameters. Optional: filters (default: map[]).",
+      "method": "POST",
+      "path": "/api/reports/utm",
+      "params": [
+        {
+          "name": "website-id",
+          "wire_name": "websiteId",
+          "type": "string",
+          "location": "body",
+          "description": "Website UUID",
+          "required": true
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "location": "body",
+          "description": "Report type (utm)",
+          "required": true
+        },
+        {
+          "name": "filters",
+          "type": "object",
+          "location": "body",
+          "description": "Filters JSON object (the API requires it; {} means no filters)"
+        },
+        {
+          "name": "parameters",
+          "type": "object",
+          "location": "body",
+          "description": "JSON: {startDate, endDate}",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "reports_update",
+      "description": "Update a saved report. Required: report_id. Optional: website-id, type, name (plus 2 more).",
+      "method": "POST",
+      "path": "/api/reports/{report_id}",
+      "params": [
+        {
+          "name": "report_id",
+          "type": "string",
+          "location": "path",
+          "description": "Report UUID",
+          "required": true
+        },
+        {
+          "name": "website-id",
+          "wire_name": "websiteId",
+          "type": "string",
+          "location": "body",
+          "description": "Website UUID"
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "location": "body",
+          "description": "Report type"
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Report name"
+        },
+        {
+          "name": "description",
+          "type": "string",
+          "location": "body",
+          "description": "Report description"
+        },
+        {
+          "name": "parameters",
+          "type": "object",
+          "location": "body",
+          "description": "Report parameters JSON"
+        }
+      ]
+    },
+    {
+      "name": "revenue_chart",
+      "description": "Revenue over time. Required: website_id, start-at, end-at, currency. Optional: timezone (default: UTC).",
+      "method": "GET",
+      "path": "/api/websites/{website_id}/revenue/chart",
+      "params": [
+        {
+          "name": "website_id",
+          "type": "string",
+          "location": "path",
+          "description": "Website UUID",
+          "required": true
+        },
+        {
+          "name": "start-at",
+          "wire_name": "startAt",
+          "type": "int",
+          "location": "query",
+          "description": "Range start (epoch milliseconds)",
+          "required": true
+        },
+        {
+          "name": "end-at",
+          "wire_name": "endAt",
+          "type": "int",
+          "location": "query",
+          "description": "Range end (epoch milliseconds)",
+          "required": true
+        },
+        {
+          "name": "currency",
+          "type": "string",
+          "location": "query",
+          "description": "Currency code (e.g. EUR)",
+          "required": true
+        },
+        {
+          "name": "timezone",
+          "type": "string",
+          "location": "query",
+          "description": "IANA timezone"
+        }
+      ]
+    },
+    {
+      "name": "revenue_metrics",
+      "description": "Revenue by country, region, referrer, or channel. Required: website_id, type, start-at, end-at, currency. Optional: timezone (default: UTC).",
+      "method": "GET",
+      "path": "/api/websites/{website_id}/revenue/metrics",
+      "params": [
+        {
+          "name": "website_id",
+          "type": "string",
+          "location": "path",
+          "description": "Website UUID",
+          "required": true
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "location": "query",
+          "description": "Breakdown dimension",
+          "required": true
+        },
+        {
+          "name": "start-at",
+          "wire_name": "startAt",
+          "type": "int",
+          "location": "query",
+          "description": "Range start (epoch milliseconds)",
+          "required": true
+        },
+        {
+          "name": "end-at",
+          "wire_name": "endAt",
+          "type": "int",
+          "location": "query",
+          "description": "Range end (epoch milliseconds)",
+          "required": true
+        },
+        {
+          "name": "currency",
+          "type": "string",
+          "location": "query",
+          "description": "Currency code (e.g. EUR)",
+          "required": true
+        },
+        {
+          "name": "timezone",
+          "type": "string",
+          "location": "query",
+          "description": "IANA timezone"
+        }
+      ]
+    },
+    {
+      "name": "revenue_sessions",
+      "description": "Sessions that generated revenue. Required: website_id, start-at, end-at, currency. Optional: timezone (default: UTC), page (default: 1), page-size (default: 20).",
+      "method": "GET",
+      "path": "/api/websites/{website_id}/revenue/sessions",
+      "params": [
+        {
+          "name": "website_id",
+          "type": "string",
+          "location": "path",
+          "description": "Website UUID",
+          "required": true
+        },
+        {
+          "name": "start-at",
+          "wire_name": "startAt",
+          "type": "int",
+          "location": "query",
+          "description": "Range start (epoch milliseconds)",
+          "required": true
+        },
+        {
+          "name": "end-at",
+          "wire_name": "endAt",
+          "type": "int",
+          "location": "query",
+          "description": "Range end (epoch milliseconds)",
+          "required": true
+        },
+        {
+          "name": "currency",
+          "type": "string",
+          "location": "query",
+          "description": "Currency code (e.g. EUR)",
+          "required": true
+        },
+        {
+          "name": "timezone",
+          "type": "string",
+          "location": "query",
+          "description": "IANA timezone"
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page number"
+        },
+        {
+          "name": "page-size",
+          "wire_name": "pageSize",
+          "type": "int",
+          "location": "query",
+          "description": "Results per page"
+        }
+      ]
+    },
+    {
+      "name": "revenue_stats",
+      "description": "Revenue totals: sum, count, average, ARPU. Required: website_id, start-at, end-at, currency. Optional: timezone (default: UTC).",
+      "method": "GET",
+      "path": "/api/websites/{website_id}/revenue/stats",
+      "params": [
+        {
+          "name": "website_id",
+          "type": "string",
+          "location": "path",
+          "description": "Website UUID",
+          "required": true
+        },
+        {
+          "name": "start-at",
+          "wire_name": "startAt",
+          "type": "int",
+          "location": "query",
+          "description": "Range start (epoch milliseconds)",
+          "required": true
+        },
+        {
+          "name": "end-at",
+          "wire_name": "endAt",
+          "type": "int",
+          "location": "query",
+          "description": "Range end (epoch milliseconds)",
+          "required": true
+        },
+        {
+          "name": "currency",
+          "type": "string",
+          "location": "query",
+          "description": "Currency code (e.g. EUR)",
+          "required": true
+        },
+        {
+          "name": "timezone",
+          "type": "string",
+          "location": "query",
+          "description": "IANA timezone"
+        }
+      ]
+    },
+    {
+      "name": "segments_create",
+      "description": "Create a segment or cohort. Required: website_id, type, name, parameters.",
+      "method": "POST",
+      "path": "/api/websites/{website_id}/segments",
+      "params": [
+        {
+          "name": "website_id",
+          "type": "string",
+          "location": "path",
+          "description": "Website UUID",
+          "required": true
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "location": "body",
+          "description": "segment or cohort",
+          "required": true
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Segment name",
+          "required": true
+        },
+        {
+          "name": "parameters",
+          "type": "object",
+          "location": "body",
+          "description": "JSON: {filters: [{name, operator, value}], match: all|any}",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "segments_delete",
+      "description": "Delete a segment. Required: website_id, segment_id. Destructive.",
+      "method": "DELETE",
+      "path": "/api/websites/{website_id}/segments/{segment_id}",
+      "params": [
+        {
+          "name": "website_id",
+          "type": "string",
+          "location": "path",
+          "description": "Website UUID",
+          "required": true
+        },
+        {
+          "name": "segment_id",
+          "type": "string",
+          "location": "path",
+          "description": "Segment UUID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "segments_get",
+      "description": "Get a segment. Required: website_id, segment_id.",
+      "method": "GET",
+      "path": "/api/websites/{website_id}/segments/{segment_id}",
+      "params": [
+        {
+          "name": "website_id",
+          "type": "string",
+          "location": "path",
+          "description": "Website UUID",
+          "required": true
+        },
+        {
+          "name": "segment_id",
+          "type": "string",
+          "location": "path",
+          "description": "Segment UUID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "segments_list",
+      "description": "List segments or cohorts for a website. Required: website_id, type (default: segment).",
+      "method": "GET",
+      "path": "/api/websites/{website_id}/segments",
+      "params": [
+        {
+          "name": "website_id",
+          "type": "string",
+          "location": "path",
+          "description": "Website UUID",
+          "required": true
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "location": "query",
+          "description": "segment or cohort",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "segments_update",
+      "description": "Update a segment. Required: website_id, segment_id. Optional: type, name, parameters.",
+      "method": "POST",
+      "path": "/api/websites/{website_id}/segments/{segment_id}",
+      "params": [
+        {
+          "name": "website_id",
+          "type": "string",
+          "location": "path",
+          "description": "Website UUID",
+          "required": true
+        },
+        {
+          "name": "segment_id",
+          "type": "string",
+          "location": "path",
+          "description": "Segment UUID",
+          "required": true
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "location": "body",
+          "description": "segment or cohort"
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Segment name"
+        },
+        {
+          "name": "parameters",
+          "type": "object",
+          "location": "body",
+          "description": "Filter parameters JSON"
+        }
+      ]
+    },
+    {
+      "name": "send_event",
+      "description": "Send a pageview, custom event, or identify payload (requires a realistic User-Agent). Required: type (default: event), payload. (public)",
+      "method": "POST",
+      "path": "/api/send",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "type",
+          "type": "string",
+          "location": "body",
+          "description": "Payload type",
+          "required": true
+        },
+        {
+          "name": "payload",
+          "type": "object",
+          "location": "body",
+          "description": "JSON: {website (uuid), url?, referrer?, title?, hostname?, name? (event), data?, tag?, id?}",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "session-data_properties",
+      "description": "Session property names with totals. Required: website_id, start-at, end-at.",
+      "method": "GET",
+      "path": "/api/websites/{website_id}/session-data/properties",
+      "params": [
+        {
+          "name": "website_id",
+          "type": "string",
+          "location": "path",
+          "description": "Website UUID",
+          "required": true
+        },
+        {
+          "name": "start-at",
+          "wire_name": "startAt",
+          "type": "int",
+          "location": "query",
+          "description": "Range start (epoch milliseconds)",
+          "required": true
+        },
+        {
+          "name": "end-at",
+          "wire_name": "endAt",
+          "type": "int",
+          "location": "query",
+          "description": "Range end (epoch milliseconds)",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "session-data_stats",
+      "description": "Activity summary per session property value. Required: website_id, start-at, end-at, property-name.",
+      "method": "GET",
+      "path": "/api/websites/{website_id}/session-data/stats",
+      "params": [
+        {
+          "name": "website_id",
+          "type": "string",
+          "location": "path",
+          "description": "Website UUID",
+          "required": true
+        },
+        {
+          "name": "start-at",
+          "wire_name": "startAt",
+          "type": "int",
+          "location": "query",
+          "description": "Range start (epoch milliseconds)",
+          "required": true
+        },
+        {
+          "name": "end-at",
+          "wire_name": "endAt",
+          "type": "int",
+          "location": "query",
+          "description": "Range end (epoch milliseconds)",
+          "required": true
+        },
+        {
+          "name": "property-name",
+          "wire_name": "propertyName",
+          "type": "string",
+          "location": "query",
+          "description": "Property name",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "session-data_values",
+      "description": "Distinct values of one session property. Required: website_id, start-at, end-at, property-name.",
+      "method": "GET",
+      "path": "/api/websites/{website_id}/session-data/values",
+      "params": [
+        {
+          "name": "website_id",
+          "type": "string",
+          "location": "path",
+          "description": "Website UUID",
+          "required": true
+        },
+        {
+          "name": "start-at",
+          "wire_name": "startAt",
+          "type": "int",
+          "location": "query",
+          "description": "Range start (epoch milliseconds)",
+          "required": true
+        },
+        {
+          "name": "end-at",
+          "wire_name": "endAt",
+          "type": "int",
+          "location": "query",
+          "description": "Range end (epoch milliseconds)",
+          "required": true
+        },
+        {
+          "name": "property-name",
+          "wire_name": "propertyName",
+          "type": "string",
+          "location": "query",
+          "description": "Property name",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "sessions_activity",
+      "description": "Chronological pageviews and events of one session. Required: website_id, session_id, start-at, end-at.",
+      "method": "GET",
+      "path": "/api/websites/{website_id}/sessions/{session_id}/activity",
+      "params": [
+        {
+          "name": "website_id",
+          "type": "string",
+          "location": "path",
+          "description": "Website UUID",
+          "required": true
+        },
+        {
+          "name": "session_id",
+          "type": "string",
+          "location": "path",
+          "description": "Session UUID",
+          "required": true
+        },
+        {
+          "name": "start-at",
+          "wire_name": "startAt",
+          "type": "int",
+          "location": "query",
+          "description": "Range start (epoch milliseconds)",
+          "required": true
+        },
+        {
+          "name": "end-at",
+          "wire_name": "endAt",
+          "type": "int",
+          "location": "query",
+          "description": "Range end (epoch milliseconds)",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "sessions_get",
+      "description": "Single session detail (totals, first/last seen, device, geo). Required: website_id, session_id. Returns the SessionDetail.",
+      "method": "GET",
+      "path": "/api/websites/{website_id}/sessions/{session_id}",
+      "params": [
+        {
+          "name": "website_id",
+          "type": "string",
+          "location": "path",
+          "description": "Website UUID",
+          "required": true
+        },
+        {
+          "name": "session_id",
+          "type": "string",
+          "location": "path",
+          "description": "Session UUID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "sessions_list",
+      "description": "List sessions in a time range. Required: website_id, start-at, end-at. Optional: search, page (default: 1), page-size (default: 20) (plus 2 more). Returns array of Session.",
+      "method": "GET",
+      "path": "/api/websites/{website_id}/sessions",
+      "params": [
+        {
+          "name": "website_id",
+          "type": "string",
+          "location": "path",
+          "description": "Website UUID",
+          "required": true
+        },
+        {
+          "name": "start-at",
+          "wire_name": "startAt",
+          "type": "int",
+          "location": "query",
+          "description": "Range start (epoch milliseconds)",
+          "required": true
+        },
+        {
+          "name": "end-at",
+          "wire_name": "endAt",
+          "type": "int",
+          "location": "query",
+          "description": "Range end (epoch milliseconds)",
+          "required": true
+        },
+        {
+          "name": "search",
+          "type": "string",
+          "location": "query",
+          "description": "Match on distinct ID, city, browser, OS, or device"
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page number"
+        },
+        {
+          "name": "page-size",
+          "wire_name": "pageSize",
+          "type": "int",
+          "location": "query",
+          "description": "Results per page"
+        },
+        {
+          "name": "country",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by 2-letter country code"
+        },
+        {
+          "name": "browser",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by browser name"
+        }
+      ]
+    },
+    {
+      "name": "sessions_properties",
+      "description": "Identify-data properties attached to one session. Required: website_id, session_id.",
+      "method": "GET",
+      "path": "/api/websites/{website_id}/sessions/{session_id}/properties",
+      "params": [
+        {
+          "name": "website_id",
+          "type": "string",
+          "location": "path",
+          "description": "Website UUID",
+          "required": true
+        },
+        {
+          "name": "session_id",
+          "type": "string",
+          "location": "path",
+          "description": "Session UUID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "sessions_stats",
+      "description": "Session-level summary: pageviews, visitors, visits, countries, events. Required: website_id, start-at, end-at.",
+      "method": "GET",
+      "path": "/api/websites/{website_id}/sessions/stats",
+      "params": [
+        {
+          "name": "website_id",
+          "type": "string",
+          "location": "path",
+          "description": "Website UUID",
+          "required": true
+        },
+        {
+          "name": "start-at",
+          "wire_name": "startAt",
+          "type": "int",
+          "location": "query",
+          "description": "Range start (epoch milliseconds)",
+          "required": true
+        },
+        {
+          "name": "end-at",
+          "wire_name": "endAt",
+          "type": "int",
+          "location": "query",
+          "description": "Range end (epoch milliseconds)",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "sessions_weekly",
+      "description": "7x24 day-of-week by hour session heatmap counts. Required: website_id, start-at, end-at. Optional: timezone (default: UTC).",
+      "method": "GET",
+      "path": "/api/websites/{website_id}/sessions/weekly",
+      "params": [
+        {
+          "name": "website_id",
+          "type": "string",
+          "location": "path",
+          "description": "Website UUID",
+          "required": true
+        },
+        {
+          "name": "start-at",
+          "wire_name": "startAt",
+          "type": "int",
+          "location": "query",
+          "description": "Range start (epoch milliseconds)",
+          "required": true
+        },
+        {
+          "name": "end-at",
+          "wire_name": "endAt",
+          "type": "int",
+          "location": "query",
+          "description": "Range end (epoch milliseconds)",
+          "required": true
+        },
+        {
+          "name": "timezone",
+          "type": "string",
+          "location": "query",
+          "description": "IANA timezone (e.g. Europe/Paris)"
+        }
+      ]
+    },
+    {
+      "name": "shares_create",
+      "description": "Create a public share page for a website, link, pixel, or board. Required: entity-id, share-type (default: 1), name. Optional: slug, parameters. Returns the new Share.",
+      "method": "POST",
+      "path": "/api/share",
+      "params": [
+        {
+          "name": "entity-id",
+          "wire_name": "entityId",
+          "type": "string",
+          "location": "body",
+          "description": "UUID of the shared entity",
+          "required": true
+        },
+        {
+          "name": "share-type",
+          "wire_name": "shareType",
+          "type": "int",
+          "location": "body",
+          "description": "Entity type: 1=website 2=link 3=pixel 4=board",
+          "required": true
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Share page name",
+          "required": true
+        },
+        {
+          "name": "slug",
+          "type": "string",
+          "location": "body",
+          "description": "Custom slug (auto-generated when omitted)"
+        },
+        {
+          "name": "parameters",
+          "type": "object",
+          "location": "body",
+          "description": "Section toggles JSON (overview, events, sessions, ...)"
+        }
+      ]
+    },
+    {
+      "name": "shares_create-for-website",
+      "description": "Create a share for a website (slug auto-generated). Required: website_id, name. Optional: parameters.",
+      "method": "POST",
+      "path": "/api/websites/{website_id}/shares",
+      "params": [
+        {
+          "name": "website_id",
+          "type": "string",
+          "location": "path",
+          "description": "Website UUID",
+          "required": true
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Share page name",
+          "required": true
+        },
+        {
+          "name": "parameters",
+          "type": "object",
+          "location": "body",
+          "description": "Section toggles JSON"
+        }
+      ]
+    },
+    {
+      "name": "shares_delete",
+      "description": "Delete a share. Required: share_id. Destructive.",
+      "method": "DELETE",
+      "path": "/api/share/id/{share_id}",
+      "params": [
+        {
+          "name": "share_id",
+          "type": "string",
+          "location": "path",
+          "description": "Share UUID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "shares_for-website",
+      "description": "List a website's shares. Required: website_id. Optional: page (default: 1), page-size (default: 20).",
+      "method": "GET",
+      "path": "/api/websites/{website_id}/shares",
+      "params": [
+        {
+          "name": "website_id",
+          "type": "string",
+          "location": "path",
+          "description": "Website UUID",
+          "required": true
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page number"
+        },
+        {
+          "name": "page-size",
+          "wire_name": "pageSize",
+          "type": "int",
+          "location": "query",
+          "description": "Results per page"
+        }
+      ]
+    },
+    {
+      "name": "shares_get",
+      "description": "Get a share by ID. Required: share_id. Returns the Share.",
+      "method": "GET",
+      "path": "/api/share/id/{share_id}",
+      "params": [
+        {
+          "name": "share_id",
+          "type": "string",
+          "location": "path",
+          "description": "Share UUID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "shares_resolve",
+      "description": "Resolve a public share slug (no auth required). Required: slug. (public)",
+      "method": "GET",
+      "path": "/api/share/{slug}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "slug",
+          "type": "string",
+          "location": "path",
+          "description": "Public share slug",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "shares_update",
+      "description": "Update a share. Required: share_id. Optional: name, slug, parameters.",
+      "method": "POST",
+      "path": "/api/share/id/{share_id}",
+      "params": [
+        {
+          "name": "share_id",
+          "type": "string",
+          "location": "path",
+          "description": "Share UUID",
+          "required": true
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Share name"
+        },
+        {
+          "name": "slug",
+          "type": "string",
+          "location": "body",
+          "description": "Share slug"
+        },
+        {
+          "name": "parameters",
+          "type": "object",
+          "location": "body",
+          "description": "Section toggles JSON"
+        }
+      ]
+    },
+    {
+      "name": "teams_create",
+      "description": "Create a team (access code is auto-generated). Required: name.",
+      "method": "POST",
+      "path": "/api/teams",
+      "params": [
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Team name",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "teams_delete",
+      "description": "Delete a team (owner only). Required: team_id. Destructive.",
+      "method": "DELETE",
+      "path": "/api/teams/{team_id}",
+      "params": [
+        {
+          "name": "team_id",
+          "type": "string",
+          "location": "path",
+          "description": "Team UUID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "teams_get",
+      "description": "Get a team with its members. Required: team_id. Returns the Team.",
+      "method": "GET",
+      "path": "/api/teams/{team_id}",
+      "params": [
+        {
+          "name": "team_id",
+          "type": "string",
+          "location": "path",
+          "description": "Team UUID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "teams_join",
+      "description": "Join a team with its access code. Required: access-code.",
+      "method": "POST",
+      "path": "/api/teams/join",
+      "params": [
+        {
+          "name": "access-code",
+          "wire_name": "accessCode",
+          "type": "string",
+          "location": "body",
+          "description": "Team access code (team_...)",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "teams_list",
+      "description": "List teams the account belongs to. Optional: page (default: 1), page-size (default: 20). Returns array of Team.",
+      "method": "GET",
+      "path": "/api/teams",
+      "params": [
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page number"
+        },
+        {
+          "name": "page-size",
+          "wire_name": "pageSize",
+          "type": "int",
+          "location": "query",
+          "description": "Results per page"
+        }
+      ]
+    },
+    {
+      "name": "teams_update",
+      "description": "Update team name or access code (owner). Required: team_id. Optional: name, access-code.",
+      "method": "POST",
+      "path": "/api/teams/{team_id}",
+      "params": [
+        {
+          "name": "team_id",
+          "type": "string",
+          "location": "path",
+          "description": "Team UUID",
+          "required": true
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "New team name"
+        },
+        {
+          "name": "access-code",
+          "wire_name": "accessCode",
+          "type": "string",
+          "location": "body",
+          "description": "New access code"
+        }
+      ]
+    },
+    {
+      "name": "teams_user-add",
+      "description": "Add a user to a team. Required: team_id, user-id, role (default: team-member).",
+      "method": "POST",
+      "path": "/api/teams/{team_id}/users",
+      "params": [
+        {
+          "name": "team_id",
+          "type": "string",
+          "location": "path",
+          "description": "Team UUID",
+          "required": true
+        },
+        {
+          "name": "user-id",
+          "wire_name": "userId",
+          "type": "string",
+          "location": "body",
+          "description": "User UUID",
+          "required": true
+        },
+        {
+          "name": "role",
+          "type": "string",
+          "location": "body",
+          "description": "Team role",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "teams_user-remove",
+      "description": "Remove a user from a team. Required: team_id, user_id. Destructive.",
+      "method": "DELETE",
+      "path": "/api/teams/{team_id}/users/{user_id}",
+      "params": [
+        {
+          "name": "team_id",
+          "type": "string",
+          "location": "path",
+          "description": "Team UUID",
+          "required": true
+        },
+        {
+          "name": "user_id",
+          "type": "string",
+          "location": "path",
+          "description": "User UUID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "teams_user-update",
+      "description": "Change a team member's role. Required: team_id, user_id, role.",
+      "method": "POST",
+      "path": "/api/teams/{team_id}/users/{user_id}",
+      "params": [
+        {
+          "name": "team_id",
+          "type": "string",
+          "location": "path",
+          "description": "Team UUID",
+          "required": true
+        },
+        {
+          "name": "user_id",
+          "type": "string",
+          "location": "path",
+          "description": "User UUID",
+          "required": true
+        },
+        {
+          "name": "role",
+          "type": "string",
+          "location": "body",
+          "description": "New team role",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "teams_users",
+      "description": "List team members with roles. Required: team_id. Optional: page (default: 1), page-size (default: 20).",
+      "method": "GET",
+      "path": "/api/teams/{team_id}/users",
+      "params": [
+        {
+          "name": "team_id",
+          "type": "string",
+          "location": "path",
+          "description": "Team UUID",
+          "required": true
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page number"
+        },
+        {
+          "name": "page-size",
+          "wire_name": "pageSize",
+          "type": "int",
+          "location": "query",
+          "description": "Results per page"
+        }
+      ]
+    },
+    {
+      "name": "teams_websites",
+      "description": "List a team's websites. Required: team_id. Optional: search, page (default: 1), page-size (default: 20).",
+      "method": "GET",
+      "path": "/api/teams/{team_id}/websites",
+      "params": [
+        {
+          "name": "team_id",
+          "type": "string",
+          "location": "path",
+          "description": "Team UUID",
+          "required": true
+        },
+        {
+          "name": "search",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by name or domain"
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page number"
+        },
+        {
+          "name": "page-size",
+          "wire_name": "pageSize",
+          "type": "int",
+          "location": "query",
+          "description": "Results per page"
+        }
+      ]
+    },
+    {
+      "name": "users_create",
+      "description": "Create a user (admin only). Required: username, password, role (default: user). Returns the new User.",
+      "method": "POST",
+      "path": "/api/users",
+      "params": [
+        {
+          "name": "username",
+          "type": "string",
+          "location": "body",
+          "description": "Username",
+          "required": true
+        },
+        {
+          "name": "password",
+          "type": "string",
+          "location": "body",
+          "description": "Password (min 8 chars)",
+          "required": true
+        },
+        {
+          "name": "role",
+          "type": "string",
+          "location": "body",
+          "description": "User role",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "users_delete",
+      "description": "Delete a user (admin only, cannot delete self). Required: user_id. Destructive.",
+      "method": "DELETE",
+      "path": "/api/users/{user_id}",
+      "params": [
+        {
+          "name": "user_id",
+          "type": "string",
+          "location": "path",
+          "description": "User UUID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "users_get",
+      "description": "Get a user (self or admin). Required: user_id. Returns the User.",
+      "method": "GET",
+      "path": "/api/users/{user_id}",
+      "params": [
+        {
+          "name": "user_id",
+          "type": "string",
+          "location": "path",
+          "description": "User UUID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "users_teams",
+      "description": "Teams a user belongs to. Required: user_id. Optional: page (default: 1), page-size (default: 20).",
+      "method": "GET",
+      "path": "/api/users/{user_id}/teams",
+      "params": [
+        {
+          "name": "user_id",
+          "type": "string",
+          "location": "path",
+          "description": "User UUID",
+          "required": true
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page number"
+        },
+        {
+          "name": "page-size",
+          "wire_name": "pageSize",
+          "type": "int",
+          "location": "query",
+          "description": "Results per page"
+        }
+      ]
+    },
+    {
+      "name": "users_update",
+      "description": "Update a user's username, password, or role. Required: user_id. Optional: username, password, role.",
+      "method": "POST",
+      "path": "/api/users/{user_id}",
+      "params": [
+        {
+          "name": "user_id",
+          "type": "string",
+          "location": "path",
+          "description": "User UUID",
+          "required": true
+        },
+        {
+          "name": "username",
+          "type": "string",
+          "location": "body",
+          "description": "New username (admin only)"
+        },
+        {
+          "name": "password",
+          "type": "string",
+          "location": "body",
+          "description": "New password"
+        },
+        {
+          "name": "role",
+          "type": "string",
+          "location": "body",
+          "description": "New role (admin only)"
+        }
+      ]
+    },
+    {
+      "name": "users_websites",
+      "description": "Websites owned by a user. Required: user_id. Optional: page (default: 1), page-size (default: 20).",
+      "method": "GET",
+      "path": "/api/users/{user_id}/websites",
+      "params": [
+        {
+          "name": "user_id",
+          "type": "string",
+          "location": "path",
+          "description": "User UUID",
+          "required": true
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page number"
+        },
+        {
+          "name": "page-size",
+          "wire_name": "pageSize",
+          "type": "int",
+          "location": "query",
+          "description": "Results per page"
+        }
+      ]
+    },
+    {
+      "name": "websites_active",
+      "description": "Visitors active in the last 5 minutes. Required: website_id.",
+      "method": "GET",
+      "path": "/api/websites/{website_id}/active",
+      "params": [
+        {
+          "name": "website_id",
+          "type": "string",
+          "location": "path",
+          "description": "Website UUID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "websites_create",
+      "description": "Create a new website. Required: name, domain. Optional: team-id. Returns the new Website.",
+      "method": "POST",
+      "path": "/api/websites",
+      "params": [
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Website display name",
+          "required": true
+        },
+        {
+          "name": "domain",
+          "type": "string",
+          "location": "body",
+          "description": "Website domain (e.g. example.com)",
+          "required": true
+        },
+        {
+          "name": "team-id",
+          "wire_name": "teamId",
+          "type": "string",
+          "location": "body",
+          "description": "Team UUID to own the website"
+        }
+      ]
+    },
+    {
+      "name": "websites_daterange",
+      "description": "First and last collected data timestamps. Required: website_id.",
+      "method": "GET",
+      "path": "/api/websites/{website_id}/daterange",
+      "params": [
+        {
+          "name": "website_id",
+          "type": "string",
+          "location": "path",
+          "description": "Website UUID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "websites_delete",
+      "description": "Delete a website and all its data. Required: website_id. Destructive.",
+      "method": "DELETE",
+      "path": "/api/websites/{website_id}",
+      "params": [
+        {
+          "name": "website_id",
+          "type": "string",
+          "location": "path",
+          "description": "Website UUID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "websites_get",
+      "description": "Get a website by ID. Required: website_id. Returns the Website.",
+      "method": "GET",
+      "path": "/api/websites/{website_id}",
+      "params": [
+        {
+          "name": "website_id",
+          "type": "string",
+          "location": "path",
+          "description": "Website UUID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "websites_list",
+      "description": "List all websites the account can access. Optional: search, page (default: 1), page-size (default: 20) (plus 1 more). Returns array of Website.",
+      "method": "GET",
+      "path": "/api/websites",
+      "params": [
+        {
+          "name": "search",
+          "type": "string",
+          "location": "query",
+          "description": "Filter websites by name or domain"
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page number"
+        },
+        {
+          "name": "page-size",
+          "wire_name": "pageSize",
+          "type": "int",
+          "location": "query",
+          "description": "Results per page"
+        },
+        {
+          "name": "include-teams",
+          "wire_name": "includeTeams",
+          "type": "bool",
+          "location": "query",
+          "description": "Include team-owned websites"
+        }
+      ]
+    },
+    {
+      "name": "websites_metrics",
+      "description": "Top-N breakdown for one dimension (path, referrer, country, channel, event, ...). Required: website_id, type, start-at, end-at. Optional: limit (default: 500), offset, search (plus 5 more). Returns array of MetricRow.",
+      "method": "GET",
+      "path": "/api/websites/{website_id}/metrics",
+      "params": [
+        {
+          "name": "website_id",
+          "type": "string",
+          "location": "path",
+          "description": "Website UUID",
+          "required": true
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "location": "query",
+          "description": "Dimension to break down by (v3 names: path not url, hostname not host)",
+          "required": true
+        },
+        {
+          "name": "start-at",
+          "wire_name": "startAt",
+          "type": "int",
+          "location": "query",
+          "description": "Range start (epoch milliseconds)",
+          "required": true
+        },
+        {
+          "name": "end-at",
+          "wire_name": "endAt",
+          "type": "int",
+          "location": "query",
+          "description": "Range end (epoch milliseconds)",
+          "required": true
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Max rows returned"
+        },
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "Rows to skip"
+        },
+        {
+          "name": "search",
+          "type": "string",
+          "location": "query",
+          "description": "Contains-match on the dimension value"
+        },
+        {
+          "name": "path",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by URL path"
+        },
+        {
+          "name": "referrer",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by referrer domain"
+        },
+        {
+          "name": "country",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by 2-letter country code"
+        },
+        {
+          "name": "event",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by custom event name"
+        },
+        {
+          "name": "segment",
+          "type": "string",
+          "location": "query",
+          "description": "Saved segment UUID to apply"
+        }
+      ]
+    },
+    {
+      "name": "websites_metrics-expanded",
+      "description": "Top-N breakdown with full per-item stats (pageviews, visitors, visits, bounces, totaltime). Required: website_id, type, start-at, end-at. Optional: limit (default: 100), search. Returns array of ExpandedMetric.",
+      "method": "GET",
+      "path": "/api/websites/{website_id}/metrics/expanded",
+      "params": [
+        {
+          "name": "website_id",
+          "type": "string",
+          "location": "path",
+          "description": "Website UUID",
+          "required": true
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "location": "query",
+          "description": "Dimension to break down by",
+          "required": true
+        },
+        {
+          "name": "start-at",
+          "wire_name": "startAt",
+          "type": "int",
+          "location": "query",
+          "description": "Range start (epoch milliseconds)",
+          "required": true
+        },
+        {
+          "name": "end-at",
+          "wire_name": "endAt",
+          "type": "int",
+          "location": "query",
+          "description": "Range end (epoch milliseconds)",
+          "required": true
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Max rows returned"
+        },
+        {
+          "name": "search",
+          "type": "string",
+          "location": "query",
+          "description": "Contains-match on the dimension value"
+        }
+      ]
+    },
+    {
+      "name": "websites_pageviews",
+      "description": "Pageviews and sessions time series. Required: website_id, start-at, end-at. Optional: unit (default: day), timezone (default: UTC), compare (plus 4 more).",
+      "method": "GET",
+      "path": "/api/websites/{website_id}/pageviews",
+      "params": [
+        {
+          "name": "website_id",
+          "type": "string",
+          "location": "path",
+          "description": "Website UUID",
+          "required": true
+        },
+        {
+          "name": "start-at",
+          "wire_name": "startAt",
+          "type": "int",
+          "location": "query",
+          "description": "Range start (epoch milliseconds)",
+          "required": true
+        },
+        {
+          "name": "end-at",
+          "wire_name": "endAt",
+          "type": "int",
+          "location": "query",
+          "description": "Range end (epoch milliseconds)",
+          "required": true
+        },
+        {
+          "name": "unit",
+          "type": "string",
+          "location": "query",
+          "description": "Series bucket size"
+        },
+        {
+          "name": "timezone",
+          "type": "string",
+          "location": "query",
+          "description": "IANA timezone for bucketing (e.g. Europe/Paris)"
+        },
+        {
+          "name": "compare",
+          "type": "string",
+          "location": "query",
+          "description": "Add a comparison series"
+        },
+        {
+          "name": "path",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by URL path"
+        },
+        {
+          "name": "referrer",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by referrer domain"
+        },
+        {
+          "name": "country",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by 2-letter country code"
+        },
+        {
+          "name": "event",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by custom event name"
+        }
+      ]
+    },
+    {
+      "name": "websites_reset",
+      "description": "Wipe all collected data for a website (irreversible). Required: website_id.",
+      "method": "POST",
+      "path": "/api/websites/{website_id}/reset",
+      "params": [
+        {
+          "name": "website_id",
+          "type": "string",
+          "location": "path",
+          "description": "Website UUID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "websites_stats",
+      "description": "Traffic summary: pageviews, visitors, visits, bounces, total time (with optional prev/yoy comparison). Required: website_id, start-at, end-at. Optional: compare, path, referrer (plus 12 more).",
+      "method": "GET",
+      "path": "/api/websites/{website_id}/stats",
+      "params": [
+        {
+          "name": "website_id",
+          "type": "string",
+          "location": "path",
+          "description": "Website UUID",
+          "required": true
+        },
+        {
+          "name": "start-at",
+          "wire_name": "startAt",
+          "type": "int",
+          "location": "query",
+          "description": "Range start (epoch milliseconds)",
+          "required": true
+        },
+        {
+          "name": "end-at",
+          "wire_name": "endAt",
+          "type": "int",
+          "location": "query",
+          "description": "Range end (epoch milliseconds)",
+          "required": true
+        },
+        {
+          "name": "compare",
+          "type": "string",
+          "location": "query",
+          "description": "Add a comparison period: prev (previous equal-length) or yoy (one year back)"
+        },
+        {
+          "name": "path",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by URL path (v3 name; operator prefixes like c.blog supported)"
+        },
+        {
+          "name": "referrer",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by referrer domain"
+        },
+        {
+          "name": "country",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by 2-letter country code"
+        },
+        {
+          "name": "browser",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by browser name"
+        },
+        {
+          "name": "os",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by operating system"
+        },
+        {
+          "name": "device",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by device type (desktop, mobile, tablet)"
+        },
+        {
+          "name": "event",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by custom event name"
+        },
+        {
+          "name": "hostname",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by hostname (v3 name for host)"
+        },
+        {
+          "name": "tag",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by tag"
+        },
+        {
+          "name": "utm-source",
+          "wire_name": "utmSource",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by utm_source"
+        },
+        {
+          "name": "utm-medium",
+          "wire_name": "utmMedium",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by utm_medium"
+        },
+        {
+          "name": "utm-campaign",
+          "wire_name": "utmCampaign",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by utm_campaign"
+        },
+        {
+          "name": "segment",
+          "type": "string",
+          "location": "query",
+          "description": "Saved segment UUID to apply"
+        },
+        {
+          "name": "cohort",
+          "type": "string",
+          "location": "query",
+          "description": "Saved cohort UUID to apply"
+        }
+      ]
+    },
+    {
+      "name": "websites_transfer",
+      "description": "Transfer a website to a user or a team. Required: website_id. Optional: user-id, team-id.",
+      "method": "POST",
+      "path": "/api/websites/{website_id}/transfer",
+      "params": [
+        {
+          "name": "website_id",
+          "type": "string",
+          "location": "path",
+          "description": "Website UUID",
+          "required": true
+        },
+        {
+          "name": "user-id",
+          "wire_name": "userId",
+          "type": "string",
+          "location": "body",
+          "description": "Destination user UUID (exactly one of --user-id / --team-id)"
+        },
+        {
+          "name": "team-id",
+          "wire_name": "teamId",
+          "type": "string",
+          "location": "body",
+          "description": "Destination team UUID (exactly one of --user-id / --team-id)"
+        }
+      ]
+    },
+    {
+      "name": "websites_update",
+      "description": "Update a website's name, domain, or share ID. Required: website_id. Optional: name, domain, share-id. Returns the new Website.",
+      "method": "POST",
+      "path": "/api/websites/{website_id}",
+      "params": [
+        {
+          "name": "website_id",
+          "type": "string",
+          "location": "path",
+          "description": "Website UUID",
+          "required": true
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "New display name"
+        },
+        {
+          "name": "domain",
+          "type": "string",
+          "location": "body",
+          "description": "New domain"
+        },
+        {
+          "name": "share-id",
+          "wire_name": "shareId",
+          "type": "string",
+          "location": "body",
+          "description": "Public share ID"
+        }
+      ]
+    },
+    {
+      "name": "websites_values",
+      "description": "Distinct values for a filter field (autocomplete helper). Required: website_id, type, start-at, end-at. Optional: search.",
+      "method": "GET",
+      "path": "/api/websites/{website_id}/values",
+      "params": [
+        {
+          "name": "website_id",
+          "type": "string",
+          "location": "path",
+          "description": "Website UUID",
+          "required": true
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "location": "query",
+          "description": "Field to list distinct values for",
+          "required": true
+        },
+        {
+          "name": "start-at",
+          "wire_name": "startAt",
+          "type": "int",
+          "location": "query",
+          "description": "Range start (epoch milliseconds)",
+          "required": true
+        },
+        {
+          "name": "end-at",
+          "wire_name": "endAt",
+          "type": "int",
+          "location": "query",
+          "description": "Range end (epoch milliseconds)",
+          "required": true
+        },
+        {
+          "name": "search",
+          "type": "string",
+          "location": "query",
+          "description": "Filter values containing this text"
+        }
+      ]
+    }
+  ]
+}

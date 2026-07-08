@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "api_name": "umami",
+  "run_id": "20260707-191920-01784e58",
+  "status": "pass",
+  "level": "full",
+  "matrix_size": 403,
+  "tests_passed": 403,
+  "tests_skipped": 231,
+  "auth_context": {
+    "type": "bearer_token"
+  }
+}

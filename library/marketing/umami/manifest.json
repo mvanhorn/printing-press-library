@@ -1,0 +1,47 @@
+{
+  "manifest_version": "0.3",
+  "name": "umami-pp-mcp",
+  "display_name": "Umami",
+  "version": "0.1.0",
+  "description": "Every Umami v3 API surface, plus the portfolio rollup, SEO deltas, and anomaly watch that self-hosted Umami never shipped.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/umami-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/umami-pp-mcp",
+      "args": [],
+      "env": {
+        "UMAMI_API_KEY": "${user_config.umami_api_key}",
+        "UMAMI_TOKEN": "${user_config.umami_token}"
+      }
+    }
+  },
+  "user_config": {
+    "umami_api_key": {
+      "type": "string",
+      "title": "UMAMI_API_KEY",
+      "description": "Sets UMAMI_API_KEY for the Umami MCP server.",
+      "sensitive": true,
+      "required": true
+    },
+    "umami_token": {
+      "type": "string",
+      "title": "UMAMI_TOKEN",
+      "description": "Sets UMAMI_TOKEN for the Umami MCP server.",
+      "sensitive": true,
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}
