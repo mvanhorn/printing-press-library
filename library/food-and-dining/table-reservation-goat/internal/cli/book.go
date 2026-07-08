@@ -29,6 +29,7 @@ import (
 	"encoding/hex"
 	"errors"
 	"fmt"
+	"io"
 	"os"
 	"path/filepath"
 	"strconv"
@@ -132,7 +133,7 @@ func newBookCmd(flags *rootFlags) *cobra.Command {
 			}
 
 			// Step 5+6+7+8: dispatch to network handler.
-			result, err := bookOnNetwork(ctx, session, network, slug, date, hhmm, party, dryRun)
+			result, err := bookOnNetwork(ctx, session, network, slug, date, hhmm, party, dryRun, flags.noInput)
 			if err != nil {
 				return printJSONFiltered(cmd.OutOrStdout(), result, flags)
 			}
@@ -245,13 +246,13 @@ func normalizeTime(s string) string {
 // bookOnNetwork dispatches to the network-specific book flow. Returns the
 // agent-friendly result struct PLUS a non-nil error when the result has an
 // Error category (so the caller can propagate exit code).
-func bookOnNetwork(ctx context.Context, session *auth.Session, network, slug, date, hhmm string, party int, dryRun bool) (bookResult, error) {
+func bookOnNetwork(ctx context.Context, session *auth.Session, network, slug, date, hhmm string, party int, dryRun bool, noInput bool) (bookResult, error) {
 	out := bookResult{Network: network, RestaurantSlug: slug, Date: date, Time: hhmm, Party: party}
 	switch network {
 	case "opentable":
 		return bookOnOpenTable(ctx, session, slug, date, hhmm, party, dryRun, out)
 	case "tock":
-		return bookOnTock(ctx, session, slug, date, hhmm, party, dryRun, out)
+		return bookOnTock(ctx, session, slug, date, hhmm, party, dryRun, noInput, out)
 	case "resy":
 		return bookOnResy(ctx, session, slug, date, hhmm, party, dryRun, out)
 	}
@@ -537,9 +538,9 @@ func bookOnOpenTable(ctx context.Context, session *auth.Session, slug, date, hhm
 }
 
 // bookOnTock handles steps 5–8 for Tock via chromedp-attach (real Chrome).
-// Card-required venues prompt the user for CVC interactively before
-// driving the browser through the click-flow.
-func bookOnTock(ctx context.Context, session *auth.Session, slug, date, hhmm string, party int, dryRun bool, out bookResult) (bookResult, error) {
+// Interactive mode may prompt for the per-transaction CVC; machine mode never
+// prompts and requires TRG_TOCK_CVC before driving the browser.
+func bookOnTock(ctx context.Context, session *auth.Session, slug, date, hhmm string, party int, dryRun bool, noInput bool, out bookResult) (bookResult, error) {
 	c, err := tock.New(session)
 	if err != nil {
 		out.Error = "client_init_failed"
@@ -569,9 +570,20 @@ func bookOnTock(ctx context.Context, session *auth.Session, slug, date, hhmm str
 		}
 		return out, nil
 	}
-	// Step 7: prompt for CVC (Tock card-required venues need it; free
-	// venues ignore the value). User can skip by pressing Enter.
-	cvc := promptCVC(os.Stdin, os.Stderr)
+	// Step 7: collect CVC before opening Chrome. Agent/no-input mode must
+	// never prompt; callers pass TRG_TOCK_CVC when a card-required venue needs
+	// per-transaction CVC re-entry.
+	cvc, cvcErr := tockCVCForBooking(noInput, os.Stdin, os.Stderr)
+	if cvcErr != nil {
+		out.Error = "cvc_required"
+		if errors.Is(cvcErr, errTockCVCInvalid) {
+			out.Hint = "TRG_TOCK_CVC must be 3 or 4 digits; the value was not used"
+		} else {
+			out.Hint = "set TRG_TOCK_CVC to the card CVC for this one Tock booking, or rerun interactively without --agent/--no-input"
+		}
+		out.BookURL = fmt.Sprintf("https://www.exploretock.com/%s?date=%s&size=%d&time=%s", slug, date, party, hhmm)
+		return out, cvcErr
+	}
 	resp, bookErr := c.Book(ctx, tock.BookRequest{
 		VenueSlug:       slug,
 		ReservationDate: date,
@@ -609,28 +621,52 @@ func bookOnTock(ctx context.Context, session *auth.Session, slug, date, hhmm str
 	return out, nil
 }
 
-// promptCVC reads a CVC from the given reader, displaying the prompt to
-// stderr (so it doesn't pollute the JSON output on stdout). Returns empty
-// string on read error or when the user skips by pressing Enter — Tock free
-// venues don't need a CVC, so empty is acceptable.
-//
-// Per system rules + user direction: only the CVC (3-4 digits) is prompted;
-// the full credit card number is never asked.
-func promptCVC(in *os.File, errOut *os.File) string {
-	// Skip prompt entirely in non-interactive contexts (e.g., MCP tool calls).
-	// Detect via TRG_TOCK_CVC env var: if set, use that value; else prompt.
-	if v := os.Getenv("TRG_TOCK_CVC"); v != "" {
-		return v
+var (
+	errTockCVCRequired = errors.New("tock: cvc required in non-interactive mode")
+	errTockCVCInvalid  = errors.New("tock: cvc must be 3 or 4 digits")
+)
+
+// tockCVCForBooking reads only the per-transaction CVC. It never asks for or
+// logs full card data. Machine mode returns a typed error instead of prompting.
+func tockCVCForBooking(noInput bool, in *os.File, errOut io.Writer) (string, error) {
+	if v := strings.TrimSpace(os.Getenv("TRG_TOCK_CVC")); v != "" {
+		if !validTockCVC(v) {
+			return "", errTockCVCInvalid
+		}
+		return v, nil
+	}
+	if noInput {
+		return "", errTockCVCRequired
+	}
+	if in == nil {
+		return "", nil
 	}
 	stat, err := in.Stat()
 	if err != nil || (stat.Mode()&os.ModeCharDevice) == 0 {
-		// Non-interactive (piped stdin) — skip prompt; proceed without CVC.
-		return ""
+		return "", nil
 	}
-	fmt.Fprint(errOut, "Tock card-required venues need CVC re-entry per booking. Enter CVC (or press Enter to skip): ")
+	if errOut != nil {
+		fmt.Fprint(errOut, "Tock card-required venues need CVC re-entry per booking. Enter CVC (or press Enter to skip): ")
+	}
 	var cvc string
 	_, _ = fmt.Fscanln(in, &cvc)
-	return strings.TrimSpace(cvc)
+	cvc = strings.TrimSpace(cvc)
+	if cvc != "" && !validTockCVC(cvc) {
+		return "", errTockCVCInvalid
+	}
+	return cvc, nil
+}
+
+func validTockCVC(cvc string) bool {
+	if len(cvc) != 3 && len(cvc) != 4 {
+		return false
+	}
+	for _, r := range cvc {
+		if r < '0' || r > '9' {
+			return false
+		}
+	}
+	return true
 }
 
 // matchedExistingTock applies R13 normalization for Tock upcoming-reservations.

@@ -4,14 +4,15 @@
   "applied_at": "2026-07-08",
   "base_run_id": "20260509-110540",
   "base_printing_press_version": "4.2.2",
-  "summary": "Preserve Tock experience-card combobox booking support and OpenTable persisted-query operation-name consistency for harvested availability hashes.",
-  "reason": "Tock venues can render a time combobox plus experience cards instead of per-time slot buttons, so the chromedp booking flow must drive that layout and report page-state controls on selector drift. OpenTable now validates that the JSON operationName, URL opname, and persisted-query hash's registered operation name all match, so the availability hash cache must carry the harvested operation name as well as the hash.",
+  "summary": "Preserve Tock experience-card combobox booking support, navigation-proof target recovery, non-interactive CVC handling, and OpenTable persisted-query operation-name consistency.",
+  "reason": "Tock venues can render a time combobox plus experience cards instead of per-time slot buttons, and live runs can leave the inspected Chrome target at about:blank while the real venue page exists elsewhere, so the chromedp booking flow must re-resolve or re-navigate before fallback evaluation and page-state hints. Agent mode must never prompt for Tock CVC on stdin; callers provide TRG_TOCK_CVC or receive a typed cvc_required outcome. OpenTable now validates that the JSON operationName, URL opname, and persisted-query hash's registered operation name all match, so the availability hash cache must carry the harvested operation name as well as the hash.",
   "files": [
     "internal/source/tock/chrome_book.go",
     "internal/source/tock/chrome_book_test.go",
     "internal/source/tock/booking.go",
     "internal/source/tock/booking_test.go",
     "internal/cli/book.go",
+    "internal/cli/book_test.go",
     "internal/source/opentable/hash_store.go",
     "internal/source/opentable/hash_store_test.go",
     "internal/source/opentable/chrome_avail.go",
@@ -19,5 +20,5 @@
     "internal/source/opentable/client.go",
     "internal/source/opentable/client_avail_test.go"
   ],
-  "validated_outcome": "Unit coverage pins combobox time selection, party-size experience-card disambiguation, Tock page-state hints, OpenTable hash+operation-name persistence, and body operationName/URL opname consistency."
+  "validated_outcome": "Unit coverage pins combobox time selection, party-size experience-card disambiguation, Tock page-state hints and target-loss retry classification, non-interactive CVC typed errors, OpenTable hash+operation-name persistence, and body operationName/URL opname consistency."
 }

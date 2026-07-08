@@ -2,11 +2,13 @@ package tock
 
 import (
 	"context"
+	"fmt"
 	"net/url"
 	"strings"
 	"testing"
 	"time"
 
+	cdproto "github.com/chromedp/cdproto"
 	"github.com/chromedp/chromedp"
 )
 
@@ -116,7 +118,7 @@ func TestTockBookingPageStateHint_ReportsComboboxControls(t *testing.T) {
 	withTockDOMFixture(t, html, func(ctx context.Context) {
 		var hint string
 		if err := chromedp.Run(ctx, chromedp.ActionFunc(func(actCtx context.Context) error {
-			hint = tockBookingPageStateHint(actCtx)
+			hint = tockBookingPageStateHint(actCtx, "")
 			return nil
 		})); err != nil {
 			t.Fatalf("collect page-state hint: %v", err)
@@ -131,4 +133,50 @@ func TestTockBookingPageStateHint_ReportsComboboxControls(t *testing.T) {
 			}
 		}
 	})
+}
+
+func TestTockVenuePageURLMatcherRejectsDeadAndCheckoutTargets(t *testing.T) {
+	venueURL := "https://www.exploretock.com/barcelona-wine-bar-raleigh?date=2026-07-10&size=2&time=18%3A15"
+	cases := []struct {
+		name string
+		raw  string
+		want bool
+	}{
+		{"venue", "https://www.exploretock.com/barcelona-wine-bar-raleigh?date=2026-07-10", true},
+		{"experience", "https://www.exploretock.com/barcelona-wine-bar-raleigh/experience/123?date=2026-07-10", false},
+		{"about blank", "about:blank", false},
+		{"checkout", "https://www.exploretock.com/barcelona-wine-bar-raleigh/checkout/confirm-purchase", false},
+		{"receipt", "https://www.exploretock.com/barcelona-wine-bar-raleigh/receipt?purchaseId=1", false},
+		{"other venue", "https://www.exploretock.com/other-venue?date=2026-07-10", false},
+	}
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			if got := isTockVenuePageURL(tc.raw, venueURL); got != tc.want {
+				t.Fatalf("isTockVenuePageURL(%q) = %v, want %v", tc.raw, got, tc.want)
+			}
+		})
+	}
+}
+
+func TestTockVenuePageURLMatcherAcceptsMatchingExperienceDeepLink(t *testing.T) {
+	venueURL := "https://www.exploretock.com/barcelona-wine-bar-raleigh/experience/123?date=2026-07-10&size=2&time=18%3A15"
+	if !isTockVenuePageURL("https://www.exploretock.com/barcelona-wine-bar-raleigh/experience/123?date=2026-07-10", venueURL) {
+		t.Fatal("expected matching experience URL to be accepted")
+	}
+	if isTockVenuePageURL("https://www.exploretock.com/barcelona-wine-bar-raleigh", venueURL) {
+		t.Fatal("root venue page must not satisfy an experience-specific recovery target")
+	}
+}
+
+func TestIsTargetNavigatedOrClosedRecognizesCDPMinus32000(t *testing.T) {
+	err := fmt.Errorf("evaluating combobox booking layout: %w", &cdproto.Error{
+		Code:    -32000,
+		Message: "Inspected target navigated or closed",
+	})
+	if !isTargetNavigatedOrClosed(err) {
+		t.Fatalf("expected CDP -32000 target error to be retryable")
+	}
+	if isTargetNavigatedOrClosed(fmt.Errorf("evaluating combobox booking layout: ordinary selector miss")) {
+		t.Fatal("ordinary selector miss should not be retryable as target loss")
+	}
 }

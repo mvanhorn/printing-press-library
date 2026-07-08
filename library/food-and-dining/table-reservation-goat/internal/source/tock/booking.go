@@ -149,8 +149,9 @@ type UpcomingReservation struct {
 // a real Chrome through the click-flow: venue → slot → checkout → fill CVC
 // → confirm → receipt page → extract confirmation.
 //
-// For card-required venues, req.CVC must be set (the CLI prompts the user
-// interactively). For free venues, CVC is ignored.
+// For card-required venues, req.CVC must be set. The CLI either prompts
+// interactively or requires TRG_TOCK_CVC in agent/no-input mode before it
+// calls Book. For free venues, CVC is ignored.
 //
 // Requires Chrome running with --remote-debugging-port=9222 (the same
 // "attach" mode used by `internal/source/opentable/chrome_avail.go`), or

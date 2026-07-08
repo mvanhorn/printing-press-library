@@ -14,25 +14,26 @@ package tock
 // handles all CSRF/Braintree-token complexity natively.
 //
 // CVC handling: Tock requires per-transaction CVC re-entry even when the
-// card is on file. The CLI prompts the user via stdin; the value is passed
-// through to ChromeBook(). Per system rules, only CVC (3-4 digits) is asked
-// — the full card number stays on the user's Tock profile.
+// card is on file. The CLI either prompts interactively or, in agent/no-input
+// mode, requires TRG_TOCK_CVC before ChromeBook() is called. Per system rules,
+// only CVC (3-4 digits) is accepted — the full card number stays on the user's
+// Tock profile.
 
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
 	"net/url"
 	"os"
 	"strings"
-	"sync"
 	"time"
 
+	cdproto "github.com/chromedp/cdproto"
 	"github.com/chromedp/cdproto/cdp"
 	"github.com/chromedp/cdproto/network"
-	"github.com/chromedp/cdproto/page"
 	"github.com/chromedp/cdproto/runtime"
 	"github.com/chromedp/chromedp"
 
@@ -101,55 +102,36 @@ func (c *Client) ChromeBook(ctx context.Context, req BookRequest) (*BookResponse
 		cookies = c.session.HTTPCookies(auth.NetworkTock)
 	}
 
-	// Capture the receipt URL via response listener (set after the form
-	// submit redirects to /receipt?purchaseId=NNN).
-	type receiptCapture struct {
-		mu         sync.Mutex
-		receiptURL string
-		done       chan struct{}
-	}
-	rc := &receiptCapture{done: make(chan struct{})}
-	closeOnce := func() {
-		rc.mu.Lock()
-		select {
-		case <-rc.done:
-		default:
-			close(rc.done)
-		}
-		rc.mu.Unlock()
-	}
-	chromedp.ListenTarget(timed, func(ev any) {
-		if e, ok := ev.(*page.EventFrameNavigated); ok && e.Frame != nil {
-			u := e.Frame.URL
-			if strings.Contains(u, "/receipt") && strings.Contains(u, "purchaseId=") && !strings.Contains(u, "/cancel") {
-				rc.mu.Lock()
-				if rc.receiptURL == "" {
-					rc.receiptURL = u
-				}
-				rc.mu.Unlock()
-				closeOnce()
-			}
-		}
-	})
-
 	// Build venue URL with date/time/party params (Tock honors these).
 	venueURL := buildVenueDeepLinkURL(req.VenueSlug, req.ExperienceID, req.ReservationDate, req.ReservationTime, req.PartySize)
 
 	// Convert ReservationTime "HH:MM" (24h) to display form "H:MM AM/PM" or "HH:MM AM/PM".
 	displayTime := convertTo12hDisplay(req.ReservationTime)
 
-	tasks := chromedp.Tasks{
+	if err := chromedp.Run(timed,
 		network.Enable(),
 		injectTockCookies(cookies),
 		chromedp.Navigate(venueURL),
-		chromedp.Sleep(2 * time.Second),
-		// Find and click the requested booking control. Legacy Tock pages
-		// expose one button per slot time; newer experience-card pages expose
-		// a time combobox plus "Book now" controls on experience cards.
-		chromedp.ActionFunc(func(actCtx context.Context) error {
-			return clickRequestedTockBookingControl(actCtx, displayTime, req.PartySize, req.ExperienceID)
-		}),
-		chromedp.Sleep(2 * time.Second),
+		chromedp.Sleep(2*time.Second),
+	); err != nil {
+		return nil, fmt.Errorf("tock chromebook: %w", err)
+	}
+
+	// Find and click the requested booking control. Legacy Tock pages expose
+	// one button per slot time; newer experience-card pages expose a time
+	// combobox plus "Book now" controls on experience cards. The helper may
+	// reattach to a recovered Tock tab if the original target has gone stale.
+	activeCtx, activeCancel, err := clickRequestedTockBookingControl(timed, venueURL, displayTime, req.PartySize, req.ExperienceID)
+	if activeCancel != nil {
+		defer activeCancel()
+	}
+	if err != nil {
+		return nil, fmt.Errorf("tock chromebook: %w", err)
+	}
+
+	var receiptURL string
+	if err := chromedp.Run(activeCtx,
+		chromedp.Sleep(2*time.Second),
 		// Wait for the checkout page (URL contains /checkout/confirm-purchase).
 		chromedp.ActionFunc(func(actCtx context.Context) error {
 			return waitForCheckoutPage(actCtx, 15*time.Second)
@@ -162,40 +144,29 @@ func (c *Client) ChromeBook(ctx context.Context, req BookRequest) (*BookResponse
 		chromedp.ActionFunc(func(actCtx context.Context) error {
 			return checkAcknowledgeIfPresent(actCtx)
 		}),
-		chromedp.Sleep(500 * time.Millisecond),
+		chromedp.Sleep(500*time.Millisecond),
 		// Click "Place reservation" / Confirm button.
 		chromedp.ActionFunc(func(actCtx context.Context) error {
 			return clickPlaceReservation(actCtx)
 		}),
-		// Wait for receipt-page navigation OR timeout.
+		// Wait for receipt-page navigation.
 		chromedp.ActionFunc(func(actCtx context.Context) error {
-			select {
-			case <-rc.done:
-				return nil
-			case <-actCtx.Done():
-				return actCtx.Err()
+			u, err := waitForReceiptPage(actCtx, 30*time.Second)
+			if err != nil {
+				return err
 			}
+			receiptURL = u
+			return nil
 		}),
+	); err != nil {
+		return nil, fmt.Errorf("tock chromebook: %w", err)
 	}
-	if err := chromedp.Run(timed, tasks); err != nil {
-		// If we have a receipt URL captured already, treat as success.
-		rc.mu.Lock()
-		gotURL := rc.receiptURL
-		rc.mu.Unlock()
-		if gotURL == "" {
-			return nil, fmt.Errorf("tock chromebook: %w", err)
-		}
-	}
-
-	rc.mu.Lock()
-	receiptURL := rc.receiptURL
-	rc.mu.Unlock()
 	if receiptURL == "" {
 		return nil, fmt.Errorf("tock chromebook: never reached /receipt page (slot may have been taken or CVC rejected)")
 	}
 
 	// Parse the receipt page's $REDUX_STATE for the booking details.
-	resp, err := parseTockReceipt(timed, receiptURL, req)
+	resp, err := parseTockReceipt(activeCtx, receiptURL, req)
 	if err != nil {
 		return nil, fmt.Errorf("tock chromebook: parsing receipt: %w", err)
 	}
@@ -245,23 +216,174 @@ func clickSlotByTimeText(ctx context.Context, displayTime string) error {
 	return nil
 }
 
-func clickRequestedTockBookingControl(ctx context.Context, displayTime string, partySize, experienceID int) error {
+func clickRequestedTockBookingControl(ctx context.Context, venueURL, displayTime string, partySize, experienceID int) (context.Context, context.CancelFunc, error) {
 	legacyErr := clickSlotByTimeText(ctx, displayTime)
 	if legacyErr == nil {
-		return nil
+		return ctx, nil, nil
 	}
-	comboboxErr := clickComboboxExperienceLayout(ctx, displayTime, partySize, experienceID)
+
+	activeCtx, activeCancel, ensureErr := ensureTockVenuePage(ctx, venueURL)
+	comboboxErr := ensureErr
 	if comboboxErr == nil {
-		return nil
+		var retryCtx context.Context
+		var retryCancel context.CancelFunc
+		retryCtx, retryCancel, comboboxErr = clickComboboxExperienceLayoutWithRetry(activeCtx, venueURL, displayTime, partySize, experienceID)
+		if retryCancel != nil {
+			if activeCancel != nil {
+				activeCancel()
+			}
+			activeCtx = retryCtx
+			activeCancel = retryCancel
+		}
 	}
-	return fmt.Errorf("%w: requested_time=%q legacy_slot_error=%v combobox_layout_error=%v page_state=%s",
-		ErrSlotControlNotFound, displayTime, legacyErr, comboboxErr, tockBookingPageStateHint(ctx))
+	if comboboxErr == nil {
+		return activeCtx, activeCancel, nil
+	}
+
+	hintCtx, hintCancel, hintErr := ensureTockVenuePage(activeCtx, venueURL)
+	if hintErr != nil {
+		hintCtx = activeCtx
+	}
+	if hintCancel != nil {
+		defer hintCancel()
+	}
+	if activeCancel != nil {
+		defer activeCancel()
+	}
+	return activeCtx, nil, fmt.Errorf("%w: requested_time=%q legacy_slot_error=%v combobox_layout_error=%v page_state=%s",
+		ErrSlotControlNotFound, displayTime, legacyErr, comboboxErr, tockBookingPageStateHint(hintCtx, venueURL))
 }
 
 type tockComboboxClickResult struct {
 	OK     bool   `json:"ok"`
 	Step   string `json:"step"`
 	Detail string `json:"detail"`
+}
+
+func clickComboboxExperienceLayoutWithRetry(ctx context.Context, venueURL, displayTime string, partySize, experienceID int) (context.Context, context.CancelFunc, error) {
+	if err := clickComboboxExperienceLayout(ctx, displayTime, partySize, experienceID); err != nil {
+		if !isTargetNavigatedOrClosed(err) {
+			return ctx, nil, err
+		}
+		retryCtx, retryCancel, ensureErr := ensureTockVenuePage(ctx, venueURL)
+		if ensureErr != nil {
+			return ctx, nil, fmt.Errorf("%w; recovery failed: %v", err, ensureErr)
+		}
+		if retryErr := clickComboboxExperienceLayout(retryCtx, displayTime, partySize, experienceID); retryErr != nil {
+			if retryCancel != nil {
+				retryCancel()
+			}
+			return ctx, nil, fmt.Errorf("%w; retry_after_target_recovery=%v", err, retryErr)
+		}
+		return retryCtx, retryCancel, nil
+	}
+	return ctx, nil, nil
+}
+
+func ensureTockVenuePage(ctx context.Context, venueURL string) (context.Context, context.CancelFunc, error) {
+	var loc string
+	if err := chromedp.Location(&loc).Do(ctx); err == nil && isTockVenuePageURL(loc, venueURL) {
+		return ctx, nil, nil
+	}
+	if targetCtx, cancel, ok := attachExistingTockVenueTarget(ctx, venueURL); ok {
+		return targetCtx, cancel, nil
+	}
+	if err := navigateTockVenuePage(ctx, venueURL); err != nil {
+		if targetCtx, cancel, ok := attachExistingTockVenueTarget(ctx, venueURL); ok {
+			return targetCtx, cancel, nil
+		}
+		if freshCtx, freshCancel, freshErr := openFreshTockVenueTarget(ctx, venueURL); freshErr == nil {
+			return freshCtx, freshCancel, nil
+		}
+		return ctx, nil, fmt.Errorf("recovering venue page: %w", err)
+	}
+	return ctx, nil, nil
+}
+
+func attachExistingTockVenueTarget(ctx context.Context, venueURL string) (context.Context, context.CancelFunc, bool) {
+	infos, err := chromedp.Targets(ctx)
+	if err != nil {
+		return nil, nil, false
+	}
+	for _, info := range infos {
+		if info == nil || info.Type != "page" || !isTockVenuePageURL(info.URL, venueURL) {
+			continue
+		}
+		targetCtx, cancel := chromedp.NewContext(ctx, chromedp.WithTargetID(info.TargetID))
+		safeCancel := detachOnlyCancel(targetCtx, cancel)
+		var loc string
+		if err := chromedp.Run(targetCtx, chromedp.Location(&loc)); err != nil {
+			safeCancel()
+			continue
+		}
+		if isTockVenuePageURL(loc, venueURL) {
+			return targetCtx, safeCancel, true
+		}
+		safeCancel()
+	}
+	return nil, nil, false
+}
+
+func openFreshTockVenueTarget(ctx context.Context, venueURL string) (context.Context, context.CancelFunc, error) {
+	targetCtx, cancel := chromedp.NewContext(ctx)
+	safeCancel := detachOnlyCancel(targetCtx, cancel)
+	if err := navigateTockVenuePage(targetCtx, venueURL); err != nil {
+		safeCancel()
+		return ctx, nil, err
+	}
+	return targetCtx, safeCancel, nil
+}
+
+func navigateTockVenuePage(ctx context.Context, venueURL string) error {
+	return chromedp.Run(ctx,
+		chromedp.Navigate(venueURL),
+		chromedp.WaitReady("body", chromedp.ByQuery),
+		chromedp.Sleep(500*time.Millisecond),
+	)
+}
+
+func detachOnlyCancel(ctx context.Context, cancel context.CancelFunc) context.CancelFunc {
+	return func() {
+		if c := chromedp.FromContext(ctx); c != nil && c.Target != nil {
+			c.Target.TargetID = ""
+		}
+		cancel()
+	}
+}
+
+func isTargetNavigatedOrClosed(err error) bool {
+	var cdpErr *cdproto.Error
+	if errors.As(err, &cdpErr) && cdpErr.Code == -32000 {
+		msg := strings.ToLower(cdpErr.Message)
+		return strings.Contains(msg, "target") && (strings.Contains(msg, "navigated") || strings.Contains(msg, "closed"))
+	}
+	msg := strings.ToLower(err.Error())
+	return strings.Contains(msg, "-32000") && strings.Contains(msg, "target") &&
+		(strings.Contains(msg, "navigated") || strings.Contains(msg, "closed"))
+}
+
+func isTockVenuePageURL(rawURL, venueURL string) bool {
+	gotPath := tockVenuePagePath(rawURL)
+	wantPath := tockVenuePagePath(venueURL)
+	return gotPath != "" && gotPath == wantPath
+}
+
+func tockVenuePagePath(rawURL string) string {
+	u, err := url.Parse(rawURL)
+	if err != nil || !strings.Contains(strings.ToLower(u.Host), "exploretock.com") {
+		return ""
+	}
+	parts := strings.Split(strings.Trim(u.EscapedPath(), "/"), "/")
+	if len(parts) == 0 || parts[0] == "" {
+		return ""
+	}
+	if len(parts) == 1 {
+		return "/" + parts[0]
+	}
+	if len(parts) >= 3 && parts[1] == "experience" {
+		return "/" + parts[0] + "/experience/" + parts[2]
+	}
+	return ""
 }
 
 // clickComboboxExperienceLayout drives Tock's newer booking layout:
@@ -441,7 +563,18 @@ func clickComboboxExperienceLayout(ctx context.Context, displayTime string, part
 	return nil
 }
 
-func tockBookingPageStateHint(ctx context.Context) string {
+func tockBookingPageStateHint(ctx context.Context, venueURL string) string {
+	hintCtx := ctx
+	var hintCancel context.CancelFunc
+	if venueURL != "" {
+		if recoveredCtx, cancel, err := ensureTockVenuePage(ctx, venueURL); err == nil {
+			hintCtx = recoveredCtx
+			hintCancel = cancel
+		}
+	}
+	if hintCancel != nil {
+		defer hintCancel()
+	}
 	js := `
 		(() => {
 			const clean = (s) => (s || '').replace(/\s+/g, ' ').trim();
@@ -473,7 +606,18 @@ func tockBookingPageStateHint(ctx context.Context) string {
 		})()
 	`
 	var state string
-	if err := chromedp.Evaluate(js, &state).Do(ctx); err != nil {
+	if err := chromedp.Evaluate(js, &state).Do(hintCtx); err != nil {
+		if venueURL != "" && isTargetNavigatedOrClosed(err) {
+			recoveredCtx, cancel, recoverErr := ensureTockVenuePage(ctx, venueURL)
+			if recoverErr == nil {
+				if cancel != nil {
+					defer cancel()
+				}
+				if retryErr := chromedp.Evaluate(js, &state).Do(recoveredCtx); retryErr == nil && state != "" {
+					return state
+				}
+			}
+		}
 		return fmt.Sprintf(`{"hint_error":%q}`, err.Error())
 	}
 	if state == "" {
@@ -500,6 +644,27 @@ func waitForCheckoutPage(ctx context.Context, deadline time.Duration) error {
 			return fmt.Errorf("checkout page never reached within %s", deadline)
 		case <-ctx.Done():
 			return ctx.Err()
+		}
+	}
+}
+
+func waitForReceiptPage(ctx context.Context, deadline time.Duration) (string, error) {
+	stop := time.After(deadline)
+	tick := time.NewTicker(300 * time.Millisecond)
+	defer tick.Stop()
+	for {
+		var loc string
+		if err := chromedp.Location(&loc).Do(ctx); err == nil {
+			if strings.Contains(loc, "/receipt") && strings.Contains(loc, "purchaseId=") && !strings.Contains(loc, "/cancel") {
+				return loc, nil
+			}
+		}
+		select {
+		case <-tick.C:
+		case <-stop:
+			return "", fmt.Errorf("receipt page never reached within %s", deadline)
+		case <-ctx.Done():
+			return "", ctx.Err()
 		}
 	}
 }
