@@ -47,7 +47,7 @@ jobs:
           fetch-depth: 0
       - uses: actions/setup-go@v6
         with:
-          go-version: '1.26.4'
+          go-version-file: .go-version
       - name: Resolve release metadata
         id: meta
         env:
