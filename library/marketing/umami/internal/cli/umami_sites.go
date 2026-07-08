@@ -146,17 +146,23 @@ func getMetrics(ctx context.Context, c *client.Client, websiteID, metricType str
 
 // getAllMetrics drains a metrics dimension with limit/offset pagination so
 // busy days (>page rows) are captured completely, not just the top slice.
-// Capped at 20 pages (10k rows per day/type) as a runaway guard.
+// If the dimension still returns full pages after the 20-page guard (10k
+// rows per day/type), it returns an error instead of a silently truncated
+// slice — callers must never commit an incomplete dimension as history.
 func getAllMetrics(ctx context.Context, c *client.Client, websiteID, metricType string, w periodWindow) ([]umamiMetricRow, error) {
 	const page = 500
+	const maxPages = 20
 	var all []umamiMetricRow
-	for offset := 0; offset < 20*page; offset += page {
+	for pageNum := 0; ; pageNum++ {
+		if pageNum == maxPages {
+			return nil, fmt.Errorf("%s metrics exceed %d rows in one window; refusing to store a truncated dimension", metricType, page*maxPages)
+		}
 		params := map[string]string{
 			"type":    metricType,
 			"startAt": strconv.FormatInt(w.StartMs, 10),
 			"endAt":   strconv.FormatInt(w.EndMs, 10),
 			"limit":   strconv.Itoa(page),
-			"offset":  strconv.Itoa(offset),
+			"offset":  strconv.Itoa(pageNum * page),
 		}
 		data, err := c.Get(ctx, "/api/websites/"+websiteID+"/metrics", params)
 		if err != nil {
@@ -164,7 +170,7 @@ func getAllMetrics(ctx context.Context, c *client.Client, websiteID, metricType 
 		}
 		var rows []umamiMetricRow
 		if err := json.Unmarshal(data, &rows); err != nil {
-			return nil, fmt.Errorf("parsing %s metrics (offset %d): %w", metricType, offset, err)
+			return nil, fmt.Errorf("parsing %s metrics (offset %d): %w", metricType, pageNum*page, err)
 		}
 		all = append(all, rows...)
 		if len(rows) < page {
