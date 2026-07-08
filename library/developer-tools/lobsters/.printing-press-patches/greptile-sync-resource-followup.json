@@ -1,0 +1,46 @@
+{
+  "schema_version": 1,
+  "applied_at": "2026-06-16T18:20:00Z",
+  "base_run_id": "20260615T063116Z-lobsters",
+  "base_printing_press_version": "4.24.0",
+  "reason": "Address Greptile and maintainer follow-up on production sync resource handling.",
+  "changes": [
+    {
+      "path": "internal/store/store.go",
+      "summary": "Map the sync-facing hottest-json resource to the typed hottest_json table while preserving the generic resource name, and add Lobsters short_id resource ID overrides."
+    },
+    {
+      "path": "internal/cli/sync.go",
+      "summary": "Teach single-object sync handling and runtime ID extraction about the production hottest-json resource name and Lobsters short_id fields."
+    },
+    {
+      "path": "internal/cli/data_source.go",
+      "summary": "Open existing local stores with OpenReadOnly for local read paths."
+    },
+    {
+      "path": "internal/store/upsert_batch_test.go",
+      "summary": "Use production hottest-json and tag-page Story payload shapes with short_id in typed-table regression tests."
+    },
+    {
+      "path": "internal/store/store.go",
+      "summary": "Map the t tag-page resource to short_id because /t/{tag}.json returns Story objects, not tag records."
+    },
+    {
+      "path": "internal/cli/sync.go",
+      "summary": "Map the t tag-page resource to short_id for single-object ID extraction symmetry."
+    },
+    {
+      "path": "internal/cli/promoted_*.go",
+      "summary": "Mark Lobsters list-returning promoted commands as list endpoints so local/offline reads use the synced collection path."
+    },
+    {
+      "path": "internal/cli/data_source.go",
+      "summary": "Write-through cache single story details by short_id as well as id."
+    },
+    {
+      "path": "internal/cli/data_source_test.go",
+      "summary": "Add local-mode and short_id write-through cache regressions."
+    }
+  ],
+  "validated_outcome": "go test ./... and publish validation rerun after patch"
+}

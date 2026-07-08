@@ -1,0 +1,143 @@
+openapi: 3.0.3
+info:
+  title: Lobsters public JSON
+  version: 1.0.0
+  description: Read-only JSON surfaces for Lobsters stories, tags, and comments.
+servers:
+  - url: https://lobste.rs
+paths:
+  /page/{page}.json:
+    get:
+      operationId: getFrontPage
+      summary: Get front page stories
+      parameters:
+        - name: page
+          in: path
+          required: true
+          schema:
+            type: integer
+            minimum: 1
+      responses:
+        "200":
+          description: Stories
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Story"
+  /newest/page/{page}.json:
+    get:
+      operationId: getNewestStories
+      summary: Get newest stories
+      parameters:
+        - name: page
+          in: path
+          required: true
+          schema:
+            type: integer
+            minimum: 1
+      responses:
+        "200":
+          description: Stories
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Story"
+  /hottest.json:
+    get:
+      operationId: getHottestStories
+      summary: Get hottest stories
+      responses:
+        "200":
+          description: Stories
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Story"
+  /t/{tag}.json:
+    get:
+      operationId: getTagStories
+      summary: Get stories for a tag
+      parameters:
+        - name: tag
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Stories
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Story"
+  /s/{short_id}.json:
+    get:
+      operationId: getStory
+      summary: Get story details and comments
+      parameters:
+        - name: short_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Story with comments
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Story"
+components:
+  schemas:
+    Story:
+      type: object
+      additionalProperties: true
+      properties:
+        short_id:
+          type: string
+        created_at:
+          type: string
+        title:
+          type: string
+        url:
+          type: string
+        score:
+          type: integer
+        flags:
+          type: integer
+        comment_count:
+          type: integer
+        submitter_user:
+          type: string
+        tags:
+          type: array
+          items:
+            type: string
+        comments:
+          type: array
+          items:
+            $ref: "#/components/schemas/Comment"
+    Comment:
+      type: object
+      additionalProperties: true
+      properties:
+        short_id:
+          type: string
+        created_at:
+          type: string
+        score:
+          type: integer
+        commenter_user:
+          type: string
+        comment:
+          type: string
+        comment_plain:
+          type: string

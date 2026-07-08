@@ -1,0 +1,27 @@
+{
+  "manifest_version": "0.3",
+  "name": "lobsters-pp-mcp",
+  "display_name": "Lobsters",
+  "version": "4.24.0",
+  "description": "Read Lobsters stories, tags, comments, and front-page/news feeds from public JSON endpoints.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/lobsters-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/lobsters-pp-mcp",
+      "args": []
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

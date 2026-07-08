@@ -1,0 +1,83 @@
+{
+  "api_name": "lobsters",
+  "base_url": "https://lobste.rs",
+  "description": "Read Lobsters stories, tags, comments, and front-page/news feeds from public JSON endpoints.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "none"
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "hottest-json_get-hottest-stories",
+      "description": "Get hottest stories. Returns array of Story.",
+      "method": "GET",
+      "path": "/hottest.json",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "newest_get-stories",
+      "description": "Get newest stories. Required: page (default: 1). Returns array of Story.",
+      "method": "GET",
+      "path": "/newest/page/{page}.json",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "page",
+          "type": "int",
+          "location": "path",
+          "description": "Page"
+        }
+      ]
+    },
+    {
+      "name": "page_get-front",
+      "description": "Get front page stories. Required: page (default: 1). Returns array of Story.",
+      "method": "GET",
+      "path": "/page/{page}.json",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "page",
+          "type": "int",
+          "location": "path",
+          "description": "Page"
+        }
+      ]
+    },
+    {
+      "name": "s_get-story",
+      "description": "Get story details and comments. Required: short_id. Returns the Story.",
+      "method": "GET",
+      "path": "/s/{short_id}.json",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "short_id",
+          "type": "string",
+          "location": "path",
+          "description": "Short id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "t_get-tag-stories",
+      "description": "Get stories for a tag. Required: tag. Returns array of Story.",
+      "method": "GET",
+      "path": "/t/{tag}.json",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "tag",
+          "type": "string",
+          "location": "path",
+          "description": "Tag",
+          "required": true
+        }
+      ]
+    }
+  ]
+}

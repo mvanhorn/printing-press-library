@@ -1,0 +1,51 @@
+version: 2
+project_name: lobsters-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: lobsters-pp-cli
+    main: ./cmd/lobsters-pp-cli
+    binary: lobsters-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X lobsters-pp-cli/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: lobsters-pp-mcp
+    main: ./cmd/lobsters-pp-mcp
+    binary: lobsters-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: lobsters-pp-cli
+    repository:
+      owner: hiten-shah
+      name: homebrew-tap
+    homepage: "https://github.com/hiten-shah/lobsters-pp-cli"
+    description: "Read-only JSON surfaces for Lobsters stories, tags, and comments."
+    install: |
+      bin.install "lobsters-pp-cli"
+      bin.install "lobsters-pp-mcp"
