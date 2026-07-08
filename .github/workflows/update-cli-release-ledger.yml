@@ -31,11 +31,13 @@ jobs:
   update:
     name: Update and commit
     runs-on: ubuntu-latest
-    # Share one push lane with the other generated-artifact workflows. They
-    # all commit back to main after source changes land, so serializing avoids
-    # non-fast-forward push races.
+    # Queue release-ledger runs, but do not share this group with sibling
+    # generated-artifact workflows. GitHub keeps only one pending run per
+    # concurrency group, so a shared group lets unrelated workflows evict a
+    # pending release-ledger run. Push races with sibling workflows are handled
+    # by the rebase-before-push step below.
     concurrency:
-      group: generated-artifact-push-main
+      group: update-cli-release-ledger-main
       cancel-in-progress: false
     steps:
       - uses: actions/checkout@v6
@@ -45,7 +47,7 @@ jobs:
           fetch-depth: 0
       - uses: actions/setup-go@v6
         with:
-          go-version: '1.26.3'
+          go-version-file: .go-version
       - name: Resolve release metadata
         id: meta
         env:
