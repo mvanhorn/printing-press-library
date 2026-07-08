@@ -3,7 +3,7 @@
 // Package health turns synced Google Health API data points into the
 // quantified-self analytics the raw API does not provide: per-metric
 // trend lines, goal streaks, and cross-metric correlation. It operates
-// purely on already-synced JSON rows, so every function here is
+// purely on synced JSON rows, so every function here is
 // deterministic and offline.
 //
 // A Google Health DataPoint is a union: each point carries exactly one of
