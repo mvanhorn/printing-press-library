@@ -38,7 +38,7 @@ jobs:
         id: modules
         env:
           EVENT_NAME: ${{ github.event_name }}
-          PR_BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          BASE_REF: ${{ github.base_ref || 'main' }}
           DISPATCH_SCOPE: ${{ inputs.scope }}
         run: |
           set -euo pipefail
@@ -52,13 +52,9 @@ jobs:
               | sed 's#/go.mod$##' \
               | sort > "$dirs"
           else
-            if [ "$EVENT_NAME" = "pull_request" ]; then
-              git diff --name-status "${PR_BASE_SHA}...HEAD" -- library > "$changed"
-            else
-              git fetch origin main
-              base=$(git merge-base origin/main HEAD)
-              git diff --name-status "${base}...HEAD" -- library > "$changed"
-            fi
+            git fetch --no-tags origin "${BASE_REF}:refs/remotes/origin/${BASE_REF}"
+            base=$(git merge-base "origin/${BASE_REF}" HEAD)
+            git diff --name-status "${base}...HEAD" -- library > "$changed"
 
             awk '
               function emit(path, parts) {
