@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>ExecutionStatus__c</fullName>
+    <description>Execution outcome for the signed write intent.</description>
+    <label>Execution Status</label>
+    <required>true</required>
+    <type>Picklist</type>
+    <valueSet>
+        <restricted>true</restricted>
+        <valueSetDefinition>
+            <sorted>false</sorted>
+            <value>
+                <fullName>pending</fullName>
+                <default>true</default>
+                <label>pending</label>
+            </value>
+            <value>
+                <fullName>executed</fullName>
+                <default>false</default>
+                <label>executed</label>
+            </value>
+            <value>
+                <fullName>rejected</fullName>
+                <default>false</default>
+                <label>rejected</label>
+            </value>
+            <value>
+                <fullName>conflict</fullName>
+                <default>false</default>
+                <label>conflict</label>
+            </value>
+        </valueSetDefinition>
+    </valueSet>
+</CustomField>

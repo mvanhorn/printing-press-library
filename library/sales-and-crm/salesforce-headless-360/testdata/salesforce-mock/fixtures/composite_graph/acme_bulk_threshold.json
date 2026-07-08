@@ -1,0 +1,27 @@
+{
+  "envelope": {
+    "graphs": [
+      {
+        "graphId": "acme-bulk-threshold",
+        "isSuccessful": true,
+        "graphResponse": {
+          "compositeResponse": [
+            {"referenceId": "Account", "httpStatusCode": 200, "body": {"totalSize": 1, "done": true, "records": [
+              {"attributes": {"type": "Account", "url": "/services/data/v63.0/sobjects/Account/001ACME2000"}, "Id": "001ACME2000", "Name": "Acme High Activity", "Industry": "Manufacturing"}
+            ]}},
+            {"referenceId": "Tasks", "httpStatusCode": 200, "body": {
+              "totalSize": 2001,
+              "done": false,
+              "nextRecordsUrl": "/services/data/v63.0/query/01gMOCKTASKPAGE-2000",
+              "records": [
+                {"attributes": {"type": "Task", "url": "/services/data/v63.0/sobjects/Task/00TBULK0001"}, "Id": "00TBULK0001", "WhatId": "001ACME2000", "Subject": "Synthetic truncation marker", "Status": "Completed", "ActivityDate": "2026-04-01", "SF360_TruncationMarker__c": true, "SF360_ActualTotalSize__c": 2001}
+              ]
+            }},
+            {"referenceId": "Events", "httpStatusCode": 200, "body": {"totalSize": 0, "done": true, "records": []}},
+            {"referenceId": "Chatter", "httpStatusCode": 200, "body": {"totalSize": 0, "done": true, "records": []}}
+          ]
+        }
+      }
+    ]
+  }
+}

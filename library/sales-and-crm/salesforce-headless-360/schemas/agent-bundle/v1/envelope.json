@@ -1,0 +1,54 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://printing-press.dev/schemas/agent-bundle/v1/envelope.json",
+  "title": "Printing Press Agent Bundle Envelope v1",
+  "description": "Reusable PP-core bundle envelope. The JWS claims reserve aud for agent audience binding and batch_root for future batch mode.",
+  "type": "object",
+  "required": ["version", "provenance", "signature", "manifest"],
+  "additionalProperties": true,
+  "properties": {
+    "version": {
+      "type": "string",
+      "enum": ["agent-bundle/v1"]
+    },
+    "provenance": {
+      "type": "object",
+      "required": ["org_id", "user_id", "generated_at", "sources_used"],
+      "additionalProperties": true,
+      "properties": {
+        "org_id": {"type": "string", "minLength": 1},
+        "user_id": {"type": "string", "minLength": 1},
+        "generated_at": {"type": "string", "format": "date-time"},
+        "sources_used": {
+          "type": "array",
+          "items": {"type": "string"}
+        },
+        "batch_root": {
+          "description": "Reserved for future batch mode.",
+          "type": "string"
+        }
+      }
+    },
+    "signature": {
+      "type": "object",
+      "required": ["alg", "kid", "jws"],
+      "additionalProperties": false,
+      "properties": {
+        "alg": {"type": "string", "enum": ["EdDSA"]},
+        "kid": {"type": "string", "minLength": 1},
+        "jws": {"type": "string", "minLength": 1}
+      }
+    },
+    "manifest": {
+      "type": "object",
+      "required": ["sha256"],
+      "additionalProperties": true,
+      "properties": {
+        "sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"}
+      }
+    },
+    "manifest_ref": {
+      "type": "string"
+    }
+  }
+}

@@ -1,0 +1,25 @@
+{
+  "envelope": {
+    "graphs": [
+      {
+        "graphId": "acme-sharing-restricted",
+        "isSuccessful": true,
+        "graphResponse": {
+          "compositeResponse": [
+            {"referenceId": "Account", "httpStatusCode": 200, "body": {"totalSize": 1, "done": true, "records": [
+              {"attributes": {"type": "Account", "url": "/services/data/v63.0/sobjects/Account/001RESTRICTED"}, "Id": "001RESTRICTED", "Name": "Acme Restricted Subsidiary", "Industry": "Manufacturing"}
+            ]}},
+            {"referenceId": "Contacts", "httpStatusCode": 200, "body": {"totalSize": 3, "done": true, "records": [
+              {"attributes": {"type": "Contact", "url": "/services/data/v63.0/sobjects/Contact/003ACME9001"}, "Id": "003ACME9001", "AccountId": "001RESTRICTED", "FirstName": "Visible", "LastName": "Sponsor", "Email": "visible.sponsor@example.com"},
+              {"attributes": {"type": "Contact", "url": "/services/data/v63.0/sobjects/Contact/003RESTRICTED001"}, "Id": "003RESTRICTED001", "AccountId": "001RESTRICTED", "FirstName": "Restricted", "LastName": "Finance", "Email": "restricted.finance@example.com"},
+              {"attributes": {"type": "Contact", "url": "/services/data/v63.0/sobjects/Contact/003RESTRICTED002"}, "Id": "003RESTRICTED002", "AccountId": "001RESTRICTED", "FirstName": "Restricted", "LastName": "Legal", "Email": "restricted.legal@example.com"}
+            ]}},
+            {"referenceId": "Opportunities", "httpStatusCode": 200, "body": {"totalSize": 1, "done": true, "records": [
+              {"attributes": {"type": "Opportunity", "url": "/services/data/v63.0/sobjects/Opportunity/006RESTRICTED"}, "Id": "006RESTRICTED", "AccountId": "001RESTRICTED", "Name": "Restricted Account Expansion", "StageName": "Qualification", "Amount": 45000, "CloseDate": "2026-09-30"}
+            ]}}
+          ]
+        }
+      }
+    ]
+  }
+}

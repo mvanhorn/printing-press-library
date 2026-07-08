@@ -1,0 +1,114 @@
+{
+  "envelope": {
+    "graphs": [
+      {
+        "graphId": "acme-small",
+        "isSuccessful": true,
+        "graphResponse": {
+          "compositeResponse": [
+            {
+              "referenceId": "Account",
+              "httpStatusCode": 200,
+              "body": {
+                "totalSize": 1,
+                "done": true,
+                "records": [
+                  {
+                    "attributes": {"type": "Account", "url": "/services/data/v63.0/sobjects/Account/001ACME0001"},
+                    "Id": "001ACME0001",
+                    "Name": "Acme Manufacturing",
+                    "Industry": "Manufacturing",
+                    "AnnualRevenue": 48000000,
+                    "NumberOfEmployees": 850
+                  }
+                ]
+              }
+            },
+            {
+              "referenceId": "Contacts",
+              "httpStatusCode": 200,
+              "body": {
+                "totalSize": 6,
+                "done": true,
+                "records": [
+                  {"attributes": {"type": "Contact", "url": "/services/data/v63.0/sobjects/Contact/003ACME0001"}, "Id": "003ACME0001", "AccountId": "001ACME0001", "FirstName": "Avery", "LastName": "Morgan", "Email": "avery.morgan@example.com", "Title": "VP Operations"},
+                  {"attributes": {"type": "Contact", "url": "/services/data/v63.0/sobjects/Contact/003ACME0002"}, "Id": "003ACME0002", "AccountId": "001ACME0001", "FirstName": "Jordan", "LastName": "Lee", "Email": "jordan.lee@example.com", "Title": "Director of IT"},
+                  {"attributes": {"type": "Contact", "url": "/services/data/v63.0/sobjects/Contact/003ACME0003"}, "Id": "003ACME0003", "AccountId": "001ACME0001", "FirstName": "Priya", "LastName": "Shah", "Email": "priya.shah@example.com", "Title": "Finance Controller"},
+                  {"attributes": {"type": "Contact", "url": "/services/data/v63.0/sobjects/Contact/003ACME0004"}, "Id": "003ACME0004", "AccountId": "001ACME0001", "FirstName": "Mateo", "LastName": "Garcia", "Email": "mateo.garcia@example.com", "Title": "Plant Manager"},
+                  {"attributes": {"type": "Contact", "url": "/services/data/v63.0/sobjects/Contact/003ACME0005"}, "Id": "003ACME0005", "AccountId": "001ACME0001", "FirstName": "Riley", "LastName": "Chen", "Email": "riley.chen@example.com", "Title": "Procurement Lead"},
+                  {"attributes": {"type": "Contact", "url": "/services/data/v63.0/sobjects/Contact/003ACME0006"}, "Id": "003ACME0006", "AccountId": "001ACME0001", "FirstName": "Sam", "LastName": "Patel", "Email": "sam.patel@example.com", "Title": "Support Sponsor"}
+                ]
+              }
+            },
+            {
+              "referenceId": "Opportunities",
+              "httpStatusCode": 200,
+              "body": {
+                "totalSize": 3,
+                "done": true,
+                "records": [
+                  {"attributes": {"type": "Opportunity", "url": "/services/data/v63.0/sobjects/Opportunity/006ACME0001"}, "Id": "006ACME0001", "AccountId": "001ACME0001", "Name": "Acme Expansion", "StageName": "Negotiation/Review", "Amount": 125000, "CloseDate": "2026-06-30"},
+                  {"attributes": {"type": "Opportunity", "url": "/services/data/v63.0/sobjects/Opportunity/006ACME0002"}, "Id": "006ACME0002", "AccountId": "001ACME0001", "Name": "Acme Renewal", "StageName": "Proposal/Price Quote", "Amount": 86000, "CloseDate": "2026-05-31"},
+                  {"attributes": {"type": "Opportunity", "url": "/services/data/v63.0/sobjects/Opportunity/006ACME0003"}, "Id": "006ACME0003", "AccountId": "001ACME0001", "Name": "Acme Service Pilot", "StageName": "Qualification", "Amount": 24000, "CloseDate": "2026-07-15"}
+                ]
+              }
+            },
+            {
+              "referenceId": "Cases",
+              "httpStatusCode": 200,
+              "body": {
+                "totalSize": 5,
+                "done": true,
+                "records": [
+                  {"attributes": {"type": "Case", "url": "/services/data/v63.0/sobjects/Case/500ACME0001"}, "Id": "500ACME0001", "AccountId": "001ACME0001", "Subject": "Integration latency", "Status": "Working", "Priority": "High"},
+                  {"attributes": {"type": "Case", "url": "/services/data/v63.0/sobjects/Case/500ACME0002"}, "Id": "500ACME0002", "AccountId": "001ACME0001", "Subject": "Portal access", "Status": "New", "Priority": "Medium"},
+                  {"attributes": {"type": "Case", "url": "/services/data/v63.0/sobjects/Case/500ACME0003"}, "Id": "500ACME0003", "AccountId": "001ACME0001", "Subject": "Invoice sync question", "Status": "Closed", "Priority": "Low"},
+                  {"attributes": {"type": "Case", "url": "/services/data/v63.0/sobjects/Case/500ACME0004"}, "Id": "500ACME0004", "AccountId": "001ACME0001", "Subject": "API token rotation", "Status": "Working", "Priority": "Medium"},
+                  {"attributes": {"type": "Case", "url": "/services/data/v63.0/sobjects/Case/500ACME0005"}, "Id": "500ACME0005", "AccountId": "001ACME0001", "Subject": "SLA review", "Status": "Escalated", "Priority": "High"}
+                ]
+              }
+            },
+            {
+              "referenceId": "Tasks",
+              "httpStatusCode": 200,
+              "body": {
+                "totalSize": 4,
+                "done": true,
+                "records": [
+                  {"attributes": {"type": "Task", "url": "/services/data/v63.0/sobjects/Task/00TACME0001"}, "Id": "00TACME0001", "WhatId": "001ACME0001", "Subject": "Call", "Status": "Completed", "ActivityDate": "2026-04-10"},
+                  {"attributes": {"type": "Task", "url": "/services/data/v63.0/sobjects/Task/00TACME0002"}, "Id": "00TACME0002", "WhatId": "001ACME0001", "Subject": "Send renewal packet", "Status": "Not Started", "ActivityDate": "2026-04-24"},
+                  {"attributes": {"type": "Task", "url": "/services/data/v63.0/sobjects/Task/00TACME0003"}, "Id": "00TACME0003", "WhatId": "001ACME0001", "Subject": "Security review follow-up", "Status": "Completed", "ActivityDate": "2026-04-12"},
+                  {"attributes": {"type": "Task", "url": "/services/data/v63.0/sobjects/Task/00TACME0004"}, "Id": "00TACME0004", "WhatId": "001ACME0001", "Subject": "Schedule executive briefing", "Status": "In Progress", "ActivityDate": "2026-04-20"}
+                ]
+              }
+            },
+            {
+              "referenceId": "Events",
+              "httpStatusCode": 200,
+              "body": {
+                "totalSize": 2,
+                "done": true,
+                "records": [
+                  {"attributes": {"type": "Event", "url": "/services/data/v63.0/sobjects/Event/00UACME0001"}, "Id": "00UACME0001", "WhatId": "001ACME0001", "Subject": "Executive briefing", "ActivityDate": "2026-04-15"},
+                  {"attributes": {"type": "Event", "url": "/services/data/v63.0/sobjects/Event/00UACME0002"}, "Id": "00UACME0002", "WhatId": "001ACME0001", "Subject": "QBR", "ActivityDate": "2026-05-02"}
+                ]
+              }
+            },
+            {
+              "referenceId": "Chatter",
+              "httpStatusCode": 200,
+              "body": {
+                "totalSize": 2,
+                "done": true,
+                "records": [
+                  {"id": "0D5ACME0001", "body": {"messageSegments": [{"type": "Text", "text": "Customer asked for faster invoice sync."}]}, "createdDate": "2026-04-11T18:20:00.000+0000"},
+                  {"id": "0D5ACME0002", "body": {"messageSegments": [{"type": "Text", "text": "Renewal packet sent to Avery and Priya."}]}, "createdDate": "2026-04-16T16:05:00.000+0000"}
+                ]
+              }
+            }
+          ]
+        }
+      }
+    ]
+  }
+}

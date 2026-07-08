@@ -1,0 +1,51 @@
+version: 2
+project_name: salesforce-headless-360-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: salesforce-headless-360-pp-cli
+    main: ./cmd/salesforce-headless-360-pp-cli
+    binary: salesforce-headless-360-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X github.com/mvanhorn/printing-press-library/library/sales-and-crm/salesforce-headless-360/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: salesforce-headless-360-pp-mcp
+    main: ./cmd/salesforce-headless-360-pp-mcp
+    binary: salesforce-headless-360-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: salesforce-headless-360-pp-cli
+    repository:
+      owner: mvanhorn
+      name: homebrew-tap
+    homepage: "https://github.com/mvanhorn/printing-press-library"
+    description: "Salesforce Headless 360 agent-context packager: signed, FLS-safe cross-surface bundles for agents."
+    install: |
+      bin.install "salesforce-headless-360-pp-cli"
+      bin.install "salesforce-headless-360-pp-mcp"

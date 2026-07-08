@@ -1,0 +1,10 @@
+{
+  "status": 409,
+  "envelope": [
+    {
+      "errorCode": "PRECONDITION_FAILED",
+      "message": "If-Match precondition failed; the record has changed since it was last read.",
+      "fields": []
+    }
+  ]
+}

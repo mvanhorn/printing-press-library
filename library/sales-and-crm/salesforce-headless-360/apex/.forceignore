@@ -1,0 +1,6 @@
+.DS_Store
+.sf
+.sfdx
+coverage
+node_modules
+package-lock.json

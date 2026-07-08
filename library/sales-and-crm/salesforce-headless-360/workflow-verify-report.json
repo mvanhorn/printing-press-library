@@ -1,0 +1,8 @@
+{
+  "dir": ".",
+  "workflows": null,
+  "verdict": "workflow-pass",
+  "issues": [
+    "no workflow manifest found, skipping"
+  ]
+}

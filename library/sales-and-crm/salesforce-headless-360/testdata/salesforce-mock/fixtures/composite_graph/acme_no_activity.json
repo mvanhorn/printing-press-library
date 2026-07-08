@@ -1,0 +1,35 @@
+{
+  "envelope": {
+    "graphs": [
+      {
+        "graphId": "acme-no-activity",
+        "isSuccessful": true,
+        "graphResponse": {
+          "compositeResponse": [
+            {
+              "referenceId": "Account",
+              "httpStatusCode": 200,
+              "body": {
+                "totalSize": 1,
+                "done": true,
+                "records": [
+                  {"attributes": {"type": "Account", "url": "/services/data/v63.0/sobjects/Account/001ACME0002"}, "Id": "001ACME0002", "Name": "Acme Quiet Division", "Industry": "Manufacturing"}
+                ]
+              }
+            },
+            {"referenceId": "Contacts", "httpStatusCode": 200, "body": {"totalSize": 2, "done": true, "records": [
+              {"attributes": {"type": "Contact", "url": "/services/data/v63.0/sobjects/Contact/003ACME0101"}, "Id": "003ACME0101", "AccountId": "001ACME0002", "FirstName": "Taylor", "LastName": "Ng", "Email": "taylor.ng@example.com"},
+              {"attributes": {"type": "Contact", "url": "/services/data/v63.0/sobjects/Contact/003ACME0102"}, "Id": "003ACME0102", "AccountId": "001ACME0002", "FirstName": "Morgan", "LastName": "Diaz", "Email": "morgan.diaz@example.com"}
+            ]}},
+            {"referenceId": "Opportunities", "httpStatusCode": 200, "body": {"totalSize": 1, "done": true, "records": [
+              {"attributes": {"type": "Opportunity", "url": "/services/data/v63.0/sobjects/Opportunity/006ACME0101"}, "Id": "006ACME0101", "AccountId": "001ACME0002", "Name": "Quiet Division Renewal", "StageName": "Prospecting", "Amount": 19000, "CloseDate": "2026-08-31"}
+            ]}},
+            {"referenceId": "Tasks", "httpStatusCode": 200, "body": {"totalSize": 0, "done": true, "records": []}},
+            {"referenceId": "Events", "httpStatusCode": 200, "body": {"totalSize": 0, "done": true, "records": []}},
+            {"referenceId": "Chatter", "httpStatusCode": 200, "body": {"totalSize": 0, "done": true, "records": []}}
+          ]
+        }
+      }
+    ]
+  }
+}

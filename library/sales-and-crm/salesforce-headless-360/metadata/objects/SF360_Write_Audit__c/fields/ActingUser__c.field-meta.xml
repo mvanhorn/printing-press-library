@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>ActingUser__c</fullName>
+    <description>Salesforce user identity that requested the write operation.</description>
+    <label>Acting User</label>
+    <referenceTo>User</referenceTo>
+    <relationshipLabel>SF360 Write Audits</relationshipLabel>
+    <relationshipName>SF360_Write_Audits</relationshipName>
+    <type>Lookup</type>
+</CustomField>

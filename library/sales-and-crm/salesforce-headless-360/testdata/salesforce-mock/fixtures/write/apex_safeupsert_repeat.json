@@ -1,0 +1,11 @@
+{
+  "status": 200,
+  "envelope": {
+    "success": true,
+    "operation": "upsert",
+    "id": "00TWRITE0001",
+    "created": false,
+    "lastModifiedDate": "2026-04-22T18:44:00.000Z",
+    "errors": []
+  }
+}

@@ -1,0 +1,55 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-04-22T20:00:33.721757Z",
+  "printing_press_version": "4.10.0",
+  "api_name": "salesforce-headless-360",
+  "cli_name": "salesforce-headless-360-pp-cli",
+  "spec_format": "internal",
+  "spec_checksum": "sha256:a4922e59cdaf8d1f06f45c30b887c8397cfb05ba76fb70d41a1fe477d784ebb3",
+  "mcp_binary": "salesforce-headless-360-pp-mcp",
+  "version": "1.1.0",
+  "mcp_tool_count": 39,
+  "mcp_ready": "full",
+  "auth_type": "oauth2",
+  "auth_env_vars": [
+    "SALESFORCE_ACCESS_TOKEN",
+    "SALESFORCE_INSTANCE_URL",
+    "SALESFORCE_360_CLIENT_ID",
+    "SALESFORCE_360_CLIENT_SECRET"
+  ],
+  "printer": "mvanhorn",
+  "printer_name": "Matt Van Horn",
+  "run_id": "20260422-114647",
+  "novel_features": [
+    {
+      "name": "Agent context bundles",
+      "command": "agent context",
+      "description": "Package an Account plus contacts, opportunities, cases, activities, Chatter, and linked Slack relations into one signed, FLS-safe JSON bundle any agent can consume."
+    },
+    {
+      "name": "Bundle verification",
+      "command": "agent verify",
+      "description": "Verify a bundle is signed by the real org key, has not been tampered with, and is fresh enough to act on."
+    },
+    {
+      "name": "Signed write plans",
+      "command": "agent plan",
+      "description": "Author, sign, countersign, and execute auditable multi-step write plans with idempotency keys and countersignature thresholds."
+    },
+    {
+      "name": "Trust store",
+      "command": "trust register",
+      "description": "Register per-org bundle-signing keys via Tooling API Certificate with automatic CMDT fallback, receipts, and rotation."
+    },
+    {
+      "name": "Opportunity brief",
+      "command": "agent brief",
+      "description": "Render a human-readable markdown plus structured JSON brief of a single opportunity for handoff to an agent or human."
+    },
+    {
+      "name": "Context decay score",
+      "command": "agent decay",
+      "description": "0-100 freshness score across activity staleness, opportunity stage drift, and case silence so agents know when a bundle needs a resync."
+    }
+  ]
+}

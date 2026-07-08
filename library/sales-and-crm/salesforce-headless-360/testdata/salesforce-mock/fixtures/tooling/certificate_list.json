@@ -1,0 +1,15 @@
+{
+  "envelope": {
+    "totalSize": 1,
+    "done": true,
+    "records": [
+      {
+        "attributes": {"type": "Certificate", "url": "/services/data/v63.0/tooling/sobjects/Certificate/0P1MOCKCERT1"},
+        "Id": "0P1MOCKCERT1",
+        "DeveloperName": "SF360_Bundle_Mock",
+        "MasterLabel": "SF360 Bundle Mock",
+        "ExpirationDate": "2036-04-22T00:00:00.000+0000"
+      }
+    ]
+  }
+}

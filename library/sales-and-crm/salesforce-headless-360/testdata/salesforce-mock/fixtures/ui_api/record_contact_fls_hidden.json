@@ -1,0 +1,9 @@
+{
+  "status": 403,
+  "envelope": [
+    {
+      "errorCode": "FIELD_INTEGRITY_EXCEPTION",
+      "message": "The requested field Salary__c is not visible for this user."
+    }
+  ]
+}

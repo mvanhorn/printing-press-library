@@ -1,0 +1,15 @@
+{
+  "envelope": {
+    "totalSize": 2,
+    "done": true,
+    "records": [
+      {"attributes": {"type": "SlackConversationRelation", "url": "/services/data/v63.0/sobjects/SlackConversationRelation/0SCR000001"}, "Id": "0SCR000001", "RelatedRecordId": "001ACME0001", "SlackConversationId": "C012ACME", "SlackWorkspaceId": "T012ACME"},
+      {"attributes": {"type": "SlackConversationRelation", "url": "/services/data/v63.0/sobjects/SlackConversationRelation/0SCR000002"}, "Id": "0SCR000002", "RelatedRecordId": "006ACME0001", "SlackConversationId": "C034DEAL", "SlackWorkspaceId": "T012ACME"}
+    ]
+  },
+  "empty_envelope": {
+    "totalSize": 0,
+    "done": true,
+    "records": []
+  }
+}

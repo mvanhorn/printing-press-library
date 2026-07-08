@@ -1,0 +1,9 @@
+{
+  "status": 500,
+  "envelope": [
+    {
+      "errorCode": "SERVER_UNAVAILABLE",
+      "message": "SF360_Write_Audit__c insert failed in mock sync mode."
+    }
+  ]
+}

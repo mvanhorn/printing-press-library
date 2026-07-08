@@ -1,0 +1,7 @@
+# sf CLI local state
+.sf/
+.sfdx/
+
+# local build artifacts
+*.log
+/tmp-verify-*

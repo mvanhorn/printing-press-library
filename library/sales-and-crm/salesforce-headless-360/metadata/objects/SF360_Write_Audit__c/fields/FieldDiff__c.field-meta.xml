@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>FieldDiff__c</fullName>
+    <description>JSON field diff with before and after values, including FLS redaction markers.</description>
+    <label>Field Diff</label>
+    <length>131072</length>
+    <required>false</required>
+    <type>LongTextArea</type>
+    <visibleLines>8</visibleLines>
+</CustomField>

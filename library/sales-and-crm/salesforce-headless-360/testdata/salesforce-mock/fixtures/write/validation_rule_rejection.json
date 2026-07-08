@@ -1,0 +1,10 @@
+{
+  "status": 400,
+  "envelope": [
+    {
+      "errorCode": "VALIDATION_RULE_VIOLATION",
+      "message": "SF360_ActivityDate_Current: Activity date must not be in the past.",
+      "fields": ["ActivityDate"]
+    }
+  ]
+}

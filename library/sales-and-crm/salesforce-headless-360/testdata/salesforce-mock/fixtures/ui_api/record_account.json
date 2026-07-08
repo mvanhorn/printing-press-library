@@ -1,0 +1,19 @@
+{
+  "envelope": {
+    "apiName": "Account",
+    "childRelationships": {},
+    "fields": {
+      "Id": {"value": "001ACME0001", "displayValue": null},
+      "Name": {"value": "Acme Manufacturing", "displayValue": null},
+      "Industry": {"value": "Manufacturing", "displayValue": "Manufacturing"},
+      "AnnualRevenue": {"value": 48000000, "displayValue": "$48,000,000"},
+      "NumberOfEmployees": {"value": 850, "displayValue": "850"}
+    },
+    "id": "001ACME0001",
+    "lastModifiedById": "005MOCKUSER1",
+    "lastModifiedDate": "2026-04-18T14:00:00.000Z",
+    "recordTypeId": "012000000000000AAA",
+    "recordTypeInfo": null,
+    "systemModstamp": "2026-04-18T14:00:00.000Z"
+  }
+}

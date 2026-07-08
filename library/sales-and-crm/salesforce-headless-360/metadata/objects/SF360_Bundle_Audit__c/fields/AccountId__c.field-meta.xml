@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>AccountId__c</fullName>
+    <description>Account Id or account hint used to generate the bundle.</description>
+    <label>Account Id</label>
+    <length>80</length>
+    <required>true</required>
+    <type>Text</type>
+</CustomField>

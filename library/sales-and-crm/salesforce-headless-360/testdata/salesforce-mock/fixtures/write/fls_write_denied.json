@@ -1,0 +1,10 @@
+{
+  "status": 400,
+  "envelope": [
+    {
+      "errorCode": "INVALID_FIELD_FOR_INSERT_UPDATE",
+      "message": "Unable to create/update fields: Salary__c. Please check the security settings of this field.",
+      "fields": ["Salary__c"]
+    }
+  ]
+}

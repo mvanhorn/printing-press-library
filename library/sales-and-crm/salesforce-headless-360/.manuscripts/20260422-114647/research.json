@@ -1,0 +1,280 @@
+{
+  "api_name": "salesforce-headless-360",
+  "novelty_score": 9,
+  "alternatives": [
+    {
+      "name": "sf",
+      "url": "https://github.com/forcedotcom/cli",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 60,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "jsforce",
+      "url": "https://github.com/jsforce/jsforce",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "simple-salesforce",
+      "url": "https://github.com/simple-salesforce/simple-salesforce",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "Salesforce DX MCP Server",
+      "url": "https://developer.salesforce.com/blogs/2025/06/introducing-mcp-support-across-salesforce",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "Agentforce MCP",
+      "url": "https://www.salesforce.com/blog/agentforce-mcp/",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-04-22T18:48:38Z",
+  "novel_features": [
+    {
+      "name": "Signed cross-surface context bundle",
+      "command": "agent context",
+      "description": "Package an Account plus contacts, opps, cases, activities, chatter, linked Slack channels, and Data Cloud profile into one signed JSON bundle any agent can consume.",
+      "rationale": "Requires joining Salesforce REST + UI API + Data Cloud + Slack linkage with FLS + compliance redactions applied per-record - no existing tool does this.",
+      "example": "salesforce-headless-360-pp-cli agent context acme-corp --since 90d --agent",
+      "why_it_matters": "Agents need a single portable artifact they can reason over without calling the org 14 times. Use this when an agent needs full Customer 360 context.",
+      "group": "Agent context packager"
+    },
+    {
+      "name": "Offline bundle verification",
+      "command": "agent verify",
+      "description": "Verify a previously-generated bundle is signed by the real org, has not been tampered with, and has not expired. Works offline against a cached key.",
+      "rationale": "JWS with a key registered as an org Certificate creates a trust root the agent host can verify without calling Salesforce.",
+      "example": "salesforce-headless-360-pp-cli agent verify bundle.json --strict",
+      "why_it_matters": "Before an agent trusts and operates on CRM context, verify the bundle is real. Strict mode adds deep byte-level file-hash checks.",
+      "group": "Agent context packager"
+    },
+    {
+      "name": "Opp-centric narrative brief",
+      "command": "agent brief",
+      "description": "Render a human-readable markdown plus structured JSON brief of a single opportunity.",
+      "rationale": "Deterministic template joining Opp + linked contacts + recent activities + FeedItem posts - Salesforce shows this in the UI, not via JSON export.",
+      "example": "salesforce-headless-360-pp-cli agent brief --opp O-1234",
+      "why_it_matters": "Fast hand-off to an LLM for deal prep, sales call context, or forecasting review.",
+      "group": "Agent context packager"
+    },
+    {
+      "name": "Customer 360 freshness scoring",
+      "command": "agent decay",
+      "description": "0-100 freshness score across activity staleness, opp stage drift, case silence, and chatter quiet.",
+      "rationale": "Cross-cloud signal aggregation from local SQLite that no single Salesforce API call returns.",
+      "example": "salesforce-headless-360-pp-cli agent decay --account acme-corp --json",
+      "why_it_matters": "Surface which accounts need rep attention before they churn. Useful in pipeline review agents.",
+      "group": "Agent context packager"
+    },
+    {
+      "name": "Channel-audience FLS intersection",
+      "command": "agent inject",
+      "description": "Post a bundle summary to a Slack channel with FLS intersected across the channel audience, not just the sender.",
+      "rationale": "Slack channel members may not all have access to the same Salesforce fields - naive posting leaks restricted data.",
+      "example": "salesforce-headless-360-pp-cli agent inject --slack '#acme-deal' --bundle bundle.json",
+      "why_it_matters": "The only Slack integration that checks every channel member's FLS before posting Salesforce data.",
+      "group": "Trust and compliance"
+    },
+    {
+      "name": "Trust key registration",
+      "command": "trust register",
+      "description": "Register the local device's bundle-signing public key as a Salesforce Certificate (preferred) or CMDT fallback with hash-chained receipt.",
+      "rationale": "Certificate path uses Salesforce's native audit trail; CMDT fallback uses a hash chain resistant to admin overwrite attacks.",
+      "example": "salesforce-headless-360-pp-cli trust register --org prod",
+      "why_it_matters": "One-time setup so bundles from your laptop carry an org-anchored trust root.",
+      "group": "Trust and compliance"
+    },
+    {
+      "name": "Competing-tool yield in doctor",
+      "command": "doctor",
+      "description": "Detect Agentforce MCP or DX MCP presence and recommend yielding to those tools when they cover a need.",
+      "rationale": "CLIs traditionally assert dominance; graceful yield is rare and useful to developers evaluating tool choice.",
+      "example": "salesforce-headless-360-pp-cli doctor",
+      "why_it_matters": "Agents calling doctor before using this CLI can pick the best tool for the job automatically.",
+      "group": "Trust and compliance"
+    },
+    {
+      "name": "Dry-run bundle preview",
+      "command": "agent context --dry-run",
+      "description": "Preview exactly what fields would be exported from the org without writing to disk or signing.",
+      "rationale": "Compliance teams need pre-approval review without producing the artifact.",
+      "example": "salesforce-headless-360-pp-cli agent context acme-corp --dry-run",
+      "why_it_matters": "Residual-data-free introspection for security reviews.",
+      "group": "Trust and compliance"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Signed cross-surface context bundle",
+      "command": "agent context",
+      "description": "Package an Account plus contacts, opps, cases, activities, chatter, linked Slack channels, and Data Cloud profile into one signed JSON bundle any agent can consume.",
+      "rationale": "Requires joining Salesforce REST + UI API + Data Cloud + Slack linkage with FLS + compliance redactions applied per-record - no existing tool does this.",
+      "example": "salesforce-headless-360-pp-cli agent context acme-corp --since 90d --agent",
+      "why_it_matters": "Agents need a single portable artifact they can reason over without calling the org 14 times. Use this when an agent needs full Customer 360 context.",
+      "group": "Agent context packager"
+    },
+    {
+      "name": "Offline bundle verification",
+      "command": "agent verify",
+      "description": "Verify a previously-generated bundle is signed by the real org, has not been tampered with, and has not expired. Works offline against a cached key.",
+      "rationale": "JWS with a key registered as an org Certificate creates a trust root the agent host can verify without calling Salesforce.",
+      "example": "salesforce-headless-360-pp-cli agent verify bundle.json --strict",
+      "why_it_matters": "Before an agent trusts and operates on CRM context, verify the bundle is real. Strict mode adds deep byte-level file-hash checks.",
+      "group": "Agent context packager"
+    },
+    {
+      "name": "Opp-centric narrative brief",
+      "command": "agent brief",
+      "description": "Render a human-readable markdown plus structured JSON brief of a single opportunity.",
+      "rationale": "Deterministic template joining Opp + linked contacts + recent activities + FeedItem posts - Salesforce shows this in the UI, not via JSON export.",
+      "example": "salesforce-headless-360-pp-cli agent brief --opp O-1234",
+      "why_it_matters": "Fast hand-off to an LLM for deal prep, sales call context, or forecasting review.",
+      "group": "Agent context packager"
+    },
+    {
+      "name": "Customer 360 freshness scoring",
+      "command": "agent decay",
+      "description": "0-100 freshness score across activity staleness, opp stage drift, case silence, and chatter quiet.",
+      "rationale": "Cross-cloud signal aggregation from local SQLite that no single Salesforce API call returns.",
+      "example": "salesforce-headless-360-pp-cli agent decay --account acme-corp --json",
+      "why_it_matters": "Surface which accounts need rep attention before they churn. Useful in pipeline review agents.",
+      "group": "Agent context packager"
+    },
+    {
+      "name": "Channel-audience FLS intersection",
+      "command": "agent inject",
+      "description": "Post a bundle summary to a Slack channel with FLS intersected across the channel audience, not just the sender.",
+      "rationale": "Slack channel members may not all have access to the same Salesforce fields - naive posting leaks restricted data.",
+      "example": "salesforce-headless-360-pp-cli agent inject --slack '#acme-deal' --bundle bundle.json",
+      "why_it_matters": "The only Slack integration that checks every channel member's FLS before posting Salesforce data.",
+      "group": "Trust and compliance"
+    },
+    {
+      "name": "Trust key registration",
+      "command": "trust register",
+      "description": "Register the local device's bundle-signing public key as a Salesforce Certificate (preferred) or CMDT fallback with hash-chained receipt.",
+      "rationale": "Certificate path uses Salesforce's native audit trail; CMDT fallback uses a hash chain resistant to admin overwrite attacks.",
+      "example": "salesforce-headless-360-pp-cli trust register --org prod",
+      "why_it_matters": "One-time setup so bundles from your laptop carry an org-anchored trust root.",
+      "group": "Trust and compliance"
+    },
+    {
+      "name": "Competing-tool yield in doctor",
+      "command": "doctor",
+      "description": "Detect Agentforce MCP or DX MCP presence and recommend yielding to those tools when they cover a need.",
+      "rationale": "CLIs traditionally assert dominance; graceful yield is rare and useful to developers evaluating tool choice.",
+      "example": "salesforce-headless-360-pp-cli doctor",
+      "why_it_matters": "Agents calling doctor before using this CLI can pick the best tool for the job automatically.",
+      "group": "Trust and compliance"
+    },
+    {
+      "name": "Dry-run bundle preview",
+      "command": "agent context --dry-run",
+      "description": "Preview exactly what fields would be exported from the org without writing to disk or signing.",
+      "rationale": "Compliance teams need pre-approval review without producing the artifact.",
+      "example": "salesforce-headless-360-pp-cli agent context acme-corp --dry-run",
+      "why_it_matters": "Residual-data-free introspection for security reviews.",
+      "group": "Trust and compliance"
+    }
+  ],
+  "narrative": {
+    "headline": "The agent-context packager for Salesforce. Signed, FLS-safe, cross-surface bundles any agent can consume.",
+    "value_prop": "Salesforce Headless 360 shipped the raw APIs and two MCP servers. What's missing is a portable, verifiable context bundle: a signed JSON that joins an Account plus contacts, opps, cases, activities, chatter, linked Slack channels, and Data Cloud profile - with FLS and compliance redactions applied once, verifiable offline, consumable by Claude Code, Cursor, Codex, Windsurf, Agentforce, or any self-hosted agent. That is what salesforce-headless-360-pp-cli produces.",
+    "auth_narrative": "Multi-org auth: reuses your existing `sf` CLI auth when installed, supports JWT Bearer for CI, and falls back to a PKCE-protected OAuth Web Server flow. JWT mode blocks bundle generation without `--run-as-user` to prevent integration-user FLS bypass. Per-org profiles live in `~/.config/pp/salesforce-headless-360/profiles/`.",
+    "quickstart": [
+      {
+        "command": "salesforce-headless-360-pp-cli auth login --sf prod",
+        "comment": "Import an org you already have authed via the sf CLI"
+      },
+      {
+        "command": "salesforce-headless-360-pp-cli trust register --org prod",
+        "comment": "One-time: register this device's signing key with the org"
+      },
+      {
+        "command": "salesforce-headless-360-pp-cli sync --account \u003cid\u003e",
+        "comment": "Pull the Customer 360 for one account into local SQLite"
+      },
+      {
+        "command": "salesforce-headless-360-pp-cli agent context \u003cid\u003e --since 90d --agent",
+        "comment": "Generate a signed bundle ready to hand to an agent"
+      },
+      {
+        "command": "salesforce-headless-360-pp-cli agent verify bundle.json --strict",
+        "comment": "Verify the bundle before an agent consumes it"
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "agent context fails with SF360.AUTH.JWT_NO_RUN_AS_USER",
+        "fix": "JWT mode requires --run-as-user \u003cId\u003e to scope FLS. Pass a real user Id: `agent context \u003caccount\u003e --run-as-user 005xx00000ABCDE`"
+      },
+      {
+        "symptom": "agent verify fails with UNKNOWN_KEY",
+        "fix": "Your local key is not registered with that org. Run `trust register --org \u003calias\u003e` first."
+      },
+      {
+        "symptom": "doctor shows 'data_cloud: unprovisioned'",
+        "fix": "Optional. Data Cloud is required only for `agent context --include-data-cloud`. If you do not use Data Cloud, ignore."
+      }
+    ],
+    "when_to_use": "Use this CLI when an agent needs trusted Customer 360 context from a Salesforce org. Especially: meeting prep with fresh cross-cloud data, pipeline review agents scoring deal freshness, AI integrations that must respect FLS and compliance policies, bundle verification before acting on CRM data.",
+    "recipes": [
+      {
+        "title": "Meeting prep context for Claude Code",
+        "command": "salesforce-headless-360-pp-cli agent context acme-corp --since 30d --agent \u003e bundle.json \u0026\u0026 cat bundle.json | claude 'Summarize the state of this account'",
+        "explanation": "Piping a signed bundle to Claude Code gives it grounded context without a separate API call."
+      },
+      {
+        "title": "Verify before act",
+        "command": "salesforce-headless-360-pp-cli agent verify bundle.json --live --strict \u0026\u0026 my-agent --context bundle.json",
+        "explanation": "Only act on bundles whose signature is fresh, org-live, and not expired."
+      },
+      {
+        "title": "Freshness triage for RevOps",
+        "command": "salesforce-headless-360-pp-cli agent decay --account acme-corp --json | jq '.signals'",
+        "explanation": "Surface the specific signals that made an account stale."
+      }
+    ],
+    "trigger_phrases": [
+      "customer context for salesforce",
+      "bundle salesforce account",
+      "salesforce meeting prep",
+      "verify salesforce bundle",
+      "freshness score salesforce",
+      "use salesforce-headless-360"
+    ]
+  }
+}

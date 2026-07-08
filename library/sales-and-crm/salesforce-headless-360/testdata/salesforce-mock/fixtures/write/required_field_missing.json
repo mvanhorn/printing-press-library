@@ -1,0 +1,10 @@
+{
+  "status": 400,
+  "envelope": [
+    {
+      "errorCode": "REQUIRED_FIELD_MISSING",
+      "message": "Required fields are missing: [Subject]",
+      "fields": ["Subject"]
+    }
+  ]
+}

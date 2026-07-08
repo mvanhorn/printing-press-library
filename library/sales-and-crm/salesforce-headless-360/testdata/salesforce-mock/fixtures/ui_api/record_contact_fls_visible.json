@@ -1,0 +1,22 @@
+{
+  "envelope": {
+    "apiName": "Contact",
+    "childRelationships": {},
+    "fields": {
+      "Id": {"value": "003ACME0001", "displayValue": null},
+      "AccountId": {"value": "001ACME0001", "displayValue": "Acme Manufacturing"},
+      "FirstName": {"value": "Avery", "displayValue": null},
+      "LastName": {"value": "Morgan", "displayValue": null},
+      "Name": {"value": "Avery Morgan", "displayValue": null},
+      "Email": {"value": "avery.morgan@example.com", "displayValue": null},
+      "Title": {"value": "VP Operations", "displayValue": null},
+      "Salary__c": {"value": 142000, "displayValue": "$142,000"}
+    },
+    "id": "003ACME0001",
+    "lastModifiedById": "005MOCKUSER1",
+    "lastModifiedDate": "2026-04-18T14:21:00.000Z",
+    "recordTypeId": "012000000000000AAA",
+    "recordTypeInfo": null,
+    "systemModstamp": "2026-04-18T14:21:00.000Z"
+  }
+}

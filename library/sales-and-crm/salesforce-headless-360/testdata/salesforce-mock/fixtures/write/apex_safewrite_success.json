@@ -1,0 +1,10 @@
+{
+  "status": 200,
+  "envelope": {
+    "success": true,
+    "operation": "update",
+    "id": "001WRITE0001",
+    "lastModifiedDate": "2026-04-22T18:43:00.000Z",
+    "errors": []
+  }
+}

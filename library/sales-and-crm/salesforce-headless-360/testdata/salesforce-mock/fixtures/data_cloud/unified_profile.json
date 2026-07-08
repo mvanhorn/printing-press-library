@@ -1,0 +1,19 @@
+{
+  "envelope": {
+    "unifiedProfileId": "up_mock_001",
+    "individualId": "003ACME0001",
+    "segments": ["manufacturing-executive", "renewal-risk-low"],
+    "identityResolution": {
+      "matchConfidence": 0.97,
+      "matchedIdentifiers": [
+        {"type": "email", "value": "avery.morgan@example.com"},
+        {"type": "crm_contact_id", "value": "003ACME0001"}
+      ]
+    },
+    "calculatedInsights": {
+      "lastEngagementDate": "2026-04-16",
+      "openCaseCount": 2,
+      "renewalLikelihood": 0.82
+    }
+  }
+}

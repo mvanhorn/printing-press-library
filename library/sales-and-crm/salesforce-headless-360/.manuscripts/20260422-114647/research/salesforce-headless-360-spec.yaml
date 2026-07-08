@@ -1,0 +1,220 @@
+name: salesforce-headless-360
+description: "Salesforce Headless 360 agent-context packager: signed, FLS-safe cross-surface bundles for agents."
+version: "1.0.0"
+base_url: https://login.salesforce.com
+owner: mvanhorn
+kind: synthetic
+spec_source: community
+category: sales-and-crm
+website_url: https://www.salesforce.com/platform/headless-360
+
+auth:
+  type: oauth2
+  header: Authorization
+  format: "Bearer %s"
+  env_vars:
+    - SALESFORCE_ACCESS_TOKEN
+    - SALESFORCE_INSTANCE_URL
+    - SALESFORCE_360_CLIENT_ID
+    - SALESFORCE_360_CLIENT_SECRET
+  scheme: oauth2
+  authorization_url: https://login.salesforce.com/services/oauth2/authorize
+  token_url: https://login.salesforce.com/services/oauth2/token
+  scopes:
+    - api
+    - refresh_token
+    - offline_access
+  key_url: https://help.salesforce.com/s/articleView?id=sf.connected_app_overview.htm
+
+config:
+  format: yaml
+  path: ~/.config/pp/salesforce-headless-360/config.yaml
+
+resources:
+  accounts:
+    description: "Salesforce Account records. Root of Customer 360."
+    endpoints:
+      list:
+        method: GET
+        path: /services/data/v63.0/query
+        description: "List accounts via SOQL."
+        params:
+          - {name: q, type: string, required: false, description: "SOQL query (defaults to recent accounts)"}
+          - {name: limit, type: int, required: false, default: 50, description: "Max records"}
+        response: {type: array, item: Account}
+      get:
+        method: GET
+        path: /services/data/v63.0/sobjects/Account/{id}
+        description: "Fetch one Account by Id."
+        params:
+          - {name: id, type: string, required: true, positional: true, description: "Account Id (18-char) or name"}
+        response: {type: object, item: Account}
+
+  contacts:
+    description: "Contact records linked to Accounts."
+    endpoints:
+      list:
+        method: GET
+        path: /services/data/v63.0/query
+        description: "List contacts for an account or by query."
+        params:
+          - {name: account, type: string, required: false, description: "Filter by Account Id"}
+          - {name: limit, type: int, required: false, default: 50, description: "Max records"}
+        response: {type: array, item: Contact}
+      get:
+        method: GET
+        path: /services/data/v63.0/sobjects/Contact/{id}
+        description: "Fetch one Contact by Id."
+        params:
+          - {name: id, type: string, required: true, positional: true, description: "Contact Id"}
+        response: {type: object, item: Contact}
+
+  opportunities:
+    description: "Opportunity records (deals)."
+    endpoints:
+      list:
+        method: GET
+        path: /services/data/v63.0/query
+        description: "List opportunities."
+        params:
+          - {name: account, type: string, required: false, description: "Filter by Account Id"}
+          - {name: stage, type: string, required: false, description: "Filter by StageName"}
+          - {name: limit, type: int, required: false, default: 50, description: "Max records"}
+        response: {type: array, item: Opportunity}
+      get:
+        method: GET
+        path: /services/data/v63.0/sobjects/Opportunity/{id}
+        description: "Fetch one Opportunity by Id."
+        params:
+          - {name: id, type: string, required: true, positional: true, description: "Opportunity Id"}
+        response: {type: object, item: Opportunity}
+
+  cases:
+    description: "Service cases."
+    endpoints:
+      list:
+        method: GET
+        path: /services/data/v63.0/query
+        description: "List cases."
+        params:
+          - {name: account, type: string, required: false, description: "Filter by Account Id"}
+          - {name: status, type: string, required: false, description: "Filter by Status"}
+          - {name: limit, type: int, required: false, default: 50, description: "Max records"}
+        response: {type: array, item: Case}
+
+  tasks:
+    description: "Task activities (calls, emails, todos)."
+    endpoints:
+      list:
+        method: GET
+        path: /services/data/v63.0/query
+        description: "List tasks."
+        params:
+          - {name: account, type: string, required: false, description: "Filter by Account Id"}
+          - {name: since, type: string, required: false, description: "Modified since (e.g., 30d, YYYY-MM-DD)"}
+          - {name: limit, type: int, required: false, default: 100, description: "Max records"}
+        response: {type: array, item: Task}
+
+  events:
+    description: "Calendar events (meetings, calls)."
+    endpoints:
+      list:
+        method: GET
+        path: /services/data/v63.0/query
+        description: "List events."
+        params:
+          - {name: account, type: string, required: false, description: "Filter by Account Id"}
+          - {name: since, type: string, required: false, description: "Modified since"}
+          - {name: limit, type: int, required: false, default: 100, description: "Max records"}
+        response: {type: array, item: Event}
+
+  limits:
+    description: "Org limit status (API calls remaining, data storage, etc.)."
+    endpoints:
+      get:
+        method: GET
+        path: /services/data/v63.0/limits
+        description: "Current org limits."
+        params: []
+        response: {type: object, item: Limits}
+
+types:
+  Account:
+    fields:
+      - {name: Id, type: string}
+      - {name: Name, type: string}
+      - {name: Type, type: string}
+      - {name: Industry, type: string}
+      - {name: AnnualRevenue, type: number}
+      - {name: NumberOfEmployees, type: int}
+      - {name: OwnerId, type: string}
+      - {name: CreatedDate, type: string}
+      - {name: LastModifiedDate, type: string}
+      - {name: Website, type: string}
+      - {name: Description, type: string}
+
+  Contact:
+    fields:
+      - {name: Id, type: string}
+      - {name: FirstName, type: string}
+      - {name: LastName, type: string}
+      - {name: Email, type: string}
+      - {name: Title, type: string}
+      - {name: Phone, type: string}
+      - {name: AccountId, type: string}
+      - {name: CreatedDate, type: string}
+      - {name: LastModifiedDate, type: string}
+
+  Opportunity:
+    fields:
+      - {name: Id, type: string}
+      - {name: Name, type: string}
+      - {name: StageName, type: string}
+      - {name: Amount, type: number}
+      - {name: CloseDate, type: string}
+      - {name: Probability, type: number}
+      - {name: AccountId, type: string}
+      - {name: OwnerId, type: string}
+      - {name: CreatedDate, type: string}
+      - {name: LastModifiedDate, type: string}
+      - {name: ForecastCategoryName, type: string}
+
+  Case:
+    fields:
+      - {name: Id, type: string}
+      - {name: CaseNumber, type: string}
+      - {name: Subject, type: string}
+      - {name: Status, type: string}
+      - {name: Priority, type: string}
+      - {name: AccountId, type: string}
+      - {name: ContactId, type: string}
+      - {name: OwnerId, type: string}
+      - {name: CreatedDate, type: string}
+      - {name: LastModifiedDate, type: string}
+
+  Task:
+    fields:
+      - {name: Id, type: string}
+      - {name: Subject, type: string}
+      - {name: Status, type: string}
+      - {name: Priority, type: string}
+      - {name: ActivityDate, type: string}
+      - {name: WhoId, type: string}
+      - {name: WhatId, type: string}
+      - {name: OwnerId, type: string}
+
+  Event:
+    fields:
+      - {name: Id, type: string}
+      - {name: Subject, type: string}
+      - {name: StartDateTime, type: string}
+      - {name: EndDateTime, type: string}
+      - {name: WhoId, type: string}
+      - {name: WhatId, type: string}
+      - {name: OwnerId, type: string}
+
+  Limits:
+    fields:
+      - {name: DailyApiRequests, type: object}
+      - {name: DataStorageMB, type: object}
+      - {name: FileStorageMB, type: object}

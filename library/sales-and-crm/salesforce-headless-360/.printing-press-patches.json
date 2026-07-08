@@ -1,0 +1,44 @@
+{
+  "schema_version": 1,
+  "applied_at": "2026-06-05",
+  "base_run_id": "20260422-114647",
+  "base_printing_press_version": "1.3.3-0.20260422172513-9dd5632a1a5c+dirty",
+  "patches": [
+    {
+      "id": "composite-graph-surfaces-node-errors",
+      "summary": "ParseGraphResponse surfaces per-subrequest Salesforce error detail (errorCode + message) when a composite graph fails.",
+      "reason": "Customized org schemas (e.g. Account without AnnualRevenue) fail the whole graph; the opaque 'was not successful' made the failure undiagnosable from CLI output. Live-verify finding F-021.",
+      "files": [
+        "internal/sync/composite_graph.go"
+      ],
+      "validated_outcome": "TestParseGraphResponseSurfacesNodeErrors asserts the error carries graph id, node, HTTP status, errorCode, and message."
+    },
+    {
+      "id": "trust-register-cmdt-fallback-on-invalid-field",
+      "summary": "trust register falls through to the CMDT path on INVALID_FIELD / 'No such column', not just INVALID_TYPE / NOT_FOUND.",
+      "reason": "Tooling API v63.0 dropped Certificate.CertificateData; the Certificate POST 400 short-circuited registration even though the CMDT fallback works. Live-verify finding F-022.",
+      "files": [
+        "internal/trust/register.go"
+      ],
+      "validated_outcome": "TestRegisterFallsBackToCMDTOnCertificateSchemaDrift reproduces the live error body and asserts source=cmdt."
+    },
+    {
+      "id": "live-verify-queries-data-db",
+      "summary": "live-verify.sh and the runbook query data.db, the SQLite file the CLI actually writes.",
+      "reason": "The script queried sf360.db (zero-byte, no tables) so checks 4 and 6 always failed. Live-verify finding F-023.",
+      "files": [
+        "scripts/live-verify.sh",
+        "docs/live-verification-runbook.md"
+      ]
+    },
+    {
+      "id": "recipes-org-flag-after-subcommand",
+      "summary": "SKILL.md / README recipes pass --org after the subcommand, and not at all to sign-plan / execute-plan.",
+      "reason": "--org is declared per agent subcommand, not at root; leading placement broke verify-skill command resolution, and sign-plan / execute-plan resolve the org from SF360_ORG and reject the flag at runtime.",
+      "files": [
+        "SKILL.md",
+        "README.md"
+      ]
+    }
+  ]
+}

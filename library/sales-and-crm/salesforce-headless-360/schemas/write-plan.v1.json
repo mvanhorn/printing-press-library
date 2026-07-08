@@ -1,0 +1,69 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://printing-press.local/salesforce-headless-360/write-plan.v1.json",
+  "title": "Salesforce Headless 360 Write Plan v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["version", "plan_intent", "plan_metadata", "plan_jws"],
+  "properties": {
+    "version": { "type": "integer", "const": 1 },
+    "plan_intent": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["iss", "sub", "aud", "iat", "exp", "jti", "sobject", "operation"],
+      "properties": {
+        "iss": { "type": "string", "minLength": 1 },
+        "sub": { "type": "string", "minLength": 1 },
+        "aud": { "type": "string", "minLength": 1 },
+        "iat": { "type": "integer" },
+        "exp": { "type": "integer" },
+        "jti": { "type": "string", "minLength": 1 },
+        "sobject": { "type": "string", "minLength": 1 },
+        "record_id": { "type": "string" },
+        "operation": { "type": "string", "minLength": 1 },
+        "diff_sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+        "idempotency_key": { "type": "string" },
+        "if_last_modified": { "type": "string" }
+      }
+    },
+    "plan_metadata": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["created_by_kid", "created_at", "auth_mode", "execute_path", "human_summary"],
+      "properties": {
+        "created_by_kid": { "type": "string", "minLength": 1 },
+        "created_at": { "type": "string", "format": "date-time" },
+        "fields": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["after"],
+            "properties": {
+              "before": {},
+              "after": {}
+            }
+          }
+        },
+        "auth_mode": { "type": "string", "minLength": 1 },
+        "execute_path": { "type": "string", "minLength": 1 },
+        "human_summary": { "type": "string", "minLength": 1 },
+        "dry_run": { "type": "boolean" }
+      }
+    },
+    "plan_jws": { "type": "string", "minLength": 1 },
+    "countersignatures": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["kid", "signed_at", "jws"],
+        "properties": {
+          "kid": { "type": "string", "minLength": 1 },
+          "signed_at": { "type": "string", "format": "date-time" },
+          "jws": { "type": "string", "minLength": 1 }
+        }
+      }
+    }
+  }
+}

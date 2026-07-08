@@ -1,0 +1,63 @@
+{
+  "manifest_version": "0.3",
+  "name": "salesforce-headless-360-pp-mcp",
+  "display_name": "Salesforce Headless 360",
+  "version": "1.1.0",
+  "description": "The agent-context packager for Salesforce - signed, FLS-safe, cross-surface bundles any agent can consume, plus offline SQLite sync and analytics.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/salesforce-headless-360-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/salesforce-headless-360-pp-mcp",
+      "args": [],
+      "env": {
+        "SALESFORCE_ACCESS_TOKEN": "${user_config.salesforce_access_token}",
+        "SALESFORCE_INSTANCE_URL": "${user_config.salesforce_instance_url}",
+        "SALESFORCE_360_CLIENT_ID": "${user_config.salesforce_360_client_id}",
+        "SALESFORCE_360_CLIENT_SECRET": "${user_config.salesforce_360_client_secret}"
+      }
+    }
+  },
+  "user_config": {
+    "salesforce_access_token": {
+      "type": "string",
+      "title": "SALESFORCE_ACCESS_TOKEN",
+      "description": "Sets SALESFORCE_ACCESS_TOKEN for the Salesforce Headless 360 MCP server.",
+      "sensitive": true,
+      "required": true
+    },
+    "salesforce_instance_url": {
+      "type": "string",
+      "title": "SALESFORCE_INSTANCE_URL",
+      "description": "Sets SALESFORCE_INSTANCE_URL for the Salesforce Headless 360 MCP server.",
+      "sensitive": true,
+      "required": true
+    },
+    "salesforce_360_client_id": {
+      "type": "string",
+      "title": "SALESFORCE_360_CLIENT_ID",
+      "description": "Sets SALESFORCE_360_CLIENT_ID for the Salesforce Headless 360 MCP server.",
+      "sensitive": true,
+      "required": false
+    },
+    "salesforce_360_client_secret": {
+      "type": "string",
+      "title": "SALESFORCE_360_CLIENT_SECRET",
+      "description": "Sets SALESFORCE_360_CLIENT_SECRET for the Salesforce Headless 360 MCP server.",
+      "sensitive": true,
+      "required": false
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "envelope": {
+    "totalSize": 6,
+    "done": true,
+    "records": [
+      {"attributes": {"type": "FieldDefinition", "url": "/services/data/v63.0/tooling/sobjects/FieldDefinition/Contact.Email"}, "DurableId": "Contact.Email", "EntityDefinition": {"QualifiedApiName": "Contact"}, "QualifiedApiName": "Email", "DataType": "Email", "ComplianceGroup": "PII", "IsEncrypted": false},
+      {"attributes": {"type": "FieldDefinition", "url": "/services/data/v63.0/tooling/sobjects/FieldDefinition/Contact.Salary__c"}, "DurableId": "Contact.Salary__c", "EntityDefinition": {"QualifiedApiName": "Contact"}, "QualifiedApiName": "Salary__c", "DataType": "Currency", "ComplianceGroup": "GLBA", "IsEncrypted": true},
+      {"attributes": {"type": "FieldDefinition", "url": "/services/data/v63.0/tooling/sobjects/FieldDefinition/Contact.HealthPlan__c"}, "DurableId": "Contact.HealthPlan__c", "EntityDefinition": {"QualifiedApiName": "Contact"}, "QualifiedApiName": "HealthPlan__c", "DataType": "Text", "ComplianceGroup": "HIPAA", "IsEncrypted": true},
+      {"attributes": {"type": "FieldDefinition", "url": "/services/data/v63.0/tooling/sobjects/FieldDefinition/Account.BillingPostalCode"}, "DurableId": "Account.BillingPostalCode", "EntityDefinition": {"QualifiedApiName": "Account"}, "QualifiedApiName": "BillingPostalCode", "DataType": "Text", "ComplianceGroup": "PII", "IsEncrypted": false},
+      {"attributes": {"type": "FieldDefinition", "url": "/services/data/v63.0/tooling/sobjects/FieldDefinition/Payment__c.CardToken__c"}, "DurableId": "Payment__c.CardToken__c", "EntityDefinition": {"QualifiedApiName": "Payment__c"}, "QualifiedApiName": "CardToken__c", "DataType": "Text", "ComplianceGroup": "PCI", "IsEncrypted": true},
+      {"attributes": {"type": "FieldDefinition", "url": "/services/data/v63.0/tooling/sobjects/FieldDefinition/Opportunity.Amount"}, "DurableId": "Opportunity.Amount", "EntityDefinition": {"QualifiedApiName": "Opportunity"}, "QualifiedApiName": "Amount", "DataType": "Currency", "ComplianceGroup": null, "IsEncrypted": false}
+    ]
+  }
+}

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>PublicKeyPem__c</fullName>
+    <description>PEM-encoded Ed25519 public key used to verify bundle JWS signatures.</description>
+    <fieldManageability>DeveloperControlled</fieldManageability>
+    <label>Public Key PEM</label>
+    <length>32768</length>
+    <type>LongTextArea</type>
+    <visibleLines>8</visibleLines>
+</CustomField>

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>PreviousReceiptHash__c</fullName>
+    <description>SHA-256 hash of the previous full receipt, or GENESIS for the first key.</description>
+    <fieldManageability>DeveloperControlled</fieldManageability>
+    <label>Previous Receipt Hash</label>
+    <length>64</length>
+    <required>true</required>
+    <type>Text</type>
+</CustomField>

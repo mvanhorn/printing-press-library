@@ -1,0 +1,15 @@
+{
+  "status": 201,
+  "envelope": {
+    "id": "0D5ACME0001",
+    "feedElementType": "FeedItem",
+    "body": {
+      "messageSegments": [
+        {
+          "type": "Text",
+          "text": "Met with CFO"
+        }
+      ]
+    }
+  }
+}

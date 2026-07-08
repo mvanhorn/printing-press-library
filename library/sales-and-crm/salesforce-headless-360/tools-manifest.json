@@ -1,0 +1,1426 @@
+{
+  "api_name": "salesforce-headless-360",
+  "base_url": "https://{instance}.my.salesforce.com",
+  "description": "Salesforce Headless 360 CLI - the agent-context packager for Salesforce. Signed, FLS-safe, cross-surface bundles any agent can consume.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "oauth2",
+    "header": "Authorization",
+    "env_vars": [
+      "SALESFORCE_ACCESS_TOKEN",
+      "SALESFORCE_INSTANCE_URL",
+      "SALESFORCE_360_CLIENT_ID",
+      "SALESFORCE_360_CLIENT_SECRET"
+    ]
+  },
+  "tools": [
+    {
+      "name": "accounts_get",
+      "description": "Fetch one Account by Id. Returns Account.",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "required": true,
+          "description": "Account Id (18-char) or name"
+        }
+      ]
+    },
+    {
+      "name": "accounts_list",
+      "description": "List accounts via SOQL. Returns array of Account.",
+      "params": [
+        {
+          "name": "limit",
+          "type": "string",
+          "required": false,
+          "description": "Max records"
+        },
+        {
+          "name": "q",
+          "type": "string",
+          "required": false,
+          "description": "SOQL query (defaults to recent accounts)"
+        }
+      ]
+    },
+    {
+      "name": "agent_advance",
+      "description": "Advance an Opportunity to a validated stage. Requires confirm:true unless dry_run:true.",
+      "params": [
+        {
+          "name": "close_date",
+          "type": "string",
+          "required": false,
+          "description": "Optional CloseDate in YYYY-MM-DD"
+        },
+        {
+          "name": "confirm",
+          "type": "boolean",
+          "required": false,
+          "description": "Pass true to confirm mutation"
+        },
+        {
+          "name": "confirm_bulk",
+          "type": "number",
+          "required": false,
+          "description": "Confirm intentional bulk writes by passing the exact record count"
+        },
+        {
+          "name": "dry_run",
+          "type": "boolean",
+          "required": false,
+          "description": "Preview payload without DML or audit writes"
+        },
+        {
+          "name": "force_stale",
+          "type": "boolean",
+          "required": false,
+          "description": "Bypass optimistic concurrency"
+        },
+        {
+          "name": "idempotency_key",
+          "type": "string",
+          "required": false,
+          "description": "Optional idempotency key recorded in audit"
+        },
+        {
+          "name": "mock",
+          "type": "boolean",
+          "required": false,
+          "description": "Run against the in-process Salesforce mock server when available"
+        },
+        {
+          "name": "opp",
+          "type": "string",
+          "required": true,
+          "description": "Opportunity Id"
+        },
+        {
+          "name": "run_as_user",
+          "type": "string",
+          "required": false,
+          "description": "SF User Id required in JWT mode"
+        },
+        {
+          "name": "stage",
+          "type": "string",
+          "required": true,
+          "description": "Target Opportunity StageName"
+        }
+      ]
+    },
+    {
+      "name": "agent_brief",
+      "description": "Render a markdown + JSON brief for one Opportunity, field-gated so redactions don't leak through narrative.",
+      "params": [
+        {
+          "name": "format",
+          "type": "string",
+          "required": false,
+          "description": "markdown | json (default: markdown)"
+        },
+        {
+          "name": "opp",
+          "type": "string",
+          "required": true,
+          "description": "Opportunity Id"
+        }
+      ]
+    },
+    {
+      "name": "agent_close_case",
+      "description": "Close a Case with a resolution. Requires confirm:true unless dry_run:true.",
+      "params": [
+        {
+          "name": "case",
+          "type": "string",
+          "required": true,
+          "description": "Case Id"
+        },
+        {
+          "name": "confirm",
+          "type": "boolean",
+          "required": false,
+          "description": "Pass true to confirm mutation"
+        },
+        {
+          "name": "confirm_bulk",
+          "type": "number",
+          "required": false,
+          "description": "Confirm intentional bulk writes by passing the exact record count"
+        },
+        {
+          "name": "dry_run",
+          "type": "boolean",
+          "required": false,
+          "description": "Preview payload without DML or audit writes"
+        },
+        {
+          "name": "force_stale",
+          "type": "boolean",
+          "required": false,
+          "description": "Bypass optimistic concurrency"
+        },
+        {
+          "name": "idempotency_key",
+          "type": "string",
+          "required": false,
+          "description": "Optional idempotency key recorded in audit"
+        },
+        {
+          "name": "mock",
+          "type": "boolean",
+          "required": false,
+          "description": "Run against the in-process Salesforce mock server when available"
+        },
+        {
+          "name": "resolution",
+          "type": "string",
+          "required": true,
+          "description": "Resolution text"
+        },
+        {
+          "name": "run_as_user",
+          "type": "string",
+          "required": false,
+          "description": "SF User Id required in JWT mode"
+        },
+        {
+          "name": "status",
+          "type": "string",
+          "required": false,
+          "description": "Case status to write (default: Closed)"
+        }
+      ]
+    },
+    {
+      "name": "agent_context",
+      "description": "Assemble a signed agent-context bundle for one Salesforce Account. Returns the bundle JSON with envelope + manifest + signature. Respects FLS and compliance redactions when the local sync has them mapped.",
+      "params": [
+        {
+          "name": "account",
+          "type": "string",
+          "required": true,
+          "description": "Account Id, name, or domain"
+        },
+        {
+          "name": "dry_run",
+          "type": "boolean",
+          "required": false,
+          "description": "Preview what would be bundled without signing or persisting"
+        },
+        {
+          "name": "org",
+          "type": "string",
+          "required": false,
+          "description": "Org alias (default: SF360_ORG env)"
+        },
+        {
+          "name": "run_as_user",
+          "type": "string",
+          "required": false,
+          "description": "SF User Id to scope FLS against (required in JWT mode)"
+        },
+        {
+          "name": "since",
+          "type": "string",
+          "required": false,
+          "description": "Query window (e.g., P90D, P30D)"
+        }
+      ]
+    },
+    {
+      "name": "agent_create",
+      "description": "Create one Salesforce record with a signed, audited write intent. Requires confirm:true unless dry_run:true.",
+      "params": [
+        {
+          "name": "confirm",
+          "type": "boolean",
+          "required": false,
+          "description": "Pass true to confirm mutation"
+        },
+        {
+          "name": "confirm_bulk",
+          "type": "number",
+          "required": false,
+          "description": "Confirm intentional bulk writes by passing the exact record count"
+        },
+        {
+          "name": "dry_run",
+          "type": "boolean",
+          "required": false,
+          "description": "Preview payload without DML or audit writes"
+        },
+        {
+          "name": "fields",
+          "type": "object",
+          "required": true,
+          "description": "Field values to write as a JSON object"
+        },
+        {
+          "name": "idempotency_key",
+          "type": "string",
+          "required": true,
+          "description": "Required idempotency key"
+        },
+        {
+          "name": "mock",
+          "type": "boolean",
+          "required": false,
+          "description": "Run against the in-process Salesforce mock server when available"
+        },
+        {
+          "name": "run_as_user",
+          "type": "string",
+          "required": false,
+          "description": "SF User Id required in JWT mode"
+        },
+        {
+          "name": "sobject",
+          "type": "string",
+          "required": true,
+          "description": "Salesforce object API name"
+        }
+      ]
+    },
+    {
+      "name": "agent_decay",
+      "description": "Score how stale the CRM data is for an account, 0-100 (higher = fresher). Returns structured signals.",
+      "params": [
+        {
+          "name": "account",
+          "type": "string",
+          "required": true,
+          "description": "Account Id"
+        }
+      ]
+    },
+    {
+      "name": "agent_doctor",
+      "description": "Machine-readable health status of the CLI's sources (auth, local store, Apex companion, Data Cloud, Slack linkage, competing tools detected). Use this before other tool calls to introspect failures.",
+      "params": []
+    },
+    {
+      "name": "agent_execute_plan",
+      "description": "Verify and execute a signed write plan. Requires confirm:true.",
+      "params": [
+        {
+          "name": "confirm",
+          "type": "boolean",
+          "required": false,
+          "description": "Pass true to confirm execution"
+        },
+        {
+          "name": "confirm_bulk",
+          "type": "number",
+          "required": false,
+          "description": "Confirm intentional bulk writes by passing the exact record count"
+        },
+        {
+          "name": "dry_run",
+          "type": "boolean",
+          "required": false,
+          "description": "Preview execution without DML or audit writes"
+        },
+        {
+          "name": "force_stale",
+          "type": "boolean",
+          "required": false,
+          "description": "Bypass optimistic concurrency"
+        },
+        {
+          "name": "mock",
+          "type": "boolean",
+          "required": false,
+          "description": "Run against the in-process Salesforce mock server when available"
+        },
+        {
+          "name": "plan",
+          "type": "object",
+          "required": true,
+          "description": "Write plan JSON object or base64-encoded JSON string"
+        },
+        {
+          "name": "require_countersignatures",
+          "type": "number",
+          "required": false,
+          "description": "Minimum countersignatures required before execution"
+        }
+      ]
+    },
+    {
+      "name": "agent_log_activity",
+      "description": "Log a completed call/email Task or meeting Event. Requires confirm:true unless dry_run:true.",
+      "params": [
+        {
+          "name": "confirm",
+          "type": "boolean",
+          "required": false,
+          "description": "Pass true to confirm mutation"
+        },
+        {
+          "name": "confirm_bulk",
+          "type": "number",
+          "required": false,
+          "description": "Confirm intentional bulk writes by passing the exact record count"
+        },
+        {
+          "name": "description",
+          "type": "string",
+          "required": false,
+          "description": "Optional activity description"
+        },
+        {
+          "name": "dry_run",
+          "type": "boolean",
+          "required": false,
+          "description": "Preview payload without DML or audit writes"
+        },
+        {
+          "name": "duration",
+          "type": "number",
+          "required": false,
+          "description": "Optional duration in seconds for Task activities"
+        },
+        {
+          "name": "end",
+          "type": "string",
+          "required": false,
+          "description": "Meeting end time in RFC3339"
+        },
+        {
+          "name": "idempotency_key",
+          "type": "string",
+          "required": true,
+          "description": "Required idempotency key"
+        },
+        {
+          "name": "mock",
+          "type": "boolean",
+          "required": false,
+          "description": "Run against the in-process Salesforce mock server when available"
+        },
+        {
+          "name": "run_as_user",
+          "type": "string",
+          "required": false,
+          "description": "SF User Id required in JWT mode"
+        },
+        {
+          "name": "start",
+          "type": "string",
+          "required": false,
+          "description": "Meeting start time in RFC3339"
+        },
+        {
+          "name": "subject",
+          "type": "string",
+          "required": true,
+          "description": "Activity subject"
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "required": true,
+          "description": "Activity type: call, email, or meeting"
+        },
+        {
+          "name": "what",
+          "type": "string",
+          "required": false,
+          "description": "Related WhatId such as an Account or Opportunity"
+        },
+        {
+          "name": "who",
+          "type": "string",
+          "required": false,
+          "description": "Related WhoId such as a Contact"
+        }
+      ]
+    },
+    {
+      "name": "agent_note",
+      "description": "Post a Chatter FeedItem note to one record. Requires confirm:true unless dry_run:true.",
+      "params": [
+        {
+          "name": "confirm",
+          "type": "boolean",
+          "required": false,
+          "description": "Pass true to confirm mutation"
+        },
+        {
+          "name": "confirm_bulk",
+          "type": "number",
+          "required": false,
+          "description": "Confirm intentional bulk writes by passing the exact record count"
+        },
+        {
+          "name": "dry_run",
+          "type": "boolean",
+          "required": false,
+          "description": "Preview payload without DML or audit writes"
+        },
+        {
+          "name": "entity",
+          "type": "string",
+          "required": true,
+          "description": "Record Id to receive the Chatter note"
+        },
+        {
+          "name": "mock",
+          "type": "boolean",
+          "required": false,
+          "description": "Run against the in-process Salesforce mock server when available"
+        },
+        {
+          "name": "run_as_user",
+          "type": "string",
+          "required": false,
+          "description": "SF User Id required in JWT mode"
+        },
+        {
+          "name": "text",
+          "type": "string",
+          "required": true,
+          "description": "Note body"
+        }
+      ]
+    },
+    {
+      "name": "agent_plan_advance",
+      "description": "Plan an Opportunity stage advance.",
+      "params": [
+        {
+          "name": "close_date",
+          "type": "string",
+          "required": false,
+          "description": "Optional CloseDate in YYYY-MM-DD"
+        },
+        {
+          "name": "dry_run",
+          "type": "boolean",
+          "required": false,
+          "description": "Persist dry-run execution intent in the plan"
+        },
+        {
+          "name": "expires_in",
+          "type": "string",
+          "required": false,
+          "description": "Plan expiration duration, e.g. 1h"
+        },
+        {
+          "name": "force_stale",
+          "type": "boolean",
+          "required": false,
+          "description": "Bypass optimistic concurrency"
+        },
+        {
+          "name": "human_summary",
+          "type": "string",
+          "required": false,
+          "description": "Human-readable plan summary"
+        },
+        {
+          "name": "idempotency_key",
+          "type": "string",
+          "required": false,
+          "description": "Optional idempotency key recorded in audit"
+        },
+        {
+          "name": "mock",
+          "type": "boolean",
+          "required": false,
+          "description": "Run plan construction against the in-process Salesforce mock server when available"
+        },
+        {
+          "name": "opp",
+          "type": "string",
+          "required": true,
+          "description": "Opportunity Id"
+        },
+        {
+          "name": "output",
+          "type": "string",
+          "required": false,
+          "description": "Optional output path; default returns JSON in the tool response"
+        },
+        {
+          "name": "run_as_user",
+          "type": "string",
+          "required": false,
+          "description": "SF User Id required in JWT mode"
+        },
+        {
+          "name": "stage",
+          "type": "string",
+          "required": true,
+          "description": "Target Opportunity StageName"
+        }
+      ]
+    },
+    {
+      "name": "agent_plan_close_case",
+      "description": "Plan a Case close.",
+      "params": [
+        {
+          "name": "case",
+          "type": "string",
+          "required": true,
+          "description": "Case Id"
+        },
+        {
+          "name": "dry_run",
+          "type": "boolean",
+          "required": false,
+          "description": "Persist dry-run execution intent in the plan"
+        },
+        {
+          "name": "expires_in",
+          "type": "string",
+          "required": false,
+          "description": "Plan expiration duration, e.g. 1h"
+        },
+        {
+          "name": "force_stale",
+          "type": "boolean",
+          "required": false,
+          "description": "Bypass optimistic concurrency"
+        },
+        {
+          "name": "human_summary",
+          "type": "string",
+          "required": false,
+          "description": "Human-readable plan summary"
+        },
+        {
+          "name": "idempotency_key",
+          "type": "string",
+          "required": false,
+          "description": "Optional idempotency key recorded in audit"
+        },
+        {
+          "name": "mock",
+          "type": "boolean",
+          "required": false,
+          "description": "Run plan construction against the in-process Salesforce mock server when available"
+        },
+        {
+          "name": "output",
+          "type": "string",
+          "required": false,
+          "description": "Optional output path; default returns JSON in the tool response"
+        },
+        {
+          "name": "resolution",
+          "type": "string",
+          "required": true,
+          "description": "Resolution text"
+        },
+        {
+          "name": "run_as_user",
+          "type": "string",
+          "required": false,
+          "description": "SF User Id required in JWT mode"
+        },
+        {
+          "name": "status",
+          "type": "string",
+          "required": false,
+          "description": "Case status to write (default: Closed)"
+        }
+      ]
+    },
+    {
+      "name": "agent_plan_create",
+      "description": "Plan a record create.",
+      "params": [
+        {
+          "name": "dry_run",
+          "type": "boolean",
+          "required": false,
+          "description": "Persist dry-run execution intent in the plan"
+        },
+        {
+          "name": "expires_in",
+          "type": "string",
+          "required": false,
+          "description": "Plan expiration duration, e.g. 1h"
+        },
+        {
+          "name": "fields",
+          "type": "object",
+          "required": true,
+          "description": "Field values to write as a JSON object"
+        },
+        {
+          "name": "human_summary",
+          "type": "string",
+          "required": false,
+          "description": "Human-readable plan summary"
+        },
+        {
+          "name": "idempotency_key",
+          "type": "string",
+          "required": true,
+          "description": "Required idempotency key"
+        },
+        {
+          "name": "mock",
+          "type": "boolean",
+          "required": false,
+          "description": "Run plan construction against the in-process Salesforce mock server when available"
+        },
+        {
+          "name": "output",
+          "type": "string",
+          "required": false,
+          "description": "Optional output path; default returns JSON in the tool response"
+        },
+        {
+          "name": "run_as_user",
+          "type": "string",
+          "required": false,
+          "description": "SF User Id required in JWT mode"
+        },
+        {
+          "name": "sobject",
+          "type": "string",
+          "required": true,
+          "description": "Salesforce object API name"
+        }
+      ]
+    },
+    {
+      "name": "agent_plan_log_activity",
+      "description": "Plan a completed Task or Event.",
+      "params": [
+        {
+          "name": "description",
+          "type": "string",
+          "required": false,
+          "description": "Optional activity description"
+        },
+        {
+          "name": "dry_run",
+          "type": "boolean",
+          "required": false,
+          "description": "Persist dry-run execution intent in the plan"
+        },
+        {
+          "name": "duration",
+          "type": "number",
+          "required": false,
+          "description": "Optional duration in seconds for Task activities"
+        },
+        {
+          "name": "end",
+          "type": "string",
+          "required": false,
+          "description": "Meeting end time in RFC3339"
+        },
+        {
+          "name": "expires_in",
+          "type": "string",
+          "required": false,
+          "description": "Plan expiration duration, e.g. 1h"
+        },
+        {
+          "name": "human_summary",
+          "type": "string",
+          "required": false,
+          "description": "Human-readable plan summary"
+        },
+        {
+          "name": "idempotency_key",
+          "type": "string",
+          "required": true,
+          "description": "Required idempotency key"
+        },
+        {
+          "name": "mock",
+          "type": "boolean",
+          "required": false,
+          "description": "Run plan construction against the in-process Salesforce mock server when available"
+        },
+        {
+          "name": "output",
+          "type": "string",
+          "required": false,
+          "description": "Optional output path; default returns JSON in the tool response"
+        },
+        {
+          "name": "run_as_user",
+          "type": "string",
+          "required": false,
+          "description": "SF User Id required in JWT mode"
+        },
+        {
+          "name": "start",
+          "type": "string",
+          "required": false,
+          "description": "Meeting start time in RFC3339"
+        },
+        {
+          "name": "subject",
+          "type": "string",
+          "required": true,
+          "description": "Activity subject"
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "required": true,
+          "description": "Activity type: call, email, or meeting"
+        },
+        {
+          "name": "what",
+          "type": "string",
+          "required": false,
+          "description": "Related WhatId such as an Account or Opportunity"
+        },
+        {
+          "name": "who",
+          "type": "string",
+          "required": false,
+          "description": "Related WhoId such as a Contact"
+        }
+      ]
+    },
+    {
+      "name": "agent_plan_note",
+      "description": "Plan a Chatter FeedItem note.",
+      "params": [
+        {
+          "name": "dry_run",
+          "type": "boolean",
+          "required": false,
+          "description": "Persist dry-run execution intent in the plan"
+        },
+        {
+          "name": "entity",
+          "type": "string",
+          "required": true,
+          "description": "Record Id to receive the Chatter note"
+        },
+        {
+          "name": "expires_in",
+          "type": "string",
+          "required": false,
+          "description": "Plan expiration duration, e.g. 1h"
+        },
+        {
+          "name": "human_summary",
+          "type": "string",
+          "required": false,
+          "description": "Human-readable plan summary"
+        },
+        {
+          "name": "mock",
+          "type": "boolean",
+          "required": false,
+          "description": "Run plan construction against the in-process Salesforce mock server when available"
+        },
+        {
+          "name": "output",
+          "type": "string",
+          "required": false,
+          "description": "Optional output path; default returns JSON in the tool response"
+        },
+        {
+          "name": "run_as_user",
+          "type": "string",
+          "required": false,
+          "description": "SF User Id required in JWT mode"
+        },
+        {
+          "name": "text",
+          "type": "string",
+          "required": true,
+          "description": "Note body"
+        }
+      ]
+    },
+    {
+      "name": "agent_plan_update",
+      "description": "Plan an audited record update.",
+      "params": [
+        {
+          "name": "dry_run",
+          "type": "boolean",
+          "required": false,
+          "description": "Persist dry-run execution intent in the plan"
+        },
+        {
+          "name": "expires_in",
+          "type": "string",
+          "required": false,
+          "description": "Plan expiration duration, e.g. 1h"
+        },
+        {
+          "name": "fields",
+          "type": "object",
+          "required": true,
+          "description": "Field values to write as a JSON object"
+        },
+        {
+          "name": "force_stale",
+          "type": "boolean",
+          "required": false,
+          "description": "Bypass optimistic concurrency"
+        },
+        {
+          "name": "human_summary",
+          "type": "string",
+          "required": false,
+          "description": "Human-readable plan summary"
+        },
+        {
+          "name": "idempotency_key",
+          "type": "string",
+          "required": false,
+          "description": "Optional idempotency key recorded in audit"
+        },
+        {
+          "name": "if_last_modified",
+          "type": "string",
+          "required": false,
+          "description": "Expected LastModifiedDate in RFC3339"
+        },
+        {
+          "name": "mock",
+          "type": "boolean",
+          "required": false,
+          "description": "Run plan construction against the in-process Salesforce mock server when available"
+        },
+        {
+          "name": "output",
+          "type": "string",
+          "required": false,
+          "description": "Optional output path; default returns JSON in the tool response"
+        },
+        {
+          "name": "record_id",
+          "type": "string",
+          "required": true,
+          "description": "Record Id to update"
+        },
+        {
+          "name": "run_as_user",
+          "type": "string",
+          "required": false,
+          "description": "SF User Id required in JWT mode"
+        }
+      ]
+    },
+    {
+      "name": "agent_plan_upsert",
+      "description": "Plan an upsert by SF360 idempotency key.",
+      "params": [
+        {
+          "name": "dry_run",
+          "type": "boolean",
+          "required": false,
+          "description": "Persist dry-run execution intent in the plan"
+        },
+        {
+          "name": "expires_in",
+          "type": "string",
+          "required": false,
+          "description": "Plan expiration duration, e.g. 1h"
+        },
+        {
+          "name": "fields",
+          "type": "object",
+          "required": true,
+          "description": "Field values to write as a JSON object"
+        },
+        {
+          "name": "human_summary",
+          "type": "string",
+          "required": false,
+          "description": "Human-readable plan summary"
+        },
+        {
+          "name": "idempotency_key",
+          "type": "string",
+          "required": true,
+          "description": "Required idempotency key"
+        },
+        {
+          "name": "mock",
+          "type": "boolean",
+          "required": false,
+          "description": "Run plan construction against the in-process Salesforce mock server when available"
+        },
+        {
+          "name": "output",
+          "type": "string",
+          "required": false,
+          "description": "Optional output path; default returns JSON in the tool response"
+        },
+        {
+          "name": "run_as_user",
+          "type": "string",
+          "required": false,
+          "description": "SF User Id required in JWT mode"
+        },
+        {
+          "name": "sobject",
+          "type": "string",
+          "required": true,
+          "description": "Salesforce object API name"
+        }
+      ]
+    },
+    {
+      "name": "agent_refresh",
+      "description": "Force a fresh sync of the CRM data before the next bundle assembly. Useful when an agent knows the cache is stale.",
+      "params": [
+        {
+          "name": "account",
+          "type": "string",
+          "required": false,
+          "description": "Account Id (default: all)"
+        }
+      ]
+    },
+    {
+      "name": "agent_sign_plan",
+      "description": "Append a local countersignature to a write plan. Requires confirm:true.",
+      "params": [
+        {
+          "name": "confirm",
+          "type": "boolean",
+          "required": false,
+          "description": "Pass true to confirm local plan mutation"
+        },
+        {
+          "name": "output",
+          "type": "string",
+          "required": false,
+          "description": "Optional output path for the signed plan"
+        },
+        {
+          "name": "plan",
+          "type": "object",
+          "required": true,
+          "description": "Write plan JSON object or base64-encoded JSON string"
+        }
+      ]
+    },
+    {
+      "name": "agent_update",
+      "description": "Patch one Salesforce record with a signed, audited write intent. Requires confirm:true unless dry_run:true.",
+      "params": [
+        {
+          "name": "confirm",
+          "type": "boolean",
+          "required": false,
+          "description": "Pass true to confirm mutation"
+        },
+        {
+          "name": "confirm_bulk",
+          "type": "number",
+          "required": false,
+          "description": "Confirm intentional bulk writes by passing the exact record count"
+        },
+        {
+          "name": "dry_run",
+          "type": "boolean",
+          "required": false,
+          "description": "Preview payload without DML or audit writes"
+        },
+        {
+          "name": "fields",
+          "type": "object",
+          "required": true,
+          "description": "Field values to write as a JSON object"
+        },
+        {
+          "name": "force_stale",
+          "type": "boolean",
+          "required": false,
+          "description": "Bypass optimistic concurrency"
+        },
+        {
+          "name": "idempotency_key",
+          "type": "string",
+          "required": false,
+          "description": "Optional idempotency key recorded in audit"
+        },
+        {
+          "name": "if_last_modified",
+          "type": "string",
+          "required": false,
+          "description": "Expected LastModifiedDate in RFC3339"
+        },
+        {
+          "name": "mock",
+          "type": "boolean",
+          "required": false,
+          "description": "Run against the in-process Salesforce mock server when available"
+        },
+        {
+          "name": "record_id",
+          "type": "string",
+          "required": true,
+          "description": "Record Id to update"
+        },
+        {
+          "name": "run_as_user",
+          "type": "string",
+          "required": false,
+          "description": "SF User Id required in JWT mode"
+        }
+      ]
+    },
+    {
+      "name": "agent_upsert",
+      "description": "Upsert one Salesforce record by SF360 idempotency key. Requires confirm:true unless dry_run:true.",
+      "params": [
+        {
+          "name": "confirm",
+          "type": "boolean",
+          "required": false,
+          "description": "Pass true to confirm mutation"
+        },
+        {
+          "name": "confirm_bulk",
+          "type": "number",
+          "required": false,
+          "description": "Confirm intentional bulk writes by passing the exact record count"
+        },
+        {
+          "name": "dry_run",
+          "type": "boolean",
+          "required": false,
+          "description": "Preview payload without DML or audit writes"
+        },
+        {
+          "name": "fields",
+          "type": "object",
+          "required": true,
+          "description": "Field values to write as a JSON object"
+        },
+        {
+          "name": "idempotency_key",
+          "type": "string",
+          "required": true,
+          "description": "Required idempotency key"
+        },
+        {
+          "name": "mock",
+          "type": "boolean",
+          "required": false,
+          "description": "Run against the in-process Salesforce mock server when available"
+        },
+        {
+          "name": "run_as_user",
+          "type": "string",
+          "required": false,
+          "description": "SF User Id required in JWT mode"
+        },
+        {
+          "name": "sobject",
+          "type": "string",
+          "required": true,
+          "description": "Salesforce object API name"
+        }
+      ]
+    },
+    {
+      "name": "agent_verify",
+      "description": "Verify a previously-generated bundle signed with an org-registered key. Returns structured pass/fail with warnings.",
+      "params": [
+        {
+          "name": "deep",
+          "type": "boolean",
+          "required": false,
+          "description": "Re-fetch ContentVersion bytes and rehash"
+        },
+        {
+          "name": "live",
+          "type": "boolean",
+          "required": false,
+          "description": "Re-fetch the org's key collection and check retirement"
+        },
+        {
+          "name": "path",
+          "type": "string",
+          "required": true,
+          "description": "Path to bundle JSON file"
+        },
+        {
+          "name": "strict",
+          "type": "boolean",
+          "required": false,
+          "description": "Combine live + deep and fail on expired exp"
+        }
+      ]
+    },
+    {
+      "name": "agent_write_audit_inspect",
+      "description": "Inspect one local write audit row.",
+      "params": [
+        {
+          "name": "jti",
+          "type": "string",
+          "required": true,
+          "description": "Write intent JTI"
+        }
+      ]
+    },
+    {
+      "name": "agent_write_audit_list",
+      "description": "List local signed write audit rows.",
+      "params": [
+        {
+          "name": "kid",
+          "type": "string",
+          "required": false,
+          "description": "Filter by signing key id"
+        },
+        {
+          "name": "limit",
+          "type": "number",
+          "required": false,
+          "description": "Maximum rows to return"
+        },
+        {
+          "name": "since",
+          "type": "string",
+          "required": false,
+          "description": "Only include rows generated at or after this RFC3339 timestamp"
+        },
+        {
+          "name": "sobject",
+          "type": "string",
+          "required": false,
+          "description": "Filter by Salesforce object API name"
+        },
+        {
+          "name": "status",
+          "type": "string",
+          "required": false,
+          "description": "Filter by execution status"
+        }
+      ]
+    },
+    {
+      "name": "agent_write_audit_verify",
+      "description": "Verify one local write audit row's signed write intent.",
+      "params": [
+        {
+          "name": "jti",
+          "type": "string",
+          "required": true,
+          "description": "Write intent JTI"
+        }
+      ]
+    },
+    {
+      "name": "cases_list",
+      "description": "List cases. Returns array of Case.",
+      "params": [
+        {
+          "name": "account",
+          "type": "string",
+          "required": false,
+          "description": "Filter by Account Id"
+        },
+        {
+          "name": "limit",
+          "type": "string",
+          "required": false,
+          "description": "Max records"
+        },
+        {
+          "name": "status",
+          "type": "string",
+          "required": false,
+          "description": "Filter by Status"
+        }
+      ]
+    },
+    {
+      "name": "contacts_get",
+      "description": "Fetch one Contact by Id. Returns Contact.",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "required": true,
+          "description": "Contact Id"
+        }
+      ]
+    },
+    {
+      "name": "contacts_list",
+      "description": "List contacts for an account or by query. Returns array of Contact.",
+      "params": [
+        {
+          "name": "account",
+          "type": "string",
+          "required": false,
+          "description": "Filter by Account Id"
+        },
+        {
+          "name": "limit",
+          "type": "string",
+          "required": false,
+          "description": "Max records"
+        }
+      ]
+    },
+    {
+      "name": "context",
+      "description": "Get API domain context: resource taxonomy, auth requirements, query tips, and unique capabilities. Call this first.",
+      "params": []
+    },
+    {
+      "name": "events_list",
+      "description": "List events. Returns array of Event.",
+      "params": [
+        {
+          "name": "account",
+          "type": "string",
+          "required": false,
+          "description": "Filter by Account Id"
+        },
+        {
+          "name": "limit",
+          "type": "string",
+          "required": false,
+          "description": "Max records"
+        },
+        {
+          "name": "since",
+          "type": "string",
+          "required": false,
+          "description": "Modified since"
+        }
+      ]
+    },
+    {
+      "name": "limits_get",
+      "description": "Current org limits. Returns Limits.",
+      "params": []
+    },
+    {
+      "name": "opportunities_get",
+      "description": "Fetch one Opportunity by Id. Returns Opportunity.",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "required": true,
+          "description": "Opportunity Id"
+        }
+      ]
+    },
+    {
+      "name": "opportunities_list",
+      "description": "List opportunities. Returns array of Opportunity.",
+      "params": [
+        {
+          "name": "account",
+          "type": "string",
+          "required": false,
+          "description": "Filter by Account Id"
+        },
+        {
+          "name": "limit",
+          "type": "string",
+          "required": false,
+          "description": "Max records"
+        },
+        {
+          "name": "stage",
+          "type": "string",
+          "required": false,
+          "description": "Filter by StageName"
+        }
+      ]
+    },
+    {
+      "name": "search",
+      "description": "Full-text search across all synced data. Faster than paginating list endpoints. Requires sync first.",
+      "params": [
+        {
+          "name": "limit",
+          "type": "number",
+          "required": false,
+          "description": "Max results (default 25)"
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "required": true,
+          "description": "Search query (supports FTS5 syntax: AND, OR, NOT, quotes for phrases)"
+        }
+      ]
+    },
+    {
+      "name": "sql",
+      "description": "Run read-only SQL against local database. Use for ad-hoc analysis, aggregations, and joins across synced resources. Requires sync first.",
+      "params": [
+        {
+          "name": "query",
+          "type": "string",
+          "required": true,
+          "description": "SQL query (SELECT only). Tables match resource names."
+        }
+      ]
+    },
+    {
+      "name": "sync",
+      "description": "Sync API data to local SQLite database. Run this before using search or sql tools. Supports incremental sync.",
+      "params": [
+        {
+          "name": "full",
+          "type": "boolean",
+          "required": false,
+          "description": "Full resync ignoring checkpoints"
+        },
+        {
+          "name": "resources",
+          "type": "string",
+          "required": false,
+          "description": "Comma-separated resource types to sync (omit for all)"
+        },
+        {
+          "name": "since",
+          "type": "string",
+          "required": false,
+          "description": "Incremental sync since duration (e.g. 7d, 24h, 1w)"
+        }
+      ]
+    },
+    {
+      "name": "tasks_list",
+      "description": "List tasks. Returns array of Task.",
+      "params": [
+        {
+          "name": "account",
+          "type": "string",
+          "required": false,
+          "description": "Filter by Account Id"
+        },
+        {
+          "name": "limit",
+          "type": "string",
+          "required": false,
+          "description": "Max records"
+        },
+        {
+          "name": "since",
+          "type": "string",
+          "required": false,
+          "description": "Modified since (e.g., 30d, YYYY-MM-DD)"
+        }
+      ]
+    }
+  ]
+}

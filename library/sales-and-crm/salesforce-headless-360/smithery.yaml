@@ -1,0 +1,17 @@
+name: salesforce-headless-360-pp-mcp
+description: salesforce-headless-360 API
+startCommand:
+    command: go run ./cmd/salesforce-headless-360-pp-mcp
+env:
+    SALESFORCE_360_CLIENT_ID:
+        description: salesforce-headless-360 API credential
+        required: true
+    SALESFORCE_360_CLIENT_SECRET:
+        description: salesforce-headless-360 API credential
+        required: true
+    SALESFORCE_ACCESS_TOKEN:
+        description: salesforce-headless-360 API credential
+        required: true
+    SALESFORCE_INSTANCE_URL:
+        description: salesforce-headless-360 API credential
+        required: true

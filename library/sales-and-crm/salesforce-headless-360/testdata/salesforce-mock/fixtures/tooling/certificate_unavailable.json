@@ -1,0 +1,9 @@
+{
+  "status": 400,
+  "envelope": [
+    {
+      "errorCode": "INVALID_TYPE",
+      "message": "sObject type 'Certificate' is not supported."
+    }
+  ]
+}

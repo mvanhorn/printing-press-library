@@ -1,0 +1,76 @@
+{
+  "dir": "/Users/mvanhorn/printing-press/library/salesforce-headless-360",
+  "spec_path": "/Users/mvanhorn/printing-press/manuscripts/salesforce-headless-360/20260422-114647/research/salesforce-headless-360-spec.yaml",
+  "verdict": "PASS",
+  "path_check": {
+    "tested": 0,
+    "valid": 0,
+    "valid_pct": 0,
+    "skipped": true,
+    "detail": "synthetic spec: path validity not applicable"
+  },
+  "auth_check": {
+    "spec_scheme": "",
+    "generated_format": "Bearer ",
+    "match": true,
+    "detail": "spec not provided or no bot/bearer scheme detected"
+  },
+  "dead_flags": {
+    "total": 17,
+    "dead": 0
+  },
+  "dead_functions": {
+    "total": 47,
+    "dead": 0
+  },
+  "pipeline_check": {
+    "sync_calls_domain": true,
+    "search_calls_domain": false,
+    "domain_tables": 1,
+    "detail": "sync uses domain-specific Upsert methods; search uses generic Search only; 1 domain tables found"
+  },
+  "example_check": {
+    "tested": 10,
+    "with_examples": 6,
+    "valid_examples": 6,
+    "missing": [
+      "channel workflow",
+      "promoted cases",
+      "promoted limits",
+      "promoted tasks"
+    ],
+    "detail": "6/10 commands have examples"
+  },
+  "wiring_check": {
+    "command_tree": {
+      "defined": 48,
+      "registered": 48
+    },
+    "config_consistency": {
+      "consistent": true
+    },
+    "workflow_completeness": {
+      "skipped": true,
+      "total_steps": 0,
+      "mapped_steps": 0,
+      "detail": "no workflow_verify.yaml found"
+    }
+  },
+  "novel_features_check": {
+    "planned": 0,
+    "found": 0,
+    "skipped": true
+  },
+  "reimplementation_check": {
+    "checked": 0,
+    "exempted_via_store": 0,
+    "skipped": true
+  },
+  "test_presence": {
+    "checked": 2
+  },
+  "naming_check": {
+    "checked": 32
+  },
+  "issues": null
+}

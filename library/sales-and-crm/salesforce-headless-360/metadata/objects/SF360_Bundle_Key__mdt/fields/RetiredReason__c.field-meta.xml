@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>RetiredReason__c</fullName>
+    <description>Reason supplied when retiring or revoking the key.</description>
+    <fieldManageability>DeveloperControlled</fieldManageability>
+    <label>Retired Reason</label>
+    <length>255</length>
+    <required>false</required>
+    <type>Text</type>
+</CustomField>

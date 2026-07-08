@@ -1,0 +1,9 @@
+{
+  "status": 403,
+  "envelope": [
+    {
+      "errorCode": "DATA_CLOUD_NOT_PROVISIONED",
+      "message": "Data Cloud is not provisioned for this org."
+    }
+  ]
+}

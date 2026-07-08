@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Receipt__c</fullName>
+    <description>Signed possession receipt whose hash links this key into the CMDT receipt chain.</description>
+    <fieldManageability>DeveloperControlled</fieldManageability>
+    <label>Receipt</label>
+    <length>32768</length>
+    <type>LongTextArea</type>
+    <visibleLines>8</visibleLines>
+</CustomField>

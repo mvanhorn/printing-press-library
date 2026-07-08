@@ -1,0 +1,13 @@
+{
+  "status": 400,
+  "envelope": {
+    "success": false,
+    "errors": [
+      {
+        "errorCode": "FIELD_CUSTOM_VALIDATION_EXCEPTION",
+        "message": "SF360_ActivityDate_Current: Activity date must not be in the past.",
+        "fields": ["ActivityDate"]
+      }
+    ]
+  }
+}

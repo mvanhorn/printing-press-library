@@ -1,0 +1,39 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://printing-press.dev/schemas/salesforce-headless-360/manifest.v1.json",
+  "title": "Salesforce Headless 360 Manifest v1",
+  "type": "object",
+  "additionalProperties": true,
+  "properties": {
+    "account": {"type": "object"},
+    "contacts": {"type": "array", "items": {"type": "object"}},
+    "opportunities": {"type": "array", "items": {"type": "object"}},
+    "cases": {"type": "array", "items": {"type": "object"}},
+    "activities": {
+      "type": "object",
+      "properties": {
+        "tasks": {"type": "array", "items": {"type": "object"}},
+        "events": {"type": "array", "items": {"type": "object"}}
+      }
+    },
+    "tasks": {"type": "array", "items": {"type": "object"}},
+    "events": {"type": "array", "items": {"type": "object"}},
+    "chatter": {"type": "array", "items": {"type": "object"}},
+    "files": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["name", "sha256", "sf_content_version_id", "size_bytes"],
+        "additionalProperties": true,
+        "properties": {
+          "name": {"type": "string", "minLength": 1},
+          "sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+          "sf_content_version_id": {"type": "string", "minLength": 1},
+          "size_bytes": {"type": "integer", "minimum": 0}
+        }
+      }
+    },
+    "data_cloud_profile": {"type": "object"},
+    "slack_channels": {"type": "array", "items": {"type": "object"}}
+  }
+}
