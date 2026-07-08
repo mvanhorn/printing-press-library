@@ -1,6 +1,6 @@
 module github.com/mvanhorn/printing-press-library/library/developer-tools/thelancet
 
-go 1.26
+go 1.26.5
 
 toolchain go1.26.4
 
