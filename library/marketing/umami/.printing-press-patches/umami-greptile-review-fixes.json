@@ -4,8 +4,11 @@
   "applied_at": "2026-07-08",
   "base_run_id": "20260707-191920-01784e58",
   "base_printing_press_version": "4.27.1",
-  "summary": "fetchAllWebsites paginates past 200 sites; snapshotMetrics writes each (day, metric_type) pair in one transaction so interrupted runs leave no frozen partial history.",
-  "reason": "Greptile review findings P1/P2 on PR #1458: single-page site listing silently dropped sites beyond 200, and the existing-pair skip in snapshotMetrics treated partially written days as complete.",
-  "files": ["internal/cli/umami_sites.go", "internal/cli/umami_snapshot.go"],
-  "validated_outcome": "go build/vet/test green; live: portfolio returns all 18 sites, snapshot re-run stays idempotent with no partial rows."
+  "summary": "fetchAllWebsites paginates past 200 sites; snapshotMetrics writes each (day, metric_type) pair in one transaction and drains the metrics dimension with limit/offset pagination so busy days are stored completely.",
+  "reason": "Greptile review findings on PR #1458 (rounds 1-2): single-page site listing dropped sites beyond 200; partially-written metric days were frozen as complete; top-200-capped metric responses permanently truncated busy days.",
+  "files": [
+    "internal/cli/umami_sites.go",
+    "internal/cli/umami_snapshot.go"
+  ],
+  "validated_outcome": "go build/vet/test green; live: portfolio returns all 18 sites, snapshot idempotent, no partial or capped history."
 }

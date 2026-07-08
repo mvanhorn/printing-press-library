@@ -144,6 +144,36 @@ func getMetrics(ctx context.Context, c *client.Client, websiteID, metricType str
 	return rows, nil
 }
 
+// getAllMetrics drains a metrics dimension with limit/offset pagination so
+// busy days (>page rows) are captured completely, not just the top slice.
+// Capped at 20 pages (10k rows per day/type) as a runaway guard.
+func getAllMetrics(ctx context.Context, c *client.Client, websiteID, metricType string, w periodWindow) ([]umamiMetricRow, error) {
+	const page = 500
+	var all []umamiMetricRow
+	for offset := 0; offset < 20*page; offset += page {
+		params := map[string]string{
+			"type":    metricType,
+			"startAt": strconv.FormatInt(w.StartMs, 10),
+			"endAt":   strconv.FormatInt(w.EndMs, 10),
+			"limit":   strconv.Itoa(page),
+			"offset":  strconv.Itoa(offset),
+		}
+		data, err := c.Get(ctx, "/api/websites/"+websiteID+"/metrics", params)
+		if err != nil {
+			return nil, err
+		}
+		var rows []umamiMetricRow
+		if err := json.Unmarshal(data, &rows); err != nil {
+			return nil, fmt.Errorf("parsing %s metrics (offset %d): %w", metricType, offset, err)
+		}
+		all = append(all, rows...)
+		if len(rows) < page {
+			break
+		}
+	}
+	return all, nil
+}
+
 // seriesPoint is one {x, y} bucket from /pageviews.
 type seriesPoint struct {
 	X string  `json:"x"`

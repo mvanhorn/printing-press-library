@@ -199,7 +199,7 @@ func snapshotMetrics(ctx context.Context, c *client.Client, db *store.Store, sit
 			if existing[key+"|"+mt] {
 				continue
 			}
-			metricRows, err := getMetrics(ctx, c, site.ID, mt, w, 200)
+			metricRows, err := getAllMetrics(ctx, c, site.ID, mt, w)
 			if err != nil {
 				return count, fmt.Errorf("metrics %s day %s: %w", mt, key, err)
 			}
