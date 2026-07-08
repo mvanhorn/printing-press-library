@@ -257,7 +257,7 @@ jobs:
       # binary that will run after merge.
       - uses: actions/setup-go@v6
         with:
-          go-version: '1.26.4'
+          go-version-file: .go-version
 
       - name: Validate registry source descriptions
         # Reject PRs whose .printing-press.json + .goreleaser.yaml sources would
