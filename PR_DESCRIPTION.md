@@ -4,7 +4,7 @@ Fixes two live provider-drift failures in `table-reservation-goat`:
 
 - Tock booking now keeps the legacy per-slot-button click path first, then falls back to Tock's newer experience-card layout by selecting the requested time from a combobox/listbox, choosing the correct experience card by party size, and clicking the follow-on "Book now" submit control.
 - The Tock combobox fallback is now navigation-proof: before evaluating the fallback it verifies the active Chrome target is still the requested venue page, reattaches to an existing venue tab when possible, re-navigates or opens a fresh venue target when needed, and retries once on CDP `-32000` target navigation/closure errors.
-- Tock agent/no-input live booking no longer prompts for CVC. Callers must pass `TRG_TOCK_CVC`; missing or invalid values return a typed `cvc_required` JSON outcome with the booking URL before Chrome is launched.
+- Tock agent/no-input live booking no longer prompts for CVC. It attempts the booking with an empty CVC (matching the interactive flow's Enter-to-skip, which free and card-on-file venues complete fine); if checkout then stalls on an unfilled CVC field it returns a typed `cvc_required` JSON outcome with the booking URL. `TRG_TOCK_CVC` supplies a CVC non-interactively; an invalid value returns `cvc_required` up front. The value is never logged.
 - OpenTable availability now treats the persisted-query identity as `hash + operationName`, persists both from the page-fired request, and builds direct GraphQL requests where body `operationName`, URL `opname`, and the harvested hash identity stay in sync.
 
 The Tock drift error is now typed as `selector_drift` at the CLI boundary and includes a page-state hint with present comboboxes/options/book controls, plus challenge/login-wall booleans.
@@ -32,7 +32,7 @@ OpenTable's Apollo persisted-query gateway now validates that the operation name
   - venue-target recovery before combobox fallback,
   - one retry for CDP `-32000` target navigation/closure,
   - page-state hint on selector drift that re-resolves the live venue target.
-- Added no-prompt Tock CVC handling for `--agent` / `--no-input`; `TRG_TOCK_CVC` is accepted, invalid/missing CVC returns `cvc_required`, and the value is never logged.
+- Added no-prompt Tock CVC handling for `--agent` / `--no-input`: attempts with an empty CVC by default, detects checkout stalling on an unfilled CVC field and returns typed `cvc_required` (`tock.ErrCVCRequired`); `TRG_TOCK_CVC` is accepted for non-interactive supply, an invalid value returns `cvc_required` up front, and the value is never logged.
 - Added `tock.ErrSlotControlNotFound` and mapped it to `selector_drift` in `book` JSON output.
 - Replaced OpenTable availability hash-only persistence with a backwards-compatible query identity store: existing `{ "hash": ... }` files still load and default to `RestaurantsAvailability`.
 - Harvested OpenTable operation names from Chrome/CDP request bodies and URL `opname`.

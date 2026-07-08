@@ -214,12 +214,16 @@ func TestVerifyEnvFloor_GuardOrder(t *testing.T) {
 	// the gate — and it's covered by cliutil.IsVerifyEnv tests already.
 }
 
-func TestTockCVCForBooking_NoInputRequiresEnvAndDoesNotPrompt(t *testing.T) {
+func TestTockCVCForBooking_NoInputAttemptsWithEmptyCVCAndDoesNotPrompt(t *testing.T) {
+	// Machine mode without TRG_TOCK_CVC proceeds with an empty CVC (the
+	// interactive flow allows skipping; card-on-file venues complete without
+	// one). A venue that truly blocks surfaces tock.ErrCVCRequired from the
+	// checkout stage instead.
 	t.Setenv("TRG_TOCK_CVC", "")
 	var stderr bytes.Buffer
 	cvc, err := tockCVCForBooking(true, os.Stdin, &stderr)
-	if !errors.Is(err, errTockCVCRequired) {
-		t.Fatalf("tockCVCForBooking err = %v, want errTockCVCRequired", err)
+	if err != nil {
+		t.Fatalf("tockCVCForBooking unexpected err: %v", err)
 	}
 	if cvc != "" {
 		t.Fatalf("cvc = %q, want empty", cvc)

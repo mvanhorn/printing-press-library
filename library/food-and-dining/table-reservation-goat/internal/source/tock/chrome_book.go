@@ -153,6 +153,12 @@ func (c *Client) ChromeBook(ctx context.Context, req BookRequest) (*BookResponse
 		chromedp.ActionFunc(func(actCtx context.Context) error {
 			u, err := waitForReceiptPage(actCtx, 30*time.Second)
 			if err != nil {
+				// Distinguish "stalled on a required CVC we don't have" from
+				// generic checkout failure so machine callers get a typed,
+				// actionable outcome instead of a timeout.
+				if req.CVC == "" && emptyCVCFieldPresent(actCtx) {
+					return ErrCVCRequired
+				}
 				return err
 			}
 			receiptURL = u
@@ -676,7 +682,7 @@ func fillCVCIfPresent(ctx context.Context, cvc string) error {
 		return nil
 	}
 	js := `
-		(() => {
+		((cvcValue) => {
 			const inputs = Array.from(document.querySelectorAll('input'));
 			for (const i of inputs) {
 				const ph = (i.placeholder || '').toLowerCase();
@@ -684,14 +690,14 @@ func fillCVCIfPresent(ctx context.Context, cvc string) error {
 				const id = (i.id || '').toLowerCase();
 				if (ph === 'cvc' || ph === 'cvv' || /cvc|cvv|securityCode/i.test(name) || /cvc|cvv|security/i.test(id)) {
 					i.focus();
-					i.value = arguments[0];
+					i.value = cvcValue;
 					i.dispatchEvent(new Event('input', { bubbles: true }));
 					i.dispatchEvent(new Event('change', { bubbles: true }));
 					return true;
 				}
 			}
 			return false;
-		})()
+		})
 	`
 	var filled bool
 	if err := chromedp.Evaluate(fmt.Sprintf("(%s)(%q)", js, cvc), &filled).Do(ctx); err != nil {
@@ -699,6 +705,31 @@ func fillCVCIfPresent(ctx context.Context, cvc string) error {
 	}
 	// Not finding a CVC field is fine — venue may not require card.
 	return nil
+}
+
+// emptyCVCFieldPresent reports whether the checkout page shows a CVC/CVV
+// input that is still empty — the signature of a venue blocking on
+// per-transaction CVC re-entry. Mirrors fillCVCIfPresent's selector.
+func emptyCVCFieldPresent(ctx context.Context) bool {
+	js := `
+		(() => {
+			const inputs = Array.from(document.querySelectorAll('input'));
+			for (const i of inputs) {
+				const ph = (i.placeholder || '').toLowerCase();
+				const name = (i.name || '').toLowerCase();
+				const id = (i.id || '').toLowerCase();
+				if (ph === 'cvc' || ph === 'cvv' || /cvc|cvv|securityCode/i.test(name) || /cvc|cvv|security/i.test(id)) {
+					return (i.value || '').trim() === '';
+				}
+			}
+			return false;
+		})()
+	`
+	var present bool
+	if err := chromedp.Evaluate(js, &present).Do(ctx); err != nil {
+		return false
+	}
+	return present
 }
 
 // checkAcknowledgeIfPresent ticks the cancellation-policy checkbox if present.

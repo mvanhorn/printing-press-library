@@ -76,6 +76,10 @@ var (
 	// controls that were present so agents can distinguish provider drift from
 	// login walls or challenge pages.
 	ErrSlotControlNotFound = errors.New("tock: requested booking slot control not found")
+
+	// ErrCVCRequired signals that checkout stalled on an unfilled CVC field —
+	// the venue requires per-transaction CVC re-entry and none was provided.
+	ErrCVCRequired = errors.New("tock: venue requires CVC re-entry for this booking")
 )
 
 // BookRequest is the user-facing input to Book(). v0.2 returns

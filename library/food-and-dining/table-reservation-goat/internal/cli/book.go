@@ -576,11 +576,7 @@ func bookOnTock(ctx context.Context, session *auth.Session, slug, date, hhmm str
 	cvc, cvcErr := tockCVCForBooking(noInput, os.Stdin, os.Stderr)
 	if cvcErr != nil {
 		out.Error = "cvc_required"
-		if errors.Is(cvcErr, errTockCVCInvalid) {
-			out.Hint = "TRG_TOCK_CVC must be 3 or 4 digits; the value was not used"
-		} else {
-			out.Hint = "set TRG_TOCK_CVC to the card CVC for this one Tock booking, or rerun interactively without --agent/--no-input"
-		}
+		out.Hint = "TRG_TOCK_CVC must be 3 or 4 digits; the value was not used"
 		out.BookURL = fmt.Sprintf("https://www.exploretock.com/%s?date=%s&size=%d&time=%s", slug, date, party, hhmm)
 		return out, cvcErr
 	}
@@ -602,6 +598,10 @@ func bookOnTock(ctx context.Context, session *auth.Session, slug, date, hhmm str
 			out.Error = "selector_drift"
 			out.Hint = bookErr.Error()
 			out.BookURL = fmt.Sprintf("https://www.exploretock.com/%s?date=%s&size=%d&time=%s", slug, date, party, hhmm)
+		case errors.Is(bookErr, tock.ErrCVCRequired):
+			out.Error = "cvc_required"
+			out.Hint = "this venue requires card CVC re-entry per booking: set TRG_TOCK_CVC for this booking, rerun interactively, or book via the URL"
+			out.BookURL = fmt.Sprintf("https://www.exploretock.com/%s?date=%s&size=%d&time=%s", slug, date, party, hhmm)
 		default:
 			out.Error = "chromedp_book_failed"
 			out.Hint = bookErr.Error()
@@ -622,8 +622,7 @@ func bookOnTock(ctx context.Context, session *auth.Session, slug, date, hhmm str
 }
 
 var (
-	errTockCVCRequired = errors.New("tock: cvc required in non-interactive mode")
-	errTockCVCInvalid  = errors.New("tock: cvc must be 3 or 4 digits")
+	errTockCVCInvalid = errors.New("tock: cvc must be 3 or 4 digits")
 )
 
 // tockCVCForBooking reads only the per-transaction CVC. It never asks for or
@@ -636,7 +635,11 @@ func tockCVCForBooking(noInput bool, in *os.File, errOut io.Writer) (string, err
 		return v, nil
 	}
 	if noInput {
-		return "", errTockCVCRequired
+		// Attempt with an empty CVC — the interactive flow allows skipping,
+		// and card-on-file / free venues complete without one. A venue that
+		// truly blocks on CVC surfaces tock.ErrCVCRequired from the checkout
+		// stage, which maps to the typed cvc_required output below.
+		return "", nil
 	}
 	if in == nil {
 		return "", nil
