@@ -44,10 +44,18 @@ func TestExtractSha256Hash(t *testing.T) {
 	}
 }
 
+func TestExtractOperationName(t *testing.T) {
+	body := `{"operationName":"RestaurantAvailability","variables":{},"extensions":{"persistedQuery":{"sha256Hash":"0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef"}}}`
+	if got := extractOperationName(body); got != "RestaurantAvailability" {
+		t.Fatalf("extractOperationName() = %q, want RestaurantAvailability", got)
+	}
+}
+
 func TestHashFromRequestPostDataEntries(t *testing.T) {
 	fresh := "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef"
-	body := `{"operationName":"RestaurantsAvailability","extensions":{"persistedQuery":{"sha256Hash":"` + fresh + `"}}}`
+	body := `{"operationName":"RestaurantAvailability","extensions":{"persistedQuery":{"sha256Hash":"` + fresh + `"}}}`
 	req := &network.Request{
+		URL: "https://www.opentable.com/dapi/fe/gql?optype=query&opname=RestaurantAvailability",
 		PostDataEntries: []*network.PostDataEntry{
 			{Bytes: base64.StdEncoding.EncodeToString([]byte(body[:40]))},
 			{Bytes: base64.StdEncoding.EncodeToString([]byte(body[40:]))},
@@ -56,12 +64,18 @@ func TestHashFromRequestPostDataEntries(t *testing.T) {
 	if got := hashFromRequest(req); got != fresh {
 		t.Fatalf("hashFromRequest() = %q, want %q", got, fresh)
 	}
+	if got := availabilityIdentityFromRequest(req); got.OperationName != "RestaurantAvailability" {
+		t.Fatalf("availabilityIdentityFromRequest().OperationName = %q, want RestaurantAvailability", got.OperationName)
+	}
 }
 
 func TestHashFromPostDataFallback(t *testing.T) {
 	fresh := "abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789"
-	body := `{"operationName":"RestaurantsAvailability","extensions":{"persistedQuery":{"sha256Hash":"` + fresh + `"}}}`
+	body := `{"operationName":"RestaurantAvailability","extensions":{"persistedQuery":{"sha256Hash":"` + fresh + `"}}}`
 	if got := hashFromPostData([]byte(body)); got != fresh {
 		t.Fatalf("hashFromPostData() = %q, want %q", got, fresh)
+	}
+	if got := availabilityIdentityFromPostData([]byte(body)); got.OperationName != "RestaurantAvailability" {
+		t.Fatalf("availabilityIdentityFromPostData().OperationName = %q, want RestaurantAvailability", got.OperationName)
 	}
 }

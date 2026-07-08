@@ -70,6 +70,12 @@ var (
 	// ErrUpcomingShapeChanged signals that $REDUX_STATE.patron.purchaseSummaries
 	// is missing or wrong shape — Tock SPA-refactor canary.
 	ErrUpcomingShapeChanged = errors.New("tock: $REDUX_STATE.patron.purchaseSummaries missing — Tock SPA may have changed")
+
+	// ErrSlotControlNotFound signals selector/layout drift before checkout.
+	// The wrapped error includes a page-state hint with the interactive
+	// controls that were present so agents can distinguish provider drift from
+	// login walls or challenge pages.
+	ErrSlotControlNotFound = errors.New("tock: requested booking slot control not found")
 )
 
 // BookRequest is the user-facing input to Book(). v0.2 returns

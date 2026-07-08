@@ -33,6 +33,7 @@ import (
 	"github.com/chromedp/cdproto/cdp"
 	"github.com/chromedp/cdproto/network"
 	"github.com/chromedp/cdproto/page"
+	"github.com/chromedp/cdproto/runtime"
 	"github.com/chromedp/chromedp"
 
 	"github.com/mvanhorn/printing-press-library/library/food-and-dining/table-reservation-goat/internal/source/auth"
@@ -142,9 +143,11 @@ func (c *Client) ChromeBook(ctx context.Context, req BookRequest) (*BookResponse
 		injectTockCookies(cookies),
 		chromedp.Navigate(venueURL),
 		chromedp.Sleep(2 * time.Second),
-		// Find and click the slot button by visible time text.
+		// Find and click the requested booking control. Legacy Tock pages
+		// expose one button per slot time; newer experience-card pages expose
+		// a time combobox plus "Book now" controls on experience cards.
 		chromedp.ActionFunc(func(actCtx context.Context) error {
-			return clickSlotByTimeText(actCtx, displayTime)
+			return clickRequestedTockBookingControl(actCtx, displayTime, req.PartySize, req.ExperienceID)
 		}),
 		chromedp.Sleep(2 * time.Second),
 		// Wait for the checkout page (URL contains /checkout/confirm-purchase).
@@ -240,6 +243,243 @@ func clickSlotByTimeText(ctx context.Context, displayTime string) error {
 		return fmt.Errorf("slot button for %q not found", displayTime)
 	}
 	return nil
+}
+
+func clickRequestedTockBookingControl(ctx context.Context, displayTime string, partySize, experienceID int) error {
+	legacyErr := clickSlotByTimeText(ctx, displayTime)
+	if legacyErr == nil {
+		return nil
+	}
+	comboboxErr := clickComboboxExperienceLayout(ctx, displayTime, partySize, experienceID)
+	if comboboxErr == nil {
+		return nil
+	}
+	return fmt.Errorf("%w: requested_time=%q legacy_slot_error=%v combobox_layout_error=%v page_state=%s",
+		ErrSlotControlNotFound, displayTime, legacyErr, comboboxErr, tockBookingPageStateHint(ctx))
+}
+
+type tockComboboxClickResult struct {
+	OK     bool   `json:"ok"`
+	Step   string `json:"step"`
+	Detail string `json:"detail"`
+}
+
+// clickComboboxExperienceLayout drives Tock's newer booking layout:
+// choose the requested time from a combobox/listbox, pick the best matching
+// experience card, then click its "Book now" control.
+func clickComboboxExperienceLayout(ctx context.Context, displayTime string, partySize, experienceID int) error {
+	js := fmt.Sprintf(`
+		(async () => {
+			const target = %q;
+			const partySize = %d;
+			const experienceID = %d;
+			const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+			const clean = (s) => (s || '').replace(/\s+/g, ' ').trim();
+			const labelFor = (el) => {
+				if (!el) return '';
+				const parts = [
+					el.getAttribute && el.getAttribute('aria-label'),
+					el.getAttribute && el.getAttribute('aria-labelledby'),
+					el.getAttribute && el.getAttribute('placeholder'),
+					el.getAttribute && el.getAttribute('name'),
+					el.id,
+					el.textContent
+				].filter(Boolean);
+				if (el.id) {
+					const lbl = document.querySelector('label[for="' + CSS.escape(el.id) + '"]');
+					if (lbl) parts.push(lbl.textContent);
+				}
+				return clean(parts.join(' '));
+			};
+			const visible = (el) => {
+				if (!el || !el.isConnected) return false;
+				const style = window.getComputedStyle(el);
+				if (style.visibility === 'hidden' || style.display === 'none') return false;
+				const rect = el.getBoundingClientRect();
+				return rect.width > 0 && rect.height > 0;
+			};
+			const all = (selector) => Array.from(document.querySelectorAll(selector)).filter(visible);
+			const click = (el) => {
+				el.scrollIntoView({ block: 'center', inline: 'center' });
+				el.dispatchEvent(new MouseEvent('mouseover', { bubbles: true }));
+				el.dispatchEvent(new MouseEvent('mousedown', { bubbles: true }));
+				el.click();
+				el.dispatchEvent(new MouseEvent('mouseup', { bubbles: true }));
+			};
+			const fireChange = (el) => {
+				el.dispatchEvent(new Event('input', { bubbles: true }));
+				el.dispatchEvent(new Event('change', { bubbles: true }));
+			};
+			const exactTime = (el) => clean(el.textContent || el.innerText || el.getAttribute('aria-label') || el.value) === target;
+
+			for (const select of all('select')) {
+				const options = Array.from(select.options || []);
+				const match = options.find((opt) => clean(opt.textContent || opt.label || opt.value) === target);
+				if (match) {
+					select.value = match.value;
+					fireChange(select);
+					await sleep(150);
+					return await clickBestExperienceBookNow();
+				}
+			}
+
+			for (const input of all('input[list]')) {
+				const list = input.list;
+				if (!list) continue;
+				const match = Array.from(list.options || []).find((opt) => clean(opt.label || opt.textContent || opt.value) === target);
+				if (!match) continue;
+				input.focus();
+				input.value = match.value || target;
+				fireChange(input);
+				await sleep(150);
+				return await clickBestExperienceBookNow();
+			}
+
+			const comboCandidates = all('[role="combobox"], [aria-haspopup="listbox"], button, input')
+				.map((el) => {
+					const text = labelFor(el);
+					let score = 0;
+					if (/time/i.test(text)) score += 8;
+					if (text.includes(target)) score += 6;
+					if (/\b(?:AM|PM)\b/.test(text)) score += 4;
+					if (/date|calendar/i.test(text)) score -= 5;
+					if (el.getAttribute('role') === 'combobox') score += 3;
+					if (el.getAttribute('aria-haspopup') === 'listbox') score += 2;
+					return { el, score, text };
+				})
+				.filter((c) => c.score > -4)
+				.sort((a, b) => b.score - a.score)
+				.slice(0, 6);
+
+			for (const candidate of comboCandidates) {
+				click(candidate.el);
+				await sleep(150);
+				for (let attempt = 0; attempt < 12; attempt++) {
+					const options = all('[role="option"], [role="listbox"] [role="option"], [role="listbox"] button, [role="listbox"] li, [role="listbox"] div, li, button')
+						.filter((el) => exactTime(el));
+					if (options.length > 0) {
+						click(options[0]);
+						await sleep(200);
+						return await clickBestExperienceBookNow();
+					}
+					await sleep(100);
+				}
+			}
+			return { ok: false, step: 'time_combobox', detail: 'requested time option not found' };
+
+			function cardFor(control) {
+				const selectors = ['[data-testid*="experience"]', '[class*="experience"]', '[class*="card"]', 'article', 'section', 'li', 'form', 'div'];
+				for (const sel of selectors) {
+					const found = control.closest(sel);
+					if (found && clean(found.textContent).length > clean(control.textContent).length) return found;
+				}
+				return control;
+			}
+			function groupRange(text) {
+				const m = text.match(/(?:group[s]?\s*)?(\d+)\s*[-–]\s*(\d+)/i);
+				if (!m) return null;
+				return { min: Number(m[1]), max: Number(m[2]) };
+			}
+			function scoreBookControl(control) {
+				const card = cardFor(control);
+				const text = clean(card.textContent || control.textContent);
+				const href = control.getAttribute && (control.getAttribute('href') || '');
+				let score = 0;
+				if (experienceID > 0 && href.includes('/experience/' + experienceID)) score += 100;
+				const range = groupRange(text);
+				if (range) {
+					if (partySize >= range.min && partySize <= range.max) score += 45;
+					else score -= 45;
+				}
+				if (/group/i.test(text)) score += partySize >= 7 ? 12 : -25;
+				if (/reservation/i.test(text)) score += 8;
+				if (!/group/i.test(text) && partySize < 7) score += 20;
+				if (!/group/i.test(text) && partySize >= 7) score -= 8;
+				const top = control.getBoundingClientRect().top;
+				return { control, cardText: text.slice(0, 160), score, top };
+			}
+			async function clickBestExperienceBookNow() {
+				const controls = all('a, button')
+					.filter((el) => /book now/i.test(clean(el.textContent || el.getAttribute('aria-label'))))
+					.map(scoreBookControl)
+					.sort((a, b) => (b.score - a.score) || (a.top - b.top));
+				if (controls.length === 0) {
+					return { ok: false, step: 'experience_card', detail: 'no Book now controls found after selecting time' };
+				}
+				click(controls[0].control);
+				await sleep(500);
+				if (!/\/checkout\/confirm-purchase/.test(location.href)) {
+					const submit = all('button')
+						.filter((el) => el !== controls[0].control)
+						.filter((el) => /book now/i.test(clean(el.textContent || el.getAttribute('aria-label'))) || el.type === 'submit')
+						.sort((a, b) => a.getBoundingClientRect().top - b.getBoundingClientRect().top)[0];
+					if (submit) {
+						click(submit);
+						await sleep(250);
+					}
+				}
+				return { ok: true, step: 'experience_card', detail: controls[0].cardText };
+			}
+		})()
+	`, displayTime, partySize, experienceID)
+	var result tockComboboxClickResult
+	awaitPromise := func(p *runtime.EvaluateParams) *runtime.EvaluateParams {
+		return p.WithAwaitPromise(true)
+	}
+	if err := chromedp.Evaluate(js, &result, awaitPromise).Do(ctx); err != nil {
+		return fmt.Errorf("evaluating combobox booking layout: %w", err)
+	}
+	if !result.OK {
+		if result.Step == "" {
+			result.Step = "unknown"
+		}
+		if result.Detail == "" {
+			result.Detail = "no matching combobox booking controls"
+		}
+		return fmt.Errorf("%s: %s", result.Step, result.Detail)
+	}
+	return nil
+}
+
+func tockBookingPageStateHint(ctx context.Context) string {
+	js := `
+		(() => {
+			const clean = (s) => (s || '').replace(/\s+/g, ' ').trim();
+			const visible = (el) => {
+				if (!el || !el.isConnected) return false;
+				const style = window.getComputedStyle(el);
+				if (style.visibility === 'hidden' || style.display === 'none') return false;
+				const rect = el.getBoundingClientRect();
+				return rect.width > 0 && rect.height > 0;
+			};
+			const summarize = (selector, limit = 12) => Array.from(document.querySelectorAll(selector))
+				.filter(visible)
+				.map((el) => clean(el.textContent || el.getAttribute('aria-label') || el.getAttribute('placeholder') || el.value))
+				.filter(Boolean)
+				.slice(0, limit);
+			const body = clean(document.body && document.body.innerText).toLowerCase();
+			const bookControls = summarize('button, a').filter((t) => /book now|reserve|reservation|am|pm/i.test(t));
+			const comboboxes = summarize('select, [role="combobox"], [aria-haspopup="listbox"], input[list], input[aria-autocomplete]');
+			const options = summarize('option, [role="option"]', 20);
+			return JSON.stringify({
+				url: location.href,
+				combobox_layout_detected: comboboxes.length > 0 && (options.some((t) => /\b(?:AM|PM)\b/.test(t)) || bookControls.some((t) => /book now/i.test(t))),
+				challenge_detected: /verify you are human|checking your browser|access denied|captcha|challenge/.test(body),
+				login_wall_detected: /sign in|log in|continue with google|email address/.test(body),
+				comboboxes,
+				options,
+				book_controls: bookControls
+			});
+		})()
+	`
+	var state string
+	if err := chromedp.Evaluate(js, &state).Do(ctx); err != nil {
+		return fmt.Sprintf(`{"hint_error":%q}`, err.Error())
+	}
+	if state == "" {
+		return `{}`
+	}
+	return state
 }
 
 // waitForCheckoutPage polls for the URL containing /checkout/confirm-purchase.

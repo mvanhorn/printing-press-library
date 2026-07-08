@@ -196,12 +196,13 @@ func (c *Client) ChromeAvailability(
 		body     []byte
 		status   int
 		err      error
-		reqHash  string
+		reqQuery availabilityQueryIdentity
 		hashSeen bool
 		hashDone chan struct{}
 		done     chan struct{}
+		reqIDs   map[network.RequestID]bool
 	}
-	cap := &slotCapture{hashDone: make(chan struct{}), done: make(chan struct{})}
+	cap := &slotCapture{hashDone: make(chan struct{}), done: make(chan struct{}), reqIDs: map[network.RequestID]bool{}}
 	closed := false
 	closeOnce := func() {
 		cap.mu.Lock()
@@ -228,13 +229,16 @@ func (c *Client) ChromeAvailability(
 			// hash rides in the outgoing request, so we capture it even when
 			// Akamai later 403s the response — this is what seeds the fast
 			// direct path after an OpenTable bundle rotation.
-			if e.Request == nil || !strings.Contains(e.Request.URL, "opname=RestaurantsAvailability") {
+			if e.Request == nil || !isAvailabilityGraphQLRequest(e.Request.URL) {
 				return
 			}
-			if h := hashFromRequest(e.Request); h != "" {
+			cap.mu.Lock()
+			cap.reqIDs[e.RequestID] = true
+			cap.mu.Unlock()
+			if identity := availabilityIdentityFromRequest(e.Request); identity.Hash != "" {
 				cap.mu.Lock()
 				cap.hashSeen = true
-				cap.reqHash = h
+				cap.reqQuery = identity
 				cap.mu.Unlock()
 				closeHashOnce()
 				return
@@ -246,9 +250,9 @@ func (c *Client) ChromeAvailability(
 			go func() {
 				body, err := network.GetRequestPostData(reqID).Do(timed)
 				if err == nil {
-					if h := hashFromPostData(body); h != "" {
+					if identity := availabilityIdentityFromPostData(body); identity.Hash != "" {
 						cap.mu.Lock()
-						cap.reqHash = h
+						cap.reqQuery = identity
 						cap.mu.Unlock()
 					}
 				}
@@ -258,10 +262,10 @@ func (c *Client) ChromeAvailability(
 			if e.Response == nil {
 				return
 			}
-			if !strings.Contains(e.Response.URL, "/dapi/fe/gql") {
-				return
-			}
-			if !strings.Contains(e.Response.URL, "opname=RestaurantsAvailability") {
+			cap.mu.Lock()
+			matchedReq := cap.reqIDs[e.RequestID]
+			cap.mu.Unlock()
+			if !matchedReq {
 				return
 			}
 			// Defer the body fetch — chromedp wants us to call from the
@@ -343,15 +347,15 @@ func (c *Client) ChromeAvailability(
 		}
 	}
 	cap.mu.Lock()
-	harvested := cap.reqHash
+	harvested := cap.reqQuery
 	cap.mu.Unlock()
-	if harvested != "" && harvested != currentAvailabilityHash() {
-		if err := savePersistedAvailabilityHash(harvested); err != nil {
+	if harvested.Hash != "" && harvested != currentAvailabilityIdentity() {
+		if err := savePersistedAvailabilityIdentity(harvested); err != nil {
 			// Best-effort: the harvest still helped this call, but a failed
 			// persist means the next 409 re-spawns Chrome instead of reusing
 			// the value. Surface it so a read-only/mis-configured cache dir is
 			// diagnosable rather than silently degrading.
-			fmt.Fprintf(os.Stderr, "opentable chrome: could not persist harvested availability hash: %v\n", err)
+			fmt.Fprintf(os.Stderr, "opentable chrome: could not persist harvested availability query identity: %v\n", err)
 		}
 	}
 
@@ -387,8 +391,12 @@ func (c *Client) ChromeAvailability(
 // PostDataEntries (each base64-encoded) and extracts the persisted-query
 // sha256Hash. Returns "" when the request carries no well-formed hash.
 func hashFromRequest(req *network.Request) string {
+	return availabilityIdentityFromRequest(req).Hash
+}
+
+func availabilityIdentityFromRequest(req *network.Request) availabilityQueryIdentity {
 	if req == nil {
-		return ""
+		return availabilityQueryIdentity{}
 	}
 	var sb strings.Builder
 	for _, e := range req.PostDataEntries {
@@ -399,11 +407,26 @@ func hashFromRequest(req *network.Request) string {
 			sb.Write(dec)
 		}
 	}
-	return extractSha256Hash(sb.String())
+	identity := availabilityIdentityFromPostData([]byte(sb.String()))
+	if identity.OperationName == "" {
+		identity.OperationName = operationNameFromURL(req.URL)
+	}
+	if identity.OperationName == "" {
+		identity.OperationName = restaurantsAvailabilityOperationName
+	}
+	return identity
 }
 
 func hashFromPostData(postData []byte) string {
-	return extractSha256Hash(string(postData))
+	return availabilityIdentityFromPostData(postData).Hash
+}
+
+func availabilityIdentityFromPostData(postData []byte) availabilityQueryIdentity {
+	s := string(postData)
+	return availabilityQueryIdentity{
+		Hash:          extractSha256Hash(s),
+		OperationName: extractOperationName(s),
+	}
 }
 
 // extractSha256Hash pulls the persisted-query hash out of a GraphQL POST body
@@ -425,6 +448,53 @@ func extractSha256Hash(postData string) string {
 		return ""
 	}
 	return candidate
+}
+
+func extractOperationName(postData string) string {
+	var env struct {
+		OperationName string `json:"operationName"`
+	}
+	if err := json.Unmarshal([]byte(postData), &env); err == nil && gqlOperationPattern.MatchString(env.OperationName) {
+		return env.OperationName
+	}
+	const marker = `"operationName":"`
+	i := strings.Index(postData, marker)
+	if i < 0 {
+		return ""
+	}
+	start := i + len(marker)
+	end := strings.IndexByte(postData[start:], '"')
+	if end < 0 {
+		return ""
+	}
+	candidate := postData[start : start+end]
+	if !gqlOperationPattern.MatchString(candidate) {
+		return ""
+	}
+	return candidate
+}
+
+func operationNameFromURL(rawURL string) string {
+	u, err := url.Parse(rawURL)
+	if err != nil {
+		return ""
+	}
+	op := u.Query().Get("opname")
+	if !gqlOperationPattern.MatchString(op) {
+		return ""
+	}
+	return op
+}
+
+func isAvailabilityGraphQLRequest(rawURL string) bool {
+	u, err := url.Parse(rawURL)
+	if err != nil {
+		return false
+	}
+	if u.Path != GraphQLPath {
+		return false
+	}
+	return strings.Contains(strings.ToLower(u.Query().Get("opname")), "availability")
 }
 
 // discoverChromeWebSocket queries Chrome's DevTools discovery endpoint and

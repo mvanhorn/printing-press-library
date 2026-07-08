@@ -1,0 +1,23 @@
+{
+  "schema_version": 2,
+  "id": "tock-combobox-and-opentable-opname-consistency",
+  "applied_at": "2026-07-08",
+  "base_run_id": "20260509-110540",
+  "base_printing_press_version": "4.2.2",
+  "summary": "Preserve Tock experience-card combobox booking support and OpenTable persisted-query operation-name consistency for harvested availability hashes.",
+  "reason": "Tock venues can render a time combobox plus experience cards instead of per-time slot buttons, so the chromedp booking flow must drive that layout and report page-state controls on selector drift. OpenTable now validates that the JSON operationName, URL opname, and persisted-query hash's registered operation name all match, so the availability hash cache must carry the harvested operation name as well as the hash.",
+  "files": [
+    "internal/source/tock/chrome_book.go",
+    "internal/source/tock/chrome_book_test.go",
+    "internal/source/tock/booking.go",
+    "internal/source/tock/booking_test.go",
+    "internal/cli/book.go",
+    "internal/source/opentable/hash_store.go",
+    "internal/source/opentable/hash_store_test.go",
+    "internal/source/opentable/chrome_avail.go",
+    "internal/source/opentable/hash_refresh_test.go",
+    "internal/source/opentable/client.go",
+    "internal/source/opentable/client_avail_test.go"
+  ],
+  "validated_outcome": "Unit coverage pins combobox time selection, party-size experience-card disambiguation, Tock page-state hints, OpenTable hash+operation-name persistence, and body operationName/URL opname consistency."
+}

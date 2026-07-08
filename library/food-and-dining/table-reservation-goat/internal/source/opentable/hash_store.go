@@ -12,12 +12,22 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
+	"strings"
 )
 
 var availHashPattern = regexp.MustCompile(`^[a-f0-9]{64}$`)
+var gqlOperationPattern = regexp.MustCompile(`^[A-Za-z_][A-Za-z0-9_]*$`)
+
+const restaurantsAvailabilityOperationName = "RestaurantsAvailability"
 
 type availHashState struct {
-	Hash string `json:"hash"`
+	Hash          string `json:"hash"`
+	OperationName string `json:"operation_name,omitempty"`
+}
+
+type availabilityQueryIdentity struct {
+	Hash          string
+	OperationName string
 }
 
 // availHashPath mirrors cooldownPath: honors $TABLE_RESERVATION_GOAT_CONFIG_DIR
@@ -37,31 +47,61 @@ func availHashPath() (string, error) {
 // unreadable, corrupt, or malformed. A corrupt file is removed so it does not
 // keep shadowing the const default on every call. nil-safe on every request.
 func loadPersistedAvailabilityHash() string {
+	identity, ok := loadPersistedAvailabilityIdentity()
+	if !ok {
+		return ""
+	}
+	return identity.Hash
+}
+
+func loadPersistedAvailabilityIdentity() (availabilityQueryIdentity, bool) {
 	path, err := availHashPath()
 	if err != nil {
-		return ""
+		return availabilityQueryIdentity{}, false
 	}
 	data, err := os.ReadFile(path)
 	if err != nil {
-		return ""
+		return availabilityQueryIdentity{}, false
 	}
 	var s availHashState
 	if err := json.Unmarshal(data, &s); err != nil {
 		_ = os.Remove(path)
-		return ""
+		return availabilityQueryIdentity{}, false
 	}
 	if !availHashPattern.MatchString(s.Hash) {
-		return ""
+		return availabilityQueryIdentity{}, false
 	}
-	return s.Hash
+	opName := strings.TrimSpace(s.OperationName)
+	if opName == "" {
+		opName = restaurantsAvailabilityOperationName
+	}
+	if !gqlOperationPattern.MatchString(opName) {
+		_ = os.Remove(path)
+		return availabilityQueryIdentity{}, false
+	}
+	return availabilityQueryIdentity{Hash: s.Hash, OperationName: opName}, true
 }
 
 // savePersistedAvailabilityHash atomically writes a scraped hash. Rejects any
 // value that is not 64 lowercase hex chars so a bad scrape can never poison
 // the store (the caller surfaces the rejection per R5).
 func savePersistedAvailabilityHash(hash string) error {
-	if !availHashPattern.MatchString(hash) {
-		return fmt.Errorf("opentable: refusing to persist invalid availability hash %q (want 64 hex chars)", hash)
+	return savePersistedAvailabilityIdentity(availabilityQueryIdentity{
+		Hash:          hash,
+		OperationName: restaurantsAvailabilityOperationName,
+	})
+}
+
+func savePersistedAvailabilityIdentity(identity availabilityQueryIdentity) error {
+	if !availHashPattern.MatchString(identity.Hash) {
+		return fmt.Errorf("opentable: refusing to persist invalid availability hash %q (want 64 hex chars)", identity.Hash)
+	}
+	opName := strings.TrimSpace(identity.OperationName)
+	if opName == "" {
+		opName = restaurantsAvailabilityOperationName
+	}
+	if !gqlOperationPattern.MatchString(opName) {
+		return fmt.Errorf("opentable: refusing to persist invalid availability operation name %q", identity.OperationName)
 	}
 	path, err := availHashPath()
 	if err != nil {
@@ -70,7 +110,7 @@ func savePersistedAvailabilityHash(hash string) error {
 	if err := os.MkdirAll(filepath.Dir(path), 0o700); err != nil {
 		return fmt.Errorf("creating avail-hash directory: %w", err)
 	}
-	js, err := json.MarshalIndent(availHashState{Hash: hash}, "", "  ")
+	js, err := json.MarshalIndent(availHashState{Hash: identity.Hash, OperationName: opName}, "", "  ")
 	if err != nil {
 		return fmt.Errorf("marshaling avail hash: %w", err)
 	}
@@ -87,8 +127,15 @@ func savePersistedAvailabilityHash(hash string) error {
 // currentAvailabilityHash resolves the hash the availability path should send:
 // the persisted (scraped) value when present, else the bootstrap const.
 func currentAvailabilityHash() string {
-	if h := loadPersistedAvailabilityHash(); h != "" {
-		return h
+	return currentAvailabilityIdentity().Hash
+}
+
+func currentAvailabilityIdentity() availabilityQueryIdentity {
+	if identity, ok := loadPersistedAvailabilityIdentity(); ok {
+		return identity
 	}
-	return RestaurantsAvailabilityHash
+	return availabilityQueryIdentity{
+		Hash:          RestaurantsAvailabilityHash,
+		OperationName: restaurantsAvailabilityOperationName,
+	}
 }

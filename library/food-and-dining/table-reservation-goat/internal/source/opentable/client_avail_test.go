@@ -4,6 +4,7 @@ package opentable
 
 import (
 	"encoding/json"
+	"net/url"
 	"os"
 	"testing"
 	"time"
@@ -98,5 +99,39 @@ func TestRestaurantsAvailability_SingleflightKeyIncludesWindow(t *testing.T) {
 	keyB := "avail:25606:2026-05-09:19:00:4:150:150:false"
 	if keyA == keyB {
 		t.Fatal("expected distinct singleflight keys for different window values")
+	}
+}
+
+func TestRestaurantsAvailability_RequestOperationNameConsistency(t *testing.T) {
+	identity := availabilityQueryIdentity{
+		Hash:          "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
+		OperationName: "RestaurantAvailability",
+	}
+	body := buildRestaurantsAvailabilityBody([]int{1141492}, "2026-07-10", "19:00", 2, 150, identity)
+	if got := graphQLOperationName(body); got != identity.OperationName {
+		t.Fatalf("body operationName = %q, want %q", got, identity.OperationName)
+	}
+	endpoint, err := url.Parse(graphQLEndpointURL(identity.OperationName))
+	if err != nil {
+		t.Fatalf("parse endpoint URL: %v", err)
+	}
+	if got := endpoint.Query().Get("opname"); got != identity.OperationName {
+		t.Fatalf("URL opname = %q, want %q", got, identity.OperationName)
+	}
+	extensions := body["extensions"].(map[string]any)
+	persisted := extensions["persistedQuery"].(map[string]any)
+	if got := persisted["sha256Hash"]; got != identity.Hash {
+		t.Fatalf("sha256Hash = %v, want %s", got, identity.Hash)
+	}
+}
+
+func TestShouldRefreshAvailabilityIdentity_OnOperationBlocked(t *testing.T) {
+	err := &BotDetectionError{Kind: BotKindOperationBlocked, Status: 403}
+	if !shouldRefreshAvailabilityIdentity(err) {
+		t.Fatal("operation-blocked availability errors should trigger hash+operation harvest")
+	}
+	sessionBlocked := &BotDetectionError{Kind: BotKindSessionBlocked, Status: 403}
+	if shouldRefreshAvailabilityIdentity(sessionBlocked) {
+		t.Fatal("session-wide bot blocks should not spawn availability identity refresh")
 	}
 }

@@ -519,6 +519,16 @@ func isPersistedQueryError(err error) bool {
 		strings.Contains(strings.ToUpper(s), "PERSISTED")
 }
 
+func shouldRefreshAvailabilityIdentity(err error) bool {
+	if isPersistedQueryError(err) {
+		return true
+	}
+	if bde, ok := IsBotDetection(err); ok && bde.Kind == BotKindOperationBlocked {
+		return true
+	}
+	return false
+}
+
 func (c *Client) RestaurantsAvailability(ctx context.Context, restaurantIDs []int, date, hhmm string, partySize, forwardDays, forwardMinutes, forwardSlots int, noCache bool) ([]RestaurantAvailability, error) {
 	if forwardMinutes <= 0 {
 		forwardMinutes = 150
@@ -533,7 +543,7 @@ func (c *Client) RestaurantsAvailability(ctx context.Context, restaurantIDs []in
 	// (the typical caller pattern). Multi-restaurant calls bypass — they
 	// represent a batch fetch whose cache key shape would differ.
 	if len(restaurantIDs) != 1 {
-		return c.restaurantsAvailabilityNetwork(ctx, restaurantIDs, date, hhmm, partySize, forwardDays, forwardMinutes, forwardSlots, currentAvailabilityHash())
+		return c.restaurantsAvailabilityNetwork(ctx, restaurantIDs, date, hhmm, partySize, forwardDays, forwardMinutes, forwardSlots, currentAvailabilityIdentity())
 	}
 	restID := restaurantIDs[0]
 	key := availCacheKey{
@@ -545,16 +555,16 @@ func (c *Client) RestaurantsAvailability(ctx context.Context, restaurantIDs []in
 		BackwardMinutes: forwardMinutes,
 	}
 
-	// Resolve the persisted-query hash once for this call and reuse it for the
-	// cache key, the request body, and the cache write so all three observe the
-	// same value even if a concurrent run rotates it mid-call. Re-resolved only
-	// after a self-heal harvests a fresh one.
-	liveHash := currentAvailabilityHash()
+	// Resolve the persisted-query identity once for this call and reuse its
+	// hash for the cache key plus its operation name for both the URL opname
+	// and JSON operationName. OpenTable's gateway validates all three against
+	// the registered persisted-query document.
+	liveIdentity := currentAvailabilityIdentity()
 
 	// Cache check (skip when noCache). Keyed on the live hash so entries
 	// written under a since-rotated hash miss (R3 invalidation for free).
 	if !noCache {
-		if hit := loadAvailCache(key, liveHash); hit != nil && hit.Fresh {
+		if hit := loadAvailCache(key, liveIdentity.Hash); hit != nil && hit.Fresh {
 			return hit.Entry.Response, nil
 		}
 	}
@@ -566,19 +576,19 @@ func (c *Client) RestaurantsAvailability(ctx context.Context, restaurantIDs []in
 		restID, date, hhmm, partySize, forwardMinutes, forwardMinutes, noCache)
 	v, err, _ := c.availSF.Do(sfKey, func() (any, error) {
 		// Fire network call (which goes through do429Aware → AdaptiveLimiter).
-		resp, nerr := c.restaurantsAvailabilityNetwork(ctx, restaurantIDs, date, hhmm, partySize, forwardDays, forwardMinutes, forwardSlots, liveHash)
+		resp, nerr := c.restaurantsAvailabilityNetwork(ctx, restaurantIDs, date, hhmm, partySize, forwardDays, forwardMinutes, forwardSlots, liveIdentity)
 
-		// Self-heal a stale persisted-query hash (409). A brief browser run
-		// harvests the hash the page's own JS uses (the hash rides in the
-		// outgoing request, so this works even when Akamai 403s the browser
-		// response). If the hash changed, retry the direct call once — it
-		// passes the WAF at human pace, so the fresh hash yields slots. If the
-		// browser run itself returned slots (attach path, WAF cool), use them.
-		if nerr != nil && isPersistedQueryError(nerr) {
+		// Self-heal a stale persisted-query identity. A brief browser run
+		// harvests the hash + operation name the page's own JS uses (the
+		// identity rides in the outgoing request, so this works even when
+		// Akamai 403s the browser response). If the identity changed, retry
+		// the direct call once. If the browser run itself returned slots
+		// (attach path, WAF cool), use them.
+		if nerr != nil && shouldRefreshAvailabilityIdentity(nerr) {
 			slots, cerr := c.ChromeAvailability(ctx, restID, "", date, hhmm, partySize, forwardDays)
-			if fresh := currentAvailabilityHash(); fresh != liveHash {
-				liveHash = fresh
-				resp, nerr = c.restaurantsAvailabilityNetwork(ctx, restaurantIDs, date, hhmm, partySize, forwardDays, forwardMinutes, forwardSlots, liveHash)
+			if fresh := currentAvailabilityIdentity(); fresh != liveIdentity {
+				liveIdentity = fresh
+				resp, nerr = c.restaurantsAvailabilityNetwork(ctx, restaurantIDs, date, hhmm, partySize, forwardDays, forwardMinutes, forwardSlots, liveIdentity)
 			}
 			if nerr != nil && cerr == nil && len(slots) > 0 {
 				resp, nerr = slots, nil
@@ -594,7 +604,7 @@ func (c *Client) RestaurantsAvailability(ctx context.Context, restaurantIDs []in
 				case <-ctx.Done():
 					return nil, ctx.Err()
 				}
-				resp, nerr = c.restaurantsAvailabilityNetwork(ctx, restaurantIDs, date, hhmm, partySize, forwardDays, forwardMinutes, forwardSlots, liveHash)
+				resp, nerr = c.restaurantsAvailabilityNetwork(ctx, restaurantIDs, date, hhmm, partySize, forwardDays, forwardMinutes, forwardSlots, liveIdentity)
 			}
 			if nerr != nil {
 				// Stale-cache fallback: serve a within-24h cached entry when the
@@ -605,7 +615,7 @@ func (c *Client) RestaurantsAvailability(ctx context.Context, restaurantIDs []in
 				// `source: "cache_fallback"`; `Stale` is set when past TTL.
 				_, isBot := IsBotDetection(nerr)
 				if isBot || isPersistedQueryError(nerr) {
-					if hit := loadAvailCache(key, liveHash); hit != nil {
+					if hit := loadAvailCache(key, liveIdentity.Hash); hit != nil {
 						return enrichWithCacheMetadata(hit.Entry.Response, hit.Entry.CachedAt, !hit.Fresh), nil
 					}
 				}
@@ -614,7 +624,7 @@ func (c *Client) RestaurantsAvailability(ctx context.Context, restaurantIDs []in
 		}
 		// Always write cache on success — even when noCache=true. A user
 		// asking for fresh data is also willing to update what's cached.
-		saveAvailCache(key, liveHash, resp)
+		saveAvailCache(key, liveIdentity.Hash, resp)
 		return resp, nil
 	})
 	if err != nil {
@@ -641,7 +651,7 @@ func enrichWithCacheMetadata(resp []RestaurantAvailability, cachedAt time.Time, 
 // restaurantsAvailabilityNetwork is the bare network call that
 // RestaurantsAvailability wraps. Kept private so callers go through the
 // cache+singleflight+retry envelope rather than bypassing it.
-func (c *Client) restaurantsAvailabilityNetwork(ctx context.Context, restaurantIDs []int, date, hhmm string, partySize, forwardDays, forwardMinutes, forwardSlots int, hash string) ([]RestaurantAvailability, error) {
+func (c *Client) restaurantsAvailabilityNetwork(ctx context.Context, restaurantIDs []int, date, hhmm string, partySize, forwardDays, forwardMinutes, forwardSlots int, identity availabilityQueryIdentity) ([]RestaurantAvailability, error) {
 	if forwardDays <= 0 {
 		forwardDays = 1
 	}
@@ -667,8 +677,22 @@ func (c *Client) restaurantsAvailabilityNetwork(ctx context.Context, restaurantI
 	// the gateway requires to be present (empty arrays accepted).
 	// `attributionToken` and `correlationId` are analytics; safe to leave
 	// blank — server treats absence as an anonymous request.
-	body := map[string]any{
-		"operationName": "RestaurantsAvailability",
+	body := buildRestaurantsAvailabilityBody(restaurantIDs, date, hhmm, partySize, forwardMinutes, identity)
+	_ = forwardSlots // accepted for signature parity; new gateway uses time window instead
+	parsed, err := c.gqlCall(ctx, identity.OperationName, body)
+	if err != nil {
+		return nil, err
+	}
+	return parseRestaurantsAvailabilityNetworkResponse(parsed, identity.Hash)
+}
+
+func buildRestaurantsAvailabilityBody(restaurantIDs []int, date, hhmm string, partySize, forwardMinutes int, identity availabilityQueryIdentity) map[string]any {
+	opName := strings.TrimSpace(identity.OperationName)
+	if opName == "" {
+		opName = restaurantsAvailabilityOperationName
+	}
+	return map[string]any{
+		"operationName": opName,
 		"variables": map[string]any{
 			"onlyPop": false,
 			// forwardDays=0 means "single day" in the new gateway —
@@ -699,15 +723,13 @@ func (c *Client) restaurantsAvailabilityNetwork(ctx context.Context, restaurantI
 		"extensions": map[string]any{
 			"persistedQuery": map[string]any{
 				"version":    1,
-				"sha256Hash": hash,
+				"sha256Hash": identity.Hash,
 			},
 		},
 	}
-	_ = forwardSlots // accepted for signature parity; new gateway uses time window instead
-	parsed, err := c.gqlCall(ctx, "RestaurantsAvailability", body)
-	if err != nil {
-		return nil, err
-	}
+}
+
+func parseRestaurantsAvailabilityNetworkResponse(parsed []byte, hash string) ([]RestaurantAvailability, error) {
 	type respShape struct {
 		Data struct {
 			Availability []RestaurantAvailability `json:"availability"`
@@ -731,6 +753,11 @@ func (c *Client) restaurantsAvailabilityNetwork(ctx context.Context, restaurantI
 			return nil, fmt.Errorf("opentable: persisted-query hash drifted (RestaurantsAvailability returned %q); hash %s no longer accepted by upstream — the caller self-heals by harvesting the current hash via a browser run and retrying", first.Message, hash[:16])
 		}
 		return nil, fmt.Errorf("opentable RestaurantsAvailability: %s", first.Message)
+	}
+	if len(r.Data.Availability) == 0 {
+		if fromPageShape, err := parseAvailabilityResponse(parsed); err == nil && len(fromPageShape) > 0 {
+			return fromPageShape, nil
+		}
 	}
 	return r.Data.Availability, nil
 }
@@ -779,11 +806,14 @@ func (c *Client) RestaurantIDFromQuery(ctx context.Context, query string, lat, l
 // could re-bootstrap the hash from a homepage scrape — for v1 we surface
 // the error so the user can run `doctor --refresh-hashes`.
 func (c *Client) gqlCall(ctx context.Context, opname string, body any) ([]byte, error) {
+	if bodyOp := graphQLOperationName(body); bodyOp != "" && bodyOp != opname {
+		return nil, fmt.Errorf("building GraphQL request: body operationName %q does not match URL opname %q", bodyOp, opname)
+	}
 	js, err := json.Marshal(body)
 	if err != nil {
 		return nil, fmt.Errorf("marshaling GraphQL body: %w", err)
 	}
-	u := Origin + GraphQLPath + "?optype=query&opname=" + url.QueryEscape(opname)
+	u := graphQLEndpointURL(opname)
 	req, err := http.NewRequestWithContext(ctx, http.MethodPost, u, strings.NewReader(string(js)))
 	if err != nil {
 		return nil, fmt.Errorf("building GraphQL request: %w", err)
@@ -845,6 +875,32 @@ func (c *Client) gqlCall(ctx context.Context, opname string, body any) ([]byte, 
 		return nil, fmt.Errorf("opentable %s returned HTTP %d%s: %s", opname, resp.StatusCode, hint, truncate(string(data), 200))
 	}
 	return data, nil
+}
+
+func graphQLEndpointURL(opname string) string {
+	return Origin + GraphQLPath + "?optype=query&opname=" + url.QueryEscape(opname)
+}
+
+func graphQLOperationName(body any) string {
+	if body == nil {
+		return ""
+	}
+	if m, ok := body.(map[string]any); ok {
+		if op, ok := m["operationName"].(string); ok {
+			return op
+		}
+	}
+	js, err := json.Marshal(body)
+	if err != nil {
+		return ""
+	}
+	var env struct {
+		OperationName string `json:"operationName"`
+	}
+	if err := json.Unmarshal(js, &env); err != nil {
+		return ""
+	}
+	return env.OperationName
 }
 
 // newUUID generates an RFC-4122 v4 UUID for the GraphQL correlationId.

@@ -586,6 +586,10 @@ func bookOnTock(ctx context.Context, session *auth.Session, slug, date, hhmm str
 			out.Hint = "venue requires full prepayment (v0.3 work)"
 		case errors.Is(bookErr, tock.ErrCanaryUnrecognizedBody):
 			out.Error = "discriminator_drift"
+		case errors.Is(bookErr, tock.ErrSlotControlNotFound):
+			out.Error = "selector_drift"
+			out.Hint = bookErr.Error()
+			out.BookURL = fmt.Sprintf("https://www.exploretock.com/%s?date=%s&size=%d&time=%s", slug, date, party, hhmm)
 		default:
 			out.Error = "chromedp_book_failed"
 			out.Hint = bookErr.Error()
