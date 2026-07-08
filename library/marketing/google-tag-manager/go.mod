@@ -1,6 +1,6 @@
 module github.com/mvanhorn/printing-press-library/library/marketing/google-tag-manager
 
-go 1.26
+go 1.26.5
 
 toolchain go1.26.4
 
