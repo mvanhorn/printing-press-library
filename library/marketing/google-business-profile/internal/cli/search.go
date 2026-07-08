@@ -12,6 +12,8 @@ import (
 	"github.com/spf13/cobra"
 )
 
+var businessInformationBaseURL = "https://mybusinessbusinessinformation.googleapis.com"
+
 // isNilOrEmpty checks whether a JSON object has nil or empty values for
 // common identifier fields (title, name, identifier, id).
 // Also checks nested "document" objects for search result wrappers.
@@ -67,7 +69,7 @@ func extractSearchResults(data json.RawMessage) []json.RawMessage {
 	// Try common wrapper paths: data, results, items
 	var wrapped map[string]json.RawMessage
 	if json.Unmarshal(data, &wrapped) == nil {
-		for _, key := range []string{"data", "results", "items", "records", "entries"} {
+		for _, key := range []string{"data", "results", "items", "records", "entries", "chains"} {
 			if inner, ok := wrapped[key]; ok {
 				if json.Unmarshal(inner, &items) == nil {
 					return items
@@ -117,8 +119,8 @@ In local mode: searches locally synced data only.`,
 				if err != nil {
 					return err
 				}
-				data, getErr := c.Get(cmd.Context(), "/v1/chains:search", map[string]string{
-					"q": query,
+				data, getErr := c.Get(cmd.Context(), businessInformationBaseURL+"/v1/chains:search", map[string]string{
+					"chainName": query,
 				})
 				if getErr == nil {
 					// Live search succeeded
