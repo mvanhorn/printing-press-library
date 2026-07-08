@@ -1,6 +1,6 @@
 module github.com/mvanhorn/printing-press-library/library/developer-tools/postgresql-admin
 
-go 1.26.3
+go 1.26.5
 
 require (
 	github.com/jackc/pgx/v5 v5.7.2
