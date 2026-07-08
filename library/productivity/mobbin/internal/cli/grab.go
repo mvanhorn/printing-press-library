@@ -4,6 +4,7 @@ package cli
 
 import (
 	"encoding/json"
+	"fmt"
 	"os"
 	"path/filepath"
 	"strconv"
@@ -37,8 +38,8 @@ func newGrabCmd(flags *rootFlags) *cobra.Command {
 				return err
 			}
 			hits, errs := cacheHits(cmd.Context(), hits)
-			if len(errs) > 0 {
-				return errs[0]
+			for _, e := range errs {
+				fmt.Fprintf(cmd.ErrOrStderr(), "warning: image download failed: %v\n", e)
 			}
 			if err := os.MkdirAll(out, 0o755); err != nil {
 				return err

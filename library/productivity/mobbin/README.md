@@ -72,7 +72,7 @@ mobbin-pp-cli apps popular --platform web --agent
 
 
 # Discover category slugs before filtering search
-mobbin-pp-cli filters list --agent --select data.appCategories
+mobbin-pp-cli filters --agent --select data.appCategories
 
 
 # Cross-app pattern search — the foundational deck-building call
@@ -225,7 +225,7 @@ Manage your saved Mobbin collections (decks of screens, flows, or apps). Read en
 
 Browse the filter taxonomy — every app category, screen pattern, UI element, and flow action with definitions and content counts.
 
-- **`mobbin-pp-cli filters list`** - Full filter taxonomy. Returns the dictionary that powers every search filter — patterns, elements, categories, flow actions, definitions, and content counts.
+- **`mobbin-pp-cli filters`** - Full filter taxonomy. Returns the dictionary that powers every search filter — patterns, elements, categories, flow actions, definitions, and content counts.
 
 ### flows
 

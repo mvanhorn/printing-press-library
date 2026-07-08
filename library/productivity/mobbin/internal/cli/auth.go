@@ -9,9 +9,9 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
+	"github.com/mvanhorn/printing-press-library/library/productivity/mobbin/internal/config"
 	"github.com/spf13/cobra"
 	"io"
-	"github.com/mvanhorn/printing-press-library/library/productivity/mobbin/internal/config"
 	"net/http"
 	"os"
 	"os/exec"
@@ -497,17 +497,17 @@ func extractViaPycookiecheat(domain, profileDir string) (string, error) {
 	}
 
 	var script string
+	targetURLLiteral, _ := json.Marshal("https://" + cleanDomain)
 	if cookiePath != "" {
-		// Use forward slashes so Python doesn't interpret backslashes as escapes on Windows
-		safePath := filepath.ToSlash(cookiePath)
+		cookiePathLiteral, _ := json.Marshal(filepath.ToSlash(cookiePath))
 		script = fmt.Sprintf(
-			`import json; from pycookiecheat import chrome_cookies; print(json.dumps(chrome_cookies("https://%s", cookie_file="%s")))`,
-			cleanDomain, safePath,
+			`import json; from pycookiecheat import chrome_cookies; print(json.dumps(chrome_cookies(%s, cookie_file=%s)))`,
+			targetURLLiteral, cookiePathLiteral,
 		)
 	} else {
 		script = fmt.Sprintf(
-			`import json; from pycookiecheat import chrome_cookies; print(json.dumps(chrome_cookies("https://%s")))`,
-			cleanDomain,
+			`import json; from pycookiecheat import chrome_cookies; print(json.dumps(chrome_cookies(%s)))`,
+			targetURLLiteral,
 		)
 	}
 

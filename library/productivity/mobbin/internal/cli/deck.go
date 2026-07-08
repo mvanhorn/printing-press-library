@@ -32,8 +32,8 @@ func newDeckCmd(flags *rootFlags) *cobra.Command {
 				return err
 			}
 			hits, errs := cacheHits(cmd.Context(), hits)
-			if len(errs) > 0 {
-				return fmt.Errorf("downloading images: %v", errs)
+			for _, e := range errs {
+				fmt.Fprintf(cmd.ErrOrStderr(), "warning: image download failed: %v\n", e)
 			}
 			if exportZip != "" {
 				if err := writeDeckZip(exportZip, hits); err != nil {

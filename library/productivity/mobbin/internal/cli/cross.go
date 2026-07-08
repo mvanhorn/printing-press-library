@@ -37,8 +37,8 @@ func newCrossCmd(flags *rootFlags) *cobra.Command {
 				}
 				for _, h := range hits {
 					key := appNameSlug(h.AppSlug)
-					if h.App != "" {
-						key = strings.ToLower(strings.Fields(h.App)[0])
+					if fields := strings.Fields(h.App); len(fields) > 0 {
+						key = strings.ToLower(fields[0])
 					}
 					if !wantedApp(key, apps) {
 						continue
