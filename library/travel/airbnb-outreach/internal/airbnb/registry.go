@@ -135,29 +135,40 @@ var (
 // including non-suffixed names like StaysSearch) and a discovery pass (new
 // *Query/*Mutation/*Subscription operations). Route bundles are CDN-hosted, so
 // they are fetched without cookies.
-func Harvest(c *Client, routes []string) (map[string]string, error) {
+// Harvest returns the discovered operation->hash map and the list of routes
+// that failed to load. A non-empty failedRoutes with a non-empty map means a
+// PARTIAL refresh: some route bundles (e.g. /guest/messages when the session
+// cookie has expired) could not be read, so their operations may still be
+// stale. Callers must surface this — reporting success on a partial harvest is
+// how messaging hashes silently rot. A hard error is returned only when every
+// route failed.
+func Harvest(c *Client, routes []string) (found map[string]string, failedRoutes []string, err error) {
 	known := knownOperationNames()
-	found := map[string]string{}
+	found = map[string]string{}
 	var lastErr error
 	for _, route := range routes {
-		html, err := c.GetHTML(route)
-		if err != nil {
-			lastErr = err
+		html, e := c.GetHTML(route)
+		if e != nil {
+			lastErr = e
+			failedRoutes = append(failedRoutes, route)
 			continue
 		}
 		bundles := uniqueStrings(matchGroup(scriptSrcRe, html, 1))
 		for _, b := range bundles {
-			js, err := c.fetchText(b)
-			if err != nil {
+			js, e := c.fetchText(b)
+			if e != nil {
 				continue
 			}
 			mergeHashes(found, js, known)
 		}
 	}
-	if len(found) == 0 && lastErr != nil {
-		return nil, fmt.Errorf("harvest found no operations: %w", lastErr)
+	if len(found) == 0 {
+		if lastErr != nil {
+			return nil, failedRoutes, fmt.Errorf("harvest found no operations: %w", lastErr)
+		}
+		return nil, failedRoutes, fmt.Errorf("harvest found no operations")
 	}
-	return found, nil
+	return found, failedRoutes, nil
 }
 
 // knownOperationNames is the union of bundled operations and any refreshed

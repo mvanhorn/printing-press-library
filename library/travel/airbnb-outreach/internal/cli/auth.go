@@ -65,10 +65,10 @@ func newAuthLoginCmd(flags *rootFlags) *cobra.Command {
 				return err
 			}
 			result := map[string]any{
-				"status":        "logged_in",
+				"status":         "logged_in",
 				"cookies_stored": n,
-				"authenticated": sess.Authenticated(),
-				"source":        sess.Source,
+				"authenticated":  sess.Authenticated(),
+				"source":         sess.Source,
 			}
 			if !sess.Authenticated() {
 				result["warning"] = "no _aat/_airbed_session_id cookie found — private commands may fail; are you logged in?"

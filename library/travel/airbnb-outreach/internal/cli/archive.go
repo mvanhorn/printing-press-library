@@ -74,9 +74,9 @@ func newArchiveIndexCmd(flags *rootFlags) *cobra.Command {
 func newArchiveSearchCmd(flags *rootFlags) *cobra.Command {
 	var limit int
 	cmd := &cobra.Command{
-		Use:     "search [query]",
-		Short:   "Full-text search across your archived conversations",
-		Example: "  airbnb-outreach-pp-cli archive search \"early check-in\"",
+		Use:         "search [query]",
+		Short:       "Full-text search across your archived conversations",
+		Example:     "  airbnb-outreach-pp-cli archive search \"early check-in\"",
 		Annotations: map[string]string{"mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if dryRunOK(flags) {

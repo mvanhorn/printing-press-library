@@ -1,7 +1,9 @@
 .PHONY: build test lint install clean
 
+BIN_EXT := $(if $(filter windows,$(shell go env GOOS)),.exe,)
+
 build:
-	go build -o bin/airbnb-outreach-pp-cli ./cmd/airbnb-outreach-pp-cli
+	go build -o bin/airbnb-outreach-pp-cli$(BIN_EXT) ./cmd/airbnb-outreach-pp-cli
 
 test:
 	go test ./...
@@ -16,7 +18,7 @@ clean:
 	rm -rf bin/
 
 build-mcp:
-	go build -o bin/airbnb-outreach-pp-mcp ./cmd/airbnb-outreach-pp-mcp
+	go build -o bin/airbnb-outreach-pp-mcp$(BIN_EXT) ./cmd/airbnb-outreach-pp-mcp
 
 install-mcp:
 	go install ./cmd/airbnb-outreach-pp-mcp

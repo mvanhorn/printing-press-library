@@ -19,7 +19,7 @@ func newContactCmd(flags *rootFlags) *cobra.Command {
 		Long: `Open a new conversation with a listing's host and send an initial message —
 the core outreach action for contacting property owners. Guarded: without
 --confirm the message is previewed only.`,
-		Example: "  airbnb-outreach-pp-cli contact 400704 --message \"Hi, I'm interested in a longer stay — is that possible?\" --confirm",
+		Example:     "  airbnb-outreach-pp-cli contact 400704 --message \"Hi, I'm interested in a longer stay — is that possible?\" --confirm",
 		Annotations: map[string]string{"mcp:read-only": "false"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

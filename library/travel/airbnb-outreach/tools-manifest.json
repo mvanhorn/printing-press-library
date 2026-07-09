@@ -1,7 +1,7 @@
 {
   "api_name": "airbnb-outreach",
   "base_url": "https://www.airbnb.com",
-  "description": "Script Airbnb's real authenticated surface — search stays, contact hosts and property owners with templated messages and photos, and keep an offline searchable archive of every conversation and saved listing.",
+  "description": "Script Airbnb's real logged-in surface — search stays, contact hosts with templated messages and photos, and keep an offline archive of every conversation.",
   "mcp_ready": "full",
   "http_transport": "standard",
   "auth": {

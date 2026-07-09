@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/mvanhorn/printing-press-library/library/travel/airbnb-outreach/internal/airbnb"
+	"github.com/mvanhorn/printing-press-library/library/travel/airbnb-outreach/internal/cliutil"
 	"github.com/mvanhorn/printing-press-library/library/travel/airbnb-outreach/internal/store"
 	"github.com/spf13/cobra"
 )
@@ -75,30 +76,41 @@ without --confirm it previews the recipient list and does nothing.`,
 				Name      string `json:"name"`
 				Message   string `json:"message"`
 			}
+			// Open the CRM store up front so we can skip hosts already contacted
+			// (re-running the same search must not re-spam them).
+			db, err := store.Open(defaultDBPath("airbnb-outreach-pp-cli"))
+			if err != nil {
+				return err
+			}
+			defer db.Close()
+			alreadyContacted := loadContactedIDs(db)
+
 			var planned []plan
+			skipped := 0
 			for _, r := range results {
+				if alreadyContacted[r.ID] {
+					skipped++
+					continue
+				}
 				planned = append(planned, plan{ListingID: r.ID, Name: r.Name, Message: renderTemplate(message, r)})
 			}
 
-			guarded := !(confirm || flags.yes) || flags.dryRun
+			// Bulk sending is high-impact (up to --limit hosts), so it is NOT
+			// unlocked by --yes/--agent — only an explicit --confirm sends. The
+			// verify harness never sends.
+			guarded := flags.dryRun || cliutil.IsVerifyEnv() || !confirm
 			if guarded {
-				preview := map[string]any{"action": "outreach.run", "status": "preview", "recipients": len(planned), "plan": planned, "hint": "add --confirm to actually send"}
+				preview := map[string]any{"action": "outreach.run", "status": "preview", "recipients": len(planned), "already_contacted_skipped": skipped, "plan": planned, "hint": "add --confirm to actually send"}
 				if flags.asJSON {
 					return flags.printJSON(cmd, preview)
 				}
-				fmt.Fprintf(cmd.OutOrStdout(), "%s Would contact %d hosts in %q:\n", yellow("[preview]"), len(planned), p.Location)
+				fmt.Fprintf(cmd.OutOrStdout(), "%s Would contact %d hosts in %q (%d already contacted, skipped):\n", yellow("[preview]"), len(planned), p.Location, skipped)
 				for _, pl := range planned {
 					fmt.Fprintf(cmd.OutOrStdout(), "  - %s (%s)\n", truncate(pl.Name, 40), pl.ListingID)
 				}
 				fmt.Fprintln(cmd.OutOrStdout(), "  (add --confirm to actually send)")
 				return nil
 			}
-
-			db, err := store.Open(defaultDBPath("airbnb-outreach-pp-cli"))
-			if err != nil {
-				return err
-			}
-			defer db.Close()
 
 			type outcome struct {
 				ListingID string `json:"listing_id"`
@@ -146,9 +158,9 @@ without --confirm it previews the recipient list and does nothing.`,
 
 func newOutreachCRMCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:     "crm",
-		Short:   "Show hosts you've contacted (and reply status if the inbox is reachable)",
-		Example: "  airbnb-outreach-pp-cli outreach crm --json",
+		Use:         "crm",
+		Short:       "Show hosts you've contacted (and reply status if the inbox is reachable)",
+		Example:     "  airbnb-outreach-pp-cli outreach crm --json",
 		Annotations: map[string]string{"mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if dryRunOK(flags) {
@@ -186,6 +198,20 @@ func newOutreachCRMCmd(flags *rootFlags) *cobra.Command {
 		},
 	}
 	return cmd
+}
+
+// loadContactedIDs returns the set of listing IDs already recorded in the CRM,
+// so a repeated outreach run skips hosts that were already messaged.
+func loadContactedIDs(db *store.Store) map[string]bool {
+	seen := map[string]bool{}
+	ids, err := db.ListIDs("contact")
+	if err != nil {
+		return seen
+	}
+	for _, id := range ids {
+		seen[id] = true
+	}
+	return seen
 }
 
 // renderTemplate substitutes {name} and {id} placeholders in an outreach message.

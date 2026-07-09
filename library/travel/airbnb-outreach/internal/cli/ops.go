@@ -33,7 +33,7 @@ func newOpsRefreshCmd(flags *rootFlags) *cobra.Command {
 				return nil
 			}
 			c := newAirbnbClient(flags)
-			harvested, err := airbnb.Harvest(c, airbnb.DefaultHarvestRoutes)
+			harvested, failedRoutes, err := airbnb.Harvest(c, airbnb.DefaultHarvestRoutes)
 			if err != nil {
 				return apiErr(fmt.Errorf("harvesting operation hashes: %w", err))
 			}
@@ -41,11 +41,19 @@ func newOpsRefreshCmd(flags *rootFlags) *cobra.Command {
 			if err != nil {
 				return err
 			}
-			result := map[string]any{"status": "refreshed", "harvested": len(harvested), "total_known": n}
+			status := "refreshed"
+			if len(failedRoutes) > 0 {
+				status = "partial" // some routes failed — their operations may still be stale
+			}
+			result := map[string]any{"status": status, "harvested": len(harvested), "total_known": n, "failed_routes": failedRoutes}
 			if flags.asJSON {
 				return flags.printJSON(cmd, result)
 			}
 			fmt.Fprintf(cmd.OutOrStdout(), "%s Harvested %d operations (%d total known).\n", green("✓"), len(harvested), n)
+			if len(failedRoutes) > 0 {
+				fmt.Fprintf(cmd.OutOrStdout(), "%s Partial refresh: %d route(s) failed to load (operations from these may still be stale): %v\n", yellow("!"), len(failedRoutes), failedRoutes)
+				fmt.Fprintln(cmd.OutOrStdout(), "  If messaging commands fail, re-run 'auth login --chrome' and try again.")
+			}
 			return nil
 		},
 	}

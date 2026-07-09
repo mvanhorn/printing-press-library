@@ -1,6 +1,6 @@
 ---
 name: pp-airbnb-outreach
-description: "Printing Press CLI for Airbnb. Script Airbnb's real authenticated surface — search stays, contact hosts and property owners with templated..."
+description: "Script Airbnb's real logged-in surface — search stays, contact hosts with templated messages and photos, and keep an offline archive of every conversation. Trigger phrases: `search airbnb`, `find an airbnb in`, `contact airbnb hosts`, `message airbnb host`, `airbnb outreach`, `check my airbnb messages`, `use airbnb-outreach-pp-cli`, `run airbnb-outreach-pp-cli`."
 author: "JimPresting"
 license: "Apache-2.0"
 argument-hint: "<command> [args] | install cli|mcp"
@@ -22,22 +22,26 @@ metadata:
 
 This skill drives the `airbnb-outreach-pp-cli` binary. **You must verify the CLI is installed before invoking any command from this skill.** If it is missing, install it first:
 
-1. Install via the Printing Press installer:
+1. Install via the Printing Press installer. It defaults binaries to `$HOME/.local/bin` on macOS/Linux and `%LOCALAPPDATA%\Programs\PrintingPress\bin` on Windows:
    ```bash
-   npx -y @mvanhorn/printing-press install airbnb --cli-only
+   npx -y @mvanhorn/printing-press-library install airbnb-outreach --cli-only
    ```
 2. Verify: `airbnb-outreach-pp-cli --version`
-3. Ensure `$GOPATH/bin` (or `$HOME/go/bin`) is on `$PATH`.
+3. Ensure the reported install directory is on `$PATH` for the agent/runtime that will invoke this skill.
 
-If the `npx` install fails (no Node, offline, etc.), fall back to a direct Go install (requires Go 1.26.3 or newer):
+If the `npx` install fails (no Node, offline, etc.), fall back to a direct Go install (requires Go 1.26.4 or newer). This installs into `$GOPATH/bin` (default `$HOME/go/bin`), so add that directory to `$PATH` instead:
 
 ```bash
 go install github.com/mvanhorn/printing-press-library/library/travel/airbnb-outreach/cmd/airbnb-outreach-pp-cli@latest
 ```
 
-If `--version` reports "command not found" after install, the install step did not put the binary on `$PATH`. Do not proceed with skill commands until verification succeeds.
+If `--version` reports "command not found" after install, the runtime cannot see the binary directory on `$PATH`. Do not proceed with skill commands until verification succeeds.
 
-Script Airbnb's real authenticated surface — search stays, contact hosts and property owners with templated messages and photos, and keep an offline searchable archive of every conversation and saved listing.
+Airbnb has no public API, so this CLI drives its internal GraphQL surface directly: it authenticates by importing your logged-in Chrome session (no password), searches stays, reads and sends messages, and adds bulk host outreach, a local CRM, offline conversation search, and price watching that the website has no equivalent for.
+
+## When to Use This CLI
+
+Use this CLI to automate Airbnb tasks that the website forces you to do by hand: searching many stays, contacting property owners at scale, keeping a searchable archive of host conversations, or watching listing prices. It is the right tool when a user is doing outreach to hosts/owners or wants their Airbnb data locally and scriptable.
 
 ## When Not to Use This CLI
 
@@ -48,6 +52,7 @@ Do not activate this CLI for requests that require creating, updating, deleting,
 These capabilities aren't available in any other tool for this API.
 
 ### Outreach that scales
+
 - **`outreach run`** — Search a location and message the top hosts with a templated message in one command.
 
   _Reach for this when a user wants to contact many property owners at once (relocation, long-stay, business inquiry)._
@@ -64,6 +69,7 @@ These capabilities aren't available in any other tool for this API.
   ```
 
 ### Local state that compounds
+
 - **`archive search`** — Full-text search across every message thread you've synced, offline.
 
   _Use to find what a host promised across months of conversations without scrolling the web inbox._
@@ -80,6 +86,7 @@ These capabilities aren't available in any other tool for this API.
   ```
 
 ### Reachability mitigation
+
 - **`ops refresh`** — Re-harvest Airbnb's current GraphQL persisted-query hashes from its own JS so the CLI survives Airbnb deploys.
 
   _Run this if commands start failing after an Airbnb update, before assuming the CLI is broken._
@@ -95,7 +102,19 @@ These capabilities aren't available in any other tool for this API.
 - `airbnb-outreach-pp-cli markets` — Fetch Airbnb locale/market metadata (public, no auth)
 
 
-**Hand-written commands**
+### Finding the right command
+
+When you know what you want to do but not which command does it, ask the CLI directly:
+
+```bash
+airbnb-outreach-pp-cli which "<capability in your own words>"
+```
+
+`which` resolves a natural-language capability query to the best matching command from this CLI's curated feature index. Exit code `0` means at least one match; exit code `2` means no confident match — fall back to `--help` or use a narrower query.
+
+## Hand-written Extensions
+
+These commands are declared by the spec author and require separate hand-written wiring; the generator does not emit Cobra registration for them. They are listed here for discoverability and are intentionally outside `## Command Reference` so the verify-skill unknown-command check does not treat them as generator-owned paths.
 
 - `airbnb-outreach-pp-cli search <location>` — Search Airbnb stays by location, dates, guests, price and filters
 - `airbnb-outreach-pp-cli listing <listing-id>` — Show full detail for a listing (host, amenities, house rules, location)
@@ -114,20 +133,44 @@ These capabilities aren't available in any other tool for this API.
 - `airbnb-outreach-pp-cli ops refresh|list` — Self-heal the GraphQL operation-hash registry by re-harvesting Airbnb's current hashes
 - `airbnb-outreach-pp-cli auth login|status|logout` — Import your logged-in Chrome Airbnb session (login --chrome), check or clear it
 
+## Recipes
 
-### Finding the right command
 
-When you know what you want to do but not which command does it, ask the CLI directly:
+### Search and narrow with --select
 
 ```bash
-airbnb-outreach-pp-cli which "<capability in your own words>"
+airbnb-outreach-pp-cli search "Lisbon" --price-max 120 --agent --select searchResults.demandStayListing.id,searchResults.title,searchResults.structuredDisplayPrice.primaryLine.accessibilityLabel
 ```
 
-`which` resolves a natural-language capability query to the best matching command from this CLI's curated feature index. Exit code `0` means at least one match; exit code `2` means no confident match — fall back to `--help` or use a narrower query.
+Search returns large nested payloads; --agent with --select keeps only the fields you need.
+
+### Contact one host (guarded)
+
+```bash
+airbnb-outreach-pp-cli contact 49070135 --message "Hi, is a monthly stay possible?" --confirm
+```
+
+Opens a conversation with a listing's host; without --confirm it only previews.
+
+### Archive then search conversations
+
+```bash
+airbnb-outreach-pp-cli archive index && airbnb-outreach-pp-cli archive search "deposit"
+```
+
+Pull your inbox into local SQLite, then full-text search it offline.
+
+### Watch a listing's price
+
+```bash
+airbnb-outreach-pp-cli watch add 49070135 --checkin 2026-08-10 --checkout 2026-08-14 && airbnb-outreach-pp-cli watch check --json
+```
+
+Snapshot a listing's price and detect changes on later checks.
 
 ## Auth Setup
 
-No authentication required.
+No password is handled. Run 'auth login --chrome' to import your Airbnb session cookies from Chrome (close Chrome first, or paste a Cookie header with 'auth login --cookies'). Public search works with no login; private data (inbox, messages, trips, wishlists) needs the session.
 
 Run `airbnb-outreach-pp-cli doctor` to verify setup.
 
@@ -159,6 +202,33 @@ Commands that read from the local store or the API wrap output in a provenance e
 
 Parse `.results` for data and `.meta.source` to know whether it's live or local. A human-readable `N results (live)` summary is printed to stderr only when stdout is a terminal AND no machine-format flag (`--json`, `--csv`, `--compact`, `--quiet`, `--plain`, `--select`) is set — piped/agent consumers and explicit-format runs get pure JSON on stdout.
 
+## Paths and state
+
+Agents should treat the CLI's path resolver as part of the runtime contract:
+
+- Use `--home <dir>` for one invocation, or set `AIRBNB_HOME=<dir>` to relocate all four path kinds under one root.
+- Use per-kind env vars only when a specific kind must diverge: `AIRBNB_CONFIG_DIR`, `AIRBNB_DATA_DIR`, `AIRBNB_STATE_DIR`, `AIRBNB_CACHE_DIR`.
+- Resolution order is per-kind env var, `--home`, `AIRBNB_HOME`, XDG (`XDG_CONFIG_HOME`, `XDG_DATA_HOME`, `XDG_STATE_HOME`, `XDG_CACHE_HOME`), then platform defaults.
+- `config` contains settings like `config.toml` and profiles. `data` contains `credentials.toml`, `data.db`, cookies, and auth sidecars. `state` contains persisted queries, jobs, and `teach.log`. `cache` contains regenerable HTTP/cache files.
+- Stored secrets live in `credentials.toml` under the data dir. Existing legacy `config.toml` secrets are read for compatibility and leave `config.toml` on the first auth write.
+- Run `airbnb-outreach-pp-cli doctor --fail-on warn` to surface path and credential-location warnings. `agent-context` exposes a schema v4 `paths` block for agents that need the resolved dirs.
+- For MCP, pass relocation through the MCP host config. The MCP binary does not inherit CLI flags:
+
+  ```json
+  {
+    "mcpServers": {
+      "airbnb": {
+        "command": "airbnb-outreach-pp-mcp",
+        "env": {
+          "AIRBNB_HOME": "/srv/airbnb"
+        }
+      }
+    }
+  }
+  ```
+
+Fleet precedence: an inherited per-kind env var overrides an explicit `--home` for that kind. Use `AIRBNB_HOME` or per-kind vars as durable fleet levers, and use `--home` only for a single invocation. Relocation is not reversible by unsetting env vars; move files manually before clearing `AIRBNB_HOME`, or `doctor` will not find credentials left under the former root.
+
 ## Agent Feedback
 
 When you (or the agent) notice something off about this CLI, record it:
@@ -169,7 +239,7 @@ airbnb-outreach-pp-cli feedback --stdin < notes.txt
 airbnb-outreach-pp-cli feedback list --json --limit 10
 ```
 
-Entries are stored locally at `~/.airbnb-outreach-pp-cli/feedback.jsonl`. They are never POSTed unless `AIRBNB_FEEDBACK_ENDPOINT` is set AND either `--send` is passed or `AIRBNB_FEEDBACK_AUTO_SEND=true`. Default behavior is local-only.
+Entries are stored locally as `feedback.jsonl` under the resolved data dir. They are never POSTed unless `AIRBNB_FEEDBACK_ENDPOINT` is set AND either `--send` is passed or `AIRBNB_FEEDBACK_AUTO_SEND=true`. Default behavior is local-only.
 
 Write what *surprised* you, not a bug report. Short, specific, one line: that is the part that compounds.
 

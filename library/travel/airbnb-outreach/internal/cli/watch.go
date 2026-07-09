@@ -79,9 +79,9 @@ func newWatchAddCmd(flags *rootFlags) *cobra.Command {
 
 func newWatchListCmd(flags *rootFlags) *cobra.Command {
 	return &cobra.Command{
-		Use:     "list",
-		Short:   "Show your watchlist",
-		Example: "  airbnb-outreach-pp-cli watch list --json",
+		Use:         "list",
+		Short:       "Show your watchlist",
+		Example:     "  airbnb-outreach-pp-cli watch list --json",
 		Annotations: map[string]string{"mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if dryRunOK(flags) {

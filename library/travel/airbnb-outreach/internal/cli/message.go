@@ -35,8 +35,8 @@ func newMessageSendCmd(flags *rootFlags) *cobra.Command {
 	var text string
 	var confirm bool
 	cmd := &cobra.Command{
-		Use:   "send [thread-id]",
-		Short: "Send a text message to an existing conversation",
+		Use:     "send [thread-id]",
+		Short:   "Send a text message to an existing conversation",
 		Example: "  airbnb-outreach-pp-cli message send 980001234567 --text \"Hi, is this available?\" --confirm",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
