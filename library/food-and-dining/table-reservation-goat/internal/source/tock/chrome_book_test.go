@@ -52,7 +52,7 @@ func TestClickComboboxExperienceLayout_ChoosesStandardReservationForSmallParty(t
 		<button id="submit" onclick="window.submitClicked = true;">Book now</button>`
 	withTockDOMFixture(t, html, func(ctx context.Context) {
 		if err := chromedp.Run(ctx, chromedp.ActionFunc(func(actCtx context.Context) error {
-			return clickComboboxExperienceLayout(actCtx, "6:15 PM", 4, 0)
+			return clickComboboxExperienceLayout(actCtx, "6:15 PM", "2026-07-10", 4, 0)
 		})); err != nil {
 			t.Fatalf("clickComboboxExperienceLayout: %v", err)
 		}
@@ -93,7 +93,7 @@ func TestClickComboboxExperienceLayout_ChoosesGroupReservationForLargeParty(t *t
 		</section>`
 	withTockDOMFixture(t, html, func(ctx context.Context) {
 		if err := chromedp.Run(ctx, chromedp.ActionFunc(func(actCtx context.Context) error {
-			return clickComboboxExperienceLayout(actCtx, "6:15 PM", 8, 0)
+			return clickComboboxExperienceLayout(actCtx, "6:15 PM", "2026-07-10", 8, 0)
 		})); err != nil {
 			t.Fatalf("clickComboboxExperienceLayout: %v", err)
 		}
@@ -201,7 +201,7 @@ func TestClickRequestedTockBookingControl_WorksOnBareChromedpContext(t *testing.
 		</section>
 		<button id="submit" onclick="window.submitClicked = true;">Book now</button>`
 	withTockDOMFixture(t, html, func(ctx context.Context) {
-		activeCtx, activeCancel, err := clickRequestedTockBookingControl(ctx, "", "6:15 PM", 2, 0)
+		activeCtx, activeCancel, err := clickRequestedTockBookingControl(ctx, "", "6:15 PM", "2026-07-10", 2, 0)
 		if activeCancel != nil {
 			defer activeCancel()
 		}
@@ -235,7 +235,7 @@ func TestClickComboboxExperienceLayout_DeepLinkLayoutWithoutTimePicker(t *testin
 		</section>`
 	withTockDOMFixture(t, html, func(ctx context.Context) {
 		if err := chromedp.Run(ctx, chromedp.ActionFunc(func(actCtx context.Context) error {
-			return clickComboboxExperienceLayout(actCtx, "6:15 PM", 2, 0)
+			return clickComboboxExperienceLayout(actCtx, "6:15 PM", "2026-07-10", 2, 0)
 		})); err != nil {
 			t.Fatalf("clickComboboxExperienceLayout on deep-link layout: %v", err)
 		}
@@ -245,6 +245,51 @@ func TestClickComboboxExperienceLayout_DeepLinkLayoutWithoutTimePicker(t *testin
 		}
 		if clicked != "standard" {
 			t.Fatalf("clicked experience = %q, want standard for party of 2", clicked)
+		}
+	})
+}
+
+// Mirrors the live experience modal (confirmed in a real browser
+// 2026-07-08): clicking an experience card's "Book now" opens an SPA modal
+// whose calendar day buttons are named with ISO dates and whose slot rows
+// pair a time label with a "Book" button. The modal defaults to TODAY,
+// dropping the deep link's date, so the flow must re-select the day.
+func TestClickComboboxExperienceLayout_DrivesExperienceModal(t *testing.T) {
+	html := `
+		<!doctype html>
+		<section class="experience-card" id="standard">
+			<h2>Reservation</h2>
+			<a href="#" onclick="window.openModal(); return false;">Book now</a>
+		</section>
+		<div id="modal" style="display:none">
+			<button aria-label="2026-07-09">9</button>
+			<button aria-label="2026-07-10" onclick="window.pickedDay = '2026-07-10'; document.getElementById('slots').style.display = 'block';">10</button>
+			<div id="slots" style="display:none">
+				<div class="slot-row"><span>5:45 PM</span><button onclick="window.bookedSlot = '5:45 PM';">Book</button></div>
+				<div class="slot-row"><span>6:15 PM</span><button onclick="window.bookedSlot = '6:15 PM';">Book</button></div>
+			</div>
+		</div>
+		<script>
+			window.openModal = () => { document.getElementById('modal').style.display = 'block'; };
+		</script>`
+	withTockDOMFixture(t, html, func(ctx context.Context) {
+		if err := chromedp.Run(ctx, chromedp.ActionFunc(func(actCtx context.Context) error {
+			return clickComboboxExperienceLayout(actCtx, "6:15 PM", "2026-07-10", 2, 0)
+		})); err != nil {
+			t.Fatalf("clickComboboxExperienceLayout modal flow: %v", err)
+		}
+		var pickedDay, bookedSlot string
+		if err := chromedp.Run(ctx,
+			chromedp.Evaluate(`window.pickedDay || ''`, &pickedDay),
+			chromedp.Evaluate(`window.bookedSlot || ''`, &bookedSlot),
+		); err != nil {
+			t.Fatalf("read fixture state: %v", err)
+		}
+		if pickedDay != "2026-07-10" {
+			t.Fatalf("pickedDay = %q, want 2026-07-10", pickedDay)
+		}
+		if bookedSlot != "6:15 PM" {
+			t.Fatalf("bookedSlot = %q, want 6:15 PM", bookedSlot)
 		}
 	})
 }

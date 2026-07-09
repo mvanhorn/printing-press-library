@@ -121,7 +121,7 @@ func (c *Client) ChromeBook(ctx context.Context, req BookRequest) (*BookResponse
 	// one button per slot time; newer experience-card pages expose a time
 	// combobox plus "Book now" controls on experience cards. The helper may
 	// reattach to a recovered Tock tab if the original target has gone stale.
-	activeCtx, activeCancel, err := clickRequestedTockBookingControl(timed, venueURL, displayTime, req.PartySize, req.ExperienceID)
+	activeCtx, activeCancel, err := clickRequestedTockBookingControl(timed, venueURL, displayTime, req.ReservationDate, req.PartySize, req.ExperienceID)
 	if activeCancel != nil {
 		defer activeCancel()
 	}
@@ -222,7 +222,7 @@ func clickSlotByTimeText(ctx context.Context, displayTime string) error {
 	return nil
 }
 
-func clickRequestedTockBookingControl(ctx context.Context, venueURL, displayTime string, partySize, experienceID int) (context.Context, context.CancelFunc, error) {
+func clickRequestedTockBookingControl(ctx context.Context, venueURL, displayTime, isoDate string, partySize, experienceID int) (context.Context, context.CancelFunc, error) {
 	legacyErr := clickSlotByTimeText(ctx, displayTime)
 	if legacyErr == nil {
 		return ctx, nil, nil
@@ -233,7 +233,7 @@ func clickRequestedTockBookingControl(ctx context.Context, venueURL, displayTime
 	if comboboxErr == nil {
 		var retryCtx context.Context
 		var retryCancel context.CancelFunc
-		retryCtx, retryCancel, comboboxErr = clickComboboxExperienceLayoutWithRetry(activeCtx, venueURL, displayTime, partySize, experienceID)
+		retryCtx, retryCancel, comboboxErr = clickComboboxExperienceLayoutWithRetry(activeCtx, venueURL, displayTime, isoDate, partySize, experienceID)
 		if retryCancel != nil {
 			if activeCancel != nil {
 				activeCancel()
@@ -266,8 +266,8 @@ type tockComboboxClickResult struct {
 	Detail string `json:"detail"`
 }
 
-func clickComboboxExperienceLayoutWithRetry(ctx context.Context, venueURL, displayTime string, partySize, experienceID int) (context.Context, context.CancelFunc, error) {
-	if err := clickComboboxExperienceLayout(ctx, displayTime, partySize, experienceID); err != nil {
+func clickComboboxExperienceLayoutWithRetry(ctx context.Context, venueURL, displayTime, isoDate string, partySize, experienceID int) (context.Context, context.CancelFunc, error) {
+	if err := clickComboboxExperienceLayout(ctx, displayTime, isoDate, partySize, experienceID); err != nil {
 		if !isTargetNavigatedOrClosed(err) {
 			return ctx, nil, err
 		}
@@ -282,7 +282,7 @@ func clickComboboxExperienceLayoutWithRetry(ctx context.Context, venueURL, displ
 		if ensureErr != nil {
 			return ctx, nil, fmt.Errorf("%w; recovery failed: %v", err, ensureErr)
 		}
-		if retryErr := clickComboboxExperienceLayout(retryCtx, displayTime, partySize, experienceID); retryErr != nil {
+		if retryErr := clickComboboxExperienceLayout(retryCtx, displayTime, isoDate, partySize, experienceID); retryErr != nil {
 			if isTargetNavigatedOrClosed(retryErr) && onCheckoutPage(retryCtx) {
 				return retryCtx, retryCancel, nil
 			}
@@ -420,10 +420,11 @@ func tockVenuePagePath(rawURL string) string {
 // clickComboboxExperienceLayout drives Tock's newer booking layout:
 // choose the requested time from a combobox/listbox, pick the best matching
 // experience card, then click its "Book now" control.
-func clickComboboxExperienceLayout(ctx context.Context, displayTime string, partySize, experienceID int) error {
+func clickComboboxExperienceLayout(ctx context.Context, displayTime, isoDate string, partySize, experienceID int) error {
 	js := fmt.Sprintf(`
 		(async () => {
 			const target = %q;
+			const isoDate = %q;
 			const partySize = %d;
 			const experienceID = %d;
 			const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
@@ -571,20 +572,97 @@ func clickComboboxExperienceLayout(ctx context.Context, displayTime string, part
 				}
 				click(controls[0].control);
 				await sleep(500);
-				if (!/\/checkout\/confirm-purchase/.test(location.href)) {
-					const submit = all('button')
-						.filter((el) => el !== controls[0].control)
-						.filter((el) => /book now/i.test(clean(el.textContent || el.getAttribute('aria-label'))) || el.type === 'submit')
-						.sort((a, b) => a.getBoundingClientRect().top - b.getBoundingClientRect().top)[0];
-					if (submit) {
-						click(submit);
-						await sleep(250);
-					}
+				if (/\/checkout\/confirm-purchase/.test(location.href)) {
+					return { ok: true, step: 'experience_card', detail: controls[0].cardText };
+				}
+				const modalResult = await driveExperienceModal();
+				if (modalResult !== null) return modalResult;
+				// No modal appeared: legacy layout with a separate submit control.
+				const submit = all('button')
+					.filter((el) => el !== controls[0].control)
+					.filter((el) => /book now/i.test(clean(el.textContent || el.getAttribute('aria-label'))) || el.type === 'submit')
+					.sort((a, b) => a.getBoundingClientRect().top - b.getBoundingClientRect().top)[0];
+				if (submit) {
+					click(submit);
+					await sleep(250);
 				}
 				return { ok: true, step: 'experience_card', detail: controls[0].cardText };
 			}
+
+			function findDayButton() {
+				if (!isoDate) return null;
+				return all('button').find((el) =>
+					clean(el.textContent) === isoDate || clean(el.getAttribute('aria-label')) === isoDate) || null;
+			}
+			function findSlotBookButton() {
+				const timePattern = /\d{1,2}:\d{2}\s*(?:AM|PM)/i;
+				for (const btn of all('button').filter((el) => /^book$/i.test(clean(el.textContent)))) {
+					let node = btn.parentElement;
+					for (let hops = 0; node && hops < 5; hops++, node = node.parentElement) {
+						const text = clean(node.textContent);
+						if (text.length > 200) break;
+						if (timePattern.test(text)) {
+							// Nearest time-bearing ancestor IS the row: match or
+							// move on — climbing further reaches the whole list.
+							if (text.includes(target)) return btn;
+							break;
+						}
+					}
+				}
+				return null;
+			}
+			function visibleSlotTimes() {
+				const times = new Set();
+				for (const btn of all('button').filter((el) => /^book$/i.test(clean(el.textContent)))) {
+					let node = btn.parentElement;
+					for (let hops = 0; node && hops < 5; hops++, node = node.parentElement) {
+						const text = clean(node.textContent);
+						if (text.length > 200) break;
+						const m = text.match(/\d{1,2}:\d{2}\s*(?:AM|PM)/i);
+						if (m) { times.add(m[0]); break; }
+					}
+				}
+				return Array.from(times);
+			}
+			// Tock's experience modal (SPA route /experience/<id>/reservation):
+			// calendar day buttons named with the ISO date, then slot rows with
+			// per-time "Book" buttons. The modal RESETS the deep link's date to
+			// today, so the requested day must be re-selected. Returns null when
+			// no modal materializes (other layouts).
+			async function driveExperienceModal() {
+				const detectDeadline = Date.now() + 2500;
+				while (Date.now() < detectDeadline) {
+					if (findDayButton() || findSlotBookButton()) break;
+					if (/\/checkout\/confirm-purchase/.test(location.href)) {
+						return { ok: true, step: 'experience_card', detail: 'checkout reached without modal' };
+					}
+					await sleep(200);
+				}
+				const dayBtn = findDayButton();
+				if (!dayBtn && !findSlotBookButton()) return null;
+				if (dayBtn) {
+					click(dayBtn);
+					await sleep(400);
+				}
+				const slotDeadline = Date.now() + 12000;
+				while (Date.now() < slotDeadline) {
+					const slotBtn = findSlotBookButton();
+					if (slotBtn) {
+						click(slotBtn);
+						await sleep(400);
+						return { ok: true, step: 'experience_modal_slot', detail: target };
+					}
+					await sleep(250);
+				}
+				const seen = visibleSlotTimes();
+				return {
+					ok: false,
+					step: 'experience_modal_slot',
+					detail: 'requested time not offered in slot list; visible: ' + (seen.length ? seen.join(', ') : 'none'),
+				};
+			}
 		})()
-	`, displayTime, partySize, experienceID)
+	`, displayTime, isoDate, partySize, experienceID)
 	var result tockComboboxClickResult
 	awaitPromise := func(p *runtime.EvaluateParams) *runtime.EvaluateParams {
 		return p.WithAwaitPromise(true)
