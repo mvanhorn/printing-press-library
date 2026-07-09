@@ -159,7 +159,7 @@ func (c *Client) ChromeBook(ctx context.Context, req BookRequest) (*BookResponse
 				if req.CVC == "" && emptyCVCFieldPresent(actCtx) {
 					return ErrCVCRequired
 				}
-				return err
+				return fmt.Errorf("%w; checkout_state=%s", err, checkoutPageStateHint(actCtx))
 			}
 			receiptURL = u
 			return nil
@@ -745,6 +745,38 @@ func tockBookingPageStateHint(ctx context.Context, venueURL string) string {
 	return state
 }
 
+// checkoutPageStateHint summarizes the checkout page when the receipt never
+// arrives: URL, error/alert banners, the confirm control, and whether
+// checkbox/CVC inputs are present — enough to diagnose drift without another
+// live session.
+func checkoutPageStateHint(ctx context.Context) string {
+	js := `
+		(() => {
+			const clean = (s) => (s || '').replace(/\s+/g, ' ').trim();
+			const texts = (selector, limit) => Array.from(document.querySelectorAll(selector))
+				.map((el) => clean(el.textContent)).filter(Boolean).slice(0, limit);
+			return JSON.stringify({
+				url: location.href,
+				alerts: texts('[role="alert"], [class*="error"], [class*="Error"]', 6),
+				confirm_buttons: texts('button[type="submit"], button', 10)
+					.filter((t) => /reservation|book|complete|confirm/i.test(t)),
+				checkboxes: Array.from(document.querySelectorAll('input[type="checkbox"]'))
+					.map((el) => ({ checked: el.checked, required: el.required })),
+				has_cvc_field: Boolean(Array.from(document.querySelectorAll('input'))
+					.find((i) => /cvc|cvv|security/i.test((i.placeholder || '') + (i.name || '') + (i.id || '')))),
+			});
+		})()
+	`
+	var state string
+	if err := chromedp.Run(ctx, chromedp.Evaluate(js, &state)); err != nil {
+		return fmt.Sprintf("{\"hint_error\":%q}", err.Error())
+	}
+	if state == "" {
+		return "{}"
+	}
+	return state
+}
+
 // waitForCheckoutPage polls for the URL containing /checkout/confirm-purchase.
 func waitForCheckoutPage(ctx context.Context, deadline time.Duration) error {
 	stop := time.After(deadline)
@@ -774,7 +806,7 @@ func waitForReceiptPage(ctx context.Context, deadline time.Duration) (string, er
 	for {
 		var loc string
 		if err := chromedp.Location(&loc).Do(ctx); err == nil {
-			if strings.Contains(loc, "/receipt") && strings.Contains(loc, "purchaseId=") && !strings.Contains(loc, "/cancel") {
+			if strings.Contains(loc, "/receipt") && !strings.Contains(loc, "/cancel") {
 				return loc, nil
 			}
 		}
@@ -888,23 +920,30 @@ func checkAcknowledgeIfPresent(ctx context.Context) error {
 func clickPlaceReservation(ctx context.Context) error {
 	js := `
 		(() => {
+			const fire = (b) => {
+				b.scrollIntoView({ block: 'center' });
+				b.dispatchEvent(new MouseEvent('mouseover', { bubbles: true }));
+				b.dispatchEvent(new MouseEvent('mousedown', { bubbles: true }));
+				b.click();
+				b.dispatchEvent(new MouseEvent('mouseup', { bubbles: true }));
+			};
 			const btns = Array.from(document.querySelectorAll('button'));
 			for (const b of btns) {
 				const t = (b.textContent || '').trim();
 				if (/place reservation|confirm reservation|book now|complete reservation|complete booking/i.test(t)) {
-					b.click();
+					fire(b);
 					return t;
 				}
 			}
 			// Fallback: any visible blue/primary submit button at bottom of form
 			for (const b of btns) {
-				if (b.type === 'submit') { b.click(); return 'submit'; }
+				if (b.type === 'submit') { fire(b); return 'submit'; }
 			}
 			return null;
 		})()
 	`
 	var label any
-	if err := chromedp.Evaluate(js, &label).Do(ctx); err != nil {
+	if err := chromedp.Run(ctx, chromedp.Evaluate(js, &label)); err != nil {
 		return fmt.Errorf("evaluating place-reservation click: %w", err)
 	}
 	if label == nil {
