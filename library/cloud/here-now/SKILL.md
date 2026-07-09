@@ -29,7 +29,7 @@ This skill drives the `here-now-pp-cli` binary. **You must verify the CLI is ins
 2. Verify: `here-now-pp-cli --version`
 3. Ensure the reported install directory is on `$PATH` for the agent/runtime that will invoke this skill.
 
-If the `npx` install fails (no Node, offline, etc.), fall back to a direct Go install (requires Go 1.26.4 or newer):
+If the `npx` install fails (no Node, offline, etc.), fall back to a direct Go install (requires Go 1.26.5 or newer):
 
 ```bash
 go install github.com/mvanhorn/printing-press-library/library/cloud/here-now/cmd/here-now-pp-cli@latest
@@ -195,10 +195,18 @@ here-now-pp-cli which "<capability in your own words>"
 ### Publish a folder and keep it permanently
 
 ```bash
+here-now-pp-cli publish dir ./site
+```
+
+Authenticated publish (assumes you're logged in — see House Rules). Returns the slug + URL; the site is permanent, no claim step needed.
+
+### Publish anonymously, then claim before it expires
+
+```bash
 here-now-pp-cli publish dir ./site --anon && here-now-pp-cli claims expiring --within 24h
 ```
 
-Publish anonymously for a live URL, then see the claim window so you can `sites claim` before it expires.
+Only when an anonymous site is explicitly requested (Rule #1): publishes a temporary URL, then shows the 24h claim window so you can `sites claim` it before it expires.
 
 ### Sync a working folder to your Drive
 
