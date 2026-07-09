@@ -88,7 +88,7 @@ func newNovelKeywordsRankFanoutCmd(flags *rootFlags) *cobra.Command {
 					defer func() { <-sem }()
 
 					params := map[string]string{
-						"app":      flagApp,
+						"apps":     flagApp,
 						"keywords": strings.Join(keywords, ","),
 						"country":  ctry,
 						"device":   flagDevice,
