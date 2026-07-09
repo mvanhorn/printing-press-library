@@ -1,0 +1,218 @@
+{
+  "api_name": "juneoven",
+  "novelty_score": 8,
+  "alternatives": [
+    {
+      "name": "homebridge-june-oven",
+      "url": "https://github.com/keithah/homebridge-june-oven",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 8,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-07-09T00:00:00Z",
+  "novel_features": [
+    {
+      "name": "Block until preheated",
+      "command": "ready",
+      "description": "Wait for the oven to reach its target temperature, then exit 0 (non-zero on timeout).",
+      "rationale": "June exposes no terminal-reachable ready signal; requires consuming the live cavity-telemetry stream and a typed blocking primitive no other June tool offers.",
+      "example": "juneoven-pp-cli ready --timeout 20 --agent",
+      "why_it_matters": "Lets an agent synchronously gate the next cook step on preheat completion instead of busy-waiting.",
+      "group": "Cook workflow primitives"
+    },
+    {
+      "name": "Record a cook to local history",
+      "command": "record",
+      "description": "Capture the current cook (session + telemetry/camera activity) into local SQLite.",
+      "rationale": "June's cloud keeps only live state and no history; this is the only durable local record, and it survives oven swaps and cloud changes.",
+      "example": "juneoven-pp-cli record --label sourdough --agent",
+      "why_it_matters": "Turns ephemeral live cooks into a queryable local dataset the cloud never stores.",
+      "group": "Local history the cloud never keeps"
+    },
+    {
+      "name": "Cook history log",
+      "command": "log",
+      "description": "List past cooks (mode, target, duration, outcome) from local history.",
+      "rationale": "No June endpoint returns cook history; only a locally-synced store can answer 'how long did that roast take'.",
+      "example": "juneoven-pp-cli log --since 7d --agent",
+      "why_it_matters": "Answers historical questions about the oven that are impossible through June's API.",
+      "group": "Local history the cloud never keeps"
+    },
+    {
+      "name": "Temperature-curve export",
+      "command": "curve",
+      "description": "Export one recorded cook's temperature/progress samples as JSON or CSV.",
+      "rationale": "Requires per-session telemetry captured locally; June exposes no per-cook curve.",
+      "example": "juneoven-pp-cli curve 3 --format csv",
+      "why_it_matters": "Gives a plottable series for one cook, for analysis or piping.",
+      "group": "Local history the cloud never keeps"
+    },
+    {
+      "name": "Preheat performance stats",
+      "command": "preheat-stats",
+      "description": "Median/fastest/slowest time-to-target per mode over recorded cooks.",
+      "rationale": "Derived from local telemetry history June never stores; a cross-session aggregation no single API call provides.",
+      "example": "juneoven-pp-cli preheat-stats --mode bake --agent",
+      "why_it_matters": "Shows how your specific oven performs over time and whether it is degrading.",
+      "group": "Local history the cloud never keeps"
+    },
+    {
+      "name": "Predicted time-to-ready",
+      "command": "eta",
+      "description": "Non-blocking estimate of time until the oven reaches target, from the live climb rate.",
+      "rationale": "Combines live telemetry with a machine-readable extrapolation no June surface offers.",
+      "example": "juneoven-pp-cli eta --agent",
+      "why_it_matters": "An agent can sequence the next action off a returned ETA without blocking.",
+      "group": "Cook workflow primitives"
+    },
+    {
+      "name": "Named repeatable cooks",
+      "command": "repeat",
+      "description": "Save a named mode+temp(+timer) preset in local SQLite and replay it with one word.",
+      "rationale": "June has no user-defined quick-cook presets reachable outside its app; the local store makes cooks repeatable by name.",
+      "example": "juneoven-pp-cli repeat \u003cname\u003e",
+      "why_it_matters": "Collapses a repeated weekly cook into a single memorable command.",
+      "group": "Cook workflow primitives"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Block until preheated",
+      "command": "ready",
+      "description": "Wait for the oven to reach its target temperature, then exit 0 (non-zero on timeout).",
+      "rationale": "June exposes no terminal-reachable ready signal; requires consuming the live cavity-telemetry stream and a typed blocking primitive no other June tool offers.",
+      "example": "juneoven-pp-cli ready --timeout 20 --agent",
+      "why_it_matters": "Lets an agent synchronously gate the next cook step on preheat completion instead of busy-waiting.",
+      "group": "Cook workflow primitives"
+    },
+    {
+      "name": "Record a cook to local history",
+      "command": "record",
+      "description": "Capture the current cook (session + telemetry/camera activity) into local SQLite.",
+      "rationale": "June's cloud keeps only live state and no history; this is the only durable local record, and it survives oven swaps and cloud changes.",
+      "example": "juneoven-pp-cli record --label sourdough --agent",
+      "why_it_matters": "Turns ephemeral live cooks into a queryable local dataset the cloud never stores.",
+      "group": "Local history the cloud never keeps"
+    },
+    {
+      "name": "Cook history log",
+      "command": "log",
+      "description": "List past cooks (mode, target, duration, outcome) from local history.",
+      "rationale": "No June endpoint returns cook history; only a locally-synced store can answer 'how long did that roast take'.",
+      "example": "juneoven-pp-cli log --since 7d --agent",
+      "why_it_matters": "Answers historical questions about the oven that are impossible through June's API.",
+      "group": "Local history the cloud never keeps"
+    },
+    {
+      "name": "Temperature-curve export",
+      "command": "curve",
+      "description": "Export one recorded cook's temperature/progress samples as JSON or CSV.",
+      "rationale": "Requires per-session telemetry captured locally; June exposes no per-cook curve.",
+      "example": "juneoven-pp-cli curve 3 --format csv",
+      "why_it_matters": "Gives a plottable series for one cook, for analysis or piping.",
+      "group": "Local history the cloud never keeps"
+    },
+    {
+      "name": "Preheat performance stats",
+      "command": "preheat-stats",
+      "description": "Median/fastest/slowest time-to-target per mode over recorded cooks.",
+      "rationale": "Derived from local telemetry history June never stores; a cross-session aggregation no single API call provides.",
+      "example": "juneoven-pp-cli preheat-stats --mode bake --agent",
+      "why_it_matters": "Shows how your specific oven performs over time and whether it is degrading.",
+      "group": "Local history the cloud never keeps"
+    },
+    {
+      "name": "Predicted time-to-ready",
+      "command": "eta",
+      "description": "Non-blocking estimate of time until the oven reaches target, from the live climb rate.",
+      "rationale": "Combines live telemetry with a machine-readable extrapolation no June surface offers.",
+      "example": "juneoven-pp-cli eta --agent",
+      "why_it_matters": "An agent can sequence the next action off a returned ETA without blocking.",
+      "group": "Cook workflow primitives"
+    },
+    {
+      "name": "Named repeatable cooks",
+      "command": "repeat",
+      "description": "Save a named mode+temp(+timer) preset in local SQLite and replay it with one word.",
+      "rationale": "June has no user-defined quick-cook presets reachable outside its app; the local store makes cooks repeatable by name.",
+      "example": "juneoven-pp-cli repeat \u003cname\u003e",
+      "why_it_matters": "Collapses a repeated weekly cook into a single memorable command.",
+      "group": "Cook workflow primitives"
+    }
+  ],
+  "auth": {},
+  "narrative": {
+    "display_name": "June Oven",
+    "headline": "Control a June oven from the terminal, plus a durable local cook history and repeatable named cooks that June's live-only cloud never keeps.",
+    "value_prop": "Direct pair/preheat/watch/cancel control with no HomeKit and no June app, plus local history (record, log, curve, preheat-stats), workflow primitives (ready, eta), and named repeatable cooks (repeat). All agent-native JSON.",
+    "auth_narrative": "Auth is direct pairing: run `juneoven-pp-cli pair` once and type an 8-digit code on the oven. A signing key and access token are stored at ~/.config/juneoven-pp-cli/identity.json (0600).",
+    "quickstart": [
+      {
+        "command": "juneoven-pp-cli status --json",
+        "comment": "confirm the oven is paired and online"
+      },
+      {
+        "command": "juneoven-pp-cli preheat --temp 350",
+        "comment": "start a bake"
+      },
+      {
+        "command": "juneoven-pp-cli watch --seconds 60",
+        "comment": "watch live telemetry and camera frames"
+      },
+      {
+        "command": "juneoven-pp-cli log --since 7d",
+        "comment": "review recent cook history"
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "commands say 'no paired oven found'",
+        "fix": "run `juneoven-pp-cli pair` and enter the code on the oven"
+      },
+      {
+        "symptom": "ready/eta report no cavity temperature",
+        "fix": "some June firmware streams only camera frames; use `watch` or the oven screen for the preheat signal"
+      }
+    ],
+    "when_to_use": "Use this CLI to control your own June oven from a terminal or agent, to keep a local record of cooks the cloud discards, and to script repeatable cooks. It is a direct cloud client, agent-native, with no HomeKit dependency.",
+    "anti_triggers": [
+      "recipe lookup or meal planning",
+      "HomeKit/Home-app automations",
+      "ovens on a different June account than the one paired"
+    ],
+    "recipes": [
+      {
+        "title": "Preheat and record",
+        "command": "juneoven-pp-cli preheat --temp 450 \u0026\u0026 juneoven-pp-cli record --label pizza",
+        "explanation": "Start a cook and capture its session to local history."
+      },
+      {
+        "title": "Weekly cook by name",
+        "command": "juneoven-pp-cli repeat sunday-roast",
+        "explanation": "Replay a saved mode+temp+timer preset in one command."
+      },
+      {
+        "title": "Export a cook's curve",
+        "command": "juneoven-pp-cli curve 3 --format csv --agent --select ts,cavity_f",
+        "explanation": "Pull one session's temperature series as CSV for plotting."
+      }
+    ],
+    "trigger_phrases": [
+      "preheat my june oven to 350",
+      "what's my june oven doing",
+      "cancel the oven",
+      "log my june oven cooks",
+      "repeat sunday roast on the oven",
+      "use juneoven",
+      "run juneoven"
+    ]
+  }
+}
