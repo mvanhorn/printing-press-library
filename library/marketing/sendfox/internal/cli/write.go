@@ -427,7 +427,14 @@ func runBatchWrite(cmd *cobra.Command, cfg *config.Config, anthropicKey, topicsF
 		var campaign struct {
 			ID int `json:"id"`
 		}
-		_ = json.Unmarshal(campaignData, &campaign)
+		if err := json.Unmarshal(campaignData, &campaign); err != nil {
+			fmt.Fprintf(w, "  ERROR reading campaign response: %v\n", err)
+			continue
+		}
+		if campaign.ID == 0 {
+			fmt.Fprintf(w, "  ERROR creating campaign: API returned ID 0\n")
+			continue
+		}
 		fmt.Fprintf(w, "  Created campaign ID %d — subject: %s\n", campaign.ID, content.Subject)
 
 		// Small delay to respect rate limits
