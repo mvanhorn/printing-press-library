@@ -458,6 +458,9 @@ func syncResource(ctx context.Context, c interface {
 		if fieldSelectorKey != "" && fieldSelectorValue != "" {
 			params[fieldSelectorKey] = fieldSelectorValue
 		}
+		for k, v := range syncResourceRequiredParams(resource) {
+			params[k] = v
+		}
 
 		// Apply user-supplied --param / --resource-param overrides last so they
 		// win over spec-derived defaults (e.g. forcing mine=true on a list
@@ -744,6 +747,18 @@ func syncResourceSinceParam(resource string) string {
 	switch resource {
 	}
 	return ""
+}
+
+// syncResourceRequiredParams returns API-required params that the generic sync
+// loop cannot infer from pagination metadata. The chains endpoint is a search
+// API rather than a true list endpoint, so seed it with a broad partial query;
+// --resource-param chains:chainName=<query> still overrides this default.
+func syncResourceRequiredParams(resource string) map[string]string {
+	switch resource {
+	case "chains":
+		return map[string]string{"chainName": "a"}
+	}
+	return nil
 }
 
 func syncResourceFieldSelector(resource string) (string, string) {
@@ -1273,7 +1288,7 @@ func syncResourcePath(resource string) (string, error) {
 		"attributes":                      "/v1/attributes",
 		"categories":                      "/v1/categories",
 		"categories-categories:batch-get": "/v1/categories:batchGet",
-		"chains":                          "/v1/chains:search",
+		"chains":                          businessInformationBaseURL + "/v1/chains:search",
 		"place_action_type_metadata":      "/v1/placeActionTypeMetadata",
 	}
 	if p, ok := paths[resource]; ok {
