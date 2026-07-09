@@ -130,7 +130,10 @@ func newNovelAuditLoginsCmd(flags *rootFlags) *cobra.Command {
 					for _, u := range env.Users {
 						scanned++
 						// lastLoginTime of "1970-01-01T00:00:00.000Z" means never logged in.
-						t, perr := time.Parse(time.RFC3339, u.LastLoginTime)
+						// The Directory API returns millisecond precision, so parse with
+						// RFC3339Nano; plain RFC3339 rejects the fractional seconds and would
+						// mark every user dormant.
+						t, perr := time.Parse(time.RFC3339Nano, u.LastLoginTime)
 						if perr != nil || t.Before(cutoff) {
 							view.DormantUsers = append(view.DormantUsers, dormantUser{Email: u.PrimaryEmail, LastLoginTime: u.LastLoginTime})
 						}

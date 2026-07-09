@@ -56,7 +56,7 @@ Do not use this CLI for:
 These capabilities aren't available in any other tool for this API.
 
 ### Lifecycle workflows that compound
-- **`workflow offboard`** — Run a departing user's entire lifecycle in one command — suspend, reset password, sign out, revoke OAuth tokens, transfer Drive ownership, set Gmail delegation and forwarding, wipe devices, remove from groups, and move to a suspended OU.
+- **`workflow offboard`** — Run a departing user's entire lifecycle in one command — suspend, sign out, revoke OAuth tokens, transfer Drive ownership, set Gmail delegation, remove from groups, and move to a suspended OU.
 
   _Reach for this instead of running eight separate endpoint commands when a user leaves; it guarantees no step is skipped and records what completed._
 

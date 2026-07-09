@@ -178,28 +178,45 @@ func runOffboard(ctx context.Context, c *client.Client, user, manager, ou string
 		rec("transfer-drive", "created Drive ownership transfer to "+manager, transferDrive(ctx, c, user, manager))
 	}
 
-	// 7. Remove from all groups.
+	// 7. Remove from all groups. The Directory groups.list endpoint pages at
+	// ~200 groups; walk every page before removing so a user in more than one
+	// page of groups is fully removed rather than left in the remainder while
+	// the step still reports success.
 	{
 		var removed, failed int
 		var lastErr error
-		if data, gerr := c.Get(ctx, wsDirectoryBase+"/groups", map[string]string{"userKey": user, "fields": "groups(email)"}); gerr == nil {
+		pageToken := ""
+		for {
+			params := map[string]string{"userKey": user, "fields": "nextPageToken,groups(email)", "maxResults": "200"}
+			if pageToken != "" {
+				params["pageToken"] = pageToken
+			}
+			data, gerr := c.Get(ctx, wsDirectoryBase+"/groups", params)
+			if gerr != nil {
+				lastErr = gerr
+				break
+			}
 			var env struct {
-				Groups []struct {
+				NextPageToken string `json:"nextPageToken"`
+				Groups        []struct {
 					Email string `json:"email"`
 				} `json:"groups"`
 			}
-			if json.Unmarshal(data, &env) == nil {
-				for _, g := range env.Groups {
-					if _, _, derr := c.Delete(ctx, wsDirectoryBase+"/groups/"+g.Email+"/members/"+user); derr != nil {
-						failed++
-						lastErr = derr
-					} else {
-						removed++
-					}
+			if json.Unmarshal(data, &env) != nil {
+				break
+			}
+			for _, g := range env.Groups {
+				if _, _, derr := c.Delete(ctx, wsDirectoryBase+"/groups/"+g.Email+"/members/"+user); derr != nil {
+					failed++
+					lastErr = derr
+				} else {
+					removed++
 				}
 			}
-		} else {
-			lastErr = gerr
+			if env.NextPageToken == "" || len(env.Groups) == 0 {
+				break
+			}
+			pageToken = env.NextPageToken
 		}
 		steps = append(steps, offboardStep{
 			Step:   "remove-from-groups",

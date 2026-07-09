@@ -33,7 +33,7 @@
     {
       "name": "Offboard workflow",
       "command": "workflow offboard",
-      "description": "Run a departing user's entire lifecycle in one command — suspend, reset password, sign out, revoke OAuth tokens, transfer Drive ownership, set Gmail delegation and forwarding, wipe devices, remove from groups, and move to a suspended OU."
+      "description": "Run a departing user's entire lifecycle in one command — suspend, sign out, revoke OAuth tokens, transfer Drive ownership, set Gmail delegation, remove from groups, and move to a suspended OU."
     },
     {
       "name": "User 360 audit",
