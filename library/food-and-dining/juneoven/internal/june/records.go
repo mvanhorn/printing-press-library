@@ -3,13 +3,15 @@ package june
 import (
 	"context"
 	"fmt"
+	"sync/atomic"
 	"time"
 )
 
-// RecordResult summarizes a completed recording.
+// RecordResult summarizes a completed recording. Cook is June's cook-plan name
+// for the session (see cookstore Session.Cook).
 type RecordResult struct {
 	SessionID    int64  `json:"session_id"`
-	Mode         string `json:"mode"`
+	Cook         string `json:"cook"`
 	TargetF      int    `json:"target_f"`
 	Samples      int    `json:"temperature_samples"`
 	CameraFrames int    `json:"camera_frames"`
@@ -72,7 +74,7 @@ func Record(ctx context.Context, id *Identity, cs *CookStore, label string) (Rec
 		}
 	})
 	_ = cs.EndSession(writeCtx, sessionID, outcome, time.Now())
-	res := RecordResult{SessionID: sessionID, Mode: st.CookName, TargetF: target, Samples: samples, CameraFrames: frames, Outcome: outcome}
+	res := RecordResult{SessionID: sessionID, Cook: st.CookName, TargetF: target, Samples: samples, CameraFrames: frames, Outcome: outcome}
 	if samples == 0 && frames > 0 {
 		res.Note = "this oven streamed camera frames but no cavity temperature; session logged, but temperature-curve features (curve/preheat-stats) have no data for it"
 	}
@@ -119,7 +121,7 @@ func WaitReady(ctx context.Context, id *Identity, tolerance int, timeout time.Du
 	defer cancel()
 	start := time.Now()
 	res := ReadyResult{TargetF: target}
-	sawTelemetry := false
+	var sawTelemetry atomic.Bool
 
 	// Early bail: if no cavity telemetry frame arrives within the probe window,
 	// this oven cannot report readiness by temperature.
@@ -129,7 +131,7 @@ func WaitReady(ctx context.Context, id *Identity, tolerance int, timeout time.Du
 		select {
 		case <-wctx.Done():
 		case <-t.C:
-			if !sawTelemetry {
+			if !sawTelemetry.Load() {
 				cancel()
 			}
 		}
@@ -137,7 +139,7 @@ func WaitReady(ctx context.Context, id *Identity, tolerance int, timeout time.Du
 
 	err = Watch(wctx, id, func(ev TelemetryEvent) {
 		if ev.Type == "telemetry" && ev.CurrentF != nil {
-			sawTelemetry = true
+			sawTelemetry.Store(true)
 			res.FinalF = *ev.CurrentF
 			if *ev.CurrentF >= target-tolerance {
 				res.Ready = true
@@ -148,7 +150,7 @@ func WaitReady(ctx context.Context, id *Identity, tolerance int, timeout time.Du
 	res.ElapsedSec = int(time.Since(start).Seconds())
 	if !res.Ready {
 		res.TimedOut = true
-		if !sawTelemetry {
+		if !sawTelemetry.Load() {
 			res.Note = "this oven streams no live cavity temperature (camera frames only), so readiness cannot be detected by temperature. Use 'watch' to observe the cook, or the oven's own screen/app for the preheat chime."
 		}
 	}

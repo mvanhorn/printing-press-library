@@ -88,12 +88,12 @@ These capabilities aren't available in any other tool for this API.
   ```bash
   juneoven-pp-cli curve 3 --format csv
   ```
-- **`preheat-stats`** — Median/fastest/slowest time-to-target per mode over recorded cooks.
+- **`preheat-stats`** — Median/fastest/slowest time-to-target per cook over recorded cooks.
 
   _Shows how your specific oven performs over time and whether it is degrading._
 
   ```bash
-  juneoven-pp-cli preheat-stats --mode bake --agent
+  juneoven-pp-cli preheat-stats --cook bake --agent
   ```
 
 ## Recipes
@@ -147,7 +147,7 @@ June's cloud keeps only live state and no history. These commands add a durable 
 - `juneoven-pp-cli ready --timeout 20` — Block until the oven reaches target, typed exit (0 ready, 4 timeout). Gate an agent step on preheat completion.
 - `juneoven-pp-cli eta` — Non-blocking predicted time-to-ready from the live climb rate.
 - `juneoven-pp-cli curve <session-id> --format csv` — Export one recorded cook's temperature curve.
-- `juneoven-pp-cli preheat-stats --mode bake` — Median/fastest/slowest time-to-target per mode over recorded cooks.
+- `juneoven-pp-cli preheat-stats --cook bake` — Median/fastest/slowest time-to-target per cook over recorded cooks.
 
 **Firmware note (important):** `ready`, `eta`, `curve`, and `preheat-stats` need an oven that streams live cavity-temperature telemetry. Some firmware (e.g. the `penguin` model) streams only interior camera frames and no temperature; on those ovens these four commands return an honest empty/notice result rather than data, while `record`, `log`, and `repeat` work fully. `status`, `preheat`, `temp`, `timer`, `cancel`, `watch`, and `cam` work on all paired ovens.
 

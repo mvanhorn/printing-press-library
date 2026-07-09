@@ -282,12 +282,12 @@ These capabilities aren't available in any other tool for this API.
   ```bash
   juneoven-pp-cli curve 3 --format csv
   ```
-- **`preheat-stats`** — Median/fastest/slowest time-to-target per mode over recorded cooks.
+- **`preheat-stats`** — Median/fastest/slowest time-to-target per cook over recorded cooks.
 
   _Shows how your specific oven performs over time and whether it is degrading._
 
   ```bash
-  juneoven-pp-cli preheat-stats --mode bake --agent
+  juneoven-pp-cli preheat-stats --cook bake --agent
   ```
 
 ## Output Formats

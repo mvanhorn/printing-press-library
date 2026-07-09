@@ -181,12 +181,12 @@ func newCurveCmd(flags *rootFlags) *cobra.Command {
 // preheat-stats — derive per-mode preheat timing from history.
 // pp:data-source computed
 func newPreheatStatsCmd(flags *rootFlags) *cobra.Command {
-	var mode string
+	var cook string
 	cmd := &cobra.Command{
 		Use:         "preheat-stats",
-		Short:       "How fast your oven preheats, per mode, from recorded history",
-		Long:        "Compute median, fastest, and slowest time-to-target per cook mode over recorded sessions. Requires cooks captured with 'record'.",
-		Example:     "  juneoven-pp-cli preheat-stats\n  juneoven-pp-cli preheat-stats --mode bake",
+		Short:       "How fast your oven preheats, per cook, from recorded history",
+		Long:        "Compute median, fastest, and slowest time-to-target grouped by June's cook name over recorded sessions (the CLI's own preheat/repeat report 'bake'/'roast'; app recipes report the dish name). Requires cooks captured with 'record'.",
+		Example:     "  juneoven-pp-cli preheat-stats\n  juneoven-pp-cli preheat-stats --cook bake",
 		Annotations: map[string]string{"mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if dryRunOK(flags) {
@@ -198,14 +198,14 @@ func newPreheatStatsCmd(flags *rootFlags) *cobra.Command {
 				return err
 			}
 			defer cs.Close()
-			stats, err := cs.PreheatStats(cmd.Context(), mode)
+			stats, err := cs.PreheatStats(cmd.Context(), cook)
 			if err != nil {
 				return err
 			}
 			return printJSONFiltered(cmd.OutOrStdout(), stats, flags)
 		},
 	}
-	cmd.Flags().StringVar(&mode, "mode", "", "Restrict to one mode (bake/roast)")
+	cmd.Flags().StringVar(&cook, "cook", "", "Restrict to one cook name (e.g. bake, roast)")
 	return cmd
 }
 

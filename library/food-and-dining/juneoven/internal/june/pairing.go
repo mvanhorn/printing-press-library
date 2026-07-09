@@ -9,6 +9,7 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
+	"io"
 	"math/big"
 	"net/http"
 	"regexp"
@@ -124,12 +125,21 @@ func Pair(ctx context.Context, deviceName string, progress func(PairProgress)) (
 		return nil, err
 	}
 
-	// 3. Open the messaging socket and listen for the oven's A.
+	// 3. Open the messaging socket and listen for the oven's A. Wait for the
+	// socket to actually connect (signalled on wsReady) before requesting the
+	// code, so the oven's A frame can't arrive before the reader is listening.
 	aCh := make(chan *big.Int, 1)
+	wsReady := make(chan struct{})
 	wsCtx, wsCancel := context.WithCancel(ctx)
 	defer wsCancel()
-	go listenForA(wsCtx, token, aCh, progress)
-	time.Sleep(2 * time.Second)
+	go listenForA(wsCtx, token, aCh, wsReady, progress)
+	select {
+	case <-wsReady:
+	case <-time.After(15 * time.Second):
+		return nil, fmt.Errorf("could not open the June messaging socket")
+	case <-ctx.Done():
+		return nil, ctx.Err()
+	}
 
 	// 4. Request a pairing code.
 	code, err := requestCode(ctx, httpc, token)
@@ -164,12 +174,16 @@ func Pair(ctx context.Context, deviceName string, progress func(PairProgress)) (
 	// 6. Derive the seal key and encrypt companion_info.
 	S := srv.secret(A)
 	K := blake2b.Sum256(S)
+	tz := time.Local.String()
+	if tz == "" || tz == "Local" {
+		tz = "America/Los_Angeles" // fall back when the host zone is unnamed
+	}
 	companion := map[string]string{
 		"companion_id":          devID,
 		"companion_name":        deviceName,
 		"public_signing_key":    base64.StdEncoding.EncodeToString(signPub),
 		"public_encryption_key": base64.StdEncoding.EncodeToString(boxPub[:]),
-		"timezone":              "America/Los_Angeles",
+		"timezone":              tz,
 		"platform":              "Android",
 	}
 	pj, _ := json.Marshal(companion)
@@ -277,7 +291,11 @@ func postCompanion(ctx context.Context, httpc *http.Client, token, code string, 
 	if err != nil {
 		return fmt.Errorf("posting companion key: %w", err)
 	}
-	_ = resp.Body.Close()
+	defer resp.Body.Close()
+	if resp.StatusCode >= 300 {
+		b, _ := io.ReadAll(io.LimitReader(resp.Body, 512))
+		return fmt.Errorf("oven rejected companion key: HTTP %d %s", resp.StatusCode, strings.TrimSpace(string(b)))
+	}
 	return nil
 }
 
@@ -309,7 +327,7 @@ var longB64 = regexp.MustCompile(`"([A-Za-z0-9+/=]{300,})"`)
 
 // listenForA connects to the messaging socket and pushes the oven's SRP public A
 // (a long base64 string inside a 10026 frame) to ch.
-func listenForA(ctx context.Context, token string, ch chan<- *big.Int, progress func(PairProgress)) {
+func listenForA(ctx context.Context, token string, ch chan<- *big.Int, ready chan<- struct{}, progress func(PairProgress)) {
 	d := websocket.Dialer{HandshakeTimeout: 15 * time.Second, EnableCompression: false}
 	h := http.Header{}
 	h.Set("Authorization", "Bearer "+token)
@@ -319,6 +337,7 @@ func listenForA(ctx context.Context, token string, ch chan<- *big.Int, progress 
 		return
 	}
 	defer conn.Close()
+	close(ready) // socket is connected; safe for the caller to request the code
 	for {
 		if ctx.Err() != nil {
 			return

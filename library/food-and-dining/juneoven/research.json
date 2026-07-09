@@ -58,9 +58,9 @@
     {
       "name": "Preheat performance stats",
       "command": "preheat-stats",
-      "description": "Median/fastest/slowest time-to-target per mode over recorded cooks.",
+      "description": "Median/fastest/slowest time-to-target per cook over recorded cooks.",
       "rationale": "Derived from local telemetry history June never stores; a cross-session aggregation no single API call provides.",
-      "example": "juneoven-pp-cli preheat-stats --mode bake --agent",
+      "example": "juneoven-pp-cli preheat-stats --cook bake --agent",
       "why_it_matters": "Shows how your specific oven performs over time and whether it is degrading.",
       "group": "Local history the cloud never keeps"
     },
@@ -123,9 +123,9 @@
     {
       "name": "Preheat performance stats",
       "command": "preheat-stats",
-      "description": "Median/fastest/slowest time-to-target per mode over recorded cooks.",
+      "description": "Median/fastest/slowest time-to-target per cook over recorded cooks.",
       "rationale": "Derived from local telemetry history June never stores; a cross-session aggregation no single API call provides.",
-      "example": "juneoven-pp-cli preheat-stats --mode bake --agent",
+      "example": "juneoven-pp-cli preheat-stats --cook bake --agent",
       "why_it_matters": "Shows how your specific oven performs over time and whether it is degrading.",
       "group": "Local history the cloud never keeps"
     },

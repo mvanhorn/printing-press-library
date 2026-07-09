@@ -59,7 +59,7 @@ func (cs *CookStore) migrate(ctx context.Context) error {
 		`CREATE TABLE IF NOT EXISTS sessions (
 			id INTEGER PRIMARY KEY AUTOINCREMENT,
 			label TEXT,
-			mode TEXT,
+			cook TEXT,
 			target_f INTEGER,
 			started_at INTEGER NOT NULL,
 			ended_at INTEGER,
@@ -87,11 +87,15 @@ func (cs *CookStore) migrate(ctx context.Context) error {
 	return nil
 }
 
-// Session is one recorded cook.
+// Session is one recorded cook. Cook is June's cook-plan name for the session
+// (the CLI's own preheat/repeat report the primitive "bake"/"roast" here; an
+// app-started recipe reports the dish name). It is deliberately not called
+// "mode" because June's status only exposes the food/program name, not a fixed
+// bake/roast enum.
 type Session struct {
 	ID          int64   `json:"id"`
 	Label       string  `json:"label,omitempty"`
-	Mode        string  `json:"mode"`
+	Cook        string  `json:"cook"`
 	TargetF     int     `json:"target_f"`
 	StartedAt   string  `json:"started_at"`
 	EndedAt     string  `json:"ended_at,omitempty"`
@@ -106,11 +110,12 @@ type Sample struct {
 	Progress int    `json:"progress"`
 }
 
-// StartSession inserts a new open session and returns its id.
-func (cs *CookStore) StartSession(ctx context.Context, label, mode string, targetF int, at time.Time) (int64, error) {
+// StartSession inserts a new open session and returns its id. cook is June's
+// cook-plan name (see Session.Cook).
+func (cs *CookStore) StartSession(ctx context.Context, label, cook string, targetF int, at time.Time) (int64, error) {
 	res, err := cs.db.ExecContext(ctx,
-		`INSERT INTO sessions (label, mode, target_f, started_at) VALUES (?,?,?,?)`,
-		label, mode, targetF, at.Unix())
+		`INSERT INTO sessions (label, cook, target_f, started_at) VALUES (?,?,?,?)`,
+		label, cook, targetF, at.Unix())
 	if err != nil {
 		return 0, err
 	}
@@ -142,7 +147,7 @@ func fmtTS(unix sql.NullInt64) string {
 
 // ListSessions returns recent sessions, newest first.
 func (cs *CookStore) ListSessions(ctx context.Context, limit int, since time.Duration) ([]Session, error) {
-	q := `SELECT id, label, mode, target_f, started_at, ended_at, outcome FROM sessions`
+	q := `SELECT id, label, cook, target_f, started_at, ended_at, outcome FROM sessions`
 	var args []any
 	if since > 0 {
 		q += ` WHERE started_at >= ?`
@@ -161,14 +166,14 @@ func (cs *CookStore) ListSessions(ctx context.Context, limit int, since time.Dur
 	out := make([]Session, 0)
 	for rows.Next() {
 		var s Session
-		var label, mode, outcome sql.NullString
+		var label, cook, outcome sql.NullString
 		var started sql.NullInt64
 		var ended sql.NullInt64
 		var target sql.NullInt64
-		if err := rows.Scan(&s.ID, &label, &mode, &target, &started, &ended, &outcome); err != nil {
+		if err := rows.Scan(&s.ID, &label, &cook, &target, &started, &ended, &outcome); err != nil {
 			continue
 		}
-		s.Label, s.Mode, s.Outcome = label.String, mode.String, outcome.String
+		s.Label, s.Cook, s.Outcome = label.String, cook.String, outcome.String
 		s.TargetF = int(target.Int64)
 		s.StartedAt, s.EndedAt = fmtTS(started), fmtTS(ended)
 		if started.Valid && ended.Valid {
@@ -201,26 +206,26 @@ func (cs *CookStore) SessionSamples(ctx context.Context, sessionID int64) ([]Sam
 	return out, rows.Err()
 }
 
-// PreheatStat is derived time-to-target statistics for a mode.
+// PreheatStat is derived time-to-target statistics for one cook name/program.
 type PreheatStat struct {
-	Mode          string  `json:"mode"`
+	Cook          string  `json:"cook"`
 	Cooks         int     `json:"cooks_analyzed"`
 	MedianSeconds float64 `json:"median_seconds_to_target"`
 	FastestSec    float64 `json:"fastest_seconds"`
 	SlowestSec    float64 `json:"slowest_seconds"`
 }
 
-// PreheatStats computes per-mode median/min/max time from a session's first
-// sample to the first sample that reaches the target, over completed sessions.
-// mode == "" analyzes all modes together per mode grouping.
-func (cs *CookStore) PreheatStats(ctx context.Context, modeFilter string) ([]PreheatStat, error) {
+// PreheatStats computes per-cook median/min/max time from a session's first
+// sample to the first sample that reaches the target, over recorded sessions.
+// cookFilter == "" groups across all cook names.
+func (cs *CookStore) PreheatStats(ctx context.Context, cookFilter string) ([]PreheatStat, error) {
 	sessions, err := cs.ListSessions(ctx, 0, 0)
 	if err != nil {
 		return nil, err
 	}
-	byMode := map[string][]float64{}
+	byCook := map[string][]float64{}
 	for _, s := range sessions {
-		if modeFilter != "" && s.Mode != modeFilter {
+		if cookFilter != "" && s.Cook != cookFilter {
 			continue
 		}
 		if s.TargetF == 0 {
@@ -240,26 +245,26 @@ func (cs *CookStore) PreheatStats(ctx context.Context, modeFilter string) ([]Pre
 				if err != nil {
 					break
 				}
-				byMode[s.Mode] = append(byMode[s.Mode], reached.Sub(start).Seconds())
+				byCook[s.Cook] = append(byCook[s.Cook], reached.Sub(start).Seconds())
 				break
 			}
 		}
 	}
-	out := make([]PreheatStat, 0, len(byMode))
-	for mode, secs := range byMode {
+	out := make([]PreheatStat, 0, len(byCook))
+	for cook, secs := range byCook {
 		if len(secs) == 0 {
 			continue
 		}
 		sort.Float64s(secs)
 		out = append(out, PreheatStat{
-			Mode:          mode,
+			Cook:          cook,
 			Cooks:         len(secs),
 			MedianSeconds: median(secs),
 			FastestSec:    secs[0],
 			SlowestSec:    secs[len(secs)-1],
 		})
 	}
-	sort.Slice(out, func(i, j int) bool { return out[i].Mode < out[j].Mode })
+	sort.Slice(out, func(i, j int) bool { return out[i].Cook < out[j].Cook })
 	return out, nil
 }
 
