@@ -72,7 +72,7 @@ func fetchCampaignsWithStats(flags *rootFlags, days int) ([]statsCampaign, error
 			return nil, fmt.Errorf("parsing campaigns: %w", err)
 		}
 		allCampaigns = append(allCampaigns, resp.Data...)
-		if len(resp.Data) < resp.PerPage || resp.Total <= page*resp.PerPage {
+		if len(resp.Data) == 0 || resp.PerPage <= 0 || len(resp.Data) < resp.PerPage || resp.Total <= page*resp.PerPage {
 			break
 		}
 		page++

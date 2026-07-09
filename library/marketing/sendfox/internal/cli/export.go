@@ -79,20 +79,44 @@ large datasets as it has no memory pressure.`,
 				defer writer.Flush()
 			}
 
-			data, err := c.Get(path, nil)
-			if err != nil {
-				return classifyAPIError(err, flags)
+			count := 0
+			done := false
+			var allItems []json.RawMessage
+
+			for page := 1; !done; page++ {
+				params := map[string]string{"page": fmt.Sprintf("%d", page)}
+				data, err := c.Get(path, params)
+				if err != nil {
+					return classifyAPIError(err, flags)
+				}
+
+				// Try paginated envelope first, then direct array.
+				var envelope struct {
+					Data    []json.RawMessage `json:"data"`
+					Total   int               `json:"total"`
+					PerPage int               `json:"per_page"`
+				}
+				if err := json.Unmarshal(data, &envelope); err == nil && envelope.Data != nil {
+					allItems = append(allItems, envelope.Data...)
+					if envelope.PerPage <= 0 || len(envelope.Data) == 0 || len(envelope.Data) < envelope.PerPage || envelope.Total <= page*envelope.PerPage {
+						done = true
+					}
+				} else {
+					// Direct array (e.g. /me) — single page, no pagination.
+					var direct []json.RawMessage
+					if err2 := json.Unmarshal(data, &direct); err2 == nil {
+						allItems = append(allItems, direct...)
+					} else {
+						// Scalar response (e.g. /me returns an object).
+						allItems = append(allItems, data)
+					}
+					done = true
+				}
 			}
 
 			switch format {
 			case "jsonl":
-				var items []json.RawMessage
-				if err := json.Unmarshal(data, &items); err != nil {
-					fmt.Fprintln(writer, string(data))
-					return nil
-				}
-				count := 0
-				for _, item := range items {
+				for _, item := range allItems {
 					if limit > 0 && count >= limit {
 						break
 					}
@@ -103,13 +127,12 @@ large datasets as it has no memory pressure.`,
 					fmt.Fprintf(os.Stderr, "Exported %d records to %s\n", count, outputFile)
 				}
 			default:
+				if limit > 0 && len(allItems) > limit {
+					allItems = allItems[:limit]
+				}
 				enc := json.NewEncoder(writer)
 				enc.SetIndent("", "  ")
-				var parsed any
-				if err := json.Unmarshal(data, &parsed); err != nil {
-					return err
-				}
-				return enc.Encode(parsed)
+				return enc.Encode(allItems)
 			}
 			return nil
 		},

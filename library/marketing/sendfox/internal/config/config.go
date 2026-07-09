@@ -92,13 +92,10 @@ func (c *Config) AuthHeader() string {
 	if c.AuthHeaderVal != "" {
 		return c.AuthHeaderVal
 	}
-	// Env-var token wins over file-stored AccessToken (env > config convention).
 	if c.SendfoxToken != "" {
-		c.AuthSource = "env:SENDFOX_TOKEN"
 		return "Bearer " + c.SendfoxToken
 	}
 	if c.AccessToken != "" {
-		c.AuthSource = "oauth2"
 		return "Bearer " + c.AccessToken
 	}
 	return ""

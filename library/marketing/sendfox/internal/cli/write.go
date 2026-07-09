@@ -381,6 +381,7 @@ func runBatchWrite(cmd *cobra.Command, cfg *config.Config, anthropicKey, topicsF
 
 	w := cmd.OutOrStdout()
 	fmt.Fprintf(w, "Generating %d campaigns from %s...\n\n", len(topics), topicsFile)
+	created := 0
 
 	c, err := flags.newClient()
 	if err != nil {
@@ -436,12 +437,13 @@ func runBatchWrite(cmd *cobra.Command, cfg *config.Config, anthropicKey, topicsF
 			continue
 		}
 		fmt.Fprintf(w, "  Created campaign ID %d — subject: %s\n", campaign.ID, content.Subject)
+		created++
 
 		// Small delay to respect rate limits
 		time.Sleep(500 * time.Millisecond)
 	}
 
-	fmt.Fprintf(w, "\nDone. %d campaigns created.\n", len(topics))
+	fmt.Fprintf(w, "\nDone. %d/%d campaigns created.\n", created, len(topics))
 	fmt.Fprintln(w, "Review them: sendfox-pp-cli campaigns list")
 	return nil
 }
