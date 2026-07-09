@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "regional-redirects-must-not-fall-through-as-success",
+  "applied_at": "2026-07-09",
+  "base_run_id": "20260620-194450",
+  "base_printing_press_version": "4.24.0",
+  "summary": "Plaud regional redirect envelopes must never be returned to callers as successful API payloads.",
+  "reason": "Plaud can send a 2xx JSON body with status -302 to move the client to another regional API host. If the redirect cannot be followed within the retry budget, callers need an explicit error instead of parsing the redirect envelope as domain data.",
+  "files": [
+    "internal/client/client.go",
+    "internal/client/client_test.go"
+  ],
+  "validated_outcome": "go test ./internal/client covers a redirect chain longer than the retry budget and expects a regional redirect error rather than the raw redirect body."
+}

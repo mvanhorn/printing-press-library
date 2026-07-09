@@ -555,10 +555,14 @@ func (c *Client) doInternal(ctx context.Context, method, path string, params map
 
 		// Success
 		if resp.StatusCode < 400 {
-			if regionalAPI := regionalRedirectAPI(respBody); regionalAPI != "" && strings.TrimRight(regionalAPI, "/") != c.BaseURL && attempt < maxRetries {
-				c.BaseURL = strings.TrimRight(regionalAPI, "/")
-				targetURL = c.BaseURL + path
-				continue
+			if regionalAPI := regionalRedirectAPI(respBody); regionalAPI != "" {
+				regionalAPI = strings.TrimRight(regionalAPI, "/")
+				if regionalAPI != c.BaseURL && attempt < maxRetries {
+					c.BaseURL = regionalAPI
+					targetURL = c.BaseURL + path
+					continue
+				}
+				return nil, resp.StatusCode, fmt.Errorf("%s %s returned Plaud regional redirect to %s after %d attempts", method, c.displayURL(path, authHeader), regionalAPI, attempt+1)
 			}
 			c.limiter.OnSuccess()
 			if method != http.MethodGet && !c.DryRun {

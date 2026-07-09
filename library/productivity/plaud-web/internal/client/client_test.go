@@ -105,3 +105,34 @@ func TestRegionRedirectRetriesWithRegionalAPI(t *testing.T) {
 		t.Fatalf("BaseURL = %s, want %s", c.BaseURL, regional.URL)
 	}
 }
+
+func TestRegionRedirectAtRetryLimitReturnsError(t *testing.T) {
+	t.Parallel()
+
+	nextURLs := make([]string, 4)
+	servers := make([]*httptest.Server, 4)
+	for i := range servers {
+		i := i
+		servers[i] = httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			w.Header().Set("Content-Type", "application/json")
+			_, _ = w.Write([]byte(`{"status":-302,"data":{"domains":{"api":"` + nextURLs[i] + `"}}}`))
+		}))
+		defer servers[i].Close()
+	}
+	for i := range servers {
+		if i+1 < len(servers) {
+			nextURLs[i] = servers[i+1].URL
+		} else {
+			nextURLs[i] = "https://final-region.plaud.example"
+		}
+	}
+
+	c := New(&config.Config{BaseURL: servers[0].URL}, 0, 0)
+	data, err := c.GetNoCache(context.Background(), "/user/stat/file", nil)
+	if err == nil {
+		t.Fatalf("GetNoCache() error = nil, data = %s; want regional redirect error", data)
+	}
+	if !strings.Contains(err.Error(), "regional redirect") {
+		t.Fatalf("error = %q, want regional redirect", err.Error())
+	}
+}
