@@ -165,7 +165,12 @@ Requires ANTHROPIC_API_KEY environment variable. Get one at console.anthropic.co
 				Title   string `json:"title"`
 				Subject string `json:"subject"`
 			}
-			_ = json.Unmarshal(campaignData, &campaign)
+			if err := json.Unmarshal(campaignData, &campaign); err != nil {
+				return fmt.Errorf("campaign created but response was unreadable: %w\nRaw response: %s", err, string(campaignData))
+			}
+			if campaign.ID == 0 {
+				return fmt.Errorf("campaign created but API returned ID 0 — check your SendFox dashboard to find the draft\nRaw response: %s", string(campaignData))
+			}
 
 			fmt.Fprintf(w, "Campaign draft created (ID: %d)\n", campaign.ID)
 
