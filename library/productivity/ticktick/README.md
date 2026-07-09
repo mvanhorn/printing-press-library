@@ -155,6 +155,26 @@ These capabilities aren't available in any other tool for this API.
   ticktick-pp-cli note edit --date today --append "20:15 wrapped the printing-press build" --dry-run
   ```
 
+  **Writing into a heading.** `--append` adds to the **end of the note**, which files every entry
+  under the last heading if your note has any. `--section` inserts at the end of a chosen heading's
+  block instead, matched on any text in the heading line. An absent **or ambiguous** heading is an
+  error - never a silent append at the end.
+
+  ```bash
+  ticktick-pp-cli note edit --date today --section "## Log" --append "- shipped the parser"
+  ```
+
+  TickTick has no built-in daily note: the note and any headings in it are a convention you invent.
+  `--section auto` is a convenience for the common Morning/Afternoon/Evening journal, picking a
+  heading from the local clock (before 12:00 / 12:00-17:59 / 18:00+). Its defaults are `~Morning~`,
+  `~Afternoon~`, `~Evening~`, and they are remappable:
+
+  ```bash
+  ticktick-pp-cli note edit --date today --section auto --append "- *afternoon entry*"
+  ticktick-pp-cli note edit --date today --section auto     --section-map "morning=## AM,afternoon=## PM,evening=## Night" --append "- entry"
+  # or: export TICKTICK_NOTE_SECTIONS="morning=## AM,afternoon=## PM,evening=## Night"
+  ```
+
 ### Local state that compounds
 - **`agenda`** — One command returns today's tasks, habits with checkin state, and focus sessions together.
 

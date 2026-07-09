@@ -1,0 +1,16 @@
+{
+  "schema_version": 2,
+  "id": "ticktick-note-section-insert",
+  "applied_at": "2026-07-09",
+  "base_run_id": "20260707-201031-0987b304",
+  "base_printing_press_version": "4.27.1",
+  "summary": "Add `note edit --section <heading>` and `--section-map` so an appended line lands at the end of a chosen heading's block instead of the end of the note.",
+  "reason": "`--append` writes to the end of note content. A daily note divided into headings therefore files every entry under the last heading — in practice, anything logged after noon landed under 'Evening'. TickTick has no native daily note (a new account is a blank slate), so the note and its headings are a user convention: `--section` matches arbitrary heading text and detects block boundaries structurally (ATX heading, fully-bold line, horizontal rule) rather than assuming any block names. `--section auto` maps the local hour onto a heading, with remappable defaults. An absent or ambiguous heading is a usage error, never a silent end-of-note append, because that silent fallback is the bug itself. Only heading-shaped lines are match candidates, so a body line such as '- [x] Morning: pull agenda' is never mistaken for a '~Morning~' heading. Flag validation was also moved above the --dry-run short-circuit, which previously reported 'would edit' for commands that could only ever fail.",
+  "files": [
+    "internal/cli/note_edit.go",
+    "README.md",
+    "SKILL.md",
+    "AGENTS.md"
+  ],
+  "validated_outcome": "go vet + go build clean. The pure insert/parse functions were copied into a scratch module outside this tree (the generated framework tests clobber the real credentials file on Windows, so `go test` must never run here) and exercised by 10 cases: correct block targeted; blank-line style preserved; flush style preserved; single-entry block inherits document style; last-section append; absent heading errors; ambiguous heading errors and lists matches; arbitrary ATX headings; heading-shaped lines only (a body line mentioning 'Morning' is not a heading); heading detection for #, bold-only, and rule lines. Verified live against a real daily note: `--section auto` inserted into the Afternoon block, a replay returned already_applied without duplicating, and `--section \"~\"` correctly reported 3 matching headings rather than silently taking the first. noteUpdateWhitelist and the `kind` guard are untouched."
+}
