@@ -1026,8 +1026,14 @@ func waitForReceiptThroughDialogs(ctx context.Context, deadline time.Duration) (
 				return loc, nil
 			}
 		}
-		if clicked, _ := dismissPostConfirmDialog(ctx); clicked {
-			dismissedAt = time.Now()
+		if dismissedAt.IsZero() {
+			clicked, err := dismissPostConfirmDialog(ctx)
+			if err != nil {
+				return "", fmt.Errorf("dismissing post-confirm dialog: %w", err)
+			}
+			if clicked {
+				dismissedAt = time.Now()
+			}
 		}
 		// If the dialog intercepted the original submission, the checkout
 		// page sits idle after the dismissal — re-arm the confirm click
@@ -1052,42 +1058,96 @@ func waitForReceiptThroughDialogs(ctx context.Context, deadline time.Duration) (
 
 // dismissPostConfirmDialog finds a blocking post-confirm dialog and clicks
 // its decline/close control with a trusted CDP click. Returns whether a
-// control was clicked. Only decline-flavored controls (or a lone button,
-// or an explicit close) are used — never an accept/opt-in control.
+// control was clicked. Only decline-flavored controls or an explicit close
+// are used — never an accept/opt-in or ambiguous lone control.
 func dismissPostConfirmDialog(ctx context.Context) (bool, error) {
 	js := `
 		(() => {
 			const dlgText = /stay in the know|text confirmation and updates|receive text/i;
 			const declRE = /no thanks|not now|skip|maybe later|decline|continue without/i;
+			const clean = (s) => (s || '').replace(/\s+/g, ' ').trim();
+			const visible = (el) => {
+				const r = el.getBoundingClientRect();
+				return r.width > 0 && r.height > 0;
+			};
+			const label = (el) => clean([
+				el.textContent,
+				el.getAttribute('aria-label'),
+				el.getAttribute('title'),
+			].filter(Boolean).join(' '));
+			const controls = (host) => Array.from(
+				host.querySelectorAll('button, a, [role="button"]')
+			).filter(visible);
+			const declineIn = (host) => {
+				const candidates = controls(host);
+				// Proven live Tock DOM (2026-07-09). Prefer the explicit opt-out
+				// control before applying the provider-agnostic fallback below.
+				const exact = candidates.find((el) => el.getAttribute('data-testid') === 'sms-skip-button');
+				if (exact) return exact;
+				const decline = candidates.find((el) => declRE.test(label(el)));
+				if (decline) return decline;
+				const close = candidates.find((el) => /close|dismiss/i.test(
+					clean(el.getAttribute('aria-label') || el.getAttribute('title'))
+				));
+				if (close) return close;
+				return null;
+			};
 			if (!dlgText.test((document.body && document.body.innerText) || '')) return '';
+
+			// Tock portals this Material UI dialog directly under <body>. The
+			// matching alert content and the action buttons are siblings inside
+			// role="dialog", so searching only the alert's nearby descendants
+			// cannot see the opt-out action.
+			const hosts = [];
+			const addHost = (host) => {
+				if (host && !hosts.includes(host)) hosts.push(host);
+			};
+			const smsContent = document.querySelector(
+				'[data-testid="sms-confirmation-dialog-content"], #sms-confirmation-dialog-content'
+			);
+			addHost(smsContent && smsContent.closest('dialog, [role="dialog"]'));
+			for (const dialog of document.querySelectorAll('dialog, [role="dialog"]')) {
+				if (dlgText.test(clean(dialog.textContent)) || /text alerts|sms/i.test(label(dialog))) {
+					addHost(dialog);
+				}
+			}
+
 			let best = null;
 			for (const el of Array.from(document.querySelectorAll('body *'))) {
 				if (el.children.length > 30) continue;
-				const t = el.textContent || '';
+				const t = clean(el.textContent);
 				if (!dlgText.test(t) || t.length > 1500) continue;
-				if (best === null || t.length < (best.textContent || '').length) best = el;
+				if (best === null || t.length < clean(best.textContent).length) best = el;
 			}
 			if (!best) return '';
-			let host = best;
-			for (let i = 0; i < 4 && host; i++, host = host.parentElement) {
-				const btns = Array.from(host.querySelectorAll('button')).filter((b) => {
-					const r = b.getBoundingClientRect();
-					return r.width > 0 && r.height > 0;
-				});
-				if (!btns.length) continue;
-				const decline = btns.find((b) => declRE.test((b.textContent || '').trim()))
-					|| btns.find((b) => /close|dismiss/i.test(b.getAttribute('aria-label') || ''))
-					|| (btns.length === 1 ? btns[0] : null);
-				if (!decline) return '';
+			addHost(best.closest('dialog, [role="dialog"]'));
+
+			// Generic fallback for providers/layouts without dialog semantics:
+			// walk all the way from the matching copy toward <body>, because
+			// actions may live in a sibling section under a higher ancestor.
+			for (let host = best; host && host !== document.body; host = host.parentElement) {
+				addHost(host);
+			}
+			for (const host of hosts) {
+				const decline = declineIn(host);
+				if (!decline) continue;
 				decline.scrollIntoView({ block: 'center' });
 				const r = decline.getBoundingClientRect();
-				return JSON.stringify({ x: r.x + r.width / 2, y: r.y + r.height / 2 });
+				return JSON.stringify({
+					x: r.x + r.width / 2,
+					y: r.y + r.height / 2,
+				});
 			}
 			return '';
 		})()
 	`
 	var raw string
-	if err := chromedp.Run(ctx, chromedp.Evaluate(js, &raw)); err != nil {
+	if err := chromedp.Run(ctx,
+		chromedp.ActionFunc(func(actCtx context.Context) error {
+			return page.BringToFront().Do(actCtx)
+		}),
+		chromedp.Evaluate(js, &raw),
+	); err != nil {
 		return false, err
 	}
 	if raw == "" {
@@ -1098,9 +1158,6 @@ func dismissPostConfirmDialog(ctx context.Context) (bool, error) {
 		return false, nil
 	}
 	click := chromedp.ActionFunc(func(actCtx context.Context) error {
-		if err := page.BringToFront().Do(actCtx); err != nil {
-			return err
-		}
 		if err := input.DispatchMouseEvent(input.MouseMoved, pt.X, pt.Y).Do(actCtx); err != nil {
 			return err
 		}

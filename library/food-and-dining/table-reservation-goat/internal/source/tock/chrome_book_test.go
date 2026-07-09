@@ -397,3 +397,100 @@ func TestClickSearchResultsPage_ClicksExactTimeRow(t *testing.T) {
 		}
 	})
 }
+
+// Mirrors the live 2026-07-09 Tock SMS interstitial. Material UI portals the
+// role=dialog tree next to #Root, while the matching alert copy and action
+// buttons are sibling sections inside the dialog. The old four-hop search
+// stopped at the content section and never reached the Skip button.
+func TestDismissPostConfirmDialog_ClicksPortalSMSDialogSkip(t *testing.T) {
+	html := `
+		<!doctype html>
+		<div id="Root"><button>Complete reservation</button></div>
+		<div class="MuiDialog-root" role="presentation">
+			<div class="MuiDialog-container">
+				<div role="dialog" aria-label="Enable text alerts from Tock" style="padding:20px">
+					<div class="MuiDialogTitle-root">
+						<h2>Enable text alerts from Tock</h2>
+						<button aria-label="Close" onclick="window.clickedControl = 'close'">×</button>
+					</div>
+					<div id="sms-confirmation-dialog-content" data-testid="sms-confirmation-dialog-content">
+						<div role="alert"><div><div>Stay in the know about your table</div><div>Receive text confirmation and updates for this and future bookings.</div></div></div>
+					</div>
+					<div class="MuiDialogActions-root">
+						<button data-testid="sms-skip-button" onclick="window.clickedControl = 'skip'">Skip</button>
+						<button data-testid="sms-agree-button" onclick="window.clickedControl = 'agree'">Agree and Continue</button>
+					</div>
+				</div>
+			</div>
+		</div>`
+	withTockDOMFixture(t, html, func(ctx context.Context) {
+		clicked, err := dismissPostConfirmDialog(ctx)
+		if err != nil {
+			t.Fatalf("dismissPostConfirmDialog: %v", err)
+		}
+		if !clicked {
+			t.Fatal("expected Tock SMS dialog to be dismissed")
+		}
+		var control string
+		if err := chromedp.Run(ctx, chromedp.Evaluate(`window.clickedControl || ''`, &control)); err != nil {
+			t.Fatalf("read clicked control: %v", err)
+		}
+		if control != "skip" {
+			t.Fatalf("clicked control = %q, want skip", control)
+		}
+	})
+}
+
+func TestDismissPostConfirmDialog_GenericFallbackSupportsRoleButton(t *testing.T) {
+	html := `
+		<!doctype html>
+		<section class="custom-modal" style="padding:20px">
+			<div><div><div><span>Receive text confirmation and updates for this and future bookings.</span></div></div></div>
+			<footer>
+				<div role="button" tabindex="0" style="display:inline-block;padding:10px" onclick="window.clickedControl = 'decline'">Not now</div>
+				<button onclick="window.clickedControl = 'agree'">Agree and Continue</button>
+			</footer>
+		</section>`
+	withTockDOMFixture(t, html, func(ctx context.Context) {
+		clicked, err := dismissPostConfirmDialog(ctx)
+		if err != nil {
+			t.Fatalf("dismissPostConfirmDialog: %v", err)
+		}
+		if !clicked {
+			t.Fatal("expected generic dialog fallback to find Not now")
+		}
+		var control string
+		if err := chromedp.Run(ctx, chromedp.Evaluate(`window.clickedControl || ''`, &control)); err != nil {
+			t.Fatalf("read clicked control: %v", err)
+		}
+		if control != "decline" {
+			t.Fatalf("clicked control = %q, want decline", control)
+		}
+	})
+}
+
+func TestDismissPostConfirmDialog_NeverClicksAgreeOnlyControl(t *testing.T) {
+	html := `
+		<!doctype html>
+		<div role="dialog" aria-label="Enable text alerts from Tock" style="padding:20px">
+			<p>Stay in the know about your table</p>
+			<p>Receive text confirmation and updates for this and future bookings.</p>
+			<button onclick="window.clickedControl = 'agree'">Agree and Continue</button>
+		</div>`
+	withTockDOMFixture(t, html, func(ctx context.Context) {
+		clicked, err := dismissPostConfirmDialog(ctx)
+		if err != nil {
+			t.Fatalf("dismissPostConfirmDialog: %v", err)
+		}
+		if clicked {
+			t.Fatal("agree-only SMS dialog must not be clicked")
+		}
+		var control string
+		if err := chromedp.Run(ctx, chromedp.Evaluate(`window.clickedControl || ''`, &control)); err != nil {
+			t.Fatalf("read clicked control: %v", err)
+		}
+		if control != "" {
+			t.Fatalf("unexpected clicked control %q", control)
+		}
+	})
+}

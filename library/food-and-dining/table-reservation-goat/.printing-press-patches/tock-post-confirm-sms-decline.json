@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "tock-post-confirm-sms-decline",
+  "applied_at": "2026-07-09",
+  "base_run_id": "20260509-110540",
+  "base_printing_press_version": "4.2.2",
+  "summary": "Preserve trusted opt-out handling for Tock post-confirm SMS dialogs, including portal layouts whose alert copy and action controls are sibling sections.",
+  "reason": "Tock can pause purchase submission behind a body-portal SMS interstitial after the confirm click. The booking flow must find a proven decline or close control across semantic and generic dialog layouts, click it without accepting SMS enrollment, and re-arm confirmation at most once when submission was swallowed.",
+  "files": [
+    "internal/source/tock/chrome_book.go",
+    "internal/source/tock/chrome_book_test.go"
+  ],
+  "validated_outcome": "A live Tock flow declined the data-testid=sms-skip-button control and reached a confirmed receipt; DOM fixtures cover the body-portal sibling-actions shape, a role=button fallback, and agree-only refusal."
+}
