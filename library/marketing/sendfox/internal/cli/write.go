@@ -378,6 +378,9 @@ func runBatchWrite(cmd *cobra.Command, cfg *config.Config, anthropicKey, topicsF
 	if len(topics) == 0 {
 		return fmt.Errorf("no topics found in %s", topicsFile)
 	}
+	if scheduleWeekly && listID == 0 {
+		return fmt.Errorf("--schedule-weekly requires a list ID; pass --list <id> or configure a default with: sendfox-pp-cli setup")
+	}
 
 	w := cmd.OutOrStdout()
 	fmt.Fprintf(w, "Generating %d campaigns from %s...\n\n", len(topics), topicsFile)
