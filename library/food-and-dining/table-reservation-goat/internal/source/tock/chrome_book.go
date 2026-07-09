@@ -920,24 +920,29 @@ func checkAcknowledgeIfPresent(ctx context.Context) error {
 func clickPlaceReservation(ctx context.Context) error {
 	js := `
 		(() => {
-			const fire = (b) => {
+			// Synthetic JS clicks (isTrusted=false) do not submit this form —
+			// confirmed live 2026-07-08: no alert, button present, click ignored.
+			// Tag the button; the Go side clicks it via trusted CDP input.
+			const tag = (b) => {
 				b.scrollIntoView({ block: 'center' });
-				b.dispatchEvent(new MouseEvent('mouseover', { bubbles: true }));
-				b.dispatchEvent(new MouseEvent('mousedown', { bubbles: true }));
-				b.click();
-				b.dispatchEvent(new MouseEvent('mouseup', { bubbles: true }));
+				b.setAttribute('data-trg-confirm', '1');
 			};
 			const btns = Array.from(document.querySelectorAll('button'));
 			for (const b of btns) {
 				const t = (b.textContent || '').trim();
 				if (/place reservation|confirm reservation|book now|complete reservation|complete booking/i.test(t)) {
-					fire(b);
+					if (b.disabled) return 'disabled:' + t;
+					tag(b);
 					return t;
 				}
 			}
 			// Fallback: any visible blue/primary submit button at bottom of form
 			for (const b of btns) {
-				if (b.type === 'submit') { fire(b); return 'submit'; }
+				if (b.type === 'submit') {
+					if (b.disabled) return 'disabled:submit';
+					tag(b);
+					return 'submit';
+				}
 			}
 			return null;
 		})()
@@ -948,6 +953,14 @@ func clickPlaceReservation(ctx context.Context) error {
 	}
 	if label == nil {
 		return fmt.Errorf("place-reservation button not found")
+	}
+	if s, ok := label.(string); ok && strings.HasPrefix(s, "disabled:") {
+		return fmt.Errorf("place-reservation button is disabled (%s)", strings.TrimPrefix(s, "disabled:"))
+	}
+	// Trusted browser-level click via CDP input — the page's handlers ignore
+	// synthetic JS events on this control.
+	if err := chromedp.Run(ctx, chromedp.Click(`button[data-trg-confirm="1"]`, chromedp.NodeVisible)); err != nil {
+		return fmt.Errorf("clicking place-reservation control: %w", err)
 	}
 	return nil
 }
