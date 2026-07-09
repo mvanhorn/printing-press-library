@@ -39,7 +39,7 @@ If `--version` reports "command not found" after install, the runtime cannot see
 
 ## When to Use This CLI
 
-Reach for this CLI whenever an agent needs to turn generated content into a live URL, manage private Drive files, or read back Site Data form submissions. It is the right tool for free-tier-heavy workflows: anonymous-publish-and-claim, drives sync, and staying under plan limits without paid analytics. Prefer it over raw API calls when publishing a directory, syncing files, or reading a site's Site Data records.
+Reach for this CLI whenever an agent needs to turn generated content into a live URL, manage private Drive files, or read back Site Data form submissions. It is the right tool for free-tier-heavy workflows: authenticated publishing, drives sync, and staying under plan limits without paid analytics. It also supports an anonymous-publish-and-claim flow for the cases where an unauthenticated site is explicitly wanted (see House Rules). Prefer it over raw API calls when publishing a directory, syncing files, or reading a site's Site Data records.
 
 ## House Rules (default behavior)
 
@@ -242,7 +242,7 @@ Local rollup of site count, drive bytes, and publish cadence against free-tier l
 
 ## Auth Setup
 
-Most onboarding is key-less: anonymous publish, public site reads, and Site Data writes work with no credential at all. When you want permanent sites and your own Drives, run `here-now-pp-cli auth login` to do the email-code flow (a one-time code is emailed, you paste it back) and the API key is stored locally, or set HERENOW_API_KEY in your environment. Drive share tokens also authenticate Drive-scoped reads.
+By default, authenticate first (see House Rules): run `here-now-pp-cli auth login` to do the email-code flow (a one-time code is emailed, you paste it back) and the API key is stored locally, or set HERENOW_API_KEY in your environment. Authenticated publishing is what gives you permanent sites and your own Drives. The CLI can also run key-less when no credential is available — anonymous publish, public site reads, and Site Data writes all work without one. Drive share tokens also authenticate Drive-scoped reads.
 
 Run `here-now-pp-cli doctor` to verify setup.
 
