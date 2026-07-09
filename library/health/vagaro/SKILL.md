@@ -92,9 +92,9 @@ These capabilities aren't available in any other tool for this API.
   ```
 
 ### Booking that remembers you
-- **`me rebook`** — Re-run your usual: reads your past appointment (business + service + provider) and lists that provider's open slots in a window so you can pick and book.
+- **`me rebook`** — Re-run your usual: reads your past appointment (business + service + provider) and lists that provider's open slots in a date window so you can pick a future time.
 
-  _Use to quickly rebook the same service with the same provider at a place you've been; picks a time from what's open._
+  _Use when the business/service/provider are already known from history, such as another haircut with the same barber. The variable is the future slot, not provider discovery._
 
   ```bash
   vagaro-pp-cli me rebook --last --from thu --to sat --agent
@@ -133,6 +133,17 @@ These capabilities aren't available in any other tool for this API.
 **me** — Your own Vagaro account (requires auth login --chrome)
 
 - `vagaro-pp-cli me` — List your appointments (upcoming or past)
+- `vagaro-pp-cli me rebook --last --from <date> --to <date>` — Use your most recent past appointment's business/service/provider and list matching future openings
+
+**booking-link / book** — Booking handoff only
+
+- `vagaro-pp-cli booking-link <slug> --service <id> --provider <id> --at <YYYY-MM-DDTHH:MM>` — Verify a selected slot and print the booking handoff details. This does not submit the appointment.
+- `book` is an alias for `booking-link`; with `--confirm` it prints the tightest Vagaro booking URL plus exact browser steps for the verified slot, but still does not complete checkout for you.
+- Use the business slug from the Vagaro URL, for example `centralbarber` from `https://www.vagaro.com/centralbarber`.
+
+**favorites** — Saved-business discovery
+
+- `vagaro-pp-cli favorites` — Tries to read saved/favorite businesses from the authenticated account. Use this when the user forgot which business they saved; do not use it for routine repeat appointments where `me rebook` can infer the business/service/provider from history.
 
 
 ### Finding the right command
@@ -163,13 +174,35 @@ vagaro-pp-cli compare centralbarber rudysbarbershop --agent --select name,rating
 
 Side-by-side decision table narrowed to the fields an agent needs, avoiding the verbose full payload.
 
-### Rebook your usual haircut in a window
+### Rebook your usual haircut with the same provider
 
 ```bash
 vagaro-pp-cli me rebook --last --from thu --to sat --agent
 ```
 
-Reads your last appointment's business/service/provider and lists that provider's open times so you can pick one.
+Reads your most recent past appointment, keeps the same business/service/provider, and lists that provider's open times inside the requested window. For a recurring haircut, this is the default path: use history to keep "Central Barber + Ronnel + haircut" fixed, then choose the future slot.
+
+If the most recent appointment is not the one you want to repeat, first list your appointment history and pass the desired appointment id:
+
+```bash
+vagaro-pp-cli me --past --agent --select appointment_id,business_name,service_name,provider_name,date
+vagaro-pp-cli me rebook <appointment-id> --from 2026-07-20 --to 2026-07-31 --agent
+```
+
+### Turn a selected rebook slot into a booking handoff
+
+After `me rebook` returns slots, choose one `YYYY-MM-DDTHH:MM` value and verify it with `booking-link` / `book` before opening Vagaro:
+
+```bash
+vagaro-pp-cli booking-link centralbarber --service 34098477 --provider 43931725 --at 2026-07-24T10:00 --agent
+vagaro-pp-cli booking-link centralbarber --service 34098477 --provider 43931725 --at 2026-07-24T10:00 --confirm --agent
+```
+
+`booking-link` verifies availability and prints what would be booked. `book --confirm` prints the tightest Vagaro URL plus the exact browser steps for the verified service/provider/time. Neither command submits the appointment or performs checkout; the final confirmation still happens on Vagaro's site.
+
+### When to use favorites instead of rebook
+
+Use `favorites` when the question is "which businesses did I save?" or when there is no relevant past appointment. For a routine repeat appointment, such as another haircut with the same barber at the same shop, skip favorites and use `me rebook`: appointment history already carries the business, service, and provider, so the only real choice is the future slot.
 
 ### Check if a haircut price is fair in your city
 
@@ -181,7 +214,7 @@ Shows the metro price distribution and flags below-median providers.
 
 ## Auth Setup
 
-Public discovery (search, business detail, services, reviews, classes) needs no auth. For your own bookings and profile, run 'vagaro-pp-cli auth login --chrome' to import your logged-in Vagaro session from Chrome (a JWT plus session cookies). Booking is a real action: `vagaro-pp-cli book <slug> --confirm` places the appointment, while `book` on its own prints what it would do by default.
+Public discovery (search, business detail, services, reviews, classes) needs no auth. For your own appointment history and profile, run 'vagaro-pp-cli auth login --chrome' to import your logged-in Vagaro session from Chrome (a JWT plus session cookies). Booking commands are handoff-only: `booking-link` / `book` verify a selected slot and can print the closest Vagaro booking URL plus browser steps, but they do not submit the appointment.
 
 Run `vagaro-pp-cli doctor` to verify setup.
 
