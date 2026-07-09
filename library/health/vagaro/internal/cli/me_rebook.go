@@ -8,8 +8,11 @@
 package cli
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
+	"net/url"
+	"strconv"
 	"strings"
 	"time"
 
@@ -25,6 +28,7 @@ const appointmentsPath = "https://api.vagaro.com/us02/api/v2/myaccount/purchases
 type rebookAppointment struct {
 	AppointmentID string `json:"appointment_id,omitempty"`
 	BusinessID    string `json:"business_id,omitempty"`
+	BusinessSlug  string `json:"business_slug,omitempty"`
 	BusinessName  string `json:"business_name,omitempty"`
 	ServiceID     string `json:"service_id,omitempty"`
 	ServiceName   string `json:"service_name,omitempty"`
@@ -79,11 +83,6 @@ reads and lists slots — use 'vagaro-pp-cli book' to place the appointment.`,
 			if err != nil {
 				return usageErr(err)
 			}
-			appDate, err := vagaro.FormatAppDate(fromDate.Format("2006-01-02"))
-			if err != nil {
-				return err
-			}
-
 			ctx, cancel := boundCtx(cmd.Context(), flags)
 			defer cancel()
 
@@ -140,30 +139,59 @@ reads and lists slots — use 'vagaro-pp-cli book' to place the appointment.`,
 				Window: fmt.Sprintf("%s .. %s", fromDate.Format("2006-01-02"), toDate.Format("2006-01-02")),
 				Groups: []vagaro.SlotGroup{},
 			}
-			if chosen.BusinessID == "" || chosen.ServiceID == "" {
-				out.Note = "the past appointment did not include a resolvable business/service id, so slots can't be looked up"
+			if chosen.BusinessID == "" && chosen.BusinessSlug == "" && chosen.BusinessName == "" {
+				out.Note = rebookDiagnostic(chosen, "the past appointment did not include a resolvable business id, Vagaro business URL, or business name")
 				return emitVagaro(cmd, flags, out)
 			}
 
 			vc := newVagaroClient(flags)
-			groups, err := vc.Availability(ctx, chosen.BusinessID, chosen.ServiceID, chosen.ProviderID, appDate)
+			businessID, businessSlug, err := resolveRebookBusiness(ctx, vc, flags, chosen)
+			if err != nil {
+				out.Note = rebookDiagnostic(chosen, err.Error())
+				return emitVagaro(cmd, flags, out)
+			}
+			services, err := vc.Services(ctx, businessID)
 			if err != nil {
 				return classifyVagaroError(err, flags)
 			}
-			out.Groups = filterGroupsToWindow(groups, fromDate, toDate)
+			service, err := resolveRebookService(services, chosen)
+			if err != nil {
+				out.Note = rebookDiagnostic(chosen, err.Error())
+				return emitVagaro(cmd, flags, out)
+			}
+			providerID := ""
+			if strings.TrimSpace(chosen.ProviderID) != "" || strings.TrimSpace(chosen.ProviderName) != "" {
+				providers, err := vc.Staff(ctx, businessID)
+				if err != nil {
+					return classifyVagaroError(err, flags)
+				}
+				providerID, _, err = resolveRebookProvider(providers, chosen)
+				if err != nil {
+					out.Note = rebookDiagnostic(chosen, err.Error())
+					return emitVagaro(cmd, flags, out)
+				}
+			}
+			serviceID := strconv.FormatInt(service.ServiceID, 10)
+			for _, weekDate := range availabilityWeekDates(fromDate, toDate) {
+				groups, err := vc.Availability(ctx, businessID, serviceID, providerID, formatAvailabilityDate(weekDate))
+				if err != nil {
+					return classifyVagaroError(err, flags)
+				}
+				out.Groups = append(out.Groups, filterAvailabilityGroups(groups, providerID, dateOnly(fromDate), dateOnly(toDate))...)
+			}
 			for _, g := range out.Groups {
 				out.TotalSlots += len(g.Times)
 			}
 			if out.TotalSlots == 0 {
 				out.Note = "no open slots for that provider in the window — widen --from/--to"
 			} else {
-				svcArg := chosen.ServiceID
+				svcArg := serviceID
 				provArg := ""
-				if chosen.ProviderID != "" {
-					provArg = " --provider " + chosen.ProviderID
+				if providerID != "" {
+					provArg = " --provider " + providerID
 				}
 				out.NextStep = fmt.Sprintf("book with: vagaro-pp-cli book %s --service %s%s --at <YYYY-MM-DDTHH:MM>",
-					firstNonEmpty(chosen.BusinessName, chosen.BusinessID), svcArg, provArg)
+					firstNonEmpty(businessSlug, chosen.BusinessName, businessID), svcArg, provArg)
 			}
 			return emitVagaro(cmd, flags, out)
 		},
@@ -221,6 +249,7 @@ func extractAppointment(obj map[string]any) rebookAppointment {
 	a := rebookAppointment{
 		AppointmentID: firstScalar(obj, "appointmentId", "appointmentID", "appointment_id", "appNo", "id"),
 		BusinessID:    firstScalar(obj, "businessId", "businessID", "business_id", "merchantId"),
+		BusinessSlug:  firstScalar(obj, "businessSlug", "business_slug", "shopSlug", "merchantSlug", "slug", "vagaroURL", "vagaroUrl", "vagaro_url"),
 		BusinessName:  firstScalar(obj, "businessName", "business_name", "merchantName"),
 		ServiceID:     firstScalar(obj, "serviceId", "serviceID", "service_id"),
 		ServiceName:   firstScalar(obj, "serviceName", "serviceTitle", "service_name"),
@@ -228,12 +257,17 @@ func extractAppointment(obj map[string]any) rebookAppointment {
 		ProviderName:  firstScalar(obj, "serviceProviderName", "providerName", "provider_name", "staffName"),
 		Date:          firstScalar(obj, "appointmentDate", "startDate", "date", "appDate"),
 	}
-	// Descend into nested objects when flat keys were absent.
-	if a.BusinessID == "" || a.BusinessName == "" {
-		if nested, ok := obj["business"].(map[string]any); ok {
-			a.BusinessID = firstNonEmpty(a.BusinessID, firstScalar(nested, "id", "businessId", "businessID"))
-			a.BusinessName = firstNonEmpty(a.BusinessName, firstScalar(nested, "name", "businessName"))
-		}
+	if a.ProviderName == "" {
+		a.ProviderName = strings.TrimSpace(firstScalar(obj, "serviceProviderFirstName", "providerFirstName") + " " + firstScalar(obj, "serviceProviderLastName", "providerLastName"))
+	}
+	a.BusinessSlug = firstNonEmpty(a.BusinessSlug, slugFromAppointmentURL(firstScalar(obj, "businessUrl", "businessURL", "business_url", "shopUrl", "shopURL", "url", "bookingUrl", "bookingURL")))
+	// Descend into nested objects when flat keys were absent. Always check for a
+	// nested business URL/slug because the history payload may include flat ids
+	// but only expose the public Vagaro slug under business.url.
+	if nested, ok := obj["business"].(map[string]any); ok {
+		a.BusinessID = firstNonEmpty(a.BusinessID, firstScalar(nested, "id", "businessId", "businessID"))
+		a.BusinessName = firstNonEmpty(a.BusinessName, firstScalar(nested, "name", "businessName"))
+		a.BusinessSlug = firstNonEmpty(a.BusinessSlug, firstScalar(nested, "slug", "businessSlug"), slugFromAppointmentURL(firstScalar(nested, "url", "businessUrl", "bookingUrl")))
 	}
 	if a.ServiceID == "" || a.ServiceName == "" {
 		if nested, ok := obj["service"].(map[string]any); ok {
@@ -250,6 +284,136 @@ func extractAppointment(obj map[string]any) rebookAppointment {
 		}
 	}
 	return a
+}
+
+func resolveRebookBusiness(ctx context.Context, c *vagaro.Client, flags *rootFlags, a rebookAppointment) (string, string, error) {
+	if a.BusinessSlug != "" {
+		id, err := resolveBusinessID(ctx, c, flags, a.BusinessSlug)
+		return id, a.BusinessSlug, err
+	}
+	if strings.TrimSpace(a.BusinessName) != "" {
+		if slug, id, err := resolveRebookBusinessFromCache(ctx, a.BusinessName); err != nil {
+			return "", "", err
+		} else if slug != "" {
+			if id != "" {
+				return id, slug, nil
+			}
+			id, err := resolveBusinessID(ctx, c, flags, slug)
+			return id, slug, err
+		}
+	}
+	if strings.TrimSpace(a.BusinessID) != "" {
+		return strings.TrimSpace(a.BusinessID), "", nil
+	}
+	return "", "", fmt.Errorf("business name %q was not found uniquely in the local Vagaro cache; pass an explicit business slug", a.BusinessName)
+}
+
+func resolveRebookBusinessFromCache(ctx context.Context, name string) (string, string, error) {
+	db, err := openStoreForRead(ctx, "vagaro-pp-cli")
+	if err != nil || db == nil {
+		return "", "", nil
+	}
+	defer db.Close()
+	businesses, err := db.ListBusinesses(ctx)
+	if err != nil {
+		if strings.Contains(strings.ToLower(err.Error()), "no such table") {
+			return "", "", nil
+		}
+		return "", "", err
+	}
+	want := normalizeRebookBusinessName(name)
+	var exactSlug, exactID string
+	for _, b := range businesses {
+		if normalizeRebookBusinessName(b.Name) == want {
+			if exactSlug != "" {
+				return "", "", fmt.Errorf("business name %q matched multiple cached businesses; pass an explicit business slug", name)
+			}
+			exactSlug, exactID = b.Slug, b.BusinessID
+		}
+	}
+	if exactSlug != "" {
+		return exactSlug, exactID, nil
+	}
+	var matchSlug, matchID string
+	for _, b := range businesses {
+		have := normalizeRebookBusinessName(b.Name)
+		if have == "" || (want != "" && !strings.Contains(want, have) && !strings.Contains(have, want)) {
+			continue
+		}
+		if matchSlug != "" {
+			return "", "", fmt.Errorf("business name %q matched multiple cached businesses; pass an explicit business slug", name)
+		}
+		matchSlug, matchID = b.Slug, b.BusinessID
+	}
+	return matchSlug, matchID, nil
+}
+
+func normalizeRebookBusinessName(s string) string {
+	return strings.Join(strings.Fields(strings.ToLower(strings.TrimSpace(s))), " ")
+}
+
+func resolveRebookService(services []vagaro.ServiceRow, a rebookAppointment) (vagaro.ServiceRow, error) {
+	if id, err := strconv.ParseInt(strings.TrimSpace(a.ServiceID), 10, 64); err == nil {
+		for _, s := range services {
+			if s.ServiceID == id {
+				return s, nil
+			}
+		}
+	}
+	if strings.TrimSpace(a.ServiceName) != "" {
+		return resolveAvailabilityService(services, a.ServiceName)
+	}
+	if strings.TrimSpace(a.ServiceID) != "" {
+		return vagaro.ServiceRow{}, fmt.Errorf("appointment service id could not be resolved to a public availability service; no service name was available for fallback")
+	}
+	return vagaro.ServiceRow{}, fmt.Errorf("the past appointment did not include a service id or service name")
+}
+
+func resolveRebookProvider(providers []vagaro.Provider, a rebookAppointment) (string, string, error) {
+	if id, err := strconv.ParseInt(strings.TrimSpace(a.ProviderID), 10, 64); err == nil {
+		for _, p := range providers {
+			if p.ServiceProviderID == id {
+				return strconv.FormatInt(p.ServiceProviderID, 10), p.Name, nil
+			}
+		}
+	}
+	if strings.TrimSpace(a.ProviderName) != "" {
+		return resolveAvailabilityProvider(providers, a.ProviderName)
+	}
+	if strings.TrimSpace(a.ProviderID) != "" {
+		return "", "", fmt.Errorf("appointment provider id could not be resolved to a public availability provider; no provider name was available for fallback")
+	}
+	return "", "", nil
+}
+
+func rebookDiagnostic(a rebookAppointment, reason string) string {
+	slug := firstNonEmpty(a.BusinessSlug, "<business-slug>")
+	service := firstNonEmpty(a.ServiceName, "<service-name>")
+	provider := firstNonEmpty(a.ProviderName, "<provider-name>")
+	return fmt.Sprintf("%s. Try the explicit query: vagaro-pp-cli business availability %s --service %q --provider %q --from <YYYY-MM-DD> --to <YYYY-MM-DD> --agent", reason, slug, service, provider)
+}
+
+func slugFromAppointmentURL(raw string) string {
+	raw = strings.TrimSpace(raw)
+	if raw == "" {
+		return ""
+	}
+	if !strings.Contains(raw, "://") {
+		raw = "https://" + strings.TrimLeft(raw, "/")
+	}
+	u, err := url.Parse(raw)
+	if err != nil {
+		return ""
+	}
+	parts := strings.Split(strings.Trim(u.Path, "/"), "/")
+	for _, p := range parts {
+		p = strings.TrimSpace(p)
+		if p == "" || strings.EqualFold(p, "users") || strings.EqualFold(p, "book-now") {
+			continue
+		}
+		return p
+	}
+	return ""
 }
 
 // firstScalar returns the first present key's value rendered as a string.

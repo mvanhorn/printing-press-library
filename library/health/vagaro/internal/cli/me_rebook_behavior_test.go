@@ -14,7 +14,7 @@ import (
 
 func TestParseAppointments_flat(t *testing.T) {
 	data := json.RawMessage(`{"status":"success","data":[
-		{"appointmentId":9001,"businessId":93458,"businessName":"Central Barber","serviceId":34098477,"serviceName":"Skin Fade","serviceProviderId":43931725,"serviceProviderName":"Ronnel Getz","startDate":"2026-06-01"},
+		{"appointmentId":9001,"businessId":93458,"businessName":"Central Barber","vagaroURL":"centralbarber","serviceId":34098477,"serviceName":"Skin Fade","serviceProviderId":43931725,"serviceProviderFirstName":"Ronnel","serviceProviderLastName":"Getz","startDate":"2026-06-01"},
 		{"appointmentId":9002,"businessId":55,"serviceId":66,"providerId":77}
 	]}`)
 	appts, err := parseAppointments(data)
@@ -23,6 +23,7 @@ func TestParseAppointments_flat(t *testing.T) {
 
 	assert.Equal(t, "9001", appts[0].AppointmentID)
 	assert.Equal(t, "93458", appts[0].BusinessID)
+	assert.Equal(t, "centralbarber", appts[0].BusinessSlug)
 	assert.Equal(t, "Central Barber", appts[0].BusinessName)
 	assert.Equal(t, "34098477", appts[0].ServiceID)
 	assert.Equal(t, "Skin Fade", appts[0].ServiceName)
@@ -66,4 +67,67 @@ func TestFilterGroupsToWindow(t *testing.T) {
 	require.Len(t, out, 1)
 	assert.Equal(t, "24 Jul 2026", out[0].Date)
 	assert.Equal(t, []string{"10:00 AM", "11:00 AM"}, out[0].Times)
+}
+
+func TestResolveRebookServiceAndProviderFallsBackFromAppointmentIDsToNames(t *testing.T) {
+	services := []vagaro.ServiceRow{
+		{ServiceID: 101, ServiceTitle: "Classic Cut"},
+		{ServiceID: 202, ServiceTitle: "Skin Fade"},
+	}
+	providers := []vagaro.Provider{
+		{ServiceProviderID: 301, Name: "Ronnel Getz"},
+		{ServiceProviderID: 302, Name: "Alex Rivera"},
+	}
+	appt := rebookAppointment{
+		BusinessSlug: "centralbarber",
+		ServiceID:    "encrypted-service-id-from-history",
+		ServiceName:  "Skin Fade",
+		ProviderID:   "999999999", // numeric, but not the public availability provider id
+		ProviderName: "Ronnel",
+	}
+
+	service, err := resolveRebookService(services, appt)
+	require.NoError(t, err)
+	assert.Equal(t, int64(202), service.ServiceID)
+
+	providerID, providerName, err := resolveRebookProvider(providers, appt)
+	require.NoError(t, err)
+	assert.Equal(t, "301", providerID)
+	assert.Equal(t, "Ronnel Getz", providerName)
+}
+
+func TestResolveRebookServiceAndProviderPreferMatchingPublicIDs(t *testing.T) {
+	services := []vagaro.ServiceRow{{ServiceID: 202, ServiceTitle: "Skin Fade"}}
+	providers := []vagaro.Provider{{ServiceProviderID: 301, Name: "Ronnel Getz"}}
+	appt := rebookAppointment{ServiceID: "202", ServiceName: "Wrong Name", ProviderID: "301", ProviderName: "Wrong Provider"}
+
+	service, err := resolveRebookService(services, appt)
+	require.NoError(t, err)
+	assert.Equal(t, int64(202), service.ServiceID)
+
+	providerID, providerName, err := resolveRebookProvider(providers, appt)
+	require.NoError(t, err)
+	assert.Equal(t, "301", providerID)
+	assert.Equal(t, "Ronnel Getz", providerName)
+}
+
+func TestResolveRebookServiceReportsActionableAmbiguity(t *testing.T) {
+	services := []vagaro.ServiceRow{
+		{ServiceID: 101, ServiceTitle: "Kids Skin Fade"},
+		{ServiceID: 202, ServiceTitle: "Adult Skin Fade"},
+	}
+	appt := rebookAppointment{BusinessSlug: "centralbarber", ServiceID: "encrypted", ServiceName: "Skin Fade", ProviderName: "Ronnel"}
+
+	_, err := resolveRebookService(services, appt)
+	require.Error(t, err)
+	assert.Contains(t, err.Error(), "matched multiple services")
+	diag := rebookDiagnostic(appt, err.Error())
+	assert.Contains(t, diag, "vagaro-pp-cli business availability centralbarber")
+	assert.Contains(t, diag, `--service "Skin Fade"`)
+}
+
+func TestSlugFromAppointmentURL(t *testing.T) {
+	assert.Equal(t, "centralbarber", slugFromAppointmentURL("https://www.vagaro.com/centralbarber/book-now"))
+	assert.Equal(t, "centralbarber", slugFromAppointmentURL("www.vagaro.com/centralbarber"))
+	assert.Equal(t, "", slugFromAppointmentURL(""))
 }
