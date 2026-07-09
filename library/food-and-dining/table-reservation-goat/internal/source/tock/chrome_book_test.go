@@ -180,3 +180,40 @@ func TestIsTargetNavigatedOrClosedRecognizesCDPMinus32000(t *testing.T) {
 		t.Fatal("ordinary selector miss should not be retryable as target loss")
 	}
 }
+
+// Regression: production calls clickRequestedTockBookingControl with a BARE
+// chromedp context (from NewContext, outside any ActionFunc/executor scope).
+// v2026.7.1's first live run failed every probe with chromedp's
+// "invalid context" because helpers used raw Action.Do(ctx), which requires
+// an executor-wrapped context. Calling the top-level entry here the exact
+// way ChromeBook does keeps that wiring honest.
+func TestClickRequestedTockBookingControl_WorksOnBareChromedpContext(t *testing.T) {
+	html := `
+		<!doctype html>
+		<label for="time">Time</label>
+		<select id="time" aria-label="Time">
+			<option value="18:00">6:00 PM</option>
+			<option value="18:15">6:15 PM</option>
+		</select>
+		<section class="experience-card" id="standard">
+			<h2>Reservation</h2>
+			<a href="#" onclick="window.clickedExperience = 'standard'; return false;">Book now</a>
+		</section>
+		<button id="submit" onclick="window.submitClicked = true;">Book now</button>`
+	withTockDOMFixture(t, html, func(ctx context.Context) {
+		activeCtx, activeCancel, err := clickRequestedTockBookingControl(ctx, "", "6:15 PM", 2, 0)
+		if activeCancel != nil {
+			defer activeCancel()
+		}
+		if err != nil {
+			t.Fatalf("clickRequestedTockBookingControl on bare context: %v", err)
+		}
+		var selected string
+		if err := chromedp.Run(activeCtx, chromedp.Evaluate(`document.querySelector('#time').value`, &selected)); err != nil {
+			t.Fatalf("read fixture state: %v", err)
+		}
+		if selected != "18:15" {
+			t.Fatalf("selected time = %q, want 18:15", selected)
+		}
+	})
+}

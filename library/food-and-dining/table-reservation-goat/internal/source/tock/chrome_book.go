@@ -213,7 +213,7 @@ func clickSlotByTimeText(ctx context.Context, displayTime string) error {
 		})()
 	`, displayTime)
 	var clicked bool
-	if err := chromedp.Evaluate(js, &clicked).Do(ctx); err != nil {
+	if err := chromedp.Run(ctx, chromedp.Evaluate(js, &clicked)); err != nil {
 		return fmt.Errorf("evaluating slot click: %w", err)
 	}
 	if !clicked {
@@ -287,8 +287,12 @@ func clickComboboxExperienceLayoutWithRetry(ctx context.Context, venueURL, displ
 }
 
 func ensureTockVenuePage(ctx context.Context, venueURL string) (context.Context, context.CancelFunc, error) {
+	if venueURL == "" {
+		// No recovery target (fixture/embedded pages) — trust the current page.
+		return ctx, nil, nil
+	}
 	var loc string
-	if err := chromedp.Location(&loc).Do(ctx); err == nil && isTockVenuePageURL(loc, venueURL) {
+	if err := chromedp.Run(ctx, chromedp.Location(&loc)); err == nil && isTockVenuePageURL(loc, venueURL) {
 		return ctx, nil, nil
 	}
 	if targetCtx, cancel, ok := attachExistingTockVenueTarget(ctx, venueURL); ok {
@@ -554,7 +558,7 @@ func clickComboboxExperienceLayout(ctx context.Context, displayTime string, part
 	awaitPromise := func(p *runtime.EvaluateParams) *runtime.EvaluateParams {
 		return p.WithAwaitPromise(true)
 	}
-	if err := chromedp.Evaluate(js, &result, awaitPromise).Do(ctx); err != nil {
+	if err := chromedp.Run(ctx, chromedp.Evaluate(js, &result, awaitPromise)); err != nil {
 		return fmt.Errorf("evaluating combobox booking layout: %w", err)
 	}
 	if !result.OK {
@@ -612,14 +616,14 @@ func tockBookingPageStateHint(ctx context.Context, venueURL string) string {
 		})()
 	`
 	var state string
-	if err := chromedp.Evaluate(js, &state).Do(hintCtx); err != nil {
+	if err := chromedp.Run(hintCtx, chromedp.Evaluate(js, &state)); err != nil {
 		if venueURL != "" && isTargetNavigatedOrClosed(err) {
 			recoveredCtx, cancel, recoverErr := ensureTockVenuePage(ctx, venueURL)
 			if recoverErr == nil {
 				if cancel != nil {
 					defer cancel()
 				}
-				if retryErr := chromedp.Evaluate(js, &state).Do(recoveredCtx); retryErr == nil && state != "" {
+				if retryErr := chromedp.Run(recoveredCtx, chromedp.Evaluate(js, &state)); retryErr == nil && state != "" {
 					return state
 				}
 			}
@@ -806,7 +810,7 @@ func parseTockReceipt(ctx context.Context, receiptURL string, req BookRequest) (
 	// Pull $REDUX_STATE from the current page (already on receipt).
 	var rawState string
 	js := `JSON.stringify(window.$REDUX_STATE || null)`
-	if err := chromedp.Evaluate(js, &rawState).Do(ctx); err != nil {
+	if err := chromedp.Run(ctx, chromedp.Evaluate(js, &rawState)); err != nil {
 		return nil, fmt.Errorf("evaluating $REDUX_STATE: %w", err)
 	}
 	resp := &BookResponse{
@@ -837,7 +841,7 @@ func parseTockReceipt(ctx context.Context, receiptURL string, req BookRequest) (
 	// Best-effort: pull confirmation from page text if state didn't have it.
 	if resp.ConfirmationNumber == "" {
 		var pageText string
-		_ = chromedp.Evaluate(`document.body.innerText || ''`, &pageText).Do(ctx)
+		_ = chromedp.Run(ctx, chromedp.Evaluate(`document.body.innerText || ''`, &pageText))
 		if idx := strings.Index(pageText, "TOCK-R-"); idx >= 0 {
 			end := idx + 7
 			for end < len(pageText) && (pageText[end] == '-' || (pageText[end] >= 'A' && pageText[end] <= 'Z') || (pageText[end] >= '0' && pageText[end] <= '9')) {
