@@ -124,6 +124,7 @@ func (c *Config) SaveTokens(clientID, clientSecret, accessToken, refreshToken st
 }
 
 func (c *Config) ClearTokens() error {
+	c.SendfoxToken = ""
 	c.AccessToken = ""
 	c.RefreshToken = ""
 	c.TokenExpiry = time.Time{}
