@@ -1,8 +1,20 @@
 package cli
 
 import (
+	"context"
+	"encoding/json"
+	"fmt"
+	"net/http"
+	"net/http/httptest"
+	"regexp"
+	"strconv"
 	"strings"
 	"testing"
+	"time"
+
+	"github.com/mvanhorn/printing-press-library/library/commerce/woot/internal/client"
+	"github.com/mvanhorn/printing-press-library/library/commerce/woot/internal/config"
+	"github.com/spf13/cobra"
 )
 
 func TestParseWootAllDealsURL(t *testing.T) {
@@ -71,5 +83,79 @@ func TestBuildWootDealsQueryIncludesAllDealsFilters(t *testing.T) {
 		if !strings.Contains(query, want) {
 			t.Fatalf("query missing %q: %s", want, query)
 		}
+	}
+}
+
+func TestFetchWootDealsContinuesAfterShortPage(t *testing.T) {
+	t.Parallel()
+	queryPageRE := regexp.MustCompile(`Limit:(\d+), Skip:(\d+)`)
+	var seenSkips []int
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		matches := queryPageRE.FindStringSubmatch(r.URL.Query().Get("query"))
+		if matches == nil {
+			t.Fatalf("query missing Limit/Skip: %s", r.URL.Query().Get("query"))
+		}
+		limit, err := strconv.Atoi(matches[1])
+		if err != nil {
+			t.Fatalf("parse limit: %v", err)
+		}
+		skip, err := strconv.Atoi(matches[2])
+		if err != nil {
+			t.Fatalf("parse skip: %v", err)
+		}
+		seenSkips = append(seenSkips, skip)
+		count := limit
+		if skip == 100 {
+			count = 90
+		}
+		offers := make([]map[string]any, 0, count)
+		for i := 0; i < count; i++ {
+			id := fmt.Sprintf("offer-%d", skip+i)
+			offers = append(offers, map[string]any{
+				"Id":      id,
+				"Title":   id,
+				"Slug":    id,
+				"EndDate": "2026-07-26T05:00:00Z",
+				"Items": []map[string]any{{
+					"SalePrice": 9.99,
+				}},
+			})
+		}
+		_ = json.NewEncoder(w).Encode(map[string]any{
+			"data": map[string]any{
+				"searchOffers": map[string]any{
+					"Offers":    offers,
+					"TotalHits": 250,
+				},
+			},
+		})
+	}))
+	defer server.Close()
+
+	c := client.New(&config.Config{
+		BaseURL:       server.URL,
+		AuthHeaderVal: "test-key",
+	}, time.Second, 0)
+	cmd := &cobra.Command{}
+	cmd.SetContext(context.Background())
+	deals, totalHits, scanned, err := fetchWootDeals(cmd, c, wootDealsFetchOptions{
+		Limit:           250,
+		PageSize:        100,
+		IncludeFeatured: true,
+	})
+	if err != nil {
+		t.Fatalf("fetchWootDeals returned error: %v", err)
+	}
+	if totalHits != 250 {
+		t.Fatalf("totalHits = %d, want 250", totalHits)
+	}
+	if scanned != 240 {
+		t.Fatalf("scanned = %d, want 240", scanned)
+	}
+	if len(deals) != 240 {
+		t.Fatalf("len(deals) = %d, want 240", len(deals))
+	}
+	if got, want := fmt.Sprint(seenSkips), "[0 100 200]"; got != want {
+		t.Fatalf("seen skips = %s, want %s", got, want)
 	}
 }

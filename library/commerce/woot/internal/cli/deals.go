@@ -251,9 +251,9 @@ func fetchWootDeals(cmd *cobra.Command, c *client.Client, opts wootDealsFetchOpt
 	all := make([]wootGraphQLDeal, 0, minInt(maxToScan, opts.PageSize))
 	totalHits := 0
 	scanned := 0
-	for scanned < maxToScan {
-		requestLimit := minInt(opts.PageSize, maxToScan-scanned)
-		query, err := buildWootDealsQuery(opts.Categories, opts.PriceRanges, opts.SortMode, requestLimit, serverSkip+scanned, opts.IncludeFeatured, opts.IncludeSoldOut)
+	for requested := 0; requested < maxToScan; {
+		requestLimit := minInt(opts.PageSize, maxToScan-requested)
+		query, err := buildWootDealsQuery(opts.Categories, opts.PriceRanges, opts.SortMode, requestLimit, serverSkip+requested, opts.IncludeFeatured, opts.IncludeSoldOut)
 		if err != nil {
 			return nil, 0, 0, err
 		}
@@ -271,6 +271,16 @@ func fetchWootDeals(cmd *cobra.Command, c *client.Client, opts wootDealsFetchOpt
 			totalHits = parsed.Data.SearchOffers.TotalHits
 		}
 		if len(batch) == 0 {
+			if totalHits > 0 && serverSkip+requested >= totalHits {
+				break
+			}
+			requested += requestLimit
+			if opts.Page > 0 {
+				break
+			}
+			continue
+		}
+		if totalHits > 0 && serverSkip+requested >= totalHits {
 			break
 		}
 		all = append(all, batch...)
@@ -278,10 +288,8 @@ func fetchWootDeals(cmd *cobra.Command, c *client.Client, opts wootDealsFetchOpt
 		if opts.Page > 0 {
 			break
 		}
-		if totalHits > 0 && serverSkip+scanned >= totalHits {
-			break
-		}
-		if len(batch) < requestLimit {
+		requested += requestLimit
+		if totalHits > 0 && serverSkip+requested >= totalHits {
 			break
 		}
 	}
