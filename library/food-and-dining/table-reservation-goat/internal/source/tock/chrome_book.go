@@ -33,7 +33,9 @@ import (
 
 	cdproto "github.com/chromedp/cdproto"
 	"github.com/chromedp/cdproto/cdp"
+	"github.com/chromedp/cdproto/input"
 	"github.com/chromedp/cdproto/network"
+	"github.com/chromedp/cdproto/page"
 	"github.com/chromedp/cdproto/runtime"
 	"github.com/chromedp/chromedp"
 
@@ -113,6 +115,11 @@ func (c *Client) ChromeBook(ctx context.Context, req BookRequest) (*BookResponse
 		network.Enable(),
 		injectTockCookies(cookies),
 		chromedp.Navigate(venueURL),
+		// Activate the tab: Chrome throttles hidden/background tabs, which
+		// both drops synthesized input and can stall SPA route transitions.
+		chromedp.ActionFunc(func(actCtx context.Context) error {
+			return page.BringToFront().Do(actCtx)
+		}),
 		chromedp.Sleep(2*time.Second),
 	); err != nil {
 		return nil, fmt.Errorf("tock chromebook: %w", err)
@@ -135,6 +142,20 @@ func (c *Client) ChromeBook(ctx context.Context, req BookRequest) (*BookResponse
 		chromedp.Sleep(2*time.Second),
 		// Wait for the checkout page (URL contains /checkout/confirm-purchase).
 		chromedp.ActionFunc(func(actCtx context.Context) error {
+			if err := waitForCheckoutPage(actCtx, 15*time.Second); err == nil {
+				return nil
+			}
+			// Tock's SPA occasionally drops the checkout transition even
+			// after the hold locks and prices successfully (observed live
+			// 2026-07-09: lock+price 200, checkout never mounts). Re-click
+			// once via the search results page before giving up.
+			searchURL := buildVenueSearchURL(venueURL, req.ReservationDate, req.ReservationTime, req.PartySize)
+			if searchURL == "" {
+				return fmt.Errorf("checkout page never reached and no search URL to retry with")
+			}
+			if err := clickSearchResultsPage(actCtx, searchURL, displayTime); err != nil {
+				return fmt.Errorf("checkout transition retry: %w", err)
+			}
 			return waitForCheckoutPage(actCtx, 15*time.Second)
 		}),
 		// If a CVC field is present, fill it. (Free venues skip this.)
@@ -150,9 +171,10 @@ func (c *Client) ChromeBook(ctx context.Context, req BookRequest) (*BookResponse
 		chromedp.ActionFunc(func(actCtx context.Context) error {
 			return clickPlaceReservation(actCtx)
 		}),
-		// Wait for receipt-page navigation.
+		// Wait for receipt-page navigation, answering any post-confirm
+		// interstitial dialogs (e.g. the SMS opt-in) that block submission.
 		chromedp.ActionFunc(func(actCtx context.Context) error {
-			u, err := waitForReceiptPage(actCtx, 30*time.Second)
+			u, err := waitForReceiptThroughDialogs(actCtx, 30*time.Second)
 			if err != nil {
 				// Distinguish "stalled on a required CVC we don't have" from
 				// generic checkout failure so machine callers get a typed,
@@ -945,17 +967,19 @@ func waitForCheckoutPage(ctx context.Context, deadline time.Duration) error {
 	stop := time.After(deadline)
 	tick := time.NewTicker(300 * time.Millisecond)
 	defer tick.Stop()
+	lastLoc := ""
 	for {
 		var loc string
 		if err := chromedp.Location(&loc).Do(ctx); err == nil {
 			if strings.Contains(loc, "/checkout/confirm-purchase") {
 				return nil
 			}
+			lastLoc = loc
 		}
 		select {
 		case <-tick.C:
 		case <-stop:
-			return fmt.Errorf("checkout page never reached within %s", deadline)
+			return fmt.Errorf("checkout page never reached within %s (last url %q)", deadline, lastLoc)
 		case <-ctx.Done():
 			return ctx.Err()
 		}
@@ -981,6 +1005,118 @@ func waitForReceiptPage(ctx context.Context, deadline time.Duration) (string, er
 			return "", ctx.Err()
 		}
 	}
+}
+
+// waitForReceiptThroughDialogs waits for the receipt page like
+// waitForReceiptPage, but also answers post-confirm interstitial dialogs
+// that block submission. Observed live 2026-07-09: clicking "Complete
+// reservation" opens an SMS opt-in ("Stay in the know about your table…")
+// that must be answered before the purchase proceeds. The dialog is always
+// DECLINED — booking must not opt the user into text marketing. If the
+// dialog swallowed the original submission, the confirm control is clicked
+// one more time after the dismissal.
+func waitForReceiptThroughDialogs(ctx context.Context, deadline time.Duration) (string, error) {
+	stop := time.Now().Add(deadline)
+	reclicked := false
+	var dismissedAt time.Time
+	for {
+		var loc string
+		if err := chromedp.Location(&loc).Do(ctx); err == nil {
+			if strings.Contains(loc, "/receipt") && !strings.Contains(loc, "/cancel") {
+				return loc, nil
+			}
+		}
+		if clicked, _ := dismissPostConfirmDialog(ctx); clicked {
+			dismissedAt = time.Now()
+		}
+		// If the dialog intercepted the original submission, the checkout
+		// page sits idle after the dismissal — re-arm the confirm click
+		// once. clickPlaceReservation only clicks an enabled control, so a
+		// submission already in flight (button disabled/gone) is not
+		// double-fired.
+		if !dismissedAt.IsZero() && !reclicked && time.Since(dismissedAt) > 4*time.Second &&
+			strings.Contains(loc, "/checkout/") {
+			reclicked = true
+			_ = clickPlaceReservation(ctx)
+		}
+		if time.Now().After(stop) {
+			return "", fmt.Errorf("receipt page never reached within %s", deadline)
+		}
+		select {
+		case <-ctx.Done():
+			return "", ctx.Err()
+		case <-time.After(700 * time.Millisecond):
+		}
+	}
+}
+
+// dismissPostConfirmDialog finds a blocking post-confirm dialog and clicks
+// its decline/close control with a trusted CDP click. Returns whether a
+// control was clicked. Only decline-flavored controls (or a lone button,
+// or an explicit close) are used — never an accept/opt-in control.
+func dismissPostConfirmDialog(ctx context.Context) (bool, error) {
+	js := `
+		(() => {
+			const dlgText = /stay in the know|text confirmation and updates|receive text/i;
+			const declRE = /no thanks|not now|skip|maybe later|decline|continue without/i;
+			if (!dlgText.test((document.body && document.body.innerText) || '')) return '';
+			let best = null;
+			for (const el of Array.from(document.querySelectorAll('body *'))) {
+				if (el.children.length > 30) continue;
+				const t = el.textContent || '';
+				if (!dlgText.test(t) || t.length > 1500) continue;
+				if (best === null || t.length < (best.textContent || '').length) best = el;
+			}
+			if (!best) return '';
+			let host = best;
+			for (let i = 0; i < 4 && host; i++, host = host.parentElement) {
+				const btns = Array.from(host.querySelectorAll('button')).filter((b) => {
+					const r = b.getBoundingClientRect();
+					return r.width > 0 && r.height > 0;
+				});
+				if (!btns.length) continue;
+				const decline = btns.find((b) => declRE.test((b.textContent || '').trim()))
+					|| btns.find((b) => /close|dismiss/i.test(b.getAttribute('aria-label') || ''))
+					|| (btns.length === 1 ? btns[0] : null);
+				if (!decline) return '';
+				decline.scrollIntoView({ block: 'center' });
+				const r = decline.getBoundingClientRect();
+				return JSON.stringify({ x: r.x + r.width / 2, y: r.y + r.height / 2 });
+			}
+			return '';
+		})()
+	`
+	var raw string
+	if err := chromedp.Run(ctx, chromedp.Evaluate(js, &raw)); err != nil {
+		return false, err
+	}
+	if raw == "" {
+		return false, nil
+	}
+	var pt struct{ X, Y float64 }
+	if err := json.Unmarshal([]byte(raw), &pt); err != nil {
+		return false, nil
+	}
+	click := chromedp.ActionFunc(func(actCtx context.Context) error {
+		if err := page.BringToFront().Do(actCtx); err != nil {
+			return err
+		}
+		if err := input.DispatchMouseEvent(input.MouseMoved, pt.X, pt.Y).Do(actCtx); err != nil {
+			return err
+		}
+		press := input.DispatchMouseEvent(input.MousePressed, pt.X, pt.Y).
+			WithButton(input.Left).WithButtons(1).WithClickCount(1)
+		if err := press.Do(actCtx); err != nil {
+			return err
+		}
+		release := input.DispatchMouseEvent(input.MouseReleased, pt.X, pt.Y).
+			WithButton(input.Left).WithClickCount(1)
+		return release.Do(actCtx)
+	})
+	if err := chromedp.Run(ctx, click); err != nil {
+		return false, err
+	}
+	return true, nil
 }
 
 // fillCVCIfPresent fills the CVC input if found on the page. No-op for
@@ -1139,8 +1275,55 @@ func clickPlaceReservation(ctx context.Context) error {
 		return fmt.Errorf("place-reservation button not found")
 	}
 	// Trusted browser-level click via CDP input — the page's handlers ignore
-	// synthetic JS events on this control.
-	if err := chromedp.Run(ctx, chromedp.Click(`button[data-trg-confirm="1"]`, chromedp.NodeVisible)); err != nil {
+	// synthetic JS events on this control. The click is dispatched at explicit
+	// CSS-pixel coordinates from getBoundingClientRect rather than through
+	// chromedp.Click's node machinery: on an attached browser with
+	// devicePixelRatio > 1 (Retina), chromedp.Click computes scaled
+	// coordinates that land outside the viewport, and Chrome silently drops
+	// out-of-bounds input while chromedp reports success (observed live
+	// 2026-07-09: zero page events after a nil-error Click at dpr=2).
+	rectJS := `
+		(() => {
+			const b = document.querySelector('button[data-trg-confirm="1"]');
+			if (!b) return null;
+			b.scrollIntoView({ block: 'center' });
+			const r = b.getBoundingClientRect();
+			return JSON.stringify({ x: r.x + r.width / 2, y: r.y + r.height / 2 });
+		})()
+	`
+	var rectJSON string
+	if err := chromedp.Run(ctx, chromedp.Evaluate(rectJS, &rectJSON)); err != nil {
+		return fmt.Errorf("locating place-reservation control: %w", err)
+	}
+	if rectJSON == "" {
+		return fmt.Errorf("place-reservation button vanished before click")
+	}
+	var pt struct{ X, Y float64 }
+	if err := json.Unmarshal([]byte(rectJSON), &pt); err != nil {
+		return fmt.Errorf("parsing place-reservation coordinates: %w", err)
+	}
+	click := chromedp.ActionFunc(func(actCtx context.Context) error {
+		// Chrome does not deliver synthesized input to hidden/background
+		// tabs on real sites (observed live 2026-07-09: dispatch reports
+		// success, page receives zero events, visibilityState "hidden").
+		// chromedp creates its target as a background tab, so activate it
+		// before dispatching the trusted click.
+		if err := page.BringToFront().Do(actCtx); err != nil {
+			return fmt.Errorf("bringing checkout tab to front: %w", err)
+		}
+		if err := input.DispatchMouseEvent(input.MouseMoved, pt.X, pt.Y).Do(actCtx); err != nil {
+			return err
+		}
+		press := input.DispatchMouseEvent(input.MousePressed, pt.X, pt.Y).
+			WithButton(input.Left).WithButtons(1).WithClickCount(1)
+		if err := press.Do(actCtx); err != nil {
+			return err
+		}
+		release := input.DispatchMouseEvent(input.MouseReleased, pt.X, pt.Y).
+			WithButton(input.Left).WithClickCount(1)
+		return release.Do(actCtx)
+	})
+	if err := chromedp.Run(ctx, click); err != nil {
 		return fmt.Errorf("clicking place-reservation control: %w", err)
 	}
 	return nil
