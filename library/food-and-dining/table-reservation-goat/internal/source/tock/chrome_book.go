@@ -474,6 +474,8 @@ func clickComboboxExperienceLayout(ctx context.Context, displayTime, isoDate str
 					select.value = match.value;
 					fireChange(select);
 					await sleep(150);
+					const searchResult = await clickSearchResultSlot();
+					if (searchResult !== null) return searchResult;
 					return await clickBestExperienceBookNow();
 				}
 			}
@@ -487,6 +489,8 @@ func clickComboboxExperienceLayout(ctx context.Context, displayTime, isoDate str
 				input.value = match.value || target;
 				fireChange(input);
 				await sleep(150);
+				const searchResult = await clickSearchResultSlot();
+				if (searchResult !== null) return searchResult;
 				return await clickBestExperienceBookNow();
 			}
 
@@ -497,6 +501,8 @@ func clickComboboxExperienceLayout(ctx context.Context, displayTime, isoDate str
 			if (anyBookNow && !anyTimeCombobox) {
 				// Deep-link layout: date/time/party rode the URL, no picker is
 				// rendered - the experience card IS the whole flow.
+				const searchResult = await clickSearchResultSlot();
+				if (searchResult !== null) return searchResult;
 				return await clickBestExperienceBookNow();
 			}
 
@@ -525,6 +531,8 @@ func clickComboboxExperienceLayout(ctx context.Context, displayTime, isoDate str
 					if (options.length > 0) {
 						click(options[0]);
 						await sleep(200);
+						const searchResult = await clickSearchResultSlot();
+						if (searchResult !== null) return searchResult;
 						return await clickBestExperienceBookNow();
 					}
 					await sleep(100);
@@ -611,6 +619,58 @@ func clickComboboxExperienceLayout(ctx context.Context, displayTime, isoDate str
 					}
 				}
 				return null;
+			}
+			function findSearchControl() {
+				const selectedTime = all('select').map((el) => el.value || '').find(Boolean) || '';
+				const controls = all('a, button')
+					.map((el) => ({
+						el,
+						text: clean(el.textContent || el.getAttribute('aria-label')),
+						href: el.href || (el.getAttribute && el.getAttribute('href')) || '',
+						top: el.getBoundingClientRect().top,
+					}))
+					.filter((c) => /^search$/i.test(c.text) && c.href.includes('/search'));
+				if (controls.length === 0) return null;
+				controls.sort((a, b) => {
+					const aDate = isoDate && a.href.includes('date=' + encodeURIComponent(isoDate)) ? 1 : 0;
+					const bDate = isoDate && b.href.includes('date=' + encodeURIComponent(isoDate)) ? 1 : 0;
+					if (aDate !== bDate) return bDate - aDate;
+					const aTime = selectedTime && a.href.includes('time=' + encodeURIComponent(selectedTime)) ? 1 : 0;
+					const bTime = selectedTime && b.href.includes('time=' + encodeURIComponent(selectedTime)) ? 1 : 0;
+					if (aTime !== bTime) return bTime - aTime;
+					return a.top - b.top;
+				});
+				return controls[0].el;
+			}
+			async function clickSearchResultSlot() {
+				let slotBtn = findSlotBookButton();
+				if (slotBtn) {
+					click(slotBtn);
+					await sleep(400);
+					return { ok: true, step: 'search_result_slot', detail: target };
+				}
+				const search = findSearchControl();
+				if (!search) return null;
+				click(search);
+				const slotDeadline = Date.now() + 12000;
+				while (Date.now() < slotDeadline) {
+					if (/\/checkout\/confirm-purchase/.test(location.href)) {
+						return { ok: true, step: 'search_result_slot', detail: 'checkout reached from search result' };
+					}
+					slotBtn = findSlotBookButton();
+					if (slotBtn) {
+						click(slotBtn);
+						await sleep(400);
+						return { ok: true, step: 'search_result_slot', detail: target };
+					}
+					await sleep(250);
+				}
+				const seen = visibleSlotTimes();
+				return {
+					ok: false,
+					step: 'search_result_slot',
+					detail: 'requested time not offered in search results; visible: ' + (seen.length ? seen.join(', ') : 'none'),
+				};
 			}
 			function visibleSlotTimes() {
 				const times = new Set();

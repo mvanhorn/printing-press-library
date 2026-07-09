@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "tock-search-result-slot-booking",
+  "applied_at": "2026-07-09",
+  "base_run_id": "20260509-110540",
+  "base_printing_press_version": "4.2.2",
+  "summary": "Preserve the Tock attach-mode path that clicks exact-time search-result Book rows before broad experience-card links.",
+  "reason": "Some Tock venues expose requested availability through the /search result list while the venue and experience pages still show generic experience-card Book now links. Clicking those card links first resets the date/time query and prevents the checkout transition for the requested slot.",
+  "files": [
+    "internal/source/tock/chrome_book.go",
+    "internal/source/tock/chrome_book_test.go"
+  ],
+  "validated_outcome": "Unit coverage pins that the Tock driver opens the search-result path, clicks the matching exact-time Book row, and avoids the broader experience-card link."
+}

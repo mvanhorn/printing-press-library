@@ -249,6 +249,68 @@ func TestClickComboboxExperienceLayout_DeepLinkLayoutWithoutTimePicker(t *testin
 	})
 }
 
+// The live 2026-07-08 Tock venue route exposes broad experience-card links
+// and a separate /search result view. The actual checkout transition is the
+// exact-time "Book" row in the search results; clicking the card link first
+// resets the query to Tock's default date/time and misses the requested slot.
+func TestClickComboboxExperienceLayout_UsesSearchResultSlotBeforeExperienceCard(t *testing.T) {
+	html := `
+		<!doctype html>
+		<label for="time">Time</label>
+		<select id="time" aria-label="Desired reservation time">
+			<option value="18:00">6:00 PM</option>
+			<option value="18:15">6:15 PM</option>
+		</select>
+		<a id="search" href="/barcelona-wine-bar-raleigh/search?date=2026-07-10&size=2&time=18%3A15"
+			onclick="window.searchClicked = true; document.getElementById('results').style.display = 'block'; return false;">Search</a>
+		<section class="experience-card" id="standard">
+			<h2>Reservation</h2>
+			<a href="/barcelona-wine-bar-raleigh/experience/520126/reservation"
+				onclick="window.cardClicked = true; return false;">Book now</a>
+		</section>
+		<div id="results" style="display:none">
+			<div class="SearchModalExperiences-item Consumer-reservation">
+				<div class="Consumer-resultsListVertical">
+					<div class="MuiPaper-root MuiCard-root">
+						<div class="MuiCardHeader-root"><span>6:00 PM</span><button onclick="window.bookedSlot = '6:00 PM';">Book</button></div>
+					</div>
+					<div class="MuiPaper-root MuiCard-root">
+						<div class="MuiCardHeader-root"><span>6:15 PM</span><button onclick="window.bookedSlot = '6:15 PM';">Book</button></div>
+					</div>
+				</div>
+			</div>
+		</div>`
+	withTockDOMFixture(t, html, func(ctx context.Context) {
+		if err := chromedp.Run(ctx, chromedp.ActionFunc(func(actCtx context.Context) error {
+			return clickComboboxExperienceLayout(actCtx, "6:15 PM", "2026-07-10", 2, 0)
+		})); err != nil {
+			t.Fatalf("clickComboboxExperienceLayout search result flow: %v", err)
+		}
+		var selected, bookedSlot string
+		var searchClicked, cardClicked bool
+		if err := chromedp.Run(ctx,
+			chromedp.Evaluate(`document.querySelector('#time').value`, &selected),
+			chromedp.Evaluate(`window.searchClicked || false`, &searchClicked),
+			chromedp.Evaluate(`window.cardClicked || false`, &cardClicked),
+			chromedp.Evaluate(`window.bookedSlot || ''`, &bookedSlot),
+		); err != nil {
+			t.Fatalf("read fixture state: %v", err)
+		}
+		if selected != "18:15" {
+			t.Fatalf("selected time = %q, want 18:15", selected)
+		}
+		if !searchClicked {
+			t.Fatal("expected search result path to be used")
+		}
+		if cardClicked {
+			t.Fatal("experience card link should not be clicked before exact-time result row")
+		}
+		if bookedSlot != "6:15 PM" {
+			t.Fatalf("bookedSlot = %q, want 6:15 PM", bookedSlot)
+		}
+	})
+}
+
 // Mirrors the live experience modal (confirmed in a real browser
 // 2026-07-08): clicking an experience card's "Book now" opens an SPA modal
 // whose calendar day buttons are named with ISO dates and whose slot rows
