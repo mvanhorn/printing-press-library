@@ -141,7 +141,7 @@ fireflies-pp-cli transcripts list --mine --limit 10
 fireflies-pp-cli search "action item" --from 7d --agent
 
 # find dropped commitments
-fireflies-pp-cli action-items stale --days 14 --agent
+fireflies-pp-cli action-items --agent
 
 ```
 
@@ -308,19 +308,19 @@ Manage users
 
 ```bash
 # Human-readable table (default in terminal, JSON when piped)
-fireflies-pp-cli active-meetings get
+fireflies-pp-cli active-meetings get active_meeting_id
 
 # JSON for scripting and agents
-fireflies-pp-cli active-meetings get --json
+fireflies-pp-cli active-meetings get active_meeting_id --json
 
 # Filter to specific fields
-fireflies-pp-cli active-meetings get --json --select id,name,status
+fireflies-pp-cli active-meetings get active_meeting_id --json --select id,name,status
 
 # Dry run — show the request without sending
-fireflies-pp-cli active-meetings get --dry-run
+fireflies-pp-cli active-meetings get active_meeting_id --dry-run
 
 # Agent mode — JSON + compact + no prompts in one flag
-fireflies-pp-cli active-meetings get --agent
+fireflies-pp-cli active-meetings get active_meeting_id --agent
 ```
 
 ## Agent Usage
