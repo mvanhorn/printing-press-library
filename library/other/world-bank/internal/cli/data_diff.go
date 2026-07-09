@@ -77,7 +77,9 @@ func newNovelDataDiffCmd(flags *rootFlags) *cobra.Command {
 			var prior map[string]*float64
 			// #nosec G304 -- snapPath is built from the internal DB dir plus a sanitized country+indicator, not from user-supplied paths.
 			if b, readErr := os.ReadFile(snapPath); readErr == nil {
-				_ = json.Unmarshal(b, &prior)
+				if uErr := json.Unmarshal(b, &prior); uErr != nil {
+					return fmt.Errorf("snapshot %s is unreadable (corrupt or truncated): %w; not overwriting — delete it to record a fresh baseline", snapPath, uErr)
+				}
 			}
 			if prior != nil {
 				view.HadSnapshot = true
