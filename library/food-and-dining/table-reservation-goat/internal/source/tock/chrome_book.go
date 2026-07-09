@@ -271,11 +271,21 @@ func clickComboboxExperienceLayoutWithRetry(ctx context.Context, venueURL, displ
 		if !isTargetNavigatedOrClosed(err) {
 			return ctx, nil, err
 		}
+		// A destroyed JS context right after our click often means the click
+		// WORKED: the page navigated to checkout and took the evaluation with
+		// it. Check before "recovering" back to the venue page, which would
+		// abandon a checkout already in progress.
+		if onCheckoutPage(ctx) {
+			return ctx, nil, nil
+		}
 		retryCtx, retryCancel, ensureErr := ensureTockVenuePage(ctx, venueURL)
 		if ensureErr != nil {
 			return ctx, nil, fmt.Errorf("%w; recovery failed: %v", err, ensureErr)
 		}
 		if retryErr := clickComboboxExperienceLayout(retryCtx, displayTime, partySize, experienceID); retryErr != nil {
+			if isTargetNavigatedOrClosed(retryErr) && onCheckoutPage(retryCtx) {
+				return retryCtx, retryCancel, nil
+			}
 			if retryCancel != nil {
 				retryCancel()
 			}
@@ -284,6 +294,17 @@ func clickComboboxExperienceLayoutWithRetry(ctx context.Context, venueURL, displ
 		return retryCtx, retryCancel, nil
 	}
 	return ctx, nil, nil
+}
+
+// onCheckoutPage reports whether the current target already reached Tock's
+// checkout (or receipt) page — i.e., a booking click succeeded even if the
+// evaluation that clicked it was destroyed by the navigation.
+func onCheckoutPage(ctx context.Context) bool {
+	var loc string
+	if err := chromedp.Run(ctx, chromedp.Location(&loc)); err != nil {
+		return false
+	}
+	return strings.Contains(loc, "/checkout/") || strings.Contains(loc, "/receipt")
 }
 
 func ensureTockVenuePage(ctx context.Context, venueURL string) (context.Context, context.CancelFunc, error) {
@@ -467,6 +488,16 @@ func clickComboboxExperienceLayout(ctx context.Context, displayTime string, part
 				return await clickBestExperienceBookNow();
 			}
 
+			const anyBookNow = all('a, button')
+				.some((el) => /book now/i.test(clean(el.textContent || el.getAttribute('aria-label'))));
+			const anyTimeCombobox = all('select, [role="combobox"], [aria-haspopup="listbox"], input[list]')
+				.some((el) => /time|\b(?:AM|PM)\b/i.test(labelFor(el)));
+			if (anyBookNow && !anyTimeCombobox) {
+				// Deep-link layout: date/time/party rode the URL, no picker is
+				// rendered - the experience card IS the whole flow.
+				return await clickBestExperienceBookNow();
+			}
+
 			const comboCandidates = all('[role="combobox"], [aria-haspopup="listbox"], button, input')
 				.map((el) => {
 					const text = labelFor(el);
@@ -479,7 +510,7 @@ func clickComboboxExperienceLayout(ctx context.Context, displayTime string, part
 					if (el.getAttribute('aria-haspopup') === 'listbox') score += 2;
 					return { el, score, text };
 				})
-				.filter((c) => c.score > -4)
+				.filter((c) => c.score > 0 && !/book now|reserve|sign in|log in/i.test(c.text))
 				.sort((a, b) => b.score - a.score)
 				.slice(0, 6);
 

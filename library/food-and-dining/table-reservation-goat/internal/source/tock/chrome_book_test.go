@@ -217,3 +217,34 @@ func TestClickRequestedTockBookingControl_WorksOnBareChromedpContext(t *testing.
 		}
 	})
 }
+
+// Mirrors the live deep-link page state from the 2026-07-08 booking run:
+// date/time/party rode the URL so Tock renders NO time picker — just
+// experience cards with "Book now" controls. The fallback must click the
+// best card directly instead of hunting for a combobox.
+func TestClickComboboxExperienceLayout_DeepLinkLayoutWithoutTimePicker(t *testing.T) {
+	html := `
+		<!doctype html>
+		<section class="experience-card" id="standard">
+			<h2>Reservation</h2>
+			<a href="#" onclick="window.clickedExperience = 'standard'; return false;">Book now</a>
+		</section>
+		<section class="experience-card" id="group">
+			<h2>Reservation: Groups 7-18</h2>
+			<a href="#" onclick="window.clickedExperience = 'group'; return false;">Book now</a>
+		</section>`
+	withTockDOMFixture(t, html, func(ctx context.Context) {
+		if err := chromedp.Run(ctx, chromedp.ActionFunc(func(actCtx context.Context) error {
+			return clickComboboxExperienceLayout(actCtx, "6:15 PM", 2, 0)
+		})); err != nil {
+			t.Fatalf("clickComboboxExperienceLayout on deep-link layout: %v", err)
+		}
+		var clicked string
+		if err := chromedp.Run(ctx, chromedp.Evaluate(`window.clickedExperience || ''`, &clicked)); err != nil {
+			t.Fatalf("read clicked experience: %v", err)
+		}
+		if clicked != "standard" {
+			t.Fatalf("clicked experience = %q, want standard for party of 2", clicked)
+		}
+	})
+}
