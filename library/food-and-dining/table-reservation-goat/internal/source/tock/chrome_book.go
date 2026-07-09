@@ -947,15 +947,33 @@ func clickPlaceReservation(ctx context.Context) error {
 			return null;
 		})()
 	`
+	// Payment context (Braintree) can take a while to enable the confirm
+	// control — poll before concluding it is disabled.
+	deadline := time.Now().Add(15 * time.Second)
 	var label any
-	if err := chromedp.Run(ctx, chromedp.Evaluate(js, &label)); err != nil {
-		return fmt.Errorf("evaluating place-reservation click: %w", err)
+	for {
+		label = nil
+		if err := chromedp.Run(ctx, chromedp.Evaluate(js, &label)); err != nil {
+			return fmt.Errorf("evaluating place-reservation click: %w", err)
+		}
+		s, isString := label.(string)
+		if isString && !strings.HasPrefix(s, "disabled:") {
+			break
+		}
+		if time.Now().After(deadline) {
+			if label == nil {
+				return fmt.Errorf("place-reservation button not found")
+			}
+			return fmt.Errorf("place-reservation button is disabled (%s) — payment context likely unavailable in this Chrome session; attach mode (TABLE_RESERVATION_GOAT_TOCK_CHROME_DEBUG_URL) is required for card-required venues", strings.TrimPrefix(s, "disabled:"))
+		}
+		select {
+		case <-ctx.Done():
+			return ctx.Err()
+		case <-time.After(500 * time.Millisecond):
+		}
 	}
 	if label == nil {
 		return fmt.Errorf("place-reservation button not found")
-	}
-	if s, ok := label.(string); ok && strings.HasPrefix(s, "disabled:") {
-		return fmt.Errorf("place-reservation button is disabled (%s)", strings.TrimPrefix(s, "disabled:"))
 	}
 	// Trusted browser-level click via CDP input — the page's handlers ignore
 	// synthetic JS events on this control.
