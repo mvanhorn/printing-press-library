@@ -38,7 +38,7 @@ func newScreensPromotedCmd(flags *rootFlags) *cobra.Command {
 				return err
 			}
 
-			// Migrated 2026-07-08: content search moved to
+			// content search moved to
 			// /api/search/fetch-search-page-screens with searchRequestId +
 			// pageIndex at the top level and filters nested under searchQuery.
 			// Filter VALUES are display names ("Paywall"), not slugs — pass the

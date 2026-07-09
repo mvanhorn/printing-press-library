@@ -36,14 +36,7 @@ func newDriftCmd(flags *rootFlags) *cobra.Command {
 				return err
 			}
 			if db == nil {
-				result := map[string]any{
-					"snapshots": 0,
-					"diff":      nil,
-					"app_slug":  args[0],
-					"since":     since,
-					"note":      "no snapshots found; run `mobbin-pp-cli sync` first to populate the local store",
-				}
-				return printOutputWithFlags(cmd.OutOrStdout(), mustMarshalJSON(result), flags)
+				return printOutputWithFlags(cmd.OutOrStdout(), mustMarshalJSON(noSnapshotsResult(args[0], since)), flags)
 			}
 			defer db.Close()
 			cutoff := time.Now().Add(-d).UTC().Format(time.RFC3339)
@@ -56,15 +49,8 @@ WHERE ` + appExpr + ` AND app_versions.captured_at >= ` + sqlQuote(cutoff) + ` O
 				return err
 			}
 			if len(snaps) == 0 {
-				// PATCH: Empty local stores are a successful no-diff state for agents.
-				result := map[string]any{
-					"snapshots": 0,
-					"diff":      nil,
-					"app_slug":  args[0],
-					"since":     since,
-					"note":      "no snapshots found; run `mobbin-pp-cli sync` first to populate the local store",
-				}
-				return printOutputWithFlags(cmd.OutOrStdout(), mustMarshalJSON(result), flags)
+				// Empty local stores are a successful no-diff state for agents.
+				return printOutputWithFlags(cmd.OutOrStdout(), mustMarshalJSON(noSnapshotsResult(args[0], since)), flags)
 			}
 			if len(snaps) == 1 {
 				return flags.printJSON(cmd, map[string]any{"snapshots": 1, "diff": nil})
@@ -115,4 +101,17 @@ func diffSets(a, b map[string]bool) ([]string, []string) {
 		}
 	}
 	return added, removed
+}
+
+// noSnapshotsResult is the empty-local-store response shared by the missing-DB
+// and zero-snapshot paths: a successful no-diff state that points the caller at
+// `sync`.
+func noSnapshotsResult(appSlug, since string) map[string]any {
+	return map[string]any{
+		"snapshots": 0,
+		"diff":      nil,
+		"app_slug":  appSlug,
+		"since":     since,
+		"note":      "no snapshots found; run `mobbin-pp-cli sync` first to populate the local store",
+	}
 }

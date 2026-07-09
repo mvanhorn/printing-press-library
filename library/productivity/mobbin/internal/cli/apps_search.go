@@ -29,8 +29,6 @@ func newAppsSearchCmd(flags *rootFlags) *cobra.Command {
 		Example:     "  mobbin-pp-cli apps search",
 		Annotations: map[string]string{"pp:endpoint": "apps.search", "pp:method": "POST", "pp:path": "/api/search/fetch-search-page-apps", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
-			if !stdinBody {
-			}
 			path := "/api/search/fetch-search-page-apps"
 			c, err := flags.newClient()
 			if err != nil {
@@ -49,7 +47,7 @@ func newAppsSearchCmd(flags *rootFlags) *cobra.Command {
 				}
 				body = jsonBody
 			} else {
-				// Migrated 2026-07-08: app search moved to
+				// app search moved to
 				// /api/search/fetch-search-page-apps with searchRequestId +
 				// pageIndex at the top level and filters nested under
 				// searchQuery. Apps has only categories (display names) — no

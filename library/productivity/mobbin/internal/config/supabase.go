@@ -10,7 +10,7 @@ import (
 	"strings"
 )
 
-// Mobbin API-truth (ported hand-edit): the Supabase access token lives in an
+// Mobbin API-truth: the Supabase access token lives in an
 // SSR cookie that Supabase either stores whole (`<name>`) or splits across
 // numbered chunks (`<name>.0`, `<name>.1`, ...) by byte length. The chunks are
 // concatenated in index order and the value is base64/JSON-decoded to recover
@@ -68,18 +68,15 @@ func (c *Config) SupabaseAccessToken() (string, error) {
 	}
 	encoded = strings.TrimPrefix(encoded, "base64-")
 
-	decoded, err := base64.StdEncoding.DecodeString(encoded)
-	if err != nil {
-		decoded, err = base64.URLEncoding.DecodeString(encoded)
-		if err != nil {
-			decoded, err = base64.RawStdEncoding.DecodeString(encoded)
-			if err != nil {
-				decoded, err = base64.RawURLEncoding.DecodeString(encoded)
-				if err != nil {
-					return "", fmt.Errorf("decode failed: %w", err)
-				}
-			}
+	var decoded []byte
+	var err error
+	for _, enc := range []*base64.Encoding{base64.StdEncoding, base64.URLEncoding, base64.RawStdEncoding, base64.RawURLEncoding} {
+		if decoded, err = enc.DecodeString(encoded); err == nil {
+			break
 		}
+	}
+	if err != nil {
+		return "", fmt.Errorf("decode failed: %w", err)
 	}
 
 	var session struct {

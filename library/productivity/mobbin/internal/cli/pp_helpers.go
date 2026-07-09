@@ -12,11 +12,11 @@ import (
 	"os"
 	"path/filepath"
 	"sort"
-	"strconv"
 	"strings"
 	"time"
 
 	"github.com/mvanhorn/printing-press-library/library/productivity/mobbin/internal/client"
+	"github.com/mvanhorn/printing-press-library/library/productivity/mobbin/internal/cliutil"
 	"github.com/mvanhorn/printing-press-library/library/productivity/mobbin/internal/imagecache"
 	"github.com/mvanhorn/printing-press-library/library/productivity/mobbin/internal/store"
 )
@@ -43,7 +43,7 @@ func fetchDictionary(ctx context.Context, c *client.Client, want, platform strin
 	}
 	out := []map[string]any{}
 	for _, it := range items {
-		// PATCH: Dictionary groups are identified by top-level slug; entries live in subCategories.
+		// Dictionary groups are identified by top-level slug; entries live in subCategories.
 		if fmt.Sprint(it["slug"]) != want {
 			continue
 		}
@@ -70,7 +70,7 @@ func fetchDictionary(ctx context.Context, c *client.Client, want, platform strin
 }
 
 func searchScreensAPI(ctx context.Context, c *client.Client, platform, pattern, industry string, limit int) ([]screenHit, error) {
-	// Migrated 2026-07-08: screen search moved to
+	// screen search moved to
 	// /api/search/fetch-search-page-screens with filters nested under
 	// searchQuery. Filter VALUES are display names ("Paywall"), not slugs, so
 	// the pattern/industry args are passed through verbatim. Response rows live
@@ -222,14 +222,7 @@ func openStore(ctx context.Context, dbPath string) (*store.Store, error) {
 func sqlQuote(s string) string { return "'" + strings.ReplaceAll(s, "'", "''") + "'" }
 
 func parseSince(s string) (time.Duration, error) {
-	if strings.HasSuffix(s, "d") {
-		n, err := strconv.Atoi(strings.TrimSuffix(s, "d"))
-		if err != nil {
-			return 0, err
-		}
-		return time.Duration(n) * 24 * time.Hour, nil
-	}
-	return time.ParseDuration(s)
+	return cliutil.ParseDurationLoose(s)
 }
 
 func val(m map[string]any, keys ...string) string {

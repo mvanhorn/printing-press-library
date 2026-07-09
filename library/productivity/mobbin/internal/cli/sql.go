@@ -9,7 +9,6 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// PATCH: Add read-only SQL access to the local Mobbin SQLite store.
 func newSQLCmd(flags *rootFlags) *cobra.Command {
 	var dbPath string
 

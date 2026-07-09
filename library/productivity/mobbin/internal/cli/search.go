@@ -156,7 +156,6 @@ In local mode: searches locally synced data only.`,
 				// but not in any typed FTS table (e.g., a resource whose sync
 				// populated only the generic index) silently return zero.
 				seen := make(map[string]bool)
-				_ = seen // prevent unused error when no FTS tables exist
 				{
 					partial, searchErr := db.Search(query, limit)
 					if searchErr != nil {

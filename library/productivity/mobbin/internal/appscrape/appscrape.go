@@ -102,7 +102,7 @@ func extractPayloadArray(s string) (string, error) {
 		case ']', '}':
 			depth--
 			if depth == 0 {
-				// PATCH: Flight chunks are already unescaped before scanning.
+				// Flight chunks are already unescaped before scanning.
 				return s[idx : i+1], nil
 			}
 		}
