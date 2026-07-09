@@ -122,7 +122,7 @@ func (c *Client) ChromeBook(ctx context.Context, req BookRequest) (*BookResponse
 	// one button per slot time; newer experience-card pages expose a time
 	// combobox plus "Book now" controls on experience cards. The helper may
 	// reattach to a recovered Tock tab if the original target has gone stale.
-	activeCtx, activeCancel, err := clickRequestedTockBookingControl(timed, venueURL, displayTime, req.ReservationDate, req.PartySize, req.ExperienceID)
+	activeCtx, activeCancel, err := clickRequestedTockBookingControl(timed, venueURL, displayTime, req.ReservationDate, req.ReservationTime, req.PartySize, req.ExperienceID)
 	if activeCancel != nil {
 		defer activeCancel()
 	}
@@ -223,10 +223,109 @@ func clickSlotByTimeText(ctx context.Context, displayTime string) error {
 	return nil
 }
 
-func clickRequestedTockBookingControl(ctx context.Context, venueURL, displayTime, isoDate string, partySize, experienceID int) (context.Context, context.CancelFunc, error) {
+// buildVenueSearchURL derives the venue's /search results URL from the venue
+// (deep-link) URL. Tock's search page honors the full date/size/time query on
+// every venue layout and lists exact-time "Book" rows, while the venue page's
+// sidebar picker exposes the date through a calendar widget (not a <select>)
+// that cannot be driven the way the time control can — so the requested date
+// is unreachable from the picker alone (observed live 2026-07-08).
+func buildVenueSearchURL(venueURL, isoDate, time24 string, partySize int) string {
+	if venueURL == "" || isoDate == "" || time24 == "" {
+		return ""
+	}
+	u, err := url.Parse(venueURL)
+	if err != nil || u.Host == "" {
+		return ""
+	}
+	path := u.Path
+	if i := strings.Index(path, "/experience/"); i >= 0 {
+		path = path[:i]
+	}
+	u.Path = strings.TrimRight(path, "/") + "/search"
+	q := url.Values{}
+	q.Set("date", isoDate)
+	q.Set("size", fmt.Sprintf("%d", partySize))
+	q.Set("time", time24)
+	u.RawQuery = q.Encode()
+	return u.String()
+}
+
+// clickSearchResultsPage navigates to the venue's /search results URL and
+// clicks the "Book" row whose nearby time text matches displayTime. Rows pair
+// a time label with a Book button inside a small card, so the match walks up
+// from each button to the nearest time-bearing ancestor exactly like the
+// experience-modal slot matcher.
+func clickSearchResultsPage(ctx context.Context, searchURL, displayTime string) error {
+	if err := chromedp.Run(ctx,
+		chromedp.Navigate(searchURL),
+		chromedp.Sleep(2*time.Second),
+	); err != nil {
+		return fmt.Errorf("navigating to search results: %w", err)
+	}
+	js := fmt.Sprintf(`
+		(() => {
+			const clean = (s) => (s || '').replace(/\s+/g, ' ').trim();
+			const target = %q;
+			const timePattern = /\d{1,2}:\d{2}\s*(?:AM|PM)/i;
+			const times = [];
+			for (const btn of Array.from(document.querySelectorAll('button')).filter((el) => /^book$/i.test(clean(el.textContent)))) {
+				let node = btn.parentElement;
+				for (let hops = 0; node && hops < 5; hops++, node = node.parentElement) {
+					const text = clean(node.textContent);
+					if (text.length > 200) break;
+					const m = text.match(timePattern);
+					if (m) {
+						times.push(m[0]);
+						if (text.includes(target)) {
+							btn.scrollIntoView({block: 'center'});
+							btn.dispatchEvent(new MouseEvent('mousedown', {bubbles: true}));
+							btn.click();
+							btn.dispatchEvent(new MouseEvent('mouseup', {bubbles: true}));
+							return { ok: true, step: 'search_results_page', detail: target };
+						}
+						break;
+					}
+				}
+			}
+			return { ok: false, step: 'search_results_page', detail: 'visible: ' + (times.length ? times.join(', ') : 'none') };
+		})()
+	`, displayTime)
+	deadline := time.Now().Add(12 * time.Second)
+	var last tockComboboxClickResult
+	for {
+		if err := chromedp.Run(ctx, chromedp.Evaluate(js, &last)); err != nil {
+			return fmt.Errorf("evaluating search results click: %w", err)
+		}
+		if last.OK {
+			return nil
+		}
+		if time.Now().After(deadline) {
+			return fmt.Errorf("requested time %q not offered on search results page; %s", displayTime, last.Detail)
+		}
+		if err := chromedp.Run(ctx, chromedp.Sleep(500*time.Millisecond)); err != nil {
+			return fmt.Errorf("waiting for search results: %w", err)
+		}
+	}
+}
+
+func clickRequestedTockBookingControl(ctx context.Context, venueURL, displayTime, isoDate, time24 string, partySize, experienceID int) (context.Context, context.CancelFunc, error) {
 	legacyErr := clickSlotByTimeText(ctx, displayTime)
 	if legacyErr == nil {
 		return ctx, nil, nil
+	}
+
+	// Prefer the /search results page: it is the one Tock surface that honors
+	// the requested date/size/time on every layout. The venue-page flows below
+	// remain as fallbacks for layouts where search offers nothing.
+	searchErr := errors.New("no search URL derivable from venue URL")
+	if searchURL := buildVenueSearchURL(venueURL, isoDate, time24, partySize); searchURL != "" {
+		searchErr = clickSearchResultsPage(ctx, searchURL, displayTime)
+		if searchErr == nil {
+			return ctx, nil, nil
+		}
+		if isTargetNavigatedOrClosed(searchErr) && onCheckoutPage(ctx) {
+			return ctx, nil, nil
+		}
 	}
 
 	activeCtx, activeCancel, ensureErr := ensureTockVenuePage(ctx, venueURL)
@@ -257,8 +356,8 @@ func clickRequestedTockBookingControl(ctx context.Context, venueURL, displayTime
 	if activeCancel != nil {
 		defer activeCancel()
 	}
-	return activeCtx, nil, fmt.Errorf("%w: requested_time=%q legacy_slot_error=%v combobox_layout_error=%v page_state=%s",
-		ErrSlotControlNotFound, displayTime, legacyErr, comboboxErr, tockBookingPageStateHint(hintCtx, venueURL))
+	return activeCtx, nil, fmt.Errorf("%w: requested_time=%q legacy_slot_error=%v search_results_error=%v combobox_layout_error=%v page_state=%s",
+		ErrSlotControlNotFound, displayTime, legacyErr, searchErr, comboboxErr, tockBookingPageStateHint(hintCtx, venueURL))
 }
 
 type tockComboboxClickResult struct {
@@ -629,12 +728,15 @@ func clickComboboxExperienceLayout(ctx context.Context, displayTime, isoDate str
 						href: el.href || (el.getAttribute && el.getAttribute('href')) || '',
 						top: el.getBoundingClientRect().top,
 					}))
-					.filter((c) => /^search$/i.test(c.text) && c.href.includes('/search'));
+					.filter((c) => /^search$/i.test(c.text) && c.href.includes('/search'))
+					// Hard requirement, not a preference: a search link carrying a
+					// different date (the picker's date control is a calendar widget
+					// we cannot drive) would surface same-time rows on the WRONG DAY
+					// and book them. Better to fall back to the experience-card flow,
+					// whose modal calendar selects the ISO date explicitly.
+					.filter((c) => !isoDate || c.href.includes('date=' + encodeURIComponent(isoDate)));
 				if (controls.length === 0) return null;
 				controls.sort((a, b) => {
-					const aDate = isoDate && a.href.includes('date=' + encodeURIComponent(isoDate)) ? 1 : 0;
-					const bDate = isoDate && b.href.includes('date=' + encodeURIComponent(isoDate)) ? 1 : 0;
-					if (aDate !== bDate) return bDate - aDate;
 					const aTime = selectedTime && a.href.includes('time=' + encodeURIComponent(selectedTime)) ? 1 : 0;
 					const bTime = selectedTime && b.href.includes('time=' + encodeURIComponent(selectedTime)) ? 1 : 0;
 					if (aTime !== bTime) return bTime - aTime;

@@ -201,7 +201,7 @@ func TestClickRequestedTockBookingControl_WorksOnBareChromedpContext(t *testing.
 		</section>
 		<button id="submit" onclick="window.submitClicked = true;">Book now</button>`
 	withTockDOMFixture(t, html, func(ctx context.Context) {
-		activeCtx, activeCancel, err := clickRequestedTockBookingControl(ctx, "", "6:15 PM", "2026-07-10", 2, 0)
+		activeCtx, activeCancel, err := clickRequestedTockBookingControl(ctx, "", "6:15 PM", "2026-07-10", "18:15", 2, 0)
 		if activeCancel != nil {
 			defer activeCancel()
 		}
@@ -349,6 +349,48 @@ func TestClickComboboxExperienceLayout_DrivesExperienceModal(t *testing.T) {
 		}
 		if pickedDay != "2026-07-10" {
 			t.Fatalf("pickedDay = %q, want 2026-07-10", pickedDay)
+		}
+		if bookedSlot != "6:15 PM" {
+			t.Fatalf("bookedSlot = %q, want 6:15 PM", bookedSlot)
+		}
+	})
+}
+
+func TestBuildVenueSearchURL(t *testing.T) {
+	got := buildVenueSearchURL("https://www.exploretock.com/barcelona-wine-bar-raleigh?date=2026-07-10&size=2&time=18%3A15", "2026-07-10", "18:15", 2)
+	want := "https://www.exploretock.com/barcelona-wine-bar-raleigh/search?date=2026-07-10&size=2&time=18%3A15"
+	if got != want {
+		t.Fatalf("buildVenueSearchURL = %q, want %q", got, want)
+	}
+	// Experience deep-link URLs must collapse back to the venue's search page.
+	got = buildVenueSearchURL("https://www.exploretock.com/canlis/experience/12345?date=2026-07-10&size=4&time=19%3A00", "2026-07-10", "19:00", 4)
+	want = "https://www.exploretock.com/canlis/search?date=2026-07-10&size=4&time=19%3A00"
+	if got != want {
+		t.Fatalf("buildVenueSearchURL(experience) = %q, want %q", got, want)
+	}
+	if got := buildVenueSearchURL("", "2026-07-10", "18:15", 2); got != "" {
+		t.Fatalf("buildVenueSearchURL(empty venue) = %q, want empty", got)
+	}
+}
+
+// Mirrors the live /search results page (confirmed in a real browser
+// 2026-07-08): each result row pairs a time label with a "Book" button inside
+// a small card. The direct search-page path must click the exact-time row.
+func TestClickSearchResultsPage_ClicksExactTimeRow(t *testing.T) {
+	html := `
+		<!doctype html>
+		<div class="results">
+			<div class="row"><span>6:00 PM</span><button onclick="window.bookedSlot = '6:00 PM';">Book</button></div>
+			<div class="row"><span>6:15 PM</span><button onclick="window.bookedSlot = '6:15 PM';">Book</button></div>
+		</div>`
+	searchURL := "data:text/html;charset=utf-8," + url.PathEscape(html)
+	withTockDOMFixture(t, "<!doctype html><p>venue page</p>", func(ctx context.Context) {
+		if err := clickSearchResultsPage(ctx, searchURL, "6:15 PM"); err != nil {
+			t.Fatalf("clickSearchResultsPage: %v", err)
+		}
+		var bookedSlot string
+		if err := chromedp.Run(ctx, chromedp.Evaluate(`window.bookedSlot || ''`, &bookedSlot)); err != nil {
+			t.Fatalf("read fixture state: %v", err)
 		}
 		if bookedSlot != "6:15 PM" {
 			t.Fatalf("bookedSlot = %q, want 6:15 PM", bookedSlot)
