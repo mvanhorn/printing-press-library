@@ -420,6 +420,7 @@ Use --dry-run to skip all API calls.`,
 	cmd.Flags().StringVar(&flagOrgIDs, "org-ids", "", "Comma-separated org IDs to apply the template to")
 	cmd.Flags().StringVar(&flagCampaignName, "campaign-name", "", "Override the campaign name from the template")
 	cmd.Flags().BoolVar(&flagDiff, "diff", false, "Show what would be created without making any API calls")
+	_ = cmd.MarkFlagRequired("org-ids")
 	return cmd
 }
 
