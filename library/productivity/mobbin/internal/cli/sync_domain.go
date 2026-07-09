@@ -80,10 +80,8 @@ func runDomainSync(ctx context.Context, c *client.Client, db *store.Store, opts 
 	}
 
 	fmt.Fprintln(stderr, "Domain sync complete:")
-	total := 0
 	for _, platform := range opts.Platforms {
 		fmt.Fprintf(stderr, "  apps (%s):%13d\n", platform, counts.Apps[platform])
-		total += counts.Apps[platform]
 	}
 	for _, table := range []string{"app_versions", "screens", "flows", "patterns", "elements", "flow_actions", "screen_patterns", "screen_elements", "collections"} {
 		n, err := db.TableCount(ctx, table)
@@ -91,7 +89,15 @@ func runDomainSync(ctx context.Context, c *client.Client, db *store.Store, opts 
 			continue
 		}
 		fmt.Fprintf(stderr, "  %-16s %8d\n", table+":", n)
-		total += n
+	}
+	// Return rows written THIS run, not all-time TableCount: sync's exit-code
+	// gate treats a nonzero return as success, so summing pre-existing table
+	// totals would mask a fully-failed domain phase over a populated store.
+	total := counts.Screens + counts.Flows + counts.AppVersions +
+		counts.Patterns + counts.Elements + counts.FlowActions +
+		counts.ScreenPatterns + counts.ScreenElements + counts.Collections
+	for _, platform := range opts.Platforms {
+		total += counts.Apps[platform]
 	}
 	return total
 }

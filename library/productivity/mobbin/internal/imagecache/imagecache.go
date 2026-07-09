@@ -23,6 +23,12 @@ import (
 const SupabaseStoragePrefix = "/storage/v1/object/public/"
 const BytescaleBase = "https://bytescale.mobbin.com/FW25bBB/image/mobbin.com/prod"
 
+// httpClient bounds each image download so a stalled CDN connection can't hang
+// deck/grab/app indefinitely (the CLI root --timeout does not reach this
+// sibling package). A per-request ceiling is the floor even when the caller's
+// context carries no deadline.
+var httpClient = &http.Client{Timeout: 90 * time.Second}
+
 type Cache struct{ Root string }
 type CDNOpts struct {
 	Width   int
@@ -109,7 +115,7 @@ func (c *Cache) Fetch(ctx context.Context, imageURL, platform, appSlug, screenID
 	if err != nil {
 		return "", false, err
 	}
-	resp, err := http.DefaultClient.Do(req)
+	resp, err := httpClient.Do(req)
 	if err != nil {
 		return "", false, err
 	}

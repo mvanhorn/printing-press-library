@@ -7,7 +7,6 @@ import (
 	"fmt"
 	"regexp"
 	"strings"
-	"unicode"
 
 	"github.com/mvanhorn/printing-press-library/library/productivity/mobbin/internal/appscrape"
 	"github.com/mvanhorn/printing-press-library/library/productivity/mobbin/internal/client"
@@ -91,7 +90,9 @@ func runAppScrape(cmd *cobra.Command, flags *rootFlags, slug, mode string, limit
 			s["local_path"] = paths[val(s, "id", "screenId")]
 		}
 		if len(errs) > 0 {
-			return fmt.Errorf("saving images: %v", errs)
+			// Best-effort, matching deck/grab: a failed image download must not
+			// discard the successfully-scraped flows/screens payload.
+			fmt.Fprintf(cmd.ErrOrStderr(), "warning: %d of %d image(s) failed to download; app data returned without them\n", len(errs), len(items))
 		}
 	}
 	if limit > 0 {
@@ -118,7 +119,7 @@ func resolveAppSlug(ctx context.Context, c *client.Client, arg string, flags *ro
 	if fullMobbinAppSlugRE.MatchString(strings.ToLower(arg)) {
 		return arg, nil
 	}
-	normalized := slugifyLoose(arg)
+	normalized := slugify(arg)
 	platform := platformFromSlugish(normalized)
 	searchTerm := strings.TrimSuffix(strings.TrimSuffix(strings.TrimSuffix(normalized, "-web"), "-ios"), "-android")
 	if searchTerm == "" {
@@ -145,7 +146,7 @@ func resolveAppSlug(ctx context.Context, c *client.Client, arg string, flags *ro
 		slug := fullSlugForSearchableApp(row, platform)
 		name := val(row, "appName", "app_name", "name")
 		row["slug"] = slug
-		nameSlug := slugifyLoose(name)
+		nameSlug := slugify(name)
 		if slug != "" && (strings.Contains(slug, normalized) || strings.Contains(slug, searchTerm) || strings.Contains(nameSlug, searchTerm)) {
 			matches = append(matches, row)
 		}
@@ -178,7 +179,7 @@ func filterSlugRows(rows []map[string]any, normalized, searchTerm, platform stri
 		if slug == "" {
 			continue
 		}
-		name := slugifyLoose(val(row, "app_name", "appName", "name"))
+		name := slugify(val(row, "app_name", "appName", "name"))
 		if strings.Contains(slug, normalized) || strings.Contains(slug, searchTerm) || strings.Contains(name, searchTerm) {
 			out = append(out, row)
 		}
@@ -206,32 +207,9 @@ func fullSlugForSearchableApp(row map[string]any, platform string) string {
 	if id == "" {
 		return slug
 	}
-	nameSlug := slugifyLoose(val(row, "appName", "app_name", "name"))
+	nameSlug := slugify(val(row, "appName", "app_name", "name"))
 	if nameSlug == "" {
 		nameSlug = strings.TrimSuffix(strings.TrimSuffix(strings.TrimSuffix(slug, "-web"), "-ios"), "-android")
 	}
 	return fmt.Sprintf("%s-%s-%s", nameSlug, platform, id)
-}
-
-func slugifyLoose(s string) string {
-	s = strings.ToLower(strings.TrimSpace(s))
-	var b strings.Builder
-	lastDash := false
-	for _, r := range s {
-		if (r >= 'a' && r <= 'z') || (r >= '0' && r <= '9') {
-			b.WriteRune(r)
-			lastDash = false
-			continue
-		}
-		if unicode.IsLetter(r) || unicode.IsDigit(r) {
-			b.WriteRune(r)
-			lastDash = false
-			continue
-		}
-		if !lastDash {
-			b.WriteByte('-')
-			lastDash = true
-		}
-	}
-	return strings.Trim(b.String(), "-")
 }

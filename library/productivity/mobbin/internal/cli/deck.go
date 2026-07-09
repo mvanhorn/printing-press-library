@@ -16,7 +16,7 @@ func newDeckCmd(flags *rootFlags) *cobra.Command {
 		Use:         "deck <theme-or-pattern>",
 		Short:       "Build a zipped design reference deck for a pattern across an industry.",
 		Example:     "  mobbin-pp-cli deck paywall --platform web --industry fintech --limit 20 --export-zip ./deck.zip",
-		Annotations: map[string]string{"mcp:read-only": "true", "pp:no-error-path-probe": "true"},
+		Annotations: map[string]string{"pp:no-error-path-probe": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				return cmd.Help()

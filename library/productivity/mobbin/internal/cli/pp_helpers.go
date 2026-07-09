@@ -7,7 +7,6 @@ import (
 	"bytes"
 	"context"
 	"encoding/csv"
-	"encoding/json"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -96,6 +95,12 @@ func searchScreensAPI(ctx context.Context, c *client.Client, platform, pattern, 
 	raw, _, err := c.Post(ctx, "/api/search/fetch-search-page-screens", body)
 	if err != nil {
 		return nil, classifyAPIError(err, nil)
+	}
+	// Surface Mobbin's HTTP-200 unauthenticated error body ({"error":{...}} or an
+	// absent "value") instead of silently returning zero hits — otherwise cross,
+	// grab, and deck report empty results with no hint to re-authenticate.
+	if _, envErr := parseSearchEnvelope(raw); envErr != nil {
+		return nil, envErr
 	}
 	rows := extractSyncItems(raw)
 	hits := make([]screenHit, 0, len(rows))
@@ -241,14 +246,6 @@ func appNameSlug(s string) string {
 		return parts[0]
 	}
 	return s
-}
-
-func printRows(cmdOut *os.File, v any, flags *rootFlags) error {
-	raw, err := json.Marshal(v)
-	if err != nil {
-		return err
-	}
-	return printOutputWithFlags(cmdOut, raw, flags)
 }
 
 func sortRows(rows []map[string]any, key string) {

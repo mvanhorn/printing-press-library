@@ -19,10 +19,9 @@ func newGrabCmd(flags *rootFlags) *cobra.Command {
 	var pattern, platform, industry, out, rename string
 	var limit int
 	cmd := &cobra.Command{
-		Use:         "grab",
-		Short:       "Batch-download matching Mobbin screens with deterministic filenames.",
-		Example:     `  mobbin-pp-cli grab --pattern empty-state --platform web --industry fintech --out ./refs --rename "{app}_{pattern}_{idx}.png" --limit 50`,
-		Annotations: map[string]string{"mcp:read-only": "true"},
+		Use:     "grab",
+		Short:   "Batch-download matching Mobbin screens with deterministic filenames.",
+		Example: `  mobbin-pp-cli grab --pattern empty-state --platform web --industry fintech --out ./refs --rename "{app}_{pattern}_{idx}.png" --limit 50`,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if pattern == "" {
 				return cmd.Help()
