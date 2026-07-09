@@ -10,6 +10,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"net/url"
 	"strings"
 	"time"
 
@@ -172,7 +173,7 @@ func sweepAllMailboxes(ctx context.Context, flags *rootFlags, cmd *cobra.Command
 	for view.ScannedUsers < maxScan {
 		params := "?customer=my_customer&maxResults=200&fields=nextPageToken,users(primaryEmail,suspended)"
 		if pageToken != "" {
-			params += "&pageToken=" + pageToken
+			params += "&pageToken=" + url.QueryEscape(pageToken)
 		}
 		data, gerr := gmailAuthedGet(ctx, adminToken, wsDirectoryBase+"/users"+params)
 		if gerr != nil {
