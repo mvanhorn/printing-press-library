@@ -44,7 +44,7 @@ Reach for this CLI whenever an agent needs to turn generated content into a live
 ## House Rules (default behavior)
 
 1. **Assume we're logged in.** Just publish and hand back the code — do **not** use `--anon` or the claim dance unless explicitly asked. Verify quickly with `here-now-pp-cli doctor` if unsure. `publish dir <path>` (authenticated) creates a permanent site and returns the slug + URL — that's the "code".
-2. **Editing an already-published site → keep the same link.** Re-publish the changed files to the **original slug in place** with `publish update-site <slug>` (replacement-version flow). Do **not** re-run `publish dir` for an edit and do **not** delete + recreate — both produce a *new* code, and deleted slugs are permanently reserved (the old URL is lost for good).
+2. **Editing an already-published site → keep the same link.** Publish a **new version of the existing site**, never a new site. Do **not** re-run `publish dir` for an edit (it always creates a new site, even with `--slug`) and do **not** delete + recreate (deleted slugs are permanently reserved, so the URL is lost for good). The in-place path is the replacement-version flow: `publish update-site <slug>` opens a pending replacement version, then `publish finalize site-version <slug> --version-id <id>` makes it live once the changed files are uploaded. Run `publish update-site --help` for the required `--files` manifest and flags — there is no single directory-walking "update" command (only `publish dir` walks a directory, and it always creates a new site).
 
 ## Unique Capabilities
 
