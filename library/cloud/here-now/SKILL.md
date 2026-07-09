@@ -166,6 +166,7 @@ These capabilities aren't available in any other tool for this API.
 
 - `here-now-pp-cli publish create-site` — Creates a pending Site version and returns presigned upload URLs.
 - `here-now-pp-cli publish delete-site` — Delete a Site
+- `here-now-pp-cli publish finalize site-version` — Makes a pending version live after all files have been uploaded.
 - `here-now-pp-cli publish from-drive` — Publish a Drive version as a Site
 - `here-now-pp-cli publish get-site` — Get Site details
 - `here-now-pp-cli publish update-site` — Creates a pending replacement version for an existing Site. Authenticated Sites require API key ownership.
