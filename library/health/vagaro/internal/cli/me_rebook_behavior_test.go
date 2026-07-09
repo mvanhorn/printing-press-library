@@ -5,7 +5,6 @@ package cli
 import (
 	"encoding/json"
 	"testing"
-	"time"
 
 	"github.com/mvanhorn/printing-press-library/library/health/vagaro/internal/vagaro"
 	"github.com/stretchr/testify/assert"
@@ -54,19 +53,6 @@ func TestParseAppointments_empty(t *testing.T) {
 	// Non-JSON (e.g. an auth HTML page) is an error, not a silent empty.
 	_, err = parseAppointments(json.RawMessage(`<html>login</html>`))
 	assert.Error(t, err)
-}
-
-func TestFilterGroupsToWindow(t *testing.T) {
-	groups := []vagaro.SlotGroup{
-		{Date: "24 Jul 2026", Provider: "Ronnel", Times: []string{"10:00 AM", "11:00 AM"}},
-		{Date: "31 Jul 2026", Provider: "George", Times: []string{"09:00 AM"}}, // outside window
-	}
-	from := time.Date(2026, 7, 23, 0, 0, 0, 0, time.UTC)
-	to := time.Date(2026, 7, 26, 0, 0, 0, 0, time.UTC)
-	out := filterGroupsToWindow(groups, from, to)
-	require.Len(t, out, 1)
-	assert.Equal(t, "24 Jul 2026", out[0].Date)
-	assert.Equal(t, []string{"10:00 AM", "11:00 AM"}, out[0].Times)
 }
 
 func TestResolveRebookServiceAndProviderFallsBackFromAppointmentIDsToNames(t *testing.T) {
@@ -129,5 +115,17 @@ func TestResolveRebookServiceReportsActionableAmbiguity(t *testing.T) {
 func TestSlugFromAppointmentURL(t *testing.T) {
 	assert.Equal(t, "centralbarber", slugFromAppointmentURL("https://www.vagaro.com/centralbarber/book-now"))
 	assert.Equal(t, "centralbarber", slugFromAppointmentURL("www.vagaro.com/centralbarber"))
+	assert.Equal(t, "", slugFromAppointmentURL("https://centralbarber.com/contact"))
 	assert.Equal(t, "", slugFromAppointmentURL(""))
+}
+
+func TestParseAppointmentsGenericURLDoesNotBecomeBusinessSlug(t *testing.T) {
+	data := json.RawMessage(`{"data":[
+		{"appointmentId":9001,"businessId":93458,"businessName":"Central Barber","url":"https://centralbarber.com/contact","serviceName":"Skin Fade"}
+	]}`)
+	appts, err := parseAppointments(data)
+	require.NoError(t, err)
+	require.Len(t, appts, 1)
+	assert.Equal(t, "93458", appts[0].BusinessID)
+	assert.Equal(t, "", appts[0].BusinessSlug)
 }

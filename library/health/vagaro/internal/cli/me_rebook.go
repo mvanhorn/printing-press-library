@@ -260,7 +260,7 @@ func extractAppointment(obj map[string]any) rebookAppointment {
 	if a.ProviderName == "" {
 		a.ProviderName = strings.TrimSpace(firstScalar(obj, "serviceProviderFirstName", "providerFirstName") + " " + firstScalar(obj, "serviceProviderLastName", "providerLastName"))
 	}
-	a.BusinessSlug = firstNonEmpty(a.BusinessSlug, slugFromAppointmentURL(firstScalar(obj, "businessUrl", "businessURL", "business_url", "shopUrl", "shopURL", "url", "bookingUrl", "bookingURL")))
+	a.BusinessSlug = firstNonEmpty(a.BusinessSlug, slugFromAppointmentURL(firstScalar(obj, "businessUrl", "businessURL", "business_url", "shopUrl", "shopURL", "bookingUrl", "bookingURL")))
 	// Descend into nested objects when flat keys were absent. Always check for a
 	// nested business URL/slug because the history payload may include flat ids
 	// but only expose the public Vagaro slug under business.url.
@@ -305,7 +305,7 @@ func resolveRebookBusiness(ctx context.Context, c *vagaro.Client, flags *rootFla
 	if strings.TrimSpace(a.BusinessID) != "" {
 		return strings.TrimSpace(a.BusinessID), "", nil
 	}
-	return "", "", fmt.Errorf("business name %q was not found uniquely in the local Vagaro cache; pass an explicit business slug", a.BusinessName)
+	return "", "", fmt.Errorf("business name %q was not found in the local Vagaro cache; run 'vagaro-pp-cli sync' first or pass an explicit business slug", a.BusinessName)
 }
 
 func resolveRebookBusinessFromCache(ctx context.Context, name string) (string, string, error) {
@@ -405,6 +405,10 @@ func slugFromAppointmentURL(raw string) string {
 	if err != nil {
 		return ""
 	}
+	host := strings.ToLower(u.Hostname())
+	if host != "" && host != "vagaro.com" && !strings.HasSuffix(host, ".vagaro.com") {
+		return ""
+	}
 	parts := strings.Split(strings.Trim(u.Path, "/"), "/")
 	for _, p := range parts {
 		p = strings.TrimSpace(p)
@@ -450,33 +454,4 @@ func firstNonEmpty(vals ...string) string {
 		}
 	}
 	return ""
-}
-
-// filterGroupsToWindow drops slot times whose parseable date falls outside
-// [fromDate, toDate]. Groups whose dates cannot be parsed pass through
-// unchanged so the HTML-fragment fallback still surfaces times.
-func filterGroupsToWindow(groups []vagaro.SlotGroup, fromDate, toDate time.Time) []vagaro.SlotGroup {
-	fromDay := time.Date(fromDate.Year(), fromDate.Month(), fromDate.Day(), 0, 0, 0, 0, time.UTC)
-	toDay := time.Date(toDate.Year(), toDate.Month(), toDate.Day(), 23, 59, 59, 0, time.UTC)
-	out := make([]vagaro.SlotGroup, 0, len(groups))
-	for _, g := range groups {
-		kept := make([]string, 0, len(g.Times))
-		for _, t := range g.Times {
-			dt, ok := vagaro.ParseSlotDateTime(g.Date, t)
-			if !ok {
-				kept = append(kept, t) // undateable: keep rather than silently drop
-				continue
-			}
-			if dt.Before(fromDay) || dt.After(toDay) {
-				continue
-			}
-			kept = append(kept, t)
-		}
-		if len(kept) > 0 {
-			ng := g
-			ng.Times = kept
-			out = append(out, ng)
-		}
-	}
-	return out
 }
