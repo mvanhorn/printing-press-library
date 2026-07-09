@@ -70,6 +70,22 @@ func readBatchRenameMapping(path string) (map[string]string, error) {
 	return mapping, nil
 }
 
+func writeBatchRenamePartialJSON(cmd *cobra.Command, flags *rootFlags, results []map[string]any, failedID, failedTitle string, err error) error {
+	if flags == nil || !flags.asJSON || len(results) == 0 {
+		return nil
+	}
+	return flags.printJSON(cmd, map[string]any{
+		"status":  "partial_failure",
+		"partial": true,
+		"renamed": results,
+		"failed": map[string]any{
+			"recording_id": failedID,
+			"title":        failedTitle,
+			"error":        err.Error(),
+		},
+	})
+}
+
 func newNovelBatchRenameCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
@@ -109,6 +125,9 @@ func newNovelBatchRenameCmd(flags *rootFlags) *cobra.Command {
 				body := map[string]any{"filename": mapping[id], "support_mul_summ": true}
 				data, statusCode, err := c.PatchWithParams(cmd.Context(), path, map[string]string{}, body)
 				if err != nil {
+					if writeErr := writeBatchRenamePartialJSON(cmd, flags, results, id, mapping[id], err); writeErr != nil {
+						return writeErr
+					}
 					return classifyAPIError(err, flags)
 				}
 				results = append(results, map[string]any{

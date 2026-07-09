@@ -4,8 +4,14 @@
 package cli
 
 import (
+	"bytes"
+	"encoding/json"
+	"fmt"
+	"net/http"
+	"net/http/httptest"
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 )
 
@@ -41,5 +47,82 @@ func TestReadBatchRenameMappingCSV(t *testing.T) {
 	}
 	if got["abc"] != "Title" {
 		t.Fatalf("abc = %q, want Title", got["abc"])
+	}
+}
+
+func TestBatchRenameJSONPrintsPartialResultsOnError(t *testing.T) {
+	t.Setenv("PLAUD_WEB_BEARER_AUTH", "test-token")
+	t.Setenv("PRINTING_PRESS_VERIFY", "")
+
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != http.MethodPatch {
+			t.Errorf("method = %s, want PATCH", r.Method)
+		}
+		w.Header().Set("Content-Type", "application/json")
+		switch r.URL.Path {
+		case "/file/id-a":
+			fmt.Fprint(w, `{"ok":true}`)
+		case "/file/id-b":
+			http.Error(w, `{"error":"bad request"}`, http.StatusBadRequest)
+		default:
+			t.Errorf("unexpected path %s", r.URL.Path)
+			http.NotFound(w, r)
+		}
+	}))
+	defer server.Close()
+	t.Setenv("PLAUD_WEB_BASE_URL", server.URL)
+
+	dir := t.TempDir()
+	mappingPath := filepath.Join(dir, "mapping.json")
+	if err := os.WriteFile(mappingPath, []byte(`{"id-b":"Second","id-a":"First"}`), 0o600); err != nil {
+		t.Fatal(err)
+	}
+
+	var flags rootFlags
+	cmd := newRootCmd(&flags)
+	var out bytes.Buffer
+	var stderr bytes.Buffer
+	cmd.SetOut(&out)
+	cmd.SetErr(&stderr)
+	cmd.SetArgs([]string{"--json", "--rate-limit", "0", "batch-rename", mappingPath})
+
+	err := cmd.Execute()
+	if err == nil {
+		t.Fatal("Execute() error = nil, want API error")
+	}
+
+	var payload struct {
+		Status  string `json:"status"`
+		Partial bool   `json:"partial"`
+		Renamed []struct {
+			RecordingID string          `json:"recording_id"`
+			Title       string          `json:"title"`
+			Status      int             `json:"status"`
+			Response    json.RawMessage `json:"response"`
+		} `json:"renamed"`
+		Failed struct {
+			RecordingID string `json:"recording_id"`
+			Title       string `json:"title"`
+			Error       string `json:"error"`
+		} `json:"failed"`
+	}
+	if err := json.Unmarshal(out.Bytes(), &payload); err != nil {
+		t.Fatalf("partial JSON output did not unmarshal: %v\noutput: %s\nstderr: %s", err, out.String(), stderr.String())
+	}
+
+	if payload.Status != "partial_failure" || !payload.Partial {
+		t.Fatalf("partial status = (%q, %v), want partial_failure true", payload.Status, payload.Partial)
+	}
+	if len(payload.Renamed) != 1 {
+		t.Fatalf("renamed count = %d, want 1; output: %s", len(payload.Renamed), out.String())
+	}
+	if payload.Renamed[0].RecordingID != "id-a" || payload.Renamed[0].Title != "First" || payload.Renamed[0].Status != http.StatusOK {
+		t.Fatalf("renamed[0] = %+v, want id-a/First/200", payload.Renamed[0])
+	}
+	if payload.Failed.RecordingID != "id-b" || payload.Failed.Title != "Second" {
+		t.Fatalf("failed = %+v, want id-b/Second", payload.Failed)
+	}
+	if !strings.Contains(payload.Failed.Error, "HTTP 400") {
+		t.Fatalf("failed error = %q, want HTTP 400", payload.Failed.Error)
 	}
 }
