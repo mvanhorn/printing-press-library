@@ -94,11 +94,12 @@ func (c *Client) ChromeBook(ctx context.Context, req BookRequest) (*BookResponse
 	timed, cancelTimed := context.WithTimeout(browserCtx, 60*time.Second)
 	defer cancelTimed()
 
-	// Inject Tock cookies (session auth) before navigation. Nil-safe: if
-	// the client was constructed without a session (e.g., unit tests),
-	// proceed with no cookies — Chrome will be unauthenticated.
+	// Inject Tock cookies (session auth) before navigation — but ONLY for
+	// the spawned headless fallback. An attached Chrome brings its own live
+	// session; injecting the (possibly stale) session.json cookies clobbers
+	// it and surfaces login walls mid-flow (observed live 2026-07-08).
 	var cookies []*http.Cookie
-	if c.session != nil {
+	if wsURL == "" && c.session != nil {
 		cookies = c.session.HTTPCookies(auth.NetworkTock)
 	}
 
