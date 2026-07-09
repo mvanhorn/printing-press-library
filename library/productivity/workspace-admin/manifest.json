@@ -1,0 +1,46 @@
+{
+  "manifest_version": "0.3",
+  "name": "workspace-admin-pp-mcp",
+  "display_name": "Google Workspace Admin",
+  "version": "4.27.1",
+  "description": "GAT-style Google Workspace auditing as an agent-native CLI: sync Directory, Drive, Gmail, Reports, and Alert Center into a local store, then run offline cross-API audits, offboarding, and OAuth-app risk checks that GAM and the official gws CLI cannot persist.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/workspace-admin-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/workspace-admin-pp-mcp",
+      "args": [],
+      "env": {
+        "GOOGLE_WORKSPACE_TOKEN": "${user_config.google_workspace_token}",
+        "WORKSPACE_ADMIN_USER_ID": "${user_config.workspace_admin_user_id}"
+      }
+    }
+  },
+  "user_config": {
+    "google_workspace_token": {
+      "type": "string",
+      "title": "GOOGLE_WORKSPACE_TOKEN",
+      "description": "Sets GOOGLE_WORKSPACE_TOKEN for the Google Workspace Admin MCP server.",
+      "sensitive": true,
+      "required": true
+    },
+    "workspace_admin_user_id": {
+      "type": "string",
+      "title": "WORKSPACE_ADMIN_USER_ID",
+      "description": "Sets WORKSPACE_ADMIN_USER_ID for the endpoint template variable {userId}.",
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}
