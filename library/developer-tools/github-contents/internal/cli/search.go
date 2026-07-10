@@ -8,7 +8,10 @@ package cli
 
 import (
 	"database/sql"
+	"errors"
 	"fmt"
+	"io/fs"
+	"os"
 	"strings"
 
 	"github.com/spf13/cobra"
@@ -76,9 +79,22 @@ touches the network, so results reflect the last plan/fetch of each target.
 				limit = 20
 			}
 
-			db, err := store.Open(defaultDBPath("github-contents-pp-cli"))
+			// search is advertised as MCP read-only, so it must never create
+			// or migrate local state: a missing store is a valid empty result,
+			// and an existing store is opened read-only (no schema writes).
+			dbPath := defaultDBPath("github-contents-pp-cli")
+			if _, statErr := os.Stat(dbPath); errors.Is(statErr, fs.ErrNotExist) {
+				view := searchView{Query: pattern, Hits: []searchHit{}, Count: 0,
+					Note: "no local store yet; run 'plan' or 'fetch' on a target first to index its listing"}
+				if flags.asJSON || !isTerminal(cmd.OutOrStdout()) {
+					return printJSONFiltered(cmd.OutOrStdout(), view, flags)
+				}
+				fmt.Fprintln(cmd.OutOrStdout(), view.Note)
+				return nil
+			}
+			db, err := store.OpenReadOnlyContext(cmd.Context(), dbPath)
 			if err != nil {
-				return fmt.Errorf("opening local store: %w", err)
+				return fmt.Errorf("opening local store read-only: %w", err)
 			}
 			defer db.Close()
 
