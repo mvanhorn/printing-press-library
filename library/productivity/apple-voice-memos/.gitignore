@@ -1,0 +1,6 @@
+bin/
+dist/
+/apple-voice-memos-pp-cli
+.DS_Store
+*.out
+coverage.txt

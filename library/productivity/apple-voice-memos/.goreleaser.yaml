@@ -1,0 +1,40 @@
+version: 2
+
+project_name: apple-voice-memos-pp-cli
+
+builds:
+  - id: apple-voice-memos-pp-cli
+    main: ./cmd/apple-voice-memos-pp-cli
+    binary: apple-voice-memos-pp-cli
+    goos:
+      - darwin
+    goarch:
+      - amd64
+      - arm64
+    ldflags:
+      - -s -w -X github.com/mvanhorn/printing-press-library/library/productivity/apple-voice-memos/internal/cli.version={{.Version}}
+
+archives:
+  - formats:
+      - tar.gz
+    files:
+      - LICENSE
+      - README.md
+      - THIRD_PARTY_NOTICES.md
+    name_template: >-
+      {{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}
+
+checksum:
+  name_template: checksums.txt
+
+changelog:
+  sort: asc
+  filters:
+    exclude:
+      - '^docs:'
+      - '^test:'
+      - '^chore:'
+
+release:
+  draft: false
+  prerelease: auto

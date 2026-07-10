@@ -1,0 +1,42 @@
+{
+  "schema_version": 2,
+  "generated_at": "2026-07-09T14:58:47Z",
+  "printing_press_version": "4.27.1",
+  "run_id": "20260709-145847",
+  "api_name": "apple-voice-memos",
+  "display_name": "Apple Voice Memos",
+  "cli_name": "apple-voice-memos-pp-cli",
+  "creator": {
+    "handle": "0xble",
+    "name": "Brian Le"
+  },
+  "owner": "0xble",
+  "printer": "0xble",
+  "printer_name": "Brian Le",
+  "spec_url": "local-macos-voice-memos-store",
+  "spec_path": "README.md",
+  "spec_format": "local-store",
+  "spec_source": "sniffed/local-sqlite",
+  "category": "productivity",
+  "description": "Private-by-default macOS CLI for Apple Voice Memos metadata, embedded transcripts, export, and freshness-aware iCloud synchronization.",
+  "api_version": "macOS Voice Memos CloudRecordings.db",
+  "auth_type": "none",
+  "auth_env_vars": [],
+  "novel_features": [
+    {
+      "name": "Freshness-aware Voice Memos sync",
+      "command": "recent / sync",
+      "description": "Triggers voicememod first, falls back to a hidden Voice Memos launch, reports explicit freshness evidence, and refuses ambiguous process cleanup."
+    },
+    {
+      "name": "Embedded Apple transcript extraction",
+      "command": "transcript",
+      "description": "Extracts Apple-generated tsrp transcript JSON locally from Voice Memos media without uploading or re-transcribing audio."
+    },
+    {
+      "name": "Safe local export",
+      "command": "export",
+      "description": "Copies one selected recording with private permissions while rejecting traversal and symlink destinations."
+    }
+  ]
+}

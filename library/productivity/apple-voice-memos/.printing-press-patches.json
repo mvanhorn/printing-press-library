@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "applied_at": "2026-07-09T23:20:00Z",
+  "base_run_id": "20260709-145847",
+  "base_printing_press_version": "4.27.1",
+  "patches": [
+    {
+      "id": "apple-voice-memos-local-store",
+      "summary": "Hand-built local SQLite and ISO-BMFF source adapter for Apple Voice Memos, including freshness-aware daemon and hidden-app synchronization.",
+      "reason": "Voice Memos exposes no documented HTTP API, and Printing Press generation does not model local macOS SQLite and media stores.",
+      "files": [
+        "internal/cli/main.go",
+        "internal/cli/sync.go",
+        "internal/cli/storage_test.go",
+        "internal/cli/sync_test.go"
+      ],
+      "validated_outcome": "Race tests, go vet, govulncheck, GoReleaser snapshot packaging, synthetic fixtures, and live read-only macOS dogfood passed."
+    }
+  ]
+}
