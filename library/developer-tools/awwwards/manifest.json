@@ -1,0 +1,27 @@
+{
+  "manifest_version": "0.3",
+  "name": "awwwards-pp-mcp",
+  "display_name": "Awwwards",
+  "version": "0.1.0",
+  "description": "Query Awwwards jury scores, palettes, and tech stacks from a local SQLite mirror - multi-filter search, trend deltas, and one-shot design briefings the site itself can't do.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/awwwards-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/awwwards-pp-mcp",
+      "args": []
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "schema_version": 2,
+  "id": "awwwards-toolchain-go1265-govuln",
+  "applied_at": "2026-07-09",
+  "base_run_id": "20260706-200304-849c5ab5",
+  "base_printing_press_version": "4.27.1",
+  "summary": "Added 'toolchain go1.26.5' to go.mod.",
+  "reason": "GO-2026-5856 (crypto/tls Encrypted Client Hello privacy leak) is reachable from the generated client and MCP server when built with go1.26.4; fixed in the go1.26.5 stdlib.",
+  "files": ["go.mod"],
+  "validated_outcome": "govulncheck ./... reports no vulnerabilities after the bump."
+}

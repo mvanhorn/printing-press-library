@@ -1,0 +1,190 @@
+{
+  "api_name": "awwwards",
+  "base_url": "https://www.awwwards.com",
+  "description": "Query Awwwards jury scores, palettes, and tech stacks from a local SQLite mirror - multi-filter search, trend deltas, and one-shot design briefings the site itself can't do.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "none"
+  },
+  "required_headers": [
+    {
+      "name": "User-Agent",
+      "value": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36"
+    }
+  ],
+  "tools": [
+    {
+      "name": "collections_get",
+      "description": "Fetch one curated collection's site grid (owner username + collection slug). Required: username, slug. Returns the html.",
+      "method": "GET",
+      "path": "/{username}/collections/{slug}/",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "username",
+          "type": "string",
+          "location": "path",
+          "description": "Collection owner username (e.g. awwwards)",
+          "required": true
+        },
+        {
+          "name": "slug",
+          "type": "string",
+          "location": "path",
+          "description": "Collection slug (e.g. dark-mode)",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "collections_list",
+      "description": "List curated collections. Optional: page (default: 1). Returns the html.",
+      "method": "GET",
+      "path": "/collections/",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page number"
+        }
+      ]
+    },
+    {
+      "name": "directory_browse",
+      "description": "Browse the directory by one filter: specialty (freelance, agency-studio, art-direction, graphic-design, interactive) or country. Required: filter. Optional: page (default: 1). Returns the html.",
+      "method": "GET",
+      "path": "/directory/{filter}/",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "filter",
+          "type": "string",
+          "location": "path",
+          "description": "Directory filter segment (specialty or country)",
+          "required": true
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page number"
+        }
+      ]
+    },
+    {
+      "name": "directory_list",
+      "description": "List top agencies and freelancers. Optional: page (default: 1). Returns the html.",
+      "method": "GET",
+      "path": "/directory/",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page number"
+        }
+      ]
+    },
+    {
+      "name": "elements_browse",
+      "description": "Browse tagged screenshots of individual page sections by type: hero, footer, 404_page, about_us, animation, branding, contact, forms, gallery, header, icons, illustration, interaction, layout, loading, login_and_sign_up, maps. Required: type. Optional: page (default: 1). Returns the html.",
+      "method": "GET",
+      "path": "/elements/{type}/",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "type",
+          "type": "string",
+          "location": "path",
+          "description": "Element type (e.g. hero, footer, 404_page)",
+          "required": true
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page number"
+        }
+      ]
+    },
+    {
+      "name": "sites_content",
+      "description": "Fetch the lightweight content partial for a site (same data, less page chrome). Required: slug. Returns the html.",
+      "method": "GET",
+      "path": "/sites/{slug}/content",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "slug",
+          "type": "string",
+          "location": "path",
+          "description": "Site slug",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "sites_get",
+      "description": "Fetch a site's detail page: overall + per-dimension scores, jury votes, color palette, tags, tech stack. Required: slug. Returns the html.",
+      "method": "GET",
+      "path": "/sites/{slug}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "slug",
+          "type": "string",
+          "location": "path",
+          "description": "Site slug from listing card data (e.g. monolog)",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "websites_browse",
+      "description": "Browse websites by one filter: award tier (sites_of_the_day, sites_of_the_month, sites_of_the_year, nominees, honorable-mentions, developer-award), category (e-commerce, architecture), tag/tech (gsap, webflow, three-js, clean), country (france), color (%23FFFFFF), or font (Aeonik). Required: filter. Optional: page (default: 1). Returns the html.",
+      "method": "GET",
+      "path": "/websites/{filter}/",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "filter",
+          "type": "string",
+          "location": "path",
+          "description": "Filter segment: award tier, category, tag, tech, country, URL-encoded hex color, or font name",
+          "required": true
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page number (30 cards per page)"
+        }
+      ]
+    },
+    {
+      "name": "websites_list",
+      "description": "List the latest websites; supports text search and pagination. Optional: page (default: 1), text. Returns the html.",
+      "method": "GET",
+      "path": "/websites/",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page number (30 cards per page)"
+        },
+        {
+          "name": "text",
+          "type": "string",
+          "location": "query",
+          "description": "Free-text search across titles and tags"
+        }
+      ]
+    }
+  ]
+}

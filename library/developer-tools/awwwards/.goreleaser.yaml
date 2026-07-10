@@ -1,0 +1,51 @@
+version: 2
+project_name: awwwards-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: awwwards-pp-cli
+    main: ./cmd/awwwards-pp-cli
+    binary: awwwards-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X github.com/mvanhorn/printing-press-library/library/developer-tools/awwwards/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: awwwards-pp-mcp
+    main: ./cmd/awwwards-pp-mcp
+    binary: awwwards-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X main.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: awwwards-pp-cli
+    repository:
+      owner: 
+      name: homebrew-tap
+    homepage: "https://github.com//awwwards-pp-cli"
+    description: "Query Awwwards jury scores, palettes, and tech stacks from a local SQLite mirror - multi-filter search, trend deltas, and one-shot design briefings the site itself can't do."
+    install: |
+      bin.install "awwwards-pp-cli"
+      bin.install "awwwards-pp-mcp"

@@ -1,0 +1,55 @@
+{
+  "schema_version": 2,
+  "generated_at": "2026-07-10T01:25:44.260003Z",
+  "printing_press_version": "4.27.1",
+  "api_name": "awwwards",
+  "display_name": "Awwwards",
+  "cli_name": "awwwards-pp-cli",
+  "contributors": [
+    {
+      "handle": "thedigitalpop",
+      "name": "Alex Carlson"
+    }
+  ],
+  "printer": "thedigitalpop",
+  "printer_name": "Alex Carlson",
+  "spec_path": "awwwards-browser-sniff-spec.yaml",
+  "spec_format": "internal",
+  "spec_checksum": "sha256:a09d86c7a64fda7b991a4ca75bb034f842aeb738c21badf3983de540b1b6ded9",
+  "run_id": "20260706-200304-849c5ab5",
+  "category": "developer-tools",
+  "description": "Query Awwwards jury scores, palettes, and tech stacks from a local SQLite mirror - multi-filter search, trend deltas, and one-shot design briefings the site itself can't do.",
+  "mcp_binary": "awwwards-pp-mcp",
+  "mcp_tool_count": 9,
+  "mcp_public_tool_count": 9,
+  "mcp_ready": "full",
+  "api_version": "0.1.0",
+  "auth_type": "none",
+  "novel_features": [
+    {
+      "name": "Trend Snapshot",
+      "command": "trends",
+      "description": "Quantify what's rising and falling in award-winning design: tag, color-family, and tech frequency over a time window, with window-over-window deltas."
+    },
+    {
+      "name": "Design Context Pack",
+      "command": "context-pack",
+      "description": "One-shot design briefing for a build: top-scoring reference sites, dominant palettes, recurring tech, co-occurring style tags, and jury-score benchmarks for a category or style."
+    },
+    {
+      "name": "Fuzzy Palette Match",
+      "command": "palette-match",
+      "description": "Find award-winning sites whose palette contains a color near a target hex, ranked by RGB distance."
+    },
+    {
+      "name": "Ranked Elements",
+      "command": "elements-top",
+      "description": "Section-level inspiration ranked by quality: heroes, footers, or 404 pages from sites whose jury score clears your bar."
+    },
+    {
+      "name": "Studio Profile",
+      "command": "studio",
+      "description": "Aggregated award profile of one agency or studio: wins by tier, average dimension scores, and dominant tags and tech."
+    }
+  ]
+}

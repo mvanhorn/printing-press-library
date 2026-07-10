@@ -1,0 +1,167 @@
+{
+ "version": "1",
+ "summary": {
+  "target_url": "https://www.awwwards.com/",
+  "captured_at": "2026-07-07T00:30:43Z",
+  "entry_count": 14,
+  "api_entry_count": 0,
+  "noise_entry_count": 14,
+  "host_distribution": {
+   "www.awwwards.com": 14
+  }
+ },
+ "reachability": {
+  "mode": "standard_http",
+  "confidence": 0.95,
+  "reasons": [
+   "probe-reachability: stdlib HTTP 200 and surf-chrome 200 on /websites/",
+   "repair: analyzer CAPTCHA marker was false positive from CSS class .legal-recaptcha (newsletter form styling); all 14 captured pages contain full real content (31 cards/page)"
+  ],
+  "evidence": []
+ },
+ "protocols": [
+  {
+   "label": "html_scrape",
+   "confidence": 0.55,
+   "evidence": [
+    {
+     "entry_index": 0,
+     "method": "GET",
+     "host": "www.awwwards.com",
+     "path": "/websites/",
+     "status": 200,
+     "content_type": "text/html; charset=UTF-8",
+     "reason": "HTML response observed"
+    },
+    {
+     "entry_index": 1,
+     "method": "GET",
+     "host": "www.awwwards.com",
+     "path": "/websites/",
+     "status": 200,
+     "content_type": "text/html; charset=UTF-8",
+     "reason": "HTML response observed"
+    },
+    {
+     "entry_index": 2,
+     "method": "GET",
+     "host": "www.awwwards.com",
+     "path": "/websites/sites_of_the_day/",
+     "status": 200,
+     "content_type": "text/html; charset=UTF-8",
+     "reason": "HTML response observed"
+    },
+    {
+     "entry_index": 3,
+     "method": "GET",
+     "host": "www.awwwards.com",
+     "path": "/websites/nominees/",
+     "status": 200,
+     "content_type": "text/html; charset=UTF-8",
+     "reason": "HTML response observed"
+    },
+    {
+     "entry_index": 4,
+     "method": "GET",
+     "host": "www.awwwards.com",
+     "path": "/websites/clean/",
+     "status": 200,
+     "content_type": "text/html; charset=UTF-8",
+     "reason": "HTML response observed"
+    },
+    {
+     "entry_index": 5,
+     "method": "GET",
+     "host": "www.awwwards.com",
+     "path": "/websites/#ff0000/",
+     "status": 200,
+     "content_type": "text/html; charset=UTF-8",
+     "reason": "HTML response observed"
+    },
+    {
+     "entry_index": 6,
+     "method": "GET",
+     "host": "www.awwwards.com",
+     "path": "/websites/",
+     "status": 200,
+     "content_type": "text/html; charset=UTF-8",
+     "reason": "HTML response observed"
+    },
+    {
+     "entry_index": 7,
+     "method": "GET",
+     "host": "www.awwwards.com",
+     "path": "/sites/monolog",
+     "status": 200,
+     "content_type": "text/html; charset=UTF-8",
+     "reason": "HTML response observed"
+    },
+    {
+     "entry_index": 8,
+     "method": "GET",
+     "host": "www.awwwards.com",
+     "path": "/sites/monolog/content",
+     "status": 200,
+     "content_type": "text/html; charset=UTF-8",
+     "reason": "HTML response observed"
+    },
+    {
+     "entry_index": 9,
+     "method": "GET",
+     "host": "www.awwwards.com",
+     "path": "/collections/",
+     "status": 200,
+     "content_type": "text/html; charset=UTF-8",
+     "reason": "HTML response observed"
+    },
+    {
+     "entry_index": 10,
+     "method": "GET",
+     "host": "www.awwwards.com",
+     "path": "/awwwards/collections/dark-mode/",
+     "status": 200,
+     "content_type": "text/html; charset=UTF-8",
+     "reason": "HTML response observed"
+    },
+    {
+     "entry_index": 11,
+     "method": "GET",
+     "host": "www.awwwards.com",
+     "path": "/directory/",
+     "status": 200,
+     "content_type": "text/html; charset=UTF-8",
+     "reason": "HTML response observed"
+    },
+    {
+     "entry_index": 12,
+     "method": "GET",
+     "host": "www.awwwards.com",
+     "path": "/elements/",
+     "status": 200,
+     "content_type": "text/html; charset=UTF-8",
+     "reason": "HTML response observed"
+    },
+    {
+     "entry_index": 13,
+     "method": "GET",
+     "host": "www.awwwards.com",
+     "path": "/elements/hero/",
+     "status": 200,
+     "content_type": "text/html; charset=UTF-8",
+     "reason": "HTML response observed"
+    }
+   ]
+  }
+ ],
+ "auth": {
+  "candidates": [
+   {
+    "type": "none",
+    "confidence": 0.95
+   }
+  ]
+ },
+ "protections": [],
+ "endpoint_clusters": [],
+ "generation_hints": []
+}

@@ -1,0 +1,225 @@
+name: awwwards
+description: "Design intelligence from Awwwards - the world's best web designs, scored and tagged"
+version: "0.1.0"
+base_url: "https://www.awwwards.com"
+http_transport: standard
+health_check_path: "/websites/"
+spec_source: sniffed
+category: design
+cli_description: "Mine Awwwards' award-winning web designs for scores, palettes, tech stacks, and trends - built for agents that design"
+required_headers:
+  - name: User-Agent
+    value: "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36"
+
+auth:
+  type: none
+
+config:
+  format: toml
+  path: "~/.config/awwwards-pp-cli/config.toml"
+
+resources:
+  websites:
+    description: "Browse award-winning websites (listings with embedded card data)"
+    endpoints:
+      list:
+        method: GET
+        path: "/websites/"
+        description: "List the latest websites; supports text search and pagination"
+        example: "  awwwards-pp-cli websites list --page 1"
+        happy_args: "--page=1"
+        params:
+          - name: page
+            type: int
+            default: 1
+            description: "Page number (30 cards per page)"
+          - name: text
+            type: string
+            description: "Free-text search across titles and tags"
+        response:
+          type: object
+          item: html
+        response_format: html
+        html_extract:
+          mode: links
+          link_prefixes: ["/sites"]
+          limit: 50
+      browse:
+        method: GET
+        path: "/websites/{filter}/"
+        description: "Browse websites by one filter: award tier (sites_of_the_day, sites_of_the_month, sites_of_the_year, nominees, honorable-mentions, developer-award), category (e-commerce, architecture), tag/tech (gsap, webflow, three-js, clean), country (france), color (%23FFFFFF), or font (Aeonik)"
+        example: "  awwwards-pp-cli websites browse sites_of_the_day --page 1"
+        happy_args: "filter=sites_of_the_day;--page=1"
+        params:
+          - name: filter
+            type: string
+            required: true
+            positional: true
+            description: "Filter segment: award tier, category, tag, tech, country, URL-encoded hex color, or font name"
+          - name: page
+            type: int
+            default: 1
+            description: "Page number (30 cards per page)"
+        response:
+          type: object
+          item: html
+        response_format: html
+        html_extract:
+          mode: links
+          link_prefixes: ["/sites"]
+          limit: 50
+
+  sites:
+    description: "Individual award-winning site detail pages (scores, jury notes, palette, tags)"
+    endpoints:
+      get:
+        method: GET
+        path: "/sites/{slug}"
+        description: "Fetch a site's detail page: overall + per-dimension scores, jury votes, color palette, tags, tech stack"
+        example: "  awwwards-pp-cli sites get monolog"
+        happy_args: "slug=monolog"
+        params:
+          - name: slug
+            type: string
+            required: true
+            positional: true
+            description: "Site slug from listing card data (e.g. monolog)"
+        response:
+          type: object
+          item: html
+        response_format: html
+        html_extract:
+          mode: page
+      content:
+        method: GET
+        path: "/sites/{slug}/content"
+        description: "Fetch the lightweight content partial for a site (same data, less page chrome)"
+        example: "  awwwards-pp-cli sites content monolog"
+        happy_args: "slug=monolog"
+        params:
+          - name: slug
+            type: string
+            required: true
+            positional: true
+            description: "Site slug"
+        response:
+          type: object
+          item: html
+        response_format: html
+        html_extract:
+          mode: page
+
+  elements:
+    description: "Section-level design inspiration (heroes, footers, 404 pages, navigation...)"
+    endpoints:
+      browse:
+        method: GET
+        path: "/elements/{type}/"
+        description: "Browse tagged screenshots of individual page sections by type: hero, footer, 404_page, about_us, animation, branding, contact, forms, gallery, header, icons, illustration, interaction, layout, loading, login_and_sign_up, maps"
+        example: "  awwwards-pp-cli elements browse hero"
+        happy_args: "type=hero;--page=1"
+        params:
+          - name: type
+            type: string
+            required: true
+            positional: true
+            description: "Element type (e.g. hero, footer, 404_page)"
+          - name: page
+            type: int
+            default: 1
+            description: "Page number"
+        response:
+          type: object
+          item: html
+        response_format: html
+        html_extract:
+          mode: page
+
+  collections:
+    description: "Curated theme boards (dark-mode, hot-right-now, ai-powered-web-projects...)"
+    endpoints:
+      list:
+        method: GET
+        path: "/collections/"
+        description: "List curated collections"
+        example: "  awwwards-pp-cli collections list --page 1"
+        happy_args: "--page=1"
+        params:
+          - name: page
+            type: int
+            default: 1
+            description: "Page number"
+        response:
+          type: object
+          item: html
+        response_format: html
+        html_extract:
+          mode: page
+      get:
+        method: GET
+        path: "/{username}/collections/{slug}/"
+        description: "Fetch one curated collection's site grid (owner username + collection slug)"
+        example: "  awwwards-pp-cli collections get awwwards dark-mode"
+        happy_args: "username=awwwards;slug=dark-mode"
+        params:
+          - name: username
+            type: string
+            required: true
+            positional: true
+            description: "Collection owner username (e.g. awwwards)"
+          - name: slug
+            type: string
+            required: true
+            positional: true
+            description: "Collection slug (e.g. dark-mode)"
+        response:
+          type: object
+          item: html
+        response_format: html
+        html_extract:
+          mode: links
+          link_prefixes: ["/sites"]
+          limit: 50
+
+  directory:
+    description: "Agencies and freelancers directory with country/specialty filters"
+    endpoints:
+      list:
+        method: GET
+        path: "/directory/"
+        description: "List top agencies and freelancers"
+        example: "  awwwards-pp-cli directory list --page 1"
+        happy_args: "--page=1"
+        params:
+          - name: page
+            type: int
+            default: 1
+            description: "Page number"
+        response:
+          type: object
+          item: html
+        response_format: html
+        html_extract:
+          mode: page
+      browse:
+        method: GET
+        path: "/directory/{filter}/"
+        description: "Browse the directory by one filter: specialty (freelance, agency-studio, art-direction, graphic-design, interactive) or country"
+        example: "  awwwards-pp-cli directory browse freelance"
+        happy_args: "filter=freelance;--page=1"
+        params:
+          - name: filter
+            type: string
+            required: true
+            positional: true
+            description: "Directory filter segment (specialty or country)"
+          - name: page
+            type: int
+            default: 1
+            description: "Page number"
+        response:
+          type: object
+          item: html
+        response_format: html
+        html_extract:
+          mode: page

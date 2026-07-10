@@ -1,0 +1,201 @@
+name: awwwards
+description: Discovered API spec for awwwards
+version: 0.1.0
+base_url: https://www.awwwards.com
+spec_source: sniffed
+auth:
+    type: none
+    header: ""
+    format: ""
+    env_vars: []
+config:
+    format: toml
+    path: ~/.config/awwwards-pp-cli/config.toml
+resources:
+    awwwards:
+        description: Operations on dark-mode
+        endpoints:
+            list_dark_mode:
+                method: GET
+                path: /awwwards/collections/dark-mode/
+                description: Fetch structured links from /awwwards/collections/dark-mode/
+                params: []
+                body: []
+                response:
+                    type: object
+                    item: html
+                response_format: html
+                html_extract:
+                    mode: page
+                    limit: 50
+                pagination: null
+    collections:
+        description: Operations on collections
+        endpoints:
+            list_collections:
+                method: GET
+                path: /collections/
+                description: Fetch structured links from /collections/
+                params: []
+                body: []
+                response:
+                    type: object
+                    item: html
+                response_format: html
+                html_extract:
+                    mode: page
+                    limit: 50
+                pagination: null
+    directory:
+        description: Operations on directory
+        endpoints:
+            list_directory:
+                method: GET
+                path: /directory/
+                description: Fetch structured links from /directory/
+                params: []
+                body: []
+                response:
+                    type: object
+                    item: html
+                response_format: html
+                html_extract:
+                    mode: page
+                    limit: 50
+                pagination: null
+    elements:
+        description: Operations on elements
+        endpoints:
+            list_elements:
+                method: GET
+                path: /elements/
+                description: Fetch structured links from /elements/
+                params: []
+                body: []
+                response:
+                    type: object
+                    item: html
+                response_format: html
+                html_extract:
+                    mode: page
+                    limit: 50
+                pagination: null
+            list_hero:
+                method: GET
+                path: /elements/hero/
+                description: Fetch structured links from /elements/hero/
+                params: []
+                body: []
+                response:
+                    type: object
+                    item: html
+                response_format: html
+                html_extract:
+                    mode: page
+                    limit: 50
+                pagination: null
+    sites:
+        description: Operations on monolog
+        endpoints:
+            list_content:
+                method: GET
+                path: /sites/monolog/content
+                description: Fetch structured links from /sites/monolog/content
+                params: []
+                body: []
+                response:
+                    type: object
+                    item: html
+                response_format: html
+                html_extract:
+                    mode: page
+                    limit: 50
+                pagination: null
+            list_monolog:
+                method: GET
+                path: /sites/monolog
+                description: Fetch structured links from /sites/monolog
+                params: []
+                body: []
+                response:
+                    type: object
+                    item: html
+                response_format: html
+                html_extract:
+                    mode: page
+                    limit: 50
+                pagination: null
+    websites:
+        description: Operations on websites
+        endpoints:
+            list_#ff0000:
+                method: GET
+                path: /websites/#ff0000/
+                description: Fetch structured links from /websites/#ff0000/
+                params: []
+                body: []
+                response:
+                    type: object
+                    item: html
+                response_format: html
+                html_extract:
+                    mode: page
+                    limit: 50
+                pagination: null
+            list_clean:
+                method: GET
+                path: /websites/clean/
+                description: Fetch structured links from /websites/clean/
+                params: []
+                body: []
+                response:
+                    type: object
+                    item: html
+                response_format: html
+                html_extract:
+                    mode: page
+                    limit: 50
+                pagination: null
+            list_nominees:
+                method: GET
+                path: /websites/nominees/
+                description: Fetch structured links from /websites/nominees/
+                params: []
+                body: []
+                response:
+                    type: object
+                    item: html
+                response_format: html
+                html_extract:
+                    mode: page
+                    limit: 50
+                pagination: null
+            list_sites_of_the_day:
+                method: GET
+                path: /websites/sites_of_the_day/
+                description: Fetch structured links from /websites/sites_of_the_day/
+                params: []
+                body: []
+                response:
+                    type: object
+                    item: html
+                response_format: html
+                html_extract:
+                    mode: page
+                    limit: 50
+                pagination: null
+            list_websites:
+                method: GET
+                path: /websites/
+                description: Fetch structured links from /websites/
+                params: []
+                body: []
+                response:
+                    type: object
+                    item: html
+                response_format: html
+                html_extract:
+                    mode: page
+                    limit: 50
+                pagination: null
+types: {}

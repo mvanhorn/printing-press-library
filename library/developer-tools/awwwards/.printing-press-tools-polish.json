@@ -1,0 +1,9 @@
+{
+  "timestamp": "2026-07-10T01:24:30.430983Z",
+  "cli_dir": "\u003ccli-dir\u003e/awwwards-pp-cli",
+  "findings": null,
+  "scorecard_before": {
+    "mcp_description_quality": 10,
+    "captured": "2026-07-10T01:15:07.907243Z"
+  }
+}

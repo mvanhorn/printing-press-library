@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "id": "awwwards-dead-helper-removal",
+  "applied_at": "2026-07-09",
+  "base_run_id": "20260706-200304-849c5ab5",
+  "base_printing_press_version": "4.27.1",
+  "summary": "Removed the unused writeNoop helper and noopResult type from internal/cli/helpers.go.",
+  "reason": "The template emits writeNoop unconditionally but no code path calls it in a no-auth CLI; dogfood flags it as a dead helper.",
+  "files": ["internal/cli/helpers.go"],
+  "validated_outcome": "dogfood dead-function check passes (0 dead helpers).",
+  "upstream_issue": ""
+}
