@@ -4,14 +4,15 @@
   "applied_at": "2026-07-09",
   "base_run_id": "20260512-165514",
   "base_printing_press_version": "4.5.1",
-  "summary": "Dependent sync must carry request-path parent context into typed scope columns, and typed projection failures must not roll back generic cache rows.",
-  "reason": "This printed tree predates parent-context injection and typed savepoint isolation; nested Supabase responses otherwise violate NOT NULL scope columns, leave typed tables empty, and can discard generic cache rows.",
+  "summary": "Dependent sync must preserve typed parent scope and generic rows, while fresh-store migration must initialize WAL inside the bounded SQLite lock retry path.",
+  "reason": "This printed tree predates parent-context injection and typed savepoint isolation, and it initialized WAL as a connection-opening pragma outside migration retry control. Nested responses could violate typed scope columns or discard generic rows, while concurrent fresh opens could fail with SQLITE_BUSY before migration acquired its pinned connection.",
   "files": [
     "internal/cli/sync.go",
     "internal/cli/sync_parent_scope_test.go",
+    "internal/store/schema_version_test.go",
     "internal/store/store.go",
     "internal/store/upsert_batch_test.go"
   ],
-  "validated_outcome": "Focused store and dependent-sync regressions pass; go test ./... and go test -race ./... both pass.",
+  "validated_outcome": "Parent-scope regressions pass, 50 synchronized concurrent fresh migrations pass, and go test ./... plus go test -race ./... both pass.",
   "upstream_issue": "https://github.com/mvanhorn/cli-printing-press/issues/1422"
 }

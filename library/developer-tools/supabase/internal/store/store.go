@@ -96,7 +96,11 @@ func OpenWithContext(ctx context.Context, dbPath string) (*Store, error) {
 		return nil, fmt.Errorf("creating db directory: %w", err)
 	}
 
-	db, err := sql.Open("sqlite", dbPath+"?_pragma=journal_mode(WAL)&_pragma=synchronous(NORMAL)&_pragma=busy_timeout(5000)&_pragma=foreign_keys(ON)&_pragma=temp_store(MEMORY)&_pragma=mmap_size(268435456)")
+	// journal_mode(WAL) is intentionally not a DSN pragma. modernc executes
+	// DSN pragmas while database/sql is still acquiring the connection, so a
+	// fresh-file WAL race can return SQLITE_BUSY before migrate() can retry it.
+	// migrate() enables WAL explicitly after the fast schema-version gate.
+	db, err := sql.Open("sqlite", dbPath+"?_pragma=busy_timeout(5000)&_pragma=synchronous(NORMAL)&_pragma=foreign_keys(ON)&_pragma=temp_store(MEMORY)&_pragma=mmap_size(268435456)")
 	if err != nil {
 		return nil, fmt.Errorf("opening database: %w", err)
 	}
@@ -317,6 +321,13 @@ func (s *Store) migrate(ctx context.Context) error {
 	}
 	if current > StoreSchemaVersion {
 		return fmt.Errorf("database schema version %d is newer than supported version %d; upgrade the CLI binary or open an older database", current, StoreSchemaVersion)
+	}
+	// WAL is persistent for the database, so enabling it once on the pinned
+	// migration connection covers later pooled connections. Keep the locking
+	// pragma inside the explicit retry boundary instead of the DSN connection
+	// initializer, where database/sql cannot expose the connection for retry.
+	if err := execWithBusyRetry(ctx, conn, `PRAGMA journal_mode=WAL`, "enabling WAL mode", deadline); err != nil {
+		return err
 	}
 
 	migrations := []string{
@@ -902,9 +913,9 @@ func withMigrationLock(ctx context.Context, conn *sql.Conn, deadline time.Time, 
 }
 
 // execWithBusyRetry runs stmt on conn and retries on SQLITE_BUSY until
-// deadline. It covers BEGIN IMMEDIATE and COMMIT contention;
-// modernc.org/sqlite's busy_timeout does not reliably cover either when
-// multiple connections race for the WAL write lock.
+// deadline. It covers WAL initialization, BEGIN IMMEDIATE, and COMMIT;
+// modernc.org/sqlite's busy_timeout does not reliably cover these transitions
+// when multiple connections race for the WAL write lock.
 func execWithBusyRetry(ctx context.Context, conn *sql.Conn, stmt, label string, deadline time.Time) error {
 	return retryOnBusy(ctx, deadline, label, func() error {
 		_, err := conn.ExecContext(ctx, stmt)
