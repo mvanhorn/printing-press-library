@@ -21,7 +21,6 @@ import (
 	_ "modernc.org/sqlite"
 
 	"github.com/spf13/cobra"
-	"golang.org/x/sys/unix"
 )
 
 const (
@@ -353,12 +352,10 @@ func cmdExport() *cobra.Command {
 				name = strings.TrimSuffix(m.Filename, filepath.Ext(m.Filename))
 			}
 			dest := filepath.Join(outDir, fmt.Sprintf("%s - %s%s", m.Date.Format("2006-01-02 150405"), name, filepath.Ext(m.Filename)))
-			if !overwrite {
-				if _, err := os.Stat(dest); err == nil {
+			if err := copyFileWithOptions(m.Path, dest, overwrite); err != nil {
+				if !overwrite && errors.Is(err, os.ErrExist) {
 					return fmt.Errorf("destination exists: %s (pass --overwrite)", dest)
 				}
-			}
-			if err := copyFile(m.Path, dest); err != nil {
 				return err
 			}
 			if cfg.JSON {
@@ -945,25 +942,27 @@ func printCSV(memos []memo) error {
 }
 func fileExists(p string) bool { _, err := os.Stat(p); return err == nil }
 func copyFile(src, dst string) error {
+	return copyFileWithOptions(src, dst, false)
+}
+
+func copyFileWithOptions(src, dst string, overwrite bool) (err error) {
 	in, err := os.Open(src)
 	if err != nil {
 		return err
 	}
 	defer func() { _ = in.Close() }()
-	if info, err := os.Lstat(dst); err == nil && info.Mode()&os.ModeSymlink != 0 {
+	if info, statErr := os.Lstat(dst); statErr == nil && info.Mode()&os.ModeSymlink != 0 {
 		return fmt.Errorf("refusing symlink destination: %s", dst)
-	} else if err != nil && !errors.Is(err, os.ErrNotExist) {
-		return err
+	} else if statErr != nil && !errors.Is(statErr, os.ErrNotExist) {
+		return statErr
 	}
-	fd, err := unix.Open(dst, unix.O_WRONLY|unix.O_CREAT|unix.O_TRUNC|unix.O_NOFOLLOW, 0600)
+
+	out, err := os.CreateTemp(filepath.Dir(dst), ".apple-voice-memos-export-*")
 	if err != nil {
 		return err
 	}
-	out := os.NewFile(uintptr(fd), dst)
-	if out == nil {
-		_ = unix.Close(fd)
-		return errors.New("create destination file")
-	}
+	tmpPath := out.Name()
+	defer func() { _ = os.Remove(tmpPath) }()
 	if err := out.Chmod(0600); err != nil {
 		_ = out.Close()
 		return err
@@ -972,7 +971,26 @@ func copyFile(src, dst string) error {
 		_ = out.Close()
 		return err
 	}
-	return out.Close()
+	if err := out.Sync(); err != nil {
+		_ = out.Close()
+		return err
+	}
+	if err := out.Close(); err != nil {
+		return err
+	}
+
+	if info, statErr := os.Lstat(dst); statErr == nil && info.Mode()&os.ModeSymlink != 0 {
+		return fmt.Errorf("refusing symlink destination: %s", dst)
+	} else if statErr != nil && !errors.Is(statErr, os.ErrNotExist) {
+		return statErr
+	}
+	if overwrite {
+		return os.Rename(tmpPath, dst)
+	}
+	if err := os.Link(tmpPath, dst); err != nil {
+		return err
+	}
+	return os.Remove(tmpPath)
 }
 
 var unsafeFile = regexp.MustCompile(`[^a-zA-Z0-9._ -]+`)
