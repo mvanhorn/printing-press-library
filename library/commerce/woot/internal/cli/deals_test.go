@@ -159,3 +159,46 @@ func TestFetchWootDealsContinuesAfterShortPage(t *testing.T) {
 		t.Fatalf("seen skips = %s, want %s", got, want)
 	}
 }
+
+func TestFetchWootDealsStopsAfterEmptyPageWithoutTotalHits(t *testing.T) {
+	t.Parallel()
+	requestCount := 0
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+		requestCount++
+		_ = json.NewEncoder(w).Encode(map[string]any{
+			"data": map[string]any{
+				"searchOffers": map[string]any{
+					"Offers": []map[string]any{},
+				},
+			},
+		})
+	}))
+	defer server.Close()
+
+	c := client.New(&config.Config{
+		BaseURL:       server.URL,
+		AuthHeaderVal: "test-key",
+	}, time.Second, 0)
+	cmd := &cobra.Command{}
+	cmd.SetContext(context.Background())
+	deals, totalHits, scanned, err := fetchWootDeals(cmd, c, wootDealsFetchOptions{
+		Limit:           10000,
+		PageSize:        100,
+		IncludeFeatured: true,
+	})
+	if err != nil {
+		t.Fatalf("fetchWootDeals returned error: %v", err)
+	}
+	if requestCount != 1 {
+		t.Fatalf("request count = %d, want 1", requestCount)
+	}
+	if totalHits != 0 {
+		t.Fatalf("totalHits = %d, want 0", totalHits)
+	}
+	if scanned != 0 {
+		t.Fatalf("scanned = %d, want 0", scanned)
+	}
+	if len(deals) != 0 {
+		t.Fatalf("len(deals) = %d, want 0", len(deals))
+	}
+}

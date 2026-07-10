@@ -271,11 +271,11 @@ func fetchWootDeals(cmd *cobra.Command, c *client.Client, opts wootDealsFetchOpt
 			totalHits = parsed.Data.SearchOffers.TotalHits
 		}
 		if len(batch) == 0 {
-			if totalHits > 0 && serverSkip+requested >= totalHits {
+			if totalHits == 0 || opts.Page > 0 {
 				break
 			}
 			requested += requestLimit
-			if opts.Page > 0 {
+			if serverSkip+requested >= totalHits {
 				break
 			}
 			continue
