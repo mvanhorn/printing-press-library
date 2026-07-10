@@ -492,6 +492,10 @@ func validateVoiceMemosSchema(db *sql.DB) error {
 }
 
 func queryMemos(limit, offset int, search, after, before string) ([]memo, error) {
+	return queryMemosWithTranscriptProbe(limit, offset, search, after, before, true)
+}
+
+func queryMemosWithTranscriptProbe(limit, offset int, search, after, before string, probeTranscripts bool) ([]memo, error) {
 	dbPath, recDir := resolvePaths()
 	db, err := openDB(dbPath)
 	if err != nil {
@@ -546,18 +550,28 @@ func queryMemos(limit, offset int, search, after, before string) ([]memo, error)
 		if math.IsNaN(zdate) || math.IsInf(zdate, 0) || math.IsNaN(dur) || math.IsInf(dur, 0) {
 			return nil, fmt.Errorf("recording %d contains non-finite date or duration", id)
 		}
-		path, pathErr := resolveRecordingPath(recDir, filename)
-		if pathErr != nil {
-			return nil, fmt.Errorf("recording %d has unsafe path %q: %w", id, filename, pathErr)
+		path := ""
+		exists := false
+		if filename != "" {
+			var pathErr error
+			path, pathErr = resolveRecordingPath(recDir, filename)
+			if pathErr != nil {
+				return nil, fmt.Errorf("recording %d has unsafe path %q: %w", id, filename, pathErr)
+			}
+			exists = fileExists(path)
 		}
-		exists := fileExists(path)
-		out = append(out, memo{ID: id, UUID: uuid, Title: title, Date: coreDataToTime(zdate), DurationSec: dur, Duration: formatDuration(dur), Filename: filename, Path: path, HasTranscript: exists && hasTranscript(path), Exists: exists})
+		out = append(out, memo{ID: id, UUID: uuid, Title: title, Date: coreDataToTime(zdate), DurationSec: dur, Duration: formatDuration(dur), Filename: filename, Path: path, HasTranscript: probeTranscripts && exists && transcriptProbe(path), Exists: exists})
 	}
 	return out, rows.Err()
 }
 
+func probeSelectedMemo(m memo) memo {
+	m.HasTranscript = m.Exists && transcriptProbe(m.Path)
+	return m
+}
+
 func findMemo(key string) (memo, error) {
-	memos, err := queryMemos(10000, 0, "", "", "")
+	memos, err := queryMemosWithTranscriptProbe(10000, 0, "", "", "", false)
 	if err != nil {
 		return memo{}, err
 	}
@@ -565,13 +579,13 @@ func findMemo(key string) (memo, error) {
 	if id, err := strconv.ParseInt(key, 10, 64); err == nil {
 		for _, m := range memos {
 			if m.ID == id {
-				return m, nil
+				return probeSelectedMemo(m), nil
 			}
 		}
 	}
 	for _, m := range memos {
 		if strings.EqualFold(m.UUID, key) || strings.EqualFold(m.Filename, key) {
-			return m, nil
+			return probeSelectedMemo(m), nil
 		}
 	}
 	var matches []memo
@@ -581,7 +595,7 @@ func findMemo(key string) (memo, error) {
 		}
 	}
 	if len(matches) == 1 {
-		return matches[0], nil
+		return probeSelectedMemo(matches[0]), nil
 	}
 	if len(matches) > 1 {
 		return memo{}, fmt.Errorf("ambiguous memo %q: %d title matches; use id or filename", key, len(matches))
@@ -683,6 +697,9 @@ func findTranscriptAtom(r io.ReadSeeker, moovEnd int64) (int64, int64, error) {
 }
 
 func hasTranscript(path string) bool { _, _, err := readTranscriptJSON(path); return err == nil }
+
+var transcriptProbe = hasTranscript
+
 func readTranscriptJSON(path string) (map[string]any, []byte, error) {
 	f, err := os.Open(path)
 	if err != nil {

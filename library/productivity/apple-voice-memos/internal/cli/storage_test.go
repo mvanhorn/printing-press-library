@@ -125,6 +125,9 @@ func TestQueryMemosUsesSyntheticStoreAndTranscript(t *testing.T) {
 	if _, err := db.Exec(`INSERT INTO ZCLOUDRECORDING (Z_PK,ZDATE,ZPATH,ZDURATION,ZLOCALDURATION,ZUNIQUEID,ZCUSTOMLABEL) VALUES (?,?,?,?,?,?,?)`, 7, 800000000.0, "memo.m4a", 65.0, 65.0, "synthetic-uuid", "Synthetic memo"); err != nil {
 		t.Fatal(err)
 	}
+	if _, err := db.Exec(`INSERT INTO ZCLOUDRECORDING (Z_PK,ZDATE,ZPATH,ZDURATION,ZLOCALDURATION,ZUNIQUEID,ZCUSTOMLABEL) VALUES (?,?,?,?,?,?,?)`, 8, 800000001.0, nil, 10.0, 10.0, "cloud-only-uuid", "Cloud-only memo"); err != nil {
+		t.Fatal(err)
+	}
 	if err := db.Close(); err != nil {
 		t.Fatal(err)
 	}
@@ -147,6 +150,21 @@ func TestQueryMemosUsesSyntheticStoreAndTranscript(t *testing.T) {
 	}
 	if len(memos) != 1 || memos[0].ID != 7 || !memos[0].HasTranscript || !memos[0].Exists {
 		t.Fatalf("unexpected memos: %+v", memos)
+	}
+
+	oldProbe := transcriptProbe
+	probeCalls := 0
+	transcriptProbe = func(string) bool { probeCalls++; return true }
+	t.Cleanup(func() { transcriptProbe = oldProbe })
+	all, err := queryMemosWithTranscriptProbe(10, 0, "", "", "", false)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if probeCalls != 0 {
+		t.Fatalf("metadata-only query made %d transcript probes", probeCalls)
+	}
+	if len(all) != 2 || all[0].ID != 8 || all[0].Filename != "" || all[0].Path != "" || all[0].Exists || all[0].HasTranscript {
+		t.Fatalf("cloud-only recording was not represented safely: %+v", all)
 	}
 }
 

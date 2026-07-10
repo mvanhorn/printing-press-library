@@ -275,7 +275,11 @@ func realSyncHooks(ctx context.Context, dbPath string) syncHooks {
 					ownedPIDs[candidates[0]] = identity
 					return nil
 				}
-				time.Sleep(250 * time.Millisecond)
+				select {
+				case <-ctx.Done():
+					return ctx.Err()
+				case <-time.After(250 * time.Millisecond):
+				}
 			}
 			return errors.New("voice memos launched but no owned process appeared")
 		},
