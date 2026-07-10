@@ -1,6 +1,7 @@
 package cli
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"path/filepath"
@@ -9,6 +10,18 @@ import (
 
 	"github.com/mvanhorn/printing-press-library/library/developer-tools/dnsmadeeasy/internal/store"
 )
+
+func TestHealthRejectsInvertedTTLBand(t *testing.T) {
+	var flags rootFlags
+	cmd := newNovelHealthCmd(&flags)
+	cmd.SetArgs([]string{"--min-ttl", "86400", "--max-ttl", "300"})
+	var out bytes.Buffer
+	cmd.SetOut(&out)
+	cmd.SetErr(&out)
+	if err := cmd.Execute(); err == nil {
+		t.Fatal("expected an error when --min-ttl exceeds --max-ttl, got nil")
+	}
+}
 
 func TestBindRecordLine(t *testing.T) {
 	cases := []struct {

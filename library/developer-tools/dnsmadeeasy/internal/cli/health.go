@@ -47,6 +47,13 @@ Run 'dnsmadeeasy-pp-cli sync-records' first to populate the mirror.`, "\n"),
 		Example:     "  dnsmadeeasy-pp-cli health --agent",
 		Annotations: map[string]string{"mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
+			// Reject an inverted TTL band before doing any work: with
+			// minTTL > maxTTL every positive-TTL record satisfies
+			// (ttl < minTTL || ttl > maxTTL), so the audit would flag the whole
+			// corpus as out-of-band with no hint the flags are transposed.
+			if minTTL > maxTTL {
+				return usageErr(fmt.Errorf("--min-ttl (%d) cannot exceed --max-ttl (%d)", minTTL, maxTTL))
+			}
 			if dryRunOK(flags) {
 				fmt.Fprintln(cmd.OutOrStdout(), "would audit all zones in the local mirror")
 				return nil
