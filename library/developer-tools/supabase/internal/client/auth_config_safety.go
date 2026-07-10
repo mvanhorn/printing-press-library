@@ -312,9 +312,34 @@ func SanitizeAuthConfigResponse(data json.RawMessage) (json.RawMessage, error) {
 	return sanitizeAuthConfigObject(data, false)
 }
 
+// ValidateAuthConfigRequest ensures live and dry-run PATCH requests share the
+// same audited schema. Unknown fields fail closed instead of being sent live
+// after disappearing from a redacted preview; values are never included in an
+// error message.
+func ValidateAuthConfigRequest(data json.RawMessage) error {
+	var input map[string]any
+	if err := json.Unmarshal(data, &input); err != nil || input == nil {
+		return fmt.Errorf("expected a JSON object")
+	}
+	for name, value := range input {
+		_, safe := auditedSafeAuthConfigFields[name]
+		_, sensitive := auditedSensitiveAuthConfigFields[name]
+		if !safe && !sensitive {
+			return fmt.Errorf("auth config field %q is not in the audited schema", name)
+		}
+		if !isAuthConfigScalar(value) {
+			return fmt.Errorf("auth config field %q had an unexpected non-scalar value", name)
+		}
+	}
+	return nil
+}
+
 // sanitizeAuthConfigRequestPreview preserves the names of credential fields so
 // dry runs remain useful, but replaces their values before writing to stderr.
 func sanitizeAuthConfigRequestPreview(data json.RawMessage) (json.RawMessage, error) {
+	if err := ValidateAuthConfigRequest(data); err != nil {
+		return nil, err
+	}
 	return sanitizeAuthConfigObject(data, true)
 }
 

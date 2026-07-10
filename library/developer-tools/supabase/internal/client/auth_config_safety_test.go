@@ -6,6 +6,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"io"
 	"net/http"
 	"net/http/httptest"
@@ -13,6 +14,7 @@ import (
 	"path/filepath"
 	"reflect"
 	"strings"
+	"sync/atomic"
 	"testing"
 	"time"
 
@@ -130,6 +132,18 @@ func TestAuthConfigFieldClassificationCoversCurrentSchemaExactly(t *testing.T) {
 	}
 }
 
+func TestAuthConfigRequestClassificationCoversCurrentSchema(t *testing.T) {
+	typeOfRequest := reflect.TypeOf(types.UpdateAuthConfigBody{})
+	for i := 0; i < typeOfRequest.NumField(); i++ {
+		name := strings.Split(typeOfRequest.Field(i).Tag.Get("json"), ",")[0]
+		_, safe := auditedSafeAuthConfigFields[name]
+		_, sensitive := auditedSensitiveAuthConfigFields[name]
+		if safe == sensitive {
+			t.Errorf("auth-config request field %q must be classified exactly once (safe=%t sensitive=%t)", name, safe, sensitive)
+		}
+	}
+}
+
 func TestSanitizeAuthConfigResponseRejectsNonScalarApprovedValues(t *testing.T) {
 	for _, value := range []string{
 		`{"site_url":{"sharedKey":"synthetic-credential-must-not-escape"}}`,
@@ -146,6 +160,32 @@ func TestSanitizeAuthConfigResponseRejectsNonScalarApprovedValues(t *testing.T) 
 func TestSanitizeAuthConfigResponseRejectsMalformedJSON(t *testing.T) {
 	if _, err := SanitizeAuthConfigResponse(json.RawMessage(`not-json`)); err == nil {
 		t.Fatal("malformed protected response did not fail closed")
+	}
+}
+
+func TestAuthConfigRequestRejectsUnknownFieldsInLiveAndDryRun(t *testing.T) {
+	var requests atomic.Int32
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		requests.Add(1)
+		_, _ = w.Write(authConfigFixture())
+	}))
+	defer server.Close()
+
+	for _, dryRun := range []bool{false, true} {
+		t.Run(fmt.Sprintf("dry-run=%t", dryRun), func(t *testing.T) {
+			c := New(&config.Config{BaseURL: server.URL, AccessToken: "synthetic-token"}, time.Second, 0)
+			c.DryRun = dryRun
+			_, _, err := c.Patch("/v1/projects/project-ref/config/auth", map[string]any{
+				"future_unknown_credential": authConfigCredentialSentinel,
+			})
+			if err == nil || !strings.Contains(err.Error(), "future_unknown_credential") {
+				t.Fatalf("unknown request field did not fail closed: %v", err)
+			}
+			assertAuthConfigSentinelAbsent(t, []byte(err.Error()))
+		})
+	}
+	if got := requests.Load(); got != 0 {
+		t.Fatalf("unknown request reached the network %d time(s)", got)
 	}
 }
 
@@ -379,7 +419,7 @@ func TestIsAuthConfigPathExcludesNestedAuthEndpoints(t *testing.T) {
 	}
 }
 
-func TestAuthConfigRedirectFromMaliciousRefRemainsSanitized(t *testing.T) {
+func TestAuthConfigCanonicalizationRedirectFailsClosed(t *testing.T) {
 	mux := http.NewServeMux()
 	mux.HandleFunc("/v1/projects/project-ref/config/auth", func(w http.ResponseWriter, r *http.Request) {
 		_, _ = w.Write(authConfigFixture())
@@ -388,11 +428,11 @@ func TestAuthConfigRedirectFromMaliciousRefRemainsSanitized(t *testing.T) {
 	defer server.Close()
 
 	c := New(&config.Config{BaseURL: server.URL, AccessToken: "synthetic-token"}, time.Second, 0)
-	response, err := c.Get("/v1/projects/ignored/../project-ref/config/auth", nil)
-	if err != nil {
-		t.Fatal(err)
+	_, err := c.Get("/v1/projects/ignored/../project-ref/config/auth", nil)
+	if err == nil || !strings.Contains(err.Error(), "redirect into protected auth-config endpoint refused") {
+		t.Fatalf("canonicalization redirect did not fail closed: %v", err)
 	}
-	assertAuthConfigSentinelAbsent(t, response)
+	assertAuthConfigSentinelAbsent(t, []byte(err.Error()))
 }
 
 func TestUnprotectedGetCannotRedirectIntoAuthConfig(t *testing.T) {
@@ -420,6 +460,33 @@ func TestUnprotectedGetCannotRedirectIntoAuthConfig(t *testing.T) {
 	}
 	if _, err := os.Stat(c.cacheDir); !os.IsNotExist(err) {
 		t.Fatalf("rejected redirect created a cache directory: %v", err)
+	}
+}
+
+func TestAuthConfigRequestRefusesEveryRedirectWithoutLeakingDestination(t *testing.T) {
+	var targetReached atomic.Bool
+	target := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		targetReached.Store(true)
+		if r.Header.Get("Authorization") != "" {
+			t.Error("protected Authorization header reached redirect target")
+		}
+		_, _ = w.Write(authConfigFixture())
+	}))
+	defer target.Close()
+
+	origin := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		http.Redirect(w, r, target.URL+"/capture?token="+authConfigCredentialSentinel, http.StatusFound)
+	}))
+	defer origin.Close()
+
+	c := New(&config.Config{BaseURL: origin.URL, AccessToken: "synthetic-token"}, time.Second, 0)
+	_, err := c.Get("/v1/projects/project-ref/config/auth", nil)
+	if err == nil || !strings.Contains(err.Error(), "redirect into protected auth-config endpoint refused") {
+		t.Fatalf("protected auth-config redirect did not fail closed: %v", err)
+	}
+	assertAuthConfigSentinelAbsent(t, []byte(err.Error()))
+	if targetReached.Load() {
+		t.Fatal("protected auth-config redirect reached its destination")
 	}
 }
 

@@ -13,6 +13,8 @@ import (
 	mcplib "github.com/mark3labs/mcp-go/mcp"
 )
 
+const testAuthConfigUpdateEndpointID = "projects.config.update-auth-service"
+
 func TestCodeOrchExecuteRedactsAuthConfig(t *testing.T) {
 	const sentinel = "synthetic-credential-must-not-escape"
 	t.Setenv("HOME", t.TempDir())
@@ -68,7 +70,7 @@ func TestCodeOrchSearchOmitsCredentialBearingAuthConfigUpdate(t *testing.T) {
 	if !ok {
 		t.Fatalf("MCP content type = %T, want TextContent", result.Content[0])
 	}
-	if strings.Contains(text.Text, deniedAuthConfigUpdateEndpointID) {
+	if strings.Contains(text.Text, testAuthConfigUpdateEndpointID) {
 		t.Fatalf("MCP search advertised denied credential-bearing endpoint: %s", text.Text)
 	}
 }
@@ -77,7 +79,7 @@ func TestCodeOrchExecuteDeniesCredentialBearingAuthConfigUpdateWithoutEcho(t *te
 	const sentinel = "synthetic-credential-must-not-escape"
 	result, err := handleCodeOrchExecute(context.Background(), mcplib.CallToolRequest{
 		Params: mcplib.CallToolParams{Arguments: map[string]any{
-			"endpoint_id": deniedAuthConfigUpdateEndpointID,
+			"endpoint_id": testAuthConfigUpdateEndpointID,
 			"params": map[string]any{
 				"ref":                    "project-ref",
 				"external_google_secret": sentinel,
@@ -99,6 +101,25 @@ func TestCodeOrchExecuteDeniesCredentialBearingAuthConfigUpdateWithoutEcho(t *te
 	}
 	if !strings.Contains(text.Text, "--stdin") {
 		t.Fatalf("MCP denial omitted safe CLI guidance: %s", text.Text)
+	}
+}
+
+func TestCredentialBearingCodeOrchEndpointPolicyDerivesFromMethodAndPath(t *testing.T) {
+	for _, testCase := range []struct {
+		name string
+		ep   codeOrchEndpoint
+		want bool
+	}{
+		{name: "auth config read remains available", ep: codeOrchEndpoint{Method: http.MethodGet, Path: "/v1/projects/{ref}/config/auth"}},
+		{name: "current auth config update denied", ep: codeOrchEndpoint{Method: http.MethodPatch, Path: "/v1/projects/{ref}/config/auth"}, want: true},
+		{name: "future auth config write denied", ep: codeOrchEndpoint{Method: http.MethodPost, Path: "/v1/projects/{ref}/config/auth"}, want: true},
+		{name: "unrelated config write remains available", ep: codeOrchEndpoint{Method: http.MethodPatch, Path: "/v1/projects/{ref}/config/database"}},
+	} {
+		t.Run(testCase.name, func(t *testing.T) {
+			if got := isCredentialBearingCodeOrchEndpoint(&testCase.ep); got != testCase.want {
+				t.Fatalf("isCredentialBearingCodeOrchEndpoint() = %t, want %t", got, testCase.want)
+			}
+		})
 	}
 }
 

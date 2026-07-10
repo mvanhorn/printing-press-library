@@ -327,6 +327,11 @@ func (c *Client) do(method, path string, params map[string]string, body any, hea
 			contentType = "application/json"
 		}
 	}
+	if protectedAuthConfig && method == http.MethodPatch {
+		if err := ValidateAuthConfigRequest(bodyBytes); err != nil {
+			return nil, 0, fmt.Errorf("validating auth config request: %w", err)
+		}
+	}
 
 	// Resolve auth material before the dry-run branch so --dry-run can preview
 	// exactly what would be sent. Uses only cached credentials; a token that
@@ -401,30 +406,28 @@ func (c *Client) do(method, path string, params map[string]string, body any, hea
 			req.Header.Set("Accept", "application/json")
 		}
 
-		httpClient := c.HTTPClient
-		if !protectedAuthConfig {
-			// An unrelated endpoint must not redirect into the credential-bearing
-			// AuthConfigResponse route after the original request was classified as
-			// cacheable. Clone the client so this request-local boundary remains
-			// concurrency-safe and preserves any caller-provided redirect policy.
-			requestClient := *c.HTTPClient
-			callerCheckRedirect := requestClient.CheckRedirect
-			requestClient.CheckRedirect = func(redirected *http.Request, via []*http.Request) error {
-				if IsAuthConfigPath(redirected.URL.String()) {
-					return errAuthConfigRedirectBoundary
-				}
-				if callerCheckRedirect != nil {
-					return callerCheckRedirect(redirected, via)
-				}
-				if len(via) >= 10 {
-					return fmt.Errorf("stopped after 10 redirects")
-				}
-				return nil
+		// Install the boundary on a request-local client clone so concurrent
+		// calls cannot race on redirect policy. Protected auth-config requests
+		// never follow redirects: even a response that is later sanitized must
+		// not forward its Authorization header to another route or host. Other
+		// requests preserve the caller policy except that they cannot redirect
+		// into the protected endpoint after being classified as cacheable.
+		requestClient := *c.HTTPClient
+		callerCheckRedirect := requestClient.CheckRedirect
+		requestClient.CheckRedirect = func(redirected *http.Request, via []*http.Request) error {
+			if protectedAuthConfig || IsAuthConfigPath(redirected.URL.String()) {
+				return errAuthConfigRedirectBoundary
 			}
-			httpClient = &requestClient
+			if callerCheckRedirect != nil {
+				return callerCheckRedirect(redirected, via)
+			}
+			if len(via) >= 10 {
+				return fmt.Errorf("stopped after 10 redirects")
+			}
+			return nil
 		}
 
-		resp, err := httpClient.Do(req)
+		resp, err := requestClient.Do(req)
 		if err != nil {
 			if errors.Is(err, errAuthConfigRedirectBoundary) {
 				if resp != nil && resp.Body != nil {

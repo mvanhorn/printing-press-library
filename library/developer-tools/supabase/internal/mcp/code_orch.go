@@ -18,11 +18,13 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"net/http"
 	"sort"
 	"strings"
 
 	mcplib "github.com/mark3labs/mcp-go/mcp"
 	"github.com/mark3labs/mcp-go/server"
+	"github.com/mvanhorn/printing-press-library/library/developer-tools/supabase/internal/client"
 )
 
 // RegisterCodeOrchestrationTools registers the two agent-facing tools that
@@ -62,10 +64,22 @@ type codeOrchEndpoint struct {
 	keywords   []string
 }
 
-const deniedAuthConfigUpdateEndpointID = "projects.config.update-auth-service"
-
 func isCodeOrchEndpointDenied(id string) bool {
-	return id == deniedAuthConfigUpdateEndpointID
+	for i := range codeOrchEndpoints {
+		ep := &codeOrchEndpoints[i]
+		if ep.ID == id {
+			return isCredentialBearingCodeOrchEndpoint(ep)
+		}
+	}
+	return false
+}
+
+// isCredentialBearingCodeOrchEndpoint derives the deny policy from the route
+// contract instead of duplicating generated endpoint IDs. Any present or
+// future write to the protected Auth config route is therefore omitted from
+// search and rejected by execute automatically.
+func isCredentialBearingCodeOrchEndpoint(ep *codeOrchEndpoint) bool {
+	return ep.Method != http.MethodGet && client.IsAuthConfigPath(ep.Path)
 }
 
 // codeOrchEndpoints is the generator-populated registry covering every
