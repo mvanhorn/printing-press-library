@@ -515,6 +515,34 @@ func isTargetNavigatedOrClosed(err error) bool {
 		(strings.Contains(msg, "navigated") || strings.Contains(msg, "closed"))
 }
 
+// isTransientNavigationError reports whether err is a transient CDP failure
+// chromedp surfaces while the page navigates away mid-command: the
+// target-navigated/closed cases, plus the destroyed-execution-context family
+// raised when an Evaluate's JS context disappears because a navigation
+// committed while the call was in flight. Deliberately broader than
+// isTargetNavigatedOrClosed, whose narrower semantics other call sites rely on.
+func isTransientNavigationError(err error) bool {
+	if err == nil {
+		return false
+	}
+	if isTargetNavigatedOrClosed(err) {
+		return true
+	}
+	var cdpErr *cdproto.Error
+	if errors.As(err, &cdpErr) && cdpErr.Code == -32000 {
+		return isDestroyedContextMessage(cdpErr.Message)
+	}
+	msg := err.Error()
+	return strings.Contains(msg, "-32000") && isDestroyedContextMessage(msg)
+}
+
+func isDestroyedContextMessage(msg string) bool {
+	m := strings.ToLower(msg)
+	return strings.Contains(m, "cannot find context") ||
+		strings.Contains(m, "execution context was destroyed") ||
+		strings.Contains(m, "context with specified id")
+}
+
 func isTockVenuePageURL(rawURL, venueURL string) bool {
 	gotPath := tockVenuePagePath(rawURL)
 	wantPath := tockVenuePagePath(venueURL)
@@ -1016,6 +1044,11 @@ func waitForReceiptPage(ctx context.Context, deadline time.Duration) (string, er
 // dialog swallowed the original submission, the confirm control is clicked
 // one more time after the dismissal.
 func waitForReceiptThroughDialogs(ctx context.Context, deadline time.Duration) (string, error) {
+	return waitForReceiptThroughDialogsWith(ctx, deadline, dismissPostConfirmDialog)
+}
+
+func waitForReceiptThroughDialogsWith(ctx context.Context, deadline time.Duration,
+	dismiss func(context.Context) (bool, error)) (string, error) {
 	stop := time.Now().Add(deadline)
 	reclicked := false
 	var dismissedAt time.Time
@@ -1027,12 +1060,21 @@ func waitForReceiptThroughDialogs(ctx context.Context, deadline time.Duration) (
 			}
 		}
 		if dismissedAt.IsZero() {
-			clicked, err := dismissPostConfirmDialog(ctx)
-			if err != nil {
+			clicked, err := dismiss(ctx)
+			switch {
+			case err == nil:
+				if clicked {
+					dismissedAt = time.Now()
+				}
+			case isTransientNavigationError(err):
+				// The confirm click can win the race: the page navigates to
+				// the receipt while the dialog probe is still in flight, and
+				// chromedp fails with a transient navigated/destroyed-context
+				// error even though the booking succeeded. Keep polling so the
+				// next iteration's receipt-URL check observes the navigation
+				// instead of reporting a placed booking as failed.
+			default:
 				return "", fmt.Errorf("dismissing post-confirm dialog: %w", err)
-			}
-			if clicked {
-				dismissedAt = time.Now()
 			}
 		}
 		// If the dialog intercepted the original submission, the checkout

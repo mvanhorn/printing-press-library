@@ -62,6 +62,97 @@ func chromeAvailPageURL(restID int, restSlug string, partySize int, date, hhmm s
 		partySize, date, hhmm)
 }
 
+// slotCapture accumulates what the CDP network listener observes while the
+// page fires its own availability XHR. Both the persisted-query identity and
+// the response are first-capture-wins: once the first availability request
+// seals the identity, later requests must not replace it — nor be tracked so
+// that their responses could replace the first captured body. Otherwise a
+// stray late operation could poison the stored identity that seeds the fast
+// direct path, or the response returned to the caller.
+type slotCapture struct {
+	mu         sync.Mutex
+	body       []byte
+	status     int
+	err        error
+	reqQuery   availabilityQueryIdentity
+	hashSeen   bool
+	hashDone   chan struct{}
+	done       chan struct{}
+	reqIDs     map[network.RequestID]bool
+	closed     bool
+	hashClosed bool
+}
+
+func newSlotCapture() *slotCapture {
+	return &slotCapture{
+		hashDone: make(chan struct{}),
+		done:     make(chan struct{}),
+		reqIDs:   map[network.RequestID]bool{},
+	}
+}
+
+func (s *slotCapture) closeOnce() {
+	s.mu.Lock()
+	if !s.closed {
+		s.closed = true
+		close(s.done)
+	}
+	s.mu.Unlock()
+}
+
+func (s *slotCapture) closeHashOnce() {
+	s.mu.Lock()
+	if !s.hashClosed {
+		s.hashClosed = true
+		close(s.hashDone)
+	}
+	s.mu.Unlock()
+}
+
+// trackRequest registers an availability request for response capture and
+// reports whether it was accepted. Requests arriving after the identity is
+// sealed are rejected so their responses cannot displace the first capture.
+func (s *slotCapture) trackRequest(id network.RequestID) bool {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	s.hashSeen = true
+	if s.reqQuery.Hash != "" {
+		return false
+	}
+	s.reqIDs[id] = true
+	return true
+}
+
+func (s *slotCapture) isTracked(id network.RequestID) bool {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	return s.reqIDs[id]
+}
+
+// recordIdentity seals the harvested persisted-query identity. The first
+// identity with a hash wins; hashless identities are ignored.
+func (s *slotCapture) recordIdentity(identity availabilityQueryIdentity) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	if identity.Hash == "" || s.reqQuery.Hash != "" {
+		return
+	}
+	s.reqQuery = identity
+}
+
+// recordResponse stores a captured response, first capture wins, and releases
+// waiters on done.
+func (s *slotCapture) recordResponse(body []byte, status int, err error) {
+	s.mu.Lock()
+	if !s.closed {
+		s.body = body
+		s.status = status
+		s.err = err
+	}
+	s.mu.Unlock()
+	s.closeOnce()
+}
+
 // ChromeAvailability spawns a headless Chrome to fetch slots that Akamai
 // blocks on the direct Surf path. Returns the same slice shape as
 // RestaurantsAvailability so callers can swap fallback in transparently.
@@ -190,37 +281,7 @@ func (c *Client) ChromeAvailability(
 		cookies = c.session.HTTPCookies(auth.NetworkOpenTable)
 	}
 
-	// Capture state for the response listener
-	type slotCapture struct {
-		mu       sync.Mutex
-		body     []byte
-		status   int
-		err      error
-		reqQuery availabilityQueryIdentity
-		hashSeen bool
-		hashDone chan struct{}
-		done     chan struct{}
-		reqIDs   map[network.RequestID]bool
-	}
-	cap := &slotCapture{hashDone: make(chan struct{}), done: make(chan struct{}), reqIDs: map[network.RequestID]bool{}}
-	closed := false
-	closeOnce := func() {
-		cap.mu.Lock()
-		if !closed {
-			closed = true
-			close(cap.done)
-		}
-		cap.mu.Unlock()
-	}
-	hashClosed := false
-	closeHashOnce := func() {
-		cap.mu.Lock()
-		if !hashClosed {
-			hashClosed = true
-			close(cap.hashDone)
-		}
-		cap.mu.Unlock()
-	}
+	cap := newSlotCapture()
 
 	chromedp.ListenTarget(timed, func(ev any) {
 		switch e := ev.(type) {
@@ -232,40 +293,24 @@ func (c *Client) ChromeAvailability(
 			if e.Request == nil || !isAvailabilityGraphQLRequest(e.Request.URL) {
 				return
 			}
-			cap.mu.Lock()
-			cap.reqIDs[e.RequestID] = true
-			cap.mu.Unlock()
-			if identity := availabilityIdentityFromRequest(e.Request); identity.Hash != "" {
-				cap.mu.Lock()
-				cap.hashSeen = true
-				cap.reqQuery = identity
-				cap.mu.Unlock()
-				closeHashOnce()
+			if !cap.trackRequest(e.RequestID) {
 				return
 			}
-			cap.mu.Lock()
-			cap.hashSeen = true
-			cap.mu.Unlock()
+			if identity := availabilityIdentityFromRequest(e.Request); identity.Hash != "" {
+				cap.recordIdentity(identity)
+				cap.closeHashOnce()
+				return
+			}
 			reqID := e.RequestID
 			go func() {
 				body, err := network.GetRequestPostData(reqID).Do(timed)
 				if err == nil {
-					if identity := availabilityIdentityFromPostData(body); identity.Hash != "" {
-						cap.mu.Lock()
-						cap.reqQuery = identity
-						cap.mu.Unlock()
-					}
+					cap.recordIdentity(availabilityIdentityFromPostData(body))
 				}
-				closeHashOnce()
+				cap.closeHashOnce()
 			}()
 		case *network.EventResponseReceived:
-			if e.Response == nil {
-				return
-			}
-			cap.mu.Lock()
-			matchedReq := cap.reqIDs[e.RequestID]
-			cap.mu.Unlock()
-			if !matchedReq {
+			if e.Response == nil || !cap.isTracked(e.RequestID) {
 				return
 			}
 			// Defer the body fetch — chromedp wants us to call from the
@@ -274,12 +319,7 @@ func (c *Client) ChromeAvailability(
 			status := int(e.Response.Status)
 			go func() {
 				body, err := fetchResponseBody(timed, reqID)
-				cap.mu.Lock()
-				cap.body = body
-				cap.status = status
-				cap.err = err
-				cap.mu.Unlock()
-				closeOnce()
+				cap.recordResponse(body, status, err)
 			}()
 		}
 	})
@@ -486,6 +526,27 @@ func operationNameFromURL(rawURL string) string {
 	return op
 }
 
+// availabilityOperationNames pins the exact GraphQL operation names (compared
+// case-insensitively) the chrome capture treats as the availability call.
+// RestaurantsAvailability is the operation the direct path sends;
+// RestaurantAvailability is the singular variant OpenTable bundles have
+// shipped. An exact match is required: a substring test would let any stray
+// operation whose name merely contains "availability" seal the harvested
+// persisted-query identity and the captured response.
+var availabilityOperationNames = []string{
+	restaurantsAvailabilityOperationName,
+	"RestaurantAvailability",
+}
+
+func isAvailabilityOperationName(op string) bool {
+	for _, name := range availabilityOperationNames {
+		if strings.EqualFold(op, name) {
+			return true
+		}
+	}
+	return false
+}
+
 func isAvailabilityGraphQLRequest(rawURL string) bool {
 	u, err := url.Parse(rawURL)
 	if err != nil {
@@ -494,7 +555,7 @@ func isAvailabilityGraphQLRequest(rawURL string) bool {
 	if u.Path != GraphQLPath {
 		return false
 	}
-	return strings.Contains(strings.ToLower(u.Query().Get("opname")), "availability")
+	return isAvailabilityOperationName(u.Query().Get("opname"))
 }
 
 // discoverChromeWebSocket queries Chrome's DevTools discovery endpoint and

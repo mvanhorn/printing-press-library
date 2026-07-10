@@ -2,7 +2,10 @@ package tock
 
 import (
 	"context"
+	"errors"
 	"fmt"
+	"net/http"
+	"net/http/httptest"
 	"net/url"
 	"strings"
 	"testing"
@@ -179,6 +182,138 @@ func TestIsTargetNavigatedOrClosedRecognizesCDPMinus32000(t *testing.T) {
 	if isTargetNavigatedOrClosed(fmt.Errorf("evaluating combobox booking layout: ordinary selector miss")) {
 		t.Fatal("ordinary selector miss should not be retryable as target loss")
 	}
+}
+
+// Regression: when the confirm click succeeds, the page navigates to the
+// receipt while the dialog probe's Evaluate is still in flight; chromedp then
+// surfaces a destroyed-execution-context CDP error. That error must be
+// classified as transient so a completed booking is not reported as failed
+// (double-booking hazard).
+func TestIsTransientNavigationError(t *testing.T) {
+	cases := []struct {
+		name string
+		err  error
+		want bool
+	}{
+		{
+			"cdp cannot find context",
+			&cdproto.Error{Code: -32000, Message: "Cannot find context with specified id"},
+			true,
+		},
+		{
+			"cdp execution context destroyed",
+			&cdproto.Error{Code: -32000, Message: "Execution context was destroyed."},
+			true,
+		},
+		{
+			"cdp target navigated",
+			&cdproto.Error{Code: -32000, Message: "Inspected target navigated or closed"},
+			true,
+		},
+		{
+			"wrapped cdp error",
+			fmt.Errorf("dismissing post-confirm dialog: %w",
+				&cdproto.Error{Code: -32000, Message: "Cannot find context with specified id"}),
+			true,
+		},
+		{
+			// cdproto.Error flattened to a plain string (e.g. by %v or an
+			// intermediate layer) — the classifier must still recognize it.
+			"string form destroyed context",
+			errors.New("encountered exception: Execution context was destroyed (-32000)"),
+			true,
+		},
+		{
+			"string form cannot find context",
+			fmt.Errorf("probe: %s", "Cannot find context with specified id (-32000)"),
+			true,
+		},
+		{
+			"wrong cdp code",
+			&cdproto.Error{Code: -32602, Message: "Cannot find context with specified id"},
+			false,
+		},
+		{
+			"plain network error",
+			errors.New("dial tcp 127.0.0.1:9222: connect: connection refused"),
+			false,
+		},
+		{
+			"-32000 with unrelated message",
+			&cdproto.Error{Code: -32000, Message: "Could not compute box model"},
+			false,
+		},
+	}
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			if got := isTransientNavigationError(tc.err); got != tc.want {
+				t.Fatalf("isTransientNavigationError(%v) = %v, want %v", tc.err, got, tc.want)
+			}
+		})
+	}
+}
+
+// Regression for the full loop: the dialog probe fails with a transient
+// destroyed-context error while the page is already navigating to the
+// receipt. The loop must keep polling and return the receipt URL rather
+// than abort a booking that succeeded.
+func TestWaitForReceiptThroughDialogs_TransientDismissErrorDoesNotAbort(t *testing.T) {
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "text/html; charset=utf-8")
+		if strings.HasPrefix(r.URL.Path, "/receipt") {
+			fmt.Fprint(w, `<!doctype html><p>Reservation confirmed</p>`)
+			return
+		}
+		// Checkout page that navigates to the receipt shortly after load,
+		// mirroring the confirm click winning the race with the dialog probe.
+		fmt.Fprint(w, `<!doctype html><p>checkout</p>
+			<script>setTimeout(() => { location.href = '/receipt?purchaseId=1'; }, 300);</script>`)
+	}))
+	defer srv.Close()
+
+	withTockDOMFixture(t, "<!doctype html><p>boot</p>", func(ctx context.Context) {
+		if err := chromedp.Run(ctx, chromedp.Navigate(srv.URL+"/checkout/confirm-purchase")); err != nil {
+			t.Fatalf("navigate to checkout fixture: %v", err)
+		}
+		dismissCalls := 0
+		dismiss := func(context.Context) (bool, error) {
+			dismissCalls++
+			return false, &cdproto.Error{Code: -32000, Message: "Execution context was destroyed."}
+		}
+		var loc string
+		err := chromedp.Run(ctx, chromedp.ActionFunc(func(actCtx context.Context) error {
+			var werr error
+			loc, werr = waitForReceiptThroughDialogsWith(actCtx, 8*time.Second, dismiss)
+			return werr
+		}))
+		if err != nil {
+			t.Fatalf("waitForReceiptThroughDialogsWith: %v", err)
+		}
+		if !strings.Contains(loc, "/receipt") {
+			t.Fatalf("returned location = %q, want receipt URL", loc)
+		}
+		if dismissCalls == 0 {
+			t.Fatal("expected the failing dialog probe to have been invoked")
+		}
+	})
+}
+
+func TestWaitForReceiptThroughDialogs_NonTransientDismissErrorAborts(t *testing.T) {
+	withTockDOMFixture(t, "<!doctype html><p>checkout</p>", func(ctx context.Context) {
+		dismiss := func(context.Context) (bool, error) {
+			return false, errors.New("dialog probe exploded")
+		}
+		err := chromedp.Run(ctx, chromedp.ActionFunc(func(actCtx context.Context) error {
+			_, werr := waitForReceiptThroughDialogsWith(actCtx, 5*time.Second, dismiss)
+			return werr
+		}))
+		if err == nil {
+			t.Fatal("expected non-transient dismiss error to abort the wait")
+		}
+		if !strings.Contains(err.Error(), "dismissing post-confirm dialog") {
+			t.Fatalf("error = %v, want dismissing post-confirm dialog wrap", err)
+		}
+	})
 }
 
 // Regression: production calls clickRequestedTockBookingControl with a BARE
