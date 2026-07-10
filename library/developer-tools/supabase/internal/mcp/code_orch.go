@@ -62,6 +62,12 @@ type codeOrchEndpoint struct {
 	keywords   []string
 }
 
+const deniedAuthConfigUpdateEndpointID = "projects.config.update-auth-service"
+
+func isCodeOrchEndpointDenied(id string) bool {
+	return id == deniedAuthConfigUpdateEndpointID
+}
+
 // codeOrchEndpoints is the generator-populated registry covering every
 // endpoint declared in the spec. Kept flat on purpose — the agent queries
 // via <api>_search, so hierarchy shows up as dotted IDs, not nested maps.
@@ -1421,6 +1427,9 @@ func handleCodeOrchSearch(ctx context.Context, req mcplib.CallToolRequest) (*mcp
 	results := make([]scored, 0, len(codeOrchEndpoints))
 	for i := range codeOrchEndpoints {
 		ep := &codeOrchEndpoints[i]
+		if isCodeOrchEndpointDenied(ep.ID) {
+			continue
+		}
 		score := 0
 		for _, t := range terms {
 			for _, kw := range ep.keywords {
@@ -1459,6 +1468,9 @@ func handleCodeOrchExecute(ctx context.Context, req mcplib.CallToolRequest) (*mc
 	id, ok := args["endpoint_id"].(string)
 	if !ok || id == "" {
 		return mcplib.NewToolResultError("endpoint_id is required (call supabase_search first)"), nil
+	}
+	if isCodeOrchEndpointDenied(id) {
+		return mcplib.NewToolResultError("this auth-config update endpoint is disabled through MCP because its request can contain credentials; use supabase-pp-cli projects config update-auth-service <ref> --stdin"), nil
 	}
 
 	var ep *codeOrchEndpoint
