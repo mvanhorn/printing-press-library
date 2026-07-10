@@ -2,8 +2,6 @@ module github.com/mvanhorn/printing-press-library/library/developer-tools/awwwar
 
 go 1.26.5
 
-toolchain go1.26.5
-
 require (
 	github.com/mark3labs/mcp-go v0.47.0
 	github.com/pelletier/go-toml/v2 v2.2.4
