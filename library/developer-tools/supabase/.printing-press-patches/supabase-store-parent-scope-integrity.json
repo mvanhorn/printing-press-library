@@ -13,6 +13,6 @@
     "internal/store/store.go",
     "internal/store/upsert_batch_test.go"
   ],
-  "validated_outcome": "Parent-scope regressions pass, 50 synchronized concurrent fresh migrations pass, and go test ./... plus go test -race ./... both pass.",
+  "validated_outcome": "Parent-scope and rollback-count regressions pass, 50 synchronized concurrent fresh migrations pass, and go test ./... plus go test -race ./... both pass.",
   "upstream_issue": "https://github.com/mvanhorn/cli-printing-press/issues/1422"
 }

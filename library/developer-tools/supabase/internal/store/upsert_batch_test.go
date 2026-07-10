@@ -87,6 +87,47 @@ func TestStoreWrite_NoSQLITE_BUSY_HighConcurrency(t *testing.T) {
 	}
 }
 
+// TestUpsertBatch_RollbackReportsZeroStored verifies that a later generic-row
+// failure cannot report earlier rows as stored when the enclosing transaction
+// rolls them all back.
+func TestUpsertBatch_RollbackReportsZeroStored(t *testing.T) {
+	s, err := Open(filepath.Join(t.TempDir(), "data.db"))
+	if err != nil {
+		t.Fatalf("open: %v", err)
+	}
+	defer s.Close()
+
+	if _, err := s.DB().Exec(`
+		CREATE TRIGGER fail_second_generic_insert
+		BEFORE INSERT ON resources
+		WHEN NEW.id = 'second'
+		BEGIN
+			SELECT RAISE(ABORT, 'synthetic batch failure');
+		END;
+	`); err != nil {
+		t.Fatalf("create failure trigger: %v", err)
+	}
+
+	stored, _, err := s.UpsertBatch("untyped", []json.RawMessage{
+		json.RawMessage(`{"id":"first"}`),
+		json.RawMessage(`{"id":"second"}`),
+	})
+	if err == nil {
+		t.Fatal("expected synthetic batch failure")
+	}
+	if stored != 0 {
+		t.Fatalf("stored = %d, want 0 because the transaction rolled back", stored)
+	}
+
+	count, err := s.Count("untyped")
+	if err != nil {
+		t.Fatalf("count persisted rows: %v", err)
+	}
+	if count != 0 {
+		t.Fatalf("persisted row count = %d, want 0", count)
+	}
+}
+
 // TestStoreWrite_PanicReleasesLock confirms that a panic inside a locked
 // section unwinds via defer s.writeMu.Unlock() so subsequent writers can
 // proceed. A leaked lock would deadlock the second call indefinitely.
