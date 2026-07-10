@@ -10,13 +10,13 @@ import (
 // ResolvedFare is a single fare returned by Resolve, enriched with ticket and
 // restriction metadata.
 type ResolvedFare struct {
-	TicketCode      string
-	TicketName      string
-	Route           string // same ticket may be filed at multiple routes with different prices
-	Pence           int
-	RestrictionCode string
-	RestrictionDesc string
-	Single          bool // true when ticket_type == "S"
+	TicketCode      string `json:"ticket_code"`
+	TicketName      string `json:"ticket_name"`
+	Route           string `json:"route"` // same ticket may be filed at multiple routes with different prices
+	Pence           int    `json:"pence"`
+	RestrictionCode string `json:"restriction_code"`
+	RestrictionDesc string `json:"restriction_desc"`
+	Single          bool   `json:"single"` // true when ticket_type == "S"
 }
 
 // Resolve returns the walk-up fares from fromCRS to toCRS valid on date
