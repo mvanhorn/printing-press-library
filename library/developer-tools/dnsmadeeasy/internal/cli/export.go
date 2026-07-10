@@ -120,12 +120,28 @@ func bindRecordLine(r dmeRecord) string {
 	case "SRV":
 		return prefix + fmt.Sprintf("%d %d %d %s", r.Priority, r.Weight, r.Port, ensureTrailingDot(r.Value))
 	case "TXT", "SPF":
-		return prefix + strconv.Quote(r.Value)
+		return prefix + bindQuoteTXT(r.Value)
 	case "CNAME", "ANAME", "NS", "PTR":
 		return prefix + ensureTrailingDot(r.Value)
 	default:
 		return prefix + r.Value
 	}
+}
+
+// bindQuoteTXT renders a TXT/SPF value as a BIND-syntax character-string.
+// strconv.Quote is wrong here: it emits Go-specific escapes (\x, \u, \a, …)
+// that BIND does not accept. BIND only requires the value wrapped in double
+// quotes with embedded backslashes and double-quotes escaped. DNS Made Easy
+// often returns the value already double-quoted, so pass that through
+// unchanged to avoid double-wrapping.
+func bindQuoteTXT(v string) string {
+	v = strings.TrimSpace(v)
+	if len(v) >= 2 && strings.HasPrefix(v, "\"") && strings.HasSuffix(v, "\"") {
+		return v
+	}
+	esc := strings.ReplaceAll(v, "\\", "\\\\")
+	esc = strings.ReplaceAll(esc, "\"", "\\\"")
+	return "\"" + esc + "\""
 }
 
 func ensureTrailingDot(host string) string {

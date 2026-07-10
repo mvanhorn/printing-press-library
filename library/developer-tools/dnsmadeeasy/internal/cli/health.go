@@ -100,7 +100,11 @@ Run 'dnsmadeeasy-pp-cli sync-records' first to populate the mirror.`, "\n"),
 						if strings.Contains(strings.ToLower(r.Value), "v=spf1") {
 							hasSPF = true
 						}
-						if strings.EqualFold(r.Name, "_dmarc") || strings.Contains(strings.ToLower(r.Value), "v=dmarc1") {
+						// A DMARC record must carry a v=DMARC1 policy to be valid.
+						// Matching on the _dmarc name alone produces a false
+						// negative: a _dmarc TXT holding some other value would
+						// suppress the missing-dmarc finding despite no real policy.
+						if strings.Contains(strings.ToLower(r.Value), "v=dmarc1") {
 							hasDMARC = true
 						}
 					case "CAA":

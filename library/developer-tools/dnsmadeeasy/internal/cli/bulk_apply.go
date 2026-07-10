@@ -147,6 +147,7 @@ migration). To only find affected records without changing anything, use
 
 			// Apply per zone via updateMulti.
 			updated := 0
+			succeededZones := 0
 			for domID, recs := range byZone {
 				payload := make([]map[string]any, 0, len(recs))
 				for _, r := range recs {
@@ -165,9 +166,17 @@ migration). To only find affected records without changing anything, use
 					continue
 				}
 				updated += len(recs)
+				succeededZones++
 			}
 			view.Updated = updated
-			view.Note = fmt.Sprintf("updated %d record(s) across %d zone(s)", updated, len(byZone))
+			// Report zones that actually succeeded, not zones in the plan; a
+			// zone whose updateMulti failed is recorded in fetch_failures.
+			view.ZonesAffected = succeededZones
+			if len(view.FetchFailures) > 0 {
+				view.Note = fmt.Sprintf("updated %d record(s) across %d zone(s); %d zone(s) failed (see fetch_failures)", updated, succeededZones, len(view.FetchFailures))
+			} else {
+				view.Note = fmt.Sprintf("updated %d record(s) across %d zone(s)", updated, succeededZones)
+			}
 			return emitBulk(cmd, flags, view)
 		},
 	}

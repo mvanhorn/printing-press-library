@@ -49,7 +49,7 @@ func newNovelAcmePurgeCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:   "acme-purge",
-		Short: "Delete stale _acme-challenge TXT records across all zones (via deleteMulti)",
+		Short: "Delete _acme-challenge TXT records across all zones — all, or --older-than (via deleteMulti)",
 		Long: strings.Trim(`
 Find every _acme-challenge TXT record across all zones and delete them via the
 real multi-record delete endpoint. Previews by default; pass --apply to delete.
