@@ -21,6 +21,11 @@ type sectorRotationEntry struct {
 	PriorTotal   float64 `json:"prior_total"`
 	CurrentTotal float64 `json:"current_total"`
 	Delta        float64 `json:"delta"`
+	// PriorMissing is true when the sector has no entry in the prior
+	// period's snapshot (NSDL added, renamed, or reclassified it since
+	// then), so Delta reflects a classification change rather than a real
+	// inflow/outflow swing.
+	PriorMissing bool `json:"prior_missing,omitempty"`
 }
 
 type sectorRotationView struct {
@@ -160,17 +165,40 @@ func newNovelSectorRotationCmd(flags *rootFlags) *cobra.Command {
 
 			var movers []sectorRotationEntry
 			for sector, cur := range currentTotals {
-				prior := priorTotals[sector]
+				prior, hadPrior := priorTotals[sector]
 				movers = append(movers, sectorRotationEntry{
 					Sector: sector, PriorTotal: prior, CurrentTotal: cur, Delta: cur - prior,
+					PriorMissing: !hadPrior,
 				})
 			}
-			sort.Slice(movers, func(i, j int) bool { return abs(movers[i].Delta) > abs(movers[j].Delta) })
-			if len(movers) > top {
-				movers = movers[:top]
+			// Rank by real period-over-period flow change only. A sector
+			// absent from the prior period isn't a flow swing — it's NSDL
+			// adding, renaming, or reclassifying a sector — so ranking it
+			// by abs(0 -> current) would misreport a classification event
+			// as the biggest mover. Surface those separately instead of
+			// silently mixing them into the ranking.
+			var ranked, newSectors []sectorRotationEntry
+			for _, m := range movers {
+				if m.PriorMissing {
+					newSectors = append(newSectors, m)
+					continue
+				}
+				ranked = append(ranked, m)
 			}
-
+			sort.Slice(ranked, func(i, j int) bool { return abs(ranked[i].Delta) > abs(ranked[j].Delta) })
+			if len(ranked) > top {
+				ranked = ranked[:top]
+			}
+			movers = ranked
 			view := sectorRotationView{CurrentPeriod: currentPeriod, PriorPeriod: priorPeriod, Movers: movers}
+			if len(newSectors) > 0 {
+				names := make([]string, len(newSectors))
+				for i, m := range newSectors {
+					names[i] = m.Sector
+				}
+				sort.Strings(names)
+				view.Note = fmt.Sprintf("excluded from ranking (no prior-period data, likely new/renamed sector): %s", strings.Join(names, ", "))
+			}
 			if flags.asJSON || (!isTerminal(cmd.OutOrStdout()) && !flags.csv && !flags.quiet && !flags.plain) {
 				return printOutputWithFlagsMeta(cmd.OutOrStdout(), mustJSON(view), flags, map[string]any{"source": "local"})
 			}

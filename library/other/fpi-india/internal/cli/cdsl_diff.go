@@ -76,13 +76,23 @@ func newNovelCdslDiffCmd(flags *rootFlags) *cobra.Command {
 			latestBody, err := c.Get(cmd.Context(), "/web/Reports/Latest.aspx", nil)
 			if err == nil {
 				if recs, parseErr := nsdl.ParseGenericRecords(latestBody); parseErr == nil && len(recs) > 0 {
-					for k, v := range recs[0] {
+					rec := recs[0]
+					for k, v := range rec {
 						if strings.Contains(strings.ToLower(k), "total") {
 							if n, ok := nsdl.ParseNumber(v); ok {
 								view.NSDLLatestTotal = n
-								view.NSDLLatestPeriod = k
 								break
 							}
+						}
+					}
+					// NSDLLatestPeriod must be an actual period/date value, not
+					// the total column's header name (a prior version mistakenly
+					// reused the total-column key here) — look for a value under
+					// a period-shaped key instead.
+					for _, key := range []string{"Period", "period", "As on", "As On", "Date", "date", "Fortnight", "fortnight"} {
+						if v, ok := rec[key]; ok && strings.TrimSpace(v) != "" {
+							view.NSDLLatestPeriod = v
+							break
 						}
 					}
 				}

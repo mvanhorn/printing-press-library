@@ -31,9 +31,16 @@ var staticReportEndpointPaths = map[string]string{
 // caller fall through to the generic extractor.
 func nsdlTransformHTMLEndpoint(ctx context.Context, endpoint, baseURL string, rawBody []byte, params map[string]string) (json.RawMessage, bool) {
 	if path, ok := staticReportEndpointPaths[endpoint]; ok {
-		if fresh, err := nsdl.FetchStaticReport(ctx, baseURL, path); err == nil {
-			rawBody = fresh
+		fresh, err := nsdl.FetchStaticReport(ctx, baseURL, path)
+		if err != nil {
+			// The generated command's own pre-fetch (rawBody) is the WAF
+			// rejection page for this StaticReports-backed endpoint, not
+			// real content — parsing it would silently return an empty or
+			// garbage result instead of surfacing the fetch failure. Fail
+			// closed rather than falling through to parse a rejection page.
+			return nil, false
 		}
+		rawBody = fresh
 	}
 	switch endpoint {
 	case "net_investment.fy":

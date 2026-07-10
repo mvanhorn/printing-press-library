@@ -312,11 +312,7 @@ func syncRegistry(ctx context.Context, c nsdlSyncClient, db *store.Store, resour
 	emitSyncStart(syncEvents, resource)
 	var items []json.RawMessage
 
-	fetchOne := func(path, kind string) error {
-		body, err := c.Get(ctx, path, nil)
-		if err != nil {
-			return err
-		}
+	addRecords := func(body []byte, kind string) error {
 		recs, err := nsdl.ParseRegistry(body)
 		if err != nil {
 			return err
@@ -333,10 +329,26 @@ func syncRegistry(ctx context.Context, c nsdlSyncClient, db *store.Store, resour
 		return nil
 	}
 
-	if err := fetchOne("/web/Reports/FPI_Registration_Data.aspx", "category"); err != nil {
+	// FPI_Registration_Data.aspx is a plain Reports page (unaffected by the
+	// StaticReports family's TLS-fingerprint bot mitigation), so the
+	// generated client's plain GET is fine here.
+	categoryBody, err := c.Get(ctx, "/web/Reports/FPI_Registration_Data.aspx", nil)
+	if err != nil {
 		return syncFail(resource, fmt.Errorf("fetching registration categories: %w", err), started)
 	}
-	if err := fetchOne("/web/StaticReports/DDP_Pendency_Report/DDP_Pendency_Report.htm", "pendency"); err != nil {
+	if err := addRecords(categoryBody, "category"); err != nil {
+		return syncFail(resource, fmt.Errorf("fetching registration categories: %w", err), started)
+	}
+
+	// DDP_Pendency_Report.htm lives under /web/StaticReports/, the same
+	// family that rejects Go's stock net/http TLS fingerprint (see
+	// browserclient.go) — route it through the Chrome-fingerprint fetch
+	// like sector/trades, not the plain client.
+	pendencyBody, err := nsdl.FetchStaticReport(ctx, c.RequestBaseURL(), "/web/StaticReports/DDP_Pendency_Report/DDP_Pendency_Report.htm")
+	if err != nil {
+		return syncFail(resource, fmt.Errorf("fetching DDP pendency: %w", err), started)
+	}
+	if err := addRecords(pendencyBody, "pendency"); err != nil {
 		return syncFail(resource, fmt.Errorf("fetching DDP pendency: %w", err), started)
 	}
 
