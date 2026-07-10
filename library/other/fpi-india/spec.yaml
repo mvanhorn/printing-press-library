@@ -1,0 +1,229 @@
+name: fpi-india
+description: "Historical and current Foreign Portfolio Investor (FPI) investment data for India, synced from NSDL and cross-checked against CDSL"
+version: "0.1.0"
+category: finance
+base_url: "https://www.fpi.nsdl.co.in"
+health_check_path: "/web/Reports/ReportsListing.aspx"
+required_headers:
+  - name: User-Agent
+    value: "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0 Safari/537.36"
+
+auth:
+  type: none
+
+resources:
+  net_investment:
+    description: "Historical FPI net-investment flows by asset class (equity, debt, hybrid, mutual funds, AIF), financial year and calendar year"
+    endpoints:
+      fy:
+        method: GET
+        path: "/web/Reports/Yearwise.aspx"
+        description: "Full financial-year FPI net-investment series (1992-93 to present)"
+        params:
+          - name: RptType
+            type: string
+            required: true
+            default: "5"
+            description: "Report type; 5 = financial year series"
+          - name: CurrVal
+            flag_name: currency
+            type: string
+            required: false
+            default: ""
+            description: "Currency for figures; empty = INR crores, USD = US dollars"
+            enum: ["", "USD"]
+        response_format: html
+        html_extract:
+          mode: page
+      cy:
+        method: GET
+        path: "/web/Reports/Yearwise.aspx"
+        description: "Calendar-year FPI net-investment series, with monthly breakdown when a specific year is requested"
+        params:
+          - name: RptType
+            type: string
+            required: true
+            default: "6"
+            description: "Report type; 6 = calendar year series"
+          - name: year
+            type: string
+            required: false
+            description: "Specific calendar year to drill into for monthly breakdown, e.g. 2024"
+          - name: CurrVal
+            flag_name: currency
+            type: string
+            required: false
+            default: ""
+            description: "Currency for figures; empty = INR crores, USD = US dollars"
+            enum: ["", "USD"]
+        response_format: html
+        html_extract:
+          mode: page
+      quarterly:
+        method: GET
+        path: "/web/Reports/QuarterlyWise.aspx"
+        description: "Quarterly FPI net-investment details (calendar year)"
+        response_format: html
+        html_extract:
+          mode: page
+      latest:
+        method: GET
+        path: "/web/Reports/Latest.aspx"
+        description: "Latest fortnight FPI net-investment snapshot"
+        response_format: html
+        html_extract:
+          mode: page
+
+  auc:
+    description: "FPI assets under custody (AUC), by country and by category"
+    endpoints:
+      country:
+        method: GET
+        path: "/web/Reports/ReportDetail.aspx"
+        description: "FPI AUC country-wise data (top 10 countries)"
+        params:
+          - name: RepID
+            type: string
+            required: true
+            default: "14"
+        response_format: html
+        html_extract:
+          mode: page
+      category:
+        method: GET
+        path: "/web/Reports/ReportDetail.aspx"
+        description: "FPI AUC category-wise data"
+        params:
+          - name: RepID
+            type: string
+            required: true
+            default: "18"
+        response_format: html
+        html_extract:
+          mode: page
+
+  sector:
+    description: "Fortnightly sector-wise FPI investment data"
+    endpoints:
+      list:
+        method: GET
+        path: "/web/Reports/FPI_Fortnightly_Selection.aspx"
+        description: "Fortnightly sector-wise FPI investment activity"
+        response_format: html
+        html_extract:
+          mode: page
+
+  trades:
+    description: "Trade-wise FPI equity and debt data"
+    endpoints:
+      equity:
+        method: GET
+        path: "/web/StaticReports/FIITradeWise2008/FIITradeWise2008.htm"
+        description: "Trade-wise equity data of FPI"
+        response_format: html
+        html_extract:
+          mode: page
+      debt:
+        method: GET
+        path: "/web/StaticReports/FIITradeWiseDebt/FIITradeWiseDebt.htm"
+        description: "Trade-wise debt data of FPI"
+        response_format: html
+        html_extract:
+          mode: page
+
+  registry:
+    description: "Registered FPI list, registration category counts, and DDP pendency"
+    endpoints:
+      list:
+        method: GET
+        path: "/web/Reports/RegisteredFIISAFPI.aspx"
+        description: "List of registered FPIs/FIIs"
+        response_format: html
+        html_extract:
+          mode: page
+      categories:
+        method: GET
+        path: "/web/Reports/FPI_Registration_Data.aspx"
+        description: "FPI category-wise registration counts"
+        response_format: html
+        html_extract:
+          mode: page
+      pendency:
+        method: GET
+        path: "/web/StaticReports/DDP_Pendency_Report/DDP_Pendency_Report.htm"
+        description: "DDP-wise pendency of FPI applications"
+        response_format: html
+        html_extract:
+          mode: page
+
+  limits:
+    description: "Per-company (ISIN) foreign investment limits: NRI limit %, FPI limit %, sectoral cap %, and current monitored FPI holding count"
+    endpoints:
+      list:
+        method: POST
+        path: "/web/Reports/DefaultAPI_Reports.aspx"
+        description: "Per-ISIN foreign investment limit monitoring data"
+        params:
+          - name: action
+            type: string
+            required: true
+            default: "GetFilmReport_Detail"
+            description: "AJAX action selector"
+        body:
+          - name: uName
+            type: string
+            required: true
+            default: "s"
+            description: "Fixed placeholder credential the upstream endpoint expects (no real auth)"
+        response:
+          type: array
+          item: FilmLimit
+        response_format: json
+
+  cdsl_reports:
+    description: "CDSL daily FPI snapshot publication index and dated XLS snapshot download"
+    base_url: "https://www.cdslindia.com"
+    endpoints:
+      listing:
+        method: GET
+        path: "/Publications/ForeignPortInvestor.html"
+        description: "Index page listing recent dated FPI snapshot XLS files"
+        response_format: html
+        html_extract:
+          mode: links
+          link_prefixes: ["/downloads/Publications/Latest"]
+      snapshot:
+        method: GET
+        path: "/downloads/Publications/Latest/latest_{date}.xls"
+        description: "Dated daily FPI snapshot file (date format DDMMYYYY, e.g. 09072026)"
+        params:
+          - name: date
+            type: string
+            required: true
+            positional: true
+            description: "Snapshot date in DDMMYYYY format"
+        response_format: binary
+
+types:
+  FilmLimit:
+    fields:
+      - name: FILM_SRNO
+        type: string
+      - name: FILM_ISIN
+        type: string
+      - name: FILM_ISSUER
+        type: string
+      - name: FILM_NRI_LIMIT
+        type: string
+      - name: FILM_FPI_LIMIT
+        type: string
+      - name: FILM_SECTORIAL_CAP
+        type: string
+      - name: FILM_AGGPERMISBL_LIMIT
+        type: string
+      - name: FILM_MONITORFPI_LIMIT
+        type: string
+      - name: FILM_REMARKS
+        type: string
+      - name: REPORTING_DATE
+        type: string

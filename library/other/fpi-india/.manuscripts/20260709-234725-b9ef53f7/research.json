@@ -1,0 +1,249 @@
+{
+  "api_name": "fpi-india",
+  "novelty_score": 9,
+  "alternatives": [
+    {
+      "name": "nselib",
+      "url": "https://github.com/RuchiTanmay/nselib",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 2,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-07-10T04:30:00Z",
+  "novel_features": [
+    {
+      "name": "Net-investment year-over-year comparison",
+      "command": "net-investment yoy",
+      "description": "See this year's FPI net flow next to the same period last year, delta computed automatically.",
+      "rationale": "NSDL's report page only shows one year at a time; comparing two years means loading two pages and subtracting by hand.",
+      "example": "fpi-india-pp-cli net-investment yoy --asset equity --year 2024 --json",
+      "why_it_matters": "Reach for this when a request compares FPI flow across two adjacent years instead of listing raw rows.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Sector rotation top movers",
+      "command": "sector rotation",
+      "description": "Rank which sectors saw the biggest FPI inflow/outflow swing between the two most recent synced periods.",
+      "rationale": "NSDL's sector report shows one fortnight's absolute values only; ranking period-over-period deltas requires a local join across synced snapshots.",
+      "example": "fpi-india-pp-cli sector rotation --top 5 --period latest --json",
+      "why_it_matters": "Use this for 'what sector are FPIs rotating into/out of' instead of a single-period sector snapshot.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Foreign investment limit utilization",
+      "command": "limits utilization",
+      "description": "See what percentage of the regulatory FPI investment cap a sector or debt category has used.",
+      "rationale": "NSDL's limit-monitoring page shows raw caps only; computing %-of-cap requires joining synced limits against synced investment/AUC totals.",
+      "example": "fpi-india-pp-cli limits utilization --sector Banking --json",
+      "why_it_matters": "Use this to flag sectors approaching a regulatory FPI cap, which can trigger a trading halt.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Buying/selling streak detection",
+      "command": "net-investment streaks",
+      "description": "See how many consecutive fortnights/years FPIs have been net buyers or sellers, and the most recent flip.",
+      "rationale": "Requires an ordered local scan of the full synced history for sign-change points — NSDL's raw table never computes this.",
+      "example": "fpi-india-pp-cli net-investment streaks --asset equity --json",
+      "why_it_matters": "Use this for 'how many periods in a row' questions instead of scanning raw historical rows.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "AUC historical trend",
+      "command": "auc trend",
+      "description": "Track how a country's or category's share of assets under custody has changed across synced snapshots.",
+      "rationale": "NSDL's AUC report shows only the current snapshot; a trend view only exists because sync retains history NSDL discards.",
+      "example": "fpi-india-pp-cli auc trend --by country --country Mauritius --json",
+      "why_it_matters": "Use this once at least two snapshots are synced to see custody-share direction, not a single-point value.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Historical extremes",
+      "command": "net-investment extremes",
+      "description": "Find the largest single-period FPI inflows or outflows across the full 1992-93-to-present series.",
+      "rationale": "A deterministic ORDER BY over 30+ years of synced history — no source ranks its own historical table by magnitude.",
+      "example": "fpi-india-pp-cli net-investment extremes --asset equity --top 10 --json",
+      "why_it_matters": "Use this for 'biggest ever' / superlative questions about historical FPI flow.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Net-investment trend",
+      "command": "net-investment trend",
+      "description": "See the rolling growth-rate and direction of FPI net flow over a window of recent periods.",
+      "rationale": "A rolling-window computation over synced net_investment rows in local SQLite; not available from any single NSDL page load.",
+      "example": "fpi-india-pp-cli net-investment trend --asset equity --period fy --window 12 --json",
+      "why_it_matters": "Use this for a derived growth-rate/direction view, not raw historical rows (use 'net-investment fy'/'cy'/'quarterly'/'latest' for those).",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "NSDL/CDSL discrepancy flagging",
+      "command": "cdsl diff",
+      "description": "Compare NSDL's and CDSL's figures for the same date and flag any mismatch.",
+      "rationale": "A mechanical join/diff across two independently-synced sources for the same date — neither source ever compares itself against the other.",
+      "example": "fpi-india-pp-cli cdsl diff --date 09072026 --json",
+      "why_it_matters": "Use this to cross-check the two Indian depositories' published figures for the same date.",
+      "group": "Reachability mitigation"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Net-investment year-over-year comparison",
+      "command": "net-investment yoy",
+      "description": "See this year's FPI net flow next to the same period last year, delta computed automatically.",
+      "rationale": "NSDL's report page only shows one year at a time; comparing two years means loading two pages and subtracting by hand.",
+      "example": "fpi-india-pp-cli net-investment yoy --asset equity --year 2024 --json",
+      "why_it_matters": "Reach for this when a request compares FPI flow across two adjacent years instead of listing raw rows.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Sector rotation top movers",
+      "command": "sector rotation",
+      "description": "Rank which sectors saw the biggest FPI inflow/outflow swing between the two most recent synced periods.",
+      "rationale": "NSDL's sector report shows one fortnight's absolute values only; ranking period-over-period deltas requires a local join across synced snapshots.",
+      "example": "fpi-india-pp-cli sector rotation --top 5 --period latest --json",
+      "why_it_matters": "Use this for 'what sector are FPIs rotating into/out of' instead of a single-period sector snapshot.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Foreign investment limit utilization",
+      "command": "limits utilization",
+      "description": "See what percentage of the regulatory FPI investment cap a sector or debt category has used.",
+      "rationale": "NSDL's limit-monitoring page shows raw caps only; computing %-of-cap requires joining synced limits against synced investment/AUC totals.",
+      "example": "fpi-india-pp-cli limits utilization --sector Banking --json",
+      "why_it_matters": "Use this to flag sectors approaching a regulatory FPI cap, which can trigger a trading halt.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Buying/selling streak detection",
+      "command": "net-investment streaks",
+      "description": "See how many consecutive fortnights/years FPIs have been net buyers or sellers, and the most recent flip.",
+      "rationale": "Requires an ordered local scan of the full synced history for sign-change points — NSDL's raw table never computes this.",
+      "example": "fpi-india-pp-cli net-investment streaks --asset equity --json",
+      "why_it_matters": "Use this for 'how many periods in a row' questions instead of scanning raw historical rows.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "AUC historical trend",
+      "command": "auc trend",
+      "description": "Track how a country's or category's share of assets under custody has changed across synced snapshots.",
+      "rationale": "NSDL's AUC report shows only the current snapshot; a trend view only exists because sync retains history NSDL discards.",
+      "example": "fpi-india-pp-cli auc trend --by country --country Mauritius --json",
+      "why_it_matters": "Use this once at least two snapshots are synced to see custody-share direction, not a single-point value.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Historical extremes",
+      "command": "net-investment extremes",
+      "description": "Find the largest single-period FPI inflows or outflows across the full 1992-93-to-present series.",
+      "rationale": "A deterministic ORDER BY over 30+ years of synced history — no source ranks its own historical table by magnitude.",
+      "example": "fpi-india-pp-cli net-investment extremes --asset equity --top 10 --json",
+      "why_it_matters": "Use this for 'biggest ever' / superlative questions about historical FPI flow.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Net-investment trend",
+      "command": "net-investment trend",
+      "description": "See the rolling growth-rate and direction of FPI net flow over a window of recent periods.",
+      "rationale": "A rolling-window computation over synced net_investment rows in local SQLite; not available from any single NSDL page load.",
+      "example": "fpi-india-pp-cli net-investment trend --asset equity --period fy --window 12 --json",
+      "why_it_matters": "Use this for a derived growth-rate/direction view, not raw historical rows (use 'net-investment fy'/'cy'/'quarterly'/'latest' for those).",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "NSDL/CDSL discrepancy flagging",
+      "command": "cdsl diff",
+      "description": "Compare NSDL's and CDSL's figures for the same date and flag any mismatch.",
+      "rationale": "A mechanical join/diff across two independently-synced sources for the same date — neither source ever compares itself against the other.",
+      "example": "fpi-india-pp-cli cdsl diff --date 09072026 --json",
+      "why_it_matters": "Use this to cross-check the two Indian depositories' published figures for the same date.",
+      "group": "Reachability mitigation"
+    }
+  ],
+  "auth": {},
+  "narrative": {
+    "display_name": "FPI India",
+    "headline": "The full history of Foreign Portfolio Investor flows into India, synced locally and queryable offline — something neither NSDL nor CDSL offers today.",
+    "value_prop": "NSDL and CDSL publish authoritative FPI investment data, but only as ASP.NET report pages with a client-side Excel export button — no API, no bulk historical download, no scriptable access. fpi-india syncs the full net-investment series back to 1992-93, plus AUC, sector rotation, trade data, and the FPI registry, into a local SQLite database you can query, trend, and pipe.",
+    "quickstart": [
+      {
+        "command": "fpi-india-pp-cli doctor --dry-run",
+        "comment": "confirm the CLI can reach NSDL before syncing"
+      },
+      {
+        "command": "fpi-india-pp-cli sync --resources net_investment --full",
+        "comment": "pull the full historical FY series (1992-93-to-present) into local SQLite"
+      },
+      {
+        "command": "fpi-india-pp-cli net-investment fy --json",
+        "comment": "see the synced historical equity flow series"
+      },
+      {
+        "command": "fpi-india-pp-cli net-investment yoy --asset equity --year 2024 --json",
+        "comment": "compare this year's flow against last year, computed locally"
+      },
+      {
+        "command": "fpi-india-pp-cli net-investment streaks --asset equity --json",
+        "comment": "see the current buying/selling streak, a computation no source page offers"
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "sync returns 0 rows for a report",
+        "fix": "NSDL occasionally changes a report's table id after a site update; run `fpi-india-pp-cli doctor --json` to confirm the page is reachable, then check for a generator update."
+      },
+      {
+        "symptom": "cdsl commands return stale or missing dates",
+        "fix": "CDSL only publishes a rolling recent window of daily .xls snapshots (not deep history); older dates will not be available from CDSL even after sync."
+      }
+    ],
+    "when_to_use": "Use this CLI for historical or current Indian FPI investment flow analysis: net-investment trends, year-over-year and streak analysis, sector rotation, assets-under-custody trends, FPI registry lookups, and regulatory limit utilization. It is the right tool whenever a task needs NSDL/CDSL FPI data queried, trended, or compared rather than eyeballed from a report page.",
+    "anti_triggers": [
+      "Do not use this CLI for live/real-time trade execution or order placement — it is a read-only data and analytics tool.",
+      "Do not use this CLI for individual investor portfolio holdings or demat account data — NSDL/CDSL's FPI reports are aggregate market-level data, not account-level.",
+      "Do not use this CLI for forward-looking flow forecasts or investment advice — every command surfaces historical, already-published figures only."
+    ],
+    "recipes": [
+      {
+        "title": "Full historical equity flow series",
+        "command": "fpi-india-pp-cli net-investment fy --json --select period,total,cumulative_total",
+        "explanation": "Narrow a 30+ year series down to just the fields needed for a chart or note."
+      },
+      {
+        "title": "This fortnight vs last year, same fortnight",
+        "command": "fpi-india-pp-cli net-investment yoy --asset equity --year 2024",
+        "explanation": "The Monday-morning commentary workflow: one command instead of loading two pages and subtracting by hand."
+      },
+      {
+        "title": "What sector is money rotating into",
+        "command": "fpi-india-pp-cli sector rotation --top 5 --period latest",
+        "explanation": "Ranks period-over-period sector deltas instead of a single period's absolute figures."
+      },
+      {
+        "title": "Is any sector near its FPI investment cap",
+        "command": "fpi-india-pp-cli limits utilization --sector Banking",
+        "explanation": "Joins synced limits against synced investment totals to compute percent-of-cap used."
+      },
+      {
+        "title": "Biggest FPI outflow ever recorded",
+        "command": "fpi-india-pp-cli net-investment extremes --asset equity --top 10",
+        "explanation": "Deterministic ranking over the full synced history for journalist-style superlative questions."
+      }
+    ],
+    "trigger_phrases": [
+      "FPI flows into India",
+      "foreign portfolio investor data",
+      "NSDL FPI report",
+      "FII DII flow India",
+      "check FPI net investment",
+      "use fpi-india",
+      "run fpi-india"
+    ]
+  }
+}
