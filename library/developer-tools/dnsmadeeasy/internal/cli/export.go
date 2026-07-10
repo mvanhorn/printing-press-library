@@ -128,20 +128,80 @@ func bindRecordLine(r dmeRecord) string {
 	}
 }
 
-// bindQuoteTXT renders a TXT/SPF value as a BIND-syntax character-string.
-// strconv.Quote is wrong here: it emits Go-specific escapes (\x, \u, \a, …)
-// that BIND does not accept. BIND only requires the value wrapped in double
-// quotes with embedded backslashes and double-quotes escaped. DNS Made Easy
-// often returns the value already double-quoted, so pass that through
-// unchanged to avoid double-wrapping.
+// bindTXTMaxChunk is the RFC 1035 §3.3.14 limit: each TXT character-string
+// carries at most 255 octets on the wire.
+const bindTXTMaxChunk = 255
+
+// bindQuoteTXT renders a TXT/SPF value as BIND-syntax character-string(s).
+//
+// Two things the naive form gets wrong:
+//   - strconv.Quote emits Go-specific escapes (\x, \u, \a, …) BIND rejects.
+//   - A single value over 255 octets is invalid: RFC 1035 caps each
+//     character-string at 255, and BIND refuses to load a longer one. DKIM
+//     p= keys (300–500 bytes) hit this on virtually every mail domain.
+//
+// So recover the raw payload (DNS Made Easy may return it bare, as one quoted
+// string, or as several adjacent quoted strings — its own >255 split), then
+// re-chunk into ≤255-octet segments, escape each, and emit them space-separated
+// as adjacent quoted strings, which BIND concatenates back into one RDATA value.
 func bindQuoteTXT(v string) string {
+	raw := txtRawContent(v)
+	if raw == "" {
+		return `""`
+	}
+	var parts []string
+	for i := 0; i < len(raw); i += bindTXTMaxChunk {
+		end := i + bindTXTMaxChunk
+		if end > len(raw) {
+			end = len(raw)
+		}
+		parts = append(parts, `"`+txtEscape(raw[i:end])+`"`)
+	}
+	return strings.Join(parts, " ")
+}
+
+// txtRawContent returns the unquoted payload of a TXT value. When the value is
+// in quoted form it concatenates every quoted character-string (honoring \" and
+// \\ escapes); otherwise it returns the value as-is. The chunk limit applies to
+// these raw octets, not the escaped zone-file text.
+func txtRawContent(v string) string {
 	v = strings.TrimSpace(v)
-	if len(v) >= 2 && strings.HasPrefix(v, "\"") && strings.HasSuffix(v, "\"") {
+	if !strings.HasPrefix(v, `"`) {
 		return v
 	}
-	esc := strings.ReplaceAll(v, "\\", "\\\\")
-	esc = strings.ReplaceAll(esc, "\"", "\\\"")
-	return "\"" + esc + "\""
+	var b strings.Builder
+	inQuote, esc := false, false
+	for i := 0; i < len(v); i++ {
+		c := v[i]
+		if esc {
+			b.WriteByte(c)
+			esc = false
+			continue
+		}
+		if inQuote {
+			switch c {
+			case '\\':
+				esc = true
+			case '"':
+				inQuote = false
+			default:
+				b.WriteByte(c)
+			}
+			continue
+		}
+		if c == '"' {
+			inQuote = true
+		}
+		// bytes outside quotes (whitespace between adjacent strings) are skipped
+	}
+	return b.String()
+}
+
+// txtEscape escapes a raw character-string segment for BIND zone-file syntax.
+func txtEscape(s string) string {
+	s = strings.ReplaceAll(s, `\`, `\\`)
+	s = strings.ReplaceAll(s, `"`, `\"`)
+	return s
 }
 
 func ensureTrailingDot(host string) string {

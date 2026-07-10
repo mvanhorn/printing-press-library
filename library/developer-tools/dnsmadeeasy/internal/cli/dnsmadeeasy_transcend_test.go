@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"path/filepath"
+	"strings"
 	"testing"
 
 	"github.com/mvanhorn/printing-press-library/library/developer-tools/dnsmadeeasy/internal/store"
@@ -28,6 +29,38 @@ func TestBindRecordLine(t *testing.T) {
 				t.Errorf("bindRecordLine = %q, want %q", got, c.want)
 			}
 		})
+	}
+}
+
+func TestBindQuoteTXT(t *testing.T) {
+	// Short bare value -> single quoted string.
+	if got := bindQuoteTXT("v=spf1 -all"); got != `"v=spf1 -all"` {
+		t.Errorf("short: got %q", got)
+	}
+	// Embedded quote/backslash escaped.
+	if got := bindQuoteTXT(`a"b\c`); got != `"a\"b\\c"` {
+		t.Errorf("escape: got %q", got)
+	}
+	// DME multi-string form is recombined then re-chunked (content preserved).
+	if got := bindQuoteTXT(`"v=DKIM1; k=rsa; " "p=ABC"`); got != `"v=DKIM1; k=rsa; p=ABC"` {
+		t.Errorf("multi-string: got %q", got)
+	}
+	// A >255-octet value must split into multiple <=255 character-strings.
+	long := strings.Repeat("k", 600)
+	got := bindQuoteTXT(long)
+	// Recover the content by concatenating the quoted segments; each must be <=255.
+	if txtRawContent(got) != long {
+		t.Errorf("long: round-trip content mismatch")
+	}
+	segs := strings.Count(got, `"`) / 2
+	if segs != 3 { // 600 -> 255 + 255 + 90
+		t.Errorf("long: expected 3 segments, got %d (%q...)", segs, got[:40])
+	}
+	for _, part := range strings.Split(got, `" "`) {
+		p := strings.Trim(part, `"`)
+		if len(p) > 255 {
+			t.Errorf("long: a segment exceeds 255 octets (%d)", len(p))
+		}
 	}
 }
 
