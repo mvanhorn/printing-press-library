@@ -3342,7 +3342,7 @@ var genericIDFieldFallbacks = []string{"id", "ID", "name", "uuid", "slug", "key"
 
 // UpsertBatch inserts or replaces multiple records in a single transaction
 // and returns (stored, extractFailures, err). stored counts rows actually
-// landed; extractFailures counts items that survived JSON unmarshal but had
+// landed in the generic resources table; extractFailures counts items that survived JSON unmarshal but had
 // no extractable primary key (templated IDField AND generic fallback both
 // missed). callers (sync.go.tmpl) compare these against len(items) to emit
 // the per-item primary_key_unresolved warning and the F4b
@@ -3353,6 +3353,11 @@ var genericIDFieldFallbacks = []string{"id", "ID", "name", "uuid", "slug", "key"
 // inside the same transaction. Without that dispatch, paginated syncs would
 // only populate the generic resources table — typed tables (and indexed
 // columns like parent_id added by dependent-resource sync) would stay empty.
+//
+// Each typed-table dispatch runs inside a per-item SAVEPOINT so a constraint
+// failure in the typed projection rolls back only that projection. The generic
+// resources row inserted immediately before it survives and remains available
+// to offline lookup.
 func (s *Store) UpsertBatch(resourceType string, items []json.RawMessage) (int, int, error) {
 	s.writeMu.Lock()
 	defer s.writeMu.Unlock()
@@ -3362,8 +3367,8 @@ func (s *Store) UpsertBatch(resourceType string, items []json.RawMessage) (int, 
 	}
 	defer tx.Rollback()
 
-	var stored, skippedCount, extractFailures int
-	for _, item := range items {
+	var stored, skippedCount, extractFailures, typedFailures int
+	for i, item := range items {
 		var obj map[string]any
 		if err := json.Unmarshal(item, &obj); err != nil {
 			skippedCount++
@@ -3400,186 +3405,125 @@ func (s *Store) UpsertBatch(resourceType string, items []json.RawMessage) (int, 
 		}
 
 		if err := s.upsertGenericResourceTx(tx, resourceType, id, item); err != nil {
-			return 0, extractFailures, fmt.Errorf("upserting %s/%s: %w", resourceType, id, err)
-		}
-
-		switch resourceType {
-		case "branches":
-			if err := s.upsertBranchesTx(tx, id, obj, item); err != nil {
-				return 0, extractFailures, fmt.Errorf("typed upsert for %s/%s: %w", resourceType, id, err)
-			}
-		case "diff":
-			if err := s.upsertDiffTx(tx, id, obj, item); err != nil {
-				return 0, extractFailures, fmt.Errorf("typed upsert for %s/%s: %w", resourceType, id, err)
-			}
-		case "merge":
-			if err := s.upsertMergeTx(tx, id, obj, item); err != nil {
-				return 0, extractFailures, fmt.Errorf("typed upsert for %s/%s: %w", resourceType, id, err)
-			}
-		case "push":
-			if err := s.upsertPushTx(tx, id, obj, item); err != nil {
-				return 0, extractFailures, fmt.Errorf("typed upsert for %s/%s: %w", resourceType, id, err)
-			}
-		case "reset":
-			if err := s.upsertResetTx(tx, id, obj, item); err != nil {
-				return 0, extractFailures, fmt.Errorf("typed upsert for %s/%s: %w", resourceType, id, err)
-			}
-		case "branches_restore":
-			if err := s.upsertBranchesRestoreTx(tx, id, obj, item); err != nil {
-				return 0, extractFailures, fmt.Errorf("typed upsert for %s/%s: %w", resourceType, id, err)
-			}
-		case "organizations":
-			if err := s.upsertOrganizationsTx(tx, id, obj, item); err != nil {
-				return 0, extractFailures, fmt.Errorf("typed upsert for %s/%s: %w", resourceType, id, err)
-			}
-		case "entitlements":
-			if err := s.upsertEntitlementsTx(tx, id, obj, item); err != nil {
-				return 0, extractFailures, fmt.Errorf("typed upsert for %s/%s: %w", resourceType, id, err)
-			}
-		case "members":
-			if err := s.upsertMembersTx(tx, id, obj, item); err != nil {
-				return 0, extractFailures, fmt.Errorf("typed upsert for %s/%s: %w", resourceType, id, err)
-			}
-		case "project_claim":
-			if err := s.upsertProjectClaimTx(tx, id, obj, item); err != nil {
-				return 0, extractFailures, fmt.Errorf("typed upsert for %s/%s: %w", resourceType, id, err)
-			}
-		case "organizations_projects":
-			if err := s.upsertOrganizationsProjectsTx(tx, id, obj, item); err != nil {
-				return 0, extractFailures, fmt.Errorf("typed upsert for %s/%s: %w", resourceType, id, err)
-			}
-		case "projects":
-			if err := s.upsertProjectsTx(tx, id, obj, item); err != nil {
-				return 0, extractFailures, fmt.Errorf("typed upsert for %s/%s: %w", resourceType, id, err)
-			}
-		case "actions":
-			if err := s.upsertActionsTx(tx, id, obj, item); err != nil {
-				return 0, extractFailures, fmt.Errorf("typed upsert for %s/%s: %w", resourceType, id, err)
-			}
-		case "advisors":
-			if err := s.upsertAdvisorsTx(tx, id, obj, item); err != nil {
-				return 0, extractFailures, fmt.Errorf("typed upsert for %s/%s: %w", resourceType, id, err)
-			}
-		case "analytics":
-			if err := s.upsertAnalyticsTx(tx, id, obj, item); err != nil {
-				return 0, extractFailures, fmt.Errorf("typed upsert for %s/%s: %w", resourceType, id, err)
-			}
-		case "api_keys":
-			if err := s.upsertApiKeysTx(tx, id, obj, item); err != nil {
-				return 0, extractFailures, fmt.Errorf("typed upsert for %s/%s: %w", resourceType, id, err)
-			}
-		case "billing":
-			if err := s.upsertBillingTx(tx, id, obj, item); err != nil {
-				return 0, extractFailures, fmt.Errorf("typed upsert for %s/%s: %w", resourceType, id, err)
-			}
-		case "projects_branches":
-			if err := s.upsertProjectsBranchesTx(tx, id, obj, item); err != nil {
-				return 0, extractFailures, fmt.Errorf("typed upsert for %s/%s: %w", resourceType, id, err)
-			}
-		case "claim_token":
-			if err := s.upsertClaimTokenTx(tx, id, obj, item); err != nil {
-				return 0, extractFailures, fmt.Errorf("typed upsert for %s/%s: %w", resourceType, id, err)
-			}
-		case "cli":
-			if err := s.upsertCliTx(tx, id, obj, item); err != nil {
-				return 0, extractFailures, fmt.Errorf("typed upsert for %s/%s: %w", resourceType, id, err)
-			}
-		case "config":
-			if err := s.upsertConfigTx(tx, id, obj, item); err != nil {
-				return 0, extractFailures, fmt.Errorf("typed upsert for %s/%s: %w", resourceType, id, err)
-			}
-		case "custom_hostname":
-			if err := s.upsertCustomHostnameTx(tx, id, obj, item); err != nil {
-				return 0, extractFailures, fmt.Errorf("typed upsert for %s/%s: %w", resourceType, id, err)
-			}
-		case "database":
-			if err := s.upsertDatabaseTx(tx, id, obj, item); err != nil {
-				return 0, extractFailures, fmt.Errorf("typed upsert for %s/%s: %w", resourceType, id, err)
-			}
-		case "functions":
-			if err := s.upsertFunctionsTx(tx, id, obj, item); err != nil {
-				return 0, extractFailures, fmt.Errorf("typed upsert for %s/%s: %w", resourceType, id, err)
-			}
-		case "health":
-			if err := s.upsertHealthTx(tx, id, obj, item); err != nil {
-				return 0, extractFailures, fmt.Errorf("typed upsert for %s/%s: %w", resourceType, id, err)
-			}
-		case "jit_access":
-			if err := s.upsertJitAccessTx(tx, id, obj, item); err != nil {
-				return 0, extractFailures, fmt.Errorf("typed upsert for %s/%s: %w", resourceType, id, err)
-			}
-		case "network_bans":
-			if err := s.upsertNetworkBansTx(tx, id, obj, item); err != nil {
-				return 0, extractFailures, fmt.Errorf("typed upsert for %s/%s: %w", resourceType, id, err)
-			}
-		case "network_restrictions":
-			if err := s.upsertNetworkRestrictionsTx(tx, id, obj, item); err != nil {
-				return 0, extractFailures, fmt.Errorf("typed upsert for %s/%s: %w", resourceType, id, err)
-			}
-		case "pause":
-			if err := s.upsertPauseTx(tx, id, obj, item); err != nil {
-				return 0, extractFailures, fmt.Errorf("typed upsert for %s/%s: %w", resourceType, id, err)
-			}
-		case "pgsodium":
-			if err := s.upsertPgsodiumTx(tx, id, obj, item); err != nil {
-				return 0, extractFailures, fmt.Errorf("typed upsert for %s/%s: %w", resourceType, id, err)
-			}
-		case "postgrest":
-			if err := s.upsertPostgrestTx(tx, id, obj, item); err != nil {
-				return 0, extractFailures, fmt.Errorf("typed upsert for %s/%s: %w", resourceType, id, err)
-			}
-		case "read_replicas":
-			if err := s.upsertReadReplicasTx(tx, id, obj, item); err != nil {
-				return 0, extractFailures, fmt.Errorf("typed upsert for %s/%s: %w", resourceType, id, err)
-			}
-		case "readonly":
-			if err := s.upsertReadonlyTx(tx, id, obj, item); err != nil {
-				return 0, extractFailures, fmt.Errorf("typed upsert for %s/%s: %w", resourceType, id, err)
-			}
-		case "projects_restore":
-			if err := s.upsertProjectsRestoreTx(tx, id, obj, item); err != nil {
-				return 0, extractFailures, fmt.Errorf("typed upsert for %s/%s: %w", resourceType, id, err)
-			}
-		case "secrets":
-			if err := s.upsertSecretsTx(tx, id, obj, item); err != nil {
-				return 0, extractFailures, fmt.Errorf("typed upsert for %s/%s: %w", resourceType, id, err)
-			}
-		case "ssl_enforcement":
-			if err := s.upsertSslEnforcementTx(tx, id, obj, item); err != nil {
-				return 0, extractFailures, fmt.Errorf("typed upsert for %s/%s: %w", resourceType, id, err)
-			}
-		case "storage":
-			if err := s.upsertStorageTx(tx, id, obj, item); err != nil {
-				return 0, extractFailures, fmt.Errorf("typed upsert for %s/%s: %w", resourceType, id, err)
-			}
-		case "types":
-			if err := s.upsertTypesTx(tx, id, obj, item); err != nil {
-				return 0, extractFailures, fmt.Errorf("typed upsert for %s/%s: %w", resourceType, id, err)
-			}
-		case "upgrade":
-			if err := s.upsertUpgradeTx(tx, id, obj, item); err != nil {
-				return 0, extractFailures, fmt.Errorf("typed upsert for %s/%s: %w", resourceType, id, err)
-			}
-		case "vanity_subdomain":
-			if err := s.upsertVanitySubdomainTx(tx, id, obj, item); err != nil {
-				return 0, extractFailures, fmt.Errorf("typed upsert for %s/%s: %w", resourceType, id, err)
-			}
-		case "snippets":
-			if err := s.upsertSnippetsTx(tx, id, obj, item); err != nil {
-				return 0, extractFailures, fmt.Errorf("typed upsert for %s/%s: %w", resourceType, id, err)
-			}
-		case "supabase-profile":
-			if err := s.upsertSupabaseProfileTx(tx, id, obj, item); err != nil {
-				return 0, extractFailures, fmt.Errorf("typed upsert for %s/%s: %w", resourceType, id, err)
-			}
+			return stored, extractFailures, fmt.Errorf("upserting %s/%s: %w", resourceType, id, err)
 		}
 		stored++
+
+		savepoint := fmt.Sprintf("pp_typed_%d", i)
+		if _, err := tx.Exec("SAVEPOINT " + savepoint); err != nil {
+			return stored, extractFailures, fmt.Errorf("savepoint begin for %s/%s: %w", resourceType, id, err)
+		}
+
+		var typedErr error
+		switch resourceType {
+		case "branches":
+			typedErr = s.upsertBranchesTx(tx, id, obj, item)
+		case "diff":
+			typedErr = s.upsertDiffTx(tx, id, obj, item)
+		case "merge":
+			typedErr = s.upsertMergeTx(tx, id, obj, item)
+		case "push":
+			typedErr = s.upsertPushTx(tx, id, obj, item)
+		case "reset":
+			typedErr = s.upsertResetTx(tx, id, obj, item)
+		case "branches_restore":
+			typedErr = s.upsertBranchesRestoreTx(tx, id, obj, item)
+		case "organizations":
+			typedErr = s.upsertOrganizationsTx(tx, id, obj, item)
+		case "entitlements":
+			typedErr = s.upsertEntitlementsTx(tx, id, obj, item)
+		case "members":
+			typedErr = s.upsertMembersTx(tx, id, obj, item)
+		case "project_claim":
+			typedErr = s.upsertProjectClaimTx(tx, id, obj, item)
+		case "organizations_projects":
+			typedErr = s.upsertOrganizationsProjectsTx(tx, id, obj, item)
+		case "projects":
+			typedErr = s.upsertProjectsTx(tx, id, obj, item)
+		case "actions":
+			typedErr = s.upsertActionsTx(tx, id, obj, item)
+		case "advisors":
+			typedErr = s.upsertAdvisorsTx(tx, id, obj, item)
+		case "analytics":
+			typedErr = s.upsertAnalyticsTx(tx, id, obj, item)
+		case "api_keys":
+			typedErr = s.upsertApiKeysTx(tx, id, obj, item)
+		case "billing":
+			typedErr = s.upsertBillingTx(tx, id, obj, item)
+		case "projects_branches":
+			typedErr = s.upsertProjectsBranchesTx(tx, id, obj, item)
+		case "claim_token":
+			typedErr = s.upsertClaimTokenTx(tx, id, obj, item)
+		case "cli":
+			typedErr = s.upsertCliTx(tx, id, obj, item)
+		case "config":
+			typedErr = s.upsertConfigTx(tx, id, obj, item)
+		case "custom_hostname":
+			typedErr = s.upsertCustomHostnameTx(tx, id, obj, item)
+		case "database":
+			typedErr = s.upsertDatabaseTx(tx, id, obj, item)
+		case "functions":
+			typedErr = s.upsertFunctionsTx(tx, id, obj, item)
+		case "health":
+			typedErr = s.upsertHealthTx(tx, id, obj, item)
+		case "jit_access":
+			typedErr = s.upsertJitAccessTx(tx, id, obj, item)
+		case "network_bans":
+			typedErr = s.upsertNetworkBansTx(tx, id, obj, item)
+		case "network_restrictions":
+			typedErr = s.upsertNetworkRestrictionsTx(tx, id, obj, item)
+		case "pause":
+			typedErr = s.upsertPauseTx(tx, id, obj, item)
+		case "pgsodium":
+			typedErr = s.upsertPgsodiumTx(tx, id, obj, item)
+		case "postgrest":
+			typedErr = s.upsertPostgrestTx(tx, id, obj, item)
+		case "read_replicas":
+			typedErr = s.upsertReadReplicasTx(tx, id, obj, item)
+		case "readonly":
+			typedErr = s.upsertReadonlyTx(tx, id, obj, item)
+		case "projects_restore":
+			typedErr = s.upsertProjectsRestoreTx(tx, id, obj, item)
+		case "secrets":
+			typedErr = s.upsertSecretsTx(tx, id, obj, item)
+		case "ssl_enforcement":
+			typedErr = s.upsertSslEnforcementTx(tx, id, obj, item)
+		case "storage":
+			typedErr = s.upsertStorageTx(tx, id, obj, item)
+		case "types":
+			typedErr = s.upsertTypesTx(tx, id, obj, item)
+		case "upgrade":
+			typedErr = s.upsertUpgradeTx(tx, id, obj, item)
+		case "vanity_subdomain":
+			typedErr = s.upsertVanitySubdomainTx(tx, id, obj, item)
+		case "snippets":
+			typedErr = s.upsertSnippetsTx(tx, id, obj, item)
+		case "supabase-profile":
+			typedErr = s.upsertSupabaseProfileTx(tx, id, obj, item)
+		}
+
+		if typedErr != nil {
+			if _, rbErr := tx.Exec("ROLLBACK TO SAVEPOINT " + savepoint); rbErr != nil {
+				return stored, extractFailures, fmt.Errorf("rollback to savepoint for %s/%s (typed err: %v): %w", resourceType, id, typedErr, rbErr)
+			}
+			if _, relErr := tx.Exec("RELEASE SAVEPOINT " + savepoint); relErr != nil {
+				return stored, extractFailures, fmt.Errorf("release savepoint after rollback for %s/%s: %w", resourceType, id, relErr)
+			}
+			typedFailures++
+			continue
+		}
+		if _, err := tx.Exec("RELEASE SAVEPOINT " + savepoint); err != nil {
+			return stored, extractFailures, fmt.Errorf("release savepoint for %s/%s: %w", resourceType, id, err)
+		}
 	}
 
 	// Warn when most items in a batch lack an extractable ID — this likely
 	// means the API uses a primary key field we don't recognize yet.
 	if skippedCount > 0 && len(items) > 0 && skippedCount*2 > len(items) {
 		fmt.Fprintf(os.Stderr, "warning: %d/%d %s items skipped (no extractable ID field found)\n", skippedCount, len(items), resourceType)
+	}
+	if typedFailures > 0 {
+		fmt.Fprintf(os.Stderr, "warning: %d/%d %s items: typed-table upsert failed; generic resources rows preserved\n", typedFailures, len(items), resourceType)
 	}
 
 	if err := tx.Commit(); err != nil {
