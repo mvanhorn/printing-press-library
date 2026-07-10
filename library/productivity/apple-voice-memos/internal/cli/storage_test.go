@@ -168,6 +168,16 @@ func TestQueryMemosUsesSyntheticStoreAndTranscript(t *testing.T) {
 	}
 }
 
+func TestRequireMemoLocalRejectsCloudOnlyRecording(t *testing.T) {
+	err := requireMemoLocal(memo{ID: 8, Exists: false, Path: ""})
+	if err == nil || !strings.Contains(err.Error(), "not downloaded locally") {
+		t.Fatalf("error=%v", err)
+	}
+	if err := requireMemoLocal(memo{ID: 7, Exists: true, Path: "/tmp/memo.m4a"}); err != nil {
+		t.Fatalf("local memo rejected: %v", err)
+	}
+}
+
 func TestCopyFileCreatesPrivateOutput(t *testing.T) {
 	dir := t.TempDir()
 	source := filepath.Join(dir, "source.m4a")

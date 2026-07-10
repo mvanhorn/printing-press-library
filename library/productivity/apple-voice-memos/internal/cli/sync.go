@@ -319,7 +319,11 @@ func realSyncHooks(ctx context.Context, dbPath string) syncHooks {
 				if !remaining {
 					return nil
 				}
-				time.Sleep(100 * time.Millisecond)
+				select {
+				case <-ctx.Done():
+					return ctx.Err()
+				case <-time.After(100 * time.Millisecond):
+				}
 			}
 			return errors.New("timed out waiting for CLI-launched Voice Memos to quit")
 		},
