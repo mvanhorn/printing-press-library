@@ -35,16 +35,37 @@ type qkPlan struct {
 	LastAdvanced string `json:"last_advanced,omitempty"`
 }
 
-// qkLoadSurahMeta returns ordered surah metadata (id, name, verse count) from
-// the local store if synced, otherwise from one live fetch of the surah list.
-func qkLoadSurahMeta(ctx context.Context, c *client.Client, s *store.Store) ([]qkSurahMeta, error) {
+// qkSurahCacheKey is the plan-private resource type used to cache surah
+// metadata fetched live by the plan commands. It is deliberately separate from
+// the shared "surah" cache that 'sync' owns, so a plan fetch never overwrites
+// or downgrades richer synced surah rows.
+const qkSurahCacheKey = "plan_surah_meta"
+
+// qkReadSurahMeta loads valid surah metadata rows of the given resource type.
+func qkReadSurahMeta(s *store.Store, resourceType string) []qkSurahMeta {
+	rows, err := s.List(resourceType, 0)
+	if err != nil {
+		return nil
+	}
 	var metas []qkSurahMeta
-	if rows, err := s.List("surah", 0); err == nil {
-		for _, r := range rows {
-			var m qkSurahMeta
-			if json.Unmarshal(r, &m) == nil && m.ID > 0 && m.NumberOfVerses > 0 {
-				metas = append(metas, m)
-			}
+	for _, r := range rows {
+		var m qkSurahMeta
+		if json.Unmarshal(r, &m) == nil && m.ID > 0 && m.NumberOfVerses > 0 {
+			metas = append(metas, m)
+		}
+	}
+	return metas
+}
+
+// qkLoadSurahMeta returns ordered surah metadata (id, name, verse count),
+// preferring the shared synced "surah" cache, then the plan-private cache,
+// then one live fetch of the surah list which it caches plan-privately so
+// later offline plan calls do not refetch and fail.
+func qkLoadSurahMeta(ctx context.Context, c *client.Client, s *store.Store) ([]qkSurahMeta, error) {
+	metas := qkReadSurahMeta(s, "surah")
+	if len(metas) < 114 {
+		if cached := qkReadSurahMeta(s, qkSurahCacheKey); len(cached) >= 114 {
+			metas = cached
 		}
 	}
 	if len(metas) < 114 {
@@ -59,16 +80,15 @@ func qkLoadSurahMeta(ctx context.Context, c *client.Client, s *store.Store) ([]q
 			return nil, fmt.Errorf("parsing surah list: %w", err)
 		}
 		metas = resp.Data
-		// Persist the fetched metadata so later offline calls (plan today,
-		// plan status) read it from the local store instead of refetching and
-		// failing offline. Best-effort: a cache write failure must not break
-		// the current command.
+		// Cache into the plan-private resource so later offline plan calls read
+		// it locally, without touching the shared "surah" cache that 'sync'
+		// owns. Best-effort: a cache write failure must not break the command.
 		for _, m := range metas {
 			if m.ID <= 0 {
 				continue
 			}
 			if item, mErr := json.Marshal(m); mErr == nil {
-				_ = s.Upsert("surah", strconv.Itoa(m.ID), item)
+				_ = s.Upsert(qkSurahCacheKey, strconv.Itoa(m.ID), item)
 			}
 		}
 	}
