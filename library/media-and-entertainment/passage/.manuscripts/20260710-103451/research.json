@@ -1,0 +1,217 @@
+{
+  "api_name": "book-goat",
+  "novelty_score": 8,
+  "alternatives": [
+    {
+      "name": "libro",
+      "url": "https://github.com/mkaz/libro",
+      "language": "Python",
+      "install_method": "",
+      "stars": 40,
+      "last_updated": "",
+      "command_count": 6,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "bookcut",
+      "url": "https://github.com/costis94/bookcut",
+      "language": "Python",
+      "install_method": "",
+      "stars": 120,
+      "last_updated": "",
+      "command_count": 5,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "goodreads-cli",
+      "url": "https://github.com/yareeh/goodreads-cli",
+      "language": "JavaScript",
+      "install_method": "",
+      "stars": 20,
+      "last_updated": "",
+      "command_count": 5,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "pgberg",
+      "url": "https://github.com/gutenbergtools",
+      "language": "Python",
+      "install_method": "",
+      "stars": 15,
+      "last_updated": "",
+      "command_count": 4,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-07-10T10:35:00Z",
+  "novel_features": [
+    {
+      "name": "Today's reading",
+      "command": "today",
+      "description": "An opinionated public-domain book or passage to read today, rotated against what you've recently sat with.",
+      "rationale": "Requires anti-repeat against your local sit history — no catalog API picks a daily read for you.",
+      "example": "book-goat today --agent",
+      "why_it_matters": "Reach for this to start a daily reading practice without deciding what to read.",
+      "group": "The practice"
+    },
+    {
+      "name": "Sit with a passage",
+      "command": "sit",
+      "description": "Fetch a real Project Gutenberg passage, show an excerpt to read, and capture your reflection to your local journal.",
+      "rationale": "Requires fetching a real Gutenberg text, excerpting it, and persisting a reflection locally — no reading tracker serves the text and takes the reflection together.",
+      "example": "book-goat sit 1342 --note \"Austen's irony still lands\"",
+      "why_it_matters": "Use this for the core contemplative loop: read a real passage, write what it left you with.",
+      "group": "The practice"
+    },
+    {
+      "name": "Reflection journal",
+      "command": "journal",
+      "description": "Your reflections over time, newest first — the record of your reading practice.",
+      "rationale": "Requires the local reflections table; the journal is yours, not any API's.",
+      "example": "book-goat journal --limit 20",
+      "why_it_matters": "Use this to read back what your reading has left you with.",
+      "group": "The practice"
+    },
+    {
+      "name": "What to read next",
+      "command": "next",
+      "description": "Ranks your want-to-read shelf against your reading history to suggest what to pick up next.",
+      "rationale": "Requires ranking your local want-shelf against your reading log — no API knows your shelf.",
+      "example": "book-goat next",
+      "why_it_matters": "Use this when you've finished a book and want the next one off your own shelf.",
+      "group": "Your shelf"
+    },
+    {
+      "name": "Reading stats",
+      "command": "stats",
+      "description": "Your reading pace, top subjects, and rating distribution from your local log.",
+      "rationale": "Requires aggregating your local reading_log; no single API returns your personal reading stats.",
+      "example": "book-goat stats",
+      "why_it_matters": "Use this to see your reading habits over time.",
+      "group": "Your shelf"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Today's reading",
+      "command": "today",
+      "description": "An opinionated public-domain book or passage to read today, rotated against what you've recently sat with.",
+      "rationale": "Requires anti-repeat against your local sit history — no catalog API picks a daily read for you.",
+      "example": "book-goat today --agent",
+      "why_it_matters": "Reach for this to start a daily reading practice without deciding what to read.",
+      "group": "The practice"
+    },
+    {
+      "name": "Sit with a passage",
+      "command": "sit",
+      "description": "Fetch a real Project Gutenberg passage, show an excerpt to read, and capture your reflection to your local journal.",
+      "rationale": "Requires fetching a real Gutenberg text, excerpting it, and persisting a reflection locally — no reading tracker serves the text and takes the reflection together.",
+      "example": "book-goat sit 1342 --note \"Austen's irony still lands\"",
+      "why_it_matters": "Use this for the core contemplative loop: read a real passage, write what it left you with.",
+      "group": "The practice"
+    },
+    {
+      "name": "Reflection journal",
+      "command": "journal",
+      "description": "Your reflections over time, newest first — the record of your reading practice.",
+      "rationale": "Requires the local reflections table; the journal is yours, not any API's.",
+      "example": "book-goat journal --limit 20",
+      "why_it_matters": "Use this to read back what your reading has left you with.",
+      "group": "The practice"
+    },
+    {
+      "name": "What to read next",
+      "command": "next",
+      "description": "Ranks your want-to-read shelf against your reading history to suggest what to pick up next.",
+      "rationale": "Requires ranking your local want-shelf against your reading log — no API knows your shelf.",
+      "example": "book-goat next",
+      "why_it_matters": "Use this when you've finished a book and want the next one off your own shelf.",
+      "group": "Your shelf"
+    },
+    {
+      "name": "Reading stats",
+      "command": "stats",
+      "description": "Your reading pace, top subjects, and rating distribution from your local log.",
+      "rationale": "Requires aggregating your local reading_log; no single API returns your personal reading stats.",
+      "example": "book-goat stats",
+      "why_it_matters": "Use this to see your reading habits over time.",
+      "group": "Your shelf"
+    }
+  ],
+  "narrative": {
+    "display_name": "book-goat",
+    "headline": "A contemplative daily reading practice — open book APIs as your library, real public-domain passages to sit with, and a reading journal that's yours.",
+    "value_prop": "Reading trackers log what you read; ebook CLIs fetch files. book-goat makes a daily practice out of real public-domain texts: today serves an opinionated pick, sit shows a real Project Gutenberg passage and takes your reflection, journal keeps them, and shelf/next/stats track your reading. Everything is local SQLite — the practice is yours.",
+    "auth_narrative": "No key required. Open Library and Gutendex (Project Gutenberg) are keyless; Google Books works anonymously. Set GOOGLE_BOOKS_API_KEY only to lift the anonymous rate limit.",
+    "quickstart": [
+      {
+        "command": "book-goat search \"marcus aurelius\"",
+        "comment": "find a book; results flag which have free full text"
+      },
+      {
+        "command": "book-goat today",
+        "comment": "an opinionated public-domain pick for today"
+      },
+      {
+        "command": "book-goat sit 2680 --note \"start slow\"",
+        "comment": "read a real Gutenberg passage and capture a reflection"
+      },
+      {
+        "command": "book-goat journal",
+        "comment": "read back your reflections"
+      },
+      {
+        "command": "book-goat shelf add OL45804W --to want",
+        "comment": "add a book to your want-to-read shelf"
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "403 or rate-limited from Open Library / Gutendex",
+        "fix": "These keyless APIs allow ~1 request/second anonymously; book-goat backs off — retry, or slow bulk syncs."
+      },
+      {
+        "symptom": "sit says no text available",
+        "fix": "Only public-domain books on Project Gutenberg have full text — use a Gutenberg id (the number in a gutendex /books result), not an Open Library id."
+      },
+      {
+        "symptom": "Google Books returns 'not available in this country'",
+        "fix": "book-goat sends country=US by default; enrichment is optional and off the core loop."
+      }
+    ],
+    "when_to_use": "Reach for book-goat to keep a daily reading practice grounded in real public-domain texts — a pick to read, a passage to sit with, a reflection to keep — plus a local shelf and reading log. It is not an ebook pirate or a Goodreads mirror; it is a personal, local practice.",
+    "recipes": [
+      {
+        "title": "The daily loop",
+        "command": "book-goat today \u0026\u0026 book-goat sit \u003cid\u003e --note \"...\"",
+        "explanation": "Get today's pick, then sit with its passage and journal a reflection."
+      },
+      {
+        "title": "Find something with free text",
+        "command": "book-goat search \"stoicism\" --json --select docs.title,docs.has_fulltext",
+        "explanation": "Search and narrow to which results have free full text."
+      },
+      {
+        "title": "Read back the practice",
+        "command": "book-goat journal --limit 30",
+        "explanation": "Your recent reflections, newest first."
+      }
+    ],
+    "trigger_phrases": [
+      "what should I read today",
+      "find me a book",
+      "sit with a passage",
+      "add to my reading list",
+      "my reading journal",
+      "use book-goat",
+      "run book-goat"
+    ]
+  }
+}

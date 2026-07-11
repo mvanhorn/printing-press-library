@@ -1,0 +1,85 @@
+{
+  "api_name": "passage",
+  "base_url": "https://openlibrary.org",
+  "description": "A contemplative daily reading practice — open book APIs as your library, real public-domain passages to sit with, and a reading journal that's yours.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "none"
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "authors_get",
+      "description": "Biographical metadata for an Open Library author. Required: authorId. Returns the Author.",
+      "method": "GET",
+      "path": "/authors/{authorId}.json",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "authorId",
+          "type": "string",
+          "location": "path",
+          "description": "Open Library author id, e.g. OL23919A",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "search-json_search",
+      "description": "Full-text search over Open Library's catalog. Returns works with title, author, year, cover, and full-text availability. Required: q. Optional: fields, limit, page (plus 1 more).",
+      "method": "GET",
+      "path": "/search.json",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "q",
+          "type": "string",
+          "location": "query",
+          "description": "Search query (title, author, subject, or free text)",
+          "required": true
+        },
+        {
+          "name": "fields",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated fields to return (e.g. key,title,author_name,first_publish_year,cover_i,has_fulltext). Use * for all."
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Max results (default 20)"
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page number (1-based)"
+        },
+        {
+          "name": "sort",
+          "type": "string",
+          "location": "query",
+          "description": "Sort order (e.g. new, old, rating, editions, readinglog)"
+        }
+      ]
+    },
+    {
+      "name": "works_get",
+      "description": "Full metadata for an Open Library work (description, subjects, covers, links). Required: workId. Returns the Work.",
+      "method": "GET",
+      "path": "/works/{workId}.json",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "workId",
+          "type": "string",
+          "location": "path",
+          "description": "Open Library work id, e.g. OL45804W",
+          "required": true
+        }
+      ]
+    }
+  ]
+}
