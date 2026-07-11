@@ -41,12 +41,27 @@ var staticReportEndpointPaths = map[string]string{
 // extractor would silently return parsed rejection-page metadata as if it
 // were a real (if generic) result instead of surfacing the fetch failure.
 func nsdlTransformHTMLEndpoint(ctx context.Context, endpoint, baseURL string, rawBody []byte, params map[string]string) (json.RawMessage, bool, error) {
+	isStaticReport := false
 	if path, ok := staticReportEndpointPaths[endpoint]; ok {
+		isStaticReport = true
 		fresh, err := nsdl.FetchStaticReport(ctx, baseURL, path)
 		if err != nil {
 			return nil, false, fmt.Errorf("fetching %s: %w", endpoint, err)
 		}
 		rawBody = fresh
+	}
+	// parseFail turns a parser error into the right return for this
+	// endpoint: a hard error for a static-report-backed endpoint (rawBody
+	// is the freshly re-fetched real content at this point, not the WAF
+	// rejection page — a parse failure here means the page shape changed,
+	// not "unsupported endpoint", and must not let the caller fall back
+	// to the plain client's original rejected body), or the ordinary
+	// "no bespoke parser" fallback signal otherwise.
+	parseFail := func(err error) (json.RawMessage, bool, error) {
+		if isStaticReport {
+			return nil, false, fmt.Errorf("parsing %s: %w", endpoint, err)
+		}
+		return nil, false, nil
 	}
 	switch endpoint {
 	case "net_investment.fy":
@@ -56,7 +71,7 @@ func nsdlTransformHTMLEndpoint(ctx context.Context, endpoint, baseURL string, ra
 		}
 		rows, err := nsdl.ParseNetInvestment(rawBody, "fy", currency)
 		if err != nil {
-			return nil, false, nil
+			return parseFail(err)
 		}
 		return marshalOrFalse(rows)
 	case "net_investment.cy":
@@ -70,31 +85,31 @@ func nsdlTransformHTMLEndpoint(ctx context.Context, endpoint, baseURL string, ra
 		}
 		rows, err := nsdl.ParseNetInvestment(rawBody, periodType, currency)
 		if err != nil {
-			return nil, false, nil
+			return parseFail(err)
 		}
 		return marshalOrFalse(rows)
 	case "net_investment.quarterly", "net_investment.latest":
 		recs, err := nsdl.ParseGenericRecords(rawBody)
 		if err != nil {
-			return nil, false, nil
+			return parseFail(err)
 		}
 		return marshalOrFalse(recs)
 	case "auc.country", "auc.category":
 		recs, err := nsdl.ParseAUC(rawBody)
 		if err != nil {
-			return nil, false, nil
+			return parseFail(err)
 		}
 		return marshalOrFalse(recs)
 	case "trades.equity", "trades.debt":
 		recs, err := nsdl.ParseTrades(rawBody)
 		if err != nil {
-			return nil, false, nil
+			return parseFail(err)
 		}
 		return marshalOrFalse(recs)
 	case "registry.list", "registry.categories", "registry.pendency":
 		recs, err := nsdl.ParseRegistry(rawBody)
 		if err != nil {
-			return nil, false, nil
+			return parseFail(err)
 		}
 		return marshalOrFalse(recs)
 	case "sector.list":
