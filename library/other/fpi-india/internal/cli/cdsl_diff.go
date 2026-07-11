@@ -77,7 +77,14 @@ func ddmmyyyyToReportDate(ddmmyyyy string) (time.Time, bool) {
 	if err1 != nil || err2 != nil || err3 != nil {
 		return time.Time{}, false
 	}
-	return time.Date(year, time.Month(month), day, 0, 0, 0, 0, time.UTC), true
+	t := time.Date(year, time.Month(month), day, 0, 0, 0, 0, time.UTC)
+	// time.Date silently normalizes an out-of-range day (e.g. 31-Apr) into
+	// the following month instead of erroring; reject those rather than
+	// let callers treat a rolled-over date as the one the user asked for.
+	if t.Day() != day || int(t.Month()) != month || t.Year() != year {
+		return time.Time{}, false
+	}
+	return t, true
 }
 
 func newNovelCdslDiffCmd(flags *rootFlags) *cobra.Command {

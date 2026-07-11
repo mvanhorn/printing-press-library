@@ -18,6 +18,7 @@ func newNetInvestmentCmd(flags *rootFlags) *cobra.Command {
 
 	cmd.AddCommand(newNetInvestmentCyCmd(flags))
 	cmd.AddCommand(newNetInvestmentFyCmd(flags))
+	cmd.AddCommand(newNetInvestmentArchiveCmd(flags))
 	cmd.AddCommand(newNetInvestmentLatestCmd(flags))
 	cmd.AddCommand(newNetInvestmentMonthlyCmd(flags))
 	cmd.AddCommand(newNetInvestmentQuarterlyCmd(flags))
