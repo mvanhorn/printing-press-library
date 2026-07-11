@@ -1663,6 +1663,7 @@ func defaultSyncResources() []string {
 		"registry",
 		"sector",
 		"limits",
+		"cdsl_reports",
 	}
 }
 

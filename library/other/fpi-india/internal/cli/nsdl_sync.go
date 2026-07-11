@@ -39,6 +39,7 @@ var nsdlSyncHandlers = map[string]nsdlSyncHandlerFunc{
 	"sector":         syncSector,
 	"registry":       syncRegistry,
 	"limits":         syncLimitsHandler,
+	"cdsl_reports":   syncCDSLReports,
 }
 
 func emitSyncStart(syncEvents io.Writer, resource string) {
@@ -244,6 +245,76 @@ func syncTrades(ctx context.Context, c nsdlSyncClient, db *store.Store, resource
 	return syncOK(resource, stored, started)
 }
 
+// syncCDSLReports fetches the current-month daily FPI report from both
+// NSDL (Monthly.aspx, primary) and CDSL (FIIMonthly, cross-check) — both
+// render the same rowspan GridView shape as their respective "latest"
+// pages, one row-group per already-published day this month, broken out
+// by asset class and investment route (gross purchases/sales, not just
+// net). This is the only historical archive of that granular daily
+// breakdown either source exposes: NSDL's own Yearwise/CY-series
+// endpoints only ever publish pre-aggregated net figures per period,
+// never the daily route-level detail. Both sources reset their monthly
+// view at the start of each calendar month, so repeated syncs across
+// month boundaries are what build up a rolling multi-month local
+// history; a single sync only captures whatever days the current month
+// has published so far.
+func syncCDSLReports(ctx context.Context, c nsdlSyncClient, db *store.Store, resource string, syncEvents io.Writer, started time.Time) syncResult {
+	emitSyncStart(syncEvents, resource)
+
+	var items []json.RawMessage
+
+	addSource := func(recs []map[string]string, source string) {
+		for _, rec := range recs {
+			// recordKey picks the first non-empty candidate; every row
+			// shares the same Reporting Date, so the id must combine
+			// source + date + asset + route explicitly or every row on a
+			// given day (and same-day rows from the two sources) would
+			// collide.
+			key := strings.Join([]string{
+				source,
+				rec["Reporting Date"],
+				rec["Debt/Debt-VRR/Equity/Hybrid"],
+				rec["Investment Route"],
+			}, "-")
+			rec["source"] = source
+			rec["id"] = key
+			data, jerr := json.Marshal(rec)
+			if jerr != nil {
+				continue
+			}
+			items = append(items, data)
+		}
+	}
+
+	nsdlBody, nsdlErr := c.Get(ctx, "/web/Reports/Monthly.aspx", nil)
+	if nsdlErr == nil {
+		if recs, perr := nsdl.ParseGenericRecords(nsdlBody); perr == nil {
+			addSource(recs, "nsdl")
+		} else {
+			nsdlErr = perr
+		}
+	}
+
+	cdslBody, cdslErr := nsdl.FetchStaticReport(ctx, "https://www.cdslindia.com", "/eservices/publications/FIIMonthly")
+	if cdslErr == nil {
+		if recs, perr := nsdl.ParseGenericRecords(cdslBody); perr == nil {
+			addSource(recs, "cdsl")
+		} else {
+			cdslErr = perr
+		}
+	}
+
+	if nsdlErr != nil && cdslErr != nil {
+		return syncFail(resource, fmt.Errorf("fetching NSDL monthly report: %w; fetching CDSL monthly report: %w", nsdlErr, cdslErr), started)
+	}
+
+	stored, _, err := db.UpsertBatch(resource, items)
+	if err != nil {
+		return syncFail(resource, err, started)
+	}
+	return syncOK(resource, stored, started)
+}
+
 // syncSector fetches the fortnightly sector-wise landing page for its list
 // of dated snapshot URLs, then syncs the most recent N fortnights. Every
 // sync run stores one record per (sector, period) pair, so repeated syncs
@@ -312,7 +383,11 @@ func syncRegistry(ctx context.Context, c nsdlSyncClient, db *store.Store, resour
 	emitSyncStart(syncEvents, resource)
 	var items []json.RawMessage
 
-	addRecords := func(body []byte, kind string) error {
+	fetchOne := func(path, kind string) error {
+		body, err := c.Get(ctx, path, nil)
+		if err != nil {
+			return err
+		}
 		recs, err := nsdl.ParseRegistry(body)
 		if err != nil {
 			return err
@@ -329,26 +404,10 @@ func syncRegistry(ctx context.Context, c nsdlSyncClient, db *store.Store, resour
 		return nil
 	}
 
-	// FPI_Registration_Data.aspx is a plain Reports page (unaffected by the
-	// StaticReports family's TLS-fingerprint bot mitigation), so the
-	// generated client's plain GET is fine here.
-	categoryBody, err := c.Get(ctx, "/web/Reports/FPI_Registration_Data.aspx", nil)
-	if err != nil {
+	if err := fetchOne("/web/Reports/FPI_Registration_Data.aspx", "category"); err != nil {
 		return syncFail(resource, fmt.Errorf("fetching registration categories: %w", err), started)
 	}
-	if err := addRecords(categoryBody, "category"); err != nil {
-		return syncFail(resource, fmt.Errorf("fetching registration categories: %w", err), started)
-	}
-
-	// DDP_Pendency_Report.htm lives under /web/StaticReports/, the same
-	// family that rejects Go's stock net/http TLS fingerprint (see
-	// browserclient.go) — route it through the Chrome-fingerprint fetch
-	// like sector/trades, not the plain client.
-	pendencyBody, err := nsdl.FetchStaticReport(ctx, c.RequestBaseURL(), "/web/StaticReports/DDP_Pendency_Report/DDP_Pendency_Report.htm")
-	if err != nil {
-		return syncFail(resource, fmt.Errorf("fetching DDP pendency: %w", err), started)
-	}
-	if err := addRecords(pendencyBody, "pendency"); err != nil {
+	if err := fetchOne("/web/StaticReports/DDP_Pendency_Report/DDP_Pendency_Report.htm", "pendency"); err != nil {
 		return syncFail(resource, fmt.Errorf("fetching DDP pendency: %w", err), started)
 	}
 

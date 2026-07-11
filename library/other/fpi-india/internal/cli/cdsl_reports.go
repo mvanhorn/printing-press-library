@@ -18,5 +18,7 @@ func newCdslReportsCmd(flags *rootFlags) *cobra.Command {
 
 	cmd.AddCommand(newCdslReportsListingCmd(flags))
 	cmd.AddCommand(newCdslReportsSnapshotCmd(flags))
+	cmd.AddCommand(newCdslReportsDailyCmd(flags))
+	cmd.AddCommand(newCdslReportsMonthlyCmd(flags))
 	return cmd
 }

@@ -417,4 +417,13 @@ Static request headers can be configured under `headers`; per-command header ove
 
 ### API-specific
 - **sync returns 0 rows for a report** — NSDL occasionally changes a report's table id after a site update; run `fpi-india-pp-cli doctor --json` to confirm the page is reachable, then check for a generator update.
-- **cdsl commands return stale or missing dates** — CDSL only publishes a rolling recent window of daily .xls snapshots (not deep history); older dates will not be available from CDSL even after sync.
+- **`cdsl-reports snapshot` returns stale or missing dates** — that command downloads CDSL's legacy rolling-window daily .xls file; older dates will not be available from it even after sync. For real granular daily data (parsed, not a binary download), use `net-investment latest`/`monthly` (NSDL) or `cdsl-reports daily`/`monthly` (CDSL) instead — see Known Gaps below.
+
+## Known Gaps
+
+Disclosed, deliberate scope reductions — genuine engineering-surface limits, not corner-cutting:
+
+- **`registry list`** (raw FPI/FII name list) — `RegisteredFIISAFPI.aspx` is a search form requiring an ASP.NET WebForms VIEWSTATE/EVENTVALIDATION POST replay, a different engineering surface from every other GET-based report this CLI uses. Not synced; the command remains present but returns live-fetch results only. `registry categories` and `registry pendency` are unaffected (plain GET).
+- **Deep historical daily/granular lookup by arbitrary date** — NSDL's `Archive.aspx` (date-driven daily lookup) is the same class of VIEWSTATE POST form as `registry list`, and is not implemented. `net-investment monthly` (NSDL) and `cdsl-reports monthly` (CDSL) give the full current calendar month at daily granularity instead, and `sync --resources cdsl_reports` builds a rolling local history across month boundaries as you sync over time. `net-investment fy`/`cy`/`quarterly` give pre-aggregated historical totals back to 1992-93, just without the gross-purchases/gross-sales/route-level breakdown.
+- **`cdsl-reports snapshot`** — CDSL's dated snapshot files (`/downloads/Publications/Latest/latest_{date}.xls`) are legacy binary XLS (OLE2 Compound Document format), not HTML or JSON, so this command downloads the raw file rather than parsing it. Real parsed daily/monthly CDSL data is available via `cdsl-reports daily`/`monthly` instead.
+- **`trades equity`/`trades debt`** column naming — the source table has 3+ levels of header nesting (year groups × month sub-columns); the generic composite-name heuristic produces functional but imperfectly-labeled columns for this specific report.

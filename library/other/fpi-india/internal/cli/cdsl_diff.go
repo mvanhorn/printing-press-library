@@ -6,8 +6,11 @@
 package cli
 
 import (
+	"context"
 	"fmt"
+	"strconv"
 	"strings"
+	"time"
 
 	"github.com/mvanhorn/printing-press-library/library/other/fpi-india/internal/nsdl"
 
@@ -15,12 +18,66 @@ import (
 )
 
 type cdslDiffView struct {
-	Date              string  `json:"date"`
-	CDSLFilePublished bool    `json:"cdsl_file_published"`
-	CDSLFileURL       string  `json:"cdsl_file_url,omitempty"`
-	NSDLLatestPeriod  string  `json:"nsdl_latest_period,omitempty"`
-	NSDLLatestTotal   float64 `json:"nsdl_latest_total,omitempty"`
-	Note              string  `json:"note"`
+	RequestedDate string  `json:"requested_date"`
+	CDSLDate      string  `json:"cdsl_reporting_date,omitempty"`
+	CDSLTotal     float64 `json:"cdsl_net_investment_total_inr_cr,omitempty"`
+	NSDLDate      string  `json:"nsdl_reporting_date,omitempty"`
+	NSDLTotal     float64 `json:"nsdl_net_investment_total_inr_cr,omitempty"`
+	Match         bool    `json:"match"`
+	Note          string  `json:"note"`
+}
+
+// cdslReportTotal fetches a CDSL/NSDL daily FPI report and returns the
+// "Total" row's Reporting Date and Net Investment (Rs. Crore) figure.
+// Both sources render the same rowspan GridView shape with identical
+// column names ("Reporting Date", "Investment Route", "Net Investment
+// (Rs. Crore)"), so one helper covers both.
+func cdslReportTotal(ctx context.Context, baseURL, path string) (date string, total float64, err error) {
+	body, ferr := nsdl.FetchStaticReport(ctx, baseURL, path)
+	if ferr != nil {
+		return "", 0, ferr
+	}
+	recs, perr := nsdl.ParseGenericRecords(body)
+	if perr != nil {
+		return "", 0, perr
+	}
+	for _, rec := range recs {
+		if !strings.EqualFold(strings.TrimSpace(rec["Investment Route"]), "Total") {
+			continue
+		}
+		n, ok := nsdl.ParseNumber(rec["Net Investment (Rs. Crore)"])
+		if !ok {
+			continue
+		}
+		return strings.TrimSpace(rec["Reporting Date"]), n, nil
+	}
+	return "", 0, fmt.Errorf("no Total row found in report")
+}
+
+// parseReportDate parses the "DD-Mon-YYYY" / "DD-MON-YYYY" reporting-date
+// format both NSDL and CDSL emit (e.g. "10-Jul-2026", "10-JUL-2026").
+func parseReportDate(s string) (time.Time, bool) {
+	for _, layout := range []string{"02-Jan-2006", "02-JAN-2006"} {
+		if t, err := time.Parse(layout, s); err == nil {
+			return t, true
+		}
+	}
+	return time.Time{}, false
+}
+
+// ddmmyyyyToReportDate converts the CLI's DDMMYYYY --date flag format to
+// the same day the report-date fields use, for equality comparison.
+func ddmmyyyyToReportDate(ddmmyyyy string) (time.Time, bool) {
+	if len(ddmmyyyy) != 8 {
+		return time.Time{}, false
+	}
+	day, err1 := strconv.Atoi(ddmmyyyy[0:2])
+	month, err2 := strconv.Atoi(ddmmyyyy[2:4])
+	year, err3 := strconv.Atoi(ddmmyyyy[4:8])
+	if err1 != nil || err2 != nil || err3 != nil {
+		return time.Time{}, false
+	}
+	return time.Date(year, time.Month(month), day, 0, 0, 0, 0, time.UTC), true
 }
 
 func newNovelCdslDiffCmd(flags *rootFlags) *cobra.Command {
@@ -28,85 +85,82 @@ func newNovelCdslDiffCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:     "diff",
-		Short:   "Compare NSDL's and CDSL's figures for the same date and flag any mismatch.",
-		Example: "  fpi-india-pp-cli cdsl diff --date 09072026 --json",
-		Long: "Confirms whether CDSL has published a daily snapshot for the requested date (CDSL only exposes a rolling recent window, " +
-			"not deep history) and reports NSDL's latest fortnight net-investment figure alongside it. CDSL's snapshot files are legacy " +
-			"binary XLS (OLE2 Compound Document format), not HTML or JSON, so this command cross-checks publication freshness and reachability " +
-			"rather than reconciling individual cell values between the two sources; use 'cdsl-reports snapshot <date>' to download the raw file " +
-			"for manual inspection.",
+		Short:   "Compare NSDL's and CDSL's latest daily net-investment totals and flag any mismatch.",
+		Example: "  fpi-india-pp-cli cdsl diff --date 10072026 --json",
+		Long: "Fetches CDSL's and NSDL's current daily FPI net-investment totals (CDSL's /eservices/publications/FIIDaily and NSDL's " +
+			"Latest.aspx) and reconciles them against each other and against the requested date. Both sources only expose their most " +
+			"recently published day through this path — --date is checked against what's actually available and the command reports " +
+			"a clear mismatch note rather than silently comparing the wrong days. Use 'cdsl-reports monthly' for CDSL's fuller current-month " +
+			"history, or 'cdsl-reports snapshot <date>' for the legacy per-day binary XLS archive.",
 		Annotations: map[string]string{"mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if dryRunOK(flags) {
-				fmt.Fprintln(cmd.OutOrStdout(), "would cross-check NSDL/CDSL publication freshness for a date")
+				fmt.Fprintln(cmd.OutOrStdout(), "would reconcile NSDL/CDSL daily net-investment totals for a date")
 				return nil
 			}
 			if flagDate == "" {
 				_ = cmd.Usage()
-				return usageErrf("--date is required, in DDMMYYYY format, e.g. --date 09072026")
+				return usageErrf("--date is required, in DDMMYYYY format, e.g. --date 10072026")
 			}
-			if len(flagDate) != 8 {
+			requested, ok := ddmmyyyyToReportDate(flagDate)
+			if !ok {
 				_ = cmd.Usage()
-				return usageErrf("--date must be 8 digits in DDMMYYYY format, e.g. --date 09072026")
+				return usageErrf("--date must be 8 digits in DDMMYYYY format, e.g. --date 10072026")
 			}
 
-			c, err := flags.newClient()
-			if err != nil {
-				return err
+			view := cdslDiffView{RequestedDate: flagDate}
+
+			cdslDateStr, cdslTotal, cdslErr := cdslReportTotal(cmd.Context(), "https://www.cdslindia.com", "/eservices/publications/FIIDaily")
+			if cdslErr == nil {
+				view.CDSLDate = cdslDateStr
+				view.CDSLTotal = cdslTotal
 			}
 
-			view := cdslDiffView{Date: flagDate}
-
-			// CDSL rejects Go's stock net/http TLS fingerprint (HTTP 406)
-			// even with a matching browser User-Agent — the same class of
-			// bot mitigation NSDL's StaticReports family applies; see
-			// nsdl.browserFingerprintHTTPGet's doc comment.
-			listingBody, err := nsdl.FetchStaticReport(cmd.Context(), "https://www.cdslindia.com", "/Publications/ForeignPortInvestor.html")
-			if err != nil {
-				return fmt.Errorf("fetching CDSL listing: %w", err)
+			nsdlDateStr, nsdlTotal, nsdlErr := cdslReportTotal(cmd.Context(), "https://www.fpi.nsdl.co.in", "/web/Reports/Latest.aspx")
+			if nsdlErr == nil {
+				view.NSDLDate = nsdlDateStr
+				view.NSDLTotal = nsdlTotal
 			}
-			for _, marker := range []string{"latest_" + flagDate + ".xls", "Latest_" + flagDate + ".xls"} {
-				if strings.Contains(string(listingBody), marker) {
-					view.CDSLFilePublished = true
-					view.CDSLFileURL = "https://www.cdslindia.com/downloads/Publications/Latest/" + marker
-					break
+
+			if cdslErr != nil && nsdlErr != nil {
+				return fmt.Errorf("fetching CDSL daily report: %w; fetching NSDL latest report: %w", cdslErr, nsdlErr)
+			}
+
+			cdslDate, cdslDateOK := parseReportDate(cdslDateStr)
+			nsdlDate, nsdlDateOK := parseReportDate(nsdlDateStr)
+
+			switch {
+			case cdslErr != nil:
+				view.Note = fmt.Sprintf("CDSL daily report unavailable (%v); showing NSDL only", cdslErr)
+			case nsdlErr != nil:
+				view.Note = fmt.Sprintf("NSDL latest report unavailable (%v); showing CDSL only", nsdlErr)
+			case !cdslDateOK || !nsdlDateOK:
+				view.Note = "could not parse one or both sources' reporting dates for comparison"
+			case !cdslDate.Equal(nsdlDate):
+				view.Note = fmt.Sprintf("NSDL and CDSL are reporting different latest dates (NSDL: %s, CDSL: %s) — each source only exposes its own most recent day through this path, not arbitrary history", nsdlDateStr, cdslDateStr)
+			default:
+				diff := cdslTotal - nsdlTotal
+				if diff < 0 {
+					diff = -diff
+				}
+				view.Match = diff < 0.01
+				if view.Match {
+					view.Note = fmt.Sprintf("NSDL and CDSL agree on %s: net investment %.2f Rs. Crore", nsdlDateStr, nsdlTotal)
+				} else {
+					view.Note = fmt.Sprintf("NSDL and CDSL both report %s but disagree: NSDL %.2f vs CDSL %.2f Rs. Crore (delta %.2f)", nsdlDateStr, nsdlTotal, cdslTotal, diff)
 				}
 			}
 
-			latestBody, err := c.Get(cmd.Context(), "/web/Reports/Latest.aspx", nil)
-			if err == nil {
-				if recs, parseErr := nsdl.ParseGenericRecords(latestBody); parseErr == nil && len(recs) > 0 {
-					rec := recs[0]
-					for k, v := range rec {
-						if strings.Contains(strings.ToLower(k), "total") {
-							if n, ok := nsdl.ParseNumber(v); ok {
-								view.NSDLLatestTotal = n
-								break
-							}
-						}
-					}
-					// NSDLLatestPeriod must be an actual period/date value, not
-					// the total column's header name (a prior version mistakenly
-					// reused the total-column key here) — look for a value under
-					// a period-shaped key instead.
-					for _, key := range []string{"Period", "period", "As on", "As On", "Date", "date", "Fortnight", "fortnight"} {
-						if v, ok := rec[key]; ok && strings.TrimSpace(v) != "" {
-							view.NSDLLatestPeriod = v
-							break
-						}
-					}
-				}
+			if cdslDateOK && !cdslDate.Equal(requested) {
+				view.Note += fmt.Sprintf("; requested date %s does not match CDSL's latest available date %s", flagDate, cdslDateStr)
 			}
-
-			if view.CDSLFilePublished {
-				view.Note = "CDSL has published a snapshot for this date; download it with 'cdsl-reports snapshot " + flagDate + "' for the raw figures (legacy binary XLS, not parsed by this CLI)"
-			} else {
-				view.Note = "CDSL has not published a snapshot for this date in its current rolling window (CDSL only retains recent dates, not deep history)"
+			if nsdlDateOK && !nsdlDate.Equal(requested) {
+				view.Note += fmt.Sprintf("; requested date %s does not match NSDL's latest available date %s", flagDate, nsdlDateStr)
 			}
 
 			return printOutputWithFlagsMeta(cmd.OutOrStdout(), mustJSON(view), flags, map[string]any{"source": "live"})
 		},
 	}
-	cmd.Flags().StringVar(&flagDate, "date", "", "Date to check in DDMMYYYY format, e.g. 09072026")
+	cmd.Flags().StringVar(&flagDate, "date", "", "Date to check in DDMMYYYY format, e.g. 10072026")
 	return cmd
 }
