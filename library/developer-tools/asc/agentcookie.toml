@@ -1,0 +1,16 @@
+# agentcookie.toml: secrets-bus adoption manifest v2
+# See docs/spec-agentcookie-secrets-bus-v2-adoption.md
+schema_version = 2
+name = "asc-pp-cli"
+display_name = "App Store Connect"
+description = "A read-only App Store Connect cockpit that shows every app you ship at once — review state, builds, downloads, and ratings in one glance."
+project_kind = "cli"
+
+[secrets.file]
+path = "~/.config/asc-pp-cli/config.toml"
+
+[sync]
+default = false
+
+[sync.keys]
+APP_STORE_CONNECT_ITC_BEARER_TOKEN = true

@@ -1,0 +1,217 @@
+{
+  "api_name": "asc",
+  "novelty_score": 8,
+  "alternatives": [
+    {
+      "name": "fastlane",
+      "url": "https://github.com/fastlane/fastlane",
+      "language": "Ruby",
+      "install_method": "",
+      "stars": 39000,
+      "last_updated": "",
+      "command_count": 15,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "appstoreconnect-cli",
+      "url": "https://github.com/ittybittyapps/appstoreconnect-cli",
+      "language": "Swift",
+      "install_method": "",
+      "stars": 400,
+      "last_updated": "",
+      "command_count": 20,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "asc-mcp",
+      "url": "https://github.com/pofky/asc-mcp",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 30,
+      "last_updated": "",
+      "command_count": 8,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "node-app-store-connect-api",
+      "url": "https://github.com/dfabulich/node-app-store-connect-api",
+      "language": "JavaScript",
+      "install_method": "",
+      "stars": 80,
+      "last_updated": "",
+      "command_count": 3,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-07-10T09:42:00Z",
+  "novel_features": [
+    {
+      "name": "Fleet cockpit",
+      "command": "cockpit",
+      "description": "One-glance board across all your apps: review state, latest build + processing state, and an action-needed flag.",
+      "rationale": "Requires fanning every app across the apps, builds, versions, and reviews endpoints and folding them into one row per app — no single API call returns it.",
+      "example": "asc cockpit --agent",
+      "why_it_matters": "Reach for this to answer 'what across all my apps needs attention right now' in one call instead of N per-app lookups.",
+      "group": "Cross-app rollups"
+    },
+    {
+      "name": "In-flight review board with SLA aging",
+      "command": "pipeline",
+      "description": "Every version currently in the review pipeline across all apps, ranked by how long it has been waiting.",
+      "rationale": "Requires ordering appStoreVersions across apps by createdDate age — no tool ages review-state across a fleet.",
+      "example": "asc pipeline --agent",
+      "why_it_matters": "Use this to catch a submission that has been stuck in WAITING_FOR_REVIEW or IN_REVIEW too long.",
+      "group": "Cross-app rollups"
+    },
+    {
+      "name": "Traction leaderboard",
+      "command": "traction",
+      "description": "Ranks your apps by recent rating and review volume and flags apps whose rating is trending down; adds download counts when ASC_VENDOR_NUMBER is set.",
+      "rationale": "Requires computing a per-app rating trend across every app's review stream and ranking the fleet — pofky's daily_briefing only summarizes one app.",
+      "example": "asc traction --window 30 --agent",
+      "why_it_matters": "Use this to decide which app is actually gaining traction and which one's rating is slipping.",
+      "group": "Cross-app rollups"
+    },
+    {
+      "name": "Fleet feedback pulse",
+      "command": "reviews recent",
+      "description": "Newest written customer reviews across all your apps in one merged stream.",
+      "rationale": "Requires merging per-app review streams sorted by createdDate — the API only exposes reviews one app at a time.",
+      "example": "asc reviews recent --limit 20 --agent",
+      "why_it_matters": "Use this for a daily feedback read across the whole portfolio without querying each app.",
+      "group": "Cross-app rollups"
+    },
+    {
+      "name": "Action-needed blockers",
+      "command": "blockers",
+      "description": "Correlates failed/invalid builds, pending or absent submissions, and metadata rejections into one fleet blocker list.",
+      "rationale": "Requires correlating build processingState, submission state, and appStoreState across every app — no endpoint returns 'what is blocked'.",
+      "example": "asc blockers --agent",
+      "why_it_matters": "Use this to find every app that cannot ship right now and why, in one call.",
+      "group": "Cross-app rollups"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Fleet cockpit",
+      "command": "cockpit",
+      "description": "One-glance board across all your apps: review state, latest build + processing state, and an action-needed flag.",
+      "rationale": "Requires fanning every app across the apps, builds, versions, and reviews endpoints and folding them into one row per app — no single API call returns it.",
+      "example": "asc cockpit --agent",
+      "why_it_matters": "Reach for this to answer 'what across all my apps needs attention right now' in one call instead of N per-app lookups.",
+      "group": "Cross-app rollups"
+    },
+    {
+      "name": "In-flight review board with SLA aging",
+      "command": "pipeline",
+      "description": "Every version currently in the review pipeline across all apps, ranked by how long it has been waiting.",
+      "rationale": "Requires ordering appStoreVersions across apps by createdDate age — no tool ages review-state across a fleet.",
+      "example": "asc pipeline --agent",
+      "why_it_matters": "Use this to catch a submission that has been stuck in WAITING_FOR_REVIEW or IN_REVIEW too long.",
+      "group": "Cross-app rollups"
+    },
+    {
+      "name": "Traction leaderboard",
+      "command": "traction",
+      "description": "Ranks your apps by recent rating and review volume and flags apps whose rating is trending down; adds download counts when ASC_VENDOR_NUMBER is set.",
+      "rationale": "Requires computing a per-app rating trend across every app's review stream and ranking the fleet — pofky's daily_briefing only summarizes one app.",
+      "example": "asc traction --window 30 --agent",
+      "why_it_matters": "Use this to decide which app is actually gaining traction and which one's rating is slipping.",
+      "group": "Cross-app rollups"
+    },
+    {
+      "name": "Fleet feedback pulse",
+      "command": "reviews recent",
+      "description": "Newest written customer reviews across all your apps in one merged stream.",
+      "rationale": "Requires merging per-app review streams sorted by createdDate — the API only exposes reviews one app at a time.",
+      "example": "asc reviews recent --limit 20 --agent",
+      "why_it_matters": "Use this for a daily feedback read across the whole portfolio without querying each app.",
+      "group": "Cross-app rollups"
+    },
+    {
+      "name": "Action-needed blockers",
+      "command": "blockers",
+      "description": "Correlates failed/invalid builds, pending or absent submissions, and metadata rejections into one fleet blocker list.",
+      "rationale": "Requires correlating build processingState, submission state, and appStoreState across every app — no endpoint returns 'what is blocked'.",
+      "example": "asc blockers --agent",
+      "why_it_matters": "Use this to find every app that cannot ship right now and why, in one call.",
+      "group": "Cross-app rollups"
+    }
+  ],
+  "narrative": {
+    "display_name": "App Store Connect",
+    "headline": "A read-only App Store Connect cockpit that shows every app you ship at once — review state, builds, downloads, and ratings in one glance.",
+    "value_prop": "Every existing App Store Connect tool is single-app and CI-shaped. asc is the opposite: a fleet-wide read cockpit for a developer shipping many apps. cockpit rolls up review state and action-needed flags across all apps, pipeline ages in-flight submissions, traction ranks downloads and rating trend, and blockers lists everything that can't ship right now.",
+    "auth_narrative": "Uses an App Store Connect API key (JWT ES256). Create a key under Users and Access \u003e Integrations, download the .p8, and set ASC_KEY_ID, ASC_ISSUER_ID, and ASC_PRIVATE_KEY_PATH. Keys are scoped to one team; run one team per invocation.",
+    "quickstart": [
+      {
+        "command": "asc doctor",
+        "comment": "confirm the API key is valid and the API is reachable"
+      },
+      {
+        "command": "asc cockpit",
+        "comment": "the one-glance board across every app you ship"
+      },
+      {
+        "command": "asc apps list --json",
+        "comment": "list all apps in the team as structured JSON"
+      },
+      {
+        "command": "asc pipeline",
+        "comment": "what is in review right now and how long it has waited"
+      },
+      {
+        "command": "asc reviews recent --limit 20",
+        "comment": "newest written reviews across the fleet"
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "401 Unauthorized",
+        "fix": "Token expired (max life 20 min) or wrong issuer/key id — re-check ASC_KEY_ID / ASC_ISSUER_ID / ASC_PRIVATE_KEY_PATH."
+      },
+      {
+        "symptom": "asc traction shows no downloads",
+        "fix": "Set ASC_VENDOR_NUMBER (found in App Store Connect \u003e Payments and Financial Reports) — the sales report requires a vendor number."
+      },
+      {
+        "symptom": "429 Too Many Requests",
+        "fix": "App Store Connect limits ~3600/hour; asc backs off automatically, but narrow --window or add --limit on large fleets."
+      }
+    ],
+    "when_to_use": "Reach for asc when you ship more than one iOS app and want a single read across all of them — review state, in-flight submissions, downloads, and ratings — without opening the App Store Connect web UI app by app. It is read-only: it never edits metadata, submits, or releases.",
+    "recipes": [
+      {
+        "title": "Morning fleet check",
+        "command": "asc cockpit --agent",
+        "explanation": "One structured board of every app's review state, latest build, rating, and action-needed flag."
+      },
+      {
+        "title": "What's stuck in review",
+        "command": "asc pipeline --agent --select app,version,state,age_days",
+        "explanation": "In-flight submissions ranked by age, narrowed to the fields that matter."
+      },
+      {
+        "title": "Feedback pulse",
+        "command": "asc reviews recent --limit 25 --json",
+        "explanation": "Newest written reviews across all apps as JSON for triage."
+      }
+    ],
+    "trigger_phrases": [
+      "app store connect status",
+      "check my testflight builds",
+      "what's in review",
+      "which app is getting downloads",
+      "recent app reviews",
+      "use asc",
+      "run asc"
+    ]
+  }
+}

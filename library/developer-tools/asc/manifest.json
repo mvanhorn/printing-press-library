@@ -1,0 +1,39 @@
+{
+  "manifest_version": "0.3",
+  "name": "asc-pp-mcp",
+  "display_name": "App Store Connect",
+  "version": "4.28.0",
+  "description": "A read-only App Store Connect cockpit that shows every app you ship at once — review state, builds, downloads, and ratings in one glance.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/asc-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/asc-pp-mcp",
+      "args": [],
+      "env": {
+        "ASC_ITC_BEARER_TOKEN": "${user_config.asc_itc_bearer_token}"
+      }
+    }
+  },
+  "user_config": {
+    "asc_itc_bearer_token": {
+      "type": "string",
+      "title": "ASC_ITC_BEARER_TOKEN",
+      "description": "Sets ASC_ITC_BEARER_TOKEN for the App Store Connect MCP server.",
+      "sensitive": true,
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}
