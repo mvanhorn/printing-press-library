@@ -8,6 +8,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"sort"
+	"strconv"
 	"time"
 
 	"github.com/spf13/cobra"
@@ -28,6 +29,10 @@ type qkPlan struct {
 	TotalVerses     int    `json:"total_verses"`
 	PerDay          int    `json:"per_day"`
 	CompletedVerses int    `json:"completed_verses"`
+	// LastAdvanced is the UTC date (YYYY-MM-DD) of the most recent 'plan
+	// advance'. It makes advancing idempotent per day so a retry can't skip a
+	// reading range. Empty on plans created before this field existed.
+	LastAdvanced string `json:"last_advanced,omitempty"`
 }
 
 // qkLoadSurahMeta returns ordered surah metadata (id, name, verse count) from
@@ -54,6 +59,18 @@ func qkLoadSurahMeta(ctx context.Context, c *client.Client, s *store.Store) ([]q
 			return nil, fmt.Errorf("parsing surah list: %w", err)
 		}
 		metas = resp.Data
+		// Persist the fetched metadata so later offline calls (plan today,
+		// plan status) read it from the local store instead of refetching and
+		// failing offline. Best-effort: a cache write failure must not break
+		// the current command.
+		for _, m := range metas {
+			if m.ID <= 0 {
+				continue
+			}
+			if item, mErr := json.Marshal(m); mErr == nil {
+				_ = s.Upsert("surah", strconv.Itoa(m.ID), item)
+			}
+		}
 	}
 	sort.Slice(metas, func(i, j int) bool { return metas[i].ID < metas[j].ID })
 	return metas, nil
@@ -323,6 +340,17 @@ func newPlanAdvanceCmd(flags *rootFlags) *cobra.Command {
 				fmt.Fprintln(cmd.OutOrStdout(), "no active plan; run: quranku-pp-cli plan start --days 30")
 				return nil
 			}
+			today := time.Now().UTC().Format("2006-01-02")
+			if p.LastAdvanced == today {
+				// Already advanced today: a duplicate/retried call must not
+				// skip another reading range. Report current state unchanged.
+				if flags.asJSON || flags.agent || !isTerminal(cmd.OutOrStdout()) {
+					return printJSONFiltered(cmd.OutOrStdout(), p, flags)
+				}
+				fmt.Fprintf(cmd.OutOrStdout(), "already recorded today's reading: %d/%d verses read\n", p.CompletedVerses, p.TotalVerses)
+				return nil
+			}
+			p.LastAdvanced = today
 			p.CompletedVerses += p.PerDay
 			if p.CompletedVerses > p.TotalVerses {
 				p.CompletedVerses = p.TotalVerses
