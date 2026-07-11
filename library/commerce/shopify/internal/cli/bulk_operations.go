@@ -41,11 +41,12 @@ const bulkOperationRunQueryMutation = `mutation($query: String!) {
 func newBulkOperationsCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "bulk-operations",
-		Short: "Run and inspect Shopify Admin GraphQL bulk operations.",
+		Short: "Run, poll, and inspect Shopify Admin GraphQL bulk operations.",
 	}
 
 	cmd.AddCommand(newBulkOperationsCurrentCmd(flags))
 	cmd.AddCommand(newBulkOperationsRunQueryCmd(flags))
+	cmd.AddCommand(newNovelBulkOperationsWaitCmd(flags))
 	return cmd
 }
 

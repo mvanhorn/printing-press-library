@@ -109,6 +109,14 @@ func autoRefreshIfStale(ctx context.Context, flags *rootFlags, resources []strin
 		meta.Reason = "no_resources"
 		return meta
 	}
+	// pp:patch shopify-dry-run-skips-auto-refresh — --dry-run must never make a
+	// network call. Without this guard, any cached-resource command run with
+	// --dry-run against an unconfigured shop hard-fails with a config error
+	// before ever reaching the dry-run request preview.
+	if flags.dryRun {
+		meta.Reason = "dry_run"
+		return meta
+	}
 	policy := cachePolicy()
 	if policy.EnvOptOut != "" && os.Getenv(policy.EnvOptOut) == "1" {
 		meta.Decision = "skipped"
@@ -223,7 +231,7 @@ func runAutoRefresh(ctx context.Context, flags *rootFlags, db *store.Store, reso
 			return ctx.Err()
 		default:
 		}
-		result := syncResource(ctx, c, db, resource, "", false, 1)
+		result := syncResource(ctx, c, db, resource, "", false, 1, true)
 		if result.Err != nil {
 			failures = append(failures, fmt.Sprintf("%s: %v", resource, result.Err))
 		}

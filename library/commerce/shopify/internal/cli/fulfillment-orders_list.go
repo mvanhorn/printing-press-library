@@ -9,12 +9,14 @@ import (
 	"os"
 
 	"github.com/mvanhorn/printing-press-library/library/commerce/shopify/internal/client"
+
 	"github.com/spf13/cobra"
 )
 
 func newFulfillmentOrdersListCmd(flags *rootFlags) *cobra.Command {
 	var flagFirst int
 	var flagAfter string
+	var flagQuery string
 	var flagAll bool
 
 	cmd := &cobra.Command{
@@ -23,33 +25,46 @@ func newFulfillmentOrdersListCmd(flags *rootFlags) *cobra.Command {
 		Example:     "  shopify-pp-cli fulfillment-orders list",
 		Annotations: map[string]string{"pp:endpoint": "fulfillment-orders.list", "pp:method": "GET", "pp:path": "/graphql", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
+			path := "/graphql"
 			c, err := flags.newClient()
 			if err != nil {
 				return err
 			}
-
-			path := "/graphql"
 			_ = path
-			variables := map[string]any{
-				"first": flagFirst,
-			}
-			if flagAfter != "" {
-				variables["after"] = flagAfter
+			if err := validateDataSourceStrategy(flags, "auto"); err != nil {
+				return err
 			}
 			var data json.RawMessage
-			if flagAll && !flags.dryRun {
-				var items []json.RawMessage
-				items, err = c.PaginatedQuery(cmd.Context(), client.FulfillmentOrdersListQuery, variables, "fulfillmentOrders", flagFirst)
-				if err == nil {
-					data, err = json.Marshal(items)
-				}
+			var prov DataProvenance
+			if flags.dataSource == "local" || "auto" == "local" {
+				data, prov, err = resolveLocal(cmd.Context(), flags, cmd.ErrOrStderr(), "fulfillment-orders", true, path, nil, "user_requested")
 			} else {
-				data, err = c.Query(cmd.Context(), client.FulfillmentOrdersListQuery, variables)
-				if err == nil && !flags.dryRun {
-					data, err = extractGraphQLConnection(data, "fulfillmentOrders")
+				variables := map[string]any{}
+				variables["first"] = flagFirst
+				if cmd.Flags().Changed("after") {
+					variables["after"] = flagAfter
+				}
+				if cmd.Flags().Changed("query") {
+					variables["query"] = flagQuery
+				}
+				if flagAll && !flags.dryRun {
+					var items []json.RawMessage
+					items, err = c.PaginatedQuery(cmd.Context(), client.FulfillmentOrdersListQuery, variables, "fulfillmentOrders", flagFirst)
+					if err == nil {
+						data, err = json.Marshal(items)
+					}
+				} else {
+					data, err = c.Query(cmd.Context(), client.FulfillmentOrdersListQuery, variables)
+					if err == nil && !flags.dryRun {
+						data, err = extractGraphQLConnection(data, "fulfillmentOrders")
+					}
+				}
+				if err != nil && flags.dataSource == "auto" && "auto" == "auto" && isNetworkError(err) {
+					data, prov, err = resolveLocal(cmd.Context(), flags, cmd.ErrOrStderr(), "fulfillment-orders", true, path, nil, networkFallbackReason)
+				} else if err == nil {
+					prov = attachFreshness(DataProvenance{Source: "live"}, flags)
 				}
 			}
-			prov := attachFreshness(DataProvenance{Source: "live"}, flags)
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}
@@ -94,12 +109,12 @@ func newFulfillmentOrdersListCmd(flags *rootFlags) *cobra.Command {
 					return nil
 				}
 			}
-			return printOutputWithFlags(cmd.OutOrStdout(), data, flags)
+			return printOutputWithFlagsMeta(cmd.OutOrStdout(), data, flags, map[string]any{"source": "live"})
 		},
 	}
 	cmd.Flags().IntVar(&flagFirst, "first", 100, "Page size for Shopify cursor pagination.")
 	cmd.Flags().StringVar(&flagAfter, "after", "", "Cursor for the next page.")
-	// --query intentionally omitted: Shopify's fulfillmentOrders GraphQL field has no `query:` argument.
+	cmd.Flags().StringVar(&flagQuery, "query", "", "Shopify search-syntax filter (e.g. 'updated_at:>=2025-01-01').")
 	cmd.Flags().BoolVar(&flagAll, "all", false, "Fetch all pages")
 
 	return cmd

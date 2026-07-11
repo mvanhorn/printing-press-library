@@ -4,7 +4,6 @@
 package client
 
 // GraphQL query constants generated from the API spec.
-
 const AbandonedCheckoutsGetQuery = `query($id: String!) {
   abandonedCheckout(id: $id) {
     id
@@ -20,7 +19,6 @@ const AbandonedCheckoutsGetQuery = `query($id: String!) {
     lineItems (first: 50) { nodes { id title quantity originalUnitPriceSet { presentmentMoney { amount currencyCode } } variant { id title sku product { id title handle } } } }
   }
 }`
-
 const AbandonedCheckoutsListQuery = `query($first: Int!, $after: String, $query: String) {
   abandonedCheckouts(first: $first, after: $after, query: $query) {
     nodes {
@@ -39,7 +37,6 @@ const AbandonedCheckoutsListQuery = `query($first: Int!, $after: String, $query:
     pageInfo { hasNextPage endCursor }
   }
 }`
-
 const CustomersGetQuery = `query($id: String!) {
   customer(id: $id) {
     id
@@ -54,7 +51,6 @@ const CustomersGetQuery = `query($id: String!) {
     note
   }
 }`
-
 const CustomersListQuery = `query($first: Int!, $after: String, $query: String) {
   customers(first: $first, after: $after, query: $query) {
     nodes {
@@ -72,7 +68,6 @@ const CustomersListQuery = `query($first: Int!, $after: String, $query: String) 
     pageInfo { hasNextPage endCursor }
   }
 }`
-
 const FulfillmentOrdersGetQuery = `query($id: String!) {
   fulfillmentOrder(id: $id) {
     id
@@ -85,9 +80,8 @@ const FulfillmentOrdersGetQuery = `query($id: String!) {
     order { id name }
   }
 }`
-
-const FulfillmentOrdersListQuery = `query($first: Int!, $after: String) {
-  fulfillmentOrders(first: $first, after: $after) {
+const FulfillmentOrdersListQuery = `query($first: Int!, $after: String, $query: String) {
+  fulfillmentOrders(first: $first, after: $after, query: $query) {
     nodes {
       id
       status
@@ -101,7 +95,6 @@ const FulfillmentOrdersListQuery = `query($first: Int!, $after: String) {
     pageInfo { hasNextPage endCursor }
   }
 }`
-
 const InventoryItemsGetQuery = `query($id: String!) {
   inventoryItem(id: $id) {
     id
@@ -111,7 +104,6 @@ const InventoryItemsGetQuery = `query($id: String!) {
     inventoryLevels (first: 50) { nodes { id location { id name } quantities(names: ["available"]) { name quantity updatedAt } updatedAt } }
   }
 }`
-
 const InventoryItemsListQuery = `query($first: Int!, $after: String, $query: String) {
   inventoryItems(first: $first, after: $after, query: $query) {
     nodes {
@@ -124,7 +116,6 @@ const InventoryItemsListQuery = `query($first: Int!, $after: String, $query: Str
     pageInfo { hasNextPage endCursor }
   }
 }`
-
 const OrdersGetQuery = `query($id: String!) {
   order(id: $id) {
     id
@@ -141,13 +132,9 @@ const OrdersGetQuery = `query($id: String!) {
     note
     lineItems (first: 50) { nodes { id title quantity originalUnitPriceSet { shopMoney { amount currencyCode } } discountedUnitPriceSet { shopMoney { amount currencyCode } } variant { id title sku product { id title handle } } } }
     discountApplications (first: 10) { nodes { __typename targetType allocationMethod value { __typename ... on MoneyV2 { amount currencyCode } ... on PricingPercentageValue { percentage } } } }
-    shippingAddress { city province provinceCode country countryCode zip }
-    shippingLines (first: 10) { nodes { id title code source originalPriceSet { shopMoney { amount currencyCode } } discountedPriceSet { shopMoney { amount currencyCode } } } }
-    fulfillments (first: 10) { id status createdAt updatedAt deliveredAt fulfillmentLineItems (first: 50) { nodes { quantity lineItem { id title sku variant { id product { id title handle } } } } } }
     customer { id email displayName }
   }
 }`
-
 const OrdersListQuery = `query($first: Int!, $after: String, $query: String) {
   orders(first: $first, after: $after, query: $query) {
     nodes {
@@ -165,15 +152,11 @@ const OrdersListQuery = `query($first: Int!, $after: String, $query: String) {
       note
       lineItems (first: 50) { nodes { id title quantity originalUnitPriceSet { shopMoney { amount currencyCode } } discountedUnitPriceSet { shopMoney { amount currencyCode } } variant { id title sku product { id title handle } } } }
       discountApplications (first: 10) { nodes { __typename targetType allocationMethod value { __typename ... on MoneyV2 { amount currencyCode } ... on PricingPercentageValue { percentage } } } }
-      shippingAddress { city province provinceCode country countryCode zip }
-      shippingLines (first: 10) { nodes { id title code source originalPriceSet { shopMoney { amount currencyCode } } discountedPriceSet { shopMoney { amount currencyCode } } } }
-      fulfillments (first: 10) { id status createdAt updatedAt deliveredAt fulfillmentLineItems (first: 50) { nodes { quantity lineItem { id title sku variant { id product { id title handle } } } } } }
       customer { id email displayName }
     }
     pageInfo { hasNextPage endCursor }
   }
 }`
-
 const ProductsGetQuery = `query($id: String!) {
   product(id: $id) {
     id
@@ -186,7 +169,6 @@ const ProductsGetQuery = `query($id: String!) {
     variants (first: 50) { nodes { id sku price inventoryItem { id } } }
   }
 }`
-
 const ProductsListQuery = `query($first: Int!, $after: String, $query: String) {
   products(first: $first, after: $after, query: $query) {
     nodes {

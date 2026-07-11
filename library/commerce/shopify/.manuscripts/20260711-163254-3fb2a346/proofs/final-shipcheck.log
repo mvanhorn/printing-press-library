@@ -1,0 +1,182 @@
+
+=== verify ===
+Runtime Verification: C:\Users\gogos\printing-press\library\shopify\shopify.exe
+Mode: mock
+
+COMMAND                        KIND         HELP   DRY-RUN  EXEC     SCORE
+abandoned-checkouts            read         PASS   PASS     PASS     3/3
+agent-context                  read         PASS   PASS     PASS     3/3
+analytics                      data-layer   PASS   PASS     PASS     3/3
+api                            local        PASS   PASS     PASS     3/3
+auth                           local        PASS   PASS     PASS     3/3
+bulk-operations                read         PASS   PASS     PASS     3/3
+customers                      read         PASS   PASS     PASS     3/3
+doctor                         local        PASS   PASS     PASS     3/3
+feedback                       read         PASS   PASS     PASS     3/3
+fulfillment-orders             read         PASS   PASS     PASS     3/3
+growth                         read         PASS   PASS     FAIL     2/3
+inventory-items                read         PASS   PASS     PASS     3/3
+learnings                      read         PASS   PASS     FAIL     2/3
+merchandising                  read         PASS   PASS     FAIL     2/3
+ops                            read         PASS   PASS     FAIL     2/3
+orders                         read         PASS   PASS     PASS     3/3
+playbook                       read         PASS   PASS     FAIL     2/3
+products                       read         PASS   PASS     PASS     3/3
+profile                        read         PASS   PASS     FAIL     2/3
+recall                         read         PASS   PASS     PASS     3/3
+report                         read         PASS   PASS     FAIL     2/3
+search                         data-layer   PASS   PASS     PASS     3/3
+shopifyql                      read         PASS   PASS     PASS     3/3
+store                          read         PASS   PASS     FAIL     2/3
+sync                           data-layer   PASS   PASS     PASS     3/3
+tail                           data-layer   PASS   PASS     PASS     3/3
+teach                          read         PASS   PASS     PASS     3/3
+teach-lookup                   read         PASS   PASS     FAIL     2/3
+teach-pattern                  read         PASS   PASS     FAIL     2/3
+teach-playbook                 read         PASS   PASS     PASS     3/3
+which                          read         PASS   PASS     PASS     3/3
+workflow                       read         PASS   PASS     FAIL     2/3
+
+Path-Param Probes (nested commands with <positional> args):
+  PASS auth set-token
+  PASS customers tag add
+  PASS customers tag remove
+  PASS learnings confirm
+  PASS learnings forget
+  PASS learnings reject
+  PASS orders brief
+  PASS orders tag add
+  PASS orders tag remove
+  PASS profile delete
+  PASS profile save
+  PASS profile show
+  PASS profile use
+  PASS shopifyql query
+
+Data Pipeline: SKIP (GraphQL CLI: mock server cannot synthesize sync data)
+Pass Rate: 100% (46/46 passed, 0 critical)
+Verdict: PASS
+
+=== validate-narrative ===
+OK: 10 narrative commands resolved and full examples passed
+
+=== dogfood ===
+dogfood: using spec C:\Users\gogos\printing-press\library\shopify\spec.yaml (bundled)
+Dogfood Report: shopify
+================================
+
+Path Validity:     0/0 valid (SKIP)
+  Detail: internal-yaml spec: paths validated at parse time
+
+Auth Protocol:     MATCH
+  Spec: api key header "X-Shopify-Access-Token"
+  Generated: Uses "X-Shopify-Access-Token" prefix
+  Detail: spec and generated client both use api key header "X-Shopify-Access-Token"
+
+OAuth Scope Cover: 0/0 endpoints covered (SKIP)
+  Detail: no OAuth-scoped endpoints in spec
+
+Dead Flags:        0 dead (PASS)
+
+Dead Functions:    0 dead (PASS)
+
+Data Pipeline:     GOOD
+  Sync: calls domain-specific Upsert methods (GOOD)
+  Search: calls domain-specific Search methods (GOOD)
+  Domain tables: 4
+
+Examples:          5/10 commands have examples (PASS)
+  - ops fulfillment-risk: missing example
+  - report customer-churn-risk: missing example
+  - report discount-impact: missing example
+  - report peak-hours: missing example
+  - store audit: missing example
+
+Novel Features:    4/4 survived (PASS)
+
+MCP Surface:       PASS (MCP surface mirrors the Cobra tree at runtime)
+
+Verdict: FAIL
+  - 1 unregistered commands: store
+
+=== workflow-verify ===
+Workflow Verification: shopify
+================================
+
+Overall Verdict: workflow-pass
+  - no workflow manifest found, skipping
+
+=== apify-audit ===
+Apify Actor Audit
+=================
+
+No Apify actor references found.
+
+Verdict: pass
+  - no Apify actor references found, skipping
+
+=== verify-skill ===
+=== shopify ===
+  ✓ All checks passed (flag-names, flag-commands, positional-args, shell-var-quotes, unknown-command)
+  ✓ canonical-sections passed
+
+=== scorecard ===
+Quality Scorecard: shopify
+
+  Output Modes         10/10
+  Auth                 10/10
+  Error Handling       8/10
+  Terminal UX          10/10
+  README               10/10
+  Doctor               10/10
+  Agent Native         10/10
+  MCP Quality          10/10
+  MCP Desc Quality     10/10
+  MCP Token Efficiency 10/10
+  MCP Remote Transport 10/10
+  MCP Tool Design      7/10
+  MCP Surface Strategy N/A
+  Local Cache          10/10
+  Cache Freshness      10/10
+  Breadth              10/10
+  Vision               9/10
+  Workflows            10/10
+  Insight              4/10
+  Agent Workflow       9/10
+
+  Domain Correctness
+  Path Validity           N/A
+  Auth Protocol           10/10
+  Data Pipeline Integrity 10/10
+  Sync Correctness        10/10
+  Live API Verification   N/A
+  Type Fidelity           4/5
+  Dead Code               5/5
+
+  Total: 94/100 - Grade A
+  Note: omitted from denominator: mcp_surface_strategy, path_validity, live_api_verification
+
+Sample Output Probe (live command sample)
+  Binary refresh: no_stage (no staged binary found)
+  Passed: 1/4  (25% pass rate, 0 skipped)
+  Failures:
+    - Order support brief: exit 5: Error: SHOPIFY_API_VERSION not set; export SHOPIFY_API_VERSION=<value>; SHOPIFY_SHOP not set; export SHOPIFY_SHOP=<value>
+    - Bulk operation blocking wait: exit 5: Error: SHOPIFY_API_VERSION not set; export SHOPIFY_API_VERSION=<value>; SHOPIFY_SHOP not set; export SHOPIFY_SHOP=<value>
+    - GraphQL cost/throttle check: exit 5: Error: SHOPIFY_API_VERSION not set; export SHOPIFY_API_VERSION=<value>; SHOPIFY_SHOP not set; export SHOPIFY_SHOP=<value>
+
+Gaps:
+  - insight scored 4/10 - needs improvement
+
+Shipcheck Summary
+=================
+  LEG               RESULT  EXIT      ELAPSED
+  verify            PASS    0         30.566s
+  validate-narrative  PASS    0         1.533s
+  dogfood           PASS    0         9.744s
+  workflow-verify   PASS    0         69ms
+  apify-audit       PASS    0         124ms
+  verify-skill      PASS    0         8.172s
+  scorecard         PASS    0         1.855s
+
+Verdict: PASS (7/7 legs passed)
+shipcheck exit=0

@@ -1,7 +1,7 @@
 name: shopify
 display_name: Shopify
 description: Ecommerce orders, products, customers, inventory, fulfillment orders, and bulk operations via the Shopify Admin GraphQL API.
-cli_description: Operate a Shopify store from the terminal with local sync, analytics, and bulk exports.
+cli_description: Operate a Shopify store from the terminal with curated Admin GraphQL commands, local sync, analytics, and bulk exports.
 version: "2026-04"
 spec_source: official
 category: commerce

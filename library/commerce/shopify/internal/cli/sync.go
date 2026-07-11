@@ -98,6 +98,10 @@ Exit codes & warnings:
 				}
 			}
 
+			if cliutil.IsDogfoodEnv() && !cmd.Flags().Changed("max-pages") {
+				maxPages = 1
+			}
+
 			// --latest-only: cap at page 1 and clear the resume cursor so
 			// we fetch from the head. --since takes precedence when both
 			// are set (historical context trumps latest-head).
@@ -147,7 +151,7 @@ Exit codes & warnings:
 				go func() {
 					defer wg.Done()
 					for resource := range work {
-						res := syncResource(cmd.Context(), c, db, resource, sinceTS, full, maxPages)
+						res := syncResource(cmd.Context(), c, db, resource, sinceTS, full, maxPages, latestOnly && since == "")
 						results <- res
 					}
 				}()
@@ -229,8 +233,8 @@ Exit codes & warnings:
 	cmd.Flags().BoolVar(&full, "full", false, "Full resync (ignore previous checkpoint)")
 	cmd.Flags().StringVar(&since, "since", "", "Incremental sync duration (e.g. 7d, 24h, 1w, 30m)")
 	cmd.Flags().IntVar(&concurrency, "concurrency", 4, "Number of parallel sync workers")
-	cmd.Flags().StringVar(&dbPath, "db", "", "Database path (default: ~/.local/share/shopify-pp-cli/data.db)")
-	cmd.Flags().IntVar(&maxPages, "max-pages", 0, "Maximum pages to fetch per resource (0 = unlimited, default). Set a positive number to cap runaway syncs.")
+	cmd.Flags().StringVar(&dbPath, "db", "", "SQLite database file path (default: resolved data directory data.db)")
+	cmd.Flags().IntVar(&maxPages, "max-pages", 0, "Maximum pages to fetch per resource (0 = unlimited)")
 	cmd.Flags().BoolVar(&latestOnly, "latest-only", false, "Refresh head of each resource only; clears resume cursor and caps pages at 1. Mutually exclusive with --since (--since wins).")
 
 	return cmd
@@ -238,9 +242,10 @@ Exit codes & warnings:
 
 // graphqlSyncDef describes how to sync a resource via GraphQL.
 type graphqlSyncDef struct {
-	Query     string // GraphQL query constant
-	FieldPath string // top-level field in the response data (e.g., "issues")
-	PageSize  int    // default page size for this resource
+	Query       string // GraphQL forward-page query constant
+	LatestQuery string // GraphQL backward-page query constant, when the schema supports last
+	FieldPath   string // top-level field in the response data (e.g., "issues")
+	PageSize    int    // default page size for this resource
 }
 
 // graphqlSyncDefs returns the sync definitions for all syncable resources.
@@ -280,7 +285,7 @@ func graphqlSyncDefs() map[string]graphqlSyncDef {
 }
 
 // syncResource handles the full paginated sync of a single resource via GraphQL.
-func syncResource(ctx context.Context, c *client.Client, db *store.Store, resource, sinceTS string, full bool, maxPages int) syncResult {
+func syncResource(ctx context.Context, c *client.Client, db *store.Store, resource, sinceTS string, full bool, maxPages int, latestOnly bool) syncResult {
 	started := time.Now()
 
 	if !humanFriendly {
@@ -306,6 +311,8 @@ func syncResource(ctx context.Context, c *client.Client, db *store.Store, resour
 	consumedTotal := 0
 	extractFailureTotal := 0
 	anomalyEmitted := false
+	capExitHit := false
+	capExitCursor := ""
 	pageSize := def.PageSize
 	if pageSize <= 0 {
 		pageSize = 50
@@ -318,26 +325,26 @@ func syncResource(ctx context.Context, c *client.Client, db *store.Store, resour
 		if cursor != "" {
 			variables["after"] = cursor
 		}
-		// Shopify search-syntax: bind sinceTS into variables["query"] so the
-		// GraphQL field arg `query: $query` filters by updated_at.
-		// fulfillment-orders doesn't accept a query arg in Shopify's schema.
-		if sinceTS != "" && resource != "fulfillment-orders" {
-			variables["query"] = "updated_at:>=" + sinceTS
-		}
 
 		data, err := c.Query(ctx, def.Query, variables)
 		if err != nil {
 			if w, ok := isSyncAccessWarning(err); ok {
 				if !humanFriendly {
-					fmt.Fprintf(os.Stderr, `{"event":"sync_warning","resource":"%s","status":%d,"reason":"%s","message":"%s"}`+"\n",
-						resource, w.Status, w.Reason, strings.ReplaceAll(w.Message, `"`, `\"`))
+					fmt.Fprintln(os.Stderr, syncWarningJSON(resource, "", w.Status, w.Reason, w.Message))
 				}
-				return syncResult{Resource: resource, Count: totalCount, Warn: fmt.Errorf("skipped %s: %s", resource, w.Reason), Duration: time.Since(started)}
+				return syncResult{Resource: resource, Count: totalCount, Warn: fmt.Errorf("skipped due to insufficient access: %s (%s)", resource, w.Reason), Duration: time.Since(started)}
 			}
 			if !humanFriendly {
-				fmt.Fprintf(os.Stderr, `{"event":"sync_error","resource":"%s","error":"%s"}`+"\n", resource, strings.ReplaceAll(err.Error(), `"`, `\"`))
+				fmt.Fprintln(os.Stderr, syncErrorJSON(resource, "", err))
 			}
 			return syncResult{Resource: resource, Count: totalCount, Err: fmt.Errorf("fetching %s: %w", resource, err), Duration: time.Since(started)}
+		}
+		if latestOnly && cursor == "" && def.LatestQuery != "" {
+			latestData, err := c.Query(ctx, def.LatestQuery, map[string]any{"last": pageSize})
+			if err != nil {
+				return syncResult{Resource: resource, Count: totalCount, Err: fmt.Errorf("fetching latest page for %s: %w", resource, err), Duration: time.Since(started)}
+			}
+			data = chooseGraphQLLatestPage(def.FieldPath, data, latestData)
 		}
 
 		// Navigate to the connection field in the response
@@ -381,7 +388,7 @@ func syncResource(ctx context.Context, c *client.Client, db *store.Store, resour
 		stored, extractFailures, err := db.UpsertBatch(resource, conn.Nodes)
 		if err != nil {
 			if !humanFriendly {
-				fmt.Fprintf(os.Stderr, `{"event":"sync_error","resource":"%s","error":"%s"}`+"\n", resource, strings.ReplaceAll(err.Error(), `"`, `\"`))
+				fmt.Fprintln(os.Stderr, syncErrorJSON(resource, "", err))
 			}
 			return syncResult{Resource: resource, Count: totalCount, Err: fmt.Errorf("upserting batch for %s: %w", resource, err), Duration: time.Since(started)}
 		}
@@ -424,7 +431,12 @@ func syncResource(ctx context.Context, c *client.Client, db *store.Store, resour
 
 		// Enforce page ceiling
 		if maxPages > 0 && pagesFetched >= maxPages {
-			if humanFriendly {
+			capExitHasMore := conn.PageInfo.HasNextPage && conn.PageInfo.EndCursor != "" && conn.PageInfo.EndCursor != cursor
+			if capExitHasMore && !latestOnly {
+				capExitHit = true
+				capExitCursor = conn.PageInfo.EndCursor
+			}
+			if capExitHasMore && !latestOnly && humanFriendly {
 				fmt.Fprintf(os.Stderr, "\n  %s: reached --max-pages limit (%d pages, %d items)\n", resource, maxPages, totalCount)
 			}
 			break
@@ -438,8 +450,13 @@ func syncResource(ctx context.Context, c *client.Client, db *store.Store, resour
 		cursor = conn.PageInfo.EndCursor
 	}
 
-	// Final sync state: clear cursor (sync is complete), update count
-	_ = db.SaveSyncState(resource, "", totalCount)
+	// Final sync state: clear cursor on natural completion, but preserve the
+	// resume cursor when an operator intentionally capped the page budget.
+	finalCursor := ""
+	if capExitHit {
+		finalCursor = capExitCursor
+	}
+	_ = db.SaveSyncState(resource, finalCursor, totalCount)
 
 	// F4b symptom probe: rows extracted successfully but none landed.
 	// Likely cause is below the PK-extraction layer (FTS5 trigger,
@@ -459,6 +476,185 @@ func syncResource(ctx context.Context, c *client.Client, db *store.Store, resour
 	}
 
 	return syncResult{Resource: resource, Count: totalCount, Duration: time.Since(started)}
+}
+
+func chooseGraphQLLatestPage(fieldPath string, forwardData, backwardData json.RawMessage) json.RawMessage {
+	forwardTime, forwardOK := newestGraphQLConnectionTimestamp(fieldPath, forwardData)
+	backwardTime, backwardOK := newestGraphQLConnectionTimestamp(fieldPath, backwardData)
+	if forwardOK && backwardOK && backwardTime.After(forwardTime) {
+		if mergedData, ok := graphQLConnectionWithForwardPageInfo(fieldPath, forwardData, backwardData); ok {
+			return mergedData
+		}
+		return backwardData
+	}
+	return forwardData
+}
+
+func graphQLConnectionWithForwardPageInfo(fieldPath string, forwardData, chosenData json.RawMessage) (json.RawMessage, bool) {
+	var forwardRoot map[string]json.RawMessage
+	if err := json.Unmarshal(forwardData, &forwardRoot); err != nil {
+		return nil, false
+	}
+	forwardKey, forwardConnRaw := graphQLConnectionRaw(fieldPath, forwardRoot)
+	if forwardKey == "" || forwardConnRaw == nil {
+		return nil, false
+	}
+	var forwardConn map[string]json.RawMessage
+	if err := json.Unmarshal(forwardConnRaw, &forwardConn); err != nil {
+		return nil, false
+	}
+	pageInfo, ok := forwardConn["pageInfo"]
+	if !ok {
+		return nil, false
+	}
+
+	var chosenRoot map[string]json.RawMessage
+	if err := json.Unmarshal(chosenData, &chosenRoot); err != nil {
+		return nil, false
+	}
+	chosenKey, chosenConnRaw := graphQLConnectionRaw(fieldPath, chosenRoot)
+	if chosenKey == "" || chosenConnRaw == nil {
+		return nil, false
+	}
+	var chosenConn map[string]json.RawMessage
+	if err := json.Unmarshal(chosenConnRaw, &chosenConn); err != nil {
+		return nil, false
+	}
+	chosenConn["pageInfo"] = pageInfo
+	connData, err := json.Marshal(chosenConn)
+	if err != nil {
+		return nil, false
+	}
+	chosenRoot[chosenKey] = connData
+	mergedData, err := json.Marshal(chosenRoot)
+	if err != nil {
+		return nil, false
+	}
+	return mergedData, true
+}
+
+func graphQLConnectionRaw(fieldPath string, root map[string]json.RawMessage) (string, json.RawMessage) {
+	if connRaw, ok := root[fieldPath]; ok {
+		return fieldPath, connRaw
+	}
+	for key, connRaw := range root {
+		return key, connRaw
+	}
+	return "", nil
+}
+
+func newestGraphQLConnectionTimestamp(fieldPath string, data json.RawMessage) (time.Time, bool) {
+	var root map[string]json.RawMessage
+	if err := json.Unmarshal(data, &root); err != nil {
+		return time.Time{}, false
+	}
+	_, connRaw := graphQLConnectionRaw(fieldPath, root)
+	if connRaw == nil {
+		return time.Time{}, false
+	}
+
+	var conn struct {
+		Nodes []json.RawMessage `json:"nodes"`
+	}
+	if err := json.Unmarshal(connRaw, &conn); err != nil {
+		return time.Time{}, false
+	}
+
+	var newest time.Time
+	var found bool
+	for _, node := range conn.Nodes {
+		nodeNewest, ok := newestJSONTimestamp(node)
+		if !ok {
+			continue
+		}
+		if !found || nodeNewest.After(newest) {
+			newest = nodeNewest
+			found = true
+		}
+	}
+	return newest, found
+}
+
+func newestJSONTimestamp(data json.RawMessage) (time.Time, bool) {
+	var value any
+	if err := json.Unmarshal(data, &value); err != nil {
+		return time.Time{}, false
+	}
+	return newestJSONValueTimestamp("", value)
+}
+
+func newestJSONValueTimestamp(fieldName string, value any) (time.Time, bool) {
+	var newest time.Time
+	var found bool
+	switch v := value.(type) {
+	case map[string]any:
+		for k, child := range v {
+			ts, ok := newestJSONValueTimestamp(k, child)
+			if !ok {
+				continue
+			}
+			if !found || ts.After(newest) {
+				newest = ts
+				found = true
+			}
+		}
+	case []any:
+		for _, child := range v {
+			ts, ok := newestJSONValueTimestamp("", child)
+			if !ok {
+				continue
+			}
+			if !found || ts.After(newest) {
+				newest = ts
+				found = true
+			}
+		}
+	case string:
+		if isSyncTimestampField(fieldName) {
+			ts, ok := parseSyncTimestamp(v)
+			if ok {
+				newest = ts
+				found = true
+			}
+		}
+	}
+	return newest, found
+}
+
+func isSyncTimestampField(name string) bool {
+	if name == "" {
+		return false
+	}
+	normalized := strings.ToLower(strings.NewReplacer("_", "", "-", "").Replace(name))
+	switch normalized {
+	case "createdat", "updatedat", "publishedat", "modifiedat", "completedat", "closedat", "openedat", "startedat", "endedat", "expiresat", "timestamp", "datetime", "date", "time":
+		return true
+	}
+	lower := strings.ToLower(name)
+	return strings.HasSuffix(name, "At") ||
+		strings.HasSuffix(lower, "_at") ||
+		strings.HasSuffix(lower, "-at") ||
+		strings.Contains(normalized, "timestamp") ||
+		strings.HasSuffix(name, "Time") ||
+		strings.HasSuffix(lower, "_time") ||
+		strings.HasSuffix(lower, "-time") ||
+		strings.HasSuffix(name, "Date") ||
+		strings.HasSuffix(lower, "_date") ||
+		strings.HasSuffix(lower, "-date")
+}
+
+func parseSyncTimestamp(value string) (time.Time, bool) {
+	value = strings.TrimSpace(value)
+	if value == "" {
+		return time.Time{}, false
+	}
+	for _, layout := range []string{time.RFC3339Nano, time.RFC3339, "2006-01-02"} {
+		ts, err := time.Parse(layout, value)
+		if err == nil {
+			return ts, true
+		}
+	}
+	return time.Time{}, false
 }
 
 func defaultSyncResources() []string {

@@ -1,0 +1,19 @@
+{
+  "timestamp": "2026-07-11T22:07:37.8598594Z",
+  "cli_dir": "\u003ccli-dir\u003e\\shopify-pp-cli",
+  "findings": [
+    {
+      "kind": "thin-short",
+      "command": "list",
+      "file": "teach.go",
+      "line": 692,
+      "evidence": "List recorded learnings",
+      "status": "accepted",
+      "note": "DO-NOT-EDIT generated file (teach.go is generator-owned learn-loop scaffolding); needs generator-template fix, not a hand-edit"
+    }
+  ],
+  "scorecard_before": {
+    "mcp_description_quality": 10,
+    "captured": "2026-07-11T17:07:32.8667008Z"
+  }
+}

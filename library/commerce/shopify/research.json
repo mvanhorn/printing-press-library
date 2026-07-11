@@ -1,0 +1,171 @@
+{
+  "api_name": "shopify",
+  "novelty_score": 4,
+  "alternatives": [],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-07-11T14:53:12Z",
+  "novel_features": [
+    {
+      "name": "Order support brief",
+      "command": "orders brief",
+      "description": "See a single support-ready summary of an order with fulfillment status and inventory availability, without stitching three calls together yourself.",
+      "rationale": "Requires joining order, fulfillment-order, and inventory-item data that only exists together after a local sync.",
+      "example": "shopify-pp-cli orders brief gid://shopify/Order/1234 --agent --json",
+      "why_it_matters": "Reach for this instead of separate orders/fulfillment-orders/inventory-items calls when answering a support 'where is my order' question.",
+      "group": "Agent-native composites"
+    },
+    {
+      "name": "Bulk operation blocking wait",
+      "command": "bulk-operations wait",
+      "description": "Block until the current Shopify bulk export finishes instead of hand-polling in a loop.",
+      "rationale": "Wraps the existing currentBulkOperation query with a poll loop and terminal-state detection that no single API call provides.",
+      "example": "shopify-pp-cli bulk-operations wait --max-wait 10m --json",
+      "why_it_matters": "Use after bulk-operations run-query when you need the terminal result rather than a point-in-time snapshot.",
+      "group": "Agent-native composites"
+    },
+    {
+      "name": "GraphQL cost/throttle check",
+      "command": "doctor throttle",
+      "description": "Check remaining GraphQL query-cost budget before a heavy batch or agent session.",
+      "rationale": "Surfaces Shopify's own extensions.cost.throttleStatus block, which no other command exposes.",
+      "example": "shopify-pp-cli doctor throttle --json",
+      "why_it_matters": "Run this before a big sync or bulk export to avoid hitting THROTTLED mid-task.",
+      "group": "Reachability mitigation"
+    },
+    {
+      "name": "Sync content diff",
+      "command": "store diff",
+      "description": "See which rows changed content since the last sync, per resource.",
+      "rationale": "Pure local-data delta view over the SQLite store's updated_at watermarks; no live API call answers this.",
+      "example": "shopify-pp-cli store diff --since 24h --json",
+      "why_it_matters": "Use for a weekly 'what changed' review across synced resources instead of re-scanning everything.",
+      "group": "Local state that compounds"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Order support brief",
+      "command": "orders brief",
+      "description": "See a single support-ready summary of an order with fulfillment status and inventory availability, without stitching three calls together yourself.",
+      "rationale": "Requires joining order, fulfillment-order, and inventory-item data that only exists together after a local sync.",
+      "example": "shopify-pp-cli orders brief gid://shopify/Order/1234 --agent --json",
+      "why_it_matters": "Reach for this instead of separate orders/fulfillment-orders/inventory-items calls when answering a support 'where is my order' question.",
+      "group": "Agent-native composites"
+    },
+    {
+      "name": "Bulk operation blocking wait",
+      "command": "bulk-operations wait",
+      "description": "Block until the current Shopify bulk export finishes instead of hand-polling in a loop.",
+      "rationale": "Wraps the existing currentBulkOperation query with a poll loop and terminal-state detection that no single API call provides.",
+      "example": "shopify-pp-cli bulk-operations wait --max-wait 10m --json",
+      "why_it_matters": "Use after bulk-operations run-query when you need the terminal result rather than a point-in-time snapshot.",
+      "group": "Agent-native composites"
+    },
+    {
+      "name": "GraphQL cost/throttle check",
+      "command": "doctor throttle",
+      "description": "Check remaining GraphQL query-cost budget before a heavy batch or agent session.",
+      "rationale": "Surfaces Shopify's own extensions.cost.throttleStatus block, which no other command exposes.",
+      "example": "shopify-pp-cli doctor throttle --json",
+      "why_it_matters": "Run this before a big sync or bulk export to avoid hitting THROTTLED mid-task.",
+      "group": "Reachability mitigation"
+    },
+    {
+      "name": "Sync content diff",
+      "command": "store diff",
+      "description": "See which rows changed content since the last sync, per resource.",
+      "rationale": "Pure local-data delta view over the SQLite store's updated_at watermarks; no live API call answers this.",
+      "example": "shopify-pp-cli store diff --since 24h --json",
+      "why_it_matters": "Use for a weekly 'what changed' review across synced resources instead of re-scanning everything.",
+      "group": "Local state that compounds"
+    }
+  ],
+  "auth": {
+    "canonical_env_var": "SHOPIFY_ACCESS_TOKEN"
+  },
+  "narrative": {
+    "display_name": "Shopify",
+    "headline": "Operate a Shopify store from the terminal with curated Admin GraphQL commands, local sync, analytics, and bulk exports.",
+    "value_prop": "Endpoint mirrors for orders, products, customers, inventory items, fulfillment orders, and abandoned checkouts. A local SQLite store for offline reads, full-text search, and compound analytics (revenue, funnel, growth, ops risk, merchandising). MCP server with both stdio and HTTP transport so agents (OpenAI Codex CLI, hosted clients) consume the same surface without learning GraphQL.",
+    "auth_narrative": "Set SHOPIFY_ACCESS_TOKEN to a custom-app token with the read scopes you need (read_orders, read_products, read_customers, read_inventory, read_fulfillments). Tag mutations (orders tag, customers tag) additionally need write_orders/write_customers.",
+    "quickstart": [
+      {
+        "command": "shopify-pp-cli doctor --dry-run",
+        "comment": "Verify-safe health check; works without auth."
+      },
+      {
+        "command": "shopify-pp-cli workflow status --json",
+        "comment": "Local archive state for all resources before any sync."
+      },
+      {
+        "command": "shopify-pp-cli orders list --first 10 --json",
+        "comment": "List recent orders with agent-native JSON."
+      },
+      {
+        "command": "shopify-pp-cli orders brief gid://shopify/Order/1234 --json",
+        "comment": "One-call support summary: order + fulfillment + inventory availability."
+      },
+      {
+        "command": "shopify-pp-cli bulk-operations wait --json",
+        "comment": "Block until the current bulk export reaches a terminal state."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "401 Unauthorized on every call",
+        "fix": "Verify SHOPIFY_ACCESS_TOKEN is an Admin API token, not a Storefront API token. Re-issue under custom-app settings."
+      },
+      {
+        "symptom": "Empty results from local search or analytics",
+        "fix": "Run shopify-pp-cli sync --full first; analytics and search read from the local SQLite store."
+      },
+      {
+        "symptom": "THROTTLED error mid-task",
+        "fix": "Run shopify-pp-cli doctor throttle --json before a heavy batch or agent session to check remaining query-cost budget."
+      }
+    ],
+    "when_to_use": "Use when an agent needs Shopify Admin GraphQL data without learning GraphQL, or when an ops/support workflow needs a joined view (order+fulfillment+inventory) that a single API call cannot provide. The MCP server exposes both stdio (Codex CLI) and HTTP (hosted agents).",
+    "anti_triggers": [
+      "Do not use this CLI for building or deploying Shopify themes, apps, or extensions — use the official Shopify CLI (@shopify/cli) for that.",
+      "Do not use this CLI for real-time storefront/checkout interactions — it is an Admin-API operations/analytics tool, not a storefront client."
+    ],
+    "recipes": [
+      {
+        "title": "Confirm a clean install",
+        "command": "shopify-pp-cli doctor --json",
+        "explanation": "JSON health output suitable for piping into agent context."
+      },
+      {
+        "title": "Support ticket one-shot",
+        "command": "shopify-pp-cli orders brief gid://shopify/Order/1234 --json",
+        "explanation": "Order + fulfillment + inventory availability in one call instead of three."
+      },
+      {
+        "title": "Narrow a verbose response for agents",
+        "command": "shopify-pp-cli orders list --first 5 --agent --json --select edges.node.id,edges.node.name,edges.node.displayFinancialStatus",
+        "explanation": "Pairs --agent with --select dotted paths so agents do not burn context on fields they did not ask for."
+      },
+      {
+        "title": "Block on a bulk export",
+        "command": "shopify-pp-cli bulk-operations wait --max-wait 10m --json",
+        "explanation": "Blocks until the current bulk operation reaches a terminal state instead of hand-polling."
+      },
+      {
+        "title": "Pre-flight budget check",
+        "command": "shopify-pp-cli doctor throttle --json",
+        "explanation": "Check remaining GraphQL query-cost budget before a heavy sync or agent session."
+      }
+    ],
+    "trigger_phrases": [
+      "shopify orders",
+      "shopify products",
+      "shopify inventory",
+      "shopify customers",
+      "order status",
+      "sync shopify data",
+      "use shopify-pp-cli"
+    ]
+  }
+}

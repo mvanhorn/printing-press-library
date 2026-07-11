@@ -1,7 +1,7 @@
 {
   "api_name": "shopify",
   "base_url": "https://{shop}",
-  "description": "Operate a Shopify store from the terminal with local sync, analytics, and bulk exports.",
+  "description": "Operate a Shopify store from the terminal with curated Admin GraphQL commands, local sync, analytics, and bulk exports.",
   "mcp_ready": "full",
   "http_transport": "standard",
   "auth": {

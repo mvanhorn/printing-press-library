@@ -24,8 +24,8 @@ var templateVarPattern = regexp.MustCompile(`\{([a-zA-Z_][a-zA-Z0-9_]*)\}`)
 // the spec. Placeholders that escape into a URL but aren't in this map fall
 // back to a generic "template variable {x} unresolved" message.
 var templateVarEnvNames = map[string]string{
-	"shop":        "SHOPIFY_SHOP",
 	"api_version": "SHOPIFY_API_VERSION",
+	"shop":        "SHOPIFY_SHOP",
 }
 
 // buildURL concatenates baseURL and path, then substitutes every {placeholder}
@@ -61,6 +61,22 @@ func buildURL(baseURL, path string, vars map[string]string) (string, error) {
 	}
 	sort.Strings(unresolved)
 	return "", &TemplateVarError{Names: unresolved}
+}
+
+// pp:patch shopify-dry-run-template-vars — buildPreviewURL fills unresolved
+// {placeholder} vars with a bracketed stand-in instead of failing. Used only
+// by the DryRun request-preview path so `--dry-run` can show the request
+// shape even before per-tenant vars like {shop}/{api_version} are configured;
+// the live request path still goes through buildURL's hard failure.
+func buildPreviewURL(baseURL, path string, vars map[string]string) string {
+	full := baseURL + path
+	return templateVarPattern.ReplaceAllStringFunc(full, func(match string) string {
+		key := match[1 : len(match)-1]
+		if v, ok := vars[key]; ok && v != "" {
+			return v
+		}
+		return "<" + key + ">"
+	})
 }
 
 // TemplateVarError reports unresolved {var} placeholders detected at request

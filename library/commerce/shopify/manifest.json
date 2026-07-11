@@ -2,7 +2,7 @@
   "manifest_version": "0.3",
   "name": "shopify-pp-mcp",
   "display_name": "Shopify",
-  "version": "4.14.0",
+  "version": "4.28.0",
   "description": "Operate a Shopify store from the terminal with local sync, analytics, and bulk exports.",
   "author": {
     "name": "CLI Printing Press"

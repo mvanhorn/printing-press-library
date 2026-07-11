@@ -11,10 +11,10 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// whichEntry is one row of the curated capability index. The index is
-// seeded at generation time from the same NovelFeature list that drives
-// the SKILL.md feature section, so the command a `which` query returns
-// is guaranteed to exist and to match what the skill advertises.
+// whichEntry is one row of the curated capability index. The index is seeded
+// at generation time from the verified NovelFeature list that drives the
+// SKILL.md feature section, so the command a `which` query returns is
+// guaranteed to exist and to match what the skill advertises.
 type whichEntry struct {
 	Command      string `json:"command"`
 	Description  string `json:"description"`
@@ -27,28 +27,10 @@ type whichEntry struct {
 // `--help`; `which` exists to resolve a natural-language capability
 // query to one of the commands the skill says matter most.
 var whichIndex = []whichEntry{
-	{Command: "abandoned-checkouts get", Description: "Get one Shopify abandoned checkout by GraphQL ID.", Group: "abandoned-checkouts"},
-	{Command: "abandoned-checkouts list", Description: "List abandoned checkouts from the Shopify Admin GraphQL API.", Group: "abandoned-checkouts"},
-	{Command: "customers get", Description: "Get one Shopify customer by GraphQL ID.", Group: "customers"},
-	{Command: "customers list", Description: "List customers from the Shopify Admin GraphQL API.", Group: "customers"},
-	{Command: "fulfillment-orders get", Description: "Get one Shopify fulfillment order by GraphQL ID.", Group: "fulfillment-orders"},
-	{Command: "fulfillment-orders list", Description: "List fulfillment orders from the Shopify Admin GraphQL API.", Group: "fulfillment-orders"},
-	{Command: "inventory-items get", Description: "Get one Shopify inventory item by GraphQL ID.", Group: "inventory-items"},
-	{Command: "inventory-items list", Description: "List inventory items from the Shopify Admin GraphQL API.", Group: "inventory-items"},
-	{Command: "orders get", Description: "Get one Shopify order by GraphQL ID.", Group: "orders"},
-	{Command: "orders list", Description: "List orders from the Shopify Admin GraphQL API.", Group: "orders"},
-	{Command: "products get", Description: "Get one Shopify product by GraphQL ID.", Group: "products"},
-	{Command: "products list", Description: "List products from the Shopify Admin GraphQL API.", Group: "products"},
-	{Command: "store daily-brief", Description: "Executive store brief with revenue, top products, and suggested actions from the local Shopify mirror.", Group: "store"},
-	{Command: "store audit", Description: "Score store health from refunds, fulfillment risk, shipping anomalies, and dead stock.", Group: "store"},
-	{Command: "growth campaign-brief", Description: "Generate a data-backed growth campaign brief from synced orders and products.", Group: "growth"},
-	{Command: "growth winback-candidates", Description: "Rank idle customers by lifetime value for winback outreach.", Group: "growth"},
-	{Command: "growth vip-segments", Description: "Segment high-value customers by spend, frequency, and recency.", Group: "growth"},
-	{Command: "ops fulfillment-risk", Description: "Find open fulfillment orders older than a risk threshold.", Group: "ops"},
-	{Command: "ops shipping-anomalies", Description: "Find orders with free, missing, or unusually high shipping charges.", Group: "ops"},
-	{Command: "merchandising bundle-opportunities", Description: "Suggest bundles from co-purchase lift and confidence.", Group: "merchandising"},
-	{Command: "merchandising dead-stock-actions", Description: "Turn dead inventory into markdown or bundle actions.", Group: "merchandising"},
-	{Command: "merchandising launch-brief", Description: "Build a product launch or relaunch brief from sales and inventory evidence.", Group: "merchandising"},
+	{Command: "orders brief", Description: "See a single support-ready summary of an order with fulfillment status and inventory availability, without stitching three calls together yourself.", Group: "Agent-native composites", WhyItMatters: "Reach for this instead of separate orders/fulfillment-orders/inventory-items calls when answering a support 'where is my order' question."},
+	{Command: "bulk-operations wait", Description: "Block until the current Shopify bulk export finishes instead of hand-polling in a loop.", Group: "Agent-native composites", WhyItMatters: "Use after bulk-operations run-query when you need the terminal result rather than a point-in-time snapshot."},
+	{Command: "doctor throttle", Description: "Check remaining GraphQL query-cost budget before a heavy batch or agent session.", Group: "Reachability mitigation", WhyItMatters: "Run this before a big sync or bulk export to avoid hitting THROTTLED mid-task."},
+	{Command: "store diff", Description: "See which rows changed content since the last sync, per resource.", Group: "Local state that compounds", WhyItMatters: "Use for a weekly 'what changed' review across synced resources instead of re-scanning everything."},
 }
 
 // whichMatch pairs an index entry with its ranking score for a query.
@@ -152,6 +134,7 @@ func newWhichCmd(flags *rootFlags) *cobra.Command {
 		Use:   "which [query]",
 		Short: "Find the command that implements a capability",
 		Annotations: map[string]string{
+			"mcp:read-only":       "true",
 			"pp:typed-exit-codes": "0,2",
 		},
 		Long: `which resolves a natural-language capability query (for example, "search messages" or "stale tickets") to the best matching command from this CLI's curated feature index.

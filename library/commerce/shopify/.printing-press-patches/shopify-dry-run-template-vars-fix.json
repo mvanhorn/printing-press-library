@@ -1,0 +1,17 @@
+{
+  "schema_version": 2,
+  "id": "shopify-dry-run-template-vars-fix",
+  "applied_at": "2026-07-12",
+  "base_run_id": "20260711-163254-3fb2a346",
+  "base_printing_press_version": "4.28.0",
+  "summary": "--dry-run hard-failed instead of previewing the request for APIs whose base_url has unresolved per-tenant template vars ({shop}/{api_version}); fixed at the client-framework level (not Shopify-specific) so --dry-run always shows a request preview.",
+  "reason": "buildURL() rejected unresolved {placeholder} vars before the DryRun branch ever ran, and separately Client.dryRun's REST-shaped {\"dry_run\": true} stub broke GraphQL callers that unwrap resp.Data, and separately autoRefreshIfStale ignored --dry-run entirely and made a live network call. All three combined meant --dry-run against an unconfigured shop (no SHOPIFY_SHOP/SHOPIFY_API_VERSION) failed hard instead of previewing anything, which also broke narrative validation for every quickstart/recipe example on this CLI.",
+  "files": [
+    "internal/client/url.go",
+    "internal/client/client.go",
+    "internal/client/graphql.go",
+    "internal/cli/auto_refresh.go"
+  ],
+  "validated_outcome": "shopify-pp-cli orders list --first 10 --json --dry-run now prints the request preview and a valid JSON envelope with exit 0 instead of failing with a template-var error; validate-narrative --strict --full-examples passes for all quickstart/recipe entries.",
+  "upstream_issue": null
+}

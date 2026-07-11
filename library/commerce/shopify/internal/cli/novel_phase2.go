@@ -53,6 +53,7 @@ func newStoreCmd(flags *rootFlags) *cobra.Command {
 	addDBOverrideFlag(cmd, flags)
 	cmd.AddCommand(newStoreDailyBriefCmd(flags))
 	cmd.AddCommand(newStoreAuditCmd(flags))
+	cmd.AddCommand(newNovelStoreDiffCmd(flags))
 	return cmd
 }
 

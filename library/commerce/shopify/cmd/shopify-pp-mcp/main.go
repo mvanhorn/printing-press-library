@@ -23,10 +23,16 @@ const (
 	defaultHTTPAddr = ":7777"
 )
 
+// version is the printed MCP server's version, overridable at build time via ldflags.
+var version = "0.0.0-dev"
+
 func main() {
+	// Pin the learn-event surface for this process and every walker
+	// shell-out child, so usage events record surface=mcp.
+	_ = os.Setenv("SHOPIFY_LEARN_SURFACE", "mcp")
 	s := server.NewMCPServer(
 		"Shopify",
-		"1.0.0",
+		version,
 		server.WithToolCapabilities(false),
 	)
 
