@@ -10,6 +10,7 @@
 package cli
 
 import (
+	"bufio"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -252,7 +253,7 @@ func newDeleteCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "delete <type> <id>",
 		Short:   "Delete a resource (JSON:API DELETE) — e.g. delete tasks 123",
-		Long:    "Delete any Productive resource by JSON:API type and id. Use --dry-run to preview the request without sending.",
+		Long:    "Delete any Productive resource by JSON:API type and id. Prompts for confirmation before deleting; pass --yes (or --agent) to skip the prompt in scripts, or --dry-run to preview the request without sending.",
 		Example: "  productive-pp-cli delete time_entries 998877",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 && cmd.Flags().NFlag() == 0 {
@@ -269,6 +270,21 @@ func newDeleteCmd(flags *rootFlags) *cobra.Command {
 			resType, id := args[0], args[1]
 			if dogfoodGuard(cmd, "delete", resType, id) {
 				return nil
+			}
+			// Destructive: confirm before deleting. --yes (and --agent, which
+			// implies it) skips the prompt; --no-input without --yes refuses
+			// rather than silently deleting in a non-interactive context. A
+			// --dry-run never mutates, so it never prompts.
+			if !flags.yes && !dryRunOK(flags) {
+				if flags.noInput {
+					return usageErr(fmt.Errorf("refusing to delete %s/%s without confirmation; pass --yes to proceed", resType, id))
+				}
+				fmt.Fprintf(cmd.ErrOrStderr(), "Delete %s %s? This cannot be undone. [y/N]: ", resType, id)
+				line, _ := bufio.NewReader(cmd.InOrStdin()).ReadString('\n')
+				if ans := strings.ToLower(strings.TrimSpace(line)); ans != "y" && ans != "yes" {
+					fmt.Fprintln(cmd.OutOrStdout(), "aborted")
+					return nil
+				}
 			}
 			ctx, cancel := boundCtx(cmd.Context(), flags)
 			defer cancel()

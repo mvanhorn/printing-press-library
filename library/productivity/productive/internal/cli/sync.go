@@ -829,344 +829,344 @@ func determinePaginationDefaults(resource string) paginationDefaults {
 	switch resource {
 	case "activities":
 		return paginationDefaults{
-			cursorParam: "after",
-			cursorType:  "",
+			cursorParam: "page[number]",
+			cursorType:  "page",
 			limitParam:  "page[size]",
 			limit:       100,
 		}
 	case "attachments":
 		return paginationDefaults{
-			cursorParam: "after",
-			cursorType:  "",
+			cursorParam: "page[number]",
+			cursorType:  "page",
 			limitParam:  "page[size]",
 			limit:       100,
 		}
 	case "bookings":
 		return paginationDefaults{
-			cursorParam: "after",
-			cursorType:  "",
+			cursorParam: "page[number]",
+			cursorType:  "page",
 			limitParam:  "page[size]",
 			limit:       100,
 		}
 	case "comments":
 		return paginationDefaults{
-			cursorParam: "after",
-			cursorType:  "",
+			cursorParam: "page[number]",
+			cursorType:  "page",
 			limitParam:  "page[size]",
 			limit:       100,
 		}
 	case "companies":
 		return paginationDefaults{
-			cursorParam: "after",
-			cursorType:  "",
+			cursorParam: "page[number]",
+			cursorType:  "page",
 			limitParam:  "page[size]",
 			limit:       100,
 		}
 	case "contact_entries":
 		return paginationDefaults{
-			cursorParam: "after",
-			cursorType:  "",
+			cursorParam: "page[number]",
+			cursorType:  "page",
 			limitParam:  "page[size]",
 			limit:       100,
 		}
 	case "custom_fields":
 		return paginationDefaults{
-			cursorParam: "after",
-			cursorType:  "",
+			cursorParam: "page[number]",
+			cursorType:  "page",
 			limitParam:  "page[size]",
 			limit:       100,
 		}
 	case "deal_statuses":
 		return paginationDefaults{
-			cursorParam: "after",
-			cursorType:  "",
+			cursorParam: "page[number]",
+			cursorType:  "page",
 			limitParam:  "page[size]",
 			limit:       100,
 		}
 	case "deals":
 		return paginationDefaults{
-			cursorParam: "after",
-			cursorType:  "",
+			cursorParam: "page[number]",
+			cursorType:  "page",
 			limitParam:  "page[size]",
 			limit:       100,
 		}
 	case "events":
 		return paginationDefaults{
-			cursorParam: "after",
-			cursorType:  "",
+			cursorParam: "page[number]",
+			cursorType:  "page",
 			limitParam:  "page[size]",
 			limit:       100,
 		}
 	case "expenses":
 		return paginationDefaults{
-			cursorParam: "after",
-			cursorType:  "",
+			cursorParam: "page[number]",
+			cursorType:  "page",
 			limitParam:  "page[size]",
 			limit:       100,
 		}
 	case "filters":
 		return paginationDefaults{
-			cursorParam: "after",
-			cursorType:  "",
+			cursorParam: "page[number]",
+			cursorType:  "page",
 			limitParam:  "page[size]",
 			limit:       100,
 		}
 	case "folders":
 		return paginationDefaults{
-			cursorParam: "after",
-			cursorType:  "",
+			cursorParam: "page[number]",
+			cursorType:  "page",
 			limitParam:  "page[size]",
 			limit:       100,
 		}
 	case "holiday_calendars":
 		return paginationDefaults{
-			cursorParam: "after",
-			cursorType:  "",
+			cursorParam: "page[number]",
+			cursorType:  "page",
 			limitParam:  "page[size]",
 			limit:       100,
 		}
 	case "holidays":
 		return paginationDefaults{
-			cursorParam: "after",
-			cursorType:  "",
+			cursorParam: "page[number]",
+			cursorType:  "page",
 			limitParam:  "page[size]",
 			limit:       100,
 		}
 	case "invoice_attributions":
 		return paginationDefaults{
-			cursorParam: "after",
-			cursorType:  "",
+			cursorParam: "page[number]",
+			cursorType:  "page",
 			limitParam:  "page[size]",
 			limit:       100,
 		}
 	case "invoices":
 		return paginationDefaults{
-			cursorParam: "after",
-			cursorType:  "",
+			cursorParam: "page[number]",
+			cursorType:  "page",
 			limitParam:  "page[size]",
 			limit:       100,
 		}
 	case "line_items":
 		return paginationDefaults{
-			cursorParam: "after",
-			cursorType:  "",
+			cursorParam: "page[number]",
+			cursorType:  "page",
 			limitParam:  "page[size]",
 			limit:       100,
 		}
 	case "memberships":
 		return paginationDefaults{
-			cursorParam: "after",
-			cursorType:  "",
+			cursorParam: "page[number]",
+			cursorType:  "page",
 			limitParam:  "page[size]",
 			limit:       100,
 		}
 	case "pages":
 		return paginationDefaults{
-			cursorParam: "after",
-			cursorType:  "",
+			cursorParam: "page[number]",
+			cursorType:  "page",
 			limitParam:  "page[size]",
 			limit:       100,
 		}
 	case "payments":
 		return paginationDefaults{
-			cursorParam: "after",
-			cursorType:  "",
+			cursorParam: "page[number]",
+			cursorType:  "page",
 			limitParam:  "page[size]",
 			limit:       100,
 		}
 	case "people":
 		return paginationDefaults{
-			cursorParam: "after",
-			cursorType:  "",
+			cursorParam: "page[number]",
+			cursorType:  "page",
 			limitParam:  "page[size]",
 			limit:       100,
 		}
 	case "pipelines":
 		return paginationDefaults{
-			cursorParam: "after",
-			cursorType:  "",
+			cursorParam: "page[number]",
+			cursorType:  "page",
 			limitParam:  "page[size]",
 			limit:       100,
 		}
 	case "projects":
 		return paginationDefaults{
-			cursorParam: "after",
-			cursorType:  "",
+			cursorParam: "page[number]",
+			cursorType:  "page",
 			limitParam:  "page[size]",
 			limit:       100,
 		}
 	case "proposals":
 		return paginationDefaults{
-			cursorParam: "after",
-			cursorType:  "",
+			cursorParam: "page[number]",
+			cursorType:  "page",
 			limitParam:  "page[size]",
 			limit:       100,
 		}
 	case "reports":
 		return paginationDefaults{
-			cursorParam: "after",
-			cursorType:  "",
+			cursorParam: "page[number]",
+			cursorType:  "page",
 			limitParam:  "page[size]",
 			limit:       200,
 		}
 	case "reports-booking-reports":
 		return paginationDefaults{
-			cursorParam: "after",
-			cursorType:  "",
+			cursorParam: "page[number]",
+			cursorType:  "page",
 			limitParam:  "page[size]",
 			limit:       200,
 		}
 	case "reports-budget-reports":
 		return paginationDefaults{
-			cursorParam: "after",
-			cursorType:  "",
+			cursorParam: "page[number]",
+			cursorType:  "page",
 			limitParam:  "page[size]",
 			limit:       200,
 		}
 	case "reports-expense-reports":
 		return paginationDefaults{
-			cursorParam: "after",
-			cursorType:  "",
+			cursorParam: "page[number]",
+			cursorType:  "page",
 			limitParam:  "page[size]",
 			limit:       200,
 		}
 	case "reports-financial-item-reports":
 		return paginationDefaults{
-			cursorParam: "after",
-			cursorType:  "",
+			cursorParam: "page[number]",
+			cursorType:  "page",
 			limitParam:  "page[size]",
 			limit:       200,
 		}
 	case "reports-invoice-reports":
 		return paginationDefaults{
-			cursorParam: "after",
-			cursorType:  "",
+			cursorParam: "page[number]",
+			cursorType:  "page",
 			limitParam:  "page[size]",
 			limit:       200,
 		}
 	case "reports-line-item-reports":
 		return paginationDefaults{
-			cursorParam: "after",
-			cursorType:  "",
+			cursorParam: "page[number]",
+			cursorType:  "page",
 			limitParam:  "page[size]",
 			limit:       200,
 		}
 	case "reports-payment-reports":
 		return paginationDefaults{
-			cursorParam: "after",
-			cursorType:  "",
+			cursorParam: "page[number]",
+			cursorType:  "page",
 			limitParam:  "page[size]",
 			limit:       200,
 		}
 	case "reports-project-reports":
 		return paginationDefaults{
-			cursorParam: "after",
-			cursorType:  "",
+			cursorParam: "page[number]",
+			cursorType:  "page",
 			limitParam:  "page[size]",
 			limit:       200,
 		}
 	case "reports-task-reports":
 		return paginationDefaults{
-			cursorParam: "after",
-			cursorType:  "",
+			cursorParam: "page[number]",
+			cursorType:  "page",
 			limitParam:  "page[size]",
 			limit:       200,
 		}
 	case "reports-time-entry-reports":
 		return paginationDefaults{
-			cursorParam: "after",
-			cursorType:  "",
+			cursorParam: "page[number]",
+			cursorType:  "page",
 			limitParam:  "page[size]",
 			limit:       200,
 		}
 	case "roles":
 		return paginationDefaults{
-			cursorParam: "after",
-			cursorType:  "",
+			cursorParam: "page[number]",
+			cursorType:  "page",
 			limitParam:  "page[size]",
 			limit:       100,
 		}
 	case "service_types":
 		return paginationDefaults{
-			cursorParam: "after",
-			cursorType:  "",
+			cursorParam: "page[number]",
+			cursorType:  "page",
 			limitParam:  "page[size]",
 			limit:       100,
 		}
 	case "services":
 		return paginationDefaults{
-			cursorParam: "after",
-			cursorType:  "",
+			cursorParam: "page[number]",
+			cursorType:  "page",
 			limitParam:  "page[size]",
 			limit:       100,
 		}
 	case "subsidiaries":
 		return paginationDefaults{
-			cursorParam: "after",
-			cursorType:  "",
+			cursorParam: "page[number]",
+			cursorType:  "page",
 			limitParam:  "page[size]",
 			limit:       100,
 		}
 	case "task_lists":
 		return paginationDefaults{
-			cursorParam: "after",
-			cursorType:  "",
+			cursorParam: "page[number]",
+			cursorType:  "page",
 			limitParam:  "page[size]",
 			limit:       100,
 		}
 	case "tasks":
 		return paginationDefaults{
-			cursorParam: "after",
-			cursorType:  "",
+			cursorParam: "page[number]",
+			cursorType:  "page",
 			limitParam:  "page[size]",
 			limit:       100,
 		}
 	case "tax_rates":
 		return paginationDefaults{
-			cursorParam: "after",
-			cursorType:  "",
+			cursorParam: "page[number]",
+			cursorType:  "page",
 			limitParam:  "page[size]",
 			limit:       100,
 		}
 	case "teams":
 		return paginationDefaults{
-			cursorParam: "after",
-			cursorType:  "",
+			cursorParam: "page[number]",
+			cursorType:  "page",
 			limitParam:  "page[size]",
 			limit:       100,
 		}
 	case "time_entries":
 		return paginationDefaults{
-			cursorParam: "after",
-			cursorType:  "",
+			cursorParam: "page[number]",
+			cursorType:  "page",
 			limitParam:  "page[size]",
 			limit:       100,
 		}
 	case "todos":
 		return paginationDefaults{
-			cursorParam: "after",
-			cursorType:  "",
+			cursorParam: "page[number]",
+			cursorType:  "page",
 			limitParam:  "page[size]",
 			limit:       100,
 		}
 	case "workflow_statuses":
 		return paginationDefaults{
-			cursorParam: "after",
-			cursorType:  "",
+			cursorParam: "page[number]",
+			cursorType:  "page",
 			limitParam:  "page[size]",
 			limit:       100,
 		}
 	case "workflows":
 		return paginationDefaults{
-			cursorParam: "after",
-			cursorType:  "",
+			cursorParam: "page[number]",
+			cursorType:  "page",
 			limitParam:  "page[size]",
 			limit:       100,
 		}
 	}
 	return paginationDefaults{
-		cursorParam: "after",
-		cursorType:  "",
+		cursorParam: "page[number]",
+		cursorType:  "page",
 		limitParam:  "page[size]",
 		limit:       100,
 	}
