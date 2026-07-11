@@ -26,6 +26,11 @@ type sectorRotationEntry struct {
 	// then), so Delta reflects a classification change rather than a real
 	// inflow/outflow swing.
 	PriorMissing bool `json:"prior_missing,omitempty"`
+	// CurrentMissing is true when a sector present in the prior period's
+	// snapshot has no entry in the current period (removed, renamed, or
+	// merged into another sector by NSDL). CurrentTotal is 0 in this case,
+	// same caveat as PriorMissing applies in the opposite direction.
+	CurrentMissing bool `json:"current_missing,omitempty"`
 }
 
 type sectorRotationView struct {
@@ -171,16 +176,32 @@ func newNovelSectorRotationCmd(flags *rootFlags) *cobra.Command {
 					PriorMissing: !hadPrior,
 				})
 			}
+			// Sectors present in the prior period but absent from the
+			// current one (removed, renamed, or merged by NSDL) never show
+			// up in the currentTotals loop above; without this, that
+			// classification change is silently invisible instead of just
+			// excluded-from-ranking like the PriorMissing case.
+			for sector, prior := range priorTotals {
+				if _, stillPresent := currentTotals[sector]; stillPresent {
+					continue
+				}
+				movers = append(movers, sectorRotationEntry{
+					Sector: sector, PriorTotal: prior, CurrentTotal: 0, Delta: -prior,
+					CurrentMissing: true,
+				})
+			}
 			// Rank by real period-over-period flow change only. A sector
-			// absent from the prior period isn't a flow swing — it's NSDL
-			// adding, renaming, or reclassifying a sector — so ranking it
-			// by abs(0 -> current) would misreport a classification event
-			// as the biggest mover. Surface those separately instead of
-			// silently mixing them into the ranking.
-			var ranked, newSectors []sectorRotationEntry
+			// absent from one of the two periods isn't a flow swing — it's
+			// NSDL adding, removing, renaming, or reclassifying a sector —
+			// so ranking it by abs(0 -> current) or abs(prior -> 0) would
+			// misreport a classification event as the biggest mover.
+			// Surface those separately instead of silently mixing them
+			// into the ranking (or, for CurrentMissing, dropping them
+			// entirely).
+			var ranked, changedSectors []sectorRotationEntry
 			for _, m := range movers {
-				if m.PriorMissing {
-					newSectors = append(newSectors, m)
+				if m.PriorMissing || m.CurrentMissing {
+					changedSectors = append(changedSectors, m)
 					continue
 				}
 				ranked = append(ranked, m)
@@ -191,13 +212,24 @@ func newNovelSectorRotationCmd(flags *rootFlags) *cobra.Command {
 			}
 			movers = ranked
 			view := sectorRotationView{CurrentPeriod: currentPeriod, PriorPeriod: priorPeriod, Movers: movers}
-			if len(newSectors) > 0 {
-				names := make([]string, len(newSectors))
-				for i, m := range newSectors {
-					names[i] = m.Sector
+			if len(changedSectors) > 0 {
+				sort.Slice(changedSectors, func(i, j int) bool { return changedSectors[i].Sector < changedSectors[j].Sector })
+				var newNames, goneNames []string
+				for _, m := range changedSectors {
+					if m.PriorMissing {
+						newNames = append(newNames, m.Sector)
+					} else {
+						goneNames = append(goneNames, m.Sector)
+					}
 				}
-				sort.Strings(names)
-				view.Note = fmt.Sprintf("excluded from ranking (no prior-period data, likely new/renamed sector): %s", strings.Join(names, ", "))
+				var parts []string
+				if len(newNames) > 0 {
+					parts = append(parts, fmt.Sprintf("new in current period (no prior-period data): %s", strings.Join(newNames, ", ")))
+				}
+				if len(goneNames) > 0 {
+					parts = append(parts, fmt.Sprintf("absent from current period (no current-period data): %s", strings.Join(goneNames, ", ")))
+				}
+				view.Note = "excluded from ranking, likely NSDL sector reclassification — " + strings.Join(parts, "; ")
 			}
 			if flags.asJSON || (!isTerminal(cmd.OutOrStdout()) && !flags.csv && !flags.quiet && !flags.plain) {
 				return printOutputWithFlagsMeta(cmd.OutOrStdout(), mustJSON(view), flags, map[string]any{"source": "local"})

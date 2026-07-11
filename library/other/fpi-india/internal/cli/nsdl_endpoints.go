@@ -3,6 +3,7 @@ package cli
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 
 	"github.com/mvanhorn/printing-press-library/library/other/fpi-india/internal/nsdl"
 )
@@ -27,18 +28,23 @@ var staticReportEndpointPaths = map[string]string{
 // generated command files call this before falling back to
 // extractHTMLResponse, so a live "net-investment fy --json" (or any other
 // covered endpoint) returns the same parsed rows sync stores, not raw page
-// chrome. Returns ok=false for endpoints with no bespoke parser, letting the
-// caller fall through to the generic extractor.
-func nsdlTransformHTMLEndpoint(ctx context.Context, endpoint, baseURL string, rawBody []byte, params map[string]string) (json.RawMessage, bool) {
+// chrome.
+//
+// Returns (nil, false, nil) for endpoints with no bespoke parser, letting
+// the caller fall through to the generic extractor on the original
+// response body — that body is real content for those endpoints.
+//
+// Returns (nil, false, err) for a static-report-backed endpoint whose
+// Chrome-fingerprint re-fetch failed. Callers MUST return err rather than
+// falling through: the caller's original pre-fetch body for these
+// endpoints is the WAF rejection page, and running it through the generic
+// extractor would silently return parsed rejection-page metadata as if it
+// were a real (if generic) result instead of surfacing the fetch failure.
+func nsdlTransformHTMLEndpoint(ctx context.Context, endpoint, baseURL string, rawBody []byte, params map[string]string) (json.RawMessage, bool, error) {
 	if path, ok := staticReportEndpointPaths[endpoint]; ok {
 		fresh, err := nsdl.FetchStaticReport(ctx, baseURL, path)
 		if err != nil {
-			// The generated command's own pre-fetch (rawBody) is the WAF
-			// rejection page for this StaticReports-backed endpoint, not
-			// real content — parsing it would silently return an empty or
-			// garbage result instead of surfacing the fetch failure. Fail
-			// closed rather than falling through to parse a rejection page.
-			return nil, false
+			return nil, false, fmt.Errorf("fetching %s: %w", endpoint, err)
 		}
 		rawBody = fresh
 	}
@@ -50,7 +56,7 @@ func nsdlTransformHTMLEndpoint(ctx context.Context, endpoint, baseURL string, ra
 		}
 		rows, err := nsdl.ParseNetInvestment(rawBody, "fy", currency)
 		if err != nil {
-			return nil, false
+			return nil, false, nil
 		}
 		return marshalOrFalse(rows)
 	case "net_investment.cy":
@@ -64,45 +70,45 @@ func nsdlTransformHTMLEndpoint(ctx context.Context, endpoint, baseURL string, ra
 		}
 		rows, err := nsdl.ParseNetInvestment(rawBody, periodType, currency)
 		if err != nil {
-			return nil, false
+			return nil, false, nil
 		}
 		return marshalOrFalse(rows)
 	case "net_investment.quarterly", "net_investment.latest":
 		recs, err := nsdl.ParseGenericRecords(rawBody)
 		if err != nil {
-			return nil, false
+			return nil, false, nil
 		}
 		return marshalOrFalse(recs)
 	case "auc.country", "auc.category":
 		recs, err := nsdl.ParseAUC(rawBody)
 		if err != nil {
-			return nil, false
+			return nil, false, nil
 		}
 		return marshalOrFalse(recs)
 	case "trades.equity", "trades.debt":
 		recs, err := nsdl.ParseTrades(rawBody)
 		if err != nil {
-			return nil, false
+			return nil, false, nil
 		}
 		return marshalOrFalse(recs)
 	case "registry.list", "registry.categories", "registry.pendency":
 		recs, err := nsdl.ParseRegistry(rawBody)
 		if err != nil {
-			return nil, false
+			return nil, false, nil
 		}
 		return marshalOrFalse(recs)
 	case "sector.list":
 		periods := nsdl.ParseSectorPeriods(rawBody)
 		return marshalOrFalse(periods)
 	default:
-		return nil, false
+		return nil, false, nil
 	}
 }
 
-func marshalOrFalse(v any) (json.RawMessage, bool) {
+func marshalOrFalse(v any) (json.RawMessage, bool, error) {
 	data, err := json.Marshal(v)
 	if err != nil {
-		return nil, false
+		return nil, false, nil
 	}
-	return data, true
+	return data, true, nil
 }

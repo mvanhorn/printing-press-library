@@ -31,7 +31,9 @@ func newNetInvestmentQuarterlyCmd(flags *rootFlags) *cobra.Command {
 				return classifyAPIError(err, flags)
 			}
 			if !flags.dryRun {
-				if transformed, ok := nsdlTransformHTMLEndpoint(cmd.Context(), "net_investment.quarterly", c.RequestBaseURL(), data, params); ok {
+				if transformed, ok, terr := nsdlTransformHTMLEndpoint(cmd.Context(), "net_investment.quarterly", c.RequestBaseURL(), data, params); terr != nil {
+					return terr
+				} else if ok {
 					data = transformed
 				} else {
 					data, err = extractHTMLResponse(data, htmlExtractionOptions{
