@@ -1,0 +1,9 @@
+{
+  "reachability": {"mode": "standard_http"},
+  "discovery_method": "js-bundle-extraction + direct-http-probe",
+  "endpoint_clusters": [
+    {"host": "media-quran-api.lpoalr.easypanel.host", "observed_auth": [], "endpoints": ["/api/surahs", "/api/surahs/{id}"]},
+    {"host": "api.quran.com", "observed_auth": [], "endpoints": ["/api/v4/chapters", "/api/v4/chapters/{id}/info", "/api/v4/juzs", "/api/v4/verses/by_chapter/{id}", "/api/v4/search"]},
+    {"host": "quranapi.pages.dev", "observed_auth": [], "endpoints": ["/api/audio/{surah}.json"]}
+  ]
+}
