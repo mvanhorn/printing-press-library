@@ -79,6 +79,7 @@ func newNovelAgingCmd(flags *rootFlags) *cobra.Command {
 
 			page := 1
 			scanned := 0
+			truncated := false
 			for page <= flagMaxPages {
 				params := map[string]string{
 					"filter[invoice_type][eq]": "1",
@@ -123,6 +124,13 @@ func newNovelAgingCmd(flags *rootFlags) *cobra.Command {
 					// report unpaid buckets that are too low.
 					break
 				}
+				if page >= flagMaxPages {
+					// Hit the scan cap with more pages available: stop, but flag
+					// the result as incomplete so the totals are not reported as
+					// complete when more unpaid invoices may exist.
+					truncated = true
+					break
+				}
 				page++
 			}
 
@@ -140,9 +148,13 @@ func newNovelAgingCmd(flags *rootFlags) *cobra.Command {
 			if err != nil {
 				return err
 			}
+			if truncated {
+				fmt.Fprintf(cmd.ErrOrStderr(), "warning: aging stopped at the --max-scan-pages cap (%d pages, 200 invoices/page); more unpaid invoices may exist and the totals below may be understated. Re-run with a higher --max-scan-pages.\n", flagMaxPages)
+			}
 			return printOutputWithFlagsMeta(cmd.OutOrStdout(), data, flags, map[string]any{
 				"source": "live", "as_of": asOf.Format("2006-01-02"),
 				"invoices_scanned": scanned, "unpaid_invoices": totalCount, "total_unpaid_cents": totalUnpaid,
+				"scan_truncated": truncated, "max_scan_pages": flagMaxPages,
 			})
 		},
 	}
