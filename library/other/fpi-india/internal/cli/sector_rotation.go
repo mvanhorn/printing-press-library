@@ -237,6 +237,9 @@ func newNovelSectorRotationCmd(flags *rootFlags) *cobra.Command {
 			for _, m := range view.Movers {
 				fmt.Fprintf(cmd.OutOrStdout(), "%s\t%.0f -> %.0f (%+.0f)\n", m.Sector, m.PriorTotal, m.CurrentTotal, m.Delta)
 			}
+			if view.Note != "" {
+				fmt.Fprintln(cmd.OutOrStdout(), view.Note)
+			}
 			return nil
 		},
 	}
