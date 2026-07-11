@@ -366,6 +366,13 @@ func journalInvocation(flags *rootFlags, rootCmd, executed *cobra.Command, err e
 	if noLearnActive(flags) || argsDisableLearn(os.Args[1:]) {
 		return
 	}
+	// Read-only contract: commands on learnHookSkipList (e.g. search,
+	// which is advertised as MCP read-only) must not create journal
+	// state either — the pre-run initializer already skips them, and
+	// journaling here would recreate the state dir on a cold home.
+	if executed != nil && shouldSkipLearnHook(executed.CommandPath()) {
+		return
+	}
 	exitCode := 0
 	errorClass := ""
 	if err != nil {
@@ -487,6 +494,11 @@ var learnFamilyCommands = map[string]struct{}{
 // command that triggered it.
 func deriveFlagCorrections(flags *rootFlags, rootCmd, executed *cobra.Command) {
 	if noLearnActive(flags) || argsDisableLearn(os.Args[1:]) || learn.JournalCaptureDisabled() {
+		return
+	}
+	// Same read-only guard as journalInvocation: skip-listed commands
+	// must not create or mutate learn state post-run.
+	if executed != nil && shouldSkipLearnHook(executed.CommandPath()) {
 		return
 	}
 	chain := journalVerbChain(rootCmd, executed)
