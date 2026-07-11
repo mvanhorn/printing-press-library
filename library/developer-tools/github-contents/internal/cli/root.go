@@ -326,6 +326,7 @@ See README.md or the bundled SKILL.md for recipes.`,
 // are matched as-is.
 var learnHookSkipList = map[string]struct{}{
 	"auth":          {},
+	"search":        {},
 	"doctor":        {},
 	"help":          {},
 	"sync":          {},
