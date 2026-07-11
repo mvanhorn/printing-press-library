@@ -1,0 +1,17 @@
+# Compiled binary
+/productive-pp-cli
+/productive-cli
+# goreleaser staging + MCPB bundle
+/build/
+# Local data / caches
+*.db
+*.sqlite
+# Live-data exports (never commit client data)
+*.jsonl
+*.csv
+# Build / verification reports
+/dogfood-results.json
+/apify-actor-audit-report.json
+/workflow-verify-report.json
+# Archived run manuscripts (may contain client data)
+/.manuscripts/
