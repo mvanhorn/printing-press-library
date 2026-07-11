@@ -112,7 +112,15 @@ func newNovelAgingCmd(flags *rootFlags) *cobra.Command {
 					place(days, unpaid)
 				}
 				total, ok := metaInt(doc.Meta, "total_pages")
-				if !ok || page >= total {
+				if ok {
+					if page >= total {
+						break
+					}
+				} else if len(doc.Data) < 200 {
+					// No total_pages in meta: fall back to the full-page
+					// heuristic (page[size] is 200 above) — a short page means
+					// the end. Otherwise aging would scan only page 1 and
+					// report unpaid buckets that are too low.
 					break
 				}
 				page++

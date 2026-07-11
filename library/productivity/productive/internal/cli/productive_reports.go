@@ -83,6 +83,7 @@ func fetchFinancialItemReport(ctx context.Context, c *client.Client, params map[
 	if params["page[size]"] == "" {
 		params["page[size]"] = "200"
 	}
+	pageSize, _ := strconv.Atoi(params["page[size]"])
 
 	var rows []japiResource
 	included := map[string]japiResource{}
@@ -102,7 +103,15 @@ func fetchFinancialItemReport(ctx context.Context, c *client.Client, params map[
 			included[inc.Type+":"+inc.ID] = inc
 		}
 		total, ok := metaInt(doc.Meta, "total_pages")
-		if !ok || page >= total {
+		if ok {
+			if page >= total {
+				break
+			}
+		} else if pageSize <= 0 || len(doc.Data) < pageSize {
+			// No total_pages in meta: fall back to the full-page heuristic —
+			// a short (or empty) page means the end of the result set. Without
+			// this the loop would stop after page 1 whenever the API omits
+			// total_pages, understating recognized/invoiced/reconciled totals.
 			break
 		}
 		page++
