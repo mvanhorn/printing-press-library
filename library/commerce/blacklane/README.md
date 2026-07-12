@@ -4,8 +4,6 @@
 
 Quote Blacklane's fixed all-inclusive chauffeur fares (airport transfers and by-the-hour) by address, compare vehicle classes, and keep a searchable local log of every quote. Addresses resolve via OpenStreetMap — no API key, no login, no booking.
 
-Created by [@omarshahine](https://github.com/omarshahine) (Omar Shahine).
-
 ## Install
 
 The recommended path installs both the `blacklane-pp-cli` binary and the `pp-blacklane` agent skill (Claude Code, Codex, Cursor, Gemini CLI, GitHub Copilot, and other agents supported by the upstream [`skills`](https://github.com/vercel-labs/skills) CLI) in one shot:
@@ -73,7 +71,6 @@ Inside a Hermes chat session:
 Restart the Hermes session or gateway if the newly installed skill is not visible immediately.
 
 ## Install for OpenClaw
-
 Install both the CLI binary and the focused OpenClaw skill. The installer defaults binaries to a per-user bin directory (`$HOME/.local/bin` on macOS/Linux, `%LOCALAPPDATA%\Programs\PrintingPress\bin` on Windows):
 
 ```bash
@@ -99,7 +96,9 @@ Requires Claude Desktop 1.0.0 or later. Pre-built bundles ship for macOS Apple S
 If you can't use the MCPB bundle (older Claude Desktop, unsupported platform), install the MCP binary and configure it manually.
 
 
-Install the MCP binary from this CLI's published public-library entry or pre-built release.
+```bash
+go install github.com/mvanhorn/printing-press-library/library/commerce/blacklane/cmd/blacklane-pp-mcp@latest
+```
 
 Add to your Claude Desktop config (`~/Library/Application Support/Claude/claude_desktop_config.json`):
 
@@ -172,38 +171,6 @@ These capabilities aren't available in any other tool for this API.
   blacklane-pp-cli fit "JFK Airport" "Times Square New York" --pax 3 --bags 4 --at 2026-06-20T15:00 --agent
   ```
 
-### Authenticated account
-- **`bookings`** — List your upcoming and past Blacklane rides (requires auth login).
-
-  _Pull your ride history/status without opening the site._
-
-  ```bash
-  blacklane-pp-cli bookings --when upcoming --agent
-  ```
-- **`me`** — Show your Blacklane profile (requires auth login).
-
-  _Confirm which account the CLI is acting as._
-
-  ```bash
-  blacklane-pp-cli me --agent
-  ```
-- **`wallet`** — Show wallet credits and vouchers (requires auth login).
-
-  _Check available credits before booking._
-
-  ```bash
-  blacklane-pp-cli wallet --agent
-  ```
-
-### Booking
-- **`book`** — Quote and assemble a booking, then open browser checkout for payment under --confirm. Never charges.
-
-  _Assemble and price a ride in the terminal, confirm payment yourself in the browser._
-
-  ```bash
-  blacklane-pp-cli book 'JFK Airport' 'Times Square New York' --at 2026-06-25T15:00 --class business
-  ```
-
 ## Recipes
 
 ### Quote and keep only class + price
@@ -226,6 +193,55 @@ Fan out quotes across times and rank by price.
 
 Run `blacklane-pp-cli --help` for the full command reference and flag list.
 
+## Paths & environment variables
+
+This CLI separates local files into four path kinds:
+
+| Kind | Contents |
+|------|----------|
+| `config` | User-editable settings such as `config.toml` and saved profiles |
+| `data` | Durable local data such as `data.db` |
+| `state` | Runtime state such as persisted queries, jobs, and `teach.log` |
+| `cache` | Regenerable HTTP/cache files |
+
+Each kind resolves independently. The ladder is:
+
+1. Per-kind env var: `BLACKLANE_CONFIG_DIR`, `BLACKLANE_DATA_DIR`, `BLACKLANE_STATE_DIR`, or `BLACKLANE_CACHE_DIR`
+2. `--home <dir>` for this invocation
+3. `BLACKLANE_HOME` for a flat relocated root
+4. XDG env vars: `XDG_CONFIG_HOME`, `XDG_DATA_HOME`, `XDG_STATE_HOME`, `XDG_CACHE_HOME`
+5. Platform defaults matching existing installs
+
+For containers and agent sandboxes, prefer a single relocated root:
+
+```bash
+export BLACKLANE_HOME=/srv/blacklane
+blacklane-pp-cli doctor
+```
+
+Under `BLACKLANE_HOME=/srv/blacklane`, the four dirs resolve to `/srv/blacklane/config`, `/srv/blacklane/data`, `/srv/blacklane/state`, and `/srv/blacklane/cache`.
+
+MCP servers do not receive CLI flags from the host. Put relocation in the host `env` block:
+
+```json
+{
+  "mcpServers": {
+    "blacklane": {
+      "command": "blacklane-pp-mcp",
+      "env": {
+        "BLACKLANE_HOME": "/srv/blacklane"
+      }
+    }
+  }
+}
+```
+
+Precedence matters in fleets: an ambient per-kind variable such as `BLACKLANE_DATA_DIR` overrides an explicit `--home` for that kind. Use `BLACKLANE_HOME` or the per-kind variables for durable fleet relocation; treat `--home` as the weaker per-invocation lever.
+
+Relocation is one-way. Unsetting `BLACKLANE_HOME` does not move files back to platform defaults, and `doctor` cannot find files left under a former root. Move the files manually before unsetting relocation variables.
+
+Existing installs keep working because the platform-default rung matches the legacy layout. Run `blacklane-pp-cli doctor --fail-on warn` to check path warnings in automation.
+
 ## Commands
 
 ### catalog
@@ -239,6 +255,24 @@ Vehicle-class service catalog (models, capacity, features)
 Raw pricing quotes (prefer the top-level 'quote' command)
 
 - **`blacklane-pp-cli prices`** - Request prices for a journey (raw body; see 'quote' for a friendly interface)
+
+
+### Self-learning loop
+
+This CLI caches per-question discovery so repeat queries skip the walk and structurally similar queries get answered via entity substitution. The loop also self-captures: every invocation is journaled locally, and failed-flag corrections plus fresh teaches surface as candidates on the next `recall` for confirm/reject judgment. Agents call `recall` before discovery and fire `teach &` after answering. See the `## Automatic learning` section in `SKILL.md` for the full protocol.
+
+- **`blacklane-pp-cli recall <query>`** - Look up cached resources for a query before running discovery
+- **`blacklane-pp-cli teach`** - Record a query -> resource mapping (silent on success, safe to background with `&`)
+- **`blacklane-pp-cli learnings list`** - Inspect taught rows
+- **`blacklane-pp-cli learnings forget <query>`** - Undo a teach
+- **`blacklane-pp-cli learnings candidates`** - List auto-captured candidates awaiting confirm/reject
+- **`blacklane-pp-cli learnings stats`** - Local loop metrics: recall hit rate, teach-to-reuse, playbook resolution, candidate counts
+- **`blacklane-pp-cli teach-pattern`** - Install a query/resource template up front
+- **`blacklane-pp-cli teach-lookup`** - Add an entity mapping (e.g. country code, team alias) for pattern substitution
+
+Pass `--no-learn` or set `BLACKLANE_NO_LEARN=true` to disable the loop for deterministic flows.
+
+The local store's schema version stamp is one-way: once this version of `blacklane-pp-cli` opens the database, older binaries refuse it with a version error — upgrade the binary rather than downgrading.
 
 ## Output Formats
 
@@ -283,20 +317,9 @@ blacklane-pp-cli doctor
 
 Verifies configuration and connectivity to the API.
 
-## Authentication
-
-Quotes, catalog, and geocoding need no auth. The account commands and `book` use your own Blacklane login — easiest via Chrome:
-
-```bash
-blacklane-pp-cli auth login --chrome    # imports your 24h access token from Chrome (non-invasive)
-# durable alternative: pbpaste | blacklane-pp-cli auth login   (refresh token from DevTools)
-```
-
-Credentials are stored owner-only at `~/.config/blacklane-pp-cli/auth.json`. `book` never charges — payment (Braintree + 3-D Secure) is completed by you in the browser.
-
 ## Configuration
 
-Config file: `~/.config/blacklane-pp-cli/config.toml`
+Run `blacklane-pp-cli doctor` to see the resolved config, data, state, and cache directories. The platform-default config path is `~/.config/blacklane-pp-cli/config.toml`; `--home`, `BLACKLANE_HOME`, and per-kind env vars can relocate it.
 
 Static request headers can be configured under `headers`; per-command header overrides take precedence.
 

@@ -8,8 +8,10 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
+	"math"
 	"os"
 	"path/filepath"
+	"strconv"
 	"strings"
 	"time"
 
@@ -17,9 +19,19 @@ import (
 	"github.com/mark3labs/mcp-go/server"
 	"github.com/mvanhorn/printing-press-library/library/commerce/blacklane/internal/cli"
 	"github.com/mvanhorn/printing-press-library/library/commerce/blacklane/internal/client"
+	"github.com/mvanhorn/printing-press-library/library/commerce/blacklane/internal/cliutil"
 	"github.com/mvanhorn/printing-press-library/library/commerce/blacklane/internal/config"
+	"github.com/mvanhorn/printing-press-library/library/commerce/blacklane/internal/learn"
+	"github.com/mvanhorn/printing-press-library/library/commerce/blacklane/internal/mcp/bound"
 	"github.com/mvanhorn/printing-press-library/library/commerce/blacklane/internal/mcp/cobratree"
 	"github.com/mvanhorn/printing-press-library/library/commerce/blacklane/internal/store"
+)
+
+const (
+	// MCP hosts can fan out tool calls faster than a human CLI session.
+	// Keep them on the same polite-client limiter path instead of disabling
+	// pacing with rate=0; users can still tune human CLI calls with --rate-limit.
+	defaultMCPRateLimit = 2
 )
 
 // RegisterTools registers all API operations as MCP tools.
@@ -32,7 +44,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/packages/{slug}", true, false, nil, []mcpParamBinding{{PublicName: "slug", WireName: "slug", Location: "path"}}, []string{"slug"}),
+		makeAPIHandler("GET", "/packages/{slug}", true, false, nil, mcpPageConfig{}, []mcpParamBinding{{PublicName: "slug", WireName: "slug", Location: "path"}}, []string{"slug"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("prices_create",
@@ -44,13 +56,13 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("POST", "/prices", false, false, nil, []mcpParamBinding{{PublicName: "serviceCategory", WireName: "serviceCategory", Location: "body"}, {PublicName: "serviceType", WireName: "serviceType", Location: "body"}, {PublicName: "departAt", WireName: "departAt", Location: "body"}, {PublicName: "duration", WireName: "duration", Location: "body"}}, []string{}),
+		makeAPIHandler("POST", "/prices", false, false, nil, mcpPageConfig{}, []mcpParamBinding{{PublicName: "serviceCategory", WireName: "serviceCategory", Location: "body"}, {PublicName: "serviceType", WireName: "serviceType", Location: "body"}, {PublicName: "departAt", WireName: "departAt", Location: "body"}, {PublicName: "duration", WireName: "duration", Location: "body"}}, []string{}),
 	)
 	// SQL tool — ad-hoc analysis on synced data without API calls
 	s.AddTool(
 		mcplib.NewTool("sql",
 			mcplib.WithDescription("Run read-only SQL against local database. Use for ad-hoc analysis, aggregations, and joins across synced resources. Requires sync first."),
-			mcplib.WithString("query", mcplib.Required(), mcplib.Description("SQL query (SELECT or WITH...SELECT). Tables match resource names.")),
+			mcplib.WithString("query", mcplib.Required(), mcplib.Description("SQL query (SELECT or WITH...SELECT). Synced records live in resources(resource_type, id, data); filter by resource_type and use json_extract on data, e.g. SELECT json_extract(data,'$.name') FROM resources WHERE resource_type='catalog'.")),
 			mcplib.WithReadOnlyHintAnnotation(true),
 			mcplib.WithDestructiveHintAnnotation(false),
 		),
@@ -79,8 +91,49 @@ type mcpParamBinding struct {
 	Location   string
 }
 
+type mcpPageConfig struct {
+	CursorParam    string
+	NextCursorPath string
+}
+
+func formatMCPParamValue(v any) string {
+	switch tv := v.(type) {
+	case string:
+		return tv
+	case bool:
+		return strconv.FormatBool(tv)
+	case float64:
+		if math.IsNaN(tv) || math.IsInf(tv, 0) {
+			return strconv.FormatFloat(tv, 'f', -1, 64)
+		}
+		if math.Trunc(tv) == tv && math.Abs(tv) < 1e15 {
+			return strconv.FormatInt(int64(tv), 10)
+		}
+		return strconv.FormatFloat(tv, 'f', -1, 64)
+	case float32:
+		f := float64(tv)
+		if math.IsNaN(f) || math.IsInf(f, 0) {
+			return strconv.FormatFloat(f, 'f', -1, 32)
+		}
+		if math.Trunc(f) == f && math.Abs(f) < 1e15 {
+			return strconv.FormatInt(int64(f), 10)
+		}
+		return strconv.FormatFloat(f, 'f', -1, 32)
+	default:
+		// Composite values (a native []any / map[string]any from an array or
+		// object param) reach this path when bound to a query or path slot;
+		// JSON-encode them so the wire value is valid JSON rather than Go's
+		// "[a b c]" / "map[...]" rendering. Body params never come through
+		// here — they are stored natively in bodyArgs and marshalled there.
+		if b, err := json.Marshal(v); err == nil {
+			return string(b)
+		}
+		return fmt.Sprintf("%v", v)
+	}
+}
+
 // makeAPIHandler creates a generic MCP tool handler for an API endpoint.
-func makeAPIHandler(method, pathTemplate string, readOnly bool, binaryResponse bool, headerOverrides map[string]string, bindings []mcpParamBinding, positionalParams []string) server.ToolHandlerFunc {
+func makeAPIHandler(method, pathTemplate string, readOnly bool, binaryResponse bool, headerOverrides map[string]string, pageConfig mcpPageConfig, bindings []mcpParamBinding, positionalParams []string) server.ToolHandlerFunc {
 	return func(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.CallToolResult, error) {
 		c, err := newMCPClient()
 		if err != nil {
@@ -100,6 +153,24 @@ func makeAPIHandler(method, pathTemplate string, readOnly bool, binaryResponse b
 		pathParams := make(map[string]bool, len(positionalParams))
 		params := make(map[string]string)
 		bodyArgs := make(map[string]any)
+		mcpCursor := ""
+		if pageConfig.CursorParam != "" {
+			knownArgs["cursor"] = true
+			if v, ok := args["cursor"]; ok {
+				s, ok := v.(string)
+				if !ok {
+					return mcplib.NewToolResultError("cursor must be an opaque string returned by a previous MCP response"), nil
+				}
+				mcpCursor = s
+				upstreamCursor, err := bound.UpstreamCursor(s)
+				if err != nil {
+					return mcplib.NewToolResultError(err.Error()), nil
+				}
+				if upstreamCursor != "" {
+					params[pageConfig.CursorParam] = upstreamCursor
+				}
+			}
+		}
 		var headers map[string]string
 		if len(headerOverrides) > 0 {
 			headers = make(map[string]string, len(headerOverrides)+1)
@@ -123,11 +194,11 @@ func makeAPIHandler(method, pathTemplate string, readOnly bool, binaryResponse b
 			case "path":
 				placeholder := "{" + binding.WireName + "}"
 				pathParams[binding.PublicName] = true
-				path = strings.Replace(path, placeholder, fmt.Sprintf("%v", v), 1)
+				path = strings.Replace(path, placeholder, formatMCPParamValue(v), 1)
 			case "body":
 				bodyArgs[binding.WireName] = v
 			default:
-				params[binding.WireName] = fmt.Sprintf("%v", v)
+				params[binding.WireName] = formatMCPParamValue(v)
 			}
 		}
 		for _, p := range positionalParams {
@@ -137,7 +208,7 @@ func makeAPIHandler(method, pathTemplate string, readOnly bool, binaryResponse b
 			}
 			pathParams[p] = true
 			if v, ok := args[p]; ok {
-				path = strings.Replace(path, placeholder, fmt.Sprintf("%v", v), 1)
+				path = strings.Replace(path, placeholder, formatMCPParamValue(v), 1)
 			}
 		}
 
@@ -149,7 +220,7 @@ func makeAPIHandler(method, pathTemplate string, readOnly bool, binaryResponse b
 			case "POST", "PUT", "PATCH":
 				bodyArgs[k] = v
 			default:
-				params[k] = fmt.Sprintf("%v", v)
+				params[k] = formatMCPParamValue(v)
 			}
 		}
 
@@ -222,79 +293,141 @@ func makeAPIHandler(method, pathTemplate string, readOnly bool, binaryResponse b
 			}
 		}
 
-		// For GET responses, wrap bare arrays with count metadata
-		if method == "GET" {
-			trimmed := strings.TrimSpace(string(data))
-			if len(trimmed) > 0 && trimmed[0] == '[' {
-				var items []json.RawMessage
-				if json.Unmarshal(data, &items) == nil {
-					wrapped := map[string]any{
-						"count": len(items),
-						"items": items,
-					}
-					out, _ := json.Marshal(wrapped)
-					return mcplib.NewToolResultText(string(out)), nil
-				}
-			}
-		}
 		if binaryResponse {
-			out, _ := json.Marshal(map[string]any{
+			encoded := base64.StdEncoding.EncodeToString(data)
+			out, err := json.Marshal(map[string]any{
 				"content_encoding": "base64",
-				"data_base64":      base64.StdEncoding.EncodeToString(data),
+				"data_base64":      encoded,
 				"byte_count":       len(data),
 			})
+			if err != nil {
+				return mcplib.NewToolResultError(fmt.Sprintf("encoding binary result: %v", err)), nil
+			}
+			if len(out) > bound.MaxBytes {
+				return mcplib.NewToolResultError(fmt.Sprintf("binary response is too large for MCP text output: %d response bytes encode to %d base64 bytes and %d MCP result bytes, exceeding the %d byte budget. Use the companion CLI command with --output <file> to save the payload locally.", len(data), len(encoded), len(out), bound.MaxBytes)), nil
+			}
 			return mcplib.NewToolResultText(string(out)), nil
 		}
-		return mcplib.NewToolResultText(string(data)), nil
+		if pageConfig.CursorParam != "" {
+			return mcpToolPageResultText(method, data, pageConfig, mcpCursor), nil
+		}
+		return mcpToolResultText(method, data), nil
 	}
 }
 
+func mcpToolResultText(method string, data json.RawMessage) *mcplib.CallToolResult {
+	return mcplib.NewToolResultText(bound.EndpointResponse(method, data))
+}
+
+func mcpToolPageResultText(method string, data json.RawMessage, pageConfig mcpPageConfig, cursor string) *mcplib.CallToolResult {
+	return mcplib.NewToolResultText(bound.EndpointPageResponse(method, data, bound.PageOptions{
+		Cursor:         cursor,
+		CursorParam:    pageConfig.CursorParam,
+		NextCursorPath: pageConfig.NextCursorPath,
+	}))
+}
+
 func newMCPClient() (*client.Client, error) {
-	home, _ := os.UserHomeDir()
-	cfgPath := filepath.Join(home, ".config", "blacklane-pp-cli", "config.toml")
-	cfg, err := config.Load(cfgPath)
+	cfg, err := newMCPConfig()
+	if err != nil {
+		return nil, err
+	}
+	return newMCPClientFromConfig(cfg), nil
+}
+
+func newMCPConfig() (*config.Config, error) {
+	cfg, err := config.Load("")
 	if err != nil {
 		return nil, fmt.Errorf("loading config: %w", err)
 	}
-	c := client.New(cfg, 60*time.Second, 0)
+	return cfg, nil
+}
+
+func newMCPClientFromConfig(cfg *config.Config) *client.Client {
+	c := client.New(cfg, 60*time.Second, defaultMCPRateLimit)
 	// Agents calling through MCP need fresh data every call. The on-disk
 	// response cache survives across MCP server invocations, so a
 	// DELETE/PATCH followed by a GET would otherwise return the
 	// pre-mutation snapshot for up to the cache TTL. The interactive CLI
 	// constructs its own client and is unaffected.
 	c.NoCache = true
-	return c, nil
+	return c
 }
 
-func dbPath() string {
-	home, _ := os.UserHomeDir()
-	return filepath.Join(home, ".local", "share", "blacklane-pp-cli", "data.db")
+func mcpDBPath() (string, error) {
+	dir, err := cliutil.DataDir()
+	if err != nil {
+		return "", err
+	}
+	return filepath.Join(dir, "data.db"), nil
 }
 
-// Note: MCP tools use their own dbPath() because they are in a separate package (main, not cli).
-// The CLI's defaultDBPath() in the cli package uses the same canonical path.
+type mcpStoreStatusKind string
+
+const (
+	mcpStoreStatusEmpty mcpStoreStatusKind = "empty"
+	mcpStoreStatusReady mcpStoreStatusKind = "ready"
+)
+
+func openMCPReadOnlyStore(path string) (*store.Store, *mcplib.CallToolResult) {
+	if _, err := os.Stat(path); err != nil {
+		if os.IsNotExist(err) {
+			return nil, mcplib.NewToolResultError(mcpMissingStoreMessage(path))
+		}
+		return nil, mcplib.NewToolResultError(fmt.Sprintf("checking local data store %s: %v", path, err))
+	}
+	db, err := store.OpenReadOnly(path)
+	if err != nil {
+		return nil, mcplib.NewToolResultError(fmt.Sprintf("opening local data store %s: %v. Run blacklane-pp-cli sync to refresh the store, or use live endpoint MCP tools for unsynced data.", path, err))
+	}
+	return db, nil
+}
+
+func mcpMissingStoreMessage(path string) string {
+	return fmt.Sprintf("No local data store found at %s. Run blacklane-pp-cli sync before using MCP search/sql, or use live endpoint MCP tools for unsynced data.", path)
+}
+
+func mcpStoreStatus(db *store.Store) (mcpStoreStatusKind, error) {
+	status, err := db.Status()
+	if err != nil {
+		return "", err
+	}
+	if len(status) == 0 {
+		return mcpStoreStatusEmpty, nil
+	}
+	return mcpStoreStatusReady, nil
+}
+
+func mcpEmptyStoreNextStep() string {
+	return "Run blacklane-pp-cli sync to populate the local SQLite store before using MCP search/sql."
+}
 
 // validateReadOnlyQuery gates the MCP sql tool. The agent contract advertised
 // to the host is ReadOnlyHintAnnotation(true); a false annotation on a
 // mutating tool lets MCP hosts auto-approve writes and is treated as a real
 // bug per the project's agent-native security model.
 //
-// The gate is an allowlist (SELECT or WITH only) applied AFTER stripping the
-// leading whitespace, line comments, block comments, and semicolons that
-// SQLite itself ignores before parsing. A naive HasPrefix check on a
-// keyword blocklist is bypassable by prefixing the dangerous statement with
-// "/* x */" or "-- x\n" — TrimSpace strips outer whitespace but does not
-// understand SQL comment syntax. Combined with the empirical fact that
-// modernc.org/sqlite's mode=ro does NOT block VACUUM INTO (writes a snapshot
-// to a new file) or ATTACH DATABASE (opens a separate writable handle),
-// such a bypass produces silent exfiltration to an attacker-chosen path.
+// The gate rejects multi-statement input, then applies an allowlist (SELECT or
+// WITH only) AFTER stripping the leading whitespace, line comments, block
+// comments, and semicolons that SQLite itself ignores before parsing. A naive
+// HasPrefix check on a keyword blocklist is bypassable by prefixing the
+// dangerous statement with "/* x */" or "-- x\n"; a naive leading-keyword
+// allowlist is bypassable by appending "; ATTACH DATABASE ...". Combined with
+// the empirical fact that modernc.org/sqlite's mode=ro does NOT block VACUUM
+// INTO (writes a snapshot to a new file) or ATTACH DATABASE (opens a separate
+// writable handle), either bypass produces silent exfiltration to an
+// attacker-chosen path.
 //
 // SELECT and WITH are the only allowed leading keywords. WITH supports
 // SELECT-form CTEs; CTE-wrapped writes ("WITH x AS (...) INSERT ...") are
 // caught by OpenReadOnly's mode=ro one layer down. PRAGMA, ATTACH, VACUUM,
 // and every other DDL/DML keyword fail at this gate before reaching SQLite.
 func validateReadOnlyQuery(query string) error {
-	upper := strings.ToUpper(stripLeadingSQLNoise(query))
+	stripped := stripLeadingSQLNoise(query)
+	if hasTrailingSQLStatement(stripped) {
+		return fmt.Errorf("only a single SELECT or WITH statement is allowed")
+	}
+	upper := strings.ToUpper(stripped)
 	if !strings.HasPrefix(upper, "SELECT") && !strings.HasPrefix(upper, "WITH") {
 		return fmt.Errorf("only SELECT queries are allowed")
 	}
@@ -328,6 +461,97 @@ func stripLeadingSQLNoise(query string) string {
 	}
 }
 
+// hasTrailingSQLStatement reports whether query contains a statement
+// terminator followed by more executable SQL. A trailing semicolon is allowed;
+// a second statement is not. Semicolons inside string literals, quoted
+// identifiers, bracket identifiers, and comments are ignored to match SQLite's
+// parser shape closely enough for this security gate.
+func hasTrailingSQLStatement(query string) bool {
+	inSingle := false
+	inDouble := false
+	inBacktick := false
+	inBracket := false
+	inLineComment := false
+	inBlockComment := false
+
+	for i := 0; i < len(query); i++ {
+		ch := query[i]
+		next := byte(0)
+		if i+1 < len(query) {
+			next = query[i+1]
+		}
+
+		switch {
+		case inLineComment:
+			if ch == '\n' {
+				inLineComment = false
+			}
+			continue
+		case inBlockComment:
+			if ch == '*' && next == '/' {
+				inBlockComment = false
+				i++
+			}
+			continue
+		case inSingle:
+			if ch == '\'' {
+				if next == '\'' {
+					i++
+					continue
+				}
+				inSingle = false
+			}
+			continue
+		case inDouble:
+			if ch == '"' {
+				if next == '"' {
+					i++
+					continue
+				}
+				inDouble = false
+			}
+			continue
+		case inBacktick:
+			if ch == '`' {
+				if next == '`' {
+					i++
+					continue
+				}
+				inBacktick = false
+			}
+			continue
+		case inBracket:
+			if ch == ']' {
+				inBracket = false
+			}
+			continue
+		}
+
+		switch {
+		case ch == '-' && next == '-':
+			inLineComment = true
+			i++
+		case ch == '/' && next == '*':
+			inBlockComment = true
+			i++
+		case ch == '\'':
+			inSingle = true
+		case ch == '"':
+			inDouble = true
+		case ch == '`':
+			inBacktick = true
+		case ch == '[':
+			inBracket = true
+		case ch == ';':
+			if stripLeadingSQLNoise(query[i+1:]) != "" {
+				return true
+			}
+			return false
+		}
+	}
+	return false
+}
+
 func handleSQL(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.CallToolResult, error) {
 	args := req.GetArguments()
 	query, ok := args["query"].(string)
@@ -339,19 +563,26 @@ func handleSQL(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.CallToo
 		return mcplib.NewToolResultError(err.Error()), nil
 	}
 
-	db, err := store.OpenReadOnly(dbPath())
+	path, err := mcpDBPath()
 	if err != nil {
-		return mcplib.NewToolResultError(fmt.Sprintf("opening database: %v", err)), nil
+		return mcplib.NewToolResultError(fmt.Sprintf("resolving database: %v", err)), nil
+	}
+	db, toolErr := openMCPReadOnlyStore(path)
+	if toolErr != nil {
+		return toolErr, nil
 	}
 	defer db.Close()
 
-	rows, err := db.Query(query)
+	rows, err := db.DB().QueryContext(ctx, query)
 	if err != nil {
-		return mcplib.NewToolResultError(fmt.Sprintf("query failed: %v", err)), nil
+		return mcplib.NewToolResultError(mcpSQLQueryError(err)), nil
 	}
 	defer rows.Close()
 
-	cols, _ := rows.Columns()
+	cols, err := rows.Columns()
+	if err != nil {
+		return mcplib.NewToolResultError(fmt.Sprintf("reading columns: %v", err)), nil
+	}
 	var results []map[string]any
 	for rows.Next() {
 		values := make([]any, len(cols))
@@ -359,26 +590,94 @@ func handleSQL(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.CallToo
 		for i := range values {
 			ptrs[i] = &values[i]
 		}
-		rows.Scan(ptrs...)
+		if err := rows.Scan(ptrs...); err != nil {
+			return mcplib.NewToolResultError(fmt.Sprintf("scanning row: %v", err)), nil
+		}
 		row := make(map[string]any)
 		for i, col := range cols {
 			row[col] = values[i]
 		}
 		results = append(results, row)
 	}
+	// rows.Next() stops on a mid-iteration error without failing the loop, so
+	// skipping rows.Err() would return a truncated result set as success.
+	if err := rows.Err(); err != nil {
+		return mcplib.NewToolResultError(fmt.Sprintf("reading rows: %v", err)), nil
+	}
+	storeStatus, err := mcpStoreStatus(db)
+	if err != nil {
+		return mcplib.NewToolResultError(fmt.Sprintf("reading store status: %v", err)), nil
+	}
 
-	data, _ := json.MarshalIndent(results, "", "  ")
-	return mcplib.NewToolResultText(string(data)), nil
+	return toolResultJSON(mcpSQLEnvelope(results, cols, storeStatus))
+}
+
+func mcpSQLEnvelope(rows []map[string]any, columns []string, storeStatus mcpStoreStatusKind) map[string]any {
+	if rows == nil {
+		rows = []map[string]any{}
+	}
+	out := map[string]any{
+		"count":        len(rows),
+		"columns":      columns,
+		"rows":         rows,
+		"store_status": storeStatus,
+		"resumable":    false,
+	}
+	if len(rows) == 0 {
+		if storeStatus == mcpStoreStatusEmpty {
+			out["next_step"] = mcpEmptyStoreNextStep()
+		} else {
+			out["next_step"] = "The read-only SQL query returned no rows. Check resource_type filters, json_extract paths, or run sync again if data may be stale."
+		}
+	}
+	return out
+}
+
+func mcpSQLQueryError(err error) string {
+	msg := err.Error()
+	if strings.Contains(strings.ToLower(msg), "no such table") {
+		return fmt.Sprintf("query failed: %v. Synced records live in resources(resource_type, id, data), not one SQL table per resource. Filter by resource_type, for example resource_type='catalog', and read JSON fields with json_extract(data,'$.field').", err)
+	}
+	return fmt.Sprintf("query failed: %v", err)
+}
+
+// toolResultJSON renders v as the indented JSON body of an MCP text result,
+// surfacing a marshal failure as a tool error instead of empty content.
+func toolResultJSON(v any) (*mcplib.CallToolResult, error) {
+	text, err := bound.JSON(v)
+	if err != nil {
+		return mcplib.NewToolResultError(fmt.Sprintf("encoding result: %v", err)), nil
+	}
+	return mcplib.NewToolResultText(text), nil
 }
 
 func handleContext(_ context.Context, _ mcplib.CallToolRequest) (*mcplib.CallToolResult, error) {
+	paths := map[string]string{}
+	if dir, err := cliutil.ConfigDir(); err == nil {
+		paths["config_dir"] = dir
+	}
+	if dir, err := cliutil.DataDir(); err == nil {
+		paths["data_dir"] = dir
+	}
+	if dir, err := cliutil.StateDir(); err == nil {
+		paths["state_dir"] = dir
+	}
+	if dir, err := cliutil.CacheDir(); err == nil {
+		paths["cache_dir"] = dir
+	}
 	ctx := map[string]any{
 		"api":         "blacklane",
 		"description": "Upfront chauffeur quotes from the terminal — transfer and hourly, with a local price history no other tool has.",
 		"archetype":   "generic",
 		"tool_count":  2,
+		"paths":       paths,
 		// tool_surface tells agents which surface a capability lives on.
 		"tool_surface": "MCP exposes typed endpoint tools plus a runtime mirror of user-facing CLI commands. Endpoint tools keep typed schemas; command-mirror tools shell out to the companion blacklane-pp-cli binary.",
+		// learn_protocol is generated from the single shared source of
+		// truth (the exported constant internal/learn.RecallFirstProtocol)
+		// also consumed by the CLI agent-context command, so the MCP and
+		// CLI agent surfaces cannot drift.
+		"learn_protocol": learn.RecallFirstProtocol,
 		"resources": []map[string]any{
 			{
 				"name":        "catalog",
@@ -391,6 +690,7 @@ func handleContext(_ context.Context, _ mcplib.CallToolRequest) (*mcplib.CallToo
 				"description": "Raw pricing quotes (prefer the top-level 'quote' command)",
 				"endpoints":   []string{"create"},
 				"searchable":  true,
+				"writable":    true,
 			},
 		},
 		"query_tips": []string{
@@ -408,10 +708,6 @@ func handleContext(_ context.Context, _ mcplib.CallToolRequest) (*mcplib.CallToo
 			{"name": "Multi-leg trip total", "command": "trip", "description": "Quote a sequence of legs and total the fares.", "rationale": "Requires sequencing and summing quotes locally.", "via": "mcp-command-mirror"},
 			{"name": "Class fit advisor", "command": "fit", "description": "Recommend the cheapest vehicle class that fits the party.", "rationale": "Requires joining catalog capacity with live price.", "via": "mcp-command-mirror"},
 			{"name": "Quote ledger + search", "command": "log", "description": "Every quote saved to SQLite, full-text searchable and SQL-queryable.", "rationale": "Requires a local store of all quotes.", "via": "mcp-command-mirror"},
-			{"name": "Account bookings", "command": "bookings", "description": "List your upcoming and past Blacklane rides (requires auth login).", "rationale": "Requires the cracked Auth0 header recipe; the gateway rejects the bare token.", "via": "mcp-command-mirror"},
-			{"name": "Account profile", "command": "me", "description": "Show your Blacklane profile (requires auth login).", "rationale": "Authenticated guest-api call via the refresh-token-minted token.", "via": "mcp-command-mirror"},
-			{"name": "Wallet", "command": "wallet", "description": "Show wallet credits and vouchers (requires auth login).", "rationale": "Authenticated GraphQL Wallet query.", "via": "mcp-command-mirror"},
-			{"name": "Booking handoff", "command": "book", "description": "Quote and assemble a booking, then open browser checkout for payment under --confirm. Never charges.", "rationale": "createBooking needs a browser-minted Braintree nonce + 3-D Secure; payment is browser-bound by design.", "via": "mcp-command-mirror"},
 		},
 		"playbook": []map[string]string{
 			{"topic": "Fare watch", "insight": "Only possible with local price snapshots in SQLite."},
@@ -419,14 +715,9 @@ func handleContext(_ context.Context, _ mcplib.CallToolRequest) (*mcplib.CallToo
 			{"topic": "Multi-leg trip total", "insight": "Requires sequencing and summing quotes locally."},
 			{"topic": "Class fit advisor", "insight": "Requires joining catalog capacity with live price."},
 			{"topic": "Quote ledger + search", "insight": "Requires a local store of all quotes."},
-			{"topic": "Account bookings", "insight": "Requires the cracked Auth0 header recipe; the gateway rejects the bare token."},
-			{"topic": "Account profile", "insight": "Authenticated guest-api call via the refresh-token-minted token."},
-			{"topic": "Wallet", "insight": "Authenticated GraphQL Wallet query."},
-			{"topic": "Booking handoff", "insight": "createBooking needs a browser-minted Braintree nonce + 3-D Secure; payment is browser-bound by design."},
 		},
 	}
-	data, _ := json.MarshalIndent(ctx, "", "  ")
-	return mcplib.NewToolResultText(string(data)), nil
+	return toolResultJSON(ctx)
 }
 
 // RegisterNovelFeatureTools is kept as a compatibility no-op for older MCP
