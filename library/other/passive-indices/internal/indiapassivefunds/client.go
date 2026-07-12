@@ -872,11 +872,13 @@ func (c *Client) Screen(ctx context.Context, p ScreenParams) (*ListEnvelope, err
 // subset of Overview's and add nothing when merged.
 var screenerBulkTemplateIDs = []int{10, 11, 13}
 
-// screenerBulkPageSize comfortably covers every published fund/ETF in one
+// ScreenerBulkPageSize comfortably covers every published fund/ETF in one
 // request per template (~705 total as of writing; screeners/filters carries
 // no per-template max, so this is a generous fixed ceiling, not a discovered
-// API limit).
-const screenerBulkPageSize = 5000
+// API limit). Exported so callers filtering on a single dimension (e.g.
+// underlyingIndex) can request the same ceiling instead of an arbitrary page
+// size that risks truncating results for a widely-tracked index.
+const ScreenerBulkPageSize = 5000
 
 // ScreenAll fetches every fund/ETF matching the given filter (same
 // AMC/underlyingIndex/fundTypeId/assetTypeId semantics as ScreenParams,
@@ -906,13 +908,13 @@ func (c *Client) ScreenAll(ctx context.Context, filter ScreenParams) ([]map[stri
 	}
 
 	merged := make(map[string]map[string]any)
-	order := make([]string, 0, screenerBulkPageSize)
+	order := make([]string, 0, ScreenerBulkPageSize)
 
 	for _, templateID := range screenerBulkTemplateIDs {
 		params := url.Values{
 			"templateId":     {strconv.Itoa(templateID)},
 			"pageNo":         {"1"},
-			"pageSize":       {strconv.Itoa(screenerBulkPageSize)},
+			"pageSize":       {strconv.Itoa(ScreenerBulkPageSize)},
 			"cachedResponse": {"false"},
 		}
 		for k, v := range extra {

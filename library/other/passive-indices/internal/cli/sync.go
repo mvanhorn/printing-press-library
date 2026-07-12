@@ -1633,7 +1633,7 @@ func parseSinceDuration(s string) (time.Time, error) {
 }
 
 func defaultSyncResources() []string {
-	return []string{}
+	return []string{"index"}
 }
 
 // knownSyncResourceNames returns every resource name sync will accept —
@@ -1668,7 +1668,12 @@ func describeResourceFailure(count int, label string, resources []string) string
 // this preserves the actual endpoint path like "/ISteamApps/GetAppList/v2".
 func syncResourcePath(resource string) (string, error) {
 	paths := map[string]string{ // #nosec G101 -- endpoint paths, not credentials.
-		"index": "/jsonfiles/LiveIndicesWatch.json",
+		// Absolute URL, not a path relative to the spec's niftyindices.com
+		// base_url: niftyindices' own live-blob feed
+		// (iislliveblob.niftyindices.com) was found to serve a stale snapshot
+		// frozen months in the past. nseindia.com's allIndices reflects the
+		// actual last trading session — the same source `index live` uses.
+		"index": "https://www.nseindia.com/api/allIndices",
 	}
 	if p, ok := paths[resource]; ok {
 		return p, nil
@@ -1835,7 +1840,7 @@ var dataEnvelopeKeys = []string{"data", "Data", "result", "Result"}
 
 func responsePathForResource(resource, path string) []string {
 	switch resource + "\x00" + path {
-	case "index\x00/jsonfiles/LiveIndicesWatch.json":
+	case "index\x00https://www.nseindia.com/api/allIndices":
 		return []string{"data"}
 	}
 	return nil

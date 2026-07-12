@@ -50,7 +50,7 @@ func resolveIndexTrackers(ctx context.Context, c *indiapassivefunds.Client, inde
 
 	env, err := c.Screen(ctx, indiapassivefunds.ScreenParams{
 		UnderlyingIndex: val,
-		PageSize:        200,
+		PageSize:        indiapassivefunds.ScreenerBulkPageSize,
 	})
 	if err != nil {
 		return nil, matchedText, fmt.Errorf("screening funds for %q: %w", matchedText, err)

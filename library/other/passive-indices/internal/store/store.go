@@ -1242,7 +1242,7 @@ func (s *Store) upsertIndexTx(tx *sql.Tx, id string, obj map[string]any, data js
 		id,
 		string(data),
 		time.Now().UTC().Format(time.RFC3339),
-		lookupFieldValue(obj, "index_name"),
+		indexNameFromObj(obj),
 		lookupFieldValue(obj, "last"),
 		lookupFieldValue(obj, "previous_close"),
 		lookupFieldValue(obj, "open"),
@@ -1258,6 +1258,21 @@ func (s *Store) upsertIndexTx(tx *sql.Tx, id string, obj map[string]any, data js
 		return fmt.Errorf("insert into index: %w", err)
 	}
 
+	return nil
+}
+
+// indexNameFromObj resolves the index's display name. nseindia.com's
+// allIndices payload (the synced index resource's current source) keys the
+// name as "index", a raw field name lookupFieldValue's snake/camel/Pascal
+// derivation from "index_name" can't reach; check it directly once the
+// derived variants miss.
+func indexNameFromObj(obj map[string]any) any {
+	if v := lookupFieldValue(obj, "index_name"); v != nil {
+		return v
+	}
+	if v, ok := obj["index"]; ok {
+		return sqliteFieldValue(v)
+	}
 	return nil
 }
 

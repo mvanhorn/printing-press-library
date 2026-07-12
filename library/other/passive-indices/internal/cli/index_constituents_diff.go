@@ -61,8 +61,11 @@ func newNovelIndexConstituentsDiffCmd(flags *rootFlags) *cobra.Command {
 
 			now := time.Now().UTC()
 			snapID := fmt.Sprintf("%s:%s", slug, now.Format(time.RFC3339))
-			if data, err := json.Marshal(current); err == nil {
-				_ = db.Upsert(resourceTypeIndexConstituentSnap, snapID, data)
+			var snapshotWarning string
+			if data, err := json.Marshal(current); err != nil {
+				snapshotWarning = fmt.Sprintf("today's snapshot was not saved for future diffs: encoding failed: %v", err)
+			} else if err := db.Upsert(resourceTypeIndexConstituentSnap, snapID, data); err != nil {
+				snapshotWarning = fmt.Sprintf("today's snapshot was not saved for future diffs: %v", err)
 			}
 
 			cutoff := now.Add(-since)
@@ -71,21 +74,29 @@ func newNovelIndexConstituentsDiffCmd(flags *rootFlags) *cobra.Command {
 				return err
 			}
 			if baseline == nil {
-				return flags.printJSON(cmd, map[string]any{
+				result := map[string]any{
 					"index":                     args[0],
 					"note":                      fmt.Sprintf("no baseline snapshot found at or before %s — this command builds its own history over repeated runs; run it again after the --since period has elapsed to see a diff", cutoff.Format(time.RFC3339)),
 					"current_constituent_count": len(current),
-				})
+				}
+				if snapshotWarning != "" {
+					result["snapshot_warning"] = snapshotWarning
+				}
+				return flags.printJSON(cmd, result)
 			}
 
 			added, removed := diffConstituents(baseline, current)
-			return flags.printJSON(cmd, map[string]any{
+			result := map[string]any{
 				"index":          args[0],
 				"baseline_as_of": baselineTime,
 				"current_as_of":  now.Format(time.RFC3339),
 				"added":          added,
 				"removed":        removed,
-			})
+			}
+			if snapshotWarning != "" {
+				result["snapshot_warning"] = snapshotWarning
+			}
+			return flags.printJSON(cmd, result)
 		},
 	}
 	cmd.Flags().StringVar(&flagSince, "since", "90d", "how far back to look for a baseline snapshot (e.g. 7d, 30d, 90d)")
