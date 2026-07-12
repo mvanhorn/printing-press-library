@@ -90,9 +90,11 @@ Restart the OpenClaw session or gateway if the newly installed skill is not visi
 
 This CLI ships an [MCPB](https://github.com/modelcontextprotocol/mcpb) bundle — Claude Desktop's standard format for one-click MCP extension installs (no JSON config required).
 
-The bundle reuses your local browser session — set it up first if you haven't:
+The bundle reuses your local browser session — set it up first if you haven't. Jane is multi-tenant, so register and select your clinic before logging in (the session is saved per-clinic):
 
 ```bash
+janeapp-pp-cli clinic add myclinic   # registers myclinic.janeapp.com
+janeapp-pp-cli clinic use myclinic
 janeapp-pp-cli auth login --chrome
 ```
 
