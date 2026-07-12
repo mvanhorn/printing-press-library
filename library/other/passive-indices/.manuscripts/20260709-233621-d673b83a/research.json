@@ -1,0 +1,301 @@
+{
+  "api_name": "passive-indices",
+  "novelty_score": 8,
+  "alternatives": [
+    {
+      "name": "jugaad-data",
+      "url": "https://github.com/jugaad-py/jugaad-data",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "nsepython",
+      "url": "https://github.com/aeron7/nsepython",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "nsepy",
+      "url": "https://github.com/swapniljariwala/nsepy",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "nsetools",
+      "url": "https://github.com/vsjha18/nsetools",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-07-10T04:20:00Z",
+  "novel_features": [
+    {
+      "name": "Index to tracking funds",
+      "command": "index funds \u003cindex\u003e",
+      "description": "See every ETF and index fund that tracks a given NSE index in one call.",
+      "rationale": "Requires joining niftyindices' index identity with indiapassivefunds' underlying-index field in local SQLite — the two source sites never link to each other.",
+      "example": "passive-indices-pp-cli index funds \"NIFTY 50\" --json",
+      "why_it_matters": "Use when an agent needs to enumerate the passive products tracking an index without visiting two unrelated websites.",
+      "group": "Cross-source joins"
+    },
+    {
+      "name": "Tracking fidelity report",
+      "command": "index tracking \u003cindex\u003e",
+      "description": "Rank every fund tracking an index by cost and NAV fidelity against the index level.",
+      "rationale": "Combines niftyindices' live index level with indiapassivefunds' fund NAV/AUM/expense data — a cross-source join neither site's API offers.",
+      "example": "passive-indices-pp-cli index tracking \"NIFTY 50\" --json",
+      "why_it_matters": "Use for a ranked table of all funds tracking an index by fidelity/cost, not just a plain membership list.",
+      "group": "Cross-source joins"
+    },
+    {
+      "name": "Cheapest tracker finder",
+      "command": "index cheapest-tracker \u003cindex\u003e",
+      "description": "Find the lowest-cost fund tracking a given index.",
+      "rationale": "Sorts the locally-joined index-fund table by expense/cost field — the kind of analysis freefincal publishes manually via spreadsheet screeners with no live API/CLI equivalent.",
+      "example": "passive-indices-pp-cli index cheapest-tracker \"NIFTY 50\" --json",
+      "why_it_matters": "Use when a user asks which fund to buy to track a specific index at the lowest cost.",
+      "group": "Cross-source joins"
+    },
+    {
+      "name": "Constituent composition diff",
+      "command": "index constituents-diff \u003cindex\u003e --since \u003cdate\u003e",
+      "description": "See what changed in an index's constituent list (additions/removals) between two sync snapshots.",
+      "rationale": "Diffs two locally-synced constituent-CSV snapshots stored in SQLite — requires historical local snapshots no single API call provides. The constituent CSV carries no weight field, so this is membership-only, not a weight diff.",
+      "example": "passive-indices-pp-cli index constituents-diff \"NIFTY 50\" --since 30d --json",
+      "why_it_matters": "Use to detect index rebalancing changes (additions, removals) over time.",
+      "group": "Local history"
+    },
+    {
+      "name": "Index sector breakdown",
+      "command": "index sectors \u003cindex\u003e",
+      "description": "See an index's constituents grouped by sector (count-based; the API does not publish per-constituent weights).",
+      "rationale": "Aggregates synced constituent counts by industry field locally — no upstream endpoint pre-aggregates this.",
+      "example": "passive-indices-pp-cli index sectors \"NIFTY 50\" --json",
+      "why_it_matters": "Use to assess sector concentration risk in an index before recommending a tracker.",
+      "group": "Local history"
+    },
+    {
+      "name": "NFO to index cross-reference",
+      "command": "fund nfo tracking \u003cindex\u003e",
+      "description": "See upcoming New Fund Offers that track a specific index.",
+      "rationale": "Matches the NFO listing (which carries no underlying-index field) against the requested index by fund-name substring — a best-effort join no single endpoint returns.",
+      "example": "passive-indices-pp-cli fund nfo tracking \"NIFTY Next 50\" --json",
+      "why_it_matters": "Use to spot genuinely novel fund launches for an index versus yet another me-too NIFTY 50 fund.",
+      "group": "Cross-source joins"
+    },
+    {
+      "name": "Field-code decoder",
+      "command": "fund raw \u003cschemeId\u003e",
+      "description": "See a fund's raw API response with cryptic field codes resolved to human-readable names.",
+      "rationale": "indiapassivefunds' API returns field-coded rows (f_29, f_36...) with a separate columns[] map — this decodes them inline instead of requiring a hand-kept mapping table.",
+      "example": "passive-indices-pp-cli fund raw 12345 --json",
+      "why_it_matters": "Use when debugging or when an agent needs the full raw field set beyond the flattened default view.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Fund vs index compare",
+      "command": "compare \u003cschemeId\u003e \u003cindex\u003e",
+      "description": "See a single fund's NAV/AUM/expense next to its benchmark index's level and top constituents, side by side.",
+      "rationale": "Joins one fund's synced record with one index's live level and constituents in a single view — the exact cross-layer comparison named as this CLI's reason to exist.",
+      "example": "passive-indices-pp-cli compare 12345 \"NIFTY 50\" --json",
+      "why_it_matters": "Use for a single fund vs single index side-by-side; use index tracking for ranking multiple funds against an index.",
+      "group": "Cross-source joins"
+    },
+    {
+      "name": "Rolling tracking error",
+      "command": "index tracking-error \u003cschemeId\u003e --tenure 1y",
+      "description": "See how closely a fund has tracked its benchmark index over time, day by day.",
+      "rationale": "Joins the fund's synced NAV series against niftyindices' historical index-level series for the same date range, computing day-by-day percentage deviation — a cross-source time-series join neither upstream API offers.",
+      "example": "passive-indices-pp-cli index tracking-error 12345 --tenure 1y --json",
+      "why_it_matters": "Use for a rolling tracking-error series over time; use compare for a single current-moment snapshot instead.",
+      "group": "Cross-source joins"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Index to tracking funds",
+      "command": "index funds \u003cindex\u003e",
+      "description": "See every ETF and index fund that tracks a given NSE index in one call.",
+      "rationale": "Requires joining niftyindices' index identity with indiapassivefunds' underlying-index field in local SQLite — the two source sites never link to each other.",
+      "example": "passive-indices-pp-cli index funds \"NIFTY 50\" --json",
+      "why_it_matters": "Use when an agent needs to enumerate the passive products tracking an index without visiting two unrelated websites.",
+      "group": "Cross-source joins"
+    },
+    {
+      "name": "Tracking fidelity report",
+      "command": "index tracking \u003cindex\u003e",
+      "description": "Rank every fund tracking an index by cost and NAV fidelity against the index level.",
+      "rationale": "Combines niftyindices' live index level with indiapassivefunds' fund NAV/AUM/expense data — a cross-source join neither site's API offers.",
+      "example": "passive-indices-pp-cli index tracking \"NIFTY 50\" --json",
+      "why_it_matters": "Use for a ranked table of all funds tracking an index by fidelity/cost, not just a plain membership list.",
+      "group": "Cross-source joins"
+    },
+    {
+      "name": "Cheapest tracker finder",
+      "command": "index cheapest-tracker \u003cindex\u003e",
+      "description": "Find the lowest-cost fund tracking a given index.",
+      "rationale": "Sorts the locally-joined index-fund table by expense/cost field — the kind of analysis freefincal publishes manually via spreadsheet screeners with no live API/CLI equivalent.",
+      "example": "passive-indices-pp-cli index cheapest-tracker \"NIFTY 50\" --json",
+      "why_it_matters": "Use when a user asks which fund to buy to track a specific index at the lowest cost.",
+      "group": "Cross-source joins"
+    },
+    {
+      "name": "Constituent composition diff",
+      "command": "index constituents-diff \u003cindex\u003e --since \u003cdate\u003e",
+      "description": "See what changed in an index's constituent list (additions/removals) between two sync snapshots.",
+      "rationale": "Diffs two locally-synced constituent-CSV snapshots stored in SQLite — requires historical local snapshots no single API call provides. The constituent CSV carries no weight field, so this is membership-only, not a weight diff.",
+      "example": "passive-indices-pp-cli index constituents-diff \"NIFTY 50\" --since 30d --json",
+      "why_it_matters": "Use to detect index rebalancing changes (additions, removals) over time.",
+      "group": "Local history"
+    },
+    {
+      "name": "Index sector breakdown",
+      "command": "index sectors \u003cindex\u003e",
+      "description": "See an index's constituents grouped by sector (count-based; the API does not publish per-constituent weights).",
+      "rationale": "Aggregates synced constituent counts by industry field locally — no upstream endpoint pre-aggregates this.",
+      "example": "passive-indices-pp-cli index sectors \"NIFTY 50\" --json",
+      "why_it_matters": "Use to assess sector concentration risk in an index before recommending a tracker.",
+      "group": "Local history"
+    },
+    {
+      "name": "NFO to index cross-reference",
+      "command": "fund nfo tracking \u003cindex\u003e",
+      "description": "See upcoming New Fund Offers that track a specific index.",
+      "rationale": "Matches the NFO listing (which carries no underlying-index field) against the requested index by fund-name substring — a best-effort join no single endpoint returns.",
+      "example": "passive-indices-pp-cli fund nfo tracking \"NIFTY Next 50\" --json",
+      "why_it_matters": "Use to spot genuinely novel fund launches for an index versus yet another me-too NIFTY 50 fund.",
+      "group": "Cross-source joins"
+    },
+    {
+      "name": "Field-code decoder",
+      "command": "fund raw \u003cschemeId\u003e",
+      "description": "See a fund's raw API response with cryptic field codes resolved to human-readable names.",
+      "rationale": "indiapassivefunds' API returns field-coded rows (f_29, f_36...) with a separate columns[] map — this decodes them inline instead of requiring a hand-kept mapping table.",
+      "example": "passive-indices-pp-cli fund raw 12345 --json",
+      "why_it_matters": "Use when debugging or when an agent needs the full raw field set beyond the flattened default view.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Fund vs index compare",
+      "command": "compare \u003cschemeId\u003e \u003cindex\u003e",
+      "description": "See a single fund's NAV/AUM/expense next to its benchmark index's level and top constituents, side by side.",
+      "rationale": "Joins one fund's synced record with one index's live level and constituents in a single view — the exact cross-layer comparison named as this CLI's reason to exist.",
+      "example": "passive-indices-pp-cli compare 12345 \"NIFTY 50\" --json",
+      "why_it_matters": "Use for a single fund vs single index side-by-side; use index tracking for ranking multiple funds against an index.",
+      "group": "Cross-source joins"
+    },
+    {
+      "name": "Rolling tracking error",
+      "command": "index tracking-error \u003cschemeId\u003e --tenure 1y",
+      "description": "See how closely a fund has tracked its benchmark index over time, day by day.",
+      "rationale": "Joins the fund's synced NAV series against niftyindices' historical index-level series for the same date range, computing day-by-day percentage deviation — a cross-source time-series join neither upstream API offers.",
+      "example": "passive-indices-pp-cli index tracking-error 12345 --tenure 1y --json",
+      "why_it_matters": "Use for a rolling tracking-error series over time; use compare for a single current-moment snapshot instead.",
+      "group": "Cross-source joins"
+    }
+  ],
+  "auth": {},
+  "narrative": {
+    "display_name": "Passive Indices",
+    "headline": "Unifies NSE's index data with the ETFs and index funds that track them — a join neither source site offers.",
+    "value_prop": "niftyindices.com publishes index levels and constituents; indiapassivefunds.com publishes the ETFs and index funds that track those indices. Nothing links the two. This CLI joins them locally so you can ask \"what tracks NIFTY 50, and how well\" in one command — plus offline search, agent-native JSON, and a local SQLite layer for historical constituent diffs.",
+    "quickstart": [
+      {
+        "command": "passive-indices-pp-cli doctor --dry-run",
+        "comment": "Health check — no auth needed for either source"
+      },
+      {
+        "command": "passive-indices-pp-cli sync --resources index",
+        "comment": "Populate the local store with NSE's index list (fund data is fetched live per command, not synced)"
+      },
+      {
+        "command": "passive-indices-pp-cli index funds \"NIFTY 50\"",
+        "comment": "See every fund tracking NIFTY 50"
+      },
+      {
+        "command": "passive-indices-pp-cli index tracking \"NIFTY 50\" --json",
+        "comment": "Rank those funds by cost and fidelity"
+      },
+      {
+        "command": "passive-indices-pp-cli compare 12345 \"NIFTY 50\" --select fund.expense_ratio,index.level",
+        "comment": "Narrow a fund-vs-index comparison to just the fields that matter"
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "indiapassivefunds calls return 401 after a while",
+        "fix": "The Bearer token is short-lived (~24h); the CLI re-mints it automatically via the public token endpoint — re-run the command."
+      }
+    ],
+    "when_to_use": "Use this CLI for anything that requires knowing both an NSE index's current or historical state (level, TRI, valuation, constituents) and the ETFs/index funds that track it — fund selection, cost comparison, tracking-fidelity checks, rolling tracking-error, or sector concentration analysis for passive Indian equity investing.",
+    "anti_triggers": [
+      "Do not use this CLI for live trading, order placement, or brokerage account actions — it is a read-only data/research tool.",
+      "Do not use this CLI for BSE indices — bseindices.com was deprioritized this run and is not covered.",
+      "Do not use this CLI for subjective 'which fund should I buy for my risk profile' recommendations — it surfaces mechanical rankings (cost, fidelity, tracking error) only, not personalized advice."
+    ],
+    "recipes": [
+      {
+        "title": "Find the cheapest tracker for an index",
+        "command": "passive-indices-pp-cli index cheapest-tracker \"NIFTY 50\" --json",
+        "explanation": "Ranks all funds tracking NIFTY 50 by expense ratio, cheapest first."
+      },
+      {
+        "title": "Narrow a deeply nested fund detail response",
+        "command": "passive-indices-pp-cli fund raw 12345 --agent --select response.f_29,response.f_36",
+        "explanation": "indiapassivefunds' raw responses are deeply nested and field-coded; --select keeps only the fields an agent actually needs."
+      },
+      {
+        "title": "See what changed in an index's makeup this quarter",
+        "command": "passive-indices-pp-cli index constituents-diff \"NIFTY 50\" --since 90d",
+        "explanation": "Diffs the current constituent snapshot against one from 90 days ago using locally-synced history."
+      },
+      {
+        "title": "Check sector concentration before recommending an index",
+        "command": "passive-indices-pp-cli index sectors \"NIFTY 50\" --json",
+        "explanation": "Aggregates constituent counts by sector to flag concentration risk."
+      },
+      {
+        "title": "Compare a held fund against its benchmark",
+        "command": "passive-indices-pp-cli compare 12345 \"NIFTY 50\"",
+        "explanation": "Side-by-side view of a fund's NAV/AUM/expense against its underlying index's level and top constituents."
+      },
+      {
+        "title": "Check a fund's rolling tracking error",
+        "command": "passive-indices-pp-cli index tracking-error 12345 --tenure 1y --json",
+        "explanation": "Day-by-day deviation of the fund's NAV from its benchmark index level over the past year."
+      }
+    ],
+    "trigger_phrases": [
+      "what tracks NIFTY 50",
+      "cheapest ETF for NIFTY 50",
+      "index fund tracking error",
+      "NSE index constituents",
+      "compare ETF to its index",
+      "use passive-indices",
+      "run passive-indices"
+    ]
+  }
+}

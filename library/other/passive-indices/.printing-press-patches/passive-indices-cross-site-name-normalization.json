@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "passive-indices-cross-site-name-normalization",
+  "applied_at": "2026-07-12",
+  "base_run_id": "20260709-233621-d673b83a",
+  "base_printing_press_version": "4.28.0",
+  "summary": "Added a letter-digit boundary regex to normalizeIndexName so index names that niftyindices and indiapassivefunds spell with different spacing around a number (e.g. \"MIDSMALLCAP400\" vs \"MidSmallcap 400\") still match.",
+  "reason": "index funds / index tracking / index cheapest-tracker incorrectly reported that indiapassivefunds does not enumerate NIFTY MIDSMALLCAP400 MOMENTUM QUALITY 100, even though the taxonomy entry exists (as \"Nifty MidSmallcap 400 Momentum Quality 100 TRI\"), purely because of a spacing mismatch in the two sites' naming.",
+  "files": [
+    "internal/indiapassivefunds/client.go"
+  ],
+  "validated_outcome": "Fix returns 2 tracking funds for the affected index; regression-checked NIFTY 50 (47 funds) and NIFTY ALPHA 50 (4 funds) unchanged; added TestNormalizeIndexName and a TestFindUnderlyingIndexValue subtest."
+}

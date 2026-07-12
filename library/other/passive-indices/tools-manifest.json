@@ -1,0 +1,37 @@
+{
+  "api_name": "passive-indices",
+  "base_url": "https://www.niftyindices.com",
+  "description": "Unifies NSE's index data with the ETFs and index funds that track them — a join neither source site offers.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "none"
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "index_constituents",
+      "description": "Constituent list (company, industry, symbol, ISIN) for a given index — no per-constituent weight field. Required: slug.",
+      "method": "GET",
+      "path": "/IndexConstituent/ind_{slug}list.csv",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "slug",
+          "type": "string",
+          "location": "path",
+          "description": "Index slug as used in the constituent CSV filename, e.g. nifty50",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "index_live",
+      "description": "Live snapshot of every published NSE index (level, %chg, OHLC, 52w hi/lo). Sourced from nseindia.com directly — niftyindices.com's own live-blob feed (iislliveblob.niftyindices.com) was found to serve a stale, frozen snapshot months out of date; nseindia.com's allIndices endpoint reflects the actual last trading session. Returns array of IndexLiveQuote.",
+      "method": "GET",
+      "path": "/api/allIndices",
+      "no_auth": true,
+      "params": []
+    }
+  ]
+}

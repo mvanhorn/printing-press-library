@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "api_name": "passive-indices",
+  "run_id": "20260709-233621-d673b83a",
+  "status": "pass",
+  "level": "full",
+  "matrix_size": 107,
+  "tests_passed": 107,
+  "tests_skipped": 78,
+  "auth_context": {
+    "type": "none"
+  }
+}

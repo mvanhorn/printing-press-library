@@ -1,0 +1,75 @@
+name: passive-indices
+description: "Passive Indices CLI — NSE index data joined with the ETFs and index funds that track them"
+version: "0.1.0"
+category: finance
+base_url: "https://www.niftyindices.com"
+health_check_path: "/"
+
+auth:
+  type: none
+
+config:
+  format: toml
+  path: "~/.config/passive-indices-pp-cli/config.toml"
+
+resources:
+  index:
+    description: "NSE indices — live levels and constituents (niftyindices.com)"
+    endpoints:
+      live:
+        method: GET
+        base_url: "https://www.nseindia.com"
+        path: "/api/allIndices"
+        description: "Live snapshot of every published NSE index (level, %chg, OHLC, 52w hi/lo). Sourced from nseindia.com directly — niftyindices.com's own live-blob feed (iislliveblob.niftyindices.com) was found to serve a stale, frozen snapshot months out of date; nseindia.com's allIndices endpoint reflects the actual last trading session."
+        response:
+          type: array
+          item: IndexLiveQuote
+        response_path: data
+
+      constituents:
+        method: GET
+        base_url: "https://www.niftyindices.com"
+        path: "/IndexConstituent/ind_{slug}list.csv"
+        description: "Constituent list (company, industry, symbol, ISIN) for a given index — no per-constituent weight field"
+        params:
+          - name: slug
+            flag_name: slug
+            type: string
+            required: true
+            positional: true
+            description: "Index slug as used in the constituent CSV filename, e.g. nifty50"
+        response_format: csv
+
+types:
+  IndexLiveQuote:
+    fields:
+      - name: index
+        type: string
+      - name: indexSymbol
+        type: string
+      - name: last
+        type: number
+      - name: variation
+        type: number
+      - name: percentChange
+        type: number
+      - name: open
+        type: number
+      - name: high
+        type: number
+      - name: low
+        type: number
+      - name: previousClose
+        type: number
+      - name: yearHigh
+        type: number
+      - name: yearLow
+        type: number
+      - name: pe
+        type: string
+      - name: pb
+        type: string
+      - name: dy
+        type: string
+      - name: key
+        type: string

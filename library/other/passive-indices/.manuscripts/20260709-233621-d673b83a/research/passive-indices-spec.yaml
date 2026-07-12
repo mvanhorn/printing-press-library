@@ -1,0 +1,69 @@
+name: passive-indices
+description: "Passive Indices CLI — NSE index data joined with the ETFs and index funds that track them"
+version: "0.1.0"
+category: finance
+base_url: "https://www.niftyindices.com"
+health_check_path: "/"
+
+auth:
+  type: none
+
+config:
+  format: toml
+  path: "~/.config/passive-indices-pp-cli/config.toml"
+
+resources:
+  index:
+    description: "NSE indices — live levels and constituents (niftyindices.com)"
+    endpoints:
+      live:
+        method: GET
+        base_url: "https://iislliveblob.niftyindices.com"
+        path: "/jsonfiles/LiveIndicesWatch.json"
+        description: "Live snapshot of every published NSE index (level, %chg, OHLC, 52w hi/lo)"
+        response:
+          type: array
+          item: IndexLiveQuote
+        response_path: data
+
+      constituents:
+        method: GET
+        base_url: "https://www.niftyindices.com"
+        path: "/IndexConstituent/ind_{slug}list.csv"
+        description: "Constituent list (company, industry, symbol, ISIN) for a given index — no per-constituent weight field"
+        params:
+          - name: slug
+            flag_name: slug
+            type: string
+            required: true
+            positional: true
+            description: "Index slug as used in the constituent CSV filename, e.g. nifty50"
+        response_format: csv
+
+types:
+  IndexLiveQuote:
+    fields:
+      - name: indexName
+        type: string
+      - name: last
+        type: string
+      - name: previousClose
+        type: string
+      - name: open
+        type: string
+      - name: high
+        type: string
+      - name: low
+        type: string
+      - name: percChange
+        type: string
+      - name: yearHigh
+        type: string
+      - name: yearLow
+        type: string
+      - name: indexType
+        type: string
+      - name: indexSubType
+        type: string
+      - name: timeVal
+        type: string

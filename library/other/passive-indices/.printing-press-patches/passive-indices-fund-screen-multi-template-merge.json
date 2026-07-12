@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "passive-indices-fund-screen-multi-template-merge",
+  "applied_at": "2026-07-11",
+  "base_run_id": "20260709-233621-d673b83a",
+  "base_printing_press_version": "4.28.0",
+  "summary": "Rebuilt fund screen on a new ScreenAll client method that fetches indiapassivefunds' screener templates 10/11/13 at pageSize=5000 and merges rows by scheme_id, instead of a single unfiltered templateId=0 call.",
+  "reason": "templateId defaulted to 0 and the server returned almost no fields beyond fund name and scheme_id, making the command near-useless. The fix returns the full combined overview/returns/risk field set for every published ETF and index fund.",
+  "files": [
+    "internal/indiapassivefunds/client.go",
+    "internal/cli/fund_screen.go"
+  ],
+  "validated_outcome": "Confirmed 335 ETFs + 370 index funds (705 total) returned with combined fields; added TestMergeScreenerEnvelope."
+}

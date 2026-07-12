@@ -1,0 +1,27 @@
+{
+  "manifest_version": "0.3",
+  "name": "passive-indices-pp-mcp",
+  "display_name": "Passive Indices",
+  "version": "0.1.0",
+  "description": "Unifies NSE's index data with the ETFs and index funds that track them — a join neither source site offers.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/passive-indices-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/passive-indices-pp-mcp",
+      "args": []
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

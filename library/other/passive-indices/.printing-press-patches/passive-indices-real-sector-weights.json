@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "passive-indices-real-sector-weights",
+  "applied_at": "2026-07-11",
+  "base_run_id": "20260709-233621-d673b83a",
+  "base_printing_press_version": "4.28.0",
+  "summary": "Rewrote index sectors to source real per-constituent and per-sector weights from niftyindices' live sector-weight JSONP feed, replacing count-based industry aggregation over the constituent CSV.",
+  "reason": "The /IndexConstituent/ CSV used previously carries no weight field at all, so the old command could only report constituent counts per industry. The discovered liveindexsa.niftyindices.com feed publishes actual weights and also covers strategy indices (e.g. NIFTY ALPHA 50) that have no published constituent CSV.",
+  "files": [
+    "internal/niftyindices/client.go",
+    "internal/cli/index_sectors.go"
+  ],
+  "validated_outcome": "Verified live for NIFTY ALPHA 50 and NIFTY MIDSMALLCAP400 MOMENTUM QUALITY 100; added TestParseSectorWeightLabel and TestParseSectorWeightsJSONP."
+}
