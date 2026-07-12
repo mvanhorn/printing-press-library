@@ -423,7 +423,13 @@ func newAuthLogoutCmd(flags *rootFlags) *cobra.Command {
 			if err := cfg.ClearTokens(); err != nil {
 				return configErr(fmt.Errorf("clearing tokens: %w", err))
 			}
-			fmt.Fprintln(cmd.OutOrStdout(), "Logged out. Credentials cleared.")
+			// Cookie-auth: also drop the persisted cookies.json jar, else the
+			// old browser session is re-seeded on the next request despite
+			// "Credentials cleared."
+			if err := client.ClearCookieJar(); err != nil {
+				return configErr(fmt.Errorf("clearing cookie jar: %w", err))
+			}
+			fmt.Fprintln(cmd.OutOrStdout(), "Logged out. Credentials and session cookies cleared.")
 			return nil
 		},
 	}

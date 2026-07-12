@@ -55,6 +55,21 @@ func cookieJarPath() string {
 	return filepath.Join(dir, "cookies.json")
 }
 
+// ClearCookieJar deletes the persisted cookies.json so `auth logout` fully drops
+// the browser session. Without this, logout clears only the credential token
+// fields while the on-disk jar survives and LoadCookieJar() re-seeds the old
+// Jimmy John's session on the next request. A missing jar is not an error.
+func ClearCookieJar() error {
+	path := cookieJarPath()
+	if path == "" {
+		return nil
+	}
+	if err := os.Remove(path); err != nil && !os.IsNotExist(err) {
+		return err
+	}
+	return nil
+}
+
 // looksLikeCookieJar reports whether s is a cookie-jar string ("name=value;
 // name=value") rather than a bare token. The session env var and the browser
 // AccessToken both store the full Cookie header, so the seed is gated on a real
