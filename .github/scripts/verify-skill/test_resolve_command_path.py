@@ -405,6 +405,48 @@ func newSyncDiffCmd() *cobra.Command {
             self.assertEqual([], positional)
             self.assertEqual(["--agent"], flags)
 
+    def test_variable_wired_child_under_constructor_parent_remains_resolvable(self):
+        with tempfile.TemporaryDirectory() as td:
+            cli_dir = _write_cli(Path(td), {
+                "root.go": '''package cli
+import "github.com/spf13/cobra"
+func Execute() error {
+    rootCmd := &cobra.Command{Use: "fixture-pp-cli"}
+    rootCmd.AddCommand(newAppointmentsCmd())
+    rootCmd.AddCommand(newUpcomingCmd())
+    return rootCmd.Execute()
+}
+func newUpcomingCmd() *cobra.Command {
+    return &cobra.Command{Use: "upcoming"}
+}
+''',
+                "appointments.go": '''package cli
+import "github.com/spf13/cobra"
+func newAppointmentsCmd() *cobra.Command {
+    cmd := &cobra.Command{Use: "appointments [ID]"}
+    upcoming := &cobra.Command{Use: "upcoming"}
+    cmd.AddCommand(upcoming)
+    return cmd
+}
+''',
+            })
+
+            cmd_path, positional, flags = _cli_invocation_from_tokens(
+                ["appointments", "upcoming", "--all-clinics"], cli_dir,
+            )
+            self.assertEqual(["appointments", "upcoming"], cmd_path)
+            self.assertEqual([], positional)
+            self.assertEqual(["--all-clinics"], flags)
+
+            # A same-named top-level command from another file must not be
+            # promoted beneath a parent that has no such child.
+            cmd_path, positional, flags = _cli_invocation_from_tokens(
+                ["appointments", "other", "--json"], cli_dir,
+            )
+            self.assertEqual(["appointments"], cmd_path)
+            self.assertEqual(["other"], positional)
+            self.assertEqual(["--json"], flags)
+
     def test_optional_positionals_are_bound_before_sibling_resolution(self):
         with tempfile.TemporaryDirectory() as td:
             cli_dir = _write_cli(Path(td), {

@@ -714,18 +714,17 @@ def _cli_invocation_from_tokens(
                     cmd_path.append(t)
                     i += 1
                     continue
-                # Preserve legacy command trees that do not expose constructor
-                # edges (for example, AddCommand called with a variable). Only
-                # use the fallback when the current parent is itself absent
-                # from the graph; otherwise a same-named sibling could be
-                # mistaken for a child.
+                # Preserve variable-wired child commands that do not expose a
+                # constructor edge. For a graph-resolved parent, accept the
+                # legacy child only when it is declared in the same file; this
+                # covers local `cmd.AddCommand(child)` variables without
+                # mistaking a same-named top-level sibling for a child.
                 current_file, _, _ = resolve_command_path(cli_dir, cmd_path)
-                if current_file is None:
-                    child_files, _, _ = find_command_source(cli_dir, trial)
-                    if child_files:
-                        cmd_path.append(t)
-                        i += 1
-                        continue
+                child_files, _, _ = find_command_source(cli_dir, trial)
+                if child_files and (current_file is None or current_file in child_files):
+                    cmd_path.append(t)
+                    i += 1
+                    continue
                 break
             cmd_path.append(t)
             i += 1
