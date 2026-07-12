@@ -302,7 +302,15 @@ func FetchProducts(ctx context.Context, c APIDoer, seed string, perPage int) ([]
 	}
 	raw, err := c.Get(ctx, PathProductSearch, params)
 	if err != nil {
-		if isPlanCap(0, raw, err) {
+		// Get drops the HTTP status, but the generated client wraps status
+		// errors in *client.APIError — unwrap it so a real 402/429 is
+		// classified as a plan cap without relying on body-text matching.
+		status := 0
+		var apiErr *client.APIError
+		if errors.As(err, &apiErr) {
+			status = apiErr.StatusCode
+		}
+		if isPlanCap(status, raw, err) {
 			return nil, 0, prov, fmt.Errorf("%w (search %q)", ErrPlanCapReached, seed)
 		}
 		return nil, 0, prov, fmt.Errorf("product search for %q: %w", seed, err)

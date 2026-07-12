@@ -70,6 +70,10 @@ type EvidenceSet struct {
 	// product type (physical/digital/apparel). Equals ProductsRelevant when no
 	// type constraint was applied.
 	ProductsInType int `json:"products_in_type"`
+	// SeedMetricsPresent records whether EverBee returned the seed's own
+	// demand/competition pair (the searched_keyword block). Suggestions alone
+	// are not seed-level evidence, so this cannot be inferred from the counts.
+	SeedMetricsPresent bool `json:"seed_metrics_present"`
 }
 
 // TotalEvidence is the count of relevant rows backing a verdict.

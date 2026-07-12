@@ -229,8 +229,10 @@ func LowCompetition(demand, competition int, ev EvidenceSet) (bool, string) {
 }
 
 // hasSeedMetrics reports whether the seed's own demand/competition pair was
-// present. Without it, "low competition" is an unsupported claim.
-func (e EvidenceSet) hasSeedMetrics() bool { return e.KeywordsReturned > 0 }
+// present. Without it, "low competition" is an unsupported claim — keyword
+// suggestions alone are not seed-level evidence, so this reads the explicit
+// SeedMetricsPresent flag rather than inferring from returned counts.
+func (e EvidenceSet) hasSeedMetrics() bool { return e.SeedMetricsPresent }
 
 // ComputePriceBand summarizes prices across the given products. Only products
 // passing the caller's filter should be handed in; the band reports how many

@@ -175,7 +175,7 @@ func TestOpportunityScore_UncrowdedBeatsCrowded(t *testing.T) {
 }
 
 func TestLowCompetition(t *testing.T) {
-	ample := EvidenceSet{KeywordsReturned: 20, KeywordsRelevant: 20, ProductsReturned: 20, ProductsRelevant: 16}
+	ample := EvidenceSet{KeywordsReturned: 20, KeywordsRelevant: 20, ProductsReturned: 20, ProductsRelevant: 16, SeedMetricsPresent: true}
 
 	// Real numbers from the live API for "dadfully shirt": 2747 vol / 167 comp.
 	if ok, why := LowCompetition(2747, 167, ample); !ok {
@@ -192,6 +192,14 @@ func TestLowCompetition(t *testing.T) {
 	// Demand floor: nobody searching means no opportunity.
 	if ok, _ := LowCompetition(5, 0, ample); ok {
 		t.Error("a niche below the demand floor must not be labeled low-competition")
+	}
+	// Suggestions without the searched_keyword block: the seed's own
+	// demand/competition pair is absent, so the refusal must name missing
+	// seed evidence, not a zero-valued demand floor.
+	noSeed := ample
+	noSeed.SeedMetricsPresent = false
+	if ok, why := LowCompetition(0, 0, noSeed); ok || why != "no demand/competition evidence for the seed itself" {
+		t.Errorf("missing seed metrics must refuse with the seed-evidence reason; got ok=%v why=%q", ok, why)
 	}
 }
 

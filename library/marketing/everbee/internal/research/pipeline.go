@@ -92,8 +92,9 @@ func Niche(ctx context.Context, c APIDoer, opts Options) (*Verdict, error) {
 	minRel := opts.minRelevance()
 
 	ev := EvidenceSet{
-		KeywordsReturned: len(keywords),
-		ProductsReturned: len(products),
+		KeywordsReturned:   len(keywords),
+		ProductsReturned:   len(products),
+		SeedMetricsPresent: seedMetrics.Present,
 	}
 	for _, k := range keywords {
 		if k.Relevance >= minRel {
