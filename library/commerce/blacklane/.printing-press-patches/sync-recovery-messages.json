@@ -4,8 +4,8 @@
   "applied_at": "2026-07-12",
   "base_run_id": "20260712-023133-reprint428",
   "base_printing_press_version": "4.28.0",
-  "summary": "Rewrote all user-facing local-store recovery messages/hints (tools.go MCP, data_source.go, sync_hint.go, store.go) to reference the quote/watch ledger-population path instead of a non-existent 'sync' command.",
-  "reason": "Blacklane has no list-syncable resources (catalog is GET-by-slug, prices is POST), so Printing Press v4.28.0 correctly omits the 'sync' command \u2014 but it still emits generic sync-recovery messages ('Run blacklane-pp-cli sync ...') that dead-end on an unknown command. Blacklane's local SQLite store is the quote ledger, populated by running quote/watch, so the messages now point there.",
+  "summary": "Corrected all local-store recovery messages/hints/tool-descriptions (tools.go, data_source.go, sync_hint.go, store.go) to state that blacklane has no syncable resources so data.db is not auto-populated (use live endpoint MCP tools), instead of referencing a non-existent 'sync' command or wrongly implying quote/watch populate it.",
+  "reason": "Blacklane has no list-syncable resources (catalog=GET-by-slug, prices=POST), so Printing Press v4.28.0 omits the 'sync' command but still emits sync-recovery text and MCP sql/search tools over the generic resources store (data.db). data.db has no population path for blacklane; the quote ledger is a SEPARATE db (quote-ledger.db) read via the 'log' command, not MCP sql/search. Messages now tell agents the truth: no syncable resources, use live endpoints.",
   "files": [
     "internal/mcp/tools.go",
     "internal/cli/data_source.go",

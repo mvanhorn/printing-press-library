@@ -204,7 +204,7 @@ func resolveReadWithStrategyResponsePathAndJSONGuard(ctx context.Context, c *cli
 		// Network error — try local fallback
 		fallbackData, fallbackProv, fallbackErr := resolveLocal(ctx, flags, hintWriter, resourceType, isList, path, params, networkFallbackReason)
 		if fallbackErr != nil {
-			return nil, DataProvenance{}, fmt.Errorf("API unreachable and no local data. Run a quote (e.g. blacklane-pp-cli quote ...) to record local ledger entries for offline access.\n\nOriginal error: %w", err)
+			return nil, DataProvenance{}, fmt.Errorf("API unreachable and no local data. blacklane has no syncable resources for offline caching; retry when the API is reachable.\n\nOriginal error: %w", err)
 		}
 		return fallbackData, attachFreshness(fallbackProv, flags), nil
 	}
@@ -265,7 +265,7 @@ func resolvePaginatedReadWithStrategy(ctx context.Context, c *client.Client, fla
 		}
 		fallbackData, fallbackProv, fallbackErr := resolveLocal(ctx, flags, hintWriter, resourceType, true, path, params, networkFallbackReason)
 		if fallbackErr != nil {
-			return nil, DataProvenance{}, fmt.Errorf("API unreachable and no local data. Run a quote (e.g. blacklane-pp-cli quote ...) to record local ledger entries for offline access.\n\nOriginal error: %w", err)
+			return nil, DataProvenance{}, fmt.Errorf("API unreachable and no local data. blacklane has no syncable resources for offline caching; retry when the API is reachable.\n\nOriginal error: %w", err)
 		}
 		return fallbackData, attachFreshness(fallbackProv, flags), nil
 	}
@@ -587,10 +587,10 @@ func mutationResponseHasID(resourceType string, data json.RawMessage) bool {
 func resolveLocal(ctx context.Context, flags *rootFlags, hintWriter io.Writer, resourceType string, isList bool, path string, params map[string]string, reason string) (json.RawMessage, DataProvenance, error) {
 	db, err := openStoreForRead(ctx, "blacklane-pp-cli")
 	if err != nil {
-		return nil, DataProvenance{}, fmt.Errorf("opening local database: %w\nRecord activity first (e.g. blacklane-pp-cli quote/watch) to create the local ledger.", err)
+		return nil, DataProvenance{}, fmt.Errorf("opening local database: %w\nblacklane has no syncable resources, so the local store is not auto-populated.", err)
 	}
 	if db == nil {
-		return nil, DataProvenance{}, fmt.Errorf("no local data. Record activity first (e.g. blacklane-pp-cli quote/watch) to populate the local ledger")
+		return nil, DataProvenance{}, fmt.Errorf("no local data (blacklane has no syncable resources)")
 	}
 	defer db.Close()
 
@@ -621,7 +621,7 @@ func resolveLocal(ctx context.Context, flags *rootFlags, hintWriter io.Writer, r
 			items = append(items, r)
 		}
 		if len(items) == 0 {
-			return nil, DataProvenance{}, fmt.Errorf("no local data for %q. Record activity first (e.g. blacklane-pp-cli quote/watch) to populate the local ledger", resourceType)
+			return nil, DataProvenance{}, fmt.Errorf("no local data for %q (blacklane has no syncable resources)", resourceType)
 		}
 		// Marshal []json.RawMessage into a single JSON array
 		data, err := json.Marshal(items)
@@ -638,7 +638,7 @@ func resolveLocal(ctx context.Context, flags *rootFlags, hintWriter io.Writer, r
 	item, err := db.Get(resourceType, id)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			return nil, DataProvenance{}, fmt.Errorf("resource %q with ID %q not found in local store. Record activity first (e.g. blacklane-pp-cli quote/watch) to populate the local ledger", resourceType, id)
+			return nil, DataProvenance{}, fmt.Errorf("resource %q with ID %q not found in local store (blacklane has no syncable resources); use the UUID directly", resourceType, id)
 		}
 		return nil, DataProvenance{}, fmt.Errorf("querying local store: %w", err)
 	}

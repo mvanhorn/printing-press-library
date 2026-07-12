@@ -2237,7 +2237,7 @@ func (s *Store) ResolveByName(resourceType string, input string, matchFields ...
 
 	switch len(matches) {
 	case 0:
-		return "", fmt.Errorf("%s %q not found in local store. Record activity first (e.g. blacklane-pp-cli quote/watch), or use the UUID directly", resourceType, input)
+		return "", fmt.Errorf("%s %q not found in local store (blacklane has no syncable resources); use the UUID directly", resourceType, input)
 	case 1:
 		return matches[0], nil
 	default:

@@ -33,7 +33,7 @@ func emitSyncHints(w io.Writer, db *store.Store, resourceType string, maxAge tim
 		return
 	}
 	if !state.hasState {
-		fmt.Fprintf(w, "hint: local ledger is empty. Record quotes with 'blacklane-pp-cli quote'/'watch' before trusting local results.\n")
+		fmt.Fprintf(w, "hint: blacklane has no syncable resources; local-store results are not sync-backed. Use live data.\n")
 		return
 	}
 	if maxAge <= 0 {
@@ -43,7 +43,7 @@ func emitSyncHints(w io.Writer, db *store.Store, resourceType string, maxAge tim
 	if age <= maxAge {
 		return
 	}
-	fmt.Fprintf(w, "hint: local ledger data is %s old, older than --max-age=%s. Record newer quotes with 'blacklane-pp-cli quote'/'watch' to refresh.\n", syncHintRoundAge(age), maxAge)
+	fmt.Fprintf(w, "hint: local-store data is %s old (older than --max-age=%s); blacklane has no syncable resources to refresh it. Use live data.\n", syncHintRoundAge(age), maxAge)
 }
 
 func hintIfUnsynced(cmd *cobra.Command, db *store.Store, resourceType string) bool {
@@ -54,7 +54,7 @@ func hintIfUnsynced(cmd *cobra.Command, db *store.Store, resourceType string) bo
 	if err != nil || state.hasState {
 		return false
 	}
-	fmt.Fprintf(cmd.ErrOrStderr(), "hint: local ledger is empty. Record quotes with 'blacklane-pp-cli quote'/'watch' before trusting local results.\n")
+	fmt.Fprintf(cmd.ErrOrStderr(), "hint: blacklane has no syncable resources; local-store results are not sync-backed. Use live data.\n")
 	return true
 }
 
@@ -70,7 +70,7 @@ func hintIfStale(cmd *cobra.Command, db *store.Store, resourceType string, maxAg
 	if age <= maxAge {
 		return false
 	}
-	fmt.Fprintf(cmd.ErrOrStderr(), "hint: local ledger data is %s old, older than --max-age=%s. Record newer quotes with 'blacklane-pp-cli quote'/'watch' to refresh.\n", syncHintRoundAge(age), maxAge)
+	fmt.Fprintf(cmd.ErrOrStderr(), "hint: local-store data is %s old (older than --max-age=%s); blacklane has no syncable resources to refresh it. Use live data.\n", syncHintRoundAge(age), maxAge)
 	return true
 }
 
