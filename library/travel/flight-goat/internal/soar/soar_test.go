@@ -70,7 +70,7 @@ func TestNormalizeOfferOneWay(t *testing.T) {
 			{CarrierIATA: "AA", FlightNumber: "88",
 				Departure: "2026-07-15T16:00:00", Arrival: "2026-07-15T19:00:00",
 				Duration: "PT3H0M",
-				Origin: rawPlace{IATACode: "ORD"}, Destination: rawPlace{IATACode: "JFK"}},
+				Origin:   rawPlace{IATACode: "ORD"}, Destination: rawPlace{IATACode: "JFK"}},
 		}}},
 	}
 	f, ok := normalizeOffer(raw, "USD", 1)

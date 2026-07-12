@@ -26,11 +26,18 @@ func newSchedulesPromotedCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:         "schedules",
-		Short:       "Returns scheduled flights that have been published by airlines. These schedules are available for up to three months...",
-		Long:        "Shortcut for 'schedules get-by-date'. Returns scheduled flights that have been published by airlines. These schedules are available for up to three months...",
-		Example:     "  flight-goat-pp-cli schedules",
-		Annotations: map[string]string{"pp:endpoint": "schedules.get-by-date", "mcp:read-only": "true"},
+		Short:       "Returns scheduled flights that have been published by airlines.",
+		Long:        "Returns scheduled flights that have been published by airlines.",
+		Example:     "  flight-goat-pp-cli schedules --date-start 2021-12-31 --date-end 2021-12-31",
+		Annotations: map[string]string{"pp:endpoint": "schedules.get-by-date", "pp:method": "GET", "pp:path": "/schedules/{date_start}/{date_end}", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
+			// Bare invocation of a command with a required flag/body prints help
+			// instead of pflag's terse "required flag not set" error. Optional-
+			// only reads fall through so a bare call still executes; positional
+			// commands keep their existing usageErr (exit 2 + JSON envelope).
+			if cmd.Flags().NFlag() == 0 && len(args) == 0 && !flags.dryRun {
+				return cmd.Help()
+			}
 			if !cmd.Flags().Changed("date-start") && !flags.dryRun {
 				return fmt.Errorf("required flag \"%s\" not set", "date-start")
 			}
@@ -43,29 +50,27 @@ func newSchedulesPromotedCmd(flags *rootFlags) *cobra.Command {
 			}
 
 			path := "/schedules/{date_start}/{date_end}"
-			// PATCH(upstream printing-press-library#293): promoted schedules gets date_start/date_end
-			// as flags, but AeroAPI requires them in the URL path rather than the query string.
-			path = replacePathParam(path, "date_start", flagDateStart)
-			path = replacePathParam(path, "date_end", flagDateEnd)
-			data, prov, err := resolvePaginatedRead(cmd.Context(), c, flags, "schedules", path, map[string]string{
-				"origin":             fmt.Sprintf("%v", flagOrigin),
-				"destination":        fmt.Sprintf("%v", flagDestination),
-				"airline":            fmt.Sprintf("%v", flagAirline),
-				"flight_number":      fmt.Sprintf("%v", flagFlightNumber),
-				"include_codeshares": fmt.Sprintf("%v", flagIncludeCodeshares),
-				"include_regional":   fmt.Sprintf("%v", flagIncludeRegional),
-				"max_pages":          fmt.Sprintf("%v", flagMaxPages),
-				"cursor":             fmt.Sprintf("%v", flagCursor),
-			}, nil, flagAll, "cursor", "", "")
+			path = replacePathParam(path, "date_start", formatCLIParamValue(flagDateStart))
+			path = replacePathParam(path, "date_end", formatCLIParamValue(flagDateEnd))
+			data, prov, err := resolvePaginatedReadWithStrategy(cmd.Context(), c, flags, "auto", "schedules", path, map[string]string{
+				"origin":             formatCLIParamValue(flagOrigin),
+				"destination":        formatCLIParamValue(flagDestination),
+				"airline":            formatCLIParamValue(flagAirline),
+				"flight_number":      formatCLIParamValue(flagFlightNumber),
+				"include_codeshares": formatCLIParamValue(flagIncludeCodeshares),
+				"include_regional":   formatCLIParamValue(flagIncludeRegional),
+				"max_pages":          formatCLIParamValue(flagMaxPages),
+				"cursor":             formatCLIParamValue(flagCursor),
+			}, nil, flagAll, "cursor", "cursor", "", 100, "", "", cmd.ErrOrStderr())
 			if err != nil {
-				return classifyAPIError(err)
+				return classifyAPIError(err, flags)
 			}
-			// Unwrap API response envelopes (e.g. {"status":"success","data":[...]})
-			// so output helpers see the inner data, not the wrapper.
-			data = extractResponseData(data)
-
-			// Print provenance to stderr
-			{
+			// Print provenance to stderr for human-facing output only.
+			// Machine-format flags (--json, --csv, --compact, --quiet, --plain,
+			// --select) and piped stdout suppress this line; the JSON envelope
+			// already carries meta.source for those consumers.
+			// SYNC: keep this gate aligned with command_endpoint.go.tmpl.
+			if wantsHumanTable(cmd.OutOrStdout(), flags) {
 				var countItems []json.RawMessage
 				if json.Unmarshal(data, &countItems) != nil {
 					// Single object, not an array
@@ -73,14 +78,12 @@ func newSchedulesPromotedCmd(flags *rootFlags) *cobra.Command {
 				}
 				printProvenance(cmd, len(countItems), prov)
 			}
-			// CSV bypasses JSON pipe path so --csv works when piped
-			if flags.csv {
-				return printOutputWithFlags(cmd.OutOrStdout(), data, flags)
-			}
 			// For JSON output, wrap with provenance envelope. --select wins over
 			// --compact when both are set; --compact only runs when no explicit
-			// fields were requested.
-			if flags.asJSON || !isTerminal(cmd.OutOrStdout()) {
+			// fields were requested. Explicit format flags (--csv, --quiet, --plain)
+			// opt out of the auto-JSON path so piped consumers that asked for a
+			// non-JSON format reach the standard pipeline below.
+			if flags.asJSON || (!isTerminal(cmd.OutOrStdout()) && !flags.csv && !flags.quiet && !flags.plain) {
 				filtered := data
 				if flags.selectFields != "" {
 					filtered = filterFields(filtered, flags.selectFields)
@@ -105,11 +108,11 @@ func newSchedulesPromotedCmd(flags *rootFlags) *cobra.Command {
 					return nil
 				}
 			}
-			return printOutputWithFlags(cmd.OutOrStdout(), data, flags)
+			return printOutputWithFlagsMeta(cmd.OutOrStdout(), data, flags, map[string]any{"source": "live"})
 		},
 	}
-	cmd.Flags().StringVar(&flagDateStart, "date-start", "", "Datetime or date of earliest scheduled flight departure to return. This must be no earlier than 3 months in the past...")
-	cmd.Flags().StringVar(&flagDateEnd, "date-end", "", "Datetime or date of latest scheduled flight departure to return. This must be no later than 1 year in the future and...")
+	cmd.Flags().StringVar(&flagDateStart, "date-start", "", "Datetime or date of earliest scheduled flight departure to return.")
+	cmd.Flags().StringVar(&flagDateEnd, "date-end", "", "Datetime or date of latest scheduled flight departure to return.")
 	cmd.Flags().StringVar(&flagOrigin, "origin", "", "Only return flights with this origin airport. ICAO or IATA airport codes can be provided.")
 	cmd.Flags().StringVar(&flagDestination, "destination", "", "Only return flights with this destination airport. ICAO or IATA airport codes can be provided.")
 	cmd.Flags().StringVar(&flagAirline, "airline", "", "Only return flights flown by this carrier. ICAO or IATA carrier codes can be provided.")

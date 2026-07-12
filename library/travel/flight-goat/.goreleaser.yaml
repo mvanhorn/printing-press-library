@@ -23,7 +23,7 @@ builds:
     env:
       - CGO_ENABLED=0
     ldflags:
-      - -s -w
+      - -s -w -X main.version={{ .Version }}
     targets:
       - darwin_amd64
       - darwin_arm64
@@ -42,10 +42,10 @@ checksum:
 brews:
   - name: flight-goat-pp-cli
     repository:
-      owner: matt-van-horn
+      owner: omarshahine
       name: homebrew-tap
-    homepage: "https://github.com/matt-van-horn/flight-goat-pp-cli"
-    description: "Search Google Flights, scan Kayak long-haul routes, and join FlightAware AeroAPI reliability, alerts, and tracking from one CLI."
+    homepage: "https://github.com/omarshahine/flight-goat-pp-cli"
+    description: "AeroAPI is a simple, query-based API that gives software developers access to a variety of FlightAware's flight data."
     install: |
       bin.install "flight-goat-pp-cli"
       bin.install "flight-goat-pp-mcp"

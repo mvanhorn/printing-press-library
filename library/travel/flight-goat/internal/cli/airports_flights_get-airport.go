@@ -23,9 +23,9 @@ func newAirportsFlightsGetAirportCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:         "get-airport <id>",
 		Aliases:     []string{"get"},
-		Short:       "Returns all recent and upcoming flights departing from or arriving at the specified airport. Filtering/ordering...",
-		Example:     "  flight-goat-pp-cli airports flights get-airport 550e8400-e29b-41d4-a716-446655440000",
-		Annotations: map[string]string{"pp:endpoint": "flights.get-airport", "mcp:read-only": "true"},
+		Short:       "Returns all recent and upcoming flights departing from or arriving at the specified airport.",
+		Example:     "  flight-goat-pp-cli airports flights get-airport IAH",
+		Annotations: map[string]string{"pp:endpoint": "flights.get-airport", "pp:method": "GET", "pp:path": "/airports/{id}/flights", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				return cmd.Help()
@@ -40,37 +40,45 @@ func newAirportsFlightsGetAirportCmd(flags *rootFlags) *cobra.Command {
 					}
 				}
 				if !validType {
-					fmt.Fprintf(os.Stderr, "warning: --%s %q not in allowed set %v\n", "type", flagType, allowedType)
+					return fmt.Errorf("invalid value %q for --%s: must be one of %v", flagType, "type", allowedType)
 				}
 			}
+			path := "/airports/{id}/flights"
+			if len(args) < 1 || args[0] == "" {
+				return usageErr(fmt.Errorf("id is required\nUsage: %s <%s>", cmd.CommandPath(), "id"))
+			}
+			path = replacePathParam(path, "id", args[0])
 			c, err := flags.newClient()
 			if err != nil {
 				return err
 			}
-
-			path := "/airports/{id}/flights"
-			path = replacePathParam(path, "id", args[0])
-			data, prov, err := resolvePaginatedRead(cmd.Context(), c, flags, "flights", path, map[string]string{
-				"airline":   fmt.Sprintf("%v", flagAirline),
-				"type":      fmt.Sprintf("%v", flagType),
-				"start":     fmt.Sprintf("%v", flagStart),
-				"end":       fmt.Sprintf("%v", flagEnd),
-				"max_pages": fmt.Sprintf("%v", flagMaxPages),
-				"cursor":    fmt.Sprintf("%v", flagCursor),
-			}, nil, flagAll, "cursor", "", "")
+			data, prov, err := resolvePaginatedReadWithStrategy(cmd.Context(), c, flags, "auto", "flights", path, map[string]string{
+				"airline":   formatCLIParamValue(flagAirline),
+				"type":      formatCLIParamValue(flagType),
+				"start":     formatCLIParamValue(flagStart),
+				"end":       formatCLIParamValue(flagEnd),
+				"max_pages": formatCLIParamValue(flagMaxPages),
+				"cursor":    formatCLIParamValue(flagCursor),
+			}, nil, flagAll, "cursor", "cursor", "", 100, "", "", cmd.ErrOrStderr())
 			if err != nil {
-				return classifyAPIError(err)
+				return classifyAPIError(err, flags)
 			}
-			// Print provenance to stderr for human-facing output
-			{
+			// Print provenance to stderr for human-facing output only.
+			// Machine-format flags (--json, --csv, --compact, --quiet, --plain,
+			// --select) and piped stdout suppress this line; the JSON envelope
+			// already carries meta.source for those consumers.
+			// SYNC: keep this gate aligned with command_promoted.go.tmpl.
+			if wantsHumanTable(cmd.OutOrStdout(), flags) {
 				var countItems []json.RawMessage
 				_ = json.Unmarshal(data, &countItems)
 				printProvenance(cmd, len(countItems), prov)
 			}
 			// For JSON output, wrap with provenance envelope before passing through flags.
 			// --select wins over --compact when both are set; --compact only runs when
-			// no explicit fields were requested.
-			if flags.asJSON || !isTerminal(cmd.OutOrStdout()) {
+			// no explicit fields were requested. Explicit format flags (--csv, --quiet,
+			// --plain) opt out of the auto-JSON path so piped consumers that asked for
+			// a non-JSON format reach the standard pipeline below.
+			if flags.asJSON || (!isTerminal(cmd.OutOrStdout()) && !flags.csv && !flags.quiet && !flags.plain) {
 				filtered := data
 				if flags.selectFields != "" {
 					filtered = filterFields(filtered, flags.selectFields)
@@ -96,13 +104,13 @@ func newAirportsFlightsGetAirportCmd(flags *rootFlags) *cobra.Command {
 					return nil
 				}
 			}
-			return printOutputWithFlags(cmd.OutOrStdout(), data, flags)
+			return printOutputWithFlagsMeta(cmd.OutOrStdout(), data, flags, map[string]any{"source": "live"})
 		},
 	}
 	cmd.Flags().StringVar(&flagAirline, "airline", "", "Airline to filter flights by. Do not provide airline if type is provided.")
 	cmd.Flags().StringVar(&flagType, "type", "", "Type of flights to return. Do not provide type if airline is provided. (one of: General_Aviation, Airline)")
-	cmd.Flags().StringVar(&flagStart, "start", "", "The starting date range for flight results. The format is ISO8601 date or datetime, and the bound is inclusive....")
-	cmd.Flags().StringVar(&flagEnd, "end", "", "The ending date range for flight results. The format is ISO8601 date or datetime, and the bound is exclusive....")
+	cmd.Flags().StringVar(&flagStart, "start", "", "The starting date range for flight results. The format is ISO8601 date or datetime, and the bound is inclusive.")
+	cmd.Flags().StringVar(&flagEnd, "end", "", "The ending date range for flight results. The format is ISO8601 date or datetime, and the bound is exclusive.")
 	cmd.Flags().IntVar(&flagMaxPages, "max-pages", 1, "Maximum number of pages to fetch. This is an upper limit and not a guarantee of how many pages will be returned.")
 	cmd.Flags().StringVar(&flagCursor, "cursor", "", "Opaque value used to get the next batch of data from a paged collection.")
 	cmd.Flags().BoolVar(&flagAll, "all", false, "Fetch all pages")

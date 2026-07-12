@@ -1,51 +1,49 @@
 # Flight Goat CLI
 
 # Introduction
+AeroAPI is a simple, query-based API that gives software developers access
+to a variety of FlightAware's flight data. Users can obtain current or
+historical data. AeroAPI is a RESTful API delivering accurate and
+actionable aviation data. With the introduction of Foresight™, customers
+have access to the data that powers over half of the predictive airline
+ETAs in the US.
 
-Flight Goat is a consumer-flight decision CLI first, and a FlightAware/AeroAPI wrapper second.
+## Categories
+AeroAPI is divided into several categories to make things easier to
+discover.
+- Flights: Summary information, planned routes, positions and more
+- Foresight: Flight positions enhanced with FlightAware Foresight™
+- Airports: Airport information and FIDS style resources
+- Operators: Operator information and fleet activity resources
+- Alerts: Configure flight alerts and delivery destinations
+- History: Historical flight access for various endpoints
+- Miscellaneous: Flight disruption, future schedule information, and aircraft owner information
 
-Its primary job is to answer practical flight questions from the terminal:
+## Development Tools
+AeroAPI is defined using the OpenAPI Spec 3.0, which means it can be easily
+imported into tools like Postman. To get started try importing the API
+specification using
+[Postman's instructions](https://learning.postman.com/docs/integrations/available-integrations/working-with-openAPI/).
+Once imported as a collection only the "Value" field under the collection's
+Authorization tab needs to be populated and saved before making calls.
 
-- **Find real fares** with Google Flights for one-way, round-trip, and multi-city trips.
-- **Scan date ranges** to find cheaper travel dates between airports.
-- **Explore nonstop and long-haul routes** from an airport using Kayak's route data.
-- **Compare price against operational risk** by joining fare results with reliability, delay, weather, and tracking context when you have a FlightAware AeroAPI key.
-- **Produce agent-friendly JSON** for travel planning, monitoring, rebooking, and briefing workflows.
+The AeroAPI OpenAPI specification is located at:\
+https://flightaware.com/commercial/aeroapi/resources/aeroapi-openapi.yml
 
-Most fare-discovery commands are free and require no account. AeroAPI is optional: add it when you need live flight status, historical reliability, airport delays, alerts, tail/aircraft lookups, or Foresight-backed predictions.
+Our [open source AeroApps project](/aeroapi/portal/resources)
+provides a small collection of services and sample applications to help
+you get started.
 
-## Headline commands
+The Flight Information Display System (FIDS) AeroApp is an example of a
+multi-tier application using multiple languages and Docker containers.
+It demonstrates connectivity, data caching, flight presentation, and leveraging flight maps.
 
-These are the commands to try first:
+The Alerts AeroApp demonstrates the use of AeroAPI to set, edit, and
+receive alerts in a sample application with a Dockerized Python backend
+and a React frontend.
 
-```bash
-# Search Google Flights for a specific itinerary. Free; no API key required.
-flight-goat-pp-cli flights SEA LHR 2026-06-15 --sort=cheapest
-
-# Find the cheapest dates across a window. Free; no API key required.
-flight-goat-pp-cli dates JFK CDG --from 2026-07-01 --to 2026-07-31 --sort
-
-# Explore nonstop destinations from an airport via Kayak route data. Free; no API key required.
-flight-goat-pp-cli explore SEA --agent
-
-# Filter nonstop destinations by long-haul duration. Free; no API key required.
-flight-goat-pp-cli longhaul SEA --min-hours 8 --agent
-
-# Join fares with reliability and delay context. Uses AeroAPI when configured.
-flight-goat-pp-cli compare SEA LHR 2026-06-15 --agent
-
-# Decide whether a delayed flight is route-wide, airport-wide, or flight-specific.
-flight-goat-pp-cli assess --origin SFO --destination DCA --delayed-flight UA123 --agent
-```
-
-## Data sources and credentials
-
-| Capability | Source | Credential |
-|---|---|---|
-| Fare search, cheapest dates, Google Flights links | Google Flights native backend | None |
-| Nonstop destination and long-haul route discovery | Kayak route data | None |
-| Live status, airport delays, disruption counts, aircraft/tail lookups, route reliability, alerts, history, Foresight | FlightAware AeroAPI | Optional `FLIGHT_GOAT_API_KEY_AUTH` |
-| Compound decisions like `compare`, `assess`, `digest`, `monitor`, and `ontime-now` | Google Flights/Kayak plus AeroAPI/FAA/weather where relevant | Partial results without every source; AeroAPI improves operational depth |
+Our AeroAPI push notification [testing interface](/commercial/aeroapi/send.rvt)
+provides a quick and easy way to test the delivery of customized alerts via AeroAPI push.
 
 Created by [@mvanhorn](https://github.com/mvanhorn) (Matt Van Horn).
 Contributors: [@lloydarmbrust](https://github.com/lloydarmbrust) (Lloyd Armbrust), [@tmchow](https://github.com/tmchow) (Trevin Chow), [@omarshahine](https://github.com/omarshahine) (Omar Shahine).
@@ -117,7 +115,6 @@ Inside a Hermes chat session:
 Restart the Hermes session or gateway if the newly installed skill is not visible immediately.
 
 ## Install for OpenClaw
-
 Install both the CLI binary and the focused OpenClaw skill. The installer defaults binaries to a per-user bin directory (`$HOME/.local/bin` on macOS/Linux, `%LOCALAPPDATA%\Programs\PrintingPress\bin` on Windows):
 
 ```bash
@@ -134,7 +131,7 @@ To install:
 
 1. Download the `.mcpb` for your platform from the [latest release](https://github.com/mvanhorn/printing-press-library/releases/tag/flight-goat-current).
 2. Double-click the `.mcpb` file. Claude Desktop opens and walks you through the install.
-3. Fill in `FLIGHT_GOAT_API_KEY_AUTH` when Claude Desktop prompts you.
+3. Fill in `FLIGHT_GOAT_API_KEY` when Claude Desktop prompts you.
 
 Requires Claude Desktop 1.0.0 or later. Pre-built bundles ship for macOS Apple Silicon (`darwin-arm64`) and Windows (`amd64`, `arm64`); for other platforms, use the manual config below.
 
@@ -142,6 +139,7 @@ Requires Claude Desktop 1.0.0 or later. Pre-built bundles ship for macOS Apple S
 <summary>Manual JSON config (advanced)</summary>
 
 If you can't use the MCPB bundle (older Claude Desktop, unsupported platform), install the MCP binary and configure it manually.
+
 
 ```bash
 go install github.com/mvanhorn/printing-press-library/library/travel/flight-goat/cmd/flight-goat-pp-mcp@latest
@@ -155,7 +153,8 @@ Add to your Claude Desktop config (`~/Library/Application Support/Claude/claude_
     "flight-goat": {
       "command": "flight-goat-pp-mcp",
       "env": {
-        "FLIGHT_GOAT_API_KEY_AUTH": "<your-key>"
+        "FLIGHT_GOAT_ENV": "<env>",
+        "FLIGHT_GOAT_API_KEY": "<your-key>"
       }
     }
   }
@@ -170,105 +169,88 @@ Add to your Claude Desktop config (`~/Library/Application Support/Claude/claude_
 
 See [Install](#install) above.
 
-### 2. Try the free fare commands
+### 2. Set Up Credentials
 
-Most headline fare and route-discovery commands do not need credentials:
-
-```bash
-flight-goat-pp-cli flights SEA LHR 2026-06-15 --sort=cheapest
-flight-goat-pp-cli dates JFK CDG --from 2026-07-01 --to 2026-07-31 --sort
-flight-goat-pp-cli explore SEA --agent
-```
-
-### 3. Add AeroAPI only for operational data
-
-Set `FLIGHT_GOAT_API_KEY_AUTH` when you need FlightAware-backed status, reliability, alerts, history, aircraft/tail, disruption, or Foresight commands.
+Set the endpoint variables for the tenant, workspace, or API version you want this CLI to use:
 
 ```bash
-export FLIGHT_GOAT_API_KEY_AUTH="<paste-your-key>"
+export FLIGHT_GOAT_ENV="<env>"
 ```
 
-You can also persist this in your config file at `~/.config/flight-goat-pp-cli/config.toml`.
+Get your API key from your API provider's developer portal. The key typically looks like a long alphanumeric string.
 
-### 4. Verify Setup
+```bash
+export FLIGHT_GOAT_API_KEY="<paste-your-key>"
+```
+
+To persist credentials, use `flight-goat-pp-cli auth set-token <token>`. Stored secrets live in `credentials.toml` under the data directory, not in `config.toml`.
+
+### 3. Verify Setup
 
 ```bash
 flight-goat-pp-cli doctor
 ```
 
-This checks your CLI configuration and reports whether optional AeroAPI credentials are available.
+This checks your configuration and credentials.
+
+### 4. Try Your First Command
+
+```bash
+flight-goat-pp-cli airports get mock-value
+```
 
 ## Usage
 
 Run `flight-goat-pp-cli --help` for the full command reference and flag list.
 
-### Delay Assessment
+## Paths & environment variables
 
-Use `assess` when a user has a delayed flight or route and needs to decide
-whether the problem is airport-wide, destination-wide, or specific to one
-operator/aircraft.
+This CLI separates local files into four path kinds:
 
-```bash
-flight-goat-pp-cli assess --origin SFO --destination DCA --delayed-flight UA123 --agent
-flight-goat-pp-cli assess --origin KSFO --destination KJFK --depart-after 18:00 --no-prices --agent
-```
+| Kind | Contents |
+|------|----------|
+| `config` | User-editable settings such as `config.toml` and saved profiles |
+| `data` | Durable local data: `credentials.toml`, `data.db`, cookies, browser-session proof files, and other auth sidecars |
+| `state` | Runtime state such as persisted queries, jobs, and `teach.log` |
+| `cache` | Regenerable HTTP/cache files |
 
-The report joins AeroAPI airport delays, disruption counts, weather, route
-alternatives, delayed-flight and inbound-aircraft status, FAA NAS Status, and
-optional Google Flights price context. Failed upstream calls are returned in
-`sources` and `decision.missing_evidence` so partial reports are explicit.
-Raw AeroAPI payloads are omitted by default; add `--include-raw` when an agent
-needs the original JSON for audit or custom scoring. FAA NOTAM data is not
-included yet.
+Each kind resolves independently. The ladder is:
 
-### Google Flights Currency
+1. Per-kind env var: `FLIGHT_GOAT_CONFIG_DIR`, `FLIGHT_GOAT_DATA_DIR`, `FLIGHT_GOAT_STATE_DIR`, or `FLIGHT_GOAT_CACHE_DIR`
+2. `--home <dir>` for this invocation
+3. `FLIGHT_GOAT_HOME` for a flat relocated root
+4. XDG env vars: `XDG_CONFIG_HOME`, `XDG_DATA_HOME`, `XDG_STATE_HOME`, `XDG_CACHE_HOME`
+5. Platform defaults matching existing installs
 
-Google Flights price commands accept `--currency <ISO-4217-code>` for native
-Google Flights prices in that currency. The default is USD when the flag is
-omitted.
+For containers and agent sandboxes, prefer a single relocated root:
 
 ```bash
-flight-goat-pp-cli flights MAN AGP 2026-05-10 --currency GBP --sort=cheapest
-flight-goat-pp-cli dates JFK CDG --from 2026-07-01 --to 2026-07-31 --currency EUR --sort
-flight-goat-pp-cli compare SEA LHR 2026-06-15 --currency GBP
+export FLIGHT_GOAT_HOME=/srv/flight-goat
+flight-goat-pp-cli doctor
 ```
 
-`--currency` is intentionally command-scoped. It is available on commands that
-ask Google Flights for prices (`flights`, `dates`, `compare`, `gf-search`, and
-`cheapest-longhaul`), not on AeroAPI, Kayak-only, or `soar` commands (FlySoar
-prices in USD only).
+Under `FLIGHT_GOAT_HOME=/srv/flight-goat`, the four dirs resolve to `/srv/flight-goat/config`, `/srv/flight-goat/data`, `/srv/flight-goat/state`, and `/srv/flight-goat/cache`.
 
-### FlySoar (Duffel) Price Search
+MCP servers do not receive CLI flags from the host. Put relocation in the host `env` block:
 
-`soar` is a third price source alongside Google Flights and Kayak. It queries
-[FlySoar.ai](https://flysoar.ai) — a Duffel-backed metasearch whose fares come
-from Duffel's aggregated NDC + GDS content — for a route and date. No API key,
-no auth. Reach for it as a second opinion on price: FlySoar and Google Flights
-often surface different fares for the same itinerary.
-
-```bash
-flight-goat-pp-cli soar SEA DEN 2026-09-21 --agent
-flight-goat-pp-cli soar SEA DEN 2026-09-21 --class first --agent
-flight-goat-pp-cli soar JFK LHR 2026-07-15 --return 2026-07-22 --class business --agent
-flight-goat-pp-cli soar DCA IAH 2026-09-23 --class first --stops 0,1 --airlines DL,UA --agent
+```json
+{
+  "mcpServers": {
+    "flight-goat": {
+      "command": "flight-goat-pp-mcp",
+      "env": {
+        "FLIGHT_GOAT_HOME": "/srv/flight-goat"
+      }
+    }
+  }
+}
 ```
 
-Cabins: `economy` (default), `premium_economy`, `business`, `first`. Prices are
-always USD (FlySoar's anonymous endpoint is USD-only, so there is no `--currency`
-flag). `--stops` is a comma list of allowed stop counts (`0` = nonstop, `1`, `2`;
-a set, not a max) and `--airlines` is a whitelist of two-letter IATA codes — both
-filter the results and are encoded into `search_url` as FlySoar's `stops=0,1` /
-`airlines=DL,UA` GUI params. Results use the same leg/itinerary shape as
-`flights`, sorted cheapest-first with identical itineraries deduped to the lowest
-fare.
+Precedence matters in fleets: an ambient per-kind variable such as `FLIGHT_GOAT_DATA_DIR` overrides an explicit `--home` for that kind. Use `FLIGHT_GOAT_HOME` or the per-kind variables for durable fleet relocation; treat `--home` as the weaker per-invocation lever.
 
-FlySoar has no anonymous booking API — the purchase happens through its
-conversational **iMessage agent** or its authenticated web app. `soar` prices the
-search and hands off: the response `booking` block carries a pre-composed
-`request`, an `imessage_url` that opens a new iMessage to the FlySoar agent with
-that request filled in, and a `web_url` deep link (also surfaced at the top level
-as `search_url`, e.g. `https://flysoar.ai/flights/sea/den/260921/?cabin=first&trip=oneway`).
-`soar` never places a booking itself.
+Relocation is one-way. Unsetting `FLIGHT_GOAT_HOME` does not move files back to platform defaults, and `doctor` cannot find credentials left under a former root. Move the files manually before unsetting relocation variables.
+
+Existing installs keep working because the platform-default rung matches the legacy layout. On the first auth write, stored secrets leave `config.toml` and are consolidated into `credentials.toml` under the data directory. Run `flight-goat-pp-cli doctor --fail-on warn` to check path and credential-location warnings in automation.
 
 ## Commands
 
@@ -276,7 +258,7 @@ as `search_url`, e.g. `https://flysoar.ai/flights/sea/den/260921/?cabin=first&tr
 
 Manage aircraft
 
-- **`flight-goat-pp-cli aircraft get-flight-type`** - Returns information about an aircraft type, given an ICAO aircraft type designator string.
+- **`flight-goat-pp-cli aircraft <type>`** - Returns information about an aircraft type, given an ICAO aircraft type designator string.
 Data returned includes the description, type, manufacturer, engine type, and engine
 count.
 
@@ -589,27 +571,45 @@ more information).
 
 Manage schedules
 
-- **`flight-goat-pp-cli schedules get-by-date`** - Returns scheduled flights that have been published by airlines. These
+- **`flight-goat-pp-cli schedules`** - Returns scheduled flights that have been published by airlines. These
 schedules are available for up to three months in the past as well as
 one year into the future.
+
+
+### Self-learning loop
+
+This CLI caches per-question discovery so repeat queries skip the walk and structurally similar queries get answered via entity substitution. The loop also self-captures: every invocation is journaled locally, and failed-flag corrections plus fresh teaches surface as candidates on the next `recall` for confirm/reject judgment. Agents call `recall` before discovery and fire `teach &` after answering. See the `## Automatic learning` section in `SKILL.md` for the full protocol.
+
+- **`flight-goat-pp-cli recall <query>`** - Look up cached resources for a query before running discovery
+- **`flight-goat-pp-cli teach`** - Record a query -> resource mapping (silent on success, safe to background with `&`)
+- **`flight-goat-pp-cli learnings list`** - Inspect taught rows
+- **`flight-goat-pp-cli learnings forget <query>`** - Undo a teach
+- **`flight-goat-pp-cli learnings candidates`** - List auto-captured candidates awaiting confirm/reject
+- **`flight-goat-pp-cli learnings stats`** - Local loop metrics: recall hit rate, teach-to-reuse, playbook resolution, candidate counts
+- **`flight-goat-pp-cli teach-pattern`** - Install a query/resource template up front
+- **`flight-goat-pp-cli teach-lookup`** - Add an entity mapping (e.g. country code, team alias) for pattern substitution
+
+Pass `--no-learn` or set `FLIGHT_GOAT_NO_LEARN=true` to disable the loop for deterministic flows.
+
+The local store's schema version stamp is one-way: once this version of `flight-goat-pp-cli` opens the database, older binaries refuse it with a version error — upgrade the binary rather than downgrading.
 
 ## Output Formats
 
 ```bash
 # Human-readable table (default in terminal, JSON when piped)
-flight-goat-pp-cli flights SEA LHR 2026-06-15
+flight-goat-pp-cli airports get mock-value
 
 # JSON for scripting and agents
-flight-goat-pp-cli flights SEA LHR 2026-06-15 --json
+flight-goat-pp-cli airports get mock-value --json
 
-# Filter generated AeroAPI responses to specific fields
-flight-goat-pp-cli airports get KSEA --json --select id,name,status
+# Filter to specific fields
+flight-goat-pp-cli airports get mock-value --json --select id,name,status
 
 # Dry run — show the request without sending
-flight-goat-pp-cli flights SEA LHR 2026-06-15 --dry-run
+flight-goat-pp-cli airports get mock-value --dry-run
 
 # Agent mode — JSON + compact + no prompts in one flag
-flight-goat-pp-cli flights SEA LHR 2026-06-15 --agent
+flight-goat-pp-cli airports get mock-value --agent
 ```
 
 ## Agent Usage
@@ -620,7 +620,7 @@ This CLI is designed for AI agent consumption:
 - **Pipeable** - `--json` output to stdout, errors to stderr
 - **Filterable** - `--select id,name` returns only fields you need
 - **Previewable** - `--dry-run` shows the request without sending
-- **Retryable** - creates return "already exists" on retry, deletes return "already deleted"
+- **Explicit retries** - add `--idempotent` to create retries and add `--ignore-missing` to delete retries when a no-op success is acceptable
 - **Confirmable** - `--yes` for explicit confirmation of destructive actions
 - **Piped input** - write commands can accept structured input when their help lists `--stdin`
 - **Offline-friendly** - sync/search commands can use the local SQLite store when available
@@ -628,25 +628,44 @@ This CLI is designed for AI agent consumption:
 
 Exit codes: `0` success, `2` usage error, `3` not found, `4` auth error, `5` API error, `7` rate limited, `10` config error.
 
+## Runtime Endpoint
+
+This CLI resolves endpoint placeholders at runtime, so one installed binary can target different tenants or API versions without regeneration.
+
+Endpoint environment variables:
+- `FLIGHT_GOAT_ENV` resolves `{env}`
+
+Base URL: `https://{env}.flightaware.com/aeroapi`
+
 ## Health Check
 
 ```bash
 flight-goat-pp-cli doctor
 ```
 
-Verifies CLI configuration, optional credentials, and connectivity to configured upstreams.
+Verifies configuration, credentials, and connectivity to the API.
 
 ## Configuration
 
-Config file: `~/.config/flight-goat-pp-cli/config.toml`
+Run `flight-goat-pp-cli doctor` to see the resolved config, data, state, and cache directories. The platform-default config path is `~/.config/flightgoat-pp-cli/config.toml`; `--home`, `FLIGHT_GOAT_HOME`, and per-kind env vars can relocate it.
+
+Static request headers can be configured under `headers`; per-command header overrides take precedence.
 
 Environment variables:
-- `FLIGHT_GOAT_API_KEY_AUTH`
+
+| Name | Kind | Required | Description |
+| --- | --- | --- | --- |
+| `FLIGHT_GOAT_ENV` | endpoint | Yes |  |
+| `FLIGHT_GOAT_API_KEY` | per_call | Yes | Set to your API credential. |
+
+### agentcookie (optional)
+
+If you use agentcookie to sync secrets across machines, this CLI auto-adopts agentcookie-managed credentials with no extra setup. When the daemon writes to this CLI's config, `flight-goat-pp-cli doctor` reports `agentcookie: detected` and `auth-status` labels the source as `agentcookie`. Skip this section if you don't use agentcookie - the CLI works the same as any other.
 
 ## Troubleshooting
 **Authentication errors (exit code 4)**
-- Run `flight-goat-pp-cli doctor` to check whether AeroAPI credentials are configured
-- Verify the environment variable is present without printing it, e.g. `test -n "$FLIGHT_GOAT_API_KEY_AUTH" && echo set || echo missing`
+- Run `flight-goat-pp-cli doctor` to check credentials
+- Verify the environment variable is set: `echo $FLIGHT_GOAT_API_KEY`
 **Not found errors (exit code 3)**
 - Check the resource ID is correct
 - Run the `list` command to see available items

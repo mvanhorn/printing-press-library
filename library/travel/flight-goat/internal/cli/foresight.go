@@ -9,8 +9,11 @@ import (
 
 func newForesightCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "foresight",
-		Short: "Foresight endpoints provide access to FlightAware's Foresight predictive models and predictions for key events. Our...",
+		Use:         "foresight",
+		Short:       "Foresight endpoints provide access to FlightAware's Foresight predictive models and predictions for key events.",
+		Hidden:      true,
+		Annotations: map[string]string{"mcp:read-only": "true", "pp:typed-exit-codes": "0,2"},
+		RunE:        parentNoSubcommandRunE(flags),
 	}
 
 	cmd.AddCommand(newForesightGetFlightPositionWithCmd(flags))

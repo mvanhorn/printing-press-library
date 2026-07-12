@@ -9,8 +9,10 @@ import (
 
 func newAirportsDelaysCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "delays",
-		Short: "Manage delays",
+		Use:         "delays",
+		Short:       "Get delays for airports",
+		Annotations: map[string]string{"mcp:read-only": "true", "pp:typed-exit-codes": "0,2"},
+		RunE:        parentNoSubcommandRunE(flags),
 	}
 
 	cmd.AddCommand(newAirportsDelaysGetAirportCmd(flags))

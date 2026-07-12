@@ -208,16 +208,16 @@ type rawSlice struct {
 }
 
 type rawSegment struct {
-	CarrierIATA  string    `json:"carrier_iata"`
-	CarrierName  string    `json:"carrier_name"`
-	FlightNumber string    `json:"flight_number"`
-	Departure    string    `json:"departure"`
-	Arrival      string    `json:"arrival"`
-	CabinClass   string    `json:"cabin_class"`
-	Duration     string    `json:"duration"` // ISO 8601 duration, e.g. "PT5H30M"
-	Aircraft     string    `json:"aircraft"`
-	Origin       rawPlace  `json:"origin"`
-	Destination  rawPlace  `json:"destination"`
+	CarrierIATA  string   `json:"carrier_iata"`
+	CarrierName  string   `json:"carrier_name"`
+	FlightNumber string   `json:"flight_number"`
+	Departure    string   `json:"departure"`
+	Arrival      string   `json:"arrival"`
+	CabinClass   string   `json:"cabin_class"`
+	Duration     string   `json:"duration"` // ISO 8601 duration, e.g. "PT5H30M"
+	Aircraft     string   `json:"aircraft"`
+	Origin       rawPlace `json:"origin"`
+	Destination  rawPlace `json:"destination"`
 	// Some serializations nest carrier/aircraft as objects; captured below and
 	// merged in normalizeOffer when the flat fields are empty.
 	MarketingCarrier rawCarrier `json:"marketing_carrier"`
