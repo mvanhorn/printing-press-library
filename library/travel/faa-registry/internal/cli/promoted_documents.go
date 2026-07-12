@@ -15,10 +15,11 @@ func newDocumentsPromotedCmd(flags *rootFlags) *cobra.Command {
 	var flagColltxt string
 
 	cmd := &cobra.Command{
-		Use:         "documents",
-		Short:       "Search the FAA document index by collateral identifier.",
-		Long:        "Search the FAA document index by collateral identifier.",
-		Example:     "  faa-registry-pp-cli documents --collateral 560-6513",
+		Use:   "documents",
+		Short: "Search the FAA document index by collateral identifier.",
+		Long:  "Search the FAA document index by collateral identifier.",
+		// TODO: replace placeholder example values before relying on this for live dogfood.
+		Example:     "  faa-registry-pp-cli documents --collateral example-value",
 		Annotations: map[string]string{"pp:endpoint": "documents.search", "pp:method": "GET", "pp:path": "/aircraftinquiry/Search/DocumentIndexResult", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			// Bare invocation of a command with a required flag/body prints help
@@ -50,7 +51,15 @@ func newDocumentsPromotedCmd(flags *rootFlags) *cobra.Command {
 				return classifyAPIError(err, flags)
 			}
 			if !flags.dryRun {
-				data, err = parseFAAHTMLResponse(data)
+				data, err = extractHTMLResponse(data, htmlExtractionOptions{
+					Mode:           "page",
+					BaseURL:        htmlExtractionRequestURL(c.BaseURL, path, htmlRequestParams),
+					ContentType:    c.LastContentType(),
+					LinkPrefixes:   []string{},
+					Limit:          0,
+					ScriptSelector: "",
+					JSONPath:       "",
+				})
 				if err != nil {
 					return err
 				}

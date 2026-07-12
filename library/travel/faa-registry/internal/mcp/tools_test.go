@@ -10,11 +10,11 @@ import (
 	"strings"
 	"testing"
 
-	mcplib "github.com/mark3labs/mcp-go/mcp"
-	"github.com/mark3labs/mcp-go/server"
 	"github.com/mvanhorn/printing-press-library/library/travel/faa-registry/internal/cliutil"
 	"github.com/mvanhorn/printing-press-library/library/travel/faa-registry/internal/mcp/bound"
 	"github.com/mvanhorn/printing-press-library/library/travel/faa-registry/internal/store"
+	mcplib "github.com/mark3labs/mcp-go/mcp"
+	"github.com/mark3labs/mcp-go/server"
 )
 
 func TestMCPPathResolutionMatchesCLIResolverWithHomeEnv(t *testing.T) {

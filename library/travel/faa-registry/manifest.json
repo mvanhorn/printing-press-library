@@ -3,7 +3,7 @@
   "name": "faa-registry-pp-mcp",
   "display_name": "FAA Aircraft Registry",
   "version": "0.1.0",
-  "description": "Every FAA aircraft lookup the registry website offers, plus a daily-synced offline copy of the entire US registry that unlocks fleet reports, hex decoding, ownership history, and expiration alerts no other tool has.",
+  "description": "Look up any US aircraft by tail number from the terminal — live FAA registry inquiries plus a daily-synced offline copy of the full registry for fleet queries, Mode S hex decoding, and expiration alerts no other tool has.",
   "author": {
     "name": "CLI Printing Press"
   },

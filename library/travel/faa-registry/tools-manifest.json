@@ -1,7 +1,7 @@
 {
   "api_name": "faa-registry",
   "base_url": "https://registry.faa.gov",
-  "description": "Every FAA aircraft lookup the registry website offers, plus a daily-synced offline copy of the entire US registry that unlocks fleet reports, hex decoding, ownership history, and expiration alerts no other tool has.",
+  "description": "Look up any US aircraft by tail number from the terminal — live FAA registry inquiries plus a daily-synced offline copy of the full registry for fleet queries, Mode S hex decoding, and expiration alerts no other tool has.",
   "mcp_ready": "full",
   "http_transport": "standard",
   "auth": {

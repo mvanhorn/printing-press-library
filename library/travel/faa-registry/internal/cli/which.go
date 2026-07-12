@@ -26,14 +26,7 @@ type whichEntry struct {
 // its hero features. Endpoint-level commands are discoverable via
 // `--help`; `which` exists to resolve a natural-language capability
 // query to one of the commands the skill says matter most.
-var whichIndex = []whichEntry{
-	{Command: "fleet report", Description: "One command turns an owner name into a full fleet profile: aircraft count, model mix, jet/turboprop/piston split, average seats and year built.", Group: "Local registry that compounds", WhyItMatters: "Reach for this when asked what aircraft an operator or person owns — it answers in aggregate instead of forcing a page-through of raw tail lists."},
-	{Command: "hex resolve", Description: "Resolve any number of ADS-B Mode S hex codes (args or stdin) to N-numbers, aircraft types, and owners — offline.", Group: "Local registry that compounds", WhyItMatters: "Use this to identify aircraft from ADS-B receiver logs or flight-tracker hex codes in bulk, instantly and without network access."},
-	{Command: "aircraft history", Description: "Chronological owner timeline for a tail number, stitching current registration with every deregistration record.", Group: "Due diligence", WhyItMatters: "Pre-purchase and title research: see who held an aircraft, when registrations were cancelled, and export history in one answer."},
-	{Command: "expiring", Description: "List registrations expiring within a window, filtered by owner or state, sorted soonest-first.", Group: "Due diligence", WhyItMatters: "Catch a lapsing registration (a closing risk and airworthiness problem) before the FAA letter arrives."},
-	{Command: "models fleet", Description: "For any make/model, break down every registered example by registrant type (corporate, individual, LLC, co-owned) and state.", Group: "Local registry that compounds", WhyItMatters: "Market research on a model class: how many exist, who owns them, and where they are based."},
-	{Command: "nnumber available", Description: "Check whether an N-number is assigned, reserved, or free — computed locally, with the reason.", Group: "Local registry that compounds", WhyItMatters: "Vanity tail-number shopping and registration planning without fighting the website's form validation."},
-}
+var whichIndex = []whichEntry{}
 
 // whichMatch pairs an index entry with its ranking score for a query.
 // Higher score means stronger match. The ranker is naive (exact token
@@ -51,6 +44,7 @@ type whichMatch struct {
 //	+3  exact token match on the command's leaf or full path
 //	+2  substring match on the command (any part)
 //	+2  substring match on the description
+//	+2  per-token match on the description
 //	+1  group tag contains the query as a word
 //
 // Ties break on declaration order in the index. An empty query returns
@@ -68,7 +62,9 @@ func rankWhich(index []whichEntry, query string, limit int) []whichMatch {
 		}
 		return out
 	}
-	qTokens := strings.Fields(q)
+	// Sub-tokenize the query the same way command paths are split, so a
+	// pasted hyphenated capability (repos-list-for-authenticated) matches.
+	qTokens := whichSubTokens(q)
 
 	scored := make([]whichMatch, 0, len(index))
 	for i, e := range index {
@@ -78,7 +74,14 @@ func rankWhich(index []whichEntry, query string, limit int) []whichMatch {
 	}
 
 	sort.SliceStable(scored, func(i, j int) bool {
-		return scored[i].Score > scored[j].Score
+		if scored[i].Score != scored[j].Score {
+			return scored[i].Score > scored[j].Score
+		}
+		// Specificity tie-break: at equal score prefer the command with the
+		// fewest capability sub-tokens - the canonical operation over variants
+		// carrying extra words the request never used.
+		return len(whichSubTokens(strings.ToLower(scored[i].Entry.Command))) <
+			len(whichSubTokens(strings.ToLower(scored[j].Entry.Command)))
 	})
 	// Drop zero-score matches when the query was non-empty; agents
 	// branching on exit code rely on "no match" meaning no confidence.
@@ -97,14 +100,19 @@ func rankWhich(index []whichEntry, query string, limit int) []whichMatch {
 func whichScoreEntry(e whichEntry, query string, qTokens []string) int {
 	score := 0
 	cmd := strings.ToLower(e.Command)
-	cmdTokens := strings.Fields(cmd)
+	// Sub-token split (spaces, hyphens, underscores, slashes): a capability
+	// word buried in a hyphenated leaf (repos-list-for-authenticated) must be
+	// matchable by the words a human asks with, or every command in a group
+	// ties on the group token alone and index order decides the answer.
+	cmdTokens := whichSubTokens(cmd)
 	desc := strings.ToLower(e.Description)
+	descTokens := strings.Fields(desc)
 	group := strings.ToLower(e.Group)
 
 	// Exact token match on the command path (any token).
 	for _, qt := range qTokens {
 		for _, ct := range cmdTokens {
-			if qt == ct {
+			if whichTokenMatch(qt, ct) {
 				score += 3
 				break
 			}
@@ -118,6 +126,23 @@ func whichScoreEntry(e whichEntry, query string, qTokens []string) int {
 	if strings.Contains(desc, query) {
 		score += 2
 	}
+	// Per-token description match, CAPPED: natural-language requests often say
+	// "top coins by market cap" and the endpoint doc uses the same words - but
+	// uncapped description credit lets long token-soup descriptions outrank the
+	// precise command path, so the credit saturates at 3.
+	descCredit := 0
+	for _, qt := range qTokens {
+		for _, dt := range descTokens {
+			if whichTokenMatch(qt, dt) {
+				descCredit++
+				break
+			}
+		}
+		if descCredit == 3 {
+			break
+		}
+	}
+	score += descCredit
 	// Group tag match.
 	if group != "" {
 		for _, qt := range qTokens {
@@ -127,7 +152,121 @@ func whichScoreEntry(e whichEntry, query string, qTokens []string) int {
 			}
 		}
 	}
+	// Possessive aliasing: "my/mine/me/current" in a request is API-speak for
+	// the authenticated caller; commands scoped to the authenticated user must
+	// outrank generic listings for possessive asks.
+	possessive := false
+	for _, qt := range qTokens {
+		switch qt {
+		case "my", "mine", "me", "current":
+			possessive = true
+		}
+	}
+	if possessive {
+		for _, ct := range cmdTokens {
+			if ct == "authenticated" || ct == "me" {
+				score += 3
+				break
+			}
+		}
+	}
+	// Read-intent default: penalize write-verb commands when the request never
+	// asked for a write, so neutral asks can never rank a destructive command
+	// first on a tie.
+	if score > 0 {
+		queryWrite := false
+		for _, qt := range qTokens {
+			if whichWriteVerbs[qt] {
+				queryWrite = true
+				break
+			}
+		}
+		if !queryWrite {
+			for _, ct := range cmdTokens {
+				if whichWriteVerbs[ct] {
+					score -= 2
+					break
+				}
+			}
+		}
+	}
+	// Specificity: a command leaf carrying capability sub-tokens the request never
+	// used is a variant, not the canonical answer ("activity-list-repos-
+	// starred-by-authenticated" for a repositories ask). Parent resource tokens
+	// are excluded so a valid nested command is not erased by its path.
+	if score > 0 && len(qTokens) > 1 {
+		unmatched := 0
+		commandParts := strings.Fields(cmd)
+		leafTokens := whichSubTokens(commandParts[len(commandParts)-1])
+		for _, ct := range leafTokens {
+			hit := false
+			for _, qt := range qTokens {
+				if whichTokenMatch(qt, ct) {
+					hit = true
+					break
+				}
+			}
+			if !hit {
+				unmatched++
+			}
+		}
+		if unmatched > 3 {
+			unmatched = 3
+		}
+		score -= unmatched
+	}
 	return score
+}
+
+func whichTokenMatch(a, b string) bool {
+	a = strings.Trim(strings.ToLower(a), ".,:;!?()[]{}\"'")
+	b = strings.Trim(strings.ToLower(b), ".,:;!?()[]{}\"'")
+	if a == "" || b == "" {
+		return false
+	}
+	if a == b {
+		return true
+	}
+	if whichSingular(a) == whichSingular(b) {
+		return true
+	}
+	return whichTokenAliases[a] != "" && whichTokenAliases[a] == whichTokenAliases[b]
+}
+
+func whichSubTokens(cmd string) []string {
+	return strings.FieldsFunc(cmd, func(r rune) bool {
+		return r == ' ' || r == '-' || r == '_' || r == '/'
+	})
+}
+
+// The closed API-verb set for write-shaped commands. A request that never
+// asked for a write must not tie-break into a destructive command.
+var whichWriteVerbs = map[string]bool{
+	"delete": true, "remove": true, "update": true, "create": true, "set": true,
+	"add": true, "replace": true, "rename": true, "transfer": true, "merge": true,
+	"lock": true, "unlock": true, "star": true, "unstar": true, "follow": true,
+	"unfollow": true, "block": true, "unblock": true, "mute": true, "archive": true,
+	"unarchive": true, "cancel": true, "send": true, "upload": true, "subscribe": true,
+	"unsubscribe": true, "dismiss": true, "approve": true, "decline": true,
+	"post": true, "put": true, "write": true, "edit": true, "modify": true,
+	"publish": true, "share": true, "comment": true, "grant": true, "revoke": true,
+}
+
+var whichTokenAliases = map[string]string{
+	"repo": "repository", "repos": "repository", "repository": "repository", "repositories": "repository",
+}
+
+func whichSingular(s string) string {
+	if len(s) > 3 && strings.HasSuffix(s, "ies") {
+		return strings.TrimSuffix(s, "ies") + "y"
+	}
+	if len(s) > 3 && strings.HasSuffix(s, "es") {
+		return strings.TrimSuffix(s, "es")
+	}
+	if len(s) > 2 && strings.HasSuffix(s, "s") {
+		return strings.TrimSuffix(s, "s")
+	}
+	return s
 }
 
 func newWhichCmd(flags *rootFlags) *cobra.Command {

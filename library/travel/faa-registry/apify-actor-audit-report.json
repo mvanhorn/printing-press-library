@@ -1,9 +1,0 @@
-{
-  "dir": "\u003ccli-dir\u003e/faa-registry-pp-cli",
-  "research_dir": "\u003ccli-dir\u003e/20260708-063305",
-  "verdict": "pass",
-  "actors": null,
-  "issues": [
-    "no Apify actor references found, skipping"
-  ]
-}

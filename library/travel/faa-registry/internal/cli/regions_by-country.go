@@ -54,7 +54,14 @@ func newRegionsByCountryCmd(flags *rootFlags) *cobra.Command {
 				return classifyAPIError(err, flags)
 			}
 			if !flags.dryRun {
-				data, err = parseFAAHTMLResponse(data)
+				data, err = extractHTMLResponse(data, htmlExtractionOptions{
+					Mode:           "page",
+					BaseURL:        htmlExtractionRequestURL(c.BaseURL, path, htmlRequestParams),
+					LinkPrefixes:   []string{},
+					Limit:          0,
+					ScriptSelector: "",
+					JSONPath:       "",
+				})
 				if err != nil {
 					return err
 				}

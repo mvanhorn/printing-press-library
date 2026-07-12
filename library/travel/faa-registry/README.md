@@ -1,10 +1,14 @@
-# FAA Aircraft Registry CLI
+# Faa Registry CLI
 
-**Every FAA aircraft lookup the registry website offers, plus a daily-synced offline copy of the entire US registry that unlocks fleet reports, hex decoding, ownership history, and expiration alerts no other tool has.**
+CLI for the FAA Civil Aviation Registry. Look up any US-registered aircraft by
+N-number, serial number, owner name, make/model, engine, dealer, or state/county
+via the live registry.faa.gov inquiry app — and sync the FAA's daily Releasable
+Aircraft Database (all ~315K active registrations, ~383K deregistered records,
+~126K reserved N-numbers, plus aircraft-model and engine reference data) into a
+local SQLite store for instant offline search, fleet reports, Mode S hex
+decoding, and expiring-registration alerts.
 
-The FAA registry is browser-only and un-scriptable; existing wrappers parse stale CSVs or do one-off hex math. This CLI does both live and local: every inquiry page as a typed-JSON command, and the full 315K-aircraft registry (plus deregistered and reserved data) in SQLite for fleet report, hex resolve, aircraft history, expiring, and instant offline lookups.
-
-Learn more at [FAA Aircraft Registry](https://registry.faa.gov/aircraftinquiry/).
+Learn more at [Faa Registry](https://registry.faa.gov/aircraftinquiry/).
 
 Created by [@omarshahine](https://github.com/omarshahine) (Omar Shahine).
 
@@ -37,7 +41,7 @@ npx -y @mvanhorn/printing-press-library install faa-registry --agent claude-code
 
 ### Without Node (Go fallback)
 
-If `npx` isn't available (no Node, offline), install the CLI directly via Go (requires Go 1.26.4 or newer):
+If `npx` isn't available (no Node, offline), install the CLI directly via Go (requires Go 1.26.5 or newer):
 
 ```bash
 go install github.com/mvanhorn/printing-press-library/library/travel/faa-registry/cmd/faa-registry-pp-cli@latest
@@ -120,118 +124,23 @@ Add to your Claude Desktop config (`~/Library/Application Support/Claude/claude_
 
 ## Quick Start
 
-```bash
-# Flagship: full registration record for a tail number, live from registry.faa.gov
-faa-registry-pp-cli aircraft lookup N101DQ
+### 1. Install
 
-# Download the FAA's daily Releasable Aircraft Database into local SQLite (~73 MB, one-time then daily refresh)
-faa-registry-pp-cli sync
+See [Install](#install) above.
 
-# Aggregate an owner's entire fleet: models, engine classes, seats, years
-faa-registry-pp-cli fleet report --owner "NETJETS SALES INC"
-
-# Turn ADS-B Mode S hex codes into tail numbers and owners, offline (also reads stdin, one per line)
-faa-registry-pp-cli hex resolve A008C5
-
-# Ownership timeline including deregistration records the website hides
-faa-registry-pp-cli aircraft history N101DQ
-
-# Registrations lapsing in the next year — renewals cluster at month-ends, so use a wide window
-faa-registry-pp-cli expiring --within 365 --state WA
-
-```
-
-## Unique Features
-
-These capabilities aren't available in any other tool for this API.
-
-### Local registry that compounds
-- **`fleet report`** — One command turns an owner name into a full fleet profile: aircraft count, model mix, jet/turboprop/piston split, average seats and year built.
-
-  _Reach for this when asked what aircraft an operator or person owns — it answers in aggregate instead of forcing a page-through of raw tail lists._
-
-  ```bash
-  faa-registry-pp-cli fleet report --owner "NETJETS SALES INC" --agent
-  ```
-- **`hex resolve`** — Resolve any number of ADS-B Mode S hex codes (args or stdin) to N-numbers, aircraft types, and owners — offline.
-
-  _Use this to identify aircraft from ADS-B receiver logs or flight-tracker hex codes in bulk, instantly and without network access._
-
-  ```bash
-  faa-registry-pp-cli hex resolve A008C5 --agent
-  ```
-- **`models fleet`** — For any make/model, break down every registered example by registrant type (corporate, individual, LLC, co-owned) and state.
-
-  _Market research on a model class: how many exist, who owns them, and where they are based._
-
-  ```bash
-  faa-registry-pp-cli models fleet --manufacturer CIRRUS --model SR22 --agent
-  ```
-- **`nnumber available`** — Check whether an N-number is assigned, reserved, or free — computed locally, with the reason.
-
-  _Vanity tail-number shopping and registration planning without fighting the website's form validation._
-
-  ```bash
-  faa-registry-pp-cli nnumber available N500XA --agent
-  ```
-
-### Due diligence
-- **`aircraft history`** — Chronological owner timeline for a tail number, stitching current registration with every deregistration record.
-
-  _Pre-purchase and title research: see who held an aircraft, when registrations were cancelled, and export history in one answer._
-
-  ```bash
-  faa-registry-pp-cli aircraft history N101DQ --agent
-  ```
-- **`expiring`** — List registrations expiring within a window, filtered by owner or state, sorted soonest-first.
-
-  _Catch a lapsing registration (a closing risk and airworthiness problem) before the FAA letter arrives._
-
-  ```bash
-  faa-registry-pp-cli expiring --within 365 --state WA --agent
-  ```
-
-## Recipes
-
-### Identify a plane you flew on
+### 2. Verify Setup
 
 ```bash
-faa-registry-pp-cli aircraft lookup N101DQ --agent --select status,description.serial_number,description.manufacturer,description.model,owner.name,other_owner_names
+faa-registry-pp-cli doctor
 ```
 
-Full registration record narrowed to the fields that answer 'whose plane is this?' — including any co-owner names.
+This checks your configuration.
 
-### Profile an operator's fleet
+### 3. Try Your First Command
 
 ```bash
-faa-registry-pp-cli fleet report --owner "NETJETS SALES INC" --agent
+faa-registry-pp-cli dealers --name example-value
 ```
-
-Counts, model mix, and age profile for every aircraft registered to the owner, computed from the local registry.
-
-### Bulk-resolve ADS-B hex captures
-
-```bash
-faa-registry-pp-cli hex resolve A008C5 A11F35 --agent
-```
-
-Each Mode S hex becomes tail number + model + owner, joined offline against the FAA database. Pipe a file of codes to stdin for bulk runs.
-
-### Pre-purchase due diligence
-
-```bash
-faa-registry-pp-cli aircraft history N123AB --agent
-```
-
-Chronological ownership timeline with deregistration and cancel dates the FAA website doesn't show.
-
-### Find lapsing registrations
-
-```bash
-faa-registry-pp-cli expiring --within 365 --state WA --agent
-```
-
-Registrations expiring in the next 60 days, soonest first.
 
 ## Usage
 
@@ -333,23 +242,40 @@ Live registry searches by geography.
 - **`faa-registry-pp-cli regions by-state`** - List aircraft registered in a state and county (paginated).
 
 
+### Self-learning loop
+
+This CLI caches per-question discovery so repeat queries skip the walk and structurally similar queries get answered via entity substitution. The loop also self-captures: every invocation is journaled locally, and failed-flag corrections plus fresh teaches surface as candidates on the next `recall` for confirm/reject judgment. Agents call `recall` before discovery and fire `teach &` after answering. See the `## Automatic learning` section in `SKILL.md` for the full protocol.
+
+- **`faa-registry-pp-cli recall <query>`** - Look up cached resources for a query before running discovery
+- **`faa-registry-pp-cli teach`** - Record a query -> resource mapping (silent on success, safe to background with `&`)
+- **`faa-registry-pp-cli learnings list`** - Inspect taught rows
+- **`faa-registry-pp-cli learnings forget <query>`** - Undo a teach
+- **`faa-registry-pp-cli learnings candidates`** - List auto-captured candidates awaiting confirm/reject
+- **`faa-registry-pp-cli learnings stats`** - Local loop metrics: recall hit rate, teach-to-reuse, playbook resolution, candidate counts
+- **`faa-registry-pp-cli teach-pattern`** - Install a query/resource template up front
+- **`faa-registry-pp-cli teach-lookup`** - Add an entity mapping (e.g. country code, team alias) for pattern substitution
+
+Pass `--no-learn` or set `FAA_REGISTRY_NO_LEARN=true` to disable the loop for deterministic flows.
+
+The local store's schema version stamp is one-way: once this version of `faa-registry-pp-cli` opens the database, older binaries refuse it with a version error — upgrade the binary rather than downgrading.
+
 ## Output Formats
 
 ```bash
 # Human-readable table (default in terminal, JSON when piped)
-faa-registry-pp-cli dealers --name "AVIATION SALES"
+faa-registry-pp-cli dealers --name example-value
 
 # JSON for scripting and agents
-faa-registry-pp-cli dealers --name "AVIATION SALES" --json
+faa-registry-pp-cli dealers --name example-value --json
 
 # Filter to specific fields
-faa-registry-pp-cli dealers --name "AVIATION SALES" --json --select id,name,status
+faa-registry-pp-cli dealers --name example-value --json --select id,name,status
 
 # Dry run — show the request without sending
-faa-registry-pp-cli dealers --name "AVIATION SALES" --dry-run
+faa-registry-pp-cli dealers --name example-value --dry-run
 
 # Agent mode — JSON + compact + no prompts in one flag
-faa-registry-pp-cli dealers --name "AVIATION SALES" --agent
+faa-registry-pp-cli dealers --name example-value --agent
 ```
 
 ## Agent Usage
@@ -383,25 +309,8 @@ Static request headers can be configured under `headers`; per-command header ove
 ## Troubleshooting
 **Not found errors (exit code 3)**
 - Check the resource ID is correct
-- Use `search <term>` (offline, after `sync`) or a live inquiry like `owners --name` / `models --manufacturer` to find records; `which <task>` suggests the right command
+- Run the `list` command to see available items
 
-### API-specific
-- **HTTP 403 Access Denied from registry.faa.gov** — The FAA blocks non-browser user agents; the CLI sends a Chrome User-Agent automatically — if you overrode headers, remove the override. If it persists, Akamai may be rate-limiting: wait a minute and retry.
-- **fleet report / hex resolve / expiring return 'no local database'** — Run `faa-registry-pp-cli sync` first — offline commands need the daily FAA database snapshot.
-- **aircraft lookup returns a record but offline commands disagree** — The bulk database refreshes nightly (~11:30pm Central) while the live site updates each federal working day at midnight; run `sync` to re-align.
-- **Owner search returns too many or zero rows** — The FAA matches from the start of the name in ALL CAPS; try the exact registered prefix (e.g. 'NETJETS SALES') or use offline `search` for fuzzy FTS matching.
-
-## Sources & Inspiration
-
-This CLI was built by studying these projects and resources:
-
-- [**icao-nnumber_converter**](https://github.com/guillaumemichel/icao-nnumber_converter) — Python (25 stars)
-- [**FAA-registry-checker**](https://github.com/Jxck-S/FAA-registry-checker) — Python (19 stars)
-- [**scrape-faa-releasable-aircraft**](https://github.com/simonw/scrape-faa-releasable-aircraft) — Python (10 stars)
-- [**adsbtrack**](https://github.com/frankea/adsbtrack) — Python (9 stars)
-- [**faa-aircraft-registry**](https://github.com/ClearAerospace/faa-aircraft-registry) — Python (5 stars)
-- [**Aircraft-Registration-Lookup-API**](https://github.com/njfdev/Aircraft-Registration-Lookup-API) — TypeScript (4 stars)
-- [**aircraft-registration-lookup-api**](https://github.com/SkyLink-API/aircraft-registration-lookup-api) — TypeScript (3 stars)
-- [**faaDb**](https://github.com/ThreeSixes/faaDb) — Python (1 stars)
+---
 
 Generated by [CLI Printing Press](https://github.com/mvanhorn/cli-printing-press)

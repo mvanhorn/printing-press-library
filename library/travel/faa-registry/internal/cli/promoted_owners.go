@@ -15,14 +15,12 @@ func newOwnersPromotedCmd(flags *rootFlags) *cobra.Command {
 	var flagNametxt string
 	var flagSortOption string
 	var flagPage string
-	var flagAllPages bool
-	var flagMaxPages int
 
 	cmd := &cobra.Command{
 		Use:         "owners",
 		Short:       "List all aircraft registered to an owner name (paginated).",
-		Long:        "List all aircraft registered to an owner name. Results paginate server-side at 50 rows; pass --page N for one page or --all-pages to fetch and merge every page (capped by --max-pages).",
-		Example:     "  faa-registry-pp-cli owners --name \"NETJETS SALES INC\" --all-pages\n  faa-registry-pp-cli owners --name \"DELTA AIR LINES\" --page 2 --json",
+		Long:        "List all aircraft registered to an owner name (paginated).",
+		Example:     "  faa-registry-pp-cli owners --name example-resource",
 		Annotations: map[string]string{"pp:endpoint": "owners.search", "pp:method": "GET", "pp:path": "/aircraftinquiry/Search/NameResult", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			// Bare invocation of a command with a required flag/body prints help
@@ -66,17 +64,17 @@ func newOwnersPromotedCmd(flags *rootFlags) *cobra.Command {
 				return classifyAPIError(err, flags)
 			}
 			if !flags.dryRun {
-				data, err = parseFAAHTMLResponse(data)
+				data, err = extractHTMLResponse(data, htmlExtractionOptions{
+					Mode:           "page",
+					BaseURL:        htmlExtractionRequestURL(c.BaseURL, path, htmlRequestParams),
+					ContentType:    c.LastContentType(),
+					LinkPrefixes:   []string{},
+					Limit:          0,
+					ScriptSelector: "",
+					JSONPath:       "",
+				})
 				if err != nil {
 					return err
-				}
-				if flagAllPages {
-					data, err = fetchAllFAAPages(cmd.Context(), c, path, params, data, flagMaxPages, func(msg string) {
-						fmt.Fprintln(cmd.ErrOrStderr(), msg)
-					})
-					if err != nil {
-						return err
-					}
 				}
 			}
 			// Print provenance to stderr for human-facing output only.
@@ -126,10 +124,8 @@ func newOwnersPromotedCmd(flags *rootFlags) *cobra.Command {
 		},
 	}
 	cmd.Flags().StringVar(&flagNametxt, "name", "", "Registered owner name, e.g. DELTA AIR LINES")
-	cmd.Flags().StringVar(&flagSortOption, "sort", "1", "Sort order: 1=N-number, 2=serial, 3=manufacturer, 4=model, 5=name (the registry requires one; default 1)")
+	cmd.Flags().StringVar(&flagSortOption, "sort", "", "Sort order: 1=N-number, 2=serial, 3=manufacturer, 4=model, 5=name")
 	cmd.Flags().StringVar(&flagPage, "page", "", "Result page number (results paginate server-side)")
-	cmd.Flags().BoolVar(&flagAllPages, "all-pages", false, "Fetch and merge every result page")
-	cmd.Flags().IntVar(&flagMaxPages, "max-pages", 40, "Page cap for --all-pages (0 = no cap)")
 
 	// Wire sibling endpoints and sub-resources as subcommands
 

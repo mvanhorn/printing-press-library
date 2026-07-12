@@ -48,14 +48,21 @@ func IsUUID(s string) bool {
 
 // StoreSchemaVersion is the on-disk schema version this binary understands.
 // It is stamped into SQLite's PRAGMA user_version on fresh databases and
-// checked on every open. Non-learn CLIs advance to v4 for the
-// resources_fts content extraction.
-const StoreSchemaVersion = 4
+// checked on every open. Learn-enabled CLIs advance to v9 for the
+// learn_candidates and learn_events tables (CLI-side capture and
+// measurement), on top of the v8 learning_playbooks table for
+// hand-authored choreography keyed by query family and the v6 canonical
+// learn-loop tables ported from prediction-goat (including the v3
+// resources_fts rowid rehash and v4 resources_fts content extraction).
+const StoreSchemaVersion = 9
 
 // resourcesFTSContentSchemaVersion pins the schema bump that rewrote
 // resources_fts content from raw JSON to searchable leaf values. Keep this
-// separate from StoreSchemaVersion so future unrelated migrations do not
-// trigger an expensive full FTS rebuild.
+// separate from StoreSchemaVersion — and pinned at 4 regardless of the
+// learn shape — so schema bumps that only add tables (the learn
+// migrations) never trigger an expensive full FTS content rewrite. A
+// store stamped at v4 or later already carries the extracted-leaf FTS
+// content; opening it with a newer binary must stay additive-only.
 const resourcesFTSContentSchemaVersion = 4
 
 const resourcesFTSCreateSQL = `CREATE VIRTUAL TABLE IF NOT EXISTS resources_fts USING fts5(
@@ -158,7 +165,7 @@ func OpenWithContext(ctx context.Context, dbPath string) (*Store, error) {
 
 	s := &Store{db: db, path: dbPath}
 	if err := s.migrate(ctx); err != nil {
-		db.Close()
+		_ = db.Close()
 		return nil, fmt.Errorf("running migrations: %w", err)
 	}
 
@@ -371,6 +378,156 @@ func (s *Store) migrate(ctx context.Context) error {
 			total_count INTEGER DEFAULT 0
 		)`,
 		resourcesFTSCreateSQL,
+		// CLI Printing Press: learn migrations
+		//
+		// search_learnings: LLM-driven per-query reranking. Populated by
+		// the `teach` command (silent, backgrounded by the LLM after a
+		// successful response) and read by the rerank layer to
+		// boost/hide/alias hits on subsequent queries. See learnings.go
+		// for the full semantics. Per-user table; stays small.
+		//
+		// query_entities: JSON array of case-preserving entity tokens
+		// extracted from query_pattern at teach time. Used by the recall
+		// match validator to reject cross-entity matches that would
+		// otherwise score high on non-entity Jaccard.
+		`CREATE TABLE IF NOT EXISTS search_learnings (
+			id INTEGER PRIMARY KEY AUTOINCREMENT,
+			query_pattern TEXT NOT NULL,
+			query_entities TEXT,
+			venue TEXT,
+			resource_type TEXT,
+			resource_id TEXT NOT NULL,
+			action TEXT NOT NULL,
+			alias_target TEXT,
+			source TEXT NOT NULL,
+			confidence INTEGER DEFAULT 1,
+			created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+			last_observed_at DATETIME,
+			notes TEXT
+		)`,
+		`CREATE INDEX IF NOT EXISTS idx_learn_query ON search_learnings(query_pattern)`,
+		`CREATE UNIQUE INDEX IF NOT EXISTS idx_learn_unique ON search_learnings(query_pattern, resource_id, action)`,
+		// entity_lookups: canonical-to-value reference data for the
+		// pattern substitution engine in internal/learn/patterns. Seeded
+		// at migration time by the consumer (e.g., a CLI may register
+		// country codes, sports team abbreviations, etc.); per-user
+		// additions land via the `teach-lookup` CLI command with
+		// source='taught'. PK is the (kind, canonical, value) triple so
+		// multiple aliases under the same kind coexist without
+		// collision.
+		`CREATE TABLE IF NOT EXISTS entity_lookups (
+			kind TEXT NOT NULL,
+			canonical TEXT NOT NULL,
+			value TEXT NOT NULL,
+			source TEXT NOT NULL DEFAULT 'seeded',
+			created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+			PRIMARY KEY (kind, canonical, value)
+		)`,
+		`CREATE INDEX IF NOT EXISTS idx_entity_lookup_canonical ON entity_lookups(canonical)`,
+		`CREATE INDEX IF NOT EXISTS idx_entity_lookup_kind ON entity_lookups(kind)`,
+		// search_patterns: inferred and taught templates for the
+		// generalization layer in internal/learn/patterns. Each row
+		// encodes a query_template with one {entity[:kind]} slot and a
+		// resource_template that names how the entity substitutes into
+		// the resource ID. Extract() writes "inferred" rows whenever
+		// two or more search_learnings rows share a structural shape;
+		// the teach-pattern CLI command writes "taught" rows directly
+		// for explicit template authorship.
+		//
+		// Idempotency leans on idx_patterns_unique: a re-Extract pass
+		// over the same source learnings re-asserts the same
+		// (query_template, resource_template, strategy) triple, which
+		// bumps confidence and refreshes last_observed_at on the
+		// existing row rather than spawning a duplicate.
+		`CREATE TABLE IF NOT EXISTS search_patterns (
+			id INTEGER PRIMARY KEY AUTOINCREMENT,
+			query_template TEXT NOT NULL,
+			resource_template TEXT NOT NULL,
+			resource_type TEXT NOT NULL,
+			venue TEXT,
+			strategy TEXT NOT NULL,
+			entity_kind TEXT NOT NULL,
+			confidence INTEGER NOT NULL DEFAULT 2,
+			source TEXT NOT NULL,
+			created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+			last_observed_at DATETIME,
+			example_query TEXT,
+			example_resource TEXT
+		)`,
+		`CREATE INDEX IF NOT EXISTS idx_patterns_query_template ON search_patterns(query_template)`,
+		`CREATE UNIQUE INDEX IF NOT EXISTS idx_patterns_unique ON search_patterns(query_template, resource_template, strategy)`,
+		// learning_playbooks (v7): hand-authored playbook primitive
+		// keyed on the structural query family (all entities stripped;
+		// see learn.QueryFamily). One row per family holds the optional
+		// structured playbook (ordered CLI command sequence with entity
+		// slots) and the optional free-text notes (gotchas, workarounds
+		// the CLI surface doesn't expose). Either field may be empty;
+		// non-empty in both is the strongest signal.
+		//
+		// Read at recall time by query_family; surfaces to the agent
+		// alongside the existing per-resource hits so a future inquiry
+		// of the same shape can skip rediscovery of the choreography.
+		//
+		// Distinct concept from search_patterns (which auto-extracts
+		// generalization templates from search_learnings); playbooks
+		// are hand-authored choreography + notes attached by family.
+		`CREATE TABLE IF NOT EXISTS learning_playbooks (
+			id INTEGER PRIMARY KEY AUTOINCREMENT,
+			query_family TEXT NOT NULL UNIQUE,
+			playbook_json TEXT,
+			notes_text TEXT,
+			source TEXT NOT NULL DEFAULT 'taught',
+			confidence INTEGER NOT NULL DEFAULT 2,
+			created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+			last_observed_at TIMESTAMP
+		)`,
+		// query_family already carries a column-level UNIQUE constraint
+		// (SQLite auto-creates the backing index), so no separate
+		// CREATE UNIQUE INDEX is needed -- a second named unique index
+		// would just double the write cost on every upsert.
+		`CREATE INDEX IF NOT EXISTS idx_playbooks_source ON learning_playbooks(source)`,
+		`CREATE INDEX IF NOT EXISTS idx_playbooks_last_observed_at ON learning_playbooks(last_observed_at)`,
+		// learn_candidates (v9): CLI-derived improvement candidates
+		// awaiting explicit agent judgment. Rows are written by the
+		// post-run derivation pass (flag corrections, repeated
+		// discovery shapes) and surfaced read-only in the recall
+		// envelope. Candidates are structurally quarantined: they
+		// never become search_learnings rows and sightings never
+		// grant skip authority — only an explicit confirm promotes
+		// the payload. derivation_signature dedupes re-derivations of
+		// the same observation into a sightings bump instead of a
+		// duplicate row.
+		`CREATE TABLE IF NOT EXISTS learn_candidates (
+			id INTEGER PRIMARY KEY,
+			class TEXT NOT NULL CHECK(class IN ('flag_alias','playbook_candidate')),
+			payload TEXT NOT NULL,
+			derivation_signature TEXT NOT NULL UNIQUE,
+			sightings INTEGER NOT NULL DEFAULT 1,
+			status TEXT NOT NULL DEFAULT 'open' CHECK(status IN ('open','confirmed','rejected','expired')),
+			query_family TEXT,
+			command_path TEXT,
+			created_at TEXT NOT NULL,
+			updated_at TEXT NOT NULL,
+			last_seen_at TEXT NOT NULL
+		)`,
+		`CREATE INDEX IF NOT EXISTS idx_learn_candidates_status ON learn_candidates(status)`,
+		`CREATE INDEX IF NOT EXISTS idx_learn_candidates_family ON learn_candidates(query_family)`,
+		// learn_events (v9): capped, best-effort telemetry for the
+		// learn loop's measurement layer. recall logs hit/miss with
+		// the matched row id so teach-to-reuse joins by row id (family
+		// hash as fallback); `learnings stats` aggregates over it.
+		// Inserts are telemetry-class — they never fail the command
+		// and never hold writeMu across a recall match.
+		`CREATE TABLE IF NOT EXISTS learn_events (
+			id INTEGER PRIMARY KEY,
+			ts TEXT NOT NULL,
+			event TEXT NOT NULL CHECK(event IN ('recall_hit','recall_miss','recall_playbook_hit','teach','teach_playbook','amend','forget','candidate_confirmed','candidate_rejected')),
+			query_family_hash TEXT,
+			matched_row_id INTEGER,
+			entity_match INTEGER,
+			surface TEXT CHECK(surface IN ('cli','mcp'))
+		)`,
+		`CREATE INDEX IF NOT EXISTS idx_learn_events_event_ts ON learn_events(event, ts)`,
 	}
 
 	// Run every migration — including the column backfill and the
@@ -578,13 +735,13 @@ func rebuildResourcesFTS(ctx context.Context, conn *sql.Conn) error {
 	for rows.Next() {
 		var r resourceRow
 		if err := rows.Scan(&r.id, &r.resourceType, &r.data); err != nil {
-			rows.Close()
+			_ = rows.Close()
 			return fmt.Errorf("scanning resource: %w", err)
 		}
 		resources = append(resources, r)
 	}
 	if err := rows.Err(); err != nil {
-		rows.Close()
+		_ = rows.Close()
 		return fmt.Errorf("reading resource rows: %w", err)
 	}
 	if err := rows.Close(); err != nil {
@@ -1789,39 +1946,25 @@ func (s *Store) ReconcilePartition(resourceType, genericScopeJSONPath, scopeValu
 	}
 	defer tx.Rollback()
 
-	// Per-call seen-set staging. A TEMP TABLE is connection-scoped, not
-	// transaction-scoped: its lifetime is decoupled from this tx. We deliberately
-	// do not rely on either lifetime — CREATE ... IF NOT EXISTS is a no-op when the
-	// table survived a previous call (standard SQLite keeps it; a ROLLBACK does not
-	// drop it), and the unconditional DELETE that follows clears any rows a prior
-	// partition left behind. So the pair is correct whether or not the underlying
-	// driver (modernc.org/sqlite here) drops temp tables on rollback — we never
-	// assume a fresh table, only an empty one before insert.
-	if _, err := tx.Exec(`CREATE TEMP TABLE IF NOT EXISTS reconcile_seen (id TEXT PRIMARY KEY)`); err != nil {
-		return 0, fmt.Errorf("reconcile %s: temp: %w", resourceType, err)
-	}
-	if _, err := tx.Exec(`DELETE FROM reconcile_seen`); err != nil {
-		return 0, fmt.Errorf("reconcile %s: clear temp: %w", resourceType, err)
-	}
-	ins, err := tx.Prepare(`INSERT OR IGNORE INTO reconcile_seen (id) VALUES (?)`)
-	if err != nil {
-		return 0, err
-	}
+	// Seen-set membership is tested in Go, not SQL. Parent-keyed dependent rows
+	// carry a NUL-composite storage id ("<id>\x00<parent>", built by
+	// resourceStorageID) while seenIDs holds the BARE API ids sync enumerated, so
+	// each stored id must run through BareResourceID before the comparison. A SQL
+	// seen-set is not viable here: SQLite string functions treat the embedded NUL
+	// as a C-string terminator, so an instr/substr or `IN` test over a key
+	// containing "\x00" silently truncates and mis-matches. BareResourceID is a
+	// no-op for plain ids, so flat/non-composite partitions are unaffected.
+	seen := make(map[string]struct{}, len(seenIDs))
 	for _, id := range seenIDs {
-		if _, err := ins.Exec(id); err != nil {
-			ins.Close()
-			return 0, err
-		}
+		seen[id] = struct{}{}
 	}
-	ins.Close()
 
 	// CASE guards against a malformed-JSON row aborting the victim scan:
 	// a row we cannot parse is never a victim — it is skipped (never deleted).
 	rows, err := tx.Query(
 		`SELECT id FROM resources
 		 WHERE resource_type = ?
-		   AND (CASE WHEN json_valid(data) THEN json_extract(data, ?) END) = ?
-		   AND id NOT IN (SELECT id FROM reconcile_seen)`,
+		   AND (CASE WHEN json_valid(data) THEN json_extract(data, ?) END) = ?`,
 		resourceType, genericScopeJSONPath, scopeValue,
 	)
 	if err != nil {
@@ -1831,12 +1974,15 @@ func (s *Store) ReconcilePartition(resourceType, genericScopeJSONPath, scopeValu
 	for rows.Next() {
 		var id string
 		if err := rows.Scan(&id); err != nil {
-			rows.Close()
+			_ = rows.Close()
 			return 0, err
+		}
+		if _, ok := seen[BareResourceID(id)]; ok {
+			continue // bare id was enumerated this run — keep the row
 		}
 		victims = append(victims, id)
 	}
-	rows.Close()
+	_ = rows.Close()
 	if err := rows.Err(); err != nil {
 		return 0, err
 	}
@@ -1856,8 +2002,10 @@ func (s *Store) ReconcilePartition(resourceType, genericScopeJSONPath, scopeValu
 		if _, err := tx.Exec(`DELETE FROM resources WHERE resource_type = ? AND id = ?`, resourceType, id); err != nil {
 			return 0, fmt.Errorf("reconcile %s: generic delete: %w", resourceType, err)
 		}
+		// Cascade junction FKs hold the BARE entity id, never the NUL-composite
+		// storage key, so strip the suffix before matching (no-op for plain ids).
 		for _, c := range cascades {
-			if _, err := tx.Exec(fmt.Sprintf(`DELETE FROM "%s" WHERE "%s" = ?`, c.Table, c.FKColumn), id); err != nil {
+			if _, err := tx.Exec(fmt.Sprintf(`DELETE FROM "%s" WHERE "%s" = ?`, c.Table, c.FKColumn), BareResourceID(id)); err != nil {
 				return 0, fmt.Errorf("reconcile %s: cascade %s: %w", resourceType, c.Table, err)
 			}
 		}
@@ -1911,10 +2059,10 @@ func (s *Store) ResolveByName(resourceType string, input string, matchFields ...
 			}
 		}
 		if err := rows.Err(); err != nil {
-			rows.Close()
+			_ = rows.Close()
 			return "", err
 		}
-		rows.Close()
+		_ = rows.Close()
 	}
 
 	switch len(matches) {

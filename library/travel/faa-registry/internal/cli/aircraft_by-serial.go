@@ -54,7 +54,14 @@ func newAircraftBySerialCmd(flags *rootFlags) *cobra.Command {
 				return classifyAPIError(err, flags)
 			}
 			if !flags.dryRun {
-				data, err = parseFAAHTMLResponse(data)
+				data, err = extractHTMLResponse(data, htmlExtractionOptions{
+					Mode:           "page",
+					BaseURL:        htmlExtractionRequestURL(c.BaseURL, path, htmlRequestParams),
+					LinkPrefixes:   []string{},
+					Limit:          0,
+					ScriptSelector: "",
+					JSONPath:       "",
+				})
 				if err != nil {
 					return err
 				}
@@ -104,7 +111,7 @@ func newAircraftBySerialCmd(flags *rootFlags) *cobra.Command {
 		},
 	}
 	cmd.Flags().StringVar(&flagSerialtxt, "serial", "", "Manufacturer serial number, e.g. 17280005")
-	cmd.Flags().StringVar(&flagSortOption, "sort", "1", "Sort order: 1=N-number, 2=serial, 3=manufacturer, 4=model, 5=name (the registry requires one; default 1)")
+	cmd.Flags().StringVar(&flagSortOption, "sort", "", "Sort order: 1=N-number, 2=serial, 3=manufacturer, 4=model, 5=name")
 
 	return cmd
 }

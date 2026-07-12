@@ -1,6 +1,6 @@
 ---
 name: pp-faa-registry
-description: "Every FAA aircraft lookup the registry website offers, plus a daily-synced offline copy of the entire US registry that unlocks fleet reports, hex decoding, ownership history, and expiration alerts no other tool has. Trigger phrases: `look up tail number`, `whose plane is N101DQ`, `who owns this aircraft`, `decode this mode s hex`, `check FAA registration`, `is this N-number available`, `NetJets fleet list`, `use faa-registry`, `run faa-registry`."
+description: "Look up any US aircraft by tail number from the terminal — live FAA registry inquiries plus a daily-synced offline copy of the full registry for fleet queries, Mode S hex decoding, and expiration alerts no other tool has."
 author: "Omar Shahine"
 license: "Apache-2.0"
 argument-hint: "<command> [args] | install cli|mcp"
@@ -16,7 +16,7 @@ metadata:
         module: github.com/mvanhorn/printing-press-library/library/travel/faa-registry/cmd/faa-registry-pp-cli
 ---
 
-# FAA Aircraft Registry — Printing Press CLI
+# Faa Registry — Printing Press CLI
 
 ## Prerequisites: Install the CLI
 
@@ -29,7 +29,7 @@ This skill drives the `faa-registry-pp-cli` binary. **You must verify the CLI is
 2. Verify: `faa-registry-pp-cli --version`
 3. Ensure the reported install directory is on `$PATH` for the agent/runtime that will invoke this skill.
 
-If the `npx` install fails (no Node, offline, etc.), fall back to a direct Go install (requires Go 1.26.4 or newer). This installs into `$GOPATH/bin` (default `$HOME/go/bin`), so add that directory to `$PATH` instead:
+If the `npx` install fails (no Node, offline, etc.), fall back to a direct Go install (requires Go 1.26.5 or newer). This installs into `$GOPATH/bin` (default `$HOME/go/bin`), so add that directory to `$PATH` instead:
 
 ```bash
 go install github.com/mvanhorn/printing-press-library/library/travel/faa-registry/cmd/faa-registry-pp-cli@latest
@@ -37,65 +37,17 @@ go install github.com/mvanhorn/printing-press-library/library/travel/faa-registr
 
 If `--version` reports "command not found" after install, the runtime cannot see the binary directory on `$PATH`. Do not proceed with skill commands until verification succeeds.
 
-The FAA registry is browser-only and un-scriptable; existing wrappers parse stale CSVs or do one-off hex math. This CLI does both live and local: every inquiry page as a typed-JSON command, and the full 315K-aircraft registry (plus deregistered and reserved data) in SQLite for fleet report, hex resolve, aircraft history, expiring, and instant offline lookups.
-
-## When to Use This CLI
-
-Use this CLI whenever a task involves US aircraft identity: resolving a tail number or Mode S hex to an owner and aircraft type, checking registration status or expiration, researching who owns a fleet or a model class, or verifying N-number availability. It is authoritative (FAA source data), free, and works offline after one sync. It does not track live flights — pair it with a flight-tracking tool for positions.
+CLI for the FAA Civil Aviation Registry. Look up any US-registered aircraft by
+N-number, serial number, owner name, make/model, engine, dealer, or state/county
+via the live registry.faa.gov inquiry app — and sync the FAA's daily Releasable
+Aircraft Database (all ~315K active registrations, ~383K deregistered records,
+~126K reserved N-numbers, plus aircraft-model and engine reference data) into a
+local SQLite store for instant offline search, fleet reports, Mode S hex
+decoding, and expiring-registration alerts.
 
 ## When Not to Use This CLI
 
 Do not activate this CLI for requests that require creating, updating, deleting, publishing, commenting, upvoting, inviting, ordering, sending messages, booking, purchasing, or changing remote state. This printed CLI exposes read-only commands for inspection, export, sync, and analysis.
-
-## Unique Capabilities
-
-These capabilities aren't available in any other tool for this API.
-
-### Local registry that compounds
-- **`fleet report`** — One command turns an owner name into a full fleet profile: aircraft count, model mix, jet/turboprop/piston split, average seats and year built.
-
-  _Reach for this when asked what aircraft an operator or person owns — it answers in aggregate instead of forcing a page-through of raw tail lists._
-
-  ```bash
-  faa-registry-pp-cli fleet report --owner "NETJETS SALES INC" --agent
-  ```
-- **`hex resolve`** — Resolve any number of ADS-B Mode S hex codes (args or stdin) to N-numbers, aircraft types, and owners — offline.
-
-  _Use this to identify aircraft from ADS-B receiver logs or flight-tracker hex codes in bulk, instantly and without network access._
-
-  ```bash
-  faa-registry-pp-cli hex resolve A008C5 --agent
-  ```
-- **`models fleet`** — For any make/model, break down every registered example by registrant type (corporate, individual, LLC, co-owned) and state.
-
-  _Market research on a model class: how many exist, who owns them, and where they are based._
-
-  ```bash
-  faa-registry-pp-cli models fleet --manufacturer CIRRUS --model SR22 --agent
-  ```
-- **`nnumber available`** — Check whether an N-number is assigned, reserved, or free — computed locally, with the reason.
-
-  _Vanity tail-number shopping and registration planning without fighting the website's form validation._
-
-  ```bash
-  faa-registry-pp-cli nnumber available N500XA --agent
-  ```
-
-### Due diligence
-- **`aircraft history`** — Chronological owner timeline for a tail number, stitching current registration with every deregistration record.
-
-  _Pre-purchase and title research: see who held an aircraft, when registrations were cancelled, and export history in one answer._
-
-  ```bash
-  faa-registry-pp-cli aircraft history N101DQ --agent
-  ```
-- **`expiring`** — List registrations expiring within a window, filtered by owner or state, sorted soonest-first.
-
-  _Catch a lapsing registration (a closing risk and airworthiness problem) before the FAA letter arrives._
-
-  ```bash
-  faa-registry-pp-cli expiring --within 365 --state WA --agent
-  ```
 
 ## Command Reference
 
@@ -140,48 +92,6 @@ faa-registry-pp-cli which "<capability in your own words>"
 
 `which` resolves a natural-language capability query to the best matching command from this CLI's curated feature index. Exit code `0` means at least one match; exit code `2` means no confident match — fall back to `--help` or use a narrower query.
 
-## Recipes
-
-### Identify a plane you flew on
-
-```bash
-faa-registry-pp-cli aircraft lookup N101DQ --agent --select status,description.serial_number,description.manufacturer,description.model,owner.name,other_owner_names
-```
-
-Full registration record narrowed to the fields that answer 'whose plane is this?' — including any co-owner names.
-
-### Profile an operator's fleet
-
-```bash
-faa-registry-pp-cli fleet report --owner "NETJETS SALES INC" --agent
-```
-
-Counts, model mix, and age profile for every aircraft registered to the owner, computed from the local registry.
-
-### Bulk-resolve ADS-B hex captures
-
-```bash
-faa-registry-pp-cli hex resolve A008C5 A11F35 --agent
-```
-
-Each Mode S hex becomes tail number + model + owner, joined offline against the FAA database. Pipe a file of codes to stdin for bulk runs.
-
-### Pre-purchase due diligence
-
-```bash
-faa-registry-pp-cli aircraft history N123AB --agent
-```
-
-Chronological ownership timeline with deregistration and cancel dates the FAA website doesn't show.
-
-### Find lapsing registrations
-
-```bash
-faa-registry-pp-cli expiring --within 365 --state WA --agent
-```
-
-Registrations expiring in the next 60 days, soonest first.
-
 ## Auth Setup
 
 No authentication required.
@@ -196,7 +106,7 @@ Add `--agent` to any command. Expands to: `--json --compact --no-input --no-colo
 - **Filterable** — `--select` keeps a subset of fields. Dotted paths descend into nested structures; arrays traverse element-wise. Critical for keeping context small on verbose APIs:
 
   ```bash
-  faa-registry-pp-cli dealers --name "AVIATION SALES" --agent --select id,name,status
+  faa-registry-pp-cli dealers --name example-value --agent --select id,name,status
   ```
 - **Previewable** — `--dry-run` shows the request without sending
 - **Offline-friendly** — sync/search commands can use the local SQLite store when available
@@ -223,7 +133,8 @@ Agents should treat the CLI's path resolver as part of the runtime contract:
 - Use `--home <dir>` for one invocation, or set `FAA_REGISTRY_HOME=<dir>` to relocate all four path kinds under one root.
 - Use per-kind env vars only when a specific kind must diverge: `FAA_REGISTRY_CONFIG_DIR`, `FAA_REGISTRY_DATA_DIR`, `FAA_REGISTRY_STATE_DIR`, `FAA_REGISTRY_CACHE_DIR`.
 - Resolution order is per-kind env var, `--home`, `FAA_REGISTRY_HOME`, XDG (`XDG_CONFIG_HOME`, `XDG_DATA_HOME`, `XDG_STATE_HOME`, `XDG_CACHE_HOME`), then platform defaults.
-- `config` contains settings like `config.toml` and profiles. `data` contains the local registry database (`registry.db`, built by `sync`) and the framework `data.db`. `state` contains persisted queries and `teach.log`. `cache` contains regenerable HTTP/cache files. Set `FAA_REGISTRY_DB` to point the registry database elsewhere.
+- `config` contains settings like `config.toml` and profiles. `data` contains `credentials.toml`, `data.db`, cookies, and auth sidecars. `state` contains persisted queries, jobs, and `teach.log`. `cache` contains regenerable HTTP/cache files.
+- Stored secrets live in `credentials.toml` under the data dir. Existing legacy `config.toml` secrets are read for compatibility and leave `config.toml` on the first auth write.
 - Run `faa-registry-pp-cli doctor --fail-on warn` to surface path and credential-location warnings. `agent-context` exposes a schema v4 `paths` block for agents that need the resolved dirs.
 - For MCP, pass relocation through the MCP host config. The MCP binary does not inherit CLI flags:
 
@@ -241,6 +152,198 @@ Agents should treat the CLI's path resolver as part of the runtime contract:
   ```
 
 Fleet precedence: an inherited per-kind env var overrides an explicit `--home` for that kind. Use `FAA_REGISTRY_HOME` or per-kind vars as durable fleet levers, and use `--home` only for a single invocation. Relocation is not reversible by unsetting env vars; move files manually before clearing `FAA_REGISTRY_HOME`, or `doctor` will not find credentials left under the former root.
+
+## Automatic learning
+
+This CLI ships a self-capturing learning loop. The CLI does its own bookkeeping: every invocation is journaled locally, a failed flag followed by a corrected retry auto-derives a `flag_alias` candidate, and a `teach` on a query family without a playbook auto-synthesizes a `playbook_candidate` from the session's journal. Your job is judgment only: `recall` first, act on surfaced candidates, `teach` the final answer, `playbook amend` when you observe a correction. You never record failures by hand.
+
+### Step 1: `recall` before any discovery
+
+Before list/search/drill commands on a new user question, run:
+
+```bash
+faa-registry-pp-cli recall "<user's question>" --agent
+```
+
+The response envelope:
+
+```json
+{
+  "query": "...",
+  "normalized": "<normalized form>",
+  "query_entities": ["..."],
+  "found": true | false,
+  "match_score": 0.0,
+  "results": [
+    { "resource_id": "...", "resource_type": "...", "venue": "...",
+      "confidence": 2, "entity_match": "exact|partial|unknown",
+      "source": "taught|preseed|pattern", "warnings": ["..."] }
+  ],
+  "mismatches": [ /* only when --debug-mismatches */ ],
+  "warnings": [ /* top-level */ ],
+  "candidates": [
+    { "id": 12, "class": "flag_alias | playbook_candidate",
+      "summary": "...", "sightings": 3, "last_seen": "...",
+      "rationale": "...",
+      "next_action": ["<trial command>", "faa-registry-pp-cli learnings confirm 12"] }
+  ],
+  "playbook": {
+    "query_family": "...",
+    "playbook": {
+      "steps": [ { "cmd": "<command with {slot} substitution>", "purpose": "..." } ],
+      "entity_slots": ["$ENTITY"],
+      "expected_tool_calls": 3
+    },
+    "slots_resolved": { "$ENTITY": { "token": "<live token>", "canonical": "<canonical>" } },
+    "notes": "<workarounds + gotchas for this query family>"
+  },
+  "notes": "<duplicate surface for non-playbook callers>"
+}
+```
+
+Empty-store short-circuit: if the store has no learnings, playbooks, or candidates yet (recall finds nothing and `learnings list` and `learnings candidates` are both empty), skip recall for the rest of this session instead of taxing every query; resume recall-first once something has been taught.
+
+### Step 2: decision tree
+
+Read `candidates`, `playbook`, `notes`, `results[0]`, and warnings in that order:
+
+```
+if Candidates present (warnings include "candidates_present"):
+    -> candidates are try-then-confirm, never facts. Follow each candidate's
+       two-step next_action verbatim: run the trial command first, then run
+       `learnings confirm <id>` only after the trial verified the behavior.
+       Reject a wrong candidate with `learnings reject <id>`.
+    -> NEVER re-teach something recall surfaced as a candidate; confirm or
+       reject that candidate instead of teaching a duplicate.
+    -> candidates ride alongside playbooks and resource hits, not instead of
+       them; continue with the branches below after acting on them.
+
+if Playbook present:
+    -> READ Playbook.notes verbatim FIRST (workarounds + gotchas the CLI surface doesn't expose)
+    -> replay Playbook.steps in order, substituting Playbook.slots_resolved entries
+       for the entity slot tokens. If a step's slot is unresolved, fall back to
+       discovery for that step only.
+    -> the Playbook's expected_tool_calls is a budget; if you find yourself running
+       materially more, record the divergence via `faa-registry-pp-cli playbook amend`
+       at end-of-session.
+
+elif Notes present (no Playbook):
+    -> read Notes verbatim before any discovery step; they carry known gotchas
+       for this query family even when no structured choreography exists yet.
+
+elif Found AND Results[0].EntityMatch == "exact" AND Results[0].Confidence >= 2:
+    -> skip discovery; fetch live data for Results[*].ResourceID in parallel
+
+elif Found AND Results[0].EntityMatch == "partial":
+    -> candidate hint, NOT a hit; read the resource title to validate before trusting
+
+elif (any row in Mismatches[] when --debug-mismatches was passed):
+    -> treat as cold start; the stored learning is for a different entity
+       (different canonical resolved from query_entities)
+
+else:  // Found == false, no playbook, no notes
+    -> cold start; run discovery normally; teach the answer afterward (Step 4).
+       If the family has no playbook yet, that teach auto-synthesizes a
+       playbook candidate from this session's journal - you do not need to
+       record one by hand.
+```
+
+Playbook and Notes are orthogonal to the per-resource path. A recall response can carry both a Playbook AND a `Results[]` hit - use both: the Playbook tells you which choreography to run; the resource hits short-circuit specific steps. Default to skipping `mismatches`; pass `--debug-mismatches` only when investigating cold-start surprises.
+
+Candidate judgment details: `learnings confirm <id>` prints the candidate's full payload before materializing it - check that the printed payload matches the behavior you verified. `learnings reject <id>` tombstones the derivation signature so the same candidate does not resurface. The envelope carries only the few candidates worth acting on now; `faa-registry-pp-cli learnings candidates` lists the full open set.
+
+Graceful degradation: if `learnings confirm` is an unknown command, you are driving an older binary - ignore the candidates guidance and follow the rest of the protocol.
+
+### Step 3: always read `warnings`
+
+- `low_confidence`: row exists at `confidence<2`. Treat as a hint, not a skip-discovery hit.
+- `resource_not_in_store`: the local store doesn't have the resource the learning points at. The match validator couldn't classify entities — direct-fetch and re-evaluate.
+- `cross_alias_match` (per-result): the row was taught under a different alias and matched the live query's canonical via `entity_lookups` (e.g., a "USA" teach satisfying a "United States" recall). Trust the resource_id.
+- `similar_shape_different_entity:<canonical>` (top-level): a structurally matching row exists but its canonical entity differs from the live query's. Treated as cold start; the warning carries the conflicting canonical as a hint, but the row is NOT promoted into Results.
+- `ambiguous_alias` (top-level): a single query entity resolved to multiple canonicals (e.g., "Cards" → Arizona Cardinals + St. Louis Cardinals). Surface the ambiguity from context before committing to a resource.
+- `candidates_present` (top-level): the envelope carries a `candidates` section. Handle it via the candidates branch in Step 2 before anything else.
+- `lookup_refresh_available` (top-level): an entity in the query has no lookup row yet, but synced data could provide one. Run `faa-registry-pp-cli sync` to refresh entity lookups.
+- Top-level `no_learnings_for_query_family`: the table had no rows above the Jaccard floor. Pure cold start.
+
+### Step 4: `teach &` after finalizing your response - always
+
+Teaching is unconditional. After resolving a query the store could not answer, background-teach the final resource mapping - no call-count threshold, no judging whether it was "worth" learning. The teach is the anchor of the loop: it triggers playbook synthesis for a family without a playbook, and same-referent phrasings fold into one family so near-duplicate teaches do not fragment the store. Fire it after assembling your user-facing response but BEFORE emitting it, with a shell `&` so the call returns immediately:
+
+```bash
+faa-registry-pp-cli teach --query "<user's question>" --resource-type <type> --resource <id1> --resource <id2>
+# (append shell `&` to background it)
+```
+
+Silent on success. Errors only land in `teach.log` under the resolved state dir. Teach the **most specific** resource - if the user asked a broad question and you walked through parent records to find the specific answer, teach the leaf id, not the parent. The CLI uses seeded `entity_lookups` for cross-alias resolution at recall time, so a teach under one alias (e.g., "Niners") satisfies future queries under another alias (e.g., "49ers", "San Francisco") automatically.
+
+PII rule: teach the structural question with identifiers stripped - never include names, emails, phone numbers, account ids, or other personal identifiers in taught queries or notes. The CLI scans teach queries for obvious email/phone shapes and warns, but does not block; strip before teaching rather than relying on the warning.
+
+### Step 5: playbooks - optional flags, automatic synthesis
+
+You do not need to decide whether a session "deserves" a playbook: a teach on a family without one auto-synthesizes a `playbook_candidate` from the session's journal, and the next session judges it via confirm/reject. Attach explicit playbook flags only when you already hold choreography worth recording verbatim - workarounds the CLI didn't surface (silently-dropped flags, undocumented params, pagination tricks, payload gotchas). Prefer the **integrated one-call form** - record the resource learning and the playbook in the same `teach` invocation:
+
+```bash
+# Common case: record both the resource learning AND the playbook in one call.
+faa-registry-pp-cli teach \
+  --query "<user's question>" \
+  --resource <id> \
+  --playbook-file ~/playbooks/<shape>.json \
+  --playbook-notes-file ~/playbooks/<shape>-notes.md
+# (append shell `&` to background it)
+
+# Alternate: playbook-only (no resource to record alongside).
+faa-registry-pp-cli teach-playbook \
+  --query "<user's question>" \
+  --playbook-file ~/playbooks/<shape>.json \
+  --notes-file ~/playbooks/<shape>-notes.md
+```
+
+Playbook files are JSON with `steps`, `entity_slots`, `expected_tool_calls`. Notes files are markdown carrying the gotchas verbatim. File-free callers (MCP-only agents) pass the same content inline: `--playbook-json` and `--playbook-notes` on the integrated `teach` form, `--playbook-json` and `--notes` on `teach-playbook`. On the integrated `teach` form, the playbook flags are optional - omit them entirely for a resource-only teach. On the standalone `teach-playbook` form, at least one of the playbook and notes flags must be set; both empty is rejected. Playbooks are keyed on the structural query family (entities stripped) so a recipe taught from one entity-shaped query applies to every other query of the same shape, with `slots_resolved` binding the live query's canonical at recall time.
+
+When you DO find a playbook on a future recall, treat it as ground truth: replay the steps with `slots_resolved` substitutions, skip the discovery that the choreography already documents, and read `notes` before any step.
+
+### Step 6: `playbook amend &` when your debug response identifies a correction
+
+If your debug-protocol response identifies a concrete correction the notes or playbook should know — a workaround, an undocumented endpoint shape, a stale field name, observed schema drift, an empty-payload fallback — fire `playbook amend` BEFORE emitting your user-facing response. Same fire-and-forget posture as `teach`.
+
+```bash
+faa-registry-pp-cli playbook amend \
+  --query "<exact recall query string>" \
+  --add-note "<your concrete correction>"
+# (append shell `&` to background it)
+```
+
+What counts as worth amending: a behavior you OBSERVED this session that future-you would benefit from knowing. Examples worth amending:
+
+- A workaround for a CLI surface that silently drops or misorders a flag.
+- An undocumented endpoint shape (response wrapped in `{meta, results}`, payload nested two levels deeper than the docs claim).
+- Observed schema drift (a field renamed, an index that shifted between seasons, a category label that the API now returns lower-cased).
+
+What does NOT belong in notes:
+
+- The year-specific or entity-specific answer to the user's question. That's the response, not a learning.
+- Per-team / per-athlete / per-row data the playbook already retrieves at runtime.
+- Statements that paraphrase what the existing notes already say.
+
+The amend command appends to the family's existing notes with a timestamped marker (`[amend YYYY-MM-DDTHH:MMZ]: <text>`). Multiple amends accumulate; the audit trail is visible. If no playbook exists yet for the family, amend creates a notes-only one (so cold-start corrections still land).
+
+#### PII discipline for amend notes
+
+`playbook amend` notes are designed to potentially flow upstream as shared knowledge in future versions of the Printing Press. Keep them clean of user-identifying content so the upstream-contribution path stays open without retroactive scrubbing:
+
+- **Do NOT embed** paths to user filesystems, personal API keys or tokens, user email addresses, user GitHub handles, or specific query histories tied to a single user.
+- **Acceptable**: endpoint shapes, undocumented field names, API gotchas, observed schema drift, workarounds for CLI surfaces, generalizable pagination or retry tactics.
+
+If a correction is only meaningful with user-specific context, it belongs in a personal note, not in the playbook amend.
+
+### Measuring the loop
+
+`faa-registry-pp-cli learnings stats` reports recall hit rate, teach-to-reuse, playbook resolution rate, and candidate confirm/reject counts from the local `learn_events` table. Rates are null until they have a denominator; everything stays on this machine. Use it to check whether the loop is earning its keep for this CLI.
+
+### Disabling learning
+
+- `--no-learn` on a single command short-circuits both `recall` and the `teach` write path. Use for deterministic agent flows or tests that must not be affected by accumulated learnings.
+- `FAA_REGISTRY_NO_LEARN=true` in the environment globally disables the pipeline.
 
 ## Agent Feedback
 
@@ -270,11 +373,11 @@ Unknown schemes are refused with a structured error naming the supported set. We
 
 ## Named Profiles
 
-A profile is a saved set of flag values, reused across invocations. Use it when a scheduled agent calls the same command every run with the same configuration - HeyGen's "Beacon" pattern.
+A profile is a saved set of flag values, reused across invocations. Use it when a scheduled or recurring agent reuses the same saved flags while providing different input each run.
 
 ```
 faa-registry-pp-cli profile save briefing --json
-faa-registry-pp-cli --profile briefing dealers --name "AVIATION SALES"
+faa-registry-pp-cli --profile briefing dealers --name example-value
 faa-registry-pp-cli profile list --json
 faa-registry-pp-cli profile show briefing
 faa-registry-pp-cli profile delete briefing --yes

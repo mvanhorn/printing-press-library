@@ -99,7 +99,7 @@ func deliverWebhook(url string, body []byte, compact bool) error {
 		return fmt.Errorf("building webhook request: %w", err)
 	}
 	req.Header.Set("Content-Type", contentType)
-	req.Header.Set("User-Agent", "faa-registry-pp-cli/deliver")
+	req.Header.Set("User-Agent", "github.com/mvanhorn/printing-press-library/library/travel/faa-registry/deliver")
 
 	client := &http.Client{Timeout: 30 * time.Second}
 	resp, err := client.Do(req)

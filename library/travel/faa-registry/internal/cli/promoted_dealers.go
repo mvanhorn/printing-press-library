@@ -15,10 +15,11 @@ func newDealersPromotedCmd(flags *rootFlags) *cobra.Command {
 	var flagDealertxt string
 
 	cmd := &cobra.Command{
-		Use:         "dealers",
-		Short:       "Search FAA dealer certificates by dealer name.",
-		Long:        "Search FAA dealer certificates by dealer name.",
-		Example:     "  faa-registry-pp-cli dealers --name \"TEXTRON AVIATION\"",
+		Use:   "dealers",
+		Short: "Search FAA dealer certificates by dealer name.",
+		Long:  "Search FAA dealer certificates by dealer name.",
+		// TODO: replace placeholder example values before relying on this for live dogfood.
+		Example:     "  faa-registry-pp-cli dealers --name example-value",
 		Annotations: map[string]string{"pp:endpoint": "dealers.search", "pp:method": "GET", "pp:path": "/aircraftinquiry/Search/DealerResult", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			// Bare invocation of a command with a required flag/body prints help
@@ -50,7 +51,15 @@ func newDealersPromotedCmd(flags *rootFlags) *cobra.Command {
 				return classifyAPIError(err, flags)
 			}
 			if !flags.dryRun {
-				data, err = parseFAAHTMLResponse(data)
+				data, err = extractHTMLResponse(data, htmlExtractionOptions{
+					Mode:           "page",
+					BaseURL:        htmlExtractionRequestURL(c.BaseURL, path, htmlRequestParams),
+					ContentType:    c.LastContentType(),
+					LinkPrefixes:   []string{},
+					Limit:          0,
+					ScriptSelector: "",
+					JSONPath:       "",
+				})
 				if err != nil {
 					return err
 				}

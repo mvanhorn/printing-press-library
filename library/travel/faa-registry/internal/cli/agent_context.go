@@ -9,6 +9,7 @@ import (
 	"sort"
 
 	"github.com/mvanhorn/printing-press-library/library/travel/faa-registry/internal/cliutil"
+	"github.com/mvanhorn/printing-press-library/library/travel/faa-registry/internal/learn"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 )
@@ -31,6 +32,10 @@ type agentContext struct {
 	Commands                   []agentContextCommand  `json:"commands"`
 	AvailableProfiles          []string               `json:"available_profiles"`
 	FeedbackEndpointConfigured bool                   `json:"feedback_endpoint_configured"`
+	// LearnProtocol carries the recall-first protocol from the single
+	// shared source (internal/learn.RecallFirstProtocol) also consumed by
+	// the MCP context tool, so the two agent surfaces cannot drift.
+	LearnProtocol string `json:"learn_protocol"`
 }
 
 type agentContextCLI struct {
@@ -125,7 +130,7 @@ func buildAgentContext(rootCmd *cobra.Command) agentContext {
 		SchemaVersion: agentContextSchemaVersion,
 		CLI: agentContextCLI{
 			Name:        "faa-registry-pp-cli",
-			Description: "Every FAA aircraft lookup the registry website offers, plus a daily-synced offline copy of the entire US registry that unlocks fleet reports, hex decoding, ownership history, and expiration alerts no other tool has.",
+			Description: "Look up any US aircraft by tail number from the terminal — live FAA registry inquiries plus a daily-synced offline copy of the full registry for fleet queries, Mode S hex decoding, and expiration alerts no other tool has.",
 			Version:     rootCmd.Version,
 		},
 		Auth: agentContextAuth{
@@ -137,6 +142,7 @@ func buildAgentContext(rootCmd *cobra.Command) agentContext {
 		Commands:                   collectAgentCommands(rootCmd),
 		AvailableProfiles:          profiles,
 		FeedbackEndpointConfigured: FeedbackEndpointConfigured(),
+		LearnProtocol:              learn.RecallFirstProtocol,
 	}
 }
 

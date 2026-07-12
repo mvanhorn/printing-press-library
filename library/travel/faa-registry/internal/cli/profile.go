@@ -17,8 +17,8 @@ import (
 )
 
 // Profile is a named set of flag values saved for reuse across invocations.
-// HeyGen's "Beacon" pattern: one named context that a scheduled agent reuses
-// day after day with the same voice/format but different input each run.
+// Use a named profile when a scheduled or recurring workflow reuses the same
+// saved flags while providing different input each run.
 type Profile struct {
 	Name        string            `json:"name"`
 	Description string            `json:"description,omitempty"`
@@ -237,9 +237,6 @@ func newProfileUseCmd(flags *rootFlags) *cobra.Command {
 	return &cobra.Command{
 		Use:   "use <name>",
 		Short: "Print the flag values a profile will apply (does not execute anything)",
-		Annotations: map[string]string{
-			"mcp:read-only": "true",
-		},
 		Example: `  faa-registry-pp-cli profile use my-defaults
   faa-registry-pp-cli profile use tonight-defaults --json`,
 		Args: cobra.ExactArgs(1),

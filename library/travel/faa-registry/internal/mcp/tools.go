@@ -15,15 +15,16 @@ import (
 	"strings"
 	"time"
 
-	mcplib "github.com/mark3labs/mcp-go/mcp"
-	"github.com/mark3labs/mcp-go/server"
 	"github.com/mvanhorn/printing-press-library/library/travel/faa-registry/internal/cli"
 	"github.com/mvanhorn/printing-press-library/library/travel/faa-registry/internal/client"
 	"github.com/mvanhorn/printing-press-library/library/travel/faa-registry/internal/cliutil"
 	"github.com/mvanhorn/printing-press-library/library/travel/faa-registry/internal/config"
+	"github.com/mvanhorn/printing-press-library/library/travel/faa-registry/internal/learn"
 	"github.com/mvanhorn/printing-press-library/library/travel/faa-registry/internal/mcp/bound"
 	"github.com/mvanhorn/printing-press-library/library/travel/faa-registry/internal/mcp/cobratree"
 	"github.com/mvanhorn/printing-press-library/library/travel/faa-registry/internal/store"
+	mcplib "github.com/mark3labs/mcp-go/mcp"
+	"github.com/mark3labs/mcp-go/server"
 )
 
 const (
@@ -37,7 +38,7 @@ const (
 func RegisterTools(s *server.MCPServer) {
 	s.AddTool(
 		mcplib.NewTool("aircraft_by-serial",
-			mcplib.WithDescription("Find US-registered aircraft by manufacturer serial number against the live FAA registry. Required: serial (e.g. 17280005). Optional: sort (1=N-number, 2=serial, 3=manufacturer, 4=model, 5=name). Returns matching registration rows with N-number, manufacturer, model, and owner, plus result totals. Use when you have an airframe serial but not the tail number; follow up with aircraft_lookup for the full record."),
+			mcplib.WithDescription("Find aircraft by manufacturer serial number. Required: serial. Optional: sort."),
 			mcplib.WithString("serial", mcplib.Required(), mcplib.Description("Manufacturer serial number, e.g. 17280005")),
 			mcplib.WithString("sort", mcplib.Description("Sort order: 1=N-number, 2=serial, 3=manufacturer, 4=model, 5=name")),
 			mcplib.WithReadOnlyHintAnnotation(true),
@@ -48,7 +49,7 @@ func RegisterTools(s *server.MCPServer) {
 	)
 	s.AddTool(
 		mcplib.NewTool("aircraft_lookup",
-			mcplib.WithDescription("Look up one aircraft's full live FAA registration record by N-number (tail number, leading N optional, e.g. N172SP). Required: n-number. Returns the registry detail page as structured JSON: aircraft description (make/model, serial, year), owner name and address, airworthiness classification, status, and Mode S code. Prefer this when you already have a tail number; use owners_search or aircraft_by-serial to find tails first."),
+			mcplib.WithDescription("Look up an aircraft's full registration record by N-number (tail number, with or without the leading N). Required: n-number."),
 			mcplib.WithString("n-number", mcplib.Required(), mcplib.Description("US registration N-number, e.g. N172SP (leading N optional)")),
 			mcplib.WithReadOnlyHintAnnotation(true),
 			mcplib.WithDestructiveHintAnnotation(false),
@@ -58,7 +59,7 @@ func RegisterTools(s *server.MCPServer) {
 	)
 	s.AddTool(
 		mcplib.NewTool("dealers_search",
-			mcplib.WithDescription("Search FAA aircraft dealer certificates by dealer name against the live registry. Required: name. Returns dealer certificate rows (certificate number, dealer name, address, status) with result totals. Use to check whether an entity holds an FAA dealer certificate."),
+			mcplib.WithDescription("Search FAA dealer certificates by dealer name. Required: name."),
 			mcplib.WithString("name", mcplib.Required(), mcplib.Description("Dealer name to search")),
 			mcplib.WithReadOnlyHintAnnotation(true),
 			mcplib.WithDestructiveHintAnnotation(false),
@@ -68,7 +69,7 @@ func RegisterTools(s *server.MCPServer) {
 	)
 	s.AddTool(
 		mcplib.NewTool("documents_search",
-			mcplib.WithDescription("Search the FAA document index for recorded documents by collateral identifier — an airframe or engine serial number or an N-number. Required: collateral. Returns recorded-document rows (liens, security agreements, and other filings recorded against the collateral) with result totals. Use for title/lien research on a specific airframe or engine."),
+			mcplib.WithDescription("Search the FAA document index by collateral identifier. Required: collateral."),
 			mcplib.WithString("collateral", mcplib.Required(), mcplib.Description("Collateral search text (e.g. serial number or N-number)")),
 			mcplib.WithReadOnlyHintAnnotation(true),
 			mcplib.WithDestructiveHintAnnotation(false),
@@ -78,7 +79,7 @@ func RegisterTools(s *server.MCPServer) {
 	)
 	s.AddTool(
 		mcplib.NewTool("engines_search",
-			mcplib.WithDescription("Search the FAA engine reference table by engine manufacturer and optional model against the live registry. Required: manufacturer (e.g. LYCOMING). Optional: model (e.g. IO-360). Returns engine reference rows (manufacturer, model, engine codes) as structured JSON. Use to resolve engine names to FAA engine codes referenced by aircraft registration records."),
+			mcplib.WithDescription("Search the engine reference table by engine manufacturer and model. Required: manufacturer. Optional: model."),
 			mcplib.WithString("manufacturer", mcplib.Required(), mcplib.Description("Engine manufacturer name, e.g. LYCOMING")),
 			mcplib.WithString("model", mcplib.Description("Engine model, e.g. IO-360")),
 			mcplib.WithReadOnlyHintAnnotation(true),
@@ -89,7 +90,7 @@ func RegisterTools(s *server.MCPServer) {
 	)
 	s.AddTool(
 		mcplib.NewTool("models_search",
-			mcplib.WithDescription("Search the FAA aircraft-model reference by manufacturer and optional model name against the live registry. Required: manufacturer (e.g. CIRRUS). Optional: model (e.g. SR22), page. Returns model-code rows including the number of aircraft assigned to each make/model code, with pagination totals. Use to resolve a free-text model name to FAA make/model codes or to size how many of a model are registered."),
+			mcplib.WithDescription("Search the aircraft model reference by manufacturer and model name, including the number of aircraft assigned to each model code. Required: manufacturer. Optional: model, page."),
 			mcplib.WithString("manufacturer", mcplib.Required(), mcplib.Description("Manufacturer name, e.g. CIRRUS")),
 			mcplib.WithString("model", mcplib.Description("Model name, e.g. SR22")),
 			mcplib.WithString("page", mcplib.Description("Result page number")),
@@ -101,7 +102,7 @@ func RegisterTools(s *server.MCPServer) {
 	)
 	s.AddTool(
 		mcplib.NewTool("owners_search",
-			mcplib.WithDescription("List every aircraft currently registered to an owner name in the live FAA registry. Required: name (registered owner, e.g. DELTA AIR LINES). Optional: sort (1=N-number, 2=serial, 3=manufacturer, 4=model, 5=name), page (results paginate server-side). Returns registration rows (N-number, make/model, owner) with showing_from/showing_to/total pagination metadata. For offline fleet aggregates (model mix, engine classes) prefer the fleet report command after a sync."),
+			mcplib.WithDescription("List all aircraft registered to an owner name (paginated). Required: name. Optional: sort, page."),
 			mcplib.WithString("name", mcplib.Required(), mcplib.Description("Registered owner name, e.g. DELTA AIR LINES")),
 			mcplib.WithString("sort", mcplib.Description("Sort order: 1=N-number, 2=serial, 3=manufacturer, 4=model, 5=name")),
 			mcplib.WithString("page", mcplib.Description("Result page number (results paginate server-side)")),
@@ -113,7 +114,7 @@ func RegisterTools(s *server.MCPServer) {
 	)
 	s.AddTool(
 		mcplib.NewTool("regions_by-country",
-			mcplib.WithDescription("List US-registered aircraft whose registered owners have addresses in a given country, from the live FAA registry. Required: country (name, e.g. CANADA). Optional: page. Returns registration rows (N-number, make/model, owner) with pagination totals. Use to enumerate N-registered aircraft based abroad."),
+			mcplib.WithDescription("List US-registered aircraft whose owners are located in a given country. Required: country. Optional: page."),
 			mcplib.WithString("country", mcplib.Required(), mcplib.Description("Country name, e.g. CANADA")),
 			mcplib.WithString("page", mcplib.Description("Result page number")),
 			mcplib.WithReadOnlyHintAnnotation(true),
@@ -124,7 +125,7 @@ func RegisterTools(s *server.MCPServer) {
 	)
 	s.AddTool(
 		mcplib.NewTool("regions_by-state",
-			mcplib.WithDescription("List aircraft registered in a US state, optionally narrowed to one county, from the live FAA registry. Required: state (two-letter code, e.g. WA). Optional: county (e.g. KING), page (results paginate server-side). Returns registration rows (N-number, make/model, owner) with showing_from/showing_to/total pagination metadata."),
+			mcplib.WithDescription("List aircraft registered in a state and county (paginated). Required: state. Optional: county, page."),
 			mcplib.WithString("state", mcplib.Required(), mcplib.Description("Two-letter state code, e.g. WA")),
 			mcplib.WithString("county", mcplib.Description("County name within the state, e.g. KING")),
 			mcplib.WithString("page", mcplib.Description("Result page number")),
@@ -746,11 +747,16 @@ func handleContext(_ context.Context, _ mcplib.CallToolRequest) (*mcplib.CallToo
 	ctx := map[string]any{
 		"api":         "faa-registry",
 		"description": "Look up any US aircraft by tail number from the terminal — live FAA registry inquiries plus a daily-synced offline copy of the full registry for fleet queries, Mode S hex decoding, and expiration alerts no other tool has.",
-		"archetype":   "content",
+		"archetype":   "crm",
 		"tool_count":  9,
 		"paths":       paths,
 		// tool_surface tells agents which surface a capability lives on.
 		"tool_surface": "MCP exposes typed endpoint tools plus a runtime mirror of user-facing CLI commands. Endpoint tools keep typed schemas; command-mirror tools shell out to the companion faa-registry-pp-cli binary.",
+		// learn_protocol is generated from the single shared source of
+		// truth (the exported constant internal/learn.RecallFirstProtocol)
+		// also consumed by the CLI agent-context command, so the MCP and
+		// CLI agent surfaces cannot drift.
+		"learn_protocol": learn.RecallFirstProtocol,
 		"resources": []map[string]any{
 			{
 				"name":        "aircraft",
@@ -807,23 +813,9 @@ func handleContext(_ context.Context, _ mcplib.CallToolRequest) (*mcplib.CallToo
 			"Use the search tool for full-text search across all synced resources. Faster than iterating list endpoints.",
 			"Prefer sql/search over repeated API calls when the data is already synced.",
 		},
-		// Command-mirror capabilities are exposed through MCP by shelling out
-		// to the companion CLI binary.
-		"command_mirror_capabilities": []map[string]string{
-			{"name": "Fleet composition report", "command": "fleet report", "description": "One command turns an owner name into a full fleet profile: aircraft count, model mix, jet/turboprop/piston split, average seats and year built.", "rationale": "Requires joining the owner's registrations to the FAA aircraft-model reference table, which only coexist in the local synced database.", "via": "mcp-command-mirror"},
-			{"name": "Batch Mode S hex resolution", "command": "hex resolve", "description": "Resolve any number of ADS-B Mode S hex codes (args or stdin) to N-numbers, aircraft types, and owners — offline.", "rationale": "Joins each hex against the locally indexed FAA registry with a pure-math fallback for unassigned codes; no rate-limited web calls.", "via": "mcp-command-mirror"},
-			{"name": "Aircraft ownership history", "command": "aircraft history", "description": "Chronological owner timeline for a tail number, stitching current registration with every deregistration record.", "rationale": "The FAA website shows only the current owner; the timeline requires joining the active registry with the 383K-row deregistration file locally.", "via": "mcp-command-mirror"},
-			{"name": "Expiring registrations", "command": "expiring", "description": "List registrations expiring within a window, filtered by owner or state, sorted soonest-first.", "rationale": "US registrations expire on a 7-year cycle; no FAA endpoint exposes expiration queries — only the synced local database can answer them.", "via": "mcp-command-mirror"},
-			{"name": "Model-class fleet breakdown", "command": "models fleet", "description": "For any make/model, break down every registered example by registrant type (corporate, individual, LLC, co-owned) and state.", "rationale": "Aggregates the full registry by model code — a query the one-at-a-time FAA inquiry pages cannot express.", "via": "mcp-command-mirror"},
-			{"name": "Offline N-number availability", "command": "nnumber available", "description": "Check whether an N-number is assigned, reserved, or free — computed locally, with the reason.", "rationale": "The FAA's own availability page rejects scripted requests; the local MASTER, RESERVED, and DEREG tables answer it batch-scale with status decoding.", "via": "mcp-command-mirror"},
-		},
 		"playbook": []map[string]string{
-			{"topic": "Fleet composition report", "insight": ""},
-			{"topic": "Batch Mode S hex resolution", "insight": ""},
-			{"topic": "Aircraft ownership history", "insight": ""},
-			{"topic": "Expiring registrations", "insight": ""},
-			{"topic": "Model-class fleet breakdown", "insight": ""},
-			{"topic": "Offline N-number availability", "insight": ""},
+			{"topic": "Contact lookup", "insight": "Use search for finding contacts by name/email. List endpoints return unsorted results and require pagination for large datasets."},
+			{"topic": "Activity tracking", "insight": "When checking deal activity, sync first and query locally. CRM APIs often throttle activity-log endpoints heavily."},
 		},
 	}
 	return toolResultJSON(ctx)

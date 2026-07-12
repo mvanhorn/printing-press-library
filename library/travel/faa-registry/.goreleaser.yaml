@@ -9,7 +9,7 @@ builds:
     env:
       - CGO_ENABLED=0
     ldflags:
-      - -s -w -X github.com/mvanhorn/printing-press-library/library/travel/faa-registry/internal/cli.version={{ .Version }}
+      - -s -w -X faa-registry-pp-cli/internal/cli.version={{ .Version }}
     targets:
       - darwin_amd64
       - darwin_arm64
@@ -44,8 +44,8 @@ brews:
     repository:
       owner: omarshahine
       name: homebrew-tap
-    homepage: "https://github.com/mvanhorn/printing-press-library"
-    description: "Every FAA aircraft lookup the registry website offers, plus a daily-synced offline copy of the entire US registry that unlocks fleet reports, hex decoding, ownership history, and expiration alerts no other tool has."
+    homepage: "https://github.com/omarshahine/faa-registry-pp-cli"
+    description: "Look up any US aircraft by tail number from the terminal — live FAA registry inquiries plus a daily-synced offline copy of the full registry for fleet queries, Mode S hex decoding, and expiration alerts no other tool has."
     install: |
       bin.install "faa-registry-pp-cli"
       bin.install "faa-registry-pp-mcp"

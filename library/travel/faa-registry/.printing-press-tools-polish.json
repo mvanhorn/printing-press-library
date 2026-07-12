@@ -1,9 +1,0 @@
-{
-  "timestamp": "2026-07-08T07:58:32.033315Z",
-  "cli_dir": "\u003ccli-dir\u003e/faa-registry-pp-cli",
-  "findings": null,
-  "scorecard_before": {
-    "mcp_description_quality": 10,
-    "captured": "2026-07-08T07:57:19.614234Z"
-  }
-}
