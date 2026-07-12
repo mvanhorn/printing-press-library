@@ -240,13 +240,12 @@ func LegacyArchiveCandidates(snapshot Snapshot, files []File) []string {
 		}
 	}
 	oldest := observedAt.Add(-maxAge)
-	newest := observedAt.Add(5 * time.Minute)
 	eligible := make([]File, 0, len(files))
 	for _, file := range files {
 		if file.Type != "file" || file.Size == 0 || file.Size > MaxArchiveBytes || !strings.HasSuffix(strings.ToLower(file.Name), ".3mf") {
 			continue
 		}
-		if file.ModTime.IsZero() || file.ModTime.Before(oldest) || file.ModTime.After(newest) {
+		if !file.ModTime.IsZero() && file.ModTime.Before(oldest) {
 			continue
 		}
 		eligible = append(eligible, file)

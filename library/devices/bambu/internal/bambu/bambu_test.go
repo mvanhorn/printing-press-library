@@ -171,7 +171,7 @@ func TestArchiveCandidatesPreferCurrentRootArchiveOverCache(t *testing.T) {
 	}
 }
 
-func TestLegacyArchiveCandidatesPreferNewestBounded3MF(t *testing.T) {
+func TestLegacyArchiveCandidatesRetainMissingAndSkewedTimestamps(t *testing.T) {
 	observedAt := time.Date(2026, 7, 12, 5, 0, 0, 0, time.UTC)
 	percent, remaining := 40, 30
 	snapshot := Snapshot{ObservedAt: observedAt, Percent: &percent, RemainingMinutes: &remaining}
@@ -180,10 +180,11 @@ func TestLegacyArchiveCandidatesPreferNewestBounded3MF(t *testing.T) {
 		{Path: "/current.gcode.3mf", Name: "current.gcode.3mf", Size: 100, ModTime: observedAt.Add(-20 * time.Minute), Type: "file"},
 		{Path: "/newer.gcode.3mf", Name: "newer.gcode.3mf", Size: 100, ModTime: observedAt.Add(-10 * time.Minute), Type: "file"},
 		{Path: "/future.gcode.3mf", Name: "future.gcode.3mf", Size: 100, ModTime: observedAt.Add(10 * time.Minute), Type: "file"},
+		{Path: "/unknown.gcode.3mf", Name: "unknown.gcode.3mf", Size: 100, Type: "file"},
 		{Path: "/notes.txt", Name: "notes.txt", Size: 100, ModTime: observedAt, Type: "file"},
 	}
 	got := LegacyArchiveCandidates(snapshot, files)
-	want := []string{"/newer.gcode.3mf", "/current.gcode.3mf"}
+	want := []string{"/future.gcode.3mf", "/newer.gcode.3mf", "/current.gcode.3mf", "/unknown.gcode.3mf"}
 	if !reflect.DeepEqual(got, want) {
 		t.Fatalf("legacy candidates = %#v, want %#v", got, want)
 	}
