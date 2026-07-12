@@ -10,5 +10,5 @@
     "internal/bambu/ftps.go",
     "internal/bambu/bambu_test.go"
   ],
-  "validated_outcome": "Fallback discovery rejects reliably stale root 3MF files, retains candidates with missing or clock-skewed timestamps, caps and orders attempts, and accepts metadata only when its embedded project or profile title matches the active MQTT job."
+  "validated_outcome": "Fallback discovery rejects reliably stale root 3MF files, retains and prioritizes every candidate with a missing timestamp, orders dated attempts newest first, and accepts metadata only when its embedded project or profile title matches the active MQTT job. The existing 1,000-entry listing, archive-size limits, and command deadline bound the search."
 }

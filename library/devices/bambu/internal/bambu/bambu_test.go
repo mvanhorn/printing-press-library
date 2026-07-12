@@ -203,27 +203,25 @@ func TestMetadataMatchesSnapshotProfileOrProject(t *testing.T) {
 	}
 }
 
-func TestLegacyArchiveCandidatesAreBounded(t *testing.T) {
+func TestLegacyArchiveCandidatesRetainAllUnknownTimestamps(t *testing.T) {
 	observedAt := time.Date(2026, 7, 12, 5, 0, 0, 0, time.UTC)
-	files := make([]File, MaxLegacyArchiveCandidates+5)
+	files := make([]File, 25)
 	for index := range files {
 		files[index] = File{
-			Path:    fmt.Sprintf("/candidate-%02d.3mf", index),
-			Name:    fmt.Sprintf("candidate-%02d.3mf", index),
-			Size:    100,
-			ModTime: observedAt.Add(-time.Duration(index) * time.Minute),
-			Type:    "file",
+			Path: fmt.Sprintf("/candidate-%02d.3mf", index),
+			Name: fmt.Sprintf("candidate-%02d.3mf", index),
+			Size: 100,
+			Type: "file",
 		}
 	}
-	files[len(files)-1].Path = "/unknown-time-active.3mf"
-	files[len(files)-1].Name = "unknown-time-active.3mf"
-	files[len(files)-1].ModTime = time.Time{}
+	files[len(files)-1].Path = "/zzzz-active.3mf"
+	files[len(files)-1].Name = "zzzz-active.3mf"
 	got := LegacyArchiveCandidates(Snapshot{ObservedAt: observedAt}, files)
-	if len(got) != MaxLegacyArchiveCandidates {
-		t.Fatalf("legacy candidate count = %d, want %d", len(got), MaxLegacyArchiveCandidates)
+	if len(got) != len(files) {
+		t.Fatalf("legacy candidate count = %d, want %d", len(got), len(files))
 	}
-	if got[0] != "/unknown-time-active.3mf" {
-		t.Fatalf("missing-timestamp candidate was capped out: %#v", got)
+	if got[len(got)-1] != "/zzzz-active.3mf" {
+		t.Fatalf("last missing-timestamp candidate was dropped: %#v", got)
 	}
 }
 

@@ -25,12 +25,11 @@ import (
 )
 
 const (
-	MaxArchiveBytes            = 128 << 20
-	MaxArchiveEntries          = 10000
-	MaxCentralDirectoryBytes   = 8 << 20
-	MaxConfigBytes             = 2 << 20
-	MaxThumbnailBytes          = 12 << 20
-	MaxLegacyArchiveCandidates = 20
+	MaxArchiveBytes          = 128 << 20
+	MaxArchiveEntries        = 10000
+	MaxCentralDirectoryBytes = 8 << 20
+	MaxConfigBytes           = 2 << 20
+	MaxThumbnailBytes        = 12 << 20
 )
 
 type File struct {
@@ -261,9 +260,6 @@ func LegacyArchiveCandidates(snapshot Snapshot, files []File) []string {
 	})
 	paths := make([]string, 0, len(eligible))
 	for _, file := range eligible {
-		if len(paths) >= MaxLegacyArchiveCandidates {
-			break
-		}
 		paths = append(paths, file.Path)
 	}
 	return paths
