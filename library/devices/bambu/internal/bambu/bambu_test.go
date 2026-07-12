@@ -8,8 +8,10 @@ import (
 	"image"
 	"image/color"
 	"image/png"
+	"reflect"
 	"strings"
 	"testing"
+	"time"
 )
 
 func TestMonitorMergesSparseReportsAndTransitions(t *testing.T) {
@@ -166,6 +168,54 @@ func TestArchiveCandidatesPreferCurrentRootArchiveOverCache(t *testing.T) {
 		if candidates[index] != want[index] {
 			t.Fatalf("candidates = %#v, want %#v", candidates, want)
 		}
+	}
+}
+
+func TestLegacyArchiveCandidatesPreferNewestBounded3MF(t *testing.T) {
+	observedAt := time.Date(2026, 7, 12, 5, 0, 0, 0, time.UTC)
+	percent, remaining := 40, 30
+	snapshot := Snapshot{ObservedAt: observedAt, Percent: &percent, RemainingMinutes: &remaining}
+	files := []File{
+		{Path: "/old.gcode.3mf", Name: "old.gcode.3mf", Size: 100, ModTime: observedAt.Add(-72 * time.Hour), Type: "file"},
+		{Path: "/current.gcode.3mf", Name: "current.gcode.3mf", Size: 100, ModTime: observedAt.Add(-20 * time.Minute), Type: "file"},
+		{Path: "/newer.gcode.3mf", Name: "newer.gcode.3mf", Size: 100, ModTime: observedAt.Add(-10 * time.Minute), Type: "file"},
+		{Path: "/future.gcode.3mf", Name: "future.gcode.3mf", Size: 100, ModTime: observedAt.Add(10 * time.Minute), Type: "file"},
+		{Path: "/notes.txt", Name: "notes.txt", Size: 100, ModTime: observedAt, Type: "file"},
+	}
+	got := LegacyArchiveCandidates(snapshot, files)
+	want := []string{"/newer.gcode.3mf", "/current.gcode.3mf"}
+	if !reflect.DeepEqual(got, want) {
+		t.Fatalf("legacy candidates = %#v, want %#v", got, want)
+	}
+}
+
+func TestMetadataMatchesSnapshotProfileOrProject(t *testing.T) {
+	snapshot := Snapshot{JobName: "12min42s, Bambu PLA Basic, A1 mini", SubtaskName: "fallback project"}
+	if !MetadataMatchesSnapshot(Metadata{ProfileName: "12min42s Bambu PLA Basic A1 Mini"}, snapshot) {
+		t.Fatal("normalized profile title must match current MQTT job")
+	}
+	if !MetadataMatchesSnapshot(Metadata{ProjectName: "Fallback_Project"}, snapshot) {
+		t.Fatal("normalized project title must match current MQTT subtask")
+	}
+	if MetadataMatchesSnapshot(Metadata{ProfileName: "another print"}, snapshot) {
+		t.Fatal("unrelated archive metadata must not match current MQTT job")
+	}
+}
+
+func TestLegacyArchiveCandidatesAreBounded(t *testing.T) {
+	observedAt := time.Date(2026, 7, 12, 5, 0, 0, 0, time.UTC)
+	files := make([]File, MaxLegacyArchiveCandidates+5)
+	for index := range files {
+		files[index] = File{
+			Path:    fmt.Sprintf("/candidate-%02d.3mf", index),
+			Name:    fmt.Sprintf("candidate-%02d.3mf", index),
+			Size:    100,
+			ModTime: observedAt.Add(-time.Duration(index) * time.Minute),
+			Type:    "file",
+		}
+	}
+	if got := len(LegacyArchiveCandidates(Snapshot{ObservedAt: observedAt}, files)); got != MaxLegacyArchiveCandidates {
+		t.Fatalf("legacy candidate count = %d, want %d", got, MaxLegacyArchiveCandidates)
 	}
 }
 
