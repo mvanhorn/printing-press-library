@@ -156,6 +156,19 @@ func TestJobMetadataExplainsPrinterResidentDisplayPrint(t *testing.T) {
 	}
 }
 
+func TestArchiveCandidatesPreferCurrentRootArchiveOverCache(t *testing.T) {
+	candidates := ArchiveCandidates(Snapshot{SubtaskName: "current-job.3mf"})
+	want := []string{"/current-job.3mf", "/cache/current-job.3mf"}
+	if len(candidates) != len(want) {
+		t.Fatalf("candidates = %#v, want %#v", candidates, want)
+	}
+	for index := range want {
+		if candidates[index] != want[index] {
+			t.Fatalf("candidates = %#v, want %#v", candidates, want)
+		}
+	}
+}
+
 func TestExtract3MFRejectsExcessiveEntryCount(t *testing.T) {
 	var archive bytes.Buffer
 	writer := zip.NewWriter(&archive)

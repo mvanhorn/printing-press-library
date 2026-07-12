@@ -233,7 +233,7 @@ func ArchiveCandidates(snapshot Snapshot) []string {
 	addName(snapshot.GCodeFile)
 	paths := make([]string, 0, len(names)*2)
 	for _, name := range names {
-		paths = append(paths, "/cache/"+name, "/"+name)
+		paths = append(paths, "/"+name, "/cache/"+name)
 	}
 	return paths
 }
