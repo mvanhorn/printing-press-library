@@ -112,7 +112,12 @@ func parseIssueIdentifiers(raw string) ([]string, error) {
 		if identifier == "" {
 			return nil, usageErr(fmt.Errorf("issue identifier list contains an empty value"))
 		}
-		key := strings.ToUpper(identifier)
+		key := identifier
+		if !store.IsUUID(identifier) {
+			if _, _, ok := parseIssueIdentifier(identifier); ok {
+				key = strings.ToUpper(identifier)
+			}
+		}
 		if _, ok := seen[key]; ok {
 			continue
 		}
