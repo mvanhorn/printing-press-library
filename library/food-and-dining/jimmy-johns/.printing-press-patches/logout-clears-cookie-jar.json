@@ -1,7 +1,7 @@
 {
   "schema_version": 2, "id": "logout-clears-cookie-jar", "applied_at": "2026-07-12",
   "base_run_id": "20260712-190027-jj-reprint428", "base_printing_press_version": "4.28.0",
-  "summary": "auth logout must delete the persisted cookies.json jar, not only the credential token fields — otherwise the browser session is re-seeded on the next request.",
-  "reason": "Cookie-auth CLIs persist the live session into an on-disk cookie jar (cookies.json) in addition to the credential store. The generated logout path only calls ClearTokens(), so LoadCookieJar() keeps re-sending the old Jimmy John's session after 'Credentials cleared'. Added client.ClearCookieJar() and call it from logout.",
-  "files": ["internal/client/cookiejar.go", "internal/cli/auth.go"]
+  "summary": "auth logout must revoke EVERY persisted session source, not just the credential token fields: the on-disk cookies.json jar AND the raw Cookie header saved by 'auth import-cookies' (config.Headers[\"Cookie\"]).",
+  "reason": "Cookie-auth CLIs persist a live session three ways — credential tokens (ClearTokens), the client cookie jar (cookies.json), and the import-cookies Cookie header in config. The generated logout only cleared tokens, so both the jar and the saved header kept re-sending the old Jimmy John's session after 'Credentials cleared'. Added client.ClearCookieJar() and config.ClearSessionHeaders(); logout calls both.",
+  "files": ["internal/client/cookiejar.go", "internal/config/jimmy_johns_cookie.go", "internal/cli/auth.go"]
 }

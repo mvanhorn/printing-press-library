@@ -429,6 +429,11 @@ func newAuthLogoutCmd(flags *rootFlags) *cobra.Command {
 			if err := client.ClearCookieJar(); err != nil {
 				return configErr(fmt.Errorf("clearing cookie jar: %w", err))
 			}
+			// import-cookies persists the session as a raw Cookie header in
+			// config; drop it too or it rides every later request post-logout.
+			if err := cfg.ClearSessionHeaders(); err != nil {
+				return configErr(fmt.Errorf("clearing session header: %w", err))
+			}
 			fmt.Fprintln(cmd.OutOrStdout(), "Logged out. Credentials and session cookies cleared.")
 			return nil
 		},

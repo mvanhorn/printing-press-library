@@ -9,3 +9,19 @@ package config
 func (c *Config) SaveHeaders() error {
 	return c.save()
 }
+
+// ClearSessionHeaders drops any persisted session-carrying request headers — the
+// raw "Cookie" header saved by `auth import-cookies` — and persists the change so
+// `auth logout` fully revokes an imported-cookie session. Without it, logout
+// clears the token fields and cookie jar but the saved Cookie header still rides
+// every later request. No-op when no session header is set.
+func (c *Config) ClearSessionHeaders() error {
+	if c.Headers == nil {
+		return nil
+	}
+	if _, ok := c.Headers["Cookie"]; !ok {
+		return nil
+	}
+	delete(c.Headers, "Cookie")
+	return c.save()
+}
