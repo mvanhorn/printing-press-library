@@ -28,8 +28,8 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"jimmy-johns-pp-cli/internal/learn"
-	"jimmy-johns-pp-cli/internal/store"
+	"github.com/mvanhorn/printing-press-library/library/food-and-dining/jimmy-johns/internal/learn"
+	"github.com/mvanhorn/printing-press-library/library/food-and-dining/jimmy-johns/internal/store"
 )
 
 // registerLearningsCandidateCommands attaches the candidate lifecycle

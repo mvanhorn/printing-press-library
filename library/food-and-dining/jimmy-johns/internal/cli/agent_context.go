@@ -10,8 +10,8 @@ import (
 
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
-	"jimmy-johns-pp-cli/internal/cliutil"
-	"jimmy-johns-pp-cli/internal/learn"
+	"github.com/mvanhorn/printing-press-library/library/food-and-dining/jimmy-johns/internal/cliutil"
+	"github.com/mvanhorn/printing-press-library/library/food-and-dining/jimmy-johns/internal/learn"
 )
 
 // agentContextSchemaVersion is bumped on any breaking change to the JSON

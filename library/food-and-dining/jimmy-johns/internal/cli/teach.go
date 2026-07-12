@@ -27,12 +27,12 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"jimmy-johns-pp-cli/internal/cliutil"
-	"jimmy-johns-pp-cli/internal/learn"
-	"jimmy-johns-pp-cli/internal/learn/entities"
-	"jimmy-johns-pp-cli/internal/learn/lookups"
-	"jimmy-johns-pp-cli/internal/learn/patterns"
-	"jimmy-johns-pp-cli/internal/store"
+	"github.com/mvanhorn/printing-press-library/library/food-and-dining/jimmy-johns/internal/cliutil"
+	"github.com/mvanhorn/printing-press-library/library/food-and-dining/jimmy-johns/internal/learn"
+	"github.com/mvanhorn/printing-press-library/library/food-and-dining/jimmy-johns/internal/learn/entities"
+	"github.com/mvanhorn/printing-press-library/library/food-and-dining/jimmy-johns/internal/learn/lookups"
+	"github.com/mvanhorn/printing-press-library/library/food-and-dining/jimmy-johns/internal/learn/patterns"
+	"github.com/mvanhorn/printing-press-library/library/food-and-dining/jimmy-johns/internal/store"
 )
 
 // noLearnEnvVar is the environment variable that disables the learning

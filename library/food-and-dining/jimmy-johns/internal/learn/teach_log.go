@@ -13,7 +13,7 @@ import (
 	"strings"
 	"time"
 
-	"jimmy-johns-pp-cli/internal/cliutil"
+	"github.com/mvanhorn/printing-press-library/library/food-and-dining/jimmy-johns/internal/cliutil"
 )
 
 // teachLogStateDirName is the per-user state directory name.

@@ -13,10 +13,10 @@ import (
 	"sync"
 	"testing"
 
-	"jimmy-johns-pp-cli/internal/cliutil"
-	"jimmy-johns-pp-cli/internal/learn"
-	"jimmy-johns-pp-cli/internal/learn/entities"
-	"jimmy-johns-pp-cli/internal/store"
+	"github.com/mvanhorn/printing-press-library/library/food-and-dining/jimmy-johns/internal/cliutil"
+	"github.com/mvanhorn/printing-press-library/library/food-and-dining/jimmy-johns/internal/learn"
+	"github.com/mvanhorn/printing-press-library/library/food-and-dining/jimmy-johns/internal/learn/entities"
+	"github.com/mvanhorn/printing-press-library/library/food-and-dining/jimmy-johns/internal/store"
 )
 
 func unmarshalAgentResults(t *testing.T, stdout string, out any) {

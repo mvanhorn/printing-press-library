@@ -11,7 +11,7 @@ import (
 	"time"
 
 	"github.com/pelletier/go-toml/v2"
-	"jimmy-johns-pp-cli/internal/cliutil"
+	"github.com/mvanhorn/printing-press-library/library/food-and-dining/jimmy-johns/internal/cliutil"
 )
 
 type Config struct {

@@ -14,7 +14,7 @@ import (
 
 	mcplib "github.com/mark3labs/mcp-go/mcp"
 	"github.com/mark3labs/mcp-go/server"
-	"jimmy-johns-pp-cli/internal/mcp/bound"
+	"github.com/mvanhorn/printing-press-library/library/food-and-dining/jimmy-johns/internal/mcp/bound"
 )
 
 func shellOutToCLI(cliPath func() (string, error), commandPath []string, blockedStructuredArgs map[string]bool, allowedStructuredArgs map[string]bool, positionals []positionalArg, readOnly bool, positionalWriteSinks map[int]bool) server.ToolHandlerFunc {

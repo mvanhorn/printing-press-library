@@ -14,7 +14,7 @@ import (
 	"time"
 	"unicode/utf8"
 
-	"jimmy-johns-pp-cli/internal/config"
+	"github.com/mvanhorn/printing-press-library/library/food-and-dining/jimmy-johns/internal/config"
 )
 
 func TestTruncateBody(t *testing.T) {

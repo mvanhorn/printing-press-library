@@ -20,7 +20,7 @@ import (
 	"strings"
 	"testing"
 
-	"jimmy-johns-pp-cli/internal/learn/entities"
+	"github.com/mvanhorn/printing-press-library/library/food-and-dining/jimmy-johns/internal/learn/entities"
 
 	_ "modernc.org/sqlite"
 )

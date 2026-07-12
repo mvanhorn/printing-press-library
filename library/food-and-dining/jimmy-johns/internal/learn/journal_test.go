@@ -17,9 +17,9 @@ import (
 	"testing"
 	"time"
 
-	"jimmy-johns-pp-cli/internal/cli"
-	"jimmy-johns-pp-cli/internal/cliutil"
-	"jimmy-johns-pp-cli/internal/learn"
+	"github.com/mvanhorn/printing-press-library/library/food-and-dining/jimmy-johns/internal/cli"
+	"github.com/mvanhorn/printing-press-library/library/food-and-dining/jimmy-johns/internal/cliutil"
+	"github.com/mvanhorn/printing-press-library/library/food-and-dining/jimmy-johns/internal/learn"
 )
 
 // withJournalHome isolates a test in a temp HOME with every journal

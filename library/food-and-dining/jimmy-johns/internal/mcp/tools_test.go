@@ -12,9 +12,9 @@ import (
 
 	mcplib "github.com/mark3labs/mcp-go/mcp"
 	"github.com/mark3labs/mcp-go/server"
-	"jimmy-johns-pp-cli/internal/cliutil"
-	"jimmy-johns-pp-cli/internal/mcp/bound"
-	"jimmy-johns-pp-cli/internal/store"
+	"github.com/mvanhorn/printing-press-library/library/food-and-dining/jimmy-johns/internal/cliutil"
+	"github.com/mvanhorn/printing-press-library/library/food-and-dining/jimmy-johns/internal/mcp/bound"
+	"github.com/mvanhorn/printing-press-library/library/food-and-dining/jimmy-johns/internal/store"
 )
 
 func TestMCPPathResolutionMatchesCLIResolverWithHomeEnv(t *testing.T) {

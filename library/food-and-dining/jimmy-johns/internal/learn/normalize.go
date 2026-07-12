@@ -7,7 +7,7 @@ import (
 	"sort"
 	"strings"
 
-	"jimmy-johns-pp-cli/internal/learn/entities"
+	"github.com/mvanhorn/printing-press-library/library/food-and-dining/jimmy-johns/internal/learn/entities"
 )
 
 // NormalizedQuery is the entity-aware normalized representation of a

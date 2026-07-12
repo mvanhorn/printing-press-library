@@ -13,8 +13,8 @@ import (
 	"testing"
 	"time"
 
-	"jimmy-johns-pp-cli/internal/cliutil"
-	"jimmy-johns-pp-cli/internal/config"
+	"github.com/mvanhorn/printing-press-library/library/food-and-dining/jimmy-johns/internal/cliutil"
+	"github.com/mvanhorn/printing-press-library/library/food-and-dining/jimmy-johns/internal/config"
 )
 
 func resetCredentialEnv(t *testing.T) (home, configPath string) {

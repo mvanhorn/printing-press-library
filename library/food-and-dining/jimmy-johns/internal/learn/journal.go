@@ -17,7 +17,7 @@ import (
 	"sync"
 	"time"
 
-	"jimmy-johns-pp-cli/internal/cliutil"
+	"github.com/mvanhorn/printing-press-library/library/food-and-dining/jimmy-johns/internal/cliutil"
 )
 
 // The invocation journal records one entry per CLI invocation in dated

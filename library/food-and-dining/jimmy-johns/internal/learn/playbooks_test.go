@@ -12,7 +12,7 @@ import (
 
 	_ "modernc.org/sqlite"
 
-	"jimmy-johns-pp-cli/internal/learn/entities"
+	"github.com/mvanhorn/printing-press-library/library/food-and-dining/jimmy-johns/internal/learn/entities"
 )
 
 // stubResolver is a test-only EntityResolver backed by an in-memory

@@ -10,7 +10,7 @@ import (
 	"os"
 	"strings"
 
-	"jimmy-johns-pp-cli/internal/config"
+	"github.com/mvanhorn/printing-press-library/library/food-and-dining/jimmy-johns/internal/config"
 	"github.com/spf13/cobra"
 )
 

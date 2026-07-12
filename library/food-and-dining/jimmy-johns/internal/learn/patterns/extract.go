@@ -10,7 +10,7 @@ import (
 	"sort"
 	"strings"
 
-	"jimmy-johns-pp-cli/internal/learn/lookups"
+	"github.com/mvanhorn/printing-press-library/library/food-and-dining/jimmy-johns/internal/learn/lookups"
 )
 
 // extractWindow caps how many of the most-recently-observed

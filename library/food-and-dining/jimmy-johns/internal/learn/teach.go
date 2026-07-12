@@ -19,7 +19,7 @@ import (
 	"database/sql"
 	"fmt"
 
-	"jimmy-johns-pp-cli/internal/learn/entities"
+	"github.com/mvanhorn/printing-press-library/library/food-and-dining/jimmy-johns/internal/learn/entities"
 )
 
 // Warning is one teach-time validation finding. The shape is the JSON

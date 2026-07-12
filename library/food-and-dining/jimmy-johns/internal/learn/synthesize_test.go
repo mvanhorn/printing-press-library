@@ -20,8 +20,8 @@ import (
 	"strings"
 	"testing"
 
-	"jimmy-johns-pp-cli/internal/learn"
-	"jimmy-johns-pp-cli/internal/store"
+	"github.com/mvanhorn/printing-press-library/library/food-and-dining/jimmy-johns/internal/learn"
+	"github.com/mvanhorn/printing-press-library/library/food-and-dining/jimmy-johns/internal/store"
 )
 
 // synthesisFamily is the query family every scenario teaches under.

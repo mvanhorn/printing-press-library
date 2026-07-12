@@ -9,7 +9,7 @@ import (
 	"path/filepath"
 	"testing"
 
-	"jimmy-johns-pp-cli/internal/store"
+	"github.com/mvanhorn/printing-press-library/library/food-and-dining/jimmy-johns/internal/store"
 )
 
 // runLearningsStatsJSON executes `learnings stats --json` against the

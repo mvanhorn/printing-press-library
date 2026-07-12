@@ -14,7 +14,7 @@ import (
 	"sync"
 	"time"
 
-	"jimmy-johns-pp-cli/internal/cliutil"
+	"github.com/mvanhorn/printing-press-library/library/food-and-dining/jimmy-johns/internal/cliutil"
 )
 
 // cookieJar wraps an http.CookieJar so writes (server Set-Cookie response

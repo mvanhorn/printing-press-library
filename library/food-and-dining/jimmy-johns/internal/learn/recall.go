@@ -15,9 +15,9 @@ import (
 	"strings"
 	"time"
 
-	"jimmy-johns-pp-cli/internal/learn/entities"
-	"jimmy-johns-pp-cli/internal/learn/lookups"
-	"jimmy-johns-pp-cli/internal/learn/patterns"
+	"github.com/mvanhorn/printing-press-library/library/food-and-dining/jimmy-johns/internal/learn/entities"
+	"github.com/mvanhorn/printing-press-library/library/food-and-dining/jimmy-johns/internal/learn/lookups"
+	"github.com/mvanhorn/printing-press-library/library/food-and-dining/jimmy-johns/internal/learn/patterns"
 )
 
 // Default thresholds. Keep in sync with the documented contract in

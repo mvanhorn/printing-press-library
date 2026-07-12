@@ -17,14 +17,14 @@ import (
 
 	mcplib "github.com/mark3labs/mcp-go/mcp"
 	"github.com/mark3labs/mcp-go/server"
-	"jimmy-johns-pp-cli/internal/cli"
-	"jimmy-johns-pp-cli/internal/client"
-	"jimmy-johns-pp-cli/internal/cliutil"
-	"jimmy-johns-pp-cli/internal/config"
-	"jimmy-johns-pp-cli/internal/learn"
-	"jimmy-johns-pp-cli/internal/mcp/bound"
-	"jimmy-johns-pp-cli/internal/mcp/cobratree"
-	"jimmy-johns-pp-cli/internal/store"
+	"github.com/mvanhorn/printing-press-library/library/food-and-dining/jimmy-johns/internal/cli"
+	"github.com/mvanhorn/printing-press-library/library/food-and-dining/jimmy-johns/internal/client"
+	"github.com/mvanhorn/printing-press-library/library/food-and-dining/jimmy-johns/internal/cliutil"
+	"github.com/mvanhorn/printing-press-library/library/food-and-dining/jimmy-johns/internal/config"
+	"github.com/mvanhorn/printing-press-library/library/food-and-dining/jimmy-johns/internal/learn"
+	"github.com/mvanhorn/printing-press-library/library/food-and-dining/jimmy-johns/internal/mcp/bound"
+	"github.com/mvanhorn/printing-press-library/library/food-and-dining/jimmy-johns/internal/mcp/cobratree"
+	"github.com/mvanhorn/printing-press-library/library/food-and-dining/jimmy-johns/internal/store"
 )
 
 const (

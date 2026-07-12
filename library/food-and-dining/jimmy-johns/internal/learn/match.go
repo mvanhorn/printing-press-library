@@ -8,7 +8,7 @@ import (
 	"fmt"
 	"strings"
 
-	"jimmy-johns-pp-cli/internal/learn/entities"
+	"github.com/mvanhorn/printing-press-library/library/food-and-dining/jimmy-johns/internal/learn/entities"
 )
 
 // EntityMatch classifies how well a stored learning's resource-side

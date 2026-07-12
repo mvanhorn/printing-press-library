@@ -12,7 +12,7 @@ import (
 	"strings"
 	"time"
 
-	"jimmy-johns-pp-cli/internal/learn/lookups"
+	"github.com/mvanhorn/printing-press-library/library/food-and-dining/jimmy-johns/internal/learn/lookups"
 )
 
 // DefaultJaccardMin matches the recall-side floor. Applying the same

@@ -1,4 +1,4 @@
-module jimmy-johns-pp-cli
+module github.com/mvanhorn/printing-press-library/library/food-and-dining/jimmy-johns
 
 go 1.26.5
 

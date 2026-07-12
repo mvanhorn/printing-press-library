@@ -11,7 +11,7 @@ import (
 	"strings"
 	"testing"
 
-	"jimmy-johns-pp-cli/internal/store"
+	"github.com/mvanhorn/printing-press-library/library/food-and-dining/jimmy-johns/internal/store"
 )
 
 // writePlaybookFile is a test helper that drops a fixture file at the

@@ -11,7 +11,7 @@ import (
 	"sync"
 	"testing"
 
-	"jimmy-johns-pp-cli/internal/cliutil"
+	"github.com/mvanhorn/printing-press-library/library/food-and-dining/jimmy-johns/internal/cliutil"
 )
 
 func withTempHomeForLog(t *testing.T) string {
