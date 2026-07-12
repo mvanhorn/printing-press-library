@@ -120,6 +120,13 @@ janeapp-pp-cli which "<capability in your own words>"
 
 ## Auth Setup
 
+Jane is multi-tenant: each clinic is a separate `janeapp.com` subdomain with its own patient session, and `auth login` saves the session to the **currently selected clinic**. Register and select your clinic first:
+
+```bash
+janeapp-pp-cli clinic add myclinic   # registers myclinic.janeapp.com
+janeapp-pp-cli clinic use myclinic
+```
+
 This CLI uses a browser session. Log in to .janeapp.com in Chrome, then:
 
 ```bash
