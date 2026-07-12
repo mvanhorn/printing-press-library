@@ -103,7 +103,7 @@ func newAttractionsFindCmd(flags *rootFlags) *cobra.Command {
 				"locale":                 formatCLIParamValue(flagLocale),
 				"includeLicensedContent": formatCLIParamValue(flagIncludeLicensedContent),
 				"includeSpellcheck":      formatCLIParamValue(flagIncludeSpellcheck),
-			}, nil, flagAll, "page", "page", "", 100, "", "", cmd.ErrOrStderr())
+			}, nil, flagAll, "page", "page", "size", 100, "", "", cmd.ErrOrStderr())
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}

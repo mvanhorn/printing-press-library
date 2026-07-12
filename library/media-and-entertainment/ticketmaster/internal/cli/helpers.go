@@ -9,8 +9,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/ticketmaster/internal/client"
-	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/ticketmaster/internal/cliutil"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 	"io"
@@ -22,6 +20,8 @@ import (
 	"strconv"
 	"strings"
 	"text/tabwriter"
+	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/ticketmaster/internal/client"
+	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/ticketmaster/internal/cliutil"
 	"time"
 	"unicode"
 )
@@ -817,6 +817,19 @@ func extractPaginatedItems(obj map[string]json.RawMessage) ([]json.RawMessage, b
 		if arr, ok := obj[field]; ok {
 			var nested []json.RawMessage
 			if json.Unmarshal(arr, &nested) == nil {
+				return nested, true
+			}
+		}
+	}
+
+	// HAL / HATEOAS envelope: collections live under _embedded.<name>
+	// (Ticketmaster Discovery, Spring Data REST, and other HATEOAS APIs).
+	// Recurse into _embedded so the same known-field and single-array
+	// heuristics find the collection one level down.
+	if embRaw, ok := obj["_embedded"]; ok {
+		var embedded map[string]json.RawMessage
+		if json.Unmarshal(embRaw, &embedded) == nil {
+			if nested, ok := extractPaginatedItems(embedded); ok {
 				return nested, true
 			}
 		}
