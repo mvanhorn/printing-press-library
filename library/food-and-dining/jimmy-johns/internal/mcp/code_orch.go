@@ -18,11 +18,13 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	neturl "net/url"
 	"sort"
 	"strings"
 
 	mcplib "github.com/mark3labs/mcp-go/mcp"
 	"github.com/mark3labs/mcp-go/server"
+	"jimmy-johns-pp-cli/internal/mcp/bound"
 )
 
 // RegisterCodeOrchestrationTools registers the two agent-facing tools that
@@ -59,7 +61,32 @@ type codeOrchEndpoint struct {
 	Tier       string
 	Summary    string
 	Positional []string
-	keywords   []string
+	// TemplateParams carries public-to-wire bindings for promoted global path
+	// placeholders. These resolve through Config.TemplateVars just like the
+	// per-endpoint MCP tool inputs do.
+	TemplateParams []codeOrchParamBinding
+	// QueryParams carries public-to-wire bindings for spec-declared in:query
+	// parameters. Write methods (POST/PUT/PATCH) route these to the query
+	// string instead of dumping them into the JSON body. Derived from the
+	// same mcpParamBindings location data the per-endpoint tools use.
+	QueryParams []codeOrchParamBinding
+	// HeaderOverrides carries per-endpoint request headers (e.g. an
+	// Accept override for binary-only response endpoints). Without
+	// threading these through, the code-orchestration execute path
+	// sends the client's default Accept and binary endpoints 406.
+	HeaderOverrides map[string]string
+	// BodyIsArray marks endpoints whose request body schema root is a
+	// bare top-level JSON array. The execute path then sends a top-level
+	// array (the agent supplies it as params["body"]) instead of the
+	// params object; a strict-mapping API rejects an object at the body
+	// root with HTTP 422 "Invalid json".
+	BodyIsArray bool
+	keywords    []string
+}
+
+type codeOrchParamBinding struct {
+	PublicName string
+	WireName   string
 }
 
 // codeOrchEndpoints is the generator-populated registry covering every
@@ -67,132 +94,164 @@ type codeOrchEndpoint struct {
 // via <api>_search, so hierarchy shows up as dotted IDs, not nested maps.
 var codeOrchEndpoints = []codeOrchEndpoint{
 	{
-		ID:         "account.current",
-		Method:     "GET",
-		Path:       "/users/current",
-		Summary:    "Get the authenticated user's profile (name, email, preferences).",
-		Positional: []string{},
-		keywords:   codeOrchKeywords("account", "current", "Get the authenticated user's profile (name, email, preferences).", "/users/current"),
+		ID:             "account.current",
+		Method:         "GET",
+		Path:           "/users/current",
+		Summary:        "Get the authenticated user's profile (name, email, preferences).",
+		Positional:     []string{},
+		TemplateParams: []codeOrchParamBinding{},
+		QueryParams:    []codeOrchParamBinding{},
+		keywords:       codeOrchKeywords("account", "current", "Get the authenticated user's profile (name, email, preferences).", "/users/current"),
 	},
 	{
-		ID:         "account.delivery_addresses",
-		Method:     "GET",
-		Path:       "/users/current/deliveryAddresses",
-		Summary:    "List the authenticated user's saved delivery addresses.",
-		Positional: []string{},
-		keywords:   codeOrchKeywords("account", "delivery_addresses", "List the authenticated user's saved delivery addresses.", "/users/current/deliveryAddresses"),
+		ID:             "account.delivery_addresses",
+		Method:         "GET",
+		Path:           "/users/current/deliveryAddresses",
+		Summary:        "List the authenticated user's saved delivery addresses.",
+		Positional:     []string{},
+		TemplateParams: []codeOrchParamBinding{},
+		QueryParams:    []codeOrchParamBinding{},
+		keywords:       codeOrchKeywords("account", "delivery_addresses", "List the authenticated user's saved delivery addresses.", "/users/current/deliveryAddresses"),
 	},
 	{
-		ID:         "account.login",
-		Method:     "POST",
-		Path:       "/login",
-		Summary:    "Authenticate with email + password. Sets JJ session cookies.",
-		Positional: []string{},
-		keywords:   codeOrchKeywords("account", "login", "Authenticate with email + password. Sets JJ session cookies.", "/login"),
+		ID:             "account.login",
+		Method:         "POST",
+		Path:           "/login",
+		Summary:        "Authenticate with email + password. Sets JJ session cookies.",
+		Positional:     []string{},
+		TemplateParams: []codeOrchParamBinding{},
+		QueryParams:    []codeOrchParamBinding{},
+		keywords:       codeOrchKeywords("account", "login", "Authenticate with email + password. Sets JJ session cookies.", "/login"),
 	},
 	{
-		ID:         "account.saved_payments",
-		Method:     "GET",
-		Path:       "/users/current/savedPayments",
-		Summary:    "List the authenticated user's saved payment methods.",
-		Positional: []string{},
-		keywords:   codeOrchKeywords("account", "saved_payments", "List the authenticated user's saved payment methods.", "/users/current/savedPayments"),
+		ID:             "account.saved_payments",
+		Method:         "GET",
+		Path:           "/users/current/savedPayments",
+		Summary:        "List the authenticated user's saved payment methods.",
+		Positional:     []string{},
+		TemplateParams: []codeOrchParamBinding{},
+		QueryParams:    []codeOrchParamBinding{},
+		keywords:       codeOrchKeywords("account", "saved_payments", "List the authenticated user's saved payment methods.", "/users/current/savedPayments"),
 	},
 	{
-		ID:         "account.web_token",
-		Method:     "POST",
-		Path:       "/webToken",
-		Summary:    "Refresh the web session token (called internally by the SPA).",
-		Positional: []string{},
-		keywords:   codeOrchKeywords("account", "web_token", "Refresh the web session token (called internally by the SPA).", "/webToken"),
+		ID:             "account.web_token",
+		Method:         "POST",
+		Path:           "/webToken",
+		Summary:        "Refresh the web session token (called internally by the SPA).",
+		Positional:     []string{},
+		TemplateParams: []codeOrchParamBinding{},
+		QueryParams:    []codeOrchParamBinding{},
+		keywords:       codeOrchKeywords("account", "web_token", "Refresh the web session token (called internally by the SPA).", "/webToken"),
 	},
 	{
-		ID:         "menu.product_filters",
-		Method:     "GET",
-		Path:       "/products/filters",
-		Summary:    "List available menu filter dimensions (categories, dietary tags, allergens).",
-		Positional: []string{},
-		keywords:   codeOrchKeywords("menu", "product_filters", "List available menu filter dimensions (categories, dietary tags, allergens).", "/products/filters"),
+		ID:             "menu.product_filters",
+		Method:         "GET",
+		Path:           "/products/filters",
+		Summary:        "List available menu filter dimensions (categories, dietary tags, allergens).",
+		Positional:     []string{},
+		TemplateParams: []codeOrchParamBinding{},
+		QueryParams:    []codeOrchParamBinding{},
+		keywords:       codeOrchKeywords("menu", "product_filters", "List available menu filter dimensions (categories, dietary tags, allergens).", "/products/filters"),
 	},
 	{
-		ID:         "menu.product_modifiers",
-		Method:     "GET",
-		Path:       "/products/{productId}/modifiers",
-		Summary:    "List modifier groups (bread, toppings, add-ons) for a specific product.",
-		Positional: []string{"productId"},
-		keywords:   codeOrchKeywords("menu", "product_modifiers", "List modifier groups (bread, toppings, add-ons) for a specific product.", "/products/{productId}/modifiers"),
+		ID:             "menu.product_modifiers",
+		Method:         "GET",
+		Path:           "/products/{productId}/modifiers",
+		Summary:        "List modifier groups (bread, toppings, add-ons) for a specific product.",
+		Positional:     []string{"productId"},
+		TemplateParams: []codeOrchParamBinding{},
+		QueryParams:    []codeOrchParamBinding{},
+		keywords:       codeOrchKeywords("menu", "product_modifiers", "List modifier groups (bread, toppings, add-ons) for a specific product.", "/products/{productId}/modifiers"),
 	},
 	{
-		ID:         "menu.products",
-		Method:     "GET",
-		Path:       "/products",
-		Summary:    "List menu products for the current store (subs, sides, drinks, cookies, catering).",
-		Positional: []string{},
-		keywords:   codeOrchKeywords("menu", "products", "List menu products for the current store (subs, sides, drinks, cookies, catering).", "/products"),
+		ID:             "menu.products",
+		Method:         "GET",
+		Path:           "/products",
+		Summary:        "List menu products for the current store (subs, sides, drinks, cookies, catering).",
+		Positional:     []string{},
+		TemplateParams: []codeOrchParamBinding{},
+		QueryParams:    []codeOrchParamBinding{},
+		keywords:       codeOrchKeywords("menu", "products", "List menu products for the current store (subs, sides, drinks, cookies, catering).", "/products"),
 	},
 	{
-		ID:         "order.add_items",
-		Method:     "POST",
-		Path:       "/order/batchItems",
-		Summary:    "Add one or more items to the current cart in a single call.",
-		Positional: []string{},
-		keywords:   codeOrchKeywords("order", "add_items", "Add one or more items to the current cart in a single call.", "/order/batchItems"),
+		ID:             "order.add_items",
+		Method:         "POST",
+		Path:           "/order/batchItems",
+		Summary:        "Add one or more items to the current cart in a single call.",
+		Positional:     []string{},
+		TemplateParams: []codeOrchParamBinding{},
+		QueryParams:    []codeOrchParamBinding{},
+		keywords:       codeOrchKeywords("order", "add_items", "Add one or more items to the current cart in a single call.", "/order/batchItems"),
 	},
 	{
-		ID:         "order.current",
-		Method:     "GET",
-		Path:       "/order",
-		Summary:    "Get the current in-progress order/cart.",
-		Positional: []string{},
-		keywords:   codeOrchKeywords("order", "current", "Get the current in-progress order/cart.", "/order"),
+		ID:             "order.current",
+		Method:         "GET",
+		Path:           "/order",
+		Summary:        "Get the current in-progress order/cart.",
+		Positional:     []string{},
+		TemplateParams: []codeOrchParamBinding{},
+		QueryParams:    []codeOrchParamBinding{},
+		keywords:       codeOrchKeywords("order", "current", "Get the current in-progress order/cart.", "/order"),
 	},
 	{
-		ID:         "order.upsell",
-		Method:     "GET",
-		Path:       "/order/upsell",
-		Summary:    "Get upsell suggestions for the current cart (sides, drinks, cookies).",
-		Positional: []string{},
-		keywords:   codeOrchKeywords("order", "upsell", "Get upsell suggestions for the current cart (sides, drinks, cookies).", "/order/upsell"),
+		ID:             "order.upsell",
+		Method:         "GET",
+		Path:           "/order/upsell",
+		Summary:        "Get upsell suggestions for the current cart (sides, drinks, cookies).",
+		Positional:     []string{},
+		TemplateParams: []codeOrchParamBinding{},
+		QueryParams:    []codeOrchParamBinding{},
+		keywords:       codeOrchKeywords("order", "upsell", "Get upsell suggestions for the current cart (sides, drinks, cookies).", "/order/upsell"),
 	},
 	{
-		ID:         "rewards.catalog",
-		Method:     "GET",
-		Path:       "/users/current/rewards/catalog",
-		Summary:    "List available reward redemptions for the current points balance.",
-		Positional: []string{},
-		keywords:   codeOrchKeywords("rewards", "catalog", "List available reward redemptions for the current points balance.", "/users/current/rewards/catalog"),
+		ID:             "rewards.catalog",
+		Method:         "GET",
+		Path:           "/users/current/rewards/catalog",
+		Summary:        "List available reward redemptions for the current points balance.",
+		Positional:     []string{},
+		TemplateParams: []codeOrchParamBinding{},
+		QueryParams:    []codeOrchParamBinding{},
+		keywords:       codeOrchKeywords("rewards", "catalog", "List available reward redemptions for the current points balance.", "/users/current/rewards/catalog"),
 	},
 	{
-		ID:         "rewards.summary",
-		Method:     "GET",
-		Path:       "/users/current/rewards",
-		Summary:    "Get the authenticated user's rewards points balance and recent activity.",
-		Positional: []string{},
-		keywords:   codeOrchKeywords("rewards", "summary", "Get the authenticated user's rewards points balance and recent activity.", "/users/current/rewards"),
+		ID:             "rewards.summary",
+		Method:         "GET",
+		Path:           "/users/current/rewards",
+		Summary:        "Get the authenticated user's rewards points balance and recent activity.",
+		Positional:     []string{},
+		TemplateParams: []codeOrchParamBinding{},
+		QueryParams:    []codeOrchParamBinding{},
+		keywords:       codeOrchKeywords("rewards", "summary", "Get the authenticated user's rewards points balance and recent activity.", "/users/current/rewards"),
 	},
 	{
-		ID:         "stores.get_disclaimers",
-		Method:     "GET",
-		Path:       "/stores/{storeId}/disclaimers",
-		Summary:    "Get store-specific disclaimers (delivery zone caveats, hours warnings).",
-		Positional: []string{"storeId"},
-		keywords:   codeOrchKeywords("stores", "get_disclaimers", "Get store-specific disclaimers (delivery zone caveats, hours warnings).", "/stores/{storeId}/disclaimers"),
+		ID:             "stores.get_disclaimers",
+		Method:         "GET",
+		Path:           "/stores/{storeId}/disclaimers",
+		Summary:        "Get store-specific disclaimers (delivery zone caveats, hours warnings).",
+		Positional:     []string{"storeId"},
+		TemplateParams: []codeOrchParamBinding{},
+		QueryParams:    []codeOrchParamBinding{},
+		keywords:       codeOrchKeywords("stores", "get_disclaimers", "Get store-specific disclaimers (delivery zone caveats, hours warnings).", "/stores/{storeId}/disclaimers"),
 	},
 	{
-		ID:         "stores.list",
-		Method:     "GET",
-		Path:       "/stores",
-		Summary:    "List stores. Accepts an address search or filter; returns stores with hours, distance, pickup/delivery flags.",
-		Positional: []string{},
-		keywords:   codeOrchKeywords("stores", "list", "List stores. Accepts an address search or filter; returns stores with hours, distance, pickup/delivery flags.", "/stores"),
+		ID:             "stores.list",
+		Method:         "GET",
+		Path:           "/stores",
+		Summary:        "List stores. Accepts an address search or filter; returns stores with hours, distance, pickup/delivery flags.",
+		Positional:     []string{},
+		TemplateParams: []codeOrchParamBinding{},
+		QueryParams:    []codeOrchParamBinding{{PublicName: "address", WireName: "addressSearch"}, {PublicName: "filter", WireName: "filter"}},
+		keywords:       codeOrchKeywords("stores", "list", "List stores. Accepts an address search or filter; returns stores with hours, distance, pickup/delivery flags.", "/stores"),
 	},
 	{
-		ID:         "system.sign_map_url",
-		Method:     "GET",
-		Path:       "/maps/signUrl",
-		Summary:    "Sign a Google Maps URL for client-side use (used internally by store finder)",
-		Positional: []string{},
-		keywords:   codeOrchKeywords("system", "sign_map_url", "Sign a Google Maps URL for client-side use (used internally by store finder)", "/maps/signUrl"),
+		ID:             "system.sign_map_url",
+		Method:         "GET",
+		Path:           "/maps/signUrl",
+		Summary:        "Sign a Google Maps URL for client-side use (used internally by store finder)",
+		Positional:     []string{},
+		TemplateParams: []codeOrchParamBinding{},
+		QueryParams:    []codeOrchParamBinding{{PublicName: "url", WireName: "url"}},
+		keywords:       codeOrchKeywords("system", "sign_map_url", "Sign a Google Maps URL for client-side use (used internally by store finder)", "/maps/signUrl"),
 	},
 }
 
@@ -282,8 +341,11 @@ func handleCodeOrchSearch(ctx context.Context, req mcplib.CallToolRequest) (*mcp
 			"score":       r.score,
 		})
 	}
-	data, _ := json.Marshal(map[string]any{"count": len(out), "results": out})
-	return mcplib.NewToolResultText(string(data)), nil
+	text, err := bound.JSON(map[string]any{"count": len(out), "results": out})
+	if err != nil {
+		return mcplib.NewToolResultError(fmt.Sprintf("encoding search results: %v", err)), nil
+	}
+	return mcplib.NewToolResultText(text), nil
 }
 
 func handleCodeOrchExecute(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.CallToolResult, error) {
@@ -317,43 +379,143 @@ func handleCodeOrchExecute(ctx context.Context, req mcplib.CallToolRequest) (*mc
 	path := ep.Path
 	for _, p := range ep.Positional {
 		if v, ok := params[p]; ok {
-			path = strings.ReplaceAll(path, "{"+p+"}", fmt.Sprintf("%v", v))
+			path = strings.ReplaceAll(path, "{"+p+"}", formatMCPParamValue(v))
 			delete(params, p)
 		}
 	}
 
+	// Route params to their runtime slots. GET/DELETE params are query
+	// strings; write methods split spec-declared query params from the
+	// remaining params used as the request body below.
 	query := map[string]string{}
 	if ep.Method == "GET" || ep.Method == "DELETE" {
 		for k, v := range params {
-			query[k] = fmt.Sprintf("%v", v)
+			query[codeOrchWireQueryName(ep.QueryParams, k)] = formatMCPParamValue(v)
+		}
+	} else {
+		// Route spec-declared in:query params to the query string for write
+		// methods too. Without this, a query param (e.g. sendToLedger on
+		// PUT /ledger/voucher/{id}) wrongly lands in the JSON body and the
+		// API silently ignores it or rejects the request. The remaining
+		// params stay in the map for codeOrchWriteBody (the JSON body).
+		if enc := codeOrchSplitQuery(ep.QueryParams, params); enc != "" {
+			sep := "?"
+			if strings.Contains(path, "?") {
+				sep = "&"
+			}
+			path += sep + enc
 		}
 	}
 
+	hdrs := ep.HeaderOverrides
+	writeBody := func() any {
+		if ep.BodyIsArray {
+			return codeOrchArrayBody(params)
+		}
+		return codeOrchWriteBody(params)
+	}
 	var data json.RawMessage
 	switch ep.Method {
 	case "GET":
-		data, err = c.Get(path, query)
-	case "DELETE":
-		data, _, err = c.Delete(path)
-	default:
-		// PATCH: pass the params object directly. Client.Post/Put/Patch take
-		// `body any` and call json.Marshal themselves; the previous
-		// json.Marshal(params) -> []byte chain caused a double encode so the
-		// API received a base64 JSON string instead of the object payload
-		// described by the endpoint (account.login, order.add_items, etc.).
-		switch ep.Method {
-		case "POST":
-			data, _, err = c.Post(path, params)
-		case "PUT":
-			data, _, err = c.Put(path, params)
-		case "PATCH":
-			data, _, err = c.Patch(path, params)
-		default:
-			return mcplib.NewToolResultError(fmt.Sprintf("unsupported method %q", ep.Method)), nil
+		if len(hdrs) > 0 {
+			data, err = c.GetWithHeaders(ctx, path, query, hdrs)
+		} else {
+			data, err = c.Get(ctx, path, query)
 		}
+	case "DELETE":
+		if len(hdrs) > 0 {
+			data, _, err = c.DeleteWithParamsAndHeaders(ctx, path, query, hdrs)
+		} else {
+			data, _, err = c.DeleteWithParams(ctx, path, query)
+		}
+	case "POST":
+		body := writeBody()
+		if len(hdrs) > 0 {
+			data, _, err = c.PostWithHeaders(ctx, path, body, hdrs)
+		} else {
+			data, _, err = c.Post(ctx, path, body)
+		}
+	case "PUT":
+		body := writeBody()
+		if len(hdrs) > 0 {
+			data, _, err = c.PutWithHeaders(ctx, path, body, hdrs)
+		} else {
+			data, _, err = c.Put(ctx, path, body)
+		}
+	case "PATCH":
+		body := writeBody()
+		if len(hdrs) > 0 {
+			data, _, err = c.PatchWithHeaders(ctx, path, body, hdrs)
+		} else {
+			data, _, err = c.Patch(ctx, path, body)
+		}
+	default:
+		return mcplib.NewToolResultError(fmt.Sprintf("unsupported method %q", ep.Method)), nil
 	}
 	if err != nil {
 		return mcplib.NewToolResultError(err.Error()), nil
 	}
-	return mcplib.NewToolResultText(string(data)), nil
+	return mcplib.NewToolResultText(bound.EndpointResponse(ep.Method, data)), nil
+}
+
+// codeOrchWriteBody returns the value handed to the client layer as the
+// request body for write methods (POST/PUT/PATCH). It MUST be the structured
+// params map, never pre-marshaled bytes.
+//
+// client.do() marshals the body value exactly once. Handing it []byte makes
+// json.Marshal([]byte) emit a base64-encoded JSON *string*, so the API
+// receives "eyJ...==" where it expects the request object. Strict JSON APIs
+// reject that as the wrong type at the body root. GET/DELETE carry no body,
+// so this defect stays latent until the first write attempt.
+func codeOrchWriteBody(params map[string]any) any {
+	return params
+}
+
+// codeOrchArrayBody returns the request body for endpoints whose schema root
+// is a bare top-level JSON array (ep.BodyIsArray). Such a body cannot be
+// expressed as the params object, so the agent supplies the array under the
+// conventional params key "body" (these endpoints have no flattened named
+// params, so there is no collision risk). When present and array-shaped it is
+// sent as the top-level array the API expects. Otherwise params is returned
+// unchanged so a malformed call fails loudly at the API (HTTP 422) instead of
+// silently sending the wrong shape or a partial write — financial mutations
+// are never retried with body-variant guesses (broken-convenience guardrail).
+func codeOrchArrayBody(params map[string]any) any {
+	if v, ok := params["body"]; ok {
+		if arr, ok := v.([]any); ok {
+			return arr
+		}
+	}
+	return params
+}
+
+// codeOrchSplitQuery removes spec-declared in:query params from params and
+// returns them URL-encoded for appending to the request path. The remaining
+// entries stay in the map for codeOrchWriteBody (the JSON body), so a write
+// method's query parameters never get buried in the body. Mutates params by
+// design (deletes the consumed query keys).
+func codeOrchSplitQuery(queryParams []codeOrchParamBinding, params map[string]any) string {
+	uv := neturl.Values{}
+	for _, q := range queryParams {
+		for _, key := range []string{q.PublicName, q.WireName} {
+			if key == "" {
+				continue
+			}
+			if v, ok := params[key]; ok {
+				uv.Set(q.WireName, formatMCPParamValue(v))
+				delete(params, key)
+				break
+			}
+		}
+	}
+	return uv.Encode()
+}
+
+func codeOrchWireQueryName(queryParams []codeOrchParamBinding, name string) string {
+	for _, q := range queryParams {
+		if q.PublicName == name || q.WireName == name {
+			return q.WireName
+		}
+	}
+	return name
 }

@@ -11,7 +11,7 @@ import (
 	"fmt"
 	"io"
 
-	"github.com/mvanhorn/printing-press-library/library/food-and-dining/jimmy-johns/internal/store"
+	"jimmy-johns-pp-cli/internal/store"
 	"github.com/spf13/cobra"
 )
 

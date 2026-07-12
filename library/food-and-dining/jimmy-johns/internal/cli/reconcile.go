@@ -10,7 +10,7 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/mvanhorn/printing-press-library/library/food-and-dining/jimmy-johns/internal/store"
+	"jimmy-johns-pp-cli/internal/store"
 	"github.com/spf13/cobra"
 )
 
@@ -78,7 +78,7 @@ the endpoint).`,
 			if address != "" {
 				params["addressSearch"] = address
 			}
-			respBody, err := c.Get("/stores", params)
+			respBody, err := c.Get(cmd.Context(), "/stores", params)
 			if err != nil {
 				diff.Notes = append(diff.Notes,
 					fmt.Sprintf("live /stores call failed (likely PerimeterX): %v", err))

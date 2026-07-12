@@ -23,7 +23,7 @@ builds:
     env:
       - CGO_ENABLED=0
     ldflags:
-      - -s -w
+      - -s -w -X main.version={{ .Version }}
     targets:
       - darwin_amd64
       - darwin_arm64
@@ -45,7 +45,7 @@ brews:
       owner: omar-shahine
       name: homebrew-tap
     homepage: "https://github.com/omar-shahine/jimmy-johns-pp-cli"
-    description: "First terminal CLI for Jimmy John's ordering — local Unwich conversion, agent-native JSON, every endpoint typed."
+    description: "Order Jimmy John's from the terminal — Freaky Fast Rewards stacking, half-order builder, and one-shot reorder."
     install: |
       bin.install "jimmy-johns-pp-cli"
       bin.install "jimmy-johns-pp-mcp"
