@@ -10,8 +10,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/pelletier/go-toml/v2"
 	"github.com/mvanhorn/printing-press-library/library/health/janeapp/internal/cliutil"
+	"github.com/pelletier/go-toml/v2"
 )
 
 type Config struct {

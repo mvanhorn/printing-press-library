@@ -45,7 +45,7 @@ brews:
       owner: omarshahine
       name: homebrew-tap
     homepage: "https://github.com/omarshahine/janeapp-pp-cli"
-    description: "Book, view, and manage your Jane (janeapp.com) appointments across every clinic from one terminal — with a unified agenda, next-opening finder, and availability watch the patient portal can't do."
+    description: "Book, view, and manage your Jane (janeapp.com) appointments across every clinic from the terminal — unified agenda, next-opening finder, and availability watch the patient portal can't do."
     install: |
       bin.install "janeapp-pp-cli"
       bin.install "janeapp-pp-mcp"

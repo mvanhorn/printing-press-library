@@ -11,14 +11,14 @@ import (
 	"sort"
 	"strings"
 
+	"github.com/mvanhorn/printing-press-library/library/health/janeapp/internal/cliutil"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
-	"github.com/mvanhorn/printing-press-library/library/health/janeapp/internal/cliutil"
 )
 
 // Profile is a named set of flag values saved for reuse across invocations.
-// HeyGen's "Beacon" pattern: one named context that a scheduled agent reuses
-// day after day with the same voice/format but different input each run.
+// Use a named profile when a scheduled or recurring workflow reuses the same
+// saved flags while providing different input each run.
 type Profile struct {
 	Name        string            `json:"name"`
 	Description string            `json:"description,omitempty"`

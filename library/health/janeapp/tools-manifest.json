@@ -1,7 +1,7 @@
 {
   "api_name": "janeapp",
   "base_url": "https://REPLACE.janeapp.com",
-  "description": "Book, view, and manage your Jane (janeapp.com) appointments across every clinic from one terminal — with a unified agenda, next-opening finder, and availability watch the patient portal can't do.",
+  "description": "Book, view, and manage your Jane (janeapp.com) appointments across every clinic from the terminal — unified agenda, next-opening finder, and availability watch the patient portal can't do.",
   "mcp_ready": "partial",
   "http_transport": "standard",
   "auth": {

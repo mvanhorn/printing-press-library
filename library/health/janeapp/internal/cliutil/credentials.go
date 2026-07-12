@@ -8,6 +8,8 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"reflect"
+	"strings"
 	"sync"
 	"time"
 
@@ -22,12 +24,42 @@ var (
 )
 
 type Credentials struct {
-	AuthHeaderVal string    `toml:"auth_header,omitempty"`
-	AccessToken   string    `toml:"access_token,omitempty"`
-	RefreshToken  string    `toml:"refresh_token,omitempty"`
-	TokenExpiry   time.Time `toml:"token_expiry,omitempty"`
-	ClientID      string    `toml:"client_id,omitempty"`
-	ClientSecret  string    `toml:"client_secret,omitempty"`
+	AuthHeaderVal string    `toml:"auth_header"`
+	AccessToken   string    `toml:"access_token"`
+	RefreshToken  string    `toml:"refresh_token"`
+	TokenExpiry   time.Time `toml:"token_expiry"`
+	ClientID      string    `toml:"client_id"`
+	ClientSecret  string    `toml:"client_secret"`
+}
+
+func credentialsFileFrom(creds *Credentials) map[string]interface{} {
+	values := map[string]interface{}{}
+	if creds == nil {
+		return values
+	}
+	credsValue := reflect.ValueOf(*creds)
+	credsType := credsValue.Type()
+	for i := 0; i < credsType.NumField(); i++ {
+		key := credentialTomlKey(credsType.Field(i))
+		if key == "" {
+			continue
+		}
+		value := credsValue.Field(i)
+		if value.IsZero() {
+			continue
+		}
+		values[key] = value.Interface()
+	}
+	return values
+}
+
+func credentialTomlKey(field reflect.StructField) string {
+	tag := field.Tag.Get("toml")
+	key, _, _ := strings.Cut(tag, ",")
+	if key == "-" {
+		return ""
+	}
+	return key
 }
 
 func credentialsPath() (string, error) {
@@ -47,7 +79,7 @@ func LoadCredentials() (*Credentials, bool, error) {
 	if err != nil {
 		return nil, false, err
 	}
-	data, err := os.ReadFile(path)
+	data, err := os.ReadFile(filepath.Clean(path)) // #nosec G304 -- app-owned credentials path from cliutil.DataDir.
 	if err != nil {
 		if errors.Is(err, os.ErrNotExist) {
 			return nil, false, nil
@@ -98,7 +130,7 @@ func SaveCredentials(creds *Credentials) error {
 	if err != nil {
 		return err
 	}
-	data, err := toml.Marshal(creds)
+	data, err := toml.Marshal(credentialsFileFrom(creds)) // #nosec G117 -- credentials are intentionally persisted to a 0600 private file.
 	if err != nil {
 		return fmt.Errorf("marshaling credentials: %w", err)
 	}

@@ -21,6 +21,7 @@ import (
 	"github.com/mvanhorn/printing-press-library/library/health/janeapp/internal/client"
 	"github.com/mvanhorn/printing-press-library/library/health/janeapp/internal/cliutil"
 	"github.com/mvanhorn/printing-press-library/library/health/janeapp/internal/config"
+	"github.com/mvanhorn/printing-press-library/library/health/janeapp/internal/learn"
 	"github.com/mvanhorn/printing-press-library/library/health/janeapp/internal/mcp/bound"
 	"github.com/mvanhorn/printing-press-library/library/health/janeapp/internal/mcp/cobratree"
 	"github.com/mvanhorn/printing-press-library/library/health/janeapp/internal/store"
@@ -783,12 +784,17 @@ func handleContext(_ context.Context, _ mcplib.CallToolRequest) (*mcplib.CallToo
 	}
 	ctx := map[string]any{
 		"api":         "janeapp",
-		"description": "Book, view, and manage your Jane (janeapp.com) appointments across every clinic from one terminal — with a unified agenda, next-opening finder, and availability watch the patient portal can't do.",
+		"description": "Book, view, and manage your Jane (janeapp.com) appointments across every clinic from the terminal — unified agenda, next-opening finder, and availability watch the patient portal can't do.",
 		"archetype":   "generic",
 		"tool_count":  6,
 		"paths":       paths,
 		// tool_surface tells agents which surface a capability lives on.
 		"tool_surface": "MCP exposes typed endpoint tools plus a runtime mirror of user-facing CLI commands. Endpoint tools keep typed schemas; command-mirror tools shell out to the companion janeapp-pp-cli binary.",
+		// learn_protocol is generated from the single shared source of
+		// truth (the exported constant internal/learn.RecallFirstProtocol)
+		// also consumed by the CLI agent-context command, so the MCP and
+		// CLI agent surfaces cannot drift.
+		"learn_protocol": learn.RecallFirstProtocol,
 		"auth": map[string]any{
 			"type":     "cookie",
 			"docs_url": "https://jane.app",
@@ -839,20 +845,6 @@ func handleContext(_ context.Context, _ mcplib.CallToolRequest) (*mcplib.CallToo
 			"Use the sql tool for ad-hoc analysis on synced data. Run sync first to populate the local database.",
 			"Use the search tool for full-text search across all synced resources. Faster than iterating list endpoints.",
 			"Prefer sql/search over repeated API calls when the data is already synced.",
-		},
-		// Command-mirror capabilities are exposed through MCP by shelling out
-		// to the companion CLI binary.
-		"command_mirror_capabilities": []map[string]string{
-			{"name": "Unified cross-clinic agenda", "command": "agenda", "description": "See every appointment across every Jane clinic you use in one chronological view.", "rationale": "Jane forces a separate login per clinic subdomain; only a local tool holding all clinics can merge them.", "via": "mcp-command-mirror"},
-			{"name": "Next-opening finder", "command": "next-opening", "description": "Find the soonest available slot for a practitioner + treatment, paging past Jane's 7-day availability cap.", "rationale": "Jane's openings API refuses windows longer than 7 days; the CLI stitches consecutive windows until it finds a slot.", "via": "mcp-command-mirror"},
-			{"name": "Availability watch", "command": "watch", "description": "Poll availability and alert when an earlier slot than a target opens up.", "rationale": "Requires repeated windowed polling and diffing against a target date that no single Jane API call provides.", "via": "mcp-command-mirror"},
-			{"name": "Cross-clinic conflict check", "command": "conflict-check", "description": "Before booking, warn if a candidate slot collides with an existing appointment at another clinic.", "rationale": "Requires a unified local view of appointments across every clinic, which only the multi-clinic store holds.", "via": "mcp-command-mirror"},
-		},
-		"playbook": []map[string]string{
-			{"topic": "Unified cross-clinic agenda", "insight": "Jane forces a separate login per clinic subdomain; only a local tool holding all profiles can merge them."},
-			{"topic": "Next-opening finder", "insight": "Jane's openings API refuses windows longer than 7 days; the CLI stitches consecutive windows until it finds a slot."},
-			{"topic": "Availability watch", "insight": "Requires repeated windowed polling and diffing against a target date that no single Jane API call provides."},
-			{"topic": "Cross-clinic conflict check", "insight": "Requires a unified local view of appointments across every clinic, which only the multi-profile store holds."},
 		},
 	}
 	return toolResultJSON(ctx)

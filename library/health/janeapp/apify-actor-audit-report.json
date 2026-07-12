@@ -1,9 +1,0 @@
-{
-  "dir": "\u003ccli-dir\u003e/janeapp-pp-cli",
-  "research_dir": "\u003ccli-dir\u003e/20260707-170547",
-  "verdict": "pass",
-  "actors": null,
-  "issues": [
-    "no Apify actor references found, skipping"
-  ]
-}

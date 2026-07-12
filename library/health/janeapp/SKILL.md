@@ -1,6 +1,6 @@
 ---
 name: pp-janeapp
-description: "Book, view, and manage your Jane (janeapp.com) appointments across every clinic from one terminal — with a unified agenda, next-opening finder, and availability watch the patient portal can't do. Trigger phrases: `book a physio appointment`, `when is my next appointment`, `check my jane appointments`, `find the earliest opening`, `reschedule my appointment`, `use janeapp`, `run janeapp`."
+description: "Book, view, and manage your Jane (janeapp.com) appointments across every clinic from the terminal — unified agenda, next-opening finder, and availability watch the patient portal can't do."
 author: "Omar Shahine"
 license: "Apache-2.0"
 argument-hint: "<command> [args] | install cli|mcp"
@@ -16,7 +16,7 @@ metadata:
         module: github.com/mvanhorn/printing-press-library/library/health/janeapp/cmd/janeapp-pp-cli
 ---
 
-# Jane App — Printing Press CLI
+# Janeapp — Printing Press CLI
 
 ## Prerequisites: Install the CLI
 
@@ -37,57 +37,22 @@ go install github.com/mvanhorn/printing-press-library/library/health/janeapp/cmd
 
 If `--version` reports "command not found" after install, the runtime cannot see the binary directory on `$PATH`. Do not proceed with skill commands until verification succeeds.
 
-Jane is the booking platform behind thousands of physio, massage, chiro, and wellness clinics, but each clinic is a separate subdomain with its own login and no public API. This CLI holds a profile per clinic, imports the session from a browser where you're already logged in (Jane gates password login behind reCAPTCHA), and unifies booking, viewing, and managing appointments across all of them. `agenda` merges every booking into one view; `next-opening` pages past Jane's 7-day availability cap to find the soonest slot.
-
-## When to Use This CLI
-
-Use this CLI when you are a patient at one or more Jane clinics and want to book, check, or reschedule appointments without logging into each clinic's web portal separately. It shines when you juggle multiple providers on Jane and want a single agenda and availability search across all of them.
+CLI for Jane (janeapp.com) patient online booking. Log in to any Jane clinic
+with your patient username and password, browse practitioners, treatments, and
+live availability, view your upcoming and past appointments, and book, reschedule,
+or cancel — across every clinic you use, from one tool. Jane is multi-tenant: each
+clinic is its own subdomain (e.g. embophysio.janeapp.com), so each profile stores
+its own base URL and session.
 
 ## When Not to Use This CLI
 
 Do not activate this CLI for requests that require creating, updating, deleting, publishing, commenting, upvoting, inviting, ordering, sending messages, booking, purchasing, or changing remote state. This printed CLI exposes read-only commands for inspection, export, sync, and analysis.
 
-## Unique Capabilities
-
-These capabilities aren't available in any other tool for this API.
-
-### Cross-clinic
-- **`agenda`** — See every appointment across every Jane clinic you use in one chronological view.
-
-  _One call answers 'what do I have coming up anywhere' instead of logging into each clinic portal separately._
-
-  ```bash
-  janeapp-pp-cli agenda --agent
-  ```
-- **`conflict-check`** — Before booking, warn if a candidate slot collides with an existing appointment at another clinic.
-
-  _Prevents double-booking yourself across different clinics._
-
-  ```bash
-  janeapp-pp-cli conflict-check --at 2026-07-15T09:00:00 --duration 60
-  ```
-
-### Availability intelligence
-- **`next-opening`** — Find the soonest available slot for a practitioner + treatment, paging past Jane's 7-day availability cap.
-
-  _Answers 'when is the earliest I can get in' without clicking week-by-week through the portal._
-
-  ```bash
-  janeapp-pp-cli next-opening --clinic embophysio --treatment 1 --staff 1
-  ```
-- **`watch`** — Poll availability and alert when an earlier slot than a target opens up.
-
-  _Catches cancellations that free up an earlier appointment._
-
-  ```bash
-  janeapp-pp-cli watch --clinic embophysio --treatment 1 --staff 1 --before 2026-08-01
-  ```
-
 ## Command Reference
 
 **appointments** — Your own appointments at the clinic (requires a logged-in session).
 
-- `janeapp-pp-cli appointments upcoming` / `janeapp-pp-cli appointments past` — View your upcoming or past appointments (add `--all-clinics` to merge every logged-in clinic). Requires a logged-in session.
+- `janeapp-pp-cli appointments` — List your upcoming and past appointments for the active profile.
 
 **disciplines** — Disciplines (categories of care) offered by the clinic, e.g. Physical Therapy.
 
@@ -116,6 +81,10 @@ This printed CLI owns bounded freshness only for registered store-backed read co
 
 Covered paths:
 
+- `janeapp-pp-cli appointments`
+- `janeapp-pp-cli appointments get`
+- `janeapp-pp-cli appointments list`
+- `janeapp-pp-cli appointments search`
 - `janeapp-pp-cli disciplines`
 - `janeapp-pp-cli disciplines get`
 - `janeapp-pp-cli disciplines list`
@@ -149,43 +118,21 @@ janeapp-pp-cli which "<capability in your own words>"
 
 `which` resolves a natural-language capability query to the best matching command from this CLI's curated feature index. Exit code `0` means at least one match; exit code `2` means no confident match — fall back to `--help` or use a narrower query.
 
-## Recipes
-
-### Unified agenda across clinics
-
-```bash
-janeapp-pp-cli agenda --agent --select clinic,date,start_at,practitioner,treatment
-```
-
-Every upcoming appointment from every logged-in clinic, narrowed to the fields an agent needs.
-
-### Earliest slot with a specific PT
-
-```bash
-janeapp-pp-cli next-opening --clinic embophysio --treatment 1 --staff 1
-```
-
-Stitches 7-day windows until it finds the first available opening.
-
-### Export appointments to a calendar file
-
-```bash
-janeapp-pp-cli calendar --all-clinics --out ~/jane.ics
-```
-
-Generates an ICS from your appointments across every clinic; import into Apple/Google Calendar or subscribe live with 'calendar --url'.
-
-### Book a slot (dry-run first)
-
-```bash
-janeapp-pp-cli book --clinic embophysio --treatment 1 --staff 1 --location 1 --at 2026-07-15T09:00:00
-```
-
-Shows the reserve/confirm request without writing; add --confirm to actually book.
-
 ## Auth Setup
 
-Each Jane clinic is its own subdomain with a separate patient account, and Jane gates username/password login behind reCAPTCHA. So the CLI imports the _front_desk_session cookie from a browser where you're already logged in: register a clinic (`clinic add <name> --url=https://<clinic>.janeapp.com`), log in to it once in your browser, then run `auth login --clinic <name> --chrome` (or `--cookies-file <file>`). Repeat per clinic; read commands accept --all-clinics.
+This CLI uses a browser session. Log in to .janeapp.com in Chrome, then:
+
+```bash
+janeapp-pp-cli auth login --chrome
+```
+
+Or import an existing browser capture:
+
+```bash
+janeapp-pp-cli auth login --cookies-file storage-state.json
+```
+
+`--cookies-file` accepts Playwright storage-state JSON or a raw `Cookie:` header text file. The Chrome path requires a cookie extraction tool (`pycookiecheat` via pip, or `cookies` via Homebrew).
 
 Run `janeapp-pp-cli doctor` to verify setup.
 
@@ -244,6 +191,198 @@ Agents should treat the CLI's path resolver as part of the runtime contract:
 
 Fleet precedence: an inherited per-kind env var overrides an explicit `--home` for that kind. Use `JANEAPP_HOME` or per-kind vars as durable fleet levers, and use `--home` only for a single invocation. Relocation is not reversible by unsetting env vars; move files manually before clearing `JANEAPP_HOME`, or `doctor` will not find credentials left under the former root.
 
+## Automatic learning
+
+This CLI ships a self-capturing learning loop. The CLI does its own bookkeeping: every invocation is journaled locally, a failed flag followed by a corrected retry auto-derives a `flag_alias` candidate, and a `teach` on a query family without a playbook auto-synthesizes a `playbook_candidate` from the session's journal. Your job is judgment only: `recall` first, act on surfaced candidates, `teach` the final answer, `playbook amend` when you observe a correction. You never record failures by hand.
+
+### Step 1: `recall` before any discovery
+
+Before list/search/drill commands on a new user question, run:
+
+```bash
+janeapp-pp-cli recall "<user's question>" --agent
+```
+
+The response envelope:
+
+```json
+{
+  "query": "...",
+  "normalized": "<normalized form>",
+  "query_entities": ["..."],
+  "found": true | false,
+  "match_score": 0.0,
+  "results": [
+    { "resource_id": "...", "resource_type": "...", "venue": "...",
+      "confidence": 2, "entity_match": "exact|partial|unknown",
+      "source": "taught|preseed|pattern", "warnings": ["..."] }
+  ],
+  "mismatches": [ /* only when --debug-mismatches */ ],
+  "warnings": [ /* top-level */ ],
+  "candidates": [
+    { "id": 12, "class": "flag_alias | playbook_candidate",
+      "summary": "...", "sightings": 3, "last_seen": "...",
+      "rationale": "...",
+      "next_action": ["<trial command>", "janeapp-pp-cli learnings confirm 12"] }
+  ],
+  "playbook": {
+    "query_family": "...",
+    "playbook": {
+      "steps": [ { "cmd": "<command with {slot} substitution>", "purpose": "..." } ],
+      "entity_slots": ["$ENTITY"],
+      "expected_tool_calls": 3
+    },
+    "slots_resolved": { "$ENTITY": { "token": "<live token>", "canonical": "<canonical>" } },
+    "notes": "<workarounds + gotchas for this query family>"
+  },
+  "notes": "<duplicate surface for non-playbook callers>"
+}
+```
+
+Empty-store short-circuit: if the store has no learnings, playbooks, or candidates yet (recall finds nothing and `learnings list` and `learnings candidates` are both empty), skip recall for the rest of this session instead of taxing every query; resume recall-first once something has been taught.
+
+### Step 2: decision tree
+
+Read `candidates`, `playbook`, `notes`, `results[0]`, and warnings in that order:
+
+```
+if Candidates present (warnings include "candidates_present"):
+    -> candidates are try-then-confirm, never facts. Follow each candidate's
+       two-step next_action verbatim: run the trial command first, then run
+       `learnings confirm <id>` only after the trial verified the behavior.
+       Reject a wrong candidate with `learnings reject <id>`.
+    -> NEVER re-teach something recall surfaced as a candidate; confirm or
+       reject that candidate instead of teaching a duplicate.
+    -> candidates ride alongside playbooks and resource hits, not instead of
+       them; continue with the branches below after acting on them.
+
+if Playbook present:
+    -> READ Playbook.notes verbatim FIRST (workarounds + gotchas the CLI surface doesn't expose)
+    -> replay Playbook.steps in order, substituting Playbook.slots_resolved entries
+       for the entity slot tokens. If a step's slot is unresolved, fall back to
+       discovery for that step only.
+    -> the Playbook's expected_tool_calls is a budget; if you find yourself running
+       materially more, record the divergence via `janeapp-pp-cli playbook amend`
+       at end-of-session.
+
+elif Notes present (no Playbook):
+    -> read Notes verbatim before any discovery step; they carry known gotchas
+       for this query family even when no structured choreography exists yet.
+
+elif Found AND Results[0].EntityMatch == "exact" AND Results[0].Confidence >= 2:
+    -> skip discovery; fetch live data for Results[*].ResourceID in parallel
+
+elif Found AND Results[0].EntityMatch == "partial":
+    -> candidate hint, NOT a hit; read the resource title to validate before trusting
+
+elif (any row in Mismatches[] when --debug-mismatches was passed):
+    -> treat as cold start; the stored learning is for a different entity
+       (different canonical resolved from query_entities)
+
+else:  // Found == false, no playbook, no notes
+    -> cold start; run discovery normally; teach the answer afterward (Step 4).
+       If the family has no playbook yet, that teach auto-synthesizes a
+       playbook candidate from this session's journal - you do not need to
+       record one by hand.
+```
+
+Playbook and Notes are orthogonal to the per-resource path. A recall response can carry both a Playbook AND a `Results[]` hit - use both: the Playbook tells you which choreography to run; the resource hits short-circuit specific steps. Default to skipping `mismatches`; pass `--debug-mismatches` only when investigating cold-start surprises.
+
+Candidate judgment details: `learnings confirm <id>` prints the candidate's full payload before materializing it - check that the printed payload matches the behavior you verified. `learnings reject <id>` tombstones the derivation signature so the same candidate does not resurface. The envelope carries only the few candidates worth acting on now; `janeapp-pp-cli learnings candidates` lists the full open set.
+
+Graceful degradation: if `learnings confirm` is an unknown command, you are driving an older binary - ignore the candidates guidance and follow the rest of the protocol.
+
+### Step 3: always read `warnings`
+
+- `low_confidence`: row exists at `confidence<2`. Treat as a hint, not a skip-discovery hit.
+- `resource_not_in_store`: the local store doesn't have the resource the learning points at. The match validator couldn't classify entities — direct-fetch and re-evaluate.
+- `cross_alias_match` (per-result): the row was taught under a different alias and matched the live query's canonical via `entity_lookups` (e.g., a "USA" teach satisfying a "United States" recall). Trust the resource_id.
+- `similar_shape_different_entity:<canonical>` (top-level): a structurally matching row exists but its canonical entity differs from the live query's. Treated as cold start; the warning carries the conflicting canonical as a hint, but the row is NOT promoted into Results.
+- `ambiguous_alias` (top-level): a single query entity resolved to multiple canonicals (e.g., "Cards" → Arizona Cardinals + St. Louis Cardinals). Surface the ambiguity from context before committing to a resource.
+- `candidates_present` (top-level): the envelope carries a `candidates` section. Handle it via the candidates branch in Step 2 before anything else.
+- `lookup_refresh_available` (top-level): an entity in the query has no lookup row yet, but synced data could provide one. Run `janeapp-pp-cli sync` to refresh entity lookups.
+- Top-level `no_learnings_for_query_family`: the table had no rows above the Jaccard floor. Pure cold start.
+
+### Step 4: `teach &` after finalizing your response - always
+
+Teaching is unconditional. After resolving a query the store could not answer, background-teach the final resource mapping - no call-count threshold, no judging whether it was "worth" learning. The teach is the anchor of the loop: it triggers playbook synthesis for a family without a playbook, and same-referent phrasings fold into one family so near-duplicate teaches do not fragment the store. Fire it after assembling your user-facing response but BEFORE emitting it, with a shell `&` so the call returns immediately:
+
+```bash
+janeapp-pp-cli teach --query "<user's question>" --resource-type <type> --resource <id1> --resource <id2>
+# (append shell `&` to background it)
+```
+
+Silent on success. Errors only land in `teach.log` under the resolved state dir. Teach the **most specific** resource - if the user asked a broad question and you walked through parent records to find the specific answer, teach the leaf id, not the parent. The CLI uses seeded `entity_lookups` for cross-alias resolution at recall time, so a teach under one alias (e.g., "Niners") satisfies future queries under another alias (e.g., "49ers", "San Francisco") automatically.
+
+PII rule: teach the structural question with identifiers stripped - never include names, emails, phone numbers, account ids, or other personal identifiers in taught queries or notes. The CLI scans teach queries for obvious email/phone shapes and warns, but does not block; strip before teaching rather than relying on the warning.
+
+### Step 5: playbooks - optional flags, automatic synthesis
+
+You do not need to decide whether a session "deserves" a playbook: a teach on a family without one auto-synthesizes a `playbook_candidate` from the session's journal, and the next session judges it via confirm/reject. Attach explicit playbook flags only when you already hold choreography worth recording verbatim - workarounds the CLI didn't surface (silently-dropped flags, undocumented params, pagination tricks, payload gotchas). Prefer the **integrated one-call form** - record the resource learning and the playbook in the same `teach` invocation:
+
+```bash
+# Common case: record both the resource learning AND the playbook in one call.
+janeapp-pp-cli teach \
+  --query "<user's question>" \
+  --resource <id> \
+  --playbook-file ~/playbooks/<shape>.json \
+  --playbook-notes-file ~/playbooks/<shape>-notes.md
+# (append shell `&` to background it)
+
+# Alternate: playbook-only (no resource to record alongside).
+janeapp-pp-cli teach-playbook \
+  --query "<user's question>" \
+  --playbook-file ~/playbooks/<shape>.json \
+  --notes-file ~/playbooks/<shape>-notes.md
+```
+
+Playbook files are JSON with `steps`, `entity_slots`, `expected_tool_calls`. Notes files are markdown carrying the gotchas verbatim. File-free callers (MCP-only agents) pass the same content inline: `--playbook-json` and `--playbook-notes` on the integrated `teach` form, `--playbook-json` and `--notes` on `teach-playbook`. On the integrated `teach` form, the playbook flags are optional - omit them entirely for a resource-only teach. On the standalone `teach-playbook` form, at least one of the playbook and notes flags must be set; both empty is rejected. Playbooks are keyed on the structural query family (entities stripped) so a recipe taught from one entity-shaped query applies to every other query of the same shape, with `slots_resolved` binding the live query's canonical at recall time.
+
+When you DO find a playbook on a future recall, treat it as ground truth: replay the steps with `slots_resolved` substitutions, skip the discovery that the choreography already documents, and read `notes` before any step.
+
+### Step 6: `playbook amend &` when your debug response identifies a correction
+
+If your debug-protocol response identifies a concrete correction the notes or playbook should know — a workaround, an undocumented endpoint shape, a stale field name, observed schema drift, an empty-payload fallback — fire `playbook amend` BEFORE emitting your user-facing response. Same fire-and-forget posture as `teach`.
+
+```bash
+janeapp-pp-cli playbook amend \
+  --query "<exact recall query string>" \
+  --add-note "<your concrete correction>"
+# (append shell `&` to background it)
+```
+
+What counts as worth amending: a behavior you OBSERVED this session that future-you would benefit from knowing. Examples worth amending:
+
+- A workaround for a CLI surface that silently drops or misorders a flag.
+- An undocumented endpoint shape (response wrapped in `{meta, results}`, payload nested two levels deeper than the docs claim).
+- Observed schema drift (a field renamed, an index that shifted between seasons, a category label that the API now returns lower-cased).
+
+What does NOT belong in notes:
+
+- The year-specific or entity-specific answer to the user's question. That's the response, not a learning.
+- Per-team / per-athlete / per-row data the playbook already retrieves at runtime.
+- Statements that paraphrase what the existing notes already say.
+
+The amend command appends to the family's existing notes with a timestamped marker (`[amend YYYY-MM-DDTHH:MMZ]: <text>`). Multiple amends accumulate; the audit trail is visible. If no playbook exists yet for the family, amend creates a notes-only one (so cold-start corrections still land).
+
+#### PII discipline for amend notes
+
+`playbook amend` notes are designed to potentially flow upstream as shared knowledge in future versions of the Printing Press. Keep them clean of user-identifying content so the upstream-contribution path stays open without retroactive scrubbing:
+
+- **Do NOT embed** paths to user filesystems, personal API keys or tokens, user email addresses, user GitHub handles, or specific query histories tied to a single user.
+- **Acceptable**: endpoint shapes, undocumented field names, API gotchas, observed schema drift, workarounds for CLI surfaces, generalizable pagination or retry tactics.
+
+If a correction is only meaningful with user-specific context, it belongs in a personal note, not in the playbook amend.
+
+### Measuring the loop
+
+`janeapp-pp-cli learnings stats` reports recall hit rate, teach-to-reuse, playbook resolution rate, and candidate confirm/reject counts from the local `learn_events` table. Rates are null until they have a denominator; everything stays on this machine. Use it to check whether the loop is earning its keep for this CLI.
+
+### Disabling learning
+
+- `--no-learn` on a single command short-circuits both `recall` and the `teach` write path. Use for deterministic agent flows or tests that must not be affected by accumulated learnings.
+- `JANEAPP_NO_LEARN=true` in the environment globally disables the pipeline.
+
 ## Agent Feedback
 
 When you (or the agent) notice something off about this CLI, record it:
@@ -272,7 +411,7 @@ Unknown schemes are refused with a structured error naming the supported set. We
 
 ## Named Profiles
 
-A profile is a saved set of flag values, reused across invocations. Use it when a scheduled agent calls the same command every run with the same configuration - HeyGen's "Beacon" pattern.
+A profile is a saved set of flag values, reused across invocations. Use it when a scheduled or recurring agent reuses the same saved flags while providing different input each run.
 
 ```
 janeapp-pp-cli profile save briefing --json

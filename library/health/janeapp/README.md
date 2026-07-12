@@ -1,10 +1,13 @@
-# Jane App CLI
+# Janeapp CLI
 
-**Book, view, and manage your Jane (janeapp.com) appointments across every clinic from one terminal — with a unified agenda, next-opening finder, and availability watch the patient portal can't do.**
+CLI for Jane (janeapp.com) patient online booking. Log in to any Jane clinic
+with your patient username and password, browse practitioners, treatments, and
+live availability, view your upcoming and past appointments, and book, reschedule,
+or cancel — across every clinic you use, from one tool. Jane is multi-tenant: each
+clinic is its own subdomain (e.g. embophysio.janeapp.com), so each profile stores
+its own base URL and session.
 
-Jane is the booking platform behind thousands of physio, massage, chiro, and wellness clinics, but each clinic is a separate subdomain with its own login and no public API. This CLI holds a profile per clinic, imports the session from a browser where you're already logged in (Jane gates password login behind reCAPTCHA), and unifies booking, viewing, and managing appointments across all of them. `agenda` merges every booking into one view; `next-opening` pages past Jane's 7-day availability cap to find the soonest slot.
-
-Learn more at [Jane App](https://jane.app).
+Learn more at [Janeapp](https://jane.app).
 
 Created by [@omarshahine](https://github.com/omarshahine) (Omar Shahine).
 
@@ -124,102 +127,48 @@ Add to your Claude Desktop config (`~/Library/Application Support/Claude/claude_
 
 </details>
 
-## Authentication
-
-Each Jane clinic is its own subdomain with a separate patient account, and Jane gates username/password login behind reCAPTCHA. So the CLI imports the _front_desk_session cookie from a browser where you're already logged in: register a clinic (`clinic add <name> --url=https://<clinic>.janeapp.com`), log in to it once in your browser, then run `auth login --clinic <name> --chrome` (or `--cookies-file <file>`). Repeat per clinic; read commands accept --all-clinics.
-
 ## Quick Start
 
-```bash
-# Register a clinic; each keeps its own subdomain and session.
-janeapp-pp-cli clinic add embophysio --url=https://embophysio.janeapp.com
+### 1. Install
 
-# Log in to the clinic in Chrome first, then import that session (Jane blocks CLI password login via reCAPTCHA).
-janeapp-pp-cli auth login --clinic embophysio --chrome
+See [Install](#install) above.
 
-# View your upcoming appointments at that clinic.
-janeapp-pp-cli appointments upcoming --clinic embophysio
+### 2. Authenticate
 
-# List practitioners so you have IDs for availability and booking.
-janeapp-pp-cli staff --clinic embophysio
-
-# Find the soonest bookable slot, paging past the 7-day window.
-janeapp-pp-cli next-opening --clinic embophysio --treatment 1 --staff 1
-
-# Every appointment across every logged-in clinic in one view.
-janeapp-pp-cli agenda
-
-```
-
-## Unique Features
-
-These capabilities aren't available in any other tool for this API.
-
-### Cross-clinic
-- **`agenda`** — See every appointment across every Jane clinic you use in one chronological view.
-
-  _One call answers 'what do I have coming up anywhere' instead of logging into each clinic portal separately._
-
-  ```bash
-  janeapp-pp-cli agenda --agent
-  ```
-- **`conflict-check`** — Before booking, warn if a candidate slot collides with an existing appointment at another clinic.
-
-  _Prevents double-booking yourself across different clinics._
-
-  ```bash
-  janeapp-pp-cli conflict-check --at 2026-07-15T09:00:00 --duration 60
-  ```
-
-### Availability intelligence
-- **`next-opening`** — Find the soonest available slot for a practitioner + treatment, paging past Jane's 7-day availability cap.
-
-  _Answers 'when is the earliest I can get in' without clicking week-by-week through the portal._
-
-  ```bash
-  janeapp-pp-cli next-opening --clinic embophysio --treatment 1 --staff 1
-  ```
-- **`watch`** — Poll availability and alert when an earlier slot than a target opens up.
-
-  _Catches cancellations that free up an earlier appointment._
-
-  ```bash
-  janeapp-pp-cli watch --clinic embophysio --treatment 1 --staff 1 --before 2026-08-01
-  ```
-
-## Recipes
-
-### Unified agenda across clinics
+This CLI uses your browser session for authentication. Log in to .janeapp.com in Chrome, then:
 
 ```bash
-janeapp-pp-cli agenda --agent --select clinic,date,start_at,practitioner,treatment
+janeapp-pp-cli auth login --chrome
 ```
 
-Every upcoming appointment from every logged-in clinic, narrowed to the fields an agent needs.
-
-### Earliest slot with a specific PT
+Or import an existing browser capture:
 
 ```bash
-janeapp-pp-cli next-opening --clinic embophysio --treatment 1 --staff 1
+janeapp-pp-cli auth login --cookies-file storage-state.json
 ```
 
-Stitches 7-day windows until it finds the first available opening.
-
-### Export appointments to a calendar file
+`--cookies-file` accepts Playwright storage-state JSON or a raw `Cookie:` header text file. The Chrome path requires a cookie extraction tool. Install one:
 
 ```bash
-janeapp-pp-cli calendar --all-clinics --out ~/jane.ics
+pip install pycookiecheat          # Python (recommended)
+brew install barnardb/cookies/cookies  # Homebrew
 ```
 
-Generates an ICS from your appointments across every clinic; import into Apple/Google Calendar or subscribe live with 'calendar --url'.
+When your session expires, run `auth login --chrome` again.
 
-### Book a slot (dry-run first)
+### 3. Verify Setup
 
 ```bash
-janeapp-pp-cli book --clinic embophysio --treatment 1 --staff 1 --location 1 --at 2026-07-15T09:00:00
+janeapp-pp-cli doctor
 ```
 
-Shows the reserve/confirm request without writing; add --confirm to actually book.
+This checks your configuration and credentials.
+
+### 4. Try Your First Command
+
+```bash
+janeapp-pp-cli appointments
+```
 
 ## Usage
 
@@ -280,7 +229,7 @@ Existing installs keep working because the platform-default rung matches the leg
 
 Your own appointments at the clinic (requires a logged-in session).
 
-- **`janeapp-pp-cli appointments upcoming`** / **`janeapp-pp-cli appointments past`** - View your upcoming or past appointments (add `--all-clinics` to merge every logged-in clinic). Requires a logged-in session.
+- **`janeapp-pp-cli appointments`** - List your upcoming and past appointments for the active profile.
 
 ### disciplines
 
@@ -312,6 +261,23 @@ Bookable treatments/services with price, duration, and online-booking eligibilit
 
 - **`janeapp-pp-cli treatments`** - List treatments (services) with price, duration, discipline, and whether they can be booked online.
 
+
+### Self-learning loop
+
+This CLI caches per-question discovery so repeat queries skip the walk and structurally similar queries get answered via entity substitution. The loop also self-captures: every invocation is journaled locally, and failed-flag corrections plus fresh teaches surface as candidates on the next `recall` for confirm/reject judgment. Agents call `recall` before discovery and fire `teach &` after answering. See the `## Automatic learning` section in `SKILL.md` for the full protocol.
+
+- **`janeapp-pp-cli recall <query>`** - Look up cached resources for a query before running discovery
+- **`janeapp-pp-cli teach`** - Record a query -> resource mapping (silent on success, safe to background with `&`)
+- **`janeapp-pp-cli learnings list`** - Inspect taught rows
+- **`janeapp-pp-cli learnings forget <query>`** - Undo a teach
+- **`janeapp-pp-cli learnings candidates`** - List auto-captured candidates awaiting confirm/reject
+- **`janeapp-pp-cli learnings stats`** - Local loop metrics: recall hit rate, teach-to-reuse, playbook resolution, candidate counts
+- **`janeapp-pp-cli teach-pattern`** - Install a query/resource template up front
+- **`janeapp-pp-cli teach-lookup`** - Add an entity mapping (e.g. country code, team alias) for pattern substitution
+
+Pass `--no-learn` or set `JANEAPP_NO_LEARN=true` to disable the loop for deterministic flows.
+
+The local store's schema version stamp is one-way: once this version of `janeapp-pp-cli` opens the database, older binaries refuse it with a version error — upgrade the binary rather than downgrading.
 
 ## Output Formats
 
@@ -353,6 +319,10 @@ This CLI owns bounded freshness for registered store-backed read command paths. 
 Set `JANEAPP_NO_AUTO_REFRESH=1` to disable the pre-read freshness hook while preserving the selected data source.
 
 Covered command paths:
+- `janeapp-pp-cli appointments`
+- `janeapp-pp-cli appointments get`
+- `janeapp-pp-cli appointments list`
+- `janeapp-pp-cli appointments search`
 - `janeapp-pp-cli disciplines`
 - `janeapp-pp-cli disciplines get`
 - `janeapp-pp-cli disciplines list`
@@ -397,40 +367,6 @@ Static request headers can be configured under `headers`; per-command header ove
 - Check the resource ID is correct
 - Run the `list` command to see available items
 
-### API-specific
-- **auth login says reCAPTCHA required / lands on /auth/failure** — Jane blocks CLI password login. Log in to the clinic in your browser, then import with 'auth login --clinic <name> --chrome'.
-- **appointments return 401** — Your imported session expired — log in again in the browser and re-run 'auth login --clinic <name> --chrome'.
-- **openings returns 'Number of days must be an integer between 1 and 7'** — Use num-days 1..7; for longer horizons use next-opening/watch which page automatically.
+---
 
-## Known Gaps
-
-Jane exposes no public patient API, so this CLI is built against its live web
-endpoints. Coverage is verified to different depths:
-
-- **Verified live (public, unauthenticated):** `locations`, `disciplines`,
-  `treatments`, `staff`, `openings`, and `next-opening` were exercised against
-  real Jane clinics.
-- **Auth is browser-session import, not password.** Jane gates username/password
-  login behind reCAPTCHA, so `auth login` imports the `_front_desk_session` cookie
-  from a browser where you're already logged in (`--chrome` / `--cookies-file`).
-  A `--username`/`--password` path exists but Jane rejects it with a reCAPTCHA
-  error; the CLI detects this and points you to the cookie path.
-- **Verified live (authenticated):** `auth login --chrome`, `appointments`
-  (upcoming/past), `agenda`, `openings`/`next-opening` (future dates), `book`, and
-  `calendar` were all confirmed against a real logged-in account.
-- **`book`, `cancel`, and `reschedule` are verified live** against a real account:
-  - `book` runs Jane's reserve → confirm flow (`POST /api/v2/reservations` then
-    `POST /api/v2/appointments/{id}/book`).
-  - `cancel` is `DELETE /api/v2/appointments/{id}` (the patient endpoint; the
-    `/cancel` suffix is the staff API).
-  - `reschedule` books the new slot first, then cancels the old with a fresh CSRF
-    token (Jane rotates it after each mutation) — so a failed new booking never
-    loses your original appointment.
-  All three are dry-run by default; add `--confirm` to submit.
-- **Cancelled appointments are excluded from `upcoming`/`agenda`** but shown in
-  `past` and the ICS feed (with `STATUS:CANCELLED`).
-- **Availability uses `date`, not `start_date`.** Jane's `/api/v2/openings` keys the
-  window on `date`; passing `start_date` is silently ignored (it returns only the
-  current week). The CLI sends `date` — a fix over the initial spec guess.
-- **`calendar`** generates a `.ics` from your appointments (`--out`) and prints
-  Jane's native live subscribe URL (`--url`) for auto-syncing in a calendar app.
+Generated by [CLI Printing Press](https://github.com/mvanhorn/cli-printing-press)

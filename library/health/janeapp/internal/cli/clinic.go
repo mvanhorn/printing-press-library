@@ -17,8 +17,8 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/spf13/cobra"
 	"github.com/mvanhorn/printing-press-library/library/health/janeapp/internal/cliutil"
+	"github.com/spf13/cobra"
 )
 
 // Clinic is one Jane tenant: a clinic's subdomain plus the patient session for

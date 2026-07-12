@@ -8,8 +8,8 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/spf13/cobra"
 	"github.com/mvanhorn/printing-press-library/library/health/janeapp/internal/store"
+	"github.com/spf13/cobra"
 )
 
 // isNilOrEmpty checks whether a JSON search hit is only an empty shell.

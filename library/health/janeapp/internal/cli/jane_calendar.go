@@ -196,8 +196,14 @@ func discoverICSSubscribeURL(ctx context.Context, hc *http.Client, base string) 
 			fmt.Fprintf(os.Stderr, "[cal-debug] %s status=%d len=%d\n", p, resp.StatusCode, len(s))
 			for _, kw := range []string{"ics", "ical", "webcal", "calendar", "subscribe", "feed_token", "sync"} {
 				if i := strings.Index(strings.ToLower(s), kw); i >= 0 {
-					lo := i - 40; if lo < 0 { lo = 0 }
-					hi := i + 60; if hi > len(s) { hi = len(s) }
+					lo := i - 40
+					if lo < 0 {
+						lo = 0
+					}
+					hi := i + 60
+					if hi > len(s) {
+						hi = len(s)
+					}
 					fmt.Fprintf(os.Stderr, "  %s: ...%s...\n", kw, strings.ReplaceAll(s[lo:hi], "\n", " "))
 				}
 			}

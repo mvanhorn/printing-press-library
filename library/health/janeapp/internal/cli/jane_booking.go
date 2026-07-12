@@ -37,10 +37,10 @@ type janeBooker struct {
 
 type reservationResp struct {
 	Reservation struct {
-		ID          int             `json:"id"`
-		Patient     json.RawMessage `json:"patient"`
-		TreatmentID int             `json:"treatment_id"`
-		StartAt     string          `json:"start_at"`
+		ID           int             `json:"id"`
+		Patient      json.RawMessage `json:"patient"`
+		TreatmentID  int             `json:"treatment_id"`
+		StartAt      string          `json:"start_at"`
 		SessionAppts []struct {
 			ID int `json:"id"`
 		} `json:"session_appointments"`

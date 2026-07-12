@@ -17,7 +17,7 @@ func newStaffPromotedCmd(flags *rootFlags) *cobra.Command {
 		Use:         "staff",
 		Short:       "List practitioners, their bookable treatment IDs, and online-booking availability.",
 		Long:        "List practitioners, their bookable treatment IDs, and online-booking availability.",
-		Example:     "  janeapp-pp-cli staff --profile embophysio",
+		Example:     "  janeapp-pp-cli staff",
 		Annotations: map[string]string{"pp:endpoint": "staff.list", "pp:method": "GET", "pp:path": "/api/v2/staff_members", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

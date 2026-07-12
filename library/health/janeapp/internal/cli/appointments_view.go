@@ -14,8 +14,8 @@ import (
 	"sort"
 	"time"
 
-	"github.com/spf13/cobra"
 	"github.com/mvanhorn/printing-press-library/library/health/janeapp/internal/client"
+	"github.com/spf13/cobra"
 )
 
 // fetchLocationNames returns a location_id -> name map for the active clinic.
