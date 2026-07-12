@@ -2,8 +2,8 @@
   "manifest_version": "0.3",
   "name": "everbee-pp-mcp",
   "display_name": "EverBee",
-  "version": "4.19.0",
-  "description": "Research Etsy products, shops, and keywords from EverBee in a repeatable agent-ready workflow.",
+  "version": "0.2.0",
+  "description": "Etsy niche research whose scores come with their evidence attached — seeded search, honest confidence, and a local store that turns repeat research into trends.",
   "author": {
     "name": "CLI Printing Press"
   },

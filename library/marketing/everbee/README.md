@@ -1,8 +1,8 @@
 # EverBee CLI
 
-**Research Etsy products, shops, and keywords from EverBee in a repeatable agent-ready workflow.**
+**Etsy niche research whose scores come with their evidence attached — seeded search, honest confidence, and a local store that turns repeat research into trends.**
 
-EverBee is strongest inside an interactive browser. This CLI turns captured product analytics, shop analyzer, and keyword research workflows into repeatable commands with JSON, local snapshots, search, SQL, and cross-workflow opportunity scoring.
+EverBee's data is the best Etsy research signal available, but its API will happily answer a question you did not ask: the default suggestion feeds return unranked filler regardless of your seed. This CLI queries the endpoints EverBee's own search boxes call, then stamps every returned row with a relevance score, an evidence count, and provenance. Confidence tracks evidence coverage, so a niche with no keyword support cannot come back looking confident. Use 'research niche' for a defensible verdict on one seed, 'research subniches' to rank a whole family of them, and 'selftest' to prove the data path is semantically sound before you trust a batch run.
 
 Learn more at [EverBee](https://api.everbee.com).
 
@@ -75,7 +75,6 @@ Inside a Hermes chat session:
 Restart the Hermes session or gateway if the newly installed skill is not visible immediately.
 
 ## Install for OpenClaw
-
 Install both the CLI binary and the focused OpenClaw skill. The installer defaults binaries to a per-user bin directory (`$HOME/.local/bin` on macOS/Linux, `%LOCALAPPDATA%\Programs\PrintingPress\bin` on Windows):
 
 ```bash
@@ -125,25 +124,25 @@ Add to your Claude Desktop config (`~/Library/Application Support/Claude/claude_
 
 ## Authentication
 
-EverBee uses Google login in the browser. Captured API requests authenticate with an `x-access-token` header; set `EVERBEE_ACCESS_TOKEN` for CLI calls until browser-login replay is proven.
+EverBee authenticates with a session token minted by Google SSO — there is no API-key page. Run 'everbee-pp-cli auth setup' for the steps to obtain a token, then store it with 'everbee-pp-cli auth set-token <token>', or set EVERBEE_ACCESS_TOKEN directly. Tokens expire; a 401 means the token needs replacing, not that the CLI is broken. Your EverBee plan gates research volume: the free Hobby plan allows only 10 keyword searches per month, and this CLI reports that cap as a typed error rather than as an empty result.
 
 ## Quick Start
 
 ```bash
-# Confirm the access token and API reachability before running research commands.
-everbee-pp-cli doctor
+# Confirm config, token, and API reachability before spending any research quota.
+everbee-pp-cli doctor --dry-run
 
-# Pull the product analytics table for the current account.
-everbee-pp-cli product-analytics --per-page 25 --time-range last_30_days --json
+# Prove the research path returns semantically relevant data, not just HTTP 200s.
+everbee-pp-cli selftest --agent
 
-# Inspect keyword suggestions in a narrowed JSON shape.
-everbee-pp-cli keyword-research --type-of-search keyword --json --select data
+# The core workflow: a scored niche verdict with its evidence and confidence attached.
+everbee-pp-cli research niche "dad shirt" --agent
 
-# Fetch shop analyzer results for competitor research.
-everbee-pp-cli shops --per-page 25 --json
+# Rank the child niches under a parent, with digital SVG/PNG listings excluded.
+everbee-pp-cli research subniches --parent dad --product apparel --exclude-svg-png --agent
 
-# Rank product opportunities after data has been synced or fetched.
-everbee-pp-cli opportunity shortlist --query "teacher gift" --limit 25 --agent
+# Persist research locally so drift baselines and offline search have something to compare against.
+everbee-pp-cli sync --resources products,keyword_research,shops
 
 ```
 
@@ -151,160 +150,219 @@ everbee-pp-cli opportunity shortlist --query "teacher gift" --limit 25 --agent
 
 These capabilities aren't available in any other tool for this API.
 
-### Cross-workflow opportunity scoring
+### Evidence-aware research
+- **`research niche`** — Score an Etsy niche from a seed keyword and get the evidence behind the score, not just the number.
 
-Insight commands read local research snapshots first. If matching data is missing or stale, they refresh only the EverBee data needed for that query and save the result locally for repeat analysis. Use `--no-refresh` for offline/local-only runs, `--refresh` to force a targeted pull, and `--max-age` to control freshness.
-
-- **`opportunity shortlist`** — Rank Etsy product opportunities by combining product analytics, keyword demand, competition, and local trend history.
-
-  _Use this when an agent needs a short list of products worth researching or creating next._
+  _Reach for this instead of a raw keyword call when you need to defend a low-competition claim: every verdict carries its evidence count, provenance, and an honest confidence._
 
   ```bash
-  everbee-pp-cli opportunity shortlist --query "teacher gift" --limit 25 --agent
+  everbee-pp-cli research niche "dad shirt" --agent
   ```
-- **`niche score`** — Score a niche by weighing search demand, competition, product saturation, pricing, and trend movement.
+- **`research subniches`** — Expand a parent niche into child niches and rank them on comparable, normalized scores.
 
-  _Use this before committing to a product niche or SEO direction._
+  _Use this when the task is 'find me the least-crowded corner of X' rather than 'tell me about X'._
 
   ```bash
-  everbee-pp-cli niche score --keyword "mother's day mug" --agent
+  everbee-pp-cli research subniches --parent dad --product apparel --exclude-svg-png --agent
   ```
+- **`research competitors`** — Get the market shape of a niche: result count, median price, review and sales density, listing-age quartiles.
 
-### Competitor intelligence
-- **`shop gaps`** — Find competitor shop openings from product mix, pricing bands, tags, and keyword coverage.
-
-  _Use this when comparing a target Etsy shop against market demand._
+  _Answers 'who would I be competing against, and how entrenched are they' before any design work starts._
 
   ```bash
-  everbee-pp-cli shop gaps --shop competitor-shop --agent
+  everbee-pp-cli research competitors "dad shirt" --agent
   ```
-- **`competitors watch`** — Detect competitor changes in top products, price bands, and tags across saved shop snapshots.
+- **`research tags`** — See which tags and title tokens the winning listings in a niche agree on, and whether demand is seasonal or evergreen when EverBee supplies trend data.
 
-  _Use this to monitor shops without manually reopening EverBee dashboards._
+  _Use before writing a listing: it gives you the consensus vocabulary of the niche. The seasonality verdict is reported as 'unknown' when EverBee returns no trend data, which is common — it never guesses._
 
   ```bash
-  everbee-pp-cli competitors watch --shop competitor-shop --agent
+  everbee-pp-cli research tags "dad shirt" --agent
   ```
 
-### SEO and tag strategy
-- **`tags gap`** — Compare winning listing tags against a target shop or keyword set to reveal missing SEO coverage.
+### Local state that compounds
+- **`research drift`** — Compare a niche against a saved baseline to see what actually moved since last time.
 
-  _Use this when optimizing tags from competitor evidence instead of guessing._
+  _Turns repeated research into a trend instead of a series of disconnected screenshots._
 
   ```bash
-  everbee-pp-cli tags gap --query candle --shop my-shop --agent
+  everbee-pp-cli research drift "dad shirt" --agent
   ```
-- **`keywords cluster`** — Group related keyword suggestions by term overlap, demand, competition, and opportunity score.
+- **`research listing`** — Resolve an Etsy listing URL or ID to what we actually know about it, and say so plainly when we know nothing.
 
-  _Use this to turn raw keyword suggestions into listing-title and tag themes._
-
-  ```bash
-  everbee-pp-cli keywords cluster --seed "wedding sign" --agent
-  ```
-- **`listing audit`** — Audit a listing's keyword and tag fit using EverBee-derived product and keyword context.
-
-  _Use this when checking whether a listing matches the market signals behind a niche._
+  _Distinguishes 'this listing does not exist' from 'we have no data on it yet' — the two failures an agent must never conflate._
 
   ```bash
-  everbee-pp-cli listing audit --listing-id 123456789 --agent
+  everbee-pp-cli research listing 4515173344 --agent
   ```
 
-### Local history that compounds
-- **`trends diff`** — Compare saved research snapshots to show which products, shops, or keywords moved over time.
+### Agent-native plumbing
+- **`selftest`** — Check that the research path is not just reachable but actually returning relevant data.
 
-  _Use this when deciding whether a niche is growing, fading, or seasonally spiking._
+  _Run this first in any automated session: it is the difference between 'the API answered' and 'the answer means something'._
 
   ```bash
-  everbee-pp-cli trends diff --query "teacher gift" --days 30 --agent
+  everbee-pp-cli selftest --agent
   ```
 
 ## Recipes
 
-### Narrow product analytics for agents
+### Defend a low-competition claim
 
 ```bash
-everbee-pp-cli product-analytics --per-page 25 --time-range last_30_days --agent --select data
+everbee-pp-cli research niche "dad shirt" --agent
 ```
 
-Fetch a compact product analytics payload for downstream ranking.
+Returns demand, competition, saturation, price band, evidence count, and an opportunity score, plus the provenance of each metric so the verdict can be audited rather than trusted.
 
-### Cluster keywords from a seed
+### Find the least-crowded corner of a theme
 
 ```bash
-everbee-pp-cli keywords cluster --seed "wedding sign" --agent
+everbee-pp-cli research subniches --parent dad --product apparel --exclude-svg-png --limit 20 --agent
 ```
 
-Group keyword suggestions into usable listing and tag themes.
+Expands the parent into child niches from EverBee's own suggestion engine, drops nothing but flags product type, and normalizes scores so the children are actually comparable.
 
-### Find competitor openings
+### Narrow a verbose product payload for an agent
 
 ```bash
-everbee-pp-cli shop gaps --shop competitor-shop --agent
+everbee-pp-cli products search --search-term "dad shirt" --agent --select results.title,results.price,results.listing_type,results.cached_est_mo_revenue
 ```
 
-Compare competitor shop data against keyword and product opportunities.
+Product rows carry 68 fields each; --select trims the payload to the four that drive a decision, keeping agent context small.
 
-### Track niche movement
+### Size up the competition before designing
 
 ```bash
-everbee-pp-cli trends diff --query "teacher gift" --days 30 --agent
+everbee-pp-cli research competitors "dad shirt" --agent
 ```
 
-Use saved snapshots to identify rising or fading research targets.
+Reports result count, median price, review and sales density, and listing-age quartiles, with the raw rows printed alongside so the statistics can be checked.
+
+### Track a niche week over week
+
+```bash
+everbee-pp-cli research drift "dad shirt" --save-baseline --agent
+```
+
+Saves a snapshot to the local store; re-running later diffs against it and reports what actually moved, with both fetch timestamps in provenance.
 
 ## Usage
 
 Run `everbee-pp-cli --help` for the full command reference and flag list.
 
+## Paths & environment variables
+
+This CLI separates local files into four path kinds:
+
+| Kind | Contents |
+|------|----------|
+| `config` | User-editable settings such as `config.toml` and saved profiles |
+| `data` | Durable local data: `credentials.toml`, `data.db`, cookies, browser-session proof files, and other auth sidecars |
+| `state` | Runtime state such as persisted queries, jobs, and `teach.log` |
+| `cache` | Regenerable HTTP/cache files |
+
+Each kind resolves independently. The ladder is:
+
+1. Per-kind env var: `EVERBEE_CONFIG_DIR`, `EVERBEE_DATA_DIR`, `EVERBEE_STATE_DIR`, or `EVERBEE_CACHE_DIR`
+2. `--home <dir>` for this invocation
+3. `EVERBEE_HOME` for a flat relocated root
+4. XDG env vars: `XDG_CONFIG_HOME`, `XDG_DATA_HOME`, `XDG_STATE_HOME`, `XDG_CACHE_HOME`
+5. Platform defaults matching existing installs
+
+For containers and agent sandboxes, prefer a single relocated root:
+
+```bash
+export EVERBEE_HOME=/srv/everbee
+everbee-pp-cli doctor
+```
+
+Under `EVERBEE_HOME=/srv/everbee`, the four dirs resolve to `/srv/everbee/config`, `/srv/everbee/data`, `/srv/everbee/state`, and `/srv/everbee/cache`.
+
+MCP servers do not receive CLI flags from the host. Put relocation in the host `env` block:
+
+```json
+{
+  "mcpServers": {
+    "everbee": {
+      "command": "everbee-pp-mcp",
+      "env": {
+        "EVERBEE_HOME": "/srv/everbee"
+      }
+    }
+  }
+}
+```
+
+Precedence matters in fleets: an ambient per-kind variable such as `EVERBEE_DATA_DIR` overrides an explicit `--home` for that kind. Use `EVERBEE_HOME` or the per-kind variables for durable fleet relocation; treat `--home` as the weaker per-invocation lever.
+
+Relocation is one-way. Unsetting `EVERBEE_HOME` does not move files back to platform defaults, and `doctor` cannot find credentials left under a former root. Move the files manually before unsetting relocation variables.
+
+Existing installs keep working because the platform-default rung matches the legacy layout. On the first auth write, stored secrets leave `config.toml` and are consolidated into `credentials.toml` under the data directory. Run `everbee-pp-cli doctor --fail-on warn` to check path and credential-location warnings in automation.
+
 ## Commands
 
-### folders
+### account
 
-Operations on folders
+EverBee account plan and research quota
 
-- **`everbee-pp-cli folders`** - GET /folders
+- **`everbee-pp-cli account`** - Show the EverBee account's current plan, research quota, and usage. Use this to check remaining keyword-search quota before a batch run — the free Hobby plan allows only 10 keyword searches per month.
 
 ### keyword_research
 
-Operations on default_keyword_suggestion
+Etsy keyword research — volume, competition, score, CPC, and trend
 
-- **`everbee-pp-cli keyword-research`** - GET /keyword_research/default_keyword_suggestion
+- **`everbee-pp-cli keyword-research list`** - Browse EverBee's default keyword feed (what the UI shows before you search). This is a discovery/browse surface, NOT a search: it ignores any seed and returns EverBee's unranked default suggestions. To research a specific keyword use `keyword-research search --keyword`.
+- **`everbee-pp-cli keyword-research search`** - Seeded keyword search. Returns keywords related to the seed with volume, competition, score, CPC, and trend, plus the seed's own demand-vs-competition metrics under `searched_keyword`. This is the endpoint the EverBee UI search box calls. Comma-join the keyword value to research multiple seeds at once.
 
-### management_modals
+### products
 
-Operations on management_modals
+Etsy product/listing research — sales, revenue, tags, price, listing type, and age
 
-- **`everbee-pp-cli management-modals`** - GET /management_modals
-
-### product_analytics
-
-Operations on default_product_analytics
-
-- **`everbee-pp-cli product-analytics`** - GET /product_analytics/default_product_analytics
+- **`everbee-pp-cli products`** - Browse EverBee's default product feed (what the UI shows before you search). This is a discovery/browse surface, NOT a search: it ignores any search term. To research a specific product niche use `products search --search-term`.
 
 ### shops
 
-Operations on shops
+Etsy competitor shop research — revenue, sales, listing counts, conversion, and reviews
 
-- **`everbee-pp-cli shops`** - GET /shops
+- **`everbee-pp-cli shops resolve`** - Resolve an Etsy shop handle to its EverBee identity (shop_id, exact shop name, rating, review count, year created). Use this before any shop workflow so an unresolved handle is reported as unresolved rather than as a shop with zero research evidence.
+- **`everbee-pp-cli shops search`** - Search EverBee's Etsy shop database. Pass a search term to find a specific competitor shop, or omit it to browse top shops by revenue.
+
+
+### Self-learning loop
+
+This CLI caches per-question discovery so repeat queries skip the walk and structurally similar queries get answered via entity substitution. The loop also self-captures: every invocation is journaled locally, and failed-flag corrections plus fresh teaches surface as candidates on the next `recall` for confirm/reject judgment. Agents call `recall` before discovery and fire `teach &` after answering. See the `## Automatic learning` section in `SKILL.md` for the full protocol.
+
+- **`everbee-pp-cli recall <query>`** - Look up cached resources for a query before running discovery
+- **`everbee-pp-cli teach`** - Record a query -> resource mapping (silent on success, safe to background with `&`)
+- **`everbee-pp-cli learnings list`** - Inspect taught rows
+- **`everbee-pp-cli learnings forget <query>`** - Undo a teach
+- **`everbee-pp-cli learnings candidates`** - List auto-captured candidates awaiting confirm/reject
+- **`everbee-pp-cli learnings stats`** - Local loop metrics: recall hit rate, teach-to-reuse, playbook resolution, candidate counts
+- **`everbee-pp-cli teach-pattern`** - Install a query/resource template up front
+- **`everbee-pp-cli teach-lookup`** - Add an entity mapping (e.g. country code, team alias) for pattern substitution
+
+Pass `--no-learn` or set `EVERBEE_NO_LEARN=true` to disable the loop for deterministic flows.
+
+The local store's schema version stamp is one-way: once this version of `everbee-pp-cli` opens the database, older binaries refuse it with a version error — upgrade the binary rather than downgrading.
 
 ## Output Formats
 
 ```bash
 # Human-readable table (default in terminal, JSON when piped)
-everbee-pp-cli folders
+everbee-pp-cli keyword-research list
 
 # JSON for scripting and agents
-everbee-pp-cli folders --json
+everbee-pp-cli keyword-research list --json
 
 # Filter to specific fields
-everbee-pp-cli folders --json --select id,name,status
+everbee-pp-cli keyword-research list --json --select results.title,results.price
 
 # Dry run — show the request without sending
-everbee-pp-cli folders --dry-run
+everbee-pp-cli keyword-research list --dry-run
 
 # Agent mode — JSON + compact + no prompts in one flag
-everbee-pp-cli folders --agent
+everbee-pp-cli keyword-research list --agent
 ```
 
 ## Agent Usage
@@ -328,24 +386,14 @@ This CLI owns bounded freshness for registered store-backed read command paths. 
 Set `EVERBEE_NO_AUTO_REFRESH=1` to disable the pre-read freshness hook while preserving the selected data source.
 
 Covered command paths:
-- `everbee-pp-cli competitors watch`
-- `everbee-pp-cli folders`
-- `everbee-pp-cli folders get`
-- `everbee-pp-cli folders list`
-- `everbee-pp-cli folders search`
-- `everbee-pp-cli keyword_research`
-- `everbee-pp-cli keyword_research get`
-- `everbee-pp-cli keyword_research list`
-- `everbee-pp-cli keyword_research search`
-- `everbee-pp-cli opportunity shortlist`
-- `everbee-pp-cli product_analytics`
-- `everbee-pp-cli product_analytics get`
-- `everbee-pp-cli product_analytics list`
-- `everbee-pp-cli product_analytics search`
-- `everbee-pp-cli report export`
+- `everbee-pp-cli keyword-research`
+- `everbee-pp-cli keyword-research list`
+- `everbee-pp-cli keyword-research search`
+- `everbee-pp-cli products`
+- `everbee-pp-cli products search`
+- `everbee-pp-cli products search`
 - `everbee-pp-cli shops`
-- `everbee-pp-cli shops get`
-- `everbee-pp-cli shops list`
+- `everbee-pp-cli shops search`
 - `everbee-pp-cli shops search`
 
 JSON outputs that use the generated provenance envelope include freshness metadata at `meta.freshness`. This metadata describes the freshness decision for the covered command path; it does not claim full historical backfill or API-specific enrichment.
@@ -360,7 +408,7 @@ Verifies configuration, credentials, and connectivity to the API.
 
 ## Configuration
 
-Config file: `~/.config/everbee-pp-cli/config.toml`
+Run `everbee-pp-cli doctor` to see the resolved config, data, state, and cache directories. The platform-default config path is `~/.config/everbee-pp-cli/config.toml`; `--home`, `EVERBEE_HOME`, and per-kind env vars can relocate it.
 
 Static request headers can be configured under `headers`; per-command header overrides take precedence.
 
@@ -383,23 +431,8 @@ If you use agentcookie to sync secrets across machines, this CLI auto-adopts age
 - Run the `list` command to see available items
 
 ### API-specific
-- **401 or 403 from EverBee endpoints** — Set a fresh `EVERBEE_ACCESS_TOKEN` captured from a logged-in EverBee browser session.
-- **Empty product or keyword results** — Run the matching EverBee app workflow in the browser first, then refresh the token and retry with a smaller `--per-page` value.
-- **Opportunity commands return no local history** — Run `everbee-pp-cli sync --full` or fetch product, shop, and keyword commands before derived analysis.
-
-## HTTP Transport
-
-This CLI uses Chrome-compatible HTTP transport for browser-facing endpoints. It does not require a resident browser process for normal API calls.
-
-## Discovery Signals
-
-This CLI was generated with browser-captured traffic analysis.
-- Target observed: https://track.getgist.com/projects/7tn4opfe/end_users/ping
-- Capture coverage: 31 API entries from 191 total network entries
-- Reachability: standard_http (65% confidence)
-- Protocols: rest_json (75% confidence)
-- Candidate command ideas: create_b — Derived from observed POST /b traffic.; create_monitoring — Derived from observed POST /monitoring traffic.; list_default_keyword_suggestion — Derived from observed GET /keyword_research/default_keyword_suggestion traffic.; list_default_product_analytics — Derived from observed GET /product_analytics/default_product_analytics traffic.; list_folders — Derived from observed GET /folders traffic.; list_management_modals — Derived from observed GET /management_modals traffic.; list_ping — Derived from observed GET /projects/7tn4opfe/end_users/ping traffic.; list_shops — Derived from observed GET /shops traffic.
-
----
-
-Generated by [CLI Printing Press](https://github.com/mvanhorn/cli-printing-press)
+- **Every command returns 401 Could not authenticate with the provided credentials.** — The EverBee session token expired. Re-capture it with 'everbee-pp-cli auth setup', or export a fresh EVERBEE_ACCESS_TOKEN.
+- **Keyword research returns a typed plan-cap error instead of results.** — The free Hobby plan allows 10 keyword searches per month. Check remaining quota with 'everbee-pp-cli account --json'.
+- **Results look unrelated to the seed — mugs and posters for an apparel search.** — You are reading a trending/browse feed, not a search. Use 'research niche' or 'products search --search-term', never the unranked browse feeds ('products' and 'keyword-research list'), to answer a query.
+- **A niche verdict reports confidence 0 and zero evidence.** — That is an honest no-evidence result, not a failure. EverBee returned nothing relevant for that seed; widen the seed or lower --min-relevance to inspect the near-misses.
+- **research drift reports no baseline.** — Save one first: 'everbee-pp-cli research drift "dad shirt" --save-baseline', then re-run later to see movement.

@@ -8,14 +8,16 @@ import (
 	"os"
 	"sort"
 
+	"github.com/mvanhorn/printing-press-library/library/marketing/everbee/internal/cliutil"
+	"github.com/mvanhorn/printing-press-library/library/marketing/everbee/internal/learn"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 )
 
 // agentContextSchemaVersion is bumped on any breaking change to the JSON
 // shape emitted by `agent-context`. Agents should check this before
-// parsing. Shape at v3 adds kind-aware auth env var metadata.
-const agentContextSchemaVersion = "3"
+// parsing. Shape at v4 adds resolved config/data/state/cache directories.
+const agentContextSchemaVersion = "4"
 
 // agentContext is the structured description of this CLI consumed by AI
 // agents. Inspired by Cloudflare's /cdn-cgi/explorer/api runtime endpoint
@@ -25,10 +27,15 @@ type agentContext struct {
 	SchemaVersion              string                 `json:"schema_version"`
 	CLI                        agentContextCLI        `json:"cli"`
 	Auth                       agentContextAuth       `json:"auth"`
+	Paths                      agentContextPaths      `json:"paths"`
 	Discovery                  *agentContextDiscovery `json:"discovery,omitempty"`
 	Commands                   []agentContextCommand  `json:"commands"`
 	AvailableProfiles          []string               `json:"available_profiles"`
 	FeedbackEndpointConfigured bool                   `json:"feedback_endpoint_configured"`
+	// LearnProtocol carries the recall-first protocol from the single
+	// shared source (internal/learn.RecallFirstProtocol) also consumed by
+	// the MCP context tool, so the two agent surfaces cannot drift.
+	LearnProtocol string `json:"learn_protocol"`
 }
 
 type agentContextCLI struct {
@@ -48,6 +55,13 @@ type agentContextAuthEnvVar struct {
 	Required    bool   `json:"required"`
 	Sensitive   bool   `json:"sensitive"`
 	Description string `json:"description,omitempty"`
+}
+
+type agentContextPaths struct {
+	ConfigDir string `json:"config_dir"`
+	DataDir   string `json:"data_dir"`
+	StateDir  string `json:"state_dir"`
+	CacheDir  string `json:"cache_dir"`
 }
 
 type agentContextDiscovery struct {
@@ -123,46 +137,38 @@ func buildAgentContext(rootCmd *cobra.Command) agentContext {
 	return agentContext{
 		SchemaVersion: agentContextSchemaVersion,
 		CLI: agentContextCLI{
-			Name:        "github.com/mvanhorn/printing-press-library/library/marketing/everbee",
-			Description: "Research Etsy products, shops, and keywords from EverBee in a repeatable agent-ready workflow.",
+			Name:        "everbee-pp-cli",
+			Description: "Etsy niche research whose scores come with their evidence attached — seeded search, honest confidence, and a local store that turns repeat research into trends.",
 			Version:     rootCmd.Version,
 		},
 		Auth: agentContextAuth{
 			Mode:    authMode,
 			EnvVars: envVars,
 		},
+		Paths:                      buildAgentContextPaths(),
 		Discovery:                  buildAgentDiscoveryContext(),
 		Commands:                   collectAgentCommands(rootCmd),
 		AvailableProfiles:          profiles,
 		FeedbackEndpointConfigured: FeedbackEndpointConfigured(),
+		LearnProtocol:              learn.RecallFirstProtocol,
+	}
+}
+
+func buildAgentContextPaths() agentContextPaths {
+	configDir, _ := cliutil.ConfigDir()
+	dataDir, _ := cliutil.DataDir()
+	stateDir, _ := cliutil.StateDir()
+	cacheDir, _ := cliutil.CacheDir()
+	return agentContextPaths{
+		ConfigDir: configDir,
+		DataDir:   dataDir,
+		StateDir:  stateDir,
+		CacheDir:  cacheDir,
 	}
 }
 
 func buildAgentDiscoveryContext() *agentContextDiscovery {
-	return &agentContextDiscovery{
-		Source:        "traffic-analysis",
-		TargetURL:     "https://track.getgist.com/projects/7tn4opfe/end_users/ping",
-		EntryCount:    191,
-		APIEntryCount: 31,
-		Reachability:  "standard_http (65% confidence)",
-		Protocols: []string{
-			"rest_json (75% confidence)",
-		},
-		AuthCandidates:  []string{},
-		Protections:     []string{},
-		GenerationHints: []string{},
-		Warnings:        []string{},
-		CandidateCommands: []string{
-			"create_b — Derived from observed POST /b traffic.",
-			"create_monitoring — Derived from observed POST /monitoring traffic.",
-			"list_default_keyword_suggestion — Derived from observed GET /keyword_research/default_keyword_suggestion traffic.",
-			"list_default_product_analytics — Derived from observed GET /product_analytics/default_product_analytics traffic.",
-			"list_folders — Derived from observed GET /folders traffic.",
-			"list_management_modals — Derived from observed GET /management_modals traffic.",
-			"list_ping — Derived from observed GET /projects/7tn4opfe/end_users/ping traffic.",
-			"list_shops — Derived from observed GET /shops traffic.",
-		},
-	}
+	return nil
 }
 
 // collectAgentCommands walks the cobra tree from the given command and
