@@ -1,0 +1,46 @@
+{
+  "manifest_version": "0.3",
+  "name": "bambu-pp-mcp",
+  "display_name": "Bambu Local",
+  "version": "1.0.0",
+  "description": "Agent-ready Bambu print monitoring with exact plate previews and start/finish payloads.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/bambu-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/bambu-pp-mcp",
+      "args": [],
+      "env": {
+        "BAMBU_ACCESS_CODE": "${user_config.bambu_access_code}",
+        "BAMBU_SERIAL": "${user_config.bambu_serial}"
+      }
+    }
+  },
+  "user_config": {
+    "bambu_access_code": {
+      "type": "string",
+      "title": "BAMBU_ACCESS_CODE",
+      "description": "Local LAN access code used to authenticate directly to the printer.",
+      "sensitive": true,
+      "required": true
+    },
+    "bambu_serial": {
+      "type": "string",
+      "title": "BAMBU_SERIAL",
+      "description": "Bambu printer serial used for discovery filtering, MQTT topics, and certificate identity checks.",
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}
