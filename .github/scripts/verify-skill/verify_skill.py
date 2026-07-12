@@ -171,7 +171,7 @@ ADDCMD_CHILD_RE = re.compile(r'\.AddCommand\s*\(\s*(new[A-Z]\w*Cmd)\s*\(')
 ROOT_ADDCMD_RE = re.compile(r'rootCmd\.AddCommand\s*\(\s*(new[A-Z]\w*Cmd)\s*\(')
 LOCAL_COMMAND_RE = re.compile(r'(?m)^\s*(\w+)\s*:=\s*&cobra\.Command\s*\{')
 RETURN_VARIABLE_RE = re.compile(r'(?m)^\s*return\s+(\w+)\s*$')
-VARIABLE_ADDCMD_RE = re.compile(r'\b(\w+)\.AddCommand\s*\(\s*(\w+)\s*\)')
+VARIABLE_ADDCMD_RE = re.compile(r'\b(\w+)\.AddCommand\s*\(([^)]*)\)')
 
 
 def _extract_function_body(text: str, start_offset: int) -> str | None:
@@ -265,21 +265,25 @@ def _inline_command_children(
     child_names: list[str] = []
     children: dict[str, CommandConstructor] = {}
     for match in VARIABLE_ADDCMD_RE.finditer(body):
-        receiver, child_variable = match.groups()
-        if receiver != parent_variable or child_variable not in variables:
+        receiver, arguments = match.groups()
+        if receiver != parent_variable:
             continue
-        use, args_info = variables[child_variable]
-        synthetic_name = f"{fn_name}__inline__{child_variable}"
-        if synthetic_name in children:
-            continue
-        child_names.append(synthetic_name)
-        children[synthetic_name] = CommandConstructor(
-            name=synthetic_name,
-            file=go_file,
-            use=use,
-            args_info=args_info,
-            children=[],
-        )
+        for raw_argument in arguments.split(","):
+            child_variable = raw_argument.strip()
+            if child_variable not in variables:
+                continue
+            use, args_info = variables[child_variable]
+            synthetic_name = f"{fn_name}__inline__{child_variable}"
+            if synthetic_name in children:
+                continue
+            child_names.append(synthetic_name)
+            children[synthetic_name] = CommandConstructor(
+                name=synthetic_name,
+                file=go_file,
+                use=use,
+                args_info=args_info,
+                children=[],
+            )
     return child_names, children
 
 

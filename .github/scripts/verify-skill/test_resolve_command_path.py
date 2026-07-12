@@ -423,8 +423,7 @@ func newAppointmentsCmd() *cobra.Command {
     cmd := &cobra.Command{Use: "appointments [ID]"}
     upcoming := &cobra.Command{Use: "upcoming"}
     past := &cobra.Command{Use: "past"}
-    cmd.AddCommand(upcoming)
-    cmd.AddCommand(past)
+    cmd.AddCommand(upcoming, past)
     return cmd
 }
 func newOtherCmd() *cobra.Command {
