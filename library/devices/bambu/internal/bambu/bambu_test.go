@@ -184,7 +184,7 @@ func TestLegacyArchiveCandidatesRetainMissingAndSkewedTimestamps(t *testing.T) {
 		{Path: "/notes.txt", Name: "notes.txt", Size: 100, ModTime: observedAt, Type: "file"},
 	}
 	got := LegacyArchiveCandidates(snapshot, files)
-	want := []string{"/future.gcode.3mf", "/newer.gcode.3mf", "/current.gcode.3mf", "/unknown.gcode.3mf"}
+	want := []string{"/unknown.gcode.3mf", "/future.gcode.3mf", "/newer.gcode.3mf", "/current.gcode.3mf"}
 	if !reflect.DeepEqual(got, want) {
 		t.Fatalf("legacy candidates = %#v, want %#v", got, want)
 	}
@@ -215,8 +215,15 @@ func TestLegacyArchiveCandidatesAreBounded(t *testing.T) {
 			Type:    "file",
 		}
 	}
-	if got := len(LegacyArchiveCandidates(Snapshot{ObservedAt: observedAt}, files)); got != MaxLegacyArchiveCandidates {
-		t.Fatalf("legacy candidate count = %d, want %d", got, MaxLegacyArchiveCandidates)
+	files[len(files)-1].Path = "/unknown-time-active.3mf"
+	files[len(files)-1].Name = "unknown-time-active.3mf"
+	files[len(files)-1].ModTime = time.Time{}
+	got := LegacyArchiveCandidates(Snapshot{ObservedAt: observedAt}, files)
+	if len(got) != MaxLegacyArchiveCandidates {
+		t.Fatalf("legacy candidate count = %d, want %d", len(got), MaxLegacyArchiveCandidates)
+	}
+	if got[0] != "/unknown-time-active.3mf" {
+		t.Fatalf("missing-timestamp candidate was capped out: %#v", got)
 	}
 }
 

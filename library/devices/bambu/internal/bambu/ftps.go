@@ -251,6 +251,9 @@ func LegacyArchiveCandidates(snapshot Snapshot, files []File) []string {
 		eligible = append(eligible, file)
 	}
 	sort.Slice(eligible, func(i, j int) bool {
+		if eligible[i].ModTime.IsZero() != eligible[j].ModTime.IsZero() {
+			return eligible[i].ModTime.IsZero()
+		}
 		if eligible[i].ModTime.Equal(eligible[j].ModTime) {
 			return eligible[i].Path < eligible[j].Path
 		}
