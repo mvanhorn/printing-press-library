@@ -83,11 +83,12 @@ parent and sub-issue links.`,
 			if cliutil.IsVerifyEnv() {
 				return nil
 			}
+			commaList := strings.Contains(args[0], ",")
 			identifiers, err := parseIssueIdentifiers(args[0])
 			if err != nil {
 				return err
 			}
-			if len(identifiers) == 1 {
+			if !commaList {
 				return runIssuesGet(cmd, flags, resolveDBPath(dbPath), identifiers[0])
 			}
 			return runIssuesMultiGet(cmd, flags, resolveDBPath(dbPath), identifiers)

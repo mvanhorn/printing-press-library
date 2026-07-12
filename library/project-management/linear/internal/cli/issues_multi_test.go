@@ -88,6 +88,19 @@ func TestIssuesCommaSeparatedReadPreservesOrderAndSingleContract(t *testing.T) {
 		t.Fatalf("multi identifiers = %v, want caller order without duplicates", got)
 	}
 
+	out, err = executeRootForTest("issues", "MOB-1,MOB-1", "--agent", "--data-source", "local", "--db", dbPath, "--select", "identifier")
+	if err != nil {
+		t.Fatalf("deduplicated comma-list read failed: %v\n%s", err, out)
+	}
+	var deduplicated struct {
+		Results []struct {
+			Identifier string `json:"identifier"`
+		} `json:"results"`
+	}
+	if err := json.Unmarshal([]byte(out), &deduplicated); err != nil || len(deduplicated.Results) != 1 || deduplicated.Results[0].Identifier != "MOB-1" {
+		t.Fatalf("comma-list contract changed after deduplication: err=%v output=%s", err, out)
+	}
+
 	out, err = executeRootForTest("issues", "MOB-1", "--agent", "--data-source", "local", "--db", dbPath, "--select", "identifier")
 	if err != nil {
 		t.Fatalf("single issue read failed: %v\n%s", err, out)
