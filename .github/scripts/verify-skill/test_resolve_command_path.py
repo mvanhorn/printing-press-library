@@ -377,6 +377,34 @@ func newIssuesCreateCmd() *cobra.Command {
             self.assertEqual(["MOB-1"], positional)
             self.assertEqual(["--json"], flags)
 
+    def test_legacy_variable_wired_child_remains_resolvable(self):
+        with tempfile.TemporaryDirectory() as td:
+            cli_dir = _write_cli(Path(td), {
+                "root.go": '''package cli
+import "github.com/spf13/cobra"
+func Execute() error {
+    rootCmd := &cobra.Command{Use: "fixture-pp-cli"}
+    syncParent := &cobra.Command{Use: "sync"}
+    syncParent.AddCommand(newSyncDiffCmd())
+    rootCmd.AddCommand(syncParent)
+    return rootCmd.Execute()
+}
+''',
+                "sync_diff.go": '''package cli
+import "github.com/spf13/cobra"
+func newSyncDiffCmd() *cobra.Command {
+    return &cobra.Command{Use: "diff"}
+}
+''',
+            })
+
+            cmd_path, positional, flags = _cli_invocation_from_tokens(
+                ["sync", "diff", "--agent"], cli_dir,
+            )
+            self.assertEqual(["sync", "diff"], cmd_path)
+            self.assertEqual([], positional)
+            self.assertEqual(["--agent"], flags)
+
     def test_optional_positionals_are_bound_before_sibling_resolution(self):
         with tempfile.TemporaryDirectory() as td:
             cli_dir = _write_cli(Path(td), {

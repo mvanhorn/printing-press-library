@@ -714,14 +714,18 @@ def _cli_invocation_from_tokens(
                     cmd_path.append(t)
                     i += 1
                     continue
-                # Cobra resolves a matching child before binding a parent's
-                # optional positional. With no child match, keep this token as
-                # an argument to the current command.
-                _files, use_str, _args_info = find_command_source(cli_dir, cmd_path)
-                if use_str:
-                    _, _, optional, variadic = parse_use(use_str)
-                    if optional > 0 or variadic:
-                        break
+                # Preserve legacy command trees that do not expose constructor
+                # edges (for example, AddCommand called with a variable). Only
+                # use the fallback when the current parent is itself absent
+                # from the graph; otherwise a same-named sibling could be
+                # mistaken for a child.
+                current_file, _, _ = resolve_command_path(cli_dir, cmd_path)
+                if current_file is None:
+                    child_files, _, _ = find_command_source(cli_dir, trial)
+                    if child_files:
+                        cmd_path.append(t)
+                        i += 1
+                        continue
                 break
             cmd_path.append(t)
             i += 1
