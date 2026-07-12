@@ -117,7 +117,7 @@ func parseIssueIdentifiers(raw string) ([]string, error) {
 			continue
 		}
 		seen[key] = struct{}{}
-		identifiers = append(identifiers, identifier)
+		identifiers = append(identifiers, key)
 	}
 	return identifiers, nil
 }

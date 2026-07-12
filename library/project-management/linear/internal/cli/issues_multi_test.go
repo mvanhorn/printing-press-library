@@ -24,7 +24,7 @@ func TestParseIssueIdentifiers(t *testing.T) {
 	}{
 		{name: "single", raw: "MOB-1", want: []string{"MOB-1"}},
 		{name: "ordered and trimmed", raw: "MOB-2, MOB-1", want: []string{"MOB-2", "MOB-1"}},
-		{name: "deduplicated case-insensitively", raw: "MOB-2,mob-2,MOB-1", want: []string{"MOB-2", "MOB-1"}},
+		{name: "canonicalized and deduplicated case-insensitively", raw: "mob-2,MOB-2,mob-1", want: []string{"MOB-2", "MOB-1"}},
 		{name: "empty middle", raw: "MOB-1,,MOB-2", wantErr: true},
 		{name: "empty trailing", raw: "MOB-1,", wantErr: true},
 	}
@@ -88,7 +88,7 @@ func TestIssuesCommaSeparatedReadPreservesOrderAndSingleContract(t *testing.T) {
 		t.Fatalf("multi identifiers = %v, want caller order without duplicates", got)
 	}
 
-	out, err = executeRootForTest("issues", "MOB-1,MOB-1", "--agent", "--data-source", "local", "--db", dbPath, "--select", "identifier")
+	out, err = executeRootForTest("issues", "mob-1,MOB-1", "--agent", "--data-source", "local", "--db", dbPath, "--select", "identifier")
 	if err != nil {
 		t.Fatalf("deduplicated comma-list read failed: %v\n%s", err, out)
 	}
