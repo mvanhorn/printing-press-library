@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "id": "sync-recovery-messages",
+  "applied_at": "2026-07-12",
+  "base_run_id": "20260712-023133-reprint428",
+  "base_printing_press_version": "4.28.0",
+  "summary": "Rewrote the local-store recovery messages in internal/mcp/tools.go and internal/cli/data_source.go to reference the quote/watch ledger-population path instead of a non-existent 'sync' command.",
+  "reason": "Blacklane has no list-syncable resources (catalog is GET-by-slug, prices is POST), so Printing Press v4.28.0 correctly omits the 'sync' command — but it still emits generic sync-recovery messages ('Run blacklane-pp-cli sync ...') that dead-end on an unknown command. Blacklane's local SQLite store is the quote ledger, populated by running quote/watch, so the messages now point there.",
+  "files": ["internal/mcp/tools.go", "internal/cli/data_source.go"],
+  "validated_outcome": "go build + go vet + verify-skill clean; no residual 'blacklane-pp-cli sync' references in tools.go/data_source.go.",
+  "upstream_issue": "generator emits sync-recovery messages even when no sync command is generated (no syncable resources); the internal/learn domain-neutral 'run sync to refresh entity lookups' text has the same latent issue"
+}

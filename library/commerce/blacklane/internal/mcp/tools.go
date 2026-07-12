@@ -61,7 +61,7 @@ func RegisterTools(s *server.MCPServer) {
 	// SQL tool — ad-hoc analysis on synced data without API calls
 	s.AddTool(
 		mcplib.NewTool("sql",
-			mcplib.WithDescription("Run read-only SQL against local database. Use for ad-hoc analysis, aggregations, and joins across synced resources. Requires sync first."),
+			mcplib.WithDescription("Run read-only SQL against the local ledger. Use for ad-hoc analysis, aggregations, and joins across recorded quotes. The ledger fills as you run quote/watch."),
 			mcplib.WithString("query", mcplib.Required(), mcplib.Description("SQL query (SELECT or WITH...SELECT). Synced records live in resources(resource_type, id, data); filter by resource_type and use json_extract on data, e.g. SELECT json_extract(data,'$.name') FROM resources WHERE resource_type='catalog'.")),
 			mcplib.WithReadOnlyHintAnnotation(true),
 			mcplib.WithDestructiveHintAnnotation(false),
@@ -378,13 +378,13 @@ func openMCPReadOnlyStore(path string) (*store.Store, *mcplib.CallToolResult) {
 	}
 	db, err := store.OpenReadOnly(path)
 	if err != nil {
-		return nil, mcplib.NewToolResultError(fmt.Sprintf("opening local data store %s: %v. Run blacklane-pp-cli sync to refresh the store, or use live endpoint MCP tools for unsynced data.", path, err))
+		return nil, mcplib.NewToolResultError(fmt.Sprintf("opening local data store %s: %v. Record quotes with the quote/watch commands to populate the ledger, or use live endpoint MCP tools.", path, err))
 	}
 	return db, nil
 }
 
 func mcpMissingStoreMessage(path string) string {
-	return fmt.Sprintf("No local data store found at %s. Run blacklane-pp-cli sync before using MCP search/sql, or use live endpoint MCP tools for unsynced data.", path)
+	return fmt.Sprintf("No local data store found at %s. Record quotes with the quote/watch commands before using MCP search/sql, or use live endpoint MCP tools.", path)
 }
 
 func mcpStoreStatus(db *store.Store) (mcpStoreStatusKind, error) {
@@ -399,7 +399,7 @@ func mcpStoreStatus(db *store.Store) (mcpStoreStatusKind, error) {
 }
 
 func mcpEmptyStoreNextStep() string {
-	return "Run blacklane-pp-cli sync to populate the local SQLite store before using MCP search/sql."
+	return "Record quotes with the quote/watch commands to populate the local SQLite ledger before using MCP search/sql."
 }
 
 // validateReadOnlyQuery gates the MCP sql tool. The agent contract advertised
@@ -627,7 +627,7 @@ func mcpSQLEnvelope(rows []map[string]any, columns []string, storeStatus mcpStor
 		if storeStatus == mcpStoreStatusEmpty {
 			out["next_step"] = mcpEmptyStoreNextStep()
 		} else {
-			out["next_step"] = "The read-only SQL query returned no rows. Check resource_type filters, json_extract paths, or run sync again if data may be stale."
+			out["next_step"] = "The read-only SQL query returned no rows. Check resource_type filters, json_extract paths, or record more quotes if the ledger is sparse."
 		}
 	}
 	return out
@@ -696,7 +696,7 @@ func handleContext(_ context.Context, _ mcplib.CallToolRequest) (*mcplib.CallToo
 		"query_tips": []string{
 			"Pagination uses cursor-based paging. Pass after parameter for subsequent pages.",
 			"Control page size with the limit parameter (default 100).",
-			"Use the sql tool for ad-hoc analysis on synced data. Run sync first to populate the local database.",
+			"Use the sql tool for ad-hoc analysis on recorded quotes. Run quote/watch first to populate the local ledger.",
 			"Use the search tool for full-text search across all synced resources. Faster than iterating list endpoints.",
 			"Prefer sql/search over repeated API calls when the data is already synced.",
 		},
