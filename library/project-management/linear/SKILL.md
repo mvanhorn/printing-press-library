@@ -38,6 +38,7 @@ If `--version` reports "command not found" after install, the runtime cannot see
 - Add `--agent` to commands unless a human-readable table is explicitly needed. It implies JSON, compact output, non-interactive mode, no color, and confirmation-safe scripting.
 - Use `--data-source live` for closeout/state/description checks where current truth matters. Use `issues search` for duplicate checks; it refreshes stale issue search data or fails visibly. Use `--data-source local` or `similar` only when stale/offline local duplicate search is intentional.
 - A missing `description` in compact output does not mean an empty issue body. Request it explicitly: `linear-pp-cli issues ENG-123 --agent --data-source live --select identifier,title,description,state.name,url`.
+- Fetch several known issues in one call with comma-separated identifiers: `linear-pp-cli issues ENG-123,ENG-124 --agent`. The result array preserves caller order and removes duplicate identifiers; a missing member fails the whole read instead of returning a partial set.
 - Before passing label UUIDs to `issues create` or `issues edit`, run `linear-pp-cli labels list --team ENG --agent --select id,name,global,team.key`. Use only global labels or labels owned by the target issue team; the CLI preflights label ownership and refuses cross-team labels before mutating.
 - Never pass multiline Markdown, shell snippets, GraphQL, logs, backticks, `$()` expansions, or media-rich content as inline shell arguments. Write the body to a file or stdin and use the `*-file` / `*-stdin` flags below.
 
@@ -203,6 +204,7 @@ These capabilities aren't available in any other tool for this API.
 
   ```bash
   linear-pp-cli issues ENG-123 --agent --data-source live --select identifier,title,description,state.id,state.name,url
+  linear-pp-cli issues ENG-123,ENG-124 --agent --data-source live --select identifier,title,description,state.name,url
   linear-pp-cli comments list ENG-123 --agent
   linear-pp-cli comments list --issue ENG-123 --agent --limit 100
   ```
@@ -486,10 +488,10 @@ linear-pp-cli today
 linear-pp-cli bottleneck --team ENG --data-source local
 
 # 3. Mutate — write-back keeps the store fresh
-linear-pp-cli issues create --title "..." --team ENG --pp-session $SESSION
+linear-pp-cli issues create --title "..." --team ENG --pp-session "$SESSION"
 
 # 4. Verify the mutation from local (no extra API call)
-linear-pp-cli issues list --data-source local --pp-session $SESSION
+linear-pp-cli issues list --data-source local --pp-session "$SESSION"
 
 # 5. Re-sync every ~30 minutes if the session is long
 linear-pp-cli sync

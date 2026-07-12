@@ -303,8 +303,11 @@ These capabilities aren't available in any other tool for this API.
 
   ```bash
   linear-pp-cli issues ENG-123 --agent --data-source live --select identifier,title,description,state.name,url
+  linear-pp-cli issues ENG-123,ENG-124 --agent --data-source live --select identifier,title,description,state.name,url
   linear-pp-cli comments list --issue ENG-123 --agent
   ```
+
+  Comma-separated issue reads preserve caller order, de-duplicate identifiers, and fail the whole request when any member cannot be read. A single identifier keeps the existing object-shaped `results`; multiple identifiers return an array.
 
 ## Usage
 
@@ -528,6 +531,9 @@ Agent recipes:
 # Full current issue body; compact output strips descriptions unless selected
 linear-pp-cli issues ENG-123 --agent --data-source live --select identifier,title,description,state.name,url
 
+# Several current issue bodies in caller order
+linear-pp-cli issues ENG-123,ENG-124 --agent --data-source live --select identifier,title,description,state.name,url
+
 # Safe multiline writes; body files preserve shell snippets literally
 linear-pp-cli comments add --issue ENG-123 --body-file /tmp/comment.md --agent
 ```
@@ -585,10 +591,10 @@ linear-pp-cli bottleneck --team ENG --data-source local
 linear-pp-cli issues list --assignee me --data-source local
 
 # Mutate — write-back keeps the store fresh, no re-sync needed
-linear-pp-cli issues create --title "..." --team ENG --pp-session $SESSION
+linear-pp-cli issues create --title "..." --team ENG --pp-session "$SESSION"
 
 # Verify from local
-linear-pp-cli issues list --data-source local --pp-session $SESSION
+linear-pp-cli issues list --data-source local --pp-session "$SESSION"
 
 # Refresh every ~30 minutes for long sessions
 linear-pp-cli sync
