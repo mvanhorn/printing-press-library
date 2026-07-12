@@ -413,11 +413,8 @@ import "github.com/spf13/cobra"
 func Execute() error {
     rootCmd := &cobra.Command{Use: "fixture-pp-cli"}
     rootCmd.AddCommand(newAppointmentsCmd())
-    rootCmd.AddCommand(newUpcomingCmd())
+    rootCmd.AddCommand(newOtherCmd())
     return rootCmd.Execute()
-}
-func newUpcomingCmd() *cobra.Command {
-    return &cobra.Command{Use: "upcoming"}
 }
 ''',
                 "appointments.go": '''package cli
@@ -425,8 +422,13 @@ import "github.com/spf13/cobra"
 func newAppointmentsCmd() *cobra.Command {
     cmd := &cobra.Command{Use: "appointments [ID]"}
     upcoming := &cobra.Command{Use: "upcoming"}
+    past := &cobra.Command{Use: "past"}
     cmd.AddCommand(upcoming)
+    cmd.AddCommand(past)
     return cmd
+}
+func newOtherCmd() *cobra.Command {
+    return &cobra.Command{Use: "other"}
 }
 ''',
             })
@@ -438,8 +440,15 @@ func newAppointmentsCmd() *cobra.Command {
             self.assertEqual([], positional)
             self.assertEqual(["--all-clinics"], flags)
 
-            # A same-named top-level command from another file must not be
-            # promoted beneath a parent that has no such child.
+            cmd_path, positional, flags = _cli_invocation_from_tokens(
+                ["appointments", "past", "--all-clinics"], cli_dir,
+            )
+            self.assertEqual(["appointments", "past"], cmd_path)
+            self.assertEqual([], positional)
+            self.assertEqual(["--all-clinics"], flags)
+
+            # A top-level sibling declared in the same file must not be
+            # promoted beneath a parent that never attaches it.
             cmd_path, positional, flags = _cli_invocation_from_tokens(
                 ["appointments", "other", "--json"], cli_dir,
             )

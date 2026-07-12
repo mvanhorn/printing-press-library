@@ -169,6 +169,9 @@ CONSTRUCTOR_RE = re.compile(
 )
 ADDCMD_CHILD_RE = re.compile(r'\.AddCommand\s*\(\s*(new[A-Z]\w*Cmd)\s*\(')
 ROOT_ADDCMD_RE = re.compile(r'rootCmd\.AddCommand\s*\(\s*(new[A-Z]\w*Cmd)\s*\(')
+LOCAL_COMMAND_RE = re.compile(r'(?m)^\s*(\w+)\s*:=\s*&cobra\.Command\s*\{')
+RETURN_VARIABLE_RE = re.compile(r'(?m)^\s*return\s+(\w+)\s*$')
+VARIABLE_ADDCMD_RE = re.compile(r'\b(\w+)\.AddCommand\s*\(\s*(\w+)\s*\)')
 
 
 def _extract_function_body(text: str, start_offset: int) -> str | None:
@@ -229,6 +232,57 @@ def _extract_function_body(text: str, start_offset: int) -> str | None:
     return text[start_offset:i - 1]
 
 
+def _inline_command_children(
+    body: str,
+    fn_name: str,
+    go_file: Path,
+) -> tuple[list[str], dict[str, "CommandConstructor"]]:
+    """Collect local cobra.Command variables attached to a constructor's
+    returned parent variable.
+
+    Generated-then-curated CLIs sometimes build children inline and call
+    `cmd.AddCommand(child)` instead of using a `newChildCmd` constructor. Those
+    are real Cobra edges and must participate in command-path resolution; a
+    same-file `Use:` declaration without that edge must not.
+    """
+    variables: dict[str, tuple[str, tuple | None]] = {}
+    for match in LOCAL_COMMAND_RE.finditer(body):
+        command_body = _extract_function_body(body, match.end())
+        if command_body is None:
+            continue
+        use_match = USE_RE.search(command_body)
+        if use_match is None:
+            continue
+        args_match = ARGS_RE.search(command_body)
+        args_info = (args_match.group(1), args_match.group(2)) if args_match else None
+        variables[match.group(1)] = (use_match.group(1), args_info)
+
+    returned = [match.group(1) for match in RETURN_VARIABLE_RE.finditer(body)]
+    parent_variable = next((name for name in reversed(returned) if name in variables), None)
+    if parent_variable is None:
+        return [], {}
+
+    child_names: list[str] = []
+    children: dict[str, CommandConstructor] = {}
+    for match in VARIABLE_ADDCMD_RE.finditer(body):
+        receiver, child_variable = match.groups()
+        if receiver != parent_variable or child_variable not in variables:
+            continue
+        use, args_info = variables[child_variable]
+        synthetic_name = f"{fn_name}__inline__{child_variable}"
+        if synthetic_name in children:
+            continue
+        child_names.append(synthetic_name)
+        children[synthetic_name] = CommandConstructor(
+            name=synthetic_name,
+            file=go_file,
+            use=use,
+            args_info=args_info,
+            children=[],
+        )
+    return child_names, children
+
+
 @dataclass
 class CommandConstructor:
     name: str
@@ -277,6 +331,8 @@ def collect_command_constructors(cli_dir: Path) -> dict[str, CommandConstructor]
             children = list(dict.fromkeys(
                 child.group(1) for child in ADDCMD_CHILD_RE.finditer(body)
             ))
+            inline_names, inline_children = _inline_command_children(body, fn_name, go_file)
+            children.extend(name for name in inline_names if name not in children)
             constructors[fn_name] = CommandConstructor(
                 name=fn_name,
                 file=go_file,
@@ -284,6 +340,7 @@ def collect_command_constructors(cli_dir: Path) -> dict[str, CommandConstructor]
                 args_info=args_info,
                 children=children,
             )
+            constructors.update(inline_children)
     return constructors
 
 
@@ -714,17 +771,18 @@ def _cli_invocation_from_tokens(
                     cmd_path.append(t)
                     i += 1
                     continue
-                # Preserve variable-wired child commands that do not expose a
-                # constructor edge. For a graph-resolved parent, accept the
-                # legacy child only when it is declared in the same file; this
-                # covers local `cmd.AddCommand(child)` variables without
-                # mistaking a same-named top-level sibling for a child.
+                # Preserve wholly legacy command trees whose parent is not in
+                # the constructor graph. Graph-resolved parents include local
+                # variable-wired children collected by
+                # _inline_command_children, so they never need a file-proximity
+                # heuristic that could promote an unwired sibling.
                 current_file, _, _ = resolve_command_path(cli_dir, cmd_path)
-                child_files, _, _ = find_command_source(cli_dir, trial)
-                if child_files and (current_file is None or current_file in child_files):
-                    cmd_path.append(t)
-                    i += 1
-                    continue
+                if current_file is None:
+                    child_files, _, _ = find_command_source(cli_dir, trial)
+                    if child_files:
+                        cmd_path.append(t)
+                        i += 1
+                        continue
                 break
             cmd_path.append(t)
             i += 1
