@@ -339,6 +339,44 @@ func newSearchCmd() *cobra.Command {
 
 
 class TestInvocationParsing(unittest.TestCase):
+    def test_child_command_wins_over_parent_optional_positional(self):
+        with tempfile.TemporaryDirectory() as td:
+            cli_dir = _write_cli(Path(td), {
+                "root.go": '''package cli
+import "github.com/spf13/cobra"
+func Execute() error {
+    rootCmd := &cobra.Command{Use: "fixture-pp-cli"}
+    rootCmd.AddCommand(newIssuesCmd())
+    return rootCmd.Execute()
+}
+''',
+                "issues.go": '''package cli
+import "github.com/spf13/cobra"
+func newIssuesCmd() *cobra.Command {
+    cmd := &cobra.Command{Use: "issues [ID]"}
+    cmd.AddCommand(newIssuesCreateCmd())
+    return cmd
+}
+func newIssuesCreateCmd() *cobra.Command {
+    return &cobra.Command{Use: "create"}
+}
+''',
+            })
+
+            cmd_path, positional, flags = _cli_invocation_from_tokens(
+                ["issues", "create", "--title", "Ticket"], cli_dir,
+            )
+            self.assertEqual(["issues", "create"], cmd_path)
+            self.assertEqual([], positional)
+            self.assertEqual(["--title"], flags)
+
+            cmd_path, positional, flags = _cli_invocation_from_tokens(
+                ["issues", "MOB-1", "--json"], cli_dir,
+            )
+            self.assertEqual(["issues"], cmd_path)
+            self.assertEqual(["MOB-1"], positional)
+            self.assertEqual(["--json"], flags)
+
     def test_optional_positionals_are_bound_before_sibling_resolution(self):
         with tempfile.TemporaryDirectory() as td:
             cli_dir = _write_cli(Path(td), {

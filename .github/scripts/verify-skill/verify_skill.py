@@ -708,18 +708,21 @@ def _cli_invocation_from_tokens(
             break
         if len(cmd_path) < 3 and re.match(r"^[a-z][a-z0-9-]*$", t):
             if cli_dir is not None:
+                trial = cmd_path + [t]
+                child_file, _, _ = resolve_command_path(cli_dir, trial)
+                if child_file is not None:
+                    cmd_path.append(t)
+                    i += 1
+                    continue
+                # Cobra resolves a matching child before binding a parent's
+                # optional positional. With no child match, keep this token as
+                # an argument to the current command.
                 _files, use_str, _args_info = find_command_source(cli_dir, cmd_path)
                 if use_str:
                     _, _, optional, variadic = parse_use(use_str)
                     if optional > 0 or variadic:
                         break
-            # Verify adding this token still maps to a valid command. If the
-            # extended path has no source match, this token is an argument.
-            if cli_dir is not None:
-                trial = cmd_path + [t]
-                files, _, _ = find_command_source(cli_dir, trial)
-                if not files:
-                    break
+                break
             cmd_path.append(t)
             i += 1
             continue
