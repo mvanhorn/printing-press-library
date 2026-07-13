@@ -373,7 +373,14 @@ func syncOneNote(db *store.Store, relPath, absPath string, info os.FileInfo) err
 	if err != nil {
 		return err
 	}
-	content := string(raw)
+	// Normalize CRLF before parsing: editors and plugins can re-save vault
+	// files with CRLF endings, and a `---\r\n` frontmatter delimiter would
+	// otherwise parse as ZERO frontmatter keys — the note stays visibly valid
+	// in Obsidian while every frontmatter-based mirror query silently loses it
+	// (observed 2026-07-13: 4 email pages invisible to a type-coverage lint).
+	// contentHash below still uses the raw on-disk bytes, so change detection
+	// is unaffected.
+	content := normalizeNewlines(string(raw))
 
 	fmYAML, body := splitFrontmatter(content)
 	frontmatter := map[string]any{}
@@ -474,6 +481,13 @@ func syncOneNote(db *store.Store, relPath, absPath string, info os.FileInfo) err
 	}
 	committed = true
 	return nil
+}
+
+// normalizeNewlines converts CRLF line endings to LF so the frontmatter
+// delimiter regex (`\A---\n`), wikilink/tag extraction, and YAML parsing all
+// see canonical line breaks regardless of how the file was last saved.
+func normalizeNewlines(s string) string {
+	return strings.ReplaceAll(s, "\r\n", "\n")
 }
 
 // splitFrontmatter returns (yamlBody, restOfDocument). If no frontmatter
