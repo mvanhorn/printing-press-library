@@ -210,6 +210,10 @@ Read your authenticated user profile from both networks
 
 List, book, modify, and cancel reservations (requires auth login)
 
+Tock booking uses the signed-in Chrome session at `TABLE_RESERVATION_GOAT_TOCK_CHROME_DEBUG_URL` (default `http://localhost:9222`) when reachable, with the existing stealth-headless session fallback otherwise. It preserves legacy time-slot buttons, then tries the exact-time `/search` row and the modern time-combobox/experience-card flow. The attached profile must already be signed in to exploretock.com.
+
+Agent and `--no-input` runs never prompt for payment data. Set `TRG_TOCK_CVC` to a 3- or 4-digit CVC only when the venue requires per-booking verification; an omitted required CVC returns typed `cvc_required`. Layout failures return typed `selector_drift` with diagnostics limited to a query-free page path, booleans, time labels, and allowlisted control categories.
+
 
 ### restaurants
 

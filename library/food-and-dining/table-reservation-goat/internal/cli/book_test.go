@@ -3,6 +3,8 @@
 package cli
 
 import (
+	"bytes"
+	"errors"
 	"os"
 	"strings"
 	"testing"
@@ -210,6 +212,55 @@ func TestVerifyEnvFloor_GuardOrder(t *testing.T) {
 	// because IsVerifyEnv short-circuits first. We can't test the cobra layer
 	// directly here without a full command harness, but the env detection is
 	// the gate — and it's covered by cliutil.IsVerifyEnv tests already.
+}
+
+func TestTockCVCForBooking_NoInputAttemptsWithEmptyCVCAndDoesNotPrompt(t *testing.T) {
+	// Machine mode without TRG_TOCK_CVC proceeds with an empty CVC (the
+	// interactive flow allows skipping; card-on-file venues complete without
+	// one). A venue that truly blocks surfaces tock.ErrCVCRequired from the
+	// checkout stage instead.
+	t.Setenv("TRG_TOCK_CVC", "")
+	var stderr bytes.Buffer
+	cvc, err := tockCVCForBooking(true, os.Stdin, &stderr)
+	if err != nil {
+		t.Fatalf("tockCVCForBooking unexpected err: %v", err)
+	}
+	if cvc != "" {
+		t.Fatalf("cvc = %q, want empty", cvc)
+	}
+	if stderr.Len() != 0 {
+		t.Fatalf("machine mode wrote prompt: %q", stderr.String())
+	}
+}
+
+func TestTockCVCForBooking_NoInputAcceptsEnv(t *testing.T) {
+	t.Setenv("TRG_TOCK_CVC", "123")
+	var stderr bytes.Buffer
+	cvc, err := tockCVCForBooking(true, os.Stdin, &stderr)
+	if err != nil {
+		t.Fatalf("tockCVCForBooking unexpected err: %v", err)
+	}
+	if cvc != "123" {
+		t.Fatalf("cvc = %q, want env value", cvc)
+	}
+	if stderr.Len() != 0 {
+		t.Fatalf("machine mode with env wrote prompt: %q", stderr.String())
+	}
+}
+
+func TestTockCVCForBooking_RejectsInvalidEnv(t *testing.T) {
+	t.Setenv("TRG_TOCK_CVC", "12x")
+	var stderr bytes.Buffer
+	cvc, err := tockCVCForBooking(true, os.Stdin, &stderr)
+	if !errors.Is(err, errTockCVCInvalid) {
+		t.Fatalf("tockCVCForBooking err = %v, want errTockCVCInvalid", err)
+	}
+	if cvc != "" {
+		t.Fatalf("cvc = %q, want empty", cvc)
+	}
+	if stderr.Len() != 0 {
+		t.Fatalf("invalid env wrote prompt: %q", stderr.String())
+	}
 }
 
 func envIsVerify() bool {

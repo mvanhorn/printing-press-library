@@ -54,6 +54,8 @@ One reservation CLI for OpenTable, Tock, and Resy — search all three networks 
 
 **reservations** — List, book, modify, and cancel reservations (requires auth login)
 
+Tock booking prefers the signed-in Chrome session at `TABLE_RESERVATION_GOAT_TOCK_CHROME_DEBUG_URL` (default `http://localhost:9222`) and keeps the stealth-headless session fallback. It tries legacy slot buttons first, then the exact-time `/search` row and modern time-combobox/experience-card controls. Agent and `--no-input` runs never prompt for CVC: provide a 3- or 4-digit `TRG_TOCK_CVC` only when needed. Typed failures are `cvc_required` and `selector_drift`; selector diagnostics contain only a query-free path, booleans, time labels, and allowlisted control categories.
+
 
 **restaurants** — Search and inspect restaurants across OpenTable, Tock, and Resy
 
@@ -76,7 +78,7 @@ table-reservation-goat-pp-cli which "<capability in your own words>"
 
 ## Auth Setup
 
-No authentication required.
+Search and availability require no account. Tock booking uses either the signed-in attached Chrome profile or the saved Tock session used by the stealth-headless fallback.
 
 Run `table-reservation-goat-pp-cli doctor` to verify setup.
 
