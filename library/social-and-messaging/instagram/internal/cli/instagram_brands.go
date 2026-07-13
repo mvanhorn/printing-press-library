@@ -466,9 +466,6 @@ func jsonNum(v any) int64 {
 	return 0
 }
 
-// fetchInsightTotals issues an insights GET and returns metric->total_value
-// per metric. A whole-call failure returns an empty map (caller treats every
-// metric as 0). Missing individual metrics are simply absent.
 // fetchInsightTotals issues an insights GET and returns metric->total_value.
 // An HTTP 400 is tolerated (returns an empty map, nil error): the Graph API
 // 400s when a requested metric is unsupported for the target's type, which is
@@ -507,12 +504,18 @@ func fetchInsightTotals(ctx context.Context, c *client.Client, path string, metr
 // every per-media metric, since media responses carry no total_value field.
 // Both shapes are handled here; for the values[] shape the latest entry is
 // used (lifetime media metrics return a single entry).
+//
+// TotalValue is a pointer so presence is detected by whether the "total_value"
+// key existed in the JSON, not by whether its inner "value" happened to be
+// non-empty: a present-but-zero total_value ({"total_value":{"value":0}}) and a
+// present-but-empty one ({"total_value":{}}) both take precedence over any stray
+// values[] entry and record their scalar (0 when "value" is absent).
 func parseInsightTotals(raw json.RawMessage) (map[string]int64, error) {
 	out := map[string]int64{}
 	var resp struct {
 		Data []struct {
 			Name       string `json:"name"`
-			TotalValue struct {
+			TotalValue *struct {
 				Value json.Number `json:"value"`
 			} `json:"total_value"`
 			Values []struct {
@@ -524,8 +527,8 @@ func parseInsightTotals(raw json.RawMessage) (map[string]int64, error) {
 		return out, err
 	}
 	for _, m := range resp.Data {
-		if m.TotalValue.Value.String() != "" {
-			i, _ := m.TotalValue.Value.Int64()
+		if m.TotalValue != nil {
+			i, _ := m.TotalValue.Value.Int64() // absent inner "value" -> 0
 			out[m.Name] = i
 			continue
 		}

@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "instagram-media-insights-zeros",
+  "applied_at": "2026-07-13",
+  "base_run_id": "20260606-183021",
+  "base_printing_press_version": "4.20.1",
+  "summary": "Parse per-media insight responses' values[] time-series shape so reach/views/saved/shares/total_interactions record real figures instead of 0.",
+  "reason": "fetchInsightTotals read only the account-level total_value scalar; per-media insights ignore metric_type and return the values[] shape with no total_value, so the collector silently persisted 0 for every media metric. total_value presence is now detected by key presence (pointer), keeping precedence for a present-but-zero/empty scalar while falling through to values[] for the media shape.",
+  "files": [
+    "internal/cli/instagram_brands.go",
+    "internal/cli/instagram_brands_insights_test.go"
+  ],
+  "validated_outcome": "go test ./internal/cli/ passes; new parseInsightTotals cases cover the media values[] shape, present-but-zero and present-but-empty total_value precedence, and null total_value fall-through. Live: top-posts --metric reach matches a direct Graph API call (211/330) that previously read 0."
+}
