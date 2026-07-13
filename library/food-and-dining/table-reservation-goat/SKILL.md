@@ -54,6 +54,8 @@ One reservation CLI for OpenTable, Tock, and Resy — search all three networks 
 
 **reservations** — List, book, modify, and cancel reservations (requires auth login)
 
+OpenTable attach booking is enabled only when `TABLE_RESERVATION_GOAT_OT_CHROME_DEBUG_URL` is explicitly configured and the attached profile is already signed in. Use `TRG_ALLOW_BOOK=prepare` to drive through an enabled final confirmation control without clicking it; only `TRG_ALLOW_BOOK=1` may place the reservation. Typed failures are `attach_unreachable`, `not_signed_in`, `selector_drift`, `form_validation`, `slot_taken`, and `incomplete_confirmation`; `page_state` diagnostics are redacted and never include URL query tokens or arbitrary account labels.
+
 
 **restaurants** — Search and inspect restaurants across OpenTable, Tock, and Resy
 
@@ -76,7 +78,7 @@ table-reservation-goat-pp-cli which "<capability in your own words>"
 
 ## Auth Setup
 
-No authentication required.
+Search and availability require no account. OpenTable and Tock attach booking use the signed-in session in the attached Chrome profile; Resy booking uses its saved API token.
 
 Run `table-reservation-goat-pp-cli doctor` to verify setup.
 

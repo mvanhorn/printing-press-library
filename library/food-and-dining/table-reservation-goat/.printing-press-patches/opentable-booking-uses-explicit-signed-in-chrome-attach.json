@@ -1,0 +1,18 @@
+{
+  "schema_version": 2,
+  "id": "opentable-booking-uses-explicit-signed-in-chrome-attach",
+  "applied_at": "2026-07-13",
+  "base_run_id": "20260712-223206",
+  "base_printing_press_version": "4.28.0",
+  "summary": "OpenTable booking prefers an explicitly configured signed-in Chrome attachment, preserves a non-clicking prepare mode, and returns redacted typed outcomes for UI drift, slot loss, validation failure, and incomplete confirmation.",
+  "reason": "OpenTable's write path is blocked outside a genuine signed-in browser, while its booking UI and dining-dashboard reducer can drift independently. Regeneration must retain the final-click safety seam, deterministic idempotency-state selection, required-agreement filtering, and identifier-bearing confirmation requirement.",
+  "files": [
+    "internal/source/opentable/chrome_book.go",
+    "internal/source/opentable/chrome_book_test.go",
+    "internal/source/opentable/booking.go",
+    "internal/source/opentable/booking_test.go",
+    "internal/cli/book.go",
+    "internal/cli/book_test.go"
+  ],
+  "validated_outcome": "Fixture tests cover typed identifierless-confirmation rejection, allowlisted diagnostic labels, deterministic upcoming-reservation reducer selection, final-control isolation, required-policy filtering, and fallback URL construction."
+}

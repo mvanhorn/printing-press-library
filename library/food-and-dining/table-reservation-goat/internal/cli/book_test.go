@@ -216,6 +216,18 @@ func envIsVerify() bool {
 	return os.Getenv("PRINTING_PRESS_VERIFY") == "1"
 }
 
+func TestOpenTableFallbackBookURL(t *testing.T) {
+	tests := map[string]string{
+		"le-bernardin-new-york": "https://www.opentable.com/r/le-bernardin-new-york?covers=2&dateTime=2026-07-20T19:00",
+		"3688":                  "https://www.opentable.com/restaurant/profile/3688?covers=2&dateTime=2026-07-20T19:00",
+	}
+	for slug, want := range tests {
+		if got := openTableFallbackBookURL(slug, "2026-07-20", "19:00", 2); got != want {
+			t.Errorf("openTableFallbackBookURL(%q) = %q, want %q", slug, got, want)
+		}
+	}
+}
+
 func TestMatchedExistingOT_RestaurantSlugCheck(t *testing.T) {
 	// Same date, time, and party at a different restaurant must NOT match.
 	// Greptile P1: prior implementation returned true unconditionally after

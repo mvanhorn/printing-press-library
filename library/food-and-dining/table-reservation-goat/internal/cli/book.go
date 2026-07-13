@@ -27,6 +27,7 @@ import (
 	"context"
 	"crypto/sha256"
 	"encoding/hex"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"os"
@@ -51,20 +52,23 @@ import (
 // bookResult is the agent-friendly JSON shape emitted to stdout.
 // Field names are stable; nullable when not applicable.
 type bookResult struct {
-	Network              string `json:"network"`
-	ReservationID        string `json:"reservation_id,omitempty"`
-	ConfirmationNumber   string `json:"confirmation_number,omitempty"`
-	RestaurantSlug       string `json:"restaurant_slug,omitempty"`
-	RestaurantName       string `json:"restaurant_name,omitempty"`
-	Date                 string `json:"date"`
-	Time                 string `json:"time"`
-	Party                int    `json:"party"`
-	CancellationDeadline string `json:"cancellation_deadline,omitempty"`
-	MatchedExisting      bool   `json:"matched_existing"`
-	Source               string `json:"source"` // "book" | "matched_existing" | "dry_run"
-	Hint                 string `json:"hint,omitempty"`
-	BookURL              string `json:"book_url,omitempty"` // for Tock fallback to website
-	Error                string `json:"error,omitempty"`    // typed category when Error is non-empty
+	Network              string          `json:"network"`
+	ReservationID        string          `json:"reservation_id,omitempty"`
+	ConfirmationNumber   string          `json:"confirmation_number,omitempty"`
+	RestaurantSlug       string          `json:"restaurant_slug,omitempty"`
+	RestaurantName       string          `json:"restaurant_name,omitempty"`
+	Date                 string          `json:"date"`
+	Time                 string          `json:"time"`
+	Party                int             `json:"party"`
+	CancellationDeadline string          `json:"cancellation_deadline,omitempty"`
+	MatchedExisting      bool            `json:"matched_existing"`
+	Source               string          `json:"source"` // "book" | "prepared" | "matched_existing" | "dry_run"
+	Hint                 string          `json:"hint,omitempty"`
+	BookURL              string          `json:"book_url,omitempty"`
+	Error                string          `json:"error,omitempty"`
+	ReadyToConfirm       bool            `json:"ready_to_confirm,omitempty"`
+	PageState            json.RawMessage `json:"page_state,omitempty"`
+	Warnings             []string        `json:"warnings,omitempty"`
 }
 
 // newBookCmd constructs the `book` Cobra command.
@@ -78,7 +82,7 @@ func newBookCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "book <network>:<slug>",
 		Short: "Place a reservation on OpenTable, Tock, or Resy",
-		Long:  "Places a reservation for the given venue at the requested date/time/party. Free reservations only in v0.2; payment-required venues return a typed payment_required error pointing at v0.3.\n\nSafety: live commit fires only when TRG_ALLOW_BOOK=1 is set in the environment AND PRINTING_PRESS_VERIFY is unset (verify-mode floor). Without the env var, returns a dry-run envelope with a hint.",
+		Long:  "Places a reservation for the given venue at the requested date/time/party. Free reservations only in v0.2; payment-required venues return a typed payment_required error pointing at v0.3.\n\nSafety: live commit fires only when TRG_ALLOW_BOOK=1 is set in the environment AND PRINTING_PRESS_VERIFY is unset (verify-mode floor). Without the env var, returns a dry-run envelope with a hint. OpenTable attach mode also accepts TRG_ALLOW_BOOK=prepare to stop after locating an enabled final confirmation control without clicking it.",
 		Example: "  table-reservation-goat-pp-cli book opentable:water-grill-bellevue --date 2026-05-13 --time 19:00 --party 2 --agent\n" +
 			"  TRG_ALLOW_BOOK=1 table-reservation-goat-pp-cli book opentable:water-grill-bellevue --date 2026-05-13 --time 19:00 --party 2 --agent   # add TRG_ALLOW_BOOK=1 to actually book (default is dry-run)",
 		Args: cobra.ExactArgs(1),
@@ -428,9 +432,13 @@ func bookOnOpenTable(ctx context.Context, session *auth.Session, slug, date, hhm
 		return out, err
 	}
 
-	// Step 5: idempotency pre-flight via ListUpcomingReservations.
+	attachConfigured := opentable.ChromeAttachConfigured()
+
+	// Step 5: idempotency pre-flight via ListUpcomingReservations. Attach
+	// mode may continue when the direct HTTP path is blocked because the fresh
+	// browser target performs its own signed-in check before any final click.
 	upcoming, listErr := c.ListUpcomingReservations(ctx)
-	if listErr != nil {
+	if listErr != nil && !attachConfigured {
 		// Pre-flight failure aborts (R5). Don't fall through to book.
 		switch {
 		case errors.Is(listErr, opentable.ErrAuthExpired):
@@ -440,6 +448,10 @@ func bookOnOpenTable(ctx context.Context, session *auth.Session, slug, date, hhm
 		}
 		out.Hint = listErr.Error()
 		return out, listErr
+	}
+	if listErr != nil && attachConfigured {
+		out.Warnings = append(out.Warnings,
+			"OpenTable HTTP idempotency preflight was unavailable; attach mode continued to its signed-in browser pre-confirm check")
 	}
 	for _, r := range upcoming {
 		if matchedExistingOT(r, slug, date, hhmm, party) {
@@ -452,13 +464,87 @@ func bookOnOpenTable(ctx context.Context, session *auth.Session, slug, date, hhm
 		}
 	}
 
-	// Step 6: dry-run / commit gate.
-	if dryRun || os.Getenv("TRG_ALLOW_BOOK") != "1" {
+	// Step 6: dry-run / commit gate. "prepare" is attach-only and executes
+	// every browser step except the final confirmation click.
+	allowMode := os.Getenv("TRG_ALLOW_BOOK")
+	prepareOnly := attachConfigured && allowMode == "prepare"
+	if dryRun || (allowMode != "1" && !prepareOnly) {
 		out.Source = "dry_run"
 		out.MatchedExisting = false
 		if !dryRun {
-			out.Hint = "set TRG_ALLOW_BOOK=1 to commit"
+			if attachConfigured {
+				out.Hint = "set TRG_ALLOW_BOOK=prepare to verify the OpenTable attach flow without clicking final confirmation, or TRG_ALLOW_BOOK=1 to commit"
+			} else {
+				out.Hint = "set TRG_ALLOW_BOOK=1 to commit"
+			}
 		}
+		return out, nil
+	}
+
+	// Explicit debug configuration prefers the real signed-in Chrome path.
+	// Without it, preserve the existing Surf/REST behavior below.
+	if attachConfigured {
+		chromeResult, chromeErr := c.ChromeBook(ctx, opentable.ChromeBookRequest{
+			RestaurantSlug:      slug,
+			ReservationDateTime: date + "T" + hhmm,
+			PartySize:           party,
+			Confirm:             allowMode == "1",
+		})
+		if chromeErr != nil {
+			var typedChromeErr *opentable.ChromeBookError
+			if errors.As(chromeErr, &typedChromeErr) && typedChromeErr.PageState != "" {
+				out.PageState = json.RawMessage(typedChromeErr.PageState)
+			}
+			switch {
+			case errors.Is(chromeErr, opentable.ErrAttachUnreachable):
+				out.Error = "attach_unreachable"
+				out.Hint = "start the dedicated Chrome profile with remote debugging and verify TABLE_RESERVATION_GOAT_OT_CHROME_DEBUG_URL"
+			case errors.Is(chromeErr, opentable.ErrNotSignedIn):
+				out.Error = "not_signed_in"
+				out.Hint = "sign in to opentable.com in the attached Chrome profile, then retry"
+			case errors.Is(chromeErr, opentable.ErrSelectorDrift):
+				out.Error = "selector_drift"
+				out.Hint = chromeErr.Error()
+			case errors.Is(chromeErr, opentable.ErrFormValidation):
+				out.Error = "form_validation"
+				out.Hint = chromeErr.Error()
+			case errors.Is(chromeErr, opentable.ErrIncompleteConfirmation):
+				out.Error = "incomplete_confirmation"
+				out.Hint = "OpenTable showed a confirmation page but omitted every reservation identifier; inspect the attached browser before retrying or cancelling"
+			case errors.Is(chromeErr, opentable.ErrSlotTaken):
+				out.Error = "slot_taken"
+				out.Hint = "the slot disappeared during the browser flow; run `earliest` for a fresh slot"
+			default:
+				out.Error = "chromedp_book_failed"
+				out.Hint = chromeErr.Error()
+			}
+			out.BookURL = openTableFallbackBookURL(slug, date, hhmm, party)
+			return out, chromeErr
+		}
+		out.RestaurantName = chromeResult.RestaurantName
+		out.BookURL = openTableFallbackBookURL(slug, date, hhmm, party)
+		if prepareOnly {
+			out.Source = "prepared"
+			out.Hint = "final OpenTable confirmation control located and enabled; no reservation was placed"
+			out.ReadyToConfirm = chromeResult.ReadyToConfirm
+			out.PageState = json.RawMessage(chromeResult.PageState)
+			return out, nil
+		}
+		if chromeResult.BookResponse == nil {
+			out.Error = "incomplete_confirmation"
+			out.Hint = "OpenTable attach flow returned without a confirmation response"
+			return out, fmt.Errorf("opentable attach returned no confirmation response")
+		}
+		resp := chromeResult.BookResponse
+		cutoff, _ := c.FetchCancelCutoff(ctx, resp.RestaurantID, resp.ConfirmationNumber, resp.SecurityToken)
+		out.Source = "book"
+		if resp.ReservationID > 0 {
+			out.ReservationID = fmt.Sprintf("%d", resp.ReservationID)
+		}
+		if resp.ConfirmationNumber > 0 {
+			out.ConfirmationNumber = fmt.Sprintf("%d", resp.ConfirmationNumber)
+		}
+		out.CancellationDeadline = cutoff
 		return out, nil
 	}
 
@@ -538,6 +624,13 @@ func bookOnOpenTable(ctx context.Context, session *auth.Session, slug, date, hhm
 	out.CancellationDeadline = cutoff
 	out.MatchedExisting = false
 	return out, nil
+}
+
+func openTableFallbackBookURL(slug, date, hhmm string, party int) string {
+	if id, err := strconv.Atoi(slug); err == nil && id > 0 {
+		return fmt.Sprintf("https://www.opentable.com/restaurant/profile/%d?covers=%d&dateTime=%sT%s", id, party, date, hhmm)
+	}
+	return fmt.Sprintf("https://www.opentable.com/r/%s?covers=%d&dateTime=%sT%s", slug, party, date, hhmm)
 }
 
 // bookOnTock handles steps 5–8 for Tock via chromedp-attach (real Chrome).
