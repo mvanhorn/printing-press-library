@@ -1377,8 +1377,28 @@ func wrapWithProvenance(data json.RawMessage, prov DataProvenance) (json.RawMess
 	return json.Marshal(envelope)
 }
 
-// defaultDBPath returns the canonical path for the local SQLite database.
+// defaultDBPath returns the mirror DB a command should use when --db wasn't
+// passed.
+//
+// Multi-vault behavior (added 2026-07-13): sync writes each vault's mirror to
+// its own DB file (vault-<name>-<hash>.db) and records the most recently
+// synced one in current.json. When that pointer exists and its DB is present,
+// read commands default to it — so "sync vault X, then run health" keeps
+// working unchanged with any number of vaults. Falls back to the legacy
+// shared data.db (pre-multi-vault mirrors) when no pointer exists.
 func defaultDBPath(name string) string {
+	legacy := defaultLegacyDBPath(name)
+	if _, dbPath, ok := readCurrentVaultPointer(filepath.Dir(legacy)); ok {
+		return dbPath
+	}
+	return legacy
+}
+
+// defaultLegacyDBPath is the V1 single shared mirror location. Sync no longer
+// writes here (it derives per-vault files); this remains the read fallback for
+// mirrors created before multi-vault support, and its parent directory is the
+// canonical data dir.
+func defaultLegacyDBPath(name string) string {
 	home, _ := os.UserHomeDir()
 	return filepath.Join(home, ".local", "share", name, "data.db")
 }

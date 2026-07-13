@@ -6,7 +6,7 @@
 
 **V1 is read-only by design.** Write commands (create / delete / append / prepend / move / property:set) are deferred to V2 pending the upstream `markdown-patch` frontmatter-corruption fix. Skipping writes in V1 means zero corruption exposure — every command in this CLI either reads from the live `obsidian` binary or queries a local SQLite copy of your vault.
 
-Run `obsidian-pp-cli sync` with Obsidian open to refresh the mirror; all Tier-3 commands then run offline.
+Run `obsidian-pp-cli sync` with Obsidian open (or `sync --vault-path <abs>` with no Obsidian at all) to refresh the mirror; all Tier-3 commands then run offline. Each vault gets its own mirror DB — read commands follow the most recently synced vault automatically.
 
 Created by [@DrDriftwood](https://github.com/DrDriftwood) (Angelo Pullen).
 
@@ -167,7 +167,7 @@ These commands shell out to the official `obsidian` binary and return current va
 
 ### Mirror-backed analytics (work offline once `sync` has run)
 
-- **`obsidian-pp-cli sync`** — Walk the active vault and populate the local SQLite mirror. The ONLY command that requires Obsidian to be running; pass `--max-files=N` to bound work for testing or CI.
+- **`obsidian-pp-cli sync`** — Walk a vault and populate its local SQLite mirror. Resolves Obsidian's active vault by default; pass `--vault-path <abs>` to walk a vault directory directly with no Obsidian dependency (point it at the INNER content folder on nested layouts — sync warns loudly when it detects a wrapper). `--max-files=N` bounds work for testing or CI.
 - **`obsidian-pp-cli health`** — Composite vault-health score (connectivity, freshness, integrity, consistency). `--explain` prints the scoring formula.
 - **`obsidian-pp-cli orphans`** — Notes with no incoming wikilinks, ranked by age, with title and word count for triage.
 - **`obsidian-pp-cli stale --days=N`** — Notes not modified in N days that still have incoming wikilinks (triage candidates).
@@ -181,9 +181,15 @@ These commands shell out to the official `obsidian` binary and return current va
 
 Mirror-backed commands check whether the local SQLite copy is older than 24h. If Obsidian is running, they suggest re-running `sync`; if it isn't, they warn that results may be stale. Sync is the only path back to a current mirror.
 
+### Multi-vault mirrors (added 2026-07-13)
+
+Each vault mirrors into its own DB file (`vault-<name>-<hash>.db` under `~/.local/share/obsidian-pp-cli/`), and `sync` records the most recently synced vault in `current.json`. Read commands follow that pointer by default, so the "sync, then query" flow is unchanged — but syncing vault B no longer prunes vault A's rows, and each vault keeps an independent incremental checkpoint. `--db` still overrides everything (and skips the pointer update). The legacy shared `data.db` remains as a read fallback for pre-multi-vault mirrors.
+
+Two silent failure modes motivated this (both hit in production on 2026-07-10): a mirror rooted at the OUTER wrapper of a nested vault layout (`~/Desktop/<Name>/<Name>/`) path-prefixes every note — ~16.7k false broken links and a meaningless integrity score with no error raised — and same-machine sibling vaults deleting each other's mirror rows on every sync. `sync` now detects the wrapper signature and warns with the exact `--vault-path` fix.
+
 ### V2 (not in V1)
 
-Write commands (create, delete, append, prepend, move, property:set) are intentionally absent in V1. They wait on the upstream `markdown-patch` frontmatter-corruption fix. Skipping them in V1 means zero corruption exposure — V1 reads from the live binary or a SQLite copy of your vault, and never writes back. Multi-vault and non-macOS platforms are also V2.
+Write commands (create, delete, append, prepend, move, property:set) are intentionally absent in V1. They wait on the upstream `markdown-patch` frontmatter-corruption fix. Skipping them in V1 means zero corruption exposure — V1 reads from the live binary or a SQLite copy of your vault, and never writes back. Non-macOS platforms are also V2. (Multi-vault mirrors, originally slated for V2, shipped 2026-07-13 — see above.)
 
 ## Output Formats
 

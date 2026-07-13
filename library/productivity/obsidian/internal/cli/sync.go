@@ -74,26 +74,37 @@ func newSyncCmd(flags *rootFlags) *cobra.Command {
 	var maxFiles int
 	var full bool
 	var folder string
+	var vaultPathFlag string
 
 	cmd := &cobra.Command{
 		Use:   "sync",
-		Short: "Mirror the open vault into the local SQLite store",
-		Long: `Walk every markdown file in the active Obsidian vault and populate the
-local mirror. Frontmatter, wikilinks, embeds, and tags are extracted from
-file content; created/modified timestamps come from the filesystem.
+		Short: "Mirror a vault into its local SQLite store",
+		Long: `Walk every markdown file in the vault and populate the local mirror.
+Frontmatter, wikilinks, embeds, and tags are extracted from file content;
+created/modified timestamps come from the filesystem.
 
-Sync is the ONLY command that requires Obsidian to be running with a
-vault open. Tier-3 read commands (health, stale, orphans, broken,
-decay, hotspots, reconcile, sql) query the mirror and work fully offline
-once a sync has populated it.
+By default the vault is resolved from Obsidian's ACTIVE vault (requires
+Obsidian running with the vault open). Pass --vault-path <abs> to walk a
+vault directory directly — no Obsidian dependency at all. On nested
+layouts (~/Desktop/<Name>/<Name>/) always point --vault-path at the
+INNER content folder: a wrapper-rooted mirror path-prefixes every note,
+producing thousands of false broken links and a meaningless integrity
+score. Sync detects that wrapper signature and warns loudly either way.
 
-Re-runs are incremental: a note whose mtime is older than the last sync
-is skipped unless --full is passed.`,
-		Example: `  # First sync (walks the full vault)
+Each vault mirrors into its own DB file (vault-<name>-<hash>.db) and the
+most recently synced vault is recorded in current.json — read commands
+(health, stale, orphans, broken, decay, hotspots, reconcile, sql) follow
+that pointer by default, so "sync, then query" works unchanged with any
+number of vaults, and one vault's sync can no longer prune another's
+rows. --db still overrides everything (and skips the pointer update).
+
+Re-runs are incremental: a note whose mtime is older than the vault's
+last sync is skipped unless --full is passed.`,
+		Example: `  # First sync (walks the full active vault)
   obsidian-pp-cli sync
 
-  # Incremental — only touched files since last sync
-  obsidian-pp-cli sync
+  # Sync a vault directly by path — Obsidian not required
+  obsidian-pp-cli sync --full --vault-path "/Users/you/Desktop/My Vault/My Vault"
 
   # Full resync (ignore mtime checkpoint)
   obsidian-pp-cli sync --full
@@ -105,10 +116,6 @@ is skipped unless --full is passed.`,
   obsidian-pp-cli sync --max-files 20`,
 		Annotations: map[string]string{"pp:typed-exit-codes": "0,4,5"},
 		RunE: func(cmd *cobra.Command, args []string) error {
-			if dbPath == "" {
-				dbPath = defaultDBPath("obsidian-pp-cli")
-			}
-
 			// Verifier-mode short-circuit: PRINTING_PRESS_VERIFY=1 runs
 			// every command against a mock server with no `obsidian`
 			// subprocess available, so calling out would crash the data-
@@ -140,14 +147,59 @@ is skipped unless --full is passed.`,
 				maxFiles = 20
 			}
 
-			vaultPath, err := obsidianVaultPath()
-			if err != nil {
-				return fmt.Errorf("could not resolve vault path: %w\nIs Obsidian running with a vault open?", err)
+			// Resolve the vault: --vault-path walks the directory directly
+			// (no Obsidian dependency); otherwise ask Obsidian for its
+			// active vault, the legacy behavior.
+			var vaultPath string
+			var files []string
+			var err error
+			if vaultPathFlag != "" {
+				vaultPath, err = filepath.Abs(vaultPathFlag)
+				if err != nil {
+					return fmt.Errorf("resolving --vault-path: %w", err)
+				}
+				info, statErr := os.Stat(vaultPath)
+				if statErr != nil || !info.IsDir() {
+					return fmt.Errorf("--vault-path %q is not a readable directory", vaultPath)
+				}
+				files, err = walkVaultFiles(vaultPath, folder)
+				if err != nil {
+					return fmt.Errorf("walking vault files: %w", err)
+				}
+			} else {
+				vaultPath, err = obsidianVaultPath()
+				if err != nil {
+					return fmt.Errorf("could not resolve vault path: %w\nIs Obsidian running with a vault open? (Or pass --vault-path <abs> to sync without Obsidian.)", err)
+				}
+				files, err = obsidianListFiles(folder)
+				if err != nil {
+					return fmt.Errorf("listing vault files: %w", err)
+				}
 			}
 
-			files, err := obsidianListFiles(folder)
-			if err != nil {
-				return fmt.Errorf("listing vault files: %w", err)
+			// Wrapper tripwire: a mirror rooted at the OUTER folder of a
+			// nested vault layout silently poisons link resolution (the
+			// 2026-07-10 lint incident: 16.7k false broken links, integrity
+			// 0.285, no error anywhere). Warn loudly; don't block — rare
+			// legitimate layouts can look like wrappers.
+			if inner, isWrapper := detectNestedWrapper(vaultPath); isWrapper {
+				fmt.Fprintf(cmd.ErrOrStderr(),
+					"warning: %s looks like a nested-vault WRAPPER — the bulk of the markdown lives under\n"+
+						"  %s\n"+
+						"A wrapper-rooted mirror path-prefixes every note, so path-style wikilinks all read as\n"+
+						"broken and the integrity/health scores become meaningless. Re-run with:\n"+
+						"  obsidian-pp-cli sync --full --vault-path \"%s\"\n"+
+						"(or switch Obsidian's active vault to that inner folder).\n",
+					vaultPath, inner, inner)
+			}
+
+			// Per-vault mirror: derive this vault's own DB file unless the
+			// user pinned one with --db. Keeps vaults from pruning each
+			// other's rows and gives each an independent mtime checkpoint.
+			dataDir := filepath.Dir(defaultLegacyDBPath("obsidian-pp-cli"))
+			pointerEligible := dbPath == ""
+			if dbPath == "" {
+				dbPath = vaultDBPath(dataDir, vaultPath)
 			}
 
 			db, err := store.OpenWithContext(cmd.Context(), dbPath)
@@ -234,10 +286,20 @@ is skipped unless --full is passed.`,
 				return fmt.Errorf("recording sync state: %w", err)
 			}
 
+			// Record this vault as the current mirror so read commands
+			// resolve to it by default. Skipped when the user pinned --db —
+			// an explicit scratch DB shouldn't hijack every later read.
+			if pointerEligible {
+				if err := writeCurrentVaultPointer(dataDir, vaultPath, dbPath); err != nil {
+					fmt.Fprintf(cmd.ErrOrStderr(), "warning: could not record current-vault pointer: %v\n", err)
+				}
+			}
+
 			elapsed := time.Since(started)
 			if flags.asJSON {
 				out, _ := json.MarshalIndent(map[string]any{
 					"vault_path":   vaultPath,
+					"db_path":      dbPath,
 					"total_files":  len(files),
 					"synced":       syncedCount,
 					"skipped":      skippedCount,
@@ -251,16 +313,17 @@ is skipped unless --full is passed.`,
 				return nil
 			}
 			fmt.Fprintf(cmd.OutOrStdout(),
-				"Sync complete in %s: synced=%d skipped=%d errored=%d deleted=%d (vault %s, %d files total)\n",
-				elapsed.Round(time.Millisecond), syncedCount, skippedCount, errorCount, deletedCount, vaultPath, len(files))
+				"Sync complete in %s: synced=%d skipped=%d errored=%d deleted=%d (vault %s, %d files total)\n  mirror: %s\n",
+				elapsed.Round(time.Millisecond), syncedCount, skippedCount, errorCount, deletedCount, vaultPath, len(files), dbPath)
 			return nil
 		},
 	}
 
-	cmd.Flags().StringVar(&dbPath, "db", "", "Database path (default: ~/.local/share/obsidian-pp-cli/data.db)")
+	cmd.Flags().StringVar(&dbPath, "db", "", "Database path (default: per-vault vault-<name>-<hash>.db under ~/.local/share/obsidian-pp-cli/)")
 	cmd.Flags().IntVar(&maxFiles, "max-files", 0, "Maximum files to sync (0 = unlimited; capped at 20 under PRINTING_PRESS_DOGFOOD)")
 	cmd.Flags().BoolVar(&full, "full", false, "Full resync — ignore mtime checkpoint")
 	cmd.Flags().StringVar(&folder, "folder", "", "Sync only files under this vault-relative folder")
+	cmd.Flags().StringVar(&vaultPathFlag, "vault-path", "", "Absolute path of the vault to sync (walks the directory directly; Obsidian not required). On nested layouts point this at the INNER content folder.")
 	return cmd
 }
 
