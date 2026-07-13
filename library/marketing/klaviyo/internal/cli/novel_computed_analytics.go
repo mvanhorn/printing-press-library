@@ -665,13 +665,24 @@ func collectSubjectEmails(c flowClient, source string) ([]subjectEmail, error) {
 			return nil, err
 		}
 		campaignNames := map[string]string{}
+		campaignNamesByMessageID := map[string]string{}
 		for _, campaign := range campaigns {
-			campaignNames[fmt.Sprint(campaign["id"])] = stringFromMapPath(campaign, "attributes.name")
+			name := stringFromMapPath(campaign, "attributes.name")
+			campaignNames[fmt.Sprint(campaign["id"])] = name
+			for _, messageID := range relationshipIDs(campaign, "campaign-messages") {
+				campaignNamesByMessageID[messageID] = name
+			}
 		}
 		for _, msg := range messages {
-			name := campaignNames[relationshipID(msg, "campaign")]
+			name, associated := campaignNames[relationshipID(msg, "campaign")]
+			if !associated {
+				name, associated = campaignNamesByMessageID[fmt.Sprint(msg["id"])]
+			}
 			subject := firstNonEmptyString(stringFromMapPath(msg, "attributes.definition.content.subject"), stringFromMapPath(msg, "attributes.definition.label"), name)
 			if subject != "" {
+				if !associated {
+					return nil, fmt.Errorf("included campaign message %s cannot be associated with a campaign", msg["id"])
+				}
 				out = append(out, subjectEmail{ID: fmt.Sprint(msg["id"]), Subject: subject, Source: name, SourceType: "campaign"})
 			}
 		}

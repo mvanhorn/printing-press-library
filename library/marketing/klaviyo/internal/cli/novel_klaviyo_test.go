@@ -106,6 +106,21 @@ func TestPaginatedGetFollowsJSONAPINextLink(t *testing.T) {
 	}
 }
 
+func TestPaginatedGetRejectsCursorCycles(t *testing.T) {
+	c := &fakePaginatedClient{responses: []json.RawMessage{
+		rawJSON(`{"data":[{"id":"flow-1"}],"links":{"next":"https://example.test/api/flows?page%5Bcursor%5D=A"}}`),
+		rawJSON(`{"data":[{"id":"flow-2"}],"links":{"next":"https://example.test/api/flows?page%5Bcursor%5D=B"}}`),
+		rawJSON(`{"data":[{"id":"flow-3"}],"links":{"next":"https://example.test/api/flows?page%5Bcursor%5D=A"}}`),
+	}}
+
+	if _, err := paginatedGet(c, "/api/flows", map[string]string{"page[size]": "50"}, nil, true, "page[cursor]", "", ""); err == nil || !strings.Contains(err.Error(), "cursor") {
+		t.Fatalf("expected cursor-cycle error, got %v", err)
+	}
+	if len(c.params) != 3 {
+		t.Fatalf("request params = %#v", c.params)
+	}
+}
+
 func TestAuditFetchersUseValidKlaviyoParametersAndAllPages(t *testing.T) {
 	formsClient := &fakeCouponPoolClient{responses: []json.RawMessage{
 		rawJSON(`{"data":[{"id":"form-1"}],"links":{"next":"https://example.test/api/forms?page%5Bcursor%5D=forms-2"}}`),
@@ -232,6 +247,19 @@ func TestCollectSubjectEmailsUsesIncludedFlowMessageIDs(t *testing.T) {
 		t.Fatalf("collectSubjectEmails() error = %v", err)
 	}
 	if len(emails) != 1 || emails[0].ID != "message-1" || emails[0].Subject != "Welcome home" || emails[0].Source != "Welcome" {
+		t.Fatalf("emails = %#v", emails)
+	}
+}
+
+func TestCollectSubjectEmailsUsesCampaignForwardRelationship(t *testing.T) {
+	c := &fakeCouponPoolClient{responses: []json.RawMessage{
+		rawJSON(`{"data":[{"id":"campaign-1","attributes":{"name":"Launch"},"relationships":{"campaign-messages":{"data":[{"id":"message-1"}]}}}],"included":[{"id":"message-1","attributes":{"definition":{"content":{"subject":"New collection"}}}}],"links":{}}`),
+	}}
+	emails, err := collectSubjectEmails(c, "campaign")
+	if err != nil {
+		t.Fatalf("collectSubjectEmails() error = %v", err)
+	}
+	if len(emails) != 1 || emails[0].ID != "message-1" || emails[0].Subject != "New collection" || emails[0].Source != "Launch" {
 		t.Fatalf("emails = %#v", emails)
 	}
 }

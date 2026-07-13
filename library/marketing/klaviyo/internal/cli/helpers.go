@@ -274,6 +274,10 @@ func paginatedGet(c interface {
 
 	// Fetch all pages
 	var allItems []json.RawMessage
+	seenCursors := map[string]bool{}
+	if cursor := clean[cursorParam]; cursor != "" {
+		seenCursors[cursor] = true
+	}
 	page := 0
 	for {
 		page++
@@ -312,6 +316,10 @@ func paginatedGet(c interface {
 					if tokenRaw, ok := obj[nextCursorPath]; ok {
 						var token string
 						if json.Unmarshal(tokenRaw, &token) == nil && token != "" {
+							if seenCursors[token] {
+								return nil, fmt.Errorf("pagination cursor %q repeated for %s", token, path)
+							}
+							seenCursors[token] = true
 							clean[cursorParam] = token
 							continue
 						}
@@ -338,7 +346,11 @@ func paginatedGet(c interface {
 						if json.Unmarshal(linksRaw, &links) == nil {
 							var nextLink string
 							if json.Unmarshal(links["next"], &nextLink) == nil {
-								if nextCursor := cursorFromNextLink(nextLink, cursorParam); nextCursor != "" && nextCursor != clean[cursorParam] {
+								if nextCursor := cursorFromNextLink(nextLink, cursorParam); nextCursor != "" {
+									if seenCursors[nextCursor] {
+										return nil, fmt.Errorf("pagination cursor %q repeated for %s", nextCursor, path)
+									}
+									seenCursors[nextCursor] = true
 									clean[cursorParam] = nextCursor
 									continue
 								}
