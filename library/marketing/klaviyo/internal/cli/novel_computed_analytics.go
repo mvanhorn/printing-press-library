@@ -554,6 +554,10 @@ type subjectEmail struct {
 	OpenRate, ClickRate             float64
 }
 
+type subjectMessage struct {
+	ID, Subject string
+}
+
 func subjectLineAnalysis(c flowClient, since, until time.Time, source string) (map[string]any, error) {
 	emails, err := collectSubjectEmails(c, source)
 	if err != nil {
@@ -598,53 +602,88 @@ func subjectLineAnalysis(c flowClient, since, until time.Time, source string) (m
 
 func collectSubjectEmails(c flowClient, source string) ([]subjectEmail, error) {
 	source = strings.ToLower(source)
+	if source != "all" && source != "flow" && source != "campaign" {
+		return nil, usageErr(fmt.Errorf("--source must be flow, campaign, or all"))
+	}
 	var out []subjectEmail
 	if source == "all" || source == "flow" {
-		flows, err := fetchAllJSONAPI(c, "/api/flows", map[string]string{"fields[flow]": "name,status", "page[size]": "50"}, 0)
+		flows, actions, err := fetchAllJSONAPIWithIncluded(c, "/api/flows", map[string]string{
+			"fields[flow]":        "name,status",
+			"fields[flow-action]": "definition",
+			"include":             "flow-actions",
+			"page[size]":          "50",
+		})
 		if err != nil {
 			return nil, err
 		}
+		flowNames := map[string]string{}
 		for _, flow := range flows {
 			if status := strings.ToLower(stringFromMapPath(flow, "attributes.status")); status != "" && status != "live" {
 				continue
 			}
-			flowID := fmt.Sprint(flow["id"])
-			def, name, err := fetchAndTransformFlow(c, flowID, true)
-			if err != nil {
+			flowNames[fmt.Sprint(flow["id"])] = stringFromMapPath(flow, "attributes.name")
+		}
+		for _, action := range actions {
+			name, live := flowNames[relationshipID(action, "flow")]
+			if !live {
 				continue
 			}
-			for _, action := range mapSlice(def["actions"]) {
-				if fmt.Sprint(action["type"]) != "send-email" {
-					continue
+			for i, message := range collectSubjectMessages(action) {
+				id := message.ID
+				if id == "" {
+					id = fmt.Sprintf("%s:%d", action["id"], i)
 				}
-				msg, _ := anyPath(action, "data.message").(map[string]any)
-				subject := firstNonEmptyString(fmt.Sprint(msg["subject"]), fmt.Sprint(anyPath(action, "data.message.content.subject")), fmt.Sprint(anyPath(action, "data.message.definition.content.subject")), fmt.Sprint(msg["name"]))
-				if subject == "" || subject == "<nil>" {
-					continue
-				}
-				out = append(out, subjectEmail{ID: fmt.Sprint(action["id"]), Subject: subject, Source: name, SourceType: "flow"})
+				out = append(out, subjectEmail{ID: id, Subject: message.Subject, Source: name, SourceType: "flow"})
 			}
 		}
 	}
 	if source == "all" || source == "campaign" {
-		campaigns, err := fetchAllJSONAPI(c, "/api/campaigns", map[string]string{"filter": `equals(messages.channel,'email')`, "fields[campaign]": "name,status,send_time", "page[size]": "50"}, 200)
+		campaigns, messages, err := fetchAllJSONAPIWithIncluded(c, "/api/campaigns", map[string]string{
+			"filter":                   `equals(messages.channel,"email")`,
+			"fields[campaign]":         "name,status,send_time",
+			"fields[campaign-message]": "definition",
+			"include":                  "campaign-messages",
+			"page[size]":               "100",
+		})
 		if err != nil {
 			return nil, err
 		}
+		campaignNames := map[string]string{}
 		for _, campaign := range campaigns {
-			campaignID := fmt.Sprint(campaign["id"])
-			name := stringFromMapPath(campaign, "attributes.name")
-			messages, err := fetchAllJSONAPI(c, "/api/campaigns/"+url.PathEscape(campaignID)+"/campaign-messages", map[string]string{}, 0)
-			if err != nil {
-				continue
-			}
-			for _, msg := range messages {
-				subject := firstNonEmptyString(stringFromMapPath(msg, "attributes.subject"), stringFromMapPath(msg, "attributes.definition.content.subject"), stringFromMapPath(msg, "attributes.definition.label"), stringFromMapPath(msg, "attributes.label"), name)
+			campaignNames[fmt.Sprint(campaign["id"])] = stringFromMapPath(campaign, "attributes.name")
+		}
+		for _, msg := range messages {
+			name := campaignNames[relationshipID(msg, "campaign")]
+			subject := firstNonEmptyString(stringFromMapPath(msg, "attributes.definition.content.subject"), stringFromMapPath(msg, "attributes.definition.label"), name)
+			if subject != "" {
 				out = append(out, subjectEmail{ID: fmt.Sprint(msg["id"]), Subject: subject, Source: name, SourceType: "campaign"})
 			}
 		}
 	}
 	return out, nil
+}
+
+func collectSubjectMessages(value any) []subjectMessage {
+	var out []subjectMessage
+	var walk func(any)
+	walk = func(current any) {
+		switch v := current.(type) {
+		case map[string]any:
+			if subject, ok := v["subject_line"].(string); ok && strings.TrimSpace(subject) != "" {
+				id, _ := v["id"].(string)
+				out = append(out, subjectMessage{ID: id, Subject: strings.TrimSpace(subject)})
+			}
+			for _, child := range v {
+				walk(child)
+			}
+		case []any:
+			for _, child := range v {
+				walk(child)
+			}
+		}
+	}
+	walk(value)
+	return out
 }
 
 func subjectPatterns(emails []subjectEmail) []map[string]any {

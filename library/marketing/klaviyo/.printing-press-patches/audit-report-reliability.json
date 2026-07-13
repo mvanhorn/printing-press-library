@@ -1,0 +1,16 @@
+{
+  "schema_version": 2,
+  "id": "audit-report-reliability",
+  "applied_at": "2026-07-12",
+  "base_run_id": "2026-05-02T18:02:09.219489Z",
+  "base_printing_press_version": "3.5.0",
+  "summary": "Keep Klaviyo audit reports aligned with current field names, metric identities, endpoint pagination limits, and denominator coverage.",
+  "reason": "Live consulting audits otherwise fail on invalid form/template requests, silently truncate JSON:API collections, misidentify unsubscribe metrics, or overstate domain deliverability from a sparse subset of received events.",
+  "files": [
+    "internal/cli/helpers.go",
+    "internal/cli/novel_computed_analytics.go",
+    "internal/cli/novel_segments_reports.go",
+    "internal/cli/novel_klaviyo_test.go"
+  ],
+  "validated_outcome": "Focused regression tests cover multi-page JSON:API collection reads, valid form/template query parameters, current unsubscribe metric names, non-empty subject-line output, and explicit deliverability denominator coverage."
+}

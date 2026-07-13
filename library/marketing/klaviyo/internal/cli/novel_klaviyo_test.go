@@ -1,6 +1,7 @@
 package cli
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"fmt"
@@ -80,6 +81,164 @@ func TestNovelCommandsRegistered(t *testing.T) {
 		if findCommand(root, path) == nil {
 			t.Fatalf("command %v not registered", path)
 		}
+	}
+}
+
+func TestPaginatedGetFollowsJSONAPINextLink(t *testing.T) {
+	c := &fakePaginatedClient{responses: []json.RawMessage{
+		rawJSON(`{"data":[{"id":"flow-1"}],"links":{"next":"https://example.test/api/flows?page%5Bcursor%5D=next-page"}}`),
+		rawJSON(`{"data":[{"id":"flow-2"}],"links":{"next":null}}`),
+	}}
+
+	got, err := paginatedGet(c, "/api/flows", map[string]string{"page[size]": "50"}, nil, true, "page[cursor]", "", "")
+	if err != nil {
+		t.Fatalf("paginatedGet() error = %v", err)
+	}
+	var items []map[string]any
+	if err := json.Unmarshal(got, &items); err != nil {
+		t.Fatalf("unmarshal paginated result: %v", err)
+	}
+	if len(items) != 2 || items[0]["id"] != "flow-1" || items[1]["id"] != "flow-2" {
+		t.Fatalf("items = %#v", items)
+	}
+	if len(c.params) != 2 || c.params[1]["page[cursor]"] != "next-page" {
+		t.Fatalf("request params = %#v", c.params)
+	}
+}
+
+func TestAuditFetchersUseValidKlaviyoParametersAndAllPages(t *testing.T) {
+	formsClient := &fakeCouponPoolClient{responses: []json.RawMessage{
+		rawJSON(`{"data":[{"id":"form-1"}],"links":{"next":"https://example.test/api/forms?page%5Bcursor%5D=forms-2"}}`),
+		rawJSON(`{"data":[{"id":"form-2"}],"links":{}}`),
+	}}
+	forms, err := fetchReportForms(formsClient)
+	if err != nil {
+		t.Fatalf("fetchReportForms() error = %v", err)
+	}
+	if len(forms) != 2 {
+		t.Fatalf("forms = %#v", forms)
+	}
+	if got := formsClient.requests[0].params["fields[form]"]; got != "name,status,created_at,updated_at" {
+		t.Fatalf("forms fields = %q", got)
+	}
+	if got := formsClient.requests[1].params["page[cursor]"]; got != "forms-2" {
+		t.Fatalf("forms second-page cursor = %q", got)
+	}
+
+	templatesClient := &fakeCouponPoolClient{responses: []json.RawMessage{
+		rawJSON(`{"data":[{"id":"template-1"}],"links":{}}`),
+	}}
+	if _, err := fetchTemplateAuditItems(templatesClient); err != nil {
+		t.Fatalf("fetchTemplateAuditItems() error = %v", err)
+	}
+	if got := templatesClient.requests[0].params["page[size]"]; got != "10" {
+		t.Fatalf("template page size = %q, want 10", got)
+	}
+	if got := templatesClient.requests[0].params["fields[template]"]; got != "name,updated" {
+		t.Fatalf("template fields = %q", got)
+	}
+}
+
+func TestListGrowthUsesCurrentKlaviyoMetricNames(t *testing.T) {
+	want := []string{"Subscribed to List", "Unsubscribed from List", "Unsubscribed from Email Marketing"}
+	if fmt.Sprint(listGrowthMetricNames) != fmt.Sprint(want) {
+		t.Fatalf("listGrowthMetricNames = %#v, want %#v", listGrowthMetricNames, want)
+	}
+	rows := []map[string]any{
+		{"metric": "Subscribed to List", "count": 120},
+		{"metric": "Unsubscribed from List", "count": 25},
+		{"metric": "Unsubscribed from Email Marketing", "count": 10},
+	}
+	if got := metricRowCount(rows, "Subscribed to List") - metricRowCount(rows, "Unsubscribed from List"); got != 95 {
+		t.Fatalf("net list growth = %d, want 95", got)
+	}
+}
+
+func TestSubjectLineAnalysisProducesNonEmptyOutput(t *testing.T) {
+	c := &fakeCouponPoolClient{responses: []json.RawMessage{
+		rawJSON(`{"data":[{"id":"campaign-1","attributes":{"name":"Campaign One"}}],"included":[{"id":"message-1","relationships":{"campaign":{"data":{"id":"campaign-1"}}},"attributes":{"definition":{"content":{"subject":"A useful subject"}}}}],"links":{}}`),
+		metricListResponse("received", "Received Email"),
+		metricListResponse("opened", "Opened Email"),
+		metricListResponse("clicked", "Clicked Email"),
+	}}
+	result, err := subjectLineAnalysis(c, time.Now().AddDate(0, 0, -30), time.Now(), "campaign")
+	if err != nil {
+		t.Fatalf("subjectLineAnalysis() error = %v", err)
+	}
+	var out bytes.Buffer
+	if err := printJSONFiltered(&out, result, &rootFlags{asJSON: true, compact: true}); err != nil {
+		t.Fatalf("printJSONFiltered() error = %v", err)
+	}
+	if out.Len() == 0 {
+		t.Fatal("subject-line analysis produced empty stdout")
+	}
+	var decoded map[string]any
+	if err := json.Unmarshal(out.Bytes(), &decoded); err != nil {
+		t.Fatalf("subject-line output is not JSON: %v", err)
+	}
+	if _, ok := decoded["total_emails_analyzed"]; !ok {
+		t.Fatalf("subject-line output = %#v", decoded)
+	}
+	if decoded["total_emails_analyzed"] != float64(1) {
+		t.Fatalf("subject-line output = %#v", decoded)
+	}
+}
+
+func TestCollectReferencedTemplateIDsUsesIncludedResources(t *testing.T) {
+	c := &fakeCouponPoolClient{responses: []json.RawMessage{
+		rawJSON(`{"data":[{"id":"flow-1"}],"included":[{"id":"action-1","attributes":{"definition":{"data":{"message":{"template_id":"flow-template"}}}}}],"links":{}}`),
+		rawJSON(`{"data":[{"id":"campaign-1"}],"included":[{"id":"message-1","relationships":{"template":{"data":{"id":"campaign-template"}}}}],"links":{}}`),
+	}}
+	refs, err := collectReferencedTemplateIDs(c)
+	if err != nil {
+		t.Fatalf("collectReferencedTemplateIDs() error = %v", err)
+	}
+	if !refs["flow-template"] || !refs["campaign-template"] || len(refs) != 2 {
+		t.Fatalf("refs = %#v", refs)
+	}
+	if len(c.requests) != 2 || c.requests[0].params["include"] != "flow-actions" || c.requests[1].params["include"] != "campaign-messages" {
+		t.Fatalf("requests = %#v", c.requests)
+	}
+	if got := c.requests[1].params["fields[campaign-message]"]; got != "id" {
+		t.Fatalf("campaign message fields = %q", got)
+	}
+}
+
+func TestCollectSubjectEmailsUsesIncludedFlowMessageIDs(t *testing.T) {
+	c := &fakeCouponPoolClient{responses: []json.RawMessage{
+		rawJSON(`{"data":[{"id":"flow-1","attributes":{"name":"Welcome","status":"live"}}],"included":[{"id":"action-1","relationships":{"flow":{"data":{"id":"flow-1"}}},"attributes":{"definition":{"data":{"message":{"id":"message-1","subject_line":"Welcome home"}}}}}],"links":{}}`),
+	}}
+	emails, err := collectSubjectEmails(c, "flow")
+	if err != nil {
+		t.Fatalf("collectSubjectEmails() error = %v", err)
+	}
+	if len(emails) != 1 || emails[0].ID != "message-1" || emails[0].Subject != "Welcome home" || emails[0].Source != "Welcome" {
+		t.Fatalf("emails = %#v", emails)
+	}
+}
+
+func TestDeliverabilityReportIncludesDenominatorCoverage(t *testing.T) {
+	c := &fakeCouponPoolClient{
+		responses: []json.RawMessage{
+			metricListResponse("received", "Received Email"),
+			metricListResponse("bounced", "Bounced Email"),
+		},
+		postResponses: []json.RawMessage{
+			metricAggregateResponse("gmail.com", 7000),
+			metricAggregateResponse("gmail.com", 70),
+			metricAggregateResponse("", 1800000),
+		},
+	}
+	report, err := buildDeliverabilityReport(c, time.Now().AddDate(0, 0, -30), time.Now())
+	if err != nil {
+		t.Fatalf("buildDeliverabilityReport() error = %v", err)
+	}
+	coverage := report["coverage"].(map[string]any)
+	if coverage["account_received"] != 1800000 || coverage["domain_attributed_received"] != 7000 {
+		t.Fatalf("coverage = %#v", coverage)
+	}
+	if coverage["complete"] != false || coverage["warning"] == nil {
+		t.Fatalf("sparse coverage should be explicit: %#v", coverage)
 	}
 }
 
@@ -836,6 +995,22 @@ type fakeCouponPoolClient struct {
 	deletes       []string
 }
 
+type fakePaginatedClient struct {
+	responses []json.RawMessage
+	params    []map[string]string
+}
+
+func (f *fakePaginatedClient) GetWithHeaders(_ string, params map[string]string, _ map[string]string) (json.RawMessage, error) {
+	copied := map[string]string{}
+	for k, v := range params {
+		copied[k] = v
+	}
+	f.params = append(f.params, copied)
+	resp := f.responses[0]
+	f.responses = f.responses[1:]
+	return resp, nil
+}
+
 type fakeCouponPoolRequest struct {
 	path   string
 	params map[string]string
@@ -875,6 +1050,18 @@ func (f *fakeCouponPoolClient) Delete(path string) (json.RawMessage, int, error)
 
 func rawJSON(s string) json.RawMessage {
 	return json.RawMessage(s)
+}
+
+func metricListResponse(id, name string) json.RawMessage {
+	return rawJSON(fmt.Sprintf(`{"data":[{"id":%q,"attributes":{"name":%q}}],"links":{}}`, id, name))
+}
+
+func metricAggregateResponse(dimension string, count float64) json.RawMessage {
+	dimensions := "[]"
+	if dimension != "" {
+		dimensions = fmt.Sprintf(`[%q]`, dimension)
+	}
+	return rawJSON(fmt.Sprintf(`{"data":{"attributes":{"data":[{"dimensions":%s,"measurements":{"count":[%v]}}]}}}`, dimensions, count))
 }
 
 func containsString(values []string, target string) bool {

@@ -1178,9 +1178,13 @@ func buildDeliverabilityReport(c flowClient, since, until time.Time) (map[string
 		domains[k] = true
 	}
 	var rows []map[string]any
+	domainReceivedTotal := 0.0
+	domainBouncedTotal := 0.0
 	for domain := range domains {
 		r := received[domain]
 		b := bounced[domain]
+		domainReceivedTotal += r
+		domainBouncedTotal += b
 		rate := 0.0
 		if r > 0 {
 			rate = b / r * 100
@@ -1190,7 +1194,30 @@ func buildDeliverabilityReport(c flowClient, since, until time.Time) (map[string
 	sort.Slice(rows, func(i, j int) bool {
 		return anyFloat(rows[i]["bounce_rate"]) > anyFloat(rows[j]["bounce_rate"])
 	})
-	return map[string]any{"since": since.Format("2006-01-02"), "until": until.Format("2006-01-02"), "threshold": 2.0, "rows": rows}, nil
+	accountReceivedTotal, err := aggregateTotal(c, receivedID, since, until)
+	if err != nil {
+		return nil, err
+	}
+	coveragePct := 0.0
+	if accountReceivedTotal > 0 {
+		coveragePct = domainReceivedTotal / accountReceivedTotal * 100
+	}
+	weightedBounceRate := 0.0
+	if domainReceivedTotal > 0 {
+		weightedBounceRate = domainBouncedTotal / domainReceivedTotal * 100
+	}
+	coverage := map[string]any{
+		"account_received":                    int(accountReceivedTotal),
+		"domain_attributed_received":          int(domainReceivedTotal),
+		"domain_received_coverage_percentage": round3(coveragePct),
+		"weighted_bounce_rate":                round3(weightedBounceRate),
+		"weighted_rate_denominator":           "domain_attributed_received",
+		"complete":                            coveragePct >= 95,
+	}
+	if coveragePct < 95 {
+		coverage["warning"] = "domain-level rates cover less than 95% of account Received Email events; do not treat the weighted rate as account-wide"
+	}
+	return map[string]any{"since": since.Format("2006-01-02"), "until": until.Format("2006-01-02"), "threshold": 2.0, "coverage": coverage, "rows": rows}, nil
 }
 
 func aggregateByDimension(c flowClient, metricID, dimension string, since, until time.Time) (map[string]float64, error) {
@@ -1200,6 +1227,14 @@ func aggregateByDimension(c flowClient, metricID, dimension string, since, until
 		return nil, classifyAPIError(err)
 	}
 	return metricAggregateRows(resp, "count"), nil
+}
+
+func aggregateTotal(c flowClient, metricID string, since, until time.Time) (float64, error) {
+	resp, _, err := c.Post("/api/metric-aggregates", metricAggregateBody(metricID, []string{"count"}, nil, since, until))
+	if err != nil {
+		return 0, classifyAPIError(err)
+	}
+	return sumMeasurement(resp, "count"), nil
 }
 
 func newUniversalContentCmd(flags *rootFlags) *cobra.Command {
@@ -1722,6 +1757,69 @@ func fetchAllJSONAPI(c flowClient, path string, params map[string]string, limit 
 	return items, nil
 }
 
+func fetchAllJSONAPIWithIncluded(c flowClient, path string, params map[string]string) ([]map[string]any, []map[string]any, error) {
+	var primary, included []map[string]any
+	cursor := ""
+	for {
+		p := map[string]string{}
+		for k, v := range params {
+			p[k] = v
+		}
+		if cursor != "" {
+			p["page[cursor]"] = cursor
+		}
+		resp, err := c.Get(path, p)
+		if err != nil {
+			return nil, nil, classifyAPIError(err)
+		}
+		var envelope map[string]any
+		if err := json.Unmarshal(resp, &envelope); err != nil {
+			return nil, nil, err
+		}
+		primary = append(primary, mapSlice(envelope["data"])...)
+		included = append(included, mapSlice(envelope["included"])...)
+		links, _ := envelope["links"].(map[string]any)
+		nextLink, _ := links["next"].(string)
+		cursor = extractCursor(nextLink)
+		if cursor == "" {
+			break
+		}
+	}
+	return primary, included, nil
+}
+
+func relationshipID(item map[string]any, relationship string) string {
+	id := strings.TrimSpace(fmt.Sprint(anyPath(item, "relationships."+relationship+".data.id")))
+	if id == "<nil>" {
+		return ""
+	}
+	return id
+}
+
+func collectStringsByKey(value any, wanted string) []string {
+	var out []string
+	var walk func(any)
+	walk = func(current any) {
+		switch v := current.(type) {
+		case map[string]any:
+			for key, child := range v {
+				if key == wanted {
+					if s, ok := child.(string); ok && strings.TrimSpace(s) != "" {
+						out = append(out, strings.TrimSpace(s))
+					}
+				}
+				walk(child)
+			}
+		case []any:
+			for _, child := range v {
+				walk(child)
+			}
+		}
+	}
+	walk(value)
+	return out
+}
+
 func metricAggregateBody(metricID string, measurements []string, by []string, since, until time.Time) map[string]any {
 	attrs := map[string]any{
 		"metric_id":    metricID,
@@ -2215,16 +2313,13 @@ func newTemplatesAuditCmd(flags *rootFlags) *cobra.Command {
 			if err != nil {
 				return err
 			}
-			templates, err := fetchAllJSONAPI(c, "/api/templates", map[string]string{"fields[template]": "name,updated,html", "page[size]": "50"}, 0)
+			templates, err := fetchTemplateAuditItems(c)
 			if err != nil {
 				return err
 			}
-			refs := map[string]bool{}
-			for _, scope := range []string{"flow", "campaign"} {
-				msgTemplates, _ := collectMessageTemplates(c, scope)
-				for _, tmpl := range msgTemplates {
-					refs[fmt.Sprint(tmpl["id"])] = true
-				}
+			refs, err := collectReferencedTemplateIDs(c)
+			if err != nil {
+				return err
 			}
 			cutoff := time.Now().AddDate(-1, 0, 0)
 			var rows []map[string]any
@@ -2246,6 +2341,48 @@ func newTemplatesAuditCmd(flags *rootFlags) *cobra.Command {
 		},
 	}
 	return cmd
+}
+
+func fetchTemplateAuditItems(c flowClient) ([]map[string]any, error) {
+	return fetchAllJSONAPI(c, "/api/templates", map[string]string{"fields[template]": "name,updated", "page[size]": "10"}, 0)
+}
+
+func collectReferencedTemplateIDs(c flowClient) (map[string]bool, error) {
+	refs := map[string]bool{}
+	_, flowActions, err := fetchAllJSONAPIWithIncluded(c, "/api/flows", map[string]string{
+		"fields[flow]":        "name",
+		"fields[flow-action]": "definition",
+		"include":             "flow-actions",
+		"page[size]":          "50",
+	})
+	if err != nil {
+		return nil, err
+	}
+	for _, action := range flowActions {
+		for _, id := range collectStringsByKey(action, "template_id") {
+			refs[id] = true
+		}
+	}
+
+	_, campaignMessages, err := fetchAllJSONAPIWithIncluded(c, "/api/campaigns", map[string]string{
+		"fields[campaign]":         "name,status",
+		"fields[campaign-message]": "id",
+		"filter":                   `equals(messages.channel,"email")`,
+		"include":                  "campaign-messages",
+		"page[size]":               "100",
+	})
+	if err != nil {
+		return nil, err
+	}
+	for _, message := range campaignMessages {
+		if id := relationshipID(message, "template"); id != "" {
+			refs[id] = true
+		}
+		for _, id := range collectStringsByKey(message, "template_id") {
+			refs[id] = true
+		}
+	}
+	return refs, nil
 }
 
 func newTagsAuditCmd(flags *rootFlags) *cobra.Command {
@@ -2409,12 +2546,33 @@ func newReportListGrowthCmd(flags *rootFlags) *cobra.Command {
 			if err != nil {
 				return err
 			}
-			rows := metricTotalsByName(c, []string{"Subscribed to List", "Unsubscribed Email"}, since, until)
-			return printJSONFiltered(cmd.OutOrStdout(), map[string]any{"last": last, "rows": rows, "note": "full-window net growth totals"}, flags)
+			rows := metricTotalsByName(c, listGrowthMetricNames, since, until)
+			subscribed := metricRowCount(rows, "Subscribed to List")
+			unsubscribedFromList := metricRowCount(rows, "Unsubscribed from List")
+			return printJSONFiltered(cmd.OutOrStdout(), map[string]any{
+				"last":                         last,
+				"rows":                         rows,
+				"list_subscriptions":           subscribed,
+				"list_unsubscriptions":         unsubscribedFromList,
+				"net_list_growth":              subscribed - unsubscribedFromList,
+				"global_email_unsubscriptions": metricRowCount(rows, "Unsubscribed from Email Marketing"),
+				"note":                         "net list growth uses Subscribed to List minus Unsubscribed from List; global email unsubscriptions are reported separately",
+			}, flags)
 		},
 	}
 	cmd.Flags().StringVar(&last, "last", "90d", "Lookback window")
 	return cmd
+}
+
+var listGrowthMetricNames = []string{"Subscribed to List", "Unsubscribed from List", "Unsubscribed from Email Marketing"}
+
+func metricRowCount(rows []map[string]any, name string) int {
+	for _, row := range rows {
+		if fmt.Sprint(row["metric"]) == name {
+			return anyInt(row["count"])
+		}
+	}
+	return 0
 }
 
 func newReportDomainReputationCmd(flags *rootFlags) *cobra.Command {
@@ -2517,7 +2675,7 @@ func newReportFormsCmd(flags *rootFlags) *cobra.Command {
 			if err != nil {
 				return err
 			}
-			forms, err := fetchAllJSONAPI(c, "/api/forms", map[string]string{"fields[form]": "name,status,created,updated", "page[size]": "50"}, 0)
+			forms, err := fetchReportForms(c)
 			if err != nil {
 				return err
 			}
@@ -2527,6 +2685,10 @@ func newReportFormsCmd(flags *rootFlags) *cobra.Command {
 	}
 	cmd.Flags().StringVar(&last, "last", "30d", "Requested lookback label; forms are not filtered by submission date")
 	return cmd
+}
+
+func fetchReportForms(c flowClient) ([]map[string]any, error) {
+	return fetchAllJSONAPI(c, "/api/forms", map[string]string{"fields[form]": "name,status,created_at,updated_at", "page[size]": "50"}, 0)
 }
 
 func newReportSignupSourcesCmd(flags *rootFlags) *cobra.Command {

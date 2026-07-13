@@ -12,6 +12,7 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 	"io"
+	"net/url"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -326,6 +327,25 @@ func paginatedGet(c interface {
 						}
 					}
 				}
+
+				// JSON:API pagination carries the next cursor in links.next.
+				// Generated Klaviyo commands use page[cursor] but do not set a
+				// top-level nextCursorPath, so without this fallback --all stops
+				// after the first page even when the response advertises another.
+				if cursorParam != "" {
+					if linksRaw, ok := obj["links"]; ok {
+						var links map[string]json.RawMessage
+						if json.Unmarshal(linksRaw, &links) == nil {
+							var nextLink string
+							if json.Unmarshal(links["next"], &nextLink) == nil {
+								if nextCursor := cursorFromNextLink(nextLink, cursorParam); nextCursor != "" && nextCursor != clean[cursorParam] {
+									clean[cursorParam] = nextCursor
+									continue
+								}
+							}
+						}
+					}
+				}
 			}
 			// No more pages
 			break
@@ -342,6 +362,17 @@ func paginatedGet(c interface {
 	}
 	result, _ := json.Marshal(allItems)
 	return json.RawMessage(result), nil
+}
+
+func cursorFromNextLink(nextLink, cursorParam string) string {
+	if nextLink == "" || cursorParam == "" {
+		return ""
+	}
+	parsed, err := url.Parse(nextLink)
+	if err != nil {
+		return ""
+	}
+	return parsed.Query().Get(cursorParam)
 }
 
 // printJSONFiltered marshals a Go-typed value through the same output
