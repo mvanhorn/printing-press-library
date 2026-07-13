@@ -18,20 +18,16 @@ metadata:
 
 This skill drives the `supabase-pp-cli` binary. **You must verify the CLI is installed before invoking any command from this skill.** If it is missing, install it first:
 
-1. Install via the Printing Press installer. It defaults binaries to `$HOME/.local/bin` on macOS/Linux and `%LOCALAPPDATA%\Programs\PrintingPress\bin` on Windows:
+1. Install via the Printing Press installer:
    ```bash
    npx -y @mvanhorn/printing-press-library install supabase --cli-only
    ```
 2. Verify: `supabase-pp-cli --version`
-3. Ensure the reported install directory is on `$PATH` for the agent/runtime that will invoke this skill.
+3. Ensure `$GOPATH/bin` (or `$HOME/go/bin`) is on `$PATH`.
 
-If the `npx` install fails (no Node, offline, etc.), fall back to a direct Go install (requires Go 1.26.5 or newer):
+If the `npx` install fails before this CLI has a public-library category, install Node or use the category-specific Go fallback after publish.
 
-```bash
-go install github.com/mvanhorn/printing-press-library/library/developer-tools/supabase/cmd/supabase-pp-cli@latest
-```
-
-If `--version` reports "command not found" after install, the runtime cannot see the binary directory on `$PATH`. Do not proceed with skill commands until verification succeeds.
+If `--version` reports "command not found" after install, the install step did not put the binary on `$PATH`. Do not proceed with skill commands until verification succeeds.
 
 ## When to Use This CLI
 
@@ -81,9 +77,9 @@ These capabilities aren't available in any other tool for this API.
   ```
 
 ### Service-specific patterns
-- **`auth-admin lookup`** — Look up an Auth user by email and optionally join their row from a user-named PostgREST context table on user_id.
+- **`auth-admin lookup`** — Traverse the documented Auth Admin user pages and return only one exact normalized email match, optionally joined to a user-named PostgREST context table on user_id.
 
-  _Use during support-ticket triage to see the user plus their domain row in one envelope instead of three dashboard clicks._
+  _The lookup fails closed on zero or duplicate matches, malformed or repeated pages, incomplete traversal, and provider errors; unrelated user records are never printed._
 
   ```bash
   supabase-pp-cli auth-admin lookup user@example.com --context-table profiles --context-key user_id --json
@@ -170,7 +166,7 @@ Sync the local store, then list every project across every org holding a secret 
 supabase-pp-cli auth-admin lookup user@example.com --context-table profiles --context-key user_id --agent --select user.id,user.email,user.last_sign_in_at,context.tier
 ```
 
-Look up the user in Auth Admin and join their profiles row in one envelope; --select narrows the payload to just the fields the support workflow cares about.
+Traverse Auth Admin with documented pagination, require one exact case-insensitive email match, then join that user's profiles row; `--select` narrows the exact-match payload to the fields the support workflow needs.
 
 ### Stale preview branches
 

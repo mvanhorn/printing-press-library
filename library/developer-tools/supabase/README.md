@@ -8,6 +8,7 @@ The official Supabase CLI is local-dev tooling (Docker, migrations, types). This
 > **Known Gaps** (see `## Known Gaps` below): hand-written Auth Admin user CRUD, Storage object lifecycle, PostgREST row CRUD, Edge Function runtime invoke. Use `supabase-js` or the Supabase dashboard for those until a follow-up polish session adds them.
 
 Created by [@giacaglia](https://github.com/giacaglia) (Giuliano Giacaglia).
+Contributors: [@evanedgeworth](https://github.com/evanedgeworth) (Evan Edgeworth).
 
 ## Install
 
@@ -188,9 +189,9 @@ These capabilities aren't available in any other tool for this API.
   ```
 
 ### Service-specific patterns
-- **`auth-admin lookup`** — Look up an Auth user by email and optionally join their row from a user-named PostgREST context table on user_id.
+- **`auth-admin lookup`** — Traverse the documented Auth Admin user pages and return only one exact normalized email match, optionally joined to a user-named PostgREST context table on user_id.
 
-  _Use during support-ticket triage to see the user plus their domain row in one envelope instead of three dashboard clicks._
+  _The lookup fails closed on zero or duplicate matches, malformed or repeated pages, incomplete traversal, and provider errors; unrelated user records are never printed._
 
   ```bash
   supabase-pp-cli auth-admin lookup user@example.com --context-table profiles --context-key user_id --json

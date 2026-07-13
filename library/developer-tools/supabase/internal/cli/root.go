@@ -137,7 +137,7 @@ Highlights (not in the official API docs):
   • secrets where-name   Find every project (across orgs) holding a secret with a given name, plus when each was last synced.
   • functions inventory   Per-project, per-org rollup of every edge function with slug, version, status, and last-deployed timestamp.
   • branches drift   List preview branches older than N days that haven't been merged or deleted, grouped by parent project.
-  • auth-admin lookup   Look up an Auth user by email and optionally join their row from a user-named PostgREST context table on user_id.
+  • auth-admin lookup   Traverse Auth Admin pages and return only one exact normalized email match, optionally joined to a PostgREST context row.
   • pgrst schema   Fetch the per-project PostgREST OpenAPI from the Management API and list tables, columns, types, and detected indexes for typed query planning.
   • projects estate   One-row-per-project rollup of function count, branch count, api-key count, secret-name count, and last-synced-at.
   • storage usage   For each bucket, list objects and aggregate file count, total bytes, and largest object.
