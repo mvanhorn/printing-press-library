@@ -617,18 +617,34 @@ func collectSubjectEmails(c flowClient, source string) ([]subjectEmail, error) {
 			return nil, err
 		}
 		flowNames := map[string]string{}
+		flowNamesByActionID := map[string]string{}
 		for _, flow := range flows {
 			if status := strings.ToLower(stringFromMapPath(flow, "attributes.status")); status != "" && status != "live" {
 				continue
 			}
-			flowNames[fmt.Sprint(flow["id"])] = stringFromMapPath(flow, "attributes.name")
+			name := stringFromMapPath(flow, "attributes.name")
+			flowNames[fmt.Sprint(flow["id"])] = name
+			for _, actionID := range relationshipIDs(flow, "flow-actions") {
+				flowNamesByActionID[actionID] = name
+			}
 		}
 		for _, action := range actions {
-			name, live := flowNames[relationshipID(action, "flow")]
-			if !live {
+			messages := collectSubjectMessages(action)
+			if len(messages) == 0 {
 				continue
 			}
-			for i, message := range collectSubjectMessages(action) {
+			flowID := relationshipID(action, "flow")
+			name, live := flowNames[flowID]
+			if flowID != "" && !live {
+				continue
+			}
+			if !live {
+				name, live = flowNamesByActionID[fmt.Sprint(action["id"])]
+			}
+			if !live {
+				return nil, fmt.Errorf("included flow action %s cannot be associated with a flow", action["id"])
+			}
+			for i, message := range messages {
 				id := message.ID
 				if id == "" {
 					id = fmt.Sprintf("%s:%d", action["id"], i)

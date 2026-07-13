@@ -149,8 +149,27 @@ func TestListGrowthUsesCurrentKlaviyoMetricNames(t *testing.T) {
 		{"metric": "Unsubscribed from List", "count": 25},
 		{"metric": "Unsubscribed from Email Marketing", "count": 10},
 	}
-	if got := metricRowCount(rows, "Subscribed to List") - metricRowCount(rows, "Unsubscribed from List"); got != 95 {
-		t.Fatalf("net list growth = %d, want 95", got)
+	report := buildListGrowthReport(rows, "90d")
+	if got := report["net_list_growth"]; got != 95 {
+		t.Fatalf("net list growth = %v, want 95", got)
+	}
+	if report["derived_metrics_complete"] != true {
+		t.Fatalf("report = %#v", report)
+	}
+}
+
+func TestListGrowthDoesNotDeriveFromMissingMetrics(t *testing.T) {
+	rows := []map[string]any{
+		{"metric": "Subscribed to List", "count": 120},
+		{"metric": "Unsubscribed from List", "error": "metric not found"},
+		{"metric": "Unsubscribed from Email Marketing", "count": 10},
+	}
+	report := buildListGrowthReport(rows, "90d")
+	if report["net_list_growth"] != nil || report["list_unsubscriptions"] != nil {
+		t.Fatalf("missing metric produced derived counts: %#v", report)
+	}
+	if report["derived_metrics_complete"] != false || report["warning"] == nil {
+		t.Fatalf("missing metric should be explicit: %#v", report)
 	}
 }
 
@@ -206,7 +225,7 @@ func TestCollectReferencedTemplateIDsUsesIncludedResources(t *testing.T) {
 
 func TestCollectSubjectEmailsUsesIncludedFlowMessageIDs(t *testing.T) {
 	c := &fakeCouponPoolClient{responses: []json.RawMessage{
-		rawJSON(`{"data":[{"id":"flow-1","attributes":{"name":"Welcome","status":"live"}}],"included":[{"id":"action-1","relationships":{"flow":{"data":{"id":"flow-1"}}},"attributes":{"definition":{"data":{"message":{"id":"message-1","subject_line":"Welcome home"}}}}}],"links":{}}`),
+		rawJSON(`{"data":[{"id":"flow-1","attributes":{"name":"Welcome","status":"live"},"relationships":{"flow-actions":{"data":[{"id":"action-1"}]}}}],"included":[{"id":"action-1","attributes":{"definition":{"data":{"message":{"id":"message-1","subject_line":"Welcome home"}}}}}],"links":{}}`),
 	}}
 	emails, err := collectSubjectEmails(c, "flow")
 	if err != nil {
@@ -214,6 +233,19 @@ func TestCollectSubjectEmailsUsesIncludedFlowMessageIDs(t *testing.T) {
 	}
 	if len(emails) != 1 || emails[0].ID != "message-1" || emails[0].Subject != "Welcome home" || emails[0].Source != "Welcome" {
 		t.Fatalf("emails = %#v", emails)
+	}
+}
+
+func TestFetchAllJSONAPIWithIncludedRejectsRepeatedCursor(t *testing.T) {
+	c := &fakeCouponPoolClient{responses: []json.RawMessage{
+		rawJSON(`{"data":[{"id":"flow-1"}],"links":{"next":"https://example.test/api/flows?page%5Bcursor%5D=repeat"}}`),
+		rawJSON(`{"data":[{"id":"flow-2"}],"links":{"next":"https://example.test/api/flows?page%5Bcursor%5D=repeat"}}`),
+	}}
+	if _, _, err := fetchAllJSONAPIWithIncluded(c, "/api/flows", map[string]string{"page[size]": "50"}); err == nil || !strings.Contains(err.Error(), "cursor") {
+		t.Fatalf("expected repeated-cursor error, got %v", err)
+	}
+	if len(c.requests) != 2 {
+		t.Fatalf("requests = %#v", c.requests)
 	}
 }
 

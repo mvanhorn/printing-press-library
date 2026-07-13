@@ -12,5 +12,5 @@
     "internal/cli/novel_segments_reports.go",
     "internal/cli/novel_klaviyo_test.go"
   ],
-  "validated_outcome": "Focused regression tests cover multi-page JSON:API collection reads, valid form/template query parameters, current unsubscribe metric names, non-empty subject-line output, and explicit deliverability denominator coverage."
+  "validated_outcome": "Focused regression tests cover multi-page JSON:API reads, repeated-cursor rejection, valid form/template parameters, incomplete metric handling, non-empty subject-line output, and explicit deliverability denominator coverage."
 }

@@ -1760,6 +1760,7 @@ func fetchAllJSONAPI(c flowClient, path string, params map[string]string, limit 
 func fetchAllJSONAPIWithIncluded(c flowClient, path string, params map[string]string) ([]map[string]any, []map[string]any, error) {
 	var primary, included []map[string]any
 	cursor := ""
+	seenCursors := map[string]bool{}
 	for {
 		p := map[string]string{}
 		for k, v := range params {
@@ -1780,10 +1781,15 @@ func fetchAllJSONAPIWithIncluded(c flowClient, path string, params map[string]st
 		included = append(included, mapSlice(envelope["included"])...)
 		links, _ := envelope["links"].(map[string]any)
 		nextLink, _ := links["next"].(string)
-		cursor = extractCursor(nextLink)
-		if cursor == "" {
+		nextCursor := extractCursor(nextLink)
+		if nextCursor == "" {
 			break
 		}
+		if nextCursor == cursor || seenCursors[nextCursor] {
+			return nil, nil, fmt.Errorf("pagination cursor %q repeated for %s", nextCursor, path)
+		}
+		seenCursors[nextCursor] = true
+		cursor = nextCursor
 	}
 	return primary, included, nil
 }
@@ -1794,6 +1800,24 @@ func relationshipID(item map[string]any, relationship string) string {
 		return ""
 	}
 	return id
+}
+
+func relationshipIDs(item map[string]any, relationship string) []string {
+	data := anyPath(item, "relationships."+relationship+".data")
+	var ids []string
+	for _, related := range mapSlice(data) {
+		if id := strings.TrimSpace(fmt.Sprint(related["id"])); id != "" && id != "<nil>" {
+			ids = append(ids, id)
+		}
+	}
+	if len(ids) == 0 {
+		if related, ok := data.(map[string]any); ok {
+			if id := strings.TrimSpace(fmt.Sprint(related["id"])); id != "" && id != "<nil>" {
+				ids = append(ids, id)
+			}
+		}
+	}
+	return ids
 }
 
 func collectStringsByKey(value any, wanted string) []string {
@@ -2547,17 +2571,7 @@ func newReportListGrowthCmd(flags *rootFlags) *cobra.Command {
 				return err
 			}
 			rows := metricTotalsByName(c, listGrowthMetricNames, since, until)
-			subscribed := metricRowCount(rows, "Subscribed to List")
-			unsubscribedFromList := metricRowCount(rows, "Unsubscribed from List")
-			return printJSONFiltered(cmd.OutOrStdout(), map[string]any{
-				"last":                         last,
-				"rows":                         rows,
-				"list_subscriptions":           subscribed,
-				"list_unsubscriptions":         unsubscribedFromList,
-				"net_list_growth":              subscribed - unsubscribedFromList,
-				"global_email_unsubscriptions": metricRowCount(rows, "Unsubscribed from Email Marketing"),
-				"note":                         "net list growth uses Subscribed to List minus Unsubscribed from List; global email unsubscriptions are reported separately",
-			}, flags)
+			return printJSONFiltered(cmd.OutOrStdout(), buildListGrowthReport(rows, last), flags)
 		},
 	}
 	cmd.Flags().StringVar(&last, "last", "90d", "Lookback window")
@@ -2566,13 +2580,55 @@ func newReportListGrowthCmd(flags *rootFlags) *cobra.Command {
 
 var listGrowthMetricNames = []string{"Subscribed to List", "Unsubscribed from List", "Unsubscribed from Email Marketing"}
 
-func metricRowCount(rows []map[string]any, name string) int {
-	for _, row := range rows {
-		if fmt.Sprint(row["metric"]) == name {
-			return anyInt(row["count"])
+func buildListGrowthReport(rows []map[string]any, last string) map[string]any {
+	report := map[string]any{
+		"last": last,
+		"rows": rows,
+		"note": "net list growth uses Subscribed to List minus Unsubscribed from List; global email unsubscriptions are reported separately",
+	}
+	subscribed, subscribedOK := metricRowCount(rows, "Subscribed to List")
+	unsubscribedFromList, unsubscribedOK := metricRowCount(rows, "Unsubscribed from List")
+	globalUnsubscribed, globalUnsubscribedOK := metricRowCount(rows, "Unsubscribed from Email Marketing")
+	report["list_subscriptions"] = nil
+	report["list_unsubscriptions"] = nil
+	report["net_list_growth"] = nil
+	report["global_email_unsubscriptions"] = nil
+	if subscribedOK {
+		report["list_subscriptions"] = subscribed
+	}
+	if unsubscribedOK {
+		report["list_unsubscriptions"] = unsubscribedFromList
+	}
+	if subscribedOK && unsubscribedOK {
+		report["net_list_growth"] = subscribed - unsubscribedFromList
+	}
+	if globalUnsubscribedOK {
+		report["global_email_unsubscriptions"] = globalUnsubscribed
+	}
+	var missing []string
+	for _, name := range listGrowthMetricNames {
+		if _, ok := metricRowCount(rows, name); !ok {
+			missing = append(missing, name)
 		}
 	}
-	return 0
+	report["derived_metrics_complete"] = len(missing) == 0
+	if len(missing) > 0 {
+		report["missing_metrics"] = missing
+		report["warning"] = "unavailable derived fields are null because required metrics could not be resolved: " + strings.Join(missing, ", ")
+	}
+	return report
+}
+
+func metricRowCount(rows []map[string]any, name string) (int, bool) {
+	for _, row := range rows {
+		if fmt.Sprint(row["metric"]) == name {
+			if _, ok := row["count"]; !ok {
+				return 0, false
+			}
+			return anyInt(row["count"]), true
+		}
+	}
+	return 0, false
 }
 
 func newReportDomainReputationCmd(flags *rootFlags) *cobra.Command {
