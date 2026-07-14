@@ -32,6 +32,11 @@ func newNovelWatchCmd(flags *rootFlags) *cobra.Command {
 		Example: "  sea-airport-parking-pp-cli watch --entry 2026-11-25T11:00 --exit 2026-11-30T11:00 --interval 30m --notify",
 		Annotations: map[string]string{
 			"mcp:read-only": "true",
+			// watch is a foreground poll loop (default --max-polls=0 runs until
+			// the condition is met or it is cancelled), not a request/response
+			// operation. Hide it from the MCP surface so an agent cannot hold an
+			// HTTP MCP connection and goroutine open indefinitely on one call.
+			"mcp:hidden": "true",
 		},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 && cmd.Flags().NFlag() == 0 {
