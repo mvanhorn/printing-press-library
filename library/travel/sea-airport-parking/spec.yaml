@@ -1,0 +1,64 @@
+name: sea-airport-parking
+description: "Check, track, and get alerted on official SEA on-airport Reserved garage parking"
+version: "0.1.0"
+base_url: "https://reservesea.portseattle.org"
+category: travel
+health_check_path: "/book/SEA/Parking?parkingCmd=collectParkingDetails"
+http_transport: standard
+required_headers:
+  - name: User-Agent
+    value: "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36"
+
+auth:
+  type: none
+
+config:
+  format: toml
+  path: "~/.config/sea-airport-parking-pp-cli/config.toml"
+
+learn:
+  synonyms:
+    "reserved parking": "reserved"
+    "terminal direct": "reserved"
+    "floor 4": "reserved"
+    "cheapest": "lowest"
+  entity_lookup_seeds:
+    product:
+      - canonical: Reserved Parking
+        aliases: [reserved, rp, terminal direct, floor 4, garage]
+
+resources:
+  parking:
+    description: "SEA on-airport Reserved garage parking (reservesea.portseattle.org)"
+    endpoints:
+      info:
+        method: GET
+        path: "/book/SEA/Parking?parkingCmd=collectParkingDetails"
+        description: "Fetch the live SEA parking booking page (product card + date-entry form)"
+        response_format: html
+        html_extract:
+          mode: page
+
+types:
+  Quote:
+    fields:
+      - name: entry
+        type: string
+      - name: exit
+        type: string
+      - name: nights
+        type: int
+      - name: product_code
+        type: string
+      - name: product_name
+        type: string
+      - name: total_price
+        type: float
+      - name: original_price
+        type: float
+      - name: available
+        type: bool
+      - name: promo
+        type: string
+      - name: captured_at
+        type: string
