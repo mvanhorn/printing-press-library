@@ -71,7 +71,7 @@ type whichMatch struct {
 //	+3  exact token match on the command's leaf or full path
 //	+2  substring match on the command (any part)
 //	+2  substring match on the description
-//	+5  substring match on explicitly curated search terms
+//	+5  multi-word substring match on explicitly curated search terms
 //	+1  group tag contains the query as a word
 //
 // Ties break on declaration order in the index. An empty query returns
@@ -140,7 +140,7 @@ func whichScoreEntry(e whichEntry, query string, qTokens []string) int {
 	if strings.Contains(desc, query) {
 		score += 2
 	}
-	if searchTerms != "" && strings.Contains(searchTerms, query) {
+	if len(qTokens) > 1 && searchTerms != "" && strings.Contains(searchTerms, query) {
 		score += 5
 	}
 	// Group tag match.

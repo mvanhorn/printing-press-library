@@ -43,6 +43,17 @@ func TestRankWhich_ExactTokenBeatsIncidentalDescriptionMatch(t *testing.T) {
 	}
 }
 
+func TestRankWhich_SingleTokenDoesNotReceivePhraseAliasBoost(t *testing.T) {
+	index := []whichEntry{
+		{Command: "comments add", SearchTerms: "create comment"},
+		{Command: "issues create", Description: "Create an issue"},
+	}
+	got := rankWhich(index, "create", 1)
+	if len(got) == 0 || got[0].Entry.Command != "issues create" {
+		t.Fatalf("exact command token should beat a phrase alias on a bare verb, got %+v", got)
+	}
+}
+
 // Happy path: a query matching the description wins when the command
 // itself does not contain the query tokens.
 func TestRankWhich_DescriptionMatch(t *testing.T) {
