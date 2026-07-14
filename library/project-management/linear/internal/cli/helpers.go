@@ -205,6 +205,10 @@ func dryRunOK(flags *rootFlags) bool {
 // signal that the invocation was incomplete.
 func parentNoSubcommandRunE(flags *rootFlags) func(*cobra.Command, []string) error {
 	return func(cmd *cobra.Command, args []string) error {
+		message := "subcommand required"
+		if len(args) > 0 {
+			message = fmt.Sprintf("unknown subcommand %q", args[0])
+		}
 		if flags != nil && flags.asJSON {
 			subs := make([]string, 0, len(cmd.Commands()))
 			for _, c := range cmd.Commands() {
@@ -215,12 +219,15 @@ func parentNoSubcommandRunE(flags *rootFlags) func(*cobra.Command, []string) err
 			sort.Strings(subs)
 			_ = json.NewEncoder(cmd.OutOrStdout()).Encode(map[string]any{
 				"code":              2,
-				"error":             "subcommand required",
+				"error":             message,
 				"type":              "usage",
 				"valid_subcommands": subs,
 			})
 			flags.errorWritten = true
-			return usageErr(fmt.Errorf("subcommand required for %q", cmd.CommandPath()))
+			return usageErr(fmt.Errorf("%s for %q", message, cmd.CommandPath()))
+		}
+		if len(args) > 0 {
+			return usageErr(fmt.Errorf("%s for %q", message, cmd.CommandPath()))
 		}
 		return cmd.Help()
 	}

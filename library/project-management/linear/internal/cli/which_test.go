@@ -133,3 +133,20 @@ func TestWhichIndex_RoutesPortfolioInventoryQueries(t *testing.T) {
 		t.Fatalf("initiative inventory query should route to initiatives list, got %+v", got)
 	}
 }
+
+func TestWhichIndex_RoutesConventionalReadAndCommentQueries(t *testing.T) {
+	tests := []struct {
+		query string
+		want  string
+	}{
+		{query: "create a comment from a markdown file", want: "comments add"},
+		{query: "get issue by identifier", want: "issues <ID>"},
+		{query: "view document by slug", want: "documents <document-ref>"},
+	}
+	for _, tt := range tests {
+		got := rankWhich(whichIndex, tt.query, 1)
+		if len(got) == 0 || got[0].Entry.Command != tt.want {
+			t.Errorf("query %q should route to %q, got %+v", tt.query, tt.want, got)
+		}
+	}
+}

@@ -309,6 +309,8 @@ These capabilities aren't available in any other tool for this API.
 
   Comma-separated issue reads preserve caller order, de-duplicate identifiers, and fail the whole request when any member cannot be read. A single identifier keeps the existing object-shaped `results`; multiple identifiers return an array.
 
+  Canonical forms remain `issues <ID>`, `documents <ref>`, and `comments add`. For compatibility with common agent phrasing, the CLI also accepts `issues get|view|show <ID>`, `documents get|view <ref>`, and `comments create` with the same flags and behavior. `documents show` is intentionally unsupported.
+
 ## Usage
 
 Run `linear-pp-cli --help` for the full command reference and flag list.

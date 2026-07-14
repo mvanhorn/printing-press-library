@@ -78,20 +78,7 @@ parent and sub-issue links.`,
 			if len(args) == 0 {
 				return cmd.Help()
 			}
-			// Verify mode: short-circuit so identifier-shape probes
-			// (TEAM-NUMBER) don't fail the mechanical verify pass.
-			if cliutil.IsVerifyEnv() {
-				return nil
-			}
-			commaList := strings.Contains(args[0], ",")
-			identifiers, err := parseIssueIdentifiers(args[0])
-			if err != nil {
-				return err
-			}
-			if !commaList {
-				return runIssuesGet(cmd, flags, resolveDBPath(dbPath), identifiers[0])
-			}
-			return runIssuesMultiGet(cmd, flags, resolveDBPath(dbPath), identifiers)
+			return runIssuesRead(cmd, flags, dbPath, args[0])
 		},
 	}
 	cmd.PersistentFlags().StringVar(&dbPath, "db", "", "Database path")
@@ -100,7 +87,39 @@ parent and sub-issue links.`,
 	cmd.AddCommand(newIssuesSearchCmd(flags, &dbPath))
 	cmd.AddCommand(newIssuesCreateCmd(flags))
 	cmd.AddCommand(newIssuesEditCmd(flags, &dbPath))
+	cmd.AddCommand(newIssuesReadAliasCmd(flags, &dbPath))
 	return cmd
+}
+
+func newIssuesReadAliasCmd(flags *rootFlags, dbPath *string) *cobra.Command {
+	return &cobra.Command{
+		Use:     "get ID",
+		Aliases: []string{"view", "show"},
+		Short:   "Get Linear issues by identifier",
+		Long:    `Compatibility aliases for the canonical positional form: linear-pp-cli issues ID.`,
+		Hidden:  true,
+		Args:    cobra.ExactArgs(1),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			return runIssuesRead(cmd, flags, *dbPath, args[0])
+		},
+	}
+}
+
+func runIssuesRead(cmd *cobra.Command, flags *rootFlags, dbPath, rawIdentifiers string) error {
+	// Verify mode short-circuits so identifier-shape probes (TEAM-NUMBER)
+	// do not fail the mechanical verify pass.
+	if cliutil.IsVerifyEnv() {
+		return nil
+	}
+	commaList := strings.Contains(rawIdentifiers, ",")
+	identifiers, err := parseIssueIdentifiers(rawIdentifiers)
+	if err != nil {
+		return err
+	}
+	if !commaList {
+		return runIssuesGet(cmd, flags, resolveDBPath(dbPath), identifiers[0])
+	}
+	return runIssuesMultiGet(cmd, flags, resolveDBPath(dbPath), identifiers)
 }
 
 func parseIssueIdentifiers(raw string) ([]string, error) {
