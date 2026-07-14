@@ -484,7 +484,15 @@ func bookOnOpenTable(ctx context.Context, session *auth.Session, slug, date, hhm
 	// Explicit debug configuration prefers the real signed-in Chrome path.
 	// Without it, preserve the existing Surf/REST behavior below.
 	if attachConfigured {
+		// Resolve the numeric restaurant ID up front (best-effort): the
+		// confirmation page does not always expose it, and the cancel-cutoff
+		// lookup after booking needs a real ID.
+		attachRestaurantID := 0
+		if resolvedID, _, _, resolveErr := c.RestaurantIDFromQuery(ctx, slug, 47.6062, -122.3321); resolveErr == nil {
+			attachRestaurantID = resolvedID
+		}
 		chromeResult, chromeErr := c.ChromeBook(ctx, opentable.ChromeBookRequest{
+			RestaurantID:        attachRestaurantID,
 			RestaurantSlug:      slug,
 			ReservationDateTime: date + "T" + hhmm,
 			PartySize:           party,
@@ -536,7 +544,6 @@ func bookOnOpenTable(ctx context.Context, session *auth.Session, slug, date, hhm
 			return out, fmt.Errorf("opentable attach returned no confirmation response")
 		}
 		resp := chromeResult.BookResponse
-		cutoff, _ := c.FetchCancelCutoff(ctx, resp.RestaurantID, resp.ConfirmationNumber, resp.SecurityToken)
 		out.Source = "book"
 		if resp.ReservationID > 0 {
 			out.ReservationID = fmt.Sprintf("%d", resp.ReservationID)
@@ -544,7 +551,12 @@ func bookOnOpenTable(ctx context.Context, session *auth.Session, slug, date, hhm
 		if resp.ConfirmationNumber > 0 {
 			out.ConfirmationNumber = fmt.Sprintf("%d", resp.ConfirmationNumber)
 		}
-		out.CancellationDeadline = cutoff
+		if resp.RestaurantID > 0 {
+			cutoff, _ := c.FetchCancelCutoff(ctx, resp.RestaurantID, resp.ConfirmationNumber, resp.SecurityToken)
+			out.CancellationDeadline = cutoff
+		} else {
+			out.Hint = "cancellation deadline unavailable: restaurant id could not be resolved"
+		}
 		return out, nil
 	}
 
