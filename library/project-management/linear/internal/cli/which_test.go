@@ -150,6 +150,7 @@ func TestWhichIndex_RoutesConventionalReadAndCommentQueries(t *testing.T) {
 		query string
 		want  string
 	}{
+		{query: "create comment", want: "comments add"},
 		{query: "create a comment from a markdown file", want: "comments add"},
 		{query: "get issue by identifier", want: "issues <ID>"},
 		{query: "view document by slug", want: "documents <document-ref>"},
