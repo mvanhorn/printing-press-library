@@ -346,8 +346,13 @@ func clickRequestedTockBookingControl(ctx context.Context, venueURL, displayTime
 	// Prefer the /search results page: it is the one Tock surface that honors
 	// the requested date/size/time on every layout. The venue-page flows below
 	// remain as fallbacks for layouts where search offers nothing.
+	// Never for a pinned experience, though — /search is venue-wide and
+	// clicks by time only, so it could book a different experience at the
+	// same slot. Pinned requests use only experience-aware paths.
 	searchErr := errors.New("no search URL derivable from venue URL")
-	if searchURL := buildVenueSearchURL(venueURL, isoDate, time24, partySize); searchURL != "" {
+	if experienceID != 0 {
+		searchErr = errors.New("search fallback skipped: experience-specific request")
+	} else if searchURL := buildVenueSearchURL(venueURL, isoDate, time24, partySize); searchURL != "" {
 		searchErr = clickSearchResultsPage(ctx, searchURL, displayTime)
 		if searchErr == nil {
 			return ctx, nil, nil
