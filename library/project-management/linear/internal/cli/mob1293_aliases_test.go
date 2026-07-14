@@ -8,6 +8,7 @@ import (
 	"os"
 	"path/filepath"
 	"reflect"
+	"strings"
 	"testing"
 )
 
@@ -122,6 +123,14 @@ func TestDocumentsShowRemainsAPositionalReference(t *testing.T) {
 	}
 	if !reflect.DeepEqual(args, []string{"show", "runbook-abc123"}) {
 		t.Fatalf("documents show args = %v, want positional document references", args)
+	}
+
+	out, runErr := executeRootForTest("documents", "show", "runbook-abc123", "--agent")
+	if runErr == nil {
+		t.Fatalf("documents show unexpectedly executed as a read alias: %s", out)
+	}
+	if !strings.Contains(runErr.Error(), "accepts at most 1 arg(s), received 2") {
+		t.Fatalf("documents show returned an unexpected error: %v\n%s", runErr, out)
 	}
 }
 
