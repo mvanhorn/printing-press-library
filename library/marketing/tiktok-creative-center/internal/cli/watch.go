@@ -178,16 +178,21 @@ func checkWatchlist(list []watchEntry, rows []hashtagRow) (watchReport, []watchE
 	updated := make([]watchEntry, 0, len(list))
 	for _, e := range list {
 		row, ok := byName[strings.ToLower(e.Hashtag)]
+		if !ok {
+			// Not in local store (never synced, or temporarily absent from
+			// a scoped sync). Leave the entry's baseline untouched — do NOT
+			// stamp HasBaseline/LastPopularity=0, or a later sync bringing
+			// this hashtag back above threshold would falsely read as a
+			// crossing from a synthetic zero baseline.
+			report.Stable = append(report.Stable, e)
+			updated = append(updated, e)
+			continue
+		}
 		current := row.Popularity
 		entry := e
 		entry.LastPopularity = current
 		entry.HasBaseline = true
 		updated = append(updated, entry)
-		if !ok {
-			// Not in local store; leave in stable with current 0.
-			report.Stable = append(report.Stable, e)
-			continue
-		}
 		if e.HasBaseline && current >= e.Threshold && e.LastPopularity < e.Threshold {
 			report.Crossed = append(report.Crossed, watchCrossed{
 				Hashtag:        e.Hashtag,

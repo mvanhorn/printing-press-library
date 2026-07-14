@@ -321,6 +321,38 @@ func TestWatchCheck_NoFalseCrossingOnFirstCheck(t *testing.T) {
 	}
 }
 
+// TestWatchCheck_MissingRowDoesNotStampSyntheticBaseline reproduces the bug
+// where a watched hashtag temporarily absent from the local rows (e.g. a
+// scoped sync that omits it) was stamped with HasBaseline=true and
+// LastPopularity=0 anyway. If the hashtag reappeared above threshold on a
+// later sync, that synthetic zero baseline made it look like a real
+// crossing even though nothing was actually observed rising through the
+// threshold.
+func TestWatchCheck_MissingRowDoesNotStampSyntheticBaseline(t *testing.T) {
+	list := []watchEntry{
+		{Hashtag: "sometimesmissing", Threshold: 50, HasBaseline: true, LastPopularity: 60},
+	}
+	// The hashtag is absent from this sync's rows.
+	var rows []hashtagRow
+
+	report, updated := checkWatchlist(list, rows)
+	if len(report.Crossed) != 0 {
+		t.Fatalf("expected no crossing when row is missing, got %+v", report.Crossed)
+	}
+	if !updated[0].HasBaseline || updated[0].LastPopularity != 60 {
+		t.Fatalf("expected prior baseline preserved when row missing, got %+v", updated[0])
+	}
+
+	// Hashtag reappears above threshold on a later sync — this must NOT be
+	// treated as a crossing from a synthetic zero baseline; it should
+	// compare against the preserved real baseline (60 >= 50 already).
+	rows = []hashtagRow{testHashtag("sometimesmissing", 1, 70, nil, nil)}
+	report2, _ := checkWatchlist(updated, rows)
+	if len(report2.Crossed) != 0 {
+		t.Fatalf("expected no crossing on reappearance already-above-threshold, got %+v", report2.Crossed)
+	}
+}
+
 func TestWatchUpsertAndRemove(t *testing.T) {
 	list := []watchEntry{{Hashtag: "a", Threshold: 1}}
 	list = upsertWatchEntry(list, watchEntry{Hashtag: "a", Threshold: 9})
