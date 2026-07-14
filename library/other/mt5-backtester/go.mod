@@ -8,7 +8,7 @@ module github.com/mvanhorn/printing-press-library/library/other/mt5-backtester
 //   internal/batch    - multi-job runner with defaults/expand
 //   internal/profiles - named terminal profiles + service scripts
 
-go 1.22
+go 1.26.5
 
 require (
 	github.com/fatih/color v1.16.0
