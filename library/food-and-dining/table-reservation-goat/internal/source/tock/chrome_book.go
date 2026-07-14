@@ -149,6 +149,13 @@ func (c *Client) ChromeBook(ctx context.Context, req BookRequest) (*BookResponse
 			// after the hold locks and prices successfully (observed live
 			// 2026-07-09: lock+price 200, checkout never mounts). Re-click
 			// once via the search results page before giving up.
+			// The search results page is venue-wide (buildVenueSearchURL
+			// strips /experience/<id>) and re-clicks by time only, so a
+			// pinned experience could silently book a different one at the
+			// same time. Fail instead; the caller can retry the exact hold.
+			if req.ExperienceID != 0 {
+				return fmt.Errorf("checkout page never reached for experience %d; not retrying venue-wide", req.ExperienceID)
+			}
 			searchURL := buildVenueSearchURL(venueURL, req.ReservationDate, req.ReservationTime, req.PartySize)
 			if searchURL == "" {
 				return fmt.Errorf("checkout page never reached and no search URL to retry with")
