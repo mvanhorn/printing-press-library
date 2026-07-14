@@ -125,44 +125,57 @@ func Run(opts RunOptions) *RunResult {
 // or its tester\ subdirectory — so those are globbed per instance; portable
 // installs land in ReportDir or next to the ini.
 func findReport(reportDir, iniPath string, since time.Time) string {
-	var patterns []string
-	addDir := func(dir string) {
+	dirPatterns := func(dir string) []string {
 		if dir == "" {
-			return
+			return nil
 		}
+		var pats []string
 		for _, ext := range []string{"*.htm", "*.html"} {
-			patterns = append(patterns,
+			pats = append(pats,
 				filepath.Join(dir, ext),
 				filepath.Join(dir, "tester", ext),
 			)
 		}
+		return pats
 	}
-	addDir(reportDir)
-	addDir(filepath.Dir(iniPath))
+
+	// Tier 1: locations tied to THIS run (its report dir and its ini's dir).
+	// Tier 2: the shared %APPDATA% instance sweep — only consulted when tier 1
+	// finds nothing, so a concurrent run in another terminal profile can't
+	// shadow a report that landed where this run pointed.
+	tier1 := append(dirPatterns(reportDir), dirPatterns(filepath.Dir(iniPath))...)
+	var tier2 []string
 	if app := os.Getenv("APPDATA"); app != "" {
 		instances := filepath.Join(app, "MetaQuotes", "Terminal")
 		for _, ext := range []string{"*.htm", "*.html"} {
-			patterns = append(patterns,
+			tier2 = append(tier2,
 				filepath.Join(instances, "*", ext),
 				filepath.Join(instances, "*", "tester", ext),
 			)
 		}
 	}
 
-	best, bestTime := "", time.Time{}
-	for _, pat := range patterns {
-		matches, _ := filepath.Glob(pat)
-		for _, m := range matches {
-			fi, err := os.Stat(m)
-			if err != nil || fi.ModTime().Before(since) {
-				continue
-			}
-			if fi.ModTime().After(bestTime) {
-				best, bestTime = m, fi.ModTime()
+	newest := func(patterns []string) string {
+		best, bestTime := "", time.Time{}
+		for _, pat := range patterns {
+			matches, _ := filepath.Glob(pat)
+			for _, m := range matches {
+				fi, err := os.Stat(m)
+				if err != nil || fi.ModTime().Before(since) {
+					continue
+				}
+				if fi.ModTime().After(bestTime) {
+					best, bestTime = m, fi.ModTime()
+				}
 			}
 		}
+		return best
 	}
-	return best
+
+	if p := newest(tier1); p != "" {
+		return p
+	}
+	return newest(tier2)
 }
 
 // WatchLogs tails MT5 terminal log files for progress updates.

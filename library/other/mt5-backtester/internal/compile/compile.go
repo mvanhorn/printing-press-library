@@ -60,8 +60,14 @@ func Run(opts Options) (*Result, error) {
 	logPath := strings.TrimSuffix(opts.SourceFile, ".mq5") + ".log"
 	result.LogPath = logPath
 
-	// Parse log if it exists
-	if logContent, lerr := os.ReadFile(logPath); lerr == nil {
+	// Parse the log only if THIS invocation wrote it — a stale log from an
+	// earlier build must not contribute a "0 errors" verdict when metaeditor
+	// exits without writing anything.
+	logFresh := false
+	if fi, lerr := os.Stat(logPath); lerr == nil && !fi.ModTime().Before(start) {
+		logFresh = true
+	}
+	if logContent, lerr := os.ReadFile(logPath); lerr == nil && logFresh {
 		parseLog(string(logContent), result)
 	} else if len(out) > 0 {
 		// Fall back to stdout/stderr
