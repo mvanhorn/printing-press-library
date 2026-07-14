@@ -244,7 +244,12 @@ def h_copy_rates_from_pos(params: dict) -> Any:
 def h_copy_rates_range(params: dict) -> Any:
     p = _bars_params(params)
     _ensure_selected(p["symbol"])
-    return _to_dict(mt5.copy_rates_range(p["symbol"], p["timeframe"], p["date_from"], p["date_to"]))
+    res = mt5.copy_rates_range(p["symbol"], p["timeframe"], p["date_from"], p["date_to"])
+    if res is None:
+        # None is MT5's failure signal (empty ranges come back as a 0-row
+        # array); as null it would make a failed sync report 0 rows inserted.
+        raise BridgeError("TERMINAL_DOWN", f"copy_rates_range() returned None: {mt5.last_error()}")
+    return _to_dict(res)
 
 def h_copy_ticks_from(params: dict) -> Any:
     p = _ticks_params(params)
@@ -254,7 +259,11 @@ def h_copy_ticks_from(params: dict) -> Any:
 def h_copy_ticks_range(params: dict) -> Any:
     p = _ticks_params(params)
     _ensure_selected(p["symbol"])
-    return _to_dict(mt5.copy_ticks_range(p["symbol"], p["date_from"], p["date_to"], p.get("flags", mt5.COPY_TICKS_ALL)))
+    res = mt5.copy_ticks_range(p["symbol"], p["date_from"], p["date_to"], p.get("flags", mt5.COPY_TICKS_ALL))
+    if res is None:
+        # See h_copy_rates_range: None is failure, not an empty range.
+        raise BridgeError("TERMINAL_DOWN", f"copy_ticks_range() returned None: {mt5.last_error()}")
+    return _to_dict(res)
 
 
 # Orders / positions / history
