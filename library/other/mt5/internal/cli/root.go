@@ -4,9 +4,29 @@ package cli
 import (
 	"errors"
 	"fmt"
+	"time"
 
 	"github.com/spf13/cobra"
 )
+
+// rootFlags backs the persistent flag set. Handlers read values through
+// cmd.Flags().Get* so they work on any command in the tree; the struct is the
+// declaration-time binding per press conventions.
+type rootFlags struct {
+	json          bool
+	agent         bool
+	dryRun        bool
+	selectPaths   string
+	humanFriendly bool
+	noColor       bool
+	compact       bool
+	noInput       bool
+	yes           bool
+	profile       string
+	account       int64
+	timeout       time.Duration
+	verbose       bool
+}
 
 // Version is the binary version reported by `mt5-pp-cli --version`. Release
 // builds override via -ldflags:
@@ -81,20 +101,21 @@ See mt5-pp-cli doctor for any setup issue and mt5-pp-cli <command> --help per co
 	}
 
 	// Persistent flags — present on every subcommand per press conventions.
+	var rf rootFlags
 	pf := root.PersistentFlags()
-	pf.Bool("json", false, "Force JSON output (default in non-TTY)")
-	pf.Bool("agent", false, "Agent mode: --json --compact --no-color --no-input --yes")
-	pf.Bool("dry-run", false, "Preview without executing; for writes implies safety hash flow")
-	pf.String("select", "", "Comma-separated dotted paths to include in JSON output")
-	pf.Bool("human-friendly", false, "Force human-formatted output (tables, colors) even when piped")
-	pf.Bool("no-color", false, "Disable colors in output")
-	pf.Bool("compact", false, "Compact JSON (no indent)")
-	pf.Bool("no-input", false, "Never prompt; fail if input would be needed")
-	pf.Bool("yes", false, "Auto-confirm interactive prompts (does NOT bypass safety hash)")
-	pf.String("profile", "", "Named connection profile from ~/.config/mt5-pp-cli/config.toml")
-	pf.Int64("account", 0, "Restrict mirror reads to this account_login (default: most recently synced account)")
-	pf.Duration("timeout", 0, "Per-command timeout (0 = use default)")
-	pf.Bool("verbose", false, "Verbose diagnostic output to stderr")
+	pf.BoolVar(&rf.json, "json", false, "Force JSON output (default in non-TTY)")
+	pf.BoolVar(&rf.agent, "agent", false, "Agent mode: --json --compact --no-color --no-input --yes")
+	pf.BoolVar(&rf.dryRun, "dry-run", false, "Preview without executing; for writes implies safety hash flow")
+	pf.StringVar(&rf.selectPaths, "select", "", "Comma-separated dotted paths to include in JSON output")
+	pf.BoolVar(&rf.humanFriendly, "human-friendly", false, "Force human-formatted output (tables, colors) even when piped")
+	pf.BoolVar(&rf.noColor, "no-color", false, "Disable colors in output")
+	pf.BoolVar(&rf.compact, "compact", false, "Compact JSON (no indent)")
+	pf.BoolVar(&rf.noInput, "no-input", false, "Never prompt; fail if input would be needed")
+	pf.BoolVar(&rf.yes, "yes", false, "Auto-confirm interactive prompts (does NOT bypass safety hash)")
+	pf.StringVar(&rf.profile, "profile", "", "Named connection profile from ~/.config/mt5-pp-cli/config.toml")
+	pf.Int64Var(&rf.account, "account", 0, "Restrict mirror reads to this account_login (default: most recently synced account)")
+	pf.DurationVar(&rf.timeout, "timeout", 0, "Per-command timeout (0 = use default)")
+	pf.BoolVar(&rf.verbose, "verbose", false, "Verbose diagnostic output to stderr")
 
 	root.AddCommand(
 		// Foundation
