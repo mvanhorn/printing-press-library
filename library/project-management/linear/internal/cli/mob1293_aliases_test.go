@@ -38,6 +38,19 @@ func TestCommentsCreateAliasesAddWithBodyAndMedia(t *testing.T) {
 
 	canonical := run("add")
 	alias := run("create")
+	want := map[string]any{
+		"event": "would_create_comment",
+		"input": map[string]any{
+			"body":    "Run `pnpm test` and keep $HOME literal.\n",
+			"issueId": "MOB-1293",
+		},
+		"media":        []any{"/tmp/one.png", "/tmp/two.mov"},
+		"media_public": true,
+		"mutation":     "commentCreate",
+	}
+	if !reflect.DeepEqual(alias, want) {
+		t.Fatalf("comments create parsed an unexpected payload:\ncreate=%#v\nwant=%#v", alias, want)
+	}
 	if !reflect.DeepEqual(alias, canonical) {
 		t.Fatalf("comments create diverged from comments add:\ncreate=%#v\nadd=%#v", alias, canonical)
 	}
@@ -94,6 +107,21 @@ func TestDocumentReadAliasesSharePositionalReadContract(t *testing.T) {
 				t.Fatalf("documents %s returned unexpected output: err=%v output=%s", alias, err, out)
 			}
 		})
+	}
+}
+
+func TestDocumentsShowRemainsAPositionalReference(t *testing.T) {
+	var flags rootFlags
+	root := newRootCmd(&flags)
+	cmd, args, err := root.Find([]string{"documents", "show", "runbook-abc123"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if cmd.CommandPath() != "linear-pp-cli documents" {
+		t.Fatalf("documents show unexpectedly resolved to %q", cmd.CommandPath())
+	}
+	if !reflect.DeepEqual(args, []string{"show", "runbook-abc123"}) {
+		t.Fatalf("documents show args = %v, want positional document references", args)
 	}
 }
 
