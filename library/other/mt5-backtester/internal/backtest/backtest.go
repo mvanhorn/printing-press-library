@@ -16,6 +16,7 @@ type RunOptions struct {
 	ReportDir    string
 	Timeout      time.Duration
 	Portable     bool // Pass /portable flag (uses terminal's own dir for data)
+	KeepOpen     bool // ini has ShutdownTerminal=0: poll for the report, never wait for exit
 	Verbose      bool
 }
 
@@ -60,6 +61,28 @@ func Run(opts RunOptions) *RunResult {
 		return result
 	}
 
+	if opts.KeepOpen {
+		// ShutdownTerminal=0 keeps the terminal open after the test, so
+		// cmd.Wait() would sit at the timeout and then kill the terminal we
+		// were asked to preserve. Poll for the report instead and leave the
+		// process running (the goroutine just reaps it if the user closes it).
+		go func() { _ = cmd.Wait() }()
+		for {
+			if p := findReport(opts.ReportDir, opts.INIPath, start); p != "" {
+				result.ReportPath = p
+				result.Success = true
+				result.Duration = time.Since(start)
+				return result
+			}
+			if time.Since(start) > timeout {
+				result.Duration = time.Since(start)
+				result.Error = fmt.Errorf("no report after %s — terminal left running (--no-shutdown)", timeout)
+				return result
+			}
+			time.Sleep(2 * time.Second)
+		}
+	}
+
 	// Wait with timeout
 	done := make(chan error, 1)
 	go func() { done <- cmd.Wait() }()
@@ -84,7 +107,7 @@ func Run(opts RunOptions) *RunResult {
 	}
 
 	// Find generated report
-	reportPath := findReport(opts.ReportDir, opts.INIPath)
+	reportPath := findReport(opts.ReportDir, opts.INIPath, start)
 	if reportPath != "" {
 		result.ReportPath = reportPath
 		result.Success = true // if report exists, test ran
@@ -96,45 +119,50 @@ func Run(opts RunOptions) *RunResult {
 	return result
 }
 
-// findReport looks for the HTML/XML report MT5 generates.
-// MT5 writes reports to the terminal data path; we search the report dir.
-func findReport(reportDir, iniPath string) string {
-	// Report name is based on the ini Report= key; try to find recent HTML files
-	candidates := []string{reportDir}
-
-	// Also check common MT5 report locations
-	candidates = append(candidates,
-		filepath.Join(filepath.Dir(iniPath)),
-		filepath.Join(os.Getenv("APPDATA"), "MetaQuotes", "Terminal"),
-	)
-
-	for _, dir := range candidates {
+// findReport looks for the HTML report MT5 generated after `since` (the run
+// start), returning the newest match. A stock install writes it under the
+// instance data dir %APPDATA%\MetaQuotes\Terminal\<hash>\ — either the root
+// or its tester\ subdirectory — so those are globbed per instance; portable
+// installs land in ReportDir or next to the ini.
+func findReport(reportDir, iniPath string, since time.Time) string {
+	var patterns []string
+	addDir := func(dir string) {
 		if dir == "" {
-			continue
+			return
 		}
-		// Walk looking for recently modified .htm files
-		matches, _ := filepath.Glob(filepath.Join(dir, "*.htm"))
-		for _, m := range matches {
-			if isRecentFile(m, 10*time.Minute) {
-				return m
-			}
-		}
-		matches, _ = filepath.Glob(filepath.Join(dir, "*.html"))
-		for _, m := range matches {
-			if isRecentFile(m, 10*time.Minute) {
-				return m
-			}
+		for _, ext := range []string{"*.htm", "*.html"} {
+			patterns = append(patterns,
+				filepath.Join(dir, ext),
+				filepath.Join(dir, "tester", ext),
+			)
 		}
 	}
-	return ""
-}
+	addDir(reportDir)
+	addDir(filepath.Dir(iniPath))
+	if app := os.Getenv("APPDATA"); app != "" {
+		instances := filepath.Join(app, "MetaQuotes", "Terminal")
+		for _, ext := range []string{"*.htm", "*.html"} {
+			patterns = append(patterns,
+				filepath.Join(instances, "*", ext),
+				filepath.Join(instances, "*", "tester", ext),
+			)
+		}
+	}
 
-func isRecentFile(path string, within time.Duration) bool {
-	fi, err := os.Stat(path)
-	if err != nil {
-		return false
+	best, bestTime := "", time.Time{}
+	for _, pat := range patterns {
+		matches, _ := filepath.Glob(pat)
+		for _, m := range matches {
+			fi, err := os.Stat(m)
+			if err != nil || fi.ModTime().Before(since) {
+				continue
+			}
+			if fi.ModTime().After(bestTime) {
+				best, bestTime = m, fi.ModTime()
+			}
+		}
 	}
-	return time.Since(fi.ModTime()) < within
+	return best
 }
 
 // WatchLogs tails MT5 terminal log files for progress updates.

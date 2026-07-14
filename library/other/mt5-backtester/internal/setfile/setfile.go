@@ -59,7 +59,14 @@ func ParseReader(r io.Reader) (*SetFile, error) {
 	lineNo := 0
 	for sc.Scan() {
 		lineNo++
-		line := strings.TrimSpace(sc.Text())
+		raw := sc.Text()
+		if lineNo == 1 {
+			// Windows editors often save .set files with a UTF-8 BOM; left in
+			// place it becomes part of the first parameter's name and silently
+			// breaks --input overrides against that key.
+			raw = strings.TrimPrefix(raw, "\ufeff")
+		}
+		line := strings.TrimSpace(raw)
 		if line == "" || strings.HasPrefix(line, ";") {
 			continue
 		}
@@ -275,14 +282,23 @@ func ResolvePath(name, terminalPath string, portable bool) (string, error) {
 		}
 	}
 
+	// A bare name can exist in several terminals' data dirs; picking the first
+	// silently loads another broker's parameters, so ambiguity is an error.
+	var found []string
 	for _, dir := range TesterDirs(terminalPath, portable) {
 		cand := filepath.Join(dir, name)
 		if _, err := os.Stat(cand); err == nil {
-			return cand, nil
+			found = append(found, cand)
 		}
 	}
-
-	return "", fmt.Errorf("set file %q not found in CWD or any %s directory", name, TesterSubdir)
+	switch len(found) {
+	case 1:
+		return found[0], nil
+	case 0:
+		return "", fmt.Errorf("set file %q not found in CWD or any %s directory", name, TesterSubdir)
+	default:
+		return "", fmt.Errorf("set file %q is ambiguous — found in %d terminal data directories:\n  %s\npass an absolute path to select one", name, len(found), strings.Join(found, "\n  "))
+	}
 }
 
 // TesterDirs returns every candidate MQL5\Profiles\Tester directory for the

@@ -68,8 +68,10 @@ func Run(opts Options) (*Result, error) {
 		parseLog(string(out), result)
 	}
 
-	// Double-check: if .ex5 was created, it's a success regardless of exit code
-	if _, serr := os.Stat(result.OutputFile); serr == nil {
+	// Double-check: a .ex5 written during THIS run is a success regardless of
+	// exit code (metaeditor's codes are unreliable). The mtime guard keeps a
+	// stale binary from an earlier build from masking a failed compile.
+	if fi, serr := os.Stat(result.OutputFile); serr == nil && !fi.ModTime().Before(start) {
 		result.Success = true
 	} else if err != nil {
 		result.Success = false

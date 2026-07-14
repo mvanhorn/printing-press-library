@@ -252,6 +252,7 @@ Examples:
 				ReportDir:    workDir,
 				Timeout:      timeout,
 				Portable:     isPortable,
+				KeepOpen:     noShutdown,
 				Verbose:      verbose,
 			})
 
