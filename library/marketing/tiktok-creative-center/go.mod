@@ -1,6 +1,6 @@
 module github.com/mvanhorn/printing-press-library/library/marketing/tiktok-creative-center
 
-go 1.26
+go 1.26.5
 
 require (
 	github.com/chromedp/cdproto v0.0.0-20260714002449-7ad0ec4e4115
