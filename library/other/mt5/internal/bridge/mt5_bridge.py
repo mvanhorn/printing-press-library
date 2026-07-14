@@ -259,7 +259,13 @@ def h_copy_ticks_range(params: dict) -> Any:
 
 # Orders / positions / history
 def h_orders_total(params: dict) -> Any: return mt5.orders_total()
-def h_orders_get(params: dict) -> Any: return _to_dict(mt5.orders_get(**params))
+def h_orders_get(params: dict) -> Any:
+    # orders_get() returns None on failure and () when there are genuinely no
+    # pending orders; None must not flow through as an empty snapshot.
+    res = mt5.orders_get(**params)
+    if res is None:
+        raise BridgeError("TERMINAL_DOWN", f"orders_get() returned None: {mt5.last_error()}")
+    return _to_dict(res)
 def h_order_calc_margin(params: dict) -> Any:
     _ensure_selected(params["symbol"])
     return mt5.order_calc_margin(
@@ -280,7 +286,13 @@ def h_order_send(params: dict) -> Any:
 
 
 def h_positions_total(params: dict) -> Any: return mt5.positions_total()
-def h_positions_get(params: dict) -> Any: return _to_dict(mt5.positions_get(**params))
+def h_positions_get(params: dict) -> Any:
+    # positions_get() returns None on failure and () when flat — see
+    # h_orders_get for why None must not flow through as an empty snapshot.
+    res = mt5.positions_get(**params)
+    if res is None:
+        raise BridgeError("TERMINAL_DOWN", f"positions_get() returned None: {mt5.last_error()}")
+    return _to_dict(res)
 def _history_params(p):
     p = dict(p)
     if "date_from" in p: p["date_from"] = _dt(p["date_from"])

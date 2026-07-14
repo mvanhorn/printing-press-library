@@ -595,11 +595,18 @@ func buildFeatures(ctx context.Context, db *sql.DB, acct int64, symbol, tf strin
 		return 0, fmt.Errorf("only %d bar(s) for %s %s in window — sync more first", len(times), symbol, tf)
 	}
 
+	// Undefined transitions (first bar, or a non-positive close on either
+	// side) stay NaN so nullIfNaN stores NULL instead of a fake 0% move, and
+	// rollingStd skips them rather than biasing realized vol toward zero.
 	n := len(times)
 	rets := make([]float64, n)
 	logRets := make([]float64, n)
+	for i := range rets {
+		rets[i] = math.NaN()
+		logRets[i] = math.NaN()
+	}
 	for i := 1; i < n; i++ {
-		if closes[i-1] != 0 {
+		if closes[i-1] > 0 && closes[i] > 0 {
 			rets[i] = closes[i]/closes[i-1] - 1.0
 			logRets[i] = math.Log(closes[i] / closes[i-1])
 		}
@@ -1198,7 +1205,7 @@ func newBacktestListCmd() *cobra.Command {
 				       COALESCE(sharpe,0), COALESCE(max_dd_pct,0), COALESCE(trades,0),
 				       COALESCE(win_rate,0), created_at_ms
 				FROM backtests
-				WHERE account_login = ? OR account_login IS NULL
+				WHERE account_login = ?
 				ORDER BY id DESC LIMIT ?`, acct, limit)
 			if err != nil {
 				return err

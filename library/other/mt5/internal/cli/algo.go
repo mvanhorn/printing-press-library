@@ -1294,29 +1294,29 @@ func computeCorrelation(ctx context.Context, db *sql.DB, acct int64, symbols []s
 		return nil, fmt.Errorf("not enough overlapping bars (%d) — sync the same window across all symbols first", len(commonT))
 	}
 
-	// Build aligned log-return matrix [series][bar].
+	// Build aligned log-return matrix [series][transition]. A transition is
+	// kept only when every symbol has positive closes at both ends — dropping
+	// it for all series at once keeps rows time-aligned, where skipping it for
+	// one symbol would pair returns from different bars in the Pearson sums.
 	returns := make([][]float64, len(symbols))
-	for i := range symbols {
-		rs := make([]float64, 0, len(commonT)-1)
-		prev := series[i][commonT[0]]
-		for k := 1; k < len(commonT); k++ {
-			cur := series[i][commonT[k]]
-			if prev > 0 && cur > 0 {
-				rs = append(rs, math.Log(cur/prev))
+	for k := 1; k < len(commonT); k++ {
+		valid := true
+		for i := range symbols {
+			if series[i][commonT[k-1]] <= 0 || series[i][commonT[k]] <= 0 {
+				valid = false
+				break
 			}
-			prev = cur
 		}
-		returns[i] = rs
+		if !valid {
+			continue
+		}
+		for i := range symbols {
+			returns[i] = append(returns[i], math.Log(series[i][commonT[k]]/series[i][commonT[k-1]]))
+		}
 	}
-	// Truncate to common length (shouldn't differ but guard).
 	minLen := len(returns[0])
-	for _, r := range returns {
-		if len(r) < minLen {
-			minLen = len(r)
-		}
-	}
-	for i := range returns {
-		returns[i] = returns[i][:minLen]
+	if minLen < 2 {
+		return nil, fmt.Errorf("not enough valid overlapping returns (%d) — sync the same window across all symbols first", minLen)
 	}
 
 	mtx := make([][]float64, len(symbols))

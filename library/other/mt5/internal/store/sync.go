@@ -85,12 +85,17 @@ func SyncAll(ctx context.Context, db *sql.DB, b *bridge.Bridge, opts AllOptions)
 	}
 	results["deals"] = c
 
-	if opts.IncludeBars {
-		symbols := opts.OnlySymbols
+	// Bars and ticks share the same symbol resolution: an explicit --symbols
+	// list wins; otherwise fall back to every symbol mirrored for the account,
+	// so `sync all --with-ticks` without a filter copies ticks instead of
+	// silently iterating an empty slice.
+	var symbols []string
+	if opts.IncludeBars || opts.IncludeTicks {
+		symbols = opts.OnlySymbols
 		if len(symbols) == 0 {
 			rows, err := db.QueryContext(ctx, "SELECT symbol FROM symbols WHERE account_login=?", opts.AccountLogin)
 			if err != nil {
-				return results, fmt.Errorf("query symbols for bars: %w", err)
+				return results, fmt.Errorf("query symbols for bars/ticks: %w", err)
 			}
 			for rows.Next() {
 				var s string
@@ -102,6 +107,9 @@ func SyncAll(ctx context.Context, db *sql.DB, b *bridge.Bridge, opts AllOptions)
 			}
 			rows.Close()
 		}
+	}
+
+	if opts.IncludeBars {
 		for _, sym := range symbols {
 			for _, tf := range opts.BarsTFs {
 				opts.Verbose("syncing bars %s %s...", sym, tf)
@@ -115,7 +123,7 @@ func SyncAll(ctx context.Context, db *sql.DB, b *bridge.Bridge, opts AllOptions)
 	}
 
 	if opts.IncludeTicks {
-		for _, sym := range opts.OnlySymbols {
+		for _, sym := range symbols {
 			opts.Verbose("syncing ticks %s...", sym)
 			c, err := SyncTicks(ctx, db, b, opts.AccountLogin, sym, opts.Since, now)
 			if err != nil {

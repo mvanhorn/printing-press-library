@@ -1,5 +1,7 @@
 package bridge
 
+import "fmt"
+
 // Typed wrappers for methods used by `mt5-pp-cli sync`. Loose maps in many places
 // because MT5 keeps adding fields broker-by-broker — strict structs would
 // reject unknown keys; the SQL schema only stores what it cares about.
@@ -153,6 +155,12 @@ func (b *Bridge) PositionsGet(filter map[string]any) ([]Position, error) {
 	if err := b.Call("positions_get", filter, &out); err != nil {
 		return nil, err
 	}
+	// JSON null (MT5 failure) decodes to a nil slice; a genuinely flat account
+	// decodes to an empty non-nil slice. The bridge raises on None, but keep
+	// snapshot consumers from ever treating a failure as "no positions".
+	if out == nil {
+		return nil, fmt.Errorf("positions_get returned null — terminal failure, not an empty snapshot")
+	}
 	return out, nil
 }
 
@@ -164,6 +172,10 @@ func (b *Bridge) OrdersGet(filter map[string]any) ([]Order, error) {
 	var out []Order
 	if err := b.Call("orders_get", filter, &out); err != nil {
 		return nil, err
+	}
+	// See PositionsGet: nil means the terminal failed, not "no pending orders".
+	if out == nil {
+		return nil, fmt.Errorf("orders_get returned null — terminal failure, not an empty snapshot")
 	}
 	return out, nil
 }
