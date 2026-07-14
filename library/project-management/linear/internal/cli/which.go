@@ -20,6 +20,7 @@ type whichEntry struct {
 	Description  string `json:"description"`
 	Group        string `json:"group,omitempty"`
 	WhyItMatters string `json:"why_it_matters,omitempty"`
+	SearchTerms  string `json:"-"`
 }
 
 // whichIndex is the curated list of capabilities this CLI advertises as
@@ -37,9 +38,9 @@ var whichIndex = []whichEntry{
 	{Command: "stale", Description: "Find issues that haven't been touched in N days, grouped by team and project.", Group: "Local state that compounds", WhyItMatters: "Reach for this during backlog grooming when you need to surface forgotten issues without exhausting the API rate limit."},
 	{Command: "slipped", Description: "Show what carried over from last cycle into this cycle, grouped by team and reason heuristic.", Group: "Cross-entity rollups", WhyItMatters: "Reach for this in Friday stakeholder updates when you need a structured slipped-from-last-cycle list, not just a saved view."},
 	{Command: "blocking", Description: "Show issues you are blocking — sorted by downstream impact (downstream count × downstream priority).", Group: "Personal queues", WhyItMatters: "Reach for this every morning when you need to know which of your in-flight issues are stalling teammates downstream."},
-	{Command: "comments add", Description: "Create a comment from a Markdown file, inline body, or stdin and optionally upload media; comments create is accepted as an alias.", Group: "Agent-native plumbing", WhyItMatters: "Reach for this to post an issue or document comment without guessing whether the write verb is add or create."},
-	{Command: "issues <ID>", Description: "Get issue by identifier or UUID, including comma-separated issue reads; get, view, and show are accepted as aliases.", Group: "Agent-native plumbing", WhyItMatters: "Reach for this to read one or several issues while preserving caller order, output flags, and data-source behavior."},
-	{Command: "documents <document-ref>", Description: "View document by slug, UUID, title slug, or Linear URL; get and view are accepted as aliases.", Group: "Agent-native plumbing", WhyItMatters: "Reach for this to read a Linear document without guessing which reference shape or read verb the CLI accepts."},
+	{Command: "comments add", Description: "Create a comment from a Markdown file, inline body, or stdin and optionally upload media; comments create is accepted as an alias.", Group: "Agent-native plumbing", WhyItMatters: "Reach for this to post an issue or document comment without guessing whether the write verb is add or create.", SearchTerms: "create a comment from a markdown file"},
+	{Command: "issues <ID>", Description: "Get issue by identifier or UUID, including comma-separated issue reads; get, view, and show are accepted as aliases.", Group: "Agent-native plumbing", WhyItMatters: "Reach for this to read one or several issues while preserving caller order, output flags, and data-source behavior.", SearchTerms: "get issue by identifier"},
+	{Command: "documents <document-ref>", Description: "View document by slug, UUID, title slug, or Linear URL; get and view are accepted as aliases.", Group: "Agent-native plumbing", WhyItMatters: "Reach for this to read a Linear document without guessing which reference shape or read verb the CLI accepts.", SearchTerms: "view document by slug"},
 	{Command: "issues search", Description: "Search synced Linear issues by text before creating a new ticket; team-scoped alias for similar duplicate checks.", Group: "Local state that compounds", WhyItMatters: "Reach for this when an agent needs to check existing follow-up issues or find duplicates without guessing raw SQL or unsupported search flags."},
 	{Command: "similar", Description: "Find issues that look like duplicates of a query string using offline FTS5 fuzzy matching.", Group: "Local state that compounds", WhyItMatters: "Reach for this during triage when you suspect an incoming bug duplicates an existing issue."},
 	{Command: "velocity", Description: "Track sprint completion rates over the last N cycles to spot productivity trends.", Group: "Cross-entity rollups", WhyItMatters: "Reach for this in Monday sprint planning to ground rebalance decisions in actual completion data, not the team's last cycle alone."},
@@ -69,7 +70,8 @@ type whichMatch struct {
 //
 //	+3  exact token match on the command's leaf or full path
 //	+2  substring match on the command (any part)
-//	+5  substring match on the description
+//	+2  substring match on the description
+//	+5  substring match on explicitly curated search terms
 //	+1  group tag contains the query as a word
 //
 // Ties break on declaration order in the index. An empty query returns
@@ -119,6 +121,7 @@ func whichScoreEntry(e whichEntry, query string, qTokens []string) int {
 	cmdTokens := strings.Fields(cmd)
 	desc := strings.ToLower(e.Description)
 	group := strings.ToLower(e.Group)
+	searchTerms := strings.ToLower(e.SearchTerms)
 
 	// Exact token match on the command path (any token).
 	for _, qt := range qTokens {
@@ -135,6 +138,9 @@ func whichScoreEntry(e whichEntry, query string, qTokens []string) int {
 	}
 	// Substring match on the description.
 	if strings.Contains(desc, query) {
+		score += 2
+	}
+	if searchTerms != "" && strings.Contains(searchTerms, query) {
 		score += 5
 	}
 	// Group tag match.

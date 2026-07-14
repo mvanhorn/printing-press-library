@@ -32,6 +32,17 @@ func TestRankWhich_ExactTokenMatchWins(t *testing.T) {
 	}
 }
 
+func TestRankWhich_ExactTokenBeatsIncidentalDescriptionMatch(t *testing.T) {
+	index := []whichEntry{
+		{Command: "refresh", Description: "Sync local resources"},
+		{Command: "sync", Description: "Refresh local resources"},
+	}
+	got := rankWhich(index, "sync", 1)
+	if len(got) == 0 || got[0].Entry.Command != "sync" {
+		t.Fatalf("exact command token should beat a description-only match, got %+v", got)
+	}
+}
+
 // Happy path: a query matching the description wins when the command
 // itself does not contain the query tokens.
 func TestRankWhich_DescriptionMatch(t *testing.T) {
