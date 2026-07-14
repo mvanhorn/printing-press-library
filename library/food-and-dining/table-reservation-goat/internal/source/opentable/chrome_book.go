@@ -379,7 +379,132 @@ func clickOpenTableSlot(ctx context.Context, hhmm string) error {
 		return err
 	}
 	if !control.Found {
-		return fmt.Errorf("slot control for %q not found", display)
+		// 2026-07 profile layout: the inline widget renders no slot
+		// buttons; times live behind the "View full availability"
+		// overlay, grouped under long-form date headings. Fall back to
+		// driving that overlay, scoped to the requested date so a
+		// same-time slot on a different day can never be clicked.
+		return clickOpenTableAvailabilityOverlaySlot(ctx, hhmm, display)
+	}
+	if control.Disabled {
+		return fmt.Errorf("%w: slot control for %q is disabled", ErrSlotTaken, display)
+	}
+	return clickBrowserControl(ctx, control)
+}
+
+func openTableOverlayDateHeading(ctx context.Context) (string, error) {
+	var isoDate string
+	if err := chromedp.Run(ctx, chromedp.Evaluate(`(new URL(location.href)).searchParams.get('dateTime') || ''`, &isoDate)); err != nil {
+		return "", err
+	}
+	if len(isoDate) < 10 {
+		return "", fmt.Errorf("no dateTime in booking URL to scope the availability overlay")
+	}
+	day, err := time.Parse("2006-01-02", isoDate[:10])
+	if err != nil {
+		return "", fmt.Errorf("unparseable dateTime %q in booking URL: %w", isoDate, err)
+	}
+	return day.Format("Monday, January 2, 2006"), nil
+}
+
+func clickOpenTableAvailabilityOverlaySlot(ctx context.Context, hhmm, display string) error {
+	dateHeading, err := openTableOverlayDateHeading(ctx)
+	if err != nil {
+		return fmt.Errorf("slot control for %q not found (%v)", display, err)
+	}
+	openJS := `
+		(() => {
+			const btn = document.querySelector('[data-test="multi-day-availability-button"]');
+			if (!btn) return false;
+			btn.click();
+			return true;
+		})()
+	`
+	// The overlay button mounts late during profile hydration; poll for it.
+	var opened bool
+	openDeadline := time.Now().Add(10 * time.Second)
+	for {
+		if err := chromedp.Run(ctx, chromedp.Evaluate(openJS, &opened)); err != nil {
+			return err
+		}
+		if opened || time.Now().After(openDeadline) {
+			break
+		}
+		time.Sleep(400 * time.Millisecond)
+	}
+	if !opened {
+		return fmt.Errorf("slot control for %q not found and no availability overlay button present", display)
+	}
+	deadline := time.Now().Add(10 * time.Second)
+	for {
+		var ready bool
+		if err := chromedp.Run(ctx, chromedp.Evaluate(`Boolean(document.querySelector('[data-test="multi-day-availability-modal-v2-time-slots-container"], [data-test*="multi-day-availability-modal"]'))`, &ready)); err == nil && ready {
+			break
+		}
+		if time.Now().After(deadline) {
+			return fmt.Errorf("slot control for %q not found: availability overlay never rendered", display)
+		}
+		time.Sleep(250 * time.Millisecond)
+	}
+	pickJS := fmt.Sprintf(`
+		(() => {
+			const target = %q;
+			const wantedDate = %q;
+			const clean = (s) => (s || '').replace(/\s+/g, ' ').trim();
+			const visible = (el) => {
+				if (!el || !el.isConnected) return false;
+				const style = getComputedStyle(el), r = el.getBoundingClientRect();
+				return style.display !== 'none' && style.visibility !== 'hidden' && r.width > 0 && r.height > 0;
+			};
+			const groups = Array.from(document.querySelectorAll('[data-test="multi-day-availability-modal-v2-time-slots-container"] [data-test="time-slots"], [data-test*="multi-day-availability-modal"] [data-test="time-slots"]'));
+			for (const group of groups) {
+				// Date headings render as plain text ancestors/siblings of
+				// each slot group; scope by walking the group's section text.
+				let section = group;
+				let sectionText = '';
+				for (let hop = 0; hop < 6 && section; hop += 1) {
+					sectionText = clean(section.textContent || '');
+					if (sectionText.includes(wantedDate)) break;
+					section = section.parentElement;
+				}
+				if (!sectionText.includes(wantedDate)) continue;
+				const slots = Array.from(group.querySelectorAll('a, button, [role="button"]')).filter(visible)
+					.map((el) => ({el, text: clean(el.textContent)}))
+					.filter((c) => c.text.startsWith(target))
+					.filter((c) => !/next available|notify me|sold out|unavailable/i.test(c.text));
+				if (!slots.length) continue;
+				const chosen = slots[0].el;
+				chosen.scrollIntoView({block:'center', inline:'center'});
+				const r = chosen.getBoundingClientRect();
+				return {found:true, disabled:Boolean(chosen.disabled || chosen.getAttribute('aria-disabled') === 'true'), label:slots[0].text, x:r.x+r.width/2, y:r.y+r.height/2};
+			}
+			const dayTexts = groups.map((g) => {
+				let sec = g, txt = '';
+				for (let hop = 0; hop < 6 && sec; hop += 1) {
+					txt = clean(sec.textContent || '');
+					if (/\w+day, \w+ \d+, \d{4}/.test(txt)) break;
+					sec = sec.parentElement;
+				}
+				const m = txt.match(/\w+day, \w+ \d+, \d{4}/);
+				return m ? m[0] : txt.slice(0, 30);
+			});
+			return {found:false, label: 'groups=' + groups.length + ' days=[' + dayTexts.join('|') + ']'};
+		})()
+	`, display, dateHeading)
+	// Slot groups hydrate after the modal shell mounts; poll briefly.
+	var control browserControl
+	pickDeadline := time.Now().Add(8 * time.Second)
+	for {
+		if err := chromedp.Run(ctx, chromedp.Evaluate(pickJS, &control)); err != nil {
+			return err
+		}
+		if control.Found || time.Now().After(pickDeadline) {
+			break
+		}
+		time.Sleep(400 * time.Millisecond)
+	}
+	if !control.Found {
+		return fmt.Errorf("%w: %q has no bookable control on %s in the availability overlay (%s)", ErrSlotTaken, display, dateHeading, control.Label)
 	}
 	if control.Disabled {
 		return fmt.Errorf("%w: slot control for %q is disabled", ErrSlotTaken, display)
