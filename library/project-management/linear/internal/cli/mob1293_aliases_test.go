@@ -85,7 +85,16 @@ func TestIssueReadAliasesSharePositionalReadContract(t *testing.T) {
 
 func TestDocumentReadAliasesSharePositionalReadContract(t *testing.T) {
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		fmt.Fprint(w, `{"data":{"documents":{"nodes":[{"id":"doc-1","title":"Runbook","slugId":"abc123","content":"body"}]}}}`)
+		var request struct {
+			Variables struct {
+				Slug string `json:"slug"`
+			} `json:"variables"`
+		}
+		if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+		fmt.Fprintf(w, `{"data":{"documents":{"nodes":[{"id":"doc-%s","title":"Runbook","slugId":"%s","content":"body"}]}}}`, request.Variables.Slug, request.Variables.Slug)
 	}))
 	t.Cleanup(srv.Close)
 	t.Setenv("LINEAR_BASE_URL", srv.URL)
@@ -104,8 +113,26 @@ func TestDocumentReadAliasesSharePositionalReadContract(t *testing.T) {
 					Content string `json:"content"`
 				} `json:"results"`
 			}
-			if err := json.Unmarshal([]byte(out), &payload); err != nil || payload.Results.ID != "doc-1" || payload.Results.Content != "body" {
+			if err := json.Unmarshal([]byte(out), &payload); err != nil || payload.Results.ID != "doc-abc123" || payload.Results.Content != "body" {
 				t.Fatalf("documents %s returned unexpected output: err=%v output=%s", alias, err, out)
+			}
+		})
+	}
+
+	for _, ref := range []string{"get", "view"} {
+		ref := ref
+		t.Run("positional-ref-"+ref, func(t *testing.T) {
+			out, err := executeRootForTest("documents", ref, "--agent", "--select", "id,title,content")
+			if err != nil {
+				t.Fatalf("documents %s failed as a positional ref: %v\n%s", ref, err, out)
+			}
+			var payload struct {
+				Results struct {
+					ID string `json:"id"`
+				} `json:"results"`
+			}
+			if err := json.Unmarshal([]byte(out), &payload); err != nil || payload.Results.ID != "doc-"+ref {
+				t.Fatalf("documents %s returned unexpected output: err=%v output=%s", ref, err, out)
 			}
 		})
 	}

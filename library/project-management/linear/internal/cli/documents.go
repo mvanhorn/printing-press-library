@@ -48,8 +48,13 @@ func newDocumentsReadAliasCmd(flags *rootFlags) *cobra.Command {
 		Short:   "View a Linear document",
 		Long:    `Compatibility aliases for the canonical positional form: linear-pp-cli documents <document-ref>.`,
 		Hidden:  true,
-		Args:    cobra.ExactArgs(1),
+		Args:    cobra.MaximumNArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
+			if len(args) == 0 {
+				// Preserve canonical reads for slug IDs that exactly match an
+				// alias token; Cobra resolves the child before the parent RunE.
+				return runDocumentRead(cmd, flags, cmd.CalledAs())
+			}
 			return runDocumentRead(cmd, flags, args[0])
 		},
 	}
