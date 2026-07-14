@@ -213,14 +213,21 @@ func TestValidateOpenTableConfirmationRejectsIdentifierlessSuccess(t *testing.T)
 	if !errors.Is(err, ErrIncompleteConfirmation) {
 		t.Fatalf("error = %v, want ErrIncompleteConfirmation", err)
 	}
-	for _, complete := range []chromeConfirmationState{
+	for _, partial := range []chromeConfirmationState{
 		{Success: true, ConfirmationNumber: 1234},
 		{Success: true, ReservationID: 5678},
 		{Success: true, SecurityToken: "opaque"},
+		{Success: true, ConfirmationNumber: 1234, ReservationID: 5678},
 	} {
-		if err := validateOpenTableConfirmation(complete, ""); err != nil {
-			t.Fatalf("complete confirmation %#v rejected: %v", complete, err)
+		if err := validateOpenTableConfirmation(partial, ""); !errors.Is(err, ErrIncompleteConfirmation) {
+			t.Fatalf("partial confirmation %#v error = %v, want ErrIncompleteConfirmation", partial, err)
 		}
+	}
+	complete := chromeConfirmationState{
+		Success: true, ConfirmationNumber: 1234, ReservationID: 5678, SecurityToken: "opaque",
+	}
+	if err := validateOpenTableConfirmation(complete, ""); err != nil {
+		t.Fatalf("complete confirmation rejected: %v", err)
 	}
 }
 

@@ -734,12 +734,24 @@ func validateOpenTableConfirmation(confirmation chromeConfirmationState, pageSta
 	if !confirmation.Success {
 		return nil
 	}
-	if confirmation.ConfirmationNumber != 0 || confirmation.ReservationID != 0 || confirmation.SecurityToken != "" {
+	var missing []string
+	if confirmation.ConfirmationNumber == 0 {
+		missing = append(missing, "confirmationNumber")
+	}
+	if confirmation.ReservationID == 0 {
+		missing = append(missing, "reservationID")
+	}
+	if confirmation.SecurityToken == "" {
+		missing = append(missing, "securityToken")
+	}
+	if len(missing) == 0 {
 		return nil
 	}
+	// Cancellation and cutoff lookups need the full identifier set; a
+	// partially extracted confirmation must not report booking success.
 	return &ChromeBookError{
 		Kind: ErrIncompleteConfirmation, Step: "confirmation_extract", PageState: pageState,
-		Cause: fmt.Errorf("confirmation UI was visible but confirmationNumber, reservationID, and securityToken were all absent"),
+		Cause: fmt.Errorf("confirmation UI was visible but %s missing", strings.Join(missing, ", ")),
 	}
 }
 
