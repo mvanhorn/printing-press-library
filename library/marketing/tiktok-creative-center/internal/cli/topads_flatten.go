@@ -35,19 +35,26 @@ func flattenTopAdID(item json.RawMessage) json.RawMessage {
 	if err != nil {
 		return item
 	}
-	if v, ok := obj["id"]; ok && v != nil {
-		// Already has a top-level id; leave untouched.
-		return item
-	}
 	itemInfo, ok := obj["itemInfo"].(map[string]any)
 	if !ok {
+		// No nested itemInfo to derive a canonical ID from; leave any
+		// existing top-level id as-is rather than discarding it.
 		return item
 	}
 	// Exact key (capital "ID" acronym): LookupFieldValue's direct obj[key]
 	// lookup finds it; the snake->camel normalization would yield "itemId"
 	// and miss.
-	id := store.LookupFieldValue(itemInfo, "itemID")
-	if id == nil {
+	canonicalID := store.LookupFieldValue(itemInfo, "itemID")
+	if canonicalID == nil {
+		// No canonical ID available; leave any existing top-level id as-is.
+		return item
+	}
+	// itemInfo.itemID is always the canonical identity for a top-ads row.
+	// Always set/overwrite the top-level id from it rather than trusting a
+	// pre-existing top-level id field, which could disagree with the
+	// canonical value and key the store under the wrong identity (silent
+	// duplicate rows or missed updates).
+	if existing, ok := obj["id"]; ok && existing == canonicalID {
 		return item
 	}
 	// Build a new object (immutability: never mutate the decoded map in place
@@ -57,7 +64,7 @@ func flattenTopAdID(item json.RawMessage) json.RawMessage {
 	for k, v := range obj {
 		flat[k] = v
 	}
-	flat["id"] = id
+	flat["id"] = canonicalID
 	data, err := json.Marshal(flat)
 	if err != nil {
 		return item

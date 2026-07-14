@@ -27,9 +27,10 @@ func newNovelVelocityCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "velocity",
 		Short: "Measure which hashtags are accelerating by diffing popularity across syncs.",
-		Long: "Diffs popularity across syncs to find accelerating hashtags. With a single sync, " +
-			"falls back to the intra-window slope of each hashtag's popularity curve. " +
-			"Reads the local store; run 'sync' at least once first.",
+		Long: "Ranks hashtags by the intra-window slope of their popularity curve (rising vs falling " +
+			"within the synced time range). The local store keeps one row per hashtag (overwritten on " +
+			"each sync), so this is not yet a true cross-sync diff; every result reports basis " +
+			"\"intra_window_slope\". Reads the local store; run 'sync' at least once first.",
 		Example:     "  tiktok-creative-center-pp-cli velocity --region US --top 10 --agent",
 		Annotations: map[string]string{"mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -51,24 +52,20 @@ func newNovelVelocityCmd(flags *rootFlags) *cobra.Command {
 				return fmt.Errorf("%s", syncFirstHint)
 			}
 
-			hasMultiSync, err := storeHasMultiSync(db)
-			if err != nil {
-				return err
-			}
-
 			out := make([]velocityResult, 0, len(rows))
 			for _, r := range rows {
 				delta, label := slopeTrend(r)
-				basis := "intra_window_slope"
-				if hasMultiSync {
-					basis = "cross_sync_diff"
-				}
 				out = append(out, velocityResult{
 					Hashtag: r.Name,
 					Current: r.PopularityLast,
 					Delta:   delta,
 					Trend:   label,
-					Basis:   basis,
+					// The store keeps one row per hashtag (overwritten on
+					// each sync) with no historical snapshot log, so a
+					// prior-sync value is never available and this is always
+					// the current window's intra-curve slope, never a real
+					// cross-sync diff. See slopeTrend / hashtagRow.
+					Basis: "intra_window_slope",
 				})
 			}
 			sort.SliceStable(out, func(i, j int) bool { return out[i].Delta > out[j].Delta })

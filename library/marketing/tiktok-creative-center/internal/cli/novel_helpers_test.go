@@ -268,8 +268,8 @@ func TestBuildDecision_NoMatch(t *testing.T) {
 
 func TestWatchCheck_Crossing(t *testing.T) {
 	list := []watchEntry{
-		{Hashtag: "rising", Threshold: 500, LastPopularity: 100},
-		{Hashtag: "stable", Threshold: 5000, LastPopularity: 100},
+		{Hashtag: "rising", Threshold: 500, LastPopularity: 100, HasBaseline: true},
+		{Hashtag: "stable", Threshold: 5000, LastPopularity: 100, HasBaseline: true},
 	}
 	rows := []hashtagRow{
 		testHashtag("rising", 1, 600, nil, nil),
@@ -288,6 +288,36 @@ func TestWatchCheck_Crossing(t *testing.T) {
 	}
 	if rising.LastPopularity != 600 {
 		t.Fatalf("updated lastPopularity = %v want 600", rising.LastPopularity)
+	}
+}
+
+// TestWatchCheck_NoFalseCrossingOnFirstCheck reproduces the bug where a
+// freshly-added entry (no baseline yet) that's already above threshold used
+// to report a false crossing on its first check, because LastPopularity==0
+// was ambiguous with "never checked". It should now only establish a
+// baseline and report stable.
+func TestWatchCheck_NoFalseCrossingOnFirstCheck(t *testing.T) {
+	list := []watchEntry{
+		{Hashtag: "alreadyhigh", Threshold: 50}, // HasBaseline defaults to false
+	}
+	rows := []hashtagRow{
+		testHashtag("alreadyhigh", 1, 90, nil, nil),
+	}
+	report, updated := checkWatchlist(list, rows)
+	if len(report.Crossed) != 0 {
+		t.Fatalf("expected no crossing on first check, got %+v", report.Crossed)
+	}
+	if len(report.Stable) != 1 || report.Stable[0].Hashtag != "alreadyhigh" {
+		t.Fatalf("expected stable = [alreadyhigh], got %+v", report.Stable)
+	}
+	if !updated[0].HasBaseline {
+		t.Fatalf("expected HasBaseline=true after first check")
+	}
+	// A second check with the same value now correctly has a baseline and
+	// still should not cross (no new rise since baseline).
+	report2, _ := checkWatchlist(updated, rows)
+	if len(report2.Crossed) != 0 {
+		t.Fatalf("expected no crossing on stable second check, got %+v", report2.Crossed)
 	}
 }
 

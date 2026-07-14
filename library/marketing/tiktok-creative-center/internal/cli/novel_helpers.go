@@ -439,24 +439,6 @@ func parseIntFlag(s string, def int) int {
 	return n
 }
 
-// storeHasMultiSync reports whether the hashtags table holds rows from more
-// than one distinct sync timestamp, enabling a true cross-sync diff.
-func storeHasMultiSync(db *store.Store) (bool, error) {
-	rows, err := db.Query(`SELECT COUNT(DISTINCT synced_at) FROM "hashtags"`)
-	if err != nil {
-		return false, fmt.Errorf("counting sync snapshots: %w", err)
-	}
-	defer rows.Close()
-	var n int
-	if !rows.Next() {
-		return false, nil
-	}
-	if err := rows.Scan(&n); err != nil {
-		return false, fmt.Errorf("scanning sync count: %w", err)
-	}
-	return n > 1, rows.Err()
-}
-
 // storeHashtagIDsSince returns hashtag IDs whose synced_at is newer than cutoff.
 func storeHashtagIDsSince(db *store.Store, cutoff time.Time) ([]hashtagRow, error) {
 	rows, err := db.Query(`SELECT data FROM "hashtags" WHERE synced_at > ? ORDER BY synced_at DESC`, cutoff.UTC().Format(time.RFC3339))

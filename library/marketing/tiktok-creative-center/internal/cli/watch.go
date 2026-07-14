@@ -15,11 +15,16 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// watchEntry is one tracked hashtag in the watchlist.
+// watchEntry is one tracked hashtag in the watchlist. HasBaseline
+// distinguishes "never checked yet" from "checked and measured zero" so a
+// freshly-added entry that's already above threshold doesn't report a false
+// crossing on its first check (LastPopularity == 0 is ambiguous between the
+// two without this flag).
 type watchEntry struct {
 	Hashtag        string  `json:"hashtag"`
 	Threshold      float64 `json:"threshold"`
 	LastPopularity float64 `json:"lastPopularity"`
+	HasBaseline    bool    `json:"hasBaseline"`
 }
 
 // watchReport is the output of a watch check.
@@ -159,8 +164,11 @@ func newNovelWatchCmd(flags *rootFlags) *cobra.Command {
 
 // checkWatchlist compares each entry's current synced popularity to its
 // threshold, returning the report and the updated list (with lastPopularity
-// refreshed). An entry crosses when current >= threshold AND it was below at
-// the last check (or never checked).
+// refreshed). An entry crosses when current >= threshold AND a prior baseline
+// check measured it below threshold. A first check (no baseline yet) only
+// establishes the baseline and never reports a crossing — an entry that's
+// already above threshold when first watched was never "crossed" while being
+// watched, so alerting on it would be a false positive.
 func checkWatchlist(list []watchEntry, rows []hashtagRow) (watchReport, []watchEntry) {
 	byName := map[string]hashtagRow{}
 	for _, r := range rows {
@@ -173,13 +181,14 @@ func checkWatchlist(list []watchEntry, rows []hashtagRow) (watchReport, []watchE
 		current := row.Popularity
 		entry := e
 		entry.LastPopularity = current
+		entry.HasBaseline = true
 		updated = append(updated, entry)
 		if !ok {
 			// Not in local store; leave in stable with current 0.
 			report.Stable = append(report.Stable, e)
 			continue
 		}
-		if current >= e.Threshold && (e.LastPopularity < e.Threshold || e.LastPopularity == 0) {
+		if e.HasBaseline && current >= e.Threshold && e.LastPopularity < e.Threshold {
 			report.Crossed = append(report.Crossed, watchCrossed{
 				Hashtag:        e.Hashtag,
 				Threshold:      e.Threshold,
