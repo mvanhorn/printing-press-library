@@ -1,0 +1,79 @@
+mt5-pp-cli — Printing Press CLI for MetaTrader 5.
+
+One binary, three audiences:
+  - Live discretionary traders: quote, book, positions, order send, close all
+  - Algorithmic traders:        history, stats, magic audit, drawdown, r-multiples
+  - Quant developers:           bars/ticks copy, features build, replay, backtest
+
+Architecture:
+  Go CLI ←(JSON-RPC over stdio)→ Python bridge ←→ MetaTrader5 package
+
+Safety (writes only):
+  All write commands are DRY-RUN by default. To send a real order:
+    1. Set MT5_LIVE=1 in your environment (unlocks the capability)
+    2. Pass --i-understand-this-is-live (arms the specific command)
+    3. Re-invoke with --confirm <hash> from the dry-run within 60s
+
+Get started:
+  mt5-pp-cli doctor                       # verify Python, MT5 package, terminal
+  mt5-pp-cli connect login --account 123 --server Broker-Live --password-env MT5_PASSWORD
+  mt5-pp-cli sync all --since 2024-01-01  # mirror everything into local SQLite
+  mt5-pp-cli sql "select count(*) from deals"
+
+See mt5-pp-cli doctor for any setup issue and mt5-pp-cli <command> --help per command.
+
+Usage:
+  mt5-pp-cli [command]
+
+Available Commands:
+  account     Account-level info
+  audit       Read the write-command audit log
+  backtest    Event-loop backtester over the local mirror
+  bars        Bar (OHLCV) operations
+  book        Market Depth snapshot (requires broker DOM support)
+  calendar    Economic calendar (synced into local mirror)
+  close       Bulk operations across positions
+  completion  Generate the autocompletion script for the specified shell
+  config-init Write an example ~/.config/mt5-pp-cli/config.toml
+  connect     Manage MT5 broker connections
+  correlation Pairwise Pearson correlation of log returns across symbols
+  doctor      Verify Python, MetaTrader5 package, terminal, login, and network path
+  features    Derived feature engineering on the local mirror
+  help        Help about any command
+  helper      MQL5 helper EA for live trade events (Phase 2)
+  history     Historical orders + deals from the local mirror
+  magic       EA magic-number tools
+  order       Place/preview a new order
+  orders      Active (pending) orders
+  position    Operate on an open position by ticket
+  positions   Open positions
+  quote       Last tick: bid / ask / last / spread / time
+  r-multiples Express each closed trade as a multiple of risk
+  replay      Stream historical bars/ticks from the local mirror to stdout (JSONL)
+  risk        Risk preview tools
+  sql         Run an SQL query against the local mirror
+  stats       Trading statistics over historical deals
+  symbols     Symbol catalog
+  sync        Mirror MT5 data into the local SQLite store
+  terminal    MT5 terminal info
+  ticks       Tick operations
+  watch       Tail live MT5 events
+
+Flags:
+      --account int        Restrict mirror reads to this account_login (default: most recently synced account)
+      --agent              Agent mode: --json --compact --no-color --no-input --yes
+      --compact            Compact JSON (no indent)
+      --dry-run            Preview without executing; for writes implies safety hash flow
+  -h, --help               help for mt5-pp-cli
+      --human-friendly     Force human-formatted output (tables, colors) even when piped
+      --json               Force JSON output (default in non-TTY)
+      --no-color           Disable colors in output
+      --no-input           Never prompt; fail if input would be needed
+      --profile string     Named connection profile from ~/.config/mt5-pp-cli/config.toml
+      --select string      Comma-separated dotted paths to include in JSON output
+      --timeout duration   Per-command timeout (0 = use default)
+      --verbose            Verbose diagnostic output to stderr
+  -v, --version            version for mt5-pp-cli
+      --yes                Auto-confirm interactive prompts (does NOT bypass safety hash)
+
+Use "mt5-pp-cli [command] --help" for more information about a command.

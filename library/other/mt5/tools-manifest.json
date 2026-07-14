@@ -1,0 +1,111 @@
+{
+  "api_name": "mt5",
+  "base_url": "",
+  "description": "MetaTrader 5 via the MetaTrader5 Python bridge and a local SQLite mirror. Not an HTTP API: live tools call the terminal through a Python subprocess; mirror tools read local SQLite.",
+  "mcp_ready": "full",
+  "http_transport": "none",
+  "auth": {
+    "type": "broker_login",
+    "env_vars": [
+      "MT5_PASSWORD"
+    ],
+    "detail": "Login is performed out-of-band via 'mt5-pp-cli connect login --password-env MT5_PASSWORD' or a named profile in config.toml. The MCP server never reads or stores passwords."
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "mt5_doctor",
+      "description": "Run a preflight check: Python, MetaTrader5 package, terminal, login, store writability, safety mode. Non-zero exit means something blocks live commands; the detail field carries remediation.",
+      "read_only": true
+    },
+    {
+      "name": "mt5_account_info",
+      "description": "Print account balance, equity, margin, leverage, currency, trade mode. Useful to confirm which broker account the CLI will operate against and whether it is real or demo.",
+      "read_only": true
+    },
+    {
+      "name": "mt5_terminal_info",
+      "description": "Print MT5 terminal build, data path, and connected/trade-allowed flags.",
+      "read_only": true
+    },
+    {
+      "name": "mt5_symbols_list",
+      "description": "List symbols from the local mirror, optionally filtered by a comma-separated glob (e.g. 'EUR*,XAU*'). Requires a prior 'mt5_sync_all' call.",
+      "read_only": true
+    },
+    {
+      "name": "mt5_quote",
+      "description": "Get a live bid/ask/spread/last-tick quote for a symbol. Hits the bridge (~50ms) and does not require sync.",
+      "read_only": true
+    },
+    {
+      "name": "mt5_positions_list",
+      "description": "Snapshot currently open positions. Live, not from the mirror.",
+      "read_only": true
+    },
+    {
+      "name": "mt5_orders_list",
+      "description": "Snapshot pending orders. Live, not from the mirror.",
+      "read_only": true
+    },
+    {
+      "name": "mt5_history_deals",
+      "description": "Read historical deals from the local mirror over a window. Requires a prior sync over the same window.",
+      "read_only": true
+    },
+    {
+      "name": "mt5_risk_preview",
+      "description": "Project margin and ±pip P&L for a hypothetical position. Read-only, hits the bridge for live price.",
+      "read_only": true
+    },
+    {
+      "name": "mt5_stats_summary",
+      "description": "Compute win rate, profit factor, expectancy, max drawdown, Sharpe & Sortino from the mirror's deals table over --since.",
+      "read_only": true
+    },
+    {
+      "name": "mt5_sql",
+      "description": "Run a read-only SQL query against the local mirror. Tables: accounts, symbols, ticks, bars_M1..MN1, orders, history_orders, positions, deals, calendar_events, features, backtests, audit. INSERT/UPDATE/DELETE are blocked — this tool is read-only by design.",
+      "read_only": true
+    },
+    {
+      "name": "mt5_sync_all",
+      "description": "Mirror MT5 data into the local SQLite store: symbols, positions, orders, history deals/orders. Optional bars and ticks. First sync over a wide window can take minutes; subsequent runs are incremental.",
+      "read_only": false,
+      "destructive": false
+    },
+    {
+      "name": "mt5_order_check",
+      "description": "Preflight an order without sending it. Returns broker's predicted margin, fees, retcode (10009 = would succeed). Read-only, no safety gate.",
+      "read_only": true
+    },
+    {
+      "name": "mt5_order_send",
+      "description": "Send a market order through the full safety pipeline: first call returns a SHA-256 intent hash (dry-run); re-call with confirm to execute. Live accounts additionally require MT5_LIVE=1 and the explicit live flag.",
+      "read_only": false,
+      "destructive": true
+    },
+    {
+      "name": "mt5_close_all",
+      "description": "Bulk-close all open positions matching a SQL predicate. Dry-run + hash-confirm flow identical to the CLI's hero command.",
+      "read_only": false,
+      "destructive": true
+    },
+    {
+      "name": "mt5_backtest_run",
+      "description": "Run a built-in strategy against historical bars from the local mirror. v1 ships 'sma-cross' (long-only SMA crossover with --fast/--slow). Persists the run row to the backtests table.",
+      "read_only": false,
+      "destructive": false
+    },
+    {
+      "name": "mt5_backtest_list",
+      "description": "List prior backtest runs stored in the local mirror.",
+      "read_only": true
+    },
+    {
+      "name": "mt5_audit_tail",
+      "description": "Show the most recent N entries from the append-only write audit log. Covers every dry-run, confirmed write, and rejection.",
+      "read_only": true
+    }
+  ]
+}

@@ -1,0 +1,16 @@
+mt5-pp-cli
+Copyright 2026 ek-labs
+
+This CLI was hand-built by ek-labs for the Printing Press library
+(https://github.com/mvanhorn/printing-press-library), following the
+printing-press conventions for agent-native CLIs (token-efficient output,
+--agent mode, MCP surface, safety-gated writes). It was not produced by the
+CLI Printing Press generator; see .printing-press.json and
+.manuscripts/ for build provenance. A standalone edition is maintained at
+https://github.com/ek-labs/pp-mt5 under the pp-mt5 name.
+
+This tool drives MetaTrader 5 through the MetaTrader5 Python package.
+MetaTrader 5 and the MetaTrader5 Python package are products of
+MetaQuotes Ltd. and are licensed separately by MetaQuotes.
+
+CLI Printing Press is licensed separately under the MIT License.

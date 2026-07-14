@@ -1,0 +1,67 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-07-14T12:00:00Z",
+  "printing_press_version": "hand-built-1.0",
+  "api_name": "mt5",
+  "display_name": "MetaTrader 5",
+  "cli_name": "mt5-pp-cli",
+  "category": "other",
+  "run_id": "20260714-120000",
+  "owner": "ek-labs",
+  "printer": "ek-labs",
+  "printer_name": "ek-labs",
+  "provenance_note": "Hand-built by ek-labs following printing-press conventions; not generator output. run_id keys the .manuscripts bundle documenting the build and its verification.",
+  "spec_format": "internal",
+  "mcp_binary": "mt5-pp-mcp",
+  "mcp_tool_count": 18,
+  "mcp_ready": "full",
+  "auth_type": "broker_login",
+  "auth_env_vars": [
+    "MT5_PASSWORD"
+  ],
+  "novel_features": [
+    {
+      "name": "Compound write from SQL predicate",
+      "command": "mt5-pp-cli close all --filter \"profit<-500 and pips<-50\"",
+      "description": "Resolve open positions via SQL predicate against the local mirror, then bulk-close in one round trip with one safety hash. Powers the hero command."
+    },
+    {
+      "name": "Local SQLite mirror of MT5 state",
+      "command": "mt5-pp-cli sync all && mt5-pp-cli sql \"...\"",
+      "description": "Symbols, ticks, bars (per timeframe), orders, deals, positions, calendar, features, backtests mirrored to ~/.local/share/mt5-pp-cli/store.db. Microsecond reads instead of 50ms bridge round-trips."
+    },
+    {
+      "name": "Defense-in-depth safety layer",
+      "command": "mt5-pp-cli order send ...",
+      "description": "Every write requires MT5_LIVE=1 env AND --i-understand-this-is-live flag AND --confirm <sha256> hash within 60s. Kill switch file, max volume per order, max daily loss all enforced before the bridge sees the request."
+    },
+    {
+      "name": "Tick-accurate replay engine",
+      "command": "mt5-pp-cli replay --symbol EURUSD --speed 100x",
+      "description": "Stream historical bars/ticks from the local mirror to stdout JSONL. Pipe into a strategy script for offline development."
+    },
+    {
+      "name": "Quant export to csv/jsonl",
+      "command": "mt5-pp-cli bars export --symbols 'EUR*' --since 2y --format csv --out-dir ./exports",
+      "description": "Bulk export bars and ticks across symbol filters and date ranges, reading from the local mirror — never touches the bridge. Parquet is on the v2 roadmap; v1 produces csv or jsonl."
+    }
+  ],
+  "exit_codes": {
+    "0":  "ok",
+    "2":  "usage",
+    "3":  "not found",
+    "4":  "auth",
+    "5":  "broker rejected",
+    "6":  "safety-layer rejected",
+    "7":  "rate limited",
+    "10": "config",
+    "11": "MT5 terminal unreachable"
+  },
+  "sibling_clis": [
+    {
+      "name": "mt5-backtester-pp-cli",
+      "path": "library/other/mt5-backtester",
+      "purpose": "Headless terminal64.exe + .ini strategy-tester runs. Different transport, no overlap."
+    }
+  ]
+}

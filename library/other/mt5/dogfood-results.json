@@ -1,0 +1,54 @@
+{
+  "mode": "manual-structural-validation",
+  "note": "This CLI is hand-built, not generator output, so the Printing Press dogfood pipeline did not run. This file records the equivalent structural validation executed by hand on 2026-07-14 (see .manuscripts/20260714-120000/proofs/ for full logs) plus the runtime verification history from the phased build (STATUS.md).",
+  "run_id": "20260714-120000",
+  "verdict": "PASS",
+  "toolchain": {
+    "go": "go1.26.5 windows/amd64",
+    "platform": "windows"
+  },
+  "checks": {
+    "go_build": {
+      "pass": true,
+      "detail": "go build ./... clean for cmd/mt5-pp-cli, cmd/mt5-pp-mcp, and all internal packages"
+    },
+    "go_vet": {
+      "pass": true,
+      "detail": "go vet ./... clean"
+    },
+    "go_test": {
+      "pass": true,
+      "detail": "unit suites pass: internal/cli, internal/mcp, internal/safety, internal/store (incl. TestOpenAndMigrateConcurrent at -count=10 after the busy-retry fix)"
+    },
+    "help": {
+      "pass": true,
+      "detail": "mt5-pp-cli --help renders the full command tree under the renamed binary"
+    },
+    "version": {
+      "pass": true,
+      "detail": "mt5-pp-cli --version -> 'mt5-pp-cli version 0.1.0-dev' (release builds stamp via -ldflags)"
+    },
+    "mcp_list_tools": {
+      "pass": true,
+      "detail": "mt5-pp-mcp --list-tools enumerates 18 tools, matching tools-manifest.json and mcp_tool_count"
+    },
+    "verify_skill": {
+      "pass": true,
+      "detail": "python verify_skill.py --dir library/other/mt5/ -> all checks passed (flag-names, flag-commands, positional-args, unknown-command)"
+    },
+    "govulncheck": {
+      "pass": true,
+      "detail": "0 reachable vulnerabilities; 1 finding in imported packages not reached by this code"
+    },
+    "integration": {
+      "pass": true,
+      "skipped_here": true,
+      "detail": "Env-gated demo-account suite (go test -tags=integration) was exercised during the phased build against a JustMarkets demo account (STATUS.md phases 1-11); not re-run on this packaging machine, which has no MT5 terminal."
+    }
+  },
+  "novel_features_check": {
+    "planned": 5,
+    "found": 5,
+    "detail": "close all --filter (compound write), local SQLite mirror + sql, defense-in-depth safety layer, tick-accurate replay, quant export — all present in the shipped command tree"
+  }
+}

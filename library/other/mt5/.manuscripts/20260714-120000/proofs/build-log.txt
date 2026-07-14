@@ -1,0 +1,15 @@
+# go build/vet/test — 2026-07-14, go1.26.5 windows/amd64
+$ go build ./...
+(exit 0)
+$ go vet ./...
+(exit 0)
+$ go test ./...
+?   	github.com/mvanhorn/printing-press-library/library/other/mt5/cmd/mt5-pp-cli	[no test files]
+?   	github.com/mvanhorn/printing-press-library/library/other/mt5/cmd/mt5-pp-mcp	[no test files]
+?   	github.com/mvanhorn/printing-press-library/library/other/mt5/internal/bridge	[no test files]
+ok  	github.com/mvanhorn/printing-press-library/library/other/mt5/internal/cli	1.176s
+?   	github.com/mvanhorn/printing-press-library/library/other/mt5/internal/config	[no test files]
+ok  	github.com/mvanhorn/printing-press-library/library/other/mt5/internal/mcp	1.577s
+ok  	github.com/mvanhorn/printing-press-library/library/other/mt5/internal/safety	0.708s
+ok  	github.com/mvanhorn/printing-press-library/library/other/mt5/internal/store	2.792s
+(exit 0)
