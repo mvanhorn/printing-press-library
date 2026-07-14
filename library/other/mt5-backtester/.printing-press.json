@@ -1,0 +1,48 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-07-14T12:15:00Z",
+  "printing_press_version": "hand-built-1.0",
+  "api_name": "mt5-backtester",
+  "display_name": "MT5 Backtester",
+  "cli_name": "mt5-backtester-pp-cli",
+  "category": "other",
+  "run_id": "20260714-121500",
+  "owner": "ek-labs",
+  "printer": "ek-labs",
+  "printer_name": "ek-labs",
+  "provenance_note": "Hand-built by ek-labs following printing-press conventions; not generator output. run_id keys the .manuscripts bundle documenting the build and its verification.",
+  "spec_format": "internal",
+  "auth_type": "none",
+  "novel_features": [
+    {
+      "name": "Headless backtest runner",
+      "command": "mt5-backtester-pp-cli run",
+      "description": "Generates the MT5 strategy-tester .ini file, launches terminal64.exe in shutdown-after-test mode, then locates and parses the HTML report. No Strategy Tester UI involvement."
+    },
+    {
+      "name": "Batch test grid",
+      "command": "mt5-backtester-pp-cli batch --file batch.json",
+      "description": "Run many EAs across many symbols/timeframes/inputs sequentially with defaults+overrides, ranked output, top-performer summary."
+    },
+    {
+      "name": "Set file support",
+      "command": "mt5-backtester-pp-cli setfile show|export|list",
+      "description": "Parse/write MT5 .set files preserving optimization ranges (value||start||step||stop||Y/N); apply per-run --input overrides without losing the range."
+    },
+    {
+      "name": "Named terminal profiles",
+      "command": "mt5-backtester-pp-cli profile add|use|list",
+      "description": "Manage multiple MT5 terminals (different brokers, portable installs) and switch between them per backtest with --profile."
+    },
+    {
+      "name": "MQL5 compiler wrapper",
+      "command": "mt5-backtester-pp-cli compile",
+      "description": "Invokes metaeditor64.exe to produce .ex5 from .mq5 sources with custom include paths."
+    },
+    {
+      "name": "Report parser",
+      "command": "mt5-backtester-pp-cli report",
+      "description": "Parse MT5 HTML strategy tester reports into text/JSON/CSV: net profit, profit factor, Sharpe, drawdown, win rate, trade count."
+    }
+  ]
+}

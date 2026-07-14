@@ -1,0 +1,20 @@
+version: 2
+project_name: mt5-backtester-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: mt5-backtester-pp-cli
+    main: ./cmd/mt5-backtester-pp-cli
+    binary: mt5-backtester-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X main.version={{ .Version }}
+    targets:
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [zip]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+checksum:
+  name_template: checksums.txt

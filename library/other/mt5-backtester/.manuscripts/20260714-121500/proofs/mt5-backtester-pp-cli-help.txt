@@ -1,0 +1,39 @@
+mt5-backtester-pp-cli — Printing Press CLI for MetaTrader 5 backtesting
+
+Run Expert Advisor backtests, compile MQL5, parse reports,
+batch test multiple EAs across symbols/timeframes, manage
+multiple MT5 terminals via named profiles.
+
+Quick start:
+  mt5-backtester-pp-cli profile add --name broker1 --terminal "C:\MT5\terminal64.exe"
+  mt5-backtester-pp-cli run --ea "MACD Sample" --symbol EURUSD --period H1
+  mt5-backtester-pp-cli template && mt5-backtester-pp-cli batch --file batch.json
+  mt5-backtester-pp-cli service install
+
+Usage:
+  mt5-backtester-pp-cli [command]
+
+Available Commands:
+  batch       Run multiple EAs/symbols/timeframes from a JSON file
+  compile     Compile an MQL5 source file to .ex5
+  completion  Generate the autocompletion script for the specified shell
+  config      Show detected configuration and paths
+  help        Help about any command
+  profile     Manage named MT5 terminal profiles
+  report      Parse and display a backtest report
+  run         Run a single backtest
+  service     Manage MT5 Windows services (requires NSSM)
+  setfile     Inspect, generate, and list MT5 .set files
+  template    Generate a batch.json template
+
+Flags:
+      --editor string     Path to metaeditor64.exe
+  -h, --help              help for mt5-backtester-pp-cli
+  -o, --output string     Output: text, json, csv (default "text")
+  -p, --profile string    Named terminal profile to use
+      --terminal string   Path to terminal64.exe (overrides profile)
+  -v, --verbose           Verbose output
+      --version           version for mt5-backtester-pp-cli
+      --workdir string    Working directory for ini/report files
+
+Use "mt5-backtester-pp-cli [command] --help" for more information about a command.

@@ -1,0 +1,76 @@
+{
+  "defaults": {
+    "symbol":   "EURUSD",
+    "period":   "H1",
+    "from":     "2023.01.01",
+    "to":       "2024.01.01",
+    "model":    1,
+    "deposit":  10000,
+    "currency": "USD",
+    "leverage": 100,
+    "profile":  "default"
+  },
+  "jobs": [
+    // ── One EA, multiple symbols ────────────────────────────────────────────
+    // symbol overrides the default "EURUSD" — everything else inherits
+    { "ea": "MACD Sample", "symbol": "EURUSD", "label": "MACD - EUR/USD H1" },
+    { "ea": "MACD Sample", "symbol": "GBPUSD", "label": "MACD - GBP/USD H1" },
+    { "ea": "MACD Sample", "symbol": "USDJPY", "label": "MACD - USD/JPY H1" },
+    { "ea": "MACD Sample", "symbol": "AUDUSD", "label": "MACD - AUD/USD H1" },
+
+    // ── One EA, multiple timeframes ─────────────────────────────────────────
+    // period overrides the default "H1"
+    { "ea": "Moving Average", "period": "M15", "label": "MA - EUR/USD M15" },
+    { "ea": "Moving Average", "period": "H4",  "label": "MA - EUR/USD H4"  },
+    { "ea": "Moving Average", "period": "D1",  "label": "MA - EUR/USD D1"  },
+
+    // ── Custom EA with specific inputs ──────────────────────────────────────
+    // model=0 = Every Tick (best for scalpers), deposit overridden to 50k
+    {
+      "ea":      "MyScalper",
+      "symbol":  "GBPUSD",
+      "period":  "M5",
+      "model":   0,
+      "deposit": 50000,
+      "label":   "MyScalper GBP/USD M5 Every Tick",
+      "inputs": {
+        "StopLoss":    "20",
+        "TakeProfit":  "40",
+        "MagicNumber": "99001"
+      }
+    },
+
+    // ── Different broker terminal ────────────────────────────────────────────
+    // "profile" points to a different MT5 install registered via:
+    //   mt5-backtester-pp-cli profile add --name broker2 --terminal "C:\MT5-Broker2\terminal64.exe"
+    {
+      "ea":      "MyEA",
+      "symbol":  "XAUUSD",
+      "period":  "H1",
+      "profile": "broker2",
+      "label":   "MyEA Gold via Broker2"
+    },
+
+    // ── Set file drives the inputs ──────────────────────────────────────────
+    // The .set file lives in MQL5\Profiles\Tester\ — mt5-backtester-pp-cli will resolve a
+    // bare filename. Optimization ranges (value||start||step||stop||Y/N) in
+    // the file are preserved when written into [TesterInputs].
+    {
+      "ea":       "MyEA",
+      "symbol":   "EURUSD",
+      "set_file": "MyEA.set",
+      "label":    "MyEA EURUSD via MyEA.set"
+    },
+
+    // ── Set file + per-job override ─────────────────────────────────────────
+    // Same .set file, but "inputs" wins for the listed keys. The override is
+    // a simple value (no range); other params from the set file are untouched.
+    {
+      "ea":       "MyEA",
+      "symbol":   "GBPUSD",
+      "set_file": "MyEA.set",
+      "inputs":   { "MagicNumber": "99002" },
+      "label":    "MyEA GBPUSD set file + magic override"
+    }
+  ]
+}

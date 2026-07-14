@@ -1,0 +1,15 @@
+mt5-backtester-pp-cli
+Copyright 2026 ek-labs
+
+This CLI was hand-built by ek-labs for the Printing Press library
+(https://github.com/mvanhorn/printing-press-library), following the
+printing-press conventions for agent-native CLIs. It was not produced by the
+CLI Printing Press generator; see .printing-press.json and .manuscripts/ for
+build provenance. A standalone edition is maintained at
+https://github.com/ek-labs/pp-mt5-backtester under the pp-mt5-backtester name.
+
+This tool drives the MetaTrader 5 Strategy Tester by launching terminal64.exe
+and metaeditor64.exe. MetaTrader 5 is a product of MetaQuotes Ltd. and is
+licensed separately by MetaQuotes.
+
+CLI Printing Press is licensed separately under the MIT License.

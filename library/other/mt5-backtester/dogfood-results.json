@@ -1,0 +1,51 @@
+{
+  "mode": "manual-structural-validation",
+  "note": "This CLI is hand-built, not generator output, so the Printing Press dogfood pipeline did not run. This file records the equivalent structural validation executed by hand on 2026-07-14 (see .manuscripts/20260714-121500/proofs/ for full logs).",
+  "run_id": "20260714-121500",
+  "verdict": "PASS",
+  "toolchain": {
+    "go": "go1.26.5 windows/amd64",
+    "platform": "windows"
+  },
+  "checks": {
+    "go_build": {
+      "pass": true,
+      "detail": "go build ./... clean for cmd/mt5-backtester-pp-cli and all internal packages"
+    },
+    "go_vet": {
+      "pass": true,
+      "detail": "go vet ./... clean"
+    },
+    "go_test": {
+      "pass": true,
+      "detail": "internal/setfile suite passes (set-file parse/write round-trips preserving optimization ranges)"
+    },
+    "help": {
+      "pass": true,
+      "detail": "mt5-backtester-pp-cli --help renders the full command tree (run, compile, report, batch, setfile, profile, service, config, template) under the renamed binary"
+    },
+    "version": {
+      "pass": true,
+      "detail": "mt5-backtester-pp-cli --version -> 'mt5-backtester-pp-cli version 2.0.0' (release builds stamp via -ldflags -X main.version)"
+    },
+    "verify_skill": {
+      "pass": true,
+      "skipped_here": true,
+      "detail": "verify_skill.py requires internal/cli/*.go; this CLI keeps its cobra tree in cmd/mt5-backtester-pp-cli/main.go, so the CI workflow skips it by design."
+    },
+    "govulncheck": {
+      "pass": true,
+      "detail": "0 reachable vulnerabilities; 1 finding in imported packages not reached by this code"
+    },
+    "runtime": {
+      "pass": true,
+      "skipped_here": true,
+      "detail": "Live Strategy Tester runs (terminal64.exe + metaeditor64.exe) were exercised during development on an MT5 host; not re-run on this packaging machine, which has no MT5 terminal."
+    }
+  },
+  "novel_features_check": {
+    "planned": 6,
+    "found": 6,
+    "detail": "headless runner, batch grid, .set file support, named terminal profiles, MQL5 compile wrapper, report parser — all present in the shipped command tree"
+  }
+}

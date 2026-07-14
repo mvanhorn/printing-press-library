@@ -1,0 +1,15 @@
+# go build/vet/test — 2026-07-14, go1.26.5 windows/amd64
+$ go build ./...
+(exit 0)
+$ go vet ./...
+(exit 0)
+$ go test ./...
+?   	github.com/mvanhorn/printing-press-library/library/other/mt5-backtester/cmd/mt5-backtester-pp-cli	[no test files]
+?   	github.com/mvanhorn/printing-press-library/library/other/mt5-backtester/internal/backtest	[no test files]
+?   	github.com/mvanhorn/printing-press-library/library/other/mt5-backtester/internal/batch	[no test files]
+?   	github.com/mvanhorn/printing-press-library/library/other/mt5-backtester/internal/compile	[no test files]
+?   	github.com/mvanhorn/printing-press-library/library/other/mt5-backtester/internal/config	[no test files]
+?   	github.com/mvanhorn/printing-press-library/library/other/mt5-backtester/internal/profiles	[no test files]
+?   	github.com/mvanhorn/printing-press-library/library/other/mt5-backtester/internal/report	[no test files]
+ok  	github.com/mvanhorn/printing-press-library/library/other/mt5-backtester/internal/setfile	0.802s
+(exit 0)
