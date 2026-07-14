@@ -1,0 +1,292 @@
+{
+  "api_name": "tiktok-creative-center",
+  "novelty_score": 9,
+  "alternatives": [
+    {
+      "name": "davidteather/TikTok-Api",
+      "url": "https://github.com/davidteather/TikTok-Api",
+      "language": "Python",
+      "install_method": "",
+      "stars": 1200,
+      "last_updated": "",
+      "command_count": 30,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "Apify TikTok Trending Hashtags",
+      "url": "https://apify.com/codebyte/tiktok-trending-hashtags-analytics",
+      "language": "JavaScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 6,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-07-15T02:10:00Z",
+  "novel_features": [
+    {
+      "name": "Niche report",
+      "command": "niche",
+      "description": "Get a one-command brief for a niche: trending hashtags, their top creators, and representative videos ranked together.",
+      "rationale": "Requires joining hashtags, their top creators, and representative videos that only sit together in the local SQLite store.",
+      "example": "tiktok-creative-center-pp-cli niche \"marvel rivals\" --region US --days 7 --agent",
+      "why_it_matters": "When you need to understand a niche fast instead of clicking through five Creative Center pages.",
+      "group": "Cross-entity research"
+    },
+    {
+      "name": "Trend velocity",
+      "command": "velocity",
+      "description": "Measure which tracked hashtags are accelerating by diffing popularity curves across syncs.",
+      "rationale": "Requires historical popularity-curve snapshots persisted across syncs; the web UI shows only one window at a time.",
+      "example": "tiktok-creative-center-pp-cli velocity --region US --top 10 --agent",
+      "why_it_matters": "Spot rising trends before they peak, not after.",
+      "group": "Trend intelligence"
+    },
+    {
+      "name": "Competitor sweep",
+      "command": "competitor",
+      "description": "Summarize a competitor's top-performing content and which trending hashtags they ride.",
+      "rationale": "Requires cross-referencing the Top Ads library against stored trending hashtags in one query.",
+      "example": "tiktok-creative-center-pp-cli competitor \"myketowersmtyk\" --region US --agent",
+      "why_it_matters": "When sizing up a competitor's creative strategy and trend positioning in one pass.",
+      "group": "Cross-entity research"
+    },
+    {
+      "name": "New since last sync",
+      "command": "since",
+      "description": "Show hashtags and top content that are newly trending since your last sync.",
+      "rationale": "Requires snapshot diffs over historical SQLite rows no single API call returns.",
+      "example": "tiktok-creative-center-pp-cli since 24h --region US --agent",
+      "why_it_matters": "Catch what changed overnight without re-reading the whole feed.",
+      "group": "Trend intelligence"
+    },
+    {
+      "name": "Watch / alerts",
+      "command": "watch",
+      "description": "Track hashtags and report which crossed a popularity threshold since the last snapshot.",
+      "rationale": "Requires persisted per-hashtag popularity history plus a diff; impossible against the live UI alone.",
+      "example": "tiktok-creative-center-pp-cli watch add \"gaming\" --threshold 80",
+      "why_it_matters": "Hands-off monitoring of the tags you care about.",
+      "group": "Trend intelligence"
+    },
+    {
+      "name": "Related hashtags",
+      "command": "similar",
+      "description": "Surface similar or co-rising hashtags to one you specify, using stored industries and shared creators.",
+      "rationale": "Requires the joined hashtag+creator+industry graph that only exists locally after sync.",
+      "example": "tiktok-creative-center-pp-cli similar \"marvelrivalss9\" --region US --agent",
+      "why_it_matters": "Expand a winning tag into its cluster of related tags.",
+      "group": "Cross-entity research"
+    },
+    {
+      "name": "Viral / underserved score",
+      "command": "viral",
+      "description": "Rank hashtags and content by opportunity = high popularity + low publish count. Find what's rising but not yet saturated — the signal for what to create before everyone piles in.",
+      "rationale": "The opportunity score is computed from stored publishCnt + popularityCurve snapshots. No Creative Center view ranks by underserved-but-rising; you'd eyeball two columns and do mental math.",
+      "example": "tiktok-creative-center-pp-cli viral --region US --days 7 --top 20 --agent",
+      "why_it_matters": "Tells you WHERE the white space is — the single most useful signal for deciding what to create.",
+      "group": "Decision intelligence"
+    },
+    {
+      "name": "Trending/viral content discovery",
+      "command": "content",
+      "description": "One ranked feed of trending/viral content pulled from the Top Ads library, representative videos in hashtag detail, and top creators' work — across all three in one list.",
+      "rationale": "Requires joining three separate upstream surfaces (top-ads entityInfos, hashtag videoList, topCreators items) that the web UI keeps siloed. No single API call returns a unified viral feed.",
+      "example": "tiktok-creative-center-pp-cli content \"marvel rivals\" --region US --days 7 --agent",
+      "why_it_matters": "See what's actually going viral in the niche — not just the tags, the content itself.",
+      "group": "Decision intelligence"
+    },
+    {
+      "name": "Content \u0026 account decision brief",
+      "command": "decide",
+      "description": "Given a niche, output a concrete recommendation: which hashtags to ride, what content formats are working, where the saturation gaps are, how competitors are positioned, and what account angle is still open.",
+      "rationale": "Pure synthesis over the local store — joins viral scores, trending tags, content patterns, and competitor sweeps into one decision document. Nothing upstream produces this; it's the reason the store exists.",
+      "example": "tiktok-creative-center-pp-cli decide \"marvel rivals\" --region US --days 7 --agent",
+      "why_it_matters": "This is the actual goal: decide what content and account to create. Every other command feeds this one.",
+      "group": "Decision intelligence"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Niche report",
+      "command": "niche",
+      "description": "Get a one-command brief for a niche: trending hashtags, their top creators, and representative videos ranked together.",
+      "rationale": "Requires joining hashtags, their top creators, and representative videos that only sit together in the local SQLite store.",
+      "example": "tiktok-creative-center-pp-cli niche \"marvel rivals\" --region US --days 7 --agent",
+      "why_it_matters": "When you need to understand a niche fast instead of clicking through five Creative Center pages.",
+      "group": "Cross-entity research"
+    },
+    {
+      "name": "Trend velocity",
+      "command": "velocity",
+      "description": "Measure which tracked hashtags are accelerating by diffing popularity curves across syncs.",
+      "rationale": "Requires historical popularity-curve snapshots persisted across syncs; the web UI shows only one window at a time.",
+      "example": "tiktok-creative-center-pp-cli velocity --region US --top 10 --agent",
+      "why_it_matters": "Spot rising trends before they peak, not after.",
+      "group": "Trend intelligence"
+    },
+    {
+      "name": "Competitor sweep",
+      "command": "competitor",
+      "description": "Summarize a competitor's top-performing content and which trending hashtags they ride.",
+      "rationale": "Requires cross-referencing the Top Ads library against stored trending hashtags in one query.",
+      "example": "tiktok-creative-center-pp-cli competitor \"myketowersmtyk\" --region US --agent",
+      "why_it_matters": "When sizing up a competitor's creative strategy and trend positioning in one pass.",
+      "group": "Cross-entity research"
+    },
+    {
+      "name": "New since last sync",
+      "command": "since",
+      "description": "Show hashtags and top content that are newly trending since your last sync.",
+      "rationale": "Requires snapshot diffs over historical SQLite rows no single API call returns.",
+      "example": "tiktok-creative-center-pp-cli since 24h --region US --agent",
+      "why_it_matters": "Catch what changed overnight without re-reading the whole feed.",
+      "group": "Trend intelligence"
+    },
+    {
+      "name": "Watch / alerts",
+      "command": "watch",
+      "description": "Track hashtags and report which crossed a popularity threshold since the last snapshot.",
+      "rationale": "Requires persisted per-hashtag popularity history plus a diff; impossible against the live UI alone.",
+      "example": "tiktok-creative-center-pp-cli watch add \"gaming\" --threshold 80",
+      "why_it_matters": "Hands-off monitoring of the tags you care about.",
+      "group": "Trend intelligence"
+    },
+    {
+      "name": "Related hashtags",
+      "command": "similar",
+      "description": "Surface similar or co-rising hashtags to one you specify, using stored industries and shared creators.",
+      "rationale": "Requires the joined hashtag+creator+industry graph that only exists locally after sync.",
+      "example": "tiktok-creative-center-pp-cli similar \"marvelrivalss9\" --region US --agent",
+      "why_it_matters": "Expand a winning tag into its cluster of related tags.",
+      "group": "Cross-entity research"
+    },
+    {
+      "name": "Viral / underserved score",
+      "command": "viral",
+      "description": "Rank hashtags and content by opportunity = high popularity + low publish count. Find what's rising but not yet saturated — the signal for what to create before everyone piles in.",
+      "rationale": "The opportunity score is computed from stored publishCnt + popularityCurve snapshots. No Creative Center view ranks by underserved-but-rising; you'd eyeball two columns and do mental math.",
+      "example": "tiktok-creative-center-pp-cli viral --region US --days 7 --top 20 --agent",
+      "why_it_matters": "Tells you WHERE the white space is — the single most useful signal for deciding what to create.",
+      "group": "Decision intelligence"
+    },
+    {
+      "name": "Trending/viral content discovery",
+      "command": "content",
+      "description": "One ranked feed of trending/viral content pulled from the Top Ads library, representative videos in hashtag detail, and top creators' work — across all three in one list.",
+      "rationale": "Requires joining three separate upstream surfaces (top-ads entityInfos, hashtag videoList, topCreators items) that the web UI keeps siloed. No single API call returns a unified viral feed.",
+      "example": "tiktok-creative-center-pp-cli content \"marvel rivals\" --region US --days 7 --agent",
+      "why_it_matters": "See what's actually going viral in the niche — not just the tags, the content itself.",
+      "group": "Decision intelligence"
+    },
+    {
+      "name": "Content \u0026 account decision brief",
+      "command": "decide",
+      "description": "Given a niche, output a concrete recommendation: which hashtags to ride, what content formats are working, where the saturation gaps are, how competitors are positioned, and what account angle is still open.",
+      "rationale": "Pure synthesis over the local store — joins viral scores, trending tags, content patterns, and competitor sweeps into one decision document. Nothing upstream produces this; it's the reason the store exists.",
+      "example": "tiktok-creative-center-pp-cli decide \"marvel rivals\" --region US --days 7 --agent",
+      "why_it_matters": "This is the actual goal: decide what content and account to create. Every other command feeds this one.",
+      "group": "Decision intelligence"
+    }
+  ],
+  "auth": {},
+  "narrative": {
+    "display_name": "TikTok Creative Center",
+    "headline": "TikTok trending hashtags, viral content, and the Top Ads competitor library — synced to a local store that tells you what to create and what account to build.",
+    "value_prop": "Replays TikTok Creative Center's real endpoints — trending hashtags with popularity curves and audience demographics, representative videos, and the Top Contents (Top Ads) library — and syncs them to SQLite. Then it layers on cross-entity niche briefs, growth-velocity diffing, competitor sweeps, an underserved/viral opportunity score, and a `decide` command that synthesizes all of it into a concrete content + account recommendation. The end goal isn't trends — it's the decision of what to make.",
+    "auth_narrative": "Creative Center uses a login session cookie plus an X-CSRFToken header. Run `auth login --chrome` once to capture the session from your logged-in Chrome profile; the CLI replays those cookies and the CSRF token on every request. No official API key exists.",
+    "quickstart": [
+      {
+        "command": "tiktok-creative-center-pp-cli doctor --dry-run",
+        "comment": "Health check with no network or auth needed"
+      },
+      {
+        "command": "tiktok-creative-center-pp-cli auth login --chrome",
+        "comment": "Capture your Creative Center session from Chrome"
+      },
+      {
+        "command": "tiktok-creative-center-pp-cli hashtags list --region US --days 7 --agent",
+        "comment": "See what's trending right now"
+      },
+      {
+        "command": "tiktok-creative-center-pp-cli sync --resources hashtags --param countryCode=US --param timeRange=7",
+        "comment": "Mirror trends into the local store for offline + velocity"
+      },
+      {
+        "command": "tiktok-creative-center-pp-cli niche \"your niche\" --region US --agent",
+        "comment": "One-command niche brief"
+      },
+      {
+        "command": "tiktok-creative-center-pp-cli decide \"your niche\" --region US --agent",
+        "comment": "The whole point: what to create + what account to build"
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "StatusCode != 0 or empty items",
+        "fix": "Session expired — re-run `auth login --chrome` and retry"
+      },
+      {
+        "symptom": "403 / login redirect",
+        "fix": "Log into ads.tiktok.com in Chrome first, then `auth login --chrome`"
+      },
+      {
+        "symptom": "Top Ads returns 'not supported top contents setting'",
+        "fix": "Use default period/sort flags; omit unsupported label combinations"
+      }
+    ],
+    "when_to_use": "Use this CLI for TikTok niche research (trending hashtags, their audience demographics, representative creators/videos) and competitor research (the Top Ads / top-performing content library). Ideal when an agent needs structured, offline-queryable trend data or cross-entity reports the web UI can't produce.",
+    "anti_triggers": [
+      "Posting or managing TikTok ads (use the official Marketing API)",
+      "Account-level ad performance metrics for your own campaigns",
+      "Downloading video files at scale"
+    ],
+    "recipes": [
+      {
+        "title": "The decision",
+        "command": "tiktok-creative-center-pp-cli decide \"marvel rivals\" --region US --days 7 --agent",
+        "explanation": "The whole point: a concrete recommendation of what content to make and what account angle is open, synthesized from trends + viral scores + competitors."
+      },
+      {
+        "title": "Find white space",
+        "command": "tiktok-creative-center-pp-cli viral --region US --days 7 --top 20 --agent",
+        "explanation": "Ranks hashtags by opportunity (high popularity, low publish count) so you create before it saturates."
+      },
+      {
+        "title": "See what's going viral",
+        "command": "tiktok-creative-center-pp-cli content \"marvel rivals\" --region US --days 7 --agent",
+        "explanation": "One ranked feed of representative + top-ad + creator videos across the niche."
+      },
+      {
+        "title": "Size up a competitor",
+        "command": "tiktok-creative-center-pp-cli competitor \"myketowersmtyk\" --region US --agent",
+        "explanation": "Summarize a competitor's top-performing content and the trending hashtags they ride."
+      },
+      {
+        "title": "Narrow verbose output",
+        "command": "tiktok-creative-center-pp-cli hashtags list --region US --agent --select items.hashtagName,items.publishCnt,items.rankIndex",
+        "explanation": "Use --select with dotted paths to trim large nested responses for agent context."
+      },
+      {
+        "title": "Trend velocity",
+        "command": "tiktok-creative-center-pp-cli velocity --region US --top 10 --agent",
+        "explanation": "After two syncs, diff popularity curves to find accelerating hashtags."
+      }
+    ],
+    "trigger_phrases": [
+      "tiktok trending hashtags",
+      "tiktok niche research",
+      "tiktok competitor ads",
+      "tiktok top ads",
+      "creative center trends",
+      "use tiktok creative center",
+      "run tiktok creative center"
+    ]
+  }
+}

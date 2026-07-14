@@ -1,0 +1,17 @@
+{
+  "schema_version": 2,
+  "id": "tiktok-creative-center-sync-id-extraction-fix",
+  "applied_at": "2026-07-15",
+  "base_run_id": "20260715-015609-a137005a",
+  "base_printing_press_version": "4.24.0",
+  "summary": "Fixed sync silently dropping every synced row: added resource ID field overrides for hashtags/top-ads, a nested-ID flattener for top-ads (itemInfo.itemID), an entityInfos/results envelope unwrap key, and the correct per-resource base_url host for top-ads sync.",
+  "reason": "Live dogfood against the real API surfaced four compounding generator bugs: (1) the generic ID-field fallback list didn't recognize hashtagID/itemInfo.itemID as primary keys, so UpsertBatch dropped 100% of rows with 'no extractable ID field'; (2) top-ads' response wraps its item array as results.entityInfos, which the generic page-item/envelope-key detectors don't recognize, so sync cached the raw status envelope instead of real items; (3) sync's resource-path map used a bare relative path for top-ads instead of its spec-declared base_url override (ads.us.tiktok.com), so every sync request hit the wrong host and got a permanent API error; (4) hashtags list's --page flag was typed as a Go string instead of int, so the API rejected it with HTTP 400.",
+  "files": [
+    "internal/store/id_overrides.go",
+    "internal/cli/topads_flatten.go",
+    "internal/cli/sync.go",
+    "internal/cli/hashtags_list.go",
+    "internal/cli/novel_helpers.go"
+  ],
+  "validated_outcome": "Post-fix: sync stores 20/20 hashtags and 20/20 top-ads from the live API (previously 0/20 and 0-1/20); confirmed via direct sqlite3 row counts and doctor's cache summary."
+}

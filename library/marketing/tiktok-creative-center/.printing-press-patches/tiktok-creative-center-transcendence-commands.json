@@ -1,0 +1,22 @@
+{
+  "schema_version": 2,
+  "id": "tiktok-creative-center-transcendence-commands",
+  "applied_at": "2026-07-15",
+  "base_run_id": "20260715-015609-a137005a",
+  "base_printing_press_version": "4.24.0",
+  "summary": "Implemented all 9 hand-authored transcendence commands (viral, content, decide, niche, competitor, velocity, since, watch, similar) that generation only scaffolded as TODO stubs.",
+  "reason": "The internal-YAML spec path generates novel-feature command shells with TODO bodies for hand implementation. These commands are the CLI's entire value proposition (cross-entity synthesis over the local SQLite store) and cannot be derived from the API spec alone.",
+  "files": [
+    "internal/cli/viral.go",
+    "internal/cli/content.go",
+    "internal/cli/decide.go",
+    "internal/cli/niche.go",
+    "internal/cli/competitor.go",
+    "internal/cli/velocity.go",
+    "internal/cli/since.go",
+    "internal/cli/watch.go",
+    "internal/cli/similar.go",
+    "internal/cli/novel_helpers.go"
+  ],
+  "validated_outcome": "All 9 commands dogfooded against real synced data (20 hashtags + 20 top-ads) with correct, non-trivial ranked output; full live dogfood gate passes 73/73."
+}

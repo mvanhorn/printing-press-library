@@ -1,0 +1,27 @@
+{
+  "manifest_version": "0.3",
+  "name": "tiktok-creative-center-pp-mcp",
+  "display_name": "TikTok Creative Center",
+  "version": "0.0.0",
+  "description": "TikTok trending hashtags, viral content, and the Top Ads competitor library — synced to a local store that tells you what to create and what account to build.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/tiktok-creative-center-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/tiktok-creative-center-pp-mcp",
+      "args": []
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

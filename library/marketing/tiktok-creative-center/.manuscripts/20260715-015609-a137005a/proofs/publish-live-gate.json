@@ -1,0 +1,1239 @@
+{
+  "dir": "/Users/jon/printing-press/.runstate/printing-press-7d2a2db2/runs/20260715-015609-a137005a/working/tiktok-creative-center-pp-cli",
+  "binary": "/Users/jon/printing-press/.runstate/printing-press-7d2a2db2/runs/20260715-015609-a137005a/working/tiktok-creative-center-pp-cli/build/stage/bin/tiktok-creative-center-pp-cli",
+  "level": "full",
+  "verdict": "PASS",
+  "matrix_size": 75,
+  "passed": 75,
+  "failed": 0,
+  "skipped": 52,
+  "commands": [
+    "analytics",
+    "api",
+    "competitor",
+    "content",
+    "decide",
+    "doctor",
+    "feedback list",
+    "hashtags detail",
+    "hashtags list",
+    "import",
+    "niche",
+    "profile delete",
+    "profile list",
+    "profile save",
+    "profile show",
+    "profile use",
+    "similar",
+    "since",
+    "sync",
+    "tail",
+    "top-ads list",
+    "top-ads overview",
+    "trends",
+    "velocity",
+    "viral",
+    "watch add",
+    "watch list",
+    "watch rm",
+    "which",
+    "workflow archive",
+    "workflow status"
+  ],
+  "tests": [
+    {
+      "command": "analytics",
+      "kind": "help",
+      "args": [
+        "analytics",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Analyze locally synced data with count, group-by, and summary operations.\nData must be synced first with the sync command.\n\nUsage:\n  tiktok-creative-center-pp-cli analytics [flags]\n\nExamples:\n  # Count records by type\n  tiktok-creative-center-pp-cli analytics --type messages\n\n  # Group by a field\n  tiktok-creative-center-pp-cli analytics --type messages --group-by author_id\n\n  # Top 10 most frequent values\n  tiktok-creative-center-pp-cli analytics --type messages --group-by channel_id --limit 10 --json\n\nFlags:\n      --db string         Database path\n      --group-by string   Field to group by\n  -h, --help              help for analytics\n      --limit int         Max groups to show (default 25)\n      --type string       Resource type to analyze\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'tiktok-creative-center-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "analytics",
+      "kind": "happy_path",
+      "args": [
+        "analytics",
+        "--type",
+        "messages"
+      ],
+      "status": "pass",
+      "output_sample": "messages: 0 records\nhint: local store has not been synced yet. Run 'tiktok-creative-center-pp-cli sync' before trusting local results.\n"
+    },
+    {
+      "command": "analytics",
+      "kind": "json_fidelity",
+      "args": [
+        "analytics",
+        "--type",
+        "messages",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"count\": 0,\n  \"resource_type\": \"messages\"\n}\nhint: local store has not been synced yet. Run 'tiktok-creative-center-pp-cli sync' before trusting local results.\n"
+    },
+    {
+      "command": "analytics",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "api",
+      "kind": "help",
+      "args": [
+        "api",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Browse and call any API endpoint using the raw interface names.\n\nThe friendly top-level commands cover the most common operations.\nThis command provides access to ALL endpoints for power users and\nagents that need full API coverage.\n\nRun 'api' with no arguments to list all interfaces.\nRun 'api \u003cinterface\u003e' to see that interface's methods.\n\nUsage:\n  tiktok-creative-center-pp-cli api [interface] [flags]\n\nExamples:\n  # List all available interfaces\n  tiktok-creative-center-pp-cli api\n\n  # Show methods for a specific interface\n  tiktok-creative-center-pp-cli api \u003cinterface-name\u003e\n\nFlags:\n  -h, --help   help for api\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'tiktok-creative-center-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "api",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [api] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "api",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [api] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "api",
+      "kind": "error_path",
+      "args": [
+        "api",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "Error: interface \"__printing_press_invalid__\" not found. Run 'tiktok-creative-center-pp-cli api' to list all interfaces\n"
+    },
+    {
+      "command": "competitor",
+      "kind": "help",
+      "args": [
+        "competitor",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Searches the Top Ads library for a competitor (by author handle/name or ad keyword) and matches their content against stored trending hashtags to summarize creative strategy and trend positioning. Reads the local store; run 'sync' first.\n\nUsage:\n  tiktok-creative-center-pp-cli competitor \u003chandle-or-keyword\u003e [flags]\n\nExamples:\n  tiktok-creative-center-pp-cli competitor \"myketowersmtyk\" --region US --agent\n\nFlags:\n  -h, --help            help for competitor\n      --region string   ISO country code to filter synced data (default \"US\")\n      --top string      Number of top content items to return (default \"10\")\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'tiktok-creative-center-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "competitor",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [competitor] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "competitor",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [competitor] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "competitor",
+      "kind": "error_path",
+      "args": [
+        "competitor",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "Error: no local data — run 'tiktok-creative-center-pp-cli sync --resources hashtags --param countryCode=US --param timeRange=7' first\n"
+    },
+    {
+      "command": "content",
+      "kind": "help",
+      "args": [
+        "content",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Pulls trending/viral content from three sources into one ranked feed: the Top Ads library, representative videos in hashtag detail, and top creators' items. The web UI silos these; this command joins them. Optional niche keyword filters by hashtag/industry/ad text. Reads the local store; run 'sync' first.\n\nUsage:\n  tiktok-creative-center-pp-cli content [niche] [flags]\n\nExamples:\n  tiktok-creative-center-pp-cli content \"marvel rivals\" --region US --days 7 --agent\n\nFlags:\n      --days string     Time range in days (informational; applied at sync time) (default \"7\")\n  -h, --help            help for content\n      --region string   ISO country code to filter synced data (default \"US\")\n      --top string      Number of content items to return (default \"20\")\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'tiktok-creative-center-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "content",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [content] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "content",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [content] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "content",
+      "kind": "error_path",
+      "args": [
+        "content",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "Error: no content matched niche \"__printing_press_invalid__\" in local store; try a broader keyword or re-run sync\n"
+    },
+    {
+      "command": "decide",
+      "kind": "help",
+      "args": [
+        "decide",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "The actual goal: given a niche, synthesizes trending tags, viral opportunity (white space), working content formats, and competitor positioning into a concrete recommendation — what content to make, which hashtags to ride, and what account angle is still open. Every other command feeds this one. Reads the local store; run 'sync' first.\n\nUsage:\n  tiktok-creative-center-pp-cli decide \u003cniche\u003e [flags]\n\nExamples:\n  tiktok-creative-center-pp-cli decide \"marvel rivals\" --region US --days 7 --agent\n\nFlags:\n      --days string     Time range in days (informational; applied at sync time) (default \"7\")\n  -h, --help            help for decide\n      --region string   ISO country code to filter synced data (default \"US\")\n      --top string      Number of items per section (default \"10\")\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'tiktok-creative-center-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "decide",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [decide] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "decide",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [decide] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "decide",
+      "kind": "error_path",
+      "args": [
+        "decide",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "Error: no hashtags matched niche \"__printing_press_invalid__\" in local store; try a broader keyword or re-run sync\n"
+    },
+    {
+      "command": "doctor",
+      "kind": "help",
+      "args": [
+        "doctor",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Check CLI health\n\nUsage:\n  tiktok-creative-center-pp-cli doctor [flags]\n\nExamples:\n  tiktok-creative-center-pp-cli doctor\n  tiktok-creative-center-pp-cli doctor --json\n  tiktok-creative-center-pp-cli doctor --fail-on warn\n\nFlags:\n      --fail-on string   Exit non-zero when a health level is reached: stale, error. Default is never.\n  -h, --help             help for doctor\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'tiktok-creative-center-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "doctor",
+      "kind": "happy_path",
+      "args": [
+        "doctor"
+      ],
+      "status": "pass",
+      "output_sample": "  OK Config: ok\n  OK Auth: not required\n  OK Verify Mode: normal operation\n  OK API: reachable\n  config_path: /var/folders/jj/7rf3ggys73d4bch3r3d5qsf00000gn/T/printing-press-subprocess-1723782726/.config/tiktok-creative-center-pp-cli/config.toml\n  base_url: https://ads.tiktok.com\n  version: 1.0.0\n  OK Cache: fresh\n    db_path: /var/folders/jj/7rf3ggys73d4bch3r3d5qsf00000gn/T/printing-press-subprocess-1723782726/.local/share/tiktok-creative-center-pp-cli/data.db\n    schema_version: 4\n    db_bytes: 233472\n    stale_after: 6h0m0s\n    resources:\n      - hashtags: 20 rows, 0s\n"
+    },
+    {
+      "command": "doctor",
+      "kind": "json_fidelity",
+      "args": [
+        "doctor",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"api\": \"reachable\",\n  \"auth\": \"not required\",\n  \"base_url\": \"https://ads.tiktok.com\",\n  \"cache\": {\n    \"db_bytes\": 233472,\n    \"db_path\": \"/var/folders/jj/7rf3ggys73d4bch3r3d5qsf00000gn/T/printing-press-subprocess-1723782726/.local/share/tiktok-creative-center-pp-cli/data.db\",\n    \"resources\": [\n      {\n        \"last_synced_at\": \"2026-07-14T19:28:26Z\",\n        \"rows\": 20,\n        \"staleness\": \"0s\",\n        \"type\": \"hashtags\"\n      }\n    ],\n    \"schema_version\": 4,\n    \"stale_after\": \"6h0m0s\",\n    \"status\": \"fresh\"\n  },\n  \"config\": \"ok\",\n  \"config_path\": \"/var/folders/jj/7rf3ggys73d4bch3r3d5qsf00000gn/T/printing-press-subprocess-1723782726/.config/tiktok-creative-center-pp-cli/config.toml\",\n  \"verify_mode\": \"normal operation\",\n  \"version\": \"1.0.0\"\n}\n"
+    },
+    {
+      "command": "doctor",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "feedback list",
+      "kind": "help",
+      "args": [
+        "feedback",
+        "list",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "List recent feedback entries\n\nUsage:\n  tiktok-creative-center-pp-cli feedback list [flags]\n\nExamples:\n  tiktok-creative-center-pp-cli feedback list\n  tiktok-creative-center-pp-cli feedback list --limit 5\n  tiktok-creative-center-pp-cli feedback list --json\n\nFlags:\n  -h, --help        help for list\n      --limit int   Maximum number of recent entries to return (default 20)\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'tiktok-creative-center-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "feedback list",
+      "kind": "happy_path",
+      "args": [
+        "feedback",
+        "list"
+      ],
+      "status": "pass"
+    },
+    {
+      "command": "feedback list",
+      "kind": "json_fidelity",
+      "args": [
+        "feedback",
+        "list",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "[]\n"
+    },
+    {
+      "command": "feedback list",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "hashtags detail",
+      "kind": "help",
+      "args": [
+        "hashtags",
+        "detail",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Get a hashtag's popularity curve, audience age/geo profile, and representative videos\n\nUsage:\n  tiktok-creative-center-pp-cli hashtags detail [flags]\n\nExamples:\n  tiktok-creative-center-pp-cli hashtags detail --id 550e8400-e29b-41d4-a716-446655440000\n\nFlags:\n      --days int           Time range in days (default 7)\n  -h, --help               help for detail\n      --id hashtags list   Hashtag ID (from hashtags list)\n      --region string      ISO country code (default \"US\")\n      --stdin              Read request body as JSON from stdin\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'tiktok-creative-center-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "hashtags detail",
+      "kind": "happy_path",
+      "args": [
+        "hashtags",
+        "detail",
+        "--id",
+        "550e8400-e29b-41d4-a716-446655440000",
+        "--dry-run"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"action\": \"post\",\n  \"data\": {\n    \"dry_run\": true\n  },\n  \"dry_run\": true,\n  \"path\": \"/CreativeOne/KnowledgeAPI/GetHashtagDetail\",\n  \"resource\": \"hashtags\",\n  \"status\": 0,\n  \"success\": false\n}\nPOST https://ads.tiktok.com/CreativeOne/KnowledgeAPI/GetHashtagDetail\n  Body:\n{\n    \"countryCode\": \"US\",\n    \"hashtagID\": \"550e8400-e29b-41d4-a716-446655440000\",\n    \"timeRange\": 7\n  }\n\n(dry run - no request sent)\n"
+    },
+    {
+      "command": "hashtags detail",
+      "kind": "json_fidelity",
+      "args": [
+        "hashtags",
+        "detail",
+        "--id",
+        "550e8400-e29b-41d4-a716-446655440000",
+        "--dry-run",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"action\": \"post\",\n  \"data\": {\n    \"dry_run\": true\n  },\n  \"dry_run\": true,\n  \"path\": \"/CreativeOne/KnowledgeAPI/GetHashtagDetail\",\n  \"resource\": \"hashtags\",\n  \"status\": 0,\n  \"success\": false\n}\nPOST https://ads.tiktok.com/CreativeOne/KnowledgeAPI/GetHashtagDetail\n  Body:\n{\n    \"countryCode\": \"US\",\n    \"hashtagID\": \"550e8400-e29b-41d4-a716-446655440000\",\n    \"timeRange\": 7\n  }\n\n(dry run - no request sent)\n"
+    },
+    {
+      "command": "hashtags detail",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "hashtags detail",
+      "kind": "error_path_real",
+      "args": null,
+      "status": "skip",
+      "reason": "mutating command dry-run only"
+    },
+    {
+      "command": "hashtags list",
+      "kind": "help",
+      "args": [
+        "hashtags",
+        "list",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "List trending hashtags for a country and time range\n\nUsage:\n  tiktok-creative-center-pp-cli hashtags list [flags]\n\nExamples:\n  tiktok-creative-center-pp-cli hashtags list --region US --days 7 --agent\n\nFlags:\n      --all             Fetch all pages\n      --days int        Time range in days (7, 30, 90, 120) (default 7)\n  -h, --help            help for list\n      --limit int       Page size (default 20)\n      --page int        Page number (1-based) (default 1)\n      --region string   ISO country code (e.g. US, GB, DE) (default \"US\")\n      --stdin           Read request body as JSON from stdin\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'tiktok-creative-center-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "hashtags list",
+      "kind": "happy_path",
+      "args": [
+        "hashtags",
+        "list",
+        "--region",
+        "US",
+        "--days",
+        "7",
+        "--agent"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"action\": \"post\",\n  \"data\": {\n    \"BaseResp\": {\n      \"StatusCode\": 0,\n      \"StatusMessage\": \"\"\n    },\n    \"items\": [\n      {\n        \"hashtagID\": \"7659867926865903649\",\n        \"hashtagName\": \"marvelrivalss9\",\n        \"industryIDs\": [\n          25000000000\n        ],\n        \"popularityCurve\": [\n          {\n            \"timestamp\": \"1783382400\",\n            \"value\": 0\n          },\n          {\n            \"timestamp\": \"1783468800\",\n            \"value\": 0\n          },\n          {\n            \"timestamp\": \"1783555200\",\n            \"value\": 24.676352665923535\n          },\n          {\n            \"timestamp\": \"1783641600\",\n            \"value\": 98.67454757439911\n          },\n          {\n            \"timestamp\": \"1783728000\",\n            \"value\": 100\n          },\n          {\n            \"timestamp\": \"1783814400\",\n            \"value\": 75.73123104049385\n          }\n        ],\n        \"publishCnt\": 133653,\n        \"rankIndex\": 1,\n        \"topCreators\": [\n          {\n            \"aioCreatorID\": \"0\",\n            \"avatarURL\": \"https://p16-common-sign.tiktokcdn.com/tos-maliva-avt-0068/5cd3ac92ff610007ccbf8ac3a4287ea1~tplv-tiktokx-cropcenter:300:300.jpeg?dr=14577\\u0026refresh_token=645d826a\\u0026x-expires=1784228400\\u0026x-signature=9u%2Fbrm903Rf%2Bp37ewPqG0S5AGgQ%3D\\u0026t=4d5b0474\\u0026ps=13740610\\u0026shp=a5d48078\\u0026shcp=429d27ce\\u0026idc=my\",\n            \"countryCode\": \"US\",\n            \"creatorRank\": 1,\n            \"followedCnt\": 13716,\n            \"handleName\": \"morefrombobz2\",\n            \"nickname\": \"MorefromBobz\",\n            \"ttUID\": \"7579793921031947277\"\n          },\n          {\n            \"aioCreatorID\": \"0\",\n            \"avatarURL\": \"https://p16-common-sign.tiktokcdn.com/tos-maliva-avt-0068/ed0105f5b9450b97a7f1bd64823a8e34~tplv-tiktokx-cropcenter:300:300.jpeg?dr=14577\\u0026refresh_token=d1062807\\u0026x-expires=1784228400\\u0026x-signature=oVkSLGVPFfb16MIhL8BO%2BPUf1hw%3D\\u0026t=4d5b0474\\u0026ps=13740610\\u0026shp=a5d48078\\u0026shcp=429d27ce\\u0026idc=my\",\n            \"countryCode\": \"US\",\n            \"creatorRank\": 2,\n            \"followedCnt\": 100190,\n            \"handleName\": \"veriflied\",\n            \"nickname\": \"Veriflied\",\n            \"ttUID\": \"6876120188888302597\"\n          },\n          {\n            \"aioCreatorID\": \"0\",\n            \"avatarURL\": \"https://p16-common-sign.tiktokcdn.com/tos-maliva-avt-0068/81db33cd5ac54e06ec930b2423a62849~tplv-tiktokx-cropcenter:300:300.jpeg?dr=14577\\u0026refresh_token=01ed57ee\\u0026x-expires=1784228400\\u0026x-signature=lCjihv1dISzu%2F6mCRwEcnwa9TmQ%3D\\u0026t=4d5b0474\\u0026ps=13740610\\u0026shp=a5d48078\\u0026shcp=429d27ce\\u0026idc=my\",\n            \"countryCode\": \"US\",\n            \"creatorRank\": 3,\n            \"followedCnt\": 24889,\n            \"handleName\": \"playerorb\",\n            \"nickname\": \"PlayerOrb\",\n            \"ttUID\": \"7342586523385103406\"\n          }\n        ],\n        \"vv\": 37575559\n      },\n      {\n        \"hashtagID\": \"7659105060307075103\",\n        \"hashtagName\": \"nolanwells\",\n        \"industryIDs\": [\n          23000000000\n        ],\n        \"popularityCurve\": [\n          {\n            \"timestamp\": \"1783296000\",\n            \"value\": 0\n          },\n          {\n            \"timestamp\": \"1783382400\",\n            \"value\": 92.176826526723\n          },\n          {\n            \"timestamp\": \"1783468800\",\n            \"value\": 100\n          },\n          {\n            \"timestamp\": \"1783555200\",\n            \"value\": 70.41315433692091\n          },\n          {\n            \"timestamp\": \"1783641600\",\n            \"value\": 81.39679401943404\n          },\n          {\n            \"timestamp\": \"1783728000\",\n            \"value\": 83.88542324487854\n          },\n          {\n            \"timestamp\": \"1783814400\",\n            \"value\": 52.64643353866435\n          }\n        ],\n        \"publishCnt\": 12669,\n        \"rankIndex\": 2,\n        \"topCreators\": [\n          {\n            \"aioCreatorID\": \"0\",\n            \"avatarURL\": \"https://p16-common-sign.tiktokcdn.com/tos-maliva-avt-0068/be1dbe93ec01513b4be33d51381f4add~tplv-tiktokx-cropcenter:300:300.jpeg?dr=14577\\u0026refresh_token=46f3811f\\u0026x-expires=…[truncated]"
+    },
+    {
+      "command": "hashtags list",
+      "kind": "json_fidelity",
+      "args": [
+        "hashtags",
+        "list",
+        "--region",
+        "US",
+        "--days",
+        "7",
+        "--agent",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"action\": \"post\",\n  \"data\": {\n    \"BaseResp\": {\n      \"StatusCode\": 0,\n      \"StatusMessage\": \"\"\n    },\n    \"items\": [\n      {\n        \"hashtagID\": \"7659867926865903649\",\n        \"hashtagName\": \"marvelrivalss9\",\n        \"industryIDs\": [\n          25000000000\n        ],\n        \"popularityCurve\": [\n          {\n            \"timestamp\": \"1783382400\",\n            \"value\": 0\n          },\n          {\n            \"timestamp\": \"1783468800\",\n            \"value\": 0\n          },\n          {\n            \"timestamp\": \"1783555200\",\n            \"value\": 24.676352665923535\n          },\n          {\n            \"timestamp\": \"1783641600\",\n            \"value\": 98.67454757439911\n          },\n          {\n            \"timestamp\": \"1783728000\",\n            \"value\": 100\n          },\n          {\n            \"timestamp\": \"1783814400\",\n            \"value\": 75.73123104049385\n          }\n        ],\n        \"publishCnt\": 133653,\n        \"rankIndex\": 1,\n        \"topCreators\": [\n          {\n            \"aioCreatorID\": \"0\",\n            \"avatarURL\": \"https://p16-common-sign.tiktokcdn.com/tos-maliva-avt-0068/5cd3ac92ff610007ccbf8ac3a4287ea1~tplv-tiktokx-cropcenter:300:300.jpeg?dr=14577\\u0026refresh_token=645d826a\\u0026x-expires=1784228400\\u0026x-signature=9u%2Fbrm903Rf%2Bp37ewPqG0S5AGgQ%3D\\u0026t=4d5b0474\\u0026ps=13740610\\u0026shp=a5d48078\\u0026shcp=429d27ce\\u0026idc=my\",\n            \"countryCode\": \"US\",\n            \"creatorRank\": 1,\n            \"followedCnt\": 13716,\n            \"handleName\": \"morefrombobz2\",\n            \"nickname\": \"MorefromBobz\",\n            \"ttUID\": \"7579793921031947277\"\n          },\n          {\n            \"aioCreatorID\": \"0\",\n            \"avatarURL\": \"https://p16-common-sign.tiktokcdn.com/tos-maliva-avt-0068/ed0105f5b9450b97a7f1bd64823a8e34~tplv-tiktokx-cropcenter:300:300.jpeg?dr=14577\\u0026refresh_token=d1062807\\u0026x-expires=1784228400\\u0026x-signature=oVkSLGVPFfb16MIhL8BO%2BPUf1hw%3D\\u0026t=4d5b0474\\u0026ps=13740610\\u0026shp=a5d48078\\u0026shcp=429d27ce\\u0026idc=my\",\n            \"countryCode\": \"US\",\n            \"creatorRank\": 2,\n            \"followedCnt\": 100190,\n            \"handleName\": \"veriflied\",\n            \"nickname\": \"Veriflied\",\n            \"ttUID\": \"6876120188888302597\"\n          },\n          {\n            \"aioCreatorID\": \"0\",\n            \"avatarURL\": \"https://p16-common-sign.tiktokcdn.com/tos-maliva-avt-0068/81db33cd5ac54e06ec930b2423a62849~tplv-tiktokx-cropcenter:300:300.jpeg?dr=14577\\u0026refresh_token=01ed57ee\\u0026x-expires=1784228400\\u0026x-signature=lCjihv1dISzu%2F6mCRwEcnwa9TmQ%3D\\u0026t=4d5b0474\\u0026ps=13740610\\u0026shp=a5d48078\\u0026shcp=429d27ce\\u0026idc=my\",\n            \"countryCode\": \"US\",\n            \"creatorRank\": 3,\n            \"followedCnt\": 24889,\n            \"handleName\": \"playerorb\",\n            \"nickname\": \"PlayerOrb\",\n            \"ttUID\": \"7342586523385103406\"\n          }\n        ],\n        \"vv\": 37575559\n      },\n      {\n        \"hashtagID\": \"7659105060307075103\",\n        \"hashtagName\": \"nolanwells\",\n        \"industryIDs\": [\n          23000000000\n        ],\n        \"popularityCurve\": [\n          {\n            \"timestamp\": \"1783296000\",\n            \"value\": 0\n          },\n          {\n            \"timestamp\": \"1783382400\",\n            \"value\": 92.176826526723\n          },\n          {\n            \"timestamp\": \"1783468800\",\n            \"value\": 100\n          },\n          {\n            \"timestamp\": \"1783555200\",\n            \"value\": 70.41315433692091\n          },\n          {\n            \"timestamp\": \"1783641600\",\n            \"value\": 81.39679401943404\n          },\n          {\n            \"timestamp\": \"1783728000\",\n            \"value\": 83.88542324487854\n          },\n          {\n            \"timestamp\": \"1783814400\",\n            \"value\": 52.64643353866435\n          }\n        ],\n        \"publishCnt\": 12669,\n        \"rankIndex\": 2,\n        \"topCreators\": [\n          {\n            \"aioCreatorID\": \"0\",\n            \"avatarURL\": \"https://p16-common-sign.tiktokcdn.com/tos-maliva-avt-0068/be1dbe93ec01513b4be33d51381f4add~tplv-tiktokx-cropcenter:300:300.jpeg?dr=14577\\u0026refresh_token=46f3811f\\u0026x-expires=…[truncated]"
+    },
+    {
+      "command": "hashtags list",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "import",
+      "kind": "help",
+      "args": [
+        "import",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Import data from a JSONL file by issuing POST requests for each record.\nEach line must be a valid JSON object. Failed records are logged to stderr\nbut do not stop the import.\n\nUsage:\n  tiktok-creative-center-pp-cli import \u003cresource\u003e [flags]\n\nExamples:\n  # Import from a JSONL file\n  tiktok-creative-center-pp-cli import \u003cresource\u003e --input data.jsonl\n\n  # Dry-run to preview without sending\n  tiktok-creative-center-pp-cli import \u003cresource\u003e --input data.jsonl --dry-run\n\n  # Import from stdin\n  cat data.jsonl | tiktok-creative-center-pp-cli import \u003cresource\u003e --input -\n\nFlags:\n      --batch-size int   Records per batch (future: batch API support) (default 1)\n      --dry-run          Preview import without sending requests\n  -h, --help             help for import\n  -i, --input string     Input JSONL file path (use - for stdin)\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'tiktok-creative-center-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "import",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [import] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "import",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [import] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "import",
+      "kind": "error_path",
+      "args": [
+        "import",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 2,
+      "output_sample": "Error: required flag(s) \"input\" not set\n"
+    },
+    {
+      "command": "niche",
+      "kind": "help",
+      "args": [
+        "niche",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Joins trending hashtags matching the niche with their top creators and representative videos into one ranked brief — the cross-entity view no Creative Center page gives you. Reads the local store; run 'sync' first.\n\nUsage:\n  tiktok-creative-center-pp-cli niche \u003ckeyword\u003e [flags]\n\nExamples:\n  tiktok-creative-center-pp-cli niche \"marvel rivals\" --region US --agent\n\nFlags:\n      --days string     Time range in days (informational; applied at sync time) (default \"7\")\n  -h, --help            help for niche\n      --region string   ISO country code to filter synced hashtags (default \"US\")\n      --top string      Number of hashtags/content items to return per section (default \"10\")\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'tiktok-creative-center-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "niche",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [niche] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "niche",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [niche] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "niche",
+      "kind": "error_path",
+      "args": [
+        "niche",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "Error: no hashtags matched niche \"__printing_press_invalid__\" in local store; try a broader keyword or re-run sync\n"
+    },
+    {
+      "command": "profile delete",
+      "kind": "help",
+      "args": [
+        "profile",
+        "delete",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Remove a profile\n\nUsage:\n  tiktok-creative-center-pp-cli profile delete \u003cname\u003e [flags]\n\nExamples:\n  tiktok-creative-center-pp-cli profile delete my-defaults --yes\n  tiktok-creative-center-pp-cli profile delete old-profile --yes --json\n\nFlags:\n  -h, --help   help for delete\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'tiktok-creative-center-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "profile delete",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile delete",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile delete",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "mutating command; error_path would call live API without --dry-run"
+    },
+    {
+      "command": "profile delete",
+      "kind": "error_path_real",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile list",
+      "kind": "help",
+      "args": [
+        "profile",
+        "list",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "List saved profiles\n\nUsage:\n  tiktok-creative-center-pp-cli profile list [flags]\n\nExamples:\n  tiktok-creative-center-pp-cli profile list\n  tiktok-creative-center-pp-cli profile list --json\n\nFlags:\n  -h, --help   help for list\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'tiktok-creative-center-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "profile list",
+      "kind": "happy_path",
+      "args": [
+        "profile",
+        "list"
+      ],
+      "status": "pass",
+      "output_sample": "NAME  FIELDS  DESCRIPTION\n"
+    },
+    {
+      "command": "profile list",
+      "kind": "json_fidelity",
+      "args": [
+        "profile",
+        "list",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "[]\n"
+    },
+    {
+      "command": "profile list",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "profile save",
+      "kind": "help",
+      "args": [
+        "profile",
+        "save",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Captures every flag explicitly set on the invocation and stores\nthem under \u003cname\u003e. To update an existing profile, run save again; the\nentry is replaced.\n\nTo avoid creating empty profiles, at least one non-default flag must be\npresent (other than --profile and --config).\n\nUsage:\n  tiktok-creative-center-pp-cli profile save \u003cname\u003e [--\u003cflag\u003e \u003cvalue\u003e ...] [flags]\n\nExamples:\n  tiktok-creative-center-pp-cli profile save my-defaults --json --compact\n  tiktok-creative-center-pp-cli profile save tonight-defaults --region US\n\nFlags:\n      --description string   Short description shown in 'profile list'\n  -h, --help                 help for save\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'tiktok-creative-center-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "profile save",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile save",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile save",
+      "kind": "error_path",
+      "args": [
+        "profile",
+        "save",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "Error: no non-default flags set - pass at least one flag to save into \"__printing_press_invalid__\"\n"
+    },
+    {
+      "command": "profile show",
+      "kind": "help",
+      "args": [
+        "profile",
+        "show",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Show a profile's values as JSON\n\nUsage:\n  tiktok-creative-center-pp-cli profile show \u003cname\u003e [flags]\n\nExamples:\n  tiktok-creative-center-pp-cli profile show my-defaults\n  tiktok-creative-center-pp-cli profile show tonight-defaults --json\n\nFlags:\n  -h, --help   help for show\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'tiktok-creative-center-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "profile show",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile show",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile show",
+      "kind": "error_path",
+      "args": [
+        "profile",
+        "show",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "Error: profile \"__printing_press_invalid__\" not found\n"
+    },
+    {
+      "command": "profile use",
+      "kind": "help",
+      "args": [
+        "profile",
+        "use",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Print the flag values a profile will apply (does not execute anything)\n\nUsage:\n  tiktok-creative-center-pp-cli profile use \u003cname\u003e [flags]\n\nExamples:\n  tiktok-creative-center-pp-cli profile use my-defaults\n  tiktok-creative-center-pp-cli profile use tonight-defaults --json\n\nFlags:\n  -h, --help   help for use\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'tiktok-creative-center-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "profile use",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile use",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile use",
+      "kind": "error_path",
+      "args": [
+        "profile",
+        "use",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "Error: profile \"__printing_press_invalid__\" not found\n"
+    },
+    {
+      "command": "similar",
+      "kind": "help",
+      "args": [
+        "similar",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Given a hashtag name or ID, ranks other synced hashtags by shared industries and co-occurring top creators — the joined hashtag+creator+industry graph that only exists locally after sync. Reads the local store; run 'sync' first.\n\nUsage:\n  tiktok-creative-center-pp-cli similar \u003chashtag\u003e [flags]\n\nExamples:\n  tiktok-creative-center-pp-cli similar \"marvelrivalss9\" --region US --agent\n\nFlags:\n  -h, --help            help for similar\n      --region string   ISO country code to filter synced hashtags (default \"US\")\n      --top string      Number of similar hashtags to return (default \"10\")\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'tiktok-creative-center-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "similar",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [similar] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "similar",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [similar] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "similar",
+      "kind": "error_path",
+      "args": [
+        "similar",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "Error: hashtag \"__printing_press_invalid__\" not found in local store\n"
+    },
+    {
+      "command": "since",
+      "kind": "help",
+      "args": [
+        "since",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Shows hashtags and top content whose local snapshot is newer than the given duration (e.g. 'since 24h', 'since 7d'). Catches what changed in the last sync without re-reading the whole feed. Reads the local store; run 'sync' first.\n\nUsage:\n  tiktok-creative-center-pp-cli since \u003cduration\u003e [flags]\n\nExamples:\n  tiktok-creative-center-pp-cli since 24h --region US --agent\n\nFlags:\n  -h, --help            help for since\n      --region string   ISO country code to filter (empty = all)\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'tiktok-creative-center-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "since",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [since] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "since",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [since] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "since",
+      "kind": "error_path",
+      "args": [
+        "since",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "Error: invalid duration: invalid duration \"__printing_press_invalid__\": expected like 24h, 7d, 2w\n"
+    },
+    {
+      "command": "sync",
+      "kind": "help",
+      "args": [
+        "sync",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Sync data from the API into a local SQLite database. Supports resumable\nincremental sync (only fetches new data since last sync) and full resync.\n\nExit codes \u0026 warnings:\n  Resources the API denies access to (HTTP 403, or HTTP 400 with an\n  access-policy body) are reported as warnings rather than failing the\n  run. In --json mode each is emitted as a {\"event\":\"sync_warning\",...}\n  line carrying status, reason, and message fields, and a final\n  {\"event\":\"sync_summary\",...} aggregates the run.\n\n  Exit 0 when at least one resource synced and no resource flagged in\n  the spec as critical (x-critical: true) failed; non-critical failures\n  emit {\"event\":\"sync_warning\",\"reason\":\"exit_policy_default_changed\",\n  ...} so callers can detect that a partial failure was tolerated. Pass\n  --strict to exit non-zero on any per-resource failure. Exit is always\n  non-zero when every selected resource failed, regardless of --strict.\n\nResource scoping:\n  --resources runs the named top-level resources, plus any parent-keyed\n  dependent whose own name is listed OR whose parent table is listed.\n  Naming a parent therefore cascades to its dependents (so \"sync this\n  parent and its children\" works without listing every nested resource\n  by hand). There is no flag today to suppress the cascade for a named\n  parent. To run a dependent without re-syncing its parent, list only\n  the dependent by name; the parent table must already be populated\n  from a prior sync.\n\nUsage:\n  tiktok-creative-center-pp-cli sync [flags]\n\nExamples:\n  # Sync all resources\n  tiktok-creative-center-pp-cli sync\n\n  # Sync specific resources only\n  tiktok-creative-center-pp-cli sync --resources channels,messages\n\n  # Full resync (ignore previous checkpoint)\n  tiktok-creative-center-pp-cli sync --full\n\n  # Incremental sync: only records from the last 7 days\n  tiktok-creative-center-pp-cli sync --since 7d\n\n  # Parallel sync with 8 workers\n  tiktok-creative-center-pp-cli sync --concurrency 8\n\n  # Latest-only: refresh head of each resource, no historical backfill\n  tiktok-creative-center-pp-cli sync --latest-only\n\nFlags:\n      --concurrency int              Number of parallel sync workers (default 4)\n      --db string                    Database path (default: ~/.local/share/tiktok-creative-center-pp-cli/data.db)\n      --full                         Full resync (ignore previous checkpoint)\n      --global-param stringArray     Extra query param to inject into every sync request including dependent path-scoped calls (repeatable, key=value). Use when an API requires a scope on every call regardless of path nesting.\n  -h, --help                         help for sync\n      --latest-only                  Refresh head of each resource only; clears resume cursor and caps pages at 1. Mutually exclusive with --since (--since wins).\n      --max-pages int                Maximum pages to fetch per resource (0 = unlimited; cap-hit emits a sync_warning event)\n      --param stringArray            Extra query param to inject into flat-list sync requests (repeatable, key=value). Skipped on path-scoped dependent requests so a top-level scope like workspace=\u003cid\u003e does not double up on /parents/\u003cid\u003e/children calls. Use --global-param to inject everywhere. Avoid pagination keys (limit/since/cursor) — overriding them corrupts resume state.\n      --resource-param stringArray   Per-resource extra query param (repeatable, resource:key=value). Wins over --param and --global-param when keys conflict.\n      --resources strings            Comma-separated resource types to sync. Naming a parent also runs its parent-keyed dependents (see Long help for scoping).\n      --since string                 Incremental sync duration (e.g. 7d, 24h, 1w, 30m)\n      --strict                       Exit non-zero on any per-resource failure (default: only critical failures or all-resource failure exit non-zero).\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureErr…[truncated]"
+    },
+    {
+      "command": "sync",
+      "kind": "happy_path",
+      "args": [
+        "sync"
+      ],
+      "status": "pass",
+      "output_sample": "{\"event\":\"sync_start\",\"resource\":\"hashtags\"}\n{\"event\":\"sync_warning\",\"resource\":\"hashtags\",\"reason\":\"resource_not_incremental\",\"message\":\"endpoint does not declare a temporal filter parameter; incremental sync has no effect for this resource\"}\n{\"event\":\"sync_progress\",\"resource\":\"hashtags\",\"fetched\":20,\"rate_rps\":2.0}\n{\"event\":\"sync_complete\",\"resource\":\"hashtags\",\"total\":20,\"duration_ms\":220}\n{\"event\":\"sync_summary\",\"total_records\":20,\"resources\":1,\"success\":1,\"warned\":0,\"errored\":0,\"duration_ms\":220}\n"
+    },
+    {
+      "command": "sync",
+      "kind": "json_fidelity",
+      "args": [
+        "sync",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\"event\":\"sync_start\",\"resource\":\"hashtags\"}\n{\"event\":\"sync_warning\",\"resource\":\"hashtags\",\"reason\":\"resource_not_incremental\",\"message\":\"endpoint does not declare a temporal filter parameter; incremental sync has no effect for this resource\"}\n{\"event\":\"sync_progress\",\"resource\":\"hashtags\",\"fetched\":20,\"rate_rps\":2.0}\n{\"event\":\"sync_complete\",\"resource\":\"hashtags\",\"total\":20,\"duration_ms\":170}\n{\"event\":\"sync_summary\",\"total_records\":20,\"resources\":1,\"success\":1,\"warned\":0,\"errored\":0,\"duration_ms\":170}\n"
+    },
+    {
+      "command": "sync",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "tail",
+      "kind": "help",
+      "args": [
+        "tail",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Tail streams live data changes by polling the API at configurable intervals.\nEvents are emitted as NDJSON to stdout for piping to other tools.\nGracefully shuts down on SIGTERM/SIGINT.\n\nNote: For APIs with WebSocket or SSE support, a future version will use\nnative streaming instead of polling.\n\nUsage:\n  tiktok-creative-center-pp-cli tail [resource] [flags]\n\nExamples:\n  # Tail all changes every 10 seconds\n  tiktok-creative-center-pp-cli tail --interval 10s\n\n  # Tail a specific resource\n  tiktok-creative-center-pp-cli tail messages --interval 5s\n\n  # Pipe to jq for filtering\n  tiktok-creative-center-pp-cli tail events --interval 30s | jq 'select(.type == \"error\")'\n\nFlags:\n      --follow              Keep running (set --follow=false for single poll) (default true)\n  -h, --help                help for tail\n      --interval duration   Poll interval (default 10s)\n      --resource string     Resource type to tail\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'tiktok-creative-center-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "tail",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [tail] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "tail",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [tail] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "tail",
+      "kind": "error_path",
+      "args": [
+        "tail",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "Error: GET /__printing_press_invalid__ returned HTTP 404: \u003chtml\u003e\r\n\u003chead\u003e\u003ctitle\u003e404 Not Found\u003c/title\u003e\u003c/head\u003e\r\n\u003cbody\u003e\r\n\u003ccenter\u003e\u003ch1\u003e404 Not Found\u003c/h1\u003e\u003c/center\u003e\r\n\u003chr\u003e\u003ccenter\u003eTLB\u003c/center\u003e\r\n\u003c/body\u003e\r\n\u003c/html\u003e\r\n\u003c!-- a padding to disable MSIE and Chrome friendly error page --\u003e\r\n\u003c!-- a padding to disable MSIE and Chrome friendly error page --\u003e\r\n\u003c!-- a padding to disable MSIE and Chrome friendly error page --\u003e\r\n\u003c!-- a padding to disable MSIE and Chrome friendly error page --\u003e\r\n\u003c!-- a padding to disable MSIE and Chrome friendly error page --\u003e\r\n\u003c!-- a padding to disable MSIE and Chrome friendly error page --\u003e\r\n\n"
+    },
+    {
+      "command": "top-ads list",
+      "kind": "help",
+      "args": [
+        "top-ads",
+        "list",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Search the Top Ads / top-performing content library by region, metric, and period\n\nUsage:\n  tiktok-creative-center-pp-cli top-ads list [flags]\n\nExamples:\n  tiktok-creative-center-pp-cli top-ads list\n\nFlags:\n      --all             Fetch all pages\n      --end-ts int      Period end unix timestamp (0 = now)\n  -h, --help            help for list\n      --labels string   Comma-separated content label / industry IDs to filter\n      --limit int       Page size (default 20)\n      --organic-only    Show only organic (non-ad) content\n      --page string     Page number (default \"1\")\n      --period int      Period bucket (3=last 30d etc.) (default 3)\n      --region string   ISO country code (default \"US\")\n      --sort int        Metric to sort by (1=popularity) (default 1)\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'tiktok-creative-center-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "top-ads list",
+      "kind": "happy_path",
+      "args": [
+        "top-ads",
+        "list"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"live\"\n  },\n  \"results\": {\n    \"BaseResp\": {\n      \"StatusCode\": 0,\n      \"StatusMessage\": \"\"\n    },\n    \"entityInfos\": []\n  }\n}\nwarning: 1/1 top-ads items returned but not cached locally (no extractable ID field; offline lookup against these rows will be incomplete; live queries unaffected)\n"
+    },
+    {
+      "command": "top-ads list",
+      "kind": "json_fidelity",
+      "args": [
+        "top-ads",
+        "list",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"live\"\n  },\n  \"results\": {\n    \"BaseResp\": {\n      \"StatusCode\": 0,\n      \"StatusMessage\": \"\"\n    },\n    \"entityInfos\": []\n  }\n}\nwarning: 1/1 top-ads items returned but not cached locally (no extractable ID field; offline lookup against these rows will be incomplete; live queries unaffected)\n"
+    },
+    {
+      "command": "top-ads list",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "top-ads overview",
+      "kind": "help",
+      "args": [
+        "top-ads",
+        "overview",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Get Top Ads filter metadata (industries, objectives, regions)\n\nUsage:\n  tiktok-creative-center-pp-cli top-ads overview [flags]\n\nExamples:\n  tiktok-creative-center-pp-cli top-ads overview\n\nFlags:\n  -h, --help   help for overview\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'tiktok-creative-center-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "top-ads overview",
+      "kind": "happy_path",
+      "args": [
+        "top-ads",
+        "overview"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"live\"\n  },\n  \"results\": {\n    \"BaseResp\": {\n      \"StatusCode\": 0,\n      \"StatusMessage\": \"\"\n    },\n    \"lastDailyEndTimestamp\": 1783814400,\n    \"lastMonthlyEndTimestamp\": 1782777600,\n    \"lastWeeklyEndTimestamp\": 1783814400\n  }\n}\nwarning: 1/1 top-ads items returned but not cached locally (no extractable ID field; offline lookup against these rows will be incomplete; live queries unaffected)\n"
+    },
+    {
+      "command": "top-ads overview",
+      "kind": "json_fidelity",
+      "args": [
+        "top-ads",
+        "overview",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"live\"\n  },\n  \"results\": {\n    \"BaseResp\": {\n      \"StatusCode\": 0,\n      \"StatusMessage\": \"\"\n    },\n    \"lastDailyEndTimestamp\": 1783814400,\n    \"lastMonthlyEndTimestamp\": 1782777600,\n    \"lastWeeklyEndTimestamp\": 1783814400\n  }\n}\nwarning: 1/1 top-ads items returned but not cached locally (no extractable ID field; offline lookup against these rows will be incomplete; live queries unaffected)\n"
+    },
+    {
+      "command": "top-ads overview",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "trends",
+      "kind": "help",
+      "args": [
+        "trends",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Trends portal configuration and reference data\n\nUsage:\n  tiktok-creative-center-pp-cli trends [flags]\n\nExamples:\n  tiktok-creative-center-pp-cli trends\n\nFlags:\n  -h, --help   help for trends\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'tiktok-creative-center-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "trends",
+      "kind": "happy_path",
+      "args": [
+        "trends"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"live\"\n  },\n  \"results\": {\n    \"code\": 0,\n    \"data\": {\n      \"hashtagCountry\": [\n        \"US\",\n        \"FR\",\n        \"DE\",\n        \"IT\",\n        \"ES\",\n        \"GB\",\n        \"AR\",\n        \"AU\",\n        \"BR\",\n        \"CA\",\n        \"CO\",\n        \"EG\",\n        \"ID\",\n        \"IL\",\n        \"JP\",\n        \"KR\",\n        \"MY\",\n        \"MX\",\n        \"PH\",\n        \"SA\",\n        \"SG\",\n        \"ZA\",\n        \"TW\",\n        \"TH\",\n        \"TR\",\n        \"AE\",\n        \"VN\"\n      ],\n      \"videoCountry\": [\n        \"US\",\n        \"JP\",\n        \"VN\",\n        \"TH\",\n        \"ID\"\n      ],\n      \"videoContentTags\": [\n        \"11002\",\n        \"11003\",\n        \"11010\",\n        \"11013\",\n        \"11015\"\n      ],\n      \"industry\": [\n        \"10000000000\",\n        \"11000000000\",\n        \"12000000000\",\n        \"14000000000\",\n        \"15000000000\",\n        \"17000000000\",\n        \"18000000000\",\n        \"19000000000\",\n        \"21000000000\",\n        \"22000000000\",\n        \"23000000000\",\n        \"25000000000\",\n        \"27000000000\",\n        \"28000000000\",\n        \"29000000000\"\n      ],\n      \"version\": \"1.0.0\"\n    }\n  }\n}\n"
+    },
+    {
+      "command": "trends",
+      "kind": "json_fidelity",
+      "args": [
+        "trends",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"live\"\n  },\n  \"results\": {\n    \"code\": 0,\n    \"data\": {\n      \"hashtagCountry\": [\n        \"US\",\n        \"FR\",\n        \"DE\",\n        \"IT\",\n        \"ES\",\n        \"GB\",\n        \"AR\",\n        \"AU\",\n        \"BR\",\n        \"CA\",\n        \"CO\",\n        \"EG\",\n        \"ID\",\n        \"IL\",\n        \"JP\",\n        \"KR\",\n        \"MY\",\n        \"MX\",\n        \"PH\",\n        \"SA\",\n        \"SG\",\n        \"ZA\",\n        \"TW\",\n        \"TH\",\n        \"TR\",\n        \"AE\",\n        \"VN\"\n      ],\n      \"videoCountry\": [\n        \"US\",\n        \"JP\",\n        \"VN\",\n        \"TH\",\n        \"ID\"\n      ],\n      \"videoContentTags\": [\n        \"11002\",\n        \"11003\",\n        \"11010\",\n        \"11013\",\n        \"11015\"\n      ],\n      \"industry\": [\n        \"10000000000\",\n        \"11000000000\",\n        \"12000000000\",\n        \"14000000000\",\n        \"15000000000\",\n        \"17000000000\",\n        \"18000000000\",\n        \"19000000000\",\n        \"21000000000\",\n        \"22000000000\",\n        \"23000000000\",\n        \"25000000000\",\n        \"27000000000\",\n        \"28000000000\",\n        \"29000000000\"\n      ],\n      \"version\": \"1.0.0\"\n    }\n  }\n}\n"
+    },
+    {
+      "command": "trends",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "velocity",
+      "kind": "help",
+      "args": [
+        "velocity",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Diffs popularity across syncs to find accelerating hashtags. With a single sync, falls back to the intra-window slope of each hashtag's popularity curve. Reads the local store; run 'sync' at least once first.\n\nUsage:\n  tiktok-creative-center-pp-cli velocity [flags]\n\nExamples:\n  tiktok-creative-center-pp-cli velocity --region US --top 10 --agent\n\nFlags:\n  -h, --help            help for velocity\n      --region string   ISO country code to filter synced hashtags (default \"US\")\n      --top string      Number of hashtags to return (ranked by momentum) (default \"10\")\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'tiktok-creative-center-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "velocity",
+      "kind": "happy_path",
+      "args": [
+        "velocity",
+        "--region",
+        "US",
+        "--top",
+        "10",
+        "--agent"
+      ],
+      "status": "pass",
+      "output_sample": "[\n  {\n    \"basis\": \"intra_window_slope\",\n    \"currentPopularity\": 100,\n    \"deltaOrSlope\": 100,\n    \"hashtag\": \"pubgmxnaruto\",\n    \"trend\": \"rising\"\n  },\n  {\n    \"basis\": \"intra_window_slope\",\n    \"currentPopularity\": 100,\n    \"deltaOrSlope\": 100,\n    \"hashtag\": \"livewithlowfollowers\",\n    \"trend\": \"rising\"\n  },\n  {\n    \"basis\": \"intra_window_slope\",\n    \"currentPopularity\": 100,\n    \"deltaOrSlope\": 100,\n    \"hashtag\": \"rainbowpfp\",\n    \"trend\": \"rising\"\n  },\n  {\n    \"basis\": \"intra_window_slope\",\n    \"currentPopularity\": 100,\n    \"deltaOrSlope\": 100,\n    \"hashtag\": \"ufc329\",\n    \"trend\": \"rising\"\n  },\n  {\n    \"basis\": \"intra_window_slope\",\n    \"currentPopularity\": 100,\n    \"deltaOrSlope\": 100,\n    \"hashtag\": \"connormcgregor\",\n    \"trend\": \"rising\"\n  },\n  {\n    \"basis\": \"intra_window_slope\",\n    \"currentPopularity\": 100,\n    \"deltaOrSlope\": 100,\n    \"hashtag\": \"conormcgregor\",\n    \"trend\": \"rising\"\n  },\n  {\n    \"basis\": \"intra_window_slope\",\n    \"currentPopularity\": 100,\n    \"deltaOrSlope\": 100,\n    \"hashtag\": \"maxholloway\",\n    \"trend\": \"rising\"\n  },\n  {\n    \"basis\": \"intra_window_slope\",\n    \"currentPopularity\": 100,\n    \"deltaOrSlope\": 100,\n    \"hashtag\": \"lindseygraham\",\n    \"trend\": \"rising\"\n  },\n  {\n    \"basis\": \"intra_window_slope\",\n    \"currentPopularity\": 100,\n    \"deltaOrSlope\": 100,\n    \"hashtag\": \"connermcgregor\",\n    \"trend\": \"rising\"\n  },\n  {\n    \"basis\": \"intra_window_slope\",\n    \"currentPopularity\": 100,\n    \"deltaOrSlope\": 100,\n    \"hashtag\": \"mcgregor\",\n    \"trend\": \"rising\"\n  }\n]\n"
+    },
+    {
+      "command": "velocity",
+      "kind": "json_fidelity",
+      "args": [
+        "velocity",
+        "--region",
+        "US",
+        "--top",
+        "10",
+        "--agent",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "[\n  {\n    \"basis\": \"intra_window_slope\",\n    \"currentPopularity\": 100,\n    \"deltaOrSlope\": 100,\n    \"hashtag\": \"pubgmxnaruto\",\n    \"trend\": \"rising\"\n  },\n  {\n    \"basis\": \"intra_window_slope\",\n    \"currentPopularity\": 100,\n    \"deltaOrSlope\": 100,\n    \"hashtag\": \"livewithlowfollowers\",\n    \"trend\": \"rising\"\n  },\n  {\n    \"basis\": \"intra_window_slope\",\n    \"currentPopularity\": 100,\n    \"deltaOrSlope\": 100,\n    \"hashtag\": \"rainbowpfp\",\n    \"trend\": \"rising\"\n  },\n  {\n    \"basis\": \"intra_window_slope\",\n    \"currentPopularity\": 100,\n    \"deltaOrSlope\": 100,\n    \"hashtag\": \"ufc329\",\n    \"trend\": \"rising\"\n  },\n  {\n    \"basis\": \"intra_window_slope\",\n    \"currentPopularity\": 100,\n    \"deltaOrSlope\": 100,\n    \"hashtag\": \"connormcgregor\",\n    \"trend\": \"rising\"\n  },\n  {\n    \"basis\": \"intra_window_slope\",\n    \"currentPopularity\": 100,\n    \"deltaOrSlope\": 100,\n    \"hashtag\": \"conormcgregor\",\n    \"trend\": \"rising\"\n  },\n  {\n    \"basis\": \"intra_window_slope\",\n    \"currentPopularity\": 100,\n    \"deltaOrSlope\": 100,\n    \"hashtag\": \"maxholloway\",\n    \"trend\": \"rising\"\n  },\n  {\n    \"basis\": \"intra_window_slope\",\n    \"currentPopularity\": 100,\n    \"deltaOrSlope\": 100,\n    \"hashtag\": \"lindseygraham\",\n    \"trend\": \"rising\"\n  },\n  {\n    \"basis\": \"intra_window_slope\",\n    \"currentPopularity\": 100,\n    \"deltaOrSlope\": 100,\n    \"hashtag\": \"connermcgregor\",\n    \"trend\": \"rising\"\n  },\n  {\n    \"basis\": \"intra_window_slope\",\n    \"currentPopularity\": 100,\n    \"deltaOrSlope\": 100,\n    \"hashtag\": \"mcgregor\",\n    \"trend\": \"rising\"\n  }\n]\n"
+    },
+    {
+      "command": "velocity",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "viral",
+      "kind": "help",
+      "args": [
+        "viral",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Rank hashtags by an opportunity score = popularity / publish count so you can find what is rising but not yet saturated — the signal for what to create before everyone piles in. Reads the local store; run 'sync' first.\n\nUsage:\n  tiktok-creative-center-pp-cli viral [flags]\n\nExamples:\n  tiktok-creative-center-pp-cli viral --region US --days 7 --top 20 --agent\n\nFlags:\n      --days string     Time range in days (informational; applied at sync time) (default \"7\")\n  -h, --help            help for viral\n      --region string   ISO country code to filter synced hashtags (default \"US\")\n      --top string      Number of top opportunities to return (default \"10\")\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'tiktok-creative-center-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "viral",
+      "kind": "happy_path",
+      "args": [
+        "viral",
+        "--region",
+        "US",
+        "--days",
+        "7",
+        "--top",
+        "20",
+        "--agent"
+      ],
+      "status": "pass",
+      "output_sample": "[\n  {\n    \"hashtag\": \"connermcgregor\",\n    \"opportunityScore\": 0.018751171948246766,\n    \"popularity\": 100,\n    \"publishCnt\": 5333,\n    \"rank\": 1\n  },\n  {\n    \"hashtag\": \"lindseygraham\",\n    \"opportunityScore\": 0.01812250815512867,\n    \"popularity\": 100,\n    \"publishCnt\": 5518,\n    \"rank\": 2\n  },\n  {\n    \"hashtag\": \"bonnietyler\",\n    \"opportunityScore\": 0.017179178835251677,\n    \"popularity\": 100,\n    \"publishCnt\": 5821,\n    \"rank\": 3\n  },\n  {\n    \"hashtag\": \"mcgregor\",\n    \"opportunityScore\": 0.009761811792268645,\n    \"popularity\": 100,\n    \"publishCnt\": 10244,\n    \"rank\": 4\n  },\n  {\n    \"hashtag\": \"rainbowpfp\",\n    \"opportunityScore\": 0.008344459279038718,\n    \"popularity\": 100,\n    \"publishCnt\": 11984,\n    \"rank\": 5\n  },\n  {\n    \"hashtag\": \"nolanwells\",\n    \"opportunityScore\": 0.007893282816323309,\n    \"popularity\": 100,\n    \"publishCnt\": 12669,\n    \"rank\": 6\n  },\n  {\n    \"hashtag\": \"untouchable\",\n    \"opportunityScore\": 0.00646579593948015,\n    \"popularity\": 100,\n    \"publishCnt\": 15466,\n    \"rank\": 7\n  },\n  {\n    \"hashtag\": \"pubgmxnaruto\",\n    \"opportunityScore\": 0.005989458552946814,\n    \"popularity\": 100,\n    \"publishCnt\": 16696,\n    \"rank\": 8\n  },\n  {\n    \"hashtag\": \"connormcgregor\",\n    \"opportunityScore\": 0.005978715771852206,\n    \"popularity\": 100,\n    \"publishCnt\": 16726,\n    \"rank\": 9\n  },\n  {\n    \"hashtag\": \"netflixdocumentary\",\n    \"opportunityScore\": 0.005917509911829102,\n    \"popularity\": 100,\n    \"publishCnt\": 16899,\n    \"rank\": 10\n  },\n  {\n    \"hashtag\": \"maxholloway\",\n    \"opportunityScore\": 0.005002000800320128,\n    \"popularity\": 100,\n    \"publishCnt\": 19992,\n    \"rank\": 11\n  },\n  {\n    \"hashtag\": \"ufc329\",\n    \"opportunityScore\": 0.004541738577527477,\n    \"popularity\": 100,\n    \"publishCnt\": 22018,\n    \"rank\": 12\n  },\n  {\n    \"hashtag\": \"rare\",\n    \"opportunityScore\": 0.004448794376723908,\n    \"popularity\": 100,\n    \"publishCnt\": 22478,\n    \"rank\": 13\n  },\n  {\n    \"hashtag\": \"conormcgregor\",\n    \"opportunityScore\": 0.003105879429760537,\n    \"popularity\": 100,\n    \"publishCnt\": 32197,\n    \"rank\": 14\n  },\n  {\n    \"hashtag\": \"liveiseasy\",\n    \"opportunityScore\": 0.0026119890296460754,\n    \"popularity\": 100,\n    \"publishCnt\": 38285,\n    \"rank\": 15\n  },\n  {\n    \"hashtag\": \"wuwacreator\",\n    \"opportunityScore\": 0.0023777820049457866,\n    \"popularity\": 100,\n    \"publishCnt\": 42056,\n    \"rank\": 16\n  },\n  {\n    \"hashtag\": \"livewithlowfollowers\",\n    \"opportunityScore\": 0.0019442392191935296,\n    \"popularity\": 100,\n    \"publishCnt\": 51434,\n    \"rank\": 17\n  },\n  {\n    \"hashtag\": \"kaicenat\",\n    \"opportunityScore\": 0.0016721569152049229,\n    \"popularity\": 100,\n    \"publishCnt\": 59803,\n    \"rank\": 18\n  },\n  {\n    \"hashtag\": \"streameruniversity\",\n    \"opportunityScore\": 0.001574356875216474,\n    \"popularity\": 100,\n    \"publishCnt\": 63518,\n    \"rank\": 19\n  },\n  {\n    \"hashtag\": \"marvelrivalss9\",\n    \"opportunityScore\": 0.0007482061756937742,\n    \"popularity\": 100,\n    \"publishCnt\": 133653,\n    \"rank\": 20\n  }\n]\n"
+    },
+    {
+      "command": "viral",
+      "kind": "json_fidelity",
+      "args": [
+        "viral",
+        "--region",
+        "US",
+        "--days",
+        "7",
+        "--top",
+        "20",
+        "--agent",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "[\n  {\n    \"hashtag\": \"connermcgregor\",\n    \"opportunityScore\": 0.018751171948246766,\n    \"popularity\": 100,\n    \"publishCnt\": 5333,\n    \"rank\": 1\n  },\n  {\n    \"hashtag\": \"lindseygraham\",\n    \"opportunityScore\": 0.01812250815512867,\n    \"popularity\": 100,\n    \"publishCnt\": 5518,\n    \"rank\": 2\n  },\n  {\n    \"hashtag\": \"bonnietyler\",\n    \"opportunityScore\": 0.017179178835251677,\n    \"popularity\": 100,\n    \"publishCnt\": 5821,\n    \"rank\": 3\n  },\n  {\n    \"hashtag\": \"mcgregor\",\n    \"opportunityScore\": 0.009761811792268645,\n    \"popularity\": 100,\n    \"publishCnt\": 10244,\n    \"rank\": 4\n  },\n  {\n    \"hashtag\": \"rainbowpfp\",\n    \"opportunityScore\": 0.008344459279038718,\n    \"popularity\": 100,\n    \"publishCnt\": 11984,\n    \"rank\": 5\n  },\n  {\n    \"hashtag\": \"nolanwells\",\n    \"opportunityScore\": 0.007893282816323309,\n    \"popularity\": 100,\n    \"publishCnt\": 12669,\n    \"rank\": 6\n  },\n  {\n    \"hashtag\": \"untouchable\",\n    \"opportunityScore\": 0.00646579593948015,\n    \"popularity\": 100,\n    \"publishCnt\": 15466,\n    \"rank\": 7\n  },\n  {\n    \"hashtag\": \"pubgmxnaruto\",\n    \"opportunityScore\": 0.005989458552946814,\n    \"popularity\": 100,\n    \"publishCnt\": 16696,\n    \"rank\": 8\n  },\n  {\n    \"hashtag\": \"connormcgregor\",\n    \"opportunityScore\": 0.005978715771852206,\n    \"popularity\": 100,\n    \"publishCnt\": 16726,\n    \"rank\": 9\n  },\n  {\n    \"hashtag\": \"netflixdocumentary\",\n    \"opportunityScore\": 0.005917509911829102,\n    \"popularity\": 100,\n    \"publishCnt\": 16899,\n    \"rank\": 10\n  },\n  {\n    \"hashtag\": \"maxholloway\",\n    \"opportunityScore\": 0.005002000800320128,\n    \"popularity\": 100,\n    \"publishCnt\": 19992,\n    \"rank\": 11\n  },\n  {\n    \"hashtag\": \"ufc329\",\n    \"opportunityScore\": 0.004541738577527477,\n    \"popularity\": 100,\n    \"publishCnt\": 22018,\n    \"rank\": 12\n  },\n  {\n    \"hashtag\": \"rare\",\n    \"opportunityScore\": 0.004448794376723908,\n    \"popularity\": 100,\n    \"publishCnt\": 22478,\n    \"rank\": 13\n  },\n  {\n    \"hashtag\": \"conormcgregor\",\n    \"opportunityScore\": 0.003105879429760537,\n    \"popularity\": 100,\n    \"publishCnt\": 32197,\n    \"rank\": 14\n  },\n  {\n    \"hashtag\": \"liveiseasy\",\n    \"opportunityScore\": 0.0026119890296460754,\n    \"popularity\": 100,\n    \"publishCnt\": 38285,\n    \"rank\": 15\n  },\n  {\n    \"hashtag\": \"wuwacreator\",\n    \"opportunityScore\": 0.0023777820049457866,\n    \"popularity\": 100,\n    \"publishCnt\": 42056,\n    \"rank\": 16\n  },\n  {\n    \"hashtag\": \"livewithlowfollowers\",\n    \"opportunityScore\": 0.0019442392191935296,\n    \"popularity\": 100,\n    \"publishCnt\": 51434,\n    \"rank\": 17\n  },\n  {\n    \"hashtag\": \"kaicenat\",\n    \"opportunityScore\": 0.0016721569152049229,\n    \"popularity\": 100,\n    \"publishCnt\": 59803,\n    \"rank\": 18\n  },\n  {\n    \"hashtag\": \"streameruniversity\",\n    \"opportunityScore\": 0.001574356875216474,\n    \"popularity\": 100,\n    \"publishCnt\": 63518,\n    \"rank\": 19\n  },\n  {\n    \"hashtag\": \"marvelrivalss9\",\n    \"opportunityScore\": 0.0007482061756937742,\n    \"popularity\": 100,\n    \"publishCnt\": 133653,\n    \"rank\": 20\n  }\n]\n"
+    },
+    {
+      "command": "viral",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "watch add",
+      "kind": "help",
+      "args": [
+        "watch",
+        "add",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Add a hashtag to the watchlist with a popularity threshold.\n\nUsage:\n  tiktok-creative-center-pp-cli watch add \u003chashtag\u003e [flags]\n\nExamples:\n  tiktok-creative-center-pp-cli watch add \"gaming\" --threshold 80\n\nFlags:\n  -h, --help               help for add\n      --threshold string   Popularity threshold to alert at (required)\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'tiktok-creative-center-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "watch add",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"hashtag\" at depth 0"
+    },
+    {
+      "command": "watch add",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"hashtag\" at depth 0"
+    },
+    {
+      "command": "watch add",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "mutating command; error_path would call live API without --dry-run"
+    },
+    {
+      "command": "watch add",
+      "kind": "error_path_real",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"hashtag\" at depth 0"
+    },
+    {
+      "command": "watch list",
+      "kind": "help",
+      "args": [
+        "watch",
+        "list",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "List tracked hashtags and their thresholds.\n\nUsage:\n  tiktok-creative-center-pp-cli watch list [flags]\n\nExamples:\n  tiktok-creative-center-pp-cli watch list\n\nFlags:\n  -h, --help   help for list\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'tiktok-creative-center-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "watch list",
+      "kind": "happy_path",
+      "args": [
+        "watch",
+        "list"
+      ],
+      "status": "pass",
+      "output_sample": "[]\n"
+    },
+    {
+      "command": "watch list",
+      "kind": "json_fidelity",
+      "args": [
+        "watch",
+        "list",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "[]\n"
+    },
+    {
+      "command": "watch list",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "watch rm",
+      "kind": "help",
+      "args": [
+        "watch",
+        "rm",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Remove a hashtag from the watchlist.\n\nUsage:\n  tiktok-creative-center-pp-cli watch rm \u003chashtag\u003e [flags]\n\nExamples:\n  tiktok-creative-center-pp-cli watch rm \"gaming\"\n\nFlags:\n  -h, --help   help for rm\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'tiktok-creative-center-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "watch rm",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"hashtag\" at depth 0"
+    },
+    {
+      "command": "watch rm",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"hashtag\" at depth 0"
+    },
+    {
+      "command": "watch rm",
+      "kind": "error_path",
+      "args": [
+        "watch",
+        "rm",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "Error: hashtag \"__printing_press_invalid__\" is not in the watchlist\n"
+    },
+    {
+      "command": "which",
+      "kind": "help",
+      "args": [
+        "which",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "which resolves a natural-language capability query (for example, \"search messages\" or \"stale tickets\") to the best matching command from this CLI's curated feature index.\n\nExit codes:\n  0  at least one match found\n  2  no confident match - the query did not score against any indexed capability; fall back to '--help' or 'search' if this CLI has one\n\nUsage:\n  tiktok-creative-center-pp-cli which [query] [flags]\n\nExamples:\n  tiktok-creative-center-pp-cli which \"stale tickets\"\n  tiktok-creative-center-pp-cli which \"bottleneck\"\n  tiktok-creative-center-pp-cli which --limit 1 \"send message\"\n  tiktok-creative-center-pp-cli which                                # list the full capability index\n\nFlags:\n  -h, --help        help for which\n      --limit int   Maximum number of matches to return (default 3)\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'tiktok-creative-center-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "which",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [which] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "which",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [which] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "which",
+      "kind": "error_path",
+      "args": [
+        "which",
+        "__printing_press_invalid__",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"matches\": []\n}\n"
+    },
+    {
+      "command": "workflow archive",
+      "kind": "help",
+      "args": [
+        "workflow",
+        "archive",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Archive fetches all syncable resources from the API and stores them in a\nlocal SQLite database. Supports incremental sync (only new data since last run)\nand full resync. After archiving, use 'search' for instant full-text search.\n\nUsage:\n  tiktok-creative-center-pp-cli workflow archive [flags]\n\nExamples:\n  # Archive all resources\n  tiktok-creative-center-pp-cli workflow archive\n\n  # Full re-archive (ignore previous sync state)\n  tiktok-creative-center-pp-cli workflow archive --full\n\nFlags:\n      --db string   Database path (default: ~/.local/share/tiktok-creative-center-pp-cli/data.db)\n      --full        Full re-archive (ignore previous sync state)\n  -h, --help        help for archive\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'tiktok-creative-center-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "workflow archive",
+      "kind": "happy_path",
+      "args": [
+        "workflow",
+        "archive"
+      ],
+      "status": "pass",
+      "output_sample": "{\"event\":\"sync_start\",\"resource\":\"hashtags\"}\n{\"event\":\"sync_warning\",\"resource\":\"hashtags\",\"reason\":\"resource_not_incremental\",\"message\":\"endpoint does not declare a temporal filter parameter; incremental sync has no effect for this resource\"}\n{\"event\":\"sync_progress\",\"resource\":\"hashtags\",\"fetched\":20,\"rate_rps\":2.0}\n{\"event\":\"sync_complete\",\"resource\":\"hashtags\",\"total\":20,\"duration_ms\":188}\nArchived 20 items across 1 resources to /var/folders/jj/7rf3ggys73d4bch3r3d5qsf00000gn/T/printing-press-subprocess-1723782726/.local/share/tiktok-creative-center-pp-cli/data.db\n  hashtags: 20 synced\n"
+    },
+    {
+      "command": "workflow archive",
+      "kind": "json_fidelity",
+      "args": [
+        "workflow",
+        "archive",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"resources_synced\": 1,\n  \"store_path\": \"/var/folders/jj/7rf3ggys73d4bch3r3d5qsf00000gn/T/printing-press-subprocess-1723782726/.local/share/tiktok-creative-center-pp-cli/data.db\",\n  \"timestamp\": \"2026-07-14T19:28:31Z\",\n  \"total_items\": 20\n}\n{\"event\":\"sync_start\",\"resource\":\"hashtags\"}\n{\"event\":\"sync_warning\",\"resource\":\"hashtags\",\"reason\":\"resource_not_incremental\",\"message\":\"endpoint does not declare a temporal filter parameter; incremental sync has no effect for this resource\"}\n{\"event\":\"sync_progress\",\"resource\":\"hashtags\",\"fetched\":20,\"rate_rps\":2.0}\n{\"event\":\"sync_complete\",\"resource\":\"hashtags\",\"total\":20,\"duration_ms\":258}\n  hashtags: 20 synced\n"
+    },
+    {
+      "command": "workflow archive",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "workflow status",
+      "kind": "help",
+      "args": [
+        "workflow",
+        "status",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Show local archive status and sync state for all resources\n\nUsage:\n  tiktok-creative-center-pp-cli workflow status [flags]\n\nExamples:\n  # Show archive status\n  tiktok-creative-center-pp-cli workflow status\n\n  # Show status as JSON\n  tiktok-creative-center-pp-cli workflow status --json\n\nFlags:\n      --db string   Database path\n  -h, --help        help for status\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'tiktok-creative-center-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "workflow status",
+      "kind": "happy_path",
+      "args": [
+        "workflow",
+        "status"
+      ],
+      "status": "pass",
+      "output_sample": "Archive Status:\n  hashtags                       20 items\n  trends                         1 items\n\n  Total: 21 items\n  Store: /var/folders/jj/7rf3ggys73d4bch3r3d5qsf00000gn/T/printing-press-subprocess-1723782726/.local/share/tiktok-creative-center-pp-cli/data.db\n"
+    },
+    {
+      "command": "workflow status",
+      "kind": "json_fidelity",
+      "args": [
+        "workflow",
+        "status",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"hashtags\": 20,\n  \"trends\": 1\n}\n"
+    },
+    {
+      "command": "workflow status",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    }
+  ],
+  "ran_at": "2026-07-14T19:28:26.580168Z"
+}

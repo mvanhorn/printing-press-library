@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "tiktok-creative-center-composed-auth",
+  "applied_at": "2026-07-15",
+  "base_run_id": "20260715-015609-a137005a",
+  "base_printing_press_version": "4.24.0",
+  "summary": "Added a hand-built 'auth' command (login --chrome, login --manual, status) since the internal-YAML spec has no cookie/composed-auth type.",
+  "reason": "Creative Center uses a login session cookie plus an X-CSRFToken header with no official API key. The spec declares auth.type: none so generation would not gate on a missing key env var; this hand-built client layer captures cookies + CSRF from a logged-in Chrome profile (via chromedp) and writes them into config.toml's [headers], which the generated HTTP client already applies to every request without further edits.",
+  "files": [
+    "internal/cli/auth.go"
+  ],
+  "validated_outcome": "auth login --chrome captured 47 cookies + CSRF token from a real logged-in session; auth status correctly reports masked configured/missing state; doctor confirms API reachable post-auth."
+}

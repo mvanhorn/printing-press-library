@@ -1,0 +1,201 @@
+name: tiktok-creative-center
+display_name: TikTok Creative Center
+description: Trend discovery and Top Ads / competitor research from TikTok's Creative Center (One Creative Suite) — trending hashtags with popularity curves and audience demographics, plus the Top Contents (Top Ads) library.
+version: 0.1.0
+base_url: https://ads.tiktok.com
+http_transport: standard
+category: marketing
+spec_source: hand-authored
+cli_description: Trending TikTok hashtags (with popularity curves + audience demographics) and the Top Ads competitor library — synced to a local store, with cross-entity niche reports and trend velocity no web UI offers.
+
+auth:
+  type: none  # session-cookie + X-CSRFToken composed auth; captured via `auth login --chrome` (hand-built client layer adds Cookie + X-CSRFToken + browser UA headers)
+
+auth_warnings:
+  - "Real auth is a login session cookie + X-CSRFToken (header x-tt-agw-login=1 observed). The spec declares type:none so generation does not gate on an API key env var; a hand-built client layer replays cookies harvested by `auth login --chrome`."
+
+config:
+  format: toml
+  path: ~/.config/tiktok-creative-center-pp-cli/config.toml
+
+resources:
+  hashtags:
+    description: Trending hashtags with popularity curves, publish counts, and top creators
+    endpoints:
+      list:
+        method: POST
+        path: /CreativeOne/KnowledgeAPI/GetHashtagList
+        description: List trending hashtags for a country and time range
+        body:
+          - name: countryCode
+            flag_name: region
+            type: string
+            required: false
+            default: US
+            description: ISO country code (e.g. US, GB, DE)
+          - name: limit
+            type: int
+            required: false
+            default: 20
+            description: Page size
+          - name: page
+            type: int
+            required: false
+            default: 1
+            description: Page number (1-based)
+          - name: timeRange
+            flag_name: days
+            type: int
+            required: false
+            default: 7
+            description: Time range in days (7, 30, 90, 120)
+        response:
+          type: array
+          item: Hashtag
+        response_path: items
+        pagination:
+          type: offset
+          page_field: page
+          has_more_field: pagination.has_more
+      detail:
+        method: POST
+        path: /CreativeOne/KnowledgeAPI/GetHashtagDetail
+        description: Get a hashtag's popularity curve, audience age/geo profile, and representative videos
+        body:
+          - name: hashtagID
+            flag_name: id
+            type: string
+            required: true
+            positional: true
+            description: Hashtag ID (from `hashtags list`)
+          - name: countryCode
+            flag_name: region
+            type: string
+            required: false
+            default: US
+            description: ISO country code
+          - name: timeRange
+            flag_name: days
+            type: int
+            required: false
+            default: 7
+            description: Time range in days
+        response:
+          type: object
+          item: HashtagDetail
+
+  top-ads:
+    description: Top Contents (Top Ads) library for competitor research
+    base_url: https://ads.us.tiktok.com
+    endpoints:
+      list:
+        method: GET
+        path: /CreativeOne/Report/CreativeCenterGetTopContentsList
+        description: Search the Top Ads / top-performing content library by region, metric, and period
+        params:
+          - name: countryCode
+            flag_name: region
+            type: string
+            required: false
+            default: US
+            description: ISO country code
+          - name: limit
+            type: int
+            required: false
+            default: 20
+            description: Page size
+          - name: page
+            type: int
+            required: false
+            default: 1
+            description: Page number
+          - name: orderByMetric
+            flag_name: sort
+            type: int
+            required: false
+            default: 1
+            description: Metric to sort by (1=popularity)
+          - name: organicOnly
+            flag_name: organic-only
+            type: bool
+            required: false
+            default: false
+            description: Show only organic (non-ad) content
+          - name: periodDimension
+            flag_name: period
+            type: int
+            required: false
+            default: 3
+            description: Period bucket (3=last 30d etc.)
+          - name: periodEndTimestamp
+            flag_name: end-ts
+            type: int
+            required: false
+            default: 0
+            description: Period end unix timestamp (0 = now)
+          - name: contentLabelIDs
+            flag_name: labels
+            type: string
+            required: false
+            default: ""
+            description: Comma-separated content label / industry IDs to filter
+        response:
+          type: array
+          item: TopContent
+        response_path: entityInfos
+        pagination:
+          type: offset
+          page_field: page
+          has_more_field: pagination.has_more
+      overview:
+        method: GET
+        path: /CreativeOne/Report/GetTopContentsOverview
+        description: Get Top Ads filter metadata (industries, objectives, regions)
+        response:
+          type: object
+          item: TopAdsOverview
+
+  trends:
+    description: Trends portal metadata and reference data
+    endpoints:
+      portal:
+        method: GET
+        path: /cc_portal_api/api/trendsTcc
+        description: Trends portal configuration and reference data
+        response:
+          type: object
+          item: TrendsPortal
+
+types:
+  Hashtag:
+    fields:
+      - { name: hashtagID, type: string }
+      - { name: hashtagName, type: string }
+      - { name: publishCnt, type: string }
+      - { name: rankIndex, type: string }
+      - { name: industryIDs, type: array }
+      - { name: popularityCurve, type: array }
+      - { name: topCreators, type: array }
+  HashtagDetail:
+    fields:
+      - { name: hashtagID, type: string }
+      - { name: hashtagName, type: string }
+      - { name: publishCnt, type: string }
+      - { name: vv, type: string }
+      - { name: timeRange, type: int }
+      - { name: countryCode, type: string }
+      - { name: popularityCurve, type: array }
+      - { name: ageProfile, type: array }
+      - { name: representativeCountryProfile, type: array }
+      - { name: industryIDs, type: array }
+      - { name: videoList, type: array }
+  TopContent:
+    fields:
+      - { name: itemInfo, type: object }
+      - { name: itemAuthorInfo, type: object }
+      - { name: itemAuthorMetrics, type: object }
+  TopAdsOverview:
+    fields:
+      - { name: BaseResp, type: object }
+  TrendsPortal:
+    fields: []

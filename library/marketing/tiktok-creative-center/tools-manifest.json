@@ -1,0 +1,158 @@
+{
+  "api_name": "tiktok-creative-center",
+  "base_url": "https://ads.tiktok.com",
+  "description": "Trend discovery and Top Ads / competitor research from TikTok's Creative Center (One Creative Suite) — trending hashtags with popularity curves and audience demographics, plus the Top Contents (Top Ads) library.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "none"
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "hashtags_detail",
+      "description": "Get a hashtag's popularity curve, audience age/geo profile, and representative videos. Required: id. Optional: region (default: US), days (default: 7). Returns the new HashtagDetail.",
+      "method": "POST",
+      "path": "/CreativeOne/KnowledgeAPI/GetHashtagDetail",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "id",
+          "wire_name": "hashtagID",
+          "type": "string",
+          "location": "body",
+          "description": "Hashtag ID (from `hashtags list`)",
+          "required": true
+        },
+        {
+          "name": "region",
+          "wire_name": "countryCode",
+          "type": "string",
+          "location": "body",
+          "description": "ISO country code"
+        },
+        {
+          "name": "days",
+          "wire_name": "timeRange",
+          "type": "int",
+          "location": "body",
+          "description": "Time range in days"
+        }
+      ]
+    },
+    {
+      "name": "hashtags_list",
+      "description": "List trending hashtags for a country and time range. Optional: region (default: US), limit (default: 20), page (default: 1) (plus 1 more). Returns array of Hashtag.",
+      "method": "POST",
+      "path": "/CreativeOne/KnowledgeAPI/GetHashtagList",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "region",
+          "wire_name": "countryCode",
+          "type": "string",
+          "location": "body",
+          "description": "ISO country code (e.g. US, GB, DE)"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "body",
+          "description": "Page size"
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "body",
+          "description": "Page number (1-based)"
+        },
+        {
+          "name": "days",
+          "wire_name": "timeRange",
+          "type": "int",
+          "location": "body",
+          "description": "Time range in days (7, 30, 90, 120)"
+        }
+      ]
+    },
+    {
+      "name": "top-ads_list",
+      "description": "Search the Top Ads / top-performing content library by region, metric, and period. Optional: region (default: US), limit (default: 20), page (default: 1) (plus 5 more). Returns array of TopContent.",
+      "method": "GET",
+      "path": "/CreativeOne/Report/CreativeCenterGetTopContentsList",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "region",
+          "wire_name": "countryCode",
+          "type": "string",
+          "location": "query",
+          "description": "ISO country code"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Page size"
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page number"
+        },
+        {
+          "name": "sort",
+          "wire_name": "orderByMetric",
+          "type": "int",
+          "location": "query",
+          "description": "Metric to sort by (1=popularity)"
+        },
+        {
+          "name": "organic-only",
+          "wire_name": "organicOnly",
+          "type": "bool",
+          "location": "query",
+          "description": "Show only organic (non-ad) content"
+        },
+        {
+          "name": "period",
+          "wire_name": "periodDimension",
+          "type": "int",
+          "location": "query",
+          "description": "Period bucket (3=last 30d etc.)"
+        },
+        {
+          "name": "end-ts",
+          "wire_name": "periodEndTimestamp",
+          "type": "int",
+          "location": "query",
+          "description": "Period end unix timestamp (0 = now)"
+        },
+        {
+          "name": "labels",
+          "wire_name": "contentLabelIDs",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated content label / industry IDs to filter"
+        }
+      ]
+    },
+    {
+      "name": "top-ads_overview",
+      "description": "Get Top Ads filter metadata (industries, objectives, regions). Returns the TopAdsOverview.",
+      "method": "GET",
+      "path": "/CreativeOne/Report/GetTopContentsOverview",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "trends_portal",
+      "description": "Trends portal configuration and reference data. Returns the TrendsPortal.",
+      "method": "GET",
+      "path": "/cc_portal_api/api/trendsTcc",
+      "no_auth": true,
+      "params": []
+    }
+  ]
+}
