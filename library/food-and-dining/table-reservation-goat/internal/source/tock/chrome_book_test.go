@@ -441,6 +441,185 @@ func TestClickRequestedTockBookingControl_WorksOnBareChromedpContext(t *testing.
 	})
 }
 
+// A pinned request may arrive at a venue-wide legacy page when Tock redirects
+// its experience deep link. The first legacy probe matches by visible time
+// only, so it is safe for a pinned request only while location.pathname still
+// contains the exact /experience/<id> segment pair.
+func TestClickRequestedTockBookingControl_LegacyPinnedExperiencePathGate(t *testing.T) {
+	const experienceID = 520126
+	const html = `
+		<!doctype html>
+		<button id="first" aria-label="Book now"
+			onclick="window.clickedLegacy = 'first';">6:15 PM Book</button>
+		<button id="second" aria-label="Book now"
+			onclick="window.clickedLegacy = 'second';">6:15 PM Book</button>`
+
+	cases := []struct {
+		name            string
+		pagePath        string
+		experienceID    int
+		wantClicked     string
+		wantErrContains string
+	}{
+		{
+			name:            "pinned redirect to venue-wide legacy page skips time-only click",
+			pagePath:        "/venue",
+			experienceID:    experienceID,
+			wantErrContains: "legacy time-only slot path skipped for pinned experience 520126",
+		},
+		{
+			name:         "pinned deep-link page permits legacy click",
+			pagePath:     "/venue/experience/520126",
+			experienceID: experienceID,
+			wantClicked:  "first",
+		},
+		{
+			name:        "unpinned legacy behavior is unchanged",
+			pagePath:    "/venue",
+			wantClicked: "first",
+		},
+	}
+
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+				w.Header().Set("Content-Type", "text/html; charset=utf-8")
+				fmt.Fprint(w, html)
+			}))
+			defer srv.Close()
+
+			withTockDOMFixture(t, "<!doctype html><p>boot</p>", func(ctx context.Context) {
+				if err := chromedp.Run(ctx, chromedp.Navigate(srv.URL+tc.pagePath)); err != nil {
+					t.Fatalf("navigate to legacy fixture: %v", err)
+				}
+				activeCtx, activeCancel, err := clickRequestedTockBookingControl(
+					ctx, "", "6:15 PM", "2026-07-10", "18:15", 2, tc.experienceID,
+				)
+				if activeCancel != nil {
+					defer activeCancel()
+				}
+				if tc.wantErrContains == "" && err != nil {
+					t.Fatalf("clickRequestedTockBookingControl: %v", err)
+				}
+				if tc.wantErrContains != "" && (err == nil || !strings.Contains(err.Error(), tc.wantErrContains)) {
+					t.Fatalf("error = %v, want error containing %q", err, tc.wantErrContains)
+				}
+
+				var clicked string
+				if err := chromedp.Run(activeCtx, chromedp.Evaluate(`window.clickedLegacy || ''`, &clicked)); err != nil {
+					t.Fatalf("read legacy fixture state: %v", err)
+				}
+				if clicked != tc.wantClicked {
+					t.Fatalf("clicked legacy control = %q, want %q", clicked, tc.wantClicked)
+				}
+			})
+		})
+	}
+}
+
+func TestClickPinnedSlotByTimeTextJS_AtomicBoundarySafeGate(t *testing.T) {
+	cases := []struct {
+		name            string
+		pagePath        string
+		wantPageMatches bool
+		wantClicked     string
+		wantQueryCalls  int
+	}{
+		{
+			name:            "exact segment pair clicks",
+			pagePath:        "/venue/experience/123",
+			wantPageMatches: true,
+			wantClicked:     "first",
+			wantQueryCalls:  1,
+		},
+		{
+			name:            "exact segment pair with suffix path clicks",
+			pagePath:        "/venue/experience/123/reservation",
+			wantPageMatches: true,
+			wantClicked:     "first",
+			wantQueryCalls:  1,
+		},
+		{name: "numeric prefix collision fails closed", pagePath: "/venue/experience/1234"},
+		{name: "numeric suffix collision fails closed", pagePath: "/venue/experience/123-other"},
+		{name: "non-segment substring fails closed", pagePath: "/venue/some-experience/123"},
+		{name: "venue redirect fails closed", pagePath: "/venue"},
+	}
+
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			script := fmt.Sprintf(`
+				var location = {href: 'https://www.exploretock.com%s', pathname: %q};
+				var clicked = '';
+				var queryCalls = 0;
+				var controls = [
+					{textContent: '6:15 PM Book', click: function() { clicked = 'first'; }},
+					{textContent: '6:15 PM Book', click: function() { clicked = 'second'; }},
+				];
+				var document = {
+					querySelectorAll: function() { queryCalls++; return controls; },
+				};
+				var result = %s;
+				JSON.stringify({
+					page_matches: result.page_matches,
+					clicked: result.clicked,
+					clicked_control: clicked,
+					query_calls: queryCalls,
+				});
+			`, tc.pagePath, tc.pagePath, clickPinnedSlotByTimeTextJS("6:15 PM", 123))
+			value, err := goja.New().RunString(script)
+			if err != nil {
+				t.Fatalf("evaluate atomic pinned legacy click: %v", err)
+			}
+			var got struct {
+				PageMatches    bool   `json:"page_matches"`
+				Clicked        bool   `json:"clicked"`
+				ClickedControl string `json:"clicked_control"`
+				QueryCalls     int    `json:"query_calls"`
+			}
+			if err := json.Unmarshal([]byte(value.String()), &got); err != nil {
+				t.Fatalf("decode atomic pinned legacy click result: %v", err)
+			}
+			if got.PageMatches != tc.wantPageMatches {
+				t.Fatalf("page_matches = %v, want %v", got.PageMatches, tc.wantPageMatches)
+			}
+			if got.Clicked != (tc.wantClicked != "") {
+				t.Fatalf("clicked = %v, want %v", got.Clicked, tc.wantClicked != "")
+			}
+			if got.ClickedControl != tc.wantClicked {
+				t.Fatalf("clicked control = %q, want %q", got.ClickedControl, tc.wantClicked)
+			}
+			if got.QueryCalls != tc.wantQueryCalls {
+				t.Fatalf("query calls = %d, want %d", got.QueryCalls, tc.wantQueryCalls)
+			}
+		})
+	}
+}
+
+func TestTockBookingControlFailureCause_PreservesLegacySkip(t *testing.T) {
+	legacyErr := errors.New("legacy time-only slot path skipped for pinned experience 123: current page is not its experience deep link")
+	cause := tockBookingControlFailureCause(
+		"6:15 PM",
+		legacyErr,
+		errors.New("search fallback skipped: experience-specific request"),
+		errors.New("experience_card: pinned experience 123 could not be positively identified"),
+	)
+	combined := (&ChromeBookError{
+		Kind:  ErrSlotControlNotFound,
+		Step:  "booking_control",
+		Cause: cause,
+	}).Error()
+	for _, want := range []string{
+		`requested_time="6:15 PM"`,
+		legacyErr.Error(),
+		"search fallback skipped: experience-specific request",
+		"experience_card: pinned experience 123 could not be positively identified",
+	} {
+		if !strings.Contains(combined, want) {
+			t.Fatalf("combined error = %q, want it to contain %q", combined, want)
+		}
+	}
+}
+
 // Mirrors the live deep-link page state from the 2026-07-08 booking run:
 // date/time/party rode the URL so Tock renders NO time picker — just
 // experience cards with "Book now" controls. The fallback must click the

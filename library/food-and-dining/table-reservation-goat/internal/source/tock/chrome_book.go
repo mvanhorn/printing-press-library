@@ -222,8 +222,8 @@ func convertTo12hDisplay(hhmm string) string {
 
 // clickSlotByTimeText finds a button whose text contains the slot time and
 // "Book", then clicks it.
-func clickSlotByTimeText(ctx context.Context, displayTime string) error {
-	js := fmt.Sprintf(`
+func clickSlotByTimeTextJS(displayTime string) string {
+	return fmt.Sprintf(`
 		(() => {
 			const target = %q;
 			const btns = Array.from(document.querySelectorAll('button, a'));
@@ -242,6 +242,10 @@ func clickSlotByTimeText(ctx context.Context, displayTime string) error {
 			return false;
 		})()
 	`, displayTime)
+}
+
+func clickSlotByTimeText(ctx context.Context, displayTime string) error {
+	js := clickSlotByTimeTextJS(displayTime)
 	var clicked bool
 	if err := chromedp.Run(ctx, chromedp.Evaluate(js, &clicked)); err != nil {
 		return fmt.Errorf("evaluating slot click: %w", err)
@@ -338,7 +342,12 @@ func clickSearchResultsPage(ctx context.Context, searchURL, displayTime string) 
 }
 
 func clickRequestedTockBookingControl(ctx context.Context, venueURL, displayTime, isoDate, time24 string, partySize, experienceID int) (context.Context, context.CancelFunc, error) {
-	legacyErr := clickSlotByTimeText(ctx, displayTime)
+	var legacyErr error
+	if experienceID == 0 {
+		legacyErr = clickSlotByTimeText(ctx, displayTime)
+	} else {
+		legacyErr = clickPinnedSlotByTimeText(ctx, displayTime, experienceID)
+	}
 	if legacyErr == nil {
 		return ctx, nil, nil
 	}
@@ -394,9 +403,13 @@ func clickRequestedTockBookingControl(ctx context.Context, venueURL, displayTime
 		Kind:      ErrSlotControlNotFound,
 		Step:      "booking_control",
 		PageState: tockBookingPageStateHint(hintCtx, venueURL),
-		Cause: fmt.Errorf("requested_time=%q legacy_slot_error=%v search_results_error=%v combobox_layout_error=%v",
-			displayTime, legacyErr, searchErr, comboboxErr),
+		Cause:     tockBookingControlFailureCause(displayTime, legacyErr, searchErr, comboboxErr),
 	}
+}
+
+func tockBookingControlFailureCause(displayTime string, legacyErr, searchErr, comboboxErr error) error {
+	return fmt.Errorf("requested_time=%q legacy_slot_error=%v search_results_error=%v combobox_layout_error=%v",
+		displayTime, legacyErr, searchErr, comboboxErr)
 }
 
 type tockComboboxClickResult struct {
@@ -609,10 +622,7 @@ func tockVenuePagePath(rawURL string) string {
 	return ""
 }
 
-// clickComboboxExperienceLayout drives Tock's newer booking layout:
-// choose the requested time from a combobox/listbox, pick the best matching
-// experience card, then click its "Book now" control.
-const tockPinnedExperienceEligibilityJS = `
+const tockPinnedExperiencePathJS = `
 			function hasPinnedExperiencePath(value) {
 				if (experienceID <= 0 || !value) return false;
 				let path = String(value);
@@ -628,6 +638,46 @@ const tockPinnedExperienceEligibilityJS = `
 				}
 				return false;
 			}
+`
+
+type tockPinnedLegacyClickResult struct {
+	PageMatches bool `json:"page_matches"`
+	Clicked     bool `json:"clicked"`
+}
+
+func clickPinnedSlotByTimeTextJS(displayTime string, experienceID int) string {
+	return fmt.Sprintf(`
+		(() => {
+			const experienceID = %d;
+			%s
+			if (!hasPinnedExperiencePath(location.pathname)) {
+				return { page_matches: false, clicked: false };
+			}
+			const clicked = %s;
+			return { page_matches: true, clicked };
+		})()
+	`, experienceID, tockPinnedExperiencePathJS, clickSlotByTimeTextJS(displayTime))
+}
+
+func clickPinnedSlotByTimeText(ctx context.Context, displayTime string, experienceID int) error {
+	js := clickPinnedSlotByTimeTextJS(displayTime, experienceID)
+	var result tockPinnedLegacyClickResult
+	if err := chromedp.Run(ctx, chromedp.Evaluate(js, &result)); err != nil {
+		return fmt.Errorf("legacy time-only slot path skipped for pinned experience %d: could not atomically verify current page path and click: %w", experienceID, err)
+	}
+	if !result.PageMatches {
+		return fmt.Errorf("legacy time-only slot path skipped for pinned experience %d: current page is not its experience deep link", experienceID)
+	}
+	if !result.Clicked {
+		return fmt.Errorf("slot button for %q not found", displayTime)
+	}
+	return nil
+}
+
+// clickComboboxExperienceLayout drives Tock's newer booking layout:
+// choose the requested time from a combobox/listbox, pick the best matching
+// experience card, then click its "Book now" control.
+const tockPinnedExperienceEligibilityJS = tockPinnedExperiencePathJS + `
 			function controlOrCardHasPinnedExperienceLink(control) {
 				const href = control.getAttribute && (control.getAttribute('href') || '');
 				if (hasPinnedExperiencePath(href)) return true;
