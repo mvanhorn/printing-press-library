@@ -551,12 +551,7 @@ func bookOnOpenTable(ctx context.Context, session *auth.Session, slug, date, hhm
 		if resp.ConfirmationNumber > 0 {
 			out.ConfirmationNumber = fmt.Sprintf("%d", resp.ConfirmationNumber)
 		}
-		if resp.RestaurantID > 0 {
-			cutoff, _ := c.FetchCancelCutoff(ctx, resp.RestaurantID, resp.ConfirmationNumber, resp.SecurityToken)
-			out.CancellationDeadline = cutoff
-		} else {
-			out.Hint = "cancellation deadline unavailable: restaurant id could not be resolved"
-		}
+		out = enrichOpenTableAttachBook(ctx, c, resp, out)
 		return out, nil
 	}
 
@@ -636,6 +631,75 @@ func bookOnOpenTable(ctx context.Context, session *auth.Session, slug, date, hhm
 	out.CancellationDeadline = cutoff
 	out.MatchedExisting = false
 	return out, nil
+}
+
+type openTableAttachPostBookClient interface {
+	ListUpcomingReservations(context.Context) ([]opentable.UpcomingReservation, error)
+	FetchCancelCutoff(context.Context, int, int, string) (string, error)
+}
+
+// enrichOpenTableAttachBook fills in identifiers that OpenTable sometimes
+// omits from the attach-flow confirmation state. The reservation has already
+// been committed, so both the dashboard refresh and cutoff lookup are strictly
+// best-effort and must never turn a successful booking into an error.
+func enrichOpenTableAttachBook(ctx context.Context, c openTableAttachPostBookClient, resp *opentable.BookResponse, out bookResult) bookResult {
+	if resp.RestaurantID == 0 {
+		if upcoming, err := c.ListUpcomingReservations(ctx); err == nil {
+			resp.RestaurantID = restaurantIDForBookedReservation(upcoming, resp)
+		}
+	}
+	if resp.RestaurantID == 0 {
+		out.Hint = "cancellation deadline unavailable: restaurant id could not be resolved"
+		return out
+	}
+
+	cutoff, _ := c.FetchCancelCutoff(ctx, resp.RestaurantID, resp.ConfirmationNumber, resp.SecurityToken)
+	out.CancellationDeadline = cutoff
+	return out
+}
+
+func restaurantIDForBookedReservation(upcoming []opentable.UpcomingReservation, resp *opentable.BookResponse) int {
+	if resp.ConfirmationNumber > 0 {
+		if restaurantID := uniqueRestaurantID(upcoming, func(reservation opentable.UpcomingReservation) bool {
+			if reservation.ConfirmationNumber != resp.ConfirmationNumber {
+				return false
+			}
+			// When both representations carry the reservation identifier,
+			// require it to agree as well. This disambiguates stale or reused
+			// confirmation numbers without rejecting older dashboard shapes
+			// that omit confirmationId.
+			return resp.ReservationID == 0 || reservation.ConfirmationID == 0 || reservation.ConfirmationID == resp.ReservationID
+		}); restaurantID > 0 {
+			return restaurantID
+		}
+	}
+
+	// The dashboard names the booking's reservation identifier confirmationId.
+	// Use it only as a same-field fallback; cross-field numeric matches can pick
+	// an unrelated reservation from a stale dashboard list.
+	if resp.ReservationID > 0 {
+		return uniqueRestaurantID(upcoming, func(reservation opentable.UpcomingReservation) bool {
+			return reservation.ConfirmationID == resp.ReservationID
+		})
+	}
+	return 0
+}
+
+func uniqueRestaurantID(upcoming []opentable.UpcomingReservation, matches func(opentable.UpcomingReservation) bool) int {
+	matchedID := 0
+	for _, reservation := range upcoming {
+		if reservation.RestaurantID <= 0 || !matches(reservation) {
+			continue
+		}
+		if matchedID == 0 {
+			matchedID = reservation.RestaurantID
+			continue
+		}
+		if reservation.RestaurantID != matchedID {
+			return 0
+		}
+	}
+	return matchedID
 }
 
 func openTableFallbackBookURL(slug, date, hhmm string, party int) string {

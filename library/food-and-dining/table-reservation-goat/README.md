@@ -3,7 +3,7 @@
 One reservation CLI for OpenTable, Tock, and Resy — search all three networks at once, watch for cancellations, book + cancel end-to-end, and track changes from a local store agents can query.
 
 Created by [@pejmanjohn](https://github.com/pejmanjohn) (Pejman Pour-Moezzi).
-Contributors: [@ganes-j](https://github.com/ganes-j) (Jesse Ganes).
+Contributors: [@ganes-j](https://github.com/ganes-j) (Jesse Ganes), [@teebs4140](https://github.com/teebs4140) (Dylan Thibault).
 
 ## Install
 

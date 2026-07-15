@@ -4,15 +4,16 @@
   "applied_at": "2026-07-13",
   "base_run_id": "20260712-223206",
   "base_printing_press_version": "4.28.0",
-  "summary": "OpenTable booking prefers an explicitly configured signed-in Chrome attachment, preserves a non-clicking prepare mode, and returns redacted typed outcomes for UI drift, slot loss, validation failure, and incomplete confirmation.",
-  "reason": "OpenTable's write path is blocked outside a genuine signed-in browser, while its booking UI and dining-dashboard reducer can drift independently. Regeneration must retain the final-click safety seam, deterministic idempotency-state selection, required-agreement filtering, and identifier-bearing confirmation requirement.",
+  "summary": "OpenTable booking prefers an explicitly configured signed-in Chrome attachment, preserves a non-clicking prepare mode, returns redacted typed outcomes, and recovers a missing restaurant ID from the signed-in dining dashboard after a committed booking.",
+  "reason": "OpenTable's write path is blocked outside a genuine signed-in browser, while its booking UI and dining-dashboard reducer can drift independently. Regeneration must retain the final-click safety seam, deterministic idempotency-state selection, required-agreement filtering, identifier-bearing confirmation requirement, and best-effort post-book identifier recovery without reporting a committed booking as failed.",
   "files": [
     "internal/source/opentable/chrome_book.go",
     "internal/source/opentable/chrome_book_test.go",
     "internal/source/opentable/booking.go",
     "internal/source/opentable/booking_test.go",
     "internal/cli/book.go",
-    "internal/cli/book_test.go"
+    "internal/cli/book_test.go",
+    "internal/cli/testdata/opentable_dashboard_upcoming.json"
   ],
-  "validated_outcome": "Fixture tests cover typed identifierless-confirmation rejection, allowlisted diagnostic labels, deterministic upcoming-reservation reducer selection, final-control isolation, required-policy filtering, and fallback URL construction."
+  "validated_outcome": "Fixture tests cover typed identifierless-confirmation rejection, allowlisted diagnostic labels, deterministic upcoming-reservation reducer selection, final-control isolation, required-policy filtering, fallback URL construction, unambiguous post-book restaurant-ID recovery in the presence of stale and cross-field-collision rows, and non-failing dashboard and cutoff error paths."
 }
