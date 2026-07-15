@@ -612,8 +612,38 @@ func tockVenuePagePath(rawURL string) string {
 // clickComboboxExperienceLayout drives Tock's newer booking layout:
 // choose the requested time from a combobox/listbox, pick the best matching
 // experience card, then click its "Book now" control.
-func clickComboboxExperienceLayout(ctx context.Context, displayTime, isoDate string, partySize, experienceID int) error {
-	js := fmt.Sprintf(`
+const tockPinnedExperienceEligibilityJS = `
+			function hasPinnedExperiencePath(value) {
+				if (experienceID <= 0 || !value) return false;
+				let path = String(value);
+				try {
+					path = new URL(path, location.href).pathname;
+				} catch (_) {
+					path = path.split(/[?#]/, 1)[0];
+				}
+				const segments = path.split('/').filter(Boolean);
+				const pinnedID = String(experienceID);
+				for (let i = 0; i + 1 < segments.length; i++) {
+					if (segments[i] === 'experience' && segments[i + 1] === pinnedID) return true;
+				}
+				return false;
+			}
+			function controlOrCardHasPinnedExperienceLink(control) {
+				const href = control.getAttribute && (control.getAttribute('href') || '');
+				if (hasPinnedExperiencePath(href)) return true;
+				const card = cardFor(control);
+				return Array.from(card.querySelectorAll('a[href]'))
+					.some((link) => hasPinnedExperiencePath(link.getAttribute('href') || ''));
+			}
+			function eligibleExperienceControls(controls) {
+				if (experienceID === 0) return controls;
+				if (hasPinnedExperiencePath(location.pathname)) return controls;
+				return controls.filter(controlOrCardHasPinnedExperienceLink);
+			}
+`
+
+func clickComboboxExperienceLayoutJS(displayTime, isoDate string, partySize, experienceID int) string {
+	return fmt.Sprintf(`
 		(async () => {
 			const target = %q;
 			const isoDate = %q;
@@ -739,6 +769,7 @@ func clickComboboxExperienceLayout(ctx context.Context, displayTime, isoDate str
 				}
 				return control;
 			}
+			%s
 			function groupRange(text) {
 				const m = text.match(/(?:group[s]?\s*)?(\d+)\s*[-–]\s*(\d+)/i);
 				if (!m) return null;
@@ -749,7 +780,7 @@ func clickComboboxExperienceLayout(ctx context.Context, displayTime, isoDate str
 				const text = clean(card.textContent || control.textContent);
 				const href = control.getAttribute && (control.getAttribute('href') || '');
 				let score = 0;
-				if (experienceID > 0 && href.includes('/experience/' + experienceID)) score += 100;
+				if (experienceID > 0 && controlOrCardHasPinnedExperienceLink(control)) score += 100;
 				const range = groupRange(text);
 				if (range) {
 					if (partySize >= range.min && partySize <= range.max) score += 45;
@@ -763,11 +794,19 @@ func clickComboboxExperienceLayout(ctx context.Context, displayTime, isoDate str
 				return { control, cardText: text.slice(0, 160), score, top };
 			}
 			async function clickBestExperienceBookNow() {
-				const controls = all('a, button')
-					.filter((el) => /book now/i.test(clean(el.textContent || el.getAttribute('aria-label'))))
+				const bookNowControls = all('a, button')
+					.filter((el) => /book now/i.test(clean(el.textContent || el.getAttribute('aria-label'))));
+				const controls = (experienceID > 0 ? eligibleExperienceControls(bookNowControls) : bookNowControls)
 					.map(scoreBookControl)
 					.sort((a, b) => (b.score - a.score) || (a.top - b.top));
 				if (controls.length === 0) {
+					if (experienceID > 0) {
+						return {
+							ok: false,
+							step: 'experience_card',
+							detail: 'pinned experience ' + experienceID + ' could not be positively identified among Book now controls',
+						};
+					}
 					return { ok: false, step: 'experience_card', detail: 'no Book now controls found after selecting time' };
 				}
 				click(controls[0].control);
@@ -778,9 +817,13 @@ func clickComboboxExperienceLayout(ctx context.Context, displayTime, isoDate str
 				const modalResult = await driveExperienceModal();
 				if (modalResult !== null) return modalResult;
 				// No modal appeared: legacy layout with a separate submit control.
-				const submit = all('button')
-					.filter((el) => el !== controls[0].control)
-					.filter((el) => /book now/i.test(clean(el.textContent || el.getAttribute('aria-label'))) || el.type === 'submit')
+				const submitCandidates = all('button').filter((el) => el !== controls[0].control);
+				// A sibling card's "Book now" is only a valid legacy submit when it
+				// satisfies the same pinned-experience eligibility as the card pick;
+				// real form submits (type=submit) stay ungated.
+				const submit = eligibleExperienceControls(
+					submitCandidates.filter((el) => /book now/i.test(clean(el.textContent || el.getAttribute('aria-label')))))
+					.concat(submitCandidates.filter((el) => el.type === 'submit'))
 					.sort((a, b) => a.getBoundingClientRect().top - b.getBoundingClientRect().top)[0];
 				if (submit) {
 					click(submit);
@@ -921,7 +964,11 @@ func clickComboboxExperienceLayout(ctx context.Context, displayTime, isoDate str
 				};
 			}
 		})()
-	`, displayTime, isoDate, partySize, experienceID)
+	`, displayTime, isoDate, partySize, experienceID, tockPinnedExperienceEligibilityJS)
+}
+
+func clickComboboxExperienceLayout(ctx context.Context, displayTime, isoDate string, partySize, experienceID int) error {
+	js := clickComboboxExperienceLayoutJS(displayTime, isoDate, partySize, experienceID)
 	var result tockComboboxClickResult
 	awaitPromise := func(p *runtime.EvaluateParams) *runtime.EvaluateParams {
 		return p.WithAwaitPromise(true)

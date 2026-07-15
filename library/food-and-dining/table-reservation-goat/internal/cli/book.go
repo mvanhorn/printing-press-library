@@ -593,25 +593,7 @@ func bookOnTock(ctx context.Context, session *auth.Session, slug, date, hhmm str
 		CVC:             cvc,
 	})
 	if bookErr != nil {
-		switch {
-		case errors.Is(bookErr, tock.ErrPaymentRequired):
-			out.Error = "payment_required"
-			out.Hint = "venue requires full prepayment (v0.3 work)"
-		case errors.Is(bookErr, tock.ErrCanaryUnrecognizedBody):
-			out.Error = "discriminator_drift"
-		case errors.Is(bookErr, tock.ErrSlotControlNotFound):
-			out.Error = "selector_drift"
-			out.Hint = bookErr.Error()
-			out.BookURL = fmt.Sprintf("https://www.exploretock.com/%s?date=%s&size=%d&time=%s", slug, date, party, hhmm)
-		case errors.Is(bookErr, tock.ErrCVCRequired):
-			out.Error = "cvc_required"
-			out.Hint = "this venue requires card CVC re-entry per booking: set TRG_TOCK_CVC for this booking, rerun interactively, or book via the URL"
-			out.BookURL = fmt.Sprintf("https://www.exploretock.com/%s?date=%s&size=%d&time=%s", slug, date, party, hhmm)
-		default:
-			out.Error = "chromedp_book_failed"
-			out.Hint = bookErr.Error()
-			out.BookURL = fmt.Sprintf("https://www.exploretock.com/%s?date=%s&size=%d&time=%s", slug, date, party, hhmm)
-		}
+		out = applyTockBookError(out, bookErr, slug, date, hhmm, party)
 		return out, bookErr
 	}
 	out.Source = "book"
@@ -624,6 +606,29 @@ func bookOnTock(ctx context.Context, session *auth.Session, slug, date, hhmm str
 		out.BookURL = resp.ReceiptURL
 	}
 	return out, nil
+}
+
+func applyTockBookError(out bookResult, bookErr error, slug, date, hhmm string, party int) bookResult {
+	switch {
+	case errors.Is(bookErr, tock.ErrPaymentRequired):
+		out.Error = "payment_required"
+		out.Hint = "venue requires full prepayment (v0.3 work)"
+	case errors.Is(bookErr, tock.ErrCanaryUnrecognizedBody):
+		out.Error = "discriminator_drift"
+	case errors.Is(bookErr, tock.ErrSlotControlNotFound):
+		out.Error = "selector_drift"
+		out.Hint = bookErr.Error()
+		out.BookURL = fmt.Sprintf("https://www.exploretock.com/%s?date=%s&size=%d&time=%s", slug, date, party, hhmm)
+	case errors.Is(bookErr, tock.ErrCVCRequired):
+		out.Error = "cvc_required"
+		out.Hint = "this venue requires card CVC re-entry per booking: set TRG_TOCK_CVC for this booking, rerun interactively, or book via the URL"
+		out.BookURL = fmt.Sprintf("https://www.exploretock.com/%s?date=%s&size=%d&time=%s", slug, date, party, hhmm)
+	default:
+		out.Error = "chromedp_book_failed"
+		out.Hint = bookErr.Error()
+		out.BookURL = fmt.Sprintf("https://www.exploretock.com/%s?date=%s&size=%d&time=%s", slug, date, party, hhmm)
+	}
+	return out
 }
 
 var (

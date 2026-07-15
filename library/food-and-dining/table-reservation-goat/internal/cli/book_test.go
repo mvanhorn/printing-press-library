@@ -10,6 +10,7 @@ import (
 	"testing"
 
 	"github.com/mvanhorn/printing-press-library/library/food-and-dining/table-reservation-goat/internal/source/opentable"
+	"github.com/mvanhorn/printing-press-library/library/food-and-dining/table-reservation-goat/internal/source/tock"
 )
 
 func TestParseNetworkPrefix(t *testing.T) {
@@ -260,6 +261,29 @@ func TestTockCVCForBooking_RejectsInvalidEnv(t *testing.T) {
 	}
 	if stderr.Len() != 0 {
 		t.Fatalf("invalid env wrote prompt: %q", stderr.String())
+	}
+}
+
+func TestApplyTockBookError_SelectorDriftPreservesPinnedExperienceFailure(t *testing.T) {
+	bookErr := &tock.ChromeBookError{
+		Kind: tock.ErrSlotControlNotFound,
+		Step: "booking_control",
+		Cause: errors.New(
+			`requested_time="6:15 PM" combobox_layout_error=experience_card: pinned experience 520126 could not be positively identified among Book now controls`,
+		),
+	}
+	got := applyTockBookError(bookResult{}, bookErr, "barcelona-wine-bar-raleigh", "2026-07-10", "18:15", 2)
+
+	if got.Error != "selector_drift" {
+		t.Fatalf("error category = %q, want selector_drift", got.Error)
+	}
+	for _, want := range []string{"step=booking_control", "experience_card", "pinned experience 520126"} {
+		if !strings.Contains(got.Hint, want) {
+			t.Errorf("hint = %q, want it to contain %q", got.Hint, want)
+		}
+	}
+	if want := "https://www.exploretock.com/barcelona-wine-bar-raleigh?date=2026-07-10&size=2&time=18:15"; got.BookURL != want {
+		t.Fatalf("book URL = %q, want %q", got.BookURL, want)
 	}
 }
 

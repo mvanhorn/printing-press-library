@@ -14,6 +14,7 @@ import (
 
 	cdproto "github.com/chromedp/cdproto"
 	"github.com/chromedp/chromedp"
+	"github.com/dop251/goja"
 )
 
 func withTockDOMFixture(t *testing.T, html string, run func(context.Context)) {
@@ -553,8 +554,8 @@ func TestClickComboboxExperienceLayout_PinnedExperienceSkipsSearchResultSlot(t *
 		</section>
 		<section class="experience-card" id="pinned">
 			<h2>Pinned experience</h2>
-			<a href="/barcelona-wine-bar-raleigh/experience/520126/reservation"
-				onclick="window.clickedExperience = 'pinned'; return false;">Book now</a>
+			<a href="/barcelona-wine-bar-raleigh/experience/520126/reservation">Pinned experience details</a>
+			<button onclick="window.clickedExperience = 'pinned';">Book now</button>
 		</section>
 		<div id="results" style="display:none">
 			<div><span>6:15 PM</span><button onclick="window.bookedSlot = '6:15 PM';">Book</button></div>
@@ -587,6 +588,179 @@ func TestClickComboboxExperienceLayout_PinnedExperienceSkipsSearchResultSlot(t *
 		if clickedExperience != "pinned" {
 			t.Fatalf("clicked experience = %q, want pinned", clickedExperience)
 		}
+	})
+}
+
+func TestTockPinnedExperienceEligibilityJS_BoundarySafe(t *testing.T) {
+	const experienceID = 520126
+	cases := []struct {
+		name        string
+		controlHref string
+		cardHrefs   []string
+		pagePath    string
+		want        bool
+	}{
+		{name: "exact control href", controlHref: "/venue/experience/520126", pagePath: "/venue", want: true},
+		{name: "exact control href with suffix path", controlHref: "/venue/experience/520126/reservation", pagePath: "/venue", want: true},
+		{name: "exact control href with query", controlHref: "/venue/experience/520126?date=2026-07-10", pagePath: "/venue", want: true},
+		{name: "different control ID", controlHref: "/venue/experience/111111/reservation", pagePath: "/venue"},
+		{name: "control ID prefix collision", controlHref: "/venue/experience/5201264/reservation", pagePath: "/venue"},
+		{name: "control ID suffix collision", controlHref: "/venue/experience/520126-other/reservation", pagePath: "/venue"},
+		{name: "control query only", controlHref: "/venue?next=/experience/520126", pagePath: "/venue"},
+		{name: "exact link in card", cardHrefs: []string{"/venue/experience/520126/reservation"}, pagePath: "/venue", want: true},
+		{name: "card-link ID prefix collision", cardHrefs: []string{"/venue/experience/5201264/reservation"}, pagePath: "/venue"},
+		{name: "exact deep-link page", pagePath: "/venue/experience/520126", want: true},
+		{name: "deep-link page ID prefix collision", pagePath: "/venue/experience/5201264"},
+		{name: "unrelated page path", pagePath: "/venue/some-experience/520126"},
+	}
+
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			cardHrefs, err := json.Marshal(tc.cardHrefs)
+			if err != nil {
+				t.Fatalf("marshal card hrefs: %v", err)
+			}
+			script := fmt.Sprintf(`
+				var experienceID = %d;
+				var location = {href: 'https://www.exploretock.com%s', pathname: %q};
+				function cardFor(control) { return control.card; }
+				function makeControl(href, cardHrefs) {
+					return {
+						getAttribute: (name) => name === 'href' ? href : '',
+						card: {
+							querySelectorAll: () => (cardHrefs || []).map((cardHref) => ({
+								getAttribute: (name) => name === 'href' ? cardHref : '',
+							})),
+						},
+					};
+				}
+				%s
+				const control = makeControl(%q, %s);
+				eligibleExperienceControls([control]).length === 1;
+			`, experienceID, tc.pagePath, tc.pagePath, tockPinnedExperienceEligibilityJS, tc.controlHref, cardHrefs)
+			value, err := goja.New().RunString(script)
+			if err != nil {
+				t.Fatalf("evaluate eligibility helper: %v", err)
+			}
+			if got := value.ToBoolean(); got != tc.want {
+				t.Fatalf("eligible = %v, want %v", got, tc.want)
+			}
+		})
+	}
+}
+
+func TestTockPinnedExperienceEligibilityJS_UnpinnedIsNoOp(t *testing.T) {
+	script := `
+		var experienceID = 0;
+		var location = {href: 'https://www.exploretock.com/venue', pathname: '/venue'};
+		function cardFor() { throw new Error('unpinned path inspected a card'); }
+	` + tockPinnedExperienceEligibilityJS + `
+		const controls = [{getAttribute: () => { throw new Error('unpinned path inspected a control'); }}];
+		eligibleExperienceControls(controls) === controls;
+	`
+	value, err := goja.New().RunString(script)
+	if err != nil {
+		t.Fatalf("evaluate unpinned helper: %v", err)
+	}
+	if !value.ToBoolean() {
+		t.Fatal("unpinned eligibility must return the original controls array")
+	}
+
+	generated := clickComboboxExperienceLayoutJS("6:15 PM", "2026-07-10", 8, 0)
+	if got := strings.Count(generated, "eligibleExperienceControls("); got != 3 {
+		t.Fatalf("eligibility gate definition/call count = %d, want 3 (definition + card pick + legacy submit)", got)
+	}
+}
+
+// Pinned experience selection must fail closed unless the target ID is tied
+// to a Book now control by its href, another link in its card, or the page's
+// own deep-link path. Unpinned selection retains the existing heuristic path.
+func TestClickComboboxExperienceLayout_PinnedExperienceRequiresPositiveTie(t *testing.T) {
+	const experienceID = 520126
+	html := `
+		<!doctype html>
+		<label for="time">Time</label>
+		<select id="time" aria-label="Desired reservation time">
+			<option value="18:15">6:15 PM</option>
+		</select>
+		<section class="experience-card" id="standard">
+			<h2>Reservation</h2>
+			<button onclick="window.clickedExperience = 'standard'; history.pushState({}, '', '/checkout/confirm-purchase');">Book now</button>
+		</section>
+		<section class="experience-card" id="group">
+			<h2>Reservation: Groups 7-18</h2>
+			<button onclick="window.clickedExperience = 'group'; history.pushState({}, '', '/checkout/confirm-purchase');">Book now</button>
+		</section>`
+
+	t.Run("unpinned page fails without a positively tied card", func(t *testing.T) {
+		withTockDOMFixture(t, html, func(ctx context.Context) {
+			err := clickComboboxExperienceLayout(ctx, "6:15 PM", "2026-07-10", 2, experienceID)
+			if err == nil {
+				t.Fatal("expected pinned experience without a positive tie to fail")
+			}
+			want := "experience_card: pinned experience 520126 could not be positively identified"
+			if !strings.Contains(err.Error(), want) {
+				t.Fatalf("error = %q, want typed pinned-experience failure containing %q", err, want)
+			}
+			var clicked string
+			if evalErr := chromedp.Run(ctx, chromedp.Evaluate(`window.clickedExperience || ''`, &clicked)); evalErr != nil {
+				t.Fatalf("read clicked experience: %v", evalErr)
+			}
+			if clicked != "" {
+				t.Fatalf("clicked experience = %q, want no heuristic click", clicked)
+			}
+		})
+	})
+
+	t.Run("deep-link page permits href-less controls", func(t *testing.T) {
+		srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+			w.Header().Set("Content-Type", "text/html; charset=utf-8")
+			fmt.Fprint(w, html)
+		}))
+		defer srv.Close()
+
+		withTockDOMFixture(t, "<!doctype html><p>boot</p>", func(ctx context.Context) {
+			deepLink := fmt.Sprintf("%s/venue/experience/%d", srv.URL, experienceID)
+			if err := chromedp.Run(ctx, chromedp.Navigate(deepLink)); err != nil {
+				t.Fatalf("navigate to pinned experience fixture: %v", err)
+			}
+			if err := clickComboboxExperienceLayout(ctx, "6:15 PM", "2026-07-10", 2, experienceID); err != nil {
+				t.Fatalf("clickComboboxExperienceLayout on pinned page: %v", err)
+			}
+			var clicked string
+			if err := chromedp.Run(ctx, chromedp.Evaluate(`window.clickedExperience || ''`, &clicked)); err != nil {
+				t.Fatalf("read clicked experience: %v", err)
+			}
+			if clicked != "standard" {
+				t.Fatalf("clicked experience = %q, want standard on pinned page", clicked)
+			}
+		})
+	})
+
+	t.Run("unpinned selection keeps party-size heuristics", func(t *testing.T) {
+		// Served over HTTP (not a data: URL) so the fixture's pushState-to-
+		// checkout works and the flow stops after the first card click.
+		srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+			w.Header().Set("Content-Type", "text/html; charset=utf-8")
+			fmt.Fprint(w, html)
+		}))
+		defer srv.Close()
+
+		withTockDOMFixture(t, "<!doctype html><p>boot</p>", func(ctx context.Context) {
+			if err := chromedp.Run(ctx, chromedp.Navigate(srv.URL+"/venue")); err != nil {
+				t.Fatalf("navigate to unpinned fixture: %v", err)
+			}
+			if err := clickComboboxExperienceLayout(ctx, "6:15 PM", "2026-07-10", 8, 0); err != nil {
+				t.Fatalf("clickComboboxExperienceLayout unpinned flow: %v", err)
+			}
+			var clicked string
+			if err := chromedp.Run(ctx, chromedp.Evaluate(`window.clickedExperience || ''`, &clicked)); err != nil {
+				t.Fatalf("read clicked experience: %v", err)
+			}
+			if clicked != "group" {
+				t.Fatalf("clicked experience = %q, want group for unpinned party of 8", clicked)
+			}
+		})
 	})
 }
 
