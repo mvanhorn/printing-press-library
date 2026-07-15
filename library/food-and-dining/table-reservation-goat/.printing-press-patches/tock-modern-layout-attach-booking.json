@@ -4,8 +4,8 @@
   "applied_at": "2026-07-13",
   "base_run_id": "20260712-223206",
   "base_printing_press_version": "4.28.0",
-  "summary": "Preserve legacy Tock slot booking while adding exact-time search rows, modern combobox and experience-card selection, trusted foreground checkout input, SMS opt-out handling, and typed redacted failures.",
-  "reason": "Modern Tock venue pages can expose a time combobox and party-dependent experience cards without any per-time slot button, causing attach booking to fail before checkout. The SPA also requires foreground trusted input, can drop the first checkout transition, and may interpose an SMS opt-in dialog that must be declined.",
+  "summary": "Preserve legacy Tock slot booking while adding exact-time search rows, pinned-experience-aware combobox and experience-card selection, trusted foreground checkout input, SMS opt-out handling, and typed redacted failures.",
+  "reason": "Modern Tock venue pages can expose a time combobox and party-dependent experience cards without any per-time slot button, causing attach booking to fail before checkout. Venue-wide search rows are matched by time only and must be skipped for pinned experiences; the SPA also requires foreground trusted input, can drop the first checkout transition, and may interpose an SMS opt-in dialog that must be declined.",
   "files": [
     "internal/source/tock/booking.go",
     "internal/source/tock/booking_test.go",
@@ -16,5 +16,5 @@
     "README.md",
     "SKILL.md"
   ],
-  "validated_outcome": "Fixture coverage exercises layout detection, exact combobox matching, party-size experience disambiguation, exact-time search rows, the SMS-decline portal, typed non-interactive CVC handling, and redacted selector fallback state."
+  "validated_outcome": "Fixture coverage exercises layout detection, exact combobox matching, party-size and pinned-ID experience disambiguation, exact-time venue search rows, the SMS-decline portal, typed non-interactive CVC handling, and redacted selector fallback state."
 }

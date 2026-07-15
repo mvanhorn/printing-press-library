@@ -533,6 +533,63 @@ func TestClickComboboxExperienceLayout_UsesSearchResultSlotBeforeExperienceCard(
 	})
 }
 
+// A pinned experience must not use the venue-wide /search flow, whose rows
+// are matched by time only. Fall through to the experience-aware card scorer
+// so another experience offered at the same time cannot be booked instead.
+func TestClickComboboxExperienceLayout_PinnedExperienceSkipsSearchResultSlot(t *testing.T) {
+	html := `
+		<!doctype html>
+		<label for="time">Time</label>
+		<select id="time" aria-label="Desired reservation time">
+			<option value="18:00">6:00 PM</option>
+			<option value="18:15">6:15 PM</option>
+		</select>
+		<a id="search" href="/barcelona-wine-bar-raleigh/search?date=2026-07-10&size=2&time=18%3A15"
+			onclick="window.searchClicked = true; document.getElementById('results').style.display = 'block'; return false;">Search</a>
+		<section class="experience-card" id="other">
+			<h2>Other experience</h2>
+			<a href="/barcelona-wine-bar-raleigh/experience/111111/reservation"
+				onclick="window.clickedExperience = 'other'; return false;">Book now</a>
+		</section>
+		<section class="experience-card" id="pinned">
+			<h2>Pinned experience</h2>
+			<a href="/barcelona-wine-bar-raleigh/experience/520126/reservation"
+				onclick="window.clickedExperience = 'pinned'; return false;">Book now</a>
+		</section>
+		<div id="results" style="display:none">
+			<div><span>6:15 PM</span><button onclick="window.bookedSlot = '6:15 PM';">Book</button></div>
+		</div>`
+	withTockDOMFixture(t, html, func(ctx context.Context) {
+		if err := chromedp.Run(ctx, chromedp.ActionFunc(func(actCtx context.Context) error {
+			return clickComboboxExperienceLayout(actCtx, "6:15 PM", "2026-07-10", 2, 520126)
+		})); err != nil {
+			t.Fatalf("clickComboboxExperienceLayout pinned experience flow: %v", err)
+		}
+		var selected, clickedExperience, bookedSlot string
+		var searchClicked bool
+		if err := chromedp.Run(ctx,
+			chromedp.Evaluate(`document.querySelector('#time').value`, &selected),
+			chromedp.Evaluate(`window.searchClicked || false`, &searchClicked),
+			chromedp.Evaluate(`window.clickedExperience || ''`, &clickedExperience),
+			chromedp.Evaluate(`window.bookedSlot || ''`, &bookedSlot),
+		); err != nil {
+			t.Fatalf("read pinned-experience fixture state: %v", err)
+		}
+		if selected != "18:15" {
+			t.Fatalf("selected time = %q, want 18:15", selected)
+		}
+		if searchClicked {
+			t.Fatal("pinned experience must not use the venue-wide search path")
+		}
+		if bookedSlot != "" {
+			t.Fatalf("bookedSlot = %q, want no venue-wide result row click", bookedSlot)
+		}
+		if clickedExperience != "pinned" {
+			t.Fatalf("clicked experience = %q, want pinned", clickedExperience)
+		}
+	})
+}
+
 // Mirrors the live experience modal (confirmed in a real browser
 // 2026-07-08): clicking an experience card's "Book now" opens an SPA modal
 // whose calendar day buttons are named with ISO dates and whose slot rows

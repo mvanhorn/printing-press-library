@@ -837,6 +837,10 @@ func clickComboboxExperienceLayout(ctx context.Context, displayTime, isoDate str
 				return controls[0].el;
 			}
 			async function clickSearchResultSlot() {
+				// Never for a pinned experience: /search is venue-wide and
+				// clicks by time only, so it could book a different experience
+				// at the same slot. Let the experience-aware card flow handle it.
+				if (experienceID > 0) return null;
 				let slotBtn = findSlotBookButton();
 				if (slotBtn) {
 					click(slotBtn);
