@@ -217,7 +217,7 @@ export TABLE_RESERVATION_GOAT_OT_CHROME_DEBUG_URL=http://127.0.0.1:9223
 TRG_ALLOW_BOOK=prepare table-reservation-goat-pp-cli book opentable:3688 --date 2026-07-20 --time 17:00 --party 2 --agent
 ```
 
-Attach failures are machine-readable: `attach_unreachable`, `not_signed_in`, `selector_drift`, `form_validation`, `slot_taken`, and `incomplete_confirmation`. Diagnostics expose only a sanitized page path and allowlisted control labels. When the debug endpoint is absent, OpenTable retains the existing HTTP booking path.
+Attach failures are machine-readable: `attach_unreachable`, `not_signed_in`, `selector_drift`, `form_validation`, `slot_taken`, and `incomplete_confirmation`. A committed booking whose restaurant ID cannot be recovered remains a `source: "book"` success and carries the `restaurant_id_unresolved` warning alongside its human-readable hint. Diagnostics expose only a sanitized page path and allowlisted control labels. When the debug endpoint is absent, OpenTable retains the existing HTTP booking path.
 
 
 ### restaurants

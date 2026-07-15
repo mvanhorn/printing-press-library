@@ -71,6 +71,15 @@ func jsonRoundTripBookResult(t *testing.T, result bookResult) bookResult {
 	return decoded
 }
 
+func bookResultHasWarning(result bookResult, want string) bool {
+	for _, warning := range result.Warnings {
+		if warning == want {
+			return true
+		}
+	}
+	return false
+}
+
 func TestEnrichOpenTableAttachBookBackfillsRestaurantIDAndFetchesCutoff(t *testing.T) {
 	client := &fakeOpenTableAttachPostBookClient{
 		upcoming: decodeDashboardFixture(t),
@@ -99,6 +108,9 @@ func TestEnrichOpenTableAttachBookBackfillsRestaurantIDAndFetchesCutoff(t *testi
 	}
 	if decoded.Hint != "" {
 		t.Fatalf("Hint = %q, want empty", decoded.Hint)
+	}
+	if bookResultHasWarning(decoded, openTableWarningRestaurantIDUnresolved) {
+		t.Fatalf("Warnings = %v, must not contain %q", decoded.Warnings, openTableWarningRestaurantIDUnresolved)
 	}
 }
 
@@ -151,8 +163,14 @@ func TestEnrichOpenTableAttachBookDashboardUnavailableKeepsHint(t *testing.T) {
 	if decoded.Hint != wantHint {
 		t.Fatalf("Hint = %q, want %q", decoded.Hint, wantHint)
 	}
+	if !bookResultHasWarning(decoded, openTableWarningRestaurantIDUnresolved) {
+		t.Fatalf("Warnings = %v, want %q", decoded.Warnings, openTableWarningRestaurantIDUnresolved)
+	}
 	if decoded.Error != "" {
 		t.Fatalf("Error = %q, want successful booking", decoded.Error)
+	}
+	if decoded.Source != "book" {
+		t.Fatalf("Source = %q, want successful booking source %q", decoded.Source, "book")
 	}
 }
 
@@ -161,6 +179,7 @@ func TestEnrichOpenTableAttachBookNoDashboardMatchKeepsHint(t *testing.T) {
 	resp := &opentable.BookResponse{ConfirmationNumber: 424242, ReservationID: 434343}
 
 	got := enrichOpenTableAttachBook(context.Background(), client, resp, bookResult{Source: "book"})
+	decoded := jsonRoundTripBookResult(t, got)
 
 	if resp.RestaurantID != 0 {
 		t.Fatalf("RestaurantID = %d, want 0", resp.RestaurantID)
@@ -169,11 +188,17 @@ func TestEnrichOpenTableAttachBookNoDashboardMatchKeepsHint(t *testing.T) {
 		t.Fatalf("FetchCancelCutoff unexpectedly called with %#v", *client.cutoffCall)
 	}
 	const wantHint = "cancellation deadline unavailable: restaurant id could not be resolved"
-	if got.Hint != wantHint {
-		t.Fatalf("Hint = %q, want %q", got.Hint, wantHint)
+	if decoded.Hint != wantHint {
+		t.Fatalf("Hint = %q, want %q", decoded.Hint, wantHint)
 	}
-	if got.Error != "" {
-		t.Fatalf("Error = %q, want successful booking", got.Error)
+	if !bookResultHasWarning(decoded, openTableWarningRestaurantIDUnresolved) {
+		t.Fatalf("Warnings = %v, want %q", decoded.Warnings, openTableWarningRestaurantIDUnresolved)
+	}
+	if decoded.Error != "" {
+		t.Fatalf("Error = %q, want successful booking", decoded.Error)
+	}
+	if decoded.Source != "book" {
+		t.Fatalf("Source = %q, want successful booking source %q", decoded.Source, "book")
 	}
 }
 

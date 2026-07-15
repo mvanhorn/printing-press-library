@@ -71,6 +71,8 @@ type bookResult struct {
 	Warnings             []string        `json:"warnings,omitempty"`
 }
 
+const openTableWarningRestaurantIDUnresolved = "restaurant_id_unresolved"
+
 // newBookCmd constructs the `book` Cobra command.
 func newBookCmd(flags *rootFlags) *cobra.Command {
 	var (
@@ -649,6 +651,7 @@ func enrichOpenTableAttachBook(ctx context.Context, c openTableAttachPostBookCli
 		}
 	}
 	if resp.RestaurantID == 0 {
+		out.Warnings = append(out.Warnings, openTableWarningRestaurantIDUnresolved)
 		out.Hint = "cancellation deadline unavailable: restaurant id could not be resolved"
 		return out
 	}
