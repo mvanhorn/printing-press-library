@@ -1,9 +1,9 @@
 {
   "api_name": "everbee",
   "base_url": "https://api.everbee.com",
-  "description": "EverBee Research workflows for product analytics, keyword research, and shop analysis",
+  "description": "Etsy niche research whose scores come with their evidence attached — seeded search, honest confidence, and a local store that turns repeat research into trends.",
   "mcp_ready": "full",
-  "http_transport": "browser-chrome-h2",
+  "http_transport": "standard",
   "auth": {
     "type": "api_key",
     "header": "x-access-token",
@@ -24,86 +24,92 @@
   "required_headers": [],
   "tools": [
     {
-      "name": "folders_list_folders",
-      "description": "GET /folders. Optional: type (default: listing). Returns the folders.",
+      "name": "account_show",
+      "description": "Show the EverBee account's current plan, research quota, and usage. Use this to check remaining keyword-search quota before a batch run — the free Hobby plan allows only 10 keyword searches per month. Returns the account.",
       "method": "GET",
-      "path": "/folders",
-      "params": [
-        {
-          "name": "type",
-          "type": "string",
-          "location": "query",
-          "description": "Folder type observed in EverBee traffic: listing, keyword_analytic, or shop"
-        }
-      ]
+      "path": "/users/show",
+      "params": []
     },
     {
-      "name": "keyword_research_list_default_keyword_suggestion",
-      "description": "GET /keyword_research/default_keyword_suggestion. Optional: order_by (default: new_volume), order_direction (default: desc), page (default: 1) (plus 1 more). Returns the default_keyword_suggestion.",
+      "name": "keyword_research_list",
+      "description": "Browse EverBee's default keyword feed (what the UI shows before you search). This is a discovery/browse surface, NOT a search: it ignores any seed and returns EverBee's unranked default suggestions. To research a specific keyword use `keyword-research search --keyword`. Optional: type_of_search (default: keywords_suggestion), order_by (default: new_volume), order_direction (default: desc) (plus 1 more).",
       "method": "GET",
       "path": "/keyword_research/default_keyword_suggestion",
       "params": [
         {
+          "name": "type_of_search",
+          "type": "string",
+          "location": "query",
+          "description": "EverBee keyword search mode."
+        },
+        {
           "name": "order_by",
           "type": "string",
           "location": "query",
-          "description": "Sort field observed in EverBee traffic"
+          "description": "Sort field: new_volume, competition, or score."
         },
         {
           "name": "order_direction",
           "type": "string",
           "location": "query",
-          "description": "Sort direction"
+          "description": "Sort direction: desc or asc."
         },
         {
           "name": "page",
           "type": "integer",
           "location": "query",
-          "description": "Result page"
+          "description": "Result page."
+        }
+      ]
+    },
+    {
+      "name": "keyword_research_search",
+      "description": "Seeded keyword search. Returns keywords related to the seed with volume, competition, score, CPC, and trend, plus the seed's own demand-vs-competition metrics under `searched_keyword`. This is the endpoint the EverBee UI search box calls. Comma-join the keyword value to research multiple seeds at once. Required: keyword. Optional: type_of_search (default: keywords_suggestion), order_by (default: new_volume), order_direction (default: desc) (plus 2 more).",
+      "method": "POST",
+      "path": "/keyword_research/keyword_suggestion",
+      "params": [
+        {
+          "name": "keyword",
+          "type": "string",
+          "location": "query",
+          "description": "Seed keyword to research, e.g. 'dad shirt'. Comma-join multiple seeds: 'dad shirt,fishing dad shirt'.",
+          "required": true
         },
         {
           "name": "type_of_search",
           "type": "string",
           "location": "query",
-          "description": "EverBee keyword search mode"
-        }
-      ]
-    },
-    {
-      "name": "management_modals_list_management_modals",
-      "description": "GET /management_modals. Required: last_reset_at, show_manage_keyword_modal, show_manage_listing_modal, show_manage_shop_modal. Returns the management_modals.",
-      "method": "GET",
-      "path": "/management_modals",
-      "params": [
+          "description": "EverBee keyword search mode. keywords_suggestion returns related-keyword suggestions for the seed."
+        },
         {
-          "name": "last_reset_at",
+          "name": "order_by",
           "type": "string",
           "location": "query",
-          "required": true
+          "description": "Sort field: new_volume (search volume), competition, or score."
         },
         {
-          "name": "show_manage_keyword_modal",
-          "type": "boolean",
+          "name": "order_direction",
+          "type": "string",
           "location": "query",
-          "required": true
+          "description": "Sort direction: desc or asc."
         },
         {
-          "name": "show_manage_listing_modal",
-          "type": "boolean",
+          "name": "page",
+          "type": "integer",
           "location": "query",
-          "required": true
+          "description": "Result page (20 keywords per page)."
         },
         {
-          "name": "show_manage_shop_modal",
+          "name": "count_search",
           "type": "boolean",
           "location": "query",
-          "required": true
+          "description": "Count this search against the account's plan quota, matching EverBee UI behavior."
         }
       ]
     },
     {
-      "name": "product_analytics_list_default_product_analytics",
-      "description": "GET /product_analytics/default_product_analytics. Optional: order_by (default: est_mo_revenue), order_direction (default: desc), page (default: 1) (plus 2 more). Returns the default_product_analytics.",
+      "name": "products_list",
+      "description": "Browse EverBee's default product feed (what the UI shows before you search). This is a discovery/browse surface, NOT a search: it ignores any search term. To research a specific product niche use `products search --search-term`. Optional: order_by (default: est_mo_revenue), order_direction (default: desc), time_range (default: last_1_month) (plus 2 more). Returns the default_product_analytics.",
       "method": "GET",
       "path": "/product_analytics/default_product_analytics",
       "params": [
@@ -111,63 +117,84 @@
           "name": "order_by",
           "type": "string",
           "location": "query",
-          "description": "Sort field observed in EverBee traffic"
+          "description": "Sort field: est_mo_revenue, est_mo_sales, price, or growth_rate."
         },
         {
           "name": "order_direction",
           "type": "string",
           "location": "query",
-          "description": "Sort direction"
-        },
-        {
-          "name": "page",
-          "type": "integer",
-          "location": "query",
-          "description": "Result page"
-        },
-        {
-          "name": "per_page",
-          "type": "integer",
-          "location": "query",
-          "description": "Results per page"
+          "description": "Sort direction: desc or asc."
         },
         {
           "name": "time_range",
           "type": "string",
           "location": "query",
-          "description": "EverBee time range"
-        }
-      ]
-    },
-    {
-      "name": "shops_list_shops",
-      "description": "GET /shops. Optional: order_by (default: revenue), order_direction (default: desc), page (default: 1) (plus 1 more). Returns the shops.",
-      "method": "GET",
-      "path": "/shops",
-      "params": [
-        {
-          "name": "order_by",
-          "type": "string",
-          "location": "query",
-          "description": "Sort field observed in EverBee traffic"
-        },
-        {
-          "name": "order_direction",
-          "type": "string",
-          "location": "query",
-          "description": "Sort direction"
+          "description": "Metric window for sales/revenue estimates."
         },
         {
           "name": "page",
           "type": "integer",
           "location": "query",
-          "description": "Result page"
+          "description": "Result page."
         },
         {
           "name": "per_page",
           "type": "integer",
           "location": "query",
-          "description": "Results per page"
+          "description": "Results per page."
+        }
+      ]
+    },
+    {
+      "name": "shops_resolve",
+      "description": "Resolve an Etsy shop handle to its EverBee identity (shop_id, exact shop name, rating, review count, year created). Use this before any shop workflow so an unresolved handle is reported as unresolved rather than as a shop with zero research evidence. Required: query. Returns array of shop_match.",
+      "method": "GET",
+      "path": "/shops/search",
+      "params": [
+        {
+          "name": "query",
+          "type": "string",
+          "location": "query",
+          "description": "Etsy shop handle to resolve, e.g. '3rdprintsDesign'. Returns near-matches when the exact handle does not exist.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "shops_search",
+      "description": "Search EverBee's Etsy shop database. Pass a search term to find a specific competitor shop, or omit it to browse top shops by revenue. Optional: search_term, order_by (default: revenue), order_direction (default: desc) (plus 2 more). Returns the shop.",
+      "method": "GET",
+      "path": "/shops",
+      "params": [
+        {
+          "name": "search_term",
+          "type": "string",
+          "location": "query",
+          "description": "Shop name to search for, e.g. '3rdprintsDesign'. Omit to browse the top-shop feed."
+        },
+        {
+          "name": "order_by",
+          "type": "string",
+          "location": "query",
+          "description": "Sort field: revenue, revenue_30_days, listing_active_count, or review_count."
+        },
+        {
+          "name": "order_direction",
+          "type": "string",
+          "location": "query",
+          "description": "Sort direction: desc or asc."
+        },
+        {
+          "name": "page",
+          "type": "integer",
+          "location": "query",
+          "description": "Result page."
+        },
+        {
+          "name": "per_page",
+          "type": "integer",
+          "location": "query",
+          "description": "Results per page."
         }
       ]
     }

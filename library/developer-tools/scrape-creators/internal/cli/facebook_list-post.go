@@ -13,40 +13,51 @@ import (
 
 func newFacebookListPostCmd(flags *rootFlags) *cobra.Command {
 	var flagUrl string
-	var flagFeedbackId string
-	var flagCursor string
-	var flagAll bool
 
 	cmd := &cobra.Command{
 		Use:         "list-post",
-		Short:       "Fetches comments from a Facebook post or reel with cursor-based pagination. Each comment includes id, text,...",
-		Example:     "  scrape-creators-pp-cli facebook list-post",
-		Annotations: map[string]string{"pp:endpoint": "facebook.list-post", "mcp:read-only": "true"},
+		Short:       "Retrieves a single public Facebook post or reel by URL.",
+		Example:     "  scrape-creators-pp-cli facebook list-post --url https://www.facebook.com/reel/1535656380759655",
+		Annotations: map[string]string{"pp:endpoint": "facebook.list-post", "pp:method": "GET", "pp:path": "/v1/facebook/post", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
+			// Bare invocation of a command with required input prints help
+			// instead of pflag's terse "required flag not set" error. Optional-
+			// only read commands fall through so a bare call still executes.
+			if cmd.Flags().NFlag() == 0 && len(args) == 0 && !flags.dryRun {
+				return cmd.Help()
+			}
+			if !cmd.Flags().Changed("url") && !flags.dryRun {
+				return fmt.Errorf("required flag \"%s\" not set", "url")
+			}
+			path := "/v1/facebook/post"
 			c, err := flags.newClient()
 			if err != nil {
 				return err
 			}
-
-			path := "/v1/facebook/post/comments"
-			data, prov, err := resolvePaginatedRead(cmd.Context(), c, flags, "facebook", path, map[string]string{
-				"url":         fmt.Sprintf("%v", flagUrl),
-				"feedback_id": fmt.Sprintf("%v", flagFeedbackId),
-				"cursor":      fmt.Sprintf("%v", flagCursor),
-			}, nil, flagAll, "cursor", "", "")
-			if err != nil {
-				return classifyAPIError(err)
+			params := map[string]string{}
+			if flagUrl != "" {
+				params["url"] = formatCLIParamValue(flagUrl)
 			}
-			// Print provenance to stderr for human-facing output
-			{
+			data, prov, err := resolveReadWithStrategyAndResponsePath(cmd.Context(), c, flags, "auto", "facebook", false, path, params, nil, "", cmd.ErrOrStderr())
+			if err != nil {
+				return classifyAPIError(err, flags)
+			}
+			// Print provenance to stderr for human-facing output only.
+			// Machine-format flags (--json, --csv, --compact, --quiet, --plain,
+			// --select) and piped stdout suppress this line; the JSON envelope
+			// already carries meta.source for those consumers.
+			// SYNC: keep this gate aligned with command_promoted.go.tmpl.
+			if wantsHumanTable(cmd.OutOrStdout(), flags) {
 				var countItems []json.RawMessage
 				_ = json.Unmarshal(data, &countItems)
 				printProvenance(cmd, len(countItems), prov)
 			}
 			// For JSON output, wrap with provenance envelope before passing through flags.
 			// --select wins over --compact when both are set; --compact only runs when
-			// no explicit fields were requested.
-			if flags.asJSON || !isTerminal(cmd.OutOrStdout()) {
+			// no explicit fields were requested. Explicit format flags (--csv, --quiet,
+			// --plain) opt out of the auto-JSON path so piped consumers that asked for
+			// a non-JSON format reach the standard pipeline below.
+			if flags.asJSON || (!isTerminal(cmd.OutOrStdout()) && !flags.csv && !flags.quiet && !flags.plain) {
 				filtered := data
 				if flags.selectFields != "" {
 					filtered = filterFields(filtered, flags.selectFields)
@@ -72,13 +83,10 @@ func newFacebookListPostCmd(flags *rootFlags) *cobra.Command {
 					return nil
 				}
 			}
-			return printOutputWithFlags(cmd.OutOrStdout(), data, flags)
+			return printOutputWithFlagsMeta(cmd.OutOrStdout(), data, flags, map[string]any{"source": "live"})
 		},
 	}
-	cmd.Flags().StringVar(&flagUrl, "url", "", "Facebook post URL (or reel URL)")
-	cmd.Flags().StringVar(&flagFeedbackId, "feedback-id", "", "Using feedback_id (instead of url) will *really* speed up the request. You can get the feedback_id when you make a...")
-	cmd.Flags().StringVar(&flagCursor, "cursor", "", "Cursor to get more comments. Get 'cursor' from previous response.")
-	cmd.Flags().BoolVar(&flagAll, "all", false, "Fetch all pages")
+	cmd.Flags().StringVar(&flagUrl, "url", "", "The URL of the post to get")
 
 	return cmd
 }

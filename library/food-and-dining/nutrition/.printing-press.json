@@ -1,0 +1,67 @@
+{
+  "schema_version": 2,
+  "generated_at": "2026-07-02T21:56:38.398563Z",
+  "printing_press_version": "4.27.1",
+  "api_name": "nutrition",
+  "display_name": "Nutrition (USDA FoodData Central + NutritionValue.org)",
+  "cli_name": "nutrition-pp-cli",
+  "creator": {
+    "handle": "mvanhorn",
+    "name": "Matt Van Horn"
+  },
+  "owner": "mvanhorn",
+  "printer": "mvanhorn",
+  "printer_name": "Matt Van Horn",
+  "spec_format": "openapi3",
+  "spec_checksum": "sha256:fc79bed22d661f634f5670b0159dca9f3b9f608d2b9e6adaa8834840aa1b0b65",
+  "run_id": "20260702-105700",
+  "category": "food-and-dining",
+  "description": "One agent-native CLI over USDA FoodData Central and NutritionValue.org - with cross-source enrichment, protein-density comparison, nutrient ranking, and a local SQLite cache no other nutrition tool ships.",
+  "mcp_binary": "nutrition-pp-mcp",
+  "mcp_tool_count": 9,
+  "mcp_ready": "full",
+  "api_version": "1.0.0",
+  "auth_type": "api_key",
+  "auth_preference": "ApiKeyAuth",
+  "auth_env_vars": [
+    "FDC_API_KEY",
+    "USDA_API_KEY"
+  ],
+  "novel_features": [
+    {
+      "name": "Cross-source enrichment overlay",
+      "command": "enrich",
+      "description": "Merge NutritionValue.org's derived analytics (net carbs and omega-6/omega-3 ratio) onto a USDA food record by its shared FDC id."
+    },
+    {
+      "name": "Nutrient ranking",
+      "command": "rank",
+      "description": "Top or bottom foods by any single nutrient, filterable by category and dataset, ingested from NutritionValue.org's precomputed ranking pages."
+    },
+    {
+      "name": "Common-basis comparison",
+      "command": "compare",
+      "description": "Compare 2-5 foods side by side on a common basis: per 100 g, per serving, or per 100 kcal (protein density)."
+    },
+    {
+      "name": "Compound nutrient filters",
+      "command": "find",
+      "description": "Find foods that satisfy multiple nutrient thresholds at once (e.g. protein \u003e= 20 g AND kcal \u003c= 165 per 100 g)."
+    },
+    {
+      "name": "Daily intake log with targets",
+      "command": "log",
+      "description": "A persistent daily food diary with macro/micro targets, backed by local SQLite, with today/summary/progress reports."
+    },
+    {
+      "name": "Meal aggregation",
+      "command": "meal",
+      "description": "Total nutrition across several foods at given quantities in one stateless call (id:quantity pairs)."
+    },
+    {
+      "name": "Citation output",
+      "command": "cite",
+      "description": "Emit an APA or MLA citation for a USDA food record so agent output is verifiable and traceable to a real fdcId."
+    }
+  ]
+}

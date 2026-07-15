@@ -70,7 +70,9 @@ against the local store and emits only items not seen in prior runs.
 
 Cost projection from local history (p50/p90) prints before every run unless
 --no-projection or --agent is set. With --max-cost, refuses to start if the
-projection exceeds the budget.
+projection exceeds the budget, and — when combined with --wait — aborts the
+run mid-flight once its reported cost exceeds the cap. The live cap protects
+the first run of an Actor, which has no cached history to project from.
 
 Examples:
   apify-pp-cli run apidojo/twitter-scraper-lite --input @q.json --only-new --format markdown
@@ -140,9 +142,19 @@ Examples:
 								proj.P50USD, maxCost))
 						}
 						if !cost.CanEnforce(proj, maxCost) {
-							fmt.Fprintf(cmd.ErrOrStderr(),
-								"WARNING: --max-cost $%.2f cannot be enforced — no prior runs of %q are cached; the run will proceed uncapped\n",
-								maxCost, actor)
+							// PATCH(amend: no cached history means no pre-flight
+							// projection, but the --wait poll loop now enforces
+							// --max-cost live by aborting on cost overrun. Only
+							// warn about an uncapped run when --wait is absent.)
+							if wait {
+								fmt.Fprintf(cmd.ErrOrStderr(),
+									"NOTE: no prior runs of %q are cached, so --max-cost $%.2f can't be projected up front; it will be enforced live during --wait (the run is aborted once its reported cost exceeds the cap)\n",
+									actor, maxCost)
+							} else {
+								fmt.Fprintf(cmd.ErrOrStderr(),
+									"WARNING: --max-cost $%.2f cannot be enforced — no prior runs of %q are cached and --wait is not set, so there is no live cost watchdog; the run will proceed uncapped. Add --wait to enable the live cap.\n",
+									maxCost, actor)
+							}
 						}
 					}
 				}
@@ -185,9 +197,18 @@ Examples:
 				params["webhooks"] = webhookOverride
 			}
 			if wait {
-				// Apify's `waitForFinish` blocks server-side up to N seconds
-				waitSecs := 60
-				if timeoutSecs > 0 && timeoutSecs < 60 {
+				// PATCH(amend: cap the server-side `waitForFinish` block so the
+				// initial POST returns before the HTTP client timeout
+				// (flags.timeout, default 30s). The previous fixed 60s block
+				// exceeded the client read deadline and surfaced as
+				// "context deadline exceeded while reading body" while the run
+				// kept executing and billing. The GET poll loop below does the
+				// real waiting, one quick request at a time.)
+				waitSecs := int(flags.timeout.Seconds()) - 5
+				if waitSecs < 0 {
+					waitSecs = 0
+				}
+				if timeoutSecs > 0 && timeoutSecs < waitSecs {
 					waitSecs = timeoutSecs
 				}
 				params["waitForFinish"] = fmt.Sprintf("%d", waitSecs)
@@ -220,7 +241,7 @@ Examples:
 				if timeoutSecs > 0 {
 					deadline = time.Now().Add(time.Duration(timeoutSecs) * time.Second)
 				}
-				run, err = pollRunUntilTerminal(ctx, c, run.ID, deadline)
+				run, err = pollRunUntilTerminal(ctx, c, run.ID, deadline, maxCost)
 				if err != nil {
 					return err
 				}
@@ -285,7 +306,7 @@ Examples:
 	cmd.Flags().IntVar(&memoryMB, "memory", 0, "Override memory allocation (MB)")
 	cmd.Flags().BoolVar(&onlyNew, "only-new", false, "Emit only items not seen in prior runs of this Actor (requires --wait + SUCCEEDED)")
 	cmd.Flags().StringVar(&format, "format", "json", "Output format: json | markdown | raw")
-	cmd.Flags().Float64Var(&maxCost, "max-cost", 0, "Refuse to start run if p50 cost projection exceeds this USD amount")
+	cmd.Flags().Float64Var(&maxCost, "max-cost", 0, "Cap run cost (USD): refuse to start if the p50 projection exceeds it; with --wait, also abort mid-run once reported cost exceeds it")
 	cmd.Flags().BoolVar(&noProjection, "no-projection", false, "Skip cost projection output")
 	cmd.Flags().StringVar(&preset, "preset", "", "Load saved input from a preset (overridden by --input)")
 	cmd.Flags().StringVar(&buildTag, "build", "", "Actor build tag (e.g. latest, beta, 0.1.5)")
@@ -305,7 +326,10 @@ type RunData struct {
 	DefaultDatasetID string    `json:"defaultDatasetId"`
 	DefaultKVStoreID string    `json:"defaultKeyValueStoreId"`
 	ExitCode         int       `json:"exitCode,omitempty"`
-	Stats            struct {
+	// UsageTotalUsd is the run's accrued cost in USD, read by the live
+	// cost watchdog in pollRunUntilTerminal to enforce --max-cost mid-run.
+	UsageTotalUsd float64 `json:"usageTotalUsd"`
+	Stats         struct {
 		ComputeUnits float64 `json:"computeUnits"`
 	} `json:"stats"`
 	Options struct {
@@ -323,7 +347,8 @@ func isTerminalStatus(s string) bool {
 
 func pollRunUntilTerminal(ctx context.Context, c interface {
 	GetNoCache(string, map[string]string) (json.RawMessage, error)
-}, runID string, deadline time.Time) (RunData, error) {
+	PostWithParams(string, map[string]string, any) (json.RawMessage, int, error)
+}, runID string, deadline time.Time, maxCost float64) (RunData, error) {
 	interval := 5 * time.Second
 	for {
 		if time.Now().After(deadline) {
@@ -342,8 +367,29 @@ func pollRunUntilTerminal(ctx context.Context, c interface {
 		if err := json.Unmarshal(body, &resp); err != nil {
 			return RunData{}, err
 		}
+		// A run that has already finished must be returned as-is — there is
+		// nothing left to abort and its final cost is sunk. Check terminal
+		// status BEFORE the cost watchdog so a run that completes naturally
+		// with a final cost just over the cap is not spuriously "aborted".
 		if isTerminalStatus(resp.Data.Status) {
 			return resp.Data, nil
+		}
+		// PATCH(amend: live cost watchdog. The pre-flight projection cannot
+		// protect the first run of an Actor — it has no cached history to
+		// project from — so enforce --max-cost during --wait by aborting the
+		// still-running Actor once its reported usageTotalUsd exceeds the cap.
+		// Without this a runaway run bills unbounded until a manual abort.)
+		if maxCost > 0 && resp.Data.UsageTotalUsd > maxCost {
+			_, _, abortErr := c.PostWithParams(
+				fmt.Sprintf("/v2/actor-runs/%s/abort", escapeSeg(runID)), nil, map[string]any{})
+			if abortErr != nil {
+				return resp.Data, apiErr(fmt.Errorf(
+					"run cost $%.2f exceeded --max-cost $%.2f but the abort request failed: %v; abort manually with `apify-pp-cli actor-runs abort %s`",
+					resp.Data.UsageTotalUsd, maxCost, abortErr, runID))
+			}
+			return resp.Data, apiErr(fmt.Errorf(
+				"run cost $%.2f exceeded --max-cost $%.2f; aborted run %s to stop billing",
+				resp.Data.UsageTotalUsd, maxCost, runID))
 		}
 		select {
 		case <-ctx.Done():

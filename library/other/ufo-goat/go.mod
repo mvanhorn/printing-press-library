@@ -1,8 +1,8 @@
 module github.com/mvanhorn/printing-press-library/library/other/ufo-goat
 
-go 1.26.4
+go 1.26.5
 
-toolchain go1.26.4
+toolchain go1.26.5
 
 require github.com/spf13/cobra v1.9.1
 

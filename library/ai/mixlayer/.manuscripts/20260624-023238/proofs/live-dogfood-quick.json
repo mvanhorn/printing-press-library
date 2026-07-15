@@ -1,0 +1,234 @@
+{
+  "dir": ".",
+  "binary": "/Users/cathrynlavery/printing-press/.runstate/printing-press-library-mixlayer-cbb81d3f/runs/20260624T022908Z-02ef2470/working/mixlayer-pp-cli/mixlayer-pp-cli-dogfood",
+  "level": "quick",
+  "verdict": "PASS",
+  "matrix_size": 11,
+  "passed": 11,
+  "failed": 0,
+  "skipped": 14,
+  "commands": [
+    "api",
+    "ask",
+    "chat",
+    "compare",
+    "council",
+    "doctor"
+  ],
+  "tests": [
+    {
+      "command": "api",
+      "kind": "help",
+      "args": [
+        "api",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Browse and call any API endpoint using the raw interface names.\n\nThe friendly top-level commands cover the most common operations.\nThis command provides access to ALL endpoints for power users and\nagents that need full API coverage.\n\nRun 'api' with no arguments to list all interfaces.\nRun 'api \u003cinterface\u003e' to see that interface's methods.\n\nUsage:\n  mixlayer-pp-cli api [interface] [flags]\n\nExamples:\n  # List all available interfaces\n  mixlayer-pp-cli api\n\n  # Show methods for a specific interface\n  mixlayer-pp-cli api \u003cinterface-name\u003e\n\nFlags:\n  -h, --help   help for api\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'mixlayer-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "api",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [api] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "api",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [api] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "api",
+      "kind": "error_path",
+      "args": [
+        "api",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "Error: interface \"__printing_press_invalid__\" not found. Run 'mixlayer-pp-cli api' to list all interfaces\n"
+    },
+    {
+      "command": "ask",
+      "kind": "help",
+      "args": [
+        "ask",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Ask Mixlayer and save the prompt, answer, and reasoning locally\n\nUsage:\n  mixlayer-pp-cli ask \u003cquestion\u003e [flags]\n\nExamples:\n  mixlayer-pp-cli ask \"Draft a migration plan\" --model qwen/qwen3.5-27b --show-thinking --json\n\nFlags:\n      --db string       SQLite database file path\n  -h, --help            help for ask\n      --model string    Model to use (default \"qwen/qwen3.5-397b-a17b\")\n      --seed int        Best-effort deterministic seed\n      --show-thinking   Request and display reasoning_content\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'mixlayer-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "ask",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [ask] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "ask",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [ask] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "ask",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no-error-path-probe annotation"
+    },
+    {
+      "command": "chat",
+      "kind": "help",
+      "args": [
+        "chat",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Create a chat completion for the given model and messages\n\nUsage:\n  mixlayer-pp-cli chat [flags]\n\nExamples:\n  mixlayer-pp-cli chat --model qwen/qwen3\n\nFlags:\n      --frequency-penalty float     Frequency penalty from -2.0 to 2.0\n  -h, --help                        help for chat\n      --max-completion-tokens int   Maximum completion tokens to generate\n      --max-tokens int              Maximum number of tokens to generate\n      --messages string             List of messages comprising the conversation so far\n      --model string                ID of the model to use (e.g. qwen/qwen3.5-4b-free)\n      --presence-penalty float      Presence penalty from -2.0 to 2.0\n      --reasoning-effort string     Reasoning effort: low, medium, or high\n      --repetition-penalty float    Repetition penalty from 0.0 to 2.0\n      --response-format string      Response format JSON, including json_schema\n      --seed int                    Best-effort deterministic seed\n      --stop strings                Stop sequence (repeatable)\n      --stream                      Whether to stream back partial progress\n      --temperature float           Sampling temperature to use\n      --thinking                    Enable thinking mode and reasoning_content\n      --tool-choice string          Controls which tool, if any, the model calls\n      --tools string                List of tools the model may call\n      --top-k int                   Only consider the top-k most likely tokens\n      --top-p float                 Nucleus sampling probability mass\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'mixlayer-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "chat",
+      "kind": "happy_path",
+      "args": [
+        "chat",
+        "--model",
+        "qwen/qwen3",
+        "--dry-run"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"live\"\n  },\n  \"results\": {\n    \"dry_run\": true\n  }\n}\nPOST https://models.mixlayer.ai/v1/chat/completions\n  Body:\n{\n    \"model\": \"qwen/qwen3\"\n  }\n  Authorization: ****b8D4\n\n(dry run - no request sent)\n"
+    },
+    {
+      "command": "chat",
+      "kind": "json_fidelity",
+      "args": [
+        "chat",
+        "--model",
+        "qwen/qwen3",
+        "--dry-run",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"live\"\n  },\n  \"results\": {\n    \"dry_run\": true\n  }\n}\nPOST https://models.mixlayer.ai/v1/chat/completions\n  Body:\n{\n    \"model\": \"qwen/qwen3\"\n  }\n  Authorization: ****b8D4\n\n(dry run - no request sent)\n"
+    },
+    {
+      "command": "chat",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "chat",
+      "kind": "error_path_real",
+      "args": null,
+      "status": "skip",
+      "reason": "mutating command dry-run only"
+    },
+    {
+      "command": "compare",
+      "kind": "help",
+      "args": [
+        "compare",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Compare a cheap rung with the frontier and price the delta\n\nUsage:\n  mixlayer-pp-cli compare \u003cquestion\u003e [flags]\n\nExamples:\n  mixlayer-pp-cli compare \"Summarize this incident\" --cheap qwen/qwen3.5-9b --json\n\nFlags:\n      --cheap string      Cheap rung (default \"qwen/qwen3.5-9b\")\n      --db string         SQLite database file path\n      --frontier string   Frontier rung (default \"qwen/qwen3.5-397b-a17b\")\n  -h, --help              help for compare\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'mixlayer-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "compare",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [compare] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "compare",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [compare] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "compare",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no-error-path-probe annotation"
+    },
+    {
+      "command": "council",
+      "kind": "help",
+      "args": [
+        "council",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Fan out to several rungs and ask a judge model to synthesize\n\nUsage:\n  mixlayer-pp-cli council \u003cquestion\u003e [flags]\n\nExamples:\n  mixlayer-pp-cli council \"Pick the safest launch plan\" --json\n\nFlags:\n  -h, --help             help for council\n      --judge string     Judge model (default \"qwen/qwen3.5-397b-a17b\")\n      --members string   Comma-separated member models (default \"qwen/qwen3.5-4b-free,qwen/qwen3.5-27b,qwen/qwen3.5-397b-a17b\")\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'mixlayer-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "council",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [council] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "council",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [council] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "council",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no-error-path-probe annotation"
+    },
+    {
+      "command": "doctor",
+      "kind": "help",
+      "args": [
+        "doctor",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Check CLI health\n\nUsage:\n  mixlayer-pp-cli doctor [flags]\n\nExamples:\n  mixlayer-pp-cli doctor\n  mixlayer-pp-cli doctor --json\n  mixlayer-pp-cli doctor --fail-on warn\n  mixlayer-pp-cli doctor --fail-on stale\n\nFlags:\n      --fail-on string   Exit non-zero for selected health gates. stale: cache freshness plus errors; warn: credential/path warnings plus errors; error: errors only. Default is never.\n  -h, --help             help for doctor\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --max-age duration        Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables (default 30m0s)\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'mixlayer-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "doctor",
+      "kind": "happy_path",
+      "args": [
+        "doctor"
+      ],
+      "status": "pass",
+      "output_sample": "  OK Config: ok\n  OK Auth: configured\n  OK Env Vars: OK 1/1 available\n  OK Verify Mode: normal operation\n  OK API: reachable (HTTP 404 at /)\n  INFO Credentials: present, not verified. Run `mixlayer-pp-cli models list` to confirm the token works end-to-end.\n  config_path: /var/folders/0d/dmb3g7z57b1550p5zzzh32c00000gn/T/printing-press-subprocess-907054076/.config/mixlayer-pp-cli/config.toml\n  base_url: https://models.mixlayer.ai/v1\n  auth_source: env:MIXLAYER_API_KEY\n  credentials_location: env:MIXLAYER_API_KEY\n  version: 1.0.0\n  INFO Cache: unknown\n    db_path: /var/folders/0d/dmb3g7z57b1550p5zzzh32c00000gn/T/printing-press-subprocess-907054076/.local/share/mixlayer-pp-cli/data.db\n    hint: Database not created yet; run 'mixlayer-pp-cli sync' to hydrate.\n  Paths:\n    config: /var/folders/0d/dmb3g7z57b1550p5zzzh32c00000gn/T/printing-press-subprocess-907054076/.config/mixlayer-pp-cli (XDG_CONFIG_HOME)\n    data: /var/folders/0d/dmb3g7z57b1550p5zzzh32c00000gn/T/printing-press-subprocess-907054076/.local/share/mixlayer-pp-cli (XDG_DATA_HOME)\n    state: /var/folders/0d/dmb3g7z57b1550p5zzzh32c00000gn/T/printing-press-subprocess-907054076/.local/state/mixlayer-pp-cli (XDG_STATE_HOME)\n    cache: /var/folders/0d/dmb3g7z57b1550p5zzzh32c00000gn/T/printing-press-subprocess-907054076/.cache/mixlayer-pp-cli (XDG_CACHE_HOME)\n"
+    },
+    {
+      "command": "doctor",
+      "kind": "json_fidelity",
+      "args": [
+        "doctor",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"agentcookie\": \"not detected (optional)\",\n  \"api\": \"reachable (HTTP 404 at /)\",\n  \"auth\": \"configured\",\n  \"auth_source\": \"env:MIXLAYER_API_KEY\",\n  \"base_url\": \"https://models.mixlayer.ai/v1\",\n  \"cache\": {\n    \"db_path\": \"/var/folders/0d/dmb3g7z57b1550p5zzzh32c00000gn/T/printing-press-subprocess-907054076/.local/share/mixlayer-pp-cli/data.db\",\n    \"hint\": \"Database not created yet; run 'mixlayer-pp-cli sync' to hydrate.\",\n    \"status\": \"unknown\"\n  },\n  \"config\": \"ok\",\n  \"config_path\": \"/var/folders/0d/dmb3g7z57b1550p5zzzh32c00000gn/T/printing-press-subprocess-907054076/.config/mixlayer-pp-cli/config.toml\",\n  \"credentials\": \"present, not verified. Run `mixlayer-pp-cli models list` to confirm the token works end-to-end.\",\n  \"credentials_location\": \"env:MIXLAYER_API_KEY\",\n  \"env_vars\": \"OK 1/1 available\",\n  \"paths\": {\n    \"cache\": {\n      \"dir\": \"/var/folders/0d/dmb3g7z57b1550p5zzzh32c00000gn/T/printing-press-subprocess-907054076/.cache/mixlayer-pp-cli\",\n      \"rung\": \"xdg-env\",\n      \"source\": \"XDG_CACHE_HOME\"\n    },\n    \"config\": {\n      \"dir\": \"/var/folders/0d/dmb3g7z57b1550p5zzzh32c00000gn/T/printing-press-subprocess-907054076/.config/mixlayer-pp-cli\",\n      \"rung\": \"xdg-env\",\n      \"source\": \"XDG_CONFIG_HOME\"\n    },\n    \"data\": {\n      \"dir\": \"/var/folders/0d/dmb3g7z57b1550p5zzzh32c00000gn/T/printing-press-subprocess-907054076/.local/share/mixlayer-pp-cli\",\n      \"rung\": \"xdg-env\",\n      \"source\": \"XDG_DATA_HOME\"\n    },\n    \"state\": {\n      \"dir\": \"/var/folders/0d/dmb3g7z57b1550p5zzzh32c00000gn/T/printing-press-subprocess-907054076/.local/state/mixlayer-pp-cli\",\n      \"rung\": \"xdg-env\",\n      \"source\": \"XDG_STATE_HOME\"\n    },\n    \"status\": \"ok\"\n  },\n  \"verify_mode\": \"normal operation\",\n  \"version\": \"1.0.0\"\n}\n"
+    },
+    {
+      "command": "doctor",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    }
+  ],
+  "ran_at": "2026-06-24T02:54:46.820247Z"
+}

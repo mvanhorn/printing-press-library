@@ -1,4 +1,5 @@
 import { BUNDLES, isBundle } from "../bundles.js";
+import { mapWithConcurrency } from "../concurrency.js";
 import { mkdir, realpath } from "node:fs/promises";
 import { isAbsolute, resolve } from "node:path";
 import { detectGo, goInstall, goInstallDir, type GoDetection, type GoInstallDir } from "../go.js";
@@ -22,7 +23,12 @@ interface InstallOptions {
   cliOnly: boolean;
   skillOnly: boolean;
   binDir?: string;
+  all: boolean;
+  categories: string[];
 }
+
+// Matches update.ts's network-bound worker cap; skill-store writes are serialized separately.
+const INSTALL_CONCURRENCY = 6;
 
 interface InstallDeps {
   fetchRegistry: (url: string) => Promise<Registry>;
@@ -105,12 +111,10 @@ export function createInstallCommand(overrides: Partial<InstallDeps> = {}) {
     if ("error" in parsed) {
       deps.stderr(parsed.error);
       deps.stderr(
-        "Usage: printing-press-library install <name|bundle>... [--agent <agent>...] [--bin-dir <dir>] [--json]",
+        "Usage: printing-press-library install <name|bundle>... [--all] [--category <cat>...] [--agent <agent>...] [--bin-dir <dir>] [--json]",
       );
       return 1;
     }
-
-    const expanded = expandBundles(parsed.names, parsed.options, deps);
 
     let registry: Registry;
     try {
@@ -120,21 +124,76 @@ export function createInstallCommand(overrides: Partial<InstallDeps> = {}) {
       return 1;
     }
 
-    // `go env GOBIN GOPATH` doesn't change between CLIs in a single invocation,
-    // so a bundle install ("install starter-pack") only needs to shell out once.
-    const perInvocationDeps: InstallDeps = { ...deps, goInstallDir: memoize(deps.goInstallDir) };
+    const expanded = expandSelectors(parsed.names, registry, parsed.options, deps);
+    if ("error" in expanded) {
+      deps.stderr(expanded.error);
+      return 1;
+    }
 
-    const outcomes: InstallOutcome[] = [];
-    for (const name of expanded) {
-      const outcome = await installOne(name, registry, parsed.options, perInvocationDeps);
-      outcomes.push(outcome);
-      if (outcome.error === "go missing") {
-        // Go is a global precondition; no point retrying it for the rest.
-        break;
+    // Go is a global precondition; check it once instead of once per CLI so a
+    // missing toolchain fails fast with a single message.
+    if (!parsed.options.skillOnly) {
+      const go = await deps.detectGo();
+      if (!go.installed) {
+        deps.stderr(goMissingMessage(deps.platform));
+        return 1;
       }
     }
 
-    return reportResults(outcomes, parsed.options, deps);
+    // `go env GOBIN GOPATH` and `go version` don't change between CLIs in a
+    // single invocation, so a bulk install only needs to shell out once for each.
+    const perInvocationDeps: InstallDeps = {
+      ...deps,
+      goInstallDir: memoize(deps.goInstallDir),
+      detectGo: memoize(deps.detectGo),
+    };
+
+    if (expanded.names.length <= 1) {
+      // Single target: stream output straight through, no buffering needed.
+      const outcomes: InstallOutcome[] = [];
+      for (const name of expanded.names) {
+        outcomes.push(await installOne(name, registry, parsed.options, perInvocationDeps));
+      }
+      return reportResults(outcomes, parsed.options, deps);
+    }
+
+    // Install concurrently, but record each run's output in emission order and
+    // replay it in input order — so parallel runs don't interleave into
+    // scrambled lines. A completion counter on stderr keeps long runs live.
+    let completed = 0;
+    const total = expanded.names.length;
+    const installSkill = serializeAsync(perInvocationDeps.installSkill);
+    const outcomes = await mapWithConcurrency(expanded.names, INSTALL_CONCURRENCY, async (name) => {
+      const lines: Array<{ stream: "out" | "err"; message: string }> = [];
+      const bufferedDeps: InstallDeps = {
+        ...perInvocationDeps,
+        installSkill,
+        stdout: (message) => lines.push({ stream: "out", message }),
+        stderr: (message) => lines.push({ stream: "err", message }),
+      };
+      let outcome: InstallOutcome;
+      try {
+        outcome = await installOne(name, registry, parsed.options, bufferedDeps);
+      } catch (error) {
+        // installOne resolves with an outcome rather than throwing; guard anyway
+        // so one unexpected throw can't reject the whole concurrent batch.
+        lines.push({ stream: "err", message: error instanceof Error ? error.message : String(error) });
+        outcome = { ok: false, name, error: "unexpected error" };
+      }
+      completed++;
+      if (!parsed.options.json) {
+        deps.stderr(`[${completed}/${total}] ${name}: ${outcome.ok ? "ok" : "failed"}`);
+      }
+      return { outcome, lines };
+    });
+
+    for (const { lines } of outcomes) {
+      for (const { stream, message } of lines) {
+        (stream === "out" ? deps.stdout : deps.stderr)(message);
+      }
+    }
+
+    return reportResults(outcomes.map((o) => o.outcome), parsed.options, deps);
   };
 }
 
@@ -258,8 +317,32 @@ async function installOne(
   return { ok: true, name: entry.name, data: summary };
 }
 
-function expandBundles(names: string[], options: InstallOptions, deps: InstallDeps): string[] {
+function expandSelectors(
+  names: string[],
+  registry: Registry,
+  options: InstallOptions,
+  deps: InstallDeps,
+): { names: string[] } | { error: string } {
   const expanded: string[] = [];
+
+  if (options.all) {
+    expanded.push(...registry.entries.map((entry) => entry.name));
+  }
+
+  for (const category of options.categories) {
+    const members = registry.entries
+      .filter((entry) => entry.category.toLowerCase() === category.toLowerCase())
+      .map((entry) => entry.name);
+    if (members.length === 0) {
+      const known = [...new Set(registry.entries.map((entry) => entry.category))].sort().join(", ");
+      return { error: `No CLIs in category "${category}". Known categories: ${known}` };
+    }
+    if (!options.json) {
+      deps.stdout(`Category "${category}" → ${members.join(", ")}`);
+    }
+    expanded.push(...members);
+  }
+
   for (const name of names) {
     if (isBundle(name)) {
       const members = BUNDLES[name]!;
@@ -271,7 +354,10 @@ function expandBundles(names: string[], options: InstallOptions, deps: InstallDe
       expanded.push(name);
     }
   }
-  return expanded;
+
+  // Selectors can overlap ("--all espn", two categories sharing a bundle
+  // member); install each target once, keeping first-occurrence order.
+  return { names: [...new Set(expanded)] };
 }
 
 function reportResults(outcomes: InstallOutcome[], options: InstallOptions, deps: InstallDeps): number {
@@ -329,6 +415,8 @@ function parseInstallArgs(
     registryUrl: DEFAULT_REGISTRY_URL,
     cliOnly: false,
     skillOnly: false,
+    all: false,
+    categories: [],
   };
   const names: string[] = [];
 
@@ -336,6 +424,14 @@ function parseInstallArgs(
     const arg = args[i]!;
     if (arg === "--json") {
       options.json = true;
+    } else if (arg === "--all") {
+      options.all = true;
+    } else if (arg === "--category") {
+      const category = args[++i];
+      if (!category) {
+        return { error: "Missing value for --category" };
+      }
+      options.categories.push(category);
     } else if (arg === "--cli-only") {
       options.cliOnly = true;
     } else if (arg === "--skill-only") {
@@ -373,8 +469,8 @@ function parseInstallArgs(
     return { error: "--bin-dir cannot be used with --skill-only" };
   }
 
-  if (names.length === 0) {
-    return { error: "Missing CLI name or bundle" };
+  if (names.length === 0 && !options.all && options.categories.length === 0) {
+    return { error: "Missing CLI name, bundle, --category, or --all" };
   }
 
   return { names, options };
@@ -470,6 +566,20 @@ function memoize<T>(fn: () => Promise<T>): () => Promise<T> {
       cached = fn();
     }
     return cached;
+  };
+}
+
+function serializeAsync<Args extends unknown[], Result>(
+  fn: (...args: Args) => Promise<Result>,
+): (...args: Args) => Promise<Result> {
+  let previous = Promise.resolve();
+  return (...args) => {
+    const run = previous.then(() => fn(...args));
+    previous = run.then(
+      () => undefined,
+      () => undefined,
+    );
+    return run;
   };
 }
 

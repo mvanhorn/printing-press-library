@@ -1,6 +1,6 @@
 module github.com/mvanhorn/printing-press-library/library/ai/midjourney
 
-go 1.26.4
+go 1.26.5
 
 require (
 	github.com/enetx/http v1.0.28

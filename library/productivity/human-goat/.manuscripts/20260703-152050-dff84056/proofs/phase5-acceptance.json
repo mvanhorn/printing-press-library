@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "api_name": "human-goat",
+  "run_id": "20260703-152050-dff84056",
+  "status": "pass",
+  "level": "quick",
+  "matrix_size": 12,
+  "tests_passed": 12,
+  "tests_skipped": 13,
+  "auth_context": {
+    "type": "cookie"
+  }
+}

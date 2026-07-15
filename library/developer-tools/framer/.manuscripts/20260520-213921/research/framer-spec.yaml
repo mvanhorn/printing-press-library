@@ -1,0 +1,468 @@
+name: framer
+description: "CLI for managing Framer websites — CMS, canvas, code files, publishing, and site migration. Requires Node.js 18+ and the framer-api npm package."
+version: "1.0.0"
+kind: synthetic
+spec_source: sniffed
+website_url: "https://www.framer.com"
+category: developer-tools
+base_url: "https://framer.com/api"
+
+auth:
+  type: api_key
+  header: "Authorization"
+  in: header
+  env_vars:
+    - FRAMER_API_KEY
+
+config:
+  format: toml
+  path: "~/.config/framer-pp-cli/config.toml"
+
+resources:
+  project:
+    description: "Framer project management"
+    endpoints:
+      info:
+        method: GET
+        path: "/project/info"
+        description: "Get project name, ID, and metadata"
+      user:
+        method: GET
+        path: "/project/user"
+        description: "Get current authenticated user info"
+
+  pages:
+    description: "Page management"
+    endpoints:
+      list:
+        method: GET
+        path: "/pages"
+        description: "List all pages in the project"
+      create:
+        method: POST
+        path: "/pages"
+        description: "Create a new page"
+        params:
+          - name: name
+            type: string
+            required: true
+            description: "Page name"
+          - name: type
+            type: string
+            description: "Page type: web or design"
+
+  nodes:
+    description: "Canvas node operations"
+    endpoints:
+      get:
+        method: GET
+        path: "/nodes/{id}"
+        description: "Get node by ID with all attributes"
+        params:
+          - name: id
+            type: string
+            required: true
+            positional: true
+            description: "Node ID"
+      children:
+        method: GET
+        path: "/nodes/{id}/children"
+        description: "Get child nodes of a node"
+        params:
+          - name: id
+            type: string
+            required: true
+            positional: true
+            description: "Parent node ID"
+      find:
+        method: GET
+        path: "/nodes/find"
+        description: "Find nodes by type, attribute, or name"
+        params:
+          - name: type
+            type: string
+            description: "Node type filter (FrameNode, TextNode, etc.)"
+          - name: attr
+            type: string
+            description: "Attribute filter (key=value)"
+          - name: name
+            type: string
+            description: "Name filter (supports regex)"
+      create-frame:
+        method: POST
+        path: "/nodes/frame"
+        description: "Create a new frame node"
+        params:
+          - name: parent
+            type: string
+            description: "Parent node ID"
+      create-text:
+        method: POST
+        path: "/nodes/text"
+        description: "Create a new text node"
+        params:
+          - name: parent
+            type: string
+            description: "Parent node ID"
+          - name: content
+            type: string
+            required: true
+            description: "Text content"
+      set:
+        method: PATCH
+        path: "/nodes/{id}"
+        description: "Set node attributes"
+        params:
+          - name: id
+            type: string
+            required: true
+            positional: true
+            description: "Node ID"
+      set-text:
+        method: PATCH
+        path: "/nodes/{id}/text"
+        description: "Set text content of a text node"
+        params:
+          - name: id
+            type: string
+            required: true
+            positional: true
+            description: "Node ID"
+          - name: content
+            type: string
+            required: true
+            description: "New text content"
+      clone:
+        method: POST
+        path: "/nodes/{id}/clone"
+        description: "Clone a node"
+        params:
+          - name: id
+            type: string
+            required: true
+            positional: true
+            description: "Node ID to clone"
+      remove:
+        method: DELETE
+        path: "/nodes/{id}"
+        description: "Remove a node"
+        params:
+          - name: id
+            type: string
+            required: true
+            positional: true
+            description: "Node ID to remove"
+      add-svg:
+        method: POST
+        path: "/nodes/svg"
+        description: "Add an SVG element to the canvas"
+      screenshot:
+        method: GET
+        path: "/nodes/{id}/screenshot"
+        description: "Capture a screenshot of a node as PNG/JPEG"
+        params:
+          - name: id
+            type: string
+            required: true
+            positional: true
+            description: "Node ID to screenshot"
+
+  components:
+    description: "Component management"
+    endpoints:
+      add:
+        method: POST
+        path: "/components"
+        description: "Add a component instance by URL or name"
+        params:
+          - name: url
+            type: string
+            description: "Component URL"
+
+  assets:
+    description: "Asset upload and management"
+    endpoints:
+      upload:
+        method: POST
+        path: "/assets/upload"
+        description: "Upload an image or file asset"
+      add-image:
+        method: POST
+        path: "/assets/image"
+        description: "Add image from URL"
+        params:
+          - name: url
+            type: string
+            required: true
+            description: "Image URL"
+
+  cms-collections:
+    description: "CMS collection management"
+    endpoints:
+      list:
+        method: GET
+        path: "/cms/collections"
+        description: "List all CMS collections"
+      get:
+        method: GET
+        path: "/cms/collections/{id}"
+        description: "Get collection details including fields and item count"
+        params:
+          - name: id
+            type: string
+            required: true
+            positional: true
+            description: "Collection ID"
+      create:
+        method: POST
+        path: "/cms/collections"
+        description: "Create a new CMS collection"
+        params:
+          - name: name
+            type: string
+            required: true
+            description: "Collection name"
+
+  cms-items:
+    description: "CMS item management"
+    endpoints:
+      list:
+        method: GET
+        path: "/cms/collections/{collection_id}/items"
+        description: "List all items in a collection"
+        params:
+          - name: collection_id
+            type: string
+            required: true
+            description: "Collection ID"
+      get:
+        method: GET
+        path: "/cms/items/{id}"
+        description: "Get a CMS item with all field data"
+        params:
+          - name: id
+            type: string
+            required: true
+            positional: true
+            description: "Item ID"
+      upsert:
+        method: POST
+        path: "/cms/collections/{collection_id}/items"
+        description: "Create or update CMS items in batch"
+        params:
+          - name: collection_id
+            type: string
+            required: true
+            description: "Collection ID"
+      remove:
+        method: DELETE
+        path: "/cms/items"
+        description: "Remove CMS items by ID"
+
+  cms-fields:
+    description: "CMS field management"
+    endpoints:
+      update:
+        method: PATCH
+        path: "/cms/collections/{collection_id}/fields"
+        description: "Add, remove, or reorder collection fields"
+        params:
+          - name: collection_id
+            type: string
+            required: true
+            description: "Collection ID"
+
+  code:
+    description: "Code file management for React components and overrides"
+    endpoints:
+      list:
+        method: GET
+        path: "/code"
+        description: "List all code files in the project"
+      get:
+        method: GET
+        path: "/code/{id}"
+        description: "Get code file content"
+        params:
+          - name: id
+            type: string
+            required: true
+            positional: true
+            description: "Code file ID"
+      create:
+        method: POST
+        path: "/code"
+        description: "Create a new code file"
+        params:
+          - name: name
+            type: string
+            required: true
+            description: "File name"
+      typecheck:
+        method: POST
+        path: "/code/{id}/typecheck"
+        description: "Run TypeScript type checking on a code file"
+        params:
+          - name: id
+            type: string
+            required: true
+            positional: true
+            description: "Code file ID"
+
+  styles-colors:
+    description: "Color style management"
+    endpoints:
+      list:
+        method: GET
+        path: "/styles/colors"
+        description: "List all color styles"
+      create:
+        method: POST
+        path: "/styles/colors"
+        description: "Create a new color style"
+        params:
+          - name: name
+            type: string
+            required: true
+            description: "Style name"
+          - name: value
+            type: string
+            required: true
+            description: "CSS color value (hex, rgb, etc.)"
+
+  styles-text:
+    description: "Text style management"
+    endpoints:
+      list:
+        method: GET
+        path: "/styles/text"
+        description: "List all text styles"
+      create:
+        method: POST
+        path: "/styles/text"
+        description: "Create a new text style"
+
+  fonts:
+    description: "Font management"
+    endpoints:
+      list:
+        method: GET
+        path: "/fonts"
+        description: "List all available fonts with weights and styles"
+
+  publish:
+    description: "Publishing and deployment"
+    endpoints:
+      preview:
+        method: POST
+        path: "/publish"
+        description: "Create a preview deployment with a shareable URL"
+      deploy:
+        method: POST
+        path: "/deploy"
+        description: "Promote a published deployment to production"
+        params:
+          - name: deployment_id
+            type: string
+            required: true
+            positional: true
+            description: "Deployment ID from publish"
+
+  changes:
+    description: "Change tracking between versions"
+    endpoints:
+      list:
+        method: GET
+        path: "/changes"
+        description: "List added, removed, and modified paths since last publish"
+      contributors:
+        method: GET
+        path: "/changes/contributors"
+        description: "List contributors who made changes in a version range"
+
+  redirects:
+    description: "URL redirect management"
+    endpoints:
+      list:
+        method: GET
+        path: "/redirects"
+        description: "List all project redirects"
+      add:
+        method: POST
+        path: "/redirects"
+        description: "Add redirects to the project"
+      remove:
+        method: DELETE
+        path: "/redirects"
+        description: "Remove redirects from the project"
+
+  custom-code:
+    description: "Custom code injection into site head and body"
+    endpoints:
+      get:
+        method: GET
+        path: "/custom-code"
+        description: "Get installed custom code snippets"
+      set:
+        method: POST
+        path: "/custom-code"
+        description: "Install custom code at head or body insertion points"
+
+  i18n:
+    description: "Localization management"
+    endpoints:
+      locales:
+        method: GET
+        path: "/i18n/locales"
+        description: "List all project locales"
+      groups:
+        method: GET
+        path: "/i18n/groups"
+        description: "Get localization groups with translation status"
+
+extra_commands:
+  - name: connect
+    args: "<project_url>"
+    description: "Register a Framer project for CLI access with an API key"
+  - name: dashboard
+    description: "Multi-project status dashboard showing stale CMS, unpublished changes, and collection health"
+  - name: snapshot
+    description: "Take a full structural snapshot of the current project into local SQLite"
+  - name: diff
+    args: "<snapshot_a> <snapshot_b>"
+    description: "Diff two project snapshots to see structural changes over time"
+  - name: migrate-scrape
+    args: "<url>"
+    description: "Scrape an existing website to generate a Framer migration manifest"
+  - name: migrate-apply
+    args: "<manifest>"
+    description: "Apply a migration manifest to create pages, content, and assets in Framer"
+  - name: cms-sync
+    args: "<source_file>"
+    description: "Sync CMS content from CSV, JSON, or Google Sheets with dry-run preview"
+  - name: cms-schema-diff
+    args: "<schema.yaml>"
+    description: "Compare a local CMS schema definition against live Framer collections"
+  - name: cms-validate
+    description: "Find broken collection references, orphan items, and circular refs across CMS"
+  - name: api-probe
+    description: "Probe which node attributes Framer actually accepts vs silently rejects"
+  - name: styles-import
+    args: "<file>"
+    description: "Import CSS variables or Tailwind config as Framer color and text styles"
+  - name: code-push
+    args: "<file>"
+    description: "Push a local TSX file to a Framer code file"
+  - name: code-pull
+    args: "<code_file_id>"
+    description: "Pull a Framer code file to a local TSX file for editing"
+  - name: redirects-generate
+    description: "Auto-generate redirect map from old site sitemap to Framer page slugs"
+  - name: i18n-push
+    args: "<translations_file>"
+    description: "Push translations from CSV, PO, or XLIFF into Framer localization"
+  - name: i18n-pull
+    description: "Pull Framer translations into standard i18n format files"
+  - name: assets-bulk-upload
+    args: "<directory>"
+    description: "Bulk upload assets from a directory and optionally map to CMS collection fields"

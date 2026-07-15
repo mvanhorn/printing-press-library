@@ -76,15 +76,19 @@ func newBookCmd(flags *rootFlags) *cobra.Command {
 		dryRun bool
 	)
 	cmd := &cobra.Command{
-		Use:     "book <network>:<slug>",
-		Short:   "Place a reservation on OpenTable, Tock, or Resy",
-		Long:    "Places a reservation for the given venue at the requested date/time/party. Free reservations only in v0.2; payment-required venues return a typed payment_required error pointing at v0.3.\n\nSafety: live commit fires only when TRG_ALLOW_BOOK=1 is set in the environment AND PRINTING_PRESS_VERIFY is unset (verify-mode floor). Without the env var, returns a dry-run envelope with a hint.",
-		Example: "  TRG_ALLOW_BOOK=1 table-reservation-goat-pp-cli book opentable:water-grill-bellevue --date 2026-05-13 --time 19:00 --party 2 --agent",
-		Args:    cobra.ExactArgs(1),
+		Use:   "book <network>:<slug>",
+		Short: "Place a reservation on OpenTable, Tock, or Resy",
+		Long:  "Places a reservation for the given venue at the requested date/time/party. Free reservations only in v0.2; payment-required venues return a typed payment_required error pointing at v0.3.\n\nSafety: live commit fires only when TRG_ALLOW_BOOK=1 is set in the environment AND PRINTING_PRESS_VERIFY is unset (verify-mode floor). Without the env var, returns a dry-run envelope with a hint.",
+		Example: "  table-reservation-goat-pp-cli book opentable:water-grill-bellevue --date 2026-05-13 --time 19:00 --party 2 --agent\n" +
+			"  TRG_ALLOW_BOOK=1 table-reservation-goat-pp-cli book opentable:water-grill-bellevue --date 2026-05-13 --time 19:00 --party 2 --agent   # add TRG_ALLOW_BOOK=1 to actually book (default is dry-run)",
+		Args: cobra.ExactArgs(1),
 		Annotations: map[string]string{
 			// Write command — no mcp:read-only annotation.
 			// pp:typed-exit-codes accepts 0 (success/dry-run) and 2 (validation/lock errors).
 			"pp:typed-exit-codes": "0,2",
+			// Without TRG_ALLOW_BOOK the command dry-runs (never books); safe happy-path.
+			"pp:happy-args":          "opentable:water-grill-bellevue --date 2026-05-13 --time 19:00 --party 2 --agent",
+			"pp:no-error-path-probe": "true",
 		},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			ctx := cmd.Context()

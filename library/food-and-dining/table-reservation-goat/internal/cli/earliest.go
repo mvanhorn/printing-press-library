@@ -194,7 +194,9 @@ func newEarliestCmd(flags *rootFlags) *cobra.Command {
 			"`HTTPS_PROXY`. Other env knobs: `TRG_OT_CACHE_TTL`, `TRG_OT_THROTTLE_RATE`.",
 		Example: "  table-reservation-goat-pp-cli earliest 'canlis,spinasse,altura' --party 6 --tonight --agent",
 		Annotations: map[string]string{
-			"mcp:read-only": "true",
+			"mcp:read-only":          "true",
+			"pp:no-error-path-probe": "true",
+			"pp:happy-args":          "canlis --party 2 --agent",
 		},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {

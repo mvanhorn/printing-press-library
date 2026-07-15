@@ -4,6 +4,7 @@
 package cobratree
 
 import (
+	"strconv"
 	"strings"
 
 	"github.com/spf13/cobra"
@@ -19,6 +20,10 @@ const (
 	// Without it, hosts like Claude Desktop default to "could write or
 	// delete" and demand permission per call.
 	ReadOnlyAnnotation = "mcp:read-only"
+	// PositionalWriteSinksAnnotation lists zero-based positional argument
+	// indexes that write to user-visible files when populated. It is enforced
+	// only on commands that also carry ReadOnlyAnnotation.
+	PositionalWriteSinksAnnotation = "mcp:write-positionals"
 )
 
 type commandKind int
@@ -34,7 +39,7 @@ const (
 // mirroring the Cobra tree. Two cases qualify:
 //
 //  1. A typed MCP tool already covers the same capability (the typed tool's
-//     schema is strictly better than a shell-out). Examples: `sql`, `search`,
+//     schema is strictly better than a shell-out). Examples:
 //     `context`/`about`/`agent-context`, `api` (endpoint mirror tools cover it).
 //  2. The command is non-functional via MCP (interactive setup, shell-only
 //     ergonomics, trivial introspection, local-only feedback). Examples:
@@ -64,8 +69,6 @@ var frameworkCommands = map[string]bool{
 	"feedback":      true,
 	"help":          true,
 	"profile":       true,
-	"search":        true,
-	"sql":           true,
 	"version":       true,
 	"which":         true,
 }
@@ -77,10 +80,18 @@ func classify(cmd *cobra.Command) commandKind {
 	if endpointID(cmd) != "" {
 		return commandEndpoint
 	}
-	if frameworkCommands[cmd.Name()] {
+	if isTopLevelFrameworkCommand(cmd) {
 		return commandFramework
 	}
 	return commandNovel
+}
+
+func isTopLevelFrameworkCommand(cmd *cobra.Command) bool {
+	if cmd == nil || !frameworkCommands[cmd.Name()] {
+		return false
+	}
+	parent := cmd.Parent()
+	return parent != nil && parent.Parent() == nil
 }
 
 func endpointID(cmd *cobra.Command) string {
@@ -96,6 +107,30 @@ func isMCPHidden(cmd *cobra.Command) bool {
 
 func isMCPReadOnly(cmd *cobra.Command) bool {
 	return annotationIsTrue(cmd, ReadOnlyAnnotation)
+}
+
+func positionalWriteSinkIndexes(cmd *cobra.Command) map[int]bool {
+	if cmd == nil || cmd.Annotations == nil {
+		return nil
+	}
+	raw := strings.TrimSpace(cmd.Annotations[PositionalWriteSinksAnnotation])
+	if raw == "" {
+		return nil
+	}
+	out := map[int]bool{}
+	for _, part := range strings.FieldsFunc(raw, func(r rune) bool {
+		return r == ',' || r == ';' || r == ' ' || r == '\t' || r == '\n'
+	}) {
+		idx, err := strconv.Atoi(strings.TrimSpace(part))
+		if err != nil || idx < 0 {
+			continue
+		}
+		out[idx] = true
+	}
+	if len(out) == 0 {
+		return nil
+	}
+	return out
 }
 
 func annotationIsTrue(cmd *cobra.Command, key string) bool {

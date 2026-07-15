@@ -1,0 +1,15 @@
+{
+  "schema_version": 2,
+  "id": "vagaro-business-availability-filters",
+  "applied_at": "2026-07-08",
+  "base_run_id": "20260701-143117-d22a0c47",
+  "base_printing_press_version": "4.27.1",
+  "summary": "business availability now accepts --service, --provider, --from, --to, and --weeks so callers can target a concrete service/provider/date window. Requested service/provider filters resolve by ID, exact name, or unique substring, returned groups are filtered to the resolved provider ID, and empty-service businesses still return the structured no-services summary.",
+  "reason": "The shipped command always queried the first service, any provider, and the current week, which made provider-specific booking workflows return coarse or wrong availability.",
+  "files": [
+    "internal/cli/business_availability.go",
+    "internal/cli/business_availability_test.go",
+    "README.md",
+    "SKILL.md"
+  ]
+}

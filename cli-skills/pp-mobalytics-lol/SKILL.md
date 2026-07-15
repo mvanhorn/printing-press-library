@@ -34,7 +34,7 @@ This skill drives the `mobalytics-lol-pp-cli` binary. **You must verify the CLI 
 2. Verify: `mobalytics-lol-pp-cli --version`
 3. Ensure the reported install directory is on `$PATH` for the agent/runtime that will invoke this skill.
 
-If the `npx` install fails (no Node, offline, etc.), fall back to a direct Go install (requires Go 1.26.4 or newer):
+If the `npx` install fails (no Node, offline, etc.), fall back to a direct Go install (requires Go 1.26.5 or newer):
 
 ```bash
 go install github.com/mvanhorn/printing-press-library/library/media-and-entertainment/mobalytics-lol/cmd/mobalytics-lol-pp-cli@latest

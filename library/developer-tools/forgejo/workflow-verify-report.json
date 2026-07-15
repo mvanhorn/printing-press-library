@@ -1,5 +1,5 @@
 {
-  "dir": "\u003ccli-dir\u003e/forgejo-pp-cli",
+  "dir": "\u003ccli-dir\u003e/forgejo",
   "workflows": null,
   "verdict": "workflow-pass",
   "issues": [

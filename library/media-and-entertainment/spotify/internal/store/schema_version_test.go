@@ -7,7 +7,9 @@ import (
 	"context"
 	"database/sql"
 	"errors"
+	"fmt"
 	"path/filepath"
+	"strings"
 	"sync"
 	"testing"
 	"time"
@@ -33,6 +35,83 @@ func TestSchemaVersion_StampedOnFreshDB(t *testing.T) {
 	}
 	if v != StoreSchemaVersion {
 		t.Fatalf("fresh db version = %d, want %d", v, StoreSchemaVersion)
+	}
+}
+
+// TestOpenAppliesPragmas pins the connection-string contract: the store
+// must open in WAL journal mode with a non-zero busy_timeout so a read
+// concurrent with a write waits on the lock instead of failing immediately
+// with SQLITE_BUSY. It fails the instant the DSN regresses to the mattn-
+// style _journal_mode=WAL form, which modernc.org/sqlite silently drops —
+// see the OpenReadOnly comment for the driver-syntax detail.
+func TestOpenAppliesPragmas(t *testing.T) {
+	dbPath := filepath.Join(t.TempDir(), "data.db")
+	s, err := Open(dbPath)
+	if err != nil {
+		t.Fatalf("open: %v", err)
+	}
+	defer s.Close()
+
+	requirePragma(t, s.DB(), "journal_mode", "wal")
+	requirePragma(t, s.DB(), "busy_timeout", "5000")
+
+	// The read-only handle (MCP sql/search, analytics) must see the same WAL
+	// file mode and carry the busy_timeout so it waits on a concurrent writer
+	// rather than erroring.
+	ro, err := OpenReadOnly(dbPath)
+	if err != nil {
+		t.Fatalf("open read-only: %v", err)
+	}
+	defer ro.Close()
+
+	requirePragma(t, ro.DB(), "journal_mode", "wal")
+	requirePragma(t, ro.DB(), "busy_timeout", "5000")
+}
+
+// requirePragma fails the test unless `PRAGMA <name>` reports want. It reads
+// the value as text so one helper covers both string pragmas (journal_mode)
+// and integer pragmas (busy_timeout).
+func requirePragma(t *testing.T, db *sql.DB, name, want string) {
+	t.Helper()
+	var got string
+	if err := db.QueryRow("PRAGMA " + name).Scan(&got); err != nil {
+		t.Fatalf("read pragma %s: %v", name, err)
+	}
+	if got != want {
+		t.Fatalf("PRAGMA %s = %q, want %q", name, got, want)
+	}
+}
+
+// TestOpenReadOnly_DeleteModeDBDoesNotWrite guards the read-only DSN against
+// mutating the database. journal_mode is a file-level property set by the
+// read-write open, not the connection — issuing PRAGMA journal_mode=WAL on a
+// read-only handle to a DB still in the default delete journal mode (a pre-WAL
+// database from an older binary, read before its first read-write open) fails
+// with "attempt to write a readonly database". OpenReadOnly must read such a
+// DB without error, so its DSN carries no journal_mode pragma.
+func TestOpenReadOnly_DeleteModeDBDoesNotWrite(t *testing.T) {
+	dbPath := filepath.Join(t.TempDir(), "data.db")
+
+	// Create a delete-journal-mode DB directly (no WAL conversion), mirroring
+	// a database written by a binary that predated the WAL DSN.
+	raw, err := sql.Open("sqlite", dbPath)
+	if err != nil {
+		t.Fatalf("open raw: %v", err)
+	}
+	if _, err := raw.Exec(`CREATE TABLE resources (id TEXT)`); err != nil {
+		t.Fatalf("seed table: %v", err)
+	}
+	raw.Close()
+
+	ro, err := OpenReadOnly(dbPath)
+	if err != nil {
+		t.Fatalf("open read-only: %v", err)
+	}
+	defer ro.Close()
+
+	var n int
+	if err := ro.DB().QueryRow(`SELECT count(*) FROM resources`).Scan(&n); err != nil {
+		t.Fatalf("read-only query on delete-mode DB: %v", err)
 	}
 }
 
@@ -133,7 +212,7 @@ func TestMigrate_ConcurrentFreshDB(t *testing.T) {
 // to construct contention scenarios in the migration tests.
 func holdWriteLock(t *testing.T, dbPath string) (cleanup func()) {
 	t.Helper()
-	holder, err := sql.Open("sqlite", dbPath+"?_journal_mode=WAL&_busy_timeout=5000")
+	holder, err := sql.Open("sqlite", dbPath+"?_pragma=busy_timeout(5000)&_pragma=journal_mode(WAL)")
 	if err != nil {
 		t.Fatalf("open holder: %v", err)
 	}
@@ -436,6 +515,206 @@ func TestMigrate_ResourcesCompositeKeyUpgrade(t *testing.T) {
 	}
 }
 
+func TestMigrate_V2ResourcesFTSRowIDUpgrade(t *testing.T) {
+	dbPath := filepath.Join(t.TempDir(), "data.db")
+
+	raw, err := sql.Open("sqlite", dbPath)
+	if err != nil {
+		t.Fatalf("open raw: %v", err)
+	}
+	if _, err := raw.Exec(`CREATE TABLE resources (
+		id TEXT NOT NULL,
+		resource_type TEXT NOT NULL,
+		data JSON NOT NULL,
+		synced_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+		updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+		PRIMARY KEY (resource_type, id)
+	)`); err != nil {
+		raw.Close()
+		t.Fatalf("create v2 resources: %v", err)
+	}
+	if _, err := raw.Exec(`CREATE VIRTUAL TABLE resources_fts USING fts5(
+		id, resource_type, content, tokenize='porter unicode61'
+	)`); err != nil {
+		raw.Close()
+		t.Fatalf("create stale resources_fts: %v", err)
+	}
+	if _, err := raw.Exec(`INSERT INTO resources (id, resource_type, data) VALUES ('shared', 'biz', '{"kind":"biz","name":"legacy restaurant"}')`); err != nil {
+		raw.Close()
+		t.Fatalf("seed v2 resource: %v", err)
+	}
+	if _, err := raw.Exec(`INSERT INTO resources_fts (rowid, id, resource_type, content) VALUES (1, 'shared', 'biz', '{"kind":"biz","name":"legacy restaurant"}')`); err != nil {
+		raw.Close()
+		t.Fatalf("seed stale resources_fts row: %v", err)
+	}
+	if _, err := raw.Exec(`PRAGMA user_version = 2`); err != nil {
+		raw.Close()
+		t.Fatalf("stamp v2: %v", err)
+	}
+	raw.Close()
+
+	s, err := Open(dbPath)
+	if err != nil {
+		t.Fatalf("open upgraded db: %v", err)
+	}
+	defer s.Close()
+
+	v, err := s.SchemaVersion()
+	if err != nil {
+		t.Fatalf("read schema version: %v", err)
+	}
+	if v != StoreSchemaVersion {
+		t.Fatalf("upgraded version = %d, want %d", v, StoreSchemaVersion)
+	}
+
+	var count int
+	if err := s.DB().QueryRow(`SELECT COUNT(*) FROM resources_fts WHERE id = 'shared' AND resource_type = 'biz'`).Scan(&count); err != nil {
+		t.Fatalf("count rebuilt resources_fts rows: %v", err)
+	}
+	if count != 1 {
+		t.Fatalf("resources_fts row count = %d, want 1", count)
+	}
+
+	var rowid int64
+	if err := s.DB().QueryRow(`SELECT rowid FROM resources_fts WHERE id = 'shared' AND resource_type = 'biz'`).Scan(&rowid); err != nil {
+		t.Fatalf("read rebuilt resources_fts rowid: %v", err)
+	}
+	if want := ftsRowID("biz", "shared"); rowid != want {
+		t.Fatalf("resources_fts rowid = %d, want %d", rowid, want)
+	}
+
+	data, err := s.Get("biz", "shared")
+	if err != nil {
+		t.Fatalf("get preserved v2 resource after rowid migration: %v", err)
+	}
+	if string(data) != `{"kind":"biz","name":"legacy restaurant"}` {
+		t.Fatalf("preserved v2 resource payload = %s, want original", data)
+	}
+
+	if err := s.Upsert("biz", "shared", []byte(`{"kind":"biz","name":"legacy cafe"}`)); err != nil {
+		t.Fatalf("upsert after rowid migration: %v", err)
+	}
+	matches, err := s.Search("legacy", 10)
+	if err != nil {
+		t.Fatalf("search rebuilt fts: %v", err)
+	}
+	if len(matches) != 1 || string(matches[0]) != `{"kind":"biz","name":"legacy cafe"}` {
+		t.Fatalf("legacy search = %q, want exactly one updated payload", matches)
+	}
+}
+
+func TestMigrate_V3ResourcesFTSRebuildsSearchableContent(t *testing.T) {
+	dbPath := filepath.Join(t.TempDir(), "data.db")
+
+	raw, err := sql.Open("sqlite", dbPath)
+	if err != nil {
+		t.Fatalf("open raw: %v", err)
+	}
+	if _, err := raw.Exec(`CREATE TABLE resources (
+		id TEXT NOT NULL,
+		resource_type TEXT NOT NULL,
+		data JSON NOT NULL,
+		synced_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+		updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+		PRIMARY KEY (resource_type, id)
+	)`); err != nil {
+		raw.Close()
+		t.Fatalf("create v3 resources: %v", err)
+	}
+	if _, err := raw.Exec(`CREATE VIRTUAL TABLE resources_fts USING fts5(
+		id, resource_type, content, tokenize='porter unicode61'
+	)`); err != nil {
+		raw.Close()
+		t.Fatalf("create v3 resources_fts: %v", err)
+	}
+	if _, err := raw.Exec(`INSERT INTO resources (id, resource_type, data) VALUES ('shared', 'biz', '{"kind":"biz","name":"canonical resource"}')`); err != nil {
+		raw.Close()
+		t.Fatalf("seed v3 resource: %v", err)
+	}
+	if _, err := raw.Exec(`INSERT INTO resources_fts (rowid, id, resource_type, content) VALUES (?, 'shared', 'biz', '{"kind":"biz","name":"sentinel fts"}')`, ftsRowID("biz", "shared")); err != nil {
+		raw.Close()
+		t.Fatalf("seed v3 resources_fts row: %v", err)
+	}
+	if _, err := raw.Exec(`PRAGMA user_version = 3`); err != nil {
+		raw.Close()
+		t.Fatalf("stamp v3: %v", err)
+	}
+	raw.Close()
+
+	s, err := Open(dbPath)
+	if err != nil {
+		t.Fatalf("open v3 db: %v", err)
+	}
+	defer s.Close()
+
+	v, err := s.SchemaVersion()
+	if err != nil {
+		t.Fatalf("read schema version: %v", err)
+	}
+	if v != StoreSchemaVersion {
+		t.Fatalf("schema version = %d, want %d", v, StoreSchemaVersion)
+	}
+
+	var content string
+	if err := s.DB().QueryRow(`SELECT content FROM resources_fts WHERE id = 'shared' AND resource_type = 'biz'`).Scan(&content); err != nil {
+		t.Fatalf("read resources_fts content: %v", err)
+	}
+	if strings.Contains(content, "sentinel") || strings.Contains(content, "name") || !strings.Contains(content, "canonical resource") {
+		t.Fatalf("resources_fts content = %s, want rebuilt searchable values only", content)
+	}
+}
+
+func TestMigrate_ResourcesFTSContentSchemaVersionNoRebuild(t *testing.T) {
+	dbPath := filepath.Join(t.TempDir(), "data.db")
+
+	raw, err := sql.Open("sqlite", dbPath)
+	if err != nil {
+		t.Fatalf("open raw: %v", err)
+	}
+	if _, err := raw.Exec(`CREATE TABLE resources (
+		id TEXT NOT NULL,
+		resource_type TEXT NOT NULL,
+		data JSON NOT NULL,
+		synced_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+		updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+		PRIMARY KEY (resource_type, id)
+	)`); err != nil {
+		raw.Close()
+		t.Fatalf("create resources: %v", err)
+	}
+	if _, err := raw.Exec(resourcesFTSCreateSQL); err != nil {
+		raw.Close()
+		t.Fatalf("create resources_fts: %v", err)
+	}
+	if _, err := raw.Exec(`INSERT INTO resources (id, resource_type, data) VALUES ('shared', 'biz', '{"kind":"biz","name":"canonical resource"}')`); err != nil {
+		raw.Close()
+		t.Fatalf("seed resource: %v", err)
+	}
+	if _, err := raw.Exec(`INSERT INTO resources_fts (rowid, id, resource_type, content) VALUES (?, 'shared', 'biz', 'sentinel fts')`, ftsRowID("biz", "shared")); err != nil {
+		raw.Close()
+		t.Fatalf("seed resources_fts row: %v", err)
+	}
+	if _, err := raw.Exec(fmt.Sprintf(`PRAGMA user_version = %d`, resourcesFTSContentSchemaVersion)); err != nil {
+		raw.Close()
+		t.Fatalf("stamp resources fts content schema version: %v", err)
+	}
+	raw.Close()
+
+	s, err := Open(dbPath)
+	if err != nil {
+		t.Fatalf("open db: %v", err)
+	}
+	defer s.Close()
+
+	var content string
+	if err := s.DB().QueryRow(`SELECT content FROM resources_fts WHERE id = 'shared' AND resource_type = 'biz'`).Scan(&content); err != nil {
+		t.Fatalf("read resources_fts content: %v", err)
+	}
+	if content != "sentinel fts" {
+		t.Fatalf("resources_fts content = %s, want sentinel row preserved", content)
+	}
+}
+
 // TestOpenReadOnly_RejectsWrites pins the contract: direct and CTE-wrapped
 // writes against the main DB fail under mode=ro. Deliberately does not
 // assert VACUUM INTO and ATTACH DATABASE — modernc.org/sqlite allows both
@@ -621,6 +900,7 @@ func TestMigrate_AddsColumnsOnUpgrade_AlbumsTracks(t *testing.T) {
 
 	for _, want := range []string{
 		"albums_id",
+		"parent_id",
 	} {
 		if !hasColumn[want] {
 			t.Fatalf("%s column missing from albums_tracks after migrate", want)
@@ -751,6 +1031,7 @@ func TestMigrate_AddsColumnsOnUpgrade_ArtistsAlbums(t *testing.T) {
 
 	for _, want := range []string{
 		"artists_id",
+		"parent_id",
 	} {
 		if !hasColumn[want] {
 			t.Fatalf("%s column missing from artists_albums after migrate", want)
@@ -1088,6 +1369,7 @@ func TestMigrate_AddsColumnsOnUpgrade_AudiobooksChapters(t *testing.T) {
 
 	for _, want := range []string{
 		"audiobooks_id",
+		"parent_id",
 	} {
 		if !hasColumn[want] {
 			t.Fatalf("%s column missing from audiobooks_chapters after migrate", want)
@@ -1150,8 +1432,9 @@ func TestMigrate_AddsColumnsOnUpgrade_Browse(t *testing.T) {
 
 	for _, want := range []string{
 		"message",
-		"href",
-		"name",
+		"height",
+		"url",
+		"width",
 	} {
 		if !hasColumn[want] {
 			t.Fatalf("%s column missing from browse after migrate", want)
@@ -1376,15 +1659,16 @@ func TestMigrate_AddsColumnsOnUpgrade_Me(t *testing.T) {
 		"offset",
 		"previous",
 		"total",
-		"country",
-		"display_name",
-		"email",
-		"explicit_content",
-		"external_urls",
-		"followers",
-		"product",
+		"is_active",
+		"is_private_session",
+		"is_restricted",
+		"name",
+		"supports_volume",
 		"type",
-		"uri",
+		"volume_percent",
+		"height",
+		"url",
+		"width",
 		"actions",
 		"context",
 		"currently_playing_type",
@@ -1395,7 +1679,29 @@ func TestMigrate_AddsColumnsOnUpgrade_Me(t *testing.T) {
 		"repeat_state",
 		"shuffle_state",
 		"timestamp",
-		"currently_playing",
+		"album",
+		"audio_preview_url",
+		"description",
+		"disc_number",
+		"duration_ms",
+		"explicit",
+		"external_ids",
+		"external_urls",
+		"html_description",
+		"is_externally_hosted",
+		"is_local",
+		"is_playable",
+		"language",
+		"linked_from",
+		"popularity",
+		"preview_url",
+		"release_date",
+		"release_date_precision",
+		"restrictions",
+		"resume_point",
+		"show",
+		"track_number",
+		"uri",
 		"cursors",
 	} {
 		if !hasColumn[want] {
@@ -1458,17 +1764,9 @@ func TestMigrate_AddsColumnsOnUpgrade_Playlists(t *testing.T) {
 	}
 
 	for _, want := range []string{
-		"collaborative",
-		"description",
-		"external_urls",
-		"followers",
-		"href",
-		"name",
-		"owner",
-		"public",
-		"snapshot_id",
-		"type",
-		"uri",
+		"height",
+		"url",
+		"width",
 	} {
 		if !hasColumn[want] {
 			t.Fatalf("%s column missing from playlists after migrate", want)
@@ -1852,6 +2150,7 @@ func TestMigrate_AddsColumnsOnUpgrade_ShowsEpisodes(t *testing.T) {
 
 	for _, want := range []string{
 		"shows_id",
+		"parent_id",
 	} {
 		if !hasColumn[want] {
 			t.Fatalf("%s column missing from shows_episodes after migrate", want)
@@ -1933,73 +2232,6 @@ func TestMigrate_AddsColumnsOnUpgrade_Tracks(t *testing.T) {
 	} {
 		if !hasColumn[want] {
 			t.Fatalf("%s column missing from tracks after migrate", want)
-		}
-	}
-}
-
-// TestMigrate_AddsColumnsOnUpgrade_Users verifies that opening a
-// database created by an older binary succeeds and adds newly generated
-// columns before CREATE INDEX runs against the pre-existing table. Regression
-// coverage for parent_id upgrades and indexed generated columns.
-func TestMigrate_AddsColumnsOnUpgrade_Users(t *testing.T) {
-	dbPath := filepath.Join(t.TempDir(), "data.db")
-
-	// Pre-create the DB with the older table shape: id, data, synced_at and
-	// none of the newer generated columns. user_version stays 0 (pre-gate).
-	raw, err := sql.Open("sqlite", dbPath)
-	if err != nil {
-		t.Fatalf("open raw: %v", err)
-	}
-	if _, err := raw.Exec(`CREATE TABLE "users" (
-		id TEXT PRIMARY KEY,
-		data JSON NOT NULL,
-		synced_at DATETIME DEFAULT CURRENT_TIMESTAMP
-	)`); err != nil {
-		raw.Close()
-		t.Fatalf("create old table: %v", err)
-	}
-	raw.Close()
-
-	// Opening with the new binary must run CREATE INDEX statements without
-	// erroring on missing generated columns.
-	s, err := Open(dbPath)
-	if err != nil {
-		t.Fatalf("open upgraded db: %v", err)
-	}
-	defer s.Close()
-
-	// The migration must have added every generated column.
-	rows, err := s.DB().Query(`PRAGMA table_info("users")`)
-	if err != nil {
-		t.Fatalf("table_info: %v", err)
-	}
-	defer rows.Close()
-
-	hasColumn := make(map[string]bool)
-	for rows.Next() {
-		var cid int
-		var name, typ string
-		var notnull, pk int
-		var dflt sql.NullString
-		if err := rows.Scan(&cid, &name, &typ, &notnull, &dflt, &pk); err != nil {
-			t.Fatalf("scan: %v", err)
-		}
-		hasColumn[name] = true
-	}
-	if err := rows.Err(); err != nil {
-		t.Fatalf("rows: %v", err)
-	}
-
-	for _, want := range []string{
-		"display_name",
-		"external_urls",
-		"followers",
-		"href",
-		"type",
-		"uri",
-	} {
-		if !hasColumn[want] {
-			t.Fatalf("%s column missing from users after migrate", want)
 		}
 	}
 }

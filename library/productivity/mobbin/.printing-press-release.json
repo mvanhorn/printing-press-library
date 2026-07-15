@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "slug": "mobbin",
+  "cli_name": "mobbin-pp-cli",
+  "version": "2026.7.1",
+  "released_at": "2026-07-09T04:38:55Z",
+  "source_commit": "0f9f93d52a0f913256edf531ea8f9ef75e83b9d9",
+  "printing_press_version": "4.27.1",
+  "run_id": "20260708-153634-73e98316",
+  "changes": [
+    {
+      "title": "feat(mobbin): add mobbin",
+      "pr": 1470,
+      "url": "https://github.com/mvanhorn/printing-press-library/pull/1470",
+      "commit": "0f9f93d52a0f913256edf531ea8f9ef75e83b9d9"
+    }
+  ]
+}

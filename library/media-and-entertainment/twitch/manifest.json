@@ -1,0 +1,55 @@
+{
+  "manifest_version": "0.3",
+  "name": "twitch-pp-mcp",
+  "display_name": "Twitch Helix",
+  "version": "0.0.0",
+  "description": "Twitch Helix API",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/twitch-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/twitch-pp-mcp",
+      "args": [],
+      "env": {
+        "TWITCH_CLIENT_ID": "${user_config.twitch_client_id}",
+        "TWITCH_CLIENT_SECRET": "${user_config.twitch_client_secret}",
+        "TWITCH_OAUTH_SCOPE": "${user_config.twitch_oauth_scope}"
+      }
+    }
+  },
+  "user_config": {
+    "twitch_client_id": {
+      "type": "string",
+      "title": "TWITCH_CLIENT_ID",
+      "description": "Sets TWITCH_CLIENT_ID for the Twitch Helix MCP server.",
+      "sensitive": true,
+      "required": true
+    },
+    "twitch_client_secret": {
+      "type": "string",
+      "title": "TWITCH_CLIENT_SECRET",
+      "description": "Sets TWITCH_CLIENT_SECRET for the Twitch Helix MCP server.",
+      "sensitive": true,
+      "required": true
+    },
+    "twitch_oauth_scope": {
+      "type": "string",
+      "title": "TWITCH_OAUTH_SCOPE",
+      "description": "Sets TWITCH_OAUTH_SCOPE for the Twitch Helix MCP server. Required by the generated client for credential refresh or hand-written auth flow.",
+      "sensitive": true,
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

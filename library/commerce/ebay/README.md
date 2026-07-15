@@ -53,7 +53,7 @@ npx -y @mvanhorn/printing-press-library install ebay --agent claude-code --agent
 
 ### Without Node (Go fallback)
 
-If `npx` isn't available (no Node, offline), install the CLI directly via Go (requires Go 1.26.4 or newer):
+If `npx` isn't available (no Node, offline), install the CLI directly via Go (requires Go 1.26.5 or newer):
 
 ```bash
 go install github.com/mvanhorn/printing-press-library/library/commerce/ebay/cmd/ebay-pp-cli@latest
@@ -201,9 +201,9 @@ ebay-pp-cli comp "Zion Williamson rookie" --condition graded --json
 ebay-pp-cli auctions "PSA Mariners 1980" --has-bids --max-price 30 --json | \
   jq '.[] | {title, price, bids, ends_at, url}'
 
-# Save a search and re-run it
-ebay-pp-cli saved-search create vintage-mariners --query "PSA Mariners Griffey" --max-price 30
-ebay-pp-cli feed vintage-mariners --since 1h
+# Save a search and re-run it (stubbed commands; inspect current planned shape)
+ebay-pp-cli saved-search --help
+ebay-pp-cli feed --help
 ```
 
 ## Known Limitations

@@ -9,8 +9,10 @@ import (
 
 func newPlaylistsFollowersCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "followers",
-		Short: "Manage followers",
+		Use:         "followers",
+		Short:       "Get, update, and delete followers for playlists",
+		Annotations: map[string]string{"mcp:read-only": "true", "pp:typed-exit-codes": "0,2"},
+		RunE:        parentNoSubcommandRunE(flags),
 	}
 
 	cmd.AddCommand(newPlaylistsFollowersCheckIfUserFollowsPlaylistCmd(flags))

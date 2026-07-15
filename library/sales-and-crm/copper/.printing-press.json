@@ -1,0 +1,78 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-06-23T18:44:57.350485Z",
+  "printing_press_version": "4.25.0",
+  "api_name": "copper",
+  "display_name": "Copper",
+  "cli_name": "copper-pp-cli",
+  "creator": {
+    "handle": "kmorebetter",
+    "name": "Kerry Morrison"
+  },
+  "owner": "kmorebetter",
+  "printer": "kmorebetter",
+  "printer_name": "Kerry Morrison",
+  "spec_path": "copper-spec.yaml",
+  "spec_format": "internal",
+  "spec_checksum": "sha256:d79e71efc0cc774e9015fcf7574b52bd4a3f098a25930cc2bc0f694bbd21dad8",
+  "run_id": "20260623-105449-202981ca",
+  "category": "sales-and-crm",
+  "description": "The Copper CRM command line no one else built: full CRUD plus a local database, weighted pipeline forecasting, stale-deal detection, and the bulk operations Copper's own API refuses to provide.",
+  "mcp_binary": "copper-pp-mcp",
+  "mcp_tool_count": 65,
+  "mcp_ready": "full",
+  "api_version": "0.1.0",
+  "auth_type": "api_key",
+  "auth_env_vars": [
+    "COPPER_API_KEY"
+  ],
+  "auth_additional_headers": [
+    {
+      "header": "X-PW-UserEmail",
+      "in": "header",
+      "env_var": {
+        "name": "COPPER_USER_EMAIL",
+        "kind": "per_call",
+        "required": false,
+        "sensitive": false
+      }
+    }
+  ],
+  "novel_features": [
+    {
+      "name": "Weighted pipeline forecast",
+      "command": "forecast",
+      "description": "Weighted expected-revenue roll-up: sums monetary_value x win_probability over open opportunities, grouped by stage, assignee, or close-month."
+    },
+    {
+      "name": "Stale-deal sweep",
+      "command": "stale",
+      "description": "Surfaces open opportunities with no interaction in N days, sorted by staleness x value, across all reps."
+    },
+    {
+      "name": "Bulk write engine",
+      "command": "bulk",
+      "description": "Applies field updates (stage, owner, custom fields) across many opportunities with bounded concurrency and heuristic 429 backoff."
+    },
+    {
+      "name": "Idempotent upsert",
+      "command": "upsert",
+      "description": "Match-then-create-or-update for people and leads; normalizes the people.emails[] vs leads.email shape difference."
+    },
+    {
+      "name": "Duplicate finder",
+      "command": "dedupe",
+      "description": "Local SQLite self-join surfacing people or leads that share an email, name, or company."
+    },
+    {
+      "name": "Activity log and correct",
+      "command": "log",
+      "description": "Creates an activity with the type resolved by name (bumps interaction_count); log fix deletes and recreates to edit an immutable activity."
+    },
+    {
+      "name": "Contact-graph lookup",
+      "command": "who",
+      "description": "Joins an opportunity to its company, people, and recent activities into one related-records view."
+    }
+  ]
+}

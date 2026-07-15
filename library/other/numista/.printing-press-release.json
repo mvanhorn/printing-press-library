@@ -2,17 +2,17 @@
   "schema_version": 1,
   "slug": "numista",
   "cli_name": "numista-pp-cli",
-  "version": "2026.6.2",
-  "released_at": "2026-06-21T08:16:26Z",
-  "source_commit": "acb84091ff016c6e7aea5f8cf6956a694aa0d1c7",
+  "version": "2026.7.1",
+  "released_at": "2026-07-08T18:21:21Z",
+  "source_commit": "11d7b4ea752c9c8fb8909037133058eb57560cc0",
   "printing_press_version": "4.8.0",
   "run_id": "20260517-033846",
   "changes": [
     {
-      "title": "fix(catalog): require Go 1.26.4 across published modules",
-      "pr": 1308,
-      "url": "https://github.com/mvanhorn/printing-press-library/pull/1308",
-      "commit": "acb84091ff016c6e7aea5f8cf6956a694aa0d1c7"
+      "title": "fix(catalog): require Go 1.26.5 across published modules",
+      "pr": 1467,
+      "url": "https://github.com/mvanhorn/printing-press-library/pull/1467",
+      "commit": "11d7b4ea752c9c8fb8909037133058eb57560cc0"
     }
   ]
 }

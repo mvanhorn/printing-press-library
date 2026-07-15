@@ -20,9 +20,15 @@ func newMeGetFollowedCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:         "get-followed",
 		Short:       "Get the current user's followed artists.",
-		Example:     "  spotify-pp-cli me get-followed --type example-value",
+		Example:     "  spotify-pp-cli me get-followed --type artist",
 		Annotations: map[string]string{"pp:endpoint": "me.get-followed", "pp:method": "GET", "pp:path": "/me/following", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
+			// Bare invocation of a command with required input prints help
+			// instead of pflag's terse "required flag not set" error. Optional-
+			// only read commands fall through so a bare call still executes.
+			if cmd.Flags().NFlag() == 0 && len(args) == 0 && !flags.dryRun {
+				return cmd.Help()
+			}
 			if !cmd.Flags().Changed("type") && !flags.dryRun {
 				return fmt.Errorf("required flag \"%s\" not set", "type")
 			}
@@ -36,25 +42,28 @@ func newMeGetFollowedCmd(flags *rootFlags) *cobra.Command {
 					}
 				}
 				if !validType {
-					fmt.Fprintf(os.Stderr, "warning: --%s %q not in allowed set %v\n", "type", flagType, allowedType)
+					return fmt.Errorf("invalid value %q for --%s: must be one of %v", flagType, "type", allowedType)
 				}
 			}
+			path := "/me/following"
 			c, err := flags.newClient()
 			if err != nil {
 				return err
 			}
-
-			path := "/me/following"
-			data, prov, err := resolvePaginatedRead(cmd.Context(), c, flags, "me", path, map[string]string{
-				"type":  fmt.Sprintf("%v", flagType),
-				"after": fmt.Sprintf("%v", flagAfter),
-				"limit": fmt.Sprintf("%v", flagLimit),
-			}, nil, flagAll, "after", "", "")
+			data, prov, err := resolvePaginatedReadWithStrategy(cmd.Context(), c, flags, "auto", "me", path, map[string]string{
+				"type":  formatCLIParamValue(flagType),
+				"after": formatCLIParamValue(flagAfter),
+				"limit": formatCLIParamValue(flagLimit),
+			}, nil, flagAll, "after", "cursor", "limit", "", "", cmd.ErrOrStderr())
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}
-			// Print provenance to stderr for human-facing output
-			{
+			// Print provenance to stderr for human-facing output only.
+			// Machine-format flags (--json, --csv, --compact, --quiet, --plain,
+			// --select) and piped stdout suppress this line; the JSON envelope
+			// already carries meta.source for those consumers.
+			// SYNC: keep this gate aligned with command_promoted.go.tmpl.
+			if wantsHumanTable(cmd.OutOrStdout(), flags) {
 				var countItems []json.RawMessage
 				_ = json.Unmarshal(data, &countItems)
 				printProvenance(cmd, len(countItems), prov)
@@ -90,7 +99,7 @@ func newMeGetFollowedCmd(flags *rootFlags) *cobra.Command {
 					return nil
 				}
 			}
-			return printOutputWithFlags(cmd.OutOrStdout(), data, flags)
+			return printOutputWithFlagsMeta(cmd.OutOrStdout(), data, flags, map[string]any{"source": "live"})
 		},
 	}
 	cmd.Flags().StringVar(&flagType, "type", "", "Type (one of: artist)")

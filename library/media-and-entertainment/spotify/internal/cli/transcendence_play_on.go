@@ -11,6 +11,7 @@
 package cli
 
 import (
+	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -49,9 +50,9 @@ play-on can't bypass that — but it can tell you whether the device is in
 your cache vs visible right now, which is the half of the answer that needs
 local state.`,
 		Annotations: map[string]string{"pp:typed-exit-codes": "0,2"},
-		Example: `  spotify-pp-cli play-on "family room"
+		Example: `  spotify-pp-cli play-on "living room"
   spotify-pp-cli play-on iphone --uris '["spotify:track:0nys6GusuHnjSYLW0PYYb7"]'
-  spotify-pp-cli play-on "mad's room" --context-uri spotify:album:1ER3B6zev5JEAaqhnyyfbf`,
+  spotify-pp-cli play-on "kitchen speaker" --context-uri spotify:album:1ER3B6zev5JEAaqhnyyfbf`,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				return cmd.Help()
@@ -81,7 +82,7 @@ local state.`,
 			// stays current as a side effect of every play-on call.
 			liveDevices := []deviceRow{}
 			if !noRefresh {
-				data, err := c.Get("/me/player/devices", nil)
+				data, err := c.Get(context.Background(), "/me/player/devices", nil)
 				if err == nil {
 					var resp struct {
 						Devices []struct {
@@ -130,12 +131,19 @@ local state.`,
 			// Step 3: name resolution.
 			match, matchErr := resolveDeviceByName(query, merged)
 			if matchErr != nil {
-				return printJSONFiltered(cmd.OutOrStdout(), map[string]any{
+				if err := printJSONFiltered(cmd.OutOrStdout(), map[string]any{
 					"error":          matchErr.Error(),
 					"query":          query,
 					"available_now":  liveDevices,
 					"cached_offline": onlyCached(cached, liveByID),
-				}, flags)
+				}, flags); err != nil {
+					return err
+				}
+				// Playback did not start; the envelope above carries the
+				// details, and the typed exit (declared in
+				// pp:typed-exit-codes) lets scripts distinguish miss from
+				// success.
+				return &cliError{code: 2, err: matchErr}
 			}
 
 			// Step 4: build body + URL and send.
@@ -156,7 +164,7 @@ local state.`,
 			if len(body) > 0 {
 				sendBody = body
 			}
-			_, statusCode, err := c.Put(path, sendBody)
+			_, statusCode, err := c.Put(context.Background(), path, sendBody)
 			if err != nil {
 				// 404 from /me/player/play almost always means "device
 				// went offline between list and play". Status code via
@@ -165,12 +173,15 @@ local state.`,
 				// hundreds of milliseconds between list and play.
 				var apiErr *client.APIError
 				if errors.As(err, &apiErr) && apiErr.StatusCode == 404 {
-					return printJSONFiltered(cmd.OutOrStdout(), map[string]any{
+					if perr := printJSONFiltered(cmd.OutOrStdout(), map[string]any{
 						"error":         "device not currently online with Spotify Connect",
 						"device":        match,
 						"hint":          wakeHintFor(match.Type),
 						"available_now": liveDevices,
-					}, flags)
+					}, flags); perr != nil {
+						return perr
+					}
+					return &cliError{code: 2, err: fmt.Errorf("device %q not currently online with Spotify Connect", match.Name)}
 				}
 				return classifyAPIError(err, flags)
 			}

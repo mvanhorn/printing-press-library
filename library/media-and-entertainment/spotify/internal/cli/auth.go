@@ -4,14 +4,15 @@
 package cli
 
 import (
+	"bufio"
 	"context"
 	"crypto/rand"
+	"crypto/sha256"
+	"encoding/base64"
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
-	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/spotify/internal/cliutil"
-	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/spotify/internal/config"
-	"github.com/spf13/cobra"
+	"io"
 	"net"
 	"net/http"
 	"net/url"
@@ -20,12 +21,17 @@ import (
 	"runtime"
 	"strings"
 	"time"
+
+	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/spotify/internal/cliutil"
+	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/spotify/internal/config"
+	"github.com/spf13/cobra"
 )
 
 func newAuthCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "auth",
 		Short: "Manage authentication for Spotify Web",
+		RunE:  parentNoSubcommandRunE(flags),
 	}
 
 	cmd.AddCommand(newAuthSetupCmd(flags))
@@ -50,7 +56,7 @@ func newAuthSetupCmd(_ *rootFlags) *cobra.Command {
 			fmt.Fprintln(w, "Register an app and copy your credentials at: https://developer.spotify.com/documentation/general/guides/authorization-guide/")
 			fmt.Fprintln(w, "")
 			fmt.Fprintln(w, "Then run:")
-			fmt.Fprintln(w, "  spotify-pp-cli auth login --client-id <id> --client-secret <secret>")
+			fmt.Fprintln(w, "  spotify-pp-cli login")
 			if !launch {
 				return nil
 			}
@@ -97,166 +103,18 @@ func newAuthLoginCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "login",
 		Short: "Authenticate via OAuth2",
+		Annotations: map[string]string{
+			"mcp:hidden": "true",
+		},
 		RunE: func(cmd *cobra.Command, args []string) error {
-			// PATCH (fix-auth-loopback-and-dry-run):
-			// Short-circuit dry-run / verify-env BEFORE arg validation so
-			// shipcheck can probe the command shape without credentials.
-			if dryRunOK(flags) || cliutil.IsVerifyEnv() {
-				fmt.Fprintln(cmd.OutOrStdout(), `{"status":"dry_run","action":"auth login","would":"start OAuth2 authorization-code flow, open browser, capture loopback callback"}`)
-				return nil
-			}
-			if clientID == "" {
-				return fmt.Errorf("--client-id is required (or set SPOTIFY_CLIENT_ID env var)")
-			}
-
-			cfg, err := config.Load(flags.configPath)
-			if err != nil {
-				return err
-			}
-
-			stateBytes := make([]byte, 16)
-			if _, err := rand.Read(stateBytes); err != nil {
-				return fmt.Errorf("generating state: %w", err)
-			}
-			state := hex.EncodeToString(stateBytes)
-
-			listener, err := net.Listen("tcp", fmt.Sprintf("127.0.0.1:%d", port))
-			if err != nil {
-				return fmt.Errorf("starting callback server: %w", err)
-			}
-			defer listener.Close()
-
-			// Use 127.0.0.1 (not "localhost") — Spotify enforces RFC 8252
-			// for loopback redirects and rejects "localhost" for apps
-			// registered after the 2025 dashboard rollout.
-			redirectURI := fmt.Sprintf("http://127.0.0.1:%d/callback", listener.Addr().(*net.TCPAddr).Port)
-
-			authURL := ""
-			authURL = cfg.AuthorizationURL
-			if authURL == "" {
-				authURL = "https://accounts.spotify.com/authorize"
-			}
-			params := url.Values{
-				"client_id":     {clientID},
-				"redirect_uri":  {redirectURI},
-				"response_type": {"code"},
-				"state":         {state},
-			}
-			scopes := []string{"app-remote-control", "playlist-modify-private", "playlist-modify-public", "playlist-read-collaborative", "playlist-read-private", "streaming", "ugc-image-upload", "user-follow-modify", "user-follow-read", "user-library-modify", "user-library-read", "user-modify-playback-state", "user-read-currently-playing", "user-read-email", "user-read-playback-position", "user-read-playback-state", "user-read-private", "user-read-recently-played", "user-top-read"}
-			if len(scopes) > 0 {
-				params.Set("scope", strings.Join(scopes, " "))
-			}
-
-			fullURL := authURL + "?" + params.Encode()
-			fmt.Fprintf(os.Stderr, "Opening browser for authentication...\n")
-			fmt.Fprintf(os.Stderr, "If the browser doesn't open, visit:\n%s\n\n", fullURL)
-			openBrowser(fullURL)
-
-			codeCh := make(chan string, 1)
-			errCh := make(chan error, 1)
-
-			mux := http.NewServeMux()
-			mux.HandleFunc("/callback", func(w http.ResponseWriter, r *http.Request) {
-				if r.URL.Query().Get("state") != state {
-					errCh <- fmt.Errorf("state mismatch")
-					http.Error(w, "State mismatch", http.StatusBadRequest)
-					return
-				}
-				if errMsg := r.URL.Query().Get("error"); errMsg != "" {
-					errCh <- fmt.Errorf("auth error: %s", errMsg)
-					http.Error(w, errMsg, http.StatusBadRequest)
-					return
-				}
-				code := r.URL.Query().Get("code")
-				if code == "" {
-					errCh <- fmt.Errorf("no code in callback")
-					http.Error(w, "No code", http.StatusBadRequest)
-					return
-				}
-				w.Header().Set("Content-Type", "text/html")
-				fmt.Fprint(w, "<html><body><h2>Authentication successful!</h2><p>You can close this tab.</p></body></html>")
-				codeCh <- code
-			})
-
-			server := &http.Server{Handler: mux}
-			go server.Serve(listener)
-
-			var code string
-			select {
-			case code = <-codeCh:
-			case err := <-errCh:
-				return err
-			case <-time.After(2 * time.Minute):
-				return fmt.Errorf("authentication timed out after 2 minutes")
-			}
-
-			server.Shutdown(context.Background())
-
-			tokenURL := ""
-			tokenURL = cfg.TokenURL
-			if tokenURL == "" {
-				tokenURL = "https://accounts.spotify.com/api/token"
-			}
-			tokenParams := url.Values{
-				"grant_type":   {"authorization_code"},
-				"code":         {code},
-				"redirect_uri": {redirectURI},
-				"client_id":    {clientID},
-			}
-			if clientSecret != "" {
-				tokenParams.Set("client_secret", clientSecret)
-			}
-
-			resp, err := http.PostForm(tokenURL, tokenParams)
-			if err != nil {
-				return fmt.Errorf("exchanging code for token: %w", err)
-			}
-			defer resp.Body.Close()
-
-			if resp.StatusCode >= 400 {
-				var body map[string]any
-				if err := json.NewDecoder(resp.Body).Decode(&body); err == nil {
-					return fmt.Errorf("exchanging code for token: HTTP %d: %v", resp.StatusCode, body)
-				}
-				return fmt.Errorf("exchanging code for token: HTTP %d", resp.StatusCode)
-			}
-
-			var tokenResp struct {
-				AccessToken  string `json:"access_token"`
-				RefreshToken string `json:"refresh_token"`
-				ExpiresIn    int    `json:"expires_in"`
-				TokenType    string `json:"token_type"`
-			}
-			if err := json.NewDecoder(resp.Body).Decode(&tokenResp); err != nil {
-				return fmt.Errorf("parsing token response: %w", err)
-			}
-			if tokenResp.AccessToken == "" {
-				return fmt.Errorf("no access token in response")
-			}
-
-			// Guard against non-conformant servers that return expires_in: 0.
-			// A zero-duration expiry resolves to time.Now(), which authHeader()
-			// then treats as expired and triggers a refresh on every call.
-			expiry := time.Time{}
-			if tokenResp.ExpiresIn > 0 {
-				expiry = time.Now().Add(time.Duration(tokenResp.ExpiresIn) * time.Second)
-			}
-			if err := cfg.SaveTokens(clientID, clientSecret, tokenResp.AccessToken, tokenResp.RefreshToken, expiry); err != nil {
-				return fmt.Errorf("saving tokens: %w", err)
-			}
-
-			if expiry.IsZero() {
-				fmt.Fprintf(os.Stderr, "%s Authentication successful! Token expiry not provided.\n", green("OK"))
-			} else {
-				fmt.Fprintf(os.Stderr, "%s Authentication successful! Token expires at %s\n", green("OK"), expiry.Format(time.RFC3339))
-			}
-			return nil
+			return runOAuthLogin(cmd, flags, clientID, clientSecret, port)
 		},
 	}
 
 	cmd.Flags().StringVar(&clientID, "client-id", os.Getenv("SPOTIFY_CLIENT_ID"), "OAuth2 client ID")
+	// PATCH (fix-auth-loopback-and-dry-run, carried forward):
 	// Fall back to SPOTIFY_SECRET if SPOTIFY_CLIENT_SECRET isn't set —
-	// both var names are commonly used.
+	// both var names are commonly used in users' .env files.
 	defaultSecret := os.Getenv("SPOTIFY_CLIENT_SECRET")
 	if defaultSecret == "" {
 		defaultSecret = os.Getenv("SPOTIFY_SECRET")
@@ -265,6 +123,251 @@ func newAuthLoginCmd(flags *rootFlags) *cobra.Command {
 	cmd.Flags().IntVar(&port, "port", 8085, "Local callback server port")
 
 	return cmd
+}
+
+func runOAuthLogin(cmd *cobra.Command, flags *rootFlags, clientID, clientSecret string, port int) error {
+	w := cmd.OutOrStdout()
+	// PATCH (carry-dry-run-before-credential-validation):
+	// Short-circuit dry-run / verify-env BEFORE credential resolution so
+	// harness probes can exercise the command shape without credentials.
+	// When a client ID is available, fall through: the verify-env branch
+	// below prints the full authorize URL (including PKCE parameters).
+	if (dryRunOK(flags) || cliutil.IsVerifyEnv()) && clientID == "" {
+		fmt.Fprintln(w, `{"status":"dry_run","action":"auth login","would":"start OAuth2 authorization-code flow (PKCE without client secret), open browser, capture loopback callback"}`)
+		return nil
+	}
+	cfg, err := config.Load(flags.configPath)
+	if err != nil {
+		return err
+	}
+	clientID, clientSecret, err = resolveOAuthCredentials(cmd, flags, cfg, clientID, clientSecret)
+	if err != nil {
+		return err
+	}
+
+	stateBytes := make([]byte, 16)
+	if _, err := rand.Read(stateBytes); err != nil {
+		return fmt.Errorf("generating state: %w", err)
+	}
+	state := hex.EncodeToString(stateBytes)
+
+	// RFC 7636 PKCE: with no client secret this is a public client, and a
+	// bare authorization_code grant reaches the token endpoint with no
+	// client authentication at all — providers reject that. When a secret
+	// is configured, keep the plain Authorization Code flow unchanged.
+	codeVerifier := ""
+	if clientSecret == "" {
+		codeVerifier, err = generatePKCEVerifier()
+		if err != nil {
+			return err
+		}
+	}
+
+	authURL := ""
+	authURL = cfg.AuthorizationURL
+	if authURL == "" {
+		authURL = "https://accounts.spotify.com/authorize"
+	}
+	params := url.Values{
+		"client_id":     {clientID},
+		"response_type": {"code"},
+		"state":         {state},
+	}
+	if codeVerifier != "" {
+		params.Set("code_challenge", pkceCodeChallengeS256(codeVerifier))
+		params.Set("code_challenge_method", "S256")
+	}
+	scopes := []string{"app-remote-control", "playlist-modify-private", "playlist-modify-public", "playlist-read-collaborative", "playlist-read-private", "streaming", "ugc-image-upload", "user-follow-modify", "user-follow-read", "user-library-modify", "user-library-read", "user-modify-playback-state", "user-read-currently-playing", "user-read-email", "user-read-playback-position", "user-read-playback-state", "user-read-private", "user-read-recently-played", "user-top-read"}
+	if len(scopes) > 0 {
+		params.Set("scope", strings.Join(scopes, " "))
+	}
+
+	// Short-circuit BEFORE binding the callback port or opening a browser, so
+	// verify / validate-narrative neither binds 127.0.0.1:<port> (which would
+	// EADDRINUSE on a parallel run or occupied port) nor launches a browser
+	// (which would time out). The redirect_uri shown here is informational and
+	// derived from the configured --port; the live flow below uses the actual
+	// bound port, which the OS assigns when --port 0 is passed.
+	if cliutil.IsVerifyEnv() {
+		params.Set("redirect_uri", fmt.Sprintf("http://127.0.0.1:%d/callback", port))
+		fmt.Fprintf(w, "would launch: %s\n", authURL+"?"+params.Encode())
+		return nil
+	}
+
+	listener, err := net.Listen("tcp", fmt.Sprintf("127.0.0.1:%d", port))
+	if err != nil {
+		return fmt.Errorf("starting callback server: %w", err)
+	}
+	defer listener.Close()
+
+	// Derive the redirect URI from the live listener address so an OS-assigned
+	// ephemeral port (--port 0) is reflected in both the auth request and the
+	// token exchange below. Use 127.0.0.1, not "localhost": RFC 8252 §7.3
+	// prescribes the loopback IP literal, and some providers reject
+	// "localhost" redirect URIs outright.
+	redirectURI := fmt.Sprintf("http://127.0.0.1:%d/callback", listener.Addr().(*net.TCPAddr).Port)
+	params.Set("redirect_uri", redirectURI)
+	fullURL := authURL + "?" + params.Encode()
+
+	fmt.Fprintf(os.Stderr, "Opening browser for authentication...\n")
+	fmt.Fprintf(os.Stderr, "If the browser doesn't open, visit:\n%s\n\n", fullURL)
+	openBrowser(fullURL)
+
+	codeCh := make(chan string, 1)
+	errCh := make(chan error, 1)
+
+	mux := http.NewServeMux()
+	mux.HandleFunc("/callback", func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Query().Get("state") != state {
+			errCh <- fmt.Errorf("state mismatch")
+			http.Error(w, "State mismatch", http.StatusBadRequest)
+			return
+		}
+		if errMsg := r.URL.Query().Get("error"); errMsg != "" {
+			errCh <- fmt.Errorf("auth error: %s", errMsg)
+			http.Error(w, errMsg, http.StatusBadRequest)
+			return
+		}
+		code := r.URL.Query().Get("code")
+		if code == "" {
+			errCh <- fmt.Errorf("no code in callback")
+			http.Error(w, "No code", http.StatusBadRequest)
+			return
+		}
+		w.Header().Set("Content-Type", "text/html")
+		fmt.Fprint(w, "<html><body><h2>Authentication successful!</h2><p>You can close this tab.</p></body></html>")
+		codeCh <- code
+	})
+
+	server := &http.Server{Handler: mux}
+	go server.Serve(listener)
+
+	var code string
+	select {
+	case code = <-codeCh:
+	case err := <-errCh:
+		return err
+	case <-time.After(2 * time.Minute):
+		return fmt.Errorf("authentication timed out after 2 minutes")
+	}
+
+	server.Shutdown(context.Background())
+
+	tokenURL := ""
+	tokenURL = cfg.TokenURL
+	if tokenURL == "" {
+		tokenURL = "https://accounts.spotify.com/api/token"
+	}
+	tokenParams := url.Values{
+		"grant_type":   {"authorization_code"},
+		"code":         {code},
+		"redirect_uri": {redirectURI},
+		"client_id":    {clientID},
+	}
+	if clientSecret != "" {
+		tokenParams.Set("client_secret", clientSecret)
+	} else {
+		tokenParams.Set("code_verifier", codeVerifier)
+	}
+
+	// The browser-wait timeout above does not apply here; the token exchange
+	// is a plain server-to-server POST and gets its own short network timeout,
+	// while cmd.Context() keeps it cancellable from the terminal.
+	tokenReq, err := http.NewRequestWithContext(cmd.Context(), http.MethodPost, tokenURL, strings.NewReader(tokenParams.Encode()))
+	if err != nil {
+		return fmt.Errorf("building token request: %w", err)
+	}
+	tokenReq.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+	tokenClient := &http.Client{Timeout: 30 * time.Second}
+	resp, err := tokenClient.Do(tokenReq)
+	if err != nil {
+		return fmt.Errorf("exchanging code for token: %w", err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode >= 400 {
+		var body map[string]any
+		if err := json.NewDecoder(resp.Body).Decode(&body); err == nil {
+			return fmt.Errorf("exchanging code for token: HTTP %d: %v", resp.StatusCode, body)
+		}
+		return fmt.Errorf("exchanging code for token: HTTP %d", resp.StatusCode)
+	}
+
+	var tokenResp struct {
+		AccessToken  string `json:"access_token"`
+		RefreshToken string `json:"refresh_token"`
+		ExpiresIn    int    `json:"expires_in"`
+		TokenType    string `json:"token_type"`
+	}
+	if err := json.NewDecoder(resp.Body).Decode(&tokenResp); err != nil {
+		return fmt.Errorf("parsing token response: %w", err)
+	}
+	if tokenResp.AccessToken == "" {
+		return fmt.Errorf("no access token in response")
+	}
+
+	// Guard against non-conformant servers that return expires_in: 0.
+	// A zero-duration expiry resolves to time.Now(), which authHeader()
+	// then treats as expired and triggers a refresh on every call.
+	expiry := time.Time{}
+	if tokenResp.ExpiresIn > 0 {
+		expiry = time.Now().Add(time.Duration(tokenResp.ExpiresIn) * time.Second)
+	}
+	if err := cfg.SaveTokens(clientID, clientSecret, tokenResp.AccessToken, tokenResp.RefreshToken, expiry); err != nil {
+		return fmt.Errorf("saving tokens: %w", err)
+	}
+
+	if expiry.IsZero() {
+		fmt.Fprintf(os.Stderr, "%s Authentication successful! Token expiry not provided.\n", green("OK"))
+	} else {
+		fmt.Fprintf(os.Stderr, "%s Authentication successful! Token expires at %s\n", green("OK"), expiry.Format(time.RFC3339))
+	}
+	return nil
+}
+
+func resolveOAuthCredentials(cmd *cobra.Command, flags *rootFlags, cfg *config.Config, clientID, clientSecret string) (string, string, error) {
+	explicitClientID := clientID
+	if clientID == "" && cfg != nil {
+		clientID = cfg.ClientID
+	}
+	if clientSecret == "" && cfg != nil && (explicitClientID == "" || explicitClientID == cfg.ClientID) {
+		clientSecret = cfg.ClientSecret
+	}
+	if clientID != "" {
+		return clientID, clientSecret, nil
+	}
+	if flags.noInput {
+		return "", "", fmt.Errorf("OAuth2 client ID is required; pass --client-id, set SPOTIFY_CLIENT_ID, or run 'spotify-pp-cli login' without --no-input")
+	}
+	reader := bufio.NewReader(cmd.InOrStdin())
+	printOAuthCredentialHint(cmd.ErrOrStderr())
+	clientID, err := promptOAuthCredential(cmd, reader, "OAuth2 Client ID")
+	if err != nil {
+		return "", "", err
+	}
+	if clientID == "" {
+		return "", "", fmt.Errorf("OAuth2 client ID is required")
+	}
+	if clientSecret == "" {
+		clientSecret, err = promptOAuthCredential(cmd, reader, "OAuth2 Client Secret (press Enter if not required)")
+		if err != nil {
+			return "", "", err
+		}
+	}
+	return clientID, clientSecret, nil
+}
+
+func printOAuthCredentialHint(w io.Writer) {
+	fmt.Fprintln(w, "Create OAuth credentials at: https://developer.spotify.com/documentation/general/guides/authorization-guide/")
+}
+
+func promptOAuthCredential(cmd *cobra.Command, reader *bufio.Reader, label string) (string, error) {
+	fmt.Fprintf(cmd.ErrOrStderr(), "%s: ", label)
+	line, err := reader.ReadString('\n')
+	if err != nil && err != io.EOF {
+		return "", fmt.Errorf("reading %s: %w", strings.ToLower(label), err)
+	}
+	return strings.TrimSpace(line), nil
 }
 
 func newAuthStatusCmd(flags *rootFlags) *cobra.Command {
@@ -291,7 +394,7 @@ func newAuthStatusCmd(flags *rootFlags) *cobra.Command {
 			}
 
 			if !authed {
-				fmt.Fprintf(w, "  %s Not authenticated. Run 'auth login' to authenticate.\n", red("FAIL"))
+				fmt.Fprintf(w, "  %s Not authenticated. Run 'spotify-pp-cli login' to authenticate.\n", red("FAIL"))
 				return nil
 			}
 
@@ -303,7 +406,7 @@ func newAuthStatusCmd(flags *rootFlags) *cobra.Command {
 				if cfg.RefreshToken != "" {
 					fmt.Fprintf(w, "  %s Token expired (will auto-refresh on next request)\n", yellow("WARN"))
 				} else {
-					fmt.Fprintf(w, "  %s Token expired. Run 'auth login' to re-authenticate.\n", red("FAIL"))
+					fmt.Fprintf(w, "  %s Token expired. Run 'spotify-pp-cli login' to re-authenticate.\n", red("FAIL"))
 				}
 			}
 
@@ -339,6 +442,24 @@ func newAuthLogoutCmd(flags *rootFlags) *cobra.Command {
 			return nil
 		},
 	}
+}
+
+// generatePKCEVerifier returns a fresh RFC 7636 code verifier: 32 bytes of
+// CSPRNG output, base64url-encoded without padding (43 chars, within the
+// 43-128 range the RFC requires).
+func generatePKCEVerifier() (string, error) {
+	verifierBytes := make([]byte, 32)
+	if _, err := rand.Read(verifierBytes); err != nil {
+		return "", fmt.Errorf("generating PKCE verifier: %w", err)
+	}
+	return base64.RawURLEncoding.EncodeToString(verifierBytes), nil
+}
+
+// pkceCodeChallengeS256 derives the S256 code challenge for a verifier:
+// base64url(SHA-256(verifier)) without padding.
+func pkceCodeChallengeS256(verifier string) string {
+	sum := sha256.Sum256([]byte(verifier))
+	return base64.RawURLEncoding.EncodeToString(sum[:])
 }
 
 func openBrowser(url string) {

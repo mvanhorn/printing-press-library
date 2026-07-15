@@ -16,5 +16,6 @@
   "mcp_tool_count": 5,
   "mcp_public_tool_count": 5,
   "mcp_ready": "full",
-  "auth_type": "none"
+  "auth_type": "none",
+  "description": "Weather forecasts, severe weather alerts, air quality, and GO/CAUTION/STOP activity verdicts for walk, bike, hike, commute, and drive"
 }

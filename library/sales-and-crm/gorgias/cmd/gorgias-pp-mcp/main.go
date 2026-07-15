@@ -29,7 +29,7 @@ const (
 // in priority order: ldflag (goreleaser builds), module version from
 // BuildInfo (`go install <module>@vX.Y.Z` builds), or this fallback
 // (local `go run` / `go build` from a working tree).
-var version = "2026.6.2"
+var version = "2026.7.1"
 
 // resolveVersion mirrors the CLI's cli.Version() logic so both binaries
 // report the same value when installed via `go install ...@vX.Y.Z`.

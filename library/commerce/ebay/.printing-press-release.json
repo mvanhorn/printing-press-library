@@ -2,16 +2,16 @@
   "schema_version": 1,
   "slug": "ebay",
   "cli_name": "ebay-pp-cli",
-  "version": "2026.6.2",
-  "released_at": "2026-06-21T08:16:26Z",
-  "source_commit": "acb84091ff016c6e7aea5f8cf6956a694aa0d1c7",
+  "version": "2026.7.2",
+  "released_at": "2026-07-08T22:18:26Z",
+  "source_commit": "8d08fedcf337579edd0b8f0f9ec9b7cc67870fb6",
   "printing_press_version": "3.0.1",
   "changes": [
     {
-      "title": "fix(catalog): require Go 1.26.4 across published modules",
-      "pr": 1308,
-      "url": "https://github.com/mvanhorn/printing-press-library/pull/1308",
-      "commit": "acb84091ff016c6e7aea5f8cf6956a694aa0d1c7"
+      "title": "fix(ebay): preserve commerce fields in agent compact output",
+      "pr": 1424,
+      "url": "https://github.com/mvanhorn/printing-press-library/pull/1424",
+      "commit": "8d08fedcf337579edd0b8f0f9ec9b7cc67870fb6"
     }
   ]
 }

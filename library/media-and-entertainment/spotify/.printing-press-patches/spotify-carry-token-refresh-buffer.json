@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "spotify-carry-token-refresh-buffer",
+  "applied_at": "2026-07-07",
+  "base_run_id": "20260707-145126",
+  "base_printing_press_version": "4.27.1",
+  "summary": "Refresh the OAuth access token 60s before expiry instead of at expiry.",
+  "reason": "A token valid at authHeader() time can expire mid-flight on a slow request (large sync batch, paginated walk); the client does not retry mid-request 401s. Retro candidate for the machine.",
+  "files": [
+    "internal/client/client.go"
+  ],
+  "validated_outcome": "Full library sync completes across a token-expiry boundary without 401s."
+}

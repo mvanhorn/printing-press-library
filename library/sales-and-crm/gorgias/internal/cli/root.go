@@ -24,7 +24,7 @@ import (
 // module version from the binary's BuildInfo (the typical "running from
 // `go run` in a working tree" case). CLI and MCP binaries share the same
 // fallback to keep introspection envelopes coherent across the pair.
-var version = "2026.6.2"
+var version = "2026.7.1"
 
 // Version returns the current build's version string. Resolution order:
 //

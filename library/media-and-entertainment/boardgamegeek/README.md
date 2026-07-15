@@ -47,7 +47,7 @@ npx -y @mvanhorn/printing-press-library install boardgamegeek --agent claude-cod
 
 ### Without Node (Go fallback)
 
-If `npx` isn't available (no Node, offline), install the CLI directly via Go (requires Go 1.26.4 or newer):
+If `npx` isn't available (no Node, offline), install the CLI directly via Go (requires Go 1.26.5 or newer):
 
 ```bash
 go install github.com/mvanhorn/printing-press-library/library/media-and-entertainment/boardgamegeek/cmd/boardgamegeek-pp-cli@latest

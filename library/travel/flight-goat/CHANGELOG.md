@@ -2,6 +2,26 @@
 
 This file is maintained by printing-press-library release automation. Do not hand-edit release sections in normal PRs.
 
+## 2026.7.3 - 2026-07-13
+
+- feat(flight-goat): add flight-goat (#1509).
+
+## 2026.7.2 - 2026-07-10
+
+- feat(cli): add FlySoar (Soar) price source + booking handoff to flight-goat (#1445).
+
+## 2026.7.1 - 2026-07-08
+
+- fix(catalog): require Go 1.26.5 across published modules (#1467).
+
+## 2026.6.7 - 2026-06-26
+
+- fix(flight-goat): harden google flights fallback (#1368).
+
+## 2026.6.6 - 2026-06-26
+
+- fix(flight-goat): restore compact blocked fallback (#1367).
+
 ## 2026.6.5 - 2026-06-24
 
 - feat(boardgamegeek): add boardgamegeek-pp-cli (#1295).

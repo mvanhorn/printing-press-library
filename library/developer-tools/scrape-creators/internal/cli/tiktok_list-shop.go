@@ -14,17 +14,37 @@ import (
 func newTiktokListShopCmd(flags *rootFlags) *cobra.Command {
 	var flagUrl string
 	var flagCursor string
+	var flagSortBy string
 	var flagRegion string
 	var flagAll bool
 
 	cmd := &cobra.Command{
 		Use:         "list-shop",
-		Short:       "Lists all products from a specific TikTok Shop store by its URL. Returns an array of product objects each with...",
-		Example:     "  scrape-creators-pp-cli tiktok list-shop",
-		Annotations: map[string]string{"pp:endpoint": "tiktok.list-shop", "mcp:read-only": "true"},
+		Short:       "Lists all products from a specific TikTok Shop store by its URL.",
+		Example:     "  scrape-creators-pp-cli tiktok list-shop --url https://www.tiktok.com/shop/store/goli-nutrition/7495794203056835079",
+		Annotations: map[string]string{"pp:endpoint": "tiktok.list-shop", "pp:method": "GET", "pp:path": "/v1/tiktok/shop/products", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
+			// Bare invocation of a command with required input prints help
+			// instead of pflag's terse "required flag not set" error. Optional-
+			// only read commands fall through so a bare call still executes.
+			if cmd.Flags().NFlag() == 0 && len(args) == 0 && !flags.dryRun {
+				return cmd.Help()
+			}
 			if !cmd.Flags().Changed("url") && !flags.dryRun {
 				return fmt.Errorf("required flag \"%s\" not set", "url")
+			}
+			if cmd.Flags().Changed("sort-by") {
+				allowedSortBy := []string{"top", "new_releases"}
+				validSortBy := false
+				for _, v := range allowedSortBy {
+					if flagSortBy == v {
+						validSortBy = true
+						break
+					}
+				}
+				if !validSortBy {
+					return fmt.Errorf("invalid value %q for --%s: must be one of %v", flagSortBy, "sort-by", allowedSortBy)
+				}
 			}
 			if cmd.Flags().Changed("region") {
 				allowedRegion := []string{"US", "GB", "DE", "FR", "IT", "ID", "MY", "MX", "PH", "SG", "ES", "TH", "VN", "BR", "JP", "IE"}
@@ -36,33 +56,39 @@ func newTiktokListShopCmd(flags *rootFlags) *cobra.Command {
 					}
 				}
 				if !validRegion {
-					fmt.Fprintf(os.Stderr, "warning: --%s %q not in allowed set %v\n", "region", flagRegion, allowedRegion)
+					return fmt.Errorf("invalid value %q for --%s: must be one of %v", flagRegion, "region", allowedRegion)
 				}
 			}
+			path := "/v1/tiktok/shop/products"
 			c, err := flags.newClient()
 			if err != nil {
 				return err
 			}
-
-			path := "/v1/tiktok/shop/products"
-			data, prov, err := resolvePaginatedRead(cmd.Context(), c, flags, "tiktok", path, map[string]string{
-				"url":    fmt.Sprintf("%v", flagUrl),
-				"cursor": fmt.Sprintf("%v", flagCursor),
-				"region": fmt.Sprintf("%v", flagRegion),
-			}, nil, flagAll, "cursor", "", "")
+			data, prov, err := resolvePaginatedReadWithStrategy(cmd.Context(), c, flags, "auto", "tiktok", path, map[string]string{
+				"url":     formatCLIParamValue(flagUrl),
+				"cursor":  formatCLIParamValue(flagCursor),
+				"sort_by": formatCLIParamValue(flagSortBy),
+				"region":  formatCLIParamValue(flagRegion),
+			}, nil, flagAll, "cursor", "cursor", "", "", "", cmd.ErrOrStderr())
 			if err != nil {
-				return classifyAPIError(err)
+				return classifyAPIError(err, flags)
 			}
-			// Print provenance to stderr for human-facing output
-			{
+			// Print provenance to stderr for human-facing output only.
+			// Machine-format flags (--json, --csv, --compact, --quiet, --plain,
+			// --select) and piped stdout suppress this line; the JSON envelope
+			// already carries meta.source for those consumers.
+			// SYNC: keep this gate aligned with command_promoted.go.tmpl.
+			if wantsHumanTable(cmd.OutOrStdout(), flags) {
 				var countItems []json.RawMessage
 				_ = json.Unmarshal(data, &countItems)
 				printProvenance(cmd, len(countItems), prov)
 			}
 			// For JSON output, wrap with provenance envelope before passing through flags.
 			// --select wins over --compact when both are set; --compact only runs when
-			// no explicit fields were requested.
-			if flags.asJSON || !isTerminal(cmd.OutOrStdout()) {
+			// no explicit fields were requested. Explicit format flags (--csv, --quiet,
+			// --plain) opt out of the auto-JSON path so piped consumers that asked for
+			// a non-JSON format reach the standard pipeline below.
+			if flags.asJSON || (!isTerminal(cmd.OutOrStdout()) && !flags.csv && !flags.quiet && !flags.plain) {
 				filtered := data
 				if flags.selectFields != "" {
 					filtered = filterFields(filtered, flags.selectFields)
@@ -88,11 +114,12 @@ func newTiktokListShopCmd(flags *rootFlags) *cobra.Command {
 					return nil
 				}
 			}
-			return printOutputWithFlags(cmd.OutOrStdout(), data, flags)
+			return printOutputWithFlagsMeta(cmd.OutOrStdout(), data, flags, map[string]any{"source": "live"})
 		},
 	}
 	cmd.Flags().StringVar(&flagUrl, "url", "", "The TikTok Shop store URL.")
 	cmd.Flags().StringVar(&flagCursor, "cursor", "", "Cursor parameter from the previous response to retrieve the next page of products. Omit for the first page.")
+	cmd.Flags().StringVar(&flagSortBy, "sort-by", "", "Sort products by best-selling items (`top`) or newest products (`new_releases`). Defaults to `top`. (one of: top, new_releases)")
 	cmd.Flags().StringVar(&flagRegion, "region", "", "Region to get shop products from. Defaults to US if not provided. (one of: US, GB, DE, FR, IT, ID, MY, MX, PH, SG, ES, TH, VN, BR, JP, IE)")
 	cmd.Flags().BoolVar(&flagAll, "all", false, "Fetch all pages")
 

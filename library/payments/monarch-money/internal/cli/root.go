@@ -10,7 +10,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var version = "2026.6.2"
+var version = "2026.7.2"
 
 // Execute runs the CLI.
 func Execute() error {

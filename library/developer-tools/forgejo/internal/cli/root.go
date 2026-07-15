@@ -17,7 +17,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var version = "2026.6.1"
+var version = "2026.7.1"
 
 type rootFlags struct {
 	asJSON        bool
@@ -274,6 +274,7 @@ See README.md or the bundled SKILL.md for recipes.`,
 	rootCmd.AddCommand(newAPICmd(flags))
 	rootCmd.AddCommand(newIssueCmd(flags))
 	rootCmd.AddCommand(newPRCmd(flags))
+	rootCmd.AddCommand(newRepoCmd(flags))
 	rootCmd.AddCommand(newReleaseCmd(flags))
 	rootCmd.AddCommand(newRunnerCmd(flags))
 	rootCmd.AddCommand(newNotificationCmd(flags))

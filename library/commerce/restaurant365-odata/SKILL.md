@@ -29,7 +29,7 @@ This skill drives the `restaurant365-odata-pp-cli` binary. **You must verify the
 2. Verify: `restaurant365-odata-pp-cli --version`
 3. Ensure the reported install directory is on `$PATH` for the agent/runtime that will invoke this skill.
 
-If the `npx` install fails (no Node, offline, etc.), fall back to a direct Go install (requires Go 1.26.4 or newer):
+If the `npx` install fails (no Node, offline, etc.), fall back to a direct Go install (requires Go 1.26.5 or newer):
 
 ```bash
 go install github.com/mvanhorn/printing-press-library/library/commerce/restaurant365-odata/cmd/restaurant365-odata-pp-cli@latest

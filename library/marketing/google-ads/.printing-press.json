@@ -22,7 +22,7 @@
   "spec_format": "internal",
   "spec_checksum": "sha256:dbef066a5b9e8e8dae3d0fc8f914c0663ecc06434d7c43c917d7cec2641ce5ec",
   "run_id": "20260506-162403",
-  "description": "Discover accounts, run GAQL reports, inspect field metadata, and manage Google Ads campaigns, budgets, assets, audiences, and billing.",
+  "description": "Google Ads API for account discovery, GAQL reporting, campaigns, budgets, assets, conversions, audiences, planning, and billing operations.",
   "mcp_binary": "google-ads-pp-mcp",
   "mcp_tool_count": 162,
   "mcp_ready": "full",

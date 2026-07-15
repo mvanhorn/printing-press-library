@@ -1,8 +1,8 @@
 module github.com/mvanhorn/printing-press-library/library/productivity/expensify
 
-go 1.26
+go 1.26.5
 
-toolchain go1.26.4
+toolchain go1.26.5
 
 require (
 	github.com/enetx/surf v1.0.199

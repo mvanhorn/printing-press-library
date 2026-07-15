@@ -2,17 +2,17 @@
   "schema_version": 1,
   "slug": "pexels",
   "cli_name": "pexels-pp-cli",
-  "version": "2026.6.1",
-  "released_at": "2026-06-24T00:03:22Z",
-  "source_commit": "cf702df807e46cc111e72c0305321f0b0629956a",
+  "version": "2026.7.1",
+  "released_at": "2026-07-08T18:21:21Z",
+  "source_commit": "11d7b4ea752c9c8fb8909037133058eb57560cc0",
   "printing_press_version": "4.25.0",
   "run_id": "20260623-122348-b4bba74f",
   "changes": [
     {
-      "title": "feat(pexels): add pexels",
-      "pr": 1339,
-      "url": "https://github.com/mvanhorn/printing-press-library/pull/1339",
-      "commit": "cf702df807e46cc111e72c0305321f0b0629956a"
+      "title": "fix(catalog): require Go 1.26.5 across published modules",
+      "pr": 1467,
+      "url": "https://github.com/mvanhorn/printing-press-library/pull/1467",
+      "commit": "11d7b4ea752c9c8fb8909037133058eb57560cc0"
     }
   ]
 }

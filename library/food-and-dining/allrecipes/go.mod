@@ -1,6 +1,6 @@
 module github.com/mvanhorn/printing-press-library/library/food-and-dining/allrecipes
 
-go 1.26.4
+go 1.26.5
 
 require (
 	github.com/enetx/surf v1.0.199

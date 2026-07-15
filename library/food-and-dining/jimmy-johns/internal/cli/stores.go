@@ -9,8 +9,11 @@ import (
 
 func newStoresCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "stores",
-		Short: "Jimmy John's store locations and operating info",
+		Use:         "stores",
+		Short:       "Jimmy John's store locations and operating info",
+		Hidden:      true,
+		Annotations: map[string]string{"mcp:read-only": "true", "pp:typed-exit-codes": "0,2"},
+		RunE:        parentNoSubcommandRunE(flags),
 	}
 
 	cmd.AddCommand(newStoresGetDisclaimersCmd(flags))

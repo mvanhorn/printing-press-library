@@ -19,35 +19,41 @@ func newPlaylistsGetCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:         "get <playlist_id>",
 		Short:       "Get a playlist owned by a Spotify user.",
-		Example:     "  spotify-pp-cli playlists get 550e8400-e29b-41d4-a716-446655440000",
+		Example:     "  spotify-pp-cli playlists get 3cEYpjA9oz9GiPac4AsH4n",
 		Annotations: map[string]string{"pp:endpoint": "playlists.get", "pp:method": "GET", "pp:path": "/playlists/{playlist_id}", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				return cmd.Help()
 			}
+			path := "/playlists/{playlist_id}"
+			if len(args) < 1 || args[0] == "" {
+				return usageErr(fmt.Errorf("playlist_id is required\nUsage: %s <%s>", cmd.CommandPath(), "playlist_id"))
+			}
+			path = replacePathParam(path, "playlist_id", args[0])
 			c, err := flags.newClient()
 			if err != nil {
 				return err
 			}
-
-			path := "/playlists/{playlist_id}"
-			path = replacePathParam(path, "playlist_id", args[0])
 			params := map[string]string{}
 			if flagMarket != "" {
-				params["market"] = fmt.Sprintf("%v", flagMarket)
+				params["market"] = formatCLIParamValue(flagMarket)
 			}
 			if flagFields != "" {
-				params["fields"] = fmt.Sprintf("%v", flagFields)
+				params["fields"] = formatCLIParamValue(flagFields)
 			}
 			if flagAdditionalTypes != "" {
-				params["additional_types"] = fmt.Sprintf("%v", flagAdditionalTypes)
+				params["additional_types"] = formatCLIParamValue(flagAdditionalTypes)
 			}
-			data, prov, err := resolveRead(cmd.Context(), c, flags, "playlists", false, path, params, nil)
+			data, prov, err := resolveReadWithStrategyAndResponsePath(cmd.Context(), c, flags, "auto", "playlists", false, path, params, nil, "images", cmd.ErrOrStderr())
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}
-			// Print provenance to stderr for human-facing output
-			{
+			// Print provenance to stderr for human-facing output only.
+			// Machine-format flags (--json, --csv, --compact, --quiet, --plain,
+			// --select) and piped stdout suppress this line; the JSON envelope
+			// already carries meta.source for those consumers.
+			// SYNC: keep this gate aligned with command_promoted.go.tmpl.
+			if wantsHumanTable(cmd.OutOrStdout(), flags) {
 				var countItems []json.RawMessage
 				_ = json.Unmarshal(data, &countItems)
 				printProvenance(cmd, len(countItems), prov)
@@ -83,7 +89,7 @@ func newPlaylistsGetCmd(flags *rootFlags) *cobra.Command {
 					return nil
 				}
 			}
-			return printOutputWithFlags(cmd.OutOrStdout(), data, flags)
+			return printOutputWithFlagsMeta(cmd.OutOrStdout(), data, flags, map[string]any{"source": "live"})
 		},
 	}
 	cmd.Flags().StringVar(&flagMarket, "market", "", "Market")

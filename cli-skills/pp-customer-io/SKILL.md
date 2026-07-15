@@ -34,7 +34,7 @@ This skill drives the `customer-io-pp-cli` binary. **You must verify the CLI is 
 2. Verify: `customer-io-pp-cli --version`
 3. Ensure the reported install directory is on `$PATH` for the agent/runtime that will invoke this skill.
 
-If the `npx` install fails (no Node, offline, etc.), fall back to a direct Go install (requires Go 1.26.4 or newer):
+If the `npx` install fails (no Node, offline, etc.), fall back to a direct Go install (requires Go 1.26.5 or newer):
 
 ```bash
 go install github.com/mvanhorn/printing-press-library/library/marketing/customer-io/cmd/customer-io-pp-cli@latest

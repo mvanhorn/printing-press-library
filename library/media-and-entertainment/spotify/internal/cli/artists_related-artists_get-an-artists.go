@@ -19,11 +19,14 @@ func newArtistsRelatedArtistsGetAnArtistsCmd(flags *rootFlags) *cobra.Command {
 		Use:         "get-an-artists <id>",
 		Aliases:     []string{"get"},
 		Short:       "Get related artists (DEPRECATED — stub by default for new apps; use 'discover via-playlists' instead)",
-		Example:     "  spotify-pp-cli artists related-artists get 0OdUWJ0sBjDrqHygGUXeCF",
+		Example:     "  spotify-pp-cli artists related-artists get-an-artists 0OdUWJ0sBjDrqHygGUXeCF",
 		Annotations: map[string]string{"pp:endpoint": "related-artists.get-an-artists", "pp:method": "GET", "pp:path": "/artists/{id}/related-artists", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				return cmd.Help()
+			}
+			if !validSpotifyID(bareID(args[0])) {
+				return usageErr(fmt.Errorf("%q is not a Spotify artist ID or URI (expected 22 base62 chars)", args[0]))
 			}
 			if !legacyApp {
 				return printJSONFiltered(cmd.OutOrStdout(),
@@ -38,7 +41,7 @@ func newArtistsRelatedArtistsGetAnArtistsCmd(flags *rootFlags) *cobra.Command {
 			if err != nil {
 				return err
 			}
-			data, err := c.Get("/artists/"+args[0]+"/related-artists", nil)
+			data, err := c.Get(cmd.Context(), "/artists/"+args[0]+"/related-artists", nil)
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}

@@ -22,32 +22,38 @@ func newPlaylistsTracksGetPlaylistsCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:         "get-playlists <playlist_id>",
 		Aliases:     []string{"get"},
-		Short:       "**Deprecated:** Use [Get Playlist Items](/documentation/web-api/reference/get-playlists-items) instead. Get full...",
-		Example:     "  spotify-pp-cli playlists tracks get-playlists 550e8400-e29b-41d4-a716-446655440000",
+		Short:       "**Deprecated:** Use [Get Playlist Items](/documentation/web-api/reference/get-playlists-items) instead.",
+		Example:     "  spotify-pp-cli playlists tracks get-playlists 3cEYpjA9oz9GiPac4AsH4n",
 		Annotations: map[string]string{"pp:endpoint": "tracks.get-playlists", "pp:method": "GET", "pp:path": "/playlists/{playlist_id}/tracks", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				return cmd.Help()
 			}
+			path := "/playlists/{playlist_id}/tracks"
+			if len(args) < 1 || args[0] == "" {
+				return usageErr(fmt.Errorf("playlist_id is required\nUsage: %s <%s>", cmd.CommandPath(), "playlist_id"))
+			}
+			path = replacePathParam(path, "playlist_id", args[0])
 			c, err := flags.newClient()
 			if err != nil {
 				return err
 			}
-
-			path := "/playlists/{playlist_id}/tracks"
-			path = replacePathParam(path, "playlist_id", args[0])
-			data, prov, err := resolvePaginatedRead(cmd.Context(), c, flags, "tracks", path, map[string]string{
-				"market":           fmt.Sprintf("%v", flagMarket),
-				"fields":           fmt.Sprintf("%v", flagFields),
-				"limit":            fmt.Sprintf("%v", flagLimit),
-				"offset":           fmt.Sprintf("%v", flagOffset),
-				"additional_types": fmt.Sprintf("%v", flagAdditionalTypes),
-			}, nil, flagAll, "offset", "", "")
+			data, prov, err := resolvePaginatedReadWithStrategy(cmd.Context(), c, flags, "auto", "tracks", path, map[string]string{
+				"market":           formatCLIParamValue(flagMarket),
+				"fields":           formatCLIParamValue(flagFields),
+				"limit":            formatCLIParamValue(flagLimit),
+				"offset":           formatCLIParamValue(flagOffset),
+				"additional_types": formatCLIParamValue(flagAdditionalTypes),
+			}, nil, flagAll, "offset", "offset", "limit", "", "", cmd.ErrOrStderr())
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}
-			// Print provenance to stderr for human-facing output
-			{
+			// Print provenance to stderr for human-facing output only.
+			// Machine-format flags (--json, --csv, --compact, --quiet, --plain,
+			// --select) and piped stdout suppress this line; the JSON envelope
+			// already carries meta.source for those consumers.
+			// SYNC: keep this gate aligned with command_promoted.go.tmpl.
+			if wantsHumanTable(cmd.OutOrStdout(), flags) {
 				var countItems []json.RawMessage
 				_ = json.Unmarshal(data, &countItems)
 				printProvenance(cmd, len(countItems), prov)
@@ -83,7 +89,7 @@ func newPlaylistsTracksGetPlaylistsCmd(flags *rootFlags) *cobra.Command {
 					return nil
 				}
 			}
-			return printOutputWithFlags(cmd.OutOrStdout(), data, flags)
+			return printOutputWithFlagsMeta(cmd.OutOrStdout(), data, flags, map[string]any{"source": "live"})
 		},
 	}
 	cmd.Flags().StringVar(&flagMarket, "market", "", "Market")

@@ -78,6 +78,30 @@ func TestEnvelopeBlockedErrUnrecognizedShape(t *testing.T) {
 	}
 }
 
+// Google now sometimes returns a compact gated-RPC envelope with only the
+// status-code metadata slot (`[13]`) and no ErrorResponse type URL. It should
+// trigger the same HTML fallback as the older verbose ErrorResponse envelope.
+func TestParseOffersResponseDetectsCompactBlockedEnvelope(t *testing.T) {
+	body := []byte(googleResponsePrefix + `
+[["wrb.fr",null,null,null,null,[13]],["di",39],["af.httprm",38,"redacted",6]]`)
+	flights, err := parseOffersResponse(body, "USD")
+	if !errors.Is(err, errShoppingBlocked) {
+		t.Fatalf("parseOffersResponse error = %v, want errShoppingBlocked", err)
+	}
+	if flights != nil {
+		t.Fatalf("parseOffersResponse returned %d flights alongside the blocked error", len(flights))
+	}
+}
+
+func TestParseDatesResponseDetectsCompactBlockedEnvelope(t *testing.T) {
+	body := []byte(googleResponsePrefix + `
+[["wrb.fr",null,null,null,null,[13]],["di",39],["af.httprm",38,"redacted",6]]`)
+	_, err := parseDatesResponse(body, "USD")
+	if !errors.Is(err, errShoppingBlocked) {
+		t.Fatalf("parseDatesResponse error = %v, want errShoppingBlocked", err)
+	}
+}
+
 // The existing old-format fixtures must keep parsing — the blocked-envelope
 // detection must not regress the happy path.
 func TestParseOffersResponseOldFormatStillParses(t *testing.T) {
@@ -148,6 +172,32 @@ func TestFlightsFromHTMLParsesEmbeddedPayload(t *testing.T) {
 	}
 }
 
+func TestFlightsFromHTMLParsesStandaloneDS1ScriptPayload(t *testing.T) {
+	html := `<!doctype html><html><body>
+<script class="ds:1">window._unused = {data:` + string(loadFixture(t, "aus_lax_embedded_ds1.json")) + `, sideChannel:{}};</script>
+</body></html>`
+
+	flights := flightsFromHTML(html, "USD")
+	if len(flights) == 0 {
+		t.Fatal("flightsFromHTML parsed 0 flights from standalone script.ds:1 payload")
+	}
+	if pageMissingFlightData(html) {
+		t.Fatal("script.ds:1 payload misclassified as missing flight data")
+	}
+}
+
+func TestFlightsFromHTMLSkipsUnclosedScriptBeforeDS1Payload(t *testing.T) {
+	html := `<!doctype html><html><body>
+<script class="decoy">var unfinished = true;
+<script class="ds:1">window._unused = {data:` + string(loadFixture(t, "aus_lax_embedded_ds1.json")) + `, sideChannel:{}};</script>
+</body></html>`
+
+	flights := flightsFromHTML(html, "USD")
+	if len(flights) == 0 {
+		t.Fatal("flightsFromHTML parsed 0 flights after unclosed decoy script")
+	}
+}
+
 func TestSortFlightsClientSide(t *testing.T) {
 	mk := func(price float64, duration int, dep, arr string) Flight {
 		return Flight{Price: price, DurationMinutes: duration, Legs: []Leg{{
@@ -197,6 +247,13 @@ func TestPageMissingFlightData(t *testing.T) {
 	}
 	if pageMissingFlightData(wrapDs1HTML([]byte(`[null,[],[]]`))) {
 		t.Fatal("page with embedded callbacks misclassified as missing data")
+	}
+}
+
+func TestPageErrorStatusIsMissingFlightData(t *testing.T) {
+	html := `<html><body><script class="ds:1">AF_initDataCallback({key:'ds:1', data:[null,[],[]], errorHasStatus: true});</script></body></html>`
+	if !pageMissingFlightData(html) {
+		t.Fatal("embedded ds:1 errorHasStatus page not detected")
 	}
 }
 

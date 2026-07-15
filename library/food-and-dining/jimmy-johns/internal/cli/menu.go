@@ -9,14 +9,16 @@ import (
 
 func newMenuCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "menu",
-		Short: "Menu products, filters, and modifier options",
+		Use:         "menu",
+		Short:       "Menu products, filters, and modifier options",
+		Hidden:      true,
+		Annotations: map[string]string{"mcp:read-only": "true", "pp:typed-exit-codes": "0,2"},
+		RunE:        parentNoSubcommandRunE(flags),
 	}
 
 	cmd.AddCommand(newMenuProductFiltersCmd(flags))
 	cmd.AddCommand(newMenuProductModifiersCmd(flags))
 	cmd.AddCommand(newMenuProductsCmd(flags))
-	// Hand-authored transcendence features.
 	cmd.AddCommand(newMenuUnwichConvertCmd(flags))
 	cmd.AddCommand(newMenuHalfAndHalfCmd(flags))
 	return cmd

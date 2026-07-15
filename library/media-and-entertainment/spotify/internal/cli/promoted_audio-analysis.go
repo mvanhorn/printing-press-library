@@ -25,6 +25,9 @@ func newAudioAnalysisPromotedCmd(flags *rootFlags) *cobra.Command {
 			if len(args) == 0 {
 				return cmd.Help()
 			}
+			if !validSpotifyID(bareID(args[0])) {
+				return usageErr(fmt.Errorf("%q is not a Spotify track ID or URI (expected 22 base62 chars)", args[0]))
+			}
 			if !legacyApp {
 				return printJSONFiltered(cmd.OutOrStdout(),
 					deprecatedStubPayload("GET /audio-analysis/{id}",
@@ -38,7 +41,7 @@ func newAudioAnalysisPromotedCmd(flags *rootFlags) *cobra.Command {
 			if err != nil {
 				return err
 			}
-			data, err := c.Get("/audio-analysis/"+args[0], nil)
+			data, err := c.Get(cmd.Context(), "/audio-analysis/"+args[0], nil)
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}

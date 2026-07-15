@@ -59,6 +59,7 @@ func refreshTimeout() time.Duration {
 // with the stale cache. The returned metadata is attached to generated JSON
 // provenance envelopes under meta.freshness.
 func autoRefreshIfStale(ctx context.Context, flags *rootFlags, resources []string) (meta cliutil.FreshnessMeta) {
+	resources = expandSyncResources(resources)
 	started := time.Now()
 	meta = cliutil.FreshnessMeta{
 		Decision:  "skipped",
@@ -158,6 +159,7 @@ func runAutoRefresh(ctx context.Context, flags *rootFlags, db *store.Store, reso
 		return fmt.Errorf("build client: %w", err)
 	}
 	c.NoCache = true
+	resources = expandSyncResources(resources)
 	var failures []string
 	for _, resource := range resources {
 		select {

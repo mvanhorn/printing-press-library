@@ -1,0 +1,234 @@
+name: janeapp
+display_name: Jane App
+description: |-
+  CLI for Jane (janeapp.com) patient online booking. Log in to any Jane clinic
+  with your patient username and password, browse practitioners, treatments, and
+  live availability, view your upcoming and past appointments, and book, reschedule,
+  or cancel — across every clinic you use, from one tool. Jane is multi-tenant: each
+  clinic is its own subdomain (e.g. embophysio.janeapp.com), so each profile stores
+  its own base URL and session.
+version: "0.1.0"
+cli_description: "Book, view, and manage your Jane (janeapp.com) appointments across every clinic from the terminal — unified agenda, next-opening finder, and availability watch the patient portal can't do."
+base_url: https://REPLACE.janeapp.com
+spec_source: sniffed
+http_transport: standard
+category: health
+website_url: https://jane.app
+
+# Jane uses a Rails session cookie obtained via a two-step username/password login
+# (POST /sign_in twice). The CLI hand-builds `auth login` to perform that handshake
+# and stores the resulting _front_desk_session cookie per profile. base_url is a
+# placeholder here — the real host is resolved per active profile (the clinic
+# subdomain), because Jane is multi-tenant.
+auth:
+  type: cookie
+  cookie_domain: ".janeapp.com"
+  cookies:
+    - "_front_desk_session"
+  title: Jane patient session
+  description: |
+    Jane has no public patient API. Each clinic is a separate subdomain with its
+    own patient account. Add a profile for a clinic and log in with your patient
+    username/email and password:
+
+      janeapp-pp-cli profile add embophysio --url https://embophysio.janeapp.com
+      janeapp-pp-cli auth login --profile embophysio
+
+    The CLI performs Jane's two-step sign-in and stores the session cookie for
+    that profile. Repeat for each clinic. `--all-profiles` fans read commands
+    across every logged-in clinic.
+  requires_browser_session: false
+
+required_headers:
+  - name: User-Agent
+    value: "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36"
+
+config:
+  format: toml
+  path: "~/.config/janeapp-pp-cli/config.toml"
+
+cache:
+  enabled: true
+
+mcp:
+  transport: [stdio]
+
+resources:
+  locations:
+    description: Clinic locations (address, phone, booking URL) for the active profile's Jane instance.
+    endpoints:
+      list:
+        method: GET
+        path: /api/v2/locations
+        no_auth: true
+        description: List clinic locations with address, contact info, and booking URL.
+        params: []
+        body: []
+        response:
+          type: array
+          item: Location
+
+  disciplines:
+    description: Disciplines (categories of care) offered by the clinic, e.g. Physical Therapy.
+    endpoints:
+      list:
+        method: GET
+        path: /api/v2/disciplines
+        no_auth: true
+        description: List disciplines (service categories) with descriptions.
+        params: []
+        body: []
+        response:
+          type: array
+          item: Discipline
+
+  treatments:
+    description: Bookable treatments/services with price, duration, and online-booking eligibility.
+    endpoints:
+      list:
+        method: GET
+        path: /api/v2/treatments
+        no_auth: true
+        description: List treatments (services) with price, duration, discipline, and whether they can be booked online.
+        params: []
+        body: []
+        response:
+          type: object
+          item: TreatmentList
+
+  staff:
+    description: Practitioners (staff members) and the treatments they offer.
+    endpoints:
+      list:
+        method: GET
+        path: /api/v2/staff_members
+        no_auth: true
+        description: List practitioners, their bookable treatment IDs, and online-booking availability.
+        params: []
+        body: []
+        response:
+          type: array
+          item: StaffMember
+
+  openings:
+    description: Live availability (openings) for a practitioner + treatment at a location.
+    endpoints:
+      list:
+        method: GET
+        path: /api/v2/openings
+        no_auth: true
+        description: >-
+          List available appointment openings for a staff member + treatment at a
+          location over a date window. Jane caps num_days at 1..7; the CLI's
+          next-opening/watch commands page across multiple windows automatically.
+        params:
+          - name: location_id
+            type: integer
+            required: true
+            description: Location ID (from `locations`).
+          - name: treatment_id
+            type: integer
+            required: true
+            description: Treatment ID (from `treatments`).
+          - name: staff_member_id
+            type: integer
+            required: true
+            description: Practitioner ID (from `staff`).
+          - name: start_date
+            type: string
+            required: true
+            description: Window start date (YYYY-MM-DD).
+          - name: num_days
+            type: integer
+            required: false
+            default: 7
+            description: Window length in days (Jane allows 1..7).
+        body: []
+        response:
+          type: array
+          item: StaffOpenings
+
+  appointments:
+    description: Your own appointments at the clinic (requires a logged-in session).
+    endpoints:
+      list:
+        method: GET
+        path: /api/v2/appointments
+        no_auth: false
+        description: List your upcoming and past appointments for the active profile.
+        params: []
+        body: []
+        response:
+          type: array
+          item: Appointment
+
+models:
+  Location:
+    fields:
+      - {name: id, type: integer}
+      - {name: name, type: string}
+      - {name: shorter_name, type: string}
+      - {name: email, type: string}
+      - {name: street_address, type: string}
+      - {name: street_address_2, type: string}
+      - {name: city, type: string}
+      - {name: province, type: string}
+      - {name: postal, type: string}
+      - {name: country_name, type: string}
+      - {name: phone, type: string}
+      - {name: slug, type: string}
+      - {name: booking_url, type: string}
+  Discipline:
+    fields:
+      - {name: id, type: integer}
+      - {name: name, type: string}
+      - {name: description, type: string}
+  TreatmentList:
+    fields:
+      - {name: treatments, type: array, item: Treatment}
+  Treatment:
+    fields:
+      - {name: id, type: integer}
+      - {name: name, type: string}
+      - {name: description, type: string}
+      - {name: scheduled_duration, type: integer}
+      - {name: treatment_duration, type: integer}
+      - {name: price, type: number}
+      - {name: book_online, type: boolean}
+      - {name: online_only, type: boolean}
+      - {name: call_to_book, type: boolean}
+      - {name: capacity, type: integer}
+      - {name: discipline_id, type: integer}
+      - {name: staff_member_id, type: integer}
+      - {name: location_ids, type: array, item: integer}
+  StaffMember:
+    fields:
+      - {name: id, type: integer}
+      - {name: staff_member_guid, type: string}
+      - {name: all_treatment_ids, type: array, item: integer}
+      - {name: allow_online_booking, type: boolean}
+      - {name: description, type: string}
+  StaffOpenings:
+    fields:
+      - {name: id, type: integer}
+      - {name: full_name, type: string}
+      - {name: first_date, type: string}
+      - {name: openings, type: array, item: Opening}
+  Opening:
+    fields:
+      - {name: staff_member_id, type: integer}
+      - {name: location_id, type: integer}
+      - {name: treatment_id, type: integer}
+      - {name: duration, type: integer}
+      - {name: start_at, type: string}
+      - {name: end_at, type: string}
+      - {name: status, type: string}
+  Appointment:
+    fields:
+      - {name: id, type: integer}
+      - {name: start_at, type: string}
+      - {name: end_at, type: string}
+      - {name: status, type: string}
+      - {name: treatment_name, type: string}
+      - {name: staff_member_name, type: string}
+      - {name: location_name, type: string}

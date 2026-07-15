@@ -79,3 +79,20 @@ types:
         type: string
       - name: currency
         type: string
+
+# v4.28.0 self-healing learn loop enrichment (reprint 2026-07-12)
+learn:
+  entity_lookup_seeds:
+    service_class:
+      - canonical: business
+        aliases: [business, business class, sedan, standard, e-class, saloon]
+      - canonical: first
+        aliases: [first, first class, luxury, s-class, premium]
+      - canonical: van
+        aliases: [van, suv, business van, business suv, mpv, v-class, minibus, group]
+  synonyms:
+    "as directed": "hourly"
+    "point to point": "transfer"
+    "airport transfer": "transfer"
+  stopwords:
+    - chauffeur

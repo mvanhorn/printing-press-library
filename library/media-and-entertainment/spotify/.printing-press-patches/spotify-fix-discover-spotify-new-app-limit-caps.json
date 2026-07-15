@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "spotify-fix-discover-spotify-new-app-limit-caps",
+  "applied_at": "2026-07-07",
+  "base_run_id": "20260707-145126",
+  "base_printing_press_version": "4.27.1",
+  "summary": "Cap limit=10 on /search, /playlists/{id}/tracks, and /artists/{id}/albums in transcendence discover commands; paginate via fetchAllPaged for T11.",
+  "reason": "Spotify's post-2024-11-27 new-app deprecation silently caps `limit` at ~10 on these endpoints despite the spec declaring max=50 \u2014 requests with higher limits return HTTP 400 'Invalid limit'. T11 (`discover artist-gaps`) was the headline casualty; T10 (`discover via-playlists`) also affected. Pagination compensates so the user-visible behavior stays full-discography for artists with >10 albums.",
+  "files": [
+    "internal/cli/transcendence_discover.go"
+  ],
+  "validated_outcome": "discover artist-gaps 4Z8W4fKeB5YxbusRsdQVPb returns Radiohead's full chronological discography against the local saved-albums set."
+}

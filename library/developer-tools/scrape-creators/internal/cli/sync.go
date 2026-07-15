@@ -4,19 +4,34 @@
 package cli
 
 import (
+	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
+	"github.com/mvanhorn/printing-press-library/library/developer-tools/scrape-creators/internal/client"
+	"github.com/mvanhorn/printing-press-library/library/developer-tools/scrape-creators/internal/cliutil"
+	"github.com/mvanhorn/printing-press-library/library/developer-tools/scrape-creators/internal/store"
+	"github.com/spf13/cobra"
+	"io"
+	"net/url"
 	"os"
 	"regexp"
+	"sort"
 	"strconv"
 	"strings"
 	"sync"
 	"sync/atomic"
 	"time"
-
-	"github.com/mvanhorn/printing-press-library/library/developer-tools/scrape-creators/internal/store"
-	"github.com/spf13/cobra"
 )
+
+// unresolvedPathKeyRE matches `{key}` placeholders left in a sync path
+// after syncResourcePath() resolution. Hierarchical APIs (Yahoo Fantasy,
+// Reddit pre-2024, YouTube Data v3, MLB Stats, etc.) declare paths like
+// "/league/{league_key}/players" that can only be filled from parent
+// context — flat-list sync cannot fill them. Resources with unresolved
+// keys emit sync_warning and are skipped without aborting the run, so
+// sync still completes for resources that DO have resolvable paths.
+var unresolvedPathKeyRE = regexp.MustCompile(`\{[a-zA-Z_][a-zA-Z0-9_]*\}`)
 
 // syncResult holds the outcome of syncing a single resource.
 type syncResult struct {
@@ -30,12 +45,16 @@ type syncResult struct {
 func newSyncCmd(flags *rootFlags) *cobra.Command {
 	var resources []string
 	var full bool
+	var noPrune bool
 	var since string
 	var concurrency int
 	var dbPath string
 	var maxPages int
 	var latestOnly bool
 	var strict bool
+	var paramFlags []string
+	var resourceParamFlags []string
+	var globalParamFlags []string
 
 	cmd := &cobra.Command{
 		Use:   "sync",
@@ -56,7 +75,17 @@ Exit codes & warnings:
   emit {"event":"sync_warning","reason":"exit_policy_default_changed",
   ...} so callers can detect that a partial failure was tolerated. Pass
   --strict to exit non-zero on any per-resource failure. Exit is always
-  non-zero when every selected resource failed, regardless of --strict.`,
+  non-zero when every selected resource failed, regardless of --strict.
+
+Resource scoping:
+  --resources runs the named top-level resources, plus any parent-keyed
+  dependent whose own name is listed OR whose parent table is listed.
+  Naming a parent therefore cascades to its dependents (so "sync this
+  parent and its children" works without listing every nested resource
+  by hand). There is no flag today to suppress the cascade for a named
+  parent. To run a dependent without re-syncing its parent, list only
+  the dependent by name; the parent table must already be populated
+  from a prior sync.`,
 		Example: `  # Sync all resources
   scrape-creators-pp-cli sync
 
@@ -75,6 +104,11 @@ Exit codes & warnings:
   # Latest-only: refresh head of each resource, no historical backfill
   scrape-creators-pp-cli sync --latest-only`,
 		RunE: func(cmd *cobra.Command, args []string) error {
+			userParams, err := parseSyncUserParams(paramFlags, resourceParamFlags, globalParamFlags)
+			if err != nil {
+				return usageErr(err)
+			}
+
 			c, err := flags.newClient()
 			if err != nil {
 				return err
@@ -91,16 +125,32 @@ Exit codes & warnings:
 			}
 			defer db.Close()
 
+			syncEventWriter := cmd.OutOrStdout()
+
 			// If no specific resources, sync top-level resources
 			if len(resources) == 0 {
 				resources = defaultSyncResources()
 			}
 
-			// --full: clear all sync cursors before starting
-			if full {
+			// Reject --resource-param keys that don't match a known resource.
+			// Validates against the full top-level + dependent set, not the
+			// user-filtered `resources` slice, so legitimate cases like
+			// "filter to A, but apply param to B if it gets synced" still
+			// catch typos without false positives.
+			if err := userParams.validateResourceNames(knownSyncResourceNames()); err != nil {
+				return usageErr(err)
+			}
+
+			// --full: clear all sync cursors before starting.
+			// Skip under --dry-run: a preview must not mutate sync-state (issue #2935).
+			if full && !c.DryRun {
 				for _, resource := range resources {
 					_ = db.SaveSyncState(resource, "", 0)
 				}
+			}
+
+			if cliutil.IsDogfoodEnv() && !cmd.Flags().Changed("max-pages") {
+				maxPages = 1
 			}
 
 			// --latest-only narrows to the first page of each resource
@@ -114,17 +164,27 @@ Exit codes & warnings:
 					maxPages = 1
 					// Clear the cursor so we start from the head each time;
 					// the goal of --latest-only is "refresh the top" not
-					// "resume from wherever I left off".
-					for _, resource := range resources {
-						existing, _, _, _ := db.GetSyncState(resource)
-						if existing != "" {
-							_ = db.SaveSyncState(resource, "", 0)
+					// "resume from wherever I left off". Skip under --dry-run:
+					// a preview must not mutate sync-state (issue #2935).
+					if !c.DryRun {
+						for _, resource := range resources {
+							existing, _, _, _ := db.GetSyncState(resource)
+							if existing != "" {
+								_ = db.SaveSyncState(resource, "", 0)
+							}
 						}
 					}
 				} else if humanFriendly {
 					fmt.Fprintln(os.Stderr, "warning: --latest-only ignored because --since is set; --since takes precedence")
 				}
 			}
+			// effectiveLatestOnly drives the max_pages_cap_hit suppression
+			// below. It must reflect whether --latest-only is actually the
+			// cap source, i.e. only when --since is empty. If --since wins
+			// (block above), --latest-only is a no-op for maxPages and any
+			// cap hit reflects an explicit operator limit or the dogfood
+			// safety limit, which is a real anomaly worth surfacing.
+			effectiveLatestOnly := latestOnly && since == ""
 
 			// Resolve --since into an RFC3339 timestamp
 			sinceTS := ""
@@ -140,8 +200,20 @@ Exit codes & warnings:
 			if concurrency < 1 {
 				concurrency = 4
 			}
+			// Under PRINTING_PRESS_VERIFY=1 (mock/dry-run), all goroutines
+			// reach SQLite without the natural serialization that network
+			// latency provides in real syncs, so the worker pool races on
+			// the writer and trips SQLITE_BUSY despite _busy_timeout.
+			if cliutil.IsVerifyEnv() {
+				concurrency = 1
+			}
 
 			started := time.Now()
+			// prune gates deletion reconciliation: a full sync prunes local rows
+			// the API no longer returns within a fully-enumerated partition, unless
+			// --no-prune disables it. Flat tenant-scoped reconcile (per resource)
+			// and dependent per-parent reconcile share this gate.
+			prune := full && !noPrune
 			work := make(chan string, len(resources))
 			results := make(chan syncResult, len(resources))
 
@@ -151,7 +223,7 @@ Exit codes & warnings:
 				go func() {
 					defer wg.Done()
 					for resource := range work {
-						res := syncResource(c, db, resource, sinceTS, full, maxPages)
+						res := syncResource(cmd.Context(), c, db, resource, sinceTS, full, maxPages, effectiveLatestOnly, prune, userParams, syncEventWriter)
 						results <- res
 					}
 				}()
@@ -174,14 +246,26 @@ Exit codes & warnings:
 			var criticalErrCount int
 			var warnCount int
 			var successCount int
+			var failedResources []string
+			var criticalFailedResources []string
+			var firstErr error
+			var firstPlaceholderErr error
 			for res := range results {
 				if res.Err != nil {
 					if humanFriendly {
 						fmt.Fprintf(os.Stderr, "  %s: error: %v\n", res.Resource, res.Err)
 					}
 					errCount++
+					failedResources = append(failedResources, res.Resource)
+					if firstErr == nil {
+						firstErr = res.Err
+					}
+					if firstPlaceholderErr == nil && errors.Is(res.Err, client.ErrPlaceholderCredential) {
+						firstPlaceholderErr = res.Err
+					}
 					if criticalResources[res.Resource] {
 						criticalErrCount++
+						criticalFailedResources = append(criticalFailedResources, res.Resource)
 					}
 				} else if res.Warn != nil {
 					if humanFriendly {
@@ -199,16 +283,17 @@ Exit codes & warnings:
 
 			elapsed := time.Since(started)
 			totalResources := successCount + warnCount + errCount
-			if !humanFriendly {
-				fmt.Fprintf(os.Stderr, `{"event":"sync_summary","total_records":%d,"resources":%d,"success":%d,"warned":%d,"errored":%d,"duration_ms":%d}`+"\n",
-					totalSynced, totalResources, successCount, warnCount, errCount, elapsed.Milliseconds())
-			}
-			if warnCount > 0 {
-				fmt.Fprintf(os.Stderr, "Sync complete: %d records across %d resources (%d warned, %.1fs)\n",
-					totalSynced, totalResources, warnCount, elapsed.Seconds())
+			if humanFriendly {
+				if warnCount > 0 {
+					fmt.Fprintf(os.Stderr, "Sync complete: %d records across %d resources (%d warned, %.1fs)\n",
+						totalSynced, totalResources, warnCount, elapsed.Seconds())
+				} else {
+					fmt.Fprintf(os.Stderr, "Sync complete: %d records across %d resources (%.1fs)\n",
+						totalSynced, totalResources, elapsed.Seconds())
+				}
 			} else {
-				fmt.Fprintf(os.Stderr, "Sync complete: %d records across %d resources (%.1fs)\n",
-					totalSynced, totalResources, elapsed.Seconds())
+				fmt.Fprintf(syncEventWriter, `{"event":"sync_summary","total_records":%d,"resources":%d,"success":%d,"warned":%d,"errored":%d,"duration_ms":%d}`+"\n",
+					totalSynced, totalResources, successCount, warnCount, errCount, elapsed.Milliseconds())
 			}
 
 			// Exit-code policy:
@@ -220,24 +305,27 @@ Exit codes & warnings:
 			// one-shot sync_warning with reason "exit_policy_default_changed" so
 			// CI scripts that depend on $? != 0 can discover the contract change
 			// without reading the CHANGELOG.
+			if firstPlaceholderErr != nil {
+				return classifyAPIError(firstPlaceholderErr, flags)
+			}
 			if strict && errCount > 0 {
-				return fmt.Errorf("%d resource(s) failed to sync", errCount)
+				return errors.New(describeFailedResources(errCount, failedResources))
 			}
 			if criticalErrCount > 0 {
-				return fmt.Errorf("%d critical resource(s) failed to sync", criticalErrCount)
+				return errors.New(describeCriticalFailedResources(criticalErrCount, criticalFailedResources))
 			}
 			if successCount == 0 {
 				if warnCount > 0 && errCount == 0 {
-					return fmt.Errorf("%d resource(s) skipped due to insufficient access", warnCount)
+					return fmt.Errorf("%d resource(s) completed with warnings but no successful syncs", warnCount)
 				}
 				if errCount > 0 {
-					return fmt.Errorf("%d resource(s) failed to sync", errCount)
+					return errors.New(describeFailedResources(errCount, failedResources))
 				}
 			}
 			if errCount > 0 && !strict && criticalErrCount == 0 && successCount > 0 {
 				if !humanFriendly {
 					msg := fmt.Sprintf("%d resource(s) failed but exit code is 0 because the new default treats non-critical failures as warnings. Pass --strict to restore the old behavior, or annotate critical resources with x-critical: true. See CHANGELOG.", errCount)
-					fmt.Fprintf(os.Stderr, `{"event":"sync_warning","reason":"exit_policy_default_changed","errored":%d,"message":"%s"}`+"\n",
+					fmt.Fprintf(syncEventWriter, `{"event":"sync_warning","reason":"exit_policy_default_changed","errored":%d,"message":"%s"}`+"\n",
 						errCount, strings.ReplaceAll(msg, `"`, `\"`))
 				} else {
 					fmt.Fprintf(os.Stderr, "warning: %d resource(s) failed but exit code is 0 because the new default treats non-critical failures as warnings. Pass --strict to restore the old behavior, or annotate critical resources with x-critical: true.\n", errCount)
@@ -247,51 +335,123 @@ Exit codes & warnings:
 		},
 	}
 
-	cmd.Flags().StringSliceVar(&resources, "resources", nil, "Comma-separated resource types to sync")
+	cmd.Flags().StringSliceVar(&resources, "resources", nil, "Comma-separated resource types to sync. Naming a parent also runs its parent-keyed dependents (see Long help for scoping).")
 	cmd.Flags().BoolVar(&full, "full", false, "Full resync (ignore previous checkpoint)")
+	cmd.Flags().BoolVar(&noPrune, "no-prune", false, "Disable deletion reconciliation on --full (by default a full sync prunes local rows the API no longer returns for a fully-enumerated parent partition)")
 	cmd.Flags().StringVar(&since, "since", "", "Incremental sync duration (e.g. 7d, 24h, 1w, 30m)")
 	cmd.Flags().IntVar(&concurrency, "concurrency", 4, "Number of parallel sync workers")
-	cmd.Flags().StringVar(&dbPath, "db", "", "Database path (default: ~/.local/share/scrape-creators-pp-cli/data.db)")
-	cmd.Flags().IntVar(&maxPages, "max-pages", 100, "Maximum pages to fetch per resource (0 = unlimited; cap-hit emits a sync_warning event)")
+	cmd.Flags().StringVar(&dbPath, "db", "", "SQLite database file path (default: resolved data directory data.db)")
+	cmd.Flags().IntVar(&maxPages, "max-pages", 0, "Maximum pages to fetch per resource (0 = unlimited; cap-hit emits a sync_warning event)")
 	cmd.Flags().BoolVar(&latestOnly, "latest-only", false, "Refresh head of each resource only; clears resume cursor and caps pages at 1. Mutually exclusive with --since (--since wins).")
 	cmd.Flags().BoolVar(&strict, "strict", false, "Exit non-zero on any per-resource failure (default: only critical failures or all-resource failure exit non-zero).")
+	cmd.Flags().StringArrayVar(&paramFlags, "param", nil, "Extra query param to inject into flat-list sync requests (repeatable, key=value). Skipped on path-scoped dependent requests so a top-level scope like workspace=<id> does not double up on /parents/<id>/children calls. Use --global-param to inject everywhere. Avoid pagination keys (limit/since/cursor) — overriding them corrupts resume state.")
+	cmd.Flags().StringArrayVar(&resourceParamFlags, "resource-param", nil, "Per-resource extra query param (repeatable, resource:key=value). Wins over --param and --global-param when keys conflict.")
+	cmd.Flags().StringArrayVar(&globalParamFlags, "global-param", nil, "Extra query param to inject into every sync request including dependent path-scoped calls (repeatable, key=value). Use when an API requires a scope on every call regardless of path nesting.")
 
 	return cmd
 }
 
 // syncResource handles the full paginated sync of a single resource.
 // It resumes from the last cursor unless sinceTS or full mode overrides it.
-func syncResource(c interface {
-	Get(string, map[string]string) (json.RawMessage, error)
+// channel_workflow.go.tmpl mirrors the trailing dates arg conditional;
+// keep both call sites in sync if this signature changes.
+func syncResource(ctx context.Context, c interface {
+	Get(context.Context, string, map[string]string) (json.RawMessage, error)
 	RateLimit() float64
-}, db *store.Store, resource, sinceTS string, full bool, maxPages int) syncResult {
+}, db *store.Store, resource, sinceTS string, full bool, maxPages int, latestOnly bool, prune bool, userParams *syncUserParams, syncEvents io.Writer) syncResult {
 	started := time.Now()
-
-	if !humanFriendly {
-		fmt.Fprintf(os.Stderr, `{"event":"sync_start","resource":"%s"}`+"\n", resource)
+	if syncEvents == nil {
+		syncEvents = io.Discard
 	}
 
-	path := syncResourcePath(resource)
+	if !humanFriendly {
+		fmt.Fprintf(syncEvents, `{"event":"sync_start","resource":"%s"}`+"\n", resource)
+	}
+
+	path, err := syncResourcePath(resource)
+	if err != nil {
+		return syncResult{Resource: resource, Err: err, Duration: time.Since(started)}
+	}
+
+	// Skip resources whose path template still contains unresolved `{key}`
+	// placeholders after syncResourcePath() resolution. These paths require
+	// parent context (league_key, team_key, channel_id, etc.) that flat-list
+	// sync cannot fill. Emit a sync_warning describing the missing keys and
+	// continue — sync exits 0 if any resource succeeded, so this keeps
+	// hierarchical-API CLIs functional for the resources they CAN sync flat.
+	if missingKeys := unresolvedPathKeyRE.FindAllString(path, -1); len(missingKeys) > 0 {
+		if !humanFriendly {
+			payload := struct {
+				Event    string   `json:"event"`
+				Resource string   `json:"resource"`
+				Reason   string   `json:"reason"`
+				Keys     []string `json:"keys"`
+				Path     string   `json:"path"`
+				Message  string   `json:"message"`
+			}{
+				Event:    "sync_warning",
+				Resource: resource,
+				Reason:   "unfilled_path_key",
+				Keys:     missingKeys,
+				Path:     path,
+				Message:  fmt.Sprintf("path %s requires parent context (%s); resource skipped", path, strings.Join(missingKeys, ", ")),
+			}
+			payloadJSON, _ := json.Marshal(payload)
+			fmt.Fprintf(syncEvents, "%s\n", payloadJSON)
+		} else {
+			fmt.Fprintf(os.Stderr, "  %s skipped (requires parent context: %s)\n",
+				resource, strings.Join(missingKeys, ", "))
+		}
+		return syncResult{
+			Resource: resource,
+			Warn:     fmt.Errorf("skipped %s: unresolved path keys %v", resource, missingKeys),
+			Duration: time.Since(started),
+		}
+	}
+
 	var totalCount int
 
 	// Resume cursor from sync_state (unless --full cleared it)
 	existingCursor, lastSynced, _, _ := db.GetSyncState(resource)
+	if !full {
+		if storedCount, err := db.Count(resource); err == nil && storedCount == 0 {
+			existingCursor = ""
+			lastSynced = time.Time{}
+		}
+	}
 
 	// Determine the since param value:
 	// 1. Explicit --since flag takes priority
 	// 2. Otherwise use last_synced_at from sync_state for incremental sync
-	sinceParam := determineSinceParam()
+	sinceParam := syncResourceSinceParam(resource)
 	effectiveSince := sinceTS
 	if effectiveSince == "" && !lastSynced.IsZero() && !full {
 		effectiveSince = lastSynced.Format(time.RFC3339)
 	}
+	// Resources whose list endpoint declares no temporal-filter parameter
+	// fall back to plain pagination — sending a synthetic since=... would
+	// reach the API as an unknown query param and (for strict APIs like
+	// Notion) fail the whole resource with a 400. Warn once per resource
+	// when the user expected incremental behavior.
+	if effectiveSince != "" && sinceParam == "" {
+		if humanFriendly {
+			fmt.Fprintf(os.Stderr, "  %s: incremental sync ignored (endpoint declares no temporal filter; falling back to full pagination)\n", resource)
+		} else {
+			fmt.Fprintf(syncEvents, `{"event":"sync_warning","resource":"%s","reason":"resource_not_incremental","message":"endpoint does not declare a temporal filter parameter; incremental sync has no effect for this resource"}`+"\n", resource)
+		}
+		effectiveSince = ""
+	}
+	if effectiveSince != "" {
+		effectiveSince = formatSyncSinceValue(effectiveSince, syncResourceSinceParamFormat(resource))
+	}
 
 	cursor := existingCursor
-	pageSize := determinePaginationDefaults()
-
+	pageSize := determinePaginationDefaults(resource)
 	var progressCount int64
 	pagesFetched := 0
 	lastNextCursor := ""
+	capExitHit := false
+	capExitCursor := ""
 	// extractFailureTotal accumulates per-item primary-key extraction
 	// misses across pages within this resource sync. Resource-level
 	// concurrency is 1 (one goroutine per resource via the work channel)
@@ -304,50 +464,115 @@ func syncResource(c interface {
 	var consumedTotal int
 	anomalyEmitted := false
 
+	// Flat tenant-scoped reconcile bookkeeping (mirrors the dependent loop's
+	// partitionOutcome machinery). flatReconcilable gates all of it: only
+	// resources classified reconcileMode=="flat" collect seen IDs and prune.
+	// outcome.complete is set ONLY at proven natural ends; any abnormal break
+	// sets outcome.reason and leaves complete=false so the reconcile SKIPS.
+	flatReconcilable := resourceReconcileMode(resource) == "flat"
+	outcome := partitionOutcome{}
+	var seenIDs []string
+
 	for {
 		params := map[string]string{}
 
-		// Set page size
-		params[pageSize.limitParam] = strconv.Itoa(pageSize.limit)
-
-		// Set cursor for resume
-		if cursor != "" {
-			params[pageSize.cursorParam] = cursor
+		if resourceSupportsPagination(resource) {
+			params[pageSize.limitParam] = strconv.Itoa(pageSize.limit)
+			if cursor != "" {
+				params[pageSize.cursorParam] = cursor
+			}
 		}
 
 		// Set since filter
 		if effectiveSince != "" {
 			params[sinceParam] = effectiveSince
 		}
+		// Apply user-supplied --param / --resource-param overrides last so they
+		// win over spec-derived defaults (e.g. forcing mine=true on a list
+		// endpoint whose OpenAPI spec marks the filter optional).
+		userParams.applyTo(resource, params, false)
 
-		data, err := c.Get(path, params)
+		data, err := c.Get(ctx, path, params)
 		if err != nil {
 			if w, ok := isSyncAccessWarning(err); ok {
 				if !humanFriendly {
-					fmt.Fprintf(os.Stderr, `{"event":"sync_warning","resource":"%s","status":%d,"reason":"%s","message":"%s"}`+"\n",
-						resource, w.Status, w.Reason, strings.ReplaceAll(w.Message, `"`, `\"`))
+					fmt.Fprintln(syncEvents, syncWarningJSON(resource, "", w.Status, w.Reason, w.Message))
 				}
-				return syncResult{Resource: resource, Count: totalCount, Warn: fmt.Errorf("skipped %s: %s", resource, w.Reason), Duration: time.Since(started)}
+				return syncResult{Resource: resource, Count: totalCount, Warn: fmt.Errorf("skipped due to insufficient access: %s (%s)", resource, w.Reason), Duration: time.Since(started)}
 			}
 			if !humanFriendly {
-				fmt.Fprintf(os.Stderr, `{"event":"sync_error","resource":"%s","error":"%s"}`+"\n", resource, strings.ReplaceAll(err.Error(), `"`, `\"`))
+				fmt.Fprintln(syncEvents, syncErrorJSON(resource, "", err))
 			}
 			return syncResult{Resource: resource, Count: totalCount, Err: fmt.Errorf("fetching %s: %w", resource, err), Duration: time.Since(started)}
 		}
 
+		// Dry-run sentinel: client.dryRun returns `{"dry_run": true}` instead
+		// of a real response when --dry-run is set. The upsert path below
+		// would otherwise fail with "missing id for <resource>" because the
+		// sentinel has no items and no id; emit a synthetic success event so
+		// validate-narrative --full-examples (which auto-appends --dry-run)
+		// sees a clean exit.
+		if isDryRunResponse(data) {
+			if !humanFriendly {
+				fmt.Fprintf(syncEvents, `{"event":"sync_dryrun","resource":"%s"}`+"\n", resource)
+			}
+			return syncResult{Resource: resource, Count: 0, Duration: time.Since(started)}
+		}
+
 		// Try to extract items from the response.
 		// Strategy: try array first, then common wrapper keys.
-		items, nextCursor, hasMore := extractPageItems(data, pageSize.cursorParam)
+		items, nextCursor, hasMore := extractPageItems(data, pageSize.cursorParam, responsePathForResource(resource, path)...)
+
+		// Page-int paginator fallback: when the API paginates by integer
+		// ?page=N and emits no body cursor, treat a full page as a signal
+		// to advance numerically. Without this the loop breaks after page
+		// 1 even though more pages exist (the original symptom in #1296).
+		// Guard on cursorType, not cursorParam name, so all canonical
+		// spellings (page / page_number / pageNumber / page[number]) work.
+		if pageSize.cursorType == "page" && nextCursor == "" && len(items) >= pageSize.limit && pageAllowsPageIntFallback(data) {
+			currentPage, _ := strconv.Atoi(cursor)
+			if currentPage < 1 {
+				currentPage = 1
+			}
+			nextCursor = strconv.Itoa(currentPage + 1)
+			hasMore = true
+		}
+		if pageSize.cursorType == "offset" && nextCursor == "" && len(items) >= pageSize.limit && pageAllowsPageIntFallback(data) {
+			currentOffset, _ := strconv.Atoi(cursor)
+			nextCursor = strconv.Itoa(currentOffset + pageSize.limit)
+			hasMore = true
+		}
+
+		if len(items) == 0 && len(data) > 0 && !isJSONResponse(data) {
+			// Abnormal: a 200 with a non-JSON body means the page was not a
+			// trustworthy enumeration — leave outcome.complete=false so reconcile
+			// SKIPS. Reuse the dependent loop's reason string for cross-loop
+			// consistency.
+			outcome.reason = "non_json_200_body"
+			if humanFriendly {
+				fmt.Fprintf(os.Stderr, "\nwarning: %s returned a 200 response with a non-JSON body; no rows were stored.\n", resource)
+			} else {
+				fmt.Fprintf(syncEvents, `{"event":"sync_anomaly","resource":"%s","reason":"non_json_200_body"}`+"\n", resource)
+			}
+			break
+		}
 
 		if len(items) == 0 {
+			if isEmptyPageResponse(data, responsePathForResource(resource, path)...) {
+				// Natural end: the API legitimately returned an empty page.
+				outcome.complete = true
+				break
+			}
 			// Single object response - try to store as-is
 			if err := upsertSingleObject(db, resource, data); err != nil {
 				if !humanFriendly {
-					fmt.Fprintf(os.Stderr, `{"event":"sync_error","resource":"%s","error":"%s"}`+"\n", resource, strings.ReplaceAll(err.Error(), `"`, `\"`))
+					fmt.Fprintln(syncEvents, syncErrorJSON(resource, "", err))
 				}
 				return syncResult{Resource: resource, Err: err, Duration: time.Since(started)}
 			}
 			totalCount++
+			// Single-object resources are fully enumerated by definition.
+			outcome.complete = true
 			break
 		}
 
@@ -362,10 +587,10 @@ func syncResource(c interface {
 		// "primary_key_unresolved" the first time any single item
 		// fails, and the F4b "stored_count_zero_after_extraction"
 		// probe when extraction succeeded but rows still didn't land.
-		stored, extractFailures, err := db.UpsertBatch(resource, items)
+		stored, extractFailures, err := upsertResourceBatch(db, resource, items)
 		if err != nil {
 			if !humanFriendly {
-				fmt.Fprintf(os.Stderr, `{"event":"sync_error","resource":"%s","error":"%s"}`+"\n", resource, strings.ReplaceAll(err.Error(), `"`, `\"`))
+				fmt.Fprintln(syncEvents, syncErrorJSON(resource, "", err))
 			}
 			return syncResult{Resource: resource, Count: totalCount, Err: fmt.Errorf("upserting batch for %s: %w", resource, err), Duration: time.Since(started)}
 		}
@@ -382,7 +607,7 @@ func syncResource(c interface {
 			if humanFriendly {
 				fmt.Fprintf(os.Stderr, "warning: %s returned %d items but stored 0 — the local store will be empty for this resource. Likely cause: scalar item shape rather than objects with extractable IDs.\n", resource, len(items))
 			} else {
-				fmt.Fprintf(os.Stderr, `{"event":"sync_anomaly","resource":"%s","consumed":%d,"stored":0,"reason":"all_items_failed_id_extraction"}`+"\n", resource, len(items))
+				fmt.Fprintf(syncEvents, `{"event":"sync_anomaly","resource":"%s","consumed":%d,"stored":0,"reason":"all_items_failed_id_extraction"}`+"\n", resource, len(items))
 			}
 			anomalyEmitted = true
 		} else if extractFailures > 0 && !anomalyEmitted {
@@ -393,13 +618,29 @@ func syncResource(c interface {
 			if humanFriendly {
 				fmt.Fprintf(os.Stderr, "\nwarning: %s had %d item(s) on this page with no extractable primary key — those rows were dropped silently. Annotate the spec with x-resource-id to fix.\n", resource, extractFailures)
 			} else {
-				fmt.Fprintf(os.Stderr, `{"event":"sync_anomaly","resource":"%s","consumed":%d,"stored":%d,"count":%d,"reason":"primary_key_unresolved"}`+"\n", resource, len(items), stored, extractFailures)
+				fmt.Fprintf(syncEvents, `{"event":"sync_anomaly","resource":"%s","consumed":%d,"stored":%d,"count":%d,"reason":"primary_key_unresolved"}`+"\n", resource, len(items), stored, extractFailures)
 			}
 			anomalyEmitted = true
 		}
 
 		totalCount += stored
 		atomic.AddInt64(&progressCount, int64(stored))
+		// Collect seen IDs for flat tenant-scoped reconcile. extractID resolves
+		// the primary key the same way UpsertBatch does, so seenIDs match stored
+		// row IDs. Only non-empty IDs are tracked; reconcile never deletes a row
+		// whose ID was seen this run.
+		if flatReconcilable {
+			for _, it := range items {
+				if o, derr := store.DecodeJSONObject(it); derr == nil {
+					if id := extractID(resource, o); id != "" {
+						seenIDs = append(seenIDs, id)
+					}
+				}
+			}
+		}
+		if resourceSupportsPagination(resource) && nextCursor == "" && pageSize.cursorParam != "offset" && len(items) >= pageSize.limit && pageMayHaveMore(data, responsePathForResource(resource, path)...) {
+			emitSyncMissingPaginationCursorWarning(syncEvents, humanFriendly, resource, "")
+		}
 
 		// Progress reporting (include rate limit info when active)
 		currentRate := c.RateLimit()
@@ -411,27 +652,47 @@ func syncResource(c interface {
 			}
 		} else {
 			if currentRate > 0 {
-				fmt.Fprintf(os.Stderr, `{"event":"sync_progress","resource":"%s","fetched":%d,"rate_rps":%.1f}`+"\n", resource, atomic.LoadInt64(&progressCount), currentRate)
+				fmt.Fprintf(syncEvents, `{"event":"sync_progress","resource":"%s","fetched":%d,"rate_rps":%.1f}`+"\n", resource, atomic.LoadInt64(&progressCount), currentRate)
 			} else {
-				fmt.Fprintf(os.Stderr, `{"event":"sync_progress","resource":"%s","fetched":%d}`+"\n", resource, atomic.LoadInt64(&progressCount))
+				fmt.Fprintf(syncEvents, `{"event":"sync_progress","resource":"%s","fetched":%d}`+"\n", resource, atomic.LoadInt64(&progressCount))
 			}
-		}
-
-		// Save cursor after each page for resumability
-		if err := db.SaveSyncState(resource, nextCursor, totalCount); err != nil {
-			// Non-fatal: log and continue
-			fmt.Fprintf(os.Stderr, "\nwarning: failed to save sync state for %s: %v\n", resource, err)
 		}
 
 		pagesFetched++
 
-		// Enforce page ceiling to prevent runaway syncs on large-catalog APIs
+		// Enforce page ceiling to prevent runaway syncs on large-catalog APIs.
+		// Suppress the cap-hit warning when --latest-only is the cap source:
+		// the template pinned maxPages=1 by user intent, and emitting one
+		// warning per paginated resource would mask real sync_anomaly /
+		// sync_error output in the same stream.
 		if maxPages > 0 && pagesFetched >= maxPages {
-			if humanFriendly {
-				fmt.Fprintf(os.Stderr, "\n  %s: reached --max-pages limit (%d pages, %d items)\n", resource, maxPages, totalCount)
-			} else {
-				fmt.Fprintf(os.Stderr, `{"event":"sync_warning","resource":"%s","reason":"max_pages_cap_hit","message":"reached --max-pages cap of %d; data may be truncated. Re-run with --max-pages 0 (unlimited) or higher to verify."}`+"\n", resource, maxPages)
+			truncatedByCap := resourceSupportsPagination(resource) && hasMore
+			truncatedByCap = truncatedByCap && len(items) >= pageSize.limit
+			if truncatedByCap {
+				capExitCursor = nextCursor
 			}
+			if truncatedByCap && capExitCursor == "" {
+				if pageSize.cursorType == "offset" {
+					currentOffset, _ := strconv.Atoi(cursor)
+					capExitCursor = strconv.Itoa(currentOffset + pageSize.limit)
+				} else {
+					truncatedByCap = false
+				}
+			}
+			if truncatedByCap && capExitCursor != cursor {
+				if !latestOnly {
+					capExitHit = true
+					if humanFriendly {
+						fmt.Fprintf(os.Stderr, "\n  %s: reached --max-pages limit (%d pages, %d items)\n", resource, maxPages, totalCount)
+					} else {
+						fmt.Fprintf(syncEvents, `{"event":"sync_warning","resource":"%s","reason":"max_pages_cap_hit","message":"reached --max-pages cap of %d; data may be truncated. Re-run with --max-pages 0 (unlimited) or higher to verify."}`+"\n", resource, maxPages)
+					}
+				}
+			}
+			// A cap break ends enumeration before exhausting the partition; mirror
+			// the dependent loop and treat it as incomplete (reconcile SKIPS). Safe
+			// default: when the cap may have truncated, never prune.
+			outcome.reason = "max_pages_cap"
 			break
 		}
 
@@ -442,25 +703,85 @@ func syncResource(c interface {
 		// check below because the natural-end check would not catch a sticky
 		// non-empty cursor on its own.
 		if nextCursor != "" && nextCursor == lastNextCursor {
+			// Abnormal: a non-advancing cursor means we cannot prove the partition
+			// was fully enumerated — leave outcome.complete=false (reconcile SKIPS).
+			outcome.reason = "stuck_cursor"
 			if humanFriendly {
 				fmt.Fprintf(os.Stderr, "\n  %s: API returned the same next cursor across two pages; aborting to prevent budget waste.\n", resource)
 			} else {
-				fmt.Fprintf(os.Stderr, `{"event":"sync_warning","resource":"%s","reason":"stuck_pagination","message":"API returned the same next cursor across two pages for resource %s; aborting to prevent budget waste."}`+"\n", resource, resource)
+				fmt.Fprintf(syncEvents, `{"event":"sync_warning","resource":"%s","reason":"stuck_pagination","message":"API returned the same next cursor across two pages for resource %s; aborting to prevent budget waste."}`+"\n", resource, resource)
 			}
 			break
 		}
 		lastNextCursor = nextCursor
 
-		// Determine if there are more pages
-		if !hasMore || len(items) < pageSize.limit || nextCursor == "" {
+		// Determine if there are more pages.
+		if !resourceSupportsPagination(resource) {
+			outcome.complete = true // resource declares no pagination: one page is the whole set
 			break
+		}
+		if !hasMore || len(items) < pageSize.limit {
+			outcome.complete = true
+			break
+		}
+		if nextCursor == "" {
+			if pageSize.cursorType == "offset" {
+				// Cursor-based APIs return the next cursor in the envelope.
+				// Offset-based APIs carry their pagination position client-side.
+				currentOffset, _ := strconv.Atoi(cursor)
+				nextCursor = strconv.Itoa(currentOffset + pageSize.limit)
+			} else {
+				// A cursor-based API reporting has_more without a next cursor
+				// cannot advance safely; stop instead of looping silently.
+				outcome.reason = "cursor_unavailable"
+				break
+			}
+		}
+
+		// Save cursor after each page for resumability
+		if err := db.SaveSyncState(resource, nextCursor, totalCount); err != nil {
+			// Non-fatal: log and continue
+			fmt.Fprintf(os.Stderr, "\nwarning: failed to save sync state for %s: %v\n", resource, err)
 		}
 
 		cursor = nextCursor
 	}
 
-	// Final sync state: clear cursor (sync is complete), update count
-	_ = db.SaveSyncState(resource, "", totalCount)
+	// Flat tenant-scoped reconcile: prune local rows the API no longer returns
+	// within THIS tenant's partition, gated on a proven-complete sync.
+	//   - Unknown tenant (resolveTenantID()=="") ⇒ SKIP, zero deletes. This is
+	//     the OPPOSITE of the dependent fan-out fallback (which enumerates
+	//     unscoped): a flat delete cannot be safely scoped without a tenant, so
+	//     we never delete on unknown.
+	//   - Incomplete sync (outcome.complete==false) ⇒ SKIP with the recorded
+	//     reason; an abnormal break never proves the partition was enumerated.
+	if prune && flatReconcilable {
+		def := flatReconcileDef(resource)
+		tenantUUID := resolveTenantID()
+		if tenantUUID == "" {
+			fmt.Fprintf(syncEvents, `{"event":"reconcile_skipped","resource":"%s","reason":"unknown-tenant"}`+"\n", resource)
+		} else if outcome.complete {
+			deleted, rerr := db.ReconcilePartition(
+				resource, "$."+def.BodyField, tenantUUID,
+				seenIDs, resource, store.CascadeJunctionsFor(resource),
+			)
+			if rerr != nil {
+				fmt.Fprintf(syncEvents, `{"event":"reconcile_error","resource":"%s","scope":"%s","error":%q}`+"\n", resource, tenantUUID, rerr.Error())
+			} else {
+				fmt.Fprintf(syncEvents, `{"event":"reconcile","resource":"%s","scope":"%s","deleted":%d}`+"\n", resource, tenantUUID, deleted)
+			}
+		} else {
+			fmt.Fprintf(syncEvents, `{"event":"reconcile_skipped","resource":"%s","scope":"%s","reason":%q}`+"\n", resource, tenantUUID, outcome.reason)
+		}
+	}
+
+	// Final sync state: clear cursor on natural completion, but preserve the
+	// resume cursor when an operator intentionally capped the page budget.
+	finalCursor := ""
+	if capExitHit {
+		finalCursor = capExitCursor
+	}
+	_ = db.SaveSyncState(resource, finalCursor, totalCount)
 
 	// F4b symptom probe: if items were consumed and successfully
 	// extracted (extractFailures < consumed) but nothing landed in
@@ -473,12 +794,21 @@ func syncResource(c interface {
 		if humanFriendly {
 			fmt.Fprintf(os.Stderr, "\nwarning: %s consumed %d items, extracted %d primary keys, but stored 0 rows — extraction succeeded yet nothing landed. Investigate FTS triggers / transaction rollback / encoding.\n", resource, consumedTotal, consumedTotal-extractFailureTotal)
 		} else {
-			fmt.Fprintf(os.Stderr, `{"event":"sync_anomaly","resource":"%s","consumed":%d,"stored":0,"extract_failures":%d,"reason":"stored_count_zero_after_extraction"}`+"\n", resource, consumedTotal, extractFailureTotal)
+			fmt.Fprintf(syncEvents, `{"event":"sync_anomaly","resource":"%s","consumed":%d,"stored":0,"extract_failures":%d,"reason":"stored_count_zero_after_extraction"}`+"\n", resource, consumedTotal, extractFailureTotal)
 		}
 	}
 
 	if !humanFriendly {
-		fmt.Fprintf(os.Stderr, `{"event":"sync_complete","resource":"%s","total":%d,"duration_ms":%d}`+"\n", resource, totalCount, time.Since(started).Milliseconds())
+		fmt.Fprintf(syncEvents, `{"event":"sync_complete","resource":"%s","total":%d,"duration_ms":%d}`+"\n", resource, totalCount, time.Since(started).Milliseconds())
+	}
+
+	if consumedTotal > 0 && totalCount == 0 && extractFailureTotal >= consumedTotal {
+		return syncResult{
+			Resource: resource,
+			Count:    0,
+			Warn:     fmt.Errorf("%s consumed %d items but stored 0 because no item had an extractable primary key", resource, consumedTotal),
+			Duration: time.Since(started),
+		}
 	}
 
 	return syncResult{Resource: resource, Count: totalCount, Duration: time.Since(started)}
@@ -487,31 +817,449 @@ func syncResource(c interface {
 // paginationDefaults holds the resolved pagination parameter names and page size.
 type paginationDefaults struct {
 	cursorParam string
+	cursorType  string // paginator class: "", "cursor", "page_token", "offset", "page"
 	limitParam  string
 	limit       int
 }
 
 // determinePaginationDefaults returns the pagination parameter names to use.
 // Values are detected from the API spec by the profiler at generation time.
-func determinePaginationDefaults() paginationDefaults {
+func determinePaginationDefaults(resource string) paginationDefaults {
+	switch resource {
+	case "account":
+		return paginationDefaults{
+			cursorParam: "page",
+			cursorType:  "page",
+			limitParam:  "limit",
+			limit:       100,
+		}
+	case "facebook-ad-library-company-ads":
+		return paginationDefaults{
+			cursorParam: "cursor",
+			cursorType:  "cursor",
+			limitParam:  "limit",
+			limit:       100,
+		}
+	case "facebook-ad-library-search-ads":
+		return paginationDefaults{
+			cursorParam: "cursor",
+			cursorType:  "cursor",
+			limitParam:  "limit",
+			limit:       100,
+		}
+	case "facebook-group-posts":
+		return paginationDefaults{
+			cursorParam: "cursor",
+			cursorType:  "cursor",
+			limitParam:  "limit",
+			limit:       100,
+		}
+	case "facebook-post-comment-replies":
+		return paginationDefaults{
+			cursorParam: "cursor",
+			cursorType:  "cursor",
+			limitParam:  "limit",
+			limit:       100,
+		}
+	case "facebook-post-comments":
+		return paginationDefaults{
+			cursorParam: "cursor",
+			cursorType:  "cursor",
+			limitParam:  "limit",
+			limit:       100,
+		}
+	case "facebook-profile-photos":
+		return paginationDefaults{
+			cursorParam: "cursor",
+			cursorType:  "cursor",
+			limitParam:  "limit",
+			limit:       100,
+		}
+	case "facebook-profile-posts":
+		return paginationDefaults{
+			cursorParam: "cursor",
+			cursorType:  "cursor",
+			limitParam:  "limit",
+			limit:       100,
+		}
+	case "facebook-profile-reels":
+		return paginationDefaults{
+			cursorParam: "cursor",
+			cursorType:  "cursor",
+			limitParam:  "limit",
+			limit:       100,
+		}
+	case "github-user-activity":
+		return paginationDefaults{
+			cursorParam: "cursor",
+			cursorType:  "cursor",
+			limitParam:  "limit",
+			limit:       100,
+		}
+	case "github-user-followers":
+		return paginationDefaults{
+			cursorParam: "cursor",
+			cursorType:  "cursor",
+			limitParam:  "limit",
+			limit:       100,
+		}
+	case "github-user-following":
+		return paginationDefaults{
+			cursorParam: "cursor",
+			cursorType:  "cursor",
+			limitParam:  "limit",
+			limit:       100,
+		}
+	case "github-user-pull-requests":
+		return paginationDefaults{
+			cursorParam: "cursor",
+			cursorType:  "cursor",
+			limitParam:  "limit",
+			limit:       100,
+		}
+	case "github-user-repositories":
+		return paginationDefaults{
+			cursorParam: "cursor",
+			cursorType:  "cursor",
+			limitParam:  "limit",
+			limit:       100,
+		}
+	case "google-company-ads":
+		return paginationDefaults{
+			cursorParam: "cursor",
+			cursorType:  "cursor",
+			limitParam:  "limit",
+			limit:       100,
+		}
+	case "instagram-audio-reels":
+		return paginationDefaults{
+			cursorParam: "cursor",
+			cursorType:  "cursor",
+			limitParam:  "limit",
+			limit:       100,
+		}
+	case "instagram-post-comments":
+		return paginationDefaults{
+			cursorParam: "cursor",
+			cursorType:  "cursor",
+			limitParam:  "limit",
+			limit:       100,
+		}
+	case "instagram-search-hashtag":
+		return paginationDefaults{
+			cursorParam: "cursor",
+			cursorType:  "cursor",
+			limitParam:  "limit",
+			limit:       100,
+		}
+	case "instagram-search-profiles":
+		return paginationDefaults{
+			cursorParam: "cursor",
+			cursorType:  "cursor",
+			limitParam:  "limit",
+			limit:       100,
+		}
+	case "kwai-user-posts":
+		return paginationDefaults{
+			cursorParam: "cursor",
+			cursorType:  "cursor",
+			limitParam:  "count",
+			limit:       100,
+		}
+	case "linkedin-company-posts":
+		return paginationDefaults{
+			cursorParam: "page",
+			cursorType:  "page",
+			limitParam:  "limit",
+			limit:       100,
+		}
+	case "linkedin-search-posts":
+		return paginationDefaults{
+			cursorParam: "cursor",
+			cursorType:  "cursor",
+			limitParam:  "limit",
+			limit:       100,
+		}
+	case "pinterest-board":
+		return paginationDefaults{
+			cursorParam: "cursor",
+			cursorType:  "cursor",
+			limitParam:  "limit",
+			limit:       100,
+		}
+	case "reddit":
+		return paginationDefaults{
+			cursorParam: "after",
+			cursorType:  "cursor",
+			limitParam:  "limit",
+			limit:       100,
+		}
+	case "reddit-post-comments":
+		return paginationDefaults{
+			cursorParam: "cursor",
+			cursorType:  "cursor",
+			limitParam:  "limit",
+			limit:       100,
+		}
+	case "rumble-channel-videos":
+		return paginationDefaults{
+			cursorParam: "cursor",
+			cursorType:  "cursor",
+			limitParam:  "limit",
+			limit:       100,
+		}
+	case "soundcloud-artist-tracks":
+		return paginationDefaults{
+			cursorParam: "cursor",
+			cursorType:  "cursor",
+			limitParam:  "limit",
+			limit:       100,
+		}
+	case "spotify-podcast-episodes":
+		return paginationDefaults{
+			cursorParam: "cursor",
+			cursorType:  "cursor",
+			limitParam:  "limit",
+			limit:       100,
+		}
+	case "tiktok-creators-popular":
+		return paginationDefaults{
+			cursorParam: "page",
+			cursorType:  "page",
+			limitParam:  "limit",
+			limit:       100,
+		}
+	case "tiktok-hashtags-popular":
+		return paginationDefaults{
+			cursorParam: "page",
+			cursorType:  "page",
+			limitParam:  "limit",
+			limit:       100,
+		}
+	case "tiktok-search-hashtag":
+		return paginationDefaults{
+			cursorParam: "cursor",
+			cursorType:  "cursor",
+			limitParam:  "limit",
+			limit:       100,
+		}
+	case "tiktok-search-keyword":
+		return paginationDefaults{
+			cursorParam: "cursor",
+			cursorType:  "cursor",
+			limitParam:  "limit",
+			limit:       100,
+		}
+	case "tiktok-search-top":
+		return paginationDefaults{
+			cursorParam: "cursor",
+			cursorType:  "cursor",
+			limitParam:  "limit",
+			limit:       100,
+		}
+	case "tiktok-search-users":
+		return paginationDefaults{
+			cursorParam: "cursor",
+			cursorType:  "cursor",
+			limitParam:  "limit",
+			limit:       100,
+		}
+	case "tiktok-shop-product-reviews":
+		return paginationDefaults{
+			cursorParam: "page",
+			cursorType:  "page",
+			limitParam:  "limit",
+			limit:       100,
+		}
+	case "tiktok-shop-products":
+		return paginationDefaults{
+			cursorParam: "cursor",
+			cursorType:  "cursor",
+			limitParam:  "limit",
+			limit:       100,
+		}
+	case "tiktok-song-videos":
+		return paginationDefaults{
+			cursorParam: "cursor",
+			cursorType:  "cursor",
+			limitParam:  "limit",
+			limit:       100,
+		}
+	case "tiktok-user-showcase":
+		return paginationDefaults{
+			cursorParam: "cursor",
+			cursorType:  "cursor",
+			limitParam:  "limit",
+			limit:       100,
+		}
+	case "tiktok-video-comment-replies":
+		return paginationDefaults{
+			cursorParam: "cursor",
+			cursorType:  "cursor",
+			limitParam:  "limit",
+			limit:       100,
+		}
+	case "tiktok-video-comments":
+		return paginationDefaults{
+			cursorParam: "cursor",
+			cursorType:  "cursor",
+			limitParam:  "limit",
+			limit:       100,
+		}
+	}
 	return paginationDefaults{
 		cursorParam: "cursor",
+		cursorType:  "cursor",
 		limitParam:  "limit",
 		limit:       100,
 	}
 }
 
-// determineSinceParam returns the query parameter name for incremental sync filtering.
-func determineSinceParam() string {
-	return "since"
+func resourceSupportsPagination(resource string) bool {
+	switch resource {
+	case "account":
+		return true
+	case "facebook-ad-library-company-ads":
+		return true
+	case "facebook-ad-library-search-ads":
+		return true
+	case "facebook-group-posts":
+		return true
+	case "facebook-post-comment-replies":
+		return true
+	case "facebook-post-comments":
+		return true
+	case "facebook-profile-photos":
+		return true
+	case "facebook-profile-posts":
+		return true
+	case "facebook-profile-reels":
+		return true
+	case "github-user-activity":
+		return true
+	case "github-user-followers":
+		return true
+	case "github-user-following":
+		return true
+	case "github-user-pull-requests":
+		return true
+	case "github-user-repositories":
+		return true
+	case "google-company-ads":
+		return true
+	case "instagram-audio-reels":
+		return true
+	case "instagram-post-comments":
+		return true
+	case "instagram-search-hashtag":
+		return true
+	case "instagram-search-profiles":
+		return true
+	case "kwai-user-posts":
+		return true
+	case "linkedin-company-posts":
+		return true
+	case "linkedin-search-posts":
+		return true
+	case "pinterest-board":
+		return true
+	case "reddit":
+		return true
+	case "reddit-post-comments":
+		return true
+	case "rumble-channel-videos":
+		return true
+	case "soundcloud-artist-tracks":
+		return true
+	case "spotify-podcast-episodes":
+		return true
+	case "tiktok-creators-popular":
+		return true
+	case "tiktok-hashtags-popular":
+		return true
+	case "tiktok-search-hashtag":
+		return true
+	case "tiktok-search-keyword":
+		return true
+	case "tiktok-search-top":
+		return true
+	case "tiktok-search-users":
+		return true
+	case "tiktok-shop-product-reviews":
+		return true
+	case "tiktok-shop-products":
+		return true
+	case "tiktok-song-videos":
+		return true
+	case "tiktok-user-showcase":
+		return true
+	case "tiktok-video-comment-replies":
+		return true
+	case "tiktok-video-comments":
+		return true
+	}
+	return false
+}
+
+// syncResourceSinceParam returns the query parameter name this resource's
+// list endpoint declares for incremental temporal filtering, or "" when the
+// endpoint declares none. Skipping the param for "" resources avoids
+// validation-error 400s on APIs that reject unknown query keys.
+func syncResourceSinceParam(resource string) string {
+	switch resource {
+	case "account-get-most-used-routes":
+		return "start_time"
+	case "facebook-ad-library-company-ads":
+		return "start_date"
+	case "facebook-ad-library-search-ads":
+		return "start_date"
+	case "github-trending-developers":
+		return "since"
+	case "github-trending-repositories":
+		return "since"
+	case "github-user-pull-requests":
+		return "since"
+	case "google-company-ads":
+		return "start_date"
+	}
+	return ""
+}
+
+func syncResourceSinceParamFormat(resource string) string {
+	switch resource {
+	}
+	return ""
+}
+
+func formatSyncSinceValue(value string, paramFormat string) string {
+	if field, ok := strings.CutPrefix(paramFormat, "odata-conditions:"); ok {
+		field = strings.TrimSpace(field)
+		if field == "" {
+			return value
+		}
+		return fmt.Sprintf("%s > [%s]", field, value)
+	}
+	if strings.EqualFold(paramFormat, "date") {
+		if ts, err := time.Parse(time.RFC3339, value); err == nil {
+			return ts.Format("2006-01-02")
+		}
+		if ts, err := time.Parse(time.RFC3339Nano, value); err == nil {
+			return ts.Format("2006-01-02")
+		}
+		if _, err := time.Parse("2006-01-02", value); err == nil {
+			return value
+		}
+	}
+	return value
 }
 
 // extractPageItems attempts to extract an array of items and pagination cursor from a response.
 // It tries multiple strategies:
 // 1. Direct JSON array
 // 2. Common wrapper keys: "data", "results", "items", "records", "nodes", "entries"
+// 3. JSend-style nested data envelopes: {"data":{"<resource>":[...]}}
 // It also extracts the next cursor from common response fields.
-func extractPageItems(data json.RawMessage, cursorParam string) ([]json.RawMessage, string, bool) {
+func extractPageItems(data json.RawMessage, cursorParam string, responsePaths ...string) ([]json.RawMessage, string, bool) {
 	// Strategy 1: direct array
 	var items []json.RawMessage
 	if err := json.Unmarshal(data, &items); err == nil {
@@ -524,59 +1272,361 @@ func extractPageItems(data json.RawMessage, cursorParam string) ([]json.RawMessa
 		return nil, "", false
 	}
 
-	// Try common item keys first (fast path)
-	itemKeys := []string{"data", "results", "items", "records", "nodes", "entries"}
-	for _, key := range itemKeys {
-		if raw, ok := envelope[key]; ok {
-			if err := json.Unmarshal(raw, &items); err == nil && len(items) > 0 {
+	for _, responsePath := range responsePaths {
+		pathData, ok := responsePayloadAtPath(data, responsePath)
+		if !ok {
+			continue
+		}
+		if items, ok := extractObjectArray(pathData); ok {
+			nextCursor, hasMore := "", false
+			if parentEnvelope, ok := responsePayloadParentAtPath(data, responsePath); ok {
+				nextCursor, hasMore = extractPaginationFromEnvelope(parentEnvelope, cursorParam)
+			}
+			outerCursor, outerHasMore := extractPaginationFromEnvelope(envelope, cursorParam)
+			if nextCursor == "" {
+				nextCursor = outerCursor
+			}
+			hasMore = hasMore || outerHasMore
+			return items, nextCursor, hasMore
+		}
+		var inner map[string]json.RawMessage
+		if json.Unmarshal(pathData, &inner) == nil {
+			if items, ok := extractItemsFromEnvelope(inner); ok {
+				nextCursor, hasMore := extractPaginationFromEnvelope(inner, cursorParam)
+				outerCursor, outerHasMore := extractPaginationFromEnvelope(envelope, cursorParam)
+				if nextCursor == "" {
+					nextCursor = outerCursor
+				}
+				hasMore = hasMore || outerHasMore
+				return items, nextCursor, hasMore
+			}
+		}
+	}
+
+	if items, ok := extractItemsByKnownKeys(envelope); ok {
+		nextCursor, hasMore := extractPaginationFromEnvelope(envelope, cursorParam)
+		return items, nextCursor, hasMore
+	}
+
+	for _, key := range dataEnvelopeKeys {
+		raw, ok := envelope[key]
+		if !ok {
+			continue
+		}
+		var inner map[string]json.RawMessage
+		if json.Unmarshal(raw, &inner) != nil {
+			continue
+		}
+		if items, ok := extractItemsFromEnvelope(inner); ok {
+			nextCursor, hasMore := extractPaginationFromEnvelope(inner, cursorParam)
+			outerCursor, outerHasMore := extractPaginationFromEnvelope(envelope, cursorParam)
+			if nextCursor == "" {
+				nextCursor = outerCursor
+			}
+			hasMore = hasMore || outerHasMore
+			return items, nextCursor, hasMore
+		}
+	}
+
+	if raw, ok := envelope["_embedded"]; ok {
+		var embedded map[string]json.RawMessage
+		if json.Unmarshal(raw, &embedded) == nil {
+			if items, ok := extractItemsFromEnvelope(embedded); ok {
 				nextCursor, hasMore := extractPaginationFromEnvelope(envelope, cursorParam)
 				return items, nextCursor, hasMore
 			}
 		}
 	}
 
-	// Fallback: try every key in the envelope. If exactly one maps to a JSON
-	// array with items, use it. This handles APIs that wrap responses with the
-	// resource name (e.g., {"markets": [...], "cursor": "..."}).
-	var arrayKey string
-	var arrayItems []json.RawMessage
-	arrayCount := 0
-	for key, raw := range envelope {
-		var candidate []json.RawMessage
-		if err := json.Unmarshal(raw, &candidate); err == nil && len(candidate) > 0 {
-			arrayKey = key
-			arrayItems = candidate
-			arrayCount++
-		}
-	}
-	if arrayCount == 1 {
+	if items, ok := extractSingleObjectArraySibling(envelope); ok {
 		nextCursor, hasMore := extractPaginationFromEnvelope(envelope, cursorParam)
-		_ = arrayKey // used for detection, items extracted above
-		return arrayItems, nextCursor, hasMore
+		return items, nextCursor, hasMore
 	}
 
 	return nil, "", false
+}
+
+func extractItemsFromEnvelope(envelope map[string]json.RawMessage) ([]json.RawMessage, bool) {
+	if items, ok := extractItemsByKnownKeys(envelope); ok {
+		return items, true
+	}
+	return extractSingleObjectArraySibling(envelope)
+}
+
+func extractItemsByKnownKeys(envelope map[string]json.RawMessage) ([]json.RawMessage, bool) {
+	for _, key := range pageItemKeys {
+		if raw, ok := envelope[key]; ok {
+			if items, ok := extractObjectArray(raw); ok {
+				return items, true
+			}
+		}
+	}
+	return nil, false
+}
+
+func extractSingleObjectArraySibling(envelope map[string]json.RawMessage) ([]json.RawMessage, bool) {
+	// Fallback: try every key in the envelope. If exactly one maps to a JSON
+	// array with items, use it. This handles APIs that wrap responses with the
+	// resource name alongside arbitrary scalar metadata
+	// (e.g., {"markets": [...], "request_id": "..."}).
+	var arrayItems []json.RawMessage
+	arrayCount := 0
+	for key, raw := range envelope {
+		if pageMetadataArrayKeys[key] {
+			continue
+		}
+		if candidate, ok := extractObjectArray(raw); ok {
+			arrayItems = candidate
+			arrayCount++
+			continue
+		}
+		var rawArray []json.RawMessage
+		if json.Unmarshal(raw, &rawArray) == nil && !isJSONNull(raw) {
+			continue
+		}
+	}
+	if arrayCount == 1 {
+		return arrayItems, true
+	}
+	return nil, false
+}
+
+func extractObjectArray(raw json.RawMessage) ([]json.RawMessage, bool) {
+	var items []json.RawMessage
+	if err := json.Unmarshal(raw, &items); err != nil || len(items) == 0 {
+		return nil, false
+	}
+	var obj map[string]json.RawMessage
+	if err := json.Unmarshal(items[0], &obj); err != nil {
+		return nil, false
+	}
+	return items, true
+}
+
+// isDryRunResponse detects the `{"dry_run": true}` sentinel that
+// client.dryRun returns instead of a real API response. The sync loop
+// uses this to short-circuit before the upsert path, which would
+// otherwise fail with "missing id for <resource>" against a sentinel
+// that has no items and no id. The check requires exactly one key
+// (dry_run) so a live API response that happens to include a top-level
+// dry_run field alongside real data isn't misclassified as the
+// sentinel and silently zero out the sync count.
+func isDryRunResponse(data json.RawMessage) bool {
+	var envelope map[string]json.RawMessage
+	if err := json.Unmarshal(data, &envelope); err != nil {
+		return false
+	}
+	if len(envelope) != 1 {
+		return false
+	}
+	raw, ok := envelope["dry_run"]
+	if !ok {
+		return false
+	}
+	var v bool
+	return json.Unmarshal(raw, &v) == nil && v
+}
+
+func isEmptyPageResponse(data json.RawMessage, responsePaths ...string) bool {
+	var direct []json.RawMessage
+	if err := json.Unmarshal(data, &direct); err == nil && !isJSONNull(data) {
+		return len(direct) == 0
+	}
+
+	var envelope map[string]json.RawMessage
+	if err := json.Unmarshal(data, &envelope); err != nil {
+		return false
+	}
+
+	if isEmptyPageEnvelope(envelope) {
+		return true
+	}
+
+	for _, responsePath := range responsePaths {
+		pathData, ok := responsePayloadAtPath(data, responsePath)
+		if !ok {
+			continue
+		}
+		if isJSONNull(pathData) {
+			if envelopeReportsFailure(envelope) {
+				return true
+			}
+			continue
+		}
+		var direct []json.RawMessage
+		if json.Unmarshal(pathData, &direct) == nil && !isJSONNull(pathData) {
+			return len(direct) == 0
+		}
+		var inner map[string]json.RawMessage
+		if json.Unmarshal(pathData, &inner) == nil && isEmptyPageEnvelope(inner) {
+			return true
+		}
+	}
+
+	for _, key := range dataEnvelopeKeys {
+		raw, ok := envelope[key]
+		if !ok {
+			continue
+		}
+		if isJSONNull(raw) {
+			if envelopeReportsFailure(envelope) {
+				return true
+			}
+			continue
+		}
+		var inner map[string]json.RawMessage
+		if json.Unmarshal(raw, &inner) == nil && isEmptyPageEnvelope(inner) {
+			return true
+		}
+	}
+
+	return false
+}
+
+func envelopeReportsFailure(envelope map[string]json.RawMessage) bool {
+	for _, key := range []string{"success", "Success"} {
+		if raw, ok := envelope[key]; ok {
+			var success bool
+			if json.Unmarshal(raw, &success) == nil {
+				return !success
+			}
+		}
+	}
+	for _, key := range []string{"status", "Status"} {
+		if raw, ok := envelope[key]; ok {
+			var status string
+			if json.Unmarshal(raw, &status) == nil {
+				switch strings.ToLower(status) {
+				case "error", "fail", "failed":
+					return true
+				}
+				return false
+			}
+		}
+	}
+	return false
+}
+
+func isEmptyPageEnvelope(envelope map[string]json.RawMessage) bool {
+	for _, key := range pageItemKeys {
+		if raw, ok := envelope[key]; ok {
+			var items []json.RawMessage
+			if err := json.Unmarshal(raw, &items); err == nil && !isJSONNull(raw) {
+				if len(items) > 0 {
+					var obj map[string]json.RawMessage
+					if err := json.Unmarshal(items[0], &obj); err != nil {
+						continue
+					}
+				}
+				return len(items) == 0
+			}
+		}
+	}
+	if hasExactlyOneNullArrayWithZeroCount(envelope) {
+		return true
+	}
+	return hasExactlyOneEmptyArray(envelope)
+}
+
+func hasExactlyOneNullArrayWithZeroCount(envelope map[string]json.RawMessage) bool {
+	nullArrayCount := 0
+	hasZeroCount := false
+	for key, raw := range envelope {
+		if isZeroCountField(key, raw) {
+			hasZeroCount = true
+			continue
+		}
+		if isJSONNull(raw) && isNullPageItemCandidateKey(key) {
+			nullArrayCount++
+			continue
+		}
+		if pageEnvelopeMetadataKeys[key] {
+			continue
+		}
+		return false
+	}
+	return nullArrayCount == 1 && hasZeroCount
+}
+
+func isZeroCountField(key string, raw json.RawMessage) bool {
+	switch key {
+	case "total", "Total", "count", "Count", "total_count", "totalCount", "TotalCount":
+	default:
+		return false
+	}
+	// A JSON null count is not a numeric zero-count signal: json.Unmarshal of
+	// "null" into a float64 is a no-op (leaves n at 0, returns nil), so without
+	// this guard a null count would falsely qualify as zero — masking a
+	// possibly-malformed {"items":null,"total":null} as an empty page.
+	if isJSONNull(raw) {
+		return false
+	}
+	var n float64
+	return json.Unmarshal(raw, &n) == nil && n == 0
+}
+
+func isNullPageItemCandidateKey(key string) bool {
+	for _, itemKey := range pageItemKeys {
+		if key == itemKey {
+			return true
+		}
+	}
+	return !pageEnvelopeMetadataKeys[key]
+}
+
+func hasExactlyOneEmptyArray(envelope map[string]json.RawMessage) bool {
+	arrayCount := 0
+	for _, raw := range envelope {
+		var candidate []json.RawMessage
+		if err := json.Unmarshal(raw, &candidate); err == nil && !isJSONNull(raw) {
+			// Skip candidate arrays that contain primitives (not objects).
+			if len(candidate) > 0 {
+				var obj map[string]json.RawMessage
+				if err := json.Unmarshal(candidate[0], &obj); err != nil {
+					continue
+				}
+			}
+			if len(candidate) == 0 {
+				arrayCount++
+			}
+		}
+	}
+	return arrayCount == 1
+}
+
+func isJSONNull(raw json.RawMessage) bool {
+	return strings.TrimSpace(string(raw)) == "null"
+}
+
+func isJSONResponse(data json.RawMessage) bool {
+	var probe any
+	return json.Unmarshal(data, &probe) == nil
 }
 
 // extractPaginationFromEnvelope extracts cursor and has_more from a response envelope.
 func extractPaginationFromEnvelope(envelope map[string]json.RawMessage, cursorParam string) (string, bool) {
 	var hasMore bool
 
+	nextCursor := nextCursorFromLinks(envelope, cursorParam)
+
 	// Try common cursor field names
 	cursorKeys := []string{
-		"next_cursor", "nextCursor", "cursor", "next_page_token",
-		"nextPageToken", "page_token", "after", "end_cursor", "endCursor",
+		"next_cursor", "nextCursor", "next_token", "nextToken", "cursor",
+		"next_page_token", "nextPageToken", "page_token", "after", "end_cursor", "endCursor",
 	}
-	nextCursor := findCursorInMap(envelope, cursorKeys)
+	if nextCursor == "" {
+		nextCursor = findCursorInMap(envelope, cursorKeys)
+	}
 
 	// If no top-level cursor was found, look one level deeper into well-known
 	// pagination wrapper objects. Slack returns {"messages":[...],
-	// "response_metadata":{"next_cursor":"..."}}; MongoDB Atlas uses
-	// "pagination"; many APIs use "meta" or "paging". Purely additive — only
+	// "response_metadata":{"next_cursor":"..."}}; Pipedrive uses
+	// "additional_data"; MongoDB Atlas uses "pagination"; many APIs use
+	// "meta" or "paging". Purely additive — only
 	// runs when the top-level scan returned empty — and uses the same
 	// cursorKeys set so wrapper contents go through the same name match.
 	if nextCursor == "" {
-		paginationWrapperKeys := []string{"response_metadata", "pagination", "meta", "paging"}
+		paginationWrapperKeys := []string{"response_metadata", "additional_data", "pagination", "meta", "paging"}
 		for _, wrapperKey := range paginationWrapperKeys {
 			rawWrapper, ok := envelope[wrapperKey]
 			if !ok {
@@ -591,6 +1641,10 @@ func extractPaginationFromEnvelope(envelope map[string]json.RawMessage, cursorPa
 				break
 			}
 		}
+	}
+
+	if nextCursor == "" {
+		nextCursor = nextCursorFromTopLevelURL(envelope, cursorParam)
 	}
 
 	// Try common has_more field names
@@ -611,6 +1665,166 @@ func extractPaginationFromEnvelope(envelope map[string]json.RawMessage, cursorPa
 	return nextCursor, hasMore
 }
 
+func pageAllowsPageIntFallback(data json.RawMessage) bool {
+	return pageMayHaveMore(data)
+}
+
+func pageMayHaveMore(data json.RawMessage, responsePaths ...string) bool {
+	hasMore, parsed := pageExplicitHasMore(data, responsePaths...)
+	return !parsed || hasMore
+}
+
+func pageExplicitHasMore(data json.RawMessage, responsePaths ...string) (bool, bool) {
+	var envelope map[string]json.RawMessage
+	if err := json.Unmarshal(data, &envelope); err != nil {
+		return false, false
+	}
+	if hasMore, parsed := envelopeExplicitHasMore(envelope); parsed {
+		return hasMore, true
+	}
+	for _, responsePath := range responsePaths {
+		pathData, ok := responsePayloadAtPath(data, responsePath)
+		if !ok {
+			continue
+		}
+		var inner map[string]json.RawMessage
+		if json.Unmarshal(pathData, &inner) == nil {
+			if hasMore, parsed := envelopeExplicitHasMore(inner); parsed {
+				return hasMore, true
+			}
+		}
+	}
+	for _, key := range dataEnvelopeKeys {
+		raw, ok := envelope[key]
+		if !ok {
+			continue
+		}
+		var inner map[string]json.RawMessage
+		if json.Unmarshal(raw, &inner) == nil {
+			if hasMore, parsed := envelopeExplicitHasMore(inner); parsed {
+				return hasMore, true
+			}
+		}
+	}
+	return false, false
+}
+
+func envelopeExplicitHasMore(envelope map[string]json.RawMessage) (bool, bool) {
+	for _, key := range []string{"has_more", "hasMore", "has_next", "hasNext", "next_page"} {
+		raw, ok := envelope[key]
+		if !ok {
+			continue
+		}
+		var hasMore bool
+		if json.Unmarshal(raw, &hasMore) == nil {
+			return hasMore, true
+		}
+	}
+	return false, false
+}
+
+// nextCursorFromLinks extracts pagination cursors from JSON:API
+// {"links":{"next":"https://example.com/items?page[cursor]=..."}} and HAL
+// {"_links":{"next":{"href":"https://example.com/items?cursor=..."}}}.
+func nextCursorFromLinks(envelope map[string]json.RawMessage, cursorParam string) string {
+	for _, key := range []string{"links", "_links"} {
+		rawLinks, ok := envelope[key]
+		if !ok {
+			continue
+		}
+		var links map[string]json.RawMessage
+		if json.Unmarshal(rawLinks, &links) != nil {
+			continue
+		}
+		rawNext, ok := links["next"]
+		if !ok {
+			continue
+		}
+		if nextURL := paginationLinkURL(rawNext); nextURL != "" {
+			if cursor := cursorFromNextURL(nextURL, cursorParam); cursor != "" {
+				return cursor
+			}
+		}
+	}
+	return ""
+}
+
+func paginationLinkURL(raw json.RawMessage) string {
+	var nextURL string
+	if json.Unmarshal(raw, &nextURL) == nil {
+		return nextURL
+	}
+	var link map[string]json.RawMessage
+	if json.Unmarshal(raw, &link) != nil {
+		return ""
+	}
+	rawHref, ok := link["href"]
+	if !ok {
+		return ""
+	}
+	if json.Unmarshal(rawHref, &nextURL) != nil {
+		return ""
+	}
+	return nextURL
+}
+
+// nextCursorFromTopLevelURL extracts a cursor from top-level absolute or relative next URLs.
+func nextCursorFromTopLevelURL(envelope map[string]json.RawMessage, cursorParam string) string {
+	for _, key := range []string{"next", "next_url"} {
+		rawNext, ok := envelope[key]
+		if !ok {
+			continue
+		}
+		var nextURL string
+		if json.Unmarshal(rawNext, &nextURL) != nil || nextURL == "" {
+			continue
+		}
+		if isFollowableNextURL(nextURL) {
+			return cursorFromNextURL(nextURL, cursorParam)
+		}
+	}
+	return ""
+}
+
+// isFollowableNextURL reports whether a top-level "next" string is a URL we can
+// pull a cursor query param from: an absolute http(s) URL, a root-relative path,
+// or any value carrying a query string. Bare opaque cursor tokens (no query)
+// are rejected so they aren't mis-parsed.
+func isFollowableNextURL(nextURL string) bool {
+	lower := strings.ToLower(nextURL)
+	return strings.HasPrefix(lower, "http") ||
+		strings.HasPrefix(nextURL, "/") ||
+		strings.Contains(nextURL, "?")
+}
+
+func cursorFromNextURL(nextURL string, cursorParam string) string {
+	cursorKeys := []string{cursorParam}
+	if cursorParam != "page[cursor]" {
+		cursorKeys = append(cursorKeys, "page[cursor]")
+	}
+	if cursorParam != "cursor" {
+		cursorKeys = append(cursorKeys, "cursor")
+	}
+	if cursorParam != "after" {
+		cursorKeys = append(cursorKeys, "after")
+	}
+
+	parsed, err := url.Parse(nextURL)
+	if err != nil {
+		return ""
+	}
+	values := parsed.Query()
+	for _, key := range cursorKeys {
+		if key == "" {
+			continue
+		}
+		if cursor := values.Get(key); cursor != "" {
+			return cursor
+		}
+	}
+	return ""
+}
+
 // findCursorInMap returns the first non-empty string-typed value in m
 // whose key matches one of cursorKeys. Used by extractPaginationFromEnvelope
 // to scan both the top-level envelope and well-known wrapper objects with
@@ -629,13 +1843,83 @@ func findCursorInMap(m map[string]json.RawMessage, cursorKeys []string) string {
 	return ""
 }
 
+func emitSyncMissingPaginationCursorWarning(syncEvents io.Writer, humanFriendly bool, resource, parent string) {
+	if humanFriendly {
+		if parent != "" {
+			fmt.Fprintf(os.Stderr, "\nwarning: %s returned a full page for parent %s without a next cursor; data may be truncated.\n", resource, parent)
+			return
+		}
+		fmt.Fprintf(os.Stderr, "\nwarning: %s returned a full page without a next cursor; data may be truncated.\n", resource)
+		return
+	}
+	if parent != "" {
+		fmt.Fprintf(syncEvents, `{"event":"sync_warning","resource":"%s","parent":"%s","reason":"pagination_cursor_missing","message":"API returned a full page without a usable next cursor; data may be truncated."}`+"\n", resource, parent)
+		return
+	}
+	fmt.Fprintf(syncEvents, `{"event":"sync_warning","resource":"%s","reason":"pagination_cursor_missing","message":"API returned a full page without a usable next cursor; data may be truncated."}`+"\n", resource)
+}
+
+type discriminatorDispatch struct {
+	Field  string
+	Values map[string]string
+}
+
+var discriminatorDispatchers = map[string]discriminatorDispatch{}
+
+func upsertResourceBatch(db *store.Store, resource string, items []json.RawMessage) (int, int, error) {
+	if _, ok := discriminatorDispatchers[resource]; !ok {
+		return db.UpsertBatch(resource, items)
+	}
+
+	grouped := map[string][]json.RawMessage{}
+	order := []string{}
+	for _, item := range items {
+		target := resource
+		if obj, err := store.DecodeJSONObject(item); err == nil {
+			target = resolveDiscriminatedResource(resource, obj)
+		}
+		if _, ok := grouped[target]; !ok {
+			order = append(order, target)
+		}
+		grouped[target] = append(grouped[target], item)
+	}
+
+	var stored, extractFailures int
+	for _, target := range order {
+		targetStored, targetExtractFailures, err := db.UpsertBatch(target, grouped[target])
+		if err != nil {
+			return stored, extractFailures + targetExtractFailures, err
+		}
+		stored += targetStored
+		extractFailures += targetExtractFailures
+	}
+	return stored, extractFailures, nil
+}
+
+func resolveDiscriminatedResource(resource string, obj map[string]any) string {
+	dispatcher, ok := discriminatorDispatchers[resource]
+	if !ok || dispatcher.Field == "" {
+		return resource
+	}
+	value := store.LookupFieldValue(obj, dispatcher.Field)
+	if value == nil {
+		return resource
+	}
+	if target, ok := dispatcher.Values[fmt.Sprintf("%v", value)]; ok && target != "" {
+		return target
+	}
+	return resource
+}
+
 // upsertSingleObject stores a non-array API response as a single record.
 func upsertSingleObject(db *store.Store, resource string, data json.RawMessage) error {
-	var obj map[string]any
-	if err := json.Unmarshal(data, &obj); err != nil {
+	obj, err := store.DecodeJSONObject(data)
+	if err != nil {
 		// Not a JSON object either - store raw under resource name
 		return db.Upsert(resource, resource, data)
 	}
+
+	resource = resolveDiscriminatedResource(resource, obj)
 
 	id := extractID(resource, obj)
 	if id == "" {
@@ -643,34 +1927,6 @@ func upsertSingleObject(db *store.Store, resource string, data json.RawMessage) 
 	}
 
 	switch resource {
-	case "twitter":
-		return db.UpsertTwitter(data)
-	case "youtube":
-		return db.UpsertYoutube(data)
-	case "bluesky":
-		return db.UpsertBluesky(data)
-	case "linkedin":
-		return db.UpsertLinkedin(data)
-	case "threads":
-		return db.UpsertThreads(data)
-	case "tiktok":
-		return db.UpsertTiktok(data)
-	case "facebook":
-		return db.UpsertFacebook(data)
-	case "google":
-		return db.UpsertGoogle(data)
-	case "instagram":
-		return db.UpsertInstagram(data)
-	case "pinterest":
-		return db.UpsertPinterest(data)
-	case "truthsocial":
-		return db.UpsertTruthsocial(data)
-	case "reddit":
-		return db.UpsertReddit(data)
-	case "account":
-		return db.UpsertAccount(data)
-	case "twitch":
-		return db.UpsertTwitch(data)
 	default:
 		return db.Upsert(resource, id, data)
 	}
@@ -708,40 +1964,389 @@ func parseSinceDuration(s string) (time.Time, error) {
 func defaultSyncResources() []string {
 	return []string{
 		"account",
-		"bluesky",
-		"facebook",
-		"google",
-		"instagram",
-		"linkedin",
-		"pinterest",
-		"reddit",
-		"tiktok",
-		"truthsocial",
-		"youtube",
+		"account-credit-balance",
+		"account-get-daily-usage-count",
+		"account-get-most-used-routes",
+		"bluesky-user-posts",
+		"facebook-ad-library-ad",
+		"facebook-ad-library-ad-transcript",
+		"facebook-ad-library-company-ads",
+		"facebook-event-details",
+		"facebook-group-posts",
+		"facebook-marketplace-item",
+		"facebook-post-comments",
+		"facebook-profile-posts",
+		"github",
+		"github-trending-developers",
+		"github-trending-repositories",
+		"github-user-activity",
+		"github-user-contributions",
+		"github-user-followers",
+		"github-user-following",
+		"github-user-repositories",
+		"google-company-ads",
+		"instagram-basic-profile",
+		"instagram-reels-trending",
+		"instagram-user-highlight-detail",
+		"instagram-user-highlights",
+		"instagram-user-reels",
+		"kwai",
+		"kwai-profile",
+		"kwai-user-posts",
+		"reddit-subreddit-details",
+		"rumble-channel-videos",
+		"soundcloud-artist",
+		"soundcloud-artist-tracks",
+		"spotify",
+		"spotify-artist",
+		"spotify-podcast",
+		"spotify-podcast-episodes",
+		"spotify-track",
+		"tiktok-creators-popular",
+		"tiktok-hashtags-popular",
+		"tiktok-profile",
+		"tiktok-shop-product-reviews",
+		"tiktok-song-videos",
+		"tiktok-user-followers",
+		"truthsocial-user-posts",
+		"youtube-channel",
+		"youtube-channel-community-posts",
+		"youtube-channel-lives",
+		"youtube-channel-playlists",
+		"youtube-channel-shorts",
+		"youtube-channel-videos",
+		"youtube-shorts-trending",
 	}
+}
+
+// knownSyncResourceNames returns every resource name sync will accept —
+// flat resources plus any parent-child dependents. Used by --resource-param
+// validation to reject misspellings before they become silent no-ops.
+func knownSyncResourceNames() []string {
+	names := []string{
+		"account",
+		"account-credit-balance",
+		"account-get-daily-usage-count",
+		"account-get-most-used-routes",
+		"amazon",
+		"bluesky",
+		"bluesky-profile",
+		"bluesky-user-posts",
+		"detect-age-gender",
+		"facebook",
+		"facebook-ad-library-ad",
+		"facebook-ad-library-ad-transcript",
+		"facebook-ad-library-company-ads",
+		"facebook-ad-library-search-ads",
+		"facebook-ad-library-search-companies",
+		"facebook-event-details",
+		"facebook-group-posts",
+		"facebook-marketplace-item",
+		"facebook-post-comment-replies",
+		"facebook-post-comments",
+		"facebook-post-transcript",
+		"facebook-profile",
+		"facebook-profile-photos",
+		"facebook-profile-posts",
+		"facebook-profile-reels",
+		"github",
+		"github-repository",
+		"github-trending-developers",
+		"github-trending-repositories",
+		"github-user-activity",
+		"github-user-contributions",
+		"github-user-followers",
+		"github-user-following",
+		"github-user-pull-requests",
+		"github-user-repositories",
+		"google",
+		"google-company-ads",
+		"instagram",
+		"instagram-audio-reels",
+		"instagram-basic-profile",
+		"instagram-media-transcript",
+		"instagram-post-comments",
+		"instagram-profile",
+		"instagram-reels-trending",
+		"instagram-search-hashtag",
+		"instagram-search-profiles",
+		"instagram-user-embed",
+		"instagram-user-highlight-detail",
+		"instagram-user-highlights",
+		"instagram-user-posts",
+		"instagram-user-reels",
+		"kick",
+		"komi",
+		"kwai",
+		"kwai-profile",
+		"kwai-user-posts",
+		"linkbio",
+		"linkedin",
+		"linkedin-company",
+		"linkedin-company-posts",
+		"linkedin-post",
+		"linkedin-post-transcript",
+		"linkedin-profile",
+		"linkedin-search-posts",
+		"linkme",
+		"linktree",
+		"pillar",
+		"pinterest",
+		"pinterest-board",
+		"pinterest-user-boards",
+		"reddit",
+		"reddit-post-comments",
+		"reddit-post-transcript",
+		"reddit-subreddit-details",
+		"rumble",
+		"rumble-channel-videos",
+		"rumble-video-comments",
+		"rumble-video-transcript",
+		"snapchat",
+		"soundcloud",
+		"soundcloud-artist",
+		"soundcloud-artist-tracks",
+		"spotify",
+		"spotify-artist",
+		"spotify-podcast",
+		"spotify-podcast-episodes",
+		"spotify-track",
+		"threads",
+		"threads-profile",
+		"threads-search-users",
+		"threads-user-posts",
+		"tiktok",
+		"tiktok-ad-library-ad",
+		"tiktok-creators-popular",
+		"tiktok-get-trending-feed",
+		"tiktok-hashtags-popular",
+		"tiktok-product",
+		"tiktok-profile",
+		"tiktok-profile-region",
+		"tiktok-profile-videos",
+		"tiktok-search-hashtag",
+		"tiktok-search-keyword",
+		"tiktok-search-suggestions",
+		"tiktok-search-top",
+		"tiktok-search-users",
+		"tiktok-shop-product-reviews",
+		"tiktok-shop-products",
+		"tiktok-song",
+		"tiktok-song-videos",
+		"tiktok-user-audience",
+		"tiktok-user-followers",
+		"tiktok-user-following",
+		"tiktok-user-live",
+		"tiktok-user-showcase",
+		"tiktok-video",
+		"tiktok-video-comment-replies",
+		"tiktok-video-comments",
+		"tiktok-video-transcript",
+		"truthsocial",
+		"truthsocial-profile",
+		"truthsocial-user-posts",
+		"twitch",
+		"twitch-profile",
+		"twitch-user-schedule",
+		"twitch-user-videos",
+		"twitter",
+		"twitter-community",
+		"twitter-community-tweets",
+		"twitter-profile",
+		"twitter-tweet-transcript",
+		"twitter-user-tweets",
+		"youtube",
+		"youtube-channel",
+		"youtube-channel-community-posts",
+		"youtube-channel-lives",
+		"youtube-channel-playlists",
+		"youtube-channel-shorts",
+		"youtube-channel-videos",
+		"youtube-community-post",
+		"youtube-playlist",
+		"youtube-search-hashtag",
+		"youtube-shorts-trending",
+		"youtube-video-comment-replies",
+		"youtube-video-comments",
+		"youtube-video-sponsors",
+		"youtube-video-transcript",
+	}
+	return names
+}
+
+func describeFailedResources(count int, resources []string) string {
+	return describeResourceFailure(count, "resource(s)", resources)
+}
+
+func describeCriticalFailedResources(count int, resources []string) string {
+	return describeResourceFailure(count, "critical resource(s)", resources)
+}
+
+func describeResourceFailure(count int, label string, resources []string) string {
+	if len(resources) == 0 {
+		return fmt.Sprintf("%d %s failed to sync", count, label)
+	}
+	names := append([]string(nil), resources...)
+	sort.Strings(names)
+	return fmt.Sprintf("%d %s failed to sync: %s", count, label, strings.Join(names, ", "))
 }
 
 // syncResourcePath maps resource names to their actual API endpoint paths.
 // For REST APIs this is typically "/<resource>". For non-REST APIs (e.g., Steam)
 // this preserves the actual endpoint path like "/ISteamApps/GetAppList/v2".
-func syncResourcePath(resource string) string {
+func syncResourcePath(resource string) (string, error) {
 	paths := map[string]string{
-		"account":     "/v1/account/get-api-usage",
-		"bluesky":     "/v1/bluesky/user/posts",
-		"facebook":    "/v1/facebook/group/posts",
-		"google":      "/v1/google/company/ads",
-		"instagram":   "/v1/instagram/user/reels",
-		"linkedin":    "/v1/linkedin/ads/search",
-		"pinterest":   "/v1/pinterest/board",
-		"reddit":      "/v1/reddit/search",
-		"tiktok":      "/v1/tiktok/search/top",
-		"truthsocial": "/v1/truthsocial/user/posts",
-		"youtube":     "/v1/youtube/channel",
+		"account":                              "/v1/account/get-api-usage",
+		"account-credit-balance":               "/v1/account/credit-balance",
+		"account-get-daily-usage-count":        "/v1/account/get-daily-usage-count",
+		"account-get-most-used-routes":         "/v1/account/get-most-used-routes",
+		"amazon":                               "/v1/amazon/shop",
+		"bluesky":                              "/v1/bluesky/post",
+		"bluesky-profile":                      "/v1/bluesky/profile",
+		"bluesky-user-posts":                   "/v1/bluesky/user/posts",
+		"detect-age-gender":                    "/v1/detect-age-gender",
+		"facebook":                             "/v1/facebook/post",
+		"facebook-ad-library-ad":               "/v1/facebook/adLibrary/ad",
+		"facebook-ad-library-ad-transcript":    "/v1/facebook/adLibrary/ad/transcript",
+		"facebook-ad-library-company-ads":      "/v1/facebook/adLibrary/company/ads",
+		"facebook-ad-library-search-ads":       "/v1/facebook/adLibrary/search/ads",
+		"facebook-ad-library-search-companies": "/v1/facebook/adLibrary/search/companies",
+		"facebook-event-details":               "/v1/facebook/event/details",
+		"facebook-group-posts":                 "/v1/facebook/group/posts",
+		"facebook-marketplace-item":            "/v1/facebook/marketplace/item",
+		"facebook-post-comment-replies":        "/v1/facebook/post/comment/replies",
+		"facebook-post-comments":               "/v1/facebook/post/comments",
+		"facebook-post-transcript":             "/v1/facebook/post/transcript",
+		"facebook-profile":                     "/v1/facebook/profile",
+		"facebook-profile-photos":              "/v1/facebook/profile/photos",
+		"facebook-profile-posts":               "/v1/facebook/profile/posts",
+		"facebook-profile-reels":               "/v1/facebook/profile/reels",
+		"github":                               "/v1/github/user",
+		"github-repository":                    "/v1/github/repository",
+		"github-trending-developers":           "/v1/github/trending/developers",
+		"github-trending-repositories":         "/v1/github/trending/repositories",
+		"github-user-activity":                 "/v1/github/user/activity",
+		"github-user-contributions":            "/v1/github/user/contributions",
+		"github-user-followers":                "/v1/github/user/followers",
+		"github-user-following":                "/v1/github/user/following",
+		"github-user-pull-requests":            "/v1/github/user/pull-requests",
+		"github-user-repositories":             "/v1/github/user/repositories",
+		"google":                               "/v1/google/ad",
+		"google-company-ads":                   "/v1/google/company/ads",
+		"instagram":                            "/v1/instagram/post",
+		"instagram-audio-reels":                "/v1/instagram/audio/reels",
+		"instagram-basic-profile":              "/v1/instagram/basic-profile",
+		"instagram-media-transcript":           "/v2/instagram/media/transcript",
+		"instagram-post-comments":              "/v2/instagram/post/comments",
+		"instagram-profile":                    "/v1/instagram/profile",
+		"instagram-reels-trending":             "/v1/instagram/reels/trending",
+		"instagram-search-hashtag":             "/v1/instagram/search/hashtag",
+		"instagram-search-profiles":            "/v1/instagram/search/profiles",
+		"instagram-user-embed":                 "/v1/instagram/user/embed",
+		"instagram-user-highlight-detail":      "/v1/instagram/user/highlight/detail",
+		"instagram-user-highlights":            "/v1/instagram/user/highlights",
+		"instagram-user-posts":                 "/v2/instagram/user/posts",
+		"instagram-user-reels":                 "/v1/instagram/user/reels",
+		"kick":                                 "/v1/kick/clip",
+		"komi":                                 "/v1/komi",
+		"kwai":                                 "/v1/kwai/post",
+		"kwai-profile":                         "/v1/kwai/profile",
+		"kwai-user-posts":                      "/v1/kwai/user/posts",
+		"linkbio":                              "/v1/linkbio",
+		"linkedin":                             "/v1/linkedin/ad",
+		"linkedin-company":                     "/v1/linkedin/company",
+		"linkedin-company-posts":               "/v1/linkedin/company/posts",
+		"linkedin-post":                        "/v1/linkedin/post",
+		"linkedin-post-transcript":             "/v1/linkedin/post/transcript",
+		"linkedin-profile":                     "/v1/linkedin/profile",
+		"linkedin-search-posts":                "/v1/linkedin/search/posts",
+		"linkme":                               "/v1/linkme",
+		"linktree":                             "/v1/linktree",
+		"pillar":                               "/v1/pillar",
+		"pinterest":                            "/v1/pinterest/pin",
+		"pinterest-board":                      "/v1/pinterest/board",
+		"pinterest-user-boards":                "/v1/pinterest/user/boards",
+		"reddit":                               "/v1/reddit/subreddit",
+		"reddit-post-comments":                 "/v1/reddit/post/comments",
+		"reddit-post-transcript":               "/v1/reddit/post/transcript",
+		"reddit-subreddit-details":             "/v1/reddit/subreddit/details",
+		"rumble":                               "/v1/rumble/video",
+		"rumble-channel-videos":                "/v1/rumble/channel/videos",
+		"rumble-video-comments":                "/v1/rumble/video/comments",
+		"rumble-video-transcript":              "/v1/rumble/video/transcript",
+		"snapchat":                             "/v1/snapchat/profile",
+		"soundcloud":                           "/v1/soundcloud/track",
+		"soundcloud-artist":                    "/v1/soundcloud/artist",
+		"soundcloud-artist-tracks":             "/v1/soundcloud/artist/tracks",
+		"spotify":                              "/v1/spotify/album",
+		"spotify-artist":                       "/v1/spotify/artist",
+		"spotify-podcast":                      "/v1/spotify/podcast",
+		"spotify-podcast-episodes":             "/v1/spotify/podcast/episodes",
+		"spotify-track":                        "/v1/spotify/track",
+		"threads":                              "/v1/threads/post",
+		"threads-profile":                      "/v1/threads/profile",
+		"threads-search-users":                 "/v1/threads/search/users",
+		"threads-user-posts":                   "/v1/threads/user/posts",
+		"tiktok":                               "/v1/tiktok/live",
+		"tiktok-ad-library-ad":                 "/v1/tiktok/ad-library/ad",
+		"tiktok-creators-popular":              "/v1/tiktok/creators/popular",
+		"tiktok-get-trending-feed":             "/v1/tiktok/get-trending-feed",
+		"tiktok-hashtags-popular":              "/v1/tiktok/hashtags/popular",
+		"tiktok-product":                       "/v1/tiktok/product",
+		"tiktok-profile":                       "/v1/tiktok/profile",
+		"tiktok-profile-region":                "/v1/tiktok/profile/region",
+		"tiktok-profile-videos":                "/v3/tiktok/profile/videos",
+		"tiktok-search-hashtag":                "/v1/tiktok/search/hashtag",
+		"tiktok-search-keyword":                "/v1/tiktok/search/keyword",
+		"tiktok-search-suggestions":            "/v1/tiktok/search/suggestions",
+		"tiktok-search-top":                    "/v1/tiktok/search/top",
+		"tiktok-search-users":                  "/v1/tiktok/search/users",
+		"tiktok-shop-product-reviews":          "/v1/tiktok/shop/product/reviews",
+		"tiktok-shop-products":                 "/v1/tiktok/shop/products",
+		"tiktok-song":                          "/v1/tiktok/song",
+		"tiktok-song-videos":                   "/v1/tiktok/song/videos",
+		"tiktok-user-audience":                 "/v1/tiktok/user/audience",
+		"tiktok-user-followers":                "/v1/tiktok/user/followers",
+		"tiktok-user-following":                "/v1/tiktok/user/following",
+		"tiktok-user-live":                     "/v1/tiktok/user/live",
+		"tiktok-user-showcase":                 "/v1/tiktok/user/showcase",
+		"tiktok-video":                         "/v2/tiktok/video",
+		"tiktok-video-comment-replies":         "/v1/tiktok/video/comment/replies",
+		"tiktok-video-comments":                "/v1/tiktok/video/comments",
+		"tiktok-video-transcript":              "/v1/tiktok/video/transcript",
+		"truthsocial":                          "/v1/truthsocial/post",
+		"truthsocial-profile":                  "/v1/truthsocial/profile",
+		"truthsocial-user-posts":               "/v1/truthsocial/user/posts",
+		"twitch":                               "/v1/twitch/clip",
+		"twitch-profile":                       "/v1/twitch/profile",
+		"twitch-user-schedule":                 "/v1/twitch/user/schedule",
+		"twitch-user-videos":                   "/v1/twitch/user/videos",
+		"twitter":                              "/v1/twitter/tweet",
+		"twitter-community":                    "/v1/twitter/community",
+		"twitter-community-tweets":             "/v1/twitter/community/tweets",
+		"twitter-profile":                      "/v1/twitter/profile",
+		"twitter-tweet-transcript":             "/v1/twitter/tweet/transcript",
+		"twitter-user-tweets":                  "/v1/twitter/user-tweets",
+		"youtube":                              "/v1/youtube/video",
+		"youtube-channel":                      "/v1/youtube/channel",
+		"youtube-channel-community-posts":      "/v1/youtube/channel/community-posts",
+		"youtube-channel-lives":                "/v1/youtube/channel/lives",
+		"youtube-channel-playlists":            "/v1/youtube/channel/playlists",
+		"youtube-channel-shorts":               "/v1/youtube/channel/shorts",
+		"youtube-channel-videos":               "/v1/youtube/channel-videos",
+		"youtube-community-post":               "/v1/youtube/community-post",
+		"youtube-playlist":                     "/v1/youtube/playlist",
+		"youtube-search-hashtag":               "/v1/youtube/search/hashtag",
+		"youtube-shorts-trending":              "/v1/youtube/shorts/trending",
+		"youtube-video-comment-replies":        "/v1/youtube/video/comment/replies",
+		"youtube-video-comments":               "/v1/youtube/video/comments",
+		"youtube-video-sponsors":               "/v1/youtube/video/sponsors",
+		"youtube-video-transcript":             "/v1/youtube/video/transcript",
 	}
 	if p, ok := paths[resource]; ok {
-		return p
+		return p, nil
 	}
-	return "/" + resource
+	return "", fmt.Errorf("unknown sync resource %q", resource)
 }
 
 // resourceIDFieldOverrides projects per-resource IDField (set by the profiler
@@ -755,10 +2360,124 @@ func syncResourcePath(resource string) string {
 // flat paths.
 var resourceIDFieldOverrides = map[string]string{}
 
+// partitionOutcome tracks whether a sync loop (flat tenant-scoped OR dependent
+// per-parent) enumerated its partition completely. complete is set ONLY at
+// proven natural ends; any abnormal break records a reason and leaves
+// complete=false so the gated reconcile SKIPS. scopeVal carries the dependent
+// loop's parent scope value (unused by the flat path).
+type partitionOutcome struct {
+	complete bool
+	reason   string
+	scopeVal string
+}
+
+// flatReconcileModes maps a flat resource to its reconcile mode classification
+// (from SyncableResource.ReconcileMode, set by the profiler when a flat resource
+// carries a tenant scope column AND an extractable IDField AND no discriminator).
+// Only "flat" resources are emitted; resourceReconcileMode returns "" for any
+// resource absent here, which is all the flat reconcile gate checks for.
+var flatReconcileModes = map[string]string{}
+
+// resourceReconcileMode returns the flat reconcile classification for a resource,
+// or "" when it is not a flat-reconcilable resource.
+func resourceReconcileMode(resource string) string {
+	return flatReconcileModes[resource]
+}
+
+// flatReconcileDefT carries the per-resource metadata the flat reconcile call
+// site needs. BodyField is the JSON body key (== TenantScopeColumn; the column
+// name and the body key coincide) used to scope ReconcilePartition's
+// json_extract($.<BodyField>) partition filter to the active tenant.
+type flatReconcileDefT struct {
+	BodyField string
+}
+
+// flatReconcileDefs maps each flat-reconcilable resource to its tenant body
+// field. Sourced from SyncableResource.TenantScopeColumn for ReconcileMode=="flat".
+var flatReconcileDefs = map[string]flatReconcileDefT{}
+
+// flatReconcileDef returns the flat reconcile metadata for a resource (zero
+// value when absent; the call site only reaches it for flatReconcilable resources).
+func flatReconcileDef(resource string) flatReconcileDefT {
+	return flatReconcileDefs[resource]
+}
+
+// resolveTenantID returns the active tenant's stable ID for tenant-scoped
+// enumeration and reconcile, or "" = unknown. The generated default cannot
+// resolve (a printed CLI has no tenant registry). A novel override reassigns
+// this with a real resolver in RunE (after flag parsing). No-arg by design: it
+// must not reference any novel (hand-patched) type, so the override owns all
+// config/slug access internally. Consumers branch on "" with OPPOSITE fallbacks:
+// fan-out falls back to UNSCOPED enumeration; flat reconcile SKIPS (never
+// deletes).
+var resolveTenantID = func() string { return "" }
+
+// parentTenantScopeColumns maps a dependent-parent table to its tenant
+// discriminator column (from x-pp-tenant-scope-column), used to scope dependent
+// fan-out. Empty when no parent is annotated.
+var parentTenantScopeColumns = map[string]string{}
+
 // genericIDFieldFallbacks is the runtime safety net for resources that did
 // NOT receive a templated IDField. API-specific names belong in spec
-// annotations (x-resource-id), not this list.
-var genericIDFieldFallbacks = []string{"id", "ID", "name", "uuid", "slug", "key", "code", "uid"}
+// annotations (x-resource-id), not this list. Order matters: vendor
+// identifier names (gid, sid, uid, uuid, guid) take precedence over `name`
+// so APIs like Asana (gid) and Twilio (sid) don't fall through to a display
+// field and upsert on names — see #1394.
+var genericIDFieldFallbacks = []string{"id", "ID", "gid", "sid", "uid", "uuid", "guid", "api_id", "name", "slug", "key", "code"}
+
+// pageItemKeys is scanned in priority order; lowercase REST-convention keys
+// come first, PascalCase .NET variants second. Without the PascalCase row,
+// {"Items": [...]} envelopes fall through to the ambiguity scan and a
+// single-array sibling miscount silently truncates sync.
+var pageItemKeys = []string{
+	"data", "results", "items", "records", "nodes", "entries", "features",
+	"Data", "Results", "Items", "Records", "Nodes", "Entries", "Features",
+}
+
+var dataEnvelopeKeys = []string{"data", "Data", "result", "Result"}
+
+func responsePathForResource(resource, path string) []string {
+	switch resource + "\x00" + path {
+	}
+	return nil
+}
+
+var pageMetadataArrayKeys = map[string]bool{
+	"errors": true, "Errors": true,
+	"warnings": true, "Warnings": true,
+}
+
+var pageEnvelopeMetadataKeys = map[string]bool{
+	// list wrappers themselves
+	"data": true, "results": true, "items": true,
+	"Data": true, "Results": true, "Items": true,
+	// pagination cursors / tokens
+	"next_cursor": true, "nextCursor": true, "NextCursor": true,
+	"next_token": true, "nextToken": true, "NextToken": true,
+	"next_page_token": true, "nextPageToken": true, "NextPageToken": true,
+	"page_token": true, "pageToken": true, "PageToken": true,
+	"end_cursor": true, "endCursor": true, "EndCursor": true,
+	"start_cursor": true, "startCursor": true, "StartCursor": true,
+	"cursor": true, "Cursor": true, "after": true, "After": true, "before": true, "Before": true,
+	// has-more flags and page numbers
+	"has_more": true, "hasMore": true, "HasMore": true,
+	"has_next": true, "hasNext": true, "HasNext": true,
+	"next_page": true, "nextPage": true, "NextPage": true,
+	"previous_page": true, "previousPage": true, "PreviousPage": true,
+	"page": true, "Page": true, "page_size": true, "pageSize": true, "PageSize": true,
+	"per_page": true, "perPage": true, "PerPage": true,
+	// counts / totals
+	"total": true, "Total": true, "count": true, "Count": true, "size": true, "Size": true,
+	"total_count": true, "totalCount": true, "TotalCount": true,
+	// JSend / common status envelopes
+	"success": true, "status": true, "message": true, "error": true, "errors": true,
+	"warnings": true, "Warnings": true, "ok": true, "Ok": true,
+	// wrapper objects
+	"links": true, "meta": true, "pagination": true,
+	"response_metadata": true, "paging": true,
+	// links shape
+	"next": true, "prev": true, "previous": true, "first": true, "last": true,
+}
 
 // criticalResources is the template-time projection of per-resource Critical
 // (set by the profiler from the spec's path-item x-critical extension). It
@@ -782,7 +2501,7 @@ var criticalResources = map[string]bool{}
 func extractID(resource string, obj map[string]any) string {
 	if override, ok := resourceIDFieldOverrides[resource]; ok && override != "" {
 		if v := store.LookupFieldValue(obj, override); v != nil {
-			s := fmt.Sprintf("%v", v)
+			s := store.ResourceIDString(v)
 			if s != "" && s != "<nil>" {
 				return s
 			}
@@ -790,11 +2509,132 @@ func extractID(resource string, obj map[string]any) string {
 	}
 	for _, key := range genericIDFieldFallbacks {
 		if v := store.LookupFieldValue(obj, key); v != nil {
-			s := fmt.Sprintf("%v", v)
+			s := store.ResourceIDString(v)
 			if s != "" && s != "<nil>" {
 				return s
 			}
 		}
 	}
+	if s := suffixIDFieldFallback(resource, obj); s != "" {
+		return s
+	}
 	return ""
+}
+
+// suffixIDFieldFallback resolves an id-less resource that keys on its own
+// "<name>_code" / "<name>_id" / "<name>_key" / "<name>_slug" field (e.g. the
+// "currencies" resource keying on "currency_code" — see #2327). It is scoped to
+// the resource's OWN name so a foreign key like account_id/parent_id is never
+// promoted to the primary key, and it uses direct map lookups in a fixed suffix
+// order so the chosen id is deterministic.
+func suffixIDFieldFallback(resourceType string, obj map[string]any) string {
+	for _, base := range resourceIDBaseNames(resourceType) {
+		for _, suffix := range []string{"_id", "_code", "_key", "_slug"} {
+			if v, ok := obj[base+suffix]; ok {
+				if s := scalarIDString(v); s != "" && s != "<nil>" {
+					return s
+				}
+			}
+		}
+		camelBase := lowerCamelResourceIDBase(base)
+		for _, suffix := range []string{"Id", "Code", "Key", "Slug"} {
+			if v, ok := obj[camelBase+suffix]; ok {
+				if s := scalarIDString(v); s != "" && s != "<nil>" {
+					return s
+				}
+			}
+		}
+	}
+	return ""
+}
+
+// resourceIDBaseNames returns lowercase candidate singular/plural stems of a
+// resource name to build "<base>_id"-style key probes from (e.g. "currencies"
+// -> ["currencies","currency"]). OpenAPI-/path-derived names can carry a
+// leading verb token ("get-currencies"), so the same probes are also attempted
+// on the de-verbed stem. Minimal English depluralization; the raw name is
+// always included so already-singular names work too.
+func resourceIDBaseNames(resourceType string) []string {
+	r := strings.ToLower(strings.TrimSpace(resourceType))
+	if r == "" {
+		return nil
+	}
+	stems := []string{r}
+	if d := stripLeadingResourceVerb(r); d != "" && d != r {
+		stems = append(stems, d)
+	}
+	var bases []string
+	seen := map[string]bool{}
+	add := func(s string) {
+		if s != "" && !seen[s] {
+			seen[s] = true
+			bases = append(bases, s)
+		}
+	}
+	for _, stem := range stems {
+		add(stem)
+		add(depluralizeResourceStem(stem))
+	}
+	return bases
+}
+
+func stripLeadingResourceVerb(r string) string {
+	for _, verb := range []string{"get", "list", "fetch", "find", "retrieve", "read", "show", "all"} {
+		for _, sep := range []string{"-", "_"} {
+			prefix := verb + sep
+			if strings.HasPrefix(r, prefix) && len(r) > len(prefix) {
+				return r[len(prefix):]
+			}
+		}
+	}
+	return ""
+}
+
+func depluralizeResourceStem(r string) string {
+	switch {
+	case strings.HasSuffix(r, "ies") && len(r) > 3:
+		return strings.TrimSuffix(r, "ies") + "y" // currencies -> currency
+	// Plurals formed by adding "es" to a base ending in s/x/z/ch/sh. The
+	// double-s "sses" guard (not bare "ses") keeps soft-e plurals — where the
+	// singular already ends in a silent "e" (cases, databases, licenses,
+	// purchases) — out of this branch; they fall through to the "-s" case below
+	// (cases -> case, not cas). Trade-off: a genuine "-es" plural of an s-ending
+	// singular (buses, statuses) depluralizes imperfectly, but those are rare as
+	// resource names and this stem only feeds best-effort id-field probing.
+	case strings.HasSuffix(r, "sses") || strings.HasSuffix(r, "xes") ||
+		strings.HasSuffix(r, "zes") || strings.HasSuffix(r, "ches") ||
+		strings.HasSuffix(r, "shes"):
+		return strings.TrimSuffix(r, "es") // classes -> class, boxes -> box, dishes -> dish
+	case strings.HasSuffix(r, "s") && !strings.HasSuffix(r, "ss") && len(r) > 1:
+		return strings.TrimSuffix(r, "s") // languages -> language, cases -> case
+	}
+	return r
+}
+
+func lowerCamelResourceIDBase(base string) string {
+	parts := strings.FieldsFunc(base, func(r rune) bool {
+		return r == '_' || r == '-'
+	})
+	if len(parts) == 0 {
+		return base
+	}
+	for i := range parts {
+		if i == 0 {
+			parts[i] = strings.ToLower(parts[i])
+			continue
+		}
+		parts[i] = strings.ToUpper(parts[i][:1]) + strings.ToLower(parts[i][1:])
+	}
+	return strings.Join(parts, "")
+}
+
+func scalarIDString(value any) string {
+	switch value.(type) {
+	case string, bool, int, int8, int16, int32, int64,
+		uint, uint8, uint16, uint32, uint64,
+		float32, float64, json.Number, []byte:
+		return store.ResourceIDString(value)
+	default:
+		return ""
+	}
 }

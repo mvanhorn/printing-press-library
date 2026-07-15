@@ -9,8 +9,11 @@ import (
 
 func newHistoryCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "history",
-		Short: "Manage history",
+		Use:         "history",
+		Short:       "Manage history command groups",
+		Hidden:      true,
+		Annotations: map[string]string{"mcp:read-only": "true", "pp:typed-exit-codes": "0,2"},
+		RunE:        parentNoSubcommandRunE(flags),
 	}
 
 	cmd.AddCommand(newHistoryGetAircraftLastFlightCmd(flags))

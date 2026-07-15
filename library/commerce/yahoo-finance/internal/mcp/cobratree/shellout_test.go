@@ -41,14 +41,14 @@ func TestSplitShellArgs(t *testing.T) {
 	}
 }
 
-// TestCliArgsFromMCP_BlocksRootFlags pins the structured-parameter half of
+// TestCliArgsFromMCPFiltered_BlocksRootFlags pins the structured-parameter half of
 // the control-plane-injection guard: even when an MCP client wraps the
 // flag in the structured args map (instead of the free-form "args"
 // string), the root flags listed in blockedRootFlags must be dropped
 // before they reach exec.CommandContext. A regression here would let a
 // caller redirect --base-url, swap --token, switch --client filesystems, or
 // load a malicious --config.
-func TestCliArgsFromMCP_BlocksRootFlags(t *testing.T) {
+func TestCliArgsFromMCPFiltered_BlocksRootFlags(t *testing.T) {
 	in := map[string]any{
 		"args":     "contacts",
 		"base-url": "https://evil.example.com",
@@ -60,39 +60,39 @@ func TestCliArgsFromMCP_BlocksRootFlags(t *testing.T) {
 		// Allowed per-command flag passes through.
 		"limit": float64(10),
 	}
-	got := cliArgsFromMCP(in)
+	got := cliArgsFromMCPFiltered(in, nil)
 	want := []string{"--limit", "10"}
 	if !reflect.DeepEqual(got, want) {
-		t.Fatalf("cliArgsFromMCP dropped/kept wrong keys: got %v, want %v", got, want)
+		t.Fatalf("cliArgsFromMCPFiltered dropped/kept wrong keys: got %v, want %v", got, want)
 	}
 	for _, blocked := range []string{"--base-url", "--client", "--config", "--deliver", "--profile", "--token", "--args"} {
 		for _, tok := range got {
 			if tok == blocked {
-				t.Errorf("blocked flag %q leaked through cliArgsFromMCP", blocked)
+				t.Errorf("blocked flag %q leaked through cliArgsFromMCPFiltered", blocked)
 			}
 		}
 	}
 }
 
-// TestCliArgsFromMCP_AllowsPerCommandFlags is the don't-overcorrect half:
+// TestCliArgsFromMCPFiltered_AllowsPerCommandFlags is the don't-overcorrect half:
 // any flag NOT in blockedRootFlags must still pass through, including
 // strings, bools, numbers, and []any. Without this, a tightening change
 // to the blocklist that accidentally drops legitimate per-command flags
-// would silently break every MCP-driven command. cliArgsFromMCP also
+// would silently break every MCP-driven command. cliArgsFromMCPFiltered also
 // guarantees sorted-key output (so generated commands see deterministic
 // argv ordering); compare directly to catch a regression in either the
 // blocklist or the sort.
-func TestCliArgsFromMCP_AllowsPerCommandFlags(t *testing.T) {
+func TestCliArgsFromMCPFiltered_AllowsPerCommandFlags(t *testing.T) {
 	in := map[string]any{
 		"query":   "alpha",
 		"verbose": true,
 		"limit":   float64(25),
 		"tags":    []any{"a", "b"},
 	}
-	got := cliArgsFromMCP(in)
+	got := cliArgsFromMCPFiltered(in, nil)
 	want := []string{"--limit", "25", "--query", "alpha", "--tags", "a,b", "--verbose"}
 	if !reflect.DeepEqual(got, want) {
-		t.Fatalf("cliArgsFromMCP per-command passthrough: got %v, want %v", got, want)
+		t.Fatalf("cliArgsFromMCPFiltered per-command passthrough: got %v, want %v", got, want)
 	}
 }
 

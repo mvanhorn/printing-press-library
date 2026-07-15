@@ -33,7 +33,7 @@
     {
       "name": "Agent context dump",
       "command": "context",
-      "description": "Single-call snapshot of the last N days: diary totals, weight trend, current goals, recent foods, macro deltas \u2014 sized for an agent context window."
+      "description": "Single-call snapshot of the last N days: diary totals, weight trend, current goals, recent foods, macro deltas — sized for an agent context window."
     },
     {
       "name": "Top foods by nutrient driver",
@@ -48,7 +48,7 @@
     {
       "name": "Adherence streak",
       "command": "analytics streak",
-      "description": "Longest run of consecutive days where calorie totals fall within \u00b1tolerance of your goal."
+      "description": "Longest run of consecutive days where calorie totals fall within ±tolerance of your goal."
     }
   ],
   "contributors": [

@@ -2,17 +2,17 @@
   "schema_version": 1,
   "slug": "apify",
   "cli_name": "apify-pp-cli",
-  "version": "2026.6.2",
-  "released_at": "2026-06-21T08:16:26Z",
-  "source_commit": "acb84091ff016c6e7aea5f8cf6956a694aa0d1c7",
+  "version": "2026.7.2",
+  "released_at": "2026-07-10T05:44:20Z",
+  "source_commit": "7e8154be29b0de64424015ef3d4d7cc00ad92152",
   "printing_press_version": "4.8.0",
   "run_id": "20260518-132617",
   "changes": [
     {
-      "title": "fix(catalog): require Go 1.26.4 across published modules",
-      "pr": 1308,
-      "url": "https://github.com/mvanhorn/printing-press-library/pull/1308",
-      "commit": "acb84091ff016c6e7aea5f8cf6956a694aa0d1c7"
+      "title": "fix(apify): correct token URL, poll run --wait, add live --max-cost watchdog, reachable abort",
+      "pr": 1412,
+      "url": "https://github.com/mvanhorn/printing-press-library/pull/1412",
+      "commit": "7e8154be29b0de64424015ef3d4d7cc00ad92152"
     }
   ]
 }

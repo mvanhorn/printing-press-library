@@ -26,6 +26,7 @@ package opentable
 
 import (
 	"context"
+	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -181,17 +182,26 @@ func (c *Client) ChromeAvailability(
 	// SSR is what hydrates. Akamai cookies (_abck, bm_*) are intentionally
 	// NOT injected — Akamai will issue fresh ones for this session and
 	// validate them against this Chrome instance's behavior.
-	cookies := c.session.HTTPCookies(auth.NetworkOpenTable)
+	// Session may be nil (anonymous availability read, or a client built with
+	// no auth). Availability is anonymous, so skip cookie injection and let
+	// the browser earn its own Akamai cookies.
+	var cookies []*http.Cookie
+	if c.session != nil {
+		cookies = c.session.HTTPCookies(auth.NetworkOpenTable)
+	}
 
 	// Capture state for the response listener
 	type slotCapture struct {
-		mu     sync.Mutex
-		body   []byte
-		status int
-		err    error
-		done   chan struct{}
+		mu       sync.Mutex
+		body     []byte
+		status   int
+		err      error
+		reqHash  string
+		hashSeen bool
+		hashDone chan struct{}
+		done     chan struct{}
 	}
-	cap := &slotCapture{done: make(chan struct{})}
+	cap := &slotCapture{hashDone: make(chan struct{}), done: make(chan struct{})}
 	closed := false
 	closeOnce := func() {
 		cap.mu.Lock()
@@ -201,9 +211,49 @@ func (c *Client) ChromeAvailability(
 		}
 		cap.mu.Unlock()
 	}
+	hashClosed := false
+	closeHashOnce := func() {
+		cap.mu.Lock()
+		if !hashClosed {
+			hashClosed = true
+			close(cap.hashDone)
+		}
+		cap.mu.Unlock()
+	}
 
 	chromedp.ListenTarget(timed, func(ev any) {
 		switch e := ev.(type) {
+		case *network.EventRequestWillBeSent:
+			// Harvest the persisted-query hash the page's own JS uses. The
+			// hash rides in the outgoing request, so we capture it even when
+			// Akamai later 403s the response — this is what seeds the fast
+			// direct path after an OpenTable bundle rotation.
+			if e.Request == nil || !strings.Contains(e.Request.URL, "opname=RestaurantsAvailability") {
+				return
+			}
+			if h := hashFromRequest(e.Request); h != "" {
+				cap.mu.Lock()
+				cap.hashSeen = true
+				cap.reqHash = h
+				cap.mu.Unlock()
+				closeHashOnce()
+				return
+			}
+			cap.mu.Lock()
+			cap.hashSeen = true
+			cap.mu.Unlock()
+			reqID := e.RequestID
+			go func() {
+				body, err := network.GetRequestPostData(reqID).Do(timed)
+				if err == nil {
+					if h := hashFromPostData(body); h != "" {
+						cap.mu.Lock()
+						cap.reqHash = h
+						cap.mu.Unlock()
+					}
+				}
+				closeHashOnce()
+			}()
 		case *network.EventResponseReceived:
 			if e.Response == nil {
 				return
@@ -277,8 +327,36 @@ func (c *Client) ChromeAvailability(
 			}
 		}),
 	}
-	if err := chromedp.Run(timed, tasks); err != nil {
-		return nil, fmt.Errorf("opentable chrome: navigate/intercept: %w", err)
+	runErr := chromedp.Run(timed, tasks)
+
+	// Harvest the persisted-query hash from the page's own outgoing request,
+	// regardless of whether the availability call returned slots — the hash
+	// rides in the request, so even a WAF-403'd or timed-out run yields it.
+	// This is what lets the fast direct path self-heal after a bundle rotation.
+	cap.mu.Lock()
+	hashSeen := cap.hashSeen
+	cap.mu.Unlock()
+	if hashSeen {
+		select {
+		case <-cap.hashDone:
+		case <-time.After(500 * time.Millisecond):
+		}
+	}
+	cap.mu.Lock()
+	harvested := cap.reqHash
+	cap.mu.Unlock()
+	if harvested != "" && harvested != currentAvailabilityHash() {
+		if err := savePersistedAvailabilityHash(harvested); err != nil {
+			// Best-effort: the harvest still helped this call, but a failed
+			// persist means the next 409 re-spawns Chrome instead of reusing
+			// the value. Surface it so a read-only/mis-configured cache dir is
+			// diagnosable rather than silently degrading.
+			fmt.Fprintf(os.Stderr, "opentable chrome: could not persist harvested availability hash: %v\n", err)
+		}
+	}
+
+	if runErr != nil {
+		return nil, fmt.Errorf("opentable chrome: navigate/intercept: %w", runErr)
 	}
 
 	cap.mu.Lock()
@@ -303,6 +381,50 @@ func (c *Client) ChromeAvailability(
 			mode, status, hint)
 	}
 	return parseAvailabilityResponse(body)
+}
+
+// hashFromRequest reconstructs a GraphQL request's POST body from the CDP
+// PostDataEntries (each base64-encoded) and extracts the persisted-query
+// sha256Hash. Returns "" when the request carries no well-formed hash.
+func hashFromRequest(req *network.Request) string {
+	if req == nil {
+		return ""
+	}
+	var sb strings.Builder
+	for _, e := range req.PostDataEntries {
+		if e == nil || e.Bytes == "" {
+			continue
+		}
+		if dec, err := base64.StdEncoding.DecodeString(e.Bytes); err == nil {
+			sb.Write(dec)
+		}
+	}
+	return extractSha256Hash(sb.String())
+}
+
+func hashFromPostData(postData []byte) string {
+	return extractSha256Hash(string(postData))
+}
+
+// extractSha256Hash pulls the persisted-query hash out of a GraphQL POST body
+// (`..."sha256Hash":"<64 hex>"...`). Chrome serializes PostData as compact
+// JSON, so the marker is followed immediately by the value. Returns "" when
+// the body has no well-formed 64-hex hash.
+func extractSha256Hash(postData string) string {
+	const marker = `"sha256Hash":"`
+	i := strings.Index(postData, marker)
+	if i < 0 {
+		return ""
+	}
+	start := i + len(marker)
+	if start+64 > len(postData) {
+		return ""
+	}
+	candidate := postData[start : start+64]
+	if !availHashPattern.MatchString(candidate) {
+		return ""
+	}
+	return candidate
 }
 
 // discoverChromeWebSocket queries Chrome's DevTools discovery endpoint and

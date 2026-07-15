@@ -9,9 +9,11 @@ import (
 
 func newBrowseCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:    "browse",
-		Short:  "Manage browse",
-		Hidden: true,
+		Use:         "browse",
+		Short:       "Manage browse command groups",
+		Hidden:      true,
+		Annotations: map[string]string{"mcp:read-only": "true", "pp:typed-exit-codes": "0,2"},
+		RunE:        parentNoSubcommandRunE(flags),
 	}
 
 	cmd.AddCommand(newBrowseGetACategoriesPlaylistsCmd(flags))

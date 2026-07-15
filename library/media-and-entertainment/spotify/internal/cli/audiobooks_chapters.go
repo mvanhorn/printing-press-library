@@ -9,8 +9,10 @@ import (
 
 func newAudiobooksChaptersCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "chapters",
-		Short: "Manage chapters",
+		Use:         "chapters",
+		Short:       "Get chapters for audiobooks",
+		Annotations: map[string]string{"mcp:read-only": "true", "pp:typed-exit-codes": "0,2"},
+		RunE:        parentNoSubcommandRunE(flags),
 	}
 
 	cmd.AddCommand(newAudiobooksChaptersGetAudiobookCmd(flags))

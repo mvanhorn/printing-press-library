@@ -2,17 +2,17 @@
   "schema_version": 1,
   "slug": "substack",
   "cli_name": "substack-pp-cli",
-  "version": "2026.6.7",
-  "released_at": "2026-06-23T18:18:47Z",
-  "source_commit": "b32e1926dc4ee0a73f8a8bbf792f4d398b754456",
+  "version": "2026.7.1",
+  "released_at": "2026-07-08T18:21:21Z",
+  "source_commit": "11d7b4ea752c9c8fb8909037133058eb57560cc0",
   "printing_press_version": "4.19.0",
   "run_id": "20260531-014452",
   "changes": [
     {
-      "title": "fix(substack): route draft APIs through global endpoint",
-      "pr": 1336,
-      "url": "https://github.com/mvanhorn/printing-press-library/pull/1336",
-      "commit": "b32e1926dc4ee0a73f8a8bbf792f4d398b754456"
+      "title": "fix(catalog): require Go 1.26.5 across published modules",
+      "pr": 1467,
+      "url": "https://github.com/mvanhorn/printing-press-library/pull/1467",
+      "commit": "11d7b4ea752c9c8fb8909037133058eb57560cc0"
     }
   ]
 }

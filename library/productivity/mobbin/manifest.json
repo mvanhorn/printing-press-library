@@ -1,0 +1,27 @@
+{
+  "manifest_version": "0.3",
+  "name": "mobbin-pp-mcp",
+  "display_name": "Mobbin",
+  "version": "0.1.0",
+  "description": "Every Mobbin screen, flow, and pattern — searchable offline, deckable in one command, with longitudinal drift no Mobbin tool ships.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/mobbin-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/mobbin-pp-mcp",
+      "args": []
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

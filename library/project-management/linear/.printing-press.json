@@ -17,6 +17,10 @@
     {
       "handle": "tmchow",
       "name": "Trevin Chow"
+    },
+    {
+      "handle": "rob-coco",
+      "name": "Rob Coco"
     }
   ],
   "owner": null,
@@ -127,5 +131,6 @@
       "command": "issues create --trust-mode strict",
       "description": "Refuse mutations on Linear issues not in the local pp_created ledger when --trust-mode strict is set; works on create and any future mutation surface."
     }
-  ]
+  ],
+  "description": "Offline-capable, agent-native CLI for the Linear API with SQLite-backed sync, FTS5 search, cross-cycle comparison, project burndown, and pp_created fixture lifecycle for safe live testing."
 }

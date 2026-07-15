@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "api_name": "faa-registry",
+  "run_id": "20260712-192812",
+  "status": "pass",
+  "level": "full",
+  "matrix_size": 125,
+  "tests_passed": 125,
+  "tests_skipped": 62,
+  "auth_context": {
+    "type": "none"
+  }
+}

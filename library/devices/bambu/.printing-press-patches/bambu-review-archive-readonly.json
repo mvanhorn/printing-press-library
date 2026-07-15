@@ -1,0 +1,16 @@
+{
+  "schema_version": 2,
+  "id": "bambu-review-archive-readonly",
+  "applied_at": "2026-07-11",
+  "base_run_id": "20260711-063302-c519dd7c",
+  "base_printing_press_version": "4.28.0",
+  "summary": "Current-job metadata must prefer the printer root archive over a same-name cache copy, and analytics must remain read-only at the SQLite connection level.",
+  "reason": "A reused 3MF basename could select stale cached metadata before the current root archive, while the MCP read-only analytics command opened a writable store that could create or migrate local state.",
+  "files": [
+    "internal/bambu/ftps.go",
+    "internal/bambu/bambu_test.go",
+    "internal/cli/analytics.go",
+    "internal/cli/analytics_test.go"
+  ],
+  "validated_outcome": "Candidate-order regression coverage proves the root archive wins over its cache twin, analytics cannot create a missing database, and the full Go test and vet suites pass."
+}

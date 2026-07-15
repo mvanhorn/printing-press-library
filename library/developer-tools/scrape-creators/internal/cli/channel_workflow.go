@@ -14,16 +14,16 @@ import (
 
 func newWorkflowCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "workflow",
-		Short: "Compound workflows that combine multiple API operations",
+		Use:         "workflow",
+		Short:       "Compound workflows that combine multiple API operations",
+		Annotations: map[string]string{"mcp:read-only": "true"},
+		RunE:        parentNoSubcommandRunE(flags),
 	}
-
 	cmd.AddCommand(newWorkflowArchiveCmd(flags))
 	cmd.AddCommand(newWorkflowStatusCmd(flags))
 
 	return cmd
 }
-
 func newWorkflowArchiveCmd(flags *rootFlags) *cobra.Command {
 	var dbPath string
 	var full bool
@@ -55,70 +55,34 @@ and full resync. After archiving, use 'search' for instant full-text search.`,
 			}
 			defer s.Close()
 
-			resources := []string{"account", "bluesky", "facebook", "google", "instagram", "linkedin", "pinterest", "reddit", "tiktok", "truthsocial", "youtube"}
+			resources := []string{"account", "account-credit-balance", "account-get-daily-usage-count", "account-get-most-used-routes", "bluesky-user-posts", "facebook-ad-library-ad", "facebook-ad-library-ad-transcript", "facebook-ad-library-company-ads", "facebook-event-details", "facebook-group-posts", "facebook-marketplace-item", "facebook-post-comments", "facebook-profile-posts", "github", "github-trending-developers", "github-trending-repositories", "github-user-activity", "github-user-contributions", "github-user-followers", "github-user-following", "github-user-repositories", "google-company-ads", "instagram-basic-profile", "instagram-reels-trending", "instagram-user-highlight-detail", "instagram-user-highlights", "instagram-user-reels", "kwai", "kwai-profile", "kwai-user-posts", "reddit-subreddit-details", "rumble-channel-videos", "soundcloud-artist", "soundcloud-artist-tracks", "spotify", "spotify-artist", "spotify-podcast", "spotify-podcast-episodes", "spotify-track", "tiktok-creators-popular", "tiktok-hashtags-popular", "tiktok-profile", "tiktok-shop-product-reviews", "tiktok-song-videos", "tiktok-user-followers", "truthsocial-user-posts", "youtube-channel", "youtube-channel-community-posts", "youtube-channel-lives", "youtube-channel-playlists", "youtube-channel-shorts", "youtube-channel-videos", "youtube-shorts-trending"}
 			totalSynced := 0
+			syncEventWriter := cmd.OutOrStdout()
+			if flags.asJSON {
+				syncEventWriter = cmd.ErrOrStderr()
+			}
+
+			// --full clears the cursor here because syncResource reads
+			// existingCursor unconditionally; its full param only gates the
+			// since filter, not cursor reset. Mirrors newSyncCmd's pattern.
+			if full {
+				for _, resource := range resources {
+					_ = s.SaveSyncState(resource, "", 0)
+				}
+			}
 
 			for _, resource := range resources {
-				cursor := ""
-				if !full {
-					existing, _, _, err := s.GetSyncState(resource)
-					if err == nil && existing != "" {
-						cursor = existing
-					}
+				res := syncResource(cmd.Context(), c, s, resource, "", full, 100, false, false, nil, syncEventWriter)
+				if res.Err != nil {
+					fmt.Fprintf(cmd.ErrOrStderr(), "  %s: error: %v\n", resource, res.Err)
+					continue
 				}
-
-				fmt.Fprintf(cmd.ErrOrStderr(), "Syncing %s...\n", resource)
-
-				params := map[string]string{"limit": "100"}
-				if cursor != "" {
-					params["after"] = cursor
+				if res.Warn != nil {
+					fmt.Fprintf(cmd.ErrOrStderr(), "  %s: warning: %v\n", resource, res.Warn)
+					continue
 				}
-
-				count := 0
-				for {
-					data, fetchErr := c.Get("/"+resource, params)
-					if fetchErr != nil {
-						fmt.Fprintf(cmd.ErrOrStderr(), "  warning: %s: %v\n", resource, fetchErr)
-						break
-					}
-					var items []json.RawMessage
-					if err := json.Unmarshal(data, &items); err != nil {
-						// Might be a single object, not array
-						if err := s.Upsert(resource, resource+"-singleton", data); err != nil {
-							fmt.Fprintf(cmd.ErrOrStderr(), "  warning: store %s: %v\n", resource, err)
-						}
-						count++
-						break
-					}
-					if len(items) == 0 {
-						break
-					}
-					for _, item := range items {
-						var obj struct {
-							ID string `json:"id"`
-						}
-						json.Unmarshal(item, &obj)
-						id := obj.ID
-						if id == "" {
-							id = fmt.Sprintf("%s-%d", resource, count)
-						}
-						if err := s.Upsert(resource, id, item); err != nil {
-							fmt.Fprintf(cmd.ErrOrStderr(), "  warning: store %s/%s: %v\n", resource, id, err)
-						}
-						cursor = id
-						count++
-					}
-					if len(items) < 100 {
-						break
-					}
-					params["after"] = cursor
-				}
-
-				if count > 0 {
-					s.SaveSyncState(resource, cursor, count)
-				}
-				totalSynced += count
-				fmt.Fprintf(cmd.ErrOrStderr(), "  %s: %d items\n", resource, count)
+				totalSynced += res.Count
+				fmt.Fprintf(cmd.ErrOrStderr(), "  %s: %d synced\n", resource, res.Count)
 			}
 
 			if flags.asJSON {
@@ -137,7 +101,7 @@ and full resync. After archiving, use 'search' for instant full-text search.`,
 		},
 	}
 
-	cmd.Flags().StringVar(&dbPath, "db", "", "Database path (default: ~/.local/share/scrape-creators-pp-cli/data.db)")
+	cmd.Flags().StringVar(&dbPath, "db", "", "SQLite database file path (default: resolved data directory data.db)")
 	cmd.Flags().BoolVar(&full, "full", false, "Full re-archive (ignore previous sync state)")
 
 	return cmd
@@ -193,7 +157,7 @@ func newWorkflowStatusCmd(flags *rootFlags) *cobra.Command {
 		},
 	}
 
-	cmd.Flags().StringVar(&dbPath, "db", "", "Database path")
+	cmd.Flags().StringVar(&dbPath, "db", "", "SQLite database file path (default: resolved data directory data.db)")
 
 	return cmd
 }

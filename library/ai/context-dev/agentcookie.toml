@@ -1,0 +1,18 @@
+# agentcookie.toml: secrets-bus adoption manifest v2
+# See docs/spec-agentcookie-secrets-bus-v2-adoption.md
+schema_version = 2
+name = "context-dev-pp-cli"
+display_name = "Context"
+description = "Agent-friendly Context.dev CLI for website intelligence, brand enrichment, scraping, crawling, structured extraction, screenshots, styleguides, competitor maps, source packs, and change digests."
+project_kind = "cli"
+
+[secrets.file]
+path = "~/.config/context-dev-pp-cli/config.toml"
+
+[sync]
+default = false
+
+[sync.keys]
+CONTEXT_DEV_API_KEY = true
+CONTEXT_API_KEY = true
+CONTEXT_DEV_BEARER_AUTH = true

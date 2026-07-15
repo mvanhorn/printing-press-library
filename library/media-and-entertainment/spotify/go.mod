@@ -1,18 +1,16 @@
 module github.com/mvanhorn/printing-press-library/library/media-and-entertainment/spotify
 
-go 1.26.4
+go 1.26.5
 
 require (
 	github.com/pelletier/go-toml/v2 v2.2.4
 	github.com/spf13/cobra v1.9.1
+	github.com/spf13/pflag v1.0.6
 )
 
 require modernc.org/sqlite v1.37.0
 
-require (
-	github.com/mark3labs/mcp-go v0.47.0
-	github.com/spf13/pflag v1.0.6
-)
+require github.com/mark3labs/mcp-go v0.47.0
 
 require (
 	github.com/dustin/go-humanize v1.0.1 // indirect
@@ -25,8 +23,12 @@ require (
 	github.com/spf13/cast v1.7.1 // indirect
 	github.com/yosida95/uritemplate/v3 v3.0.2 // indirect
 	golang.org/x/exp v0.0.0-20250305212735-054e65f0b394 // indirect
-	golang.org/x/sys v0.31.0 // indirect
 	modernc.org/libc v1.62.1 // indirect
 	modernc.org/mathutil v1.7.1 // indirect
 	modernc.org/memory v1.9.1 // indirect
 )
+
+// Floor x/sys above the vulnerable v0.31.0. It is pulled only transitively
+// (modernc.org/sqlite, golang.org/x/net, ...), so MVS needs this explicit
+// floor; tidy drops it for CLIs that pull no x/sys at all.
+require golang.org/x/sys v0.46.0 // indirect

@@ -25,7 +25,7 @@ This skill drives the `trustpilot-pp-cli` binary. **You must verify the CLI is i
 2. Verify: `trustpilot-pp-cli --version`
 3. Ensure the reported install directory is on `$PATH` for the agent/runtime that will invoke this skill.
 
-If the `npx` install fails (no Node, offline, etc.), fall back to a direct Go install (requires Go 1.26.4 or newer):
+If the `npx` install fails (no Node, offline, etc.), fall back to a direct Go install (requires Go 1.26.5 or newer):
 
 ```bash
 go install github.com/mvanhorn/printing-press-library/library/marketing/trustpilot/cmd/trustpilot-pp-cli@latest
@@ -143,11 +143,11 @@ This CLI uses Chrome-compatible HTTP transport for browser-facing endpoints. It 
 
 **companies** — Search Trustpilot for companies by name and resolve to their canonical domain
 
-- `trustpilot-pp-cli companies <search_build_id>` — Search for companies matching a name; returns identifyingName domains usable with reviews fetch
+- `trustpilot-pp-cli companies <search_build_id>` — Search for companies matching a name; returns identifyingName domains usable with reviews-fetch
 
 **reviews** — Fetch Trustpilot reviews for a company
 
-- `trustpilot-pp-cli reviews <review_build_id> <domain>` — Fetch a page of reviews for a company by domain (use 'reviews fetch <domain>' from the CLI). Authenticated via...
+- `trustpilot-pp-cli reviews <review_build_id> <domain>` — Fetch a page of reviews for a company by domain (use 'reviews-fetch <domain>' from the CLI). Authenticated via...
 
 
 ### Finding the right command

@@ -34,7 +34,7 @@ This skill drives the `qbo-pp-cli` binary. **You must verify the CLI is installe
 2. Verify: `qbo-pp-cli --version`
 3. Ensure `~/.local/bin` is on `$PATH` for the agent/runtime that will invoke this skill.
 
-If the `npx` install fails (no Node, offline, etc.), fall back to a direct Go install (requires Go 1.26.4 or newer). This installs into `$GOPATH/bin` (default `$HOME/go/bin`), so add that directory to `$PATH` instead:
+If the `npx` install fails (no Node, offline, etc.), fall back to a direct Go install (requires Go 1.26.5 or newer). This installs into `$GOPATH/bin` (default `$HOME/go/bin`), so add that directory to `$PATH` instead:
 
 ```bash
 go install github.com/mvanhorn/printing-press-library/library/payments/qbo/cmd/qbo-pp-cli@latest

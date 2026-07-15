@@ -1,0 +1,19 @@
+{
+  "timestamp": "2026-07-06T15:46:25.350294Z",
+  "cli_dir": "\u003ccli-dir\u003e/ticketdata-pp-cli",
+  "findings": [
+    {
+      "kind": "thin-short",
+      "command": "list",
+      "file": "teach.go",
+      "line": 694,
+      "evidence": "List recorded learnings",
+      "status": "accepted",
+      "note": "DO-NOT-EDIT generated file (learn-loop template); Short is accurate and the learn templates must stay domain-neutral, so a hand-edit would be wiped on regen. Needs generator-template fix (retro candidate)."
+    }
+  ],
+  "scorecard_before": {
+    "mcp_description_quality": 10,
+    "captured": "2026-07-06T15:44:18.179836Z"
+  }
+}

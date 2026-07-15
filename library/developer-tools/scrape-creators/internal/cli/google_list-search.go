@@ -16,13 +16,21 @@ func newGoogleListSearchCmd(flags *rootFlags) *cobra.Command {
 	var flagRegion string
 	var flagDatePosted string
 	var flagPage string
+	var flagAll bool
 
 	cmd := &cobra.Command{
-		Use:         "list-search",
-		Short:       "Performs a Google search and returns organic results with url, title, and description for each result. Supports an...",
-		Example:     "  scrape-creators-pp-cli google list-search",
-		Annotations: map[string]string{"pp:endpoint": "google.list-search", "mcp:read-only": "true"},
+		Use:   "list-search",
+		Short: "Performs a Google search and returns organic results with url, title, and description for each result.",
+		// TODO: replace placeholder example values before relying on this for live dogfood.
+		Example:     "  scrape-creators-pp-cli google list-search --query example-value",
+		Annotations: map[string]string{"pp:endpoint": "google.list-search", "pp:method": "GET", "pp:path": "/v1/google/search", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
+			// Bare invocation of a command with required input prints help
+			// instead of pflag's terse "required flag not set" error. Optional-
+			// only read commands fall through so a bare call still executes.
+			if cmd.Flags().NFlag() == 0 && len(args) == 0 && !flags.dryRun {
+				return cmd.Help()
+			}
 			if !cmd.Flags().Changed("query") && !flags.dryRun {
 				return fmt.Errorf("required flag \"%s\" not set", "query")
 			}
@@ -36,42 +44,39 @@ func newGoogleListSearchCmd(flags *rootFlags) *cobra.Command {
 					}
 				}
 				if !validDatePosted {
-					fmt.Fprintf(os.Stderr, "warning: --%s %q not in allowed set %v\n", "date-posted", flagDatePosted, allowedDatePosted)
+					return fmt.Errorf("invalid value %q for --%s: must be one of %v", flagDatePosted, "date-posted", allowedDatePosted)
 				}
 			}
+			path := "/v1/google/search"
 			c, err := flags.newClient()
 			if err != nil {
 				return err
 			}
-
-			path := "/v1/google/search"
-			params := map[string]string{}
-			if flagQuery != "" {
-				params["query"] = fmt.Sprintf("%v", flagQuery)
-			}
-			if flagRegion != "" {
-				params["region"] = fmt.Sprintf("%v", flagRegion)
-			}
-			if flagDatePosted != "" {
-				params["date_posted"] = fmt.Sprintf("%v", flagDatePosted)
-			}
-			if flagPage != "" {
-				params["page"] = fmt.Sprintf("%v", flagPage)
-			}
-			data, prov, err := resolveRead(cmd.Context(), c, flags, "google", false, path, params, nil)
+			data, prov, err := resolvePaginatedReadWithStrategy(cmd.Context(), c, flags, "auto", "google", path, map[string]string{
+				"query":       formatCLIParamValue(flagQuery),
+				"region":      formatCLIParamValue(flagRegion),
+				"date_posted": formatCLIParamValue(flagDatePosted),
+				"page":        formatCLIParamValue(flagPage),
+			}, nil, flagAll, "page", "page", "", "", "", cmd.ErrOrStderr())
 			if err != nil {
-				return classifyAPIError(err)
+				return classifyAPIError(err, flags)
 			}
-			// Print provenance to stderr for human-facing output
-			{
+			// Print provenance to stderr for human-facing output only.
+			// Machine-format flags (--json, --csv, --compact, --quiet, --plain,
+			// --select) and piped stdout suppress this line; the JSON envelope
+			// already carries meta.source for those consumers.
+			// SYNC: keep this gate aligned with command_promoted.go.tmpl.
+			if wantsHumanTable(cmd.OutOrStdout(), flags) {
 				var countItems []json.RawMessage
 				_ = json.Unmarshal(data, &countItems)
 				printProvenance(cmd, len(countItems), prov)
 			}
 			// For JSON output, wrap with provenance envelope before passing through flags.
 			// --select wins over --compact when both are set; --compact only runs when
-			// no explicit fields were requested.
-			if flags.asJSON || !isTerminal(cmd.OutOrStdout()) {
+			// no explicit fields were requested. Explicit format flags (--csv, --quiet,
+			// --plain) opt out of the auto-JSON path so piped consumers that asked for
+			// a non-JSON format reach the standard pipeline below.
+			if flags.asJSON || (!isTerminal(cmd.OutOrStdout()) && !flags.csv && !flags.quiet && !flags.plain) {
 				filtered := data
 				if flags.selectFields != "" {
 					filtered = filterFields(filtered, flags.selectFields)
@@ -97,13 +102,14 @@ func newGoogleListSearchCmd(flags *rootFlags) *cobra.Command {
 					return nil
 				}
 			}
-			return printOutputWithFlags(cmd.OutOrStdout(), data, flags)
+			return printOutputWithFlagsMeta(cmd.OutOrStdout(), data, flags, map[string]any{"source": "live"})
 		},
 	}
 	cmd.Flags().StringVar(&flagQuery, "query", "", "Search query")
 	cmd.Flags().StringVar(&flagRegion, "region", "", "2 letter country code, ie US, UK, CA, etc This will show results from that country")
 	cmd.Flags().StringVar(&flagDatePosted, "date-posted", "", "Date posted (one of: last-hour, last-day, last-week, last-month, last-year)")
 	cmd.Flags().StringVar(&flagPage, "page", "", "Page number to retrieve")
+	cmd.Flags().BoolVar(&flagAll, "all", false, "Fetch all pages")
 
 	return cmd
 }

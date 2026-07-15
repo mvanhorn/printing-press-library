@@ -17,12 +17,13 @@ func newTiktokListHashtagsCmd(flags *rootFlags) *cobra.Command {
 	var flagCountryCode string
 	var flagNewOnBoard bool
 	var flagIndustry string
+	var flagAll bool
 
 	cmd := &cobra.Command{
 		Use:         "list-hashtags",
-		Short:       "Discovers trending and popular TikTok hashtags, filterable by time period (7/30/120 days) and country. Returns a...",
+		Short:       "Discovers trending and popular TikTok hashtags, filterable by time period (7/30/120 days) and country.",
 		Example:     "  scrape-creators-pp-cli tiktok list-hashtags",
-		Annotations: map[string]string{"pp:endpoint": "tiktok.list-hashtags", "mcp:read-only": "true"},
+		Annotations: map[string]string{"pp:endpoint": "tiktok.list-hashtags", "pp:method": "GET", "pp:path": "/v1/tiktok/hashtags/popular", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if cmd.Flags().Changed("period") {
 				allowedPeriod := []string{"7", "30", "120"}
@@ -34,7 +35,7 @@ func newTiktokListHashtagsCmd(flags *rootFlags) *cobra.Command {
 					}
 				}
 				if !validPeriod {
-					fmt.Fprintf(os.Stderr, "warning: --%s %q not in allowed set %v\n", "period", flagPeriod, allowedPeriod)
+					return fmt.Errorf("invalid value %q for --%s: must be one of %v", flagPeriod, "period", allowedPeriod)
 				}
 			}
 			if cmd.Flags().Changed("country-code") {
@@ -47,7 +48,7 @@ func newTiktokListHashtagsCmd(flags *rootFlags) *cobra.Command {
 					}
 				}
 				if !validCountryCode {
-					fmt.Fprintf(os.Stderr, "warning: --%s %q not in allowed set %v\n", "country-code", flagCountryCode, allowedCountryCode)
+					return fmt.Errorf("invalid value %q for --%s: must be one of %v", flagCountryCode, "country-code", allowedCountryCode)
 				}
 			}
 			if cmd.Flags().Changed("industry") {
@@ -60,45 +61,40 @@ func newTiktokListHashtagsCmd(flags *rootFlags) *cobra.Command {
 					}
 				}
 				if !validIndustry {
-					fmt.Fprintf(os.Stderr, "warning: --%s %q not in allowed set %v\n", "industry", flagIndustry, allowedIndustry)
+					return fmt.Errorf("invalid value %q for --%s: must be one of %v", flagIndustry, "industry", allowedIndustry)
 				}
 			}
+			path := "/v1/tiktok/hashtags/popular"
 			c, err := flags.newClient()
 			if err != nil {
 				return err
 			}
-
-			path := "/v1/tiktok/hashtags/popular"
-			params := map[string]string{}
-			if flagPeriod != "" {
-				params["period"] = fmt.Sprintf("%v", flagPeriod)
-			}
-			if flagPage != "" {
-				params["page"] = fmt.Sprintf("%v", flagPage)
-			}
-			if flagCountryCode != "" {
-				params["countryCode"] = fmt.Sprintf("%v", flagCountryCode)
-			}
-			if flagNewOnBoard != false {
-				params["newOnBoard"] = fmt.Sprintf("%v", flagNewOnBoard)
-			}
-			if flagIndustry != "" {
-				params["industry"] = fmt.Sprintf("%v", flagIndustry)
-			}
-			data, prov, err := resolveRead(cmd.Context(), c, flags, "tiktok", false, path, params, nil)
+			data, prov, err := resolvePaginatedReadWithStrategy(cmd.Context(), c, flags, "auto", "tiktok", path, map[string]string{
+				"period":      formatCLIParamValue(flagPeriod),
+				"page":        formatCLIParamValue(flagPage),
+				"countryCode": formatCLIParamValue(flagCountryCode),
+				"newOnBoard":  formatCLIParamValue(flagNewOnBoard),
+				"industry":    formatCLIParamValue(flagIndustry),
+			}, nil, flagAll, "page", "page", "", "", "", cmd.ErrOrStderr())
 			if err != nil {
-				return classifyAPIError(err)
+				return classifyAPIError(err, flags)
 			}
-			// Print provenance to stderr for human-facing output
-			{
+			// Print provenance to stderr for human-facing output only.
+			// Machine-format flags (--json, --csv, --compact, --quiet, --plain,
+			// --select) and piped stdout suppress this line; the JSON envelope
+			// already carries meta.source for those consumers.
+			// SYNC: keep this gate aligned with command_promoted.go.tmpl.
+			if wantsHumanTable(cmd.OutOrStdout(), flags) {
 				var countItems []json.RawMessage
 				_ = json.Unmarshal(data, &countItems)
 				printProvenance(cmd, len(countItems), prov)
 			}
 			// For JSON output, wrap with provenance envelope before passing through flags.
 			// --select wins over --compact when both are set; --compact only runs when
-			// no explicit fields were requested.
-			if flags.asJSON || !isTerminal(cmd.OutOrStdout()) {
+			// no explicit fields were requested. Explicit format flags (--csv, --quiet,
+			// --plain) opt out of the auto-JSON path so piped consumers that asked for
+			// a non-JSON format reach the standard pipeline below.
+			if flags.asJSON || (!isTerminal(cmd.OutOrStdout()) && !flags.csv && !flags.quiet && !flags.plain) {
 				filtered := data
 				if flags.selectFields != "" {
 					filtered = filterFields(filtered, flags.selectFields)
@@ -124,7 +120,7 @@ func newTiktokListHashtagsCmd(flags *rootFlags) *cobra.Command {
 					return nil
 				}
 			}
-			return printOutputWithFlags(cmd.OutOrStdout(), data, flags)
+			return printOutputWithFlagsMeta(cmd.OutOrStdout(), data, flags, map[string]any{"source": "live"})
 		},
 	}
 	cmd.Flags().StringVar(&flagPeriod, "period", "", "Time period in days (7, 30, or 120) (one of: 7, 30, 120)")
@@ -132,6 +128,7 @@ func newTiktokListHashtagsCmd(flags *rootFlags) *cobra.Command {
 	cmd.Flags().StringVar(&flagCountryCode, "country-code", "", "Country code to get popular hashtags from (one of: AU, BR, CA, EG, FR, DE, ID, IL, IT, JP, MY, PH, RU, SA, SG, KR, ES, TW, TH, TR, AE, GB, US, VN)")
 	cmd.Flags().BoolVar(&flagNewOnBoard, "new-on-board", false, "Show only newly trending hashtags")
 	cmd.Flags().StringVar(&flagIndustry, "industry", "", "Industry to get popular hashtags from. (one of: apparel-and-accessories, baby-kids-and-maternity, beauty-and-personal-care, business-services, education, financial-services, food-and-beverage, games, health, home-improvement, household-products, life-services, news-and-entertainment, pets, sports-and-outdoor, tech-and-electronics, travel, vehicle-and-transportation)")
+	cmd.Flags().BoolVar(&flagAll, "all", false, "Fetch all pages")
 
 	return cmd
 }

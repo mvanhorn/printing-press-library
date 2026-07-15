@@ -28,6 +28,7 @@ import (
 func registerPrimaryCommands(rootCmd *cobra.Command, flags *rootFlags) {
 	rootCmd.AddCommand(newGfFlightsCmd(flags))
 	rootCmd.AddCommand(newGfDatesCmd(flags))
+	rootCmd.AddCommand(newSoarCmd(flags))
 	rootCmd.AddCommand(newKayakExploreCmd(flags))
 	rootCmd.AddCommand(newKayakLonghaulCmd(flags))
 }

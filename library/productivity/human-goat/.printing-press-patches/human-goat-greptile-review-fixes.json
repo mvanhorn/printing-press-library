@@ -1,0 +1,21 @@
+{
+  "schema_version": 2,
+  "id": "human-goat-greptile-review-fixes",
+  "applied_at": "2026-07-04",
+  "base_run_id": "20260703-152050-dff84056",
+  "base_printing_press_version": "4.27.1",
+  "summary": "Correctness + safety hardening of the live TaskRabbit/Magic commands from code review: slot-duration-aware spend cap (float hours, ceil, 2h-min); cancel pages all bookings, fails fast on missing CSRF, and reports refundability from the actual 24h window; hire aborts checkout on zero availability, surfaces the booked/requested date with a substitution warning, and reports the confirmed charge when returned (else labels the estimate); spend prefers billed amounts, applies the all-in fee transform x duration with a --state carve-out; status is a real cross-source inbox (paginated TaskRabbit + locally-persisted Magic refreshed live) and runs bare; watch binds its poll context to --max-wait and maps its own deadline to a clean exit.",
+  "reason": "TaskRabbit bills by the booked slot duration and honors a per-Tasker 2-hour minimum, stores base hourly rate (not all-in) in booking rows, requires X-CSRF-Token on mutations, and paginates task lists at 50/page; the generated bodies hardcoded a 2h cap estimate, single-page lookups, a soft CSRF path, and base-rate spend totals.",
+  "files": [
+    "internal/cli/hire.go",
+    "internal/cli/cancel.go",
+    "internal/cli/spend.go",
+    "internal/cli/status.go",
+    "internal/cli/watch.go",
+    "internal/cli/magicstore.go",
+    "internal/cli/send.go",
+    "internal/cli/call.go",
+    "internal/cli/dispatch.go"
+  ],
+  "validated_outcome": "go build/vet/test + full live dogfood (120/0) pass; Greptile PR #1435 reached 5/5 (Production ready) with all threads resolved."
+}

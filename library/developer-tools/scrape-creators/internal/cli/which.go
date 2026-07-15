@@ -4,7 +4,6 @@
 package cli
 
 import (
-	"encoding/json"
 	"fmt"
 	"sort"
 	"strings"
@@ -12,10 +11,10 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// whichEntry is one row of the curated capability index. The index is
-// seeded at generation time from the same NovelFeature list that drives
-// the SKILL.md feature section, so the command a `which` query returns
-// is guaranteed to exist and to match what the skill advertises.
+// whichEntry is one row of the curated capability index. The index is seeded
+// at generation time from the verified NovelFeature list that drives the
+// SKILL.md feature section, so the command a `which` query returns is
+// guaranteed to exist and to match what the skill advertises.
 type whichEntry struct {
 	Command      string `json:"command"`
 	Description  string `json:"description"`
@@ -28,19 +27,14 @@ type whichEntry struct {
 // `--help`; `which` exists to resolve a natural-language capability
 // query to one of the commands the skill says matter most.
 var whichIndex = []whichEntry{
-	{Command: "creator find", Description: "Given a single handle, see which of 11+ platforms the creator is on, with follower counts side-by-side.", Group: "Cross-platform compounding", WhyItMatters: "When an agent needs a creator's full footprint before writing outreach or analysis, this returns it in one call instead of 11."},
-	{Command: "trends triangulate", Description: "Snapshot a hashtag or keyword on TikTok, YouTube, Reddit, and Threads in one call to see which platform it's rising fastest on.", Group: "Cross-platform compounding", WhyItMatters: "Marketers asking 'is this trend cresting on TikTok' can see the answer plus the leading-indicator platform in one command."},
-	{Command: "transcripts search", Description: "FTS5-indexed search across all transcripts you've synced — TikTok, YouTube, Instagram, Facebook, and Twitter videos.", Group: "Local state that compounds", WhyItMatters: "Agents doing brand-mention or keyword-monitoring across video content can grep their entire synced corpus offline."},
-	{Command: "ads search", Description: "Search Facebook, Google, and LinkedIn ad libraries in one query — see every ad a brand is currently running.", Group: "Cross-platform compounding", WhyItMatters: "Competitive intel without juggling three vendors and three APIs."},
-	{Command: "content spikes", Description: "Find videos that performed significantly above a creator's average — the ones that actually went viral.", Group: "Local state that compounds", WhyItMatters: "When asked 'which videos took off,' the agent can answer with statistical confidence instead of guessing."},
-	{Command: "profile compare", Description: "Compare two or more creators side-by-side on follower count, engagement rate, posting cadence, and content volume.", Group: "Local state that compounds", WhyItMatters: "Influencer-shortlist work that used to take a spreadsheet now takes one command."},
-	{Command: "profile track", Description: "Snapshot a creator's follower count daily across every platform; chart their growth trajectory over time.", Group: "Local state that compounds", WhyItMatters: "Trend lines for momentum decisions (sponsorship, partnership timing)."},
-	{Command: "content cadence", Description: "See when a creator posts — by day of week and hour — across every platform you've synced for them.", Group: "Local state that compounds", WhyItMatters: "Benchmark a competitor's publishing strategy or recommend the right slot for a creator partner."},
-	{Command: "content analyze", Description: "Rank a creator's synced content by engagement rate (not raw likes) so you see their true best performers.", Group: "Local state that compounds", WhyItMatters: "Surfaces over-performers that raw view counts hide."},
-	{Command: "trends delta", Description: "Track whether a hashtag is growing or shrinking by comparing video counts across snapshot intervals.", Group: "Local state that compounds", WhyItMatters: "Distinguish a stable hashtag from a rising or dying one in seconds."},
-	{Command: "ads monitor", Description: "Snapshot a brand's ads on Facebook, Google, and LinkedIn into SQLite; on rerun, diff new ads vs ones that disappeared.", Group: "Cross-platform compounding", WhyItMatters: "Cron-friendly competitive monitoring without glue code."},
-	{Command: "bio resolve", Description: "Paste any linktree.ee, komi.io, pillar.io, linkbio, or linkme URL and get the unified destination list.", Group: "Cross-platform compounding", WhyItMatters: "Lead-research tasks that need a creator's full link footprint stop caring which bio service they used."},
-	{Command: "account budget", Description: "See how fast you're spending API credits and how many days remain at current pace, fused with the API's own usage history.", Group: "Operator ergonomics", WhyItMatters: "Catches runaway sync jobs before they exhaust the plan."},
+	{Command: "creator find", Description: "Given one handle, see which of 12 creator platforms the creator is on with follower counts side-by-side.", Group: "Cross-platform compounding", WhyItMatters: "Reach for this before writing creator outreach — one call replaces 11+ manual per-platform lookups."},
+	{Command: "creator compare", Description: "Compare two or more creators side-by-side on follower count, engagement rate, and content volume.", Group: "Cross-platform compounding", WhyItMatters: "Use it to separate real reach from vanity follower counts when vetting a shortlist."},
+	{Command: "content spikes", Description: "Surface the videos that performed far above a creator's own baseline — the ones that actually went viral.", Group: "Local engagement analytics", WhyItMatters: "Pick this over a raw post list when you want a creator's outlier hits, not their average output."},
+	{Command: "transcripts search", Description: "FTS5 full-text search across every transcript you've synced — YouTube, TikTok, Instagram, Facebook, LinkedIn, and Rumble.", Group: "Local store that compounds", WhyItMatters: "Reach for this for brand-safety and topic sweeps over a corpus you already paid to fetch — no credits re-spent."},
+	{Command: "trends triangulate", Description: "Snapshot a hashtag or topic across platforms in one call to see which platform it is biggest on.", Group: "Cross-platform compounding", WhyItMatters: "Use it to catch a trend's leading platform before it crests, for content-timing calls."},
+	{Command: "creator track", Description: "Append a follower snapshot per run on a chosen platform, then read the growth trajectory over time.", Group: "Local store that compounds", WhyItMatters: "Run it on a schedule to chart partner-creator growth; meaningful once multiple snapshots accumulate."},
+	{Command: "ads monitor", Description: "Snapshot a brand's live ads across Facebook, TikTok, Google, and LinkedIn ad libraries; on rerun, diff new ads vs. ones that disappeared.", Group: "Local store that compounds", WhyItMatters: "Use it for recurring competitive ad tracking — the first run is a unified search, every rerun is a what-changed diff."},
+	{Command: "account budget", Description: "See how fast you're spending API credits and how many days remain at the current pace, computed from the API's credit balance and daily usage history.", Group: "Agent-native plumbing", WhyItMatters: "Credits are pay-as-you-go and depletion returns HTTP 402 mid-workflow — check runway before a big sync."},
 }
 
 // whichMatch pairs an index entry with its ranking score for a query.
@@ -143,6 +137,10 @@ func newWhichCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "which [query]",
 		Short: "Find the command that implements a capability",
+		Annotations: map[string]string{
+			"mcp:read-only":       "true",
+			"pp:typed-exit-codes": "0,2",
+		},
 		Long: `which resolves a natural-language capability query (for example, "search messages" or "stale tickets") to the best matching command from this CLI's curated feature index.
 
 Exit codes:
@@ -165,6 +163,15 @@ Exit codes:
 			}
 
 			if len(matches) == 0 {
+				// Under --json, return an empty matches envelope at exit 0
+				// so agents can branch on `matches.length == 0` instead of
+				// parsing a usage error message. Non-JSON keeps the typed
+				// exit-2 path so terminal users see the help hint.
+				if flags.asJSON {
+					return printJSONFiltered(cmd.OutOrStdout(), map[string]any{
+						"matches": []whichMatch{},
+					}, flags)
+				}
 				return usageErr(fmt.Errorf("no match for %q; try '%s --help' for the full command list", query, cmd.Root().Name()))
 			}
 			return renderWhich(cmd, flags, matches)
@@ -195,9 +202,15 @@ func renderWhich(cmd *cobra.Command, flags *rootFlags, matches []whichMatch) err
 		asJSON = true
 	}
 	if asJSON {
-		enc := json.NewEncoder(w)
-		enc.SetIndent("", "  ")
-		return enc.Encode(matches)
+		// JSON envelope: {matches: [...]}. The wrap is critical:
+		// printJSONFiltered's --compact path uses compactListFields
+		// (allowlist) for top-level arrays, which would strip
+		// entry/score keys; routing through compactObjectFields
+		// (blocklist) via an object envelope preserves them.
+		if matches == nil {
+			matches = []whichMatch{}
+		}
+		return printJSONFiltered(w, map[string]any{"matches": matches}, flags)
 	}
 	fmt.Fprintf(w, "%-24s  %-8s  %s\n", "COMMAND", "SCORE", "DESCRIPTION")
 	for _, m := range matches {

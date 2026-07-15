@@ -16,7 +16,7 @@
   "run_id": "20260509-093200",
   "catalog_entry": "stripe",
   "category": "payments",
-  "description": "Payment processing and financial infrastructure API",
+  "description": "Every Stripe feature, plus a local SQLite mirror with FTS, cross-entity SQL, and analytics no other Stripe tool ships.",
   "mcp_binary": "stripe-pp-mcp",
   "mcp_tool_count": 534,
   "mcp_ready": "full",

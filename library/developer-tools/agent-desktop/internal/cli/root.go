@@ -13,7 +13,7 @@ const (
 	DefaultTargetVersion = "latest"
 )
 
-var version = "2026.6.1"
+var version = "2026.7.1"
 
 type childExitError struct {
 	code int

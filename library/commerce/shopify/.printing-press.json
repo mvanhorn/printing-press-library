@@ -22,7 +22,7 @@
   "spec_checksum": "sha256:7bfc2ce208f6f85e21949cc1f0a4045d4f121b36153efe09b3d4736265a01207",
   "run_id": "20260524-085902",
   "category": "commerce",
-  "description": "Operate a Shopify store with Admin GraphQL commands, local sync, analytics, bulk exports, and ShopifyQL reporting.",
+  "description": "Operate a Shopify store from the terminal with curated Admin GraphQL commands, local sync, analytics, and bulk exports.",
   "mcp_binary": "shopify-pp-mcp",
   "mcp_tool_count": 12,
   "mcp_ready": "full",

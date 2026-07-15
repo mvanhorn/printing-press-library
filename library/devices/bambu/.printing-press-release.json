@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "slug": "bambu",
+  "cli_name": "bambu-pp-cli",
+  "version": "2026.7.1",
+  "released_at": "2026-07-12T02:15:09Z",
+  "source_commit": "382949b6061fa86e2576cc7888bb61639bb3a507",
+  "printing_press_version": "4.28.0",
+  "run_id": "20260711-063302-c519dd7c",
+  "changes": [
+    {
+      "title": "feat(bambu): add bambu",
+      "pr": 1497,
+      "url": "https://github.com/mvanhorn/printing-press-library/pull/1497",
+      "commit": "382949b6061fa86e2576cc7888bb61639bb3a507"
+    }
+  ]
+}

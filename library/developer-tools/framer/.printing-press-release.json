@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "slug": "framer",
+  "cli_name": "framer-pp-cli",
+  "version": "2026.7.1",
+  "released_at": "2026-07-08T23:13:59Z",
+  "source_commit": "1508ce6d9578ff09f71710f16d86898892758e7e",
+  "printing_press_version": "4.24.0",
+  "run_id": "20260520-213921",
+  "changes": [
+    {
+      "title": "feat(framer): add framer",
+      "pr": 1154,
+      "url": "https://github.com/mvanhorn/printing-press-library/pull/1154",
+      "commit": "1508ce6d9578ff09f71710f16d86898892758e7e"
+    }
+  ]
+}

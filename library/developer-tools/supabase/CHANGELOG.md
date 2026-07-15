@@ -2,6 +2,14 @@
 
 This file is maintained by printing-press-library release automation. Do not hand-edit release sections in normal PRs.
 
+## 2026.7.2 - 2026-07-13
+
+- fix(supabase): harden store scopes and exact Auth Admin lookup (#1482).
+
+## 2026.7.1 - 2026-07-08
+
+- fix(catalog): require Go 1.26.5 across published modules (#1467).
+
 ## 2026.6.3 - 2026-06-21
 
 - fix(catalog): require Go 1.26.4 across published modules (#1308).

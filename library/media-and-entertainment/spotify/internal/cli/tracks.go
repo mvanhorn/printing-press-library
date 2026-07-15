@@ -9,8 +9,11 @@ import (
 
 func newTracksCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "tracks",
-		Short: "Manage tracks (incl. cross-entity 'tracks where' lookup)",
+		Use:         "tracks",
+		Short:       "Manage tracks command groups",
+		Hidden:      true,
+		Annotations: map[string]string{"mcp:read-only": "true", "pp:typed-exit-codes": "0,2"},
+		RunE:        parentNoSubcommandRunE(flags),
 	}
 
 	cmd.AddCommand(newTracksGetCmd(flags))

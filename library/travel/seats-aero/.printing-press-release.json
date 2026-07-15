@@ -2,17 +2,17 @@
   "schema_version": 1,
   "slug": "seats-aero",
   "cli_name": "seats-aero-pp-cli",
-  "version": "2026.6.3",
-  "released_at": "2026-06-21T08:16:26Z",
-  "source_commit": "acb84091ff016c6e7aea5f8cf6956a694aa0d1c7",
+  "version": "2026.7.2",
+  "released_at": "2026-07-08T23:15:22Z",
+  "source_commit": "220c1563d0375ec8741c4c377b4bb5a4317cbf6a",
   "printing_press_version": "3.10.0",
   "run_id": "20260506-seats-aero",
   "changes": [
     {
-      "title": "fix(catalog): require Go 1.26.4 across published modules",
-      "pr": 1308,
-      "url": "https://github.com/mvanhorn/printing-press-library/pull/1308",
-      "commit": "acb84091ff016c6e7aea5f8cf6956a694aa0d1c7"
+      "title": "feat: registry hygiene follow-ups (pp-first descriptions, expanded MCP validation, --validate for skills, npm publish auto-trigger)",
+      "pr": 675,
+      "url": "https://github.com/mvanhorn/printing-press-library/pull/675",
+      "commit": "220c1563d0375ec8741c4c377b4bb5a4317cbf6a"
     }
   ]
 }

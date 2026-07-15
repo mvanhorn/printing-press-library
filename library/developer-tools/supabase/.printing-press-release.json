@@ -2,17 +2,17 @@
   "schema_version": 1,
   "slug": "supabase",
   "cli_name": "supabase-pp-cli",
-  "version": "2026.6.3",
-  "released_at": "2026-06-21T08:16:26Z",
-  "source_commit": "acb84091ff016c6e7aea5f8cf6956a694aa0d1c7",
+  "version": "2026.7.2",
+  "released_at": "2026-07-13T08:40:26Z",
+  "source_commit": "24a07b1badcaa3e6f967b0e9e7d001aa916c591b",
   "printing_press_version": "4.5.1",
   "run_id": "20260512-165514",
   "changes": [
     {
-      "title": "fix(catalog): require Go 1.26.4 across published modules",
-      "pr": 1308,
-      "url": "https://github.com/mvanhorn/printing-press-library/pull/1308",
-      "commit": "acb84091ff016c6e7aea5f8cf6956a694aa0d1c7"
+      "title": "fix(supabase): harden store scopes and exact Auth Admin lookup",
+      "pr": 1482,
+      "url": "https://github.com/mvanhorn/printing-press-library/pull/1482",
+      "commit": "24a07b1badcaa3e6f967b0e9e7d001aa916c591b"
     }
   ]
 }

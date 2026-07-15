@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "slug": "1688",
+  "cli_name": "1688-pp-cli",
+  "version": "2026.7.1",
+  "released_at": "2026-07-08T23:14:42Z",
+  "source_commit": "050559439923abc24a767d0d37f3e8b663a1d067",
+  "printing_press_version": "4.24.0",
+  "run_id": "20260612-083000-8f246b76",
+  "changes": [
+    {
+      "title": "feat(1688): add 1688",
+      "pr": 1158,
+      "url": "https://github.com/mvanhorn/printing-press-library/pull/1158",
+      "commit": "050559439923abc24a767d0d37f3e8b663a1d067"
+    }
+  ]
+}

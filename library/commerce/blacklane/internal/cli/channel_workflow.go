@@ -6,7 +6,6 @@ package cli
 import (
 	"encoding/json"
 	"fmt"
-	"time"
 
 	"github.com/mvanhorn/printing-press-library/library/commerce/blacklane/internal/store"
 	"github.com/spf13/cobra"
@@ -19,90 +18,7 @@ func newWorkflowCmd(flags *rootFlags) *cobra.Command {
 		Annotations: map[string]string{"mcp:read-only": "true"},
 		RunE:        parentNoSubcommandRunE(flags),
 	}
-	cmd.AddCommand(newWorkflowArchiveCmd(flags))
 	cmd.AddCommand(newWorkflowStatusCmd(flags))
-
-	return cmd
-}
-func newWorkflowArchiveCmd(flags *rootFlags) *cobra.Command {
-	var dbPath string
-	var full bool
-
-	cmd := &cobra.Command{
-		Use:   "archive",
-		Short: "Sync all resources to local store for offline access and search",
-		Long: `Archive fetches all syncable resources from the API and stores them in a
-local SQLite database. Supports incremental sync (only new data since last run)
-and full resync. After archiving, use 'search' for instant full-text search.`,
-		Example: `  # Archive all resources
-  blacklane-pp-cli workflow archive
-
-  # Full re-archive (ignore previous sync state)
-  blacklane-pp-cli workflow archive --full`,
-		RunE: func(cmd *cobra.Command, args []string) error {
-			c, err := flags.newClient()
-			if err != nil {
-				return err
-			}
-			c.NoCache = true
-
-			if dbPath == "" {
-				dbPath = defaultDBPath("blacklane-pp-cli")
-			}
-			s, err := store.OpenWithContext(cmd.Context(), dbPath)
-			if err != nil {
-				return fmt.Errorf("opening store: %w", err)
-			}
-			defer s.Close()
-
-			resources := []string{}
-			totalSynced := 0
-			syncEventWriter := cmd.OutOrStdout()
-			if flags.asJSON {
-				syncEventWriter = cmd.ErrOrStderr()
-			}
-
-			// --full clears the cursor here because syncResource reads
-			// existingCursor unconditionally; its full param only gates the
-			// since filter, not cursor reset. Mirrors newSyncCmd's pattern.
-			if full {
-				for _, resource := range resources {
-					_ = s.SaveSyncState(resource, "", 0)
-				}
-			}
-
-			for _, resource := range resources {
-				res := syncResource(cmd.Context(), c, s, resource, "", full, 100, false, nil, syncEventWriter)
-				if res.Err != nil {
-					fmt.Fprintf(cmd.ErrOrStderr(), "  %s: error: %v\n", resource, res.Err)
-					continue
-				}
-				if res.Warn != nil {
-					fmt.Fprintf(cmd.ErrOrStderr(), "  %s: warning: %v\n", resource, res.Warn)
-					continue
-				}
-				totalSynced += res.Count
-				fmt.Fprintf(cmd.ErrOrStderr(), "  %s: %d synced\n", resource, res.Count)
-			}
-
-			if flags.asJSON {
-				enc := json.NewEncoder(cmd.OutOrStdout())
-				enc.SetIndent("", "  ")
-				return enc.Encode(map[string]any{
-					"resources_synced": len(resources),
-					"total_items":      totalSynced,
-					"store_path":       dbPath,
-					"timestamp":        time.Now().UTC().Format(time.RFC3339),
-				})
-			}
-
-			fmt.Fprintf(cmd.OutOrStdout(), "Archived %d items across %d resources to %s\n", totalSynced, len(resources), dbPath)
-			return nil
-		},
-	}
-
-	cmd.Flags().StringVar(&dbPath, "db", "", "Database path (default: ~/.local/share/blacklane-pp-cli/data.db)")
-	cmd.Flags().BoolVar(&full, "full", false, "Full re-archive (ignore previous sync state)")
 
 	return cmd
 }
@@ -141,7 +57,7 @@ func newWorkflowStatusCmd(flags *rootFlags) *cobra.Command {
 			}
 
 			if len(status) == 0 {
-				fmt.Fprintln(cmd.OutOrStdout(), "No archived data. Run 'workflow archive' to sync.")
+				fmt.Fprintln(cmd.OutOrStdout(), "No archived data. Add a site-specific sync command to populate the store.")
 				return nil
 			}
 
@@ -157,7 +73,7 @@ func newWorkflowStatusCmd(flags *rootFlags) *cobra.Command {
 		},
 	}
 
-	cmd.Flags().StringVar(&dbPath, "db", "", "Database path")
+	cmd.Flags().StringVar(&dbPath, "db", "", "SQLite database file path (default: resolved data directory data.db)")
 
 	return cmd
 }

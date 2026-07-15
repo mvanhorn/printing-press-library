@@ -294,7 +294,7 @@ test("install command installs multiple CLIs in one call", async () => {
 
   assert.equal(await command(["espn", "linear"]), 0);
   assert.equal(installed.length, 2);
-  assert.deepEqual(skills, ["pp-espn", "pp-linear"]);
+  assert.deepEqual(new Set(skills), new Set(["pp-espn", "pp-linear"]));
   assert.match(stdout.join("\n"), /Installed 2 CLI/);
 });
 
@@ -800,4 +800,184 @@ test("install command points at the install dir when nothing is on PATH", async 
   assert.equal(await command(["espn"]), 0);
   // The error message names the specific path the user needs to add to PATH.
   assert.match(stderr.join("\n"), /\/Users\/example\/\.local\/bin\/espn-pp-cli/);
+});
+
+function threeEntryRegistry(): Registry {
+  return {
+    schema_version: 2,
+    entries: [
+      { name: "espn", category: "sports", api: "ESPN", description: "Sports scores", path: "library/sports/espn" },
+      { name: "linear", category: "project-management", api: "Linear", description: "Issues", path: "library/project-management/linear" },
+      { name: "opensnow", category: "sports", api: "OpenSnow", description: "Snow forecasts", path: "library/sports/opensnow" },
+    ],
+  };
+}
+
+function bulkDeps(overrides: {
+  goInstall?: (modulePath: string) => Promise<RunResult>;
+  installSkill?: (skillName: string) => Promise<RunResult>;
+  stdout?: (message: string) => void;
+  stderr?: (message: string) => void;
+  detectGoCalls?: { count: number };
+}) {
+  return createInstallCommand({
+    fetchRegistry: async () => threeEntryRegistry(),
+    resolveModulePath: async () => null,
+    detectGo: async () => {
+      if (overrides.detectGoCalls) {
+        overrides.detectGoCalls.count++;
+      }
+      return { installed: true };
+    },
+    goInstall: async (modulePath) => (overrides.goInstall ? overrides.goInstall(modulePath) : ok()),
+    goInstallDir: async () => goBinDir("/Users/example/go/bin"),
+    commandOnPath: async (binary) => `/Users/example/go/bin/${binary}`,
+    mkdir: async () => {},
+    installSkill: async (skillName) => (overrides.installSkill ? overrides.installSkill(skillName) : ok()),
+    stdout: overrides.stdout ?? (() => {}),
+    stderr: overrides.stderr ?? (() => {}),
+    home: "/Users/example",
+    env: {},
+  });
+}
+
+test("install command runs multi-name installs concurrently", async () => {
+  let inFlight = 0;
+  let maxInFlight = 0;
+  const command = bulkDeps({
+    goInstall: async () => {
+      inFlight++;
+      maxInFlight = Math.max(maxInFlight, inFlight);
+      // Yield so overlapping workers can enter before this one leaves.
+      await new Promise((resolve) => setTimeout(resolve, 10));
+      inFlight--;
+      return ok();
+    },
+  });
+
+  assert.equal(await command(["espn", "linear", "opensnow", "--cli-only"]), 0);
+  assert.ok(maxInFlight > 1, `expected concurrent go installs, saw max in-flight ${maxInFlight}`);
+});
+
+test("install command serializes skill installs during bulk installs", async () => {
+  let goInFlight = 0;
+  let maxGoInFlight = 0;
+  let skillInFlight = 0;
+  let maxSkillInFlight = 0;
+  const installedSkills: string[] = [];
+  const command = bulkDeps({
+    goInstall: async () => {
+      goInFlight++;
+      maxGoInFlight = Math.max(maxGoInFlight, goInFlight);
+      await new Promise((resolve) => setTimeout(resolve, 10));
+      goInFlight--;
+      return ok();
+    },
+    installSkill: async (skillName) => {
+      skillInFlight++;
+      maxSkillInFlight = Math.max(maxSkillInFlight, skillInFlight);
+      await new Promise((resolve) => setTimeout(resolve, 10));
+      installedSkills.push(skillName);
+      skillInFlight--;
+      return ok();
+    },
+  });
+
+  assert.equal(await command(["espn", "linear", "opensnow"]), 0);
+  assert.ok(maxGoInFlight > 1, `expected concurrent go installs, saw max in-flight ${maxGoInFlight}`);
+  assert.equal(maxSkillInFlight, 1);
+  assert.deepEqual(new Set(installedSkills), new Set(["pp-espn", "pp-linear", "pp-opensnow"]));
+});
+
+test("install command --all installs every catalog entry once", async () => {
+  const installed: string[] = [];
+  const command = bulkDeps({
+    goInstall: async (modulePath) => {
+      installed.push(modulePath);
+      return ok();
+    },
+  });
+
+  assert.equal(await command(["--all", "espn", "--cli-only"]), 0);
+  assert.equal(installed.length, 3);
+  assert.equal(new Set(installed).size, 3);
+});
+
+test("install command --category installs that category only", async () => {
+  const installed: string[] = [];
+  const stdout: string[] = [];
+  const command = bulkDeps({
+    goInstall: async (modulePath) => {
+      installed.push(modulePath);
+      return ok();
+    },
+    stdout: (message) => stdout.push(message),
+  });
+
+  assert.equal(await command(["--category", "sports", "--cli-only"]), 0);
+  assert.equal(installed.length, 2);
+  assert.match(stdout.join("\n"), /Category "sports"/);
+});
+
+test("install command --category rejects unknown categories with the known list", async () => {
+  const stderr: string[] = [];
+  const command = bulkDeps({ stderr: (message) => stderr.push(message) });
+
+  assert.equal(await command(["--category", "nope"]), 1);
+  assert.match(stderr.join("\n"), /No CLIs in category "nope"/);
+  assert.match(stderr.join("\n"), /project-management, sports/);
+});
+
+test("install command emits progress lines for bulk installs", async () => {
+  const stderr: string[] = [];
+  const command = bulkDeps({ stderr: (message) => stderr.push(message) });
+
+  assert.equal(await command(["espn", "linear", "--cli-only"]), 0);
+  const progress = stderr.filter((line) => /^\[\d\/2\] /.test(line));
+  assert.equal(progress.length, 2);
+  assert.match(progress.join("\n"), /\[2\/2\] \w+: ok/);
+});
+
+test("install command checks Go once for a bulk install and fails fast when missing", async () => {
+  const stderr: string[] = [];
+  const goInstallCalls: string[] = [];
+  const command = createInstallCommand({
+    fetchRegistry: async () => threeEntryRegistry(),
+    resolveModulePath: async () => null,
+    detectGo: async () => ({ installed: false }),
+    goInstall: async (modulePath) => {
+      goInstallCalls.push(modulePath);
+      return ok();
+    },
+    goInstallDir: async () => goBinDir("/Users/example/go/bin"),
+    commandOnPath: async () => null,
+    mkdir: async () => {},
+    installSkill: async () => ok(),
+    stdout: () => {},
+    stderr: (message) => stderr.push(message),
+    home: "/Users/example",
+    env: {},
+    platform: "darwin",
+  });
+
+  assert.equal(await command(["espn", "linear", "opensnow"]), 1);
+  assert.equal(goInstallCalls.length, 0);
+  assert.equal(stderr.filter((line) => /Go is required/.test(line)).length, 1);
+});
+
+test("install command keeps per-CLI output contiguous under concurrency", async () => {
+  const stdout: string[] = [];
+  const command = bulkDeps({
+    goInstall: async (modulePath) => {
+      // Reverse-order delays force out-of-order completion.
+      const delay = modulePath.includes("espn") ? 30 : modulePath.includes("linear") ? 15 : 1;
+      await new Promise((resolve) => setTimeout(resolve, delay));
+      return ok();
+    },
+    stdout: (message) => stdout.push(message),
+  });
+
+  assert.equal(await command(["espn", "linear", "opensnow"]), 0);
+  const order = stdout.filter((line) => /^Installed [a-z]/.test(line)).map((line) => line.split(" ")[1]);
+  assert.deepEqual(order, ["espn", "linear", "opensnow"]);
 });
