@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "ignition-cdp-rate-limit-429",
+  "applied_at": "2026-07-16",
+  "base_run_id": "20260709-123040-e1f1038b",
+  "base_printing_press_version": "4.28.0",
+  "summary": "CDP transport paces the real API call with an adaptive limiter and returns a typed RateLimitError on 429 instead of decoding throttle bodies as empty results.",
+  "reason": "The CDP GraphQL branch returned before the generated limiter and 429-retry loop ran, so browser-transport reads had no pacing and swallowed throttling (a 429 body flowed onward as a GraphQL payload decoding into empty results). Fix lives in the novel internal/cdp package: package-level cliutil.NewAdaptiveLimiterAuto(2.0) waited on before the in-page fetch; status 429 triggers OnRateLimit() and returns *cliutil.RateLimitError; success paths call OnSuccess(). Localhost CDP discovery calls are not paced.",
+  "files": [
+    "internal/cdp/cdp.go",
+    "internal/cdp/cdp_test.go"
+  ],
+  "validated_outcome": "internal/cdp test suite (9 tests) green; live reads still pass; 429 now surfaces as a typed error."
+}

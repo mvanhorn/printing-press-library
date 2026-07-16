@@ -1,0 +1,167 @@
+{
+  "api_name": "ignition",
+  "novelty_score": 8,
+  "alternatives": [],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-07-09T00:00:00Z",
+  "novel_features": [
+    {
+      "name": "Outstanding-billing rollup",
+      "command": "outstanding",
+      "description": "See everything billed but not yet paid, summed per client.",
+      "rationale": "Requires a local join of invoices and billing items by unpaid status that no single Ignition GraphQL call returns.",
+      "example": "ignition-pp-cli outstanding --json",
+      "why_it_matters": "Reach for this to answer 'who owes us money' in one read instead of paging the invoice index by hand.",
+      "group": "Invoicing analytics"
+    },
+    {
+      "name": "Proposal pipeline by status",
+      "command": "pipeline",
+      "description": "Count proposals across DRAFT, AWAITING_ACCEPTANCE, ACCEPTED, and LOST for the whole book of business.",
+      "rationale": "Requires aggregating the full proposal search index locally by status enum.",
+      "example": "ignition-pp-cli pipeline --json",
+      "why_it_matters": "Pick this over a raw proposal list when you want the funnel shape, not individual rows.",
+      "group": "Invoicing analytics"
+    },
+    {
+      "name": "Per-client billing summary",
+      "command": "client-billing",
+      "description": "One client's full money picture: what was proposed, invoiced, and still outstanding.",
+      "rationale": "Requires joining a client's proposals, invoices, and billing items from the local mirror.",
+      "example": "ignition-pp-cli client-billing --client-id cli_example --json",
+      "why_it_matters": "Use before a client call to see their entire Ignition money state in one shot.",
+      "group": "Invoicing analytics"
+    },
+    {
+      "name": "Unbilled work finder",
+      "command": "unbilled",
+      "description": "Surface accepted proposals that do not yet have a matching invoice or billing item.",
+      "rationale": "Requires diffing accepted proposals against existing invoices locally; Ignition has no such report.",
+      "example": "ignition-pp-cli unbilled --json",
+      "why_it_matters": "This is the direct 'invoice more efficiently' lever: it finds work you agreed to but haven't billed.",
+      "group": "Invoicing analytics"
+    },
+    {
+      "name": "Rejected-payment watch",
+      "command": "rejected-payments",
+      "description": "List clients with a rejected or failed payment so collections can follow up.",
+      "rationale": "Requires scanning per-client rejected-payment summaries across the synced client set.",
+      "example": "ignition-pp-cli rejected-payments --json",
+      "why_it_matters": "Read this to build a follow-up list without opening each client in the Ignition UI.",
+      "group": "Invoicing analytics"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Outstanding-billing rollup",
+      "command": "outstanding",
+      "description": "See everything billed but not yet paid, summed per client.",
+      "rationale": "Requires a local join of invoices and billing items by unpaid status that no single Ignition GraphQL call returns.",
+      "example": "ignition-pp-cli outstanding --json",
+      "why_it_matters": "Reach for this to answer 'who owes us money' in one read instead of paging the invoice index by hand.",
+      "group": "Invoicing analytics"
+    },
+    {
+      "name": "Proposal pipeline by status",
+      "command": "pipeline",
+      "description": "Count proposals across DRAFT, AWAITING_ACCEPTANCE, ACCEPTED, and LOST for the whole book of business.",
+      "rationale": "Requires aggregating the full proposal search index locally by status enum.",
+      "example": "ignition-pp-cli pipeline --json",
+      "why_it_matters": "Pick this over a raw proposal list when you want the funnel shape, not individual rows.",
+      "group": "Invoicing analytics"
+    },
+    {
+      "name": "Per-client billing summary",
+      "command": "client-billing",
+      "description": "One client's full money picture: what was proposed, invoiced, and still outstanding.",
+      "rationale": "Requires joining a client's proposals, invoices, and billing items from the local mirror.",
+      "example": "ignition-pp-cli client-billing --client-id cli_example --json",
+      "why_it_matters": "Use before a client call to see their entire Ignition money state in one shot.",
+      "group": "Invoicing analytics"
+    },
+    {
+      "name": "Unbilled work finder",
+      "command": "unbilled",
+      "description": "Surface accepted proposals that do not yet have a matching invoice or billing item.",
+      "rationale": "Requires diffing accepted proposals against existing invoices locally; Ignition has no such report.",
+      "example": "ignition-pp-cli unbilled --json",
+      "why_it_matters": "This is the direct 'invoice more efficiently' lever: it finds work you agreed to but haven't billed.",
+      "group": "Invoicing analytics"
+    },
+    {
+      "name": "Rejected-payment watch",
+      "command": "rejected-payments",
+      "description": "List clients with a rejected or failed payment so collections can follow up.",
+      "rationale": "Requires scanning per-client rejected-payment summaries across the synced client set.",
+      "example": "ignition-pp-cli rejected-payments --json",
+      "why_it_matters": "Read this to build a follow-up list without opening each client in the Ignition UI.",
+      "group": "Invoicing analytics"
+    }
+  ],
+  "auth": {
+    "canonical_env_var": "IGNITION_SESSION_COOKIE"
+  },
+  "narrative": {
+    "display_name": "Ignition",
+    "headline": "A read-only, agent-native CLI for Ignition proposals, invoices, billing, clients, and payments, with a local SQLite mirror and invoicing analytics the web UI does not offer.",
+    "value_prop": "Ignition (ignitionapp.com) has no public API, so agents drive it through fragile browser automation. This CLI gives the firm's agents a stable read interface over the GraphQL BFF plus local-join analytics (outstanding, pipeline, unbilled, client-billing) that answer invoicing questions in one command. It is read and draft only by design: nothing here sends email, activates a proposal, creates or charges an invoice, or mutates client state.",
+    "auth_narrative": "Ignition auth is a browser session cookie plus a per-page X-CSRF-Token (from the page's csrf-token meta tag). Set IGNITION_SESSION_COOKIE and IGNITION_CSRF_TOKEN from an authenticated Ignition tab; the CSRF token is minted per page-load, so refresh it if reads start returning auth errors.",
+    "quickstart": [
+      {
+        "command": "ignition-pp-cli doctor --dry-run",
+        "comment": "confirm the binary and config resolve before hitting the API"
+      },
+      {
+        "command": "ignition-pp-cli search-index invoices --json --select results.nodes.number,results.nodes.status,results.nodes.total",
+        "comment": "list invoices with only the fields that matter"
+      },
+      {
+        "command": "ignition-pp-cli outstanding --json",
+        "comment": "see what is billed but unpaid"
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "reads return an auth or 'User does not exist in the current context' error",
+        "fix": "refresh IGNITION_CSRF_TOKEN from the csrf-token meta tag of a logged-in Ignition tab; the token is per-page and expires"
+      },
+      {
+        "symptom": "empty results but no error",
+        "fix": "run ignition-pp-cli sync first so the local mirror is populated, then query"
+      }
+    ],
+    "when_to_use": "Use this CLI when an agent needs to read Ignition state for the firm: listing invoices, proposals, or billing items, resolving a client's money picture, or finding unbilled work before invoicing. It is the stable alternative to browser-driving Ignition for reads.",
+    "anti_triggers": [
+      "sending a proposal or invoice to a client (use Corben's send gate + safe_send, never this CLI)",
+      "activating, editing, or charging anything in Ignition (this CLI is read-only)",
+      "any client-facing outbound action"
+    ],
+    "recipes": [
+      {
+        "title": "Unbilled accepted work",
+        "command": "ignition-pp-cli unbilled --json",
+        "explanation": "accepted proposals with no matching invoice yet — the invoicing to-do list"
+      },
+      {
+        "title": "Trim a deep proposal payload",
+        "command": "ignition-pp-cli search-index proposals --json --select results.nodes.name,results.nodes.status,results.nodes.client.name",
+        "explanation": "narrow the nested GraphQL response to the fields agents actually read"
+      },
+      {
+        "title": "One client's money picture",
+        "command": "ignition-pp-cli client-billing --client-id cli_example --json",
+        "explanation": "proposed, invoiced, and outstanding for a single client before a call"
+      }
+    ],
+    "trigger_phrases": [
+      "list ignition invoices",
+      "what's outstanding in ignition",
+      "ignition proposal pipeline",
+      "find unbilled work",
+      "use ignition",
+      "run ignition"
+    ]
+  }
+}

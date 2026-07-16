@@ -1,0 +1,2507 @@
+name: ignition
+description: Discovered API spec for go-ignitionapp
+version: 0.1.0
+base_url: https://go.ignitionapp.com
+spec_source: sniffed
+auth:
+    type: cookie
+    header: Cookie
+    format: ""
+    env_vars:
+        - IGNITION_SESSION_COOKIE
+category: sales-and-crm
+http_transport: browser-chrome
+auth_warnings:
+    - 'rejected auth candidate "query" from body: search input'
+    - 'Ignition also requires an X-CSRF-Token header (from the page meta[name=csrf-token]); wired via internal/client/ignition_headers.go, sourced from IGNITION_CSRF_TOKEN'
+config:
+    format: toml
+    path: ~/.config/ignition-pp-cli/config.toml
+resources:
+    acknowledgements:
+        description: GraphQL BFF operations for acknowledgements
+        endpoints:
+            get:
+                method: POST
+                path: /graphql
+                description: Fetch acknowledgements
+                params: []
+                body:
+                    - name: operationName
+                      type: string
+                      required: true
+                      positional: false
+                      default: acknowledgement
+                      description: GraphQL operation name
+                      fields: []
+                    - name: query
+                      type: string
+                      required: false
+                      positional: false
+                      default: |-
+                        query acknowledgement($featureFlag: ID!) {
+                          acknowledgement(id: $featureFlag) {
+                            id
+                            level
+                            __typename
+                          }
+                        }
+                      description: GraphQL query document
+                      fields: []
+                    - name: variables
+                      type: object
+                      required: false
+                      positional: false
+                      default:
+                        featureFlag: feature::has-sent-magic-link
+                      description: GraphQL variables as JSON
+                      fields: []
+                    - name: extensions
+                      type: object
+                      required: false
+                      positional: false
+                      default:
+                        clientLibrary:
+                            name: '@apollo/client'
+                            version: 4.1.9
+                      description: GraphQL extensions as JSON
+                      fields: []
+                response:
+                    type: array
+                    item: acknowledgement
+                pagination: null
+                observed_auth:
+                    - x-castle-request-token
+                    - x-csrf-token
+    adds:
+        description: GraphQL BFF operations for adds
+        endpoints:
+            on_plan_trial_banner:
+                method: POST
+                path: /graphql
+                description: Fetch adds on plan trial banner
+                params: []
+                body:
+                    - name: operationName
+                      type: string
+                      required: true
+                      positional: false
+                      default: addOnPlanTrialBanner
+                      description: GraphQL operation name
+                      fields: []
+                    - name: query
+                      type: string
+                      required: false
+                      positional: false
+                      default: |-
+                        query addOnPlanTrialBanner {
+                          currentPractice {
+                            id
+                            billingAccount {
+                              addOnPlans {
+                                id
+                                code
+                                isInTrialPeriod
+                                name
+                                trialEndDate
+                                __typename
+                              }
+                              __typename
+                            }
+                            __typename
+                          }
+                        }
+                      description: GraphQL query document
+                      fields: []
+                    - name: variables
+                      type: object
+                      required: false
+                      positional: false
+                      default: {}
+                      description: GraphQL variables as JSON
+                      fields: []
+                    - name: extensions
+                      type: object
+                      required: false
+                      positional: false
+                      default:
+                        clientLibrary:
+                            name: '@apollo/client'
+                            version: 4.1.9
+                      description: GraphQL extensions as JSON
+                      fields: []
+                response:
+                    type: array
+                    item: add_on_plan_trial_banner
+                pagination: null
+                observed_auth:
+                    - x-castle-request-token
+                    - x-csrf-token
+    apps:
+        description: GraphQL BFF operations for apps
+        endpoints:
+            with_capability:
+                method: POST
+                path: /graphql
+                description: Fetch apps with capability
+                params: []
+                body:
+                    - name: operationName
+                      type: string
+                      required: true
+                      positional: false
+                      default: appsWithCapability
+                      description: GraphQL operation name
+                      fields: []
+                    - name: query
+                      type: string
+                      required: false
+                      positional: false
+                      default: |-
+                        query appsWithCapability($capabilities: [CapabilityFilter!]!) {
+                          apps(filter: {capabilities: $capabilities}) {
+                            nodes {
+                              id
+                              capabilities {
+                                name
+                                state
+                                __typename
+                              }
+                              displayName
+                              icon
+                              name
+                              userConfigurable {
+                                ...userConfigurable
+                                __typename
+                              }
+                              __typename
+                            }
+                            __typename
+                          }
+                        }
+
+                        fragment userConfigurable on UserConfigurable {
+                          accountName
+                          authorisedAccounts {
+                            id
+                            name
+                            __typename
+                          }
+                          connectable
+                          connectedAccount {
+                            id
+                            name
+                            __typename
+                          }
+                          connectionText
+                          connectionUrl
+                          description
+                          enablable
+                          lastSynced
+                          state
+                          unavailableReason {
+                            message
+                            type
+                            __typename
+                          }
+                          __typename
+                        }
+                      description: GraphQL query document
+                      fields: []
+                    - name: variables
+                      type: object
+                      required: false
+                      positional: false
+                      default:
+                        capabilities:
+                            - name: WORKFLOW
+                              state: ENABLED
+                      description: GraphQL variables as JSON
+                      fields: []
+                    - name: extensions
+                      type: object
+                      required: false
+                      positional: false
+                      default:
+                        clientLibrary:
+                            name: '@apollo/client'
+                            version: 4.1.9
+                      description: GraphQL extensions as JSON
+                      fields: []
+                response:
+                    type: array
+                    item: apps_with_capability
+                pagination: null
+                observed_auth:
+                    - x-castle-request-token
+                    - x-csrf-token
+    auth-api:
+        description: Operations on graphql
+        endpoints:
+            create_graphql:
+                method: POST
+                path: /auth-api/graphql
+                description: POST /auth-api/graphql
+                params:
+                    - name: data
+                      type: object
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields:
+                        - name: userAccessiblePractices
+                          type: array
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields:
+                            - name: __typename
+                              type: string
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: id
+                              type: string
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: logoUrl
+                              type: string
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                              format: url
+                            - name: name
+                              type: string
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                body:
+                    - name: extensions
+                      type: object
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields:
+                        - name: clientLibrary
+                          type: object
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields:
+                            - name: name
+                              type: string
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: version
+                              type: string
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                    - name: operationName
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: query
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: variables
+                      type: object
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                request_content_type: application/json
+                response:
+                    type: array
+                    item: Graphql
+                pagination: null
+                observed_auth:
+                    - x-castle-request-token
+                    - x-csrf-token
+    billings:
+        description: GraphQL BFF operations for billings
+        endpoints:
+            get:
+                method: POST
+                path: /graphql
+                description: Fetch billings
+                params: []
+                body:
+                    - name: operationName
+                      type: string
+                      required: true
+                      positional: false
+                      default: billingDetails
+                      description: GraphQL operation name
+                      fields: []
+                    - name: query
+                      type: string
+                      required: false
+                      positional: false
+                      default: |-
+                        query billingDetails {
+                          currentPractice {
+                            id
+                            billingAccount {
+                              billingEntity {
+                                ...billingInfo
+                                __typename
+                              }
+                              paymentChallenge {
+                                id
+                                token
+                                __typename
+                              }
+                              paymentMethods {
+                                id
+                                accountType
+                                bankName
+                                expiryMonth
+                                expiryYear
+                                firstSix
+                                lastFour
+                                paymentMethodType
+                                __typename
+                              }
+                              pendingPaymentFees {
+                                cents
+                                format
+                                __typename
+                              }
+                              __typename
+                            }
+                            countryCode
+                            customerSuccessMaturityIndex {
+                              ... on CustomerSuccessMaturityIndex {
+                                id
+                                industry
+                                __typename
+                              }
+                              ... on CustomerSuccessVersion1MaturityIndex {
+                                id
+                                industry
+                                __typename
+                              }
+                              __typename
+                            }
+                            name
+                            stripeAccountId
+                            stripePaymentMethodConfigurationId
+                            stripePublishableKey
+                            subscription {
+                              activeClientCount
+                              activeUserCount
+                              arrearsDueDate
+                              arrearsStatus
+                              cancelledDate
+                              directDebitAvailableForNewSubscription: subscriptionDirectDebitAvailable(
+                                flow: NEW_SUBSCRIPTION
+                              )
+                              directDebitAvailableForUpdate: subscriptionDirectDebitAvailable(flow: UPDATE)
+                              endDate
+                              frequency
+                              isBillable
+                              isCustomPlan
+                              isLegacyPlan
+                              isOrganizationManaged
+                              isTrial
+                              notifiedOfImminentPlanUpgradeOn
+                              planCode
+                              planName
+                              planTier
+                              renewDate
+                              status
+                              subscriptionCurrency {
+                                isoCode
+                                __typename
+                              }
+                              __typename
+                            }
+                            __typename
+                          }
+                        }
+
+                        fragment billingInfo on PracticeBillingEntity {
+                          address {
+                            city
+                            country
+                            lines
+                            postcode
+                            state
+                            __typename
+                          }
+                          companyAddress {
+                            city
+                            country
+                            lines
+                            postcode
+                            state
+                            __typename
+                          }
+                          email
+                          firstName
+                          isCompanyAddressSameAsBilling
+                          lastName
+                          phone
+                          __typename
+                        }
+                      description: GraphQL query document
+                      fields: []
+                    - name: variables
+                      type: object
+                      required: false
+                      positional: false
+                      default: {}
+                      description: GraphQL variables as JSON
+                      fields: []
+                    - name: extensions
+                      type: object
+                      required: false
+                      positional: false
+                      default:
+                        clientLibrary:
+                            name: '@apollo/client'
+                            version: 4.1.9
+                      description: GraphQL extensions as JSON
+                      fields: []
+                response:
+                    type: array
+                    item: billing_details
+                pagination: null
+                observed_auth:
+                    - x-castle-request-token
+                    - x-csrf-token
+    brandings:
+        description: GraphQL BFF operations for brandings
+        endpoints:
+            theme:
+                method: POST
+                path: /graphql
+                description: Fetch brandings theme
+                params: []
+                body:
+                    - name: operationName
+                      type: string
+                      required: true
+                      positional: false
+                      default: brandingTheme
+                      description: GraphQL operation name
+                      fields: []
+                    - name: query
+                      type: string
+                      required: false
+                      positional: false
+                      default: |-
+                        query brandingTheme {
+                          brandingTheme {
+                            id
+                            colourHex
+                            customDomain
+                            customDomainEnabled
+                            defaultBrochure {
+                              filename
+                              __typename
+                            }
+                            isDefaultLogo
+                            isLogoShownOnClientEmails
+                            landingPageReturnUrl
+                            landingPageUrl
+                            logo {
+                              url
+                              __typename
+                            }
+                            __typename
+                          }
+                        }
+                      description: GraphQL query document
+                      fields: []
+                    - name: variables
+                      type: object
+                      required: false
+                      positional: false
+                      default: {}
+                      description: GraphQL variables as JSON
+                      fields: []
+                    - name: extensions
+                      type: object
+                      required: false
+                      positional: false
+                      default:
+                        clientLibrary:
+                            name: '@apollo/client'
+                            version: 4.1.9
+                      description: GraphQL extensions as JSON
+                      fields: []
+                response:
+                    type: object
+                    item: branding_theme
+                pagination: null
+                observed_auth:
+                    - x-castle-request-token
+                    - x-csrf-token
+    clients:
+        description: GraphQL BFF operations for clients
+        endpoints:
+            forms:
+                method: POST
+                path: /graphql
+                description: Fetch clients forms
+                params: []
+                body:
+                    - name: operationName
+                      type: string
+                      required: true
+                      positional: false
+                      default: clientForms
+                      description: GraphQL operation name
+                      fields: []
+                    - name: query
+                      type: string
+                      required: false
+                      positional: false
+                      default: |-
+                        query clientForms($clientId: ID!) {
+                          client(id: $clientId) {
+                            id
+                            defaultContact {
+                              id
+                              name
+                              __typename
+                            }
+                            forms {
+                              nodes {
+                                id
+                                createdAt
+                                name
+                                questionsCount
+                                sentAt
+                                state
+                                submittedAt
+                                __typename
+                              }
+                              __typename
+                            }
+                            __typename
+                          }
+                        }
+                      description: GraphQL query document
+                      fields: []
+                    - name: variables
+                      type: object
+                      required: false
+                      positional: false
+                      default:
+                        clientId: cli_nb6ap42ox7nqaaia6yxq
+                      description: GraphQL variables as JSON
+                      fields: []
+                    - name: extensions
+                      type: object
+                      required: false
+                      positional: false
+                      default:
+                        clientLibrary:
+                            name: '@apollo/client'
+                            version: 4.1.9
+                      description: GraphQL extensions as JSON
+                      fields: []
+                response:
+                    type: array
+                    item: client_forms
+                pagination: null
+                observed_auth:
+                    - x-castle-request-token
+                    - x-csrf-token
+            get:
+                method: POST
+                path: /graphql
+                description: Fetch clients
+                params: []
+                body:
+                    - name: operationName
+                      type: string
+                      required: true
+                      positional: false
+                      default: client
+                      description: GraphQL operation name
+                      fields: []
+                    - name: query
+                      type: string
+                      required: false
+                      positional: false
+                      default: |-
+                        query client($id: ID!) {
+                          client(id: $id) {
+                            ...client
+                            __typename
+                          }
+                        }
+
+                        fragment client on Client {
+                          id
+                          activityError
+                          activityErrorOccurredAt
+                          businessStructure
+                          companyAddress {
+                            city
+                            country
+                            lines
+                            postcode
+                            region
+                            __typename
+                          }
+                          companyNumber
+                          contacts {
+                            nodes {
+                              id
+                              addressee
+                              email
+                              isRecipient
+                              isSignatory
+                              mobile
+                              name
+                              phone
+                              salutation
+                              __typename
+                            }
+                            __typename
+                          }
+                          createdAt
+                          defaultContact {
+                            id
+                            email
+                            name
+                            __typename
+                          }
+                          displayReferenceNumber
+                          dynamicAttributes {
+                            attributeValue {
+                              ... on DynamicAttributeDateValue {
+                                __typename
+                                date: value
+                              }
+                              ... on DynamicAttributeNumberValue {
+                                __typename
+                                number: value
+                              }
+                              ... on DynamicAttributeStringValue {
+                                __typename
+                                string: value
+                              }
+                              ... on DynamicAttributeStringArrayValue {
+                                __typename
+                                stringArray: value
+                              }
+                              __typename
+                            }
+                            displayName
+                            name
+                            valueType
+                            __typename
+                          }
+                          emailSettings {
+                            name
+                            setting
+                            __typename
+                          }
+                          fax
+                          fiscalPeriodEndDay
+                          fiscalPeriodEndMonth
+                          group {
+                            id
+                            name
+                            __typename
+                          }
+                          gstRegistered
+                          isSurchargeEnabled
+                          jobManager {
+                            id
+                            emailAddress
+                            fullName
+                            referenceNumber
+                            __typename
+                          }
+                          name
+                          notes
+                          partner {
+                            id
+                            emailAddress
+                            fullName
+                            referenceNumber
+                            __typename
+                          }
+                          paymentSettings {
+                            onlinePaymentAllowed
+                            requestPaymentForImportedInvoices
+                            __typename
+                          }
+                          phone
+                          postalAddress {
+                            city
+                            country
+                            lines
+                            postcode
+                            region
+                            __typename
+                          }
+                          referenceNumber
+                          state
+                          tagList
+                          taxNumber
+                          type
+                          updatedAt
+                          userAssignedId
+                          website
+                          willDeployInvoices
+                          xeroTrackingCategories {
+                            id
+                            name
+                            selectedOption {
+                              id
+                              name
+                              __typename
+                            }
+                            __typename
+                          }
+                          __typename
+                        }
+                      description: GraphQL query document
+                      fields: []
+                    - name: variables
+                      type: object
+                      required: false
+                      positional: false
+                      default:
+                        id: cli_nb6ap42ox7nqaaia6yxq
+                      description: GraphQL variables as JSON
+                      fields: []
+                    - name: extensions
+                      type: object
+                      required: false
+                      positional: false
+                      default:
+                        clientLibrary:
+                            name: '@apollo/client'
+                            version: 4.1.9
+                      description: GraphQL extensions as JSON
+                      fields: []
+                response:
+                    type: array
+                    item: client
+                pagination: null
+                observed_auth:
+                    - x-castle-request-token
+                    - x-csrf-token
+            get_2:
+                method: POST
+                path: /graphql
+                description: Fetch clients
+                params: []
+                body:
+                    - name: operationName
+                      type: string
+                      required: true
+                      positional: false
+                      default: clientViewPage
+                      description: GraphQL operation name
+                      fields: []
+                    - name: query
+                      type: string
+                      required: false
+                      positional: false
+                      default: |-
+                        query clientViewPage($clientId: ID!) {
+                          client(id: $clientId) {
+                            id
+                            canArchive
+                            name
+                            state
+                            __typename
+                          }
+                        }
+                      description: GraphQL query document
+                      fields: []
+                    - name: variables
+                      type: object
+                      required: false
+                      positional: false
+                      default:
+                        clientId: cli_nb6ap42ox7nqaaia6yxq
+                      description: GraphQL variables as JSON
+                      fields: []
+                    - name: extensions
+                      type: object
+                      required: false
+                      positional: false
+                      default:
+                        clientLibrary:
+                            name: '@apollo/client'
+                            version: 4.1.9
+                      description: GraphQL extensions as JSON
+                      fields: []
+                response:
+                    type: array
+                    item: client_view_page
+                pagination: null
+                observed_auth:
+                    - x-castle-request-token
+                    - x-csrf-token
+            proposals:
+                method: POST
+                path: /graphql
+                description: Fetch clients proposals
+                params: []
+                body:
+                    - name: operationName
+                      type: string
+                      required: true
+                      positional: false
+                      default: clientProposals
+                      description: GraphQL operation name
+                      fields: []
+                    - name: query
+                      type: string
+                      required: false
+                      positional: false
+                      default: |-
+                        query clientProposals($clientId: ID!, $stateIn: [ProposalState!], $limit: Int, $after: String) {
+                          proposals(
+                            first: $limit
+                            after: $after
+                            filter: {referencingClientIdEq: $clientId, stateIn: $stateIn}
+                          ) {
+                            nodes {
+                              ...clientProposal
+                              __typename
+                            }
+                            pageInfo {
+                              endCursor
+                              hasNextPage
+                              __typename
+                            }
+                            __typename
+                          }
+                        }
+
+                        fragment clientProposal on Proposal {
+                          id
+                          clientGroup {
+                            id
+                            name
+                            __typename
+                          }
+                          displayReferenceNumber
+                          effectiveFrom
+                          isRenewal
+                          isRenewed
+                          minimumContractLength
+                          minimumContractValue {
+                            format
+                            __typename
+                          }
+                          minimumContractValueWithTax {
+                            format
+                            __typename
+                          }
+                          name
+                          options {
+                            id
+                            __typename
+                          }
+                          reviewState
+                          state
+                          __typename
+                        }
+                      description: GraphQL query document
+                      fields: []
+                    - name: variables
+                      type: object
+                      required: false
+                      positional: false
+                      default:
+                        clientId: cli_nb6ap42ox7nqaaia6yxq
+                        limit: 25
+                        stateIn:
+                            - DRAFT
+                            - AWAITING_ACCEPTANCE
+                            - ACCEPTED
+                            - COMPLETED
+                            - LOST
+                      description: GraphQL variables as JSON
+                      fields: []
+                    - name: extensions
+                      type: object
+                      required: false
+                      positional: false
+                      default:
+                        clientLibrary:
+                            name: '@apollo/client'
+                            version: 4.1.9
+                      description: GraphQL extensions as JSON
+                      fields: []
+                response:
+                    type: array
+                    item: client_proposals
+                pagination: null
+                observed_auth:
+                    - x-castle-request-token
+                    - x-csrf-token
+            summary_client:
+                method: POST
+                path: /graphql
+                description: Fetch clients summary client
+                params: []
+                body:
+                    - name: operationName
+                      type: string
+                      required: true
+                      positional: false
+                      default: clientSummaryClient
+                      description: GraphQL operation name
+                      fields: []
+                    - name: query
+                      type: string
+                      required: false
+                      positional: false
+                      default: |-
+                        query clientSummaryClient($id: ID!) {
+                          client(id: $id) {
+                            id
+                            type
+                            __typename
+                          }
+                        }
+                      description: GraphQL query document
+                      fields: []
+                    - name: variables
+                      type: object
+                      required: false
+                      positional: false
+                      default:
+                        id: cli_nb6ap42ox7nqaaia6yxq
+                      description: GraphQL variables as JSON
+                      fields: []
+                    - name: extensions
+                      type: object
+                      required: false
+                      positional: false
+                      default:
+                        clientLibrary:
+                            name: '@apollo/client'
+                            version: 4.1.9
+                      description: GraphQL extensions as JSON
+                      fields: []
+                response:
+                    type: array
+                    item: client_summary_client
+                pagination: null
+                observed_auth:
+                    - x-castle-request-token
+                    - x-csrf-token
+            summary_rejected_payments:
+                method: POST
+                path: /graphql
+                description: Fetch clients summary rejected payments
+                params: []
+                body:
+                    - name: operationName
+                      type: string
+                      required: true
+                      positional: false
+                      default: clientSummaryRejectedPayments
+                      description: GraphQL operation name
+                      fields: []
+                    - name: query
+                      type: string
+                      required: false
+                      positional: false
+                      default: |-
+                        query clientSummaryRejectedPayments($id: ID!) {
+                          client(id: $id) {
+                            id
+                            agreedServices(first: 1, filter: {stateIn: [UPCOMING]}) {
+                              nodes {
+                                id
+                                name
+                                __typename
+                              }
+                              __typename
+                            }
+                            rejectedPayments: payments(
+                              filter: {latestCollectionFailed: true, withoutScheduledCollection: true, withoutActionablePaymentRequest: true, withOutstandingInvoices: true, stateNotIn: [CANCELLED]}
+                            ) {
+                              totalCount
+                              __typename
+                            }
+                            __typename
+                          }
+                        }
+                      description: GraphQL query document
+                      fields: []
+                    - name: variables
+                      type: object
+                      required: false
+                      positional: false
+                      default:
+                        id: cli_nb6ap42ox7nqaaia6yxq
+                      description: GraphQL variables as JSON
+                      fields: []
+                    - name: extensions
+                      type: object
+                      required: false
+                      positional: false
+                      default:
+                        clientLibrary:
+                            name: '@apollo/client'
+                            version: 4.1.9
+                      description: GraphQL extensions as JSON
+                      fields: []
+                response:
+                    type: array
+                    item: client_summary_rejected_payments
+                pagination: null
+                observed_auth:
+                    - x-castle-request-token
+                    - x-csrf-token
+            sync_status:
+                method: POST
+                path: /graphql
+                description: Fetch clients sync status
+                params: []
+                body:
+                    - name: operationName
+                      type: string
+                      required: true
+                      positional: false
+                      default: getClientSyncStatus
+                      description: GraphQL operation name
+                      fields: []
+                    - name: query
+                      type: string
+                      required: false
+                      positional: false
+                      default: |-
+                        query getClientSyncStatus($capability: CapabilityNameEnum, $state: CapabilityStateEnum) {
+                          apps(filter: {capabilities: [{name: $capability, state: $state}]}) {
+                            nodes {
+                              id
+                              displayName
+                              latestClientSync {
+                                id
+                                state
+                                __typename
+                              }
+                              name
+                              userConfigurable {
+                                state
+                                __typename
+                              }
+                              __typename
+                            }
+                            __typename
+                          }
+                        }
+                      description: GraphQL query document
+                      fields: []
+                    - name: variables
+                      type: object
+                      required: false
+                      positional: false
+                      default:
+                        capability: CLIENT_SYNC
+                        state: ENABLED
+                      description: GraphQL variables as JSON
+                      fields: []
+                    - name: extensions
+                      type: object
+                      required: false
+                      positional: false
+                      default:
+                        clientLibrary:
+                            name: '@apollo/client'
+                            version: 4.1.9
+                      description: GraphQL extensions as JSON
+                      fields: []
+                response:
+                    type: array
+                    item: get_client_sync_status
+                pagination: null
+                observed_auth:
+                    - x-castle-request-token
+                    - x-csrf-token
+            tags:
+                method: POST
+                path: /graphql
+                description: Fetch clients tags
+                params: []
+                body:
+                    - name: operationName
+                      type: string
+                      required: true
+                      positional: false
+                      default: clientTags
+                      description: GraphQL operation name
+                      fields: []
+                    - name: query
+                      type: string
+                      required: false
+                      positional: false
+                      default: |-
+                        query clientTags($clientId: ID!) {
+                          client(id: $clientId) {
+                            id
+                            tagList
+                            __typename
+                          }
+                          clientTagList
+                        }
+                      description: GraphQL query document
+                      fields: []
+                    - name: variables
+                      type: object
+                      required: false
+                      positional: false
+                      default:
+                        clientId: cli_nb6ap42ox7nqaaia6yxq
+                      description: GraphQL variables as JSON
+                      fields: []
+                    - name: extensions
+                      type: object
+                      required: false
+                      positional: false
+                      default:
+                        clientLibrary:
+                            name: '@apollo/client'
+                            version: 4.1.9
+                      description: GraphQL extensions as JSON
+                      fields: []
+                response:
+                    type: array
+                    item: client_tags
+                pagination: null
+                observed_auth:
+                    - x-castle-request-token
+                    - x-csrf-token
+    codes:
+        description: GraphQL BFF operations for codes
+        endpoints:
+            version:
+                method: POST
+                path: /graphql
+                description: Fetch codes version
+                params: []
+                body:
+                    - name: operationName
+                      type: string
+                      required: true
+                      positional: false
+                      default: codeVersion
+                      description: GraphQL operation name
+                      fields: []
+                    - name: query
+                      type: string
+                      required: false
+                      positional: false
+                      default: |-
+                        query codeVersion {
+                          codeVersion
+                        }
+                      description: GraphQL query document
+                      fields: []
+                    - name: variables
+                      type: object
+                      required: false
+                      positional: false
+                      default: {}
+                      description: GraphQL variables as JSON
+                      fields: []
+                    - name: extensions
+                      type: object
+                      required: false
+                      positional: false
+                      default:
+                        clientLibrary:
+                            name: '@apollo/client'
+                            version: 4.1.9
+                      description: GraphQL extensions as JSON
+                      fields: []
+                response:
+                    type: array
+                    item: code_version
+                pagination: null
+                observed_auth:
+                    - x-castle-request-token
+                    - x-csrf-token
+    compliances:
+        description: GraphQL BFF operations for compliances
+        endpoints:
+            availability:
+                method: POST
+                path: /graphql
+                description: Fetch compliances availability
+                params: []
+                body:
+                    - name: operationName
+                      type: string
+                      required: true
+                      positional: false
+                      default: complianceAvailability
+                      description: GraphQL operation name
+                      fields: []
+                    - name: query
+                      type: string
+                      required: false
+                      positional: false
+                      default: |-
+                        query complianceAvailability {
+                          complianceSettings {
+                            id
+                            enabled
+                            __typename
+                          }
+                          currentPractice {
+                            id
+                            complianceSupported
+                            __typename
+                          }
+                          feature(id: "compliance") {
+                            id
+                            available
+                            __typename
+                          }
+                        }
+                      description: GraphQL query document
+                      fields: []
+                    - name: variables
+                      type: object
+                      required: false
+                      positional: false
+                      default: {}
+                      description: GraphQL variables as JSON
+                      fields: []
+                    - name: extensions
+                      type: object
+                      required: false
+                      positional: false
+                      default:
+                        clientLibrary:
+                            name: '@apollo/client'
+                            version: 4.1.9
+                      description: GraphQL extensions as JSON
+                      fields: []
+                response:
+                    type: array
+                    item: compliance_availability
+                pagination: null
+                observed_auth:
+                    - x-castle-request-token
+                    - x-csrf-token
+    currents:
+        description: GraphQL BFF operations for currents
+        endpoints:
+            practice:
+                method: POST
+                path: /graphql
+                description: Fetch currents practice
+                params: []
+                body:
+                    - name: operationName
+                      type: string
+                      required: true
+                      positional: false
+                      default: currentPractice
+                      description: GraphQL operation name
+                      fields: []
+                    - name: query
+                      type: string
+                      required: false
+                      positional: false
+                      default: |-
+                        query currentPractice {
+                          currentPractice {
+                            id
+                            billingCurrency {
+                              isoCode
+                              symbol
+                              __typename
+                            }
+                            clientDefaultEmailSettings {
+                              name
+                              setting
+                              __typename
+                            }
+                            complianceSupported
+                            countryCode
+                            createdAt
+                            defaultNewProposalEmailTemplate {
+                              id
+                              __typename
+                            }
+                            defaultProposalEditor
+                            defaultTax {
+                              id
+                              __typename
+                            }
+                            emailAddress
+                            financialYearStart
+                            locale
+                            name
+                            paymentRegion
+                            preferredProposalEditor
+                            principal {
+                              id
+                              emailAddress
+                              firstName
+                              fullName
+                              __typename
+                            }
+                            proposalLabel
+                            referenceNumber
+                            referralMethod
+                            signupPhone
+                            stripePublishableKey
+                            subscription {
+                              endDate
+                              isCustomPlan
+                              isOrganizationManaged
+                              planCode
+                              planName
+                              planTier
+                              reactivatedAt
+                              status
+                              __typename
+                            }
+                            subscriptionAccountCode
+                            subscriptionCurrency {
+                              isoCode
+                              symbol
+                              __typename
+                            }
+                            taxDisplay
+                            taxTypeLabel
+                            trialEndDate
+                            useIgnitionInvoicePdf
+                            worldRegion
+                            __typename
+                          }
+                        }
+                      description: GraphQL query document
+                      fields: []
+                    - name: variables
+                      type: object
+                      required: false
+                      positional: false
+                      default: {}
+                      description: GraphQL variables as JSON
+                      fields: []
+                    - name: extensions
+                      type: object
+                      required: false
+                      positional: false
+                      default:
+                        clientLibrary:
+                            name: '@apollo/client'
+                            version: 4.1.9
+                      description: GraphQL extensions as JSON
+                      fields: []
+                response:
+                    type: array
+                    item: current_practice
+                pagination: null
+                observed_auth:
+                    - x-castle-request-token
+                    - x-csrf-token
+            user:
+                method: POST
+                path: /graphql
+                description: Fetch currents user
+                params: []
+                body:
+                    - name: operationName
+                      type: string
+                      required: true
+                      positional: false
+                      default: currentUser
+                      description: GraphQL operation name
+                      fields: []
+                    - name: query
+                      type: string
+                      required: false
+                      positional: false
+                      default: |-
+                        query currentUser {
+                          currentUser {
+                            id
+                            avatarUrl
+                            emailAddress
+                            firstName
+                            freePricePredictionsRemaining
+                            fullName
+                            hasBillingPermission
+                            isPrincipal
+                            isSsoUser
+                            isSubscribedToWeeklySummary
+                            permissions {
+                              action
+                              entity
+                              __typename
+                            }
+                            referenceNumber
+                            roles
+                            twoFactorAuthEnabled
+                            twoFactorAuthMethod
+                            __typename
+                          }
+                        }
+                      description: GraphQL query document
+                      fields: []
+                    - name: variables
+                      type: object
+                      required: false
+                      positional: false
+                      default: {}
+                      description: GraphQL variables as JSON
+                      fields: []
+                    - name: extensions
+                      type: object
+                      required: false
+                      positional: false
+                      default:
+                        clientLibrary:
+                            name: '@apollo/client'
+                            version: 4.1.9
+                      description: GraphQL extensions as JSON
+                      fields: []
+                response:
+                    type: array
+                    item: current_user
+                pagination: null
+                observed_auth:
+                    - x-castle-request-token
+                    - x-csrf-token
+    features:
+        description: GraphQL BFF operations for features
+        endpoints:
+            gate:
+                method: POST
+                path: /graphql
+                description: Fetch features gate
+                params: []
+                body:
+                    - name: operationName
+                      type: string
+                      required: true
+                      positional: false
+                      default: getFeatureGate
+                      description: GraphQL operation name
+                      fields: []
+                    - name: query
+                      type: string
+                      required: false
+                      positional: false
+                      default: |-
+                        query getFeatureGate($featureName: String!) {
+                          feature(id: $featureName) {
+                            id
+                            available
+                            __typename
+                          }
+                        }
+                      description: GraphQL query document
+                      fields: []
+                    - name: variables
+                      type: object
+                      required: false
+                      positional: false
+                      default:
+                        featureName: deals
+                      description: GraphQL variables as JSON
+                      fields: []
+                    - name: extensions
+                      type: object
+                      required: false
+                      positional: false
+                      default:
+                        clientLibrary:
+                            name: '@apollo/client'
+                            version: 4.1.9
+                      description: GraphQL extensions as JSON
+                      fields: []
+                response:
+                    type: array
+                    item: get_feature_gate
+                pagination: null
+                observed_auth:
+                    - x-castle-request-token
+                    - x-csrf-token
+    forms:
+        description: GraphQL BFF operations for forms
+        endpoints:
+            templates:
+                method: POST
+                path: /graphql
+                description: Fetch forms templates
+                params: []
+                body:
+                    - name: operationName
+                      type: string
+                      required: true
+                      positional: false
+                      default: formTemplates
+                      description: GraphQL operation name
+                      fields: []
+                    - name: query
+                      type: string
+                      required: false
+                      positional: false
+                      default: |-
+                        query formTemplates($filter: FormTemplateFilterType, $pagination: PaginationInput) {
+                          formTemplates(filter: $filter, pagination: $pagination) {
+                            nodes {
+                              id
+                              awaitingResponseCount
+                              description
+                              mostRecentResponseAt
+                              name
+                              submittedCount
+                              userUpdatedAt
+                              __typename
+                            }
+                            totalCount
+                            __typename
+                          }
+                        }
+                      description: GraphQL query document
+                      fields: []
+                    - name: variables
+                      type: object
+                      required: false
+                      positional: false
+                      default:
+                        filter:
+                            nameCont: ""
+                        pagination:
+                            pageNumber: 1
+                            pageSize: 25
+                      description: GraphQL variables as JSON
+                      fields: []
+                    - name: extensions
+                      type: object
+                      required: false
+                      positional: false
+                      default:
+                        clientLibrary:
+                            name: '@apollo/client'
+                            version: 4.1.9
+                      description: GraphQL extensions as JSON
+                      fields: []
+                response:
+                    type: object
+                    item: form_templates
+                pagination: null
+                observed_auth:
+                    - x-castle-request-token
+                    - x-csrf-token
+    payments:
+        description: GraphQL BFF operations for payments
+        endpoints:
+            settings:
+                method: POST
+                path: /graphql
+                description: Fetch payments settings
+                params: []
+                body:
+                    - name: operationName
+                      type: string
+                      required: true
+                      positional: false
+                      default: paymentSettings
+                      description: GraphQL operation name
+                      fields: []
+                    - name: query
+                      type: string
+                      required: false
+                      positional: false
+                      default: |-
+                        query paymentSettings {
+                          paymentSettings {
+                            id
+                            creditCardAcceptance
+                            creditCardAvailable
+                            directDebitAcceptance
+                            directDebitAvailable
+                            disbursalAccount {
+                              id
+                              descriptor
+                              descriptorPrefix
+                              name
+                              number
+                              routingNumber
+                              __typename
+                            }
+                            disbursalAccountUpdateRequest {
+                              id
+                              approvedOn
+                              state
+                              __typename
+                            }
+                            disbursalsDisablementType
+                            externalVerificationRequired
+                            features
+                            guestCheckoutAvailable
+                            guestCheckoutConsentAccepted
+                            guestCheckoutEnabled
+                            isAutoRetryEnabled
+                            isDisbursalsEnabled
+                            isEnabled
+                            isPaymentGatewayApproved
+                            isRejected
+                            isSupported
+                            isSurchargeCreditCardsOnly
+                            isSurchargeEnabled
+                            isTrialThresholdExceeded
+                            onboardingStartedAt
+                            onceOffTerms
+                            onlinePaymentAllowed
+                            paymentMethodRequired
+                            recurringTerms
+                            remindersEnabled
+                            remindersRecurrenceRule {
+                              count
+                              interval
+                              __typename
+                            }
+                            requestPaymentForImportedInvoices
+                            surchargeLastUpdateMessage
+                            surchargeRate {
+                              format
+                              __typename
+                            }
+                            translations {
+                              accountNumber
+                              directDebit
+                              routingNumber
+                              __typename
+                            }
+                            trialThresholdAmount {
+                              cents
+                              format
+                              __typename
+                            }
+                            __typename
+                          }
+                        }
+                      description: GraphQL query document
+                      fields: []
+                    - name: variables
+                      type: object
+                      required: false
+                      positional: false
+                      default: {}
+                      description: GraphQL variables as JSON
+                      fields: []
+                    - name: extensions
+                      type: object
+                      required: false
+                      positional: false
+                      default:
+                        clientLibrary:
+                            name: '@apollo/client'
+                            version: 4.1.9
+                      description: GraphQL extensions as JSON
+                      fields: []
+                response:
+                    type: array
+                    item: payment_settings
+                pagination: null
+                observed_auth:
+                    - x-castle-request-token
+                    - x-csrf-token
+    preferreds:
+        description: GraphQL BFF operations for preferreds
+        endpoints:
+            proposal_editor:
+                method: POST
+                path: /graphql
+                description: Fetch preferreds proposal editor
+                params: []
+                body:
+                    - name: operationName
+                      type: string
+                      required: true
+                      positional: false
+                      default: preferredProposalEditor
+                      description: GraphQL operation name
+                      fields: []
+                    - name: query
+                      type: string
+                      required: false
+                      positional: false
+                      default: |-
+                        query preferredProposalEditor {
+                          currentPractice {
+                            id
+                            defaultProposalEditor
+                            enabledProposalEditors
+                            __typename
+                          }
+                          engagements(first: 1) {
+                            nodes {
+                              id
+                              __typename
+                            }
+                            __typename
+                          }
+                          proposals(first: 1, filter: {stateNotIn: NEW}) {
+                            nodes {
+                              id
+                              __typename
+                            }
+                            __typename
+                          }
+                        }
+                      description: GraphQL query document
+                      fields: []
+                    - name: variables
+                      type: object
+                      required: false
+                      positional: false
+                      default: {}
+                      description: GraphQL variables as JSON
+                      fields: []
+                    - name: extensions
+                      type: object
+                      required: false
+                      positional: false
+                      default:
+                        clientLibrary:
+                            name: '@apollo/client'
+                            version: 4.1.9
+                      description: GraphQL extensions as JSON
+                      fields: []
+                response:
+                    type: array
+                    item: preferred_proposal_editor
+                pagination: null
+                observed_auth:
+                    - x-castle-request-token
+                    - x-csrf-token
+    proposals:
+        description: GraphQL BFF operations for proposals
+        endpoints:
+            get:
+                method: POST
+                path: /graphql
+                description: Fetch proposals
+                params: []
+                body:
+                    - name: operationName
+                      type: string
+                      required: true
+                      positional: false
+                      default: proposalView
+                      description: GraphQL operation name
+                      fields: []
+                    - name: query
+                      type: string
+                      required: false
+                      positional: false
+                      default: |-
+                        query proposalView($id: ID!, $orderActivitiesBy: ActivityLogOrder) {
+                          currentPractice {
+                            id
+                            taxDisplay
+                            __typename
+                          }
+                          paymentSettings {
+                            id
+                            isEnabled
+                            isSupported
+                            translations {
+                              directDebit
+                              __typename
+                            }
+                            __typename
+                          }
+                          proposal(id: $id) {
+                            brochure {
+                              id
+                              __typename
+                            }
+                            clientGroup {
+                              id
+                              name
+                              __typename
+                            }
+                            creditCardAccepted
+                            deal {
+                              id
+                              name
+                              notesCount
+                              priority
+                              stage {
+                                id
+                                name
+                                __typename
+                              }
+                              state
+                              __typename
+                            }
+                            directDebitAccepted
+                            paymentMethod {
+                              ...paymentMethod
+                              __typename
+                            }
+                            paymentMethodRequired
+                            ...proposal
+                            __typename
+                          }
+                        }
+
+                        fragment proposalChangeOrderAudit on ChangeOrder {
+                          id
+                          acceptedAt
+                          acceptedOnBehalfReason
+                          diff {
+                            addedServices
+                            cancelledServices
+                            updatedServiceGroups
+                            updatedServices
+                            __typename
+                          }
+                          __typename
+                        }
+
+                        fragment activity on ActivityLog {
+                          id
+                          additionalInfo
+                          createdAt
+                          level
+                          message
+                          relationId
+                          __typename
+                        }
+
+                        fragment paymentMethod on PaymentMethod {
+                          id
+                          createdAt
+                          displayMethodType
+                          displayName
+                          expiryDate
+                          isCollecting
+                          isDefault
+                          isDeleted
+                          isExpired
+                          isInUse
+                          isSurchargeEnabled
+                          isValid
+                          isVerified
+                          minimumChargeAmount {
+                            cents
+                            __typename
+                          }
+                          name
+                          numberSuffix
+                          processingTime
+                          referenceNumber
+                          surchargeCategory
+                          surchargeRate {
+                            format
+                            value
+                            __typename
+                          }
+                          type
+                          verificationUrl
+                          verificationUrlStatus
+                          __typename
+                        }
+
+                        fragment proposal on Proposal {
+                          id
+                          acceptedAt
+                          acceptedChangeOrders {
+                            ...proposalChangeOrderAudit
+                            __typename
+                          }
+                          activeTermsRedlineRound {
+                            id
+                            state
+                            __typename
+                          }
+                          activities(orderBy: $orderActivitiesBy) {
+                            nodes {
+                              ...activity
+                              __typename
+                            }
+                            __typename
+                          }
+                          activityError
+                          calculatedUntil
+                          client {
+                            id
+                            name
+                            __typename
+                          }
+                          contractTerm
+                          createdAt
+                          documentHistory {
+                            id
+                            changeOrderSlug
+                            createdAt
+                            kind
+                            url
+                            __typename
+                          }
+                          effectiveFrom
+                          expiredAt
+                          expiresOn
+                          hasAcceptedAddenda
+                          hasOpenChangeOrder
+                          isRenewable
+                          isRenewal
+                          isRenewed
+                          minimumContractLength
+                          minimumContractValue {
+                            format
+                            __typename
+                          }
+                          minimumContractValueWithTax {
+                            format
+                            __typename
+                          }
+                          name
+                          options {
+                            id
+                            name
+                            projects {
+                              id
+                              serviceGroups {
+                                id
+                                proposedServices {
+                                  id
+                                  isAddOn
+                                  __typename
+                                }
+                                __typename
+                              }
+                              __typename
+                            }
+                            __typename
+                          }
+                          pdfUrl
+                          reviewAssignee {
+                            id
+                            fullName
+                            __typename
+                          }
+                          reviewState
+                          selectedOption {
+                            id
+                            name
+                            projects {
+                              id
+                              serviceGroups {
+                                id
+                                proposedServices {
+                                  id
+                                  isAddOn
+                                  isSelectedForAcceptance
+                                  __typename
+                                }
+                                __typename
+                              }
+                              __typename
+                            }
+                            __typename
+                          }
+                          sentAt
+                          signableDocuments {
+                            nodes {
+                              id
+                              __typename
+                            }
+                            __typename
+                          }
+                          signatories {
+                            id
+                            contact {
+                              id
+                              email
+                              name
+                              __typename
+                            }
+                            proposalUrl
+                            proposalUrlShort
+                            role
+                            signature {
+                              id
+                              location {
+                                cityName
+                                latitude
+                                longitude
+                                __typename
+                              }
+                              signedAt
+                              signedOnBehalfBy {
+                                id
+                                fullName
+                                __typename
+                              }
+                              text
+                              __typename
+                            }
+                            state
+                            __typename
+                          }
+                          state
+                          termsRedlineEligibility {
+                            upload {
+                              allowed
+                              code
+                              message
+                              __typename
+                            }
+                            __typename
+                          }
+                          unrenewableReason
+                          updatedAt
+                          __typename
+                        }
+                      description: GraphQL query document
+                      fields: []
+                    - name: variables
+                      type: object
+                      required: false
+                      positional: false
+                      default:
+                        id: prop_njhg2tjsbrjaaoiaitga
+                        orderActivitiesBy:
+                            createdAt: DESCENDING
+                      description: GraphQL variables as JSON
+                      fields: []
+                    - name: extensions
+                      type: object
+                      required: false
+                      positional: false
+                      default:
+                        clientLibrary:
+                            name: '@apollo/client'
+                            version: 4.1.9
+                      description: GraphQL extensions as JSON
+                      fields: []
+                response:
+                    type: array
+                    item: proposal_view
+                pagination: null
+                observed_auth:
+                    - x-castle-request-token
+                    - x-csrf-token
+    site:
+        description: GraphQL BFF operations for site
+        endpoints:
+            navigation:
+                method: POST
+                path: /graphql
+                description: Fetch site navigation
+                params: []
+                body:
+                    - name: operationName
+                      type: string
+                      required: true
+                      positional: false
+                      default: WorkspaceManagementNavAvailability
+                      description: GraphQL operation name
+                      fields: []
+                    - name: query
+                      type: string
+                      required: false
+                      positional: false
+                      default: |-
+                        query WorkspaceManagementNavAvailability {
+                          organization {
+                            id
+                            canManageWorkspaces
+                            __typename
+                          }
+                        }
+                      description: GraphQL query document
+                      fields: []
+                    - name: variables
+                      type: object
+                      required: false
+                      positional: false
+                      default: {}
+                      description: GraphQL variables as JSON
+                      fields: []
+                    - name: extensions
+                      type: object
+                      required: false
+                      positional: false
+                      default:
+                        clientLibrary:
+                            name: '@apollo/client'
+                            version: 4.1.9
+                      description: GraphQL extensions as JSON
+                      fields: []
+                response:
+                    type: array
+                    item: workspace_management_nav_availability
+                pagination: null
+                observed_auth:
+                    - x-castle-request-token
+                    - x-csrf-token
+    solos:
+        description: GraphQL BFF operations for solos
+        endpoints:
+            plan_banner:
+                method: POST
+                path: /graphql
+                description: Fetch solos plan banner
+                params: []
+                body:
+                    - name: operationName
+                      type: string
+                      required: true
+                      positional: false
+                      default: soloPlanBanner
+                      description: GraphQL operation name
+                      fields: []
+                    - name: query
+                      type: string
+                      required: false
+                      positional: false
+                      default: |-
+                        query soloPlanBanner($planId: ID!) {
+                          currentPractice {
+                            id
+                            billingAccount {
+                              subscriptionPreview(plan: {id: $planId, frequency: MONTHLY}) {
+                                plan {
+                                  id
+                                  tier
+                                  __typename
+                                }
+                                subscribeAllowed
+                                __typename
+                              }
+                              __typename
+                            }
+                            subscription {
+                              planTier
+                              __typename
+                            }
+                            __typename
+                          }
+                        }
+                      description: GraphQL query document
+                      fields: []
+                    - name: variables
+                      type: object
+                      required: false
+                      positional: false
+                      default:
+                        planId: solo2024
+                      description: GraphQL variables as JSON
+                      fields: []
+                    - name: extensions
+                      type: object
+                      required: false
+                      positional: false
+                      default:
+                        clientLibrary:
+                            name: '@apollo/client'
+                            version: 4.1.9
+                      description: GraphQL extensions as JSON
+                      fields: []
+                response:
+                    type: array
+                    item: solo_plan_banner
+                pagination: null
+                observed_auth:
+                    - x-castle-request-token
+                    - x-csrf-token
+    unseens:
+        description: GraphQL BFF operations for unseens
+        endpoints:
+            count:
+                method: POST
+                path: /graphql
+                description: Fetch unseens count
+                params: []
+                body:
+                    - name: operationName
+                      type: string
+                      required: true
+                      positional: false
+                      default: unseenCount
+                      description: GraphQL operation name
+                      fields: []
+                    - name: query
+                      type: string
+                      required: false
+                      positional: false
+                      default: |-
+                        query unseenCount {
+                          currentUser {
+                            id
+                            notifications {
+                              unseenCount
+                              __typename
+                            }
+                            __typename
+                          }
+                        }
+                      description: GraphQL query document
+                      fields: []
+                    - name: variables
+                      type: object
+                      required: false
+                      positional: false
+                      default: {}
+                      description: GraphQL variables as JSON
+                      fields: []
+                    - name: extensions
+                      type: object
+                      required: false
+                      positional: false
+                      default:
+                        clientLibrary:
+                            name: '@apollo/client'
+                            version: 4.1.9
+                      description: GraphQL extensions as JSON
+                      fields: []
+                response:
+                    type: array
+                    item: unseen_count
+                pagination: null
+                observed_auth:
+                    - x-castle-request-token
+                    - x-csrf-token
+    search_index:
+        description: Verified paged search over the Ignition search index (proposals, invoices, billing items). Query shape verified live in ignition_gql.py + the browser-harness ignitionapp domain skill. Records live under results.nodes.
+        endpoints:
+            proposals:
+                method: POST
+                path: /graphql
+                description: List all proposals via the search index (status, client, name). Filter by client-side node.client.id; there is no server-side client-id text filter.
+                params: []
+                body:
+                    - name: operationName
+                      type: string
+                      required: true
+                      positional: false
+                      default: pagedProposals
+                      description: GraphQL operation name
+                      fields: []
+                    - name: query
+                      type: string
+                      required: false
+                      positional: false
+                      default: |-
+                        query pagedProposals($searchType: SearchType!, $textFilters: [SearchQueryTextFilterInput!], $pagination: PaginationInput) {
+                          search {
+                            pagedQuery(type: $searchType, textFilters: $textFilters, pagination: $pagination) {
+                              results {
+                                nodes {
+                                  ... on ProposalResult { id name status client { id name } __typename }
+                                  __typename
+                                }
+                              }
+                              totalCount
+                              __typename
+                            }
+                            __typename
+                          }
+                        }
+                      description: GraphQL query document
+                      fields: []
+                    - name: variables
+                      type: object
+                      required: false
+                      positional: false
+                      default:
+                        searchType: PROPOSAL
+                        textFilters: []
+                        pagination:
+                            page: 1
+                            perPage: 200
+                      description: GraphQL variables as JSON. textFilters entries are {attribute, condition, values:[...]}; status enum DRAFT/AWAITING_ACCEPTANCE/ACCEPTED/LOST.
+                      fields: []
+                    - name: extensions
+                      type: object
+                      required: false
+                      positional: false
+                      default: {}
+                      description: GraphQL extensions as JSON
+                      fields: []
+                response:
+                    type: array
+                    item: proposal_result
+                pagination: null
+                observed_auth:
+                    - x-csrf-token
+            invoices:
+                method: POST
+                path: /graphql
+                description: List all invoices via the search index. Records under results.nodes.
+                params: []
+                body:
+                    - name: operationName
+                      type: string
+                      required: true
+                      positional: false
+                      default: pagedInvoices
+                      description: GraphQL operation name
+                      fields: []
+                    - name: query
+                      type: string
+                      required: false
+                      positional: false
+                      default: |-
+                        query pagedInvoices($searchType: SearchType!, $textFilters: [SearchQueryTextFilterInput!], $pagination: PaginationInput) {
+                          search {
+                            pagedQuery(type: $searchType, textFilters: $textFilters, pagination: $pagination) {
+                              results {
+                                nodes {
+                                  ... on InvoiceResult { id number status total client { id name } __typename }
+                                  __typename
+                                }
+                              }
+                              totalCount
+                              __typename
+                            }
+                            __typename
+                          }
+                        }
+                      description: GraphQL query document
+                      fields: []
+                    - name: variables
+                      type: object
+                      required: false
+                      positional: false
+                      default:
+                        searchType: INVOICE
+                        textFilters: []
+                        pagination:
+                            page: 1
+                            perPage: 200
+                      description: GraphQL variables as JSON
+                      fields: []
+                    - name: extensions
+                      type: object
+                      required: false
+                      positional: false
+                      default: {}
+                      description: GraphQL extensions as JSON
+                      fields: []
+                response:
+                    type: array
+                    item: invoice_result
+                pagination: null
+                observed_auth:
+                    - x-csrf-token
+            billing_items:
+                method: POST
+                path: /graphql
+                description: List all billing items via the search index. Records under results.nodes.
+                params: []
+                body:
+                    - name: operationName
+                      type: string
+                      required: true
+                      positional: false
+                      default: pagedBillingItems
+                      description: GraphQL operation name
+                      fields: []
+                    - name: query
+                      type: string
+                      required: false
+                      positional: false
+                      default: |-
+                        query pagedBillingItems($searchType: SearchType!, $textFilters: [SearchQueryTextFilterInput!], $pagination: PaginationInput) {
+                          search {
+                            pagedQuery(type: $searchType, textFilters: $textFilters, pagination: $pagination) {
+                              results {
+                                nodes {
+                                  ... on BillingItemResult { id name status amount client { id name } __typename }
+                                  __typename
+                                }
+                              }
+                              totalCount
+                              __typename
+                            }
+                            __typename
+                          }
+                        }
+                      description: GraphQL query document
+                      fields: []
+                    - name: variables
+                      type: object
+                      required: false
+                      positional: false
+                      default:
+                        searchType: BILLING_ITEM
+                        textFilters: []
+                        pagination:
+                            page: 1
+                            perPage: 200
+                      description: GraphQL variables as JSON
+                      fields: []
+                    - name: extensions
+                      type: object
+                      required: false
+                      positional: false
+                      default: {}
+                      description: GraphQL extensions as JSON
+                      fields: []
+                response:
+                    type: array
+                    item: billing_item_result
+                pagination: null
+                observed_auth:
+                    - x-csrf-token
+types:
+    Data:
+        fields:
+            - name: userAccessiblePractices
+              type: '[]ref:UserAccessiblePractice'
+    Graphql:
+        fields:
+            - name: data
+              type: ref:Data
+    UserAccessiblePractice:
+        fields:
+            - name: __typename
+              type: string
+            - name: id
+              type: string
+            - name: logoUrl
+              type: string
+              format: url
+            - name: name
+              type: string

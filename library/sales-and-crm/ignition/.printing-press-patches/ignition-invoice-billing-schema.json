@@ -1,0 +1,15 @@
+{
+  "schema_version": 2,
+  "id": "ignition-invoice-billing-schema",
+  "applied_at": "2026-07-09",
+  "base_run_id": "20260709-123040-e1f1038b",
+  "base_printing_press_version": "4.28.0",
+  "summary": "InvoiceResult and BillingItemResult search selections use the live-verified field sets (externalNumber, amountWithTax{format}, paymentProgress{status}, billingItemStatus, ...) instead of guessed scalars.",
+  "reason": "Generated selections used guessed fields (number, status, total, scalar amount) that do not exist in Ignition's GraphQL schema; the corrected sets were copied from a live-verified internal GraphQL reference. Analytics must parse display-formatted money, prefer invoice paymentProgress.status over paymentStatus.displayName, use billingItemStatus for billing items, and display externalNumber when present. Preserve exact field sets on reprint.",
+  "files": [
+    "internal/cli/search_index_invoices.go",
+    "internal/cli/search_index_billing_items.go",
+    "internal/cli/ignition_analytics.go"
+  ],
+  "validated_outcome": "Live search-index invoices/billing-items return fully populated rows; amounts parse correctly in analytics rollups."
+}

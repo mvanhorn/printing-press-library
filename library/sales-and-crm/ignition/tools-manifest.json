@@ -1,0 +1,26 @@
+{
+  "api_name": "ignition",
+  "base_url": "https://go.ignitionapp.com",
+  "description": "A read-only, agent-native CLI for Ignition proposals, invoices, billing, clients, and payments, with a local SQLite mirror and invoicing analytics the web UI does not offer.",
+  "mcp_ready": "partial",
+  "http_transport": "browser-chrome",
+  "auth": {
+    "type": "cookie",
+    "header": "Cookie",
+    "env_vars": [
+      "IGNITION_SESSION_COOKIE"
+    ],
+    "env_var_specs": [
+      {
+        "name": "IGNITION_SESSION_COOKIE",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    ],
+    "cookie_domain": ".go.ignitionapp.com"
+  },
+  "required_headers": [],
+  "tools": []
+}

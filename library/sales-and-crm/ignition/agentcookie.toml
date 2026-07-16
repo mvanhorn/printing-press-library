@@ -1,0 +1,16 @@
+# agentcookie.toml: secrets-bus adoption manifest v2
+# See docs/spec-agentcookie-secrets-bus-v2-adoption.md
+schema_version = 2
+name = "ignition-pp-cli"
+display_name = "Ignition"
+description = "A read-only, agent-native CLI for Ignition proposals, invoices, billing, clients, and payments, with a local SQLite mirror and invoicing analytics the web UI does not offer."
+project_kind = "cli"
+
+[secrets.file]
+path = "~/.config/ignition-pp-cli/config.toml"
+
+[sync]
+default = false
+
+[sync.keys]
+IGNITION_SESSION_COOKIE = true

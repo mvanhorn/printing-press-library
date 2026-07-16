@@ -1,0 +1,15 @@
+{
+  "schema_version": 2,
+  "id": "ignition-cdp-transport",
+  "applied_at": "2026-07-09",
+  "base_run_id": "20260709-123040-e1f1038b",
+  "base_printing_press_version": "4.28.0",
+  "summary": "Novel internal/cdp package runs GraphQL POSTs same-origin inside an authenticated Ignition tab (CDP); default transport for GraphQL, IGNITION_TRANSPORT=http selects the generated legacy path.",
+  "reason": "Ignition's Castle bot detection rejects pure-HTTP GraphQL replay. The working read path evaluates fetch() inside an authed browser tab so the request is same-origin with the page's live CSRF token. Only the GraphQL POST branch in internal/client/client.go diverts to cdp.PostGraphQL; no navigation, clicks, or mutations are introduced. On regen the novel cdp package survives, but the import + post-dry-run branch in client.go and the doctor transport report must be re-applied.",
+  "files": [
+    "internal/cdp/cdp.go",
+    "internal/client/client.go",
+    "internal/cli/doctor.go"
+  ],
+  "validated_outcome": "Live pipeline/outstanding/search-index reads succeed via CDP against a real session while pure-HTTP replay is Castle-blocked."
+}

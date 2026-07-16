@@ -1,0 +1,51 @@
+version: 2
+project_name: ignition-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: ignition-pp-cli
+    main: ./cmd/ignition-pp-cli
+    binary: ignition-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X github.com/mvanhorn/printing-press-library/library/sales-and-crm/ignition/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: ignition-pp-mcp
+    main: ./cmd/ignition-pp-mcp
+    binary: ignition-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X main.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: ignition-pp-cli
+    repository:
+      owner: corben-tech
+      name: homebrew-tap
+    homepage: "https://github.com/mvanhorn/printing-press-library"
+    description: "A read-only, agent-native CLI for Ignition proposals, invoices, billing, clients, and payments, with a local SQLite mirror and invoicing analytics the web UI does not offer."
+    install: |
+      bin.install "ignition-pp-cli"
+      bin.install "ignition-pp-mcp"

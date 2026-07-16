@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "ignition-csrf-header",
+  "applied_at": "2026-07-09",
+  "base_run_id": "20260709-123040-e1f1038b",
+  "base_printing_press_version": "4.28.0",
+  "summary": "config.Load reads IGNITION_CSRF_TOKEN and injects it as the X-CSRF-Token header on every request.",
+  "reason": "Ignition's GraphQL BFF requires an X-CSRF-Token header (from the authed page's meta[name=csrf-token]) in addition to the session cookie; without it the API returns 'User does not exist in the current context'. The generated cookie-auth path only handles the Cookie header, and the spec records the requirement in auth_warnings only, so a regen will NOT reproduce this wiring \u2014 re-apply after any generate --force.",
+  "files": [
+    "internal/config/config.go"
+  ],
+  "validated_outcome": "Legacy HTTP path authenticates when both env vars are set; header also settable via config.toml [headers] with env winning."
+}

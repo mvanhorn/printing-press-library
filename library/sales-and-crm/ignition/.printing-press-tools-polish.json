@@ -1,0 +1,18 @@
+{
+  "timestamp": "2026-07-16T22:34:55.521737Z",
+  "cli_dir": "\u003ccli-dir\u003e/ignition",
+  "findings": [
+    {
+      "kind": "thin-short",
+      "command": "list",
+      "file": "teach.go",
+      "line": 692,
+      "evidence": "List recorded learnings",
+      "status": "accepted",
+      "note": "DO-NOT-EDIT generated file (teach.go, learn-loop template); Short is brief but precise for 'learnings list'. Generator-template retro candidate: enrich to name filters (--query/--warnings/--resource) in the emitted Short."
+    }
+  ],
+  "progress": {
+    "last_processed_finding_id": "thin-short:list:teach.go:692"
+  }
+}

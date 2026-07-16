@@ -1,0 +1,38 @@
+{
+  "manifest_version": "0.3",
+  "name": "ignition-pp-mcp",
+  "display_name": "Ignition",
+  "version": "0.1.0",
+  "description": "A read-only, agent-native CLI for Ignition proposals, invoices, billing, clients, and payments, with a local SQLite mirror and invoicing analytics the web UI does not offer.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/ignition-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/ignition-pp-mcp",
+      "args": [],
+      "env": {
+        "IGNITION_SESSION_COOKIE": "${user_config.ignition_session_cookie}"
+      }
+    }
+  },
+  "user_config": {
+    "ignition_session_cookie": {
+      "type": "string",
+      "title": "IGNITION_SESSION_COOKIE",
+      "description": "Optional. Sets IGNITION_SESSION_COOKIE for the Ignition MCP server.",
+      "sensitive": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

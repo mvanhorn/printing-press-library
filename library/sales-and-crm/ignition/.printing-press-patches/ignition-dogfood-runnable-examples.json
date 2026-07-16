@@ -1,0 +1,20 @@
+{
+  "schema_version": 2,
+  "id": "ignition-dogfood-runnable-examples",
+  "applied_at": "2026-07-16",
+  "base_run_id": "20260709-123040-e1f1038b",
+  "base_printing_press_version": "4.28.0",
+  "summary": "Rewrote Example strings so the first line is a complete runnable invocation for dogfood --level full.",
+  "reason": "Publish live gate failed 13 tests: the 5 novel analytics commands had bare flag examples ('--json') that dogfood cannot turn into an invocation, and the generated learn-loop write commands (teach, teach-pattern, teach-playbook, playbook amend) used backslash-continued multi-line examples whose literal trailing backslash dogfood passed as an argument (exit 2). Generator template bug for the learn-loop family; local fix keeps first example line single-line runnable, moves continuation guidance to comment lines.",
+  "files": [
+    "internal/cli/outstanding.go",
+    "internal/cli/pipeline.go",
+    "internal/cli/unbilled.go",
+    "internal/cli/rejected_payments.go",
+    "internal/cli/client_billing.go",
+    "internal/cli/teach.go",
+    "internal/cli/teach_playbook.go"
+  ],
+  "validated_outcome": "Each rewritten example line executed manually with exit 0 (client-billing verified with placeholder id against live CDP transport); full live dogfood re-run 154/154 after patch.",
+  "upstream_issue": null
+}

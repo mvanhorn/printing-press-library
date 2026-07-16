@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "api_name": "ignition",
+  "run_id": "20260709-123040-e1f1038b",
+  "status": "pass",
+  "level": "full",
+  "matrix_size": 159,
+  "tests_passed": 159,
+  "tests_skipped": 99,
+  "auth_context": {
+    "type": "cookie"
+  }
+}
