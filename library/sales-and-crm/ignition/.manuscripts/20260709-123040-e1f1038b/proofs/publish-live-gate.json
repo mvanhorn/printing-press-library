@@ -1,2616 +1,2616 @@
 {
-  "dir": "/Users/anakin/printing-press/library/ignition",
-  "binary": "/Users/anakin/printing-press/library/ignition/build/stage/bin/ignition-pp-cli",
-  "level": "full",
-  "verdict": "PASS",
-  "matrix_size": 159,
-  "passed": 159,
-  "failed": 0,
-  "skipped": 99,
-  "commands": [
+ "dir": "/Users/anakin/printing-press/library/ignition",
+ "binary": "/Users/anakin/printing-press/library/ignition/build/stage/bin/ignition-pp-cli",
+ "level": "full",
+ "verdict": "PASS",
+ "matrix_size": 159,
+ "passed": 159,
+ "failed": 0,
+ "skipped": 99,
+ "commands": [
+  "acknowledgements",
+  "adds",
+  "api",
+  "apps",
+  "auth-api",
+  "billings",
+  "brandings",
+  "client-billing",
+  "clients forms",
+  "clients get",
+  "clients get-2",
+  "clients proposals",
+  "clients summary-client",
+  "clients summary-rejected-payments",
+  "clients sync-status",
+  "clients tags",
+  "codes",
+  "compliances",
+  "currents practice",
+  "currents user",
+  "doctor",
+  "features",
+  "feedback list",
+  "forms",
+  "import",
+  "learnings candidates",
+  "learnings confirm",
+  "learnings forget",
+  "learnings list",
+  "learnings purge",
+  "learnings reject",
+  "learnings stats",
+  "outstanding",
+  "payments",
+  "pipeline",
+  "playbook amend",
+  "playbook list",
+  "preferreds",
+  "profile delete",
+  "profile list",
+  "profile save",
+  "profile show",
+  "profile use",
+  "proposals",
+  "recall",
+  "rejected-payments",
+  "search-index billing-items",
+  "search-index invoices",
+  "search-index proposals",
+  "site",
+  "solos",
+  "teach",
+  "teach-lookup",
+  "teach-pattern",
+  "teach-playbook",
+  "unbilled",
+  "unseens",
+  "which",
+  "workflow status"
+ ],
+ "tests": [
+  {
+   "command": "acknowledgements",
+   "kind": "help",
+   "args": [
     "acknowledgements",
+    "--help"
+   ],
+   "status": "pass",
+   "output_sample": "[redacted: live workspace data]"
+  },
+  {
+   "command": "acknowledgements",
+   "kind": "happy_path",
+   "args": [
+    "acknowledgements",
+    "--operation-name",
+    "example-resource"
+   ],
+   "status": "pass",
+   "output_sample": "[redacted: live workspace data]"
+  },
+  {
+   "command": "acknowledgements",
+   "kind": "json_fidelity",
+   "args": [
+    "acknowledgements",
+    "--operation-name",
+    "example-resource",
+    "--json"
+   ],
+   "status": "pass",
+   "output_sample": "[redacted: live workspace data]"
+  },
+  {
+   "command": "acknowledgements",
+   "kind": "error_path",
+   "args": null,
+   "status": "skip",
+   "reason": "no positional argument"
+  },
+  {
+   "command": "adds",
+   "kind": "help",
+   "args": [
     "adds",
+    "--help"
+   ],
+   "status": "pass",
+   "output_sample": "[redacted: live workspace data]"
+  },
+  {
+   "command": "adds",
+   "kind": "happy_path",
+   "args": [
+    "adds",
+    "--operation-name",
+    "example-resource",
+    "--dry-run"
+   ],
+   "status": "pass",
+   "output_sample": "[redacted: live workspace data]"
+  },
+  {
+   "command": "adds",
+   "kind": "json_fidelity",
+   "args": [
+    "adds",
+    "--operation-name",
+    "example-resource",
+    "--dry-run",
+    "--json"
+   ],
+   "status": "pass",
+   "output_sample": "[redacted: live workspace data]"
+  },
+  {
+   "command": "adds",
+   "kind": "error_path",
+   "args": null,
+   "status": "skip",
+   "reason": "no positional argument"
+  },
+  {
+   "command": "adds",
+   "kind": "error_path_real",
+   "args": null,
+   "status": "skip",
+   "reason": "mutating command dry-run only"
+  },
+  {
+   "command": "api",
+   "kind": "help",
+   "args": [
     "api",
+    "--help"
+   ],
+   "status": "pass",
+   "output_sample": "[redacted: live workspace data]"
+  },
+  {
+   "command": "api",
+   "kind": "happy_path",
+   "args": null,
+   "status": "skip",
+   "reason": "command path [api] has fewer segments than placeholders (1)"
+  },
+  {
+   "command": "api",
+   "kind": "json_fidelity",
+   "args": null,
+   "status": "skip",
+   "reason": "command path [api] has fewer segments than placeholders (1)"
+  },
+  {
+   "command": "api",
+   "kind": "error_path",
+   "args": [
+    "api",
+    "__printing_press_invalid__"
+   ],
+   "status": "pass",
+   "exit_code": 1,
+   "output_sample": "[redacted: live workspace data]"
+  },
+  {
+   "command": "apps",
+   "kind": "help",
+   "args": [
     "apps",
+    "--help"
+   ],
+   "status": "pass",
+   "output_sample": "[redacted: live workspace data]"
+  },
+  {
+   "command": "apps",
+   "kind": "happy_path",
+   "args": [
+    "apps",
+    "--operation-name",
+    "example-resource",
+    "--dry-run"
+   ],
+   "status": "pass",
+   "output_sample": "[redacted: live workspace data]"
+  },
+  {
+   "command": "apps",
+   "kind": "json_fidelity",
+   "args": [
+    "apps",
+    "--operation-name",
+    "example-resource",
+    "--dry-run",
+    "--json"
+   ],
+   "status": "pass",
+   "output_sample": "[redacted: live workspace data]"
+  },
+  {
+   "command": "apps",
+   "kind": "error_path",
+   "args": null,
+   "status": "skip",
+   "reason": "no positional argument"
+  },
+  {
+   "command": "apps",
+   "kind": "error_path_real",
+   "args": null,
+   "status": "skip",
+   "reason": "mutating command dry-run only"
+  },
+  {
+   "command": "auth-api",
+   "kind": "help",
+   "args": [
     "auth-api",
+    "--help"
+   ],
+   "status": "pass",
+   "output_sample": "[redacted: live workspace data]"
+  },
+  {
+   "command": "auth-api",
+   "kind": "happy_path",
+   "args": [
+    "auth-api",
+    "--data",
+    "example-value",
+    "--operation-name",
+    "example-resource",
+    "--dry-run"
+   ],
+   "status": "pass",
+   "output_sample": "[redacted: live workspace data]"
+  },
+  {
+   "command": "auth-api",
+   "kind": "json_fidelity",
+   "args": [
+    "auth-api",
+    "--data",
+    "example-value",
+    "--operation-name",
+    "example-resource",
+    "--dry-run",
+    "--json"
+   ],
+   "status": "pass",
+   "output_sample": "[redacted: live workspace data]"
+  },
+  {
+   "command": "auth-api",
+   "kind": "error_path",
+   "args": null,
+   "status": "skip",
+   "reason": "no positional argument"
+  },
+  {
+   "command": "auth-api",
+   "kind": "error_path_real",
+   "args": null,
+   "status": "skip",
+   "reason": "mutating command dry-run only"
+  },
+  {
+   "command": "billings",
+   "kind": "help",
+   "args": [
     "billings",
+    "--help"
+   ],
+   "status": "pass",
+   "output_sample": "[redacted: live workspace data]"
+  },
+  {
+   "command": "billings",
+   "kind": "happy_path",
+   "args": [
+    "billings",
+    "--operation-name",
+    "example-resource"
+   ],
+   "status": "pass",
+   "output_sample": "[redacted: live workspace data]"
+  },
+  {
+   "command": "billings",
+   "kind": "json_fidelity",
+   "args": [
+    "billings",
+    "--operation-name",
+    "example-resource",
+    "--json"
+   ],
+   "status": "pass",
+   "output_sample": "[redacted: live workspace data]"
+  },
+  {
+   "command": "billings",
+   "kind": "error_path",
+   "args": null,
+   "status": "skip",
+   "reason": "no positional argument"
+  },
+  {
+   "command": "brandings",
+   "kind": "help",
+   "args": [
     "brandings",
+    "--help"
+   ],
+   "status": "pass",
+   "output_sample": "[redacted: live workspace data]"
+  },
+  {
+   "command": "brandings",
+   "kind": "happy_path",
+   "args": [
+    "brandings",
+    "--operation-name",
+    "example-resource",
+    "--dry-run"
+   ],
+   "status": "pass",
+   "output_sample": "[redacted: live workspace data]"
+  },
+  {
+   "command": "brandings",
+   "kind": "json_fidelity",
+   "args": [
+    "brandings",
+    "--operation-name",
+    "example-resource",
+    "--dry-run",
+    "--json"
+   ],
+   "status": "pass",
+   "output_sample": "[redacted: live workspace data]"
+  },
+  {
+   "command": "brandings",
+   "kind": "error_path",
+   "args": null,
+   "status": "skip",
+   "reason": "no positional argument"
+  },
+  {
+   "command": "brandings",
+   "kind": "error_path_real",
+   "args": null,
+   "status": "skip",
+   "reason": "mutating command dry-run only"
+  },
+  {
+   "command": "client-billing",
+   "kind": "help",
+   "args": [
     "client-billing",
-    "clients forms",
-    "clients get",
-    "clients get-2",
-    "clients proposals",
-    "clients summary-client",
-    "clients summary-rejected-payments",
-    "clients sync-status",
-    "clients tags",
-    "codes",
-    "compliances",
-    "currents practice",
-    "currents user",
-    "doctor",
-    "features",
-    "feedback list",
+    "--help"
+   ],
+   "status": "pass",
+   "output_sample": "[redacted: live workspace data]"
+  },
+  {
+   "command": "client-billing",
+   "kind": "happy_path",
+   "args": [
+    "client-billing",
+    "--client-id",
+    "cli_example",
+    "--json"
+   ],
+   "status": "pass",
+   "output_sample": "[redacted: live workspace data]"
+  },
+  {
+   "command": "client-billing",
+   "kind": "json_fidelity",
+   "args": [
+    "client-billing",
+    "--client-id",
+    "cli_example",
+    "--json"
+   ],
+   "status": "pass",
+   "output_sample": "[redacted: live workspace data]"
+  },
+  {
+   "command": "client-billing",
+   "kind": "error_path",
+   "args": null,
+   "status": "skip",
+   "reason": "no positional argument"
+  },
+  {
+   "command": "clients forms",
+   "kind": "help",
+   "args": [
+    "clients",
     "forms",
-    "import",
-    "learnings candidates",
-    "learnings confirm",
-    "learnings forget",
-    "learnings list",
-    "learnings purge",
-    "learnings reject",
-    "learnings stats",
-    "outstanding",
-    "payments",
-    "pipeline",
-    "playbook amend",
-    "playbook list",
-    "preferreds",
-    "profile delete",
-    "profile list",
-    "profile save",
-    "profile show",
-    "profile use",
+    "--help"
+   ],
+   "status": "pass",
+   "output_sample": "[redacted: live workspace data]"
+  },
+  {
+   "command": "clients forms",
+   "kind": "happy_path",
+   "args": [
+    "clients",
+    "forms",
+    "--operation-name",
+    "example-resource",
+    "--dry-run"
+   ],
+   "status": "pass",
+   "output_sample": "[redacted: live workspace data]"
+  },
+  {
+   "command": "clients forms",
+   "kind": "json_fidelity",
+   "args": [
+    "clients",
+    "forms",
+    "--operation-name",
+    "example-resource",
+    "--dry-run",
+    "--json"
+   ],
+   "status": "pass",
+   "output_sample": "[redacted: live workspace data]"
+  },
+  {
+   "command": "clients forms",
+   "kind": "error_path",
+   "args": null,
+   "status": "skip",
+   "reason": "no positional argument"
+  },
+  {
+   "command": "clients forms",
+   "kind": "error_path_real",
+   "args": null,
+   "status": "skip",
+   "reason": "mutating command dry-run only"
+  },
+  {
+   "command": "clients get",
+   "kind": "help",
+   "args": [
+    "clients",
+    "get",
+    "--help"
+   ],
+   "status": "pass",
+   "output_sample": "[redacted: live workspace data]"
+  },
+  {
+   "command": "clients get",
+   "kind": "happy_path",
+   "args": [
+    "clients",
+    "get",
+    "--operation-name",
+    "example-resource"
+   ],
+   "status": "pass",
+   "output_sample": "[redacted: live workspace data]"
+  },
+  {
+   "command": "clients get",
+   "kind": "json_fidelity",
+   "args": [
+    "clients",
+    "get",
+    "--operation-name",
+    "example-resource",
+    "--json"
+   ],
+   "status": "pass",
+   "output_sample": "[redacted: live workspace data]"
+  },
+  {
+   "command": "clients get",
+   "kind": "error_path",
+   "args": null,
+   "status": "skip",
+   "reason": "no positional argument"
+  },
+  {
+   "command": "clients get-2",
+   "kind": "help",
+   "args": [
+    "clients",
+    "get-2",
+    "--help"
+   ],
+   "status": "pass",
+   "output_sample": "[redacted: live workspace data]"
+  },
+  {
+   "command": "clients get-2",
+   "kind": "happy_path",
+   "args": [
+    "clients",
+    "get-2",
+    "--operation-name",
+    "example-resource",
+    "--dry-run"
+   ],
+   "status": "pass",
+   "output_sample": "[redacted: live workspace data]"
+  },
+  {
+   "command": "clients get-2",
+   "kind": "json_fidelity",
+   "args": [
+    "clients",
+    "get-2",
+    "--operation-name",
+    "example-resource",
+    "--dry-run",
+    "--json"
+   ],
+   "status": "pass",
+   "output_sample": "[redacted: live workspace data]"
+  },
+  {
+   "command": "clients get-2",
+   "kind": "error_path",
+   "args": null,
+   "status": "skip",
+   "reason": "no positional argument"
+  },
+  {
+   "command": "clients get-2",
+   "kind": "error_path_real",
+   "args": null,
+   "status": "skip",
+   "reason": "mutating command dry-run only"
+  },
+  {
+   "command": "clients proposals",
+   "kind": "help",
+   "args": [
+    "clients",
     "proposals",
+    "--help"
+   ],
+   "status": "pass",
+   "output_sample": "[redacted: live workspace data]"
+  },
+  {
+   "command": "clients proposals",
+   "kind": "happy_path",
+   "args": [
+    "clients",
+    "proposals",
+    "--operation-name",
+    "example-resource",
+    "--dry-run"
+   ],
+   "status": "pass",
+   "output_sample": "[redacted: live workspace data]"
+  },
+  {
+   "command": "clients proposals",
+   "kind": "json_fidelity",
+   "args": [
+    "clients",
+    "proposals",
+    "--operation-name",
+    "example-resource",
+    "--dry-run",
+    "--json"
+   ],
+   "status": "pass",
+   "output_sample": "[redacted: live workspace data]"
+  },
+  {
+   "command": "clients proposals",
+   "kind": "error_path",
+   "args": null,
+   "status": "skip",
+   "reason": "no positional argument"
+  },
+  {
+   "command": "clients proposals",
+   "kind": "error_path_real",
+   "args": null,
+   "status": "skip",
+   "reason": "mutating command dry-run only"
+  },
+  {
+   "command": "clients summary-client",
+   "kind": "help",
+   "args": [
+    "clients",
+    "summary-client",
+    "--help"
+   ],
+   "status": "pass",
+   "output_sample": "[redacted: live workspace data]"
+  },
+  {
+   "command": "clients summary-client",
+   "kind": "happy_path",
+   "args": [
+    "clients",
+    "summary-client",
+    "--operation-name",
+    "example-resource",
+    "--dry-run"
+   ],
+   "status": "pass",
+   "output_sample": "[redacted: live workspace data]"
+  },
+  {
+   "command": "clients summary-client",
+   "kind": "json_fidelity",
+   "args": [
+    "clients",
+    "summary-client",
+    "--operation-name",
+    "example-resource",
+    "--dry-run",
+    "--json"
+   ],
+   "status": "pass",
+   "output_sample": "[redacted: live workspace data]"
+  },
+  {
+   "command": "clients summary-client",
+   "kind": "error_path",
+   "args": null,
+   "status": "skip",
+   "reason": "no positional argument"
+  },
+  {
+   "command": "clients summary-client",
+   "kind": "error_path_real",
+   "args": null,
+   "status": "skip",
+   "reason": "mutating command dry-run only"
+  },
+  {
+   "command": "clients summary-rejected-payments",
+   "kind": "help",
+   "args": [
+    "clients",
+    "summary-rejected-payments",
+    "--help"
+   ],
+   "status": "pass",
+   "output_sample": "[redacted: live workspace data]"
+  },
+  {
+   "command": "clients summary-rejected-payments",
+   "kind": "happy_path",
+   "args": [
+    "clients",
+    "summary-rejected-payments",
+    "--operation-name",
+    "example-resource",
+    "--dry-run"
+   ],
+   "status": "pass",
+   "output_sample": "[redacted: live workspace data]"
+  },
+  {
+   "command": "clients summary-rejected-payments",
+   "kind": "json_fidelity",
+   "args": [
+    "clients",
+    "summary-rejected-payments",
+    "--operation-name",
+    "example-resource",
+    "--dry-run",
+    "--json"
+   ],
+   "status": "pass",
+   "output_sample": "[redacted: live workspace data]"
+  },
+  {
+   "command": "clients summary-rejected-payments",
+   "kind": "error_path",
+   "args": null,
+   "status": "skip",
+   "reason": "no positional argument"
+  },
+  {
+   "command": "clients summary-rejected-payments",
+   "kind": "error_path_real",
+   "args": null,
+   "status": "skip",
+   "reason": "mutating command dry-run only"
+  },
+  {
+   "command": "clients sync-status",
+   "kind": "help",
+   "args": [
+    "clients",
+    "sync-status",
+    "--help"
+   ],
+   "status": "pass",
+   "output_sample": "[redacted: live workspace data]"
+  },
+  {
+   "command": "clients sync-status",
+   "kind": "happy_path",
+   "args": [
+    "clients",
+    "sync-status",
+    "--operation-name",
+    "example-resource",
+    "--dry-run"
+   ],
+   "status": "pass",
+   "output_sample": "[redacted: live workspace data]"
+  },
+  {
+   "command": "clients sync-status",
+   "kind": "json_fidelity",
+   "args": [
+    "clients",
+    "sync-status",
+    "--operation-name",
+    "example-resource",
+    "--dry-run",
+    "--json"
+   ],
+   "status": "pass",
+   "output_sample": "[redacted: live workspace data]"
+  },
+  {
+   "command": "clients sync-status",
+   "kind": "error_path",
+   "args": null,
+   "status": "skip",
+   "reason": "no positional argument"
+  },
+  {
+   "command": "clients sync-status",
+   "kind": "error_path_real",
+   "args": null,
+   "status": "skip",
+   "reason": "mutating command dry-run only"
+  },
+  {
+   "command": "clients tags",
+   "kind": "help",
+   "args": [
+    "clients",
+    "tags",
+    "--help"
+   ],
+   "status": "pass",
+   "output_sample": "[redacted: live workspace data]"
+  },
+  {
+   "command": "clients tags",
+   "kind": "happy_path",
+   "args": [
+    "clients",
+    "tags",
+    "--operation-name",
+    "example-resource",
+    "--dry-run"
+   ],
+   "status": "pass",
+   "output_sample": "[redacted: live workspace data]"
+  },
+  {
+   "command": "clients tags",
+   "kind": "json_fidelity",
+   "args": [
+    "clients",
+    "tags",
+    "--operation-name",
+    "example-resource",
+    "--dry-run",
+    "--json"
+   ],
+   "status": "pass",
+   "output_sample": "[redacted: live workspace data]"
+  },
+  {
+   "command": "clients tags",
+   "kind": "error_path",
+   "args": null,
+   "status": "skip",
+   "reason": "no positional argument"
+  },
+  {
+   "command": "clients tags",
+   "kind": "error_path_real",
+   "args": null,
+   "status": "skip",
+   "reason": "mutating command dry-run only"
+  },
+  {
+   "command": "codes",
+   "kind": "help",
+   "args": [
+    "codes",
+    "--help"
+   ],
+   "status": "pass",
+   "output_sample": "[redacted: live workspace data]"
+  },
+  {
+   "command": "codes",
+   "kind": "happy_path",
+   "args": [
+    "codes",
+    "--operation-name",
+    "example-resource",
+    "--dry-run"
+   ],
+   "status": "pass",
+   "output_sample": "[redacted: live workspace data]"
+  },
+  {
+   "command": "codes",
+   "kind": "json_fidelity",
+   "args": [
+    "codes",
+    "--operation-name",
+    "example-resource",
+    "--dry-run",
+    "--json"
+   ],
+   "status": "pass",
+   "output_sample": "[redacted: live workspace data]"
+  },
+  {
+   "command": "codes",
+   "kind": "error_path",
+   "args": null,
+   "status": "skip",
+   "reason": "no positional argument"
+  },
+  {
+   "command": "codes",
+   "kind": "error_path_real",
+   "args": null,
+   "status": "skip",
+   "reason": "mutating command dry-run only"
+  },
+  {
+   "command": "compliances",
+   "kind": "help",
+   "args": [
+    "compliances",
+    "--help"
+   ],
+   "status": "pass",
+   "output_sample": "[redacted: live workspace data]"
+  },
+  {
+   "command": "compliances",
+   "kind": "happy_path",
+   "args": [
+    "compliances",
+    "--operation-name",
+    "example-resource",
+    "--dry-run"
+   ],
+   "status": "pass",
+   "output_sample": "[redacted: live workspace data]"
+  },
+  {
+   "command": "compliances",
+   "kind": "json_fidelity",
+   "args": [
+    "compliances",
+    "--operation-name",
+    "example-resource",
+    "--dry-run",
+    "--json"
+   ],
+   "status": "pass",
+   "output_sample": "[redacted: live workspace data]"
+  },
+  {
+   "command": "compliances",
+   "kind": "error_path",
+   "args": null,
+   "status": "skip",
+   "reason": "no positional argument"
+  },
+  {
+   "command": "compliances",
+   "kind": "error_path_real",
+   "args": null,
+   "status": "skip",
+   "reason": "mutating command dry-run only"
+  },
+  {
+   "command": "currents practice",
+   "kind": "help",
+   "args": [
+    "currents",
+    "practice",
+    "--help"
+   ],
+   "status": "pass",
+   "output_sample": "[redacted: live workspace data]"
+  },
+  {
+   "command": "currents practice",
+   "kind": "happy_path",
+   "args": [
+    "currents",
+    "practice",
+    "--operation-name",
+    "example-resource",
+    "--dry-run"
+   ],
+   "status": "pass",
+   "output_sample": "[redacted: live workspace data]"
+  },
+  {
+   "command": "currents practice",
+   "kind": "json_fidelity",
+   "args": [
+    "currents",
+    "practice",
+    "--operation-name",
+    "example-resource",
+    "--dry-run",
+    "--json"
+   ],
+   "status": "pass",
+   "output_sample": "[redacted: live workspace data]"
+  },
+  {
+   "command": "currents practice",
+   "kind": "error_path",
+   "args": null,
+   "status": "skip",
+   "reason": "no positional argument"
+  },
+  {
+   "command": "currents practice",
+   "kind": "error_path_real",
+   "args": null,
+   "status": "skip",
+   "reason": "mutating command dry-run only"
+  },
+  {
+   "command": "currents user",
+   "kind": "help",
+   "args": [
+    "currents",
+    "user",
+    "--help"
+   ],
+   "status": "pass",
+   "output_sample": "[redacted: live workspace data]"
+  },
+  {
+   "command": "currents user",
+   "kind": "happy_path",
+   "args": [
+    "currents",
+    "user",
+    "--operation-name",
+    "example-resource",
+    "--dry-run"
+   ],
+   "status": "pass",
+   "output_sample": "[redacted: live workspace data]"
+  },
+  {
+   "command": "currents user",
+   "kind": "json_fidelity",
+   "args": [
+    "currents",
+    "user",
+    "--operation-name",
+    "example-resource",
+    "--dry-run",
+    "--json"
+   ],
+   "status": "pass",
+   "output_sample": "[redacted: live workspace data]"
+  },
+  {
+   "command": "currents user",
+   "kind": "error_path",
+   "args": null,
+   "status": "skip",
+   "reason": "no positional argument"
+  },
+  {
+   "command": "currents user",
+   "kind": "error_path_real",
+   "args": null,
+   "status": "skip",
+   "reason": "mutating command dry-run only"
+  },
+  {
+   "command": "doctor",
+   "kind": "help",
+   "args": [
+    "doctor",
+    "--help"
+   ],
+   "status": "pass",
+   "output_sample": "[redacted: live workspace data]"
+  },
+  {
+   "command": "doctor",
+   "kind": "happy_path",
+   "args": [
+    "doctor"
+   ],
+   "status": "pass",
+   "output_sample": "[redacted: live workspace data]"
+  },
+  {
+   "command": "doctor",
+   "kind": "json_fidelity",
+   "args": [
+    "doctor",
+    "--json"
+   ],
+   "status": "pass",
+   "output_sample": "[redacted: live workspace data]"
+  },
+  {
+   "command": "doctor",
+   "kind": "error_path",
+   "args": null,
+   "status": "skip",
+   "reason": "no positional argument"
+  },
+  {
+   "command": "features",
+   "kind": "help",
+   "args": [
+    "features",
+    "--help"
+   ],
+   "status": "pass",
+   "output_sample": "[redacted: live workspace data]"
+  },
+  {
+   "command": "features",
+   "kind": "happy_path",
+   "args": [
+    "features",
+    "--operation-name",
+    "example-resource",
+    "--dry-run"
+   ],
+   "status": "pass",
+   "output_sample": "[redacted: live workspace data]"
+  },
+  {
+   "command": "features",
+   "kind": "json_fidelity",
+   "args": [
+    "features",
+    "--operation-name",
+    "example-resource",
+    "--dry-run",
+    "--json"
+   ],
+   "status": "pass",
+   "output_sample": "[redacted: live workspace data]"
+  },
+  {
+   "command": "features",
+   "kind": "error_path",
+   "args": null,
+   "status": "skip",
+   "reason": "no positional argument"
+  },
+  {
+   "command": "features",
+   "kind": "error_path_real",
+   "args": null,
+   "status": "skip",
+   "reason": "mutating command dry-run only"
+  },
+  {
+   "command": "feedback list",
+   "kind": "help",
+   "args": [
+    "feedback",
+    "list",
+    "--help"
+   ],
+   "status": "pass",
+   "output_sample": "[redacted: live workspace data]"
+  },
+  {
+   "command": "feedback list",
+   "kind": "happy_path",
+   "args": [
+    "feedback",
+    "list"
+   ],
+   "status": "pass"
+  },
+  {
+   "command": "feedback list",
+   "kind": "json_fidelity",
+   "args": [
+    "feedback",
+    "list",
+    "--json"
+   ],
+   "status": "pass",
+   "output_sample": "[redacted: live workspace data]"
+  },
+  {
+   "command": "feedback list",
+   "kind": "error_path",
+   "args": null,
+   "status": "skip",
+   "reason": "no positional argument"
+  },
+  {
+   "command": "forms",
+   "kind": "help",
+   "args": [
+    "forms",
+    "--help"
+   ],
+   "status": "pass",
+   "output_sample": "[redacted: live workspace data]"
+  },
+  {
+   "command": "forms",
+   "kind": "happy_path",
+   "args": [
+    "forms",
+    "--operation-name",
+    "example-resource",
+    "--dry-run"
+   ],
+   "status": "pass",
+   "output_sample": "[redacted: live workspace data]"
+  },
+  {
+   "command": "forms",
+   "kind": "json_fidelity",
+   "args": [
+    "forms",
+    "--operation-name",
+    "example-resource",
+    "--dry-run",
+    "--json"
+   ],
+   "status": "pass",
+   "output_sample": "[redacted: live workspace data]"
+  },
+  {
+   "command": "forms",
+   "kind": "error_path",
+   "args": null,
+   "status": "skip",
+   "reason": "no positional argument"
+  },
+  {
+   "command": "forms",
+   "kind": "error_path_real",
+   "args": null,
+   "status": "skip",
+   "reason": "mutating command dry-run only"
+  },
+  {
+   "command": "import",
+   "kind": "help",
+   "args": [
+    "import",
+    "--help"
+   ],
+   "status": "pass",
+   "output_sample": "[redacted: live workspace data]"
+  },
+  {
+   "command": "import",
+   "kind": "happy_path",
+   "args": null,
+   "status": "skip",
+   "reason": "command path [import] has fewer segments than placeholders (1)"
+  },
+  {
+   "command": "import",
+   "kind": "json_fidelity",
+   "args": null,
+   "status": "skip",
+   "reason": "command path [import] has fewer segments than placeholders (1)"
+  },
+  {
+   "command": "import",
+   "kind": "error_path",
+   "args": [
+    "import",
+    "__printing_press_invalid__"
+   ],
+   "status": "pass",
+   "exit_code": 2,
+   "output_sample": "[redacted: live workspace data]"
+  },
+  {
+   "command": "learnings candidates",
+   "kind": "help",
+   "args": [
+    "learnings",
+    "candidates",
+    "--help"
+   ],
+   "status": "pass",
+   "output_sample": "[redacted: live workspace data]"
+  },
+  {
+   "command": "learnings candidates",
+   "kind": "happy_path",
+   "args": [
+    "learnings",
+    "candidates"
+   ],
+   "status": "pass",
+   "output_sample": "[redacted: live workspace data]"
+  },
+  {
+   "command": "learnings candidates",
+   "kind": "json_fidelity",
+   "args": [
+    "learnings",
+    "candidates",
+    "--json"
+   ],
+   "status": "pass",
+   "output_sample": "[redacted: live workspace data]"
+  },
+  {
+   "command": "learnings candidates",
+   "kind": "error_path",
+   "args": null,
+   "status": "skip",
+   "reason": "no positional argument"
+  },
+  {
+   "command": "learnings confirm",
+   "kind": "help",
+   "args": [
+    "learnings",
+    "confirm",
+    "--help"
+   ],
+   "status": "pass",
+   "output_sample": "[redacted: live workspace data]"
+  },
+  {
+   "command": "learnings confirm",
+   "kind": "happy_path",
+   "args": null,
+   "status": "skip",
+   "reason": "blocked-fixture: required API parameter"
+  },
+  {
+   "command": "learnings confirm",
+   "kind": "json_fidelity",
+   "args": null,
+   "status": "skip",
+   "reason": "blocked-fixture: required API parameter"
+  },
+  {
+   "command": "learnings confirm",
+   "kind": "error_path",
+   "args": [
+    "learnings",
+    "confirm",
+    "__printing_press_invalid__"
+   ],
+   "status": "pass",
+   "exit_code": 2,
+   "output_sample": "[redacted: live workspace data]"
+  },
+  {
+   "command": "learnings forget",
+   "kind": "help",
+   "args": [
+    "learnings",
+    "forget",
+    "--help"
+   ],
+   "status": "pass",
+   "output_sample": "[redacted: live workspace data]"
+  },
+  {
+   "command": "learnings forget",
+   "kind": "happy_path",
+   "args": null,
+   "status": "skip",
+   "reason": "non-id positional \"query\" at depth 0"
+  },
+  {
+   "command": "learnings forget",
+   "kind": "json_fidelity",
+   "args": null,
+   "status": "skip",
+   "reason": "non-id positional \"query\" at depth 0"
+  },
+  {
+   "command": "learnings forget",
+   "kind": "error_path",
+   "args": [
+    "learnings",
+    "forget",
+    "__printing_press_invalid__",
+    "--json"
+   ],
+   "status": "pass",
+   "exit_code": 2,
+   "output_sample": "[redacted: live workspace data]"
+  },
+  {
+   "command": "learnings list",
+   "kind": "help",
+   "args": [
+    "learnings",
+    "list",
+    "--help"
+   ],
+   "status": "pass",
+   "output_sample": "[redacted: live workspace data]"
+  },
+  {
+   "command": "learnings list",
+   "kind": "happy_path",
+   "args": [
+    "learnings",
+    "list",
+    "--agent"
+   ],
+   "status": "pass",
+   "output_sample": "[redacted: live workspace data]"
+  },
+  {
+   "command": "learnings list",
+   "kind": "json_fidelity",
+   "args": [
+    "learnings",
+    "list",
+    "--agent",
+    "--json"
+   ],
+   "status": "pass",
+   "output_sample": "[redacted: live workspace data]"
+  },
+  {
+   "command": "learnings list",
+   "kind": "error_path",
+   "args": null,
+   "status": "skip",
+   "reason": "no positional argument"
+  },
+  {
+   "command": "learnings purge",
+   "kind": "help",
+   "args": [
+    "learnings",
+    "purge",
+    "--help"
+   ],
+   "status": "pass",
+   "output_sample": "[redacted: live workspace data]"
+  },
+  {
+   "command": "learnings purge",
+   "kind": "happy_path",
+   "args": [
+    "learnings",
+    "purge"
+   ],
+   "status": "pass",
+   "output_sample": "[redacted: live workspace data]"
+  },
+  {
+   "command": "learnings purge",
+   "kind": "json_fidelity",
+   "args": [
+    "learnings",
+    "purge",
+    "--json"
+   ],
+   "status": "pass",
+   "output_sample": "[redacted: live workspace data]"
+  },
+  {
+   "command": "learnings purge",
+   "kind": "error_path",
+   "args": null,
+   "status": "skip",
+   "reason": "no positional argument"
+  },
+  {
+   "command": "learnings reject",
+   "kind": "help",
+   "args": [
+    "learnings",
+    "reject",
+    "--help"
+   ],
+   "status": "pass",
+   "output_sample": "[redacted: live workspace data]"
+  },
+  {
+   "command": "learnings reject",
+   "kind": "happy_path",
+   "args": null,
+   "status": "skip",
+   "reason": "blocked-fixture: required API parameter"
+  },
+  {
+   "command": "learnings reject",
+   "kind": "json_fidelity",
+   "args": null,
+   "status": "skip",
+   "reason": "blocked-fixture: required API parameter"
+  },
+  {
+   "command": "learnings reject",
+   "kind": "error_path",
+   "args": [
+    "learnings",
+    "reject",
+    "__printing_press_invalid__"
+   ],
+   "status": "pass",
+   "exit_code": 2,
+   "output_sample": "[redacted: live workspace data]"
+  },
+  {
+   "command": "learnings stats",
+   "kind": "help",
+   "args": [
+    "learnings",
+    "stats",
+    "--help"
+   ],
+   "status": "pass",
+   "output_sample": "[redacted: live workspace data]"
+  },
+  {
+   "command": "learnings stats",
+   "kind": "happy_path",
+   "args": [
+    "learnings",
+    "stats"
+   ],
+   "status": "pass",
+   "output_sample": "[redacted: live workspace data]"
+  },
+  {
+   "command": "learnings stats",
+   "kind": "json_fidelity",
+   "args": [
+    "learnings",
+    "stats",
+    "--json"
+   ],
+   "status": "pass",
+   "output_sample": "[redacted: live workspace data]"
+  },
+  {
+   "command": "learnings stats",
+   "kind": "error_path",
+   "args": null,
+   "status": "skip",
+   "reason": "no positional argument"
+  },
+  {
+   "command": "outstanding",
+   "kind": "help",
+   "args": [
+    "outstanding",
+    "--help"
+   ],
+   "status": "pass",
+   "output_sample": "[redacted: live workspace data]"
+  },
+  {
+   "command": "outstanding",
+   "kind": "happy_path",
+   "args": [
+    "outstanding",
+    "--json"
+   ],
+   "status": "pass",
+   "output_sample": "[redacted: live workspace data]"
+  },
+  {
+   "command": "outstanding",
+   "kind": "json_fidelity",
+   "args": [
+    "outstanding",
+    "--json"
+   ],
+   "status": "pass",
+   "output_sample": "[redacted: live workspace data]"
+  },
+  {
+   "command": "outstanding",
+   "kind": "error_path",
+   "args": null,
+   "status": "skip",
+   "reason": "no positional argument"
+  },
+  {
+   "command": "payments",
+   "kind": "help",
+   "args": [
+    "payments",
+    "--help"
+   ],
+   "status": "pass",
+   "output_sample": "[redacted: live workspace data]"
+  },
+  {
+   "command": "payments",
+   "kind": "happy_path",
+   "args": [
+    "payments",
+    "--operation-name",
+    "example-resource",
+    "--dry-run"
+   ],
+   "status": "pass",
+   "output_sample": "[redacted: live workspace data]"
+  },
+  {
+   "command": "payments",
+   "kind": "json_fidelity",
+   "args": [
+    "payments",
+    "--operation-name",
+    "example-resource",
+    "--dry-run",
+    "--json"
+   ],
+   "status": "pass",
+   "output_sample": "[redacted: live workspace data]"
+  },
+  {
+   "command": "payments",
+   "kind": "error_path",
+   "args": null,
+   "status": "skip",
+   "reason": "no positional argument"
+  },
+  {
+   "command": "payments",
+   "kind": "error_path_real",
+   "args": null,
+   "status": "skip",
+   "reason": "mutating command dry-run only"
+  },
+  {
+   "command": "pipeline",
+   "kind": "help",
+   "args": [
+    "pipeline",
+    "--help"
+   ],
+   "status": "pass",
+   "output_sample": "[redacted: live workspace data]"
+  },
+  {
+   "command": "pipeline",
+   "kind": "happy_path",
+   "args": [
+    "pipeline",
+    "--json"
+   ],
+   "status": "pass",
+   "output_sample": "[redacted: live workspace data]"
+  },
+  {
+   "command": "pipeline",
+   "kind": "json_fidelity",
+   "args": [
+    "pipeline",
+    "--json"
+   ],
+   "status": "pass",
+   "output_sample": "[redacted: live workspace data]"
+  },
+  {
+   "command": "pipeline",
+   "kind": "error_path",
+   "args": null,
+   "status": "skip",
+   "reason": "no positional argument"
+  },
+  {
+   "command": "playbook amend",
+   "kind": "help",
+   "args": [
+    "playbook",
+    "amend",
+    "--help"
+   ],
+   "status": "pass",
+   "output_sample": "[redacted: live workspace data]"
+  },
+  {
+   "command": "playbook amend",
+   "kind": "happy_path",
+   "args": [
+    "playbook",
+    "amend",
+    "--query",
+    "<exact recall query>",
+    "--add-note",
+    "summary endpoint envelope: data lives at .results.header, not .header"
+   ],
+   "status": "pass"
+  },
+  {
+   "command": "playbook amend",
+   "kind": "json_fidelity",
+   "args": [
+    "playbook",
+    "amend",
+    "--query",
+    "<exact recall query>",
+    "--add-note",
+    "summary endpoint envelope: data lives at .results.header, not .header",
+    "--json"
+   ],
+   "status": "pass",
+   "output_sample": "[redacted: live workspace data]"
+  },
+  {
+   "command": "playbook amend",
+   "kind": "error_path",
+   "args": null,
+   "status": "skip",
+   "reason": "no positional argument"
+  },
+  {
+   "command": "playbook list",
+   "kind": "help",
+   "args": [
+    "playbook",
+    "list",
+    "--help"
+   ],
+   "status": "pass",
+   "output_sample": "[redacted: live workspace data]"
+  },
+  {
+   "command": "playbook list",
+   "kind": "happy_path",
+   "args": [
+    "playbook",
+    "list",
+    "--agent"
+   ],
+   "status": "pass",
+   "output_sample": "[redacted: live workspace data]"
+  },
+  {
+   "command": "playbook list",
+   "kind": "json_fidelity",
+   "args": [
+    "playbook",
+    "list",
+    "--agent",
+    "--json"
+   ],
+   "status": "pass",
+   "output_sample": "[redacted: live workspace data]"
+  },
+  {
+   "command": "playbook list",
+   "kind": "error_path",
+   "args": null,
+   "status": "skip",
+   "reason": "no positional argument"
+  },
+  {
+   "command": "preferreds",
+   "kind": "help",
+   "args": [
+    "preferreds",
+    "--help"
+   ],
+   "status": "pass",
+   "output_sample": "[redacted: live workspace data]"
+  },
+  {
+   "command": "preferreds",
+   "kind": "happy_path",
+   "args": [
+    "preferreds",
+    "--operation-name",
+    "example-resource",
+    "--dry-run"
+   ],
+   "status": "pass",
+   "output_sample": "[redacted: live workspace data]"
+  },
+  {
+   "command": "preferreds",
+   "kind": "json_fidelity",
+   "args": [
+    "preferreds",
+    "--operation-name",
+    "example-resource",
+    "--dry-run",
+    "--json"
+   ],
+   "status": "pass",
+   "output_sample": "[redacted: live workspace data]"
+  },
+  {
+   "command": "preferreds",
+   "kind": "error_path",
+   "args": null,
+   "status": "skip",
+   "reason": "no positional argument"
+  },
+  {
+   "command": "preferreds",
+   "kind": "error_path_real",
+   "args": null,
+   "status": "skip",
+   "reason": "mutating command dry-run only"
+  },
+  {
+   "command": "profile delete",
+   "kind": "help",
+   "args": [
+    "profile",
+    "delete",
+    "--help"
+   ],
+   "status": "pass",
+   "output_sample": "[redacted: live workspace data]"
+  },
+  {
+   "command": "profile delete",
+   "kind": "happy_path",
+   "args": null,
+   "status": "skip",
+   "reason": "non-id positional \"name\" at depth 0"
+  },
+  {
+   "command": "profile delete",
+   "kind": "json_fidelity",
+   "args": null,
+   "status": "skip",
+   "reason": "non-id positional \"name\" at depth 0"
+  },
+  {
+   "command": "profile delete",
+   "kind": "error_path",
+   "args": null,
+   "status": "skip",
+   "reason": "mutating command; error_path would call live API without --dry-run"
+  },
+  {
+   "command": "profile delete",
+   "kind": "error_path_real",
+   "args": null,
+   "status": "skip",
+   "reason": "non-id positional \"name\" at depth 0"
+  },
+  {
+   "command": "profile list",
+   "kind": "help",
+   "args": [
+    "profile",
+    "list",
+    "--help"
+   ],
+   "status": "pass",
+   "output_sample": "[redacted: live workspace data]"
+  },
+  {
+   "command": "profile list",
+   "kind": "happy_path",
+   "args": [
+    "profile",
+    "list"
+   ],
+   "status": "pass",
+   "output_sample": "[redacted: live workspace data]"
+  },
+  {
+   "command": "profile list",
+   "kind": "json_fidelity",
+   "args": [
+    "profile",
+    "list",
+    "--json"
+   ],
+   "status": "pass",
+   "output_sample": "[redacted: live workspace data]"
+  },
+  {
+   "command": "profile list",
+   "kind": "error_path",
+   "args": null,
+   "status": "skip",
+   "reason": "no positional argument"
+  },
+  {
+   "command": "profile save",
+   "kind": "help",
+   "args": [
+    "profile",
+    "save",
+    "--help"
+   ],
+   "status": "pass",
+   "output_sample": "[redacted: live workspace data]"
+  },
+  {
+   "command": "profile save",
+   "kind": "happy_path",
+   "args": null,
+   "status": "skip",
+   "reason": "non-id positional \"name\" at depth 0"
+  },
+  {
+   "command": "profile save",
+   "kind": "json_fidelity",
+   "args": null,
+   "status": "skip",
+   "reason": "non-id positional \"name\" at depth 0"
+  },
+  {
+   "command": "profile save",
+   "kind": "error_path",
+   "args": [
+    "profile",
+    "save",
+    "__printing_press_invalid__"
+   ],
+   "status": "pass",
+   "exit_code": 1,
+   "output_sample": "[redacted: live workspace data]"
+  },
+  {
+   "command": "profile show",
+   "kind": "help",
+   "args": [
+    "profile",
+    "show",
+    "--help"
+   ],
+   "status": "pass",
+   "output_sample": "[redacted: live workspace data]"
+  },
+  {
+   "command": "profile show",
+   "kind": "happy_path",
+   "args": null,
+   "status": "skip",
+   "reason": "non-id positional \"name\" at depth 0"
+  },
+  {
+   "command": "profile show",
+   "kind": "json_fidelity",
+   "args": null,
+   "status": "skip",
+   "reason": "non-id positional \"name\" at depth 0"
+  },
+  {
+   "command": "profile show",
+   "kind": "error_path",
+   "args": [
+    "profile",
+    "show",
+    "__printing_press_invalid__"
+   ],
+   "status": "pass",
+   "exit_code": 1,
+   "output_sample": "[redacted: live workspace data]"
+  },
+  {
+   "command": "profile use",
+   "kind": "help",
+   "args": [
+    "profile",
+    "use",
+    "--help"
+   ],
+   "status": "pass",
+   "output_sample": "[redacted: live workspace data]"
+  },
+  {
+   "command": "profile use",
+   "kind": "happy_path",
+   "args": null,
+   "status": "skip",
+   "reason": "non-id positional \"name\" at depth 0"
+  },
+  {
+   "command": "profile use",
+   "kind": "json_fidelity",
+   "args": null,
+   "status": "skip",
+   "reason": "non-id positional \"name\" at depth 0"
+  },
+  {
+   "command": "profile use",
+   "kind": "error_path",
+   "args": [
+    "profile",
+    "use",
+    "__printing_press_invalid__"
+   ],
+   "status": "pass",
+   "exit_code": 1,
+   "output_sample": "[redacted: live workspace data]"
+  },
+  {
+   "command": "proposals",
+   "kind": "help",
+   "args": [
+    "proposals",
+    "--help"
+   ],
+   "status": "pass",
+   "output_sample": "[redacted: live workspace data]"
+  },
+  {
+   "command": "proposals",
+   "kind": "happy_path",
+   "args": [
+    "proposals",
+    "--operation-name",
+    "example-resource"
+   ],
+   "status": "pass",
+   "output_sample": "[redacted: live workspace data]"
+  },
+  {
+   "command": "proposals",
+   "kind": "json_fidelity",
+   "args": [
+    "proposals",
+    "--operation-name",
+    "example-resource",
+    "--json"
+   ],
+   "status": "pass",
+   "output_sample": "[redacted: live workspace data]"
+  },
+  {
+   "command": "proposals",
+   "kind": "error_path",
+   "args": null,
+   "status": "skip",
+   "reason": "no positional argument"
+  },
+  {
+   "command": "recall",
+   "kind": "help",
+   "args": [
     "recall",
+    "--help"
+   ],
+   "status": "pass",
+   "output_sample": "[redacted: live workspace data]"
+  },
+  {
+   "command": "recall",
+   "kind": "happy_path",
+   "args": null,
+   "status": "skip",
+   "reason": "command path [recall] has fewer segments than placeholders (1)"
+  },
+  {
+   "command": "recall",
+   "kind": "json_fidelity",
+   "args": null,
+   "status": "skip",
+   "reason": "command path [recall] has fewer segments than placeholders (1)"
+  },
+  {
+   "command": "recall",
+   "kind": "error_path",
+   "args": [
+    "recall",
+    "__printing_press_invalid__",
+    "--json"
+   ],
+   "status": "pass",
+   "output_sample": "[redacted: live workspace data]"
+  },
+  {
+   "command": "rejected-payments",
+   "kind": "help",
+   "args": [
     "rejected-payments",
-    "search-index billing-items",
-    "search-index invoices",
-    "search-index proposals",
+    "--help"
+   ],
+   "status": "pass",
+   "output_sample": "[redacted: live workspace data]"
+  },
+  {
+   "command": "rejected-payments",
+   "kind": "happy_path",
+   "args": [
+    "rejected-payments",
+    "--json"
+   ],
+   "status": "pass",
+   "output_sample": "[redacted: live workspace data]"
+  },
+  {
+   "command": "rejected-payments",
+   "kind": "json_fidelity",
+   "args": [
+    "rejected-payments",
+    "--json"
+   ],
+   "status": "pass",
+   "output_sample": "[redacted: live workspace data]"
+  },
+  {
+   "command": "rejected-payments",
+   "kind": "error_path",
+   "args": null,
+   "status": "skip",
+   "reason": "no positional argument"
+  },
+  {
+   "command": "search-index billing-items",
+   "kind": "help",
+   "args": [
+    "search-index",
+    "billing-items",
+    "--help"
+   ],
+   "status": "pass",
+   "output_sample": "[redacted: live workspace data]"
+  },
+  {
+   "command": "search-index billing-items",
+   "kind": "happy_path",
+   "args": null,
+   "status": "skip",
+   "reason": "blocked-fixture: mutating command requires runnable example"
+  },
+  {
+   "command": "search-index billing-items",
+   "kind": "json_fidelity",
+   "args": null,
+   "status": "skip",
+   "reason": "blocked-fixture: mutating command requires runnable example"
+  },
+  {
+   "command": "search-index billing-items",
+   "kind": "error_path",
+   "args": null,
+   "status": "skip",
+   "reason": "blocked-fixture: mutating command requires runnable example"
+  },
+  {
+   "command": "search-index invoices",
+   "kind": "help",
+   "args": [
+    "search-index",
+    "invoices",
+    "--help"
+   ],
+   "status": "pass",
+   "output_sample": "[redacted: live workspace data]"
+  },
+  {
+   "command": "search-index invoices",
+   "kind": "happy_path",
+   "args": null,
+   "status": "skip",
+   "reason": "blocked-fixture: mutating command requires runnable example"
+  },
+  {
+   "command": "search-index invoices",
+   "kind": "json_fidelity",
+   "args": null,
+   "status": "skip",
+   "reason": "blocked-fixture: mutating command requires runnable example"
+  },
+  {
+   "command": "search-index invoices",
+   "kind": "error_path",
+   "args": null,
+   "status": "skip",
+   "reason": "blocked-fixture: mutating command requires runnable example"
+  },
+  {
+   "command": "search-index proposals",
+   "kind": "help",
+   "args": [
+    "search-index",
+    "proposals",
+    "--help"
+   ],
+   "status": "pass",
+   "output_sample": "[redacted: live workspace data]"
+  },
+  {
+   "command": "search-index proposals",
+   "kind": "happy_path",
+   "args": null,
+   "status": "skip",
+   "reason": "blocked-fixture: mutating command requires runnable example"
+  },
+  {
+   "command": "search-index proposals",
+   "kind": "json_fidelity",
+   "args": null,
+   "status": "skip",
+   "reason": "blocked-fixture: mutating command requires runnable example"
+  },
+  {
+   "command": "search-index proposals",
+   "kind": "error_path",
+   "args": null,
+   "status": "skip",
+   "reason": "blocked-fixture: mutating command requires runnable example"
+  },
+  {
+   "command": "site",
+   "kind": "help",
+   "args": [
     "site",
+    "--help"
+   ],
+   "status": "pass",
+   "output_sample": "[redacted: live workspace data]"
+  },
+  {
+   "command": "site",
+   "kind": "happy_path",
+   "args": [
+    "site",
+    "--operation-name",
+    "example-resource",
+    "--dry-run"
+   ],
+   "status": "pass",
+   "output_sample": "[redacted: live workspace data]"
+  },
+  {
+   "command": "site",
+   "kind": "json_fidelity",
+   "args": [
+    "site",
+    "--operation-name",
+    "example-resource",
+    "--dry-run",
+    "--json"
+   ],
+   "status": "pass",
+   "output_sample": "[redacted: live workspace data]"
+  },
+  {
+   "command": "site",
+   "kind": "error_path",
+   "args": null,
+   "status": "skip",
+   "reason": "no positional argument"
+  },
+  {
+   "command": "site",
+   "kind": "error_path_real",
+   "args": null,
+   "status": "skip",
+   "reason": "mutating command dry-run only"
+  },
+  {
+   "command": "solos",
+   "kind": "help",
+   "args": [
     "solos",
+    "--help"
+   ],
+   "status": "pass",
+   "output_sample": "[redacted: live workspace data]"
+  },
+  {
+   "command": "solos",
+   "kind": "happy_path",
+   "args": [
+    "solos",
+    "--operation-name",
+    "example-resource",
+    "--dry-run"
+   ],
+   "status": "pass",
+   "output_sample": "[redacted: live workspace data]"
+  },
+  {
+   "command": "solos",
+   "kind": "json_fidelity",
+   "args": [
+    "solos",
+    "--operation-name",
+    "example-resource",
+    "--dry-run",
+    "--json"
+   ],
+   "status": "pass",
+   "output_sample": "[redacted: live workspace data]"
+  },
+  {
+   "command": "solos",
+   "kind": "error_path",
+   "args": null,
+   "status": "skip",
+   "reason": "no positional argument"
+  },
+  {
+   "command": "solos",
+   "kind": "error_path_real",
+   "args": null,
+   "status": "skip",
+   "reason": "mutating command dry-run only"
+  },
+  {
+   "command": "teach",
+   "kind": "help",
+   "args": [
     "teach",
+    "--help"
+   ],
+   "status": "pass",
+   "output_sample": "[redacted: live workspace data]"
+  },
+  {
+   "command": "teach",
+   "kind": "happy_path",
+   "args": [
+    "teach",
+    "--query",
+    "<question>",
+    "--resource-type",
+    "<type>",
+    "--resource",
+    "<id>"
+   ],
+   "status": "pass"
+  },
+  {
+   "command": "teach",
+   "kind": "json_fidelity",
+   "args": [
+    "teach",
+    "--query",
+    "<question>",
+    "--resource-type",
+    "<type>",
+    "--resource",
+    "<id>",
+    "--json"
+   ],
+   "status": "pass",
+   "output_sample": "[redacted: live workspace data]"
+  },
+  {
+   "command": "teach",
+   "kind": "error_path",
+   "args": null,
+   "status": "skip",
+   "reason": "no positional argument"
+  },
+  {
+   "command": "teach-lookup",
+   "kind": "help",
+   "args": [
     "teach-lookup",
+    "--help"
+   ],
+   "status": "pass",
+   "output_sample": "[redacted: live workspace data]"
+  },
+  {
+   "command": "teach-lookup",
+   "kind": "happy_path",
+   "args": [
+    "teach-lookup",
+    "--kind",
+    "country",
+    "--canonical",
+    "United States",
+    "--value",
+    "USA"
+   ],
+   "status": "pass",
+   "output_sample": "[redacted: live workspace data]"
+  },
+  {
+   "command": "teach-lookup",
+   "kind": "json_fidelity",
+   "args": [
+    "teach-lookup",
+    "--kind",
+    "country",
+    "--canonical",
+    "United States",
+    "--value",
+    "USA",
+    "--json"
+   ],
+   "status": "pass",
+   "output_sample": "[redacted: live workspace data]"
+  },
+  {
+   "command": "teach-lookup",
+   "kind": "error_path",
+   "args": null,
+   "status": "skip",
+   "reason": "no positional argument"
+  },
+  {
+   "command": "teach-pattern",
+   "kind": "help",
+   "args": [
     "teach-pattern",
+    "--help"
+   ],
+   "status": "pass",
+   "output_sample": "[redacted: live workspace data]"
+  },
+  {
+   "command": "teach-pattern",
+   "kind": "happy_path",
+   "args": [
+    "teach-pattern",
+    "--query-template",
+    "items in {entity}",
+    "--resource-template",
+    "GROUP-{entity:category}",
+    "--resource-type",
+    "items",
+    "--entity-kind",
+    "category",
+    "--strategy",
+    "substitute"
+   ],
+   "status": "pass",
+   "output_sample": "[redacted: live workspace data]"
+  },
+  {
+   "command": "teach-pattern",
+   "kind": "json_fidelity",
+   "args": [
+    "teach-pattern",
+    "--query-template",
+    "items in {entity}",
+    "--resource-template",
+    "GROUP-{entity:category}",
+    "--resource-type",
+    "items",
+    "--entity-kind",
+    "category",
+    "--strategy",
+    "substitute",
+    "--json"
+   ],
+   "status": "pass",
+   "output_sample": "[redacted: live workspace data]"
+  },
+  {
+   "command": "teach-pattern",
+   "kind": "error_path",
+   "args": null,
+   "status": "skip",
+   "reason": "no positional argument"
+  },
+  {
+   "command": "teach-playbook",
+   "kind": "help",
+   "args": [
     "teach-playbook",
+    "--help"
+   ],
+   "status": "pass",
+   "output_sample": "[redacted: live workspace data]"
+  },
+  {
+   "command": "teach-playbook",
+   "kind": "happy_path",
+   "args": [
+    "teach-playbook",
+    "--query",
+    "<question that anchors the family>",
+    "--notes",
+    "<one-line playbook notes>"
+   ],
+   "status": "pass",
+   "output_sample": "[redacted: live workspace data]"
+  },
+  {
+   "command": "teach-playbook",
+   "kind": "json_fidelity",
+   "args": [
+    "teach-playbook",
+    "--query",
+    "<question that anchors the family>",
+    "--notes",
+    "<one-line playbook notes>",
+    "--json"
+   ],
+   "status": "pass",
+   "output_sample": "[redacted: live workspace data]"
+  },
+  {
+   "command": "teach-playbook",
+   "kind": "error_path",
+   "args": null,
+   "status": "skip",
+   "reason": "no positional argument"
+  },
+  {
+   "command": "unbilled",
+   "kind": "help",
+   "args": [
     "unbilled",
+    "--help"
+   ],
+   "status": "pass",
+   "output_sample": "[redacted: live workspace data]"
+  },
+  {
+   "command": "unbilled",
+   "kind": "happy_path",
+   "args": [
+    "unbilled",
+    "--json"
+   ],
+   "status": "pass",
+   "output_sample": "[redacted: live workspace data]"
+  },
+  {
+   "command": "unbilled",
+   "kind": "json_fidelity",
+   "args": [
+    "unbilled",
+    "--json"
+   ],
+   "status": "pass",
+   "output_sample": "[redacted: live workspace data]"
+  },
+  {
+   "command": "unbilled",
+   "kind": "error_path",
+   "args": null,
+   "status": "skip",
+   "reason": "no positional argument"
+  },
+  {
+   "command": "unseens",
+   "kind": "help",
+   "args": [
     "unseens",
+    "--help"
+   ],
+   "status": "pass",
+   "output_sample": "[redacted: live workspace data]"
+  },
+  {
+   "command": "unseens",
+   "kind": "happy_path",
+   "args": [
+    "unseens",
+    "--operation-name",
+    "example-resource"
+   ],
+   "status": "pass",
+   "output_sample": "[redacted: live workspace data]"
+  },
+  {
+   "command": "unseens",
+   "kind": "json_fidelity",
+   "args": [
+    "unseens",
+    "--operation-name",
+    "example-resource",
+    "--json"
+   ],
+   "status": "pass",
+   "output_sample": "[redacted: live workspace data]"
+  },
+  {
+   "command": "unseens",
+   "kind": "error_path",
+   "args": null,
+   "status": "skip",
+   "reason": "no positional argument"
+  },
+  {
+   "command": "which",
+   "kind": "help",
+   "args": [
     "which",
-    "workflow status"
-  ],
-  "tests": [
-    {
-      "command": "acknowledgements",
-      "kind": "help",
-      "args": [
-        "acknowledgements",
-        "--help"
-      ],
-      "status": "pass",
-      "output_sample": "[redacted: live workspace data; pre-scrub copy retained locally]"
-    },
-    {
-      "command": "acknowledgements",
-      "kind": "happy_path",
-      "args": [
-        "acknowledgements",
-        "--operation-name",
-        "example-resource"
-      ],
-      "status": "pass",
-      "output_sample": "[redacted: live workspace data; pre-scrub copy retained locally]"
-    },
-    {
-      "command": "acknowledgements",
-      "kind": "json_fidelity",
-      "args": [
-        "acknowledgements",
-        "--operation-name",
-        "example-resource",
-        "--json"
-      ],
-      "status": "pass",
-      "output_sample": "[redacted: live workspace data; pre-scrub copy retained locally]"
-    },
-    {
-      "command": "acknowledgements",
-      "kind": "error_path",
-      "args": null,
-      "status": "skip",
-      "reason": "no positional argument"
-    },
-    {
-      "command": "adds",
-      "kind": "help",
-      "args": [
-        "adds",
-        "--help"
-      ],
-      "status": "pass",
-      "output_sample": "[redacted: live workspace data; pre-scrub copy retained locally]"
-    },
-    {
-      "command": "adds",
-      "kind": "happy_path",
-      "args": [
-        "adds",
-        "--operation-name",
-        "example-resource",
-        "--dry-run"
-      ],
-      "status": "pass",
-      "output_sample": "[redacted: live workspace data; pre-scrub copy retained locally]"
-    },
-    {
-      "command": "adds",
-      "kind": "json_fidelity",
-      "args": [
-        "adds",
-        "--operation-name",
-        "example-resource",
-        "--dry-run",
-        "--json"
-      ],
-      "status": "pass",
-      "output_sample": "[redacted: live workspace data; pre-scrub copy retained locally]"
-    },
-    {
-      "command": "adds",
-      "kind": "error_path",
-      "args": null,
-      "status": "skip",
-      "reason": "no positional argument"
-    },
-    {
-      "command": "adds",
-      "kind": "error_path_real",
-      "args": null,
-      "status": "skip",
-      "reason": "mutating command dry-run only"
-    },
-    {
-      "command": "api",
-      "kind": "help",
-      "args": [
-        "api",
-        "--help"
-      ],
-      "status": "pass",
-      "output_sample": "[redacted: live workspace data; pre-scrub copy retained locally]"
-    },
-    {
-      "command": "api",
-      "kind": "happy_path",
-      "args": null,
-      "status": "skip",
-      "reason": "command path [api] has fewer segments than placeholders (1)"
-    },
-    {
-      "command": "api",
-      "kind": "json_fidelity",
-      "args": null,
-      "status": "skip",
-      "reason": "command path [api] has fewer segments than placeholders (1)"
-    },
-    {
-      "command": "api",
-      "kind": "error_path",
-      "args": [
-        "api",
-        "__printing_press_invalid__"
-      ],
-      "status": "pass",
-      "exit_code": 1,
-      "output_sample": "[redacted: live workspace data; pre-scrub copy retained locally]"
-    },
-    {
-      "command": "apps",
-      "kind": "help",
-      "args": [
-        "apps",
-        "--help"
-      ],
-      "status": "pass",
-      "output_sample": "[redacted: live workspace data; pre-scrub copy retained locally]"
-    },
-    {
-      "command": "apps",
-      "kind": "happy_path",
-      "args": [
-        "apps",
-        "--operation-name",
-        "example-resource",
-        "--dry-run"
-      ],
-      "status": "pass",
-      "output_sample": "[redacted: live workspace data; pre-scrub copy retained locally]"
-    },
-    {
-      "command": "apps",
-      "kind": "json_fidelity",
-      "args": [
-        "apps",
-        "--operation-name",
-        "example-resource",
-        "--dry-run",
-        "--json"
-      ],
-      "status": "pass",
-      "output_sample": "[redacted: live workspace data; pre-scrub copy retained locally]"
-    },
-    {
-      "command": "apps",
-      "kind": "error_path",
-      "args": null,
-      "status": "skip",
-      "reason": "no positional argument"
-    },
-    {
-      "command": "apps",
-      "kind": "error_path_real",
-      "args": null,
-      "status": "skip",
-      "reason": "mutating command dry-run only"
-    },
-    {
-      "command": "auth-api",
-      "kind": "help",
-      "args": [
-        "auth-api",
-        "--help"
-      ],
-      "status": "pass",
-      "output_sample": "[redacted: live workspace data; pre-scrub copy retained locally]"
-    },
-    {
-      "command": "auth-api",
-      "kind": "happy_path",
-      "args": [
-        "auth-api",
-        "--data",
-        "example-value",
-        "--operation-name",
-        "example-resource",
-        "--dry-run"
-      ],
-      "status": "pass",
-      "output_sample": "[redacted: live workspace data; pre-scrub copy retained locally]"
-    },
-    {
-      "command": "auth-api",
-      "kind": "json_fidelity",
-      "args": [
-        "auth-api",
-        "--data",
-        "example-value",
-        "--operation-name",
-        "example-resource",
-        "--dry-run",
-        "--json"
-      ],
-      "status": "pass",
-      "output_sample": "[redacted: live workspace data; pre-scrub copy retained locally]"
-    },
-    {
-      "command": "auth-api",
-      "kind": "error_path",
-      "args": null,
-      "status": "skip",
-      "reason": "no positional argument"
-    },
-    {
-      "command": "auth-api",
-      "kind": "error_path_real",
-      "args": null,
-      "status": "skip",
-      "reason": "mutating command dry-run only"
-    },
-    {
-      "command": "billings",
-      "kind": "help",
-      "args": [
-        "billings",
-        "--help"
-      ],
-      "status": "pass",
-      "output_sample": "[redacted: live workspace data; pre-scrub copy retained locally]"
-    },
-    {
-      "command": "billings",
-      "kind": "happy_path",
-      "args": [
-        "billings",
-        "--operation-name",
-        "example-resource"
-      ],
-      "status": "pass",
-      "output_sample": "[redacted: live workspace data; pre-scrub copy retained locally]"
-    },
-    {
-      "command": "billings",
-      "kind": "json_fidelity",
-      "args": [
-        "billings",
-        "--operation-name",
-        "example-resource",
-        "--json"
-      ],
-      "status": "pass",
-      "output_sample": "[redacted: live workspace data; pre-scrub copy retained locally]"
-    },
-    {
-      "command": "billings",
-      "kind": "error_path",
-      "args": null,
-      "status": "skip",
-      "reason": "no positional argument"
-    },
-    {
-      "command": "brandings",
-      "kind": "help",
-      "args": [
-        "brandings",
-        "--help"
-      ],
-      "status": "pass",
-      "output_sample": "[redacted: live workspace data; pre-scrub copy retained locally]"
-    },
-    {
-      "command": "brandings",
-      "kind": "happy_path",
-      "args": [
-        "brandings",
-        "--operation-name",
-        "example-resource",
-        "--dry-run"
-      ],
-      "status": "pass",
-      "output_sample": "[redacted: live workspace data; pre-scrub copy retained locally]"
-    },
-    {
-      "command": "brandings",
-      "kind": "json_fidelity",
-      "args": [
-        "brandings",
-        "--operation-name",
-        "example-resource",
-        "--dry-run",
-        "--json"
-      ],
-      "status": "pass",
-      "output_sample": "[redacted: live workspace data; pre-scrub copy retained locally]"
-    },
-    {
-      "command": "brandings",
-      "kind": "error_path",
-      "args": null,
-      "status": "skip",
-      "reason": "no positional argument"
-    },
-    {
-      "command": "brandings",
-      "kind": "error_path_real",
-      "args": null,
-      "status": "skip",
-      "reason": "mutating command dry-run only"
-    },
-    {
-      "command": "client-billing",
-      "kind": "help",
-      "args": [
-        "client-billing",
-        "--help"
-      ],
-      "status": "pass",
-      "output_sample": "[redacted: live workspace data; pre-scrub copy retained locally]"
-    },
-    {
-      "command": "client-billing",
-      "kind": "happy_path",
-      "args": [
-        "client-billing",
-        "--client-id",
-        "cli_example",
-        "--json"
-      ],
-      "status": "pass",
-      "output_sample": "[redacted: live workspace data; pre-scrub copy retained locally]"
-    },
-    {
-      "command": "client-billing",
-      "kind": "json_fidelity",
-      "args": [
-        "client-billing",
-        "--client-id",
-        "cli_example",
-        "--json"
-      ],
-      "status": "pass",
-      "output_sample": "[redacted: live workspace data; pre-scrub copy retained locally]"
-    },
-    {
-      "command": "client-billing",
-      "kind": "error_path",
-      "args": null,
-      "status": "skip",
-      "reason": "no positional argument"
-    },
-    {
-      "command": "clients forms",
-      "kind": "help",
-      "args": [
-        "clients",
-        "forms",
-        "--help"
-      ],
-      "status": "pass",
-      "output_sample": "[redacted: live workspace data; pre-scrub copy retained locally]"
-    },
-    {
-      "command": "clients forms",
-      "kind": "happy_path",
-      "args": [
-        "clients",
-        "forms",
-        "--operation-name",
-        "example-resource",
-        "--dry-run"
-      ],
-      "status": "pass",
-      "output_sample": "[redacted: live workspace data; pre-scrub copy retained locally]"
-    },
-    {
-      "command": "clients forms",
-      "kind": "json_fidelity",
-      "args": [
-        "clients",
-        "forms",
-        "--operation-name",
-        "example-resource",
-        "--dry-run",
-        "--json"
-      ],
-      "status": "pass",
-      "output_sample": "[redacted: live workspace data; pre-scrub copy retained locally]"
-    },
-    {
-      "command": "clients forms",
-      "kind": "error_path",
-      "args": null,
-      "status": "skip",
-      "reason": "no positional argument"
-    },
-    {
-      "command": "clients forms",
-      "kind": "error_path_real",
-      "args": null,
-      "status": "skip",
-      "reason": "mutating command dry-run only"
-    },
-    {
-      "command": "clients get",
-      "kind": "help",
-      "args": [
-        "clients",
-        "get",
-        "--help"
-      ],
-      "status": "pass",
-      "output_sample": "[redacted: live workspace data; pre-scrub copy retained locally]"
-    },
-    {
-      "command": "clients get",
-      "kind": "happy_path",
-      "args": [
-        "clients",
-        "get",
-        "--operation-name",
-        "example-resource"
-      ],
-      "status": "pass",
-      "output_sample": "[redacted: live workspace data; pre-scrub copy retained locally]"
-    },
-    {
-      "command": "clients get",
-      "kind": "json_fidelity",
-      "args": [
-        "clients",
-        "get",
-        "--operation-name",
-        "example-resource",
-        "--json"
-      ],
-      "status": "pass",
-      "output_sample": "[redacted: live workspace data; pre-scrub copy retained locally]"
-    },
-    {
-      "command": "clients get",
-      "kind": "error_path",
-      "args": null,
-      "status": "skip",
-      "reason": "no positional argument"
-    },
-    {
-      "command": "clients get-2",
-      "kind": "help",
-      "args": [
-        "clients",
-        "get-2",
-        "--help"
-      ],
-      "status": "pass",
-      "output_sample": "[redacted: live workspace data; pre-scrub copy retained locally]"
-    },
-    {
-      "command": "clients get-2",
-      "kind": "happy_path",
-      "args": [
-        "clients",
-        "get-2",
-        "--operation-name",
-        "example-resource",
-        "--dry-run"
-      ],
-      "status": "pass",
-      "output_sample": "[redacted: live workspace data; pre-scrub copy retained locally]"
-    },
-    {
-      "command": "clients get-2",
-      "kind": "json_fidelity",
-      "args": [
-        "clients",
-        "get-2",
-        "--operation-name",
-        "example-resource",
-        "--dry-run",
-        "--json"
-      ],
-      "status": "pass",
-      "output_sample": "[redacted: live workspace data; pre-scrub copy retained locally]"
-    },
-    {
-      "command": "clients get-2",
-      "kind": "error_path",
-      "args": null,
-      "status": "skip",
-      "reason": "no positional argument"
-    },
-    {
-      "command": "clients get-2",
-      "kind": "error_path_real",
-      "args": null,
-      "status": "skip",
-      "reason": "mutating command dry-run only"
-    },
-    {
-      "command": "clients proposals",
-      "kind": "help",
-      "args": [
-        "clients",
-        "proposals",
-        "--help"
-      ],
-      "status": "pass",
-      "output_sample": "[redacted: live workspace data; pre-scrub copy retained locally]"
-    },
-    {
-      "command": "clients proposals",
-      "kind": "happy_path",
-      "args": [
-        "clients",
-        "proposals",
-        "--operation-name",
-        "example-resource",
-        "--dry-run"
-      ],
-      "status": "pass",
-      "output_sample": "[redacted: live workspace data; pre-scrub copy retained locally]"
-    },
-    {
-      "command": "clients proposals",
-      "kind": "json_fidelity",
-      "args": [
-        "clients",
-        "proposals",
-        "--operation-name",
-        "example-resource",
-        "--dry-run",
-        "--json"
-      ],
-      "status": "pass",
-      "output_sample": "[redacted: live workspace data; pre-scrub copy retained locally]"
-    },
-    {
-      "command": "clients proposals",
-      "kind": "error_path",
-      "args": null,
-      "status": "skip",
-      "reason": "no positional argument"
-    },
-    {
-      "command": "clients proposals",
-      "kind": "error_path_real",
-      "args": null,
-      "status": "skip",
-      "reason": "mutating command dry-run only"
-    },
-    {
-      "command": "clients summary-client",
-      "kind": "help",
-      "args": [
-        "clients",
-        "summary-client",
-        "--help"
-      ],
-      "status": "pass",
-      "output_sample": "[redacted: live workspace data; pre-scrub copy retained locally]"
-    },
-    {
-      "command": "clients summary-client",
-      "kind": "happy_path",
-      "args": [
-        "clients",
-        "summary-client",
-        "--operation-name",
-        "example-resource",
-        "--dry-run"
-      ],
-      "status": "pass",
-      "output_sample": "[redacted: live workspace data; pre-scrub copy retained locally]"
-    },
-    {
-      "command": "clients summary-client",
-      "kind": "json_fidelity",
-      "args": [
-        "clients",
-        "summary-client",
-        "--operation-name",
-        "example-resource",
-        "--dry-run",
-        "--json"
-      ],
-      "status": "pass",
-      "output_sample": "[redacted: live workspace data; pre-scrub copy retained locally]"
-    },
-    {
-      "command": "clients summary-client",
-      "kind": "error_path",
-      "args": null,
-      "status": "skip",
-      "reason": "no positional argument"
-    },
-    {
-      "command": "clients summary-client",
-      "kind": "error_path_real",
-      "args": null,
-      "status": "skip",
-      "reason": "mutating command dry-run only"
-    },
-    {
-      "command": "clients summary-rejected-payments",
-      "kind": "help",
-      "args": [
-        "clients",
-        "summary-rejected-payments",
-        "--help"
-      ],
-      "status": "pass",
-      "output_sample": "[redacted: live workspace data; pre-scrub copy retained locally]"
-    },
-    {
-      "command": "clients summary-rejected-payments",
-      "kind": "happy_path",
-      "args": [
-        "clients",
-        "summary-rejected-payments",
-        "--operation-name",
-        "example-resource",
-        "--dry-run"
-      ],
-      "status": "pass",
-      "output_sample": "[redacted: live workspace data; pre-scrub copy retained locally]"
-    },
-    {
-      "command": "clients summary-rejected-payments",
-      "kind": "json_fidelity",
-      "args": [
-        "clients",
-        "summary-rejected-payments",
-        "--operation-name",
-        "example-resource",
-        "--dry-run",
-        "--json"
-      ],
-      "status": "pass",
-      "output_sample": "[redacted: live workspace data; pre-scrub copy retained locally]"
-    },
-    {
-      "command": "clients summary-rejected-payments",
-      "kind": "error_path",
-      "args": null,
-      "status": "skip",
-      "reason": "no positional argument"
-    },
-    {
-      "command": "clients summary-rejected-payments",
-      "kind": "error_path_real",
-      "args": null,
-      "status": "skip",
-      "reason": "mutating command dry-run only"
-    },
-    {
-      "command": "clients sync-status",
-      "kind": "help",
-      "args": [
-        "clients",
-        "sync-status",
-        "--help"
-      ],
-      "status": "pass",
-      "output_sample": "[redacted: live workspace data; pre-scrub copy retained locally]"
-    },
-    {
-      "command": "clients sync-status",
-      "kind": "happy_path",
-      "args": [
-        "clients",
-        "sync-status",
-        "--operation-name",
-        "example-resource",
-        "--dry-run"
-      ],
-      "status": "pass",
-      "output_sample": "[redacted: live workspace data; pre-scrub copy retained locally]"
-    },
-    {
-      "command": "clients sync-status",
-      "kind": "json_fidelity",
-      "args": [
-        "clients",
-        "sync-status",
-        "--operation-name",
-        "example-resource",
-        "--dry-run",
-        "--json"
-      ],
-      "status": "pass",
-      "output_sample": "[redacted: live workspace data; pre-scrub copy retained locally]"
-    },
-    {
-      "command": "clients sync-status",
-      "kind": "error_path",
-      "args": null,
-      "status": "skip",
-      "reason": "no positional argument"
-    },
-    {
-      "command": "clients sync-status",
-      "kind": "error_path_real",
-      "args": null,
-      "status": "skip",
-      "reason": "mutating command dry-run only"
-    },
-    {
-      "command": "clients tags",
-      "kind": "help",
-      "args": [
-        "clients",
-        "tags",
-        "--help"
-      ],
-      "status": "pass",
-      "output_sample": "[redacted: live workspace data; pre-scrub copy retained locally]"
-    },
-    {
-      "command": "clients tags",
-      "kind": "happy_path",
-      "args": [
-        "clients",
-        "tags",
-        "--operation-name",
-        "example-resource",
-        "--dry-run"
-      ],
-      "status": "pass",
-      "output_sample": "[redacted: live workspace data; pre-scrub copy retained locally]"
-    },
-    {
-      "command": "clients tags",
-      "kind": "json_fidelity",
-      "args": [
-        "clients",
-        "tags",
-        "--operation-name",
-        "example-resource",
-        "--dry-run",
-        "--json"
-      ],
-      "status": "pass",
-      "output_sample": "[redacted: live workspace data; pre-scrub copy retained locally]"
-    },
-    {
-      "command": "clients tags",
-      "kind": "error_path",
-      "args": null,
-      "status": "skip",
-      "reason": "no positional argument"
-    },
-    {
-      "command": "clients tags",
-      "kind": "error_path_real",
-      "args": null,
-      "status": "skip",
-      "reason": "mutating command dry-run only"
-    },
-    {
-      "command": "codes",
-      "kind": "help",
-      "args": [
-        "codes",
-        "--help"
-      ],
-      "status": "pass",
-      "output_sample": "[redacted: live workspace data; pre-scrub copy retained locally]"
-    },
-    {
-      "command": "codes",
-      "kind": "happy_path",
-      "args": [
-        "codes",
-        "--operation-name",
-        "example-resource",
-        "--dry-run"
-      ],
-      "status": "pass",
-      "output_sample": "[redacted: live workspace data; pre-scrub copy retained locally]"
-    },
-    {
-      "command": "codes",
-      "kind": "json_fidelity",
-      "args": [
-        "codes",
-        "--operation-name",
-        "example-resource",
-        "--dry-run",
-        "--json"
-      ],
-      "status": "pass",
-      "output_sample": "[redacted: live workspace data; pre-scrub copy retained locally]"
-    },
-    {
-      "command": "codes",
-      "kind": "error_path",
-      "args": null,
-      "status": "skip",
-      "reason": "no positional argument"
-    },
-    {
-      "command": "codes",
-      "kind": "error_path_real",
-      "args": null,
-      "status": "skip",
-      "reason": "mutating command dry-run only"
-    },
-    {
-      "command": "compliances",
-      "kind": "help",
-      "args": [
-        "compliances",
-        "--help"
-      ],
-      "status": "pass",
-      "output_sample": "[redacted: live workspace data; pre-scrub copy retained locally]"
-    },
-    {
-      "command": "compliances",
-      "kind": "happy_path",
-      "args": [
-        "compliances",
-        "--operation-name",
-        "example-resource",
-        "--dry-run"
-      ],
-      "status": "pass",
-      "output_sample": "[redacted: live workspace data; pre-scrub copy retained locally]"
-    },
-    {
-      "command": "compliances",
-      "kind": "json_fidelity",
-      "args": [
-        "compliances",
-        "--operation-name",
-        "example-resource",
-        "--dry-run",
-        "--json"
-      ],
-      "status": "pass",
-      "output_sample": "[redacted: live workspace data; pre-scrub copy retained locally]"
-    },
-    {
-      "command": "compliances",
-      "kind": "error_path",
-      "args": null,
-      "status": "skip",
-      "reason": "no positional argument"
-    },
-    {
-      "command": "compliances",
-      "kind": "error_path_real",
-      "args": null,
-      "status": "skip",
-      "reason": "mutating command dry-run only"
-    },
-    {
-      "command": "currents practice",
-      "kind": "help",
-      "args": [
-        "currents",
-        "practice",
-        "--help"
-      ],
-      "status": "pass",
-      "output_sample": "[redacted: live workspace data; pre-scrub copy retained locally]"
-    },
-    {
-      "command": "currents practice",
-      "kind": "happy_path",
-      "args": [
-        "currents",
-        "practice",
-        "--operation-name",
-        "example-resource",
-        "--dry-run"
-      ],
-      "status": "pass",
-      "output_sample": "[redacted: live workspace data; pre-scrub copy retained locally]"
-    },
-    {
-      "command": "currents practice",
-      "kind": "json_fidelity",
-      "args": [
-        "currents",
-        "practice",
-        "--operation-name",
-        "example-resource",
-        "--dry-run",
-        "--json"
-      ],
-      "status": "pass",
-      "output_sample": "[redacted: live workspace data; pre-scrub copy retained locally]"
-    },
-    {
-      "command": "currents practice",
-      "kind": "error_path",
-      "args": null,
-      "status": "skip",
-      "reason": "no positional argument"
-    },
-    {
-      "command": "currents practice",
-      "kind": "error_path_real",
-      "args": null,
-      "status": "skip",
-      "reason": "mutating command dry-run only"
-    },
-    {
-      "command": "currents user",
-      "kind": "help",
-      "args": [
-        "currents",
-        "user",
-        "--help"
-      ],
-      "status": "pass",
-      "output_sample": "[redacted: live workspace data; pre-scrub copy retained locally]"
-    },
-    {
-      "command": "currents user",
-      "kind": "happy_path",
-      "args": [
-        "currents",
-        "user",
-        "--operation-name",
-        "example-resource",
-        "--dry-run"
-      ],
-      "status": "pass",
-      "output_sample": "[redacted: live workspace data; pre-scrub copy retained locally]"
-    },
-    {
-      "command": "currents user",
-      "kind": "json_fidelity",
-      "args": [
-        "currents",
-        "user",
-        "--operation-name",
-        "example-resource",
-        "--dry-run",
-        "--json"
-      ],
-      "status": "pass",
-      "output_sample": "[redacted: live workspace data; pre-scrub copy retained locally]"
-    },
-    {
-      "command": "currents user",
-      "kind": "error_path",
-      "args": null,
-      "status": "skip",
-      "reason": "no positional argument"
-    },
-    {
-      "command": "currents user",
-      "kind": "error_path_real",
-      "args": null,
-      "status": "skip",
-      "reason": "mutating command dry-run only"
-    },
-    {
-      "command": "doctor",
-      "kind": "help",
-      "args": [
-        "doctor",
-        "--help"
-      ],
-      "status": "pass",
-      "output_sample": "[redacted: live workspace data; pre-scrub copy retained locally]"
-    },
-    {
-      "command": "doctor",
-      "kind": "happy_path",
-      "args": [
-        "doctor"
-      ],
-      "status": "pass",
-      "output_sample": "[redacted: live workspace data; pre-scrub copy retained locally]"
-    },
-    {
-      "command": "doctor",
-      "kind": "json_fidelity",
-      "args": [
-        "doctor",
-        "--json"
-      ],
-      "status": "pass",
-      "output_sample": "[redacted: live workspace data; pre-scrub copy retained locally]"
-    },
-    {
-      "command": "doctor",
-      "kind": "error_path",
-      "args": null,
-      "status": "skip",
-      "reason": "no positional argument"
-    },
-    {
-      "command": "features",
-      "kind": "help",
-      "args": [
-        "features",
-        "--help"
-      ],
-      "status": "pass",
-      "output_sample": "[redacted: live workspace data; pre-scrub copy retained locally]"
-    },
-    {
-      "command": "features",
-      "kind": "happy_path",
-      "args": [
-        "features",
-        "--operation-name",
-        "example-resource",
-        "--dry-run"
-      ],
-      "status": "pass",
-      "output_sample": "[redacted: live workspace data; pre-scrub copy retained locally]"
-    },
-    {
-      "command": "features",
-      "kind": "json_fidelity",
-      "args": [
-        "features",
-        "--operation-name",
-        "example-resource",
-        "--dry-run",
-        "--json"
-      ],
-      "status": "pass",
-      "output_sample": "[redacted: live workspace data; pre-scrub copy retained locally]"
-    },
-    {
-      "command": "features",
-      "kind": "error_path",
-      "args": null,
-      "status": "skip",
-      "reason": "no positional argument"
-    },
-    {
-      "command": "features",
-      "kind": "error_path_real",
-      "args": null,
-      "status": "skip",
-      "reason": "mutating command dry-run only"
-    },
-    {
-      "command": "feedback list",
-      "kind": "help",
-      "args": [
-        "feedback",
-        "list",
-        "--help"
-      ],
-      "status": "pass",
-      "output_sample": "[redacted: live workspace data; pre-scrub copy retained locally]"
-    },
-    {
-      "command": "feedback list",
-      "kind": "happy_path",
-      "args": [
-        "feedback",
-        "list"
-      ],
-      "status": "pass"
-    },
-    {
-      "command": "feedback list",
-      "kind": "json_fidelity",
-      "args": [
-        "feedback",
-        "list",
-        "--json"
-      ],
-      "status": "pass",
-      "output_sample": "[redacted: live workspace data; pre-scrub copy retained locally]"
-    },
-    {
-      "command": "feedback list",
-      "kind": "error_path",
-      "args": null,
-      "status": "skip",
-      "reason": "no positional argument"
-    },
-    {
-      "command": "forms",
-      "kind": "help",
-      "args": [
-        "forms",
-        "--help"
-      ],
-      "status": "pass",
-      "output_sample": "[redacted: live workspace data; pre-scrub copy retained locally]"
-    },
-    {
-      "command": "forms",
-      "kind": "happy_path",
-      "args": [
-        "forms",
-        "--operation-name",
-        "example-resource",
-        "--dry-run"
-      ],
-      "status": "pass",
-      "output_sample": "[redacted: live workspace data; pre-scrub copy retained locally]"
-    },
-    {
-      "command": "forms",
-      "kind": "json_fidelity",
-      "args": [
-        "forms",
-        "--operation-name",
-        "example-resource",
-        "--dry-run",
-        "--json"
-      ],
-      "status": "pass",
-      "output_sample": "[redacted: live workspace data; pre-scrub copy retained locally]"
-    },
-    {
-      "command": "forms",
-      "kind": "error_path",
-      "args": null,
-      "status": "skip",
-      "reason": "no positional argument"
-    },
-    {
-      "command": "forms",
-      "kind": "error_path_real",
-      "args": null,
-      "status": "skip",
-      "reason": "mutating command dry-run only"
-    },
-    {
-      "command": "import",
-      "kind": "help",
-      "args": [
-        "import",
-        "--help"
-      ],
-      "status": "pass",
-      "output_sample": "[redacted: live workspace data; pre-scrub copy retained locally]"
-    },
-    {
-      "command": "import",
-      "kind": "happy_path",
-      "args": null,
-      "status": "skip",
-      "reason": "command path [import] has fewer segments than placeholders (1)"
-    },
-    {
-      "command": "import",
-      "kind": "json_fidelity",
-      "args": null,
-      "status": "skip",
-      "reason": "command path [import] has fewer segments than placeholders (1)"
-    },
-    {
-      "command": "import",
-      "kind": "error_path",
-      "args": [
-        "import",
-        "__printing_press_invalid__"
-      ],
-      "status": "pass",
-      "exit_code": 2,
-      "output_sample": "[redacted: live workspace data; pre-scrub copy retained locally]"
-    },
-    {
-      "command": "learnings candidates",
-      "kind": "help",
-      "args": [
-        "learnings",
-        "candidates",
-        "--help"
-      ],
-      "status": "pass",
-      "output_sample": "[redacted: live workspace data; pre-scrub copy retained locally]"
-    },
-    {
-      "command": "learnings candidates",
-      "kind": "happy_path",
-      "args": [
-        "learnings",
-        "candidates"
-      ],
-      "status": "pass",
-      "output_sample": "[redacted: live workspace data; pre-scrub copy retained locally]"
-    },
-    {
-      "command": "learnings candidates",
-      "kind": "json_fidelity",
-      "args": [
-        "learnings",
-        "candidates",
-        "--json"
-      ],
-      "status": "pass",
-      "output_sample": "[redacted: live workspace data; pre-scrub copy retained locally]"
-    },
-    {
-      "command": "learnings candidates",
-      "kind": "error_path",
-      "args": null,
-      "status": "skip",
-      "reason": "no positional argument"
-    },
-    {
-      "command": "learnings confirm",
-      "kind": "help",
-      "args": [
-        "learnings",
-        "confirm",
-        "--help"
-      ],
-      "status": "pass",
-      "output_sample": "[redacted: live workspace data; pre-scrub copy retained locally]"
-    },
-    {
-      "command": "learnings confirm",
-      "kind": "happy_path",
-      "args": null,
-      "status": "skip",
-      "reason": "blocked-fixture: required API parameter"
-    },
-    {
-      "command": "learnings confirm",
-      "kind": "json_fidelity",
-      "args": null,
-      "status": "skip",
-      "reason": "blocked-fixture: required API parameter"
-    },
-    {
-      "command": "learnings confirm",
-      "kind": "error_path",
-      "args": [
-        "learnings",
-        "confirm",
-        "__printing_press_invalid__"
-      ],
-      "status": "pass",
-      "exit_code": 2,
-      "output_sample": "[redacted: live workspace data; pre-scrub copy retained locally]"
-    },
-    {
-      "command": "learnings forget",
-      "kind": "help",
-      "args": [
-        "learnings",
-        "forget",
-        "--help"
-      ],
-      "status": "pass",
-      "output_sample": "[redacted: live workspace data; pre-scrub copy retained locally]"
-    },
-    {
-      "command": "learnings forget",
-      "kind": "happy_path",
-      "args": null,
-      "status": "skip",
-      "reason": "non-id positional \"query\" at depth 0"
-    },
-    {
-      "command": "learnings forget",
-      "kind": "json_fidelity",
-      "args": null,
-      "status": "skip",
-      "reason": "non-id positional \"query\" at depth 0"
-    },
-    {
-      "command": "learnings forget",
-      "kind": "error_path",
-      "args": [
-        "learnings",
-        "forget",
-        "__printing_press_invalid__",
-        "--json"
-      ],
-      "status": "pass",
-      "exit_code": 2,
-      "output_sample": "[redacted: live workspace data; pre-scrub copy retained locally]"
-    },
-    {
-      "command": "learnings list",
-      "kind": "help",
-      "args": [
-        "learnings",
-        "list",
-        "--help"
-      ],
-      "status": "pass",
-      "output_sample": "[redacted: live workspace data; pre-scrub copy retained locally]"
-    },
-    {
-      "command": "learnings list",
-      "kind": "happy_path",
-      "args": [
-        "learnings",
-        "list",
-        "--agent"
-      ],
-      "status": "pass",
-      "output_sample": "[redacted: live workspace data; pre-scrub copy retained locally]"
-    },
-    {
-      "command": "learnings list",
-      "kind": "json_fidelity",
-      "args": [
-        "learnings",
-        "list",
-        "--agent",
-        "--json"
-      ],
-      "status": "pass",
-      "output_sample": "[redacted: live workspace data; pre-scrub copy retained locally]"
-    },
-    {
-      "command": "learnings list",
-      "kind": "error_path",
-      "args": null,
-      "status": "skip",
-      "reason": "no positional argument"
-    },
-    {
-      "command": "learnings purge",
-      "kind": "help",
-      "args": [
-        "learnings",
-        "purge",
-        "--help"
-      ],
-      "status": "pass",
-      "output_sample": "[redacted: live workspace data; pre-scrub copy retained locally]"
-    },
-    {
-      "command": "learnings purge",
-      "kind": "happy_path",
-      "args": [
-        "learnings",
-        "purge"
-      ],
-      "status": "pass",
-      "output_sample": "[redacted: live workspace data; pre-scrub copy retained locally]"
-    },
-    {
-      "command": "learnings purge",
-      "kind": "json_fidelity",
-      "args": [
-        "learnings",
-        "purge",
-        "--json"
-      ],
-      "status": "pass",
-      "output_sample": "[redacted: live workspace data; pre-scrub copy retained locally]"
-    },
-    {
-      "command": "learnings purge",
-      "kind": "error_path",
-      "args": null,
-      "status": "skip",
-      "reason": "no positional argument"
-    },
-    {
-      "command": "learnings reject",
-      "kind": "help",
-      "args": [
-        "learnings",
-        "reject",
-        "--help"
-      ],
-      "status": "pass",
-      "output_sample": "[redacted: live workspace data; pre-scrub copy retained locally]"
-    },
-    {
-      "command": "learnings reject",
-      "kind": "happy_path",
-      "args": null,
-      "status": "skip",
-      "reason": "blocked-fixture: required API parameter"
-    },
-    {
-      "command": "learnings reject",
-      "kind": "json_fidelity",
-      "args": null,
-      "status": "skip",
-      "reason": "blocked-fixture: required API parameter"
-    },
-    {
-      "command": "learnings reject",
-      "kind": "error_path",
-      "args": [
-        "learnings",
-        "reject",
-        "__printing_press_invalid__"
-      ],
-      "status": "pass",
-      "exit_code": 2,
-      "output_sample": "[redacted: live workspace data; pre-scrub copy retained locally]"
-    },
-    {
-      "command": "learnings stats",
-      "kind": "help",
-      "args": [
-        "learnings",
-        "stats",
-        "--help"
-      ],
-      "status": "pass",
-      "output_sample": "[redacted: live workspace data; pre-scrub copy retained locally]"
-    },
-    {
-      "command": "learnings stats",
-      "kind": "happy_path",
-      "args": [
-        "learnings",
-        "stats"
-      ],
-      "status": "pass",
-      "output_sample": "[redacted: live workspace data; pre-scrub copy retained locally]"
-    },
-    {
-      "command": "learnings stats",
-      "kind": "json_fidelity",
-      "args": [
-        "learnings",
-        "stats",
-        "--json"
-      ],
-      "status": "pass",
-      "output_sample": "[redacted: live workspace data; pre-scrub copy retained locally]"
-    },
-    {
-      "command": "learnings stats",
-      "kind": "error_path",
-      "args": null,
-      "status": "skip",
-      "reason": "no positional argument"
-    },
-    {
-      "command": "outstanding",
-      "kind": "help",
-      "args": [
-        "outstanding",
-        "--help"
-      ],
-      "status": "pass",
-      "output_sample": "[redacted: live workspace data; pre-scrub copy retained locally]"
-    },
-    {
-      "command": "outstanding",
-      "kind": "happy_path",
-      "args": [
-        "outstanding",
-        "--json"
-      ],
-      "status": "pass",
-      "output_sample": "[redacted: live workspace data; pre-scrub copy retained locally]"
-    },
-    {
-      "command": "outstanding",
-      "kind": "json_fidelity",
-      "args": [
-        "outstanding",
-        "--json"
-      ],
-      "status": "pass",
-      "output_sample": "[redacted: live workspace data; pre-scrub copy retained locally]"
-    },
-    {
-      "command": "outstanding",
-      "kind": "error_path",
-      "args": null,
-      "status": "skip",
-      "reason": "no positional argument"
-    },
-    {
-      "command": "payments",
-      "kind": "help",
-      "args": [
-        "payments",
-        "--help"
-      ],
-      "status": "pass",
-      "output_sample": "[redacted: live workspace data; pre-scrub copy retained locally]"
-    },
-    {
-      "command": "payments",
-      "kind": "happy_path",
-      "args": [
-        "payments",
-        "--operation-name",
-        "example-resource",
-        "--dry-run"
-      ],
-      "status": "pass",
-      "output_sample": "[redacted: live workspace data; pre-scrub copy retained locally]"
-    },
-    {
-      "command": "payments",
-      "kind": "json_fidelity",
-      "args": [
-        "payments",
-        "--operation-name",
-        "example-resource",
-        "--dry-run",
-        "--json"
-      ],
-      "status": "pass",
-      "output_sample": "[redacted: live workspace data; pre-scrub copy retained locally]"
-    },
-    {
-      "command": "payments",
-      "kind": "error_path",
-      "args": null,
-      "status": "skip",
-      "reason": "no positional argument"
-    },
-    {
-      "command": "payments",
-      "kind": "error_path_real",
-      "args": null,
-      "status": "skip",
-      "reason": "mutating command dry-run only"
-    },
-    {
-      "command": "pipeline",
-      "kind": "help",
-      "args": [
-        "pipeline",
-        "--help"
-      ],
-      "status": "pass",
-      "output_sample": "[redacted: live workspace data; pre-scrub copy retained locally]"
-    },
-    {
-      "command": "pipeline",
-      "kind": "happy_path",
-      "args": [
-        "pipeline",
-        "--json"
-      ],
-      "status": "pass",
-      "output_sample": "[redacted: live workspace data; pre-scrub copy retained locally]"
-    },
-    {
-      "command": "pipeline",
-      "kind": "json_fidelity",
-      "args": [
-        "pipeline",
-        "--json"
-      ],
-      "status": "pass",
-      "output_sample": "[redacted: live workspace data; pre-scrub copy retained locally]"
-    },
-    {
-      "command": "pipeline",
-      "kind": "error_path",
-      "args": null,
-      "status": "skip",
-      "reason": "no positional argument"
-    },
-    {
-      "command": "playbook amend",
-      "kind": "help",
-      "args": [
-        "playbook",
-        "amend",
-        "--help"
-      ],
-      "status": "pass",
-      "output_sample": "[redacted: live workspace data; pre-scrub copy retained locally]"
-    },
-    {
-      "command": "playbook amend",
-      "kind": "happy_path",
-      "args": [
-        "playbook",
-        "amend",
-        "--query",
-        "<exact recall query>",
-        "--add-note",
-        "summary endpoint envelope: data lives at .results.header, not .header"
-      ],
-      "status": "pass"
-    },
-    {
-      "command": "playbook amend",
-      "kind": "json_fidelity",
-      "args": [
-        "playbook",
-        "amend",
-        "--query",
-        "<exact recall query>",
-        "--add-note",
-        "summary endpoint envelope: data lives at .results.header, not .header",
-        "--json"
-      ],
-      "status": "pass",
-      "output_sample": "[redacted: live workspace data; pre-scrub copy retained locally]"
-    },
-    {
-      "command": "playbook amend",
-      "kind": "error_path",
-      "args": null,
-      "status": "skip",
-      "reason": "no positional argument"
-    },
-    {
-      "command": "playbook list",
-      "kind": "help",
-      "args": [
-        "playbook",
-        "list",
-        "--help"
-      ],
-      "status": "pass",
-      "output_sample": "[redacted: live workspace data; pre-scrub copy retained locally]"
-    },
-    {
-      "command": "playbook list",
-      "kind": "happy_path",
-      "args": [
-        "playbook",
-        "list",
-        "--agent"
-      ],
-      "status": "pass",
-      "output_sample": "[redacted: live workspace data; pre-scrub copy retained locally]"
-    },
-    {
-      "command": "playbook list",
-      "kind": "json_fidelity",
-      "args": [
-        "playbook",
-        "list",
-        "--agent",
-        "--json"
-      ],
-      "status": "pass",
-      "output_sample": "[redacted: live workspace data; pre-scrub copy retained locally]"
-    },
-    {
-      "command": "playbook list",
-      "kind": "error_path",
-      "args": null,
-      "status": "skip",
-      "reason": "no positional argument"
-    },
-    {
-      "command": "preferreds",
-      "kind": "help",
-      "args": [
-        "preferreds",
-        "--help"
-      ],
-      "status": "pass",
-      "output_sample": "[redacted: live workspace data; pre-scrub copy retained locally]"
-    },
-    {
-      "command": "preferreds",
-      "kind": "happy_path",
-      "args": [
-        "preferreds",
-        "--operation-name",
-        "example-resource",
-        "--dry-run"
-      ],
-      "status": "pass",
-      "output_sample": "[redacted: live workspace data; pre-scrub copy retained locally]"
-    },
-    {
-      "command": "preferreds",
-      "kind": "json_fidelity",
-      "args": [
-        "preferreds",
-        "--operation-name",
-        "example-resource",
-        "--dry-run",
-        "--json"
-      ],
-      "status": "pass",
-      "output_sample": "[redacted: live workspace data; pre-scrub copy retained locally]"
-    },
-    {
-      "command": "preferreds",
-      "kind": "error_path",
-      "args": null,
-      "status": "skip",
-      "reason": "no positional argument"
-    },
-    {
-      "command": "preferreds",
-      "kind": "error_path_real",
-      "args": null,
-      "status": "skip",
-      "reason": "mutating command dry-run only"
-    },
-    {
-      "command": "profile delete",
-      "kind": "help",
-      "args": [
-        "profile",
-        "delete",
-        "--help"
-      ],
-      "status": "pass",
-      "output_sample": "[redacted: live workspace data; pre-scrub copy retained locally]"
-    },
-    {
-      "command": "profile delete",
-      "kind": "happy_path",
-      "args": null,
-      "status": "skip",
-      "reason": "non-id positional \"name\" at depth 0"
-    },
-    {
-      "command": "profile delete",
-      "kind": "json_fidelity",
-      "args": null,
-      "status": "skip",
-      "reason": "non-id positional \"name\" at depth 0"
-    },
-    {
-      "command": "profile delete",
-      "kind": "error_path",
-      "args": null,
-      "status": "skip",
-      "reason": "mutating command; error_path would call live API without --dry-run"
-    },
-    {
-      "command": "profile delete",
-      "kind": "error_path_real",
-      "args": null,
-      "status": "skip",
-      "reason": "non-id positional \"name\" at depth 0"
-    },
-    {
-      "command": "profile list",
-      "kind": "help",
-      "args": [
-        "profile",
-        "list",
-        "--help"
-      ],
-      "status": "pass",
-      "output_sample": "[redacted: live workspace data; pre-scrub copy retained locally]"
-    },
-    {
-      "command": "profile list",
-      "kind": "happy_path",
-      "args": [
-        "profile",
-        "list"
-      ],
-      "status": "pass",
-      "output_sample": "[redacted: live workspace data; pre-scrub copy retained locally]"
-    },
-    {
-      "command": "profile list",
-      "kind": "json_fidelity",
-      "args": [
-        "profile",
-        "list",
-        "--json"
-      ],
-      "status": "pass",
-      "output_sample": "[redacted: live workspace data; pre-scrub copy retained locally]"
-    },
-    {
-      "command": "profile list",
-      "kind": "error_path",
-      "args": null,
-      "status": "skip",
-      "reason": "no positional argument"
-    },
-    {
-      "command": "profile save",
-      "kind": "help",
-      "args": [
-        "profile",
-        "save",
-        "--help"
-      ],
-      "status": "pass",
-      "output_sample": "[redacted: live workspace data; pre-scrub copy retained locally]"
-    },
-    {
-      "command": "profile save",
-      "kind": "happy_path",
-      "args": null,
-      "status": "skip",
-      "reason": "non-id positional \"name\" at depth 0"
-    },
-    {
-      "command": "profile save",
-      "kind": "json_fidelity",
-      "args": null,
-      "status": "skip",
-      "reason": "non-id positional \"name\" at depth 0"
-    },
-    {
-      "command": "profile save",
-      "kind": "error_path",
-      "args": [
-        "profile",
-        "save",
-        "__printing_press_invalid__"
-      ],
-      "status": "pass",
-      "exit_code": 1,
-      "output_sample": "[redacted: live workspace data; pre-scrub copy retained locally]"
-    },
-    {
-      "command": "profile show",
-      "kind": "help",
-      "args": [
-        "profile",
-        "show",
-        "--help"
-      ],
-      "status": "pass",
-      "output_sample": "[redacted: live workspace data; pre-scrub copy retained locally]"
-    },
-    {
-      "command": "profile show",
-      "kind": "happy_path",
-      "args": null,
-      "status": "skip",
-      "reason": "non-id positional \"name\" at depth 0"
-    },
-    {
-      "command": "profile show",
-      "kind": "json_fidelity",
-      "args": null,
-      "status": "skip",
-      "reason": "non-id positional \"name\" at depth 0"
-    },
-    {
-      "command": "profile show",
-      "kind": "error_path",
-      "args": [
-        "profile",
-        "show",
-        "__printing_press_invalid__"
-      ],
-      "status": "pass",
-      "exit_code": 1,
-      "output_sample": "[redacted: live workspace data; pre-scrub copy retained locally]"
-    },
-    {
-      "command": "profile use",
-      "kind": "help",
-      "args": [
-        "profile",
-        "use",
-        "--help"
-      ],
-      "status": "pass",
-      "output_sample": "[redacted: live workspace data; pre-scrub copy retained locally]"
-    },
-    {
-      "command": "profile use",
-      "kind": "happy_path",
-      "args": null,
-      "status": "skip",
-      "reason": "non-id positional \"name\" at depth 0"
-    },
-    {
-      "command": "profile use",
-      "kind": "json_fidelity",
-      "args": null,
-      "status": "skip",
-      "reason": "non-id positional \"name\" at depth 0"
-    },
-    {
-      "command": "profile use",
-      "kind": "error_path",
-      "args": [
-        "profile",
-        "use",
-        "__printing_press_invalid__"
-      ],
-      "status": "pass",
-      "exit_code": 1,
-      "output_sample": "[redacted: live workspace data; pre-scrub copy retained locally]"
-    },
-    {
-      "command": "proposals",
-      "kind": "help",
-      "args": [
-        "proposals",
-        "--help"
-      ],
-      "status": "pass",
-      "output_sample": "[redacted: live workspace data; pre-scrub copy retained locally]"
-    },
-    {
-      "command": "proposals",
-      "kind": "happy_path",
-      "args": [
-        "proposals",
-        "--operation-name",
-        "example-resource"
-      ],
-      "status": "pass",
-      "output_sample": "[redacted: live workspace data; pre-scrub copy retained locally]"
-    },
-    {
-      "command": "proposals",
-      "kind": "json_fidelity",
-      "args": [
-        "proposals",
-        "--operation-name",
-        "example-resource",
-        "--json"
-      ],
-      "status": "pass",
-      "output_sample": "[redacted: live workspace data; pre-scrub copy retained locally]"
-    },
-    {
-      "command": "proposals",
-      "kind": "error_path",
-      "args": null,
-      "status": "skip",
-      "reason": "no positional argument"
-    },
-    {
-      "command": "recall",
-      "kind": "help",
-      "args": [
-        "recall",
-        "--help"
-      ],
-      "status": "pass",
-      "output_sample": "[redacted: live workspace data; pre-scrub copy retained locally]"
-    },
-    {
-      "command": "recall",
-      "kind": "happy_path",
-      "args": null,
-      "status": "skip",
-      "reason": "command path [recall] has fewer segments than placeholders (1)"
-    },
-    {
-      "command": "recall",
-      "kind": "json_fidelity",
-      "args": null,
-      "status": "skip",
-      "reason": "command path [recall] has fewer segments than placeholders (1)"
-    },
-    {
-      "command": "recall",
-      "kind": "error_path",
-      "args": [
-        "recall",
-        "__printing_press_invalid__",
-        "--json"
-      ],
-      "status": "pass",
-      "output_sample": "[redacted: live workspace data; pre-scrub copy retained locally]"
-    },
-    {
-      "command": "rejected-payments",
-      "kind": "help",
-      "args": [
-        "rejected-payments",
-        "--help"
-      ],
-      "status": "pass",
-      "output_sample": "[redacted: live workspace data; pre-scrub copy retained locally]"
-    },
-    {
-      "command": "rejected-payments",
-      "kind": "happy_path",
-      "args": [
-        "rejected-payments",
-        "--json"
-      ],
-      "status": "pass",
-      "output_sample": "[redacted: live workspace data; pre-scrub copy retained locally]"
-    },
-    {
-      "command": "rejected-payments",
-      "kind": "json_fidelity",
-      "args": [
-        "rejected-payments",
-        "--json"
-      ],
-      "status": "pass",
-      "output_sample": "[redacted: live workspace data; pre-scrub copy retained locally]"
-    },
-    {
-      "command": "rejected-payments",
-      "kind": "error_path",
-      "args": null,
-      "status": "skip",
-      "reason": "no positional argument"
-    },
-    {
-      "command": "search-index billing-items",
-      "kind": "help",
-      "args": [
-        "search-index",
-        "billing-items",
-        "--help"
-      ],
-      "status": "pass",
-      "output_sample": "[redacted: live workspace data; pre-scrub copy retained locally]"
-    },
-    {
-      "command": "search-index billing-items",
-      "kind": "happy_path",
-      "args": null,
-      "status": "skip",
-      "reason": "blocked-fixture: mutating command requires runnable example"
-    },
-    {
-      "command": "search-index billing-items",
-      "kind": "json_fidelity",
-      "args": null,
-      "status": "skip",
-      "reason": "blocked-fixture: mutating command requires runnable example"
-    },
-    {
-      "command": "search-index billing-items",
-      "kind": "error_path",
-      "args": null,
-      "status": "skip",
-      "reason": "blocked-fixture: mutating command requires runnable example"
-    },
-    {
-      "command": "search-index invoices",
-      "kind": "help",
-      "args": [
-        "search-index",
-        "invoices",
-        "--help"
-      ],
-      "status": "pass",
-      "output_sample": "[redacted: live workspace data; pre-scrub copy retained locally]"
-    },
-    {
-      "command": "search-index invoices",
-      "kind": "happy_path",
-      "args": null,
-      "status": "skip",
-      "reason": "blocked-fixture: mutating command requires runnable example"
-    },
-    {
-      "command": "search-index invoices",
-      "kind": "json_fidelity",
-      "args": null,
-      "status": "skip",
-      "reason": "blocked-fixture: mutating command requires runnable example"
-    },
-    {
-      "command": "search-index invoices",
-      "kind": "error_path",
-      "args": null,
-      "status": "skip",
-      "reason": "blocked-fixture: mutating command requires runnable example"
-    },
-    {
-      "command": "search-index proposals",
-      "kind": "help",
-      "args": [
-        "search-index",
-        "proposals",
-        "--help"
-      ],
-      "status": "pass",
-      "output_sample": "[redacted: live workspace data; pre-scrub copy retained locally]"
-    },
-    {
-      "command": "search-index proposals",
-      "kind": "happy_path",
-      "args": null,
-      "status": "skip",
-      "reason": "blocked-fixture: mutating command requires runnable example"
-    },
-    {
-      "command": "search-index proposals",
-      "kind": "json_fidelity",
-      "args": null,
-      "status": "skip",
-      "reason": "blocked-fixture: mutating command requires runnable example"
-    },
-    {
-      "command": "search-index proposals",
-      "kind": "error_path",
-      "args": null,
-      "status": "skip",
-      "reason": "blocked-fixture: mutating command requires runnable example"
-    },
-    {
-      "command": "site",
-      "kind": "help",
-      "args": [
-        "site",
-        "--help"
-      ],
-      "status": "pass",
-      "output_sample": "[redacted: live workspace data; pre-scrub copy retained locally]"
-    },
-    {
-      "command": "site",
-      "kind": "happy_path",
-      "args": [
-        "site",
-        "--operation-name",
-        "example-resource",
-        "--dry-run"
-      ],
-      "status": "pass",
-      "output_sample": "[redacted: live workspace data; pre-scrub copy retained locally]"
-    },
-    {
-      "command": "site",
-      "kind": "json_fidelity",
-      "args": [
-        "site",
-        "--operation-name",
-        "example-resource",
-        "--dry-run",
-        "--json"
-      ],
-      "status": "pass",
-      "output_sample": "[redacted: live workspace data; pre-scrub copy retained locally]"
-    },
-    {
-      "command": "site",
-      "kind": "error_path",
-      "args": null,
-      "status": "skip",
-      "reason": "no positional argument"
-    },
-    {
-      "command": "site",
-      "kind": "error_path_real",
-      "args": null,
-      "status": "skip",
-      "reason": "mutating command dry-run only"
-    },
-    {
-      "command": "solos",
-      "kind": "help",
-      "args": [
-        "solos",
-        "--help"
-      ],
-      "status": "pass",
-      "output_sample": "[redacted: live workspace data; pre-scrub copy retained locally]"
-    },
-    {
-      "command": "solos",
-      "kind": "happy_path",
-      "args": [
-        "solos",
-        "--operation-name",
-        "example-resource",
-        "--dry-run"
-      ],
-      "status": "pass",
-      "output_sample": "[redacted: live workspace data; pre-scrub copy retained locally]"
-    },
-    {
-      "command": "solos",
-      "kind": "json_fidelity",
-      "args": [
-        "solos",
-        "--operation-name",
-        "example-resource",
-        "--dry-run",
-        "--json"
-      ],
-      "status": "pass",
-      "output_sample": "[redacted: live workspace data; pre-scrub copy retained locally]"
-    },
-    {
-      "command": "solos",
-      "kind": "error_path",
-      "args": null,
-      "status": "skip",
-      "reason": "no positional argument"
-    },
-    {
-      "command": "solos",
-      "kind": "error_path_real",
-      "args": null,
-      "status": "skip",
-      "reason": "mutating command dry-run only"
-    },
-    {
-      "command": "teach",
-      "kind": "help",
-      "args": [
-        "teach",
-        "--help"
-      ],
-      "status": "pass",
-      "output_sample": "[redacted: live workspace data; pre-scrub copy retained locally]"
-    },
-    {
-      "command": "teach",
-      "kind": "happy_path",
-      "args": [
-        "teach",
-        "--query",
-        "<question>",
-        "--resource-type",
-        "<type>",
-        "--resource",
-        "<id>"
-      ],
-      "status": "pass"
-    },
-    {
-      "command": "teach",
-      "kind": "json_fidelity",
-      "args": [
-        "teach",
-        "--query",
-        "<question>",
-        "--resource-type",
-        "<type>",
-        "--resource",
-        "<id>",
-        "--json"
-      ],
-      "status": "pass",
-      "output_sample": "[redacted: live workspace data; pre-scrub copy retained locally]"
-    },
-    {
-      "command": "teach",
-      "kind": "error_path",
-      "args": null,
-      "status": "skip",
-      "reason": "no positional argument"
-    },
-    {
-      "command": "teach-lookup",
-      "kind": "help",
-      "args": [
-        "teach-lookup",
-        "--help"
-      ],
-      "status": "pass",
-      "output_sample": "[redacted: live workspace data; pre-scrub copy retained locally]"
-    },
-    {
-      "command": "teach-lookup",
-      "kind": "happy_path",
-      "args": [
-        "teach-lookup",
-        "--kind",
-        "country",
-        "--canonical",
-        "United States",
-        "--value",
-        "USA"
-      ],
-      "status": "pass",
-      "output_sample": "[redacted: live workspace data; pre-scrub copy retained locally]"
-    },
-    {
-      "command": "teach-lookup",
-      "kind": "json_fidelity",
-      "args": [
-        "teach-lookup",
-        "--kind",
-        "country",
-        "--canonical",
-        "United States",
-        "--value",
-        "USA",
-        "--json"
-      ],
-      "status": "pass",
-      "output_sample": "[redacted: live workspace data; pre-scrub copy retained locally]"
-    },
-    {
-      "command": "teach-lookup",
-      "kind": "error_path",
-      "args": null,
-      "status": "skip",
-      "reason": "no positional argument"
-    },
-    {
-      "command": "teach-pattern",
-      "kind": "help",
-      "args": [
-        "teach-pattern",
-        "--help"
-      ],
-      "status": "pass",
-      "output_sample": "[redacted: live workspace data; pre-scrub copy retained locally]"
-    },
-    {
-      "command": "teach-pattern",
-      "kind": "happy_path",
-      "args": [
-        "teach-pattern",
-        "--query-template",
-        "items in {entity}",
-        "--resource-template",
-        "GROUP-{entity:category}",
-        "--resource-type",
-        "items",
-        "--entity-kind",
-        "category",
-        "--strategy",
-        "substitute"
-      ],
-      "status": "pass",
-      "output_sample": "[redacted: live workspace data; pre-scrub copy retained locally]"
-    },
-    {
-      "command": "teach-pattern",
-      "kind": "json_fidelity",
-      "args": [
-        "teach-pattern",
-        "--query-template",
-        "items in {entity}",
-        "--resource-template",
-        "GROUP-{entity:category}",
-        "--resource-type",
-        "items",
-        "--entity-kind",
-        "category",
-        "--strategy",
-        "substitute",
-        "--json"
-      ],
-      "status": "pass",
-      "output_sample": "[redacted: live workspace data; pre-scrub copy retained locally]"
-    },
-    {
-      "command": "teach-pattern",
-      "kind": "error_path",
-      "args": null,
-      "status": "skip",
-      "reason": "no positional argument"
-    },
-    {
-      "command": "teach-playbook",
-      "kind": "help",
-      "args": [
-        "teach-playbook",
-        "--help"
-      ],
-      "status": "pass",
-      "output_sample": "[redacted: live workspace data; pre-scrub copy retained locally]"
-    },
-    {
-      "command": "teach-playbook",
-      "kind": "happy_path",
-      "args": [
-        "teach-playbook",
-        "--query",
-        "<question that anchors the family>",
-        "--notes",
-        "<one-line playbook notes>"
-      ],
-      "status": "pass",
-      "output_sample": "[redacted: live workspace data; pre-scrub copy retained locally]"
-    },
-    {
-      "command": "teach-playbook",
-      "kind": "json_fidelity",
-      "args": [
-        "teach-playbook",
-        "--query",
-        "<question that anchors the family>",
-        "--notes",
-        "<one-line playbook notes>",
-        "--json"
-      ],
-      "status": "pass",
-      "output_sample": "[redacted: live workspace data; pre-scrub copy retained locally]"
-    },
-    {
-      "command": "teach-playbook",
-      "kind": "error_path",
-      "args": null,
-      "status": "skip",
-      "reason": "no positional argument"
-    },
-    {
-      "command": "unbilled",
-      "kind": "help",
-      "args": [
-        "unbilled",
-        "--help"
-      ],
-      "status": "pass",
-      "output_sample": "[redacted: live workspace data; pre-scrub copy retained locally]"
-    },
-    {
-      "command": "unbilled",
-      "kind": "happy_path",
-      "args": [
-        "unbilled",
-        "--json"
-      ],
-      "status": "pass",
-      "output_sample": "[redacted: live workspace data; pre-scrub copy retained locally]"
-    },
-    {
-      "command": "unbilled",
-      "kind": "json_fidelity",
-      "args": [
-        "unbilled",
-        "--json"
-      ],
-      "status": "pass",
-      "output_sample": "[redacted: live workspace data; pre-scrub copy retained locally]"
-    },
-    {
-      "command": "unbilled",
-      "kind": "error_path",
-      "args": null,
-      "status": "skip",
-      "reason": "no positional argument"
-    },
-    {
-      "command": "unseens",
-      "kind": "help",
-      "args": [
-        "unseens",
-        "--help"
-      ],
-      "status": "pass",
-      "output_sample": "[redacted: live workspace data; pre-scrub copy retained locally]"
-    },
-    {
-      "command": "unseens",
-      "kind": "happy_path",
-      "args": [
-        "unseens",
-        "--operation-name",
-        "example-resource"
-      ],
-      "status": "pass",
-      "output_sample": "[redacted: live workspace data; pre-scrub copy retained locally]"
-    },
-    {
-      "command": "unseens",
-      "kind": "json_fidelity",
-      "args": [
-        "unseens",
-        "--operation-name",
-        "example-resource",
-        "--json"
-      ],
-      "status": "pass",
-      "output_sample": "[redacted: live workspace data; pre-scrub copy retained locally]"
-    },
-    {
-      "command": "unseens",
-      "kind": "error_path",
-      "args": null,
-      "status": "skip",
-      "reason": "no positional argument"
-    },
-    {
-      "command": "which",
-      "kind": "help",
-      "args": [
-        "which",
-        "--help"
-      ],
-      "status": "pass",
-      "output_sample": "[redacted: live workspace data; pre-scrub copy retained locally]"
-    },
-    {
-      "command": "which",
-      "kind": "happy_path",
-      "args": null,
-      "status": "skip",
-      "reason": "command path [which] has fewer segments than placeholders (1)"
-    },
-    {
-      "command": "which",
-      "kind": "json_fidelity",
-      "args": null,
-      "status": "skip",
-      "reason": "command path [which] has fewer segments than placeholders (1)"
-    },
-    {
-      "command": "which",
-      "kind": "error_path",
-      "args": [
-        "which",
-        "__printing_press_invalid__",
-        "--json"
-      ],
-      "status": "pass",
-      "output_sample": "[redacted: live workspace data; pre-scrub copy retained locally]"
-    },
-    {
-      "command": "workflow status",
-      "kind": "help",
-      "args": [
-        "workflow",
-        "status",
-        "--help"
-      ],
-      "status": "pass",
-      "output_sample": "[redacted: live workspace data; pre-scrub copy retained locally]"
-    },
-    {
-      "command": "workflow status",
-      "kind": "happy_path",
-      "args": [
-        "workflow",
-        "status"
-      ],
-      "status": "pass",
-      "output_sample": "[redacted: live workspace data; pre-scrub copy retained locally]"
-    },
-    {
-      "command": "workflow status",
-      "kind": "json_fidelity",
-      "args": [
-        "workflow",
-        "status",
-        "--json"
-      ],
-      "status": "pass",
-      "output_sample": "[redacted: live workspace data; pre-scrub copy retained locally]"
-    },
-    {
-      "command": "workflow status",
-      "kind": "error_path",
-      "args": null,
-      "status": "skip",
-      "reason": "no positional argument"
-    }
-  ],
-  "ran_at": "2026-07-16T22:54:14.662961Z"
+    "--help"
+   ],
+   "status": "pass",
+   "output_sample": "[redacted: live workspace data]"
+  },
+  {
+   "command": "which",
+   "kind": "happy_path",
+   "args": null,
+   "status": "skip",
+   "reason": "command path [which] has fewer segments than placeholders (1)"
+  },
+  {
+   "command": "which",
+   "kind": "json_fidelity",
+   "args": null,
+   "status": "skip",
+   "reason": "command path [which] has fewer segments than placeholders (1)"
+  },
+  {
+   "command": "which",
+   "kind": "error_path",
+   "args": [
+    "which",
+    "__printing_press_invalid__",
+    "--json"
+   ],
+   "status": "pass",
+   "output_sample": "[redacted: live workspace data]"
+  },
+  {
+   "command": "workflow status",
+   "kind": "help",
+   "args": [
+    "workflow",
+    "status",
+    "--help"
+   ],
+   "status": "pass",
+   "output_sample": "[redacted: live workspace data]"
+  },
+  {
+   "command": "workflow status",
+   "kind": "happy_path",
+   "args": [
+    "workflow",
+    "status"
+   ],
+   "status": "pass",
+   "output_sample": "[redacted: live workspace data]"
+  },
+  {
+   "command": "workflow status",
+   "kind": "json_fidelity",
+   "args": [
+    "workflow",
+    "status",
+    "--json"
+   ],
+   "status": "pass",
+   "output_sample": "[redacted: live workspace data]"
+  },
+  {
+   "command": "workflow status",
+   "kind": "error_path",
+   "args": null,
+   "status": "skip",
+   "reason": "no positional argument"
+  }
+ ],
+ "ran_at": "2026-07-16T23:32:23.356049Z"
 }

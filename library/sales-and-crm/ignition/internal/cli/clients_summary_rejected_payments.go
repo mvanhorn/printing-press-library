@@ -213,7 +213,7 @@ func newClientsSummaryRejectedPaymentsCmd(flags *rootFlags) *cobra.Command {
 	}
 	cmd.Flags().StringVar(&bodyOperationName, "operation-name", "clientSummaryRejectedPayments", "GraphQL operation name")
 	cmd.Flags().StringVar(&bodyQuery, "query", "query clientSummaryRejectedPayments($id: ID!) {\n  client(id: $id) {\n    id\n    agreedServices(first: 1, filter: {stateIn: [UPCOMING]}) {\n      nodes {\n        id\n        name\n        __typename\n      }\n      __typename\n    }\n    rejectedPayments: payments(\n      filter: {latestCollectionFailed: true, withoutScheduledCollection: true, withoutActionablePaymentRequest: true, withOutstandingInvoices: true, stateNotIn: [CANCELLED]}\n    ) {\n      totalCount\n      __typename\n    }\n    __typename\n  }\n}", "GraphQL query document")
-	cmd.Flags().StringVar(&bodyVariables, "variables", "{\"id\":\"cli_nb6ap42ox7nqaaia6yxq\"}", "GraphQL variables as JSON")
+	cmd.Flags().StringVar(&bodyVariables, "variables", "{\"id\":\"cli_example0000000000000\"}", "GraphQL variables as JSON")
 	cmd.Flags().StringVar(&bodyExtensions, "extensions", "{\"clientLibrary\":{\"name\":\"@apollo/client\",\"version\":\"4.1.9\"}}", "GraphQL extensions as JSON")
 	cmd.Flags().BoolVar(&stdinBody, "stdin", false, "Read request body as JSON from stdin")
 

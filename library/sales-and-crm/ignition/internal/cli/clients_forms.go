@@ -213,7 +213,7 @@ func newClientsFormsCmd(flags *rootFlags) *cobra.Command {
 	}
 	cmd.Flags().StringVar(&bodyOperationName, "operation-name", "clientForms", "GraphQL operation name")
 	cmd.Flags().StringVar(&bodyQuery, "query", "query clientForms($clientId: ID!) {\n  client(id: $clientId) {\n    id\n    defaultContact {\n      id\n      name\n      __typename\n    }\n    forms {\n      nodes {\n        id\n        createdAt\n        name\n        questionsCount\n        sentAt\n        state\n        submittedAt\n        __typename\n      }\n      __typename\n    }\n    __typename\n  }\n}", "GraphQL query document")
-	cmd.Flags().StringVar(&bodyVariables, "variables", "{\"clientId\":\"cli_nb6ap42ox7nqaaia6yxq\"}", "GraphQL variables as JSON")
+	cmd.Flags().StringVar(&bodyVariables, "variables", "{\"clientId\":\"cli_example0000000000000\"}", "GraphQL variables as JSON")
 	cmd.Flags().StringVar(&bodyExtensions, "extensions", "{\"clientLibrary\":{\"name\":\"@apollo/client\",\"version\":\"4.1.9\"}}", "GraphQL extensions as JSON")
 	cmd.Flags().BoolVar(&stdinBody, "stdin", false, "Read request body as JSON from stdin")
 

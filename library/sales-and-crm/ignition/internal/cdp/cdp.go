@@ -6,7 +6,9 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"net/url"
 	"os"
+	"sort"
 	"strconv"
 	"strings"
 	"time"
@@ -81,16 +83,41 @@ func PostGraphQL(ctx context.Context, path string, bodyBytes []byte) (json.RawMe
 		return nil, 0, fmt.Errorf("listing CDP targets on port %d: %w", port, err)
 	}
 
-	var pageTarget target
+	// Tab selection guards against running in the wrong authenticated
+	// workspace: IGNITION_CDP_TAB_MATCH pins selection to tabs whose URL
+	// contains the given substring, and when the matching tabs span more
+	// than one origin (different subdomains = potentially different
+	// sessions/workspaces) selection fails instead of silently picking the
+	// first. Multiple tabs on the SAME origin share one browser session, so
+	// any of them is the same workspace.
+	tabMatch := strings.TrimSpace(os.Getenv("IGNITION_CDP_TAB_MATCH"))
+	var matches []target
+	origins := map[string]bool{}
 	for _, candidate := range targets {
-		if candidate.Type == "page" && strings.Contains(candidate.URL, "ignitionapp.com") {
-			pageTarget = candidate
-			break
+		if candidate.Type != "page" || !strings.Contains(candidate.URL, "ignitionapp.com") {
+			continue
 		}
+		if tabMatch != "" && !strings.Contains(candidate.URL, tabMatch) {
+			continue
+		}
+		matches = append(matches, candidate)
+		origins[tabOrigin(candidate.URL)] = true
 	}
-	if pageTarget.ID == "" {
+	if len(matches) == 0 {
+		if tabMatch != "" {
+			return nil, 0, fmt.Errorf("no Ignition tab matches IGNITION_CDP_TAB_MATCH=%q (open the intended workspace tab in the CDP Chrome)", tabMatch)
+		}
 		return nil, 0, errors.New("no authed Ignition tab open (open https://go.ignitionapp.com in the CDP Chrome and sign in)")
 	}
+	if len(origins) > 1 {
+		var list []string
+		for o := range origins {
+			list = append(list, o)
+		}
+		sort.Strings(list)
+		return nil, 0, fmt.Errorf("multiple Ignition origins open in the CDP Chrome (%s); pin the intended workspace with IGNITION_CDP_TAB_MATCH", strings.Join(list, ", "))
+	}
+	pageTarget := matches[0]
 
 	dialer := websocket.Dialer{HandshakeTimeout: requestTimeout}
 	conn, _, err := dialer.DialContext(ctx, browserWebSocketURL, nil)
@@ -377,4 +404,15 @@ func contextAwareError(ctx context.Context, operation string, err error) error {
 func rawJSONPresent(value json.RawMessage) bool {
 	trimmed := strings.TrimSpace(string(value))
 	return trimmed != "" && trimmed != "null"
+}
+
+// tabOrigin reduces a tab URL to scheme://host for workspace-distinctness
+// comparison; unparseable URLs collapse to the raw string so they never
+// silently merge with a real origin.
+func tabOrigin(raw string) string {
+	u, err := url.Parse(raw)
+	if err != nil || u.Host == "" {
+		return raw
+	}
+	return u.Scheme + "://" + u.Host
 }

@@ -130,3 +130,71 @@ func TestGetWithHeadersValuesPreservesRepeatedQueryParams(t *testing.T) {
 		t.Fatalf("GetWithHeadersValues returned error: %v", err)
 	}
 }
+
+func TestCookieCredentialRidesLiveRequest(t *testing.T) {
+	t.Parallel()
+
+	var gotCookie, gotAuth string
+	var cookieCount int
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		gotCookie = r.Header.Get("Cookie")
+		gotAuth = r.Header.Get("Authorization")
+		cookieCount = len(r.Header.Values("Cookie"))
+		w.Header().Set("Content-Type", "application/json")
+		_, _ = w.Write([]byte(`{"ok":true}`))
+	}))
+	t.Cleanup(server.Close)
+
+	// Cookie-shaped credential (regression for the review finding: the HTTP
+	// transport dropped the session credential entirely, sending only CSRF).
+	c := New(&config.Config{
+		BaseURL:               server.URL,
+		IgnitionSessionCookie: "_session_id=abc123; other=z",
+	}, time.Second, 0)
+	c.HTTPClient = server.Client()
+	c.NoCache = true
+
+	if _, err := c.Get(context.Background(), "/clients", nil); err != nil {
+		t.Fatalf("Get returned error: %v", err)
+	}
+	if gotCookie != "_session_id=abc123; other=z" {
+		t.Fatalf("Cookie header = %q, want the session cookie string", gotCookie)
+	}
+	if cookieCount != 1 {
+		t.Fatalf("Cookie header sent %d times, want exactly 1 (no double-send)", cookieCount)
+	}
+	if gotAuth != "" {
+		t.Fatalf("Authorization header = %q, want empty for cookie credential", gotAuth)
+	}
+}
+
+func TestBareTokenCredentialUsesAuthorization(t *testing.T) {
+	t.Parallel()
+
+	var gotCookie, gotAuth string
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		gotCookie = r.Header.Get("Cookie")
+		gotAuth = r.Header.Get("Authorization")
+		w.Header().Set("Content-Type", "application/json")
+		_, _ = w.Write([]byte(`{"ok":true}`))
+	}))
+	t.Cleanup(server.Close)
+
+	// A bare token (no "=") should fall back to the Authorization header.
+	c := New(&config.Config{
+		BaseURL:       server.URL,
+		AuthHeaderVal: "Bearer tok_nokey_value",
+	}, time.Second, 0)
+	c.HTTPClient = server.Client()
+	c.NoCache = true
+
+	if _, err := c.Get(context.Background(), "/clients", nil); err != nil {
+		t.Fatalf("Get returned error: %v", err)
+	}
+	if gotAuth != "Bearer tok_nokey_value" {
+		t.Fatalf("Authorization header = %q, want the bearer token", gotAuth)
+	}
+	if gotCookie != "" {
+		t.Fatalf("Cookie header = %q, want empty for bare token", gotCookie)
+	}
+}

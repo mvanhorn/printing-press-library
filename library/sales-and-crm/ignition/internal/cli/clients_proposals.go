@@ -213,7 +213,7 @@ func newClientsProposalsCmd(flags *rootFlags) *cobra.Command {
 	}
 	cmd.Flags().StringVar(&bodyOperationName, "operation-name", "clientProposals", "GraphQL operation name")
 	cmd.Flags().StringVar(&bodyQuery, "query", "query clientProposals($clientId: ID!, $stateIn: [ProposalState!], $limit: Int, $after: String) {\n  proposals(\n    first: $limit\n    after: $after\n    filter: {referencingClientIdEq: $clientId, stateIn: $stateIn}\n  ) {\n    nodes {\n      ...clientProposal\n      __typename\n    }\n    pageInfo {\n      endCursor\n      hasNextPage\n      __typename\n    }\n    __typename\n  }\n}\n\nfragment clientProposal on Proposal {\n  id\n  clientGroup {\n    id\n    name\n    __typename\n  }\n  displayReferenceNumber\n  effectiveFrom\n  isRenewal\n  isRenewed\n  minimumContractLength\n  minimumContractValue {\n    format\n    __typename\n  }\n  minimumContractValueWithTax {\n    format\n    __typename\n  }\n  name\n  options {\n    id\n    __typename\n  }\n  reviewState\n  state\n  __typename\n}", "GraphQL query document")
-	cmd.Flags().StringVar(&bodyVariables, "variables", "{\"clientId\":\"cli_nb6ap42ox7nqaaia6yxq\",\"limit\":25,\"stateIn\":[\"DRAFT\",\"AWAITING_ACCEPTANCE\",\"ACCEPTED\",\"COMPLETED\",\"LOST\"]}", "GraphQL variables as JSON")
+	cmd.Flags().StringVar(&bodyVariables, "variables", "{\"clientId\":\"cli_example0000000000000\",\"limit\":25,\"stateIn\":[\"DRAFT\",\"AWAITING_ACCEPTANCE\",\"ACCEPTED\",\"COMPLETED\",\"LOST\"]}", "GraphQL variables as JSON")
 	cmd.Flags().StringVar(&bodyExtensions, "extensions", "{\"clientLibrary\":{\"name\":\"@apollo/client\",\"version\":\"4.1.9\"}}", "GraphQL extensions as JSON")
 	cmd.Flags().BoolVar(&stdinBody, "stdin", false, "Read request body as JSON from stdin")
 

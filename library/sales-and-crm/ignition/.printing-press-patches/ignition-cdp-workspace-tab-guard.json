@@ -1,0 +1,15 @@
+{
+  "schema_version": 2,
+  "id": "ignition-cdp-workspace-tab-guard",
+  "applied_at": "2026-07-16",
+  "base_run_id": "20260709-123040-e1f1038b",
+  "base_printing_press_version": "4.28.0",
+  "summary": "CDP transport fails instead of silently picking the first ignitionapp.com tab when multiple Ignition origins are open; IGNITION_CDP_TAB_MATCH pins a specific workspace tab by URL substring.",
+  "reason": "Greptile PR #1528 P1 security: the tab loop chose the first page whose URL contained ignitionapp.com without checking the origin, so with tabs from different Ignition origins open, a command could run in the wrong authenticated workspace and return another firm's data. Same-origin tabs share one browser session (same workspace) so any is fine; distinct origins now error. Hand-authored novel internal/cdp package (patch 0003 lineage).",
+  "files": [
+    "internal/cdp/cdp.go",
+    "internal/cdp/cdp_test.go"
+  ],
+  "validated_outcome": "New TestTabOriginDistinguishesWorkspaces covers subdomain/scheme distinctness, same-origin collapse, and garbage-URL non-merge; live CDP pipeline read still returns the real proposal book. go test ./internal/cdp green.",
+  "upstream_issue": null
+}

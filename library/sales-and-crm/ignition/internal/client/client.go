@@ -621,15 +621,16 @@ func (c *Client) doInternal(ctx context.Context, method, path string, params map
 		}
 
 		if authHeader != "" {
-			// Cookie-auth: the cookie jar is the sole source of outbound
-			// cookies. New() loads it from cookies.json and seeds it from
-			// the env-var / credentials session via SeedCookieJar, so every
-			// cookie source flows through the jar. net/http's Client.send
-			// calls jar.Cookies + AddCookie for each cookie, which
-			// concatenates without dedup; a manual req.Header.Set here would
-			// ship every session cookie twice and trip upstream WAFs.
-			// authHeader is read only by the dry-run / signing paths above;
-			// intentionally not consumed on the live wire here.
+			// Cookie-auth: no cookie jar is wired on this client, so the
+			// credential must be applied directly. When the stored
+			// credential is a cookie string ("name=value; ..."), send it as
+			// the Cookie header; a bare token falls back to Authorization.
+			// Header.Set (not Add) keeps the credential single-valued.
+			if cred := c.Config.CookieCredential(); cred != "" && strings.Contains(cred, "=") {
+				req.Header.Set("Cookie", cred)
+			} else {
+				req.Header.Set("Authorization", authHeader)
+			}
 		}
 		if c.Config != nil {
 			for k, v := range c.Config.Headers {

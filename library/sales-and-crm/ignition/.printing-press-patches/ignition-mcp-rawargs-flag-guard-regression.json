@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "ignition-mcp-rawargs-flag-guard-regression",
+  "applied_at": "2026-07-16",
+  "base_run_id": "20260709-123040-e1f1038b",
+  "base_printing_press_version": "4.28.0",
+  "summary": "Adds a permanent end-to-end regression guard proving the MCP raw `args` field cannot inject blocked flags (--deliver/--config) into CLI argv; the review's claimed bypass is a verified false positive.",
+  "reason": "Greptile PR #1528 P1 security claimed raw args bypass the blocked-flag boundary. Reproduced end-to-end through shellOutToCLI: validatePositionalArgsForMCPAtOffset already rejects flag-prefixed tokens on the SplitShellArgs path ('flag-like' error), and the single-positional path passes the whole string as ONE exec arg cobra never re-parses as a flag. No code change to the generated boundary; test-only file so the guarantee is locked against future regen drift.",
+  "files": [
+    "internal/mcp/cobratree/shellout_rawargs_security_test.go"
+  ],
+  "validated_outcome": "Both regression tests pass: zero/multi-positional flag tokens are rejected with the flag-like error; single-positional embedded flags never appear as a distinct argv token.",
+  "upstream_issue": null
+}

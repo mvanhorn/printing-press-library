@@ -6,10 +6,12 @@ package cli
 import (
 	"bytes"
 	"fmt"
+	"net"
 	"net/http"
 	"os"
 	"path/filepath"
 	"strings"
+	"syscall"
 	"time"
 )
 
@@ -101,7 +103,7 @@ func deliverWebhook(url string, body []byte, compact bool) error {
 	req.Header.Set("Content-Type", contentType)
 	req.Header.Set("User-Agent", "ignition-pp-cli/deliver")
 
-	client := &http.Client{Timeout: 30 * time.Second}
+	client := deliverWebhookHTTPClient()
 	resp, err := client.Do(req)
 	if err != nil {
 		return fmt.Errorf("posting to webhook: %w", err)
@@ -111,4 +113,43 @@ func deliverWebhook(url string, body []byte, compact bool) error {
 		return fmt.Errorf("webhook returned %s", resp.Status)
 	}
 	return nil
+}
+
+// deliverWebhookHTTPClient returns the HTTP client used for webhook sinks.
+// The connect-time Control hook blocks loopback, private, link-local
+// (including cloud metadata at 169.254.169.254), and unspecified targets so
+// --deliver cannot be turned into an SSRF path from the CLI host. Checking at
+// dial time (not URL-parse time) also covers DNS rebinding and every redirect
+// hop, since each hop re-dials through the same guarded transport. Local
+// webhook development opts out explicitly with
+// IGNITION_DELIVER_ALLOW_PRIVATE=true.
+func deliverWebhookHTTPClient() *http.Client {
+	allowPrivate := strings.EqualFold(strings.TrimSpace(os.Getenv("IGNITION_DELIVER_ALLOW_PRIVATE")), "true")
+	dialer := &net.Dialer{
+		Timeout: 10 * time.Second,
+		Control: func(_, address string, _ syscall.RawConn) error {
+			if allowPrivate {
+				return nil
+			}
+			host, _, err := net.SplitHostPort(address)
+			if err != nil {
+				return fmt.Errorf("webhook target address %q: %w", address, err)
+			}
+			ip := net.ParseIP(host)
+			if ip == nil {
+				return fmt.Errorf("webhook target %q did not resolve to an IP", address)
+			}
+			if ip.IsLoopback() || ip.IsPrivate() || ip.IsLinkLocalUnicast() || ip.IsLinkLocalMulticast() || ip.IsUnspecified() {
+				return fmt.Errorf("webhook target %s resolves to a private or internal address; set IGNITION_DELIVER_ALLOW_PRIVATE=true to allow local webhook targets", host)
+			}
+			return nil
+		},
+	}
+	return &http.Client{
+		Timeout: 30 * time.Second,
+		Transport: &http.Transport{
+			Proxy:       http.ProxyFromEnvironment,
+			DialContext: dialer.DialContext,
+		},
+	}
 }

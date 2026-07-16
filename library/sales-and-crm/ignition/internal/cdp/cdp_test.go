@@ -190,3 +190,26 @@ func TestDiscoverBrowserFindsFirstRespondingPort(t *testing.T) {
 		t.Fatal("discoverBrowser: expected no browser on a dead port")
 	}
 }
+
+func TestTabOriginDistinguishesWorkspaces(t *testing.T) {
+	cases := map[string]string{
+		"https://go.ignitionapp.com/clients/x": "https://go.ignitionapp.com",
+		"https://us.ignitionapp.com/clients/y": "https://us.ignitionapp.com",
+		"http://go.ignitionapp.com/z":          "http://go.ignitionapp.com",
+	}
+	for in, want := range cases {
+		if got := tabOrigin(in); got != want {
+			t.Errorf("tabOrigin(%q) = %q, want %q", in, got, want)
+		}
+	}
+	// Same origin, different paths must collapse to one workspace key.
+	a := tabOrigin("https://go.ignitionapp.com/clients/aaa/billing")
+	b := tabOrigin("https://go.ignitionapp.com/proposals/bbb")
+	if a != b {
+		t.Errorf("same-origin tabs produced distinct workspace keys: %q vs %q", a, b)
+	}
+	// Unparseable input must not silently merge with a real origin.
+	if tabOrigin("::::not a url") == tabOrigin("https://go.ignitionapp.com") {
+		t.Error("garbage URL collapsed into a real origin")
+	}
+}

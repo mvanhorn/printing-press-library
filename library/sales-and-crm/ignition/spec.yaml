@@ -617,7 +617,7 @@ resources:
                       required: false
                       positional: false
                       default:
-                        clientId: cli_nb6ap42ox7nqaaia6yxq
+                        clientId: cli_example0000000000000
                       description: GraphQL variables as JSON
                       fields: []
                     - name: extensions
@@ -797,7 +797,7 @@ resources:
                       required: false
                       positional: false
                       default:
-                        id: cli_nb6ap42ox7nqaaia6yxq
+                        id: cli_example0000000000000
                       description: GraphQL variables as JSON
                       fields: []
                     - name: extensions
@@ -851,7 +851,7 @@ resources:
                       required: false
                       positional: false
                       default:
-                        clientId: cli_nb6ap42ox7nqaaia6yxq
+                        clientId: cli_example0000000000000
                       description: GraphQL variables as JSON
                       fields: []
                     - name: extensions
@@ -944,7 +944,7 @@ resources:
                       required: false
                       positional: false
                       default:
-                        clientId: cli_nb6ap42ox7nqaaia6yxq
+                        clientId: cli_example0000000000000
                         limit: 25
                         stateIn:
                             - DRAFT
@@ -1003,7 +1003,7 @@ resources:
                       required: false
                       positional: false
                       default:
-                        id: cli_nb6ap42ox7nqaaia6yxq
+                        id: cli_example0000000000000
                       description: GraphQL variables as JSON
                       fields: []
                     - name: extensions
@@ -1068,7 +1068,7 @@ resources:
                       required: false
                       positional: false
                       default:
-                        id: cli_nb6ap42ox7nqaaia6yxq
+                        id: cli_example0000000000000
                       description: GraphQL variables as JSON
                       fields: []
                     - name: extensions
@@ -1187,7 +1187,7 @@ resources:
                       required: false
                       positional: false
                       default:
-                        clientId: cli_nb6ap42ox7nqaaia6yxq
+                        clientId: cli_example0000000000000
                       description: GraphQL variables as JSON
                       fields: []
                     - name: extensions
@@ -2099,7 +2099,7 @@ resources:
                       required: false
                       positional: false
                       default:
-                        id: prop_njhg2tjsbrjaaoiaitga
+                        id: prop_example000000000000
                         orderActivitiesBy:
                             createdAt: DESCENDING
                       description: GraphQL variables as JSON

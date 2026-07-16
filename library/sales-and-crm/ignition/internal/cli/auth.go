@@ -83,7 +83,11 @@ func (p chromeProfile) profileLocation() string {
 }
 
 func requiredAuthCookies() []string {
-	raw := []string{}
+	// Ignition's authenticated session rides the Rails "_session_id" cookie
+	// (verified against a live authed go.ignitionapp.com tab via CDP
+	// Network.getCookies; every other cookie on the origin is analytics).
+	// Profile discovery must see it before reporting a usable profile.
+	raw := []string{"_session_id"}
 	out := raw[:0]
 	for _, name := range raw {
 		name = strings.TrimSpace(name)
