@@ -1325,3 +1325,47 @@ func TestClickComboboxExperienceLayout_PinnedDeepLinkTiedControlBeatsUntied(t *t
 		}
 	})
 }
+
+// cardFor()'s generic div fallback can climb to a wrapper spanning several
+// experiences on flat unclassed markup. Containment in such an unproven
+// boundary must not scope a foreign form's submit — with no positive tie it
+// stays unclicked.
+func TestClickComboboxExperienceLayout_PinnedSubmitIgnoresBroadWrapperContainment(t *testing.T) {
+	const experienceID = 520126
+	html := `
+		<!doctype html>
+		<label for="time">Time</label>
+		<select id="time" aria-label="Time">
+			<option value="18:15">6:15 PM</option>
+		</select>
+		<div id="wrapper">
+			<p>Chef Counter
+				<a href="/venue/experience/520126">details</a>
+				<a href="#" onclick="window.clickedExperience = 'pinned'; return false;">Book now</a>
+			</p>
+			<p>Patio Tasting</p>
+			<form id="foreign-form">
+				<button type="submit" onclick="window.submittedForm = 'foreign'; return false;">Reserve</button>
+			</form>
+		</div>`
+	withTockDOMFixtureAtPath(t, "/venue", html, func(ctx context.Context) {
+		if err := chromedp.Run(ctx, chromedp.ActionFunc(func(actCtx context.Context) error {
+			return clickComboboxExperienceLayout(actCtx, "6:15 PM", "2026-07-10", 2, experienceID)
+		})); err != nil {
+			t.Fatalf("clickComboboxExperienceLayout: %v", err)
+		}
+		var clicked, submitted string
+		if err := chromedp.Run(ctx,
+			chromedp.Evaluate(`window.clickedExperience || ''`, &clicked),
+			chromedp.Evaluate(`window.submittedForm || ''`, &submitted),
+		); err != nil {
+			t.Fatalf("read fixture state: %v", err)
+		}
+		if clicked != "pinned" {
+			t.Fatalf("clicked experience = %q, want pinned", clicked)
+		}
+		if submitted != "" {
+			t.Fatalf("submitted form = %q, want none (broad wrapper containment must not scope a foreign submit)", submitted)
+		}
+	})
+}

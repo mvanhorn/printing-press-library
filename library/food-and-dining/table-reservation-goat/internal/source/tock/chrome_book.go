@@ -930,12 +930,32 @@ func clickComboboxExperienceLayoutJS(displayTime, isoDate string, partySize, exp
 				// different experience and would book by time alone. Unpinned
 				// requests keep the historical ungated behavior.
 				const selectedForm = controls[0].control.form || controls[0].control.closest('form');
-				const selectedCard = cardFor(controls[0].control);
+				// Containment is only trusted inside a TIGHT boundary: an ancestor
+				// bearing an explicit card marker that does not also contain some
+				// other Book now control. cardFor()'s generic fallbacks (section/
+				// li/div) can climb to a wrapper spanning several experiences, and
+				// containment in an unproven boundary is no scope at all — those
+				// submits must positively prove their tie instead.
+				const tightCard = controls[0].control.closest('[data-testid*="experience"], [class*="experience"], [class*="card"]');
+				const tightCardValid = tightCard !== null &&
+					!bookNowControls.some((other) => other !== controls[0].control && tightCard.contains(other));
 				const scopedToSelection = (el) =>
 					(selectedForm !== null && (el.form || el.closest('form')) === selectedForm) ||
-					(selectedCard !== controls[0].control && selectedCard.contains(el));
+					(tightCardValid && tightCard.contains(el));
+				// The tie check gets the same tight-boundary rule: cardFor()'s
+				// generic fallback would let a broad wrapper containing the pinned
+				// link vouch for every control inside it. A fallback control's tie
+				// must come from its own href or a MARKED card/form ancestor.
+				const tightSubmitTie = (el) => {
+					const href = el.getAttribute && (el.getAttribute('href') || '');
+					if (hasPinnedExperiencePath(href)) return true;
+					const card = el.closest('[data-testid*="experience"], [class*="experience"], [class*="card"], form');
+					if (!card) return false;
+					return Array.from(card.querySelectorAll('a[href]'))
+						.some((link) => hasPinnedExperiencePath(link.getAttribute('href') || ''));
+				};
 				const submitEligible = (el) =>
-					experienceID === 0 || scopedToSelection(el) || controlOrCardHasPinnedExperienceLink(el);
+					experienceID === 0 || scopedToSelection(el) || tightSubmitTie(el);
 				const submit = submitCandidates
 					.filter((el) => /book now/i.test(clean(el.textContent || el.getAttribute('aria-label'))) || el.type === 'submit')
 					.filter(submitEligible)
