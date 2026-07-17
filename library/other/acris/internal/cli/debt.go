@@ -110,36 +110,8 @@ func newNovelDebtCmd(flags *rootFlags) *cobra.Command {
 				return classifyAPIError(err, flags)
 			}
 
-			var total int64
-			for _, id := range ids {
-				m, ok := masters[id]
-				if !ok {
-					continue
-				}
-				docType := strField(m, "doc_type")
-				desc, isMortgage := mortgageClassCodes[docType]
-				if !isMortgage {
-					continue
-				}
-				amt := strField(m, "document_amt")
-				if originatingMortgageCodes[docType] {
-					if val, perr := strconv.ParseFloat(amt, 64); perr == nil {
-						total += int64(val)
-					}
-				}
-				view.Documents = append(view.Documents, debtDocument{
-					DocumentID:       id,
-					DocType:          docType,
-					DocTypeDesc:      desc,
-					DocumentAmt:      amt,
-					DocumentDate:     strField(m, "document_date"),
-					RecordedDatetime: strField(m, "recorded_datetime"),
-					CRFN:             strField(m, "crfn"),
-				})
-				if len(view.Documents) >= maxDocs {
-					break
-				}
-			}
+			documents, total, documentsCapped := collectDebtDocuments(ids, masters, maxDocs)
+			view.Documents = documents
 
 			sort.SliceStable(view.Documents, func(i, j int) bool {
 				return view.Documents[i].RecordedDatetime > view.Documents[j].RecordedDatetime
@@ -148,7 +120,7 @@ func newNovelDebtCmd(flags *rootFlags) *cobra.Command {
 			view.TotalRecordedMortgage = strconv.FormatInt(total, 10)
 			if view.MortgageCount == 0 {
 				view.Note = "no mortgage or debt-instrument recordings found for this BBL"
-			} else if maxDocs > 0 && view.MortgageCount >= maxDocs {
+			} else if documentsCapped {
 				view.Note = fmt.Sprintf("results capped at %d documents; increase --max-documents to see more", maxDocs)
 			}
 
@@ -160,6 +132,47 @@ func newNovelDebtCmd(flags *rootFlags) *cobra.Command {
 	cmd.Flags().StringVar(&flagLot, "lot", "", "Tax lot number (not zero-padded)")
 	cmd.Flags().IntVar(&flagMaxDocuments, "max-documents", 100, "Maximum mortgage documents to return")
 	return cmd
+}
+
+// collectDebtDocuments computes the originating-principal total across every
+// fetched mortgage record while independently capping the document list shown
+// to the caller. Aggregate values must not become partial merely because the
+// presentation list is bounded.
+func collectDebtDocuments(ids []string, masters map[string]map[string]any, maxDocs int) ([]debtDocument, int64, bool) {
+	documents := make([]debtDocument, 0, len(ids))
+	var total int64
+	var capped bool
+	for _, id := range ids {
+		m, ok := masters[id]
+		if !ok {
+			continue
+		}
+		docType := strField(m, "doc_type")
+		desc, isMortgage := mortgageClassCodes[docType]
+		if !isMortgage {
+			continue
+		}
+		amt := strField(m, "document_amt")
+		if originatingMortgageCodes[docType] {
+			if val, err := strconv.ParseFloat(amt, 64); err == nil {
+				total += int64(val)
+			}
+		}
+		if maxDocs > 0 && len(documents) >= maxDocs {
+			capped = true
+			continue
+		}
+		documents = append(documents, debtDocument{
+			DocumentID:       id,
+			DocType:          docType,
+			DocTypeDesc:      desc,
+			DocumentAmt:      amt,
+			DocumentDate:     strField(m, "document_date"),
+			RecordedDatetime: strField(m, "recorded_datetime"),
+			CRFN:             strField(m, "crfn"),
+		})
+	}
+	return documents, total, capped
 }
 
 func emitDebtView(cmd *cobra.Command, flags *rootFlags, view debtView) error {

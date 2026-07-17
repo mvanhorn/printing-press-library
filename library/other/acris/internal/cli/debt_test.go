@@ -30,3 +30,34 @@ func TestNovelDebtHelpWires(t *testing.T) {
 		}
 	}
 }
+
+func TestCollectDebtDocumentsTotalsBeyondDisplayCap(t *testing.T) {
+	ids := []string{"mortgage-a", "satisfaction", "mortgage-b"}
+	masters := map[string]map[string]any{
+		"mortgage-a": {
+			"doc_type":      "MTGE",
+			"document_amt":  "100000",
+			"document_date": "2020-01-01",
+		},
+		"satisfaction": {
+			"doc_type":     "SAT",
+			"document_amt": "100000",
+		},
+		"mortgage-b": {
+			"doc_type":      "M&CON",
+			"document_amt":  "250000",
+			"document_date": "2024-01-01",
+		},
+	}
+
+	documents, total, capped := collectDebtDocuments(ids, masters, 1)
+	if len(documents) != 1 {
+		t.Fatalf("document count = %d, want 1", len(documents))
+	}
+	if total != 350000 {
+		t.Fatalf("total = %d, want 350000", total)
+	}
+	if !capped {
+		t.Fatal("capped = false, want true")
+	}
+}

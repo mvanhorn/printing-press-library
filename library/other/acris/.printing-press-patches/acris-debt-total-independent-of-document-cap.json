@@ -1,0 +1,11 @@
+{
+  "schema_version": 2,
+  "id": "acris-debt-total-independent-of-document-cap",
+  "applied_at": "2026-07-16",
+  "base_run_id": "20260627-172432-3fcb7c76",
+  "base_printing_press_version": "4.27.0",
+  "summary": "debt computes total recorded originating mortgage principal across every fetched matching document even when --max-documents caps the displayed history.",
+  "reason": "The document cap is a presentation limit, not an aggregation boundary; coupling both operations silently understated total_recorded_mortgage for busy BBLs.",
+  "files": ["internal/cli/debt.go", "internal/cli/debt_test.go"],
+  "validated_outcome": "A regression case with two originating mortgages and a one-document display cap returns one document while totaling both mortgage amounts."
+}
