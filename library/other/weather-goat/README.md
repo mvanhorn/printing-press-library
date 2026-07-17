@@ -267,7 +267,7 @@ weather-goat-pp-cli watch "Oklahoma City" --interval 30
 weather-goat-pp-cli history --latitude 47.6 --longitude -122.3 --start-date 2024-07-04 --end-date 2024-07-04
 
 # Commute forecast (set up times first)
-weather-goat-pp-cli config set-commute 08:00 18:00
+weather-goat-pp-cli config set-commute --depart 08:00 --return 18:00
 weather-goat-pp-cli go commute
 
 # Hourly forecast as JSON for scripting
@@ -279,8 +279,8 @@ weather-goat-pp-cli go drive --agent | jq '.verdict'
 # Sync data locally for offline access
 weather-goat-pp-cli sync
 
-# Export synced data for analysis
-weather-goat-pp-cli export --format jsonl > weather-backup.jsonl
+# Export forecast data for analysis
+weather-goat-pp-cli export forecast --format jsonl > weather-backup.jsonl
 ```
 
 ## Health Check
