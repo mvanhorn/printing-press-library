@@ -194,6 +194,8 @@ Use the folder ID returned by `granola-pp-cli folders` to scope the public API l
 granola-pp-cli notes list --folder-id fol_4y6LduVdwSKC27 --all --json
 ```
 
+Folder scoping requires the live public API. If `--data-source local` is selected, or `auto` cannot reach Granola, the CLI rejects the request instead of returning unscoped cached notes.
+
 
 ### Daily MEMO loop
 

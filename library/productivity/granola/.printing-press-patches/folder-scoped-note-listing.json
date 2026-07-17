@@ -9,12 +9,13 @@
   "files": [
     "README.md",
     "SKILL.md",
+    "internal/cli/data_source.go",
     "internal/cli/notes_list.go",
     "internal/cli/notes_list_test.go",
     "internal/mcp/tools.go",
     "spec.json",
     "tools-manifest.json"
   ],
-  "validated_outcome": "Go tests, focused dry-run request verification, build, vet, govulncheck, help, version, and documentation flag checks passed; consolidated validation is blocked only by pre-existing manifest and canonical-SKILL drift.",
+  "validated_outcome": "Go tests, focused live dry-run request verification, explicit local-scope rejection, build, vet, govulncheck, help, version, and documentation flag checks passed; consolidated validation is blocked only by pre-existing manifest and canonical-SKILL drift.",
   "findings_addressed": ["F1"]
 }

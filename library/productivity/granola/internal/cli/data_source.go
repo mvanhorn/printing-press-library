@@ -207,6 +207,14 @@ func writeThroughCache(ctx context.Context, resourceType string, data json.RawMe
 // filters (query params, path scoping like /teams/{id}/users) are NOT applied locally.
 // The provenance metadata includes "unscoped":true when params were present but not applied.
 func resolveLocal(ctx context.Context, resourceType string, isList bool, path string, params map[string]string, reason string) (json.RawMessage, DataProvenance, error) {
+	// The public notes endpoint defines folder_id as the requested folder plus
+	// all child folders. The generic resource cache does not retain enough
+	// folder hierarchy/membership data to reproduce that scope safely. Refuse
+	// the local path instead of returning unrelated notes.
+	if resourceType == "notes" && params["folder_id"] != "" {
+		return nil, DataProvenance{}, fmt.Errorf("folder-scoped note listing requires the live API; local data cannot safely reproduce --folder-id scope")
+	}
+
 	db, err := openStoreForRead(ctx, "granola-pp-cli")
 	if err != nil {
 		return nil, DataProvenance{}, fmt.Errorf("opening local database: %w\nRun 'granola-pp-cli sync' first.", err)
