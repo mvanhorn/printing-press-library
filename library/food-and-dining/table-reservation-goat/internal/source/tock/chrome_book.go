@@ -693,16 +693,31 @@ func clickPinnedSlotByTimeText(ctx context.Context, displayTime string, experien
 // choose the requested time from a combobox/listbox, pick the best matching
 // experience card, then click its "Book now" control.
 const tockPinnedExperienceEligibilityJS = tockPinnedExperiencePathJS + `
+			const explicitCardSelector = '[data-testid*="experience"], [class*="experience"], [class*="card"]';
+			function formOf(control) {
+				return control.form || (control.closest ? control.closest('form') : null);
+			}
+			function explicitCardOf(control) {
+				return control.closest ? control.closest(explicitCardSelector) : null;
+			}
+			function isBookNowControl(control) {
+				return /book now/i.test(clean(control.textContent || control.getAttribute('aria-label')));
+			}
 			// Ties resolve through a TIGHT boundary only: an explicitly marked
-			// card ancestor or a form. cardFor()'s generic fallbacks (section/
-			// li/div) can climb to a wrapper spanning several experiences, and
-			// a wrapper must never vouch for the controls inside it. No tight
-			// ancestor means no card-based tie — only the control's own href
+			// card ancestor, or a form that owns this control as its sole Book now
+			// control. Shared forms and cardFor()'s generic fallbacks (section/li/
+			// div) can span several experiences and must never vouch for controls
+			// inside them. No tight ancestor means only the control's own href
 			// counts, and mis-resolution errs toward fail-closed.
 			function tightCardOf(control) {
-				return control.closest
-					? control.closest('[data-testid*="experience"], [class*="experience"], [class*="card"], form')
-					: null;
+				const card = explicitCardOf(control);
+				if (card) return card;
+				const form = formOf(control);
+				if (!form) return null;
+				const formBookNowControls = all('a, button')
+					.filter(isBookNowControl)
+					.filter((other) => formOf(other) === form);
+				return formBookNowControls.length === 1 && formBookNowControls[0] === control ? form : null;
 			}
 			function controlOrCardHasPinnedExperienceLink(control) {
 				const href = control.getAttribute && (control.getAttribute('href') || '');
@@ -782,6 +797,7 @@ func clickComboboxExperienceLayoutJS(displayTime, isoDate string, partySize, exp
 				el.dispatchEvent(new Event('change', { bubbles: true }));
 			};
 			const exactTime = (el) => clean(el.textContent || el.innerText || el.getAttribute('aria-label') || el.value) === target;
+			%s
 
 			for (const select of all('select')) {
 				const options = Array.from(select.options || []);
@@ -864,7 +880,6 @@ func clickComboboxExperienceLayoutJS(displayTime, isoDate string, partySize, exp
 				}
 				return control;
 			}
-			%s
 			function groupRange(text) {
 				const m = text.match(/(?:group[s]?\s*)?(\d+)\s*[-–]\s*(\d+)/i);
 				if (!m) return null;
@@ -932,34 +947,45 @@ func clickComboboxExperienceLayoutJS(displayTime, isoDate string, partySize, exp
 				const modalResult = await driveExperienceModal();
 				if (modalResult !== null) return modalResult;
 				// No modal appeared: legacy layout with a separate submit control.
-				const submitCandidates = all('button').filter((el) => el !== controls[0].control);
+				const selectedControl = controls[0].control;
+				const isFallbackSubmit = (el) => isBookNowControl(el) || el.type === 'submit';
+				const submitCandidates = all('button')
+					.filter((el) => el !== selectedControl)
+					.filter(isFallbackSubmit);
 				// The selection is trustworthy by this point (positively tied or
 				// the sole candidate), so the fallback's only job is submitting
-				// THAT experience. Under a pin, any fallback control — sibling
-				// "Book now" or type=submit — must be scoped to the selected
-				// card's form/container or itself positively tied to the pinned
-				// experience; an untied page-wide control can belong to a
-				// different experience and would book by time alone. Unpinned
-				// requests keep the historical ungated behavior.
-				const selectedForm = controls[0].control.form || controls[0].control.closest('form');
-				// Containment is only trusted inside a TIGHT boundary: an ancestor
-				// bearing an explicit card marker that does not also contain some
-				// other Book now control. cardFor()'s generic fallbacks (section/
-				// li/div) can climb to a wrapper spanning several experiences, and
-				// containment in an unproven boundary is no scope at all — those
-				// submits must positively prove their tie instead.
-				const tightCard = controls[0].control.closest('[data-testid*="experience"], [class*="experience"], [class*="card"]');
+				// THAT experience. A form is valid scope only when it owns exactly
+				// one fallback candidate and no other Book now control. Even then,
+				// a candidate inside a different explicit card cannot inherit either
+				// the form's scope or the selected card's containment scope. Explicit-
+				// card containment is valid only when the selected card contains no
+				// competing Book now control. A fallback
+				// outside those boundaries must positively tie itself to the pin;
+				// unpinned requests keep the historical ungated behavior.
+				const selectedForm = formOf(selectedControl);
+				const tightCard = explicitCardOf(selectedControl);
 				const tightCardValid = tightCard !== null &&
-					!bookNowControls.some((other) => other !== controls[0].control && tightCard.contains(other));
-				const scopedToSelection = (el) =>
-					(selectedForm !== null && (el.form || el.closest('form')) === selectedForm) ||
-					(tightCardValid && tightCard.contains(el));
-				// controlOrCardHasPinnedExperienceLink is tight-boundary itself
-				// now, so the fallback shares it directly.
+					!bookNowControls.some((other) => other !== selectedControl && tightCard.contains(other));
+				const selectedFormCandidates = selectedForm === null
+					? []
+					: submitCandidates.filter((el) => formOf(el) === selectedForm);
+				const selectedFormValid =
+					selectedForm !== null &&
+					selectedFormCandidates.length === 1 &&
+					!bookNowControls.some((other) => other !== selectedControl && formOf(other) === selectedForm);
+				const scopedToSelection = (el) => {
+					const candidateCard = explicitCardOf(el);
+					const crossesExplicitCard =
+						candidateCard !== null && (!tightCardValid || candidateCard !== tightCard);
+					const formScoped =
+						selectedFormValid && formOf(el) === selectedForm && !crossesExplicitCard;
+					const cardScoped =
+						tightCardValid && tightCard.contains(el) && !crossesExplicitCard;
+					return formScoped || cardScoped;
+				};
 				const submitEligible = (el) =>
 					experienceID === 0 || scopedToSelection(el) || controlOrCardHasPinnedExperienceLink(el);
 				const submit = submitCandidates
-					.filter((el) => /book now/i.test(clean(el.textContent || el.getAttribute('aria-label'))) || el.type === 'submit')
 					.filter(submitEligible)
 					.sort((a, b) => a.getBoundingClientRect().top - b.getBoundingClientRect().top)[0];
 				if (submit) {

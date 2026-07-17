@@ -38,7 +38,6 @@ func withTockDOMFixture(t *testing.T, html string, run func(context.Context)) {
 	run(timed)
 }
 
-
 func withTockDOMFixtureAtPath(t *testing.T, path, html string, run func(context.Context)) {
 	t.Helper()
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
@@ -1210,6 +1209,326 @@ func TestClickComboboxExperienceLayout_PinnedSubmitFallbackScopedToSelectedCard(
 		}
 		if submitted != "pinned" {
 			t.Fatalf("submitted form = %q, want pinned (the top-most foreign submit must not be clicked)", submitted)
+		}
+	})
+}
+
+// A page-level form is not sufficient scope when it spans explicit experience
+// cards and owns more than one possible fallback submit.
+func TestClickComboboxExperienceLayout_PinnedSubmitRejectsSharedFormForeignSubmit(t *testing.T) {
+	const experienceID = 520126
+	html := `
+		<!doctype html>
+		<label for="time">Time</label>
+		<select id="time" aria-label="Time">
+			<option value="18:15">6:15 PM</option>
+		</select>
+		<form id="shared-form">
+			<section class="experience-card" id="foreign-card">
+				<h2>Patio Tasting</h2>
+				<button type="submit" onclick="window.submittedForms = (window.submittedForms || []).concat('foreign'); return false;">Reserve</button>
+			</section>
+			<button type="submit" onclick="window.submittedForms = (window.submittedForms || []).concat('shared'); return false;">Continue</button>
+			<section class="experience-card" id="pinned-card">
+				<h2>Chef Counter</h2>
+				<a href="/experience/520126" onclick="window.clickedExperience = 'pinned'; return false;">Book now</a>
+				<button type="submit" onclick="window.submittedForms = (window.submittedForms || []).concat('pinned'); return false;">Reserve</button>
+			</section>
+		</form>`
+	withTockDOMFixtureAtPath(t, "/venue", html, func(ctx context.Context) {
+		if err := chromedp.Run(ctx, chromedp.ActionFunc(func(actCtx context.Context) error {
+			return clickComboboxExperienceLayout(actCtx, "6:15 PM", "2026-07-10", 2, experienceID)
+		})); err != nil {
+			t.Fatalf("clickComboboxExperienceLayout: %v", err)
+		}
+		var clicked string
+		var submitted []string
+		if err := chromedp.Run(ctx,
+			chromedp.Evaluate(`window.clickedExperience || ''`, &clicked),
+			chromedp.Evaluate(`window.submittedForms || []`, &submitted),
+		); err != nil {
+			t.Fatalf("read fixture state: %v", err)
+		}
+		if clicked != "pinned" {
+			t.Fatalf("clicked experience = %q, want pinned", clicked)
+		}
+		if len(submitted) != 1 || submitted[0] != "pinned" {
+			t.Fatalf("submitted forms = %v, want only pinned", submitted)
+		}
+	})
+}
+
+// A unique same-form fallback still cannot cross from the selected explicit
+// card into a different explicit experience card.
+func TestClickComboboxExperienceLayout_PinnedSubmitRejectsSoleFallbackAcrossExplicitCard(t *testing.T) {
+	const experienceID = 520126
+	html := `
+		<!doctype html>
+		<label for="time">Time</label>
+		<select id="time" aria-label="Time">
+			<option value="18:15">6:15 PM</option>
+		</select>
+		<form id="shared-form">
+			<section class="experience-card" id="foreign-card">
+				<h2>Patio Tasting</h2>
+				<button type="submit" onclick="window.submittedForm = 'foreign'; return false;">Reserve</button>
+			</section>
+			<section class="experience-card" id="pinned-card">
+				<h2>Chef Counter</h2>
+				<a href="/experience/520126" onclick="window.clickedExperience = 'pinned'; return false;">Book now</a>
+			</section>
+		</form>`
+	withTockDOMFixtureAtPath(t, "/venue", html, func(ctx context.Context) {
+		if err := chromedp.Run(ctx, chromedp.ActionFunc(func(actCtx context.Context) error {
+			return clickComboboxExperienceLayout(actCtx, "6:15 PM", "2026-07-10", 2, experienceID)
+		})); err != nil {
+			t.Fatalf("clickComboboxExperienceLayout: %v", err)
+		}
+		var clicked, submitted string
+		if err := chromedp.Run(ctx,
+			chromedp.Evaluate(`window.clickedExperience || ''`, &clicked),
+			chromedp.Evaluate(`window.submittedForm || ''`, &submitted),
+		); err != nil {
+			t.Fatalf("read fixture state: %v", err)
+		}
+		if clicked != "pinned" {
+			t.Fatalf("clicked experience = %q, want pinned", clicked)
+		}
+		if submitted != "" {
+			t.Fatalf("submitted form = %q, want none across explicit cards", submitted)
+		}
+	})
+}
+
+// Containment by the selected explicit card cannot vouch for a submit whose
+// nearest explicit card is a nested, foreign experience card.
+func TestClickComboboxExperienceLayout_PinnedSubmitRejectsNestedForeignCardSubmit(t *testing.T) {
+	const experienceID = 520126
+	html := `
+		<!doctype html>
+		<label for="time">Time</label>
+		<select id="time" aria-label="Time">
+			<option value="18:15">6:15 PM</option>
+		</select>
+		<form>
+			<section class="experience-card" id="selected">
+				<a href="/experience/520126" onclick="window.clickedExperience = 'pinned'; return false;">Book now</a>
+				<section class="experience-card" id="foreign">
+					<button type="submit" onclick="window.submittedForm = 'foreign'; return false;">Reserve foreign</button>
+				</section>
+			</section>
+		</form>`
+	withTockDOMFixtureAtPath(t, "/venue", html, func(ctx context.Context) {
+		if err := chromedp.Run(ctx, chromedp.ActionFunc(func(actCtx context.Context) error {
+			return clickComboboxExperienceLayout(actCtx, "6:15 PM", "2026-07-10", 2, experienceID)
+		})); err != nil {
+			t.Fatalf("clickComboboxExperienceLayout: %v", err)
+		}
+		var clicked, submitted string
+		if err := chromedp.Run(ctx,
+			chromedp.Evaluate(`window.clickedExperience || ''`, &clicked),
+			chromedp.Evaluate(`window.submittedForm || ''`, &submitted),
+		); err != nil {
+			t.Fatalf("read fixture state: %v", err)
+		}
+		if clicked != "pinned" {
+			t.Fatalf("clicked experience = %q, want pinned", clicked)
+		}
+		if submitted != "" {
+			t.Fatalf("submitted form = %q, want none from nested foreign card", submitted)
+		}
+	})
+}
+
+// A second form-owned Book now anchor proves that a form spans more than one
+// offering, even though anchors are not fallback submit candidates.
+func TestClickComboboxExperienceLayout_PinnedSubmitRejectsFormWithSiblingBookNowAnchor(t *testing.T) {
+	const experienceID = 520126
+	html := `
+		<!doctype html>
+		<label for="time">Time</label>
+		<select id="time" aria-label="Time">
+			<option value="18:15">6:15 PM</option>
+		</select>
+		<form id="shared-form">
+			<a href="/experience/520126" onclick="window.clickedExperience = 'pinned'; return false;">Book now</a>
+			<a href="#other" onclick="window.clickedExperience = 'sibling'; return false;">Book now</a>
+			<button type="submit" onclick="window.submittedForm = 'shared'; return false;">Reserve</button>
+		</form>`
+	withTockDOMFixtureAtPath(t, "/venue", html, func(ctx context.Context) {
+		if err := chromedp.Run(ctx, chromedp.ActionFunc(func(actCtx context.Context) error {
+			return clickComboboxExperienceLayout(actCtx, "6:15 PM", "2026-07-10", 2, experienceID)
+		})); err != nil {
+			t.Fatalf("clickComboboxExperienceLayout: %v", err)
+		}
+		var clicked, submitted string
+		if err := chromedp.Run(ctx,
+			chromedp.Evaluate(`window.clickedExperience || ''`, &clicked),
+			chromedp.Evaluate(`window.submittedForm || ''`, &submitted),
+		); err != nil {
+			t.Fatalf("read fixture state: %v", err)
+		}
+		if clicked != "pinned" {
+			t.Fatalf("clicked experience = %q, want pinned", clicked)
+		}
+		if submitted != "" {
+			t.Fatalf("submitted form = %q, want none from multi-offering form", submitted)
+		}
+	})
+}
+
+// Native form= association makes an external submit form-owned, but it still
+// cannot cross from the selected explicit card into a foreign explicit card.
+func TestClickComboboxExperienceLayout_PinnedSubmitRejectsExternalFormAssociation(t *testing.T) {
+	const experienceID = 520126
+	html := `
+		<!doctype html>
+		<label for="time">Time</label>
+		<select id="time" aria-label="Time">
+			<option value="18:15">6:15 PM</option>
+		</select>
+		<form id="selected-form">
+			<section class="experience-card" id="selected-card">
+				<a href="/experience/520126" onclick="window.clickedExperience = 'pinned'; return false;">Book now</a>
+			</section>
+		</form>
+		<section class="experience-card" id="foreign-card">
+			<button type="submit" form="selected-form" onclick="window.submittedForm = 'foreign'; return false;">Reserve foreign</button>
+		</section>`
+	withTockDOMFixtureAtPath(t, "/venue", html, func(ctx context.Context) {
+		if err := chromedp.Run(ctx, chromedp.ActionFunc(func(actCtx context.Context) error {
+			return clickComboboxExperienceLayout(actCtx, "6:15 PM", "2026-07-10", 2, experienceID)
+		})); err != nil {
+			t.Fatalf("clickComboboxExperienceLayout: %v", err)
+		}
+		var clicked, submitted string
+		if err := chromedp.Run(ctx,
+			chromedp.Evaluate(`window.clickedExperience || ''`, &clicked),
+			chromedp.Evaluate(`window.submittedForm || ''`, &submitted),
+		); err != nil {
+			t.Fatalf("read fixture state: %v", err)
+		}
+		if clicked != "pinned" {
+			t.Fatalf("clicked experience = %q, want pinned", clicked)
+		}
+		if submitted != "" {
+			t.Fatalf("submitted form = %q, want none across external form association", submitted)
+		}
+	})
+}
+
+// A foreign Book now button associated into the selected form via the form
+// attribute proves the form spans more than one offering: honoring el.form
+// must widen the cardinality scan and fail the fallback closed.
+func TestClickComboboxExperienceLayout_PinnedSubmitRejectsFormAssociatedForeignBookNow(t *testing.T) {
+	const experienceID = 520126
+	html := `
+		<!doctype html>
+		<label for="time">Time</label>
+		<select id="time" aria-label="Time">
+			<option value="18:15">6:15 PM</option>
+		</select>
+		<form id="selected-form">
+			<a href="/experience/520126" onclick="window.clickedExperience = 'pinned'; return false;">Book now</a>
+			<button type="submit" onclick="window.submittedForm = 'inside'; return false;">Reserve</button>
+		</form>
+		<section id="foreign-section">
+			<button form="selected-form" onclick="window.submittedForm = 'foreign'; return false;">Book now</button>
+		</section>`
+	withTockDOMFixtureAtPath(t, "/venue", html, func(ctx context.Context) {
+		if err := chromedp.Run(ctx, chromedp.ActionFunc(func(actCtx context.Context) error {
+			return clickComboboxExperienceLayout(actCtx, "6:15 PM", "2026-07-10", 2, experienceID)
+		})); err != nil {
+			t.Fatalf("clickComboboxExperienceLayout: %v", err)
+		}
+		var clicked, submitted string
+		if err := chromedp.Run(ctx,
+			chromedp.Evaluate(`window.clickedExperience || ''`, &clicked),
+			chromedp.Evaluate(`window.submittedForm || ''`, &submitted),
+		); err != nil {
+			t.Fatalf("read fixture state: %v", err)
+		}
+		if clicked != "pinned" {
+			t.Fatalf("clicked experience = %q, want pinned", clicked)
+		}
+		if submitted != "" {
+			t.Fatalf("submitted form = %q, want none with a form-associated foreign Book now", submitted)
+		}
+	})
+}
+
+// A form-only legacy layout remains valid when the pinned Book now control has
+// exactly one separate fallback submit and no explicit card boundary exists.
+func TestClickComboboxExperienceLayout_PinnedSubmitAllowsSoleLegacySameFormSubmit(t *testing.T) {
+	const experienceID = 520126
+	html := `
+		<!doctype html>
+		<label for="time">Time</label>
+		<select id="time" aria-label="Time">
+			<option value="18:15">6:15 PM</option>
+		</select>
+		<form id="legacy-form">
+			<h2>Chef Counter</h2>
+			<a href="/experience/520126" onclick="window.clickedExperience = 'pinned'; return false;">Book now</a>
+			<button type="submit" onclick="window.submittedForm = 'pinned'; return false;">Reserve</button>
+		</form>`
+	withTockDOMFixtureAtPath(t, "/venue", html, func(ctx context.Context) {
+		if err := chromedp.Run(ctx, chromedp.ActionFunc(func(actCtx context.Context) error {
+			return clickComboboxExperienceLayout(actCtx, "6:15 PM", "2026-07-10", 2, experienceID)
+		})); err != nil {
+			t.Fatalf("clickComboboxExperienceLayout: %v", err)
+		}
+		var clicked, submitted string
+		if err := chromedp.Run(ctx,
+			chromedp.Evaluate(`window.clickedExperience || ''`, &clicked),
+			chromedp.Evaluate(`window.submittedForm || ''`, &submitted),
+		); err != nil {
+			t.Fatalf("read fixture state: %v", err)
+		}
+		if clicked != "pinned" {
+			t.Fatalf("clicked experience = %q, want pinned", clicked)
+		}
+		if submitted != "pinned" {
+			t.Fatalf("submitted form = %q, want pinned legacy fallback", submitted)
+		}
+	})
+}
+
+// An invalid shared form cannot positively re-tie its bare submits merely
+// because the pinned link is elsewhere inside that same form.
+func TestClickComboboxExperienceLayout_PinnedSubmitInvalidSharedFormCannotRetieThroughForm(t *testing.T) {
+	const experienceID = 520126
+	html := `
+		<!doctype html>
+		<label for="time">Time</label>
+		<select id="time" aria-label="Time">
+			<option value="18:15">6:15 PM</option>
+		</select>
+		<form id="shared-form">
+			<h2>Chef Counter</h2>
+			<a href="/experience/520126" onclick="window.clickedExperience = 'pinned'; return false;">Book now</a>
+			<button type="submit" onclick="window.submittedForms = (window.submittedForms || []).concat('first'); return false;">Reserve first</button>
+			<button type="submit" onclick="window.submittedForms = (window.submittedForms || []).concat('second'); return false;">Reserve second</button>
+		</form>`
+	withTockDOMFixtureAtPath(t, "/venue", html, func(ctx context.Context) {
+		if err := chromedp.Run(ctx, chromedp.ActionFunc(func(actCtx context.Context) error {
+			return clickComboboxExperienceLayout(actCtx, "6:15 PM", "2026-07-10", 2, experienceID)
+		})); err != nil {
+			t.Fatalf("clickComboboxExperienceLayout: %v", err)
+		}
+		var clicked string
+		var submitted []string
+		if err := chromedp.Run(ctx,
+			chromedp.Evaluate(`window.clickedExperience || ''`, &clicked),
+			chromedp.Evaluate(`window.submittedForms || []`, &submitted),
+		); err != nil {
+			t.Fatalf("read fixture state: %v", err)
+		}
+		if clicked != "pinned" {
+			t.Fatalf("clicked experience = %q, want pinned", clicked)
+		}
+		if len(submitted) != 0 {
+			t.Fatalf("submitted forms = %v, want none through invalid shared form", submitted)
 		}
 	})
 }
