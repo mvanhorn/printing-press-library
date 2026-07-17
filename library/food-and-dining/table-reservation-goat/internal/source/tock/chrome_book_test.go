@@ -813,6 +813,7 @@ func TestTockPinnedExperienceEligibilityJS_BoundarySafe(t *testing.T) {
 		{name: "control ID suffix collision", controlHref: "/venue/experience/520126-other/reservation", pagePath: "/venue"},
 		{name: "control query only", controlHref: "/venue?next=/experience/520126", pagePath: "/venue"},
 		{name: "exact link in card", cardHrefs: []string{"/venue/experience/520126/reservation"}, pagePath: "/venue", want: true},
+		{name: "pinned link in card but no tight ancestor", controlHref: "", cardHrefs: nil, pagePath: "/venue"},
 		{name: "card-link ID prefix collision", cardHrefs: []string{"/venue/experience/5201264/reservation"}, pagePath: "/venue"},
 		{name: "exact deep-link page", pagePath: "/venue/experience/520126", want: true},
 		{name: "deep-link page cross-sell card for another experience", cardHrefs: []string{"/venue/experience/111111"}, pagePath: "/venue/experience/520126"},
@@ -832,15 +833,15 @@ func TestTockPinnedExperienceEligibilityJS_BoundarySafe(t *testing.T) {
 			script := fmt.Sprintf(`
 				var experienceID = %d;
 				var location = {href: 'https://www.exploretock.com%s', pathname: %q};
-				function cardFor(control) { return control.card; }
 				function makeControl(href, cardHrefs) {
+					const card = cardHrefs === null ? null : {
+						querySelectorAll: () => (cardHrefs || []).map((cardHref) => ({
+							getAttribute: (name) => name === 'href' ? cardHref : '',
+						})),
+					};
 					return {
 						getAttribute: (name) => name === 'href' ? href : '',
-						card: {
-							querySelectorAll: () => (cardHrefs || []).map((cardHref) => ({
-								getAttribute: (name) => name === 'href' ? cardHref : '',
-							})),
-						},
+						closest: () => card,
 					};
 				}
 				%s
@@ -1340,8 +1341,7 @@ func TestClickComboboxExperienceLayout_PinnedSubmitIgnoresBroadWrapperContainmen
 		</select>
 		<div id="wrapper">
 			<p>Chef Counter
-				<a href="/venue/experience/520126">details</a>
-				<a href="#" onclick="window.clickedExperience = 'pinned'; return false;">Book now</a>
+				<a href="/venue/experience/520126" onclick="window.clickedExperience = 'pinned'; return false;">Book now</a>
 			</p>
 			<p>Patio Tasting</p>
 			<form id="foreign-form">
@@ -1366,6 +1366,44 @@ func TestClickComboboxExperienceLayout_PinnedSubmitIgnoresBroadWrapperContainmen
 		}
 		if submitted != "" {
 			t.Fatalf("submitted form = %q, want none (broad wrapper containment must not scope a foreign submit)", submitted)
+		}
+	})
+}
+
+// On a pinned venue page, a broad unclassed wrapper carrying the pinned link
+// must not vouch for a foreign Book now control: only the control with its
+// own positive tie is eligible, even when party-size scoring favors the
+// sibling.
+func TestClickComboboxExperienceLayout_PinnedTieRequiresTightBoundary(t *testing.T) {
+	const experienceID = 520126
+	html := `
+		<!doctype html>
+		<label for="time">Time</label>
+		<select id="time" aria-label="Time">
+			<option value="18:15">6:15 PM</option>
+		</select>
+		<div id="wrapper">
+			<p>Chef Counter
+				<a href="/venue/experience/520126" onclick="window.clickedExperience = 'own'; return false;">Book now</a>
+			</p>
+			<p>Patio Tasting: Groups 7-18
+				<button onclick="window.clickedExperience = 'sibling';">Book now</button>
+			</p>
+		</div>`
+	withTockDOMFixtureAtPath(t, "/venue", html, func(ctx context.Context) {
+		if err := chromedp.Run(ctx, chromedp.ActionFunc(func(actCtx context.Context) error {
+			return clickComboboxExperienceLayout(actCtx, "6:15 PM", "2026-07-10", 8, experienceID)
+		})); err != nil {
+			t.Fatalf("clickComboboxExperienceLayout: %v", err)
+		}
+		var clicked string
+		if err := chromedp.Run(ctx,
+			chromedp.Evaluate(`window.clickedExperience || ''`, &clicked),
+		); err != nil {
+			t.Fatalf("read fixture state: %v", err)
+		}
+		if clicked != "own" {
+			t.Fatalf("clicked experience = %q, want own (wrapper must not vouch for the sibling)", clicked)
 		}
 	})
 }

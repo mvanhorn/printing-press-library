@@ -693,16 +693,28 @@ func clickPinnedSlotByTimeText(ctx context.Context, displayTime string, experien
 // choose the requested time from a combobox/listbox, pick the best matching
 // experience card, then click its "Book now" control.
 const tockPinnedExperienceEligibilityJS = tockPinnedExperiencePathJS + `
+			// Ties resolve through a TIGHT boundary only: an explicitly marked
+			// card ancestor or a form. cardFor()'s generic fallbacks (section/
+			// li/div) can climb to a wrapper spanning several experiences, and
+			// a wrapper must never vouch for the controls inside it. No tight
+			// ancestor means no card-based tie — only the control's own href
+			// counts, and mis-resolution errs toward fail-closed.
+			function tightCardOf(control) {
+				return control.closest
+					? control.closest('[data-testid*="experience"], [class*="experience"], [class*="card"], form')
+					: null;
+			}
 			function controlOrCardHasPinnedExperienceLink(control) {
 				const href = control.getAttribute && (control.getAttribute('href') || '');
 				if (hasPinnedExperiencePath(href)) return true;
-				const card = cardFor(control);
+				const card = tightCardOf(control);
+				if (!card) return false;
 				return Array.from(card.querySelectorAll('a[href]'))
 					.some((link) => hasPinnedExperiencePath(link.getAttribute('href') || ''));
 			}
 			function cardLinksOnlyOtherExperience(control) {
-				const card = cardFor(control);
-				const links = [control].concat(Array.from(card.querySelectorAll('a[href]')));
+				const card = tightCardOf(control);
+				const links = [control].concat(card ? Array.from(card.querySelectorAll('a[href]')) : []);
 				let sawOther = false;
 				for (const el of links) {
 					const href = el.getAttribute && (el.getAttribute('href') || '');
@@ -942,20 +954,10 @@ func clickComboboxExperienceLayoutJS(displayTime, isoDate string, partySize, exp
 				const scopedToSelection = (el) =>
 					(selectedForm !== null && (el.form || el.closest('form')) === selectedForm) ||
 					(tightCardValid && tightCard.contains(el));
-				// The tie check gets the same tight-boundary rule: cardFor()'s
-				// generic fallback would let a broad wrapper containing the pinned
-				// link vouch for every control inside it. A fallback control's tie
-				// must come from its own href or a MARKED card/form ancestor.
-				const tightSubmitTie = (el) => {
-					const href = el.getAttribute && (el.getAttribute('href') || '');
-					if (hasPinnedExperiencePath(href)) return true;
-					const card = el.closest('[data-testid*="experience"], [class*="experience"], [class*="card"], form');
-					if (!card) return false;
-					return Array.from(card.querySelectorAll('a[href]'))
-						.some((link) => hasPinnedExperiencePath(link.getAttribute('href') || ''));
-				};
+				// controlOrCardHasPinnedExperienceLink is tight-boundary itself
+				// now, so the fallback shares it directly.
 				const submitEligible = (el) =>
-					experienceID === 0 || scopedToSelection(el) || tightSubmitTie(el);
+					experienceID === 0 || scopedToSelection(el) || controlOrCardHasPinnedExperienceLink(el);
 				const submit = submitCandidates
 					.filter((el) => /book now/i.test(clean(el.textContent || el.getAttribute('aria-label'))) || el.type === 'submit')
 					.filter(submitEligible)
