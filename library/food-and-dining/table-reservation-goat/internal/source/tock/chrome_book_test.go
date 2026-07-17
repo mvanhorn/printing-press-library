@@ -493,10 +493,10 @@ func TestClickRequestedTockBookingControl_LegacyPinnedExperiencePathGate(t *test
 			wantErrContains: "legacy time-only slot path skipped for pinned experience 520126",
 		},
 		{
-			name:         "pinned deep-link page permits legacy click",
-			pagePath:     "/venue/experience/520126",
-			experienceID: experienceID,
-			wantClicked:  "first",
+			name:            "pinned deep-link page with two untied slots fails closed",
+			pagePath:        "/venue/experience/520126",
+			experienceID:    experienceID,
+			wantErrContains: "ambiguous",
 		},
 		{
 			name:        "unpinned legacy behavior is unchanged",
@@ -542,6 +542,293 @@ func TestClickRequestedTockBookingControl_LegacyPinnedExperiencePathGate(t *test
 	}
 }
 
+func TestClickPinnedSlotByTimeText_LegacySoleCandidateFormForeignOnlyFailsClosed(t *testing.T) {
+	candidateTexts := []string{
+		"6:15 PM Book",
+		"6:15 PM",
+	}
+	for _, candidateText := range candidateTexts {
+		t.Run(candidateText, func(t *testing.T) {
+			html := fmt.Sprintf(`
+				<!doctype html>
+				<form id="foreign-only">
+				  <a href="/venue/experience/111111">Other experience</a>
+				  <button onclick="window.clickedForeign = true;">%s</button>
+				</form>`, candidateText)
+			withTockDOMFixtureAtPath(t, "/venue/experience/520126", html, func(ctx context.Context) {
+				err := clickPinnedSlotByTimeText(ctx, "6:15 PM", 520126)
+				if err == nil || !strings.Contains(err.Error(), "all requested-time legacy slot controls were tied only to other experiences") {
+					t.Fatalf("error = %v, want foreign-only attribution failure", err)
+				}
+				var clickedForeign bool
+				if evalErr := chromedp.Run(ctx, chromedp.Evaluate(`window.clickedForeign || false`, &clickedForeign)); evalErr != nil {
+					t.Fatalf("read legacy fixture state: %v", evalErr)
+				}
+				if clickedForeign {
+					t.Fatal("foreign-only form candidate was clicked")
+				}
+			})
+		})
+	}
+}
+
+// Form exclusion must require sole candidate ownership: excluding several
+// same-form candidates would thin the field down to whatever untied control
+// remains outside the form, converting an ambiguous page into a wrong click.
+func TestClickPinnedSlotByTimeText_MultiCandidateForeignFormStaysAmbiguous(t *testing.T) {
+	const html = `
+		<!doctype html>
+		<form id="foreign-only">
+		  <a href="/venue/experience/111111">Other experience</a>
+		  <button onclick="window.clickedForm = 'first';">6:15 PM Book</button>
+		  <button onclick="window.clickedForm = 'second';">6:15 PM Book</button>
+		</form>
+		<button onclick="window.clickedOutside = true;">6:15 PM Book</button>`
+	withTockDOMFixtureAtPath(t, "/venue/experience/520126", html, func(ctx context.Context) {
+		err := clickPinnedSlotByTimeText(ctx, "6:15 PM", 520126)
+		if err == nil || !strings.Contains(err.Error(), "ambiguous") {
+			t.Fatalf("error = %v, want ambiguity failure", err)
+		}
+		var clickedForm string
+		var clickedOutside bool
+		if evalErr := chromedp.Run(ctx,
+			chromedp.Evaluate(`window.clickedForm || ''`, &clickedForm),
+			chromedp.Evaluate(`window.clickedOutside || false`, &clickedOutside),
+		); evalErr != nil {
+			t.Fatalf("read legacy fixture state: %v", evalErr)
+		}
+		if clickedForm != "" || clickedOutside {
+			t.Fatalf("clickedForm = %q clickedOutside = %v, want no clicks", clickedForm, clickedOutside)
+		}
+	})
+}
+
+func TestClickPinnedSlotByTimeText_LegacyFormForeignCandidateExcludedBeforeOwnSlot(t *testing.T) {
+	const html = `
+		<!doctype html>
+		<form id="foreign-only">
+		  <a href="/venue/experience/111111">Other experience</a>
+		  <button onclick="window.clickedForeign = true;">6:15 PM Book</button>
+		</form>
+		<button onclick="window.clickedOwn = true;">6:15 PM Book</button>`
+	withTockDOMFixtureAtPath(t, "/venue/experience/520126", html, func(ctx context.Context) {
+		if err := clickPinnedSlotByTimeText(ctx, "6:15 PM", 520126); err != nil {
+			t.Fatalf("clickPinnedSlotByTimeText: %v", err)
+		}
+		var clickedForeign, clickedOwn bool
+		if err := chromedp.Run(ctx,
+			chromedp.Evaluate(`window.clickedForeign || false`, &clickedForeign),
+			chromedp.Evaluate(`window.clickedOwn || false`, &clickedOwn),
+		); err != nil {
+			t.Fatalf("read legacy fixture state: %v", err)
+		}
+		if clickedForeign || !clickedOwn {
+			t.Fatalf("clicked foreign/own = %v/%v, want false/true", clickedForeign, clickedOwn)
+		}
+	})
+}
+
+func TestClickPinnedSlotByTimeText_LegacyFormPinnedLinkDoesNotVouch(t *testing.T) {
+	const html = `
+		<!doctype html>
+		<form id="multi-experience">
+		  <a href="/venue/experience/520126">Pinned details</a>
+		  <a href="/venue/experience/111111">Other experience</a>
+		  <button onclick="window.clickedForm = true;">6:15 PM Book</button>
+		</form>
+		<button onclick="window.clickedUntied = true;">6:15 PM Book</button>`
+	withTockDOMFixtureAtPath(t, "/venue/experience/520126", html, func(ctx context.Context) {
+		err := clickPinnedSlotByTimeText(ctx, "6:15 PM", 520126)
+		if err == nil || !strings.Contains(err.Error(), "ambiguous") {
+			t.Fatalf("error = %v, want ambiguity failure", err)
+		}
+		var clickedForm, clickedUntied bool
+		if evalErr := chromedp.Run(ctx,
+			chromedp.Evaluate(`window.clickedForm || false`, &clickedForm),
+			chromedp.Evaluate(`window.clickedUntied || false`, &clickedUntied),
+		); evalErr != nil {
+			t.Fatalf("read legacy fixture state: %v", evalErr)
+		}
+		if clickedForm || clickedUntied {
+			t.Fatalf("clicked form/untied = %v/%v, want false/false", clickedForm, clickedUntied)
+		}
+	})
+}
+
+func TestClickPinnedSlotByTimeText_ExplicitCardInsulatesFromForeignFormLink(t *testing.T) {
+	const html = `
+		<!doctype html>
+		<form>
+		  <a href="/venue/experience/111111">Cross-sell</a>
+		  <section class="experience-card">
+		    <button onclick="window.clickedOwn = true;">6:15 PM Book</button>
+		  </section>
+		</form>`
+	withTockDOMFixtureAtPath(t, "/venue/experience/520126", html, func(ctx context.Context) {
+		if err := clickPinnedSlotByTimeText(ctx, "6:15 PM", 520126); err != nil {
+			t.Fatalf("clickPinnedSlotByTimeText: %v", err)
+		}
+		var clickedOwn bool
+		if err := chromedp.Run(ctx, chromedp.Evaluate(`window.clickedOwn || false`, &clickedOwn)); err != nil {
+			t.Fatalf("read legacy fixture state: %v", err)
+		}
+		if !clickedOwn {
+			t.Fatal("explicit-card candidate was not clicked")
+		}
+	})
+}
+
+func TestClickPinnedSlotByTimeText_ForeignCrossSellBeforeOwnSlot(t *testing.T) {
+	const html = `
+		<!doctype html>
+		<section class="experience-card" id="foreign">
+			<a href="/venue/experience/111111">Other experience</a>
+			<button onclick="window.clickedForeign = true;">6:15 PM Book</button>
+		</section>
+		<section class="experience-card" id="own">
+			<button onclick="window.clickedOwn = true;">6:15 PM Book</button>
+		</section>`
+	withTockDOMFixtureAtPath(t, "/venue/experience/520126", html, func(ctx context.Context) {
+		if err := clickPinnedSlotByTimeText(ctx, "6:15 PM", 520126); err != nil {
+			t.Fatalf("clickPinnedSlotByTimeText: %v", err)
+		}
+		var clickedForeign, clickedOwn bool
+		if err := chromedp.Run(ctx,
+			chromedp.Evaluate(`window.clickedForeign || false`, &clickedForeign),
+			chromedp.Evaluate(`window.clickedOwn || false`, &clickedOwn),
+		); err != nil {
+			t.Fatalf("read legacy fixture state: %v", err)
+		}
+		if clickedForeign || !clickedOwn {
+			t.Fatalf("clicked foreign/own = %v/%v, want false/true", clickedForeign, clickedOwn)
+		}
+	})
+}
+
+func TestClickPinnedSlotByTimeText_SoleUntiedPageOwnSlot(t *testing.T) {
+	const html = `
+		<!doctype html>
+		<section class="experience-card">
+			<button onclick="window.clickedOwn = true;">6:15 PM Book</button>
+		</section>`
+	withTockDOMFixtureAtPath(t, "/venue/experience/520126", html, func(ctx context.Context) {
+		if err := clickPinnedSlotByTimeText(ctx, "6:15 PM", 520126); err != nil {
+			t.Fatalf("clickPinnedSlotByTimeText: %v", err)
+		}
+		var clickedOwn bool
+		if err := chromedp.Run(ctx, chromedp.Evaluate(`window.clickedOwn || false`, &clickedOwn)); err != nil {
+			t.Fatalf("read legacy fixture state: %v", err)
+		}
+		if !clickedOwn {
+			t.Fatal("sole untied page-own slot was not clicked")
+		}
+	})
+}
+
+func TestClickPinnedSlotByTimeText_MixedPassAmbiguityFailsClosed(t *testing.T) {
+	const html = `
+		<!doctype html>
+		<section class="experience-card">
+			<button onclick="window.clickedFirst = true;">6:15 PM Book</button>
+		</section>
+		<section class="experience-card">
+			<button onclick="window.clickedSecond = true;">6:15 PM</button>
+		</section>`
+	withTockDOMFixtureAtPath(t, "/venue/experience/520126", html, func(ctx context.Context) {
+		err := clickPinnedSlotByTimeText(ctx, "6:15 PM", 520126)
+		if err == nil || !strings.Contains(err.Error(), "ambiguous") {
+			t.Fatalf("error = %v, want ambiguity failure", err)
+		}
+		var clickedFirst, clickedSecond bool
+		if evalErr := chromedp.Run(ctx,
+			chromedp.Evaluate(`window.clickedFirst || false`, &clickedFirst),
+			chromedp.Evaluate(`window.clickedSecond || false`, &clickedSecond),
+		); evalErr != nil {
+			t.Fatalf("read legacy fixture state: %v", evalErr)
+		}
+		if clickedFirst || clickedSecond {
+			t.Fatalf("clicked first/second = %v/%v, want false/false", clickedFirst, clickedSecond)
+		}
+	})
+}
+
+func TestClickPinnedSlotByTimeText_ExactTimeSecondPassForeignExclusion(t *testing.T) {
+	const html = `
+		<!doctype html>
+		<section class="experience-card" id="foreign">
+			<a href="/venue/experience/111111">Other experience</a>
+			<button onclick="window.clickedForeign = true;">6:15 PM</button>
+		</section>
+		<section class="experience-card" id="own">
+			<button onclick="window.clickedOwn = true;">6:15 PM</button>
+		</section>`
+	withTockDOMFixtureAtPath(t, "/venue/experience/520126", html, func(ctx context.Context) {
+		if err := clickPinnedSlotByTimeText(ctx, "6:15 PM", 520126); err != nil {
+			t.Fatalf("clickPinnedSlotByTimeText: %v", err)
+		}
+		var clickedForeign, clickedOwn bool
+		if err := chromedp.Run(ctx,
+			chromedp.Evaluate(`window.clickedForeign || false`, &clickedForeign),
+			chromedp.Evaluate(`window.clickedOwn || false`, &clickedOwn),
+		); err != nil {
+			t.Fatalf("read legacy fixture state: %v", err)
+		}
+		if clickedForeign || !clickedOwn {
+			t.Fatalf("clicked foreign/own = %v/%v, want false/true", clickedForeign, clickedOwn)
+		}
+	})
+}
+
+func TestClickPinnedSlotByTimeText_PinnedTieBeatsUntied(t *testing.T) {
+	const html = `
+		<!doctype html>
+		<section class="experience-card" id="untied">
+			<button onclick="window.clickedUntied = true;">6:15 PM Book</button>
+		</section>
+		<section class="experience-card" id="tied">
+			<a href="/venue/experience/520126" onclick="window.clickedTied = true; return false;">6:15 PM Book</a>
+		</section>`
+	withTockDOMFixtureAtPath(t, "/venue/experience/520126", html, func(ctx context.Context) {
+		if err := clickPinnedSlotByTimeText(ctx, "6:15 PM", 520126); err != nil {
+			t.Fatalf("clickPinnedSlotByTimeText: %v", err)
+		}
+		var clickedUntied, clickedTied bool
+		if err := chromedp.Run(ctx,
+			chromedp.Evaluate(`window.clickedUntied || false`, &clickedUntied),
+			chromedp.Evaluate(`window.clickedTied || false`, &clickedTied),
+		); err != nil {
+			t.Fatalf("read legacy fixture state: %v", err)
+		}
+		if clickedUntied || !clickedTied {
+			t.Fatalf("clicked untied/tied = %v/%v, want false/true", clickedUntied, clickedTied)
+		}
+	})
+}
+
+func TestClickPinnedSlotByTimeText_UnpinnedFirstMatchUnchanged(t *testing.T) {
+	const html = `
+		<!doctype html>
+		<section class="experience-card" id="foreign">
+			<a href="/venue/experience/111111">Other experience</a>
+			<button onclick="window.clicked = 'foreign';">6:15 PM Book</button>
+		</section>
+		<section class="experience-card" id="own">
+			<button onclick="window.clicked = 'own';">6:15 PM Book</button>
+		</section>`
+	withTockDOMFixtureAtPath(t, "/venue", html, func(ctx context.Context) {
+		if err := clickSlotByTimeText(ctx, "6:15 PM"); err != nil {
+			t.Fatalf("clickSlotByTimeText: %v", err)
+		}
+		var clicked string
+		if err := chromedp.Run(ctx, chromedp.Evaluate(`window.clicked || ''`, &clicked)); err != nil {
+			t.Fatalf("read legacy fixture state: %v", err)
+		}
+		if clicked != "foreign" {
+			t.Fatalf("clicked = %q, want historical first match foreign", clicked)
+		}
+	})
+}
+
 func TestClickPinnedSlotByTimeTextJS_AtomicBoundarySafeGate(t *testing.T) {
 	cases := []struct {
 		name            string
@@ -576,10 +863,13 @@ func TestClickPinnedSlotByTimeTextJS_AtomicBoundarySafeGate(t *testing.T) {
 				var location = {href: 'https://www.exploretock.com%s', pathname: %q};
 				var clicked = '';
 				var queryCalls = 0;
-				var controls = [
-					{textContent: '6:15 PM Book', click: function() { clicked = 'first'; }},
-					{textContent: '6:15 PM Book', click: function() { clicked = 'second'; }},
-				];
+				var controls = [{
+					textContent: '6:15 PM Book',
+					form: null,
+					getAttribute: function() { return ''; },
+					closest: function() { return null; },
+					click: function() { clicked = 'first'; },
+				}];
 				var document = {
 					querySelectorAll: function() { queryCalls++; return controls; },
 				};

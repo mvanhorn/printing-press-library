@@ -656,22 +656,117 @@ const tockPinnedExperiencePathJS = `
 `
 
 type tockPinnedLegacyClickResult struct {
-	PageMatches bool `json:"page_matches"`
-	Clicked     bool `json:"clicked"`
+	PageMatches bool   `json:"page_matches"`
+	Clicked     bool   `json:"clicked"`
+	Ambiguous   bool   `json:"ambiguous"`
+	Detail      string `json:"detail"`
 }
 
 func clickPinnedSlotByTimeTextJS(displayTime string, experienceID int) string {
 	return fmt.Sprintf(`
 		(() => {
+			const target = %q;
 			const experienceID = %d;
+			const clean = (s) => (s || '').replace(/\s+/g, ' ').trim();
+			const all = (selector) => Array.from(document.querySelectorAll(selector));
+			%s
 			%s
 			if (!hasPinnedExperiencePath(location.pathname)) {
-				return { page_matches: false, clicked: false };
+				return { page_matches: false, clicked: false, ambiguous: false, detail: '' };
 			}
-			const clicked = %s;
-			return { page_matches: true, clicked };
+
+			// A pinned page identifies the page, not every legacy control on it;
+			// cross-sell controls still require tight structural attribution.
+			const controls = all('button, a');
+			const firstPass = controls.filter((control) => {
+				const text = (control.textContent || '').trim();
+				return text.includes(target) && /book/i.test(text);
+			});
+			const secondPass = controls.filter((control) => {
+				const text = (control.textContent || '').trim();
+				return text === target && !firstPass.includes(control);
+			});
+			// Merge both historical text-match passes before gating so an early
+			// untied match cannot bypass a tied or competing later-pass control.
+			const candidates = firstPass.concat(secondPass);
+			function legacyLinksFor(control, boundary) {
+				return [control].concat(
+					boundary ? Array.from(boundary.querySelectorAll('a[href]')) : []
+				);
+			}
+			function legacyLinksOnlyOtherExperience(control, boundary) {
+				let sawOther = false;
+				for (const el of legacyLinksFor(control, boundary)) {
+					const href = el.getAttribute && (el.getAttribute('href') || '');
+					if (!href) continue;
+					if (hasPinnedExperiencePath(href)) return false;
+					if (hasOtherExperiencePath(href)) sawOther = true;
+				}
+				return sawOther;
+			}
+			function legacyControlOrExplicitCardHasPinnedExperienceLink(control) {
+				const card = explicitCardOf(control);
+				return legacyLinksFor(control, card).some((el) => {
+					const href = el.getAttribute && (el.getAttribute('href') || '');
+					return hasPinnedExperiencePath(href);
+				});
+			}
+			function legacyControlOrExplicitCardLinksOnlyOtherExperience(control) {
+				return legacyLinksOnlyOtherExperience(control, explicitCardOf(control));
+			}
+			function legacySoleCandidateFormLinksOnlyOtherExperience(control) {
+				// A form is negative evidence only. It must never positively
+				// vouch for a legacy control because broad forms can span
+				// several experiences.
+				if (explicitCardOf(control)) return false;
+				const form = formOf(control);
+				if (!form) return false;
+				const formCandidates = candidates.filter(
+					(other) => formOf(other) === form
+				);
+				if (formCandidates.length !== 1 || formCandidates[0] !== control) {
+					return false;
+				}
+				return legacyLinksOnlyOtherExperience(control, form);
+			}
+
+			const surviving = candidates.filter(
+				(control) =>
+					!legacyControlOrExplicitCardLinksOnlyOtherExperience(control) &&
+					!legacySoleCandidateFormLinksOnlyOtherExperience(control)
+			);
+			const tied = surviving.filter(
+				legacyControlOrExplicitCardHasPinnedExperienceLink
+			);
+			if (tied.length > 0) {
+				tied[0].click();
+				return { page_matches: true, clicked: true, ambiguous: false, detail: '' };
+			}
+			if (surviving.length === 1) {
+				surviving[0].click();
+				return { page_matches: true, clicked: true, ambiguous: false, detail: '' };
+			}
+			if (surviving.length > 1) {
+				return {
+					page_matches: true,
+					clicked: false,
+					ambiguous: true,
+					detail: 'pinned experience ' + experienceID +
+						' is ambiguous on its deep-link page: ' +
+						surviving.length +
+						' untied legacy slot controls and none positively tied'
+				};
+			}
+			return {
+				page_matches: true,
+				clicked: false,
+				ambiguous: false,
+				detail: candidates.length === 0
+					? 'slot button for "' + target + '" not found'
+					: 'all requested-time legacy slot controls were tied only to other experiences'
+			};
 		})()
-	`, experienceID, tockPinnedExperiencePathJS, clickSlotByTimeTextJS(displayTime))
+	`, displayTime, experienceID, tockPinnedExperiencePathJS, tockPinnedExperienceControlAttributionJS)
 }
 
 func clickPinnedSlotByTimeText(ctx context.Context, displayTime string, experienceID int) error {
@@ -683,8 +778,17 @@ func clickPinnedSlotByTimeText(ctx context.Context, displayTime string, experien
 	if !result.PageMatches {
 		return fmt.Errorf("legacy time-only slot path skipped for pinned experience %d: current page is not its experience deep link", experienceID)
 	}
+	if result.Ambiguous {
+		return fmt.Errorf(
+			"legacy time-only slot path skipped for pinned experience %d: %s",
+			experienceID, result.Detail,
+		)
+	}
 	if !result.Clicked {
-		return fmt.Errorf("slot button for %q not found", displayTime)
+		return fmt.Errorf(
+			"legacy time-only slot path skipped for pinned experience %d: %s",
+			experienceID, result.Detail,
+		)
 	}
 	return nil
 }
@@ -692,7 +796,7 @@ func clickPinnedSlotByTimeText(ctx context.Context, displayTime string, experien
 // clickComboboxExperienceLayout drives Tock's newer booking layout:
 // choose the requested time from a combobox/listbox, pick the best matching
 // experience card, then click its "Book now" control.
-const tockPinnedExperienceEligibilityJS = tockPinnedExperiencePathJS + `
+const tockPinnedExperienceControlAttributionJS = `
 			const explicitCardSelector = '[data-testid*="experience"], [class*="experience"], [class*="card"]';
 			function formOf(control) {
 				return control.form || (control.closest ? control.closest('form') : null);
@@ -739,7 +843,9 @@ const tockPinnedExperienceEligibilityJS = tockPinnedExperiencePathJS + `
 				}
 				return sawOther;
 			}
-			function eligibleExperienceControls(controls) {
+`
+
+const tockPinnedExperienceEligibilityJS = tockPinnedExperiencePathJS + tockPinnedExperienceControlAttributionJS + `			function eligibleExperienceControls(controls) {
 				if (experienceID === 0) return controls;
 				// On the pinned experience's own deep-link page the page's own
 				// controls carry no experience href, so they stay eligible —
