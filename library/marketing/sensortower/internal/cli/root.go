@@ -185,8 +185,8 @@ func isCobraUsageError(err error) bool {
 func newRootCmd(flags *rootFlags) *cobra.Command {
 	rootCmd := &cobra.Command{
 		Use:   "sensortower-pp-cli",
-		Short: `Every free Sensor Tower ranking, plus the rank history the dashboard forgets the moment you close the tab.`,
-		Long: `Every free Sensor Tower ranking, plus the rank history the dashboard forgets the moment you close the tab.
+		Short: `Track iOS and Android store rankings over time from your Sensor Tower session, with a local history no dashboard tab keeps.`,
+		Long: `Track iOS and Android store rankings over time from your Sensor Tower session, with a local history no dashboard tab keeps.
 
 Highlights (not in the official API docs):
   • movers   See which apps climbed, fell, or newly appeared in a category chart since the previous 'movers' run.

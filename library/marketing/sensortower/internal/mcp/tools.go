@@ -69,8 +69,8 @@ func RegisterTools(s *server.MCPServer) {
 	)
 	s.AddTool(
 		mcplib.NewTool("apps_unified",
-			mcplib.WithDescription("Resolve an app to its unified cross-platform record, joining iOS and Android identities. Required: app-id-type (default: itunes), app-ids. (requires browser login)"),
-			mcplib.WithString("app-id-type", mcplib.Required(), mcplib.Description("Which ID namespace app-ids are expressed in")),
+			mcplib.WithDescription("Resolve an app to its unified cross-platform record, joining iOS and Android identities. Required: app-ids. Optional: app-id-type (default: itunes). (requires browser login)"),
+			mcplib.WithString("app-id-type", mcplib.Description("Which ID namespace app-ids are expressed in")),
 			mcplib.WithString("app-ids", mcplib.Required(), mcplib.Description("Comma-separated app IDs in the namespace given by --app-id-type")),
 			mcplib.WithReadOnlyHintAnnotation(true),
 			mcplib.WithDestructiveHintAnnotation(false),
@@ -137,9 +137,9 @@ func RegisterTools(s *server.MCPServer) {
 	)
 	s.AddTool(
 		mcplib.NewTool("publishers_unified",
-			mcplib.WithDescription("Resolve a publisher to its unified cross-platform record. Required: publisher-ids, publisher-id-type (default: itunes). (requires browser login)"),
+			mcplib.WithDescription("Resolve a publisher to its unified cross-platform record. Required: publisher-ids. Optional: publisher-id-type (default: itunes). (requires browser login)"),
 			mcplib.WithString("publisher-ids", mcplib.Required(), mcplib.Description("Comma-separated publisher IDs")),
-			mcplib.WithString("publisher-id-type", mcplib.Required(), mcplib.Description("Which ID namespace publisher-ids are expressed in")),
+			mcplib.WithString("publisher-id-type", mcplib.Description("Which ID namespace publisher-ids are expressed in")),
 			mcplib.WithReadOnlyHintAnnotation(true),
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
@@ -957,11 +957,11 @@ func handleContext(_ context.Context, _ mcplib.CallToolRequest) (*mcplib.CallToo
 		// Command-mirror capabilities are exposed through MCP by shelling out
 		// to the companion CLI binary.
 		"command_mirror_capabilities": []map[string]string{
-			{"name": "Category movers and new entrants", "command": "movers", "description": "See which apps climbed, fell, or newly appeared in a category chart since the previous 'movers' run.", "rationale": "Requires set-differencing the current chart snapshot against a prior one that 'movers' itself stores locally; no single API call can report a new entrant.", "via": "mcp-command-mirror"},
-			{"name": "Release-vs-rank teardown", "command": "teardown", "description": "Align an app's release timeline against its rank history to see which shipped version moved the needle.", "rationale": "Joins the 400+ entry versions[] array from the app hub object against locally stored daily rank history; the two series exist in different places and no screen shows them together.", "via": "mcp-command-mirror"},
-			{"name": "Weekly watch digest", "command": "watch digest", "description": "Print every tracked app's current rank per chart plus its delta since the previous 'movers' run.", "rationale": "The API has no watchlist concept and no history; both the tracked set and the previous week exist only in the local store.", "via": "mcp-command-mirror"},
-			{"name": "Free-vs-grossing divergence", "command": "divergence", "description": "Find monetization outliers in a category by comparing each app's free-chart rank against its grossing-chart rank.", "rationale": "Requires joining the free and grossing charts returned by a single call on app_id, and expresses monetization using only exact ranks rather than the bucketed revenue figures.", "via": "mcp-command-mirror"},
-			{"name": "Cross-platform comparison", "command": "compare", "description": "Compare one product's iOS and Android standing side by side after resolving cross-platform identity.", "rationale": "Resolves identity through the cookie-gated unified endpoint, then joins both platforms' local rank ladders, release cadences, and rating histograms.", "via": "mcp-command-mirror"},
+			{"name": "Category movers and new entrants", "command": "movers", "description": "See which apps climbed, fell, or newly appeared in a category chart since the previous 'movers' run.", "rationale": "Requires set-differencing the current chart snapshot against a prior one that 'movers' itself stores locally", "via": "mcp-command-mirror"},
+			{"name": "Release-vs-rank teardown", "command": "teardown", "description": "Align an app's release timeline against its rank history to see which shipped version moved the needle.", "rationale": "Joins the 400+ entry versions[] array from the app hub object against locally stored daily rank history", "via": "mcp-command-mirror"},
+			{"name": "Weekly watch digest", "command": "watch digest", "description": "Print every tracked app's current rank per chart plus its delta since the previous 'movers' run.", "rationale": "The API has no watchlist concept and no history", "via": "mcp-command-mirror"},
+			{"name": "Free-vs-grossing divergence", "command": "divergence", "description": "Find monetization outliers in a category by comparing each app's free-chart rank against its grossing-chart rank.", "rationale": "Requires joining the free and grossing charts returned by a single call on app_id", "via": "mcp-command-mirror"},
+			{"name": "Cross-platform comparison", "command": "compare", "description": "Compare one product's iOS and Android standing side by side after resolving cross-platform identity.", "rationale": "Resolves identity through the cookie-gated unified endpoint, then joins both platforms' local rank ladders", "via": "mcp-command-mirror"},
 		},
 		"playbook": []map[string]string{
 			{"topic": "Category movers and new entrants", "insight": "Requires set-differencing the current chart snapshot against a prior one that 'movers' itself stores locally; no single API call can report a new entrant."},

@@ -351,6 +351,9 @@ func newDoctorCmd(flags *rootFlags) *cobra.Command {
 				}
 			}
 			// Print auth setup hints (indented under Auth line)
+			if docsURL, ok := report["auth_docs_url"]; ok {
+				fmt.Fprintf(w, "  See API docs: %v\n", docsURL)
+			}
 			// Cache section: render after the primary health block so it
 			// sits next to version info, mirroring the JSON report layout.
 			if cacheAny, ok := report["cache"]; ok {

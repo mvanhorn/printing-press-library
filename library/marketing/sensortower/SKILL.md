@@ -57,6 +57,7 @@ Do not use this CLI for:
 These capabilities aren't available in any other tool for this API.
 
 ### History the dashboard never kept
+
 - **`movers`** — See which apps climbed, fell, or newly appeared in a category chart since the previous 'movers' run.
 
   _Reach for this when the question is 'who is new or moving in this category', which the dashboard cannot answer because it keeps no history._
@@ -80,6 +81,7 @@ These capabilities aren't available in any other tool for this API.
   ```
 
 ### Exact ranks over fuzzy money
+
 - **`divergence`** — Find monetization outliers in a category by comparing each app's free-chart rank against its grossing-chart rank.
 
   _Reach for this to spot install-rich but monetization-poor apps (or the inverse) without trusting Sensor Tower's coarse revenue estimates._
@@ -89,6 +91,7 @@ These capabilities aren't available in any other tool for this API.
   ```
 
 ### Cross-platform
+
 - **`compare`** — Compare one product's iOS and Android standing side by side after resolving cross-platform identity.
 
   _Reach for this when asked which platform is winning for the same app; requires a session cookie via auth login --chrome._
@@ -154,6 +157,7 @@ sensortower-pp-cli which "<capability in your own words>"
 `which` resolves a natural-language capability query to the best matching command from this CLI's curated feature index. Exit code `0` means at least one match; exit code `2` means no confident match — fall back to `--help` or use a narrower query.
 
 ## Recipes
+
 
 ### Find an app, then read its exact ranks
 

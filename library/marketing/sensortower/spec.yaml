@@ -167,7 +167,7 @@ resources:
           - name: app_id_type
             flag_name: app-id-type
             type: string
-            required: true
+            required: false
             default: itunes
             enum: [itunes, android, unified]
             description: "Which ID namespace app-ids are expressed in"
@@ -375,7 +375,7 @@ resources:
           - name: publisher_id_type
             flag_name: publisher-id-type
             type: string
-            required: true
+            required: false
             default: itunes
             enum: [unified, android, itunes]
             description: "Which ID namespace publisher-ids are expressed in"

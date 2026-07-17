@@ -134,14 +134,18 @@ Most of this CLI needs no credentials at all: app lookups, catalog search, top c
 # Find an app's numeric ID by name; no credentials needed
 sensortower-pp-cli find twitch --os ios
 
+
 # Pull the full profile: exact ranks, version history, IAPs, rating breakdown
 sensortower-pp-cli apps get 460177396
+
 
 # First run stores a chart snapshot and establishes the baseline
 sensortower-pp-cli movers 6015 --country US
 
+
 # Run it again later: rank deltas and new entrants are now measured against that baseline
 sensortower-pp-cli movers 6015 --country US
+
 
 # Track an app so 'watch digest' can report it from stored snapshots
 sensortower-pp-cli watch add 460177396 --os ios
@@ -153,6 +157,7 @@ sensortower-pp-cli watch add 460177396 --os ios
 These capabilities aren't available in any other tool for this API.
 
 ### History the dashboard never kept
+
 - **`movers`** — See which apps climbed, fell, or newly appeared in a category chart since the previous 'movers' run.
 
   _Reach for this when the question is 'who is new or moving in this category', which the dashboard cannot answer because it keeps no history._
@@ -176,6 +181,7 @@ These capabilities aren't available in any other tool for this API.
   ```
 
 ### Exact ranks over fuzzy money
+
 - **`divergence`** — Find monetization outliers in a category by comparing each app's free-chart rank against its grossing-chart rank.
 
   _Reach for this to spot install-rich but monetization-poor apps (or the inverse) without trusting Sensor Tower's coarse revenue estimates._
@@ -185,6 +191,7 @@ These capabilities aren't available in any other tool for this API.
   ```
 
 ### Cross-platform
+
 - **`compare`** — Compare one product's iOS and Android standing side by side after resolving cross-platform identity.
 
   _Reach for this when asked which platform is winning for the same app; requires a session cookie via auth login --chrome._
@@ -194,6 +201,7 @@ These capabilities aren't available in any other tool for this API.
   ```
 
 ## Recipes
+
 
 ### Find an app, then read its exact ranks
 
@@ -427,11 +435,14 @@ Static request headers can be configured under `headers`; per-command header ove
 - Run the `list` command to see available items
 
 ### API-specific
+
 - **429 too many requests with an empty body** — The upstream ELB rate limits at roughly 12 requests per burst and needs about 240 seconds to recover; wait four minutes, then prefer the local mirror via 'search' or 'sql' instead of re-fetching
 - **401 'You need to sign in or sign up before continuing' on apps unified, publishers unified, or compare** — Run 'auth login --chrome' to import your Sensor Tower session cookie; every other command works without it
 - **movers reports no deltas or new entrants on a fresh install** — It diffs against a prior snapshot that 'movers' itself stores, so run 'sensortower-pp-cli movers <category>' once to establish a baseline, then again later to see movement. 'divergence' needs no baseline and works on the first run.
 - **Revenue and download figures look suspiciously round** — They are 1-significant-figure buckets from upstream, not precise values; use rank movement for decisions and treat the money as a soft signal
 - **422 with a list of valid values** — The API enumerates its own valid enums in the error body; run 'sensortower-pp-cli categories' for the authoritative iOS category IDs and Android slugs
+
+---
 
 ## Sources & Inspiration
 
