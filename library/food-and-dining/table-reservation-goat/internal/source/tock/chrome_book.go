@@ -638,6 +638,21 @@ const tockPinnedExperiencePathJS = `
 				}
 				return false;
 			}
+			function hasOtherExperiencePath(value) {
+				if (experienceID <= 0 || !value) return false;
+				let path = String(value);
+				try {
+					path = new URL(path, location.href).pathname;
+				} catch (_) {
+					path = path.split(/[?#]/, 1)[0];
+				}
+				const segments = path.split('/').filter(Boolean);
+				const pinnedID = String(experienceID);
+				for (let i = 0; i + 1 < segments.length; i++) {
+					if (segments[i] === 'experience' && /^\d+$/.test(segments[i + 1]) && segments[i + 1] !== pinnedID) return true;
+				}
+				return false;
+			}
 `
 
 type tockPinnedLegacyClickResult struct {
@@ -685,9 +700,27 @@ const tockPinnedExperienceEligibilityJS = tockPinnedExperiencePathJS + `
 				return Array.from(card.querySelectorAll('a[href]'))
 					.some((link) => hasPinnedExperiencePath(link.getAttribute('href') || ''));
 			}
+			function cardLinksOnlyOtherExperience(control) {
+				const card = cardFor(control);
+				const links = [control].concat(Array.from(card.querySelectorAll('a[href]')));
+				let sawOther = false;
+				for (const el of links) {
+					const href = el.getAttribute && (el.getAttribute('href') || '');
+					if (!href) continue;
+					if (hasPinnedExperiencePath(href)) return false;
+					if (hasOtherExperiencePath(href)) sawOther = true;
+				}
+				return sawOther;
+			}
 			function eligibleExperienceControls(controls) {
 				if (experienceID === 0) return controls;
-				if (hasPinnedExperiencePath(location.pathname)) return controls;
+				// On the pinned experience's own deep-link page the page's own
+				// controls carry no experience href, so they stay eligible —
+				// but cross-sell cards positively tied to a DIFFERENT
+				// experience must not win the sorter.
+				if (hasPinnedExperiencePath(location.pathname)) {
+					return controls.filter((control) => !cardLinksOnlyOtherExperience(control));
+				}
 				return controls.filter(controlOrCardHasPinnedExperienceLink);
 			}
 `

@@ -789,6 +789,10 @@ func TestTockPinnedExperienceEligibilityJS_BoundarySafe(t *testing.T) {
 		{name: "exact link in card", cardHrefs: []string{"/venue/experience/520126/reservation"}, pagePath: "/venue", want: true},
 		{name: "card-link ID prefix collision", cardHrefs: []string{"/venue/experience/5201264/reservation"}, pagePath: "/venue"},
 		{name: "exact deep-link page", pagePath: "/venue/experience/520126", want: true},
+		{name: "deep-link page cross-sell card for another experience", cardHrefs: []string{"/venue/experience/111111"}, pagePath: "/venue/experience/520126"},
+		{name: "deep-link page cross-sell control href for another experience", controlHref: "/venue/experience/111111/reservation", pagePath: "/venue/experience/520126"},
+		{name: "deep-link page card tied to both pinned and another", cardHrefs: []string{"/venue/experience/111111", "/venue/experience/520126"}, pagePath: "/venue/experience/520126", want: true},
+		{name: "deep-link page untied sibling card", cardHrefs: []string{"/venue/menu"}, pagePath: "/venue/experience/520126", want: true},
 		{name: "deep-link page ID prefix collision", pagePath: "/venue/experience/5201264"},
 		{name: "unrelated page path", pagePath: "/venue/some-experience/520126"},
 	}
