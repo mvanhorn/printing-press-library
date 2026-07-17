@@ -1,0 +1,287 @@
+{
+  "api_name": "motogp",
+  "novelty_score": 8,
+  "alternatives": [
+    {
+      "name": "racingmike_motogp_import",
+      "url": "https://github.com/micheleberardi/racingmike_motogp_import",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 8,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "MotoGP-API (robschmitt)",
+      "url": "https://github.com/robschmitt/MotoGP-API",
+      "language": "Markdown",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 20,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "MotoGP-API (ParsaD23)",
+      "url": "https://github.com/ParsaD23/MotoGP-API",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 4,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "MOTOGP-API (xNegis)",
+      "url": "https://github.com/xNegis/MOTOGP-API",
+      "language": "Java",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 3,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "motogp-zero",
+      "url": "https://github.com/ChrisUser/motogp-zero",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 2,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-07-17T10:42:11Z",
+  "novel_features": [
+    {
+      "name": "Name resolver",
+      "command": "results",
+      "description": "Query races by year, class name, event name, and session type instead of chained UUIDs.",
+      "rationale": "The API only accepts chained seasonUuid/eventUuid/categoryUuid/sessionId; only a local resolution cache turns human names into those UUIDs.",
+      "example": "motogp results 2024 assen motogp race --agent",
+      "why_it_matters": "Lets an agent answer 'who won the Dutch MotoGP race in 2024' in one call instead of four UUID lookups.",
+      "group": "Human-friendly access"
+    },
+    {
+      "name": "Title race progression",
+      "command": "title-race",
+      "description": "See how championship points evolved round-by-round across a season.",
+      "rationale": "Requires joining every round's classification locally; no single endpoint returns points-over-rounds.",
+      "example": "motogp title-race 2024 motogp --rounds 6 --agent",
+      "why_it_matters": "Answers 'when did the title get decided' without pulling every race by hand.",
+      "group": "Local analyses that compound"
+    },
+    {
+      "name": "Head-to-head",
+      "command": "h2h",
+      "description": "Compare two riders' career and season stats side by side.",
+      "rationale": "Aggregates career + per-season stats for both riders from the local store; no comparison endpoint exists.",
+      "example": "motogp h2h \"Marc Marquez\" \"Francesco Bagnaia\" --agent",
+      "why_it_matters": "One call to settle a rider-versus-rider debate with real numbers.",
+      "group": "Local analyses that compound"
+    },
+    {
+      "name": "Circuit history",
+      "command": "circuit-history",
+      "description": "List winners at a given circuit across every synced season.",
+      "rationale": "Requires a multi-season join across events and classifications that no endpoint provides.",
+      "example": "motogp circuit-history mugello motogp --seasons 3 --agent",
+      "why_it_matters": "Surfaces track specialists and streaks an agent can't get from one API call.",
+      "group": "Local analyses that compound"
+    },
+    {
+      "name": "Rider career timeline",
+      "command": "career",
+      "description": "Merge a rider's profile with career and season-by-season stats into one timeline.",
+      "rationale": "Combines profile + statistics endpoints and the local store into a single view.",
+      "example": "motogp career \"Marc Marquez\" --agent",
+      "why_it_matters": "Full career context in one command instead of stitching multiple endpoints.",
+      "group": "Human-friendly access"
+    },
+    {
+      "name": "Since (what did I miss)",
+      "command": "since",
+      "description": "Show finished events and winners for a season window.",
+      "rationale": "Time-windowed aggregation over finished events; no endpoint returns 'recent results'.",
+      "example": "motogp since 2026 --agent",
+      "why_it_matters": "Fast catch-up on results without paging the whole calendar.",
+      "group": "Human-friendly access"
+    },
+    {
+      "name": "Calendar ICS export",
+      "command": "calendar",
+      "description": "Export a season calendar to an ICS file from the local store.",
+      "rationale": "Generates ICS offline from synced events; no API endpoint emits calendar files for arbitrary seasons.",
+      "example": "motogp calendar 2026 --ics motogp-2026.ics",
+      "why_it_matters": "Drop the race calendar straight into any calendar app, offline.",
+      "group": "Local analyses that compound"
+    },
+    {
+      "name": "Live timing snapshot",
+      "command": "live",
+      "description": "Fetch the current live-timing feed as an agent-friendly JSON snapshot.",
+      "rationale": "Wraps the raw live-timing endpoint and reports a clean 'no active session' state instead of erroring when the feed is empty between sessions.",
+      "example": "motogp live --agent",
+      "why_it_matters": "Lets an agent poll race state during a session and get a defined empty result otherwise.",
+      "group": "Human-friendly access"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Name resolver",
+      "command": "results",
+      "description": "Query races by year, class name, event name, and session type instead of chained UUIDs.",
+      "rationale": "The API only accepts chained seasonUuid/eventUuid/categoryUuid/sessionId; only a local resolution cache turns human names into those UUIDs.",
+      "example": "motogp results 2024 assen motogp race --agent",
+      "why_it_matters": "Lets an agent answer 'who won the Dutch MotoGP race in 2024' in one call instead of four UUID lookups.",
+      "group": "Human-friendly access"
+    },
+    {
+      "name": "Title race progression",
+      "command": "title-race",
+      "description": "See how championship points evolved round-by-round across a season.",
+      "rationale": "Requires joining every round's classification locally; no single endpoint returns points-over-rounds.",
+      "example": "motogp title-race 2024 motogp --rounds 6 --agent",
+      "why_it_matters": "Answers 'when did the title get decided' without pulling every race by hand.",
+      "group": "Local analyses that compound"
+    },
+    {
+      "name": "Head-to-head",
+      "command": "h2h",
+      "description": "Compare two riders' career and season stats side by side.",
+      "rationale": "Aggregates career + per-season stats for both riders from the local store; no comparison endpoint exists.",
+      "example": "motogp h2h \"Marc Marquez\" \"Francesco Bagnaia\" --agent",
+      "why_it_matters": "One call to settle a rider-versus-rider debate with real numbers.",
+      "group": "Local analyses that compound"
+    },
+    {
+      "name": "Circuit history",
+      "command": "circuit-history",
+      "description": "List winners at a given circuit across every synced season.",
+      "rationale": "Requires a multi-season join across events and classifications that no endpoint provides.",
+      "example": "motogp circuit-history mugello motogp --seasons 3 --agent",
+      "why_it_matters": "Surfaces track specialists and streaks an agent can't get from one API call.",
+      "group": "Local analyses that compound"
+    },
+    {
+      "name": "Rider career timeline",
+      "command": "career",
+      "description": "Merge a rider's profile with career and season-by-season stats into one timeline.",
+      "rationale": "Combines profile + statistics endpoints and the local store into a single view.",
+      "example": "motogp career \"Marc Marquez\" --agent",
+      "why_it_matters": "Full career context in one command instead of stitching multiple endpoints.",
+      "group": "Human-friendly access"
+    },
+    {
+      "name": "Since (what did I miss)",
+      "command": "since",
+      "description": "Show finished events and winners for a season window.",
+      "rationale": "Time-windowed aggregation over finished events; no endpoint returns 'recent results'.",
+      "example": "motogp since 2026 --agent",
+      "why_it_matters": "Fast catch-up on results without paging the whole calendar.",
+      "group": "Human-friendly access"
+    },
+    {
+      "name": "Calendar ICS export",
+      "command": "calendar",
+      "description": "Export a season calendar to an ICS file from the local store.",
+      "rationale": "Generates ICS offline from synced events; no API endpoint emits calendar files for arbitrary seasons.",
+      "example": "motogp calendar 2026 --ics motogp-2026.ics",
+      "why_it_matters": "Drop the race calendar straight into any calendar app, offline.",
+      "group": "Local analyses that compound"
+    },
+    {
+      "name": "Live timing snapshot",
+      "command": "live",
+      "description": "Fetch the current live-timing feed as an agent-friendly JSON snapshot.",
+      "rationale": "Wraps the raw live-timing endpoint and reports a clean 'no active session' state instead of erroring when the feed is empty between sessions.",
+      "example": "motogp live --agent",
+      "why_it_matters": "Lets an agent poll race state during a session and get a defined empty result otherwise.",
+      "group": "Human-friendly access"
+    }
+  ],
+  "narrative": {
+    "display_name": "MotoGP",
+    "headline": "The first CLI and MCP server for MotoGP — human-friendly commands, offline SQLite history, and analyses no single endpoint provides.",
+    "value_prop": "Query MotoGP, Moto2, and Moto3 results, standings, riders, and calendars by name instead of chained UUIDs. Every command resolves year, class, event, and rider names against the live API, and layered analyses — round-by-round title races, rider head-to-heads, and circuit histories — answer questions the official API can't in one call.",
+    "quickstart": [
+      {
+        "command": "motogp seasons list --agent",
+        "comment": "See available seasons and their UUIDs"
+      },
+      {
+        "command": "motogp results 2024 qatar motogp race",
+        "comment": "Race classification resolved from human names, no UUIDs"
+      },
+      {
+        "command": "motogp title-race 2024 motogp --rounds 6 --agent",
+        "comment": "How the championship points evolved over the first rounds"
+      },
+      {
+        "command": "motogp calendar 2026",
+        "comment": "The season race calendar, or add --ics to export it"
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "A rider name is 'not found' or 'ambiguous'",
+        "fix": "Only current-season riders resolve by name; use full names to disambiguate brothers, or 'riders get \u003cuuid\u003e' / 'riders stats \u003clegacy-id\u003e' for retired riders."
+      },
+      {
+        "symptom": "'livetiming' returns nothing",
+        "fix": "The live-timing feed is only populated during an active session; expect empty output between sessions."
+      },
+      {
+        "symptom": "'title-race' or 'circuit-history' is slow",
+        "fix": "They replay many rounds live; bound them with --rounds N or --seasons N."
+      }
+    ],
+    "when_to_use": "Reach for this CLI whenever an agent needs MotoGP, Moto2, or Moto3 facts: race winners, championship standings, rider stats, season calendars, or head-to-head comparisons. It is the right choice over a raw API call because it resolves human names to UUIDs and answers cross-season questions the API cannot.",
+    "recipes": [
+      {
+        "title": "Who won a specific race",
+        "command": "motogp results 2024 mugello motogp race --agent",
+        "explanation": "Resolves year, circuit, class, and session to the classification without any UUIDs."
+      },
+      {
+        "title": "Narrow a nested result",
+        "command": "motogp results 2024 qatar motogp race --agent --select event,finishers",
+        "explanation": "Trim the response to just the fields an agent needs from a nested payload."
+      },
+      {
+        "title": "Rider head-to-head",
+        "command": "motogp h2h \"Marc Marquez\" \"Francesco Bagnaia\" --agent",
+        "explanation": "Career stats for both riders side by side in one structured payload."
+      },
+      {
+        "title": "Catch up on the season",
+        "command": "motogp since 2026 --agent",
+        "explanation": "Finished rounds so far this season; add --winners for race winners."
+      },
+      {
+        "title": "Export the calendar",
+        "command": "motogp calendar 2026 --ics motogp-2026.ics",
+        "explanation": "Write an ICS file of the season's Grand Prix rounds for any calendar app."
+      }
+    ],
+    "trigger_phrases": [
+      "who won the motogp race",
+      "motogp standings",
+      "motogp calendar",
+      "compare two motogp riders",
+      "check moto2 results",
+      "use motogp",
+      "run motogp"
+    ]
+  }
+}

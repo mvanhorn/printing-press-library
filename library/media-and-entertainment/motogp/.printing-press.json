@@ -1,0 +1,69 @@
+{
+  "schema_version": 2,
+  "generated_at": "2026-07-17T11:29:16.704591Z",
+  "printing_press_version": "4.29.0",
+  "api_name": "motogp",
+  "display_name": "MotoGP",
+  "cli_name": "motogp-pp-cli",
+  "creator": {
+    "handle": "waterpig0221",
+    "name": "waterpig"
+  },
+  "owner": "waterpig0221",
+  "printer": "waterpig0221",
+  "printer_name": "waterpig",
+  "spec_path": "motogp-spec.yaml",
+  "spec_format": "internal",
+  "spec_checksum": "sha256:98f8371b2993d54f16fb1c22c557d2ac976135acad3125f26456fdc1aeac3f04",
+  "run_id": "20260717-183806",
+  "category": "media-and-entertainment",
+  "description": "The first CLI and MCP server for MotoGP — human-friendly commands, offline SQLite history, and analyses no single endpoint provides.",
+  "mcp_binary": "motogp-pp-mcp",
+  "mcp_tool_count": 18,
+  "mcp_public_tool_count": 18,
+  "mcp_ready": "full",
+  "api_version": "0.1.0",
+  "auth_type": "none",
+  "novel_features": [
+    {
+      "name": "Name resolver",
+      "command": "results",
+      "description": "Query races by year, class name, event name, and session type instead of chained UUIDs."
+    },
+    {
+      "name": "Title race progression",
+      "command": "title-race",
+      "description": "See how championship points evolved round-by-round across a season."
+    },
+    {
+      "name": "Head-to-head",
+      "command": "h2h",
+      "description": "Compare two riders' career and season stats side by side."
+    },
+    {
+      "name": "Circuit history",
+      "command": "circuit-history",
+      "description": "List winners at a given circuit across every synced season."
+    },
+    {
+      "name": "Rider career timeline",
+      "command": "career",
+      "description": "Merge a rider's profile with career and season-by-season stats into one timeline."
+    },
+    {
+      "name": "Since (what did I miss)",
+      "command": "since",
+      "description": "Show finished events and winners for a season window."
+    },
+    {
+      "name": "Calendar ICS export",
+      "command": "calendar",
+      "description": "Export a season calendar to an ICS file from the local store."
+    },
+    {
+      "name": "Live timing snapshot",
+      "command": "live",
+      "description": "Fetch the current live-timing feed as an agent-friendly JSON snapshot."
+    }
+  ]
+}

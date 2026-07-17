@@ -1,0 +1,27 @@
+{
+  "manifest_version": "0.3",
+  "name": "motogp-pp-mcp",
+  "display_name": "MotoGP",
+  "version": "0.1.0",
+  "description": "The first CLI and MCP server for MotoGP — human-friendly commands, offline SQLite history, and analyses no single endpoint provides.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/motogp-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/motogp-pp-mcp",
+      "args": []
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

@@ -1,0 +1,471 @@
+name: motogp
+description: "MotoGP, Moto2 and Moto3 results, standings, riders and calendars from the official Dorna/Pulselive data API"
+version: "0.1.0"
+base_url: "https://api.motogp.pulselive.com/motogp/v1"
+health_check_path: "/results/seasons"
+
+auth:
+  type: none
+
+config:
+  format: toml
+  path: "~/.config/motogp-pp-cli/config.toml"
+
+learn:
+  stopwords:
+    - race
+    - grand
+    - prix
+    - motogp
+  synonyms:
+    "championship": "standings"
+    "grid positions": "grid"
+
+resources:
+  seasons:
+    description: "Championship seasons"
+    endpoints:
+      list:
+        method: GET
+        path: "/results/seasons"
+        description: "List all MotoGP seasons with year and current flag"
+        example: "  motogp-pp-cli seasons list --json"
+        response:
+          type: array
+          item: Season
+
+  events:
+    description: "Race events (rounds) within a season"
+    endpoints:
+      list:
+        method: GET
+        path: "/results/events"
+        description: "List events for a season (pass --season-uuid; see 'seasons list' for UUIDs)"
+        example: "  motogp-pp-cli events list --season-uuid dd12382e-1d9f-46ee-a5f7-c5104db28e43 --is-finished"
+        happy_args: "--season-uuid=dd12382e-1d9f-46ee-a5f7-c5104db28e43"
+        params:
+          - name: seasonUuid
+            type: string
+            required: true
+            description: "Season UUID (from 'seasons list')"
+          - name: isFinished
+            type: bool
+            required: false
+            description: "Only return finished events"
+        response:
+          type: array
+          item: Event
+
+  categories:
+    description: "Racing categories (MotoGP, Moto2, Moto3) for a season or event"
+    endpoints:
+      list:
+        method: GET
+        path: "/results/categories"
+        description: "List categories for a season (--season-uuid) or event (--event-uuid)"
+        example: "  motogp-pp-cli categories list --season-uuid dd12382e-1d9f-46ee-a5f7-c5104db28e43"
+        happy_args: "--season-uuid=dd12382e-1d9f-46ee-a5f7-c5104db28e43"
+        params:
+          - name: seasonUuid
+            type: string
+            required: false
+            description: "Season UUID"
+          - name: eventUuid
+            type: string
+            required: false
+            description: "Event UUID"
+        response:
+          type: array
+          item: Category
+
+  sessions:
+    description: "Practice, qualifying and race sessions"
+    endpoints:
+      list:
+        method: GET
+        path: "/results/sessions"
+        description: "List sessions for an event and category"
+        example: "  motogp-pp-cli sessions list --event-uuid 276ffee0-7040-49ca-a3a5-ab7b52685d3c --category-uuid e8c110ad-64aa-4e8e-8a86-f2f152f6a942"
+        happy_args: "--event-uuid=276ffee0-7040-49ca-a3a5-ab7b52685d3c;--category-uuid=e8c110ad-64aa-4e8e-8a86-f2f152f6a942"
+        params:
+          - name: eventUuid
+            type: string
+            required: true
+            description: "Event UUID"
+          - name: categoryUuid
+            type: string
+            required: true
+            description: "Category UUID"
+        response:
+          type: array
+          item: Session
+      get:
+        method: GET
+        path: "/results/sessions/{id}"
+        description: "Get a single session by ID"
+        happy_args: "<id>=5b0827b6-7faf-4a1b-a4c2-de630ba1941a"
+        params:
+          - name: id
+            type: string
+            required: true
+            positional: true
+            description: "Session ID"
+        response:
+          type: object
+          item: Session
+
+  classification:
+    description: "Session classification (finishing order, times, points)"
+    endpoints:
+      get:
+        method: GET
+        path: "/results/session/{id}/classification"
+        description: "Get the classification/results for a session"
+        example: "  motogp-pp-cli classification get 5b0827b6-7faf-4a1b-a4c2-de630ba1941a"
+        happy_args: "<id>=5b0827b6-7faf-4a1b-a4c2-de630ba1941a"
+        params:
+          - name: id
+            type: string
+            required: true
+            positional: true
+            description: "Session ID"
+          - name: seasonYear
+            type: int
+            required: false
+            description: "Season year hint"
+          - name: isTest
+            flag_name: is-test
+            type: bool
+            required: false
+            description: "Whether this is a test session"
+        response:
+          type: object
+          item: Classification
+
+  grid:
+    description: "Grid / qualifying positions for an event category"
+    endpoints:
+      get:
+        method: GET
+        path: "/results/event/{eventId}/category/{categoryId}/grid"
+        description: "Get grid positions and qualifying times"
+        example: "  motogp-pp-cli grid get 276ffee0-7040-49ca-a3a5-ab7b52685d3c e8c110ad-64aa-4e8e-8a86-f2f152f6a942"
+        happy_args: "<event-id>=276ffee0-7040-49ca-a3a5-ab7b52685d3c;<category-id>=e8c110ad-64aa-4e8e-8a86-f2f152f6a942"
+        params:
+          - name: eventId
+            flag_name: event-id
+            type: string
+            required: true
+            positional: true
+            description: "Event ID"
+          - name: categoryId
+            flag_name: category-id
+            type: string
+            required: true
+            positional: true
+            description: "Category ID"
+        response:
+          type: object
+          item: Grid
+
+  standings:
+    description: "Championship standings and points"
+    endpoints:
+      list:
+        method: GET
+        path: "/results/standings"
+        description: "Championship standings for a season and category"
+        example: "  motogp-pp-cli standings list --season-uuid dd12382e-1d9f-46ee-a5f7-c5104db28e43 --category-uuid e8c110ad-64aa-4e8e-8a86-f2f152f6a942"
+        happy_args: "--season-uuid=dd12382e-1d9f-46ee-a5f7-c5104db28e43;--category-uuid=e8c110ad-64aa-4e8e-8a86-f2f152f6a942"
+        params:
+          - name: seasonUuid
+            type: string
+            required: true
+            description: "Season UUID"
+          - name: categoryUuid
+            type: string
+            required: true
+            description: "Category UUID"
+        response:
+          type: object
+          item: Standings
+      files:
+        method: GET
+        path: "/results/standings/files"
+        description: "Official standings document (PDF) URLs"
+        happy_args: "--season-uuid=dd12382e-1d9f-46ee-a5f7-c5104db28e43;--category-uuid=e8c110ad-64aa-4e8e-8a86-f2f152f6a942"
+        params:
+          - name: seasonUuid
+            type: string
+            required: true
+            description: "Season UUID"
+          - name: categoryUuid
+            type: string
+            required: true
+            description: "Category UUID"
+        response:
+          type: object
+          item: StandingsFiles
+      bmwaward:
+        method: GET
+        path: "/results/standings/bmwaward"
+        description: "BMW Award (pole/qualifying) standings for a season"
+        happy_args: "--season-uuid=dd12382e-1d9f-46ee-a5f7-c5104db28e43"
+        params:
+          - name: seasonUuid
+            type: string
+            required: true
+            description: "Season UUID"
+        response:
+          type: object
+          item: Standings
+
+  broadcast-categories:
+    description: "Broadcast API: categories by season year"
+    endpoints:
+      list:
+        method: GET
+        path: "/categories"
+        description: "List broadcast categories for a season year"
+        example: "  motogp-pp-cli broadcast-categories list --season-year 2026"
+        happy_args: "--season-year=2026"
+        params:
+          - name: seasonYear
+            type: int
+            required: true
+            description: "Season year (e.g. 2026)"
+        response:
+          type: array
+          item: Category
+
+  broadcast-events:
+    description: "Broadcast API: events with schedules and circuits"
+    endpoints:
+      list:
+        method: GET
+        path: "/events"
+        description: "List broadcast events (schedules, circuits) for a season year"
+        example: "  motogp-pp-cli broadcast-events list --season-year 2026"
+        happy_args: "--season-year=2026"
+        params:
+          - name: seasonYear
+            type: int
+            required: true
+            description: "Season year (e.g. 2026)"
+        response:
+          type: array
+          item: BroadcastEvent
+      get:
+        method: GET
+        path: "/events/{id}"
+        description: "Get a single broadcast event by ID"
+        example: "  motogp-pp-cli broadcast-events get 10a432bf-2496-4b2b-9bfa-19a555d9eee4"
+        happy_args: "<id>=10a432bf-2496-4b2b-9bfa-19a555d9eee4"
+        params:
+          - name: id
+            type: string
+            required: true
+            positional: true
+            description: "Broadcast event ID"
+        response:
+          type: object
+          item: BroadcastEvent
+
+  riders:
+    description: "Rider profiles, career stats and statistics"
+    endpoints:
+      list:
+        method: GET
+        path: "/riders"
+        description: "List all riders across categories for the current season"
+        example: "  motogp-pp-cli riders list --json"
+        response:
+          type: array
+          item: Rider
+      get:
+        method: GET
+        path: "/riders/{id}"
+        description: "Get a single rider profile and career history"
+        example: "  motogp-pp-cli riders get 23e50438-a657-4fb0-a190-3262b5472f29"
+        happy_args: "<id>=23e50438-a657-4fb0-a190-3262b5472f29"
+        params:
+          - name: id
+            type: string
+            required: true
+            positional: true
+            description: "Rider UUID"
+        response:
+          type: object
+          item: Rider
+      stats:
+        method: GET
+        path: "/riders/{legacyId}/stats"
+        description: "Career statistics (wins, podiums, poles, etc.)"
+        example: "  motogp-pp-cli riders stats 7444"
+        happy_args: "<legacy-id>=7444"
+        params:
+          - name: legacyId
+            flag_name: legacy-id
+            type: string
+            required: true
+            positional: true
+            description: "Rider legacy ID (e.g. 7444 for Marc Marquez)"
+        response:
+          type: object
+          item: RiderStats
+      statistics:
+        method: GET
+        path: "/riders/{legacyId}/statistics"
+        description: "Season-by-season rider statistics"
+        example: "  motogp-pp-cli riders statistics 7444"
+        happy_args: "<legacy-id>=7444"
+        params:
+          - name: legacyId
+            flag_name: legacy-id
+            type: string
+            required: true
+            positional: true
+            description: "Rider legacy ID (e.g. 7444 for Marc Marquez)"
+        response:
+          type: object
+          item: RiderStatistics
+
+  teams:
+    description: "Teams and rosters"
+    endpoints:
+      list:
+        method: GET
+        path: "/teams"
+        description: "List teams with rosters for a category and season year (use broadcast category UUIDs from 'broadcast-categories list')"
+        example: "  motogp-pp-cli teams list --category-uuid 737ab122-76e1-4081-bedb-334caaa18c70 --season-year 2025"
+        happy_args: "--category-uuid=737ab122-76e1-4081-bedb-334caaa18c70;--season-year=2025"
+        params:
+          - name: categoryUuid
+            type: string
+            required: true
+            description: "Category UUID"
+          - name: seasonYear
+            type: int
+            required: true
+            description: "Season year"
+        response:
+          type: array
+          item: Team
+
+types:
+  Season:
+    fields:
+      - name: id
+        type: string
+      - name: year
+        type: int
+      - name: current
+        type: bool
+  Event:
+    fields:
+      - name: id
+        type: string
+      - name: name
+        type: string
+      - name: sponsored_name
+        type: string
+      - name: circuit
+        type: string
+      - name: country
+        type: string
+      - name: date_start
+        type: string
+      - name: date_end
+        type: string
+      - name: finished
+        type: bool
+  Category:
+    fields:
+      - name: id
+        type: string
+      - name: name
+        type: string
+      - name: legacy_id
+        type: int
+  Session:
+    fields:
+      - name: id
+        type: string
+      - name: type
+        type: string
+      - name: number
+        type: int
+      - name: condition
+        type: string
+      - name: status
+        type: string
+  Classification:
+    fields:
+      - name: session
+        type: string
+      - name: classification
+        type: string
+  Grid:
+    fields:
+      - name: id
+        type: string
+  Entry:
+    fields:
+      - name: id
+        type: string
+  Standings:
+    fields:
+      - name: classification
+        type: string
+  StandingsFiles:
+    fields:
+      - name: url
+        type: string
+  LiveTiming:
+    fields:
+      - name: head
+        type: string
+      - name: rider
+        type: string
+  BroadcastEvent:
+    fields:
+      - name: id
+        type: string
+      - name: name
+        type: string
+      - name: circuit
+        type: string
+      - name: date_start
+        type: string
+      - name: date_end
+        type: string
+  Rider:
+    fields:
+      - name: id
+        type: string
+      - name: legacy_id
+        type: int
+      - name: full_name
+        type: string
+      - name: country
+        type: string
+      - name: number
+        type: int
+  RiderStats:
+    fields:
+      - name: wins
+        type: int
+      - name: podiums
+        type: int
+      - name: poles
+        type: int
+  RiderStatistics:
+    fields:
+      - name: season
+        type: int
+  Team:
+    fields:
+      - name: id
+        type: string
+      - name: name
+        type: string

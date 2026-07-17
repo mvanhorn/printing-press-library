@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "api_name": "motogp",
+  "run_id": "20260717-183806",
+  "status": "pass",
+  "level": "full",
+  "matrix_size": 153,
+  "tests_passed": 153,
+  "tests_skipped": 72,
+  "auth_context": {
+    "type": "none"
+  }
+}

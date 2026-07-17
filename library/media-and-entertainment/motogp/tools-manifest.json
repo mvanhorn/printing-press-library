@@ -1,0 +1,348 @@
+{
+  "api_name": "motogp",
+  "base_url": "https://api.motogp.pulselive.com/motogp/v1",
+  "description": "The first CLI and MCP server for MotoGP — human-friendly commands, offline SQLite history, and analyses no single endpoint provides.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "none"
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "broadcast-categories_list",
+      "description": "List broadcast categories for a season year. Required: seasonYear. Returns array of Category.",
+      "method": "GET",
+      "path": "/categories",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "seasonYear",
+          "type": "int",
+          "location": "query",
+          "description": "Season year (e.g. 2026)",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "broadcast-events_get",
+      "description": "Get a single broadcast event by ID. Required: id. Returns the BroadcastEvent.",
+      "method": "GET",
+      "path": "/events/{id}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Broadcast event ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "broadcast-events_list",
+      "description": "List broadcast events (schedules, circuits) for a season year. Required: seasonYear. Returns array of BroadcastEvent.",
+      "method": "GET",
+      "path": "/events",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "seasonYear",
+          "type": "int",
+          "location": "query",
+          "description": "Season year (e.g. 2026)",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "categories_list",
+      "description": "List categories for a season (--season-uuid) or event (--event-uuid). Optional: seasonUuid, eventUuid. Returns array of Category.",
+      "method": "GET",
+      "path": "/results/categories",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "seasonUuid",
+          "type": "string",
+          "location": "query",
+          "description": "Season UUID"
+        },
+        {
+          "name": "eventUuid",
+          "type": "string",
+          "location": "query",
+          "description": "Event UUID"
+        }
+      ]
+    },
+    {
+      "name": "classification_get",
+      "description": "Get the classification/results for a session. Required: id. Optional: seasonYear, is-test. Returns the Classification.",
+      "method": "GET",
+      "path": "/results/session/{id}/classification",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Session ID",
+          "required": true
+        },
+        {
+          "name": "seasonYear",
+          "type": "int",
+          "location": "query",
+          "description": "Season year hint"
+        },
+        {
+          "name": "is-test",
+          "wire_name": "isTest",
+          "type": "bool",
+          "location": "query",
+          "description": "Whether this is a test session"
+        }
+      ]
+    },
+    {
+      "name": "events_list",
+      "description": "List events for a season (pass --season-uuid; see 'seasons list' for UUIDs). Required: seasonUuid. Optional: isFinished. Returns array of Event.",
+      "method": "GET",
+      "path": "/results/events",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "seasonUuid",
+          "type": "string",
+          "location": "query",
+          "description": "Season UUID (from 'seasons list')",
+          "required": true
+        },
+        {
+          "name": "isFinished",
+          "type": "bool",
+          "location": "query",
+          "description": "Only return finished events"
+        }
+      ]
+    },
+    {
+      "name": "grid_get",
+      "description": "Get grid positions and qualifying times. Required: event-id, category-id. Returns the Grid.",
+      "method": "GET",
+      "path": "/results/event/{eventId}/category/{categoryId}/grid",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "event-id",
+          "wire_name": "eventId",
+          "type": "string",
+          "location": "path",
+          "description": "Event ID",
+          "required": true
+        },
+        {
+          "name": "category-id",
+          "wire_name": "categoryId",
+          "type": "string",
+          "location": "path",
+          "description": "Category ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "riders_get",
+      "description": "Get a single rider profile and career history. Required: id. Returns the Rider.",
+      "method": "GET",
+      "path": "/riders/{id}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Rider UUID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "riders_list",
+      "description": "List all riders across categories for the current season. Returns array of Rider.",
+      "method": "GET",
+      "path": "/riders",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "riders_statistics",
+      "description": "Season-by-season rider statistics. Required: legacy-id. Returns the RiderStatistics.",
+      "method": "GET",
+      "path": "/riders/{legacyId}/statistics",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "legacy-id",
+          "wire_name": "legacyId",
+          "type": "string",
+          "location": "path",
+          "description": "Rider legacy ID (e.g. 7444 for Marc Marquez)",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "riders_stats",
+      "description": "Career statistics (wins, podiums, poles, etc.). Required: legacy-id. Returns the RiderStats.",
+      "method": "GET",
+      "path": "/riders/{legacyId}/stats",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "legacy-id",
+          "wire_name": "legacyId",
+          "type": "string",
+          "location": "path",
+          "description": "Rider legacy ID (e.g. 7444 for Marc Marquez)",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "seasons_list",
+      "description": "List all MotoGP seasons with year and current flag. Returns array of Season.",
+      "method": "GET",
+      "path": "/results/seasons",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "sessions_get",
+      "description": "Get a single session by ID. Required: id. Returns the Session.",
+      "method": "GET",
+      "path": "/results/sessions/{id}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Session ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "sessions_list",
+      "description": "List sessions for an event and category. Required: eventUuid, categoryUuid. Returns array of Session.",
+      "method": "GET",
+      "path": "/results/sessions",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "eventUuid",
+          "type": "string",
+          "location": "query",
+          "description": "Event UUID",
+          "required": true
+        },
+        {
+          "name": "categoryUuid",
+          "type": "string",
+          "location": "query",
+          "description": "Category UUID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "standings_bmwaward",
+      "description": "BMW Award (pole/qualifying) standings for a season. Required: seasonUuid. Returns the Standings.",
+      "method": "GET",
+      "path": "/results/standings/bmwaward",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "seasonUuid",
+          "type": "string",
+          "location": "query",
+          "description": "Season UUID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "standings_files",
+      "description": "Official standings document (PDF) URLs. Required: seasonUuid, categoryUuid. Returns the StandingsFiles.",
+      "method": "GET",
+      "path": "/results/standings/files",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "seasonUuid",
+          "type": "string",
+          "location": "query",
+          "description": "Season UUID",
+          "required": true
+        },
+        {
+          "name": "categoryUuid",
+          "type": "string",
+          "location": "query",
+          "description": "Category UUID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "standings_list",
+      "description": "Championship standings for a season and category. Required: seasonUuid, categoryUuid. Returns the Standings.",
+      "method": "GET",
+      "path": "/results/standings",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "seasonUuid",
+          "type": "string",
+          "location": "query",
+          "description": "Season UUID",
+          "required": true
+        },
+        {
+          "name": "categoryUuid",
+          "type": "string",
+          "location": "query",
+          "description": "Category UUID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "teams_list",
+      "description": "List teams with rosters for a category and season year (use broadcast category UUIDs from 'broadcast-categories list'). Required: categoryUuid, seasonYear. Returns array of Team.",
+      "method": "GET",
+      "path": "/teams",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "categoryUuid",
+          "type": "string",
+          "location": "query",
+          "description": "Category UUID",
+          "required": true
+        },
+        {
+          "name": "seasonYear",
+          "type": "int",
+          "location": "query",
+          "description": "Season year",
+          "required": true
+        }
+      ]
+    }
+  ]
+}

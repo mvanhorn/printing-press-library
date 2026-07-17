@@ -1,0 +1,9 @@
+{
+  "timestamp": "2026-07-17T11:28:11.999431Z",
+  "cli_dir": "\u003ccli-dir\u003e/motogp-pp-cli",
+  "findings": null,
+  "scorecard_before": {
+    "mcp_description_quality": 10,
+    "captured": "2026-07-17T11:20:52.762459Z"
+  }
+}
