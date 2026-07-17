@@ -1,0 +1,114 @@
+{
+  "api_name": "starterstory",
+  "base_url": "https://www.starterstory.com",
+  "description": "Every Starter Story case study, idea, and business indexed locally — rank founder stories by revenue, search 13k+ entries offline, and diff what's new, none of which the site itself can do.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "none"
+  },
+  "required_headers": [
+    {
+      "name": "User-Agent",
+      "value": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+    }
+  ],
+  "tools": [
+    {
+      "name": "breakdowns_get",
+      "description": "Fetch a breakdown page. Required: slug.",
+      "method": "GET",
+      "path": "/breakdowns/{slug}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "slug",
+          "type": "string",
+          "location": "path",
+          "description": "Breakdown slug from the URL path",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "businesses_get",
+      "description": "Fetch a business profile page. Required: slug.",
+      "method": "GET",
+      "path": "/businesses/{slug}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "slug",
+          "type": "string",
+          "location": "path",
+          "description": "Business slug from the URL path",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "data_list",
+      "description": "Fetch a curated /data/\u003ccategory\u003e list page and extract its linked detail items. Required: category.",
+      "method": "GET",
+      "path": "/data/{category}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "category",
+          "type": "string",
+          "location": "path",
+          "description": "Data category slug (e.g. micro-saas-ideas)",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "ideas_get",
+      "description": "Fetch a business idea page. Required: slug.",
+      "method": "GET",
+      "path": "/ideas/{slug}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "slug",
+          "type": "string",
+          "location": "path",
+          "description": "Idea slug from the URL path",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "stories_get",
+      "description": "Fetch a case study page (title, revenue, description, image, body). Required: slug.",
+      "method": "GET",
+      "path": "/stories/{slug}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "slug",
+          "type": "string",
+          "location": "path",
+          "description": "Story slug from the URL path",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "tools_get",
+      "description": "Fetch a tool page. Required: slug.",
+      "method": "GET",
+      "path": "/tools/{slug}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "slug",
+          "type": "string",
+          "location": "path",
+          "description": "Tool slug from the URL path",
+          "required": true
+        }
+      ]
+    }
+  ]
+}

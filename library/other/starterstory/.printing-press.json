@@ -1,0 +1,53 @@
+{
+  "schema_version": 2,
+  "generated_at": "2026-07-17T19:36:34.347683Z",
+  "printing_press_version": "4.29.0",
+  "api_name": "starterstory",
+  "display_name": "Starter Story",
+  "cli_name": "starterstory-pp-cli",
+  "creator": {
+    "handle": "waveriderai",
+    "name": "waveriderai"
+  },
+  "owner": "waveriderai",
+  "printer": "waveriderai",
+  "printer_name": "waveriderai",
+  "spec_format": "internal",
+  "spec_checksum": "sha256:86fd3077fc85084cdf079ba69022d836e0d402bef9936892037e06c83047c699",
+  "run_id": "20260717-105815-26a3a432",
+  "category": "other",
+  "description": "Every Starter Story case study, idea, and business indexed locally — rank founder stories by revenue, search 13k+ entries offline, and diff what's new, none of which the site itself can do.",
+  "mcp_binary": "starterstory-pp-mcp",
+  "mcp_tool_count": 6,
+  "mcp_public_tool_count": 6,
+  "mcp_ready": "full",
+  "api_version": "0.1.0",
+  "auth_type": "none",
+  "novel_features": [
+    {
+      "name": "Top revenue",
+      "command": "top-revenue",
+      "description": "Rank founder case studies by monthly revenue parsed from their titles."
+    },
+    {
+      "name": "What's new",
+      "command": "whats-new",
+      "description": "Diff the sitemap against your last sync to surface newly published stories, ideas, and businesses."
+    },
+    {
+      "name": "Filtered offline search",
+      "command": "hunt",
+      "description": "Full-text search the local index with section and minimum-revenue filters (hunt = filtered search)."
+    },
+    {
+      "name": "Idea grep",
+      "command": "grep",
+      "description": "Keyword-filter across all indexed idea and story slugs offline."
+    },
+    {
+      "name": "Corpus stats",
+      "command": "stats",
+      "description": "Counts by section plus the revenue distribution across the case-study corpus."
+    }
+  ]
+}

@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "api_name": "starterstory",
+  "run_id": "20260717-105815-26a3a432",
+  "status": "pass",
+  "level": "full",
+  "matrix_size": 88,
+  "tests_passed": 88,
+  "tests_skipped": 57,
+  "auth_context": {
+    "type": "none"
+  }
+}

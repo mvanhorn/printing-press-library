@@ -1,0 +1,47 @@
+{
+  "timestamp": "2026-07-17T19:57:24.892354Z",
+  "cli_dir": "\u003ccli-dir\u003e/starterstory",
+  "findings": [
+    {
+      "kind": "thin-short",
+      "command": "list",
+      "file": "teach.go",
+      "line": 692,
+      "evidence": "List recorded learnings",
+      "status": "accepted",
+      "note": "DO-NOT-EDIT generated learn-loop file (teach.go); 'List recorded learnings' accurately and briefly describes the standard 'learnings list' read. Generator-template retro candidate for a richer default, not a per-CLI hand-edit."
+    },
+    {
+      "kind": "thin-mcp-description",
+      "command": "breakdowns_get",
+      "file": "tools-manifest.json",
+      "line": 0,
+      "evidence": "Fetch a breakdown page. Required: slug."
+    },
+    {
+      "kind": "thin-mcp-description",
+      "command": "businesses_get",
+      "file": "tools-manifest.json",
+      "line": 0,
+      "evidence": "Fetch a business profile page. Required: slug."
+    },
+    {
+      "kind": "thin-mcp-description",
+      "command": "ideas_get",
+      "file": "tools-manifest.json",
+      "line": 0,
+      "evidence": "Fetch a business idea page. Required: slug."
+    },
+    {
+      "kind": "thin-mcp-description",
+      "command": "tools_get",
+      "file": "tools-manifest.json",
+      "line": 0,
+      "evidence": "Fetch a tool page. Required: slug."
+    }
+  ],
+  "scorecard_before": {
+    "mcp_description_quality": 0,
+    "captured": "2026-07-17T19:54:01.130446Z"
+  }
+}

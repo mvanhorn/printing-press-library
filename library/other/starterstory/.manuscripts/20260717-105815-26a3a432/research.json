@@ -1,0 +1,168 @@
+{
+  "api_name": "starterstory",
+  "novelty_score": 0,
+  "alternatives": [],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-07-17T00:00:00Z",
+  "novel_features": [
+    {
+      "name": "Top revenue",
+      "command": "top-revenue",
+      "description": "Rank founder case studies by monthly revenue parsed from their titles.",
+      "rationale": "StarterStory has no revenue sort; the ranking only exists once titles are parsed into the local index.",
+      "example": "starterstory-pp-cli top-revenue --limit 20 --agent",
+      "why_it_matters": "Pick this to find the highest-revenue proven case studies without scrolling the site.",
+      "group": "Local index that compounds"
+    },
+    {
+      "name": "What's new",
+      "command": "whats-new",
+      "description": "Diff the sitemap against your last sync to surface newly published stories, ideas, and businesses.",
+      "rationale": "Requires a prior local snapshot of the sitemap; the site offers no changelog.",
+      "example": "starterstory-pp-cli whats-new --agent",
+      "why_it_matters": "Track the StarterStory feed offline between syncs.",
+      "group": "Local index that compounds"
+    },
+    {
+      "name": "Filtered offline search",
+      "command": "hunt",
+      "description": "Full-text search the local index with section and minimum-revenue filters (hunt = filtered search).",
+      "rationale": "The on-site search cannot filter by section or revenue; the local FTS index can.",
+      "example": "starterstory-pp-cli hunt saas --section stories --min-revenue 20000 --agent",
+      "why_it_matters": "Reach for this instead of the weak on-site search when you need filtered, structured results.",
+      "group": "Local index that compounds"
+    },
+    {
+      "name": "Idea grep",
+      "command": "grep",
+      "description": "Keyword-filter across all indexed idea and story slugs offline.",
+      "rationale": "Scans 5,950 idea slugs locally with regex, which the site cannot do.",
+      "example": "starterstory-pp-cli grep newsletter --agent",
+      "why_it_matters": "Fast local keyword scan across the whole idea corpus.",
+      "group": "Local index that compounds"
+    },
+    {
+      "name": "Corpus stats",
+      "command": "stats",
+      "description": "Counts by section plus the revenue distribution across the case-study corpus.",
+      "rationale": "Aggregates the full local index, which requires having synced it first.",
+      "example": "starterstory-pp-cli stats --agent",
+      "why_it_matters": "Understand the shape of the StarterStory corpus at a glance.",
+      "group": "Local index that compounds"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Top revenue",
+      "command": "top-revenue",
+      "description": "Rank founder case studies by monthly revenue parsed from their titles.",
+      "rationale": "StarterStory has no revenue sort; the ranking only exists once titles are parsed into the local index.",
+      "example": "starterstory-pp-cli top-revenue --limit 20 --agent",
+      "why_it_matters": "Pick this to find the highest-revenue proven case studies without scrolling the site.",
+      "group": "Local index that compounds"
+    },
+    {
+      "name": "What's new",
+      "command": "whats-new",
+      "description": "Diff the sitemap against your last sync to surface newly published stories, ideas, and businesses.",
+      "rationale": "Requires a prior local snapshot of the sitemap; the site offers no changelog.",
+      "example": "starterstory-pp-cli whats-new --agent",
+      "why_it_matters": "Track the StarterStory feed offline between syncs.",
+      "group": "Local index that compounds"
+    },
+    {
+      "name": "Filtered offline search",
+      "command": "hunt",
+      "description": "Full-text search the local index with section and minimum-revenue filters (hunt = filtered search).",
+      "rationale": "The on-site search cannot filter by section or revenue; the local FTS index can.",
+      "example": "starterstory-pp-cli hunt saas --section stories --min-revenue 20000 --agent",
+      "why_it_matters": "Reach for this instead of the weak on-site search when you need filtered, structured results.",
+      "group": "Local index that compounds"
+    },
+    {
+      "name": "Idea grep",
+      "command": "grep",
+      "description": "Keyword-filter across all indexed idea and story slugs offline.",
+      "rationale": "Scans 5,950 idea slugs locally with regex, which the site cannot do.",
+      "example": "starterstory-pp-cli grep newsletter --agent",
+      "why_it_matters": "Fast local keyword scan across the whole idea corpus.",
+      "group": "Local index that compounds"
+    },
+    {
+      "name": "Corpus stats",
+      "command": "stats",
+      "description": "Counts by section plus the revenue distribution across the case-study corpus.",
+      "rationale": "Aggregates the full local index, which requires having synced it first.",
+      "example": "starterstory-pp-cli stats --agent",
+      "why_it_matters": "Understand the shape of the StarterStory corpus at a glance.",
+      "group": "Local index that compounds"
+    }
+  ],
+  "auth": {},
+  "narrative": {
+    "display_name": "Starter Story",
+    "headline": "Every Starter Story case study, idea, and business indexed locally — rank founder stories by revenue, search 13k+ entries offline, and diff what's new, none of which the site itself can do.",
+    "value_prop": "Starter Story has no API and weak on-site filtering. This CLI builds a local SQLite index from the full sitemap so you can rank case studies by monthly revenue (top-revenue), search with section and revenue filters offline (search), and see what's new since your last sync (whats-new).",
+    "quickstart": [
+      {
+        "command": "starterstory-pp-cli doctor --dry-run",
+        "comment": "confirm the site is reachable before syncing"
+      },
+      {
+        "command": "starterstory-pp-cli index",
+        "comment": "build the local index from the sitemap (all sections)"
+      },
+      {
+        "command": "starterstory-pp-cli top-revenue --limit 20",
+        "comment": "the headline: highest-revenue case studies"
+      },
+      {
+        "command": "starterstory-pp-cli hunt saas --section stories --min-revenue 20000",
+        "comment": "filtered offline search"
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "search or top-revenue returns nothing",
+        "fix": "run 'starterstory-pp-cli index' first to build the local index"
+      },
+      {
+        "symptom": "a story has no revenue in top-revenue",
+        "fix": "revenue is parsed heuristically from the title; stories without a $/month title are ranked last"
+      }
+    ],
+    "when_to_use": "Use this CLI to research proven, revenue-backed business ideas and founder case studies from Starter Story. It is best for ranking and filtering the corpus offline and for tracking new entries over time.",
+    "anti_triggers": [
+      "Do not use this CLI for premium/paywalled Starter Story playbook content — only public story, idea, and business pages are supported.",
+      "Do not use it for live analytics on your own business."
+    ],
+    "recipes": [
+      {
+        "title": "Highest-revenue SaaS case studies",
+        "command": "starterstory-pp-cli hunt saas --section stories --min-revenue 50000 --agent --select slug,title,revenue",
+        "explanation": "Filter the local index to SaaS stories over $50K/month and return only the key fields."
+      },
+      {
+        "title": "Read one case study",
+        "command": "starterstory-pp-cli stories i-turned-my-hobby-into-120k-month-apps --json",
+        "explanation": "Fetch and extract a single case-study page."
+      },
+      {
+        "title": "Browse a curated idea list",
+        "command": "starterstory-pp-cli data micro-saas-ideas --json",
+        "explanation": "Extract the linked items from a /data category page."
+      }
+    ],
+    "trigger_phrases": [
+      "find starter story case studies",
+      "highest revenue starter story",
+      "search starter story for",
+      "what's new on starter story",
+      "business ideas from starter story",
+      "use starterstory",
+      "run starterstory"
+    ]
+  }
+}

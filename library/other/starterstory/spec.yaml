@@ -1,0 +1,143 @@
+name: starterstory
+cli_description: "Every Starter Story case study, idea, and business indexed locally — rank founder stories by revenue, search 13k+ entries offline, and diff what's new, none of which the site itself can do."
+description: "Read Starter Story founder case studies, business ideas, and breakdowns from the terminal via HTML extraction, with a local SQLite index over the full sitemap for offline search, revenue ranking, and new-since-sync diffs."
+version: "0.1.0"
+base_url: "https://www.starterstory.com"
+health_check_path: "/data"
+category: other
+http_transport: standard
+
+required_headers:
+  - name: User-Agent
+    value: "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+
+auth:
+  type: none
+
+config:
+  format: toml
+  path: "~/.config/starterstory-pp-cli/config.toml"
+
+learn:
+  synonyms:
+    "case study": "story"
+    "revenue": "mrr"
+    "founder": "maker"
+  stopwords:
+    - starter
+    - story
+# learn no-entities escape: entities are 13k+ open-ended URL slugs, not a finite aliasable set; exact-recall + playbooks still ship.
+
+resources:
+  stories:
+    description: "Founder case studies (revenue baked into the page title)"
+    endpoints:
+      get:
+        method: GET
+        path: "/stories/{slug}"
+        no_auth: true
+        description: "Fetch a case study page (title, revenue, description, image, body)"
+        example: "  starterstory-pp-cli stories i-turned-my-hobby-into-120k-month-apps --json"
+        params:
+          - name: slug
+            type: string
+            required: true
+            positional: true
+            description: "Story slug from the URL path"
+        response_format: html
+        html_extract:
+          mode: page
+  ideas:
+    description: "Business idea pages"
+    endpoints:
+      get:
+        method: GET
+        path: "/ideas/{slug}"
+        no_auth: true
+        description: "Fetch a business idea page"
+        example: "  starterstory-pp-cli ideas soap-business --json"
+        params:
+          - name: slug
+            type: string
+            required: true
+            positional: true
+            description: "Idea slug from the URL path"
+        response_format: html
+        html_extract:
+          mode: page
+  businesses:
+    description: "Real business profiles"
+    endpoints:
+      get:
+        method: GET
+        path: "/businesses/{slug}"
+        no_auth: true
+        description: "Fetch a business profile page"
+        example: "  starterstory-pp-cli businesses shipfast --json"
+        params:
+          - name: slug
+            type: string
+            required: true
+            positional: true
+            description: "Business slug from the URL path"
+        response_format: html
+        html_extract:
+          mode: page
+  breakdowns:
+    description: "Business / marketing breakdowns"
+    endpoints:
+      get:
+        method: GET
+        path: "/breakdowns/{slug}"
+        no_auth: true
+        description: "Fetch a breakdown page"
+        example: "  starterstory-pp-cli breakdowns zenmaid-breakdown --json"
+        params:
+          - name: slug
+            type: string
+            required: true
+            positional: true
+            description: "Breakdown slug from the URL path"
+        response_format: html
+        html_extract:
+          mode: page
+  tools:
+    description: "Tool pages"
+    endpoints:
+      get:
+        method: GET
+        path: "/tools/{slug}"
+        no_auth: true
+        description: "Fetch a tool page"
+        example: "  starterstory-pp-cli tools zapier-agency --json"
+        params:
+          - name: slug
+            type: string
+            required: true
+            positional: true
+            description: "Tool slug from the URL path"
+        response_format: html
+        html_extract:
+          mode: page
+  data:
+    description: "Curated idea-list pages (e.g. micro-saas-ideas, gpt-wrapper-ideas)"
+    endpoints:
+      list:
+        method: GET
+        path: "/data/{category}"
+        no_auth: true
+        description: "Fetch a curated /data/<category> list page and extract its linked detail items"
+        example: "  starterstory-pp-cli data micro-saas-ideas --json"
+        params:
+          - name: category
+            type: string
+            required: true
+            positional: true
+            description: "Data category slug (e.g. micro-saas-ideas)"
+        response_format: html
+        html_extract:
+          mode: links
+          link_prefixes:
+            - /ideas
+            - /businesses
+            - /stories

@@ -1,0 +1,27 @@
+{
+  "manifest_version": "0.3",
+  "name": "starterstory-pp-mcp",
+  "display_name": "Starter Story",
+  "version": "0.1.0",
+  "description": "Every Starter Story case study, idea, and business indexed locally — rank founder stories by revenue, search 13k+ entries offline, and diff what's new, none of which the site itself can do.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/starterstory-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/starterstory-pp-mcp",
+      "args": []
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

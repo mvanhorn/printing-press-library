@@ -1,0 +1,51 @@
+version: 2
+project_name: starterstory-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: starterstory-pp-cli
+    main: ./cmd/starterstory-pp-cli
+    binary: starterstory-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X github.com/mvanhorn/printing-press-library/library/other/starterstory/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: starterstory-pp-mcp
+    main: ./cmd/starterstory-pp-mcp
+    binary: starterstory-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X main.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: starterstory-pp-cli
+    repository:
+      owner: waveriderai
+      name: homebrew-tap
+    homepage: "https://github.com/mvanhorn/printing-press-library"
+    description: "Every Starter Story case study, idea, and business indexed locally — rank founder stories by revenue, search 13k+ entries offline, and diff what's new, none of which the site itself can do."
+    install: |
+      bin.install "starterstory-pp-cli"
+      bin.install "starterstory-pp-mcp"

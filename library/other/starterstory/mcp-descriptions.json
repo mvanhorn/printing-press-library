@@ -1,0 +1,8 @@
+{
+  "descriptions": {
+    "breakdowns_get": "Fetch a Starter Story business/marketing breakdown page by its URL slug (from the /breakdowns/<slug> path, e.g. 'zenmaid-breakdown'). Required: slug. Returns the page's extracted title, description, image URL, and canonical URL. Use when you already have a breakdown slug; discover slugs first with hunt, grep, or whats-new against the local index.",
+    "businesses_get": "Fetch a Starter Story real-business profile page by its URL slug (from the /businesses/<slug> path, e.g. 'shipfast'). Required: slug. Returns the extracted title, description, image URL, and canonical URL. Prefer this for company profiles; use stories_get for founder case studies and breakdowns_get for teardown write-ups.",
+    "ideas_get": "Fetch a Starter Story business-idea page by its URL slug (from the /ideas/<slug> path, e.g. 'soap-business'). Required: slug. Returns the extracted title, description, image URL, and canonical URL. Use for a single idea page; browse or filter the idea corpus first with grep/hunt, or list a category with data_list.",
+    "tools_get": "Fetch a Starter Story tool page by its URL slug (from the /tools/<slug> path, e.g. 'zapier-agency'). Required: slug. Returns the extracted title, description, image URL, and canonical URL. Use when you already have a tool slug from the local index or a data_list result."
+  }
+}
