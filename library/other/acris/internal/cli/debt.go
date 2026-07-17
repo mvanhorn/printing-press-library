@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"sort"
 	"strconv"
+	"strings"
 
 	"github.com/mvanhorn/printing-press-library/library/other/acris/internal/cliutil"
 
@@ -79,15 +80,17 @@ func newNovelDebtCmd(flags *rootFlags) *cobra.Command {
 				maxDocs = 25
 			}
 
+			legalsLimit := maxDocs * 8
 			legals, err := fetchACRISRows(ctx, c, acrisLegalsPath, map[string]string{
 				"borough": flagBorough,
 				"block":   flagBlock,
 				"lot":     flagLot,
-				"$limit":  strconv.Itoa(maxDocs * 8),
+				"$limit":  strconv.Itoa(legalsLimit),
 			})
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}
+			legalsCapped := legalsLimit > 0 && len(legals) >= legalsLimit
 
 			view := debtView{
 				BBL:                   flagBorough + "-" + flagBlock + "-" + flagLot,
@@ -118,11 +121,7 @@ func newNovelDebtCmd(flags *rootFlags) *cobra.Command {
 			})
 			view.MortgageCount = len(view.Documents)
 			view.TotalRecordedMortgage = strconv.FormatInt(total, 10)
-			if view.MortgageCount == 0 {
-				view.Note = "no mortgage or debt-instrument recordings found for this BBL"
-			} else if documentsCapped {
-				view.Note = fmt.Sprintf("results capped at %d documents; increase --max-documents to see more", maxDocs)
-			}
+			view.Note = debtResultNote(view.MortgageCount, documentsCapped, legalsCapped, maxDocs, legalsLimit)
 
 			return emitDebtView(cmd, flags, view)
 		},
@@ -173,6 +172,19 @@ func collectDebtDocuments(ids []string, masters map[string]map[string]any, maxDo
 		})
 	}
 	return documents, total, capped
+}
+
+func debtResultNote(mortgageCount int, documentsCapped, legalsCapped bool, maxDocs, legalsLimit int) string {
+	notes := make([]string, 0, 2)
+	if mortgageCount == 0 {
+		notes = append(notes, "no mortgage or debt-instrument recordings found for this BBL")
+	} else if documentsCapped {
+		notes = append(notes, fmt.Sprintf("results capped at %d documents; increase --max-documents to see more", maxDocs))
+	}
+	if legalsCapped {
+		notes = append(notes, fmt.Sprintf("source query reached its %d-row legal-record limit; total_recorded_mortgage may be incomplete; increase --max-documents to inspect a wider source window", legalsLimit))
+	}
+	return strings.Join(notes, "; ")
 }
 
 func emitDebtView(cmd *cobra.Command, flags *rootFlags, view debtView) error {

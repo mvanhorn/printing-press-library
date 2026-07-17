@@ -1,0 +1,11 @@
+{
+  "schema_version": 2,
+  "id": "acris-debt-source-cap-warning",
+  "applied_at": "2026-07-16",
+  "base_run_id": "20260627-172432-3fcb7c76",
+  "base_printing_press_version": "4.27.0",
+  "summary": "debt warns when its bounded Legals source query reaches the row ceiling because total_recorded_mortgage may then be incomplete.",
+  "reason": "A full Socrata page does not prove the BBL has no additional legal rows; without an explicit warning, a source-truncated mortgage total looked authoritative.",
+  "files": ["internal/cli/debt.go", "internal/cli/debt_test.go"],
+  "validated_outcome": "The result note reports both the displayed-document cap and the source-row ceiling, including that the aggregate may be incomplete."
+}

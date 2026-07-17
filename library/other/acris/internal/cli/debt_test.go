@@ -61,3 +61,16 @@ func TestCollectDebtDocumentsTotalsBeyondDisplayCap(t *testing.T) {
 		t.Fatal("capped = false, want true")
 	}
 }
+
+func TestDebtResultNoteWarnsWhenSourceRowsAreCapped(t *testing.T) {
+	note := debtResultNote(100, true, true, 100, 800)
+	for _, want := range []string{
+		"results capped at 100 documents",
+		"source query reached its 800-row legal-record limit",
+		"total_recorded_mortgage may be incomplete",
+	} {
+		if !strings.Contains(note, want) {
+			t.Errorf("debtResultNote() missing %q in %q", want, note)
+		}
+	}
+}
