@@ -869,11 +869,20 @@ func clickComboboxExperienceLayoutJS(displayTime, isoDate string, partySize, exp
 				// No modal appeared: legacy layout with a separate submit control.
 				const submitCandidates = all('button').filter((el) => el !== controls[0].control);
 				// A sibling card's "Book now" is only a valid legacy submit when it
-				// satisfies the same pinned-experience eligibility as the card pick;
-				// real form submits (type=submit) stay ungated.
+				// satisfies the same pinned-experience eligibility as the card pick.
+				// A type=submit control is only valid when it is scoped to the
+				// selected card's form/container or itself passes that eligibility
+				// check — a page-wide submit can belong to a different
+				// experience's form and would book by time alone.
+				const selectedForm = controls[0].control.form || controls[0].control.closest('form');
+				const selectedCard = cardFor(controls[0].control);
+				const scopedToSelection = (el) =>
+					(selectedForm !== null && (el.form || el.closest('form')) === selectedForm) ||
+					(selectedCard !== controls[0].control && selectedCard.contains(el));
 				const submit = eligibleExperienceControls(
 					submitCandidates.filter((el) => /book now/i.test(clean(el.textContent || el.getAttribute('aria-label')))))
-					.concat(submitCandidates.filter((el) => el.type === 'submit'))
+					.concat(submitCandidates.filter((el) =>
+						el.type === 'submit' && (scopedToSelection(el) || eligibleExperienceControls([el]).length > 0)))
 					.sort((a, b) => a.getBoundingClientRect().top - b.getBoundingClientRect().top)[0];
 				if (submit) {
 					click(submit);

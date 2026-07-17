@@ -846,8 +846,8 @@ func TestTockPinnedExperienceEligibilityJS_UnpinnedIsNoOp(t *testing.T) {
 	}
 
 	generated := clickComboboxExperienceLayoutJS("6:15 PM", "2026-07-10", 8, 0)
-	if got := strings.Count(generated, "eligibleExperienceControls("); got != 3 {
-		t.Fatalf("eligibility gate definition/call count = %d, want 3 (definition + card pick + legacy submit)", got)
+	if got := strings.Count(generated, "eligibleExperienceControls("); got != 4 {
+		t.Fatalf("eligibility gate definition/call count = %d, want 4 (definition + card pick + legacy Book now submit + type=submit gate)", got)
 	}
 }
 
@@ -1123,6 +1123,53 @@ func TestDismissPostConfirmDialog_NeverClicksAgreeOnlyControl(t *testing.T) {
 		}
 		if control != "" {
 			t.Fatalf("unexpected clicked control %q", control)
+		}
+	})
+}
+
+// A type=submit fallback must not book another experience's form: when the
+// wrong experience's submit is top-most on the page, a pinned request must
+// still submit only within the selected card's scope.
+func TestClickComboboxExperienceLayout_PinnedSubmitFallbackScopedToSelectedCard(t *testing.T) {
+	const experienceID = 520126
+	html := `
+		<!doctype html>
+		<label for="time">Time</label>
+		<select id="time" aria-label="Time">
+			<option value="18:15">6:15 PM</option>
+		</select>
+		<section class="experience-card" id="other-card">
+			<h2>Patio Tasting</h2>
+			<form id="other-form">
+				<button type="submit" onclick="window.submittedForm = 'other'; return false;">Reserve</button>
+			</form>
+		</section>
+		<section class="experience-card" id="pinned-card">
+			<h2>Chef Counter</h2>
+			<a href="/experience/520126">details</a>
+			<a href="#" onclick="window.clickedExperience = 'pinned'; return false;">Book now</a>
+			<form id="pinned-form">
+				<button type="submit" onclick="window.submittedForm = 'pinned'; return false;">Reserve</button>
+			</form>
+		</section>`
+	withTockDOMFixture(t, html, func(ctx context.Context) {
+		if err := chromedp.Run(ctx, chromedp.ActionFunc(func(actCtx context.Context) error {
+			return clickComboboxExperienceLayout(actCtx, "6:15 PM", "2026-07-10", 2, experienceID)
+		})); err != nil {
+			t.Fatalf("clickComboboxExperienceLayout: %v", err)
+		}
+		var clicked, submitted string
+		if err := chromedp.Run(ctx,
+			chromedp.Evaluate(`window.clickedExperience || ''`, &clicked),
+			chromedp.Evaluate(`window.submittedForm || ''`, &submitted),
+		); err != nil {
+			t.Fatalf("read fixture state: %v", err)
+		}
+		if clicked != "pinned" {
+			t.Fatalf("clicked experience = %q, want pinned", clicked)
+		}
+		if submitted != "pinned" {
+			t.Fatalf("submitted form = %q, want pinned (the top-most foreign submit must not be clicked)", submitted)
 		}
 	})
 }
