@@ -27,6 +27,9 @@ func newNovelResultsCmd(flags *rootFlags) *cobra.Command {
 			if dryRunOK(flags) {
 				return nil
 			}
+			if err := guardNovelDataSource(flags); err != nil {
+				return err
+			}
 			if len(args) < 2 {
 				return usageErr(fmt.Errorf("need <year> and <event>, e.g. results 2024 qatar motogp race"))
 			}

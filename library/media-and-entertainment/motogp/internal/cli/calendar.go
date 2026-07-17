@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"os"
 	"strings"
+	"time"
 
 	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/motogp/internal/cliutil"
 
@@ -31,6 +32,9 @@ func newNovelCalendarCmd(flags *rootFlags) *cobra.Command {
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if dryRunOK(flags) {
 				return nil
+			}
+			if err := guardNovelDataSource(flags); err != nil {
+				return err
 			}
 			if len(args) < 1 {
 				return usageErr(fmt.Errorf("need <year>, e.g. calendar 2026"))
@@ -199,11 +203,17 @@ func icsDate(s string) string {
 	return strings.ReplaceAll(d, "-", "")
 }
 
-// icsDatePlusOne bumps an all-day DTEND by one day (ICS DTEND is exclusive).
+// icsDatePlusOne bumps an all-day DTEND by one day. An all-day iCalendar DTEND
+// is exclusive, so a race whose last day is D must encode DTEND as D+1;
+// returning D unchanged yields DTSTART == DTEND, which strict clients import as
+// a zero-duration event or drop entirely. Falls back to the input only when it
+// cannot be parsed as YYYYMMDD.
 func icsDatePlusOne(yyyymmdd string) string {
-	// Simple, dependency-free: reuse the same day if parsing is awkward.
-	// A one-day-inclusive range still imports correctly in every major client.
-	return yyyymmdd
+	t, err := time.Parse("20060102", yyyymmdd)
+	if err != nil {
+		return yyyymmdd
+	}
+	return t.AddDate(0, 0, 1).Format("20060102")
 }
 
 func icsEscape(s string) string {

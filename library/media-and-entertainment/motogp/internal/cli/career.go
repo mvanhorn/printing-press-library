@@ -26,6 +26,9 @@ func newNovelCareerCmd(flags *rootFlags) *cobra.Command {
 			if dryRunOK(flags) {
 				return nil
 			}
+			if err := guardNovelDataSource(flags); err != nil {
+				return err
+			}
 			if len(args) < 1 {
 				return usageErr(fmt.Errorf("need a rider name, e.g. career \"Marc Marquez\""))
 			}

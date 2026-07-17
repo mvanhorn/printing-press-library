@@ -5,11 +5,14 @@ package cli
 
 import (
 	"bytes"
+	"context"
 	"fmt"
+	"net"
 	"net/http"
 	"os"
 	"path/filepath"
 	"strings"
+	"syscall"
 	"time"
 )
 
@@ -56,15 +59,16 @@ func ParseDeliverSink(spec string) (DeliverSink, error) {
 
 // Deliver routes a captured output buffer to the configured sink. stdout
 // is a no-op because the buffer has already been streamed to stdout via
-// the MultiWriter set up in root.go.
-func Deliver(sink DeliverSink, body []byte, compact bool) error {
+// the MultiWriter set up in root.go. ctx carries the command/MCP-call
+// cancellation so a slow webhook stops when the invocation is cancelled.
+func Deliver(ctx context.Context, sink DeliverSink, body []byte, compact bool) error {
 	switch sink.Scheme {
 	case "", "stdout":
 		return nil
 	case "file":
 		return deliverFile(sink.Target, body)
 	case "webhook":
-		return deliverWebhook(sink.Target, body, compact)
+		return deliverWebhook(ctx, sink.Target, body, compact)
 	default:
 		return fmt.Errorf("unsupported deliver sink %q", sink.Scheme)
 	}
@@ -89,20 +93,25 @@ func deliverFile(path string, body []byte) error {
 	return nil
 }
 
-func deliverWebhook(url string, body []byte, compact bool) error {
+func deliverWebhook(ctx context.Context, url string, body []byte, compact bool) error {
 	contentType := "application/json"
 	if compact {
 		contentType = "application/x-ndjson"
 	}
-	req, err := http.NewRequest(http.MethodPost, url, bytes.NewReader(body))
+	if ctx == nil {
+		ctx = context.Background()
+	}
+	// Bind the request to the command/MCP-call context so cancelling the
+	// invocation aborts a slow webhook immediately instead of blocking on
+	// the client timeout.
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost, url, bytes.NewReader(body))
 	if err != nil {
 		return fmt.Errorf("building webhook request: %w", err)
 	}
 	req.Header.Set("Content-Type", contentType)
 	req.Header.Set("User-Agent", "motogp-pp-cli/deliver")
 
-	client := &http.Client{Timeout: 30 * time.Second}
-	resp, err := client.Do(req)
+	resp, err := newWebhookClient().Do(req)
 	if err != nil {
 		return fmt.Errorf("posting to webhook: %w", err)
 	}
@@ -111,4 +120,64 @@ func deliverWebhook(url string, body []byte, compact bool) error {
 		return fmt.Errorf("webhook returned %s", resp.Status)
 	}
 	return nil
+}
+
+// newWebhookClient builds an HTTP client hardened against SSRF. Because
+// --deliver webhook is mirrored into the MCP server, an agent-supplied URL
+// must not be able to make this process reach loopback, private-network,
+// link-local, or cloud-metadata (169.254.169.254) endpoints — directly or via
+// a redirect. Enforcement is default-deny at dial time (post-DNS-resolution,
+// so it also defeats DNS rebinding) and re-checked on every redirect hop.
+func newWebhookClient() *http.Client {
+	control := func(_ /*network*/, address string, _ syscall.RawConn) error {
+		host, _, err := net.SplitHostPort(address)
+		if err != nil {
+			return fmt.Errorf("webhook: cannot parse dial address %q: %w", address, err)
+		}
+		ip := net.ParseIP(host)
+		if ip == nil {
+			return fmt.Errorf("webhook: unresolved dial host %q", host)
+		}
+		if isBlockedWebhookIP(ip) {
+			return fmt.Errorf("webhook: destination %s is a loopback/private/link-local/metadata address and is blocked", ip)
+		}
+		return nil
+	}
+	transport := &http.Transport{
+		Proxy: http.ProxyFromEnvironment,
+		DialContext: (&net.Dialer{
+			Timeout: 10 * time.Second,
+			Control: control,
+		}).DialContext,
+	}
+	return &http.Client{
+		Timeout:   30 * time.Second,
+		Transport: transport,
+		CheckRedirect: func(req *http.Request, via []*http.Request) error {
+			if len(via) >= 5 {
+				return fmt.Errorf("webhook: stopped after %d redirects", len(via))
+			}
+			if req.URL.Scheme != "http" && req.URL.Scheme != "https" {
+				return fmt.Errorf("webhook: redirect to non-http(s) scheme %q blocked", req.URL.Scheme)
+			}
+			return nil
+		},
+	}
+}
+
+// isBlockedWebhookIP reports whether ip is an SSRF-sensitive destination that
+// webhook delivery must refuse. IsPrivate covers RFC1918 + IPv6 unique-local
+// (fc00::/7); IsLinkLocalUnicast covers 169.254.0.0/16 and fe80::/10, which
+// includes the cloud metadata address 169.254.169.254.
+func isBlockedWebhookIP(ip net.IP) bool {
+	if ip == nil {
+		return true
+	}
+	return ip.IsLoopback() ||
+		ip.IsPrivate() ||
+		ip.IsUnspecified() ||
+		ip.IsLinkLocalUnicast() ||
+		ip.IsLinkLocalMulticast() ||
+		ip.IsMulticast() ||
+		ip.IsInterfaceLocalMulticast()
 }

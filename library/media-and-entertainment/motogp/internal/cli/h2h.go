@@ -26,6 +26,9 @@ func newNovelH2hCmd(flags *rootFlags) *cobra.Command {
 			if dryRunOK(flags) {
 				return nil
 			}
+			if err := guardNovelDataSource(flags); err != nil {
+				return err
+			}
 			if len(args) < 2 {
 				return usageErr(fmt.Errorf("need two riders, e.g. h2h \"Marc Marquez\" \"Francesco Bagnaia\""))
 			}

@@ -28,6 +28,9 @@ func newNovelSinceCmd(flags *rootFlags) *cobra.Command {
 			if dryRunOK(flags) {
 				return nil
 			}
+			if err := guardNovelDataSource(flags); err != nil {
+				return err
+			}
 			if len(args) < 1 {
 				return usageErr(fmt.Errorf("need <year>, e.g. since 2026"))
 			}
@@ -82,14 +85,23 @@ func newNovelSinceCmd(flags *rootFlags) *cobra.Command {
 					Date:    ev.DateStart,
 				}
 				if withWinners {
-					if sess, err := resolveSession(ctx, c, ev.ID, cat.ID, "race"); err == nil {
-						if rows, err := sessionClassification(ctx, c, sess.ID); err == nil {
-							for _, r := range rows {
-								if r.Position == 1 {
-									row.Winner = r.Rider.fullName()
-									break
-								}
-							}
+					// A fetch failure must not silently become a blank winner:
+					// that is indistinguishable from a round that legitimately
+					// has no recorded winner. Surface resolve/classification
+					// errors; leave Winner blank only when the classification
+					// was fetched successfully but has no P1 finisher.
+					sess, err := resolveSession(ctx, c, ev.ID, cat.ID, "race")
+					if err != nil {
+						return classifyAPIError(fmt.Errorf("fetching winner for %s: %w", ev.label(), err), flags)
+					}
+					rows, err := sessionClassification(ctx, c, sess.ID)
+					if err != nil {
+						return classifyAPIError(fmt.Errorf("fetching winner for %s: %w", ev.label(), err), flags)
+					}
+					for _, r := range rows {
+						if r.Position == 1 {
+							row.Winner = r.Rider.fullName()
+							break
 						}
 					}
 				}

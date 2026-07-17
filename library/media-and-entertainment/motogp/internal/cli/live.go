@@ -26,6 +26,9 @@ func newNovelLiveCmd(flags *rootFlags) *cobra.Command {
 			if dryRunOK(flags) {
 				return nil
 			}
+			if err := guardNovelDataSource(flags); err != nil {
+				return err
+			}
 			c, err := flags.newClient()
 			if err != nil {
 				return err

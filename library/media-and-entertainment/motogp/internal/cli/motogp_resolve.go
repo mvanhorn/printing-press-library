@@ -100,6 +100,38 @@ func (r mgpRider) fullName() string {
 	return strings.TrimSpace(strings.TrimSpace(r.Name) + " " + strings.TrimSpace(r.Surname))
 }
 
+// stableKey returns a stable identity for a rider that survives display-name
+// variance (casing / spacing / composed-vs-flat) across rounds. It prefers the
+// UUID, then the numeric legacy ID, then the race number, and only falls back
+// to a normalized full name when no identifier is present. Aggregations (e.g.
+// championship points) must key on this, never on fullName(): the API can emit
+// "FullNameFlat" one round and "Name"+"Surname" the next for the same rider,
+// and a display-name key would then split one rider into two totals.
+func (r mgpRider) stableKey() string {
+	if id := strings.TrimSpace(r.ID); id != "" {
+		return "id:" + id
+	}
+	if r.LegacyID != 0 {
+		return "legacy:" + strconv.Itoa(r.LegacyID)
+	}
+	if r.Number != 0 {
+		return "num:" + strconv.Itoa(r.Number)
+	}
+	return "name:" + strings.ToLower(strings.Join(strings.Fields(r.fullName()), " "))
+}
+
+// guardNovelDataSource enforces the --data-source flag for the novel composed
+// commands (calendar, career, live, results, circuit-history, h2h, since,
+// title-race). These resolve multi-step UUID chains or compute results
+// directly from the live API and have no local-store equivalent, so
+// --data-source local is an explicit unsupported error rather than a silent
+// live fetch (the persistent flag was previously ignored: "local" still hit
+// Pulselive). "auto" and "live" proceed against the API; there is no local
+// layer for these commands to fall back to.
+func guardNovelDataSource(flags *rootFlags) error {
+	return validateDataSourceStrategy(flags, "live")
+}
+
 // ---- resolvers ----
 
 // resolveSeason finds the season UUID for a given year.
@@ -372,7 +404,16 @@ func ambiguousRiderErr(query string, riders []mgpRider) error {
 }
 
 // riderStats fetches career statistics for a rider legacy ID as a generic map.
+//
+// A zero legacyID means the roster entry decoded without the numeric
+// legacy_id this endpoint requires (a partial /riders response). Guard it
+// here rather than issuing GET /riders/0/stats, which would return a
+// misleading not-found or the wrong entity's statistics. Both callers
+// (career, h2h) are protected by this single check.
 func riderStats(ctx context.Context, c *client.Client, legacyID int) (map[string]any, error) {
+	if legacyID == 0 {
+		return nil, notFoundErr(fmt.Errorf("rider has no legacy_id, so career stats cannot be fetched (the roster entry is missing the numeric identifier the stats endpoint requires)"))
+	}
 	raw, err := c.Get(ctx, fmt.Sprintf("/riders/%d/stats", legacyID), nil)
 	if err != nil {
 		return nil, err

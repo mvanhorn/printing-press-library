@@ -5,6 +5,7 @@ package cli
 
 import (
 	"bytes"
+	"context"
 	"errors"
 	"fmt"
 	"io"
@@ -124,7 +125,11 @@ func Execute() (retErr error) {
 		}
 	}
 	if err == nil && flags.deliverBuf != nil {
-		if derr := Deliver(flags.deliverSink, flags.deliverBuf.Bytes(), flags.compact); derr != nil {
+		deliverCtx := context.Background()
+		if executedCmd != nil {
+			deliverCtx = executedCmd.Context()
+		}
+		if derr := Deliver(deliverCtx, flags.deliverSink, flags.deliverBuf.Bytes(), flags.compact); derr != nil {
 			fmt.Fprintf(os.Stderr, "warning: deliver to %s:%s failed: %v\n", flags.deliverSink.Scheme, flags.deliverSink.Target, derr)
 			return derr
 		}

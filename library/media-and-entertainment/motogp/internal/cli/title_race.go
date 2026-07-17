@@ -30,6 +30,9 @@ func newNovelTitleRaceCmd(flags *rootFlags) *cobra.Command {
 			if dryRunOK(flags) {
 				return nil
 			}
+			if err := guardNovelDataSource(flags); err != nil {
+				return err
+			}
 			if len(args) < 1 {
 				return usageErr(fmt.Errorf("need <year>, e.g. title-race 2024 motogp"))
 			}
@@ -71,7 +74,13 @@ func newNovelTitleRaceCmd(flags *rootFlags) *cobra.Command {
 				events = events[:limit]
 			}
 
+			// Accumulate points per stable rider key (UUID/legacy/number),
+			// never per display name: the API can emit a rider's name in
+			// different casing/spacing (or flat vs composed) between rounds,
+			// and a name key would split one rider into two totals. names maps
+			// each key back to a display name for output and the leader line.
 			cumulative := map[string]int{}
+			names := map[string]string{}
 			type roundOut struct {
 				Round        int            `json:"round"`
 				Event        string         `json:"event"`
@@ -92,19 +101,28 @@ func newNovelTitleRaceCmd(flags *rootFlags) *cobra.Command {
 				}
 				winner := ""
 				for _, r := range rows {
+					key := r.Rider.stableKey()
 					name := r.Rider.fullName()
+					cumulative[key] += r.Points
 					if name != "" {
-						cumulative[name] += r.Points
+						names[key] = name
 					}
 					if r.Position == 1 {
 						winner = name
 					}
 				}
-				leader, leaderPts := leaderOf(cumulative)
+				// Snapshot is keyed by display name for output; leader is
+				// computed from it so ties break on name (deterministic),
+				// while aggregation above stayed on the stable key.
 				snapshot := map[string]int{}
 				for k, v := range cumulative {
-					snapshot[k] = v
+					display := names[k]
+					if display == "" {
+						display = k
+					}
+					snapshot[display] = v
 				}
+				leader, leaderPts := leaderOf(snapshot)
 				rounds = append(rounds, roundOut{
 					Round:        i + 1,
 					Event:        ev.label(),
