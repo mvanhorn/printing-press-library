@@ -145,6 +145,7 @@ type Release struct {
 type printingPressManifest struct {
 	APIName            string   `json:"api_name"`
 	DisplayName        string   `json:"display_name"`
+	CatalogDisplayName string   `json:"catalog_display_name"`
 	CatalogDescription string   `json:"catalog_description"`
 	Description        string   `json:"description"`
 	Creator            *Person  `json:"creator"`
@@ -388,6 +389,7 @@ func buildEntry(dir, category, slug string, existing map[string]RegistryEntry) (
 		API:      apiDisplayName(pp, prior, slug),
 		Path:     filepath.ToSlash(dir),
 		sourceAPI: strings.TrimSpace(firstNonEmpty(
+			pp.CatalogDisplayName,
 			pp.DisplayName,
 			pp.APIName,
 			slug,
@@ -553,6 +555,7 @@ func searchTerms(pp printingPressManifest) []string {
 
 	add(pp.APIName)
 	add(pp.DisplayName)
+	add(pp.CatalogDisplayName)
 	add(pp.CLIName)
 	add(pp.Description)
 	add(pp.AuthDescription)
@@ -740,20 +743,23 @@ func isBareMarkdownHeading(s string) bool {
 // apiDisplayName picks the best human-facing name for the registry's
 // `api` field. Preference order:
 //
-//  1. .printing-press.json's display_name when the prior registry value
+//  1. .printing-press.json's catalog_display_name when explicitly set. This
+//     is the source-authored catalog label and intentionally supersedes a
+//     previously curated registry value.
+//  2. .printing-press.json's display_name when the prior registry value
 //     matches a known stale generated shape: bare slug echo, naive title-cased
 //     slug ("Setlist Fm"), a long description accidentally stored in `api`, or
 //     a generic suffix such as "Pricebook" when the manifest has the parent
 //     product ("ServiceTitan Pricebook").
-//  2. The current registry.json's existing `api` value, when it differs
+//  3. The current registry.json's existing `api` value, when it differs
 //     from the slug — registry api values are hand-curated (e.g.,
 //     "PokéAPI", "Cal.com", "Product Hunt") and frequently better than
 //     what .printing-press.json's display_name auto-derives. Treating
 //     prior == slug as "not curated" lets the generator replace bare
 //     slug echoes with a proper display name when one shows up.
-//  3. .printing-press.json's display_name (modern-generator best guess).
-//  4. .printing-press.json's api_name (machine slug fallback).
-//  5. The slug itself, last resort.
+//  4. .printing-press.json's display_name (modern-generator best guess).
+//  5. .printing-press.json's api_name (machine slug fallback).
+//  6. The slug itself, last resort.
 //
 // Choosing prior over pp.DisplayName here is deliberate. Several
 // existing registry entries have curated names (PokéAPI, Product Hunt)
@@ -763,6 +769,9 @@ func isBareMarkdownHeading(s string) bool {
 // curated value also won't regress. A future cleanup could lift
 // curated api values back into .printing-press.json explicitly.
 func apiDisplayName(pp printingPressManifest, prior RegistryEntry, slug string) string {
+	if label := strings.TrimSpace(pp.CatalogDisplayName); label != "" {
+		return label
+	}
 	if pp.DisplayName != "" && isStaleAPIValue(prior.API, pp.DisplayName, slug) {
 		return pp.DisplayName
 	}

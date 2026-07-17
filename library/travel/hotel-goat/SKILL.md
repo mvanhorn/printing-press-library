@@ -16,7 +16,7 @@ metadata:
         module: github.com/mvanhorn/printing-press-library/library/travel/hotel-goat/cmd/hotel-goat-pp-cli
 ---
 
-# Google Hotels — Printing Press CLI
+# Hotel GOAT — Printing Press CLI
 
 ## Prerequisites: Install the CLI
 

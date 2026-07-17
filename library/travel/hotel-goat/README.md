@@ -1,4 +1,4 @@
-# Hotel Goat — multi-source cash hotel CLI
+# Hotel GOAT — multi-source cash hotel CLI
 
 **Free hotel CLI — cash prices from Google Hotels + Trivago, deep booking links, agent-native JSON, and local SQLite wishlist. No API key needed.**
 

@@ -16,7 +16,7 @@ metadata:
         module: github.com/mvanhorn/printing-press-library/library/other/weather-goat/cmd/weather-goat-pp-cli
 ---
 
-# Weather Goat — Printing Press CLI
+# Weather GOAT — Printing Press CLI
 
 ## Prerequisites: Install the CLI
 
@@ -257,4 +257,3 @@ weather-goat-pp-cli feedback clear --yes  # wipe
 ```
 
 Entries append to `~/.weather-goat-pp-cli/feedback.jsonl` as JSON lines. When `WEATHER_GOAT_FEEDBACK_ENDPOINT` is set and either `--send` is passed or `WEATHER_GOAT_FEEDBACK_AUTO_SEND=true`, the entry is also POSTed upstream (non-blocking — local write always succeeds).
-

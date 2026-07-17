@@ -1,4 +1,4 @@
-# Polymarket + Kalshi CLI
+# Prediction GOAT CLI
 
 Every Polymarket and Kalshi market in one slim agent-native CLI, with cross-venue topic search and screens no other tool has.
 

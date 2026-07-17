@@ -1,4 +1,4 @@
-# Weather Goat CLI
+# Weather GOAT CLI
 
 The weather CLI that answers the questions you actually ask: Should I bike today? Do I need an umbrella for the walk home? Is there a tornado warning? Is this summer hotter than normal?
 
