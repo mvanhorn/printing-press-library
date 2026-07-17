@@ -1,0 +1,20 @@
+{
+  "schema_version": 2,
+  "id": "granola-folder-scoped-note-listing",
+  "applied_at": "2026-07-17",
+  "base_run_id": "20260511-211333",
+  "base_printing_press_version": "4.4.0",
+  "summary": "feat(granola): add folder-scoped public note listing",
+  "reason": "Granola's live OpenAPI spec added folder_id to GET /v1/notes, but the published CLI and generated MCP mirror did not expose it.",
+  "files": [
+    "README.md",
+    "SKILL.md",
+    "internal/cli/notes_list.go",
+    "internal/cli/notes_list_test.go",
+    "internal/mcp/tools.go",
+    "spec.json",
+    "tools-manifest.json"
+  ],
+  "validated_outcome": "Go tests, focused dry-run request verification, build, vet, govulncheck, help, version, and documentation flag checks passed; consolidated validation is blocked only by pre-existing manifest and canonical-SKILL drift.",
+  "findings_addressed": ["F1"]
+}

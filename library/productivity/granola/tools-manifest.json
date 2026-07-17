@@ -65,7 +65,7 @@
     },
     {
       "name": "notes_list",
-      "description": "List notes. Optional: created_before, created_after, updated_after (plus 2 more). Returns the ListNotesOutput.",
+      "description": "List notes. Optional: created_before, created_after, updated_after, folder_id (plus 2 more). Returns the ListNotesOutput.",
       "method": "GET",
       "path": "/v1/notes",
       "params": [
@@ -86,6 +86,12 @@
           "type": "string",
           "location": "query",
           "description": "Updated after"
+        },
+        {
+          "name": "folder_id",
+          "type": "string",
+          "location": "query",
+          "description": "Filter notes by folder ID, including child folders"
         },
         {
           "name": "cursor",

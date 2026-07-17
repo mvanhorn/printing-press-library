@@ -15,6 +15,7 @@ func newNotesListCmd(flags *rootFlags) *cobra.Command {
 	var flagCreatedBefore string
 	var flagCreatedAfter string
 	var flagUpdatedAfter string
+	var flagFolderID string
 	var flagCursor string
 	var flagPageSize int
 	var flagAll bool
@@ -22,7 +23,7 @@ func newNotesListCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:         "list",
 		Short:       "List notes",
-		Example:     "  granola-pp-cli notes list",
+		Example:     "  granola-pp-cli notes list\n  granola-pp-cli notes list --folder-id fol_4y6LduVdwSKC27 --all",
 		Annotations: map[string]string{"pp:endpoint": "notes.list", "pp:method": "GET", "pp:path": "/v1/notes", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()
@@ -35,6 +36,7 @@ func newNotesListCmd(flags *rootFlags) *cobra.Command {
 				"created_before": fmt.Sprintf("%v", flagCreatedBefore),
 				"created_after":  fmt.Sprintf("%v", flagCreatedAfter),
 				"updated_after":  fmt.Sprintf("%v", flagUpdatedAfter),
+				"folder_id":      fmt.Sprintf("%v", flagFolderID),
 				"cursor":         fmt.Sprintf("%v", flagCursor),
 				"page_size":      fmt.Sprintf("%v", flagPageSize),
 			}, nil, flagAll, "cursor", "", "hasMore")
@@ -84,6 +86,7 @@ func newNotesListCmd(flags *rootFlags) *cobra.Command {
 	cmd.Flags().StringVar(&flagCreatedBefore, "created-before", "", "Created before")
 	cmd.Flags().StringVar(&flagCreatedAfter, "created-after", "", "Created after")
 	cmd.Flags().StringVar(&flagUpdatedAfter, "updated-after", "", "Updated after")
+	cmd.Flags().StringVar(&flagFolderID, "folder-id", "", "Filter notes by folder ID, including child folders")
 	cmd.Flags().StringVar(&flagCursor, "cursor", "", "Cursor")
 	cmd.Flags().IntVar(&flagPageSize, "page-size", 10, "Page size")
 	cmd.Flags().BoolVar(&flagAll, "all", false, "Fetch all pages")

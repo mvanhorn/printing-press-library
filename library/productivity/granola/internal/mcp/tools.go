@@ -48,17 +48,18 @@ func RegisterTools(s *server.MCPServer) {
 	)
 	s.AddTool(
 		mcplib.NewTool("notes_list",
-			mcplib.WithDescription("List notes. Optional: created_before, created_after, updated_after (plus 2 more). Returns the ListNotesOutput."),
+			mcplib.WithDescription("List notes. Optional: created_before, created_after, updated_after, folder_id (plus 2 more). Returns the ListNotesOutput."),
 			mcplib.WithString("created_before", mcplib.Description("Created before")),
 			mcplib.WithString("created_after", mcplib.Description("Created after")),
 			mcplib.WithString("updated_after", mcplib.Description("Updated after")),
+			mcplib.WithString("folder_id", mcplib.Description("Filter notes by folder ID, including child folders")),
 			mcplib.WithString("cursor", mcplib.Description("Cursor")),
 			mcplib.WithString("page_size", mcplib.Description("Page size")),
 			mcplib.WithReadOnlyHintAnnotation(true),
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v1/notes", []mcpParamBinding{{PublicName: "created_before", WireName: "created_before", Location: "query"}, {PublicName: "created_after", WireName: "created_after", Location: "query"}, {PublicName: "updated_after", WireName: "updated_after", Location: "query"}, {PublicName: "cursor", WireName: "cursor", Location: "query"}, {PublicName: "page_size", WireName: "page_size", Location: "query"}}, []string{}),
+		makeAPIHandler("GET", "/v1/notes", []mcpParamBinding{{PublicName: "created_before", WireName: "created_before", Location: "query"}, {PublicName: "created_after", WireName: "created_after", Location: "query"}, {PublicName: "updated_after", WireName: "updated_after", Location: "query"}, {PublicName: "folder_id", WireName: "folder_id", Location: "query"}, {PublicName: "cursor", WireName: "cursor", Location: "query"}, {PublicName: "page_size", WireName: "page_size", Location: "query"}}, []string{}),
 	)
 	// SQL tool — ad-hoc analysis on synced data without API calls
 	s.AddTool(

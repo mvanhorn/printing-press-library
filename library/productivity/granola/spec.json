@@ -601,6 +601,12 @@
               "2026-01-27T15:30:00Z"
             ]
           },
+          "folder_id": {
+            "type": "string",
+            "pattern": "^fol_[a-zA-Z0-9]{14}$",
+            "description": "Return notes in this folder and any of its child folders. Use the list folders endpoint to discover folder IDs.",
+            "example": "fol_4y6LduVdwSKC27"
+          },
           "cursor": {
             "type": "string",
             "description": "The cursor to continue from",
@@ -769,6 +775,17 @@
             },
             "required": false,
             "name": "updated_after",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "pattern": "^fol_[a-zA-Z0-9]{14}$",
+              "description": "Return notes in this folder and any of its child folders. Use the list folders endpoint to discover folder IDs.",
+              "example": "fol_4y6LduVdwSKC27"
+            },
+            "required": false,
+            "name": "folder_id",
             "in": "query"
           },
           {

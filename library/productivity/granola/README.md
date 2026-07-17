@@ -250,6 +250,14 @@ These capabilities aren't available in any other tool for this API.
 
 Run `granola-pp-cli --help` for the full command reference and flag list.
 
+### List every note in a folder
+
+Use the folder ID returned by `granola-pp-cli folders` to scope the public API list call:
+
+```bash
+granola-pp-cli notes list --folder-id fol_4y6LduVdwSKC27 --all --json
+```
+
 ## Commands
 
 This CLI exposes 35+ commands. Use `granola-pp-cli --help` for the canonical tree and `granola-pp-cli which "<capability>"` to find the right command from natural language. Grouped overview:
@@ -262,7 +270,7 @@ This CLI exposes 35+ commands. Use `granola-pp-cli --help` for the canonical tre
 | **Export** | `export <id> -o FILE`, `export-all --since DATE -o DIR` |
 | **Cross-meeting analytics** | `attendee timeline / brief`, `folder stream`, `recipes coverage`, `talktime`, `calendar overlay`, `stats frequency / duration / attendees / calendar`, `collect`, `duplicates scan`, `chat list / get` |
 | **Granola entities** | `folders`, `folder list / stream`, `recipes list / describe / coverage`, `workspaces list` |
-| **Public API mirrors** | `notes list / get`, `folders` (require `GRANOLA_API_KEY`) |
+| **Public API mirrors** | `notes list / get`, `folders` (require `GRANOLA_API_KEY`; `notes list --folder-id` scopes by folder) |
 | **Sync / system** | `sync`, `sync-api`, `doctor`, `auth login / status / set-token / logout`, `which`, `agent-context`, `version`, `import` |
 | **GUI bridge (macOS only)** | `warm <id> <query>` — prints by default; `--launch` activates the Granola desktop app |
 

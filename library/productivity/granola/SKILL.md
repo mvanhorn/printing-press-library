@@ -170,7 +170,7 @@ Quick orientation by group:
 | **Export** | `export`, `export-all` | Combined three-stream markdown export, single or bulk |
 | **Cross-meeting analytics** | `attendee timeline`, `attendee brief`, `folder stream`, `recipes coverage`, `talktime`, `calendar overlay`, `stats frequency`, `stats duration`, `stats attendees`, `stats calendar`, `collect`, `duplicates scan`, `chat list`, `chat get` | Queries no per-meeting tool can answer |
 | **Folders / recipes / workspaces** | `folders` (public-API), `folder list`, `folder stream`, `recipes list`, `recipes describe`, `recipes coverage`, `workspaces list` | Granola organizational entities |
-| **Public-API mirrors** | `notes list`, `notes get`, `folders` | Typed Bearer-key endpoints |
+| **Public-API mirrors** | `notes list`, `notes get`, `folders` | Typed Bearer-key endpoints; `notes list --folder-id` scopes by folder |
 | **Sync / system** | `sync`, `sync-api`, `doctor`, `auth login`, `auth status`, `auth set-token`, `auth logout`, `which`, `agent-context`, `version`, `import` | Local store hydration, auth, capability discovery, batch import |
 | **GUI bridge** | `warm` (macOS only) | Drives Granola desktop app via AppleScript |
 
@@ -185,6 +185,14 @@ granola-pp-cli which "<capability in your own words>"
 `which` resolves a natural-language capability query to the best matching command from this CLI's curated feature index. Exit code `0` means at least one match; exit code `2` means no confident match — fall back to `--help` or use a narrower query.
 
 ## Recipes
+
+### List every note in a folder
+
+Use the folder ID returned by `granola-pp-cli folders` to scope the public API list call:
+
+```bash
+granola-pp-cli notes list --folder-id fol_4y6LduVdwSKC27 --all --json
+```
 
 
 ### Daily MEMO loop
