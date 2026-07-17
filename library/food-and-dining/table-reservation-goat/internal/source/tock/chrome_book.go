@@ -879,7 +879,27 @@ func clickComboboxExperienceLayoutJS(displayTime, isoDate string, partySize, exp
 			async function clickBestExperienceBookNow() {
 				const bookNowControls = all('a, button')
 					.filter((el) => /book now/i.test(clean(el.textContent || el.getAttribute('aria-label'))));
-				const controls = (experienceID > 0 ? eligibleExperienceControls(bookNowControls) : bookNowControls)
+				let eligible = experienceID > 0 ? eligibleExperienceControls(bookNowControls) : bookNowControls;
+				if (experienceID > 0 && hasPinnedExperiencePath(location.pathname)) {
+					// On the pinned deep-link page an untied control is unprovable:
+					// it may be the page's own CTA or an href-less sibling card. A
+					// positive tie wins outright; a sole survivor is accepted as
+					// the page's own control; anything else is ambiguity and the
+					// pin guarantee requires failing closed over letting the
+					// party-size scorer guess.
+					const tied = eligible.filter(controlOrCardHasPinnedExperienceLink);
+					if (tied.length > 0) {
+						eligible = tied;
+					} else if (eligible.length > 1) {
+						return {
+							ok: false,
+							step: 'experience_card',
+							detail: 'pinned experience ' + experienceID + ' is ambiguous on its deep-link page: ' +
+								eligible.length + ' untied Book now controls and none positively tied',
+						};
+					}
+				}
+				const controls = eligible
 					.map(scoreBookControl)
 					.sort((a, b) => (b.score - a.score) || (a.top - b.top));
 				if (controls.length === 0) {
@@ -901,21 +921,24 @@ func clickComboboxExperienceLayoutJS(displayTime, isoDate string, partySize, exp
 				if (modalResult !== null) return modalResult;
 				// No modal appeared: legacy layout with a separate submit control.
 				const submitCandidates = all('button').filter((el) => el !== controls[0].control);
-				// A sibling card's "Book now" is only a valid legacy submit when it
-				// satisfies the same pinned-experience eligibility as the card pick.
-				// A type=submit control is only valid when it is scoped to the
-				// selected card's form/container or itself passes that eligibility
-				// check — a page-wide submit can belong to a different
-				// experience's form and would book by time alone.
+				// The selection is trustworthy by this point (positively tied or
+				// the sole candidate), so the fallback's only job is submitting
+				// THAT experience. Under a pin, any fallback control — sibling
+				// "Book now" or type=submit — must be scoped to the selected
+				// card's form/container or itself positively tied to the pinned
+				// experience; an untied page-wide control can belong to a
+				// different experience and would book by time alone. Unpinned
+				// requests keep the historical ungated behavior.
 				const selectedForm = controls[0].control.form || controls[0].control.closest('form');
 				const selectedCard = cardFor(controls[0].control);
 				const scopedToSelection = (el) =>
 					(selectedForm !== null && (el.form || el.closest('form')) === selectedForm) ||
 					(selectedCard !== controls[0].control && selectedCard.contains(el));
-				const submit = eligibleExperienceControls(
-					submitCandidates.filter((el) => /book now/i.test(clean(el.textContent || el.getAttribute('aria-label')))))
-					.concat(submitCandidates.filter((el) =>
-						el.type === 'submit' && (scopedToSelection(el) || eligibleExperienceControls([el]).length > 0)))
+				const submitEligible = (el) =>
+					experienceID === 0 || scopedToSelection(el) || controlOrCardHasPinnedExperienceLink(el);
+				const submit = submitCandidates
+					.filter((el) => /book now/i.test(clean(el.textContent || el.getAttribute('aria-label'))) || el.type === 'submit')
+					.filter(submitEligible)
 					.sort((a, b) => a.getBoundingClientRect().top - b.getBoundingClientRect().top)[0];
 				if (submit) {
 					click(submit);

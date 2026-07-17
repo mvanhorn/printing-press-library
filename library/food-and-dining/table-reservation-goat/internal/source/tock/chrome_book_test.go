@@ -38,6 +38,32 @@ func withTockDOMFixture(t *testing.T, html string, run func(context.Context)) {
 	run(timed)
 }
 
+
+func withTockDOMFixtureAtPath(t *testing.T, path, html string, run func(context.Context)) {
+	t.Helper()
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+		w.Header().Set("Content-Type", "text/html; charset=utf-8")
+		_, _ = w.Write([]byte(html))
+	}))
+	defer srv.Close()
+	allocCtx, cancelAlloc := chromedp.NewExecAllocator(context.Background(),
+		append(chromedp.DefaultExecAllocatorOptions[:],
+			chromedp.Flag("headless", "new"),
+			chromedp.Flag("no-sandbox", true),
+			chromedp.Flag("disable-gpu", true),
+		)...,
+	)
+	defer cancelAlloc()
+	ctx, cancel := chromedp.NewContext(allocCtx)
+	defer cancel()
+	timed, cancelTimed := context.WithTimeout(ctx, 10*time.Second)
+	defer cancelTimed()
+	if err := chromedp.Run(timed, chromedp.Navigate(srv.URL+path)); err != nil {
+		t.Skipf("chromedp unavailable for DOM fixture: %v", err)
+	}
+	run(timed)
+}
+
 func TestClickComboboxExperienceLayout_ChoosesStandardReservationForSmallParty(t *testing.T) {
 	html := `
 		<!doctype html>
@@ -850,8 +876,11 @@ func TestTockPinnedExperienceEligibilityJS_UnpinnedIsNoOp(t *testing.T) {
 	}
 
 	generated := clickComboboxExperienceLayoutJS("6:15 PM", "2026-07-10", 8, 0)
-	if got := strings.Count(generated, "eligibleExperienceControls("); got != 4 {
-		t.Fatalf("eligibility gate definition/call count = %d, want 4 (definition + card pick + legacy Book now submit + type=submit gate)", got)
+	if got := strings.Count(generated, "eligibleExperienceControls("); got != 2 {
+		t.Fatalf("eligibility gate definition/call count = %d, want 2 (definition + card pick; the submit fallback uses scoped-or-tied gating instead)", got)
+	}
+	if got := strings.Count(generated, "submitEligible"); got != 2 {
+		t.Fatalf("submit fallback scoped-or-tied gate count = %d, want 2 (definition + filter)", got)
 	}
 }
 
@@ -895,7 +924,12 @@ func TestClickComboboxExperienceLayout_PinnedExperienceRequiresPositiveTie(t *te
 		})
 	})
 
-	t.Run("deep-link page permits href-less controls", func(t *testing.T) {
+	t.Run("deep-link page fails closed on multiple untied controls", func(t *testing.T) {
+		// Historical behavior admitted every href-less control on the pinned
+		// deep-link page; that let the party-size scorer book a sibling
+		// experience. Multiple untied candidates are now ambiguity: fail
+		// closed, click nothing (single-untied and tied cases are covered by
+		// the dedicated PinnedDeepLink tests).
 		srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
 			w.Header().Set("Content-Type", "text/html; charset=utf-8")
 			fmt.Fprint(w, html)
@@ -907,15 +941,16 @@ func TestClickComboboxExperienceLayout_PinnedExperienceRequiresPositiveTie(t *te
 			if err := chromedp.Run(ctx, chromedp.Navigate(deepLink)); err != nil {
 				t.Fatalf("navigate to pinned experience fixture: %v", err)
 			}
-			if err := clickComboboxExperienceLayout(ctx, "6:15 PM", "2026-07-10", 2, experienceID); err != nil {
-				t.Fatalf("clickComboboxExperienceLayout on pinned page: %v", err)
+			err := clickComboboxExperienceLayout(ctx, "6:15 PM", "2026-07-10", 2, experienceID)
+			if err == nil || !strings.Contains(err.Error(), "ambiguous") {
+				t.Fatalf("expected ambiguity fail-closed error on pinned page, got %v", err)
 			}
 			var clicked string
 			if err := chromedp.Run(ctx, chromedp.Evaluate(`window.clickedExperience || ''`, &clicked)); err != nil {
 				t.Fatalf("read clicked experience: %v", err)
 			}
-			if clicked != "standard" {
-				t.Fatalf("clicked experience = %q, want standard on pinned page", clicked)
+			if clicked != "" {
+				t.Fatalf("clicked experience = %q, want none on ambiguity", clicked)
 			}
 		})
 	})
@@ -1174,6 +1209,119 @@ func TestClickComboboxExperienceLayout_PinnedSubmitFallbackScopedToSelectedCard(
 		}
 		if submitted != "pinned" {
 			t.Fatalf("submitted form = %q, want pinned (the top-most foreign submit must not be clicked)", submitted)
+		}
+	})
+}
+
+// On the pinned deep-link page, an untied sibling card (plain button with no
+// experience href) must not silently compete with the page's own control:
+// two unprovable candidates is ambiguity and must fail closed unclicked.
+func TestClickComboboxExperienceLayout_PinnedDeepLinkAmbiguityFailsClosed(t *testing.T) {
+	const experienceID = 520126
+	html := `
+		<!doctype html>
+		<label for="time">Time</label>
+		<select id="time" aria-label="Time">
+			<option value="18:15">6:15 PM</option>
+		</select>
+		<section class="experience-card" id="sibling">
+			<h2>Reservation: Groups 2-4</h2>
+			<button onclick="window.clickedExperience = 'sibling';">Book now</button>
+		</section>
+		<section class="experience-card" id="own">
+			<h2>Chef Counter</h2>
+			<button onclick="window.clickedExperience = 'own';">Book now</button>
+		</section>`
+	withTockDOMFixtureAtPath(t, "/venue/experience/520126", html, func(ctx context.Context) {
+		err := chromedp.Run(ctx, chromedp.ActionFunc(func(actCtx context.Context) error {
+			return clickComboboxExperienceLayout(actCtx, "6:15 PM", "2026-07-10", 2, experienceID)
+		}))
+		if err == nil || !strings.Contains(err.Error(), "ambiguous") {
+			t.Fatalf("expected ambiguity fail-closed error, got %v", err)
+		}
+		var clicked string
+		if runErr := chromedp.Run(ctx,
+			chromedp.Evaluate(`window.clickedExperience || ''`, &clicked),
+		); runErr != nil {
+			t.Fatalf("read fixture state: %v", runErr)
+		}
+		if clicked != "" {
+			t.Fatalf("clicked experience = %q, want none on ambiguity", clicked)
+		}
+	})
+}
+
+// A sole surviving untied control on the pinned deep-link page is the page's
+// own CTA and must still book (foreign-linked cross-sell cards are excluded
+// first, so they do not create ambiguity).
+func TestClickComboboxExperienceLayout_PinnedDeepLinkSoleUntiedControlBooks(t *testing.T) {
+	const experienceID = 520126
+	html := `
+		<!doctype html>
+		<label for="time">Time</label>
+		<select id="time" aria-label="Time">
+			<option value="18:15">6:15 PM</option>
+		</select>
+		<section class="experience-card" id="cross-sell">
+			<h2>Patio Tasting</h2>
+			<a href="/venue/experience/111111">details</a>
+			<button onclick="window.clickedExperience = 'cross-sell';">Book now</button>
+		</section>
+		<section class="experience-card" id="own">
+			<h2>Chef Counter</h2>
+			<button onclick="window.clickedExperience = 'own';">Book now</button>
+		</section>`
+	withTockDOMFixtureAtPath(t, "/venue/experience/520126", html, func(ctx context.Context) {
+		if err := chromedp.Run(ctx, chromedp.ActionFunc(func(actCtx context.Context) error {
+			return clickComboboxExperienceLayout(actCtx, "6:15 PM", "2026-07-10", 2, experienceID)
+		})); err != nil {
+			t.Fatalf("clickComboboxExperienceLayout: %v", err)
+		}
+		var clicked string
+		if err := chromedp.Run(ctx,
+			chromedp.Evaluate(`window.clickedExperience || ''`, &clicked),
+		); err != nil {
+			t.Fatalf("read fixture state: %v", err)
+		}
+		if clicked != "own" {
+			t.Fatalf("clicked experience = %q, want own", clicked)
+		}
+	})
+}
+
+// A control positively tied to the pinned experience beats untied siblings
+// outright on the deep-link page — no ambiguity failure.
+func TestClickComboboxExperienceLayout_PinnedDeepLinkTiedControlBeatsUntied(t *testing.T) {
+	const experienceID = 520126
+	html := `
+		<!doctype html>
+		<label for="time">Time</label>
+		<select id="time" aria-label="Time">
+			<option value="18:15">6:15 PM</option>
+		</select>
+		<section class="experience-card" id="sibling">
+			<h2>Reservation: Groups 2-4</h2>
+			<button onclick="window.clickedExperience = 'sibling';">Book now</button>
+		</section>
+		<section class="experience-card" id="tied">
+			<h2>Chef Counter</h2>
+			<a href="/venue/experience/520126/reservation">details</a>
+			<button onclick="window.clickedExperience = 'tied';">Book now</button>
+		</section>`
+	withTockDOMFixtureAtPath(t, "/venue/experience/520126", html, func(ctx context.Context) {
+		if err := chromedp.Run(ctx, chromedp.ActionFunc(func(actCtx context.Context) error {
+			return clickComboboxExperienceLayout(actCtx, "6:15 PM", "2026-07-10", 2, experienceID)
+		})); err != nil {
+			t.Fatalf("clickComboboxExperienceLayout: %v", err)
+		}
+		var clicked string
+		if err := chromedp.Run(ctx,
+			chromedp.Evaluate(`window.clickedExperience || ''`, &clicked),
+		); err != nil {
+			t.Fatalf("read fixture state: %v", err)
+		}
+		if clicked != "tied" {
+			t.Fatalf("clicked experience = %q, want tied", clicked)
 		}
 	})
 }
