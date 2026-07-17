@@ -30,9 +30,6 @@ func newNovelCircuitHistoryCmd(flags *rootFlags) *cobra.Command {
 			if dryRunOK(flags) {
 				return nil
 			}
-			if err := guardNovelDataSource(flags); err != nil {
-				return err
-			}
 			if len(args) < 1 {
 				return usageErr(fmt.Errorf("need a circuit or event name, e.g. circuit-history mugello motogp"))
 			}
@@ -49,7 +46,7 @@ func newNovelCircuitHistoryCmd(flags *rootFlags) *cobra.Command {
 			ctx := cmd.Context()
 
 			// Discover the available seasons (newest first).
-			rawSeasons, err := c.Get(ctx, "/results/seasons", nil)
+			rawSeasons, err := novelFetch(ctx, c, flags, "auto", "seasons", true, "/results/seasons", nil)
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}
@@ -79,20 +76,20 @@ func newNovelCircuitHistoryCmd(flags *rootFlags) *cobra.Command {
 			var history []outRow
 			matchedAny := false
 			for _, s := range seasons {
-				ev, err := resolveEvent(ctx, c, s.ID, query)
+				ev, err := resolveEvent(ctx, c, flags, s.ID, query)
 				if err != nil {
 					continue // circuit not on that season's calendar
 				}
 				matchedAny = true
-				cat, err := resolveCategory(ctx, c, s.ID, class)
+				cat, err := resolveCategory(ctx, c, flags, s.ID, class)
 				if err != nil {
 					continue
 				}
-				sess, err := resolveSession(ctx, c, ev.ID, cat.ID, "race")
+				sess, err := resolveSession(ctx, c, flags, ev.ID, cat.ID, "race")
 				if err != nil {
 					continue
 				}
-				rows, err := sessionClassification(ctx, c, sess.ID)
+				rows, err := sessionClassification(ctx, c, flags, sess.ID)
 				if err != nil {
 					continue
 				}

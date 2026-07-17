@@ -26,9 +26,6 @@ func newNovelH2hCmd(flags *rootFlags) *cobra.Command {
 			if dryRunOK(flags) {
 				return nil
 			}
-			if err := guardNovelDataSource(flags); err != nil {
-				return err
-			}
 			if len(args) < 2 {
 				return usageErr(fmt.Errorf("need two riders, e.g. h2h \"Marc Marquez\" \"Francesco Bagnaia\""))
 			}
@@ -45,19 +42,19 @@ func newNovelH2hCmd(flags *rootFlags) *cobra.Command {
 				return usageErr(fmt.Errorf("expected exactly two riders; quote multi-word names, e.g. h2h \"Marc Marquez\" \"Francesco Bagnaia\""))
 			}
 
-			riderA, err := resolveRider(ctx, c, args[0])
+			riderA, err := resolveRider(ctx, c, flags, args[0])
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}
-			riderB, err := resolveRider(ctx, c, args[1])
+			riderB, err := resolveRider(ctx, c, flags, args[1])
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}
-			statsA, err := riderStats(ctx, c, riderA.LegacyID)
+			statsA, err := riderStats(ctx, c, flags, riderA.LegacyID)
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}
-			statsB, err := riderStats(ctx, c, riderB.LegacyID)
+			statsB, err := riderStats(ctx, c, flags, riderB.LegacyID)
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}

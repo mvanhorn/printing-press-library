@@ -33,9 +33,6 @@ func newNovelCalendarCmd(flags *rootFlags) *cobra.Command {
 			if dryRunOK(flags) {
 				return nil
 			}
-			if err := guardNovelDataSource(flags); err != nil {
-				return err
-			}
 			if len(args) < 1 {
 				return usageErr(fmt.Errorf("need <year>, e.g. calendar 2026"))
 			}
@@ -49,7 +46,7 @@ func newNovelCalendarCmd(flags *rootFlags) *cobra.Command {
 			}
 			ctx := cmd.Context()
 
-			raw, err := c.Get(ctx, "/events", map[string]string{"seasonYear": fmt.Sprintf("%d", year)})
+			raw, err := novelFetch(ctx, c, flags, "auto", "broadcast-events", true, "/events", map[string]string{"seasonYear": fmt.Sprintf("%d", year)})
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}

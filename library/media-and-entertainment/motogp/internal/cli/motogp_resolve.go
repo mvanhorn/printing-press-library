@@ -9,6 +9,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"os"
 	"sort"
 	"strconv"
 	"strings"
@@ -120,23 +121,26 @@ func (r mgpRider) stableKey() string {
 	return "name:" + strings.ToLower(strings.Join(strings.Fields(r.fullName()), " "))
 }
 
-// guardNovelDataSource enforces the --data-source flag for the novel composed
-// commands (calendar, career, live, results, circuit-history, h2h, since,
-// title-race). These resolve multi-step UUID chains or compute results
-// directly from the live API and have no local-store equivalent, so
-// --data-source local is an explicit unsupported error rather than a silent
-// live fetch (the persistent flag was previously ignored: "local" still hit
-// Pulselive). "auto" and "live" proceed against the API; there is no local
-// layer for these commands to fall back to.
-func guardNovelDataSource(flags *rootFlags) error {
-	return validateDataSourceStrategy(flags, "live")
+// novelFetch routes a novel-command read through the shared data-source
+// resolver so --data-source is honored end to end: local reads synced data,
+// live forces the API, and auto falls back to synced data when the API is
+// unreachable. Pass strategy "auto" for resources the sync command persists
+// (seasons, categories, events, sessions, riders, broadcast-events,
+// standings) so they gain that fallback; pass "live" for endpoints with no
+// local copy (session classification, rider stats, live timing) so
+// --data-source local is an explicit unsupported error instead of a silent
+// live hit. This replaces the earlier command-entry guard, which rejected
+// local outright even for commands whose data is fully synceable.
+func novelFetch(ctx context.Context, c *client.Client, flags *rootFlags, strategy, resourceType string, isList bool, path string, params map[string]string) (json.RawMessage, error) {
+	raw, _, err := resolveReadWithStrategy(ctx, c, flags, strategy, resourceType, isList, path, params, nil, os.Stderr)
+	return raw, err
 }
 
 // ---- resolvers ----
 
 // resolveSeason finds the season UUID for a given year.
-func resolveSeason(ctx context.Context, c *client.Client, year int) (mgpSeason, error) {
-	raw, err := c.Get(ctx, "/results/seasons", nil)
+func resolveSeason(ctx context.Context, c *client.Client, flags *rootFlags, year int) (mgpSeason, error) {
+	raw, err := novelFetch(ctx, c, flags, "auto", "seasons", true, "/results/seasons", nil)
 	if err != nil {
 		return mgpSeason{}, err
 	}
@@ -182,8 +186,8 @@ func normClass(s string) string {
 }
 
 // resolveCategory finds the category UUID for a class name within a season.
-func resolveCategory(ctx context.Context, c *client.Client, seasonUUID, className string) (mgpCategory, error) {
-	raw, err := c.Get(ctx, "/results/categories", map[string]string{"seasonUuid": seasonUUID})
+func resolveCategory(ctx context.Context, c *client.Client, flags *rootFlags, seasonUUID, className string) (mgpCategory, error) {
+	raw, err := novelFetch(ctx, c, flags, "auto", "categories", true, "/results/categories", map[string]string{"seasonUuid": seasonUUID})
 	if err != nil {
 		return mgpCategory{}, err
 	}
@@ -205,8 +209,8 @@ func resolveCategory(ctx context.Context, c *client.Client, seasonUUID, classNam
 }
 
 // resolveEvent finds an event by fuzzy match on name/short name/circuit/country.
-func resolveEvent(ctx context.Context, c *client.Client, seasonUUID, query string) (mgpEvent, error) {
-	events, err := seasonEvents(ctx, c, seasonUUID, false)
+func resolveEvent(ctx context.Context, c *client.Client, flags *rootFlags, seasonUUID, query string) (mgpEvent, error) {
+	events, err := seasonEvents(ctx, c, flags, seasonUUID, false)
 	if err != nil {
 		return mgpEvent{}, err
 	}
@@ -227,12 +231,12 @@ func resolveEvent(ctx context.Context, c *client.Client, seasonUUID, query strin
 }
 
 // seasonEvents lists events for a season, optionally only finished ones.
-func seasonEvents(ctx context.Context, c *client.Client, seasonUUID string, finishedOnly bool) ([]mgpEvent, error) {
+func seasonEvents(ctx context.Context, c *client.Client, flags *rootFlags, seasonUUID string, finishedOnly bool) ([]mgpEvent, error) {
 	params := map[string]string{"seasonUuid": seasonUUID}
 	if finishedOnly {
 		params["isFinished"] = "true"
 	}
-	raw, err := c.Get(ctx, "/results/events", params)
+	raw, err := novelFetch(ctx, c, flags, "auto", "events", true, "/results/events", params)
 	if err != nil {
 		return nil, err
 	}
@@ -284,8 +288,8 @@ func sessionTypeMatch(token string) (string, int) {
 }
 
 // resolveSession finds a session by human token (race, sprint, q, fp1...).
-func resolveSession(ctx context.Context, c *client.Client, eventUUID, catUUID, token string) (mgpSession, error) {
-	sessions, err := listSessions(ctx, c, eventUUID, catUUID)
+func resolveSession(ctx context.Context, c *client.Client, flags *rootFlags, eventUUID, catUUID, token string) (mgpSession, error) {
+	sessions, err := listSessions(ctx, c, flags, eventUUID, catUUID)
 	if err != nil {
 		return mgpSession{}, err
 	}
@@ -306,8 +310,8 @@ func resolveSession(ctx context.Context, c *client.Client, eventUUID, catUUID, t
 	return mgpSession{}, notFoundErr(fmt.Errorf("session %q not found; available: %s", token, strings.Join(have, ", ")))
 }
 
-func listSessions(ctx context.Context, c *client.Client, eventUUID, catUUID string) ([]mgpSession, error) {
-	raw, err := c.Get(ctx, "/results/sessions", map[string]string{"eventUuid": eventUUID, "categoryUuid": catUUID})
+func listSessions(ctx context.Context, c *client.Client, flags *rootFlags, eventUUID, catUUID string) ([]mgpSession, error) {
+	raw, err := novelFetch(ctx, c, flags, "auto", "sessions", true, "/results/sessions", map[string]string{"eventUuid": eventUUID, "categoryUuid": catUUID})
 	if err != nil {
 		return nil, err
 	}
@@ -334,9 +338,12 @@ type classificationResp struct {
 	Classification []classificationRow `json:"classification"`
 }
 
-// sessionClassification fetches the finishing order for a session.
-func sessionClassification(ctx context.Context, c *client.Client, sessionID string) ([]classificationRow, error) {
-	raw, err := c.Get(ctx, "/results/session/"+sessionID+"/classification", map[string]string{"test": "false"})
+// sessionClassification fetches the finishing order for a session. Session
+// classifications are not part of the local sync set, so this is a live-only
+// read ("live" strategy): --data-source local returns an explicit unsupported
+// error rather than empty data.
+func sessionClassification(ctx context.Context, c *client.Client, flags *rootFlags, sessionID string) ([]classificationRow, error) {
+	raw, err := novelFetch(ctx, c, flags, "live", "classification", false, "/results/session/"+sessionID+"/classification", map[string]string{"test": "false"})
 	if err != nil {
 		return nil, err
 	}
@@ -348,8 +355,8 @@ func sessionClassification(ctx context.Context, c *client.Client, sessionID stri
 }
 
 // resolveRider matches a rider by name against the current-season rider list.
-func resolveRider(ctx context.Context, c *client.Client, query string) (mgpRider, error) {
-	raw, err := c.Get(ctx, "/riders", nil)
+func resolveRider(ctx context.Context, c *client.Client, flags *rootFlags, query string) (mgpRider, error) {
+	raw, err := novelFetch(ctx, c, flags, "auto", "riders", true, "/riders", nil)
 	if err != nil {
 		return mgpRider{}, err
 	}
@@ -410,11 +417,12 @@ func ambiguousRiderErr(query string, riders []mgpRider) error {
 // here rather than issuing GET /riders/0/stats, which would return a
 // misleading not-found or the wrong entity's statistics. Both callers
 // (career, h2h) are protected by this single check.
-func riderStats(ctx context.Context, c *client.Client, legacyID int) (map[string]any, error) {
+func riderStats(ctx context.Context, c *client.Client, flags *rootFlags, legacyID int) (map[string]any, error) {
 	if legacyID == 0 {
 		return nil, notFoundErr(fmt.Errorf("rider has no legacy_id, so career stats cannot be fetched (the roster entry is missing the numeric identifier the stats endpoint requires)"))
 	}
-	raw, err := c.Get(ctx, fmt.Sprintf("/riders/%d/stats", legacyID), nil)
+	// Rider stats are not synced locally -> live-only ("live" strategy).
+	raw, err := novelFetch(ctx, c, flags, "live", "riders", false, fmt.Sprintf("/riders/%d/stats", legacyID), nil)
 	if err != nil {
 		return nil, err
 	}

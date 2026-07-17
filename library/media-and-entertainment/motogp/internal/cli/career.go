@@ -26,9 +26,6 @@ func newNovelCareerCmd(flags *rootFlags) *cobra.Command {
 			if dryRunOK(flags) {
 				return nil
 			}
-			if err := guardNovelDataSource(flags); err != nil {
-				return err
-			}
 			if len(args) < 1 {
 				return usageErr(fmt.Errorf("need a rider name, e.g. career \"Marc Marquez\""))
 			}
@@ -40,11 +37,11 @@ func newNovelCareerCmd(flags *rootFlags) *cobra.Command {
 			}
 			ctx := cmd.Context()
 
-			rider, err := resolveRider(ctx, c, query)
+			rider, err := resolveRider(ctx, c, flags, query)
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}
-			stats, err := riderStats(ctx, c, rider.LegacyID)
+			stats, err := riderStats(ctx, c, flags, rider.LegacyID)
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}

@@ -28,9 +28,6 @@ func newNovelSinceCmd(flags *rootFlags) *cobra.Command {
 			if dryRunOK(flags) {
 				return nil
 			}
-			if err := guardNovelDataSource(flags); err != nil {
-				return err
-			}
 			if len(args) < 1 {
 				return usageErr(fmt.Errorf("need <year>, e.g. since 2026"))
 			}
@@ -44,11 +41,11 @@ func newNovelSinceCmd(flags *rootFlags) *cobra.Command {
 			}
 			ctx := cmd.Context()
 
-			season, err := resolveSeason(ctx, c, year)
+			season, err := resolveSeason(ctx, c, flags, year)
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}
-			events, err := seasonEvents(ctx, c, season.ID, true)
+			events, err := seasonEvents(ctx, c, flags, season.ID, true)
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}
@@ -56,7 +53,7 @@ func newNovelSinceCmd(flags *rootFlags) *cobra.Command {
 
 			var cat mgpCategory
 			if withWinners {
-				cat, err = resolveCategory(ctx, c, season.ID, class)
+				cat, err = resolveCategory(ctx, c, flags, season.ID, class)
 				if err != nil {
 					return classifyAPIError(err, flags)
 				}
@@ -90,11 +87,11 @@ func newNovelSinceCmd(flags *rootFlags) *cobra.Command {
 					// has no recorded winner. Surface resolve/classification
 					// errors; leave Winner blank only when the classification
 					// was fetched successfully but has no P1 finisher.
-					sess, err := resolveSession(ctx, c, ev.ID, cat.ID, "race")
+					sess, err := resolveSession(ctx, c, flags, ev.ID, cat.ID, "race")
 					if err != nil {
 						return classifyAPIError(fmt.Errorf("fetching winner for %s: %w", ev.label(), err), flags)
 					}
-					rows, err := sessionClassification(ctx, c, sess.ID)
+					rows, err := sessionClassification(ctx, c, flags, sess.ID)
 					if err != nil {
 						return classifyAPIError(fmt.Errorf("fetching winner for %s: %w", ev.label(), err), flags)
 					}

@@ -26,7 +26,11 @@ func newNovelLiveCmd(flags *rootFlags) *cobra.Command {
 			if dryRunOK(flags) {
 				return nil
 			}
-			if err := guardNovelDataSource(flags); err != nil {
+			// Live timing is real-time only: there is no local copy to read or
+			// fall back to, so --data-source local is an explicit unsupported
+			// error. (auto/live proceed against the API.) The direct fetch below
+			// keeps this command's special empty-body-between-sessions handling.
+			if err := validateDataSourceStrategy(flags, "live"); err != nil {
 				return err
 			}
 			c, err := flags.newClient()

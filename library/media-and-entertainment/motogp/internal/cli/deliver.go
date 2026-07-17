@@ -144,7 +144,12 @@ func newWebhookClient() *http.Client {
 		return nil
 	}
 	transport := &http.Transport{
-		Proxy: http.ProxyFromEnvironment,
+		// No environment proxy: with a proxy the dialer would validate the
+		// proxy's IP, not the webhook destination, letting a permissive proxy
+		// forward to a private/metadata address and bypass the Control check
+		// below. Connecting directly ensures Control sees the real (post-DNS)
+		// destination IP for the original URL and every redirect hop.
+		Proxy: nil,
 		DialContext: (&net.Dialer{
 			Timeout: 10 * time.Second,
 			Control: control,

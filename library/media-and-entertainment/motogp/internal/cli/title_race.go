@@ -30,9 +30,6 @@ func newNovelTitleRaceCmd(flags *rootFlags) *cobra.Command {
 			if dryRunOK(flags) {
 				return nil
 			}
-			if err := guardNovelDataSource(flags); err != nil {
-				return err
-			}
 			if len(args) < 1 {
 				return usageErr(fmt.Errorf("need <year>, e.g. title-race 2024 motogp"))
 			}
@@ -51,15 +48,15 @@ func newNovelTitleRaceCmd(flags *rootFlags) *cobra.Command {
 			}
 			ctx := cmd.Context()
 
-			season, err := resolveSeason(ctx, c, year)
+			season, err := resolveSeason(ctx, c, flags, year)
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}
-			cat, err := resolveCategory(ctx, c, season.ID, class)
+			cat, err := resolveCategory(ctx, c, flags, season.ID, class)
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}
-			events, err := seasonEvents(ctx, c, season.ID, true)
+			events, err := seasonEvents(ctx, c, flags, season.ID, true)
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}
@@ -91,11 +88,11 @@ func newNovelTitleRaceCmd(flags *rootFlags) *cobra.Command {
 			}
 			var rounds []roundOut
 			for i, ev := range events {
-				sess, err := resolveSession(ctx, c, ev.ID, cat.ID, "race")
+				sess, err := resolveSession(ctx, c, flags, ev.ID, cat.ID, "race")
 				if err != nil {
 					continue // some events (tests) have no race
 				}
-				rows, err := sessionClassification(ctx, c, sess.ID)
+				rows, err := sessionClassification(ctx, c, flags, sess.ID)
 				if err != nil {
 					continue
 				}

@@ -27,9 +27,6 @@ func newNovelResultsCmd(flags *rootFlags) *cobra.Command {
 			if dryRunOK(flags) {
 				return nil
 			}
-			if err := guardNovelDataSource(flags); err != nil {
-				return err
-			}
 			if len(args) < 2 {
 				return usageErr(fmt.Errorf("need <year> and <event>, e.g. results 2024 qatar motogp race"))
 			}
@@ -53,23 +50,23 @@ func newNovelResultsCmd(flags *rootFlags) *cobra.Command {
 			}
 			ctx := cmd.Context()
 
-			season, err := resolveSeason(ctx, c, year)
+			season, err := resolveSeason(ctx, c, flags, year)
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}
-			cat, err := resolveCategory(ctx, c, season.ID, class)
+			cat, err := resolveCategory(ctx, c, flags, season.ID, class)
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}
-			event, err := resolveEvent(ctx, c, season.ID, eventQuery)
+			event, err := resolveEvent(ctx, c, flags, season.ID, eventQuery)
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}
-			sess, err := resolveSession(ctx, c, event.ID, cat.ID, session)
+			sess, err := resolveSession(ctx, c, flags, event.ID, cat.ID, session)
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}
-			rows, err := sessionClassification(ctx, c, sess.ID)
+			rows, err := sessionClassification(ctx, c, flags, sess.ID)
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}
