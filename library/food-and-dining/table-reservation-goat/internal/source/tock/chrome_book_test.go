@@ -55,7 +55,7 @@ func withTockDOMFixtureAtPath(t *testing.T, path, html string, run func(context.
 	defer cancelAlloc()
 	ctx, cancel := chromedp.NewContext(allocCtx)
 	defer cancel()
-	timed, cancelTimed := context.WithTimeout(ctx, 10*time.Second)
+	timed, cancelTimed := context.WithTimeout(ctx, 20*time.Second)
 	defer cancelTimed()
 	if err := chromedp.Run(timed, chromedp.Navigate(srv.URL+path)); err != nil {
 		t.Skipf("chromedp unavailable for DOM fixture: %v", err)
@@ -1313,6 +1313,294 @@ func TestClickComboboxExperienceLayout_DrivesExperienceModal(t *testing.T) {
 		}
 		if bookedSlot != "6:15 PM" {
 			t.Fatalf("bookedSlot = %q, want 6:15 PM", bookedSlot)
+		}
+	})
+}
+
+func TestClickComboboxExperienceLayout_PinnedModalScopesDayAndSlotAwayFromBackground(t *testing.T) {
+	const experienceID = 520126
+	t.Run("clicks only the revealed modal controls", func(t *testing.T) {
+		html := `
+			<!doctype html>
+			<label for="time">Time</label>
+			<select id="time" aria-label="Time"><option value="18:15">6:15 PM</option></select>
+			<section id="background">
+				<button aria-label="2026-07-10" onclick="window.backgroundDay = true;">10</button>
+				<div><span>6:15 PM</span><button onclick="window.backgroundSlot = true;">Book</button></div>
+			</section>
+			<section class="experience-card" id="pinned-card">
+				<a href="/venue/experience/520126">Chef Counter details</a>
+				<button onclick="document.getElementById('modal').style.display = 'block';">Book now</button>
+			</section>
+			<div id="modal" style="display:none">
+				<button aria-label="2026-07-10" onclick="window.modalDay = true;">10</button>
+				<div><span>6:15 PM</span><button onclick="window.modalSlot = true;">Book</button></div>
+			</div>`
+		withTockDOMFixtureAtPath(t, "/venue", html, func(ctx context.Context) {
+			if err := clickComboboxExperienceLayout(ctx, "6:15 PM", "2026-07-10", 2, experienceID); err != nil {
+				t.Fatalf("clickComboboxExperienceLayout: %v", err)
+			}
+			var backgroundDay, backgroundSlot, modalDay, modalSlot bool
+			if err := chromedp.Run(ctx,
+				chromedp.Evaluate(`window.backgroundDay || false`, &backgroundDay),
+				chromedp.Evaluate(`window.backgroundSlot || false`, &backgroundSlot),
+				chromedp.Evaluate(`window.modalDay || false`, &modalDay),
+				chromedp.Evaluate(`window.modalSlot || false`, &modalSlot),
+			); err != nil {
+				t.Fatalf("read fixture state: %v", err)
+			}
+			if backgroundDay || backgroundSlot || !modalDay || !modalSlot {
+				t.Fatalf("background day/slot and modal day/slot = %v/%v and %v/%v, want false/false and true/true", backgroundDay, backgroundSlot, modalDay, modalSlot)
+			}
+		})
+	})
+
+	t.Run("slot diagnostics remain inside the proven root", func(t *testing.T) {
+		html := `
+			<!doctype html>
+			<label for="time">Time</label>
+			<select id="time" aria-label="Time"><option value="18:15">6:15 PM</option></select>
+			<div><span>5:45 PM</span><button onclick="window.backgroundSlot = true;">Book</button></div>
+			<section class="experience-card">
+				<a href="/venue/experience/520126">Chef Counter details</a>
+				<button onclick="document.getElementById('panel').style.display = 'block';">Book now</button>
+			</section>
+			<div id="panel" style="display:none">
+				<div><span>7:00 PM</span><button onclick="window.panelSlot = true;">Book</button></div>
+			</div>`
+		withTockDOMFixtureAtPath(t, "/venue", html, func(ctx context.Context) {
+			err := clickComboboxExperienceLayout(ctx, "6:15 PM", "2026-07-10", 2, experienceID)
+			if err == nil {
+				t.Fatal("expected unavailable scoped slot to fail")
+			}
+			if !strings.Contains(err.Error(), "experience_modal_slot: requested time not offered in slot list; visible: 7:00 PM") {
+				t.Fatalf("error = %q, want only the panel's 7:00 PM diagnostic", err)
+			}
+			if strings.Contains(err.Error(), "5:45 PM") {
+				t.Fatalf("error = %q, background time leaked into scoped diagnostics", err)
+			}
+			var backgroundSlot, panelSlot bool
+			if runErr := chromedp.Run(ctx,
+				chromedp.Evaluate(`window.backgroundSlot || false`, &backgroundSlot),
+				chromedp.Evaluate(`window.panelSlot || false`, &panelSlot),
+			); runErr != nil {
+				t.Fatalf("read fixture state: %v", runErr)
+			}
+			if backgroundSlot || panelSlot {
+				t.Fatalf("background/panel slot clicked = %v/%v, want false/false", backgroundSlot, panelSlot)
+			}
+		})
+	})
+}
+
+func TestClickComboboxExperienceLayout_PinnedUnmarkedRevealedPanelRemainsSupported(t *testing.T) {
+	const experienceID = 520126
+	html := `
+		<!doctype html>
+		<label for="time">Time</label>
+		<select id="time" aria-label="Time"><option value="18:15">6:15 PM</option></select>
+		<section class="experience-card">
+			<a href="/venue/experience/520126">Chef Counter details</a>
+			<button onclick="document.getElementById('follow-on').style.display = 'block';">Book now</button>
+		</section>
+		<div id="follow-on" style="display:none">
+			<button aria-label="2026-07-10" onclick="window.pickedDay = true;">10</button>
+			<div><span>6:15 PM</span><button onclick="window.bookedSlot = true;">Book</button></div>
+		</div>`
+	withTockDOMFixtureAtPath(t, "/venue", html, func(ctx context.Context) {
+		if err := clickComboboxExperienceLayout(ctx, "6:15 PM", "2026-07-10", 2, experienceID); err != nil {
+			t.Fatalf("clickComboboxExperienceLayout: %v", err)
+		}
+		var pickedDay, bookedSlot bool
+		if err := chromedp.Run(ctx,
+			chromedp.Evaluate(`window.pickedDay || false`, &pickedDay),
+			chromedp.Evaluate(`window.bookedSlot || false`, &bookedSlot),
+		); err != nil {
+			t.Fatalf("read fixture state: %v", err)
+		}
+		if !pickedDay || !bookedSlot {
+			t.Fatalf("picked day/booked slot = %v/%v, want true/true", pickedDay, bookedSlot)
+		}
+	})
+}
+
+func TestClickComboboxExperienceLayout_PinnedAmbiguousFollowOnRootsFailClosed(t *testing.T) {
+	const experienceID = 520126
+	html := `
+		<!doctype html>
+		<label for="time">Time</label>
+		<select id="time" aria-label="Time"><option value="18:15">6:15 PM</option></select>
+		<section class="experience-card">
+			<a href="/venue/experience/520126">Chef Counter details</a>
+			<button onclick="document.getElementById('first').style.display = 'block'; document.getElementById('second').style.display = 'block';">Book now</button>
+		</section>
+		<div id="first" style="display:none">
+			<button aria-label="2026-07-10" onclick="window.clickedDay = 'first';">10</button>
+			<div><span>6:15 PM</span><button onclick="window.clickedSlot = 'first';">Book</button></div>
+		</div>
+		<div id="second" style="display:none">
+			<button aria-label="2026-07-10" onclick="window.clickedDay = 'second';">10</button>
+			<div><span>6:15 PM</span><button onclick="window.clickedSlot = 'second';">Book</button></div>
+		</div>`
+	withTockDOMFixtureAtPath(t, "/venue", html, func(ctx context.Context) {
+		err := clickComboboxExperienceLayout(ctx, "6:15 PM", "2026-07-10", 2, experienceID)
+		if err == nil || !strings.Contains(err.Error(), "experience_modal_scope:") {
+			t.Fatalf("expected experience_modal_scope failure, got %v", err)
+		}
+		if !strings.Contains(err.Error(), "2 newly revealed roots") {
+			t.Fatalf("error = %q, want two-root ambiguity detail", err)
+		}
+		var clickedDay, clickedSlot string
+		if runErr := chromedp.Run(ctx,
+			chromedp.Evaluate(`window.clickedDay || ''`, &clickedDay),
+			chromedp.Evaluate(`window.clickedSlot || ''`, &clickedSlot),
+		); runErr != nil {
+			t.Fatalf("read fixture state: %v", runErr)
+		}
+		if clickedDay != "" || clickedSlot != "" {
+			t.Fatalf("clicked day/slot = %q/%q, want neither", clickedDay, clickedSlot)
+		}
+	})
+}
+
+func TestClickComboboxExperienceLayout_PinnedPreexistingBackgroundDoesNotMaterializeModal(t *testing.T) {
+	const experienceID = 520126
+	html := `
+		<!doctype html>
+		<label for="time">Time</label>
+		<select id="time" aria-label="Time"><option value="18:15">6:15 PM</option></select>
+		<div><span>6:15 PM</span><button onclick="window.backgroundSlot = true;">Book</button></div>
+		<section class="experience-card">
+			<a href="/venue/experience/520126" onclick="window.selectedExperience = true; return false;">Book now</a>
+			<button type="submit" onclick="window.fallbackSubmit = true;">Reserve</button>
+		</section>`
+	withTockDOMFixtureAtPath(t, "/venue", html, func(ctx context.Context) {
+		if err := clickComboboxExperienceLayout(ctx, "6:15 PM", "2026-07-10", 2, experienceID); err != nil {
+			t.Fatalf("clickComboboxExperienceLayout: %v", err)
+		}
+		var selectedExperience, fallbackSubmit, backgroundSlot bool
+		if err := chromedp.Run(ctx,
+			chromedp.Evaluate(`window.selectedExperience || false`, &selectedExperience),
+			chromedp.Evaluate(`window.fallbackSubmit || false`, &fallbackSubmit),
+			chromedp.Evaluate(`window.backgroundSlot || false`, &backgroundSlot),
+		); err != nil {
+			t.Fatalf("read fixture state: %v", err)
+		}
+		if !selectedExperience || !fallbackSubmit || backgroundSlot {
+			t.Fatalf("selected/fallback/background = %v/%v/%v, want true/true/false", selectedExperience, fallbackSubmit, backgroundSlot)
+		}
+	})
+}
+
+func TestClickComboboxExperienceLayout_PinnedDeepLinkSoleStaticSlotRemainsSupported(t *testing.T) {
+	const experienceID = 520126
+	html := `
+		<!doctype html>
+		<label for="time">Time</label>
+		<select id="time" aria-label="Time"><option value="18:15">6:15 PM</option></select>
+		<section class="experience-card" id="foreign">
+			<a href="/venue/experience/111111">Patio details</a>
+			<div><span>6:15 PM</span><button onclick="window.bookedSlot = 'foreign';">Book</button></div>
+		</section>
+		<section class="experience-card" id="own">
+			<button onclick="window.selectedExperience = true;">Book now</button>
+			<div><span>6:15 PM</span><button onclick="window.bookedSlot = 'own';">Book</button></div>
+		</section>`
+	withTockDOMFixtureAtPath(t, "/venue/experience/520126", html, func(ctx context.Context) {
+		if err := clickComboboxExperienceLayout(ctx, "6:15 PM", "2026-07-10", 2, experienceID); err != nil {
+			t.Fatalf("clickComboboxExperienceLayout: %v", err)
+		}
+		var selectedExperience bool
+		var bookedSlot string
+		if err := chromedp.Run(ctx,
+			chromedp.Evaluate(`window.selectedExperience || false`, &selectedExperience),
+			chromedp.Evaluate(`window.bookedSlot || ''`, &bookedSlot),
+		); err != nil {
+			t.Fatalf("read fixture state: %v", err)
+		}
+		if !selectedExperience || bookedSlot != "own" {
+			t.Fatalf("selected/booked slot = %v/%q, want true/own", selectedExperience, bookedSlot)
+		}
+	})
+}
+
+// The static deep-link exception is sole-candidate only: two pre-existing
+// untied slot rows are unattributable and must fail closed as a scope error,
+// not fall through to any other click path.
+func TestClickComboboxExperienceLayout_PinnedDeepLinkMultipleStaticSlotsFailClosed(t *testing.T) {
+	const experienceID = 520126
+	html := `
+		<!doctype html>
+		<label for="time">Time</label>
+		<select id="time" aria-label="Time"><option value="18:15">6:15 PM</option></select>
+		<section class="experience-card" id="own">
+			<button onclick="window.selectedExperience = true;">Book now</button>
+		</section>
+		<div><span>6:15 PM</span><button onclick="window.bookedSlot = 'first';">Book</button></div>
+		<div><span>6:15 PM</span><button onclick="window.bookedSlot = 'second';">Book</button></div>`
+	withTockDOMFixtureAtPath(t, "/venue/experience/520126", html, func(ctx context.Context) {
+		err := clickComboboxExperienceLayout(ctx, "6:15 PM", "2026-07-10", 2, experienceID)
+		if err == nil || !strings.Contains(err.Error(), "surviving pre-existing date/slot controls") {
+			t.Fatalf("error = %v, want static-scope ambiguity failure", err)
+		}
+		var bookedSlot string
+		if evalErr := chromedp.Run(ctx, chromedp.Evaluate(`window.bookedSlot || ''`, &bookedSlot)); evalErr != nil {
+			t.Fatalf("read fixture state: %v", evalErr)
+		}
+		if bookedSlot != "" {
+			t.Fatalf("booked slot = %q, want none for unattributable static rows", bookedSlot)
+		}
+	})
+}
+
+// A follow-on root can be the revealed control itself: unhiding a sole Book
+// button beneath a pre-existing visible time row must stay bookable, since
+// rooted queries would otherwise never see their own root.
+func TestClickComboboxExperienceLayout_PinnedRevealedControlAsRootRemainsBookable(t *testing.T) {
+	const experienceID = 520126
+	html := `
+		<!doctype html>
+		<label for="time">Time</label>
+		<select id="time" aria-label="Time"><option value="18:15">6:15 PM</option></select>
+		<section class="experience-card" id="own">
+			<a href="/venue/experience/520126">Chef Counter</a>
+			<button onclick="document.getElementById('slot-btn').style.display = 'inline-block';">Book now</button>
+		</section>
+		<div><span>6:15 PM</span><button id="slot-btn" style="display:none" onclick="window.bookedSlot = 'revealed';">Book</button></div>`
+	withTockDOMFixtureAtPath(t, "/venue", html, func(ctx context.Context) {
+		if err := clickComboboxExperienceLayout(ctx, "6:15 PM", "2026-07-10", 2, experienceID); err != nil {
+			t.Fatalf("clickComboboxExperienceLayout: %v", err)
+		}
+		var bookedSlot string
+		if err := chromedp.Run(ctx, chromedp.Evaluate(`window.bookedSlot || ''`, &bookedSlot)); err != nil {
+			t.Fatalf("read fixture state: %v", err)
+		}
+		if bookedSlot != "revealed" {
+			t.Fatalf("booked slot = %q, want the revealed sole control", bookedSlot)
+		}
+	})
+}
+
+func TestClickComboboxExperienceLayout_UnpinnedPostSelectionQueriesRemainDocumentWide(t *testing.T) {
+	html := `
+		<!doctype html>
+		<label for="time">Time</label>
+		<select id="time" aria-label="Time"><option value="18:15">6:15 PM</option></select>
+		<section class="experience-card">
+			<button onclick="document.getElementById('first').style.display = 'block'; document.getElementById('second').style.display = 'block';">Book now</button>
+		</section>
+		<div id="first" style="display:none"><span>6:15 PM</span><button onclick="window.bookedSlot = 'first';">Book</button></div>
+		<div id="second" style="display:none"><span>6:15 PM</span><button onclick="window.bookedSlot = 'second';">Book</button></div>`
+	withTockDOMFixtureAtPath(t, "/venue", html, func(ctx context.Context) {
+		if err := clickComboboxExperienceLayout(ctx, "6:15 PM", "2026-07-10", 2, 0); err != nil {
+			t.Fatalf("clickComboboxExperienceLayout: %v", err)
+		}
+		var bookedSlot string
+		if err := chromedp.Run(ctx, chromedp.Evaluate(`window.bookedSlot || ''`, &bookedSlot)); err != nil {
+			t.Fatalf("read fixture state: %v", err)
+		}
+		if bookedSlot != "first" {
+			t.Fatalf("booked slot = %q, want historical document-order first", bookedSlot)
 		}
 	})
 }

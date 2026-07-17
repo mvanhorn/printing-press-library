@@ -1045,15 +1045,25 @@ func clickComboboxExperienceLayoutJS(displayTime, isoDate string, partySize, exp
 					}
 					return { ok: false, step: 'experience_card', detail: 'no Book now controls found after selecting time' };
 				}
-				click(controls[0].control);
+				const selectedControl = controls[0].control;
+				const selectedTightCard = experienceID > 0 ? tightCardOf(selectedControl) : null;
+				// Once a pinned control is selected, document-wide matching loses
+				// experience attribution. Visibility emergence preserves layouts whose
+				// follow-on panel has no dialog semantics while excluding old page rows.
+				const preSelectionVisible = experienceID > 0
+					? new WeakSet(all('*'))
+					: null;
+				click(selectedControl);
 				await sleep(500);
 				if (/\/checkout\/confirm-purchase/.test(location.href)) {
 					return { ok: true, step: 'experience_card', detail: controls[0].cardText };
 				}
-				const modalResult = await driveExperienceModal();
+				const modalResult = await driveExperienceModal(
+					preSelectionVisible,
+					selectedTightCard
+				);
 				if (modalResult !== null) return modalResult;
 				// No modal appeared: legacy layout with a separate submit control.
-				const selectedControl = controls[0].control;
 				const isFallbackSubmit = (el) => isBookNowControl(el) || el.type === 'submit';
 				const submitCandidates = all('button')
 					.filter((el) => el !== selectedControl)
@@ -1101,24 +1111,37 @@ func clickComboboxExperienceLayoutJS(displayTime, isoDate string, partySize, exp
 				return { ok: true, step: 'experience_card', detail: controls[0].cardText };
 			}
 
-			function findDayButton() {
+			function allWithin(root, selector) {
+				// querySelectorAll excludes the root itself, but a proven
+				// follow-on root can BE the sole revealed control (unhidden
+				// beneath a pre-existing visible ancestor) — it must match too.
+				const matches = Array.from(root.querySelectorAll(selector));
+				if (root.matches && root.matches(selector)) matches.unshift(root);
+				return matches.filter(visible);
+			}
+			function findDayButton(root) {
 				if (!isoDate) return null;
-				return all('button').find((el) =>
+				return allWithin(root, 'button').find((el) =>
 					clean(el.textContent) === isoDate || clean(el.getAttribute('aria-label')) === isoDate) || null;
 			}
-			function findSlotBookButton() {
+			function slotTimeAncestor(btn, root) {
 				const timePattern = /\d{1,2}:\d{2}\s*(?:AM|PM)/i;
-				for (const btn of all('button').filter((el) => /^book$/i.test(clean(el.textContent)))) {
-					let node = btn.parentElement;
-					for (let hops = 0; node && hops < 5; hops++, node = node.parentElement) {
-						const text = clean(node.textContent);
-						if (text.length > 200) break;
-						if (timePattern.test(text)) {
-							// Nearest time-bearing ancestor IS the row: match or
-							// move on — climbing further reaches the whole list.
-							if (text.includes(target)) return btn;
-							break;
-						}
+				let node = btn.parentElement;
+				for (let hops = 0; node && hops < 5; hops++, node = node.parentElement) {
+					const text = clean(node.textContent);
+					if (text.length > 200) break;
+					if (timePattern.test(text)) return { node, text };
+					if (node === root) break;
+				}
+				return null;
+			}
+			function findSlotBookButton(root) {
+				for (const btn of allWithin(root, 'button').filter((el) => /^book$/i.test(clean(el.textContent)))) {
+					const row = slotTimeAncestor(btn, root);
+					if (row) {
+						// Nearest time-bearing ancestor IS the row: match or
+						// move on — climbing further reaches the whole list.
+						if (row.text.includes(target)) return btn;
 					}
 				}
 				return null;
@@ -1153,7 +1176,7 @@ func clickComboboxExperienceLayoutJS(displayTime, isoDate string, partySize, exp
 				// clicks by time only, so it could book a different experience
 				// at the same slot. Let the experience-aware card flow handle it.
 				if (experienceID > 0) return null;
-				let slotBtn = findSlotBookButton();
+				let slotBtn = findSlotBookButton(document);
 				if (slotBtn) {
 					click(slotBtn);
 					await sleep(400);
@@ -1167,7 +1190,7 @@ func clickComboboxExperienceLayoutJS(displayTime, isoDate string, partySize, exp
 					if (/\/checkout\/confirm-purchase/.test(location.href)) {
 						return { ok: true, step: 'search_result_slot', detail: 'checkout reached from search result' };
 					}
-					slotBtn = findSlotBookButton();
+					slotBtn = findSlotBookButton(document);
 					if (slotBtn) {
 						click(slotBtn);
 						await sleep(400);
@@ -1175,49 +1198,205 @@ func clickComboboxExperienceLayoutJS(displayTime, isoDate string, partySize, exp
 					}
 					await sleep(250);
 				}
-				const seen = visibleSlotTimes();
+				const seen = visibleSlotTimes(document);
 				return {
 					ok: false,
 					step: 'search_result_slot',
 					detail: 'requested time not offered in search results; visible: ' + (seen.length ? seen.join(', ') : 'none'),
 				};
 			}
-			function visibleSlotTimes() {
+			function visibleSlotTimes(root) {
 				const times = new Set();
-				for (const btn of all('button').filter((el) => /^book$/i.test(clean(el.textContent)))) {
-					let node = btn.parentElement;
-					for (let hops = 0; node && hops < 5; hops++, node = node.parentElement) {
-						const text = clean(node.textContent);
-						if (text.length > 200) break;
-						const m = text.match(/\d{1,2}:\d{2}\s*(?:AM|PM)/i);
-						if (m) { times.add(m[0]); break; }
-					}
+				for (const btn of allWithin(root, 'button').filter((el) => /^book$/i.test(clean(el.textContent)))) {
+					const row = slotTimeAncestor(btn, root);
+					if (!row) continue;
+					const m = row.text.match(/\d{1,2}:\d{2}\s*(?:AM|PM)/i);
+					if (m) times.add(m[0]);
 				}
 				return Array.from(times);
+			}
+			function followOnSignals(root) {
+				const signals = [];
+				for (const btn of allWithin(root, 'button')) {
+					if (isoDate && (
+						clean(btn.textContent) === isoDate ||
+						clean(btn.getAttribute('aria-label')) === isoDate
+					)) {
+						signals.push(btn);
+						continue;
+					}
+					if (/^book$/i.test(clean(btn.textContent)) && slotTimeAncestor(btn, root)) {
+						signals.push(btn);
+					}
+				}
+				return signals;
+			}
+			function normalizeRoots(roots) {
+				const unique = roots.filter((root, index) => roots.indexOf(root) === index);
+				return unique.filter((root) =>
+					!unique.some((other) => other !== root && other.contains(root))
+				);
+			}
+			function highestNewAncestor(signal, preSelectionVisible) {
+				let root = signal;
+				for (let parent = signal.parentElement; parent; parent = parent.parentElement) {
+					if (parent === document.body || parent === document.documentElement) break;
+					if (!visible(parent) || preSelectionVisible.has(parent)) break;
+					root = parent;
+				}
+				return root;
+			}
+			function resolveNewFollowOnRoot(signals, preSelectionVisible, selectedTightCard) {
+				const roots = normalizeRoots(signals.map((signal) =>
+					highestNewAncestor(signal, preSelectionVisible)
+				));
+				const cardRoots = selectedTightCard
+					? roots.filter((root) => selectedTightCard.contains(root))
+					: [];
+				if (cardRoots.length === 1) return { root: cardRoots[0], rootCount: roots.length };
+				if (cardRoots.length > 1) return { root: null, rootCount: roots.length };
+
+				const semanticRoots = normalizeRoots(signals
+					.map((signal) => signal.closest('dialog, [role="dialog"], [aria-modal="true"]'))
+					.filter((root) => root && visible(root) && !preSelectionVisible.has(root)));
+				if (semanticRoots.length === 1) return { root: semanticRoots[0], rootCount: roots.length };
+				if (semanticRoots.length > 1) return { root: null, rootCount: roots.length };
+				return { root: roots.length === 1 ? roots[0] : null, rootCount: roots.length };
+			}
+			function staticDeepLinkScope(preSelectionVisible) {
+				if (!hasPinnedExperiencePath(location.pathname)) return { root: null, count: 0 };
+				const requested = followOnSignals(document)
+					.filter((control) => preSelectionVisible.has(control))
+					.filter((control) => {
+						const isDay = isoDate && (
+							clean(control.textContent) === isoDate ||
+							clean(control.getAttribute('aria-label')) === isoDate
+						);
+						if (isDay) return true;
+						const row = slotTimeAncestor(control, document);
+						return row && row.text.includes(target);
+					})
+					.filter((control) => !cardLinksOnlyOtherExperience(control));
+				const tied = requested.filter(controlOrCardHasPinnedExperienceLink);
+				const candidates = tied.length > 0 ? tied : requested;
+				if (candidates.length !== 1) return { root: null, count: candidates.length };
+				const control = candidates[0];
+				const card = tightCardOf(control);
+				if (card) return { root: card, count: 1 };
+				const row = /^book$/i.test(clean(control.textContent))
+					? slotTimeAncestor(control, document)
+					: null;
+				const root = row ? row.node : control.parentElement;
+				if (!root || root === document.body || root === document.documentElement) {
+					return { root: null, count: 1 };
+				}
+				return { root, count: 1 };
+			}
+			function pinnedScopeFailure(detail) {
+				return { ok: false, step: 'experience_modal_scope', detail };
 			}
 			// Tock's experience modal (SPA route /experience/<id>/reservation):
 			// calendar day buttons named with the ISO date, then slot rows with
 			// per-time "Book" buttons. The modal RESETS the deep link's date to
 			// today, so the requested day must be re-selected. Returns null when
 			// no modal materializes (other layouts).
-			async function driveExperienceModal() {
+			async function driveExperienceModal(preSelectionVisible, selectedTightCard) {
 				const detectDeadline = Date.now() + 2500;
-				while (Date.now() < detectDeadline) {
-					if (findDayButton() || findSlotBookButton()) break;
-					if (/\/checkout\/confirm-purchase/.test(location.href)) {
-						return { ok: true, step: 'experience_card', detail: 'checkout reached without modal' };
+				let root = document;
+				let scopedSignals = [];
+				const allowedOutsideSignals = new WeakSet();
+				if (experienceID > 0) {
+					let sawNewSignal = false;
+					let unresolvedRootCount = 0;
+					while (Date.now() < detectDeadline) {
+						if (/\/checkout\/confirm-purchase/.test(location.href)) {
+							return { ok: true, step: 'experience_card', detail: 'checkout reached without modal' };
+						}
+						const newSignals = followOnSignals(document)
+							.filter((signal) => !preSelectionVisible.has(signal));
+						if (newSignals.length > 0) {
+							sawNewSignal = true;
+							const resolved = resolveNewFollowOnRoot(
+								newSignals,
+								preSelectionVisible,
+								selectedTightCard
+							);
+							unresolvedRootCount = resolved.rootCount;
+							if (resolved.root) {
+								root = resolved.root;
+								scopedSignals = newSignals.filter((signal) => root.contains(signal));
+								newSignals
+									.filter((signal) => !root.contains(signal))
+									.forEach((signal) => allowedOutsideSignals.add(signal));
+								break;
+							}
+						}
+						await sleep(200);
 					}
-					await sleep(200);
+					if (root === document) {
+						if (sawNewSignal) {
+							return pinnedScopeFailure(
+								'pinned experience ' + experienceID + ' exposed post-selection date/slot controls in ' +
+								unresolvedRootCount + ' newly revealed roots; no unique boundary attributes them to the selected experience'
+							);
+						}
+						const staticScope = staticDeepLinkScope(preSelectionVisible);
+						if (staticScope.count > 1) {
+							return pinnedScopeFailure(
+								'pinned experience ' + experienceID + ' has ' + staticScope.count +
+								' surviving pre-existing date/slot controls on its deep-link page; no unique page-owned candidate is provable'
+							);
+						}
+						if (!staticScope.root) return null;
+						root = staticScope.root;
+						scopedSignals = followOnSignals(root);
+					}
+				} else {
+					while (Date.now() < detectDeadline) {
+						if (findDayButton(document) || findSlotBookButton(document)) break;
+						if (/\/checkout\/confirm-purchase/.test(location.href)) {
+							return { ok: true, step: 'experience_card', detail: 'checkout reached without modal' };
+						}
+						await sleep(200);
+					}
 				}
-				const dayBtn = findDayButton();
-				if (!dayBtn && !findSlotBookButton()) return null;
+				const scopeFailure = () => {
+					if (experienceID === 0) return null;
+					if (!root.isConnected || !visible(root)) {
+						return pinnedScopeFailure(
+							'pinned experience ' + experienceID + ' follow-on boundary became disconnected or hidden'
+						);
+					}
+					if (scopedSignals.some((signal) => signal.isConnected && !root.contains(signal))) {
+						return pinnedScopeFailure(
+							'pinned experience ' + experienceID + ' follow-on controls moved outside the proven boundary'
+						);
+					}
+					const escapedSignal = followOnSignals(document).some((signal) =>
+						!preSelectionVisible.has(signal) &&
+						!root.contains(signal) &&
+						!allowedOutsideSignals.has(signal)
+					);
+					if (escapedSignal) {
+						return pinnedScopeFailure(
+							'pinned experience ' + experienceID + ' exposed follow-on controls outside the proven boundary'
+						);
+					}
+					return null;
+				};
+				let failedScope = scopeFailure();
+				if (failedScope) return failedScope;
+				const dayBtn = findDayButton(root);
+				if (experienceID === 0 && !dayBtn && !findSlotBookButton(root)) return null;
 				if (dayBtn) {
 					click(dayBtn);
 					await sleep(400);
 				}
 				const slotDeadline = Date.now() + 12000;
 				while (Date.now() < slotDeadline) {
-					const slotBtn = findSlotBookButton();
+					failedScope = scopeFailure();
+					if (failedScope) return failedScope;
+					const slotBtn = findSlotBookButton(root);
 					if (slotBtn) {
 						click(slotBtn);
 						await sleep(400);
@@ -1225,7 +1404,9 @@ func clickComboboxExperienceLayoutJS(displayTime, isoDate string, partySize, exp
 					}
 					await sleep(250);
 				}
-				const seen = visibleSlotTimes();
+				failedScope = scopeFailure();
+				if (failedScope) return failedScope;
+				const seen = visibleSlotTimes(root);
 				return {
 					ok: false,
 					step: 'experience_modal_slot',
