@@ -1,0 +1,5 @@
+https://app.sensortower.com/api/ios/apps/460177396?country=US
+https://app.sensortower.com/api/unified/apps?app_id_type=itunes&app_ids=460177396
+https://app.sensortower.com/api/ios/category/category_history?app_ids%5B%5D=460177396&categories%5B%5D=0&chart_type_ids%5B%5D=topfreeapplications&countries%5B%5D=US&end_date=2026-07-17&start_date=2026-07-11&is_hourly=false
+https://app.sensortower.com/api/ios/internal_entities
+https://app.sensortower.com/api/ios/category/app_category_ranking_summary?app_ids%5B%5D=460177396

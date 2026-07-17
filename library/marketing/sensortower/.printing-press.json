@@ -1,0 +1,53 @@
+{
+  "schema_version": 2,
+  "generated_at": "2026-07-17T17:51:16.553362Z",
+  "printing_press_version": "4.29.0",
+  "api_name": "sensortower",
+  "display_name": "Sensor Tower",
+  "cli_name": "sensortower-pp-cli",
+  "creator": {
+    "handle": "waveriderai",
+    "name": "waveriderai"
+  },
+  "owner": "waveriderai",
+  "printer": "waveriderai",
+  "printer_name": "waveriderai",
+  "spec_format": "internal",
+  "spec_checksum": "sha256:e448f7a6e935155f1c6d58decab07e8a5a7b12388ab84db38d377d0f49623b80",
+  "run_id": "20260717-030012-35521069",
+  "category": "marketing",
+  "description": "Every free Sensor Tower ranking, plus the rank history the dashboard forgets the moment you close the tab.",
+  "mcp_binary": "sensortower-pp-mcp",
+  "mcp_tool_count": 12,
+  "mcp_public_tool_count": 10,
+  "mcp_ready": "partial",
+  "api_version": "0.1.0",
+  "auth_type": "cookie",
+  "novel_features": [
+    {
+      "name": "Category movers and new entrants",
+      "command": "movers",
+      "description": "See which apps climbed, fell, or newly appeared in a category chart since the previous 'movers' run."
+    },
+    {
+      "name": "Release-vs-rank teardown",
+      "command": "teardown",
+      "description": "Align an app's release timeline against its rank history to see which shipped version moved the needle."
+    },
+    {
+      "name": "Weekly watch digest",
+      "command": "watch digest",
+      "description": "Print every tracked app's current rank per chart plus its delta since the previous 'movers' run."
+    },
+    {
+      "name": "Free-vs-grossing divergence",
+      "command": "divergence",
+      "description": "Find monetization outliers in a category by comparing each app's free-chart rank against its grossing-chart rank."
+    },
+    {
+      "name": "Cross-platform comparison",
+      "command": "compare",
+      "description": "Compare one product's iOS and Android standing side by side after resolving cross-platform identity."
+    }
+  ]
+}

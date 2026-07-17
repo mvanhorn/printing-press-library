@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "api_name": "sensortower",
+  "run_id": "20260717-030012-35521069",
+  "status": "pass",
+  "level": "full",
+  "matrix_size": 133,
+  "tests_passed": 133,
+  "tests_skipped": 69,
+  "auth_context": {
+    "type": "cookie"
+  }
+}
