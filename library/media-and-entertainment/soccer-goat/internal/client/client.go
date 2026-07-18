@@ -70,6 +70,19 @@ func (e *APIError) Error() string {
 	return fmt.Sprintf("%s %s returned HTTP %d: %s", e.Method, e.Path, e.StatusCode, e.Body)
 }
 
+// SourceUnavailableError reports that every configured source failed to respond
+// at the transport level (DNS failure, connection refused, timeout) — the
+// all-sources-unreachable case, distinct from an HTTP error (which carries an
+// *APIError). The CLI maps both to the same "data source unavailable" guidance,
+// so failover exhaustion on transport errors is not silently downgraded to a
+// bare Go dial error.
+type SourceUnavailableError struct {
+	Err error
+}
+
+func (e *SourceUnavailableError) Error() string { return e.Err.Error() }
+func (e *SourceUnavailableError) Unwrap() error { return e.Err }
+
 func rejectUnresolvedPathParams(path string, allowedTemplateVars map[string]string) error {
 	for {
 		start := strings.IndexByte(path, '{')
@@ -596,6 +609,16 @@ func (c *Client) doInternal(ctx context.Context, method, path string, params map
 		lastErr, lastStatus = aerr, status
 		if i < len(bases)-1 {
 			fmt.Fprintf(os.Stderr, "source %s unavailable, trying next source (%d/%d)\n", displayBaseHost(base), i+2, len(bases))
+		}
+	}
+	// Every source failed. A 5xx already carries an *APIError (classified
+	// upstream); a transport failure (DNS, refused, timeout) does not, so wrap
+	// it as SourceUnavailableError. Without this the all-sources-unreachable
+	// case would surface as a bare Go dial error instead of the outage hint.
+	if lastErr != nil {
+		var apiE *APIError
+		if !errors.As(lastErr, &apiE) {
+			lastErr = &SourceUnavailableError{Err: lastErr}
 		}
 	}
 	return nil, lastStatus, lastErr

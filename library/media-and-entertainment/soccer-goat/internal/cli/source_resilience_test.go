@@ -3,6 +3,7 @@
 package cli
 
 import (
+	"errors"
 	"fmt"
 	"strings"
 	"testing"
@@ -27,6 +28,20 @@ func TestClassifyAPIError_5xxIsFriendlyUpstream(t *testing.T) {
 		if !strings.Contains(msg, "unavailable") || !strings.Contains(msg, "--base-url") {
 			t.Fatalf("status %d: hint missing --base-url/unavailable guidance: %q", status, msg)
 		}
+	}
+}
+
+func TestClassifyAPIError_TransportExhaustionIsFriendly(t *testing.T) {
+	// All-sources transport failure surfaces as *client.SourceUnavailableError,
+	// which must get the same exit-5 outage hint as an all-5xx exhaustion.
+	base := fmt.Errorf("transfermarkt player search %q: %w", "someone",
+		&client.SourceUnavailableError{Err: errors.New("dial tcp: connection refused")})
+	got := classifyAPIError(base, &rootFlags{})
+	if code := ExitCode(got); code != 5 {
+		t.Fatalf("exit code = %d, want 5", code)
+	}
+	if msg := got.Error(); !strings.Contains(msg, "unavailable") || !strings.Contains(msg, "--base-url") {
+		t.Fatalf("transport-down hint missing --base-url/unavailable guidance: %q", msg)
 	}
 }
 

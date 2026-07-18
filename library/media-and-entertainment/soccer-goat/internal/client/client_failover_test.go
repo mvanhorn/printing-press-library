@@ -167,6 +167,26 @@ func TestFailover_AllSourcesDown(t *testing.T) {
 	}
 }
 
+// TestFailover_AllTransportDown: when every candidate refuses connections, the
+// exhausted error is a *SourceUnavailableError (not a bare dial error), so the
+// CLI layer can surface the same outage hint it gives for all-5xx.
+func TestFailover_AllTransportDown(t *testing.T) {
+	t.Setenv(cliutil.DogfoodEnvVar, "1")
+
+	mkDead := func() string {
+		s := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {}))
+		u := s.URL
+		s.Close() // refuses connections
+		return u
+	}
+	c := newFailoverClient(mkDead(), mkDead())
+	_, err := c.Get(context.Background(), "/x", nil)
+	var srcErr *SourceUnavailableError
+	if !errors.As(err, &srcErr) {
+		t.Fatalf("want *SourceUnavailableError after all transport failures, got %T: %v", err, err)
+	}
+}
+
 // TestFailover_SingleSource: a one-element list is a plain single-source client
 // (an override); it is hit exactly once under dogfood and never fans out.
 func TestFailover_SingleSource(t *testing.T) {

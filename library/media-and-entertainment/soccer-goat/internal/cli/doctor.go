@@ -210,6 +210,13 @@ func newDoctorCmd(flags *rootFlags) *cobra.Command {
 			if err != nil {
 				report["config"] = fmt.Sprintf("error: %s", err)
 			} else {
+				// Mirror newClient()'s --base-url override so the whole report —
+				// the base_url line, the API reachability check, and the
+				// per-source probe below — reflects the source the command
+				// actually uses, not the default list.
+				if strings.TrimSpace(flags.baseURL) != "" {
+					cfg.SetBaseURLOverride(flags.baseURL)
+				}
 				report["config"] = "ok"
 				report["config_path"] = cfg.Path
 				report["base_url"] = cfg.BaseURL
