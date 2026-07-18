@@ -206,7 +206,7 @@ func deltaBuckets(current, baseline cfpbResponse, name string) []map[string]any 
 	for k := range keys {
 		cv, cok := c[k]
 		bv, bok := b[k]
-		row := map[string]any{"value": k, "present_in_current_buckets": cok, "present_in_baseline_buckets": bok, "current_aggregation_truncated": currentTruncated, "baseline_aggregation_truncated": baselineTruncated}
+		row := map[string]any{"value": k, "count_delta": nil, "present_in_current_buckets": cok, "present_in_baseline_buckets": bok, "current_aggregation_truncated": currentTruncated, "baseline_aggregation_truncated": baselineTruncated}
 		if cok {
 			row["current_count"] = cv
 		}
@@ -219,8 +219,11 @@ func deltaBuckets(current, baseline cfpbResponse, name string) []map[string]any 
 		out = append(out, row)
 	}
 	sort.Slice(out, func(i, j int) bool {
-		di, _ := out[i]["count_delta"].(int)
-		dj, _ := out[j]["count_delta"].(int)
+		di, iKnown := out[i]["count_delta"].(int)
+		dj, jKnown := out[j]["count_delta"].(int)
+		if iKnown != jKnown {
+			return iKnown // Comparable deltas sort before unknown one-sided buckets.
+		}
 		if di == dj {
 			return out[i]["value"].(string) < out[j]["value"].(string)
 		}

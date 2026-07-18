@@ -9,6 +9,7 @@ import (
 	"errors"
 	"fmt"
 	"sort"
+	"strconv"
 	"strings"
 
 	"github.com/mvanhorn/printing-press-library/library/other/cfpb-complaints/internal/store"
@@ -47,7 +48,7 @@ func newNovelWatchChangesCmd(flags *rootFlags) *cobra.Command {
 				id := fmt.Sprint(hit.Source["complaint_id"])
 				current[id] = map[string]string{"product": fmt.Sprint(hit.Source["product"]), "issue": fmt.Sprint(hit.Source["issue"])}
 			}
-			key := strings.Join([]string{strings.ToUpper(company), product, strings.ToUpper(state), window}, "|")
+			key := watchObservationKey(company, product, state, window, limit)
 			db, err := store.OpenWithContext(ctx, defaultDBPath("cfpb-complaints-pp-cli"))
 			if err != nil {
 				return err
@@ -64,9 +65,10 @@ func newNovelWatchChangesCmd(flags *rootFlags) *cobra.Command {
 					return err
 				}
 			}
+			observationComplete := response.Hits.Total.Value <= limit && len(response.Hits.Hits) == response.Hits.Total.Value
 			var newIDs []string
 			products, issues := map[string]bool{}, map[string]bool{}
-			if !baseline {
+			if !baseline && observationComplete {
 				for id, row := range current {
 					if _, ok := previous[id]; !ok {
 						newIDs = append(newIDs, id)
@@ -79,12 +81,14 @@ func newNovelWatchChangesCmd(flags *rootFlags) *cobra.Command {
 					}
 				}
 			}
-			sort.Strings(newIDs)
-			next, _ := json.Marshal(current)
-			if err := db.Upsert("cfpb-complaint-watch", key, next); err != nil {
-				return err
+			if observationComplete {
+				sort.Strings(newIDs)
+				next, _ := json.Marshal(current)
+				if err := db.Upsert("cfpb-complaint-watch", key, next); err != nil {
+					return err
+				}
 			}
-			payload := map[string]any{"cohort": map[string]any{"company": company, "product": product, "state": state, "window": window, "dates": rangeMetadata(start, end), "record_cap": limit}, "baseline_created": baseline, "observed_records": len(current), "total_matching_records": response.Hits.Total.Value, "observation_complete": response.Hits.Total.Value <= limit, "new_complaint_ids": newIDs, "new_products": sortedKeys(products), "new_issues": sortedKeys(issues), "api_meta": response.Meta, "caveats": append(standardCaveats(), "Watch observes at most 100 newest records; narrow filters until observation_complete is true for complete change detection.")}
+			payload := map[string]any{"cohort": map[string]any{"company": company, "product": product, "state": state, "window": window, "dates": rangeMetadata(start, end), "record_cap": limit}, "baseline_created": baseline && observationComplete, "observed_records": len(current), "total_matching_records": response.Hits.Total.Value, "observation_complete": observationComplete, "snapshot_advanced": observationComplete, "new_complaint_ids": newIDs, "new_products": sortedKeys(products), "new_issues": sortedKeys(issues), "api_meta": response.Meta, "caveats": append(standardCaveats(), "Incomplete bounded observations neither emit new IDs nor replace the prior snapshot; narrow filters until observation_complete is true.")}
 			rawOut, marshalErr := json.Marshal(payload)
 			if marshalErr != nil {
 				return marshalErr
@@ -98,6 +102,10 @@ func newNovelWatchChangesCmd(flags *rootFlags) *cobra.Command {
 	cmd.Flags().StringVar(&window, "window", "30d", "Bounded observation window")
 	cmd.Flags().IntVar(&limit, "limit", 100, "Maximum newest records observed per run (1-100)")
 	return cmd
+}
+
+func watchObservationKey(company, product, state, window string, limit int) string {
+	return strings.Join([]string{strings.ToUpper(company), product, strings.ToUpper(state), window, strconv.Itoa(limit)}, "|")
 }
 
 func sortedKeys(values map[string]bool) []string {

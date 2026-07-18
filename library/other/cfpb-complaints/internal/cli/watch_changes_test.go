@@ -30,3 +30,11 @@ func TestNovelWatchChangesHelpWires(t *testing.T) {
 		}
 	}
 }
+
+func TestWatchObservationKeyIncludesLimit(t *testing.T) {
+	left := watchObservationKey("Company", "Product", "NY", "30d", 20)
+	right := watchObservationKey("Company", "Product", "NY", "30d", 100)
+	if left == right {
+		t.Fatal("different bounded samples shared one snapshot key")
+	}
+}

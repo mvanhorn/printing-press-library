@@ -6,6 +6,7 @@ package cli
 
 import (
 	"bytes"
+	"encoding/json"
 	"strings"
 	"testing"
 )
@@ -28,5 +29,14 @@ func TestNovelEmergingThemesHelpWires(t *testing.T) {
 		if !strings.Contains(help, want) {
 			t.Fatalf("emerging themes --help missing %q in output:\n%s", want, help)
 		}
+	}
+}
+
+func TestDeltaBucketsKeepsUnknownOneSidedBucketsExplicit(t *testing.T) {
+	current := cfpbResponse{}
+	current.Aggregations = map[string]json.RawMessage{"product": json.RawMessage(`{"buckets":[{"key":"new","doc_count":3}]}`)}
+	rows := deltaBuckets(current, cfpbResponse{}, "product")
+	if len(rows) != 1 || rows[0]["count_delta"] != nil {
+		t.Fatalf("rows=%#v", rows)
 	}
 }

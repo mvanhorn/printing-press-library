@@ -4,6 +4,8 @@
 package cli
 
 import (
+	"errors"
+
 	"github.com/spf13/cobra"
 )
 
@@ -29,6 +31,9 @@ func newNovelEmergingThemesCmd(flags *rootFlags) *cobra.Command {
 			baselineDuration, err := parseWindow(baseline)
 			if err != nil {
 				return err
+			}
+			if currentDuration != baselineDuration {
+				return errors.New("--window and --baseline must use equal durations so raw count deltas have comparable exposure")
 			}
 			ctx, cancel := boundCtx(cmd.Context(), flags)
 			defer cancel()
