@@ -1,0 +1,1013 @@
+{
+  "api_name": "zenodo",
+  "base_url": "https://sandbox.zenodo.org/api",
+  "description": "This is for the zenodo API http://developers.zenodo.org/#rest-api",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "api_key",
+    "header": "Authorization",
+    "in": "header",
+    "env_vars": [
+      "ZENODO_ACCESS_TOKEN"
+    ],
+    "env_var_specs": [
+      {
+        "name": "ZENODO_ACCESS_TOKEN",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    ]
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "communities_list",
+      "description": "List of communities. Returns the CommunitiesListResponse.",
+      "method": "GET",
+      "path": "/communities/",
+      "params": []
+    },
+    {
+      "name": "deposit_create",
+      "description": "Create a new deposit. Optional: conceptrecid, created, files (plus 9 more). Returns array of DepositionFile.",
+      "method": "POST",
+      "path": "/deposit/depositions",
+      "params": [
+        {
+          "name": "conceptrecid",
+          "type": "int",
+          "location": "body",
+          "description": "Conceptrecid"
+        },
+        {
+          "name": "created",
+          "type": "string",
+          "location": "body",
+          "description": "Created"
+        },
+        {
+          "name": "files",
+          "type": "array",
+          "location": "body",
+          "description": "Files"
+        },
+        {
+          "name": "id",
+          "type": "int",
+          "location": "body",
+          "description": "Id"
+        },
+        {
+          "name": "links",
+          "type": "object",
+          "location": "body",
+          "description": "Links"
+        },
+        {
+          "name": "metadata-access-conditions",
+          "wire_name": "metadata.access_conditions",
+          "type": "string",
+          "location": "body",
+          "description": "Access conditions"
+        },
+        {
+          "name": "metadata-access-right",
+          "wire_name": "metadata.access_right",
+          "type": "string",
+          "location": "body",
+          "description": "Access right",
+          "required": true
+        },
+        {
+          "name": "metadata-communities",
+          "wire_name": "metadata.communities",
+          "type": "array",
+          "location": "body",
+          "description": "Communities"
+        },
+        {
+          "name": "metadata-conference-acronym",
+          "wire_name": "metadata.conference_acronym",
+          "type": "string",
+          "location": "body",
+          "description": "Conference acronym"
+        },
+        {
+          "name": "metadata-conference-dates",
+          "wire_name": "metadata.conference_dates",
+          "type": "string",
+          "location": "body",
+          "description": "Conference dates"
+        },
+        {
+          "name": "metadata-conference-place",
+          "wire_name": "metadata.conference_place",
+          "type": "string",
+          "location": "body",
+          "description": "Conference place"
+        },
+        {
+          "name": "metadata-conference-session",
+          "wire_name": "metadata.conference_session",
+          "type": "string",
+          "location": "body",
+          "description": "Conference session"
+        },
+        {
+          "name": "metadata-conference-session-part",
+          "wire_name": "metadata.conference_session_part",
+          "type": "string",
+          "location": "body",
+          "description": "Conference session part"
+        },
+        {
+          "name": "metadata-conference-title",
+          "wire_name": "metadata.conference_title",
+          "type": "string",
+          "location": "body",
+          "description": "Conference title"
+        },
+        {
+          "name": "metadata-conference-url",
+          "wire_name": "metadata.conference_url",
+          "type": "string",
+          "location": "body",
+          "description": "Conference url"
+        },
+        {
+          "name": "metadata-contributors",
+          "wire_name": "metadata.contributors",
+          "type": "array",
+          "location": "body",
+          "description": "Contributors"
+        },
+        {
+          "name": "metadata-creators",
+          "wire_name": "metadata.creators",
+          "type": "array",
+          "location": "body",
+          "description": "Creators",
+          "required": true
+        },
+        {
+          "name": "metadata-description",
+          "wire_name": "metadata.description",
+          "type": "string",
+          "location": "body",
+          "description": "Description",
+          "required": true
+        },
+        {
+          "name": "metadata-doi",
+          "wire_name": "metadata.doi",
+          "type": "string",
+          "location": "body",
+          "description": "Doi"
+        },
+        {
+          "name": "metadata-embargo-date",
+          "wire_name": "metadata.embargo_date",
+          "type": "string",
+          "location": "body",
+          "description": "Embargo date"
+        },
+        {
+          "name": "metadata-grants",
+          "wire_name": "metadata.grants",
+          "type": "array",
+          "location": "body",
+          "description": "Grants"
+        },
+        {
+          "name": "metadata-image-type",
+          "wire_name": "metadata.image_type",
+          "type": "string",
+          "location": "body",
+          "description": "Image type"
+        },
+        {
+          "name": "metadata-imprint-isbn",
+          "wire_name": "metadata.imprint_isbn",
+          "type": "string",
+          "location": "body",
+          "description": "Imprint isbn"
+        },
+        {
+          "name": "metadata-imprint-place",
+          "wire_name": "metadata.imprint_place",
+          "type": "string",
+          "location": "body",
+          "description": "Imprint place"
+        },
+        {
+          "name": "metadata-imprint-publisher",
+          "wire_name": "metadata.imprint_publisher",
+          "type": "string",
+          "location": "body",
+          "description": "Imprint publisher"
+        },
+        {
+          "name": "metadata-journal-issue",
+          "wire_name": "metadata.journal_issue",
+          "type": "string",
+          "location": "body",
+          "description": "Journal issue"
+        },
+        {
+          "name": "metadata-journal-pages",
+          "wire_name": "metadata.journal_pages",
+          "type": "string",
+          "location": "body",
+          "description": "Journal pages"
+        },
+        {
+          "name": "metadata-journal-title",
+          "wire_name": "metadata.journal_title",
+          "type": "string",
+          "location": "body",
+          "description": "Journal title"
+        },
+        {
+          "name": "metadata-journal-volume",
+          "wire_name": "metadata.journal_volume",
+          "type": "string",
+          "location": "body",
+          "description": "Journal volume"
+        },
+        {
+          "name": "metadata-keywords",
+          "wire_name": "metadata.keywords",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Keywords"
+        },
+        {
+          "name": "metadata-language",
+          "wire_name": "metadata.language",
+          "type": "string",
+          "location": "body",
+          "description": "Language"
+        },
+        {
+          "name": "metadata-license",
+          "wire_name": "metadata.license",
+          "type": "string",
+          "location": "body",
+          "description": "License"
+        },
+        {
+          "name": "metadata-notes",
+          "wire_name": "metadata.notes",
+          "type": "string",
+          "location": "body",
+          "description": "Notes"
+        },
+        {
+          "name": "metadata-partof-pages",
+          "wire_name": "metadata.partof_pages",
+          "type": "string",
+          "location": "body",
+          "description": "Partof pages"
+        },
+        {
+          "name": "metadata-partof-title",
+          "wire_name": "metadata.partof_title",
+          "type": "string",
+          "location": "body",
+          "description": "Partof title"
+        },
+        {
+          "name": "metadata-prereserve-doi",
+          "wire_name": "metadata.prereserve_doi",
+          "type": "object",
+          "location": "body",
+          "description": "Prereserve doi"
+        },
+        {
+          "name": "metadata-publication-date",
+          "wire_name": "metadata.publication_date",
+          "type": "string",
+          "location": "body",
+          "description": "Publication date",
+          "required": true
+        },
+        {
+          "name": "metadata-publication-type",
+          "wire_name": "metadata.publication_type",
+          "type": "string",
+          "location": "body",
+          "description": "Publication type"
+        },
+        {
+          "name": "metadata-references",
+          "wire_name": "metadata.references",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "References"
+        },
+        {
+          "name": "metadata-related-identifiers",
+          "wire_name": "metadata.related_identifiers",
+          "type": "array",
+          "location": "body",
+          "description": "Related identifiers"
+        },
+        {
+          "name": "metadata-subjects",
+          "wire_name": "metadata.subjects",
+          "type": "array",
+          "location": "body",
+          "description": "Subjects"
+        },
+        {
+          "name": "metadata-thesis-supervisors",
+          "wire_name": "metadata.thesis_supervisors",
+          "type": "array",
+          "location": "body",
+          "description": "Thesis supervisors"
+        },
+        {
+          "name": "metadata-thesis-university",
+          "wire_name": "metadata.thesis_university",
+          "type": "string",
+          "location": "body",
+          "description": "Thesis university"
+        },
+        {
+          "name": "metadata-title",
+          "wire_name": "metadata.title",
+          "type": "string",
+          "location": "body",
+          "description": "Title",
+          "required": true
+        },
+        {
+          "name": "metadata-upload-type",
+          "wire_name": "metadata.upload_type",
+          "type": "string",
+          "location": "body",
+          "description": "Upload type",
+          "required": true
+        },
+        {
+          "name": "metadata-version",
+          "wire_name": "metadata.version",
+          "type": "string",
+          "location": "body",
+          "description": "Version"
+        },
+        {
+          "name": "modified",
+          "type": "string",
+          "location": "body",
+          "description": "Modified"
+        },
+        {
+          "name": "owner",
+          "type": "int",
+          "location": "body",
+          "description": "Owner"
+        },
+        {
+          "name": "record_id",
+          "type": "int",
+          "location": "body",
+          "description": "Record id"
+        },
+        {
+          "name": "state",
+          "type": "string",
+          "location": "body",
+          "description": "State"
+        },
+        {
+          "name": "submitted",
+          "type": "bool",
+          "location": "body",
+          "description": "Submitted"
+        },
+        {
+          "name": "title",
+          "type": "string",
+          "location": "body",
+          "description": "Title"
+        }
+      ]
+    },
+    {
+      "name": "deposit_create-file",
+      "description": "Create a new file. Required: depositId. Optional: file, filename. Returns the new DepositionFile.",
+      "method": "POST",
+      "path": "/deposit/depositions/{depositId}/files",
+      "params": [
+        {
+          "name": "depositId",
+          "type": "int",
+          "location": "path",
+          "description": "Deposit id",
+          "required": true
+        },
+        {
+          "name": "file",
+          "type": "string",
+          "location": "body",
+          "description": "The file to upload"
+        },
+        {
+          "name": "filename",
+          "type": "string",
+          "location": "body",
+          "description": "Filename for file"
+        }
+      ]
+    },
+    {
+      "name": "deposit_delete",
+      "description": "Delete a single deposit. Required: depositId. Destructive.",
+      "method": "DELETE",
+      "path": "/deposit/depositions/{depositId}",
+      "params": [
+        {
+          "name": "depositId",
+          "type": "int",
+          "location": "path",
+          "description": "Deposit id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "deposit_delete-file",
+      "description": "Delete an existing deposition file resource. Note, only deposition files for unpublished depositions may be deleted. Required: depositId, fileId. Returns the DepositionFile. Destructive.",
+      "method": "DELETE",
+      "path": "/deposit/depositions/{depositId}/files/{fileId}",
+      "params": [
+        {
+          "name": "depositId",
+          "type": "int",
+          "location": "path",
+          "description": "Deposit id",
+          "required": true
+        },
+        {
+          "name": "fileId",
+          "type": "string",
+          "location": "path",
+          "description": "File id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "deposit_discard",
+      "description": "Discard changes in the current editing session. Required: depositId. Returns array of DepositionFile.",
+      "method": "POST",
+      "path": "/deposit/depositions/{depositId}/actions/discard",
+      "params": [
+        {
+          "name": "depositId",
+          "type": "int",
+          "location": "path",
+          "description": "Deposit id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "deposit_edit",
+      "description": "Unlock already submitted deposition for editing. Required: depositId. Returns array of DepositionFile.",
+      "method": "POST",
+      "path": "/deposit/depositions/{depositId}/actions/edit",
+      "params": [
+        {
+          "name": "depositId",
+          "type": "int",
+          "location": "path",
+          "description": "Deposit id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "deposit_get",
+      "description": "Get a single deposit. Required: depositId. Returns array of DepositionFile.",
+      "method": "GET",
+      "path": "/deposit/depositions/{depositId}",
+      "params": [
+        {
+          "name": "depositId",
+          "type": "int",
+          "location": "path",
+          "description": "Deposit id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "deposit_get-file",
+      "description": "Retrieve a single deposition file. Required: depositId, fileId. Returns the DepositionFile.",
+      "method": "GET",
+      "path": "/deposit/depositions/{depositId}/files/{fileId}",
+      "params": [
+        {
+          "name": "depositId",
+          "type": "int",
+          "location": "path",
+          "description": "Deposit id",
+          "required": true
+        },
+        {
+          "name": "fileId",
+          "type": "string",
+          "location": "path",
+          "description": "File id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "deposit_list",
+      "description": "List of deposits. Returns array of Deposit.",
+      "method": "GET",
+      "path": "/deposit/depositions",
+      "params": []
+    },
+    {
+      "name": "deposit_list-files-for",
+      "description": "List of files for deposit. Required: depositId. Returns array of DepositionFile.",
+      "method": "GET",
+      "path": "/deposit/depositions/{depositId}/files",
+      "params": [
+        {
+          "name": "depositId",
+          "type": "int",
+          "location": "path",
+          "description": "Deposit id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "deposit_new-version",
+      "description": "Create a new version of a deposition. Required: depositId. Returns array of DepositionFile.",
+      "method": "POST",
+      "path": "/deposit/depositions/{depositId}/actions/newversion",
+      "params": [
+        {
+          "name": "depositId",
+          "type": "int",
+          "location": "path",
+          "description": "Deposit id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "deposit_publish",
+      "description": "Publish a deposition. Note, once a deposition is published, you can no longer delete it. Required: depositId. Returns array of DepositionFile.",
+      "method": "POST",
+      "path": "/deposit/depositions/{depositId}/actions/publish",
+      "params": [
+        {
+          "name": "depositId",
+          "type": "int",
+          "location": "path",
+          "description": "Deposit id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "deposit_put",
+      "description": "Update metadata for a single deposit. Required: depositId. Optional: metadata. Returns array of DepositionFile.",
+      "method": "PUT",
+      "path": "/deposit/depositions/{depositId}",
+      "params": [
+        {
+          "name": "depositId",
+          "type": "int",
+          "location": "path",
+          "description": "Deposit id",
+          "required": true
+        },
+        {
+          "name": "metadata-access-conditions",
+          "wire_name": "metadata.access_conditions",
+          "type": "string",
+          "location": "body",
+          "description": "Access conditions"
+        },
+        {
+          "name": "metadata-access-right",
+          "wire_name": "metadata.access_right",
+          "type": "string",
+          "location": "body",
+          "description": "Access right",
+          "required": true
+        },
+        {
+          "name": "metadata-communities",
+          "wire_name": "metadata.communities",
+          "type": "array",
+          "location": "body",
+          "description": "Communities"
+        },
+        {
+          "name": "metadata-conference-acronym",
+          "wire_name": "metadata.conference_acronym",
+          "type": "string",
+          "location": "body",
+          "description": "Conference acronym"
+        },
+        {
+          "name": "metadata-conference-dates",
+          "wire_name": "metadata.conference_dates",
+          "type": "string",
+          "location": "body",
+          "description": "Conference dates"
+        },
+        {
+          "name": "metadata-conference-place",
+          "wire_name": "metadata.conference_place",
+          "type": "string",
+          "location": "body",
+          "description": "Conference place"
+        },
+        {
+          "name": "metadata-conference-session",
+          "wire_name": "metadata.conference_session",
+          "type": "string",
+          "location": "body",
+          "description": "Conference session"
+        },
+        {
+          "name": "metadata-conference-session-part",
+          "wire_name": "metadata.conference_session_part",
+          "type": "string",
+          "location": "body",
+          "description": "Conference session part"
+        },
+        {
+          "name": "metadata-conference-title",
+          "wire_name": "metadata.conference_title",
+          "type": "string",
+          "location": "body",
+          "description": "Conference title"
+        },
+        {
+          "name": "metadata-conference-url",
+          "wire_name": "metadata.conference_url",
+          "type": "string",
+          "location": "body",
+          "description": "Conference url"
+        },
+        {
+          "name": "metadata-contributors",
+          "wire_name": "metadata.contributors",
+          "type": "array",
+          "location": "body",
+          "description": "Contributors"
+        },
+        {
+          "name": "metadata-creators",
+          "wire_name": "metadata.creators",
+          "type": "array",
+          "location": "body",
+          "description": "Creators",
+          "required": true
+        },
+        {
+          "name": "metadata-description",
+          "wire_name": "metadata.description",
+          "type": "string",
+          "location": "body",
+          "description": "Description",
+          "required": true
+        },
+        {
+          "name": "metadata-doi",
+          "wire_name": "metadata.doi",
+          "type": "string",
+          "location": "body",
+          "description": "Doi"
+        },
+        {
+          "name": "metadata-embargo-date",
+          "wire_name": "metadata.embargo_date",
+          "type": "string",
+          "location": "body",
+          "description": "Embargo date"
+        },
+        {
+          "name": "metadata-grants",
+          "wire_name": "metadata.grants",
+          "type": "array",
+          "location": "body",
+          "description": "Grants"
+        },
+        {
+          "name": "metadata-image-type",
+          "wire_name": "metadata.image_type",
+          "type": "string",
+          "location": "body",
+          "description": "Image type"
+        },
+        {
+          "name": "metadata-imprint-isbn",
+          "wire_name": "metadata.imprint_isbn",
+          "type": "string",
+          "location": "body",
+          "description": "Imprint isbn"
+        },
+        {
+          "name": "metadata-imprint-place",
+          "wire_name": "metadata.imprint_place",
+          "type": "string",
+          "location": "body",
+          "description": "Imprint place"
+        },
+        {
+          "name": "metadata-imprint-publisher",
+          "wire_name": "metadata.imprint_publisher",
+          "type": "string",
+          "location": "body",
+          "description": "Imprint publisher"
+        },
+        {
+          "name": "metadata-journal-issue",
+          "wire_name": "metadata.journal_issue",
+          "type": "string",
+          "location": "body",
+          "description": "Journal issue"
+        },
+        {
+          "name": "metadata-journal-pages",
+          "wire_name": "metadata.journal_pages",
+          "type": "string",
+          "location": "body",
+          "description": "Journal pages"
+        },
+        {
+          "name": "metadata-journal-title",
+          "wire_name": "metadata.journal_title",
+          "type": "string",
+          "location": "body",
+          "description": "Journal title"
+        },
+        {
+          "name": "metadata-journal-volume",
+          "wire_name": "metadata.journal_volume",
+          "type": "string",
+          "location": "body",
+          "description": "Journal volume"
+        },
+        {
+          "name": "metadata-keywords",
+          "wire_name": "metadata.keywords",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Keywords"
+        },
+        {
+          "name": "metadata-language",
+          "wire_name": "metadata.language",
+          "type": "string",
+          "location": "body",
+          "description": "Language"
+        },
+        {
+          "name": "metadata-license",
+          "wire_name": "metadata.license",
+          "type": "string",
+          "location": "body",
+          "description": "License"
+        },
+        {
+          "name": "metadata-notes",
+          "wire_name": "metadata.notes",
+          "type": "string",
+          "location": "body",
+          "description": "Notes"
+        },
+        {
+          "name": "metadata-partof-pages",
+          "wire_name": "metadata.partof_pages",
+          "type": "string",
+          "location": "body",
+          "description": "Partof pages"
+        },
+        {
+          "name": "metadata-partof-title",
+          "wire_name": "metadata.partof_title",
+          "type": "string",
+          "location": "body",
+          "description": "Partof title"
+        },
+        {
+          "name": "metadata-prereserve-doi",
+          "wire_name": "metadata.prereserve_doi",
+          "type": "object",
+          "location": "body",
+          "description": "Prereserve doi"
+        },
+        {
+          "name": "metadata-publication-date",
+          "wire_name": "metadata.publication_date",
+          "type": "string",
+          "location": "body",
+          "description": "Publication date",
+          "required": true
+        },
+        {
+          "name": "metadata-publication-type",
+          "wire_name": "metadata.publication_type",
+          "type": "string",
+          "location": "body",
+          "description": "Publication type"
+        },
+        {
+          "name": "metadata-references",
+          "wire_name": "metadata.references",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "References"
+        },
+        {
+          "name": "metadata-related-identifiers",
+          "wire_name": "metadata.related_identifiers",
+          "type": "array",
+          "location": "body",
+          "description": "Related identifiers"
+        },
+        {
+          "name": "metadata-subjects",
+          "wire_name": "metadata.subjects",
+          "type": "array",
+          "location": "body",
+          "description": "Subjects"
+        },
+        {
+          "name": "metadata-thesis-supervisors",
+          "wire_name": "metadata.thesis_supervisors",
+          "type": "array",
+          "location": "body",
+          "description": "Thesis supervisors"
+        },
+        {
+          "name": "metadata-thesis-university",
+          "wire_name": "metadata.thesis_university",
+          "type": "string",
+          "location": "body",
+          "description": "Thesis university"
+        },
+        {
+          "name": "metadata-title",
+          "wire_name": "metadata.title",
+          "type": "string",
+          "location": "body",
+          "description": "Title",
+          "required": true
+        },
+        {
+          "name": "metadata-upload-type",
+          "wire_name": "metadata.upload_type",
+          "type": "string",
+          "location": "body",
+          "description": "Upload type",
+          "required": true
+        },
+        {
+          "name": "metadata-version",
+          "wire_name": "metadata.version",
+          "type": "string",
+          "location": "body",
+          "description": "Version"
+        }
+      ]
+    },
+    {
+      "name": "deposit_sort-files",
+      "description": "Sort the files for a deposit. Required: depositId, checksum, filename, filesize, id. Returns array of DepositionFile.",
+      "method": "PUT",
+      "path": "/deposit/depositions/{depositId}/files",
+      "params": [
+        {
+          "name": "depositId",
+          "type": "int",
+          "location": "path",
+          "description": "Deposit id",
+          "required": true
+        },
+        {
+          "name": "checksum",
+          "type": "string",
+          "location": "body",
+          "description": "Checksum",
+          "required": true
+        },
+        {
+          "name": "filename",
+          "type": "string",
+          "location": "body",
+          "description": "Filename",
+          "required": true
+        },
+        {
+          "name": "filesize",
+          "type": "int",
+          "location": "body",
+          "description": "Filesize",
+          "required": true
+        },
+        {
+          "name": "id",
+          "type": "string",
+          "location": "body",
+          "description": "Id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "deposit_update-file",
+      "description": "Update a deposition file resource. Currently the only use is renaming an already uploaded file. If you want to replace the actual file, please delete the file and upload a new file. Required: depositId, fileId, checksum, filename, filesize, id. Returns the updated DepositionFile.",
+      "method": "PUT",
+      "path": "/deposit/depositions/{depositId}/files/{fileId}",
+      "params": [
+        {
+          "name": "depositId",
+          "type": "int",
+          "location": "path",
+          "description": "Deposit id",
+          "required": true
+        },
+        {
+          "name": "fileId",
+          "type": "string",
+          "location": "path",
+          "description": "File id",
+          "required": true
+        },
+        {
+          "name": "checksum",
+          "type": "string",
+          "location": "body",
+          "description": "Checksum",
+          "required": true
+        },
+        {
+          "name": "filename",
+          "type": "string",
+          "location": "body",
+          "description": "Filename",
+          "required": true
+        },
+        {
+          "name": "filesize",
+          "type": "int",
+          "location": "body",
+          "description": "Filesize",
+          "required": true
+        },
+        {
+          "name": "id",
+          "type": "string",
+          "location": "body",
+          "description": "Id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "funders_list",
+      "description": "List of funders. Returns the FundersListResponse.",
+      "method": "GET",
+      "path": "/funders",
+      "params": []
+    },
+    {
+      "name": "grants_list",
+      "description": "List of grants. Returns the GrantsListResponse.",
+      "method": "GET",
+      "path": "/grants",
+      "params": []
+    },
+    {
+      "name": "licenses_list",
+      "description": "List of licenses. Returns the LicensesListResponse.",
+      "method": "GET",
+      "path": "/licenses",
+      "params": []
+    },
+    {
+      "name": "records_list",
+      "description": "List of records. Returns the RecordsListResponse.",
+      "method": "GET",
+      "path": "/records",
+      "params": []
+    }
+  ]
+}

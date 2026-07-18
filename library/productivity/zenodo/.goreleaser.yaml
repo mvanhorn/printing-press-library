@@ -1,0 +1,51 @@
+version: 2
+project_name: zenodo-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: zenodo-pp-cli
+    main: ./cmd/zenodo-pp-cli
+    binary: zenodo-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X github.com/mvanhorn/printing-press-library/library/productivity/zenodo/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: zenodo-pp-mcp
+    main: ./cmd/zenodo-pp-mcp
+    binary: zenodo-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X main.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: zenodo-pp-cli
+    repository:
+      owner: scan-law4
+      name: homebrew-tap
+    homepage: "https://github.com/mvanhorn/printing-press-library"
+    description: "This is for the zenodo API http://developers.zenodo.org/#rest-api"
+    install: |
+      bin.install "zenodo-pp-cli"
+      bin.install "zenodo-pp-mcp"

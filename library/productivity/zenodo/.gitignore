@@ -1,0 +1,4 @@
+# Compiled binaries (build via `make build`, which outputs to bin/)
+zenodo-pp-cli
+zenodo-pp-mcp
+/bin/

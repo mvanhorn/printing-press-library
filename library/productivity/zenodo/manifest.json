@@ -1,0 +1,7 @@
+{
+  "mcp_server": {
+    "binary": "zenodo-pp-mcp",
+    "transport": ["stdio"],
+    "description": "MCP server for Zenodo — deposit management, file uploads, and record search"
+  }
+}
