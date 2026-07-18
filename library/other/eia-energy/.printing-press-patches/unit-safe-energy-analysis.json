@@ -1,0 +1,11 @@
+{
+  "schema_version": 2,
+  "id": "unit-safe-energy-analysis",
+  "applied_at": "2026-07-18",
+  "base_run_id": "20260717-002908-cf8254c2",
+  "base_printing_press_version": "4.29.0",
+  "summary": "Preserve configured EIA authentication, rate-limited requests, period/unit alignment, bounded anomaly and revision calculations, and auditable source rows.",
+  "reason": "EIA's hierarchy exposes multiple frequencies and units, so arithmetic must reject incompatible series and retain exact source periods and metadata.",
+  "files": ["internal/cli/eia_novel_support.go", "internal/cli/grid_pulse.go", "internal/cli/state_compare.go", "internal/cli/spread.go", "internal/cli/anomaly.go", "internal/cli/watch_run.go", "internal/cli/revisions.go"],
+  "validated_outcome": "Shipcheck passed 7/7; state compare was exercised live and authenticated dogfood emitted a valid no-credential skip marker."
+}

@@ -1,0 +1,83 @@
+{
+  "api_name": "eia-energy",
+  "base_url": "https://api.eia.gov/v2",
+  "description": "Make EIA's large self-describing hierarchy useful from the terminal without hidden unit conversions, frequency mismatches, silent truncation, forecasts, or causal claims.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "api_key",
+    "header": "api_key",
+    "in": "query",
+    "env_vars": [
+      "EIA_ENERGY_API_KEY"
+    ],
+    "env_var_specs": [
+      {
+        "name": "EIA_ENERGY_API_KEY",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    ]
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "electricity_list-grid-region-data",
+      "description": "Query balancing-authority demand, generation, forecast, and interchange data. Optional: frequency (default: hourly), data[0] (default: value), facets[respondent][] (plus 5 more). Returns the ElectricityListGridRegionDataResponse.",
+      "method": "GET",
+      "path": "/electricity/rto/region-data/data/",
+      "params": [
+        {
+          "name": "frequency",
+          "type": "string",
+          "location": "query",
+          "description": "Frequency"
+        },
+        {
+          "name": "data[0]",
+          "type": "string",
+          "location": "query",
+          "description": "Data 0"
+        },
+        {
+          "name": "facets[respondent][]",
+          "type": "string",
+          "location": "query",
+          "description": "Facets respondent"
+        },
+        {
+          "name": "facets[type][]",
+          "type": "string",
+          "location": "query",
+          "description": "Facets type"
+        },
+        {
+          "name": "start",
+          "type": "string",
+          "location": "query",
+          "description": "Start"
+        },
+        {
+          "name": "end",
+          "type": "string",
+          "location": "query",
+          "description": "End"
+        },
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "Offset"
+        },
+        {
+          "name": "length",
+          "type": "int",
+          "location": "query",
+          "description": "Length"
+        }
+      ]
+    }
+  ]
+}

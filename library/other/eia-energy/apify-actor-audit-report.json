@@ -1,0 +1,9 @@
+{
+  "dir": "\u003ccli-dir\u003e/eia-energy-pp-cli",
+  "research_dir": "\u003ccli-dir\u003e/20260717-002908-cf8254c2",
+  "verdict": "pass",
+  "actors": null,
+  "issues": [
+    "no Apify actor references found, skipping"
+  ]
+}

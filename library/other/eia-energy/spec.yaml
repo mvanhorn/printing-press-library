@@ -1,0 +1,42 @@
+openapi: 3.0.3
+info: {title: EIA API v2, version: 2.0.0, description: Query metadata-aware US Energy Information Administration series., x-cli-name: eia-energy}
+servers: [{url: https://api.eia.gov/v2}]
+components:
+  securitySchemes: {apiKey: {type: apiKey, in: query, name: api_key}}
+security: [{apiKey: []}]
+paths:
+  /:
+    get:
+      operationId: listRoutes
+      summary: Discover top-level EIA routes
+      responses: {'200': {description: Route metadata, content: {application/json: {schema: {type: object, additionalProperties: true}}}}}
+  /electricity/rto/region-data/data/:
+    get:
+      operationId: listGridRegionData
+      summary: Query balancing-authority demand, generation, forecast, and interchange data
+      parameters:
+        - name: frequency
+          in: query
+          schema: {type: string, default: hourly}
+        - name: "data[0]"
+          in: query
+          schema: {type: string, default: value}
+        - name: "facets[respondent][]"
+          in: query
+          schema: {type: string}
+        - name: "facets[type][]"
+          in: query
+          schema: {type: string}
+        - name: start
+          in: query
+          schema: {type: string}
+        - name: end
+          in: query
+          schema: {type: string}
+        - name: offset
+          in: query
+          schema: {type: integer, default: 0}
+        - name: length
+          in: query
+          schema: {type: integer, maximum: 5000, default: 100}
+      responses: {'200': {description: Grid data, content: {application/json: {schema: {type: object, additionalProperties: true}}}}}

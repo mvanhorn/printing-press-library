@@ -1,0 +1,117 @@
+{
+  "api_name": "eia-energy",
+  "novelty_score": 0,
+  "alternatives": null,
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "",
+  "researched_at": "0001-01-01T00:00:00Z",
+  "novel_features": [
+    {
+      "name": "Latest grid pulse",
+      "command": "grid pulse",
+      "description": "Fetch recent balancing-authority measures and show per-type latest values, units, freshness, and transparent trailing means.",
+      "rationale": ""
+    },
+    {
+      "name": "Alignment-safe series comparison",
+      "command": "state compare",
+      "description": "Compare explicitly selected state series only when route, data column, frequency, periods, and units align.",
+      "rationale": ""
+    },
+    {
+      "name": "Guarded cross-series spread",
+      "command": "spread",
+      "description": "Align two facet series by period and refuse subtraction when reported units differ.",
+      "rationale": ""
+    },
+    {
+      "name": "Explainable anomaly scan",
+      "command": "anomaly",
+      "description": "Compute deterministic mean and standard-deviation deviations from exact bounded EIA source rows without forecasting.",
+      "rationale": ""
+    },
+    {
+      "name": "Saved watch evaluation",
+      "command": "watch run",
+      "description": "Evaluate a bounded JSON rule set once for thresholds, freshness, missing data, and changes while retaining source rows.",
+      "rationale": ""
+    },
+    {
+      "name": "Source revision diff",
+      "command": "revisions",
+      "description": "Compare a bounded route/facet snapshot with the prior local observation and report changed period-value-unit keys.",
+      "rationale": ""
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Latest grid pulse",
+      "command": "grid pulse",
+      "description": "Fetch recent balancing-authority measures and show per-type latest values, units, freshness, and transparent trailing means.",
+      "rationale": ""
+    },
+    {
+      "name": "Alignment-safe series comparison",
+      "command": "state compare",
+      "description": "Compare explicitly selected state series only when route, data column, frequency, periods, and units align.",
+      "rationale": ""
+    },
+    {
+      "name": "Guarded cross-series spread",
+      "command": "spread",
+      "description": "Align two facet series by period and refuse subtraction when reported units differ.",
+      "rationale": ""
+    },
+    {
+      "name": "Explainable anomaly scan",
+      "command": "anomaly",
+      "description": "Compute deterministic mean and standard-deviation deviations from exact bounded EIA source rows without forecasting.",
+      "rationale": ""
+    },
+    {
+      "name": "Saved watch evaluation",
+      "command": "watch run",
+      "description": "Evaluate a bounded JSON rule set once for thresholds, freshness, missing data, and changes while retaining source rows.",
+      "rationale": ""
+    },
+    {
+      "name": "Source revision diff",
+      "command": "revisions",
+      "description": "Compare a bounded route/facet snapshot with the prior local observation and report changed period-value-unit keys.",
+      "rationale": ""
+    }
+  ],
+  "narrative": {
+    "value_prop": "Make EIA's large self-describing hierarchy useful from the terminal without hidden unit conversions, frequency mismatches, silent truncation, forecasts, or causal claims.",
+    "quickstart": [
+      {
+        "command": "eia-energy-pp-cli grid pulse --respondent CISO --hours 24 --agent",
+        "comment": "Inspect recent California grid measures and trailing baselines."
+      },
+      {
+        "command": "eia-energy-pp-cli revisions --route electricity/rto/region-data --facet respondent=CISO --agent",
+        "comment": "Create or compare a bounded source snapshot."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "EIA rejects or throttles a request",
+        "fix": ""
+      }
+    ],
+    "when_to_use": "Use for reproducible EIA series inspection and guarded arithmetic where units and frequencies remain visible.",
+    "anti_triggers": [
+      "Do not silently convert incompatible units.",
+      "Do not compare different frequencies without explicit alignment.",
+      "Do not present anomalies as forecasts or causal explanations."
+    ],
+    "recipes": [
+      {
+        "title": "Compare two aligned grid series",
+        "command": "eia-energy-pp-cli spread --route electricity/rto/region-data --left respondent=CISO --right respondent=ERCO --type D --frequency hourly --hours 24 --agent",
+        "explanation": "Subtract only periods with identical units and frequency."
+      }
+    ]
+  }
+}

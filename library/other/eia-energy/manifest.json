@@ -1,0 +1,39 @@
+{
+  "manifest_version": "0.3",
+  "name": "eia-energy-pp-mcp",
+  "display_name": "Eia",
+  "version": "2.0.0",
+  "description": "Query metadata-aware US Energy Information Administration series.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/eia-energy-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/eia-energy-pp-mcp",
+      "args": [],
+      "env": {
+        "EIA_ENERGY_API_KEY": "${user_config.eia_energy_api_key}"
+      }
+    }
+  },
+  "user_config": {
+    "eia_energy_api_key": {
+      "type": "string",
+      "title": "EIA_ENERGY_API_KEY",
+      "description": "Sets EIA_ENERGY_API_KEY for the Eia MCP server.",
+      "sensitive": true,
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

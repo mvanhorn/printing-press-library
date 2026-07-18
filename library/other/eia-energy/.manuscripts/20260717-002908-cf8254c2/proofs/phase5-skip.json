@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "api_name": "eia-energy",
+  "run_id": "20260717-002908-cf8254c2",
+  "status": "skip",
+  "level": "none",
+  "auth_context": {
+    "type": "api_key"
+  },
+  "skip_reason": "auth_required_no_credential"
+}
