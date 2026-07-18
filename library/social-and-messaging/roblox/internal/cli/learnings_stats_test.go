@@ -9,7 +9,7 @@ import (
 	"path/filepath"
 	"testing"
 
-	"roblox-pp-cli/internal/store"
+	"github.com/mvanhorn/printing-press-library/library/social-and-messaging/roblox/internal/store"
 )
 
 // runLearningsStatsJSON executes `learnings stats --json` against the

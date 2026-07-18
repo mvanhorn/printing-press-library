@@ -11,8 +11,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/mvanhorn/printing-press-library/library/social-and-messaging/roblox/internal/store"
 	"github.com/spf13/cobra"
-	"roblox-pp-cli/internal/store"
 )
 
 type syncHintState struct {

@@ -8,10 +8,10 @@ import (
 	"os"
 	"sort"
 
+	"github.com/mvanhorn/printing-press-library/library/social-and-messaging/roblox/internal/cliutil"
+	"github.com/mvanhorn/printing-press-library/library/social-and-messaging/roblox/internal/learn"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
-	"roblox-pp-cli/internal/cliutil"
-	"roblox-pp-cli/internal/learn"
 )
 
 // agentContextSchemaVersion is bumped on any breaking change to the JSON

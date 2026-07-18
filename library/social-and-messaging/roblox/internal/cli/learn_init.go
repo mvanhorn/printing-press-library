@@ -23,8 +23,8 @@ import (
 	"os"
 	"sync"
 
-	"roblox-pp-cli/internal/learn/entities"
-	"roblox-pp-cli/internal/store"
+	"github.com/mvanhorn/printing-press-library/library/social-and-messaging/roblox/internal/learn/entities"
+	"github.com/mvanhorn/printing-press-library/library/social-and-messaging/roblox/internal/store"
 )
 
 // newLearnConfig returns the per-CLI entity extractor Config the

@@ -14,7 +14,7 @@ import (
 	"sync"
 	"time"
 
-	"roblox-pp-cli/internal/cliutil"
+	"github.com/mvanhorn/printing-press-library/library/social-and-messaging/roblox/internal/cliutil"
 )
 
 // cookieJar wraps an http.CookieJar so writes (server Set-Cookie response

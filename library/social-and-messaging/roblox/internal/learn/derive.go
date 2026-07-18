@@ -13,7 +13,7 @@ import (
 	"strings"
 	"time"
 
-	"roblox-pp-cli/internal/store"
+	"github.com/mvanhorn/printing-press-library/library/social-and-messaging/roblox/internal/store"
 )
 
 // This file owns post-run flag-correction derivation: turning an

@@ -14,11 +14,11 @@ import (
 	"strings"
 	"time"
 
+	"github.com/mvanhorn/printing-press-library/library/social-and-messaging/roblox/internal/client"
+	"github.com/mvanhorn/printing-press-library/library/social-and-messaging/roblox/internal/cliutil"
+	"github.com/mvanhorn/printing-press-library/library/social-and-messaging/roblox/internal/config"
+	"github.com/mvanhorn/printing-press-library/library/social-and-messaging/roblox/internal/store"
 	"github.com/spf13/cobra"
-	"roblox-pp-cli/internal/client"
-	"roblox-pp-cli/internal/cliutil"
-	"roblox-pp-cli/internal/config"
-	"roblox-pp-cli/internal/store"
 )
 
 // looksLikeDoctorInterstitial reports whether the response body matches a known

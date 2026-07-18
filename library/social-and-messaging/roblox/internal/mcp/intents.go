@@ -22,8 +22,8 @@ import (
 
 	mcplib "github.com/mark3labs/mcp-go/mcp"
 	"github.com/mark3labs/mcp-go/server"
-	"roblox-pp-cli/internal/mcp/bound"
-	"roblox-pp-cli/internal/mcp/cobratree"
+	"github.com/mvanhorn/printing-press-library/library/social-and-messaging/roblox/internal/mcp/bound"
+	"github.com/mvanhorn/printing-press-library/library/social-and-messaging/roblox/internal/mcp/cobratree"
 )
 
 // RegisterIntents adds generated intent tools to the MCP server.

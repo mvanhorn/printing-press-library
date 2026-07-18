@@ -17,8 +17,8 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"roblox-pp-cli/internal/learn"
-	"roblox-pp-cli/internal/store"
+	"github.com/mvanhorn/printing-press-library/library/social-and-messaging/roblox/internal/learn"
+	"github.com/mvanhorn/printing-press-library/library/social-and-messaging/roblox/internal/store"
 )
 
 // deriveDBPath allocates a fresh candidate-store path per test.

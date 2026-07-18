@@ -17,8 +17,8 @@ import (
 	"strings"
 	"time"
 
-	"roblox-pp-cli/internal/client"
-	"roblox-pp-cli/internal/store"
+	"github.com/mvanhorn/printing-press-library/library/social-and-messaging/roblox/internal/client"
+	"github.com/mvanhorn/printing-press-library/library/social-and-messaging/roblox/internal/store"
 )
 
 const networkFallbackReason = "api_unreachable"

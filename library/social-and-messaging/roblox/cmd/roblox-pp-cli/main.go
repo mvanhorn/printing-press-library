@@ -6,7 +6,7 @@ package main
 import (
 	"os"
 
-	"roblox-pp-cli/internal/cli"
+	"github.com/mvanhorn/printing-press-library/library/social-and-messaging/roblox/internal/cli"
 )
 
 func main() {

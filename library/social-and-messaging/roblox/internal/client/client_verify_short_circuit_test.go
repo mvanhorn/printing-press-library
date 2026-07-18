@@ -12,7 +12,7 @@ import (
 	"testing"
 	"time"
 
-	"roblox-pp-cli/internal/config"
+	"github.com/mvanhorn/printing-press-library/library/social-and-messaging/roblox/internal/config"
 )
 
 // recordingRoundTripper counts how many times its RoundTrip method is

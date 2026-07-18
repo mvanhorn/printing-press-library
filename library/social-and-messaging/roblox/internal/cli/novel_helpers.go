@@ -8,8 +8,8 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/mvanhorn/printing-press-library/library/social-and-messaging/roblox/internal/client"
 	"github.com/spf13/cobra"
-	"roblox-pp-cli/internal/client"
 )
 
 func fetchBundle(cmd *cobra.Command, c *client.Client, out map[string]any, key, path string, params map[string]string) {

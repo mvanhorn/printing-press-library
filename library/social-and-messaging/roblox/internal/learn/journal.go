@@ -17,7 +17,7 @@ import (
 	"sync"
 	"time"
 
-	"roblox-pp-cli/internal/cliutil"
+	"github.com/mvanhorn/printing-press-library/library/social-and-messaging/roblox/internal/cliutil"
 )
 
 // The invocation journal records one entry per CLI invocation in dated

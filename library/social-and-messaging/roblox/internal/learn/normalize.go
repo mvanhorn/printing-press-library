@@ -7,7 +7,7 @@ import (
 	"sort"
 	"strings"
 
-	"roblox-pp-cli/internal/learn/entities"
+	"github.com/mvanhorn/printing-press-library/library/social-and-messaging/roblox/internal/learn/entities"
 )
 
 // NormalizedQuery is the entity-aware normalized representation of a

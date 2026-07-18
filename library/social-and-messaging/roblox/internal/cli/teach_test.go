@@ -13,10 +13,10 @@ import (
 	"sync"
 	"testing"
 
-	"roblox-pp-cli/internal/cliutil"
-	"roblox-pp-cli/internal/learn"
-	"roblox-pp-cli/internal/learn/entities"
-	"roblox-pp-cli/internal/store"
+	"github.com/mvanhorn/printing-press-library/library/social-and-messaging/roblox/internal/cliutil"
+	"github.com/mvanhorn/printing-press-library/library/social-and-messaging/roblox/internal/learn"
+	"github.com/mvanhorn/printing-press-library/library/social-and-messaging/roblox/internal/learn/entities"
+	"github.com/mvanhorn/printing-press-library/library/social-and-messaging/roblox/internal/store"
 )
 
 func unmarshalAgentResults(t *testing.T, stdout string, out any) {

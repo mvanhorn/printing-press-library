@@ -13,7 +13,7 @@ import (
 	"strings"
 	"time"
 
-	"roblox-pp-cli/internal/cliutil"
+	"github.com/mvanhorn/printing-press-library/library/social-and-messaging/roblox/internal/cliutil"
 )
 
 // teachLogStateDirName is the per-user state directory name.

@@ -8,8 +8,8 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/mvanhorn/printing-press-library/library/social-and-messaging/roblox/internal/cliutil"
 	"github.com/spf13/cobra"
-	"roblox-pp-cli/internal/cliutil"
 )
 
 func newUsernamesPromotedCmd(flags *rootFlags) *cobra.Command {

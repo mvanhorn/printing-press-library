@@ -13,7 +13,7 @@ import (
 
 	mcplib "github.com/mark3labs/mcp-go/mcp"
 	"github.com/mark3labs/mcp-go/server"
-	"roblox-pp-cli/internal/mcp/bound"
+	"github.com/mvanhorn/printing-press-library/library/social-and-messaging/roblox/internal/mcp/bound"
 )
 
 func boundedToolResultError(message string) *mcplib.CallToolResult {

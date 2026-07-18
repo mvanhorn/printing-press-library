@@ -10,8 +10,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/mvanhorn/printing-press-library/library/social-and-messaging/roblox/internal/cliutil"
 	"github.com/pelletier/go-toml/v2"
-	"roblox-pp-cli/internal/cliutil"
 )
 
 type Config struct {

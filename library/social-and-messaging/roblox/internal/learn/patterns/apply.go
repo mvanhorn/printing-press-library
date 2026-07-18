@@ -12,7 +12,7 @@ import (
 	"strings"
 	"time"
 
-	"roblox-pp-cli/internal/learn/lookups"
+	"github.com/mvanhorn/printing-press-library/library/social-and-messaging/roblox/internal/learn/lookups"
 )
 
 // DefaultJaccardMin matches the recall-side floor. Applying the same

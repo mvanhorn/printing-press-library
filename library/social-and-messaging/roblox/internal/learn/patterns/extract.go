@@ -10,7 +10,7 @@ import (
 	"sort"
 	"strings"
 
-	"roblox-pp-cli/internal/learn/lookups"
+	"github.com/mvanhorn/printing-press-library/library/social-and-messaging/roblox/internal/learn/lookups"
 )
 
 // extractWindow caps how many of the most-recently-observed

@@ -20,7 +20,7 @@ import (
 	"strings"
 	"testing"
 
-	"roblox-pp-cli/internal/learn/entities"
+	"github.com/mvanhorn/printing-press-library/library/social-and-messaging/roblox/internal/learn/entities"
 
 	_ "modernc.org/sqlite"
 )

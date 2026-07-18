@@ -13,13 +13,13 @@ import (
 	"text/tabwriter"
 	"time"
 
+	"github.com/mvanhorn/printing-press-library/library/social-and-messaging/roblox/internal/client"
+	"github.com/mvanhorn/printing-press-library/library/social-and-messaging/roblox/internal/cliutil"
+	"github.com/mvanhorn/printing-press-library/library/social-and-messaging/roblox/internal/config"
+	"github.com/mvanhorn/printing-press-library/library/social-and-messaging/roblox/internal/learn"
+	"github.com/mvanhorn/printing-press-library/library/social-and-messaging/roblox/internal/store"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
-	"roblox-pp-cli/internal/client"
-	"roblox-pp-cli/internal/cliutil"
-	"roblox-pp-cli/internal/config"
-	"roblox-pp-cli/internal/learn"
-	"roblox-pp-cli/internal/store"
 )
 
 type rootFlags struct {

@@ -8,8 +8,8 @@ import (
 	"path/filepath"
 	"testing"
 
-	"roblox-pp-cli/internal/learn"
-	"roblox-pp-cli/internal/store"
+	"github.com/mvanhorn/printing-press-library/library/social-and-messaging/roblox/internal/learn"
+	"github.com/mvanhorn/printing-press-library/library/social-and-messaging/roblox/internal/store"
 )
 
 // TestNewLearnConfig_BuildsConfig pins that the emitted init shim

@@ -10,7 +10,7 @@ import (
 	"sort"
 	"strings"
 
-	"roblox-pp-cli/internal/store"
+	"github.com/mvanhorn/printing-press-library/library/social-and-messaging/roblox/internal/store"
 )
 
 // Teach-time playbook synthesis. When an agent teaches a resource

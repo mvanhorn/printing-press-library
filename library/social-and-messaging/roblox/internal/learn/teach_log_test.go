@@ -11,7 +11,7 @@ import (
 	"sync"
 	"testing"
 
-	"roblox-pp-cli/internal/cliutil"
+	"github.com/mvanhorn/printing-press-library/library/social-and-messaging/roblox/internal/cliutil"
 )
 
 func withTempHomeForLog(t *testing.T) string {

@@ -1,4 +1,4 @@
-module roblox-pp-cli
+module github.com/mvanhorn/printing-press-library/library/social-and-messaging/roblox
 
 go 1.26.5
 

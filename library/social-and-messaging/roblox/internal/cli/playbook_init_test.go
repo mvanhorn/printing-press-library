@@ -18,9 +18,9 @@ import (
 	"testing"
 	"testing/fstest"
 
-	"roblox-pp-cli/internal/cli/playbooks"
-	"roblox-pp-cli/internal/learn"
-	"roblox-pp-cli/internal/store"
+	"github.com/mvanhorn/printing-press-library/library/social-and-messaging/roblox/internal/cli/playbooks"
+	"github.com/mvanhorn/printing-press-library/library/social-and-messaging/roblox/internal/learn"
+	"github.com/mvanhorn/printing-press-library/library/social-and-messaging/roblox/internal/store"
 )
 
 // twoPlaybookFS returns an fstest.MapFS with two minimal playbooks +

@@ -27,12 +27,12 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"roblox-pp-cli/internal/cliutil"
-	"roblox-pp-cli/internal/learn"
-	"roblox-pp-cli/internal/learn/entities"
-	"roblox-pp-cli/internal/learn/lookups"
-	"roblox-pp-cli/internal/learn/patterns"
-	"roblox-pp-cli/internal/store"
+	"github.com/mvanhorn/printing-press-library/library/social-and-messaging/roblox/internal/cliutil"
+	"github.com/mvanhorn/printing-press-library/library/social-and-messaging/roblox/internal/learn"
+	"github.com/mvanhorn/printing-press-library/library/social-and-messaging/roblox/internal/learn/entities"
+	"github.com/mvanhorn/printing-press-library/library/social-and-messaging/roblox/internal/learn/lookups"
+	"github.com/mvanhorn/printing-press-library/library/social-and-messaging/roblox/internal/learn/patterns"
+	"github.com/mvanhorn/printing-press-library/library/social-and-messaging/roblox/internal/store"
 )
 
 // noLearnEnvVar is the environment variable that disables the learning

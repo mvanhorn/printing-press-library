@@ -11,8 +11,8 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/mvanhorn/printing-press-library/library/social-and-messaging/roblox/internal/cliutil"
 	"github.com/spf13/cobra"
-	"roblox-pp-cli/internal/cliutil"
 )
 
 func newExportCmd(flags *rootFlags) *cobra.Command {

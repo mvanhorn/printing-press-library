@@ -19,7 +19,7 @@ import (
 	"database/sql"
 	"fmt"
 
-	"roblox-pp-cli/internal/learn/entities"
+	"github.com/mvanhorn/printing-press-library/library/social-and-messaging/roblox/internal/learn/entities"
 )
 
 // Warning is one teach-time validation finding. The shape is the JSON

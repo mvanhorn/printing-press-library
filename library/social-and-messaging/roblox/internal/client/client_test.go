@@ -14,7 +14,7 @@ import (
 	"time"
 	"unicode/utf8"
 
-	"roblox-pp-cli/internal/config"
+	"github.com/mvanhorn/printing-press-library/library/social-and-messaging/roblox/internal/config"
 )
 
 func TestTruncateBody(t *testing.T) {

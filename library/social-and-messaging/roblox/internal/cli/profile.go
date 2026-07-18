@@ -11,9 +11,9 @@ import (
 	"sort"
 	"strings"
 
+	"github.com/mvanhorn/printing-press-library/library/social-and-messaging/roblox/internal/cliutil"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
-	"roblox-pp-cli/internal/cliutil"
 )
 
 // Profile is a named set of flag values saved for reuse across invocations.

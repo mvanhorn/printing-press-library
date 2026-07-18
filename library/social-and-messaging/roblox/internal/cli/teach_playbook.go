@@ -20,9 +20,9 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"roblox-pp-cli/internal/learn"
-	"roblox-pp-cli/internal/learn/entities"
-	"roblox-pp-cli/internal/store"
+	"github.com/mvanhorn/printing-press-library/library/social-and-messaging/roblox/internal/learn"
+	"github.com/mvanhorn/printing-press-library/library/social-and-messaging/roblox/internal/learn/entities"
+	"github.com/mvanhorn/printing-press-library/library/social-and-messaging/roblox/internal/store"
 )
 
 // newTeachPlaybookCmd builds the standalone command for recording a

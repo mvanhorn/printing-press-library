@@ -17,9 +17,9 @@ import (
 	"testing"
 	"time"
 
-	"roblox-pp-cli/internal/cli"
-	"roblox-pp-cli/internal/cliutil"
-	"roblox-pp-cli/internal/learn"
+	"github.com/mvanhorn/printing-press-library/library/social-and-messaging/roblox/internal/cli"
+	"github.com/mvanhorn/printing-press-library/library/social-and-messaging/roblox/internal/cliutil"
+	"github.com/mvanhorn/printing-press-library/library/social-and-messaging/roblox/internal/learn"
 )
 
 // withJournalHome isolates a test in a temp HOME with every journal

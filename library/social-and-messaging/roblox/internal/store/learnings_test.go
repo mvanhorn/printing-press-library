@@ -8,7 +8,7 @@ import (
 	"path/filepath"
 	"testing"
 
-	"roblox-pp-cli/internal/store"
+	"github.com/mvanhorn/printing-press-library/library/social-and-messaging/roblox/internal/store"
 )
 
 func openLearnings(t *testing.T) *store.Store {

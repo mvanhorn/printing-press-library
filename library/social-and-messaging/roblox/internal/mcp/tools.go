@@ -18,14 +18,14 @@ import (
 
 	mcplib "github.com/mark3labs/mcp-go/mcp"
 	"github.com/mark3labs/mcp-go/server"
-	"roblox-pp-cli/internal/cli"
-	"roblox-pp-cli/internal/client"
-	"roblox-pp-cli/internal/cliutil"
-	"roblox-pp-cli/internal/config"
-	"roblox-pp-cli/internal/learn"
-	"roblox-pp-cli/internal/mcp/bound"
-	"roblox-pp-cli/internal/mcp/cobratree"
-	"roblox-pp-cli/internal/store"
+	"github.com/mvanhorn/printing-press-library/library/social-and-messaging/roblox/internal/cli"
+	"github.com/mvanhorn/printing-press-library/library/social-and-messaging/roblox/internal/client"
+	"github.com/mvanhorn/printing-press-library/library/social-and-messaging/roblox/internal/cliutil"
+	"github.com/mvanhorn/printing-press-library/library/social-and-messaging/roblox/internal/config"
+	"github.com/mvanhorn/printing-press-library/library/social-and-messaging/roblox/internal/learn"
+	"github.com/mvanhorn/printing-press-library/library/social-and-messaging/roblox/internal/mcp/bound"
+	"github.com/mvanhorn/printing-press-library/library/social-and-messaging/roblox/internal/mcp/cobratree"
+	"github.com/mvanhorn/printing-press-library/library/social-and-messaging/roblox/internal/store"
 )
 
 const (

@@ -13,8 +13,8 @@ import (
 	"testing"
 	"time"
 
-	"roblox-pp-cli/internal/cliutil"
-	"roblox-pp-cli/internal/config"
+	"github.com/mvanhorn/printing-press-library/library/social-and-messaging/roblox/internal/cliutil"
+	"github.com/mvanhorn/printing-press-library/library/social-and-messaging/roblox/internal/config"
 )
 
 func resetCredentialEnv(t *testing.T) (home, configPath string) {

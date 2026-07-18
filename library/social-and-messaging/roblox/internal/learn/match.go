@@ -8,7 +8,7 @@ import (
 	"fmt"
 	"strings"
 
-	"roblox-pp-cli/internal/learn/entities"
+	"github.com/mvanhorn/printing-press-library/library/social-and-messaging/roblox/internal/learn/entities"
 )
 
 // EntityMatch classifies how well a stored learning's resource-side
