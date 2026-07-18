@@ -126,17 +126,17 @@ func Load(configPath string) (*Config, error) {
 	cfg.snapshotFileConfig()
 
 	// Env var overrides
-	if v := os.Getenv("EIA_API_KEY"); v != "" {
-		cfg.EiaApiKey = v
-		cfg.markEnvOverride("EiaApiKey")
-		cfg.AuthSource = "env:EIA_API_KEY"
-		cfg.CredentialSource = "env:EIA_API_KEY"
-	} else if v := os.Getenv("EIA_ENERGY_API_KEY"); v != "" {
-		// Accept the binary-derived spelling emitted by early MCP manifests.
+	if v := os.Getenv("EIA_ENERGY_API_KEY"); v != "" {
 		cfg.EiaApiKey = v
 		cfg.markEnvOverride("EiaApiKey")
 		cfg.AuthSource = "env:EIA_ENERGY_API_KEY"
 		cfg.CredentialSource = "env:EIA_ENERGY_API_KEY"
+	} else if v := os.Getenv("EIA_API_KEY"); v != "" {
+		// Retain the shorter pre-publication spelling as a compatibility fallback.
+		cfg.EiaApiKey = v
+		cfg.markEnvOverride("EiaApiKey")
+		cfg.AuthSource = "env:EIA_API_KEY"
+		cfg.CredentialSource = "env:EIA_API_KEY"
 	}
 	// Label config-file-derived credentials so doctor can distinguish
 	// "credentials persisted on disk" from "no credentials at all" — without
