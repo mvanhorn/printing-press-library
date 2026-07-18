@@ -1,0 +1,141 @@
+{
+  "api_name": "kakao-transparency",
+  "novelty_score": 9,
+  "alternatives": [],
+  "gaps": [
+    "No existing CLI or SDK wraps Kakao's transparency-report statistics; the data is only reachable through the privacy.kakao.com web page or manual XLSX downloads",
+    "The web page shows one half-year at a time; there is no whole-archive view of the 2012-present series"
+  ],
+  "patterns": [
+    "Google/Apple transparency dashboards expose period-over-period navigation; the prevYn/nextYn flags are Kakao's equivalent and should drive archive walking"
+  ],
+  "recommendation": "proceed",
+  "researched_at": "2026-07-02T04:05:00Z",
+  "novel_features": [
+    {
+      "name": "Whole-archive series",
+      "command": "series",
+      "description": "One tidy table of every published half-year since 2012 — requests, processed, and affected accounts per service corporation and request category — instead of 28 separate report lookups.",
+      "rationale": "The web page and the raw endpoint show one half-year at a time; only a CLI that walks the whole archive in a single command can produce the longitudinal series researchers actually chart.",
+      "example": "kakao-transparency-pp-cli series --category warrant --service kakao --csv",
+      "why_it_matters": "Reach for this when a task needs trends over time (e.g. 'how did warrant volumes change since 2015') rather than a single period's numbers.",
+      "group": "Whole-archive analytics"
+    },
+    {
+      "name": "Latest-report resolution",
+      "command": "latest",
+      "description": "Fetch the newest published half-year without knowing which period it is.",
+      "rationale": "The endpoint requires an exact year/half-year and answers out-of-range requests with an HTML page; the CLI probes backward from the current date and follows the API's own nextYn flag so agents never guess.",
+      "example": "kakao-transparency-pp-cli latest --agent",
+      "why_it_matters": "Use this as the first call whenever the task says 'current' or 'most recent' — it removes the guess-the-period failure mode.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Workbook link index",
+      "command": "workbooks",
+      "description": "List the official XLSX workbook download URLs (Korean and English editions) for every published half-year.",
+      "rationale": "Each half-year's workbook URLs are buried in that period's JSON payload; the CLI collects them across the archive so a downstream job can mirror the primary sources.",
+      "example": "kakao-transparency-pp-cli workbooks --since 2020 --agent",
+      "why_it_matters": "Use this when the deliverable needs the official source files (archival mirroring, citation) rather than the parsed numbers.",
+      "group": "Whole-archive analytics"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Whole-archive series",
+      "command": "series",
+      "description": "One tidy table of every published half-year since 2012 — requests, processed, and affected accounts per service corporation and request category — instead of 28 separate report lookups.",
+      "rationale": "The web page and the raw endpoint show one half-year at a time; only a CLI that walks the whole archive in a single command can produce the longitudinal series researchers actually chart.",
+      "example": "kakao-transparency-pp-cli series --category warrant --service kakao --csv",
+      "why_it_matters": "Reach for this when a task needs trends over time (e.g. 'how did warrant volumes change since 2015') rather than a single period's numbers.",
+      "group": "Whole-archive analytics"
+    },
+    {
+      "name": "Latest-report resolution",
+      "command": "latest",
+      "description": "Fetch the newest published half-year without knowing which period it is.",
+      "rationale": "The endpoint requires an exact year/half-year and answers out-of-range requests with an HTML page; the CLI probes backward from the current date and follows the API's own nextYn flag so agents never guess.",
+      "example": "kakao-transparency-pp-cli latest --agent",
+      "why_it_matters": "Use this as the first call whenever the task says 'current' or 'most recent' — it removes the guess-the-period failure mode.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Workbook link index",
+      "command": "workbooks",
+      "description": "List the official XLSX workbook download URLs (Korean and English editions) for every published half-year.",
+      "rationale": "Each half-year's workbook URLs are buried in that period's JSON payload; the CLI collects them across the archive so a downstream job can mirror the primary sources.",
+      "example": "kakao-transparency-pp-cli workbooks --since 2020 --agent",
+      "why_it_matters": "Use this when the deliverable needs the official source files (archival mirroring, citation) rather than the parsed numbers.",
+      "group": "Whole-archive analytics"
+    }
+  ],
+  "narrative": {
+    "display_name": "Kakao Transparency",
+    "headline": "Kakao's 2012-present government data-request statistics as one queryable archive — series, latest-report resolution, and workbook mirroring no other tool offers.",
+    "value_prop": "Kakao publishes semiannual transparency reports (warrants, communication data, restriction measures for Kakao and Daum services) behind a one-period-at-a-time web page. This CLI turns that into an agent-friendly archive: `series` builds the full longitudinal table in one call, `latest` resolves the newest period without guessing, and `workbooks` indexes the official XLSX editions.",
+    "quickstart": [
+      {
+        "command": "kakao-transparency-pp-cli doctor --dry-run",
+        "comment": "Verify connectivity — the API is public, no credentials needed"
+      },
+      {
+        "command": "kakao-transparency-pp-cli latest --agent",
+        "comment": "Resolve and fetch the newest published half-year"
+      },
+      {
+        "command": "kakao-transparency-pp-cli transparency --year 2025 --half-year-id 2",
+        "comment": "Fetch one specific half-year report"
+      },
+      {
+        "command": "kakao-transparency-pp-cli series --category warrant --csv",
+        "comment": "Build the 2012-present warrant series as CSV"
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "transparency returns 'response is not JSON' or an HTML page",
+        "fix": "The year/half-year is outside the published range (before 1H 2012 or after the latest report) — run `latest` to find the newest period, or `series` to see the full range."
+      },
+      {
+        "symptom": "Numbers show -1 in some cells",
+        "fix": "-1 is the API's encoding for N/A (Kakao stopped providing that data type); the site renders it as N/A. Filter it out before summing."
+      }
+    ],
+    "when_to_use": "Use this CLI for questions about South Korean government requests for Kakao/Daum user data: warrant volumes, compliance trends, communication-data policy history. It is the fastest path to the full 2012-present series and to the official XLSX workbooks.",
+    "anti_triggers": [
+      "Do not use it for Kakao's developer/business APIs (KakaoTalk messaging, Kakao Login, ad reports) — this wraps only the privacy transparency statistics",
+      "Do not use it for content-moderation or DSA-style statistics; Kakao's transparency report covers government data requests only",
+      "Do not sum numberOfAccounts across categories — categories overlap in what they count and -1 means N/A, not zero"
+    ],
+    "recipes": [
+      {
+        "title": "Warrant compliance trend for Kakao services",
+        "command": "kakao-transparency-pp-cli series --service kakao --category warrant --agent --select year,halfYear,numberOfRequests,numberOfProcesses",
+        "explanation": "One tidy JSON series of search-and-seizure warrant volumes and processing since 2012, narrowed to the four fields a chart needs."
+      },
+      {
+        "title": "Newest report, narrative included",
+        "command": "kakao-transparency-pp-cli latest --agent",
+        "explanation": "Resolves the most recent half-year and returns its full payload including Kakao's own trend commentary."
+      },
+      {
+        "title": "Mirror the official workbooks since 2020",
+        "command": "kakao-transparency-pp-cli workbooks --since 2020 --agent",
+        "explanation": "Lists the Korean and English XLSX download URLs per half-year for archival mirroring."
+      },
+      {
+        "title": "One period as CSV",
+        "command": "kakao-transparency-pp-cli transparency --year 2024 --half-year-id 1 --csv",
+        "explanation": "The eight statistics rows (2 services x 4 categories) for 1H 2024 in spreadsheet-ready form."
+      }
+    ],
+    "trigger_phrases": [
+      "kakao transparency report",
+      "korean government data requests kakao",
+      "kakao warrant statistics",
+      "daum government requests",
+      "use kakao-transparency",
+      "run kakao-transparency"
+    ]
+  }
+}

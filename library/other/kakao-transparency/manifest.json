@@ -1,0 +1,27 @@
+{
+  "manifest_version": "0.3",
+  "name": "kakao-transparency-pp-mcp",
+  "display_name": "Kakao Transparency",
+  "version": "0.0.0",
+  "description": "Kakao's 2012-present government data-request statistics as one queryable archive — series, latest-report resolution, and workbook mirroring no other tool offers.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/kakao-transparency-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/kakao-transparency-pp-mcp",
+      "args": []
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

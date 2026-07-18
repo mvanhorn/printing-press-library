@@ -1,0 +1,234 @@
+openapi: "3.0.3"
+info:
+  title: Kakao Transparency
+  version: "2026-07-01"
+  description: |
+    Kakao's transparency-report statistics API, reverse-engineered from the
+    public Kakao Privacy site (privacy.kakao.com/transparency). Kakao publishes
+    semiannual statistics on South Korean government requests for user data —
+    communication user information, communication-restricting measures,
+    communication confirmation data (log records), and search & seizure
+    warrants — split by service corporation (Kakao vs. Daum), from the first
+    half of 2012 to the latest published half-year.
+
+    The site's page JS (`/js/renew/sub/transparency.js`) drives a single
+    unauthenticated JSON endpoint: `GET /api/transparency/{year}/{halfYearId}`.
+    Each response carries the half-year's eight statistics rows (2 service
+    corporations x 4 request categories), a narrative summary, links to the
+    downloadable XLSX workbooks (Korean and English editions), and
+    prev/next-report availability flags for pagination across half-years.
+
+    Localization: the `Accept-Language` request header switches the localized
+    fields (`title`, `content`, `halfYear`, `fileUrl`, and each report row's
+    `category`/`content`) between Korean (`ko`) and English (`en`). The `en*`
+    twin fields (`enTitle`, `enContent`, `enCategory`, `enFileUrl`) always
+    carry the English text regardless of the negotiated language.
+
+    Coverage note: requesting a year/half-year outside the published range
+    (before 1H 2012 or after the latest report) returns the site's HTML error
+    page — observed as both HTTP 200 and HTTP 500 — never a JSON error.
+    Clients should verify the response is JSON with `success: true` and use
+    `prevYn`/`nextYn` (1 = exists, 0 = end of range) to walk the archive
+    without touching unpublished periods. The row-level count fields are
+    strings in the Korean payload but bare numbers in the English payload;
+    parse both.
+  contact:
+    name: Kakao Privacy
+    url: https://privacy.kakao.com/transparency
+
+servers:
+  - url: https://privacy.kakao.com
+    description: Kakao Privacy site (public, no authentication)
+
+security: []
+
+tags:
+  - name: transparency
+    description: >-
+      Semiannual government data-request statistics (2012–present) for Kakao
+      and Daum services.
+
+paths:
+  /api/transparency/{year}/{halfYearId}:
+    get:
+      operationId: getTransparencyReport
+      summary: Get a half-year transparency report
+      description: |
+        Returns the transparency-report statistics for one half-year: eight
+        statistics rows (Kakao and Daum, each across the four government
+        request categories), the narrative summary, XLSX download links, and
+        prev/next availability flags. Published range starts at 1H 2012.
+      tags: [transparency]
+      parameters:
+        - name: year
+          in: path
+          required: true
+          description: Report year (2012 through the latest published year).
+          schema:
+            type: integer
+            minimum: 2012
+            example: 2025
+        - name: halfYearId
+          in: path
+          required: true
+          description: "Half-year selector: 1 = first half (1H), 2 = second half (2H)."
+          schema:
+            type: integer
+            enum: [1, 2]
+        - name: Accept-Language
+          in: header
+          required: false
+          description: >-
+            Language for the localized fields: `ko` (default) or `en`. The
+            `en*` twin fields always carry English regardless.
+          schema:
+            type: string
+            enum: [ko, en]
+      responses:
+        "200":
+          description: >-
+            Transparency report envelope. Out-of-range year/half-year returns
+            the site's HTML error page with HTTP 200 — treat a non-JSON body
+            as "no report published".
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TransparencyEnvelope"
+
+components:
+  schemas:
+    TransparencyEnvelope:
+      type: object
+      required: [success, data]
+      properties:
+        success:
+          type: boolean
+          description: True when the report exists and loaded correctly.
+        data:
+          $ref: "#/components/schemas/TransparencyReport"
+
+    TransparencyReport:
+      type: object
+      description: One published half-year of transparency statistics.
+      properties:
+        year:
+          type: string
+          description: Report year, as a string (e.g. "2025").
+          example: "2025"
+        halfYear:
+          type: string
+          description: >-
+            Localized half-year label — "first"/"second" in English,
+            "상반기"/"하반기" in Korean.
+          example: "first"
+        halfYearId:
+          type: integer
+          description: "Half-year id: 1 = first half, 2 = second half."
+          enum: [1, 2]
+        title:
+          type: string
+          description: Localized report title.
+          example: "1H 2025 Transparency Report Statistics"
+        enTitle:
+          type: string
+          description: English report title.
+        content:
+          type: string
+          description: >-
+            Localized narrative summary of the half-year (trend commentary,
+            provision policy notes). Paragraphs separated by newlines.
+        enContent:
+          type: string
+          description: English narrative summary.
+        fileUrl:
+          type: string
+          description: >-
+            Download URL of the localized transparency-report XLSX workbook
+            (t1.kakaocdn.net).
+          example: "https://t1.kakaocdn.net/privacy_policy/kakao_privacy/1h_2025_kakao_transparency_report_kor.xlsx"
+        enFileUrl:
+          type: string
+          description: Download URL of the English-edition XLSX workbook.
+        contentYn:
+          type: string
+          description: '"Y" when the narrative summary should be displayed.'
+          enum: ["Y", "N"]
+        prevYn:
+          type: integer
+          description: 1 when an earlier half-year report exists, 0 at the start of the archive (1H 2012).
+        nextYn:
+          type: integer
+          description: 1 when a later half-year report exists, 0 at the latest published report.
+        reports:
+          type: array
+          description: >-
+            The half-year's statistics rows — one per service corporation x
+            request category (8 rows: Kakao and Daum, each across the 4
+            categories).
+          items:
+            $ref: "#/components/schemas/TransparencyRow"
+
+    TransparencyRow:
+      type: object
+      description: One service-corporation x request-category statistics row.
+      properties:
+        serviceCorp:
+          type: string
+          description: >-
+            Service corporation the row covers. Always the Korean name —
+            "카카오" (Kakao) or "다음" (Daum) — regardless of Accept-Language.
+          enum: ["카카오", "다음"]
+        category:
+          type: string
+          description: >-
+            Localized request-category label. The four categories are
+            communication user information (통신이용자정보), communication-
+            restricting measures (통신제한조치), communication confirmation
+            data (통신사실확인자료), and search & seizure warrants (압수수색영장).
+        enCategory:
+          type: string
+          description: English request-category label.
+        year:
+          type: string
+          description: Report year, as a string.
+        halfYear:
+          type: string
+          description: Localized half-year label.
+        halfYearId:
+          type: string
+          description: Row-level half-year id, as a string (may be "0" in row payloads — use the envelope's halfYearId).
+        numberOfRequests:
+          description: >-
+            Number of government requests received. Language-dependent typing:
+            a string ("517") in the Korean payload, a bare number (517) in the
+            English (Accept-Language: en) payload — clients must accept both.
+          oneOf:
+            - type: string
+            - type: integer
+          example: "517"
+        numberOfProcesses:
+          description: >-
+            Number of requests processed (complied with). Same
+            language-dependent string/number typing as numberOfRequests; -1
+            renders as "N/A" on the site.
+          oneOf:
+            - type: string
+            - type: integer
+        numberOfAccounts:
+          description: >-
+            Number of accounts/IDs affected. Same language-dependent
+            string/number typing as numberOfRequests; -1 renders as "N/A" on
+            the site.
+          oneOf:
+            - type: string
+            - type: integer
+        content:
+          type: string
+          description: Localized narrative attached to the row (usually only on the first row).
+        enContent:
+          type: string
+          description: English narrative attached to the row.
+        etc:
+          type: string
+          nullable: true
+          description: Remarks column (usually null).

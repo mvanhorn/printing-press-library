@@ -1,0 +1,49 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-07-02T04:14:39.403740486Z",
+  "printing_press_version": "4.24.0",
+  "api_name": "kakao-transparency",
+  "display_name": "Kakao Transparency",
+  "cli_name": "kakao-transparency-pp-cli",
+  "creator": {
+    "handle": "krMaynard",
+    "name": "Kieran Maynard"
+  },
+  "owner": "krmaynard",
+  "printer": "krMaynard",
+  "printer_name": "Kieran Maynard",
+  "spec_path": "kakao-transparency.yaml",
+  "spec_format": "openapi3",
+  "spec_checksum": "sha256:2d7e4cdb19fb178c9ab9a9b6202fc93b8ebd192dc6a3ef9b09b30462d0d83469",
+  "run_id": "20260702-040959-5612343d",
+  "catalog_entry": "kakao-transparency",
+  "category": "other",
+  "description": "Kakao's 2012-present government data-request statistics as one queryable archive — series, latest-report resolution, and workbook mirroring no other tool offers.",
+  "mcp_binary": "kakao-transparency-pp-mcp",
+  "mcp_tool_count": 1,
+  "mcp_public_tool_count": 1,
+  "mcp_ready": "full",
+  "api_version": "2026-07-01",
+  "auth_type": "none",
+  "novel_features": [
+    {
+      "name": "Whole-archive series",
+      "command": "series",
+      "description": "One tidy table of every published half-year since 2012 — requests, processed, and affected accounts per service corporation and request category — instead of 28 separate report lookups."
+    },
+    {
+      "name": "Latest-report resolution",
+      "command": "latest",
+      "description": "Fetch the newest published half-year without knowing which period it is."
+    },
+    {
+      "name": "Workbook link index",
+      "command": "workbooks",
+      "description": "List the official XLSX workbook download URLs (Korean and English editions) for every published half-year."
+    }
+  ],
+  "api_language": "ko",
+  "regions": [
+    "KR"
+  ]
+}

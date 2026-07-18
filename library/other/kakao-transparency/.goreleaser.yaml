@@ -1,0 +1,51 @@
+version: 2
+project_name: kakao-transparency-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: kakao-transparency-pp-cli
+    main: ./cmd/kakao-transparency-pp-cli
+    binary: kakao-transparency-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X kakao-transparency-pp-cli/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: kakao-transparency-pp-mcp
+    main: ./cmd/kakao-transparency-pp-mcp
+    binary: kakao-transparency-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X main.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: kakao-transparency-pp-cli
+    repository:
+      owner: krmaynard
+      name: homebrew-tap
+    homepage: "https://github.com/krmaynard/kakao-transparency-pp-cli"
+    description: "Kakao's 2012-present government data-request statistics as one queryable archive — series, latest-report resolution, and workbook mirroring no other tool offers."
+    install: |
+      bin.install "kakao-transparency-pp-cli"
+      bin.install "kakao-transparency-pp-mcp"

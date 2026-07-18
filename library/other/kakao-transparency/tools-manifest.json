@@ -1,0 +1,36 @@
+{
+  "api_name": "kakao-transparency",
+  "base_url": "https://privacy.kakao.com",
+  "description": "Kakao's transparency-report statistics API, reverse-engineered from the\npublic Kakao Privacy site (privacy.kakao.com/transparency). Kakao publishes\nsemiannual statistics on South Korean government requests for user data —\ncommunication user information, communication-restricting measures,\ncommunication confirmation data (log records), and search \u0026 seizure\nwarrants — split by service corporation (Kakao vs. Daum), from the first\nhalf of 2012 to the latest published half-year.\n\nThe site's page JS (`/js/renew/sub/transparency.js`) drives a single\nunauthenticated JSON endpoint: `GET /api/transparency/{year}/{halfYearId}`.\nEach response carries the half-year's eight statistics rows (2 service\ncorporations x 4 request categories), a narrative summary, links to the\ndownloadable XLSX workbooks (Korean and English editions), and\nprev/next-report availability flags for pagination across half-years.\n\nLocalization: the `Accept-Language` request header switches the localized\nfields (`title`, `content`, `halfYear`, `fileUrl`, and each report row's\n`category`/`content`) between Korean (`ko`) and English (`en`). The `en*`\ntwin fields (`enTitle`, `enContent`, `enCategory`, `enFileUrl`) always\ncarry the English text regardless of the negotiated language.\n\nCoverage note: requesting a year/half-year outside the published range\n(before 1H 2012 or after the latest report) returns the site's HTML error\npage with HTTP 200, not a JSON error — clients should verify the response\nis JSON with `success: true`. Use `prevYn`/`nextYn` (1 = exists, 0 = end\nof range) to walk the archive safely.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "none"
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "transparency_get-report",
+      "description": "Returns the transparency-report statistics for one half-year: eight statistics rows (Kakao and Daum, each across the four government request categories), the narrative summary, XLSX download links, and prev/next availability flags. Published range starts at 1H 2012. Required: year, halfYearId (default: 1).",
+      "method": "GET",
+      "path": "/api/transparency/{year}/{halfYearId}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "year",
+          "type": "int",
+          "location": "path",
+          "description": "Report year (2012 through the latest published year).",
+          "required": true
+        },
+        {
+          "name": "halfYearId",
+          "type": "int",
+          "location": "path",
+          "description": "Half-year selector: 1 = first half (1H), 2 = second half (2H).",
+          "required": true
+        }
+      ]
+    }
+  ]
+}

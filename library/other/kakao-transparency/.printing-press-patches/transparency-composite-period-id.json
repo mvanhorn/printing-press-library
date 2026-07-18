@@ -1,0 +1,11 @@
+{
+  "schema_version": 2,
+  "id": "transparency-composite-period-id",
+  "applied_at": "2026-07-02",
+  "base_run_id": "20260702-040959-5612343d",
+  "base_printing_press_version": "4.24.0",
+  "summary": "Transparency reports have no id field and are identified by their period, so the store keys them on the composite year-halfYearId and the local resolver reconstructs that id from the /{year}/{halfYearId} path segments.",
+  "reason": "The generic id extractors find no id/uuid on report payloads, so cached reports either skipped the store or collided under one static id, breaking offline period lookups.",
+  "files": ["internal/store/store.go", "internal/cli/data_source.go"],
+  "validated_outcome": "A live read of /api/transparency/2025/1 caches under id 2025-1 and --data-source local returns the same report afterward."
+}

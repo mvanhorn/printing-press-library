@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "api_name": "kakao-transparency",
+  "run_id": "20260702-040959-5612343d",
+  "status": "pass",
+  "level": "full",
+  "matrix_size": 43,
+  "tests_passed": 43,
+  "tests_skipped": 26,
+  "auth_context": {
+    "type": "none"
+  }
+}
