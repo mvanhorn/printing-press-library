@@ -1,0 +1,51 @@
+openapi: 3.0.3
+info: {title: CourtListener REST API, version: 4.4.0, description: Search case law and query authenticated RECAP litigation records., x-cli-name: courtlistener}
+servers: [{url: https://www.courtlistener.com/api/rest/v4}]
+components:
+  securitySchemes:
+    tokenAuth: {type: apiKey, in: header, name: Authorization, description: 'Set COURTLISTENER_TOKEN; sent as Token <value>.'}
+security: [{tokenAuth: []}]
+paths:
+  /search/:
+    get:
+      operationId: search
+      summary: Search opinions and RECAP records
+      x-pp-resource: legal-search
+      security: []
+      parameters:
+        - {name: q, in: query, schema: {type: string}}
+        - {name: type, in: query, schema: {type: string}}
+        - {name: page, in: query, schema: {type: integer}}
+        - {name: page_size, in: query, schema: {type: integer, maximum: 100}}
+        - {name: order_by, in: query, schema: {type: string}}
+      responses: {'200': {description: Search page, content: {application/json: {schema: {type: object, additionalProperties: true}}}}}
+  /dockets/{id}/:
+    get:
+      operationId: getDocket
+      parameters: [{name: id, in: path, required: true, schema: {type: integer}}]
+      responses: {'200': {description: Docket, content: {application/json: {schema: {type: object, additionalProperties: true}}}}}
+  /docket-entries/:
+    get:
+      operationId: listDocketEntries
+      parameters: [{name: docket, in: query, schema: {type: integer}}, {name: page_size, in: query, schema: {type: integer, maximum: 100}}]
+      responses: {'200': {description: Entries, content: {application/json: {schema: {type: object, additionalProperties: true}}}}}
+  /recap-documents/:
+    get:
+      operationId: listRecapDocuments
+      parameters: [{name: docket_entry__docket, in: query, schema: {type: integer}}, {name: page_size, in: query, schema: {type: integer, maximum: 100}}]
+      responses: {'200': {description: Documents, content: {application/json: {schema: {type: object, additionalProperties: true}}}}}
+  /parties/:
+    get:
+      operationId: listParties
+      parameters: [{name: docket, in: query, schema: {type: integer}}, {name: name, in: query, schema: {type: string}}, {name: page_size, in: query, schema: {type: integer, maximum: 100}}]
+      responses: {'200': {description: Parties, content: {application/json: {schema: {type: object, additionalProperties: true}}}}}
+  /attorneys/:
+    get:
+      operationId: listAttorneys
+      parameters: [{name: docket, in: query, schema: {type: integer}}, {name: name, in: query, schema: {type: string}}, {name: page_size, in: query, schema: {type: integer, maximum: 100}}]
+      responses: {'200': {description: Attorneys, content: {application/json: {schema: {type: object, additionalProperties: true}}}}}
+  /people/{id}/:
+    get:
+      operationId: getJudge
+      parameters: [{name: id, in: path, required: true, schema: {type: integer}}]
+      responses: {'200': {description: Person or judge record, content: {application/json: {schema: {type: object, additionalProperties: true}}}}}

@@ -1,0 +1,39 @@
+{
+  "manifest_version": "0.3",
+  "name": "courtlistener-pp-mcp",
+  "display_name": "Courtlistener",
+  "version": "4.4.0",
+  "description": "Search case law and query authenticated RECAP litigation records.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/courtlistener-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/courtlistener-pp-mcp",
+      "args": [],
+      "env": {
+        "COURTLISTENER_TOKEN_AUTH": "${user_config.courtlistener_token_auth}"
+      }
+    }
+  },
+  "user_config": {
+    "courtlistener_token_auth": {
+      "type": "string",
+      "title": "COURTLISTENER_TOKEN_AUTH",
+      "description": "Sets COURTLISTENER_TOKEN_AUTH for the Courtlistener MCP server.",
+      "sensitive": true,
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

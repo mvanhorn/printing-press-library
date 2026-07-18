@@ -1,0 +1,63 @@
+{
+  "schema_version": 2,
+  "generated_at": "2026-07-18T19:54:48.073783Z",
+  "printing_press_version": "4.29.0",
+  "api_name": "courtlistener",
+  "display_name": "Courtlistener",
+  "cli_name": "courtlistener-pp-cli",
+  "creator": {
+    "handle": "Avanderheyde",
+    "name": "avanderheyde"
+  },
+  "owner": "avanderheyde",
+  "printer": "Avanderheyde",
+  "printer_name": "avanderheyde",
+  "spec_path": "spec.yaml",
+  "spec_format": "openapi3",
+  "spec_checksum": "sha256:655ed19d8a7d13a547be85d897c8433029bff3c3f6eddc9e1023f3917186f8e7",
+  "run_id": "20260717-002908-6e06aaaf",
+  "category": "other",
+  "description": "Search case law publicly and, with a CourtListener token, build bounded docket briefs, relationship maps, filing watches, and RECAP availability audits.",
+  "mcp_binary": "courtlistener-pp-mcp",
+  "mcp_tool_count": 7,
+  "mcp_public_tool_count": 1,
+  "mcp_ready": "full",
+  "api_version": "4.4.0",
+  "auth_type": "api_key",
+  "auth_preference": "tokenAuth",
+  "auth_env_vars": [
+    "COURTLISTENER_TOKEN_AUTH"
+  ],
+  "novel_features": [
+    {
+      "name": "Chronological docket brief",
+      "command": "docket",
+      "description": "Join one authenticated docket with bounded entries, documents, parties, and counsel in source chronology."
+    },
+    {
+      "name": "New-filing watch report",
+      "command": "new-filings",
+      "description": "Persist a bounded newest-first search observation and report newly observed CourtListener result IDs."
+    },
+    {
+      "name": "Cross-docket party map",
+      "command": "party",
+      "description": "Query authenticated party records by exact supplied name while preserving docket and API identifiers."
+    },
+    {
+      "name": "Recurring counsel map",
+      "command": "counsel",
+      "description": "Query authenticated attorney records by supplied name and retain observed docket and party relationships."
+    },
+    {
+      "name": "Non-predictive judge context",
+      "command": "judge",
+      "description": "Return sourced judge/person metadata and clearly prohibit outcome prediction or causal scoring."
+    },
+    {
+      "name": "RECAP availability audit",
+      "command": "recap-gaps",
+      "description": "Classify bounded docket document records by CourtListener availability fields without implying complete PACER coverage."
+    }
+  ]
+}

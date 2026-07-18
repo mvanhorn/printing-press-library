@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "api_name": "courtlistener",
+  "run_id": "20260717-002908-6e06aaaf",
+  "status": "skip",
+  "level": "none",
+  "auth_context": {
+    "type": "api_key"
+  },
+  "skip_reason": "auth_required_no_credential"
+}

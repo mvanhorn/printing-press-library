@@ -1,0 +1,11 @@
+{
+  "schema_version": 2,
+  "id": "bounded-litigation-research",
+  "applied_at": "2026-07-18",
+  "base_run_id": "20260717-002908-6e06aaaf",
+  "base_printing_press_version": "4.29.0",
+  "summary": "Preserve configured and rate-limited CourtListener requests, deterministic docket chronology, tri-state RECAP availability, and explicit pagination completeness.",
+  "reason": "CourtListener combines public search with authenticated RECAP resources whose incomplete coverage and availability fields must not be collapsed into stronger claims.",
+  "files": ["internal/cli/courtlistener_novel_support.go", "internal/cli/docket.go", "internal/cli/new_filings.go", "internal/cli/party.go", "internal/cli/counsel.go", "internal/cli/judge.go", "internal/cli/recap_gaps.go"],
+  "validated_outcome": "Shipcheck passed 7/7; authenticated live dogfood emitted a valid no-credential skip marker while public new-filings was exercised live."
+}

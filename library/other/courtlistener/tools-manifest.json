@@ -1,0 +1,194 @@
+{
+  "api_name": "courtlistener",
+  "base_url": "https://www.courtlistener.com/api/rest/v4",
+  "description": "Search case law publicly and, with a CourtListener token, build bounded docket briefs, relationship maps, filing watches, and RECAP availability audits.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "api_key",
+    "header": "Authorization",
+    "in": "header",
+    "env_vars": [
+      "COURTLISTENER_TOKEN_AUTH"
+    ],
+    "env_var_specs": [
+      {
+        "name": "COURTLISTENER_TOKEN_AUTH",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    ]
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "attorneys_list",
+      "description": "List attorneys. Optional: docket, name, page_size. Returns the AttorneysListResponse.",
+      "description_source": "generated",
+      "method": "GET",
+      "path": "/attorneys/",
+      "params": [
+        {
+          "name": "docket",
+          "type": "int",
+          "location": "query",
+          "description": "Docket"
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "query",
+          "description": "Name"
+        },
+        {
+          "name": "page_size",
+          "type": "int",
+          "location": "query",
+          "description": "Page size"
+        }
+      ]
+    },
+    {
+      "name": "docket-entries_list",
+      "description": "List docket entries. Optional: docket, page_size. Returns the DocketEntriesListResponse.",
+      "description_source": "generated",
+      "method": "GET",
+      "path": "/docket-entries/",
+      "params": [
+        {
+          "name": "docket",
+          "type": "int",
+          "location": "query",
+          "description": "Docket"
+        },
+        {
+          "name": "page_size",
+          "type": "int",
+          "location": "query",
+          "description": "Page size"
+        }
+      ]
+    },
+    {
+      "name": "dockets_get",
+      "description": "Get a docket. Required: id. Returns the DocketsGetResponse.",
+      "description_source": "generated",
+      "method": "GET",
+      "path": "/dockets/{id}/",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "legal_search_search",
+      "description": "Search opinions and RECAP records. Optional: q, type, page (plus 2 more). Returns the LegalSearchSearchResponse. (public)",
+      "method": "GET",
+      "path": "/search/",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "q",
+          "type": "string",
+          "location": "query",
+          "description": "Q"
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "location": "query",
+          "description": "Type"
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page"
+        },
+        {
+          "name": "page_size",
+          "type": "int",
+          "location": "query",
+          "description": "Page size"
+        },
+        {
+          "name": "order_by",
+          "type": "string",
+          "location": "query",
+          "description": "Order by"
+        }
+      ]
+    },
+    {
+      "name": "parties_list",
+      "description": "List parties. Optional: docket, name, page_size. Returns the PartiesListResponse.",
+      "description_source": "generated",
+      "method": "GET",
+      "path": "/parties/",
+      "params": [
+        {
+          "name": "docket",
+          "type": "int",
+          "location": "query",
+          "description": "Docket"
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "query",
+          "description": "Name"
+        },
+        {
+          "name": "page_size",
+          "type": "int",
+          "location": "query",
+          "description": "Page size"
+        }
+      ]
+    },
+    {
+      "name": "people_get-judge",
+      "description": "Get judge. Required: id. Returns the PeopleGetJudgeResponse.",
+      "description_source": "generated",
+      "method": "GET",
+      "path": "/people/{id}/",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "recap-documents_list",
+      "description": "List recap documents. Optional: docket_entry__docket, page_size. Returns the RecapDocumentsListResponse.",
+      "description_source": "generated",
+      "method": "GET",
+      "path": "/recap-documents/",
+      "params": [
+        {
+          "name": "docket_entry__docket",
+          "type": "int",
+          "location": "query",
+          "description": "Docket entry docket"
+        },
+        {
+          "name": "page_size",
+          "type": "int",
+          "location": "query",
+          "description": "Page size"
+        }
+      ]
+    }
+  ]
+}

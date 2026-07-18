@@ -1,0 +1,16 @@
+# agentcookie.toml: secrets-bus adoption manifest v2
+# See docs/spec-agentcookie-secrets-bus-v2-adoption.md
+schema_version = 2
+name = "courtlistener-pp-cli"
+display_name = "Courtlistener"
+description = "Search case law and query authenticated RECAP litigation records."
+project_kind = "cli"
+
+[secrets.file]
+path = "~/.config/courtlistener-pp-cli/config.toml"
+
+[sync]
+default = false
+
+[sync.keys]
+COURTLISTENER_TOKEN_AUTH = true
