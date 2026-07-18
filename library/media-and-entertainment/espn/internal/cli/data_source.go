@@ -4,8 +4,13 @@
 package cli
 
 import (
+	"bytes"
+	"context"
+	"database/sql"
 	"encoding/json"
+	"errors"
 	"fmt"
+	"io"
 	"net"
 	"net/url"
 	"os"
@@ -15,6 +20,35 @@ import (
 	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/espn/internal/client"
 	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/espn/internal/store"
 )
+
+const networkFallbackReason = "api_unreachable"
+
+func unsupportedDataSourceError(strategy, requested string) error {
+	switch strategy {
+	case "local":
+		return fmt.Errorf("no live equivalent for this command (requested %q); use --data-source local or --data-source auto", requested)
+	case "live":
+		return fmt.Errorf("no local data source for this command (requested %q); use --data-source live or --data-source auto", requested)
+	default:
+		return fmt.Errorf("unsupported --data-source %q for strategy %q", requested, strategy)
+	}
+}
+
+func validateDataSourceStrategy(flags *rootFlags, strategy string) error {
+	switch strategy {
+	case "", "auto":
+		return nil
+	case "local":
+		if flags.dataSource == "live" {
+			return unsupportedDataSourceError(strategy, flags.dataSource)
+		}
+	case "live":
+		if flags.dataSource == "local" {
+			return unsupportedDataSourceError(strategy, flags.dataSource)
+		}
+	}
+	return nil
+}
 
 // isNetworkError returns true for errors caused by network connectivity issues
 // (DNS, connection refused, timeout). HTTP 4xx/5xx errors are NOT network errors.
@@ -44,14 +78,20 @@ func isNetworkError(err error) bool {
 		strings.Contains(msg, "TLS handshake timeout")
 }
 
-// openStoreForRead opens the local SQLite store for reading.
+// openStoreForRead opens the local SQLite store read-only for reading.
 // Returns nil, nil if the database file does not exist (no sync has been run).
-func openStoreForRead(cliName string) (*store.Store, error) {
+//
+// Read paths open with store.OpenReadOnly: no MkdirAll, no migration loop, and
+// no write lock, so a read concurrent with a sync cannot block on the writer
+// and a read command never runs a schema migration as a side effect. ctx is
+// threaded into OpenReadOnlyContext so a cancelled command (SIGINT, deadline)
+// interrupts the driver-init SQLITE_BUSY retry rather than blocking on it.
+func openStoreForRead(ctx context.Context, cliName string) (*store.Store, error) {
 	dbPath := defaultDBPath(cliName)
 	if _, err := os.Stat(dbPath); os.IsNotExist(err) {
 		return nil, nil
 	}
-	return store.Open(dbPath)
+	return store.OpenReadOnlyContext(ctx, dbPath)
 }
 
 // localProvenance builds a DataProvenance for local data reads.
@@ -68,6 +108,13 @@ func localProvenance(db *store.Store, resourceType, reason string) DataProvenanc
 	return prov
 }
 
+func attachFreshness(prov DataProvenance, flags *rootFlags) DataProvenance {
+	if flags != nil {
+		prov.Freshness = flags.freshnessMeta
+	}
+	return prov
+}
+
 // resolveRead dispatches a GET request to either the live API or local store
 // based on the --data-source flag. Returns the response data and provenance metadata.
 //
@@ -78,75 +125,199 @@ func localProvenance(db *store.Store, resourceType, reason string) DataProvenanc
 //   - isList: true for list endpoints, false for get-by-ID endpoints
 //   - path: the API path (e.g., "/links" or "/links/abc123")
 //   - params: query parameters for the API call
-func resolveRead(c *client.Client, flags *rootFlags, resourceType string, isList bool, path string, params map[string]string) (json.RawMessage, DataProvenance, error) {
-	switch flags.dataSource {
-	case "local":
-		return resolveLocal(resourceType, isList, path, params, "user_requested")
+//   - headers: per-endpoint required headers (e.g. cal-api-version, Stripe-Version)
+//     baked in by the command template at codegen time. Pass nil when the endpoint
+//     declares no per-endpoint header overrides. Without this parameter, store-backed
+//     reads on per-endpoint-versioned APIs silently get the wrong response shape
+//     (cal-com retro #334 F1).
+func resolveRead(ctx context.Context, c *client.Client, flags *rootFlags, resourceType string, isList bool, path string, params map[string]string, headers map[string]string, hintWriter io.Writer) (json.RawMessage, DataProvenance, error) {
+	return resolveReadWithResponsePath(ctx, c, flags, resourceType, isList, path, params, headers, "", hintWriter)
+}
 
-	case "live":
-		data, err := c.Get(path, params)
+func resolveReadWithResponsePath(ctx context.Context, c *client.Client, flags *rootFlags, resourceType string, isList bool, path string, params map[string]string, headers map[string]string, responsePath string, hintWriter io.Writer) (json.RawMessage, DataProvenance, error) {
+	return resolveReadWithStrategyAndResponsePath(ctx, c, flags, "auto", resourceType, isList, path, params, headers, responsePath, hintWriter)
+}
+
+func resolveReadWithStrategy(ctx context.Context, c *client.Client, flags *rootFlags, strategy string, resourceType string, isList bool, path string, params map[string]string, headers map[string]string, hintWriter io.Writer) (json.RawMessage, DataProvenance, error) {
+	return resolveReadWithStrategyAndResponsePath(ctx, c, flags, strategy, resourceType, isList, path, params, headers, "", hintWriter)
+}
+
+func resolveReadWithStrategyAndResponsePath(ctx context.Context, c *client.Client, flags *rootFlags, strategy string, resourceType string, isList bool, path string, params map[string]string, headers map[string]string, responsePath string, hintWriter io.Writer) (json.RawMessage, DataProvenance, error) {
+	return resolveReadWithStrategyResponsePathAndJSONGuard(ctx, c, flags, strategy, resourceType, isList, path, params, headers, responsePath, true, hintWriter)
+}
+
+func resolveReadWithStrategyResponsePathAndJSONGuard(ctx context.Context, c *client.Client, flags *rootFlags, strategy string, resourceType string, isList bool, path string, params map[string]string, headers map[string]string, responsePath string, guardLiveJSON bool, hintWriter io.Writer) (json.RawMessage, DataProvenance, error) {
+	if err := validateDataSourceStrategy(flags, strategy); err != nil {
+		return nil, DataProvenance{}, err
+	}
+	if strategy == "local" {
+		data, prov, err := resolveLocal(ctx, flags, hintWriter, resourceType, isList, path, params, "strategy_local")
+		return data, attachFreshness(prov, flags), err
+	}
+	if strategy == "live" {
+		data, err := c.GetWithHeaders(ctx, path, params, headers)
 		if err != nil {
 			return nil, DataProvenance{}, err
 		}
-		writeThroughCache(resourceType, data)
-		return data, DataProvenance{Source: "live"}, nil
+		if guardLiveJSON {
+			if err := assertLiveJSONBody(data); err != nil {
+				return nil, DataProvenance{}, err
+			}
+		}
+		data = applyResponsePath(data, responsePath)
+		return data, attachFreshness(DataProvenance{Source: "live"}, flags), nil
+	}
+	switch flags.dataSource {
+	case "local":
+		data, prov, err := resolveLocal(ctx, flags, hintWriter, resourceType, isList, path, params, "user_requested")
+		return data, attachFreshness(prov, flags), err
+
+	case "live":
+		data, err := c.GetWithHeaders(ctx, path, params, headers)
+		if err != nil {
+			return nil, DataProvenance{}, err
+		}
+		if guardLiveJSON {
+			if err := assertLiveJSONBody(data); err != nil {
+				return nil, DataProvenance{}, err
+			}
+		}
+		data = applyResponsePath(data, responsePath)
+		return data, attachFreshness(DataProvenance{Source: "live"}, flags), nil
 
 	default: // "auto"
-		data, err := c.Get(path, params)
+		data, err := c.GetWithHeaders(ctx, path, params, headers)
 		if err == nil {
-			writeThroughCache(resourceType, data)
-			return data, DataProvenance{Source: "live"}, nil
+			if guardLiveJSON {
+				if err := assertLiveJSONBody(data); err != nil {
+					return nil, DataProvenance{}, err
+				}
+			}
+			data = applyResponsePath(data, responsePath)
+			writeThroughCache(ctx, resourceType, data)
+			return data, attachFreshness(DataProvenance{Source: "live"}, flags), nil
 		}
 		if !isNetworkError(err) {
 			// HTTP 4xx/5xx errors propagate — not a fallback case
 			return nil, DataProvenance{}, err
 		}
 		// Network error — try local fallback
-		localData, prov, localErr := resolveLocal(resourceType, isList, path, params, "api_unreachable")
-		if localErr != nil {
+		fallbackData, fallbackProv, fallbackErr := resolveLocal(ctx, flags, hintWriter, resourceType, isList, path, params, networkFallbackReason)
+		if fallbackErr != nil {
 			return nil, DataProvenance{}, fmt.Errorf("API unreachable and no local data. Run 'espn-pp-cli sync' to enable offline access.\n\nOriginal error: %w", err)
 		}
-		return localData, prov, nil
+		return fallbackData, attachFreshness(fallbackProv, flags), nil
 	}
 }
 
 // resolvePaginatedRead dispatches a paginated GET request to either the live API
-// or local store. When local, skips pagination and returns all synced data.
-func resolvePaginatedRead(c *client.Client, flags *rootFlags, resourceType string, path string, params map[string]string, fetchAll bool, cursorParam, nextCursorPath, hasMoreField string) (json.RawMessage, DataProvenance, error) {
-	switch flags.dataSource {
-	case "local":
-		return resolveLocal(resourceType, true, path, params, "user_requested")
+// or local store. When local, skips pagination and returns all synced data. The
+// headers argument carries per-endpoint required headers; pass nil when the
+// endpoint declares no overrides.
+func resolvePaginatedRead(ctx context.Context, c *client.Client, flags *rootFlags, resourceType string, path string, params map[string]string, headers map[string]string, fetchAll bool, cursorParam, paginationType, limitParam, nextCursorPath, hasMoreField string, hintWriter io.Writer) (json.RawMessage, DataProvenance, error) {
+	return resolvePaginatedReadWithStrategy(ctx, c, flags, "auto", resourceType, path, params, headers, fetchAll, cursorParam, paginationType, limitParam, nextCursorPath, hasMoreField, hintWriter)
+}
 
-	case "live":
-		data, err := paginatedGet(c, path, params, fetchAll, cursorParam, nextCursorPath, hasMoreField)
+func resolvePaginatedReadWithStrategy(ctx context.Context, c *client.Client, flags *rootFlags, strategy string, resourceType string, path string, params map[string]string, headers map[string]string, fetchAll bool, cursorParam, paginationType, limitParam, nextCursorPath, hasMoreField string, hintWriter io.Writer) (json.RawMessage, DataProvenance, error) {
+	if err := validateDataSourceStrategy(flags, strategy); err != nil {
+		return nil, DataProvenance{}, err
+	}
+	if strategy == "local" {
+		data, prov, err := resolveLocal(ctx, flags, hintWriter, resourceType, true, path, params, "strategy_local")
+		return data, attachFreshness(prov, flags), err
+	}
+	if strategy == "live" {
+		data, err := paginatedGet(ctx, c, path, params, headers, fetchAll, cursorParam, paginationType, limitParam, nextCursorPath, hasMoreField)
 		if err != nil {
 			return nil, DataProvenance{}, err
 		}
-		writeThroughCache(resourceType, data)
-		return data, DataProvenance{Source: "live"}, nil
+		if err := assertLiveJSONBody(data); err != nil {
+			return nil, DataProvenance{}, err
+		}
+		return data, attachFreshness(DataProvenance{Source: "live"}, flags), nil
+	}
+	switch flags.dataSource {
+	case "local":
+		data, prov, err := resolveLocal(ctx, flags, hintWriter, resourceType, true, path, params, "user_requested")
+		return data, attachFreshness(prov, flags), err
+
+	case "live":
+		data, err := paginatedGet(ctx, c, path, params, headers, fetchAll, cursorParam, paginationType, limitParam, nextCursorPath, hasMoreField)
+		if err != nil {
+			return nil, DataProvenance{}, err
+		}
+		if err := assertLiveJSONBody(data); err != nil {
+			return nil, DataProvenance{}, err
+		}
+		return data, attachFreshness(DataProvenance{Source: "live"}, flags), nil
 
 	default: // "auto"
-		data, err := paginatedGet(c, path, params, fetchAll, cursorParam, nextCursorPath, hasMoreField)
+		data, err := paginatedGet(ctx, c, path, params, headers, fetchAll, cursorParam, paginationType, limitParam, nextCursorPath, hasMoreField)
 		if err == nil {
-			writeThroughCache(resourceType, data)
-			return data, DataProvenance{Source: "live"}, nil
+			if err := assertLiveJSONBody(data); err != nil {
+				return nil, DataProvenance{}, err
+			}
+			writeThroughCache(ctx, resourceType, data)
+			return data, attachFreshness(DataProvenance{Source: "live"}, flags), nil
 		}
 		if !isNetworkError(err) {
 			return nil, DataProvenance{}, err
 		}
-		localData, prov, localErr := resolveLocal(resourceType, true, path, params, "api_unreachable")
-		if localErr != nil {
+		fallbackData, fallbackProv, fallbackErr := resolveLocal(ctx, flags, hintWriter, resourceType, true, path, params, networkFallbackReason)
+		if fallbackErr != nil {
 			return nil, DataProvenance{}, fmt.Errorf("API unreachable and no local data. Run 'espn-pp-cli sync' to enable offline access.\n\nOriginal error: %w", err)
 		}
-		return localData, prov, nil
+		return fallbackData, attachFreshness(fallbackProv, flags), nil
 	}
 }
+
+// listEnvelopeMetadataKeys are top-level keys that, when accompanying a
+// list-wrapper array, suggest the response is a paginated list envelope
+// rather than a detail object. Used by writeThroughCache to decide
+// whether to upsert a single-object body. Any envelope key NOT in this
+// set (and not a list wrapper itself) signals real per-row data, and
+// the envelope is treated as a detail object even when one of its
+// wrapper-named fields happens to be an empty array.
+var listEnvelopeMetadataKeys = map[string]bool{
+	// list wrappers themselves — must stay in sync with pageItemKeys
+	"results": true, "data": true, "items": true,
+	"records": true, "nodes": true, "entries": true, "features": true,
+	"Results": true, "Data": true, "Items": true,
+	"Records": true, "Nodes": true, "Entries": true, "Features": true,
+	// pagination cursors / tokens
+	"next_cursor": true, "nextCursor": true,
+	"next_page_token": true, "nextPageToken": true,
+	"page_token": true, "pageToken": true,
+	"end_cursor": true, "endCursor": true,
+	"start_cursor": true, "startCursor": true,
+	"cursor": true, "after": true, "before": true,
+	// has-more flags and page numbers
+	"has_more": true, "hasMore": true, "has_next": true, "hasNext": true,
+	"next_page": true, "previous_page": true,
+	"page": true, "page_size": true, "per_page": true,
+	// counts / totals
+	"total": true, "count": true, "size": true, "total_count": true, "totalCount": true,
+	// JSend / common status envelopes
+	"success": true, "status": true, "message": true, "error": true,
+	"errors": true, "Errors": true, "warnings": true, "Warnings": true,
+	// wrapper objects
+	"links": true, "meta": true, "pagination": true,
+	"response_metadata": true, "paging": true,
+	// links shape
+	"next": true, "prev": true, "previous": true, "first": true, "last": true,
+}
+
+var writeThroughListWrapperKeys = []string{
+	"data", "results", "items", "records", "nodes", "entries", "features",
+	"Data", "Results", "Items", "Records", "Nodes", "Entries", "Features",
+}
+var writeThroughNestedEnvelopeKeys = []string{"data", "Data", "result", "Result"}
 
 // writeThroughCache upserts live API results into the local SQLite store so
 // FTS search covers everything the user has looked up — not just explicit syncs.
 // Best-effort: failures are silently ignored (the live result already succeeded).
-func writeThroughCache(resourceType string, data json.RawMessage) {
-	db, err := store.Open(defaultDBPath("espn-pp-cli"))
+func writeThroughCache(ctx context.Context, resourceType string, data json.RawMessage) {
+	db, err := store.OpenWithContext(ctx, defaultDBPath("espn-pp-cli"))
 	if err != nil {
 		return
 	}
@@ -158,48 +329,263 @@ func writeThroughCache(resourceType string, data json.RawMessage) {
 	// Try direct array first
 	if json.Unmarshal(data, &items) != nil || len(items) == 0 {
 		items = nil
-		// Try object — check for common envelope patterns (results, data, items, events, articles)
+		// Try object — check for common envelope patterns (results, data, items)
 		var envelope map[string]json.RawMessage
 		if json.Unmarshal(data, &envelope) == nil {
-			for _, key := range []string{"results", "data", "items", "events", "articles", "leagues", "teams", "athletes"} {
-				if raw, ok := envelope[key]; ok {
+			matchedListEnvelope := false
+			if extracted, ok := extractWriteThroughListItems(envelope); ok {
+				matchedListEnvelope = true
+				items = extracted
+			}
+			if matchedListEnvelope && len(items) == 0 {
+				return
+			}
+			// Single object detail response: let UpsertBatch's existing
+			// resourceIDFieldOverrides mechanism resolve the primary key.
+			// Guarding on envelope["id"] dropped any API whose PK is named
+			// CertNo / sku / invoiceId / etc. on the floor (#1439).
+			//
+			// Treat the envelope as a list-shaped response only when EVERY
+			// top-level key is either a list-wrapper (results/data/items)
+			// holding a real array, or a known pagination-metadata key.
+			// A detail object that happens to carry an empty wrapper-named
+			// field alongside real data (e.g. {"id":"order","items":[],
+			// "status":"pending"}) must still cache as a single row.
+			if items == nil && !matchedListEnvelope && len(envelope) > 0 {
+				looksLikeListEnvelope := false
+				hasListWrapperArray := false
+				for _, key := range writeThroughListWrapperKeys {
+					raw, ok := envelope[key]
+					if !ok {
+						continue
+					}
+					// json.Unmarshal("null", &arr) succeeds with arr=nil,
+					// so require arr != nil to keep true empty arrays in
+					// the skip branch while letting scalar/null values fall
+					// through as regular field-name collisions.
 					var arr []json.RawMessage
-					if json.Unmarshal(raw, &arr) == nil && len(arr) > 0 {
-						items = arr
+					if json.Unmarshal(raw, &arr) == nil && arr != nil {
+						hasListWrapperArray = true
 						break
 					}
 				}
-			}
-			// Single object with an id field (e.g., detail response)
-			if items == nil {
-				if idRaw, ok := envelope["id"]; ok {
-					id := strings.Trim(string(idRaw), "\"")
-					_ = db.Upsert(resourceType, id, data)
+				if hasListWrapperArray {
+					looksLikeListEnvelope = true
+					for k := range envelope {
+						if !listEnvelopeMetadataKeys[k] {
+							looksLikeListEnvelope = false
+							break
+						}
+					}
+				}
+				if !looksLikeListEnvelope {
+					_, _, _ = db.UpsertBatch(resourceType, []json.RawMessage{data})
 					return
 				}
 			}
 		}
 	}
 
-	// Upsert each item individually
-	for _, item := range items {
-		var obj map[string]json.RawMessage
-		if json.Unmarshal(item, &obj) != nil {
+	if len(items) > 0 {
+		_, _, _ = db.UpsertBatch(resourceType, items)
+	}
+}
+
+type writeThroughArrayDecoder func(json.RawMessage) ([]json.RawMessage, bool)
+
+func extractWriteThroughListItems(envelope map[string]json.RawMessage) ([]json.RawMessage, bool) {
+	if items, ok := extractWriteThroughListWrapperItems(envelope, decodeWriteThroughNonEmptyArray); ok {
+		return items, true
+	}
+
+	for _, key := range writeThroughNestedEnvelopeKeys {
+		raw, ok := envelope[key]
+		if !ok || isRawJSONNull(raw) {
 			continue
 		}
-		if idRaw, ok := obj["id"]; ok {
-			id := strings.Trim(string(idRaw), "\"")
-			_ = db.Upsert(resourceType, id, item)
+		var inner map[string]json.RawMessage
+		if json.Unmarshal(raw, &inner) != nil {
+			continue
+		}
+		if items, ok := extractNestedWriteThroughListItems(inner); ok {
+			return items, true
 		}
 	}
+
+	return extractWriteThroughSingleArraySibling(envelope, decodeWriteThroughNonEmptyArray)
+}
+
+func extractNestedWriteThroughListItems(envelope map[string]json.RawMessage) ([]json.RawMessage, bool) {
+	if items, ok := extractWriteThroughListWrapperItems(envelope, decodeWriteThroughArray); ok {
+		return items, true
+	}
+	return extractWriteThroughSingleArraySibling(envelope, decodeWriteThroughArray)
+}
+
+func extractWriteThroughListWrapperItems(envelope map[string]json.RawMessage, decode writeThroughArrayDecoder) ([]json.RawMessage, bool) {
+	for _, key := range writeThroughListWrapperKeys {
+		raw, ok := envelope[key]
+		if !ok {
+			continue
+		}
+		if items, ok := decode(raw); ok {
+			return items, true
+		}
+	}
+	return nil, false
+}
+
+func extractWriteThroughSingleArraySibling(envelope map[string]json.RawMessage, decode writeThroughArrayDecoder) ([]json.RawMessage, bool) {
+	arrayCount := 0
+	var arrayItems []json.RawMessage
+	for key, raw := range envelope {
+		if listEnvelopeMetadataKeys[key] {
+			continue
+		}
+		if candidate, ok := decode(raw); ok {
+			if !writeThroughArrayItemsAreObjects(candidate) {
+				continue
+			}
+			arrayItems = candidate
+			arrayCount++
+			continue
+		}
+		return nil, false
+	}
+	if arrayCount == 1 {
+		return arrayItems, true
+	}
+	return nil, false
+}
+
+func writeThroughArrayItemsAreObjects(items []json.RawMessage) bool {
+	if len(items) == 0 {
+		return true
+	}
+	var obj map[string]json.RawMessage
+	return json.Unmarshal(items[0], &obj) == nil
+}
+
+func decodeWriteThroughNonEmptyArray(raw json.RawMessage) ([]json.RawMessage, bool) {
+	items, ok := decodeWriteThroughArray(raw)
+	if !ok || len(items) == 0 {
+		return nil, false
+	}
+	return items, true
+}
+
+func decodeWriteThroughArray(raw json.RawMessage) ([]json.RawMessage, bool) {
+	var items []json.RawMessage
+	if json.Unmarshal(raw, &items) != nil || items == nil {
+		return nil, false
+	}
+	return items, true
+}
+
+func isRawJSONNull(raw json.RawMessage) bool {
+	return strings.TrimSpace(string(raw)) == "null"
+}
+
+func writeMutationResponseToStore(ctx context.Context, resourceType string, data json.RawMessage, responsePath string) {
+	items := mutationResponseEntityItems(resourceType, data, responsePath)
+	if len(items) == 0 {
+		return
+	}
+
+	db, err := store.OpenWithContext(ctx, defaultDBPath("espn-pp-cli"))
+	if err != nil {
+		return
+	}
+	defer db.Close()
+
+	_, _, _ = db.UpsertBatch(resourceType, items)
+}
+
+func mutationResponseEntityItems(resourceType string, data json.RawMessage, responsePath string) []json.RawMessage {
+	if responsePath != "" {
+		if pathData, ok := responsePayloadAtPath(data, responsePath); ok {
+			data = pathData
+		}
+	}
+
+	if items := mutationResponseItemsFromPayload(resourceType, data); len(items) > 0 {
+		return items
+	}
+
+	data = mutationResponsePayload(data)
+	if items := mutationResponseItemsFromPayload(resourceType, data); len(items) > 0 {
+		return items
+	}
+
+	if responsePath == "" {
+		var envelope map[string]json.RawMessage
+		if json.Unmarshal(data, &envelope) == nil {
+			if _, hasStatus := envelope["status"]; !hasStatus {
+				if raw, ok := envelope["data"]; ok {
+					return mutationResponseItemsFromPayload(resourceType, raw)
+				}
+			}
+		}
+	}
+
+	return nil
+}
+
+func mutationResponseItemsFromPayload(resourceType string, data json.RawMessage) []json.RawMessage {
+	if len(bytes.TrimSpace(data)) == 0 {
+		return nil
+	}
+
+	var arr []json.RawMessage
+	if json.Unmarshal(data, &arr) == nil {
+		items := make([]json.RawMessage, 0, len(arr))
+		for _, item := range arr {
+			if mutationResponseHasID(resourceType, item) {
+				items = append(items, item)
+			}
+		}
+		return items
+	}
+
+	if mutationResponseHasID(resourceType, data) {
+		return []json.RawMessage{data}
+	}
+	return nil
+}
+
+func mutationResponsePayload(data json.RawMessage) json.RawMessage {
+	var envelope struct {
+		Status string          `json:"status"`
+		Data   json.RawMessage `json:"data"`
+	}
+	if err := json.Unmarshal(data, &envelope); err != nil || envelope.Status == "" || envelope.Data == nil {
+		return data
+	}
+	switch envelope.Status {
+	case "success", "ok", "OK", "Success":
+		return envelope.Data
+	default:
+		return data
+	}
+}
+
+func mutationResponseHasID(resourceType string, data json.RawMessage) bool {
+	var obj map[string]any
+	if err := json.Unmarshal(data, &obj); err != nil || len(obj) == 0 {
+		return false
+	}
+	if synthetic, _ := obj["__pp_verify_synthetic__"].(bool); synthetic {
+		return false
+	}
+	return store.ExtractResourceID(resourceType, obj) != ""
 }
 
 // resolveLocal reads data from the local SQLite store.
 // Note: local reads return ALL synced data for the resource type. Endpoint-specific
 // filters (query params, path scoping like /teams/{id}/users) are NOT applied locally.
 // The provenance metadata includes "unscoped":true when params were present but not applied.
-func resolveLocal(resourceType string, isList bool, path string, params map[string]string, reason string) (json.RawMessage, DataProvenance, error) {
-	db, err := openStoreForRead("espn-pp-cli")
+func resolveLocal(ctx context.Context, flags *rootFlags, hintWriter io.Writer, resourceType string, isList bool, path string, params map[string]string, reason string) (json.RawMessage, DataProvenance, error) {
+	db, err := openStoreForRead(ctx, "espn-pp-cli")
 	if err != nil {
 		return nil, DataProvenance{}, fmt.Errorf("opening local database: %w\nRun 'espn-pp-cli sync' first.", err)
 	}
@@ -207,6 +593,10 @@ func resolveLocal(resourceType string, isList bool, path string, params map[stri
 		return nil, DataProvenance{}, fmt.Errorf("no local data. Run 'espn-pp-cli sync' first")
 	}
 	defer db.Close()
+
+	if flags != nil {
+		emitSyncHints(hintWriter, db, resourceType, flags.maxAge)
+	}
 
 	prov := localProvenance(db, resourceType, reason)
 
@@ -247,10 +637,10 @@ func resolveLocal(resourceType string, isList bool, path string, params map[stri
 
 	item, err := db.Get(resourceType, id)
 	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, DataProvenance{}, fmt.Errorf("resource %q with ID %q not found in local store. Run 'espn-pp-cli sync' first", resourceType, id)
+		}
 		return nil, DataProvenance{}, fmt.Errorf("querying local store: %w", err)
-	}
-	if item == nil {
-		return nil, DataProvenance{}, fmt.Errorf("resource %q with ID %q not found in local store. Run 'espn-pp-cli sync' first", resourceType, id)
 	}
 	return item, prov, nil
 }

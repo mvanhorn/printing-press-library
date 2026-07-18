@@ -14,10 +14,12 @@ import (
 	"math"
 	"os"
 	"path/filepath"
+	"sort"
 	"strconv"
 	"strings"
 	"sync"
 	"time"
+	"unicode"
 
 	"github.com/jlaffaye/ftp"
 )
@@ -177,6 +179,18 @@ func (f *FTPS) Download(remotePath, outputPath string, maxBytes int64) (int64, e
 
 func (f *FTPS) JobMetadata(snapshot Snapshot) (Metadata, error) {
 	candidates := ArchiveCandidates(snapshot)
+	fallbackCandidates := map[string]bool{}
+	if f != nil && f.conn != nil {
+		files, err := f.List("/", 1000)
+		if err == nil {
+			for _, candidate := range LegacyArchiveCandidates(snapshot, files) {
+				if !containsString(candidates, candidate) {
+					candidates = append(candidates, candidate)
+					fallbackCandidates[candidate] = true
+				}
+			}
+		}
+	}
 	metadata := Metadata{CandidatePaths: candidates, PlateNumber: snapshot.PlateNumber, Objects: []Object{}}
 	for _, candidate := range candidates {
 		size, err := f.conn.FileSize(candidate)
@@ -199,6 +213,9 @@ func (f *FTPS) JobMetadata(snapshot Snapshot) (Metadata, error) {
 		if err != nil {
 			continue
 		}
+		if fallbackCandidates[candidate] && !MetadataMatchesSnapshot(parsed, snapshot) {
+			continue
+		}
 		parsed.SourcePath = candidate
 		parsed.CandidatePaths = candidates
 		return parsed, nil
@@ -207,6 +224,79 @@ func (f *FTPS) JobMetadata(snapshot Snapshot) (Metadata, error) {
 		return metadata, fmt.Errorf("current print exposes printer-resident G-code (%s), not a 3MF available over FTPS; display-started built-in prints may not provide weight or preview metadata", safeBasename(rawPath))
 	}
 	return metadata, fmt.Errorf("current 3MF metadata unavailable after checking %d candidate paths", len(candidates))
+}
+
+func LegacyArchiveCandidates(snapshot Snapshot, files []File) []string {
+	observedAt := snapshot.ObservedAt
+	if observedAt.IsZero() {
+		return nil
+	}
+	maxAge := 48 * time.Hour
+	if snapshot.Percent != nil && *snapshot.Percent > 0 && *snapshot.Percent < 100 && snapshot.RemainingMinutes != nil {
+		elapsed := time.Duration(float64(*snapshot.RemainingMinutes)*float64(*snapshot.Percent)/float64(100-*snapshot.Percent)) * time.Minute
+		if elapsed+6*time.Hour > maxAge {
+			maxAge = elapsed + 6*time.Hour
+		}
+	}
+	oldest := observedAt.Add(-maxAge)
+	eligible := make([]File, 0, len(files))
+	for _, file := range files {
+		if file.Type != "file" || file.Size == 0 || file.Size > MaxArchiveBytes || !strings.HasSuffix(strings.ToLower(file.Name), ".3mf") {
+			continue
+		}
+		if !file.ModTime.IsZero() && file.ModTime.Before(oldest) {
+			continue
+		}
+		eligible = append(eligible, file)
+	}
+	sort.Slice(eligible, func(i, j int) bool {
+		if eligible[i].ModTime.IsZero() != eligible[j].ModTime.IsZero() {
+			return eligible[i].ModTime.IsZero()
+		}
+		if eligible[i].ModTime.Equal(eligible[j].ModTime) {
+			return eligible[i].Path < eligible[j].Path
+		}
+		return eligible[i].ModTime.After(eligible[j].ModTime)
+	})
+	paths := make([]string, 0, len(eligible))
+	for _, file := range eligible {
+		paths = append(paths, file.Path)
+	}
+	return paths
+}
+
+func MetadataMatchesSnapshot(metadata Metadata, snapshot Snapshot) bool {
+	want := []string{canonicalJobLabel(snapshot.JobName), canonicalJobLabel(snapshot.SubtaskName)}
+	got := []string{canonicalJobLabel(metadata.ProfileName), canonicalJobLabel(metadata.ProjectName)}
+	for _, candidate := range got {
+		if candidate == "" {
+			continue
+		}
+		for _, expected := range want {
+			if expected != "" && candidate == expected {
+				return true
+			}
+		}
+	}
+	return false
+}
+
+func canonicalJobLabel(value string) string {
+	return strings.Map(func(r rune) rune {
+		if unicode.IsLetter(r) || unicode.IsNumber(r) {
+			return unicode.ToLower(r)
+		}
+		return -1
+	}, value)
+}
+
+func containsString(values []string, value string) bool {
+	for _, candidate := range values {
+		if candidate == value {
+			return true
+		}
+	}
+	return false
 }
 
 func ArchiveCandidates(snapshot Snapshot) []string {

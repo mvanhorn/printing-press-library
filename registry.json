@@ -2068,9 +2068,9 @@
       "path": "library/devices/bambu",
       "release": {
         "cli_name": "bambu-pp-cli",
-        "version": "2026.7.1",
-        "released_at": "2026-07-12T02:15:09Z",
-        "source_commit": "382949b6061fa86e2576cc7888bb61639bb3a507"
+        "version": "2026.7.2",
+        "released_at": "2026-07-18T05:15:14Z",
+        "source_commit": "d22065c4428b362db1099e1de0eef971ef67cd67"
       },
       "printer": "twidtwid",
       "printer_name": "Todd Dailey",
@@ -5102,7 +5102,8 @@
       "mcp": {
         "binary": "espn-pp-mcp",
         "transports": [
-          "stdio"
+          "stdio",
+          "http"
         ],
         "tool_count": 7,
         "public_tool_count": 0,
@@ -6380,9 +6381,9 @@
       "path": "library/other/function-health",
       "release": {
         "cli_name": "function-health-pp-cli",
-        "version": "2026.7.1",
-        "released_at": "2026-07-08T18:21:21Z",
-        "source_commit": "11d7b4ea752c9c8fb8909037133058eb57560cc0"
+        "version": "2026.7.2",
+        "released_at": "2026-07-16T22:20:37Z",
+        "source_commit": "b1088e5f321b4b04815550498a820005484c93a6"
       },
       "printer": "DamienStevens",
       "printer_name": "Damien Stevens",
@@ -7298,6 +7299,65 @@
       }
     },
     {
+      "name": "google-trends",
+      "category": "marketing",
+      "api": "Google Trends",
+      "description": "Every Google Trends workflow pytrends offered, plus the local history and rate-limit resilience that archived, frozen wrapper never had.",
+      "search_terms": [
+        "google-trends",
+        "Google Trends",
+        "google-trends-pp-cli",
+        "Every Google Trends workflow pytrends offered, plus the local history and rate-limit resilience that archived, frozen wrapper never had.",
+        "Time-Travel Trending Lookup",
+        "trends trending at",
+        "See what was trending on a specific past date and geo — a question Google Trends' own live UI cannot answer.",
+        "Trend History Search",
+        "trends history search",
+        "Full-text search across every related-term and trending-topic result you've ever synced, offline.",
+        "Snapshot Diff / Rising-Term Watchlist",
+        "trends changes",
+        "See exactly what changed for a keyword's related terms and interest score since your last sync.",
+        "Content Opportunity Ranking",
+        "trends opportunities",
+        "Ranks a keyword's related/rising terms by rising-momentum times parent-topic growth, surfacing the best content ideas first.",
+        "Seasonality Index",
+        "trends seasonality",
+        "Computes monthly averages, peak month, and a seasonality strength score for a keyword from cached history.",
+        "Stale Query Report",
+        "trends stale",
+        "Lists tracked keywords whose local data hasn't been refreshed recently, so you know what to re-sync before you hit a rate limit.",
+        "Geo-Divergence Finder",
+        "trends geo-gap",
+        "Ranks the regions where two keywords' interest diverges most, instead of raw per-region values you'd have to compare by hand."
+      ],
+      "path": "library/marketing/google-trends",
+      "release": {
+        "cli_name": "google-trends-pp-cli",
+        "version": "2026.7.1",
+        "released_at": "2026-07-18T05:14:12Z",
+        "source_commit": "044ed1a0a074f2e83d45a40e09f2d31c72c05e80"
+      },
+      "printer": "kmorebetter",
+      "printer_name": "Kerry Morrison",
+      "creator": {
+        "handle": "kmorebetter",
+        "name": "Kerry Morrison"
+      },
+      "mcp": {
+        "binary": "google-trends-pp-mcp",
+        "transports": [
+          "stdio",
+          "http"
+        ],
+        "tool_count": 6,
+        "public_tool_count": 2,
+        "auth_type": "cookie",
+        "env_vars": [],
+        "mcp_ready": "partial",
+        "spec_format": "internal"
+      }
+    },
+    {
       "name": "gorgias",
       "category": "sales-and-crm",
       "api": "Gorgias",
@@ -7423,6 +7483,37 @@
         ],
         "mcp_ready": "full",
         "spec_format": "openapi3"
+      }
+    },
+    {
+      "name": "grants",
+      "category": "health",
+      "api": "Research Grants Finder",
+      "description": "Open US federal research funding from the terminal, keyless — Grants.gov open opportunities with deadline/agency/award/eligibility filters, plus awarded NIH RePORTER and NSF grants as funding benchmarks.",
+      "search_terms": [
+        "grants",
+        "Research Grants Finder",
+        "grants-pp-cli",
+        "Open US federal research funding from the terminal, keyless — Grants.gov open opportunities with deadline/agency/award/eligibility filters, plus awarded NIH RePORTER and NSF grants as funding benchmarks.",
+        "Award Cap Fallback",
+        "search --min-award",
+        "Filters by the best available award amount — awardCeiling with an estimatedFunding fallback — because Grants.gov frequently reports a zero ceiling on real opportunities. Output labels the fallback so users know the number is an estimate.",
+        "Eligibility Substring Filter",
+        "search --eligibility",
+        "Client-side applicant-type filter over per-opportunity fetchOpportunity details, e.g. limit results to universities or small businesses without reading each synopsis.",
+        "Cross-Source Doctor",
+        "doctor",
+        "One command live-checks all three keyless upstreams (Grants.gov Search2, NIH RePORTER, NSF Awards) before a research session, with per-source status.",
+        "Awarded-vs-Open Benchmarking",
+        "nih / nsf",
+        "Pairs open Grants.gov calls with historically awarded NIH RePORTER and NSF grants so applicants can benchmark typical award sizes for a topic before applying."
+      ],
+      "path": "library/health/grants",
+      "printer": "laci141",
+      "printer_name": "laci141",
+      "creator": {
+        "handle": "laci141",
+        "name": "laci141"
       }
     },
     {
@@ -7943,11 +8034,12 @@
     {
       "name": "hotel-goat",
       "category": "travel",
-      "api": "Google Hotels",
+      "api": "Hotel GOAT",
       "description": "Every Google Hotels feature, plus per-OTA price breakdown, local price-drift history, brand-loyalty filters",
       "search_terms": [
         "hotel-goat",
         "Google Hotels",
+        "Hotel GOAT",
         "hotel-goat-pp-cli",
         "Every Google Hotels feature, plus per-OTA price breakdown, local price-drift history, brand-loyalty filters, and date-flex windowing no other tool has.",
         "Agent-composable nested JSON via --select dotted paths",
@@ -7957,9 +8049,9 @@
       "path": "library/travel/hotel-goat",
       "release": {
         "cli_name": "hotel-goat-pp-cli",
-        "version": "2026.7.1",
-        "released_at": "2026-07-08T18:21:21Z",
-        "source_commit": "11d7b4ea752c9c8fb8909037133058eb57560cc0"
+        "version": "2026.7.2",
+        "released_at": "2026-07-17T02:06:03Z",
+        "source_commit": "81af5eb6ce846635d369191502e5d693e785ab5c"
       },
       "printer": "kothari-nikunj",
       "printer_name": "kothari-nikunj",
@@ -9336,9 +9428,9 @@
       "path": "library/project-management/linear",
       "release": {
         "cli_name": "linear-pp-cli",
-        "version": "2026.7.3",
-        "released_at": "2026-07-08T23:15:22Z",
-        "source_commit": "220c1563d0375ec8741c4c377b4bb5a4317cbf6a"
+        "version": "2026.7.4",
+        "released_at": "2026-07-14T04:01:57Z",
+        "source_commit": "2861d698a71ff1e98ccc6f5dac5767c813e8d443"
       },
       "printer": "mvanhorn",
       "printer_name": "Matt Van Horn",
@@ -12273,6 +12365,49 @@
       }
     },
     {
+      "name": "peloton",
+      "category": "health",
+      "api": "Peloton",
+      "description": "Read-only Peloton workout, class, and structural-provider facts in a private local store.",
+      "search_terms": [
+        "peloton",
+        "peloton-pp-cli",
+        "Read-only Peloton workout, class, and structural-provider facts in a private local store.",
+        "Managed OAuth catalog access",
+        "auth setup",
+        "Bootstraps a private OAuth bundle and reuses or refreshes it for bearer-authenticated catalog reads."
+      ],
+      "path": "library/health/peloton",
+      "release": {
+        "cli_name": "peloton-pp-cli",
+        "version": "2026.7.1",
+        "released_at": "2026-07-18T05:12:53Z",
+        "source_commit": "22179cc37cddf8c2f8ac760057b79ea42b775dd5"
+      },
+      "printer": "itsmefelix-",
+      "printer_name": "Felix Banuchi",
+      "creator": {
+        "handle": "itsmefelix-",
+        "name": "Felix Banuchi"
+      },
+      "mcp": {
+        "binary": "peloton-pp-mcp",
+        "transports": [
+          "stdio",
+          "http"
+        ],
+        "tool_count": 10,
+        "public_tool_count": 0,
+        "auth_type": "oauth2_refresh",
+        "env_vars": [
+          "PELOTON_OAUTH_USERNAME",
+          "PELOTON_OAUTH_PASSWORD"
+        ],
+        "mcp_ready": "full",
+        "spec_format": "internal"
+      }
+    },
+    {
       "name": "pexels",
       "category": "media-and-entertainment",
       "api": "Pexels",
@@ -12960,11 +13095,12 @@
     {
       "name": "prediction-goat",
       "category": "payments",
-      "api": "Markets",
+      "api": "Prediction GOAT",
       "description": "Every Polymarket and Kalshi market in one slim agent-native CLI, with cross-venue topic search and screens no other...",
       "search_terms": [
         "prediction-goat",
         "Markets",
+        "Prediction GOAT",
         "prediction-goat-pp-cli",
         "Cross-venue topic bundle",
         "topic",
@@ -12996,9 +13132,9 @@
       "path": "library/payments/prediction-goat",
       "release": {
         "cli_name": "prediction-goat-pp-cli",
-        "version": "2026.7.1",
-        "released_at": "2026-07-08T18:21:21Z",
-        "source_commit": "11d7b4ea752c9c8fb8909037133058eb57560cc0"
+        "version": "2026.7.2",
+        "released_at": "2026-07-17T02:06:03Z",
+        "source_commit": "81af5eb6ce846635d369191502e5d693e785ab5c"
       },
       "printer": "mvanhorn",
       "printer_name": "Matt Van Horn",
@@ -14334,6 +14470,59 @@
       }
     },
     {
+      "name": "sea-airport-parking",
+      "category": "travel",
+      "api": "SEA Airport Parking",
+      "description": "Check, track, and get alerted on SEA's official on-airport Reserved garage — with a local price/availability history and sold-out watch that no site or aggregator has.",
+      "search_terms": [
+        "sea-airport-parking",
+        "SEA Airport Parking",
+        "sea-airport-parking-pp-cli",
+        "Check, track, and get alerted on SEA's official on-airport Reserved garage — with a local price/availability history and sold-out watch that no site or aggregator has.",
+        "Flexible-date sweep",
+        "sweep",
+        "Search a flexible date window for the cheapest or any-available Reserved stay.",
+        "Sold-out watch",
+        "watch",
+        "Poll a sold-out or target date range until Reserved opens up (or drops below a price), then notify.",
+        "Quote-snapshot history",
+        "history",
+        "List every recorded quote snapshot for a date range: price, availability, promo, captured time.",
+        "Price / availability drift",
+        "drift",
+        "Summarize how a range's price and availability moved across stored snapshots: first vs latest, min/max, sold-out flips.",
+        "Availability calendar",
+        "calendar",
+        "Render price and open/sold-out across many entry days for a fixed-length stay."
+      ],
+      "path": "library/travel/sea-airport-parking",
+      "release": {
+        "cli_name": "sea-airport-parking-pp-cli",
+        "version": "2026.7.1",
+        "released_at": "2026-07-14T03:57:29Z",
+        "source_commit": "fc428c45363e9e95d69d49a0a714ebf827d3c387"
+      },
+      "printer": "omarshahine",
+      "printer_name": "Omar Shahine",
+      "creator": {
+        "handle": "omarshahine",
+        "name": "Omar Shahine"
+      },
+      "mcp": {
+        "binary": "sea-airport-parking-pp-mcp",
+        "transports": [
+          "stdio",
+          "http"
+        ],
+        "tool_count": 1,
+        "public_tool_count": 1,
+        "auth_type": "none",
+        "env_vars": [],
+        "mcp_ready": "full",
+        "spec_format": "internal"
+      }
+    },
+    {
       "name": "seats-aero",
       "category": "travel",
       "api": "Seats Aero Partner",
@@ -14673,9 +14862,9 @@
       "path": "library/monitoring/sentry",
       "release": {
         "cli_name": "sentry-pp-cli",
-        "version": "2026.7.1",
-        "released_at": "2026-07-08T18:21:21Z",
-        "source_commit": "11d7b4ea752c9c8fb8909037133058eb57560cc0"
+        "version": "2026.7.2",
+        "released_at": "2026-07-16T22:09:11Z",
+        "source_commit": "5dd8f6da8021cb258ffefb0de74576dcc57c2b17"
       },
       "printer": "cathrynlavery",
       "printer_name": "Cathryn Lavery",
@@ -15500,6 +15689,43 @@
       }
     },
     {
+      "name": "soccer-goat",
+      "category": "media-and-entertainment",
+      "api": "soccer-goat",
+      "description": "Type any player or club and get market value, EA FC rating, potential, and stats in one report, joined across sources that live in separate walled silos.",
+      "search_terms": [
+        "soccer-goat",
+        "soccer-goat-pp-cli",
+        "Unified player dossier",
+        "player",
+        "Type any player name and get market value, EA FC rating, potential, and key stats in one report.",
+        "Team squad value+rating board",
+        "team",
+        "Type a club name and get the full squad with each player's market value and rating, plus squad totals.",
+        "Market-vs-game divergence",
+        "over-under-rated",
+        "Flag players whose transfer-market value is far above or below their EA game rating.",
+        "Potential growth gap",
+        "potential-gap",
+        "Rank players by headroom (potential minus current rating).",
+        "Cross-source head-to-head",
+        "compare",
+        "Side-by-side value, rating, potential, and stats for two players.",
+        "Wonderkid scout query",
+        "wonderkids",
+        "Find young players with high potential and rising market value."
+      ],
+      "path": "library/media-and-entertainment/soccer-goat",
+      "printer": "mvanhorn",
+      "printer_name": "Matt Van Horn",
+      "contributors": [
+        {
+          "handle": "mvanhorn",
+          "name": "Matt Van Horn"
+        }
+      ]
+    },
+    {
       "name": "splitwise",
       "category": "payments",
       "api": "Splitwise",
@@ -16027,6 +16253,53 @@
       }
     },
     {
+      "name": "substack-reader",
+      "category": "media-and-entertainment",
+      "api": "Substack Reader",
+      "description": "Read any Substack publication as a local, full-text-searchable corpus — keyless for free posts, your own session for what you subscribe to.",
+      "search_terms": [
+        "substack-reader",
+        "Substack Reader",
+        "substack-reader-pp-cli",
+        "Read any Substack publication as a local, full-text-searchable corpus — keyless for free posts, your own session for what you subscribe to.",
+        "Local publication corpus",
+        "archive",
+        "Archive a whole Substack publication into a local SQLite mirror you can read, search, and query offline — no other Substack tool builds a persistent corpus.",
+        "Entitlement-aware read",
+        "read",
+        "Read a post's full text; free posts keyless, and paid posts you subscribe to via your own session cookie — with an honest 'preview only, you're not entitled' signal.",
+        "Cross-publication digest",
+        "digest",
+        "A time-windowed digest across every publication in your local corpus — what's new since you last synced, ranked, in one view.",
+        "Author comparison",
+        "author-compare",
+        "Compare two publications' cadence, topics, and free/paid mix from the local corpus.",
+        "Local corpus SQL",
+        "sql",
+        "Run read-only SQL over your local Substack corpus for arbitrary analytics — post cadence, audience mix, longest posts — from data you've already archived."
+      ],
+      "path": "library/media-and-entertainment/substack-reader",
+      "printer": "maxswinguy",
+      "printer_name": "Maxime Delavergne",
+      "creator": {
+        "handle": "maxswinguy",
+        "name": "Maxime Delavergne"
+      },
+      "mcp": {
+        "binary": "substack-reader-pp-mcp",
+        "transports": [
+          "stdio",
+          "http"
+        ],
+        "tool_count": 3,
+        "public_tool_count": 3,
+        "auth_type": "none",
+        "env_vars": [],
+        "mcp_ready": "full",
+        "spec_format": "internal"
+      }
+    },
+    {
       "name": "sumble",
       "category": "sales-and-crm",
       "api": "Sumble",
@@ -16182,9 +16455,9 @@
       "path": "library/developer-tools/supabase",
       "release": {
         "cli_name": "supabase-pp-cli",
-        "version": "2026.7.1",
-        "released_at": "2026-07-08T18:21:21Z",
-        "source_commit": "11d7b4ea752c9c8fb8909037133058eb57560cc0"
+        "version": "2026.7.2",
+        "released_at": "2026-07-13T08:40:26Z",
+        "source_commit": "24a07b1badcaa3e6f967b0e9e7d001aa916c591b"
       },
       "printer": "giacaglia",
       "printer_name": "Giuliano Giacaglia",
@@ -16481,9 +16754,9 @@
       "path": "library/food-and-dining/table-reservation-goat",
       "release": {
         "cli_name": "table-reservation-goat-pp-cli",
-        "version": "2026.7.4",
-        "released_at": "2026-07-13T08:31:55Z",
-        "source_commit": "287b600a63d1111746e08832271a553fd53163be"
+        "version": "2026.7.5",
+        "released_at": "2026-07-18T05:16:59Z",
+        "source_commit": "6adda32be0c5efdd581e2e8285b8e98dfae8af4e"
       },
       "printer": "pejmanjohn",
       "printer_name": "Pejman Pour-Moezzi",
@@ -16495,6 +16768,10 @@
         {
           "handle": "ganes-j",
           "name": "Jesse Ganes"
+        },
+        {
+          "handle": "teebs4140",
+          "name": "Dylan Thibault"
         }
       ],
       "mcp": {
@@ -17658,11 +17935,12 @@
     {
       "name": "ufo-goat",
       "category": "other",
-      "api": "War.gov UFO",
+      "api": "UFO GOAT",
       "description": "Browse, search, and download declassified UAP files from the War.gov PURSUE archive",
       "search_terms": [
         "ufo-goat",
         "War.gov UFO",
+        "UFO GOAT",
         "ufo-goat-pp-cli",
         "Release Sync",
         "sync",
@@ -17689,9 +17967,9 @@
       "path": "library/other/ufo-goat",
       "release": {
         "cli_name": "ufo-goat-pp-cli",
-        "version": "2026.7.1",
-        "released_at": "2026-07-08T18:21:21Z",
-        "source_commit": "11d7b4ea752c9c8fb8909037133058eb57560cc0"
+        "version": "2026.7.2",
+        "released_at": "2026-07-17T02:06:03Z",
+        "source_commit": "81af5eb6ce846635d369191502e5d693e785ab5c"
       },
       "printer": "davemorin",
       "printer_name": "Dave Morin",
@@ -18334,19 +18612,20 @@
     {
       "name": "weather-goat",
       "category": "other",
-      "api": "Open-Meteo + NWS",
+      "api": "Weather GOAT",
       "description": "Weather forecasts, severe weather alerts, air quality, and GO/CAUTION/STOP activity verdicts for walk, bike, hike, commute, and drive",
       "search_terms": [
         "weather-goat",
+        "Weather GOAT",
         "weather-goat-pp-cli",
         "Weather forecasts, severe weather alerts, air quality, and GO/CAUTION/STOP activity verdicts for walk, bike, hike, commute, and drive"
       ],
       "path": "library/other/weather-goat",
       "release": {
         "cli_name": "weather-goat-pp-cli",
-        "version": "2026.7.2",
-        "released_at": "2026-07-08T23:15:22Z",
-        "source_commit": "220c1563d0375ec8741c4c377b4bb5a4317cbf6a"
+        "version": "2026.7.3",
+        "released_at": "2026-07-17T02:06:03Z",
+        "source_commit": "81af5eb6ce846635d369191502e5d693e785ab5c"
       },
       "printer": "tmchow",
       "printer_name": "Trevin Chow",
@@ -18923,9 +19202,9 @@
       "path": "library/developer-tools/yeswehack",
       "release": {
         "cli_name": "yeswehack-pp-cli",
-        "version": "2026.7.1",
-        "released_at": "2026-07-08T18:21:21Z",
-        "source_commit": "11d7b4ea752c9c8fb8909037133058eb57560cc0"
+        "version": "2026.7.2",
+        "released_at": "2026-07-18T05:21:04Z",
+        "source_commit": "776453ac3efa321bd30719d7b9ae991583c85b2a"
       },
       "printer": "mvanhorn",
       "printer_name": "Matt Van Horn",

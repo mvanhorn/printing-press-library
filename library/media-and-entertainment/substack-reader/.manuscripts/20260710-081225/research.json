@@ -1,0 +1,224 @@
+{
+  "api_name": "substack",
+  "novelty_score": 8,
+  "alternatives": [
+    {
+      "name": "substack_api",
+      "url": "https://github.com/NHagar/substack_api",
+      "language": "Python",
+      "install_method": "",
+      "stars": 217,
+      "last_updated": "",
+      "command_count": 8,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "sbstck-dl",
+      "url": "https://github.com/alexferrari88/sbstck-dl",
+      "language": "Go",
+      "install_method": "",
+      "stars": 224,
+      "last_updated": "",
+      "command_count": 3,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "substack_mcp",
+      "url": "https://github.com/dkyazzentwatwa/substack_mcp",
+      "language": "Python",
+      "install_method": "",
+      "stars": 13,
+      "last_updated": "",
+      "command_count": 13,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "Substack2Markdown",
+      "url": "https://github.com/timf34/Substack2Markdown",
+      "language": "Python",
+      "install_method": "",
+      "stars": 492,
+      "last_updated": "",
+      "command_count": 1,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "mcp-writer-substack",
+      "url": "https://github.com/jonathan-politzki/mcp-writer-substack",
+      "language": "Python",
+      "install_method": "",
+      "stars": 31,
+      "last_updated": "",
+      "command_count": 3,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-07-06T22:30:00Z",
+  "novel_features": [
+    {
+      "name": "Local publication corpus",
+      "command": "archive",
+      "description": "Archive a whole Substack publication into a local SQLite mirror you can read, search, and query offline — no other Substack tool builds a persistent corpus.",
+      "rationale": "Every existing tool fetches live per call; only a local mirror enables offline search, SQL, cross-post analytics, and archive-once/query-forever.",
+      "example": "substack-reader-pp-cli archive astralcodexten --limit 200",
+      "why_it_matters": "Reach for this to turn a live newsletter into a durable, queryable knowledge base instead of re-fetching every time.",
+      "group": "Local corpus that compounds"
+    },
+    {
+      "name": "Entitlement-aware read",
+      "command": "read",
+      "description": "Read a post's full text; free posts keyless, and paid posts you subscribe to via your own session cookie — with an honest 'preview only, you're not entitled' signal.",
+      "rationale": "Combines the keyless free path and the user's own Tier-1 credential behind one command with a reliable full-vs-preview detector (audience + body presence).",
+      "example": "substack-reader-pp-cli read astralcodexten/open-thread-441",
+      "why_it_matters": "Use to pull a specific post's full text into an agent workflow, respecting exactly what the user is entitled to.",
+      "group": "Entitlement-aware reading"
+    },
+    {
+      "name": "Cross-publication digest",
+      "command": "digest",
+      "description": "A time-windowed digest across every publication in your local corpus — what's new since you last synced, ranked, in one view.",
+      "rationale": "Requires a local multi-publication store; no single Substack endpoint aggregates across publications.",
+      "example": "substack-reader-pp-cli digest --since 7d",
+      "why_it_matters": "Use as a personal 'what did I miss across my newsletters' briefing.",
+      "group": "Topic \u0026 comparative intelligence"
+    },
+    {
+      "name": "Author comparison",
+      "command": "author-compare",
+      "description": "Compare two publications' cadence, topics, and free/paid mix from the local corpus.",
+      "rationale": "A local join across two archived publications that no single API call provides.",
+      "example": "substack-reader-pp-cli author-compare astralcodexten blog.bytebytego.com",
+      "why_it_matters": "Use to size up a newsletter before subscribing, or to study what a successful author publishes.",
+      "group": "Topic \u0026 comparative intelligence"
+    },
+    {
+      "name": "Local corpus SQL",
+      "command": "sql",
+      "description": "Run read-only SQL over your local Substack corpus for arbitrary analytics — post cadence, audience mix, longest posts — from data you've already archived.",
+      "rationale": "The local SQLite mirror allows offline aggregation and joins across archived posts that no single Substack endpoint exposes; a read-only SQL command surfaces that on the CLI (the MCP layer already exposes an equivalent typed tool).",
+      "example": "substack-reader-pp-cli sql \"SELECT audience, count(*) FROM posts GROUP BY audience\"",
+      "why_it_matters": "Reach for this for ad-hoc analytics over what you've archived, without re-fetching or writing code.",
+      "group": "Local corpus that compounds"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Local publication corpus",
+      "command": "archive",
+      "description": "Archive a whole Substack publication into a local SQLite mirror you can read, search, and query offline — no other Substack tool builds a persistent corpus.",
+      "rationale": "Every existing tool fetches live per call; only a local mirror enables offline search, SQL, cross-post analytics, and archive-once/query-forever.",
+      "example": "substack-reader-pp-cli archive astralcodexten --limit 200",
+      "why_it_matters": "Reach for this to turn a live newsletter into a durable, queryable knowledge base instead of re-fetching every time.",
+      "group": "Local corpus that compounds"
+    },
+    {
+      "name": "Entitlement-aware read",
+      "command": "read",
+      "description": "Read a post's full text; free posts keyless, and paid posts you subscribe to via your own session cookie — with an honest 'preview only, you're not entitled' signal.",
+      "rationale": "Combines the keyless free path and the user's own Tier-1 credential behind one command with a reliable full-vs-preview detector (audience + body presence).",
+      "example": "substack-reader-pp-cli read astralcodexten/open-thread-441",
+      "why_it_matters": "Use to pull a specific post's full text into an agent workflow, respecting exactly what the user is entitled to.",
+      "group": "Entitlement-aware reading"
+    },
+    {
+      "name": "Cross-publication digest",
+      "command": "digest",
+      "description": "A time-windowed digest across every publication in your local corpus — what's new since you last synced, ranked, in one view.",
+      "rationale": "Requires a local multi-publication store; no single Substack endpoint aggregates across publications.",
+      "example": "substack-reader-pp-cli digest --since 7d",
+      "why_it_matters": "Use as a personal 'what did I miss across my newsletters' briefing.",
+      "group": "Topic \u0026 comparative intelligence"
+    },
+    {
+      "name": "Author comparison",
+      "command": "author-compare",
+      "description": "Compare two publications' cadence, topics, and free/paid mix from the local corpus.",
+      "rationale": "A local join across two archived publications that no single API call provides.",
+      "example": "substack-reader-pp-cli author-compare astralcodexten blog.bytebytego.com",
+      "why_it_matters": "Use to size up a newsletter before subscribing, or to study what a successful author publishes.",
+      "group": "Topic \u0026 comparative intelligence"
+    },
+    {
+      "name": "Local corpus SQL",
+      "command": "sql",
+      "description": "Run read-only SQL over your local Substack corpus for arbitrary analytics — post cadence, audience mix, longest posts — from data you've already archived.",
+      "rationale": "The local SQLite mirror allows offline aggregation and joins across archived posts that no single Substack endpoint exposes; a read-only SQL command surfaces that on the CLI (the MCP layer already exposes an equivalent typed tool).",
+      "example": "substack-reader-pp-cli sql \"SELECT audience, count(*) FROM posts GROUP BY audience\"",
+      "why_it_matters": "Reach for this for ad-hoc analytics over what you've archived, without re-fetching or writing code.",
+      "group": "Local corpus that compounds"
+    }
+  ],
+  "narrative": {
+    "display_name": "Substack Reader",
+    "headline": "Read any Substack publication as a local, full-text-searchable corpus — keyless for free posts, your own session for what you subscribe to.",
+    "value_prop": "Substack Reader archives whole publications into a local SQLite mirror you can search, SQL-query, and read offline. Free posts need no login; paid posts you're entitled to unlock with your own session cookie — never redistributed, always opt-in. Unlike every other Substack tool it builds a corpus that compounds instead of fetching live per call.",
+    "auth_narrative": "Free/public posts are keyless — zero setup. To read paid posts you already subscribe to, provide your own Substack session cookie (substack.sid); this reads only what you are already entitled to and is never required for free content.",
+    "quickstart": [
+      {
+        "command": "substack-reader-pp-cli doctor --dry-run",
+        "comment": "confirm reachability and config before anything else"
+      },
+      {
+        "command": "substack-reader-pp-cli archive astralcodexten --limit 50",
+        "comment": "mirror a publication's recent posts into the local corpus"
+      },
+      {
+        "command": "substack-reader-pp-cli search \"open thread\"",
+        "comment": "full-text search the corpus offline"
+      },
+      {
+        "command": "substack-reader-pp-cli read astralcodexten/open-thread-441",
+        "comment": "read a single post's full text"
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "A paid post reads as preview-only despite being subscribed",
+        "fix": "Check that your substack.sid session cookie is set (SUBSTACK_SESSION or the config cookie file) and current — an expired or mistyped cookie silently falls back to the public preview. The reader unlocks paid posts through Substack's authenticated by-id endpoint, so a valid session is all that is needed; you never target a particular host yourself."
+      },
+      {
+        "symptom": "Empty results / HTTP 429",
+        "fix": "You are being rate-limited; slow down (archive is self-throttled) — Substack sets no rate headers, so pace requests."
+      }
+    ],
+    "when_to_use": "Use Substack Reader when you want a durable, searchable local copy of one or more Substack publications for reading, agent workflows, or analysis — especially reading a specific post's full text or searching across newsletters offline. It is the right tool when you value a corpus that compounds over live per-call fetching.",
+    "anti_triggers": [
+      "Do not use it to publish, schedule, or manage a Substack you own (this is read-only) — use the Substack web app or a publishing tool.",
+      "Do not use it to bulk-scrape or redistribute paid content you are not entitled to — it reads only your own entitled content, on demand.",
+      "Do not use it to manage subscribers, payments, or analytics for your own publication."
+    ],
+    "recipes": [
+      {
+        "title": "Build a searchable corpus",
+        "command": "substack-reader-pp-cli archive astralcodexten --limit 200 \u0026\u0026 substack-reader-pp-cli search \"prediction markets\"",
+        "explanation": "Mirror a publication then search it offline with FTS ranking."
+      },
+      {
+        "title": "Narrow a large post to fields",
+        "command": "substack-reader-pp-cli read astralcodexten/open-thread-441 --agent --select title,post_date,audience,body_html",
+        "explanation": "Pull only the fields an agent needs from a verbose post object."
+      },
+      {
+        "title": "Audience mix analytics",
+        "command": "substack-reader-pp-cli sql \"SELECT audience, count(*) FROM posts GROUP BY audience\"",
+        "explanation": "Read-only SQL over the local corpus for arbitrary analytics."
+      }
+    ],
+    "trigger_phrases": [
+      "archive this Substack",
+      "read this Substack post",
+      "search my Substack corpus",
+      "what's new in my newsletters",
+      "use substack-reader",
+      "run substack"
+    ]
+  }
+}

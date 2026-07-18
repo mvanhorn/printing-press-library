@@ -2,17 +2,17 @@
   "schema_version": 1,
   "slug": "sentry",
   "cli_name": "sentry-pp-cli",
-  "version": "2026.7.1",
-  "released_at": "2026-07-08T18:21:21Z",
-  "source_commit": "11d7b4ea752c9c8fb8909037133058eb57560cc0",
+  "version": "2026.7.2",
+  "released_at": "2026-07-16T22:09:11Z",
+  "source_commit": "5dd8f6da8021cb258ffefb0de74576dcc57c2b17",
   "printing_press_version": "3.4.3",
   "run_id": "20260502-124520",
   "changes": [
     {
-      "title": "fix(catalog): require Go 1.26.5 across published modules",
-      "pr": 1467,
-      "url": "https://github.com/mvanhorn/printing-press-library/pull/1467",
-      "commit": "11d7b4ea752c9c8fb8909037133058eb57560cc0"
+      "title": "fix(sentry): resolve live issue triage with which",
+      "pr": 1526,
+      "url": "https://github.com/mvanhorn/printing-press-library/pull/1526",
+      "commit": "5dd8f6da8021cb258ffefb0de74576dcc57c2b17"
     }
   ]
 }

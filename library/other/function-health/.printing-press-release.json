@@ -2,17 +2,17 @@
   "schema_version": 1,
   "slug": "function-health",
   "cli_name": "function-health-pp-cli",
-  "version": "2026.7.1",
-  "released_at": "2026-07-08T18:21:21Z",
-  "source_commit": "11d7b4ea752c9c8fb8909037133058eb57560cc0",
+  "version": "2026.7.2",
+  "released_at": "2026-07-16T22:20:37Z",
+  "source_commit": "b1088e5f321b4b04815550498a820005484c93a6",
   "printing_press_version": "4.19.0",
   "run_id": "20260528-084148",
   "changes": [
     {
-      "title": "fix(catalog): require Go 1.26.5 across published modules",
-      "pr": 1467,
-      "url": "https://github.com/mvanhorn/printing-press-library/pull/1467",
-      "commit": "11d7b4ea752c9c8fb8909037133058eb57560cc0"
+      "title": "fix(function-health): hardcode completed requisition filter",
+      "pr": 1527,
+      "url": "https://github.com/mvanhorn/printing-press-library/pull/1527",
+      "commit": "b1088e5f321b4b04815550498a820005484c93a6"
     }
   ]
 }

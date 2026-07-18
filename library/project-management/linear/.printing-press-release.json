@@ -2,17 +2,17 @@
   "schema_version": 1,
   "slug": "linear",
   "cli_name": "linear-pp-cli",
-  "version": "2026.7.3",
-  "released_at": "2026-07-08T23:15:22Z",
-  "source_commit": "220c1563d0375ec8741c4c377b4bb5a4317cbf6a",
+  "version": "2026.7.4",
+  "released_at": "2026-07-14T04:01:57Z",
+  "source_commit": "2861d698a71ff1e98ccc6f5dac5767c813e8d443",
   "printing_press_version": "4.9.0",
   "run_id": "20260518-232543",
   "changes": [
     {
-      "title": "feat: registry hygiene follow-ups (pp-first descriptions, expanded MCP validation, --validate for skills, npm publish auto-trigger)",
-      "pr": 675,
-      "url": "https://github.com/mvanhorn/printing-press-library/pull/675",
-      "commit": "220c1563d0375ec8741c4c377b4bb5a4317cbf6a"
+      "title": "fix(linear): support reliable agent issue reads",
+      "pr": 1500,
+      "url": "https://github.com/mvanhorn/printing-press-library/pull/1500",
+      "commit": "2861d698a71ff1e98ccc6f5dac5767c813e8d443"
     }
   ]
 }

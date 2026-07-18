@@ -31,21 +31,45 @@ The positional document reference accepts every form Linear surfaces:
 			if len(args) == 0 {
 				return cmd.Help()
 			}
-			c, err := flags.newClient()
-			if err != nil {
-				return err
-			}
-			doc, err := fetchDocumentLive(c, args[0])
-			if err != nil {
-				return classifyLiveReadError(err, flags)
-			}
-			return renderLiveObject(cmd, flags, doc, "documents")
+			return runDocumentRead(cmd, flags, args[0])
 		},
 	}
 	cmd.AddCommand(newDocumentsListCmd(flags))
 	cmd.AddCommand(newDocumentsCreateCmd(flags))
 	cmd.AddCommand(newDocumentsEditCmd(flags))
+	cmd.AddCommand(newDocumentsReadAliasCmd(flags))
 	return cmd
+}
+
+func newDocumentsReadAliasCmd(flags *rootFlags) *cobra.Command {
+	return &cobra.Command{
+		Use:     "get <document-ref>",
+		Aliases: []string{"view"},
+		Short:   "View a Linear document",
+		Long:    `Compatibility aliases for the canonical positional form: linear-pp-cli documents <document-ref>.`,
+		Hidden:  true,
+		Args:    cobra.MaximumNArgs(1),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			if len(args) == 0 {
+				// Preserve canonical reads for slug IDs that exactly match an
+				// alias token; Cobra resolves the child before the parent RunE.
+				return runDocumentRead(cmd, flags, cmd.CalledAs())
+			}
+			return runDocumentRead(cmd, flags, args[0])
+		},
+	}
+}
+
+func runDocumentRead(cmd *cobra.Command, flags *rootFlags, ref string) error {
+	c, err := flags.newClient()
+	if err != nil {
+		return err
+	}
+	doc, err := fetchDocumentLive(c, ref)
+	if err != nil {
+		return classifyLiveReadError(err, flags)
+	}
+	return renderLiveObject(cmd, flags, doc, "documents")
 }
 
 func newDocumentsListCmd(flags *rootFlags) *cobra.Command {

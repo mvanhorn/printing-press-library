@@ -302,7 +302,7 @@ func isFullyShared(sharedSuffix, suffixFirst string, members []teachRow, values 
 
 // queryStructural strips every stored entity from queryPattern,
 // returning the alphabetized non-entity token form so two queries
-// about different entities ("mariners doing season" and "mets doing
+// about different entities ("alpha doing season" and "bravo doing
 // season") collapse to the same structural key. Multi-entity queries
 // have all entities stripped — single-entity-only stripping was
 // blocking pattern emergence whenever queryEntities held more than

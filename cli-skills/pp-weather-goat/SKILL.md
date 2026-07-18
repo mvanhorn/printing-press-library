@@ -21,7 +21,7 @@ metadata:
      silently overwritten on the next regen. Edit the library/ source instead.
      See the repository agent guide, section "Generated artifacts: registry.json, cli-skills/". -->
 
-# Weather Goat — Printing Press CLI
+# Weather GOAT — Printing Press CLI
 
 ## Prerequisites: Install the CLI
 
@@ -136,10 +136,10 @@ Once location is saved, the no-arg invocation returns current conditions + today
 ### Travel decision — which city is better this weekend?
 
 ```bash
-weather-goat-pp-cli compare "Portland, OR" "San Francisco, CA" --days 3 --agent
+weather-goat-pp-cli compare "Portland, OR" "San Francisco, CA" --agent
 ```
 
-Side-by-side 3-day forecast for both. One glance picks the trip destination.
+Side-by-side current conditions for both. One glance picks the trip destination.
 
 ### Watch for severe weather during a warning
 
@@ -167,7 +167,7 @@ Optional config:
 
 ## Agent Mode
 
-Add `--agent` to any command. Expands to `--json --compact --no-input --no-color --yes`. Use `--days N` for forecast range on relevant commands, `--no-cache` to bypass the 15-minute GET cache.
+Add `--agent` to any command. Expands to `--json --compact --no-input --no-color --yes`. Use `--forecast-days N` with `forecast`, and `--no-cache` to bypass the 15-minute GET cache.
 
 ### Filtering output
 
@@ -262,4 +262,3 @@ weather-goat-pp-cli feedback clear --yes  # wipe
 ```
 
 Entries append to `~/.weather-goat-pp-cli/feedback.jsonl` as JSON lines. When `WEATHER_GOAT_FEEDBACK_ENDPOINT` is set and either `--send` is passed or `WEATHER_GOAT_FEEDBACK_AUTO_SEND=true`, the entry is also POSTed upstream (non-blocking — local write always succeeds).
-

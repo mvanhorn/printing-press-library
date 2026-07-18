@@ -1,0 +1,9 @@
+{
+  "dir": "\u003ccli-dir\u003e/sea-airport-parking-pp-cli",
+  "research_dir": "\u003ccli-dir\u003e/20260713-185103-c898b442",
+  "verdict": "pass",
+  "actors": null,
+  "issues": [
+    "no Apify actor references found, skipping"
+  ]
+}

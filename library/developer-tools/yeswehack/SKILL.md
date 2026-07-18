@@ -48,12 +48,26 @@ Do not activate this CLI for requests that require creating, updating, deleting,
 These capabilities aren't available in any other tool for this API.
 
 ### Local state that compounds
+- **`programs list --all --results-per-page 100`** — Fetch every public and private program visible to the authenticated researcher, using YesWeHack's browser-facing page-size parameter.
+
+  _Use this before local triage or backfill. It establishes the visible program set that later scope, hacktivity, and membership commands enrich._
+
+  ```bash
+  yeswehack-pp-cli programs list --all --results-per-page 100 --json
+  ```
 - **`programs scope-drift`** — See what changed in any program's scope this week — assets added, removed, or modified, with first-seen dates.
 
   _When an agent triages where to spend the hunter's week, drift is the highest-signal source of fresh attack surface. Pick this over a generic program list when the user has already chosen programs and wants to know what changed._
 
   ```bash
   yeswehack-pp-cli programs scope-drift --since-days 7 --json
+  ```
+- **`programs list-scopes <slug>`** — Read one program's in-scope and out-of-scope assets and cache them locally as `program-scopes`.
+
+  _Use this when the user asks for a project plan from the policy/scope data. The cache records `program_slug` so later local lookup and overlap analysis can stay program-aware._
+
+  ```bash
+  yeswehack-pp-cli programs list-scopes swiss-post-evoting --json
   ```
 - **`scopes overlap`** — Surface assets (host or wildcard) that appear in two or more of your invited programs, ranked by best payout.
 
@@ -115,6 +129,13 @@ These capabilities aren't available in any other tool for this API.
   ```
 
 ### Agent-native plumbing
+- **`programs hacktivity <slug>`** — Read the YesWeHack web app's project-specific hacktivity endpoint for one program.
+
+  _Use this instead of assuming `hacktivity list --programs <slug>` filters the global feed. It is the reliable project activity source when a program exposes hacktivity._
+
+  ```bash
+  yeswehack-pp-cli programs hacktivity digital-flanders-vulnerability-disclosure-program --json
+  ```
 - **`hacktivity trends`** — Histogram of disclosed report categories and average bounty for one program over a time window.
 
   _Calibrates severity expectations and report-style for a target program before the agent starts hunting it._
@@ -158,7 +179,8 @@ This CLI uses Chrome-compatible HTTP transport for browser-facing endpoints. It 
 
 - `yeswehack-pp-cli programs get` — Get a program's full detail (rules, reward grid, scope counts, BU, etc.)
 - `yeswehack-pp-cli programs list` — List bug bounty programs the user can see
-- `yeswehack-pp-cli programs list_scopes` — List the in-scope and out-of-scope assets for a program
+- `yeswehack-pp-cli programs list-scopes` — List the in-scope and out-of-scope assets for a program
+- `yeswehack-pp-cli programs hacktivity` — List disclosed activity for one program
 
 **ranking** — Global researcher leaderboard
 
@@ -174,8 +196,11 @@ This CLI uses Chrome-compatible HTTP transport for browser-facing endpoints. It 
 
 - `yeswehack-pp-cli user get_self` — Get the authenticated user
 - `yeswehack-pp-cli user list_email_aliases` — List the authenticated user's email aliases (per-program forwarding addresses)
-- `yeswehack-pp-cli user list_invitations` — List the authenticated user's program invitations
-- `yeswehack-pp-cli user list_reports` — List reports the authenticated user has submitted
+- `yeswehack-pp-cli user list-invitations` — List pending program invitations
+- `yeswehack-pp-cli user list-members` — List the authenticated hunter's program membership records
+- `yeswehack-pp-cli user list-access-programs` — List programs the authenticated hunter can currently access
+- `yeswehack-pp-cli user list-revoked-members` — List revoked program membership records
+- `yeswehack-pp-cli user list-reports` — List reports the authenticated user has submitted
 
 
 ### Finding the right command
@@ -230,6 +255,19 @@ yeswehack-pp-cli scopes find 'api-v3.*example\\.com' --json --select asset,progr
 ```
 
 Regex lookup across every synced scope. Picks the program with the highest payout when the asset is in multiple scopes.
+
+### Build a local YesWeHack workbench
+
+```bash
+yeswehack-pp-cli sync --resources programs,user,user-members,hunter-access-programs,events,ranking,hacktivity --full --json
+yeswehack-pp-cli programs list --all --results-per-page 100 --json --select slug | jq -r '.results[].slug' |
+  while read -r slug; do
+    yeswehack-pp-cli programs get "$slug" --json >/dev/null
+    yeswehack-pp-cli programs list-scopes "$slug" --json >/dev/null
+  done
+```
+
+This fills the local SQLite store with visible programs, detailed policies, per-program scope rows, membership/access records, and public hacktivity. Use local reads for fast planning after the backfill.
 
 ## Auth Setup
 

@@ -1,0 +1,26 @@
+{
+  "api_name": "sea-airport-parking",
+  "base_url": "https://reservesea.portseattle.org",
+  "description": "Check, track, and get alerted on SEA's official on-airport Reserved garage — with a local price/availability history and sold-out watch that no site or aggregator has.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "none"
+  },
+  "required_headers": [
+    {
+      "name": "User-Agent",
+      "value": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36"
+    }
+  ],
+  "tools": [
+    {
+      "name": "parking_info",
+      "description": "Fetch the live SEA parking booking page (product card + date-entry form).",
+      "method": "GET",
+      "path": "/book/SEA/Parking?parkingCmd=collectParkingDetails",
+      "no_auth": true,
+      "params": []
+    }
+  ]
+}

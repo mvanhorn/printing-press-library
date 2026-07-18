@@ -307,6 +307,32 @@ func TestAPIDisplayName(t *testing.T) {
 	}
 }
 
+func TestBuildEntryCatalogDisplayNameOverridesPriorAPI(t *testing.T) {
+	dir := t.TempDir()
+	manifest := `{
+  "api_name": "weather-goat",
+  "display_name": "Open-Meteo + NWS",
+  "catalog_display_name": "Weather GOAT",
+  "description": "Weather forecasts and activity verdicts."
+}`
+	if err := os.WriteFile(filepath.Join(dir, ".printing-press.json"), []byte(manifest), 0o644); err != nil {
+		t.Fatalf("write manifest: %v", err)
+	}
+
+	entry, err := buildEntry(dir, "other", "weather-goat", map[string]RegistryEntry{
+		"weather-goat": {API: "Open-Meteo + NWS"},
+	})
+	if err != nil {
+		t.Fatalf("buildEntry: %v", err)
+	}
+	if entry == nil {
+		t.Fatal("buildEntry returned nil")
+	}
+	if got := entry.API; got != "Weather GOAT" {
+		t.Fatalf("entry API = %q, want explicit catalog display name", got)
+	}
+}
+
 func TestRepairDuplicateAPIDisplayNamesUsesSourceDisplay(t *testing.T) {
 	entries := []RegistryEntry{
 		{

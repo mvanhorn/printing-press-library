@@ -12,7 +12,7 @@ metadata:
         - prediction-goat-pp-cli
 ---
 
-# Polymarket + Kalshi - Printing Press CLI
+# Prediction GOAT — Printing Press CLI
 
 ## Prerequisites: Install the CLI
 

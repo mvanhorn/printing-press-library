@@ -2,6 +2,10 @@
 
 This file is maintained by printing-press-library release automation. Do not hand-edit release sections in normal PRs.
 
+## 2026.7.5 - 2026-07-18
+
+- feat(table-reservation-goat): OpenTable attach-mode booking (#1488).
+
 ## 2026.7.4 - 2026-07-13
 
 - feat(table-reservation-goat): add table-reservation-goat (#1510).

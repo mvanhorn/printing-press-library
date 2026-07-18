@@ -118,10 +118,13 @@ func newCommentsAddCmd(flags *rootFlags) *cobra.Command {
 	var quotedText string
 	targets := commentTargetFlags{}
 	cmd := &cobra.Command{
-		Use:   "add",
-		Short: "Add a Linear comment",
+		Use:     "add",
+		Aliases: []string{"create"},
+		Short:   "Add a Linear comment",
 		Long: `Add a comment to exactly one target. Use --body-file or --body-stdin
-for Markdown so shell snippets, backticks, and GraphQL variables stay literal.`,
+for Markdown so shell snippets, backticks, and GraphQL variables stay literal.
+
+"comments create" is accepted as a compatibility alias; "comments add" is canonical.`,
 		Example: `  linear-pp-cli comments add --issue ENG-123 --body-file /tmp/comment.md --agent
   linear-pp-cli comments add --issue ENG-123 --body-file /tmp/comment.md --media /tmp/screenshot.png --agent
   linear-pp-cli comments add --document-content <document-content-id> --body-stdin --agent < /tmp/comment.md`,

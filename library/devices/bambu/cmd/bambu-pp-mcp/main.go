@@ -25,7 +25,7 @@ const (
 )
 
 // version is the printed MCP server's version, overridable at build time via ldflags.
-var version = "2026.7.1"
+var version = "2026.7.2"
 
 func main() {
 	// Pin the learn-event surface for this process and every walker

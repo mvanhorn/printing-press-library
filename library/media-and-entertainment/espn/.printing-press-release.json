@@ -2,17 +2,17 @@
   "schema_version": 1,
   "slug": "espn",
   "cli_name": "espn-pp-cli",
-  "version": "2026.7.2",
-  "released_at": "2026-07-08T23:15:22Z",
-  "source_commit": "220c1563d0375ec8741c4c377b4bb5a4317cbf6a",
+  "version": "2026.7.3",
+  "released_at": "2026-07-18T05:23:08Z",
+  "source_commit": "6f816e95cac275189aa9b9f7a1e678cb5b0d6f5d",
   "printing_press_version": "1.2.1-0.20260409145412-b1128d0e07fd+dirty",
   "run_id": "20260409-121709",
   "changes": [
     {
-      "title": "feat: registry hygiene follow-ups (pp-first descriptions, expanded MCP validation, --validate for skills, npm publish auto-trigger)",
-      "pr": 675,
-      "url": "https://github.com/mvanhorn/printing-press-library/pull/675",
-      "commit": "220c1563d0375ec8741c4c377b4bb5a4317cbf6a"
+      "title": "feat(espn): reprint with default-on self-healing learn loop (store v6→v9)",
+      "pr": 1430,
+      "url": "https://github.com/mvanhorn/printing-press-library/pull/1430",
+      "commit": "6f816e95cac275189aa9b9f7a1e678cb5b0d6f5d"
     }
   ]
 }

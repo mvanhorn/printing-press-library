@@ -16,7 +16,7 @@ metadata:
         module: github.com/mvanhorn/printing-press-library/library/other/ufo-goat/cmd/ufo-goat-pp-cli
 ---
 
-# War.gov UFO — Printing Press CLI
+# UFO GOAT — Printing Press CLI
 
 ## Prerequisites: Install the CLI
 

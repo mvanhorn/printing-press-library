@@ -13,9 +13,23 @@ type GameSummary struct {
 	Header         string `json:"header"`
 }
 
+type Injuries struct {
+	Injuries string `json:"injuries"`
+}
+
+type Leaders struct {
+	Leaders    string `json:"leaders"`
+	Categories string `json:"categories"`
+}
+
 type NewsResponse struct {
 	Header   string `json:"header"`
 	Articles string `json:"articles"`
+}
+
+type Plays struct {
+	Items string `json:"items"`
+	Count string `json:"count"`
 }
 
 type Rankings struct {
@@ -49,4 +63,8 @@ type Team struct {
 
 type TeamsResponse struct {
 	Sports string `json:"sports"`
+}
+
+type Transactions struct {
+	Transactions string `json:"transactions"`
 }

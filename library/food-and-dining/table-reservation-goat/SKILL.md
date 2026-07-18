@@ -54,6 +54,8 @@ One reservation CLI for OpenTable, Tock, and Resy — search all three networks 
 
 **reservations** — List, book, modify, and cancel reservations (requires auth login)
 
+OpenTable attach booking is enabled only when `TABLE_RESERVATION_GOAT_OT_CHROME_DEBUG_URL` is explicitly configured and the attached profile is already signed in. Use `TRG_ALLOW_BOOK=prepare` to drive through an enabled final confirmation control without clicking it; only `TRG_ALLOW_BOOK=1` may place the reservation. Typed failures are `attach_unreachable`, `not_signed_in`, `selector_drift`, `form_validation`, `slot_taken`, and `incomplete_confirmation`; `page_state` diagnostics are redacted and never include URL query tokens or arbitrary account labels.
+
 Tock booking prefers the signed-in Chrome session at `TABLE_RESERVATION_GOAT_TOCK_CHROME_DEBUG_URL` (default `http://localhost:9222`) and keeps the stealth-headless session fallback. It tries legacy slot buttons first, then the exact-time `/search` row and modern time-combobox/experience-card controls. Agent and `--no-input` runs never prompt for CVC: provide a 3- or 4-digit `TRG_TOCK_CVC` only when needed. Typed failures are `cvc_required` and `selector_drift`; selector diagnostics contain only a query-free path, booleans, time labels, and allowlisted control categories.
 
 
@@ -78,7 +80,7 @@ table-reservation-goat-pp-cli which "<capability in your own words>"
 
 ## Auth Setup
 
-Search and availability require no account. Tock booking uses either the signed-in attached Chrome profile or the saved Tock session used by the stealth-headless fallback.
+Search and availability require no account. OpenTable and Tock attach booking use the signed-in session in the attached Chrome profile; Tock keeps the saved-session stealth-headless fallback; Resy booking uses its saved API token.
 
 Run `table-reservation-goat-pp-cli doctor` to verify setup.
 

@@ -4,6 +4,7 @@
   "printing_press_version": "4.10.0",
   "api_name": "prediction-goat",
   "display_name": "Markets",
+  "catalog_display_name": "Prediction GOAT",
   "cli_name": "prediction-goat-pp-cli",
   "owner": "mvanhorn",
   "printer": "mvanhorn",

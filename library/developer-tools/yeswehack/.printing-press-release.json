@@ -2,17 +2,17 @@
   "schema_version": 1,
   "slug": "yeswehack",
   "cli_name": "yeswehack-pp-cli",
-  "version": "2026.7.1",
-  "released_at": "2026-07-08T18:21:21Z",
-  "source_commit": "11d7b4ea752c9c8fb8909037133058eb57560cc0",
+  "version": "2026.7.2",
+  "released_at": "2026-07-18T05:21:04Z",
+  "source_commit": "776453ac3efa321bd30719d7b9ae991583c85b2a",
   "printing_press_version": "4.10.0",
   "run_id": "20260510-215840",
   "changes": [
     {
-      "title": "fix(catalog): require Go 1.26.5 across published modules",
-      "pr": 1467,
-      "url": "https://github.com/mvanhorn/printing-press-library/pull/1467",
-      "commit": "11d7b4ea752c9c8fb8909037133058eb57560cc0"
+      "title": "Fix YesWeHack program hacktivity caching",
+      "pr": 1450,
+      "url": "https://github.com/mvanhorn/printing-press-library/pull/1450",
+      "commit": "776453ac3efa321bd30719d7b9ae991583c85b2a"
     }
   ]
 }

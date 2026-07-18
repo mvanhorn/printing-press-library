@@ -1,0 +1,12 @@
+{
+  "sources": ["transfermarkt", "ea-fc", "sofifa-fifacm-potential", "espn"],
+  "confirmed_at": "2026-07-12T07:45:00Z",
+  "raw_user_phrasing": "type in any players name or a team and get all that stuff in one report; transfermarkt value + fifa rating 76 and 86 potential + season stats from ESPN",
+  "auth_scoping": "all sources free; potential + espn are best-effort enrichment",
+  "notes": {
+    "transfermarkt": "PRIMARY identity+value spine. Community API transfermarkt-api (self-hostable, felipeall/transfermarkt-api). Main site Cloudflare-walled; wrapper is clean JSON. Confirmed marketValue 30000000 for Schjelderup id 670103.",
+    "ea-fc": "drop-api.ea.com direct JSON. overall rating + per-attribute stats. NO potential.",
+    "sofifa-fifacm-potential": "browser_clearance_http (Cloudflare). Best-effort potential only. Degrades to null when clearance stale.",
+    "espn": "site.api.espn.com JSON. Best-effort season/match stats; soccer player coverage thin."
+  }
+}

@@ -61,10 +61,12 @@ Single-issue get resolution order (with --data-source auto, the default):
   2. live Linear GraphQL query
   3. on live failure with a fresh store, return the store miss as not found
 
+Pass comma-separated identifiers to fetch several issues in one ordered response.
 Use 'issues list' for filtered listing against the local sqlite store.
 Use 'issues create --parent' or 'issues edit --parent/--no-parent' to manage
 parent and sub-issue links.`,
 		Example: `  linear-pp-cli issues ESP-1155
+  linear-pp-cli issues ESP-1155,ESP-1156 --agent
   linear-pp-cli issues list
   linear-pp-cli issues list --assignee me
   linear-pp-cli issues list --assignee me --state started
@@ -76,12 +78,7 @@ parent and sub-issue links.`,
 			if len(args) == 0 {
 				return cmd.Help()
 			}
-			// Verify mode: short-circuit so identifier-shape probes
-			// (TEAM-NUMBER) don't fail the mechanical verify pass.
-			if cliutil.IsVerifyEnv() {
-				return nil
-			}
-			return runIssuesGet(cmd, flags, resolveDBPath(dbPath), args[0])
+			return runIssuesRead(cmd, flags, dbPath, args[0])
 		},
 	}
 	cmd.PersistentFlags().StringVar(&dbPath, "db", "", "Database path")
@@ -90,7 +87,63 @@ parent and sub-issue links.`,
 	cmd.AddCommand(newIssuesSearchCmd(flags, &dbPath))
 	cmd.AddCommand(newIssuesCreateCmd(flags))
 	cmd.AddCommand(newIssuesEditCmd(flags, &dbPath))
+	cmd.AddCommand(newIssuesReadAliasCmd(flags, &dbPath))
 	return cmd
+}
+
+func newIssuesReadAliasCmd(flags *rootFlags, dbPath *string) *cobra.Command {
+	return &cobra.Command{
+		Use:     "get ID",
+		Aliases: []string{"view", "show"},
+		Short:   "Get Linear issues by identifier",
+		Long:    `Compatibility aliases for the canonical positional form: linear-pp-cli issues ID.`,
+		Hidden:  true,
+		Args:    cobra.ExactArgs(1),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			return runIssuesRead(cmd, flags, *dbPath, args[0])
+		},
+	}
+}
+
+func runIssuesRead(cmd *cobra.Command, flags *rootFlags, dbPath, rawIdentifiers string) error {
+	// Verify mode short-circuits so identifier-shape probes (TEAM-NUMBER)
+	// do not fail the mechanical verify pass.
+	if cliutil.IsVerifyEnv() {
+		return nil
+	}
+	commaList := strings.Contains(rawIdentifiers, ",")
+	identifiers, err := parseIssueIdentifiers(rawIdentifiers)
+	if err != nil {
+		return err
+	}
+	if !commaList {
+		return runIssuesGet(cmd, flags, resolveDBPath(dbPath), identifiers[0])
+	}
+	return runIssuesMultiGet(cmd, flags, resolveDBPath(dbPath), identifiers)
+}
+
+func parseIssueIdentifiers(raw string) ([]string, error) {
+	parts := strings.Split(raw, ",")
+	identifiers := make([]string, 0, len(parts))
+	seen := make(map[string]struct{}, len(parts))
+	for _, part := range parts {
+		identifier := strings.TrimSpace(part)
+		if identifier == "" {
+			return nil, usageErr(fmt.Errorf("issue identifier list contains an empty value"))
+		}
+		key := identifier
+		if !store.IsUUID(identifier) {
+			if _, _, ok := parseIssueIdentifier(identifier); ok {
+				key = strings.ToUpper(identifier)
+			}
+		}
+		if _, ok := seen[key]; ok {
+			continue
+		}
+		seen[key] = struct{}{}
+		identifiers = append(identifiers, key)
+	}
+	return identifiers, nil
 }
 
 func resolveDBPath(override string) string {
@@ -186,7 +239,63 @@ func runIssuesGet(cmd *cobra.Command, flags *rootFlags, dbPath, identifier strin
 			return renderIssue(cmd, flags, rows[0], DataProvenance{Source: "local", ResourceType: "issues", Reason: "api_unreachable"})
 		}
 	}
-	return classifyAPIError(liveErr, flags)
+	return classifyLiveReadError(liveErr, flags)
+}
+
+func runIssuesMultiGet(cmd *cobra.Command, flags *rootFlags, dbPath string, identifiers []string) error {
+	db, openErr := openStoreAt(dbPath)
+	if db != nil {
+		defer db.Close()
+	}
+
+	if flags.dataSource != "live" && db != nil {
+		rows, missing, err := loadIssuesFromStore(db, identifiers)
+		if err != nil {
+			return err
+		}
+		if missing == "" {
+			return renderIssues(cmd, flags, rows, DataProvenance{Source: "local", ResourceType: "issues"})
+		}
+		if flags.dataSource == "local" {
+			return notFoundErr(fmt.Errorf("issue %q not found in local store. Run 'linear-pp-cli sync' first", missing))
+		}
+	}
+
+	if flags.dataSource == "local" {
+		if openErr != nil {
+			return notFoundErr(fmt.Errorf("one or more requested issues were not found in local store (and store unavailable: %v). Run 'linear-pp-cli sync' first", openErr))
+		}
+		return notFoundErr(fmt.Errorf("one or more requested issues were not found in local store. Run 'linear-pp-cli sync' first"))
+	}
+
+	c, err := flags.newClient()
+	if err != nil {
+		return err
+	}
+	rows := make([]json.RawMessage, 0, len(identifiers))
+	for _, identifier := range identifiers {
+		row, fetchErr := fetchIssueLive(c, identifier)
+		if fetchErr != nil {
+			return classifyLiveReadError(fetchErr, flags)
+		}
+		rows = append(rows, row)
+	}
+	return renderIssues(cmd, flags, rows, DataProvenance{Source: "live", ResourceType: "issues"})
+}
+
+func loadIssuesFromStore(db *store.Store, identifiers []string) ([]json.RawMessage, string, error) {
+	rows := make([]json.RawMessage, 0, len(identifiers))
+	for _, identifier := range identifiers {
+		matches, err := db.ListIssues(map[string]string{"identifier": identifier}, 1)
+		if err != nil {
+			return nil, "", err
+		}
+		if len(matches) == 0 {
+			return nil, identifier, nil
+		}
+		rows = append(rows, matches[0])
+	}
+	return rows, "", nil
 }
 
 // fetchIssueLive fetches a single issue by UUID or identifier via the Linear
@@ -581,19 +690,16 @@ func resolveProjectFilter(db *store.Store, input string) (string, error) {
 
 func renderIssue(cmd *cobra.Command, flags *rootFlags, data json.RawMessage, prov DataProvenance) error {
 	printProvenance(cmd, 1, prov)
-	if flags.asJSON || !isTerminal(cmd.OutOrStdout()) {
-		if flags.selectFields != "" {
-			data = filterFields(data, flags.selectFields)
-		} else if flags.compact {
-			data = compactFields(data)
-		}
-		wrapped, err := wrapWithProvenance(data, prov)
-		if err != nil {
-			return err
-		}
-		return printOutput(cmd.OutOrStdout(), wrapped, true)
+	return renderPayloadWithProvenance(cmd, flags, data, prov, true)
+}
+
+func renderIssues(cmd *cobra.Command, flags *rootFlags, issues []json.RawMessage, prov DataProvenance) error {
+	data, err := json.Marshal(issues)
+	if err != nil {
+		return fmt.Errorf("marshaling issues: %w", err)
 	}
-	return printOutputWithFlags(cmd.OutOrStdout(), data, flags)
+	printProvenance(cmd, len(issues), prov)
+	return renderPayloadWithProvenance(cmd, flags, data, prov, true)
 }
 
 // fetchIssuesLive queries Linear's `issues(filter:...)` GraphQL endpoint

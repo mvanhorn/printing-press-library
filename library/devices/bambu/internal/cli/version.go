@@ -10,7 +10,7 @@ import (
 )
 
 // version is the printed CLI's version, overridable at build time via ldflags.
-var version = "2026.7.1"
+var version = "2026.7.2"
 
 // newVersionCmd prints the CLI name and version. Shared by the HTTP and device
 // generators so both printed-CLI shapes carry an identical version command.

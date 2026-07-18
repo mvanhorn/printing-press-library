@@ -1,0 +1,310 @@
+{
+  "api_name": "peloton",
+  "base_url": "https://api.onepeloton.com",
+  "description": "Read-only Peloton workout, class, and structural-provider facts in a private local store.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "oauth2_refresh",
+    "header": "Authorization",
+    "in": "header",
+    "env_vars": [
+      "PELOTON_OAUTH_USERNAME",
+      "PELOTON_OAUTH_PASSWORD"
+    ],
+    "env_var_specs": [
+      {
+        "name": "PELOTON_OAUTH_USERNAME",
+        "kind": "auth_flow_input",
+        "required": false,
+        "sensitive": true,
+        "description": "Private bootstrap username supplied by the caller's credential wrapper."
+      },
+      {
+        "name": "PELOTON_OAUTH_PASSWORD",
+        "kind": "auth_flow_input",
+        "required": false,
+        "sensitive": true,
+        "description": "Private bootstrap password supplied by the caller's credential wrapper."
+      }
+    ]
+  },
+  "required_headers": [
+    {
+      "name": "Peloton-Platform",
+      "value": "web"
+    }
+  ],
+  "tools": [
+    {
+      "name": "account_show",
+      "description": "Show the current profile fact. Returns the Profile.",
+      "method": "GET",
+      "path": "/api/me",
+      "params": []
+    },
+    {
+      "name": "classes_catalog",
+      "description": "List a caller-scoped archived class catalog page. Required: browse_category, content_format. Optional: limit (default: 100), page (default: 0), sort_by (default: original_air_time) (plus 3 more). Returns array of Class.",
+      "method": "GET",
+      "path": "/api/v2/ride/archived",
+      "params": [
+        {
+          "name": "browse_category",
+          "type": "string",
+          "location": "query",
+          "description": "Required catalog category.",
+          "required": true
+        },
+        {
+          "name": "content_format",
+          "type": "string",
+          "location": "query",
+          "description": "Required provider content format.",
+          "required": true
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum records per page."
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Zero-based catalog page."
+        },
+        {
+          "name": "sort_by",
+          "type": "string",
+          "location": "query",
+          "description": "Provider catalog sort field."
+        },
+        {
+          "name": "desc",
+          "type": "bool",
+          "location": "query",
+          "description": "Sort descending."
+        },
+        {
+          "name": "instructor_id",
+          "type": "string",
+          "location": "query",
+          "description": "Optional embedded-instructor filter."
+        },
+        {
+          "name": "class_type_id",
+          "type": "string",
+          "location": "query",
+          "description": "Optional provider class-type filter."
+        }
+      ]
+    },
+    {
+      "name": "classes_filters",
+      "description": "Show provider class/filter vocabulary and embedded instructor metadata. Required: browse_category. Optional: include_icon_images (default: true), library_type (default: on_demand). Returns the FilterVocabulary.",
+      "method": "GET",
+      "path": "/api/ride/filters",
+      "params": [
+        {
+          "name": "include_icon_images",
+          "type": "bool",
+          "location": "query",
+          "description": "Include provider icon image references."
+        },
+        {
+          "name": "library_type",
+          "type": "string",
+          "location": "query",
+          "description": "Provider library type."
+        },
+        {
+          "name": "browse_category",
+          "type": "string",
+          "location": "query",
+          "description": "Provider browse category.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "classes_search",
+      "description": "Search the caller-scoped catalog by factual provider filters; U4 adds offline structural predicates. Required: browse_category, content_format. Optional: limit (default: 100), page (default: 0), sort_by (default: original_air_time) (plus 3 more). Returns array of Class.",
+      "method": "GET",
+      "path": "/api/v2/ride/archived",
+      "params": [
+        {
+          "name": "browse_category",
+          "type": "string",
+          "location": "query",
+          "description": "Required catalog category.",
+          "required": true
+        },
+        {
+          "name": "content_format",
+          "type": "string",
+          "location": "query",
+          "description": "Required provider content format.",
+          "required": true
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum records per page."
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Zero-based catalog page."
+        },
+        {
+          "name": "sort_by",
+          "type": "string",
+          "location": "query",
+          "description": "Provider catalog sort field."
+        },
+        {
+          "name": "desc",
+          "type": "bool",
+          "location": "query",
+          "description": "Sort descending."
+        },
+        {
+          "name": "instructor_id",
+          "type": "string",
+          "location": "query",
+          "description": "Optional embedded-instructor filter."
+        },
+        {
+          "name": "class_type_id",
+          "type": "string",
+          "location": "query",
+          "description": "Optional provider class-type filter."
+        }
+      ]
+    },
+    {
+      "name": "classes_show",
+      "description": "Show class metadata and supported planned structure. Required: ride_id. Returns the ClassDetail.",
+      "method": "GET",
+      "path": "/api/ride/{ride_id}/details",
+      "params": [
+        {
+          "name": "ride_id",
+          "type": "string",
+          "location": "path",
+          "description": "Provider class identifier.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "classes_structure",
+      "description": "Inspect ordered provider segments and target ranges without coaching labels. Required: ride_id. Returns the ClassDetail.",
+      "method": "GET",
+      "path": "/api/ride/{ride_id}/details",
+      "params": [
+        {
+          "name": "ride_id",
+          "type": "string",
+          "location": "path",
+          "description": "Provider class identifier.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "strength_movements",
+      "description": "Inspect provider workout detail containing movement_tracker_data when present; no template fallback. Required: workout_id. Returns the WorkoutDetail.",
+      "method": "GET",
+      "path": "/api/workout/{workout_id}",
+      "params": [
+        {
+          "name": "workout_id",
+          "type": "string",
+          "location": "path",
+          "description": "Provider workout identifier.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "workouts_list",
+      "description": "List workout history in newest-first pages; user_id is supplied by the caller until U3 links the profile fact. Required: user_id. Optional: joins (default: ride), limit (default: 100), page (default: 0) (plus 1 more). Returns array of Workout.",
+      "method": "GET",
+      "path": "/api/user/{user_id}/workouts",
+      "params": [
+        {
+          "name": "user_id",
+          "type": "string",
+          "location": "path",
+          "description": "Provider user identifier.",
+          "required": true
+        },
+        {
+          "name": "joins",
+          "type": "string",
+          "location": "query",
+          "description": "Include linked ride metadata."
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum records per page."
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Zero-based history page."
+        },
+        {
+          "name": "sort",
+          "type": "string",
+          "location": "query",
+          "description": "Newest-first sort order."
+        }
+      ]
+    },
+    {
+      "name": "workouts_performance",
+      "description": "Show recorded performance samples and summaries for one workout. Required: workout_id. Optional: every_n (default: 1). Returns the PerformanceGraph.",
+      "method": "GET",
+      "path": "/api/workout/{workout_id}/performance_graph",
+      "params": [
+        {
+          "name": "workout_id",
+          "type": "string",
+          "location": "path",
+          "description": "Provider workout identifier.",
+          "required": true
+        },
+        {
+          "name": "every_n",
+          "type": "int",
+          "location": "query",
+          "description": "Sample stride; one preserves full samples."
+        }
+      ]
+    },
+    {
+      "name": "workouts_show",
+      "description": "Show a recorded workout detail payload. Required: workout_id. Returns the WorkoutDetail.",
+      "method": "GET",
+      "path": "/api/workout/{workout_id}",
+      "params": [
+        {
+          "name": "workout_id",
+          "type": "string",
+          "location": "path",
+          "description": "Provider workout identifier.",
+          "required": true
+        }
+      ]
+    }
+  ]
+}

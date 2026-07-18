@@ -1,0 +1,96 @@
+{
+  "schema_version": 2,
+  "generated_at": "2026-07-10T08:12:25.619939Z",
+  "printing_press_version": "4.28.0",
+  "api_name": "substack-reader",
+  "display_name": "Substack Reader",
+  "cli_name": "substack-reader-pp-cli",
+  "creator": {
+    "handle": "maxswinguy",
+    "name": "Maxime Delavergne"
+  },
+  "owner": "maxswinguy",
+  "printer": "maxswinguy",
+  "printer_name": "Maxime Delavergne",
+  "spec_path": "substack-internal-spec.yaml",
+  "spec_format": "internal",
+  "spec_source": "community",
+  "spec_checksum": "sha256:781621c939cfa11a2e533324f1860204c3f667ca1f1b108458caa2f1301d6302",
+  "run_id": "20260710-081225",
+  "category": "media-and-entertainment",
+  "description": "Read any Substack publication as a local, full-text-searchable corpus — keyless for free posts, your own session for what you subscribe to.",
+  "mcp_binary": "substack-reader-pp-mcp",
+  "mcp_tool_count": 3,
+  "mcp_public_tool_count": 3,
+  "mcp_ready": "full",
+  "api_version": "0.1.0",
+  "auth_type": "none",
+  "novel_features": [
+    {
+      "name": "Local publication corpus",
+      "command": "archive",
+      "description": "Archive a whole Substack publication into a local SQLite mirror you can read, search, and query offline — no other Substack tool builds a persistent corpus."
+    },
+    {
+      "name": "Entitlement-aware read",
+      "command": "read",
+      "description": "Read a post's full text; free posts keyless, and paid posts you subscribe to via your own session cookie — with an honest 'preview only, you're not entitled' signal."
+    },
+    {
+      "name": "Cross-publication digest",
+      "command": "digest",
+      "description": "A time-windowed digest across every publication in your local corpus — what's new since you last synced, ranked, in one view."
+    },
+    {
+      "name": "Author comparison",
+      "command": "author-compare",
+      "description": "Compare two publications' cadence, topics, and free/paid mix from the local corpus."
+    },
+    {
+      "name": "Local corpus SQL",
+      "command": "sql",
+      "description": "Run read-only SQL over your local Substack corpus for arbitrary analytics — post cadence, audience mix, longest posts — from data you've already archived."
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Local publication corpus",
+      "command": "archive",
+      "description": "Archive a whole Substack publication into a local SQLite mirror you can read, search, and query offline — no other Substack tool builds a persistent corpus."
+    },
+    {
+      "name": "Entitlement-aware read",
+      "command": "read",
+      "description": "Read a post's full text; free posts keyless, and paid posts you subscribe to via your own session cookie — with an honest 'preview only, you're not entitled' signal."
+    },
+    {
+      "name": "Cross-publication digest",
+      "command": "digest",
+      "description": "A time-windowed digest across every publication in your local corpus — what's new since you last synced, ranked, in one view."
+    },
+    {
+      "name": "Author comparison",
+      "command": "author-compare",
+      "description": "Compare two publications' cadence, topics, and free/paid mix from the local corpus."
+    },
+    {
+      "name": "Local corpus SQL",
+      "command": "sql",
+      "description": "Run read-only SQL over your local Substack corpus for arbitrary analytics — post cadence, audience mix, longest posts — from data you've already archived."
+    }
+  ],
+  "verify": {
+    "mode": "mock",
+    "pass_rate": 100,
+    "passed": 29,
+    "total": 29,
+    "verdict": "PASS"
+  },
+  "scorecard": {
+    "steinberger": {
+      "percentage": 91,
+      "grade": "A",
+      "total": 91
+    }
+  }
+}

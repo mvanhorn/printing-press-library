@@ -2,6 +2,10 @@
 
 This file is maintained by printing-press-library release automation. Do not hand-edit release sections in normal PRs.
 
+## 2026.7.3 - 2026-07-17
+
+- fix(registry): use canonical GOAT catalog labels (#1529).
+
 ## 2026.7.2 - 2026-07-08
 
 - feat: registry hygiene follow-ups (pp-first descriptions, expanded MCP validation, --validate for skills, npm publish auto-trigger) (#675).

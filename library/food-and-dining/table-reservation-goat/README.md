@@ -3,7 +3,7 @@
 One reservation CLI for OpenTable, Tock, and Resy — search all three networks at once, watch for cancellations, book + cancel end-to-end, and track changes from a local store agents can query.
 
 Created by [@pejmanjohn](https://github.com/pejmanjohn) (Pejman Pour-Moezzi).
-Contributors: [@ganes-j](https://github.com/ganes-j) (Jesse Ganes).
+Contributors: [@ganes-j](https://github.com/ganes-j) (Jesse Ganes), [@teebs4140](https://github.com/teebs4140) (Dylan Thibault).
 
 ## Install
 
@@ -209,6 +209,15 @@ Read your authenticated user profile from both networks
 ### reservations
 
 List, book, modify, and cancel reservations (requires auth login)
+
+OpenTable booking prefers attach mode when `TABLE_RESERVATION_GOAT_OT_CHROME_DEBUG_URL` is explicitly set. The attached Chrome profile must already be signed in to opentable.com. `TRG_ALLOW_BOOK=prepare` drives the exact date/time/party flow through an enabled final confirmation control without clicking it; only `TRG_ALLOW_BOOK=1` permits that final click.
+
+```bash
+export TABLE_RESERVATION_GOAT_OT_CHROME_DEBUG_URL=http://127.0.0.1:9223
+TRG_ALLOW_BOOK=prepare table-reservation-goat-pp-cli book opentable:3688 --date 2026-07-20 --time 17:00 --party 2 --agent
+```
+
+Attach failures are machine-readable: `attach_unreachable`, `not_signed_in`, `selector_drift`, `form_validation`, `slot_taken`, and `incomplete_confirmation`. A committed booking whose restaurant ID cannot be recovered remains a `source: "book"` success and carries the `restaurant_id_unresolved` warning alongside its human-readable hint. Diagnostics expose only a sanitized page path and allowlisted control labels. When the debug endpoint is absent, OpenTable retains the existing HTTP booking path.
 
 Tock booking uses the signed-in Chrome session at `TABLE_RESERVATION_GOAT_TOCK_CHROME_DEBUG_URL` (default `http://localhost:9222`) when reachable, with the existing stealth-headless session fallback otherwise. It preserves legacy time-slot buttons, then tries the exact-time `/search` row and the modern time-combobox/experience-card flow. The attached profile must already be signed in to exploretock.com.
 

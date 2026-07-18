@@ -2,17 +2,17 @@
   "schema_version": 1,
   "slug": "table-reservation-goat",
   "cli_name": "table-reservation-goat-pp-cli",
-  "version": "2026.7.4",
-  "released_at": "2026-07-13T08:31:55Z",
-  "source_commit": "287b600a63d1111746e08832271a553fd53163be",
+  "version": "2026.7.5",
+  "released_at": "2026-07-18T05:16:59Z",
+  "source_commit": "6adda32be0c5efdd581e2e8285b8e98dfae8af4e",
   "printing_press_version": "4.28.0",
   "run_id": "20260712-223206",
   "changes": [
     {
-      "title": "feat(table-reservation-goat): add table-reservation-goat",
-      "pr": 1510,
-      "url": "https://github.com/mvanhorn/printing-press-library/pull/1510",
-      "commit": "287b600a63d1111746e08832271a553fd53163be"
+      "title": "feat(table-reservation-goat): OpenTable attach-mode booking",
+      "pr": 1488,
+      "url": "https://github.com/mvanhorn/printing-press-library/pull/1488",
+      "commit": "6adda32be0c5efdd581e2e8285b8e98dfae8af4e"
     }
   ]
 }

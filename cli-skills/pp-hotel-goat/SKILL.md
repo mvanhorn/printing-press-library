@@ -21,7 +21,7 @@ metadata:
      silently overwritten on the next regen. Edit the library/ source instead.
      See the repository agent guide, section "Generated artifacts: registry.json, cli-skills/". -->
 
-# Google Hotels — Printing Press CLI
+# Hotel GOAT — Printing Press CLI
 
 ## Prerequisites: Install the CLI
 
