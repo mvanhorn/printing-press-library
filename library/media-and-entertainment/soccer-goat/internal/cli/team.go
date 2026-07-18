@@ -47,7 +47,7 @@ func newNovelTeamCmd(flags *rootFlags) *cobra.Command {
 			ctx := cmd.Context()
 			team, err := agg.ResolveTeam(ctx, club)
 			if err != nil {
-				return err
+				return classifyAPIError(err, flags)
 			}
 			if novelMachineOutput(cmd.OutOrStdout(), flags) {
 				return printJSONFiltered(cmd.OutOrStdout(), team, flags)

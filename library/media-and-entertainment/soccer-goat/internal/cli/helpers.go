@@ -394,6 +394,28 @@ func classifyAPIError(err error, flags *rootFlags) error {
 		return err
 	}
 
+	// A 5xx that survived retries (and, when a source list is configured,
+	// failover across every candidate) means the Transfermarkt data source is
+	// down. Name the source and route the user to a working one instead of
+	// surfacing a raw "returned HTTP 500" string.
+	var apiE *client.APIError
+	isAPIErr := errors.As(err, &apiE)
+	if isAPIErr && apiE.StatusCode >= 500 {
+		classified := apiErr(fmt.Errorf("%w\nhint: the Transfermarkt data source is unavailable (HTTP %d) — it may be down."+
+			"\n      Point at a working instance with --base-url <url> or SOCCER_GOAT_BASE_URL,"+
+			"\n      self-host felipeall/transfermarkt-api, or use --data-source local if you have synced."+
+			"\n      Run 'soccer-goat-pp-cli doctor' to see which sources are reachable.", err, apiE.StatusCode))
+		writeAPIErrorEnvelope(flags, classified, ExitCode(classified))
+		return classified
+	}
+
+	// App-level "player/club not found" (a working source returned zero
+	// results) is a genuine 404-class outcome, not an upstream failure. Map it
+	// to exit 3 so it is never misread as a 5xx source outage.
+	if !isAPIErr && strings.Contains(err.Error(), "not found:") {
+		return notFoundErr(err)
+	}
+
 	msg := err.Error()
 	switch {
 	case strings.Contains(msg, "HTTP 409"):

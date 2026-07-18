@@ -46,7 +46,7 @@ func newNovelPlayerCmd(flags *rootFlags) *cobra.Command {
 			ctx := cmd.Context()
 			player, err := agg.ResolvePlayer(ctx, name)
 			if err != nil {
-				return err
+				return classifyAPIError(err, flags)
 			}
 			if novelMachineOutput(cmd.OutOrStdout(), flags) {
 				return printJSONFiltered(cmd.OutOrStdout(), player, flags)

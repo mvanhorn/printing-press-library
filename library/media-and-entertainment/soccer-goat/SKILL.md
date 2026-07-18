@@ -168,6 +168,29 @@ No authentication required.
 
 Run `soccer-goat-pp-cli doctor` to verify setup.
 
+## Data source (Transfermarkt) and outages
+
+Market value / squad / identity data comes from a [Transfermarkt API](https://github.com/felipeall/transfermarkt-api) instance. The CLI ships an ordered default list and **fails over automatically** on 5xx/unreachable; a source that answers (including "not found") is used as-is.
+
+If `player`/`team`/`compare` exit with code 5 and a "data source is unavailable" hint, every configured Transfermarkt source is down. Recovery, in order of preference:
+
+```bash
+# See which sources are up:
+soccer-goat-pp-cli doctor --agent          # inspect the "sources" array
+
+# Point at a known-working instance for this run (wins over everything, no failover):
+soccer-goat-pp-cli player "<name>" --base-url https://your-instance.example --agent
+
+# Or set an ordered failover list for the session:
+export SOCCER_GOAT_BASE_URLS=https://a.example,https://b.example
+
+# Most reliable: self-host felipeall/transfermarkt-api (Docker) and point at it:
+docker run -p 8000:8000 felipeall/transfermarkt-api:latest
+soccer-goat-pp-cli player "<name>" --base-url http://localhost:8000 --agent
+```
+
+Resolution precedence: `--base-url` > `SOCCER_GOAT_BASE_URL` > `base_url` config > `SOCCER_GOAT_BASE_URLS` > `base_urls` config > default list. The public instances are best-effort, not guaranteed; self-hosting is the durable path.
+
 ## Agent Mode
 
 Add `--agent` to any command. Expands to: `--json --compact --no-input --no-color --yes`.

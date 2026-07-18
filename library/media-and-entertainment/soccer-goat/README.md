@@ -222,6 +222,40 @@ Young, high-potential, rising-value players in one filtered list.
 
 Run `soccer-goat-pp-cli --help` for the full command reference and flag list.
 
+## Data source (Transfermarkt)
+
+Market value, squad, and identity data come from a [Transfermarkt API](https://github.com/felipeall/transfermarkt-api) instance. The CLI ships an ordered list of public instances and **fails over automatically**: if the first source returns a server error (5xx) or is unreachable, it tries the next. A source that answers — including "player not found" — is used as-is and never triggers failover.
+
+Point the CLI at a specific instance when you want to:
+
+```bash
+# One-off override (wins over everything; no failover):
+soccer-goat-pp-cli player "Jhon Duran" --base-url https://your-instance.example
+
+# Or via environment:
+export SOCCER_GOAT_BASE_URL=https://your-instance.example        # single source
+export SOCCER_GOAT_BASE_URLS=https://a.example,https://b.example  # ordered failover list
+```
+
+Resolution precedence (highest first): `--base-url` → `SOCCER_GOAT_BASE_URL` → `base_url` config key → `SOCCER_GOAT_BASE_URLS` → `base_urls` config key → the built-in default list. A single-value override collapses to exactly that one source. Config-file form:
+
+```toml
+# config.toml
+base_urls = ["https://your-instance.example", "https://transfermarkt-api.fly.dev"]
+```
+
+Run `soccer-goat-pp-cli doctor` to see every configured source and which are reachable right now.
+
+**The public instances are a best-effort convenience, not an availability guarantee** — they have had multi-day outages. For reliable use, **self-host** the open-source API and point `--base-url`/`SOCCER_GOAT_BASE_URL` at it:
+
+```bash
+# felipeall/transfermarkt-api ships a Docker image:
+docker run -p 8000:8000 felipeall/transfermarkt-api:latest
+soccer-goat-pp-cli player "Jhon Duran" --base-url http://localhost:8000
+```
+
+When every source is down, commands exit with code 5 and a hint pointing you at these options (or `--data-source local` if you have synced an offline dataset).
+
 ## Paths & environment variables
 
 This CLI separates local files into four path kinds:
@@ -349,7 +383,7 @@ This CLI resolves endpoint placeholders at runtime, so one installed binary can 
 Endpoint environment variables:
 - `SOCCER_GOAT_PLAYER_ID` resolves `{player_id}`
 
-Base URL: `https://transfermarkt-api.fly.dev`
+Base URL: an ordered, overridable list of Transfermarkt API instances (default leads with `https://transfermarkt-api.fly.dev`, with community-mirror failover). See [Data source](#data-source-transfermarkt) to override or self-host.
 
 ## Health Check
 

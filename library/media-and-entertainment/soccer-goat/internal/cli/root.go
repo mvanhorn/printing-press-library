@@ -38,6 +38,7 @@ type rootFlags struct {
 	noLearn       bool
 	selectFields  string
 	configPath    string
+	baseURL       string
 	homePath      string
 	profileName   string
 	deliverSpec   string
@@ -190,6 +191,7 @@ See README.md or the bundled SKILL.md for recipes.`,
 	rootCmd.PersistentFlags().BoolVar(&flags.plain, "plain", false, "Output as plain tab-separated text")
 	rootCmd.PersistentFlags().BoolVar(&flags.quiet, "quiet", false, "Bare output, one value per line")
 	rootCmd.PersistentFlags().StringVar(&flags.configPath, "config", "", "Config file path")
+	rootCmd.PersistentFlags().StringVar(&flags.baseURL, "base-url", "", "Override the Transfermarkt data source for this run (e.g. a self-hosted or mirror instance); also SOCCER_GOAT_BASE_URL / base_url config. Wins over env, config, and the default source list.")
 	rootCmd.PersistentFlags().StringVar(&flags.homePath, "home", "", "Root directory for config, data, state, and cache files")
 	rootCmd.PersistentFlags().DurationVar(&flags.timeout, "timeout", 60*time.Second, "Request timeout")
 	rootCmd.PersistentFlags().BoolVar(&flags.dryRun, "dry-run", false, "Show request without sending")
@@ -535,6 +537,11 @@ func (f *rootFlags) newClient() (*client.Client, error) {
 	cfg, err := config.Load(f.configPath)
 	if err != nil {
 		return nil, configErr(err)
+	}
+	// --base-url wins over env, config, and the default list, collapsing
+	// resolution to that single source (no failover).
+	if strings.TrimSpace(f.baseURL) != "" {
+		cfg.SetBaseURLOverride(f.baseURL)
 	}
 	c := client.New(cfg, f.timeout, f.rateLimit)
 	c.DryRun = f.dryRun

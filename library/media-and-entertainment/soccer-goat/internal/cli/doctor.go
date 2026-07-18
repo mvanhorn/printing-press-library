@@ -9,6 +9,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"net/http"
 	"os"
 	"strings"
 	"time"
@@ -19,6 +20,56 @@ import (
 	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/soccer-goat/internal/store"
 	"github.com/spf13/cobra"
 )
+
+// sourceProbePath is the cheap search the doctor issues against each candidate
+// source. "/" is a poor health signal — the reference deployment answers it
+// with a 307 to /docs even while its scraper backend 5xxes on real searches —
+// so probe the actual search endpoint to tell "this instance works" from "the
+// host is up but broken".
+const sourceProbePath = "/players/search/haaland?page_number=1"
+
+// collectSourcesReport probes each configured Transfermarkt source in order and
+// reports per-source reachability, so `doctor` answers "which source am I using
+// and is it up?" without the user reverse-engineering it from a failed command.
+func collectSourcesReport(ctx context.Context, cfg *config.Config, timeout time.Duration) []map[string]any {
+	if cfg == nil || len(cfg.BaseURLs) == 0 {
+		return nil
+	}
+	if timeout <= 0 || timeout > 10*time.Second {
+		timeout = 10 * time.Second
+	}
+	httpClient := &http.Client{Timeout: timeout}
+	out := make([]map[string]any, 0, len(cfg.BaseURLs))
+	for i, base := range cfg.BaseURLs {
+		entry := map[string]any{"url": base, "primary": i == 0}
+		req, err := http.NewRequestWithContext(ctx, http.MethodGet, strings.TrimRight(base, "/")+sourceProbePath, nil)
+		if err != nil {
+			entry["status"] = fmt.Sprintf("error: %s", err)
+			out = append(out, entry)
+			continue
+		}
+		req.Header.Set("Accept", "application/json")
+		req.Header.Set("User-Agent", "soccer-goat-pp-cli/0.1.0")
+		resp, err := httpClient.Do(req)
+		if err != nil {
+			entry["status"] = fmt.Sprintf("unreachable: %s", err)
+			out = append(out, entry)
+			continue
+		}
+		resp.Body.Close()
+		entry["http_status"] = resp.StatusCode
+		switch {
+		case resp.StatusCode < 400:
+			entry["status"] = "reachable"
+		case resp.StatusCode >= 500:
+			entry["status"] = fmt.Sprintf("unavailable (HTTP %d)", resp.StatusCode)
+		default:
+			entry["status"] = fmt.Sprintf("reachable (HTTP %d)", resp.StatusCode)
+		}
+		out = append(out, entry)
+	}
+	return out
+}
 
 // looksLikeDoctorInterstitial reports whether the response body matches a known
 // bot-detection challenge page (Cloudflare, Akamai, Vercel, AWS WAF, DataDome,
@@ -233,6 +284,17 @@ func newDoctorCmd(flags *rootFlags) *cobra.Command {
 			} else if cfg != nil && cfg.BaseURL == "" {
 				report["api"] = "not configured (set base_url in config file)"
 			}
+
+			// Per-source health: probe every configured Transfermarkt candidate
+			// (the failover list) so the user sees which source is up. The "api"
+			// line above uses the failover client and can read "reachable" off a
+			// mirror even when the primary is down; this block shows each.
+			if cfg != nil {
+				if sources := collectSourcesReport(cmd.Context(), cfg, flags.timeout); len(sources) > 0 {
+					report["sources"] = sources
+				}
+			}
+
 			// Cache health: only reported when this CLI has generated sync.
 			// Surfaces rows + last_synced_at per resource, schema version,
 			// and a fresh/stale/unknown verdict so agents can introspect
@@ -317,6 +379,27 @@ func newDoctorCmd(flags *rootFlags) *cobra.Command {
 			for _, key := range []string{"config_path", "base_url", "auth_source", "credentials_location", "version"} {
 				if v, ok := report[key]; ok {
 					fmt.Fprintf(w, "  %s: %v\n", key, v)
+				}
+			}
+			// Per-source health block (the failover list, in order).
+			if sourcesAny, ok := report["sources"]; ok {
+				if sources, ok := sourcesAny.([]map[string]any); ok && len(sources) > 0 {
+					fmt.Fprintf(w, "  Sources:\n")
+					for _, s := range sources {
+						statusStr, _ := s["status"].(string)
+						indicator := green("OK")
+						switch {
+						case strings.Contains(statusStr, "unavailable") || strings.Contains(statusStr, "unreachable") || strings.HasPrefix(statusStr, "error"):
+							indicator = red("FAIL")
+						case strings.Contains(statusStr, "HTTP 4"):
+							indicator = yellow("WARN")
+						}
+						tag := ""
+						if primary, _ := s["primary"].(bool); primary {
+							tag = " (primary)"
+						}
+						fmt.Fprintf(w, "    %s %v%s: %s\n", indicator, s["url"], tag, statusStr)
+					}
 				}
 			}
 			// Print auth setup hints (indented under Auth line)

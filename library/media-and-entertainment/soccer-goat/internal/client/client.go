@@ -28,7 +28,15 @@ import (
 const BinaryResponseHeader = "X-Printing-Press-Binary-Response"
 
 type Client struct {
-	BaseURL    string
+	// BaseURL is the primary (first) candidate source. Kept as the cache-key
+	// and display identity; failover responses are cached under it so a later
+	// identical request served from a mirror still hits the warm cache.
+	BaseURL string
+	// BaseURLs is the ordered candidate list the request path tries in turn,
+	// advancing only when a source fails (5xx after retries, or transport
+	// error) — never on a 4xx/empty answer. A single-value override yields a
+	// one-element list, so failover is a no-op for override users.
+	BaseURLs   []string
 	Config     *config.Config
 	HTTPClient *http.Client
 	DryRun     bool
@@ -36,6 +44,12 @@ type Client struct {
 	cacheDir   string
 	limiter    *cliutil.AdaptiveLimiter
 }
+
+// failoverRetriesPerSource caps per-source retries while candidates remain, so
+// a dead primary fails over quickly instead of exhausting the full exponential
+// backoff before trying the next mirror. The final candidate still gets the
+// full clientMaxRetries() budget.
+const failoverRetriesPerSource = 1
 
 // RequestBaseURL returns the base URL used for requests.
 // Novel commands that build request URLs by hand should use this instead of
@@ -102,8 +116,26 @@ func New(cfg *config.Config, timeout time.Duration, rateLimit float64) *Client {
 		cacheDir = filepath.Join(dir, "http")
 	}
 	httpClient := newHTTPClient(timeout, nil)
+	// Resolve the ordered candidate sources. Prefer cfg.BaseURLs (the resolved
+	// list); fall back to the single cfg.BaseURL for older/hand-built configs.
+	// Trailing slashes are trimmed so path concatenation stays clean.
+	candidates := cfg.BaseURLs
+	if len(candidates) == 0 {
+		candidates = []string{cfg.BaseURL}
+	}
+	bases := make([]string, 0, len(candidates))
+	for _, b := range candidates {
+		if b = strings.TrimRight(strings.TrimSpace(b), "/"); b != "" {
+			bases = append(bases, b)
+		}
+	}
+	primary := ""
+	if len(bases) > 0 {
+		primary = bases[0]
+	}
 	c := &Client{
-		BaseURL:    strings.TrimRight(cfg.BaseURL, "/"),
+		BaseURL:    primary,
+		BaseURLs:   bases,
 		Config:     cfg,
 		HTTPClient: httpClient,
 		cacheDir:   cacheDir,
@@ -515,11 +547,6 @@ func (c *Client) doInternal(ctx context.Context, method, path string, params map
 	if c.Config != nil {
 		endpointVars = c.Config.TemplateVars
 	}
-	targetURL, urlErr := buildURL(c.BaseURL, path, endpointVars)
-	if urlErr != nil {
-		return nil, 0, urlErr
-	}
-
 	var bodyBytes []byte
 	if body != nil {
 		b, err := json.Marshal(body)
@@ -538,12 +565,66 @@ func (c *Client) doInternal(ctx context.Context, method, path string, params map
 		return nil, 0, err
 	}
 
-	// Build the request for dry-run display or actual execution
-	if c.DryRun {
-		return c.dryRun(method, targetURL, path, params, bodyBytes, headerOverrides, authHeader)
+	// Failover across candidate sources. Each candidate runs the full
+	// send/retry cycle; a source failure (5xx after retries, or a transport
+	// error) advances to the next, while any definitive answer (2xx, or a
+	// 4xx/429 the server actually returned) returns immediately — a working
+	// source that says "not found" must never trigger failover onto a mirror.
+	bases := c.requestBaseURLs()
+	var lastErr error
+	var lastStatus int
+	for i, base := range bases {
+		targetURL, urlErr := buildURL(base, path, endpointVars)
+		if urlErr != nil {
+			return nil, 0, urlErr
+		}
+		if c.DryRun {
+			// Dry-run previews the primary candidate only; it never dials, so
+			// there is nothing to fail over.
+			return c.dryRun(method, targetURL, path, params, bodyBytes, headerOverrides, authHeader)
+		}
+		maxRetries := clientMaxRetries()
+		if i < len(bases)-1 && maxRetries > failoverRetriesPerSource {
+			// Candidates remain: fail over fast instead of burning the full
+			// exponential backoff on a source that is already down.
+			maxRetries = failoverRetriesPerSource
+		}
+		result, status, aerr, sourceFailed := c.attempt(ctx, method, targetURL, path, params, bodyBytes, headerOverrides, authHeader, maxRetries)
+		if !sourceFailed {
+			return result, status, aerr
+		}
+		lastErr, lastStatus = aerr, status
+		if i < len(bases)-1 {
+			fmt.Fprintf(os.Stderr, "source %s unavailable, trying next source (%d/%d)\n", displayBaseHost(base), i+2, len(bases))
+		}
 	}
+	return nil, lastStatus, lastErr
+}
 
-	maxRetries := clientMaxRetries()
+// requestBaseURLs returns the ordered candidate sources, falling back to the
+// single BaseURL when no list was configured.
+func (c *Client) requestBaseURLs() []string {
+	if len(c.BaseURLs) > 0 {
+		return c.BaseURLs
+	}
+	return []string{c.BaseURL}
+}
+
+// displayBaseHost renders a base URL's host for a stderr failover notice
+// without leaking any path/query. Falls back to the raw value if unparseable.
+func displayBaseHost(base string) string {
+	if u, err := url.Parse(base); err == nil && u.Host != "" {
+		return u.Host
+	}
+	return base
+}
+
+// attempt runs one candidate source through the send/retry cycle. It returns
+// sourceFailed=true only for outcomes that justify trying the next candidate: a
+// transport error after retries, or a 5xx after retries. A success, a 4xx, a
+// retry-exhausted 429, a context cancellation, or a local build error all
+// return sourceFailed=false so the caller stops.
+func (c *Client) attempt(ctx context.Context, method, targetURL, path string, params map[string]string, bodyBytes []byte, headerOverrides map[string]string, authHeader string, maxRetries int) (json.RawMessage, int, error, bool) {
 	var lastErr error
 
 	for attempt := 0; attempt <= maxRetries; attempt++ {
@@ -556,7 +637,7 @@ func (c *Client) doInternal(ctx context.Context, method, path string, params map
 
 		req, err := http.NewRequestWithContext(ctx, method, targetURL, bodyReader)
 		if err != nil {
-			return nil, 0, fmt.Errorf("creating request: %w", err)
+			return nil, 0, fmt.Errorf("creating request: %w", err), false
 		}
 		if bodyBytes != nil {
 			req.Header.Set("Content-Type", "application/json")
@@ -613,7 +694,7 @@ func (c *Client) doInternal(ctx context.Context, method, path string, params map
 		resp, err := c.HTTPClient.Do(req)
 		if err != nil {
 			if ctxErr := ctx.Err(); ctxErr != nil {
-				return nil, 0, ctxErr
+				return nil, 0, ctxErr, false
 			}
 			lastErr = fmt.Errorf("%s %s: %w", method, c.displayURL(path, authHeader), c.maskError(err, authHeader))
 			continue
@@ -622,7 +703,7 @@ func (c *Client) doInternal(ctx context.Context, method, path string, params map
 		respBody, err := io.ReadAll(resp.Body)
 		resp.Body.Close()
 		if err != nil {
-			return nil, 0, fmt.Errorf("reading response: %w", err)
+			return nil, 0, fmt.Errorf("reading response: %w", err), false
 		}
 
 		// Success
@@ -638,11 +719,11 @@ func (c *Client) doInternal(ctx context.Context, method, path string, params map
 			if isBinaryResponseContentType(resp.Header.Get("Content-Type")) {
 				env, encErr := wrapBinaryResponse(resp.Header.Get("Content-Type"), respBody)
 				if encErr != nil {
-					return nil, 0, encErr
+					return nil, 0, encErr, false
 				}
-				return env, resp.StatusCode, nil
+				return env, resp.StatusCode, nil, false
 			}
-			return json.RawMessage(sanitizeJSONResponse(respBody)), resp.StatusCode, nil
+			return json.RawMessage(sanitizeJSONResponse(respBody)), resp.StatusCode, nil, false
 		}
 
 		if !binaryResponse {
@@ -662,7 +743,7 @@ func (c *Client) doInternal(ctx context.Context, method, path string, params map
 			wait := cliutil.RetryAfter(resp)
 			fmt.Fprintf(os.Stderr, "rate limited, waiting %s (attempt %d/%d, rate adjusted to %.1f req/s)\n", wait, attempt+1, maxRetries, c.limiter.Rate())
 			if err := sleepContext(ctx, wait); err != nil {
-				return nil, 0, err
+				return nil, 0, err, false
 			}
 			lastErr = apiErr
 			continue
@@ -673,17 +754,23 @@ func (c *Client) doInternal(ctx context.Context, method, path string, params map
 			wait := time.Duration(math.Pow(2, float64(attempt))) * time.Second
 			fmt.Fprintf(os.Stderr, "server error %d, retrying in %s (attempt %d/%d)\n", resp.StatusCode, wait, attempt+1, maxRetries)
 			if err := sleepContext(ctx, wait); err != nil {
-				return nil, 0, err
+				return nil, 0, err, false
 			}
 			lastErr = apiErr
 			continue
 		}
 
-		// Client error or retries exhausted - return the error
-		return nil, resp.StatusCode, apiErr
+		// Terminal outcome for this candidate. A 5xx that survived its retries
+		// is a source failure -> fail over; any 4xx (including a retry-exhausted
+		// 429) is the source answering -> return it, no failover.
+		if resp.StatusCode >= 500 {
+			return nil, resp.StatusCode, apiErr, true
+		}
+		return nil, resp.StatusCode, apiErr, false
 	}
 
-	return nil, 0, lastErr
+	// Retries exhausted on transport errors -> source failure, fail over.
+	return nil, 0, lastErr, true
 }
 
 // dryRun prints the outgoing request exactly as the live path would send it,

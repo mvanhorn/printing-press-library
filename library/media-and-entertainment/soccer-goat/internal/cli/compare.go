@@ -49,11 +49,11 @@ func newNovelCompareCmd(flags *rootFlags) *cobra.Command {
 			ctx := cmd.Context()
 			a, err := agg.ResolvePlayer(ctx, args[0])
 			if err != nil {
-				return err
+				return classifyAPIError(err, flags)
 			}
 			b, err := agg.ResolvePlayer(ctx, args[1])
 			if err != nil {
-				return err
+				return classifyAPIError(err, flags)
 			}
 			comparison := playerComparison{A: a, B: b}
 			if novelMachineOutput(cmd.OutOrStdout(), flags) {

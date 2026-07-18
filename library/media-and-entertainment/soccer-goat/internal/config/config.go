@@ -13,8 +13,22 @@ import (
 	"github.com/pelletier/go-toml/v2"
 )
 
+// defaultBaseURLs is the compiled fallback list of Transfermarkt data sources,
+// tried in order. The upstream reference deployment leads; the community
+// mirrors are failover targets for when it 5xxes (its scraper backend has had
+// multi-day outages). All three run the same felipeall/transfermarkt-api code,
+// so the response shape is identical. This list is a best-effort convenience,
+// not an availability guarantee — the durable path is self-hosting and pointing
+// --base-url / SOCCER_GOAT_BASE_URL at your own instance.
+var defaultBaseURLs = []string{
+	"https://transfermarkt-api.fly.dev",        // upstream reference deployment
+	"https://transfermarkt-api.up.railway.app", // community mirror (failover)
+	"https://transfermarkt-api.onrender.com",   // community mirror (failover)
+}
+
 type Config struct {
 	BaseURL       string            `toml:"base_url"`
+	BaseURLs      []string          `toml:"base_urls,omitempty"`
 	AuthHeaderVal string            `toml:"auth_header"`
 	Headers       map[string]string `toml:"headers,omitempty"`
 	AuthSource    string            `toml:"-"`
@@ -29,9 +43,9 @@ type Config struct {
 }
 
 func Load(configPath string) (*Config, error) {
-	cfg := &Config{
-		BaseURL: "https://transfermarkt-api.fly.dev",
-	}
+	// BaseURL/BaseURLs start empty so resolveBaseURLs() can tell an explicit
+	// file/env override apart from the compiled default (which it applies last).
+	cfg := &Config{}
 
 	// Resolve config path
 	path, explicitConfigFile, err := resolveConfigPath(configPath)
@@ -77,10 +91,14 @@ func Load(configPath string) (*Config, error) {
 
 	// Env var overrides
 
-	// Base URL override (used by printing-press verify to point at mock/test servers)
-	if v := os.Getenv("SOCCER_GOAT_BASE_URL"); v != "" {
-		cfg.BaseURL = v
-	}
+	// Resolve the ordered Transfermarkt base-URL candidates. Honors the
+	// SOCCER_GOAT_BASE_URL / base_url single-source overrides (also the
+	// printing-press verify hook that points at a mock server) and the
+	// SOCCER_GOAT_BASE_URLS / base_urls list forms, falling back to the
+	// compiled default list. The --base-url flag is layered on later, in the
+	// CLI's newClient(). Runs after snapshotFileConfig so a later save() would
+	// persist the file's original values, not these resolved defaults.
+	cfg.resolveBaseURLs()
 
 	// Endpoint template vars: resolve each {placeholder} in BaseURL or the
 	// GraphQL path against the matching env var. Populated even when values
@@ -140,6 +158,64 @@ func parseConfigData(data []byte, cfg *Config, path string, owner string) error 
 		return fmt.Errorf("parsing %s %s: %w", owner, path, err)
 	}
 	return nil
+}
+
+// resolveBaseURLs computes the ordered list of Transfermarkt base URLs the
+// client will try, honoring this precedence:
+//
+//  1. SOCCER_GOAT_BASE_URL env  -> single source (no failover)
+//  2. base_url config key       -> single source (no failover)
+//  3. SOCCER_GOAT_BASE_URLS env -> ordered list (comma-separated)
+//  4. base_urls config key      -> ordered list
+//  5. compiled defaultBaseURLs  -> ordered list
+//
+// A single-value override collapses resolution to exactly that one source, so
+// "point at my instance" never silently falls back to a public mirror. The
+// list forms enable lazy failover in the client. c.BaseURL is always set to the
+// primary (first) candidate so existing readers keep working unchanged.
+func (c *Config) resolveBaseURLs() {
+	if env := strings.TrimSpace(os.Getenv("SOCCER_GOAT_BASE_URL")); env != "" {
+		c.BaseURL = env
+		c.BaseURLs = []string{env}
+		return
+	}
+	if single := strings.TrimSpace(c.BaseURL); single != "" {
+		c.BaseURL = single
+		c.BaseURLs = []string{single}
+		return
+	}
+	if env := strings.TrimSpace(os.Getenv("SOCCER_GOAT_BASE_URLS")); env != "" {
+		c.BaseURLs = splitBaseURLs(env)
+	} else if len(c.BaseURLs) == 0 {
+		c.BaseURLs = append([]string(nil), defaultBaseURLs...)
+	}
+	if len(c.BaseURLs) > 0 {
+		c.BaseURL = c.BaseURLs[0]
+	}
+}
+
+// SetBaseURLOverride collapses resolution to a single source. The CLI calls it
+// from newClient() when --base-url is passed, so the flag wins over env, config,
+// and the default list.
+func (c *Config) SetBaseURLOverride(url string) {
+	url = strings.TrimSpace(url)
+	if url == "" {
+		return
+	}
+	c.BaseURL = url
+	c.BaseURLs = []string{url}
+}
+
+// splitBaseURLs parses a comma-separated base-URL list, trimming blanks.
+func splitBaseURLs(csv string) []string {
+	parts := strings.Split(csv, ",")
+	out := make([]string, 0, len(parts))
+	for _, p := range parts {
+		if p = strings.TrimSpace(p); p != "" {
+			out = append(out, p)
+		}
+	}
+	return out
 }
 
 func (c *Config) AuthHeader() string {
