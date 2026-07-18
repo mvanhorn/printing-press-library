@@ -72,6 +72,9 @@ func nestedString(v map[string]any, path string) string {
 		}
 		cur = m[p]
 	}
+	if cur == nil {
+		return ""
+	}
 	return fmt.Sprint(cur)
 }
 

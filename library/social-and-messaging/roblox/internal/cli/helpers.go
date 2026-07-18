@@ -99,7 +99,7 @@ func colorEnabled() bool {
 	if os.Getenv("TERM") == "dumb" {
 		return false
 	}
-	return true
+	return isTerminal(os.Stdout)
 }
 
 func isTerminal(w io.Writer) bool {

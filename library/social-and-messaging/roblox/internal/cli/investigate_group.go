@@ -36,8 +36,6 @@ func newNovelInvestigateGroupCmd(flags *rootFlags) *cobra.Command {
 				if owner, ok := g["owner"].(map[string]any); ok {
 					if n, ok := owner["userId"].(json.Number); ok {
 						fetchBundle(cmd, c, out, "owner", "https://users.roblox.com/v1/users/"+n.String(), nil)
-					} else if f, ok := owner["userId"].(float64); ok {
-						fetchBundle(cmd, c, out, "owner", fmt.Sprintf("https://users.roblox.com/v1/users/%.0f", f), nil)
 					}
 				}
 			}

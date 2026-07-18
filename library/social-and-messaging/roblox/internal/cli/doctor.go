@@ -192,15 +192,20 @@ func newDoctorCmd(flags *rootFlags) *cobra.Command {
 			}
 			// Check cookie tool availability
 			cookieToolFound := false
-			for _, check := range [][]string{
-				{"python3", "-c", "import pycookiecheat"},
-				{"cookies", "--help"},
-				{"cookie-scoop", "--help"},
-			} {
-				if err := exec.Command(check[0], check[1:]...).Run(); err == nil {
+			if pyBin, pyArgs, ok := resolvePythonBinary(); ok {
+				probeArgs := append(append([]string{}, pyArgs...), "-c", "import pycookiecheat")
+				if err := exec.Command(pyBin, probeArgs...).Run(); err == nil {
 					cookieToolFound = true
-					report["cookie_tool"] = check[0]
-					break
+					report["cookie_tool"] = "pycookiecheat"
+				}
+			}
+			if !cookieToolFound {
+				for _, tool := range []string{"cookies", "cookie-scoop"} {
+					if err := exec.Command(tool, "--help").Run(); err == nil {
+						cookieToolFound = true
+						report["cookie_tool"] = tool
+						break
+					}
 				}
 			}
 			if !cookieToolFound {
