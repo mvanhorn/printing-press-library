@@ -6,7 +6,7 @@ package main
 import (
 	"os"
 
-	"kakao-transparency-pp-cli/internal/cli"
+	"github.com/mvanhorn/printing-press-library/library/other/kakao-transparency/internal/cli"
 )
 
 func main() {

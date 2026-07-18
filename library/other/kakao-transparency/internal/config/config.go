@@ -34,7 +34,7 @@ func Load(configPath string) (*Config, error) {
 	}
 	if path == "" {
 		home, _ := os.UserHomeDir()
-		path = filepath.Join(home, ".config", "kakao-transparency-pp-cli", "config.toml")
+		path = filepath.Join(home, ".config", "github.com/mvanhorn/printing-press-library/library/other/kakao-transparency", "config.toml")
 	}
 	cfg.Path = path
 

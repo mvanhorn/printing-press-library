@@ -19,7 +19,7 @@ func newNovelLatestCmd(flags *rootFlags) *cobra.Command {
 			"published report, then returns that report in full (statistics rows, narrative summary, " +
 			"workbook links). Removes the guess-the-period failure mode: the endpoint requires an exact " +
 			"year/half-year and answers out-of-range requests with an HTML page instead of a JSON error.",
-		Example:     "  kakao-transparency-pp-cli latest --agent\n  kakao-transparency-pp-cli latest",
+		Example:     "  github.com/mvanhorn/printing-press-library/library/other/kakao-transparency latest --agent\n  github.com/mvanhorn/printing-press-library/library/other/kakao-transparency latest",
 		Annotations: map[string]string{"mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if dryRunOK(flags) {

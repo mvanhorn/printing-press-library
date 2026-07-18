@@ -12,7 +12,7 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 	"io"
-	"kakao-transparency-pp-cli/internal/client"
+	"github.com/mvanhorn/printing-press-library/library/other/kakao-transparency/internal/client"
 	"net/url"
 	"os"
 	"path/filepath"
@@ -405,10 +405,10 @@ func classifyAPIError(err error, flags *rootFlags) error {
 	case strings.Contains(msg, "HTTP 401"):
 		return authErr(fmt.Errorf("%w\nhint: check your API credentials."+
 			"\n      See API docs: https://privacy.kakao.com/transparency"+
-			"\n      Run 'kakao-transparency-pp-cli doctor' to check auth status.", err))
+			"\n      Run 'github.com/mvanhorn/printing-press-library/library/other/kakao-transparency doctor' to check auth status.", err))
 	case strings.Contains(msg, "HTTP 403"):
 		return authErr(fmt.Errorf("%w\nhint: permission denied. This API is configured without credentials, so the service may be blocking the request by rate limit, geography, bot protection, or endpoint policy."+
-			"\n      Run 'kakao-transparency-pp-cli doctor' to check connectivity.", err))
+			"\n      Run 'github.com/mvanhorn/printing-press-library/library/other/kakao-transparency doctor' to check connectivity.", err))
 	case strings.Contains(msg, "HTTP 404"):
 		return notFoundErr(fmt.Errorf("%w\nhint: resource not found. Run the 'list' command to see available items", err))
 	case strings.Contains(msg, "HTTP 429"):

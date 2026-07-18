@@ -19,7 +19,7 @@ func newTransparencyPromotedCmd(flags *rootFlags) *cobra.Command {
 		Use:         "transparency",
 		Short:       "Returns the transparency-report statistics for one half-year: eight statistics rows (Kakao and Daum",
 		Long:        "Returns the transparency-report statistics for one half-year: eight statistics rows (Kakao and Daum",
-		Example:     "  kakao-transparency-pp-cli transparency --year 2025 --half-year-id 2",
+		Example:     "  github.com/mvanhorn/printing-press-library/library/other/kakao-transparency transparency --year 2025 --half-year-id 2",
 		Annotations: map[string]string{"pp:endpoint": "transparency.get-report", "pp:method": "GET", "pp:path": "/api/transparency/{year}/{halfYearId}", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			// Bare invocation of a command with a required flag/body prints help

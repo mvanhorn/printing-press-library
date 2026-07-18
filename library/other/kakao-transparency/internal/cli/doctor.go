@@ -14,10 +14,10 @@ import (
 	"time"
 
 	"github.com/spf13/cobra"
-	"kakao-transparency-pp-cli/internal/client"
-	"kakao-transparency-pp-cli/internal/cliutil"
-	"kakao-transparency-pp-cli/internal/config"
-	"kakao-transparency-pp-cli/internal/store"
+	"github.com/mvanhorn/printing-press-library/library/other/kakao-transparency/internal/client"
+	"github.com/mvanhorn/printing-press-library/library/other/kakao-transparency/internal/cliutil"
+	"github.com/mvanhorn/printing-press-library/library/other/kakao-transparency/internal/config"
+	"github.com/mvanhorn/printing-press-library/library/other/kakao-transparency/internal/store"
 )
 
 // looksLikeDoctorInterstitial reports whether the response body matches a known
@@ -142,9 +142,9 @@ func newDoctorCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "doctor",
 		Short: "Check CLI health",
-		Example: `  kakao-transparency-pp-cli doctor
-  kakao-transparency-pp-cli doctor --json
-  kakao-transparency-pp-cli doctor --fail-on warn`,
+		Example: `  github.com/mvanhorn/printing-press-library/library/other/kakao-transparency doctor
+  github.com/mvanhorn/printing-press-library/library/other/kakao-transparency doctor --json
+  github.com/mvanhorn/printing-press-library/library/other/kakao-transparency doctor --fail-on warn`,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			report := map[string]any{}
 
@@ -218,7 +218,7 @@ func newDoctorCmd(flags *rootFlags) *cobra.Command {
 					} else {
 						suggestion := suggestReadCommand(cmd.Root())
 						if suggestion != "" {
-							report["credentials"] = fmt.Sprintf("present, not verified. Run `%s %s` to confirm the token works end-to-end.", "kakao-transparency-pp-cli", suggestion)
+							report["credentials"] = fmt.Sprintf("present, not verified. Run `%s %s` to confirm the token works end-to-end.", "github.com/mvanhorn/printing-press-library/library/other/kakao-transparency", suggestion)
 						} else {
 							report["credentials"] = "present, not verified. Run any read command to confirm the token works end-to-end."
 						}
@@ -373,14 +373,14 @@ func doctorExitForFailOn(failOn string, report map[string]any) error {
 // because the alternative is no freshness story at all.
 func collectCacheReport(ctx context.Context, staleAfterSpec string) map[string]any {
 	report := map[string]any{}
-	dbPath := defaultDBPath("kakao-transparency-pp-cli")
+	dbPath := defaultDBPath("github.com/mvanhorn/printing-press-library/library/other/kakao-transparency")
 	report["db_path"] = dbPath
 
 	fi, err := os.Stat(dbPath)
 	if err != nil {
 		if os.IsNotExist(err) {
 			report["status"] = "unknown"
-			report["hint"] = "Database not created yet; run 'kakao-transparency-pp-cli sync' to hydrate."
+			report["hint"] = "Database not created yet; run 'github.com/mvanhorn/printing-press-library/library/other/kakao-transparency sync' to hydrate."
 			return report
 		}
 		report["status"] = "error"
@@ -413,7 +413,7 @@ func collectCacheReport(ctx context.Context, staleAfterSpec string) map[string]a
 		// sync_state may not exist on a fresh DB that has migrated but not
 		// yet had any sync runs — treat as unknown rather than error.
 		report["status"] = "unknown"
-		report["hint"] = "No sync state recorded; run 'kakao-transparency-pp-cli sync' to populate."
+		report["hint"] = "No sync state recorded; run 'github.com/mvanhorn/printing-press-library/library/other/kakao-transparency sync' to populate."
 		return report
 	}
 	defer rows.Close()
@@ -453,13 +453,13 @@ func collectCacheReport(ctx context.Context, staleAfterSpec string) map[string]a
 	switch {
 	case !haveAny && len(resources) == 0:
 		report["status"] = "unknown"
-		report["hint"] = "sync_state is empty; run 'kakao-transparency-pp-cli sync' to hydrate."
+		report["hint"] = "sync_state is empty; run 'github.com/mvanhorn/printing-press-library/library/other/kakao-transparency sync' to hydrate."
 	case fresh:
 		report["status"] = "fresh"
 	default:
 		report["status"] = "stale"
 		report["oldest_age"] = oldest.Round(time.Minute).String()
-		report["hint"] = "Some resources are older than stale_after; run 'kakao-transparency-pp-cli sync' to refresh."
+		report["hint"] = "Some resources are older than stale_after; run 'github.com/mvanhorn/printing-press-library/library/other/kakao-transparency sync' to refresh."
 	}
 	return report
 }

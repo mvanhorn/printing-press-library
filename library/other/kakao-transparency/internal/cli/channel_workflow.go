@@ -9,7 +9,7 @@ import (
 	"time"
 
 	"github.com/spf13/cobra"
-	"kakao-transparency-pp-cli/internal/store"
+	"github.com/mvanhorn/printing-press-library/library/other/kakao-transparency/internal/store"
 )
 
 func newWorkflowCmd(flags *rootFlags) *cobra.Command {
@@ -35,10 +35,10 @@ func newWorkflowArchiveCmd(flags *rootFlags) *cobra.Command {
 local SQLite database. Supports incremental sync (only new data since last run)
 and full resync. After archiving, use 'search' for instant full-text search.`,
 		Example: `  # Archive all resources
-  kakao-transparency-pp-cli workflow archive
+  github.com/mvanhorn/printing-press-library/library/other/kakao-transparency workflow archive
 
   # Full re-archive (ignore previous sync state)
-  kakao-transparency-pp-cli workflow archive --full`,
+  github.com/mvanhorn/printing-press-library/library/other/kakao-transparency workflow archive --full`,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()
 			if err != nil {
@@ -47,7 +47,7 @@ and full resync. After archiving, use 'search' for instant full-text search.`,
 			c.NoCache = true
 
 			if dbPath == "" {
-				dbPath = defaultDBPath("kakao-transparency-pp-cli")
+				dbPath = defaultDBPath("github.com/mvanhorn/printing-press-library/library/other/kakao-transparency")
 			}
 			s, err := store.OpenWithContext(cmd.Context(), dbPath)
 			if err != nil {
@@ -101,7 +101,7 @@ and full resync. After archiving, use 'search' for instant full-text search.`,
 		},
 	}
 
-	cmd.Flags().StringVar(&dbPath, "db", "", "Database path (default: ~/.local/share/kakao-transparency-pp-cli/data.db)")
+	cmd.Flags().StringVar(&dbPath, "db", "", "Database path (default: ~/.local/share/github.com/mvanhorn/printing-press-library/library/other/kakao-transparency/data.db)")
 	cmd.Flags().BoolVar(&full, "full", false, "Full re-archive (ignore previous sync state)")
 
 	return cmd
@@ -115,13 +115,13 @@ func newWorkflowStatusCmd(flags *rootFlags) *cobra.Command {
 		Short:       "Show local archive status and sync state for all resources",
 		Annotations: map[string]string{"mcp:read-only": "true"},
 		Example: `  # Show archive status
-  kakao-transparency-pp-cli workflow status
+  github.com/mvanhorn/printing-press-library/library/other/kakao-transparency workflow status
 
   # Show status as JSON
-  kakao-transparency-pp-cli workflow status --json`,
+  github.com/mvanhorn/printing-press-library/library/other/kakao-transparency workflow status --json`,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if dbPath == "" {
-				dbPath = defaultDBPath("kakao-transparency-pp-cli")
+				dbPath = defaultDBPath("github.com/mvanhorn/printing-press-library/library/other/kakao-transparency")
 			}
 			s, err := store.OpenWithContext(cmd.Context(), dbPath)
 			if err != nil {

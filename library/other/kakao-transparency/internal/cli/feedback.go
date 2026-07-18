@@ -35,7 +35,7 @@ func feedbackFilePath() (string, error) {
 	if err != nil {
 		return "", fmt.Errorf("resolving home dir: %w", err)
 	}
-	dir := filepath.Join(home, ".local", "share", "kakao-transparency-pp-cli")
+	dir := filepath.Join(home, ".local", "share", "github.com/mvanhorn/printing-press-library/library/other/kakao-transparency")
 	if err := os.MkdirAll(dir, 0o700); err != nil {
 		return "", fmt.Errorf("creating state dir: %w", err)
 	}
@@ -81,7 +81,7 @@ func postFeedback(url string, entry FeedbackEntry) error {
 		return fmt.Errorf("building feedback request: %w", err)
 	}
 	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("User-Agent", "kakao-transparency-pp-cli/feedback")
+	req.Header.Set("User-Agent", "github.com/mvanhorn/printing-press-library/library/other/kakao-transparency/feedback")
 	client := &http.Client{Timeout: 15 * time.Second}
 	resp, err := client.Do(req)
 	if err != nil {
@@ -100,7 +100,7 @@ func newFeedbackCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "feedback [text]",
 		Short: "Record feedback about this CLI (local by default; upstream opt-in)",
-		Long: `Feedback is captured locally first at ~/.local/share/kakao-transparency-pp-cli/feedback.jsonl.
+		Long: `Feedback is captured locally first at ~/.local/share/github.com/mvanhorn/printing-press-library/library/other/kakao-transparency/feedback.jsonl.
 When ` + "`KAKAO_TRANSPARENCY_FEEDBACK_ENDPOINT`" + ` is set and either --send is
 passed or ` + "`KAKAO_TRANSPARENCY_FEEDBACK_AUTO_SEND=true`" + `, the entry is
 POSTed as JSON after the local write.
@@ -131,7 +131,7 @@ maintainer sees it.`,
 
 			entry := FeedbackEntry{
 				Text:      text,
-				CLI:       "kakao-transparency-pp-cli",
+				CLI:       "github.com/mvanhorn/printing-press-library/library/other/kakao-transparency",
 				Version:   version,
 				AgentID:   os.Getenv("AGENT_ID"),
 				Timestamp: time.Now().UTC(),
@@ -187,9 +187,9 @@ func newFeedbackListCmd(flags *rootFlags) *cobra.Command {
 		Annotations: map[string]string{
 			"mcp:read-only": "true",
 		},
-		Example: `  kakao-transparency-pp-cli feedback list
-  kakao-transparency-pp-cli feedback list --limit 5
-  kakao-transparency-pp-cli feedback list --json`,
+		Example: `  github.com/mvanhorn/printing-press-library/library/other/kakao-transparency feedback list
+  github.com/mvanhorn/printing-press-library/library/other/kakao-transparency feedback list --limit 5
+  github.com/mvanhorn/printing-press-library/library/other/kakao-transparency feedback list --json`,
 		RunE: func(cmd *cobra.Command, _ []string) error {
 			p, err := feedbackFilePath()
 			if err != nil {

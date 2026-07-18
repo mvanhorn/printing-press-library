@@ -13,8 +13,8 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"kakao-transparency-pp-cli/internal/cliutil"
-	"kakao-transparency-pp-cli/internal/config"
+	"github.com/mvanhorn/printing-press-library/library/other/kakao-transparency/internal/cliutil"
+	"github.com/mvanhorn/printing-press-library/library/other/kakao-transparency/internal/config"
 	"math"
 	"net/http"
 	"net/url"
@@ -62,7 +62,7 @@ func newHTTPClient(timeout time.Duration, jar http.CookieJar) *http.Client {
 
 func New(cfg *config.Config, timeout time.Duration, rateLimit float64) *Client {
 	homeDir, _ := os.UserHomeDir()
-	cacheDir := filepath.Join(homeDir, ".cache", "kakao-transparency-pp-cli", "http")
+	cacheDir := filepath.Join(homeDir, ".cache", "github.com/mvanhorn/printing-press-library/library/other/kakao-transparency", "http")
 	httpClient := newHTTPClient(timeout, nil)
 	c := &Client{
 		BaseURL:    strings.TrimRight(cfg.BaseURL, "/"),
@@ -503,7 +503,7 @@ func (c *Client) doInternal(ctx context.Context, method, path string, params map
 			req.Header.Del(BinaryResponseHeader)
 		}
 		if req.Header.Get("User-Agent") == "" {
-			req.Header.Set("User-Agent", "kakao-transparency-pp-cli/2026-07-01")
+			req.Header.Set("User-Agent", "github.com/mvanhorn/printing-press-library/library/other/kakao-transparency/2026-07-01")
 		}
 		// Go's net/http omits Accept by default; browsers, curl, and other
 		// stdlibs always send it. Fingerprint-checking WAFs (Imperva, Akamai,

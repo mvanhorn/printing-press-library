@@ -10,8 +10,8 @@ import (
 	"strings"
 	"time"
 
-	"kakao-transparency-pp-cli/internal/client"
-	"kakao-transparency-pp-cli/internal/cliutil"
+	"github.com/mvanhorn/printing-press-library/library/other/kakao-transparency/internal/client"
+	"github.com/mvanhorn/printing-press-library/library/other/kakao-transparency/internal/cliutil"
 )
 
 // kakaoArchiveStartYear is the first half-year Kakao published (1H 2012).

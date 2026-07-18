@@ -29,8 +29,8 @@ func newNovelWorkbooksCmd(flags *rootFlags) *cobra.Command {
 		Long: "Each half-year's workbook URLs are buried in that period's JSON payload. This command walks " +
 			"the archive and collects them into one index, so a downstream job can mirror or cite the " +
 			"primary-source files instead of the parsed numbers.",
-		Example: "  kakao-transparency-pp-cli workbooks --since 2020 --agent\n" +
-			"  kakao-transparency-pp-cli workbooks --csv",
+		Example: "  github.com/mvanhorn/printing-press-library/library/other/kakao-transparency workbooks --since 2020 --agent\n" +
+			"  github.com/mvanhorn/printing-press-library/library/other/kakao-transparency workbooks --csv",
 		Annotations: map[string]string{"mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if dryRunOK(flags) {

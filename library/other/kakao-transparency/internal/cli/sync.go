@@ -9,8 +9,8 @@ import (
 	"fmt"
 	"github.com/spf13/cobra"
 	"io"
-	"kakao-transparency-pp-cli/internal/cliutil"
-	"kakao-transparency-pp-cli/internal/store"
+	"github.com/mvanhorn/printing-press-library/library/other/kakao-transparency/internal/cliutil"
+	"github.com/mvanhorn/printing-press-library/library/other/kakao-transparency/internal/store"
 	"net/url"
 	"os"
 	"regexp"
@@ -82,22 +82,22 @@ Resource scoping:
   the dependent by name; the parent table must already be populated
   from a prior sync.`,
 		Example: `  # Sync all resources
-  kakao-transparency-pp-cli sync
+  github.com/mvanhorn/printing-press-library/library/other/kakao-transparency sync
 
   # Sync specific resources only
-  kakao-transparency-pp-cli sync --resources channels,messages
+  github.com/mvanhorn/printing-press-library/library/other/kakao-transparency sync --resources channels,messages
 
   # Full resync (ignore previous checkpoint)
-  kakao-transparency-pp-cli sync --full
+  github.com/mvanhorn/printing-press-library/library/other/kakao-transparency sync --full
 
   # Incremental sync: only records from the last 7 days
-  kakao-transparency-pp-cli sync --since 7d
+  github.com/mvanhorn/printing-press-library/library/other/kakao-transparency sync --since 7d
 
   # Parallel sync with 8 workers
-  kakao-transparency-pp-cli sync --concurrency 8
+  github.com/mvanhorn/printing-press-library/library/other/kakao-transparency sync --concurrency 8
 
   # Latest-only: refresh head of each resource, no historical backfill
-  kakao-transparency-pp-cli sync --latest-only`,
+  github.com/mvanhorn/printing-press-library/library/other/kakao-transparency sync --latest-only`,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			userParams, err := parseSyncUserParams(paramFlags, resourceParamFlags, globalParamFlags)
 			if err != nil {
@@ -111,7 +111,7 @@ Resource scoping:
 			c.NoCache = true
 
 			if dbPath == "" {
-				dbPath = defaultDBPath("kakao-transparency-pp-cli")
+				dbPath = defaultDBPath("github.com/mvanhorn/printing-press-library/library/other/kakao-transparency")
 			}
 
 			db, err := store.OpenWithContext(cmd.Context(), dbPath)
@@ -135,7 +135,7 @@ Resource scoping:
 			// spec defines them.
 			if len(resources) == 0 {
 				if humanFriendly {
-					fmt.Fprintln(os.Stderr, "kakao-transparency-pp-cli sync: no default sync resources in spec; use --resources for explicit sync targets or populate the store via single-fetch commands.")
+					fmt.Fprintln(os.Stderr, "github.com/mvanhorn/printing-press-library/library/other/kakao-transparency sync: no default sync resources in spec; use --resources for explicit sync targets or populate the store via single-fetch commands.")
 				} else {
 					fmt.Fprintln(syncEventWriter, `{"event":"sync_warning","reason":"no_bulk_list_endpoints","detail":"no default sync resources in spec; use --resources for explicit sync targets or populate the store via single-fetch commands"}`)
 				}
@@ -324,7 +324,7 @@ Resource scoping:
 	cmd.Flags().BoolVar(&full, "full", false, "Full resync (ignore previous checkpoint)")
 	cmd.Flags().StringVar(&since, "since", "", "Incremental sync duration (e.g. 7d, 24h, 1w, 30m)")
 	cmd.Flags().IntVar(&concurrency, "concurrency", 4, "Number of parallel sync workers")
-	cmd.Flags().StringVar(&dbPath, "db", "", "Database path (default: ~/.local/share/kakao-transparency-pp-cli/data.db)")
+	cmd.Flags().StringVar(&dbPath, "db", "", "Database path (default: ~/.local/share/github.com/mvanhorn/printing-press-library/library/other/kakao-transparency/data.db)")
 	cmd.Flags().IntVar(&maxPages, "max-pages", 0, "Maximum pages to fetch per resource (0 = unlimited; cap-hit emits a sync_warning event)")
 	cmd.Flags().BoolVar(&latestOnly, "latest-only", false, "Refresh head of each resource only; clears resume cursor and caps pages at 1. Mutually exclusive with --since (--since wins).")
 	cmd.Flags().BoolVar(&strict, "strict", false, "Exit non-zero on any per-resource failure (default: only critical failures or all-resource failure exit non-zero).")

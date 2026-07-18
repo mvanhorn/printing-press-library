@@ -38,9 +38,9 @@ func newNovelSeriesCmd(flags *rootFlags) *cobra.Command {
 			"eight per-period statistics rows into one long-form table — one row per half-year, service " +
 			"corporation (Kakao/Daum), and government request category. This is the longitudinal series the " +
 			"one-period-at-a-time web page cannot show. Counts are source-fidelity strings; \"-1\" means N/A.",
-		Example: "  kakao-transparency-pp-cli series --category warrant --service kakao\n" +
-			"  kakao-transparency-pp-cli series --since 2020 --agent --select year,halfYear,numberOfRequests,numberOfProcesses\n" +
-			"  kakao-transparency-pp-cli series --csv",
+		Example: "  github.com/mvanhorn/printing-press-library/library/other/kakao-transparency series --category warrant --service kakao\n" +
+			"  github.com/mvanhorn/printing-press-library/library/other/kakao-transparency series --since 2020 --agent --select year,halfYear,numberOfRequests,numberOfProcesses\n" +
+			"  github.com/mvanhorn/printing-press-library/library/other/kakao-transparency series --csv",
 		Annotations: map[string]string{"mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if dryRunOK(flags) {

@@ -28,7 +28,7 @@ func SiblingCLIPath() (string, error) {
 
 func siblingCLICandidates(goos, exePath string) []string {
 	dir := filepath.Dir(exePath)
-	name := "kakao-transparency-pp-cli"
+	name := "github.com/mvanhorn/printing-press-library/library/other/kakao-transparency"
 	if goos == "windows" {
 		return []string{filepath.Join(dir, name+".exe"), filepath.Join(dir, name)}
 	}
@@ -36,7 +36,7 @@ func siblingCLICandidates(goos, exePath string) []string {
 }
 
 func cliExecutableName(goos string) string {
-	name := "kakao-transparency-pp-cli"
+	name := "github.com/mvanhorn/printing-press-library/library/other/kakao-transparency"
 	if goos == "windows" {
 		return name + ".exe"
 	}

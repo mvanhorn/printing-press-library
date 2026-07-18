@@ -17,11 +17,11 @@ import (
 
 	mcplib "github.com/mark3labs/mcp-go/mcp"
 	"github.com/mark3labs/mcp-go/server"
-	"kakao-transparency-pp-cli/internal/cli"
-	"kakao-transparency-pp-cli/internal/client"
-	"kakao-transparency-pp-cli/internal/config"
-	"kakao-transparency-pp-cli/internal/mcp/cobratree"
-	"kakao-transparency-pp-cli/internal/store"
+	"github.com/mvanhorn/printing-press-library/library/other/kakao-transparency/internal/cli"
+	"github.com/mvanhorn/printing-press-library/library/other/kakao-transparency/internal/client"
+	"github.com/mvanhorn/printing-press-library/library/other/kakao-transparency/internal/config"
+	"github.com/mvanhorn/printing-press-library/library/other/kakao-transparency/internal/mcp/cobratree"
+	"github.com/mvanhorn/printing-press-library/library/other/kakao-transparency/internal/store"
 )
 
 const (
@@ -234,12 +234,12 @@ func makeAPIHandler(method, pathTemplate string, readOnly bool, binaryResponse b
 				return mcplib.NewToolResultError("authentication failed: " + msg +
 					"\nhint: check your API credentials." +
 					"\n      See API docs: https://privacy.kakao.com/transparency" +
-					"\n      Run 'kakao-transparency-pp-cli doctor' to check auth status."), nil
+					"\n      Run 'github.com/mvanhorn/printing-press-library/library/other/kakao-transparency doctor' to check auth status."), nil
 			case strings.Contains(msg, "HTTP 403"):
 				return mcplib.NewToolResultError("permission denied: " + msg +
 					"\nhint: this API is configured without credentials; the service may be blocking the request by rate limit, geography, bot protection, or endpoint policy." +
 					"\n      See API docs: https://privacy.kakao.com/transparency" +
-					"\n      Run 'kakao-transparency-pp-cli doctor' to check auth status."), nil
+					"\n      Run 'github.com/mvanhorn/printing-press-library/library/other/kakao-transparency doctor' to check auth status."), nil
 			case strings.Contains(msg, "HTTP 404"):
 				if method == "DELETE" {
 					return mcplib.NewToolResultText("already deleted (no-op)"), nil
@@ -387,7 +387,7 @@ func mcpOversizedPreviewEnvelope(data json.RawMessage) []byte {
 
 func newMCPClient() (*client.Client, error) {
 	home, _ := os.UserHomeDir()
-	cfgPath := filepath.Join(home, ".config", "kakao-transparency-pp-cli", "config.toml")
+	cfgPath := filepath.Join(home, ".config", "github.com/mvanhorn/printing-press-library/library/other/kakao-transparency", "config.toml")
 	cfg, err := config.Load(cfgPath)
 	if err != nil {
 		return nil, fmt.Errorf("loading config: %w", err)
@@ -404,7 +404,7 @@ func newMCPClient() (*client.Client, error) {
 
 func dbPath() string {
 	home, _ := os.UserHomeDir()
-	return filepath.Join(home, ".local", "share", "kakao-transparency-pp-cli", "data.db")
+	return filepath.Join(home, ".local", "share", "github.com/mvanhorn/printing-press-library/library/other/kakao-transparency", "data.db")
 }
 
 // Note: MCP tools use their own dbPath() because they are in a separate package (main, not cli).
@@ -629,7 +629,7 @@ func handleContext(_ context.Context, _ mcplib.CallToolRequest) (*mcplib.CallToo
 		"archetype":   "generic",
 		"tool_count":  1,
 		// tool_surface tells agents which surface a capability lives on.
-		"tool_surface": "MCP exposes typed endpoint tools plus a runtime mirror of user-facing CLI commands. Endpoint tools keep typed schemas; command-mirror tools shell out to the companion kakao-transparency-pp-cli binary.",
+		"tool_surface": "MCP exposes typed endpoint tools plus a runtime mirror of user-facing CLI commands. Endpoint tools keep typed schemas; command-mirror tools shell out to the companion github.com/mvanhorn/printing-press-library/library/other/kakao-transparency binary.",
 		"resources": []map[string]any{
 			{
 				"name":        "transparency",

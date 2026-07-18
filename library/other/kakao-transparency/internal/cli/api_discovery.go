@@ -25,10 +25,10 @@ agents that need full API coverage.
 Run 'api' with no arguments to list all interfaces.
 Run 'api <interface>' to see that interface's methods.`,
 		Example: `  # List all available interfaces
-  kakao-transparency-pp-cli api
+  github.com/mvanhorn/printing-press-library/library/other/kakao-transparency api
 
   # Show methods for a specific interface
-  kakao-transparency-pp-cli api <interface-name>`,
+  github.com/mvanhorn/printing-press-library/library/other/kakao-transparency api <interface-name>`,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			root := cmd.Root()
 

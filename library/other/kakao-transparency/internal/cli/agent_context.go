@@ -115,7 +115,7 @@ func buildAgentContext(rootCmd *cobra.Command) agentContext {
 	return agentContext{
 		SchemaVersion: agentContextSchemaVersion,
 		CLI: agentContextCLI{
-			Name:        "kakao-transparency-pp-cli",
+			Name:        "github.com/mvanhorn/printing-press-library/library/other/kakao-transparency",
 			Description: "Kakao's 2012-present government data-request statistics as one queryable archive — series, latest-report resolution, and workbook mirroring no other tool offers.",
 			Version:     rootCmd.Version,
 		},
