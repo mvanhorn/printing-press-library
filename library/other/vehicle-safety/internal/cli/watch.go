@@ -12,6 +12,7 @@ import (
 	"io"
 	"os"
 	"path/filepath"
+	"sort"
 	"strconv"
 	"strings"
 
@@ -55,17 +56,26 @@ func newNovelWatchCmd(flags *rootFlags) *cobra.Command {
 			if err != nil {
 				return err
 			}
-			priorSnapshots := map[string]map[string]string{}
+			priorSnapshots := garageSnapshots{}
 			raw, getErr := db.Get("vehicle-recall-garage", garageKey)
 			if getErr != nil && !errors.Is(getErr, sql.ErrNoRows) {
 				return getErr
 			}
 			if getErr == nil {
 				if err := json.Unmarshal(raw, &priorSnapshots); err != nil {
-					return fmt.Errorf("decode prior garage snapshot: %w", err)
+					legacy := map[string]map[string]string{}
+					if legacyErr := json.Unmarshal(raw, &legacy); legacyErr != nil {
+						return fmt.Errorf("decode prior garage snapshot: %w", err)
+					}
+					for vehicleKey, campaigns := range legacy {
+						priorSnapshots[vehicleKey] = map[string]campaignSnapshot{}
+						for campaign, remedy := range campaigns {
+							priorSnapshots[vehicleKey][campaign] = campaignSnapshot{Remedy: remedy, Active: true}
+						}
+					}
 				}
 			}
-			nextSnapshots := map[string]map[string]string{}
+			nextSnapshots := garageSnapshots{}
 			results := make([]map[string]any, 0, len(vehicles))
 			for _, vehicle := range vehicles {
 				response, fetchErr := nhtsaGet(ctx, flags, nhtsaBaseURL, "/recalls/recallsByVehicle", vehicleParams(vehicle))
@@ -73,25 +83,20 @@ func newNovelWatchCmd(flags *rootFlags) *cobra.Command {
 					return fetchErr
 				}
 				current := map[string]string{}
+				unidentified := 0
 				for _, item := range response.Results {
-					current[stringValue(item, "NHTSACampaignNumber")] = stringValue(item, "Remedy")
+					campaign := strings.TrimSpace(stringValue(item, "NHTSACampaignNumber"))
+					if campaign == "" {
+						unidentified++
+						continue
+					}
+					current[campaign] = stringValue(item, "Remedy")
 				}
 				key := fmt.Sprintf("%d|%s|%s", vehicle.Year, strings.ToUpper(vehicle.Make), strings.ToUpper(vehicle.Model))
 				previous, existed := priorSnapshots[key]
-				baseline := !existed
-				var added, changed []string
-				if !baseline {
-					for campaign, remedy := range current {
-						old, existed := previous[campaign]
-						if !existed {
-							added = append(added, campaign)
-						} else if old != remedy {
-							changed = append(changed, campaign)
-						}
-					}
-				}
-				nextSnapshots[key] = current
-				results = append(results, map[string]any{"vehicle": vehicle, "baseline_created": baseline, "campaign_count": len(current), "new_campaigns": added, "remedy_changes": changed})
+				next, delta := reconcileCampaignSnapshot(previous, current, existed)
+				nextSnapshots[key] = next
+				results = append(results, map[string]any{"vehicle": vehicle, "baseline_created": !existed, "campaign_count": len(current), "new_campaigns": delta.Added, "restored_campaigns": delta.Restored, "removed_campaigns": delta.Removed, "remedy_changes": delta.Changed, "unidentified_campaign_count": unidentified, "snapshot_advanced": delta.Advanced})
 			}
 			next, err := json.Marshal(nextSnapshots)
 			if err != nil {
@@ -105,6 +110,60 @@ func newNovelWatchCmd(flags *rootFlags) *cobra.Command {
 	}
 	cmd.Flags().StringVar(&flagGarage, "garage", "", "CSV file with year, make, and model columns (maximum 50 rows)")
 	return cmd
+}
+
+type campaignSnapshot struct {
+	Remedy string `json:"remedy"`
+	Active bool   `json:"active"`
+}
+
+type garageSnapshots map[string]map[string]campaignSnapshot
+
+type campaignDelta struct {
+	Added, Restored, Removed, Changed []string
+	Advanced                          bool
+}
+
+func reconcileCampaignSnapshot(previous map[string]campaignSnapshot, current map[string]string, hadPrior bool) (map[string]campaignSnapshot, campaignDelta) {
+	delta := campaignDelta{Advanced: true}
+	activePrevious := 0
+	for _, prior := range previous {
+		if prior.Active {
+			activePrevious++
+		}
+	}
+	if hadPrior && activePrevious > 0 && len(current) == 0 {
+		delta.Advanced = false
+		return previous, delta
+	}
+
+	next := make(map[string]campaignSnapshot, len(previous)+len(current))
+	for campaign, remedy := range current {
+		old, existed := previous[campaign]
+		switch {
+		case !existed:
+			delta.Added = append(delta.Added, campaign)
+		case !old.Active:
+			delta.Restored = append(delta.Restored, campaign)
+		case old.Remedy != remedy:
+			delta.Changed = append(delta.Changed, campaign)
+		}
+		next[campaign] = campaignSnapshot{Remedy: remedy, Active: true}
+	}
+	for campaign, old := range previous {
+		if _, present := current[campaign]; present {
+			continue
+		}
+		if old.Active {
+			delta.Removed = append(delta.Removed, campaign)
+		}
+		old.Active = false
+		next[campaign] = old
+	}
+	for _, values := range []*[]string{&delta.Added, &delta.Restored, &delta.Removed, &delta.Changed} {
+		sort.Strings(*values)
+	}
+	return next, delta
 }
 
 func readGarage(path string) ([]vehicleQuery, error) {

@@ -46,7 +46,16 @@ func newNovelSignalsCmd(flags *rootFlags) *cobra.Command {
 				rawDate := stringValue(item, "dateComplaintFiled")
 				timeline = append(timeline, map[string]any{"date": normalizeNHTSADate(rawDate, "01/02/2006"), "raw_date": rawDate, "kind": "complaint", "id": stringValue(item, "odiNumber"), "component": stringValue(item, "components"), "crash": boolValue(item, "crash"), "fire": boolValue(item, "fire")})
 			}
-			sort.SliceStable(timeline, func(i, j int) bool { return stringValue(timeline[i], "date") < stringValue(timeline[j], "date") })
+			sort.SliceStable(timeline, func(i, j int) bool {
+				left, right := stringValue(timeline[i], "date"), stringValue(timeline[j], "date")
+				if left == "" || right == "" {
+					return left != "" // Unknown dates sort after every normalized date.
+				}
+				if left != right {
+					return left < right
+				}
+				return stringValue(timeline[i], "kind")+stringValue(timeline[i], "id") < stringValue(timeline[j], "kind")+stringValue(timeline[j], "id")
+			})
 			result := map[string]any{"vehicle": vehicle, "complaint_components": componentCounts(dossier.Complaints), "timeline": timeline, "formal_investigations": map[string]any{"status": "not_in_public_JSON_API", "dataset": "https://static.nhtsa.gov/odi/ffdd/inv/FLAT_INV.zip"}, "manufacturer_communications": map[string]any{"status": "not_in_public_JSON_API", "dataset_documentation": "https://static.nhtsa.gov/odi/ffdd/tsbs/TSBS.txt"}, "caveat": "Temporal proximity and component overlap do not establish causation."}
 			return emitLive(cmd, flags, result)
 		},
@@ -58,9 +67,11 @@ func newNovelSignalsCmd(flags *rootFlags) *cobra.Command {
 }
 
 func normalizeNHTSADate(raw, layout string) string {
-	parsed, err := time.Parse(layout, raw)
-	if err != nil {
-		return raw
+	for _, candidate := range []string{layout, time.RFC3339, "2006-01-02", "1/2/2006", "01/02/2006"} {
+		parsed, err := time.Parse(candidate, raw)
+		if err == nil {
+			return parsed.Format("2006-01-02")
+		}
 	}
-	return parsed.Format("2006-01-02")
+	return ""
 }

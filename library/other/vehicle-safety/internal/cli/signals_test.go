@@ -30,3 +30,16 @@ func TestNovelSignalsHelpWires(t *testing.T) {
 		}
 	}
 }
+
+func TestNormalizeNHTSADateNeverReturnsRawUnsortableValues(t *testing.T) {
+	for raw, want := range map[string]string{
+		"1/15/2020":            "2020-01-15",
+		"2020-01-15":           "2020-01-15",
+		"2020-01-15T12:00:00Z": "2020-01-15",
+		"not-a-date":           "",
+	} {
+		if got := normalizeNHTSADate(raw, "01/02/2006"); got != want {
+			t.Fatalf("normalizeNHTSADate(%q) = %q, want %q", raw, got, want)
+		}
+	}
+}

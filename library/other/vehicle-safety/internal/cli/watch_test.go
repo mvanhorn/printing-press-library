@@ -30,3 +30,22 @@ func TestNovelWatchHelpWires(t *testing.T) {
 		}
 	}
 }
+
+func TestReconcileCampaignSnapshotPreservesEmptyFetchAndTracksLifecycle(t *testing.T) {
+	prior := map[string]campaignSnapshot{
+		"A": {Remedy: "old", Active: true},
+		"B": {Remedy: "same", Active: false},
+	}
+	kept, emptyDelta := reconcileCampaignSnapshot(prior, map[string]string{}, true)
+	if emptyDelta.Advanced || len(kept) != 2 {
+		t.Fatalf("empty fetch advanced=%v kept=%v", emptyDelta.Advanced, kept)
+	}
+
+	next, delta := reconcileCampaignSnapshot(prior, map[string]string{"B": "same", "C": "new"}, true)
+	if len(delta.Added) != 1 || delta.Added[0] != "C" || len(delta.Restored) != 1 || delta.Restored[0] != "B" || len(delta.Removed) != 1 || delta.Removed[0] != "A" {
+		t.Fatalf("unexpected delta: %#v", delta)
+	}
+	if next["A"].Active || !next["B"].Active || !next["C"].Active {
+		t.Fatalf("unexpected next snapshot: %#v", next)
+	}
+}
