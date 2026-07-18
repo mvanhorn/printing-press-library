@@ -7,6 +7,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"math/big"
 	"net/url"
 	"sort"
 	"strings"
@@ -89,9 +90,7 @@ func clDocketTimeline(entries, documents []map[string]any) []map[string]any {
 	for _, entry := range entries {
 		entryID := clReferenceID(entry["id"])
 		documents := documentsByEntry[entryID]
-		sort.SliceStable(documents, func(i, j int) bool {
-			return clReferenceID(documents[i]["id"]) < clReferenceID(documents[j]["id"])
-		})
+		sort.SliceStable(documents, func(i, j int) bool { return clReferenceIDLess(documents[i]["id"], documents[j]["id"]) })
 		timeline = append(timeline, map[string]any{
 			"date":        clFirstString(entry, "date_filed", "date_created", "date_modified"),
 			"entry_id":    entry["id"],
@@ -129,6 +128,16 @@ func clDocketTimeline(entries, documents []map[string]any) []map[string]any {
 		return leftID < rightID
 	})
 	return timeline
+}
+
+func clReferenceIDLess(leftValue, rightValue any) bool {
+	left, right := clReferenceID(leftValue), clReferenceID(rightValue)
+	leftNumber, leftOK := new(big.Int).SetString(left, 10)
+	rightNumber, rightOK := new(big.Int).SetString(right, 10)
+	if leftOK && rightOK {
+		return leftNumber.Cmp(rightNumber) < 0
+	}
+	return left < right
 }
 
 func clResults(response map[string]any) []map[string]any {

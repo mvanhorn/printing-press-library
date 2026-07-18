@@ -1,0 +1,11 @@
+{
+  "schema_version": 2,
+  "id": "greptile-filing-history-order",
+  "applied_at": "2026-07-18",
+  "base_run_id": "20260717-002908-6e06aaaf",
+  "base_printing_press_version": "4.29.0",
+  "summary": "Retain a bounded filing history and sort numeric CourtListener document IDs numerically.",
+  "reason": "A one-page snapshot could re-announce older filings, and lexical ID ordering placed document 100 before 90.",
+  "files": ["internal/cli/new_filings.go", "internal/cli/new_filings_test.go", "internal/cli/courtlistener_novel_support.go", "internal/cli/courtlistener_novel_support_test.go"],
+  "validated_outcome": "Regression tests cover retained filing history and numeric document ordering."
+}

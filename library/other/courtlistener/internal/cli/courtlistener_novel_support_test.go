@@ -9,3 +9,9 @@ func TestCLResultsUsesOnlyObjectRows(t *testing.T) {
 		t.Fatalf("got %d rows", len(got))
 	}
 }
+
+func TestCLReferenceIDLessSortsNumericIDsNumerically(t *testing.T) {
+	if !clReferenceIDLess("90", "100") || clReferenceIDLess("100", "90") {
+		t.Fatal("numeric document IDs were compared lexicographically")
+	}
+}
