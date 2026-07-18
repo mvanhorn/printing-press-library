@@ -1,0 +1,11 @@
+{
+  "schema_version": 2,
+  "id": "greptile-deterministic-recall-evidence",
+  "applied_at": "2026-07-18",
+  "base_run_id": "20260717-002908-7b05abc1",
+  "base_printing_press_version": "4.29.0",
+  "summary": "Make inventory ranking and hazard counts deterministic, reject mixed provider errors, pace bulk requests, and preserve watch state when completeness is unknown.",
+  "reason": "Map iteration, raw substring matches, duplicate labels, partial error rows, unpaced fanout, and unproven removals could produce unstable or false recall evidence.",
+  "files": ["internal/cli/root.go", "internal/cli/cpsc_novel_support.go", "internal/cli/cpsc_novel_support_test.go", "internal/cli/inventory_check.go", "internal/cli/inventory_check_test.go", "internal/cli/hazard_pulse.go", "internal/cli/hazard_pulse_test.go", "internal/cli/watch_changes.go"],
+  "validated_outcome": "Tests cover mixed provider errors, per-recall label deduplication, and exact-first deterministic candidate ranking; the full live CPSC matrix passes."
+}

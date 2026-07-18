@@ -42,8 +42,13 @@ func newNovelWatchChangesCmd(flags *rootFlags) *cobra.Command {
 				return err
 			}
 			current := map[string]json.RawMessage{}
+			unidentified := 0
 			for _, row := range rows {
-				id := fmt.Sprint(row["RecallID"])
+				id := strings.TrimSpace(fmt.Sprint(row["RecallID"]))
+				if id == "" || id == "<nil>" {
+					unidentified++
+					continue
+				}
 				raw, marshalErr := canonicalMaterialRecall(row)
 				if marshalErr != nil {
 					return marshalErr
@@ -67,7 +72,8 @@ func newNovelWatchChangesCmd(flags *rootFlags) *cobra.Command {
 					return err
 				}
 			}
-			var added, changed, removed []string
+			var added, changed []string
+			preservedMissing := 0
 			if !baseline {
 				for id, value := range current {
 					old, ok := previous[id]
@@ -77,20 +83,20 @@ func newNovelWatchChangesCmd(flags *rootFlags) *cobra.Command {
 						changed = append(changed, id)
 					}
 				}
-				for id := range previous {
+				for id, old := range previous {
 					if _, ok := current[id]; !ok {
-						removed = append(removed, id)
+						current[id] = old
+						preservedMissing++
 					}
 				}
 			}
 			sort.Strings(added)
 			sort.Strings(changed)
-			sort.Strings(removed)
 			next, _ := json.Marshal(current)
 			if err := db.Upsert("cpsc-recall-watch", key, next); err != nil {
 				return err
 			}
-			return emitCPSC(cmd, flags, "mixed", map[string]any{"brand": brand, "product": product, "baseline_created": baseline, "observed_recalls": len(current), "new_recall_ids": added, "changed_recall_ids": changed, "removed_recall_ids": removed, "change_definition": "Canonical comparison of documented material recall fields; array ordering is ignored.", "caveats": cpscCaveats()})
+			return emitCPSC(cmd, flags, "mixed", map[string]any{"brand": brand, "product": product, "baseline_created": baseline, "observed_recall_rows": len(rows), "persisted_recall_ids": len(current), "newly_observed_recall_ids": added, "changed_recall_ids": changed, "removed_recall_ids": nil, "removed_detection_available": false, "preserved_prior_ids_missing_from_response": preservedMissing, "unidentified_rows": unidentified, "observation_completeness": "unknown_provider_array_has_no_total_or_pagination_metadata", "change_definition": "Canonical comparison of documented material recall fields; array ordering is ignored. Missing prior IDs are preserved because the provider does not prove response completeness.", "caveats": cpscCaveats()})
 		},
 	}
 	cmd.Flags().StringVar(&brand, "brand", "", "Manufacturer or brand filter")

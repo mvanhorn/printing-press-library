@@ -58,3 +58,15 @@ func TestCPSCFetcherRetriesProviderError(t *testing.T) {
 		t.Fatalf("attempts=%d rows=%v err=%v", attempts, rows, err)
 	}
 }
+
+func TestCPSCFetcherRejectsProviderErrorMixedWithRows(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		_, _ = w.Write([]byte(`[{"RecallID":"10000"},{"Title":"Error retrieving Recalls: partial failure"}]`))
+	}))
+	defer server.Close()
+	fetcher := &cpscFetcher{baseURL: server.URL, httpClient: server.Client(), maxAttempts: 1, waitRetry: func(context.Context, time.Duration) error { return nil }}
+	if _, err := fetcher.fetch(context.Background(), nil); err == nil {
+		t.Fatal("mixed provider error row was accepted")
+	}
+}

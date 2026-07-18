@@ -30,3 +30,15 @@ func TestNovelInventoryCheckHelpWires(t *testing.T) {
 		}
 	}
 }
+
+func TestSortInventoryCandidatesPrefersExactThenScore(t *testing.T) {
+	candidates := []map[string]any{
+		{"recall_id": "1", "exact_match": false, "token_overlap": 0.9},
+		{"recall_id": "2", "exact_match": true, "token_overlap": 0.1},
+		{"recall_id": "3", "exact_match": false, "token_overlap": 0.95},
+	}
+	sortInventoryCandidates(candidates)
+	if candidates[0]["recall_id"] != "2" || candidates[1]["recall_id"] != "3" {
+		t.Fatalf("candidates=%v", candidates)
+	}
+}

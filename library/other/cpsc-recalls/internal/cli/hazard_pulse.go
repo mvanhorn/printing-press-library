@@ -8,6 +8,7 @@ import (
 	"github.com/spf13/cobra"
 	"net/url"
 	"sort"
+	"strings"
 )
 
 func newNovelHazardPulseCmd(flags *rootFlags) *cobra.Command {
@@ -37,24 +38,27 @@ func newNovelHazardPulseCmd(flags *rootFlags) *cobra.Command {
 			}
 			hazards, remedies, injuries, products := map[string]int{}, map[string]int{}, map[string]int{}, map[string]int{}
 			for _, row := range rows {
-				for _, v := range nestedNames(row, "Hazards") {
-					hazards[v]++
-				}
-				for _, v := range nestedNames(row, "RemedyOptions") {
-					remedies[v]++
-				}
-				for _, v := range nestedNames(row, "Injuries") {
-					injuries[v]++
-				}
-				for _, v := range nestedNames(row, "Products") {
-					products[v]++
-				}
+				addDistinctRecallLabels(hazards, nestedNames(row, "Hazards"))
+				addDistinctRecallLabels(remedies, nestedNames(row, "RemedyOptions"))
+				addDistinctRecallLabels(injuries, nestedNames(row, "Injuries"))
+				addDistinctRecallLabels(products, nestedNames(row, "Products"))
 			}
 			return emitCPSC(cmd, flags, "live", map[string]any{"window": map[string]any{"duration": window, "start": start.Format("2006-01-02"), "end": end.Format("2006-01-02")}, "recall_count": len(rows), "products": countRows(products), "hazards": countRows(hazards), "remedy_options": countRows(remedies), "injury_reports": countRows(injuries), "caveats": cpscCaveats()})
 		},
 	}
 	cmd.Flags().StringVar(&window, "window", "30d", "Recent recall window")
 	return cmd
+}
+
+func addDistinctRecallLabels(counts map[string]int, values []string) {
+	seen := map[string]bool{}
+	for _, value := range values {
+		label := strings.ToLower(strings.Join(strings.Fields(value), " "))
+		if label != "" && !seen[label] {
+			counts[label]++
+			seen[label] = true
+		}
+	}
 }
 
 func countRows(values map[string]int) []map[string]any {

@@ -30,3 +30,11 @@ func TestNovelHazardPulseHelpWires(t *testing.T) {
 		}
 	}
 }
+
+func TestAddDistinctRecallLabelsNormalizesAndCountsOncePerRecall(t *testing.T) {
+	counts := map[string]int{}
+	addDistinctRecallLabels(counts, []string{"Fire", "FIRE", " fire "})
+	if len(counts) != 1 || counts["fire"] != 1 {
+		t.Fatalf("counts=%v", counts)
+	}
+}

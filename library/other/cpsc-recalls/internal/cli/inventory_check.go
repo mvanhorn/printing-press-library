@@ -11,6 +11,7 @@ import (
 	"io"
 	"net/url"
 	"os"
+	"sort"
 	"strings"
 
 	"github.com/spf13/cobra"
@@ -57,7 +58,10 @@ func newNovelInventoryCheckCmd(flags *rootFlags) *cobra.Command {
 						return fetchErr
 					}
 					for _, recall := range rows {
-						byID[fmt.Sprint(recall["RecallID"])] = recall
+						id := strings.TrimSpace(fmt.Sprint(recall["RecallID"]))
+						if id != "" && id != "<nil>" {
+							byID[id] = recall
+						}
 					}
 				}
 				var candidates []map[string]any
@@ -70,12 +74,14 @@ func newNovelInventoryCheckCmd(flags *rootFlags) *cobra.Command {
 					}
 					shared, score := overlap(item["name"]+" "+item["brand"]+" "+item["model"]+" "+item["upc"], candidateText)
 					evidence := exactInventoryEvidence(item, recall)
-					if hasExactInventoryEvidence(evidence) || score >= 0.34 || strings.Contains(strings.ToLower(candidateText), strings.ToLower(item["model"])) && item["model"] != "" {
-						candidates = append(candidates, map[string]any{"recall_id": recall["RecallID"], "title": recall["Title"], "official_url": recall["URL"], "exact_field_evidence": evidence, "shared_tokens": shared, "token_overlap": score, "products": recall["Products"]})
+					exact := hasExactInventoryEvidence(evidence)
+					if exact || score >= 0.34 {
+						candidates = append(candidates, map[string]any{"recall_id": recall["RecallID"], "title": recall["Title"], "official_url": recall["URL"], "exact_match": exact, "exact_field_evidence": evidence, "shared_tokens": shared, "token_overlap": score, "products": recall["Products"]})
 					}
-					if len(candidates) >= 25 {
-						break
-					}
+				}
+				sortInventoryCandidates(candidates)
+				if len(candidates) > 25 {
+					candidates = candidates[:25]
 				}
 				results = append(results, map[string]any{"inventory_item": item, "queries_sent": len(queries), "unique_recall_rows_examined": len(byID), "candidate_matches": candidates})
 			}
@@ -84,6 +90,22 @@ func newNovelInventoryCheckCmd(flags *rootFlags) *cobra.Command {
 	}
 	cmd.Flags().StringVar(&inventory, "inventory", "", "CSV with name and optional brand, model, upc columns")
 	return cmd
+}
+
+func sortInventoryCandidates(candidates []map[string]any) {
+	sort.SliceStable(candidates, func(i, j int) bool {
+		iExact, _ := candidates[i]["exact_match"].(bool)
+		jExact, _ := candidates[j]["exact_match"].(bool)
+		if iExact != jExact {
+			return iExact
+		}
+		iScore, _ := candidates[i]["token_overlap"].(float64)
+		jScore, _ := candidates[j]["token_overlap"].(float64)
+		if iScore != jScore {
+			return iScore > jScore
+		}
+		return fmt.Sprint(candidates[i]["recall_id"]) < fmt.Sprint(candidates[j]["recall_id"])
+	})
 }
 
 func readInventory(path string) ([]map[string]string, error) {

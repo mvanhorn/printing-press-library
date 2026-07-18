@@ -129,8 +129,15 @@ func (f *cpscFetcher) fetch(ctx context.Context, params url.Values) ([]map[strin
 				if err := decoder.Decode(&out); err != nil {
 					return nil, apiErr(fmt.Errorf("decode CPSC response: %w", err))
 				}
-				if len(out) == 1 && strings.HasPrefix(fmt.Sprint(out[0]["Title"]), "Error retrieving Recalls:") {
-					lastErr = apiErr(fmt.Errorf("CPSC provider error: %s", out[0]["Title"]))
+				providerError := ""
+				for _, row := range out {
+					if title := fmt.Sprint(row["Title"]); strings.HasPrefix(title, "Error retrieving Recalls:") {
+						providerError = title
+						break
+					}
+				}
+				if providerError != "" {
+					lastErr = apiErr(fmt.Errorf("CPSC provider error: %s", providerError))
 				} else {
 					return out, nil
 				}
