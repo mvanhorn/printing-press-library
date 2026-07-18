@@ -82,6 +82,13 @@ func pageIsTruncated(page eiaPage) bool {
 	return err == nil && total > len(page.Rows)
 }
 
+func requireCompletePage(page eiaPage, operation string) error {
+	if pageIsTruncated(page) {
+		return fmt.Errorf("%s requires a complete EIA result, but the response returned %d of %s rows; narrow the facet or time window", operation, len(page.Rows), page.Total)
+	}
+	return nil
+}
+
 func consistentSeriesUnit(rows []map[string]any, data string) (string, error) {
 	unit := ""
 	for _, row := range rows {

@@ -47,12 +47,15 @@ func newNovelRevisionsCmd(flags *rootFlags) *cobra.Command {
 			if err != nil {
 				return err
 			}
+			if err := requireCompletePage(page, "revision comparison"); err != nil {
+				return err
+			}
 			current := map[string]string{}
 			for _, row := range page.Rows {
 				key := fmt.Sprintf("%v|%v|%s", row["period"], row["type"], rowUnit(row, data))
 				current[key] = fmt.Sprint(row[data])
 			}
-			queryID := route + "|" + facet + "|" + data + "|" + frequency
+			queryID := fmt.Sprintf("%s|%s|%s|%s|hours=%d", route, facet, data, frequency, hours)
 			sum := sha256.Sum256([]byte(queryID))
 			configDir, err := os.UserConfigDir()
 			if err != nil {

@@ -307,7 +307,7 @@ func (c *Client) cacheKey(path string, params map[string]string) string {
 		key += "|query=" + query.Encode()
 	}
 	h := sha256.Sum256([]byte(key))
-	return hex.EncodeToString(h[:8])
+	return hex.EncodeToString(h[:])
 }
 
 func pathWithQueryValues(path string, params url.Values) string {

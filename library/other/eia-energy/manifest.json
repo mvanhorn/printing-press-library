@@ -15,15 +15,15 @@
       "command": "${__dirname}/bin/eia-energy-pp-mcp",
       "args": [],
       "env": {
-        "EIA_ENERGY_API_KEY": "${user_config.eia_energy_api_key}"
+        "EIA_API_KEY": "${user_config.eia_energy_api_key}"
       }
     }
   },
   "user_config": {
     "eia_energy_api_key": {
       "type": "string",
-      "title": "EIA_ENERGY_API_KEY",
-      "description": "Sets EIA_ENERGY_API_KEY for the Eia MCP server.",
+      "title": "EIA_API_KEY",
+      "description": "Sets EIA_API_KEY for the Eia MCP server.",
       "sensitive": true,
       "required": true
     }

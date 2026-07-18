@@ -51,6 +51,9 @@ func newNovelAnomalyCmd(flags *rootFlags) *cobra.Command {
 			if err != nil {
 				return err
 			}
+			if err := requireCompletePage(page, "anomaly analysis"); err != nil {
+				return err
+			}
 			stats := seriesStats(page.Rows, data)
 			mean, _ := stats["mean"].(float64)
 			sd, _ := stats["standard_deviation"].(float64)

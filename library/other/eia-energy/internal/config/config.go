@@ -131,6 +131,12 @@ func Load(configPath string) (*Config, error) {
 		cfg.markEnvOverride("EiaApiKey")
 		cfg.AuthSource = "env:EIA_API_KEY"
 		cfg.CredentialSource = "env:EIA_API_KEY"
+	} else if v := os.Getenv("EIA_ENERGY_API_KEY"); v != "" {
+		// Accept the binary-derived spelling emitted by early MCP manifests.
+		cfg.EiaApiKey = v
+		cfg.markEnvOverride("EiaApiKey")
+		cfg.AuthSource = "env:EIA_ENERGY_API_KEY"
+		cfg.CredentialSource = "env:EIA_ENERGY_API_KEY"
 	}
 	// Label config-file-derived credentials so doctor can distinguish
 	// "credentials persisted on disk" from "no credentials at all" — without
@@ -371,6 +377,9 @@ func (c *Config) SaveCredential(token string) error {
 	delete(c.envOverrides, "AccessToken")
 	c.updateFileConfigField("AuthHeaderVal")
 	c.updateFileConfigField("AccessToken")
+	// Removing the override before updating fileConfig is intentional: an
+	// explicit set-token must replace the persisted value even when this Config
+	// was loaded with an environment override.
 	c.EiaApiKey = token
 	delete(c.envOverrides, "EiaApiKey")
 	c.updateFileConfigField("EiaApiKey")

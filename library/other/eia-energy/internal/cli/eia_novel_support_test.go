@@ -35,3 +35,24 @@ func TestSeriesStatsIgnoresNonNumeric(t *testing.T) {
 		t.Fatalf("unexpected stats: %#v", stats)
 	}
 }
+
+func TestRequireCompletePageRejectsTruncation(t *testing.T) {
+	if err := requireCompletePage(eiaPage{Total: "5001", Rows: make([]map[string]any, 5000)}, "test analysis"); err == nil {
+		t.Fatal("expected a truncated page error")
+	}
+	if err := requireCompletePage(eiaPage{Total: "2", Rows: make([]map[string]any, 2)}, "test analysis"); err != nil {
+		t.Fatalf("complete page rejected: %v", err)
+	}
+}
+
+func TestBuildSpreadRowsReportsInvalidAlignedValues(t *testing.T) {
+	left := map[string]map[string]any{"2026-01": {"period": "2026-01", "value": "not-available", "value-units": "MW"}}
+	right := map[string]map[string]any{"2026-01": {"period": "2026-01", "value": "12", "value-units": "MW"}}
+	rows, excluded, err := buildSpreadRows(left, right, "value")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(rows) != 0 || len(excluded) != 1 || excluded[0]["period"] != "2026-01" {
+		t.Fatalf("rows=%#v excluded=%#v", rows, excluded)
+	}
+}

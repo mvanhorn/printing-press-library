@@ -38,6 +38,9 @@ func newNovelGridPulseCmd(flags *rootFlags) *cobra.Command {
 			if err != nil {
 				return err
 			}
+			if err := requireCompletePage(page, "grid pulse statistics"); err != nil {
+				return err
+			}
 			groups := map[string][]map[string]any{}
 			for _, row := range page.Rows {
 				groups[fmt.Sprint(row["type-name"])] = append(groups[fmt.Sprint(row["type-name"])], row)

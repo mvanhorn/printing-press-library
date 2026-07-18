@@ -100,6 +100,9 @@ func TestCacheKeyDelimitsSortedQueryParams(t *testing.T) {
 	if first != second {
 		t.Fatalf("cache key should be deterministic regardless of map order: %q != %q", first, second)
 	}
+	if len(first) != 64 {
+		t.Fatalf("cache key length = %d, want full SHA-256 hex length 64", len(first))
+	}
 }
 
 func TestGetWithHeadersValuesPreservesRepeatedQueryParams(t *testing.T) {

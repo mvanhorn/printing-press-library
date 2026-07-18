@@ -33,6 +33,7 @@ const sampleReadPermsSecret = "RT-LIVE-90DAY-SECRET-DO-NOT-LEAK"
 func clearCredEnv(t *testing.T) {
 	t.Helper()
 	t.Setenv("EIA_API_KEY", "")
+	t.Setenv("EIA_ENERGY_API_KEY", "")
 }
 
 func runPermsCmd(t *testing.T, name string, args ...string) error {

@@ -51,33 +51,23 @@ func newNovelSpreadCmd(flags *rootFlags) *cobra.Command {
 			if err != nil {
 				return err
 			}
+			if err := requireCompletePage(lp, "spread comparison"); err != nil {
+				return err
+			}
 			base[ln] = []string{rv}
 			rp, err := eiaFetch(ctx, flags, route, seriesParams(data, frequency, start.Format("2006-01-02T15"), end.Format("2006-01-02T15"), base, 5000))
 			if err != nil {
 				return err
 			}
-			lm, rm := mapPeriods(lp.Rows, data), mapPeriods(rp.Rows, data)
-			var rows []map[string]any
-			for _, period := range sortedStringKeys(lm) {
-				rightRow, ok := rm[period]
-				if !ok {
-					continue
-				}
-				leftRow := lm[period]
-				lu, ru := rowUnit(leftRow, data), rowUnit(rightRow, data)
-				if lu == "" || ru == "" {
-					return fmt.Errorf("cannot compute spread at %s without reported units", period)
-				}
-				if lu != ru {
-					return fmt.Errorf("unit mismatch at %s: %q vs %q", period, lu, ru)
-				}
-				a, aok := rowValue(leftRow, data)
-				b, bok := rowValue(rightRow, data)
-				if aok && bok {
-					rows = append(rows, map[string]any{"period": period, "left": a, "right": b, "spread": a - b, "unit": lu})
-				}
+			if err := requireCompletePage(rp, "spread comparison"); err != nil {
+				return err
 			}
-			return emitEIA(cmd, flags, "live", map[string]any{"route": route, "frequency": frequency, "left": left, "right": right, "type": typeCode, "data": data, "hours": hours, "start": start.Format("2006-01-02T15"), "end": end.Format("2006-01-02T15"), "aligned_rows": rows, "left_total": lp.Total, "right_total": rp.Total, "caveats": eiaCaveats()})
+			lm, rm := mapPeriods(lp.Rows, data), mapPeriods(rp.Rows, data)
+			rows, excluded, err := buildSpreadRows(lm, rm, data)
+			if err != nil {
+				return err
+			}
+			return emitEIA(cmd, flags, "live", map[string]any{"route": route, "frequency": frequency, "left": left, "right": right, "type": typeCode, "data": data, "hours": hours, "start": start.Format("2006-01-02T15"), "end": end.Format("2006-01-02T15"), "aligned_rows": rows, "excluded_rows": excluded, "left_total": lp.Total, "right_total": rp.Total, "caveats": eiaCaveats()})
 		},
 	}
 	cmd.Flags().StringVar(&route, "route", "electricity/rto/region-data", "EIA data route without /data")
@@ -88,4 +78,31 @@ func newNovelSpreadCmd(flags *rootFlags) *cobra.Command {
 	cmd.Flags().StringVar(&frequency, "frequency", "hourly", "Shared frequency")
 	cmd.Flags().IntVar(&hours, "hours", 24, "Trailing hourly window")
 	return cmd
+}
+
+func buildSpreadRows(lm, rm map[string]map[string]any, data string) ([]map[string]any, []map[string]any, error) {
+	var rows []map[string]any
+	var excluded []map[string]any
+	for _, period := range sortedStringKeys(lm) {
+		rightRow, ok := rm[period]
+		if !ok {
+			continue
+		}
+		leftRow := lm[period]
+		lu, ru := rowUnit(leftRow, data), rowUnit(rightRow, data)
+		if lu == "" || ru == "" {
+			return nil, nil, fmt.Errorf("cannot compute spread at %s without reported units", period)
+		}
+		if lu != ru {
+			return nil, nil, fmt.Errorf("unit mismatch at %s: %q vs %q", period, lu, ru)
+		}
+		a, aok := rowValue(leftRow, data)
+		b, bok := rowValue(rightRow, data)
+		if !aok || !bok {
+			excluded = append(excluded, map[string]any{"period": period, "reason": "non_numeric_or_missing_value", "left": leftRow[data], "right": rightRow[data]})
+			continue
+		}
+		rows = append(rows, map[string]any{"period": period, "left": a, "right": b, "spread": a - b, "unit": lu})
+	}
+	return rows, excluded, nil
 }

@@ -1,0 +1,21 @@
+{
+  "schema_version": 2,
+  "id": "greptile-energy-integrity",
+  "applied_at": "2026-07-18",
+  "base_run_id": "20260717-002908-cf8254c2",
+  "base_printing_press_version": "4.29.0",
+  "summary": "Keep EIA credentials, revision baselines, bounded analytics, sync failures, and cache identities truthful and collision-resistant.",
+  "reason": "MCP credentials must use the same environment name as the CLI, explicit token updates must survive environment overrides, and partial or malformed upstream responses must never be presented as complete analysis or sync success.",
+  "files": [
+    "manifest.json",
+    "internal/config/config.go",
+    "internal/cli/eia_novel_support.go",
+    "internal/cli/revisions.go",
+    "internal/cli/anomaly.go",
+    "internal/cli/grid_pulse.go",
+    "internal/cli/spread.go",
+    "internal/cli/sync.go",
+    "internal/client/client.go"
+  ],
+  "validated_outcome": "All Go tests, go vet, and go build pass; analytics reject truncated pages, invalid aligned spread values are disclosed, non-JSON sync responses fail, and cache keys retain all 256 hash bits."
+}

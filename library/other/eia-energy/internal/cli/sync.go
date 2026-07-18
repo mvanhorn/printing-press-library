@@ -571,7 +571,7 @@ func syncResource(ctx context.Context, c interface {
 			} else {
 				fmt.Fprintf(syncEvents, `{"event":"sync_anomaly","resource":"%s","reason":"non_json_200_body"}`+"\n", resource)
 			}
-			break
+			return syncResult{Resource: resource, Count: totalCount, Err: fmt.Errorf("%s returned a 200 response with a non-JSON body", resource), Duration: time.Since(started)}
 		}
 
 		if len(items) == 0 && !cursorPageHasContinuation(pageSize.cursorType, hasMore, nextCursor) {
