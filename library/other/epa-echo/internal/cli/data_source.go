@@ -600,9 +600,8 @@ func mutationResponseHasID(resourceType string, data json.RawMessage) bool {
 }
 
 // resolveLocal reads data from the local SQLite store.
-// Note: local reads return ALL synced data for the resource type. Endpoint-specific
-// filters (query params, path scoping like /teams/{id}/users) are NOT applied locally.
-// The provenance metadata includes "unscoped":true when params were present but not applied.
+// Filtered list fallbacks are rejected because returning the entire cached resource
+// would silently broaden the request. Unfiltered lists and exact-ID reads remain supported.
 func resolveLocal(ctx context.Context, flags *rootFlags, hintWriter io.Writer, resourceType string, isList bool, path string, params map[string]string, reason string) (json.RawMessage, DataProvenance, error) {
 	db, err := openStoreForRead(ctx, "epa-echo-pp-cli")
 	if err != nil {
@@ -619,9 +618,9 @@ func resolveLocal(ctx context.Context, flags *rootFlags, hintWriter io.Writer, r
 
 	prov := localProvenance(db, resourceType, reason)
 
-	// Warn if endpoint had filters that local reads can't reproduce
+	// A filtered fallback must never broaden into the entire local collection.
 	if len(params) > 0 {
-		fmt.Fprintf(os.Stderr, "warning: local data is unfiltered — endpoint filters are not applied to cached data\n")
+		return nil, DataProvenance{}, fmt.Errorf("local fallback cannot reproduce endpoint filters for %q; retry with --data-source live or run an unfiltered local query", resourceType)
 	}
 
 	if isList {

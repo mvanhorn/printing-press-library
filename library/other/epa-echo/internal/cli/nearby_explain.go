@@ -55,6 +55,8 @@ func newNovelNearbyExplainCmd(flags *rootFlags) *cobra.Command {
 				facilities = facilities[:limit]
 			}
 			rows := make([]map[string]any, 0, len(facilities))
+			detailed := 0
+			detailFailures := 0
 			for i, facility := range facilities {
 				row := facilityConcern(facility)
 				if i < detailLimit {
@@ -62,14 +64,17 @@ func newNovelNearbyExplainCmd(flags *rootFlags) *cobra.Command {
 					if id != "" && id != "<nil>" {
 						detail, detailErr := getDFR(ctx, flags, id)
 						if detailErr != nil {
-							return detailErr
+							row["evidence_error"] = detailErr.Error()
+							detailFailures++
+						} else {
+							row["evidence"] = selectedSections(detail, "InspectionEnforcementSummary", "ComplianceHistory", "ViolationsEnforcementActions", "FormalActions", "ICISFormalActions", "CaseFormalActions", "EnforcementComplianceSummaries")
+							detailed++
 						}
-						row["evidence"] = selectedSections(detail, "InspectionEnforcementSummary", "ComplianceHistory", "ViolationsEnforcementActions", "FormalActions", "ICISFormalActions", "CaseFormalActions", "EnforcementComplianceSummaries")
 					}
 				}
 				rows = append(rows, row)
 			}
-			return emitECHO(cmd, flags, "live", map[string]any{"location": map[string]any{"latitude": latitude, "longitude": longitude, "radius_miles": radius}, "summary": summary, "coverage": map[string]any{"total_matches": queryRowCount(summary), "returned": len(rows), "detailed": min(detailLimit, len(rows)), "truncated": queryRowCount(summary) > len(rows)}, "facilities": rows, "explanation": "Facilities retain EPA order. The first bounded detailed reports include source sections; no composite score or inferred ranking is added.", "caveats": echoCaveats()})
+			return emitECHO(cmd, flags, "live", map[string]any{"location": map[string]any{"latitude": latitude, "longitude": longitude, "radius_miles": radius}, "summary": summary, "coverage": map[string]any{"total_matches": queryRowCount(summary), "returned": len(rows), "detail_attempted": min(detailLimit, len(rows)), "detailed": detailed, "detail_failures": detailFailures, "truncated": queryRowCount(summary) > len(rows)}, "facilities": rows, "explanation": "Facilities retain EPA order. Bounded detailed-report failures are attached to their facility instead of hiding the successful nearby scan; no composite score or inferred ranking is added.", "caveats": echoCaveats()})
 		},
 	}
 	cmd.Flags().Float64Var(&latitude, "latitude", 0, "Latitude in decimal degrees")

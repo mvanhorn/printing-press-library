@@ -323,7 +323,14 @@ func filterTimelineSince(entries []map[string]any, cutoff time.Time) []map[strin
 	out := make([]map[string]any, 0, len(entries))
 	for _, entry := range entries {
 		date, err := time.Parse("2006-01-02", fmt.Sprint(entry["date"]))
-		if err == nil && !date.Before(cutoff) {
+		if err != nil {
+			copy := make(map[string]any, len(entry)+1)
+			for key, value := range entry {
+				copy[key] = value
+			}
+			copy["since_filter_status"] = "unparsed_date_included"
+			out = append(out, copy)
+		} else if !date.Before(cutoff) {
 			out = append(out, entry)
 		}
 	}

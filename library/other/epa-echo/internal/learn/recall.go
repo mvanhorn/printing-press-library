@@ -220,7 +220,7 @@ func Recall(ctx context.Context, db *sql.DB, query string, opts Opts) (Result, e
 	// with what recall sees.
 	normalized = PromoteEntities(normalized, resolver)
 	result.Family = QueryFamily(normalized)
-	queryTokens := strings.Fields(normalized.NonEntityNormalized)
+	queryTokens := recallContentTokens(normalized.NonEntityNormalized)
 	result.QueryEntities = append([]string(nil), normalized.Entities...)
 	if result.QueryEntities == nil {
 		result.QueryEntities = []string{}
@@ -335,7 +335,7 @@ func Recall(ctx context.Context, db *sql.DB, query string, opts Opts) (Result, e
 			storedEntitySet[strings.ToLower(strings.TrimSpace(e))] = struct{}{}
 		}
 		storedNonEntityTokens := make([]string, 0)
-		for _, raw := range strings.Fields(strings.ToLower(queryPattern)) {
+		for _, raw := range recallContentTokens(strings.ToLower(queryPattern)) {
 			if _, isEntity := storedEntitySet[raw]; isEntity {
 				continue
 			}
@@ -647,6 +647,10 @@ func Recall(ctx context.Context, db *sql.DB, query string, opts Opts) (Result, e
 	}
 
 	return result, nil
+}
+
+func recallContentTokens(value string) []string {
+	return strings.Fields(strings.NewReplacer("-", " ", "_", " ").Replace(value))
 }
 
 func validateResource(ctx context.Context, db *sql.DB, cfg *entities.Config, hit *Hit, queryEntities, storedEntitySlice []string, fieldsByType map[string][]string) {

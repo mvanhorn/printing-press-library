@@ -9,6 +9,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"path/filepath"
+	"reflect"
 	"strings"
 	"testing"
 
@@ -102,6 +103,14 @@ func openRecallTestDB(t *testing.T) *sql.DB {
 		}
 	}
 	return db
+}
+
+func TestRecallContentTokensSplitsHyphenAndUnderscoreLikeStore(t *testing.T) {
+	got := recallContentTokens("multi-program facility_id")
+	want := []string{"multi", "program", "facility", "id"}
+	if !reflect.DeepEqual(got, want) {
+		t.Fatalf("got=%v want=%v", got, want)
+	}
 }
 
 func seedRecallResource(t *testing.T, db *sql.DB, rt, id, data string) {

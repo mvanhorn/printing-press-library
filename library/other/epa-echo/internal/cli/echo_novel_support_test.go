@@ -2,7 +2,10 @@
 
 package cli
 
-import "testing"
+import (
+	"testing"
+	"time"
+)
 
 func TestNormalizeEchoDate(t *testing.T) {
 	for input, want := range map[string]string{"07/01/2023": "2023-07-01", "20260717": "2026-07-17"} {
@@ -37,5 +40,13 @@ func TestParseLookback(t *testing.T) {
 	got, err := parseLookback("30d")
 	if err != nil || got.Hours() != 720 {
 		t.Fatalf("got=%v err=%v", got, err)
+	}
+}
+
+func TestFilterTimelineSinceRetainsUnparsedEvidence(t *testing.T) {
+	entries := []map[string]any{{"date": "EPA-date-format", "id": "A"}, {"date": "2020-01-01", "id": "B"}}
+	got := filterTimelineSince(entries, time.Date(2026, 1, 1, 0, 0, 0, 0, time.UTC))
+	if len(got) != 1 || got[0]["id"] != "A" || got[0]["since_filter_status"] != "unparsed_date_included" {
+		t.Fatalf("got=%#v", got)
 	}
 }

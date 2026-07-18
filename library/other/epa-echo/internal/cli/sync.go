@@ -465,6 +465,8 @@ func syncResource(ctx context.Context, c interface {
 	// all_items_failed_id_extraction event when 100% of a single page
 	// failed extraction.
 	var extractFailureTotal int
+	firstFailureCursor := ""
+	failureCursorSet := false
 	var hydrateFailureTotal int
 	var consumedTotal int
 	anomalyEmitted := false
@@ -608,6 +610,10 @@ func syncResource(ctx context.Context, c interface {
 		extractFailureTotal += extractFailures + hydrateFailures
 		hydrateFailureTotal += hydrateFailures
 		pageFailureCount := extractFailures + hydrateFailures
+		if pageFailureCount > 0 && !failureCursorSet {
+			firstFailureCursor = cursor
+			failureCursorSet = true
+		}
 
 		if fetchedThisPage > 0 && stored == 0 {
 			reason := "all_items_failed_id_extraction"
@@ -761,6 +767,11 @@ func syncResource(ctx context.Context, c interface {
 		cursor = nextCursor
 	}
 
+	if extractFailureTotal > 0 {
+		outcome.complete = false
+		outcome.reason = "record_extraction_failed"
+	}
+
 	// Flat tenant-scoped reconcile: prune local rows the API no longer returns
 	// within THIS tenant's partition, gated on a proven-complete sync.
 	//   - Unknown tenant (resolveTenantID()=="") ⇒ SKIP, zero deletes. This is
@@ -799,6 +810,13 @@ func syncResource(ctx context.Context, c interface {
 	finalCursor := ""
 	if capExitHit {
 		finalCursor = capExitCursor
+	}
+	if extractFailureTotal > 0 {
+		// Resume from the first page that rejected records. Advancing beyond it
+		// would make those records permanently unreachable on later syncs.
+		finalCursor = firstFailureCursor
+		outcome.complete = false
+		outcome.reason = "record_extraction_failed"
 	}
 	_ = db.SaveSyncState(resource, finalCursor, totalCount)
 
