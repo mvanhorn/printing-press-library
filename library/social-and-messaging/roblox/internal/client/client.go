@@ -23,6 +23,7 @@ import (
 	"path/filepath"
 	"sort"
 	"strings"
+	"sync"
 	"time"
 )
 
@@ -38,6 +39,8 @@ type Client struct {
 	NoCache    bool
 	cacheDir   string
 	limiter    *cliutil.AdaptiveLimiter
+	csrfMu     sync.RWMutex
+	csrfToken  string
 }
 
 // RequestBaseURL returns the base URL used for requests.
@@ -738,6 +741,7 @@ func (c *Client) doInternal(ctx context.Context, method, path string, params map
 	// Retry only methods that are safe to replay after an ambiguous transport
 	// failure or server error; a write may already have committed remotely.
 	canRetryAmbiguousFailure := readOnlyIntent || method == http.MethodGet || method == http.MethodHead || method == http.MethodOptions
+	csrfRetried := false
 	var lastErr error
 
 	for attempt := 0; attempt <= maxRetries; attempt++ {
@@ -785,6 +789,11 @@ func (c *Client) doInternal(ctx context.Context, method, path string, params map
 		// Per-endpoint header overrides (e.g., different API version per resource)
 		for k, v := range headerOverrides {
 			req.Header.Set(k, v)
+		}
+		if !canRetryAmbiguousFailure && req.Header.Get("X-CSRF-Token") == "" {
+			c.csrfMu.RLock()
+			req.Header.Set("X-CSRF-Token", c.csrfToken)
+			c.csrfMu.RUnlock()
 		}
 		binaryResponse := strings.EqualFold(req.Header.Get(BinaryResponseHeader), "true")
 		if binaryResponse {
@@ -886,8 +895,22 @@ func (c *Client) doInternal(ctx context.Context, method, path string, params map
 			Body:       c.maskCredentialText(truncateBody(respBody), authHeader),
 		}
 
+		// Roblox returns a fresh CSRF token on the first authenticated mutation
+		// attempt. That 403 is a rejection, so replaying the same request once
+		// with the returned token cannot duplicate a committed mutation.
+		if !canRetryAmbiguousFailure && resp.StatusCode == http.StatusForbidden && !csrfRetried {
+			if token := strings.TrimSpace(resp.Header.Get("X-CSRF-Token")); token != "" {
+				c.csrfMu.Lock()
+				c.csrfToken = token
+				c.csrfMu.Unlock()
+				csrfRetried = true
+				attempt-- // CSRF negotiation is separate from transient retries.
+				continue
+			}
+		}
+
 		// Rate limited - adjust adaptive limiter and retry
-		if resp.StatusCode == 429 && attempt < maxRetries {
+		if resp.StatusCode == 429 && attempt < maxRetries && canRetryAmbiguousFailure {
 			c.limiter.OnRateLimit()
 			wait := cliutil.RetryAfter(resp)
 			fmt.Fprintf(os.Stderr, "rate limited, waiting %s (attempt %d/%d, rate adjusted to %.1f req/s)\n", wait, attempt+1, maxRetries, c.limiter.Rate())

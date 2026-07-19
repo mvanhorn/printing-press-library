@@ -36,7 +36,7 @@ npx -y @mvanhorn/printing-press-library install roblox --agent claude-code --age
 If `npx` isn't available (no Node, offline), install the CLI directly via Go (requires Go 1.26.5 or newer):
 
 ```bash
-go install github.com/mvanhorn/printing-press-library/library/media-and-entertainment/roblox/cmd/roblox-pp-cli@latest
+go install github.com/mvanhorn/printing-press-library/library/social-and-messaging/roblox/cmd/roblox-pp-cli@latest
 ```
 
 This installs the CLI only — no skill.

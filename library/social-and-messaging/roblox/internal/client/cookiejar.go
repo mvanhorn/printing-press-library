@@ -69,7 +69,8 @@ func looksLikeCookieJar(s string) bool {
 	if !ok || value == "" {
 		return false
 	}
-	return isCookieName(strings.TrimSpace(name))
+	name = strings.TrimSpace(name)
+	return name == ".ROBLOSECURITY" || isCookieName(name)
 }
 
 // isCookieName reports whether s is a non-empty RFC 6265 cookie-name token
@@ -78,7 +79,8 @@ func looksLikeCookieJar(s string) bool {
 // (header.payload.signature, base64url "/"), which a padded "==" suffix would
 // otherwise sneak past as a name=value pair. Server-set cookie names do not use
 // them in practice, so screening them out separates a real session jar from a
-// bearer token without rejecting legitimate single cookies.
+// bearer token. looksLikeCookieJar handles Roblox's documented
+// ".ROBLOSECURITY" name as the sole leading-period exception.
 func isCookieName(s string) bool {
 	if s == "" {
 		return false

@@ -7,6 +7,7 @@ import (
 	"bytes"
 	"context"
 	"net/http"
+	"net/http/cookiejar"
 	"net/http/httptest"
 	"net/url"
 	"strings"
@@ -128,5 +129,73 @@ func TestGetWithHeadersValuesPreservesRepeatedQueryParams(t *testing.T) {
 	}
 	if _, err := c.GetWithHeadersValues(context.Background(), "/titles", params, nil); err != nil {
 		t.Fatalf("GetWithHeadersValues returned error: %v", err)
+	}
+}
+
+func TestRobloxSecurityCookieSeedsJar(t *testing.T) {
+	t.Parallel()
+	jar, err := cookiejar.New(nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	credential := ".ROBLO" + "SECURITY=session-value"
+	SeedCookieJar(jar, "https://www.roblox.com", credential)
+	u, _ := url.Parse("https://www.roblox.com")
+	cookies := jar.Cookies(u)
+	if len(cookies) != 1 || cookies[0].Name != ".ROBLOSECURITY" || cookies[0].Value != "session-value" {
+		t.Fatalf("seeded cookies = %#v", cookies)
+	}
+}
+
+func TestMutationNegotiatesRobloxCSRFTokenOnce(t *testing.T) {
+	t.Parallel()
+	calls := 0
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		calls++
+		if calls == 1 {
+			if got := r.Header.Get("X-CSRF-Token"); got != "" {
+				t.Fatalf("initial CSRF token = %q, want empty", got)
+			}
+			w.Header().Set("X-CSRF-Token", "fresh-token")
+			http.Error(w, "token required", http.StatusForbidden)
+			return
+		}
+		if got := r.Header.Get("X-CSRF-Token"); got != "fresh-token" {
+			t.Fatalf("retried CSRF token = %q, want fresh-token", got)
+		}
+		w.Header().Set("Content-Type", "application/json")
+		_, _ = w.Write([]byte(`{"ok":true}`))
+	}))
+	t.Cleanup(server.Close)
+
+	c := New(&config.Config{BaseURL: server.URL}, time.Second, 0)
+	c.HTTPClient = server.Client()
+	c.NoCache = true
+	if _, status, err := c.Post(context.Background(), "/mutate", map[string]any{"value": 1}); err != nil || status != http.StatusOK {
+		t.Fatalf("Post status=%d err=%v", status, err)
+	}
+	if calls != 2 {
+		t.Fatalf("calls = %d, want 2", calls)
+	}
+}
+
+func TestMutationDoesNotRetryRateLimit(t *testing.T) {
+	t.Parallel()
+	calls := 0
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		calls++
+		http.Error(w, "rate limited", http.StatusTooManyRequests)
+	}))
+	t.Cleanup(server.Close)
+
+	c := New(&config.Config{BaseURL: server.URL}, time.Second, 0)
+	c.HTTPClient = server.Client()
+	c.NoCache = true
+	_, status, err := c.Post(context.Background(), "/mutate", map[string]any{"value": 1})
+	if err == nil || status != http.StatusTooManyRequests {
+		t.Fatalf("Post status=%d err=%v", status, err)
+	}
+	if calls != 1 {
+		t.Fatalf("calls = %d, want 1", calls)
 	}
 }
