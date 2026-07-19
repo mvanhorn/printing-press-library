@@ -8,8 +8,11 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"path/filepath"
 	"strings"
 	"testing"
+
+	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/substack-reader/internal/store"
 )
 
 // fixturePages serves numbered items out of a fixed-size archive, capping each
@@ -134,6 +137,75 @@ func TestArchiveWalkPropagatesFetchError(t *testing.T) {
 	}
 	if archived != 10 {
 		t.Fatalf("archived = %d, want the 10 posts stored before the failure", archived)
+	}
+}
+
+// TestBodyTextToStore pins the body-preservation contract: a body already in
+// the corpus always wins (no refetch), and --metadata-only means "do not
+// fetch", never "drop what is stored".
+func TestBodyTextToStore(t *testing.T) {
+	db, err := store.Open(filepath.Join(t.TempDir(), "data.db"))
+	if err != nil {
+		t.Fatalf("open temp store: %v", err)
+	}
+	defer db.Close()
+	if err := db.Upsert("posts", "1", attachBodyText(json.RawMessage(`{"id":1}`), "stored body")); err != nil {
+		t.Fatalf("seed post: %v", err)
+	}
+
+	noFetch := func() (string, error) { t.Fatal("fetch must not run"); return "", nil }
+	for _, metadataOnly := range []bool{false, true} {
+		got, err := bodyTextToStore(db, "1", metadataOnly, noFetch)
+		if err != nil || got != "stored body" {
+			t.Fatalf("metadataOnly=%v: got (%q, %v), want the stored body without a fetch", metadataOnly, got, err)
+		}
+	}
+
+	got, err := bodyTextToStore(db, "2", true, noFetch)
+	if err != nil || got != "" {
+		t.Fatalf("metadata-only new post: got (%q, %v), want empty without a fetch", got, err)
+	}
+	got, err = bodyTextToStore(db, "2", false, func() (string, error) { return "fetched body", nil })
+	if err != nil || got != "fetched body" {
+		t.Fatalf("full-mode new post: got (%q, %v), want the fetched body", got, err)
+	}
+}
+
+// TestMetadataOnlyRerunPreservesBodyText is the regression test for the
+// review finding that a --metadata-only re-run erased indexed bodies: Upsert
+// replaces the whole stored JSON, so the re-archive path must re-attach the
+// stored body before writing.
+func TestMetadataOnlyRerunPreservesBodyText(t *testing.T) {
+	db, err := store.Open(filepath.Join(t.TempDir(), "data.db"))
+	if err != nil {
+		t.Fatalf("open temp store: %v", err)
+	}
+	defer db.Close()
+
+	// Full archive run stored the post with its body.
+	if err := db.Upsert("posts", "42", attachBodyText(json.RawMessage(`{"id":42,"title":"t"}`), "the indexed body")); err != nil {
+		t.Fatalf("seed full-run post: %v", err)
+	}
+
+	// Metadata-only re-run: fresh archive item for the same id, no fetch.
+	fresh := json.RawMessage(`{"id":42,"title":"t (edited)"}`)
+	body, err := bodyTextToStore(db, "42", true, func() (string, error) { t.Fatal("fetch must not run"); return "", nil })
+	if err != nil {
+		t.Fatalf("bodyTextToStore: %v", err)
+	}
+	if err := db.Upsert("posts", "42", attachBodyText(fresh, body)); err != nil {
+		t.Fatalf("re-upsert: %v", err)
+	}
+
+	if got := storedBodyText(db, "42"); got != "the indexed body" {
+		t.Fatalf("stored body after metadata-only re-run = %q, want it preserved", got)
+	}
+	var m struct {
+		Title string `json:"title"`
+	}
+	raw, err := db.Get("posts", "42")
+	if err != nil || json.Unmarshal(raw, &m) != nil || m.Title != "t (edited)" {
+		t.Fatalf("metadata refresh lost: raw=%s err=%v", raw, err)
 	}
 }
 

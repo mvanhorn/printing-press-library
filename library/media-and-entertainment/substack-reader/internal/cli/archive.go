@@ -64,6 +64,22 @@ func archiveWalk(limit, pageSize int, fetch func(n, offset int) ([]json.RawMessa
 	return archived, skipped, nil
 }
 
+// bodyTextToStore decides what body text a post's stored record keeps. A body
+// already in the corpus always wins — Upsert replaces the whole stored JSON,
+// so dropping it would silently degrade an FTS-indexed corpus back to titles
+// and previews (exactly what a --metadata-only re-run over a full archive
+// would otherwise do). Only when the corpus holds no body does the mode
+// matter: metadata-only stores none, the default asks fetch for one.
+func bodyTextToStore(db *store.Store, id string, metadataOnly bool, fetch func() (string, error)) (string, error) {
+	if body := storedBodyText(db, id); body != "" {
+		return body, nil
+	}
+	if metadataOnly {
+		return "", nil
+	}
+	return fetch()
+}
+
 // storedBodyText returns the body text a previous archive run stored for this
 // post id, so re-runs never refetch bodies the corpus already holds.
 func storedBodyText(db *store.Store, id string) string {
@@ -224,31 +240,38 @@ func newNovelArchiveCmd(flags *rootFlags) *cobra.Command {
 					// resolves to the same host (playbook B5: store the
 					// user-facing identifier alongside the record).
 					raw = tagSourceHost(raw, sourceHost)
-					if !metadataOnly {
-						body := storedBodyText(db, id)
-						if body == "" && s.Slug != "" {
-							post, ferr := sc.FetchPost(ctx, base, s.Slug)
-							if ferr != nil {
-								// A canceled/expired context means every further
-								// fetch fails too — abort instead of spraying
-								// one warning per remaining post.
-								if ctx.Err() != nil {
-									return false, fmt.Errorf("fetching body for %s: %w", s.Slug, ferr)
-								}
-								bodyErrs++
-								fmt.Fprintf(cmd.ErrOrStderr(), "warning: fetching body for %s: %v\n", s.Slug, ferr)
-							} else if meta, perr := substack.ParsePostMeta(post); perr != nil {
-								bodyErrs++
-								fmt.Fprintf(cmd.ErrOrStderr(), "warning: parsing body for %s: %v\n", s.Slug, perr)
-							} else {
-								body = substack.HTMLToText(meta.BodyHTML)
-								if body != "" {
-									bodies++
-								}
-							}
+					body, bodyErr := bodyTextToStore(db, id, metadataOnly, func() (string, error) {
+						if s.Slug == "" {
+							return "", nil
 						}
-						raw = attachBodyText(raw, body)
+						post, ferr := sc.FetchPost(ctx, base, s.Slug)
+						if ferr != nil {
+							// A canceled/expired context means every further
+							// fetch fails too — abort instead of spraying
+							// one warning per remaining post.
+							if ctx.Err() != nil {
+								return "", fmt.Errorf("fetching body for %s: %w", s.Slug, ferr)
+							}
+							bodyErrs++
+							fmt.Fprintf(cmd.ErrOrStderr(), "warning: fetching body for %s: %v\n", s.Slug, ferr)
+							return "", nil
+						}
+						meta, perr := substack.ParsePostMeta(post)
+						if perr != nil {
+							bodyErrs++
+							fmt.Fprintf(cmd.ErrOrStderr(), "warning: parsing body for %s: %v\n", s.Slug, perr)
+							return "", nil
+						}
+						b := substack.HTMLToText(meta.BodyHTML)
+						if b != "" {
+							bodies++
+						}
+						return b, nil
+					})
+					if bodyErr != nil {
+						return false, bodyErr
 					}
+					raw = attachBodyText(raw, body)
 					if err := db.Upsert("posts", id, raw); err != nil {
 						return false, fmt.Errorf("storing post %s: %w", id, err)
 					}
