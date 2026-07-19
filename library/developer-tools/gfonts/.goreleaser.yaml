@@ -1,0 +1,10 @@
+builds:
+  - main: ./cmd/gfonts-pp-cli
+    binary: gfonts-pp-cli
+    goos:
+      - linux
+      - darwin
+      - windows
+    goarch:
+      - amd64
+      - arm64

@@ -1,0 +1,63 @@
+{
+  "schema_version": 2,
+  "generated_at": "2026-07-19T18:21:27.000000000Z",
+  "printing_press_version": "4.29.0",
+  "api_name": "gfonts",
+  "display_name": "Google Fonts Metadata",
+  "cli_name": "gfonts-pp-cli",
+  "creator": {
+    "handle": "neal-kyle",
+    "name": "neal-kyle"
+  },
+  "owner": "neal-kyle",
+  "printer": "neal-kyle",
+  "printer_name": "neal-kyle",
+  "spec_path": "gfonts-openapi.yaml",
+  "spec_format": "openapi3",
+  "run_id": "20260719-182127",
+  "category": "developer-tools",
+  "description": "Search, browse, and download Google Fonts from the terminal. Zero auth required — uses the same public metadata endpoint that powers fonts.google.com.",
+  "mcp_binary": "",
+  "mcp_tool_count": 0,
+  "mcp_ready": "",
+  "api_version": "1.0.0",
+  "auth_type": "none",
+  "auth_env_vars": [],
+  "novel_features": [
+    {
+      "command": "search",
+      "name": "Search fonts",
+      "description": "Search fonts by name, category, or designer with relevance ranking"
+    },
+    {
+      "command": "list",
+      "name": "Browse fonts",
+      "description": "Browse fonts with category filter, sort options, and limit"
+    },
+    {
+      "command": "info",
+      "name": "Font details",
+      "description": "Show detailed metadata for a specific font"
+    },
+    {
+      "command": "download",
+      "name": "Download fonts",
+      "description": "Download font files to local disk with variant and output options"
+    },
+    {
+      "command": "trending",
+      "name": "Trending fonts",
+      "description": "Show trending and popular fonts"
+    },
+    {
+      "command": "categories",
+      "name": "Font categories",
+      "description": "List all font categories with counts"
+    },
+    {
+      "command": "random",
+      "name": "Random font",
+      "description": "Pick a random font with optional category filter"
+    }
+  ]
+}
