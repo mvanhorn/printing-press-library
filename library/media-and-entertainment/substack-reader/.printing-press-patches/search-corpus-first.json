@@ -1,0 +1,19 @@
+{
+  "schema_version": 2,
+  "id": "search-corpus-first",
+  "applied_at": "2026-07-19",
+  "base_run_id": "20260710-081225",
+  "base_printing_press_version": "4.28.0",
+  "summary": "Route auto-mode search corpus-first: when the local store holds at least one archived post, search the corpus; the live publication-directory endpoint serves --data-source live and auto with no corpus. Local provenance reads freshness from the 'posts' sync key that archive actually stamps.",
+  "reason": "The API's only live search endpoint, GET /api/v1/publication/search on substack.com, searches the publication DIRECTORY (find newsletters by name or topic), not post content, and answers [] for content queries. The generated live-first auto routing therefore shadowed a populated local corpus with empty live results, so 'search them offline' returned zero hits right after a successful archive. Corpus presence is decided by an actual posts row, not by data.db existing, so a schema-only database cannot hijack auto routing away from live. The previous provenance lookup read a 'search' sync key that no command writes, reporting unknown freshness even immediately after archive.",
+  "files": [
+    "internal/cli/search.go"
+  ],
+  "validated_outcome": "With an 89-post corpus, plain `search \"streaming\" --agent` returns 50 dated hits with meta {source: local, reason: corpus_first} and a real synced_at; with a schema-only database or no database, auto mode still reaches the live directory endpoint; --data-source live and --data-source local behave unchanged.",
+  "deferred_to_upstream": [
+    {
+      "feature": "A spec-level way to mark a live search endpoint as a DIRECTORY search (entity discovery) rather than content search, so generated auto-mode routing prefers a populated local corpus without a hand patch.",
+      "reason": "The generated search template assumes the API's search endpoint answers the same question as local FTS; on per-publication content APIs that assumption inverts the correct default."
+    }
+  ]
+}

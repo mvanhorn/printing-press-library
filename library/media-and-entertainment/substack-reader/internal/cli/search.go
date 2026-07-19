@@ -6,6 +6,7 @@
 package cli
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"os"
@@ -14,6 +15,24 @@ import (
 	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/substack-reader/internal/store"
 	"github.com/spf13/cobra"
 )
+
+// corpusHasPosts reports whether the local store at dbPath holds at least one
+// archived post. Existence of data.db alone is not enough: a schema-only
+// database created by another command would otherwise count as a corpus and
+// route auto-mode search to guaranteed-empty local results, shadowing the live
+// publication-directory search.
+func corpusHasPosts(ctx context.Context, dbPath string) bool {
+	if _, err := os.Stat(dbPath); err != nil {
+		return false
+	}
+	db, err := store.OpenReadOnlyContext(ctx, dbPath)
+	if err != nil || db == nil {
+		return false
+	}
+	defer db.Close()
+	rows, err := db.List("posts", 1)
+	return err == nil && len(rows) > 0
+}
 
 // isNilOrEmpty checks whether a JSON search hit is only an empty shell.
 func isNilOrEmpty(raw json.RawMessage) bool {
@@ -119,8 +138,7 @@ In local mode: searches locally archived/synced data only.`,
 			if dbPath == "" {
 				dbPath = defaultDBPath("substack-reader-pp-cli")
 			}
-			_, statErr := os.Stat(dbPath)
-			hasCorpus := statErr == nil
+			hasCorpus := corpusHasPosts(cmd.Context(), dbPath)
 			// Corpus-first routing (hand-tuned): this CLI's identity is the
 			// local archive, but the API's only live search endpoint —
 			// GET /api/v1/publication/search on substack.com — searches the
@@ -202,7 +220,14 @@ In local mode: searches locally archived/synced data only.`,
 					reason = "api_unreachable"
 				}
 			}
-			prov := localProvenance(db, "search", reason)
+			// Freshness is stamped by archive under the "posts" resource type;
+			// a "search" sync key is never written, so reading it always
+			// reported unknown freshness.
+			provType := resourceType
+			if provType == "" {
+				provType = "posts"
+			}
+			prov := localProvenance(db, provType, reason)
 
 			return outputSearchResults(cmd, flags, results, limit, prov)
 		},
