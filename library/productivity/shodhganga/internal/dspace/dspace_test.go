@@ -83,6 +83,20 @@ func TestParseSearchDedup(t *testing.T) {
 	}
 }
 
+func TestParseSearchDecoratedAnchors(t *testing.T) {
+	// DSpace themes may add class/data attributes to result links; the parser
+	// must still match them, not silently return zero hits.
+	h := `<span>Results 1-1 of 5</span>
+<a href="/handle/10603/305247" class="list-group-item" data-x="1">Decorated Title</a>`
+	res := ParseSearch([]byte(h), "https://x")
+	if len(res.Hits) != 1 {
+		t.Fatalf("got %d hits, want 1 (decorated anchor not matched)", len(res.Hits))
+	}
+	if res.Hits[0].ID != "305247" || res.Hits[0].Title != "Decorated Title" {
+		t.Errorf("hit = %+v", res.Hits[0])
+	}
+}
+
 const itemFixture = `<html><head>
 <meta name="DC.title" content="Analytical description of black holes shadow" />
 <meta name="DC.creator" content="Singh, Balendra Pratap" />

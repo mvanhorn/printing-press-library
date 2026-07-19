@@ -11,9 +11,9 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/mvanhorn/printing-press-library/library/productivity/shodhganga/internal/config"
-	"github.com/mvanhorn/printing-press-library/library/productivity/shodhganga/internal/dspace"
-	"github.com/mvanhorn/printing-press-library/library/productivity/shodhganga/internal/store"
+	"shodhganga-pp-cli/internal/config"
+	"shodhganga-pp-cli/internal/dspace"
+	"shodhganga-pp-cli/internal/store"
 )
 
 // thesisResourceType is the store resource_type under which harvested theses are
@@ -46,7 +46,10 @@ func openThesisStoreRead(cmd *cobra.Command, flags *rootFlags, dbPath string) (*
 		}
 		return nil, false, nil
 	}
-	s, err := store.OpenWithContext(cmd.Context(), dbPath)
+	// Read-only open: these commands (guide, similar, trends, university stats)
+	// never write, so they must not take the SQLite write lock or run migrations —
+	// otherwise a concurrent `harvest` would block them until it finishes.
+	s, err := store.OpenReadOnlyContext(cmd.Context(), dbPath)
 	if err != nil {
 		return nil, false, fmt.Errorf("opening database: %w", err)
 	}

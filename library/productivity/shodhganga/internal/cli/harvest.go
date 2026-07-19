@@ -11,8 +11,8 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/mvanhorn/printing-press-library/library/productivity/shodhganga/internal/cliutil"
-	"github.com/mvanhorn/printing-press-library/library/productivity/shodhganga/internal/dspace"
+	"shodhganga-pp-cli/internal/cliutil"
+	"shodhganga-pp-cli/internal/dspace"
 )
 
 // harvestFailure records a per-thesis enrichment failure so aggregate counts
@@ -27,7 +27,6 @@ type harvestResult struct {
 	Total         int              `json:"total_available"`
 	ScannedHits   int              `json:"scanned_hits"`
 	Stored        int              `json:"stored"`
-	Updated       int              `json:"updated"`
 	FetchFailures []harvestFailure `json:"fetch_failures"`
 	DB            string           `json:"db"`
 }

@@ -24,7 +24,7 @@ import (
 
 	"golang.org/x/net/html"
 
-	"github.com/mvanhorn/printing-press-library/library/productivity/shodhganga/internal/cliutil"
+	"shodhganga-pp-cli/internal/cliutil"
 )
 
 // HandleNamespace is Shodhganga's fixed Handle.net prefix. Every thesis and
@@ -82,7 +82,11 @@ func New(baseURL string, ratePerSec float64) *Client {
 	}
 	return &Client{
 		BaseURL: strings.TrimRight(baseURL, "/"),
-		http:    &http.Client{},
+		// Per-request safety-net timeout so a stalled TCP connection cannot hang a
+		// worker forever, independent of the command-level context deadline (which
+		// a user can disable with --timeout 0). No single page fetch should ever
+		// take this long, even on a slow Shodhganga.
+		http:    &http.Client{Timeout: 120 * time.Second},
 		limiter: cliutil.NewAdaptiveLimiter(ratePerSec),
 		ua:      "Mozilla/5.0 (compatible; shodhganga-pp-cli/0.1)",
 	}
@@ -199,7 +203,8 @@ func (c *Client) Browse(ctx context.Context, btype, value string, limit, start i
 		params.Set("value", value)
 	}
 	if start > 0 {
-		params.Set("starts_with", "")
+		// DSpace 5 offset pagination uses `offset`; `starts_with` is an unrelated
+		// alphabetical-jump filter, so it must not be sent here.
 		params.Set("offset", strconv.Itoa(start))
 	}
 	body, err := c.get(ctx, "/browse", params)
@@ -249,7 +254,9 @@ func NormalizeID(s string) (string, error) {
 
 var (
 	// Search/browse result links: <a href="/handle/10603/ID">Title</a>.
-	hitRe = regexp.MustCompile(`<a href="(?:https?://[^"/]+)?/handle/` + HandleNamespace + `/(\d+)"\s*>([^<]+)</a>`)
+	// Tolerate additional anchor attributes (class=, data-*, etc.) between the
+	// href value and the closing '>'; DSpace themes decorate result links.
+	hitRe = regexp.MustCompile(`<a href="(?:https?://[^"/]+)?/handle/` + HandleNamespace + `/(\d+)"[^>]*>([^<]+)</a>`)
 	// "Results 1-10 of 137604" total-count line.
 	totalRe = regexp.MustCompile(`Results\s+[\d,]+\s*-\s*[\d,]+\s+of\s+([\d,]+)`)
 )
