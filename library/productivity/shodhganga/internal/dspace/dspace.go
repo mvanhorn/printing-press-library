@@ -24,7 +24,7 @@ import (
 
 	"golang.org/x/net/html"
 
-	"shodhganga-pp-cli/internal/cliutil"
+	"github.com/mvanhorn/printing-press-library/library/productivity/shodhganga/internal/cliutil"
 )
 
 // HandleNamespace is Shodhganga's fixed Handle.net prefix. Every thesis and

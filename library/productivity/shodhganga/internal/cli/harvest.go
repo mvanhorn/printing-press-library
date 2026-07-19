@@ -11,8 +11,8 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"shodhganga-pp-cli/internal/cliutil"
-	"shodhganga-pp-cli/internal/dspace"
+	"github.com/mvanhorn/printing-press-library/library/productivity/shodhganga/internal/cliutil"
+	"github.com/mvanhorn/printing-press-library/library/productivity/shodhganga/internal/dspace"
 )
 
 // harvestFailure records a per-thesis enrichment failure so aggregate counts

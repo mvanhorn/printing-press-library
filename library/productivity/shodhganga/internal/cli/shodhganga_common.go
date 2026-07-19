@@ -11,9 +11,9 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"shodhganga-pp-cli/internal/config"
-	"shodhganga-pp-cli/internal/dspace"
-	"shodhganga-pp-cli/internal/store"
+	"github.com/mvanhorn/printing-press-library/library/productivity/shodhganga/internal/config"
+	"github.com/mvanhorn/printing-press-library/library/productivity/shodhganga/internal/dspace"
+	"github.com/mvanhorn/printing-press-library/library/productivity/shodhganga/internal/store"
 )
 
 // thesisResourceType is the store resource_type under which harvested theses are
