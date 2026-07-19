@@ -137,7 +137,11 @@ func persistCardataTelematicData(dbPath, vin string, raw json.RawMessage) {
 	}
 	defer stmt.Close()
 	for desc, e := range outer.TelematicData {
-		if _, err := stmt.ExecContext(context.Background(), vin, desc, e.Value, e.Unit, e.Timestamp, now); err != nil {
+		var timestamp any
+		if strings.TrimSpace(e.Timestamp) != "" {
+			timestamp = e.Timestamp
+		}
+		if _, err := stmt.ExecContext(context.Background(), vin, desc, e.Value, e.Unit, timestamp, now); err != nil {
 			return
 		}
 	}

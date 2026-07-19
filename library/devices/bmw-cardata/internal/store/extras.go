@@ -44,14 +44,13 @@ func (s *Store) migrateExtras(ctx context.Context, conn *sql.Conn) error {
 		)`,
 		`CREATE INDEX IF NOT EXISTS idx_cardata_telematic_vin_desc_ts
 			ON cardata_telematic_snapshots(vin, descriptor, ts)`,
-		// Dedupe identical readings (cached re-reads replay the same timestamp).
-		// Use COALESCE(ts, fetched_at) so NULL-ts rows (descriptors where BMW
-		// doesn't return a timestamp) are also deduped by fetched_at — SQLite
-		// treats NULL as distinct in a plain UNIQUE index, which would let
-		// repeated syncs accumulate duplicate points for ts-less descriptors.
+		// Dedupe timestamped replays by their BMW timestamp. Missing timestamps
+		// use fetched_at so each fresh fetch remains a distinct observation.
+		// NULLIF also normalizes empty timestamps written by older CLI builds.
 		`DROP INDEX IF EXISTS ux_cardata_telematic_vin_desc_ts`,
-		`CREATE UNIQUE INDEX IF NOT EXISTS ux_cardata_telematic_vin_desc_ts_or_fetched
-			ON cardata_telematic_snapshots(vin, descriptor, COALESCE(ts, fetched_at))`,
+		`DROP INDEX IF EXISTS ux_cardata_telematic_vin_desc_ts_or_fetched`,
+		`CREATE UNIQUE INDEX IF NOT EXISTS ux_cardata_telematic_vin_desc_ts_or_fetched_v2
+			ON cardata_telematic_snapshots(vin, descriptor, COALESCE(NULLIF(ts, ''), fetched_at))`,
 		// Charging sessions keyed by (vin, start_time).
 		`CREATE TABLE IF NOT EXISTS cardata_charging_sessions (
 			vin         TEXT NOT NULL,

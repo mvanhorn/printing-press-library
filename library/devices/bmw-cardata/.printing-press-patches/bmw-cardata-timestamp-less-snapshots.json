@@ -1,0 +1,18 @@
+{
+  "schema_version": 2,
+  "id": "bmw-cardata-timestamp-less-snapshots",
+  "applied_at": "2026-07-19",
+  "base_run_id": "20260630-212750-ea90da3f",
+  "base_printing_press_version": "4.24.0",
+  "summary": "BMW telematic entries without timestamps must remain appendable once per fetch while timestamped API replays stay deduplicated.",
+  "reason": "BMW represents an omitted descriptor timestamp as an empty JSON field, not SQL NULL. Persist missing timestamps as NULL and normalize legacy empty strings in the dedup index so fresh readings are not silently dropped.",
+  "files": [
+    "internal/cli/cardata_persist.go",
+    "internal/cli/cardata_persist_test.go",
+    "internal/store/extras.go"
+  ],
+  "validated_outcome": "Focused persistence regression tests pass for SQL NULL storage, legacy empty timestamps, per-fetch append behavior, and timestamped replay deduplication.",
+  "findings_addressed": [
+    "F1"
+  ]
+}
