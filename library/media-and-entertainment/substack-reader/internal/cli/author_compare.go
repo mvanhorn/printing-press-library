@@ -72,6 +72,13 @@ was archived under, so pass the same handle/host you archived with.`,
 
 			// Machine output.
 			if !wantsHumanTable(cmd.OutOrStdout(), flags) {
+				// All-zero stats for a live newsletter mean "not archived", not
+				// "publishes nothing"; say so on stderr so JSON stays clean.
+				for _, s := range []authorStats{statsA, statsB} {
+					if s.Total == 0 {
+						fmt.Fprintf(cmd.ErrOrStderr(), "note: no archived posts for %s — run 'substack-reader-pp-cli archive %s' first\n", s.Host, s.Host)
+					}
+				}
 				envelope := map[string]any{
 					"a": authorStatsJSON(statsA),
 					"b": authorStatsJSON(statsB),

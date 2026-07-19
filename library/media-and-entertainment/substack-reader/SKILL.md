@@ -67,7 +67,7 @@ These capabilities aren't available in any other tool for this API.
   _Reach for this for ad-hoc analytics over what you've archived, without re-fetching or writing code._
 
   ```bash
-  substack-reader-pp-cli sql "SELECT audience, count(*) FROM posts GROUP BY audience"
+  substack-reader-pp-cli sql "SELECT json_extract(data,'$.audience') AS audience, COUNT(*) FROM resources WHERE resource_type='posts' GROUP BY audience"
   ```
 
 ### Entitlement-aware reading
@@ -138,7 +138,7 @@ Pull only the fields an agent needs from a verbose post object.
 ### Audience mix analytics
 
 ```bash
-substack-reader-pp-cli sql "SELECT audience, count(*) FROM posts GROUP BY audience"
+substack-reader-pp-cli sql "SELECT json_extract(data,'$.audience') AS audience, COUNT(*) FROM resources WHERE resource_type='posts' GROUP BY audience"
 ```
 
 Read-only SQL over the local corpus for arbitrary analytics.

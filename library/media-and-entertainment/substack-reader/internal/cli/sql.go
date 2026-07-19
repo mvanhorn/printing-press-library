@@ -26,6 +26,7 @@ type sqlReport struct {
 	Count   int                      `json:"count"`
 }
 
+// pp:data-source local
 func newNovelSqlCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "sql <query>",

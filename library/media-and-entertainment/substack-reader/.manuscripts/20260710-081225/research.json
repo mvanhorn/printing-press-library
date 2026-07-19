@@ -104,7 +104,7 @@
       "command": "sql",
       "description": "Run read-only SQL over your local Substack corpus for arbitrary analytics — post cadence, audience mix, longest posts — from data you've already archived.",
       "rationale": "The local SQLite mirror allows offline aggregation and joins across archived posts that no single Substack endpoint exposes; a read-only SQL command surfaces that on the CLI (the MCP layer already exposes an equivalent typed tool).",
-      "example": "substack-reader-pp-cli sql \"SELECT audience, count(*) FROM posts GROUP BY audience\"",
+      "example": "substack-reader-pp-cli sql \"SELECT json_extract(data,'$.audience') AS audience, COUNT(*) FROM resources WHERE resource_type='posts' GROUP BY audience\"",
       "why_it_matters": "Reach for this for ad-hoc analytics over what you've archived, without re-fetching or writing code.",
       "group": "Local corpus that compounds"
     }
@@ -151,7 +151,7 @@
       "command": "sql",
       "description": "Run read-only SQL over your local Substack corpus for arbitrary analytics — post cadence, audience mix, longest posts — from data you've already archived.",
       "rationale": "The local SQLite mirror allows offline aggregation and joins across archived posts that no single Substack endpoint exposes; a read-only SQL command surfaces that on the CLI (the MCP layer already exposes an equivalent typed tool).",
-      "example": "substack-reader-pp-cli sql \"SELECT audience, count(*) FROM posts GROUP BY audience\"",
+      "example": "substack-reader-pp-cli sql \"SELECT json_extract(data,'$.audience') AS audience, COUNT(*) FROM resources WHERE resource_type='posts' GROUP BY audience\"",
       "why_it_matters": "Reach for this for ad-hoc analytics over what you've archived, without re-fetching or writing code.",
       "group": "Local corpus that compounds"
     }
@@ -208,7 +208,7 @@
       },
       {
         "title": "Audience mix analytics",
-        "command": "substack-reader-pp-cli sql \"SELECT audience, count(*) FROM posts GROUP BY audience\"",
+        "command": "substack-reader-pp-cli sql \"SELECT json_extract(data,'$.audience') AS audience, COUNT(*) FROM resources WHERE resource_type='posts' GROUP BY audience\"",
         "explanation": "Read-only SQL over the local corpus for arbitrary analytics."
       }
     ],

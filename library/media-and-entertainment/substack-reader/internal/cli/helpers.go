@@ -364,19 +364,6 @@ func (p *syncUserParams) validateResourceNames(known []string) error {
 // auth presence.
 func isSyncAccessWarning(err error) (*accessWarning, bool) { return nil, false }
 
-type noopResult struct {
-	Status string `json:"status"`
-	Reason string `json:"reason"`
-}
-
-func writeNoop(flags *rootFlags, reason, prose string) error {
-	if flags != nil && flags.asJSON {
-		return json.NewEncoder(os.Stdout).Encode(noopResult{Status: "noop", Reason: reason})
-	}
-	fmt.Fprintln(os.Stderr, prose)
-	return nil
-}
-
 func writeAPIErrorEnvelope(flags *rootFlags, err error, code int) {
 	if flags == nil || !flags.asJSON {
 		return

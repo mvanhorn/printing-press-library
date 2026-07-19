@@ -1,0 +1,31 @@
+{
+  "timestamp": "2026-07-18T23:44:13.693883Z",
+  "cli_dir": "\u003ccli-dir\u003e/substack-reader",
+  "findings": [
+    {
+      "kind": "thin-short",
+      "command": "list",
+      "file": "teach.go",
+      "line": 692,
+      "evidence": "List recorded learnings",
+      "status": "accepted",
+      "note": "DO-NOT-EDIT generated file (learn-loop chassis); needs generator-template fix. Target Short: 'List recorded query-to-resource learnings, filterable by query, source, resource, action, and confidence'. Command already carries mcp:read-only and three worked examples."
+    },
+    {
+      "kind": "thin-mcp-description",
+      "command": "workflow",
+      "file": "tools-manifest.json",
+      "line": 0,
+      "evidence": "Compound workflows that combine multiple API operations",
+      "status": "accepted",
+      "note": "workflow is not a spec endpoint: it is the Cobra parent grouper for generated channel workflows (channel_workflow.go, DO-NOT-EDIT), so its manifest text mirrors the Cobra Short and no working override path exists for this 4.28.0-generated CLI. Runtime agents see the Cobra tree via the cobratree walker, so a manifest-only edit would game the audit without changing what agents read.",
+      "spec_source_material": "spec.yaml has no workflow operation at all; its only resources are publications.search, categories.list, categories.browse (all GET, auth none). The workflow manifest entry is derived from channel_workflow.go's Cobra Short 'Compound workflows that combine multiple API operations'. A rich override already exists in mcp-descriptions.json under key 'workflow' ('Router for the generated data workflows; calling it bare only lists them. Use workflow_archive to sync the central substack.com discovery resources (categories) into the local SQLite store, and workflow_status to see per-resource row counts and last-sync state. To mirror a publication's posts into the searchable corpus, use the archive tool instead.').",
+      "target_description": "Router for the generated data workflows; calling it bare only lists them. Use workflow_archive to sync the central substack.com discovery resources (categories) into the local SQLite store, and workflow_status to see per-resource row counts and last-sync state. To mirror a publication's posts into the searchable corpus, use the archive tool instead.",
+      "gap_analysis": "The sanctioned fix path (mcp-descriptions.json + mcp-sync) is mechanically unavailable for this CLI: both v4.28.0 (the generating version) and v4.29.0 reject the 'workflow' key because override validation only accepts spec-tool names, and running either version's mcp-sync migrates the surface destructively (strips the 14-entry manifest to 3 typed tools, drops learn-surface pinning from cmd/substack-reader-pp-mcp/main.go, and under 4.29 emits tools.go calling PutQueryWithParams*/PatchQueryWithParams* that this CLI's client chassis lacks). Verified by two sync attempts, both fully reverted. Fix belongs to the press: either extend override keys to Cobra-walked tools or fix the Short in the channel_workflow generator template, then reprint. Retro candidate filed in the polish summary."
+    }
+  ],
+  "scorecard_before": {
+    "mcp_description_quality": 7,
+    "captured": "2026-07-18T23:09:42.417357Z"
+  }
+}

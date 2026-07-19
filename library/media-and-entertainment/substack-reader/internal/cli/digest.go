@@ -68,6 +68,15 @@ the window.`,
 				inWindow = inWindow[:limit]
 			}
 
+			// Newest dated post across the whole corpus, for empty-window
+			// hints ("quiet week" vs "your archive just ends earlier").
+			var newestArchived time.Time
+			for _, p := range posts {
+				if p.HasDate && p.Parsed.After(newestArchived) {
+					newestArchived = p.Parsed
+				}
+			}
+
 			// Group by publication, preserving recency order (a host's first
 			// appearance is its most-recent post because inWindow is sorted).
 			idx := map[string]int{}
@@ -88,6 +97,17 @@ the window.`,
 
 			// Machine output.
 			if !wantsHumanTable(cmd.OutOrStdout(), flags) {
+				// A count of 0 is ambiguous between "quiet week" and "nothing
+				// archived yet"; disambiguate on stderr so JSON stays clean.
+				if len(posts) == 0 {
+					fmt.Fprintln(cmd.ErrOrStderr(), "note: no publications archived yet — run 'substack-reader-pp-cli archive <publication>' first; digest reads only the local corpus")
+				} else if len(inWindow) == 0 {
+					if !newestArchived.IsZero() {
+						fmt.Fprintf(cmd.ErrOrStderr(), "note: no posts in the last %s, but the corpus holds %d posts (newest %s). Try a wider --since.\n", since, len(posts), newestArchived.Format("2006-01-02"))
+					} else {
+						fmt.Fprintf(cmd.ErrOrStderr(), "note: no posts in the last %s. The corpus holds %d posts but none carry a parseable date.\n", since, len(posts))
+					}
+				}
 				pubs := make([]map[string]any, 0, len(groups))
 				for _, g := range groups {
 					items := make([]map[string]any, 0, len(g.Posts))
@@ -122,7 +142,11 @@ the window.`,
 			// Human output.
 			w := cmd.OutOrStdout()
 			if len(inWindow) == 0 {
-				fmt.Fprintf(w, "No posts in the last %s across the local corpus. Archive more publications or widen --since.\n", since)
+				if len(posts) > 0 && !newestArchived.IsZero() {
+					fmt.Fprintf(w, "No posts in the last %s across the local corpus (%d archived posts, newest %s). Widen --since or archive more publications.\n", since, len(posts), newestArchived.Format("2006-01-02"))
+				} else {
+					fmt.Fprintf(w, "No posts in the last %s across the local corpus. Archive more publications or widen --since.\n", since)
+				}
 				return nil
 			}
 			fmt.Fprintf(w, "Digest — since %s: %d posts across %d publications\n", since, len(inWindow), len(groups))
