@@ -1,0 +1,19 @@
+{
+  "timestamp": "2026-07-20T02:05:12.838178Z",
+  "cli_dir": "\u003ccli-dir\u003e/lightroom-classic-pp-cli",
+  "findings": [
+    {
+      "kind": "thin-short",
+      "command": "list",
+      "file": "teach.go",
+      "line": 692,
+      "evidence": "List recorded learnings",
+      "status": "accepted",
+      "note": "Generated learn-loop surface; 'List recorded learnings' is accurate and complete for a local list command — matches the version-command precedent for brief-but-accurate Shorts"
+    }
+  ],
+  "scorecard_before": {
+    "mcp_description_quality": 10,
+    "captured": "2026-07-20T02:04:21.084175Z"
+  }
+}
