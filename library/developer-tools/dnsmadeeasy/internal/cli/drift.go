@@ -70,11 +70,17 @@ Run 'dnsmadeeasy-pp-cli sync-records' at least twice to have something to diff.`
 			if dbPath == "" {
 				dbPath = defaultDBPath("dnsmadeeasy-pp-cli")
 			}
-			s, ok, err := openZoneMirror(ctx, cmd, flags, dbPath)
+			s, ok, err := openZoneMirror(ctx, cmd, dbPath)
 			if err != nil {
 				return err
 			}
 			if !ok {
+				if flags.asJSON || flags.agent {
+					return printJSONFiltered(cmd.OutOrStdout(), driftView{
+						Added: []driftEntry{}, Removed: []driftEntry{}, Changed: []driftEntry{},
+						Note: "no local record mirror yet; run 'dnsmadeeasy-pp-cli sync-records' first",
+					}, flags)
+				}
 				return nil
 			}
 			defer s.Close()

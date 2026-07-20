@@ -75,11 +75,17 @@ Run 'dnsmadeeasy-pp-cli sync-records' first to populate the mirror.`, "\n"),
 			if dbPath == "" {
 				dbPath = defaultDBPath("dnsmadeeasy-pp-cli")
 			}
-			s, ok, err := openZoneMirror(ctx, cmd, flags, dbPath)
+			s, ok, err := openZoneMirror(ctx, cmd, dbPath)
 			if err != nil {
 				return err
 			}
 			if !ok {
+				if flags.asJSON || flags.agent {
+					return printJSONFiltered(cmd.OutOrStdout(), whereUsedView{
+						Query: query, Exact: flagExact, Matches: []whereUsedMatch{},
+						Note: "no local record mirror yet; run 'dnsmadeeasy-pp-cli sync-records' first",
+					}, flags)
+				}
 				return nil
 			}
 			defer s.Close()
@@ -162,9 +168,9 @@ Run 'dnsmadeeasy-pp-cli sync-records' first to populate the mirror.`, "\n"),
 // verifies the zone-record mirror is populated. When empty it prints a hint to
 // stderr, emits an empty JSON result for machine consumers, and returns ok=false
 // so the caller returns cleanly (a missing mirror is empty state, not an error).
-func openZoneMirror(ctx context.Context, cmd *cobra.Command, flags *rootFlags, dbPath string) (*store.Store, bool, error) {
+func openZoneMirror(ctx context.Context, cmd *cobra.Command, dbPath string) (*store.Store, bool, error) {
 	if _, statErr := os.Stat(dbPath); os.IsNotExist(statErr) {
-		emitMissingMirror(cmd, flags, dbPath)
+		emitMissingMirror(cmd, dbPath)
 		return nil, false, nil
 	}
 	s, err := store.OpenWithContext(ctx, dbPath)
@@ -182,15 +188,12 @@ func openZoneMirror(ctx context.Context, cmd *cobra.Command, flags *rootFlags, d
 	}
 	if n == 0 {
 		_ = s.Close()
-		emitMissingMirror(cmd, flags, dbPath)
+		emitMissingMirror(cmd, dbPath)
 		return nil, false, nil
 	}
 	return s, true, nil
 }
 
-func emitMissingMirror(cmd *cobra.Command, flags *rootFlags, dbPath string) {
+func emitMissingMirror(cmd *cobra.Command, dbPath string) {
 	fmt.Fprintf(cmd.ErrOrStderr(), "no local record mirror yet\nrun: dnsmadeeasy-pp-cli sync-records --db %s\n", dbPath)
-	if flags.asJSON || flags.agent {
-		fmt.Fprintln(cmd.OutOrStdout(), "[]")
-	}
 }

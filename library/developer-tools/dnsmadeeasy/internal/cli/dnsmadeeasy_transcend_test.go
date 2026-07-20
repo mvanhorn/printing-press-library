@@ -9,6 +9,7 @@ import (
 	"testing"
 
 	"github.com/mvanhorn/printing-press-library/library/developer-tools/dnsmadeeasy/internal/store"
+	"github.com/spf13/cobra"
 )
 
 func TestHealthRejectsInvertedTTLBand(t *testing.T) {
@@ -309,5 +310,37 @@ func TestAcmeDeleteSummaryReportsSuccessfulAndFailedZones(t *testing.T) {
 	want := "deleted 3 record(s) across 1 zone(s); 2 zone(s) failed"
 	if got != want {
 		t.Fatalf("acmeDeleteSummary = %q, want %q", got, want)
+	}
+}
+
+func TestMissingMirrorPreservesEachCommandJSONShape(t *testing.T) {
+	dbPath := filepath.Join(t.TempDir(), "missing.db")
+	tests := []struct {
+		name       string
+		wantPrefix byte
+		newCmd     func(*rootFlags) *cobra.Command
+		args       []string
+	}{
+		{"where-used object", '{', newNovelWhereUsedCmd, []string{"192.0.2.1", "--db", dbPath}},
+		{"drift object", '{', newNovelDriftCmd, []string{"--db", dbPath}},
+		{"health object", '{', newNovelHealthCmd, []string{"--db", dbPath}},
+		{"export array", '[', newNovelExportCmd, []string{"example.com", "--format", "json", "--db", dbPath}},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			flags := rootFlags{asJSON: true}
+			cmd := tt.newCmd(&flags)
+			cmd.SetArgs(tt.args)
+			var stdout, stderr bytes.Buffer
+			cmd.SetOut(&stdout)
+			cmd.SetErr(&stderr)
+			if err := cmd.Execute(); err != nil {
+				t.Fatal(err)
+			}
+			got := bytes.TrimSpace(stdout.Bytes())
+			if len(got) == 0 || got[0] != tt.wantPrefix || !json.Valid(got) {
+				t.Fatalf("stdout = %q, want valid JSON starting with %q; stderr = %q", got, tt.wantPrefix, stderr.String())
+			}
+		})
 	}
 }

@@ -64,11 +64,17 @@ Run 'dnsmadeeasy-pp-cli sync-records' first to populate the mirror.`, "\n"),
 			if dbPath == "" {
 				dbPath = defaultDBPath("dnsmadeeasy-pp-cli")
 			}
-			s, ok, err := openZoneMirror(ctx, cmd, flags, dbPath)
+			s, ok, err := openZoneMirror(ctx, cmd, dbPath)
 			if err != nil {
 				return err
 			}
 			if !ok {
+				if flags.asJSON || flags.agent {
+					return printJSONFiltered(cmd.OutOrStdout(), healthView{
+						Findings: []healthFinding{},
+						Note:     "no local record mirror yet; run 'dnsmadeeasy-pp-cli sync-records' first",
+					}, flags)
+				}
 				return nil
 			}
 			defer s.Close()
