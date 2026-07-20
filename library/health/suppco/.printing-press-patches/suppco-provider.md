@@ -8,6 +8,8 @@ The generated framework is broader than this provider contract. SuppCo needs a s
 
 Generate from the bundled `spec.yaml` with PrintingPress v4.29.0 or newer, then retain or reapply these handwritten surfaces:
 
+PrintingPress v4.29.0+ intentionally strips root `dogfood-results.json` and `workflow-verify-report.json` from the staged public package; the durable public proof is `.manuscripts/<run-id>/proofs/phase5-acceptance.json`.
+
 - `internal/provider/**`: bounded GET extraction, minimum projections, date validation, observation timestamps, canonical-origin and redirect policy, bearer-only stateless transport, missing-reader guards, and synthetic fixtures. Flatten product-bound components from `products[].ingredients`, use the final ancestry segment as the immediate parent, and ignore the aggregate top-level nutrient view.
 - `internal/regimen/**`: deterministic product/component and schedule-activity normalization plus the snapshot contract. Preserve every component row; never add parent and child amounts. Reject blank units, encode leaf `component_ids` as an empty array, keep `provider_schedule` and `effective_regimen` structurally independent, and sort activities by label and scheduled products by provider product ID while preserving provider `schedule_days` order.
 - `internal/cli/auth.go` and `auth_suppco_test.go`: `auth set-token` reads stdin only, rejects positional secrets, clears legacy generic Authorization credentials before persisting a replacement, and warns when `SUPPCO_ACCESS_TOKEN` overrides the saved value.
