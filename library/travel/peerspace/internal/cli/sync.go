@@ -788,6 +788,10 @@ func syncResource(ctx context.Context, c interface {
 		tenantUUID := resolveTenantID()
 		if tenantUUID == "" {
 			fmt.Fprintf(syncEvents, `{"event":"reconcile_skipped","resource":"%s","reason":"unknown-tenant"}`+"\n", resource)
+		} else if extractFailureTotal > 0 {
+			// Incomplete keep-set: unparsed IDs never entered seenIDs. Reconciling
+			// would treat those server-returned rows as gone and delete local data.
+			fmt.Fprintf(syncEvents, `{"event":"reconcile_skipped","resource":"%s","scope":"%s","reason":"extract-failures","count":%d}`+"\n", resource, tenantUUID, extractFailureTotal)
 		} else if outcome.complete {
 			deleted, rerr := db.ReconcilePartition(
 				resource, "$."+def.BodyField, tenantUUID,

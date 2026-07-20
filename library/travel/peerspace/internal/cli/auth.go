@@ -83,7 +83,9 @@ func (p chromeProfile) profileLocation() string {
 }
 
 func requiredAuthCookies() []string {
-	raw := []string{}
+	// Peerspace guest session: PSUser (profile/SSO id) + PSAccess (bearer for writes).
+	// Auto profile selection must prefer Chrome profiles that carry both.
+	raw := []string{"PSUser", "PSAccess"}
 	out := raw[:0]
 	for _, name := range raw {
 		name = strings.TrimSpace(name)

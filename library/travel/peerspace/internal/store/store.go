@@ -1379,7 +1379,9 @@ func resourceStorageID(resourceType, id string, obj map[string]any) string {
 	}
 	parentValue := ResourceIDString(lookupFieldValue(obj, parentKey))
 	if parentValue == "" || parentValue == "<nil>" {
-		return id
+		// Keep parent-keyed rows namespaced even when the parent field is missing
+		// so bare child IDs never overwrite a properly parented association.
+		return id + string([]byte{0}) + "__missing_parent__"
 	}
 	return id + string([]byte{0}) + parentValue
 }

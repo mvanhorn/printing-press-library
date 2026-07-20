@@ -42,9 +42,9 @@ checksum:
 brews:
   - name: peerspace-pp-cli
     repository:
-      owner: 
+      owner: nspage
       name: homebrew-tap
-    homepage: "https://github.com//peerspace-pp-cli"
+    homepage: "https://github.com/mvanhorn/printing-press-library/tree/main/library/travel/peerspace"
     description: "Tech-event venue scout for Peerspace: rank fit, gap-check shortlists, and export proposal packs for Luma/Eventbrite."
     install: |
       bin.install "peerspace-pp-cli"
