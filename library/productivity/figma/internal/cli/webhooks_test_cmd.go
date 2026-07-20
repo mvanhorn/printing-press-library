@@ -167,6 +167,9 @@ func loadDeliveries(cmd *cobra.Command, flags *rootFlags, webhookID, dbPath stri
 				}
 				out = append(out, parseDelivery(id, data))
 			}
+			if err := rows.Err(); err != nil {
+				return nil, "local", fmt.Errorf("reading cached webhook deliveries: %w", err)
+			}
 			if len(out) > 0 {
 				return out, "local", nil
 			}

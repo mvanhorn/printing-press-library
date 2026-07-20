@@ -5,9 +5,14 @@ package client
 
 import (
 	"bytes"
+	"net/http"
+	"net/url"
 	"strings"
 	"testing"
+	"time"
 	"unicode/utf8"
+
+	"github.com/mvanhorn/printing-press-library/library/productivity/figma/internal/config"
 )
 
 func TestTruncateBody(t *testing.T) {
@@ -44,6 +49,32 @@ func TestTruncateBody(t *testing.T) {
 			}
 		})
 	}
+}
+
+func TestRedirectDoesNotReinjectCredentialAfterCrossHostHop(t *testing.T) {
+	c := New(&config.Config{BaseURL: "https://api.figma.com", AccessToken: "secret"}, time.Second, 0)
+	original := &http.Request{URL: mustParseURL(t, "https://api.figma.com/start")}
+	intermediate := &http.Request{URL: mustParseURL(t, "https://untrusted.example/hop")}
+	redirected := &http.Request{
+		URL:    mustParseURL(t, "https://api.figma.com/return"),
+		Header: http.Header{"X-Figma-Token": []string{"secret"}},
+	}
+
+	if err := c.HTTPClient.CheckRedirect(redirected, []*http.Request{original, intermediate}); err != nil {
+		t.Fatal(err)
+	}
+	if got := redirected.Header.Get("X-Figma-Token"); got != "" {
+		t.Fatalf("X-Figma-Token = %q after cross-host hop, want empty", got)
+	}
+}
+
+func mustParseURL(t *testing.T, raw string) *url.URL {
+	t.Helper()
+	u, err := url.Parse(raw)
+	if err != nil {
+		t.Fatal(err)
+	}
+	return u
 }
 
 func TestTruncateBody_UTF8RuneAtBoundary(t *testing.T) {

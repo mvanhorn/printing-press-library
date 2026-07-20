@@ -8,6 +8,8 @@ Learn more at [Figma](https://developers.figma.com/docs/rest-api/).
 
 Created by [@giacaglia](https://github.com/giacaglia) (Giuliano Giacaglia).
 
+Contributors: [@VinScagliarini](https://github.com/VinScagliarini) (VinScagliarini).
+
 ## Install
 
 The recommended path installs both the `figma-pp-cli` binary and the `pp-figma` agent skill (Claude Code, Codex, Cursor, Gemini CLI, GitHub Copilot, and other agents supported by the upstream [`skills`](https://github.com/vercel-labs/skills) CLI) in one shot:

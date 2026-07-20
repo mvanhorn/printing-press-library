@@ -60,17 +60,23 @@ func Load(configPath string) (*Config, error) {
 	if v := os.Getenv("FIGMA_ACCESS_TOKEN"); v != "" {
 		cfg.AccessToken = v
 		cfg.markEnvOverride("AccessToken")
-		cfg.AuthSource = "env:FIGMA_ACCESS_TOKEN"
+		if cfg.AuthSource == "" {
+			cfg.AuthSource = "env:FIGMA_ACCESS_TOKEN"
+		}
 	}
 	if v := os.Getenv("FIGMA_API_TOKEN"); v != "" {
 		cfg.FigmaApiToken = v
 		cfg.markEnvOverride("FigmaApiToken")
-		cfg.AuthSource = "env:FIGMA_API_TOKEN"
+		if cfg.AuthSource == "" {
+			cfg.AuthSource = "env:FIGMA_API_TOKEN"
+		}
 	}
 	if v := os.Getenv("FIGMA_API_KEY"); v != "" {
 		cfg.FigmaApiKey = v
 		cfg.markEnvOverride("FigmaApiKey")
-		cfg.AuthSource = "env:FIGMA_API_KEY"
+		if cfg.AuthSource == "" {
+			cfg.AuthSource = "env:FIGMA_API_KEY"
+		}
 	}
 
 	// Label config-file-derived credentials so doctor can distinguish
@@ -114,6 +120,17 @@ func Load(configPath string) (*Config, error) {
 }
 
 func (c *Config) AuthHeader() string {
+	// Environment credentials override persisted values. Keep this order in
+	// sync with Load's AuthSource selection so status reports what is sent.
+	if c.envOverrides["AccessToken"] && c.AccessToken != "" {
+		return c.AccessToken
+	}
+	if c.envOverrides["FigmaApiToken"] && c.FigmaApiToken != "" {
+		return c.FigmaApiToken
+	}
+	if c.envOverrides["FigmaApiKey"] && c.FigmaApiKey != "" {
+		return c.FigmaApiKey
+	}
 	if c.AuthHeaderVal != "" {
 		return c.AuthHeaderVal
 	}

@@ -1,0 +1,19 @@
+{
+  "schema_version": 2,
+  "id": "review-hardening",
+  "applied_at": "2026-07-20",
+  "base_run_id": "20260619-123141-3dcd8ab9",
+  "base_printing_press_version": "4.24.0",
+  "summary": "Keep credential selection and reporting consistent, prevent redirect credential re-injection, and surface local query iteration failures.",
+  "reason": "The regenerated CLI could report a different credential than it sent, re-add a token after a cross-host redirect hop, and silently return partial SQLite results after iteration errors. Markdown audit cells also need escaping so user content cannot corrupt table structure.",
+  "files": [
+    "internal/cli/comments_audit.go",
+    "internal/cli/comments_audit_test.go",
+    "internal/cli/orphans.go",
+    "internal/cli/webhooks_test_cmd.go",
+    "internal/client/client.go",
+    "internal/client/client_test.go",
+    "internal/config/config.go",
+    "internal/config/config_test.go"
+  ]
+}

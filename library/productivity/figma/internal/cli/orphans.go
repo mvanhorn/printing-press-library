@@ -3,6 +3,7 @@
 package cli
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"strings"
@@ -135,8 +136,8 @@ gracefully with a guidance message.`,
 // shape varies (component vs style vs variable analytics), we look up
 // component_key, style_key, or variable_id and sum any of total, usages,
 // usages_in_other_files, or count.
-func buildAnalyticsUsage(ctx interface{ Done() <-chan struct{} }, db *store.Store, cutoff time.Time) (map[string]int, error) {
-	rows, err := db.DB().Query(`SELECT data FROM figma_analytics WHERE synced_at >= ?`, cutoff.Format(time.RFC3339))
+func buildAnalyticsUsage(ctx context.Context, db *store.Store, cutoff time.Time) (map[string]int, error) {
+	rows, err := db.DB().QueryContext(ctx, `SELECT data FROM figma_analytics WHERE synced_at >= ?`, cutoff.Format(time.RFC3339))
 	if err != nil {
 		return nil, err
 	}
@@ -171,6 +172,9 @@ func buildAnalyticsUsage(ctx interface{ Done() <-chan struct{} }, db *store.Stor
 			out[id] += n
 		}
 	}
+	if err := rows.Err(); err != nil {
+		return nil, fmt.Errorf("reading analytics rows: %w", err)
+	}
 	return out, nil
 }
 
@@ -194,14 +198,14 @@ func firstInt(m map[string]any, keys ...string) int {
 
 // orphanLibraryEntities reads rows from a publish table and returns entries
 // whose summed usage is zero.
-func orphanLibraryEntities(ctx interface{ Done() <-chan struct{} }, db *store.Store, table, team string, usage map[string]int) ([]map[string]any, error) {
+func orphanLibraryEntities(ctx context.Context, db *store.Store, table, team string, usage map[string]int) ([]map[string]any, error) {
 	q := "SELECT id, data FROM " + table
 	var args []any
 	if team != "" && (table == "teams_components" || table == "teams_styles") {
 		q += " WHERE teams_id = ?"
 		args = append(args, team)
 	}
-	rows, err := db.DB().Query(q, args...)
+	rows, err := db.DB().QueryContext(ctx, q, args...)
 	if err != nil {
 		return nil, err
 	}
@@ -230,6 +234,9 @@ func orphanLibraryEntities(ctx interface{ Done() <-chan struct{} }, db *store.St
 			entry["name"] = name
 		}
 		out = append(out, entry)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, fmt.Errorf("reading %s rows: %w", table, err)
 	}
 	return out, nil
 }
