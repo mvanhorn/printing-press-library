@@ -240,6 +240,31 @@ func TestResolveEarliestForVenue_BareNumericIsAmbiguous(t *testing.T) {
 	}
 }
 
+func TestOpenTableNoAvailabilityReason_DistinguishesMissingDataFromFullness(t *testing.T) {
+	t.Run("no matching availability chunks", func(t *testing.T) {
+		reason := openTableNoAvailabilityReason("restaurant #1080775", 1080775, 3, 2, 0, "")
+		if !strings.Contains(reason, "response contained no availability data for restaurant 1080775") {
+			t.Fatalf("reason = %q; want missing restaurant data diagnostic", reason)
+		}
+		if strings.Contains(reason, "no open slots") {
+			t.Fatalf("reason = %q; missing data must not be reported as genuine fullness", reason)
+		}
+	})
+
+	t.Run("matching chunks with no bookable slots", func(t *testing.T) {
+		reason := openTableNoAvailabilityReason("Perry's", 1080775, 3, 2, 1, "")
+		if !strings.Contains(reason, "no open slots in 3-day window for party=2") {
+			t.Fatalf("reason = %q; want genuine fullness diagnostic", reason)
+		}
+		if !strings.Contains(reason, "slots present but none available/matching") {
+			t.Fatalf("reason = %q; want matching-data distinction", reason)
+		}
+		if strings.Contains(reason, "response contained no availability data") {
+			t.Fatalf("reason = %q; matched chunks must not use missing-data diagnostic", reason)
+		}
+	})
+}
+
 // TestSummarizeEarliest covers issue #406 failure 4: zero-resolution
 // requests previously rendered as `{}` (via the --select path), making
 // "couldn't resolve any input" look identical to "checked, no slots."

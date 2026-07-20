@@ -1,0 +1,17 @@
+{
+  "schema_version": 2,
+  "id": "opentable-chrome-avail-body-capture",
+  "applied_at": "2026-07-20",
+  "base_run_id": "20260712-223206",
+  "base_printing_press_version": "4.28.0",
+  "summary": "OpenTable browser availability capture must bind the requested restaurant and wait for both the response metadata and loading completion before reading a response body, while allowing any successful matching request to win.",
+  "reason": "CDP does not guarantee Network.getResponseBody can read a resource at responseReceived time, and a restaurant page can issue multiple availability requests. A reprint must preserve loading-finished coordination, exact transient retry handling, target-restaurant arbitration, independent persisted-hash harvesting, and the distinct diagnostic for a successful response containing no availability data for the requested restaurant.",
+  "files": [
+    "internal/source/opentable/chrome_avail.go",
+    "internal/source/opentable/chrome_avail_capture.go",
+    "internal/source/opentable/chrome_avail_capture_test.go",
+    "internal/cli/earliest.go",
+    "internal/cli/earliest_test.go"
+  ],
+  "validated_outcome": "Synthetic coordinator and injected-fetch tests cover response/loading event order, unresolved request binding, failure and duplicate handling, multi-request arbitration, body-read retry eligibility and cancellation, empty bodies, hash-only request tolerance, and both OpenTable no-availability reason paths."
+}

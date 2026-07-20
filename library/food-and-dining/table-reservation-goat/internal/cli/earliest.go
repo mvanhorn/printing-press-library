@@ -846,10 +846,12 @@ func resolveEarliestForVenue(ctx context.Context, s *auth.Session, venue string,
 			anchorHH := 19
 			anchorMM := 0
 			var bookable []string
+			matchingAvailabilityChunks := 0
 			for _, ra := range avail {
 				if ra.RestaurantID != restID {
 					continue
 				}
+				matchingAvailabilityChunks++
 				for _, d := range ra.AvailabilityDays {
 					dayDate := d.Date
 					if dayDate == "" {
@@ -910,7 +912,7 @@ func resolveEarliestForVenue(ctx context.Context, s *auth.Session, venue string,
 				row.Reason = fmt.Sprintf("opentable %s: earliest slot at %s%s", venueLabel, earliestSlotAt, cacheNote)
 			} else {
 				row.Available = false
-				row.Reason = fmt.Sprintf("opentable %s: no open slots in %d-day window for party=%d%s", venueLabel, within, party, cacheNote)
+				row.Reason = openTableNoAvailabilityReason(venueLabel, restID, within, party, matchingAvailabilityChunks, cacheNote)
 			}
 			return row
 		}
@@ -922,6 +924,13 @@ func resolveEarliestForVenue(ctx context.Context, s *auth.Session, venue string,
 		}
 	}
 	return row
+}
+
+func openTableNoAvailabilityReason(venueLabel string, restID, within, party, matchingAvailabilityChunks int, cacheNote string) string {
+	if matchingAvailabilityChunks == 0 {
+		return fmt.Sprintf("opentable %s: response contained no availability data for restaurant %d%s", venueLabel, restID, cacheNote)
+	}
+	return fmt.Sprintf("opentable %s: no open slots in %d-day window for party=%d (availability data matched; slots present but none available/matching)%s", venueLabel, within, party, cacheNote)
 }
 
 // resolveEarliestForResy fans out one Availability call per day across the
