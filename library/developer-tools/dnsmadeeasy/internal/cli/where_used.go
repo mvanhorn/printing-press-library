@@ -150,9 +150,9 @@ Run 'dnsmadeeasy-pp-cli sync-records' first to populate the mirror.`, "\n"),
 			if err := printAutoTable(cmd.OutOrStdout(), rows); err != nil {
 				return err
 			}
-			fmt.Fprintf(os.Stderr, "\n%d record(s) across %d zone(s) use %q.\n", totalMatches, len(matchZones), query)
+			fmt.Fprintf(cmd.ErrOrStderr(), "\n%d record(s) across %d zone(s) use %q.\n", totalMatches, len(matchZones), query)
 			if truncated {
-				fmt.Fprintln(os.Stderr, view.Note)
+				fmt.Fprintln(cmd.ErrOrStderr(), view.Note)
 			}
 			return nil
 		},
