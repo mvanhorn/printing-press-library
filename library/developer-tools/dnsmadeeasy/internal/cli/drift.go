@@ -19,6 +19,8 @@ type driftEntry struct {
 	RecordID string `json:"record_id"`
 	Name     string `json:"name"`
 	Type     string `json:"type"`
+	OldName  string `json:"old_name,omitempty"`
+	OldType  string `json:"old_type,omitempty"`
 	Old      string `json:"old_value,omitempty"`
 	New      string `json:"new_value,omitempty"`
 	OldTTL   int    `json:"old_ttl,omitempty"`
@@ -107,8 +109,15 @@ Run 'dnsmadeeasy-pp-cli sync-records' at least twice to have something to diff.`
 					view.Added = append(view.Added, driftEntry{Zone: nr.zone, RecordID: id, Name: nr.name, Type: nr.typ, New: nr.value, NewTTL: nr.ttl})
 					continue
 				}
-				if or.value != nr.value || or.ttl != nr.ttl {
-					view.Changed = append(view.Changed, driftEntry{Zone: nr.zone, RecordID: id, Name: nr.name, Type: nr.typ, Old: or.value, New: nr.value, OldTTL: or.ttl, NewTTL: nr.ttl})
+				if snapRowsDiffer(or, nr) {
+					entry := driftEntry{Zone: nr.zone, RecordID: id, Name: nr.name, Type: nr.typ, Old: or.value, New: nr.value, OldTTL: or.ttl, NewTTL: nr.ttl}
+					if or.name != nr.name {
+						entry.OldName = or.name
+					}
+					if or.typ != nr.typ {
+						entry.OldType = or.typ
+					}
+					view.Changed = append(view.Changed, entry)
 				}
 			}
 			for id, or := range oldRows {
@@ -126,7 +135,20 @@ Run 'dnsmadeeasy-pp-cli sync-records' at least twice to have something to diff.`
 				fmt.Fprintf(cmd.OutOrStdout(), "  + %s %s %s -> %s\n", e.Zone, e.Name, e.Type, e.New)
 			}
 			for _, e := range view.Changed {
-				fmt.Fprintf(cmd.OutOrStdout(), "  ~ %s %s %s: %s -> %s\n", e.Zone, e.Name, e.Type, e.Old, e.New)
+				changes := []string{}
+				if e.OldName != "" {
+					changes = append(changes, fmt.Sprintf("name %s -> %s", nameOrApex(e.OldName), nameOrApex(e.Name)))
+				}
+				if e.OldType != "" {
+					changes = append(changes, fmt.Sprintf("type %s -> %s", e.OldType, e.Type))
+				}
+				if e.Old != e.New {
+					changes = append(changes, fmt.Sprintf("value %s -> %s", e.Old, e.New))
+				}
+				if e.OldTTL != e.NewTTL {
+					changes = append(changes, fmt.Sprintf("TTL %d -> %d", e.OldTTL, e.NewTTL))
+				}
+				fmt.Fprintf(cmd.OutOrStdout(), "  ~ %s %s: %s\n", e.Zone, e.RecordID, strings.Join(changes, ", "))
 			}
 			for _, e := range view.Removed {
 				fmt.Fprintf(cmd.OutOrStdout(), "  - %s %s %s (was %s)\n", e.Zone, e.Name, e.Type, e.Old)
@@ -136,6 +158,10 @@ Run 'dnsmadeeasy-pp-cli sync-records' at least twice to have something to diff.`
 	}
 	cmd.Flags().StringVar(&dbPath, "db", "", "Path to the local mirror database")
 	return cmd
+}
+
+func snapRowsDiffer(old, current snapRow) bool {
+	return old.zone != current.zone || old.name != current.name || old.typ != current.typ || old.value != current.value || old.ttl != current.ttl
 }
 
 // recentBatches returns up to n batch ids, most recent first.

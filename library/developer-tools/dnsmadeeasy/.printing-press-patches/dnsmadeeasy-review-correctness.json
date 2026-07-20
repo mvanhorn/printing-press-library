@@ -4,15 +4,16 @@
   "applied_at": "2026-07-20",
   "base_run_id": "20260709-145756-391a5493",
   "base_printing_press_version": "4.27.1",
-  "summary": "Keep DNS audit, filtered-search counters, truncation state, BIND TXT output, and ACME descriptions aligned with the records actually evaluated.",
-  "reason": "Cross-zone commands must not report a broader scan boundary than a requested record type, accept a DMARC policy at the wrong owner name, hide limited results, emit raw control bytes into a zone file, or imply age filtering when none was requested.",
+  "summary": "Keep DNS audit, drift detection, filtered-search counters, truncation state, BIND TXT output, and ACME reporting aligned with the records actually evaluated.",
+  "reason": "Cross-zone commands must not miss renamed or retyped records, report a broader scan boundary than requested, accept a DMARC policy at the wrong owner name, hide limited results, emit raw control bytes into a zone file, or report planned ACME zones as successful.",
   "files": [
     "internal/cli/health.go",
     "internal/cli/where_used.go",
     "internal/cli/export.go",
     "internal/cli/acme_purge.go",
     "internal/cli/root.go",
-    "internal/cli/which.go"
+    "internal/cli/which.go",
+    "internal/cli/drift.go"
   ],
-  "validated_outcome": "Focused regression tests cover DMARC owner/value validation, type-filtered scan metrics, explicit truncation state, and BIND-safe control-character escaping."
+  "validated_outcome": "Focused regression tests cover DMARC owner/value validation, filtered scan metrics, drift across name/type/value/TTL changes, explicit truncation state, and BIND-safe control-character escaping."
 }

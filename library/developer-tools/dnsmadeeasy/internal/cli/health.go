@@ -82,10 +82,12 @@ Run 'dnsmadeeasy-pp-cli sync-records' first to populate the mirror.`, "\n"),
 			byZone := map[string][]dmeRecord{}
 			zoneNames := map[string]bool{}
 			fqdnSet := map[string]bool{}
+			scannedRecords := 0
 			for _, r := range recs {
 				if flagZone != "" && !strings.EqualFold(r.DomainName, strings.TrimSuffix(flagZone, ".")) {
 					continue
 				}
+				scannedRecords++
 				byZone[r.DomainName] = append(byZone[r.DomainName], r)
 				zoneNames[strings.ToLower(r.DomainName)] = true
 				fqdnSet[strings.ToLower(recordFQDN(r))] = true
@@ -154,7 +156,7 @@ Run 'dnsmadeeasy-pp-cli sync-records' first to populate the mirror.`, "\n"),
 				return findings[i].Rule < findings[j].Rule
 			})
 
-			view := healthView{ScannedZones: len(byZone), ScannedRecs: len(recs), Findings: findings}
+			view := healthView{ScannedZones: len(byZone), ScannedRecs: scannedRecords, Findings: findings}
 			if len(findings) == 0 {
 				view.Note = "no hygiene issues found across the scanned zones"
 			}

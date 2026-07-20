@@ -247,3 +247,67 @@ func TestWhereUsedTypeBoundaryAndTruncation(t *testing.T) {
 		t.Fatalf("truncation note = %q", view.Note)
 	}
 }
+
+func TestSnapRowsDifferIncludesRecordIdentity(t *testing.T) {
+	base := snapRow{zone: "example.com", name: "www", typ: "A", value: "192.0.2.1", ttl: 300}
+	if snapRowsDiffer(base, base) {
+		t.Fatal("identical snapshot rows reported as changed")
+	}
+	changes := []snapRow{
+		{zone: "example.net", name: "www", typ: "A", value: "192.0.2.1", ttl: 300},
+		{zone: "example.com", name: "api", typ: "A", value: "192.0.2.1", ttl: 300},
+		{zone: "example.com", name: "www", typ: "AAAA", value: "192.0.2.1", ttl: 300},
+		{zone: "example.com", name: "www", typ: "A", value: "192.0.2.2", ttl: 300},
+		{zone: "example.com", name: "www", typ: "A", value: "192.0.2.1", ttl: 600},
+	}
+	for _, changed := range changes {
+		if !snapRowsDiffer(base, changed) {
+			t.Fatalf("snapshot change was missed: before=%+v after=%+v", base, changed)
+		}
+	}
+}
+
+func TestHealthZoneFilterScanBoundary(t *testing.T) {
+	ctx := context.Background()
+	dbPath := filepath.Join(t.TempDir(), "mirror.db")
+	s, err := store.OpenWithContext(ctx, dbPath)
+	if err != nil {
+		t.Fatal(err)
+	}
+	recs := []dmeRecord{
+		{ID: "1", DomainID: "100", DomainName: "example.com", Name: "www", Type: "A", Value: "192.0.2.1", TTL: 300},
+		{ID: "2", DomainID: "200", DomainName: "example.org", Name: "www", Type: "A", Value: "192.0.2.2", TTL: 300},
+	}
+	if _, err := writeZoneMirror(ctx, s, recs); err != nil {
+		s.Close()
+		t.Fatal(err)
+	}
+	if err := s.Close(); err != nil {
+		t.Fatal(err)
+	}
+
+	flags := rootFlags{asJSON: true}
+	cmd := newNovelHealthCmd(&flags)
+	cmd.SetArgs([]string{"--zone", "example.com", "--db", dbPath})
+	var out bytes.Buffer
+	cmd.SetOut(&out)
+	cmd.SetErr(&out)
+	if err := cmd.Execute(); err != nil {
+		t.Fatal(err)
+	}
+	var view healthView
+	if err := json.Unmarshal(out.Bytes(), &view); err != nil {
+		t.Fatalf("decode output %q: %v", out.String(), err)
+	}
+	if view.ScannedZones != 1 || view.ScannedRecs != 1 {
+		t.Fatalf("filtered health scan = %d records across %d zones, want 1 across 1", view.ScannedRecs, view.ScannedZones)
+	}
+}
+
+func TestAcmeDeleteSummaryReportsSuccessfulAndFailedZones(t *testing.T) {
+	got := acmeDeleteSummary(3, 1, 2)
+	want := "deleted 3 record(s) across 1 zone(s); 2 zone(s) failed"
+	if got != want {
+		t.Fatalf("acmeDeleteSummary = %q, want %q", got, want)
+	}
+}

@@ -29,13 +29,14 @@ type acmePurgeItem struct {
 }
 
 type acmePurgeView struct {
-	OlderThan     string          `json:"older_than,omitempty"`
-	Applied       bool            `json:"applied"`
-	Matched       int             `json:"matched"`
-	ZonesAffected int             `json:"zones_affected"`
-	Targets       []acmePurgeItem `json:"targets"`
-	Deleted       int             `json:"deleted,omitempty"`
-	FetchFailures []struct {
+	OlderThan      string          `json:"older_than,omitempty"`
+	Applied        bool            `json:"applied"`
+	Matched        int             `json:"matched"`
+	ZonesAffected  int             `json:"zones_affected"`
+	Targets        []acmePurgeItem `json:"targets"`
+	Deleted        int             `json:"deleted,omitempty"`
+	ZonesSucceeded int             `json:"zones_succeeded,omitempty"`
+	FetchFailures  []struct {
 		Zone  string `json:"zone"`
 		Error string `json:"error"`
 	} `json:"fetch_failures,omitempty"`
@@ -150,6 +151,8 @@ keep only challenge records first seen before the cutoff. Without a mirror,
 			}
 
 			deleted := 0
+			succeededZones := 0
+			deleteFailures := 0
 			for domID, ids := range byZone {
 				q := url.Values{}
 				for _, id := range ids {
@@ -157,6 +160,7 @@ keep only challenge records first seen before the cutoff. Without a mirror,
 				}
 				path := "/dns/managed/" + domID + "/records?" + q.Encode()
 				if _, _, err := c.Delete(ctx, path); err != nil {
+					deleteFailures++
 					view.FetchFailures = append(view.FetchFailures, struct {
 						Zone  string `json:"zone"`
 						Error string `json:"error"`
@@ -164,9 +168,11 @@ keep only challenge records first seen before the cutoff. Without a mirror,
 					continue
 				}
 				deleted += len(ids)
+				succeededZones++
 			}
 			view.Deleted = deleted
-			view.Note = fmt.Sprintf("deleted %d record(s) across %d zone(s)", deleted, len(byZone))
+			view.ZonesSucceeded = succeededZones
+			view.Note = acmeDeleteSummary(deleted, succeededZones, deleteFailures)
 			return emitAcme(cmd, flags, view)
 		},
 	}
@@ -174,6 +180,14 @@ keep only challenge records first seen before the cutoff. Without a mirror,
 	cmd.Flags().BoolVar(&flagApply, "apply", false, "Actually delete the records (default previews only)")
 	cmd.Flags().StringVar(&dbPath, "db", "", "Path to the local mirror database (for --older-than history)")
 	return cmd
+}
+
+func acmeDeleteSummary(deleted, succeededZones, failedZones int) string {
+	summary := fmt.Sprintf("deleted %d record(s) across %d zone(s)", deleted, succeededZones)
+	if failedZones > 0 {
+		summary += fmt.Sprintf("; %d zone(s) failed", failedZones)
+	}
+	return summary
 }
 
 func emitAcme(cmd *cobra.Command, flags *rootFlags, view acmePurgeView) error {
@@ -186,12 +200,15 @@ func emitAcme(cmd *cobra.Command, flags *rootFlags, view acmePurgeView) error {
 	}
 	verb := "WOULD DELETE"
 	if view.Applied {
-		verb = "DELETED"
+		verb = "SELECTED"
 	}
 	for _, t := range view.Targets {
 		fmt.Fprintf(cmd.OutOrStdout(), "%s  %s %s (%s)\n", verb, t.Zone, t.Name, t.RecordID)
 	}
 	fmt.Fprintf(cmd.OutOrStdout(), "\n%d record(s) across %d zone(s). %s\n", view.Matched, view.ZonesAffected, view.Note)
+	for _, failure := range view.FetchFailures {
+		fmt.Fprintf(cmd.OutOrStdout(), "FAILED  %s: %s\n", failure.Zone, failure.Error)
+	}
 	return nil
 }
 
