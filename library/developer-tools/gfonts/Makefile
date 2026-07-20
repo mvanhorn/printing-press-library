@@ -2,11 +2,11 @@
 
 VERSION := $(shell git describe --tags --always 2>/dev/null || echo dev)
 LDFLAGS := -s -w -X main.version=$(VERSION)
-BINARY := gfonts
+BINARY := gfonts-pp-cli
 PREFIX ?= $(HOME)/.local/bin
 
 build:
-	go build -ldflags "$(LDFLAGS)" -o $(BINARY) .
+	go build -ldflags "$(LDFLAGS)" -o $(BINARY) ./cmd/gfonts-pp-cli
 
 install: build
 	mkdir -p $(PREFIX)
