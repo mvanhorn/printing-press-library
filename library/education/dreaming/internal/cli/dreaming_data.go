@@ -11,6 +11,7 @@ import (
 	"context"
 	"database/sql"
 	"encoding/json"
+	"math"
 	"sort"
 	"time"
 
@@ -155,12 +156,19 @@ func recentAverageSeconds(series []daySeconds, days int) float64 {
 
 // streak computes current and longest consecutive-day input streaks.
 func streaks(series []daySeconds) (current, longest int) {
+	return streaksAt(series, time.Now())
+}
+
+func streaksAt(series []daySeconds, now time.Time) (current, longest int) {
 	if len(series) == 0 {
 		return 0, 0
 	}
 	parse := func(s string) (time.Time, bool) {
-		t, err := time.Parse("2006-01-02", s)
+		t, err := time.ParseInLocation("2006-01-02", s, now.Location())
 		return t, err == nil
+	}
+	gapDays := func(later, earlier time.Time) int {
+		return int(math.Round(later.Sub(earlier).Hours() / 24))
 	}
 	var dates []time.Time
 	for _, d := range series {
@@ -178,7 +186,7 @@ func streaks(series []daySeconds) (current, longest int) {
 	longest = 1
 	run := 1
 	for i := 1; i < len(dates); i++ {
-		gap := int(dates[i].Sub(dates[i-1]).Hours() / 24)
+		gap := gapDays(dates[i], dates[i-1])
 		if gap == 1 {
 			run++
 		} else if gap == 0 {
@@ -193,15 +201,14 @@ func streaks(series []daySeconds) (current, longest int) {
 	// Current streak: count back from the most recent active day if it is
 	// today or yesterday (a one-day grace so an unsynced "today" doesn't reset).
 	last := dates[len(dates)-1]
-	today := time.Now().Truncate(24 * time.Hour)
-	lastDay := last.Truncate(24 * time.Hour)
-	gapToToday := int(today.Sub(lastDay).Hours() / 24)
+	today := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, now.Location())
+	gapToToday := gapDays(today, last)
 	if gapToToday > 1 {
 		return 0, longest
 	}
 	current = 1
 	for i := len(dates) - 1; i > 0; i-- {
-		gap := int(dates[i].Sub(dates[i-1]).Hours() / 24)
+		gap := gapDays(dates[i], dates[i-1])
 		if gap == 1 {
 			current++
 		} else if gap == 0 {
