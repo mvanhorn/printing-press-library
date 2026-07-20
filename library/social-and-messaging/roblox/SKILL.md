@@ -13,7 +13,7 @@ metadata:
     install:
       - kind: go
         bins: [roblox-pp-cli]
-        module: github.com/mvanhorn/printing-press-library/library/media-and-entertainment/roblox/cmd/roblox-pp-cli
+        module: github.com/mvanhorn/printing-press-library/library/social-and-messaging/roblox/cmd/roblox-pp-cli
 ---
 
 # Roblox — Printing Press CLI
@@ -32,7 +32,7 @@ This skill drives the `roblox-pp-cli` binary. **You must verify the CLI is insta
 If the `npx` install fails (no Node, offline, etc.), fall back to a direct Go install (requires Go 1.26.5 or newer). This installs into `$GOPATH/bin` (default `$HOME/go/bin`), so add that directory to `$PATH` instead:
 
 ```bash
-go install github.com/mvanhorn/printing-press-library/library/media-and-entertainment/roblox/cmd/roblox-pp-cli@latest
+go install github.com/mvanhorn/printing-press-library/library/social-and-messaging/roblox/cmd/roblox-pp-cli@latest
 ```
 
 If `--version` reports "command not found" after install, the runtime cannot see the binary directory on `$PATH`. Do not proceed with skill commands until verification succeeds.
@@ -739,7 +739,7 @@ Parse `$ARGUMENTS`:
 
 1. Install the MCP server:
    ```bash
-   go install github.com/mvanhorn/printing-press-library/library/media-and-entertainment/roblox/cmd/roblox-pp-mcp@latest
+   go install github.com/mvanhorn/printing-press-library/library/social-and-messaging/roblox/cmd/roblox-pp-mcp@latest
    ```
 2. Register with Claude Code:
    ```bash

@@ -103,7 +103,7 @@ If you can't use the MCPB bundle (older Claude Desktop, unsupported platform), i
 
 
 ```bash
-go install github.com/mvanhorn/printing-press-library/library/media-and-entertainment/roblox/cmd/roblox-pp-mcp@latest
+go install github.com/mvanhorn/printing-press-library/library/social-and-messaging/roblox/cmd/roblox-pp-mcp@latest
 ```
 
 Add to your Claude Desktop config (`~/Library/Application Support/Claude/claude_desktop_config.json`):
