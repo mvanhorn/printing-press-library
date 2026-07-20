@@ -1,0 +1,47 @@
+{
+  "products": [
+    {
+      "id": "product-b",
+      "product_id": "catalog-product-b",
+      "name": "Synthetic Evening Product",
+      "serving_size": "2 units",
+      "ingredients": [],
+      "unrelated_brand_field": "discard-me"
+    },
+    {
+      "id": "product-a",
+      "product_id": "catalog-product-a",
+      "name": "Synthetic Morning Product",
+      "serving_size": "1 unit",
+      "ingredients": [
+        {
+          "id": "component-child",
+          "ingredient_id": "catalog-component-child",
+          "name": "Synthetic Child",
+          "amount": 4,
+          "units": "mg",
+          "ancestry": "synthetic-root/component-parent",
+          "unrelated_ingredient_field": "discard-me"
+        },
+        {
+          "id": "component-parent",
+          "ingredient_id": "catalog-component-parent",
+          "name": "Synthetic Parent",
+          "amount": 10,
+          "units": "mg",
+          "ancestry": null
+        }
+      ]
+    }
+  ],
+  "nutrients": [
+    {
+      "id": "aggregate-synthetic",
+      "name": "Synthetic Aggregate",
+      "sources": [{"product_id": "product-a", "amount_per_day": 14, "units": "mg"}],
+      "total": {"amount": 14, "units": "mg"},
+      "unrelated_aggregate_field": "discard-me"
+    }
+  ],
+  "unrelated_private_profile": {"field": "discard-me"}
+}

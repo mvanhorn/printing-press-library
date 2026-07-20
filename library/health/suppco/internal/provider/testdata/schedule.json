@@ -1,0 +1,49 @@
+{
+  "date": "2026-07-19",
+  "activities": [
+    {
+      "activity": "evening",
+      "products": [
+        {
+          "product_id": "product-b",
+          "product_name": "Synthetic Evening Product",
+          "product_brand": "Synthetic Brand",
+          "serving_size_amount": 2,
+          "serving_size_amount_taken": 2,
+          "serving_unit": "units",
+          "schedule_type": "daily",
+          "schedule_days": [],
+          "every_other_day_start": null,
+          "as_needed": false,
+          "scheduled_not_today": false,
+          "with_food": true,
+          "schedule_notes": null,
+          "product_image_url": "https://example.invalid/discard-me.png"
+        }
+      ],
+      "reminder": {"enabled": false}
+    },
+    {
+      "activity": "morning",
+      "products": [
+        {
+          "product_id": "product-a",
+          "product_name": "Synthetic Morning Product",
+          "product_brand": "Synthetic Brand",
+          "serving_size_amount": 1,
+          "serving_size_amount_taken": 1,
+          "serving_unit": "unit",
+          "schedule_type": "selected_days",
+          "schedule_days": ["monday", "wednesday"],
+          "every_other_day_start": null,
+          "as_needed": false,
+          "scheduled_not_today": false,
+          "with_food": false,
+          "schedule_notes": "Synthetic note"
+        }
+      ],
+      "reminder": {"enabled": true}
+    }
+  ],
+  "unrelated_schedule_field": "discard-me"
+}

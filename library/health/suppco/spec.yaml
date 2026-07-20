@@ -1,0 +1,99 @@
+# Synthetic-only provider contract. This file deliberately contains no account data,
+# tokens, identifiers, or real product labels. Endpoint response declarations model
+# the upstream SuppCo wire shapes used by PrintingPress mock verification. The public
+# handwritten CLI/MCP handlers wrap each projection as {data, provenance}; regimen
+# snapshot is the versioned derived contract described in CONTRACT.md.
+name: suppco
+description: Read-only SuppCo stack facts with a deterministic, provenance-bearing regimen snapshot export.
+version: 0.1.0
+creator:
+  handle: itsmefelix-
+  name: Felix Banuchi
+base_url: https://api.supp.co
+auth:
+  type: bearer_token
+  in: header
+  header: Authorization
+  format: Bearer {access_token}
+  env_vars: [SUPPCO_ACCESS_TOKEN]
+config:
+  format: toml
+  path: ~/.config/suppco-pp-cli/config.toml
+learn:
+  disabled: true
+mcp:
+  transport: [stdio]
+  endpoint_tools: hidden
+extra_commands:
+  - name: regimen snapshot
+    args: "<date>"
+    description: Emit a deterministic provenance-bearing SuppCo regimen snapshot from bounded live reads.
+resources:
+  stack:
+    description: Read-only configured stack products and nutrient-component facts. Values remain provider facts; consumers must not sum overlapping component rows.
+    data_source_strategy: live
+    endpoints:
+      products:
+        method: GET
+        path: /api/users/me_compact/
+        description: "Read the upstream products array, then publicly emit {data: StackProduct[], provenance: Observation} with only the minimum product identity and label fields."
+        response: {type: array, item: StackProduct}
+        response_path: products
+      nutrients:
+        method: GET
+        path: /api/users/me_compact/
+        description: "Read upstream products[].ingredients, then publicly emit {data: StackNutrient[], provenance: Observation} with product-bound components and immediate parent/component relationships. This is not an exposure total."
+        response: {type: array, item: StackNutrient}
+  schedule:
+    description: Read-only configured provider schedule facts. A user override is separate downstream input, never written back.
+    data_source_strategy: live
+    endpoints:
+      show:
+        method: GET
+        path: /api/schedules/{date}
+        description: "Read the upstream schedule object, then publicly emit {data: ProviderSchedule, provenance: Observation} for one ISO calendar date."
+        params:
+          - {name: date, type: string, required: true, positional: true, path_param: true, description: ISO calendar date in YYYY-MM-DD format.}
+        response: {type: object, item: ProviderSchedule}
+types:
+  StackProduct:
+    fields:
+      - {name: id, type: string, description: Provider product identifier.}
+      - {name: name, type: string, description: Provider product label.}
+      - {name: serving_size, type: string, description: Provider serving-size text when present.}
+  StackNutrient:
+    fields:
+      - {name: id, type: string, description: Provider nutrient-row identifier.}
+      - {name: product_id, type: string, description: Provider product identifier that supplies this row.}
+      - {name: name, type: string, description: Provider nutrient/component label.}
+      - {name: amount, type: number, description: Required provider-stated amount.}
+      - {name: unit, type: string, description: Required nonblank provider-stated amount unit.}
+      - {name: parent_id, type: string, description: Provider parent nutrient/component identifier when present.}
+      - {name: component_ids, type: array, description: Stable child nutrient/component identifiers derived from parent_id relationships; an empty array for leaves.}
+  ProviderSchedule:
+    fields:
+      - {name: date, type: string, description: Provider schedule date.}
+      - {name: activities, type: array, description: Provider-configured schedule activities in stable activity order; no adherence inference.}
+  ScheduleActivity:
+    fields:
+      - {name: activity, type: string, description: Provider activity label.}
+      - {name: products, type: array, description: Minimized scheduled products in stable provider-ID order.}
+      - {name: reminder, type: object, description: Provider reminder state.}
+  ScheduledProduct:
+    fields:
+      - {name: product_id, type: string, description: Provider stack-product identifier.}
+      - {name: product_name, type: string, description: Provider product label.}
+      - {name: product_brand, type: string, description: Provider brand label.}
+      - {name: serving_size_amount, type: number, description: Provider configured serving-size amount.}
+      - {name: serving_size_amount_taken, type: number, description: Provider scheduled amount for this activity.}
+      - {name: serving_unit, type: string, description: Provider serving unit.}
+      - {name: schedule_type, type: string, description: Provider schedule type.}
+      - {name: schedule_days, type: array, description: Provider configured day labels.}
+      - {name: every_other_day_start, type: string, description: Optional provider every-other-day anchor.}
+      - {name: as_needed, type: boolean, description: Provider as-needed flag.}
+      - {name: scheduled_not_today, type: boolean, description: Provider flag that the product is not scheduled for the requested date.}
+      - {name: with_food, type: boolean, description: Provider with-food flag.}
+      - {name: schedule_notes, type: string, description: Optional provider schedule note.}
+  ScheduleReminder:
+    fields:
+      - {name: enabled, type: boolean, description: Provider reminder-enabled flag.}
