@@ -7,8 +7,8 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/spf13/cobra"
 	"github.com/mvanhorn/printing-press-library/library/devices/wahoo/internal/store"
+	"github.com/spf13/cobra"
 )
 
 // pp:data-source local
@@ -61,7 +61,10 @@ func newNovelLoadCmd(flags *rootFlags) *cobra.Command {
 			}
 			usedFTP := ftp
 			if usedFTP <= 0 {
-				usedFTP = latestFTP(db)
+				usedFTP, err = latestFTP(db)
+				if err != nil {
+					return fmt.Errorf("reading power zones: %w", err)
+				}
 			}
 			series := computeLoadSeries(ws, usedFTP, days, time.Now())
 			view := loadView{

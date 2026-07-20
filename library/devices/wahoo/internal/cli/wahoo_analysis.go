@@ -15,8 +15,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/spf13/cobra"
 	"github.com/mvanhorn/printing-press-library/library/devices/wahoo/internal/store"
+	"github.com/spf13/cobra"
 )
 
 // parseLooseFloat coerces a JSON value that may be a number, a numeric string,
@@ -337,8 +337,11 @@ func haversineKm(lat1, lng1, lat2, lng2 float64) float64 {
 // latestFTP returns the most recent FTP (watts) from the power-zones mirror,
 // chosen by the newest updated_at/created_at among records that carry an FTP.
 // Returns 0 when no power-zone record has an FTP.
-func latestFTP(db *store.Store) float64 {
-	recs := loadPowerZones(db)
+func latestFTP(db *store.Store) (float64, error) {
+	recs, err := loadPowerZones(db)
+	if err != nil {
+		return 0, err
+	}
 	best := 0.0
 	var bestTime time.Time
 	for _, r := range recs {
@@ -350,7 +353,7 @@ func latestFTP(db *store.Store) float64 {
 			bestTime = r.Updated
 		}
 	}
-	return best
+	return best, nil
 }
 
 // powerZoneRecord is the normalized view of one power-zones record.
@@ -364,10 +367,10 @@ type powerZoneRecord struct {
 	UpdatedRaw    string
 }
 
-func loadPowerZones(db *store.Store) []powerZoneRecord {
+func loadPowerZones(db *store.Store) ([]powerZoneRecord, error) {
 	rows, err := db.Query(`SELECT data FROM resources WHERE resource_type IN ('power-zones','power_zones')`)
 	if err != nil {
-		return nil
+		return nil, err
 	}
 	defer rows.Close()
 	var out []powerZoneRecord
@@ -399,15 +402,15 @@ func loadPowerZones(db *store.Store) []powerZoneRecord {
 		}
 		out = append(out, rec)
 	}
-	return out
+	return out, rows.Err()
 }
 
 // userWeightKg returns the authenticated user's weight in kilograms from the
 // local mirror, or 0 when unknown (the API stores weight as a string).
-func userWeightKg(db *store.Store) float64 {
+func userWeightKg(db *store.Store) (float64, error) {
 	rows, err := db.Query(`SELECT data FROM resources WHERE resource_type = 'user'`)
 	if err != nil {
-		return 0
+		return 0, err
 	}
 	defer rows.Close()
 	for rows.Next() {
@@ -420,10 +423,10 @@ func userWeightKg(db *store.Store) float64 {
 			continue
 		}
 		if kg, ok := parseLooseFloat(obj["weight"]); ok && kg > 0 {
-			return kg
+			return kg, nil
 		}
 	}
-	return 0
+	return 0, rows.Err()
 }
 
 // mirrorMissing reports whether the local SQLite database file is absent, and

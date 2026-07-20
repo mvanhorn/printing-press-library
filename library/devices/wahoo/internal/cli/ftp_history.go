@@ -51,8 +51,14 @@ func newNovelFtpHistoryCmd(flags *rootFlags) *cobra.Command {
 			if !hintIfUnsynced(cmd, db, "power-zones") {
 				hintIfStale(cmd, db, "power-zones", flags.maxAge)
 			}
-			recs := loadPowerZones(db)
-			weight := userWeightKg(db)
+			recs, err := loadPowerZones(db)
+			if err != nil {
+				return fmt.Errorf("reading power zones: %w", err)
+			}
+			weight, err := userWeightKg(db)
+			if err != nil {
+				return fmt.Errorf("reading user profile: %w", err)
+			}
 			points := computeFTPHistory(recs, weight)
 
 			if wantsHumanTable(cmd.OutOrStdout(), flags) {

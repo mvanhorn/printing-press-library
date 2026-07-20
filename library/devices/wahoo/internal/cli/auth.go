@@ -18,11 +18,12 @@ import (
 	"os/exec"
 	"runtime"
 	"strings"
+	"sync"
 	"time"
 
-	"github.com/spf13/cobra"
 	"github.com/mvanhorn/printing-press-library/library/devices/wahoo/internal/cliutil"
 	"github.com/mvanhorn/printing-press-library/library/devices/wahoo/internal/config"
+	"github.com/spf13/cobra"
 )
 
 func newAuthCmd(flags *rootFlags) *cobra.Command {
@@ -191,36 +192,45 @@ func runOAuthLogin(cmd *cobra.Command, flags *rootFlags, clientID, clientSecret 
 
 	codeCh := make(chan string, 1)
 	errCh := make(chan error, 1)
+	sendErr := func(err error) {
+		select {
+		case errCh <- err:
+		default:
+		}
+	}
 
 	mux := http.NewServeMux()
 	mux.HandleFunc("/callback", func(w http.ResponseWriter, r *http.Request) {
 		if r.URL.Query().Get("state") != state {
-			errCh <- fmt.Errorf("state mismatch")
+			sendErr(fmt.Errorf("state mismatch"))
 			http.Error(w, "State mismatch", http.StatusBadRequest)
 			return
 		}
 		if errMsg := r.URL.Query().Get("error"); errMsg != "" {
-			errCh <- fmt.Errorf("auth error: %s", errMsg)
+			sendErr(fmt.Errorf("auth error: %s", errMsg))
 			http.Error(w, errMsg, http.StatusBadRequest)
 			return
 		}
 		code := r.URL.Query().Get("code")
 		if code == "" {
-			errCh <- fmt.Errorf("no code in callback")
+			sendErr(fmt.Errorf("no code in callback"))
 			http.Error(w, "No code", http.StatusBadRequest)
 			return
 		}
 		w.Header().Set("Content-Type", "text/html")
 		fmt.Fprint(w, "<html><body><h2>Authentication successful!</h2><p>You can close this tab.</p></body></html>")
-		codeCh <- code
+		select {
+		case codeCh <- code:
+		default:
+		}
 	})
 
 	server := &http.Server{Handler: mux, ReadHeaderTimeout: 10 * time.Second}
 	go server.Serve(listener)
-	// Tear down the callback server on every return path (success, auth error,
-	// or the 2-minute timeout) so a slow/never-completing connection cannot leak
-	// the listener goroutine.
-	defer server.Shutdown(context.Background())
+	shutdownServer := sync.OnceFunc(func() {
+		shutdownOAuthCallbackServer(server, 2*time.Second)
+	})
+	defer shutdownServer()
 
 	var code string
 	select {
@@ -231,7 +241,7 @@ func runOAuthLogin(cmd *cobra.Command, flags *rootFlags, clientID, clientSecret 
 		return fmt.Errorf("authentication timed out after 2 minutes")
 	}
 
-	server.Shutdown(context.Background())
+	shutdownServer()
 
 	tokenURL := ""
 	tokenURL = cfg.TokenURL
@@ -292,6 +302,14 @@ func runOAuthLogin(cmd *cobra.Command, flags *rootFlags, clientID, clientSecret 
 		fmt.Fprintf(os.Stderr, "%s Authentication successful! Token expires at %s\n", green("OK"), expiry.Format(time.RFC3339))
 	}
 	return nil
+}
+
+func shutdownOAuthCallbackServer(server *http.Server, timeout time.Duration) {
+	ctx, cancel := context.WithTimeout(context.Background(), timeout)
+	defer cancel()
+	if err := server.Shutdown(ctx); err != nil {
+		_ = server.Close()
+	}
 }
 
 func resolveOAuthCredentials(cmd *cobra.Command, flags *rootFlags, cfg *config.Config, clientID, clientSecret string) (string, string, error) {

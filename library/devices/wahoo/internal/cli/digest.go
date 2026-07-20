@@ -7,8 +7,8 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/spf13/cobra"
 	"github.com/mvanhorn/printing-press-library/library/devices/wahoo/internal/store"
+	"github.com/spf13/cobra"
 )
 
 // pp:data-source local
@@ -60,7 +60,10 @@ func newNovelDigestCmd(flags *rootFlags) *cobra.Command {
 			if err != nil {
 				return fmt.Errorf("reading workouts: %w", err)
 			}
-			ftp := latestFTP(db)
+			ftp, err := latestFTP(db)
+			if err != nil {
+				return fmt.Errorf("reading power zones: %w", err)
+			}
 			view := computeDigest(ws, ftp, days, time.Now())
 
 			if wantsHumanTable(cmd.OutOrStdout(), flags) {
