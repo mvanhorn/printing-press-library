@@ -1,6 +1,6 @@
 module github.com/mvanhorn/printing-press-library/library/other/fred
 
-go 1.26.5
+go 1.26
 
 toolchain go1.26.4
 

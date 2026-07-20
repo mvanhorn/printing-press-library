@@ -1,6 +1,6 @@
 module github.com/mvanhorn/printing-press-library/library/travel/flight-goat
 
-go 1.26.5
+go 1.26.3
 
 toolchain go1.26.4
 
