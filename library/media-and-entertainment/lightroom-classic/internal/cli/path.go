@@ -15,7 +15,8 @@ import (
 
 type resolvedPath struct {
 	lrcat.Photo
-	Exists bool `json:"exists"`
+	Exists    bool   `json:"exists"`
+	StatError string `json:"stat_error,omitempty"`
 }
 
 func newPathCmd(flags *rootFlags) *cobra.Command {
@@ -52,8 +53,17 @@ func newPathCmd(flags *rootFlags) *cobra.Command {
 			}
 			out := make([]resolvedPath, 0, len(photos))
 			for _, p := range photos {
-				_, statErr := os.Stat(p.Path)
-				out = append(out, resolvedPath{Photo: p, Exists: statErr == nil})
+				r := resolvedPath{Photo: p}
+				switch _, statErr := os.Stat(p.Path); {
+				case statErr == nil:
+					r.Exists = true
+				case os.IsNotExist(statErr):
+					// genuinely absent
+				default:
+					// Permission or I/O errors are not evidence of deletion.
+					r.StatError = statErr.Error()
+				}
+				out = append(out, r)
 			}
 			return emitLrcat(cmd, flags, out, func(w io.Writer) {
 				if len(out) == 0 {
@@ -62,7 +72,10 @@ func newPathCmd(flags *rootFlags) *cobra.Command {
 				}
 				for _, r := range out {
 					mark := "✓"
-					if !r.Exists {
+					switch {
+					case r.StatError != "":
+						mark = "UNREADABLE (" + r.StatError + ")"
+					case !r.Exists:
 						mark = "MISSING"
 					}
 					fmt.Fprintf(w, "%s  %s\n", mark, r.Path)

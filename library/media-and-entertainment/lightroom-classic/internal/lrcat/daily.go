@@ -4,6 +4,7 @@ package lrcat
 import (
 	"context"
 	"fmt"
+	"strings"
 	"time"
 )
 
@@ -257,13 +258,56 @@ func (c *Catalog) Project(ctx context.Context, collection string, target int, st
 	if target <= 0 {
 		return nil, fmt.Errorf("--target must be a positive day count")
 	}
+	// Resolve the substring to exactly one collection so two similarly named
+	// projects can never merge into one report. Exact match wins; a unique
+	// substring match is accepted; multiple matches are an error.
+	nameRows, err := c.DB.QueryContext(ctx, `
+		SELECT DISTINCT name FROM AgLibraryCollection
+		WHERE systemOnly = 0 AND name IS NOT NULL AND lower(name) LIKE lower(?)
+		ORDER BY name`, "%"+collection+"%")
+	if err != nil {
+		return nil, err
+	}
+	matches := make([]string, 0)
+	for nameRows.Next() {
+		var n string
+		if err := nameRows.Scan(&n); err != nil {
+			_ = nameRows.Close()
+			return nil, err
+		}
+		matches = append(matches, n)
+	}
+	if err := nameRows.Err(); err != nil {
+		_ = nameRows.Close()
+		return nil, err
+	}
+	if err := nameRows.Close(); err != nil {
+		return nil, err
+	}
+	resolved := ""
+	for _, m := range matches {
+		if strings.EqualFold(m, collection) {
+			resolved = m
+			break
+		}
+	}
+	if resolved == "" && len(matches) == 1 {
+		resolved = matches[0]
+	}
+	if resolved == "" && len(matches) > 1 {
+		return nil, fmt.Errorf("--collection %q matches %d collections (%s); use the exact name", collection, len(matches), strings.Join(matches, ", "))
+	}
+	if resolved == "" {
+		// No matching collection: fall through to the empty-report path below.
+		resolved = collection
+	}
 	rows, err := c.DB.QueryContext(ctx, `
 		SELECT DISTINCT substr(i.captureTime,1,10) d
 		FROM Adobe_images i
 		JOIN AgLibraryCollectionImage ci ON ci.image = i.id_local
 		JOIN AgLibraryCollection c ON c.id_local = ci.collection
-		WHERE lower(c.name) LIKE lower(?) AND i.captureTime IS NOT NULL
-		ORDER BY d`, "%"+collection+"%")
+		WHERE lower(c.name) = lower(?) AND i.captureTime IS NOT NULL
+		ORDER BY d`, resolved)
 	if err != nil {
 		return nil, err
 	}
@@ -287,7 +331,7 @@ func (c *Catalog) Project(ctx context.Context, collection string, target int, st
 		// Empty local result, not a failure: report zero progress with a note
 		// so agents can distinguish "no such collection" from real progress.
 		return &ProjectReport{
-			Collection: collection,
+			Collection: resolved,
 			Target:     target,
 			Start:      start,
 			MissedDays: []string{},
@@ -305,7 +349,7 @@ func (c *Catalog) Project(ctx context.Context, collection string, target int, st
 	for _, d := range days {
 		shot[d] = true
 	}
-	rep := &ProjectReport{Collection: collection, Target: target, Start: start, MissedDays: []string{}}
+	rep := &ProjectReport{Collection: resolved, Target: target, Start: start, MissedDays: []string{}}
 	today := time.Now()
 	todayKey := today.Format(dayFormat)
 	for d := s; !d.After(today); d = d.AddDate(0, 0, 1) {

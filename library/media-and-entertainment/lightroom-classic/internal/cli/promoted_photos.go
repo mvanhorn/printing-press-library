@@ -45,6 +45,9 @@ func newPhotosPromotedCmd(flags *rootFlags) *cobra.Command {
 			}
 			defer cat.Close()
 			f.Format = flagFormat
+			if f.Limit <= 0 {
+				f.Limit = 100 // keep the footer consistent with FindPhotos' default
+			}
 			photos, err := cat.FindPhotos(ctx, f)
 			if err != nil {
 				if strings.Contains(err.Error(), "invalid comparison") {
@@ -57,7 +60,7 @@ func newPhotosPromotedCmd(flags *rootFlags) *cobra.Command {
 				for _, p := range photos {
 					photoLine(w, p)
 				}
-				fmt.Fprintf(w, "%d photos (limit %d)\n", len(photos), max(f.Limit, 1))
+				fmt.Fprintf(w, "%d photos (limit %d)\n", len(photos), f.Limit)
 			})
 		},
 	}
