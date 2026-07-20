@@ -197,3 +197,32 @@ func TestSubmissionsSearchMatches(t *testing.T) {
 		t.Fatalf("want scanned 2, got %d", view.Scanned)
 	}
 }
+
+func TestSubmissionsSearchSortsOffsetsBeforeLimit(t *testing.T) {
+	db := seedMirror(t)
+	st, err := store.Open(db)
+	if err != nil {
+		t.Fatalf("open store: %v", err)
+	}
+	defer st.Close()
+
+	for id, createdAt := range map[string]string{
+		"older-offset": "2026-07-08T09:00:00+05:30", // 03:30 UTC
+		"newer-utc":    "2026-07-08T04:00:00Z",
+	} {
+		raw, _ := json.Marshal(map[string]any{
+			"id": id, "summary": "offset-order", "created_at": createdAt,
+		})
+		if err := st.Upsert("submissions", id, raw); err != nil {
+			t.Fatalf("upsert %s: %v", id, err)
+		}
+	}
+
+	var view submissionSearchView
+	if err := json.Unmarshal(runCmd(t, "submissions", "search", "offset-order", "--json", "--limit", "1", "--db", db), &view); err != nil {
+		t.Fatalf("unmarshal: %v", err)
+	}
+	if view.Count != 1 || view.Submissions[0].ID != "newer-utc" {
+		t.Fatalf("want newest chronological match after limit, got %+v", view.Submissions)
+	}
+}

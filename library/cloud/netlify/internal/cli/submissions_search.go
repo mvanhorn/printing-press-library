@@ -99,7 +99,7 @@ submissions locally.`,
 			}
 			// Sort all matches newest-first, then cap: applying the limit before
 			// the sort would drop the newest matches and keep arbitrary storage-order ones.
-			sort.Slice(hits, func(i, j int) bool { return hits[i].CreatedAt > hits[j].CreatedAt })
+			sort.Slice(hits, func(i, j int) bool { return timestampAfter(hits[i].CreatedAt, hits[j].CreatedAt) })
 			if limit > 0 && len(hits) > limit {
 				hits = hits[:limit]
 			}
