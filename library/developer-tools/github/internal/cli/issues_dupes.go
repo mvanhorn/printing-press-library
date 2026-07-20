@@ -4,6 +4,7 @@
 package cli
 
 import (
+	"encoding/json"
 	"fmt"
 	"strconv"
 
@@ -51,14 +52,11 @@ reuse it offline. --refresh re-fetches.`,
 				return err
 			}
 
-			matches, err := st.Search(term, flagLimit, "issues")
+			matches, err := st.Search(term, nvCount(st, "issues"), "issues")
 			if err != nil {
 				return fmt.Errorf("searching synced issues: %w", err)
 			}
-			rows := make([]issueRow, 0, len(matches))
-			for _, raw := range matches {
-				rows = append(rows, nvIssueRow(raw))
-			}
+			rows := nvOpenIssueRows(matches, flagLimit)
 
 			if wantsHumanTable(cmd.OutOrStdout(), flags) {
 				if len(rows) == 0 {
@@ -78,4 +76,22 @@ reuse it offline. --refresh re-fetches.`,
 	cmd.Flags().BoolVar(&flagRefresh, "refresh", false, "Re-fetch issues even if the local mirror already has them")
 	cmd.Flags().IntVar(&flagMaxPages, "max-pages", 3, "Maximum pages (100/page) to fetch when populating")
 	return cmd
+}
+
+func nvOpenIssueRows(matches []json.RawMessage, limit int) []issueRow {
+	if limit <= 0 {
+		limit = 50
+	}
+	rows := make([]issueRow, 0, min(limit, len(matches)))
+	for _, raw := range matches {
+		row := nvIssueRow(raw)
+		if row.State != "open" {
+			continue
+		}
+		rows = append(rows, row)
+		if len(rows) == limit {
+			break
+		}
+	}
+	return rows
 }

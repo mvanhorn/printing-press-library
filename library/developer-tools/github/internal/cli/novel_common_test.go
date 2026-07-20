@@ -152,6 +152,17 @@ func TestNvIssueRow(t *testing.T) {
 	}
 }
 
+func TestNvIssueDupesKeepsOnlyOpenMatches(t *testing.T) {
+	matches := []json.RawMessage{
+		json.RawMessage(`{"number":1,"title":"closed match","state":"closed"}`),
+		json.RawMessage(`{"number":2,"title":"open match","state":"open"}`),
+	}
+	rows := nvOpenIssueRows(matches, 10)
+	if len(rows) != 1 || rows[0].Number != 2 {
+		t.Fatalf("wanted only open duplicate candidate, got %+v", rows)
+	}
+}
+
 func TestNvMentionRow(t *testing.T) {
 	commit := nvMentionRow("commits", []byte(`{"sha":"deadbeefcafe","commit":{"message":"fix ParseConfig\n\nbody"}}`))
 	if commit.Type != "commit" || commit.Ref != "deadbeefcafe" || commit.Title != "fix ParseConfig" {
