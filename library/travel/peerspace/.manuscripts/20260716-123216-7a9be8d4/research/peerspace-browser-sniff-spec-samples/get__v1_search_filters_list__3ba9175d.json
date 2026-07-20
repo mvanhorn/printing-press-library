@@ -1,0 +1,457 @@
+{
+  "endpoint": "GET /v1/search/filters/list",
+  "method": "GET",
+  "raw_url": "https://www.peerspace.com/v1/search/filters/list?activity_type=meetup",
+  "status": 200,
+  "request_headers": {
+    ":authority": "www.peerspace.com",
+    ":method": "GET",
+    ":path": "/v1/search/filters/list?activity_type=meetup",
+    ":scheme": "https",
+    "accept": "application/json",
+    "accept-encoding": "gzip, deflate, br, zstd",
+    "accept-language": "en-US,en;q=0.9,fr-FR;q=0.8,fr;q=0.7,ko;q=0.6,es;q=0.5",
+    "baggage": "REDACTED",
+    "cache-control": "no-cache, must-revalidate",
+    "pragma": "no-cache",
+    "priority": "u=1, i",
+    "referer": "https://www.peerspace.com/fr/s/?bbox_of_interest=[48.9021476,2.2242171,48.8155622,2.4698511]&map_pref=false&p=1&availability=[[2026-08-06T18:00,2026-08-07T21:00]]&space_type=daylight_studio&location=paris--france&a=meetup",
+    "sec-ch-ua": "\"Not;A=Brand\";v=\"8\", \"Chromium\";v=\"150\", \"Google Chrome\";v=\"150\"",
+    "sec-ch-ua-mobile": "?1",
+    "sec-ch-ua-platform": "\"Android\"",
+    "sec-fetch-dest": "empty",
+    "sec-fetch-mode": "cors",
+    "sec-fetch-site": "same-origin",
+    "traceparent": "REDACTED",
+    "tracestate": "REDACTED",
+    "user-agent": "Mozilla/5.0 (Linux; Android 15; Pixel 9) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Mobile Safari/537.36",
+    "x-datadog-origin": "rum",
+    "x-datadog-parent-id": "1584843217609340559",
+    "x-datadog-sampling-priority": "1",
+    "x-datadog-trace-id": "10023092897116420227"
+  },
+  "request_body": null,
+  "response_headers": {
+    "cf-cache-status": "DYNAMIC",
+    "cf-ray": "a1c0465a1e4199b5-CDG",
+    "content-encoding": "gzip",
+    "content-type": "application/json;charset=utf-8",
+    "date": "Thu, 16 Jul 2026 10:20:31 GMT",
+    "server": "cloudflare",
+    "vary": "Accept-Encoding",
+    "via": "1.1 google"
+  },
+  "response_body": {
+    "amenities": [
+      {
+        "canonical_id": "bathtub",
+        "display_name": "REDACTED"
+      },
+      {
+        "canonical_id": "deck",
+        "display_name": "REDACTED"
+      },
+      {
+        "canonical_id": "elevator",
+        "display_name": "REDACTED"
+      },
+      {
+        "canonical_id": "exposed_brick",
+        "display_name": "REDACTED"
+      },
+      {
+        "canonical_id": "fire_pit",
+        "display_name": "REDACTED"
+      },
+      {
+        "canonical_id": "fireplace",
+        "display_name": "REDACTED"
+      },
+      {
+        "canonical_id": "gazebo",
+        "display_name": "REDACTED"
+      },
+      {
+        "canonical_id": "grill",
+        "display_name": "REDACTED"
+      },
+      {
+        "canonical_id": "library",
+        "display_name": "REDACTED"
+      },
+      {
+        "canonical_id": "piano",
+        "display_name": "REDACTED"
+      }
+    ],
+    "indoor_features": [
+      {
+        "canonical_id": "bathroom",
+        "display_name": "REDACTED"
+      },
+      {
+        "canonical_id": "bedroom",
+        "display_name": "REDACTED"
+      },
+      {
+        "canonical_id": "dining_area",
+        "display_name": "REDACTED"
+      },
+      {
+        "canonical_id": "garage",
+        "display_name": "REDACTED"
+      },
+      {
+        "canonical_id": "home_office",
+        "display_name": "REDACTED"
+      },
+      {
+        "canonical_id": "kids_room",
+        "display_name": "REDACTED"
+      },
+      {
+        "canonical_id": "kitchen",
+        "display_name": "REDACTED"
+      },
+      {
+        "canonical_id": "living_area",
+        "display_name": "REDACTED"
+      },
+      {
+        "canonical_id": "stairway",
+        "display_name": "REDACTED"
+      }
+    ],
+    "outdoor_features": [
+      {
+        "canonical_id": "backyard",
+        "display_name": "REDACTED"
+      },
+      {
+        "canonical_id": "beach",
+        "display_name": "REDACTED"
+      },
+      {
+        "canonical_id": "desert",
+        "display_name": "REDACTED"
+      },
+      {
+        "canonical_id": "exterior",
+        "display_name": "REDACTED"
+      },
+      {
+        "canonical_id": "garden",
+        "display_name": "REDACTED"
+      },
+      {
+        "canonical_id": "lawn",
+        "display_name": "REDACTED"
+      },
+      {
+        "canonical_id": "outdoor_space",
+        "display_name": "REDACTED"
+      },
+      {
+        "canonical_id": "patio",
+        "display_name": "REDACTED"
+      },
+      {
+        "canonical_id": "pool",
+        "display_name": "REDACTED"
+      },
+      {
+        "canonical_id": "rooftop",
+        "display_name": "REDACTED"
+      }
+    ],
+    "production_features": [
+      {
+        "canonical_id": "cyclorama",
+        "display_name": "REDACTED"
+      },
+      {
+        "canonical_id": "daylight_setup",
+        "display_name": "REDACTED"
+      },
+      {
+        "canonical_id": "green_screen",
+        "display_name": "REDACTED"
+      },
+      {
+        "canonical_id": "seamless_backdrop",
+        "display_name": "REDACTED"
+      }
+    ],
+    "ranked_space_types": [
+      {
+        "canonical_id": "flex_space",
+        "cloudinary_id": "stoauu4teyz4h40ernra",
+        "display_name": "REDACTED",
+        "sort_rank": 1
+      },
+      {
+        "canonical_id": "conference_room",
+        "cloudinary_id": "ys6oks9vkfpt79ey2gc7",
+        "display_name": "REDACTED",
+        "sort_rank": 2
+      },
+      {
+        "canonical_id": "lounge",
+        "cloudinary_id": "ejuqui5ntomrugkegsnt",
+        "display_name": "REDACTED",
+        "sort_rank": 3
+      },
+      {
+        "canonical_id": "storefront",
+        "cloudinary_id": "hssf4pylk1l61y4xgoyq",
+        "display_name": "REDACTED",
+        "sort_rank": 4
+      },
+      {
+        "canonical_id": "daylight_studio",
+        "cloudinary_id": "knnthkztx4lterws7zrf",
+        "display_name": "REDACTED",
+        "sort_rank": 5
+      },
+      {
+        "canonical_id": "bar",
+        "cloudinary_id": "a1q1o6i1grj3m9vm0ayn",
+        "display_name": "REDACTED",
+        "sort_rank": 6
+      },
+      {
+        "canonical_id": "gallery",
+        "cloudinary_id": "mfwk1g21dyxmk7k5xyy3",
+        "display_name": "REDACTED",
+        "sort_rank": 7
+      },
+      {
+        "canonical_id": "house",
+        "cloudinary_id": "levqlus1xccdhiz4mvup",
+        "display_name": "REDACTED",
+        "sort_rank": 8
+      },
+      {
+        "canonical_id": "classroom",
+        "cloudinary_id": "gmhebqtaqwzwh1d5saxm",
+        "display_name": "REDACTED",
+        "sort_rank": 9
+      },
+      {
+        "canonical_id": "restaurant",
+        "cloudinary_id": "awqdoshbznnogqs6oct7",
+        "display_name": "REDACTED",
+        "sort_rank": 10
+      },
+      {
+        "canonical_id": "apartment",
+        "cloudinary_id": "vlgu0lkekfur1rexxbaw",
+        "display_name": "REDACTED",
+        "sort_rank": 11
+      },
+      {
+        "canonical_id": "production_studio",
+        "cloudinary_id": "rirtdoswpx4isbys8bcn",
+        "display_name": "REDACTED",
+        "sort_rank": 12
+      }
+    ],
+    "space_types": [
+      {
+        "canonical_id": "apartment",
+        "display_name": "REDACTED"
+      },
+      {
+        "canonical_id": "art_studio",
+        "display_name": "REDACTED"
+      },
+      {
+        "canonical_id": "banquet_hall",
+        "display_name": "REDACTED"
+      },
+      {
+        "canonical_id": "bar",
+        "display_name": "REDACTED"
+      },
+      {
+        "canonical_id": "cabin",
+        "display_name": "REDACTED"
+      },
+      {
+        "canonical_id": "cafe",
+        "display_name": "REDACTED"
+      },
+      {
+        "canonical_id": "church",
+        "display_name": "REDACTED"
+      },
+      {
+        "canonical_id": "classroom",
+        "display_name": "REDACTED"
+      },
+      {
+        "canonical_id": "conference_room",
+        "display_name": "REDACTED"
+      },
+      {
+        "canonical_id": "dance_studio",
+        "display_name": "REDACTED"
+      },
+      {
+        "canonical_id": "daylight_studio",
+        "display_name": "REDACTED"
+      },
+      {
+        "canonical_id": "desk_space",
+        "display_name": "REDACTED"
+      },
+      {
+        "canonical_id": "flex_space",
+        "display_name": "REDACTED"
+      },
+      {
+        "canonical_id": "gallery",
+        "display_name": "REDACTED"
+      },
+      {
+        "canonical_id": "gym",
+        "display_name": "REDACTED"
+      },
+      {
+        "canonical_id": "house",
+        "display_name": "REDACTED"
+      },
+      {
+        "canonical_id": "lake_house",
+        "display_name": "REDACTED"
+      },
+      {
+        "canonical_id": "lounge",
+        "display_name": "REDACTED"
+      },
+      {
+        "canonical_id": "mansion",
+        "display_name": "REDACTED"
+      },
+      {
+        "canonical_id": "mountain_home",
+        "display_name": "REDACTED"
+      },
+      {
+        "canonical_id": "outdoor_lounge",
+        "display_name": "REDACTED"
+      },
+      {
+        "canonical_id": "outdoor_space",
+        "display_name": "REDACTED"
+      },
+      {
+        "canonical_id": "party_hall",
+        "display_name": "REDACTED"
+      },
+      {
+        "canonical_id": "performance_hall",
+        "display_name": "REDACTED"
+      },
+      {
+        "canonical_id": "presentation_space",
+        "display_name": "REDACTED"
+      },
+      {
+        "canonical_id": "production_set",
+        "display_name": "REDACTED"
+      },
+      {
+        "canonical_id": "production_studio",
+        "display_name": "REDACTED"
+      },
+      {
+        "canonical_id": "recital_space",
+        "display_name": "REDACTED"
+      },
+      {
+        "canonical_id": "recording_studio",
+        "display_name": "REDACTED"
+      },
+      {
+        "canonical_id": "restaurant",
+        "display_name": "REDACTED"
+      },
+      {
+        "canonical_id": "salon",
+        "display_name": "REDACTED"
+      },
+      {
+        "canonical_id": "screening_room",
+        "display_name": "REDACTED"
+      },
+      {
+        "canonical_id": "storefront",
+        "display_name": "REDACTED"
+      },
+      {
+        "canonical_id": "victorian_house",
+        "display_name": "REDACTED"
+      },
+      {
+        "canonical_id": "warehouse",
+        "display_name": "REDACTED"
+      },
+      {
+        "canonical_id": "winery",
+        "display_name": "REDACTED"
+      },
+      {
+        "canonical_id": "yoga_studio",
+        "display_name": "REDACTED"
+      }
+    ],
+    "styles": [
+      {
+        "canonical_id": "bohemian",
+        "display_name": "REDACTED"
+      },
+      {
+        "canonical_id": "coastal_beachy",
+        "display_name": "REDACTED"
+      },
+      {
+        "canonical_id": "colorful",
+        "display_name": "REDACTED"
+      },
+      {
+        "canonical_id": "farmhouse",
+        "display_name": "REDACTED"
+      },
+      {
+        "canonical_id": "industrial",
+        "display_name": "REDACTED"
+      },
+      {
+        "canonical_id": "loft",
+        "display_name": "REDACTED"
+      },
+      {
+        "canonical_id": "luxury",
+        "display_name": "REDACTED"
+      },
+      {
+        "canonical_id": "mid_century",
+        "display_name": "REDACTED"
+      },
+      {
+        "canonical_id": "modern",
+        "display_name": "REDACTED"
+      },
+      {
+        "canonical_id": "rustic",
+        "display_name": "REDACTED"
+      },
+      {
+        "canonical_id": "vintage",
+        "display_name": "REDACTED"
+      }
+    ]
+  },
+  "response_body_known": true
+}

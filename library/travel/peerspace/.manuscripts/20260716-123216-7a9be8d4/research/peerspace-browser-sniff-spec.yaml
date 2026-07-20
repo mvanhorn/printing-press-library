@@ -1,0 +1,376 @@
+name: peerspace
+description: CLI for Peerspace venue search, filters, favorites, and account surfaces
+  discovered from live site traffic. Search unique event, meeting, and production
+  spaces by location, activity, and amenities.
+cli_description: 'Tech-event venue scout for Peerspace: search and filter spaces,
+  rank fit for meetups/workshops, compare shortlists, export proposal packs for Luma/Eventbrite/Slack,
+  and query markets offline.'
+version: 0.1.0
+base_url: https://www.peerspace.com
+category: travel
+spec_source: sniffed
+auth:
+  type: cookie
+  header: Cookie
+  format: ''
+  env_vars: []
+http_transport: browser-chrome
+config:
+  format: toml
+  path: ~/.config/peerspace-pp-cli/config.toml
+cache:
+  enabled: true
+  stale_after: 24h
+  refresh_timeout: 30s
+learn:
+  entity_lookup_seeds:
+    activity:
+    - canonical: meetup
+      aliases:
+      - meeting
+      - meetings
+      - reunion
+      - réunion
+    - canonical: party
+      aliases:
+      - fete
+      - fête
+      - celebration
+      - soirée
+      - soiree
+    - canonical: film_shoot
+      aliases:
+      - film
+      - photo
+      - production
+      - shoot
+      - video
+    - canonical: wedding
+      aliases:
+      - mariage
+      - ceremony
+    - canonical: workshop
+      aliases:
+      - atelier
+      - class
+      - training
+    space_type:
+    - canonical: daylight_studio
+      aliases:
+      - studio
+      - daylight studio
+      - photo studio
+    - canonical: film_photo_loft
+      aliases:
+      - loft
+      - photo loft
+    - canonical: apartment
+      aliases:
+      - flat
+      - appartement
+    - canonical: flex_space
+      aliases:
+      - flex
+      - flexible space
+    - canonical: event_space
+      aliases:
+      - event venue
+      - venue
+      - salle
+    city:
+    - canonical: Paris
+      aliases:
+      - paris
+      - paris france
+      - idf
+    - canonical: Los Angeles
+      aliases:
+      - la
+      - los angeles
+      - l.a.
+    - canonical: New York
+      aliases:
+      - nyc
+      - new york city
+      - brooklyn
+    - canonical: San Francisco
+      aliases:
+      - sf
+      - bay area
+    - canonical: London
+      aliases:
+      - ldn
+      - london uk
+  synonyms:
+    venue: space
+    listing: space
+    spot: space
+    salle: space
+    hourly rate: price
+    capacity: guests
+resources:
+  venues:
+    description: Venue search, filters, and default booking times
+    endpoints:
+      filters:
+        method: GET
+        path: /v1/search/filters/list
+        description: List amenity, space-type, style, and feature filters for an activity
+        no_auth: true
+        params:
+        - name: activity_type
+          type: string
+          required: false
+          flag_name: activity
+          aliases:
+          - activity-type
+          description: Activity type e.g. meetup
+      default_times:
+        method: GET
+        path: /v1/search/default-times/by-activity/meetup/dows
+        description: Default booking time windows by day-of-week for meetup activity
+        no_auth: true
+        params:
+        - name: dow
+          type: string
+          required: false
+          description: Day of week filter
+      list:
+        method: GET
+        path: /v1/search/listings
+        description: Search Peerspace listings by location, activity, space type,
+          guests, price, and availability
+        no_auth: true
+        params:
+        - name: place_id
+          type: string
+          required: false
+          description: Peerspace place/location id (from map/geocode)
+          flag_name: place-id
+        - name: viewport_location
+          type: string
+          required: false
+          description: Human location slug e.g. paris--france
+          flag_name: viewport-location
+        - name: bbox_of_interest
+          type: string
+          required: false
+          description: Bounding box [north,west,south,east]
+          flag_name: bbox-of-interest
+        - name: use_id
+          type: string
+          required: false
+          flag_name: activity
+          aliases:
+          - use-id
+          description: Activity/use type e.g. meetup, party, film_shoot
+        - name: kw_search_space_type
+          type: string
+          required: false
+          flag_name: space-type
+          aliases:
+          - kw-search-space-type
+          description: Space type canonical id e.g. daylight_studio, apartment
+        - name: availability
+          type: string
+          required: false
+          description: Availability windows as JSON array of [start,end] ISO datetimes
+        - name: min_guest
+          type: integer
+          required: false
+          description: Minimum guest capacity
+          flag_name: min-guest
+        - name: max_guest
+          type: integer
+          required: false
+          description: Maximum guest capacity
+          flag_name: max-guest
+        - name: price_hourly_min
+          type: number
+          required: false
+          description: Minimum hourly rate
+          flag_name: price-hourly-min
+        - name: price_hourly_max
+          type: number
+          required: false
+          description: Maximum hourly rate
+          flag_name: price-hourly-max
+        - name: size
+          type: integer
+          required: false
+          description: Page size (results per request)
+        - name: ffilter
+          type: string
+          required: false
+          default: web-search
+          description: Search filter channel (web-search)
+        - name: variant
+          type: string
+          required: false
+          description: Search experiment variant token
+      natural:
+        method: POST
+        path: /v1/search/listings/natural
+        description: Natural-language venue search (nl_query body). Discovered from
+          search-app JS; enrich with same query params as list.
+        no_auth: true
+        params:
+        - name: place_id
+          type: string
+          required: false
+          description: Peerspace place/location id
+          flag_name: place-id
+        - name: viewport_location
+          type: string
+          required: false
+          description: Human location slug e.g. paris--france
+          flag_name: viewport-location
+        - name: use_id
+          type: string
+          required: false
+          flag_name: activity
+          aliases:
+          - use-id
+          description: Activity/use type
+        - name: size
+          type: integer
+          required: false
+          description: Page size
+        - name: ffilter
+          type: string
+          required: false
+          default: web-search
+          description: Search filter channel
+        body:
+        - name: nl_query
+          type: string
+          required: true
+          description: Natural language venue query e.g. loft with projector for 40
+            people near Bastille
+          flag_name: nl-query
+      prices:
+        method: POST
+        path: /v1/search/listings/prices
+        description: Batch total-price calculation for listing ids + booking windows
+          (from search-app getTotalPrices)
+        no_auth: true
+        params: []
+        body:
+        - name: listings
+          type: array
+          required: false
+          description: Listing price request payload as observed by getTotalPrices
+  profiles:
+    description: Authenticated user profile
+    endpoints:
+      me:
+        method: GET
+        path: /v1/profiles/me
+        description: Current authenticated profile (requires browser session cookie)
+        params:
+        - name: timestamp
+          type: integer
+          required: false
+          description: Cache-buster timestamp ms
+      experience:
+        method: GET
+        path: /v1/profiles/me/experience
+        description: Profile experience / onboarding signals for current user
+        params:
+        - name: trigger
+          type: string
+          required: false
+          description: Experience trigger context
+  messages:
+    description: Messaging inbox counts
+    endpoints:
+      thread_count:
+        method: GET
+        path: /v1/messages/user/threads/count
+        description: Unread or total message thread count for current user
+        params:
+        - name: is_read
+          type: boolean
+          required: false
+          description: Filter by read state
+          flag_name: is-read
+        - name: to
+          type: string
+          required: false
+          description: Recipient filter
+  projects:
+    description: Saved projects and favorites boards
+    endpoints:
+      details:
+        method: GET
+        path: /v1/projects/attachments/collaborator/{collaborator_id}/details
+        description: Project details for a collaborator (favorites project metadata)
+        params:
+        - name: collaborator_id
+          type: string
+          required: true
+          description: Collaborator/SSO user id
+          flag_name: collaborator-id
+        - name: limit
+          type: integer
+          required: false
+          description: Max projects to return
+        - name: ns_count
+          type: boolean
+          required: false
+          description: Include namespace counts
+          flag_name: ns-count
+      fav_board:
+        method: GET
+        path: /v1/projects/attachments/collaborator/{collaborator_id}/xr/fav_board
+        description: Favorite board attachments (saved listing ids) for a collaborator
+        params:
+        - name: collaborator_id
+          type: string
+          required: true
+          description: Collaborator/SSO user id
+          flag_name: collaborator-id
+        - name: limit
+          type: integer
+          required: false
+          description: Max favorites to return
+  entitlements:
+    description: Profile entitlement attachments
+    endpoints:
+      profiles:
+        method: GET
+        path: /v1/entitlements/attachments/profiles/{profile_id}
+        description: Entitlement attachments for a profile id
+        params:
+        - name: profile_id
+          type: string
+          required: true
+          description: Profile id
+          flag_name: profile-id
+        - name: timestamp
+          type: integer
+          required: false
+          description: Cache-buster timestamp ms
+  env:
+    description: Public client environment config and keyword dictionaries
+    endpoints:
+      web:
+        method: GET
+        path: /v1/env/web
+        description: Web client environment config
+        no_auth: true
+        params:
+        - name: timestamp
+          type: integer
+          required: false
+          description: Cache-buster timestamp ms
+      keywords:
+        method: GET
+        path: /v1/env/keywords/fr-FR
+        description: Localized keyword dictionary (fr-FR sample from capture)
+        no_auth: true
+        params:
+        - name: timestamp
+          type: integer
+          required: false
+          description: Cache-buster timestamp ms

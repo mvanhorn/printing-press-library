@@ -1,0 +1,114 @@
+{
+  "endpoint": "POST /cdn-cgi/rum",
+  "method": "POST",
+  "raw_url": "https://www.peerspace.com/cdn-cgi/rum?",
+  "status": 204,
+  "request_headers": {
+    ":authority": "www.peerspace.com",
+    ":method": "POST",
+    ":path": "/cdn-cgi/rum?",
+    ":scheme": "https",
+    "accept": "*/*",
+    "accept-encoding": "gzip, deflate, br, zstd",
+    "accept-language": "en-US,en;q=0.9,fr-FR;q=0.8,fr;q=0.7,ko;q=0.6,es;q=0.5",
+    "content-length": "1287",
+    "content-type": "application/json",
+    "origin": "https://www.peerspace.com",
+    "priority": "u=4, i",
+    "referer": "https://www.peerspace.com/fr/s/?min_guest=26&max_guest=120&bbox_of_interest=[48.9021476,2.2242171,48.8155622,2.4698511]&price_hourly_min=100&price_hourly_max=250&map_pref=false&p=1&availability=[[2026-08-06T18:00,2026-08-07T21:00]]&space_type=art_studio,apartment&location=paris--france&a=meetup",
+    "sec-ch-ua": "\"Not;A=Brand\";v=\"8\", \"Chromium\";v=\"150\", \"Google Chrome\";v=\"150\"",
+    "sec-ch-ua-mobile": "?1",
+    "sec-ch-ua-platform": "\"Android\"",
+    "sec-fetch-dest": "empty",
+    "sec-fetch-mode": "cors",
+    "sec-fetch-site": "same-origin",
+    "user-agent": "Mozilla/5.0 (Linux; Android 15; Pixel 9) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Mobile Safari/537.36"
+  },
+  "request_body": {
+    "cls": {
+      "currentRect": {
+        "bottom": 899.1875,
+        "height": 507.1875,
+        "left": 30,
+        "right": 519,
+        "top": 392,
+        "width": 489,
+        "x": 30,
+        "y": 392
+      },
+      "element": "#662bb5e291c0733385194b68",
+      "path": "/fr/s/",
+      "previousRect": {
+        "bottom": 899.1875,
+        "height": 507.1875,
+        "left": 519,
+        "right": 1008,
+        "top": 392,
+        "width": 489,
+        "x": 519,
+        "y": 392
+      },
+      "value": 0.5693139958925343
+    },
+    "dt": "",
+    "eventType": 3,
+    "fcp": {
+      "path": "/fr/s/",
+      "value": 4104
+    },
+    "inp": {
+      "idy": 2790.699999988079,
+      "name": "pointer",
+      "path": "/fr/s/",
+      "pdn": 865.1999999880791,
+      "pdy": 56.10000002384186,
+      "value": 3712
+    },
+    "landingPath": "/fr/s/",
+    "lcp": {
+      "element": "img.tw-h-full.tw-max-w-full.tw-object-cover.tw-w-full",
+      "erd": 709.5,
+      "fp": null,
+      "it": "img",
+      "path": "/fr/s/",
+      "rld": 2014.7000000476837,
+      "rlt": 92.89999997615814,
+      "size": 56233,
+      "url": "https://img.peerspace.com/image/upload/c_crop,g_custom/g_auto,c_fill,q_auto,f_auto,fl_progressive,w_650,ar_5:4/zl6tpfz57wpmidwxkw6y",
+      "value": 4104
+    },
+    "location": "https://www.peerspace.com/fr/s/",
+    "nt": "navigate",
+    "pageloadId": "00000000-0000-4000-8000-000000000000",
+    "referrer": "https://www.peerspace.com/plan/event",
+    "siteToken": "REDACTED",
+    "st": 1,
+    "startTime": 1784197105439,
+    "timingsV2": {
+      "decodedBodySize": 672961,
+      "nextHopProtocol": "h2",
+      "transferSize": 103626
+    },
+    "ttfb": {
+      "path": "/fr/s/",
+      "value": 1286.8999999761581
+    },
+    "versions": {
+      "fl": "2024.11.0",
+      "js": "2026.6.0"
+    }
+  },
+  "response_headers": {
+    "access-control-allow-credentials": "REDACTED",
+    "access-control-allow-methods": "POST,OPTIONS",
+    "access-control-allow-origin": "https://www.peerspace.com",
+    "access-control-max-age": "86400",
+    "cf-ray": "a1c045a73dcb99b5-CDG",
+    "content-type": "text/plain",
+    "date": "Thu, 16 Jul 2026 10:20:03 GMT",
+    "server": "cloudflare",
+    "vary": "Origin"
+  },
+  "response_body": null,
+  "response_body_known": false
+}

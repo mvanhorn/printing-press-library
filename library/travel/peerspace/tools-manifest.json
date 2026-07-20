@@ -1,0 +1,670 @@
+{
+  "api_name": "peerspace",
+  "base_url": "https://www.peerspace.com",
+  "description": "Tech-event venue scout for Peerspace: search, shortlist, hydrate listing detail, calendar availability, host inquiry, and export packs.",
+  "mcp_ready": "partial",
+  "http_transport": "browser-chrome",
+  "auth": {
+    "type": "cookie",
+    "header": "Cookie",
+    "cookie_domain": ".peerspace.com"
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "env_keywords",
+      "description": "Localized keyword dictionary (fr-FR sample from capture). Optional: timestamp.",
+      "method": "GET",
+      "path": "/v1/env/keywords/fr-FR",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "timestamp",
+          "type": "integer",
+          "location": "query",
+          "description": "Cache-buster timestamp ms"
+        }
+      ]
+    },
+    {
+      "name": "env_web",
+      "description": "Fetch Peerspace SPA web environment config and feature flags. Optional: timestamp.",
+      "method": "GET",
+      "path": "/v1/env/web",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "timestamp",
+          "type": "integer",
+          "location": "query",
+          "description": "Cache-buster timestamp ms"
+        }
+      ]
+    },
+    {
+      "name": "venues_default_times",
+      "description": "Default booking time windows by day-of-week for meetup activity. Optional: dow.",
+      "method": "GET",
+      "path": "/v1/search/default-times/by-activity/meetup/dows",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "dow",
+          "type": "string",
+          "location": "query",
+          "description": "Day of week filter"
+        }
+      ]
+    },
+    {
+      "name": "venues_filters",
+      "description": "List amenity, space-type, style, and feature filters for an activity. Optional: activity.",
+      "method": "GET",
+      "path": "/v1/search/filters/list",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "activity",
+          "wire_name": "activity_type",
+          "type": "string",
+          "location": "query",
+          "description": "Activity type e.g. meetup",
+          "aliases": [
+            "activity-type"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "venues_list",
+      "description": "Search Peerspace listings by location, activity, space type, guests, price, and availability. Optional: place-id, viewport-location, bbox-of-interest (plus 10 more).",
+      "method": "GET",
+      "path": "/v1/search/listings",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "place-id",
+          "wire_name": "place_id",
+          "type": "string",
+          "location": "query",
+          "description": "Peerspace place/location id (from map/geocode)"
+        },
+        {
+          "name": "viewport-location",
+          "wire_name": "viewport_location",
+          "type": "string",
+          "location": "query",
+          "description": "Human location slug e.g. paris--france"
+        },
+        {
+          "name": "bbox-of-interest",
+          "wire_name": "bbox_of_interest",
+          "type": "string",
+          "location": "query",
+          "description": "Bounding box [north,west,south,east]"
+        },
+        {
+          "name": "activity",
+          "wire_name": "use_id",
+          "type": "string",
+          "location": "query",
+          "description": "Activity/use type e.g. meetup, party, film_shoot",
+          "aliases": [
+            "use-id"
+          ]
+        },
+        {
+          "name": "space-type",
+          "wire_name": "kw_search_space_type",
+          "type": "string",
+          "location": "query",
+          "description": "Space type canonical id e.g. daylight_studio, apartment",
+          "aliases": [
+            "kw-search-space-type"
+          ]
+        },
+        {
+          "name": "availability",
+          "type": "string",
+          "location": "query",
+          "description": "Availability windows as JSON array of [start,end] ISO datetimes"
+        },
+        {
+          "name": "min-guest",
+          "wire_name": "min_guest",
+          "type": "integer",
+          "location": "query",
+          "description": "Minimum guest capacity"
+        },
+        {
+          "name": "max-guest",
+          "wire_name": "max_guest",
+          "type": "integer",
+          "location": "query",
+          "description": "Maximum guest capacity"
+        },
+        {
+          "name": "price-hourly-min",
+          "wire_name": "price_hourly_min",
+          "type": "number",
+          "location": "query",
+          "description": "Minimum hourly rate"
+        },
+        {
+          "name": "price-hourly-max",
+          "wire_name": "price_hourly_max",
+          "type": "number",
+          "location": "query",
+          "description": "Maximum hourly rate"
+        },
+        {
+          "name": "size",
+          "type": "integer",
+          "location": "query",
+          "description": "Page size (results per request)"
+        },
+        {
+          "name": "ffilter",
+          "type": "string",
+          "location": "query",
+          "description": "Search filter channel (web-search)"
+        },
+        {
+          "name": "variant",
+          "type": "string",
+          "location": "query",
+          "description": "Search experiment variant token"
+        }
+      ]
+    },
+    {
+      "name": "venues_natural",
+      "description": "Natural-language venue search (nl_query body). Discovered from search-app JS; enrich with same query params as list. Required: nl-query. Optional: place-id, viewport-location, activity (plus 2 more).",
+      "method": "POST",
+      "path": "/v1/search/listings/natural",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "place-id",
+          "wire_name": "place_id",
+          "type": "string",
+          "location": "query",
+          "description": "Peerspace place/location id"
+        },
+        {
+          "name": "viewport-location",
+          "wire_name": "viewport_location",
+          "type": "string",
+          "location": "query",
+          "description": "Human location slug e.g. paris--france"
+        },
+        {
+          "name": "activity",
+          "wire_name": "use_id",
+          "type": "string",
+          "location": "query",
+          "description": "Activity/use type",
+          "aliases": [
+            "use-id"
+          ]
+        },
+        {
+          "name": "size",
+          "type": "integer",
+          "location": "query",
+          "description": "Page size"
+        },
+        {
+          "name": "ffilter",
+          "type": "string",
+          "location": "query",
+          "description": "Search filter channel"
+        },
+        {
+          "name": "nl-query",
+          "wire_name": "nl_query",
+          "type": "string",
+          "location": "body",
+          "description": "Natural language venue query e.g. loft with projector for 40 people near Bastille",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "venues_prices",
+      "description": "Batch total-price calculation for listing ids + booking windows (from search-app getTotalPrices). Optional: listings.",
+      "method": "POST",
+      "path": "/v1/search/listings/prices",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "listings",
+          "type": "array",
+          "location": "body",
+          "description": "Listing price request payload as observed by getTotalPrices"
+        }
+      ]
+    },
+    {
+      "name": "venues_get",
+      "description": "Get one listing: local SQLite or live full detail GET /v1/listings/{id} (about, rules, parking). Required: id. Optional: force.",
+      "method": "GET",
+      "path": "/v1/listings/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Listing id",
+          "required": true
+        },
+        {
+          "name": "force",
+          "type": "boolean",
+          "location": "flag",
+          "description": "Always live-fetch even if cached"
+        }
+      ]
+    },
+    {
+      "name": "shortlist_hydrate",
+      "description": "Fetch full listing details for a board or listing IDs into SQLite (not search). Optional: board-id, collaborator-id, listing-id (repeat), force, concurrency.",
+      "method": "GET",
+      "path": "/v1/listings/{id}",
+      "params": [
+        {
+          "name": "board-id",
+          "type": "string",
+          "location": "flag",
+          "description": "Favorite board / project id"
+        },
+        {
+          "name": "collaborator-id",
+          "type": "string",
+          "location": "flag",
+          "description": "SSO id for fav-board"
+        },
+        {
+          "name": "listing-id",
+          "type": "string",
+          "location": "flag",
+          "description": "Listing id (repeatable)"
+        },
+        {
+          "name": "force",
+          "type": "boolean",
+          "location": "flag",
+          "description": "Re-fetch already hydrated rows"
+        },
+        {
+          "name": "concurrency",
+          "type": "integer",
+          "location": "flag",
+          "description": "Parallel fetches (default 3)"
+        }
+      ]
+    },
+    {
+      "name": "calendar_availability_start",
+      "description": "Start time slots for a space on a day. Required: space-id, listing-id, year, month, day.",
+      "method": "GET",
+      "path": "/v1/calendar/bookings/availability/space/{space_id}/day/start",
+      "params": [
+        {
+          "name": "space-id",
+          "type": "string",
+          "location": "path",
+          "required": true
+        },
+        {
+          "name": "listing-id",
+          "type": "string",
+          "location": "query",
+          "required": true
+        },
+        {
+          "name": "year",
+          "type": "integer",
+          "location": "query",
+          "required": true
+        },
+        {
+          "name": "month",
+          "type": "integer",
+          "location": "query",
+          "required": true
+        },
+        {
+          "name": "day",
+          "type": "integer",
+          "location": "query",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "calendar_availability_end",
+      "description": "End time slots after a start time_index. Required: space-id, listing-id, year, month, day, time-index.",
+      "method": "GET",
+      "path": "/v1/calendar/bookings/availability/space/{space_id}/day/end",
+      "params": [
+        {
+          "name": "space-id",
+          "type": "string",
+          "location": "path",
+          "required": true
+        },
+        {
+          "name": "listing-id",
+          "type": "string",
+          "location": "query",
+          "required": true
+        },
+        {
+          "name": "year",
+          "type": "integer",
+          "location": "query",
+          "required": true
+        },
+        {
+          "name": "month",
+          "type": "integer",
+          "location": "query",
+          "required": true
+        },
+        {
+          "name": "day",
+          "type": "integer",
+          "location": "query",
+          "required": true
+        },
+        {
+          "name": "time-index",
+          "type": "integer",
+          "location": "query",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "calendar_availability_month",
+      "description": "Month-level availability for a space. Required: space-id, year, month.",
+      "method": "GET",
+      "path": "/v1/calendar/bookings/availability/space/{space_id}/month",
+      "params": [
+        {
+          "name": "space-id",
+          "type": "string",
+          "location": "path",
+          "required": true
+        },
+        {
+          "name": "year",
+          "type": "integer",
+          "location": "query",
+          "required": true
+        },
+        {
+          "name": "month",
+          "type": "integer",
+          "location": "query",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "contracts_inquiry_quote",
+      "description": "Price a message-host inquiry without submitting. Required: listing-id, year, month, day, start-index, end-index.",
+      "method": "POST",
+      "path": "/v1/contracts/inquiry/guest/quote",
+      "params": [
+        {
+          "name": "listing-id",
+          "type": "string",
+          "location": "body",
+          "required": true
+        },
+        {
+          "name": "year",
+          "type": "integer",
+          "location": "body",
+          "required": true
+        },
+        {
+          "name": "month",
+          "type": "integer",
+          "location": "body",
+          "required": true
+        },
+        {
+          "name": "day",
+          "type": "integer",
+          "location": "body",
+          "required": true
+        },
+        {
+          "name": "start-index",
+          "type": "integer",
+          "location": "body",
+          "required": true
+        },
+        {
+          "name": "end-index",
+          "type": "integer",
+          "location": "body",
+          "required": true
+        },
+        {
+          "name": "guests",
+          "type": "integer",
+          "location": "body"
+        },
+        {
+          "name": "activity",
+          "type": "string",
+          "location": "body"
+        }
+      ]
+    },
+    {
+      "name": "contracts_inquiry_send",
+      "description": "Send a host inquiry + message (contacts host; CLI requires --yes). Required: listing-id, schedule, message.",
+      "method": "POST",
+      "path": "/v1/contracts/inquiry/guest",
+      "params": [
+        {
+          "name": "listing-id",
+          "type": "string",
+          "location": "body",
+          "required": true
+        },
+        {
+          "name": "message",
+          "type": "string",
+          "location": "body",
+          "required": true
+        },
+        {
+          "name": "year",
+          "type": "integer",
+          "location": "body",
+          "required": true
+        },
+        {
+          "name": "month",
+          "type": "integer",
+          "location": "body",
+          "required": true
+        },
+        {
+          "name": "day",
+          "type": "integer",
+          "location": "body",
+          "required": true
+        },
+        {
+          "name": "start-index",
+          "type": "integer",
+          "location": "body",
+          "required": true
+        },
+        {
+          "name": "end-index",
+          "type": "integer",
+          "location": "body",
+          "required": true
+        },
+        {
+          "name": "guests",
+          "type": "integer",
+          "location": "body"
+        }
+      ]
+    },
+    {
+      "name": "contracts_guest_quote",
+      "description": "Price a request-to-book window (prepare-only quote supported).",
+      "method": "POST",
+      "path": "/v1/contracts/request/guest/quote",
+      "params": [
+        {
+          "name": "listing-id",
+          "type": "string",
+          "location": "body",
+          "required": true
+        },
+        {
+          "name": "year",
+          "type": "integer",
+          "location": "body",
+          "required": true
+        },
+        {
+          "name": "month",
+          "type": "integer",
+          "location": "body",
+          "required": true
+        },
+        {
+          "name": "day",
+          "type": "integer",
+          "location": "body",
+          "required": true
+        },
+        {
+          "name": "start-index",
+          "type": "integer",
+          "location": "body",
+          "required": true
+        },
+        {
+          "name": "end-index",
+          "type": "integer",
+          "location": "body",
+          "required": true
+        },
+        {
+          "name": "rate",
+          "type": "number",
+          "location": "body"
+        },
+        {
+          "name": "prepare-only",
+          "type": "boolean",
+          "location": "body"
+        }
+      ]
+    },
+    {
+      "name": "verification_listing",
+      "description": "Check whether guest needs verification for a listing. Required: listing-id.",
+      "method": "POST",
+      "path": "/v1/verification/listing",
+      "params": [
+        {
+          "name": "listing-id",
+          "type": "string",
+          "location": "body",
+          "required": true
+        },
+        {
+          "name": "sso-id",
+          "type": "string",
+          "location": "body",
+          "description": "Defaults to PSUser cookie"
+        }
+      ]
+    },
+    {
+      "name": "messages_unread",
+      "description": "Inbox unread thread count (v2).",
+      "method": "GET",
+      "path": "/v2/messaging/messages/inbox/unread-count",
+      "params": []
+    },
+    {
+      "name": "spaces_faqs_event",
+      "description": "Event FAQs for a space. Required: space-id.",
+      "method": "GET",
+      "path": "/v1/spaces/{space_id}/faqs/event",
+      "params": [
+        {
+          "name": "space-id",
+          "type": "string",
+          "location": "path",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "shortlist_create_board",
+      "description": "Create favorite board and attach a listing. Required: name, listing-id.",
+      "method": "POST",
+      "path": "/v1/projects/attachments",
+      "params": [
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "required": true
+        },
+        {
+          "name": "listing-id",
+          "type": "string",
+          "location": "body",
+          "required": true
+        },
+        {
+          "name": "activity",
+          "type": "string",
+          "location": "body"
+        },
+        {
+          "name": "location",
+          "type": "string",
+          "location": "body"
+        }
+      ]
+    },
+    {
+      "name": "shortlist_add",
+      "description": "Favorite a listing onto an existing board. Required: listing-id, board-id.",
+      "method": "POST",
+      "path": "/v1/projects/attachments",
+      "params": [
+        {
+          "name": "listing-id",
+          "type": "string",
+          "location": "body",
+          "required": true
+        },
+        {
+          "name": "board-id",
+          "type": "string",
+          "location": "body",
+          "required": true
+        }
+      ]
+    }
+  ]
+}

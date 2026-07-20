@@ -1,0 +1,14 @@
+{
+  "endpoint": "GET /v1/profiles/me",
+  "method": "GET",
+  "status": 200,
+  "note": "Synthetic fixture; original capture redacted for publish.",
+  "body": {
+    "id": "user_demo",
+    "email": "user@example.com",
+    "firstName": "Demo",
+    "lastName": "User",
+    "peopleApiKey": "REDACTED",
+    "sub": "REDACTED"
+  }
+}
