@@ -4,12 +4,37 @@
 package cli
 
 import (
+	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"os"
 
 	"github.com/spf13/cobra"
 )
+
+// decodeBinaryResponseEnvelope unwraps the client's _pp_binary base64 envelope
+// (see client.wrapBinaryResponse) back into the raw payload bytes. Returns
+// ok=false for anything that is not a well-formed envelope — dry-run
+// provenance, JSON error bodies, and plain JSON responses pass through
+// untouched.
+func decodeBinaryResponseEnvelope(data []byte) ([]byte, bool) {
+	var env struct {
+		PPBinary bool   `json:"_pp_binary"`
+		Encoding string `json:"encoding"`
+		Data     string `json:"data"`
+	}
+	if err := json.Unmarshal(data, &env); err != nil || !env.PPBinary {
+		return nil, false
+	}
+	if env.Encoding != "" && env.Encoding != "base64" {
+		return nil, false
+	}
+	raw, err := base64.StdEncoding.DecodeString(env.Data)
+	if err != nil {
+		return nil, false
+	}
+	return raw, true
+}
 
 func newSalesReportsPromotedCmd(flags *rootFlags) *cobra.Command {
 	var flagFilterVendorNumber string
@@ -87,6 +112,13 @@ func newSalesReportsPromotedCmd(flags *rootFlags) *cobra.Command {
 			}
 			if flags.asJSON || flags.csv || flags.compact || flags.plain || flags.selectFields != "" {
 				return fmt.Errorf("binary response cannot be rendered as structured output; redirect stdout or use --deliver file:<path>")
+			}
+			// Apple answers this endpoint with application/a-gzip, which the
+			// client wraps in a _pp_binary base64 envelope to survive its
+			// json.RawMessage contract. Terminal consumers want the raw gzip
+			// TSV bytes (redirectable, gunzip-able), so unwrap before writing.
+			if raw, ok := decodeBinaryResponseEnvelope(data); ok {
+				data = raw
 			}
 			_, err = cmd.OutOrStdout().Write(data)
 			return err

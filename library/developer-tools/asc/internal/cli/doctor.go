@@ -137,6 +137,33 @@ func isSuggestableReadLeaf(cmd *cobra.Command) bool {
 	return cmd.Args(cmd, []string{}) == nil
 }
 
+// ascAuthEnvVerdict renders the env_vars health line for the two ASC
+// credential contracts. Split from the doctor RunE so the contract logic is
+// testable without touching the process environment or dialing the API.
+//
+// keyTrioMissing lists the unset ASC API key env vars (empty = trio complete);
+// bearerSet reports APP_STORE_CONNECT_ITC_BEARER_TOKEN; authConfigured +
+// authSource describe whatever credential AuthHeader() resolved; preflightErr
+// is the ASCPreflight() result when the trio is complete.
+func ascAuthEnvVerdict(keyTrioMissing []string, bearerSet bool, authConfigured bool, authSource string, preflightErr error) string {
+	if len(keyTrioMissing) == 0 {
+		if preflightErr != nil {
+			return fmt.Sprintf("ERROR invalid ASC API key: %s", preflightErr)
+		}
+		return "OK ASC API key (ASC_KEY_ID, ASC_ISSUER_ID, private key) verified — fleet and endpoint commands authorized"
+	}
+	if bearerSet {
+		return "WARN APP_STORE_CONNECT_ITC_BEARER_TOKEN covers generated endpoint commands only; fleet commands (cockpit, pipeline, traction, reviews recent, blockers) need the ASC API key — also set " + strings.Join(keyTrioMissing, ", ")
+	}
+	if authConfigured {
+		if authSource == "" {
+			authSource = "config"
+		}
+		return "WARN credentials available from " + authSource + ", but fleet commands (cockpit, pipeline, traction, reviews recent, blockers) need the ASC API key — set " + strings.Join(keyTrioMissing, ", ")
+	}
+	return "ERROR missing required: " + strings.Join(keyTrioMissing, ", ") + " (App Store Connect API key; APP_STORE_CONNECT_ITC_BEARER_TOKEN alternatively covers endpoint commands only)"
+}
+
 func newDoctorCmd(flags *rootFlags) *cobra.Command {
 	var failOn string
 	cmd := &cobra.Command{
@@ -180,7 +207,7 @@ func newDoctorCmd(flags *rootFlags) *cobra.Command {
 				header := cfg.AuthHeader()
 				if header == "" {
 					report["auth"] = "not configured"
-					report["auth_hint"] = "Set it with: asc-pp-cli auth set-token <token> or export APP_STORE_CONNECT_ITC_BEARER_TOKEN=\"your-token-here\""
+					report["auth_hint"] = "Set the App Store Connect API key: export ASC_KEY_ID, ASC_ISSUER_ID, and ASC_PRIVATE_KEY_PATH (a .p8 from Users and Access > Integrations). A static bearer (asc-pp-cli auth set-token <token> or APP_STORE_CONNECT_ITC_BEARER_TOKEN) covers generated endpoint commands only."
 				} else {
 					authConfigured = true
 					report["auth"] = "configured"
@@ -188,36 +215,40 @@ func newDoctorCmd(flags *rootFlags) *cobra.Command {
 				}
 			}
 
-			// Check auth environment variables
-			authEnvSet := []string{}
-			authEnvRequiredMissing := []string{}
-			authEnvInfo := []string{}
-			authEnvOptionalNames := []string{}
-			// Validation rejects multi-OR-group specs upstream, so the single optional-satisfied state is sufficient at runtime.
-			authEnvOptionalSatisfied := false
-			if os.Getenv("APP_STORE_CONNECT_ITC_BEARER_TOKEN") != "" {
-				authEnvSet = append(authEnvSet, "APP_STORE_CONNECT_ITC_BEARER_TOKEN")
-			} else if authConfigured {
-				authSource, _ := report["auth_source"].(string)
-				if authSource == "" {
-					authSource = "config"
-				}
-				authEnvInfo = append(authEnvInfo, "credentials available from "+authSource)
-			} else {
-				authEnvRequiredMissing = append(authEnvRequiredMissing, "APP_STORE_CONNECT_ITC_BEARER_TOKEN")
+			// Check auth environment variables. Two credential contracts
+			// coexist: the App Store Connect API key trio (ASC_KEY_ID,
+			// ASC_ISSUER_ID, ASC_PRIVATE_KEY_PATH or ASC_PRIVATE_KEY) mints
+			// ES256 JWTs — the canonical ASC auth, and the one the fleet
+			// commands (cockpit, pipeline, traction, reviews recent, blockers)
+			// preflight on — while APP_STORE_CONNECT_ITC_BEARER_TOKEN is a
+			// static fallback that only covers the generated endpoint
+			// commands. doctor validates the same contract the fleet commands
+			// enforce, so a green check here cannot precede an "API key not
+			// configured" failure there.
+			var ascKeyEnvMissing []string
+			if os.Getenv("ASC_KEY_ID") == "" {
+				ascKeyEnvMissing = append(ascKeyEnvMissing, "ASC_KEY_ID")
 			}
-			switch {
-			case len(authEnvRequiredMissing) > 0:
-				report["env_vars"] = "ERROR missing required: " + strings.Join(authEnvRequiredMissing, ", ")
-			case len(authEnvOptionalNames) > 1 && !authEnvOptionalSatisfied:
-				report["env_vars"] = "INFO set one of: " + strings.Join(authEnvOptionalNames, " or ")
-			case len(authEnvInfo) > 0 && authConfigured:
-				report["env_vars"] = "OK " + strings.Join(authEnvInfo, "; ")
-			case len(authEnvInfo) > 0:
-				report["env_vars"] = "INFO " + strings.Join(authEnvInfo, "; ")
-			default:
-				report["env_vars"] = fmt.Sprintf("OK %d/%d available", len(authEnvSet), 1)
+			if os.Getenv("ASC_ISSUER_ID") == "" {
+				ascKeyEnvMissing = append(ascKeyEnvMissing, "ASC_ISSUER_ID")
 			}
+			if os.Getenv("ASC_PRIVATE_KEY_PATH") == "" && os.Getenv("ASC_PRIVATE_KEY") == "" {
+				ascKeyEnvMissing = append(ascKeyEnvMissing, "ASC_PRIVATE_KEY_PATH (or ASC_PRIVATE_KEY)")
+			}
+			var ascPreflightErr error
+			if len(ascKeyEnvMissing) == 0 && cfg != nil {
+				// Full trio present — prove the key parses and mints a token,
+				// the exact check every fleet command runs before fanning out.
+				ascPreflightErr = cfg.ASCPreflight()
+			}
+			authSource, _ := report["auth_source"].(string)
+			report["env_vars"] = ascAuthEnvVerdict(
+				ascKeyEnvMissing,
+				os.Getenv("APP_STORE_CONNECT_ITC_BEARER_TOKEN") != "",
+				authConfigured,
+				authSource,
+				ascPreflightErr,
+			)
 
 			// Check API connectivity and validate credentials.
 			//
