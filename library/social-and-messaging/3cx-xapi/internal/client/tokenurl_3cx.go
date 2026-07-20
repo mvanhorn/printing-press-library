@@ -1,4 +1,4 @@
-// Copyright 2026 and contributors. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Richard Gill and contributors. Licensed under Apache-2.0. See LICENSE.
 // Hand-authored: derive the OAuth2 token endpoint from the configured base URL.
 
 package client

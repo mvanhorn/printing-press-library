@@ -1,4 +1,4 @@
-// Copyright 2026 and contributors. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Richard Gill and contributors. Licensed under Apache-2.0. See LICENSE.
 // pp:data-source local
 // Novel command: extension routing trace. For one extension number, list every
 // ring group, queue, inbound rule, and DID that routes to it, plus whether the

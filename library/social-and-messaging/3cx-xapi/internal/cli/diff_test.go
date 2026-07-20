@@ -1,4 +1,4 @@
-// Copyright 2026 and contributors. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Richard Gill and contributors. Licensed under Apache-2.0. See LICENSE.
 // cli-printing-press: novel-scaffold-test
 // Novel command scaffold tests. Keep the wiring smoke test and add behavior cases as needed.
 
@@ -6,6 +6,8 @@ package cli
 
 import (
 	"bytes"
+	"os"
+	"path/filepath"
 	"strings"
 	"testing"
 )
@@ -28,5 +30,27 @@ func TestNovelDiffHelpWires(t *testing.T) {
 		if !strings.Contains(help, want) {
 			t.Fatalf("diff --help missing %q in output:\n%s", want, help)
 		}
+	}
+}
+
+func TestSnapshotPathRejectsTraversal(t *testing.T) {
+	for _, name := range []string{"../outside", "a/b", `a\\b`, ".", ".."} {
+		if _, err := snapshotPath(name); err == nil {
+			t.Fatalf("snapshotPath(%q) accepted traversal", name)
+		}
+	}
+}
+
+func TestWriteSnapshotUsesPrivateMode(t *testing.T) {
+	path := filepath.Join(t.TempDir(), "snapshot.json")
+	if err := writeSnapshot(path, []byte(`{"name":"safe"}`)); err != nil {
+		t.Fatal(err)
+	}
+	info, err := os.Stat(path)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got := info.Mode().Perm(); got != 0o600 {
+		t.Fatalf("snapshot mode = %o, want 600", got)
 	}
 }

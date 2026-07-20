@@ -1,4 +1,4 @@
-// Copyright 2026 and contributors. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Richard Gill and contributors. Licensed under Apache-2.0. See LICENSE.
 // Hand-authored shared helpers for the 3CX XAPI novel commands
 // (audit, trace, posture, changed, qrollup, diff, provision). These read the
 // local SQLite mirror (resource_type keys are the kebab-case sync names) and

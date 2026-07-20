@@ -1,4 +1,4 @@
-// Copyright 2026 and contributors. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Richard Gill and contributors. Licensed under Apache-2.0. See LICENSE.
 // cli-printing-press: novel-scaffold-test
 // Novel command scaffold tests. Keep the wiring smoke test and add behavior cases as needed.
 

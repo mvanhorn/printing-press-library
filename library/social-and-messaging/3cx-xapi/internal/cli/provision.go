@@ -1,4 +1,4 @@
-// Copyright 2026 and contributors. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Richard Gill and contributors. Licensed under Apache-2.0. See LICENSE.
 // pp:data-source live
 // Novel command: bulk provision. Create extensions/users from a CSV via the
 // live Users API, idempotently, with a --dry-run plan. The only mutating novel
@@ -9,6 +9,7 @@ package cli
 
 import (
 	"encoding/csv"
+	"encoding/json"
 	"fmt"
 	"os"
 	"strings"
@@ -26,6 +27,27 @@ type provisionResult struct {
 	Number string `json:"number"`
 	Status string `json:"status"` // created | skipped | error
 	Detail string `json:"detail,omitempty"`
+}
+
+func parseProvisionCell(value string) (any, error) {
+	trimmed := strings.TrimSpace(value)
+	if trimmed == "" {
+		return "", nil
+	}
+	if strings.HasPrefix(trimmed, "[") || strings.HasPrefix(trimmed, "{") {
+		var structured any
+		if err := json.Unmarshal([]byte(trimmed), &structured); err != nil {
+			return nil, fmt.Errorf("invalid structured JSON value %q: %w", trimmed, err)
+		}
+		return structured, nil
+	}
+	if strings.EqualFold(trimmed, "true") {
+		return true, nil
+	}
+	if strings.EqualFold(trimmed, "false") {
+		return false, nil
+	}
+	return trimmed, nil
 }
 
 // readProvisionCSV parses the CSV into per-row field maps keyed by header. It
@@ -68,7 +90,11 @@ func readProvisionCSV(path string) ([]provisionRow, error) {
 			if i < len(rec) && h != "" {
 				v := strings.TrimSpace(rec[i])
 				if v != "" {
-					body[h] = v
+					parsed, err := parseProvisionCell(v)
+					if err != nil {
+						return nil, fmt.Errorf("row %d column %q: %w", lineNo+2, h, err)
+					}
+					body[h] = parsed
 				}
 			}
 		}
@@ -92,7 +118,8 @@ func newNovelProvisionCmd(flags *rootFlags) *cobra.Command {
 		Long: "Create extensions/users from a CSV via the live Users API. Every CSV column becomes a\n" +
 			"field in the create body; a 'Number' column is required. Run with --dry-run first to\n" +
 			"preview the plan. Use --idempotent to treat already-existing extensions as a no-op.\n\n" +
-			"CSV example:\n  Number,FirstName,LastName,EmailAddress\n  214,Jane,Doe,jane@example.com",
+			"JSON objects, arrays, and booleans are decoded into typed fields.\n\n" +
+			"CSV example:\n  Number,FirstName,LastName,EmailAddress,Groups,Enabled\n  214,Jane,Doe,jane@example.com,\"[\\\"sales\\\"]\",true",
 		Example:     "  3cx-xapi-pp-cli provision --file users.csv --dry-run",
 		Annotations: map[string]string{"mcp:read-only": "false"},
 		RunE: func(cmd *cobra.Command, args []string) error {

@@ -1,4 +1,4 @@
-// Copyright 2026 and contributors. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Richard Gill and contributors. Licensed under Apache-2.0. See LICENSE.
 // pp:data-source local
 // Novel command: live-state merge. A single time-windowed feed merging the
 // activity log, event log, active calls, and system status from the local

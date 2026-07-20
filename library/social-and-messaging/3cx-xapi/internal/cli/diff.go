@@ -1,4 +1,4 @@
-// Copyright 2026 and contributors. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Richard Gill and contributors. Licensed under Apache-2.0. See LICENSE.
 // pp:data-source local
 // Novel command: config snapshot + diff. Capture the full PBX config graph to
 // a named local snapshot, list snapshots, and compare any two snapshots to
@@ -60,7 +60,40 @@ func snapshotDir() (string, error) {
 		base = filepath.Join(home, ".local", "share", "3cx-xapi-pp-cli")
 	}
 	dir := filepath.Join(base, "snapshots")
-	return dir, os.MkdirAll(dir, 0o755)
+	return dir, os.MkdirAll(dir, 0o700)
+}
+
+func snapshotPath(name string) (string, error) {
+	name = strings.TrimSpace(name)
+	if name == "" || name == "." || name == ".." || filepath.Base(name) != name || strings.ContainsAny(name, `/\\`) {
+		return "", usageErr(fmt.Errorf("invalid snapshot name %q: use a single file-safe name", name))
+	}
+	dir, err := snapshotDir()
+	if err != nil {
+		return "", err
+	}
+	return filepath.Join(dir, name+".json"), nil
+}
+
+func writeSnapshot(path string, data []byte) error {
+	tmp, err := os.CreateTemp(filepath.Dir(path), ".snapshot-*.tmp")
+	if err != nil {
+		return err
+	}
+	tmpName := tmp.Name()
+	defer os.Remove(tmpName)
+	if err := tmp.Chmod(0o600); err != nil {
+		tmp.Close()
+		return err
+	}
+	if _, err := tmp.Write(data); err != nil {
+		tmp.Close()
+		return err
+	}
+	if err := tmp.Close(); err != nil {
+		return err
+	}
+	return os.Rename(tmpName, path)
 }
 
 // objectKey returns the stable identity of a config object for diffing.
@@ -153,11 +186,10 @@ func (res *diffResult) appendResourceDiff(rt string, aObjs, bObjs []json.RawMess
 
 func loadSnapshot(name string) (configSnapshot, error) {
 	var snap configSnapshot
-	dir, err := snapshotDir()
+	path, err := snapshotPath(name)
 	if err != nil {
 		return snap, err
 	}
-	path := filepath.Join(dir, name+".json")
 	data, err := os.ReadFile(path)
 	if err != nil {
 		return snap, fmt.Errorf("snapshot %q not found (run: 3cx-xapi-pp-cli diff --save %s)", name, name)
@@ -183,7 +215,7 @@ func newNovelDiffCmd(flags *rootFlags) *cobra.Command {
 			"Use this command for config drift between two snapshots or two tenants. For broken\n" +
 			"references right now use 'audit'; for live event activity use 'changed'.",
 		Example:     "  3cx-xapi-pp-cli diff --save before\n  3cx-xapi-pp-cli diff before after --agent",
-		Annotations: map[string]string{"mcp:read-only": "true"},
+		Annotations: map[string]string{"mcp:read-only": "false"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 && cmd.Flags().NFlag() == 0 {
 				return cmd.Help()
@@ -246,13 +278,12 @@ func newNovelDiffCmd(flags *rootFlags) *cobra.Command {
 					snap.Resources[rt] = raws
 					total += len(raws)
 				}
-				dir, err := snapshotDir()
+				path, err := snapshotPath(flagSave)
 				if err != nil {
 					return err
 				}
 				out, _ := json.MarshalIndent(snap, "", "  ")
-				path := filepath.Join(dir, flagSave+".json")
-				if err := os.WriteFile(path, out, 0o644); err != nil {
+				if err := writeSnapshot(path, out); err != nil {
 					return fmt.Errorf("writing snapshot: %w", err)
 				}
 				if machineOut(cmd, flags) {

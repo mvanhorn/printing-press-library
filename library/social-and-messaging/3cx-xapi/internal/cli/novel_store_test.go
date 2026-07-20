@@ -1,4 +1,4 @@
-// Copyright 2026 and contributors. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Richard Gill and contributors. Licensed under Apache-2.0. See LICENSE.
 // Integration test: confirms the novel commands read the local store using the
 // same kebab-case resource_type keys that sync writes. A key mismatch would
 // silently return empty results, so this guards the local-mirror contract.
@@ -60,7 +60,7 @@ func TestNovelStoreIntegration(t *testing.T) {
 	}
 
 	// qrollup rows from real store data.
-	rows, totalAgents := buildQueueRows(q, map[string]json.RawMessage{})
+	rows, totalAgents := buildQueueRows(q, map[string]map[string][]json.RawMessage{})
 	if len(rows) != 1 || rows[0].AgentCount != 1 || rows[0].RingStrategy != "RingAll" {
 		t.Fatalf("expected one queue row with 1 agent and RingAll, got %+v", rows)
 	}

@@ -1,4 +1,4 @@
-// Copyright 2026 and contributors. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Richard Gill and contributors. Licensed under Apache-2.0. See LICENSE.
 // pp:data-source local
 // Novel command: security posture report. Consolidates the IP blocklist,
 // blacklisted caller numbers, firewall state, event-log signals, and the

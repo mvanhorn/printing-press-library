@@ -4,6 +4,9 @@
 
 Covers the full 3CX V20+ Configuration API: users, groups, ring groups, queues, IVRs, trunks, DIDs, in/outbound rules, reporting, backups, security, and integrations. Beyond CRUD, it mirrors the entire config graph into local SQLite so you can search it offline, diff it over time, audit it for dangling references, roll up queue and agent performance, and trace exactly what routes to an extension.
 
+Created by [@therichardgill](https://github.com/therichardgill) (Richard Gill).
+Contributors: [@tmchow](https://github.com/tmchow) (Trevin Chow).
+
 ## Install
 
 The recommended path installs both the `3cx-xapi-pp-cli` binary and the `pp-3cx-xapi` agent skill (Claude Code, Codex, Cursor, Gemini CLI, GitHub Copilot, and other agents supported by the upstream [`skills`](https://github.com/vercel-labs/skills) CLI) in one shot:

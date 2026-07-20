@@ -1,4 +1,4 @@
-// Copyright 2026 and contributors. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Richard Gill and contributors. Licensed under Apache-2.0. See LICENSE.
 // pp:data-source local
 // Novel command: queue rollup. One cross-queue table from the local mirror —
 // per-queue agent counts, ring strategy, and any synced queue-performance
@@ -10,17 +10,18 @@ import (
 	"encoding/json"
 	"fmt"
 	"sort"
+	"time"
 
 	"github.com/mvanhorn/printing-press-library/library/social-and-messaging/3cx-xapi/internal/cliutil"
 	"github.com/spf13/cobra"
 )
 
 type queueRow struct {
-	Number       string          `json:"number"`
-	Name         string          `json:"name"`
-	AgentCount   int             `json:"agent_count"`
-	RingStrategy string          `json:"ring_strategy,omitempty"`
-	Stats        json.RawMessage `json:"stats,omitempty"`
+	Number       string                       `json:"number"`
+	Name         string                       `json:"name"`
+	AgentCount   int                          `json:"agent_count"`
+	RingStrategy string                       `json:"ring_strategy,omitempty"`
+	Stats        map[string][]json.RawMessage `json:"stats,omitempty"`
 }
 
 type qrollupReport struct {
@@ -40,7 +41,7 @@ var queueStatResources = []string{
 	"report-breaches-sla",
 }
 
-func buildQueueRows(queues []map[string]json.RawMessage, statsByNumber map[string]json.RawMessage) ([]queueRow, int) {
+func buildQueueRows(queues []map[string]json.RawMessage, statsByNumber map[string]map[string][]json.RawMessage) ([]queueRow, int) {
 	rows := make([]queueRow, 0, len(queues))
 	totalAgents := 0
 	for _, q := range queues {
@@ -62,6 +63,22 @@ func buildQueueRows(queues []map[string]json.RawMessage, statsByNumber map[strin
 	return rows, totalAgents
 }
 
+func qrollupWithinWindow(raw json.RawMessage, cutoff time.Time) bool {
+	var obj map[string]json.RawMessage
+	if json.Unmarshal(raw, &obj) != nil {
+		return false
+	}
+	for _, field := range []string{"CallTime", "CallTimeForCsv", "StartTime", "AnsweredTime", "Timestamp", "CreatedAt"} {
+		value := firstString(obj, field)
+		if value == "" {
+			continue
+		}
+		parsed, err := time.Parse(time.RFC3339, value)
+		return err == nil && !parsed.Before(cutoff)
+	}
+	return true
+}
+
 func newNovelQrollupCmd(flags *rootFlags) *cobra.Command {
 	var flagSince string
 	var dbPath string
@@ -74,7 +91,7 @@ func newNovelQrollupCmd(flags *rootFlags) *cobra.Command {
 			"live calls right now use the active-calls command; for raw per-call rows use the\n" +
 			"call-history list.\n\n" +
 			"Sync first (expand agents for accurate counts):\n" +
-			"  3cx-xapi-pp-cli sync --resources queues --resource-param 'queues:$expand=Agents'",
+			"  3cx-xapi-pp-cli sync --resources queues,report-queue-performance-overview,report-detailed-queue-statistics,report-abandoned-queue-calls,report-breaches-sla --resource-param 'queues:$expand=Agents'",
 		Example:     "  3cx-xapi-pp-cli qrollup --since 7d --agent",
 		Annotations: map[string]string{"mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -85,7 +102,8 @@ func newNovelQrollupCmd(flags *rootFlags) *cobra.Command {
 			if flagSince == "" {
 				flagSince = "7d"
 			}
-			if _, err := cliutil.ParseDurationLoose(flagSince); err != nil {
+			window, err := cliutil.ParseDurationLoose(flagSince)
+			if err != nil {
 				_ = cmd.Usage()
 				return usageErr(fmt.Errorf("invalid --since %q: %w", flagSince, err))
 			}
@@ -108,7 +126,8 @@ func newNovelQrollupCmd(flags *rootFlags) *cobra.Command {
 			}
 
 			// Merge any synced queue-stat resources by queue number.
-			statsByNumber := map[string]json.RawMessage{}
+			cutoff := time.Now().UTC().Add(-window)
+			statsByNumber := map[string]map[string][]json.RawMessage{}
 			statsSynced := false
 			for _, rt := range queueStatResources {
 				raws, err := db.List(rt, 0)
@@ -117,13 +136,19 @@ func newNovelQrollupCmd(flags *rootFlags) *cobra.Command {
 				}
 				statsSynced = true
 				for _, raw := range raws {
+					if !qrollupWithinWindow(raw, cutoff) {
+						continue
+					}
 					var obj map[string]json.RawMessage
 					if json.Unmarshal(raw, &obj) != nil {
 						continue
 					}
 					num := firstString(obj, "Number", "QueueDn", "Queue", "Dn")
 					if num != "" {
-						statsByNumber[num] = raw
+						if statsByNumber[num] == nil {
+							statsByNumber[num] = map[string][]json.RawMessage{}
+						}
+						statsByNumber[num][rt] = append(statsByNumber[num][rt], raw)
 					}
 				}
 			}
