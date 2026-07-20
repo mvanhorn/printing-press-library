@@ -55,6 +55,7 @@ func TestBindRecordLine(t *testing.T) {
 		{"www CNAME", dmeRecord{Name: "www", Type: "CNAME", Value: "example.com", TTL: 1800}, "www\t1800\tIN\tCNAME\texample.com."},
 		{"MX", dmeRecord{Name: "", Type: "MX", Value: "mail.example.com", TTL: 3600, MxLevel: 10}, "@\t3600\tIN\tMX\t10 mail.example.com."},
 		{"SRV", dmeRecord{Name: "_sip._tcp", Type: "SRV", Value: "sip.example.com", TTL: 3600, Priority: 10, Weight: 60, Port: 5060}, "_sip._tcp\t3600\tIN\tSRV\t10 60 5060 sip.example.com."},
+		{"ANAME commented", dmeRecord{Name: "", Type: "ANAME", Value: "origin.example.net", TTL: 300}, "; UNSUPPORTED: @ ANAME origin.example.net. (DNS Made Easy apex flattening is not representable in standard BIND syntax)"},
 		{"TXT quoted", dmeRecord{Name: "", Type: "TXT", Value: "v=spf1 include:_spf.example.com ~all", TTL: 3600}, "@\t3600\tIN\tTXT\t\"v=spf1 include:_spf.example.com ~all\""},
 		{"zero ttl defaults", dmeRecord{Name: "a", Type: "A", Value: "1.2.3.4", TTL: 0}, "a\t1800\tIN\tA\t1.2.3.4"},
 	}

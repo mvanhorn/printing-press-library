@@ -180,6 +180,7 @@ keep only challenge records first seen before the cutoff. Without a mirror,
 				}
 			}
 			view.Deleted = deleted
+			view.ZonesAffected = succeededZones
 			view.ZonesSucceeded = succeededZones
 			view.Note = acmeDeleteSummary(deleted, succeededZones, deleteFailures)
 			return emitAcme(cmd, flags, view)

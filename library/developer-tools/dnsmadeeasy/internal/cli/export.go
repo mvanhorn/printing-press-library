@@ -118,13 +118,15 @@ func bindRecordLine(r dmeRecord) string {
 	typ := strings.ToUpper(r.Type)
 	prefix := fmt.Sprintf("%s\t%d\tIN\t%s\t", name, ttl, typ)
 	switch typ {
+	case "ANAME":
+		return fmt.Sprintf("; UNSUPPORTED: %s ANAME %s (DNS Made Easy apex flattening is not representable in standard BIND syntax)", name, ensureTrailingDot(r.Value))
 	case "MX":
 		return prefix + fmt.Sprintf("%d %s", r.MxLevel, ensureTrailingDot(r.Value))
 	case "SRV":
 		return prefix + fmt.Sprintf("%d %d %d %s", r.Priority, r.Weight, r.Port, ensureTrailingDot(r.Value))
 	case "TXT", "SPF":
 		return prefix + bindQuoteTXT(r.Value)
-	case "CNAME", "ANAME", "NS", "PTR":
+	case "CNAME", "NS", "PTR":
 		return prefix + ensureTrailingDot(r.Value)
 	default:
 		return prefix + r.Value
