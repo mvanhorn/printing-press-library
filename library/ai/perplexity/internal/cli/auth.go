@@ -13,15 +13,15 @@ import (
 	"errors"
 	"fmt"
 	"github.com/gorilla/websocket"
+	"github.com/mvanhorn/printing-press-library/library/ai/perplexity/internal/client"
+	"github.com/mvanhorn/printing-press-library/library/ai/perplexity/internal/cliutil"
+	"github.com/mvanhorn/printing-press-library/library/ai/perplexity/internal/config"
 	"github.com/spf13/cobra"
 	"io"
 	"net/http"
 	"os"
 	"os/exec"
 	"path/filepath"
-	"github.com/mvanhorn/printing-press-library/library/ai/perplexity/internal/client"
-	"github.com/mvanhorn/printing-press-library/library/ai/perplexity/internal/cliutil"
-	"github.com/mvanhorn/printing-press-library/library/ai/perplexity/internal/config"
 	"runtime"
 	"sort"
 	"strings"
@@ -417,22 +417,9 @@ func refreshStoredBrowserCookies(cfg *config.Config, w io.Writer) error {
 		return fmt.Errorf("no cookie domain configured")
 	}
 
-	cookies, err := extractLiveCookies(domain)
-	if err != nil || cookies == "" {
-		tool, toolErr := detectCookieTool()
-		if toolErr != nil {
-			if err != nil {
-				return fmt.Errorf("reading live browser cookies: %w", err)
-			}
-			return toolErr
-		}
-		cookies, err = extractCookies(tool, domain, "")
-		if err != nil {
-			return fmt.Errorf("extracting cookies: %w", err)
-		}
-	}
-	if cookies == "" {
-		return fmt.Errorf("no cookies found for %s", domain)
+	cookies, err := refreshBrowserCookieSource(domain, detectCookieTool, extractCookies, extractLiveCookies)
+	if err != nil {
+		return err
 	}
 	if err := cfg.SaveTokens("", "", cookies, "", time.Time{}); err != nil {
 		return configErr(fmt.Errorf("saving cookies: %w", err))
@@ -441,6 +428,38 @@ func refreshStoredBrowserCookies(cfg *config.Config, w io.Writer) error {
 	fmt.Fprintf(w, "Updated stored browser cookies for %s (%d cookies).\n", domain, count)
 	return nil
 }
+
+// refreshBrowserCookieSource prefers direct Chrome-store extraction because
+// document.cookie omits HttpOnly session cookies. Live browser extraction is
+// retained only for environments where no direct extractor is available.
+func refreshBrowserCookieSource(
+	domain string,
+	detect func() (cookieTool, error),
+	extract func(cookieTool, string, string) (string, error),
+	extractLive func(string) (string, error),
+) (string, error) {
+	tool, err := detect()
+	if err == nil {
+		cookies, extractErr := extract(tool, domain, "")
+		if extractErr != nil {
+			return "", fmt.Errorf("extracting cookies: %w", extractErr)
+		}
+		if strings.TrimSpace(cookies) == "" {
+			return "", fmt.Errorf("no cookies found for %s", domain)
+		}
+		return cookies, nil
+	}
+
+	cookies, liveErr := extractLive(domain)
+	if liveErr != nil {
+		return "", fmt.Errorf("reading live browser cookies after direct extraction was unavailable (%v): %w", err, liveErr)
+	}
+	if strings.TrimSpace(cookies) == "" {
+		return "", fmt.Errorf("no cookies found for %s", domain)
+	}
+	return cookies, nil
+}
+
 func cookieToolSupportsProfiles(tool string) bool {
 	switch tool {
 	case "pycookiecheat", "pycookiecheat-cli", "cookie-scoop":

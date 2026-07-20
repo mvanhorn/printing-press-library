@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "perplexity-refresh-direct-cookie-source",
+  "applied_at": "2026-07-20",
+  "base_run_id": "20260618-202350",
+  "base_printing_press_version": "4.24.0",
+  "files": [
+    "internal/cli/auth.go",
+    "internal/cli/auth_test.go"
+  ],
+  "summary": "Refresh browser sessions from the direct Chrome cookie store before using document.cookie so saved credentials retain HttpOnly account cookies.",
+  "reason": "Live browser evaluation cannot observe HttpOnly cookies and can otherwise overwrite a working account session with an incomplete cookie header. Keep live extraction only as the fallback when no direct cookie extractor is available.",
+  "validated_outcome": "Unit tests prove direct extraction wins over live document.cookie, live extraction remains available without a direct extractor, and direct extraction failures are not replaced with a partial live value."
+}
