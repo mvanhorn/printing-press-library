@@ -262,20 +262,24 @@ func (c *Catalog) Project(ctx context.Context, collection string, target int, st
 	// projects can never merge into one report. Exact match wins; a unique
 	// substring match is accepted; multiple matches are an error.
 	nameRows, err := c.DB.QueryContext(ctx, `
-		SELECT DISTINCT name FROM AgLibraryCollection
+		SELECT id_local, name FROM AgLibraryCollection
 		WHERE systemOnly = 0 AND name IS NOT NULL AND lower(name) LIKE lower(?)
-		ORDER BY name`, "%"+collection+"%")
+		ORDER BY name, id_local`, "%"+collection+"%")
 	if err != nil {
 		return nil, err
 	}
-	matches := make([]string, 0)
+	type collMatch struct {
+		id   int64
+		name string
+	}
+	matches := make([]collMatch, 0)
 	for nameRows.Next() {
-		var n string
-		if err := nameRows.Scan(&n); err != nil {
+		var m collMatch
+		if err := nameRows.Scan(&m.id, &m.name); err != nil {
 			_ = nameRows.Close()
 			return nil, err
 		}
-		matches = append(matches, n)
+		matches = append(matches, m)
 	}
 	if err := nameRows.Err(); err != nil {
 		_ = nameRows.Close()
@@ -284,30 +288,37 @@ func (c *Catalog) Project(ctx context.Context, collection string, target int, st
 	if err := nameRows.Close(); err != nil {
 		return nil, err
 	}
-	resolved := ""
+	// Resolve to exactly one collection row (id, not name) so two projects can
+	// never merge — neither via similar names nor via duplicate names under
+	// different collection sets.
+	exact := make([]collMatch, 0)
 	for _, m := range matches {
-		if strings.EqualFold(m, collection) {
-			resolved = m
-			break
+		if strings.EqualFold(m.name, collection) {
+			exact = append(exact, m)
 		}
 	}
-	if resolved == "" && len(matches) == 1 {
-		resolved = matches[0]
-	}
-	if resolved == "" && len(matches) > 1 {
-		return nil, fmt.Errorf("--collection %q matches %d collections (%s); use the exact name", collection, len(matches), strings.Join(matches, ", "))
-	}
-	if resolved == "" {
-		// No matching collection: fall through to the empty-report path below.
-		resolved = collection
+	var resolvedID int64 = -1
+	resolved := collection
+	switch {
+	case len(exact) == 1:
+		resolvedID, resolved = exact[0].id, exact[0].name
+	case len(exact) > 1:
+		return nil, fmt.Errorf("%d collections share the exact name %q (under different collection sets); rename one so the project is unambiguous", len(exact), collection)
+	case len(matches) == 1:
+		resolvedID, resolved = matches[0].id, matches[0].name
+	case len(matches) > 1:
+		names := make([]string, 0, len(matches))
+		for _, m := range matches {
+			names = append(names, m.name)
+		}
+		return nil, fmt.Errorf("--collection %q matches %d collections (%s); use the exact name", collection, len(matches), strings.Join(names, ", "))
 	}
 	rows, err := c.DB.QueryContext(ctx, `
 		SELECT DISTINCT substr(i.captureTime,1,10) d
 		FROM Adobe_images i
 		JOIN AgLibraryCollectionImage ci ON ci.image = i.id_local
-		JOIN AgLibraryCollection c ON c.id_local = ci.collection
-		WHERE lower(c.name) = lower(?) AND i.captureTime IS NOT NULL
-		ORDER BY d`, resolved)
+		WHERE ci.collection = ? AND i.captureTime IS NOT NULL
+		ORDER BY d`, resolvedID)
 	if err != nil {
 		return nil, err
 	}

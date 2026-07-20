@@ -15,6 +15,9 @@ import (
 
 type resolvedPath struct {
 	lrcat.Photo
+	// Status is always present ("ok", "missing", or "unreadable") so
+	// --compact/--select field filtering can never hide an access failure.
+	Status    string `json:"status"`
 	Exists    bool   `json:"exists"`
 	StatError string `json:"stat_error,omitempty"`
 }
@@ -57,10 +60,12 @@ func newPathCmd(flags *rootFlags) *cobra.Command {
 				switch _, statErr := os.Stat(p.Path); {
 				case statErr == nil:
 					r.Exists = true
+					r.Status = "ok"
 				case os.IsNotExist(statErr):
-					// genuinely absent
+					r.Status = "missing"
 				default:
 					// Permission or I/O errors are not evidence of deletion.
+					r.Status = "unreadable"
 					r.StatError = statErr.Error()
 				}
 				out = append(out, r)
