@@ -159,7 +159,7 @@ Highlights (not in the official API docs):
   • export   Serialize a zone's records from the local mirror to a standards-compliant BIND zone file or JSON, with no API call.
   • health   Audit every zone for dangling CNAMEs, out-of-range TTLs, zones missing SPF/DMARC/CAA, and duplicate or conflicting records.
   • bulk-apply   Select records by value and type across all zones locally, preview the plan, then apply the change via the real multi-record update endpoint per affected zone.
-  • acme-purge   Find _acme-challenge TXT records across all zones and delete stale or orphaned ones via the real multi-record delete endpoint.
+  • acme-purge   Preview all _acme-challenge TXT records, or only those older than a requested age, then delete selected records with --apply.
 
 Agent mode: add --agent to any command for JSON output + non-interactive mode.
 Health check: run 'dnsmadeeasy-pp-cli doctor' to verify auth and connectivity.

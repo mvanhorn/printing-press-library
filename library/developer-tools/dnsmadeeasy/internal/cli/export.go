@@ -199,9 +199,20 @@ func txtRawContent(v string) string {
 
 // txtEscape escapes a raw character-string segment for BIND zone-file syntax.
 func txtEscape(s string) string {
-	s = strings.ReplaceAll(s, `\`, `\\`)
-	s = strings.ReplaceAll(s, `"`, `\"`)
-	return s
+	var escaped strings.Builder
+	for i := 0; i < len(s); i++ {
+		switch c := s[i]; {
+		case c == '\\':
+			escaped.WriteString(`\\`)
+		case c == '"':
+			escaped.WriteString(`\"`)
+		case c < 0x20 || c == 0x7f:
+			fmt.Fprintf(&escaped, `\%03d`, c)
+		default:
+			escaped.WriteByte(c)
+		}
+	}
+	return escaped.String()
 }
 
 func ensureTrailingDot(host string) string {

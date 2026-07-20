@@ -170,7 +170,7 @@ These capabilities aren't available in any other tool for this API.
   ```bash
   dnsmadeeasy-pp-cli export example.com --format bind
   ```
-- **`acme-purge`** — Find _acme-challenge TXT records across all zones and delete stale or orphaned ones via the real multi-record delete endpoint.
+- **`acme-purge`** — Preview all _acme-challenge TXT records, or only those older than a requested age, then delete selected records with `--apply`.
 
   _Run after certificate automation to clean up the challenge records lego/ACME clients leave behind, account-wide._
 

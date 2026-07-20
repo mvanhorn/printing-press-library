@@ -1,6 +1,6 @@
 // Copyright 2026 Derick Ng and contributors. Licensed under Apache-2.0. See LICENSE.
 // Novel command: find _acme-challenge TXT records across all zones and delete
-// stale ones via the real multi-record delete endpoint. Previews by default;
+// all matches or only those older than a requested age. Previews by default;
 // --apply performs the deletes.
 // pp:data-source live
 
@@ -49,7 +49,7 @@ func newNovelAcmePurgeCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:   "acme-purge",
-		Short: "Delete _acme-challenge TXT records across all zones — all, or --older-than (via deleteMulti)",
+		Short: "Find and delete _acme-challenge TXT records across all zones",
 		Long: strings.Trim(`
 Find every _acme-challenge TXT record across all zones and delete them via the
 real multi-record delete endpoint. Previews by default; pass --apply to delete.
@@ -69,7 +69,7 @@ keep only challenge records first seen before the cutoff. Without a mirror,
 				return emitAcme(cmd, flags, acmePurgeView{OlderThan: flagOlderThan, Targets: []acmePurgeItem{}, Note: note})
 			}
 			if cliutil.IsVerifyEnv() {
-				fmt.Fprintln(cmd.OutOrStdout(), "would preview stale _acme-challenge TXT records")
+				fmt.Fprintln(cmd.OutOrStdout(), "would preview _acme-challenge TXT records")
 				return nil
 			}
 			var cutoff time.Time

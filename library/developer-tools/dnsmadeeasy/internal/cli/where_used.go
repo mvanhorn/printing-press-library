@@ -31,6 +31,8 @@ type whereUsedView struct {
 	Exact        bool             `json:"exact"`
 	ScannedZones int              `json:"scanned_zones"`
 	ScannedRecs  int              `json:"scanned_records"`
+	TotalMatches int              `json:"total_matches"`
+	Truncated    bool             `json:"truncated"`
 	Matches      []whereUsedMatch `json:"matches"`
 	Note         string           `json:"note,omitempty"`
 }
@@ -86,19 +88,18 @@ Run 'dnsmadeeasy-pp-cli sync-records' first to populate the mirror.`, "\n"),
 			if err != nil {
 				return fmt.Errorf("reading zone mirror: %w", err)
 			}
-			// scanned_zones / scanned_records describe the full scan surface.
-			// Count distinct zones across ALL loaded records up front so the two
-			// counters stay consistent regardless of the --type filter or the
-			// --limit early break below (which would otherwise leave
-			// scanned_zones undercounting while scanned_records stays full).
 			scannedZones := map[string]struct{}{}
-			for _, r := range recs {
-				scannedZones[r.DomainID] = struct{}{}
-			}
+			scannedRecords := 0
 			q := strings.ToLower(query)
 			matches := make([]whereUsedMatch, 0)
 			matchZones := map[string]struct{}{}
+			totalMatches := 0
 			for _, r := range recs {
+				if flagType != "" && !strings.EqualFold(r.Type, flagType) {
+					continue
+				}
+				scannedRecords++
+				scannedZones[r.DomainID] = struct{}{}
 				var hit bool
 				if flagExact {
 					hit = strings.EqualFold(r.Value, query) || strings.EqualFold(r.Name, query)
@@ -108,23 +109,24 @@ Run 'dnsmadeeasy-pp-cli sync-records' first to populate the mirror.`, "\n"),
 				if !hit {
 					continue
 				}
-				if flagType != "" && !strings.EqualFold(r.Type, flagType) {
-					continue
-				}
-				matches = append(matches, whereUsedMatch{
-					Zone: r.DomainName, DomainID: r.DomainID, RecordID: r.ID.String(),
-					Name: r.Name, Type: r.Type, Value: r.Value, TTL: r.TTL,
-				})
+				totalMatches++
 				matchZones[r.DomainID] = struct{}{}
-				if flagLimit > 0 && len(matches) >= flagLimit {
-					break
+				if flagLimit <= 0 || len(matches) < flagLimit {
+					matches = append(matches, whereUsedMatch{
+						Zone: r.DomainName, DomainID: r.DomainID, RecordID: r.ID.String(),
+						Name: r.Name, Type: r.Type, Value: r.Value, TTL: r.TTL,
+					})
 				}
 			}
+			truncated := totalMatches > len(matches)
 			view := whereUsedView{
 				Query: query, Exact: flagExact,
-				ScannedZones: len(scannedZones), ScannedRecs: len(recs), Matches: matches,
+				ScannedZones: len(scannedZones), ScannedRecs: scannedRecords,
+				TotalMatches: totalMatches, Truncated: truncated, Matches: matches,
 			}
-			if len(matches) == 0 {
+			if truncated {
+				view.Note = fmt.Sprintf("showing first %d of %d matching records; increase --limit to return more", len(matches), totalMatches)
+			} else if len(matches) == 0 {
 				view.Note = fmt.Sprintf("no records across %d zones matched %q; re-run 'dnsmadeeasy-pp-cli sync-records' if the mirror is stale", len(scannedZones), query)
 			}
 
@@ -142,7 +144,10 @@ Run 'dnsmadeeasy-pp-cli sync-records' first to populate the mirror.`, "\n"),
 			if err := printAutoTable(cmd.OutOrStdout(), rows); err != nil {
 				return err
 			}
-			fmt.Fprintf(os.Stderr, "\n%d record(s) across %d zone(s) use %q.\n", len(matches), len(matchZones), query)
+			fmt.Fprintf(os.Stderr, "\n%d record(s) across %d zone(s) use %q.\n", totalMatches, len(matchZones), query)
+			if truncated {
+				fmt.Fprintln(os.Stderr, view.Note)
+			}
 			return nil
 		},
 	}

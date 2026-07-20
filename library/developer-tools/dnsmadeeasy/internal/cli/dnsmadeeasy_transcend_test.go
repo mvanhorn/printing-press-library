@@ -23,6 +23,27 @@ func TestHealthRejectsInvertedTTLBand(t *testing.T) {
 	}
 }
 
+func TestHasDMARCPolicyRequiresNameAndVersionPrefix(t *testing.T) {
+	tests := []struct {
+		name string
+		rec  dmeRecord
+		want bool
+	}{
+		{"valid policy", dmeRecord{Name: "_dmarc", Type: "TXT", Value: `"v=DMARC1; p=reject"`}, true},
+		{"policy at wrong name", dmeRecord{Name: "@", Type: "TXT", Value: "v=DMARC1; p=reject"}, false},
+		{"non-policy at dmarc name", dmeRecord{Name: "_dmarc", Type: "TXT", Value: "ownership verification"}, false},
+		{"invalid version prefix", dmeRecord{Name: "_dmarc", Type: "TXT", Value: "v=DMARC10; p=reject"}, false},
+		{"wrong record type", dmeRecord{Name: "_dmarc", Type: "SPF", Value: "v=DMARC1; p=reject"}, false},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := hasDMARCPolicy(tt.rec); got != tt.want {
+				t.Fatalf("hasDMARCPolicy(%+v) = %v, want %v", tt.rec, got, tt.want)
+			}
+		})
+	}
+}
+
 func TestBindRecordLine(t *testing.T) {
 	cases := []struct {
 		name string
@@ -53,6 +74,9 @@ func TestBindQuoteTXT(t *testing.T) {
 	// Embedded quote/backslash escaped.
 	if got := bindQuoteTXT(`a"b\c`); got != `"a\"b\\c"` {
 		t.Errorf("escape: got %q", got)
+	}
+	if got := bindQuoteTXT("a\tb\nc\x00\x7f"); got != `"a\009b\010c\000\127"` {
+		t.Errorf("control characters: got %q", got)
 	}
 	// DME multi-string form is recombined then re-chunked (content preserved).
 	if got := bindQuoteTXT(`"v=DKIM1; k=rsa; " "p=ABC"`); got != `"v=DKIM1; k=rsa; p=ABC"` {
@@ -175,5 +199,51 @@ func TestZoneMirrorRoundTrip(t *testing.T) {
 	}
 	if shared != 2 {
 		t.Errorf("expected 2 records with shared value, got %d", shared)
+	}
+}
+
+func TestWhereUsedTypeBoundaryAndTruncation(t *testing.T) {
+	ctx := context.Background()
+	dbPath := filepath.Join(t.TempDir(), "mirror.db")
+	s, err := store.OpenWithContext(ctx, dbPath)
+	if err != nil {
+		t.Fatal(err)
+	}
+	recs := []dmeRecord{
+		{ID: "1", DomainID: "100", DomainName: "example.com", Name: "www", Type: "A", Value: "52.10.4.7", TTL: 300},
+		{ID: "2", DomainID: "100", DomainName: "example.com", Name: "mail", Type: "MX", Value: "52.10.4.7", TTL: 300},
+		{ID: "3", DomainID: "200", DomainName: "example.org", Name: "api", Type: "A", Value: "52.10.4.7", TTL: 300},
+		{ID: "4", DomainID: "300", DomainName: "example.net", Name: "txt", Type: "TXT", Value: "unrelated", TTL: 300},
+	}
+	if _, err := writeZoneMirror(ctx, s, recs); err != nil {
+		s.Close()
+		t.Fatal(err)
+	}
+	if err := s.Close(); err != nil {
+		t.Fatal(err)
+	}
+
+	flags := rootFlags{asJSON: true}
+	cmd := newNovelWhereUsedCmd(&flags)
+	cmd.SetArgs([]string{"52.10.4.7", "--type", "A", "--limit", "1", "--db", dbPath})
+	var out bytes.Buffer
+	cmd.SetOut(&out)
+	cmd.SetErr(&out)
+	if err := cmd.Execute(); err != nil {
+		t.Fatal(err)
+	}
+
+	var view whereUsedView
+	if err := json.Unmarshal(out.Bytes(), &view); err != nil {
+		t.Fatalf("decode output %q: %v", out.String(), err)
+	}
+	if view.ScannedRecs != 2 || view.ScannedZones != 2 {
+		t.Fatalf("scan boundary = %d records across %d zones, want 2 across 2", view.ScannedRecs, view.ScannedZones)
+	}
+	if view.TotalMatches != 2 || !view.Truncated || len(view.Matches) != 1 {
+		t.Fatalf("match state = total %d truncated %v returned %d, want 2/true/1", view.TotalMatches, view.Truncated, len(view.Matches))
+	}
+	if !strings.Contains(view.Note, "first 1 of 2") {
+		t.Fatalf("truncation note = %q", view.Note)
 	}
 }

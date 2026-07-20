@@ -107,11 +107,7 @@ Run 'dnsmadeeasy-pp-cli sync-records' first to populate the mirror.`, "\n"),
 						if strings.Contains(strings.ToLower(r.Value), "v=spf1") {
 							hasSPF = true
 						}
-						// A DMARC record must carry a v=DMARC1 policy to be valid.
-						// Matching on the _dmarc name alone produces a false
-						// negative: a _dmarc TXT holding some other value would
-						// suppress the missing-dmarc finding despite no real policy.
-						if strings.Contains(strings.ToLower(r.Value), "v=dmarc1") {
+						if hasDMARCPolicy(r) {
 							hasDMARC = true
 						}
 					case "CAA":
@@ -182,6 +178,18 @@ Run 'dnsmadeeasy-pp-cli sync-records' first to populate the mirror.`, "\n"),
 	cmd.Flags().IntVar(&maxTTL, "max-ttl", 604800, "Maximum acceptable TTL (seconds)")
 	cmd.Flags().StringVar(&dbPath, "db", "", "Path to the local mirror database")
 	return cmd
+}
+
+func hasDMARCPolicy(r dmeRecord) bool {
+	if !strings.EqualFold(r.Type, "TXT") || !strings.EqualFold(r.Name, "_dmarc") {
+		return false
+	}
+	value := strings.ToLower(strings.TrimSpace(txtRawContent(r.Value)))
+	if !strings.HasPrefix(value, "v=dmarc1") {
+		return false
+	}
+	remainder := strings.TrimSpace(strings.TrimPrefix(value, "v=dmarc1"))
+	return remainder == "" || strings.HasPrefix(remainder, ";")
 }
 
 func recordFQDN(r dmeRecord) string {

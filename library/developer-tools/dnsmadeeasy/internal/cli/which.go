@@ -32,7 +32,7 @@ var whichIndex = []whichEntry{
 	{Command: "export", Description: "Serialize a zone's records from the local mirror to a standards-compliant BIND zone file or JSON, with no API call.", Group: "Migration and backup", WhyItMatters: "Reach for this to back up a zone, hand off to another provider, or review a full zone as one document."},
 	{Command: "health", Description: "Audit every zone for dangling CNAMEs, out-of-range TTLs, zones missing SPF/DMARC/CAA, and duplicate or conflicting records.", Group: "Cross-zone insight", WhyItMatters: "Run before a cutover or as a periodic sweep to surface takeover risk and mail-security gaps across every zone at once."},
 	{Command: "bulk-apply", Description: "Select records by value and type across all zones locally, preview the plan, then apply the change via the real multi-record update endpoint per affected zone.", Group: "Cross-zone insight", WhyItMatters: "Use for IP migrations that touch many zones; --dry-run shows exactly what will change before any write."},
-	{Command: "acme-purge", Description: "Find _acme-challenge TXT records across all zones and delete stale or orphaned ones via the real multi-record delete endpoint.", Group: "Migration and backup", WhyItMatters: "Run after certificate automation to clean up the challenge records lego/ACME clients leave behind, account-wide."},
+	{Command: "acme-purge", Description: "Preview all _acme-challenge TXT records, or only those older than a requested age, then delete selected records with --apply.", Group: "Migration and backup", WhyItMatters: "Run after certificate automation to clean up the challenge records lego/ACME clients leave behind, account-wide."},
 }
 
 // whichMatch pairs an index entry with its ranking score for a query.
