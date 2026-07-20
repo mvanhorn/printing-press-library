@@ -57,19 +57,22 @@ func loadUser(ctx context.Context, db *store.Store) (dreamingUser, bool, error) 
 
 // ensureUser returns the cached user stats, fetching and caching /user live
 // when the store has no user row (the single-object /user endpoint is not
-// batch-syncable, so `sync` doesn't populate it). Falls back to ok=false when
-// offline and uncached.
+// batch-syncable, so `sync` doesn't populate it).
 func ensureUser(ctx context.Context, flags *rootFlags, db *store.Store) (dreamingUser, bool, error) {
-	if u, ok, err := loadUser(ctx, db); err == nil && ok {
+	u, ok, err := loadUser(ctx, db)
+	if err != nil {
+		return dreamingUser{}, false, err
+	}
+	if ok {
 		return u, true, nil
 	}
 	c, err := flags.newClient()
 	if err != nil {
-		return dreamingUser{}, false, nil
+		return dreamingUser{}, false, err
 	}
 	raw, err := c.Get(ctx, "/user", nil)
 	if err != nil {
-		return dreamingUser{}, false, nil
+		return dreamingUser{}, false, err
 	}
 	var env struct {
 		User json.RawMessage `json:"user"`
@@ -78,7 +81,9 @@ func ensureUser(ctx context.Context, flags *rootFlags, db *store.Store) (dreamin
 	if json.Unmarshal(raw, &env) == nil && len(env.User) > 0 {
 		inner = env.User
 	}
-	_ = db.UpsertUser(inner)
+	if err := db.UpsertUser(inner); err != nil {
+		return dreamingUser{}, false, err
+	}
 	return loadUser(ctx, db)
 }
 

@@ -7,6 +7,8 @@ import (
 	"context"
 	"encoding/json"
 	"io"
+	"net/http"
+	"net/http/httptest"
 	"path/filepath"
 	"strings"
 	"testing"
@@ -119,12 +121,17 @@ func TestNextCommand(t *testing.T) {
 	}
 }
 
-func TestNextAutoLevelRequiresUserStats(t *testing.T) {
+func TestNextAutoLevelDoesNotDefaultToLevelOne(t *testing.T) {
 	seedNovelStore(t,
 		[]string{`INSERT INTO videos (id, data, title, level, difficulty) VALUES ('v1', '{}', 'Beginner video', 'beginner', 10)`},
 		nil,
 	)
-	t.Setenv("DREAMING_TOKEN", "")
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+		http.Error(w, "unavailable", http.StatusServiceUnavailable)
+	}))
+	defer server.Close()
+	t.Setenv("DREAMING_BASE_URL", server.URL)
+	t.Setenv("DREAMING_TOKEN", "test-token")
 
 	flags := &rootFlags{asJSON: true}
 	cmd := newNovelNextCmd(flags)
@@ -132,7 +139,7 @@ func TestNextAutoLevelRequiresUserStats(t *testing.T) {
 	cmd.SetErr(io.Discard)
 
 	err := cmd.ExecuteContext(context.Background())
-	if err == nil || !strings.Contains(err.Error(), "no user stats cached") {
-		t.Fatalf("got error %v, want missing user stats error", err)
+	if err == nil || !strings.Contains(err.Error(), "503") {
+		t.Fatalf("got error %v, want user-fetch error instead of Level 1 results", err)
 	}
 }
