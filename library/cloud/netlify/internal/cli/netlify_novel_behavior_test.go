@@ -57,8 +57,10 @@ func seedMirror(t *testing.T) string {
 
 	soon := time.Now().Add(5 * 24 * time.Hour).Format(time.RFC3339)
 	later := time.Now().Add(200 * 24 * time.Hour).Format(time.RFC3339)
+	expired := time.Now().Add(-12 * time.Hour).Format(time.RFC3339)
 	put("sni-certificates", "c1", map[string]any{"domain": "alpha.example.com", "expires_at": soon})
 	put("sni-certificates", "c2", map[string]any{"domain": "beta.example.com", "expires_at": later})
+	put("sni-certificates", "c3", map[string]any{"domain": "expired.example.com", "expires_at": expired})
 
 	recent := time.Now().Add(-1 * time.Hour).Format(time.RFC3339)
 	old := time.Now().Add(-72 * time.Hour).Format(time.RFC3339)
@@ -98,6 +100,40 @@ func TestOverviewAggregates(t *testing.T) {
 	}
 	if rows[0].FormCount != 1 {
 		t.Fatalf("want alpha form_count 1, got %d", rows[0].FormCount)
+	}
+}
+
+func TestTimestampAfterHandlesOffsets(t *testing.T) {
+	olderWithOffset := "2026-07-08T09:00:00+05:30" // 03:30 UTC
+	newerUTC := "2026-07-08T04:00:00Z"
+	if timestampAfter(olderWithOffset, newerUTC) {
+		t.Fatalf("expected %s to sort before %s chronologically", olderWithOffset, newerUTC)
+	}
+	if !timestampAfter(newerUTC, olderWithOffset) {
+		t.Fatalf("expected %s to sort after %s chronologically", newerUTC, olderWithOffset)
+	}
+}
+
+func TestMissingMirrorPreservesJSONShape(t *testing.T) {
+	db := filepath.Join(t.TempDir(), "missing.db")
+	tests := []struct {
+		name string
+		args []string
+		want byte
+	}{
+		{name: "overview array", args: []string{"overview", "--json", "--db", db}, want: '['},
+		{name: "env drift object", args: []string{"env-drift", "--json", "--db", db}, want: '{'},
+		{name: "dns audit object", args: []string{"dns-audit", "--json", "--db", db}, want: '{'},
+		{name: "since object", args: []string{"since", "24h", "--json", "--db", db}, want: '{'},
+		{name: "submissions search object", args: []string{"submissions", "search", "acme", "--json", "--db", db}, want: '{'},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			out := bytes.TrimSpace(runCmd(t, tt.args...))
+			if len(out) == 0 || out[0] != tt.want {
+				t.Fatalf("want JSON starting with %q, got %q", tt.want, out)
+			}
+		})
 	}
 }
 

@@ -41,7 +41,7 @@ populate sites (and optionally forms) locally.`,
 				dbPath = novelDBPath()
 			}
 			if mirrorMissing(dbPath) {
-				return noMirror(cmd, flags, dbPath, "sites,forms")
+				return noMirror(cmd, flags, dbPath, "sites,forms", []siteOverview{})
 			}
 			st, err := openMirror(ctx, dbPath)
 			if err != nil {
@@ -76,7 +76,7 @@ populate sites (and optionally forms) locally.`,
 				}
 				out = append(out, row)
 			}
-			sort.Slice(out, func(i, j int) bool { return out[i].LastDeploy > out[j].LastDeploy })
+			sort.Slice(out, func(i, j int) bool { return timestampAfter(out[i].LastDeploy, out[j].LastDeploy) })
 
 			if len(out) == 0 {
 				cmd.PrintErrln("no sites in local mirror; run: netlify-pp-cli sync --resources sites")

@@ -24,15 +24,23 @@ func mirrorMissing(dbPath string) bool {
 	return os.IsNotExist(err)
 }
 
-// noMirror emits the standard "run sync first" response: an empty JSON result
-// for machine consumers and a human hint on stderr. Returns nil because a
-// missing mirror is an empty local-cache state, not an error.
-func noMirror(cmd *cobra.Command, flags *rootFlags, dbPath string, resources string) error {
+// noMirror emits the standard "run sync first" response. Callers provide the
+// type-appropriate empty value so machine output keeps the command's schema.
+func noMirror(cmd *cobra.Command, flags *rootFlags, dbPath string, resources string, emptyResult any) error {
 	cmd.PrintErrf("no local mirror at %s\nrun: netlify-pp-cli sync --resources %s --db %s\n", dbPath, resources, dbPath)
 	if flags.asJSON || flags.agent {
-		cmd.Println("[]")
+		return printJSONFiltered(cmd.OutOrStdout(), emptyResult, flags)
 	}
 	return nil
+}
+
+func timestampAfter(a, b string) bool {
+	ta, oka := parseTimeLoose(a)
+	tb, okb := parseTimeLoose(b)
+	if oka && okb {
+		return ta.After(tb)
+	}
+	return a > b
 }
 
 // openMirror opens the local mirror read-only.

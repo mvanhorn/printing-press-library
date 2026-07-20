@@ -65,7 +65,10 @@ shorthand (e.g. 90m, 2h, 7d, 1w). Run 'sync' first to populate deploys locally.`
 				dbPath = novelDBPath()
 			}
 			if mirrorMissing(dbPath) {
-				return noMirror(cmd, flags, dbPath, "sites,deploys")
+				return noMirror(cmd, flags, dbPath, "sites,deploys", sinceView{
+					Window:  args[0],
+					Deploys: []deployEvent{},
+				})
 			}
 			st, err := openMirror(ctx, dbPath)
 			if err != nil {
@@ -106,7 +109,7 @@ shorthand (e.g. 90m, 2h, 7d, 1w). Run 'sync' first to populate deploys locally.`
 			collect("deploy", loadTyped(st, "deploys", "sites-deploys"))
 			collect("build", loadTyped(st, "builds", "sites-builds"))
 
-			sort.Slice(events, func(i, j int) bool { return events[i].CreatedAt > events[j].CreatedAt })
+			sort.Slice(events, func(i, j int) bool { return timestampAfter(events[i].CreatedAt, events[j].CreatedAt) })
 
 			view := sinceView{
 				Window:  args[0],

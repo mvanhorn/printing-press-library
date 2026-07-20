@@ -45,7 +45,10 @@ context value. Run 'sync' first to populate env vars locally.`,
 				dbPath = novelDBPath()
 			}
 			if mirrorMissing(dbPath) {
-				return noMirror(cmd, flags, dbPath, "sites,accounts-env")
+				return noMirror(cmd, flags, dbPath, "sites,accounts-env", envDriftView{
+					Owners: []string{},
+					Drift:  []envDriftRow{},
+				})
 			}
 			st, err := openMirror(ctx, dbPath)
 			if err != nil {

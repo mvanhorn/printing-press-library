@@ -55,7 +55,10 @@ expiring within --cert-days. Run 'sync' first to populate DNS locally.`,
 				dbPath = novelDBPath()
 			}
 			if mirrorMissing(dbPath) {
-				return noMirror(cmd, flags, dbPath, "dns-zones,sites")
+				return noMirror(cmd, flags, dbPath, "dns-zones,sites", dnsAuditView{
+					Dangling:     []danglingRecord{},
+					ExpiringCert: []expiringCert{},
+				})
 			}
 			st, err := openMirror(ctx, dbPath)
 			if err != nil {
@@ -127,7 +130,7 @@ expiring within --cert-days. Run 'sync' first to populate DNS locally.`,
 					continue
 				}
 				days := int(t.Sub(now).Hours() / 24)
-				if days <= certDays {
+				if !t.Before(now) && days <= certDays {
 					domain := firstStr(c, "domain")
 					if domain == "" {
 						if ds, ok := c["domains"].([]any); ok && len(ds) > 0 {

@@ -62,7 +62,10 @@ submissions locally.`,
 				dbPath = novelDBPath()
 			}
 			if mirrorMissing(dbPath) {
-				return noMirror(cmd, flags, dbPath, "sites,submissions")
+				return noMirror(cmd, flags, dbPath, "sites,submissions", submissionSearchView{
+					Query:       query,
+					Submissions: []submissionHit{},
+				})
 			}
 			st, err := openMirror(ctx, dbPath)
 			if err != nil {
