@@ -26,7 +26,10 @@ func newNovelTodayCmd(flags *rootFlags) *cobra.Command {
 				return err
 			}
 			defer p.Close()
-			recent, _ := p.RecentSitIDs(ctx, 14)
+			recent, err := p.RecentSitIDs(ctx, 14)
+			if err != nil {
+				return fmt.Errorf("reading recent reflections: %w", err)
+			}
 
 			gc := gutClient()
 			// Rotate the topic by day so the pick varies but is stable within a day.

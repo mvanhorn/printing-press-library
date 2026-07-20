@@ -210,6 +210,9 @@ func firstParasHaveProse(s string, n int) bool {
 // CleanExcerpt strips the Gutenberg header + front matter and returns the first
 // runs of real prose, up to maxRunes runes. Exported for testing.
 func CleanExcerpt(raw string, maxRunes int) string {
+	if maxRunes <= 0 {
+		maxRunes = 1000
+	}
 	// Skip the Project Gutenberg license header.
 	if i := strings.Index(raw, "*** START OF"); i >= 0 {
 		if nl := strings.IndexByte(raw[i:], '\n'); nl >= 0 {
@@ -244,16 +247,40 @@ func CleanExcerpt(raw string, maxRunes int) string {
 	}
 	out := b.String()
 	if out == "" {
-		out = strings.TrimSpace(raw) // fall back to whatever we have
-	}
-	if maxRunes <= 0 {
-		maxRunes = 1000
+		out = fallbackExcerpt(raw)
 	}
 	r := []rune(out)
 	if len(r) <= maxRunes {
 		return strings.TrimRight(out, " \n\t") // complete: no truncation ellipsis
 	}
 	return strings.TrimRight(string(r[:maxRunes]), " \n\t") + "…"
+}
+
+// fallbackExcerpt preserves verse and other short-line works without returning
+// the unfiltered Gutenberg front matter when no paragraph passes isProse.
+func fallbackExcerpt(raw string) string {
+	var lines []string
+	for _, line := range strings.Split(raw, "\n") {
+		line = strings.Join(strings.Fields(line), " ")
+		if len([]rune(line)) < 20 || frontMatterRe.MatchString(line) || mostlyUpper(line) {
+			continue
+		}
+		lines = append(lines, line)
+	}
+	return strings.Join(lines, "\n")
+}
+
+func mostlyUpper(s string) bool {
+	letters, upper := 0, 0
+	for _, r := range s {
+		if r >= 'A' && r <= 'Z' {
+			upper++
+			letters++
+		} else if r >= 'a' && r <= 'z' {
+			letters++
+		}
+	}
+	return letters > 0 && float64(upper)/float64(letters) > 0.5
 }
 
 // isProse reports whether a paragraph reads as real body text rather than
@@ -269,16 +296,7 @@ func isProse(p string) bool {
 		return false
 	}
 	// Mostly-uppercase blocks are headings/title pages.
-	letters, upper := 0, 0
-	for _, r := range p {
-		if r >= 'A' && r <= 'Z' {
-			upper++
-			letters++
-		} else if r >= 'a' && r <= 'z' {
-			letters++
-		}
-	}
-	if letters > 0 && float64(upper)/float64(letters) > 0.5 {
+	if mostlyUpper(p) {
 		return false
 	}
 	// A run with several roman/number list markers is a table of contents, not

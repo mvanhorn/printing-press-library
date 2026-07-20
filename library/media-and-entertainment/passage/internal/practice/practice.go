@@ -176,7 +176,7 @@ func (p *Practice) LogRead(ctx context.Context, key, title, status string, ratin
 		`INSERT INTO reading_log(work_key,title,status,rating,started_at,finished_at)
 		 VALUES(?,?,?,?,?,?)
 		 ON CONFLICT(work_key) DO UPDATE SET status=excluded.status, rating=CASE WHEN excluded.rating>0 THEN excluded.rating ELSE reading_log.rating END,
-		   finished_at=CASE WHEN excluded.status='read' THEN excluded.finished_at ELSE reading_log.finished_at END`,
+		   finished_at=CASE WHEN excluded.status='read' THEN excluded.finished_at ELSE '' END`,
 		key, title, status, rating, now(), finished)
 	return err
 }

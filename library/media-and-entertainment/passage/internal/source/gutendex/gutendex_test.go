@@ -2,6 +2,7 @@
 package gutendex
 
 import (
+	"net/url"
 	"strings"
 	"testing"
 )
@@ -83,6 +84,40 @@ func TestCleanExcerptTruncates(t *testing.T) {
 	}
 	if !strings.HasSuffix(got, "…") {
 		t.Errorf("expected ellipsis suffix, got %q", got)
+	}
+}
+
+func TestCleanExcerptFiltersBoilerplateFromShortLineFallback(t *testing.T) {
+	raw := "The Project Gutenberg eBook of Poems\n" +
+		"PUBLISHER AND COPYRIGHT INFORMATION\n" +
+		"*** START OF THE PROJECT GUTENBERG EBOOK POEMS ***\n\n" +
+		"Because I could not stop for Death—\n" +
+		"He kindly stopped for me—\n" +
+		"The Carriage held but just Ourselves—\n" +
+		"And Immortality.\n\n" +
+		"*** END OF THE PROJECT GUTENBERG EBOOK POEMS ***\n"
+
+	got := CleanExcerpt(raw, 45)
+	if strings.Contains(got, "Gutenberg") || strings.Contains(got, "PUBLISHER") {
+		t.Fatalf("fallback leaked front matter: %q", got)
+	}
+	if !strings.HasPrefix(got, "Because I could not stop for Death") {
+		t.Fatalf("fallback did not preserve verse: %q", got)
+	}
+	if len([]rune(got)) > 46 {
+		t.Fatalf("fallback exceeded the requested bound: %d runes", len([]rune(got)))
+	}
+}
+
+func TestURLQueryEscapesReservedCharacters(t *testing.T) {
+	query := " C++ 100% = useful "
+	got := urlQuery(query)
+	values, err := url.ParseQuery("search=" + got)
+	if err != nil {
+		t.Fatalf("ParseQuery: %v", err)
+	}
+	if got := values.Get("search"); got != strings.TrimSpace(query) {
+		t.Fatalf("decoded search = %q, want %q", got, strings.TrimSpace(query))
 	}
 }
 
