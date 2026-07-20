@@ -139,7 +139,11 @@ func newNovelDietCmd(flags *rootFlags) *cobra.Command {
 				}
 				return printJSONFiltered(cmd.OutOrStdout(), out, flags)
 			}
-			fmt.Fprintf(cmd.OutOrStdout(), "Watched %d rated videos in the last %d days.\n", n, days)
+			if days == 0 {
+				fmt.Fprintf(cmd.OutOrStdout(), "Watched %d rated videos across all time.\n", n)
+			} else {
+				fmt.Fprintf(cmd.OutOrStdout(), "Watched %d rated videos in the last %d days.\n", n, days)
+			}
 			fmt.Fprintf(cmd.OutOrStdout(), "  Avg difficulty:   %.1f / 100\n", overall)
 			fmt.Fprintf(cmd.OutOrStdout(), "  Early vs recent:  %.1f → %.1f  (Δ %+.1f)\n", early, late, delta)
 			fmt.Fprintf(cmd.OutOrStdout(), "  Trend:            %s\n", trend)

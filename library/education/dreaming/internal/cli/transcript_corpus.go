@@ -222,7 +222,13 @@ func newTranscriptImportCmd(flags *rootFlags) *cobra.Command {
 			defer db.Close()
 
 			res := mergeCorpus(db, &cf)
-			vids, cues, _ := db.TranscriptStats()
+			if res.err != nil {
+				return res.err
+			}
+			vids, cues, err := db.TranscriptStats()
+			if err != nil {
+				return err
+			}
 			out := map[string]any{
 				"videos_upserted":     res.videosUpserted,
 				"videos_failed":       res.videosFailed,
@@ -231,9 +237,6 @@ func newTranscriptImportCmd(flags *rootFlags) *cobra.Command {
 				"transcripts_skipped": res.skipped,
 				"corpus_videos":       vids,
 				"corpus_cues":         cues,
-			}
-			if res.err != nil {
-				return res.err
 			}
 			if flags.asJSON || (!isTerminal(cmd.OutOrStdout()) && !flags.quiet && !flags.plain && !flags.csv) {
 				return printJSONFiltered(cmd.OutOrStdout(), out, flags)

@@ -4,12 +4,14 @@
   "applied_at": "2026-07-20",
   "base_run_id": "20260618T050021Z-649b15eb",
   "base_printing_press_version": "4.24.0",
-  "summary": "Require real user statistics for automatic recommendation levels and surface transcript-store or partial-import failures instead of presenting misleading success states.",
-  "reason": "Defaulting to Level 1 can misclassify an established learner, discarded database errors can falsely report an empty corpus, and uncounted video-upsert failures can hide incomplete imports.",
+  "summary": "Require real user statistics for automatic recommendation levels and keep analytics or transcript-import output from presenting misleading success states.",
+  "reason": "Defaulting to Level 1 can misclassify an established learner, discarded database errors or upsert failures can hide incomplete corpus imports, and an all-time analysis must not be labeled as a zero-day window.",
   "files": [
     "internal/cli/next.go",
     "internal/cli/next_test.go",
     "internal/cli/concordance.go",
+    "internal/cli/diet.go",
+    "internal/cli/diet_test.go",
     "internal/cli/transcript_corpus.go",
     "internal/cli/transcript_corpus_test.go"
   ]

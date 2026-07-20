@@ -4,6 +4,7 @@ package cli
 
 import (
 	"encoding/json"
+	"strings"
 	"testing"
 )
 
@@ -45,6 +46,11 @@ func TestDietTrendAnalysis(t *testing.T) {
 	}
 	if a := got["avg_difficulty"].(float64); a != 25 {
 		t.Errorf("avg_difficulty = %v, want 25", a)
+	}
+
+	human := runNovelCmd(t, newNovelDietCmd(&rootFlags{plain: true}), []string{"--window", "0"})
+	if !strings.Contains(human, "across all time") || strings.Contains(human, "last 0 days") {
+		t.Errorf("all-time human output has the wrong window label: %q", human)
 	}
 }
 
