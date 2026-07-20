@@ -71,7 +71,10 @@ func newNovelConcordanceCmd(flags *rootFlags) *cobra.Command {
 				return err
 			}
 			defer db.Close()
-			vids, _, _ := db.TranscriptStats()
+			vids, _, err := db.TranscriptStats()
+			if err != nil {
+				return err
+			}
 			if vids == 0 {
 				return notFoundErr(fmt.Errorf("transcript corpus is empty — run 'dreaming-pp-cli transcript sync' first"))
 			}

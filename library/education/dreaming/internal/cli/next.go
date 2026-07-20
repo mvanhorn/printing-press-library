@@ -65,12 +65,14 @@ func newNovelNextCmd(flags *rootFlags) *cobra.Command {
 			if flagLevel != "" && flagLevel != "auto" {
 				bands = []string{strings.ToLower(flagLevel)}
 			} else {
-				u, ok, _ := ensureUser(cmd.Context(), flags, db)
-				lvl := 1
-				if ok {
-					lvl = levelForHours(u.TotalHours())
+				u, ok, err := ensureUser(cmd.Context(), flags, db)
+				if err != nil {
+					return err
 				}
-				bands = videoLevelBands(lvl)
+				if !ok {
+					return notFoundErr(fmt.Errorf("no user stats cached — run 'dreaming-pp-cli sync' first or specify --level"))
+				}
+				bands = videoLevelBands(levelForHours(u.TotalHours()))
 			}
 
 			q := `SELECT id, title, level, COALESCE(difficulty,0), COALESCE(guide,''), COALESCE(dialect,''), COALESCE(duration,0)

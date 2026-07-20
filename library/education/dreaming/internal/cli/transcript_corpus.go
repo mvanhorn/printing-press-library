@@ -225,6 +225,7 @@ func newTranscriptImportCmd(flags *rootFlags) *cobra.Command {
 			vids, cues, _ := db.TranscriptStats()
 			out := map[string]any{
 				"videos_upserted":     res.videosUpserted,
+				"videos_failed":       res.videosFailed,
 				"transcripts_added":   res.added,
 				"transcripts_updated": res.updated,
 				"transcripts_skipped": res.skipped,
@@ -238,8 +239,8 @@ func newTranscriptImportCmd(flags *rootFlags) *cobra.Command {
 				return printJSONFiltered(cmd.OutOrStdout(), out, flags)
 			}
 			fmt.Fprintf(cmd.OutOrStdout(),
-				"Imported: %d videos, %d new transcripts, %d updated, %d skipped (already as complete). Corpus now: %d videos, %d cues.\n",
-				res.videosUpserted, res.added, res.updated, res.skipped, vids, cues)
+				"Imported: %d videos (%d failed), %d new transcripts, %d updated, %d skipped (already as complete). Corpus now: %d videos, %d cues.\n",
+				res.videosUpserted, res.videosFailed, res.added, res.updated, res.skipped, vids, cues)
 			return nil
 		},
 	}
@@ -250,6 +251,7 @@ func newTranscriptImportCmd(flags *rootFlags) *cobra.Command {
 // mergeResult tallies a corpus merge.
 type mergeResult struct {
 	videosUpserted int
+	videosFailed   int
 	added          int
 	updated        int
 	skipped        int
@@ -263,7 +265,8 @@ func mergeCorpus(db *store.Store, cf *corpusFile) mergeResult {
 	var r mergeResult
 	for _, v := range cf.Videos {
 		if err := db.UpsertVideos(v); err != nil {
-			continue // skip malformed rows; report count at the end
+			r.videosFailed++
+			continue
 		}
 		r.videosUpserted++
 	}

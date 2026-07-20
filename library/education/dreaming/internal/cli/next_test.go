@@ -8,6 +8,7 @@ import (
 	"encoding/json"
 	"io"
 	"path/filepath"
+	"strings"
 	"testing"
 
 	"github.com/mvanhorn/printing-press-library/library/education/dreaming/internal/store"
@@ -115,5 +116,23 @@ func TestNextCommand(t *testing.T) {
 				}
 			}
 		})
+	}
+}
+
+func TestNextAutoLevelRequiresUserStats(t *testing.T) {
+	seedNovelStore(t,
+		[]string{`INSERT INTO videos (id, data, title, level, difficulty) VALUES ('v1', '{}', 'Beginner video', 'beginner', 10)`},
+		nil,
+	)
+	t.Setenv("DREAMING_TOKEN", "")
+
+	flags := &rootFlags{asJSON: true}
+	cmd := newNovelNextCmd(flags)
+	cmd.SetOut(io.Discard)
+	cmd.SetErr(io.Discard)
+
+	err := cmd.ExecuteContext(context.Background())
+	if err == nil || !strings.Contains(err.Error(), "no user stats cached") {
+		t.Fatalf("got error %v, want missing user stats error", err)
 	}
 }
