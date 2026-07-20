@@ -141,11 +141,15 @@ In local mode: searches locally synced data only.`,
 
 			db, err := store.OpenReadOnlyContext(cmd.Context(), dbPath)
 			if err != nil {
-				return fmt.Errorf("opening local database: %w\nRun 'shodhganga-pp-cli sync' first to populate the local database.", err)
+				return fmt.Errorf("opening local database: %w\nRun 'shodhganga-pp-cli harvest <query>' first to populate the thesis corpus.", err)
 			}
 			defer db.Close()
 
-			maybeEmitSyncHints(cmd, db, resourceType, flags.maxAge)
+			hintResourceType := resourceType
+			if hintResourceType == "" {
+				hintResourceType = thesisResourceType
+			}
+			maybeEmitSyncHints(cmd, db, hintResourceType, flags.maxAge)
 
 			var results []json.RawMessage
 			switch resourceType {
@@ -173,10 +177,11 @@ In local mode: searches locally synced data only.`,
 				}
 			default:
 				// Unrecognized type -- filter generic resources by type.
-				results, err = db.Search(query, limit, resourceType)
-			}
-			if err != nil {
-				return fmt.Errorf("search failed: %w", err)
+				partial, searchErr := db.Search(query, limit, resourceType)
+				if searchErr != nil {
+					return fmt.Errorf("search failed: %w", searchErr)
+				}
+				results = partial
 			}
 
 			reason := "user_requested"

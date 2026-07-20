@@ -86,8 +86,9 @@ func newNovelHarvestCmd(flags *rootFlags) *cobra.Command {
 			const pageSize = 50
 			var hits []dspace.SearchHit
 			total := 0
-			for start := 0; len(hits) < limit; start += pageSize {
-				page, err := c.Search(ctx, query, pageSize, start)
+			for start := 0; len(hits) < limit; {
+				requestSize := min(pageSize, limit-len(hits))
+				page, err := c.Search(ctx, query, requestSize, start)
 				if err != nil {
 					return classifyAPIError(err, flags)
 				}
@@ -96,9 +97,10 @@ func newNovelHarvestCmd(flags *rootFlags) *cobra.Command {
 					break
 				}
 				hits = append(hits, page.Hits...)
-				if len(page.Hits) < pageSize {
+				if len(page.Hits) < requestSize {
 					break
 				}
+				start += requestSize
 			}
 			if len(hits) > limit {
 				hits = hits[:limit]

@@ -84,6 +84,18 @@ func TestHintIfStale_MaxAgeZeroDisablesHint(t *testing.T) {
 	}
 }
 
+func TestThesisSyncHintsRecommendHarvest(t *testing.T) {
+	db := newSyncHintTestStore(t)
+	cmd, stderr := newSyncHintTestCmd()
+
+	if !hintIfUnsynced(cmd, db, thesisResourceType) {
+		t.Fatalf("hintIfUnsynced returned false for missing thesis harvest")
+	}
+	if got := stderr.String(); !strings.Contains(got, "Run 'shodhganga-pp-cli harvest <query>'") {
+		t.Fatalf("stderr = %q, want harvest hint", got)
+	}
+}
+
 func TestHintIfUnsynced_NullTimestampWritesHint(t *testing.T) {
 	db := newSyncHintTestStore(t)
 	if _, err := db.DB().Exec(
