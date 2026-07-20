@@ -8,6 +8,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"regexp"
 	"strconv"
 
 	"github.com/spf13/cobra"
@@ -77,12 +78,24 @@ For a raw single issue use 'github-pp-cli issues get'; for a string sweep use
 				return fmt.Errorf("loading issue #%s: %w", number, err)
 			}
 
-			comments := nvScanRaw(db,
+			comments, err := nvScanRaw(db,
 				`SELECT data FROM resources WHERE resource_type = 'issues_comments' AND json_extract(data, '$.issue_url') LIKE ? ORDER BY json_extract(data, '$.created_at')`,
 				"%/issues/"+number)
-			commits := nvScanRaw(db,
+			if err != nil {
+				return fmt.Errorf("loading comments for issue #%s: %w", number, err)
+			}
+			commitCandidates, err := nvScanRaw(db,
 				`SELECT data FROM resources WHERE resource_type = 'commits' AND data LIKE ? ORDER BY id`,
 				"%#"+number+"%")
+			if err != nil {
+				return fmt.Errorf("loading commits for issue #%s: %w", number, err)
+			}
+			commits := make([]json.RawMessage, 0, len(commitCandidates))
+			for _, raw := range commitCandidates {
+				if nvCommitReferencesIssue(raw, number) {
+					commits = append(commits, raw)
+				}
+			}
 
 			env := struct {
 				Issue    json.RawMessage   `json:"issue"`
@@ -110,19 +123,31 @@ For a raw single issue use 'github-pp-cli issues get'; for a string sweep use
 }
 
 // nvScanRaw runs a single-column data query and returns the rows as raw JSON.
-func nvScanRaw(db *sql.DB, query string, args ...any) []json.RawMessage {
+func nvScanRaw(db *sql.DB, query string, args ...any) ([]json.RawMessage, error) {
 	out := make([]json.RawMessage, 0)
 	rows, err := db.Query(query, args...)
 	if err != nil {
-		return out
+		return nil, err
 	}
 	defer rows.Close()
 	for rows.Next() {
 		var data string
-		if rows.Scan(&data) != nil {
-			continue
+		if err := rows.Scan(&data); err != nil {
+			return nil, err
 		}
 		out = append(out, json.RawMessage(data))
 	}
-	return out
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func nvCommitReferencesIssue(raw json.RawMessage, number string) bool {
+	message := nvNestedStr(nvDecode(raw), "commit", "message")
+	if message == "" {
+		return false
+	}
+	pattern := `(^|[^[:alnum:]_])#` + regexp.QuoteMeta(number) + `($|[^[:alnum:]_])`
+	return regexp.MustCompile(pattern).MatchString(message)
 }

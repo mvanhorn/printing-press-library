@@ -79,7 +79,11 @@ To find open issues that duplicate each other, use 'github-pp-cli issues dupes'.
 					hits = append(hits, nvMentionRow(rt, raw))
 				}
 			}
-			hits = append(hits, nvCommentMentions(st, term, flagLimit)...)
+			commentHits, err := nvCommentMentions(st, term, flagLimit, cutoff)
+			if err != nil {
+				return fmt.Errorf("searching comments: %w", err)
+			}
+			hits = append(hits, commentHits...)
 
 			if wantsHumanTable(cmd.OutOrStdout(), flags) {
 				if len(hits) == 0 {
@@ -125,22 +129,30 @@ func nvWithinSince(raw []byte, resourceType string, cutoff time.Time) bool {
 
 // nvCommentMentions LIKE-scans synced issue/PR comments (stored under
 // resource_type 'issues_comments') for the term.
-func nvCommentMentions(st *store.Store, term string, limit int) []mentionRow {
+func nvCommentMentions(st *store.Store, term string, limit int, cutoff time.Time) ([]mentionRow, error) {
 	if limit <= 0 {
 		limit = 25
 	}
-	rows, err := st.DB().Query(
-		`SELECT data FROM resources WHERE resource_type = 'issues_comments' AND data LIKE ? LIMIT ?`,
-		"%"+term+"%", limit,
-	)
+	query := `SELECT data FROM resources WHERE resource_type = 'issues_comments' AND data LIKE ? ESCAPE '\'`
+	args := []any{"%" + nvEscapeLike(term) + "%"}
+	if !cutoff.IsZero() {
+		query += ` AND (json_extract(data, '$.updated_at') IS NULL OR json_extract(data, '$.updated_at') >= ?)`
+		args = append(args, cutoff.UTC().Format(time.RFC3339))
+	}
+	query += ` ORDER BY json_extract(data, '$.updated_at') DESC LIMIT ?`
+	args = append(args, limit)
+	rows, err := st.DB().Query(query, args...)
 	if err != nil {
-		return nil
+		return nil, err
 	}
 	defer rows.Close()
 	var out []mentionRow
 	for rows.Next() {
 		var data string
-		if rows.Scan(&data) != nil {
+		if err := rows.Scan(&data); err != nil {
+			return nil, err
+		}
+		if !cutoff.IsZero() && !nvWithinSince([]byte(data), "issues_comments", cutoff) {
 			continue
 		}
 		m := nvDecode([]byte(data))
@@ -157,5 +169,13 @@ func nvCommentMentions(st *store.Store, term string, limit int) []mentionRow {
 			URL:   nvStr(m, "html_url"),
 		})
 	}
-	return out
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func nvEscapeLike(s string) string {
+	replacer := strings.NewReplacer(`\`, `\\`, `%`, `\%`, `_`, `\_`)
+	return replacer.Replace(s)
 }

@@ -512,7 +512,7 @@ func nvCount(st *store.Store, resource string) int {
 // nvPopulate fetches a repo-scoped resource live (bounded by maxPages) and
 // upserts each item into the store, populating the FTS index. resource is the
 // store key: "issues", "pulls", "commits", "labels", or "issues_comments".
-func nvPopulate(ctx context.Context, c *client.Client, st *store.Store, owner, repo, resource string, maxPages int) (int, error) {
+func nvPopulate(ctx context.Context, c *client.Client, st *store.Store, owner, repo, resource string, maxPages int) (count int, truncated bool, err error) {
 	endpoint := resource
 	if resource == "issues_comments" {
 		endpoint = "issues/comments"
@@ -522,16 +522,15 @@ func nvPopulate(ctx context.Context, c *client.Client, st *store.Store, owner, r
 	if resource == "issues" || resource == "pulls" {
 		params["state"] = "all"
 	}
-	count := 0
 	for page := 1; page <= maxPages; page++ {
 		params["page"] = strconv.Itoa(page)
 		data, err := c.Get(ctx, apiPath, params)
 		if err != nil {
-			return count, err
+			return count, false, err
 		}
 		var items []json.RawMessage
-		if json.Unmarshal(data, &items) != nil {
-			break
+		if err := json.Unmarshal(data, &items); err != nil {
+			return count, false, fmt.Errorf("parsing %s page %d: %w", resource, page, err)
 		}
 		if len(items) == 0 {
 			break
@@ -546,10 +545,35 @@ func nvPopulate(ctx context.Context, c *client.Client, st *store.Store, owner, r
 			}
 		}
 		if len(items) < 100 {
-			break
+			return count, false, nil
+		}
+		if page == maxPages {
+			return count, true, nil
 		}
 	}
-	return count, nil
+	return count, false, nil
+}
+
+var nvRepoScopedResources = []string{"issues", "pulls", "commits", "labels", "issues_comments"}
+
+func nvClearRepoScopedResources(st *store.Store) error {
+	tx, err := st.DB().Begin()
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+	for _, resource := range nvRepoScopedResources {
+		if _, err := tx.Exec(`DELETE FROM resources_fts WHERE resource_type = ?`, resource); err != nil {
+			return fmt.Errorf("clearing %s search index: %w", resource, err)
+		}
+		if _, err := tx.Exec(`DELETE FROM resources WHERE resource_type = ?`, resource); err != nil {
+			return fmt.Errorf("clearing %s resources: %w", resource, err)
+		}
+		if _, err := tx.Exec(`DELETE FROM sync_state WHERE resource_type = ?`, resource); err != nil {
+			return fmt.Errorf("clearing %s sync state: %w", resource, err)
+		}
+	}
+	return tx.Commit()
 }
 
 // nvEnsurePopulated resolves the target repo (from --repo, else inferred from
@@ -557,6 +581,23 @@ func nvPopulate(ctx context.Context, c *client.Client, st *store.Store, owner, r
 // of them when refresh is set). A missing repo is not an error: the command
 // proceeds against whatever the store already holds and prints a hint.
 func nvEnsurePopulated(ctx context.Context, cmd *cobra.Command, flags *rootFlags, st *store.Store, flagRepo string, refresh bool, maxPages int, resources ...string) error {
+	if maxPages <= 0 {
+		return usageErr(fmt.Errorf("--max-pages must be greater than zero"))
+	}
+	explicitOwner, explicitRepo, explicit := nvRepoFromFlag(flagRepo)
+	if flagRepo != "" && !explicit {
+		return usageErr(fmt.Errorf("invalid --repo %q: expected owner/repo", flagRepo))
+	}
+	if explicit {
+		if cachedOwner, cachedRepo, ok := nvDeriveRepo(st); ok &&
+			(!strings.EqualFold(cachedOwner, explicitOwner) || !strings.EqualFold(cachedRepo, explicitRepo)) {
+			if err := nvClearRepoScopedResources(st); err != nil {
+				return fmt.Errorf("switching local mirror from %s/%s to %s/%s: %w", cachedOwner, cachedRepo, explicitOwner, explicitRepo, err)
+			}
+			refresh = true
+			fmt.Fprintf(cmd.ErrOrStderr(), "switched local mirror from %s/%s to %s/%s\n", cachedOwner, cachedRepo, explicitOwner, explicitRepo)
+		}
+	}
 	needPopulate := refresh
 	if !needPopulate {
 		for _, r := range resources {
@@ -569,7 +610,7 @@ func nvEnsurePopulated(ctx context.Context, cmd *cobra.Command, flags *rootFlags
 	if !needPopulate {
 		return nil
 	}
-	owner, repo, ok := nvRepoFromFlag(flagRepo)
+	owner, repo, ok := explicitOwner, explicitRepo, explicit
 	if !ok {
 		owner, repo, ok = nvDeriveRepo(st)
 	}
@@ -585,12 +626,15 @@ func nvEnsurePopulated(ctx context.Context, cmd *cobra.Command, flags *rootFlags
 		if !refresh && nvCount(st, r) > 0 {
 			continue
 		}
-		n, perr := nvPopulate(ctx, c, st, owner, repo, r, maxPages)
+		n, truncated, perr := nvPopulate(ctx, c, st, owner, repo, r, maxPages)
 		if perr != nil {
 			fmt.Fprintf(cmd.ErrOrStderr(), "warning: populating %s from %s/%s: %v\n", r, owner, repo, perr)
 			continue
 		}
 		fmt.Fprintf(cmd.ErrOrStderr(), "populated %d %s from %s/%s\n", n, r, owner, repo)
+		if truncated {
+			fmt.Fprintf(cmd.ErrOrStderr(), "warning: %s population reached the %d-page cap; pass --max-pages N to fetch more\n", r, maxPages)
+		}
 	}
 	return nil
 }

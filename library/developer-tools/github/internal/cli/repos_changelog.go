@@ -52,33 +52,56 @@ owner/repo are inferred from your synced data when --repo is omitted; pass
 				return err
 			}
 			path := fmt.Sprintf("/repos/%s/%s/compare/%s...%s", owner, repo, flagBase, flagHead)
-			data, err := c.Get(ctx, path, nil)
-			if err != nil {
-				return classifyAPIError(err, flags)
+			var commits []any
+			totalCommits := 0
+			for page := 1; ; page++ {
+				data, err := c.Get(ctx, path, map[string]string{
+					"page":     strconv.Itoa(page),
+					"per_page": "100",
+				})
+				if err != nil {
+					return classifyAPIError(err, flags)
+				}
+				var cmp struct {
+					Commits      []any `json:"commits"`
+					TotalCommits int   `json:"total_commits"`
+				}
+				if err := json.Unmarshal(data, &cmp); err != nil {
+					return fmt.Errorf("parsing compare response page %d: %w", page, err)
+				}
+				if page == 1 {
+					totalCommits = cmp.TotalCommits
+				}
+				commits = append(commits, cmp.Commits...)
+				if len(cmp.Commits) < 100 || (totalCommits > 0 && len(commits) >= totalCommits) {
+					break
+				}
 			}
-			var cmp struct {
-				Commits []any `json:"commits"`
+			if totalCommits == 0 {
+				totalCommits = len(commits)
 			}
-			if err := json.Unmarshal(data, &cmp); err != nil {
-				return fmt.Errorf("parsing compare response: %w", err)
-			}
-			byAuthor := nvGroupCommitsByAuthor(cmp.Commits)
+			byAuthor := nvGroupCommitsByAuthor(commits)
 			view := struct {
-				Base         string         `json:"base"`
-				Head         string         `json:"head"`
-				Repo         string         `json:"repo"`
-				TotalCommits int            `json:"total_commits"`
-				ByAuthor     []authorChange `json:"by_author"`
+				Base            string         `json:"base"`
+				Head            string         `json:"head"`
+				Repo            string         `json:"repo"`
+				TotalCommits    int            `json:"total_commits"`
+				ReturnedCommits int            `json:"returned_commits"`
+				ByAuthor        []authorChange `json:"by_author"`
 			}{
-				Base:         flagBase,
-				Head:         flagHead,
-				Repo:         owner + "/" + repo,
-				TotalCommits: len(cmp.Commits),
-				ByAuthor:     byAuthor,
+				Base:            flagBase,
+				Head:            flagHead,
+				Repo:            owner + "/" + repo,
+				TotalCommits:    totalCommits,
+				ReturnedCommits: len(commits),
+				ByAuthor:        byAuthor,
 			}
 
 			if wantsHumanTable(cmd.OutOrStdout(), flags) {
-				fmt.Fprintf(cmd.OutOrStdout(), "%s/%s  %s...%s  (%d commits)\n", owner, repo, flagBase, flagHead, len(cmp.Commits))
+				fmt.Fprintf(cmd.OutOrStdout(), "%s/%s  %s...%s  (%d commits)\n", owner, repo, flagBase, flagHead, totalCommits)
+				if len(commits) < totalCommits {
+					fmt.Fprintf(cmd.ErrOrStderr(), "warning: GitHub returned %d of %d commits; author totals are incomplete\n", len(commits), totalCommits)
+				}
 				tr := make([][]string, 0, len(byAuthor))
 				for _, a := range byAuthor {
 					tr = append(tr, []string{a.Author, strconv.Itoa(a.Commits)})
