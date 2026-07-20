@@ -26,6 +26,7 @@ type acmePurgeItem struct {
 	Name      string `json:"name"`
 	Value     string `json:"value"`
 	FirstSeen string `json:"first_seen,omitempty"`
+	Status    string `json:"status,omitempty"`
 }
 
 type acmePurgeView struct {
@@ -153,6 +154,7 @@ keep only challenge records first seen before the cutoff. Without a mirror,
 			deleted := 0
 			succeededZones := 0
 			deleteFailures := 0
+			deletedZoneIDs := map[string]bool{}
 			for domID, ids := range byZone {
 				q := url.Values{}
 				for _, id := range ids {
@@ -169,6 +171,13 @@ keep only challenge records first seen before the cutoff. Without a mirror,
 				}
 				deleted += len(ids)
 				succeededZones++
+				deletedZoneIDs[domID] = true
+			}
+			for i := range view.Targets {
+				view.Targets[i].Status = "failed"
+				if deletedZoneIDs[view.Targets[i].DomainID] {
+					view.Targets[i].Status = "deleted"
+				}
 			}
 			view.Deleted = deleted
 			view.ZonesSucceeded = succeededZones
@@ -198,18 +207,24 @@ func emitAcme(cmd *cobra.Command, flags *rootFlags, view acmePurgeView) error {
 		fmt.Fprintln(cmd.OutOrStdout(), view.Note)
 		return nil
 	}
-	verb := "WOULD DELETE"
-	if view.Applied {
-		verb = "SELECTED"
-	}
 	for _, t := range view.Targets {
-		fmt.Fprintf(cmd.OutOrStdout(), "%s  %s %s (%s)\n", verb, t.Zone, t.Name, t.RecordID)
+		fmt.Fprintf(cmd.OutOrStdout(), "%s  %s %s (%s)\n", acmeTargetVerb(view.Applied, t.Status), t.Zone, t.Name, t.RecordID)
 	}
 	fmt.Fprintf(cmd.OutOrStdout(), "\n%d record(s) across %d zone(s). %s\n", view.Matched, view.ZonesAffected, view.Note)
 	for _, failure := range view.FetchFailures {
 		fmt.Fprintf(cmd.OutOrStdout(), "FAILED  %s: %s\n", failure.Zone, failure.Error)
 	}
 	return nil
+}
+
+func acmeTargetVerb(applied bool, status string) string {
+	if !applied {
+		return "WOULD DELETE"
+	}
+	if status == "deleted" {
+		return "DELETED"
+	}
+	return "FAILED"
 }
 
 // loadFirstSeen returns the earliest snapshot time per "domainId/recordId"

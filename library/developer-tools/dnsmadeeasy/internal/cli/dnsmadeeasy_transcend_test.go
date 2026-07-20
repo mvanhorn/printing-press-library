@@ -313,6 +313,18 @@ func TestAcmeDeleteSummaryReportsSuccessfulAndFailedZones(t *testing.T) {
 	}
 }
 
+func TestAcmeTargetVerbReflectsPerTargetOutcome(t *testing.T) {
+	if got := acmeTargetVerb(false, ""); got != "WOULD DELETE" {
+		t.Fatalf("preview verb = %q", got)
+	}
+	if got := acmeTargetVerb(true, "deleted"); got != "DELETED" {
+		t.Fatalf("successful apply verb = %q", got)
+	}
+	if got := acmeTargetVerb(true, "failed"); got != "FAILED" {
+		t.Fatalf("failed apply verb = %q", got)
+	}
+}
+
 func TestMissingMirrorPreservesEachCommandJSONShape(t *testing.T) {
 	dbPath := filepath.Join(t.TempDir(), "missing.db")
 	tests := []struct {

@@ -15,5 +15,5 @@
     "internal/cli/which.go",
     "internal/cli/drift.go"
   ],
-  "validated_outcome": "Focused regression tests cover stable empty-mirror JSON shapes, DMARC owner/value validation, filtered scan metrics, drift across name/type/value/TTL changes, explicit truncation state, and BIND-safe control-character escaping."
+  "validated_outcome": "Focused regression tests cover stable empty-mirror JSON shapes, DMARC owner/value validation, filtered scan metrics, drift across name/type/value/TTL changes, explicit truncation state, per-target ACME outcomes, and BIND-safe control-character escaping."
 }
