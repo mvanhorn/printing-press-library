@@ -17,17 +17,17 @@ func TestLogReadClearsStaleFinishedAtAndPreservesRating(t *testing.T) {
 	if err := p.LogRead(context.Background(), "OL1W", "A Book", "read", 5); err != nil {
 		t.Fatalf("LogRead(read): %v", err)
 	}
-	if err := p.LogRead(context.Background(), "OL1W", "A Book", "reading", 0); err != nil {
+	if err := p.LogRead(context.Background(), "OL1W", "", "reading", 0); err != nil {
 		t.Fatalf("LogRead(reading): %v", err)
 	}
 
-	var status, finishedAt string
+	var title, status, finishedAt string
 	var rating int
-	if err := p.db.QueryRow(`SELECT status, rating, finished_at FROM reading_log WHERE work_key=?`, "OL1W").Scan(&status, &rating, &finishedAt); err != nil {
+	if err := p.db.QueryRow(`SELECT title, status, rating, finished_at FROM reading_log WHERE work_key=?`, "OL1W").Scan(&title, &status, &rating, &finishedAt); err != nil {
 		t.Fatalf("query reading_log: %v", err)
 	}
-	if status != "reading" || rating != 5 || finishedAt != "" {
-		t.Fatalf("row = status %q, rating %d, finished_at %q; want reading, 5, empty", status, rating, finishedAt)
+	if title != "A Book" || status != "reading" || rating != 5 || finishedAt != "" {
+		t.Fatalf("row = title %q, status %q, rating %d, finished_at %q; want A Book, reading, 5, empty", title, status, rating, finishedAt)
 	}
 }
 
