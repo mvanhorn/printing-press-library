@@ -23,13 +23,10 @@ const (
 	defaultHTTPAddr = ":7777"
 )
 
-// version is the printed MCP server's version, overridable at build time via ldflags.
-var version = "2026.7.1"
-
 func main() {
 	s := server.NewMCPServer(
 		"Figma",
-		version,
+		"1.0.0",
 		server.WithToolCapabilities(false),
 	)
 

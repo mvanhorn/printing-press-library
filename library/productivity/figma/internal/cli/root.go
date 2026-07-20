@@ -17,6 +17,8 @@ import (
 	"github.com/spf13/cobra"
 )
 
+var version = "2026.7.1"
+
 type rootFlags struct {
 	asJSON        bool
 	compact       bool
@@ -278,7 +280,7 @@ See README.md or the bundled SKILL.md for recipes.`,
 	rootCmd.AddCommand(newOembedPromotedCmd(flags))
 	rootCmd.AddCommand(newPaymentsPromotedCmd(flags))
 	rootCmd.AddCommand(newStylesPromotedCmd(flags))
-	rootCmd.AddCommand(newVersionCmd())
+	rootCmd.AddCommand(newVersionCliCmd())
 
 	return rootCmd
 }
@@ -330,4 +332,14 @@ func (f *rootFlags) printTable(w *cobra.Command, headers []string, rows [][]stri
 		fmt.Fprintln(tw, line)
 	}
 	return tw.Flush()
+}
+
+func newVersionCliCmd() *cobra.Command {
+	return &cobra.Command{
+		Use:   "version",
+		Short: "Print version",
+		Run: func(cmd *cobra.Command, args []string) {
+			fmt.Printf("figma-pp-cli %s\n", version)
+		},
+	}
 }
