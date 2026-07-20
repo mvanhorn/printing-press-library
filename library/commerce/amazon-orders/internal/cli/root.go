@@ -227,27 +227,50 @@ func ExitCode(err error) int {
 	return 1
 }
 
+// marketplaceCurrencies maps every Amazon marketplace domain in
+// amazonMarketplaceDomains to the ISO currency it transacts in. This must stay
+// complete: currencyForMoneyToken deliberately returns "" for the ambiguous "$"
+// (and symbols like S$/R$ that parse as "$"), so any marketplace missing here
+// silently falls back to USD and mis-tags real amounts.
+var marketplaceCurrencies = map[string]string{
+	"amazon.ae":     "AED",
+	"amazon.ca":     "CAD",
+	"amazon.cn":     "CNY",
+	"amazon.co.jp":  "JPY",
+	"amazon.co.uk":  "GBP",
+	"amazon.com":    "USD",
+	"amazon.com.au": "AUD",
+	"amazon.com.be": "EUR",
+	"amazon.com.br": "BRL",
+	"amazon.com.mx": "MXN",
+	"amazon.com.tr": "TRY",
+	"amazon.de":     "EUR",
+	"amazon.eg":     "EGP",
+	"amazon.es":     "EUR",
+	"amazon.fr":     "EUR",
+	"amazon.in":     "INR",
+	"amazon.it":     "EUR",
+	"amazon.nl":     "EUR",
+	"amazon.pl":     "PLN",
+	"amazon.sa":     "SAR",
+	"amazon.se":     "SEK",
+	"amazon.sg":     "SGD",
+}
+
 // marketplaceCurrency maps an Amazon marketplace base URL to the ISO currency
 // it transacts in, used as the fallback when an order card has no
-// currency-marked amount to parse.
+// currency-marked amount to parse. It resolves the registrable marketplace
+// domain first (rather than substring-matching the raw URL), because domains
+// nest — "amazon.com.au" and "amazon.com.mx" both contain "amazon.com".
 func marketplaceCurrency(baseURL string) string {
-	host := strings.ToLower(baseURL)
-	switch {
-	case strings.Contains(host, "amazon.in"):
-		return "INR"
-	case strings.Contains(host, "amazon.co.uk"):
-		return "GBP"
-	case strings.Contains(host, "amazon.de"), strings.Contains(host, "amazon.fr"),
-		strings.Contains(host, "amazon.it"), strings.Contains(host, "amazon.es"),
-		strings.Contains(host, "amazon.nl"):
-		return "EUR"
-	case strings.Contains(host, "amazon.ca"):
-		return "CAD"
-	case strings.Contains(host, "amazon.co.jp"):
-		return "JPY"
-	default:
+	domain, err := cookieDomainFromBaseURL(baseURL)
+	if err != nil {
 		return "USD"
 	}
+	if cur, ok := marketplaceCurrencies[strings.TrimPrefix(domain, ".")]; ok {
+		return cur
+	}
+	return "USD"
 }
 
 func (f *rootFlags) newClient() (*client.Client, error) {
