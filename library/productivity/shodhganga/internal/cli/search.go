@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/mvanhorn/printing-press-library/library/productivity/shodhganga/internal/dspace"
 	"github.com/mvanhorn/printing-press-library/library/productivity/shodhganga/internal/store"
 	"github.com/spf13/cobra"
 )
@@ -81,7 +82,6 @@ func newSearchCmd(flags *rootFlags) *cobra.Command {
 	var resourceType string
 	var limit int
 	var dbPath string
-	searchResponsePaths := []string{}
 
 	cmd := &cobra.Command{
 		Use:   "search <query>",
@@ -108,18 +108,21 @@ In local mode: searches locally synced data only.`,
 				return cmd.Help()
 			}
 			query := args[0]
-			// This API has a search endpoint: GET /simple-search
+			// Shodhganga's search endpoint returns HTML, so use the DSpace
+			// parser instead of the generated JSON client.
 			if flags.dataSource != "local" {
-				c, err := flags.newClient()
+				c, err := newDSpaceClient(flags)
 				if err != nil {
 					return err
 				}
-				data, getErr := c.Get(cmd.Context(), "/simple-search", map[string]string{
-					"query": query,
-				})
+				ctx, cancel := boundCtx(cmd.Context(), flags)
+				defer cancel()
+				page, getErr := c.Search(ctx, query, limit, 0)
 				if getErr == nil {
-					// Live search succeeded
-					results := extractSearchResults(data, searchResponsePaths...)
+					results, err := marshalSearchHits(page.Hits)
+					if err != nil {
+						return err
+					}
 					prov := DataProvenance{Source: "live"}
 					return outputSearchResults(cmd, flags, results, limit, prov)
 				}
@@ -136,7 +139,7 @@ In local mode: searches locally synced data only.`,
 				dbPath = defaultDBPath("shodhganga-pp-cli")
 			}
 
-			db, err := store.OpenWithContext(cmd.Context(), dbPath)
+			db, err := store.OpenReadOnlyContext(cmd.Context(), dbPath)
 			if err != nil {
 				return fmt.Errorf("opening local database: %w\nRun 'shodhganga-pp-cli sync' first to populate the local database.", err)
 			}
@@ -191,6 +194,18 @@ In local mode: searches locally synced data only.`,
 	cmd.Flags().StringVar(&dbPath, "db", "", "SQLite database file path (default: resolved data directory data.db)")
 
 	return cmd
+}
+
+func marshalSearchHits(hits []dspace.SearchHit) ([]json.RawMessage, error) {
+	results := make([]json.RawMessage, 0, len(hits))
+	for _, hit := range hits {
+		data, err := json.Marshal(hit)
+		if err != nil {
+			return nil, fmt.Errorf("encoding live search result: %w", err)
+		}
+		results = append(results, data)
+	}
+	return results, nil
 }
 
 // outputSearchResults filters, counts, and outputs search results with provenance.

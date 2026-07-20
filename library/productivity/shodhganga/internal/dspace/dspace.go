@@ -259,6 +259,8 @@ var (
 	hitRe = regexp.MustCompile(`<a href="(?:https?://[^"/]+)?/handle/` + HandleNamespace + `/(\d+)"[^>]*>([^<]+)</a>`)
 	// "Results 1-10 of 137604" total-count line.
 	totalRe = regexp.MustCompile(`Results\s+[\d,]+\s*-\s*[\d,]+\s+of\s+([\d,]+)`)
+	uniRe   = regexp.MustCompile(`(?i)universit|institut|college|vishwavidyalaya|vidyapeeth|deemed|\bIIT\b|\bNIT\b`)
+	deptRe  = regexp.MustCompile(`(?i)department|\bdept\b|centre|center|school of|faculty|division`)
 )
 
 // ParseSearch extracts result hits and the total match count from a
@@ -355,8 +357,6 @@ func classifyPublishers(t *Thesis, pubs []string) {
 	if len(pubs) == 0 {
 		return
 	}
-	uniRe := regexp.MustCompile(`(?i)universit|institut|college|vishwavidyalaya|vidyapeeth|deemed|\bIIT\b|\bNIT\b`)
-	deptRe := regexp.MustCompile(`(?i)department|\bdept\b|centre|center|school of|faculty|division`)
 	var rest []string
 	for _, p := range pubs {
 		switch {

@@ -184,10 +184,11 @@ func newNovelHarvestCmd(flags *rootFlags) *cobra.Command {
 				return result.FetchFailures[i].Handle < result.FetchFailures[j].Handle
 			})
 
-			// Record sync state so the framework's default `search` treats the
-			// store as populated and prefers the local corpus over a live call.
+			// Record sync state so local search can report corpus freshness.
 			if result.Stored > 0 {
-				_ = s.SaveSyncState(thesisResourceType, query, result.Stored)
+				if err := s.SaveSyncState(thesisResourceType, query, result.Stored); err != nil {
+					return fmt.Errorf("saving harvest sync state: %w", err)
+				}
 			}
 
 			if len(result.FetchFailures) > 0 {
