@@ -3,8 +3,43 @@
 
 package cli
 
-import "testing"
+import (
+	"encoding/json"
+	"testing"
+)
 
-func TestNovelWatchCommandTODO(t *testing.T) {
-	t.Skip("TODO: implement table-driven tests for watch")
+func TestWatchHitDeduplicationUsesStableStageID(t *testing.T) {
+	tests := []struct {
+		name string
+		hit  string
+		want string
+	}{
+		{
+			name: "Algolia object ID",
+			hit:  `{"objectID":"mockup-123","name":"Shirt Mockup"}`,
+			want: "mockup-123",
+		},
+		{
+			name: "numeric API ID fallback",
+			hit:  `{"id":55043301,"name":"Logo Template"}`,
+			want: "55043301",
+		},
+		{
+			name: "missing identifier",
+			hit:  `{"name":"Malformed Hit"}`,
+			want: "",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			m, err := cleanStage(json.RawMessage(tt.hit))
+			if err != nil {
+				t.Fatalf("cleanStage() error = %v", err)
+			}
+			if got := stageID(m); got != tt.want {
+				t.Fatalf("stageID() = %q, want %q", got, tt.want)
+			}
+		})
+	}
 }

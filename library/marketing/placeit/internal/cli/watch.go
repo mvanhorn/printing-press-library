@@ -238,7 +238,10 @@ func newWatchRunCmd(flags *rootFlags) *cobra.Command {
 					if cerr != nil {
 						continue
 					}
-					id := fmt.Sprint(m["id"])
+					id := stageID(m)
+					if id == "" {
+						continue
+					}
 					newIDs = append(newIDs, id)
 					if _, ok := seen[id]; !ok && len(e.LastSeen) > 0 {
 						fresh = append(fresh, projectStage(m))
