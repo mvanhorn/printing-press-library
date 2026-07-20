@@ -5,6 +5,12 @@ package cli
 
 import "testing"
 
-func TestNovelChangesCommandTODO(t *testing.T) {
-	t.Skip("TODO: implement table-driven tests for changes")
+func TestNovelChangesCommandIsNotReadOnly(t *testing.T) {
+	cmd := newNovelChangesCmd(&rootFlags{})
+	if got := cmd.Annotations["mcp:read-only"]; got != "" {
+		t.Fatalf("mcp:read-only = %q, want unset because changes persists snapshots", got)
+	}
+	if got := cmd.Annotations["pp:data-source"]; got != "auto" {
+		t.Fatalf("pp:data-source = %q, want auto", got)
+	}
 }

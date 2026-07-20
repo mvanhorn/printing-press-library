@@ -72,7 +72,7 @@ func newNovelChangesCmd(flags *rootFlags) *cobra.Command {
 			"resort's full/blocked date set against the previous local snapshot, then save\n" +
 			"the new snapshot in the local SQLite store.",
 		Example:     "  ikon-pp-cli changes --agent",
-		Annotations: map[string]string{"mcp:read-only": "true", "pp:data-source": "auto"},
+		Annotations: map[string]string{"pp:data-source": "auto"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if dryRunOK(flags) {
 				fmt.Fprintln(cmd.OutOrStdout(), "would fetch reservable resort availability and diff against local snapshots")

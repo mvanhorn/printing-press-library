@@ -9,6 +9,12 @@
     "handle": "stellato",
     "name": "Greg Stellato"
   },
+  "contributors": [
+    {
+      "handle": "tmchow",
+      "name": "Trevin Chow"
+    }
+  ],
   "owner": "stellato",
   "printer": "stellato",
   "printer_name": "Greg Stellato",

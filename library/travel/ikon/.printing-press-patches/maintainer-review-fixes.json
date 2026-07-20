@@ -1,0 +1,20 @@
+{
+  "schema_version": 2,
+  "id": "maintainer-review-fixes",
+  "applied_at": "2026-07-20",
+  "base_run_id": "20260614-225531-a02ed005",
+  "base_printing_press_version": "4.24.0",
+  "summary": "Preserve secure authentication persistence and accurately classify the snapshot-diff command as locally mutating.",
+  "reason": "Concurrent authentication flows must not lose or corrupt credentials, transient environment overrides must remain transient, browser paths must be safely escaped, and MCP hosts must receive truthful mutation hints for the local availability snapshot.",
+  "files": [
+    "internal/cli/auth.go",
+    "internal/cli/changes.go",
+    "internal/cli/changes_test.go",
+    "internal/cli/ikon_common.go",
+    "internal/client/client.go",
+    "internal/client/cookiejar.go",
+    "internal/cliutil/jwtshape.go",
+    "internal/config/config.go",
+    "internal/store/store.go"
+  ]
+}

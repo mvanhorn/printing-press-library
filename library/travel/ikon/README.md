@@ -3,6 +3,7 @@
 Ikon Pass CLI for reservation availability, pass and voucher lookup, multi-season usage history, and offline change tracking.
 
 Created by [@stellato](https://github.com/stellato) (Greg Stellato).
+Contributors: [@tmchow](https://github.com/tmchow) (Trevin Chow).
 
 ## Install
 
