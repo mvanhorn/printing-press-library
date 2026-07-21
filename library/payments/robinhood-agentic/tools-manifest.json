@@ -1,0 +1,1553 @@
+{
+  "api_name": "robinhood-agentic",
+  "base_url": "https://agent.robinhood.com/mcp/trading",
+  "description": "Every tool on Robinhood's official Agentic Trading MCP as a typed, review-first CLI — sanctioned OAuth instead of scraped tokens, plus an offline portfolio journal no Robinhood tool ships.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "mcp": {
+    "endpoint_tools": "hidden",
+    "orchestration": "code"
+  },
+  "auth": {
+    "type": "oauth2",
+    "header": "Authorization",
+    "format": "Bearer {ROBINHOOD_AGENTIC_TOKEN}",
+    "env_vars": [
+      "ROBINHOOD_AGENTIC_TOKEN"
+    ],
+    "env_var_specs": [
+      {
+        "name": "ROBINHOOD_AGENTIC_TOKEN",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    ]
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "accounts_list",
+      "description": "List all brokerage accounts; agentic_allowed marks the only account that can place agentic orders. Returns array of Account.",
+      "method": "GET",
+      "path": "/tools/get_accounts",
+      "params": []
+    },
+    {
+      "name": "equities_cancel",
+      "description": "Request cancellation of an open equity order. accepted=true acknowledges the REQUEST — cancellation can race a fill, so re-read the order for terminal state. Required: account, order-id. Returns the new CancelAck.",
+      "method": "POST",
+      "path": "/tools/cancel_equity_order",
+      "params": [
+        {
+          "name": "account",
+          "wire_name": "account_number",
+          "type": "string",
+          "location": "body",
+          "description": "Account number",
+          "required": true
+        },
+        {
+          "name": "order-id",
+          "wire_name": "order_id",
+          "type": "string",
+          "location": "body",
+          "description": "Order UUID from equities orders",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "equities_orders",
+      "description": "Equity order history and single-order lookup, newest first; executions[] carries fills. Required: account. Optional: order-id, state, symbol (plus 3 more). Returns array of Order.",
+      "method": "GET",
+      "path": "/tools/get_equity_orders",
+      "params": [
+        {
+          "name": "account",
+          "wire_name": "account_number",
+          "type": "string",
+          "location": "query",
+          "description": "Account number",
+          "required": true
+        },
+        {
+          "name": "order-id",
+          "wire_name": "order_id",
+          "type": "string",
+          "location": "query",
+          "description": "Fetch one order by UUID"
+        },
+        {
+          "name": "state",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by order state"
+        },
+        {
+          "name": "symbol",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by symbol"
+        },
+        {
+          "name": "since",
+          "wire_name": "created_at_gte",
+          "type": "string",
+          "location": "query",
+          "description": "Only orders created at/after this ISO-8601 or YYYY-MM-DD UTC time"
+        },
+        {
+          "name": "placed-by",
+          "wire_name": "placed_agent",
+          "type": "string",
+          "location": "query",
+          "description": "Who placed the order"
+        },
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "Pagination cursor"
+        }
+      ]
+    },
+    {
+      "name": "equities_place",
+      "description": "Place a REAL equity order in the agentic account. Same parameters as review plus a ref_id idempotency key. Dry-run by default; live placement requires the write gate. Required: account, symbol, side, type. Optional: quantity, dollar-amount, limit-price (plus 5 more). Returns the new Order.",
+      "method": "POST",
+      "path": "/tools/place_equity_order",
+      "params": [
+        {
+          "name": "account",
+          "wire_name": "account_number",
+          "type": "string",
+          "location": "body",
+          "description": "Target account — must have agentic_allowed=true or the server rejects the order",
+          "required": true
+        },
+        {
+          "name": "symbol",
+          "type": "string",
+          "location": "body",
+          "description": "Symbol to trade",
+          "required": true
+        },
+        {
+          "name": "side",
+          "type": "string",
+          "location": "body",
+          "description": "Order side",
+          "required": true
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "location": "body",
+          "description": "Order type",
+          "required": true
+        },
+        {
+          "name": "quantity",
+          "type": "string",
+          "location": "body",
+          "description": "Share quantity as a decimal string; mutually exclusive with dollar-amount"
+        },
+        {
+          "name": "dollar-amount",
+          "wire_name": "dollar_amount",
+          "type": "string",
+          "location": "body",
+          "description": "Notional dollar amount (market orders only)"
+        },
+        {
+          "name": "limit-price",
+          "wire_name": "limit_price",
+          "type": "string",
+          "location": "body",
+          "description": "Limit price (limit and stop_limit orders)"
+        },
+        {
+          "name": "stop-price",
+          "wire_name": "stop_price",
+          "type": "string",
+          "location": "body",
+          "description": "Stop trigger price (stop_market and stop_limit orders)"
+        },
+        {
+          "name": "tif",
+          "wire_name": "time_in_force",
+          "type": "string",
+          "location": "body",
+          "description": "Time in force — only gfd or gtc"
+        },
+        {
+          "name": "market-hours",
+          "wire_name": "market_hours",
+          "type": "string",
+          "location": "body",
+          "description": "Session eligibility"
+        },
+        {
+          "name": "tax-lots",
+          "wire_name": "tax_lots",
+          "type": "string",
+          "location": "body",
+          "description": "Comma-separated open_lot_id:quantity pairs for specified-lot sells"
+        },
+        {
+          "name": "ref-id",
+          "wire_name": "ref_id",
+          "type": "string",
+          "location": "body",
+          "description": "Client-generated UUID idempotency key; auto-generated and persisted before submission when omitted — reuse the same value on ambiguous retries"
+        }
+      ]
+    },
+    {
+      "name": "equities_positions",
+      "description": "Open equity positions with quantity, average cost, and hold breakdowns (pair with quotes for market value; use shares_available_for_sells for sellable shares). Required: account. Optional: cursor. Returns array of Position.",
+      "method": "GET",
+      "path": "/tools/get_equity_positions",
+      "params": [
+        {
+          "name": "account",
+          "wire_name": "account_number",
+          "type": "string",
+          "location": "query",
+          "description": "Account number",
+          "required": true
+        },
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "Pagination cursor"
+        }
+      ]
+    },
+    {
+      "name": "equities_review",
+      "description": "Server-side order simulation: returns Robinhood's pre-trade warnings WITHOUT placing anything. The canonical preflight before place. Required: account, symbol, side, type. Optional: quantity, dollar-amount, limit-price (plus 4 more).",
+      "method": "POST",
+      "path": "/tools/review_equity_order",
+      "params": [
+        {
+          "name": "account",
+          "wire_name": "account_number",
+          "type": "string",
+          "location": "body",
+          "description": "Target account (must be the agentic_allowed account for a later place)",
+          "required": true
+        },
+        {
+          "name": "symbol",
+          "type": "string",
+          "location": "body",
+          "description": "Symbol to trade",
+          "required": true
+        },
+        {
+          "name": "side",
+          "type": "string",
+          "location": "body",
+          "description": "Order side",
+          "required": true
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "location": "body",
+          "description": "Order type",
+          "required": true
+        },
+        {
+          "name": "quantity",
+          "type": "string",
+          "location": "body",
+          "description": "Share quantity as a decimal string (fractional only for market orders in regular hours where permitted); mutually exclusive with dollar-amount"
+        },
+        {
+          "name": "dollar-amount",
+          "wire_name": "dollar_amount",
+          "type": "string",
+          "location": "body",
+          "description": "Notional dollar amount (market orders only; mutually exclusive with quantity)"
+        },
+        {
+          "name": "limit-price",
+          "wire_name": "limit_price",
+          "type": "string",
+          "location": "body",
+          "description": "Limit price (limit and stop_limit orders)"
+        },
+        {
+          "name": "stop-price",
+          "wire_name": "stop_price",
+          "type": "string",
+          "location": "body",
+          "description": "Stop trigger price (stop_market and stop_limit orders)"
+        },
+        {
+          "name": "tif",
+          "wire_name": "time_in_force",
+          "type": "string",
+          "location": "body",
+          "description": "Time in force — the server accepts only gfd or gtc ('day' is rejected)"
+        },
+        {
+          "name": "market-hours",
+          "wire_name": "market_hours",
+          "type": "string",
+          "location": "body",
+          "description": "Session eligibility"
+        },
+        {
+          "name": "tax-lots",
+          "wire_name": "tax_lots",
+          "type": "string",
+          "location": "body",
+          "description": "Comma-separated open_lot_id:quantity pairs for specified-lot sells (max 30 lots)"
+        }
+      ]
+    },
+    {
+      "name": "equities_taxlots",
+      "description": "Open acquisition lots for ONE symbol: lot id, quantity, cost basis, acquisition date, holding period. Lot ids feed specified-lot sells (max 30 lots per order). Required: account, symbol. Optional: cursor. Returns array of TaxLot.",
+      "method": "GET",
+      "path": "/tools/get_equity_tax_lots",
+      "params": [
+        {
+          "name": "account",
+          "wire_name": "account_number",
+          "type": "string",
+          "location": "query",
+          "description": "Account number",
+          "required": true
+        },
+        {
+          "name": "symbol",
+          "type": "string",
+          "location": "path",
+          "description": "One symbol per call",
+          "required": true
+        },
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "Pagination cursor"
+        }
+      ]
+    },
+    {
+      "name": "market_book",
+      "description": "Level-2 bid/ask depth (max 4 symbols per call). Required: symbols. Returns the PriceBook.",
+      "method": "GET",
+      "path": "/tools/get_equity_price_book",
+      "params": [
+        {
+          "name": "symbols",
+          "type": "string",
+          "location": "path",
+          "description": "Comma-separated symbols (max 4)",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "market_earnings-calendar",
+      "description": "Market-wide earnings events in a window of up to 31 days. Optional: start-date, days, filter. Returns array of EarningsEvent.",
+      "method": "GET",
+      "path": "/tools/get_earnings_calendar",
+      "params": [
+        {
+          "name": "start-date",
+          "wire_name": "start_date",
+          "type": "string",
+          "location": "query",
+          "description": "Window start (YYYY-MM-DD)"
+        },
+        {
+          "name": "days",
+          "type": "int",
+          "location": "query",
+          "description": "Window length in days (max 31)"
+        },
+        {
+          "name": "filter",
+          "type": "string",
+          "location": "query",
+          "description": "Event filter, e.g. high_market_cap"
+        }
+      ]
+    },
+    {
+      "name": "market_earnings-results",
+      "description": "Up to 8 quarters of EPS history (estimate vs actual) plus the next report date for one symbol. Required: symbol. Returns array of EarningsResult.",
+      "method": "GET",
+      "path": "/tools/get_earnings_results",
+      "params": [
+        {
+          "name": "symbol",
+          "type": "string",
+          "location": "path",
+          "description": "One symbol",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "market_financials",
+      "description": "Reported quarterly or annual revenue, gross profit, net income, and net margin (max 20 symbols, 40 periods). Required: symbols. Optional: period (default: quarterly), limit. Returns array of Financials.",
+      "method": "GET",
+      "path": "/tools/get_financials",
+      "params": [
+        {
+          "name": "symbols",
+          "type": "string",
+          "location": "path",
+          "description": "Comma-separated symbols (max 20)",
+          "required": true
+        },
+        {
+          "name": "period",
+          "type": "string",
+          "location": "query",
+          "description": "Reporting period granularity"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Number of periods to return (max 40)"
+        }
+      ]
+    },
+    {
+      "name": "market_fundamentals",
+      "description": "Valuation, market cap, session OHLCV, 52-week range, dividends, and company profile (max 10 symbols). Required: symbols. Returns array of Fundamentals.",
+      "method": "GET",
+      "path": "/tools/get_equity_fundamentals",
+      "params": [
+        {
+          "name": "symbols",
+          "type": "string",
+          "location": "path",
+          "description": "Comma-separated symbols (max 10)",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "market_historicals",
+      "description": "OHLCV bars for up to 10 symbols; intervals from 15second to 50year; bounds cover regular, extended, and 24/7 sessions. Required: symbols, start-time. Optional: end-time, interval, bounds (plus 1 more). Returns array of Candle.",
+      "method": "GET",
+      "path": "/tools/get_equity_historicals",
+      "params": [
+        {
+          "name": "symbols",
+          "type": "string",
+          "location": "path",
+          "description": "Comma-separated symbols (max 10)",
+          "required": true
+        },
+        {
+          "name": "start-time",
+          "wire_name": "start_time",
+          "type": "string",
+          "location": "query",
+          "description": "RFC3339 UTC start, e.g. 2026-07-01T00:00:00Z",
+          "required": true
+        },
+        {
+          "name": "end-time",
+          "wire_name": "end_time",
+          "type": "string",
+          "location": "query",
+          "description": "RFC3339 UTC end (default: now)"
+        },
+        {
+          "name": "interval",
+          "type": "string",
+          "location": "query",
+          "description": "Bar interval (omit to let the server auto-select)"
+        },
+        {
+          "name": "bounds",
+          "type": "string",
+          "location": "query",
+          "description": "Session bounds (default regular)"
+        },
+        {
+          "name": "adjustment",
+          "type": "string",
+          "location": "query",
+          "description": "Price adjustment mode"
+        }
+      ]
+    },
+    {
+      "name": "market_index-quotes",
+      "description": "Real-time index levels by instrument UUID (from market indexes; match responses by instrument_id, not symbol). Required: ids. Returns array of IndexQuote.",
+      "method": "GET",
+      "path": "/tools/get_index_quotes",
+      "params": [
+        {
+          "name": "ids",
+          "wire_name": "instrument_ids",
+          "type": "string",
+          "location": "path",
+          "description": "Comma-separated index instrument UUIDs from market indexes",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "market_indexes",
+      "description": "Look up market indexes by symbol (comma-separated string; unmatched symbols are silently dropped). Required: symbols. Returns array of MarketIndex.",
+      "method": "GET",
+      "path": "/tools/get_indexes",
+      "params": [
+        {
+          "name": "symbols",
+          "type": "string",
+          "location": "path",
+          "description": "Comma-separated index symbols, e.g. SPX,NDX,VIX",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "market_indicators",
+      "description": "Server-computed technical indicators (18 types) for one symbol. Required: symbol, type, start-time. Optional: interval, end-time, period (plus 4 more). Returns array of IndicatorPoint.",
+      "method": "GET",
+      "path": "/tools/get_equity_technical_indicators",
+      "params": [
+        {
+          "name": "symbol",
+          "type": "string",
+          "location": "path",
+          "description": "One symbol",
+          "required": true
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "location": "query",
+          "description": "Indicator type",
+          "required": true
+        },
+        {
+          "name": "interval",
+          "type": "string",
+          "location": "query",
+          "description": "Bar interval feeding the indicator"
+        },
+        {
+          "name": "start-time",
+          "wire_name": "start_time",
+          "type": "string",
+          "location": "query",
+          "description": "RFC3339 UTC start",
+          "required": true
+        },
+        {
+          "name": "end-time",
+          "wire_name": "end_time",
+          "type": "string",
+          "location": "query",
+          "description": "RFC3339 UTC end (default: now)"
+        },
+        {
+          "name": "period",
+          "type": "int",
+          "location": "query",
+          "description": "Lookback period (indicator-specific)"
+        },
+        {
+          "name": "num-std",
+          "wire_name": "num_std",
+          "type": "float",
+          "location": "query",
+          "description": "Standard deviations (bollinger_bands)"
+        },
+        {
+          "name": "fast-period",
+          "wire_name": "fast_period",
+          "type": "int",
+          "location": "query",
+          "description": "Fast period (macd)"
+        },
+        {
+          "name": "slow-period",
+          "wire_name": "slow_period",
+          "type": "int",
+          "location": "query",
+          "description": "Slow period (macd)"
+        },
+        {
+          "name": "signal-period",
+          "wire_name": "signal_period",
+          "type": "int",
+          "location": "query",
+          "description": "Signal period (macd)"
+        }
+      ]
+    },
+    {
+      "name": "market_quotes",
+      "description": "Real-time equity quotes with official prior close (max 20 symbols per call; beyond 20 the close blocks are omitted). Required: symbols. Returns array of Quote.",
+      "method": "GET",
+      "path": "/tools/get_equity_quotes",
+      "params": [
+        {
+          "name": "symbols",
+          "type": "string",
+          "location": "path",
+          "description": "Comma-separated symbols, e.g. AAPL,MSFT (max 20)",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "market_search",
+      "description": "Search instruments, currency pairs, or market indexes by name or ticker. Required: query. Optional: type (default: instrument), limit (default: 10). Returns array of SearchResult.",
+      "method": "GET",
+      "path": "/tools/search",
+      "params": [
+        {
+          "name": "query",
+          "type": "string",
+          "location": "path",
+          "description": "Ticker or company/index name",
+          "required": true
+        },
+        {
+          "name": "type",
+          "wire_name": "asset_type",
+          "type": "string",
+          "location": "query",
+          "description": "Result type; exactly one result array is populated"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Max results (clamped to 20)"
+        }
+      ]
+    },
+    {
+      "name": "market_tradability",
+      "description": "Per-account tradability: fractional, extended-hours, all-day, and short-selling flags (max 10 symbols). Required: account, symbols. Returns array of Tradability.",
+      "method": "GET",
+      "path": "/tools/get_equity_tradability",
+      "params": [
+        {
+          "name": "account",
+          "wire_name": "account_number",
+          "type": "string",
+          "location": "query",
+          "description": "Account number",
+          "required": true
+        },
+        {
+          "name": "symbols",
+          "type": "string",
+          "location": "path",
+          "description": "Comma-separated symbols (max 10)",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "options_cancel",
+      "description": "Request cancellation of an open option order; accepted=true can race a fill — re-read for terminal state. Required: account, order-id. Returns the new CancelAck.",
+      "method": "POST",
+      "path": "/tools/cancel_option_order",
+      "params": [
+        {
+          "name": "account",
+          "wire_name": "account_number",
+          "type": "string",
+          "location": "body",
+          "description": "Account number",
+          "required": true
+        },
+        {
+          "name": "order-id",
+          "wire_name": "order_id",
+          "type": "string",
+          "location": "body",
+          "description": "Order UUID from options orders",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "options_chains",
+      "description": "Option chains for an underlying: chain id, expiration dates, multiplier, underlying instruments. Required: symbol. Optional: ids. Returns array of OptionChain.",
+      "method": "GET",
+      "path": "/tools/get_option_chains",
+      "params": [
+        {
+          "name": "symbol",
+          "wire_name": "underlying_symbol",
+          "type": "string",
+          "location": "path",
+          "description": "Underlying symbol (exactly one of symbol or ids)",
+          "required": true
+        },
+        {
+          "name": "ids",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated chain UUIDs (alternative to symbol)"
+        }
+      ]
+    },
+    {
+      "name": "options_instruments",
+      "description": "Option contract discovery with expiry/strike/type filters; returns contract UUIDs used by quotes and orders. Optional: symbol, chain-id, ids (plus 6 more).",
+      "method": "GET",
+      "path": "/tools/get_option_instruments",
+      "params": [
+        {
+          "name": "symbol",
+          "wire_name": "chain_symbol",
+          "type": "string",
+          "location": "query",
+          "description": "Chain symbol (one of symbol, chain-id, or ids)"
+        },
+        {
+          "name": "chain-id",
+          "wire_name": "chain_id",
+          "type": "string",
+          "location": "query",
+          "description": "Chain UUID"
+        },
+        {
+          "name": "ids",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated contract UUIDs"
+        },
+        {
+          "name": "expirations",
+          "wire_name": "expiration_dates",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated expiration dates (YYYY-MM-DD)"
+        },
+        {
+          "name": "strike",
+          "wire_name": "strike_price",
+          "type": "string",
+          "location": "query",
+          "description": "Strike price filter"
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "location": "query",
+          "description": "Contract type"
+        },
+        {
+          "name": "state",
+          "type": "string",
+          "location": "query",
+          "description": "Contract state filter (e.g. active)"
+        },
+        {
+          "name": "tradability",
+          "type": "string",
+          "location": "query",
+          "description": "Tradability filter (e.g. tradable)"
+        },
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "Pagination cursor"
+        }
+      ]
+    },
+    {
+      "name": "options_orders",
+      "description": "Option order history with state and chain filters. Required: account. Optional: order-id, state, chain-ids (plus 3 more). Returns array of OptionOrder.",
+      "method": "GET",
+      "path": "/tools/get_option_orders",
+      "params": [
+        {
+          "name": "account",
+          "wire_name": "account_number",
+          "type": "string",
+          "location": "query",
+          "description": "Account number",
+          "required": true
+        },
+        {
+          "name": "order-id",
+          "wire_name": "order_id",
+          "type": "string",
+          "location": "query",
+          "description": "Fetch one order by UUID"
+        },
+        {
+          "name": "state",
+          "type": "string",
+          "location": "query",
+          "description": "Order state filter"
+        },
+        {
+          "name": "chain-ids",
+          "wire_name": "chain_ids",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated chain UUIDs"
+        },
+        {
+          "name": "since",
+          "wire_name": "created_at_gte",
+          "type": "string",
+          "location": "query",
+          "description": "Only orders created at/after this time"
+        },
+        {
+          "name": "placed-by",
+          "wire_name": "placed_agent",
+          "type": "string",
+          "location": "query",
+          "description": "Who placed the order"
+        },
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "Pagination cursor"
+        }
+      ]
+    },
+    {
+      "name": "options_place",
+      "description": "Place a REAL single-leg option order in the agentic account (multi-leg unsupported by the MCP). Dry-run by default; live placement requires the write gate. Required: account, option-id, side, position-effect, quantity. Optional: type (default: limit), price, stop-price (plus 3 more). Returns the new OptionOrder.",
+      "method": "POST",
+      "path": "/tools/place_option_order",
+      "params": [
+        {
+          "name": "account",
+          "wire_name": "account_number",
+          "type": "string",
+          "location": "body",
+          "description": "Target account — must have agentic_allowed=true",
+          "required": true
+        },
+        {
+          "name": "option-id",
+          "wire_name": "option_id",
+          "type": "string",
+          "location": "body",
+          "description": "Option contract UUID",
+          "required": true
+        },
+        {
+          "name": "side",
+          "type": "string",
+          "location": "body",
+          "description": "Leg side",
+          "required": true
+        },
+        {
+          "name": "position-effect",
+          "wire_name": "position_effect",
+          "type": "string",
+          "location": "body",
+          "description": "Opening or closing the position",
+          "required": true
+        },
+        {
+          "name": "quantity",
+          "type": "string",
+          "location": "body",
+          "description": "Number of contracts",
+          "required": true
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "location": "body",
+          "description": "Order type"
+        },
+        {
+          "name": "price",
+          "type": "string",
+          "location": "body",
+          "description": "Limit price / credit / debit per contract"
+        },
+        {
+          "name": "stop-price",
+          "wire_name": "stop_price",
+          "type": "string",
+          "location": "body",
+          "description": "Stop trigger price"
+        },
+        {
+          "name": "tif",
+          "wire_name": "time_in_force",
+          "type": "string",
+          "location": "body",
+          "description": "Time in force"
+        },
+        {
+          "name": "market-hours",
+          "wire_name": "market_hours",
+          "type": "string",
+          "location": "body",
+          "description": "Session eligibility"
+        },
+        {
+          "name": "ref-id",
+          "wire_name": "ref_id",
+          "type": "string",
+          "location": "body",
+          "description": "Client-generated UUID idempotency key; auto-generated when omitted"
+        }
+      ]
+    },
+    {
+      "name": "options_positions",
+      "description": "Option positions with type/expiry/chain filters. Required: account. Optional: nonzero, option-type, type (plus 1 more). Returns array of OptionPosition.",
+      "method": "GET",
+      "path": "/tools/get_option_positions",
+      "params": [
+        {
+          "name": "account",
+          "wire_name": "account_number",
+          "type": "string",
+          "location": "query",
+          "description": "Account number",
+          "required": true
+        },
+        {
+          "name": "nonzero",
+          "type": "bool",
+          "location": "query",
+          "description": "Only open positions"
+        },
+        {
+          "name": "option-type",
+          "wire_name": "option_type",
+          "type": "string",
+          "location": "query",
+          "description": "Contract type filter"
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "location": "query",
+          "description": "Position direction filter"
+        },
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "Pagination cursor"
+        }
+      ]
+    },
+    {
+      "name": "options_quotes",
+      "description": "Live option quotes and prior-session closes by contract UUID. Required: ids. Returns array of OptionQuote.",
+      "method": "GET",
+      "path": "/tools/get_option_quotes",
+      "params": [
+        {
+          "name": "ids",
+          "wire_name": "instrument_ids",
+          "type": "string",
+          "location": "path",
+          "description": "Comma-separated option contract UUIDs (from options instruments)",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "options_review",
+      "description": "Server-side option order simulation (single-leg): pre-trade warnings without placing. Required: account, option-id, side, position-effect, quantity. Optional: type (default: limit), price, stop-price (plus 2 more). Returns the new OrderReview.",
+      "method": "POST",
+      "path": "/tools/review_option_order",
+      "params": [
+        {
+          "name": "account",
+          "wire_name": "account_number",
+          "type": "string",
+          "location": "body",
+          "description": "Target account",
+          "required": true
+        },
+        {
+          "name": "option-id",
+          "wire_name": "option_id",
+          "type": "string",
+          "location": "body",
+          "description": "Option contract UUID (from options instruments)",
+          "required": true
+        },
+        {
+          "name": "side",
+          "type": "string",
+          "location": "body",
+          "description": "Leg side",
+          "required": true
+        },
+        {
+          "name": "position-effect",
+          "wire_name": "position_effect",
+          "type": "string",
+          "location": "body",
+          "description": "Opening or closing the position",
+          "required": true
+        },
+        {
+          "name": "quantity",
+          "type": "string",
+          "location": "body",
+          "description": "Number of contracts (decimal string)",
+          "required": true
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "location": "body",
+          "description": "Order type"
+        },
+        {
+          "name": "price",
+          "type": "string",
+          "location": "body",
+          "description": "Limit price / credit / debit per contract"
+        },
+        {
+          "name": "stop-price",
+          "wire_name": "stop_price",
+          "type": "string",
+          "location": "body",
+          "description": "Stop trigger price"
+        },
+        {
+          "name": "tif",
+          "wire_name": "time_in_force",
+          "type": "string",
+          "location": "body",
+          "description": "Time in force — only gfd or gtc"
+        },
+        {
+          "name": "market-hours",
+          "wire_name": "market_hours",
+          "type": "string",
+          "location": "body",
+          "description": "Session eligibility"
+        }
+      ]
+    },
+    {
+      "name": "options_upgrade-info",
+      "description": "Options-access level for the account and the URL to apply for an upgrade. Required: account. Returns the OptionUpgradeInfo.",
+      "method": "GET",
+      "path": "/tools/get_option_level_upgrade_info",
+      "params": [
+        {
+          "name": "account",
+          "wire_name": "account_number",
+          "type": "string",
+          "location": "query",
+          "description": "Account number",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "options_watchlist",
+      "description": "The separate options watchlist (errors if options trading is not enabled on the account). Returns array of OptionWatchlistItem.",
+      "method": "GET",
+      "path": "/tools/get_option_watchlist",
+      "params": []
+    },
+    {
+      "name": "options_watchlist-add",
+      "description": "Add option contracts to the options watchlist by contract UUID. Required: option-ids. Optional: position-type (default: long). Returns the new WatchlistAck.",
+      "method": "POST",
+      "path": "/tools/add_option_to_watchlist",
+      "params": [
+        {
+          "name": "option-ids",
+          "wire_name": "option_ids",
+          "type": "string",
+          "location": "body",
+          "description": "Comma-separated contract UUIDs (from options instruments, not search)",
+          "required": true
+        },
+        {
+          "name": "position-type",
+          "wire_name": "position_type",
+          "type": "string",
+          "location": "body",
+          "description": "Watch position type (removal must use the same type)"
+        }
+      ]
+    },
+    {
+      "name": "options_watchlist-remove",
+      "description": "Remove option contracts from the options watchlist (position type must match how they were added). Required: option-ids. Optional: position-type (default: long). Returns the new WatchlistAck.",
+      "method": "POST",
+      "path": "/tools/remove_option_from_watchlist",
+      "params": [
+        {
+          "name": "option-ids",
+          "wire_name": "option_ids",
+          "type": "string",
+          "location": "body",
+          "description": "Comma-separated contract UUIDs",
+          "required": true
+        },
+        {
+          "name": "position-type",
+          "wire_name": "position_type",
+          "type": "string",
+          "location": "body",
+          "description": "Must match the type used when adding"
+        }
+      ]
+    },
+    {
+      "name": "portfolio_pnl-trades",
+      "description": "Trade-by-trade realized P\u0026L history, cursor-paginated, newest first (RHS account number). Required: account. Optional: span, symbol, cursor. Returns array of PnlTrade.",
+      "method": "GET",
+      "path": "/tools/get_pnl_trade_history",
+      "params": [
+        {
+          "name": "account",
+          "wire_name": "account_number",
+          "type": "string",
+          "location": "query",
+          "description": "RHS account number",
+          "required": true
+        },
+        {
+          "name": "span",
+          "type": "string",
+          "location": "query",
+          "description": "History window"
+        },
+        {
+          "name": "symbol",
+          "type": "string",
+          "location": "query",
+          "description": "Filter to one symbol"
+        },
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "Pagination cursor from a prior page"
+        }
+      ]
+    },
+    {
+      "name": "portfolio_realized-pnl",
+      "description": "Realized P\u0026L buckets by span or date range. Uses the RHS account number, and asset_classes is required by the live service despite being documented optional. Required: account. Optional: span, start-date, end-date (plus 3 more). Returns the RealizedPnl.",
+      "method": "GET",
+      "path": "/tools/get_realized_pnl",
+      "params": [
+        {
+          "name": "account",
+          "wire_name": "account_number",
+          "type": "string",
+          "location": "query",
+          "description": "RHS account number (rhs_account_number from accounts list, not the display account number)",
+          "required": true
+        },
+        {
+          "name": "span",
+          "type": "string",
+          "location": "query",
+          "description": "Time bucket span (mutually exclusive with start-date/end-date)"
+        },
+        {
+          "name": "start-date",
+          "wire_name": "start_date",
+          "type": "string",
+          "location": "query",
+          "description": "Range start (YYYY-MM-DD, use with end-date instead of span)"
+        },
+        {
+          "name": "end-date",
+          "wire_name": "end_date",
+          "type": "string",
+          "location": "query",
+          "description": "Range end (YYYY-MM-DD)"
+        },
+        {
+          "name": "asset-classes",
+          "wire_name": "asset_classes",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated asset classes: equity, option, crypto (live service requires this)"
+        },
+        {
+          "name": "currency",
+          "wire_name": "display_currency",
+          "type": "string",
+          "location": "query",
+          "description": "Display currency (e.g. USD)"
+        },
+        {
+          "name": "timezone",
+          "type": "string",
+          "location": "query",
+          "description": "IANA timezone for bucket boundaries (e.g. America/New_York)"
+        }
+      ]
+    },
+    {
+      "name": "portfolio_show",
+      "description": "Per-account portfolio value breakdown by asset class plus authoritative buying power (get_accounts buying power is unreliable; this is the source of truth). Required: account. Returns the Portfolio.",
+      "method": "GET",
+      "path": "/tools/get_portfolio",
+      "params": [
+        {
+          "name": "account",
+          "wire_name": "account_number",
+          "type": "string",
+          "location": "path",
+          "description": "Account number (from accounts list)",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "scans_create",
+      "description": "Create a saved scan (validate filters against scans specs first). Required: name, filters. Optional: columns, sort. Returns the new Scan.",
+      "method": "POST",
+      "path": "/tools/create_scan",
+      "params": [
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Scan name",
+          "required": true
+        },
+        {
+          "name": "filters",
+          "type": "string",
+          "location": "body",
+          "description": "Scan filter definition as JSON (shape from scans specs)",
+          "required": true
+        },
+        {
+          "name": "columns",
+          "type": "string",
+          "location": "body",
+          "description": "Comma-separated result columns"
+        },
+        {
+          "name": "sort",
+          "type": "string",
+          "location": "body",
+          "description": "Sort specification"
+        }
+      ]
+    },
+    {
+      "name": "scans_list",
+      "description": "Saved scans with their filters, columns, and sort configuration. Returns array of Scan.",
+      "method": "GET",
+      "path": "/tools/get_scans",
+      "params": []
+    },
+    {
+      "name": "scans_run",
+      "description": "Run a saved scan and return matching instruments. Required: scan-id. Returns array of ScanResult.",
+      "method": "POST",
+      "path": "/tools/run_scan",
+      "params": [
+        {
+          "name": "scan-id",
+          "wire_name": "scan_id",
+          "type": "string",
+          "location": "body",
+          "description": "Saved scan UUID (from scans list)",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "scans_set-config",
+      "description": "Update a saved scan's name, columns, or sort configuration. Required: scan-id. Optional: name, columns, sort. Returns the new Scan.",
+      "method": "POST",
+      "path": "/tools/update_scan_config",
+      "params": [
+        {
+          "name": "scan-id",
+          "wire_name": "scan_id",
+          "type": "string",
+          "location": "body",
+          "description": "Saved scan UUID",
+          "required": true
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "New name"
+        },
+        {
+          "name": "columns",
+          "type": "string",
+          "location": "body",
+          "description": "Comma-separated result columns"
+        },
+        {
+          "name": "sort",
+          "type": "string",
+          "location": "body",
+          "description": "Sort specification"
+        }
+      ]
+    },
+    {
+      "name": "scans_set-filters",
+      "description": "Replace a saved scan's filter set. Required: scan-id, filters. Returns the new Scan.",
+      "method": "POST",
+      "path": "/tools/update_scan_filters",
+      "params": [
+        {
+          "name": "scan-id",
+          "wire_name": "scan_id",
+          "type": "string",
+          "location": "body",
+          "description": "Saved scan UUID",
+          "required": true
+        },
+        {
+          "name": "filters",
+          "type": "string",
+          "location": "body",
+          "description": "New filter definition as JSON",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "scans_specs",
+      "description": "The valid scanner filter types, predicates, and parameter shapes — the scan-filter DSL is discoverable at runtime, not statically documented. Returns the ScannerSpecs.",
+      "method": "GET",
+      "path": "/tools/get_scanner_filter_specs",
+      "params": []
+    },
+    {
+      "name": "watchlists_add",
+      "description": "Add members to a custom watchlist — exactly one of symbols, currency pair ids, or index ids. Required: list-id. Optional: symbols, pair-ids, index-ids. Returns the new WatchlistAck.",
+      "method": "POST",
+      "path": "/tools/add_to_watchlist",
+      "params": [
+        {
+          "name": "list-id",
+          "wire_name": "list_id",
+          "type": "string",
+          "location": "body",
+          "description": "Custom watchlist UUID",
+          "required": true
+        },
+        {
+          "name": "symbols",
+          "type": "string",
+          "location": "body",
+          "description": "Comma-separated stock symbols"
+        },
+        {
+          "name": "pair-ids",
+          "wire_name": "currency_pair_ids",
+          "type": "string",
+          "location": "body",
+          "description": "Comma-separated crypto currency-pair UUIDs"
+        },
+        {
+          "name": "index-ids",
+          "wire_name": "index_ids",
+          "type": "string",
+          "location": "body",
+          "description": "Comma-separated index UUIDs"
+        }
+      ]
+    },
+    {
+      "name": "watchlists_create",
+      "description": "Create a custom watchlist (display name must be unique). Required: name. Optional: description, emoji. Returns the new Watchlist.",
+      "method": "POST",
+      "path": "/tools/create_watchlist",
+      "params": [
+        {
+          "name": "name",
+          "wire_name": "display_name",
+          "type": "string",
+          "location": "body",
+          "description": "Unique watchlist name",
+          "required": true
+        },
+        {
+          "name": "description",
+          "wire_name": "display_description",
+          "type": "string",
+          "location": "body",
+          "description": "Optional description"
+        },
+        {
+          "name": "emoji",
+          "wire_name": "icon_emoji",
+          "type": "string",
+          "location": "body",
+          "description": "Optional icon emoji"
+        }
+      ]
+    },
+    {
+      "name": "watchlists_follow",
+      "description": "Follow a curated watchlist (cannot follow your own custom lists; a follow-limit error means unfollow another first). Required: list-id. Returns the new WatchlistAck.",
+      "method": "POST",
+      "path": "/tools/follow_watchlist",
+      "params": [
+        {
+          "name": "list-id",
+          "wire_name": "list_id",
+          "type": "string",
+          "location": "body",
+          "description": "Curated watchlist UUID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "watchlists_items",
+      "description": "Members of one watchlist (instruments, currency pairs, indexes, futures — options live on the separate options watchlist). Required: list-id. Returns array of WatchlistItem.",
+      "method": "GET",
+      "path": "/tools/get_watchlist_items",
+      "params": [
+        {
+          "name": "list-id",
+          "wire_name": "list_id",
+          "type": "string",
+          "location": "path",
+          "description": "Watchlist UUID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "watchlists_list",
+      "description": "All watchlists: custom (user-writable) and robinhood-curated (manage via follow/unfollow). Returns array of Watchlist.",
+      "method": "GET",
+      "path": "/tools/get_watchlists",
+      "params": []
+    },
+    {
+      "name": "watchlists_popular",
+      "description": "Robinhood-curated popular watchlists available to follow. Returns array of PopularWatchlist.",
+      "method": "GET",
+      "path": "/tools/get_popular_watchlists",
+      "params": []
+    },
+    {
+      "name": "watchlists_remove",
+      "description": "Remove members from a custom watchlist — exactly one of symbols, currency pair ids, or index ids. Required: list-id. Optional: symbols, pair-ids, index-ids. Returns the new WatchlistAck.",
+      "method": "POST",
+      "path": "/tools/remove_from_watchlist",
+      "params": [
+        {
+          "name": "list-id",
+          "wire_name": "list_id",
+          "type": "string",
+          "location": "body",
+          "description": "Custom watchlist UUID",
+          "required": true
+        },
+        {
+          "name": "symbols",
+          "type": "string",
+          "location": "body",
+          "description": "Comma-separated stock symbols"
+        },
+        {
+          "name": "pair-ids",
+          "wire_name": "currency_pair_ids",
+          "type": "string",
+          "location": "body",
+          "description": "Comma-separated crypto currency-pair UUIDs"
+        },
+        {
+          "name": "index-ids",
+          "wire_name": "index_ids",
+          "type": "string",
+          "location": "body",
+          "description": "Comma-separated index UUIDs"
+        }
+      ]
+    },
+    {
+      "name": "watchlists_unfollow",
+      "description": "Unfollow a curated watchlist. Required: list-id. Returns the new WatchlistAck.",
+      "method": "POST",
+      "path": "/tools/unfollow_watchlist",
+      "params": [
+        {
+          "name": "list-id",
+          "wire_name": "list_id",
+          "type": "string",
+          "location": "body",
+          "description": "Curated watchlist UUID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "watchlists_update",
+      "description": "Update a CUSTOM watchlist's name, description, or emoji (curated lists are read-only). Required: list-id. Optional: name, description, emoji. Returns the new Watchlist.",
+      "method": "POST",
+      "path": "/tools/update_watchlist",
+      "params": [
+        {
+          "name": "list-id",
+          "wire_name": "list_id",
+          "type": "string",
+          "location": "body",
+          "description": "Watchlist UUID",
+          "required": true
+        },
+        {
+          "name": "name",
+          "wire_name": "display_name",
+          "type": "string",
+          "location": "body",
+          "description": "New name"
+        },
+        {
+          "name": "description",
+          "wire_name": "display_description",
+          "type": "string",
+          "location": "body",
+          "description": "New description"
+        },
+        {
+          "name": "emoji",
+          "wire_name": "icon_emoji",
+          "type": "string",
+          "location": "body",
+          "description": "New icon emoji"
+        }
+      ]
+    }
+  ]
+}

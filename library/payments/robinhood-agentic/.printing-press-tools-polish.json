@@ -1,0 +1,13 @@
+{
+  "timestamp": "2026-07-21T01:07:08.296832Z",
+  "cli_dir": "\u003ccli-dir\u003e/robinhood-agentic-pp-cli",
+  "findings": [
+    {
+      "kind": "thin-short",
+      "command": "list",
+      "file": "teach.go",
+      "line": 692,
+      "evidence": "List recorded learnings"
+    }
+  ]
+}

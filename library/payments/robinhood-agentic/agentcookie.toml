@@ -1,0 +1,16 @@
+# agentcookie.toml: secrets-bus adoption manifest v2
+# See docs/spec-agentcookie-secrets-bus-v2-adoption.md
+schema_version = 2
+name = "robinhood-agentic-pp-cli"
+display_name = "Robinhood Agentic Trading"
+description = "Every tool on Robinhood's official Agentic Trading MCP as a typed, review-first CLI — sanctioned OAuth instead of scraped tokens, plus an offline portfolio journal no Robinhood tool ships."
+project_kind = "cli"
+
+[secrets.file]
+path = "~/.config/robinhood-agentic-pp-cli/config.toml"
+
+[sync]
+default = false
+
+[sync.keys]
+ROBINHOOD_AGENTIC_TOKEN = true

@@ -1,0 +1,70 @@
+{
+  "schema_version": 2,
+  "generated_at": "2026-07-21T01:51:52.27477Z",
+  "printing_press_version": "4.29.0",
+  "api_name": "robinhood-agentic",
+  "display_name": "Robinhood Agentic Trading",
+  "cli_name": "robinhood-agentic-pp-cli",
+  "creator": {
+    "handle": "kjmagnan1s",
+    "name": "Kevin Magnan"
+  },
+  "owner": "kevin-magnan",
+  "printer": "kjmagnan1s",
+  "printer_name": "Kevin Magnan",
+  "spec_format": "internal",
+  "spec_checksum": "sha256:41202d532bf42e12b29601c71ac00280331695765b53c8beb274bdbdd1482492",
+  "run_id": "20260720-165038",
+  "category": "payments",
+  "description": "Every tool on Robinhood's official Agentic Trading MCP as a typed, review-first CLI — sanctioned OAuth instead of scraped tokens, plus an offline portfolio journal no Robinhood tool ships.",
+  "mcp_binary": "robinhood-agentic-pp-mcp",
+  "mcp_tool_count": 49,
+  "mcp_ready": "full",
+  "api_version": "0.1.0",
+  "auth_type": "oauth2",
+  "auth_env_vars": [
+    "ROBINHOOD_AGENTIC_TOKEN"
+  ],
+  "novel_features": [
+    {
+      "name": "Portfolio history",
+      "command": "portfolio history",
+      "description": "Answer 'what was my portfolio worth on any given day' from a local time series Robinhood doesn't keep."
+    },
+    {
+      "name": "Guard — client-side trade policy",
+      "command": "guard",
+      "description": "Set per-trade caps, daily caps, symbol allow/denylists, and a kill switch that the CLI enforces before any order leaves the machine."
+    },
+    {
+      "name": "Order settle",
+      "command": "equities settle",
+      "description": "Resolve an order to verified terminal truth — actual fill price and state — instead of trusting the placement echo."
+    },
+    {
+      "name": "Morning brief",
+      "command": "brief",
+      "description": "The whole pre-open check — portfolio value, day-over-day delta, open orders, positions, top movers among your holdings, and upcoming earnings for held symbols — in one command."
+    },
+    {
+      "name": "Mutation audit",
+      "command": "audit",
+      "description": "See everything the CLI (or an agent driving it) reviewed, placed, canceled, or was denied — with idempotency keys and outcomes."
+    },
+    {
+      "name": "P\u0026L win rate",
+      "command": "portfolio winrate",
+      "description": "Round-trip win rate, average win/loss, and per-symbol stats computed from your synced trade history."
+    },
+    {
+      "name": "Surface diff",
+      "command": "surface diff",
+      "description": "Know when Robinhood adds, removes, or reshapes MCP tools — with dates — instead of discovering breakage in production."
+    },
+    {
+      "name": "Wheel status",
+      "command": "wheel status",
+      "description": "Per-symbol wheel-strategy stage (cash-secured put → assigned → covered call → called away) inferred automatically."
+    }
+  ]
+}

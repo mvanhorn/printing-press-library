@@ -1,0 +1,39 @@
+{
+  "manifest_version": "0.3",
+  "name": "robinhood-agentic-pp-mcp",
+  "display_name": "Robinhood Agentic Trading",
+  "version": "0.1.0",
+  "description": "Every tool on Robinhood's official Agentic Trading MCP as a typed, review-first CLI — sanctioned OAuth instead of scraped tokens, plus an offline portfolio journal no Robinhood tool ships.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/robinhood-agentic-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/robinhood-agentic-pp-mcp",
+      "args": [],
+      "env": {
+        "ROBINHOOD_AGENTIC_TOKEN": "${user_config.robinhood_agentic_token}"
+      }
+    }
+  },
+  "user_config": {
+    "robinhood_agentic_token": {
+      "type": "string",
+      "title": "ROBINHOOD_AGENTIC_TOKEN",
+      "description": "Sets ROBINHOOD_AGENTIC_TOKEN for the Robinhood Agentic Trading MCP server.",
+      "sensitive": true,
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

@@ -1,0 +1,1613 @@
+name: robinhood-agentic
+description: "Robinhood Agentic Trading MCP CLI"
+cli_description: "Every Robinhood Agentic Trading MCP capability as a typed, safety-gated CLI — official OAuth (no scraped tokens), review-first orders, and an offline SQLite portfolio journal no other Robinhood tool ships."
+version: "0.1.0"
+creator:
+  handle: kjmagnan1s
+  name: Kevin Magnan
+owner: kevin-magnan
+owner_name: Kevin Magnan
+printer: kjmagnan1s
+printer_name: Kevin Magnan
+base_url: "https://agent.robinhood.com/mcp/trading"
+http_transport: standard
+
+auth:
+  type: oauth2
+  header: "Authorization"
+  format: "Bearer {token}"
+  authorization_url: "https://robinhood.com/oauth"
+  token_url: "https://api.robinhood.com/oauth2/token/"
+  env_vars:
+    - ROBINHOOD_AGENTIC_TOKEN
+
+config:
+  format: toml
+  path: "~/.config/robinhood-agentic-pp-cli/config.toml"
+
+mcp:
+  transport: [stdio, http]
+  orchestration: code
+  endpoint_tools: hidden
+
+resources:
+  accounts:
+    description: "Brokerage accounts and the agentic-account boundary"
+    endpoints:
+      list:
+        method: GET
+        path: "/tools/get_accounts"
+        description: "List all brokerage accounts; agentic_allowed marks the only account that can place agentic orders"
+        response:
+          type: array
+          item: Account
+        response_path: data.accounts
+
+  portfolio:
+    description: "Portfolio value, buying power, and P&L"
+    endpoints:
+      show:
+        method: GET
+        path: "/tools/get_portfolio"
+        description: "Per-account portfolio value breakdown by asset class plus authoritative buying power (get_accounts buying power is unreliable; this is the source of truth)"
+        params:
+          - name: account_number
+            flag_name: account
+            type: string
+            required: true
+            positional: true
+            description: "Account number (from accounts list)"
+        response:
+          type: object
+          item: Portfolio
+        response_path: data
+      realized-pnl:
+        method: GET
+        path: "/tools/get_realized_pnl"
+        description: "Realized P&L buckets by span or date range. Uses the RHS account number, and asset_classes is required by the live service despite being documented optional"
+        params:
+          - name: account_number
+            flag_name: account
+            type: string
+            required: true
+            description: "RHS account number (rhs_account_number from accounts list, not the display account number)"
+          - name: span
+            type: string
+            enum: [day, week, month, 3month, year, all]
+            description: "Time bucket span (mutually exclusive with start-date/end-date)"
+          - name: start_date
+            flag_name: start-date
+            type: string
+            format: date
+            description: "Range start (YYYY-MM-DD, use with end-date instead of span)"
+          - name: end_date
+            flag_name: end-date
+            type: string
+            format: date
+            description: "Range end (YYYY-MM-DD)"
+          - name: asset_classes
+            flag_name: asset-classes
+            type: string
+            required: false
+            default: "equity,option"
+            description: "Comma-separated asset classes: equity, option, crypto (live service requires this)"
+          - name: display_currency
+            flag_name: currency
+            type: string
+            description: "Display currency (e.g. USD)"
+          - name: timezone
+            type: string
+            description: "IANA timezone for bucket boundaries (e.g. America/New_York)"
+        response:
+          type: object
+          item: RealizedPnl
+        response_path: data
+      pnl-trades:
+        method: GET
+        path: "/tools/get_pnl_trade_history"
+        description: "Trade-by-trade realized P&L history, cursor-paginated, newest first (RHS account number)"
+        params:
+          - name: account_number
+            flag_name: account
+            type: string
+            required: true
+            description: "RHS account number"
+          - name: span
+            type: string
+            enum: [week, month, 3month, ytd, all]
+            description: "History window"
+          - name: symbol
+            type: string
+            description: "Filter to one symbol"
+          - name: cursor
+            type: string
+            description: "Pagination cursor from a prior page"
+        response:
+          type: array
+          item: PnlTrade
+        response_path: data.trades
+
+  market:
+    description: "Search, quotes, fundamentals, historicals, indicators, earnings, indexes"
+    endpoints:
+      search:
+        method: GET
+        path: "/tools/search"
+        description: "Search instruments, currency pairs, or market indexes by name or ticker"
+        params:
+          - name: query
+            type: string
+            required: true
+            positional: true
+            description: "Ticker or company/index name"
+          - name: asset_type
+            flag_name: type
+            type: string
+            default: instrument
+            enum: [instrument, currency_pair, market_index]
+            description: "Result type; exactly one result array is populated"
+          - name: limit
+            type: int
+            default: 10
+            description: "Max results (clamped to 20)"
+        response:
+          type: array
+          item: SearchResult
+        response_path: data.results
+      quotes:
+        method: GET
+        path: "/tools/get_equity_quotes"
+        description: "Real-time equity quotes with official prior close (max 20 symbols per call; beyond 20 the close blocks are omitted)"
+        params:
+          - name: symbols
+            type: string
+            required: true
+            positional: true
+            description: "Comma-separated symbols, e.g. AAPL,MSFT (max 20)"
+        response:
+          type: array
+          item: Quote
+        response_path: data.results
+      book:
+        method: GET
+        path: "/tools/get_equity_price_book"
+        description: "Level-2 bid/ask depth (max 4 symbols per call)"
+        params:
+          - name: symbols
+            type: string
+            required: true
+            positional: true
+            description: "Comma-separated symbols (max 4)"
+        response:
+          type: object
+          item: PriceBook
+        response_path: data
+      fundamentals:
+        method: GET
+        path: "/tools/get_equity_fundamentals"
+        description: "Valuation, market cap, session OHLCV, 52-week range, dividends, and company profile (max 10 symbols)"
+        params:
+          - name: symbols
+            type: string
+            required: true
+            positional: true
+            description: "Comma-separated symbols (max 10)"
+        response:
+          type: array
+          item: Fundamentals
+        response_path: data.results
+      financials:
+        method: GET
+        path: "/tools/get_financials"
+        description: "Reported quarterly or annual revenue, gross profit, net income, and net margin (max 20 symbols, 40 periods)"
+        params:
+          - name: symbols
+            type: string
+            required: true
+            positional: true
+            description: "Comma-separated symbols (max 20)"
+          - name: period
+            type: string
+            default: quarterly
+            enum: [quarterly, annual]
+            description: "Reporting period granularity"
+          - name: limit
+            type: int
+            description: "Number of periods to return (max 40)"
+        response:
+          type: array
+          item: Financials
+        response_path: data.results
+      earnings-calendar:
+        method: GET
+        path: "/tools/get_earnings_calendar"
+        description: "Market-wide earnings events in a window of up to 31 days"
+        params:
+          - name: start_date
+            flag_name: start-date
+            type: string
+            format: date
+            description: "Window start (YYYY-MM-DD)"
+          - name: days
+            type: int
+            description: "Window length in days (max 31)"
+          - name: filter
+            type: string
+            description: "Event filter, e.g. high_market_cap"
+        response:
+          type: array
+          item: EarningsEvent
+        response_path: data.events
+      earnings-results:
+        method: GET
+        path: "/tools/get_earnings_results"
+        description: "Up to 8 quarters of EPS history (estimate vs actual) plus the next report date for one symbol"
+        params:
+          - name: symbol
+            type: string
+            required: true
+            positional: true
+            description: "One symbol"
+        response:
+          type: array
+          item: EarningsResult
+        response_path: data.results
+      historicals:
+        method: GET
+        path: "/tools/get_equity_historicals"
+        description: "OHLCV bars for up to 10 symbols; intervals from 15second to 50year; bounds cover regular, extended, and 24/7 sessions"
+        params:
+          - name: symbols
+            type: string
+            required: true
+            positional: true
+            description: "Comma-separated symbols (max 10)"
+          - name: start_time
+            flag_name: start-time
+            type: string
+            required: true
+            format: date-time
+            description: "RFC3339 UTC start, e.g. 2026-07-01T00:00:00Z"
+          - name: end_time
+            flag_name: end-time
+            type: string
+            format: date-time
+            description: "RFC3339 UTC end (default: now)"
+          - name: interval
+            type: string
+            enum: [15second, 30second, minute, 5minute, 10minute, 30minute, hour, 4hour, day, week, month, 3month, 6month, year, 5year, 10year, 20year, 50year]
+            description: "Bar interval (omit to let the server auto-select)"
+          - name: bounds
+            type: string
+            enum: [regular, extended, trading, 24_5, 24_7, hyper_trading]
+            description: "Session bounds (default regular)"
+          - name: adjustment
+            type: string
+            enum: [none, split, all]
+            description: "Price adjustment mode"
+        response:
+          type: array
+          item: Candle
+        response_path: data.results
+      indicators:
+        method: GET
+        path: "/tools/get_equity_technical_indicators"
+        description: "Server-computed technical indicators (18 types) for one symbol"
+        params:
+          - name: symbol
+            type: string
+            required: true
+            positional: true
+            description: "One symbol"
+          - name: type
+            type: string
+            required: true
+            enum: [ema, sma, rsi, momentum, roc, cci, williams_r, atr, mfi, adx, donchian_channels, bollinger_bands, macd, keltner_channels, supertrend, vwap, obv, pivot_points]
+            description: "Indicator type"
+          - name: interval
+            type: string
+            description: "Bar interval feeding the indicator"
+          - name: start_time
+            flag_name: start-time
+            type: string
+            required: true
+            format: date-time
+            description: "RFC3339 UTC start"
+          - name: end_time
+            flag_name: end-time
+            type: string
+            format: date-time
+            description: "RFC3339 UTC end (default: now)"
+          - name: period
+            type: int
+            description: "Lookback period (indicator-specific)"
+          - name: num_std
+            flag_name: num-std
+            type: float
+            description: "Standard deviations (bollinger_bands)"
+          - name: fast_period
+            flag_name: fast-period
+            type: int
+            description: "Fast period (macd)"
+          - name: slow_period
+            flag_name: slow-period
+            type: int
+            description: "Slow period (macd)"
+          - name: signal_period
+            flag_name: signal-period
+            type: int
+            description: "Signal period (macd)"
+        response:
+          type: array
+          item: IndicatorPoint
+        response_path: data.results
+      tradability:
+        method: GET
+        path: "/tools/get_equity_tradability"
+        description: "Per-account tradability: fractional, extended-hours, all-day, and short-selling flags (max 10 symbols)"
+        params:
+          - name: account_number
+            flag_name: account
+            type: string
+            required: true
+            description: "Account number"
+          - name: symbols
+            type: string
+            required: true
+            positional: true
+            description: "Comma-separated symbols (max 10)"
+        response:
+          type: array
+          item: Tradability
+        response_path: data.results
+      indexes:
+        method: GET
+        path: "/tools/get_indexes"
+        description: "Look up market indexes by symbol (comma-separated string; unmatched symbols are silently dropped)"
+        params:
+          - name: symbols
+            type: string
+            required: true
+            positional: true
+            description: "Comma-separated index symbols, e.g. SPX,NDX,VIX"
+        response:
+          type: array
+          item: MarketIndex
+        response_path: data.indexes
+      index-quotes:
+        method: GET
+        path: "/tools/get_index_quotes"
+        description: "Real-time index levels by instrument UUID (from market indexes; match responses by instrument_id, not symbol)"
+        params:
+          - name: instrument_ids
+            flag_name: ids
+            type: string
+            required: true
+            positional: true
+            description: "Comma-separated index instrument UUIDs from market indexes"
+        response:
+          type: array
+          item: IndexQuote
+        response_path: data.quotes
+
+  equities:
+    description: "Equity positions, orders, tax lots, and the review-first order lifecycle"
+    endpoints:
+      positions:
+        method: GET
+        path: "/tools/get_equity_positions"
+        description: "Open equity positions with quantity, average cost, and hold breakdowns (pair with quotes for market value; use shares_available_for_sells for sellable shares)"
+        params:
+          - name: account_number
+            flag_name: account
+            type: string
+            required: true
+            description: "Account number"
+          - name: cursor
+            type: string
+            description: "Pagination cursor"
+        response:
+          type: array
+          item: Position
+        response_path: data.positions
+      orders:
+        method: GET
+        path: "/tools/get_equity_orders"
+        description: "Equity order history and single-order lookup, newest first; executions[] carries fills"
+        params:
+          - name: account_number
+            flag_name: account
+            type: string
+            required: true
+            description: "Account number"
+          - name: order_id
+            flag_name: order-id
+            type: string
+            description: "Fetch one order by UUID"
+          - name: state
+            type: string
+            enum: [new, queued, confirmed, unconfirmed, partially_filled, filled, cancelled, rejected, failed, voided]
+            description: "Filter by order state"
+          - name: symbol
+            type: string
+            description: "Filter by symbol"
+          - name: created_at_gte
+            flag_name: since
+            type: string
+            description: "Only orders created at/after this ISO-8601 or YYYY-MM-DD UTC time"
+          - name: placed_agent
+            flag_name: placed-by
+            type: string
+            enum: [user, agentic, recurring, drip]
+            description: "Who placed the order"
+          - name: cursor
+            type: string
+            description: "Pagination cursor"
+        response:
+          type: array
+          item: Order
+        response_path: data.orders
+      taxlots:
+        method: GET
+        path: "/tools/get_equity_tax_lots"
+        description: "Open acquisition lots for ONE symbol: lot id, quantity, cost basis, acquisition date, holding period. Lot ids feed specified-lot sells (max 30 lots per order)"
+        params:
+          - name: account_number
+            flag_name: account
+            type: string
+            required: true
+            description: "Account number"
+          - name: symbol
+            type: string
+            required: true
+            positional: true
+            description: "One symbol per call"
+          - name: cursor
+            type: string
+            description: "Pagination cursor"
+        response:
+          type: array
+          item: TaxLot
+        response_path: data.lots
+      review:
+        method: POST
+        path: "/tools/review_equity_order"
+        description: "Server-side order simulation: returns Robinhood's pre-trade warnings WITHOUT placing anything. The canonical preflight before place"
+        body:
+          - name: account_number
+            flag_name: account
+            type: string
+            required: true
+            description: "Target account (must be the agentic_allowed account for a later place)"
+          - name: symbol
+            type: string
+            required: true
+            description: "Symbol to trade"
+          - name: side
+            type: string
+            required: true
+            enum: [buy, sell]
+            description: "Order side"
+          - name: type
+            type: string
+            required: true
+            enum: [market, limit, stop_market, stop_limit]
+            description: "Order type"
+          - name: quantity
+            type: string
+            description: "Share quantity as a decimal string (fractional only for market orders in regular hours where permitted); mutually exclusive with dollar-amount"
+          - name: dollar_amount
+            flag_name: dollar-amount
+            type: string
+            description: "Notional dollar amount (market orders only; mutually exclusive with quantity)"
+          - name: limit_price
+            flag_name: limit-price
+            type: string
+            description: "Limit price (limit and stop_limit orders)"
+          - name: stop_price
+            flag_name: stop-price
+            type: string
+            description: "Stop trigger price (stop_market and stop_limit orders)"
+          - name: time_in_force
+            flag_name: tif
+            type: string
+            default: gfd
+            enum: [gfd, gtc]
+            description: "Time in force — the server accepts only gfd or gtc ('day' is rejected)"
+          - name: market_hours
+            flag_name: market-hours
+            type: string
+            enum: [regular_hours, extended_hours, all_day_hours]
+            description: "Session eligibility"
+          - name: tax_lots
+            flag_name: tax-lots
+            type: string
+            description: "Comma-separated open_lot_id:quantity pairs for specified-lot sells (max 30 lots)"
+        response:
+          type: object
+          item: OrderReview
+        response_path: data
+      place:
+        method: POST
+        path: "/tools/place_equity_order"
+        description: "Place a REAL equity order in the agentic account. Same parameters as review plus a ref_id idempotency key. Dry-run by default; live placement requires the write gate"
+        body:
+          - name: account_number
+            flag_name: account
+            type: string
+            required: true
+            description: "Target account — must have agentic_allowed=true or the server rejects the order"
+          - name: symbol
+            type: string
+            required: true
+            description: "Symbol to trade"
+          - name: side
+            type: string
+            required: true
+            enum: [buy, sell]
+            description: "Order side"
+          - name: type
+            type: string
+            required: true
+            enum: [market, limit, stop_market, stop_limit]
+            description: "Order type"
+          - name: quantity
+            type: string
+            description: "Share quantity as a decimal string; mutually exclusive with dollar-amount"
+          - name: dollar_amount
+            flag_name: dollar-amount
+            type: string
+            description: "Notional dollar amount (market orders only)"
+          - name: limit_price
+            flag_name: limit-price
+            type: string
+            description: "Limit price (limit and stop_limit orders)"
+          - name: stop_price
+            flag_name: stop-price
+            type: string
+            description: "Stop trigger price (stop_market and stop_limit orders)"
+          - name: time_in_force
+            flag_name: tif
+            type: string
+            default: gfd
+            enum: [gfd, gtc]
+            description: "Time in force — only gfd or gtc"
+          - name: market_hours
+            flag_name: market-hours
+            type: string
+            enum: [regular_hours, extended_hours, all_day_hours]
+            description: "Session eligibility"
+          - name: tax_lots
+            flag_name: tax-lots
+            type: string
+            description: "Comma-separated open_lot_id:quantity pairs for specified-lot sells"
+          - name: ref_id
+            flag_name: ref-id
+            type: string
+            description: "Client-generated UUID idempotency key; auto-generated and persisted before submission when omitted — reuse the same value on ambiguous retries"
+        response:
+          type: object
+          item: Order
+        response_path: data.order
+      cancel:
+        method: POST
+        path: "/tools/cancel_equity_order"
+        description: "Request cancellation of an open equity order. accepted=true acknowledges the REQUEST — cancellation can race a fill, so re-read the order for terminal state"
+        body:
+          - name: account_number
+            flag_name: account
+            type: string
+            required: true
+            description: "Account number"
+          - name: order_id
+            flag_name: order-id
+            type: string
+            required: true
+            description: "Order UUID from equities orders"
+        response:
+          type: object
+          item: CancelAck
+        response_path: data
+
+  options:
+    description: "Option chains, contracts, quotes, positions, orders, and the option watchlist"
+    endpoints:
+      upgrade-info:
+        method: GET
+        path: "/tools/get_option_level_upgrade_info"
+        description: "Options-access level for the account and the URL to apply for an upgrade"
+        params:
+          - name: account_number
+            flag_name: account
+            type: string
+            required: true
+            description: "Account number"
+        response:
+          type: object
+          item: OptionUpgradeInfo
+        response_path: data
+      chains:
+        method: GET
+        path: "/tools/get_option_chains"
+        description: "Option chains for an underlying: chain id, expiration dates, multiplier, underlying instruments"
+        params:
+          - name: underlying_symbol
+            flag_name: symbol
+            type: string
+            required: true
+            positional: true
+            description: "Underlying symbol (exactly one of symbol or ids)"
+          - name: ids
+            type: string
+            description: "Comma-separated chain UUIDs (alternative to symbol)"
+        response:
+          type: array
+          item: OptionChain
+        response_path: data.chains
+      instruments:
+        method: GET
+        path: "/tools/get_option_instruments"
+        description: "Option contract discovery with expiry/strike/type filters; returns contract UUIDs used by quotes and orders"
+        params:
+          - name: chain_symbol
+            flag_name: symbol
+            type: string
+            description: "Chain symbol (one of symbol, chain-id, or ids)"
+          - name: chain_id
+            flag_name: chain-id
+            type: string
+            description: "Chain UUID"
+          - name: ids
+            type: string
+            description: "Comma-separated contract UUIDs"
+          - name: expiration_dates
+            flag_name: expirations
+            type: string
+            description: "Comma-separated expiration dates (YYYY-MM-DD)"
+          - name: strike_price
+            flag_name: strike
+            type: string
+            description: "Strike price filter"
+          - name: type
+            type: string
+            enum: [call, put]
+            description: "Contract type"
+          - name: state
+            type: string
+            description: "Contract state filter (e.g. active)"
+          - name: tradability
+            type: string
+            description: "Tradability filter (e.g. tradable)"
+          - name: cursor
+            type: string
+            description: "Pagination cursor"
+        response:
+          type: array
+          item: OptionInstrument
+        response_path: data.instruments
+      quotes:
+        method: GET
+        path: "/tools/get_option_quotes"
+        description: "Live option quotes and prior-session closes by contract UUID"
+        params:
+          - name: instrument_ids
+            flag_name: ids
+            type: string
+            required: true
+            positional: true
+            description: "Comma-separated option contract UUIDs (from options instruments)"
+        response:
+          type: array
+          item: OptionQuote
+        response_path: data.results
+      positions:
+        method: GET
+        path: "/tools/get_option_positions"
+        description: "Option positions with type/expiry/chain filters"
+        params:
+          - name: account_number
+            flag_name: account
+            type: string
+            required: true
+            description: "Account number"
+          - name: nonzero
+            type: bool
+            description: "Only open positions"
+          - name: option_type
+            flag_name: option-type
+            type: string
+            enum: [call, put]
+            description: "Contract type filter"
+          - name: type
+            type: string
+            enum: [long, short]
+            description: "Position direction filter"
+          - name: cursor
+            type: string
+            description: "Pagination cursor"
+        response:
+          type: array
+          item: OptionPosition
+        response_path: data.positions
+      orders:
+        method: GET
+        path: "/tools/get_option_orders"
+        description: "Option order history with state and chain filters"
+        params:
+          - name: account_number
+            flag_name: account
+            type: string
+            required: true
+            description: "Account number"
+          - name: order_id
+            flag_name: order-id
+            type: string
+            description: "Fetch one order by UUID"
+          - name: state
+            type: string
+            enum: [queued, confirmed, partially_filled, filled, rejected, cancelled, failed, voided, pending_cancelled]
+            description: "Order state filter"
+          - name: chain_ids
+            flag_name: chain-ids
+            type: string
+            description: "Comma-separated chain UUIDs"
+          - name: created_at_gte
+            flag_name: since
+            type: string
+            description: "Only orders created at/after this time"
+          - name: placed_agent
+            flag_name: placed-by
+            type: string
+            enum: [user, agentic, recurring, drip]
+            description: "Who placed the order"
+          - name: cursor
+            type: string
+            description: "Pagination cursor"
+        response:
+          type: array
+          item: OptionOrder
+        response_path: data.orders
+      review:
+        method: POST
+        path: "/tools/review_option_order"
+        description: "Server-side option order simulation (single-leg): pre-trade warnings without placing"
+        body:
+          - name: account_number
+            flag_name: account
+            type: string
+            required: true
+            description: "Target account"
+          - name: option_id
+            flag_name: option-id
+            type: string
+            required: true
+            description: "Option contract UUID (from options instruments)"
+          - name: side
+            type: string
+            required: true
+            enum: [buy, sell]
+            description: "Leg side"
+          - name: position_effect
+            flag_name: position-effect
+            type: string
+            required: true
+            enum: [open, close]
+            description: "Opening or closing the position"
+          - name: quantity
+            type: string
+            required: true
+            description: "Number of contracts (decimal string)"
+          - name: type
+            type: string
+            default: limit
+            enum: [limit, market, stop_limit, stop_market]
+            description: "Order type"
+          - name: price
+            type: string
+            description: "Limit price / credit / debit per contract"
+          - name: stop_price
+            flag_name: stop-price
+            type: string
+            description: "Stop trigger price"
+          - name: time_in_force
+            flag_name: tif
+            type: string
+            default: gfd
+            enum: [gfd, gtc]
+            description: "Time in force — only gfd or gtc"
+          - name: market_hours
+            flag_name: market-hours
+            type: string
+            description: "Session eligibility"
+        response:
+          type: object
+          item: OrderReview
+        response_path: data
+      place:
+        method: POST
+        path: "/tools/place_option_order"
+        description: "Place a REAL single-leg option order in the agentic account (multi-leg unsupported by the MCP). Dry-run by default; live placement requires the write gate"
+        body:
+          - name: account_number
+            flag_name: account
+            type: string
+            required: true
+            description: "Target account — must have agentic_allowed=true"
+          - name: option_id
+            flag_name: option-id
+            type: string
+            required: true
+            description: "Option contract UUID"
+          - name: side
+            type: string
+            required: true
+            enum: [buy, sell]
+            description: "Leg side"
+          - name: position_effect
+            flag_name: position-effect
+            type: string
+            required: true
+            enum: [open, close]
+            description: "Opening or closing the position"
+          - name: quantity
+            type: string
+            required: true
+            description: "Number of contracts"
+          - name: type
+            type: string
+            default: limit
+            enum: [limit, market, stop_limit, stop_market]
+            description: "Order type"
+          - name: price
+            type: string
+            description: "Limit price / credit / debit per contract"
+          - name: stop_price
+            flag_name: stop-price
+            type: string
+            description: "Stop trigger price"
+          - name: time_in_force
+            flag_name: tif
+            type: string
+            default: gfd
+            enum: [gfd, gtc]
+            description: "Time in force"
+          - name: market_hours
+            flag_name: market-hours
+            type: string
+            description: "Session eligibility"
+          - name: ref_id
+            flag_name: ref-id
+            type: string
+            description: "Client-generated UUID idempotency key; auto-generated when omitted"
+        response:
+          type: object
+          item: OptionOrder
+        response_path: data.order
+      cancel:
+        method: POST
+        path: "/tools/cancel_option_order"
+        description: "Request cancellation of an open option order; accepted=true can race a fill — re-read for terminal state"
+        body:
+          - name: account_number
+            flag_name: account
+            type: string
+            required: true
+            description: "Account number"
+          - name: order_id
+            flag_name: order-id
+            type: string
+            required: true
+            description: "Order UUID from options orders"
+        response:
+          type: object
+          item: CancelAck
+        response_path: data
+      watchlist:
+        method: GET
+        path: "/tools/get_option_watchlist"
+        description: "The separate options watchlist (errors if options trading is not enabled on the account)"
+        response:
+          type: array
+          item: OptionWatchlistItem
+        response_path: data.items
+      watchlist-add:
+        method: POST
+        path: "/tools/add_option_to_watchlist"
+        description: "Add option contracts to the options watchlist by contract UUID"
+        body:
+          - name: option_ids
+            flag_name: option-ids
+            type: string
+            required: true
+            description: "Comma-separated contract UUIDs (from options instruments, not search)"
+          - name: position_type
+            flag_name: position-type
+            type: string
+            default: long
+            enum: [long, short]
+            description: "Watch position type (removal must use the same type)"
+        response:
+          type: object
+          item: WatchlistAck
+        response_path: data
+      watchlist-remove:
+        method: POST
+        path: "/tools/remove_option_from_watchlist"
+        description: "Remove option contracts from the options watchlist (position type must match how they were added)"
+        body:
+          - name: option_ids
+            flag_name: option-ids
+            type: string
+            required: true
+            description: "Comma-separated contract UUIDs"
+          - name: position_type
+            flag_name: position-type
+            type: string
+            default: long
+            enum: [long, short]
+            description: "Must match the type used when adding"
+        response:
+          type: object
+          item: WatchlistAck
+        response_path: data
+
+  watchlists:
+    description: "Custom and curated watchlists"
+    endpoints:
+      list:
+        method: GET
+        path: "/tools/get_watchlists"
+        description: "All watchlists: custom (user-writable) and robinhood-curated (manage via follow/unfollow)"
+        response:
+          type: array
+          item: Watchlist
+        response_path: data.watchlists
+      items:
+        method: GET
+        path: "/tools/get_watchlist_items"
+        description: "Members of one watchlist (instruments, currency pairs, indexes, futures — options live on the separate options watchlist)"
+        params:
+          - name: list_id
+            flag_name: list-id
+            type: string
+            required: true
+            positional: true
+            description: "Watchlist UUID"
+        response:
+          type: array
+          item: WatchlistItem
+        response_path: data.items
+      popular:
+        method: GET
+        path: "/tools/get_popular_watchlists"
+        description: "Robinhood-curated popular watchlists available to follow"
+        response:
+          type: array
+          item: PopularWatchlist
+        response_path: data.lists
+      create:
+        method: POST
+        path: "/tools/create_watchlist"
+        description: "Create a custom watchlist (display name must be unique)"
+        body:
+          - name: display_name
+            flag_name: name
+            type: string
+            required: true
+            description: "Unique watchlist name"
+          - name: display_description
+            flag_name: description
+            type: string
+            description: "Optional description"
+          - name: icon_emoji
+            flag_name: emoji
+            type: string
+            description: "Optional icon emoji"
+        response:
+          type: object
+          item: Watchlist
+        response_path: data
+      update:
+        method: POST
+        path: "/tools/update_watchlist"
+        description: "Update a CUSTOM watchlist's name, description, or emoji (curated lists are read-only)"
+        body:
+          - name: list_id
+            flag_name: list-id
+            type: string
+            required: true
+            description: "Watchlist UUID"
+          - name: display_name
+            flag_name: name
+            type: string
+            description: "New name"
+          - name: display_description
+            flag_name: description
+            type: string
+            description: "New description"
+          - name: icon_emoji
+            flag_name: emoji
+            type: string
+            description: "New icon emoji"
+        response:
+          type: object
+          item: Watchlist
+        response_path: data
+      follow:
+        method: POST
+        path: "/tools/follow_watchlist"
+        description: "Follow a curated watchlist (cannot follow your own custom lists; a follow-limit error means unfollow another first)"
+        body:
+          - name: list_id
+            flag_name: list-id
+            type: string
+            required: true
+            description: "Curated watchlist UUID"
+        response:
+          type: object
+          item: WatchlistAck
+        response_path: data
+      unfollow:
+        method: POST
+        path: "/tools/unfollow_watchlist"
+        description: "Unfollow a curated watchlist"
+        body:
+          - name: list_id
+            flag_name: list-id
+            type: string
+            required: true
+            description: "Curated watchlist UUID"
+        response:
+          type: object
+          item: WatchlistAck
+        response_path: data
+      add:
+        method: POST
+        path: "/tools/add_to_watchlist"
+        description: "Add members to a custom watchlist — exactly one of symbols, currency pair ids, or index ids"
+        body:
+          - name: list_id
+            flag_name: list-id
+            type: string
+            required: true
+            description: "Custom watchlist UUID"
+          - name: symbols
+            type: string
+            description: "Comma-separated stock symbols"
+          - name: currency_pair_ids
+            flag_name: pair-ids
+            type: string
+            description: "Comma-separated crypto currency-pair UUIDs"
+          - name: index_ids
+            flag_name: index-ids
+            type: string
+            description: "Comma-separated index UUIDs"
+        response:
+          type: object
+          item: WatchlistAck
+        response_path: data
+      remove:
+        method: POST
+        path: "/tools/remove_from_watchlist"
+        description: "Remove members from a custom watchlist — exactly one of symbols, currency pair ids, or index ids"
+        body:
+          - name: list_id
+            flag_name: list-id
+            type: string
+            required: true
+            description: "Custom watchlist UUID"
+          - name: symbols
+            type: string
+            description: "Comma-separated stock symbols"
+          - name: currency_pair_ids
+            flag_name: pair-ids
+            type: string
+            description: "Comma-separated crypto currency-pair UUIDs"
+          - name: index_ids
+            flag_name: index-ids
+            type: string
+            description: "Comma-separated index UUIDs"
+        response:
+          type: object
+          item: WatchlistAck
+        response_path: data
+
+  scans:
+    description: "Server-side market scanners and the runtime-discoverable filter DSL"
+    endpoints:
+      list:
+        method: GET
+        path: "/tools/get_scans"
+        description: "Saved scans with their filters, columns, and sort configuration"
+        response:
+          type: array
+          item: Scan
+        response_path: data.scans
+      specs:
+        method: GET
+        path: "/tools/get_scanner_filter_specs"
+        description: "The valid scanner filter types, predicates, and parameter shapes — the scan-filter DSL is discoverable at runtime, not statically documented"
+        response:
+          type: object
+          item: ScannerSpecs
+        response_path: data
+      run:
+        method: POST
+        path: "/tools/run_scan"
+        description: "Run a saved scan and return matching instruments"
+        body:
+          - name: scan_id
+            flag_name: scan-id
+            type: string
+            required: true
+            description: "Saved scan UUID (from scans list)"
+        response:
+          type: array
+          item: ScanResult
+        response_path: data.results
+      create:
+        method: POST
+        path: "/tools/create_scan"
+        description: "Create a saved scan (validate filters against scans specs first)"
+        body:
+          - name: name
+            type: string
+            required: true
+            description: "Scan name"
+          - name: filters
+            type: string
+            required: true
+            description: "Scan filter definition as JSON (shape from scans specs)"
+          - name: columns
+            type: string
+            description: "Comma-separated result columns"
+          - name: sort
+            type: string
+            description: "Sort specification"
+        response:
+          type: object
+          item: Scan
+        response_path: data
+      set-filters:
+        method: POST
+        path: "/tools/update_scan_filters"
+        description: "Replace a saved scan's filter set"
+        body:
+          - name: scan_id
+            flag_name: scan-id
+            type: string
+            required: true
+            description: "Saved scan UUID"
+          - name: filters
+            type: string
+            required: true
+            description: "New filter definition as JSON"
+        response:
+          type: object
+          item: Scan
+        response_path: data
+      set-config:
+        method: POST
+        path: "/tools/update_scan_config"
+        description: "Update a saved scan's name, columns, or sort configuration"
+        body:
+          - name: scan_id
+            flag_name: scan-id
+            type: string
+            required: true
+            description: "Saved scan UUID"
+          - name: name
+            type: string
+            description: "New name"
+          - name: columns
+            type: string
+            description: "Comma-separated result columns"
+          - name: sort
+            type: string
+            description: "Sort specification"
+        response:
+          type: object
+          item: Scan
+        response_path: data
+
+types:
+  Account:
+    fields:
+      - name: account_number
+        type: string
+      - name: rhs_account_number
+        type: string
+      - name: type
+        type: string
+      - name: brokerage_account_type
+        type: string
+      - name: nickname
+        type: string
+      - name: is_default
+        type: bool
+      - name: agentic_allowed
+        type: bool
+      - name: option_level
+        type: string
+      - name: state
+        type: string
+  Portfolio:
+    fields:
+      - name: total_value
+        type: string
+      - name: equity_value
+        type: string
+      - name: options_value
+        type: string
+      - name: crypto_value
+        type: string
+      - name: cash
+        type: string
+      - name: pending_deposits
+        type: string
+      - name: currency
+        type: string
+  RealizedPnl:
+    fields:
+      - name: span
+        type: string
+      - name: total_realized_pnl
+        type: string
+      - name: currency
+        type: string
+  PnlTrade:
+    fields:
+      - name: symbol
+        type: string
+      - name: side
+        type: string
+      - name: quantity
+        type: string
+      - name: price
+        type: string
+      - name: realized_pnl
+        type: string
+      - name: executed_at
+        type: string
+  SearchResult:
+    fields:
+      - name: instrument_id
+        type: string
+      - name: symbol
+        type: string
+      - name: name
+        type: string
+      - name: simple_name
+        type: string
+  Quote:
+    fields:
+      - name: symbol
+        type: string
+      - name: last_trade_price
+        type: string
+      - name: bid_price
+        type: string
+      - name: ask_price
+        type: string
+      - name: previous_close
+        type: string
+      - name: venue_last_trade_time
+        type: string
+  PriceBook:
+    fields:
+      - name: symbol
+        type: string
+      - name: bids
+        type: string
+      - name: asks
+        type: string
+  Fundamentals:
+    fields:
+      - name: symbol
+        type: string
+      - name: market_cap
+        type: string
+      - name: pe_ratio
+        type: string
+      - name: dividend_yield
+        type: string
+      - name: high_52_weeks
+        type: string
+      - name: low_52_weeks
+        type: string
+      - name: volume
+        type: string
+  Financials:
+    fields:
+      - name: symbol
+        type: string
+      - name: period
+        type: string
+      - name: revenue
+        type: string
+      - name: gross_profit
+        type: string
+      - name: net_income
+        type: string
+      - name: net_margin
+        type: string
+  EarningsEvent:
+    fields:
+      - name: symbol
+        type: string
+      - name: report_date
+        type: string
+      - name: time_of_day
+        type: string
+  EarningsResult:
+    fields:
+      - name: symbol
+        type: string
+      - name: quarter
+        type: string
+      - name: eps_estimate
+        type: string
+      - name: eps_actual
+        type: string
+      - name: report_date
+        type: string
+  Candle:
+    fields:
+      - name: symbol
+        type: string
+      - name: begins_at
+        type: string
+      - name: open_price
+        type: string
+      - name: high_price
+        type: string
+      - name: low_price
+        type: string
+      - name: close_price
+        type: string
+      - name: volume
+        type: string
+  IndicatorPoint:
+    fields:
+      - name: symbol
+        type: string
+      - name: type
+        type: string
+      - name: timestamp
+        type: string
+      - name: value
+        type: string
+  Tradability:
+    fields:
+      - name: symbol
+        type: string
+      - name: tradeable
+        type: bool
+      - name: fractional_tradability
+        type: string
+      - name: all_day_tradability
+        type: string
+      - name: short_selling_tradability
+        type: string
+  MarketIndex:
+    fields:
+      - name: id
+        type: string
+      - name: symbol
+        type: string
+      - name: name
+        type: string
+      - name: current_value
+        type: string
+      - name: trade_halted
+        type: bool
+  IndexQuote:
+    fields:
+      - name: instrument_id
+        type: string
+      - name: symbol
+        type: string
+      - name: value
+        type: string
+      - name: state
+        type: string
+      - name: venue_timestamp
+        type: string
+  Position:
+    fields:
+      - name: symbol
+        type: string
+      - name: quantity
+        type: string
+      - name: average_buy_price
+        type: string
+      - name: shares_available_for_sells
+        type: string
+      - name: type
+        type: string
+  Order:
+    fields:
+      - name: id
+        type: string
+      - name: symbol
+        type: string
+      - name: side
+        type: string
+      - name: type
+        type: string
+      - name: state
+        type: string
+      - name: quantity
+        type: string
+      - name: price
+        type: string
+      - name: created_at
+        type: string
+      - name: placed_agent
+        type: string
+  TaxLot:
+    fields:
+      - name: open_lot_id
+        type: string
+      - name: quantity
+        type: string
+      - name: cost_basis
+        type: string
+      - name: acquired_at
+        type: string
+      - name: holding_period
+        type: string
+  OrderReview:
+    fields:
+      - name: warnings
+        type: string
+      - name: estimated_cost
+        type: string
+      - name: accepted
+        type: bool
+  CancelAck:
+    fields:
+      - name: accepted
+        type: bool
+  OptionUpgradeInfo:
+    fields:
+      - name: option_level
+        type: string
+      - name: upgrade_url
+        type: string
+  OptionChain:
+    fields:
+      - name: id
+        type: string
+      - name: symbol
+        type: string
+      - name: can_open_position
+        type: bool
+      - name: expiration_dates
+        type: string
+      - name: trade_value_multiplier
+        type: string
+  OptionInstrument:
+    fields:
+      - name: id
+        type: string
+      - name: chain_id
+        type: string
+      - name: chain_symbol
+        type: string
+      - name: expiration_date
+        type: string
+      - name: strike_price
+        type: string
+      - name: type
+        type: string
+      - name: state
+        type: string
+  OptionQuote:
+    fields:
+      - name: instrument_id
+        type: string
+      - name: bid_price
+        type: string
+      - name: ask_price
+        type: string
+      - name: last_trade_price
+        type: string
+      - name: previous_close
+        type: string
+  OptionPosition:
+    fields:
+      - name: chain_symbol
+        type: string
+      - name: option_id
+        type: string
+      - name: type
+        type: string
+      - name: quantity
+        type: string
+      - name: average_price
+        type: string
+      - name: expiration_date
+        type: string
+  OptionOrder:
+    fields:
+      - name: id
+        type: string
+      - name: chain_symbol
+        type: string
+      - name: state
+        type: string
+      - name: quantity
+        type: string
+      - name: price
+        type: string
+      - name: created_at
+        type: string
+  OptionWatchlistItem:
+    fields:
+      - name: option_id
+        type: string
+      - name: chain_symbol
+        type: string
+      - name: position_type
+        type: string
+  Watchlist:
+    fields:
+      - name: id
+        type: string
+      - name: display_name
+        type: string
+      - name: owner_type
+        type: string
+      - name: item_count
+        type: int
+      - name: icon_emoji
+        type: string
+  WatchlistItem:
+    fields:
+      - name: object_id
+        type: string
+      - name: object_type
+        type: string
+      - name: symbol
+        type: string
+  PopularWatchlist:
+    fields:
+      - name: id
+        type: string
+      - name: display_name
+        type: string
+      - name: item_count
+        type: int
+  WatchlistAck:
+    fields:
+      - name: status
+        type: string
+      - name: action
+        type: string
+  Scan:
+    fields:
+      - name: id
+        type: string
+      - name: name
+        type: string
+      - name: filters
+        type: string
+      - name: columns
+        type: string
+      - name: sort
+        type: string
+  ScannerSpecs:
+    fields:
+      - name: filter_types
+        type: string
+      - name: predicates
+        type: string
+  ScanResult:
+    fields:
+      - name: symbol
+        type: string
+      - name: name
+        type: string
+      - name: values
+        type: string

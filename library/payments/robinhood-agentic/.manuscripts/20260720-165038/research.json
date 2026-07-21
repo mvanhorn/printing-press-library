@@ -1,0 +1,333 @@
+{
+  "api_name": "robinhood-agentic",
+  "novelty_score": 8,
+  "alternatives": [
+    {
+      "name": "robinhood-for-agents",
+      "url": "https://github.com/kevin1chun/robinhood-for-agents",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 48,
+      "last_updated": "",
+      "command_count": 49,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "robin-python-SDK",
+      "url": "https://github.com/gordil/robin-python-SDK",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 33,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "alpheus",
+      "url": "https://github.com/JackZhao98/alpheus",
+      "language": "Go",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 37,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "robin_stocks",
+      "url": "https://github.com/jmfernandes/robin_stocks",
+      "language": "Python",
+      "install_method": "",
+      "stars": 2106,
+      "last_updated": "",
+      "command_count": 90,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "alpaca-mcp-server",
+      "url": "https://github.com/alpacahq/alpaca-mcp-server",
+      "language": "Python",
+      "install_method": "",
+      "stars": 880,
+      "last_updated": "",
+      "command_count": 40,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "schwab-mcp",
+      "url": "https://github.com/jkoelker/schwab-mcp",
+      "language": "Python",
+      "install_method": "",
+      "stars": 57,
+      "last_updated": "",
+      "command_count": 15,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "robinhood-mcp",
+      "url": "https://github.com/verygoodplugins/robinhood-mcp",
+      "language": "Python",
+      "install_method": "",
+      "stars": 33,
+      "last_updated": "",
+      "command_count": 15,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "robinhood-cli-mcp-api",
+      "url": "https://github.com/zaydiscold/robinhood-cli-mcp-api",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 8,
+      "last_updated": "",
+      "command_count": 25,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-07-20T22:15:00Z",
+  "novel_features": [
+    {
+      "name": "Portfolio history",
+      "command": "portfolio history",
+      "description": "Answer 'what was my portfolio worth on any given day' from a local time series Robinhood doesn't keep.",
+      "rationale": "The MCP has no portfolio-history endpoint; the CLI's append-only snapshot store is the only place this series exists.",
+      "example": "robinhood-agentic-pp-cli portfolio history --since 30d --sparkline",
+      "why_it_matters": "Reach for this when a task needs portfolio value over time — no MCP tool can answer it.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Guard — client-side trade policy",
+      "command": "guard",
+      "description": "Set per-trade caps, daily caps, symbol allow/denylists, and a kill switch that the CLI enforces before any order leaves the machine.",
+      "rationale": "Robinhood's OAuth scope is all-or-nothing and the platform ships no native limits, so enforceable guardrails can only live client-side.",
+      "example": "robinhood-agentic-pp-cli guard set --max-order 500 --daily-cap 2000",
+      "why_it_matters": "Use this before letting any agent loop place orders — it is the only enforceable budget/kill-switch layer for the agentic account.",
+      "group": "Agent safety rails"
+    },
+    {
+      "name": "Order settle",
+      "command": "equities settle",
+      "description": "Resolve an order to verified terminal truth — actual fill price and state — instead of trusting the placement echo.",
+      "rationale": "Market-order price is null until backfilled and cancels return an acknowledgement that races the fill; settle polls past both.",
+      "example": "robinhood-agentic-pp-cli equities settle 1a2b3c4d-5678-90ab-cdef-1234567890ab --account RH123456 --wait",
+      "why_it_matters": "Run after every place or cancel to get the real outcome, not the optimistic echo.",
+      "group": "Agent safety rails"
+    },
+    {
+      "name": "Morning brief",
+      "command": "brief",
+      "description": "The whole pre-open check — portfolio value, day-over-day delta, open orders, positions, top movers among your holdings, and upcoming earnings for held symbols — in one command.",
+      "rationale": "Joins four MCP calls plus the local snapshot delta that no single tool provides.",
+      "example": "robinhood-agentic-pp-cli brief --account RH123456 --agent",
+      "why_it_matters": "The one-command replacement for the four-round-trip morning ritual.",
+      "group": "Agent-native rituals"
+    },
+    {
+      "name": "Mutation audit",
+      "command": "audit",
+      "description": "See everything the CLI (or an agent driving it) reviewed, placed, canceled, or was denied — with idempotency keys and outcomes.",
+      "rationale": "The server keeps no audit trail and watchlist writes can fail silently; the local write journal records every mutation attempt.",
+      "example": "robinhood-agentic-pp-cli audit --since 7d --denied",
+      "why_it_matters": "The weekly agent-accountability review: reconstruct exactly what an automation did.",
+      "group": "Agent safety rails"
+    },
+    {
+      "name": "P\u0026L win rate",
+      "command": "portfolio winrate",
+      "description": "Round-trip win rate, average win/loss, and per-symbol stats computed from your synced trade history.",
+      "rationale": "Requires pairing trade-history rows into round trips locally — no API aggregation exists.",
+      "example": "robinhood-agentic-pp-cli portfolio winrate --account 5XX12345 --by-symbol",
+      "why_it_matters": "Journaling and strategy review without exporting to a spreadsheet.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Surface diff",
+      "command": "surface diff",
+      "description": "Know when Robinhood adds, removes, or reshapes MCP tools — with dates — instead of discovering breakage in production.",
+      "rationale": "Requires historical tools/list snapshots that only the local store keeps; the surface churned 49→50 tools unannounced.",
+      "example": "robinhood-agentic-pp-cli surface diff",
+      "why_it_matters": "Check after any unexplained failure: the tool surface is beta and moves without notice.",
+      "group": "Agent-native rituals"
+    },
+    {
+      "name": "Wheel status",
+      "command": "wheel status",
+      "description": "Per-symbol wheel-strategy stage (cash-secured put → assigned → covered call → called away) inferred automatically.",
+      "rationale": "The MCP has no assignment/exercise history; the three-table local join and inference replace a manual weekly correlation.",
+      "example": "robinhood-agentic-pp-cli wheel status --account RH123456 AAPL",
+      "why_it_matters": "The Friday post-expiration answer to 'what got assigned and what stage is each position in'.",
+      "group": "Local state that compounds"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Portfolio history",
+      "command": "portfolio history",
+      "description": "Answer 'what was my portfolio worth on any given day' from a local time series Robinhood doesn't keep.",
+      "rationale": "The MCP has no portfolio-history endpoint; the CLI's append-only snapshot store is the only place this series exists.",
+      "example": "robinhood-agentic-pp-cli portfolio history --since 30d --sparkline",
+      "why_it_matters": "Reach for this when a task needs portfolio value over time — no MCP tool can answer it.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Guard — client-side trade policy",
+      "command": "guard",
+      "description": "Set per-trade caps, daily caps, symbol allow/denylists, and a kill switch that the CLI enforces before any order leaves the machine.",
+      "rationale": "Robinhood's OAuth scope is all-or-nothing and the platform ships no native limits, so enforceable guardrails can only live client-side.",
+      "example": "robinhood-agentic-pp-cli guard set --max-order 500 --daily-cap 2000",
+      "why_it_matters": "Use this before letting any agent loop place orders — it is the only enforceable budget/kill-switch layer for the agentic account.",
+      "group": "Agent safety rails"
+    },
+    {
+      "name": "Order settle",
+      "command": "equities settle",
+      "description": "Resolve an order to verified terminal truth — actual fill price and state — instead of trusting the placement echo.",
+      "rationale": "Market-order price is null until backfilled and cancels return an acknowledgement that races the fill; settle polls past both.",
+      "example": "robinhood-agentic-pp-cli equities settle 1a2b3c4d-5678-90ab-cdef-1234567890ab --account RH123456 --wait",
+      "why_it_matters": "Run after every place or cancel to get the real outcome, not the optimistic echo.",
+      "group": "Agent safety rails"
+    },
+    {
+      "name": "Morning brief",
+      "command": "brief",
+      "description": "The whole pre-open check — portfolio value, day-over-day delta, open orders, positions, top movers among your holdings, and upcoming earnings for held symbols — in one command.",
+      "rationale": "Joins four MCP calls plus the local snapshot delta that no single tool provides.",
+      "example": "robinhood-agentic-pp-cli brief --account RH123456 --agent",
+      "why_it_matters": "The one-command replacement for the four-round-trip morning ritual.",
+      "group": "Agent-native rituals"
+    },
+    {
+      "name": "Mutation audit",
+      "command": "audit",
+      "description": "See everything the CLI (or an agent driving it) reviewed, placed, canceled, or was denied — with idempotency keys and outcomes.",
+      "rationale": "The server keeps no audit trail and watchlist writes can fail silently; the local write journal records every mutation attempt.",
+      "example": "robinhood-agentic-pp-cli audit --since 7d --denied",
+      "why_it_matters": "The weekly agent-accountability review: reconstruct exactly what an automation did.",
+      "group": "Agent safety rails"
+    },
+    {
+      "name": "P\u0026L win rate",
+      "command": "portfolio winrate",
+      "description": "Round-trip win rate, average win/loss, and per-symbol stats computed from your synced trade history.",
+      "rationale": "Requires pairing trade-history rows into round trips locally — no API aggregation exists.",
+      "example": "robinhood-agentic-pp-cli portfolio winrate --account 5XX12345 --by-symbol",
+      "why_it_matters": "Journaling and strategy review without exporting to a spreadsheet.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Surface diff",
+      "command": "surface diff",
+      "description": "Know when Robinhood adds, removes, or reshapes MCP tools — with dates — instead of discovering breakage in production.",
+      "rationale": "Requires historical tools/list snapshots that only the local store keeps; the surface churned 49→50 tools unannounced.",
+      "example": "robinhood-agentic-pp-cli surface diff",
+      "why_it_matters": "Check after any unexplained failure: the tool surface is beta and moves without notice.",
+      "group": "Agent-native rituals"
+    },
+    {
+      "name": "Wheel status",
+      "command": "wheel status",
+      "description": "Per-symbol wheel-strategy stage (cash-secured put → assigned → covered call → called away) inferred automatically.",
+      "rationale": "The MCP has no assignment/exercise history; the three-table local join and inference replace a manual weekly correlation.",
+      "example": "robinhood-agentic-pp-cli wheel status --account RH123456 AAPL",
+      "why_it_matters": "The Friday post-expiration answer to 'what got assigned and what stage is each position in'.",
+      "group": "Local state that compounds"
+    }
+  ],
+  "narrative": {
+    "display_name": "Robinhood Agentic Trading",
+    "headline": "Every tool on Robinhood's official Agentic Trading MCP as a typed, review-first CLI — sanctioned OAuth instead of scraped tokens, plus an offline portfolio journal no Robinhood tool ships.",
+    "value_prop": "Every other Robinhood tool rides the reverse-engineered private API with browser-lifted tokens that Robinhood periodically breaks. This CLI speaks the official agentic MCP surface: OAuth login with automatic refresh, server-side order simulation as the default dry-run, the undocumented tools (Level-2 books, financials, tax lots, scanner specs) surfaced as typed commands, and a local SQLite store that turns one-shot MCP calls into portfolio history, order audit trails, and offline search.",
+    "auth_narrative": "First run: `auth login` self-registers a public OAuth client against Robinhood's dynamic-registration endpoint (no shipped secrets), opens your browser for the PKCE authorization on robinhood.com, catches the localhost callback, and stores access + refresh tokens in your config with automatic refresh (~4-day access tokens). `auth status` shows expiry; `ROBINHOOD_AGENTIC_TOKEN` overrides for CI. Reads and `review` (server-side order simulation) are always allowed. Order placement and cancellation, watchlist writes, and scan writes are blocked at the transport unless `ROBINHOOD_AGENTIC_PP_ALLOW_WRITES=1` is set — the hard floor that keeps read-only testing safe by construction. On top of that gate, the `guard` policy adds per-order and daily notional caps, a symbol allow/denylist, and a kill switch, all enforced locally before any order leaves the machine, and every mutation is recorded to the local write journal (`audit`). Recommended flow: `equities review` first, then set the write gate to place for real.",
+    "quickstart": [
+      {
+        "command": "robinhood-agentic-pp-cli auth login",
+        "comment": "One-time OAuth: self-registers a client, opens the browser, stores refresh-capable tokens"
+      },
+      {
+        "command": "robinhood-agentic-pp-cli accounts",
+        "comment": "See your accounts and which one is agentic_allowed (the only one that can place agent orders)"
+      },
+      {
+        "command": "robinhood-agentic-pp-cli market quotes AAPL,MSFT,NVDA --compact",
+        "comment": "Real-time quotes with official prior close (max 20 symbols per call)"
+      },
+      {
+        "command": "robinhood-agentic-pp-cli sync --full",
+        "comment": "Pull positions, orders, watchlists, and P\u0026L into the local SQLite store"
+      },
+      {
+        "command": "robinhood-agentic-pp-cli equities review --account \u003caccount\u003e --symbol AAPL --side buy --type limit --quantity 1 --limit-price 180",
+        "comment": "Server-side order simulation — Robinhood's own pre-trade warnings, nothing placed"
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "401 authentication required on every command",
+        "fix": "Run `auth login` (tokens expire after ~4 days without refresh; `auth status` shows expiry)"
+      },
+      {
+        "symptom": "Order rejected with a time-in-force error",
+        "fix": "Robinhood's MCP accepts only `--tif gfd` or `--tif gtc` — the classic `day` value is rejected server-side"
+      },
+      {
+        "symptom": "portfolio realized-pnl fails with a missing-parameter error",
+        "fix": "Pass `--asset-classes equity,option` — the live service requires it despite docs marking it optional, and use the RHS account number from `accounts list`"
+      },
+      {
+        "symptom": "place returns an account-not-allowed rejection",
+        "fix": "Only the dedicated Agentic account (agentic_allowed=true in `accounts list`) can place orders; reads work on every account"
+      },
+      {
+        "symptom": "Exit code 7 / rate-limited responses",
+        "fix": "Robinhood publishes no rate limits; the CLI backs off adaptively — re-run `doctor --json` to see limiter state"
+      }
+    ],
+    "when_to_use": "Reach for this CLI whenever a task touches a real Robinhood account through the official agentic surface: checking portfolio state, quoting and screening symbols, reviewing or auditing orders, managing watchlists, or running server-side scanners. It is the safe default for agent-driven Robinhood work — reads span all accounts, writes are triple-gated (env + flag + review-first), and everything returns agent-shaped JSON. Do not use it for crypto trading, ACH transfers, or multi-leg options: the official MCP does not expose those surfaces.",
+    "recipes": [
+      {
+        "title": "Agent morning brief, trimmed",
+        "command": "robinhood-agentic-pp-cli brief --account RH123456 --agent --select portfolio.total_value,delta,open_orders,movers",
+        "explanation": "The whole pre-open check as compact JSON, narrowed with dotted --select paths so an agent doesn't parse kilobytes it won't use."
+      },
+      {
+        "title": "Review an order without placing it",
+        "command": "robinhood-agentic-pp-cli equities review --account RH123456 --symbol AAPL --side buy --type limit --quantity 1 --limit-price 180",
+        "explanation": "Server-side simulation returns Robinhood's own pre-trade warnings; nothing is placed."
+      },
+      {
+        "title": "Set guardrails before an agent session",
+        "command": "robinhood-agentic-pp-cli guard set --max-order 500 --daily-cap 2000",
+        "explanation": "Client-side caps the CLI enforces on every subsequent place command — the platform has no native equivalent."
+      },
+      {
+        "title": "Watchlist quote board",
+        "command": "robinhood-agentic-pp-cli watchlists quotes 11111111-2222-3333-4444-555555555555 --csv",
+        "explanation": "Joins a watchlist's members to live quotes in one command (get the list id from `watchlists list` first) and emits CSV for spreadsheets."
+      },
+      {
+        "title": "Portfolio sparkline",
+        "command": "robinhood-agentic-pp-cli portfolio history --since 30d --sparkline",
+        "explanation": "30 days of locally-snapshotted portfolio value — a series Robinhood's API cannot return."
+      }
+    ],
+    "trigger_phrases": [
+      "check my robinhood portfolio",
+      "quote AAPL on robinhood",
+      "review a robinhood order before placing it",
+      "what's in my robinhood watchlist",
+      "run my robinhood scanner",
+      "use robinhood-agentic",
+      "run robinhood-agentic"
+    ]
+  }
+}
