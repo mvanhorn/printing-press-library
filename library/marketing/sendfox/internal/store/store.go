@@ -870,7 +870,7 @@ func (s *Store) GetSyncCursor(resourceType string) string {
 // resources table if no domain table exists. Used by dependent sync to iterate parents.
 func (s *Store) ListIDs(resourceType string) ([]string, error) {
 	// Try domain table first (tables are named after the resource type)
-	query := fmt.Sprintf("SELECT id FROM %s", resourceType)
+	query := fmt.Sprintf(`SELECT id FROM "%s"`, resourceType)
 	rows, err := s.db.Query(query)
 	if err != nil {
 		// Fall back to generic resources table
