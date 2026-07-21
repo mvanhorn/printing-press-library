@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/mvanhorn/printing-press-library/library/other/edgar/internal/cliutil"
 	"github.com/spf13/cobra"
 )
 
@@ -47,8 +48,21 @@ func newEftsPromotedCmd(flags *rootFlags) *cobra.Command {
 			if flagForms != "" {
 				params["forms"] = fmt.Sprintf("%v", flagForms)
 			}
+			// PATCH(amend-efts-date-range): efts.sec.gov filters by separate
+			// startdt/enddt query params, not a single combined "dateRange"
+			// value. The generator emitted params["dateRange"]="A,B", which the
+			// API silently ignores — the filter never applied and every query
+			// returned unfiltered totals. Split into startdt/enddt so the range
+			// actually takes effect.
 			if flagDateRange != "" {
-				params["dateRange"] = fmt.Sprintf("%v", flagDateRange)
+				if start, end := cliutil.SplitDateRange(flagDateRange); start != "" || end != "" {
+					if start != "" {
+						params["startdt"] = start
+					}
+					if end != "" {
+						params["enddt"] = end
+					}
+				}
 			}
 			if flagCiks != "" {
 				params["ciks"] = fmt.Sprintf("%v", flagCiks)

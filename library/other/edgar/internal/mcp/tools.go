@@ -66,7 +66,10 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "https://efts.sec.gov/LATEST/search-index", []mcpParamBinding{{PublicName: "query", WireName: "q", Location: "query"}, {PublicName: "forms", WireName: "forms", Location: "query"}, {PublicName: "date-range", WireName: "dateRange", Location: "query"}, {PublicName: "ciks", WireName: "ciks", Location: "query"}}, []string{"q"}),
+		// PATCH(amend-efts-date-range): date-range maps to efts.sec.gov's two
+		// startdt/enddt query params (comma-listed composite wire name), not a
+		// single "dateRange" value the API silently ignores. See makeAPIHandler.
+		makeAPIHandler("GET", "https://efts.sec.gov/LATEST/search-index", []mcpParamBinding{{PublicName: "query", WireName: "q", Location: "query"}, {PublicName: "forms", WireName: "forms", Location: "query"}, {PublicName: "date-range", WireName: "startdt,enddt", Location: "query"}, {PublicName: "ciks", WireName: "ciks", Location: "query"}}, []string{"q"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("filings_browse",
@@ -163,6 +166,23 @@ func makeAPIHandler(method, pathTemplate string, bindings []mcpParamBinding, pos
 			case "body":
 				bodyArgs[binding.WireName] = v
 			default:
+				// PATCH(amend-efts-date-range): a comma-listed WireName (e.g.
+				// "startdt,enddt") is a composite range binding — the single
+				// "start,end" input is split across the listed query params.
+				// efts.sec.gov ignores a single combined date-range value, so
+				// the filter only applies when the two bounds are sent
+				// separately. cliutil.SplitDateRange is the same splitter the
+				// `efts` CLI command uses, keeping both surfaces in lockstep.
+				if wires := strings.Split(binding.WireName, ","); len(wires) == 2 {
+					start, end := cliutil.SplitDateRange(fmt.Sprintf("%v", v))
+					if start != "" {
+						params[strings.TrimSpace(wires[0])] = start
+					}
+					if end != "" {
+						params[strings.TrimSpace(wires[1])] = end
+					}
+					continue
+				}
 				params[binding.WireName] = fmt.Sprintf("%v", v)
 			}
 		}

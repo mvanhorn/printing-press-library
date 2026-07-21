@@ -1,0 +1,22 @@
+{
+  "schema_version": 2,
+  "id": "amend-efts-date-range",
+  "applied_at": "2026-07-21",
+  "base_run_id": "20260513-115144",
+  "base_printing_press_version": "4.3.0",
+  "summary": "fix(edgar): map efts --date-range \"A,B\" to startdt/enddt query params so the date filter actually applies (CLI + MCP efts_query).",
+  "reason": "The generated efts surface sent the combined \"A,B\" value as a single dateRange query param. efts.sec.gov's full-text search endpoint filters by two separate params (startdt, enddt) and silently ignores an unknown dateRange param, so --date-range was a no-op: `efts \"artificial intelligence\" --forms S-1 --date-range \"2026-07-20,2026-07-21\"` returned the full unfiltered corpus (total 7361, 2024-dated hits) instead of the 10 in-range hits the API returns for startdt=2026-07-20&enddt=2026-07-21. A shared cliutil.SplitDateRange helper splits the value; both the `efts` command and the MCP efts_query tool now emit startdt/enddt. Note: efts applies the filter only when BOTH bounds are present (a lone startdt or enddt is ignored by the API itself); the fix passes bounds through faithfully. The identical dateRange mapping in internal/cli/sync.go (determineDateRangeParam, a shared multi-resource sync path with a distinct --dates flag) is intentionally out of scope for this focused fix.",
+  "files": [
+    "internal/cliutil/daterange.go",
+    "internal/cli/promoted_efts.go",
+    "internal/mcp/tools.go"
+  ],
+  "validated_outcome": "go build, go vet, and package tests (cli, mcp, cliutil incl. new TestSplitDateRange) pass. Live repro: patched `efts ... --date-range \"2026-07-20,2026-07-21\"` returns total 10 (== raw efts.sec.gov startdt/enddt count), all returned file_dates within range; no-date-range invocation unchanged (large total). `cli-printing-press publish validate` code checks pass (phase5, go mod tidy, govulncheck, go vet, go build, --help, --version); the two failing checks (manifest schema_version==1, SKILL.md canonical-sections drift) are pre-existing baseline drift untouched by this patch.",
+  "findings_addressed": ["F1"],
+  "deferred_to_upstream": [
+    {
+      "feature": "Generator param mapping for combined date-range flags whose target API expects two separate bound params (start/end).",
+      "reason": "The Printing Press emitted a naive single-param camelCase mapping (date-range -> dateRange) for an endpoint (efts.sec.gov) that filters via two params (startdt/enddt). This is an exotic single-CLI parameter shape rather than a multi-CLI template defect, so it is patched here in the published library; a generator that learns start/end range decomposition would supersede this local patch."
+    }
+  ]
+}
