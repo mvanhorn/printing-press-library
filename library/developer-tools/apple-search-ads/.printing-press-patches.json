@@ -67,6 +67,43 @@
         "internal/cli/search_resource_list_geo.go"
       ],
       "validated_outcome": "Live dogfood happy_path tests for search-resource list-apps and list-geo now pass"
+    },
+    {
+      "id": "apple-search-ads-currency-flag",
+      "applied_at": "2026-07-21",
+      "summary": "optimize suggest --apply must accept a --currency flag; non-USD accounts fail when bidAmount.currency is hardcoded to USD.",
+      "reason": "ASA API rejects bid updates where the currency does not match the org's billing currency; hardcoding USD breaks all non-USD accounts (EUR, GBP, AUD, etc.).",
+      "files": [
+        "internal/cli/optimize_suggest.go"
+      ]
+    },
+    {
+      "id": "apple-search-ads-mcp-read-only-annotations",
+      "applied_at": "2026-07-21",
+      "summary": "templates apply and optimize suggest must be mcp:read-only false; both issue POST/PUT calls when not in --diff/read-only mode.",
+      "reason": "MCP agents use mcp:read-only to decide whether a tool mutates state; incorrect true annotation causes agents to invoke write-path commands in read-only contexts.",
+      "files": [
+        "internal/cli/optimize_suggest.go",
+        "internal/cli/templates_apply.go"
+      ]
+    },
+    {
+      "id": "apple-search-ads-roas-delta-output",
+      "applied_at": "2026-07-21",
+      "summary": "optimize suggest ROAS path must include expected_cpa_delta in output; delta was computed but never assigned to the suggestion struct.",
+      "reason": "For roas metric, delta (suggested_bid minus current_bid) was computed in buildBidSuggestions but the ExpectedDelta field was only set for cpa, leaving it zero in all ROAS suggestions.",
+      "files": [
+        "internal/cli/optimize_suggest.go"
+      ]
+    },
+    {
+      "id": "apple-search-ads-groupby-unsupported-dimensions",
+      "applied_at": "2026-07-21",
+      "summary": "analytics query --group-by keyword_text and match_type must error, not silently proxy to campaign_name grouping.",
+      "reason": "The local SQLite cache only holds campaign-level data; proxying keyword_text/match_type to campaign_name produces misleading output with no indication the grouping changed.",
+      "files": [
+        "internal/cli/analytics_query.go"
+      ]
     }
   ]
 }

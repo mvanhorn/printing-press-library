@@ -36,6 +36,7 @@ func newNovelOptimizeSuggestCmd(flags *rootFlags) *cobra.Command {
 	var flagMetric string
 	var flagTarget float64
 	var flagCampaignID string
+	var flagCurrency string
 	var flagApply bool
 
 	cmd := &cobra.Command{
@@ -46,7 +47,7 @@ Each suggestion includes the current vs suggested bid, expected metric delta, an
 rating based on statistical volume (taps/installs). Use --apply to apply suggestions immediately.`,
 		Example: `  apple-search-ads-pp-cli optimize suggest --metric cpa --target 2.50
   apple-search-ads-pp-cli optimize suggest --metric cpa --target 2.50 --campaign-id 12345 --apply --dry-run`,
-		Annotations: map[string]string{"mcp:read-only": "true"},
+		Annotations: map[string]string{"mcp:read-only": "false"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if dryRunOK(flags) {
 				return nil
@@ -100,7 +101,7 @@ rating based on statistical volume (taps/installs). Use --apply to apply suggest
 			}
 
 			if flagApply && len(allSuggestions) > 0 {
-				if err := applyBidSuggestionsWithClient(cmd.Context(), c, allSuggestions, cmd.ErrOrStderr()); err != nil {
+				if err := applyBidSuggestionsWithClient(cmd.Context(), c, allSuggestions, flagCurrency, cmd.ErrOrStderr()); err != nil {
 					fmt.Fprintf(cmd.ErrOrStderr(), "warning: some bids could not be applied: %v\n", err)
 				}
 			}
@@ -112,6 +113,7 @@ rating based on statistical volume (taps/installs). Use --apply to apply suggest
 	cmd.Flags().StringVar(&flagMetric, "metric", "cpa", "Optimization metric: cpa, roas, or taps")
 	cmd.Flags().Float64Var(&flagTarget, "target", 0, "Target metric value (e.g. 2.50 for $2.50 CPA)")
 	cmd.Flags().StringVar(&flagCampaignID, "campaign-id", "", "Limit suggestions to a specific campaign")
+	cmd.Flags().StringVar(&flagCurrency, "currency", "USD", "Currency code for bid amounts (e.g. USD, EUR, GBP, AUD)")
 	cmd.Flags().BoolVar(&flagApply, "apply", false, "Apply the suggested bids (skipped in --dry-run)")
 	_ = cmd.MarkFlagRequired("target")
 	return cmd
@@ -205,6 +207,7 @@ func buildBidSuggestions(data json.RawMessage, campaignID, metric string, target
 			s.ExpectedDelta = math.Round(delta*100) / 100
 		} else if metric == "roas" {
 			s.CurrentROAS = currentMetric
+			s.ExpectedDelta = math.Round(delta*100) / 100
 		}
 		suggestions = append(suggestions, s)
 	}
@@ -346,7 +349,10 @@ func extractCampaignIDs(data json.RawMessage) []string {
 // applyBidSuggestionsWithClient sends bid updates to the API for each suggestion.
 // Apple Search Ads uses PUT /campaigns/{cid}/adgroups/{agid}/targetingkeywords/{kid}
 // with a body containing the updated bidAmount.
-func applyBidSuggestionsWithClient(ctx context.Context, c *client.Client, suggestions []bidSuggestion, stderr interface{ Write([]byte) (int, error) }) error {
+func applyBidSuggestionsWithClient(ctx context.Context, c *client.Client, suggestions []bidSuggestion, currency string, stderr interface{ Write([]byte) (int, error) }) error {
+	if currency == "" {
+		currency = "USD"
+	}
 	var applied int
 	for _, s := range suggestions {
 		if s.ChangeDirection == "hold" {
@@ -360,7 +366,7 @@ func applyBidSuggestionsWithClient(ctx context.Context, c *client.Client, sugges
 		body := map[string]any{
 			"bidAmount": map[string]any{
 				"amount":   strconv.FormatFloat(s.SuggestedBid, 'f', 2, 64),
-				"currency": "USD",
+				"currency": currency,
 			},
 		}
 		if _, _, err := c.Put(ctx, path, body); err != nil {

@@ -253,7 +253,7 @@ target org(s). Use --diff to preview what would be created without making change
 Use --dry-run to skip all API calls.`,
 		Example: `  apple-search-ads-pp-cli templates apply brand-baseline --org-ids 111,222 --diff --dry-run
   apple-search-ads-pp-cli templates apply brand-baseline --campaign-name "Brand Q3" --org-ids 333`,
-		Annotations: map[string]string{"mcp:read-only": "true"},
+		Annotations: map[string]string{"mcp:read-only": "false"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				return cmd.Help()

@@ -29,12 +29,16 @@ type analyticsCacheRow struct {
 
 // allowedGroupBy is a safelist for --group-by values (prevents SQL injection via column interpolation).
 var allowedGroupBy = map[string]string{
-	"campaign":     "campaign_name",
-	"campaign_id":  "campaign_id",
-	"date":         "date",
-	"granularity":  "granularity",
-	"keyword_text": "campaign_name", // proxied to campaign_name for campaign-level reports
-	"match_type":   "campaign_name", // proxied; ASA does not surface match_type in campaign reports
+	"campaign":    "campaign_name",
+	"campaign_id": "campaign_id",
+	"date":        "date",
+	"granularity": "granularity",
+}
+
+// unsupportedGroupBy explains dimensions that are valid-sounding but not available in campaign-level reports.
+var unsupportedGroupBy = map[string]string{
+	"keyword_text": "keyword_text is not available in campaign-level reports (the sync-cache command pulls campaign granularity only); use --group-by campaign or campaign_id",
+	"match_type":   "match_type is not available in campaign-level reports; use --group-by campaign or campaign_id",
 }
 
 func defaultAnalyticsDBPath() string {
@@ -379,7 +383,11 @@ If the cache is empty, run 'analytics sync-cache' first.`,
 
 			groupCol := "campaign_name"
 			if flagGroupBy != "" {
-				col, ok := allowedGroupBy[strings.ToLower(flagGroupBy)]
+				key := strings.ToLower(flagGroupBy)
+				if msg, unsupported := unsupportedGroupBy[key]; unsupported {
+					return fmt.Errorf("%s", msg)
+				}
+				col, ok := allowedGroupBy[key]
 				if !ok {
 					allowed := make([]string, 0, len(allowedGroupBy))
 					for k := range allowedGroupBy {
@@ -442,7 +450,7 @@ If the cache is empty, run 'analytics sync-cache' first.`,
 		},
 	}
 
-	cmd.Flags().StringVar(&flagGroupBy, "group-by", "campaign", "Group results by: campaign, campaign_id, date, granularity, keyword_text, match_type")
+	cmd.Flags().StringVar(&flagGroupBy, "group-by", "campaign", "Group results by: campaign, campaign_id, date, granularity")
 	cmd.Flags().IntVar(&flagLimit, "limit", 20, "Maximum number of result rows")
 	cmd.Flags().IntVar(&flagDays, "days", 0, "Filter to last N days (0 = all cached data)")
 	cmd.Flags().StringVar(&flagDBPath, "db", "", "Path to SQLite cache (default: ~/.local/share/apple-search-ads-pp-cli/data.db)")
