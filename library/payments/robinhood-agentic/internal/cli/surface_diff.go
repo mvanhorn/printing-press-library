@@ -160,7 +160,7 @@ func diffToolSurfaces(older, newer []mcpTool) surfaceDiff {
 			d.Added = append(d.Added, name)
 			continue
 		}
-		if string(ot.InputSchema) != string(nt.InputSchema) {
+		if canonicalJSON(ot.InputSchema) != canonicalJSON(nt.InputSchema) {
 			d.Changed = append(d.Changed, name)
 		}
 	}
@@ -173,4 +173,24 @@ func diffToolSurfaces(older, newer []mcpTool) surfaceDiff {
 	sort.Strings(d.Removed)
 	sort.Strings(d.Changed)
 	return d
+}
+
+// canonicalJSON normalizes a JSON value for structural comparison: re-marshaling
+// through Go sorts object keys and strips insignificant whitespace, so two
+// captures that serialize the same schema with different key order or spacing
+// compare equal. Array order is preserved (it is semantic). Non-JSON input
+// falls back to the raw bytes.
+func canonicalJSON(raw json.RawMessage) string {
+	if len(raw) == 0 {
+		return ""
+	}
+	var v any
+	if err := json.Unmarshal(raw, &v); err != nil {
+		return string(raw)
+	}
+	b, err := json.Marshal(v)
+	if err != nil {
+		return string(raw)
+	}
+	return string(b)
 }

@@ -198,6 +198,13 @@ func computeDelta(prior, current float64) map[string]float64 {
 }
 
 func recordBriefSnapshot(account string, portfolio map[string]any) {
+	// Do not record a snapshot without a usable total_value. An empty snapshot
+	// poisons the local series: the next brief and `portfolio history` read the
+	// missing value as zero, producing an inflated absolute change and a
+	// meaningless percentage.
+	if asString(portfolio["total_value"]) == "" {
+		return
+	}
 	st, err := store.Open(defaultDBPath("robinhood-agentic-pp-cli"))
 	if err != nil {
 		return
@@ -263,7 +270,11 @@ func fetchArray(ctx context.Context, c *client.Client, path string, params map[s
 		return nil, nil
 	}
 	var arr []map[string]any
-	_ = json.Unmarshal(arrRaw, &arr)
+	if err := json.Unmarshal(arrRaw, &arr); err != nil {
+		// The key is present but not the array shape we expected. Surface it
+		// rather than return an empty slice that reads as "genuinely empty".
+		return nil, fmt.Errorf("parsing %s array: %w", key, err)
+	}
 	return arr, nil
 }
 
@@ -287,23 +298,30 @@ func positionSymbols(positions []map[string]any) []string {
 	return out
 }
 
-// fetchMovers quotes the held symbols and returns the top movers by absolute
-// intraday percentage change. Returns (nil, nil) when there are no symbols; a
-// fetch error is returned so the caller can record it as a warning.
+// fetchMovers quotes ALL held symbols and returns the top movers by absolute
+// intraday percentage change. The quotes tool caps at 20 symbols per call, so a
+// portfolio with more than 20 holdings is quoted in batches and merged —
+// otherwise the biggest mover could sit in holding #21 and be silently dropped
+// while the brief presented a partial list as "top movers among all holdings".
+// Returns (nil, nil) when there are no symbols; a fetch error is returned so the
+// caller can record it as a warning.
 func fetchMovers(ctx context.Context, c *client.Client, symbols []string) ([]mover, error) {
 	if len(symbols) == 0 {
 		return nil, nil
 	}
-	// The quotes tool caps at 20 symbols; brief only ever quotes held symbols,
-	// which is well under that for any realistic portfolio, but cap to be safe.
-	if len(symbols) > 20 {
-		symbols = symbols[:20]
+	const quotesPerCall = 20
+	var quotes []map[string]any
+	for start := 0; start < len(symbols); start += quotesPerCall {
+		end := start + quotesPerCall
+		if end > len(symbols) {
+			end = len(symbols)
+		}
+		raw, err := c.Get(ctx, "/tools/get_equity_quotes", map[string]string{"symbols": strings.Join(symbols[start:end], ",")}) // pp:client-call
+		if err != nil {
+			return nil, err
+		}
+		quotes = append(quotes, fetchArrayFromRaw(raw, "results")...)
 	}
-	raw, err := c.Get(ctx, "/tools/get_equity_quotes", map[string]string{"symbols": strings.Join(symbols, ",")}) // pp:client-call
-	if err != nil {
-		return nil, err
-	}
-	quotes := fetchArrayFromRaw(raw, "results")
 	return topMovers(quotes, 5), nil
 }
 

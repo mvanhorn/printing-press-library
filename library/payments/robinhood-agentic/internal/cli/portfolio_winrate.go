@@ -148,31 +148,54 @@ func newNovelPortfolioWinrateCmd(flags *rootFlags) *cobra.Command {
 			if err != nil {
 				return err
 			}
-			raw, err := c.Get(cmd.Context(), "/tools/get_pnl_trade_history", map[string]string{"account_number": flagAccount, "span": flagSpan}) // pp:client-call
-			if err != nil {
-				return classifyAPIError(err, flags)
-			}
-
-			var envelope struct {
-				Data struct {
-					Trades []struct {
-						Symbol      string `json:"symbol"`
-						RealizedPnl string `json:"realized_pnl"`
-					} `json:"trades"`
-				} `json:"data"`
-			}
-			if err := json.Unmarshal(raw, &envelope); err != nil {
-				return fmt.Errorf("portfolio winrate: parse get_pnl_trade_history response: %w", err)
-			}
-
-			// Only closing trades carry a realized_pnl; opening legs
-			// (empty/absent field) are not round trips and are dropped.
-			trades := make([]winTrade, 0, len(envelope.Data.Trades))
-			for _, t := range envelope.Data.Trades {
-				if strings.TrimSpace(t.RealizedPnl) == "" {
-					continue
+			// get_pnl_trade_history is cursor-paginated. Follow the cursor and
+			// aggregate every page — computing a win rate from only the first
+			// page would silently report partial-history stats as full-history.
+			// A seen-cursor guard plus a hard page cap prevent an infinite loop
+			// if the service echoes a cursor or never clears it.
+			trades := make([]winTrade, 0, 64)
+			seenCursor := map[string]bool{}
+			cursor := ""
+			const maxPages = 100
+			for page := 0; page < maxPages; page++ {
+				params := map[string]string{"account_number": flagAccount, "span": flagSpan}
+				if cursor != "" {
+					params["cursor"] = cursor
 				}
-				trades = append(trades, winTrade{Symbol: t.Symbol, RealizedPnl: parseMoney(t.RealizedPnl)})
+				raw, err := c.Get(cmd.Context(), "/tools/get_pnl_trade_history", params) // pp:client-call
+				if err != nil {
+					return classifyAPIError(err, flags)
+				}
+				var envelope struct {
+					Data struct {
+						Trades []struct {
+							Symbol      string `json:"symbol"`
+							RealizedPnl string `json:"realized_pnl"`
+						} `json:"trades"`
+						NextCursor string `json:"next_cursor"`
+						Cursor     string `json:"cursor"`
+					} `json:"data"`
+				}
+				if err := json.Unmarshal(raw, &envelope); err != nil {
+					return fmt.Errorf("portfolio winrate: parse get_pnl_trade_history response: %w", err)
+				}
+				// Only closing trades carry a realized_pnl; opening legs
+				// (empty/absent field) are not round trips and are dropped.
+				for _, t := range envelope.Data.Trades {
+					if strings.TrimSpace(t.RealizedPnl) == "" {
+						continue
+					}
+					trades = append(trades, winTrade{Symbol: t.Symbol, RealizedPnl: parseMoney(t.RealizedPnl)})
+				}
+				next := envelope.Data.NextCursor
+				if next == "" {
+					next = envelope.Data.Cursor
+				}
+				if next == "" || len(envelope.Data.Trades) == 0 || seenCursor[next] {
+					break
+				}
+				seenCursor[next] = true
+				cursor = next
 			}
 
 			stats := computeWinrate(trades)

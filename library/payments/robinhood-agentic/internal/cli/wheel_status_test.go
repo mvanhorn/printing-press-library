@@ -10,6 +10,24 @@ import (
 	"testing"
 )
 
+// TestWheelParseOptionPositionsSkipsUnsizable ensures a row with no quantity or
+// contracts field is dropped rather than fabricated as a one-contract short,
+// which would mislabel the wheel stage.
+func TestWheelParseOptionPositionsSkipsUnsizable(t *testing.T) {
+	rows := []map[string]any{
+		{"chain_symbol": "AAPL", "type": "put"},                    // no quantity -> skip
+		{"chain_symbol": "MSFT", "type": "call", "quantity": "-2"}, // short 2 calls
+		{"chain_symbol": "NVDA", "type": "put", "quantity": "0"},   // closed -> skip
+	}
+	got := wheelParseOptionPositions(rows)
+	if len(got) != 1 {
+		t.Fatalf("expected 1 sizable position, got %d: %+v", len(got), got)
+	}
+	if got[0].Symbol != "MSFT" || got[0].Direction != "short" || got[0].Contracts != 2 {
+		t.Errorf("parsed position = %+v, want MSFT short 2", got[0])
+	}
+}
+
 // TestNovelWheelStatusHelpWires smoke-tests that the wheel status command
 // resolves at runtime and renders useful --help output. Catches wiring
 // regressions (missing AddCommand, panicking RunE on --help, etc.) before

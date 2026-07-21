@@ -24,6 +24,10 @@ type equitySettleReport struct {
 	FillPrice       string `json:"fill_price"`
 	Quantity        string `json:"quantity"`
 	ExecutionsCount int    `json:"executions_count"`
+	// TimedOut is true when --wait exhausted its polling window without the
+	// order reaching a terminal state (or a filled order's price staying null).
+	// It distinguishes "not settled within the window" from "settled".
+	TimedOut bool `json:"timed_out,omitempty"`
 }
 
 // isTerminalOrderState reports whether an equity order state can no longer
@@ -31,7 +35,10 @@ type equitySettleReport struct {
 // partially_filled, ...) is still in flight.
 func isTerminalOrderState(state string) bool {
 	switch strings.ToLower(strings.TrimSpace(state)) {
-	case "filled", "cancelled", "rejected", "failed", "voided":
+	// Robinhood documents the British "cancelled" but the American "canceled"
+	// appears in some responses; accept both so a canceled order is never
+	// reported as still in flight.
+	case "filled", "cancelled", "canceled", "rejected", "failed", "voided":
 		return true
 	}
 	return false
@@ -168,6 +175,7 @@ func newNovelEquitiesSettleCmd(flags *rootFlags) *cobra.Command {
 
 			const maxAttempts = 10
 			var report equitySettleReport
+			haveReport := false
 			for attempt := 1; ; attempt++ {
 				if ctxErr := cmd.Context().Err(); ctxErr != nil {
 					return ctxErr
@@ -185,7 +193,11 @@ func newNovelEquitiesSettleCmd(flags *rootFlags) *cobra.Command {
 					}
 				} else {
 					report = buildSettleReport(orderID, order)
-					if !flagWait || settlePollDone(report.State, report.FillPrice) || attempt >= maxAttempts {
+					haveReport = true
+					if !flagWait || settlePollDone(report.State, report.FillPrice) {
+						break
+					}
+					if attempt >= maxAttempts {
 						break
 					}
 				}
@@ -196,8 +208,20 @@ func newNovelEquitiesSettleCmd(flags *rootFlags) *cobra.Command {
 				}
 			}
 
+			// If --wait gave up before the order reached settled truth, say so
+			// and exit non-zero: a caller that asked to wait must not read a
+			// success exit as "settled" when it timed out.
+			timedOut := flagWait && haveReport && !settlePollDone(report.State, report.FillPrice)
+			report.TimedOut = timedOut
+
 			if flags.asJSON || !isTerminal(cmd.OutOrStdout()) {
-				return printJSONFiltered(cmd.OutOrStdout(), report, flags)
+				if perr := printJSONFiltered(cmd.OutOrStdout(), report, flags); perr != nil {
+					return perr
+				}
+				if timedOut {
+					return fmt.Errorf("order %s did not settle within the wait window (state %q); still in flight", report.OrderID, report.State)
+				}
+				return nil
 			}
 			out := cmd.OutOrStdout()
 			settled := "no (still in flight)"
@@ -217,6 +241,10 @@ func newNovelEquitiesSettleCmd(flags *rootFlags) *cobra.Command {
 			fmt.Fprintf(out, "Fill price:  %s\n", display(report.FillPrice))
 			fmt.Fprintf(out, "Quantity:    %s\n", display(report.Quantity))
 			fmt.Fprintf(out, "Executions:  %d\n", report.ExecutionsCount)
+			if timedOut {
+				fmt.Fprintf(out, "\nTimed out waiting for settlement (state %q); still in flight.\n", report.State)
+				return fmt.Errorf("order %s did not settle within the wait window", report.OrderID)
+			}
 			if !report.Terminal && !flagWait {
 				fmt.Fprintf(out, "\nState is non-terminal; re-run with --wait to poll to settlement.\n")
 			}

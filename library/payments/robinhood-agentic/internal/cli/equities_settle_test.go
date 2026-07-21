@@ -19,10 +19,12 @@ func TestIsTerminalOrderState(t *testing.T) {
 	}{
 		{"filled", true},
 		{"cancelled", true},
+		{"canceled", true}, // American spelling also terminal
 		{"rejected", true},
 		{"failed", true},
 		{"voided", true},
 		{"Filled", true},        // case-insensitive
+		{"CANCELED", true},      // case-insensitive American spelling
 		{"  cancelled  ", true}, // whitespace-tolerant
 		{"new", false},
 		{"queued", false},

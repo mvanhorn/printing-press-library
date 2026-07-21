@@ -261,22 +261,26 @@ func wheelParseOptionPositions(raw []map[string]any) []wheelOptionPosition {
 			}
 		}
 		qty, hasQty := wheelFieldFloat(m, "quantity", "contracts")
-		if hasQty && qty == 0 {
+		if !hasQty {
+			// No quantity or contracts field on this row: we cannot size the
+			// position. Skip it rather than default to one contract, which
+			// would fabricate a short put or covered call and mislabel the
+			// symbol's wheel stage.
+			continue
+		}
+		if qty == 0 {
 			continue // closed position; nonzero:true should exclude these anyway
 		}
-		if direction == "" && hasQty && qty < 0 {
+		if direction == "" && qty < 0 {
 			direction = "short"
 		}
-		contracts := 1
-		if hasQty {
-			if q := qty; q < 0 {
-				q = -q
-				if c := int(q + 0.5); c > 0 {
-					contracts = c
-				}
-			} else if c := int(q + 0.5); c > 0 {
-				contracts = c
-			}
+		magnitude := qty
+		if magnitude < 0 {
+			magnitude = -magnitude
+		}
+		contracts := int(magnitude + 0.5)
+		if contracts == 0 {
+			continue // sub-one magnitude rounds to zero; not a real position
 		}
 		out = append(out, wheelOptionPosition{
 			Symbol:     sym,

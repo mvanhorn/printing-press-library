@@ -67,21 +67,38 @@ func guardMutation(ctx context.Context, tool string, args map[string]any) error 
 	return nil
 }
 
-// checkOrderPolicy loads the guard policy and evaluates the order. A store that
-// cannot be opened does not block the call — the write gate already required an
-// explicit opt-in, and guard is a second layer, not the floor.
+// checkOrderPolicy loads the guard policy and evaluates the order. It FAILS
+// CLOSED: any failure to read the policy, or an order whose notional cannot be
+// computed while a cap is configured, returns a denial reason. A guard that
+// silently passes on a store error would let an order bypass a kill switch or
+// cap the user set, which is the opposite of what a guard is for.
 func checkOrderPolicy(tool string, args map[string]any) string {
 	st, err := openAgenticStore()
 	if err != nil {
-		return ""
+		return "guard policy could not be read (local store error); refusing to place rather than risk bypassing a configured kill switch or cap. Fix the store or run `guard status`."
 	}
 	defer st.Close()
 	policy, err := st.GetGuardPolicy()
 	if err != nil {
-		return ""
+		return "guard policy could not be loaded (local store error); refusing to place. Run `guard status` to inspect."
 	}
 	notional := orderNotional(tool, args)
-	daySpent, _ := st.SumPlacedNotionalSince(startOfUTCDay())
+	// A market order with only a share quantity has no computable notional. If
+	// any notional cap is configured, refuse rather than treat the order as
+	// zero exposure and slip past the cap. With no cap set, notional == 0 is
+	// fine and the order proceeds.
+	if notional == 0 && (policy.MaxOrderNotional > 0 || policy.DailyCapNotional > 0) {
+		return "cannot enforce a notional cap on this order: it has no computable price (a market order with only a quantity). Use a limit order or --dollar-amount, or clear the cap with `guard set`."
+	}
+	daySpent, err := st.SumPlacedNotionalSince(startOfUTCDay())
+	if err != nil {
+		return "guard daily-cap check failed (journal read error); refusing to place."
+	}
+	// NOTE (known limitation): daySpent is read and evaluated without a
+	// cross-process atomic reservation, so two concurrent placements can both
+	// pass a daily cap they jointly exceed (a TOCTOU window). The env write
+	// gate is the primary safety floor; the daily cap is a best-effort
+	// single-process guard. An atomic reservation is tracked as a follow-up.
 	return policy.EvaluateOrder(orderSymbol(args), notional, daySpent)
 }
 
@@ -112,10 +129,13 @@ func journalMutation(ctx context.Context, tool string, args map[string]any, stat
 func recordJournal(e store.WriteJournalEntry) {
 	st, err := openAgenticStore()
 	if err != nil {
+		fmt.Fprintf(os.Stderr, "warning: could not open the local store to journal a %s (%s); the audit trail and daily-cap tracking may be incomplete: %v\n", e.Action, e.Tool, err)
 		return
 	}
 	defer st.Close()
-	_ = st.RecordWrite(e)
+	if err := st.RecordWrite(e); err != nil {
+		fmt.Fprintf(os.Stderr, "warning: failed to journal a %s (%s); the audit trail and daily-cap tracking may be incomplete: %v\n", e.Action, e.Tool, err)
+	}
 }
 
 func openAgenticStore() (*store.Store, error) {

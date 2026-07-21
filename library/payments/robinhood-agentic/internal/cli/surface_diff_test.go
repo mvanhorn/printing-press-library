@@ -34,6 +34,23 @@ func TestDiffToolSurfaces(t *testing.T) {
 	}
 }
 
+// TestDiffToolSurfacesIgnoresKeyOrderAndWhitespace ensures that two captures
+// which serialize the same schema with different key order or spacing do NOT
+// report drift (the raw-string-compare false positive).
+func TestDiffToolSurfacesIgnoresKeyOrderAndWhitespace(t *testing.T) {
+	older := []mcpTool{{Name: "t", InputSchema: json.RawMessage(`{"a":1,"b":2}`)}}
+	newer := []mcpTool{{Name: "t", InputSchema: json.RawMessage(`{ "b": 2, "a": 1 }`)}}
+	d := diffToolSurfaces(older, newer)
+	if len(d.Changed) != 0 {
+		t.Errorf("key-order/whitespace-only difference reported as changed: %v", d.Changed)
+	}
+	// A real value change must still be caught.
+	newer2 := []mcpTool{{Name: "t", InputSchema: json.RawMessage(`{"a":9,"b":2}`)}}
+	if d2 := diffToolSurfaces(older, newer2); len(d2.Changed) != 1 {
+		t.Errorf("real schema change missed: %v", d2.Changed)
+	}
+}
+
 // TestNovelSurfaceDiffHelpWires smoke-tests that the surface diff command
 // resolves at runtime and renders useful --help output. Catches wiring
 // regressions (missing AddCommand, panicking RunE on --help, etc.) before
