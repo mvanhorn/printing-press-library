@@ -73,7 +73,7 @@ These capabilities aren't available in any other tool for this API.
   ```
 - **`duplicates apply`** — Resolve selected native duplicate groups only after an explicit apply confirmation.
 
-  _Use it only after reviewing a duplicate plan. When the server has no keeper recommendation, include that plan's exact `evidence` array with the explicit keeper; apply rejects missing or changed evidence before choosing assets to trash._
+  _Use it only after reviewing a duplicate plan. Include that plan's exact `evidence` array for every selected group; when the server has no keeper recommendation, also include an explicit keeper. Apply rejects missing or changed evidence before choosing assets to trash._
 
   ```bash
   immich-pp-cli duplicates apply --groups '[{"group_id":"group-id","keeper":"asset-to-keep","evidence":["asset-to-keep","asset-to-trash"]}]' --apply --agent

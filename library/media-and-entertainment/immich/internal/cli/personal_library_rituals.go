@@ -996,15 +996,15 @@ func newDuplicateApplyCmd(flags *rootFlags) *cobra.Command {
 			if !ok {
 				return fmt.Errorf("duplicate group %q no longer exists", want.GroupID)
 			}
+			if len(want.Evidence) == 0 {
+				return usageErr(fmt.Errorf("duplicate group %q requires the reviewed evidence array from duplicates plan", want.GroupID))
+			}
+			if !sameStrings(want.Evidence, got.Evidence) {
+				return fmt.Errorf("duplicate group %q evidence changed since plan; rerun duplicates plan", want.GroupID)
+			}
 			if got.KeeperRequired {
 				if want.Keeper == "" {
 					return usageErr(fmt.Errorf("duplicate group %q has no server keeper recommendation; provide an explicit reviewed keeper", want.GroupID))
-				}
-				if len(want.Evidence) == 0 {
-					return usageErr(fmt.Errorf("duplicate group %q requires the reviewed evidence array from duplicates plan", want.GroupID))
-				}
-				if !sameStrings(want.Evidence, got.Evidence) {
-					return fmt.Errorf("duplicate group %q evidence changed since plan; rerun duplicates plan", want.GroupID)
 				}
 				if !containsString(got.Evidence, want.Keeper) {
 					return usageErr(fmt.Errorf("keeper %q is not an asset in duplicate group %q", want.Keeper, want.GroupID))

@@ -181,7 +181,7 @@ func TestDuplicateApplyRefetchesAndRejectsStalePlan(t *testing.T) {
 	defer server.Close()
 	t.Setenv("IMMICH_BASE_URL", server.URL)
 	t.Setenv("IMMICH_API_KEY", "key")
-	args := []string{"duplicates", "apply", "--groups", `[{"group_id":"g","keeper":"a","trash":["b"]}]`, "--apply", "--json", "--no-learn", "--no-cache"}
+	args := []string{"duplicates", "apply", "--groups", `[{"group_id":"g","keeper":"a","trash":["b"],"evidence":["a","b"]}]`, "--apply", "--json", "--no-learn", "--no-cache"}
 	if _, _, err := runRootArgs(t, args...); err == nil {
 		t.Fatal("stale plan accepted")
 	}
@@ -279,6 +279,32 @@ func TestDuplicateApplyRequiresEvidenceForExplicitKeeper(t *testing.T) {
 	}
 	if resolves != 0 {
 		t.Fatalf("missing evidence posted %d mutations", resolves)
+	}
+}
+
+func TestDuplicateApplyRequiresEvidenceForSuggestedKeeper(t *testing.T) {
+	withTempLearnHome(t)
+	resolves := 0
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		switch strings.TrimPrefix(r.URL.Path, "/api") {
+		case "/duplicates":
+			_, _ = w.Write([]byte(`[{"duplicateId":"g","assets":[{"id":"a"},{"id":"b"}],"suggestedKeepAssetIds":["a"]}]`))
+		case "/duplicates/resolve":
+			resolves++
+			_, _ = w.Write([]byte(`{}`))
+		default:
+			w.WriteHeader(http.StatusNotFound)
+		}
+	}))
+	defer server.Close()
+	t.Setenv("IMMICH_BASE_URL", server.URL)
+	t.Setenv("IMMICH_API_KEY", "key")
+	_, _, err := runRootArgs(t, "duplicates", "apply", "--groups", `[{"group_id":"g"}]`, "--apply", "--json", "--no-learn", "--no-cache")
+	if err == nil || !strings.Contains(err.Error(), "reviewed evidence") {
+		t.Fatalf("missing suggested-keeper evidence error = %v", err)
+	}
+	if resolves != 0 {
+		t.Fatalf("missing suggested-keeper evidence posted %d mutations", resolves)
 	}
 }
 
