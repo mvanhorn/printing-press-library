@@ -157,6 +157,14 @@ immich-pp-cli duplicates plan --limit 20 --agent
 
 Inspect native duplicate recommendations in structured output.
 
+For a group with no server keeper recommendation, copy the `evidence` array from
+that reviewed plan exactly when choosing a keeper. Apply re-fetches the group and
+rejects missing or changed evidence before it computes anything to trash.
+
+```bash
+immich-pp-cli duplicates apply --groups '[{"group_id":"group-id","keeper":"asset-to-keep","evidence":["asset-to-keep","asset-to-trash"]}]' --apply --agent
+```
+
 ### Review memories
 
 ```bash

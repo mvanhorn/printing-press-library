@@ -244,64 +244,64 @@ func mapSourceCollections(ctx context.Context, flags *rootFlags, base, key strin
 		}
 		return b, nil
 	}
-	c, e := flags.newClient()
-	if e != nil {
-		return e
-	}
 	albums, e := get("/albums")
 	if e != nil {
 		return e
 	}
-	var albumList []struct {
-		AlbumName string `json:"albumName"`
-		Assets    []struct {
-			ID string `json:"id"`
-		} `json:"assets"`
-	}
+	var albumList []sourceAlbum
 	if err := json.Unmarshal(albums, &albumList); err != nil {
 		return fmt.Errorf("decode source albums: %w", err)
-	}
-	for _, src := range albumList {
-		ids, err := mappedCollectionAssetIDs("album", src.AlbumName, src.Assets, mapping)
-		if err != nil {
-			return err
-		}
-		if len(ids) == 0 || src.AlbumName == "" {
-			continue
-		}
-		d, _, e := c.Post(ctx, "/albums", map[string]any{"albumName": src.AlbumName, "assetIds": ids})
-		if e != nil {
-			return e
-		}
-		_ = d
 	}
 	tags, e := get("/tags")
 	if e != nil {
 		return e
 	}
-	var tagList []struct {
-		Name   string `json:"name"`
-		Assets []struct {
-			ID string `json:"id"`
-		} `json:"assets"`
-	}
+	var tagList []sourceTag
 	if err := json.Unmarshal(tags, &tagList); err != nil {
 		return fmt.Errorf("decode source tags: %w", err)
 	}
+
+	// Source reads and every mapping validation happen before the first
+	// destination mutation, so a malformed or incomplete later collection
+	// cannot leave an apparently successful partial migration behind.
+	albumMutations := make([]collectionMutation, 0, len(albumList))
+	for _, src := range albumList {
+		if src.AlbumName == "" || len(src.Assets) == 0 {
+			continue
+		}
+		ids, err := mappedCollectionAssetIDs("album", src.AlbumName, src.Assets, mapping)
+		if err != nil {
+			return err
+		}
+		albumMutations = append(albumMutations, collectionMutation{Name: src.AlbumName, AssetIDs: ids})
+	}
+	tagMutations := make([]collectionMutation, 0, len(tagList))
 	for _, src := range tagList {
+		if src.Name == "" || len(src.Assets) == 0 {
+			continue
+		}
 		ids, err := mappedCollectionAssetIDs("tag", src.Name, src.Assets, mapping)
 		if err != nil {
 			return err
 		}
-		if len(ids) == 0 || src.Name == "" {
-			continue
+		tagMutations = append(tagMutations, collectionMutation{Name: src.Name, AssetIDs: ids})
+	}
+	c, e := flags.newClient()
+	if e != nil {
+		return e
+	}
+	for _, mutation := range albumMutations {
+		if _, _, e := c.Post(ctx, "/albums", map[string]any{"albumName": mutation.Name, "assetIds": mutation.AssetIDs}); e != nil {
+			return e
 		}
-		d, _, e := c.Post(ctx, "/tags", map[string]any{"name": src.Name})
+	}
+	for _, mutation := range tagMutations {
+		d, _, e := c.Post(ctx, "/tags", map[string]any{"name": mutation.Name})
 		if e != nil {
 			return e
 		}
 		if id := jsonID(d); id != "" {
-			if _, _, e = c.Put(ctx, "/tags/"+url.PathEscape(id)+"/assets", map[string]any{"ids": ids}); e != nil {
+			if _, _, e = c.Put(ctx, "/tags/"+url.PathEscape(id)+"/assets", map[string]any{"ids": mutation.AssetIDs}); e != nil {
 				return e
 			}
 		}
@@ -309,9 +309,26 @@ func mapSourceCollections(ctx context.Context, flags *rootFlags, base, key strin
 	return nil
 }
 
-func mappedCollectionAssetIDs(kind, name string, assets []struct {
+type sourceCollectionAsset struct {
 	ID string `json:"id"`
-}, mapping map[string]string) ([]string, error) {
+}
+
+type sourceAlbum struct {
+	AlbumName string                  `json:"albumName"`
+	Assets    []sourceCollectionAsset `json:"assets"`
+}
+
+type sourceTag struct {
+	Name   string                  `json:"name"`
+	Assets []sourceCollectionAsset `json:"assets"`
+}
+
+type collectionMutation struct {
+	Name     string
+	AssetIDs []string
+}
+
+func mappedCollectionAssetIDs(kind, name string, assets []sourceCollectionAsset, mapping map[string]string) ([]string, error) {
 	ids := make([]string, 0, len(assets))
 	for _, asset := range assets {
 		id := mapping[asset.ID]
@@ -982,6 +999,12 @@ func newDuplicateApplyCmd(flags *rootFlags) *cobra.Command {
 			if got.KeeperRequired {
 				if want.Keeper == "" {
 					return usageErr(fmt.Errorf("duplicate group %q has no server keeper recommendation; provide an explicit reviewed keeper", want.GroupID))
+				}
+				if len(want.Evidence) == 0 {
+					return usageErr(fmt.Errorf("duplicate group %q requires the reviewed evidence array from duplicates plan", want.GroupID))
+				}
+				if !sameStrings(want.Evidence, got.Evidence) {
+					return fmt.Errorf("duplicate group %q evidence changed since plan; rerun duplicates plan", want.GroupID)
 				}
 				if !containsString(got.Evidence, want.Keeper) {
 					return usageErr(fmt.Errorf("keeper %q is not an asset in duplicate group %q", want.Keeper, want.GroupID))

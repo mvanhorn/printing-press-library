@@ -217,7 +217,7 @@ func TestDuplicatePlansRequireExplicitKeeperWhenServerDoesNotSuggestOne(t *testi
 	}
 }
 
-func TestDuplicateApplyRequiresExplicitKeeperWhenServerDoesNotSuggestOne(t *testing.T) {
+func TestDuplicateApplyAcceptsExplicitKeeperWithReviewedEvidence(t *testing.T) {
 	withTempLearnHome(t)
 	resolves := 0
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -248,11 +248,63 @@ func TestDuplicateApplyRequiresExplicitKeeperWhenServerDoesNotSuggestOne(t *test
 	if resolves != 0 {
 		t.Fatalf("unexpected resolve without keeper: %d", resolves)
 	}
-	if _, _, err := runRootArgs(t, "duplicates", "apply", "--groups", `[{"group_id":"g","keeper":"b"}]`, "--apply", "--json", "--no-learn", "--no-cache"); err != nil {
+	if _, _, err := runRootArgs(t, "duplicates", "apply", "--groups", `[{"group_id":"g","keeper":"b","evidence":["a","b"]}]`, "--apply", "--json", "--no-learn", "--no-cache"); err != nil {
 		t.Fatal(err)
 	}
 	if resolves != 1 {
 		t.Fatalf("resolves=%d, want 1", resolves)
+	}
+}
+
+func TestDuplicateApplyRequiresEvidenceForExplicitKeeper(t *testing.T) {
+	withTempLearnHome(t)
+	resolves := 0
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		switch strings.TrimPrefix(r.URL.Path, "/api") {
+		case "/duplicates":
+			_, _ = w.Write([]byte(`[{"duplicateId":"g","assets":[{"id":"a"},{"id":"b"}]}]`))
+		case "/duplicates/resolve":
+			resolves++
+			_, _ = w.Write([]byte(`{}`))
+		default:
+			w.WriteHeader(http.StatusNotFound)
+		}
+	}))
+	defer server.Close()
+	t.Setenv("IMMICH_BASE_URL", server.URL)
+	t.Setenv("IMMICH_API_KEY", "key")
+	_, _, err := runRootArgs(t, "duplicates", "apply", "--groups", `[{"group_id":"g","keeper":"b"}]`, "--apply", "--json", "--no-learn", "--no-cache")
+	if err == nil || !strings.Contains(err.Error(), "reviewed evidence") {
+		t.Fatalf("missing evidence error = %v", err)
+	}
+	if resolves != 0 {
+		t.Fatalf("missing evidence posted %d mutations", resolves)
+	}
+}
+
+func TestDuplicateApplyRejectsDriftedEvidenceBeforeResolution(t *testing.T) {
+	withTempLearnHome(t)
+	resolves := 0
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		switch strings.TrimPrefix(r.URL.Path, "/api") {
+		case "/duplicates":
+			_, _ = w.Write([]byte(`[{"duplicateId":"g","assets":[{"id":"a"},{"id":"b"},{"id":"d"}]}]`))
+		case "/duplicates/resolve":
+			resolves++
+			_, _ = w.Write([]byte(`{}`))
+		default:
+			w.WriteHeader(http.StatusNotFound)
+		}
+	}))
+	defer server.Close()
+	t.Setenv("IMMICH_BASE_URL", server.URL)
+	t.Setenv("IMMICH_API_KEY", "key")
+	_, _, err := runRootArgs(t, "duplicates", "apply", "--groups", `[{"group_id":"g","keeper":"a","evidence":["a","b","c"]}]`, "--apply", "--json", "--no-learn", "--no-cache")
+	if err == nil || !strings.Contains(err.Error(), "evidence changed since plan") {
+		t.Fatalf("drifted evidence error = %v", err)
+	}
+	if resolves != 0 {
+		t.Fatalf("drifted evidence posted %d mutations", resolves)
 	}
 }
 
@@ -640,6 +692,36 @@ func TestMapSourceCollectionsRejectsMalformedAlbumsAndTags(t *testing.T) {
 				t.Fatalf("malformed %s error = %v", name, err)
 			}
 		})
+	}
+}
+
+func TestMapSourceCollectionsValidatesTagsBeforeCreatingAlbums(t *testing.T) {
+	mutations := 0
+	destination := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		mutations++
+		w.WriteHeader(http.StatusInternalServerError)
+	}))
+	defer destination.Close()
+	source := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		switch r.URL.Path {
+		case "/albums":
+			_, _ = w.Write([]byte(`[{"albumName":"trip","assets":[{"id":"source"}]}]`))
+		case "/tags":
+			_, _ = w.Write([]byte(`[`))
+		default:
+			w.WriteHeader(http.StatusNotFound)
+		}
+	}))
+	defer source.Close()
+	t.Setenv("IMMICH_BASE_URL", destination.URL)
+	t.Setenv("IMMICH_BASE_PATH", "")
+	t.Setenv("IMMICH_API_KEY", "key")
+	err := mapSourceCollections(context.Background(), &rootFlags{}, source.URL, "source-key", map[string]string{"source": "destination"})
+	if err == nil || !strings.Contains(err.Error(), "decode source tags") {
+		t.Fatalf("malformed tags error = %v", err)
+	}
+	if mutations != 0 {
+		t.Fatalf("malformed tags caused %d destination mutations", mutations)
 	}
 }
 
