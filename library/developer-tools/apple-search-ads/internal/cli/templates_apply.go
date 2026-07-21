@@ -258,7 +258,8 @@ Use --dry-run to skip all API calls.`,
 			if len(args) == 0 {
 				return cmd.Help()
 			}
-			if dryRunOK(flags) {
+			// --diff makes no API calls, so dry-run must not suppress it.
+			if !flagDiff && dryRunOK(flags) {
 				return nil
 			}
 
@@ -299,37 +300,7 @@ Use --dry-run to skip all API calls.`,
 			var results []templateApplyResult
 
 			if flagDiff {
-				// Just show what would be created for each org.
-				for _, orgID := range orgIDs {
-					var diffEntries []templateDiffEntry
-					if name, ok := tmpl.Campaign["name"].(string); ok {
-						diffEntries = append(diffEntries, templateDiffEntry{
-							Field:    "campaign.name",
-							Template: name,
-						})
-					}
-					diffEntries = append(diffEntries, templateDiffEntry{
-						Field:    "ad_groups.count",
-						Template: fmt.Sprintf("%d", len(tmpl.AdGroups)),
-					})
-					for i, ag := range tmpl.AdGroups {
-						diffEntries = append(diffEntries, templateDiffEntry{
-							Field:    fmt.Sprintf("ad_groups[%d].name", i),
-							Template: ag.Name,
-						})
-						diffEntries = append(diffEntries, templateDiffEntry{
-							Field:    fmt.Sprintf("ad_groups[%d].keywords.count", i),
-							Template: fmt.Sprintf("%d", len(ag.Keywords)),
-						})
-					}
-					results = append(results, templateApplyResult{
-						TemplateName: templateName,
-						OrgID:        orgID,
-						Action:       "diff",
-						Diff:         diffEntries,
-					})
-				}
-				return printJSONFiltered(cmd.OutOrStdout(), results, flags)
+				return printJSONFiltered(cmd.OutOrStdout(), buildTemplateDiff(tmpl, orgIDs, templateName), flags)
 			}
 
 			// Apply to each org.
@@ -415,6 +386,37 @@ Use --dry-run to skip all API calls.`,
 	cmd.Flags().BoolVar(&flagDiff, "diff", false, "Show what would be created without making any API calls")
 	_ = cmd.MarkFlagRequired("org-ids")
 	return cmd
+}
+
+func buildTemplateDiff(tmpl campaignTemplate, orgIDs []string, templateName string) []templateApplyResult {
+	var results []templateApplyResult
+	for _, orgID := range orgIDs {
+		var diffEntries []templateDiffEntry
+		if name, ok := tmpl.Campaign["name"].(string); ok {
+			diffEntries = append(diffEntries, templateDiffEntry{Field: "campaign.name", Template: name})
+		}
+		diffEntries = append(diffEntries, templateDiffEntry{
+			Field:    "ad_groups.count",
+			Template: fmt.Sprintf("%d", len(tmpl.AdGroups)),
+		})
+		for i, ag := range tmpl.AdGroups {
+			diffEntries = append(diffEntries, templateDiffEntry{
+				Field:    fmt.Sprintf("ad_groups[%d].name", i),
+				Template: ag.Name,
+			})
+			diffEntries = append(diffEntries, templateDiffEntry{
+				Field:    fmt.Sprintf("ad_groups[%d].keywords.count", i),
+				Template: fmt.Sprintf("%d", len(ag.Keywords)),
+			})
+		}
+		results = append(results, templateApplyResult{
+			TemplateName: templateName,
+			OrgID:        orgID,
+			Action:       "diff",
+			Diff:         diffEntries,
+		})
+	}
+	return results
 }
 
 // extractJSONArray tries to extract a JSON array from a wrapped API response.
