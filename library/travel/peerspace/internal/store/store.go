@@ -1377,13 +1377,48 @@ func resourceStorageID(resourceType, id string, obj map[string]any) string {
 	if parentKey == "" {
 		return id
 	}
-	parentValue := ResourceIDString(lookupFieldValue(obj, parentKey))
-	if parentValue == "" || parentValue == "<nil>" {
-		// Keep parent-keyed rows namespaced even when the parent field is missing
-		// so bare child IDs never overwrite a properly parented association.
+	// Prefer the configured parent field, then path/sync-injected parent context
+	// (parent_id / scope FK). Two parent-scoped syncs of the same child must
+	// not share a storage key when the API body omits the parent field.
+	parentValue := firstParentNamespace(obj, parentKey)
+	if parentValue == "" {
+		// No parent field and no sync/path injection. Keep a namespaced
+		// sentinel so bare child IDs never overwrite a properly parented row.
+		// Distinct parent-scoped syncs should not hit this path after inject.
 		return id + string([]byte{0}) + "__missing_parent__"
 	}
 	return id + string([]byte{0}) + parentValue
+}
+
+// firstParentNamespace prefers the configured parent key, then fields that
+// dependent sync stamps from the request path (parent_id / matching scope FK).
+func firstParentNamespace(obj map[string]any, parentKey string) string {
+	for _, key := range parentNamespaceCandidates(parentKey) {
+		v := ResourceIDString(lookupFieldValue(obj, key))
+		if v != "" && v != "<nil>" {
+			return v
+		}
+	}
+	return ""
+}
+
+func parentNamespaceCandidates(parentKey string) []string {
+	out := []string{parentKey, "parent_id"}
+	seen := map[string]bool{parentKey: true, "parent_id": true}
+	for scopeKey, sourceKey := range childScopeColumnSources {
+		if sourceKey != parentKey && scopeKey != parentKey {
+			continue
+		}
+		if !seen[scopeKey] {
+			out = append(out, scopeKey)
+			seen[scopeKey] = true
+		}
+		if sourceKey != "" && !seen[sourceKey] {
+			out = append(out, sourceKey)
+			seen[sourceKey] = true
+		}
+	}
+	return out
 }
 
 // BareResourceID strips the NUL-delimited parent suffix that resourceStorageID
