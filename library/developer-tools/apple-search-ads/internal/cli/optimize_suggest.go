@@ -54,9 +54,6 @@ ROAS mode requires revenue data; keywords with no revenue in the lookback period
   apple-search-ads-pp-cli optimize suggest --metric cpa --target 2.50 --campaign-id 12345 --apply --dry-run`,
 		Annotations: map[string]string{"mcp:read-only": "false"},
 		RunE: func(cmd *cobra.Command, args []string) error {
-			if dryRunOK(flags) {
-				return nil
-			}
 			if flagMetric != "cpa" && flagMetric != "roas" && flagMetric != "taps" {
 				return fmt.Errorf("--metric must be one of: cpa, roas, taps (got %q)", flagMetric)
 			}
@@ -126,7 +123,7 @@ ROAS mode requires revenue data; keywords with no revenue in the lookback period
 				return fmt.Errorf("%d of %d campaign keyword report(s) failed; check stderr for details", fetchFailed, fetchAttempted)
 			}
 
-			if flagApply && len(allSuggestions) > 0 {
+			if flagApply && !dryRunOK(flags) && len(allSuggestions) > 0 {
 				if err := applyBidSuggestionsWithClient(cmd.Context(), c, allSuggestions, flagCurrency, cmd.ErrOrStderr()); err != nil {
 					fmt.Fprintf(cmd.ErrOrStderr(), "warning: some bids could not be applied: %v\n", err)
 				}

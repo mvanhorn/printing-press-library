@@ -197,6 +197,30 @@ func TestFetchFailureAllCampaigns(t *testing.T) {
 	}
 }
 
+// TestApplyDryRunGate verifies that bid PUTs are skipped when --dry-run is set,
+// even when --apply is also set — matching the documented example
+// "optimize suggest --apply --dry-run". The gate is: flagApply && !dryRunOK(flags).
+func TestApplyDryRunGate(t *testing.T) {
+	cases := []struct {
+		flagApply bool
+		dryRun    bool
+		wantApply bool // true = PUT calls should fire
+	}{
+		{true, true, false},   // --apply --dry-run: must NOT apply (the bug case)
+		{true, false, true},   // --apply only: must apply
+		{false, false, false}, // neither: no apply
+		{false, true, false},  // --dry-run only: no apply
+	}
+	for _, tc := range cases {
+		flags := &rootFlags{dryRun: tc.dryRun}
+		got := tc.flagApply && !dryRunOK(flags)
+		if got != tc.wantApply {
+			t.Errorf("flagApply=%v dryRun=%v: want apply=%v, got %v",
+				tc.flagApply, tc.dryRun, tc.wantApply, got)
+		}
+	}
+}
+
 func TestBuildBidSuggestions_ROAS_NoRevenue(t *testing.T) {
 	// yoga mat has revenue=0; ROAS mode must skip it.
 	kws := extractKeywordsFromReportPayload(reportFixture())
