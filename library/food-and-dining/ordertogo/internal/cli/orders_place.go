@@ -6,10 +6,10 @@
 // checkout endpoint is POST /m/api/postmicmeshorder and the payment
 // processor is Stripe with a saved customer + card key.
 //
-// This implementation calls that endpoint directly. The cart is loaded
-// either from a JSON file (--cart-file) or from the CLI's saved active
-// cart (--reuse-last). Stripe customer ID and saved-card key come from
-// the config file (`ordertogo config set stripe_customer_id ...`).
+// This implementation calls that endpoint directly. The cart is loaded from
+// a localStorage-shape JSON file so checkout option strings are preserved.
+// Stripe customer ID and saved-card key come from the config file
+// (`ordertogo config set stripe_customer_id ...`).
 
 package cli
 
@@ -119,11 +119,10 @@ func newOrdersPlaceCmd(flags *rootFlags) *cobra.Command {
 		Use:   "place",
 		Short: "Place an order via POST /m/api/postmicmeshorder using Stripe saved card",
 		Long: `Place a pickup order at an ordertogo.com restaurant. Reads cart items
-from either an active plan (--reuse-last) or a localStorage-shape JSON file
-(--cart-file). Payment uses the Stripe customer + saved card configured via
+from a localStorage-shape JSON file (--cart-file), which preserves item option
+strings. Payment uses the Stripe customer + saved card configured via
 'ordertogo config set stripe_customer_id ...' and 'config set stripe_default_card ...'.`,
-		Example: `  ordertogo-pp-cli orders place --cart-file ./water.json --restaurant mixsushibarlin --restid 72 --max 5 --confirm
-  ordertogo-pp-cli orders place --reuse-last --max 30 --tip 5% --confirm`,
+		Example:     `  ordertogo-pp-cli orders place --cart-file ./water.json --restaurant mixsushibarlin --restid 72 --max 5 --confirm`,
 		Annotations: map[string]string{"pp:typed-exit-codes": "0,4,5"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !confirm {
@@ -237,7 +236,7 @@ from either an active plan (--reuse-last) or a localStorage-shape JSON file
 			return printJSONFiltered(cmd.OutOrStdout(), result, flags)
 		},
 	}
-	cmd.Flags().BoolVar(&reuseLast, "reuse-last", false, "Reuse the last active-cart plan saved by 'orders plan'")
+	cmd.Flags().BoolVar(&reuseLast, "reuse-last", false, "Reuse the last active-cart plan (refused until saved carts preserve item options)")
 	cmd.Flags().StringVar(&cartFile, "cart-file", "", "Path to JSON cart file in localStorage shape")
 	cmd.Flags().StringVar(&restaurant, "restaurant", "", "Restaurant slug (e.g. mixsushibarlin)")
 	cmd.Flags().IntVar(&restID, "restid", 0, "Numeric restaurant id (required if not in cart file)")
@@ -325,35 +324,13 @@ func loadCart(cartFile string, reuseLast bool, slug string, restID int) ([]cartI
 	}
 
 	if reuseLast {
-		cart, err := loadActiveCart()
-		if err != nil {
-			return nil, 0, 0, "", 0, notFoundErr(fmt.Errorf("reading active cart: %w", err))
-		}
-		items := make([]cartItem, 0, len(cart.Items))
-		for _, it := range cart.Items {
-			id, _ := stringToInt(it.ID)
-			items = append(items, cartItem{
-				ItemID:                 id,
-				OptionsStr:             nil,
-				OptionsStr2nd:          "",
-				OptionItemIDs:          []any{},
-				OptionItemIDsAndPrices: []any{},
-				Price:                  it.Price,
-				Togo:                   "1",
-			})
-		}
-		rid := restID
-		if rid == 0 {
-			rid, _ = stringToInt(cart.RestID)
-		}
-		s := slug
-		if s == "" {
-			s = cart.Restaurant
-		}
-		return items, cart.Totals.Subtotal, cart.Totals.Tax, s, rid, nil
+		// activeCart stores store.OrderItem values, which do not carry the
+		// option strings or option-item IDs needed by checkout. Refuse instead
+		// of silently placing a customized item as its plain version.
+		return nil, 0, 0, "", 0, usageErr(fmt.Errorf("--reuse-last is not supported by this checkout flow because the active-cart store does not preserve item option strings. Use --cart-file with a localStorage-shape JSON cart instead"))
 	}
 
-	return nil, 0, 0, "", 0, usageErr(fmt.Errorf("provide --cart-file or --reuse-last"))
+	return nil, 0, 0, "", 0, usageErr(fmt.Errorf("provide --cart-file"))
 }
 
 func ifNil(s []any) []any {
@@ -361,12 +338,6 @@ func ifNil(s []any) []any {
 		return []any{}
 	}
 	return s
-}
-
-func stringToInt(s string) (int, error) {
-	var n int
-	_, err := fmt.Sscanf(s, "%d", &n)
-	return n, err
 }
 
 // newRequestID mirrors the web client's __requestid header: epoch-millis +

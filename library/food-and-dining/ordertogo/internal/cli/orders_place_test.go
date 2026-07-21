@@ -7,6 +7,7 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
+	"strings"
 	"testing"
 	"time"
 
@@ -82,6 +83,13 @@ func TestBuildPostOrderBody_ScalarConstants(t *testing.T) {
 	}
 	if p.DeviceID != "d" || p.MobileID != "m" {
 		t.Errorf("device/mobile not threaded: %q %q", p.DeviceID, p.MobileID)
+	}
+}
+
+func TestLoadCart_ReuseLastFailsClosed(t *testing.T) {
+	_, _, _, _, _, err := loadCart("", true, "slug", 72)
+	if err == nil || !strings.Contains(err.Error(), "does not preserve item option strings") {
+		t.Fatalf("loadCart(--reuse-last) error = %v", err)
 	}
 }
 
