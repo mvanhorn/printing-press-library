@@ -34,13 +34,16 @@ func TestValidateCartForPlacement(t *testing.T) {
 
 func TestValidatePlaceCart(t *testing.T) {
 	priced := []cartItem{{ItemID: 19001, Price: 4.99}}
-	if err := validatePlaceCart(72, priced); err != nil {
+	if err := validatePlaceCart("mixsushibarlin", 72, priced); err != nil {
 		t.Fatalf("valid cart rejected: %v", err)
 	}
-	if err := validatePlaceCart(0, priced); err == nil {
+	if err := validatePlaceCart("mixsushibarlin", 0, priced); err == nil {
 		t.Fatal("zero restid should be rejected")
 	}
-	if err := validatePlaceCart(72, []cartItem{{ItemID: 19001, Price: 0}}); err == nil {
+	if err := validatePlaceCart("", 72, priced); err == nil {
+		t.Fatal("empty restaurant slug should be rejected")
+	}
+	if err := validatePlaceCart("mixsushibarlin", 72, []cartItem{{ItemID: 19001, Price: 0}}); err == nil {
 		t.Fatal("all-zero-price cart should be rejected")
 	}
 }

@@ -156,7 +156,7 @@ from either an active plan (--reuse-last) or a localStorage-shape JSON file
 			if len(items) == 0 {
 				return usageErr(fmt.Errorf("cart is empty"))
 			}
-			if err := validatePlaceCart(rid, items); err != nil {
+			if err := validatePlaceCart(slug, rid, items); err != nil {
 				return err
 			}
 
@@ -252,9 +252,12 @@ from either an active plan (--reuse-last) or a localStorage-shape JSON file
 // validatePlaceCart fails closed before posting a real order: a zero restid
 // (slug never resolved upstream of the saved cart) or an all-zero-price cart
 // would be rejected server-side with an opaque 500, so surface it locally.
-func validatePlaceCart(restID int, items []cartItem) error {
+func validatePlaceCart(slug string, restID int, items []cartItem) error {
 	if restID == 0 {
 		return usageErr(fmt.Errorf("restid is 0 (the saved cart did not resolve a numeric restaurant id); re-run `orders plan` for this restaurant"))
+	}
+	if strings.TrimSpace(slug) == "" {
+		return usageErr(fmt.Errorf("--restaurant is required (restaurant slug, e.g. mixsushibarlin)"))
 	}
 	for _, it := range items {
 		if it.Price > 0 {
