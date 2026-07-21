@@ -98,6 +98,21 @@ func TestGetDoesNotSendFormBody(t *testing.T) {
 	}
 }
 
+func TestFormEncodedMethodSelection(t *testing.T) {
+	tests := map[string]bool{
+		http.MethodGet:    false,
+		http.MethodPost:   true,
+		http.MethodPut:    true,
+		http.MethodPatch:  true,
+		http.MethodDelete: false,
+	}
+	for method, want := range tests {
+		if got := isFormEncodedMethod(method); got != want {
+			t.Errorf("isFormEncodedMethod(%q) = %t, want %t", method, got, want)
+		}
+	}
+}
+
 // TestPostMarshaledJSONBytesBodyFormEncodes covers the MCP write path, where
 // adapters json.Marshal their argument map to []byte before calling Post/Put/
 // Patch. The form encoder must decode those bytes rather than reject them as an
