@@ -184,27 +184,55 @@ type searchTermPerf struct {
 }
 
 func extractSearchTerms(data json.RawMessage) []searchTermPerf {
-	// Handle both direct array and wrapped {"data": [...]} shapes.
-	var top map[string]json.RawMessage
-	if err := json.Unmarshal(data, &top); err == nil {
-		// Try to unwrap nested structure.
-		for _, key := range []string{"data", "reportingDataResponse", "row"} {
-			if raw, ok := top[key]; ok {
-				return extractSearchTerms(raw)
+	// Unwrap {"data": {"reportingDataResponse": ...}} envelope.
+	payload := data
+	for _, key := range []string{"data", "reportingDataResponse"} {
+		var nested map[string]json.RawMessage
+		if err := json.Unmarshal(payload, &nested); err == nil {
+			if v, ok := nested[key]; ok {
+				payload = v
 			}
 		}
 	}
 
-	var items []map[string]interface{}
-	if err := json.Unmarshal(data, &items); err != nil {
-		return nil
+	// Reporting API shape: {"row": [{"metadata": {...}, "granularity": [...]}]}
+	// Taps/installs are strings nested inside granularity sub-arrays.
+	var wrapper map[string]json.RawMessage
+	if err := json.Unmarshal(payload, &wrapper); err == nil {
+		if rowsRaw, ok := wrapper["row"]; ok {
+			var apiRows []map[string]json.RawMessage
+			if err := json.Unmarshal(rowsRaw, &apiRows); err == nil {
+				var result []searchTermPerf
+				for _, apiRow := range apiRows {
+					var meta map[string]interface{}
+					if err := json.Unmarshal(apiRow["metadata"], &meta); err != nil {
+						continue
+					}
+					text := autoPromoteStringField(meta, "searchTerm", "keywordText", "text")
+					if text == "" {
+						continue
+					}
+					var taps, installs int64
+					for _, gr := range analyticsExtractGranularityRows(apiRow["granularity"]) {
+						taps += analyticsParseInt(gr["taps"])
+						installs += analyticsParseInt(gr["installs"])
+					}
+					result = append(result, searchTermPerf{text: text, taps: taps, installs: installs})
+				}
+				return result
+			}
+		}
 	}
 
+	// Fallback: flat array shape (direct GET /adgroups/{id}/searchterms response).
+	var items []map[string]interface{}
+	if err := json.Unmarshal(payload, &items); err != nil {
+		return nil
+	}
 	var result []searchTermPerf
 	for _, item := range items {
 		text := autoPromoteStringField(item, "searchTerm", "text", "keyword")
 		if text == "" {
-			// Check metadata wrapper.
 			if meta, ok := item["metadata"].(map[string]interface{}); ok {
 				text = autoPromoteStringField(meta, "searchTerm", "text", "keyword")
 			}
