@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"math"
 	"strconv"
+	"time"
 
 	"github.com/mvanhorn/printing-press-library/library/developer-tools/apple-search-ads/internal/client"
 	"github.com/spf13/cobra"
@@ -27,7 +28,7 @@ type bidSuggestion struct {
 	CurrentTaps     int64   `json:"current_taps"`
 	CurrentInstalls int64   `json:"current_installs"`
 	SuggestedBid    float64 `json:"suggested_bid"`
-	ExpectedDelta   float64 `json:"expected_cpa_delta,omitempty"`
+	ExpectedDelta   float64 `json:"expected_delta,omitempty"`
 	ChangeDirection string  `json:"change_direction"` // "increase", "decrease", "hold"
 	Confidence      string  `json:"confidence"`       // "high", "medium", "low"
 }
@@ -37,6 +38,7 @@ func newNovelOptimizeSuggestCmd(flags *rootFlags) *cobra.Command {
 	var flagTarget float64
 	var flagCampaignID string
 	var flagCurrency string
+	var flagLookbackDays int
 	var flagApply bool
 
 	cmd := &cobra.Command{
@@ -44,7 +46,10 @@ func newNovelOptimizeSuggestCmd(flags *rootFlags) *cobra.Command {
 		Short: "Get CPA/ROAS-driven bid adjustment suggestions with revenue impact forecast before applying.",
 		Long: `Analyze keyword performance and suggest bid adjustments to hit a CPA or ROAS target.
 Each suggestion includes the current vs suggested bid, expected metric delta, and a confidence
-rating based on statistical volume (taps/installs). Use --apply to apply suggestions immediately.`,
+rating based on statistical volume (taps/installs). Use --apply to apply suggestions immediately.
+
+Performance data is sourced from the keyword reporting API over the --lookback-days window.
+ROAS mode requires revenue data; keywords with no revenue in the lookback period are skipped.`,
 		Example: `  apple-search-ads-pp-cli optimize suggest --metric cpa --target 2.50
   apple-search-ads-pp-cli optimize suggest --metric cpa --target 2.50 --campaign-id 12345 --apply --dry-run`,
 		Annotations: map[string]string{"mcp:read-only": "false"},
@@ -58,27 +63,48 @@ rating based on statistical volume (taps/installs). Use --apply to apply suggest
 			if flagTarget <= 0 {
 				return fmt.Errorf("--target must be a positive number (got %f)", flagTarget)
 			}
+			if flagLookbackDays < 1 || flagLookbackDays > 90 {
+				return fmt.Errorf("--lookback-days must be between 1 and 90 (got %d)", flagLookbackDays)
+			}
 
 			c, err := flags.newClient()
 			if err != nil {
 				return err
 			}
 
-			params := map[string]string{"limit": "100"}
+			end := time.Now().UTC()
+			start := end.AddDate(0, 0, -flagLookbackDays)
+			reportBody := map[string]any{
+				"startTime":   start.Format("2006-01-02"),
+				"endTime":     end.Format("2006-01-02"),
+				"granularity": "DAILY",
+				"selector": map[string]any{
+					"orderBy":    []map[string]string{{"field": "localSpend", "sortOrder": "DESCENDING"}},
+					"pagination": map[string]int{"offset": 0, "limit": 1000},
+				},
+				"returnRowTotals":            false,
+				"returnRecordsWithNoMetrics": false,
+			}
+
 			var allSuggestions []bidSuggestion
 
+			fetchSuggestions := func(cid string) {
+				data, _, err := c.Post(cmd.Context(), "/reports/campaigns/"+cid+"/keywords", reportBody)
+				if err != nil {
+					return
+				}
+				keywords := extractKeywordsFromReportPayload(data)
+				if len(keywords) >= 1000 {
+					fmt.Fprintf(cmd.ErrOrStderr(), "warning: campaign %s hit the 1000-keyword report limit; results may be truncated\n", cid)
+				}
+				sug, _ := buildBidSuggestions(keywords, cid, flagMetric, flagTarget)
+				allSuggestions = append(allSuggestions, sug...)
+			}
+
 			if flagCampaignID != "" {
-				data, err := c.Get(cmd.Context(), "/campaigns/"+flagCampaignID+"/adgroups/targetingkeywords", params)
-				if err != nil {
-					return classifyAPIError(err, flags)
-				}
-				sug, err := buildBidSuggestions(data, flagCampaignID, flagMetric, flagTarget)
-				if err != nil {
-					return err
-				}
-				allSuggestions = sug
+				fetchSuggestions(flagCampaignID)
 			} else {
-				campaignsData, err := c.Get(cmd.Context(), "/campaigns", params)
+				campaignsData, err := c.Get(cmd.Context(), "/campaigns", map[string]string{"limit": "1000"})
 				if err != nil {
 					return classifyAPIError(err, flags)
 				}
@@ -88,15 +114,7 @@ rating based on statistical volume (taps/installs). Use --apply to apply suggest
 					return printJSONFiltered(cmd.OutOrStdout(), []bidSuggestion{}, flags)
 				}
 				for _, cid := range campaignIDs {
-					kwData, err := c.Get(cmd.Context(), "/campaigns/"+cid+"/adgroups/targetingkeywords", params)
-					if err != nil {
-						continue
-					}
-					sug, err := buildBidSuggestions(kwData, cid, flagMetric, flagTarget)
-					if err != nil {
-						continue
-					}
-					allSuggestions = append(allSuggestions, sug...)
+					fetchSuggestions(cid)
 				}
 			}
 
@@ -114,14 +132,14 @@ rating based on statistical volume (taps/installs). Use --apply to apply suggest
 	cmd.Flags().Float64Var(&flagTarget, "target", 0, "Target metric value (e.g. 2.50 for $2.50 CPA)")
 	cmd.Flags().StringVar(&flagCampaignID, "campaign-id", "", "Limit suggestions to a specific campaign")
 	cmd.Flags().StringVar(&flagCurrency, "currency", "USD", "Currency code for bid amounts (e.g. USD, EUR, GBP, AUD)")
+	cmd.Flags().IntVar(&flagLookbackDays, "lookback-days", 14, "Days of keyword performance history to analyze (1-90)")
 	cmd.Flags().BoolVar(&flagApply, "apply", false, "Apply the suggested bids (skipped in --dry-run)")
 	_ = cmd.MarkFlagRequired("target")
 	return cmd
 }
 
-// buildBidSuggestions analyzes keyword data and computes bid suggestions for the given metric/target.
-func buildBidSuggestions(data json.RawMessage, campaignID, metric string, target float64) ([]bidSuggestion, error) {
-	keywords := extractKeywordsFromPayload(data)
+// buildBidSuggestions analyzes keyword performance data and computes bid suggestions.
+func buildBidSuggestions(keywords []keywordPerf, campaignID, metric string, target float64) ([]bidSuggestion, error) {
 	var suggestions []bidSuggestion
 	for _, kw := range keywords {
 		currentBid := kw.bid
@@ -136,16 +154,18 @@ func buildBidSuggestions(data json.RawMessage, campaignID, metric string, target
 			}
 			currentMetric = kw.spend / float64(kw.installs)
 		case "roas":
-			if kw.spend <= 0 {
-				continue
+			if kw.spend <= 0 || kw.revenue == 0 {
+				continue // no spend data or no revenue data; ROAS cannot be computed
 			}
 			currentMetric = kw.revenue / kw.spend
 		case "taps":
+			if kw.taps <= 0 {
+				continue
+			}
 			currentMetric = float64(kw.taps)
 		}
 
 		var suggestedBid float64
-		var direction string
 		var delta float64
 		switch metric {
 		case "cpa":
@@ -167,12 +187,17 @@ func buildBidSuggestions(data json.RawMessage, campaignID, metric string, target
 			delta = suggestedBid - currentBid
 		case "taps":
 			if float64(kw.taps) < target {
-				suggestedBid = math.Round(currentBid*1.2*100) / 100
+				// ponytail: proportional scale capped at 2x; bid/taps relationship is non-linear
+				// but uncapped ratios cause runaway bids when taps << target
+				ratio := math.Min(target/float64(kw.taps), 2.0)
+				suggestedBid = math.Round(currentBid*ratio*100) / 100
 			} else {
 				suggestedBid = currentBid
 			}
+			delta = suggestedBid - currentBid
 		}
 
+		var direction string
 		switch {
 		case suggestedBid > currentBid:
 			direction = "increase"
@@ -201,17 +226,68 @@ func buildBidSuggestions(data json.RawMessage, campaignID, metric string, target
 			SuggestedBid:    suggestedBid,
 			ChangeDirection: direction,
 			Confidence:      confidence,
+			ExpectedDelta:   math.Round(delta*100) / 100,
 		}
 		if metric == "cpa" {
 			s.CurrentCPA = currentMetric
-			s.ExpectedDelta = math.Round(delta*100) / 100
 		} else if metric == "roas" {
 			s.CurrentROAS = currentMetric
-			s.ExpectedDelta = math.Round(delta*100) / 100
 		}
 		suggestions = append(suggestions, s)
 	}
 	return suggestions, nil
+}
+
+// extractKeywordsFromReportPayload parses the keyword reporting API response shape:
+// {"data": {"reportingDataResponse": {"row": [{"metadata": {...}, "granularity": [...]}]}}}
+func extractKeywordsFromReportPayload(data json.RawMessage) []keywordPerf {
+	payload := data
+	for _, key := range []string{"data", "reportingDataResponse"} {
+		var nested map[string]json.RawMessage
+		if err := json.Unmarshal(payload, &nested); err == nil {
+			if v, ok := nested[key]; ok {
+				payload = v
+			}
+		}
+	}
+	var wrapper map[string]json.RawMessage
+	if err := json.Unmarshal(payload, &wrapper); err != nil {
+		return nil
+	}
+	rowsRaw, ok := wrapper["row"]
+	if !ok {
+		return nil
+	}
+	var apiRows []map[string]json.RawMessage
+	if err := json.Unmarshal(rowsRaw, &apiRows); err != nil {
+		return nil
+	}
+
+	var result []keywordPerf
+	for _, apiRow := range apiRows {
+		var meta map[string]interface{}
+		if err := json.Unmarshal(apiRow["metadata"], &meta); err != nil {
+			continue
+		}
+		kw := keywordPerf{
+			id:        optimizeStringField(meta, "keywordId"),
+			text:      optimizeStringField(meta, "keyword", "keywordText"),
+			matchType: optimizeStringField(meta, "matchType"),
+			adGroupID: optimizeStringField(meta, "adGroupId"),
+			bid:       optimizeFloatField(meta, "bidAmount"),
+		}
+		if kw.id == "" {
+			continue
+		}
+		for _, gr := range analyticsExtractGranularityRows(apiRow["granularity"]) {
+			kw.taps += analyticsParseInt(gr["taps"])
+			kw.installs += analyticsParseInt(gr["installs"])
+			kw.spend += analyticsParseFloat(gr["localSpend"])
+			kw.revenue += analyticsParseFloat(gr["revenue"])
+		}
+		result = append(result, kw)
+	}
+	return result
 }
 
 // keywordPerf holds parsed keyword performance data.
@@ -227,45 +303,6 @@ type keywordPerf struct {
 	revenue   float64
 }
 
-func extractKeywordsFromPayload(data json.RawMessage) []keywordPerf {
-	var top map[string]json.RawMessage
-	if err := json.Unmarshal(data, &top); err != nil {
-		return nil
-	}
-	var items []json.RawMessage
-	for _, key := range []string{"data", "items", "keywords", "targetingKeywords"} {
-		if raw, ok := top[key]; ok {
-			if err := json.Unmarshal(raw, &items); err == nil {
-				break
-			}
-		}
-	}
-	if items == nil {
-		if err := json.Unmarshal(data, &items); err != nil {
-			return nil
-		}
-	}
-
-	var result []keywordPerf
-	for _, item := range items {
-		var m map[string]interface{}
-		if err := json.Unmarshal(item, &m); err != nil {
-			continue
-		}
-		kw := keywordPerf{
-			id:        optimizeStringField(m, "id", "keywordId"),
-			text:      optimizeStringField(m, "text", "keyword"),
-			matchType: optimizeStringField(m, "matchType"),
-			adGroupID: optimizeStringField(m, "adGroupId"),
-			bid:       optimizeFloatField(m, "bidAmount", "bid", "amount"),
-			taps:      optimizeInt64Field(m, "taps", "tapCount"),
-			installs:  optimizeInt64Field(m, "installs", "installCount"),
-			spend:     optimizeFloatField(m, "localSpend", "spend"),
-		}
-		result = append(result, kw)
-	}
-	return result
-}
 
 func optimizeStringField(m map[string]interface{}, keys ...string) string {
 	for _, k := range keys {

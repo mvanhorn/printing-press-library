@@ -64,6 +64,9 @@ Use --agent to get a structured JSON list for automation.`,
 			}
 
 			campaigns := extractCampaignsForForecast(campaignsData)
+			if len(campaigns) == 200 {
+				fmt.Fprintln(cmd.ErrOrStderr(), "warning: campaign list hit the 200-campaign limit; results may be truncated")
+			}
 			if len(campaigns) == 0 {
 				fmt.Fprintln(cmd.ErrOrStderr(), "No campaigns found")
 				return printJSONFiltered(cmd.OutOrStdout(), []spendForecast{}, flags)

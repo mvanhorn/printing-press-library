@@ -104,6 +104,43 @@
       "files": [
         "internal/cli/analytics_query.go"
       ]
+    },
+    {
+      "id": "apple-search-ads-optimize-suggest-reporting-api",
+      "applied_at": "2026-07-21",
+      "summary": "optimize suggest must source keyword performance from POST /reports/campaigns/{id}/keywords, not GET /campaigns/{id}/adgroups/targetingkeywords which returns metadata-only (no taps/installs/spend).",
+      "reason": "The targetingkeywords endpoint has no performance fields; CPA and ROAS modes always produced zero suggestions because spend and installs were never populated. Also fixed taps mode's unconditional +20% to a proportional bid scaled by target/actual ratio, capped at 2x.",
+      "files": [
+        "internal/cli/optimize_suggest.go"
+      ]
+    },
+    {
+      "id": "apple-search-ads-optimize-suggest-expected-delta-rename",
+      "applied_at": "2026-07-21",
+      "summary": "Rename JSON field expected_cpa_delta to expected_delta; the field applies to all metric modes (cpa, roas, taps) not only CPA.",
+      "reason": "expected_cpa_delta was a confusing name for a field that surfaces bid delta for ROAS and taps modes too; renamed to metric-agnostic expected_delta.",
+      "files": [
+        "internal/cli/optimize_suggest.go"
+      ]
+    },
+    {
+      "id": "apple-search-ads-keywords-auto-promote-bid-flags",
+      "applied_at": "2026-07-21",
+      "summary": "keywords auto-promote must accept --bid-amount and --currency flags; hardcoded 0.50 USD bid breaks non-USD accounts and prevents bid customization.",
+      "reason": "ASA API rejects keyword creation where bidAmount.currency does not match the org's billing currency; non-USD accounts always received a 400 on promote. Also derived startTime/endTime at runtime (90-day lookback); the hardcoded 2099-12-31 endTime caused 400 errors on the search-terms report request.",
+      "files": [
+        "internal/cli/keywords_auto_promote.go"
+      ]
+    },
+    {
+      "id": "apple-search-ads-pagination-capacity-warnings",
+      "applied_at": "2026-07-21",
+      "summary": "forecast-spend and optimize suggest must warn on stderr when result sets hit the API pagination limit, signaling possible truncation.",
+      "reason": "Both commands use a fixed limit (200 campaigns / 1000 keywords) with no pagination; silently returning a capped result set could cause users to act on incomplete data. A stderr warning is the minimal signal without requiring full pagination support.",
+      "files": [
+        "internal/cli/campaigns_forecast_spend.go",
+        "internal/cli/optimize_suggest.go"
+      ]
     }
   ]
 }

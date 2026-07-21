@@ -6,6 +6,8 @@ package cli
 import (
 	"encoding/json"
 	"fmt"
+	"strconv"
+	"time"
 
 	"github.com/spf13/cobra"
 )
@@ -33,6 +35,8 @@ func newNovelKeywordsAutoPromoteCmd(flags *rootFlags) *cobra.Command {
 	var flagMinInstalls int
 	var flagMinTaps int
 	var flagMatchType string
+	var flagBidAmount float64
+	var flagCurrency string
 
 	cmd := &cobra.Command{
 		Use:   "auto-promote",
@@ -70,11 +74,13 @@ Use --dry-run to preview what would be promoted without making API changes.`,
 			var result promoteResult
 			isDryRun := flags != nil && flags.dryRun
 
+			endTime := time.Now().UTC()
+			startTime := endTime.AddDate(0, 0, -90)
 			for _, agID := range adGroupIDs {
 				// Fetch search terms report for this ad group.
 				reqBody := map[string]any{
-					"startTime":   "2024-01-01",
-					"endTime":     "2099-12-31",
+					"startTime":   startTime.Format("2006-01-02"),
+					"endTime":     endTime.Format("2006-01-02"),
 					"granularity": "DAILY",
 					"selector": map[string]any{
 						"orderBy": []map[string]string{
@@ -128,8 +134,8 @@ Use --dry-run to preview what would be promoted without making API changes.`,
 							"matchType": matchType,
 							"status":    "ENABLED",
 							"bidAmount": map[string]any{
-								"amount":   "0.50",
-								"currency": "USD",
+								"amount":   strconv.FormatFloat(flagBidAmount, 'f', 2, 64),
+								"currency": flagCurrency,
 							},
 						}
 						_, _, createErr := c.Post(cmd.Context(), "/campaigns/"+flagCampaignID+"/adgroups/"+agID+"/targetingkeywords", kwBody)
@@ -164,6 +170,8 @@ Use --dry-run to preview what would be promoted without making API changes.`,
 	cmd.Flags().IntVar(&flagMinInstalls, "min-installs", 3, "Minimum installs for a search term to qualify for promotion")
 	cmd.Flags().IntVar(&flagMinTaps, "min-taps", 10, "Minimum taps for a search term to qualify for promotion")
 	cmd.Flags().StringVar(&flagMatchType, "match-type", "", "Force match type: EXACT, BROAD, or AUTO (default: smart routing by tap volume)")
+	cmd.Flags().Float64Var(&flagBidAmount, "bid-amount", 0.50, "Initial bid amount for promoted keywords")
+	cmd.Flags().StringVar(&flagCurrency, "currency", "USD", "Currency code for bid amounts (e.g. USD, EUR, GBP, AUD)")
 	_ = cmd.MarkFlagRequired("campaign-id")
 	return cmd
 }
