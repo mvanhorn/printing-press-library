@@ -380,6 +380,7 @@ Use --dry-run to skip all API calls.`,
 
 					// Bulk-create keywords.
 					if newAGID != "" && len(ag.Keywords) > 0 {
+						var kwCreated int
 						for _, kw := range ag.Keywords {
 							kwPayload := make(map[string]interface{})
 							for k, v := range kw {
@@ -389,9 +390,11 @@ Use --dry-run to skip all API calls.`,
 							_, _, kwErr := c.Post(cmd.Context(), "/campaigns/"+newCampaignID+"/adgroups/"+newAGID+"/targetingkeywords", kwPayload)
 							if kwErr != nil {
 								fmt.Fprintf(cmd.ErrOrStderr(), "warning: could not create keyword: %v\n", kwErr)
+							} else {
+								kwCreated++
 							}
 						}
-						created = append(created, fmt.Sprintf("keywords:%d", len(ag.Keywords)))
+						created = append(created, fmt.Sprintf("keywords:%d", kwCreated))
 					}
 				}
 

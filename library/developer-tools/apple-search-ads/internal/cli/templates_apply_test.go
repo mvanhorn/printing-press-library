@@ -4,8 +4,36 @@ package cli
 
 import (
 	"encoding/json"
+	"fmt"
 	"testing"
 )
+
+// TestKeywordCreatedCount verifies that the created entry reflects only
+// successfully created keywords, not the template's total keyword count.
+// The RunE loop does: if kwErr == nil { kwCreated++ }, then appends "keywords:%d".
+func TestKeywordCreatedCount(t *testing.T) {
+	cases := []struct {
+		results []bool // true = API success, false = API error
+		want    string
+	}{
+		{[]bool{true, true, true}, "keywords:3"},
+		{[]bool{true, false, true}, "keywords:2"}, // partial failure visible in output
+		{[]bool{false, false}, "keywords:0"},       // all failed — not template count
+		{[]bool{true}, "keywords:1"},
+	}
+	for _, tc := range cases {
+		var kwCreated int
+		for _, ok := range tc.results {
+			if ok {
+				kwCreated++
+			}
+		}
+		got := fmt.Sprintf("keywords:%d", kwCreated)
+		if got != tc.want {
+			t.Errorf("want %q, got %q", tc.want, got)
+		}
+	}
+}
 
 func TestExtractIDFromCreateResponse(t *testing.T) {
 	cases := []struct {

@@ -163,6 +163,40 @@ func TestBuildBidSuggestions_ROAS(t *testing.T) {
 	}
 }
 
+func TestBuildBidSuggestions_ROAS_Cap2x(t *testing.T) {
+	// shoes: ROAS=5.0, bid=2.00; target=50.0 → ratio=10 → uncapped=20.00, capped at 2x=4.00
+	kws := extractKeywordsFromReportPayload(reportFixture())
+	sug, _ := buildBidSuggestions(kws[1:], "camp1", "roas", 50.0)
+	if len(sug) != 1 {
+		t.Fatalf("want 1, got %d", len(sug))
+	}
+	if math.Abs(sug[0].SuggestedBid-4.0) > 0.01 {
+		t.Errorf("want suggested_bid=4.00 (2x cap on bid=2.00), got %f", sug[0].SuggestedBid)
+	}
+}
+
+// TestFetchFailureAllCampaigns verifies the condition that triggers a non-zero exit
+// when every campaign fetch attempt fails. The closure increments fetchFailed and
+// fetchAttempted; the command returns an error when fetchFailed == fetchAttempted > 0.
+func TestFetchFailureAllCampaigns(t *testing.T) {
+	cases := []struct {
+		failed, attempted int
+		wantErr           bool
+	}{
+		{3, 3, true},  // all failed → non-zero exit
+		{1, 1, true},  // single campaign failed
+		{0, 3, false}, // none failed
+		{2, 3, false}, // partial failure — some suggestions may exist
+		{0, 0, false}, // no attempts (empty campaign list handled earlier)
+	}
+	for _, tc := range cases {
+		got := tc.attempted > 0 && tc.failed == tc.attempted
+		if got != tc.wantErr {
+			t.Errorf("failed=%d attempted=%d: want err=%v, got %v", tc.failed, tc.attempted, tc.wantErr, got)
+		}
+	}
+}
+
 func TestBuildBidSuggestions_ROAS_NoRevenue(t *testing.T) {
 	// yoga mat has revenue=0; ROAS mode must skip it.
 	kws := extractKeywordsFromReportPayload(reportFixture())

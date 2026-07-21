@@ -87,10 +87,14 @@ ROAS mode requires revenue data; keywords with no revenue in the lookback period
 			}
 
 			var allSuggestions []bidSuggestion
+			var fetchFailed, fetchAttempted int
 
 			fetchSuggestions := func(cid string) {
+				fetchAttempted++
 				data, _, err := c.Post(cmd.Context(), "/reports/campaigns/"+cid+"/keywords", reportBody)
 				if err != nil {
+					fmt.Fprintf(cmd.ErrOrStderr(), "warning: campaign %s: failed to fetch keyword report: %v\n", cid, err)
+					fetchFailed++
 					return
 				}
 				keywords := extractKeywordsFromReportPayload(data)
@@ -116,6 +120,10 @@ ROAS mode requires revenue data; keywords with no revenue in the lookback period
 				for _, cid := range campaignIDs {
 					fetchSuggestions(cid)
 				}
+			}
+
+			if fetchAttempted > 0 && fetchFailed == fetchAttempted {
+				return fmt.Errorf("%d of %d campaign keyword report(s) failed; check stderr for details", fetchFailed, fetchAttempted)
 			}
 
 			if flagApply && len(allSuggestions) > 0 {
@@ -181,6 +189,9 @@ func buildBidSuggestions(keywords []keywordPerf, campaignID, metric string, targ
 		case "roas":
 			ratio := target / currentMetric
 			suggestedBid = math.Round(currentBid*ratio*100) / 100
+			if suggestedBid > currentBid*2 {
+				suggestedBid = currentBid * 2
+			}
 			if suggestedBid < 0.01 {
 				suggestedBid = 0.01
 			}
