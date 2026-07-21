@@ -66,6 +66,9 @@ Use --dry-run to preview what would be promoted without making API changes.`,
 			}
 
 			adGroupIDs := extractAdGroupIDs(adGroupsData)
+			if len(adGroupIDs) >= 100 {
+				fmt.Fprintln(cmd.ErrOrStderr(), "warning: ad group list hit the 100-ad-group limit; search terms in ad groups beyond 100 may be silently skipped")
+			}
 			if len(adGroupIDs) == 0 {
 				fmt.Fprintln(cmd.ErrOrStderr(), "No ad groups found for campaign", flagCampaignID)
 				return printJSONFiltered(cmd.OutOrStdout(), promoteResult{}, flags)

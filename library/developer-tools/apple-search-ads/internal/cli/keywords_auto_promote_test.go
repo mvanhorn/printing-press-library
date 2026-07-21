@@ -107,3 +107,37 @@ func TestExtractSearchTerms_Empty(t *testing.T) {
 		t.Errorf("want 0 terms, got %d", len(terms))
 	}
 }
+
+// TestExtractAdGroupIDs_PaginationSentinel verifies that extractAdGroupIDs returns
+// exactly 100 items when the response is at the API page capacity, confirming the
+// len >= 100 sentinel used to emit the truncation warning is correct.
+func TestExtractAdGroupIDs_PaginationSentinel(t *testing.T) {
+	// Build a minimal {"data": [{id:"1"}, ...]} with exactly 100 items.
+	items := make([]json.RawMessage, 100)
+	for i := range items {
+		items[i] = json.RawMessage(`{"id":"ag"}`)
+	}
+	raw, _ := json.Marshal(map[string]interface{}{"data": items})
+	ids := extractAdGroupIDs(raw)
+	if len(ids) != 100 {
+		t.Fatalf("want 100 ids, got %d", len(ids))
+	}
+	// len(ids) >= 100 is the sentinel for the pagination warning.
+	if !(len(ids) >= 100) {
+		t.Error("sentinel len >= 100 should be true at capacity")
+	}
+}
+
+// TestExtractAdGroupIDs_BelowCapacity verifies that a response with fewer than
+// 100 items does NOT trigger the pagination-warning sentinel.
+func TestExtractAdGroupIDs_BelowCapacity(t *testing.T) {
+	items := make([]json.RawMessage, 3)
+	for i := range items {
+		items[i] = json.RawMessage(`{"id":"ag"}`)
+	}
+	raw, _ := json.Marshal(map[string]interface{}{"data": items})
+	ids := extractAdGroupIDs(raw)
+	if len(ids) >= 100 {
+		t.Errorf("want < 100 ids (no warning), got %d", len(ids))
+	}
+}

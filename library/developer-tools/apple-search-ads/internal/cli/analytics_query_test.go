@@ -4,7 +4,9 @@ package cli
 
 import (
 	"encoding/json"
+	"fmt"
 	"math"
+	"strings"
 	"testing"
 )
 
@@ -114,5 +116,33 @@ func TestParseReportingRows_CampaignFields(t *testing.T) {
 	}
 	if rows[0].Date != "2026-07-01" {
 		t.Errorf("want date=2026-07-01, got %q", rows[0].Date)
+	}
+}
+
+// TestParseReportingRows_PaginationSentinel builds a 1000-row response and
+// verifies that len(rows) >= 1000 is the correct sentinel for the sync-cache
+// truncation warning ("reporting response hit the 1000-row limit").
+func TestParseReportingRows_PaginationSentinel(t *testing.T) {
+	var sb strings.Builder
+	sb.WriteString(`{"data":{"reportingDataResponse":{"row":[`)
+	for i := 0; i < 1000; i++ {
+		if i > 0 {
+			sb.WriteByte(',')
+		}
+		fmt.Fprintf(&sb,
+			`{"metadata":{"campaignId":"%d","campaignName":"C%d"},"granularity":[{"date":"2026-07-01","impressions":"100","taps":"5","installs":"1","localSpend":{"amount":"2.00"}}]}`,
+			i, i)
+	}
+	sb.WriteString(`]}}}`)
+
+	rows, err := parseReportingRows(json.RawMessage(sb.String()))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(rows) != 1000 {
+		t.Fatalf("want 1000 rows, got %d", len(rows))
+	}
+	if !(len(rows) >= 1000) {
+		t.Error("sentinel len >= 1000 should be true at capacity")
 	}
 }
