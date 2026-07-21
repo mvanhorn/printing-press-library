@@ -810,6 +810,92 @@ func TestWaitForReceiptThroughDialogs_DismissalResetsIdleTimer(t *testing.T) {
 	})
 }
 
+func TestWaitForReceiptThroughDialogs_RedismissesDialogReopenedAfterFirstDismissal(t *testing.T) {
+	html := `<!doctype html><button>Complete reservation</button>`
+	withTockDOMFixtureAtPath(t, "/checkout/confirm-purchase", html, func(ctx context.Context) {
+		dismissCalls := 0
+		// Every probe reports a clickable recognized dialog: the loop must
+		// keep dismissing (a retry click re-opens the prompt live), not stop
+		// after the first success.
+		dismiss := func(context.Context) (bool, error) {
+			dismissCalls++
+			return true, nil
+		}
+		err := chromedp.Run(ctx, chromedp.ActionFunc(func(actCtx context.Context) error {
+			_, waitErr := waitForReceiptThroughDialogsWithRetry(
+				actCtx, 2500*time.Millisecond, dismiss, 500*time.Millisecond,
+				func(context.Context) error { return nil },
+			)
+			return waitErr
+		}))
+		if err == nil {
+			t.Fatal("expected receipt timeout")
+		}
+		if dismissCalls < 2 {
+			t.Fatalf("dismiss calls = %d, want at least two (dialog handling must stay armed)", dismissCalls)
+		}
+		if dismissCalls > 3 {
+			t.Fatalf("dismiss calls = %d, want at most three (dismissal cap)", dismissCalls)
+		}
+	})
+}
+
+func TestWaitForReceiptThroughDialogs_RetryClickContextCarriesReceiptDeadline(t *testing.T) {
+	html := `<!doctype html><button>Complete reservation</button>`
+	withTockDOMFixtureAtPath(t, "/checkout/confirm-purchase", html, func(ctx context.Context) {
+		waitDeadline := 3 * time.Second
+		start := time.Now()
+		var clickDeadline time.Time
+		var hadDeadline bool
+		err := chromedp.Run(ctx, chromedp.ActionFunc(func(actCtx context.Context) error {
+			_, waitErr := waitForReceiptThroughDialogsWithRetry(
+				actCtx, waitDeadline, func(context.Context) (bool, error) { return false, nil },
+				500*time.Millisecond,
+				func(clickCtx context.Context) error {
+					clickDeadline, hadDeadline = clickCtx.Deadline()
+					return nil
+				},
+			)
+			return waitErr
+		}))
+		if err == nil {
+			t.Fatal("expected receipt timeout")
+		}
+		if !hadDeadline {
+			t.Fatal("retry click context carried no deadline; clickPlaceReservation could poll past the receipt deadline")
+		}
+		if latest := start.Add(waitDeadline + 250*time.Millisecond); clickDeadline.After(latest) {
+			t.Fatalf("retry click deadline %v exceeds receipt deadline bound %v", clickDeadline, latest)
+		}
+	})
+}
+
+func TestDismissPostConfirmDialog_SelectsSkipNamedByAriaLabelledBy(t *testing.T) {
+	html := `<!doctype html>
+		<div role="dialog" aria-modal="true" style="position:absolute;left:10px;top:10px;padding:20px">
+			<p>Enable text alerts from Tock</p>
+			<span id="skip-name" style="display:none">Skip</span>
+			<button aria-labelledby="skip-name" onclick="window.clickedControl='labelled-skip'" style="width:80px;height:32px"></button>
+			<button onclick="window.clickedControl='agree'">Agree and Continue</button>
+		</div>`
+	withTockDOMFixture(t, html, func(ctx context.Context) {
+		clicked, err := dismissPostConfirmDialog(ctx)
+		if err != nil {
+			t.Fatalf("dismiss labelledby dialog: %v", err)
+		}
+		if !clicked {
+			t.Fatal("expected the aria-labelledby Skip to be clicked")
+		}
+		var control string
+		if err := chromedp.Run(ctx, chromedp.Evaluate(`window.clickedControl || ''`, &control)); err != nil {
+			t.Fatalf("read clicked control: %v", err)
+		}
+		if control != "labelled-skip" {
+			t.Fatalf("clicked control = %q, want labelled-skip", control)
+		}
+	})
+}
+
 func TestWaitForReceiptThroughDialogs_SlowNavigationAfterRetryDoesNotDoubleFire(t *testing.T) {
 	html := `<!doctype html><button>Complete reservation</button>`
 	withTockDOMFixtureAtPath(t, "/checkout/confirm-purchase", html, func(ctx context.Context) {

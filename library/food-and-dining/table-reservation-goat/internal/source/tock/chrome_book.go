@@ -457,8 +457,16 @@ const tockCheckoutPageStateJS = `
 			const r = el.getBoundingClientRect();
 			return r.width > 0 && r.height > 0;
 		};
+		const labelledByText = (el) => {
+			const ids = (el.getAttribute('aria-labelledby') || '').split(/\s+/).filter(Boolean);
+			return ids
+				.map((id) => { const ref = document.getElementById(id); return ref ? ref.textContent : ''; })
+				.join(' ');
+		};
+		// Accessible-name precedence: aria-labelledby, aria-label, contents,
+		// title — mirroring how assistive tech names the control.
 		const accessibleName = (el) => clean(
-			el.getAttribute('aria-label') || el.textContent || el.getAttribute('title')
+			labelledByText(el) || el.getAttribute('aria-label') || el.textContent || el.getAttribute('title')
 		);
 		const allControls = Array.from(document.querySelectorAll('button, a, [role="button"]'));
 		const confirm = Array.from(document.querySelectorAll('button[type="submit"], button'))
@@ -1735,8 +1743,14 @@ func waitForReceiptThroughDialogsWithRetry(ctx context.Context, deadline time.Du
 	retryClick func(context.Context) error) (string, error) {
 	stop := time.Now().Add(deadline)
 	retryUsed := false
-	dialogDismissed := false
+	dismissals := 0
 	var idleSince time.Time
+	// Each confirm click can raise a fresh recognized dialog (the retry
+	// click re-opens the text-alert prompt), so dismissal stays armed for
+	// the whole wait instead of stopping after the first success. The cap
+	// keeps a dialog that survives its own dismissal from being clicked
+	// forever.
+	const maxDismissals = 3
 	for {
 		var loc string
 		if err := chromedp.Location(&loc).Do(ctx); err == nil {
@@ -1766,12 +1780,12 @@ func waitForReceiptThroughDialogsWithRetry(ctx context.Context, deadline time.Du
 			idleSince = time.Time{}
 		}
 
-		if !dialogDismissed {
+		if dismissals < maxDismissals {
 			clicked, err := dismiss(ctx)
 			switch {
 			case err == nil:
 				if clicked {
-					dialogDismissed = true
+					dismissals++
 					idleSince = time.Time{}
 				}
 			case isTransientNavigationError(err):
@@ -1793,7 +1807,13 @@ func waitForReceiptThroughDialogsWithRetry(ctx context.Context, deadline time.Du
 			checkoutState.ConfirmControlPresent && checkoutState.ConfirmControlEnabled &&
 			!checkoutState.ConfirmOccluded {
 			retryUsed = true
-			_ = retryClick(ctx)
+			// Bound the click by the receipt deadline: clickPlaceReservation
+			// polls a disabled control for up to 15s, and a click dispatched
+			// after the deadline would be reported as a timeout while the
+			// booking is still taking effect.
+			retryCtx, cancelRetry := context.WithDeadline(ctx, stop)
+			_ = retryClick(retryCtx)
+			cancelRetry()
 		}
 		select {
 		case <-ctx.Done():
@@ -1819,8 +1839,17 @@ func dismissPostConfirmDialog(ctx context.Context) (bool, error) {
 				const r = el.getBoundingClientRect();
 				return r.width > 0 && r.height > 0;
 			};
+			const labelledByText = (el) => {
+				const ids = (el.getAttribute('aria-labelledby') || '').split(/\s+/).filter(Boolean);
+				return ids
+					.map((id) => { const ref = document.getElementById(id); return ref ? ref.textContent : ''; })
+					.join(' ');
+			};
+			// Accessible-name precedence: aria-labelledby, aria-label,
+			// contents, title — a Skip named only through a referenced label
+			// must still be selectable.
 			const label = (el) => clean(
-				el.getAttribute('aria-label') || el.textContent || el.getAttribute('title')
+				labelledByText(el) || el.getAttribute('aria-label') || el.textContent || el.getAttribute('title')
 			);
 			const controls = (host) => Array.from(
 				host.querySelectorAll('button, a, [role="button"]')
