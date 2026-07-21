@@ -351,13 +351,10 @@ Use --dry-run to skip all API calls.`,
 					continue
 				}
 
-				var campaignResult map[string]interface{}
-				_ = json.Unmarshal(campaignResp, &campaignResult) // best-effort parse; empty map is the safe fallback, newCampaignID checked below
-				newCampaignID := templateStringField(campaignResult, "id", "campaignId")
-				if data, ok := campaignResult["data"]; ok {
-					if m, ok := data.(map[string]interface{}); ok {
-						newCampaignID = templateStringField(m, "id", "campaignId")
-					}
+				newCampaignID := extractIDFromCreateResponse(campaignResp, "id", "campaignId")
+				if newCampaignID == "" {
+					fmt.Fprintf(cmd.ErrOrStderr(), "error: campaign POST for org %s returned no campaign ID; skipping ad group creation\n", orgID)
+					continue
 				}
 
 				var created []string
@@ -378,14 +375,7 @@ Use --dry-run to skip all API calls.`,
 						continue
 					}
 
-					var agResult map[string]interface{}
-					_ = json.Unmarshal(agResp, &agResult) // best-effort parse; empty map is safe, newAGID checked before keyword creation
-					newAGID := templateStringField(agResult, "id", "adGroupId")
-					if data, ok := agResult["data"]; ok {
-						if m, ok := data.(map[string]interface{}); ok {
-							newAGID = templateStringField(m, "id", "adGroupId")
-						}
-					}
+					newAGID := extractIDFromCreateResponse(agResp, "id", "adGroupId")
 					created = append(created, fmt.Sprintf("ad_group:%s", newAGID))
 
 					// Bulk-create keywords.
@@ -437,6 +427,24 @@ func extractJSONArray(data json.RawMessage, dest *[]map[string]interface{}) erro
 		}
 	}
 	return json.Unmarshal(data, dest)
+}
+
+// extractIDFromCreateResponse parses a campaign/ad-group POST response and returns
+// the first non-empty ID field found, unwrapping a "data" envelope if present.
+func extractIDFromCreateResponse(resp json.RawMessage, keys ...string) string {
+	var m map[string]interface{}
+	if err := json.Unmarshal(resp, &m); err != nil {
+		return ""
+	}
+	if id := templateStringField(m, keys...); id != "" {
+		return id
+	}
+	if data, ok := m["data"]; ok {
+		if nested, ok := data.(map[string]interface{}); ok {
+			return templateStringField(nested, keys...)
+		}
+	}
+	return ""
 }
 
 func templateStringField(m map[string]interface{}, keys ...string) string {
