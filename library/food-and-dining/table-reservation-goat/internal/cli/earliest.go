@@ -846,12 +846,11 @@ func resolveEarliestForVenue(ctx context.Context, s *auth.Session, venue string,
 			anchorHH := 19
 			anchorMM := 0
 			var bookable []string
-			matchingAvailabilityChunks := 0
+			matchingAvailabilityChunks := countInformativeAvailabilityChunks(avail, restID)
 			for _, ra := range avail {
 				if ra.RestaurantID != restID {
 					continue
 				}
-				matchingAvailabilityChunks++
 				for _, d := range ra.AvailabilityDays {
 					dayDate := d.Date
 					if dayDate == "" {
@@ -924,6 +923,22 @@ func resolveEarliestForVenue(ctx context.Context, s *auth.Session, venue string,
 		}
 	}
 	return row
+}
+
+// countInformativeAvailabilityChunks counts availability wrappers for the
+// requested restaurant that actually carry day data. A matching wrapper with
+// an empty AvailabilityDays array holds no slot information, so it must not
+// flip the no-availability diagnostic to the "slots present but none
+// available/matching" phrasing.
+func countInformativeAvailabilityChunks(avail []opentable.RestaurantAvailability, restID int) int {
+	count := 0
+	for _, ra := range avail {
+		if ra.RestaurantID != restID || len(ra.AvailabilityDays) == 0 {
+			continue
+		}
+		count++
+	}
+	return count
 }
 
 func openTableNoAvailabilityReason(venueLabel string, restID, within, party, matchingAvailabilityChunks int, cacheNote string) string {

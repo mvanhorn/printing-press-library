@@ -8,6 +8,8 @@ import (
 	"encoding/json"
 	"strings"
 	"testing"
+
+	"github.com/mvanhorn/printing-press-library/library/food-and-dining/table-reservation-goat/internal/source/opentable"
 )
 
 // runEarliest drives the earliest cobra command through a string-args
@@ -263,6 +265,26 @@ func TestOpenTableNoAvailabilityReason_DistinguishesMissingDataFromFullness(t *t
 			t.Fatalf("reason = %q; matched chunks must not use missing-data diagnostic", reason)
 		}
 	})
+}
+
+func TestCountInformativeAvailabilityChunks_IgnoresEmptyDayWrappers(t *testing.T) {
+	avail := []opentable.RestaurantAvailability{
+		{RestaurantID: 1080775},                                   // matching, no day data
+		{RestaurantID: 999, AvailabilityDays: dayFixtures(1)},     // day data, wrong restaurant
+		{RestaurantID: 1080775, AvailabilityDays: dayFixtures(0)}, // matching, empty days slice
+		{RestaurantID: 1080775, AvailabilityDays: dayFixtures(2)}, // informative
+	}
+	if got := countInformativeAvailabilityChunks(avail, 1080775); got != 1 {
+		t.Fatalf("countInformativeAvailabilityChunks = %d; want 1 (empty-day wrappers carry no slot data)", got)
+	}
+	if got := countInformativeAvailabilityChunks(avail[:3], 1080775); got != 0 {
+		t.Fatalf("countInformativeAvailabilityChunks = %d; want 0 when every matching wrapper is day-free", got)
+	}
+}
+
+func dayFixtures(n int) []opentable.AvailabilityDay {
+	days := make([]opentable.AvailabilityDay, n)
+	return days
 }
 
 // TestSummarizeEarliest covers issue #406 failure 4: zero-resolution

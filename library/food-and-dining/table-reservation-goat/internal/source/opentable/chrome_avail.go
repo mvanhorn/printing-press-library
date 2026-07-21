@@ -419,6 +419,13 @@ func (c *Client) ChromeAvailability(
 		chromedp.Navigate("https://www.opentable.com/restaurant/profile/100"),
 		chromedp.Sleep(2 * time.Second),
 		chromedp.ActionFunc(func(actCtx context.Context) error {
+			// Arm before navigating: the page can fire its availability
+			// request while Navigate is still in flight, and an unarmed
+			// coordinator drops that request's events. Warm-up traffic
+			// stays excluded by the restaurant-ID binding.
+			coordinatorMu.Lock()
+			coordinator.Arm()
+			coordinatorMu.Unlock()
 			_, _, errorText, _, err := page.Navigate(pageURL).Do(actCtx)
 			if err != nil {
 				return err
@@ -426,9 +433,6 @@ func (c *Client) ChromeAvailability(
 			if errorText != "" {
 				return fmt.Errorf("page load error %s", errorText)
 			}
-			coordinatorMu.Lock()
-			coordinator.Arm()
-			coordinatorMu.Unlock()
 			return nil
 		}),
 		// Wait until either the listener captures the response or the
