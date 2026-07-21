@@ -15,5 +15,5 @@
     "internal/cli/personal_library_rituals.go",
     "internal/cli/personal_library_rituals_test.go"
   ],
-  "validated_outcome": "verify_skill.py --strict resolves the novel command paths; focused regression tests cover evidence-locked explicit duplicate keepers, retained upload IDs and album assignment, and fully prevalidated malformed or partially mapped source collections."
+  "validated_outcome": "verify_skill.py --strict resolves the novel command paths; focused regression tests cover evidence-locked explicit duplicate keepers, retained upload IDs and album assignment, and all source collections prevalidated before malformed or partially mapped data can mutate the destination."
 }

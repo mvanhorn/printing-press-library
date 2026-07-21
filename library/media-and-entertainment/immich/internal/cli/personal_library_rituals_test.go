@@ -761,6 +761,52 @@ func TestMapSourceCollectionsRejectsPartialAssetMappings(t *testing.T) {
 	}
 }
 
+func TestMapSourceCollectionsPrevalidatesEveryCollectionBeforeMutation(t *testing.T) {
+	for name, sourceData := range map[string]struct {
+		albums string
+		tags   string
+	}{
+		"later album": {
+			albums: `[{"albumName":"valid","assets":[{"id":"mapped"}]},{"albumName":"invalid","assets":[{"id":"missing"}]}]`,
+			tags:   `[]`,
+		},
+		"later tag": {
+			albums: `[{"albumName":"valid","assets":[{"id":"mapped"}]}]`,
+			tags:   `[{"name":"invalid","assets":[{"id":"missing"}]}]`,
+		},
+	} {
+		t.Run(name, func(t *testing.T) {
+			mutations := 0
+			destination := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				mutations++
+				w.WriteHeader(http.StatusInternalServerError)
+			}))
+			defer destination.Close()
+			source := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				switch r.URL.Path {
+				case "/albums":
+					_, _ = w.Write([]byte(sourceData.albums))
+				case "/tags":
+					_, _ = w.Write([]byte(sourceData.tags))
+				default:
+					w.WriteHeader(http.StatusNotFound)
+				}
+			}))
+			defer source.Close()
+			t.Setenv("IMMICH_BASE_URL", destination.URL)
+			t.Setenv("IMMICH_BASE_PATH", "")
+			t.Setenv("IMMICH_API_KEY", "key")
+			err := mapSourceCollections(context.Background(), &rootFlags{}, source.URL, "source-key", map[string]string{"mapped": "destination"})
+			if err == nil || !strings.Contains(err.Error(), "no destination mapping") {
+				t.Fatalf("%s mapping error = %v", name, err)
+			}
+			if mutations != 0 {
+				t.Fatalf("%s mapping caused %d destination mutations", name, mutations)
+			}
+		})
+	}
+}
+
 func TestSourceImmichPaginatesAndUsesCollisionSafeTempFiles(t *testing.T) {
 	var pages []int
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
