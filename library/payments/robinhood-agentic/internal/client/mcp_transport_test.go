@@ -3,10 +3,13 @@
 package client
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
 	"reflect"
+	"strings"
 	"testing"
 )
 
@@ -172,4 +175,82 @@ func TestSynthResponseIsReadable(t *testing.T) {
 		t.Errorf("synthResponse header/status wrong: %d %s", resp.StatusCode, resp.Header.Get("Content-Type"))
 	}
 	_ = resp.Body.Close()
+}
+
+// scriptedMCPServer fakes the MCP endpoint at the base-RoundTripper level:
+// it answers the initialize handshake and fails the first N tools/call
+// requests with a stale-session JSON-RPC error before succeeding.
+type scriptedMCPServer struct {
+	sessionFailures int // tools/call requests to fail before succeeding
+	toolCalls       int
+	inits           int
+}
+
+func (s *scriptedMCPServer) RoundTrip(req *http.Request) (*http.Response, error) {
+	raw, _ := io.ReadAll(req.Body)
+	var msg struct {
+		Method string `json:"method"`
+	}
+	_ = json.Unmarshal(raw, &msg)
+	hdr := http.Header{"Content-Type": []string{"application/json"}}
+	body := `{"jsonrpc":"2.0","id":1,"result":{}}`
+	switch msg.Method {
+	case "initialize":
+		s.inits++
+		hdr.Set("Mcp-Session-Id", fmt.Sprintf("sess-%d", s.inits))
+	case "notifications/initialized":
+		return &http.Response{StatusCode: 202, Header: hdr, Body: io.NopCloser(strings.NewReader(""))}, nil
+	case "tools/call":
+		s.toolCalls++
+		if s.toolCalls <= s.sessionFailures {
+			body = `{"jsonrpc":"2.0","id":1,"error":{"code":-32001,"message":"session expired or not found"}}`
+		} else {
+			body = `{"jsonrpc":"2.0","id":1,"result":{"content":[{"type":"text","text":"{\"order\":{\"state\":\"queued\"}}"}],"isError":false}}`
+		}
+	}
+	return &http.Response{StatusCode: 200, Header: hdr, Body: io.NopCloser(strings.NewReader(body))}, nil
+}
+
+// TestRoundTripJournalsFinalResultAfterSessionRetry pins the journal ordering:
+// an order that fails on an expired session but succeeds on the automatic
+// retry must be journaled as the final success, not the transient error —
+// otherwise the placement escapes SumPlacedNotionalSince and the daily cap.
+func TestRoundTripJournalsFinalResultAfterSessionRetry(t *testing.T) {
+	t.Setenv("PRINTING_PRESS_VERIFY", "")
+
+	savedGuard, savedJournal := MutationGuard, MutationJournal
+	defer func() { MutationGuard, MutationJournal = savedGuard, savedJournal }()
+	MutationGuard = nil
+	type journaled struct {
+		status  int
+		callErr error
+	}
+	var entries []journaled
+	MutationJournal = func(ctx context.Context, tool string, args map[string]any, status int, callErr error) {
+		entries = append(entries, journaled{status, callErr})
+	}
+
+	server := &scriptedMCPServer{sessionFailures: 1}
+	tr := newMCPTransport(server, "https://example.test/mcp")
+	req, _ := http.NewRequest("POST", "https://example.test/tools/place_equity_order",
+		strings.NewReader(`{"symbol":"AAPL","quantity":"1","limit_price":"10"}`))
+	req.Header.Set("Content-Type", "application/json")
+
+	resp, err := tr.RoundTrip(req)
+	if err != nil {
+		t.Fatalf("RoundTrip: %v", err)
+	}
+	defer resp.Body.Close()
+	if resp.StatusCode != http.StatusOK {
+		t.Fatalf("status = %d, want 200 (retry should have recovered)", resp.StatusCode)
+	}
+	if server.toolCalls != 2 || server.inits != 2 {
+		t.Fatalf("toolCalls=%d inits=%d, want 2/2 (one failure, one re-handshake retry)", server.toolCalls, server.inits)
+	}
+	if len(entries) != 1 {
+		t.Fatalf("journaled %d entries, want exactly 1 (only the final outcome)", len(entries))
+	}
+	if entries[0].callErr != nil || entries[0].status != http.StatusOK {
+		t.Fatalf("journaled status=%d err=%v, want the retry's success", entries[0].status, entries[0].callErr)
+	}
 }

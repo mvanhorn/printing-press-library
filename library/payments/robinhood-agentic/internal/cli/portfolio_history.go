@@ -8,6 +8,8 @@ package cli
 
 import (
 	"fmt"
+	"sort"
+	"strings"
 	"time"
 
 	"github.com/spf13/cobra"
@@ -31,6 +33,20 @@ type portfolioHistoryPoint struct {
 
 // snapshotTotals extracts the total-value series as floats (oldest first),
 // tolerating malformed money strings as 0 via parseMoney.
+// snapshotAccounts returns the distinct account numbers in the series, sorted.
+func snapshotAccounts(snaps []store.PortfolioSnapshot) []string {
+	seen := map[string]bool{}
+	var accounts []string
+	for _, s := range snaps {
+		if !seen[s.AccountNumber] {
+			seen[s.AccountNumber] = true
+			accounts = append(accounts, s.AccountNumber)
+		}
+	}
+	sort.Strings(accounts)
+	return accounts
+}
+
 func snapshotTotals(snaps []store.PortfolioSnapshot) []float64 {
 	out := make([]float64, len(snaps))
 	for i, s := range snaps {
@@ -87,6 +103,14 @@ func newNovelPortfolioHistoryCmd(flags *rootFlags) *cobra.Command {
 				snaps, err = st.PortfolioSnapshots(flagAccount, since)
 				if err != nil {
 					return err
+				}
+			}
+			// A summary/sparkline across accounts compares unrelated values
+			// (account A's Tuesday against account B's Wednesday) — refuse
+			// rather than emit a meaningless change figure.
+			if flagAccount == "" {
+				if accounts := snapshotAccounts(snaps); len(accounts) > 1 {
+					return usageErr(fmt.Errorf("snapshots span %d accounts (%s); pass --account to pick one", len(accounts), strings.Join(accounts, ", ")))
 				}
 			}
 

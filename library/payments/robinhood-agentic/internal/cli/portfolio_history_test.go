@@ -140,3 +140,15 @@ func TestSnapshotTotals(t *testing.T) {
 		})
 	}
 }
+
+// TestSnapshotAccountsDistinct pins the multi-account refusal input: history
+// must detect when a series spans accounts so it never summarizes them as one.
+func TestSnapshotAccountsDistinct(t *testing.T) {
+	snaps := []store.PortfolioSnapshot{
+		{AccountNumber: "B2"}, {AccountNumber: "A1"}, {AccountNumber: "B2"},
+	}
+	got := snapshotAccounts(snaps)
+	if len(got) != 2 || got[0] != "A1" || got[1] != "B2" {
+		t.Errorf("snapshotAccounts = %v, want [A1 B2]", got)
+	}
+}

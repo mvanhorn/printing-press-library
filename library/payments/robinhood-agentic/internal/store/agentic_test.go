@@ -96,6 +96,18 @@ func TestAgenticRoundTrips(t *testing.T) {
 		t.Fatalf("guard policy round-trip: %v %#v", err, got)
 	}
 
+	// corrupt guard-policy row fails closed: a damaged row must surface an
+	// error, not decode to an empty policy that drops caps and kill switches
+	if _, err := st.DB().Exec(`UPDATE guard_policy SET value = '{not json' WHERE key = 'policy'`); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := st.GetGuardPolicy(); err == nil {
+		t.Fatal("corrupt policy row decoded without error; guard would run with an empty policy")
+	}
+	if err := st.SetGuardPolicy(want); err != nil {
+		t.Fatal(err)
+	}
+
 	// tool-surface round-trip
 	_ = st.RecordToolSurface(json.RawMessage(`[{"name":"get_accounts"},{"name":"get_portfolio"}]`))
 	surf, err := st.ToolSurfaceSnapshots(1)

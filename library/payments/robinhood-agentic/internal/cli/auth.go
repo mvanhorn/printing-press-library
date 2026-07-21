@@ -108,9 +108,20 @@ func runOAuthLogin(cmd *cobra.Command, flags *rootFlags, clientID, clientSecret 
 	// must self-register (RFC 7591). Only the dry-run/verify short-circuit above
 	// can reach this with empty creds; on the real path, register a public
 	// client and let the PKCE flow below proceed. The issued id is persisted via
-	// SaveTokens so refresh reuses it.
+	// SaveTokens so refresh reuses it. The callback listener is bound BEFORE
+	// registration so the registered redirect URI carries the port actually in
+	// use — with --port 0 the OS assigns it, and registering ":0" would make
+	// the provider reject the later authorize/token exchange on redirect
+	// mismatch.
+	var listener net.Listener
 	if clientID == "" && cfg.ClientID == "" && clientSecret == "" {
-		registeredID, regErr := registerRobinhoodClient(cmd.Context(), robinhoodRegistrationURL, fmt.Sprintf("http://127.0.0.1:%d/callback", port))
+		listener, err = net.Listen("tcp", fmt.Sprintf("127.0.0.1:%d", port))
+		if err != nil {
+			return fmt.Errorf("starting callback server: %w", err)
+		}
+		defer listener.Close()
+		boundPort := listener.Addr().(*net.TCPAddr).Port
+		registeredID, regErr := registerRobinhoodClient(cmd.Context(), robinhoodRegistrationURL, fmt.Sprintf("http://127.0.0.1:%d/callback", boundPort))
 		if regErr != nil {
 			return fmt.Errorf("dynamic client registration: %w", regErr)
 		}
@@ -174,11 +185,15 @@ func runOAuthLogin(cmd *cobra.Command, flags *rootFlags, clientID, clientSecret 
 		return nil
 	}
 
-	listener, err := net.Listen("tcp", fmt.Sprintf("127.0.0.1:%d", port))
-	if err != nil {
-		return fmt.Errorf("starting callback server: %w", err)
+	// Bound already when dynamic registration ran; bind here on the
+	// configured-credentials path.
+	if listener == nil {
+		listener, err = net.Listen("tcp", fmt.Sprintf("127.0.0.1:%d", port))
+		if err != nil {
+			return fmt.Errorf("starting callback server: %w", err)
+		}
+		defer listener.Close()
 	}
-	defer listener.Close()
 
 	// Derive the redirect URI from the live listener address so an OS-assigned
 	// ephemeral port (--port 0) is reflected in both the auth request and the

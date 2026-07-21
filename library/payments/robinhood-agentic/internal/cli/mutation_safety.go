@@ -105,8 +105,11 @@ func checkOrderPolicy(tool string, args map[string]any) string {
 // journalMutation records the outcome of a mutating call that reached the
 // network (guard-blocked calls are journaled inside guardMutation).
 func journalMutation(ctx context.Context, tool string, args map[string]any, status int, callErr error) {
-	outcome := "placed"
 	action := mutationAction(tool)
+	// Success outcomes are per-action: only orders are "placed" (the audit
+	// --placed filter and the daily-cap sum key on that exact value), so a
+	// completed cancel or watchlist edit must not masquerade as a placement.
+	outcome := "applied"
 	detail := ""
 	switch {
 	case callErr != nil:
@@ -114,10 +117,11 @@ func journalMutation(ctx context.Context, tool string, args map[string]any, stat
 		detail = callErr.Error()
 	case status >= 400:
 		outcome = "rejected"
-	default:
-		if tool == "place_equity_order" || tool == "place_option_order" {
-			detail = fmt.Sprintf("notional=%.2f", orderNotional(tool, args))
-		}
+	case action == "place":
+		outcome = "placed"
+		detail = fmt.Sprintf("notional=%.2f", orderNotional(tool, args))
+	case action == "cancel":
+		outcome = "canceled"
 	}
 	recordJournal(store.WriteJournalEntry{
 		Tool: tool, Action: action, Outcome: outcome,

@@ -351,7 +351,12 @@ func (s *Store) GetGuardPolicy() (GuardPolicy, error) {
 		return p, err
 	}
 	if raw != "" {
-		_ = json.Unmarshal([]byte(raw), &p)
+		// A corrupt row must not decode to an empty policy — that would
+		// silently drop configured caps and kill switches, and the guard
+		// fails closed on store errors.
+		if err := json.Unmarshal([]byte(raw), &p); err != nil {
+			return GuardPolicy{}, fmt.Errorf("stored guard policy is corrupt (%w); repair it with 'guard set'", err)
+		}
 	}
 	return p, nil
 }

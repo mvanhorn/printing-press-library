@@ -187,6 +187,15 @@ func (t *mcpTransport) RoundTrip(req *http.Request) (*http.Response, error) {
 	}
 
 	result, callErr := t.callTool(req.Context(), tool, args, auth)
+	if callErr != nil && isSessionError(callErr) {
+		// A session that expired mid-process returns a JSON-RPC session error;
+		// reset and retry the handshake once before surfacing the failure.
+		t.reset()
+		result, callErr = t.callTool(req.Context(), tool, args, auth)
+	}
+	// Journal only after the session retry settles: an order that fails on an
+	// expired session but succeeds on retry is a placement, and journaling the
+	// transient error instead would drop it from the daily-cap sum.
 	if isMutatingTool(tool) && MutationJournal != nil {
 		status := http.StatusOK
 		if callErr != nil {
@@ -195,14 +204,6 @@ func (t *mcpTransport) RoundTrip(req *http.Request) (*http.Response, error) {
 			status = http.StatusBadRequest
 		}
 		MutationJournal(req.Context(), tool, args, status, callErr)
-	}
-	if callErr != nil {
-		// A session that expired mid-process returns a JSON-RPC session error;
-		// reset and retry the handshake once before surfacing the failure.
-		if isSessionError(callErr) {
-			t.reset()
-			result, callErr = t.callTool(req.Context(), tool, args, auth)
-		}
 	}
 	if callErr != nil {
 		// Propagate the real HTTP status when the failure carries one (401 auth,
