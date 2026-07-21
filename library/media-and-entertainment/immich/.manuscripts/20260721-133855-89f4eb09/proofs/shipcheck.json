@@ -1,0 +1,64 @@
+{
+  "passed": true,
+  "exit_code": 0,
+  "started_at": "2026-07-21T18:21:36Z",
+  "elapsed_ms": 74316,
+  "legs": [
+    {
+      "name": "verify",
+      "exit_code": 0,
+      "passed": true,
+      "started_at": "2026-07-21T18:21:36Z",
+      "elapsed_ms": 43661,
+      "command": "/Users/alderik/Code/projects/cli-printing-press/cli-printing-press verify --dir /Users/alderik/printing-press/.runstate/cli-printing-press-7a294ee1/runs/20260721-133855-89f4eb09/working/immich-pp-cli --write-manifest /Users/alderik/printing-press/.runstate/cli-printing-press-7a294ee1/runs/20260721-133855-89f4eb09/working/immich-pp-cli/.printing-press.json --spec /Users/alderik/printing-press/.runstate/cli-printing-press-7a294ee1/runs/20260721-133855-89f4eb09/research/immich-openapi.json"
+    },
+    {
+      "name": "validate-narrative",
+      "exit_code": 0,
+      "passed": true,
+      "started_at": "2026-07-21T18:22:19Z",
+      "elapsed_ms": 1434,
+      "command": "/Users/alderik/Code/projects/cli-printing-press/cli-printing-press validate-narrative --strict --full-examples --research /Users/alderik/printing-press/.runstate/cli-printing-press-7a294ee1/runs/20260721-133855-89f4eb09/research.json --binary /Users/alderik/printing-press/.runstate/cli-printing-press-7a294ee1/runs/20260721-133855-89f4eb09/working/immich-pp-cli/immich-pp-cli"
+    },
+    {
+      "name": "dogfood",
+      "exit_code": 0,
+      "passed": true,
+      "started_at": "2026-07-21T18:22:21Z",
+      "elapsed_ms": 7723,
+      "command": "/Users/alderik/Code/projects/cli-printing-press/cli-printing-press dogfood --dir /Users/alderik/printing-press/.runstate/cli-printing-press-7a294ee1/runs/20260721-133855-89f4eb09/working/immich-pp-cli --spec /Users/alderik/printing-press/.runstate/cli-printing-press-7a294ee1/runs/20260721-133855-89f4eb09/research/immich-openapi.json --research-dir /Users/alderik/printing-press/.runstate/cli-printing-press-7a294ee1/runs/20260721-133855-89f4eb09"
+    },
+    {
+      "name": "workflow-verify",
+      "exit_code": 0,
+      "passed": true,
+      "started_at": "2026-07-21T18:22:28Z",
+      "elapsed_ms": 61,
+      "command": "/Users/alderik/Code/projects/cli-printing-press/cli-printing-press workflow-verify --dir /Users/alderik/printing-press/.runstate/cli-printing-press-7a294ee1/runs/20260721-133855-89f4eb09/working/immich-pp-cli"
+    },
+    {
+      "name": "apify-audit",
+      "exit_code": 0,
+      "passed": true,
+      "started_at": "2026-07-21T18:22:28Z",
+      "elapsed_ms": 134,
+      "command": "/Users/alderik/Code/projects/cli-printing-press/cli-printing-press apify-audit --dir /Users/alderik/printing-press/.runstate/cli-printing-press-7a294ee1/runs/20260721-133855-89f4eb09/working/immich-pp-cli --research-dir /Users/alderik/printing-press/.runstate/cli-printing-press-7a294ee1/runs/20260721-133855-89f4eb09"
+    },
+    {
+      "name": "verify-skill",
+      "exit_code": 0,
+      "passed": true,
+      "started_at": "2026-07-21T18:22:29Z",
+      "elapsed_ms": 18403,
+      "command": "/Users/alderik/Code/projects/cli-printing-press/cli-printing-press verify-skill --dir /Users/alderik/printing-press/.runstate/cli-printing-press-7a294ee1/runs/20260721-133855-89f4eb09/working/immich-pp-cli --strict"
+    },
+    {
+      "name": "scorecard",
+      "exit_code": 0,
+      "passed": true,
+      "started_at": "2026-07-21T18:22:47Z",
+      "elapsed_ms": 2897,
+      "command": "/Users/alderik/Code/projects/cli-printing-press/cli-printing-press scorecard --dir /Users/alderik/printing-press/.runstate/cli-printing-press-7a294ee1/runs/20260721-133855-89f4eb09/working/immich-pp-cli --write-manifest /Users/alderik/printing-press/.runstate/cli-printing-press-7a294ee1/runs/20260721-133855-89f4eb09/working/immich-pp-cli/.printing-press.json --research-dir /Users/alderik/printing-press/.runstate/cli-printing-press-7a294ee1/runs/20260721-133855-89f4eb09 --spec /Users/alderik/printing-press/.runstate/cli-printing-press-7a294ee1/runs/20260721-133855-89f4eb09/research/immich-openapi.json"
+    }
+  ]
+}
