@@ -1,4 +1,4 @@
-// Copyright 2026 user. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Matt Van Horn and contributors. Licensed under Apache-2.0. See LICENSE.
 
 package capture
 
@@ -8,20 +8,20 @@ import (
 	"testing"
 )
 
-const realBody = `{"param":{"customerphone":"5209076052","customername":"Matt","addtionalIns":"","restname":"mixsushibarlin","orderdetails":{"items":[{"item_id":19019,"price":0}],"subtotal":2.99},"restid":72,"deviceId":"dev123","mobileId":"mob123","context":{"rewards":{"availablePoints":58},"meshuser":{"id":961227}},"paymentCard":{"cardType":"StripeElement","st_cus_id":"cus_T7CWmLOtr5RBLw","tip":0.15,"defaultCardMap":{"key":"MASTERCARD_2126_931"},"lastname":"Van Horn","firstname":"Matt","phonenum":"5209076052","billingAddress1":""}}}`
+const realBody = `{"param":{"customerphone":"2025550147","customername":"Example","addtionalIns":"","restname":"mixsushibarlin","orderdetails":{"items":[{"item_id":19019,"price":0}],"subtotal":2.99},"restid":72,"tax":0.31,"deviceId":"device-example","mobileId":"mobile-example","context":{"rewards":{"availablePoints":58},"meshuser":{"id":123456}},"paymentCard":{"cardType":"StripeElement","st_cus_id":"cus_example_123","tip":0.15,"defaultCardMap":{"key":"VISA_4242_1230"},"lastname":"User","firstname":"Example","phonenum":"2025550147","billingAddress1":""}}}`
 
 func wantFields(t *testing.T, pc *PaymentConfig) {
 	t.Helper()
-	if pc.StripeCustomerID != "cus_T7CWmLOtr5RBLw" {
+	if pc.StripeCustomerID != "cus_example_123" {
 		t.Errorf("st_cus_id = %q", pc.StripeCustomerID)
 	}
-	if pc.StripeDefaultCard != "MASTERCARD_2126_931" {
+	if pc.StripeDefaultCard != "VISA_4242_1230" {
 		t.Errorf("card = %q", pc.StripeDefaultCard)
 	}
-	if pc.CustomerFirstName != "Matt" || pc.CustomerLastName != "Van Horn" {
+	if pc.CustomerFirstName != "Example" || pc.CustomerLastName != "User" {
 		t.Errorf("name = %q %q", pc.CustomerFirstName, pc.CustomerLastName)
 	}
-	if pc.CustomerPhone != "5209076052" {
+	if pc.CustomerPhone != "2025550147" {
 		t.Errorf("phone = %q", pc.CustomerPhone)
 	}
 }
@@ -39,11 +39,14 @@ func TestExtractPaymentConfig_RequestShapeFields(t *testing.T) {
 	if err != nil {
 		t.Fatalf("err: %v", err)
 	}
-	if pc.DeviceID != "dev123" || pc.MobileID != "mob123" {
+	if pc.DeviceID != "device-example" || pc.MobileID != "mobile-example" {
 		t.Errorf("device/mobile = %q %q", pc.DeviceID, pc.MobileID)
 	}
 	if pc.OrderContextJSON == "" || !contains(pc.OrderContextJSON, "availablePoints") {
 		t.Errorf("context not extracted: %q", pc.OrderContextJSON)
+	}
+	if pc.OrderTaxRate < 0.1036 || pc.OrderTaxRate > 0.1037 {
+		t.Errorf("tax rate = %v", pc.OrderTaxRate)
 	}
 }
 
@@ -75,7 +78,7 @@ func TestExtractPaymentConfig_NoFields(t *testing.T) {
 func TestLoadPaymentConfig_HAR(t *testing.T) {
 	har := `{"log":{"entries":[
 		{"request":{"method":"GET","url":"https://www.ordertogo.com/m/api/restaurants/mixsushibarlin/menus/full"}},
-		{"request":{"method":"POST","url":"https://www.ordertogo.com/m/api/postmicmeshorder","postData":{"text":` + quote(realBody) + `}}}
+		{"request":{"method":"POST","url":"https://www.ordertogo.com/m/api/postmicmeshorder","headers":[{"name":"User-Agent","value":"ExampleBrowser/1.0"},{"name":"Sec-Ch-Ua","value":"ExampleBrand"},{"name":"Sec-Ch-Ua-Mobile","value":"?0"},{"name":"Sec-Ch-Ua-Platform","value":"ExampleOS"}],"postData":{"text":` + quote(realBody) + `}}}
 	]}}`
 	dir := t.TempDir()
 	path := filepath.Join(dir, "order.har")
@@ -87,6 +90,16 @@ func TestLoadPaymentConfig_HAR(t *testing.T) {
 		t.Fatalf("err: %v", err)
 	}
 	wantFields(t, pc)
+	if pc.UserAgent != "ExampleBrowser/1.0" || pc.SecCHUA != "ExampleBrand" || pc.SecCHUAMobile != "?0" || pc.SecCHUAPlatform != "ExampleOS" {
+		t.Errorf("browser headers not extracted: %+v", pc)
+	}
+}
+
+func TestJSONStringFieldDecodesEscapes(t *testing.T) {
+	body := []byte(`{"field":"line\nslash\\quote\"unicode \u263a"}`)
+	if got, want := jsonStringField(body, "field"), "line\nslash\\quote\"unicode ☺"; got != want {
+		t.Fatalf("jsonStringField() = %q, want %q", got, want)
+	}
 }
 
 func TestLoadPaymentConfig_Artifact(t *testing.T) {

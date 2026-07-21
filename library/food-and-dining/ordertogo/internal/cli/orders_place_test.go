@@ -1,4 +1,4 @@
-// Copyright 2026 user. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Matt Van Horn and contributors. Licensed under Apache-2.0. See LICENSE.
 
 package cli
 
@@ -25,11 +25,11 @@ var workingParamKeys = []string{
 
 func TestBuildPostOrderBody_MatchesWorkingShape(t *testing.T) {
 	cfg := &config.Config{
-		CustomerFirstName: "Matt", CustomerLastName: "Van Horn", CustomerPhone: "5209076052",
-		StripeCustomerID: "cus_x", StripeDefaultCard: "MASTERCARD_4623_1131",
-		BillingAddress1: "6650 e mercer way", BillingCity: "mercer island", BillingState: "wa",
+		CustomerFirstName: "Example", CustomerLastName: "User", CustomerPhone: "2025550147",
+		StripeCustomerID: "cus_example", StripeDefaultCard: "VISA_4242_1230",
+		BillingAddress1: "123 Example Street", BillingCity: "Exampleville", BillingState: "wa",
 		DeviceID: "dev123", MobileID: "mob123",
-		OrderContextJSON: `{"rewards":{"availablePoints":58},"meshuser":{"id":961227}}`,
+		OrderContextJSON: `{"rewards":{"availablePoints":58},"meshuser":{"id":123456}}`,
 	}
 	items := []cartItem{{ItemID: 19019, Price: 2.99, Togo: "1"}}
 	body := buildPostOrderBody(cfg, items, 2.99, 0, 0, "mixsushibarlin", 72)
@@ -51,6 +51,14 @@ func TestBuildPostOrderBody_MatchesWorkingShape(t *testing.T) {
 			got = append(got, k)
 		}
 		t.Errorf("param has %d keys, want %d. got=%v", len(param), len(workingParamKeys), got)
+	}
+}
+
+func TestBuildPostOrderBody_ConfiguredTaxRate(t *testing.T) {
+	cfg := &config.Config{OrderTaxRate: 0.0825}
+	body := buildPostOrderBody(cfg, []cartItem{{ItemID: 1, Price: 10}}, 10, 0, 0, "slug", 72)
+	if body.Param.Tax != 0.83 {
+		t.Fatalf("tax = %v, want 0.83", body.Param.Tax)
 	}
 }
 
@@ -115,5 +123,49 @@ func TestNewRequestID_Format(t *testing.T) {
 	id := newRequestID()
 	if !re.MatchString(id) {
 		t.Errorf("requestid %q does not match <13-digit-ms>_<4-digit>", id)
+	}
+}
+
+func TestRedactPostOrderBody_RemovesAccountData(t *testing.T) {
+	body := buildPostOrderBody(&config.Config{
+		CustomerFirstName: "Example", CustomerLastName: "User", CustomerPhone: "2025550147",
+		StripeCustomerID: "cus_secret", StripeDefaultCard: "card_secret",
+		BillingAddress1: "123 Example Street", BillingCity: "Exampleville", BillingState: "WA",
+		DeviceID: "device-secret", MobileID: "mobile-secret",
+		OrderContextJSON: `{"meshuser":{"email":"private@example.com"}}`,
+	}, []cartItem{{ItemID: 1, Price: 1}}, 1, 0, 0, "slug", 72)
+	raw, err := json.Marshal(redactPostOrderBody(body))
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, secret := range []string{"Example", "User", "2025550147", "cus_secret", "card_secret", "123 Example Street", "private@example.com", "device-secret", "mobile-secret"} {
+		if regexp.MustCompile(regexp.QuoteMeta(secret)).Match(raw) {
+			t.Errorf("redacted body still contains %q: %s", secret, raw)
+		}
+	}
+}
+
+func TestParsePostOrderResponse_RejectsInvalidSuccessBodies(t *testing.T) {
+	for _, body := range []string{`not-json`, `{"transaction":{"amount":12.34}}`} {
+		if _, err := parsePostOrderResponse([]byte(body), "slug"); err == nil {
+			t.Errorf("parsePostOrderResponse(%q) returned nil error", body)
+		}
+	}
+}
+
+func TestParsePostOrderResponse_BuildsTrackURL(t *testing.T) {
+	result, err := parsePostOrderResponse([]byte(`{"transaction":{"orderid":42,"amount":12.34},"order":{"orderToken":"restaurant_slug_42"}}`), "fallback")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if result.OrderID != 42 || result.Total != 12.34 || result.TrackURL != "/trackorder/restaurant_slug/42" {
+		t.Fatalf("unexpected result: %+v", result)
+	}
+}
+
+func TestConfiguredHeader_UsesCapturedValue(t *testing.T) {
+	cfg := &config.Config{Headers: map[string]string{"sec-ch-ua": "captured"}}
+	if got := configuredHeader(cfg, "Sec-Ch-Ua", "fallback"); got != "captured" {
+		t.Fatalf("configuredHeader() = %q", got)
 	}
 }

@@ -1,4 +1,4 @@
-// Copyright 2026 user. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Matt Van Horn and contributors. Licensed under Apache-2.0. See LICENSE.
 // Hand-written: resolves a restaurant slug to its numeric restaurant id, which
 // the order endpoints require but no per-restaurant endpoint exposes. The slug
 // is rejected by `restaurants show` and absent from the menu payload; the

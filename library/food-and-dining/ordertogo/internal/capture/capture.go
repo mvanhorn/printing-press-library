@@ -1,4 +1,4 @@
-// Copyright 2026 user. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Matt Van Horn and contributors. Licensed under Apache-2.0. See LICENSE.
 
 // Package capture extracts ordertogo.com payment configuration from a real
 // captured checkout — a browser/proxy HAR or the postmicmeshorder request body
@@ -11,6 +11,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"strconv"
 	"strings"
 )
 
@@ -24,9 +25,14 @@ type PaymentConfig struct {
 	CustomerPhone     string `json:"customer_phone"`
 	// Newer request-shape fields the live client sends (2026-06); without them
 	// the server rejects/times out CLI-built orders.
-	DeviceID         string `json:"device_id"`
-	MobileID         string `json:"mobile_id"`
-	OrderContextJSON string `json:"order_context_json"`
+	DeviceID         string  `json:"device_id"`
+	MobileID         string  `json:"mobile_id"`
+	OrderContextJSON string  `json:"order_context_json"`
+	OrderTaxRate     float64 `json:"order_tax_rate"`
+	UserAgent        string  `json:"user_agent"`
+	SecCHUA          string  `json:"sec_ch_ua"`
+	SecCHUAMobile    string  `json:"sec_ch_ua_mobile"`
+	SecCHUAPlatform  string  `json:"sec_ch_ua_platform"`
 }
 
 // Minimal HAR 1.2 subset, matching cli-printing-press/internal/browsersniff.
@@ -34,8 +40,12 @@ type har struct {
 	Log struct {
 		Entries []struct {
 			Request struct {
-				Method   string `json:"method"`
-				URL      string `json:"url"`
+				Method  string `json:"method"`
+				URL     string `json:"url"`
+				Headers []struct {
+					Name  string `json:"name"`
+					Value string `json:"value"`
+				} `json:"headers"`
 				PostData *struct {
 					Text string `json:"text"`
 				} `json:"postData"`
@@ -59,7 +69,37 @@ func LoadPaymentConfig(path string) (*PaymentConfig, error) {
 	if err != nil {
 		return nil, err
 	}
-	return ExtractPaymentConfig([]byte(body))
+	pc, err := ExtractPaymentConfig([]byte(body))
+	if err != nil {
+		return nil, err
+	}
+	applyHARHeaders(data, pc)
+	return pc, nil
+}
+
+func applyHARHeaders(data []byte, pc *PaymentConfig) {
+	var h har
+	if json.Unmarshal(data, &h) != nil {
+		return
+	}
+	for _, entry := range h.Log.Entries {
+		if !strings.Contains(entry.Request.URL, orderPath) {
+			continue
+		}
+		for _, header := range entry.Request.Headers {
+			switch strings.ToLower(header.Name) {
+			case "user-agent":
+				pc.UserAgent = header.Value
+			case "sec-ch-ua":
+				pc.SecCHUA = header.Value
+			case "sec-ch-ua-mobile":
+				pc.SecCHUAMobile = header.Value
+			case "sec-ch-ua-platform":
+				pc.SecCHUAPlatform = header.Value
+			}
+		}
+		return
+	}
 }
 
 // orderBody locates the postmicmeshorder request body string within a capture.
@@ -104,7 +144,11 @@ func ExtractPaymentConfig(body []byte) (*PaymentConfig, error) {
 			DeviceID      string          `json:"deviceId"`
 			MobileID      string          `json:"mobileId"`
 			Context       json.RawMessage `json:"context"`
-			PaymentCard   struct {
+			Tax           float64         `json:"tax"`
+			OrderDetails  struct {
+				Subtotal float64 `json:"subtotal"`
+			} `json:"orderdetails"`
+			PaymentCard struct {
 				StCusID        string         `json:"st_cus_id"`
 				DefaultCardMap map[string]any `json:"defaultCardMap"`
 				FirstName      string         `json:"firstname"`
@@ -129,6 +173,7 @@ func ExtractPaymentConfig(body []byte) (*PaymentConfig, error) {
 			DeviceID:          parsed.Param.DeviceID,
 			MobileID:          parsed.Param.MobileID,
 			OrderContextJSON:  ctx,
+			OrderTaxRate:      taxRate(parsed.Param.Tax, parsed.Param.OrderDetails.Subtotal),
 		}, nil
 	}
 
@@ -144,6 +189,13 @@ func ExtractPaymentConfig(body []byte) (*PaymentConfig, error) {
 		return nil, fmt.Errorf("no postmicmeshorder payment fields found in capture")
 	}
 	return cfg, nil
+}
+
+func taxRate(tax, subtotal float64) float64 {
+	if tax <= 0 || subtotal <= 0 {
+		return 0
+	}
+	return tax / subtotal
 }
 
 // cardKey extracts defaultCardMap.key, scanning from the defaultCardMap marker
@@ -175,18 +227,19 @@ func jsonStringField(body []byte, field string) string {
 		return ""
 	}
 	rest = rest[1:]
-	var out strings.Builder
 	for i := 0; i < len(rest); i++ {
 		c := rest[i]
 		if c == '\\' && i+1 < len(rest) {
 			i++
-			out.WriteByte(rest[i])
 			continue
 		}
 		if c == '"' {
-			return out.String()
+			value, err := strconv.Unquote(`"` + rest[:i+1])
+			if err != nil {
+				return ""
+			}
+			return value
 		}
-		out.WriteByte(c)
 	}
 	return ""
 }

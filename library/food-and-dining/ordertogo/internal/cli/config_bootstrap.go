@@ -1,4 +1,4 @@
-// Copyright 2026 user. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Matt Van Horn and contributors. Licensed under Apache-2.0. See LICENSE.
 // Hand-written: populate payment config from a real captured checkout so the
 // Stripe customer + saved-card ids don't have to be transcribed from DevTools.
 
@@ -6,10 +6,11 @@ package cli
 
 import (
 	"fmt"
+	"strconv"
 
-	"github.com/spf13/cobra"
 	"github.com/mvanhorn/printing-press-library/library/food-and-dining/ordertogo/internal/capture"
 	"github.com/mvanhorn/printing-press-library/library/food-and-dining/ordertogo/internal/config"
+	"github.com/spf13/cobra"
 )
 
 func newConfigBootstrapCmd(flags *rootFlags) *cobra.Command {
@@ -18,9 +19,9 @@ func newConfigBootstrapCmd(flags *rootFlags) *cobra.Command {
 		Use:   "bootstrap-from-capture",
 		Short: "Populate payment config from a captured order (HAR or postmicmeshorder body)",
 		Long: `Read a real captured checkout and set the Stripe customer id, saved-card
-key, and customer name/phone needed by 'orders place'. The capture may be a
-browser/proxy HAR containing a POST /m/api/postmicmeshorder, the captured-order
-JSON artifact, or a file that is the order request body itself.`,
+key, customer details, tax rate, and browser fingerprint needed by 'orders place'.
+The capture may be a browser/proxy HAR containing a POST /m/api/postmicmeshorder,
+the captured-order JSON artifact, or a file that is the order request body itself.`,
 		Example: `  ordertogo-pp-cli config bootstrap-from-capture --capture order.har
   ordertogo-pp-cli config bootstrap-from-capture --capture .captured-real-order.json --dry-run`,
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -41,6 +42,11 @@ JSON artifact, or a file that is the order request body itself.`,
 				"device_id":           pc.DeviceID,
 				"mobile_id":           pc.MobileID,
 				"order_context_json":  pc.OrderContextJSON,
+				"order_tax_rate":      formatOptionalFloat(pc.OrderTaxRate),
+				"user_agent":          pc.UserAgent,
+				"sec_ch_ua":           pc.SecCHUA,
+				"sec_ch_ua_mobile":    pc.SecCHUAMobile,
+				"sec_ch_ua_platform":  pc.SecCHUAPlatform,
 			}
 
 			summary := map[string]any{
@@ -52,6 +58,11 @@ JSON artifact, or a file that is the order request body itself.`,
 				"device_id":           pc.DeviceID,
 				"mobile_id":           pc.MobileID,
 				"order_context_json":  fmt.Sprintf("<%d bytes>", len(pc.OrderContextJSON)),
+				"order_tax_rate":      pc.OrderTaxRate,
+				"user_agent":          pc.UserAgent,
+				"sec_ch_ua":           pc.SecCHUA,
+				"sec_ch_ua_mobile":    pc.SecCHUAMobile,
+				"sec_ch_ua_platform":  pc.SecCHUAPlatform,
 			}
 
 			if flags.dryRun {
@@ -78,6 +89,13 @@ JSON artifact, or a file that is the order request body itself.`,
 	}
 	cmd.Flags().StringVar(&capturePath, "capture", "", "Path to a HAR, captured-order JSON, or order request body")
 	return cmd
+}
+
+func formatOptionalFloat(value float64) string {
+	if value <= 0 {
+		return ""
+	}
+	return strconv.FormatFloat(value, 'f', -1, 64)
 }
 
 func maskID(s string) string {

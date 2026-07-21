@@ -1,4 +1,4 @@
-// Copyright 2026 user. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Matt Van Horn and contributors. Licensed under Apache-2.0. See LICENSE.
 // Hand-written: resolves --items tokens against the live restaurant menu so a
 // freshly composed cart carries the numeric item id and unit price the
 // postmicmeshorder endpoint requires.

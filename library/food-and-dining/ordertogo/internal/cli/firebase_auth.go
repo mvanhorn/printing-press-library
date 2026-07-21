@@ -1,4 +1,4 @@
-// Copyright 2026 user. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 Matt Van Horn and contributors. Licensed under Apache-2.0. See LICENSE.
 // Hand-written: ordertogo.com authenticates writes (postmicmeshorder) with a
 // short-lived Firebase ID token in the Authorization header, NOT cookies. The
 // token expires hourly, so the CLI mints a fresh one from the long-lived

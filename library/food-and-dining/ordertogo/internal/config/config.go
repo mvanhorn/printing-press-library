@@ -17,34 +17,35 @@ import (
 )
 
 type Config struct {
-	BaseURL             string            `toml:"base_url"`
-	AuthHeaderVal       string            `toml:"auth_header"`
-	Headers             map[string]string `toml:"headers,omitempty"`
-	AuthSource          string            `toml:"-"`
-	AccessToken         string            `toml:"access_token"`
-	RefreshToken        string            `toml:"refresh_token"`
-	TokenExpiry         time.Time         `toml:"token_expiry"`
-	ClientID            string            `toml:"client_id"`
-	ClientSecret        string            `toml:"client_secret"`
-	DefaultRestaurant   string            `toml:"default_restaurant"`
-	DefaultLocationCode string            `toml:"default_location_code"`
-	DefaultMax          float64           `toml:"default_max"`
-	DefaultTipPct       float64           `toml:"default_tip_pct"`
-	StripeCustomerID    string            `toml:"stripe_customer_id"`
-	StripeDefaultCard   string            `toml:"stripe_default_card"`
-	CustomerFirstName   string            `toml:"customer_firstname"`
-	CustomerLastName    string            `toml:"customer_lastname"`
-	CustomerPhone       string            `toml:"customer_phone"`
-	MeshUserID          int               `toml:"mesh_user_id"`
-	FirebaseAPIKey       string           `toml:"firebase_api_key"`
-	FirebaseRefreshToken string           `toml:"firebase_refresh_token"`
-	DeviceID             string           `toml:"device_id"`
-	MobileID             string           `toml:"mobile_id"`
-	OrderContextJSON     string           `toml:"order_context_json"`
-	BillingAddress1      string           `toml:"billing_address1"`
-	BillingCity          string           `toml:"billing_city"`
-	BillingState         string           `toml:"billing_state"`
-	Path                string            `toml:"-"`
+	BaseURL              string            `toml:"base_url"`
+	AuthHeaderVal        string            `toml:"auth_header"`
+	Headers              map[string]string `toml:"headers,omitempty"`
+	AuthSource           string            `toml:"-"`
+	AccessToken          string            `toml:"access_token"`
+	RefreshToken         string            `toml:"refresh_token"`
+	TokenExpiry          time.Time         `toml:"token_expiry"`
+	ClientID             string            `toml:"client_id"`
+	ClientSecret         string            `toml:"client_secret"`
+	DefaultRestaurant    string            `toml:"default_restaurant"`
+	DefaultLocationCode  string            `toml:"default_location_code"`
+	DefaultMax           float64           `toml:"default_max"`
+	DefaultTipPct        float64           `toml:"default_tip_pct"`
+	StripeCustomerID     string            `toml:"stripe_customer_id"`
+	StripeDefaultCard    string            `toml:"stripe_default_card"`
+	CustomerFirstName    string            `toml:"customer_firstname"`
+	CustomerLastName     string            `toml:"customer_lastname"`
+	CustomerPhone        string            `toml:"customer_phone"`
+	MeshUserID           int               `toml:"mesh_user_id"`
+	FirebaseAPIKey       string            `toml:"firebase_api_key"`
+	FirebaseRefreshToken string            `toml:"firebase_refresh_token"`
+	DeviceID             string            `toml:"device_id"`
+	MobileID             string            `toml:"mobile_id"`
+	OrderContextJSON     string            `toml:"order_context_json"`
+	OrderTaxRate         float64           `toml:"order_tax_rate"`
+	BillingAddress1      string            `toml:"billing_address1"`
+	BillingCity          string            `toml:"billing_city"`
+	BillingState         string            `toml:"billing_state"`
+	Path                 string            `toml:"-"`
 }
 
 func Load(configPath string) (*Config, error) {
@@ -249,6 +250,20 @@ func (c *Config) SetKey(key, value string) error {
 		c.MobileID = value
 	case "order_context_json":
 		c.OrderContextJSON = value
+	case "order_tax_rate":
+		v, err := parseConfigFloat(key, value)
+		if err != nil {
+			return err
+		}
+		c.OrderTaxRate = v
+	case "user_agent":
+		c.setHeader("User-Agent", value)
+	case "sec_ch_ua":
+		c.setHeader("Sec-Ch-Ua", value)
+	case "sec_ch_ua_mobile":
+		c.setHeader("Sec-Ch-Ua-Mobile", value)
+	case "sec_ch_ua_platform":
+		c.setHeader("Sec-Ch-Ua-Platform", value)
 	case "billing_address1":
 		c.BillingAddress1 = value
 	case "billing_city":
@@ -259,6 +274,13 @@ func (c *Config) SetKey(key, value string) error {
 		return fmt.Errorf("unsupported config key %q", key)
 	}
 	return nil
+}
+
+func (c *Config) setHeader(name, value string) {
+	if c.Headers == nil {
+		c.Headers = make(map[string]string)
+	}
+	c.Headers[name] = value
 }
 
 func (c *Config) Save() error {

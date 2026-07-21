@@ -11,7 +11,7 @@
   "body": {
     "param": {
       "customerphone": "<PHONE>",
-      "customername": "Matt",
+      "customername": "Example",
       "addtionalIns": "",
       "restname": "mixsushibarlin",
       "orderdetails": {
@@ -47,8 +47,8 @@
         "defaultCardMap": {
           "key": "<CARD_KEY>"
         },
-        "lastname": "Van Horn",
-        "firstname": "Matt",
+        "lastname": "User",
+        "firstname": "Example",
         "phonenum": "<REDACTED>",
         "billingAddress1": "<REDACTED>",
         "billingAddress2": "<REDACTED>",
@@ -80,12 +80,12 @@
           "totalPtsRedeemed": 0
         },
         "meshuser": {
-          "id": 961227,
+          "id": 123456,
           "phonenum": "<REDACTED>",
           "email": "<REDACTED>",
-          "displayName": "Matt",
-          "firstname": "Matt",
-          "lastname": "Van Horn",
+          "displayName": "Example User",
+          "firstname": "Example",
+          "lastname": "User",
           "points": "<REDACTED>",
           "fromType": null,
           "fromRestName": null,
@@ -95,10 +95,10 @@
           "photoURL": null,
           "address": null,
           "cardInfo": "<REDACTED>",
-          "st_cus_id": "cus_T7CWmLOtr5RBLw",
+          "st_cus_id": "<REDACTED>",
           "points_5_31_2020": null,
           "createdTime": 1685232816564,
-          "properties": "{\"navigatorUserAgent\":[\"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36\",\"Mozilla/5.0 (iPhone; CPU iPhone OS 26_0_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) CriOS/140.0.7339.122 Mobile/15E148 Safari/604.1\",\"Mozilla/5.0 (iPhone; CPU iPhone OS 26_1_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) CriOS/141.0.7390.41 Mobile/15E148 Safari/604.1\",\"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36\",\"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36\",\"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36\",\"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36\",\"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36\",\"Mozilla/5.0 (iPhone; CPU iPhone OS 26_3_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) CriOS/144.0.7559.85 Mobile/15E148 Safari/604.1\",\"Mozilla/5.0 (iPhone; CPU iPhone OS 26_3_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) CriOS/144.0.7559.95 Mobile/15E148 Safari/604.1\",\"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36\",\"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36\",\"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36\",\"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36\",\"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36\"],\"mobileId\":[\"1759172608409525357-v2\",\"1758741181479570476-v2\",\"1761935657789807812-v2\",\"1769459806167007480-v2\",\"1770152203646883032-v2\",\"1770233517514806361-v2\",\"1778534851236212644-v2\"],\"onlineRejectedTimes\":0}",
+          "properties": "{\"navigatorUserAgent\":[\"ExampleBrowser/1.0\"],\"mobileId\":[\"mobile-example\"],\"onlineRejectedTimes\":0}",
           "groupRestlist": "mixsushibarlin",
           "default_address": {
             "street": "No Default Address",
@@ -107,7 +107,7 @@
             "state": "",
             "zip": ""
           },
-          "default_card": "MASTERCARD ending in 4623 (11/31)"
+          "default_card": "VISA ending in 4242 (12/30)"
         },
         "sortedItems": [
           {
@@ -161,8 +161,8 @@
         "nth2doWithPts": false
       },
       "isSelfcheckoutOnly": false,
-      "deviceId": "rrh58jm0l8atu9i7jr3od",
-      "mobileId": "1778534851236212644-v2",
+      "deviceId": "device-example",
+      "mobileId": "mobile-example",
       "orderType": "1"
     }
   }
