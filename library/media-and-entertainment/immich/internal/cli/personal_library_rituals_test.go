@@ -598,6 +598,61 @@ func TestUploadAssetsAssignsCommittedAssetsToAlbumDespiteSiblingFailure(t *testi
 	}
 }
 
+func TestUploadAssetsPreservesCommittedIDsWhenAlbumAssignmentFails(t *testing.T) {
+	withTempLearnHome(t)
+	file := filepath.Join(t.TempDir(), "photo.jpg")
+	if err := os.WriteFile(file, []byte("photo-bytes"), 0600); err != nil {
+		t.Fatal(err)
+	}
+	checks, albumCreates := 0, 0
+	albumIDs := []string{}
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		switch strings.TrimPrefix(r.URL.Path, "/api") {
+		case "/assets/bulk-upload-check":
+			checks++
+			if checks == 1 {
+				_, _ = w.Write([]byte(`{"results":[{"action":"accept"}]}`))
+				return
+			}
+			_, _ = w.Write([]byte(`{"results":[{"id":"uploaded-1","action":"duplicate"}]}`))
+		case "/assets":
+			_, _ = w.Write([]byte(`{"id":"uploaded-1"}`))
+		case "/albums":
+			albumCreates++
+			if albumCreates == 1 {
+				w.WriteHeader(http.StatusInternalServerError)
+				return
+			}
+			_, _ = w.Write([]byte(`{"id":"album-1"}`))
+		case "/albums/album-1/assets":
+			var body map[string]any
+			_ = json.NewDecoder(r.Body).Decode(&body)
+			albumIDs = stringValues(body["ids"])
+			_, _ = w.Write([]byte(`[]`))
+		default:
+			w.WriteHeader(http.StatusNotFound)
+		}
+	}))
+	defer server.Close()
+	t.Setenv("IMMICH_BASE_URL", server.URL)
+	t.Setenv("IMMICH_BASE_PATH", "")
+	t.Setenv("IMMICH_API_KEY", "key")
+	sum, err := uploadAssets(context.Background(), &rootFlags{rateLimit: 0}, []importAsset{{Path: file, Name: "photo.jpg", Created: time.Now(), Modified: time.Now(), Metadata: map[string]any{"source_asset_id": "source-asset"}}}, importOptions{concurrency: 1, album: "retry-me"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if sum.Uploaded != 1 || sum.Failed != 1 || !sameStrings(sum.UploadedAssetIDs, []string{"uploaded-1"}) || sum.AssetMapping["source-asset"] != "uploaded-1" || len(sum.Errors) != 1 {
+		t.Fatalf("album assignment hid committed asset: %#v", sum)
+	}
+	retry, err := uploadAssets(context.Background(), &rootFlags{rateLimit: 0}, []importAsset{{Path: file, Name: "photo.jpg", Created: time.Now(), Modified: time.Now(), Metadata: map[string]any{"source_asset_id": "source-asset"}}}, importOptions{concurrency: 1, album: "retry-me"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if retry.Duplicate != 1 || retry.Failed != 0 || retry.AssetMapping["source-asset"] != "uploaded-1" || !sameStrings(albumIDs, []string{"uploaded-1"}) {
+		t.Fatalf("retry did not repair album membership: sum=%#v album=%v", retry, albumIDs)
+	}
+}
+
 func TestArchiveRejectsTraversal(t *testing.T) {
 	path := filepath.Join(t.TempDir(), "bad.zip")
 	f, err := os.Create(path)

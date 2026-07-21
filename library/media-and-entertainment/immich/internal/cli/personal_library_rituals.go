@@ -564,6 +564,7 @@ type importSummary struct {
 	Warnings         []string          `json:"warnings,omitempty"`
 	Errors           []string          `json:"errors,omitempty"`
 	AssetMapping     map[string]string `json:"asset_mapping,omitempty"`
+	UploadedAssetIDs []string          `json:"uploaded_asset_ids,omitempty"`
 }
 
 func (s *importSummary) add(o importSummary) {
@@ -575,6 +576,7 @@ func (s *importSummary) add(o importSummary) {
 	s.UnmappedMetadata = append(s.UnmappedMetadata, o.UnmappedMetadata...)
 	s.Warnings = append(s.Warnings, o.Warnings...)
 	s.Errors = append(s.Errors, o.Errors...)
+	s.UploadedAssetIDs = append(s.UploadedAssetIDs, o.UploadedAssetIDs...)
 	if s.AssetMapping == nil {
 		s.AssetMapping = map[string]string{}
 	}
@@ -631,10 +633,17 @@ func uploadAssets(ctx context.Context, flags *rootFlags, assets []importAsset, o
 					sum.Errors = append(sum.Errors, uploadErr.Error())
 				} else if duplicate {
 					sum.Duplicate++
+					if id != "" && opt.album != "" {
+						uploadedIDs = append(uploadedIDs, id)
+					}
+					if sourceID, _ := a.Metadata["source_asset_id"].(string); sourceID != "" && id != "" {
+						sum.AssetMapping[sourceID] = id
+					}
 				} else {
 					sum.Uploaded++
 					if id != "" {
 						uploadedIDs = append(uploadedIDs, id)
+						sum.UploadedAssetIDs = append(sum.UploadedAssetIDs, id)
 						if sourceID, _ := a.Metadata["source_asset_id"].(string); sourceID != "" {
 							sum.AssetMapping[sourceID] = id
 						}
@@ -659,7 +668,11 @@ func uploadAssets(ctx context.Context, flags *rootFlags, assets []importAsset, o
 	wg.Wait()
 	if opt.album != "" && len(uploadedIDs) > 0 {
 		if err := assignAlbum(ctx, c, opt.album, uploadedIDs); err != nil {
-			return sum, err
+			// The assets are already committed. Preserve their IDs in the
+			// summary and make the membership failure explicit so an operator
+			// can repair it without re-uploading duplicate assets.
+			sum.Failed++
+			sum.Errors = append(sum.Errors, fmt.Sprintf("assign uploaded assets to album %q: %v", opt.album, err))
 		}
 	}
 	return sum, nil
@@ -676,12 +689,12 @@ func uploadOne(ctx context.Context, c *client.Client, a importAsset) (bool, stri
 	if err != nil {
 		return false, "", nil, nil, err
 	}
-	duplicate, err := duplicateCheck(data)
+	duplicate, existingID, err := duplicateCheckResult(data)
 	if err != nil {
 		return false, "", nil, nil, err
 	}
 	if duplicate {
-		return true, "", nil, nil, nil
+		return true, existingID, nil, nil, nil
 	}
 	fields := map[string]string{"fileCreatedAt": a.Created.UTC().Format(time.RFC3339), "fileModifiedAt": a.Modified.UTC().Format(time.RFC3339), "filename": a.Name}
 	data, _, err = c.PostMultipart(ctx, "/assets", fields, map[string]string{"assetData": a.Path})
@@ -743,6 +756,11 @@ func sha1File(path string) ([]byte, error) {
 	return h.Sum(nil), nil
 }
 func duplicateCheck(data []byte) (bool, error) {
+	duplicate, _, err := duplicateCheckResult(data)
+	return duplicate, err
+}
+
+func duplicateCheckResult(data []byte) (bool, string, error) {
 	var response struct {
 		Results []struct {
 			ID     string `json:"id"`
@@ -750,19 +768,19 @@ func duplicateCheck(data []byte) (bool, error) {
 		} `json:"results"`
 	}
 	if err := json.Unmarshal(data, &response); err != nil {
-		return false, fmt.Errorf("decode bulk-upload-check response: %w", err)
+		return false, "", fmt.Errorf("decode bulk-upload-check response: %w", err)
 	}
 	items := response.Results
 	if len(items) != 1 || items[0].Action == "" {
-		return false, fmt.Errorf("decode bulk-upload-check response: expected one action")
+		return false, "", fmt.Errorf("decode bulk-upload-check response: expected one action")
 	}
 	switch strings.ToLower(items[0].Action) {
 	case "duplicate", "reject":
-		return true, nil
+		return true, items[0].ID, nil
 	case "accept":
-		return false, nil
+		return false, "", nil
 	default:
-		return false, fmt.Errorf("decode bulk-upload-check response: unknown action %q", items[0].Action)
+		return false, "", fmt.Errorf("decode bulk-upload-check response: unknown action %q", items[0].Action)
 	}
 }
 func jsonID(data []byte) string {
