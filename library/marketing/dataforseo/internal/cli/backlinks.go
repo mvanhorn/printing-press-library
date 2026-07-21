@@ -37,5 +37,7 @@ func newBacklinksCmd(flags *rootFlags) *cobra.Command {
 	cmd.AddCommand(newBacklinksSummaryLiveCmd(flags))
 	cmd.AddCommand(newBacklinksTimeseriesNewLostSummaryLiveCmd(flags))
 	cmd.AddCommand(newBacklinksTimeseriesSummaryLiveCmd(flags))
+	// PATCH: Keep the hand-written snapshot/delta command reachable after regeneration.
+	cmd.AddCommand(newBacklinksNewCmd(flags))
 	return cmd
 }
