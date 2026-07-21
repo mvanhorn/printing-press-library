@@ -40,7 +40,7 @@ func TestSplitShellArgs(t *testing.T) {
 // TestCliArgsFromMCP_BlocksRootFlags pins the structured-parameter half of
 // the control-plane-injection guard: even when an MCP client wraps the
 // flag in the structured args map (instead of the free-form "args"
-// string), the root flags listed in blockedRootFlags must be dropped
+// string), the flags listed in blockedMCPFlags must be dropped
 // before they reach exec.CommandContext. A regression here would let a
 // caller redirect --base-url, swap --token, or load a malicious --config.
 func TestCliArgsFromMCP_BlocksRootFlags(t *testing.T) {
@@ -48,6 +48,7 @@ func TestCliArgsFromMCP_BlocksRootFlags(t *testing.T) {
 		"args":     "contacts",
 		"base-url": "https://evil.example.com",
 		"config":   "/tmp/evil.yaml",
+		"db":       "/tmp/attacker.db",
 		"deliver":  "fd:3",
 		"profile":  "attacker",
 		"token":    "stolen-token",
@@ -59,7 +60,7 @@ func TestCliArgsFromMCP_BlocksRootFlags(t *testing.T) {
 	if !reflect.DeepEqual(got, want) {
 		t.Fatalf("cliArgsFromMCP dropped/kept wrong keys: got %v, want %v", got, want)
 	}
-	for _, blocked := range []string{"--base-url", "--config", "--deliver", "--profile", "--token", "--args"} {
+	for _, blocked := range []string{"--base-url", "--config", "--db", "--deliver", "--profile", "--token", "--args"} {
 		for _, tok := range got {
 			if tok == blocked {
 				t.Errorf("blocked flag %q leaked through cliArgsFromMCP", blocked)
@@ -69,7 +70,7 @@ func TestCliArgsFromMCP_BlocksRootFlags(t *testing.T) {
 }
 
 // TestCliArgsFromMCP_AllowsPerCommandFlags is the don't-overcorrect half:
-// any flag NOT in blockedRootFlags must still pass through, including
+// any flag NOT in blockedMCPFlags must still pass through, including
 // strings, bools, numbers, and []any. Without this, a tightening change
 // to the blocklist that accidentally drops legitimate per-command flags
 // would silently break every MCP-driven command. cliArgsFromMCP also

@@ -5,8 +5,6 @@ package cli
 
 import (
 	"context"
-	"github.com/mvanhorn/printing-press-library/library/marketing/dataforseo/internal/store"
-	"encoding/json"
 	"fmt"
 	"math"
 	"sort"
@@ -14,11 +12,18 @@ import (
 	"strings"
 	"time"
 
+	"github.com/mvanhorn/printing-press-library/library/marketing/dataforseo/internal/store"
 	"github.com/spf13/cobra"
 )
 
 type keywordDeltaRow struct {
 	Keyword         string  `json:"keyword"`
+	Source          string  `json:"source"`
+	LocationCode    string  `json:"location_code,omitempty"`
+	LocationName    string  `json:"location_name,omitempty"`
+	LanguageCode    string  `json:"language_code,omitempty"`
+	LanguageName    string  `json:"language_name,omitempty"`
+	SearchPartners  string  `json:"search_partners,omitempty"`
 	CurrentVolume   float64 `json:"current_volume"`
 	PreviousVolume  float64 `json:"previous_volume"`
 	Delta           float64 `json:"delta"`
@@ -79,11 +84,15 @@ Empty when the store has fewer than 2 snapshots per keyword (sync first).`,
 			if flags.asJSON {
 				return printJSONFiltered(cmd.OutOrStdout(), rows, flags)
 			}
-			headers := []string{"KEYWORD", "CURRENT", "PREVIOUS", "DELTA", "SYNCED_AT"}
+			headers := []string{"KEYWORD", "SOURCE", "LOCATION", "LANGUAGE", "PARTNERS", "CURRENT", "PREVIOUS", "DELTA", "SYNCED_AT"}
 			out := make([][]string, 0, len(rows))
 			for _, r := range rows {
 				out = append(out, []string{
 					r.Keyword,
+					r.Source,
+					firstNonEmpty(r.LocationCode, r.LocationName),
+					firstNonEmpty(r.LanguageCode, r.LanguageName),
+					r.SearchPartners,
 					strconv.FormatFloat(r.CurrentVolume, 'f', -1, 64),
 					strconv.FormatFloat(r.PreviousVolume, 'f', -1, 64),
 					strconv.FormatFloat(r.Delta, 'f', -1, 64),
@@ -114,73 +123,113 @@ func parseDeltaSince(s string) (time.Duration, error) {
 	return time.ParseDuration(s)
 }
 
-// computeKeywordDeltas walks every resource whose JSON payload looks like a
+// computeKeywordDeltas scans observations whose JSON payload looks like a
 // Google Ads search volume row (carries a "keyword" + "search_volume" field)
-// and pairs the latest two snapshots per keyword. Implementation works against
-// the generic resources table so it survives any resource-type naming the
-// generator picks. If the store has fewer than 2 snapshots per keyword,
-// returns an empty slice.
+// and pairs the latest two snapshots per keyword. The ranking and filters run
+// in SQLite so large stores do not have to materialize full histories in Go.
 func computeKeywordDeltas(s *store.Store, since time.Duration, only string) ([]keywordDeltaRow, error) {
 	db := s.DB()
-	cutoff := time.Now().Add(-since).UTC().Format(time.RFC3339)
-	q := `SELECT json_extract(data, '$.keyword') AS kw,
-	             json_extract(data, '$.search_volume') AS sv,
-	             updated_at
-	      FROM resources
-	      WHERE json_extract(data, '$.keyword') IS NOT NULL
-	        AND json_extract(data, '$.search_volume') IS NOT NULL`
-	rows, err := db.Query(q)
+	cutoff := time.Now().Add(-since)
+	// PATCH: Rank observations in SQLite and materialize only the two snapshots needed per keyword.
+	q := `WITH ranked AS (
+	        SELECT trim(CAST(json_extract(data, '$.keyword') AS TEXT)) AS kw,
+	               CAST(json_extract(data, '$.search_volume') AS REAL) AS sv,
+	               source,
+	               COALESCE(CAST(json_extract(data, '$.location_code') AS TEXT), '') AS location_code,
+	               COALESCE(CAST(json_extract(data, '$.location_name') AS TEXT), '') AS location_name,
+	               COALESCE(CAST(json_extract(data, '$.language_code') AS TEXT), '') AS language_code,
+	               COALESCE(CAST(json_extract(data, '$.language_name') AS TEXT), '') AS language_name,
+	               COALESCE(CAST(json_extract(data, '$.search_partners') AS TEXT), '') AS search_partners,
+	               observed_at,
+	               row_number() OVER (
+	                 PARTITION BY source,
+	                              lower(trim(CAST(json_extract(data, '$.keyword') AS TEXT))),
+	                              COALESCE(CAST(json_extract(data, '$.location_code') AS TEXT), ''),
+	                              COALESCE(CAST(json_extract(data, '$.location_name') AS TEXT), ''),
+	                              COALESCE(CAST(json_extract(data, '$.language_code') AS TEXT), ''),
+	                              COALESCE(CAST(json_extract(data, '$.language_name') AS TEXT), ''),
+	                              COALESCE(CAST(json_extract(data, '$.search_partners') AS TEXT), '')
+	                 ORDER BY sequence DESC
+	               ) AS snapshot_rank
+	        FROM resource_history
+	        WHERE resource_type = 'keywords-data'
+	          AND source LIKE '/v3/keywords_data/google_ads/search_volume/%'
+	          AND json_extract(data, '$.keyword') IS NOT NULL
+	          AND json_extract(data, '$.search_volume') IS NOT NULL
+	          AND (? = '' OR lower(trim(CAST(json_extract(data, '$.keyword') AS TEXT))) = lower(?))
+	      )
+	      SELECT kw, sv, source, location_code, location_name, language_code, language_name, search_partners, observed_at, snapshot_rank
+	      FROM ranked AS snapshot
+	      WHERE snapshot_rank <= 2
+	      ORDER BY lower(kw), source, location_code, location_name, language_code, language_name, search_partners, snapshot_rank`
+	rows, err := db.Query(q, only, only)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
 
 	type snap struct {
-		volume    float64
-		syncedAt  string
-		syncedRaw time.Time
+		keyword        string
+		source         string
+		locationCode   string
+		locationName   string
+		languageCode   string
+		languageName   string
+		searchPartners string
+		volume         float64
+		syncedAt       string
 	}
-	byKeyword := map[string][]snap{}
+	type seriesKey struct {
+		keyword, source, locationCode, locationName, languageCode, languageName, searchPartners string
+	}
+	bySeries := map[seriesKey][]snap{}
 	for rows.Next() {
-		var kwRaw, svRaw, syncedAt string
-		if err := rows.Scan(&kwRaw, &svRaw, &syncedAt); err != nil {
+		var kw, source, locationCode, locationName, languageCode, languageName, searchPartners, syncedAt string
+		var volume float64
+		var snapshotRank int
+		if err := rows.Scan(&kw, &volume, &source, &locationCode, &locationName, &languageCode, &languageName, &searchPartners, &syncedAt, &snapshotRank); err != nil {
 			return nil, err
 		}
-		var kw string
-		_ = json.Unmarshal([]byte(`"`+kwRaw+`"`), &kw)
-		kw = strings.TrimSpace(kwRaw)
 		if kw == "" {
 			continue
 		}
-		if only != "" && !strings.EqualFold(kw, only) {
-			continue
+		key := seriesKey{
+			keyword: strings.ToLower(kw), source: source,
+			locationCode: locationCode, locationName: locationName,
+			languageCode: languageCode, languageName: languageName,
+			searchPartners: searchPartners,
 		}
-		v, err := strconv.ParseFloat(strings.TrimSpace(svRaw), 64)
-		if err != nil {
-			continue
-		}
-		t, _ := time.Parse(time.RFC3339, syncedAt)
-		byKeyword[kw] = append(byKeyword[kw], snap{volume: v, syncedAt: syncedAt, syncedRaw: t})
+		bySeries[key] = append(bySeries[key], snap{
+			keyword: kw, source: source, locationCode: locationCode, locationName: locationName,
+			languageCode: languageCode, languageName: languageName, searchPartners: searchPartners,
+			volume: volume, syncedAt: syncedAt,
+		})
 	}
 	if err := rows.Err(); err != nil {
 		return nil, err
 	}
 
-	out := make([]keywordDeltaRow, 0, len(byKeyword))
-	for kw, snaps := range byKeyword {
+	out := make([]keywordDeltaRow, 0, len(bySeries))
+	for _, snaps := range bySeries {
 		if len(snaps) < 2 {
 			continue
 		}
-		sort.Slice(snaps, func(i, j int) bool {
-			return snaps[i].syncedRaw.After(snaps[j].syncedRaw)
-		})
 		cur := snaps[0]
 		prev := snaps[1]
-		if since > 0 && cur.syncedAt < cutoff {
-			continue
+		if since > 0 {
+			observedAt, err := time.Parse(time.RFC3339Nano, cur.syncedAt)
+			if err != nil || observedAt.Before(cutoff) {
+				continue
+			}
 		}
 		out = append(out, keywordDeltaRow{
-			Keyword:         kw,
+			Keyword:         cur.keyword,
+			Source:          cur.source,
+			LocationCode:    cur.locationCode,
+			LocationName:    cur.locationName,
+			LanguageCode:    cur.languageCode,
+			LanguageName:    cur.languageName,
+			SearchPartners:  cur.searchPartners,
 			CurrentVolume:   cur.volume,
 			PreviousVolume:  prev.volume,
 			Delta:           cur.volume - prev.volume,
@@ -188,4 +237,13 @@ func computeKeywordDeltas(s *store.Store, since time.Duration, only string) ([]k
 		})
 	}
 	return out, nil
+}
+
+func firstNonEmpty(values ...string) string {
+	for _, value := range values {
+		if value != "" {
+			return value
+		}
+	}
+	return ""
 }

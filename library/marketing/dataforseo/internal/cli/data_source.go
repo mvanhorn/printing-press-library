@@ -4,7 +4,9 @@
 package cli
 
 import (
+	"bytes"
 	"context"
+	"crypto/sha256"
 	"database/sql"
 	"encoding/json"
 	"errors"
@@ -109,7 +111,6 @@ func resolveRead(ctx context.Context, c *client.Client, flags *rootFlags, resour
 	default: // "auto"
 		data, err := c.GetWithHeaders(path, params, headers)
 		if err == nil {
-			writeThroughCache(ctx, resourceType, data)
 			return data, attachFreshness(DataProvenance{Source: "live"}, flags), nil
 		}
 		if !isNetworkError(err) {
@@ -145,7 +146,6 @@ func resolvePaginatedRead(ctx context.Context, c *client.Client, flags *rootFlag
 	default: // "auto"
 		data, err := paginatedGet(c, path, params, headers, fetchAll, cursorParam, nextCursorPath, hasMoreField)
 		if err == nil {
-			writeThroughCache(ctx, resourceType, data)
 			return data, attachFreshness(DataProvenance{Source: "live"}, flags), nil
 		}
 		if !isNetworkError(err) {
@@ -159,47 +159,168 @@ func resolvePaginatedRead(ctx context.Context, c *client.Client, flags *rootFlag
 	}
 }
 
-// writeThroughCache upserts live API results into the local SQLite store so
-// FTS search covers everything the user has looked up — not just explicit syncs.
-// Best-effort: failures are silently ignored (the live result already succeeded).
-func writeThroughCache(ctx context.Context, resourceType string, data json.RawMessage) {
+// PATCH: WriteThroughAPIResponse is the one live-response ingestion seam for
+// all generated commands. DataForSEO primarily returns rows under
+// tasks[].result[].items, which the generated GET-only cache did not inspect.
+func WriteThroughAPIResponse(ctx context.Context, path string, data json.RawMessage) error {
+	source := normalizeAPIResponseSource(path)
+	if strings.HasSuffix(source, "/tasks_ready") {
+		return nil
+	}
+	resourceType := resourceTypeForAPIPath(source)
+	if resourceType == "" {
+		return nil
+	}
+	items := extractStoreItems(data)
+	if len(items) == 0 {
+		return nil
+	}
 	db, err := store.OpenWithContext(ctx, defaultDBPath("dataforseo-pp-cli"))
 	if err != nil {
-		return
+		return fmt.Errorf("opening response store: %w", err)
 	}
-	defer db.Close()
 
-	// Collect items to upsert from various response shapes
-	var items []json.RawMessage
+	identified := make([]store.IdentifiedResource, 0, len(items))
+	for _, item := range items {
+		id := observationID(item)
+		if id == "" {
+			continue
+		}
+		identified = append(identified, store.IdentifiedResource{ID: id, Data: item})
+	}
+	// PATCH: Commit a complete API response atomically after IDs have been
+	// computed; persistence failures surface through the client warning seam.
+	if err := db.UpsertIdentifiedBatch(resourceType, source, identified); err != nil {
+		_ = db.Close()
+		return fmt.Errorf("storing API response: %w", err)
+	}
+	if err := db.Close(); err != nil {
+		return fmt.Errorf("closing response store: %w", err)
+	}
+	return nil
+}
 
-	// Try direct array first
-	if json.Unmarshal(data, &items) != nil || len(items) == 0 {
-		items = nil
-		// Try object — check for common envelope patterns (results, data, items)
-		var envelope map[string]json.RawMessage
-		if json.Unmarshal(data, &envelope) == nil {
-			for _, key := range []string{"results", "data", "items"} {
-				if raw, ok := envelope[key]; ok {
-					var arr []json.RawMessage
-					if json.Unmarshal(raw, &arr) == nil && len(arr) > 0 {
-						items = arr
-						break
+func normalizeAPIResponseSource(rawPath string) string {
+	trimmed := strings.TrimSpace(rawPath)
+	if parsed, err := url.Parse(trimmed); err == nil && parsed.Path != "" {
+		trimmed = parsed.Path
+	} else if query := strings.IndexByte(trimmed, '?'); query >= 0 {
+		trimmed = trimmed[:query]
+	}
+	trimmed = "/" + strings.Trim(trimmed, "/")
+	if taskID := strings.Index(trimmed, "/task_get/"); taskID >= 0 {
+		trimmed = trimmed[:taskID+len("/task_get")]
+	}
+	return trimmed
+}
+
+func resourceTypeForAPIPath(path string) string {
+	trimmed := strings.TrimPrefix(strings.TrimSpace(path), "/v3/")
+	if trimmed == path || trimmed == "" {
+		return ""
+	}
+	family := strings.SplitN(trimmed, "/", 2)[0]
+	switch family {
+	case "serp":
+		return "serp-results"
+	case "ai_optimization":
+		return "ai-mentions"
+	default:
+		return strings.ReplaceAll(family, "_", "-")
+	}
+}
+
+func extractStoreItems(data json.RawMessage) []json.RawMessage {
+	var direct []json.RawMessage
+	if json.Unmarshal(data, &direct) == nil {
+		return direct
+	}
+
+	var envelope map[string]json.RawMessage
+	if json.Unmarshal(data, &envelope) != nil {
+		return nil
+	}
+	if rawTasks, ok := envelope["tasks"]; ok {
+		var tasks []map[string]json.RawMessage
+		if json.Unmarshal(rawTasks, &tasks) == nil {
+			var items []json.RawMessage
+			for _, task := range tasks {
+				var results []json.RawMessage
+				if json.Unmarshal(task["result"], &results) != nil {
+					continue
+				}
+				for _, result := range results {
+					var resultObject map[string]json.RawMessage
+					if json.Unmarshal(result, &resultObject) == nil {
+						if rawItems, exists := resultObject["items"]; exists && bytes.HasPrefix(bytes.TrimSpace(rawItems), []byte("[")) {
+							var nested []json.RawMessage
+							if json.Unmarshal(rawItems, &nested) == nil {
+								for _, item := range nested {
+									items = append(items, inheritObservationDimensions(item, resultObject))
+								}
+								// PATCH: A decoded empty items array is authoritative; the
+								// enclosing result is metadata, not a phantom observation.
+								continue
+							}
+						}
 					}
+					items = append(items, result)
 				}
 			}
-			// Single object with an id field (e.g., detail response)
-			if items == nil {
-				if _, ok := envelope["id"]; ok {
-					_, _, _ = db.UpsertBatch(resourceType, []json.RawMessage{data})
-					return
-				}
+			return items
+		}
+	}
+	for _, key := range []string{"results", "data", "items", "records", "entries"} {
+		if json.Unmarshal(envelope[key], &direct) == nil && len(direct) > 0 {
+			return direct
+		}
+	}
+	if _, ok := envelope["id"]; ok {
+		return []json.RawMessage{data}
+	}
+	return nil
+}
+
+func inheritObservationDimensions(item json.RawMessage, parent map[string]json.RawMessage) json.RawMessage {
+	var object map[string]json.RawMessage
+	if json.Unmarshal(item, &object) != nil {
+		return item
+	}
+	changed := false
+	for _, key := range []string{"location_code", "location_name", "language_code", "language_name", "search_partners"} {
+		if _, exists := object[key]; exists {
+			continue
+		}
+		if value, exists := parent[key]; exists {
+			object[key] = value
+			changed = true
+		}
+	}
+	if !changed {
+		return item
+	}
+	enriched, err := json.Marshal(object)
+	if err != nil {
+		return item
+	}
+	return enriched
+}
+
+func observationID(item json.RawMessage) string {
+	var object map[string]any
+	if json.Unmarshal(item, &object) != nil {
+		return ""
+	}
+	for _, key := range []string{"id", "ID", "uuid", "keyword", "url", "domain", "name", "slug"} {
+		if value, ok := object[key]; ok && value != nil {
+			id := strings.TrimSpace(fmt.Sprintf("%v", value))
+			if id != "" && id != "<nil>" {
+				return id
 			}
 		}
 	}
-
-	if len(items) > 0 {
-		_, _, _ = db.UpsertBatch(resourceType, items)
-	}
+	sum := sha256.Sum256(item)
+	return fmt.Sprintf("sha256:%x", sum[:12])
 }
 
 // resolveLocal reads data from the local SQLite store.

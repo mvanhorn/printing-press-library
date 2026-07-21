@@ -34,6 +34,8 @@ but do not stop the import.`,
   # Import from stdin
   cat data.jsonl | dataforseo-pp-cli import <resource> --input -`,
 		Args: cobra.ExactArgs(1),
+		// PATCH: Keep caller-selected --input file reads off the Cobra-to-MCP mirror.
+		Annotations: map[string]string{"mcp:hidden": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()
 			if err != nil {

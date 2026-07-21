@@ -4,6 +4,8 @@
 
 A single-binary Go CLI over all 554 DataForSEO endpoints with offline SQLite-backed delta trackers, automatic Live↔Standard mode routing to dodge the 3.3× cost premium, and a pre-call cost estimator. Built to absorb everything the official MCP and the 6.4k-star claude-seo skill already do, then go further with rank tracking over a sitemap, AI-visibility deltas across ChatGPT/Claude/Gemini/Perplexity, and backlinks-since-last-run diffs.
 
+Created by [@mazzsterr](https://github.com/mazzsterr) (Mazzsterr).
+
 ## Install
 
 The recommended path installs both the `dataforseo-pp-cli` binary and the `pp-dataforseo` agent skill in one shot:
@@ -1525,7 +1527,7 @@ Environment variables:
 ## Troubleshooting
 **Authentication errors (exit code 4)**
 - Run `dataforseo-pp-cli doctor` to check credentials
-- Verify the environment variables are set: `echo $DATAFORSEO_LOGIN $DATAFORSEO_PASSWORD`
+- Verify both environment variables are set without printing their values: `[ -n "${DATAFORSEO_LOGIN:-}" ] && [ -n "${DATAFORSEO_PASSWORD:-}" ] && echo "DataForSEO credentials are set"`
 **Not found errors (exit code 3)**
 - Check the resource ID is correct
 - Run the `list` command to see available items

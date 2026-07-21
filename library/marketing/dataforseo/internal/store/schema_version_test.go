@@ -36,6 +36,51 @@ func TestSchemaVersion_StampedOnFreshDB(t *testing.T) {
 	}
 }
 
+func TestMigrateAddsResourceHistorySourceIdempotently(t *testing.T) {
+	dbPath := filepath.Join(t.TempDir(), "data.db")
+	raw, err := sql.Open("sqlite", dbPath)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, err := raw.Exec(`CREATE TABLE resource_history (
+		sequence INTEGER PRIMARY KEY AUTOINCREMENT,
+		id TEXT NOT NULL,
+		resource_type TEXT NOT NULL,
+		data JSON NOT NULL,
+		observed_at DATETIME NOT NULL
+	)`); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := raw.Exec(`INSERT INTO resource_history (id, resource_type, data, observed_at) VALUES ('legacy', 'keywords-data', '{}', CURRENT_TIMESTAMP)`); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := raw.Exec(`PRAGMA user_version = 3`); err != nil {
+		t.Fatal(err)
+	}
+	if err := raw.Close(); err != nil {
+		t.Fatal(err)
+	}
+
+	for i := 0; i < 2; i++ {
+		s, err := Open(dbPath)
+		if err != nil {
+			t.Fatalf("Open pass %d: %v", i+1, err)
+		}
+		var source string
+		if err := s.DB().QueryRow(`SELECT source FROM resource_history WHERE id = 'legacy'`).Scan(&source); err != nil {
+			s.Close()
+			t.Fatal(err)
+		}
+		if source != "" {
+			s.Close()
+			t.Fatalf("legacy source = %q, want empty backfill", source)
+		}
+		if err := s.Close(); err != nil {
+			t.Fatal(err)
+		}
+	}
+}
+
 // TestSchemaVersion_StampExistingZeroDB verifies the stamp-and-continue
 // rule for existing deployed databases. A DB that predates the gate has
 // user_version = 0; opening it with this binary should stamp the version

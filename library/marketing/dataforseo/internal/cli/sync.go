@@ -4,9 +4,9 @@
 package cli
 
 import (
-	"github.com/mvanhorn/printing-press-library/library/marketing/dataforseo/internal/store"
 	"encoding/json"
 	"fmt"
+	"github.com/mvanhorn/printing-press-library/library/marketing/dataforseo/internal/store"
 	"github.com/spf13/cobra"
 	"net/url"
 	"os"
@@ -95,6 +95,9 @@ Exit codes & warnings:
 			if err != nil {
 				return err
 			}
+			// PATCH: syncResource owns page extraction and batch persistence;
+			// the global response hook would store every page a second time.
+			c.OnResponse = nil
 			c.NoCache = true
 
 			if dbPath == "" {

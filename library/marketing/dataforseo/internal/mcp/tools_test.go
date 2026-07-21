@@ -4,14 +4,21 @@
 package mcp
 
 import (
+	"context"
+	"encoding/json"
+	"os"
+	"path/filepath"
+	"runtime"
 	"strings"
 	"testing"
+
+	mcplib "github.com/mark3labs/mcp-go/mcp"
 )
 
 // TestValidateReadOnlyQuery_AllowsSelectAndWITH pins the contract: the MCP
 // sql tool's allowlist accepts SELECT and WITH-prefix queries, including
-// CTEs, mixed case, leading whitespace, leading SQL comments, and leading
-// statement separators. SELECT-form CTEs ("WITH x AS (SELECT ...) SELECT")
+// CTEs, mixed case, leading whitespace, and leading SQL comments.
+// SELECT-form CTEs ("WITH x AS (SELECT ...) SELECT")
 // must work because novel CLI sql commands in the public library accept
 // them as legitimate read-only queries; the MCP surface keeps parity.
 func TestValidateReadOnlyQuery_AllowsSelectAndWITH(t *testing.T) {
@@ -21,7 +28,13 @@ func TestValidateReadOnlyQuery_AllowsSelectAndWITH(t *testing.T) {
 		"  SELECT 1",
 		"\tSELECT 1",
 		"\nSELECT 1",
-		";SELECT 1",
+		"SELECT 1;",
+		" SELECT 1;  ",
+		"SELECT ';'",
+		`SELECT "semi;colon"`,
+		"SELECT 1 /* semicolon ; in comment */",
+		"SELECT 1 -- semicolon ; in comment",
+		"SELECT 1; -- trailing ; comment",
 		"-- comment\nSELECT 1",
 		"/* comment */ SELECT 1",
 		"/* comment */SELECT 1",
@@ -62,8 +75,14 @@ func TestValidateReadOnlyQuery_RejectsBypassVectors(t *testing.T) {
 		"/**/VACUUM INTO '/tmp/exfil.db'",
 		"/* x */ ATTACH DATABASE 'file:/tmp/x.db?mode=rwc' AS evil",
 		"-- x\nATTACH DATABASE '/tmp/x.db' AS evil",
+		"SELECT 1; ATTACH DATABASE 'file:/tmp/x.db?mode=rwc' AS evil",
+		"SELECT 1; VACUUM INTO '/tmp/exfil.db'",
+		"SELECT 1; CREATE TABLE exfil(data TEXT)",
+		"WITH r AS (SELECT 1) SELECT * FROM r; DROP TABLE resources",
 		";VACUUM INTO '/tmp/x.db'",
 		"; ; VACUUM INTO '/tmp/x.db'",
+		";SELECT 1",
+		"SELECTED 1",
 		"/* a */ /* b */ INSERT INTO t VALUES (1)",
 		"/* outer /* not nested */ */ SELECT 1", // SQLite doesn't nest, so trailing "*/" closes; second SELECT remains. Reject — the gate must err on the side of caution when the leading shape is suspicious.
 		"-- only a comment",
@@ -79,6 +98,71 @@ func TestValidateReadOnlyQuery_RejectsBypassVectors(t *testing.T) {
 	}
 }
 
+func TestHandleContextMatchesCodeOrchestrationManifest(t *testing.T) {
+	result, err := handleContext(context.Background(), mcplib.CallToolRequest{})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if result == nil || result.IsError || len(result.Content) != 1 {
+		t.Fatalf("handleContext result = %#v", result)
+	}
+	content, ok := result.Content[0].(mcplib.TextContent)
+	if !ok {
+		t.Fatalf("context content type = %T, want mcp.TextContent", result.Content[0])
+	}
+	var payload struct {
+		ToolSurface string `json:"tool_surface"`
+		Auth        struct {
+			EnvVars []struct {
+				Name     string `json:"name"`
+				Required bool   `json:"required"`
+			} `json:"env_vars"`
+		} `json:"auth"`
+	}
+	if err := json.Unmarshal([]byte(content.Text), &payload); err != nil {
+		t.Fatalf("decode context: %v", err)
+	}
+	for _, want := range []string{"dataforseo_search", "dataforseo_execute", "curated novel CLI commands"} {
+		if !strings.Contains(payload.ToolSurface, want) {
+			t.Errorf("tool_surface %q does not describe %q", payload.ToolSurface, want)
+		}
+	}
+	if strings.Contains(payload.ToolSurface, "typed endpoint tools") {
+		t.Errorf("tool_surface claims suppressed typed tools: %q", payload.ToolSurface)
+	}
+
+	requiredAuth := map[string]bool{}
+	for _, spec := range payload.Auth.EnvVars {
+		requiredAuth[spec.Name] = spec.Required
+	}
+	for _, name := range []string{"DATAFORSEO_LOGIN", "DATAFORSEO_PASSWORD"} {
+		if !requiredAuth[name] {
+			t.Errorf("context does not require %s", name)
+		}
+	}
+
+	_, filename, _, ok := runtime.Caller(0)
+	if !ok {
+		t.Fatal("resolve test source path")
+	}
+	manifestData, err := os.ReadFile(filepath.Join(filepath.Dir(filename), "..", "..", "tools-manifest.json"))
+	if err != nil {
+		t.Fatalf("read tools manifest: %v", err)
+	}
+	var manifest struct {
+		MCP struct {
+			EndpointTools string `json:"endpoint_tools"`
+			Orchestration string `json:"orchestration"`
+		} `json:"mcp"`
+	}
+	if err := json.Unmarshal(manifestData, &manifest); err != nil {
+		t.Fatalf("decode tools manifest: %v", err)
+	}
+	if manifest.MCP.EndpointTools != "hidden" || manifest.MCP.Orchestration != "code" {
+		t.Fatalf("tools manifest MCP contract = endpoint_tools:%q orchestration:%q, want hidden/code", manifest.MCP.EndpointTools, manifest.MCP.Orchestration)
+	}
+}
+
 // TestStripLeadingSQLNoise checks the helper directly so a regression in the
 // stripping logic (off-by-one on /* */ length, missing newline handling on
 // --) surfaces close to the source rather than only via the integration
@@ -90,8 +174,6 @@ func TestStripLeadingSQLNoise(t *testing.T) {
 		{"SELECT 1", "SELECT 1"},
 		{"  SELECT 1", "SELECT 1"},
 		{"\t\nSELECT 1", "SELECT 1"},
-		{";SELECT 1", "SELECT 1"},
-		{";; ;SELECT 1", "SELECT 1"},
 		{"-- x\nSELECT 1", "SELECT 1"},
 		{"-- x\n-- y\nSELECT 1", "SELECT 1"},
 		{"/* x */SELECT 1", "SELECT 1"},

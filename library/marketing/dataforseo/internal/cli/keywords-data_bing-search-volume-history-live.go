@@ -29,13 +29,14 @@ func newKeywordsDataBingSearchVolumeHistoryLiveCmd(flags *rootFlags) *cobra.Comm
 			}
 
 			path := "/v3/keywords_data/bing/search_volume_history/live"
-			var body map[string]any
+			// PATCH: DataForSEO POST endpoints accept object or top-level array bodies.
+			var body any
 			if stdinBody {
 				stdinData, err := io.ReadAll(os.Stdin)
 				if err != nil {
 					return fmt.Errorf("reading stdin: %w", err)
 				}
-				var jsonBody map[string]any
+				var jsonBody any
 				if err := json.Unmarshal(stdinData, &jsonBody); err != nil {
 					return fmt.Errorf("parsing stdin JSON: %w", err)
 				}

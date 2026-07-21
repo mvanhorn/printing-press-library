@@ -10,9 +10,9 @@ package cli
 import (
 	"bufio"
 	"context"
-	"github.com/mvanhorn/printing-press-library/library/marketing/dataforseo/internal/cliutil"
 	"encoding/json"
 	"fmt"
+	"github.com/mvanhorn/printing-press-library/library/marketing/dataforseo/internal/cliutil"
 	"io"
 	"os"
 	"strings"
@@ -50,7 +50,8 @@ JSON array of request items, same shape DataForSEO expects). Pick one.`,
   dataforseo-pp-cli keywords volume --keywords kw.txt --mode standard --location-code 2840
   cat batch.json | dataforseo-pp-cli keywords volume --stdin --mode live
 `, "\n"),
-		Annotations: map[string]string{"mcp:read-only": "true"},
+		// PATCH: Keep caller-selected --keywords file reads off the Cobra-to-MCP mirror.
+		Annotations: map[string]string{"mcp:hidden": "true", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if dryRunOK(flags) {
 				return nil

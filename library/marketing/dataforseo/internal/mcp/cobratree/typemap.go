@@ -18,7 +18,7 @@ func toolOptionsForFlags(cmd *cobra.Command) []mcplib.ToolOption {
 	var opts []mcplib.ToolOption
 	seen := map[string]bool{}
 	addFlag := func(flag *pflag.Flag) {
-		if flag == nil || flag.Hidden || flag.Deprecated != "" {
+		if flag == nil || flag.Hidden || flag.Deprecated != "" || blockedMCPFlags[flag.Name] {
 			return
 		}
 		if seen[flag.Name] {

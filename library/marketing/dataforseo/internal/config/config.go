@@ -122,25 +122,28 @@ func (c *Config) SaveTokens(clientID, clientSecret, accessToken, refreshToken st
 	return c.save()
 }
 
-// SaveCredential persists a single API credential to the field that
-// AuthHeader() consults for api_key auth. Writing to AccessToken (the
-// bearer slot) would silently no-op since AuthHeader() reads the env-var-
-// derived field, not AccessToken, when Auth.Type == "api_key".
-//
-// The clears precede the assignment so a canonical env-var whose placeholder
-// collides with a builtin tag (e.g. an env var named XXX_ACCESS_TOKEN
-// resolving to the AccessToken field) ends up holding the new token.
-func (c *Config) SaveCredential(token string) error {
+// PATCH: Persist DataForSEO Basic credentials as an indivisible pair.
+func (c *Config) SaveBasicCredentials(login, password string) error {
+	if strings.TrimSpace(login) == "" || password == "" {
+		return fmt.Errorf("both login and password are required")
+	}
 	c.AuthHeaderVal = ""
 	c.AccessToken = ""
-	c.DataforseoDocumentationUsername = token
+	c.DataforseoDocumentationUsername = login
+	c.DataforseoDocumentationPassword = password
 	return c.save()
 }
 
 func (c *Config) ClearTokens() error {
+	// PATCH: Clear every auth shape so a stale credential cannot shadow a later login.
+	c.AuthHeaderVal = ""
 	c.AccessToken = ""
 	c.RefreshToken = ""
 	c.TokenExpiry = time.Time{}
+	c.ClientID = ""
+	c.ClientSecret = ""
+	c.DataforseoDocumentationUsername = ""
+	c.DataforseoDocumentationPassword = ""
 	return c.save()
 }
 
@@ -155,6 +158,3 @@ func (c *Config) save() error {
 	}
 	return os.WriteFile(c.Path, data, 0o600)
 }
-
-// Ensure strings import is used
-var _ = strings.ReplaceAll

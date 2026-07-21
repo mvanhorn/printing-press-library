@@ -12,14 +12,14 @@ import (
 	"strings"
 	"time"
 
+	mcplib "github.com/mark3labs/mcp-go/mcp"
+	"github.com/mark3labs/mcp-go/server"
 	"github.com/mvanhorn/printing-press-library/library/marketing/dataforseo/internal/cli"
 	"github.com/mvanhorn/printing-press-library/library/marketing/dataforseo/internal/client"
 	"github.com/mvanhorn/printing-press-library/library/marketing/dataforseo/internal/cliutil"
 	"github.com/mvanhorn/printing-press-library/library/marketing/dataforseo/internal/config"
 	"github.com/mvanhorn/printing-press-library/library/marketing/dataforseo/internal/mcp/cobratree"
 	"github.com/mvanhorn/printing-press-library/library/marketing/dataforseo/internal/store"
-	mcplib "github.com/mark3labs/mcp-go/mcp"
-	"github.com/mark3labs/mcp-go/server"
 )
 
 // RegisterTools registers all API operations as MCP tools.
@@ -137,14 +137,12 @@ func makeAPIHandler(method, pathTemplate string, bindings []mcpParamBinding, pos
 		case "GET":
 			data, err = c.Get(path, params)
 		case "POST":
-			body, _ := json.Marshal(bodyArgs)
-			data, _, err = c.Post(path, body)
+			// PATCH: Pass structured values through; the HTTP client owns the only JSON marshal.
+			data, _, err = c.Post(path, bodyArgs)
 		case "PUT":
-			body, _ := json.Marshal(bodyArgs)
-			data, _, err = c.Put(path, body)
+			data, _, err = c.Put(path, bodyArgs)
 		case "PATCH":
-			body, _ := json.Marshal(bodyArgs)
-			data, _, err = c.Patch(path, body)
+			data, _, err = c.Patch(path, bodyArgs)
 		case "DELETE":
 			data, _, err = c.Delete(path)
 		default:
@@ -158,18 +156,18 @@ func makeAPIHandler(method, pathTemplate string, bindings []mcpParamBinding, pos
 				return mcplib.NewToolResultText("already exists (no-op)"), nil
 			case strings.Contains(msg, "HTTP 400") && cliutil.LooksLikeAuthError(msg):
 				return mcplib.NewToolResultError("authentication error: " + cliutil.SanitizeErrorBody(msg) +
-					"\nhint: the API rejected the request — this usually means auth is missing or invalid." +
-					"\n      Set your API key: export DATAFORSEO_LOGIN=<your-login>" +
+					"\nhint: DataForSEO requires both login and password." +
+					"\n      Set DATAFORSEO_LOGIN and DATAFORSEO_PASSWORD, then retry." +
 					"\n      Run 'dataforseo-pp-cli doctor' to check auth status."), nil
 			case strings.Contains(msg, "HTTP 401"):
 				return mcplib.NewToolResultError("authentication failed: " + cliutil.SanitizeErrorBody(msg) +
-					"\nhint: check your API key." +
-					"\n      Set it with: export DATAFORSEO_LOGIN=<your-login>" +
+					"\nhint: check both DataForSEO credentials." +
+					"\n      Set DATAFORSEO_LOGIN and DATAFORSEO_PASSWORD, then retry." +
 					"\n      Run 'dataforseo-pp-cli doctor' to check auth status."), nil
 			case strings.Contains(msg, "HTTP 403"):
 				return mcplib.NewToolResultError("permission denied: " + cliutil.SanitizeErrorBody(msg) +
 					"\nhint: your credentials are valid but lack access to this resource." +
-					"\n      Set it with: export DATAFORSEO_LOGIN=<your-login>" +
+					"\n      Verify both DATAFORSEO_LOGIN and DATAFORSEO_PASSWORD." +
 					"\n      Run 'dataforseo-pp-cli doctor' to check auth status."), nil
 			case strings.Contains(msg, "HTTP 404"):
 				if method == "DELETE" {
@@ -210,6 +208,11 @@ func newMCPClient() (*client.Client, error) {
 		return nil, fmt.Errorf("loading config: %w", err)
 	}
 	c := client.New(cfg, 30*time.Second, 0)
+	// PATCH: MCP and Cobra share one response-ingestion seam so API results
+	// populate the same local history and search index.
+	c.OnResponse = func(path string, data json.RawMessage) error {
+		return cli.WriteThroughAPIResponse(context.Background(), path, data)
+	}
 	// Agents calling through MCP need fresh data every call. The on-disk
 	// response cache survives across MCP server invocations, so a
 	// DELETE/PATCH followed by a GET would otherwise return the
@@ -260,8 +263,8 @@ func handleSearch(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.Call
 // bug per the project's agent-native security model.
 //
 // The gate is an allowlist (SELECT or WITH only) applied AFTER stripping the
-// leading whitespace, line comments, block comments, and semicolons that
-// SQLite itself ignores before parsing. A naive HasPrefix check on a
+// leading whitespace, line comments, and block comments that SQLite itself
+// ignores before parsing. A naive HasPrefix check on a
 // keyword blocklist is bypassable by prefixing the dangerous statement with
 // "/* x */" or "-- x\n" — TrimSpace strips outer whitespace but does not
 // understand SQL comment syntax. Combined with the empirical fact that
@@ -274,21 +277,144 @@ func handleSearch(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.Call
 // caught by OpenReadOnly's mode=ro one layer down. PRAGMA, ATTACH, VACUUM,
 // and every other DDL/DML keyword fail at this gate before reaching SQLite.
 func validateReadOnlyQuery(query string) error {
+	// PATCH: mode=ro does not contain every SQLite side effect; admit exactly
+	// one statement before handing SQL to the driver.
+	query, err := singleSQLStatement(query)
+	if err != nil {
+		return err
+	}
+
 	upper := strings.ToUpper(stripLeadingSQLNoise(query))
-	if !strings.HasPrefix(upper, "SELECT") && !strings.HasPrefix(upper, "WITH") {
+	if !hasSQLKeywordPrefix(upper, "SELECT") && !hasSQLKeywordPrefix(upper, "WITH") {
 		return fmt.Errorf("only SELECT queries are allowed")
 	}
 	return nil
 }
 
+// singleSQLStatement permits one optional trailing terminator while ignoring
+// semicolons inside SQLite strings, quoted identifiers, and comments.
+func singleSQLStatement(query string) (string, error) {
+	const (
+		sqlNormal = iota
+		sqlSingleQuote
+		sqlDoubleQuote
+		sqlBacktick
+		sqlBracket
+		sqlLineComment
+		sqlBlockComment
+	)
+	state := sqlNormal
+	terminator := -1
+	for i := 0; i < len(query); i++ {
+		c := query[i]
+		switch state {
+		case sqlSingleQuote:
+			if c == '\'' {
+				if i+1 < len(query) && query[i+1] == '\'' {
+					i++
+				} else {
+					state = sqlNormal
+				}
+			}
+			continue
+		case sqlDoubleQuote:
+			if c == '"' {
+				if i+1 < len(query) && query[i+1] == '"' {
+					i++
+				} else {
+					state = sqlNormal
+				}
+			}
+			continue
+		case sqlBacktick:
+			if c == '`' {
+				if i+1 < len(query) && query[i+1] == '`' {
+					i++
+				} else {
+					state = sqlNormal
+				}
+			}
+			continue
+		case sqlBracket:
+			if c == ']' {
+				if i+1 < len(query) && query[i+1] == ']' {
+					i++
+				} else {
+					state = sqlNormal
+				}
+			}
+			continue
+		case sqlLineComment:
+			if c == '\n' {
+				state = sqlNormal
+			}
+			continue
+		case sqlBlockComment:
+			if c == '*' && i+1 < len(query) && query[i+1] == '/' {
+				i++
+				state = sqlNormal
+			}
+			continue
+		}
+
+		if strings.ContainsRune(" \t\r\n", rune(c)) {
+			continue
+		}
+		if c == '-' && i+1 < len(query) && query[i+1] == '-' {
+			i++
+			state = sqlLineComment
+			continue
+		}
+		if c == '/' && i+1 < len(query) && query[i+1] == '*' {
+			i++
+			state = sqlBlockComment
+			continue
+		}
+		if c == ';' {
+			if terminator >= 0 {
+				return "", fmt.Errorf("exactly one SELECT query is allowed")
+			}
+			terminator = i
+			continue
+		}
+		if terminator >= 0 {
+			return "", fmt.Errorf("exactly one SELECT query is allowed")
+		}
+		switch c {
+		case '\'':
+			state = sqlSingleQuote
+		case '"':
+			state = sqlDoubleQuote
+		case '`':
+			state = sqlBacktick
+		case '[':
+			state = sqlBracket
+		}
+	}
+	if state != sqlNormal && state != sqlLineComment {
+		return "", fmt.Errorf("malformed SQL query")
+	}
+	if terminator >= 0 {
+		query = query[:terminator]
+	}
+	return strings.TrimSpace(query), nil
+}
+
+func hasSQLKeywordPrefix(query, keyword string) bool {
+	if !strings.HasPrefix(query, keyword) {
+		return false
+	}
+	return len(query) == len(keyword) || strings.ContainsRune(" \t\r\n(", rune(query[len(keyword)]))
+}
+
 // stripLeadingSQLNoise removes leading whitespace, SQL line comments
-// (-- to end of line), block comments (/* ... */), and statement
-// separators (;) from query. SQLite skips these before parsing the first
+// (-- to end of line), and block comments (/* ... */) from query. SQLite
+// skips these before parsing the first
 // keyword, so a security gate that does not strip them mismatches what the
 // driver actually executes.
 func stripLeadingSQLNoise(query string) string {
 	for {
-		query = strings.TrimLeft(query, " \t\r\n;")
+		query = strings.TrimLeft(query, " \t\r\n")
 		switch {
 		case strings.HasPrefix(query, "--"):
 			if idx := strings.IndexByte(query, '\n'); idx >= 0 {
@@ -331,7 +457,10 @@ func handleSQL(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.CallToo
 	}
 	defer rows.Close()
 
-	cols, _ := rows.Columns()
+	cols, err := rows.Columns()
+	if err != nil {
+		return mcplib.NewToolResultError(fmt.Sprintf("reading query columns: %v", err)), nil
+	}
 	var results []map[string]any
 	for rows.Next() {
 		values := make([]any, len(cols))
@@ -339,15 +468,24 @@ func handleSQL(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.CallToo
 		for i := range values {
 			ptrs[i] = &values[i]
 		}
-		rows.Scan(ptrs...)
+		if err := rows.Scan(ptrs...); err != nil {
+			return mcplib.NewToolResultError(fmt.Sprintf("scanning query row: %v", err)), nil
+		}
 		row := make(map[string]any)
 		for i, col := range cols {
 			row[col] = values[i]
 		}
 		results = append(results, row)
 	}
+	// PATCH: A SQLite error can arrive only while stepping the final row.
+	if err := rows.Err(); err != nil {
+		return mcplib.NewToolResultError(fmt.Sprintf("iterating query rows: %v", err)), nil
+	}
 
-	data, _ := json.MarshalIndent(results, "", "  ")
+	data, err := json.MarshalIndent(results, "", "  ")
+	if err != nil {
+		return mcplib.NewToolResultError(fmt.Sprintf("encoding query results: %v", err)), nil
+	}
 	return mcplib.NewToolResultText(string(data)), nil
 }
 
@@ -357,8 +495,9 @@ func handleContext(_ context.Context, _ mcplib.CallToolRequest) (*mcplib.CallToo
 		"description": "Every DataForSEO endpoint, plus auto-mode routing, cost estimates, keyword pre-cleaning, and a local SQLite store no...",
 		"archetype":   "content",
 		"tool_count":  554,
-		// tool_surface tells agents which surface a capability lives on.
-		"tool_surface": "MCP exposes typed endpoint tools plus a runtime mirror of user-facing CLI commands. Endpoint tools keep typed schemas; command-mirror tools shell out to the companion dataforseo-pp-cli binary.",
+		// PATCH: Describe the generated code-orchestration contract, not the
+		// suppressed per-endpoint tool surface.
+		"tool_surface": "MCP uses code orchestration: dataforseo_search discovers endpoint IDs and dataforseo_execute executes them. Per-endpoint MCP tools are hidden. The Cobra mirror exposes curated novel CLI commands as MCP tools.",
 		"auth": map[string]any{
 			"type": "api_key",
 			"env_vars": []map[string]any{

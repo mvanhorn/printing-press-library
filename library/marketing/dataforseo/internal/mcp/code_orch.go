@@ -18,6 +18,8 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"net/http"
+	neturl "net/url"
 	"sort"
 	"strings"
 
@@ -38,14 +40,20 @@ func RegisterCodeOrchestrationTools(s *server.MCPServer) {
 		handleCodeOrchSearch,
 	)
 
-	s.AddTool(
-		mcplib.NewTool("dataforseo_execute",
-			mcplib.WithDescription("Execute one dataforseo API endpoint by its endpoint_id (from dataforseo_search). Params are passed as a JSON object; path placeholders and query strings are resolved automatically."),
-			mcplib.WithString("endpoint_id", mcplib.Required(), mcplib.Description("Endpoint identifier returned by dataforseo_search (e.g., \"users.list\").")),
-			mcplib.WithObject("params", mcplib.Description("Parameters for the endpoint. Path placeholders match by name; remaining entries become query string on GET/DELETE or JSON body on POST/PUT/PATCH.")),
-		),
-		handleCodeOrchExecute,
+	executeTool := mcplib.NewTool("dataforseo_execute",
+		mcplib.WithDescription("Execute one dataforseo API endpoint by its endpoint_id (from dataforseo_search). Params are passed as a JSON object or, for POST bodies, a JSON array; path placeholders and query strings are resolved automatically."),
+		mcplib.WithString("endpoint_id", mcplib.Required(), mcplib.Description("Endpoint identifier returned by dataforseo_search (e.g., \"users.list\").")),
+		mcplib.WithObject("params", mcplib.Description("Parameters for the endpoint. Path placeholders match by name; remaining entries become query string on GET/DELETE or JSON body on POST/PUT/PATCH. POST also accepts a top-level JSON array.")),
 	)
+	// PATCH: DataForSEO task POSTs accept both a single object and a top-level array.
+	executeTool.InputSchema.Properties["params"] = map[string]any{
+		"description": "Endpoint parameters as an object, or a top-level array for POST request bodies.",
+		"oneOf": []any{
+			map[string]any{"type": "object", "additionalProperties": true},
+			map[string]any{"type": "array", "items": map[string]any{}},
+		},
+	}
+	s.AddTool(executeTool, handleCodeOrchExecute)
 }
 
 // codeOrchEndpoint captures the small slice of endpoint metadata the
@@ -4608,9 +4616,27 @@ func handleCodeOrchExecute(ctx context.Context, req mcplib.CallToolRequest) (*mc
 		return mcplib.NewToolResultError(fmt.Sprintf("unknown endpoint_id %q — call dataforseo_search to discover valid ids", id)), nil
 	}
 
-	params, _ := args["params"].(map[string]any)
-	if params == nil {
-		params = map[string]any{}
+	rawParams := args["params"]
+	params := map[string]any{}
+	var writeBody any = params
+	switch value := rawParams.(type) {
+	case nil:
+	case map[string]any:
+		params = make(map[string]any, len(value))
+		for k, v := range value {
+			params[k] = v
+		}
+		writeBody = params
+	case []any:
+		if ep.Method != http.MethodPost {
+			return mcplib.NewToolResultError("array-shaped params are supported only for POST endpoints"), nil
+		}
+		if len(ep.Positional) != 0 {
+			return mcplib.NewToolResultError("array-shaped params cannot supply required path parameters"), nil
+		}
+		writeBody = value
+	default:
+		return mcplib.NewToolResultError("params must be a JSON object or, for POST endpoints, an array"), nil
 	}
 
 	c, err := newMCPClient()
@@ -4620,10 +4646,13 @@ func handleCodeOrchExecute(ctx context.Context, req mcplib.CallToolRequest) (*mc
 
 	path := ep.Path
 	for _, p := range ep.Positional {
-		if v, ok := params[p]; ok {
-			path = strings.ReplaceAll(path, "{"+p+"}", fmt.Sprintf("%v", v))
-			delete(params, p)
+		v, ok := params[p]
+		if !ok {
+			return mcplib.NewToolResultError(fmt.Sprintf("missing required path parameter %q", p)), nil
 		}
+		// PATCH: Escape path values before substitution so they cannot inject query or fragment syntax.
+		path = strings.ReplaceAll(path, "{"+p+"}", neturl.PathEscape(fmt.Sprintf("%v", v)))
+		delete(params, p)
 	}
 
 	query := map[string]string{}
@@ -4631,6 +4660,13 @@ func handleCodeOrchExecute(ctx context.Context, req mcplib.CallToolRequest) (*mc
 		for k, v := range params {
 			query[k] = fmt.Sprintf("%v", v)
 		}
+	}
+	if ep.Method == http.MethodDelete && len(query) != 0 {
+		values := neturl.Values{}
+		for k, v := range query {
+			values.Set(k, v)
+		}
+		path += "?" + values.Encode()
 	}
 
 	var data json.RawMessage
@@ -4640,17 +4676,14 @@ func handleCodeOrchExecute(ctx context.Context, req mcplib.CallToolRequest) (*mc
 	case "DELETE":
 		data, _, err = c.Delete(path)
 	default:
-		body, mErr := json.Marshal(params)
-		if mErr != nil {
-			return mcplib.NewToolResultError(fmt.Sprintf("marshaling body: %v", mErr)), nil
-		}
+		// PATCH: Pass JSON values directly; client.do performs the single wire marshal.
 		switch ep.Method {
 		case "POST":
-			data, _, err = c.Post(path, body)
+			data, _, err = c.Post(path, writeBody)
 		case "PUT":
-			data, _, err = c.Put(path, body)
+			data, _, err = c.Put(path, writeBody)
 		case "PATCH":
-			data, _, err = c.Patch(path, body)
+			data, _, err = c.Patch(path, writeBody)
 		default:
 			return mcplib.NewToolResultError(fmt.Sprintf("unsupported method %q", ep.Method)), nil
 		}

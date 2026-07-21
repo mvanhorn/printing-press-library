@@ -257,3 +257,96 @@ func TestUpsertBatch_ExtractFailuresReturnedForPerItemMisses(t *testing.T) {
 		t.Fatalf("extractFailures = %d, want 2 (two items have no extractable PK)", extractFailures)
 	}
 }
+
+func TestUpsertRetainsLatestTwoObservations(t *testing.T) {
+	dbPath := filepath.Join(t.TempDir(), "data.db")
+	s, err := Open(dbPath)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer s.Close()
+
+	if err := s.Upsert("keywords-data", "tree service", json.RawMessage(`{"id":"tree service","keyword":"tree service","search_volume":100}`)); err != nil {
+		t.Fatal(err)
+	}
+	if err := s.Upsert("keywords-data", "tree service", json.RawMessage(`{"id":"tree service","keyword":"tree service","search_volume":125}`)); err != nil {
+		t.Fatal(err)
+	}
+	if err := s.Upsert("keywords-data", "tree service", json.RawMessage(`{"id":"tree service","keyword":"tree service","search_volume":150}`)); err != nil {
+		t.Fatal(err)
+	}
+
+	var latestCount, historyCount int
+	if err := s.DB().QueryRow(`SELECT COUNT(*) FROM resources WHERE resource_type = ? AND id = ?`, "keywords-data", "tree service").Scan(&latestCount); err != nil {
+		t.Fatal(err)
+	}
+	if err := s.DB().QueryRow(`SELECT COUNT(*) FROM resource_history WHERE resource_type = ? AND id = ?`, "keywords-data", "tree service").Scan(&historyCount); err != nil {
+		t.Fatal(err)
+	}
+	if latestCount != 1 || historyCount != 2 {
+		t.Fatalf("latest=%d history=%d, want 1 and 2", latestCount, historyCount)
+	}
+	var oldestVolume int
+	if err := s.DB().QueryRow(`SELECT json_extract(data, '$.search_volume') FROM resource_history WHERE resource_type = ? AND id = ? ORDER BY sequence LIMIT 1`, "keywords-data", "tree service").Scan(&oldestVolume); err != nil {
+		t.Fatal(err)
+	}
+	if oldestVolume != 125 {
+		t.Fatalf("oldest retained volume=%d, want 125", oldestVolume)
+	}
+}
+
+func TestUpsertIdentifiedBatchRollsBackWholeResponse(t *testing.T) {
+	s, err := Open(filepath.Join(t.TempDir(), "data.db"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer s.Close()
+
+	if _, err := s.DB().Exec(`CREATE TRIGGER reject_bad_resource BEFORE INSERT ON resources
+		WHEN NEW.id = 'bad' BEGIN SELECT RAISE(ABORT, 'rejected test row'); END`); err != nil {
+		t.Fatal(err)
+	}
+	err = s.UpsertIdentifiedBatch("keywords-data", "/v3/keywords_data/google_ads/search_volume/live", []IdentifiedResource{
+		{ID: "good", Data: json.RawMessage(`{"keyword":"good","search_volume":1}`)},
+		{ID: "bad", Data: json.RawMessage(`{"keyword":"bad","search_volume":2}`)},
+	})
+	if err == nil {
+		t.Fatal("UpsertIdentifiedBatch error = nil, want trigger failure")
+	}
+	var resources, history int
+	if err := s.DB().QueryRow(`SELECT COUNT(*) FROM resources`).Scan(&resources); err != nil {
+		t.Fatal(err)
+	}
+	if err := s.DB().QueryRow(`SELECT COUNT(*) FROM resource_history`).Scan(&history); err != nil {
+		t.Fatal(err)
+	}
+	if resources != 0 || history != 0 {
+		t.Fatalf("partial response persisted: resources=%d history=%d", resources, history)
+	}
+}
+
+func TestObservationRetentionPartitionsSourceAndDimensions(t *testing.T) {
+	s, err := Open(filepath.Join(t.TempDir(), "data.db"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer s.Close()
+
+	for _, source := range []string{"/source/live", "/source/task_get"} {
+		for _, location := range []int{2840, 2826} {
+			for volume := 1; volume <= 3; volume++ {
+				data := json.RawMessage(fmt.Sprintf(`{"keyword":"shared","search_volume":%d,"location_code":%d,"language_code":"en","search_partners":false}`, volume, location))
+				if err := s.UpsertIdentifiedBatch("keywords-data", source, []IdentifiedResource{{ID: "shared", Data: data}}); err != nil {
+					t.Fatal(err)
+				}
+			}
+		}
+	}
+	var count int
+	if err := s.DB().QueryRow(`SELECT COUNT(*) FROM resource_history WHERE resource_type = 'keywords-data' AND id = 'shared'`).Scan(&count); err != nil {
+		t.Fatal(err)
+	}
+	if count != 8 {
+		t.Fatalf("history count = %d, want 8 (two snapshots per source/location partition)", count)
+	}
+}

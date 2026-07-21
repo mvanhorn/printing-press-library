@@ -43,24 +43,26 @@ func shellOutToCLI(cliPath func() (string, error), commandPath []string) server.
 	}
 }
 
-// blockedRootFlags are root-level CLI flags that an MCP client must not be
+// blockedMCPFlags are CLI flags that an MCP client must not be
 // able to override via structured tool parameters. Allowing them lets a
 // caller swap auth credentials, redirect the API base URL, load a malicious
 // config file, or change the delivery target — all of which sit outside the
 // per-command surface the agent is supposed to be calling.
-var blockedRootFlags = map[string]bool{
+var blockedMCPFlags = map[string]bool{
 	"args":     true,
 	"base-url": true,
 	"config":   true,
-	"deliver":  true,
-	"profile":  true,
-	"token":    true,
+	// PATCH: Local database paths are a filesystem boundary, not an MCP input.
+	"db":      true,
+	"deliver": true,
+	"profile": true,
+	"token":   true,
 }
 
 func cliArgsFromMCP(args map[string]any) []string {
 	keys := make([]string, 0, len(args))
 	for k := range args {
-		if !blockedRootFlags[k] {
+		if !blockedMCPFlags[k] {
 			keys = append(keys, k)
 		}
 	}

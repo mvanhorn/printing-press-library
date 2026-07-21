@@ -5,8 +5,8 @@ package cli
 
 import (
 	"bufio"
-	"github.com/mvanhorn/printing-press-library/library/marketing/dataforseo/internal/cliutil"
 	"fmt"
+	"github.com/mvanhorn/printing-press-library/library/marketing/dataforseo/internal/cliutil"
 	"io"
 	"os"
 	"regexp"
@@ -88,7 +88,9 @@ Rules:
   printf "tree service daytona\nSTUMP_GRINDING\n!!!" | dataforseo-pp-cli keywords clean
   dataforseo-pp-cli keywords clean keywords.txt --json
 `, "\n"),
-		Annotations: map[string]string{"mcp:read-only": "true"},
+		// PATCH: File-reading keyword cleanup stays CLI-only; MCP positional args must not expose process-readable paths.
+		Annotations: map[string]string{"mcp:hidden": "true"},
+		Args:        cobra.MaximumNArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if dryRunOK(flags) {
 				return nil

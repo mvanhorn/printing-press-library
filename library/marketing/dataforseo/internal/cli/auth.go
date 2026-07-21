@@ -4,11 +4,19 @@
 package cli
 
 import (
-	"github.com/mvanhorn/printing-press-library/library/marketing/dataforseo/internal/config"
 	"fmt"
-	"github.com/spf13/cobra"
+	"io"
 	"os"
+	"strings"
+
+	"github.com/mvanhorn/printing-press-library/library/marketing/dataforseo/internal/config"
+	"github.com/spf13/cobra"
 )
+
+const maxPasswordInputBytes = 64 * 1024
+
+// PATCH: Pipe the password over stdin so it never appears in the CLI process arguments.
+const dataforseoSetBasicAuthCommand = `  printf '%s\n' "$DATAFORSEO_PASSWORD" | dataforseo-pp-cli auth set-token "$DATAFORSEO_LOGIN"`
 
 func newAuthCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
@@ -40,7 +48,7 @@ func newAuthSetupCmd(_ *rootFlags) *cobra.Command {
 			fmt.Fprintln(w, "Then set:")
 			fmt.Fprintln(w, "  export DATAFORSEO_LOGIN=\"<your-login>\"")
 			fmt.Fprintln(w, "  export DATAFORSEO_PASSWORD=\"<your-password>\"")
-			fmt.Fprintln(w, "  dataforseo-pp-cli auth set-token <token>")
+			fmt.Fprintf(w, "%s\n", dataforseoSetBasicAuthCommand)
 			if !launch {
 				return nil
 			}
@@ -90,7 +98,7 @@ func newAuthStatusCmd(flags *rootFlags) *cobra.Command {
 				fmt.Fprintln(w, "Set your credentials:")
 				fmt.Fprintln(w, "  export DATAFORSEO_LOGIN=\"your-login-here\"")
 				fmt.Fprintln(w, "  export DATAFORSEO_PASSWORD=\"your-password-here\"")
-				fmt.Fprintf(w, "  dataforseo-pp-cli auth set-token <token>\n")
+				fmt.Fprintf(w, "%s\n", dataforseoSetBasicAuthCommand)
 				return authErr(fmt.Errorf("no credentials configured"))
 			}
 
@@ -104,29 +112,32 @@ func newAuthStatusCmd(flags *rootFlags) *cobra.Command {
 
 func newAuthSetTokenCmd(flags *rootFlags) *cobra.Command {
 	return &cobra.Command{
-		Use:     "set-token <token>",
-		Short:   "Save an API token to the config file",
-		Example: "  dataforseo-pp-cli auth set-token YOUR_TOKEN_HERE",
+		Use:     "set-token <login>",
+		Aliases: []string{"set-basic"},
+		Short:   "Save the DataForSEO HTTP Basic login and a password read from stdin",
+		Example: dataforseoSetBasicAuthCommand,
 		Args:    cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
+			// PATCH: Bound stdin and strip only terminal line endings so password bytes otherwise remain exact.
+			passwordInput, err := io.ReadAll(io.LimitReader(cmd.InOrStdin(), maxPasswordInputBytes+1))
+			if err != nil {
+				return configErr(fmt.Errorf("reading password from stdin: %w", err))
+			}
+			if len(passwordInput) > maxPasswordInputBytes {
+				return usageErr(fmt.Errorf("password input exceeds %d bytes", maxPasswordInputBytes))
+			}
+			password := strings.TrimRight(string(passwordInput), "\r\n")
+			if password == "" {
+				return usageErr(fmt.Errorf("password is required on stdin"))
+			}
+
 			cfg, err := config.Load(flags.configPath)
 			if err != nil {
 				return configErr(err)
 			}
 
-			// Clear any legacy auth_header so AuthHeader() falls through to
-			// the newly-saved credential. Without this, a pre-existing
-			// auth_header value (common after regenerate) shadows the saved
-			// token and set-token silently has no effect. Silent clear (no
-			// log line): a masked-tail variant could leak token bytes through
-			// scripted dogfood that captures stderr.
-			cfg.AuthHeaderVal = ""
-			// api_key auth: AuthHeader() reads the env-var-derived field, not
-			// AccessToken. Writing the token to AccessToken via SaveTokens
-			// would persist the bytes but leave doctor reporting "not
-			// configured" — the slot the header builder consults stays empty.
-			if err := cfg.SaveCredential(args[0]); err != nil {
-				return configErr(fmt.Errorf("saving token: %w", err))
+			if err := cfg.SaveBasicCredentials(args[0], password); err != nil {
+				return configErr(fmt.Errorf("saving credentials: %w", err))
 			}
 
 			// JSON envelope: {saved, config_path}.
@@ -136,7 +147,7 @@ func newAuthSetTokenCmd(flags *rootFlags) *cobra.Command {
 					"config_path": cfg.Path,
 				}, flags)
 			}
-			fmt.Fprintf(cmd.OutOrStdout(), "Token saved to %s\n", cfg.Path)
+			fmt.Fprintf(cmd.OutOrStdout(), "Credentials saved to %s\n", cfg.Path)
 			return nil
 		},
 	}

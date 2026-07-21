@@ -23,15 +23,15 @@ var pricePer1K = map[string]float64{
 	"serp/google/organic/live/advanced": 3.00,
 	"serp/google/organic/task_post":     0.60,
 	// Keywords Data (Google Ads)
-	"keywords_data/google_ads/search_volume/live":          25.00,
-	"keywords_data/google_ads/keywords_for_keywords/live":  30.00,
-	"keywords_data/google_ads/keywords_for_site/live":      30.00,
+	"keywords_data/google_ads/search_volume/live":         25.00,
+	"keywords_data/google_ads/keywords_for_keywords/live": 30.00,
+	"keywords_data/google_ads/keywords_for_site/live":     30.00,
 	// Backlinks
-	"backlinks/summary/live":            50.00,
-	"backlinks/referring_domains/live":  100.00,
-	"backlinks/anchors/live":            50.00,
+	"backlinks/summary/live":           50.00,
+	"backlinks/referring_domains/live": 100.00,
+	"backlinks/anchors/live":           50.00,
 	// On-page
-	"on_page/instant_pages":             25.00,
+	"on_page/instant_pages": 25.00,
 	// DataForSEO Labs
 	"dataforseo_labs/google/keyword_ideas/live": 100.00,
 	// AI Optimization
@@ -91,8 +91,10 @@ so scripts can gate spend without parsing output.`,
   dataforseo-pp-cli cost estimate serp/google/organic/live/advanced --in batch.json --confirm-over 5.00 --json
   dataforseo-pp-cli cost estimate backlinks/summary/live
 `, "\n"),
+		// PATCH: Keep caller-selected --keywords and --in file reads off the Cobra-to-MCP mirror.
 		Annotations: map[string]string{
-			"mcp:read-only":        "true",
+			"mcp:hidden":          "true",
+			"mcp:read-only":       "true",
 			"pp:typed-exit-codes": "0,7",
 		},
 		RunE: func(cmd *cobra.Command, args []string) error {

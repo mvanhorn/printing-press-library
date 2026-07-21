@@ -41,7 +41,7 @@ func IsUUID(s string) bool {
 // shape — adding columns, dropping indexes, changing FTS5 tokenizers —
 // so an older binary refuses to open a newer database rather than silently
 // producing wrong results against a schema it cannot read.
-const StoreSchemaVersion = 2
+const StoreSchemaVersion = 4
 
 const resourcesFTSCreateSQL = `CREATE VIRTUAL TABLE IF NOT EXISTS resources_fts USING fts5(
 	id, resource_type, content, tokenize='porter unicode61'
@@ -218,6 +218,9 @@ func (s *Store) backfillColumns(ctx context.Context, conn *sql.Conn) error {
 		{table: "sync_state", column: "last_cursor", decl: "TEXT"},
 		{table: "sync_state", column: "last_synced_at", decl: "DATETIME"},
 		{table: "sync_state", column: "total_count", decl: "INTEGER DEFAULT 0"},
+		// PATCH: History records carry their normalized API source so analytics
+		// cannot join observations from different providers or endpoint modes.
+		{table: "resource_history", column: "source", decl: "TEXT NOT NULL DEFAULT ''"},
 	} {
 		if err := s.ensureColumn(ctx, conn, c.table, c.column, c.decl); err != nil {
 			return err
@@ -265,6 +268,17 @@ func (s *Store) migrate(ctx context.Context) error {
 			last_synced_at DATETIME,
 			total_count INTEGER DEFAULT 0
 		)`,
+		`CREATE TABLE IF NOT EXISTS resource_history (
+			sequence INTEGER PRIMARY KEY AUTOINCREMENT,
+			id TEXT NOT NULL,
+			resource_type TEXT NOT NULL,
+			source TEXT NOT NULL DEFAULT '',
+			data JSON NOT NULL,
+			observed_at DATETIME NOT NULL
+		)`,
+		`CREATE INDEX IF NOT EXISTS idx_resource_history_lookup ON resource_history(resource_type, id, observed_at DESC, sequence DESC)`,
+		// PATCH: Delta queries constrain resource_type first, then source and ID.
+		`CREATE INDEX IF NOT EXISTS idx_resource_history_type_source_lookup ON resource_history(resource_type, source, id, sequence DESC)`,
 		resourcesFTSCreateSQL,
 	}
 
@@ -404,42 +418,52 @@ func resourcesTableHasCompositeKey(ctx context.Context, conn *sql.Conn) (bool, e
 }
 
 func rebuildResourcesFTS(ctx context.Context, conn *sql.Conn) error {
-	rows, err := conn.QueryContext(ctx, `SELECT id, resource_type, data FROM resources`)
-	if err != nil {
-		return fmt.Errorf("querying resources: %w", err)
-	}
-
+	// PATCH: Rebuild in bounded keyset pages so large catalogs do not load the
+	// entire resources table into memory during a schema migration.
 	type resourceRow struct {
 		id           string
 		resourceType string
 		data         string
 	}
-	var resources []resourceRow
-	for rows.Next() {
-		var r resourceRow
-		if err := rows.Scan(&r.id, &r.resourceType, &r.data); err != nil {
+	const pageSize = 500
+	lastType, lastID := "", ""
+	for {
+		rows, err := conn.QueryContext(ctx, `SELECT id, resource_type, data FROM resources
+			WHERE resource_type > ? OR (resource_type = ? AND id > ?)
+			ORDER BY resource_type, id LIMIT ?`, lastType, lastType, lastID, pageSize)
+		if err != nil {
+			return fmt.Errorf("querying resources: %w", err)
+		}
+		resources := make([]resourceRow, 0, pageSize)
+		for rows.Next() {
+			var r resourceRow
+			if err := rows.Scan(&r.id, &r.resourceType, &r.data); err != nil {
+				rows.Close()
+				return fmt.Errorf("scanning resource: %w", err)
+			}
+			resources = append(resources, r)
+		}
+		if err := rows.Err(); err != nil {
 			rows.Close()
-			return fmt.Errorf("scanning resource: %w", err)
+			return fmt.Errorf("reading resource rows: %w", err)
 		}
-		resources = append(resources, r)
-	}
-	if err := rows.Err(); err != nil {
-		rows.Close()
-		return fmt.Errorf("reading resource rows: %w", err)
-	}
-	if err := rows.Close(); err != nil {
-		return fmt.Errorf("closing resource rows: %w", err)
-	}
-
-	for _, r := range resources {
-		if _, err := conn.ExecContext(ctx,
-			`INSERT INTO resources_fts (rowid, id, resource_type, content) VALUES (?, ?, ?, ?)`,
-			ftsRowID(r.resourceType, r.id), r.id, r.resourceType, r.data,
-		); err != nil {
-			return fmt.Errorf("indexing resource %s/%s: %w", r.resourceType, r.id, err)
+		if err := rows.Close(); err != nil {
+			return fmt.Errorf("closing resource rows: %w", err)
 		}
+		for _, r := range resources {
+			if _, err := conn.ExecContext(ctx,
+				`INSERT INTO resources_fts (rowid, id, resource_type, content) VALUES (?, ?, ?, ?)`,
+				ftsRowID(r.resourceType, r.id), r.id, r.resourceType, r.data,
+			); err != nil {
+				return fmt.Errorf("indexing resource %s/%s: %w", r.resourceType, r.id, err)
+			}
+		}
+		if len(resources) < pageSize {
+			return nil
+		}
+		last := resources[len(resources)-1]
+		lastType, lastID = last.resourceType, last.id
 	}
-	return nil
 }
 
 const (
@@ -549,14 +573,49 @@ func isSQLiteBusy(err error) bool {
 		strings.Contains(msg, "database table is locked")
 }
 
-func (s *Store) upsertGenericResourceTx(tx *sql.Tx, resourceType, id string, data json.RawMessage) error {
+func (s *Store) upsertGenericResourceTx(tx *sql.Tx, resourceType, source, id string, data json.RawMessage) error {
+	observedAt := time.Now().UTC()
 	_, err := tx.Exec(
 		`INSERT INTO resources (id, resource_type, data, synced_at, updated_at)
 		 VALUES (?, ?, ?, ?, ?)
 		 ON CONFLICT(resource_type, id) DO UPDATE SET data = excluded.data, synced_at = excluded.synced_at, updated_at = excluded.updated_at`,
-		id, resourceType, string(data), time.Now(), time.Now(),
+		id, resourceType, string(data), observedAt, observedAt,
 	)
 	if err != nil {
+		return err
+	}
+	// PATCH: Preserve the two newest observations separately from the latest-value
+	// table so delta commands work without letting repeated syncs grow forever.
+	// Source and request dimensions are part of the observation series identity.
+	if _, err := tx.Exec(
+		`INSERT INTO resource_history (id, resource_type, source, data, observed_at) VALUES (?, ?, ?, ?, ?)`,
+		id, resourceType, source, string(data), observedAt,
+	); err != nil {
+		return err
+	}
+	if _, err := tx.Exec(
+		`DELETE FROM resource_history
+		 WHERE resource_type = ? AND source = ? AND id = ?
+		   AND COALESCE(CAST(json_extract(data, '$.location_code') AS TEXT), '') = COALESCE(CAST(json_extract(?, '$.location_code') AS TEXT), '')
+		   AND COALESCE(CAST(json_extract(data, '$.location_name') AS TEXT), '') = COALESCE(CAST(json_extract(?, '$.location_name') AS TEXT), '')
+		   AND COALESCE(CAST(json_extract(data, '$.language_code') AS TEXT), '') = COALESCE(CAST(json_extract(?, '$.language_code') AS TEXT), '')
+		   AND COALESCE(CAST(json_extract(data, '$.language_name') AS TEXT), '') = COALESCE(CAST(json_extract(?, '$.language_name') AS TEXT), '')
+		   AND COALESCE(CAST(json_extract(data, '$.search_partners') AS TEXT), '') = COALESCE(CAST(json_extract(?, '$.search_partners') AS TEXT), '')
+		   AND sequence NOT IN (
+		     SELECT sequence FROM resource_history
+		     WHERE resource_type = ? AND source = ? AND id = ?
+		       AND COALESCE(CAST(json_extract(data, '$.location_code') AS TEXT), '') = COALESCE(CAST(json_extract(?, '$.location_code') AS TEXT), '')
+		       AND COALESCE(CAST(json_extract(data, '$.location_name') AS TEXT), '') = COALESCE(CAST(json_extract(?, '$.location_name') AS TEXT), '')
+		       AND COALESCE(CAST(json_extract(data, '$.language_code') AS TEXT), '') = COALESCE(CAST(json_extract(?, '$.language_code') AS TEXT), '')
+		       AND COALESCE(CAST(json_extract(data, '$.language_name') AS TEXT), '') = COALESCE(CAST(json_extract(?, '$.language_name') AS TEXT), '')
+		       AND COALESCE(CAST(json_extract(data, '$.search_partners') AS TEXT), '') = COALESCE(CAST(json_extract(?, '$.search_partners') AS TEXT), '')
+		     ORDER BY sequence DESC LIMIT 2
+		   )`,
+		resourceType, source, id,
+		string(data), string(data), string(data), string(data), string(data),
+		resourceType, source, id,
+		string(data), string(data), string(data), string(data), string(data),
+	); err != nil {
 		return err
 	}
 
@@ -588,7 +647,7 @@ func (s *Store) Upsert(resourceType, id string, data json.RawMessage) error {
 	}
 	defer tx.Rollback()
 
-	if err := s.upsertGenericResourceTx(tx, resourceType, id, data); err != nil {
+	if err := s.upsertGenericResourceTx(tx, resourceType, "", id, data); err != nil {
 		return err
 	}
 
@@ -634,17 +693,24 @@ func (s *Store) List(resourceType string, limit int) ([]json.RawMessage, error) 
 }
 
 func (s *Store) Search(query string, limit int) ([]json.RawMessage, error) {
+	return s.SearchByType("", query, limit)
+}
+
+func (s *Store) SearchByType(resourceType, query string, limit int) ([]json.RawMessage, error) {
 	if limit <= 0 {
 		limit = 50
 	}
-	rows, err := s.db.Query(
-		`SELECT r.data FROM resources r
+	statement := `SELECT r.data FROM resources r
 		 JOIN resources_fts f ON r.id = f.id AND r.resource_type = f.resource_type
-		 WHERE resources_fts MATCH ?
-		 ORDER BY rank
-		 LIMIT ?`,
-		query, limit,
-	)
+		 WHERE resources_fts MATCH ?`
+	args := []any{query}
+	if resourceType != "" {
+		statement += ` AND r.resource_type = ?`
+		args = append(args, resourceType)
+	}
+	statement += ` ORDER BY rank LIMIT ?`
+	args = append(args, limit)
+	rows, err := s.db.Query(statement, args...)
 	if err != nil {
 		return nil, err
 	}
@@ -742,6 +808,42 @@ var resourceIDFieldOverrides = map[string]string{}
 // annotations (x-resource-id), not this list.
 var genericIDFieldFallbacks = []string{"id", "ID", "name", "uuid", "slug", "key", "code", "uid"}
 
+// IdentifiedResource is a response item whose stable ID has already been
+// computed by the ingestion layer.
+type IdentifiedResource struct {
+	ID   string
+	Data json.RawMessage
+}
+
+// UpsertIdentifiedBatch writes one decoded API response in a single
+// transaction. PATCH: Response ingestion computes API-specific IDs before
+// crossing into the generic store; a failed item rolls back the whole response.
+func (s *Store) UpsertIdentifiedBatch(resourceType, source string, items []IdentifiedResource) error {
+	if len(items) == 0 {
+		return nil
+	}
+	s.writeMu.Lock()
+	defer s.writeMu.Unlock()
+	tx, err := s.db.Begin()
+	if err != nil {
+		return fmt.Errorf("starting identified batch transaction: %w", err)
+	}
+	defer tx.Rollback()
+
+	for _, item := range items {
+		if strings.TrimSpace(item.ID) == "" {
+			return fmt.Errorf("identified batch contains an empty resource ID")
+		}
+		if err := s.upsertGenericResourceTx(tx, resourceType, source, item.ID, item.Data); err != nil {
+			return fmt.Errorf("upserting %s/%s: %w", resourceType, item.ID, err)
+		}
+	}
+	if err := tx.Commit(); err != nil {
+		return fmt.Errorf("committing identified batch: %w", err)
+	}
+	return nil
+}
+
 // UpsertBatch inserts or replaces multiple records in a single transaction
 // and returns (stored, extractFailures, err). stored counts rows actually
 // landed; extractFailures counts items that survived JSON unmarshal but had
@@ -801,7 +903,7 @@ func (s *Store) UpsertBatch(resourceType string, items []json.RawMessage) (int, 
 			continue
 		}
 
-		if err := s.upsertGenericResourceTx(tx, resourceType, id, item); err != nil {
+		if err := s.upsertGenericResourceTx(tx, resourceType, "", id, item); err != nil {
 			return 0, extractFailures, fmt.Errorf("upserting %s/%s: %w", resourceType, id, err)
 		}
 

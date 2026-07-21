@@ -6,29 +6,35 @@ package client
 import (
 	"bytes"
 	"crypto/sha256"
-	"github.com/mvanhorn/printing-press-library/library/marketing/dataforseo/internal/cliutil"
-	"github.com/mvanhorn/printing-press-library/library/marketing/dataforseo/internal/config"
 	"encoding/hex"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"math"
 	"net/http"
 	"os"
 	"path/filepath"
+	"reflect"
 	"sort"
 	"strings"
 	"time"
+
+	"github.com/mvanhorn/printing-press-library/library/marketing/dataforseo/internal/cliutil"
+	"github.com/mvanhorn/printing-press-library/library/marketing/dataforseo/internal/config"
 )
 
 type Client struct {
 	BaseURL    string
 	Config     *config.Config
 	HTTPClient *http.Client
-	DryRun     bool
-	NoCache    bool
-	cacheDir   string
-	limiter    *cliutil.AdaptiveLimiter
+	// PATCH: Mirror only validated live responses into local state.
+	OnResponse    func(path string, data json.RawMessage) error
+	DryRun        bool
+	NoCache       bool
+	cacheDir      string
+	limiter       *cliutil.AdaptiveLimiter
+	warningWriter io.Writer
 }
 
 // APIError carries HTTP status information for structured exit codes.
@@ -37,6 +43,26 @@ type APIError struct {
 	Path       string
 	StatusCode int
 	Body       string
+}
+
+// PATCH: DataForSEOError exposes application failures hidden inside HTTP-2xx envelopes.
+type DataForSEOError struct {
+	Method        string
+	Path          string
+	HTTPStatus    int
+	Scope         string
+	TaskIndex     int
+	StatusCode    int
+	StatusMessage string
+	Partial       bool
+}
+
+func (e *DataForSEOError) Error() string {
+	location := e.Scope
+	if e.Scope == "task" {
+		location = fmt.Sprintf("task %d", e.TaskIndex)
+	}
+	return fmt.Sprintf("%s %s returned DataForSEO %s status %d: %s", e.Method, e.Path, location, e.StatusCode, e.StatusMessage)
 }
 
 func (e *APIError) Error() string {
@@ -67,6 +93,15 @@ func (c *Client) RateLimit() float64 {
 
 func (c *Client) Get(path string, params map[string]string) (json.RawMessage, error) {
 	return c.GetWithHeaders(path, params, nil)
+}
+
+// GetFresh performs one uncached GET without changing the client's cache
+// policy. It is used by readiness/result polling where a five-minute-old
+// response can make a completed task appear stuck.
+// PATCH: Task polling must bypass cache reads and writes per request.
+func (c *Client) GetFresh(path string, params map[string]string) (json.RawMessage, error) {
+	result, _, err := c.do(http.MethodGet, path, params, nil, nil)
+	return result, err
 }
 
 func (c *Client) GetWithHeaders(path string, params map[string]string, headers map[string]string) (json.RawMessage, error) {
@@ -181,6 +216,18 @@ func (c *Client) do(method, path string, params map[string]string, body any, hea
 
 	var bodyBytes []byte
 	if body != nil {
+		// PATCH: DataForSEO POSTs use a top-level task array; normalize once for every command.
+		normalizedBody, err := normalizeDataForSEOPostBody(method, body)
+		if err != nil {
+			return nil, 0, err
+		}
+		if normalizedBody == nil {
+			body = nil
+		} else {
+			body = normalizedBody
+		}
+	}
+	if body != nil {
 		b, err := json.Marshal(body)
 		if err != nil {
 			return nil, 0, fmt.Errorf("marshaling body: %w", err)
@@ -258,6 +305,10 @@ func (c *Client) do(method, path string, params map[string]string, body any, hea
 		resp, err := c.HTTPClient.Do(req)
 		if err != nil {
 			lastErr = fmt.Errorf("%s %s: %w", method, path, err)
+			// PATCH: Never replay a potentially billable mutation after an ambiguous transport failure.
+			if !requestCanRetry(req) || attempt == maxRetries {
+				return nil, 0, lastErr
+			}
 			continue
 		}
 
@@ -269,12 +320,28 @@ func (c *Client) do(method, path string, params map[string]string, body any, hea
 		respBody = sanitizeJSONResponse(respBody)
 
 		// Success
-		if resp.StatusCode < 400 {
+		if resp.StatusCode >= http.StatusOK && resp.StatusCode < http.StatusMultipleChoices {
+			// PATCH: HTTP success is not API success when DataForSEO reports an envelope error.
+			if apiErr := validateDataForSEOResponse(method, path, resp.StatusCode, respBody); apiErr != nil {
+				var dataForSEOErr *DataForSEOError
+				if errors.As(apiErr, &dataForSEOErr) && dataForSEOErr.Partial {
+					return json.RawMessage(respBody), resp.StatusCode, apiErr
+				}
+				return nil, resp.StatusCode, apiErr
+			}
 			c.limiter.OnSuccess()
-			if method != http.MethodGet && !c.DryRun {
+			data := json.RawMessage(respBody)
+			if c.OnResponse != nil {
+				// PATCH: Local persistence is secondary to a successful API call,
+				// but failures must be visible instead of silently discarded.
+				if err := c.OnResponse(path, data); err != nil {
+					fmt.Fprintf(c.warningOutput(), "warning: API response was fetched but could not be stored locally: %v\n", err)
+				}
+			}
+			if method != http.MethodGet && method != http.MethodHead && !c.DryRun {
 				c.invalidateCache()
 			}
-			return json.RawMessage(respBody), resp.StatusCode, nil
+			return data, resp.StatusCode, nil
 		}
 
 		apiErr := &APIError{
@@ -285,18 +352,22 @@ func (c *Client) do(method, path string, params map[string]string, body any, hea
 		}
 
 		// Rate limited - adjust adaptive limiter and retry
-		if resp.StatusCode == 429 && attempt < maxRetries {
+		if resp.StatusCode == 429 {
 			c.limiter.OnRateLimit()
-			wait := cliutil.RetryAfter(resp)
-			fmt.Fprintf(os.Stderr, "rate limited, waiting %s (attempt %d/%d, rate adjusted to %.1f req/s)\n", wait, attempt+1, maxRetries, c.limiter.Rate())
-			time.Sleep(wait)
-			lastErr = apiErr
-			continue
+			// PATCH: Mutations retry rate limits only when an idempotency key makes replay explicit.
+			if attempt < maxRetries && requestCanRetry(req) {
+				wait := retryWait(resp, cliutil.RetryAfter(resp))
+				fmt.Fprintf(os.Stderr, "rate limited, waiting %s (attempt %d/%d, rate adjusted to %.1f req/s)\n", wait, attempt+1, maxRetries, c.limiter.Rate())
+				time.Sleep(wait)
+				lastErr = apiErr
+				continue
+			}
 		}
 
 		// Server error - retry with backoff
-		if resp.StatusCode >= 500 && attempt < maxRetries {
-			wait := time.Duration(math.Pow(2, float64(attempt))) * time.Second
+		// PATCH: Retry server responses only when the request is safe to replay.
+		if resp.StatusCode >= 500 && attempt < maxRetries && requestCanRetry(req) {
+			wait := retryWait(resp, time.Duration(math.Pow(2, float64(attempt)))*time.Second)
 			fmt.Fprintf(os.Stderr, "server error %d, retrying in %s (attempt %d/%d)\n", resp.StatusCode, wait, attempt+1, maxRetries)
 			time.Sleep(wait)
 			lastErr = apiErr
@@ -402,15 +473,228 @@ func sanitizeJSONResponse(body []byte) []byte {
 	return body
 }
 
-// maskToken redacts all but the last 4 characters of a token for safe display.
+func requestCanRetry(req *http.Request) bool {
+	if req.Method == http.MethodGet || req.Method == http.MethodHead {
+		return true
+	}
+	return req.Header.Get("Idempotency-Key") != ""
+}
+
+func (c *Client) warningOutput() io.Writer {
+	if c.warningWriter != nil {
+		return c.warningWriter
+	}
+	return os.Stderr
+}
+
+func retryWait(resp *http.Response, fallback time.Duration) time.Duration {
+	if resp == nil {
+		return fallback
+	}
+	header := strings.TrimSpace(resp.Header.Get("Retry-After"))
+	if header == "0" {
+		return 0
+	}
+	if header != "" {
+		return cliutil.RetryAfter(resp)
+	}
+	return fallback
+}
+
+func normalizeDataForSEOPostBody(method string, body any) (any, error) {
+	if method != http.MethodPost || body == nil {
+		return body, nil
+	}
+
+	switch value := body.(type) {
+	case json.RawMessage:
+		return decodeDataForSEOPostJSON(value)
+	case []byte:
+		return decodeDataForSEOPostJSON(value)
+	}
+
+	value := reflect.ValueOf(body)
+	for value.Kind() == reflect.Interface || value.Kind() == reflect.Pointer {
+		if value.IsNil() {
+			return nil, nil
+		}
+		value = value.Elem()
+	}
+	switch value.Kind() {
+	case reflect.Slice:
+		if value.IsNil() {
+			return nil, nil
+		}
+		if err := validateDataForSEOTaskArray(value); err != nil {
+			return nil, err
+		}
+		return body, nil
+	case reflect.Array:
+		if err := validateDataForSEOTaskArray(value); err != nil {
+			return nil, err
+		}
+		return body, nil
+	case reflect.Map:
+		if value.IsNil() {
+			return nil, nil
+		}
+		return []any{body}, nil
+	case reflect.Struct:
+		return []any{body}, nil
+	default:
+		return nil, fmt.Errorf("DataForSEO POST body must be a JSON object or array of objects")
+	}
+}
+
+func validateDataForSEOTaskArray(value reflect.Value) error {
+	for i := 0; i < value.Len(); i++ {
+		item := value.Index(i)
+		for item.Kind() == reflect.Interface || item.Kind() == reflect.Pointer {
+			if item.IsNil() {
+				return fmt.Errorf("DataForSEO POST task %d must be a JSON object", i)
+			}
+			item = item.Elem()
+		}
+		if item.Kind() != reflect.Map && item.Kind() != reflect.Struct {
+			return fmt.Errorf("DataForSEO POST task %d must be a JSON object", i)
+		}
+	}
+	return nil
+}
+
+func decodeDataForSEOPostJSON(raw []byte) (any, error) {
+	raw = bytes.TrimSpace(raw)
+	if len(raw) == 0 {
+		return nil, nil
+	}
+	if !json.Valid(raw) {
+		return nil, fmt.Errorf("decoding POST body JSON: invalid JSON")
+	}
+	message := json.RawMessage(raw)
+	switch raw[0] {
+	case '[':
+		var tasks []json.RawMessage
+		if err := json.Unmarshal(raw, &tasks); err != nil {
+			return nil, fmt.Errorf("decoding POST body JSON: %w", err)
+		}
+		for i, task := range tasks {
+			task = bytes.TrimSpace(task)
+			if len(task) == 0 || task[0] != '{' {
+				return nil, fmt.Errorf("DataForSEO POST task %d must be a JSON object", i)
+			}
+		}
+		return message, nil
+	case '{':
+		return []json.RawMessage{message}, nil
+	}
+	var decoded any
+	if err := json.Unmarshal(raw, &decoded); err != nil {
+		return nil, fmt.Errorf("decoding POST body JSON: %w", err)
+	}
+	return normalizeDataForSEOPostBody(http.MethodPost, decoded)
+}
+
+func validateDataForSEOResponse(method, path string, httpStatus int, body []byte) error {
+	type status struct {
+		StatusCode    *int   `json:"status_code"`
+		StatusMessage string `json:"status_message"`
+	}
+	type envelope struct {
+		status
+		Tasks []status `json:"tasks"`
+	}
+
+	body = bytes.TrimSpace(body)
+	if !json.Valid(body) {
+		return fmt.Errorf("decoding DataForSEO response JSON: invalid JSON")
+	}
+	// Valid non-object JSON cannot be a DataForSEO status envelope.
+	if len(body) == 0 || body[0] != '{' {
+		return nil
+	}
+
+	var response envelope
+	if err := json.Unmarshal(body, &response); err != nil {
+		return fmt.Errorf("decoding DataForSEO response JSON: %w", err)
+	}
+	// DataForSEO status codes are five-digit application codes. Requiring a
+	// top-level code avoids mistaking unrelated JSON with task-like fields for
+	// a DataForSEO envelope.
+	if response.StatusCode == nil || *response.StatusCode < 10000 || *response.StatusCode > 99999 {
+		return nil
+	}
+	if !dataForSEOStatusSuccessful(*response.StatusCode) {
+		return &DataForSEOError{
+			Method:        method,
+			Path:          path,
+			HTTPStatus:    httpStatus,
+			Scope:         "response",
+			TaskIndex:     -1,
+			StatusCode:    *response.StatusCode,
+			StatusMessage: response.StatusMessage,
+		}
+	}
+	// PATCH: task_post can partially accept a batch. Preserve the envelope so
+	// callers can persist accepted task IDs while still seeing rejected tasks.
+	if strings.HasSuffix(strings.TrimRight(path, "/"), "/task_post") {
+		var firstRejected *DataForSEOError
+		accepted := false
+		for i, task := range response.Tasks {
+			if task.StatusCode == nil {
+				continue
+			}
+			if dataForSEOStatusSuccessful(*task.StatusCode) {
+				accepted = true
+				continue
+			}
+			if firstRejected == nil {
+				firstRejected = &DataForSEOError{
+					Method:        method,
+					Path:          path,
+					HTTPStatus:    httpStatus,
+					Scope:         "task",
+					TaskIndex:     i,
+					StatusCode:    *task.StatusCode,
+					StatusMessage: task.StatusMessage,
+				}
+			}
+		}
+		if firstRejected != nil {
+			firstRejected.Partial = accepted
+			return firstRejected
+		}
+		return nil
+	}
+	for i, task := range response.Tasks {
+		if task.StatusCode != nil && !dataForSEOStatusSuccessful(*task.StatusCode) {
+			return &DataForSEOError{
+				Method:        method,
+				Path:          path,
+				HTTPStatus:    httpStatus,
+				Scope:         "task",
+				TaskIndex:     i,
+				StatusCode:    *task.StatusCode,
+				StatusMessage: task.StatusMessage,
+			}
+		}
+	}
+	return nil
+}
+
+func dataForSEOStatusSuccessful(code int) bool {
+	return code >= 20000 && code < 30000
+}
+
+// maskToken redacts the entire credential while preserving an auth scheme label.
 func maskToken(token string) string {
 	if token == "" {
 		return ""
 	}
-	if len(token) <= 4 {
-		return "****"
+	// PATCH: Dry-run output must not retain decodable Basic-auth or token tail bytes.
+	if fields := strings.Fields(token); len(fields) > 1 {
+		return fields[0] + " ****"
 	}
-	return "****" + token[len(token)-4:]
+	return "****"
 }
 
 func truncateBody(b []byte) string {

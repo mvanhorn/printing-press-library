@@ -4,9 +4,19 @@
   "printing_press_version": "4.11.0",
   "api_name": "dataforseo",
   "cli_name": "dataforseo-pp-cli",
+  "mcp_binary": "dataforseo-pp-mcp",
+  "mcp_ready": "full",
+  "spec_format": "openapi3",
+  "spec_checksum": "sha256:271fbaee7eeba955ca3b3204e71ed7f3bf97feddda028645115ed472deaf489f",
+  "spec_source": "https://github.com/dataforseo/OpenApiDocumentation/blob/2d905ad34863444e2f1eb4272f8c9569032e4628/openapi_specification.yaml",
   "run_id": "20260511-221728",
   "printer": "Mazzsterr",
   "printer_name": "Mazzsterr",
+  "creator": {
+    "handle": "mazzsterr",
+    "name": "Mazzsterr"
+  },
+  "contributors": [],
   "novel_features": [
     {
       "name": "Keyword pre-cleaner with 40501 surfacer",

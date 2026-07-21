@@ -6,10 +6,10 @@ package cli
 import (
 	"bufio"
 	"context"
-	"github.com/mvanhorn/printing-press-library/library/marketing/dataforseo/internal/cliutil"
-	"github.com/mvanhorn/printing-press-library/library/marketing/dataforseo/internal/store"
 	"encoding/json"
 	"fmt"
+	"github.com/mvanhorn/printing-press-library/library/marketing/dataforseo/internal/cliutil"
+	"github.com/mvanhorn/printing-press-library/library/marketing/dataforseo/internal/store"
 	"os"
 	"strings"
 	"time"
@@ -28,13 +28,13 @@ const aiVisibilitySchema = `CREATE TABLE IF NOT EXISTS ai_visibility (
 )`
 
 type aiVisibilityRow struct {
-	Brand     string `json:"brand"`
-	Keyword   string `json:"keyword"`
-	LLM       string `json:"llm"`
-	Mentioned bool   `json:"mentioned"`
-	Excerpt   string `json:"excerpt,omitempty"`
-	PrevMentioned *bool `json:"prev_mentioned,omitempty"`
-	CheckedAt string `json:"checked_at"`
+	Brand         string `json:"brand"`
+	Keyword       string `json:"keyword"`
+	LLM           string `json:"llm"`
+	Mentioned     bool   `json:"mentioned"`
+	Excerpt       string `json:"excerpt,omitempty"`
+	PrevMentioned *bool  `json:"prev_mentioned,omitempty"`
+	CheckedAt     string `json:"checked_at"`
 }
 
 var aiVisibilityLLMs = []struct {
@@ -67,6 +67,8 @@ func newAIVisibilityTrackCmd(flags *rootFlags) *cobra.Command {
   dataforseo-pp-cli ai-visibility track --brand "Florida Tree Men" --keywords /tmp/kw.txt
   dataforseo-pp-cli ai-visibility track --brand "FSM Stump Grinding" --keywords kw.txt --json
 `, "\n"),
+		// PATCH: Keep caller-selected --keywords file reads off the Cobra-to-MCP mirror.
+		Annotations: map[string]string{"mcp:hidden": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if dryRunOK(flags) {
 				return nil

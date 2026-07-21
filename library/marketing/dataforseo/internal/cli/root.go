@@ -5,6 +5,8 @@ package cli
 
 import (
 	"bytes"
+	"context"
+	"encoding/json"
 	"fmt"
 	"io"
 	"os"
@@ -237,6 +239,11 @@ func (f *rootFlags) newClient() (*client.Client, error) {
 	c := client.New(cfg, f.timeout, f.rateLimit)
 	c.DryRun = f.dryRun
 	c.NoCache = f.noCache
+	// PATCH: One response hook covers generated GET and POST commands without
+	// hand-editing hundreds of endpoint mirrors.
+	c.OnResponse = func(path string, data json.RawMessage) error {
+		return WriteThroughAPIResponse(context.Background(), path, data)
+	}
 	return c, nil
 }
 
