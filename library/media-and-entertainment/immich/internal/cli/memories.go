@@ -22,5 +22,6 @@ func newMemoriesCmd(flags *rootFlags) *cobra.Command {
 	cmd.AddCommand(newMemoriesStatisticsCmd(flags))
 	cmd.AddCommand(newMemoriesUpdateMemoryCmd(flags))
 	cmd.AddCommand(newMemoriesAssetsCmd(flags))
+	cmd.AddCommand(newMemoriesReviewCmd(flags))
 	return cmd
 }

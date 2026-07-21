@@ -30,21 +30,6 @@ import (
 func init() { registerNovelCommand(addPersonalLibraryRituals) }
 
 func addPersonalLibraryRituals(root *cobra.Command, flags *rootFlags) {
-	if cmd, _, err := root.Find([]string{"import"}); err == nil {
-		addImportAdapters(cmd, flags)
-	}
-	if cmd, _, err := root.Find([]string{"duplicates"}); err == nil {
-		cmd.AddCommand(newDuplicatePlanCmd(flags), newDuplicateApplyCmd(flags))
-	}
-	if cmd, _, err := root.Find([]string{"people"}); err == nil {
-		cmd.AddCommand(newPeopleJulyCmd(flags))
-	}
-	if cmd, _, err := root.Find([]string{"memories"}); err == nil {
-		cmd.AddCommand(newMemoriesReviewCmd(flags))
-	}
-	if cmd, _, err := root.Find([]string{"stacks"}); err == nil {
-		cmd.AddCommand(newStacksReviewCmd(flags))
-	}
 	// Name the extension root consistently with generated wiring so the
 	// Printing Press tree walker records these as top-level commands.
 	rootCmd := root
@@ -71,10 +56,6 @@ type importOptions struct {
 	concurrency   int
 	dryRun        bool
 	album         string
-}
-
-func addImportAdapters(parent *cobra.Command, flags *rootFlags) {
-	parent.AddCommand(newImportFolderCmd(flags), newImportArchiveCmd(flags), newImportTakeoutCmd(flags), newImportICloudCmd(flags), newImportImmichCmd(flags), newImportWatchCmd(flags))
 }
 
 func bindImportFlags(cmd *cobra.Command, opt *importOptions, includeWatch bool) {
@@ -1380,7 +1361,8 @@ func assetIDs(d []byte) []string {
 }
 func newLibraryRitualsCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{Use: "library", Short: "Personal-library review and health rituals", RunE: parentNoSubcommandRunE(flags)}
-	cmd.AddCommand(newLibraryReviewCmd(flags), newLibraryHealthCmd(flags))
+	cmd.AddCommand(newLibraryReviewCmd(flags))
+	cmd.AddCommand(newLibraryHealthCmd(flags))
 	return cmd
 }
 

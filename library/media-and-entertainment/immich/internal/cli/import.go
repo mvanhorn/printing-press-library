@@ -125,6 +125,12 @@ but do not stop the import.`,
 	_ = cmd.MarkFlagRequired("input")
 	cmd.Flags().BoolVar(&dryRun, "dry-run", false, "Preview import without sending requests")
 	cmd.Flags().IntVar(&batchSize, "batch-size", 1, "Records per batch (future: batch API support)")
+	cmd.AddCommand(newImportFolderCmd(flags))
+	cmd.AddCommand(newImportArchiveCmd(flags))
+	cmd.AddCommand(newImportTakeoutCmd(flags))
+	cmd.AddCommand(newImportICloudCmd(flags))
+	cmd.AddCommand(newImportImmichCmd(flags))
+	cmd.AddCommand(newImportWatchCmd(flags))
 
 	return cmd
 }

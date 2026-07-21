@@ -19,5 +19,7 @@ func newDuplicatesCmd(flags *rootFlags) *cobra.Command {
 	cmd.AddCommand(newDuplicatesDeleteIdCmd(flags))
 	cmd.AddCommand(newDuplicatesGetAssetCmd(flags))
 	cmd.AddCommand(newDuplicatesResolveCmd(flags))
+	cmd.AddCommand(newDuplicatePlanCmd(flags))
+	cmd.AddCommand(newDuplicateApplyCmd(flags))
 	return cmd
 }

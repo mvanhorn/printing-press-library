@@ -26,5 +26,6 @@ func newPeopleCmd(flags *rootFlags) *cobra.Command {
 	cmd.AddCommand(newPeopleReassignCmd(flags))
 	cmd.AddCommand(newPeopleStatisticsCmd(flags))
 	cmd.AddCommand(newPeopleThumbnailCmd(flags))
+	cmd.AddCommand(newPeopleJulyCmd(flags))
 	return cmd
 }

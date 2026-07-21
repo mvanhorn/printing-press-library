@@ -22,5 +22,6 @@ func newStacksCmd(flags *rootFlags) *cobra.Command {
 	cmd.AddCommand(newStacksSearchCmd(flags))
 	cmd.AddCommand(newStacksUpdateCmd(flags))
 	cmd.AddCommand(newStacksAssetsCmd(flags))
+	cmd.AddCommand(newStacksReviewCmd(flags))
 	return cmd
 }
