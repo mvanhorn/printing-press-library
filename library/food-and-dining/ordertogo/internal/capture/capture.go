@@ -23,6 +23,10 @@ type PaymentConfig struct {
 	CustomerFirstName string `json:"customer_firstname"`
 	CustomerLastName  string `json:"customer_lastname"`
 	CustomerPhone     string `json:"customer_phone"`
+	BillingAddress1   string `json:"billing_address1"`
+	BillingAddress2   string `json:"billing_address2"`
+	BillingCity       string `json:"billing_city"`
+	BillingState      string `json:"billing_state"`
 	// Newer request-shape fields the live client sends (2026-06); without them
 	// the server rejects/times out CLI-built orders.
 	DeviceID         string  `json:"device_id"`
@@ -149,11 +153,15 @@ func ExtractPaymentConfig(body []byte) (*PaymentConfig, error) {
 				Subtotal float64 `json:"subtotal"`
 			} `json:"orderdetails"`
 			PaymentCard struct {
-				StCusID        string         `json:"st_cus_id"`
-				DefaultCardMap map[string]any `json:"defaultCardMap"`
-				FirstName      string         `json:"firstname"`
-				LastName       string         `json:"lastname"`
-				PhoneNum       string         `json:"phonenum"`
+				StCusID         string         `json:"st_cus_id"`
+				DefaultCardMap  map[string]any `json:"defaultCardMap"`
+				FirstName       string         `json:"firstname"`
+				LastName        string         `json:"lastname"`
+				PhoneNum        string         `json:"phonenum"`
+				BillingAddress1 string         `json:"billingAddress1"`
+				BillingAddress2 string         `json:"billingAddress2"`
+				BillingCity     string         `json:"billingCity"`
+				BillingState    string         `json:"billingState"`
 			} `json:"paymentCard"`
 		} `json:"param"`
 	}
@@ -170,6 +178,10 @@ func ExtractPaymentConfig(body []byte) (*PaymentConfig, error) {
 			CustomerFirstName: firstNonEmpty(pc.FirstName, parsed.Param.CustomerName),
 			CustomerLastName:  pc.LastName,
 			CustomerPhone:     firstNonEmpty(pc.PhoneNum, parsed.Param.CustomerPhone),
+			BillingAddress1:   pc.BillingAddress1,
+			BillingAddress2:   pc.BillingAddress2,
+			BillingCity:       pc.BillingCity,
+			BillingState:      pc.BillingState,
 			DeviceID:          parsed.Param.DeviceID,
 			MobileID:          parsed.Param.MobileID,
 			OrderContextJSON:  ctx,
@@ -184,6 +196,10 @@ func ExtractPaymentConfig(body []byte) (*PaymentConfig, error) {
 		CustomerFirstName: firstNonEmpty(jsonStringField(body, "firstname"), jsonStringField(body, "customername")),
 		CustomerLastName:  jsonStringField(body, "lastname"),
 		CustomerPhone:     firstNonEmpty(jsonStringField(body, "phonenum"), jsonStringField(body, "customerphone")),
+		BillingAddress1:   jsonStringField(body, "billingAddress1"),
+		BillingAddress2:   jsonStringField(body, "billingAddress2"),
+		BillingCity:       jsonStringField(body, "billingCity"),
+		BillingState:      jsonStringField(body, "billingState"),
 	}
 	if cfg.StripeCustomerID == "" {
 		return nil, fmt.Errorf("no postmicmeshorder payment fields found in capture")

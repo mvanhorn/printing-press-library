@@ -43,6 +43,7 @@ type Config struct {
 	OrderContextJSON     string            `toml:"order_context_json"`
 	OrderTaxRate         float64           `toml:"order_tax_rate"`
 	BillingAddress1      string            `toml:"billing_address1"`
+	BillingAddress2      string            `toml:"billing_address2"`
 	BillingCity          string            `toml:"billing_city"`
 	BillingState         string            `toml:"billing_state"`
 	Path                 string            `toml:"-"`
@@ -266,6 +267,8 @@ func (c *Config) SetKey(key, value string) error {
 		c.setHeader("Sec-Ch-Ua-Platform", value)
 	case "billing_address1":
 		c.BillingAddress1 = value
+	case "billing_address2":
+		c.BillingAddress2 = value
 	case "billing_city":
 		c.BillingCity = value
 	case "billing_state":

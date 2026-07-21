@@ -27,12 +27,15 @@ func TestBuildPostOrderBody_MatchesWorkingShape(t *testing.T) {
 	cfg := &config.Config{
 		CustomerFirstName: "Example", CustomerLastName: "User", CustomerPhone: "2025550147",
 		StripeCustomerID: "cus_example", StripeDefaultCard: "VISA_4242_1230",
-		BillingAddress1: "123 Example Street", BillingCity: "Exampleville", BillingState: "wa",
+		BillingAddress1: "123 Example Street", BillingAddress2: "Unit 4", BillingCity: "Exampleville", BillingState: "wa",
 		DeviceID: "dev123", MobileID: "mob123",
 		OrderContextJSON: `{"rewards":{"availablePoints":58},"meshuser":{"id":123456}}`,
 	}
 	items := []cartItem{{ItemID: 19019, Price: 2.99, Togo: "1"}}
 	body := buildPostOrderBody(cfg, items, 2.99, 0, 0, "mixsushibarlin", 72)
+	if body.Param.PaymentCard.BillingAddress2 != "Unit 4" {
+		t.Fatalf("billingAddress2 = %q, want Unit 4", body.Param.PaymentCard.BillingAddress2)
+	}
 
 	raw, _ := json.Marshal(body)
 	var wrapped map[string]map[string]json.RawMessage

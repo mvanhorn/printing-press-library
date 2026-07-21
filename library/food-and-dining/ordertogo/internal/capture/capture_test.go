@@ -8,7 +8,7 @@ import (
 	"testing"
 )
 
-const realBody = `{"param":{"customerphone":"2025550147","customername":"Example","addtionalIns":"","restname":"mixsushibarlin","orderdetails":{"items":[{"item_id":19019,"price":0}],"subtotal":2.99},"restid":72,"tax":0.31,"deviceId":"device-example","mobileId":"mobile-example","context":{"rewards":{"availablePoints":58},"meshuser":{"id":123456}},"paymentCard":{"cardType":"StripeElement","st_cus_id":"cus_example_123","tip":0.15,"defaultCardMap":{"key":"VISA_4242_1230"},"lastname":"User","firstname":"Example","phonenum":"2025550147","billingAddress1":""}}}`
+const realBody = `{"param":{"customerphone":"2025550147","customername":"Example","addtionalIns":"","restname":"mixsushibarlin","orderdetails":{"items":[{"item_id":19019,"price":0}],"subtotal":2.99},"restid":72,"tax":0.31,"deviceId":"device-example","mobileId":"mobile-example","context":{"rewards":{"availablePoints":58},"meshuser":{"id":123456}},"paymentCard":{"cardType":"StripeElement","st_cus_id":"cus_example_123","tip":0.15,"defaultCardMap":{"key":"VISA_4242_1230"},"lastname":"User","firstname":"Example","phonenum":"2025550147","billingAddress1":"123 Example Street","billingAddress2":"Unit 4","billingCity":"Exampleville","billingState":"WA"}}}`
 
 func wantFields(t *testing.T, pc *PaymentConfig) {
 	t.Helper()
@@ -32,6 +32,9 @@ func TestExtractPaymentConfig_FullBody(t *testing.T) {
 		t.Fatalf("err: %v", err)
 	}
 	wantFields(t, pc)
+	if pc.BillingAddress1 != "123 Example Street" || pc.BillingAddress2 != "Unit 4" || pc.BillingCity != "Exampleville" || pc.BillingState != "WA" {
+		t.Errorf("billing address not extracted: %+v", pc)
+	}
 }
 
 func TestExtractPaymentConfig_RequestShapeFields(t *testing.T) {
@@ -67,6 +70,9 @@ func TestExtractPaymentConfig_Truncated(t *testing.T) {
 		t.Fatalf("err: %v", err)
 	}
 	wantFields(t, pc)
+	if pc.BillingAddress2 != "Unit 4" || pc.BillingCity != "Exampleville" {
+		t.Errorf("complete billing fields before truncation were not extracted: %+v", pc)
+	}
 }
 
 func TestExtractPaymentConfig_NoFields(t *testing.T) {

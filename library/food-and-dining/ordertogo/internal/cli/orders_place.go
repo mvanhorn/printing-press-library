@@ -462,6 +462,7 @@ func buildPostOrderBody(cfg *config.Config, items []cartItem, subtotal, tip, tax
 				FirstName:       cfg.CustomerFirstName,
 				PhoneNum:        cfg.CustomerPhone,
 				BillingAddress1: cfg.BillingAddress1,
+				BillingAddress2: cfg.BillingAddress2,
 				BillingCity:     cfg.BillingCity,
 				BillingState:    cfg.BillingState,
 			},
