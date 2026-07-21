@@ -3,6 +3,7 @@
 package cli
 
 import (
+	"context"
 	"encoding/json"
 	"os"
 	"path/filepath"
@@ -12,6 +13,7 @@ import (
 	"time"
 
 	"github.com/mvanhorn/printing-press-library/library/food-and-dining/ordertogo/internal/config"
+	"github.com/mvanhorn/printing-press-library/library/food-and-dining/ordertogo/internal/store"
 )
 
 // The 16 param keys the live web client (order #29, HTTP 200) sends. The CLI's
@@ -171,6 +173,31 @@ func TestParsePostOrderResponse_BuildsTrackURL(t *testing.T) {
 	}
 	if result.OrderID != 42 || result.Total != 12.34 || result.TrackURL != "/trackorder/restaurant_slug/42" {
 		t.Fatalf("unexpected result: %+v", result)
+	}
+}
+
+func TestPersistPlacedOrderWritesLocalHistory(t *testing.T) {
+	dbPath := filepath.Join(t.TempDir(), "orders.db")
+	result := postOrderResult{OrderID: 42, Total: 12.34, Tax: 0.84, Tip: 1.50, CardType: "Visa", OrderedAt: time.Now()}
+	items := []cartItem{{ItemID: 19001, Price: 9.99}}
+	if err := persistPlacedOrder(context.Background(), dbPath, result, items, 9.99, 0, 0, "example-restaurant", 72); err != nil {
+		t.Fatal(err)
+	}
+
+	db, err := store.OpenReadOnly(dbPath)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer db.Close()
+	order, err := db.LastOrder("example-restaurant")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if order == nil || order.OrderID != "42" || order.RestID != "72" || len(order.Items) != 1 || order.Items[0].ID != "19001" {
+		t.Fatalf("unexpected persisted order: %+v", order)
+	}
+	if order.Total != 12.34 || order.Tax != 0.84 || order.Tip != 1.50 {
+		t.Fatalf("unexpected persisted totals: %+v", order)
 	}
 }
 

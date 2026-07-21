@@ -14,6 +14,7 @@
 package cli
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"math/rand"
@@ -24,6 +25,7 @@ import (
 	"time"
 
 	"github.com/mvanhorn/printing-press-library/library/food-and-dining/ordertogo/internal/config"
+	"github.com/mvanhorn/printing-press-library/library/food-and-dining/ordertogo/internal/store"
 	"github.com/spf13/cobra"
 )
 
@@ -232,6 +234,9 @@ strings. Payment uses the Stripe customer + saved card configured via
 			if result.Total > 0 && result.Total > maxBudget && !confirmOverBudget {
 				// We charged successfully but exceeded budget; surface clearly.
 				result.Warning = fmt.Sprintf("actual total %.2f exceeded --max %.2f", result.Total, maxBudget)
+			}
+			if err := persistPlacedOrder(cmd.Context(), defaultDBPath("ordertogo-pp-cli"), result, items, subtotal, tax, tip, slug, rid); err != nil {
+				result.Warning = appendWarning(result.Warning, fmt.Sprintf("order placed successfully, but saving local history failed: %v", err))
 			}
 			return printJSONFiltered(cmd.OutOrStdout(), result, flags)
 		},
@@ -480,6 +485,58 @@ type postOrderResult struct {
 	TrackURL      string    `json:"track_url,omitempty"`
 	OrderedAt     time.Time `json:"ordered_at"`
 	Warning       string    `json:"warning,omitempty"`
+}
+
+func persistPlacedOrder(ctx context.Context, dbPath string, result postOrderResult, items []cartItem, subtotal, tax, tip float64, slug string, restID int) error {
+	historyItems := make([]store.OrderItem, 0, len(items))
+	for _, item := range items {
+		historyItems = append(historyItems, store.OrderItem{
+			ID:       strconv.Itoa(item.ItemID),
+			ItemID:   strconv.Itoa(item.ItemID),
+			Quantity: 1,
+			Price:    item.Price,
+		})
+	}
+	if result.Tax > 0 {
+		tax = result.Tax
+	}
+	if result.Tip > 0 {
+		tip = result.Tip
+	}
+	total := result.Total
+	if total <= 0 {
+		total = roundMoney(subtotal + tax + tip)
+	}
+	paymentMethod := result.CardType
+	if paymentMethod == "" {
+		paymentMethod = "stripe"
+	}
+	db, err := store.OpenWithContext(ctx, dbPath)
+	if err != nil {
+		return err
+	}
+	defer db.Close()
+	return db.UpsertOrder(store.Order{
+		OrderID:        strconv.Itoa(result.OrderID),
+		RestID:         strconv.Itoa(restID),
+		RestName:       slug,
+		RestaurantSlug: slug,
+		Restaurant:     slug,
+		Items:          historyItems,
+		Subtotal:       roundMoney(subtotal),
+		Tax:            roundMoney(tax),
+		Tip:            roundMoney(tip),
+		Total:          total,
+		PaymentMethod:  paymentMethod,
+		OrderedAt:      result.OrderedAt,
+	})
+}
+
+func appendWarning(existing, next string) string {
+	if existing == "" {
+		return next
+	}
+	return existing + "; " + next
 }
 
 func parsePostOrderResponse(data []byte, slug string) (postOrderResult, error) {
