@@ -207,6 +207,55 @@ func TestDuplicatePlansPreserveAllSuggestedKeepAssets(t *testing.T) {
 	}
 }
 
+func TestDuplicatePlansRequireExplicitKeeperWhenServerDoesNotSuggestOne(t *testing.T) {
+	plans, err := duplicatePlans([]byte(`[{"duplicateId":"g","assets":[{"id":"a"},{"id":"b"}]}]`))
+	if err != nil || len(plans) != 1 {
+		t.Fatalf("duplicatePlans = %#v, %v", plans, err)
+	}
+	if !plans[0].KeeperRequired || plans[0].Keeper != "" || len(plans[0].Trash) != 0 || !sameStrings(plans[0].Evidence, []string{"a", "b"}) {
+		t.Fatalf("unsuggested group must require an explicit keeper: %#v", plans[0])
+	}
+}
+
+func TestDuplicateApplyRequiresExplicitKeeperWhenServerDoesNotSuggestOne(t *testing.T) {
+	withTempLearnHome(t)
+	resolves := 0
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		path := strings.TrimPrefix(r.URL.Path, "/api")
+		switch path {
+		case "/duplicates":
+			_, _ = w.Write([]byte(`[{"duplicateId":"g","assets":[{"id":"a"},{"id":"b"}]}]`))
+		case "/duplicates/resolve":
+			resolves++
+			var body map[string]any
+			_ = json.NewDecoder(r.Body).Decode(&body)
+			groups := body["groups"].([]any)
+			group := groups[0].(map[string]any)
+			if !sameStrings(stringValues(group["keepAssetIds"]), []string{"b"}) || !sameStrings(stringValues(group["trashAssetIds"]), []string{"a"}) {
+				t.Fatalf("explicit keeper payload = %#v", group)
+			}
+			_, _ = w.Write([]byte(`{}`))
+		default:
+			w.WriteHeader(http.StatusNotFound)
+		}
+	}))
+	defer server.Close()
+	t.Setenv("IMMICH_BASE_URL", server.URL)
+	t.Setenv("IMMICH_API_KEY", "key")
+	if _, _, err := runRootArgs(t, "duplicates", "apply", "--groups", `[{"group_id":"g"}]`, "--apply", "--json", "--no-learn", "--no-cache"); err == nil {
+		t.Fatal("apply accepted a group without an explicit keeper")
+	}
+	if resolves != 0 {
+		t.Fatalf("unexpected resolve without keeper: %d", resolves)
+	}
+	if _, _, err := runRootArgs(t, "duplicates", "apply", "--groups", `[{"group_id":"g","keeper":"b"}]`, "--apply", "--json", "--no-learn", "--no-cache"); err != nil {
+		t.Fatal(err)
+	}
+	if resolves != 1 {
+		t.Fatalf("resolves=%d, want 1", resolves)
+	}
+}
+
 func TestStacksReviewFetchesDetailsAndClassifies(t *testing.T) {
 	withTempLearnHome(t)
 	gets := map[string]int{}
@@ -378,7 +427,7 @@ func TestUploadOneUsesChecksumAndExactMultipartFields(t *testing.T) {
 		t.Fatal(err)
 	}
 	created := time.Date(2025, 7, 1, 1, 2, 3, 0, time.UTC)
-	duplicate, id, _, err := uploadOne(context.Background(), c, importAsset{Path: file, Name: "photo.jpg", Created: created, Modified: created})
+	duplicate, id, _, _, err := uploadOne(context.Background(), c, importAsset{Path: file, Name: "photo.jpg", Created: created, Modified: created})
 	if err != nil || duplicate || id != "destination-asset" {
 		t.Fatalf("uploadOne = duplicate:%v id:%q err:%v", duplicate, id, err)
 	}
@@ -389,6 +438,39 @@ func TestUploadOneUsesChecksumAndExactMultipartFields(t *testing.T) {
 	item := assets[0].(map[string]any)
 	if len(item) != 2 || item["id"] != item["checksum"] || item["checksum"] != "bb1f3308adcc035cb700962e4004e5e85c3cd006" {
 		t.Fatalf("checksum check item = %#v", item)
+	}
+}
+
+func TestUploadAssetsRetainsCommittedIDWhenMetadataUpdateFails(t *testing.T) {
+	withTempLearnHome(t)
+	file := filepath.Join(t.TempDir(), "photo.jpg")
+	if err := os.WriteFile(file, []byte("photo-bytes"), 0600); err != nil {
+		t.Fatal(err)
+	}
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		switch strings.TrimPrefix(r.URL.Path, "/api") {
+		case "/assets/bulk-upload-check":
+			_, _ = w.Write([]byte(`{"results":[{"id":"ignored","action":"accept"}]}`))
+		case "/assets":
+			if r.Method == http.MethodPost {
+				_, _ = w.Write([]byte(`{"id":"destination-asset"}`))
+				return
+			}
+			w.WriteHeader(http.StatusInternalServerError)
+		default:
+			w.WriteHeader(http.StatusNotFound)
+		}
+	}))
+	defer server.Close()
+	t.Setenv("IMMICH_BASE_URL", server.URL)
+	t.Setenv("IMMICH_BASE_PATH", "")
+	t.Setenv("IMMICH_API_KEY", "key")
+	sum, err := uploadAssets(context.Background(), &rootFlags{rateLimit: 0}, []importAsset{{Path: file, Name: "photo.jpg", Created: time.Now(), Modified: time.Now(), Metadata: map[string]any{"source_asset_id": "source-asset", "description": "keep me"}}}, importOptions{concurrency: 1})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if sum.Uploaded != 1 || sum.Failed != 0 || sum.AssetMapping["source-asset"] != "destination-asset" || len(sum.Warnings) != 1 {
+		t.Fatalf("committed upload was not retained: %#v", sum)
 	}
 }
 
@@ -486,6 +568,32 @@ func TestMapSourceCollectionsCreatesTagsWithName(t *testing.T) {
 	}
 	if len(createdTag) != 1 || createdTag["name"] != "vacation" {
 		t.Fatalf("tag create body = %#v", createdTag)
+	}
+}
+
+func TestMapSourceCollectionsRejectsMalformedAlbumsAndTags(t *testing.T) {
+	for name, body := range map[string]string{"albums": `{`, "tags": `[`} {
+		t.Run(name, func(t *testing.T) {
+			source := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				switch r.URL.Path {
+				case "/albums":
+					if name == "albums" {
+						_, _ = w.Write([]byte(body))
+						return
+					}
+					_, _ = w.Write([]byte(`[]`))
+				case "/tags":
+					_, _ = w.Write([]byte(body))
+				default:
+					w.WriteHeader(http.StatusNotFound)
+				}
+			}))
+			defer source.Close()
+			err := mapSourceCollections(context.Background(), &rootFlags{}, source.URL, "source-key", map[string]string{"source": "destination"})
+			if err == nil || !strings.Contains(err.Error(), "decode source "+name) {
+				t.Fatalf("malformed %s error = %v", name, err)
+			}
+		})
 	}
 }
 

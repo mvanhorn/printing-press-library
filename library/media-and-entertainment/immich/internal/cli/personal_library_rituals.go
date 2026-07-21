@@ -258,7 +258,9 @@ func mapSourceCollections(ctx context.Context, flags *rootFlags, base, key strin
 			ID string `json:"id"`
 		} `json:"assets"`
 	}
-	_ = json.Unmarshal(albums, &albumList)
+	if err := json.Unmarshal(albums, &albumList); err != nil {
+		return fmt.Errorf("decode source albums: %w", err)
+	}
 	for _, src := range albumList {
 		ids := []string{}
 		for _, a := range src.Assets {
@@ -285,7 +287,9 @@ func mapSourceCollections(ctx context.Context, flags *rootFlags, base, key strin
 			ID string `json:"id"`
 		} `json:"assets"`
 	}
-	_ = json.Unmarshal(tags, &tagList)
+	if err := json.Unmarshal(tags, &tagList); err != nil {
+		return fmt.Errorf("decode source tags: %w", err)
+	}
 	for _, src := range tagList {
 		ids := []string{}
 		for _, a := range src.Assets {
@@ -530,6 +534,7 @@ type importSummary struct {
 	Failed           int               `json:"failed"`
 	Cancelled        bool              `json:"cancelled,omitempty"`
 	UnmappedMetadata []string          `json:"unmapped_metadata,omitempty"`
+	Warnings         []string          `json:"warnings,omitempty"`
 	Errors           []string          `json:"errors,omitempty"`
 	AssetMapping     map[string]string `json:"asset_mapping,omitempty"`
 }
@@ -541,6 +546,7 @@ func (s *importSummary) add(o importSummary) {
 	s.Skipped += o.Skipped
 	s.Failed += o.Failed
 	s.UnmappedMetadata = append(s.UnmappedMetadata, o.UnmappedMetadata...)
+	s.Warnings = append(s.Warnings, o.Warnings...)
 	s.Errors = append(s.Errors, o.Errors...)
 	if s.AssetMapping == nil {
 		s.AssetMapping = map[string]string{}
@@ -591,7 +597,7 @@ func uploadAssets(ctx context.Context, flags *rootFlags, assets []importAsset, o
 		go func() {
 			defer wg.Done()
 			for a := range jobs {
-				duplicate, id, unmapped, uploadErr := uploadOne(ctx, c, a)
+				duplicate, id, unmapped, warnings, uploadErr := uploadOne(ctx, c, a)
 				mu.Lock()
 				if uploadErr != nil {
 					sum.Failed++
@@ -607,6 +613,7 @@ func uploadAssets(ctx context.Context, flags *rootFlags, assets []importAsset, o
 						}
 					}
 					sum.UnmappedMetadata = append(sum.UnmappedMetadata, unmapped...)
+					sum.Warnings = append(sum.Warnings, warnings...)
 				}
 				mu.Unlock()
 			}
@@ -631,38 +638,38 @@ func uploadAssets(ctx context.Context, flags *rootFlags, assets []importAsset, o
 	return sum, nil
 }
 
-func uploadOne(ctx context.Context, c *client.Client, a importAsset) (bool, string, []string, error) {
+func uploadOne(ctx context.Context, c *client.Client, a importAsset) (bool, string, []string, []string, error) {
 	checksum, err := sha1File(a.Path)
 	if err != nil {
-		return false, "", nil, err
+		return false, "", nil, nil, err
 	}
 	assetID := hex.EncodeToString(checksum)
 	check := map[string]any{"assets": []map[string]any{{"id": assetID, "checksum": assetID}}}
 	data, _, err := c.Post(ctx, "/assets/bulk-upload-check", check)
 	if err != nil {
-		return false, "", nil, err
+		return false, "", nil, nil, err
 	}
 	duplicate, err := duplicateCheck(data)
 	if err != nil {
-		return false, "", nil, err
+		return false, "", nil, nil, err
 	}
 	if duplicate {
-		return true, "", nil, nil
+		return true, "", nil, nil, nil
 	}
 	fields := map[string]string{"fileCreatedAt": a.Created.UTC().Format(time.RFC3339), "fileModifiedAt": a.Modified.UTC().Format(time.RFC3339), "filename": a.Name}
 	data, _, err = c.PostMultipart(ctx, "/assets", fields, map[string]string{"assetData": a.Path})
 	if err != nil {
-		return false, "", nil, err
+		return false, "", nil, nil, err
 	}
 	id, unmapped := jsonID(data), []string{}
 	if len(a.Metadata) == 0 {
-		return false, id, unmapped, nil
+		return false, id, unmapped, nil, nil
 	}
 	if id == "" {
 		for key := range a.Metadata {
 			unmapped = append(unmapped, key)
 		}
-		return false, id, unmapped, nil
+		return false, id, unmapped, nil, nil
 	}
 	mapped := map[string]any{"ids": []string{id}}
 	if value, ok := a.Metadata["description"].(string); ok && value != "" {
@@ -691,10 +698,10 @@ func uploadOne(ctx context.Context, c *client.Client, a importAsset) (bool, stri
 	}
 	if len(mapped) > 1 {
 		if _, _, err := c.Put(ctx, "/assets", mapped); err != nil {
-			return false, "", unmapped, err
+			return false, id, unmapped, []string{fmt.Sprintf("asset %s uploaded but metadata update failed: %v", id, err)}, nil
 		}
 	}
-	return false, id, unmapped, nil
+	return false, id, unmapped, nil, nil
 }
 func sha1File(path string) ([]byte, error) {
 	f, err := os.Open(path)
@@ -962,6 +969,23 @@ func newDuplicateApplyCmd(flags *rootFlags) *cobra.Command {
 			if !ok {
 				return fmt.Errorf("duplicate group %q no longer exists", want.GroupID)
 			}
+			if got.KeeperRequired {
+				if want.Keeper == "" {
+					return usageErr(fmt.Errorf("duplicate group %q has no server keeper recommendation; provide an explicit reviewed keeper", want.GroupID))
+				}
+				if !containsString(got.Evidence, want.Keeper) {
+					return usageErr(fmt.Errorf("keeper %q is not an asset in duplicate group %q", want.Keeper, want.GroupID))
+				}
+				got.Keep = []string{want.Keeper}
+				got.Keeper = want.Keeper
+				got.Trash = got.Trash[:0]
+				for _, id := range got.Evidence {
+					if id != want.Keeper {
+						got.Trash = append(got.Trash, id)
+					}
+				}
+				got.KeeperRequired = false
+			}
 			if (len(want.Keep) > 0 && !sameStrings(want.Keep, got.Keep)) || (want.Keeper != "" && want.Keeper != got.Keeper) || (len(want.Trash) > 0 && !sameStrings(want.Trash, got.Trash)) {
 				return fmt.Errorf("duplicate group %q changed since plan; rerun duplicates plan", want.GroupID)
 			}
@@ -984,6 +1008,9 @@ type duplicatePlan struct {
 	Keeper   string   `json:"keeper"`
 	Trash    []string `json:"trash"`
 	Evidence []string `json:"evidence"`
+	// KeeperRequired is set when Immich supplied no preferred original. The
+	// plan remains non-destructive until apply receives a reviewed keeper.
+	KeeperRequired bool `json:"keeper_required,omitempty"`
 }
 
 func duplicatePlans(data []byte) ([]duplicatePlan, error) {
@@ -1010,7 +1037,10 @@ func duplicatePlans(data []byte) ([]duplicatePlan, error) {
 			}
 		}
 		if len(keep) == 0 {
-			keep = []string{ids[0]}
+			// Never invent a destructive keeper choice. Preserve the group in
+			// the plan so an operator can explicitly review and select a keeper.
+			out = append(out, duplicatePlan{GroupID: gid, Evidence: ids, KeeperRequired: true})
+			continue
 		}
 		trash := make([]string, 0, len(ids)-1)
 		for _, id := range ids {
