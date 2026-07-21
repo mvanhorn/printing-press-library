@@ -6,16 +6,57 @@ package mcp
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"path/filepath"
 	"strings"
 	"testing"
+	"time"
 
 	mcplib "github.com/mark3labs/mcp-go/mcp"
 	"github.com/mark3labs/mcp-go/server"
 	"github.com/mvanhorn/printing-press-library/library/commerce/woot/internal/cliutil"
+	"github.com/mvanhorn/printing-press-library/library/commerce/woot/internal/config"
 	"github.com/mvanhorn/printing-press-library/library/commerce/woot/internal/mcp/bound"
+	mcpgate "github.com/mvanhorn/printing-press-library/library/commerce/woot/internal/mcp/gate"
 	"github.com/mvanhorn/printing-press-library/library/commerce/woot/internal/store"
 )
+
+func TestTypedMCPHandlerUsesProcessGate(t *testing.T) {
+	release, err := mcpgate.Acquire(context.Background())
+	if err != nil {
+		t.Fatalf("acquire process gate: %v", err)
+	}
+	released := false
+	defer func() {
+		if !released {
+			release()
+		}
+	}()
+
+	called := make(chan struct{})
+	done := make(chan struct{})
+	handler := withProcessGate(func(context.Context, mcplib.CallToolRequest) (*mcplib.CallToolResult, error) {
+		close(called)
+		return mcplib.NewToolResultText("ok"), nil
+	})
+	go func() {
+		defer close(done)
+		_, _ = handler(context.Background(), mcplib.CallToolRequest{})
+	}()
+
+	select {
+	case <-called:
+		t.Fatal("typed handler ran while process gate was held")
+	case <-time.After(50 * time.Millisecond):
+	}
+	release()
+	released = true
+	select {
+	case <-done:
+	case <-time.After(time.Second):
+		t.Fatal("typed handler did not run after process gate release")
+	}
+}
 
 func TestMCPPathResolutionMatchesCLIResolverWithHomeEnv(t *testing.T) {
 	resetMCPPathEnv(t)
@@ -124,6 +165,27 @@ func TestMCPRegisterToolsPreservesTypedSpecialTools(t *testing.T) {
 	}
 }
 
+func TestMCPClientCacheReusesProcessClient(t *testing.T) {
+	t.Parallel()
+	var cache mcpClientCache
+	loads := 0
+	load := func() (*config.Config, error) {
+		loads++
+		return &config.Config{BaseURL: "https://example.com"}, nil
+	}
+	first, err := cache.get(load)
+	if err != nil {
+		t.Fatalf("first cache get: %v", err)
+	}
+	second, err := cache.get(load)
+	if err != nil {
+		t.Fatalf("second cache get: %v", err)
+	}
+	if first != second || loads != 1 {
+		t.Fatalf("cache returned %p then %p with %d config loads", first, second, loads)
+	}
+}
+
 func TestMCPSearchMissingStoreIsActionable(t *testing.T) {
 	resetMCPPathEnv(t)
 
@@ -192,6 +254,69 @@ func TestMCPSearchEmptyStoreReturnsActionableEnvelope(t *testing.T) {
 	}
 	if !strings.Contains(envelope.NextStep, "sync") {
 		t.Fatalf("empty-store next_step should mention sync: %s", text)
+	}
+}
+
+func TestMCPSearchMarksZeroRowIncompleteStoreResumable(t *testing.T) {
+	resetMCPPathEnv(t)
+	path, err := mcpDBPath()
+	if err != nil {
+		t.Fatalf("mcpDBPath() error = %v", err)
+	}
+	db, err := store.Open(path)
+	if err != nil {
+		t.Fatalf("creating store: %v", err)
+	}
+	if err := db.SaveSyncState("deals", "100", 0); err != nil {
+		t.Fatalf("seed sync state: %v", err)
+	}
+	if err := db.Close(); err != nil {
+		t.Fatalf("close store: %v", err)
+	}
+
+	result, err := handleSearch(context.Background(), mcplib.CallToolRequest{Params: mcplib.CallToolParams{
+		Arguments: map[string]any{"query": "alpha"},
+	}})
+	if err != nil || result == nil || result.IsError {
+		t.Fatalf("incomplete search result=%#v err=%v", result, err)
+	}
+	var envelope struct {
+		StoreStatus string `json:"store_status"`
+		Resumable   bool   `json:"resumable"`
+		NextStep    string `json:"next_step"`
+	}
+	if err := json.Unmarshal([]byte(mcpTextContent(t, result)), &envelope); err != nil {
+		t.Fatalf("decode incomplete envelope: %v", err)
+	}
+	if envelope.StoreStatus != "incomplete" || !envelope.Resumable || !strings.Contains(envelope.NextStep, "resume") {
+		t.Fatalf("incomplete envelope = %+v", envelope)
+	}
+}
+
+func TestMCPSearchHonorsCanceledContext(t *testing.T) {
+	resetMCPPathEnv(t)
+	path, err := mcpDBPath()
+	if err != nil {
+		t.Fatalf("mcpDBPath() error = %v", err)
+	}
+	db, err := store.Open(path)
+	if err != nil {
+		t.Fatalf("creating store: %v", err)
+	}
+	if err := db.Close(); err != nil {
+		t.Fatalf("close store: %v", err)
+	}
+	ctx, cancel := context.WithCancel(context.Background())
+	cancel()
+	start := time.Now()
+	result, err := handleSearch(ctx, mcplib.CallToolRequest{Params: mcplib.CallToolParams{
+		Arguments: map[string]any{"query": "alpha"},
+	}})
+	if err != nil {
+		t.Fatalf("handleSearch transport error: %v", err)
+	}
+	if result == nil || !result.IsError || time.Since(start) > time.Second {
+		t.Fatalf("canceled search result=%#v elapsed=%v", result, time.Since(start))
 	}
 }
 
@@ -267,6 +392,250 @@ func TestMCPSQLEmptyStoreReturnsActionableEnvelope(t *testing.T) {
 	}
 	if !strings.Contains(envelope.NextStep, "sync") {
 		t.Fatalf("empty-store SQL next_step should mention sync: %s", text)
+	}
+}
+
+func TestMCPSQLBoundsRowsBeforeEncoding(t *testing.T) {
+	resetMCPPathEnv(t)
+	path, err := mcpDBPath()
+	if err != nil {
+		t.Fatalf("mcpDBPath() error = %v", err)
+	}
+	db, err := store.Open(path)
+	if err != nil {
+		t.Fatalf("creating store: %v", err)
+	}
+	for i := 0; i < 5; i++ {
+		id := fmt.Sprintf("deal-%d", i)
+		if err := db.Upsert("deals", id, json.RawMessage(fmt.Sprintf(`{"id":%q,"title":%q}`, id, id))); err != nil {
+			t.Fatalf("seed %s: %v", id, err)
+		}
+	}
+	if err := db.Close(); err != nil {
+		t.Fatalf("closing store: %v", err)
+	}
+
+	result, err := handleSQL(context.Background(), mcplib.CallToolRequest{Params: mcplib.CallToolParams{
+		Arguments: map[string]any{"query": "SELECT id FROM resources ORDER BY id", "limit": float64(2)},
+	}})
+	if err != nil {
+		t.Fatalf("handleSQL returned transport error: %v", err)
+	}
+	if result == nil || result.IsError {
+		t.Fatalf("handleSQL bounded result IsError = %v, want false", result != nil && result.IsError)
+	}
+	var envelope struct {
+		Count     int              `json:"count"`
+		Rows      []map[string]any `json:"rows"`
+		Truncated bool             `json:"truncated"`
+		RowLimit  int              `json:"row_limit"`
+	}
+	if err := json.Unmarshal([]byte(mcpTextContent(t, result)), &envelope); err != nil {
+		t.Fatalf("decode SQL envelope: %v", err)
+	}
+	if envelope.Count != 2 || len(envelope.Rows) != 2 || !envelope.Truncated || envelope.RowLimit != 2 {
+		t.Fatalf("bounded SQL envelope = %+v, want 2 rows marked truncated", envelope)
+	}
+}
+
+func TestMCPSQLRejectsInvalidRowLimit(t *testing.T) {
+	t.Parallel()
+	for _, value := range []any{float64(0), float64(1001), 1.5, "2"} {
+		if _, err := mcpRowLimit(map[string]any{"limit": value}, maxMCPRowLimit); err == nil {
+			t.Errorf("mcpRowLimit(%v) accepted invalid value", value)
+		}
+	}
+}
+
+func TestMCPSearchRejectsUnboundedLimit(t *testing.T) {
+	t.Parallel()
+	result, err := handleSearch(context.Background(), mcplib.CallToolRequest{Params: mcplib.CallToolParams{
+		Arguments: map[string]any{"query": "alpha", "limit": float64(maxMCPRowLimit + 1)},
+	}})
+	if err != nil {
+		t.Fatalf("handleSearch returned transport error: %v", err)
+	}
+	if result == nil || !result.IsError || !strings.Contains(mcpTextContent(t, result), "limit must be between") {
+		t.Fatalf("unbounded search limit result = %#v", result)
+	}
+}
+
+func TestMCPSQLRejectsOversizedValues(t *testing.T) {
+	resetMCPPathEnv(t)
+	path, err := mcpDBPath()
+	if err != nil {
+		t.Fatalf("mcpDBPath() error = %v", err)
+	}
+	db, err := store.Open(path)
+	if err != nil {
+		t.Fatalf("creating store: %v", err)
+	}
+	if err := db.Close(); err != nil {
+		t.Fatalf("closing store: %v", err)
+	}
+
+	result, err := handleSQL(context.Background(), mcplib.CallToolRequest{Params: mcplib.CallToolParams{
+		Arguments: map[string]any{"query": "SELECT randomblob(5000000) AS payload"},
+	}})
+	if err != nil {
+		t.Fatalf("handleSQL returned transport error: %v", err)
+	}
+	if result == nil || !result.IsError || !strings.Contains(strings.ToLower(mcpTextContent(t, result)), "too big") {
+		t.Fatalf("oversized SQL result = %#v", result)
+	}
+}
+
+func TestMCPSQLRejectsWideRows(t *testing.T) {
+	resetMCPPathEnv(t)
+	path, err := mcpDBPath()
+	if err != nil {
+		t.Fatalf("mcpDBPath() error = %v", err)
+	}
+	db, err := store.Open(path)
+	if err != nil {
+		t.Fatalf("creating store: %v", err)
+	}
+	if err := db.Close(); err != nil {
+		t.Fatalf("closing store: %v", err)
+	}
+
+	query := "SELECT " + strings.Repeat("1,", maxMCPSQLColumns) + "1"
+	result, err := handleSQL(context.Background(), mcplib.CallToolRequest{Params: mcplib.CallToolParams{
+		Arguments: map[string]any{"query": query},
+	}})
+	if err != nil {
+		t.Fatalf("handleSQL returned transport error: %v", err)
+	}
+	if result == nil || !result.IsError {
+		t.Fatalf("wide SQL result = %#v", result)
+	}
+}
+
+func TestMCPSQLPreservesDuplicateColumns(t *testing.T) {
+	resetMCPPathEnv(t)
+	path, err := mcpDBPath()
+	if err != nil {
+		t.Fatalf("mcpDBPath() error = %v", err)
+	}
+	db, err := store.Open(path)
+	if err != nil {
+		t.Fatalf("creating store: %v", err)
+	}
+	if err := db.Close(); err != nil {
+		t.Fatalf("closing store: %v", err)
+	}
+
+	result, err := handleSQL(context.Background(), mcplib.CallToolRequest{Params: mcplib.CallToolParams{
+		Arguments: map[string]any{"query": "SELECT 1 AS value, 2 AS value"},
+	}})
+	if err != nil || result == nil || result.IsError {
+		t.Fatalf("duplicate-column result=%#v err=%v", result, err)
+	}
+	var envelope struct {
+		Columns []string         `json:"columns"`
+		Rows    []map[string]any `json:"rows"`
+	}
+	if err := json.Unmarshal([]byte(mcpTextContent(t, result)), &envelope); err != nil {
+		t.Fatalf("decode duplicate-column result: %v", err)
+	}
+	if len(envelope.Columns) != 2 || envelope.Columns[0] != "value" || envelope.Columns[1] != "value_2" ||
+		len(envelope.Rows) != 1 || envelope.Rows[0]["value"] != float64(1) || envelope.Rows[0]["value_2"] != float64(2) {
+		t.Fatalf("duplicate columns were not preserved: %+v", envelope)
+	}
+}
+
+func TestMCPSQLBoundsCumulativeResultMemory(t *testing.T) {
+	resetMCPPathEnv(t)
+	path, err := mcpDBPath()
+	if err != nil {
+		t.Fatalf("mcpDBPath() error = %v", err)
+	}
+	db, err := store.Open(path)
+	if err != nil {
+		t.Fatalf("creating store: %v", err)
+	}
+	if err := db.Close(); err != nil {
+		t.Fatalf("closing store: %v", err)
+	}
+
+	query := "WITH RECURSIVE n(x) AS (VALUES(1) UNION ALL SELECT x+1 FROM n WHERE x < 200) SELECT x, randomblob(10000) AS payload FROM n"
+	result, err := handleSQL(context.Background(), mcplib.CallToolRequest{Params: mcplib.CallToolParams{
+		Arguments: map[string]any{"query": query, "limit": float64(500)},
+	}})
+	if err != nil {
+		t.Fatalf("handleSQL returned transport error: %v", err)
+	}
+	if result == nil || result.IsError {
+		t.Fatalf("bounded SQL result = %#v", result)
+	}
+	text := mcpTextContent(t, result)
+	if len(text) > bound.MaxBytes {
+		t.Fatalf("bounded result length = %d, want <= %d", len(text), bound.MaxBytes)
+	}
+	var envelope struct {
+		Truncated bool `json:"truncated"`
+		ByteLimit int  `json:"byte_limit"`
+	}
+	if err := json.Unmarshal([]byte(text), &envelope); err != nil {
+		t.Fatalf("decode bounded SQL result: %v\n%s", err, text)
+	}
+	if !envelope.Truncated || envelope.ByteLimit != maxMCPSQLResultBytes {
+		t.Fatalf("SQL memory envelope = %+v", envelope)
+	}
+}
+
+func TestMCPSQLRejectsFirstRowOverResponseBudget(t *testing.T) {
+	resetMCPPathEnv(t)
+	path, err := mcpDBPath()
+	if err != nil {
+		t.Fatalf("mcpDBPath() error = %v", err)
+	}
+	db, err := store.Open(path)
+	if err != nil {
+		t.Fatalf("creating store: %v", err)
+	}
+	if err := db.Close(); err != nil {
+		t.Fatalf("closing store: %v", err)
+	}
+
+	result, err := handleSQL(context.Background(), mcplib.CallToolRequest{Params: mcplib.CallToolParams{
+		Arguments: map[string]any{"query": "SELECT printf('%60000s', 'x') AS payload"},
+	}})
+	if err != nil {
+		t.Fatalf("handleSQL returned transport error: %v", err)
+	}
+	if result == nil || !result.IsError {
+		t.Fatalf("oversized first row result = %#v, want tool error", result)
+	}
+	if text := mcpTextContent(t, result); !strings.Contains(text, "first SQL row exceeds") {
+		t.Fatalf("oversized first row error = %q", text)
+	}
+}
+
+func TestMCPSQLHonorsCallerDeadline(t *testing.T) {
+	resetMCPPathEnv(t)
+	path, err := mcpDBPath()
+	if err != nil {
+		t.Fatalf("mcpDBPath() error = %v", err)
+	}
+	db, err := store.Open(path)
+	if err != nil {
+		t.Fatalf("creating store: %v", err)
+	}
+	if err := db.Close(); err != nil {
+		t.Fatalf("closing store: %v", err)
+	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), 20*time.Millisecond)
+	defer cancel()
+	result, err := handleSQL(ctx, mcplib.CallToolRequest{Params: mcplib.CallToolParams{
+		Arguments: map[string]any{"query": "WITH RECURSIVE n(x) AS (VALUES(0) UNION ALL SELECT x+1 FROM n WHERE x < 1000000000) SELECT max(x) FROM n"},
+	}})
+	if err != nil {
+		t.Fatalf("handleSQL returned transport error: %v", err)
+	}
+	if result == nil || !result.IsError {
+		t.Fatalf("deadline-limited SQL result = %#v", result)
 	}
 }
 

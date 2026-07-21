@@ -18,6 +18,7 @@ import (
 type syncHintState struct {
 	hasState   bool
 	lastSynced time.Time
+	cursor     string
 }
 
 func maybeEmitSyncHints(cmd *cobra.Command, db *store.Store, resourceType string, maxAge time.Duration) {
@@ -34,6 +35,10 @@ func emitSyncHints(w io.Writer, db *store.Store, resourceType string, maxAge tim
 	}
 	if !state.hasState {
 		fmt.Fprintf(w, "hint: local store has not been synced yet. Run 'woot-pp-cli sync' before trusting local results.\n")
+		return
+	}
+	if state.cursor != "" {
+		fmt.Fprintln(w, "hint: local store sync is incomplete and resumable. Run 'woot-pp-cli sync' before treating missing local matches as authoritative.")
 		return
 	}
 	if maxAge <= 0 {
@@ -78,7 +83,7 @@ func readSyncHintState(db *store.Store, resourceType string) (syncHintState, err
 	if db == nil {
 		return syncHintState{}, nil
 	}
-	query := `SELECT last_synced_at FROM sync_state`
+	query := `SELECT last_cursor, last_synced_at FROM sync_state`
 	args := []any{}
 	if strings.TrimSpace(resourceType) != "" {
 		query += ` WHERE resource_type = ?`
@@ -86,10 +91,11 @@ func readSyncHintState(db *store.Store, resourceType string) (syncHintState, err
 	} else {
 		query += ` WHERE last_synced_at IS NOT NULL`
 	}
-	query += ` ORDER BY last_synced_at ASC LIMIT 1`
+	query += ` ORDER BY CASE WHEN COALESCE(last_cursor, '') <> '' THEN 0 ELSE 1 END, last_synced_at ASC LIMIT 1`
 
+	var cursor sql.NullString
 	var lastSynced sql.NullTime
-	err := db.DB().QueryRow(query, args...).Scan(&lastSynced)
+	err := db.DB().QueryRow(query, args...).Scan(&cursor, &lastSynced)
 	if err == nil {
 		if !lastSynced.Valid {
 			return syncHintState{}, nil
@@ -97,6 +103,7 @@ func readSyncHintState(db *store.Store, resourceType string) (syncHintState, err
 		return syncHintState{
 			hasState:   true,
 			lastSynced: lastSynced.Time,
+			cursor:     cursor.String,
 		}, nil
 	}
 	if errors.Is(err, sql.ErrNoRows) || syncHintMissingTable(err) {

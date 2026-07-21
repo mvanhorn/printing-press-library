@@ -1,6 +1,6 @@
 ---
 name: pp-woot
-description: "Printing Press CLI for Woot. Discovered API spec for d24qg5zsx8xdc4-cloudfront"
+description: "Printing Press CLI for Woot. Search live deals, sync them locally, and query the read-only browser GraphQL API."
 author: "Matthew Vassallo"
 license: "Apache-2.0"
 argument-hint: "<command> [args] | install cli|mcp"
@@ -25,7 +25,7 @@ This skill drives the `woot-pp-cli` binary. **You must verify the CLI is install
 2. Verify: `woot-pp-cli --version`
 3. Ensure the reported install directory is on `$PATH` for the agent/runtime that will invoke this skill.
 
-If the `npx` install fails (no Node, offline, etc.), fall back to a direct Go install (requires Go 1.26.4 or newer). This installs into `$GOPATH/bin` (default `$HOME/go/bin`), so add that directory to `$PATH` instead:
+If the `npx` install fails (no Node, offline, etc.), fall back to a direct Go install (requires Go 1.26.5 or newer). This installs into `$GOPATH/bin` (default `$HOME/go/bin`), so add that directory to `$PATH` instead:
 
 ```bash
 go install github.com/mvanhorn/printing-press-library/library/commerce/woot/cmd/woot-pp-cli@latest
@@ -33,11 +33,24 @@ go install github.com/mvanhorn/printing-press-library/library/commerce/woot/cmd/
 
 If `--version` reports "command not found" after install, the runtime cannot see the binary directory on `$PATH`. Do not proceed with skill commands until verification succeeds.
 
-Discovered API spec for d24qg5zsx8xdc4-cloudfront
+Find offers that are buried deep in Woot's paginated All Deals catalog, then save a locally searchable snapshot with explicit completeness metadata. The CLI exposes the browser-observed searchOffers query without allowing GraphQL mutations.
 
 ## When Not to Use This CLI
 
 Do not activate this CLI for requests that require creating, updating, deleting, publishing, commenting, upvoting, inviting, ordering, sending messages, booking, purchasing, or changing remote state. This printed CLI exposes read-only commands for inspection, export, sync, and analysis.
+
+## Unique Capabilities
+
+These capabilities aren't available in any other tool for this API.
+
+### Live deal discovery
+- **`deals`** — Scan Woot's paged All Deals results and filter live offers by keyword.
+
+  _Use this when Woot's visible All Deals pages contain an offer that a single GraphQL page or direct offer lookup would miss; scan metadata reports short windows, duplicate IDs, and rows without identities._
+
+  ```bash
+  woot-pp-cli deals rayon --limit 10000 --agent
+  ```
 
 ## HTTP Transport
 
@@ -51,6 +64,16 @@ This CLI was generated with browser-observed traffic context.
 - Auth signals: api_key — headers: x-api-key
 - Candidate command ideas: list_graphql — Derived from observed GET /graphql traffic.
 
+## Recipes
+
+### Search a filtered slice of All Deals
+
+```bash
+woot-pp-cli deals laptop --category computers --price-range 50-100 --limit 500 --agent
+```
+
+Scan current computer deals priced from $50 to $100 and return title matches as compact JSON.
+
 ## Command Reference
 
 **deals** — Search Woot All Deals offers
@@ -59,10 +82,21 @@ This CLI was generated with browser-observed traffic context.
 - `woot-pp-cli deals [keyword] --from-url <woot-alldeals-url>` — reuse category, price, and page filters from a copied Woot `/alldeals` URL.
 - `woot-pp-cli deals [keyword] --category sport --price-range under-25 --price-range 25-50 --page 13` — reproduce visible All Deals filters from CLI flags.
 
+Machine output reports `scanned`, `unique_scanned`, `duplicate_rows`, `missing_id_rows`, `expected_scan`, and `incomplete`. The completeness flag covers the requested live scan window; it does not claim that a smaller `--limit` covered Woot's entire catalog. Repeated IDs are omitted from results, and human table output warns when a requested window is incomplete.
+
 **graphql** — Run read-only Woot GraphQL queries
 
 - `woot-pp-cli graphql` — fetch one current All Deals offer with a default `searchOffers` query.
 - `woot-pp-cli graphql --query '<query>'` — run a custom read-only Woot GraphQL query; mutation and subscription documents are rejected.
+
+**sync and search** — Build and query an offline Woot deal index
+
+- `woot-pp-cli sync --full` — start at the head of All Deals, store normalized offers and prices, and prune expired rows only after two consecutive full scans return the same complete set of deal IDs. If Woot changes between scans, the CLI preserves existing rows and marks the snapshot incomplete for another pass.
+- `woot-pp-cli search '<query>' --type deals --data-source local` — search the local deal catalog without another Woot request.
+
+Woot's mutable offset feed can repeat IDs or return fewer unique rows than `TotalHits`. Live scans expose this explicitly, and an incomplete sync warning is a deliberate non-success: local matches remain useful, but missing local matches are not authoritative until a later sync verifies the catalog.
+
+`--no-prune` deliberately retains rows outside the verified live ID set. The store remains marked incomplete while those rows exist; use `sync --full` without `--no-prune` to publish an exact current local snapshot.
 
 
 ### Finding the right command
@@ -76,13 +110,8 @@ woot-pp-cli which "<capability in your own words>"
 `which` resolves a natural-language capability query to the best matching command from this CLI's curated feature index. Exit code `0` means at least one match; exit code `2` means no confident match — fall back to `--help` or use a narrower query.
 
 ## Auth Setup
-Run `woot-pp-cli auth setup` to print the URL and steps for getting a key (add `--launch` to open the URL). Then set:
 
-```bash
-export D24QG5ZSX8XDC4_CLOUDFRONT_API_KEY="<your-key>"
-```
-
-To persist credentials, use `woot-pp-cli auth set-token <token>`. Stored secrets live in `credentials.toml` under the data dir, not in `config.toml`.
+Capture the x-api-key value from a successful graphql request made by your own Woot All Deals browser session, then provide it through D24QG5ZSX8XDC4_CLOUDFRONT_API_KEY or auth set-token.
 
 Run `woot-pp-cli doctor` to verify setup.
 
@@ -94,7 +123,7 @@ Add `--agent` to any command. Expands to: `--json --compact --no-input --no-colo
 - **Filterable** — `--select` keeps a subset of fields. Dotted paths descend into nested structures; arrays traverse element-wise. Critical for keeping context small on verbose APIs:
 
   ```bash
-  woot-pp-cli graphql --agent --select id,name,status
+  woot-pp-cli graphql --agent --select data.searchOffers.TotalHits
   ```
 - **Previewable** — `--dry-run` shows the request without sending
 - **Offline-friendly** — sync/search commands can use the local SQLite store when available
@@ -107,12 +136,12 @@ Commands that read from the local store or the API wrap output in a provenance e
 
 ```json
 {
-  "meta": {"source": "live" | "local", "synced_at": "...", "reason": "..."},
+  "meta": {"source": "local", "synced_at": "...", "reason": "...", "incomplete": true, "resume_cursor": "..."},
   "results": <data>
 }
 ```
 
-Parse `.results` for data and `.meta.source` to know whether it's live or local. A human-readable `N results (live)` summary is printed to stderr only when stdout is a terminal AND no machine-format flag (`--json`, `--csv`, `--compact`, `--quiet`, `--plain`, `--select`) is set — piped/agent consumers and explicit-format runs get pure JSON on stdout.
+Parse `.results` for data and `.meta.source` to know whether it's live or local. When `.meta.incomplete` is true, run sync again before treating a missing local match as authoritative; `.meta.resume_cursor` records where that retry will begin. A human-readable `N results (live)` summary is printed to stderr only when stdout is a terminal AND no machine-format flag (`--json`, `--csv`, `--compact`, `--quiet`, `--plain`, `--select`) is set — piped/agent consumers and explicit-format runs get pure JSON on stdout.
 
 ## Paths and state
 

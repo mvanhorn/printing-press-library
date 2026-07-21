@@ -645,14 +645,27 @@ func TestAdaptiveLimiter_NilSafeMethods(t *testing.T) {
 	}
 }
 
-func TestAdaptiveLimiter_RampsUpAfterSuccesses(t *testing.T) {
+func TestAdaptiveLimiter_ConfiguredRateIsHardMaximum(t *testing.T) {
 	l := NewAdaptiveLimiter(2.0)
 	startRate := l.Rate()
-	for i := 0; i < l.rampAfter; i++ {
+	for i := 0; i < l.rampAfter*10; i++ {
 		l.OnSuccess()
 	}
-	if got := l.Rate(); got <= startRate {
-		t.Errorf("Rate() after rampAfter successes = %v, want > %v", got, startRate)
+	if got := l.Rate(); got != startRate {
+		t.Errorf("Rate() after successes = %v, want configured maximum %v", got, startRate)
+	}
+}
+
+func TestAdaptiveLimiter_RecoversAfterRateLimitWithoutExceedingMaximum(t *testing.T) {
+	l := NewAdaptiveLimiter(8.0)
+	maximum := l.Rate()
+	l.OnRateLimit()
+	reduced := l.Rate()
+	for i := 0; i < l.rampAfter*20; i++ {
+		l.OnSuccess()
+	}
+	if got := l.Rate(); got <= reduced || got > maximum {
+		t.Errorf("Rate() after recovery = %v, want > %v and <= %v", got, reduced, maximum)
 	}
 }
 
@@ -705,6 +718,52 @@ func TestAdaptiveLimiter_WaitEnforcesPacing(t *testing.T) {
 	elapsed := time.Since(start)
 	if elapsed < 80*time.Millisecond {
 		t.Errorf("second Wait() took %v, want >= 80ms", elapsed)
+	}
+}
+
+func TestAdaptiveLimiter_CanceledWaitsDoNotPoisonQueue(t *testing.T) {
+	l := NewAdaptiveLimiter(2.0)
+	if err := l.WaitContext(context.Background()); err != nil {
+		t.Fatalf("first WaitContext: %v", err)
+	}
+
+	ctx, cancel := context.WithCancel(context.Background())
+	cancel()
+	var wg sync.WaitGroup
+	for i := 0; i < 100; i++ {
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			if err := l.WaitContext(ctx); !errors.Is(err, context.Canceled) {
+				t.Errorf("canceled WaitContext error = %v", err)
+			}
+		}()
+	}
+	wg.Wait()
+
+	start := time.Now()
+	if err := l.WaitContext(context.Background()); err != nil {
+		t.Fatalf("legitimate WaitContext: %v", err)
+	}
+	if elapsed := time.Since(start); elapsed > time.Second {
+		t.Fatalf("legitimate wait poisoned by canceled callers: %v", elapsed)
+	}
+}
+
+func TestAdaptiveLimiter_CanceledIdleWaitDoesNotReserveSlot(t *testing.T) {
+	l := NewAdaptiveLimiter(100.0)
+	if err := l.WaitContext(context.Background()); err != nil {
+		t.Fatalf("first WaitContext: %v", err)
+	}
+	time.Sleep(20 * time.Millisecond)
+	before := l.lastRequest
+	ctx, cancel := context.WithCancel(context.Background())
+	cancel()
+	if err := l.WaitContext(ctx); !errors.Is(err, context.Canceled) {
+		t.Fatalf("canceled idle WaitContext error = %v", err)
+	}
+	if !l.lastRequest.Equal(before) {
+		t.Fatalf("canceled idle wait reserved a request slot: before=%s after=%s", before, l.lastRequest)
 	}
 }
 

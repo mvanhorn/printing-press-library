@@ -4,6 +4,7 @@
 package cliutil
 
 import (
+	"context"
 	"fmt"
 	"math"
 	"net/http"
@@ -13,15 +14,15 @@ import (
 	"time"
 )
 
-// AdaptiveLimiter paces outbound requests with adaptive ceiling discovery.
-// Starts at a floor rate, ramps up after consecutive successes, halves on 429
-// and records a ceiling. Per-session only — not persisted. Methods are safe
-// to call on a nil receiver.
+// AdaptiveLimiter paces outbound requests below a configured hard maximum.
+// It halves the current rate on 429 and recovers after consecutive successes,
+// but never exceeds the operator-supplied maximum. Per-session only — not
+// persisted. Methods are safe to call on a nil receiver.
 type AdaptiveLimiter struct {
 	mu          sync.Mutex
 	rate        float64
 	floor       float64
-	ceiling     float64
+	maxRate     float64
 	successes   int
 	rampAfter   int
 	lastRequest time.Time // zero-value: first Wait() returns immediately
@@ -40,26 +41,46 @@ func NewAdaptiveLimiter(ratePerSec float64) *AdaptiveLimiter {
 	return &AdaptiveLimiter{
 		rate:      ratePerSec,
 		floor:     floor,
+		maxRate:   ratePerSec,
 		rampAfter: 10,
 	}
 }
 
 func (l *AdaptiveLimiter) Wait() {
+	_ = l.WaitContext(context.Background())
+}
+
+// WaitContext waits for the next request slot without reserving that slot
+// when the caller is canceled. The mutex remains held during the wait so
+// concurrent callers cannot build a queue of abandoned future reservations.
+func (l *AdaptiveLimiter) WaitContext(ctx context.Context) error {
 	if l == nil {
-		return
+		return nil
+	}
+	if err := ctx.Err(); err != nil {
+		return err
 	}
 	l.mu.Lock()
+	defer l.mu.Unlock()
+	if err := ctx.Err(); err != nil {
+		return err
+	}
 	delay := time.Duration(float64(time.Second) / l.rate)
 	elapsed := time.Since(l.lastRequest)
-	var sleep time.Duration
 	if elapsed < delay {
-		sleep = delay - elapsed
+		timer := time.NewTimer(delay - elapsed)
+		defer timer.Stop()
+		select {
+		case <-ctx.Done():
+			return ctx.Err()
+		case <-timer.C:
+		}
 	}
-	l.lastRequest = time.Now().Add(sleep)
-	l.mu.Unlock()
-	if sleep > 0 {
-		time.Sleep(sleep)
+	if err := ctx.Err(); err != nil {
+		return err
 	}
+	l.lastRequest = time.Now()
+	return nil
 }
 
 func (l *AdaptiveLimiter) OnSuccess() {
@@ -71,8 +92,8 @@ func (l *AdaptiveLimiter) OnSuccess() {
 	l.successes++
 	if l.successes >= l.rampAfter {
 		newRate := l.rate * 1.25
-		if l.ceiling > 0 && newRate > l.ceiling*0.9 {
-			newRate = l.ceiling * 0.9
+		if newRate > l.maxRate {
+			newRate = l.maxRate
 		}
 		if newRate < l.floor {
 			newRate = l.floor
@@ -88,7 +109,6 @@ func (l *AdaptiveLimiter) OnRateLimit() {
 	}
 	l.mu.Lock()
 	defer l.mu.Unlock()
-	l.ceiling = l.rate
 	l.rate = l.rate / 2
 	if l.rate < l.floor {
 		l.rate = l.floor

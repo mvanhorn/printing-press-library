@@ -26,7 +26,9 @@ type whichEntry struct {
 // its hero features. Endpoint-level commands are discoverable via
 // `--help`; `which` exists to resolve a natural-language capability
 // query to one of the commands the skill says matter most.
-var whichIndex = []whichEntry{}
+var whichIndex = []whichEntry{
+	{Command: "deals", Description: "Scan Woot's paged All Deals results and filter live offers by keyword.", Group: "Live deal discovery", WhyItMatters: "Use this when Woot's visible All Deals pages contain an offer that a single GraphQL page or direct offer lookup would miss; scan metadata reports short windows, duplicate IDs, and rows without identities."},
+}
 
 // whichMatch pairs an index entry with its ranking score for a query.
 // Higher score means stronger match. The ranker is naive (exact token

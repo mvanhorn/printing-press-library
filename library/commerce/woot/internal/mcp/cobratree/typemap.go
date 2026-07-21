@@ -92,7 +92,10 @@ func toolOptionForFlag(flag *pflag.Flag) mcplib.ToolOption {
 		"uint", "uint8", "uint16", "uint32", "uint64",
 		"float32", "float64", "count":
 		return mcplib.WithNumber(flag.Name, propOpts...)
-	case "string", "stringSlice", "stringArray", "duration":
+	case "stringSlice", "stringArray":
+		propOpts = append(propOpts, mcplib.WithStringItems())
+		return mcplib.WithArray(flag.Name, propOpts...)
+	case "string", "duration":
 		return mcplib.WithString(flag.Name, propOpts...)
 	default:
 		propOpts[0] = mcplib.Description(flagDescription(flag) + " (unknown Cobra flag type " + flag.Value.Type() + "; pass as a string)")

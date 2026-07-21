@@ -15,6 +15,7 @@ import (
 	mcplib "github.com/mark3labs/mcp-go/mcp"
 	"github.com/mark3labs/mcp-go/server"
 	"github.com/mvanhorn/printing-press-library/library/commerce/woot/internal/mcp/bound"
+	mcpgate "github.com/mvanhorn/printing-press-library/library/commerce/woot/internal/mcp/gate"
 )
 
 func shellOutToCLI(cliPath func() (string, error), commandPath []string, blockedStructuredArgs map[string]bool, allowedStructuredArgs map[string]bool, positionals []positionalArg, readOnly bool, positionalWriteSinks map[int]bool) server.ToolHandlerFunc {
@@ -42,6 +43,11 @@ func shellOutToCLI(cliPath func() (string, error), commandPath []string, blocked
 			}
 			finalArgs = append(finalArgs, rawPositionals...)
 		}
+		release, err := mcpgate.Acquire(ctx)
+		if err != nil {
+			return mcplib.NewToolResultError(fmt.Sprintf("waiting for MCP execution gate: %v", err)), nil
+		}
+		defer release()
 		out, err := RunCLICommand(ctx, lookupPath, finalArgs)
 		if err != nil {
 			return mcplib.NewToolResultError(err.Error()), nil
@@ -193,9 +199,7 @@ func cliArgsFromMCP(args map[string]any, blocked map[string]bool) []string {
 		v := args[k]
 		switch tv := v.(type) {
 		case bool:
-			if tv {
-				out = append(out, "--"+k)
-			}
+			out = append(out, "--"+k+"="+strconv.FormatBool(tv))
 		case float64:
 			out = append(out, "--"+k, strconv.FormatFloat(tv, 'f', -1, 64))
 		case string:
@@ -203,12 +207,12 @@ func cliArgsFromMCP(args map[string]any, blocked map[string]bool) []string {
 				out = append(out, "--"+k, tv)
 			}
 		case []any:
-			if len(tv) > 0 {
-				parts := make([]string, 0, len(tv))
-				for _, item := range tv {
-					parts = append(parts, fmt.Sprintf("%v", item))
-				}
-				out = append(out, "--"+k, strings.Join(parts, ","))
+			for _, item := range tv {
+				out = append(out, "--"+k, fmt.Sprintf("%v", item))
+			}
+		case []string:
+			for _, item := range tv {
+				out = append(out, "--"+k, item)
 			}
 		default:
 			if v != nil {

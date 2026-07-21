@@ -8,7 +8,6 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/mvanhorn/printing-press-library/library/commerce/woot/internal/store"
 	"github.com/spf13/cobra"
 )
 
@@ -95,7 +94,7 @@ Run sync first to populate the local search index.`,
   # Force local search explicitly
   woot-pp-cli search "status" --data-source local
   # Search a specific resource type locally
-  woot-pp-cli search "status" --type graphql --data-source local
+  woot-pp-cli search "status" --type deals --data-source local
   # JSON output for piping
   woot-pp-cli search "status" --json --limit 20`,
 		Annotations: map[string]string{"mcp:hidden": "true"},
@@ -103,7 +102,10 @@ Run sync first to populate the local search index.`,
 			if len(args) == 0 {
 				return cmd.Help()
 			}
-			query := args[0]
+			if limit <= 0 {
+				return usageErr(fmt.Errorf("--limit must be greater than 0"))
+			}
+			query := strings.Join(args, " ")
 			// This API has no search endpoint.
 			if flags.dataSource == "live" {
 				return fmt.Errorf("this API has no search endpoint. Use --data-source local or --data-source auto to search locally synced data")
@@ -117,13 +119,20 @@ Run sync first to populate the local search index.`,
 				dbPath = defaultDBPath("woot-pp-cli")
 			}
 
-			db, err := store.OpenWithContext(cmd.Context(), dbPath)
+			db, err := openStorePathForRead(cmd.Context(), dbPath)
 			if err != nil {
 				return fmt.Errorf("opening local database: %w\nRun 'woot-pp-cli sync' first to populate the local database.", err)
 			}
+			if db == nil {
+				return fmt.Errorf("no local database at %s\nRun 'woot-pp-cli sync' first to populate the local database", dbPath)
+			}
 			defer db.Close()
 
-			maybeEmitSyncHints(cmd, db, resourceType, flags.maxAge)
+			syncResource := resourceType
+			if syncResource == "" {
+				syncResource = "deals"
+			}
+			maybeEmitSyncHints(cmd, db, syncResource, flags.maxAge)
 
 			var results []json.RawMessage
 			switch resourceType {
@@ -137,7 +146,7 @@ Run sync first to populate the local search index.`,
 				seen := make(map[string]bool)
 				_ = seen // prevent unused error when no FTS tables exist
 				{
-					partial, searchErr := db.Search(query, limit)
+					partial, searchErr := db.SearchContext(cmd.Context(), query, limit)
 					if searchErr != nil {
 						return fmt.Errorf("search resources_fts failed: %w", searchErr)
 					}
@@ -151,7 +160,7 @@ Run sync first to populate the local search index.`,
 				}
 			default:
 				// Unrecognized type -- filter generic resources by type.
-				results, err = db.Search(query, limit, resourceType)
+				results, err = db.SearchContext(cmd.Context(), query, limit, resourceType)
 			}
 			if err != nil {
 				return fmt.Errorf("search failed: %w", err)
@@ -161,7 +170,7 @@ Run sync first to populate the local search index.`,
 			if flags.dataSource != "local" {
 				reason = "no_search_endpoint"
 			}
-			prov := localProvenance(db, "search", reason)
+			prov := localProvenance(db, syncResource, reason)
 
 			return outputSearchResults(cmd, flags, results, limit, prov)
 		},

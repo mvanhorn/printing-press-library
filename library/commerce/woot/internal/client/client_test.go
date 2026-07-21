@@ -130,3 +130,15 @@ func TestGetWithHeadersValuesPreservesRepeatedQueryParams(t *testing.T) {
 		t.Fatalf("GetWithHeadersValues returned error: %v", err)
 	}
 }
+
+func TestReadResponseBodyRejectsOversizedPayload(t *testing.T) {
+	t.Parallel()
+	const limit = 16
+	if _, err := readResponseBody(strings.NewReader(strings.Repeat("x", limit+1)), limit); err == nil || !strings.Contains(err.Error(), "exceeds 16-byte limit") {
+		t.Fatalf("oversized response error = %v", err)
+	}
+	body, err := readResponseBody(strings.NewReader(strings.Repeat("x", limit)), limit)
+	if err != nil || len(body) != limit {
+		t.Fatalf("at-limit response len=%d err=%v", len(body), err)
+	}
+}

@@ -1,8 +1,12 @@
 # Woot CLI
 
-Discovered API spec for d24qg5zsx8xdc4-cloudfront
+**Search Woot's live All Deals catalog with filters, prices, offline full-text search, and read-only GraphQL access.**
 
-Learn more at [Woot](https://d24qg5zsx8xdc4.cloudfront.net).
+Find offers that are buried deep in Woot's paginated All Deals catalog, then save a locally searchable snapshot with explicit completeness metadata. The CLI exposes the browser-observed searchOffers query without allowing GraphQL mutations.
+
+Learn more at [Woot All Deals](https://www.woot.com/alldeals).
+
+Created by [@TheFabulousMoolah](https://github.com/TheFabulousMoolah) (Matthew Vassallo).
 
 ## Install
 
@@ -110,54 +114,40 @@ Add to your Claude Desktop config (`~/Library/Application Support/Claude/claude_
 
 </details>
 
+## Authentication
+
+Capture the x-api-key value from a successful graphql request made by your own Woot All Deals browser session, then provide it through D24QG5ZSX8XDC4_CLOUDFRONT_API_KEY or auth set-token.
+
 ## Quick Start
 
-### Search Woot
-
-Set the Woot frontend GraphQL key first. You can capture a fresh value from a Woot browser session or provide one through the environment:
-
 ```bash
-export D24QG5ZSX8XDC4_CLOUDFRONT_API_KEY="<paste-your-key>"
+# Scan up to 10000 live result slots and return matching offers plus explicit scan-completeness metadata as compact JSON.
+woot-pp-cli deals rayon --limit 10000 --agent
+
 ```
 
-Then search current Woot offers:
+## Unique Features
+
+These capabilities aren't available in any other tool for this API.
+
+### Live deal discovery
+- **`deals`** — Scan Woot's paged All Deals results and filter live offers by keyword.
+
+  _Use this when Woot's visible All Deals pages contain an offer that a single GraphQL page or direct offer lookup would miss; scan metadata reports short windows, duplicate IDs, and rows without identities._
+
+  ```bash
+  woot-pp-cli deals rayon --limit 10000 --agent
+  ```
+
+## Recipes
+
+### Search a filtered slice of All Deals
 
 ```bash
-woot-pp-cli deals rayon --limit 10000
-woot-pp-cli deals rayon --from-url 'https://www.woot.com/alldeals?selectedCategories=sport&selectedPriceRanges=[0,24.99]-[25,49.99]&page=13'
-woot-pp-cli deals --category sport --price-range under-25 --price-range 25-50 --page 13 rayon
-woot-pp-cli deals --json --compact laptop
+woot-pp-cli deals laptop --category computers --price-range 50-100 --limit 500 --agent
 ```
 
-`deals` uses the same frontend `searchOffers` GraphQL call as Woot's All Deals page, then filters titles, slugs, and item attributes locally. Increase `--limit` to scan more paged All Deals results, or paste a filtered `/alldeals` URL with `--from-url` to reuse Woot's category, price, and page filters.
-
-### 1. Install
-
-See [Install](#install) above.
-
-### 2. Set Up Credentials
-
-This CLI uses Woot's browser-facing GraphQL key. Capture a current value from your own Woot browser session and provide it with this environment variable:
-
-```bash
-export D24QG5ZSX8XDC4_CLOUDFRONT_API_KEY="<paste-your-key>"
-```
-
-To persist credentials, use `woot-pp-cli auth set-token <token>`. Stored secrets live in `credentials.toml` under the data directory, not in `config.toml`.
-
-### 3. Verify Setup
-
-```bash
-woot-pp-cli doctor
-```
-
-This checks your configuration and credentials.
-
-### 4. Try Your First Command
-
-```bash
-woot-pp-cli deals rayon --limit 10000
-```
+Scan current computer deals priced from $50 to $100 and return title matches as compact JSON.
 
 ## Usage
 
@@ -221,12 +211,25 @@ List current Woot All Deals offers and optionally filter them locally by keyword
 - **`woot-pp-cli deals [keyword]`** - Fetch current offers via Woot's All Deals GraphQL `searchOffers` call, scanning paged results up to `--limit`, then filter titles, slugs, and item attributes locally.
 - **`woot-pp-cli deals [keyword] --from-url <woot-alldeals-url>`** - Reuse Woot's visible All Deals filters such as category, price range, and page number from a copied URL.
 
+Machine output distinguishes raw rows (`scanned`) from rows remaining after duplicate removal (`unique_scanned`) and reports `duplicate_rows`, `missing_id_rows`, `expected_scan`, and `incomplete`. `incomplete` describes the requested live scan window, not whether `--limit` covered the entire catalog. Human table output prints a warning when that window is incomplete.
+
 ### graphql
 
 Run read-only Woot GraphQL queries.
 
 - **`woot-pp-cli graphql`** - Fetch one current All Deals offer with a default `searchOffers` query.
 - **`woot-pp-cli graphql --query '<query>'`** - Run a custom read-only Woot GraphQL query. Mutation and subscription documents are rejected.
+
+### sync and search
+
+Build and query a local full-text index of current Woot offers.
+
+- **`woot-pp-cli sync --full`** - Start at the head of All Deals, store normalized prices locally, and remove expired rows only after two consecutive full scans return the same complete set of deal IDs. If Woot changes between scans, existing rows are preserved and the local snapshot is marked incomplete so the next sync retries from the head.
+- **`woot-pp-cli search '<query>' --type deals --data-source local`** - Search the synced offer catalog without making another Woot request.
+
+Woot's offset feed can report more deals than one pass returns and can repeat IDs while the BestSelling order changes. The live `deals` command removes repeated IDs and marks the requested window incomplete; `sync` exits with an incomplete-snapshot warning instead of claiming success. Existing local matches and prices remain usable, but a missing local match is not authoritative; rerun sync later to attempt verification again.
+
+`--no-prune` preserves local rows that are absent from a verified live snapshot. If any such rows remain, the CLI deliberately keeps the local store marked incomplete; run `sync --full` without `--no-prune` when you need an exact current ID set.
 
 
 ## Output Formats
@@ -242,7 +245,7 @@ woot-pp-cli graphql --json
 woot-pp-cli graphql --query '{ searchOffers(Filter:{}, Sort:BestSelling, Limit:1, Skip:0){ TotalHits } }' --json
 
 # Filter to specific fields
-woot-pp-cli graphql --json --select id,name,status
+woot-pp-cli graphql --json --select data.searchOffers.TotalHits
 
 # Dry run — show the request without sending
 woot-pp-cli graphql --dry-run
@@ -292,10 +295,15 @@ If you use agentcookie to sync secrets across machines, this CLI auto-adopts age
 ## Troubleshooting
 **Authentication errors (exit code 4)**
 - Run `woot-pp-cli doctor` to check credentials
-- Verify the environment variable is set: `echo $D24QG5ZSX8XDC4_CLOUDFRONT_API_KEY`
+- Verify the environment variable is present without printing it: `test -n "$D24QG5ZSX8XDC4_CLOUDFRONT_API_KEY" && echo set || echo not-set`
 **Not found errors (exit code 3)**
 - Check the resource ID is correct
 - Run the `list` command to see available items
+
+### API-specific
+- **The API returns HTTP 401 or says a valid authorization header was not provided.** — Capture a fresh x-api-key from a successful Woot All Deals graphql request and set D24QG5ZSX8XDC4_CLOUDFRONT_API_KEY.
+- **A local search returns no results or stale results.** — Run woot-pp-cli sync --full before searching the local deals index.
+- **A full sync reports an incomplete snapshot.** — Woot returned duplicate, missing, or changing offset pages. Existing local matches remain useful, but rerun later before treating a missing match as authoritative.
 
 ## HTTP Transport
 

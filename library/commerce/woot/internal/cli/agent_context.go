@@ -5,7 +5,6 @@ package cli
 
 import (
 	"encoding/json"
-	"os"
 	"sort"
 
 	"github.com/mvanhorn/printing-press-library/library/commerce/woot/internal/cliutil"
@@ -100,7 +99,7 @@ agents can introspect this CLI at runtime without parsing --help or
 reading source. Schema is versioned via schema_version.`,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			ctx := buildAgentContext(rootCmd)
-			enc := json.NewEncoder(os.Stdout)
+			enc := json.NewEncoder(cmd.OutOrStdout())
 			if pretty {
 				enc.SetIndent("", "  ")
 			}
@@ -133,7 +132,7 @@ func buildAgentContext(rootCmd *cobra.Command) agentContext {
 		SchemaVersion: agentContextSchemaVersion,
 		CLI: agentContextCLI{
 			Name:        "woot-pp-cli",
-			Description: "Discovered API spec for d24qg5zsx8xdc4-cloudfront",
+			Description: "Search Woot's live All Deals catalog with filters, prices, offline full-text search, and read-only GraphQL access.",
 			Version:     rootCmd.Version,
 		},
 		Auth: agentContextAuth{

@@ -3,7 +3,7 @@
   "name": "woot-pp-mcp",
   "display_name": "Woot",
   "version": "0.1.0",
-  "description": "Discovered API spec for d24qg5zsx8xdc4-cloudfront",
+  "description": "Search Woot's live All Deals catalog with filters, prices, offline full-text search, and read-only GraphQL access.",
   "author": {
     "name": "CLI Printing Press"
   },

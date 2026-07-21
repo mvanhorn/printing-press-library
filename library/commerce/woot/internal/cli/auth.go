@@ -40,15 +40,16 @@ func newAuthSetupCmd(_ *rootFlags) *cobra.Command {
 		Example: "  woot-pp-cli auth setup\n  woot-pp-cli auth setup --launch",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			w := cmd.OutOrStdout()
-			fmt.Fprintln(w, "See API docs: https://d24qg5zsx8xdc4.cloudfront.net")
-			fmt.Fprintln(w, "")
+			fmt.Fprintln(w, "Open Woot All Deals: https://www.woot.com/alldeals")
+			fmt.Fprintln(w, "In your browser's developer tools, reload the page, open the Network request named graphql, and copy the x-api-key request header.")
+			fmt.Fprintln(w)
 			fmt.Fprintln(w, "Then set:")
 			fmt.Fprintln(w, "  export D24QG5ZSX8XDC4_CLOUDFRONT_API_KEY=\"your-token-here\"")
 			fmt.Fprintln(w, "  woot-pp-cli auth set-token <token>")
 			if !launch {
 				return nil
 			}
-			launchURL := "https://d24qg5zsx8xdc4.cloudfront.net"
+			launchURL := "https://www.woot.com/alldeals"
 			if cliutil.IsVerifyEnv() {
 				fmt.Fprintf(w, "would launch: %s\n", launchURL)
 				return nil

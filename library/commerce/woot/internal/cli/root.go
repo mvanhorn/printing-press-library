@@ -82,8 +82,8 @@ func Execute() error {
 		}
 	}
 	if err == nil && flags.deliverBuf != nil {
-		if derr := Deliver(flags.deliverSink, flags.deliverBuf.Bytes(), flags.compact); derr != nil {
-			fmt.Fprintf(os.Stderr, "warning: deliver to %s:%s failed: %v\n", flags.deliverSink.Scheme, flags.deliverSink.Target, derr)
+		if derr := Deliver(flags.deliverSink, flags.deliverBuf.Bytes(), deliveryContentType(&flags, flags.deliverBuf.Bytes())); derr != nil {
+			fmt.Fprintf(os.Stderr, "warning: deliver to %s failed: %v\n", flags.deliverSink.Redacted(), derr)
 			return derr
 		}
 	}
@@ -143,8 +143,11 @@ func isCobraUsageError(err error) bool {
 func newRootCmd(flags *rootFlags) *cobra.Command {
 	rootCmd := &cobra.Command{
 		Use:   "woot-pp-cli",
-		Short: "Manage woot resources via the woot API",
-		Long: `Manage woot resources via the woot API.
+		Short: "Search Woot's live All Deals catalog with filters, prices, offline full-text search, and read-only GraphQL access.",
+		Long: `Search Woot's live All Deals catalog, inspect its read-only GraphQL API, and build a local deal index.
+
+Highlights (not in the official API docs):
+  • deals   Scan Woot's paged All Deals results and filter live offers by keyword.
 
 Add --agent to any command for JSON output + non-interactive mode.
 Run 'woot-pp-cli doctor' to verify auth and connectivity.`,
@@ -179,17 +182,6 @@ Run 'woot-pp-cli doctor' to verify auth and connectivity.`,
 		if _, err := cliutil.SetHomeOverride(flags.homePath); err != nil {
 			return err
 		}
-		if flags.deliverSpec != "" {
-			sink, err := ParseDeliverSink(flags.deliverSpec)
-			if err != nil {
-				return err
-			}
-			flags.deliverSink = sink
-			if sink.Scheme != "stdout" && sink.Scheme != "" {
-				flags.deliverBuf = &bytes.Buffer{}
-				cmd.SetOut(io.MultiWriter(os.Stdout, flags.deliverBuf))
-			}
-		}
 		if flags.profileName != "" {
 			profile, err := GetProfile(flags.profileName)
 			if err != nil {
@@ -204,6 +196,20 @@ Run 'woot-pp-cli doctor' to verify auth and connectivity.`,
 			}
 			if err := ApplyProfileToFlags(cmd, profile); err != nil {
 				return err
+			}
+		}
+		// Delivery must be initialized from the effective flags after profile
+		// values are applied. Explicit command-line flags retain precedence
+		// because ApplyProfileToFlags skips flags whose Changed bit is set.
+		if flags.deliverSpec != "" {
+			sink, err := ParseDeliverSink(flags.deliverSpec)
+			if err != nil {
+				return err
+			}
+			flags.deliverSink = sink
+			if sink.Scheme != "stdout" && sink.Scheme != "" {
+				flags.deliverBuf = &bytes.Buffer{}
+				cmd.SetOut(io.MultiWriter(cmd.OutOrStdout(), flags.deliverBuf))
 			}
 		}
 		if flags.agent {

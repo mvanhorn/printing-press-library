@@ -42,10 +42,10 @@ checksum:
 brews:
   - name: woot-pp-cli
     repository:
-      owner: matthew-vassallo
+      owner: TheFabulousMoolah
       name: homebrew-tap
     homepage: "https://github.com/mvanhorn/printing-press-library"
-    description: "Discovered API spec for d24qg5zsx8xdc4-cloudfront"
+    description: "Search Woot's live All Deals catalog with filters, prices, offline full-text search, and read-only GraphQL access."
     install: |
       bin.install "woot-pp-cli"
       bin.install "woot-pp-mcp"

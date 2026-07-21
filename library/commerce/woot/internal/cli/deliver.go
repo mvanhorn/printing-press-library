@@ -5,6 +5,7 @@ package cli
 
 import (
 	"bytes"
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"os"
@@ -18,6 +19,21 @@ import (
 type DeliverSink struct {
 	Scheme string
 	Target string
+}
+
+// Redacted returns a log-safe description that never includes webhook
+// credentials embedded in URL userinfo, paths, or query parameters.
+func (s DeliverSink) Redacted() string {
+	switch s.Scheme {
+	case "webhook":
+		return "webhook:[redacted]"
+	case "file":
+		return "file:" + s.Target
+	case "", "stdout":
+		return "stdout"
+	default:
+		return s.Scheme + ":[redacted]"
+	}
 }
 
 // ParseDeliverSink parses a --deliver value. Supported schemes:
@@ -35,7 +51,7 @@ func ParseDeliverSink(spec string) (DeliverSink, error) {
 	}
 	idx := strings.Index(spec, ":")
 	if idx == -1 {
-		return DeliverSink{}, fmt.Errorf("unknown --deliver sink %q: expected scheme:target (supported: stdout, file:<path>, webhook:<url>)", spec)
+		return DeliverSink{}, fmt.Errorf("unknown --deliver sink: expected scheme:target (supported: stdout, file:<path>, webhook:<url>)")
 	}
 	scheme := spec[:idx]
 	target := spec[idx+1:]
@@ -46,7 +62,7 @@ func ParseDeliverSink(spec string) (DeliverSink, error) {
 		}
 	case "webhook":
 		if !strings.HasPrefix(target, "http://") && !strings.HasPrefix(target, "https://") {
-			return DeliverSink{}, fmt.Errorf("--deliver webhook:<url> requires an http:// or https:// URL, got %q", target)
+			return DeliverSink{}, fmt.Errorf("--deliver webhook:<url> requires an http:// or https:// URL")
 		}
 	default:
 		return DeliverSink{}, fmt.Errorf("unknown --deliver scheme %q (supported: stdout, file, webhook)", scheme)
@@ -57,14 +73,14 @@ func ParseDeliverSink(spec string) (DeliverSink, error) {
 // Deliver routes a captured output buffer to the configured sink. stdout
 // is a no-op because the buffer has already been streamed to stdout via
 // the MultiWriter set up in root.go.
-func Deliver(sink DeliverSink, body []byte, compact bool) error {
+func Deliver(sink DeliverSink, body []byte, contentType string) error {
 	switch sink.Scheme {
 	case "", "stdout":
 		return nil
 	case "file":
 		return deliverFile(sink.Target, body)
 	case "webhook":
-		return deliverWebhook(sink.Target, body, compact)
+		return deliverWebhook(sink.Target, body, contentType)
 	default:
 		return fmt.Errorf("unsupported deliver sink %q", sink.Scheme)
 	}
@@ -79,36 +95,88 @@ func deliverFile(path string, body []byte) error {
 			return fmt.Errorf("creating deliver dir: %w", err)
 		}
 	}
-	tmp := path + ".tmp"
-	if err := os.WriteFile(tmp, body, 0o600); err != nil {
-		return fmt.Errorf("writing deliver tmp: %w", err)
+	tmp, err := os.CreateTemp(dir, "."+filepath.Base(path)+".tmp-*")
+	if err != nil {
+		return fmt.Errorf("creating deliver temp file: %w", err)
 	}
-	if err := os.Rename(tmp, path); err != nil {
+	tmpPath := tmp.Name()
+	defer os.Remove(tmpPath)
+	if err := tmp.Chmod(0o600); err != nil {
+		tmp.Close()
+		return fmt.Errorf("securing deliver temp file: %w", err)
+	}
+	if _, err := tmp.Write(body); err != nil {
+		tmp.Close()
+		return fmt.Errorf("writing deliver temp file: %w", err)
+	}
+	if err := tmp.Close(); err != nil {
+		return fmt.Errorf("closing deliver temp file: %w", err)
+	}
+	if err := os.Rename(tmpPath, path); err != nil {
 		return fmt.Errorf("replacing deliver file: %w", err)
 	}
 	return nil
 }
 
-func deliverWebhook(url string, body []byte, compact bool) error {
-	contentType := "application/json"
-	if compact {
-		contentType = "application/x-ndjson"
-	}
-	req, err := http.NewRequest(http.MethodPost, url, bytes.NewReader(body))
+func deliverWebhook(target string, body []byte, contentType string) error {
+	req, err := http.NewRequest(http.MethodPost, target, bytes.NewReader(body))
 	if err != nil {
-		return fmt.Errorf("building webhook request: %w", err)
+		return fmt.Errorf("building webhook request: invalid webhook URL")
+	}
+	if contentType == "" {
+		contentType = "application/octet-stream"
 	}
 	req.Header.Set("Content-Type", contentType)
 	req.Header.Set("User-Agent", "woot-pp-cli/deliver")
 
-	client := &http.Client{Timeout: 30 * time.Second}
+	client := &http.Client{
+		Timeout: 30 * time.Second,
+		CheckRedirect: func(_ *http.Request, _ []*http.Request) error {
+			return http.ErrUseLastResponse
+		},
+	}
 	resp, err := client.Do(req)
 	if err != nil {
-		return fmt.Errorf("posting to webhook: %w", err)
+		return fmt.Errorf("posting to webhook failed")
 	}
 	defer resp.Body.Close()
-	if resp.StatusCode >= 400 {
+	if resp.StatusCode < http.StatusOK || resp.StatusCode >= http.StatusMultipleChoices {
 		return fmt.Errorf("webhook returned %s", resp.Status)
 	}
 	return nil
+}
+
+func deliveryContentType(flags *rootFlags, body []byte) string {
+	if flags != nil {
+		switch {
+		case flags.csv:
+			return "text/csv"
+		case flags.plain || flags.quiet:
+			return "text/plain"
+		}
+	}
+	trimmed := bytes.TrimSpace(body)
+	if json.Valid(trimmed) {
+		return "application/json"
+	}
+	if isNDJSON(trimmed) {
+		return "application/x-ndjson"
+	}
+	return "text/plain"
+}
+
+func isNDJSON(body []byte) bool {
+	lines := bytes.Split(body, []byte("\n"))
+	count := 0
+	for _, line := range lines {
+		line = bytes.TrimSpace(line)
+		if len(line) == 0 {
+			continue
+		}
+		if !json.Valid(line) {
+			return false
+		}
+		count++
+	}
+	return count > 1
 }

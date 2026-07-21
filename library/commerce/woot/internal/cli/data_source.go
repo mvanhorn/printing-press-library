@@ -87,9 +87,14 @@ func isNetworkError(err error) bool {
 // threaded into OpenReadOnlyContext so a cancelled command (SIGINT, deadline)
 // interrupts the driver-init SQLITE_BUSY retry rather than blocking on it.
 func openStoreForRead(ctx context.Context, cliName string) (*store.Store, error) {
-	dbPath := defaultDBPath(cliName)
+	return openStorePathForRead(ctx, defaultDBPath(cliName))
+}
+
+func openStorePathForRead(ctx context.Context, dbPath string) (*store.Store, error) {
 	if _, err := os.Stat(dbPath); os.IsNotExist(err) {
 		return nil, nil
+	} else if err != nil {
+		return nil, err
 	}
 	return store.OpenReadOnlyContext(ctx, dbPath)
 }
@@ -101,9 +106,22 @@ func localProvenance(db *store.Store, resourceType, reason string) DataProvenanc
 		Reason:       reason,
 		ResourceType: resourceType,
 	}
-	_, lastSynced, _, err := db.GetSyncState(resourceType)
+	cursor, lastSynced, _, err := db.GetSyncState(resourceType)
 	if err == nil && !lastSynced.IsZero() {
 		prov.SyncedAt = &lastSynced
+	}
+	if err == nil && cursor != "" {
+		prov.Incomplete = true
+		prov.ResumeCursor = cursor
+	}
+	if err == nil && lastSynced.IsZero() {
+		if count, countErr := db.Count(resourceType); countErr == nil && count > 0 {
+			// Rows without sync_state can come from live write-through caching or
+			// an older interrupted writer. They are useful, but they are not proof
+			// that the catalog was fully enumerated.
+			prov.Incomplete = true
+			prov.ResumeCursor = "0"
+		}
 	}
 	return prov
 }
@@ -341,7 +359,7 @@ func writeThroughCache(ctx context.Context, resourceType string, data json.RawMe
 				return
 			}
 			// Single object detail response: let UpsertBatch's existing
-			// resourceIDFieldOverrides mechanism resolve the primary key.
+			// store.ExtractResourceID mechanism resolve the primary key.
 			// Guarding on envelope["id"] dropped any API whose PK is named
 			// CertNo / sku / invoiceId / etc. on the floor (#1439).
 			//

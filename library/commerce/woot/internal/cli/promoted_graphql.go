@@ -9,6 +9,7 @@ import (
 	"os"
 	"strings"
 
+	"github.com/mvanhorn/printing-press-library/library/commerce/woot/internal/graphqlguard"
 	"github.com/spf13/cobra"
 )
 
@@ -28,6 +29,10 @@ func newGraphqlPromotedCmd(flags *rootFlags) *cobra.Command {
 			if err != nil {
 				return err
 			}
+			// Raw GraphQL queries have no sound local equivalent: a cached row
+			// cannot be proven to match an arbitrary query document. Keep this
+			// command live-only and avoid both HTTP and SQLite write-through caches.
+			c.NoCache = true
 
 			path := "/graphql"
 			params := map[string]string{}
@@ -35,13 +40,18 @@ func newGraphqlPromotedCmd(flags *rootFlags) *cobra.Command {
 			if query == "" {
 				query = defaultWootGraphQLQuery
 			}
-			if containsGraphQLWriteOperation(query) {
-				return usageErr(fmt.Errorf("graphql --query only accepts read-only query documents; mutation and subscription operations are not allowed"))
+			if err := graphqlguard.ValidateReadOnly(query); err != nil {
+				return usageErr(err)
 			}
 			params["query"] = formatCLIParamValue(query)
-			data, prov, err := resolveReadWithStrategyAndResponsePath(cmd.Context(), c, flags, "auto", "graphql", false, path, params, nil, "", cmd.ErrOrStderr())
+			data, prov, err := resolveReadWithStrategyAndResponsePath(cmd.Context(), c, flags, "live", "graphql", false, path, params, nil, "", cmd.ErrOrStderr())
 			if err != nil {
 				return classifyAPIError(err, flags)
+			}
+			if !isDryRunResponse(data) {
+				if err := graphqlguard.ValidateResponse(data); err != nil {
+					return err
+				}
 			}
 			// Print provenance to stderr for human-facing output only.
 			// Machine-format flags (--json, --csv, --compact, --quiet, --plain,
@@ -94,82 +104,4 @@ func newGraphqlPromotedCmd(flags *rootFlags) *cobra.Command {
 	// Wire sibling endpoints and sub-resources as subcommands
 
 	return cmd
-}
-
-func containsGraphQLWriteOperation(query string) bool {
-	depth := 0
-	skipNextTopLevelName := false
-	for i := 0; i < len(query); {
-		switch query[i] {
-		case '#':
-			for i < len(query) && query[i] != '\n' {
-				i++
-			}
-		case '"':
-			if strings.HasPrefix(query[i:], `"""`) {
-				i += 3
-				for i < len(query) && !strings.HasPrefix(query[i:], `"""`) {
-					i++
-				}
-				if i < len(query) {
-					i += 3
-				}
-				continue
-			}
-			i++
-			for i < len(query) {
-				if query[i] == '\\' {
-					i += 2
-					continue
-				}
-				if query[i] == '"' {
-					i++
-					break
-				}
-				i++
-			}
-		case '{':
-			depth++
-			skipNextTopLevelName = false
-			i++
-		case '}':
-			if depth > 0 {
-				depth--
-			}
-			skipNextTopLevelName = false
-			i++
-		default:
-			if !isGraphQLNameStart(query[i]) {
-				i++
-				continue
-			}
-			start := i
-			i++
-			for i < len(query) && isGraphQLNameContinue(query[i]) {
-				i++
-			}
-			token := query[start:i]
-			if depth == 0 {
-				if skipNextTopLevelName {
-					skipNextTopLevelName = false
-					continue
-				}
-				switch strings.ToLower(token) {
-				case "mutation", "subscription":
-					return true
-				case "query", "fragment":
-					skipNextTopLevelName = true
-				}
-			}
-		}
-	}
-	return false
-}
-
-func isGraphQLNameStart(b byte) bool {
-	return b == '_' || (b >= 'A' && b <= 'Z') || (b >= 'a' && b <= 'z')
-}
-
-func isGraphQLNameContinue(b byte) bool {
-	return isGraphQLNameStart(b) || (b >= '0' && b <= '9')
 }

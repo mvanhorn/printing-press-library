@@ -15,7 +15,6 @@ import (
 	enetxhttp "github.com/enetx/http"
 	"github.com/enetx/surf"
 	"io"
-	"math"
 	"net/http"
 	"net/url"
 	"os"
@@ -28,7 +27,10 @@ import (
 	"github.com/mvanhorn/printing-press-library/library/commerce/woot/internal/config"
 )
 
-const BinaryResponseHeader = "X-Printing-Press-Binary-Response"
+const (
+	BinaryResponseHeader = "X-Printing-Press-Binary-Response"
+	maxHTTPResponseBytes = int64(32 << 20)
+)
 
 var ErrPlaceholderCredential = errors.New("auth placeholder credential")
 
@@ -567,7 +569,9 @@ func (c *Client) doInternal(ctx context.Context, method, path string, params map
 
 	for attempt := 0; attempt <= maxRetries; attempt++ {
 		// Proactive rate limiting — wait before sending
-		c.limiter.Wait()
+		if err := c.limiter.WaitContext(ctx); err != nil {
+			return nil, 0, err
+		}
 		var bodyReader io.Reader
 		if bodyBytes != nil {
 			bodyReader = strings.NewReader(string(bodyBytes))
@@ -614,10 +618,17 @@ func (c *Client) doInternal(ctx context.Context, method, path string, params map
 				return nil, 0, ctxErr
 			}
 			lastErr = fmt.Errorf("%s %s: %w", method, c.displayURL(path, authHeader), c.maskError(err, authHeader))
+			if attempt < maxRetries {
+				wait := clientRetryBackoff(attempt)
+				fmt.Fprintf(os.Stderr, "transport error, retrying in %s (attempt %d/%d)\n", wait, attempt+1, maxRetries)
+				if err := sleepContext(ctx, wait); err != nil {
+					return nil, 0, err
+				}
+			}
 			continue
 		}
 
-		respBody, err := io.ReadAll(resp.Body)
+		respBody, err := readResponseBody(resp.Body, maxHTTPResponseBytes)
 		resp.Body.Close()
 		if err != nil {
 			return nil, 0, fmt.Errorf("reading response: %w", err)
@@ -668,7 +679,7 @@ func (c *Client) doInternal(ctx context.Context, method, path string, params map
 
 		// Server error - retry with backoff
 		if resp.StatusCode >= 500 && attempt < maxRetries {
-			wait := time.Duration(math.Pow(2, float64(attempt))) * time.Second
+			wait := clientRetryBackoff(attempt)
 			fmt.Fprintf(os.Stderr, "server error %d, retrying in %s (attempt %d/%d)\n", resp.StatusCode, wait, attempt+1, maxRetries)
 			if err := sleepContext(ctx, wait); err != nil {
 				return nil, 0, err
@@ -682,6 +693,17 @@ func (c *Client) doInternal(ctx context.Context, method, path string, params map
 	}
 
 	return nil, 0, lastErr
+}
+
+func readResponseBody(r io.Reader, maxBytes int64) ([]byte, error) {
+	body, err := io.ReadAll(io.LimitReader(r, maxBytes+1))
+	if err != nil {
+		return nil, err
+	}
+	if int64(len(body)) > maxBytes {
+		return nil, fmt.Errorf("response body exceeds %d-byte limit", maxBytes)
+	}
+	return body, nil
 }
 
 // dryRun prints the outgoing request exactly as the live path would send it,
@@ -991,4 +1013,11 @@ func clientMaxRetries() int {
 		return 0
 	}
 	return 3
+}
+
+func clientRetryBackoff(attempt int) time.Duration {
+	if attempt < 0 {
+		attempt = 0
+	}
+	return time.Second << min(attempt, 6)
 }

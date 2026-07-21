@@ -1,5 +1,5 @@
 name: woot
-description: Discovered API spec for d24qg5zsx8xdc4-cloudfront
+description: Search Woot's live All Deals catalog with filters, prices, offline full-text search, and read-only GraphQL access.
 version: 0.1.0
 base_url: https://d24qg5zsx8xdc4.cloudfront.net
 spec_source: sniffed
@@ -23,19 +23,19 @@ config:
     path: ~/.config/woot-pp-cli/config.toml
 resources:
     graphql:
-        description: Operations on graphql
+        description: Read-only access to Woot's browser GraphQL API
         endpoints:
             list_graphql:
                 method: GET
                 path: /graphql
-                description: GET /graphql
+                description: Execute a read-only GraphQL query against Woot's browser API.
                 params:
                     - name: query
                       type: string
-                      required: false
+                      required: true
                       positional: false
                       default: null
-                      description: ""
+                      description: GraphQL query document; mutation and subscription operations are rejected.
                       fields: []
                 body: []
                 response:
@@ -113,3 +113,5 @@ types:
         fields:
             - name: Offers
               type: array
+            - name: TotalHits
+              type: integer

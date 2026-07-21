@@ -4,10 +4,13 @@
 package cli
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
+	"os"
 	"time"
 
+	"github.com/mvanhorn/printing-press-library/library/commerce/woot/internal/cliutil"
 	"github.com/mvanhorn/printing-press-library/library/commerce/woot/internal/store"
 	"github.com/spf13/cobra"
 )
@@ -31,9 +34,10 @@ func newWorkflowArchiveCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "archive",
 		Short: "Sync all resources to local store for offline access and search",
-		Long: `Archive fetches all syncable resources from the API and stores them in a
-local SQLite database. Supports incremental sync (only new data since last run)
-and full resync. After archiving, use 'search' for instant full-text search.`,
+		Long: `Archive fetches Woot's All Deals catalog and stores normalized offers and
+prices in a local SQLite database. A normal run resumes a previously capped
+scan; --full starts over and prunes expired rows after complete enumeration.
+After archiving, use 'search' for instant full-text search.`,
 		Example: `  # Archive all resources
   woot-pp-cli workflow archive
 
@@ -49,39 +53,39 @@ and full resync. After archiving, use 'search' for instant full-text search.`,
 			if dbPath == "" {
 				dbPath = defaultDBPath("woot-pp-cli")
 			}
+			var syncLease *store.SyncLease
+			if !c.DryRun {
+				syncLease, err = store.AcquireSyncLease(dbPath)
+				if err != nil {
+					return fmt.Errorf("acquiring sync lease for %s: %w", dbPath, err)
+				}
+				defer syncLease.Close()
+			}
 			s, err := store.OpenWithContext(cmd.Context(), dbPath)
 			if err != nil {
 				return fmt.Errorf("opening store: %w", err)
 			}
 			defer s.Close()
 
-			resources := []string{}
+			resources := defaultSyncResources()
 			totalSynced := 0
-			syncEventWriter := cmd.OutOrStdout()
-			if flags.asJSON {
-				syncEventWriter = cmd.ErrOrStderr()
-			}
+			resourcesSynced := 0
+			syncEventWriter := cmd.ErrOrStderr()
 
-			// --full clears the cursor here because syncResource reads
-			// existingCursor unconditionally; its full param only gates the
-			// since filter, not cursor reset. Mirrors newSyncCmd's pattern.
-			if full {
-				for _, resource := range resources {
-					_ = s.SaveSyncState(resource, "", 0)
-				}
+			maxPages := 0
+			if cliutil.IsDogfoodEnv() {
+				maxPages = 1
 			}
-
 			for _, resource := range resources {
-				res := syncResource(cmd.Context(), c, s, resource, "", full, 100, false, false, nil, syncEventWriter)
+				res := syncResource(cmd.Context(), c, s, resource, "", full, maxPages, false, full, nil, syncEventWriter)
 				if res.Err != nil {
-					fmt.Fprintf(cmd.ErrOrStderr(), "  %s: error: %v\n", resource, res.Err)
-					continue
+					return fmt.Errorf("archiving %s: %w", resource, res.Err)
 				}
 				if res.Warn != nil {
-					fmt.Fprintf(cmd.ErrOrStderr(), "  %s: warning: %v\n", resource, res.Warn)
-					continue
+					return fmt.Errorf("archiving %s completed without a usable snapshot: %w", resource, res.Warn)
 				}
 				totalSynced += res.Count
+				resourcesSynced++
 				fmt.Fprintf(cmd.ErrOrStderr(), "  %s: %d synced\n", resource, res.Count)
 			}
 
@@ -89,14 +93,15 @@ and full resync. After archiving, use 'search' for instant full-text search.`,
 				enc := json.NewEncoder(cmd.OutOrStdout())
 				enc.SetIndent("", "  ")
 				return enc.Encode(map[string]any{
-					"resources_synced": len(resources),
+					"resources_synced": resourcesSynced,
+					"resources_total":  len(resources),
 					"total_items":      totalSynced,
 					"store_path":       dbPath,
 					"timestamp":        time.Now().UTC().Format(time.RFC3339),
 				})
 			}
 
-			fmt.Fprintf(cmd.OutOrStdout(), "Archived %d items across %d resources to %s\n", totalSynced, len(resources), dbPath)
+			fmt.Fprintf(cmd.OutOrStdout(), "Archived %d items across %d resources to %s\n", totalSynced, resourcesSynced, dbPath)
 			return nil
 		},
 	}
@@ -123,13 +128,7 @@ func newWorkflowStatusCmd(flags *rootFlags) *cobra.Command {
 			if dbPath == "" {
 				dbPath = defaultDBPath("woot-pp-cli")
 			}
-			s, err := store.OpenWithContext(cmd.Context(), dbPath)
-			if err != nil {
-				return fmt.Errorf("opening store: %w", err)
-			}
-			defer s.Close()
-
-			status, err := s.Status()
+			status, err := readWorkflowStatus(cmd.Context(), dbPath)
 			if err != nil {
 				return err
 			}
@@ -160,6 +159,25 @@ func newWorkflowStatusCmd(flags *rootFlags) *cobra.Command {
 	cmd.Flags().StringVar(&dbPath, "db", "", "SQLite database file path (default: resolved data directory data.db)")
 
 	return cmd
+}
+
+func readWorkflowStatus(ctx context.Context, dbPath string) (map[string]int, error) {
+	if _, err := os.Stat(dbPath); err != nil {
+		if os.IsNotExist(err) {
+			return map[string]int{}, nil
+		}
+		return nil, fmt.Errorf("checking store: %w", err)
+	}
+	s, err := store.OpenReadOnlyContext(ctx, dbPath)
+	if err != nil {
+		return nil, fmt.Errorf("opening store read-only: %w", err)
+	}
+	defer s.Close()
+	status, err := s.StatusContext(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("reading store status: %w", err)
+	}
+	return status, nil
 }
 
 // defaultDBPath is defined in helpers.go

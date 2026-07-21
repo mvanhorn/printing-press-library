@@ -181,7 +181,7 @@ func newDoctorCmd(flags *rootFlags) *cobra.Command {
 				if header == "" {
 					report["auth"] = "not configured"
 					report["auth_hint"] = "Set your API key with: export D24QG5ZSX8XDC4_CLOUDFRONT_API_KEY=\"your-token-here\""
-					report["auth_docs_url"] = "https://d24qg5zsx8xdc4.cloudfront.net"
+					report["auth_docs_url"] = "https://www.woot.com/alldeals"
 				} else {
 					authConfigured = true
 					report["auth"] = "configured"

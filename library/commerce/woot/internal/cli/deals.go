@@ -1,3 +1,6 @@
+// Copyright 2026 Matthew Vassallo and contributors. Licensed under Apache-2.0. See LICENSE.
+// pp:data-source live
+
 package cli
 
 import (
@@ -11,16 +14,21 @@ import (
 	"time"
 
 	"github.com/mvanhorn/printing-press-library/library/commerce/woot/internal/client"
+	"github.com/mvanhorn/printing-press-library/library/commerce/woot/internal/graphqlguard"
 	"github.com/spf13/cobra"
 )
 
 type wootDealsResponse struct {
-	Data struct {
-		SearchOffers struct {
-			Offers    []wootGraphQLDeal `json:"Offers"`
-			TotalHits int               `json:"TotalHits"`
-		} `json:"searchOffers"`
-	} `json:"data"`
+	Data *wootDealsData `json:"data"`
+}
+
+type wootDealsData struct {
+	SearchOffers *wootSearchOffers `json:"searchOffers"`
+}
+
+type wootSearchOffers struct {
+	Offers    *[]wootGraphQLDeal `json:"Offers"`
+	TotalHits *int               `json:"TotalHits"`
 }
 
 type wootGraphQLDeal struct {
@@ -168,9 +176,21 @@ func newDealsCmd(flags *rootFlags) *cobra.Command {
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}
+			deals, duplicateRows, missingIDRows := uniqueWootDeals(deals)
+			uniqueScanned := len(deals)
 			deals = filterWootDeals(deals, keyword)
+			expectedScan := expectedWootDealsScan(wootDealsFetchOptions{
+				Limit:    limit,
+				Skip:     skip,
+				Page:     page,
+				PageSize: pageSize,
+			}, totalHits)
+			incomplete := scanned < expectedScan || duplicateRows > 0 || missingIDRows > 0
 
-			if flags.asJSON || !isTerminal(cmd.OutOrStdout()) {
+			if flags.csv || flags.plain || flags.quiet {
+				return printJSONFiltered(cmd.OutOrStdout(), deals, flags)
+			}
+			if flags.asJSON || flags.compact || flags.selectFields != "" || !isTerminal(cmd.OutOrStdout()) {
 				return flags.printJSON(cmd, map[string]any{
 					"meta": map[string]any{
 						"source":          "live",
@@ -184,12 +204,20 @@ func newDealsCmd(flags *rootFlags) *cobra.Command {
 						"server_sort":     sortMode,
 						"total_hits":      totalHits,
 						"scanned":         scanned,
+						"unique_scanned":  uniqueScanned,
+						"duplicate_rows":  duplicateRows,
+						"missing_id_rows": missingIDRows,
+						"expected_scan":   expectedScan,
+						"incomplete":      incomplete,
 						"client_filtered": keyword != "",
 						"from_url":        fromURL,
 						"count":           len(deals),
 					},
 					"results": deals,
 				})
+			}
+			if incomplete {
+				fmt.Fprintf(cmd.ErrOrStderr(), "warning: Woot returned an incomplete result window: %d rows, %d after duplicate removal, %d missing IDs; expected %d rows. Results shown may be partial.\n", scanned, uniqueScanned, missingIDRows, expectedScan)
 			}
 
 			if len(deals) == 0 {
@@ -223,6 +251,44 @@ func newDealsCmd(flags *rootFlags) *cobra.Command {
 	cmd.Flags().StringVar(&fromURL, "from-url", "", "Import category, price range, and page filters from a Woot /alldeals URL")
 
 	return cmd
+}
+
+func uniqueWootDeals(deals []wootDeal) ([]wootDeal, int, int) {
+	unique := make([]wootDeal, 0, len(deals))
+	seen := make(map[string]struct{}, len(deals))
+	duplicates := 0
+	missingIDs := 0
+	for _, deal := range deals {
+		if deal.ID == "" {
+			missingIDs++
+			unique = append(unique, deal)
+			continue
+		}
+		if _, duplicate := seen[deal.ID]; duplicate {
+			duplicates++
+			continue
+		}
+		seen[deal.ID] = struct{}{}
+		unique = append(unique, deal)
+	}
+	return unique, duplicates, missingIDs
+}
+
+func expectedWootDealsScan(opts wootDealsFetchOptions, totalHits int) int {
+	if totalHits <= 0 {
+		return 0
+	}
+	serverSkip := opts.Skip
+	window := opts.Limit
+	if opts.Page > 0 {
+		serverSkip += (opts.Page - 1) * opts.PageSize
+		window = opts.PageSize
+	}
+	remaining := totalHits - serverSkip
+	if remaining <= 0 {
+		return 0
+	}
+	return minInt(window, remaining)
 }
 
 type wootDealsFetchOptions struct {
@@ -261,14 +327,16 @@ func fetchWootDeals(cmd *cobra.Command, c *client.Client, opts wootDealsFetchOpt
 		if err != nil {
 			return nil, 0, 0, err
 		}
+		if isDryRunResponse(data) {
+			return nil, 0, 0, nil
+		}
 
-		var parsed wootDealsResponse
-		if err := json.Unmarshal(data, &parsed); err != nil {
+		batch, reportedTotal, err := decodeWootDealsPage(data)
+		if err != nil {
 			return nil, 0, 0, err
 		}
-		batch := parsed.Data.SearchOffers.Offers
-		if parsed.Data.SearchOffers.TotalHits > totalHits {
-			totalHits = parsed.Data.SearchOffers.TotalHits
+		if reportedTotal > totalHits {
+			totalHits = reportedTotal
 		}
 		if len(batch) == 0 {
 			if totalHits == 0 || opts.Page > 0 {
@@ -295,6 +363,29 @@ func fetchWootDeals(cmd *cobra.Command, c *client.Client, opts wootDealsFetchOpt
 	}
 
 	return normalizeWootDeals(all), totalHits, scanned, nil
+}
+
+func decodeWootDealsPage(data json.RawMessage) ([]wootGraphQLDeal, int, error) {
+	if err := graphqlguard.ValidateResponse(data); err != nil {
+		return nil, 0, fmt.Errorf("Woot %w", err)
+	}
+	var parsed wootDealsResponse
+	if err := json.Unmarshal(data, &parsed); err != nil {
+		return nil, 0, fmt.Errorf("decoding Woot deals response: %w", err)
+	}
+	if parsed.Data == nil || parsed.Data.SearchOffers == nil {
+		return nil, 0, fmt.Errorf("Woot GraphQL response is missing data.searchOffers")
+	}
+	if parsed.Data.SearchOffers.Offers == nil {
+		return nil, 0, fmt.Errorf("Woot GraphQL response is missing data.searchOffers.Offers")
+	}
+	if parsed.Data.SearchOffers.TotalHits == nil {
+		return nil, 0, fmt.Errorf("Woot GraphQL response is missing data.searchOffers.TotalHits")
+	}
+	if *parsed.Data.SearchOffers.TotalHits < 0 {
+		return nil, 0, fmt.Errorf("Woot GraphQL response has negative data.searchOffers.TotalHits")
+	}
+	return *parsed.Data.SearchOffers.Offers, *parsed.Data.SearchOffers.TotalHits, nil
 }
 
 func buildWootDealsQuery(categories []string, priceRanges []wootPriceRange, sortMode string, limit int, skip int, includeFeatured bool, includeSoldOut bool) (string, error) {

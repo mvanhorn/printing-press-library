@@ -4,11 +4,81 @@
 package cli
 
 import (
+	"bytes"
 	"encoding/json"
 	"errors"
 	"fmt"
+	"path/filepath"
 	"testing"
+
+	"github.com/mvanhorn/printing-press-library/library/commerce/woot/internal/cliutil"
 )
+
+func TestProfileDeliverIsAppliedBeforeOutputCapture(t *testing.T) {
+	home := t.TempDir()
+	restore, err := cliutil.SetHomeOverride(home)
+	if err != nil {
+		t.Fatalf("set home override: %v", err)
+	}
+	defer restore()
+	target := filepath.Join(home, "scheduled.json")
+	if err := saveProfileStore(&profileStore{Profiles: map[string]Profile{
+		"scheduled": {Name: "scheduled", Values: map[string]string{"deliver": "file:" + target}},
+	}}); err != nil {
+		t.Fatalf("save profile: %v", err)
+	}
+
+	var flags rootFlags
+	root := newRootCmd(&flags)
+	var stdout bytes.Buffer
+	root.SetOut(&stdout)
+	root.SetErr(&bytes.Buffer{})
+	root.SetArgs([]string{"--home", home, "--profile", "scheduled", "agent-context"})
+	if err := root.Execute(); err != nil {
+		t.Fatalf("execute profile delivery command: %v", err)
+	}
+	if flags.deliverSink.Target != target || flags.deliverBuf == nil || flags.deliverBuf.Len() == 0 {
+		t.Fatalf("profile delivery not initialized before output: sink=%+v buffered=%d", flags.deliverSink, bufferLen(flags.deliverBuf))
+	}
+	if !bytes.Equal(stdout.Bytes(), flags.deliverBuf.Bytes()) {
+		t.Fatal("agent-context did not write through cmd.OutOrStdout delivery capture")
+	}
+}
+
+func TestExplicitDeliverOverridesProfile(t *testing.T) {
+	home := t.TempDir()
+	restore, err := cliutil.SetHomeOverride(home)
+	if err != nil {
+		t.Fatalf("set home override: %v", err)
+	}
+	defer restore()
+	profileTarget := filepath.Join(home, "profile.json")
+	explicitTarget := filepath.Join(home, "explicit.json")
+	if err := saveProfileStore(&profileStore{Profiles: map[string]Profile{
+		"scheduled": {Name: "scheduled", Values: map[string]string{"deliver": "file:" + profileTarget}},
+	}}); err != nil {
+		t.Fatalf("save profile: %v", err)
+	}
+
+	var flags rootFlags
+	root := newRootCmd(&flags)
+	root.SetOut(&bytes.Buffer{})
+	root.SetErr(&bytes.Buffer{})
+	root.SetArgs([]string{"--home", home, "--profile", "scheduled", "--deliver", "file:" + explicitTarget, "agent-context"})
+	if err := root.Execute(); err != nil {
+		t.Fatalf("execute explicit delivery command: %v", err)
+	}
+	if flags.deliverSink.Target != explicitTarget {
+		t.Fatalf("deliver target = %q, want explicit %q", flags.deliverSink.Target, explicitTarget)
+	}
+}
+
+func bufferLen(buf *bytes.Buffer) int {
+	if buf == nil {
+		return 0
+	}
+	return buf.Len()
+}
 
 // TestIsCobraUsageError covers the six pre-RunE error shapes Cobra and
 // pflag can produce before any user RunE runs. Each must be detected so

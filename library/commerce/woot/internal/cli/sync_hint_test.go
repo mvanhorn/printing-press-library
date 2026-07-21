@@ -6,6 +6,7 @@ package cli
 import (
 	"bytes"
 	"context"
+	"encoding/json"
 	"path/filepath"
 	"strings"
 	"testing"
@@ -171,5 +172,77 @@ func TestHintIfStale_ResourceFilterUsesRequestedResource(t *testing.T) {
 	}
 	if got := stderr.String(); !strings.Contains(got, "has not been synced yet") {
 		t.Fatalf("stderr = %q, want unsynced comments hint", got)
+	}
+}
+
+func TestEmitSyncHintsMarksIncompleteSnapshot(t *testing.T) {
+	db := newSyncHintTestStore(t)
+	if err := db.SaveSyncState("deals", "100", 100); err != nil {
+		t.Fatalf("seed incomplete sync state: %v", err)
+	}
+	var stderr bytes.Buffer
+	emitSyncHints(&stderr, db, "deals", 0)
+	for _, want := range []string{"incomplete", "resumable", "woot-pp-cli sync"} {
+		if !strings.Contains(stderr.String(), want) {
+			t.Fatalf("incomplete sync hint %q missing %q", stderr.String(), want)
+		}
+	}
+
+	prov := localProvenance(db, "deals", "user_requested")
+	if !prov.Incomplete || prov.ResumeCursor != "100" || prov.SyncedAt == nil {
+		t.Fatalf("incomplete provenance = %+v", prov)
+	}
+}
+
+func TestLocalProvenanceMarksRowsWithoutSyncStateIncomplete(t *testing.T) {
+	db := newSyncHintTestStore(t)
+	if err := db.Upsert("deals", "offer-1", json.RawMessage(`{"id":"offer-1","title":"Offer 1"}`)); err != nil {
+		t.Fatalf("seed unsynchronized row: %v", err)
+	}
+
+	prov := localProvenance(db, "deals", "user_requested")
+	if !prov.Incomplete || prov.ResumeCursor != "0" || prov.SyncedAt != nil {
+		t.Fatalf("unsynchronized-row provenance = %+v, want incomplete restart marker", prov)
+	}
+}
+
+func TestLocalProvenanceRetainsIncompleteMarkerReadOnly(t *testing.T) {
+	dbPath := filepath.Join(t.TempDir(), "data.db")
+	db, err := store.Open(dbPath)
+	if err != nil {
+		t.Fatalf("open writable store: %v", err)
+	}
+	if err := db.SaveSyncState("deals", "0", 42); err != nil {
+		db.Close()
+		t.Fatalf("save incomplete state: %v", err)
+	}
+	if err := db.Close(); err != nil {
+		t.Fatalf("close writable store: %v", err)
+	}
+
+	readOnly, err := store.OpenReadOnly(dbPath)
+	if err != nil {
+		t.Fatalf("open read-only store: %v", err)
+	}
+	defer readOnly.Close()
+	prov := localProvenance(readOnly, "deals", "user_requested")
+	if !prov.Incomplete || prov.ResumeCursor != "0" || prov.SyncedAt == nil {
+		t.Fatalf("read-only provenance = %+v, want incomplete marker 0", prov)
+	}
+	wrapper, err := wrapWithProvenance(json.RawMessage(`[]`), prov)
+	if err != nil {
+		t.Fatalf("wrap provenance: %v", err)
+	}
+	var envelope struct {
+		Meta struct {
+			Incomplete   bool   `json:"incomplete"`
+			ResumeCursor string `json:"resume_cursor"`
+		} `json:"meta"`
+	}
+	if err := json.Unmarshal(wrapper, &envelope); err != nil {
+		t.Fatalf("decode provenance envelope: %v", err)
+	}
+	if !envelope.Meta.Incomplete || envelope.Meta.ResumeCursor != "0" {
+		t.Fatalf("provenance envelope = %s, want incomplete marker 0", wrapper)
 	}
 }

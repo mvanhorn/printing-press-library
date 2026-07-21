@@ -5,11 +5,16 @@ package cli
 
 import (
 	"bufio"
+	"database/sql"
 	"encoding/json"
+	"errors"
 	"fmt"
+	"io"
 	"os"
+	"path/filepath"
 	"strings"
 
+	"github.com/mvanhorn/printing-press-library/library/commerce/woot/internal/store"
 	"github.com/spf13/cobra"
 )
 
@@ -17,93 +22,112 @@ func newExportCmd(flags *rootFlags) *cobra.Command {
 	var format string
 	var outputFile string
 	var limit int
-	var noCache bool
+	var dbPath string
 
 	cmd := &cobra.Command{
 		Use:   "export <resource> [id]",
 		Short: "Export data to JSONL or JSON for backup, migration, or analysis",
-		Long: `Export paginated API data to a local file. Supports JSONL (one JSON object
-per line, streaming-friendly) and JSON (array). JSONL is recommended for
-large datasets as it has no memory pressure.`,
-		Example: `  # Export all items as JSONL (streaming, recommended for large datasets)
-  woot-pp-cli export <resource> --format jsonl --output data.jsonl
+		Long: `Export locally synced Woot deals to a file or stdout. Supports JSONL
+(one JSON object per line) and JSON. Run sync first to refresh the local catalog.`,
+		Example: `  # Export all synced deals as JSONL
+  woot-pp-cli export deals --format jsonl --output deals.jsonl
 
   # Export with limit
-  woot-pp-cli export <resource> --format jsonl --limit 1000
+  woot-pp-cli export deals --format jsonl --limit 1000
 
   # Pipe to another tool
-  woot-pp-cli export <resource> --format jsonl | jq '.id'`,
-		Args: cobra.MinimumNArgs(1),
+	  woot-pp-cli export deals --format jsonl | jq '.id'`,
+		Args: cobra.RangeArgs(1, 2),
 		RunE: func(cmd *cobra.Command, args []string) error {
+			if format != "jsonl" && format != "json" {
+				return usageErr(fmt.Errorf("--format must be jsonl or json"))
+			}
+			if limit < 0 {
+				return usageErr(fmt.Errorf("--limit must be >= 0"))
+			}
 			validResources := map[string]bool{
-				"graphql": true,
+				"deals": true,
 			}
 			validResourceList := []string{
-				"graphql",
+				"deals",
 			}
 			resource := args[0]
 			if !validResources[resource] {
 				return usageErr(fmt.Errorf("unknown resource %q; valid: %s", resource, strings.Join(validResourceList, ", ")))
 			}
 
-			c, err := flags.newClient()
+			if dbPath == "" {
+				dbPath = defaultDBPath("woot-pp-cli")
+			}
+			if err := validateExportOutputPath(dbPath, outputFile); err != nil {
+				return usageErr(err)
+			}
+			db, err := store.OpenReadOnlyContext(cmd.Context(), dbPath)
 			if err != nil {
-				return err
+				return fmt.Errorf("opening local database read-only: %w", err)
 			}
-			if noCache {
-				c.NoCache = true
-			}
+			defer db.Close()
+			maybeEmitSyncHints(cmd, db, resource, flags.maxAge)
 
-			path := "/" + resource
+			var items []json.RawMessage
 			if len(args) > 1 {
-				path += "/" + args[1]
+				item, err := db.Get(resource, args[1])
+				if errors.Is(err, sql.ErrNoRows) {
+					return notFoundErr(fmt.Errorf("%s %q is not present in the local store", resource, args[1]))
+				}
+				if err != nil {
+					return fmt.Errorf("reading local %s %q: %w", resource, args[1], err)
+				}
+				items = []json.RawMessage{item}
+			} else {
+				items, err = db.List(resource, limit)
+				if err != nil {
+					return fmt.Errorf("listing local %s: %w", resource, err)
+				}
 			}
 
 			var writer *bufio.Writer
+			var output io.WriteCloser
 			if outputFile != "" {
 				f, err := os.Create(outputFile)
 				if err != nil {
 					return fmt.Errorf("creating output file: %w", err)
 				}
-				defer f.Close()
+				output = f
+				defer func() { _ = output.Close() }()
 				writer = bufio.NewWriter(f)
-				defer writer.Flush()
 			} else {
-				writer = bufio.NewWriter(os.Stdout)
-				defer writer.Flush()
-			}
-
-			data, err := c.Get(cmd.Context(), path, nil)
-			if err != nil {
-				return classifyAPIError(err, flags)
+				writer = bufio.NewWriter(cmd.OutOrStdout())
 			}
 
 			switch format {
 			case "jsonl":
-				var items []json.RawMessage
-				if err := json.Unmarshal(data, &items); err != nil {
-					fmt.Fprintln(writer, string(data))
-					return nil
-				}
-				count := 0
 				for _, item := range items {
-					if limit > 0 && count >= limit {
-						break
-					}
 					fmt.Fprintln(writer, string(item))
-					count++
-				}
-				if outputFile != "" {
-					fmt.Fprintf(os.Stderr, "Exported %d records to %s\n", count, outputFile)
 				}
 			default:
 				enc := json.NewEncoder(writer)
 				enc.SetIndent("", "  ")
-				var parsed any
-				if err := json.Unmarshal(data, &parsed); err != nil {
+				if len(args) > 1 {
+					var parsed any
+					if err := json.Unmarshal(items[0], &parsed); err != nil {
+						return err
+					}
+					if err := enc.Encode(parsed); err != nil {
+						return err
+					}
+				} else if err := enc.Encode(items); err != nil {
 					return err
 				}
-				return enc.Encode(parsed)
+			}
+			if err := writer.Flush(); err != nil {
+				return fmt.Errorf("flushing export: %w", err)
+			}
+			if output != nil {
+				if err := output.Close(); err != nil {
+					return fmt.Errorf("closing export: %w", err)
+				}
+				fmt.Fprintf(cmd.ErrOrStderr(), "Exported %d records to %s\n", len(items), outputFile)
 			}
 			return nil
 		},
@@ -112,7 +136,69 @@ large datasets as it has no memory pressure.`,
 	cmd.Flags().StringVar(&format, "format", "jsonl", "Output format: jsonl or json")
 	cmd.Flags().StringVarP(&outputFile, "output", "o", "", "Output file path (default: stdout)")
 	cmd.Flags().IntVar(&limit, "limit", 0, "Maximum records to export (0 = unlimited)")
-	cmd.Flags().BoolVar(&noCache, "no-cache", false, "Bypass response cache for fresh data")
+	cmd.Flags().StringVar(&dbPath, "db", "", "SQLite database file path (default: resolved data directory data.db)")
 
 	return cmd
+}
+
+func validateExportOutputPath(dbPath, outputPath string) error {
+	if strings.TrimSpace(outputPath) == "" {
+		return nil
+	}
+	dbAbs, err := canonicalExportPath(dbPath)
+	if err != nil {
+		return fmt.Errorf("resolving --db: %w", err)
+	}
+	outputAbs, err := canonicalExportPath(outputPath)
+	if err != nil {
+		return fmt.Errorf("resolving --output: %w", err)
+	}
+	protectedPaths := []string{dbAbs, dbAbs + "-wal", dbAbs + "-shm"}
+	for _, protected := range protectedPaths {
+		if outputAbs == protected {
+			return fmt.Errorf("--output must not overwrite the SQLite database or its sidecar files")
+		}
+	}
+
+	outputInfo, outputErr := os.Stat(outputAbs)
+	if outputErr != nil && !os.IsNotExist(outputErr) {
+		return fmt.Errorf("checking --output: %w", outputErr)
+	}
+	if outputErr == nil {
+		for _, protected := range protectedPaths {
+			protectedInfo, err := os.Stat(protected)
+			if err == nil && os.SameFile(protectedInfo, outputInfo) {
+				return fmt.Errorf("--output resolves to the SQLite database or one of its sidecar files")
+			}
+		}
+	}
+	return nil
+}
+
+func canonicalExportPath(path string) (string, error) {
+	abs, err := filepath.Abs(path)
+	if err != nil {
+		return "", err
+	}
+	abs = filepath.Clean(abs)
+	if resolved, err := filepath.EvalSymlinks(abs); err == nil {
+		return filepath.Clean(resolved), nil
+	}
+	// EvalSymlinks cannot resolve a dangling final symlink. Reject it instead
+	// of treating its link name as the output path: os.Create would follow the
+	// link later, potentially into a SQLite WAL/SHM file created after this
+	// validation runs.
+	if info, err := os.Lstat(abs); err == nil && info.Mode()&os.ModeSymlink != 0 {
+		return "", fmt.Errorf("path is a dangling or cyclic symbolic link")
+	} else if err != nil && !os.IsNotExist(err) {
+		return "", err
+	}
+	parent, err := filepath.EvalSymlinks(filepath.Dir(abs))
+	if err != nil {
+		if os.IsNotExist(err) {
+			return abs, nil
+		}
+		return "", err
+	}
+	return filepath.Join(parent, filepath.Base(abs)), nil
 }

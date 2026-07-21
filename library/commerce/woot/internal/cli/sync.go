@@ -59,10 +59,12 @@ func newSyncCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "sync",
 		Short: "Sync API data to local SQLite for offline search and analysis",
-		Long: `Sync data from the API into a local SQLite database. This API does
-not declare temporal sync filters, so sync performs full pagination unless an
-explicit resource declares its own incremental filter.
+		Long: `Sync data from the API into a local SQLite database. Woot does not
+declare a temporal filter, so sync always paginates a current catalog snapshot.
 Once synced, use the 'search' command for instant full-text search.
+Woot's mutable offset pages can repeat or omit deals; completion requires two
+consecutive full scans with the same complete ID set. Otherwise sync preserves
+existing rows, skips pruning, and reports an incomplete snapshot.
 
 Exit codes & warnings:
   Resources the API denies access to (HTTP 403, or HTTP 400 with an
@@ -87,24 +89,23 @@ Resource scoping:
   parent. To run a dependent without re-syncing its parent, list only
   the dependent by name; the parent table must already be populated
   from a prior sync.`,
-		Example: `  # Sync all resources
+		Example: `  # Sync current Woot deals
   woot-pp-cli sync
 
-  # Sync specific resources only
-  woot-pp-cli sync --resources channels,messages
+  # Sync the deals resource explicitly
+  woot-pp-cli sync --resources deals
 
   # Full resync (ignore previous checkpoint)
   woot-pp-cli sync --full
-
-  # Incremental sync: only records from the last 7 days
-  woot-pp-cli sync --since 7d
-
   # Parallel sync with 8 workers
   woot-pp-cli sync --concurrency 8
 
   # Latest-only: refresh head of each resource, no historical backfill
   woot-pp-cli sync --latest-only`,
 		RunE: func(cmd *cobra.Command, args []string) error {
+			if since != "" {
+				return usageErr(fmt.Errorf("--since is not supported for Woot because All Deals has no temporal filter"))
+			}
 			userParams, err := parseSyncUserParams(paramFlags, resourceParamFlags, globalParamFlags)
 			if err != nil {
 				return usageErr(err)
@@ -118,6 +119,14 @@ Resource scoping:
 
 			if dbPath == "" {
 				dbPath = defaultDBPath("woot-pp-cli")
+			}
+			var syncLease *store.SyncLease
+			if !c.DryRun {
+				syncLease, err = store.AcquireSyncLease(dbPath)
+				if err != nil {
+					return fmt.Errorf("acquiring sync lease for %s: %w", dbPath, err)
+				}
+				defer syncLease.Close()
 			}
 
 			db, err := store.OpenWithContext(cmd.Context(), dbPath)
@@ -156,14 +165,6 @@ Resource scoping:
 				return usageErr(err)
 			}
 
-			// --full: clear all sync cursors before starting.
-			// Skip under --dry-run: a preview must not mutate sync-state (issue #2935).
-			if full && !c.DryRun {
-				for _, resource := range resources {
-					_ = db.SaveSyncState(resource, "", 0)
-				}
-			}
-
 			if cliutil.IsDogfoodEnv() && !cmd.Flags().Changed("max-pages") {
 				maxPages = 1
 			}
@@ -177,18 +178,9 @@ Resource scoping:
 			if latestOnly {
 				if since == "" {
 					maxPages = 1
-					// Clear the cursor so we start from the head each time;
-					// the goal of --latest-only is "refresh the top" not
-					// "resume from wherever I left off". Skip under --dry-run:
-					// a preview must not mutate sync-state (issue #2935).
-					if !c.DryRun {
-						for _, resource := range resources {
-							existing, _, _, _ := db.GetSyncState(resource)
-							if existing != "" {
-								_ = db.SaveSyncState(resource, "", 0)
-							}
-						}
-					}
+					// syncWootDeals ignores the stored cursor in latest-only mode.
+					// Preserve the prior marker until the first new page commits so
+					// a failed refresh cannot make an incomplete archive look ready.
 				} else if humanFriendly {
 					fmt.Fprintln(os.Stderr, "warning: --latest-only ignored because --since is set; --since takes precedence")
 				}
@@ -353,11 +345,11 @@ Resource scoping:
 	cmd.Flags().StringSliceVar(&resources, "resources", nil, "Comma-separated resource types to sync. Naming a parent also runs its parent-keyed dependents (see Long help for scoping).")
 	cmd.Flags().BoolVar(&full, "full", false, "Full resync (ignore previous checkpoint)")
 	cmd.Flags().BoolVar(&noPrune, "no-prune", false, "Disable deletion reconciliation on --full (by default a full sync prunes local rows the API no longer returns for a fully-enumerated parent partition)")
-	cmd.Flags().StringVar(&since, "since", "", "Incremental sync duration (e.g. 7d, 24h, 1w, 30m)")
+	cmd.Flags().StringVar(&since, "since", "", "Unsupported for Woot: All Deals has no temporal filter")
 	cmd.Flags().IntVar(&concurrency, "concurrency", 4, "Number of parallel sync workers")
 	cmd.Flags().StringVar(&dbPath, "db", "", "SQLite database file path (default: resolved data directory data.db)")
 	cmd.Flags().IntVar(&maxPages, "max-pages", 0, "Maximum pages to fetch per resource (0 = unlimited; cap-hit emits a sync_warning event)")
-	cmd.Flags().BoolVar(&latestOnly, "latest-only", false, "Refresh head of each resource only; clears resume cursor and caps pages at 1. Mutually exclusive with --since (--since wins).")
+	cmd.Flags().BoolVar(&latestOnly, "latest-only", false, "Refresh the catalog head only and cap pages at 1")
 	cmd.Flags().BoolVar(&strict, "strict", false, "Exit non-zero on any per-resource failure (default: only critical failures or all-resource failure exit non-zero).")
 	cmd.Flags().StringArrayVar(&paramFlags, "param", nil, "Extra query param to inject into flat-list sync requests (repeatable, key=value). Skipped on path-scoped dependent requests so a top-level scope like workspace=<id> does not double up on /parents/<id>/children calls. Use --global-param to inject everywhere. Avoid pagination keys (limit/since/cursor) — overriding them corrupts resume state.")
 	cmd.Flags().StringArrayVar(&resourceParamFlags, "resource-param", nil, "Per-resource extra query param (repeatable, resource:key=value). Wins over --param and --global-param when keys conflict.")
@@ -381,6 +373,9 @@ func syncResource(ctx context.Context, c interface {
 
 	if !humanFriendly {
 		fmt.Fprintf(syncEvents, `{"event":"sync_start","resource":"%s"}`+"\n", resource)
+	}
+	if resource == "deals" {
+		return syncWootDeals(ctx, c, db, sinceTS, full, maxPages, latestOnly, prune, userParams, syncEvents)
 	}
 
 	path, err := syncResourcePath(resource)
@@ -647,7 +642,7 @@ func syncResource(ctx context.Context, c interface {
 		if flatReconcilable {
 			for _, it := range items {
 				if o, derr := store.DecodeJSONObject(it); derr == nil {
-					if id := extractID(resource, o); id != "" {
+					if id := store.ExtractResourceID(resource, o); id != "" {
 						seenIDs = append(seenIDs, id)
 					}
 				}
@@ -796,7 +791,9 @@ func syncResource(ctx context.Context, c interface {
 	if capExitHit {
 		finalCursor = capExitCursor
 	}
-	_ = db.SaveSyncState(resource, finalCursor, totalCount)
+	if err := db.SaveSyncState(resource, finalCursor, totalCount); err != nil {
+		return syncResult{Resource: resource, Count: totalCount, Err: fmt.Errorf("saving final sync state: %w", err), Duration: time.Since(started)}
+	}
 
 	// F4b symptom probe: if items were consumed and successfully
 	// extracted (extractFailures < consumed) but nothing landed in
@@ -1562,7 +1559,7 @@ func upsertSingleObject(db *store.Store, resource string, data json.RawMessage) 
 
 	resource = resolveDiscriminatedResource(resource, obj)
 
-	id := extractID(resource, obj)
+	id := store.ExtractResourceID(resource, obj)
 	if id == "" {
 		id = resource
 	}
@@ -1603,7 +1600,7 @@ func parseSinceDuration(s string) (time.Time, error) {
 }
 
 func defaultSyncResources() []string {
-	return []string{}
+	return []string{"deals"}
 }
 
 // knownSyncResourceNames returns every resource name sync will accept —
@@ -1611,7 +1608,7 @@ func defaultSyncResources() []string {
 // validation to reject misspellings before they become silent no-ops.
 func knownSyncResourceNames() []string {
 	names := []string{
-		"graphql",
+		"deals",
 	}
 	return names
 }
@@ -1638,24 +1635,13 @@ func describeResourceFailure(count int, label string, resources []string) string
 // this preserves the actual endpoint path like "/ISteamApps/GetAppList/v2".
 func syncResourcePath(resource string) (string, error) {
 	paths := map[string]string{
-		"graphql": "/graphql",
+		"deals": "/graphql",
 	}
 	if p, ok := paths[resource]; ok {
 		return p, nil
 	}
 	return "", fmt.Errorf("unknown sync resource %q", resource)
 }
-
-// resourceIDFieldOverrides projects per-resource IDField (set by the profiler
-// from x-resource-id or the response-schema fallback chain) into a runtime
-// lookup map. extractID consults this first so the templated path wins over
-// the generic fallback list; the generic list applies only when the override
-// is empty or the override field is absent on a given item.
-//
-// Includes both flat resources and dependent (parent-child) resources so
-// annotations on a child path-item are honored at runtime, not just on
-// flat paths.
-var resourceIDFieldOverrides = map[string]string{}
 
 // partitionOutcome tracks whether a sync loop (flat tenant-scoped OR dependent
 // per-parent) enumerated its partition completely. complete is set ONLY at
@@ -1713,14 +1699,6 @@ var resolveTenantID = func() string { return "" }
 // discriminator column (from x-pp-tenant-scope-column), used to scope dependent
 // fan-out. Empty when no parent is annotated.
 var parentTenantScopeColumns = map[string]string{}
-
-// genericIDFieldFallbacks is the runtime safety net for resources that did
-// NOT receive a templated IDField. API-specific names belong in spec
-// annotations (x-resource-id), not this list. Order matters: vendor
-// identifier names (gid, sid, uid, uuid, guid) take precedence over `name`
-// so APIs like Asana (gid) and Twilio (sid) don't fall through to a display
-// field and upsert on names — see #1394.
-var genericIDFieldFallbacks = []string{"id", "ID", "gid", "sid", "uid", "uuid", "guid", "api_id", "name", "slug", "key", "code"}
 
 // pageItemKeys is scanned in priority order; lowercase REST-convention keys
 // come first, PascalCase .NET variants second. Without the PascalCase row,
@@ -1785,153 +1763,3 @@ var pageEnvelopeMetadataKeys = map[string]bool{
 // failed child sync flagged x-critical: true exits non-zero just like a
 // flat-resource critical failure.
 var criticalResources = map[string]bool{}
-
-// extractID resolves an item's primary-key field. It consults the
-// per-resource templated override first; on miss, it falls through to the
-// generic fallback list. resource may be empty for callers that don't have
-// a resource context (only the generic list applies in that case).
-//
-// Field lookups go through store.LookupFieldValue so snake_case overrides
-// match camelCase JSON renderings. UpsertBatch resolves fields the same
-// way — divergence between the two paths produces silent drops on
-// heterogeneous payloads.
-func extractID(resource string, obj map[string]any) string {
-	if override, ok := resourceIDFieldOverrides[resource]; ok && override != "" {
-		if v := store.LookupFieldValue(obj, override); v != nil {
-			s := store.ResourceIDString(v)
-			if s != "" && s != "<nil>" {
-				return s
-			}
-		}
-	}
-	for _, key := range genericIDFieldFallbacks {
-		if v := store.LookupFieldValue(obj, key); v != nil {
-			s := store.ResourceIDString(v)
-			if s != "" && s != "<nil>" {
-				return s
-			}
-		}
-	}
-	if s := suffixIDFieldFallback(resource, obj); s != "" {
-		return s
-	}
-	return ""
-}
-
-// suffixIDFieldFallback resolves an id-less resource that keys on its own
-// "<name>_code" / "<name>_id" / "<name>_key" / "<name>_slug" field (e.g. the
-// "currencies" resource keying on "currency_code" — see #2327). It is scoped to
-// the resource's OWN name so a foreign key like account_id/parent_id is never
-// promoted to the primary key, and it uses direct map lookups in a fixed suffix
-// order so the chosen id is deterministic.
-func suffixIDFieldFallback(resourceType string, obj map[string]any) string {
-	for _, base := range resourceIDBaseNames(resourceType) {
-		for _, suffix := range []string{"_id", "_code", "_key", "_slug"} {
-			if v, ok := obj[base+suffix]; ok {
-				if s := scalarIDString(v); s != "" && s != "<nil>" {
-					return s
-				}
-			}
-		}
-		camelBase := lowerCamelResourceIDBase(base)
-		for _, suffix := range []string{"Id", "Code", "Key", "Slug"} {
-			if v, ok := obj[camelBase+suffix]; ok {
-				if s := scalarIDString(v); s != "" && s != "<nil>" {
-					return s
-				}
-			}
-		}
-	}
-	return ""
-}
-
-// resourceIDBaseNames returns lowercase candidate singular/plural stems of a
-// resource name to build "<base>_id"-style key probes from (e.g. "currencies"
-// -> ["currencies","currency"]). OpenAPI-/path-derived names can carry a
-// leading verb token ("get-currencies"), so the same probes are also attempted
-// on the de-verbed stem. Minimal English depluralization; the raw name is
-// always included so already-singular names work too.
-func resourceIDBaseNames(resourceType string) []string {
-	r := strings.ToLower(strings.TrimSpace(resourceType))
-	if r == "" {
-		return nil
-	}
-	stems := []string{r}
-	if d := stripLeadingResourceVerb(r); d != "" && d != r {
-		stems = append(stems, d)
-	}
-	var bases []string
-	seen := map[string]bool{}
-	add := func(s string) {
-		if s != "" && !seen[s] {
-			seen[s] = true
-			bases = append(bases, s)
-		}
-	}
-	for _, stem := range stems {
-		add(stem)
-		add(depluralizeResourceStem(stem))
-	}
-	return bases
-}
-
-func stripLeadingResourceVerb(r string) string {
-	for _, verb := range []string{"get", "list", "fetch", "find", "retrieve", "read", "show", "all"} {
-		for _, sep := range []string{"-", "_"} {
-			prefix := verb + sep
-			if strings.HasPrefix(r, prefix) && len(r) > len(prefix) {
-				return r[len(prefix):]
-			}
-		}
-	}
-	return ""
-}
-
-func depluralizeResourceStem(r string) string {
-	switch {
-	case strings.HasSuffix(r, "ies") && len(r) > 3:
-		return strings.TrimSuffix(r, "ies") + "y" // currencies -> currency
-	// Plurals formed by adding "es" to a base ending in s/x/z/ch/sh. The
-	// double-s "sses" guard (not bare "ses") keeps soft-e plurals — where the
-	// singular already ends in a silent "e" (cases, databases, licenses,
-	// purchases) — out of this branch; they fall through to the "-s" case below
-	// (cases -> case, not cas). Trade-off: a genuine "-es" plural of an s-ending
-	// singular (buses, statuses) depluralizes imperfectly, but those are rare as
-	// resource names and this stem only feeds best-effort id-field probing.
-	case strings.HasSuffix(r, "sses") || strings.HasSuffix(r, "xes") ||
-		strings.HasSuffix(r, "zes") || strings.HasSuffix(r, "ches") ||
-		strings.HasSuffix(r, "shes"):
-		return strings.TrimSuffix(r, "es") // classes -> class, boxes -> box, dishes -> dish
-	case strings.HasSuffix(r, "s") && !strings.HasSuffix(r, "ss") && len(r) > 1:
-		return strings.TrimSuffix(r, "s") // languages -> language, cases -> case
-	}
-	return r
-}
-
-func lowerCamelResourceIDBase(base string) string {
-	parts := strings.FieldsFunc(base, func(r rune) bool {
-		return r == '_' || r == '-'
-	})
-	if len(parts) == 0 {
-		return base
-	}
-	for i := range parts {
-		if i == 0 {
-			parts[i] = strings.ToLower(parts[i])
-			continue
-		}
-		parts[i] = strings.ToUpper(parts[i][:1]) + strings.ToLower(parts[i][1:])
-	}
-	return strings.Join(parts, "")
-}
-
-func scalarIDString(value any) string {
-	switch value.(type) {
-	case string, bool, int, int8, int16, int32, int64,
-		uint, uint8, uint16, uint32, uint64,
-		float32, float64, json.Number, []byte:
-		return store.ResourceIDString(value)
-	default:
-		return ""
-	}
-}

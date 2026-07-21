@@ -6,21 +6,24 @@ package main
 import (
 	"flag"
 	"fmt"
+	"net"
+	"net/http"
+	"net/url"
 	"os"
 	"strings"
+	"time"
 
 	"github.com/mark3labs/mcp-go/server"
 	mcptools "github.com/mvanhorn/printing-press-library/library/commerce/woot/internal/mcp"
 )
 
 // Transport selection order: --transport flag, then PP_MCP_TRANSPORT env,
-// then the first transport declared in the spec (see MCPConfig.Transport).
-// The flag surface lets one binary serve stdio locally and streamable HTTP
-// when hosted in a container or remote sandbox, matching the Anthropic
-// guidance that production agents need a remote option.
+// then stdio. HTTP intentionally binds only to loopback because this server
+// does not implement authentication; use a trusted authenticated proxy or
+// tunnel when a remote transport is required.
 
 const (
-	defaultHTTPAddr = ":7777"
+	defaultHTTPAddr = "127.0.0.1:7777"
 )
 
 // version is the printed MCP server's version, overridable at build time via ldflags.
@@ -36,7 +39,7 @@ func main() {
 	mcptools.RegisterTools(s)
 
 	transport := flag.String("transport", defaultTransport(), "MCP transport: stdio | http")
-	addr := flag.String("addr", defaultHTTPAddr, "bind address for http transport (host:port or :port)")
+	addr := flag.String("addr", defaultHTTPAddr, "bind address for http transport (defaults to loopback)")
 	flag.Parse()
 
 	switch strings.ToLower(*transport) {
@@ -46,9 +49,18 @@ func main() {
 			os.Exit(1)
 		}
 	case "http":
-		httpSrv := server.NewStreamableHTTPServer(s)
+		if !isLoopbackAddress(*addr) {
+			fmt.Fprintf(os.Stderr, "refusing non-loopback HTTP bind %q because the MCP server has no authentication\n", *addr)
+			os.Exit(2)
+		}
+		mcpHandler := server.NewStreamableHTTPServer(s)
+		httpSrv := &http.Server{
+			Addr:              *addr,
+			Handler:           loopbackRequestGuard(mcpHandler),
+			ReadHeaderTimeout: 5 * time.Second,
+		}
 		fmt.Fprintf(os.Stderr, "woot-pp-mcp serving MCP over streamable HTTP at %s\n", *addr)
-		if err := httpSrv.Start(*addr); err != nil {
+		if err := httpSrv.ListenAndServe(); err != nil {
 			fmt.Fprintf(os.Stderr, "MCP server error: %v\n", err)
 			os.Exit(1)
 		}
@@ -56,6 +68,48 @@ func main() {
 		fmt.Fprintf(os.Stderr, "unknown --transport %q (supported: stdio, http)\n", *transport)
 		os.Exit(2)
 	}
+}
+
+func isLoopbackAddress(addr string) bool {
+	host, _, err := net.SplitHostPort(addr)
+	if err != nil {
+		return false
+	}
+	if strings.EqualFold(host, "localhost") {
+		return true
+	}
+	ip := net.ParseIP(host)
+	return ip != nil && ip.IsLoopback()
+}
+
+func loopbackRequestGuard(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if !isLoopbackRequestHost(r.Host) {
+			http.Error(w, "forbidden host", http.StatusForbidden)
+			return
+		}
+		if origin := strings.TrimSpace(r.Header.Get("Origin")); origin != "" {
+			parsed, err := url.Parse(origin)
+			if err != nil || parsed.User != nil || (parsed.Scheme != "http" && parsed.Scheme != "https") || !isLoopbackRequestHost(parsed.Host) {
+				http.Error(w, "forbidden origin", http.StatusForbidden)
+				return
+			}
+		}
+		next.ServeHTTP(w, r)
+	})
+}
+
+func isLoopbackRequestHost(hostPort string) bool {
+	host := hostPort
+	if parsedHost, _, err := net.SplitHostPort(hostPort); err == nil {
+		host = parsedHost
+	}
+	host = strings.Trim(host, "[]")
+	if strings.EqualFold(host, "localhost") {
+		return true
+	}
+	ip := net.ParseIP(host)
+	return ip != nil && ip.IsLoopback()
 }
 
 // defaultTransport reads PP_MCP_TRANSPORT env when set, otherwise falls back

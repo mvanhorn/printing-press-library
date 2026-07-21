@@ -5,6 +5,7 @@ package mcp
 
 import (
 	"context"
+	"database/sql"
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
@@ -13,6 +14,7 @@ import (
 	"path/filepath"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 
 	mcplib "github.com/mark3labs/mcp-go/mcp"
@@ -23,48 +25,64 @@ import (
 	"github.com/mvanhorn/printing-press-library/library/commerce/woot/internal/config"
 	"github.com/mvanhorn/printing-press-library/library/commerce/woot/internal/mcp/bound"
 	"github.com/mvanhorn/printing-press-library/library/commerce/woot/internal/mcp/cobratree"
+	mcpgate "github.com/mvanhorn/printing-press-library/library/commerce/woot/internal/mcp/gate"
 	"github.com/mvanhorn/printing-press-library/library/commerce/woot/internal/store"
+	sqlite "modernc.org/sqlite"
+	sqlite3 "modernc.org/sqlite/lib"
 )
 
 const (
 	// MCP hosts can fan out tool calls faster than a human CLI session.
 	// Keep them on the same polite-client limiter path instead of disabling
 	// pacing with rate=0; users can still tune human CLI calls with --rate-limit.
-	defaultMCPRateLimit = 2
+	defaultMCPRateLimit  = 2
+	maxMCPRowLimit       = 1000
+	maxMCPSQLValueBytes  = 128 * 1024
+	maxMCPSQLResultBytes = 48 * 1024
+	maxMCPSQLColumns     = 32
+	mcpSQLTimeout        = 5 * time.Second
 )
+
+type mcpClientCache struct {
+	mu     sync.Mutex
+	client *client.Client
+}
+
+var processMCPClient mcpClientCache
 
 // RegisterTools registers all API operations as MCP tools.
 func RegisterTools(s *server.MCPServer) {
 	s.AddTool(
 		mcplib.NewTool("graphql_list_graphql",
-			mcplib.WithDescription("GET /graphql. Optional: query. Returns the Graphql."),
-			mcplib.WithString("query", mcplib.Description("")),
+			mcplib.WithDescription("Execute a read-only GraphQL query against Woot's browser API. Required: query containing one query operation; mutation and subscription operations are rejected. Returns a validated GraphQL response envelope. Prefer the deals tool for paged All Deals scans with keyword filtering."),
+			mcplib.WithString("query", mcplib.Required(), mcplib.Description("GraphQL query document; mutation and subscription operations are rejected.")),
 			mcplib.WithReadOnlyHintAnnotation(true),
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/graphql", true, false, nil, mcpPageConfig{}, []mcpParamBinding{{PublicName: "query", WireName: "query", Location: "query"}}, []string{}),
+		withProcessGate(makeAPIHandler("GET", "/graphql", true, false, nil, mcpPageConfig{}, []mcpParamBinding{{PublicName: "query", WireName: "query", Location: "query"}}, []string{})),
 	)
 	// Search tool — faster than iterating list endpoints for finding specific items
 	s.AddTool(
 		mcplib.NewTool("search",
 			mcplib.WithDescription("Full-text search across all synced data. Faster than paginating list endpoints. Requires sync first."),
-			mcplib.WithString("query", mcplib.Required(), mcplib.Description("Search query (supports FTS5 syntax: AND, OR, NOT, quotes for phrases)")),
-			mcplib.WithNumber("limit", mcplib.Description("Max results (default 25)")),
+			mcplib.WithString("query", mcplib.Required(), mcplib.Description("Literal words to match; all words must be present. Operators and quote syntax are treated as text.")),
+			mcplib.WithNumber("limit", mcplib.Description("Maximum results returned (default 25, maximum 1000).")),
 			mcplib.WithReadOnlyHintAnnotation(true),
 			mcplib.WithDestructiveHintAnnotation(false),
 		),
-		handleSearch,
+		withProcessGate(handleSearch),
 	)
 	// SQL tool — ad-hoc analysis on synced data without API calls
 	s.AddTool(
 		mcplib.NewTool("sql",
 			mcplib.WithDescription("Run read-only SQL against local database. Use for ad-hoc analysis, aggregations, and joins across synced resources. Requires sync first."),
-			mcplib.WithString("query", mcplib.Required(), mcplib.Description("SQL query (SELECT or WITH...SELECT). Synced records live in resources(resource_type, id, data); filter by resource_type and use json_extract on data, e.g. SELECT json_extract(data,'$.name') FROM resources WHERE resource_type='graphql'.")),
+			mcplib.WithString("query", mcplib.Required(), mcplib.Description("SQL query (SELECT or WITH...SELECT). Synced Woot offers live in resources(resource_type, id, data) with resource_type='deals'; use json_extract on data, e.g. SELECT json_extract(data,'$.title') FROM resources WHERE resource_type='deals'.")),
+			mcplib.WithNumber("limit", mcplib.Description("Maximum rows returned (default and maximum 1000); use SQL aggregation for larger analyses.")),
 			mcplib.WithReadOnlyHintAnnotation(true),
 			mcplib.WithDestructiveHintAnnotation(false),
 		),
-		handleSQL,
+		withProcessGate(handleSQL),
 	)
 
 	// Context tool — front-loaded domain knowledge for agents.
@@ -75,12 +93,23 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithReadOnlyHintAnnotation(true),
 			mcplib.WithDestructiveHintAnnotation(false),
 		),
-		handleContext,
+		withProcessGate(handleContext),
 	)
 
 	// Runtime Cobra-tree mirror — exposes every user-facing command that is
 	// not already covered by a typed endpoint or framework MCP tool.
 	cobratree.RegisterAll(s, cli.RootCmd(), cobratree.SiblingCLIPath)
+}
+
+func withProcessGate(next server.ToolHandlerFunc) server.ToolHandlerFunc {
+	return func(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.CallToolResult, error) {
+		release, err := mcpgate.Acquire(ctx)
+		if err != nil {
+			return mcplib.NewToolResultError(fmt.Sprintf("waiting for MCP execution gate: %v", err)), nil
+		}
+		defer release()
+		return next(ctx, req)
+	}
 }
 
 type mcpParamBinding struct {
@@ -221,6 +250,9 @@ func makeAPIHandler(method, pathTemplate string, readOnly bool, binaryResponse b
 				params[k] = formatMCPParamValue(v)
 			}
 		}
+		if err := validateReadOnlyGraphQLRequest(readOnly, method, path, params); err != nil {
+			return mcplib.NewToolResultError(err.Error()), nil
+		}
 
 		var data json.RawMessage
 		switch method {
@@ -275,19 +307,16 @@ func makeAPIHandler(method, pathTemplate string, readOnly bool, binaryResponse b
 				return mcplib.NewToolResultError("authentication error: " + cliutil.SanitizeErrorBody(msg) +
 					"\nhint: the API rejected the request — this usually means auth is missing or invalid." +
 					"\n      Set your API key with: export D24QG5ZSX8XDC4_CLOUDFRONT_API_KEY=\"your-token-here\"" +
-					"\n      See API docs: https://d24qg5zsx8xdc4.cloudfront.net" +
 					"\n      Run 'woot-pp-cli doctor' to check auth status."), nil
 			case strings.Contains(msg, "HTTP 401"):
 				return mcplib.NewToolResultError("authentication failed: " + cliutil.SanitizeErrorBody(msg) +
 					"\nhint: check your API key." +
 					"\n      Set your API key with: export D24QG5ZSX8XDC4_CLOUDFRONT_API_KEY=\"your-token-here\"" +
-					"\n      See API docs: https://d24qg5zsx8xdc4.cloudfront.net" +
 					"\n      Run 'woot-pp-cli doctor' to check auth status."), nil
 			case strings.Contains(msg, "HTTP 403"):
 				return mcplib.NewToolResultError("permission denied: " + cliutil.SanitizeErrorBody(msg) +
 					"\nhint: your credentials are valid but lack access to this resource. Check that they have the required permissions and match the API's expected auth scheme." +
 					"\n      Set your API key with: export D24QG5ZSX8XDC4_CLOUDFRONT_API_KEY=\"your-token-here\"" +
-					"\n      See API docs: https://d24qg5zsx8xdc4.cloudfront.net" +
 					"\n      Run 'woot-pp-cli doctor' to check auth status."), nil
 			case strings.Contains(msg, "HTTP 404"):
 				if method == "DELETE" {
@@ -299,6 +328,9 @@ func makeAPIHandler(method, pathTemplate string, readOnly bool, binaryResponse b
 			default:
 				return mcplib.NewToolResultError(msg), nil
 			}
+		}
+		if err := validateReadOnlyGraphQLResponse(readOnly, method, path, data); err != nil {
+			return mcplib.NewToolResultError(err.Error()), nil
 		}
 
 		if binaryResponse {
@@ -336,11 +368,21 @@ func mcpToolPageResultText(method string, data json.RawMessage, pageConfig mcpPa
 }
 
 func newMCPClient() (*client.Client, error) {
-	cfg, err := newMCPConfig()
+	return processMCPClient.get(newMCPConfig)
+}
+
+func (cache *mcpClientCache) get(loadConfig func() (*config.Config, error)) (*client.Client, error) {
+	cache.mu.Lock()
+	defer cache.mu.Unlock()
+	if cache.client != nil {
+		return cache.client, nil
+	}
+	cfg, err := loadConfig()
 	if err != nil {
 		return nil, err
 	}
-	return newMCPClientFromConfig(cfg), nil
+	cache.client = newMCPClientFromConfig(cfg)
+	return cache.client, nil
 }
 
 func newMCPConfig() (*config.Config, error) {
@@ -373,18 +415,19 @@ func mcpDBPath() (string, error) {
 type mcpStoreStatusKind string
 
 const (
-	mcpStoreStatusEmpty mcpStoreStatusKind = "empty"
-	mcpStoreStatusReady mcpStoreStatusKind = "ready"
+	mcpStoreStatusEmpty      mcpStoreStatusKind = "empty"
+	mcpStoreStatusIncomplete mcpStoreStatusKind = "incomplete"
+	mcpStoreStatusReady      mcpStoreStatusKind = "ready"
 )
 
-func openMCPReadOnlyStore(path string) (*store.Store, *mcplib.CallToolResult) {
+func openMCPReadOnlyStore(ctx context.Context, path string) (*store.Store, *mcplib.CallToolResult) {
 	if _, err := os.Stat(path); err != nil {
 		if os.IsNotExist(err) {
 			return nil, mcplib.NewToolResultError(mcpMissingStoreMessage(path))
 		}
 		return nil, mcplib.NewToolResultError(fmt.Sprintf("checking local data store %s: %v", path, err))
 	}
-	db, err := store.OpenReadOnly(path)
+	db, err := store.OpenReadOnlyContext(ctx, path)
 	if err != nil {
 		return nil, mcplib.NewToolResultError(fmt.Sprintf("opening local data store %s: %v. Run woot-pp-cli sync to refresh the store, or use live endpoint MCP tools for unsynced data.", path, err))
 	}
@@ -395,10 +438,17 @@ func mcpMissingStoreMessage(path string) string {
 	return fmt.Sprintf("No local data store found at %s. Run woot-pp-cli sync before using MCP search/sql, or use live endpoint MCP tools for unsynced data.", path)
 }
 
-func mcpStoreStatus(db *store.Store) (mcpStoreStatusKind, error) {
-	status, err := db.Status()
+func mcpStoreStatus(ctx context.Context, db *store.Store) (mcpStoreStatusKind, error) {
+	status, err := db.StatusContext(ctx)
 	if err != nil {
 		return "", err
+	}
+	incomplete, err := db.HasIncompleteSyncContext(ctx)
+	if err != nil {
+		return "", err
+	}
+	if incomplete {
+		return mcpStoreStatusIncomplete, nil
 	}
 	if len(status) == 0 {
 		return mcpStoreStatusEmpty, nil
@@ -410,6 +460,10 @@ func mcpEmptyStoreNextStep() string {
 	return "Run woot-pp-cli sync to populate the local SQLite store before using MCP search/sql."
 }
 
+func mcpIncompleteStoreNextStep() string {
+	return "The local snapshot is incomplete. Run woot-pp-cli sync to resume it before treating missing search or SQL matches as authoritative."
+}
+
 func handleSearch(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.CallToolResult, error) {
 	args := req.GetArguments()
 	query, ok := args["query"].(string)
@@ -417,26 +471,28 @@ func handleSearch(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.Call
 		return mcplib.NewToolResultError("query is required"), nil
 	}
 
-	limit := 25
-	if v, ok := args["limit"].(float64); ok && v > 0 {
-		limit = int(v)
+	limit, err := mcpRowLimit(args, 25)
+	if err != nil {
+		return mcplib.NewToolResultError(err.Error()), nil
 	}
 
 	path, err := mcpDBPath()
 	if err != nil {
 		return mcplib.NewToolResultError(fmt.Sprintf("resolving database: %v", err)), nil
 	}
-	db, toolErr := openMCPReadOnlyStore(path)
+	queryCtx, cancel := context.WithTimeout(ctx, mcpSQLTimeout)
+	defer cancel()
+	db, toolErr := openMCPReadOnlyStore(queryCtx, path)
 	if toolErr != nil {
 		return toolErr, nil
 	}
 	defer db.Close()
 
-	results, err := db.Search(query, limit)
+	results, err := db.SearchContext(queryCtx, query, limit)
 	if err != nil {
 		return mcplib.NewToolResultError(fmt.Sprintf("search failed: %v", err)), nil
 	}
-	storeStatus, err := mcpStoreStatus(db)
+	storeStatus, err := mcpStoreStatus(queryCtx, db)
 	if err != nil {
 		return mcplib.NewToolResultError(fmt.Sprintf("reading store status: %v", err)), nil
 	}
@@ -452,13 +508,15 @@ func mcpSearchEnvelope(results []json.RawMessage, storeStatus mcpStoreStatusKind
 		"count":        len(results),
 		"results":      results,
 		"store_status": storeStatus,
-		"resumable":    false,
+		"resumable":    storeStatus == mcpStoreStatusIncomplete,
 	}
-	if len(results) == 0 {
+	if storeStatus == mcpStoreStatusIncomplete {
+		out["next_step"] = mcpIncompleteStoreNextStep()
+	} else if len(results) == 0 {
 		if storeStatus == mcpStoreStatusEmpty {
 			out["next_step"] = mcpEmptyStoreNextStep()
 		} else {
-			out["next_step"] = "No local search matches. Try a broader query, a lower-specificity FTS expression, or sync again if data may be stale."
+			out["next_step"] = "No local search matches. Try fewer or broader words, or sync again if data may be stale."
 		}
 	}
 	return out
@@ -624,18 +682,33 @@ func handleSQL(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.CallToo
 	if err := validateReadOnlyQuery(query); err != nil {
 		return mcplib.NewToolResultError(err.Error()), nil
 	}
+	rowLimit, err := mcpRowLimit(args, maxMCPRowLimit)
+	if err != nil {
+		return mcplib.NewToolResultError(err.Error()), nil
+	}
 
+	queryCtx, cancel := context.WithTimeout(ctx, mcpSQLTimeout)
+	defer cancel()
 	path, err := mcpDBPath()
 	if err != nil {
 		return mcplib.NewToolResultError(fmt.Sprintf("resolving database: %v", err)), nil
 	}
-	db, toolErr := openMCPReadOnlyStore(path)
+	db, toolErr := openMCPReadOnlyStore(queryCtx, path)
 	if toolErr != nil {
 		return toolErr, nil
 	}
 	defer db.Close()
 
-	rows, err := db.DB().QueryContext(ctx, query)
+	conn, err := db.DB().Conn(queryCtx)
+	if err != nil {
+		return mcplib.NewToolResultError(fmt.Sprintf("opening bounded SQL connection: %v", err)), nil
+	}
+	defer conn.Close()
+	if err := applyMCPSQLLimits(conn); err != nil {
+		return mcplib.NewToolResultError(fmt.Sprintf("applying SQL safety limits: %v", err)), nil
+	}
+
+	rows, err := conn.QueryContext(queryCtx, query)
 	if err != nil {
 		return mcplib.NewToolResultError(mcpSQLQueryError(err)), nil
 	}
@@ -645,7 +718,10 @@ func handleSQL(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.CallToo
 	if err != nil {
 		return mcplib.NewToolResultError(fmt.Sprintf("reading columns: %v", err)), nil
 	}
+	cols = uniqueSQLColumns(cols)
 	var results []map[string]any
+	truncated := false
+	resultBytes := 0
 	for rows.Next() {
 		values := make([]any, len(cols))
 		ptrs := make([]any, len(cols))
@@ -655,26 +731,139 @@ func handleSQL(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.CallToo
 		if err := rows.Scan(ptrs...); err != nil {
 			return mcplib.NewToolResultError(fmt.Sprintf("scanning row: %v", err)), nil
 		}
+		encodedSize, err := mcpSQLRowEncodedSize(cols, values)
+		if err != nil {
+			return mcplib.NewToolResultError(fmt.Sprintf("measuring SQL row: %v", err)), nil
+		}
+		if resultBytes+encodedSize > maxMCPSQLResultBytes {
+			if len(results) == 0 {
+				return mcplib.NewToolResultError(fmt.Sprintf("first SQL row exceeds the %d-byte response budget; select fewer or smaller columns", maxMCPSQLResultBytes)), nil
+			}
+			truncated = true
+			break
+		}
 		row := make(map[string]any)
 		for i, col := range cols {
 			row[col] = values[i]
 		}
+		encodedRow, err := json.Marshal(row)
+		if err != nil {
+			return mcplib.NewToolResultError(fmt.Sprintf("measuring SQL row: %v", err)), nil
+		}
+		// The scalar estimator keeps this marshal bounded. Retain the exact
+		// encoded length for the cumulative response budget.
+		resultBytes += len(encodedRow)
 		results = append(results, row)
+		if len(results) > rowLimit {
+			results = results[:rowLimit]
+			truncated = true
+			break
+		}
 	}
 	// rows.Next() stops on a mid-iteration error without failing the loop, so
 	// skipping rows.Err() would return a truncated result set as success.
 	if err := rows.Err(); err != nil {
 		return mcplib.NewToolResultError(fmt.Sprintf("reading rows: %v", err)), nil
 	}
-	storeStatus, err := mcpStoreStatus(db)
+	storeStatus, err := mcpStoreStatus(queryCtx, db)
 	if err != nil {
 		return mcplib.NewToolResultError(fmt.Sprintf("reading store status: %v", err)), nil
 	}
 
-	return toolResultJSON(mcpSQLEnvelope(results, cols, storeStatus))
+	return toolResultJSON(mcpSQLEnvelope(results, cols, storeStatus, truncated, rowLimit))
 }
 
-func mcpSQLEnvelope(rows []map[string]any, columns []string, storeStatus mcpStoreStatusKind) map[string]any {
+func uniqueSQLColumns(columns []string) []string {
+	unique := make([]string, len(columns))
+	used := make(map[string]bool, len(columns))
+	for i, column := range columns {
+		name := column
+		for suffix := 2; used[name]; suffix++ {
+			name = fmt.Sprintf("%s_%d", column, suffix)
+		}
+		unique[i] = name
+		used[name] = true
+	}
+	return unique
+}
+
+func mcpSQLRowEncodedSize(columns []string, values []any) (int, error) {
+	if len(columns) != len(values) {
+		return 0, fmt.Errorf("column/value count mismatch")
+	}
+	size := 2 // opening and closing braces
+	for i, column := range columns {
+		if i > 0 {
+			size++ // comma
+		}
+		encodedColumn, err := json.Marshal(column)
+		if err != nil {
+			return 0, err
+		}
+		size += len(encodedColumn) + 1 // key plus colon
+		switch value := values[i].(type) {
+		case []byte:
+			size += base64.StdEncoding.EncodedLen(len(value)) + 2
+		default:
+			encodedValue, err := json.Marshal(value)
+			if err != nil {
+				return 0, err
+			}
+			size += len(encodedValue)
+		}
+		if size > maxMCPSQLResultBytes {
+			return size, nil
+		}
+	}
+	return size, nil
+}
+
+func mcpRowLimit(args map[string]any, defaultLimit int) (int, error) {
+	value, ok := args["limit"]
+	if !ok || value == nil {
+		return defaultLimit, nil
+	}
+	var limit int
+	switch typed := value.(type) {
+	case float64:
+		if math.Trunc(typed) != typed {
+			return 0, fmt.Errorf("limit must be a whole number between 1 and %d", maxMCPRowLimit)
+		}
+		limit = int(typed)
+	case int:
+		limit = typed
+	default:
+		return 0, fmt.Errorf("limit must be a whole number between 1 and %d", maxMCPRowLimit)
+	}
+	if limit < 1 || limit > maxMCPRowLimit {
+		return 0, fmt.Errorf("limit must be between 1 and %d", maxMCPRowLimit)
+	}
+	return limit, nil
+}
+
+func applyMCPSQLLimits(conn *sql.Conn) error {
+	limits := []struct {
+		id    int
+		value int
+	}{
+		{id: sqlite3.SQLITE_LIMIT_LENGTH, value: maxMCPSQLValueBytes},
+		{id: sqlite3.SQLITE_LIMIT_SQL_LENGTH, value: 64 * 1024},
+		{id: sqlite3.SQLITE_LIMIT_COLUMN, value: maxMCPSQLColumns},
+		{id: sqlite3.SQLITE_LIMIT_EXPR_DEPTH, value: 100},
+		{id: sqlite3.SQLITE_LIMIT_COMPOUND_SELECT, value: 20},
+		{id: sqlite3.SQLITE_LIMIT_VDBE_OP, value: 100_000},
+		{id: sqlite3.SQLITE_LIMIT_FUNCTION_ARG, value: 100},
+		{id: sqlite3.SQLITE_LIMIT_VARIABLE_NUMBER, value: 1000},
+	}
+	for _, limit := range limits {
+		if _, err := sqlite.Limit(conn, limit.id, limit.value); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func mcpSQLEnvelope(rows []map[string]any, columns []string, storeStatus mcpStoreStatusKind, truncated bool, rowLimit int) map[string]any {
 	if rows == nil {
 		rows = []map[string]any{}
 	}
@@ -683,9 +872,14 @@ func mcpSQLEnvelope(rows []map[string]any, columns []string, storeStatus mcpStor
 		"columns":      columns,
 		"rows":         rows,
 		"store_status": storeStatus,
-		"resumable":    false,
+		"resumable":    storeStatus == mcpStoreStatusIncomplete,
+		"truncated":    truncated,
+		"row_limit":    rowLimit,
+		"byte_limit":   maxMCPSQLResultBytes,
 	}
-	if len(rows) == 0 {
+	if storeStatus == mcpStoreStatusIncomplete {
+		out["next_step"] = mcpIncompleteStoreNextStep()
+	} else if len(rows) == 0 {
 		if storeStatus == mcpStoreStatusEmpty {
 			out["next_step"] = mcpEmptyStoreNextStep()
 		} else {
@@ -698,7 +892,7 @@ func mcpSQLEnvelope(rows []map[string]any, columns []string, storeStatus mcpStor
 func mcpSQLQueryError(err error) string {
 	msg := err.Error()
 	if strings.Contains(strings.ToLower(msg), "no such table") {
-		return fmt.Sprintf("query failed: %v. Synced records live in resources(resource_type, id, data), not one SQL table per resource. Filter by resource_type, for example resource_type='graphql', and read JSON fields with json_extract(data,'$.field').", err)
+		return fmt.Sprintf("query failed: %v. Synced records live in resources(resource_type, id, data), not one SQL table per resource. Filter by resource_type='deals' and read JSON fields with json_extract(data,'$.field').", err)
 	}
 	return fmt.Sprintf("query failed: %v", err)
 }
@@ -728,11 +922,11 @@ func handleContext(_ context.Context, _ mcplib.CallToolRequest) (*mcplib.CallToo
 		paths["cache_dir"] = dir
 	}
 	ctx := map[string]any{
-		"api":         "woot",
-		"description": "Discovered API spec for d24qg5zsx8xdc4-cloudfront",
-		"archetype":   "generic",
-		"tool_count":  1,
-		"paths":       paths,
+		"api":                  "woot",
+		"description":          "Search Woot's live All Deals catalog with filters, prices, offline full-text search, and read-only GraphQL access.",
+		"archetype":            "generic",
+		"typed_endpoint_count": 1,
+		"paths":                paths,
 		// tool_surface tells agents which surface a capability lives on.
 		"tool_surface": "MCP exposes typed endpoint tools plus a runtime mirror of user-facing CLI commands. Endpoint tools keep typed schemas; command-mirror tools shell out to the companion woot-pp-cli binary.",
 		"auth": map[string]any{
@@ -746,23 +940,37 @@ func handleContext(_ context.Context, _ mcplib.CallToolRequest) (*mcplib.CallToo
 					"description": "Set to your API credential.",
 				},
 			},
-			"docs_url": "https://d24qg5zsx8xdc4.cloudfront.net",
 		},
 		"resources": []map[string]any{
 			{
 				"name":        "graphql",
-				"description": "Operations on graphql",
+				"description": "Direct read-only access to Woot's browser GraphQL API",
 				"endpoints":   []string{"list_graphql"},
+				"syncable":    false,
+				"searchable":  false,
+			},
+			{
+				"name":        "deals",
+				"description": "Normalized live offers from Woot's paged All Deals feed",
+				"endpoints":   []string{"deals"},
 				"syncable":    true,
 				"searchable":  true,
 			},
 		},
 		"query_tips": []string{
-			"Pagination uses cursor-based paging. Pass after parameter for subsequent pages.",
-			"Control page size with the limit parameter (default 100).",
+			"Run sync to store normalized All Deals offers under resource_type='deals'.",
+			"Woot All Deals pagination uses numeric Skip offsets and 100-offer request pages.",
 			"Use the sql tool for ad-hoc analysis on synced data. Run sync first to populate the local database.",
 			"Use the search tool for full-text search across all synced resources. Faster than iterating list endpoints.",
 			"Prefer sql/search over repeated API calls when the data is already synced.",
+		},
+		// Command-mirror capabilities are exposed through MCP by shelling out
+		// to the companion CLI binary.
+		"command_mirror_capabilities": []map[string]string{
+			{"name": "Woot All Deals Search", "command": "deals", "description": "Scan Woot's paged All Deals results and filter live offers by keyword.", "rationale": "Uses the same frontend searchOffers paging, category, price, and page filters that Woot's All Deals UI uses.", "via": "mcp-command-mirror"},
+		},
+		"playbook": []map[string]string{
+			{"topic": "Woot All Deals Search", "insight": ""},
 		},
 	}
 	return toolResultJSON(ctx)

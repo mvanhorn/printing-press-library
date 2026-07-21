@@ -796,6 +796,10 @@ func (s *Store) List(resourceType string, limit int) ([]json.RawMessage, error) 
 }
 
 func (s *Store) Search(query string, limit int, resourceTypes ...string) ([]json.RawMessage, error) {
+	return s.SearchContext(context.Background(), query, limit, resourceTypes...)
+}
+
+func (s *Store) SearchContext(ctx context.Context, query string, limit int, resourceTypes ...string) ([]json.RawMessage, error) {
 	if limit <= 0 {
 		limit = 50
 	}
@@ -808,7 +812,7 @@ func (s *Store) Search(query string, limit int, resourceTypes ...string) ([]json
 		resourceType = strings.TrimSpace(resourceTypes[0])
 	}
 	if resourceType != "" {
-		rows, err := s.db.Query(
+		rows, err := s.db.QueryContext(ctx,
 			`SELECT r.data FROM resources r
 			 JOIN resources_fts f ON r.id = f.id AND r.resource_type = f.resource_type
 			 WHERE resources_fts MATCH ?
@@ -832,7 +836,7 @@ func (s *Store) Search(query string, limit int, resourceTypes ...string) ([]json
 		}
 		return results, rows.Err()
 	}
-	rows, err := s.db.Query(
+	rows, err := s.db.QueryContext(ctx,
 		`SELECT r.data FROM resources r
 		 JOIN resources_fts f ON r.id = f.id AND r.resource_type = f.resource_type
 		 WHERE resources_fts MATCH ?
@@ -1298,6 +1302,46 @@ func (s *Store) UpsertBatch(resourceType string, items []json.RawMessage) (int, 
 		return 0, 0, fmt.Errorf("starting batch transaction: %w", err)
 	}
 	defer tx.Rollback()
+	stored, extractFailures, err := s.upsertBatchTx(tx, resourceType, items)
+	if err != nil {
+		return stored, extractFailures, err
+	}
+	if err := tx.Commit(); err != nil {
+		return 0, extractFailures, err
+	}
+	return stored, extractFailures, nil
+}
+
+// UpsertBatchWithSyncState commits a page and its resume checkpoint in the
+// same SQLite transaction. A process crash can therefore expose either both
+// the rows and their incomplete marker or neither, never uncheckpointed rows
+// that read paths could mistake for a complete archive.
+func (s *Store) UpsertBatchWithSyncState(resourceType string, items []json.RawMessage, cursor string) (stored, extractFailures, totalCount int, err error) {
+	s.writeMu.Lock()
+	defer s.writeMu.Unlock()
+	tx, err := s.db.Begin()
+	if err != nil {
+		return 0, 0, 0, fmt.Errorf("starting checkpointed batch transaction: %w", err)
+	}
+	defer tx.Rollback()
+
+	stored, extractFailures, err = s.upsertBatchTx(tx, resourceType, items)
+	if err != nil {
+		return stored, extractFailures, 0, err
+	}
+	if err := tx.QueryRow(`SELECT COUNT(*) FROM resources WHERE resource_type = ?`, resourceType).Scan(&totalCount); err != nil {
+		return stored, extractFailures, 0, fmt.Errorf("counting checkpointed %s rows: %w", resourceType, err)
+	}
+	if err := saveSyncStateTx(tx, resourceType, cursor, totalCount); err != nil {
+		return stored, extractFailures, totalCount, fmt.Errorf("saving checkpointed %s sync state: %w", resourceType, err)
+	}
+	if err := tx.Commit(); err != nil {
+		return 0, extractFailures, 0, fmt.Errorf("committing checkpointed %s batch: %w", resourceType, err)
+	}
+	return stored, extractFailures, totalCount, nil
+}
+
+func (s *Store) upsertBatchTx(tx *sql.Tx, resourceType string, items []json.RawMessage) (int, int, error) {
 
 	var stored, skippedCount, extractFailures int
 	for _, item := range items {
@@ -1343,9 +1387,6 @@ func (s *Store) UpsertBatch(resourceType string, items []json.RawMessage) (int, 
 		fmt.Fprintf(os.Stderr, "warning: %d/%d %s items returned but not cached locally (no extractable ID field; offline lookup against these rows will be incomplete; live queries unaffected)\n", skippedCount, len(items), resourceType)
 	}
 
-	if err := tx.Commit(); err != nil {
-		return 0, extractFailures, err
-	}
 	return stored, extractFailures, nil
 }
 
@@ -1391,15 +1432,54 @@ func (s *Store) SaveSyncState(resourceType, cursor string, count int) error {
 	return err
 }
 
+func saveSyncStateTx(tx *sql.Tx, resourceType, cursor string, count int) error {
+	_, err := tx.Exec(
+		`INSERT INTO sync_state (resource_type, last_cursor, last_synced_at, total_count)
+		 VALUES (?, ?, ?, ?)
+		 ON CONFLICT(resource_type) DO UPDATE SET last_cursor = excluded.last_cursor,
+		 last_synced_at = excluded.last_synced_at, total_count = excluded.total_count`,
+		resourceType, cursor, time.Now().UTC().Format(time.RFC3339), count,
+	)
+	return err
+}
+
 func (s *Store) GetSyncState(resourceType string) (cursor string, lastSynced time.Time, count int, err error) {
+	var cursorValue sql.NullString
+	var syncedValue sql.NullString
 	err = s.db.QueryRow(
 		`SELECT last_cursor, last_synced_at, total_count FROM sync_state WHERE resource_type = ?`,
 		resourceType,
-	).Scan(&cursor, &lastSynced, &count)
+	).Scan(&cursorValue, &syncedValue, &count)
 	if err == sql.ErrNoRows {
 		return "", time.Time{}, 0, nil
 	}
+	if err != nil {
+		return "", time.Time{}, 0, err
+	}
+	if cursorValue.Valid {
+		cursor = cursorValue.String
+	}
+	if syncedValue.Valid && syncedValue.String != "" {
+		lastSynced, err = parseSyncTimestamp(syncedValue.String)
+		if err != nil {
+			return "", time.Time{}, 0, fmt.Errorf("parsing %s sync timestamp %q: %w", resourceType, syncedValue.String, err)
+		}
+	}
 	return
+}
+
+func parseSyncTimestamp(value string) (time.Time, error) {
+	for _, layout := range []string{
+		time.RFC3339Nano,
+		"2006-01-02 15:04:05.999999999Z07:00",
+		"2006-01-02 15:04:05.999999999",
+		"2006-01-02 15:04:05",
+	} {
+		if parsed, err := time.Parse(layout, value); err == nil {
+			return parsed, nil
+		}
+	}
+	return time.Time{}, fmt.Errorf("unsupported timestamp format")
 }
 
 // SaveSyncCursor stores the pagination cursor for a resource type.
@@ -1706,7 +1786,11 @@ func (s *Store) Count(resourceType string) (int, error) {
 }
 
 func (s *Store) Status() (map[string]int, error) {
-	rows, err := s.db.Query(
+	return s.StatusContext(context.Background())
+}
+
+func (s *Store) StatusContext(ctx context.Context) (map[string]int, error) {
+	rows, err := s.db.QueryContext(ctx,
 		`SELECT resource_type, COUNT(*) FROM resources GROUP BY resource_type ORDER BY resource_type`,
 	)
 	if err != nil {
@@ -1724,6 +1808,27 @@ func (s *Store) Status() (map[string]int, error) {
 		status[rt] = count
 	}
 	return status, rows.Err()
+}
+
+func (s *Store) HasIncompleteSyncContext(ctx context.Context) (bool, error) {
+	var marker int
+	err := s.db.QueryRowContext(ctx,
+		`SELECT CASE WHEN
+			EXISTS (
+				SELECT 1 FROM sync_state
+				WHERE COALESCE(last_cursor, '') <> ''
+			) OR EXISTS (
+				SELECT 1
+				FROM (SELECT DISTINCT resource_type FROM resources) AS resource_types
+				LEFT JOIN sync_state USING (resource_type)
+				WHERE sync_state.resource_type IS NULL
+			)
+		THEN 1 ELSE 0 END`,
+	).Scan(&marker)
+	if err != nil {
+		return false, err
+	}
+	return marker == 1, nil
 }
 
 // CascadeJunction names a junction table + the FK column referencing the

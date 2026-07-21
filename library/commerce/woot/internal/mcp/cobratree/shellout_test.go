@@ -13,9 +13,11 @@ import (
 	"runtime"
 	"strings"
 	"testing"
+	"time"
 
 	mcplib "github.com/mark3labs/mcp-go/mcp"
 	"github.com/mark3labs/mcp-go/server"
+	mcpgate "github.com/mvanhorn/printing-press-library/library/commerce/woot/internal/mcp/gate"
 	"github.com/spf13/cobra"
 )
 
@@ -115,9 +117,52 @@ func TestCliArgsFromMCP_AllowsPerCommandFlags(t *testing.T) {
 		"tags":    []any{"a", "b"},
 	}
 	got := cliArgsFromMCP(in, map[string]bool{"args": true})
-	want := []string{"--limit", "25", "--query", "alpha", "--tags", "a,b", "--verbose"}
+	want := []string{"--limit", "25", "--query", "alpha", "--tags", "a", "--tags", "b", "--verbose=true"}
 	if !reflect.DeepEqual(got, want) {
 		t.Fatalf("cliArgsFromMCP per-command passthrough: got %v, want %v", got, want)
+	}
+}
+
+func TestCliArgsFromMCPPreservesFalseAndRepeatableValues(t *testing.T) {
+	t.Parallel()
+	got := cliArgsFromMCP(map[string]any{
+		"include-featured": false,
+		"price-range":      []any{"[0,24.99]", "[25,49.99]"},
+	}, nil)
+	want := []string{
+		"--include-featured=false",
+		"--price-range", "[0,24.99]",
+		"--price-range", "[25,49.99]",
+	}
+	if !reflect.DeepEqual(got, want) {
+		t.Fatalf("cliArgsFromMCP repeatable/bool passthrough: got %v, want %v", got, want)
+	}
+}
+
+func TestRepeatableFlagsUseArraySchema(t *testing.T) {
+	t.Parallel()
+	cmd := &cobra.Command{Use: "deals"}
+	cmd.Flags().StringSlice("category", nil, "repeatable categories")
+	cmd.Flags().StringArray("price-range", nil, "repeatable price ranges")
+	tool := mcplib.NewTool("deals", toolOptionsForFlags(cmd, nil, nil)...)
+	raw, err := json.Marshal(tool.InputSchema)
+	if err != nil {
+		t.Fatalf("marshal input schema: %v", err)
+	}
+	var schema map[string]any
+	if err := json.Unmarshal(raw, &schema); err != nil {
+		t.Fatalf("decode input schema: %v", err)
+	}
+	properties, _ := schema["properties"].(map[string]any)
+	for _, name := range []string{"category", "price-range"} {
+		property, _ := properties[name].(map[string]any)
+		if property["type"] != "array" {
+			t.Errorf("%s schema type = %v, want array", name, property["type"])
+		}
+		items, _ := property["items"].(map[string]any)
+		if items["type"] != "string" {
+			t.Errorf("%s item schema type = %v, want string", name, items["type"])
+		}
 	}
 }
 
@@ -537,6 +582,50 @@ func TestShellOutStructuredPositionalPreservesWhitespace(t *testing.T) {
 	want := []string{"fairness", "nudge", "Jane Q Public"}
 	if !reflect.DeepEqual(got, want) {
 		t.Fatalf("shellout argv = %#v, want %#v", got, want)
+	}
+}
+
+func TestShellOutUsesSharedProcessGate(t *testing.T) {
+	bin := writeShelloutHelper(t, "success")
+	release, err := mcpgate.Acquire(context.Background())
+	if err != nil {
+		t.Fatalf("acquire process gate: %v", err)
+	}
+	released := false
+	defer func() {
+		if !released {
+			release()
+		}
+	}()
+
+	handler := shellOutToCLI(
+		func() (string, error) { return bin, nil },
+		[]string{"deals"},
+		map[string]bool{},
+		map[string]bool{},
+		nil,
+		true,
+		nil,
+	)
+	done := make(chan *mcplib.CallToolResult, 1)
+	go func() {
+		result, _ := handler(context.Background(), mcplib.CallToolRequest{})
+		done <- result
+	}()
+	select {
+	case <-done:
+		t.Fatal("shellout ran while process gate was held")
+	case <-time.After(50 * time.Millisecond):
+	}
+	release()
+	released = true
+	select {
+	case result := <-done:
+		if result == nil || result.IsError {
+			t.Fatalf("shellout after gate release = %#v", result)
+		}
+	case <-time.After(time.Second):
+		t.Fatal("shellout did not run after process gate release")
 	}
 }
 
