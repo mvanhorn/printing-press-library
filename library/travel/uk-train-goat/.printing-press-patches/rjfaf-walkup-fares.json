@@ -1,0 +1,32 @@
+{
+  "schema_version": 2,
+  "id": "rjfaf-walkup-fares",
+  "applied_at": "2026-07-10",
+  "base_run_id": "20260603-220423",
+  "base_printing_press_version": "4.20.1",
+  "summary": "Walk-up adult fares are resolved from the National Rail RJFAF static fares feed synced into local SQLite via `fare sync`, not scraped or computed in-process; every location-expansion and flow-matching step (group members, clusters, CRS-to-NLC, flows, NDF overrides) must apply validity-date filtering with blank dates treated as open-ended (`col = '' OR col op ?`), and `fare` lookup falls back to the age-based freshness backstop instead of an authenticated probe when NR_OPENDATA credentials are absent.",
+  "reason": "Replaces the retired ad hoc `internal/farescrape` HTML-scrape approach, which was fragile against site changes, with the official RJFAF feed as the source of truth. Date-filtering discipline exists because RJFAF group memberships, clusters, locations, and flows all carry validity windows; skipping any one of them let expired or not-yet-valid rows leak into or drop out of fare resolution for `--date` queries away from today (Greptile P1/P2 findings on resolve.go and store.go). The credential-optional freshness fallback exists because `fare sync` requires NR_OPENDATA creds but `fare` lookup against an already-synced store should stay usable offline/without creds rather than failing on an unauthenticated probe.",
+  "files": [
+    "internal/cli/fare.go",
+    "internal/cli/fare_test.go",
+    "internal/fares/download.go",
+    "internal/fares/download_test.go",
+    "internal/fares/feedzip.go",
+    "internal/fares/feedzip_test.go",
+    "internal/fares/freshness.go",
+    "internal/fares/freshness_test.go",
+    "internal/fares/parse.go",
+    "internal/fares/parse_test.go",
+    "internal/fares/resolve.go",
+    "internal/fares/resolve_test.go",
+    "internal/fares/spec.go",
+    "internal/fares/spec_test.go",
+    "internal/fares/store.go",
+    "internal/fares/store_test.go",
+    "internal/fares/types.go",
+    "README.md",
+    "SKILL.md",
+    ".printing-press-patches/rjfaf-walkup-fares.json"
+  ],
+  "validated_outcome": "go test ./... green for the full module including date-filtering regression tests (TestResolveExpiredGroupMembershipExcluded, TestResolveBlankFlowDatesIncluded, TestResolveBlankNDFDatesIncluded) and JSON-tag serialization tests. Live end-to-end smoke against the real RJFAF798 feed (53.8 MB) confirmed sync, offline lookup, and provenance/publish-date reporting. All Greptile review threads on PR #1341 resolved."
+}
