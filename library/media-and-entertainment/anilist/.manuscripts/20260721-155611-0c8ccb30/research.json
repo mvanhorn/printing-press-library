@@ -1,0 +1,187 @@
+{
+  "api_name": "anilist",
+  "novelty_score": 10,
+  "alternatives": [
+    {
+      "name": "anilist-mcp",
+      "url": "https://github.com/yuna0x0/anilist-mcp",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 81,
+      "last_updated": "",
+      "command_count": 40,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "anilist-cli",
+      "url": "https://github.com/tamnd/anilist-cli",
+      "language": "Go",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 1,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "MALSync",
+      "url": "https://github.com/MALSync/MALSync",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 2916,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-07-21T19:56:11Z",
+  "novel_features": [
+    {
+      "name": "Tonight schedule",
+      "command": "schedule tonight",
+      "description": "See only episodes from your current anime list that air in your local day.",
+      "rationale": "It joins the authenticated list and airing schedule into one personal calendar view.",
+      "example": "anilist-pp-cli schedule tonight --agent",
+      "why_it_matters": "Use this instead of a raw airing query when the request is about the user’s followed shows.",
+      "group": "Watch routine"
+    },
+    {
+      "name": "Safe episode check-in",
+      "command": "progress check-in",
+      "description": "Preview the next watched-episode update before explicitly applying it to AniList.",
+      "rationale": "It combines media resolution, existing progress, and an explicit mutation guard.",
+      "example": "anilist-pp-cli progress check-in 'Cowboy Bebop' --episode 3 --apply --agent",
+      "why_it_matters": "Use this for an account mutation that must be checked before it is sent.",
+      "group": "Watch routine"
+    },
+    {
+      "name": "Short backlog pick",
+      "command": "backlog pick",
+      "description": "Choose a realistically short anime from your Planning list using deterministic personal ranking.",
+      "rationale": "It ranks the user’s own list fields rather than returning a generic public recommendation.",
+      "example": "anilist-pp-cli backlog pick --max-episodes 13 --max-runtime-minutes 30 --agent",
+      "why_it_matters": "Use this when the request is to decide what the user can finish soon.",
+      "group": "Backlog decisions"
+    },
+    {
+      "name": "Catch-up queue",
+      "command": "progress catch-up",
+      "description": "Find followed shows with aired episodes beyond your recorded progress.",
+      "rationale": "It joins current-list progress with live airing records to calculate the precise gap.",
+      "example": "anilist-pp-cli progress catch-up --agent",
+      "why_it_matters": "Use this when the user asks what they are behind on rather than what airs tonight.",
+      "group": "Watch routine"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Tonight schedule",
+      "command": "schedule tonight",
+      "description": "See only episodes from your current anime list that air in your local day.",
+      "rationale": "It joins the authenticated list and airing schedule into one personal calendar view.",
+      "example": "anilist-pp-cli schedule tonight --agent",
+      "why_it_matters": "Use this instead of a raw airing query when the request is about the user’s followed shows.",
+      "group": "Watch routine"
+    },
+    {
+      "name": "Safe episode check-in",
+      "command": "progress check-in",
+      "description": "Preview the next watched-episode update before explicitly applying it to AniList.",
+      "rationale": "It combines media resolution, existing progress, and an explicit mutation guard.",
+      "example": "anilist-pp-cli progress check-in 'Cowboy Bebop' --episode 3 --apply --agent",
+      "why_it_matters": "Use this for an account mutation that must be checked before it is sent.",
+      "group": "Watch routine"
+    },
+    {
+      "name": "Short backlog pick",
+      "command": "backlog pick",
+      "description": "Choose a realistically short anime from your Planning list using deterministic personal ranking.",
+      "rationale": "It ranks the user’s own list fields rather than returning a generic public recommendation.",
+      "example": "anilist-pp-cli backlog pick --max-episodes 13 --max-runtime-minutes 30 --agent",
+      "why_it_matters": "Use this when the request is to decide what the user can finish soon.",
+      "group": "Backlog decisions"
+    },
+    {
+      "name": "Catch-up queue",
+      "command": "progress catch-up",
+      "description": "Find followed shows with aired episodes beyond your recorded progress.",
+      "rationale": "It joins current-list progress with live airing records to calculate the precise gap.",
+      "example": "anilist-pp-cli progress catch-up --agent",
+      "why_it_matters": "Use this when the user asks what they are behind on rather than what airs tonight.",
+      "group": "Watch routine"
+    }
+  ],
+  "auth": {
+    "canonical_env_var": "ANILIST_TOKEN"
+  },
+  "narrative": {
+    "display_name": "AniList",
+    "headline": "Your AniList data, plus safe progress updates and personal watch decisions no raw wrapper makes for you.",
+    "value_prop": "Use AniList from an agent without turning personal media tracking into a web-form chore. The CLI answers tonight’s followed releases, safely previews episode check-ins, ranks a short Planning-list pick, and finds missed episodes.",
+    "auth_narrative": "Public catalog commands work without credentials. Set ANILIST_TOKEN only for your viewer data and account mutations; AniList OAuth tokens are long-lived but expire after one year and cannot be refreshed.",
+    "quickstart": [
+      {
+        "command": "anilist-pp-cli doctor --dry-run",
+        "comment": "Confirm configuration without changing your account."
+      },
+      {
+        "command": "anilist-pp-cli schedule tonight --agent",
+        "comment": "See which followed episodes air today."
+      },
+      {
+        "command": "anilist-pp-cli backlog pick --max-episodes 13 --max-runtime-minutes 30 --agent",
+        "comment": "Choose a short show from your Planning list."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "Viewer or list commands return an authorization error.",
+        "fix": "Create an AniList OAuth client with the PIN redirect and export ANILIST_TOKEN before retrying."
+      },
+      {
+        "symptom": "An episode check-in previews correctly but will not write.",
+        "fix": "Review the before/after preview, then rerun with --apply and a valid ANILIST_TOKEN."
+      }
+    ],
+    "when_to_use": "Use this CLI for personal AniList discovery and intentional watch tracking. It is particularly useful when an agent needs to distinguish public catalog data from the authenticated viewer’s own current and Planning lists.",
+    "anti_triggers": [
+      "Do not use this CLI to stream or download anime; AniList is metadata and tracking, not a playback provider.",
+      "Do not use automatic account mutation for unattended playback tracking; use explicit progress check-ins instead."
+    ],
+    "recipes": [
+      {
+        "title": "See today’s followed episodes",
+        "command": "anilist-pp-cli schedule tonight --agent --select media.title.userPreferred,episode,airingAt",
+        "explanation": "Returns a compact personal airing plan instead of the whole seasonal feed."
+      },
+      {
+        "title": "Preview then apply one episode",
+        "command": "anilist-pp-cli progress check-in 'Cowboy Bebop' --episode 3 --apply --agent",
+        "explanation": "Advances progress only after the resolved title and before/after state are explicit."
+      },
+      {
+        "title": "Choose a short backlog show",
+        "command": "anilist-pp-cli backlog pick --max-episodes 13 --max-runtime-minutes 30 --agent",
+        "explanation": "Ranks eligible Planning entries using the user’s own list data."
+      },
+      {
+        "title": "Find missed episodes",
+        "command": "anilist-pp-cli progress catch-up --agent",
+        "explanation": "Calculates the exact watched-versus-aired gap for current shows."
+      }
+    ],
+    "trigger_phrases": [
+      "what anime I follow airs tonight",
+      "mark that episode watched",
+      "recommend something short from my backlog",
+      "what episodes am I behind on",
+      "use AniList",
+      "run AniList"
+    ]
+  }
+}

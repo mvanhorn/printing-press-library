@@ -1,0 +1,64 @@
+{
+  "passed": true,
+  "exit_code": 0,
+  "started_at": "2026-07-21T20:33:12Z",
+  "elapsed_ms": 10667,
+  "legs": [
+    {
+      "name": "verify",
+      "exit_code": 0,
+      "passed": true,
+      "started_at": "2026-07-21T20:33:12Z",
+      "elapsed_ms": 4908,
+      "command": "/Users/alderik/Code/projects/cli-printing-press/cli-printing-press verify --dir /Users/alderik/printing-press/.runstate/cli-printing-press-7a294ee1/runs/20260721-155611-0c8ccb30/working/anilist-pp-cli --write-manifest /Users/alderik/printing-press/.runstate/cli-printing-press-7a294ee1/runs/20260721-155611-0c8ccb30/working/anilist-pp-cli/.printing-press.json --fix"
+    },
+    {
+      "name": "validate-narrative",
+      "exit_code": 0,
+      "passed": true,
+      "started_at": "2026-07-21T20:33:17Z",
+      "elapsed_ms": 294,
+      "command": "/Users/alderik/Code/projects/cli-printing-press/cli-printing-press validate-narrative --strict --full-examples --research /Users/alderik/printing-press/.runstate/cli-printing-press-7a294ee1/runs/20260721-155611-0c8ccb30/research.json --binary /Users/alderik/printing-press/.runstate/cli-printing-press-7a294ee1/runs/20260721-155611-0c8ccb30/working/anilist-pp-cli/anilist-pp-cli"
+    },
+    {
+      "name": "dogfood",
+      "exit_code": 0,
+      "passed": true,
+      "started_at": "2026-07-21T20:33:17Z",
+      "elapsed_ms": 1852,
+      "command": "/Users/alderik/Code/projects/cli-printing-press/cli-printing-press dogfood --dir /Users/alderik/printing-press/.runstate/cli-printing-press-7a294ee1/runs/20260721-155611-0c8ccb30/working/anilist-pp-cli --research-dir /Users/alderik/printing-press/.runstate/cli-printing-press-7a294ee1/runs/20260721-155611-0c8ccb30"
+    },
+    {
+      "name": "workflow-verify",
+      "exit_code": 0,
+      "passed": true,
+      "started_at": "2026-07-21T20:33:19Z",
+      "elapsed_ms": 21,
+      "command": "/Users/alderik/Code/projects/cli-printing-press/cli-printing-press workflow-verify --dir /Users/alderik/printing-press/.runstate/cli-printing-press-7a294ee1/runs/20260721-155611-0c8ccb30/working/anilist-pp-cli"
+    },
+    {
+      "name": "apify-audit",
+      "exit_code": 0,
+      "passed": true,
+      "started_at": "2026-07-21T20:33:19Z",
+      "elapsed_ms": 81,
+      "command": "/Users/alderik/Code/projects/cli-printing-press/cli-printing-press apify-audit --dir /Users/alderik/printing-press/.runstate/cli-printing-press-7a294ee1/runs/20260721-155611-0c8ccb30/working/anilist-pp-cli --research-dir /Users/alderik/printing-press/.runstate/cli-printing-press-7a294ee1/runs/20260721-155611-0c8ccb30"
+    },
+    {
+      "name": "verify-skill",
+      "exit_code": 0,
+      "passed": true,
+      "started_at": "2026-07-21T20:33:19Z",
+      "elapsed_ms": 2875,
+      "command": "/Users/alderik/Code/projects/cli-printing-press/cli-printing-press verify-skill --dir /Users/alderik/printing-press/.runstate/cli-printing-press-7a294ee1/runs/20260721-155611-0c8ccb30/working/anilist-pp-cli --strict"
+    },
+    {
+      "name": "scorecard",
+      "exit_code": 0,
+      "passed": true,
+      "started_at": "2026-07-21T20:33:22Z",
+      "elapsed_ms": 633,
+      "command": "/Users/alderik/Code/projects/cli-printing-press/cli-printing-press scorecard --dir /Users/alderik/printing-press/.runstate/cli-printing-press-7a294ee1/runs/20260721-155611-0c8ccb30/working/anilist-pp-cli --write-manifest /Users/alderik/printing-press/.runstate/cli-printing-press-7a294ee1/runs/20260721-155611-0c8ccb30/working/anilist-pp-cli/.printing-press.json --research-dir /Users/alderik/printing-press/.runstate/cli-printing-press-7a294ee1/runs/20260721-155611-0c8ccb30 --live-check"
+    }
+  ]
+}

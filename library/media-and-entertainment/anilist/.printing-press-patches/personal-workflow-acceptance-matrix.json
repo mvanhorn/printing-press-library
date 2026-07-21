@@ -1,0 +1,18 @@
+{
+  "schema_version": 2,
+  "id": "personal-workflow-acceptance-matrix",
+  "applied_at": "2026-07-21",
+  "base_run_id": "20260721-155611-0c8ccb30",
+  "base_printing_press_version": "4.29.0",
+  "summary": "Preserve the four personal AniList workflows with GraphQL-backed pagination, safety checks, and their binary acceptance matrix.",
+  "reason": "These workflows combine viewer-list state and airing data beyond a generated endpoint mirror; regeneration must retain exact progress guards, local-day boundaries, and deterministic rankings.",
+  "files": [
+    "internal/cli/personal_api.go",
+    "internal/cli/schedule_tonight.go",
+    "internal/cli/progress_check_in.go",
+    "internal/cli/backlog_pick.go",
+    "internal/cli/progress_catch_up.go",
+    "internal/cli/personal_workflows_matrix_test.go"
+  ],
+  "validated_outcome": "Focused HTTP-mocked matrix and full Go test, vet, build, shipcheck, and Phase 5 auth-required skip all passed."
+}

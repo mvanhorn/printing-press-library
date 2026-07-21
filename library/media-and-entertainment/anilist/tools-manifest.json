@@ -1,0 +1,129 @@
+{
+  "api_name": "anilist",
+  "base_url": "https://api.github.com",
+  "description": "Your AniList data, plus safe progress updates and personal watch decisions no raw wrapper makes for you.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "bearer_token",
+    "header": "Authorization",
+    "env_vars": [
+      "ANILIST_TOKEN"
+    ],
+    "env_var_specs": [
+      {
+        "name": "ANILIST_TOKEN",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    ]
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "ani-chart-users_get",
+      "description": "Get a single anichartuser. Returns the AniChartUser.",
+      "method": "GET",
+      "path": "/graphql",
+      "params": []
+    },
+    {
+      "name": "notification-options_update",
+      "description": "Update a notificationoption. Optional: about, titleLanguage, displayAdultContent (plus 11 more). Returns the updated NotificationOption.",
+      "method": "PATCH",
+      "path": "/graphql",
+      "params": [
+        {
+          "name": "about",
+          "type": "string",
+          "location": "query"
+        },
+        {
+          "name": "titleLanguage",
+          "type": "string",
+          "location": "query"
+        },
+        {
+          "name": "displayAdultContent",
+          "type": "boolean",
+          "location": "query"
+        },
+        {
+          "name": "airingNotifications",
+          "type": "boolean",
+          "location": "query"
+        },
+        {
+          "name": "scoreFormat",
+          "type": "string",
+          "location": "query"
+        },
+        {
+          "name": "rowOrder",
+          "type": "string",
+          "location": "query"
+        },
+        {
+          "name": "profileColor",
+          "type": "string",
+          "location": "query"
+        },
+        {
+          "name": "donatorBadge",
+          "type": "string",
+          "location": "query"
+        },
+        {
+          "name": "timezone",
+          "type": "string",
+          "location": "query"
+        },
+        {
+          "name": "activityMergeTime",
+          "type": "integer",
+          "location": "query"
+        },
+        {
+          "name": "staffNameLanguage",
+          "type": "string",
+          "location": "query"
+        },
+        {
+          "name": "restrictMessagesToFollowing",
+          "type": "boolean",
+          "location": "query"
+        },
+        {
+          "name": "disabled",
+          "type": "boolean",
+          "location": "body"
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "location": "body"
+        }
+      ]
+    },
+    {
+      "name": "pages_get",
+      "description": "Get a single page. Optional: page, perPage. Returns the Page.",
+      "method": "GET",
+      "path": "/graphql",
+      "params": [
+        {
+          "name": "page",
+          "type": "integer",
+          "location": "query"
+        },
+        {
+          "name": "perPage",
+          "type": "integer",
+          "location": "query"
+        }
+      ]
+    }
+  ]
+}

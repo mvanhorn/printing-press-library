@@ -1,0 +1,51 @@
+version: 2
+project_name: anilist-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: anilist-pp-cli
+    main: ./cmd/anilist-pp-cli
+    binary: anilist-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X github.com/mvanhorn/printing-press-library/library/media-and-entertainment/anilist/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: anilist-pp-mcp
+    main: ./cmd/anilist-pp-mcp
+    binary: anilist-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X main.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: anilist-pp-cli
+    repository:
+      owner: avanderheyde
+      name: homebrew-tap
+    homepage: "https://github.com/mvanhorn/printing-press-library"
+    description: "Your AniList data, plus safe progress updates and personal watch decisions no raw wrapper makes for you."
+    install: |
+      bin.install "anilist-pp-cli"
+      bin.install "anilist-pp-mcp"

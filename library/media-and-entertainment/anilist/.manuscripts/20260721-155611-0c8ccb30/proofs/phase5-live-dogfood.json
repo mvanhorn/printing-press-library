@@ -1,0 +1,21 @@
+{
+  "dir": "/Users/alderik/printing-press/.runstate/cli-printing-press-7a294ee1/runs/20260721-155611-0c8ccb30/working/anilist-pp-cli",
+  "binary": "/Users/alderik/printing-press/.runstate/cli-printing-press-7a294ee1/runs/20260721-155611-0c8ccb30/working/anilist-pp-cli/anilist-pp-cli",
+  "level": "full",
+  "verdict": "skip-auth-no-credential",
+  "matrix_size": 0,
+  "passed": 0,
+  "failed": 0,
+  "skipped": 1,
+  "commands": null,
+  "tests": [
+    {
+      "command": "(authenticated API)",
+      "kind": "",
+      "args": null,
+      "status": "skip",
+      "reason": "credential env var ANILIST_TOKEN is not set"
+    }
+  ],
+  "ran_at": "2026-07-21T20:33:12.438831Z"
+}

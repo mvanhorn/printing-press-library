@@ -1,0 +1,39 @@
+{
+  "manifest_version": "0.3",
+  "name": "anilist-pp-mcp",
+  "display_name": "AniList",
+  "version": "4.29.0",
+  "description": "Your AniList data, plus safe progress updates and personal watch decisions no raw wrapper makes for you.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/anilist-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/anilist-pp-mcp",
+      "args": [],
+      "env": {
+        "ANILIST_TOKEN": "${user_config.anilist_token}"
+      }
+    }
+  },
+  "user_config": {
+    "anilist_token": {
+      "type": "string",
+      "title": "ANILIST_TOKEN",
+      "description": "Sets ANILIST_TOKEN for the AniList MCP server.",
+      "sensitive": true,
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}
