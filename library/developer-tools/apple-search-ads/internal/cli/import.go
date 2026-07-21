@@ -14,6 +14,24 @@ import (
 	"github.com/spf13/cobra"
 )
 
+var importValidResources = map[string]bool{
+	"budgetorders":         true,
+	"campaigns":            true,
+	"countries-or-regions": true,
+	"creatives":            true,
+	"custom-reports":       true,
+	"me":                   true,
+}
+
+var importValidResourceList = []string{
+	"budgetorders",
+	"campaigns",
+	"countries-or-regions",
+	"creatives",
+	"custom-reports",
+	"me",
+}
+
 func newImportCmd(flags *rootFlags) *cobra.Command {
 	var inputFile string
 	var dryRun bool
@@ -42,6 +60,9 @@ but do not stop the import.`,
 			c.DryRun = dryRun
 
 			resource := args[0]
+			if !importValidResources[resource] {
+				return usageErr(fmt.Errorf("unknown resource %q; valid: %s", resource, strings.Join(importValidResourceList, ", ")))
+			}
 			path := "/" + resource
 
 			var reader io.Reader

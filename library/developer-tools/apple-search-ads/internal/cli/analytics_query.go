@@ -24,7 +24,8 @@ type analyticsCacheRow struct {
 	Installs    int64   `json:"installs"`
 	Spend       float64 `json:"spend"`
 	CPA         float64 `json:"cpa"`
-	TTR         float64 `json:"ttr"`
+	TTR         float64 `json:"ttr"` // taps/impressions*100 (Apple Search Ads definition)
+	CVR         float64 `json:"cvr"` // installs/taps*100 (conversion rate)
 }
 
 // allowedGroupBy is a safelist for --group-by values (prevents SQL injection via column interpolation).
@@ -63,7 +64,8 @@ type reportingRow struct {
 	Installs     int64
 	Spend        float64
 	CPA          float64
-	TTR          float64
+	TTR          float64 // taps/impressions*100
+	CVR          float64 // installs/taps*100
 }
 
 // parseReportingRows parses the Apple Search Ads /reports/campaigns response.
@@ -104,13 +106,14 @@ func parseReportingRows(data json.RawMessage) ([]reportingRow, error) {
 		campaignName := meta["campaignName"]
 		for _, gr := range granularityRows {
 			spend := analyticsParseFloat(gr["localSpend"])
-			installs := analyticsParseInt(gr["installs"])
+			impressions := analyticsParseInt(gr["impressions"])
 			taps := analyticsParseInt(gr["taps"])
+			installs := analyticsParseInt(gr["installs"])
 			row := reportingRow{
 				Date:         gr["date"],
 				CampaignID:   campaignID,
 				CampaignName: campaignName,
-				Impressions:  analyticsParseInt(gr["impressions"]),
+				Impressions:  impressions,
 				Taps:         taps,
 				Installs:     installs,
 				Spend:        spend,
@@ -118,8 +121,11 @@ func parseReportingRows(data json.RawMessage) ([]reportingRow, error) {
 			if installs > 0 {
 				row.CPA = spend / float64(installs)
 			}
+			if impressions > 0 {
+				row.TTR = float64(taps) / float64(impressions) * 100
+			}
 			if taps > 0 {
-				row.TTR = float64(installs) / float64(taps) * 100
+				row.CVR = float64(installs) / float64(taps) * 100
 			}
 			results = append(results, row)
 		}
@@ -279,6 +285,7 @@ to run offline aggregations without consuming API quota.`,
 				impressions INTEGER NOT NULL DEFAULT 0, taps INTEGER NOT NULL DEFAULT 0,
 				installs INTEGER NOT NULL DEFAULT 0, spend REAL NOT NULL DEFAULT 0.0,
 				cpa REAL NOT NULL DEFAULT 0.0, ttr REAL NOT NULL DEFAULT 0.0,
+				cvr REAL NOT NULL DEFAULT 0.0,
 				granularity TEXT NOT NULL DEFAULT 'daily',
 				synced_at TEXT NOT NULL DEFAULT (datetime('now')),
 				PRIMARY KEY (date, campaign_id, granularity)
@@ -286,14 +293,16 @@ to run offline aggregations without consuming API quota.`,
 			if err != nil {
 				return fmt.Errorf("creating reporting_cache table: %w", err)
 			}
+			// Idempotent migration for databases created before the cvr column was added.
+			_, _ = db.ExecContext(cmd.Context(), `ALTER TABLE reporting_cache ADD COLUMN cvr REAL NOT NULL DEFAULT 0.0`) // #nosec G104 -- error means column already exists
 
 			upsertSQL := `INSERT INTO reporting_cache
-				(date, campaign_id, campaign_name, impressions, taps, installs, spend, cpa, ttr, granularity, synced_at)
-				VALUES (?,?,?,?,?,?,?,?,?,?,datetime('now'))
+				(date, campaign_id, campaign_name, impressions, taps, installs, spend, cpa, ttr, cvr, granularity, synced_at)
+				VALUES (?,?,?,?,?,?,?,?,?,?,?,datetime('now'))
 				ON CONFLICT(date, campaign_id, granularity) DO UPDATE SET
 				campaign_name=excluded.campaign_name, impressions=excluded.impressions,
 				taps=excluded.taps, installs=excluded.installs, spend=excluded.spend,
-				cpa=excluded.cpa, ttr=excluded.ttr, synced_at=excluded.synced_at`
+				cpa=excluded.cpa, ttr=excluded.ttr, cvr=excluded.cvr, synced_at=excluded.synced_at`
 
 			tx, err := db.BeginTx(cmd.Context(), nil)
 			if err != nil {
@@ -311,7 +320,7 @@ to run offline aggregations without consuming API quota.`,
 				if _, err := stmt.ExecContext(cmd.Context(),
 					row.Date, row.CampaignID, row.CampaignName,
 					row.Impressions, row.Taps, row.Installs,
-					row.Spend, row.CPA, row.TTR,
+					row.Spend, row.CPA, row.TTR, row.CVR,
 					flagGranularity,
 				); err != nil {
 					_ = tx.Rollback() // #nosec G104 -- rollback error is secondary to the insert error already being returned
@@ -406,7 +415,8 @@ If the cache is empty, run 'analytics sync-cache' first.`,
 					       SUM(impressions) AS impressions, SUM(taps) AS taps, SUM(installs) AS installs,
 					       ROUND(SUM(spend),2) AS spend,
 					       CASE WHEN SUM(installs)>0 THEN ROUND(SUM(spend)/SUM(installs),2) ELSE 0 END AS cpa,
-					       CASE WHEN SUM(taps)>0 THEN ROUND(CAST(SUM(installs) AS REAL)/SUM(taps)*100,2) ELSE 0 END AS ttr
+					       CASE WHEN SUM(impressions)>0 THEN ROUND(CAST(SUM(taps) AS REAL)/SUM(impressions)*100,2) ELSE 0 END AS ttr,
+					       CASE WHEN SUM(taps)>0 THEN ROUND(CAST(SUM(installs) AS REAL)/SUM(taps)*100,2) ELSE 0 END AS cvr
 					FROM reporting_cache
 					WHERE date >= date('now','-%d days')
 					GROUP BY %s ORDER BY spend DESC LIMIT ?`, groupCol, flagDays, groupCol)
@@ -417,7 +427,8 @@ If the cache is empty, run 'analytics sync-cache' first.`,
 					       SUM(impressions) AS impressions, SUM(taps) AS taps, SUM(installs) AS installs,
 					       ROUND(SUM(spend),2) AS spend,
 					       CASE WHEN SUM(installs)>0 THEN ROUND(SUM(spend)/SUM(installs),2) ELSE 0 END AS cpa,
-					       CASE WHEN SUM(taps)>0 THEN ROUND(CAST(SUM(installs) AS REAL)/SUM(taps)*100,2) ELSE 0 END AS ttr
+					       CASE WHEN SUM(impressions)>0 THEN ROUND(CAST(SUM(taps) AS REAL)/SUM(impressions)*100,2) ELSE 0 END AS ttr,
+					       CASE WHEN SUM(taps)>0 THEN ROUND(CAST(SUM(installs) AS REAL)/SUM(taps)*100,2) ELSE 0 END AS cvr
 					FROM reporting_cache
 					GROUP BY %s ORDER BY spend DESC LIMIT ?`, groupCol, groupCol)
 				queryArgs = []any{flagLimit}
@@ -432,7 +443,7 @@ If the cache is empty, run 'analytics sync-cache' first.`,
 			var results []analyticsCacheRow
 			for sqlRows.Next() {
 				var r analyticsCacheRow
-				if err := sqlRows.Scan(&r.GroupKey, &r.Impressions, &r.Taps, &r.Installs, &r.Spend, &r.CPA, &r.TTR); err != nil {
+				if err := sqlRows.Scan(&r.GroupKey, &r.Impressions, &r.Taps, &r.Installs, &r.Spend, &r.CPA, &r.TTR, &r.CVR); err != nil {
 					return fmt.Errorf("scanning row: %w", err)
 				}
 				results = append(results, r)
