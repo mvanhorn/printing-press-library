@@ -144,10 +144,13 @@ func planItems(cmd *cobra.Command, flags *rootFlags, cfg *config.Config, reuseLa
 		// Synced orders historically stored an empty restid; resolve from the
 		// slug so reuse-last carts also carry a numeric id for checkout.
 		if numeric, _ := strconv.Atoi(strings.TrimSpace(restID)); numeric == 0 {
-			if c, cerr := flags.newClient(); cerr == nil {
-				if resolved, rerr := resolveRestID(cmd.Context(), c, cfg.DefaultLocationCode, restaurant); rerr == nil {
-					restID = resolved
-				}
+			c, err := flags.newClient()
+			if err != nil {
+				return nil, "", err
+			}
+			restID, err = resolveRestID(cmd.Context(), c, cfg.DefaultLocationCode, restaurant)
+			if err != nil {
+				return nil, "", err
 			}
 		}
 		return order.Items, restID, nil
