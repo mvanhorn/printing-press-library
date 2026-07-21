@@ -233,7 +233,7 @@ to run offline aggregations without consuming API quota.`,
 			}
 
 			startDate, endDate := analyticsDateRange(flagDays)
-			granLabel := strings.ToUpper(flagGranularity[:1]) + flagGranularity[1:]
+			granLabel := strings.ToUpper(flagGranularity)
 
 			reqBody := map[string]any{
 				"startTime":   startDate,
