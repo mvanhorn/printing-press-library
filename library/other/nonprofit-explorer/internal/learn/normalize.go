@@ -7,7 +7,7 @@ import (
 	"sort"
 	"strings"
 
-	"nonprofit-explorer-pp-cli/internal/learn/entities"
+	"github.com/mvanhorn/printing-press-library/library/other/nonprofit-explorer/internal/learn/entities"
 )
 
 // NormalizedQuery is the entity-aware normalized representation of a

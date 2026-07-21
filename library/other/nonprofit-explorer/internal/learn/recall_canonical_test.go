@@ -20,7 +20,7 @@ import (
 	"strings"
 	"testing"
 
-	"nonprofit-explorer-pp-cli/internal/learn/entities"
+	"github.com/mvanhorn/printing-press-library/library/other/nonprofit-explorer/internal/learn/entities"
 
 	_ "modernc.org/sqlite"
 )

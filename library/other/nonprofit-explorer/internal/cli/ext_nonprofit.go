@@ -19,7 +19,7 @@ import (
 	"strings"
 
 	"github.com/spf13/cobra"
-	"nonprofit-explorer-pp-cli/internal/client"
+	"github.com/mvanhorn/printing-press-library/library/other/nonprofit-explorer/internal/client"
 )
 
 // nteeMajor maps the leading NTEE letter to its human-readable major group.

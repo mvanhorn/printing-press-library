@@ -17,14 +17,14 @@ import (
 
 	mcplib "github.com/mark3labs/mcp-go/mcp"
 	"github.com/mark3labs/mcp-go/server"
-	"nonprofit-explorer-pp-cli/internal/cli"
-	"nonprofit-explorer-pp-cli/internal/client"
-	"nonprofit-explorer-pp-cli/internal/cliutil"
-	"nonprofit-explorer-pp-cli/internal/config"
-	"nonprofit-explorer-pp-cli/internal/learn"
-	"nonprofit-explorer-pp-cli/internal/mcp/bound"
-	"nonprofit-explorer-pp-cli/internal/mcp/cobratree"
-	"nonprofit-explorer-pp-cli/internal/store"
+	"github.com/mvanhorn/printing-press-library/library/other/nonprofit-explorer/internal/cli"
+	"github.com/mvanhorn/printing-press-library/library/other/nonprofit-explorer/internal/client"
+	"github.com/mvanhorn/printing-press-library/library/other/nonprofit-explorer/internal/cliutil"
+	"github.com/mvanhorn/printing-press-library/library/other/nonprofit-explorer/internal/config"
+	"github.com/mvanhorn/printing-press-library/library/other/nonprofit-explorer/internal/learn"
+	"github.com/mvanhorn/printing-press-library/library/other/nonprofit-explorer/internal/mcp/bound"
+	"github.com/mvanhorn/printing-press-library/library/other/nonprofit-explorer/internal/mcp/cobratree"
+	"github.com/mvanhorn/printing-press-library/library/other/nonprofit-explorer/internal/store"
 )
 
 const (

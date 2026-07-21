@@ -13,7 +13,7 @@ import (
 	"strings"
 	"time"
 
-	"nonprofit-explorer-pp-cli/internal/cliutil"
+	"github.com/mvanhorn/printing-press-library/library/other/nonprofit-explorer/internal/cliutil"
 )
 
 // teachLogStateDirName is the per-user state directory name.

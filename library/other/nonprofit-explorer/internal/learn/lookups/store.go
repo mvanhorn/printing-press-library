@@ -12,7 +12,7 @@ import (
 	"strings"
 	"unicode"
 
-	"nonprofit-explorer-pp-cli/internal/cliutil"
+	"github.com/mvanhorn/printing-press-library/library/other/nonprofit-explorer/internal/cliutil"
 )
 
 // LookupRow is the canonical seed-row shape used by both the seeds

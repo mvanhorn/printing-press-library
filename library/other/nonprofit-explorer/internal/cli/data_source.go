@@ -17,8 +17,8 @@ import (
 	"strings"
 	"time"
 
-	"nonprofit-explorer-pp-cli/internal/client"
-	"nonprofit-explorer-pp-cli/internal/store"
+	"github.com/mvanhorn/printing-press-library/library/other/nonprofit-explorer/internal/client"
+	"github.com/mvanhorn/printing-press-library/library/other/nonprofit-explorer/internal/store"
 )
 
 const networkFallbackReason = "api_unreachable"

@@ -15,9 +15,9 @@ import (
 	"strings"
 	"time"
 
-	"nonprofit-explorer-pp-cli/internal/learn/entities"
-	"nonprofit-explorer-pp-cli/internal/learn/lookups"
-	"nonprofit-explorer-pp-cli/internal/learn/patterns"
+	"github.com/mvanhorn/printing-press-library/library/other/nonprofit-explorer/internal/learn/entities"
+	"github.com/mvanhorn/printing-press-library/library/other/nonprofit-explorer/internal/learn/lookups"
+	"github.com/mvanhorn/printing-press-library/library/other/nonprofit-explorer/internal/learn/patterns"
 )
 
 // Default thresholds. Keep in sync with the documented contract in

@@ -20,8 +20,8 @@ import (
 	"strings"
 	"testing"
 
-	"nonprofit-explorer-pp-cli/internal/learn"
-	"nonprofit-explorer-pp-cli/internal/store"
+	"github.com/mvanhorn/printing-press-library/library/other/nonprofit-explorer/internal/learn"
+	"github.com/mvanhorn/printing-press-library/library/other/nonprofit-explorer/internal/store"
 )
 
 // synthesisFamily is the query family every scenario teaches under.

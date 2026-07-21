@@ -14,7 +14,7 @@ import (
 	"time"
 	"unicode/utf8"
 
-	"nonprofit-explorer-pp-cli/internal/config"
+	"github.com/mvanhorn/printing-press-library/library/other/nonprofit-explorer/internal/config"
 )
 
 func TestTruncateBody(t *testing.T) {

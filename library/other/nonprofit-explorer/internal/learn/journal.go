@@ -17,7 +17,7 @@ import (
 	"sync"
 	"time"
 
-	"nonprofit-explorer-pp-cli/internal/cliutil"
+	"github.com/mvanhorn/printing-press-library/library/other/nonprofit-explorer/internal/cliutil"
 )
 
 // The invocation journal records one entry per CLI invocation in dated

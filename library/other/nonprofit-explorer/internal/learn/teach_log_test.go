@@ -11,7 +11,7 @@ import (
 	"sync"
 	"testing"
 
-	"nonprofit-explorer-pp-cli/internal/cliutil"
+	"github.com/mvanhorn/printing-press-library/library/other/nonprofit-explorer/internal/cliutil"
 )
 
 func withTempHomeForLog(t *testing.T) string {

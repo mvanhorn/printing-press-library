@@ -14,10 +14,10 @@ import (
 	"time"
 
 	"github.com/spf13/cobra"
-	"nonprofit-explorer-pp-cli/internal/client"
-	"nonprofit-explorer-pp-cli/internal/cliutil"
-	"nonprofit-explorer-pp-cli/internal/config"
-	"nonprofit-explorer-pp-cli/internal/store"
+	"github.com/mvanhorn/printing-press-library/library/other/nonprofit-explorer/internal/client"
+	"github.com/mvanhorn/printing-press-library/library/other/nonprofit-explorer/internal/cliutil"
+	"github.com/mvanhorn/printing-press-library/library/other/nonprofit-explorer/internal/config"
+	"github.com/mvanhorn/printing-press-library/library/other/nonprofit-explorer/internal/store"
 )
 
 // looksLikeDoctorInterstitial reports whether the response body matches a known

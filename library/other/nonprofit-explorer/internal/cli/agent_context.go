@@ -10,8 +10,8 @@ import (
 
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
-	"nonprofit-explorer-pp-cli/internal/cliutil"
-	"nonprofit-explorer-pp-cli/internal/learn"
+	"github.com/mvanhorn/printing-press-library/library/other/nonprofit-explorer/internal/cliutil"
+	"github.com/mvanhorn/printing-press-library/library/other/nonprofit-explorer/internal/learn"
 )
 
 // agentContextSchemaVersion is bumped on any breaking change to the JSON

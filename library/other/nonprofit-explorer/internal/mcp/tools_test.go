@@ -12,9 +12,9 @@ import (
 
 	mcplib "github.com/mark3labs/mcp-go/mcp"
 	"github.com/mark3labs/mcp-go/server"
-	"nonprofit-explorer-pp-cli/internal/cliutil"
-	"nonprofit-explorer-pp-cli/internal/mcp/bound"
-	"nonprofit-explorer-pp-cli/internal/store"
+	"github.com/mvanhorn/printing-press-library/library/other/nonprofit-explorer/internal/cliutil"
+	"github.com/mvanhorn/printing-press-library/library/other/nonprofit-explorer/internal/mcp/bound"
+	"github.com/mvanhorn/printing-press-library/library/other/nonprofit-explorer/internal/store"
 )
 
 func TestMCPPathResolutionMatchesCLIResolverWithHomeEnv(t *testing.T) {

@@ -9,7 +9,7 @@ import (
 	"path/filepath"
 	"testing"
 
-	"nonprofit-explorer-pp-cli/internal/store"
+	"github.com/mvanhorn/printing-press-library/library/other/nonprofit-explorer/internal/store"
 )
 
 // runLearningsStatsJSON executes `learnings stats --json` against the

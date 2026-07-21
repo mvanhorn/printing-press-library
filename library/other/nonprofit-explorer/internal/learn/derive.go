@@ -13,7 +13,7 @@ import (
 	"strings"
 	"time"
 
-	"nonprofit-explorer-pp-cli/internal/store"
+	"github.com/mvanhorn/printing-press-library/library/other/nonprofit-explorer/internal/store"
 )
 
 // This file owns post-run flag-correction derivation: turning an

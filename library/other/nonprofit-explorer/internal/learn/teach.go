@@ -19,7 +19,7 @@ import (
 	"database/sql"
 	"fmt"
 
-	"nonprofit-explorer-pp-cli/internal/learn/entities"
+	"github.com/mvanhorn/printing-press-library/library/other/nonprofit-explorer/internal/learn/entities"
 )
 
 // Warning is one teach-time validation finding. The shape is the JSON

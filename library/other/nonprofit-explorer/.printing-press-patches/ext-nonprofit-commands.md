@@ -70,6 +70,21 @@ results; the resolver maps "HTTP 404" to the clean not-found path.
    features (name-or-EIN resolution, financials trajectory+composition,
    compare, NTEE-CC naming, people aggregates).
 
+## Library packaging contract (mirrors library/travel/flight-goat)
+
+- Module path is the canonical library path
+  `github.com/mvanhorn/printing-press-library/library/other/nonprofit-explorer`;
+  all internal imports and the .goreleaser ldflags -X path use it. Local `go
+  build ./...` still works (the module path is a name, not a fetch URL).
+- `.gitignore` build-artifact patterns MUST be root-anchored
+  (`/nonprofit-explorer-pp-cli` not `nonprofit-explorer-pp-cli`) — the
+  unanchored form also matches `cmd/nonprofit-explorer-pp-cli/` and silently
+  untracks both entrypoints (this broke library CI once). The packaged/PR
+  copy ships without a .gitignore at all, matching reference CLIs.
+- `.manuscripts/<run>/` carries `proofs/` (phase5-acceptance.json) AND
+  `research/` (brief md, absorb-manifest md, spec yml) per the library
+  convention.
+
 ## Publish bookkeeping
 
 - Project is its own git repo (`git init` + commits) because `/Users/sean/.git`

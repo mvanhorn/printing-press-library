@@ -11,7 +11,7 @@ import (
 	"strings"
 	"testing"
 
-	"nonprofit-explorer-pp-cli/internal/store"
+	"github.com/mvanhorn/printing-press-library/library/other/nonprofit-explorer/internal/store"
 )
 
 // writePlaybookFile is a test helper that drops a fixture file at the

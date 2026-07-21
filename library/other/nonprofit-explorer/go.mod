@@ -1,4 +1,4 @@
-module nonprofit-explorer-pp-cli
+module github.com/mvanhorn/printing-press-library/library/other/nonprofit-explorer
 
 go 1.26.5
 

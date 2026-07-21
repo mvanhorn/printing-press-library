@@ -12,7 +12,7 @@ import (
 	"strings"
 	"time"
 
-	"nonprofit-explorer-pp-cli/internal/learn/lookups"
+	"github.com/mvanhorn/printing-press-library/library/other/nonprofit-explorer/internal/learn/lookups"
 )
 
 // DefaultJaccardMin matches the recall-side floor. Applying the same

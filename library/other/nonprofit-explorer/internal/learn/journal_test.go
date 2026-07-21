@@ -17,9 +17,9 @@ import (
 	"testing"
 	"time"
 
-	"nonprofit-explorer-pp-cli/internal/cli"
-	"nonprofit-explorer-pp-cli/internal/cliutil"
-	"nonprofit-explorer-pp-cli/internal/learn"
+	"github.com/mvanhorn/printing-press-library/library/other/nonprofit-explorer/internal/cli"
+	"github.com/mvanhorn/printing-press-library/library/other/nonprofit-explorer/internal/cliutil"
+	"github.com/mvanhorn/printing-press-library/library/other/nonprofit-explorer/internal/learn"
 )
 
 // withJournalHome isolates a test in a temp HOME with every journal

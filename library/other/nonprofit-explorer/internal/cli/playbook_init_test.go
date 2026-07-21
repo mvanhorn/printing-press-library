@@ -18,9 +18,9 @@ import (
 	"testing"
 	"testing/fstest"
 
-	"nonprofit-explorer-pp-cli/internal/cli/playbooks"
-	"nonprofit-explorer-pp-cli/internal/learn"
-	"nonprofit-explorer-pp-cli/internal/store"
+	"github.com/mvanhorn/printing-press-library/library/other/nonprofit-explorer/internal/cli/playbooks"
+	"github.com/mvanhorn/printing-press-library/library/other/nonprofit-explorer/internal/learn"
+	"github.com/mvanhorn/printing-press-library/library/other/nonprofit-explorer/internal/store"
 )
 
 // twoPlaybookFS returns an fstest.MapFS with two minimal playbooks +

@@ -17,8 +17,8 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"nonprofit-explorer-pp-cli/internal/learn"
-	"nonprofit-explorer-pp-cli/internal/store"
+	"github.com/mvanhorn/printing-press-library/library/other/nonprofit-explorer/internal/learn"
+	"github.com/mvanhorn/printing-press-library/library/other/nonprofit-explorer/internal/store"
 )
 
 // deriveDBPath allocates a fresh candidate-store path per test.
