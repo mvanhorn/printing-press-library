@@ -46,7 +46,13 @@ type Client struct {
 // configured BasePath. Novel commands that build request URLs by hand should use
 // this instead of concatenating c.BaseURL directly, so they cannot drop BasePath.
 func (c *Client) RequestBaseURL() string {
-	return c.BaseURL + c.BasePath
+	base := c.BaseURL + c.BasePath
+	if c.Config != nil {
+		for key, value := range c.Config.TemplateVars {
+			base = strings.ReplaceAll(base, "{"+key+"}", value)
+		}
+	}
+	return base
 }
 
 // APIError carries HTTP status information for structured exit codes.
@@ -188,6 +194,11 @@ func New(cfg *config.Config, timeout time.Duration, rateLimit float64) *Client {
 			// Cookie) but not custom ones, so a custom API-key header would be
 			// forwarded verbatim to the redirect target. Delete it explicitly.
 			req.Header.Del("Authorization")
+			// Configured headers can carry API keys or cookies under arbitrary
+			// names. Never forward any caller-configured header across hosts.
+			for name := range c.Config.Headers {
+				req.Header.Del(name)
+			}
 		}
 		return nil
 	}
@@ -910,6 +921,13 @@ func normalizeBasePath(p string) string {
 	p = strings.TrimRight(p, "/")
 	if p == "" {
 		return ""
+	}
+	// A server URL template (Home Assistant's `{server}` default) is a
+	// complete base URL, not a relative path. Prefixing it with `/` turns the
+	// resolved value into `/http://…`, which breaks both HTTP and WebSocket
+	// connections before template expansion can help.
+	if strings.HasPrefix(p, "{") {
+		return p
 	}
 	if !strings.HasPrefix(p, "/") {
 		p = "/" + p

@@ -234,6 +234,36 @@ func TestRecall_MinConfidenceAndLimit(t *testing.T) {
 	}
 }
 
+func TestRecallNarrowsCandidatesBeforeSimilarityScan(t *testing.T) {
+	s := openLearnings(t)
+	for i := 0; i < 120; i++ {
+		if _, _, err := s.UpsertLearning(context.Background(), store.UpsertLearningInput{
+			Query:      "movie night scene " + string(rune('a'+i%26)) + string(rune('a'+(i/26)%26)),
+			ResourceID: "scene-" + string(rune('a'+i%26)) + string(rune('a'+(i/26)%26)),
+		}); err != nil {
+			t.Fatalf("upsert candidate %d: %v", i, err)
+		}
+	}
+	if _, _, err := s.UpsertLearning(context.Background(), store.UpsertLearningInput{
+		Query:      "unrelated outdoor gardening",
+		ResourceID: "garden",
+	}); err != nil {
+		t.Fatalf("upsert unrelated learning: %v", err)
+	}
+	matches, err := s.Recall(context.Background(), "movie night", store.RecallOptions{Limit: 5, JaccardMin: 0.4})
+	if err != nil {
+		t.Fatalf("recall: %v", err)
+	}
+	if len(matches) != 5 {
+		t.Fatalf("recall returned %d matches, want bounded output of 5", len(matches))
+	}
+	for _, match := range matches {
+		if match.ResourceID == "garden" {
+			t.Fatalf("unrelated row survived SQLite token candidate filter: %#v", match)
+		}
+	}
+}
+
 func TestForgetLearnings(t *testing.T) {
 	s := openLearnings(t)
 	for _, rid := range []string{"X", "Y", "Z"} {

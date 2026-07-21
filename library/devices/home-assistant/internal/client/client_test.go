@@ -130,3 +130,43 @@ func TestGetWithHeadersValuesPreservesRepeatedQueryParams(t *testing.T) {
 		t.Fatalf("GetWithHeadersValues returned error: %v", err)
 	}
 }
+
+func TestRequestBaseURLExpandsTemplateVars(t *testing.T) {
+	c := New(&config.Config{
+		BaseURL:      "",
+		BasePath:     "{server}",
+		TemplateVars: map[string]string{"server": "http://home.example:8123"},
+	}, time.Second, 0)
+	if got, want := c.RequestBaseURL(), "http://home.example:8123"; got != want {
+		t.Fatalf("RequestBaseURL() = %q, want %q", got, want)
+	}
+}
+
+func TestCrossHostRedirectStripsConfiguredHeaders(t *testing.T) {
+	t.Parallel()
+	var gotAuthorization, gotAPIKey string
+	target := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		gotAuthorization = r.Header.Get("Authorization")
+		gotAPIKey = r.Header.Get("X-API-Key")
+		w.Header().Set("Content-Type", "application/json")
+		_, _ = w.Write([]byte(`{"ok":true}`))
+	}))
+	t.Cleanup(target.Close)
+	source := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		http.Redirect(w, r, target.URL+"/redirect-target", http.StatusFound)
+	}))
+	t.Cleanup(source.Close)
+
+	c := New(&config.Config{
+		BaseURL:   source.URL,
+		HassToken: "secret",
+		Headers:   map[string]string{"X-API-Key": "also-secret"},
+	}, time.Second, 0)
+	c.NoCache = true
+	if _, err := c.Get(context.Background(), "/start", nil); err != nil {
+		t.Fatalf("Get through redirect: %v", err)
+	}
+	if gotAuthorization != "" || gotAPIKey != "" {
+		t.Fatalf("cross-host redirect leaked credentials: Authorization=%q X-API-Key=%q", gotAuthorization, gotAPIKey)
+	}
+}

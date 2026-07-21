@@ -91,7 +91,9 @@ func newServicesCallCmd(flags *rootFlags) *cobra.Command {
 				}
 			}
 			if !flags.dryRun && statusCode >= 200 && statusCode < 300 && (partialFailure == nil || flags.allowPartialFailure) {
-				writeMutationResponseToStore(cmd.Context(), "services", data, "")
+				if err := writeMutationResponseToStore(cmd.Context(), "services", data, ""); err != nil {
+					return fmt.Errorf("remote services mutation succeeded but local persistence failed: %w", err)
+				}
 			}
 			if wantsHumanTable(cmd.OutOrStdout(), flags) {
 				// Check if response contains an array (directly or wrapped in "data")

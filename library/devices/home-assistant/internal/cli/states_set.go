@@ -87,7 +87,9 @@ func newStatesSetCmd(flags *rootFlags) *cobra.Command {
 				}
 			}
 			if !flags.dryRun && statusCode >= 200 && statusCode < 300 && (partialFailure == nil || flags.allowPartialFailure) {
-				writeMutationResponseToStore(cmd.Context(), "states", data, "")
+				if err := writeMutationResponseToStore(cmd.Context(), "states", data, ""); err != nil {
+					return fmt.Errorf("remote states mutation succeeded but local persistence failed: %w", err)
+				}
 			}
 			if wantsHumanTable(cmd.OutOrStdout(), flags) {
 				// Check if response contains an array (directly or wrapped in "data")

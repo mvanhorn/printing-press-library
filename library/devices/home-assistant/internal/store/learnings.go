@@ -574,14 +574,34 @@ func (s *Store) Recall(ctx context.Context, query string, opts RecallOptions) ([
 		jMin = 0
 	}
 
-	// Fast path: count distinct query_patterns. Stays tiny per-user, so a
-	// full scan with score-in-Go is the right tradeoff against trying to
-	// implement set-overlap in SQL.
-	rows, err := s.db.QueryContext(ctx, `SELECT id, query_pattern, COALESCE(venue, ''),
+	// Narrow candidates in SQLite before doing token-set scoring in Go. Every
+	// Jaccard match shares at least one normalized token, so this cannot discard
+	// a valid match; the bounded candidate set also prevents a broad recall from
+	// scanning an unbounded personal history.
+	candidateLimit := limit * 20
+	if candidateLimit < 100 {
+		candidateLimit = 100
+	}
+	if candidateLimit > 500 {
+		candidateLimit = 500
+	}
+	clauses := make([]string, 0, len(inputTokens))
+	args := make([]any, 0, len(inputTokens)+2)
+	args = append(args, minConf)
+	for token := range inputTokens {
+		escaped := strings.NewReplacer(`\`, `\\`, `%`, `\%`, `_`, `\_`).Replace(token)
+		clauses = append(clauses, `LOWER(query_pattern) LIKE ? ESCAPE '\'`)
+		args = append(args, "%"+escaped+"%")
+	}
+	args = append(args, candidateLimit)
+	q := `SELECT id, query_pattern, COALESCE(venue, ''),
 		COALESCE(resource_type, ''), resource_id, action, COALESCE(alias_target, ''),
 		source, confidence, created_at, last_observed_at, COALESCE(notes, '')
 		FROM search_learnings
-		WHERE confidence >= ?`, minConf)
+		WHERE confidence >= ? AND (` + strings.Join(clauses, " OR ") + `)
+		ORDER BY confidence DESC, last_observed_at DESC
+		LIMIT ?`
+	rows, err := s.db.QueryContext(ctx, q, args...)
 	if err != nil {
 		return nil, fmt.Errorf("recall: %w", err)
 	}

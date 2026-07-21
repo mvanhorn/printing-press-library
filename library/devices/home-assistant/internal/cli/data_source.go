@@ -505,19 +505,30 @@ func isRawJSONNull(raw json.RawMessage) bool {
 	return strings.TrimSpace(string(raw)) == "null"
 }
 
-func writeMutationResponseToStore(ctx context.Context, resourceType string, data json.RawMessage, responsePath string) {
+// writeMutationResponseToStore persists entities returned by a successful
+// remote mutation. Unlike read-through caching, mutation persistence is not
+// best-effort: returning success while local/offline reads remain stale is
+// misleading, so callers must surface the returned error.
+func writeMutationResponseToStore(ctx context.Context, resourceType string, data json.RawMessage, responsePath string) error {
 	items := mutationResponseEntityItems(resourceType, data, responsePath)
 	if len(items) == 0 {
-		return
+		return nil
 	}
 
 	db, err := store.OpenWithContext(ctx, defaultDBPath("home-assistant-pp-cli"))
 	if err != nil {
-		return
+		return fmt.Errorf("open local store: %w", err)
 	}
 	defer db.Close()
 
-	_, _, _ = db.UpsertBatch(resourceType, items)
+	stored, dropped, err := db.UpsertBatch(resourceType, items)
+	if err != nil {
+		return fmt.Errorf("persist mutation response: %w", err)
+	}
+	if stored != len(items) || dropped != 0 {
+		return fmt.Errorf("persist mutation response: stored %d of %d entity rows (%d dropped)", stored, len(items), dropped)
+	}
+	return nil
 }
 
 func mutationResponseEntityItems(resourceType string, data json.RawMessage, responsePath string) []json.RawMessage {

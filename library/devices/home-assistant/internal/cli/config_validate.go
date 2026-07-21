@@ -68,7 +68,9 @@ func newConfigValidateCmd(flags *rootFlags) *cobra.Command {
 				}
 			}
 			if !flags.dryRun && statusCode >= 200 && statusCode < 300 && (partialFailure == nil || flags.allowPartialFailure) {
-				writeMutationResponseToStore(cmd.Context(), "config", data, "")
+				if err := writeMutationResponseToStore(cmd.Context(), "config", data, ""); err != nil {
+					return fmt.Errorf("remote config mutation succeeded but local persistence failed: %w", err)
+				}
 			}
 			if wantsHumanTable(cmd.OutOrStdout(), flags) {
 				// Check if response contains an array (directly or wrapped in "data")

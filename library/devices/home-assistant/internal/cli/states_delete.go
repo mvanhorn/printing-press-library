@@ -4,10 +4,12 @@
 package cli
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"os"
 
+	"github.com/mvanhorn/printing-press-library/library/devices/home-assistant/internal/store"
 	"github.com/spf13/cobra"
 )
 
@@ -33,6 +35,10 @@ func newStatesDeleteCmd(flags *rootFlags) *cobra.Command {
 					}
 				}
 				return usageErr(fmt.Errorf("missing required argument\nUsage: %s%s", cmd.CommandPath(), " <entityId>"))
+			}
+			if !flags.yes {
+				fmt.Fprintln(cmd.ErrOrStderr(), "refusing to delete an entity state without --yes")
+				return fmt.Errorf("confirmation required: pass --yes")
 			}
 			path := "/api/states/{entityId}"
 			if len(args) < 1 || args[0] == "" {
@@ -63,6 +69,11 @@ func newStatesDeleteCmd(flags *rootFlags) *cobra.Command {
 					fmt.Fprintf(os.Stderr, "warning: partial failure detected in %s response: %s\n", "states", partialFailure.Message)
 					if len(partialFailure.ResourceNames) > 0 {
 						fmt.Fprintf(os.Stderr, "         succeeded: %d operation(s)\n", len(partialFailure.ResourceNames))
+					}
+				}
+				if partialFailure == nil {
+					if err := reconcileDeletedState(cmd.Context(), args[0]); err != nil {
+						return fmt.Errorf("remote state delete succeeded but local cache reconciliation failed: %w", err)
 					}
 				}
 			}
@@ -186,4 +197,22 @@ func newStatesDeleteCmd(flags *rootFlags) *cobra.Command {
 	}
 
 	return cmd
+}
+
+// reconcileDeletedState removes an already-synced state after a successful
+// remote delete. A missing database simply means sync has never run; any real
+// database failure is returned so stale offline reads are never silent.
+func reconcileDeletedState(ctx context.Context, entityID string) error {
+	dbPath := defaultDBPath("home-assistant-pp-cli")
+	if _, err := os.Stat(dbPath); os.IsNotExist(err) {
+		return nil
+	} else if err != nil {
+		return fmt.Errorf("inspect local cache: %w", err)
+	}
+	db, err := store.OpenWithContext(ctx, dbPath)
+	if err != nil {
+		return fmt.Errorf("open local cache: %w", err)
+	}
+	defer db.Close()
+	return db.Delete("states", entityID)
 }

@@ -46,7 +46,37 @@ func newNovelModeRunCmd(flags *rootFlags) *cobra.Command {
 			if err != nil {
 				return err
 			}
-			return workflowOutput(map[string]any{"plan": plan, "service_result": json.RawMessage(result), "verified": true}, flags, cmd.OutOrStdout())
+			var changed []map[string]any
+			if err := json.Unmarshal(result, &changed); err != nil {
+				return fmt.Errorf("decode service response for verification: %w", err)
+			}
+			if len(changed) == 0 {
+				return fmt.Errorf("mode run service returned no changed states to verify")
+			}
+			current, err := householdStates(cmd.Context(), flags)
+			if err != nil {
+				return err
+			}
+			verified := make([]map[string]any, 0, len(changed))
+			for _, state := range changed {
+				entity, _ := state["entity_id"].(string)
+				if entity == "" {
+					return fmt.Errorf("mode run service returned a changed state without entity_id")
+				}
+				actual, matchErr := matchEntity(current, entity)
+				if matchErr != nil {
+					return fmt.Errorf("mode run could not verify %s: %w", entity, matchErr)
+				}
+				if expected := stateValue(state); expected != "" && stateValue(actual) != expected {
+					return fmt.Errorf("mode run verification mismatch for %s: got %q, want %q", entity, stateValue(actual), expected)
+				}
+				verified = append(verified, actual)
+			}
+			verifiedOK := len(changed) > 0 && len(verified) == len(changed)
+			if !verifiedOK {
+				return fmt.Errorf("mode run could not verify every resulting entity state")
+			}
+			return workflowOutput(map[string]any{"plan": plan, "service_result": json.RawMessage(result), "verified_states": verified, "verified": verifiedOK}, flags, cmd.OutOrStdout())
 		},
 	}
 	return cmd

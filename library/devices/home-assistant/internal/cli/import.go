@@ -18,7 +18,6 @@ import (
 func newImportCmd(flags *rootFlags) *cobra.Command {
 	var inputFile string
 	var dryRun bool
-	var batchSize int
 
 	cmd := &cobra.Command{
 		Use:   "import <resource>",
@@ -82,7 +81,7 @@ but do not stop the import.`,
 					continue
 				}
 
-				_, status, err := c.Post(cmd.Context(), path, body)
+				response, status, err := c.Post(cmd.Context(), path, body)
 				if err != nil {
 					failed++
 					if status == 401 || status == 403 {
@@ -90,6 +89,11 @@ but do not stop the import.`,
 						continue
 					}
 					fmt.Fprintf(os.Stderr, "warning: failed to import record: %v\n", err)
+					continue
+				}
+				if partialFailure := detectPartialFailure(response); partialFailure != nil && !flags.allowPartialFailure {
+					failed++
+					fmt.Fprintf(os.Stderr, "warning: import response reported a partial failure: %s\n", partialFailure.Message)
 					continue
 				}
 				success++
@@ -124,7 +128,6 @@ but do not stop the import.`,
 	cmd.Flags().StringVarP(&inputFile, "input", "i", "", "Input JSONL file path (use - for stdin)")
 	_ = cmd.MarkFlagRequired("input")
 	cmd.Flags().BoolVar(&dryRun, "dry-run", false, "Preview import without sending requests")
-	cmd.Flags().IntVar(&batchSize, "batch-size", 1, "Records per batch (future: batch API support)")
 
 	return cmd
 }

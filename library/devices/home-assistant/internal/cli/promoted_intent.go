@@ -44,7 +44,9 @@ func newIntentPromotedCmd(flags *rootFlags) *cobra.Command {
 				partialFailure = detectPartialFailure(data)
 			}
 			if !flags.dryRun && statusCode >= 200 && statusCode < 300 && (partialFailure == nil || flags.allowPartialFailure) {
-				writeMutationResponseToStore(cmd.Context(), "intent", data, "")
+				if err := writeMutationResponseToStore(cmd.Context(), "intent", data, ""); err != nil {
+					return fmt.Errorf("remote intent mutation succeeded but local persistence failed: %w", err)
+				}
 			}
 			// Print provenance to stderr for human-facing output only.
 			// Machine-format flags (--json, --csv, --compact, --quiet, --plain,
