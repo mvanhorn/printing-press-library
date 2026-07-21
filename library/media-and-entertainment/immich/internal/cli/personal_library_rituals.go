@@ -164,7 +164,9 @@ func newImportWatchCmd(flags *rootFlags) *cobra.Command {
 					return err
 				}
 				total.add(sum)
-				markWatchAssetsUploaded(ready, seen)
+				if shouldMarkWatchAssetsUploaded(sum) {
+					markWatchAssetsUploaded(ready, seen)
+				}
 			}
 			select {
 			case <-cmd.Context().Done():
@@ -553,18 +555,19 @@ func applyICloudCSV(root string, assets []importAsset) {
 }
 
 type importSummary struct {
-	Source           string            `json:"source"`
-	Selected         int               `json:"selected"`
-	Uploaded         int               `json:"uploaded"`
-	Duplicate        int               `json:"duplicate"`
-	Skipped          int               `json:"skipped"`
-	Failed           int               `json:"failed"`
-	Cancelled        bool              `json:"cancelled,omitempty"`
-	UnmappedMetadata []string          `json:"unmapped_metadata,omitempty"`
-	Warnings         []string          `json:"warnings,omitempty"`
-	Errors           []string          `json:"errors,omitempty"`
-	AssetMapping     map[string]string `json:"asset_mapping,omitempty"`
-	UploadedAssetIDs []string          `json:"uploaded_asset_ids,omitempty"`
+	Source                string            `json:"source"`
+	Selected              int               `json:"selected"`
+	Uploaded              int               `json:"uploaded"`
+	Duplicate             int               `json:"duplicate"`
+	Skipped               int               `json:"skipped"`
+	Failed                int               `json:"failed"`
+	Cancelled             bool              `json:"cancelled,omitempty"`
+	UnmappedMetadata      []string          `json:"unmapped_metadata,omitempty"`
+	Warnings              []string          `json:"warnings,omitempty"`
+	Errors                []string          `json:"errors,omitempty"`
+	AssetMapping          map[string]string `json:"asset_mapping,omitempty"`
+	UploadedAssetIDs      []string          `json:"uploaded_asset_ids,omitempty"`
+	AlbumAssignmentFailed bool              `json:"-"`
 }
 
 func (s *importSummary) add(o importSummary) {
@@ -577,6 +580,7 @@ func (s *importSummary) add(o importSummary) {
 	s.Warnings = append(s.Warnings, o.Warnings...)
 	s.Errors = append(s.Errors, o.Errors...)
 	s.UploadedAssetIDs = append(s.UploadedAssetIDs, o.UploadedAssetIDs...)
+	s.AlbumAssignmentFailed = s.AlbumAssignmentFailed || o.AlbumAssignmentFailed
 	if s.AssetMapping == nil {
 		s.AssetMapping = map[string]string{}
 	}
@@ -672,6 +676,7 @@ func uploadAssets(ctx context.Context, flags *rootFlags, assets []importAsset, o
 			// summary and make the membership failure explicit so an operator
 			// can repair it without re-uploading duplicate assets.
 			sum.Failed++
+			sum.AlbumAssignmentFailed = true
 			sum.Errors = append(sum.Errors, fmt.Sprintf("assign uploaded assets to album %q: %v", opt.album, err))
 		}
 	}
@@ -763,8 +768,9 @@ func duplicateCheck(data []byte) (bool, error) {
 func duplicateCheckResult(data []byte) (bool, string, error) {
 	var response struct {
 		Results []struct {
-			ID     string `json:"id"`
-			Action string `json:"action"`
+			ID      string `json:"id"`
+			AssetID string `json:"assetId"`
+			Action  string `json:"action"`
 		} `json:"results"`
 	}
 	if err := json.Unmarshal(data, &response); err != nil {
@@ -776,6 +782,11 @@ func duplicateCheckResult(data []byte) (bool, string, error) {
 	}
 	switch strings.ToLower(items[0].Action) {
 	case "duplicate", "reject":
+		// `id` is the client-supplied upload/checksum ID; `assetId` is the
+		// existing Immich asset UUID required by album membership endpoints.
+		if items[0].AssetID != "" {
+			return true, items[0].AssetID, nil
+		}
 		return true, items[0].ID, nil
 	case "accept":
 		return false, "", nil
@@ -851,6 +862,10 @@ func markWatchAssetsUploaded(assets []importAsset, seen map[string]fileStamp) {
 		st.uploaded = true
 		seen[a.Path] = st
 	}
+}
+
+func shouldMarkWatchAssetsUploaded(sum importSummary) bool {
+	return !sum.AlbumAssignmentFailed
 }
 
 func fetchSourceImmich(ctx context.Context, base, key string, max int) ([]importAsset, []string, error) {

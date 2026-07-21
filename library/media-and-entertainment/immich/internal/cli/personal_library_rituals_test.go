@@ -71,6 +71,34 @@ func TestWatchReadyAssetsAreExactlyOnceUntilStampChanges(t *testing.T) {
 	}
 }
 
+func TestWatchKeepsAssetsPendingAfterAlbumAssignmentFailure(t *testing.T) {
+	path := filepath.Join(t.TempDir(), "watch.jpg")
+	if err := os.WriteFile(path, []byte("one"), 0600); err != nil {
+		t.Fatal(err)
+	}
+	now := time.Date(2026, 7, 21, 12, 0, 0, 0, time.UTC)
+	asset := importAsset{Path: path, Name: "watch.jpg", Modified: now}
+	seen := map[string]fileStamp{}
+	readyWatchAssets([]importAsset{asset}, seen, now, 0)
+	ready := readyWatchAssets([]importAsset{asset}, seen, now.Add(time.Second), 0)
+	if len(ready) != 1 {
+		t.Fatalf("initial watch batch = %#v", ready)
+	}
+	if shouldMarkWatchAssetsUploaded(importSummary{AlbumAssignmentFailed: true}) {
+		markWatchAssetsUploaded(ready, seen)
+	}
+	retry := readyWatchAssets([]importAsset{asset}, seen, now.Add(2*time.Second), 0)
+	if len(retry) != 1 {
+		t.Fatalf("album-assignment failure marked watch asset complete: %#v", retry)
+	}
+	if shouldMarkWatchAssetsUploaded(importSummary{}) {
+		markWatchAssetsUploaded(retry, seen)
+	}
+	if ready := readyWatchAssets([]importAsset{asset}, seen, now.Add(3*time.Second), 0); len(ready) != 0 {
+		t.Fatalf("repaired watch asset remained pending: %#v", ready)
+	}
+}
+
 func TestPeopleJulyResolvesAndQueriesEachJuly(t *testing.T) {
 	withTempLearnHome(t)
 	calls := map[string]int{}
@@ -614,7 +642,7 @@ func TestUploadAssetsPreservesCommittedIDsWhenAlbumAssignmentFails(t *testing.T)
 				_, _ = w.Write([]byte(`{"results":[{"action":"accept"}]}`))
 				return
 			}
-			_, _ = w.Write([]byte(`{"results":[{"id":"uploaded-1","action":"duplicate"}]}`))
+			_, _ = w.Write([]byte(`{"results":[{"id":"client-checksum","assetId":"uploaded-1","action":"duplicate"}]}`))
 		case "/assets":
 			_, _ = w.Write([]byte(`{"id":"uploaded-1"}`))
 		case "/albums":
