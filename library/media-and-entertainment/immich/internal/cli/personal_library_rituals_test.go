@@ -474,6 +474,52 @@ func TestUploadAssetsRetainsCommittedIDWhenMetadataUpdateFails(t *testing.T) {
 	}
 }
 
+func TestUploadAssetsAssignsCommittedAssetsToAlbumDespiteSiblingFailure(t *testing.T) {
+	withTempLearnHome(t)
+	first := filepath.Join(t.TempDir(), "first.jpg")
+	second := filepath.Join(t.TempDir(), "second.jpg")
+	for _, path := range []string{first, second} {
+		if err := os.WriteFile(path, []byte(path), 0600); err != nil {
+			t.Fatal(err)
+		}
+	}
+	uploads := 0
+	albumIDs := []string{}
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		switch strings.TrimPrefix(r.URL.Path, "/api") {
+		case "/assets/bulk-upload-check":
+			_, _ = w.Write([]byte(`{"results":[{"action":"accept"}]}`))
+		case "/assets":
+			uploads++
+			if uploads == 2 {
+				w.WriteHeader(http.StatusInternalServerError)
+				return
+			}
+			_, _ = w.Write([]byte(`{"id":"uploaded-1"}`))
+		case "/albums":
+			_, _ = w.Write([]byte(`{"id":"album-1"}`))
+		case "/albums/album-1/assets":
+			var body map[string]any
+			_ = json.NewDecoder(r.Body).Decode(&body)
+			albumIDs = stringValues(body["ids"])
+			_, _ = w.Write([]byte(`[]`))
+		default:
+			w.WriteHeader(http.StatusNotFound)
+		}
+	}))
+	defer server.Close()
+	t.Setenv("IMMICH_BASE_URL", server.URL)
+	t.Setenv("IMMICH_BASE_PATH", "")
+	t.Setenv("IMMICH_API_KEY", "key")
+	sum, err := uploadAssets(context.Background(), &rootFlags{rateLimit: 0}, []importAsset{{Path: first, Name: "first.jpg", Created: time.Now(), Modified: time.Now()}, {Path: second, Name: "second.jpg", Created: time.Now(), Modified: time.Now()}}, importOptions{concurrency: 1, album: "mixed"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if sum.Uploaded != 1 || sum.Failed != 1 || !sameStrings(albumIDs, []string{"uploaded-1"}) {
+		t.Fatalf("successful upload was not assigned after sibling failure: sum=%#v album=%v", sum, albumIDs)
+	}
+}
+
 func TestArchiveRejectsTraversal(t *testing.T) {
 	path := filepath.Join(t.TempDir(), "bad.zip")
 	f, err := os.Create(path)
@@ -592,6 +638,42 @@ func TestMapSourceCollectionsRejectsMalformedAlbumsAndTags(t *testing.T) {
 			err := mapSourceCollections(context.Background(), &rootFlags{}, source.URL, "source-key", map[string]string{"source": "destination"})
 			if err == nil || !strings.Contains(err.Error(), "decode source "+name) {
 				t.Fatalf("malformed %s error = %v", name, err)
+			}
+		})
+	}
+}
+
+func TestMapSourceCollectionsRejectsPartialAssetMappings(t *testing.T) {
+	for name, body := range map[string]string{
+		"albums": `[{"albumName":"trip","assets":[{"id":"mapped"},{"id":"missing"}]}]`,
+		"tags":   `[{"name":"trip","assets":[{"id":"mapped"},{"id":"missing"}]}]`,
+	} {
+		t.Run(name, func(t *testing.T) {
+			mutations := 0
+			destination := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				mutations++
+				w.WriteHeader(http.StatusInternalServerError)
+			}))
+			defer destination.Close()
+			source := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				switch r.URL.Path {
+				case "/albums":
+					if name == "albums" {
+						_, _ = w.Write([]byte(body))
+						return
+					}
+					_, _ = w.Write([]byte(`[]`))
+				case "/tags":
+					_, _ = w.Write([]byte(body))
+				}
+			}))
+			defer source.Close()
+			t.Setenv("IMMICH_BASE_URL", destination.URL)
+			t.Setenv("IMMICH_BASE_PATH", "")
+			t.Setenv("IMMICH_API_KEY", "key")
+			err := mapSourceCollections(context.Background(), &rootFlags{}, source.URL, "source-key", map[string]string{"mapped": "destination"})
+			if err == nil || !strings.Contains(err.Error(), "no destination mapping") || mutations != 0 {
+				t.Fatalf("partial %s mapping err=%v mutations=%d", name, err, mutations)
 			}
 		})
 	}

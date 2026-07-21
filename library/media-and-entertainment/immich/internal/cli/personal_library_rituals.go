@@ -262,11 +262,9 @@ func mapSourceCollections(ctx context.Context, flags *rootFlags, base, key strin
 		return fmt.Errorf("decode source albums: %w", err)
 	}
 	for _, src := range albumList {
-		ids := []string{}
-		for _, a := range src.Assets {
-			if id := mapping[a.ID]; id != "" {
-				ids = append(ids, id)
-			}
+		ids, err := mappedCollectionAssetIDs("album", src.AlbumName, src.Assets, mapping)
+		if err != nil {
+			return err
 		}
 		if len(ids) == 0 || src.AlbumName == "" {
 			continue
@@ -291,11 +289,9 @@ func mapSourceCollections(ctx context.Context, flags *rootFlags, base, key strin
 		return fmt.Errorf("decode source tags: %w", err)
 	}
 	for _, src := range tagList {
-		ids := []string{}
-		for _, a := range src.Assets {
-			if id := mapping[a.ID]; id != "" {
-				ids = append(ids, id)
-			}
+		ids, err := mappedCollectionAssetIDs("tag", src.Name, src.Assets, mapping)
+		if err != nil {
+			return err
 		}
 		if len(ids) == 0 || src.Name == "" {
 			continue
@@ -311,6 +307,20 @@ func mapSourceCollections(ctx context.Context, flags *rootFlags, base, key strin
 		}
 	}
 	return nil
+}
+
+func mappedCollectionAssetIDs(kind, name string, assets []struct {
+	ID string `json:"id"`
+}, mapping map[string]string) ([]string, error) {
+	ids := make([]string, 0, len(assets))
+	for _, asset := range assets {
+		id := mapping[asset.ID]
+		if id == "" {
+			return nil, fmt.Errorf("source %s %q has no destination mapping for asset %q", kind, name, asset.ID)
+		}
+		ids = append(ids, id)
+	}
+	return ids, nil
 }
 
 func collectFolder(root string, opt importOptions) ([]importAsset, int, error) {
@@ -630,7 +640,7 @@ func uploadAssets(ctx context.Context, flags *rootFlags, assets []importAsset, o
 	}
 	close(jobs)
 	wg.Wait()
-	if opt.album != "" && len(uploadedIDs) > 0 && sum.Failed == 0 {
+	if opt.album != "" && len(uploadedIDs) > 0 {
 		if err := assignAlbum(ctx, c, opt.album, uploadedIDs); err != nil {
 			return sum, err
 		}
