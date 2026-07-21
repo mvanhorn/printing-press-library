@@ -1,0 +1,27 @@
+{
+  "manifest_version": "0.3",
+  "name": "care-pp-mcp",
+  "display_name": "Care",
+  "version": "0.1.0",
+  "description": "care.com CLI: search caregivers, review applicants/messages, analyze and reach out - over your own authenticated session",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/care-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/care-pp-mcp",
+      "args": []
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

@@ -1,0 +1,2463 @@
+name: care
+description: 'care.com CLI: search caregivers, review applicants/messages, analyze
+  and reach out - over your own authenticated session'
+version: 0.1.0
+base_url: https://www.care.com
+spec_source: sniffed
+auth:
+  type: cookie
+  in: cookie
+  login_url: https://www.care.com/login
+  env_vars: []
+config:
+  format: toml
+  path: ~/.config/care-pp-cli/config.toml
+resources:
+  availabilities:
+    description: GraphQL BFF operations for availabilities
+    endpoints:
+      events:
+        method: POST
+        path: /api/graphql
+        description: Fetch availabilities events
+        params: []
+        body:
+        - name: operationName
+          type: string
+          required: true
+          positional: false
+          default: AvailabilityEvents
+          description: GraphQL operation name
+          fields: []
+        - name: query
+          type: string
+          required: false
+          positional: false
+          default: "query AvailabilityEvents($providerId: String!) {\n  AvailabilityEvents(providerId:\
+            \ $providerId) {\n    freeBusyType\n    providerId\n    recurrenceRules\
+            \ {\n      count\n      endTime\n      exDatesTime\n      frequency\n\
+            \      id\n      interval\n      startTime\n      untilTime\n      __typename\n\
+            \    }\n    timezone\n    name\n    id\n    __typename\n  }\n}"
+          description: GraphQL query document
+          fields: []
+        - name: variables
+          type: object
+          required: false
+          positional: false
+          default:
+            providerId: 22222222-2222-2222-2222-222222222222
+          description: GraphQL variables as JSON
+          fields: []
+        response:
+          type: object
+          item: availability_events
+        pagination: null
+        observed_auth:
+        - cookie
+  bookings:
+    description: GraphQL BFF operations for bookings
+    endpoints:
+      request_list_jobs_basic:
+        method: POST
+        path: /api/graphql
+        description: Fetch bookings request list jobs basic
+        params: []
+        body:
+        - name: operationName
+          type: string
+          required: true
+          positional: false
+          default: bookingRequestListJobsPageBasic
+          description: GraphQL operation name
+          fields: []
+        - name: query
+          type: string
+          required: false
+          positional: false
+          default: "query bookingRequestListJobsPageBasic($input: BookingRequestListInput!)\
+            \ {\n  bookingRequestList(input: $input) {\n    ... on BookingRequestListSuccess\
+            \ {\n      bookingRequests {\n        id\n        status\n        __typename\n\
+            \      }\n      __typename\n    }\n    __typename\n  }\n}"
+          description: GraphQL query document
+          fields: []
+        - name: variables
+          type: object
+          required: false
+          positional: false
+          default:
+            input:
+              bookingRequestListFilters:
+              - caregiverTiers:
+                - PREFERRED
+                childCareBookingRequestStatus: IN_PROGRESS
+              - caregiverTiers:
+                - PREFERRED
+                childCareBookingRequestStatus: DEFERRED
+              - childCareBookingRequestStatus: SEEKER_NOTIFIED
+                jobTypes:
+                - JOB_TYPE_IB_RECURRING_CARE
+                - JOB_TYPE_OTC
+              pageSize: 1
+              seekerId: 11111111-1111-1111-1111-111111111111
+          description: GraphQL variables as JSON
+          fields: []
+        response:
+          type: object
+          item: booking_request_list_jobs_page_basic
+        pagination: null
+        observed_auth:
+        - cookie
+      request_list_jobs_extended:
+        method: POST
+        path: /api/graphql
+        description: Fetch bookings request list jobs extended
+        params: []
+        body:
+        - name: operationName
+          type: string
+          required: true
+          positional: false
+          default: bookingRequestListJobsPageExtended
+          description: GraphQL operation name
+          fields: []
+        - name: query
+          type: string
+          required: false
+          positional: false
+          default: "query bookingRequestListJobsPageExtended($input: BookingRequestListInput!)\
+            \ {\n  bookingRequestList(input: $input) {\n    ... on BookingRequestListSuccess\
+            \ {\n      bookingRequests {\n        id\n        status\n        __typename\n\
+            \      }\n      __typename\n    }\n    __typename\n  }\n}"
+          description: GraphQL query document
+          fields: []
+        - name: variables
+          type: object
+          required: false
+          positional: false
+          default:
+            input:
+              bookingRequestListFilters:
+              - bookingInvitationStatuses:
+                - ACCEPTED
+                caregiverTiers:
+                - ALTERNATIVE
+                childCareBookingRequestStatus: SEEKER_NOTIFIED
+              - bookingInvitationStatuses:
+                - INVITE_SENT
+                caregiverTiers:
+                - PREFERRED
+                childCareBookingRequestStatus: SEEKER_NOTIFIED
+              - bookingInvitationStatuses:
+                - DECLINED
+                caregiverTiers:
+                - PREFERRED
+                childCareBookingRequestStatus: SEEKER_NOTIFIED
+              - childCareBookingRequestStatus: SEEKER_NOTIFIED
+                jobTypes:
+                - JOB_TYPE_IB_RECURRING_CARE
+                - JOB_TYPE_OTC
+              pageSize: 1
+              seekerId: 11111111-1111-1111-1111-111111111111
+          description: GraphQL variables as JSON
+          fields: []
+        response:
+          type: object
+          item: booking_request_list_jobs_page_extended
+        pagination: null
+        observed_auth:
+        - cookie
+  calendars:
+    description: GraphQL BFF operations for calendars
+    endpoints:
+      get:
+        method: POST
+        path: /api/graphql
+        description: Fetch calendars
+        params: []
+        body:
+        - name: operationName
+          type: string
+          required: true
+          positional: false
+          default: GetCalendar
+          description: GraphQL operation name
+          fields: []
+        - name: query
+          type: string
+          required: false
+          positional: false
+          default: "query GetCalendar($providerId: String!) {\n  AvailabilityCalendar(providerId:\
+            \ $providerId) {\n    availability {\n      endTime\n      eventId\n \
+            \     freeBusyType\n      recurrenceRuleId\n      startTime\n      __typename\n\
+            \    }\n    lastUpdated\n    __typename\n  }\n}"
+          description: GraphQL query document
+          fields: []
+        - name: variables
+          type: object
+          required: false
+          positional: false
+          default:
+            providerId: 22222222-2222-2222-2222-222222222222
+          description: GraphQL variables as JSON
+          fields: []
+        response:
+          type: object
+          item: get_calendar
+        pagination: null
+        observed_auth:
+        - cookie
+  caregivers:
+    description: GraphQL BFF operations for caregivers
+    endpoints:
+      booking_list_provider:
+        method: POST
+        path: /api/graphql
+        description: Fetch caregivers booking list provider
+        params: []
+        body:
+        - name: operationName
+          type: string
+          required: true
+          positional: false
+          default: getCaregiverBookingListProvider
+          description: GraphQL operation name
+          fields: []
+        - name: query
+          type: string
+          required: false
+          positional: false
+          default: "fragment CaregiverBasicInfo on Caregiver {\n  avgReviewRating\n\
+            \  yearsOfExperience\n  hasCareCheck\n  numberOfReviews\n  isVaccinated\n\
+            \  hiredTimes\n  responseTime\n  __typename\n}\n\nfragment MemberBasicInfo\
+            \ on Member {\n  id\n  legacyId\n  displayName\n  imageURL\n  isPremium\n\
+            \  firstName\n  lastName\n  __typename\n}\n\nfragment RevieweeMetricsFragment\
+            \ on Caregiver {\n  revieweeMetrics {\n    ... on RevieweeMetricsPayload\
+            \ {\n      metrics {\n        averageRatings {\n          type\n     \
+            \     value\n          __typename\n        }\n        totalReviews\n \
+            \       __typename\n      }\n      __typename\n    }\n    ... on ReviewFailureResponse\
+            \ {\n      message\n      __typename\n    }\n    __typename\n  }\n  __typename\n\
+            }\n\nfragment CaregiverFragment on Caregiver {\n  ...CaregiverBasicInfo\n\
+            \  ...RevieweeMetricsFragment\n  hasGrantedCriminalBGCAccess\n  hasGrantedMvrBGCAccess\n\
+            \  hasGrantedPremierBGCAccess\n  isFavorite\n  isMVREligible\n  isVaccinated\n\
+            \  responseRate\n  responseTime\n  signUpDate\n  nonPrimaryImages\n  badges\n\
+            \  distanceFromSeekerInMiles\n  verifications\n  isPaymentReady\n  continuousBackgroundCheck\
+            \ {\n    hasActiveHit\n    provider {\n      activeSubscriptionsCount\n\
+            \      pendingRequestsCount\n      __typename\n    }\n    seeker {\n \
+            \     hasLimitReached\n      subscriptionStatus\n      __typename\n  \
+            \  }\n    __typename\n  }\n  isServiceReviewable\n  isMarkedAsHired\n\
+            \  hiredByCounts {\n    locality {\n      hiredCount\n      __typename\n\
+            \    }\n    __typename\n  }\n  member {\n    ...MemberBasicInfo\n    languages\n\
+            \    gender\n    hiResImageURL\n    email\n    primaryService\n    address\
+            \ {\n      city\n      state\n      zip\n      __typename\n    }\n   \
+            \ __typename\n  }\n  placeInfo {\n    name\n    __typename\n  }\n  attributes\
+            \ {\n    comfortableWithPets\n    ownTransportation\n    smokes\n    __typename\n\
+            \  }\n  educationDegrees {\n    currentlyAttending\n    degreeYear\n \
+            \   educationLevel\n    schoolName\n    educationDetailsText\n    __typename\n\
+            \  }\n  backgroundChecks {\n    whenCompleted\n    backgroundCheckName\n\
+            \    backgroundCheckStatus\n    __typename\n  }\n  profiles {\n    serviceIds\n\
+            \    childCareCaregiverProfile {\n      approvalStatus\n      distanceWillingToTravel\
+            \ {\n        unit\n        value\n        __typename\n      }\n      ageGroups\n\
+            \      availabilityFrequency\n      bio {\n        experienceSummary\n\
+            \        title\n        aiAssistedBio\n        __typename\n      }\n \
+            \     childStaffRatio\n      id\n      maxAgeMonths\n      minAgeMonths\n\
+            \      numberOfChildren\n      offerings {\n        ageRange {\n     \
+            \     max {\n            unit\n            value\n            __typename\n\
+            \          }\n          min {\n            unit\n            value\n \
+            \           __typename\n          }\n          __typename\n        }\n\
+            \        __typename\n      }\n      otherQualities\n      payRange {\n\
+            \        hourlyRateFrom {\n          amount\n          currencyCode\n\
+            \          __typename\n        }\n        hourlyRateTo {\n          amount\n\
+            \          currencyCode\n          __typename\n        }\n        __typename\n\
+            \      }\n      qualities {\n        afterSchoolCare\n        babysitter\n\
+            \        certifiedNursingAssistant\n        certifiedRegisterNurse\n \
+            \       certifiedTeacher\n        childDevelopmentAssociate\n        comfortableWithPets\n\
+            \        cprTrained\n        crn\n        doesNotSmoke\n        doula\n\
+            \        earlyChildDevelopmentCoursework\n        earlyChildhoodEducation\n\
+            \        firstAidTraining\n        mothersHelper\n        nafccCertified\n\
+            \        nanny\n        newbornCareSpecialist\n        nightNanny\n  \
+            \      ownTransportation\n        specialNeedsCare\n        trustlineCertifiedCalifornia\n\
+            \        __typename\n      }\n      recurringRate {\n        hourlyRateFrom\
+            \ {\n          amount\n          currencyCode\n          __typename\n\
+            \        }\n        hourlyRateTo {\n          amount\n          currencyCode\n\
+            \          __typename\n        }\n        __typename\n      }\n      rates\
+            \ {\n        hourlyRate {\n          amount\n          currencyCode\n\
+            \          __typename\n        }\n        numberOfChildren\n        isDefaulted\n\
+            \        __typename\n      }\n      supportedServices {\n        carpooling\n\
+            \        craftAssistance\n        errands\n        groceryShopping\n \
+            \       laundryAssistance\n        lightHousekeeping\n        mealPreparation\n\
+            \        swimmingSupervision\n        travel\n        __typename\n   \
+            \   }\n      yearsOfExperience\n      __typename\n    }\n    commonCaregiverProfile\
+            \ {\n      id\n      repeatClientsCount\n      availabilityFrequency\n\
+            \      distanceWillingToTravel {\n        unit\n        value\n      \
+            \  __typename\n      }\n      bio {\n        experienceSummary\n     \
+            \   title\n        aiAssistedBio\n        __typename\n      }\n      payRange\
+            \ {\n        hourlyRateFrom {\n          amount\n          currencyCode\n\
+            \          __typename\n        }\n        hourlyRateTo {\n          amount\n\
+            \          currencyCode\n          __typename\n        }\n        __typename\n\
+            \      }\n      merchandizedJobInterests {\n        companionCare\n  \
+            \      dateNight\n        lightCleaning\n        mealPrepLaundry\n   \
+            \     mover\n        personalAssistant\n        petHelp\n        shopping\n\
+            \        transportation\n        __typename\n      }\n      __typename\n\
+            \    }\n    petCareCaregiverProfile {\n      availabilityFrequency\n \
+            \     approvalStatus\n      distanceWillingToTravel {\n        unit\n\
+            \        value\n        __typename\n      }\n      rates {\n        activity\n\
+            \        activityRate {\n          amount\n          currencyCode\n  \
+            \        __typename\n        }\n        activityRateUnit\n        __typename\n\
+            \      }\n      bio {\n        experienceSummary\n        title\n    \
+            \    aiAssistedBio\n        __typename\n      }\n      id\n      numberOfPetsComfortableWith\n\
+            \      otherQualities\n      payRange {\n        hourlyRateFrom {\n  \
+            \        amount\n          currencyCode\n          __typename\n      \
+            \  }\n        hourlyRateTo {\n          amount\n          currencyCode\n\
+            \          __typename\n        }\n        __typename\n      }\n      petSpecies\
+            \ {\n        caresForAmphibians\n        caresForBirds\n        caresForCats\n\
+            \        caresForDogs\n        caresForExoticPets\n        caresForFarmAnimals\n\
+            \        caresForFish\n        caresForHorses\n        caresForMammals\n\
+            \        caresForOtherPets\n        __typename\n      }\n      qualities\
+            \ {\n        isBondedAndInsured\n        isNappsCertified\n        isPSAMemberAndIsInsured\n\
+            \        isRedCrossPetFirstAidCertified\n        doesNotSmoke\n      \
+            \  ownsTransportation\n        isCertifiedAndInsured\n        isExperiencedWithChallengingPets\n\
+            \        isExperiencedWithSeniorPets\n        isExperiencedWithSpecialNeedsPets\n\
+            \        isExperiencedWithYoungPets\n        __typename\n      }\n   \
+            \   recurringRate {\n        hourlyRateFrom {\n          currencyCode\n\
+            \          amount\n          __typename\n        }\n        hourlyRateTo\
+            \ {\n          currencyCode\n          amount\n          __typename\n\
+            \        }\n        __typename\n      }\n      serviceRates {\n      \
+            \  rate {\n          amount\n          currencyCode\n          __typename\n\
+            \        }\n        duration\n        subtype\n        __typename\n  \
+            \    }\n      supportedServices {\n        administersMedicine\n     \
+            \   boardsOvernight\n        doesDailyFeeding\n        doesHouseSitting\n\
+            \        doesPetDaycare\n        doesPetSitting\n        doesPetWalking\n\
+            \        groomsAnimals\n        retrievesMail\n        trainsDogs\n  \
+            \      transportsPets\n        watersPlants\n        __typename\n    \
+            \  }\n      yearsOfExperience\n      __typename\n    }\n    seniorCareCaregiverProfile\
+            \ {\n      approvalStatus\n      availabilityFrequency\n      distanceWillingToTravel\
+            \ {\n        unit\n        value\n        __typename\n      }\n      bio\
+            \ {\n        experienceSummary\n        title\n        aiAssistedBio\n\
+            \        __typename\n      }\n      id\n      otherQualities\n      payRange\
+            \ {\n        hourlyRateFrom {\n          amount\n          currencyCode\n\
+            \          __typename\n        }\n        hourlyRateTo {\n          amount\n\
+            \          currencyCode\n          __typename\n        }\n        __typename\n\
+            \      }\n      qualities {\n        alzheimersOrDementiaExperience\n\
+            \        certifiedNursingAssistant\n        comfortableWithPets\n    \
+            \    cprTrained\n        doesNotSmoke\n        firstAidTraining\n    \
+            \    homeHealthAideExperience\n        hospiceExperience\n        licensedNurse\n\
+            \        medicalEquipmentExperience\n        ownTransportation\n     \
+            \   registeredNurse\n        woundCare\n        __typename\n      }\n\
+            \      recurringRate {\n        hourlyRateFrom {\n          currencyCode\n\
+            \          amount\n          __typename\n        }\n        hourlyRateTo\
+            \ {\n          currencyCode\n          amount\n          __typename\n\
+            \        }\n        __typename\n      }\n      supportedServices {\n \
+            \       visitingPhysician\n        visitingNurse\n        transportation\n\
+            \        specializedCare\n        specialNeeds\n        respiteCare\n\
+            \        personalCare\n        mobilityAssistance\n        medicalTransportation\n\
+            \        medicalManagement\n        mealPreparation\n        lightHousekeeping\n\
+            \        liveInHomeCare\n        hospiceServices\n        homeModification\n\
+            \        homeHealth\n        helpStayingPhysicallyActive\n        heavyLifting\n\
+            \        feeding\n        errands\n        dementia\n        companionship\n\
+            \        bathing\n        __typename\n      }\n      yearsOfExperience\n\
+            \      __typename\n    }\n    tutoringCaregiverProfile {\n      approvalStatus\n\
+            \      availabilityFrequency\n      bio {\n        experienceSummary\n\
+            \        title\n        aiAssistedBio\n        __typename\n      }\n \
+            \     recurringRate {\n        hourlyRateFrom {\n          amount\n  \
+            \        currencyCode\n          __typename\n        }\n        hourlyRateTo\
+            \ {\n          amount\n          currencyCode\n          __typename\n\
+            \        }\n        __typename\n      }\n      id\n      otherGeneralSubjects\n\
+            \      otherQualities\n      payRange {\n        hourlyRateFrom {\n  \
+            \        amount\n          currencyCode\n          __typename\n      \
+            \  }\n        hourlyRateTo {\n          amount\n          currencyCode\n\
+            \          __typename\n        }\n        __typename\n      }\n      qualities\
+            \ {\n        additionalDetails {\n          doesNotSmoke\n          isComfortableWithPets\n\
+            \          ownsTransportation\n          __typename\n        }\n     \
+            \   professionalSkills {\n          americanTutoringAssociationCertified\n\
+            \          certifiedTeacher\n          __typename\n        }\n       \
+            \ __typename\n      }\n      supportedServices {\n        tutorsInCenter\n\
+            \        tutorsInCoffeeShop\n        tutorsInCommunityCenter\n       \
+            \ tutorsInLibrary\n        tutorsInSchool\n        tutorsInStudentsHome\n\
+            \        tutorsInTeachersHome\n        tutorsOnline\n        __typename\n\
+            \      }\n      distanceWillingToTravel {\n        unit\n        value\n\
+            \        __typename\n      }\n      specificSubjects\n      otherSpecificSubject\n\
+            \      yearsOfExperience\n      __typename\n    }\n    houseKeepingCaregiverProfile\
+            \ {\n      approvalStatus\n      availabilityFrequency\n      bio {\n\
+            \        experienceSummary\n        title\n        aiAssistedBio\n   \
+            \     __typename\n      }\n      distanceWillingToTravel {\n        unit\n\
+            \        value\n        __typename\n      }\n      id\n      otherQualities\n\
+            \      payRange {\n        hourlyRateFrom {\n          amount\n      \
+            \    currencyCode\n          __typename\n        }\n        hourlyRateTo\
+            \ {\n          amount\n          currencyCode\n          __typename\n\
+            \        }\n        __typename\n      }\n      qualities {\n        comfortableWithPets\n\
+            \        doesNotSmoke\n        ownTransportation\n        providesEquipment\n\
+            \        providesSupplies\n        __typename\n      }\n      recurringRate\
+            \ {\n        hourlyRateFrom {\n          amount\n          currencyCode\n\
+            \          __typename\n        }\n        hourlyRateTo {\n          amount\n\
+            \          currencyCode\n          __typename\n        }\n        __typename\n\
+            \      }\n      schedule {\n        endTime\n        id\n        ruleName\n\
+            \        rules\n        startTime\n        __typename\n      }\n     \
+            \ supportedServices {\n        atticCleaning\n        basementCleaning\n\
+            \        bathroomCleaning\n        cabinetCleaning\n        carpetCleaning\n\
+            \        changingBedLinens\n        deepCleaning\n        dishes\n   \
+            \     dusting\n        furnitureTreatment\n        generalRoomCleaning\n\
+            \        greenCleaning\n        houseSitting\n        kitchenCleaning\n\
+            \        laundry\n        moveOutCleaning\n        organization\n    \
+            \    ovenCleaning\n        packingUnpacking\n        petWasteCleanup\n\
+            \        plantCare\n        refrigeratorCleaning\n        standardCleaning\n\
+            \        surfacePolishing\n        springSummerCleaning\n        vacuumingOrMopping\n\
+            \        wallWashing\n        windowWashing\n        __typename\n    \
+            \  }\n      yearsOfExperience\n      __typename\n    }\n    __typename\n\
+            \  }\n  recurringAvailability {\n    dayList {\n      monday {\n     \
+            \   blocks {\n          end\n          start\n          __typename\n \
+            \       }\n        __typename\n      }\n      tuesday {\n        blocks\
+            \ {\n          end\n          start\n          __typename\n        }\n\
+            \        __typename\n      }\n      wednesday {\n        blocks {\n  \
+            \        end\n          start\n          __typename\n        }\n     \
+            \   __typename\n      }\n      thursday {\n        blocks {\n        \
+            \  end\n          start\n          __typename\n        }\n        __typename\n\
+            \      }\n      friday {\n        blocks {\n          end\n          start\n\
+            \          __typename\n        }\n        __typename\n      }\n      saturday\
+            \ {\n        blocks {\n          end\n          start\n          __typename\n\
+            \        }\n        __typename\n      }\n      sunday {\n        blocks\
+            \ {\n          end\n          start\n          __typename\n        }\n\
+            \        __typename\n      }\n      __typename\n    }\n    __typename\n\
+            \  }\n  __typename\n}\n\nfragment RecurrenceRule on RecurrenceRule {\n\
+            \  endTime\n  startTime\n  rules\n  ruleName\n  id\n  __typename\n}\n\n\
+            query getCaregiverBookingListProvider($bookingListInput: CaregiverBookingListInput!)\
+            \ {\n  getCaregiverBookingList(bookingListInput: $bookingListInput) {\n\
+            \    bookings {\n      id\n      status\n      instantBookingType\n  \
+            \    extraInformation {\n        childCareInformation {\n          numberOfChildren\n\
+            \          __typename\n        }\n        __typename\n      }\n      userInformation\
+            \ {\n        seeker {\n          member {\n            id\n          \
+            \  imageURL\n            displayName\n            firstName\n        \
+            \    lastName\n            __typename\n          }\n          __typename\n\
+            \        }\n        __typename\n      }\n      slot {\n        recurrenceRules\
+            \ {\n          endTime\n          rules\n          startTime\n       \
+            \   __typename\n        }\n        service {\n          serviceType\n\
+            \          careSubtype {\n            ... on ChildcareSubtypeWrapper {\n\
+            \              childcareSubtype\n              __typename\n          \
+            \  }\n            ... on PetCareSubtypeWrapper {\n              petCareSubtype\n\
+            \              __typename\n            }\n            __typename\n   \
+            \       }\n          __typename\n        }\n        address {\n      \
+            \    latitude\n          longitude\n          addressLine1\n         \
+            \ city\n          state\n          zip\n          __typename\n       \
+            \ }\n        service {\n          serviceType\n          __typename\n\
+            \        }\n        timeBlock {\n          start\n          end\n    \
+            \      recurrenceRule {\n            ...RecurrenceRule\n            __typename\n\
+            \          }\n          __typename\n        }\n        provider {\n  \
+            \        publicId\n          __typename\n        }\n        caregiver\
+            \ {\n          ...CaregiverFragment\n          __typename\n        }\n\
+            \        __typename\n      }\n      paymentInformation {\n        totalCost\
+            \ {\n          amount\n          __typename\n        }\n        lineItems\
+            \ {\n          metadata {\n            ... on ProviderFeeMetadata {\n\
+            \              numberOfHours\n              numberOfNights\n         \
+            \     hourlyRate {\n                amount\n                __typename\n\
+            \              }\n              nightlyRate {\n                amount\n\
+            \                __typename\n              }\n              __typename\n\
+            \            }\n            __typename\n          }\n          __typename\n\
+            \        }\n        __typename\n      }\n      cancellationInformation\
+            \ {\n        reasonCode\n        __typename\n      }\n      __typename\n\
+            \    }\n    __typename\n  }\n}"
+          description: GraphQL query document
+          fields: []
+        - name: variables
+          type: object
+          required: false
+          positional: false
+          default:
+            bookingListInput:
+              caregiverId: ''
+              caregiverListBookingStatus: PAST
+              instantBookingTypes:
+              - RECURRING
+              - ONE_TIME
+              pageSize: 20
+              pageToken: ''
+              seekerId: 11111111-1111-1111-1111-111111111111
+          description: GraphQL variables as JSON
+          fields: []
+        response:
+          type: object
+          item: get_caregiver_booking_list_provider
+        pagination: null
+        observed_auth:
+        - cookie
+      get:
+        method: POST
+        path: /api/graphql
+        description: Fetch caregivers
+        params: []
+        body:
+        - name: operationName
+          type: string
+          required: true
+          positional: false
+          default: GetCaregiver
+          description: GraphQL operation name
+          fields: []
+        - name: query
+          type: string
+          required: false
+          positional: false
+          default: "query GetCaregiver($getCaregiverId: ID!, $serviceId: ServiceType,\
+            \ $shouldIncludeAllProfiles: Boolean, $shouldGetMarkedAsHired: Boolean!)\
+            \ {\n  getCaregiver(\n    id: $getCaregiverId\n    serviceId: $serviceId\n\
+            \    shouldIncludeAllProfiles: $shouldIncludeAllProfiles\n  ) {\n    continuousBackgroundCheck\
+            \ {\n      seeker {\n        hasLimitReached\n        subscriptionStatus\n\
+            \        __typename\n      }\n      hasActiveHit\n      __typename\n \
+            \   }\n    backgroundChecks {\n      backgroundCheckName\n      backgroundCheckStatus\n\
+            \      whenCompleted\n      __typename\n    }\n    badges\n    isAvailable\n\
+            \    distanceFromSeekerInMiles\n    educationDegrees {\n      currentlyAttending\n\
+            \      degreeYear\n      educationLevel\n      schoolName\n      educationDetailsText\n\
+            \      __typename\n    }\n    hasCareCheck\n    hasGrantedCriminalBGCAccess\n\
+            \    hasGrantedMvrBGCAccess\n    hasGrantedPremierBGCAccess\n    isPaymentReady\n\
+            \    isServiceReviewable\n    hiredByCounts {\n      locality {\n    \
+            \    hiredCount\n        __typename\n      }\n      __typename\n    }\n\
+            \    hiredTimes\n    revieweeMetrics {\n      ... on ReviewFailureResponse\
+            \ {\n        message\n        __typename\n      }\n      ... on RevieweeMetricsPayload\
+            \ {\n        metrics {\n          totalReviews\n          averageRatings\
+            \ {\n            type\n            value\n            __typename\n   \
+            \       }\n          __typename\n        }\n        __typename\n     \
+            \ }\n      __typename\n    }\n    isFavorite\n    isMVREligible\n    isVaccinated\n\
+            \    member {\n      id\n      lastName\n      firstName\n      gender\n\
+            \      hiResImageURL\n      displayName\n      email\n      primaryService\n\
+            \      imageURL\n      address {\n        city\n        state\n      \
+            \  zip\n        __typename\n      }\n      languages\n      legacyId\n\
+            \      isPremium\n      __typename\n    }\n    placeInfo {\n      name\n\
+            \      __typename\n    }\n    profiles {\n      serviceIds\n      childCareCaregiverProfile\
+            \ {\n        availabilityFrequency\n        approvalStatus\n        ageGroups\n\
+            \        availabilityFrequency\n        bio {\n          experienceSummary\n\
+            \          title\n          aiAssistedBio\n          __typename\n    \
+            \    }\n        childStaffRatio\n        distanceWillingToTravel {\n \
+            \         unit\n          value\n          __typename\n        }\n   \
+            \     id\n        maxAgeMonths\n        minAgeMonths\n        numberOfChildren\n\
+            \        offerings {\n          ageRange {\n            max {\n      \
+            \        unit\n              value\n              __typename\n       \
+            \     }\n            min {\n              unit\n              value\n\
+            \              __typename\n            }\n            __typename\n   \
+            \       }\n          __typename\n        }\n        otherQualities\n \
+            \       payRange {\n          hourlyRateFrom {\n            amount\n \
+            \           currencyCode\n            __typename\n          }\n      \
+            \    hourlyRateTo {\n            amount\n            currencyCode\n  \
+            \          __typename\n          }\n          __typename\n        }\n\
+            \        qualities {\n          afterSchoolCare\n          babysitter\n\
+            \          certifiedNursingAssistant\n          certifiedRegisterNurse\n\
+            \          certifiedTeacher\n          childDevelopmentAssociate\n   \
+            \       comfortableWithPets\n          cprTrained\n          crn\n   \
+            \       doesNotSmoke\n          doula\n          earlyChildDevelopmentCoursework\n\
+            \          earlyChildhoodEducation\n          firstAidTraining\n     \
+            \     mothersHelper\n          nafccCertified\n          nanny\n     \
+            \     newbornCareSpecialist\n          nightNanny\n          ownTransportation\n\
+            \          specialNeedsCare\n          trustlineCertifiedCalifornia\n\
+            \          __typename\n        }\n        recurringRate {\n          hourlyRateFrom\
+            \ {\n            amount\n            currencyCode\n            __typename\n\
+            \          }\n          hourlyRateTo {\n            amount\n         \
+            \   currencyCode\n            __typename\n          }\n          __typename\n\
+            \        }\n        rates {\n          hourlyRate {\n            amount\n\
+            \            currencyCode\n            __typename\n          }\n     \
+            \     numberOfChildren\n          isDefaulted\n          __typename\n\
+            \        }\n        supportedServices {\n          carpooling\n      \
+            \    craftAssistance\n          errands\n          groceryShopping\n \
+            \         laundryAssistance\n          lightHousekeeping\n          mealPreparation\n\
+            \          swimmingSupervision\n          travel\n          __typename\n\
+            \        }\n        yearsOfExperience\n        __typename\n      }\n \
+            \     commonCaregiverProfile {\n        id\n        repeatClientsCount\n\
+            \        merchandizedJobInterests {\n          companionCare\n       \
+            \   dateNight\n          lightCleaning\n          mealPrepLaundry\n  \
+            \        mover\n          personalAssistant\n          petHelp\n     \
+            \     shopping\n          transportation\n          __typename\n     \
+            \   }\n        __typename\n      }\n      petCareCaregiverProfile {\n\
+            \        availabilityFrequency\n        approvalStatus\n        rates\
+            \ {\n          activity\n          activityRate {\n            amount\n\
+            \            currencyCode\n            __typename\n          }\n     \
+            \     activityRateUnit\n          __typename\n        }\n        bio {\n\
+            \          experienceSummary\n          title\n          __typename\n\
+            \        }\n        id\n        numberOfPetsComfortableWith\n        otherQualities\n\
+            \        payRange {\n          hourlyRateFrom {\n            amount\n\
+            \            currencyCode\n            __typename\n          }\n     \
+            \     hourlyRateTo {\n            amount\n            currencyCode\n \
+            \           __typename\n          }\n          __typename\n        }\n\
+            \        petSpecies {\n          caresForAmphibians\n          caresForBirds\n\
+            \          caresForCats\n          caresForDogs\n          caresForExoticPets\n\
+            \          caresForFarmAnimals\n          caresForFish\n          caresForHorses\n\
+            \          caresForMammals\n          caresForOtherPets\n          __typename\n\
+            \        }\n        qualities {\n          isBondedAndInsured\n      \
+            \    isNappsCertified\n          isPSAMemberAndIsInsured\n          isRedCrossPetFirstAidCertified\n\
+            \          doesNotSmoke\n          ownsTransportation\n          isCertifiedAndInsured\n\
+            \          isExperiencedWithChallengingPets\n          isExperiencedWithSeniorPets\n\
+            \          isExperiencedWithSpecialNeedsPets\n          isExperiencedWithYoungPets\n\
+            \          __typename\n        }\n        recurringRate {\n          hourlyRateFrom\
+            \ {\n            currencyCode\n            amount\n            __typename\n\
+            \          }\n          hourlyRateTo {\n            currencyCode\n   \
+            \         amount\n            __typename\n          }\n          __typename\n\
+            \        }\n        serviceRates {\n          rate {\n            amount\n\
+            \            currencyCode\n            __typename\n          }\n     \
+            \     duration\n          subtype\n          __typename\n        }\n \
+            \       supportedServices {\n          administersMedicine\n         \
+            \ boardsOvernight\n          doesDailyFeeding\n          doesHouseSitting\n\
+            \          doesPetDaycare\n          doesPetSitting\n          doesPetWalking\n\
+            \          groomsAnimals\n          retrievesMail\n          trainsDogs\n\
+            \          transportsPets\n          watersPlants\n          __typename\n\
+            \        }\n        yearsOfExperience\n        __typename\n      }\n \
+            \     seniorCareCaregiverProfile {\n        availabilityFrequency\n  \
+            \      approvalStatus\n        availabilityFrequency\n        bio {\n\
+            \          experienceSummary\n          title\n          __typename\n\
+            \        }\n        id\n        otherQualities\n        payRange {\n \
+            \         hourlyRateFrom {\n            amount\n            currencyCode\n\
+            \            __typename\n          }\n          hourlyRateTo {\n     \
+            \       amount\n            currencyCode\n            __typename\n   \
+            \       }\n          __typename\n        }\n        qualities {\n    \
+            \      alzheimersOrDementiaExperience\n          certifiedNursingAssistant\n\
+            \          comfortableWithPets\n          cprTrained\n          doesNotSmoke\n\
+            \          firstAidTraining\n          homeHealthAideExperience\n    \
+            \      hospiceExperience\n          licensedNurse\n          medicalEquipmentExperience\n\
+            \          ownTransportation\n          registeredNurse\n          woundCare\n\
+            \          __typename\n        }\n        recurringRate {\n          hourlyRateFrom\
+            \ {\n            currencyCode\n            amount\n            __typename\n\
+            \          }\n          hourlyRateTo {\n            currencyCode\n   \
+            \         amount\n            __typename\n          }\n          __typename\n\
+            \        }\n        supportedServices {\n          visitingPhysician\n\
+            \          visitingNurse\n          transportation\n          specializedCare\n\
+            \          specialNeeds\n          respiteCare\n          personalCare\n\
+            \          mobilityAssistance\n          medicalTransportation\n     \
+            \     medicalManagement\n          mealPreparation\n          lightHousekeeping\n\
+            \          liveInHomeCare\n          hospiceServices\n          homeModification\n\
+            \          homeHealth\n          helpStayingPhysicallyActive\n       \
+            \   heavyLifting\n          feeding\n          errands\n          dementia\n\
+            \          companionship\n          bathing\n          __typename\n  \
+            \      }\n        yearsOfExperience\n        __typename\n      }\n   \
+            \   tutoringCaregiverProfile {\n        availabilityFrequency\n      \
+            \  approvalStatus\n        availabilityFrequency\n        bio {\n    \
+            \      experienceSummary\n          title\n          __typename\n    \
+            \    }\n        id\n        otherGeneralSubjects\n        otherQualities\n\
+            \        payRange {\n          hourlyRateFrom {\n            amount\n\
+            \            currencyCode\n            __typename\n          }\n     \
+            \     hourlyRateTo {\n            amount\n            currencyCode\n \
+            \           __typename\n          }\n          __typename\n        }\n\
+            \        qualities {\n          additionalDetails {\n            doesNotSmoke\n\
+            \            isComfortableWithPets\n            ownsTransportation\n \
+            \           __typename\n          }\n          professionalSkills {\n\
+            \            americanTutoringAssociationCertified\n            certifiedTeacher\n\
+            \            __typename\n          }\n          __typename\n        }\n\
+            \        supportedServices {\n          tutorsInCenter\n          tutorsInStudentsHome\n\
+            \          tutorsInTeachersHome\n          tutorsOnline\n          __typename\n\
+            \        }\n        specificSubjects\n        otherSpecificSubject\n \
+            \       yearsOfExperience\n        __typename\n      }\n      houseKeepingCaregiverProfile\
+            \ {\n        availabilityFrequency\n        approvalStatus\n        availabilityFrequency\n\
+            \        bio {\n          experienceSummary\n          title\n       \
+            \   __typename\n        }\n        distanceWillingToTravel {\n       \
+            \   unit\n          value\n          __typename\n        }\n        id\n\
+            \        otherQualities\n        payRange {\n          hourlyRateFrom\
+            \ {\n            amount\n            currencyCode\n            __typename\n\
+            \          }\n          hourlyRateTo {\n            amount\n         \
+            \   currencyCode\n            __typename\n          }\n          __typename\n\
+            \        }\n        qualities {\n          comfortableWithPets\n     \
+            \     doesNotSmoke\n          ownTransportation\n          providesEquipment\n\
+            \          providesSupplies\n          __typename\n        }\n       \
+            \ recurringRate {\n          hourlyRateFrom {\n            amount\n  \
+            \          currencyCode\n            __typename\n          }\n       \
+            \   hourlyRateTo {\n            amount\n            currencyCode\n   \
+            \         __typename\n          }\n          __typename\n        }\n \
+            \       schedule {\n          endTime\n          id\n          ruleName\n\
+            \          rules\n          startTime\n          __typename\n        }\n\
+            \        supportedServices {\n          greenCleaning\n          springSummerCleaning\n\
+            \          atticCleaning\n          basementCleaning\n          bathroomCleaning\n\
+            \          cabinetCleaning\n          carpetCleaning\n          changingBedLinens\n\
+            \          deepCleaning\n          dishes\n          dusting\n       \
+            \   furnitureTreatment\n          generalRoomCleaning\n          houseSitting\n\
+            \          kitchenCleaning\n          laundry\n          moveOutCleaning\n\
+            \          organization\n          ovenCleaning\n          packingUnpacking\n\
+            \          petWasteCleanup\n          plantCare\n          refrigeratorCleaning\n\
+            \          standardCleaning\n          surfacePolishing\n          vacuumingOrMopping\n\
+            \          wallWashing\n          windowWashing\n          __typename\n\
+            \        }\n        yearsOfExperience\n        __typename\n      }\n \
+            \     __typename\n    }\n    providerStatus\n    responseRate\n    responseTime\n\
+            \    signUpDate\n    yearsOfExperience\n    nonPrimaryImages\n    isMarkedAsHired\
+            \ @include(if: $shouldGetMarkedAsHired)\n    __typename\n  }\n}"
+          description: GraphQL query document
+          fields: []
+        - name: variables
+          type: object
+          required: false
+          positional: false
+          default:
+            getCaregiverId: 22222222-2222-2222-2222-222222222222
+            serviceId: CHILD_CARE
+            shouldGetMarkedAsHired: false
+            shouldIncludeAllProfiles: true
+          description: GraphQL variables as JSON
+          fields: []
+        response:
+          type: object
+          item: get_caregiver
+        pagination: null
+        observed_auth:
+        - cookie
+      profile:
+        method: POST
+        path: /api/graphql
+        description: Fetch caregivers profile
+        params: []
+        body:
+        - name: operationName
+          type: string
+          required: true
+          positional: false
+          default: getCaregiverProfile
+          description: GraphQL operation name
+          fields: []
+        - name: query
+          type: string
+          required: false
+          positional: false
+          default: "query getCaregiverProfile($id: ID!) {\n  getCaregiver(id: $id)\
+            \ {\n    isMarkedAsHired\n    member {\n      id\n      primaryService\n\
+            \      __typename\n    }\n    profiles {\n      commonCaregiverProfile\
+            \ {\n        id\n        payRange {\n          hourlyRateFrom {\n    \
+            \        amount\n            currencyCode\n            __typename\n  \
+            \        }\n          hourlyRateTo {\n            amount\n           \
+            \ currencyCode\n            __typename\n          }\n          __typename\n\
+            \        }\n        __typename\n      }\n      __typename\n    }\n   \
+            \ avgReviewRating\n    yearsOfExperience\n    __typename\n  }\n}"
+          description: GraphQL query document
+          fields: []
+        - name: variables
+          type: object
+          required: false
+          positional: false
+          default:
+            id: 33333333-3333-3333-3333-333333333333
+          description: GraphQL variables as JSON
+          fields: []
+        response:
+          type: object
+          item: get_caregiver_profile
+        pagination: null
+        observed_auth:
+        - cookie
+  conversations:
+    description: GraphQL BFF operations for conversations
+    endpoints:
+      most_relevant_care_needs:
+        method: POST
+        path: /api/graphql
+        description: Fetch conversations most relevant care needs
+        params: []
+        body:
+        - name: operationName
+          type: string
+          required: true
+          positional: false
+          default: conversationMostRelevantCareNeeds
+          description: GraphQL operation name
+          fields: []
+        - name: query
+          type: string
+          required: false
+          positional: false
+          default: "query conversationMostRelevantCareNeeds($loggedInUserRole: LoggedInUserRole,\
+            \ $participantsMetadata: [ConversationParticipantMetadata!]!) {\n  conversationMostRelevantCareNeeds(\n\
+            \    loggedInUserRole: $loggedInUserRole\n    participantsMetadata: $participantsMetadata\n\
+            \  ) {\n    error\n    haveCompletedBooking\n    participantId\n    mostRelevantBooking\
+            \ {\n      expiresAt\n      status\n      bookingRequestJob {\n      \
+            \  id\n        serviceType\n        jobType\n        careSubtype {\n \
+            \         ... on PetCareSubtypeWrapper {\n            petCareSubtype\n\
+            \            __typename\n          }\n          __typename\n        }\n\
+            \        recurrenceRules {\n          rules\n          startTime\n   \
+            \       endTime\n          __typename\n        }\n        serviceDetails\
+            \ {\n          ... on ChildCareServiceDetails {\n            children\
+            \ {\n              name\n              __typename\n            }\n   \
+            \         __typename\n          }\n          ... on PetCareServiceDetails\
+            \ {\n            pets {\n              ... on Cat {\n                name\n\
+            \                __typename\n              }\n              ... on Dog\
+            \ {\n                name\n                __typename\n              }\n\
+            \              __typename\n            }\n            __typename\n   \
+            \       }\n          __typename\n        }\n        timeBlock {\n    \
+            \      end\n          start\n          __typename\n        }\n       \
+            \ __typename\n      }\n      slot {\n        timeBlock {\n          end\n\
+            \          start\n          __typename\n        }\n        __typename\n\
+            \      }\n      id\n      __typename\n    }\n    mostRelevantInvitation\
+            \ {\n      id\n      bookingId\n      expiresAt\n      status\n      subStatus\n\
+            \      caregiverTier\n      bookingRequestJob {\n        id\n        serviceType\n\
+            \        jobType\n        careSubtype {\n          ... on PetCareSubtypeWrapper\
+            \ {\n            petCareSubtype\n            __typename\n          }\n\
+            \          __typename\n        }\n        recurrenceRules {\n        \
+            \  rules\n          startTime\n          endTime\n          __typename\n\
+            \        }\n        serviceDetails {\n          ... on ChildCareServiceDetails\
+            \ {\n            children {\n              name\n              __typename\n\
+            \            }\n            __typename\n          }\n          ... on\
+            \ PetCareServiceDetails {\n            pets {\n              ... on Cat\
+            \ {\n                name\n                __typename\n              }\n\
+            \              ... on Dog {\n                name\n                __typename\n\
+            \              }\n              __typename\n            }\n          \
+            \  __typename\n          }\n          __typename\n        }\n        timeBlock\
+            \ {\n          end\n          start\n          __typename\n        }\n\
+            \        __typename\n      }\n      __typename\n    }\n    mostRelevantJob\
+            \ {\n      ... on MostRelevantJob {\n        job {\n          id\n   \
+            \       status\n          serviceType\n          startDate\n         \
+            \ __typename\n        }\n        jobCtaStatus\n        applicationID\n\
+            \        details {\n          ... on JobDetails {\n            oneTimeJob\n\
+            \            recurringDays {\n              Friday\n              Monday\n\
+            \              Saturday\n              Sunday\n              Thursday\n\
+            \              Tuesday\n              Wednesday\n              __typename\n\
+            \            }\n            timeBlock {\n              end\n         \
+            \     start\n              __typename\n            }\n            __typename\n\
+            \          }\n          ... on JobDetailsError {\n            errorMessage\n\
+            \            __typename\n          }\n          __typename\n        }\n\
+            \        __typename\n      }\n      ... on JobError {\n        id\n  \
+            \      message\n        __typename\n      }\n      __typename\n    }\n\
+            \    __typename\n  }\n}"
+          description: GraphQL query document
+          fields: []
+        - name: variables
+          type: object
+          required: false
+          positional: false
+          default:
+            loggedInUserRole: SEEKER
+            participantsMetadata:
+            - conversationId: messaging:!members-example
+              participantId: 33333333-3333-3333-3333-333333333333
+          description: GraphQL variables as JSON
+          fields: []
+        response:
+          type: object
+          item: conversation_most_relevant_care_needs
+        pagination: null
+        observed_auth:
+        - cookie
+  members:
+    description: GraphQL BFF operations for members
+    endpoints:
+      entitlements:
+        method: POST
+        path: /api/graphql
+        description: Fetch members entitlements
+        params: []
+        body:
+        - name: operationName
+          type: string
+          required: true
+          positional: false
+          default: GetMemberEntitlements
+          description: GraphQL operation name
+          fields: []
+        - name: query
+          type: string
+          required: false
+          positional: false
+          default: "query GetMemberEntitlements($input: MemberEntitlementsInput!)\
+            \ {\n  getMemberEntitlements(input: $input) {\n    ... on GetMemberEntitlementsSuccess\
+            \ {\n      entitlements {\n        entitlement\n        permission\n \
+            \       condition {\n          lastMinuteBooking {\n            timeUntilBookingStartIsGreaterThanDuration\
+            \ {\n              nanos\n              seconds\n              __typename\n\
+            \            }\n            __typename\n          }\n          conversationCredits\
+            \ {\n            remaining\n            total\n            used\n    \
+            \        __typename\n          }\n          __typename\n        }\n  \
+            \      __typename\n      }\n      __typename\n    }\n    ... on GetMemberEntitlementsError\
+            \ {\n      errors {\n        message\n        __typename\n      }\n  \
+            \    __typename\n    }\n    __typename\n  }\n}"
+          description: GraphQL query document
+          fields: []
+        - name: variables
+          type: object
+          required: false
+          positional: false
+          default:
+            input:
+              entitlements:
+              - ENTITLEMENT_ACCESS_LIFEMART
+              - ENTITLEMENT_BOOK_LAST_MINUTE_IB_PET_CARE
+              - ENTITLEMENT_SEEKER_INITIATED_CONVERSATIONS
+          description: GraphQL variables as JSON
+          fields: []
+        response:
+          type: object
+          item: get_member_entitlements
+        pagination: null
+        observed_auth:
+        - cookie
+      ids:
+        method: POST
+        path: /api/graphql
+        description: Fetch members ids
+        params: []
+        body:
+        - name: operationName
+          type: string
+          required: true
+          positional: false
+          default: getMemberIds
+          description: GraphQL operation name
+          fields: []
+        - name: query
+          type: string
+          required: false
+          positional: false
+          default: "query getMemberIds($ids: [ID!]!, $idType: IdType!) {\n  getMemberIds(ids:\
+            \ $ids, idType: $idType) {\n    memberId\n    uuid\n    __typename\n \
+            \ }\n}"
+          description: GraphQL query document
+          fields: []
+        - name: variables
+          type: object
+          required: false
+          positional: false
+          default:
+            idType: UUID
+            ids:
+            - 33333333-3333-3333-3333-333333333333
+          description: GraphQL variables as JSON
+          fields: []
+        response:
+          type: object
+          item: get_member_ids
+        pagination: null
+        observed_auth:
+        - cookie
+  memberships:
+    description: GraphQL BFF operations for memberships
+    endpoints:
+      information:
+        method: POST
+        path: /api/graphql
+        description: Fetch memberships information
+        params: []
+        body:
+        - name: operationName
+          type: string
+          required: true
+          positional: false
+          default: getMembershipInformation
+          description: GraphQL operation name
+          fields: []
+        - name: query
+          type: string
+          required: false
+          positional: false
+          default: "query getMembershipInformation($id: ID!) {\n  getSeeker(id: $id)\
+            \ {\n    member {\n      id\n      __typename\n    }\n    membershipInformation\
+            \ {\n      nextBillingDate\n      premiumInfo {\n        signupDate\n\
+            \        __typename\n      }\n      __typename\n    }\n    __typename\n\
+            \  }\n}"
+          description: GraphQL query document
+          fields: []
+        - name: variables
+          type: object
+          required: false
+          positional: false
+          default:
+            id: 11111111-1111-1111-1111-111111111111
+          description: GraphQL variables as JSON
+          fields: []
+        response:
+          type: object
+          item: get_membership_information
+        pagination: null
+        observed_auth:
+        - cookie
+  messages:
+    description: GraphQL BFF operations for messages
+    endpoints:
+      thread:
+        method: POST
+        path: /api/graphql
+        description: Fetch messages thread
+        params: []
+        body:
+        - name: operationName
+          type: string
+          required: true
+          positional: false
+          default: GetMessageThread
+          description: GraphQL operation name
+          fields: []
+        - name: query
+          type: string
+          required: false
+          positional: false
+          default: "query GetMessageThread($userId: ID!, $otherUserId: ID!) {\n  getMessageThread(userId:\
+            \ $userId, otherUserId: $otherUserId) {\n    id\n    __typename\n  }\n\
+            }"
+          description: GraphQL query document
+          fields: []
+        - name: variables
+          type: object
+          required: false
+          positional: false
+          default:
+            otherUserId: 22222222-2222-2222-2222-222222222222
+            userId: 11111111-1111-1111-1111-111111111111
+          description: GraphQL variables as JSON
+          fields: []
+        response:
+          type: object
+          item: get_message_thread
+        pagination: null
+        observed_auth:
+        - cookie
+  notifications:
+    description: GraphQL BFF operations for notifications
+    endpoints:
+      counts:
+        method: POST
+        path: /api/graphql
+        description: Fetch notifications counts
+        params: []
+        body:
+        - name: operationName
+          type: string
+          required: true
+          positional: false
+          default: NotificationCounts
+          description: GraphQL operation name
+          fields: []
+        - name: query
+          type: string
+          required: false
+          positional: false
+          default: "query NotificationCounts {\n  notificationCounts {\n    ... on\
+            \ NotificationCounts {\n      alerts {\n        unread\n        __typename\n\
+            \      }\n      conversations {\n        unread\n        __typename\n\
+            \      }\n      jobApplications {\n        unread\n        __typename\n\
+            \      }\n      bookings {\n        unread\n        __typename\n     \
+            \ }\n      __typename\n    }\n    __typename\n  }\n}"
+          description: GraphQL query document
+          fields: []
+        - name: variables
+          type: object
+          required: false
+          positional: false
+          default: {}
+          description: GraphQL variables as JSON
+          fields: []
+        response:
+          type: object
+          item: notification_counts
+        pagination: null
+        observed_auth:
+        - cookie
+      counts_2:
+        method: POST
+        path: /api/graphql
+        description: Fetch notifications counts
+        params: []
+        body:
+        - name: operationName
+          type: string
+          required: true
+          positional: false
+          default: notificationCounts
+          description: GraphQL operation name
+          fields: []
+        - name: query
+          type: string
+          required: false
+          positional: false
+          default: "query notificationCounts {\n  notificationCounts {\n    ... on\
+            \ NotificationCounts {\n      alerts {\n        unread\n        __typename\n\
+            \      }\n      bookings {\n        unread\n        __typename\n     \
+            \ }\n      conversations {\n        unread\n        __typename\n     \
+            \ }\n      jobApplications {\n        unread\n        __typename\n   \
+            \   }\n      __typename\n    }\n    __typename\n  }\n}"
+          description: GraphQL query document
+          fields: []
+        - name: variables
+          type: object
+          required: false
+          positional: false
+          default: {}
+          description: GraphQL variables as JSON
+          fields: []
+        response:
+          type: object
+          item: notification_counts
+        pagination: null
+        observed_auth:
+        - cookie
+  providers:
+    description: GraphQL BFF operations for providers
+    endpoints:
+      child_care:
+        method: POST
+        path: /api/graphql
+        description: Fetch providers child care
+        params: []
+        body:
+        - name: operationName
+          type: string
+          required: true
+          positional: false
+          default: SearchProvidersChildCare
+          description: GraphQL operation name
+          fields: []
+        - name: query
+          type: string
+          required: false
+          positional: false
+          default: "fragment CaregiverFragment on SearchProvidersSuccess {\n  sourceType\n\
+            \  searchProvidersConnection {\n    pageInfo {\n      hasNextPage\n  \
+            \    endCursor\n      __typename\n    }\n    totalHits\n    edges {\n\
+            \      node {\n        ... on Caregiver {\n          member {\n      \
+            \      id\n            legacyId\n            imageURL\n            displayName\n\
+            \            firstName\n            lastName\n            address {\n\
+            \              city\n              state\n              zip\n        \
+            \      __typename\n            }\n            primaryService\n       \
+            \     __typename\n          }\n          responseTime\n          responsivenessScore\n\
+            \          hasCareCheck\n          badges\n          backgroundChecks\
+            \ {\n            whenCompleted\n            backgroundCheckName\n    \
+            \        __typename\n          }\n          yearsOfExperience\n      \
+            \    profileDataSource\n          hiredByCounts {\n            locality\
+            \ {\n              hiredCount\n              __typename\n            }\n\
+            \            __typename\n          }\n          hiredTimes\n         \
+            \ revieweeMetrics {\n            ... on ReviewFailureResponse {\n    \
+            \          message\n              __typename\n            }\n        \
+            \    ... on RevieweeMetricsPayload {\n              metrics {\n      \
+            \          totalReviews\n                averageRatings {\n          \
+            \        type\n                  value\n                  __typename\n\
+            \                }\n                __typename\n              }\n    \
+            \          __typename\n            }\n            __typename\n       \
+            \   }\n          profiles {\n            commonCaregiverProfile {\n  \
+            \            id\n              bio {\n                experienceSummary\n\
+            \                __typename\n              }\n              __typename\n\
+            \            }\n            childCareCaregiverProfile {\n            \
+            \  rates {\n                hourlyRate {\n                  amount\n \
+            \                 __typename\n                }\n                numberOfChildren\n\
+            \                __typename\n              }\n              recurringRate\
+            \ {\n                hourlyRateFrom {\n                  amount\n    \
+            \              __typename\n                }\n                hourlyRateTo\
+            \ {\n                  amount\n                  __typename\n        \
+            \        }\n                __typename\n              }\n            \
+            \  __typename\n            }\n            petCareCaregiverProfile {\n\
+            \              serviceRates {\n                duration\n            \
+            \    rate {\n                  amount\n                  __typename\n\
+            \                }\n                subtype\n                __typename\n\
+            \              }\n              recurringRate {\n                hourlyRateFrom\
+            \ {\n                  amount\n                  __typename\n        \
+            \        }\n                hourlyRateTo {\n                  amount\n\
+            \                  __typename\n                }\n                __typename\n\
+            \              }\n              __typename\n            }\n          \
+            \  houseKeepingCaregiverProfile {\n              recurringRate {\n   \
+            \             hourlyRateFrom {\n                  amount\n           \
+            \       __typename\n                }\n                hourlyRateTo {\n\
+            \                  amount\n                  __typename\n            \
+            \    }\n                __typename\n              }\n              __typename\n\
+            \            }\n            tutoringCaregiverProfile {\n             \
+            \ recurringRate {\n                hourlyRateFrom {\n                \
+            \  amount\n                  __typename\n                }\n         \
+            \       hourlyRateTo {\n                  amount\n                  __typename\n\
+            \                }\n                __typename\n              }\n    \
+            \          __typename\n            }\n            seniorCareCaregiverProfile\
+            \ {\n              recurringRate {\n                hourlyRateFrom {\n\
+            \                  amount\n                  __typename\n            \
+            \    }\n                hourlyRateTo {\n                  amount\n   \
+            \               __typename\n                }\n                __typename\n\
+            \              }\n              __typename\n            }\n          \
+            \  __typename\n          }\n          featuredReview {\n            description\
+            \ {\n              displayText\n              originalText\n         \
+            \     __typename\n            }\n            reviewer {\n            \
+            \  publicMemberInfo {\n                firstName\n                lastInitial\n\
+            \                imageURL\n                __typename\n              }\n\
+            \              __typename\n            }\n            __typename\n   \
+            \       }\n          isFavorite\n          isAvailable\n          __typename\n\
+            \        }\n        ... on SearchProvidersNodeError {\n          providerId\n\
+            \          message\n          __typename\n        }\n        __typename\n\
+            \      }\n      __typename\n    }\n    __typename\n  }\n  __typename\n\
+            }\n\nquery SearchProvidersChildCare($input: SearchProvidersChildCareInput!)\
+            \ {\n  searchProvidersChildCare(input: $input) {\n    ... on SearchProvidersSuccess\
+            \ {\n      ...CaregiverFragment\n      __typename\n    }\n    ... on SearchProvidersError\
+            \ {\n      message\n      __typename\n    }\n    __typename\n  }\n}"
+          description: GraphQL query document
+          fields: []
+        - name: variables
+          type: object
+          required: false
+          positional: false
+          default:
+            input:
+              careType: SITTER
+              filters:
+                postalCode: '90210'
+                searchAfter: null
+                searchPageSize: 10
+                searchSortOrder: SORT_ORDER_RECOMMENDED_DESCENDING
+          description: GraphQL variables as JSON
+          fields: []
+        response:
+          type: object
+          item: search_providers_child_care
+        pagination: null
+        observed_auth:
+        - cookie
+      child_care_2:
+        method: POST
+        path: /api/graphql
+        description: Fetch providers child care
+        params: []
+        body:
+        - name: operationName
+          type: string
+          required: true
+          positional: false
+          default: searchProvidersChildCare
+          description: GraphQL operation name
+          fields: []
+        - name: query
+          type: string
+          required: false
+          positional: false
+          default: "fragment SearchProviders on SearchProvidersSuccess {\n  searchProvidersConnection\
+            \ {\n    totalHits\n    edges {\n      cursor\n      node {\n        ...CaregiverFragment\n\
+            \        __typename\n      }\n      __typename\n    }\n    pageInfo {\n\
+            \      endCursor\n      hasNextPage\n      hasPreviousPage\n      startCursor\n\
+            \      __typename\n    }\n    __typename\n  }\n  sourceType\n  __typename\n\
+            }\n\nfragment CaregiverFragment on Caregiver {\n  avgReviewRating\n  badges\n\
+            \  yearsOfExperience\n  hiredTimes\n  hiredByCounts {\n    locality {\n\
+            \      hiredCount\n      __typename\n    }\n    __typename\n  }\n  featuredReview\
+            \ {\n    description {\n      displayText\n      originalText\n      __typename\n\
+            \    }\n    reviewer {\n      publicMemberInfo {\n        firstName\n\
+            \        lastInitial\n        imageURL\n        __typename\n      }\n\
+            \      __typename\n    }\n    __typename\n  }\n  revieweeMetrics {\n \
+            \   ... on RevieweeMetricsPayload {\n      metrics {\n        totalReviews\n\
+            \        averageRatings {\n          type\n          value\n         \
+            \ __typename\n        }\n        __typename\n      }\n      __typename\n\
+            \    }\n    __typename\n  }\n  profileURL\n  isFavorite\n  member {\n\
+            \    id\n    legacyId\n    displayName\n    hiResImageURL\n    imageURL\n\
+            \    isPremium\n    firstName\n    lastName\n    primaryService\n    address\
+            \ {\n      city\n      state\n      zip\n      __typename\n    }\n   \
+            \ __typename\n  }\n  profiles {\n    commonCaregiverProfile {\n      bio\
+            \ {\n        experienceSummary\n        __typename\n      }\n      __typename\n\
+            \    }\n    childCareCaregiverProfile {\n      payRange {\n        hourlyRateFrom\
+            \ {\n          amount\n          currencyCode\n          __typename\n\
+            \        }\n        __typename\n      }\n      yearsOfExperience\n   \
+            \   rates {\n        hourlyRate {\n          amount\n          __typename\n\
+            \        }\n        numberOfChildren\n        __typename\n      }\n  \
+            \    recurringRate {\n        hourlyRateFrom {\n          amount\n   \
+            \       __typename\n        }\n        hourlyRateTo {\n          amount\n\
+            \          __typename\n        }\n        __typename\n      }\n      __typename\n\
+            \    }\n    petCareCaregiverProfile {\n      payRange {\n        hourlyRateFrom\
+            \ {\n          amount\n          currencyCode\n          __typename\n\
+            \        }\n        __typename\n      }\n      yearsOfExperience\n   \
+            \   serviceRates {\n        rate {\n          amount\n          __typename\n\
+            \        }\n        subtype\n        __typename\n      }\n      recurringRate\
+            \ {\n        hourlyRateFrom {\n          amount\n          __typename\n\
+            \        }\n        hourlyRateTo {\n          amount\n          __typename\n\
+            \        }\n        __typename\n      }\n      __typename\n    }\n   \
+            \ seniorCareCaregiverProfile {\n      payRange {\n        hourlyRateFrom\
+            \ {\n          amount\n          currencyCode\n          __typename\n\
+            \        }\n        __typename\n      }\n      yearsOfExperience\n   \
+            \   recurringRate {\n        hourlyRateFrom {\n          amount\n    \
+            \      __typename\n        }\n        hourlyRateTo {\n          amount\n\
+            \          __typename\n        }\n        __typename\n      }\n      __typename\n\
+            \    }\n    tutoringCaregiverProfile {\n      payRange {\n        hourlyRateFrom\
+            \ {\n          amount\n          currencyCode\n          __typename\n\
+            \        }\n        __typename\n      }\n      yearsOfExperience\n   \
+            \   recurringRate {\n        hourlyRateFrom {\n          amount\n    \
+            \      __typename\n        }\n        hourlyRateTo {\n          amount\n\
+            \          __typename\n        }\n        __typename\n      }\n      __typename\n\
+            \    }\n    houseKeepingCaregiverProfile {\n      payRange {\n       \
+            \ hourlyRateFrom {\n          amount\n          currencyCode\n       \
+            \   __typename\n        }\n        __typename\n      }\n      yearsOfExperience\n\
+            \      recurringRate {\n        hourlyRateFrom {\n          amount\n \
+            \         __typename\n        }\n        hourlyRateTo {\n          amount\n\
+            \          __typename\n        }\n        __typename\n      }\n      __typename\n\
+            \    }\n    __typename\n  }\n  __typename\n}\n\nquery searchProvidersChildCare($input:\
+            \ SearchProvidersChildCareInput!) {\n  searchProvidersChildCare(input:\
+            \ $input) {\n    ... on SearchProvidersSuccess {\n      ...SearchProviders\n\
+            \      __typename\n    }\n    ... on SearchProvidersError {\n      message\n\
+            \      __typename\n    }\n    __typename\n  }\n}"
+          description: GraphQL query document
+          fields: []
+        - name: variables
+          type: object
+          required: false
+          positional: false
+          default:
+            input:
+              careType: SITTER
+              filters:
+                postalCode: '90210'
+                searchPageSize: 15
+          description: GraphQL variables as JSON
+          fields: []
+        response:
+          type: object
+          item: search_providers_child_care
+        pagination: null
+        observed_auth:
+        - cookie
+      get:
+        method: POST
+        path: /api/graphql
+        description: Fetch providers
+        params: []
+        body:
+        - name: operationName
+          type: string
+          required: true
+          positional: false
+          default: Provider
+          description: GraphQL operation name
+          fields: []
+        - name: query
+          type: string
+          required: false
+          positional: false
+          default: "query Provider($providerId: ID!) {\n  provider(id: $providerId)\
+            \ {\n    ... on ProviderLookupSuccess {\n      provider {\n        publicId\n\
+            \        __typename\n      }\n      __typename\n    }\n    __typename\n\
+            \  }\n}"
+          description: GraphQL query document
+          fields: []
+        - name: variables
+          type: object
+          required: false
+          positional: false
+          default:
+            providerId: 22222222-2222-2222-2222-222222222222
+          description: GraphQL variables as JSON
+          fields: []
+        response:
+          type: object
+          item: provider
+        pagination: null
+        observed_auth:
+        - cookie
+  reviewees:
+    description: GraphQL BFF operations for reviewees
+    endpoints:
+      metrics:
+        method: POST
+        path: /api/graphql
+        description: Fetch reviewees metrics
+        params: []
+        body:
+        - name: operationName
+          type: string
+          required: true
+          positional: false
+          default: RevieweeMetrics
+          description: GraphQL operation name
+          fields: []
+        - name: query
+          type: string
+          required: false
+          positional: false
+          default: "query RevieweeMetrics($revieweeId: ID!, $revieweeType: ReviewInfoEntityType!,\
+            \ $careType: ReviewInfoCareType!) {\n  revieweeMetrics(\n    revieweeId:\
+            \ $revieweeId\n    revieweeType: $revieweeType\n    careType: $careType\n\
+            \  ) {\n    ... on RevieweeMetricsPayload {\n      __typename\n      metrics\
+            \ {\n        averageRatings {\n          type\n          value\n     \
+            \     __typename\n        }\n        totalReviews\n        __typename\n\
+            \      }\n    }\n    ... on ReviewFailureResponse {\n      message\n \
+            \     __typename\n    }\n    __typename\n  }\n}"
+          description: GraphQL query document
+          fields: []
+        - name: variables
+          type: object
+          required: false
+          positional: false
+          default:
+            careType: CHILD_CARE
+            revieweeId: 22222222-2222-2222-2222-222222222222
+            revieweeType: PROVIDER
+          description: GraphQL variables as JSON
+          fields: []
+        response:
+          type: object
+          item: reviewee_metrics
+        pagination: null
+        observed_auth:
+        - cookie
+  reviews:
+    description: GraphQL BFF operations for reviews
+    endpoints:
+      by_reviewee:
+        method: POST
+        path: /api/graphql
+        description: Fetch reviews by reviewee
+        params: []
+        body:
+        - name: operationName
+          type: string
+          required: true
+          positional: false
+          default: ReviewsByReviewee
+          description: GraphQL operation name
+          fields: []
+        - name: query
+          type: string
+          required: false
+          positional: false
+          default: "query ReviewsByReviewee($revieweeId: ID!, $revieweeType: ReviewInfoEntityType!,\
+            \ $careType: ReviewInfoCareType, $pageSize: Int, $pageToken: String) {\n\
+            \  reviewsByReviewee(\n    revieweeId: $revieweeId\n    revieweeType:\
+            \ $revieweeType\n    careType: $careType\n    pageSize: $pageSize\n  \
+            \  pageToken: $pageToken\n  ) {\n    ... on ReviewsByRevieweePayload {\n\
+            \      __typename\n      nextPageToken\n      reviews {\n        attributes\
+            \ {\n          truthy\n          type\n          __typename\n        }\n\
+            \        careType\n        createTime\n        deleteTime\n        description\
+            \ {\n          displayText\n          originalText\n          __typename\n\
+            \        }\n        id\n        languageCode\n        originalSource\n\
+            \        ratings {\n          type\n          value\n          __typename\n\
+            \        }\n        retort {\n          displayText\n          originalText\n\
+            \          __typename\n        }\n        reviewee {\n          id\n \
+            \         providerType\n          type\n          __typename\n       \
+            \ }\n        reviewer {\n          imageURL\n          publicMemberInfo\
+            \ {\n            firstName\n            lastInitial\n            __typename\n\
+            \          }\n          source\n          type\n          __typename\n\
+            \        }\n        status\n        updateSource\n        updateTime\n\
+            \        verifiedByCare\n        __typename\n      }\n    }\n    ... on\
+            \ ReviewFailureResponse {\n      message\n      __typename\n    }\n  \
+            \  __typename\n  }\n}"
+          description: GraphQL query document
+          fields: []
+        - name: variables
+          type: object
+          required: false
+          positional: false
+          default:
+            careType: CHILD_CARE
+            revieweeId: 22222222-2222-2222-2222-222222222222
+            revieweeType: PROVIDER
+          description: GraphQL variables as JSON
+          fields: []
+        response:
+          type: object
+          item: reviews_by_reviewee
+        pagination: null
+        observed_auth:
+        - cookie
+      request_search:
+        method: POST
+        path: /api/graphql
+        description: Fetch reviews request search
+        params: []
+        body:
+        - name: operationName
+          type: string
+          required: true
+          positional: false
+          default: ReviewRequestSearch
+          description: GraphQL operation name
+          fields: []
+        - name: query
+          type: string
+          required: false
+          positional: false
+          default: "query ReviewRequestSearch($reviewerId: ID!, $bookingListInput:\
+            \ CaregiverBookingListInput!) {\n  reviewRequestSearch(reviewerId: $reviewerId)\
+            \ {\n    ... on ReviewRequestSearchPayload {\n      reviewRequests {\n\
+            \        careType\n        createTime\n        id\n        reviewLink\n\
+            \        reviewee {\n          id\n          providerType\n          type\n\
+            \          __typename\n        }\n        reviewer {\n          reviewerId\n\
+            \          reviewerSource\n          reviewerType\n          __typename\n\
+            \        }\n        source\n        status\n        updateTime\n     \
+            \   __typename\n      }\n      __typename\n    }\n    ... on ReviewRequestFailureResponse\
+            \ {\n      message\n      __typename\n    }\n    __typename\n  }\n  getCaregiverBookingList(bookingListInput:\
+            \ $bookingListInput) {\n    bookings {\n      id\n      slot {\n     \
+            \   timeBlock {\n          start\n          end\n          __typename\n\
+            \        }\n        caregiver {\n          member {\n            id\n\
+            \            firstName\n            imageURL\n            __typename\n\
+            \          }\n          __typename\n        }\n        __typename\n  \
+            \    }\n      __typename\n    }\n    __typename\n  }\n}"
+          description: GraphQL query document
+          fields: []
+        - name: variables
+          type: object
+          required: false
+          positional: false
+          default:
+            bookingListInput:
+              caregiverListBookingStatus: COMPLETED
+              seekerId: 11111111-1111-1111-1111-111111111111
+            reviewerId: 11111111-1111-1111-1111-111111111111
+          description: GraphQL variables as JSON
+          fields: []
+        response:
+          type: object
+          item: review_request_search
+        pagination: null
+        observed_auth:
+        - cookie
+  seekers:
+    description: GraphQL BFF operations for seekers
+    endpoints:
+      get:
+        method: POST
+        path: /api/graphql
+        description: Fetch seekers
+        params: []
+        body:
+        - name: operationName
+          type: string
+          required: true
+          positional: false
+          default: getSeeker
+          description: GraphQL operation name
+          fields: []
+        - name: query
+          type: string
+          required: false
+          positional: false
+          default: "query getSeeker($id: ID!, $includeCbuc: Boolean!) {\n  getSeeker(id:\
+            \ $id) {\n    member {\n      id\n      displayName\n      firstName\n\
+            \      imageURL\n      isPremium\n      legacyId\n      primaryService\n\
+            \      email\n      address {\n        addressLine1\n        addressLine2\n\
+            \        city\n        state\n        zip\n        state\n        __typename\n\
+            \      }\n      contact {\n        primaryPhone\n        __typename\n\
+            \      }\n      __typename\n    }\n    signUpDate\n    eligibleUpsellExperiences\n\
+            \    hasUnlimitedBGCFeature\n    hasHomePayFeature\n    familyCareHubEnabled\n\
+            \    nannyShareEnabled\n    isWorkPlaceSolutionMember\n    workPlaceOwningGroupShortName\n\
+            \    subscriptionDetails {\n      canUpgradePlanOnWeb\n      businessModel\n\
+            \      planTier\n      __typename\n    }\n    hasAdultCareNeeds\n    consumerBackupCare\
+            \ @include(if: $includeCbuc) {\n      addOnTestEligible\n      addOnPurchased\n\
+            \      __typename\n    }\n    __typename\n  }\n}"
+          description: GraphQL query document
+          fields: []
+        - name: variables
+          type: object
+          required: false
+          positional: false
+          default:
+            id: 11111111-1111-1111-1111-111111111111
+            includeCbuc: true
+          description: GraphQL variables as JSON
+          fields: []
+        response:
+          type: object
+          item: get_seeker
+        pagination: null
+        observed_auth:
+        - cookie
+      job_application:
+        method: POST
+        path: /api/graphql
+        description: Fetch seekers job application
+        params: []
+        body:
+        - name: operationName
+          type: string
+          required: true
+          positional: false
+          default: SeekerJobApplication
+          description: GraphQL operation name
+          fields: []
+        - name: query
+          type: string
+          required: false
+          positional: false
+          default: "query SeekerJobApplication($jobApplicationId: Int!) {\n  seekerJobApplication(jobApplicationId:\
+            \ $jobApplicationId) {\n    ... on SeekerJobApplicationSuccess {\n   \
+            \   jobId\n      application {\n        seekerInterest\n        __typename\n\
+            \      }\n      __typename\n    }\n    ... on SeekerJobApplicationError\
+            \ {\n      dummy\n      __typename\n    }\n    __typename\n  }\n}"
+          description: GraphQL query document
+          fields: []
+        - name: variables
+          type: object
+          required: false
+          positional: false
+          default:
+            jobApplicationId: 12345678.0
+          description: GraphQL variables as JSON
+          fields: []
+        response:
+          type: object
+          item: seeker_job_application
+        pagination: null
+        observed_auth:
+        - cookie
+      job_summaries:
+        method: POST
+        path: /api/graphql
+        description: Fetch seekers job summaries
+        params: []
+        body:
+        - name: operationName
+          type: string
+          required: true
+          positional: false
+          default: SeekerJobSummaries
+          description: GraphQL operation name
+          fields: []
+        - name: query
+          type: string
+          required: false
+          positional: false
+          default: "query SeekerJobSummaries($jobStatus: JobSummaryJobStatusFilter!)\
+            \ {\n  seekerJobSummaries(jobStatus: $jobStatus) {\n    ... on GroupedJobSummaries\
+            \ {\n      closed {\n        adultCareJob\n        privateJob\n      \
+            \  ctaDetails {\n          ctaAction\n          ctaImages\n          ctaLabel\n\
+            \          __typename\n        }\n        endDate\n        endTimeOfDay\n\
+            \        frequency\n        hiredCaregiver {\n          conversationId\n\
+            \          id\n          publicId\n          uuid\n          __typename\n\
+            \        }\n        id\n        seekerUuid\n        serviceType\n    \
+            \    startDate\n        startTimeOfDay\n        status\n        title\n\
+            \        totalApplications\n        unreadApplications\n        totalBoostedApplications\n\
+            \        unreadBoostedApplications\n        __typename\n      }\n    \
+            \  open {\n        privateJob\n        adultCareJob\n        endDate\n\
+            \        endTimeOfDay\n        frequency\n        id\n        seekerUuid\n\
+            \        serviceType\n        startDate\n        startTimeOfDay\n    \
+            \    status\n        title\n        totalApplications\n        unreadApplications\n\
+            \        totalBoostedApplications\n        unreadBoostedApplications\n\
+            \        ctaDetails {\n          ctaAction\n          ctaImages\n    \
+            \      ctaLabel\n          __typename\n        }\n        hiredCaregiver\
+            \ {\n          conversationId\n          id\n          publicId\n    \
+            \      uuid\n          __typename\n        }\n        __typename\n   \
+            \   }\n      __typename\n    }\n    __typename\n  }\n}"
+          description: GraphQL query document
+          fields: []
+        - name: variables
+          type: object
+          required: false
+          positional: false
+          default:
+            jobStatus: ALL
+          description: GraphQL variables as JSON
+          fields: []
+        response:
+          type: object
+          item: seeker_job_summaries
+        pagination: null
+        observed_auth:
+        - cookie
+      membership_information:
+        method: POST
+        path: /api/graphql
+        description: Fetch seekers membership information
+        params: []
+        body:
+        - name: operationName
+          type: string
+          required: true
+          positional: false
+          default: getSeekerMembershipInformation
+          description: GraphQL operation name
+          fields: []
+        - name: query
+          type: string
+          required: false
+          positional: false
+          default: "query getSeekerMembershipInformation($id: ID!) {\n  getSeeker(id:\
+            \ $id) {\n    hasAdultCareNeeds\n    membershipInformation {\n      premiumInfo\
+            \ {\n        signupDate\n        __typename\n      }\n      lastTransactionInfo\
+            \ {\n        amount {\n          amount\n          __typename\n      \
+            \  }\n        promoCode\n        __typename\n      }\n      __typename\n\
+            \    }\n    __typename\n  }\n}"
+          description: GraphQL query document
+          fields: []
+        - name: variables
+          type: object
+          required: false
+          positional: false
+          default:
+            id: 11111111-1111-1111-1111-111111111111
+          description: GraphQL variables as JSON
+          fields: []
+        response:
+          type: object
+          item: get_seeker_membership_information
+        pagination: null
+        observed_auth:
+        - cookie
+  zipcodes:
+    description: GraphQL BFF operations for zipcodes
+    endpoints:
+      summary:
+        method: POST
+        path: /api/graphql
+        description: Fetch zipcodes summary
+        params: []
+        body:
+        - name: operationName
+          type: string
+          required: true
+          positional: false
+          default: getZipcodeSummary
+          description: GraphQL operation name
+          fields: []
+        - name: query
+          type: string
+          required: false
+          positional: false
+          default: "query getZipcodeSummary($zipcode: String) {\n  getZipcodeSummary(zipcode:\
+            \ $zipcode) {\n    ... on ZipcodeSummary {\n      city\n      state\n\
+            \      zipcode\n      latitude\n      longitude\n      __typename\n  \
+            \  }\n    ... on InvalidZipcodeError {\n      message\n      __typename\n\
+            \    }\n    __typename\n  }\n}"
+          description: GraphQL query document
+          fields: []
+        - name: variables
+          type: object
+          required: false
+          positional: false
+          default:
+            zipcode: '90210'
+          description: GraphQL variables as JSON
+          fields: []
+        response:
+          type: object
+          item: get_zipcode_summary
+        pagination: null
+        observed_auth:
+        - cookie
+  care_jobs:
+    description: GraphQL BFF operations for jobs
+    endpoints:
+      applicant_hired:
+        method: POST
+        path: /api/graphql
+        description: Fetch jobs applicant hired
+        params: []
+        body:
+        - name: operationName
+          type: string
+          required: true
+          positional: false
+          default: JobApplicantHired
+          description: GraphQL operation name
+          fields: []
+        - name: query
+          type: string
+          required: false
+          positional: false
+          default: "query JobApplicantHired($jobId: Int!) {\n  jobApplicantHired(jobId:\
+            \ $jobId) {\n    ... on JobApplicantHiredSuccess {\n      jobId\n    \
+            \  application {\n        jobApplicationId\n        __typename\n     \
+            \ }\n      __typename\n    }\n    ... on JobApplicantHiredNotFound {\n\
+            \      dummy\n      __typename\n    }\n    __typename\n  }\n}"
+          description: GraphQL query document
+          fields: []
+        - name: variables
+          type: object
+          required: false
+          positional: false
+          default:
+            jobId: 12345678.0
+          description: GraphQL variables as JSON
+          fields: []
+        response:
+          type: object
+          item: job_applicant_hired
+        pagination: null
+        observed_auth:
+        - cookie
+      application_interest:
+        method: POST
+        path: /api/graphql
+        description: Fetch jobs application interest
+        params: []
+        body:
+        - name: operationName
+          type: string
+          required: true
+          positional: false
+          default: JobApplicationInterest
+          description: GraphQL operation name
+          fields: []
+        - name: query
+          type: string
+          required: false
+          positional: false
+          default: "mutation JobApplicationInterest($jobApplicationId: String!, $seekerInterest:\
+            \ JobApplicationSeekerInterest!, $isInterested: Boolean, $channelId: String)\
+            \ {\n  jobApplicationInterest(\n    jobApplicationId: $jobApplicationId\n\
+            \    seekerInterest: $seekerInterest\n    isInterested: $isInterested\n\
+            \    channelId: $channelId\n  ) {\n    ... on JobApplicationInterestSuccess\
+            \ {\n      dummy\n      __typename\n    }\n    ... on JobApplicationInterestError\
+            \ {\n      error\n      __typename\n    }\n    __typename\n  }\n}"
+          description: GraphQL query document
+          fields: []
+        - name: variables
+          type: object
+          required: false
+          positional: false
+          default:
+            channelId: '!members-example'
+            jobApplicationId: '12345678'
+            seekerInterest: NOT_INTERESTED
+          description: GraphQL variables as JSON
+          fields: []
+        response:
+          type: object
+          item: job_application_interest
+        pagination: null
+        observed_auth:
+        - cookie
+      application_seeker_interest_counts:
+        method: POST
+        path: /api/graphql
+        description: Fetch jobs application seeker interest counts
+        params: []
+        body:
+        - name: operationName
+          type: string
+          required: true
+          positional: false
+          default: JobApplicationSeekerInterestCounts
+          description: GraphQL operation name
+          fields: []
+        - name: query
+          type: string
+          required: false
+          positional: false
+          default: "query JobApplicationSeekerInterestCounts($jobId: ID!) {\n  jobApplicationSeekerInterestCounts(jobId:\
+            \ $jobId) {\n    ... on JobApplicationSeekerInterestCountsSuccess {\n\
+            \      unread {\n        interested\n        notInterested\n        unspecified\n\
+            \        __typename\n      }\n      __typename\n    }\n    __typename\n\
+            \  }\n}"
+          description: GraphQL query document
+          fields: []
+        - name: variables
+          type: object
+          required: false
+          positional: false
+          default:
+            jobId: '12345678'
+          description: GraphQL variables as JSON
+          fields: []
+        response:
+          type: object
+          item: job_application_seeker_interest_counts
+        pagination: null
+        observed_auth:
+        - cookie
+      applications:
+        method: POST
+        path: /api/graphql
+        description: Fetch jobs applications
+        params: []
+        body:
+        - name: operationName
+          type: string
+          required: true
+          positional: false
+          default: JobApplications
+          description: GraphQL operation name
+          fields: []
+        - name: query
+          type: string
+          required: false
+          positional: false
+          default: "query JobApplications($jobId: ID!, $sortBy: JobApplicationsSortBy,\
+            \ $max: Int, $jobApplicationFilter: SeekerJobApplicationFilter, $start:\
+            \ String, $includeRecentMessage: Boolean = false) {\n  jobApplications:\
+            \ jobProfile(jobId: $jobId) {\n    ... on JobProfileSuccess {\n      job\
+            \ {\n        id\n        serviceType\n        adultCareJob\n        startDate\n\
+            \        applicationCounts {\n          total\n          __typename\n\
+            \        }\n        applications(\n          sortBy: $sortBy\n       \
+            \   max: $max\n          jobApplicationFilter: $jobApplicationFilter\n\
+            \          start: $start\n        ) {\n          ... on JobApplicationsConnection\
+            \ {\n            edges {\n              node {\n                ...ApplicantFragment\n\
+            \                __typename\n              }\n              cursor\n \
+            \             __typename\n            }\n            filteredCount\n \
+            \           pageInfo {\n              endCursor\n              hasNextPage\n\
+            \              hasPreviousPage\n              startCursor\n          \
+            \    __typename\n            }\n            __typename\n          }\n\
+            \          __typename\n        }\n        __typename\n      }\n      __typename\n\
+            \    }\n    __typename\n  }\n}\n\nfragment ApplicantFragment on JobApplicationLinkage\
+            \ {\n  jobApplicationId\n  conversationId\n  seekerInterest\n  privateNote\n\
+            \  boostedApplication\n  applicant {\n    ... on Caregiver {\n      yearsOfExperience\n\
+            \      member {\n        imageURL\n        id\n        legacyId\n    \
+            \    isPremium\n        displayName\n        address {\n          city\n\
+            \          zip\n          state\n          __typename\n        }\n   \
+            \     __typename\n      }\n      badges\n      hiredTimes\n      isFavorite\n\
+            \      profileURL\n      messageThreadId\n      profiles {\n        tutoringCaregiverProfile\
+            \ {\n          id\n          payRange {\n            ...PayRangeFragment\n\
+            \            __typename\n          }\n          recurringRate {\n    \
+            \        ...PayRangeFragment\n            __typename\n          }\n  \
+            \        __typename\n        }\n        childCareCaregiverProfile {\n\
+            \          id\n          payRange {\n            ...PayRangeFragment\n\
+            \            __typename\n          }\n          recurringRate {\n    \
+            \        ...PayRangeFragment\n            __typename\n          }\n  \
+            \        __typename\n        }\n        houseKeepingCaregiverProfile {\n\
+            \          id\n          payRange {\n            ...PayRangeFragment\n\
+            \            __typename\n          }\n          recurringRate {\n    \
+            \        ...PayRangeFragment\n            __typename\n          }\n  \
+            \        __typename\n        }\n        petCareCaregiverProfile {\n  \
+            \        id\n          payRange {\n            ...PayRangeFragment\n \
+            \           __typename\n          }\n          recurringRate {\n     \
+            \       ...PayRangeFragment\n            __typename\n          }\n   \
+            \       __typename\n        }\n        seniorCareCaregiverProfile {\n\
+            \          id\n          payRange {\n            ...PayRangeFragment\n\
+            \            __typename\n          }\n          recurringRate {\n    \
+            \        ...PayRangeFragment\n            __typename\n          }\n  \
+            \        __typename\n        }\n        __typename\n      }\n      revieweeMetrics\
+            \ {\n        ... on RevieweeMetricsPayload {\n          metrics {\n  \
+            \          averageRatings {\n              type\n              value\n\
+            \              __typename\n            }\n            totalReviews\n \
+            \           __typename\n          }\n          __typename\n        }\n\
+            \        __typename\n      }\n      mostRecentMessage @include(if: $includeRecentMessage)\
+            \ {\n        ... on ConversationMessageSnippet {\n          message\n\
+            \          truncatedMessage\n          __typename\n        }\n       \
+            \ __typename\n      }\n      __typename\n    }\n    __typename\n  }\n\
+            \  __typename\n}\n\nfragment PayRangeFragment on PayRange {\n  hourlyRateFrom\
+            \ {\n    amount\n    __typename\n  }\n  __typename\n}"
+          description: GraphQL query document
+          fields: []
+        - name: variables
+          type: object
+          required: false
+          positional: false
+          default:
+            includeRecentMessage: false
+            jobApplicationFilter:
+              jobApplicationInterest: UNSPECIFIED
+              skipContactHistory: true
+            jobId: '12345678'
+            max: 10
+            sortBy: BOOSTED
+            start: '-1'
+          description: GraphQL variables as JSON
+          fields: []
+        response:
+          type: object
+          item: job_applications
+        pagination: null
+        observed_auth:
+        - cookie
+      by_seeker_u_u_i_d:
+        method: POST
+        path: /api/graphql
+        description: Fetch jobs by seeker u u i d
+        params: []
+        body:
+        - name: operationName
+          type: string
+          required: true
+          positional: false
+          default: jobsBySeekerUUID
+          description: GraphQL operation name
+          fields: []
+        - name: query
+          type: string
+          required: false
+          positional: false
+          default: "query jobsBySeekerUUID($after: String, $jobFilter: JobFilter,\
+            \ $seekerUuid: ID!, $first: Int) {\n  jobsBySeekerUUID(\n    after: $after\n\
+            \    jobFilter: $jobFilter\n    seekerUUID: $seekerUuid\n    first: $first\n\
+            \  ) {\n    ... on JobsConnection {\n      edges {\n        node {\n \
+            \         applicationCounts {\n            total\n            __typename\n\
+            \          }\n          id\n          serviceType\n          title\n \
+            \         status\n          startDate\n          postDate\n          statusLastModifiedDate\n\
+            \          applications(max: 3) {\n            ... on JobApplicationsConnection\
+            \ {\n              edges {\n                node {\n                 \
+            \ applicant {\n                    ... on Caregiver {\n              \
+            \        revieweeMetrics {\n                        ... on RevieweeMetricsPayload\
+            \ {\n                          metrics {\n                           \
+            \ totalReviews\n                            averageRatings {\n       \
+            \                       type\n                              value\n  \
+            \                            __typename\n                            }\n\
+            \                            __typename\n                          }\n\
+            \                          __typename\n                        }\n   \
+            \                     __typename\n                      }\n          \
+            \            member {\n                        id\n                  \
+            \      id\n                        imageURL\n                        displayName\n\
+            \                        address {\n                          city\n \
+            \                         state\n                          zip\n     \
+            \                     __typename\n                        }\n        \
+            \                __typename\n                      }\n               \
+            \       profiles {\n                        childCareCaregiverProfile\
+            \ {\n                          payRange {\n                          \
+            \  hourlyRateFrom {\n                              amount\n          \
+            \                    currencyCode\n                              __typename\n\
+            \                            }\n                            __typename\n\
+            \                          }\n                          rates {\n    \
+            \                        hourlyRate {\n                              amount\n\
+            \                              __typename\n                          \
+            \  }\n                            __typename\n                       \
+            \   }\n                          recurringRate {\n                   \
+            \         hourlyRateFrom {\n                              amount\n   \
+            \                           __typename\n                            }\n\
+            \                            hourlyRateTo {\n                        \
+            \      amount\n                              __typename\n            \
+            \                }\n                            __typename\n         \
+            \                 }\n                          __typename\n          \
+            \              }\n                        petCareCaregiverProfile {\n\
+            \                          payRange {\n                            hourlyRateFrom\
+            \ {\n                              amount\n                          \
+            \    currencyCode\n                              __typename\n        \
+            \                    }\n                            __typename\n     \
+            \                     }\n                          serviceRates {\n  \
+            \                          rate {\n                              amount\n\
+            \                              __typename\n                          \
+            \  }\n                            subtype\n                          \
+            \  __typename\n                          }\n                         \
+            \ recurringRate {\n                            hourlyRateFrom {\n    \
+            \                          amount\n                              __typename\n\
+            \                            }\n                            hourlyRateTo\
+            \ {\n                              amount\n                          \
+            \    __typename\n                            }\n                     \
+            \       __typename\n                          }\n                    \
+            \      __typename\n                        }\n                       \
+            \ seniorCareCaregiverProfile {\n                          payRange {\n\
+            \                            hourlyRateFrom {\n                      \
+            \        amount\n                              currencyCode\n        \
+            \                      __typename\n                            }\n   \
+            \                         __typename\n                          }\n  \
+            \                        recurringRate {\n                           \
+            \ hourlyRateFrom {\n                              amount\n           \
+            \                   __typename\n                            }\n      \
+            \                      hourlyRateTo {\n                              amount\n\
+            \                              __typename\n                          \
+            \  }\n                            __typename\n                       \
+            \   }\n                          __typename\n                        }\n\
+            \                        tutoringCaregiverProfile {\n                \
+            \          payRange {\n                            hourlyRateFrom {\n\
+            \                              amount\n                              currencyCode\n\
+            \                              __typename\n                          \
+            \  }\n                            __typename\n                       \
+            \   }\n                          recurringRate {\n                   \
+            \         hourlyRateFrom {\n                              amount\n   \
+            \                           __typename\n                            }\n\
+            \                            hourlyRateTo {\n                        \
+            \      amount\n                              __typename\n            \
+            \                }\n                            __typename\n         \
+            \                 }\n                          __typename\n          \
+            \              }\n                        houseKeepingCaregiverProfile\
+            \ {\n                          payRange {\n                          \
+            \  hourlyRateFrom {\n                              amount\n          \
+            \                    currencyCode\n                              __typename\n\
+            \                            }\n                            __typename\n\
+            \                          }\n                          recurringRate\
+            \ {\n                            hourlyRateFrom {\n                  \
+            \            amount\n                              __typename\n      \
+            \                      }\n                            hourlyRateTo {\n\
+            \                              amount\n                              __typename\n\
+            \                            }\n                            __typename\n\
+            \                          }\n                          __typename\n \
+            \                       }\n                        __typename\n      \
+            \                }\n                      __typename\n               \
+            \     }\n                    __typename\n                  }\n       \
+            \           __typename\n                }\n                __typename\n\
+            \              }\n              __typename\n            }\n          \
+            \  __typename\n          }\n          __typename\n        }\n        __typename\n\
+            \      }\n      __typename\n    }\n    __typename\n  }\n}"
+          description: GraphQL query document
+          fields: []
+        - name: variables
+          type: object
+          required: false
+          positional: false
+          default:
+            jobFilter:
+              jobStatuses:
+              - OPEN
+              - CLOSED
+            seekerUuid: 11111111-1111-1111-1111-111111111111
+          description: GraphQL variables as JSON
+          fields: []
+        response:
+          type: object
+          item: jobs_by_seeker_u_u_i_d
+        pagination: null
+        observed_auth:
+        - cookie
+      by_seeker_u_u_i_d_applicants:
+        method: POST
+        path: /api/graphql
+        description: Fetch jobs by seeker u u i d applicants
+        params: []
+        body:
+        - name: operationName
+          type: string
+          required: true
+          positional: false
+          default: jobsBySeekerUUIDApplicants
+          description: GraphQL operation name
+          fields: []
+        - name: query
+          type: string
+          required: false
+          positional: false
+          default: "query jobsBySeekerUUIDApplicants($after: String, $jobFilter: JobFilter,\
+            \ $seekerUuid: ID!, $first: Int) {\n  jobsBySeekerUUID(\n    after: $after\n\
+            \    jobFilter: $jobFilter\n    seekerUUID: $seekerUuid\n    first: $first\n\
+            \  ) {\n    ... on JobsConnection {\n      edges {\n        node {\n \
+            \         applicationCounts {\n            total\n            __typename\n\
+            \          }\n          id\n          serviceType\n          title\n \
+            \         status\n          startDate\n          statusLastModifiedDate\n\
+            \          jobApplicantsList {\n            img\n            initials\n\
+            \            __typename\n          }\n          applications(max: 3) {\n\
+            \            ... on JobApplicationsConnection {\n              edges {\n\
+            \                node {\n                  applicant {\n             \
+            \       ... on Caregiver {\n                      revieweeMetrics {\n\
+            \                        ... on RevieweeMetricsPayload {\n           \
+            \               metrics {\n                            totalReviews\n\
+            \                            averageRatings {\n                      \
+            \        type\n                              value\n                 \
+            \             __typename\n                            }\n            \
+            \                __typename\n                          }\n           \
+            \               __typename\n                        }\n              \
+            \          __typename\n                      }\n                     \
+            \ member {\n                        id\n                        imageURL\n\
+            \                        displayName\n                        address\
+            \ {\n                          city\n                          state\n\
+            \                          zip\n                          __typename\n\
+            \                        }\n                        __typename\n     \
+            \                 }\n                      profiles {\n              \
+            \          childCareCaregiverProfile {\n                          payRange\
+            \ {\n                            hourlyRateFrom {\n                  \
+            \            amount\n                              currencyCode\n    \
+            \                          __typename\n                            }\n\
+            \                            __typename\n                          }\n\
+            \                          rates {\n                            hourlyRate\
+            \ {\n                              amount\n                          \
+            \    __typename\n                            }\n                     \
+            \       __typename\n                          }\n                    \
+            \      recurringRate {\n                            hourlyRateFrom {\n\
+            \                              amount\n                              __typename\n\
+            \                            }\n                            hourlyRateTo\
+            \ {\n                              amount\n                          \
+            \    __typename\n                            }\n                     \
+            \       __typename\n                          }\n                    \
+            \      __typename\n                        }\n                       \
+            \ petCareCaregiverProfile {\n                          payRange {\n  \
+            \                          hourlyRateFrom {\n                        \
+            \      amount\n                              currencyCode\n          \
+            \                    __typename\n                            }\n     \
+            \                       __typename\n                          }\n    \
+            \                      serviceRates {\n                            rate\
+            \ {\n                              amount\n                          \
+            \    __typename\n                            }\n                     \
+            \       subtype\n                            __typename\n            \
+            \              }\n                          recurringRate {\n        \
+            \                    hourlyRateFrom {\n                              amount\n\
+            \                              __typename\n                          \
+            \  }\n                            hourlyRateTo {\n                   \
+            \           amount\n                              __typename\n       \
+            \                     }\n                            __typename\n    \
+            \                      }\n                          __typename\n     \
+            \                   }\n                        seniorCareCaregiverProfile\
+            \ {\n                          payRange {\n                          \
+            \  hourlyRateFrom {\n                              amount\n          \
+            \                    currencyCode\n                              __typename\n\
+            \                            }\n                            __typename\n\
+            \                          }\n                          recurringRate\
+            \ {\n                            hourlyRateFrom {\n                  \
+            \            amount\n                              __typename\n      \
+            \                      }\n                            hourlyRateTo {\n\
+            \                              amount\n                              __typename\n\
+            \                            }\n                            __typename\n\
+            \                          }\n                          __typename\n \
+            \                       }\n                        tutoringCaregiverProfile\
+            \ {\n                          payRange {\n                          \
+            \  hourlyRateFrom {\n                              amount\n          \
+            \                    currencyCode\n                              __typename\n\
+            \                            }\n                            __typename\n\
+            \                          }\n                          recurringRate\
+            \ {\n                            hourlyRateFrom {\n                  \
+            \            amount\n                              __typename\n      \
+            \                      }\n                            hourlyRateTo {\n\
+            \                              amount\n                              __typename\n\
+            \                            }\n                            __typename\n\
+            \                          }\n                          __typename\n \
+            \                       }\n                        houseKeepingCaregiverProfile\
+            \ {\n                          payRange {\n                          \
+            \  hourlyRateFrom {\n                              amount\n          \
+            \                    currencyCode\n                              __typename\n\
+            \                            }\n                            __typename\n\
+            \                          }\n                          recurringRate\
+            \ {\n                            hourlyRateFrom {\n                  \
+            \            amount\n                              __typename\n      \
+            \                      }\n                            hourlyRateTo {\n\
+            \                              amount\n                              __typename\n\
+            \                            }\n                            __typename\n\
+            \                          }\n                          __typename\n \
+            \                       }\n                        __typename\n      \
+            \                }\n                      __typename\n               \
+            \     }\n                    __typename\n                  }\n       \
+            \           __typename\n                }\n                __typename\n\
+            \              }\n              __typename\n            }\n          \
+            \  __typename\n          }\n          __typename\n        }\n        __typename\n\
+            \      }\n      __typename\n    }\n    __typename\n  }\n}"
+          description: GraphQL query document
+          fields: []
+        - name: variables
+          type: object
+          required: false
+          positional: false
+          default:
+            after: ''
+            first: 5
+            jobFilter:
+              jobStatuses:
+              - OPEN
+              - CLOSED
+              - SUPPRESSED
+            seekerUuid: 11111111-1111-1111-1111-111111111111
+          description: GraphQL variables as JSON
+          fields: []
+        response:
+          type: object
+          item: jobs_by_seeker_u_u_i_d_applicants
+        pagination: null
+        observed_auth:
+        - cookie
+      child_care_one_time_update:
+        method: POST
+        path: /api/graphql
+        description: Fetch jobs child care one time update
+        params: []
+        body:
+        - name: operationName
+          type: string
+          required: true
+          positional: false
+          default: JobChildCareOneTimeUpdate
+          description: GraphQL operation name
+          fields: []
+        - name: query
+          type: string
+          required: false
+          positional: false
+          default: "mutation JobChildCareOneTimeUpdate($input: JobChildCareOneTimeUpdateInput!)\
+            \ {\n  jobChildCareOneTimeUpdate(input: $input) {\n    job {\n      id\n\
+            \      serviceType\n      status\n      title\n      __typename\n    }\n\
+            \    __typename\n  }\n}"
+          description: GraphQL query document
+          fields: []
+        - name: variables
+          type: object
+          required: false
+          positional: false
+          default:
+            input:
+              jobId: '12345678'
+              jobInput:
+                careRecipients:
+                - ageRange: NEWBORN
+                  approximateDoB: null
+                  gender: null
+                characteristics: []
+                description: Example one-time babysitting job.
+                otherJobAttributes: []
+                privateJob: false
+                qualities:
+                - COLLEGE_DEGREE
+                - CPR_TRAINED
+                - OWN_TRANSPORTATION
+                - DOES_NOT_SMOKE
+                rate:
+                  maximum:
+                    amount: 25
+                    currencyCode: USD
+                  minimum:
+                    amount: 15
+                    currencyCode: USD
+                schedule:
+                  end:
+                    date: '2030-06-05'
+                    time: '18:00'
+                  start:
+                    date: '2030-06-01'
+                    time: 08:00
+                scheduleMayVary: false
+                servicesNeeded: []
+                source: OTHER
+                title: Babysitter Needed
+                zipcode: '90210'
+          description: GraphQL variables as JSON
+          fields: []
+        response:
+          type: object
+          item: job_child_care_one_time_update
+        pagination: null
+        observed_auth:
+        - cookie
+      profile:
+        method: POST
+        path: /api/graphql
+        description: Fetch jobs profile
+        params: []
+        body:
+        - name: operationName
+          type: string
+          required: true
+          positional: false
+          default: JobProfile
+          description: GraphQL operation name
+          fields: []
+        - name: query
+          type: string
+          required: false
+          positional: false
+          default: "query JobProfile($jobId: ID!) {\n  jobProfile(jobId: $jobId) {\n\
+            \    ... on JobProfileSuccess {\n      job {\n        hourlyRateRange\
+            \ {\n          hourlyRateFrom {\n            currencyCode\n          \
+            \  amount\n            __typename\n          }\n          hourlyRateTo\
+            \ {\n            currencyCode\n            amount\n            __typename\n\
+            \          }\n          __typename\n        }\n        serviceType\n \
+            \       numberOfChildren\n        startDate\n        __typename\n    \
+            \  }\n      __typename\n    }\n    ... on JobError {\n      id\n     \
+            \ message\n      __typename\n    }\n    __typename\n  }\n}"
+          description: GraphQL query document
+          fields: []
+        - name: variables
+          type: object
+          required: false
+          positional: false
+          default:
+            jobId: 12345678.0
+          description: GraphQL variables as JSON
+          fields: []
+        response:
+          type: object
+          item: job_profile
+        pagination: null
+        observed_auth:
+        - cookie
+      setup_c_c:
+        method: POST
+        path: /api/graphql
+        description: Fetch jobs setup c c
+        params: []
+        body:
+        - name: operationName
+          type: string
+          required: true
+          positional: false
+          default: JobSetupCC
+          description: GraphQL operation name
+          fields: []
+        - name: query
+          type: string
+          required: false
+          positional: false
+          default: "query JobSetupCC($jobId: ID!) {\n  jobSetup(id: $jobId) {\n  \
+            \  ...BaseJob\n    jobInput {\n      __typename\n      ... on ChildCareJobInputType\
+            \ {\n        aiAssistedJobDescription\n        title\n        description\n\
+            \        zipcode\n        endDate\n        startDate\n        scheduleMayVary\n\
+            \        postDate\n        flexibleStart\n        rate {\n          ...RateFragment\n\
+            \          __typename\n        }\n        schedule {\n          ... on\
+            \ LocalDateTimeBlock {\n            ...LocalDateTimeFragment\n       \
+            \     __typename\n          }\n          ... on WeeklySchedule {\n   \
+            \         ...WeeklyScheduleFragment\n            __typename\n        \
+            \  }\n          __typename\n        }\n        careRecipients {\n    \
+            \      ageRange\n          approximateDoB\n          __typename\n    \
+            \    }\n        characteristics\n        servicesNeeded\n        qualities\n\
+            \        privateJob\n        otherJobAttributes\n        __typename\n\
+            \      }\n    }\n    __typename\n  }\n}\n\nfragment LocalDateTimeFragment\
+            \ on LocalDateTimeBlock {\n  end {\n    date\n    time\n    __typename\n\
+            \  }\n  start {\n    date\n    time\n    __typename\n  }\n  __typename\n\
+            }\n\nfragment WeeklyScheduleFragment on WeeklySchedule {\n  monday {\n\
+            \    blocks {\n      end\n      start\n      __typename\n    }\n    __typename\n\
+            \  }\n  tuesday {\n    blocks {\n      end\n      start\n      __typename\n\
+            \    }\n    __typename\n  }\n  wednesday {\n    blocks {\n      end\n\
+            \      start\n      __typename\n    }\n    __typename\n  }\n  thursday\
+            \ {\n    blocks {\n      end\n      start\n      __typename\n    }\n \
+            \   __typename\n  }\n  friday {\n    blocks {\n      end\n      start\n\
+            \      __typename\n    }\n    __typename\n  }\n  saturday {\n    blocks\
+            \ {\n      end\n      start\n      __typename\n    }\n    __typename\n\
+            \  }\n  sunday {\n    blocks {\n      end\n      start\n      __typename\n\
+            \    }\n    __typename\n  }\n  __typename\n}\n\nfragment BaseJob on JobSetup\
+            \ {\n  __typename\n  jobId\n  serviceType\n  jobStatus\n  oneTimeJob\n\
+            \  jobApplicantsCount\n  jobBoostedApplicantsCount\n  jobClosedDate\n\
+            \  jobLocation {\n    __typename\n    city\n    state\n    stateCode\n\
+            \    zipcode\n  }\n}\n\nfragment RateFragment on JobRateRange {\n  maximum\
+            \ {\n    amount\n    currencyCode\n    __typename\n  }\n  minimum {\n\
+            \    amount\n    currencyCode\n    __typename\n  }\n  __typename\n}"
+          description: GraphQL query document
+          fields: []
+        - name: variables
+          type: object
+          required: false
+          positional: false
+          default:
+            jobId: '12345678'
+          description: GraphQL variables as JSON
+          fields: []
+        response:
+          type: object
+          item: job_setup_c_c
+        pagination: null
+        observed_auth:
+        - cookie
+      wages:
+        method: POST
+        path: /api/graphql
+        description: Fetch jobs wages
+        params: []
+        body:
+        - name: operationName
+          type: string
+          required: true
+          positional: false
+          default: GetJobWages
+          description: GraphQL operation name
+          fields: []
+        - name: query
+          type: string
+          required: false
+          positional: false
+          default: "query GetJobWages($zipcode: String!, $serviceType: ServiceType!,\
+            \ $subType: PetCareSubtype) {\n  getJobWages(zipcode: $zipcode, serviceType:\
+            \ $serviceType, subType: $subType) {\n    maxAllowed {\n      amount\n\
+            \      __typename\n    }\n    legalMinimum {\n      amount\n      __typename\n\
+            \    }\n    period\n    averages {\n      average {\n        amount\n\
+            \        __typename\n      }\n      __typename\n    }\n    __typename\n\
+            \  }\n}"
+          description: GraphQL query document
+          fields: []
+        - name: variables
+          type: object
+          required: false
+          positional: false
+          default:
+            serviceType: CHILD_CARE
+            zipcode: '90210'
+          description: GraphQL variables as JSON
+          fields: []
+        response:
+          type: object
+          item: get_job_wages
+        pagination: null
+        observed_auth:
+        - cookie
+      wages_2:
+        method: POST
+        path: /api/graphql
+        description: Fetch jobs wages
+        params: []
+        body:
+        - name: operationName
+          type: string
+          required: true
+          positional: false
+          default: getJobWages
+          description: GraphQL operation name
+          fields: []
+        - name: query
+          type: string
+          required: false
+          positional: false
+          default: "query getJobWages($zipcode: String!, $serviceType: ServiceType!)\
+            \ {\n  getJobWages(zipcode: $zipcode, serviceType: $serviceType) {\n \
+            \   averages {\n      minimum {\n        amount\n        __typename\n\
+            \      }\n      average {\n        amount\n        __typename\n      }\n\
+            \      maximum {\n        amount\n        __typename\n      }\n      __typename\n\
+            \    }\n    legalMinimum {\n      amount\n      __typename\n    }\n  \
+            \  defaultMinWage {\n      amount\n      __typename\n    }\n    maxAllowed\
+            \ {\n      amount\n      __typename\n    }\n    __typename\n  }\n}"
+          description: GraphQL query document
+          fields: []
+        - name: variables
+          type: object
+          required: false
+          positional: false
+          default:
+            serviceType: CHILD_CARE
+            zipcode: '90210'
+          description: GraphQL variables as JSON
+          fields: []
+        response:
+          type: object
+          item: get_job_wages
+        pagination: null
+        observed_auth:
+        - cookie
+types: {}
+http_transport: browser-chrome
+category: other
+required_headers:
+- name: origin
+  value: https://www.care.com
+- name: apollographql-client-name
+  value: care-web

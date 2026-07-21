@@ -1,0 +1,9 @@
+# built binaries / bundles (never commit)
+/care
+/care-pp-cli
+/care-pp-mcp
+care-pp-cli
+care-pp-mcp
+/build/
+*.mcpb
+*.test

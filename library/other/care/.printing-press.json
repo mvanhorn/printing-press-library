@@ -1,0 +1,73 @@
+{
+  "schema_version": 2,
+  "generated_at": "2026-07-21T06:42:29.994155Z",
+  "printing_press_version": "4.29.0",
+  "api_name": "care",
+  "display_name": "Care",
+  "cli_name": "care-pp-cli",
+  "creator": {
+    "handle": "beetz12",
+    "name": "david"
+  },
+  "owner": "beetz12",
+  "printer": "beetz12",
+  "printer_name": "david",
+  "spec_path": "spec.yaml",
+  "spec_format": "internal",
+  "spec_source": "sniffed",
+  "spec_checksum": "sha256:2ffd0f707d90c2fda550f8e4607a762fd518ebc264b28d2b76b9a118532821da",
+  "run_id": "20260721-064229",
+  "category": "other",
+  "description": "care.com CLI: search caregivers, review applicants/messages, analyze and reach out - over your own authenticated session",
+  "mcp_binary": "care-pp-mcp",
+  "mcp_tool_count": 36,
+  "mcp_ready": "partial",
+  "api_version": "0.1.0",
+  "auth_type": "cookie",
+  "novel_features": [
+    {
+      "name": "Job-scoped caregiver search",
+      "command": "find",
+      "description": "Search caregivers near a zip for a specific job you are hiring for, with local filters for hourly rate, years of experience, and review count, ranked by reviews/rating/experience. Transcends the raw SearchProvidersChildCare BFF call, which returns unranked, unfiltered pages.",
+      "rationale": "The raw API returns unranked provider pages; hiring requires filtering and ranking against a concrete job so any match can be messaged under it."
+    },
+    {
+      "name": "Weighted fit-score recommendation",
+      "command": "recommend",
+      "description": "Rank caregivers by a weighted 0-100 fit score (reviews, rating, experience, background-check, proven hires, rate-fit) and explain each score in plain language.",
+      "rationale": "No care.com endpoint scores fit; this synthesizes multiple profile signals into one ranked, explained shortlist."
+    },
+    {
+      "name": "Single-view caregiver profile",
+      "command": "caregiver",
+      "description": "Fetch one caregiver's full profile - experience, ages served, qualities/certifications, education, rate, and background-check status - in a single readable view.",
+      "rationale": "The raw GetCaregiver response is a deeply nested GraphQL payload; this flattens it to the fields a hiring decision needs."
+    },
+    {
+      "name": "Local offline sync",
+      "command": "sync",
+      "description": "Persist caregiver searches to a local SQLite database for offline listing, dedupe across searches, and contacted-tracking, so outreach is not repeated.",
+      "rationale": "care.com has no client-side state for who you have already contacted; a local store makes multi-session hiring workflows idempotent."
+    },
+    {
+      "name": "Draft-and-confirm outreach",
+      "command": "outreach",
+      "description": "Compose a personalized message from a caregiver's real profile (experience, ages, credentials) and send it through care.com's moderated send path. Dry-run by default; a real send requires an explicit --confirm per message.",
+      "rationale": "Messaging real people demands a safety model; every send is preview-first with no blast mode, and drafts are ASCII-only to survive paste."
+    },
+    {
+      "name": "Unified message inbox",
+      "command": "messages",
+      "description": "Read the full conversation list and message bodies from care.com's messaging backend (Stream Chat), and reply through care.com's moderated send path. Replaces the generated stub that only returned a thread id.",
+      "rationale": "care.com messaging does not run on the GraphQL BFF; the inbox lives on Stream Chat, so reviewing applicant conversations requires talking to Stream's REST API with the page-embedded token."
+    }
+  ],
+  "verify": {
+    "mode": "mock",
+    "pass_rate": 95.34883720930233,
+    "passed": 41,
+    "total": 43,
+    "failed": 2,
+    "verdict": "WARN"
+  }
+}

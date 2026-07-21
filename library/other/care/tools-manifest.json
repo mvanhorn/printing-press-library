@@ -1,0 +1,23 @@
+{
+  "api_name": "care",
+  "base_url": "https://www.care.com",
+  "description": "care.com CLI: search caregivers, review applicants/messages, analyze and reach out - over your own authenticated session",
+  "mcp_ready": "partial",
+  "http_transport": "browser-chrome",
+  "auth": {
+    "type": "cookie",
+    "in": "cookie",
+    "cookie_domain": ".care.com"
+  },
+  "required_headers": [
+    {
+      "name": "origin",
+      "value": "https://www.care.com"
+    },
+    {
+      "name": "apollographql-client-name",
+      "value": "care-web"
+    }
+  ],
+  "tools": []
+}

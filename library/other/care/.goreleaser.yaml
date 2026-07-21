@@ -1,0 +1,51 @@
+version: 2
+project_name: care-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: care-pp-cli
+    main: ./cmd/care-pp-cli
+    binary: care-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X github.com/mvanhorn/printing-press-library/library/other/care/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: care-pp-mcp
+    main: ./cmd/care-pp-mcp
+    binary: care-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X main.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: care-pp-cli
+    repository:
+      owner: beetz12
+      name: homebrew-tap
+    homepage: "https://github.com/mvanhorn/printing-press-library"
+    description: "care.com CLI: search caregivers, review applicants/messages, analyze and reach out - over your own authenticated session"
+    install: |
+      bin.install "care-pp-cli"
+      bin.install "care-pp-mcp"

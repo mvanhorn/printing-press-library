@@ -1,0 +1,101 @@
+{
+  "api_name": "care",
+  "researched_at": "2026-07-21",
+  "novelty_score": 8,
+  "novel_features": [
+    {
+      "name": "Job-scoped caregiver search",
+      "command": "find",
+      "description": "Search caregivers near a zip for a specific job you are hiring for, with local filters for hourly rate, years of experience, and review count, ranked by reviews/rating/experience. Transcends the raw SearchProvidersChildCare BFF call, which returns unranked, unfiltered pages.",
+      "rationale": "The raw API returns unranked provider pages; hiring requires filtering and ranking against a concrete job so any match can be messaged under it."
+    },
+    {
+      "name": "Weighted fit-score recommendation",
+      "command": "recommend",
+      "description": "Rank caregivers by a weighted 0-100 fit score (reviews, rating, experience, background-check, proven hires, rate-fit) and explain each score in plain language.",
+      "rationale": "No care.com endpoint scores fit; this synthesizes multiple profile signals into one ranked, explained shortlist."
+    },
+    {
+      "name": "Single-view caregiver profile",
+      "command": "caregiver",
+      "description": "Fetch one caregiver's full profile - experience, ages served, qualities/certifications, education, rate, and background-check status - in a single readable view.",
+      "rationale": "The raw GetCaregiver response is a deeply nested GraphQL payload; this flattens it to the fields a hiring decision needs."
+    },
+    {
+      "name": "Local offline sync",
+      "command": "sync",
+      "description": "Persist caregiver searches to a local SQLite database for offline listing, dedupe across searches, and contacted-tracking, so outreach is not repeated.",
+      "rationale": "care.com has no client-side state for who you have already contacted; a local store makes multi-session hiring workflows idempotent."
+    },
+    {
+      "name": "Draft-and-confirm outreach",
+      "command": "outreach",
+      "description": "Compose a personalized message from a caregiver's real profile (experience, ages, credentials) and send it through care.com's moderated send path. Dry-run by default; a real send requires an explicit --confirm per message.",
+      "rationale": "Messaging real people demands a safety model; every send is preview-first with no blast mode, and drafts are ASCII-only to survive paste."
+    },
+    {
+      "name": "Unified message inbox",
+      "command": "messages",
+      "description": "Read the full conversation list and message bodies from care.com's messaging backend (Stream Chat), and reply through care.com's moderated send path. Replaces the generated stub that only returned a thread id.",
+      "rationale": "care.com messaging does not run on the GraphQL BFF; the inbox lives on Stream Chat, so reviewing applicant conversations requires talking to Stream's REST API with the page-embedded token."
+    }
+  ],
+  "novel_features_built": [
+    "find",
+    "recommend",
+    "caregiver",
+    "sync",
+    "outreach",
+    "messages"
+  ],
+  "narrative": {
+    "headline": "care.com from your terminal: find, screen, and message caregivers over your own session.",
+    "value_prop": "Search and rank caregivers for a specific job, review your care.com message inbox, and send moderated draft-and-confirm outreach - all over your own authenticated care.com session.",
+    "auth_narrative": "Authenticate once with a persistent Chrome profile (auth profile-login); auth refresh re-extracts cookies headlessly with no re-login. care.coms passwordless magic-link plus single-active-session model defeats the standard cookie-extraction flow, so a durable profile is used.",
+    "quickstart": [
+      {
+        "command": "care-pp-cli find --job \"Summer Sitter\" --zip 90210 --agent --dry-run",
+        "comment": "Preview a job-scoped caregiver search."
+      },
+      {
+        "command": "care-pp-cli caregiver 44444444-4444-4444-4444-444444444444 --agent --dry-run",
+        "comment": "Preview fetching one caregivers full profile."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "Auth error (exit 4)",
+        "fix": "Run care-pp-cli auth profile-login once, then care-pp-cli auth refresh to update cookies."
+      }
+    ],
+    "when_to_use": "Use to search and shortlist caregivers for a care.com job, review applicant conversations, and draft outreach - over your own account.",
+    "anti_triggers": [
+      "Do not send messages without reviewing the draft first; every send is dry-run until --confirm.",
+      "Do not use on an account you are not authorized to act for."
+    ],
+    "recipes": [
+      {
+        "title": "Rank caregivers by fit",
+        "command": "care-pp-cli recommend --zip 90210 --agent --dry-run",
+        "explanation": "Weighted 0-100 fit-score with human-readable reasons."
+      },
+      {
+        "title": "Draft outreach",
+        "command": "care-pp-cli outreach draft 44444444-4444-4444-4444-444444444444 --agent --dry-run",
+        "explanation": "Compose a personalized message from the caregivers real profile; never sends."
+      }
+    ]
+  },
+  "patterns": [
+    "cookie-auth over a browser-sniffed GraphQL BFF",
+    "draft-and-confirm for every write",
+    "local SQLite mirror for offline + dedupe"
+  ],
+  "gaps": [
+    "No public API; care.com uses careapis.com behind Akamai.",
+    "Messaging is on Stream Chat, not the GraphQL BFF.",
+    "The JobApplications applicant-list is server-side stateful-gated (empty edges on stateless replay), so it is intentionally not shipped; the Stream inbox covers applicant review."
+  ],
+  "recommendation": "ship",
+  "alternatives": []
+}

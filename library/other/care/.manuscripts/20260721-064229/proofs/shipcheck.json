@@ -1,0 +1,64 @@
+{
+  "passed": false,
+  "exit_code": 3,
+  "started_at": "2026-07-21T19:47:43Z",
+  "elapsed_ms": 49231,
+  "legs": [
+    {
+      "name": "verify",
+      "exit_code": 0,
+      "passed": true,
+      "started_at": "2026-07-21T19:47:43Z",
+      "elapsed_ms": 41676,
+      "command": "cli-printing-press verify --dir . --write-manifest ./.printing-press.json --spec .-spec.yaml --fix"
+    },
+    {
+      "name": "validate-narrative",
+      "exit_code": 0,
+      "passed": true,
+      "started_at": "2026-07-21T19:48:25Z",
+      "elapsed_ms": 1194,
+      "command": "cli-printing-press validate-narrative --strict --full-examples --research .manuscripts/20260721-064229/research.json --binary ./care-pp-cli"
+    },
+    {
+      "name": "dogfood",
+      "exit_code": 0,
+      "passed": true,
+      "started_at": "2026-07-21T19:48:26Z",
+      "elapsed_ms": 4782,
+      "command": "cli-printing-press dogfood --dir . --spec .-spec.yaml --research-dir .manuscripts/20260721-064229"
+    },
+    {
+      "name": "workflow-verify",
+      "exit_code": 0,
+      "passed": true,
+      "started_at": "2026-07-21T19:48:31Z",
+      "elapsed_ms": 15,
+      "command": "cli-printing-press workflow-verify --dir ."
+    },
+    {
+      "name": "apify-audit",
+      "exit_code": 0,
+      "passed": true,
+      "started_at": "2026-07-21T19:48:31Z",
+      "elapsed_ms": 27,
+      "command": "cli-printing-press apify-audit --dir . --research-dir .manuscripts/20260721-064229"
+    },
+    {
+      "name": "verify-skill",
+      "exit_code": 0,
+      "passed": true,
+      "started_at": "2026-07-21T19:48:31Z",
+      "elapsed_ms": 989,
+      "command": "cli-printing-press verify-skill --dir ."
+    },
+    {
+      "name": "scorecard",
+      "exit_code": 3,
+      "passed": false,
+      "started_at": "2026-07-21T19:48:32Z",
+      "elapsed_ms": 543,
+      "command": "cli-printing-press scorecard --dir . --write-manifest ./.printing-press.json --research-dir .manuscripts/20260721-064229 --spec .-spec.yaml --live-check"
+    }
+  ]
+}

@@ -1,0 +1,9 @@
+{
+  "dir": "\u003ccli-dir\u003e/care",
+  "research_dir": "\u003ccli-dir\u003e/20260721-064229",
+  "verdict": "pass",
+  "actors": null,
+  "issues": [
+    "no Apify actor references found, skipping"
+  ]
+}

@@ -1,0 +1,22 @@
+{
+  "schema_version": 2,
+  "id": "care-friendly-commands",
+  "applied_at": "2026-07-21",
+  "base_run_id": "20260721-064229",
+  "base_printing_press_version": "4.29.0",
+  "summary": "Hand-authored friendly command layer over the raw GraphQL BFF: find, recommend, caregiver, sync, outreach, messages, favorite, job.",
+  "reason": "The generated commands expose raw, unranked, deeply-nested BFF operations; hiring needs job-scoped search+ranking, fit-scoring, flattened profiles, local dedupe, and draft-and-confirm outreach.",
+  "files": [
+    "internal/cli/care_search.go",
+    "internal/cli/care_recommend.go",
+    "internal/cli/care_caregiver.go",
+    "internal/cli/care_sync.go",
+    "internal/cli/care_outreach.go",
+    "internal/cli/care_favorite.go",
+    "internal/cli/care_jobs_helper.go",
+    "internal/cli/care_queries.go",
+    "internal/cli/care_mutations.go",
+    "internal/cli/root.go"
+  ],
+  "validated_outcome": "go build/vet/test green; command surface verified; job list returned real jobs live."
+}

@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "care-stream-messages",
+  "applied_at": "2026-07-21",
+  "base_run_id": "20260721-064229",
+  "base_printing_press_version": "4.29.0",
+  "summary": "Message inbox reads conversations + bodies from Stream Chat (getstream.io); replaces the generated GetMessageThread stub. Sends still route through care.com's moderated sendCareNeedMessage.",
+  "reason": "care.com messaging does not run on the GraphQL BFF; the inbox lives on Stream Chat, so reviewing applicant conversations requires the page-embedded Stream token and Stream's REST API.",
+  "files": [
+    "internal/cli/care_messages.go",
+    "internal/cli/root.go"
+  ],
+  "validated_outcome": "messages inbox returned real conversations + bodies live; reply routes through the moderated send path with a dry-run default."
+}

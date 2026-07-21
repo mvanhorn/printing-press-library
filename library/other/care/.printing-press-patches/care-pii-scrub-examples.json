@@ -1,0 +1,21 @@
+{
+  "schema_version": 2,
+  "id": "care-pii-scrub-examples",
+  "applied_at": "2026-07-21",
+  "base_run_id": "20260721-064229",
+  "base_printing_press_version": "4.29.0",
+  "summary": "Generic PII-clean placeholders for all example/default values (UUIDs -> 1111../2222../3333../4444.., zip 90210, job id 12345678); no Example includes --confirm.",
+  "reason": "Command defaults and examples were captured from a real logged-in session and carried real member/caregiver/job identifiers and a real one-time-job posting; a public library CLI must not ship them, and a send example must never fire for real.",
+  "files": [
+    "internal/cli/care_search.go",
+    "internal/cli/care_recommend.go",
+    "internal/cli/care_outreach.go",
+    "internal/cli/care_sync.go",
+    "internal/cli/care_messages.go",
+    "internal/cli/care_jobs_helper.go",
+    "internal/cli/caregivers_get.go",
+    "internal/cli/providers_get.go",
+    "internal/cli/seekers_get.go"
+  ],
+  "validated_outcome": "Broad PII grep clean across internal/*.go; govulncheck + build/test green after scrub."
+}
