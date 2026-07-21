@@ -1,0 +1,22 @@
+{
+  "schema_version": 2,
+  "id": "name-that-ui-full-live-publish-gate",
+  "applied_at": "2026-07-21",
+  "base_run_id": "20260720-215453-6e197273",
+  "base_printing_press_version": "4.29.0",
+  "summary": "Made every semantic command dogfoodable and taught hidden public-reference commands to parse NameThatUI XML and HTML responses.",
+  "reason": "The full live publish gate exposed missing help examples, semantic invalid-fixture handling, and generated reference commands that incorrectly treated public XML and HTML as JSON.",
+  "files": [
+    "internal/cli/ask.go",
+    "internal/cli/component.go",
+    "internal/cli/crosswalk.go",
+    "internal/cli/identify.go",
+    "internal/cli/public_reference.go",
+    "internal/cli/recommend.go",
+    "internal/cli/reference_feed.go",
+    "internal/cli/reference_sitemap.go",
+    "internal/cli/reference_translate.go",
+    "internal/cli/style.go"
+  ],
+  "validated_outcome": "Full live dogfood passed 153 of 153 executed checks with zero failures."
+}

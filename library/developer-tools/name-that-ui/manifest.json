@@ -1,0 +1,27 @@
+{
+  "manifest_version": "0.3",
+  "name": "name-that-ui-pp-mcp",
+  "display_name": "NameThatUI",
+  "version": "0.1.0",
+  "description": "Turn vague UI language into exact, source-backed component and style guidance that coding agents can use directly.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/name-that-ui-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/name-that-ui-pp-mcp",
+      "args": []
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

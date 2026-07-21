@@ -1,0 +1,96 @@
+{
+  "schema_version": 2,
+  "generated_at": "2026-07-21T03:31:10.856517Z",
+  "printing_press_version": "4.29.0",
+  "api_name": "name-that-ui",
+  "display_name": "NameThatUI",
+  "cli_name": "name-that-ui-pp-cli",
+  "creator": {
+    "handle": "HenryBranchAdams",
+    "name": "HenryBranchAdams"
+  },
+  "owner": "henrybranchadams",
+  "printer": "HenryBranchAdams",
+  "printer_name": "HenryBranchAdams",
+  "spec_path": "name-that-ui-spec.yaml",
+  "spec_format": "internal",
+  "spec_source": "sniffed",
+  "spec_checksum": "sha256:5cfbc5ee5ef54034c11725f8749163d4be86ed5887cf7b0450a509cc89d4d275",
+  "run_id": "20260720-215453-6e197273",
+  "category": "developer-tools",
+  "description": "Turn vague UI language into exact, source-backed component and style guidance that coding agents can use directly.",
+  "mcp_binary": "name-that-ui-pp-mcp",
+  "mcp_tool_count": 8,
+  "mcp_public_tool_count": 8,
+  "mcp_ready": "full",
+  "api_version": "0.1.0",
+  "auth_type": "none",
+  "novel_features": [
+    {
+      "name": "Agent context pack",
+      "command": "context-pack",
+      "description": "Assemble one bounded, source-backed implementation packet for a component, optional style, and target framework."
+    },
+    {
+      "name": "Terminology lint",
+      "command": "lint",
+      "description": "Find colloquial or ambiguous UI terms in prose and return canonical, source-backed candidates without rewriting the file."
+    },
+    {
+      "name": "Framework crosswalk",
+      "command": "crosswalk",
+      "description": "See one UI concept across plain language, component parts, AppKit, SwiftUI, and ARIA or HTML terminology."
+    },
+    {
+      "name": "Project UI inventory",
+      "command": "inventory",
+      "description": "Map UI API symbols in a source tree to canonical components and source references."
+    },
+    {
+      "name": "Catalog change impact",
+      "command": "impact",
+      "description": "Show which project files may be affected by component or style guidance changes since a prior snapshot."
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Agent context pack",
+      "command": "context-pack",
+      "description": "Assemble one bounded, source-backed implementation packet for a component, optional style, and target framework."
+    },
+    {
+      "name": "Terminology lint",
+      "command": "lint",
+      "description": "Find colloquial or ambiguous UI terms in prose and return canonical, source-backed candidates without rewriting the file."
+    },
+    {
+      "name": "Framework crosswalk",
+      "command": "crosswalk",
+      "description": "See one UI concept across plain language, component parts, AppKit, SwiftUI, and ARIA or HTML terminology."
+    },
+    {
+      "name": "Project UI inventory",
+      "command": "inventory",
+      "description": "Map UI API symbols in a source tree to canonical components and source references."
+    },
+    {
+      "name": "Catalog change impact",
+      "command": "impact",
+      "description": "Show which project files may be affected by component or style guidance changes since a prior snapshot."
+    }
+  ],
+  "verify": {
+    "mode": "mock",
+    "pass_rate": 100,
+    "passed": 55,
+    "total": 55,
+    "verdict": "PASS"
+  },
+  "scorecard": {
+    "steinberger": {
+      "percentage": 89,
+      "grade": "A",
+      "total": 89
+    }
+  }
+}

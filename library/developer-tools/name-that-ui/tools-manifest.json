@@ -1,0 +1,133 @@
+{
+  "api_name": "name-that-ui",
+  "base_url": "https://namethatui.com",
+  "description": "Turn vague UI language into exact, source-backed component and style guidance that coding agents can use directly.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "none"
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "catalog_get",
+      "description": "Fetch a canonical UI element page. Required: platform, slug.",
+      "method": "GET",
+      "path": "/{platform}/{slug}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "platform",
+          "type": "string",
+          "location": "path",
+          "description": "Catalog platform",
+          "required": true
+        },
+        {
+          "name": "slug",
+          "type": "string",
+          "location": "path",
+          "description": "Element slug from the catalog",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "catalog_list",
+      "description": "List UI element pages from the public structured catalog.",
+      "method": "GET",
+      "path": "/",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "reference_feed",
+      "description": "Fetch recent NameThatUI catalog additions.",
+      "method": "GET",
+      "path": "/feed.xml",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "reference_sitemap",
+      "description": "Fetch the public catalog sitemap.",
+      "method": "GET",
+      "path": "/sitemap.xml",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "reference_translate",
+      "description": "Fetch the AppKit-to-SwiftUI translation table.",
+      "method": "GET",
+      "path": "/translate",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "semantic-search_query",
+      "description": "Rank candidate UI elements or styles for a colloquial description. Required: query, mode. Optional: local-json, candidates-json. Returns the new SearchResponse.",
+      "method": "POST",
+      "path": "/api/search",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "query",
+          "wire_name": "q",
+          "type": "string",
+          "location": "body",
+          "description": "Colloquial description of the UI element or visual style",
+          "required": true,
+          "aliases": [
+            "q"
+          ]
+        },
+        {
+          "name": "mode",
+          "type": "string",
+          "location": "body",
+          "description": "Search stage: retrieve local candidates or resolve a candidate set",
+          "required": true
+        },
+        {
+          "name": "local-json",
+          "wire_name": "local",
+          "type": "array",
+          "location": "body",
+          "description": "JSON array of locally retrieved candidate identifiers"
+        },
+        {
+          "name": "candidates-json",
+          "wire_name": "candidates",
+          "type": "array",
+          "location": "body",
+          "description": "JSON array of candidate identifiers for final resolution"
+        }
+      ]
+    },
+    {
+      "name": "styles_get",
+      "description": "Fetch a visual-style guidance page. Required: slug.",
+      "method": "GET",
+      "path": "/styles/{slug}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "slug",
+          "type": "string",
+          "location": "path",
+          "description": "Visual-style slug",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "styles_list",
+      "description": "List visual-style pages.",
+      "method": "GET",
+      "path": "/styles",
+      "no_auth": true,
+      "params": []
+    }
+  ]
+}

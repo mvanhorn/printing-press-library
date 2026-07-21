@@ -1,0 +1,182 @@
+name: name-that-ui
+description: "Identify UI components and visual styles, then return source-backed implementation guidance for coding agents"
+version: "0.1.0"
+category: developer-tools
+base_url: "https://namethatui.com"
+health_check_path: "/"
+http_transport: standard
+auth:
+  type: none
+config:
+  format: toml
+  path: "~/.config/name-that-ui-pp-cli/config.toml"
+cache:
+  enabled: true
+  stale_after: 168h
+  refresh_timeout: 30s
+  commands:
+    - name: context-pack
+      resources: [catalog, styles]
+    - name: lint
+      resources: [catalog]
+    - name: crosswalk
+      resources: [catalog]
+    - name: inventory
+      resources: [catalog]
+    - name: impact
+      resources: [catalog, styles]
+learn:
+  entity_lookup_seeds:
+    ui_element:
+      - canonical: "Combobox (Autocomplete / Typeahead)"
+        aliases: [combobox, autocomplete, typeahead, searchable dropdown]
+      - canonical: "Menu Bar Extra (Status Item)"
+        aliases: [menu bar icon, status item, tray icon]
+      - canonical: "Toast (Snackbar)"
+        aliases: [toast, snackbar, brief notification]
+      - canonical: "Modal Dialog vs. Drawer vs. Sheet"
+        aliases: [modal, dialog, drawer, bottom sheet]
+      - canonical: "Badge vs. Chip vs. Pill vs. Tag"
+        aliases: [badge, chip, pill, tag]
+    visual_style:
+      - canonical: Glassmorphism
+        aliases: [frosted glass, frosted cards]
+      - canonical: "Liquid Glass"
+        aliases: [apple glass, watery controls]
+      - canonical: Neobrutalism
+        aliases: [neo brutalism, hard shadows, thick black outlines]
+      - canonical: Skeuomorphism
+        aliases: [realistic interface, real-world materials]
+  synonyms:
+    "drop down": dropdown
+    "pop up": popup
+    "menu bar icon": "status item"
+resources:
+  semantic-search:
+    description: "Use NameThatUI's public semantic search and reranker"
+    endpoints:
+      query:
+        method: POST
+        path: "/api/search"
+        description: "Rank candidate UI elements or styles for a colloquial description"
+        example: "  name-that-ui-pp-cli semantic-search query --query 'pale pill behind the menu bar icon' --mode retrieve --local-json '[\"macos/menu-bar-extra\",\"macos/menu-bar#highlighted-state\"]'"
+        body:
+          - name: q
+            flag_name: query
+            aliases: [q]
+            type: string
+            required: true
+            description: "Colloquial description of the UI element or visual style"
+          - name: mode
+            type: string
+            required: true
+            enum: [retrieve, resolve]
+            description: "Search stage: retrieve local candidates or resolve a candidate set"
+          - name: local
+            flag_name: local-json
+            type: array
+            required: false
+            description: "JSON array of locally retrieved candidate identifiers"
+          - name: candidates
+            flag_name: candidates-json
+            type: array
+            required: false
+            description: "JSON array of candidate identifiers for final resolution"
+        response:
+          type: object
+          item: SearchResponse
+        response_format: json
+  catalog:
+    description: "Read the public NameThatUI catalog"
+    endpoints:
+      list:
+        method: GET
+        path: "/"
+        description: "List UI element pages from the public structured catalog"
+        response_format: html
+        html_extract:
+          mode: embedded-json
+          script_selector: "script[type='application/ld+json']"
+          json_path: "itemListElement"
+      get:
+        method: GET
+        path: "/{platform}/{slug}"
+        description: "Fetch a canonical UI element page"
+        params:
+          - name: platform
+            type: string
+            required: true
+            positional: true
+            enum: [web, macos]
+            description: "Catalog platform"
+          - name: slug
+            type: string
+            required: true
+            positional: true
+            description: "Element slug from the catalog"
+        response_format: html
+        html_extract:
+          mode: page
+  styles:
+    description: "Read the public visual-style atlas"
+    endpoints:
+      list:
+        method: GET
+        path: "/styles"
+        description: "List visual-style pages"
+        response_format: html
+        html_extract:
+          mode: embedded-json
+          script_selector: "script[type='application/ld+json']"
+          json_path: "itemListElement"
+      get:
+        method: GET
+        path: "/styles/{slug}"
+        description: "Fetch a visual-style guidance page"
+        params:
+          - name: slug
+            type: string
+            required: true
+            positional: true
+            description: "Visual-style slug"
+        response_format: html
+        html_extract:
+          mode: page
+  reference:
+    description: "Read cross-framework and update references"
+    endpoints:
+      translate:
+        method: GET
+        path: "/translate"
+        description: "Fetch the AppKit-to-SwiftUI translation table"
+        response_format: html
+        html_extract:
+          mode: page
+      feed:
+        method: GET
+        path: "/feed.xml"
+        description: "Fetch recent NameThatUI catalog additions"
+        response_format: binary
+      sitemap:
+        method: GET
+        path: "/sitemap.xml"
+        description: "Fetch the public catalog sitemap"
+        response_format: binary
+types:
+  SearchResponse:
+    fields:
+      - name: source
+        type: string
+      - name: ambiguous
+        type: bool
+      - name: results
+        type: array
+        item: SearchResult
+  SearchResult:
+    fields:
+      - name: id
+        type: string
+      - name: name
+        type: string
+      - name: score
+        type: float
