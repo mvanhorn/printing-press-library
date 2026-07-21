@@ -1,0 +1,51 @@
+version: 2
+project_name: nonprofit-explorer-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: nonprofit-explorer-pp-cli
+    main: ./cmd/nonprofit-explorer-pp-cli
+    binary: nonprofit-explorer-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X nonprofit-explorer-pp-cli/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: nonprofit-explorer-pp-mcp
+    main: ./cmd/nonprofit-explorer-pp-mcp
+    binary: nonprofit-explorer-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X main.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: nonprofit-explorer-pp-cli
+    repository:
+      owner: fannan
+      name: homebrew-tap
+    homepage: "https://github.com/fannan/nonprofit-explorer-pp-cli"
+    description: "Look up US nonprofits and their IRS Form 990 financials via ProPublica's Nonprofit Explorer API."
+    install: |
+      bin.install "nonprofit-explorer-pp-cli"
+      bin.install "nonprofit-explorer-pp-mcp"

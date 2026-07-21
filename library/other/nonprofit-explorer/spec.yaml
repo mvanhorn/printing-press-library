@@ -1,0 +1,167 @@
+openapi: 3.0.3
+info:
+  title: ProPublica Nonprofit Explorer
+  version: "2.0.0"
+  description: >
+    Look up US nonprofits and their IRS Form 990 financials via ProPublica's
+    Nonprofit Explorer API. Free, no authentication required.
+servers:
+  - url: https://projects.propublica.org/nonprofits/api/v2
+paths:
+  /search.json:
+    get:
+      operationId: searchOrganizations
+      summary: Search nonprofit organizations by name/keyword
+      description: >
+        Full-text search across organization names. Supports filtering by state,
+        NTEE major group, and 501(c) sub-code. Paginated (100 results per page).
+      parameters:
+        - name: q
+          in: query
+          description: Free-text query matched against organization names.
+          required: false
+          schema:
+            type: string
+        - name: "state[id]"
+          in: query
+          description: Two-letter US state abbreviation (e.g. CA) to filter results.
+          required: false
+          schema:
+            type: string
+        - name: "ntee[id]"
+          in: query
+          description: NTEE major group id 1-10 to filter by cause area.
+          required: false
+          schema:
+            type: integer
+        - name: "c_code[id]"
+          in: query
+          description: 501(c) sub-code, e.g. 3 for 501(c)(3).
+          required: false
+          schema:
+            type: integer
+        - name: page
+          in: query
+          description: Zero-based page number.
+          required: false
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Search results
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SearchResponse"
+  /organizations/{ein}.json:
+    get:
+      operationId: getOrganization
+      summary: Get a single organization and its Form 990 filings
+      description: >
+        Returns the organization profile plus filings_with_data (parsed
+        financials) and filings_without_data (PDF-only).
+      parameters:
+        - name: ein
+          in: path
+          description: Employer Identification Number, digits only (no dash).
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Organization detail
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OrganizationResponse"
+components:
+  schemas:
+    SearchResponse:
+      type: object
+      properties:
+        total_results:
+          type: integer
+        num_pages:
+          type: integer
+        cur_page:
+          type: integer
+        organizations:
+          type: array
+          items:
+            $ref: "#/components/schemas/SearchOrg"
+    SearchOrg:
+      type: object
+      properties:
+        ein:
+          type: integer
+        strein:
+          type: string
+        name:
+          type: string
+        sub_name:
+          type: string
+        city:
+          type: string
+        state:
+          type: string
+        ntee_code:
+          type: string
+        raw_ntee_code:
+          type: string
+        subseccd:
+          type: integer
+        score:
+          type: number
+    OrganizationResponse:
+      type: object
+      properties:
+        organization:
+          $ref: "#/components/schemas/Organization"
+        filings_with_data:
+          type: array
+          items:
+            $ref: "#/components/schemas/Filing"
+        filings_without_data:
+          type: array
+          items:
+            $ref: "#/components/schemas/Filing"
+    Organization:
+      type: object
+      properties:
+        ein:
+          type: integer
+        name:
+          type: string
+        address:
+          type: string
+        city:
+          type: string
+        state:
+          type: string
+        zipcode:
+          type: string
+        ntee_code:
+          type: string
+        subseccd:
+          type: integer
+        ruling_date:
+          type: string
+    Filing:
+      type: object
+      properties:
+        tax_prd_yr:
+          type: integer
+        tax_prd:
+          type: integer
+        formtype:
+          type: integer
+        pdf_url:
+          type: string
+        totrevenue:
+          type: integer
+        totfuncexpns:
+          type: integer
+        totassetsend:
+          type: integer
+        totliabend:
+          type: integer

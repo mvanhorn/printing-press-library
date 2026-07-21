@@ -1,0 +1,68 @@
+{
+  "api_name": "nonprofit-explorer",
+  "base_url": "https://projects.propublica.org/nonprofits/api/v2",
+  "description": "Look up US nonprofits and their IRS Form 990 financials via ProPublica's Nonprofit Explorer API.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "none"
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "organizations_get",
+      "description": "Returns the organization profile plus filings_with_data (parsed financials) and filings_without_data (PDF-only). Required: ein.",
+      "method": "GET",
+      "path": "/organizations/{ein}.json",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "ein",
+          "type": "string",
+          "location": "path",
+          "description": "Employer Identification Number, digits only (no dash).",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "search-json_search-organizations",
+      "description": "Full-text search across organization names. Supports filtering by state, NTEE major group, and 501(c) sub-code. Paginated (100 results per page). Optional: q, state[id], ntee[id] (plus 2 more). Returns array of SearchOrg.",
+      "method": "GET",
+      "path": "/search.json",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "q",
+          "type": "string",
+          "location": "query",
+          "description": "Free-text query matched against organization names."
+        },
+        {
+          "name": "state[id]",
+          "type": "string",
+          "location": "query",
+          "description": "Two-letter US state abbreviation (e.g. CA) to filter results."
+        },
+        {
+          "name": "ntee[id]",
+          "type": "int",
+          "location": "query",
+          "description": "NTEE major group id 1-10 to filter by cause area."
+        },
+        {
+          "name": "c_code[id]",
+          "type": "int",
+          "location": "query",
+          "description": "501(c) sub-code, e.g. 3 for 501(c)(3)."
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Zero-based page number."
+        }
+      ]
+    }
+  ]
+}

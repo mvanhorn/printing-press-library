@@ -1,0 +1,32 @@
+{
+  "api_name": "nonprofit-explorer",
+  "run_id": "20260721-170143",
+  "spec_source": "community",
+  "novel_features": [
+    {
+      "name": "Name-or-EIN resolution",
+      "command": "org",
+      "description": "org, filings, financials, people, and every compare argument accept a nonprofit NAME as well as an EIN; names auto-resolve to the top ProPublica search match with a Resolved note (stderr) or a resolved envelope field (--agent)."
+    },
+    {
+      "name": "Financial trajectory with YoY",
+      "command": "financials",
+      "description": "Year-by-year revenue/expense/net/asset table with year-over-year revenue change, plus latest-year revenue composition (contributions vs program vs investment vs other) and personnel-cost share of expenses."
+    },
+    {
+      "name": "Side-by-side comparison",
+      "command": "compare",
+      "description": "Latest-990 side-by-side of two or more organizations (revenue, expenses, assets, NTEE, fiscal year), mixing names and EINs freely."
+    },
+    {
+      "name": "NTEE-CC code naming",
+      "command": "search",
+      "description": "Embedded 633-code NTEE-CC table renders human cause-area names (T23 -> Private Operating Foundations) in search, org, and JSON output; letter-level major-group fallback included."
+    },
+    {
+      "name": "Officer compensation aggregates",
+      "command": "people",
+      "description": "Per-year officer compensation total and share of expenses, other salaries & wages, payroll taxes, and professional fundraising fees from the IRS Form 990 extract, with per-year 990 PDF links for individual officer detail."
+    }
+  ]
+}
