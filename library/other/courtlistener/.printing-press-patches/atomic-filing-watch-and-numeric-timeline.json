@@ -1,0 +1,17 @@
+{
+  "schema_version": 2,
+  "id": "atomic-filing-watch-and-numeric-timeline",
+  "applied_at": "2026-07-22",
+  "base_run_id": "20260717-002908-6e06aaaf",
+  "base_printing_press_version": "4.29.0",
+  "summary": "Preserve concurrent filing-watch observations and sort same-date timeline identifiers numerically.",
+  "reason": "Separate CLI processes could overwrite each other's watch state, while lexicographic identifier ordering placed 100 before 90 on equal dates.",
+  "files": [
+    "internal/cli/new_filings.go",
+    "internal/cli/new_filings_test.go",
+    "internal/cli/courtlistener_novel_support.go",
+    "internal/cli/courtlistener_novel_support_test.go",
+    "internal/store/store.go"
+  ],
+  "validated_outcome": "Concurrent-store and 90-versus-100 regression tests preserve both observations and numeric chronology."
+}

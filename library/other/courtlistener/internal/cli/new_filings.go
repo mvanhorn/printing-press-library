@@ -5,7 +5,7 @@
 package cli
 
 import (
-	"database/sql"
+	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -61,37 +61,9 @@ func newNovelNewFilingsCmd(flags *rootFlags) *cobra.Command {
 			}
 			defer db.Close()
 			key := searchType + "|" + query
-			previous := map[string]string{}
-			raw, getErr := db.Get("courtlistener-search-watch", key)
-			baseline := errors.Is(getErr, sql.ErrNoRows)
-			if getErr != nil && !baseline {
-				return getErr
-			}
-			if getErr == nil {
-				state := filingWatchState{}
-				if err := json.Unmarshal(raw, &state); err != nil {
-					return err
-				}
-				if state.Seen != nil {
-					previous = state.Seen
-				} else {
-					legacy := map[string]bool{}
-					if err := json.Unmarshal(raw, &legacy); err != nil {
-						return err
-					}
-					for id, seen := range legacy {
-						if seen {
-							previous[id] = "1970-01-01T00:00:00Z"
-						}
-					}
-				}
-			}
-			added, seen := mergeSeenFilings(previous, current, time.Now().UTC(), 5000)
-			if baseline {
-				added = nil
-			}
-			next, _ := json.Marshal(filingWatchState{SchemaVersion: 1, Seen: seen})
-			if err := db.Upsert("courtlistener-search-watch", key, next); err != nil {
+			var added []string
+			baseline := false
+			if err := updateFilingWatch(ctx, db, key, current, time.Now().UTC(), &added, &baseline); err != nil {
 				return err
 			}
 			return emitCL(cmd, flags, "mixed", map[string]any{"query": query, "type": searchType, "baseline_created": baseline, "observed_results": len(results), "identified_results": len(current), "new_result_ids": added, "total_matching": response["count"], "next": response["next"], "complete_observation": response["next"] == nil, "caveats": clCaveats()})
@@ -100,6 +72,38 @@ func newNovelNewFilingsCmd(flags *rootFlags) *cobra.Command {
 	cmd.Flags().StringVar(&query, "query", "", "CourtListener search query")
 	cmd.Flags().StringVar(&searchType, "type", "r", "CourtListener search type, such as r for case law or d for RECAP")
 	return cmd
+}
+
+func updateFilingWatch(ctx context.Context, db *store.Store, key string, current map[string]bool, now time.Time, added *[]string, baseline *bool) error {
+	return db.AtomicUpdate(ctx, "courtlistener-search-watch", key, func(raw json.RawMessage, exists bool) (json.RawMessage, error) {
+		previous := map[string]string{}
+		*baseline = !exists
+		if exists {
+			state := filingWatchState{}
+			if err := json.Unmarshal(raw, &state); err != nil {
+				return nil, err
+			}
+			if state.Seen != nil {
+				previous = state.Seen
+			} else {
+				legacy := map[string]bool{}
+				if err := json.Unmarshal(raw, &legacy); err != nil {
+					return nil, err
+				}
+				for id, seen := range legacy {
+					if seen {
+						previous[id] = "1970-01-01T00:00:00Z"
+					}
+				}
+			}
+		}
+		var seen map[string]string
+		*added, seen = mergeSeenFilings(previous, current, now, 5000)
+		if *baseline {
+			*added = nil
+		}
+		return json.Marshal(filingWatchState{SchemaVersion: 1, Seen: seen})
+	})
 }
 
 type filingWatchState struct {

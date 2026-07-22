@@ -11,6 +11,7 @@ import (
 	"context"
 	"database/sql"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"hash/fnv"
 	"math"
@@ -934,6 +935,57 @@ func (s *Store) Upsert(resourceType, id string, data json.RawMessage) error {
 	}
 
 	return tx.Commit()
+}
+
+// AtomicUpdate runs a read-modify-write cycle while holding SQLite's writer
+// lock. The lock is database-wide, so separate CLI processes cannot both read
+// the same stale resource value and overwrite one another's observations.
+func (s *Store) AtomicUpdate(ctx context.Context, resourceType, id string, update func(json.RawMessage, bool) (json.RawMessage, error)) error {
+	s.writeMu.Lock()
+	defer s.writeMu.Unlock()
+
+	conn, err := s.db.Conn(ctx)
+	if err != nil {
+		return err
+	}
+	defer conn.Close()
+
+	return withMigrationLock(ctx, conn, time.Now().Add(migrationLockTimeout), func() error {
+		var stored string
+		err := conn.QueryRowContext(ctx,
+			`SELECT data FROM resources WHERE resource_type = ? AND id = ?`,
+			resourceType, id,
+		).Scan(&stored)
+		exists := err == nil
+		if err != nil && !errors.Is(err, sql.ErrNoRows) {
+			return err
+		}
+		next, err := update(json.RawMessage(stored), exists)
+		if err != nil {
+			return err
+		}
+		now := time.Now().UTC().Format(time.RFC3339)
+		if _, err := conn.ExecContext(ctx,
+			`INSERT INTO resources (id, resource_type, data, synced_at, updated_at)
+			 VALUES (?, ?, ?, ?, ?)
+			 ON CONFLICT(resource_type, id) DO UPDATE SET data = excluded.data, synced_at = excluded.synced_at, updated_at = excluded.updated_at`,
+			id, resourceType, string(next), now, now,
+		); err != nil {
+			return err
+		}
+
+		ftsRowid := ftsRowID(resourceType, id)
+		if _, err := conn.ExecContext(ctx, `DELETE FROM resources_fts WHERE rowid = ?`, ftsRowid); err != nil {
+			fmt.Fprintf(os.Stderr, "warning: FTS index cleanup failed: %v\n", err)
+		}
+		if _, err := conn.ExecContext(ctx,
+			`INSERT INTO resources_fts (rowid, id, resource_type, content) VALUES (?, ?, ?, ?)`,
+			ftsRowid, id, resourceType, searchableResourceContent(next),
+		); err != nil {
+			fmt.Fprintf(os.Stderr, "warning: FTS index update failed: %v\n", err)
+		}
+		return nil
+	})
 }
 
 // Propagates sql.ErrNoRows on a miss so callers can distinguish absence from

@@ -123,9 +123,11 @@ func clDocketTimeline(entries, documents []map[string]any) []map[string]any {
 		if left != right {
 			return left < right
 		}
-		leftID := clReferenceID(timeline[i]["entry_id"]) + "|" + clReferenceID(timeline[i]["document_id"])
-		rightID := clReferenceID(timeline[j]["entry_id"]) + "|" + clReferenceID(timeline[j]["document_id"])
-		return leftID < rightID
+		leftEntry, rightEntry := timeline[i]["entry_id"], timeline[j]["entry_id"]
+		if clReferenceID(leftEntry) != clReferenceID(rightEntry) {
+			return clReferenceIDLess(leftEntry, rightEntry)
+		}
+		return clReferenceIDLess(timeline[i]["document_id"], timeline[j]["document_id"])
 	})
 	return timeline
 }

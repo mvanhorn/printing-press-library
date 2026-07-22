@@ -6,9 +6,15 @@ package cli
 
 import (
 	"bytes"
+	"context"
+	"encoding/json"
+	"path/filepath"
 	"strings"
+	"sync"
 	"testing"
 	"time"
+
+	"github.com/mvanhorn/printing-press-library/library/other/courtlistener/internal/store"
 )
 
 // TestNovelNewFilingsHelpWires smoke-tests that the new-filings command
@@ -28,6 +34,55 @@ func TestNovelNewFilingsHelpWires(t *testing.T) {
 	for _, want := range []string{"Usage:", "new-filings"} {
 		if !strings.Contains(help, want) {
 			t.Fatalf("new-filings --help missing %q in output:\n%s", want, help)
+		}
+	}
+}
+
+func TestUpdateFilingWatchConcurrentProcessesPreserveBothObservations(t *testing.T) {
+	path := filepath.Join(t.TempDir(), "watch.db")
+	first, err := store.OpenWithContext(context.Background(), path)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer first.Close()
+	second, err := store.OpenWithContext(context.Background(), path)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer second.Close()
+
+	stores := []*store.Store{first, second}
+	observations := []map[string]bool{{"id:90": true}, {"id:100": true}}
+	errCh := make(chan error, len(stores))
+	var wg sync.WaitGroup
+	for i := range stores {
+		wg.Add(1)
+		go func(i int) {
+			defer wg.Done()
+			var added []string
+			var baseline bool
+			errCh <- updateFilingWatch(context.Background(), stores[i], "r|concurrent", observations[i], time.Now().UTC(), &added, &baseline)
+		}(i)
+	}
+	wg.Wait()
+	close(errCh)
+	for err := range errCh {
+		if err != nil {
+			t.Fatal(err)
+		}
+	}
+
+	raw, err := first.Get("courtlistener-search-watch", "r|concurrent")
+	if err != nil {
+		t.Fatal(err)
+	}
+	var state filingWatchState
+	if err := json.Unmarshal(raw, &state); err != nil {
+		t.Fatal(err)
+	}
+	for _, id := range []string{"id:90", "id:100"} {
+		if state.Seen[id] == "" {
+			t.Fatalf("concurrent observation %q was lost: %#v", id, state.Seen)
 		}
 	}
 }
