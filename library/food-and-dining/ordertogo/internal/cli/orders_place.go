@@ -6,22 +6,26 @@
 // checkout endpoint is POST /m/api/postmicmeshorder and the payment
 // processor is Stripe with a saved customer + card key.
 //
-// This implementation calls that endpoint directly. The cart is loaded
-// either from a JSON file (--cart-file) or from the CLI's saved active
-// cart (--reuse-last). Stripe customer ID and saved-card key come from
-// the config file (`ordertogo config set stripe_customer_id ...`).
+// This implementation calls that endpoint directly. The cart is loaded from
+// a localStorage-shape JSON file so checkout option strings are preserved.
+// Stripe customer ID and saved-card key come from the config file
+// (`ordertogo config set stripe_customer_id ...`).
 
 package cli
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
+	"math/rand"
 	"os"
+	"path/filepath"
 	"strconv"
 	"strings"
 	"time"
 
 	"github.com/mvanhorn/printing-press-library/library/food-and-dining/ordertogo/internal/config"
+	"github.com/mvanhorn/printing-press-library/library/food-and-dining/ordertogo/internal/store"
 	"github.com/spf13/cobra"
 )
 
@@ -36,7 +40,6 @@ type cartItem struct {
 	OptionItemIDsAndPrices []any   `json:"optionItemIdsAndPrices"`
 	Price                  float64 `json:"price"`
 	TaxRate                any     `json:"taxrate"`
-	RewardsInfo            any     `json:"rewardsInfo"`
 	Togo                   string  `json:"togo"`
 }
 
@@ -67,6 +70,17 @@ type postOrderParam struct {
 	OrderDetails  orderDetails `json:"orderdetails"`
 	RestID        int          `json:"restid"`
 	PaymentCard   paymentCard  `json:"paymentCard"`
+	// Fields the live web client (2026-06) sends that the original stub omitted.
+	// Their absence is why the server 504'd / rejected CLI-built orders.
+	GroupName               string         `json:"groupname"`
+	EnableGroupRewardpoints bool           `json:"enableGroupRewardpoints"`
+	EnableRewardpoints      bool           `json:"enableRewardpoints"`
+	Tax                     float64        `json:"tax"`
+	Context                 map[string]any `json:"context,omitempty"`
+	IsSelfcheckoutOnly      bool           `json:"isSelfcheckoutOnly"`
+	DeviceID                string         `json:"deviceId"`
+	MobileID                string         `json:"mobileId"`
+	OrderType               string         `json:"orderType"`
 }
 
 type postOrderBody struct {
@@ -76,14 +90,8 @@ type postOrderBody struct {
 // localStorageCart matches the shape ordertogo.com persists in
 // localStorage under key order.rest{slug}{restid} — see
 // /javascripts/miyu_c/order.m.togo.js: saveCart.
-//
-// PATCH(localstorage-item-id-mapping): the int `id` field is the menu-item id
-// the POST /m/api/postmicmeshorder body wants (mapped to cartItem.ItemID).
-// localStorage carries a parallel string "item_id" key that ordertogo.com's
-// own web checkout silently ignores — verified against a real successful
-// $2.99 order whose captured request body matched ours byte-for-byte using
-// `id`, not "item_id". The string key is intentionally NOT modeled here to
-// remove the ambiguity (greptile P1 on PR #471).
+// The integer `id` field is the menu-item id used by checkout; the parallel
+// string `item_id` is a human SKU and must not be substituted on the wire.
 type localStorageCart struct {
 	Items []struct {
 		ID            int     `json:"id"`
@@ -107,16 +115,16 @@ func newOrdersPlaceCmd(flags *rootFlags) *cobra.Command {
 	var maxBudget float64
 	var confirmOverBudget bool
 	var tipSpec string
+	var force bool
 
 	cmd := &cobra.Command{
 		Use:   "place",
 		Short: "Place an order via POST /m/api/postmicmeshorder using Stripe saved card",
 		Long: `Place a pickup order at an ordertogo.com restaurant. Reads cart items
-from either an active plan (--reuse-last) or a localStorage-shape JSON file
-(--cart-file). Payment uses the Stripe customer + saved card configured via
+from a localStorage-shape JSON file (--cart-file), which preserves item option
+strings. Payment uses the Stripe customer + saved card configured via
 'ordertogo config set stripe_customer_id ...' and 'config set stripe_default_card ...'.`,
-		Example: `  ordertogo-pp-cli orders place --cart-file ./water.json --restaurant mixsushibarlin --restid 72 --max 5 --confirm
-  ordertogo-pp-cli orders place --reuse-last --max 30 --tip 5% --confirm`,
+		Example:     `  ordertogo-pp-cli orders place --cart-file ./water.json --restaurant mixsushibarlin --restid 72 --max 5 --confirm`,
 		Annotations: map[string]string{"pp:typed-exit-codes": "0,4,5"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !confirm {
@@ -124,6 +132,14 @@ from either an active plan (--reuse-last) or a localStorage-shape JSON file
 			}
 			if maxBudget <= 0 {
 				return usageErr(fmt.Errorf("--max is required (budget cap in dollars)"))
+			}
+			// Rate cap: rapid-fire order POSTs trip ordertogo's abuse/velocity
+			// detection (which then 400s even a valid request). Refuse a second
+			// attempt within the cool-down window unless --force.
+			if !force && !verifyMode() {
+				if wait := placeCooldownRemaining(); wait > 0 {
+					return usageErr(fmt.Errorf("last order attempt was %s ago; wait %s before retrying (rapid retries trip abuse detection). Use --force to override", placeCooldownWindow-wait, wait.Round(time.Second)))
+				}
 			}
 
 			cfg, err := config.Load(flags.configPath)
@@ -134,18 +150,15 @@ from either an active plan (--reuse-last) or a localStorage-shape JSON file
 				return err
 			}
 
-			items, subtotal, slug, rid, err := loadCart(cartFile, reuseLast, restaurant, restID)
+			items, subtotal, tax, slug, rid, err := loadCart(cartFile, reuseLast, restaurant, restID)
 			if err != nil {
 				return err
 			}
 			if len(items) == 0 {
 				return usageErr(fmt.Errorf("cart is empty"))
 			}
-			if rid <= 0 {
-				return usageErr(fmt.Errorf("--restid is required (numeric restaurant id; the API rejects requests with restid=0)"))
-			}
-			if slug == "" {
-				return usageErr(fmt.Errorf("--restaurant is required (restaurant slug, e.g. mixsushibarlin)"))
+			if err := validatePlaceCart(slug, rid, items); err != nil {
+				return err
 			}
 
 			tip, err := parseTip(tipSpec, subtotal, cfg)
@@ -160,22 +173,9 @@ from either an active plan (--reuse-last) or a localStorage-shape JSON file
 				return budgetError(flags, "projected total exceeds --max (use --confirm-over-budget to override)", maxBudget, projected)
 			}
 
-			body := buildPostOrderBody(cfg, items, subtotal, tip, slug, rid)
+			body := buildPostOrderBody(cfg, items, subtotal, tip, tax, slug, rid)
 			if verifyMode() {
-				redacted := body
-				redacted.Param.PaymentCard.StripeCustomer = "<REDACTED>"
-				redacted.Param.PaymentCard.DefaultCardMap = map[string]any{"key": "<REDACTED>"}
-				redacted.Param.PaymentCard.PhoneNum = "<REDACTED>"
-				redacted.Param.CustomerPhone = "<REDACTED>"
-				// PATCH: CustomerName is PII alongside CustomerPhone and the
-				// payment-card fields. Redact it in verify-mode dumps so
-				// PRINTING_PRESS_VERIFY=1 snapshots can be shared without
-				// leaking the configured account holder's name. paymentCard
-				// firstname/lastname carry the same name split across two
-				// fields, so redact them too.
-				redacted.Param.CustomerName = "<REDACTED>"
-				redacted.Param.PaymentCard.FirstName = "<REDACTED>"
-				redacted.Param.PaymentCard.LastName = "<REDACTED>"
+				redacted := redactPostOrderBody(body)
 				return printJSONFiltered(cmd.OutOrStdout(), map[string]any{
 					"status":     "would_post",
 					"endpoint":   "/m/api/postmicmeshorder",
@@ -189,7 +189,40 @@ from either an active plan (--reuse-last) or a localStorage-shape JSON file
 			if err != nil {
 				return err
 			}
-			data, _, err := c.Post("/m/api/postmicmeshorder", body)
+			// postmicmeshorder authenticates with a fresh Firebase ID token in
+			// the Authorization header, not cookies. Mint one from the stored
+			// refresh token; fall back to the cookie-only POST if no Firebase
+			// credentials are configured (which the server will reject, but with
+			// its own clear message).
+			// The live web client sends these alongside Authorization; their
+			// absence is why CLI-built orders were rejected/timed out. __requestid
+			// is a per-request id the server uses to dedup (epoch-ms_random).
+			// A wire capture of a working browser order showed the server's bot
+			// gate 400s requests missing these. Match a current Chrome's headers:
+			// fetch-metadata, client hints, priority, and a restaurant-page
+			// Referer (the generic "/" referer the client otherwise sends is a
+			// tell). cfg.BaseURL + the restaurant path mirrors the browser.
+			headers := map[string]string{
+				"Accept":             "*/*",
+				"X-Requested-With":   "XMLHttpRequest",
+				"__requestid":        newRequestID(),
+				"Sec-Fetch-Site":     "same-origin",
+				"Sec-Fetch-Mode":     "cors",
+				"Sec-Fetch-Dest":     "empty",
+				"Sec-Ch-Ua":          configuredHeader(cfg, "Sec-Ch-Ua", `"Google Chrome";v="149", "Chromium";v="149", "Not)A;Brand";v="24"`),
+				"Sec-Ch-Ua-Mobile":   configuredHeader(cfg, "Sec-Ch-Ua-Mobile", "?0"),
+				"Sec-Ch-Ua-Platform": configuredHeader(cfg, "Sec-Ch-Ua-Platform", `"macOS"`),
+				"Priority":           "u=1, i",
+				"Accept-Language":    "en-US,en;q=0.9",
+				"Referer":            strings.TrimRight(cfg.BaseURL, "/") + "/restaurants/" + slug + "/mesh",
+			}
+			if token, terr := firebaseAuthToken(cfg); terr != nil {
+				return usageErr(terr)
+			} else if token != "" {
+				headers["Authorization"] = token
+			}
+			recordPlaceAttempt() // stamp before the POST so the cooldown covers failed attempts too
+			data, _, err := c.PostWithHeaders("/m/api/postmicmeshorder", body, headers)
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}
@@ -202,18 +235,40 @@ from either an active plan (--reuse-last) or a localStorage-shape JSON file
 				// We charged successfully but exceeded budget; surface clearly.
 				result.Warning = fmt.Sprintf("actual total %.2f exceeded --max %.2f", result.Total, maxBudget)
 			}
+			if err := persistPlacedOrder(cmd.Context(), defaultDBPath("ordertogo-pp-cli"), result, items, subtotal, tax, tip, slug, rid); err != nil {
+				result.Warning = appendWarning(result.Warning, fmt.Sprintf("order placed successfully, but saving local history failed: %v", err))
+			}
 			return printJSONFiltered(cmd.OutOrStdout(), result, flags)
 		},
 	}
-	cmd.Flags().BoolVar(&reuseLast, "reuse-last", false, "Reuse the last active-cart plan saved by 'orders plan'")
+	cmd.Flags().BoolVar(&reuseLast, "reuse-last", false, "Reuse the last active-cart plan (refused until saved carts preserve item options)")
 	cmd.Flags().StringVar(&cartFile, "cart-file", "", "Path to JSON cart file in localStorage shape")
 	cmd.Flags().StringVar(&restaurant, "restaurant", "", "Restaurant slug (e.g. mixsushibarlin)")
 	cmd.Flags().IntVar(&restID, "restid", 0, "Numeric restaurant id (required if not in cart file)")
 	cmd.Flags().BoolVar(&confirm, "confirm", false, "Confirm that the order should be placed")
 	cmd.Flags().Float64Var(&maxBudget, "max", 0, "Maximum allowed total in dollars (required)")
 	cmd.Flags().BoolVar(&confirmOverBudget, "confirm-over-budget", false, "Allow totals over --max")
+	cmd.Flags().BoolVar(&force, "force", false, "Override the post-order cooldown (rapid retries can trip abuse detection)")
 	cmd.Flags().StringVar(&tipSpec, "tip", "auto", "Tip as auto, pct%, or dollars")
 	return cmd
+}
+
+// validatePlaceCart fails closed before posting a real order: a zero restid
+// (slug never resolved upstream of the saved cart) or an all-zero-price cart
+// would be rejected server-side with an opaque 500, so surface it locally.
+func validatePlaceCart(slug string, restID int, items []cartItem) error {
+	if restID == 0 {
+		return usageErr(fmt.Errorf("restid is 0 (the saved cart did not resolve a numeric restaurant id); re-run `orders plan` for this restaurant"))
+	}
+	if strings.TrimSpace(slug) == "" {
+		return usageErr(fmt.Errorf("--restaurant is required (restaurant slug, e.g. mixsushibarlin)"))
+	}
+	for _, it := range items {
+		if it.Price > 0 {
+			return nil
+		}
+	}
+	return usageErr(fmt.Errorf("cart has no priced items; re-run `orders plan` to reprice from the menu"))
 }
 
 func checkPaymentConfig(cfg *config.Config) error {
@@ -239,15 +294,15 @@ func checkPaymentConfig(cfg *config.Config) error {
 	return usageErr(fmt.Errorf("missing payment config: %s. Run `ordertogo config set <key> <value>` for each. Find IDs by placing one order in the web app and inspecting the POST /m/api/postmicmeshorder body in DevTools.", strings.Join(missing, ", ")))
 }
 
-func loadCart(cartFile string, reuseLast bool, slug string, restID int) ([]cartItem, float64, string, int, error) {
+func loadCart(cartFile string, reuseLast bool, slug string, restID int) ([]cartItem, float64, float64, string, int, error) {
 	if cartFile != "" {
 		data, err := os.ReadFile(cartFile)
 		if err != nil {
-			return nil, 0, "", 0, fmt.Errorf("reading cart file: %w", err)
+			return nil, 0, 0, "", 0, fmt.Errorf("reading cart file: %w", err)
 		}
 		var ls localStorageCart
 		if err := json.Unmarshal(data, &ls); err != nil {
-			return nil, 0, "", 0, fmt.Errorf("parsing cart file (expected localStorage shape): %w", err)
+			return nil, 0, 0, "", 0, fmt.Errorf("parsing cart file (expected localStorage shape): %w", err)
 		}
 		items := make([]cartItem, 0, len(ls.Items))
 		subtotal := 0.0
@@ -270,18 +325,17 @@ func loadCart(cartFile string, reuseLast bool, slug string, restID int) ([]cartI
 		if ls.Subtotal > 0 {
 			subtotal = ls.Subtotal
 		}
-		return items, roundMoney(subtotal), slug, restID, nil
+		return items, roundMoney(subtotal), 0, slug, restID, nil
 	}
 
 	if reuseLast {
-		// The active-cart store schema (store.OrderItem) does not carry
-		// option strings or option-item IDs, so reusing it would silently
-		// drop every customization (sauce choices, "no ginger", etc.)
-		// from the POST body. Refuse rather than send a wrong order.
-		return nil, 0, "", 0, usageErr(fmt.Errorf("--reuse-last is not supported by this checkout flow because the active-cart store does not preserve item option strings. Use --cart-file with a localStorage-shape JSON cart (which preserves optionsstr) instead"))
+		// activeCart stores store.OrderItem values, which do not carry the
+		// option strings or option-item IDs needed by checkout. Refuse instead
+		// of silently placing a customized item as its plain version.
+		return nil, 0, 0, "", 0, usageErr(fmt.Errorf("--reuse-last is not supported by this checkout flow because the active-cart store does not preserve item option strings. Use --cart-file with a localStorage-shape JSON cart instead"))
 	}
 
-	return nil, 0, "", 0, usageErr(fmt.Errorf("provide --cart-file"))
+	return nil, 0, 0, "", 0, usageErr(fmt.Errorf("provide --cart-file"))
 }
 
 func ifNil(s []any) []any {
@@ -291,12 +345,83 @@ func ifNil(s []any) []any {
 	return s
 }
 
-func buildPostOrderBody(cfg *config.Config, items []cartItem, subtotal, tip float64, slug string, restID int) postOrderBody {
-	fullName := strings.TrimSpace(cfg.CustomerFirstName + " " + cfg.CustomerLastName)
+// newRequestID mirrors the web client's __requestid header: epoch-millis +
+// "_" + a 4-digit random suffix (the server uses it to dedup retries).
+func newRequestID() string {
+	return fmt.Sprintf("%d_%d", time.Now().UnixMilli(), 1000+rand.Intn(9000))
+}
+
+// placeCooldownWindow is the minimum interval between order POSTs. Rapid-fire
+// placement trips ordertogo's abuse detection, which then rejects even a valid
+// request; this floor makes the CLI unable to re-trigger that flag.
+const placeCooldownWindow = 2 * time.Minute
+
+func placeAttemptPath() string { return defaultConfigDirFile("last-place-attempt") }
+
+// placeCooldownRemaining returns how much of the cooldown is left since the last
+// recorded order attempt (0 when none recorded or the window has passed).
+func placeCooldownRemaining() time.Duration {
+	data, err := os.ReadFile(placeAttemptPath())
+	if err != nil {
+		return 0
+	}
+	last, err := time.Parse(time.RFC3339, strings.TrimSpace(string(data)))
+	if err != nil {
+		return 0
+	}
+	if elapsed := time.Since(last); elapsed < placeCooldownWindow {
+		return placeCooldownWindow - elapsed
+	}
+	return 0
+}
+
+func recordPlaceAttempt() {
+	_ = os.MkdirAll(filepath.Dir(placeAttemptPath()), 0o700)
+	_ = os.WriteFile(placeAttemptPath(), []byte(time.Now().Format(time.RFC3339)), 0o600)
+}
+
+func configuredHeader(cfg *config.Config, name, fallback string) string {
+	if cfg != nil {
+		for key, value := range cfg.Headers {
+			if strings.EqualFold(key, name) && strings.TrimSpace(value) != "" {
+				return value
+			}
+		}
+	}
+	return fallback
+}
+
+func redactPostOrderBody(body postOrderBody) postOrderBody {
+	redacted := body
+	redacted.Param.CustomerPhone = "<REDACTED>"
+	redacted.Param.CustomerName = "<REDACTED>"
+	redacted.Param.DeviceID = "<REDACTED>"
+	redacted.Param.MobileID = "<REDACTED>"
+	redacted.Param.Context = map[string]any{"_redacted": "order context contains account data"}
+	redacted.Param.PaymentCard.StripeCustomer = "<REDACTED>"
+	redacted.Param.PaymentCard.DefaultCardMap = map[string]any{"key": "<REDACTED>"}
+	redacted.Param.PaymentCard.PhoneNum = "<REDACTED>"
+	redacted.Param.PaymentCard.FirstName = "<REDACTED>"
+	redacted.Param.PaymentCard.LastName = "<REDACTED>"
+	redacted.Param.PaymentCard.BillingAddress1 = "<REDACTED>"
+	redacted.Param.PaymentCard.BillingAddress2 = "<REDACTED>"
+	redacted.Param.PaymentCard.BillingCity = "<REDACTED>"
+	redacted.Param.PaymentCard.BillingState = "<REDACTED>"
+	return redacted
+}
+
+func buildPostOrderBody(cfg *config.Config, items []cartItem, subtotal, tip, tax float64, slug string, restID int) postOrderBody {
+	if tax == 0 {
+		rate := cfg.OrderTaxRate
+		if rate <= 0 {
+			rate = 0.103
+		}
+		tax = roundMoney(subtotal * rate)
+	}
 	return postOrderBody{
 		Param: postOrderParam{
 			CustomerPhone: cfg.CustomerPhone,
-			CustomerName:  fullName,
+			CustomerName:  cfg.CustomerFirstName,
 			AdditionalIns: "",
 			RestName:      slug,
 			OrderDetails: orderDetails{
@@ -305,16 +430,46 @@ func buildPostOrderBody(cfg *config.Config, items []cartItem, subtotal, tip floa
 			},
 			RestID: restID,
 			PaymentCard: paymentCard{
-				CardType:       "StripeElement",
-				StripeCustomer: cfg.StripeCustomerID,
-				Tip:            roundMoney(tip),
-				DefaultCardMap: map[string]any{"key": cfg.StripeDefaultCard},
-				LastName:       cfg.CustomerLastName,
-				FirstName:      cfg.CustomerFirstName,
-				PhoneNum:       cfg.CustomerPhone,
+				CardType:        "StripeElement",
+				StripeCustomer:  cfg.StripeCustomerID,
+				Tip:             roundMoney(tip),
+				DefaultCardMap:  map[string]any{"key": cfg.StripeDefaultCard},
+				LastName:        cfg.CustomerLastName,
+				FirstName:       cfg.CustomerFirstName,
+				PhoneNum:        cfg.CustomerPhone,
+				BillingAddress1: cfg.BillingAddress1,
+				BillingAddress2: cfg.BillingAddress2,
+				BillingCity:     cfg.BillingCity,
+				BillingState:    cfg.BillingState,
 			},
+			GroupName:               slug,
+			EnableGroupRewardpoints: false,
+			EnableRewardpoints:      true,
+			Tax:                     roundMoney(tax),
+			Context:                 buildOrderContext(cfg),
+			IsSelfcheckoutOnly:      false,
+			DeviceID:                cfg.DeviceID,
+			MobileID:                cfg.MobileID,
+			OrderType:               "1",
 		},
 	}
+}
+
+// buildOrderContext returns the per-user order context the live web client
+// sends (rewards state + meshuser profile + cart metadata), captured once via
+// `config bootstrap-from-capture` and stored as JSON. Returned verbatim: the
+// server treats orderdetails.items as authoritative for the cart, so the
+// context's display/rewards fields do not need per-item rebuilding to place an
+// order. Returns nil when not configured (older configs) so the field is omitted.
+func buildOrderContext(cfg *config.Config) map[string]any {
+	if cfg.OrderContextJSON == "" {
+		return nil
+	}
+	var ctx map[string]any
+	if err := json.Unmarshal([]byte(cfg.OrderContextJSON), &ctx); err != nil {
+		return nil
+	}
+	return ctx
 }
 
 type postOrderResult struct {
@@ -332,6 +487,58 @@ type postOrderResult struct {
 	Warning       string    `json:"warning,omitempty"`
 }
 
+func persistPlacedOrder(ctx context.Context, dbPath string, result postOrderResult, items []cartItem, subtotal, tax, tip float64, slug string, restID int) error {
+	historyItems := make([]store.OrderItem, 0, len(items))
+	for _, item := range items {
+		historyItems = append(historyItems, store.OrderItem{
+			ID:       strconv.Itoa(item.ItemID),
+			ItemID:   strconv.Itoa(item.ItemID),
+			Quantity: 1,
+			Price:    item.Price,
+		})
+	}
+	if result.Tax > 0 {
+		tax = result.Tax
+	}
+	if result.Tip > 0 {
+		tip = result.Tip
+	}
+	total := result.Total
+	if total <= 0 {
+		total = roundMoney(subtotal + tax + tip)
+	}
+	paymentMethod := result.CardType
+	if paymentMethod == "" {
+		paymentMethod = "stripe"
+	}
+	db, err := store.OpenWithContext(ctx, dbPath)
+	if err != nil {
+		return err
+	}
+	defer db.Close()
+	return db.UpsertOrder(store.Order{
+		OrderID:        strconv.Itoa(result.OrderID),
+		RestID:         strconv.Itoa(restID),
+		RestName:       slug,
+		RestaurantSlug: slug,
+		Restaurant:     slug,
+		Items:          historyItems,
+		Subtotal:       roundMoney(subtotal),
+		Tax:            roundMoney(tax),
+		Tip:            roundMoney(tip),
+		Total:          total,
+		PaymentMethod:  paymentMethod,
+		OrderedAt:      result.OrderedAt,
+	})
+}
+
+func appendWarning(existing, next string) string {
+	if existing == "" {
+		return next
+	}
+	return existing + "; " + next
+}
+
 func parsePostOrderResponse(data []byte, slug string) (postOrderResult, error) {
 	r := postOrderResult{OrderedAt: time.Now(), Restaurant: slug}
 	var wrapper struct {
@@ -345,12 +552,6 @@ func parsePostOrderResponse(data []byte, slug string) (postOrderResult, error) {
 			CardType      string  `json:"cardType"`
 			CardID        string  `json:"cardId"`
 		} `json:"transaction"`
-		// PATCH: Capture the order block so we can build the tracking URL.
-		// The web client routes to /trackorder/<restname>/<orderid> after a
-		// successful checkout (mesh.order.js micmeshCheckout success), where
-		// <restname> is the prefix of order.orderToken (split by "_", pop
-		// the trailing order-id segment, rejoin). Mirror that here so agent
-		// callers can deep-link the same way without re-parsing the token.
 		Order struct {
 			OrderID    int    `json:"orderid"`
 			OrderToken string `json:"orderToken"`
@@ -371,9 +572,6 @@ func parsePostOrderResponse(data []byte, slug string) (postOrderResult, error) {
 	r.Status = t.Status
 	r.CardType = t.CardType
 	r.CardID = t.CardID
-	// Build TrackURL using the same logic as the web client: prefer the
-	// restname derived from order.orderToken, falling back to the slug
-	// passed in (matches context.rest.name in the JS path).
 	restname := slug
 	if wrapper.Order.OrderToken != "" {
 		parts := strings.Split(wrapper.Order.OrderToken, "_")

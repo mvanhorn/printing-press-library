@@ -5,6 +5,7 @@
 Read, draft, send, schedule, and snooze Superhuman email from your terminal or Claude Code. Pair durable Chrome-session auth with a local SQLite store for offline thread search, participant analysis, watch streams, draft management, and Ask AI semantic queries.
 
 Created by [@mvanhorn](https://github.com/mvanhorn) (Matt Van Horn).
+Contributors: [@noahlevin](https://github.com/noahlevin) (Noah Levin).
 
 ## Install
 
@@ -35,7 +36,7 @@ npx -y @mvanhorn/printing-press-library install superhuman --agent claude-code -
 
 ### Without Node (Go fallback)
 
-If `npx` isn't available (no Node, offline), install the CLI directly via Go (requires Go 1.26.3 or newer):
+If `npx` isn't available (no Node, offline), install the CLI directly via Go (requires Go 1.26.5 or newer):
 
 ```bash
 go install github.com/mvanhorn/printing-press-library/library/productivity/superhuman/cmd/superhuman-pp-cli@latest

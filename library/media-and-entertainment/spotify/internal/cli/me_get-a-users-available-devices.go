@@ -15,23 +15,26 @@ func newMeGetAUsersAvailableDevicesCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:         "get-a-users-available-devices",
-		Short:       "Get information about a user’s available Spotify Connect devices. Some device models are not supported and will...",
+		Short:       "Get information about a user’s available Spotify Connect devices.",
 		Example:     "  spotify-pp-cli me get-a-users-available-devices",
 		Annotations: map[string]string{"pp:endpoint": "me.get-a-users-available-devices", "pp:method": "GET", "pp:path": "/me/player/devices", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
+			path := "/me/player/devices"
 			c, err := flags.newClient()
 			if err != nil {
 				return err
 			}
-
-			path := "/me/player/devices"
 			params := map[string]string{}
-			data, prov, err := resolveRead(cmd.Context(), c, flags, "me", false, path, params, nil)
+			data, prov, err := resolveReadWithStrategyAndResponsePath(cmd.Context(), c, flags, "auto", "me", false, path, params, nil, "devices", cmd.ErrOrStderr())
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}
-			// Print provenance to stderr for human-facing output
-			{
+			// Print provenance to stderr for human-facing output only.
+			// Machine-format flags (--json, --csv, --compact, --quiet, --plain,
+			// --select) and piped stdout suppress this line; the JSON envelope
+			// already carries meta.source for those consumers.
+			// SYNC: keep this gate aligned with command_promoted.go.tmpl.
+			if wantsHumanTable(cmd.OutOrStdout(), flags) {
 				var countItems []json.RawMessage
 				_ = json.Unmarshal(data, &countItems)
 				printProvenance(cmd, len(countItems), prov)
@@ -67,7 +70,7 @@ func newMeGetAUsersAvailableDevicesCmd(flags *rootFlags) *cobra.Command {
 					return nil
 				}
 			}
-			return printOutputWithFlags(cmd.OutOrStdout(), data, flags)
+			return printOutputWithFlagsMeta(cmd.OutOrStdout(), data, flags, map[string]any{"source": "live"})
 		},
 	}
 

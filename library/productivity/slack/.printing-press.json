@@ -10,5 +10,6 @@
   "printing_press_version": "1.2.1",
   "generated_at": "2026-04-09T23:03:49Z",
   "spec_source": "internal-yaml",
-  "run_id": "20260409-073625"
+  "run_id": "20260409-073625",
+  "description": "Send messages, search conversations, monitor channels, and manage your Slack workspace from the terminal"
 }

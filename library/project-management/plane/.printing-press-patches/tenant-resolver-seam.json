@@ -1,0 +1,31 @@
+{
+  "schema_version": 2,
+  "id": "tenant-resolver-seam",
+  "applied_at": "2026-06-25",
+  "base_run_id": "20260602-073610",
+  "base_printing_press_version": "4.20.1",
+  "summary": "Override the generated no-arg resolveTenantID seam with the active workspace UUID, enable flat tenant-scoped deletion reconcile for projects (skip-on-unknown-tenant), guard the destructive victim query against malformed-JSON rows, fold in the generated typed child-scope backfill (Bug #2), and retain the novel module-enrichment workspace scoping. Retires the workspace-scoped-fanout hand patch (its store/sync fan-out is now produced by generation from the x-pp-tenant-scope-column annotation); the Bug #2 write-through-child-scope fix is introduced here as generated code (it was never separately published to the catalog).",
+  "reason": "The deferred-to-upstream features of the prior hand patches (workspace-scoped-fanout = Bug #1 dependent fan-out scoping, already merged here as a patch; write-through-child-scope = Bug #2 typed child-scope backfill, never merged to the catalog) are now generator-native: the profiler reads x-pp-tenant-scope-column on /projects/ and emits parentTenantScopeColumns{\"projects\":\"workspace\"}, Store.ListIDsScoped, childScopeColumnSources{\"projects_id\":\"project\"} + deriveScopeColumns, plus a no-arg resolveTenantID seam (default returns \"\"). A printed CLI cannot resolve a tenant, so the seam needs a one-line novel override; and the novel `module` command's post-sync enrichment does its OWN parent enumeration (localModules), which the generated dependent-sync fan-out does not cover, so that scoping stays a hand patch.",
+  "files": [
+    "internal/cli/sync.go",
+    "internal/cli/modules_novel.go",
+    "internal/store/store.go",
+    "spec.yaml"
+  ],
+  "change": [
+    "spec.yaml: annotate the /projects/ path item with `x-pp-tenant-scope-column: workspace` (Project.workspace is a top-level UUID string). This drives the profiler to classify projects ReconcileMode=\"flat\" and emit the generated tenant maps; a fresh regen reproduces all generated code below without a patch.",
+    "sync.go: override the generated `var resolveTenantID = func() string { return \"\" }` seam in the sync RunE, BEFORE the worker pool, with `resolveTenantID = func() string { return resolveActiveWorkspaceID(slug, ws) }` resolved from c.Config.TemplateVars[\"slug\"] + c.Config.Workspaces. resolveActiveWorkspaceID (novel helper) maps the active slug to its UUID via the local [[workspaces]] registry; \"\" = unknown tenant. Both the generated flat reconcile (in syncResource) and the generated dependent fan-out (in syncDependentResource) call the seam: fan-out treats \"\" as UNSCOPED enumeration (403-as-warning safety net), flat reconcile treats \"\" as SKIP-no-delete (the OPPOSITE fallback — a flat delete cannot be safely scoped without a tenant).",
+    "modules_novel.go: retain the novel module-enrichment workspace scoping carried over from the retired workspace-scoped-fanout patch (re-tagged PATCH(tenant-resolver-seam)): localModules / enrichModuleMembership take a workspaceID and scope modules + the membership reset via `projects_id IN (SELECT id FROM projects WHERE workspace = ?)`; per-module access denials are non-fatal (skip & continue); the stale-link DELETE runs only after the first successful module-issues page. This is NOT generator-covered (the novel command enumerates parents itself) and so remains a hand patch.",
+    "store.go (generated, no PATCH tag): the flat reconcile destructive victim SELECT in ReconcilePartition AND the ListIDsScoped generic-resources fallback wrap json_extract in `CASE WHEN json_valid(data) THEN json_extract(...) END` — the guaranteed short-circuit (bare `AND json_valid(data)` relies on SQLite AND-evaluation order, which is NOT guaranteed; for a DESTRUCTIVE delete use CASE). A row we cannot parse is never a victim, never deleted. This rides the generated store.go.tmpl (Round-4 fix e5321424); recorded here because the overlay carries it.",
+    "store.go (generated, no PATCH tag): childScopeColumnSources{\"projects_id\":\"project\"} + deriveScopeColumns(obj), called in UpsertBatch before the per-item typed SAVEPOINT, backfill a typed child table's NOT NULL path-placeholder scope column from the item's own singular parent reference when path injection is absent (write-through cache feeds RAW API items). This is the Bug #2 fix, produced by generation from the same x-pp-tenant-scope-column metadata; it was never separately published to the catalog (write-through-child-scope.json existed only in a local working tree), so it lands here as generated code, not a retire."
+  ],
+  "tests": [
+    "internal/store/reconcile_test.go: TestReconcilePartition_SkipsMalformedJSONRow (keep/stale/junk-HTML rows; without the json_valid guard the victim scan aborts with `malformed JSON` and sweeps nothing — verified RED; with it, the stale row deletes and the junk row survives).",
+    "internal/store/list_ids_scoped_test.go + workspace_scope_test.go + upsert_batch_test.go: the ported tests of the retired patches (ListIDsScoped tenant filter / empty-scope fallback; resolveActiveWorkspaceID; dependent fan-out scoping; deriveChildScopeFromProject) still pass against the generated code."
+  ],
+  "validated_outcome": "go build ./... + go vet ./internal/cli ./internal/store + go test ./internal/store ./internal/cli all green. Live A/B on a copy of the prod data.db (isolated USERPROFILE, prod bytes untouched) recorded in the plane PR body.",
+  "supersedes": [
+    "workspace-scoped-fanout.json (RETIRED here via git rm: store.go ListIDsScoped + sync.go parentTenantScopeColumns/fan-out now generated; modules_novel.go novel scoping carried here)",
+    "write-through-child-scope.json (NOT present on upstream/main — Bug #2 was never published to the catalog; its deriveScopeColumns backfill is introduced here as generated code)"
+  ]
+}

@@ -331,7 +331,7 @@ type sweepStatus string
 
 const statusUnchanged sweepStatus = "unchanged"
 
-const minimumGoVersion = "Go 1.26.3 or newer"
+const minimumGoVersion = "Go 1.26.5 or newer"
 
 // sweepCLI applies the canonical shape to one library/<cat>/<api>/. It patches
 // SKILL.md (canonical docs shape) and README.md (install + alternate-install

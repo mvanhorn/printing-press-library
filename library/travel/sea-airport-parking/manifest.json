@@ -1,0 +1,27 @@
+{
+  "manifest_version": "0.3",
+  "name": "sea-airport-parking-pp-mcp",
+  "display_name": "SEA Airport Parking",
+  "version": "0.1.0",
+  "description": "Check, track, and get alerted on SEA's official on-airport Reserved garage — with a local price/availability history and sold-out watch that no site or aggregator has.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/sea-airport-parking-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/sea-airport-parking-pp-mcp",
+      "args": []
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

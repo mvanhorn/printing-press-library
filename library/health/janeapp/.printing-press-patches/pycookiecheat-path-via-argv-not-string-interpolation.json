@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "pycookiecheat-path-via-argv-not-string-interpolation",
+  "applied_at": "2026-07-08",
+  "base_run_id": "20260707-170547",
+  "base_printing_press_version": "4.27.1",
+  "summary": "The cookie path and domain handed to the pycookiecheat helper must reach Python as argv, never interpolated into the -c script source; a regen that rebuilds the script by fmt.Sprintf reintroduces a code-injection / broken-literal path.",
+  "reason": "cookiePath is filepath.Join(os.UserHomeDir(), <Chrome profile dir>, \"Cookies\"). Home directories and profile names can legally contain double quotes or backslashes on macOS/Linux, which would break the Python string literal or inject arbitrary code executed under the user's own interpreter. The static script reads sys.argv[1] (domain) and sys.argv[2] (cookie file, empty -> None) so no untrusted value is ever spliced into source.",
+  "files": [
+    "internal/cli/auth.go"
+  ],
+  "validated_outcome": "go build/vet/test pass; the pycookiecheat script is a constant with the domain and path passed only as process arguments."
+}

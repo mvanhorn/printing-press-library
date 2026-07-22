@@ -1,8 +1,8 @@
 module github.com/mvanhorn/printing-press-library/library/developer-tools/openipa
 
-go 1.23.0
+go 1.26.5
 
-toolchain go1.24.1
+toolchain go1.26.5
 
 require (
 	github.com/pelletier/go-toml/v2 v2.2.4

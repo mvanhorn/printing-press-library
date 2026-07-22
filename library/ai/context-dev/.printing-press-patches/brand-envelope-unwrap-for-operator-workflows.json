@@ -1,0 +1,15 @@
+{
+  "schema_version": 2,
+  "id": "brand-envelope-unwrap-for-operator-workflows",
+  "applied_at": "2026-06-23",
+  "base_run_id": "20260623-222307",
+  "base_printing_press_version": "4.25.0",
+  "summary": "Operator workflows must unwrap the Context.dev response envelopes before reading fields: /brand/retrieve nests under \"brand\", /web/styleguide nests palette/typography under \"styleguide\", /web/extract nests the schema result under \"data\", socials is a [{type,url}] array, category lives under industries.eic[].industry, address is a structured object, and styleguide font families must be pulled from typography fontFamily/fontFallbacks (not collected as raw strings, which mixes in px sizes).",
+  "reason": "Reading these endpoints at the top level silently drops every brand/styleguide/extract field even though the calls return ok, so brand-brief shipped with only a raw scrape dump, competitor-map clustered everything as \"unknown\", schema-lab reported 0% fill on successful extractions, and asset-pack fonts listed pixel sizes. A regen must re-discover the real envelope/array shapes from the live API rather than assume flat top-level scalars and a socials map.",
+  "files": [
+    "internal/cli/operator_workflows.go",
+    "internal/cli/operator_workflows_test.go",
+    "internal/cli/public_workflows.go"
+  ],
+  "validated_outcome": "Against live bestself.co and houseofnoa.com: brand-brief returns title/description/logo/palette/typography/normalized socials/formatted address/clean ~550-byte summary; competitor-map resolves real categories and clusters by them; asset-pack and trust-check populate fully; schema-lab reports 100% fill from the data envelope; asset-pack fonts list family names only. go test ./... passes with envelope-shape regression tests for brand-brief, competitor-map, schema-lab, and asset-pack."
+}

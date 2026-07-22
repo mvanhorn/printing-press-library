@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "slug": "substack-reader",
+  "cli_name": "substack-reader-pp-cli",
+  "version": "2026.7.1",
+  "released_at": "2026-07-20T16:26:43Z",
+  "source_commit": "80867fe8953f97af3fb69ea88f3bc09eda4d6c59",
+  "printing_press_version": "4.28.0",
+  "run_id": "20260710-081225",
+  "changes": [
+    {
+      "title": "feat(substack-reader): repair archive pagination, full-text body ingest, corpus-first search",
+      "pr": 1545,
+      "url": "https://github.com/mvanhorn/printing-press-library/pull/1545",
+      "commit": "80867fe8953f97af3fb69ea88f3bc09eda4d6c59"
+    }
+  ]
+}

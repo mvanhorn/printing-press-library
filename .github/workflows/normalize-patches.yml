@@ -33,6 +33,7 @@ on:
     paths:
       - 'library/**/.printing-press-patches.json'
       - '.github/scripts/normalize-patches/**'
+      - '.github/scripts/push-generated-artifact/**'
       - '.github/workflows/normalize-patches.yml'
   workflow_dispatch:
     inputs:
@@ -52,7 +53,7 @@ jobs:
     # generated-artifact workflows. GitHub keeps only one pending run per
     # concurrency group, so a shared group lets unrelated workflows evict a
     # pending normalizer run. Push races with sibling workflows are handled by
-    # the rebase-before-push step below.
+    # the bounded retry below.
     concurrency:
       group: normalize-patches-main
       cancel-in-progress: false
@@ -142,8 +143,6 @@ jobs:
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           # [skip ci] suppresses a re-trigger of this workflow on its own commit.
           git commit -m "chore(patches): normalize patches manifests to per-patch dirs [skip ci]"
-          # Defense-in-depth against sibling generated-artifact workflows
-          # landing between checkout and push. Paths are disjoint, so the rebase
-          # is conflict-free.
-          git pull --rebase origin main
-          git push
+          # A sibling writer can land after a rebase but before the push.
+          # Retry the complete fetch/rebase/push sequence.
+          bash .github/scripts/push-generated-artifact/push.sh main

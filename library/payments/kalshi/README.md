@@ -4,8 +4,6 @@
 
 Every Kalshi feature, plus a local SQLite store that records market prices on every sync — so movers, correlations, and price history work offline. Honest about read-only vs read/write keys, with --dry-run on every mutator and a global --read-only safe-mode lock for newsroom and bot deployments.
 
-Created by [@tmchow](https://github.com/tmchow) (Trevin Chow).
-
 ## Install
 
 The recommended path installs both the `kalshi-pp-cli` binary and the `pp-kalshi` agent skill (Claude Code, Codex, Cursor, Gemini CLI, GitHub Copilot, and other agents supported by the upstream [`skills`](https://github.com/vercel-labs/skills) CLI) in one shot:
@@ -35,7 +33,7 @@ npx -y @mvanhorn/printing-press-library install kalshi --agent claude-code --age
 
 ### Without Node (Go fallback)
 
-If `npx` isn't available (no Node, offline), install the CLI directly via Go (requires Go 1.26.3 or newer):
+If `npx` isn't available (no Node, offline), install the CLI directly via Go (requires Go 1.26.5 or newer):
 
 ```bash
 go install github.com/mvanhorn/printing-press-library/library/payments/kalshi/cmd/kalshi-pp-cli@latest
@@ -120,6 +118,7 @@ Add to your Claude Desktop config (`~/Library/Application Support/Claude/claude_
 
 </details>
 
+
 ## Authentication
 
 Kalshi requires composed RSA-PSS signature auth: a UUID access key id (KALSHI_API_KEY) plus an RSA private key file (KALSHI_PRIVATE_KEY_PATH or KALSHI_PRIVATE_KEY). Kalshi issues two key tiers — read-only and read/write — and the CLI honors KALSHI_READ_ONLY=1 (or --read-only) as a client-side lock that blocks every POST/PUT/PATCH/DELETE before signing, regardless of which tier is loaded. Write commands run against a read-only key will surface a 403 from Kalshi; pair with --dry-run while debugging.
@@ -136,10 +135,10 @@ kalshi-pp-cli sync
 # browse open markets from the live API (sync first for offline filtering)
 kalshi-pp-cli markets get --status open --limit 10 --json
 
-# render the captured price history with an inline sparkline
+# render the captured price history with an inline sparkline (requires ≥2 syncs)
 kalshi-pp-cli markets history KXPRES-2028-DJT --sparkline
 
-# compute realized P&L by Kalshi taxonomy
+# compute realized P&L grouped by Kalshi category
 kalshi-pp-cli portfolio attribution --by category --since 2026-01-01 --json
 
 ```
@@ -147,14 +146,80 @@ kalshi-pp-cli portfolio attribution --by category --since 2026-01-01 --json
 ## Unique Features
 
 These capabilities aren't available in any other tool for this API.
-- **`portfolio attribution`** — See your P&L broken down by market category and series over any time period
-- **`markets history`** — Track how market odds moved over time with price progression charts
-- **`portfolio winrate`** — Calculate your win/loss ratio, expected value, and ROI across all settled positions
-- **`portfolio calendar`** — See upcoming settlements with your positions, expected payouts, and category breakdown
-- **`markets movers`** — Find markets with the biggest price swings since your last sync
-- **`markets correlate`** — Compare price histories of two markets to discover correlated events
-- **`portfolio exposure`** — See your total risk broken down by category, with concentration warnings
-- **`portfolio stale`** — Find positions in markets approaching expiry where you haven't acted recently
+
+### Local state that compounds
+- **`portfolio attribution`** — See your realized P&L broken down by market category and series over any time window — answer 'did politics actually make money this quarter?' in one command.
+
+  _Use when an agent needs realized P&L sliced by Kalshi taxonomy — the API returns flat fills and settlements; this command joins them with the category metadata required to attribute correctly._
+
+  ```bash
+  kalshi-pp-cli portfolio attribution --since 2026-01-01 --by category --json
+  ```
+- **`markets history`** — Show how a market's yes/no price moved over time, with a sparkline rendering — built from snapshots captured by every markets sync.
+
+  _Use when an agent asks 'how did this market move' or needs price-over-time for backtesting; the API only returns current price._
+
+  ```bash
+  kalshi-pp-cli markets history KXPRES-2028-DJT --since 2026-04-01 --sparkline
+  ```
+- **`portfolio winrate`** — Calculate your win/loss ratio, expected value, and ROI across all settled positions, optionally sliced by category.
+
+  _Use when an agent evaluates trading-strategy performance; no Kalshi tool computes this._
+
+  ```bash
+  kalshi-pp-cli portfolio winrate --category sports --since 2026-01-01 --json
+  ```
+- **`portfolio calendar`** — See upcoming settlements with your positions, expected payouts, and category breakdown over the next N days.
+
+  _Use when an agent needs to plan around upcoming settlements; the API surfaces positions and event expiries on different endpoints._
+
+  ```bash
+  kalshi-pp-cli portfolio calendar --days 14
+  ```
+- **`markets movers`** — Find markets with the biggest price swings since the last sync — sorted by absolute delta or by volume change.
+
+  _Use when an agent needs to surface notable market activity; the API has no 'recent movers' endpoint._
+
+  ```bash
+  kalshi-pp-cli markets movers --window 24h --category politics --json
+  ```
+- **`markets correlate`** — Compute Pearson correlation of two markets' price histories — find correlated events for hedging or signal discovery.
+
+  _Use when an agent investigates cross-market relationships; no API endpoint or other tool computes correlation across Kalshi markets._
+
+  ```bash
+  kalshi-pp-cli markets correlate KXFEDFUNDS-26FEB KXCPI-26FEB --window 30d --json
+  ```
+- **`portfolio exposure`** — Break down total exposure by category with concentration warnings when any bucket exceeds a configurable risk threshold.
+
+  _Use when an agent needs portfolio-level risk; the API doesn't aggregate exposure by Kalshi taxonomy._
+
+  ```bash
+  kalshi-pp-cli portfolio exposure --by category --warn-threshold 0.4 --json
+  ```
+- **`watch diff`** — Maintain a local watchlist of tickers; `watch diff` shows price/volume change vs the last sync per watched market — Riley's daily-snapshot ritual reduced to one command.
+
+  _Use when an agent tracks a stable set of markets across runs; the API has no watchlist concept._
+
+  ```bash
+  kalshi-pp-cli watch diff --since 24h
+  ```
+
+### Honest auth
+- **`--read-only`** — Global env-var/flag lock that blocks every mutating command client-side regardless of which key tier is loaded — pair with --dry-run on every mutator for safe scripting against read-only credentials.
+
+  _Use when an agent runs against an unknown Kalshi key tier — the read-only key tier exists and mid-script 403s are common; this surfaces the constraint client-side before the API is hit._
+
+  ```bash
+  kalshi-pp-cli --read-only portfolio create-order --ticker KXTEST --side yes --count 1 --yes-price 50 --dry-run
+  ```
+- **`subaccounts rollup`** — Aggregate positions, fills-today, balance, and exposure-by-category across every subaccount you can see — household view of risk and resting orders.
+
+  _Use when an FCM-tier user needs aggregate risk across subaccounts; no Kalshi tool surfaces a household view._
+
+  ```bash
+  kalshi-pp-cli subaccounts rollup --by category --json
+  ```
 
 ## Usage
 
@@ -426,15 +491,13 @@ Environment variables:
 - Check the resource ID is correct
 - Run the `list` command to see available items
 
-### API-specific
 
+### API-specific
 - **doctor reports `auth_status: missing private key`** — export KALSHI_PRIVATE_KEY_PATH=~/.kalshi/private_key.pem (RSA PEM from Kalshi.com → Account → API Keys)
 - **Loaded a read-only key but want to script safely** — export KALSHI_READ_ONLY=1 (or pass --read-only) — the client blocks every POST/PUT/PATCH/DELETE before signing
 - **portfolio create-order returns 403 Permission Denied** — your loaded API key is read-only. Issue a read/write key from Kalshi → Account → API Keys, or run write commands with --dry-run while debugging
 - **markets movers returns no rows or no movement** — run kalshi-pp-cli sync at least twice an hour apart — movers reads from market_price_history snapshots
-- **rate-limit errors during sync** — run kalshi-pp-cli account get-api-limits --json to inspect your tier; tune --workers down
-
----
+- **rate-limit errors during sync** — run kalshi-pp-cli account get-api-limits --json to inspect your tier; lower sync parallelism with kalshi-pp-cli sync --concurrency 2
 
 ## Known Gaps
 

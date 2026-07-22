@@ -1,0 +1,14 @@
+{
+  "api_name": "paul-graham",
+  "base_url": "https://www.paulgraham.com",
+  "source_url": "https://www.paulgraham.com/articles.html",
+  "rss_url": "https://www.paulgraham.com/rss.html",
+  "auth_type": "none",
+  "summary": "paulgraham.com exposes a static public essay index rather than a JSON API. The CLI models articles.html as the canonical index and layers read-only native commands over the static HTML and linked essay pages.",
+  "decisions": [
+    "Use articles.html as canonical source because it lists the full essay archive.",
+    "Treat rss.html as useful corroboration but not as the primary source because RSS may not cover the full historical index.",
+    "Expose read-only native commands for latest/list/search/read/links/random so agents do not need to parse raw HTML themselves.",
+    "No authentication or mutation commands are needed."
+  ]
+}

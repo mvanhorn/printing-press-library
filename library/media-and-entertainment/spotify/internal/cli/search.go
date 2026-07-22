@@ -12,57 +12,55 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// isNilOrEmpty checks whether a JSON object has nil or empty values for
-// common identifier fields (title, name, identifier, id).
-// Also checks nested "document" objects for search result wrappers.
+// isNilOrEmpty checks whether a JSON search hit is only an empty shell.
 func isNilOrEmpty(raw json.RawMessage) bool {
 	var obj map[string]interface{}
 	if err := json.Unmarshal(raw, &obj); err != nil {
 		return true
 	}
-	// Check top-level fields
-	for _, key := range []string{"title", "name", "identifier", "id"} {
-		if v, ok := obj[key]; ok {
-			if v == nil {
-				continue
-			}
-			if s, ok := v.(string); ok && strings.TrimSpace(s) != "" {
-				return false
-			}
-			// Non-string, non-nil value (e.g. numeric ID) — keep it
-			if _, ok := v.(string); !ok {
-				return false
-			}
-		}
-	}
-	// Check nested "document" for search result wrappers like {score, document: {name, ...}}
-	if doc, ok := obj["document"]; ok {
-		if docMap, ok := doc.(map[string]interface{}); ok {
-			for _, key := range []string{"title", "name", "identifier", "id", "slug"} {
-				if v, ok := docMap[key]; ok && v != nil {
-					if s, ok := v.(string); ok && strings.TrimSpace(s) != "" {
-						return false
-					}
-					if _, ok := v.(string); !ok {
-						return false
-					}
-				}
-			}
-		}
-	}
-	// If the object has a "score" field, it's likely a search result — keep it
 	if _, ok := obj["score"]; ok {
 		return false
 	}
-	return true
+	return !hasAnyNonEmptySearchValue(obj)
+}
+
+func hasAnyNonEmptySearchValue(v any) bool {
+	switch typed := v.(type) {
+	case nil:
+		return false
+	case string:
+		return strings.TrimSpace(typed) != ""
+	case bool, float64:
+		return true
+	case []any:
+		for _, item := range typed {
+			if hasAnyNonEmptySearchValue(item) {
+				return true
+			}
+		}
+	case map[string]any:
+		for _, item := range typed {
+			if hasAnyNonEmptySearchValue(item) {
+				return true
+			}
+		}
+	}
+	return false
 }
 
 // extractSearchResults unwraps API search responses by checking common envelope paths.
-func extractSearchResults(data json.RawMessage) []json.RawMessage {
+func extractSearchResults(data json.RawMessage, responsePaths ...string) []json.RawMessage {
 	// Try direct array first
 	var items []json.RawMessage
 	if json.Unmarshal(data, &items) == nil {
 		return items
+	}
+	for _, responsePath := range responsePaths {
+		if pathData, ok := responsePayloadAtPath(data, responsePath); ok {
+			if json.Unmarshal(pathData, &items) == nil {
+				return items
+			}
+		}
 	}
 	// Try common wrapper paths: data, results, items
 	var wrapped map[string]json.RawMessage
@@ -83,6 +81,7 @@ func newSearchCmd(flags *rootFlags) *cobra.Command {
 	var resourceType string
 	var limit int
 	var dbPath string
+	searchResponsePaths := []string{}
 
 	cmd := &cobra.Command{
 		Use:   "search <query>",
@@ -98,11 +97,9 @@ In local mode: searches locally synced data only.`,
   spotify-pp-cli search "error timeout"
 
   # Force local search only
-  spotify-pp-cli search "payment failed" --data-source local
-
+  spotify-pp-cli search "status" --data-source local
   # Search a specific resource type locally
-  spotify-pp-cli search "critical" --type transactions --data-source local
-
+  spotify-pp-cli search "status" --type albums --data-source local
   # JSON output for piping
   spotify-pp-cli search "critical" --json --limit 20`,
 		Annotations: map[string]string{"mcp:hidden": "true"},
@@ -117,12 +114,12 @@ In local mode: searches locally synced data only.`,
 				if err != nil {
 					return err
 				}
-				data, getErr := c.Get("/search", map[string]string{
+				data, getErr := c.Get(cmd.Context(), "/search", map[string]string{
 					"q": query,
 				})
 				if getErr == nil {
 					// Live search succeeded
-					results := extractSearchResults(data)
+					results := extractSearchResults(data, searchResponsePaths...)
 					prov := DataProvenance{Source: "live"}
 					return outputSearchResults(cmd, flags, results, limit, prov)
 				}
@@ -145,24 +142,29 @@ In local mode: searches locally synced data only.`,
 			}
 			defer db.Close()
 
+			maybeEmitSyncHints(cmd, db, resourceType, flags.maxAge)
+
 			var results []json.RawMessage
 			switch resourceType {
 			case "albums":
 				results, err = db.SearchAlbums(query, limit)
 			case "audiobooks":
 				results, err = db.SearchAudiobooks(query, limit)
-			case "browse":
-				results, err = db.SearchBrowse(query, limit)
 			case "chapters":
 				results, err = db.SearchChapters(query, limit)
 			case "episodes":
 				results, err = db.SearchEpisodes(query, limit)
-			case "playlists":
-				results, err = db.SearchPlaylists(query, limit)
+			case "me":
+				results, err = db.SearchMe(query, limit)
 			case "shows":
 				results, err = db.SearchShows(query, limit)
 			case "":
-				// Search all FTS-enabled tables individually to avoid duplicates.
+				// Search every FTS-enabled source — typed per-resource tables
+				// AND the generic resources_fts — and dedup by raw JSON so a
+				// row indexed in multiple FTS sources appears once. Without
+				// the generic-search call, rows that landed in resources_fts
+				// but not in any typed FTS table (e.g., a resource whose sync
+				// populated only the generic index) silently return zero.
 				seen := make(map[string]bool)
 				_ = seen // prevent unused error when no FTS tables exist
 				{
@@ -182,19 +184,6 @@ In local mode: searches locally synced data only.`,
 					partial, searchErr := db.SearchAudiobooks(query, limit)
 					if searchErr != nil {
 						return fmt.Errorf("search audiobooks failed: %w", searchErr)
-					}
-					for _, r := range partial {
-						key := string(r)
-						if !seen[key] {
-							seen[key] = true
-							results = append(results, r)
-						}
-					}
-				}
-				{
-					partial, searchErr := db.SearchBrowse(query, limit)
-					if searchErr != nil {
-						return fmt.Errorf("search browse failed: %w", searchErr)
 					}
 					for _, r := range partial {
 						key := string(r)
@@ -231,9 +220,9 @@ In local mode: searches locally synced data only.`,
 					}
 				}
 				{
-					partial, searchErr := db.SearchPlaylists(query, limit)
+					partial, searchErr := db.SearchMe(query, limit)
 					if searchErr != nil {
-						return fmt.Errorf("search playlists failed: %w", searchErr)
+						return fmt.Errorf("search me failed: %w", searchErr)
 					}
 					for _, r := range partial {
 						key := string(r)
@@ -256,9 +245,22 @@ In local mode: searches locally synced data only.`,
 						}
 					}
 				}
+				{
+					partial, searchErr := db.Search(query, limit)
+					if searchErr != nil {
+						return fmt.Errorf("search resources_fts failed: %w", searchErr)
+					}
+					for _, r := range partial {
+						key := string(r)
+						if !seen[key] {
+							seen[key] = true
+							results = append(results, r)
+						}
+					}
+				}
 			default:
-				// Unrecognized type — fall back to generic search
-				results, err = db.Search(query, limit)
+				// Unrecognized type -- filter generic resources by type.
+				results, err = db.Search(query, limit, resourceType)
 			}
 			if err != nil {
 				return fmt.Errorf("search failed: %w", err)
@@ -276,7 +278,7 @@ In local mode: searches locally synced data only.`,
 
 	cmd.Flags().StringVar(&resourceType, "type", "", "Filter by resource type")
 	cmd.Flags().IntVar(&limit, "limit", 50, "Maximum results to return")
-	cmd.Flags().StringVar(&dbPath, "db", "", "Database path (default: ~/.local/share/spotify-pp-cli/data.db)")
+	cmd.Flags().StringVar(&dbPath, "db", "", "SQLite database file path (default: resolved data directory data.db)")
 
 	return cmd
 }
@@ -297,23 +299,32 @@ func outputSearchResults(cmd *cobra.Command, flags *rootFlags, results []json.Ra
 		results = results[:limit]
 	}
 
-	jsonMode := flags.asJSON || !isTerminal(cmd.OutOrStdout())
-
-	// JSON mode always emits a valid envelope, including on no matches —
-	// agents pipe stdout through json.loads / jq and need parseable output
-	// regardless of result count. The filtered slice is built via make
-	// above, so it's non-nil even when empty; json.Marshal renders that
-	// as `[]` rather than `null`.
-	if jsonMode {
+	// Machine/piped mode always emits a valid envelope, including on no
+	// matches — agents pipe stdout through json.loads / jq and need parseable
+	// output regardless of result count. Explicit row formats render the result
+	// array directly so --csv/--plain can produce real tabular output.
+	if !wantsHumanTable(cmd.OutOrStdout(), flags) {
 		data, err := json.Marshal(results)
 		if err != nil {
 			return err
+		}
+		if flags.csv || flags.plain || flags.quiet {
+			return printOutputWithFlags(cmd.OutOrStdout(), data, flags)
+		}
+		outputFlags := *flags
+		if flags.selectFields != "" {
+			data = filterFields(data, flags.selectFields)
+			outputFlags.selectFields = ""
+			outputFlags.compact = false
+		} else if flags.compact {
+			data = compactFields(data)
+			outputFlags.compact = false
 		}
 		wrapped, err := wrapWithProvenance(data, prov)
 		if err != nil {
 			return err
 		}
-		return printOutput(cmd.OutOrStdout(), wrapped, true)
+		return printOutputWithFlags(cmd.OutOrStdout(), wrapped, &outputFlags)
 	}
 
 	if len(results) == 0 {

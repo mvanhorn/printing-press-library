@@ -1,0 +1,68 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-06-23T19:48:12.424606Z",
+  "printing_press_version": "4.25.0",
+  "api_name": "pexels",
+  "display_name": "Pexels",
+  "cli_name": "pexels-pp-cli",
+  "creator": {
+    "handle": "vcolombo",
+    "name": "Vincent Colombo"
+  },
+  "contributors": [
+    {
+      "handle": "tmchow",
+      "name": "Trevin Chow"
+    }
+  ],
+  "owner": "vcolombo",
+  "printer": "vcolombo",
+  "printer_name": "Vincent Colombo",
+  "spec_path": "pexels-spec.yaml",
+  "spec_format": "internal",
+  "spec_checksum": "sha256:d4de5bbd6024a39048d0a270f88d5fab5b07e1899c9859eba4f70f3f85b9a2b9",
+  "run_id": "20260623-122348-b4bba74f",
+  "category": "media-and-entertainment",
+  "description": "Every Pexels photo, video, and collection endpoint — plus a local store that adds quota forecasting, dedup-aware bulk download, and one-shot attribution exports no other Pexels tool has.",
+  "mcp_binary": "pexels-pp-mcp",
+  "mcp_tool_count": 9,
+  "mcp_public_tool_count": 8,
+  "mcp_ready": "full",
+  "api_version": "0.1.0",
+  "auth_type": "api_key",
+  "auth_env_vars": [
+    "PEXELS_API_KEY"
+  ],
+  "novel_features": [
+    {
+      "name": "Quota forecaster",
+      "command": "quota forecast",
+      "description": "Check before a bulk pull whether it fits your remaining hourly/monthly Pexels quota, with a reset ETA."
+    },
+    {
+      "name": "Best-fit resolution picker",
+      "command": "resolve",
+      "description": "Pick the smallest photo size or video file that meets a target dimension without upscaling."
+    },
+    {
+      "name": "Attribution ledger + SOURCES export",
+      "command": "attribution export",
+      "description": "Emit a SOURCES.md and per-file .meta.json sidecars crediting every photographer in your local download ledger."
+    },
+    {
+      "name": "Dedup + rate-aware bulk download",
+      "command": "download",
+      "description": "Bulk-download a query, skipping media already in your ledger and checkpointing each page so a hit quota stops you gracefully."
+    },
+    {
+      "name": "Offline re-search of synced media",
+      "command": "search",
+      "description": "Full-text search media you already synced, with stable ordering and no API call."
+    },
+    {
+      "name": "Photographer attribution roll-up",
+      "command": "analytics",
+      "description": "Group your synced photos by photographer to review credit balance and licensing coverage."
+    }
+  ]
+}

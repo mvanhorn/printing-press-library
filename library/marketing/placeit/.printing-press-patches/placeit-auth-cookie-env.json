@@ -1,0 +1,11 @@
+{
+  "schema_version": 2,
+  "id": "placeit-auth-cookie-env",
+  "applied_at": "2026-06-17",
+  "base_run_id": "20260616-010520-922cfd05",
+  "base_printing_press_version": "4.24.0",
+  "summary": "Pass the cookie domain and file path to the pycookiecheat Python helper via process environment instead of interpolating them into the -c source.",
+  "reason": "filepath.ToSlash does not escape double quotes, so a Chrome data dir containing a quote could terminate the Python string literal early or inject code. Env values never pass through a shell, eliminating the escaping concern (Greptile P2-security on auth.go).",
+  "files": ["internal/cli/auth.go"],
+  "validated_outcome": "go build ./... and go vet ./... pass; live dogfood gate re-run green."
+}

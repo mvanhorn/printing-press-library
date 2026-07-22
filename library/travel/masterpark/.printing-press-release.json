@@ -2,17 +2,17 @@
   "schema_version": 1,
   "slug": "masterpark",
   "cli_name": "masterpark-pp-cli",
-  "version": "2026.6.1",
-  "released_at": "2026-06-10T18:25:48Z",
-  "source_commit": "8071ed0d142d19b1dbfe9ba7903d702f18d421e0",
+  "version": "2026.7.1",
+  "released_at": "2026-07-08T18:21:21Z",
+  "source_commit": "11d7b4ea752c9c8fb8909037133058eb57560cc0",
   "printing_press_version": "4.24.0",
   "run_id": "manual-masterpark-20260609T023930Z",
   "changes": [
     {
-      "title": "feat(masterpark): add masterpark",
-      "pr": 1119,
-      "url": "https://github.com/mvanhorn/printing-press-library/pull/1119",
-      "commit": "8071ed0d142d19b1dbfe9ba7903d702f18d421e0"
+      "title": "fix(catalog): require Go 1.26.5 across published modules",
+      "pr": 1467,
+      "url": "https://github.com/mvanhorn/printing-press-library/pull/1467",
+      "commit": "11d7b4ea752c9c8fb8909037133058eb57560cc0"
     }
   ]
 }

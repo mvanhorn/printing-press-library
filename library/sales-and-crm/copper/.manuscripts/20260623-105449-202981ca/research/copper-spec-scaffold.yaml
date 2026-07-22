@@ -1,0 +1,67 @@
+name: copper
+description: "Copper CRM CLI"
+version: "0.1.0"
+base_url: "https://api.copper.com/developer_api/v1"
+health_check_path: "/account"
+required_headers:
+  - name: X-PW-Application
+    value: "developer_api"
+auth:
+  type: api_key
+  header: "X-PW-AccessToken"
+  format: "{token}"
+  env_vars:
+    - COPPER_API_KEY
+  additional_headers:
+    - header: X-PW-UserEmail
+      in: header
+      env_var:
+        name: COPPER_USER_EMAIL
+        kind: per_call
+resources:
+  people:
+    description: "Manage people (contacts)"
+    endpoints:
+      search:
+        method: POST
+        path: "/people/search"
+        description: "List/search people"
+        body:
+          - name: page_number
+            type: int
+            default: 1
+            description: "Page number (1-based)"
+          - name: page_size
+            type: int
+            default: 20
+            description: "Results per page (max 200)"
+          - name: name
+            type: string
+            description: "Filter by full name"
+        response:
+          type: array
+          item: Person
+        pagination:
+          type: offset
+      get:
+        method: GET
+        path: "/people/{id}"
+        description: "Fetch a person by id"
+        params:
+          - name: id
+            type: int
+            required: true
+            positional: true
+            description: "Person id"
+        response:
+          type: object
+          item: Person
+types:
+  Person:
+    fields:
+      - name: id
+        type: int
+      - name: name
+        type: string
+      - name: email
+        type: string

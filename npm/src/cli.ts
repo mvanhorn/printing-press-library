@@ -78,6 +78,8 @@ Examples:
   printing-press-library list --installed
 
 Install options:
+  --all                  Install every CLI in the catalog
+  --category <cat>       Install every CLI in a catalog category (repeatable)
   --cli-only             Install only the Go binary (skip the focused skill)
   --skill-only           Install only the focused skill (skip the Go binary)
   --agent <agent>        Constrain skill install to a specific agent (repeatable)

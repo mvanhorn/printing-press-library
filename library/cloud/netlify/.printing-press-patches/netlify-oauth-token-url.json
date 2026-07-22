@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "id": "netlify-oauth-token-url",
+  "applied_at": "2026-07-03",
+  "base_run_id": "netlify-session",
+  "base_printing_press_version": "4.27.0",
+  "summary": "Set the OAuth token URL in the generated login command to https://api.netlify.com/oauth/token.",
+  "reason": "The generator emitted tokenURL = \"\", so 'netlify-pp-cli login' always failed with 'no Host in request URL'. Flagged P0 by Greptile.",
+  "files": ["internal/cli/auth.go"],
+  "validated_outcome": "go build + go vet clean; login now posts to the real Netlify token endpoint.",
+  "upstream_issue": ""
+}

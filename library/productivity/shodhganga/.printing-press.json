@@ -1,0 +1,53 @@
+{
+  "schema_version": 2,
+  "generated_at": "2026-07-19T03:11:08.371305066Z",
+  "printing_press_version": "4.29.0",
+  "api_name": "shodhganga",
+  "display_name": "Shodhganga",
+  "cli_name": "shodhganga-pp-cli",
+  "creator": {
+    "name": "Vikas",
+    "handle": "vikas-phatak"
+  },
+  "printer": "vikas-phatak",
+  "printer_name": "Vikas",
+  "spec_path": "shodhganga-spec.yaml",
+  "spec_format": "internal",
+  "spec_checksum": "sha256:6031383384402d7b8c4ccd6f904feb59220f1c21b8f069264bb8e339cc32ec46",
+  "run_id": "20260719-022158-deedd460",
+  "category": "productivity",
+  "description": "Structured, scriptable, agent-native access to India's national reservoir of PhD theses — the machine API Shodhganga never shipped.",
+  "mcp_binary": "shodhganga-pp-mcp",
+  "mcp_tool_count": 4,
+  "mcp_public_tool_count": 4,
+  "mcp_ready": "full",
+  "api_version": "0.1.0",
+  "auth_type": "none",
+  "novel_features": [
+    {
+      "name": "Offline corpus harvest",
+      "command": "harvest",
+      "description": "Mirror a research area's theses into a local database so you can search and analyze offline without re-hitting the site."
+    },
+    {
+      "name": "Guide-centric index",
+      "command": "guide",
+      "description": "List every thesis supervised by a given research guide across the harvested corpus."
+    },
+    {
+      "name": "University research profile",
+      "command": "university stats",
+      "description": "Aggregate a university's theses in the local store into a profile: thesis count, subject spread, and year range."
+    },
+    {
+      "name": "Subject/year trends",
+      "command": "trends",
+      "description": "Show how thesis counts for a subject change over completion year across the harvested corpus."
+    },
+    {
+      "name": "Similar theses",
+      "command": "similar",
+      "description": "Find theses in the local store that share the most subject keywords with a given thesis."
+    }
+  ]
+}

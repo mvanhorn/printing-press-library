@@ -1,7 +1,8 @@
 {
-  "dir": "/Users/omarshahine/printing-press/.runstate/omarshahine-b8c1e42a/runs/20260511-034611/working/jimmy-johns-pp-cli",
-  "spec_path": "/Users/omarshahine/printing-press/.runstate/omarshahine-b8c1e42a/runs/20260511-034611/research/jimmy-johns-spec.yaml",
-  "verdict": "WARN",
+  "dir": "\u003ccli-dir\u003e/jimmy-johns-pp-cli",
+  "spec_path": "\u003ccli-dir\u003e/spec.yaml",
+  "spec_source": "bundled",
+  "verdict": "PASS",
   "path_check": {
     "tested": 0,
     "valid": 0,
@@ -13,26 +14,34 @@
     "spec_scheme": "",
     "generated_format": "unknown",
     "match": true,
-    "detail": "spec not provided or no bot/bearer/basic scheme detected"
+    "detail": "no bot/bearer/basic scheme detected"
   },
   "browser_session_check": {
     "required": false,
     "pass": true,
     "detail": "browser-session auth not required"
   },
+  "oauth_scope_coverage_check": {
+    "checked": 0,
+    "covered": 0,
+    "skipped": true,
+    "detail": "no OAuth-scoped endpoints in spec"
+  },
   "dead_flags": {
-    "total": 18,
+    "total": 22,
     "dead": 0
   },
   "dead_functions": {
-    "total": 53,
+    "total": 72,
     "dead": 0
   },
   "pipeline_check": {
     "sync_calls_domain": true,
     "search_calls_domain": false,
-    "domain_tables": 2,
-    "detail": "sync uses domain-specific Upsert methods; search methods not found; 2 domain tables found"
+    "domain_tables": 4,
+    "sync_file_emitted": true,
+    "sync_resources_present": true,
+    "detail": "sync uses domain-specific Upsert methods; search methods not found; 4 domain tables found"
   },
   "example_check": {
     "tested": 10,
@@ -42,10 +51,13 @@
   },
   "wiring_check": {
     "command_tree": {
-      "defined": 54,
-      "registered": 54
+      "defined": 71,
+      "registered": 71
     },
     "config_consistency": {
+      "write_fields": [
+        ", token, "
+      ],
       "consistent": true
     },
     "workflow_completeness": {
@@ -56,8 +68,9 @@
     }
   },
   "novel_features_check": {
-    "planned": 3,
-    "found": 3
+    "planned": 0,
+    "found": 0,
+    "skipped": true
   },
   "mcp_surface_parity": {
     "state": "runtime_walking",
@@ -65,40 +78,26 @@
     "detail": "MCP surface mirrors the Cobra tree at runtime"
   },
   "reimplementation_check": {
-    "checked": 3,
+    "checked": 0,
     "exempted_via_store": 0,
-    "suspicious": [
-      {
-        "command": "menu unwich-convert",
-        "file": "menu_unwich.go",
-        "reason": "hand-rolled response: no API client call, no store access"
-      },
-      {
-        "command": "order plan",
-        "file": "order_plan.go",
-        "reason": "hand-rolled response: no API client call, no store access"
-      },
-      {
-        "command": "menu half-and-half",
-        "file": "menu_half_and_half.go",
-        "reason": "hand-rolled response: no API client call, no store access"
-      }
-    ]
+    "skipped": true
   },
   "source_client_check": {
     "checked": 0,
     "skipped": true
   },
   "print_json_filtered_check": {
-    "checked": 47
+    "checked": 55
   },
   "test_presence": {
-    "checked": 0
+    "checked": 1
   },
   "naming_check": {
-    "checked": 47
+    "checked": 55
   },
-  "issues": [
-    "3/3 novel features look reimplemented: menu unwich-convert (menu_unwich.go) — hand-rolled response: no API client call, no store access; order plan (order_plan.go) — hand-rolled response: no API client call, no store access; menu half-and-half (menu_half_and_half.go) — hand-rolled response: no API client call, no store access"
-  ]
+  "sync_param_drop_check": {
+    "checked": 0,
+    "skipped": true
+  },
+  "issues": null
 }

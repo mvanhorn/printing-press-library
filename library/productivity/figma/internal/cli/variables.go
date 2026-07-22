@@ -11,16 +11,19 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func newVariablesCmd(flags *rootFlags) *cobra.Command {
+func newNovelVariablesCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "variables",
 		Short: "Variable analysis (use 'files variables' for raw API mirrors).",
 	}
-	cmd.AddCommand(newVariablesExplainCmd(flags))
+	cmd.AddCommand(newNovelVariablesExplainCmd(flags))
 	return cmd
 }
 
-func newVariablesExplainCmd(flags *rootFlags) *cobra.Command {
+// pp:data-source local
+// variables explain scans the cached node tree and component table in the local
+// SQLite store; it never calls the live API. Run 'figma-pp-cli sync' first.
+func newNovelVariablesExplainCmd(flags *rootFlags) *cobra.Command {
 	var name, dbPath string
 
 	cmd := &cobra.Command{

@@ -37,7 +37,7 @@ npx -y @mvanhorn/printing-press-library install trustpilot --agent claude-code -
 
 ### Without Node (Go fallback)
 
-If `npx` isn't available (no Node, offline), install the CLI directly via Go (requires Go 1.26.3 or newer):
+If `npx` isn't available (no Node, offline), install the CLI directly via Go (requires Go 1.26.5 or newer):
 
 ```bash
 go install github.com/mvanhorn/printing-press-library/library/marketing/trustpilot/cmd/trustpilot-pp-cli@latest
@@ -248,13 +248,13 @@ Run `trustpilot-pp-cli --help` for the full command reference and flag list.
 
 Search Trustpilot for companies by name and resolve to their canonical domain
 
-- **`trustpilot-pp-cli companies search`** - Search for companies matching a name; returns identifyingName domains usable with reviews fetch
+- **`trustpilot-pp-cli companies search`** - Search for companies matching a name; returns identifyingName domains usable with reviews-fetch
 
 ### reviews
 
 Fetch Trustpilot reviews for a company
 
-- **`trustpilot-pp-cli reviews list`** - Fetch a page of reviews for a company by domain (use 'reviews fetch <domain>' from the CLI). Authenticated via aws-waf-token cookie harvested with auth login.
+- **`trustpilot-pp-cli reviews list`** - Fetch a page of reviews for a company by domain (use 'reviews-fetch <domain>' from the CLI). Authenticated via aws-waf-token cookie harvested with auth login.
 
 ## Output Formats
 

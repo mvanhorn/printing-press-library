@@ -53,9 +53,9 @@ func newScoresCmd(flags *rootFlags) *cobra.Command {
 				params["limit"] = fmt.Sprintf("%d", limit)
 			}
 
-			data, err := c.Get(path, params)
+			data, err := c.Get(cmd.Context(), path, params)
 			if err != nil {
-				return classifyAPIError(err)
+				return classifyAPIError(err, flags)
 			}
 
 			events := parseScoreEvents(data)

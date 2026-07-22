@@ -14,9 +14,9 @@ Detection strategy:
     flow-sequence triggers, block-scalar `ref: >-` with the value on the
     next line) and required a patch per quirk. Structural parsing
     eliminates the whole class.
-  - R3 (go.mod replace) and R6 (module-path drift) operate on go.mod
+  - R3 (go.mod replace), R7 (library Go floor), and R8 (module-path drift) operate on go.mod
     files; a regex-on-text approach is appropriate there.
-  - R5 (npm lifecycle scripts) parses npm/package.json as JSON and
+  - R6 (npm lifecycle scripts) parses npm/package.json as JSON and
     compares head vs base script tables.
 """
 
@@ -29,6 +29,10 @@ from pathlib import PurePosixPath
 from typing import Any
 
 import yaml
+
+
+# Fallback for unit tests and bootstrap scans before .go-version exists on base.
+DEFAULT_GO_FLOOR = "1.26.5"
 
 
 # ---------------------------------------------------------------------------
@@ -64,12 +68,17 @@ class FileChange:
     lines added in this diff. Used by R3 (gomod_replace) for line-level
     diff awareness; R1/R2/R4 use structural diff (parse base + head) so
     they don't depend on added_lines.
+
+    go_floor is the repo-wide Go floor read from .go-version at the scanned
+    head ref. Tests and first-introduction bootstraps fall back to the current
+    floor constant below.
     """
 
     path: str
     base_content: str | None
     head_content: str | None
     added_lines: list[tuple[int, str]]
+    go_floor: str = DEFAULT_GO_FLOOR
 
 
 # ---------------------------------------------------------------------------
@@ -259,6 +268,35 @@ def _walk_go_env_overrides(parsed: Any) -> list[str]:
     return found
 
 
+def _walk_setup_go_version_literals(parsed: Any) -> list[str]:
+    """Return literal `go-version` values from actions/setup-go steps."""
+    found: list[str] = []
+    if not isinstance(parsed, dict):
+        return found
+    jobs = parsed.get("jobs")
+    if not isinstance(jobs, dict):
+        return found
+    for job in jobs.values():
+        if not isinstance(job, dict):
+            continue
+        steps = job.get("steps")
+        if not isinstance(steps, list):
+            continue
+        for step in steps:
+            if not isinstance(step, dict):
+                continue
+            uses = step.get("uses")
+            if not isinstance(uses, str) or not uses.startswith("actions/setup-go"):
+                continue
+            with_block = step.get("with")
+            if not isinstance(with_block, dict):
+                continue
+            version = with_block.get("go-version")
+            if version is not None:
+                found.append(str(version).strip())
+    return found
+
+
 def _collect_go_env_from(env_block: Any, out: list[str]) -> None:
     if not isinstance(env_block, dict):
         return
@@ -276,6 +314,21 @@ def _find_line_in(content: str | None, needle: str) -> int | None:
         if needle in line:
             return idx
     return None
+
+
+def _compare_go_versions(left: str, right: str) -> int:
+    def parts(value: str) -> list[int]:
+        return [int(part) for part in value.strip().removeprefix("go").split(".")]
+
+    left_parts = parts(left)
+    right_parts = parts(right)
+    width = max(len(left_parts), len(right_parts))
+    for idx in range(width):
+        lval = left_parts[idx] if idx < len(left_parts) else 0
+        rval = right_parts[idx] if idx < len(right_parts) else 0
+        if lval != rval:
+            return -1 if lval < rval else 1
+    return 0
 
 
 # ---------------------------------------------------------------------------
@@ -573,7 +626,55 @@ def signal_go_env_override(change: FileChange) -> list[Finding]:
 
 
 # ---------------------------------------------------------------------------
-# R5: postinstall / preinstall / prepare scripts added to npm/package.json
+# R5: setup-go must read the repo-wide .go-version
+# ---------------------------------------------------------------------------
+
+
+def signal_setup_go_uses_go_version_file(change: FileChange) -> list[Finding]:
+    """R5. Go workflow versions must come from .go-version. Hard-coded
+    setup-go pins make emergency vulnerability bumps a multi-file hunt, and
+    stale pins can keep CI on a vulnerable standard library after go.mod files
+    move forward.
+
+    Structural diff: fires only for literal pins newly introduced by the PR.
+    """
+    if not is_workflow(change.path) or change.head_content is None:
+        return []
+
+    head_literals = set(_walk_setup_go_version_literals(_parse_workflow(change.head_content)))
+    if not head_literals:
+        return []
+
+    base_literals: set[str] = set()
+    if change.base_content is not None:
+        base_literals = set(_walk_setup_go_version_literals(_parse_workflow(change.base_content)))
+
+    new_literals = sorted(head_literals - base_literals)
+    if not new_literals:
+        return []
+
+    literal = new_literals[0]
+    return [
+        Finding(
+            path=change.path,
+            line=_find_line_in(change.head_content, "go-version"),
+            severity="block",
+            signal_id="setup_go_hardcoded_version",
+            message=(
+                "Workflow pins actions/setup-go with `go-version: %s`. Go "
+                "toolchain floor bumps must be single-source so vulnerability "
+                "fixes do not leave stale workflow pins behind." % literal
+            ),
+            remediation=(
+                "Use `go-version-file: .go-version` in actions/setup-go and "
+                "bump .go-version when the repo-wide Go floor changes."
+            ),
+        )
+    ]
+
+
+# ---------------------------------------------------------------------------
+# R6: postinstall / preinstall / prepare scripts added to npm/package.json
 # ---------------------------------------------------------------------------
 
 
@@ -581,7 +682,7 @@ _WATCHED_NPM_SCRIPTS = ("preinstall", "postinstall", "prepare")
 
 
 def signal_npm_lifecycle_script(change: FileChange) -> list[Finding]:
-    """R5. Adding postinstall / preinstall / prepare to npm/package.json is
+    """R6. Adding postinstall / preinstall / prepare to npm/package.json is
     the Axios attack shape: the lifecycle hook fires on every `npm install`
     or `npx` invocation and runs attacker code in user shells.
     """
@@ -625,7 +726,69 @@ def signal_npm_lifecycle_script(change: FileChange) -> list[Finding]:
 
 
 # ---------------------------------------------------------------------------
-# R6: module-path drift on existing library go.mod
+# R7: library go.mod Go directive below repo floor
+# ---------------------------------------------------------------------------
+
+
+_GO_DIRECTIVE = re.compile(r"^\s*go\s+(\S+)", re.MULTILINE)
+
+
+def _extract_go_directive(content: str | None) -> str | None:
+    if not content:
+        return None
+    match = _GO_DIRECTIVE.search(content)
+    return match.group(1) if match else None
+
+
+def signal_library_go_floor(change: FileChange) -> list[Finding]:
+    """R7. Published library modules must not move below the repo-wide Go
+    floor. This catches stale go.mod edits after an emergency floor bump.
+    """
+    if not is_library_gomod(change.path) or change.head_content is None:
+        return []
+
+    declared = _extract_go_directive(change.head_content)
+    if declared is None:
+        return []
+
+    try:
+        below_floor = _compare_go_versions(declared, change.go_floor) < 0
+    except ValueError:
+        return [
+            Finding(
+                path=change.path,
+                line=_find_line(change.head_content, declared),
+                severity="block",
+                signal_id="library_go_directive_unparseable",
+                message="library go.mod declares an unparseable Go directive: %s." % declared,
+                remediation="Use a numeric Go version at or above the repo floor in .go-version.",
+            )
+        ]
+
+    if not below_floor:
+        return []
+
+    return [
+        Finding(
+            path=change.path,
+            line=_find_line(change.head_content, declared),
+            severity="block",
+            signal_id="library_go_directive_below_floor",
+            message=(
+                "library go.mod declares go %s, below the repo-wide floor %s. "
+                "Published CLI installs would build with an older standard library."
+                % (declared, change.go_floor)
+            ),
+            remediation=(
+                "Bump this module's go directive to %s or newer when touching "
+                "library go.mod files." % change.go_floor
+            ),
+        )
+    ]
+
+
+# ---------------------------------------------------------------------------
+# R8: module-path drift on existing library go.mod
 # ---------------------------------------------------------------------------
 
 
@@ -729,7 +892,9 @@ ALL_SIGNALS = (
     signal_id_token_outside_allowlist,
     signal_gomod_replace,
     signal_go_env_override,
+    signal_setup_go_uses_go_version_file,
     signal_npm_lifecycle_script,
+    signal_library_go_floor,
     signal_module_path_drift,
 )
 

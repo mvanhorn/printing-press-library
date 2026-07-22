@@ -56,5 +56,6 @@
       "command": "articles for-recipe",
       "description": "Find synced articles that mention a given recipe in their relatedReading."
     }
-  ]
+  ],
+  "description": "Search, browse, and read Food52 from your terminal — with offline FTS, pantry matching, recipe scaling, and the editorial signals other tools throw away."
 }

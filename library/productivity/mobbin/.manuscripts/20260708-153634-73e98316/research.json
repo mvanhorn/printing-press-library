@@ -1,0 +1,268 @@
+{
+  "api_name": "mobbin",
+  "novelty_score": 8,
+  "alternatives": [
+    {
+      "name": "pdcolandrea/mobbin-mcp",
+      "url": "https://github.com/pdcolandrea/mobbin-mcp",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 35,
+      "last_updated": "",
+      "command_count": 7,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "underthestars-zhy/MobbinAPI",
+      "url": "https://github.com/underthestars-zhy/MobbinAPI",
+      "language": "Swift",
+      "install_method": "",
+      "stars": 39,
+      "last_updated": "",
+      "command_count": 8,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "ismailsaleekh/mobbin-agent",
+      "url": "https://github.com/ismailsaleekh/mobbin-agent",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 10,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "solejay/mobbin-cli",
+      "url": "https://lobehub.com/skills/solejay-mobbin-cli-mobbin-app-screens",
+      "language": "JavaScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 3,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "YonasValentin/design-inspiration-mcp-server",
+      "url": "https://github.com/YonasValentin/design-inspiration-mcp-server",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 1,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-07-08T22:44:36Z",
+  "novel_features": [
+    {
+      "name": "Pattern Deck Export",
+      "command": "deck",
+      "description": "Build a design-crit deck for a pattern across an industry: searches matching screens, downloads full-res images from the Bytescale CDN, packages a zip with a manifest CSV.",
+      "rationale": "Chains search + Bytescale CDN URL translation + batch full-res download + manifest CSV. Mobbin's UI has no deck export.",
+      "example": "mobbin-pp-cli deck \"fintech paywalls\" --platform web --limit 20 --export-zip ./deck.zip --agent",
+      "why_it_matters": "Replaces the 20-tab screenshot-and-rename loop designers do every crit week with one command and a reproducible artifact.",
+      "group": "Design crit workflows"
+    },
+    {
+      "name": "Offline Pattern Bench",
+      "command": "bench",
+      "description": "Cross-app leaderboard for any pattern from the local store: count, last seen, top apps that ship it.",
+      "rationale": "Aggregates screens × patterns × apps in local SQLite. No Mobbin endpoint returns this shape.",
+      "example": "mobbin-pp-cli bench --pattern paywall --industry fintech --platform web --agent",
+      "why_it_matters": "Answers \"who has shipped this pattern lately?\" instantly without re-scrolling Mobbin's UI.",
+      "group": "Design crit workflows"
+    },
+    {
+      "name": "Flow Audit with Delta",
+      "command": "audit",
+      "description": "Time-windowed flow audit across an industry: app, flow name, step count, captured_at — with --since support for delta-since-last-quarter reports.",
+      "rationale": "Joins synced flows × apps × industry × captured_at with --since. Mobbin's API exposes no time filter.",
+      "example": "mobbin-pp-cli audit onboarding --platform web --industry b2b-saas --since 60d --agent --select app,flow,step_count,captured_at",
+      "why_it_matters": "Quarterly onboarding/checkout/empty-state audits stop being a manual diff against last quarter's Notion doc.",
+      "group": "Longitudinal analysis"
+    },
+    {
+      "name": "Version Drift Watch",
+      "command": "drift",
+      "description": "Diff an app's flows + screens between local snapshots; surface what changed (added/removed/screen count).",
+      "rationale": "Local app_versions snapshots over time. Mobbin's API exposes only current state — longitudinal diff is a local-store-only feature.",
+      "example": "mobbin-pp-cli drift stripe-web --since 30d --agent",
+      "why_it_matters": "Tracks competitor product evolution. \"What did Stripe ship since last month?\" was unanswerable before.",
+      "group": "Longitudinal analysis"
+    },
+    {
+      "name": "Batch Full-Res Grab",
+      "command": "grab",
+      "description": "Batch-download matching screens at 1920px from Bytescale with deterministic filenames and a manifest.json side-car for downstream tooling.",
+      "rationale": "Bytescale.mobbin.com URL translation + filename templating + manifest.json side-car. No tool batch-downloads with sensible filenames.",
+      "example": "mobbin-pp-cli grab --pattern empty-state --platform web --industry fintech --out ./refs --rename '{app}_{pattern}_{idx}.png'",
+      "why_it_matters": "Replaces hand-dragging 20 PNGs into Finder. The manifest.json is what Figma/Storyboard plugins consume.",
+      "group": "Design crit workflows"
+    },
+    {
+      "name": "Cross-Platform Parity",
+      "command": "cross",
+      "description": "Fan out a pattern query across web AND iOS for one app set; join results on app slug; output a side-by-side parity manifest.",
+      "rationale": "Two platform fan-outs joined on app slug locally. Mobbin's API is platform-scoped — cross-platform requires two calls + join.",
+      "example": "mobbin-pp-cli cross \"paywall\" --apps stripe,linear,figma --agent",
+      "why_it_matters": "Web product designers checking whether the iOS reference still matches the desktop pattern. The user's explicit dual-platform ask.",
+      "group": "Design crit workflows"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Pattern Deck Export",
+      "command": "deck",
+      "description": "Build a design-crit deck for a pattern across an industry: searches matching screens, downloads full-res images from the Bytescale CDN, packages a zip with a manifest CSV.",
+      "rationale": "Chains search + Bytescale CDN URL translation + batch full-res download + manifest CSV. Mobbin's UI has no deck export.",
+      "example": "mobbin-pp-cli deck \"fintech paywalls\" --platform web --limit 20 --export-zip ./deck.zip --agent",
+      "why_it_matters": "Replaces the 20-tab screenshot-and-rename loop designers do every crit week with one command and a reproducible artifact.",
+      "group": "Design crit workflows"
+    },
+    {
+      "name": "Offline Pattern Bench",
+      "command": "bench",
+      "description": "Cross-app leaderboard for any pattern from the local store: count, last seen, top apps that ship it.",
+      "rationale": "Aggregates screens × patterns × apps in local SQLite. No Mobbin endpoint returns this shape.",
+      "example": "mobbin-pp-cli bench --pattern paywall --industry fintech --platform web --agent",
+      "why_it_matters": "Answers \"who has shipped this pattern lately?\" instantly without re-scrolling Mobbin's UI.",
+      "group": "Design crit workflows"
+    },
+    {
+      "name": "Flow Audit with Delta",
+      "command": "audit",
+      "description": "Time-windowed flow audit across an industry: app, flow name, step count, captured_at — with --since support for delta-since-last-quarter reports.",
+      "rationale": "Joins synced flows × apps × industry × captured_at with --since. Mobbin's API exposes no time filter.",
+      "example": "mobbin-pp-cli audit onboarding --platform web --industry b2b-saas --since 60d --agent --select app,flow,step_count,captured_at",
+      "why_it_matters": "Quarterly onboarding/checkout/empty-state audits stop being a manual diff against last quarter's Notion doc.",
+      "group": "Longitudinal analysis"
+    },
+    {
+      "name": "Version Drift Watch",
+      "command": "drift",
+      "description": "Diff an app's flows + screens between local snapshots; surface what changed (added/removed/screen count).",
+      "rationale": "Local app_versions snapshots over time. Mobbin's API exposes only current state — longitudinal diff is a local-store-only feature.",
+      "example": "mobbin-pp-cli drift stripe-web --since 30d --agent",
+      "why_it_matters": "Tracks competitor product evolution. \"What did Stripe ship since last month?\" was unanswerable before.",
+      "group": "Longitudinal analysis"
+    },
+    {
+      "name": "Batch Full-Res Grab",
+      "command": "grab",
+      "description": "Batch-download matching screens at 1920px from Bytescale with deterministic filenames and a manifest.json side-car for downstream tooling.",
+      "rationale": "Bytescale.mobbin.com URL translation + filename templating + manifest.json side-car. No tool batch-downloads with sensible filenames.",
+      "example": "mobbin-pp-cli grab --pattern empty-state --platform web --industry fintech --out ./refs --rename '{app}_{pattern}_{idx}.png'",
+      "why_it_matters": "Replaces hand-dragging 20 PNGs into Finder. The manifest.json is what Figma/Storyboard plugins consume.",
+      "group": "Design crit workflows"
+    },
+    {
+      "name": "Cross-Platform Parity",
+      "command": "cross",
+      "description": "Fan out a pattern query across web AND iOS for one app set; join results on app slug; output a side-by-side parity manifest.",
+      "rationale": "Two platform fan-outs joined on app slug locally. Mobbin's API is platform-scoped — cross-platform requires two calls + join.",
+      "example": "mobbin-pp-cli cross \"paywall\" --apps stripe,linear,figma --agent",
+      "why_it_matters": "Web product designers checking whether the iOS reference still matches the desktop pattern. The user's explicit dual-platform ask.",
+      "group": "Design crit workflows"
+    }
+  ],
+  "narrative": {
+    "display_name": "Mobbin",
+    "headline": "Every Mobbin screen, flow, and pattern — searchable offline, deckable in one command, with longitudinal drift no Mobbin tool ships.",
+    "value_prop": "Wraps Mobbin's curated library of shipped UI (web + mobile) with a local SQLite mirror, full-res batch downloads from the Bytescale CDN, and time-windowed audits across apps. Built for the Wednesday design crit and the quarterly onboarding audit. Uses your existing Chrome session via `auth login --chrome` — no extra API key, no paid MCP.",
+    "auth_narrative": "Mobbin has no public API key. The CLI imports your logged-in Chrome cookies via pycookiecheat, cookies, or cookie-scoop-cli (one is required). Run `mobbin-pp-cli auth login --chrome` and the CLI handles the split Supabase JWT cookies (`sb-ujasntkfphywizsdaapi-auth-token.0` / `.1`) and refreshes them automatically. Free-tier sessions work for trending, discover, filters, and searchable apps; full content search and per-app HTML scraping need a Mobbin Pro session.",
+    "quickstart": [
+      {
+        "command": "mobbin-pp-cli auth login --chrome",
+        "comment": "Import your logged-in Mobbin Chrome cookies (multi-profile aware)"
+      },
+      {
+        "command": "mobbin-pp-cli doctor",
+        "comment": "Verify auth + reachability before anything else"
+      },
+      {
+        "command": "mobbin-pp-cli trending apps --platform web --agent",
+        "comment": "Trending apps — public, works without auth; smoke-test the install"
+      },
+      {
+        "command": "mobbin-pp-cli filters list --agent --select data.appCategories",
+        "comment": "Discover category slugs before filtering search"
+      },
+      {
+        "command": "mobbin-pp-cli screens --platform web --screen-patterns paywall --agent --select data.id,data.appName,data.imageUrl",
+        "comment": "Cross-app pattern search — the foundational deck-building call"
+      },
+      {
+        "command": "mobbin-pp-cli deck \"fintech paywalls\" --platform web --limit 20 --export-zip ./deck.zip",
+        "comment": "One-shot design crit deck with full-res images + manifest CSV"
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "`auth login --chrome` says \"No cookie extraction tool found\"",
+        "fix": "Install one: `pip install pycookiecheat` (recommended), `brew install barnardb/cookies/cookies`, or `cargo install cookie-scoop-cli`."
+      },
+      {
+        "symptom": "401 after working for a few minutes",
+        "fix": "Supabase access token expired. Run `mobbin-pp-cli auth login --chrome` again to refresh; the daily-refresh fragility is a known Mobbin pattern."
+      },
+      {
+        "symptom": "`screens search` returns empty or fewer results than expected",
+        "fix": "You may be on Mobbin's free tier (latest 4 apps only). `mobbin-pp-cli doctor` reports your plan. Upgrade to Pro at https://mobbin.com/pricing for full library access."
+      },
+      {
+        "symptom": "`grab` or `deck` images are lower resolution than expected",
+        "fix": "Images are fetched full-width (1920px) from the Bytescale CDN as WebP; 1920px is the max Mobbin serves for these screens, so there is no higher-DPI flag."
+      },
+      {
+        "symptom": "`drift` reports \"no prior snapshot\"",
+        "fix": "Drift compares local snapshots over time. Run `mobbin-pp-cli sync <slug>` at least twice (separated by enough days) before expecting a diff."
+      }
+    ],
+    "when_to_use": "Use this CLI when an agent needs to compose design-research workflows that go beyond \"search and show.\" Reach for it for: batch downloading screens to a folder for downstream tooling; building cross-app pattern decks; running time-windowed audits (\"every web SaaS onboarding from the last quarter\"); or watching a competitor app for flow drift. It is intentionally web-first but iOS works on every command. The official Mobbin MCP exposes one search tool; this CLI exposes the full Mobbin surface plus six commands no Mobbin tool ships.",
+    "recipes": [
+      {
+        "title": "Wednesday paywall deck",
+        "command": "mobbin-pp-cli deck \"fintech paywalls\" --platform web --limit 20 --export-zip ./paywall-deck-$(date +%Y%m%d).zip",
+        "explanation": "Date-stamped zip with full-res PNGs and a manifest CSV — drag straight into Figma for the design crit."
+      },
+      {
+        "title": "Cross-platform pattern parity",
+        "command": "mobbin-pp-cli cross \"empty-state\" --apps stripe,linear,figma --agent --select app,platform,screen_id",
+        "explanation": "Web + iOS in one fan-out; the join on app slug is what makes parity comparisons cheap."
+      },
+      {
+        "title": "Quarterly onboarding audit",
+        "command": "mobbin-pp-cli audit onboarding --platform web --industry b2b-saas --since 90d --agent --select app,flow,step_count,captured_at",
+        "explanation": "Returns only flows captured in the last 90 days, grouped by app — drop into a CSV diff to show your PM what's changed."
+      },
+      {
+        "title": "Narrow a verbose screen response",
+        "command": "mobbin-pp-cli screens --platform web --screen-patterns paywall --agent --select data.id,data.appName,data.imageUrl,data.screenPatterns",
+        "explanation": "Screen-search payloads ship ~30 fields per row; `--select` with dotted paths keeps only the four agents actually need, cutting context burn ~85%."
+      },
+      {
+        "title": "Bench a pattern",
+        "command": "mobbin-pp-cli bench --pattern checkout --industry e-commerce --platform web --agent",
+        "explanation": "Local-SQL aggregate: count of screens per app, latest captured_at. Answers \"who's shipping checkout flows lately?\" without re-scrolling Mobbin."
+      }
+    ],
+    "trigger_phrases": [
+      "show me paywall examples",
+      "build a design deck for <pattern>",
+      "what does <app> ship for onboarding",
+      "find empty states across web fintech",
+      "cross-platform parity for <pattern>",
+      "use mobbin",
+      "run mobbin"
+    ]
+  }
+}

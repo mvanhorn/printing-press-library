@@ -1,6 +1,6 @@
 module github.com/mvanhorn/printing-press-library/library/commerce/loopnet
 
-go 1.26.3
+go 1.26.5
 
 require (
 	github.com/enetx/surf v1.0.199

@@ -1,0 +1,15 @@
+{
+  "schema_version": 2,
+  "id": "bambu-h2d-dual-extruder-normalization",
+  "applied_at": "2026-07-11",
+  "base_run_id": "20260711-063302-c519dd7c",
+  "base_printing_press_version": "4.28.0",
+  "summary": "H2D status must decode the active extruder's packed temperatures and the single-material AMS mapping instead of reporting inactive-nozzle and wrong-unit values.",
+  "reason": "On dual-extruder reports, legacy top-level nozzle temperatures describe the inactive nozzle, while device.extruder carries packed per-nozzle values and active ID bits. Multi-AMS job mapping can encode unit and slot as separate bytes, so tray_now alone can select the same slot from the wrong AMS.",
+  "files": [
+    "internal/cli/bambu_commands.go",
+    "internal/cli/bambu_novel.go",
+    "internal/cli/bambu_h2d_test.go"
+  ],
+  "validated_outcome": "A live H2D Studio print decoded active nozzle 1 at 220/220 C and mapping 258 as AMS unit 1 slot 2, matching the blue PLA Basic job instead of inactive nozzle 0 and unit 0 PC."
+}

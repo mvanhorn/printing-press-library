@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "api_name": "github-contents",
+  "run_id": "20260710-125244-1a986992",
+  "status": "pass",
+  "level": "full",
+  "matrix_size": 99,
+  "tests_passed": 99,
+  "tests_skipped": 66,
+  "auth_context": {
+    "type": "bearer_token"
+  }
+}

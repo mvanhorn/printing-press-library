@@ -16,29 +16,38 @@ func newMeCheckLibraryContainsCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:         "check-library-contains",
-		Short:       "Check if one or more items are already saved in the current user's library. Accepts Spotify URIs for tracks, albums,...",
-		Example:     "  spotify-pp-cli me check-library-contains --uris example-value",
+		Short:       "Check if one or more items are already saved in the current user's library.",
+		Example:     "  spotify-pp-cli me check-library-contains --uris spotify:track:11dFghVXANMlKmJXsNCbNl",
 		Annotations: map[string]string{"pp:endpoint": "me.check-library-contains", "pp:method": "GET", "pp:path": "/me/library/contains", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
+			// Bare invocation of a command with required input prints help
+			// instead of pflag's terse "required flag not set" error. Optional-
+			// only read commands fall through so a bare call still executes.
+			if cmd.Flags().NFlag() == 0 && len(args) == 0 && !flags.dryRun {
+				return cmd.Help()
+			}
 			if !cmd.Flags().Changed("uris") && !flags.dryRun {
 				return fmt.Errorf("required flag \"%s\" not set", "uris")
 			}
+			path := "/me/library/contains"
 			c, err := flags.newClient()
 			if err != nil {
 				return err
 			}
-
-			path := "/me/library/contains"
 			params := map[string]string{}
 			if flagUris != "" {
-				params["uris"] = fmt.Sprintf("%v", flagUris)
+				params["uris"] = formatCLIParamValue(flagUris)
 			}
-			data, prov, err := resolveRead(cmd.Context(), c, flags, "me", false, path, params, nil)
+			data, prov, err := resolveReadWithStrategyAndResponsePath(cmd.Context(), c, flags, "auto", "me", false, path, params, nil, "", cmd.ErrOrStderr())
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}
-			// Print provenance to stderr for human-facing output
-			{
+			// Print provenance to stderr for human-facing output only.
+			// Machine-format flags (--json, --csv, --compact, --quiet, --plain,
+			// --select) and piped stdout suppress this line; the JSON envelope
+			// already carries meta.source for those consumers.
+			// SYNC: keep this gate aligned with command_promoted.go.tmpl.
+			if wantsHumanTable(cmd.OutOrStdout(), flags) {
 				var countItems []json.RawMessage
 				_ = json.Unmarshal(data, &countItems)
 				printProvenance(cmd, len(countItems), prov)
@@ -74,7 +83,7 @@ func newMeCheckLibraryContainsCmd(flags *rootFlags) *cobra.Command {
 					return nil
 				}
 			}
-			return printOutputWithFlags(cmd.OutOrStdout(), data, flags)
+			return printOutputWithFlagsMeta(cmd.OutOrStdout(), data, flags, map[string]any{"source": "live"})
 		},
 	}
 	cmd.Flags().StringVar(&flagUris, "uris", "", "Uris")

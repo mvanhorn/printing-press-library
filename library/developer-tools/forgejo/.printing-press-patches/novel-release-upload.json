@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "novel-release-upload",
+  "applied_at": "2026-05-25",
+  "base_run_id": "20260524-172642",
+  "base_printing_press_version": "4.14.0",
+  "summary": "Add 'repos releases upload <tag> <files...>' with progress, retry, and size verification.",
+  "reason": "Novel feature T5: wraps generated upload endpoint with chunked progress, retry-with-backoff, and post-upload verification.",
+  "files": [
+    "internal/cli/novel_release.go",
+    "internal/cli/repos_releases.go"
+  ]
+}

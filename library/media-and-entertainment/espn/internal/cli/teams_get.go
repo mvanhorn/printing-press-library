@@ -14,47 +14,58 @@ import (
 func newTeamsGetCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:     "get <sport> <league> <team_id>",
-		Short:   "Get details for a specific team including record, links, and logos",
-		Example: "  espn-pp-cli teams get example-value example-value 550e8400-e29b-41d4-a716-446655440000",
+		Use:   "get <sport> <league> <team_id>",
+		Short: "Get details for a specific team including record, links, and logos",
+		// TODO: replace placeholder example values before relying on this for live dogfood.
+		Example:     "  espn-pp-cli teams get example-value example-value 550e8400-e29b-41d4-a716-446655440000",
+		Annotations: map[string]string{"pp:endpoint": "teams.get", "pp:method": "GET", "pp:path": "/{sport}/{league}/teams/{team_id}", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				return cmd.Help()
 			}
+			path := "/{sport}/{league}/teams/{team_id}"
+			if len(args) < 1 || args[0] == "" {
+				return usageErr(fmt.Errorf("sport is required\nUsage: %s <%s>", cmd.CommandPath(), "sport"))
+			}
+			path = replacePathParam(path, "sport", args[0])
+			if len(args) < 2 || args[1] == "" {
+				return usageErr(fmt.Errorf("league is required\nUsage: %s <%s>", cmd.CommandPath(), "league"))
+			}
+			path = replacePathParam(path, "league", args[1])
+			if len(args) < 3 || args[2] == "" {
+				return usageErr(fmt.Errorf("team_id is required\nUsage: %s <%s>", cmd.CommandPath(), "team_id"))
+			}
+			path = replacePathParam(path, "team_id", args[2])
 			c, err := flags.newClient()
 			if err != nil {
 				return err
 			}
-
-			path := "/{sport}/{league}/teams/{team_id}"
-			path = replacePathParam(path, "sport", args[0])
-			if len(args) < 2 {
-				return usageErr(fmt.Errorf("league is required\nUsage: %s %s <%s>", cmd.Root().Name(), cmd.CommandPath(), "league"))
-			}
-			path = replacePathParam(path, "league", args[1])
-			if len(args) < 3 {
-				return usageErr(fmt.Errorf("team_id is required\nUsage: %s %s <%s>", cmd.Root().Name(), cmd.CommandPath(), "team_id"))
-			}
-			path = replacePathParam(path, "team_id", args[2])
 			params := map[string]string{}
-			data, prov, err := resolveRead(c, flags, "teams", false, path, params)
+			data, prov, err := resolveReadWithStrategyAndResponsePath(cmd.Context(), c, flags, "auto", "teams", false, path, params, nil, "", cmd.ErrOrStderr())
 			if err != nil {
-				return classifyAPIError(err)
+				return classifyAPIError(err, flags)
 			}
-			// Print provenance to stderr for human-facing output
-			{
+			// Print provenance to stderr for human-facing output only.
+			// Machine-format flags (--json, --csv, --compact, --quiet, --plain,
+			// --select) and piped stdout suppress this line; the JSON envelope
+			// already carries meta.source for those consumers.
+			// SYNC: keep this gate aligned with command_promoted.go.tmpl.
+			if wantsHumanTable(cmd.OutOrStdout(), flags) {
 				var countItems []json.RawMessage
 				_ = json.Unmarshal(data, &countItems)
 				printProvenance(cmd, len(countItems), prov)
 			}
-			// For JSON output, wrap with provenance envelope before passing through flags
-			if flags.asJSON || !isTerminal(cmd.OutOrStdout()) {
+			// For JSON output, wrap with provenance envelope before passing through flags.
+			// --select wins over --compact when both are set; --compact only runs when
+			// no explicit fields were requested. Explicit format flags (--csv, --quiet,
+			// --plain) opt out of the auto-JSON path so piped consumers that asked for
+			// a non-JSON format reach the standard pipeline below.
+			if flags.asJSON || (!isTerminal(cmd.OutOrStdout()) && !flags.csv && !flags.quiet && !flags.plain) {
 				filtered := data
-				if flags.compact {
-					filtered = compactFields(filtered)
-				}
 				if flags.selectFields != "" {
 					filtered = filterFields(filtered, flags.selectFields)
+				} else if flags.compact {
+					filtered = compactFields(filtered)
 				}
 				wrapped, wrapErr := wrapWithProvenance(filtered, prov)
 				if wrapErr != nil {
@@ -75,7 +86,7 @@ func newTeamsGetCmd(flags *rootFlags) *cobra.Command {
 					return nil
 				}
 			}
-			return printOutputWithFlags(cmd.OutOrStdout(), data, flags)
+			return printOutputWithFlagsMeta(cmd.OutOrStdout(), data, flags, map[string]any{"source": "live"})
 		},
 	}
 

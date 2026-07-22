@@ -5,6 +5,7 @@ package cli
 
 import (
 	"bytes"
+	"errors"
 	"fmt"
 	"io"
 	"os"
@@ -13,11 +14,13 @@ import (
 	"time"
 
 	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/spotify/internal/client"
+	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/spotify/internal/cliutil"
 	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/spotify/internal/config"
 	"github.com/spf13/cobra"
+	"github.com/spf13/pflag"
 )
 
-var version = "2026.6.1"
+var version = "2026.7.1"
 
 type rootFlags struct {
 	asJSON        bool
@@ -32,14 +35,21 @@ type rootFlags struct {
 	ignoreMissing bool
 	yes           bool
 	agent         bool
-	selectFields  string
-	configPath    string
-	profileName   string
-	deliverSpec   string
-	timeout       time.Duration
-	rateLimit     float64
-	dataSource    string
-	freshnessMeta any
+	// allowPartialFailure downgrades a detected response-body partial-failure
+	// (e.g. Google Ads `partialFailureError`) from a non-zero exit to a
+	// stderr warning. Default false so silent partial successes surface as
+	// failures by default.
+	allowPartialFailure bool
+	selectFields        string
+	configPath          string
+	homePath            string
+	profileName         string
+	deliverSpec         string
+	timeout             time.Duration
+	rateLimit           float64
+	maxAge              time.Duration
+	dataSource          string
+	freshnessMeta       any
 
 	// deliverBuf captures command output when --deliver is set to a
 	// non-stdout sink. Flushed to the sink after Execute returns.
@@ -60,12 +70,22 @@ func Execute() error {
 	rootCmd := newRootCmd(&flags)
 
 	err := rootCmd.Execute()
+	if errors.Is(err, pflag.ErrHelp) {
+		return nil
+	}
 	if err != nil && strings.Contains(err.Error(), "unknown flag") {
 		msg := err.Error()
 		// Extract the flag name from the error message (e.g., "unknown flag: --foob")
 		if idx := strings.Index(msg, "unknown flag: "); idx >= 0 {
 			flagStr := strings.TrimSpace(msg[idx+len("unknown flag: "):])
 			if suggestion := suggestFlag(flagStr, rootCmd); suggestion != "" {
+				// Cobra already printed `Error: unknown flag: --foob` before
+				// returning; the wrap below attaches the hint to err.Error()
+				// for downstream consumers and exit-code classification, but
+				// would never reach stderr now that main.go no longer prints
+				// err. Emit the hint explicitly so the suggestion still
+				// shows up under Cobra's error line.
+				fmt.Fprintf(os.Stderr, "hint: did you mean --%s?\n", suggestion)
 				err = fmt.Errorf("%w\nhint: did you mean --%s?", err, suggestion)
 			}
 		}
@@ -102,9 +122,17 @@ func Execute() error {
 //   - "unknown flag: --foo"                            (pflag)
 //   - "unknown shorthand flag: 'x' in -x"              (pflag)
 //   - "unknown command \"foo\" for ..."                (Cobra)
-//   - "required flag(s) \"foo\" not set"               (Cobra MarkFlagRequired)
+//   - "required flag \"foo\" not set"                  (Cobra, single missing)
+//   - "required flag(s) \"foo\" not set"               (Cobra, multiple missing)
 //   - "flag needs an argument: --foo"                  (pflag, missing value)
 //   - "invalid argument \"x\" for \"--y\" flag: ..."   (pflag, parse failure)
+//
+// Cobra emits the singular form ("required flag") when exactly one
+// MarkFlagRequired flag is missing, and the plural form ("required
+// flag(s)") only when multiple are missing on the same command. Both
+// shapes must be anchored to avoid matching app-level errors that
+// happen to mention "required flag" as prose; the trailing space + quote
+// (`required flag "`) is the literal punctuation cobra emits.
 //
 // Returns false for nil err.
 func isCobraUsageError(err error) bool {
@@ -115,6 +143,7 @@ func isCobraUsageError(err error) bool {
 	return strings.HasPrefix(msg, "unknown flag") ||
 		strings.HasPrefix(msg, "unknown shorthand flag") ||
 		strings.HasPrefix(msg, "unknown command") ||
+		strings.HasPrefix(msg, `required flag "`) ||
 		strings.HasPrefix(msg, `required flag(s) "`) ||
 		strings.HasPrefix(msg, "flag needs an argument:") ||
 		strings.HasPrefix(msg, `invalid argument "`)
@@ -123,26 +152,11 @@ func isCobraUsageError(err error) bool {
 func newRootCmd(flags *rootFlags) *cobra.Command {
 	rootCmd := &cobra.Command{
 		Use:   "spotify-pp-cli",
-		Short: `Spotify CLI — An agent-native Spotify CLI with a SQLite-backed local library that lets you ask listening-drift questions no other Spo…`,
-		Long: `Spotify CLI — An agent-native Spotify CLI with a SQLite-backed local library that lets you ask listening-drift questions no other Spo…
+		Short: "Manage spotify resources via the spotify API",
+		Long: `Manage spotify resources via the spotify API.
 
-Highlights (not in the official API docs):
-  • playlists diff   Compare a playlist's current state against any prior snapshot to see exactly which tracks were added, removed, or reordered.
-  • playlists dedupe   Find duplicate tracks in a playlist by ISRC (catches the album/single/EP/deluxe-reissue dupe class), report by default, --apply to remove.
-  • playlists merge   Combine multiple playlists into one with built-in dedupe and ordering controls.
-  • top drift   Compare two top-tracks snapshots and show who rose, fell, or stayed stable across a time window.
-  • releases since   List new albums and singles released since a date by artists you follow, sorted newest first.
-  • tracks where   For a given track, find every place it appears in your data: which playlists, whether saved, last played, and on which devices.
-  • play history   Bucket your recent play history by the playlist or album that drove each play, ranked by play count and total duration.
-  • queue from-saved   Pick N tracks from your saved library (optionally filtered by artist or playlist origin) and queue them in one command.
-  • discover artists   Find artists you don't follow yet who match the genres of your top, saved, or followed artists, ranked by popularity within each genre.
-  • discover via-playlists   Find artists frequently co-curated with a seed artist by searching public playlists that contain them and ranking other artists by co-occurrence count.
-  • discover artist-gaps   For an artist, show their full discography chronologically with each album marked as saved or unsaved against your library.
-  • discover new-releases   Filter Spotify's global new-releases feed down to releases whose artists share a genre with your top or followed artists; optionally exclude artists you already follow.
-
-Agent mode: add --agent to any command for JSON output + non-interactive mode.
-Health check: run 'spotify-pp-cli doctor' to verify auth and connectivity.
-See README.md or the bundled SKILL.md for recipes.`,
+Add --agent to any command for JSON output + non-interactive mode.
+Run 'spotify-pp-cli doctor' to verify auth and connectivity.`,
 		SilenceUsage: true,
 		Version:      version,
 	}
@@ -154,7 +168,8 @@ See README.md or the bundled SKILL.md for recipes.`,
 	rootCmd.PersistentFlags().BoolVar(&flags.plain, "plain", false, "Output as plain tab-separated text")
 	rootCmd.PersistentFlags().BoolVar(&flags.quiet, "quiet", false, "Bare output, one value per line")
 	rootCmd.PersistentFlags().StringVar(&flags.configPath, "config", "", "Config file path")
-	rootCmd.PersistentFlags().DurationVar(&flags.timeout, "timeout", 30*time.Second, "Request timeout")
+	rootCmd.PersistentFlags().StringVar(&flags.homePath, "home", "", "Root directory for config, data, state, and cache files")
+	rootCmd.PersistentFlags().DurationVar(&flags.timeout, "timeout", 60*time.Second, "Request timeout")
 	rootCmd.PersistentFlags().BoolVar(&flags.dryRun, "dry-run", false, "Show request without sending")
 	rootCmd.PersistentFlags().BoolVar(&flags.noCache, "no-cache", false, "Bypass response cache")
 	rootCmd.PersistentFlags().BoolVar(&flags.noInput, "no-input", false, "Disable all interactive prompts (for CI/agents)")
@@ -165,12 +180,17 @@ See README.md or the bundled SKILL.md for recipes.`,
 	rootCmd.PersistentFlags().BoolVar(&noColor, "no-color", false, "Disable colored output")
 	rootCmd.PersistentFlags().BoolVar(&humanFriendly, "human-friendly", false, "Enable colored output and rich formatting")
 	rootCmd.PersistentFlags().BoolVar(&flags.agent, "agent", false, "Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)")
+	rootCmd.PersistentFlags().BoolVar(&flags.allowPartialFailure, "allow-partial-failure", false, "Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit")
 	rootCmd.PersistentFlags().StringVar(&flags.dataSource, "data-source", "auto", "Data source for read commands: auto (live with local fallback), live (API only), local (synced data only)")
+	rootCmd.PersistentFlags().DurationVar(&flags.maxAge, "max-age", 30*time.Minute, "Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables")
 	rootCmd.PersistentFlags().StringVar(&flags.profileName, "profile", "", "Apply values from a saved profile (see 'spotify-pp-cli profile list')")
 	rootCmd.PersistentFlags().StringVar(&flags.deliverSpec, "deliver", "", "Route output to a sink: stdout (default), file:<path>, webhook:<url>")
 	rootCmd.PersistentFlags().Float64Var(&flags.rateLimit, "rate-limit", 0, "Max requests per second (0 to disable)")
 
 	rootCmd.PersistentPreRunE = func(cmd *cobra.Command, args []string) error {
+		if _, err := cliutil.SetHomeOverride(flags.homePath); err != nil {
+			return err
+		}
 		if flags.deliverSpec != "" {
 			sink, err := ParseDeliverSink(flags.deliverSpec)
 			if err != nil {
@@ -237,6 +257,7 @@ See README.md or the bundled SKILL.md for recipes.`,
 	rootCmd.AddCommand(newTracksCmd(flags))
 	rootCmd.AddCommand(newDoctorCmd(flags))
 	rootCmd.AddCommand(newAuthCmd(flags))
+	rootCmd.AddCommand(newAuthLoginCmd(flags))
 	rootCmd.AddCommand(newAgentContextCmd(rootCmd))
 	rootCmd.AddCommand(newProfileCmd(flags))
 	rootCmd.AddCommand(newFeedbackCmd(flags))
@@ -253,9 +274,9 @@ See README.md or the bundled SKILL.md for recipes.`,
 	rootCmd.AddCommand(newMarketsPromotedCmd(flags))
 	rootCmd.AddCommand(newSpotifyWebSearchPromotedCmd(flags))
 	rootCmd.AddCommand(newUsersPromotedCmd(flags))
-	rootCmd.AddCommand(newVersionCliCmd())
+	rootCmd.AddCommand(newVersionCmd())
 
-	// --- Transcendence commands (T1-T12) -----------------------------------
+	// --- Transcendence commands (T1-T13) -----------------------------------
 	// T1 playlists diff, T2 playlists dedupe, T3 playlists merge are attached
 	// directly under newPlaylistsCmd (see playlists.go). T6 tracks where is
 	// attached under newTracksCmd (see tracks.go). The rest are root subtrees:
@@ -265,8 +286,7 @@ See README.md or the bundled SKILL.md for recipes.`,
 	rootCmd.AddCommand(newQueueCmd(flags))    // T8 queue from-saved
 	rootCmd.AddCommand(newDiscoverCmd(flags)) // T9-T12 discover ...
 	rootCmd.AddCommand(newSyncExtrasCmd(flags))
-	// PATCH (add-play-on-device-by-name): register T13 play-on alongside the other transcendence commands.
-	rootCmd.AddCommand(newPlayOnCmd(flags)) // play-on <device-name>: resolve via devices_seen cache + live
+	rootCmd.AddCommand(newPlayOnCmd(flags)) // T13 play-on <device-name>: resolve via devices_seen cache + live
 
 	return rootCmd
 }
@@ -318,14 +338,4 @@ func (f *rootFlags) printTable(w *cobra.Command, headers []string, rows [][]stri
 		fmt.Fprintln(tw, line)
 	}
 	return tw.Flush()
-}
-
-func newVersionCliCmd() *cobra.Command {
-	return &cobra.Command{
-		Use:   "version",
-		Short: "Print version",
-		Run: func(cmd *cobra.Command, args []string) {
-			fmt.Printf("spotify-pp-cli %s\n", version)
-		},
-	}
 }

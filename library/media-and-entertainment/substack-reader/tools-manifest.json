@@ -1,0 +1,370 @@
+{
+  "api_name": "substack-reader",
+  "base_url": "https://substack.com",
+  "description": "Read any Substack publication as a local, full-text-searchable corpus — keyless for free posts, your own session for what you subscribe to.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "none"
+  },
+  "required_headers": [
+    {
+      "name": "User-Agent",
+      "value": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0 Safari/537.36"
+    }
+  ],
+  "tools": [
+    {
+      "name": "archive",
+      "description": "Archive a Substack publication's posts into the local SQLite corpus for offline read, search, and SQL. Accepts a handle (astralcodexten), a bare host (blog.bytebytego.com), or a full URL. Keyless (Tier 0): archives post metadata + previews for any public publication; the full body of paid posts requires your own session (see the read command).",
+      "method": "",
+      "path": "",
+      "params": [
+        {
+          "name": "data-source",
+          "type": "string",
+          "location": "",
+          "description": "Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default: auto)"
+        },
+        {
+          "name": "db",
+          "type": "string",
+          "location": "",
+          "description": "database path (default: standard location)"
+        },
+        {
+          "name": "limit",
+          "type": "number",
+          "location": "",
+          "description": "maximum posts to archive (default: 50)"
+        },
+        {
+          "name": "publication",
+          "type": "string",
+          "location": "",
+          "description": "Positional argument <publication>",
+          "required": true
+        },
+        {
+          "name": "sort",
+          "type": "string",
+          "location": "",
+          "description": "archive sort order: new | top | community (default: new)"
+        }
+      ]
+    },
+    {
+      "name": "author_compare",
+      "description": "Compare two archived publications side by side: how many posts you've\nmirrored, their date range, publishing cadence (posts/week), and free/paid mix.\n\nReads only the local corpus — archive both publications first\n('substack-reader-pp-cli archive <pub>'). Each publication is matched by the host it\nwas archived under, so pass the same handle/host you archived with.",
+      "method": "",
+      "path": "",
+      "params": [
+        {
+          "name": "data-source",
+          "type": "string",
+          "location": "",
+          "description": "Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default: auto)"
+        },
+        {
+          "name": "pub-a",
+          "type": "string",
+          "location": "",
+          "description": "Positional argument <pub-a>",
+          "required": true
+        },
+        {
+          "name": "pub-b",
+          "type": "string",
+          "location": "",
+          "description": "Positional argument <pub-b>",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "categories_browse",
+      "description": "List publications in a category. Required: id. Optional: page (default: 0). Returns the CategoryPublications.",
+      "method": "",
+      "path": "",
+      "params": [
+        {
+          "name": "id",
+          "type": "number",
+          "location": "",
+          "description": "Category id (from `categories list`)",
+          "required": true
+        },
+        {
+          "name": "page",
+          "type": "number",
+          "location": "",
+          "description": "Result page (0-indexed)"
+        }
+      ]
+    },
+    {
+      "name": "categories_list",
+      "description": "List all Substack categories. Returns array of Category.",
+      "method": "",
+      "path": "",
+      "params": []
+    },
+    {
+      "name": "context",
+      "description": "Get API domain context: resource taxonomy, auth requirements, query tips, and unique capabilities. Call this first.",
+      "method": "",
+      "path": "",
+      "params": []
+    },
+    {
+      "name": "digest",
+      "description": "Summarize what's new across every publication in your local corpus within a\ntime window, grouped by publication and ordered by recency.\n\nReads only the local corpus built by 'substack-reader-pp-cli archive' — it never hits\nthe network — so it is a \"what did I miss across my newsletters\" briefing over\nexactly what you have mirrored. Posts without a parseable date are omitted from\nthe window.",
+      "method": "",
+      "path": "",
+      "params": [
+        {
+          "name": "data-source",
+          "type": "string",
+          "location": "",
+          "description": "Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default: auto)"
+        },
+        {
+          "name": "limit",
+          "type": "number",
+          "location": "",
+          "description": "cap the total number of posts shown (0 = no cap) (default: 0)"
+        },
+        {
+          "name": "since",
+          "type": "string",
+          "location": "",
+          "description": "time window to include (e.g. 7d, 24h, 2w) (default: 7d)"
+        }
+      ]
+    },
+    {
+      "name": "publications_search",
+      "description": "Search Substack publications by name (best-effort; may return few results anonymously). Required: query. Optional: page (default: 0). Returns the PublicationSearchResult.",
+      "method": "",
+      "path": "",
+      "params": [
+        {
+          "name": "page",
+          "type": "number",
+          "location": "",
+          "description": "Result page (0-indexed)"
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "",
+          "description": "Publication name or keyword to search for",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "read",
+      "description": "Read a single Substack post's full text.\n\nFree posts (audience \"everyone\") are keyless — zero setup. Paid posts you\nalready subscribe to unlock with your own substack.sid session cookie\n(SUBSTACK_SESSION env, or a JSON cookie file in the config dir); this reads only\nwhat you are entitled to and is never required for free content.\n\nAccepts any Substack URL shape, or the bare \"<pub>/<slug>\" form:\n  substack-reader-pp-cli read astralcodexten/open-thread-441\n  substack-reader-pp-cli read https://uxmentor.substack.com/p/<slug>\n  substack-reader-pp-cli read https://creatoreconomy.so/p/<slug>\n  substack-reader-pp-cli read https://substack.com/home/post/p-<id>\n\nWhen a paid post can't be unlocked, the output is honest about it: you get the\npublic preview plus a clear \"preview only — not entitled\" signal, never a\nsilent downgrade.",
+      "method": "",
+      "path": "",
+      "params": [
+        {
+          "name": "data-source",
+          "type": "string",
+          "location": "",
+          "description": "Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default: auto)"
+        },
+        {
+          "name": "post",
+          "type": "string",
+          "location": "",
+          "description": "Positional argument <post>",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "search",
+      "description": "Full-text search across all synced data. Faster than paginating list endpoints. Requires sync first.",
+      "method": "",
+      "path": "",
+      "params": [
+        {
+          "name": "limit",
+          "type": "number",
+          "location": "",
+          "description": "Max results (default 25)"
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "",
+          "description": "Search query (supports FTS5 syntax: AND, OR, NOT, quotes for phrases)",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "sql",
+      "description": "Run read-only SQL against local database. Use for ad-hoc analysis, aggregations, and joins across synced resources. Requires sync first.",
+      "method": "",
+      "path": "",
+      "params": [
+        {
+          "name": "query",
+          "type": "string",
+          "location": "",
+          "description": "SQL query (SELECT or WITH...SELECT). Synced records live in resources(resource_type, id, data); filter by resource_type and use json_extract on data, e.g. SELECT json_extract(data,'$.name') FROM resources WHERE resource_type='categories'.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "sync",
+      "description": "Sync data from the API into a local SQLite database. This API does\nnot declare temporal sync filters, so sync performs full pagination unless an\nexplicit resource declares its own incremental filter.\nOnce synced, use the 'search' command for instant full-text search.\n\nExit codes & warnings:\n  Resources the API denies access to (HTTP 403, or HTTP 400 with an\n  access-policy body) are reported as warnings rather than failing the\n  run. In --json mode each is emitted as a {\"event\":\"sync_warning\",...}\n  line carrying status, reason, and message fields, and a final\n  {\"event\":\"sync_summary\",...} aggregates the run.\n\n  Exit 0 when at least one resource synced and no resource flagged in\n  the spec as critical (x-critical: true) failed; non-critical failures\n  emit {\"event\":\"sync_warning\",\"reason\":\"exit_policy_default_changed\",\n  ...} so callers can detect that a partial failure was tolerated. Pass\n  --strict to exit non-zero on any per-resource failure. Exit is always\n  non-zero when every selected resource failed, regardless of --strict.\n\nResource scoping:\n  --resources runs the named top-level resources, plus any parent-keyed\n  dependent whose own name is listed OR whose parent table is listed.\n  Naming a parent therefore cascades to its dependents (so \"sync this\n  parent and its children\" works without listing every nested resource\n  by hand). There is no flag today to suppress the cascade for a named\n  parent. To run a dependent without re-syncing its parent, list only\n  the dependent by name; the parent table must already be populated\n  from a prior sync.",
+      "method": "",
+      "path": "",
+      "params": [
+        {
+          "name": "concurrency",
+          "type": "number",
+          "location": "",
+          "description": "Number of parallel sync workers (default: 4)"
+        },
+        {
+          "name": "data-source",
+          "type": "string",
+          "location": "",
+          "description": "Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default: auto)"
+        },
+        {
+          "name": "db",
+          "type": "string",
+          "location": "",
+          "description": "SQLite database file path (default: resolved data directory data.db)"
+        },
+        {
+          "name": "full",
+          "type": "boolean",
+          "location": "",
+          "description": "Full resync (ignore previous checkpoint) (default: false)"
+        },
+        {
+          "name": "global-param",
+          "type": "string",
+          "location": "",
+          "description": "Extra query param to inject into every sync request including dependent path-scoped calls (repeatable, key=value). Use when an API requires a scope on every call regardless of path nesting."
+        },
+        {
+          "name": "latest-only",
+          "type": "boolean",
+          "location": "",
+          "description": "Refresh head of each resource only; clears resume cursor and caps pages at 1. Mutually exclusive with --since (--since wins). (default: false)"
+        },
+        {
+          "name": "max-pages",
+          "type": "number",
+          "location": "",
+          "description": "Maximum pages to fetch per resource (0 = unlimited; cap-hit emits a sync_warning event) (default: 0)"
+        },
+        {
+          "name": "no-prune",
+          "type": "boolean",
+          "location": "",
+          "description": "Disable deletion reconciliation on --full (by default a full sync prunes local rows the API no longer returns for a fully-enumerated parent partition) (default: false)"
+        },
+        {
+          "name": "param",
+          "type": "string",
+          "location": "",
+          "description": "Extra query param to inject into flat-list sync requests (repeatable, key=value). Skipped on path-scoped dependent requests so a top-level scope like workspace=<id> does not double up on /parents/<id>/children calls. Use --global-param to inject everywhere. Avoid pagination keys (limit/since/cursor) — overriding them corrupts resume state."
+        },
+        {
+          "name": "resource-param",
+          "type": "string",
+          "location": "",
+          "description": "Per-resource extra query param (repeatable, resource:key=value). Wins over --param and --global-param when keys conflict."
+        },
+        {
+          "name": "resources",
+          "type": "string",
+          "location": "",
+          "description": "Comma-separated resource types to sync. Naming a parent also runs its parent-keyed dependents (see Long help for scoping)."
+        },
+        {
+          "name": "since",
+          "type": "string",
+          "location": "",
+          "description": "Incremental sync duration (e.g. 7d, 24h, 1w, 30m)"
+        },
+        {
+          "name": "strict",
+          "type": "boolean",
+          "location": "",
+          "description": "Exit non-zero on any per-resource failure (default: only critical failures or all-resource failure exit non-zero). (default: false)"
+        }
+      ]
+    },
+    {
+      "name": "workflow",
+      "description": "Compound workflows that combine multiple API operations",
+      "method": "",
+      "path": "",
+      "params": [
+        {
+          "name": "data-source",
+          "type": "string",
+          "location": "",
+          "description": "Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default: auto)"
+        }
+      ]
+    },
+    {
+      "name": "workflow_archive",
+      "description": "Archive fetches all syncable resources from the API and stores them in a\nlocal SQLite database. Supports incremental sync (only new data since last run)\nand full resync. After archiving, use 'search' for instant full-text search.",
+      "method": "",
+      "path": "",
+      "params": [
+        {
+          "name": "data-source",
+          "type": "string",
+          "location": "",
+          "description": "Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default: auto)"
+        },
+        {
+          "name": "db",
+          "type": "string",
+          "location": "",
+          "description": "SQLite database file path (default: resolved data directory data.db)"
+        },
+        {
+          "name": "full",
+          "type": "boolean",
+          "location": "",
+          "description": "Full re-archive (ignore previous sync state) (default: false)"
+        }
+      ]
+    },
+    {
+      "name": "workflow_status",
+      "description": "Show local archive status and sync state for all resources",
+      "method": "",
+      "path": "",
+      "params": [
+        {
+          "name": "data-source",
+          "type": "string",
+          "location": "",
+          "description": "Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default: auto)"
+        },
+        {
+          "name": "db",
+          "type": "string",
+          "location": "",
+          "description": "SQLite database file path (default: resolved data directory data.db)"
+        }
+      ]
+    }
+  ]
+}

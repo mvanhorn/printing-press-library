@@ -9,8 +9,11 @@ import (
 
 func newVenuesCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "venues",
-		Short: "Manage venues",
+		Use:         "venues",
+		Short:       "List and get venues",
+		Hidden:      true,
+		Annotations: map[string]string{"mcp:read-only": "true", "pp:typed-exit-codes": "0,2"},
+		RunE:        parentNoSubcommandRunE(flags),
 	}
 
 	cmd.AddCommand(newVenuesGetCmd(flags))

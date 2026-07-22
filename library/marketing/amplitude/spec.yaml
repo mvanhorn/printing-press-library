@@ -1,0 +1,201 @@
+openapi: 3.0.3
+info:
+  title: Amplitude Read API
+  version: 2.0.0
+  description: Read-first Amplitude Analytics API surface for exports, cohorts, events, users, and chart-style analytics queries.
+servers:
+  - url: https://amplitude.com/api/2
+security:
+  - BasicAuth: []
+tags:
+  - name: Event Exports
+  - name: Events
+  - name: Users
+  - name: Analytics
+  - name: Cohorts
+  - name: Annotations
+paths:
+  /export:
+    get:
+      operationId: exportEvents
+      x-pp-resource: event_exports
+      tags: [Event Exports]
+      summary: Export raw event data over a time range.
+      parameters:
+        - $ref: "#/components/parameters/Start"
+        - $ref: "#/components/parameters/End"
+      responses:
+        "200":
+          $ref: "#/components/responses/Success"
+  /events/list:
+    get:
+      operationId: listEvents
+      tags: [Events]
+      summary: List event types tracked in an Amplitude project.
+      responses:
+        "200":
+          $ref: "#/components/responses/Success"
+  /users/{user_id}:
+    get:
+      operationId: getUser
+      tags: [Users]
+      summary: Get a user profile by user ID.
+      parameters:
+        - name: user_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          $ref: "#/components/responses/Success"
+  /usersearch:
+    get:
+      operationId: searchUsers
+      tags: [Users]
+      summary: Search users by user ID, device ID, or user property filters.
+      parameters:
+        - name: user
+          in: query
+          schema:
+            type: string
+        - $ref: "#/components/parameters/Limit"
+      responses:
+        "200":
+          $ref: "#/components/responses/Success"
+  /segmentation:
+    get:
+      operationId: querySegmentation
+      tags: [Analytics]
+      summary: Query event segmentation metrics.
+      parameters:
+        - $ref: "#/components/parameters/Event"
+        - $ref: "#/components/parameters/StartDate"
+        - $ref: "#/components/parameters/EndDate"
+      responses:
+        "200":
+          $ref: "#/components/responses/Success"
+  /funnels:
+    get:
+      operationId: queryFunnels
+      tags: [Analytics]
+      summary: Query funnel conversion metrics.
+      parameters:
+        - $ref: "#/components/parameters/Event"
+        - $ref: "#/components/parameters/StartDate"
+        - $ref: "#/components/parameters/EndDate"
+      responses:
+        "200":
+          $ref: "#/components/responses/Success"
+  /retention:
+    get:
+      operationId: queryRetention
+      tags: [Analytics]
+      summary: Query retention metrics.
+      parameters:
+        - $ref: "#/components/parameters/Event"
+        - $ref: "#/components/parameters/StartDate"
+        - $ref: "#/components/parameters/EndDate"
+      responses:
+        "200":
+          $ref: "#/components/responses/Success"
+  /revenue:
+    get:
+      operationId: queryRevenue
+      tags: [Analytics]
+      summary: Query revenue analytics.
+      parameters:
+        - $ref: "#/components/parameters/StartDate"
+        - $ref: "#/components/parameters/EndDate"
+      responses:
+        "200":
+          $ref: "#/components/responses/Success"
+  /annotations:
+    get:
+      operationId: listAnnotations
+      tags: [Annotations]
+      summary: List project annotations.
+      responses:
+        "200":
+          $ref: "#/components/responses/Success"
+  /cohorts:
+    get:
+      operationId: listCohorts
+      tags: [Cohorts]
+      summary: List behavioral cohorts.
+      responses:
+        "200":
+          $ref: "#/components/responses/Success"
+  /cohorts/{cohort_id}:
+    get:
+      operationId: getCohort
+      tags: [Cohorts]
+      summary: Get cohort metadata or membership export status.
+      parameters:
+        - name: cohort_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          $ref: "#/components/responses/Success"
+components:
+  securitySchemes:
+    BasicAuth:
+      type: http
+      scheme: basic
+  parameters:
+    Start:
+      name: start
+      in: query
+      required: true
+      schema:
+        type: string
+      description: Export start timestamp in Amplitude's compact UTC format.
+    End:
+      name: end
+      in: query
+      required: true
+      schema:
+        type: string
+      description: Export end timestamp in Amplitude's compact UTC format.
+    StartDate:
+      name: start
+      in: query
+      schema:
+        type: string
+        format: date
+    EndDate:
+      name: end
+      in: query
+      schema:
+        type: string
+        format: date
+    Event:
+      name: e
+      in: query
+      schema:
+        type: string
+    Limit:
+      name: limit
+      in: query
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 1000
+  responses:
+    Success:
+      description: Successful Amplitude response.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/AnyObject"
+        application/zip:
+          schema:
+            type: string
+            format: binary
+  schemas:
+    AnyObject:
+      type: object
+      additionalProperties: true

@@ -2,8 +2,8 @@
   "manifest_version": "0.3",
   "name": "scrape-creators-pp-mcp",
   "display_name": "Scrape Creators",
-  "version": "3.2.1",
-  "description": "Scrape Creators API surface as MCP tools.",
+  "version": "1.0.0",
+  "description": "Every Scrape Creators endpoint across 28 platforms, plus a local store with offline transcript search, cross-platform joins, and ad-library diffing no other Scrape Creators tool ships.",
   "author": {
     "name": "CLI Printing Press"
   },
@@ -15,15 +15,15 @@
       "command": "${__dirname}/bin/scrape-creators-pp-mcp",
       "args": [],
       "env": {
-        "SCRAPE_CREATORS_API_KEY_AUTH": "${user_config.scrape_creators_api_key_auth}"
+        "SCRAPECREATORS_API_KEY": "${user_config.scrapecreators_api_key}"
       }
     }
   },
   "user_config": {
-    "scrape_creators_api_key_auth": {
+    "scrapecreators_api_key": {
       "type": "string",
-      "title": "SCRAPE_CREATORS_API_KEY_AUTH",
-      "description": "Sets SCRAPE_CREATORS_API_KEY_AUTH for the Scrape Creators MCP server.",
+      "title": "SCRAPECREATORS_API_KEY",
+      "description": "Sets SCRAPECREATORS_API_KEY for the Scrape Creators MCP server.",
       "sensitive": true,
       "required": true
     }

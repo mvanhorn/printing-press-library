@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "slug": "shodhganga",
+  "cli_name": "shodhganga-pp-cli",
+  "version": "2026.7.1",
+  "released_at": "2026-07-20T19:22:06Z",
+  "source_commit": "116874b6fc25aab112dd559bc709bbca2ba581b2",
+  "printing_press_version": "4.29.0",
+  "run_id": "20260719-022158-deedd460",
+  "changes": [
+    {
+      "title": "feat(shodhganga): add shodhganga",
+      "pr": 1546,
+      "url": "https://github.com/mvanhorn/printing-press-library/pull/1546",
+      "commit": "116874b6fc25aab112dd559bc709bbca2ba581b2"
+    }
+  ]
+}

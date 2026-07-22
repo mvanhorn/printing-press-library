@@ -30,10 +30,12 @@ func newClimateGetOrdersOrderCmd(flags *rootFlags) *cobra.Command {
 			}
 
 			path := "/v1/climate/orders/{order}"
-			if len(args) < 2 {
+
+			// PATCH: Bind path placeholders from Cobra positional args in Use order.
+			if len(args) < 1 {
 				return usageErr(fmt.Errorf("order is required\nUsage: %s <%s>", cmd.CommandPath(), "order"))
 			}
-			path = replacePathParam(path, "order", args[1])
+			path = replacePathParam(path, "order", args[0])
 			params := map[string]string{}
 			if flagExpand != "" {
 				params["expand"] = fmt.Sprintf("%v", flagExpand)

@@ -1,0 +1,10 @@
+{
+  "schema_version": 2,
+  "id": "ticketdata-drift-batch-snapshots",
+  "applied_at": "2026-07-07",
+  "base_run_id": "20260706-072414",
+  "base_printing_press_version": "4.27.1",
+  "summary": "Batch drift's per-event snapshot reads into one query via store.LatestSnapshotsForEvents (window-function ROW_NUMBER over the union of watched + target event IDs), mirroring the existing PricePointsForEvents batching used by board.",
+  "reason": "drift issued one LatestSnapshots query per watched event and per price target (N+1 against the local store). A single batched read collapses W+T queries to one with byte-identical output. Closes the only live item in Greptile's PR #1447 review; the watch-annotation and board-batching items it also raised were already correct in HEAD.",
+  "files": ["internal/store/ticketdata_store.go", "internal/cli/drift.go", "internal/store/snapshots_batch_test.go", "internal/cli/drift_behavior_test.go"]
+}

@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "slug": "finra",
+  "cli_name": "finra-pp-cli",
+  "version": "2026.7.1",
+  "released_at": "2026-07-20T16:47:32Z",
+  "source_commit": "7b98c6baaf4e138d25aeb377112b945ac498d88e",
+  "printing_press_version": "4.27.1",
+  "run_id": "20260705-224800-9d954693",
+  "changes": [
+    {
+      "title": "feat(finra): add finra",
+      "pr": 1449,
+      "url": "https://github.com/mvanhorn/printing-press-library/pull/1449",
+      "commit": "7b98c6baaf4e138d25aeb377112b945ac498d88e"
+    }
+  ]
+}

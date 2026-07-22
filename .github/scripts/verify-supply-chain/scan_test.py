@@ -416,7 +416,7 @@ class GomodReplaceSignalTest(unittest.TestCase):
         head = (
             "module github.com/mvanhorn/printing-press-library/library/payments/kalshi\n"
             "\n"
-            "go 1.22\n"
+            "go 1.26.5\n"
             "\n"
             "replace (\n"
             "    example.com/foo => github.com/attacker/fork v0.0.1\n"
@@ -436,7 +436,7 @@ class GomodReplaceSignalTest(unittest.TestCase):
         head = (
             "module github.com/mvanhorn/printing-press-library/library/food-and-dining/foo\n"
             "\n"
-            "go 1.22\n"
+            "go 1.26.5\n"
             "\n"
             "replace (\n"
             "    github.com/ledongthuc/pdf => ./third_party/stubs/pdf\n"
@@ -455,7 +455,7 @@ class GomodReplaceSignalTest(unittest.TestCase):
         head = (
             "module github.com/mvanhorn/printing-press-library/library/payments/kalshi\n"
             "\n"
-            "go 1.22\n"
+            "go 1.26.5\n"
             "\n"
             "replace (\n"
             "    example.com/foo => github.com/attacker/fork v0.0.1\n"
@@ -542,6 +542,116 @@ class GoEnvOverrideSignalTest(unittest.TestCase):
         self.assertEqual(len(findings), 1)
 
 
+class SetupGoVersionSignalTest(unittest.TestCase):
+    def test_new_hardcoded_setup_go_version_blocks(self) -> None:
+        base = "jobs:\n  x:\n    steps:\n      - uses: actions/checkout@v6\n"
+        head = textwrap.dedent(
+            """
+            jobs:
+              x:
+                steps:
+                  - uses: actions/setup-go@v6
+                    with:
+                      go-version: '1.26.5'
+            """
+        )
+        findings = signals.signal_setup_go_uses_go_version_file(
+            _fc(".github/workflows/build.yml", base=base, head=head)
+        )
+        self.assertEqual(len(findings), 1)
+        self.assertTrue(findings[0].is_block())
+        self.assertEqual(findings[0].signal_id, "setup_go_hardcoded_version")
+
+    def test_unquoted_two_segment_setup_go_version_blocks(self) -> None:
+        head = textwrap.dedent(
+            """
+            jobs:
+              x:
+                steps:
+                  - uses: actions/setup-go@v6
+                    with:
+                      go-version: 1.22
+            """
+        )
+        findings = signals.signal_setup_go_uses_go_version_file(
+            _fc(".github/workflows/build.yml", head=head)
+        )
+        self.assertEqual(len(findings), 1)
+        self.assertTrue(findings[0].is_block())
+
+    def test_go_version_file_does_not_block(self) -> None:
+        head = textwrap.dedent(
+            """
+            jobs:
+              x:
+                steps:
+                  - uses: actions/setup-go@v6
+                    with:
+                      go-version-file: .go-version
+            """
+        )
+        findings = signals.signal_setup_go_uses_go_version_file(
+            _fc(".github/workflows/build.yml", head=head)
+        )
+        self.assertEqual(findings, [])
+
+    def test_preexisting_literal_unchanged_does_not_re_fire(self) -> None:
+        wf = textwrap.dedent(
+            """
+            jobs:
+              x:
+                steps:
+                  - uses: actions/setup-go@v6
+                    with:
+                      go-version: '1.26.5'
+            """
+        )
+        findings = signals.signal_setup_go_uses_go_version_file(
+            _fc(".github/workflows/legacy.yml", base=wf, head=wf)
+        )
+        self.assertEqual(findings, [])
+
+
+class LibraryGoFloorSignalTest(unittest.TestCase):
+    def test_go_directive_below_floor_blocks(self) -> None:
+        gomod = (
+            "module github.com/mvanhorn/printing-press-library/library/payments/kalshi\n"
+            "\ngo 1.26.4\n"
+        )
+        findings = signals.signal_library_go_floor(
+            _fc("library/payments/kalshi/go.mod", head=gomod)
+        )
+        self.assertEqual(len(findings), 1)
+        self.assertTrue(findings[0].is_block())
+        self.assertEqual(findings[0].signal_id, "library_go_directive_below_floor")
+
+    def test_go_directive_at_floor_does_not_block(self) -> None:
+        gomod = (
+            "module github.com/mvanhorn/printing-press-library/library/payments/kalshi\n"
+            "\ngo 1.26.5\n"
+        )
+        findings = signals.signal_library_go_floor(
+            _fc("library/payments/kalshi/go.mod", head=gomod)
+        )
+        self.assertEqual(findings, [])
+
+    def test_go_directive_uses_scanned_head_floor(self) -> None:
+        gomod = (
+            "module github.com/mvanhorn/printing-press-library/library/payments/kalshi\n"
+            "\ngo 1.26.5\n"
+        )
+        findings = signals.signal_library_go_floor(
+            signals.FileChange(
+                path="library/payments/kalshi/go.mod",
+                base_content=None,
+                head_content=gomod,
+                added_lines=[],
+                go_floor="1.26.6",
+            )
+        )
+        self.assertEqual(len(findings), 1)
+
+
 class NpmLifecycleSignalTest(unittest.TestCase):
     def test_postinstall_added_blocks(self) -> None:
         base = json.dumps({"name": "x", "scripts": {"build": "tsc"}})
@@ -599,8 +709,8 @@ class ModulePathDriftSignalTest(unittest.TestCase):
     PREFIX = "github.com/mvanhorn/printing-press-library/library/"
 
     def test_drift_to_attacker_path_blocks(self) -> None:
-        base = f"module {self.PREFIX}payments/kalshi\n\ngo 1.22\n"
-        head = "module github.com/attacker/kalshi-fork\n\ngo 1.22\n"
+        base = f"module {self.PREFIX}payments/kalshi\n\ngo 1.26.5\n"
+        head = "module github.com/attacker/kalshi-fork\n\ngo 1.26.5\n"
         change = _fc("library/payments/kalshi/go.mod", base=base, head=head)
         findings = signals.signal_module_path_drift(change)
         self.assertEqual(len(findings), 1)
@@ -608,19 +718,19 @@ class ModulePathDriftSignalTest(unittest.TestCase):
         self.assertEqual(findings[0].signal_id, "module_path_drift_on_existing_cli")
 
     def test_canonical_path_unchanged_does_not_fire(self) -> None:
-        same = f"module {self.PREFIX}payments/kalshi\n\ngo 1.22\n"
+        same = f"module {self.PREFIX}payments/kalshi\n\ngo 1.26.5\n"
         change = _fc("library/payments/kalshi/go.mod", base=same, head=same)
         findings = signals.signal_module_path_drift(change)
         self.assertEqual(findings, [])
 
     def test_new_cli_with_canonical_path_does_not_fire(self) -> None:
-        head = f"module {self.PREFIX}other/freshly-minted\n\ngo 1.22\n"
+        head = f"module {self.PREFIX}other/freshly-minted\n\ngo 1.26.5\n"
         change = _fc("library/other/freshly-minted/go.mod", base=None, head=head)
         findings = signals.signal_module_path_drift(change)
         self.assertEqual(findings, [])
 
     def test_new_cli_with_non_canonical_path_blocks(self) -> None:
-        head = "module github.com/someone-else/whatever\n\ngo 1.22\n"
+        head = "module github.com/someone-else/whatever\n\ngo 1.26.5\n"
         change = _fc("library/other/freshly-minted/go.mod", base=None, head=head)
         findings = signals.signal_module_path_drift(change)
         self.assertEqual(len(findings), 1)
@@ -631,8 +741,8 @@ class ModulePathDriftSignalTest(unittest.TestCase):
         """Greptile-flagged: a rename that keeps the canonical prefix
         (e.g., kalshi → kalshi-evil, both under github.com/.../library/) still
         redirects `go install` for users pinned to the old slug. Must block."""
-        base = f"module {self.PREFIX}payments/kalshi\n\ngo 1.22\n"
-        head = f"module {self.PREFIX}payments/kalshi-evil\n\ngo 1.22\n"
+        base = f"module {self.PREFIX}payments/kalshi\n\ngo 1.26.5\n"
+        head = f"module {self.PREFIX}payments/kalshi-evil\n\ngo 1.26.5\n"
         # build_change in scan.py sets base_content from the OLD path on a
         # rename; here we simulate that by populating base_content directly.
         change = _fc("library/payments/kalshi-evil/go.mod", base=base, head=head)
@@ -744,7 +854,7 @@ class ScanIntegrationTest(unittest.TestCase):
         self.assertEqual(rc, 0)
 
     def test_replace_to_github_in_library_gomod_fails(self) -> None:
-        gomod = "module github.com/mvanhorn/printing-press-library/library/payments/kalshi\n\ngo 1.22\n"
+        gomod = "module github.com/mvanhorn/printing-press-library/library/payments/kalshi\n\ngo 1.26.5\n"
         self._write("library/payments/kalshi/go.mod", gomod)
         self._commit("baseline")
         self._git("checkout", "-q", "-b", "feat/x")
@@ -757,7 +867,7 @@ class ScanIntegrationTest(unittest.TestCase):
         self.assertEqual(rc, 1)
 
     def test_replace_to_local_path_advises_but_does_not_fail(self) -> None:
-        gomod = "module github.com/mvanhorn/printing-press-library/library/food-and-dining/foo\n\ngo 1.22\n"
+        gomod = "module github.com/mvanhorn/printing-press-library/library/food-and-dining/foo\n\ngo 1.26.5\n"
         self._write("library/food-and-dining/foo/go.mod", gomod)
         self._commit("baseline")
         self._git("checkout", "-q", "-b", "feat/x")
@@ -774,7 +884,7 @@ class ScanIntegrationTest(unittest.TestCase):
         must NOT trip the scan when the PR doesn't touch that go.mod."""
         gomod = (
             "module github.com/mvanhorn/printing-press-library/library/food-and-dining/ordertogo\n"
-            "\ngo 1.22\n"
+            "\ngo 1.26.5\n"
             "replace github.com/browserutils/kooky => ./third_party/kooky\n"
             "replace github.com/ledongthuc/pdf => ./third_party/stubs/pdf\n"
             "replace github.com/orisano/pixelmatch => ./third_party/stubs/pixelmatch\n"
@@ -804,6 +914,46 @@ class ScanIntegrationTest(unittest.TestCase):
         rc = self._run_scan(base="main")
         self.assertEqual(rc, 1)
 
+    def test_hardcoded_setup_go_version_fails(self) -> None:
+        self._write(".github/workflows/baseline.yml", "on: push\n")
+        self._commit("baseline")
+        self._git("checkout", "-q", "-b", "feat/x")
+        self._write(
+            ".github/workflows/baseline.yml",
+            "on: push\njobs:\n  x:\n    steps:\n      - uses: actions/setup-go@v6\n        with:\n          go-version: '1.26.5'\n",
+        )
+        self._commit("hardcode setup-go version")
+        rc = self._run_scan(base="main")
+        self.assertEqual(rc, 1)
+
+    def test_go_version_file_setup_go_passes(self) -> None:
+        self._write(".github/workflows/baseline.yml", "on: push\n")
+        self._write(".go-version", "1.26.5\n")
+        self._commit("baseline")
+        self._git("checkout", "-q", "-b", "feat/x")
+        self._write(
+            ".github/workflows/baseline.yml",
+            "on: push\njobs:\n  x:\n    steps:\n      - uses: actions/setup-go@v6\n        with:\n          go-version-file: .go-version\n",
+        )
+        self._commit("use shared setup-go version")
+        rc = self._run_scan(base="main")
+        self.assertEqual(rc, 0)
+
+    def test_library_go_directive_below_head_floor_fails(self) -> None:
+        base = "module github.com/mvanhorn/printing-press-library/library/payments/kalshi\n\ngo 1.26.5\n"
+        self._write(".go-version", "1.26.5\n")
+        self._write("library/payments/kalshi/go.mod", base)
+        self._commit("baseline")
+        self._git("checkout", "-q", "-b", "feat/x")
+        self._write(".go-version", "1.26.6\n")
+        self._write(
+            "library/payments/kalshi/go.mod",
+            base + "\nrequire example.com/foo v1.2.3\n",
+        )
+        self._commit("touch stale go mod after floor bump")
+        rc = self._run_scan(base="main")
+        self.assertEqual(rc, 1)
+
     def test_postinstall_added_to_npm_fails(self) -> None:
         base = {"name": "@mvanhorn/printing-press", "scripts": {"build": "tsc"}}
         head = {"name": "@mvanhorn/printing-press", "scripts": {"build": "tsc", "postinstall": "node ./payload.js"}}
@@ -816,8 +966,8 @@ class ScanIntegrationTest(unittest.TestCase):
         self.assertEqual(rc, 1)
 
     def test_module_path_drift_fails(self) -> None:
-        base = "module github.com/mvanhorn/printing-press-library/library/payments/kalshi\n\ngo 1.22\n"
-        head = "module github.com/attacker/kalshi-fork\n\ngo 1.22\n"
+        base = "module github.com/mvanhorn/printing-press-library/library/payments/kalshi\n\ngo 1.26.5\n"
+        head = "module github.com/attacker/kalshi-fork\n\ngo 1.26.5\n"
         self._write("library/payments/kalshi/go.mod", base)
         self._commit("baseline")
         self._git("checkout", "-q", "-b", "feat/x")
@@ -830,8 +980,8 @@ class ScanIntegrationTest(unittest.TestCase):
         """End-to-end: git records a rename (kalshi → kalshi-evil), scan.py
         passes old_path to signals.py via build_change, R6 fires with the
         rename signal."""
-        base = "module github.com/mvanhorn/printing-press-library/library/payments/kalshi\n\ngo 1.22\n"
-        head = "module github.com/mvanhorn/printing-press-library/library/payments/kalshi-evil\n\ngo 1.22\n"
+        base = "module github.com/mvanhorn/printing-press-library/library/payments/kalshi\n\ngo 1.26.5\n"
+        head = "module github.com/mvanhorn/printing-press-library/library/payments/kalshi-evil\n\ngo 1.26.5\n"
         self._write("library/payments/kalshi/go.mod", base)
         self._commit("baseline")
         self._git("checkout", "-q", "-b", "feat/rename")
@@ -847,14 +997,14 @@ class ScanIntegrationTest(unittest.TestCase):
         self._git("checkout", "-q", "-b", "feat/new-cli")
         self._write(
             "library/other/freshly-minted/go.mod",
-            "module github.com/mvanhorn/printing-press-library/library/other/freshly-minted\n\ngo 1.22\n",
+            "module github.com/mvanhorn/printing-press-library/library/other/freshly-minted\n\ngo 1.26.5\n",
         )
         self._commit("add new CLI")
         rc = self._run_scan(base="main")
         self.assertEqual(rc, 0)
 
     def test_strict_mode_promotes_advise_to_block(self) -> None:
-        gomod = "module github.com/mvanhorn/printing-press-library/library/food-and-dining/foo\n\ngo 1.22\n"
+        gomod = "module github.com/mvanhorn/printing-press-library/library/food-and-dining/foo\n\ngo 1.26.5\n"
         self._write("library/food-and-dining/foo/go.mod", gomod)
         self._commit("baseline")
         self._git("checkout", "-q", "-b", "feat/x")

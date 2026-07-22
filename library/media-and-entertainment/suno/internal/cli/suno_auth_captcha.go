@@ -31,7 +31,7 @@ func newAuthCaptchaLoginCmd(flags *rootFlags) *cobra.Command {
 		Short: "Open a visible Chrome to sign a profile into Suno (then persists)",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			captchaProfileFlag = profile
-			opts, _, err := resolveCaptchaOptions(flags.configPath, true)
+			opts, err := resolveCaptchaOptions(flags.configPath, true)
 			if err != nil {
 				return err
 			}
@@ -62,7 +62,7 @@ func newAuthCaptchaStatusCmd(flags *rootFlags) *cobra.Command {
 				if st.Running {
 					state = "running"
 				}
-				fmt.Fprintf(cmd.OutOrStdout(), "%s  port=%d  %s  seeded=%v\n", name, p.CDPPort, state, p.Seeded)
+				fmt.Fprintf(cmd.OutOrStdout(), "%s  port=%d  %s\n", name, p.CDPPort, state)
 			}
 			return nil
 		},

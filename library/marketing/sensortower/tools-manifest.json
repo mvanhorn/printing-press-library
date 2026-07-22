@@ -1,0 +1,313 @@
+{
+  "api_name": "sensortower",
+  "base_url": "https://app.sensortower.com",
+  "description": "Every free Sensor Tower ranking, plus the rank history the dashboard forgets the moment you close the tab.",
+  "mcp_ready": "partial",
+  "http_transport": "standard",
+  "auth": {
+    "type": "cookie",
+    "cookie_domain": ".sensortower.com",
+    "cookies": [
+      "sensor_tower_session"
+    ]
+  },
+  "required_headers": [
+    {
+      "name": "Accept",
+      "value": "application/json"
+    },
+    {
+      "name": "X-Requested-With",
+      "value": "XMLHttpRequest"
+    }
+  ],
+  "tools": [
+    {
+      "name": "apps_android",
+      "description": "Look up one or more Android apps by package name. Required: app-ids.",
+      "method": "GET",
+      "path": "/api/android/apps",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "app-ids",
+          "wire_name": "app_ids",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated Android package names (e.g. com.spotify.music)",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "apps_get",
+      "description": "Full iOS app profile: exact category ranks, 400+ version history entries, in-app purchases, rating breakdown, related apps. Required: app-id. Optional: country (default: US).",
+      "method": "GET",
+      "path": "/api/ios/apps/{app_id}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "app-id",
+          "wire_name": "app_id",
+          "type": "string",
+          "location": "path",
+          "description": "iOS App Store ID (e.g. 460177396 for Twitch)",
+          "required": true
+        },
+        {
+          "name": "country",
+          "type": "string",
+          "location": "query",
+          "description": "Two-letter country code for country-specific fields"
+        }
+      ]
+    },
+    {
+      "name": "apps_ios",
+      "description": "Look up several iOS apps at once by numeric App Store ID (leaner than 'apps get'; accepts multiple IDs). Required: app-ids.",
+      "method": "GET",
+      "path": "/api/ios/apps",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "app-ids",
+          "wire_name": "app_ids",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated iOS App Store IDs (e.g. 460177396 for Twitch)",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "categories_list",
+      "description": "Every valid iOS category ID and Android category slug, as published by Sensor Tower.",
+      "method": "GET",
+      "path": "/api/docs/static/category_ids.json",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "category_history",
+      "description": "Daily rank history for apps across chart types and countries over a date range. Required: app-ids, categories (default: 0), chart-type-ids (default: topfreeapplications), countries (default: US). Optional: start-date, end-date.",
+      "method": "GET",
+      "path": "/api/ios/category/category_history",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "app-ids",
+          "wire_name": "app_ids[]",
+          "type": "string",
+          "location": "query",
+          "description": "iOS App Store ID to pull rank history for",
+          "required": true
+        },
+        {
+          "name": "categories",
+          "wire_name": "categories[]",
+          "type": "string",
+          "location": "query",
+          "description": "iOS category ID; 0 = Overall",
+          "required": true
+        },
+        {
+          "name": "chart-type-ids",
+          "wire_name": "chart_type_ids[]",
+          "type": "string",
+          "location": "query",
+          "description": "Which store chart to read rank history from",
+          "required": true
+        },
+        {
+          "name": "countries",
+          "wire_name": "countries[]",
+          "type": "string",
+          "location": "query",
+          "description": "Two-letter country code",
+          "required": true
+        },
+        {
+          "name": "start-date",
+          "wire_name": "start_date",
+          "type": "string",
+          "location": "query",
+          "description": "Range start as YYYY-MM-DD"
+        },
+        {
+          "name": "end-date",
+          "wire_name": "end_date",
+          "type": "string",
+          "location": "query",
+          "description": "Range end as YYYY-MM-DD"
+        }
+      ]
+    },
+    {
+      "name": "category_summary",
+      "description": "Which categories and chart types an app currently ranks in. Required: app-ids.",
+      "method": "GET",
+      "path": "/api/ios/category/app_category_ranking_summary",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "app-ids",
+          "wire_name": "app_ids[]",
+          "type": "string",
+          "location": "query",
+          "description": "iOS App Store ID to summarize rankings for",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "find_apps",
+      "description": "Search the store catalog by name; returns matching apps or publishers with download and revenue signals. Required: term. Optional: entity-type (default: app), os (default: ios).",
+      "method": "GET",
+      "path": "/api/autocomplete_search",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "term",
+          "type": "string",
+          "location": "path",
+          "description": "Search text to match against app or publisher names",
+          "required": true
+        },
+        {
+          "name": "entity-type",
+          "wire_name": "entity_type",
+          "type": "string",
+          "location": "query",
+          "description": "Search for apps or for publishers"
+        },
+        {
+          "name": "os",
+          "type": "string",
+          "location": "query",
+          "description": "Which store catalog to search"
+        }
+      ]
+    },
+    {
+      "name": "publishers_apps",
+      "description": "Every iOS app in a publisher's portfolio. Required: publisher-id, sort-by (default: downloads).",
+      "method": "GET",
+      "path": "/api/ios/publishers/{publisher_id}/apps",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "publisher-id",
+          "wire_name": "publisher_id",
+          "type": "string",
+          "location": "path",
+          "description": "iOS publisher ID (e.g. 358612219 for Twitch Interactive)",
+          "required": true
+        },
+        {
+          "name": "sort-by",
+          "wire_name": "sort_by",
+          "type": "string",
+          "location": "query",
+          "description": "Sort field for the portfolio listing (required by the API)",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "rankings_android",
+      "description": "Top Google Play charts for a category and country on a given date. Required: category (default: application), country (default: US), date. Optional: device (default: phone), limit (default: 25), offset (default: 0).",
+      "method": "GET",
+      "path": "/api/android/category_rankings",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "category",
+          "type": "string",
+          "location": "query",
+          "description": "Google Play category slug; 'application' = Overall apps, 'game' = Overall games",
+          "required": true
+        },
+        {
+          "name": "country",
+          "type": "string",
+          "location": "query",
+          "description": "Two-letter country code (e.g. US, GB, JP)",
+          "required": true
+        },
+        {
+          "name": "date",
+          "type": "string",
+          "location": "query",
+          "description": "Chart date as YYYY-MM-DD (required by the API; a blank date returns HTTP 422)",
+          "required": true
+        },
+        {
+          "name": "device",
+          "type": "string",
+          "location": "query",
+          "description": "Google Play device chart variant"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Rows to return per chart"
+        },
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "Row offset for paging deeper into the chart"
+        }
+      ]
+    },
+    {
+      "name": "rankings_ios",
+      "description": "Top iOS charts (free/paid/grossing) for a category and country on a given date. Required: category (default: 0), country (default: US), date. Optional: device (default: iphone), limit (default: 25), offset (default: 0).",
+      "method": "GET",
+      "path": "/api/ios/category_rankings",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "category",
+          "type": "string",
+          "location": "query",
+          "description": "iOS category ID; 0 = Overall, 6014 = Games, 6016 = Entertainment",
+          "required": true
+        },
+        {
+          "name": "country",
+          "type": "string",
+          "location": "query",
+          "description": "Two-letter country code (e.g. US, GB, JP)",
+          "required": true
+        },
+        {
+          "name": "date",
+          "type": "string",
+          "location": "query",
+          "description": "Chart date as YYYY-MM-DD (required by the API; a blank date returns HTTP 422)",
+          "required": true
+        },
+        {
+          "name": "device",
+          "type": "string",
+          "location": "query",
+          "description": "iOS device chart variant"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Rows to return per chart"
+        },
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "Row offset for paging deeper into the chart"
+        }
+      ]
+    }
+  ]
+}

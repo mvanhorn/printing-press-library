@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "slug": "clickhouse-cloud",
+  "cli_name": "clickhouse-cloud-pp-cli",
+  "version": "2026.7.1",
+  "released_at": "2026-07-20T19:39:37Z",
+  "source_commit": "82dd39cf9fa17a2669c584c0291da42d86ee05cc",
+  "printing_press_version": "4.26.0",
+  "run_id": "20260628-001835",
+  "changes": [
+    {
+      "title": "feat(clickhouse-cloud): add clickhouse-cloud",
+      "pr": 1394,
+      "url": "https://github.com/mvanhorn/printing-press-library/pull/1394",
+      "commit": "82dd39cf9fa17a2669c584c0291da42d86ee05cc"
+    }
+  ]
+}

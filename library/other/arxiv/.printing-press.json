@@ -47,5 +47,5 @@
     }
   ],
   "category": "other",
-  "description": "Free public arXiv paper search and metadata CLI with Atom-to-JSON output for agents and scripts."
+  "description": "Public Atom API for searching and fetching arXiv e-print metadata."
 }

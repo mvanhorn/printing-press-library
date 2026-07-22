@@ -19,43 +19,48 @@ func newTruthsocialListUserCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:         "list-user",
-		Short:       "Fetches a paginated list of posts from a Truth Social user, returning text, id, created_at, url, content, account...",
-		Example:     "  scrape-creators-pp-cli truthsocial list-user",
-		Annotations: map[string]string{"pp:endpoint": "truthsocial.list-user", "mcp:read-only": "true"},
+		Short:       "Fetches a paginated list of posts from a Truth Social user, returning text, id, created_at, url, content, account info",
+		Example:     "  scrape-creators-pp-cli truthsocial list-user --handle realDonaldTrump",
+		Annotations: map[string]string{"pp:endpoint": "truthsocial.list-user", "pp:method": "GET", "pp:path": "/v1/truthsocial/user/posts", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
+			path := "/v1/truthsocial/user/posts"
 			c, err := flags.newClient()
 			if err != nil {
 				return err
 			}
-
-			path := "/v1/truthsocial/user/posts"
 			params := map[string]string{}
 			if flagHandle != "" {
-				params["handle"] = fmt.Sprintf("%v", flagHandle)
+				params["handle"] = formatCLIParamValue(flagHandle)
 			}
 			if flagUserId != "" {
-				params["user_id"] = fmt.Sprintf("%v", flagUserId)
+				params["user_id"] = formatCLIParamValue(flagUserId)
 			}
 			if flagNextMaxId != "" {
-				params["next_max_id"] = fmt.Sprintf("%v", flagNextMaxId)
+				params["next_max_id"] = formatCLIParamValue(flagNextMaxId)
 			}
 			if flagTrim != false {
-				params["trim"] = fmt.Sprintf("%v", flagTrim)
+				params["trim"] = formatCLIParamValue(flagTrim)
 			}
-			data, prov, err := resolveRead(cmd.Context(), c, flags, "truthsocial", false, path, params, nil)
+			data, prov, err := resolveReadWithStrategyAndResponsePath(cmd.Context(), c, flags, "auto", "truthsocial", false, path, params, nil, "", cmd.ErrOrStderr())
 			if err != nil {
-				return classifyAPIError(err)
+				return classifyAPIError(err, flags)
 			}
-			// Print provenance to stderr for human-facing output
-			{
+			// Print provenance to stderr for human-facing output only.
+			// Machine-format flags (--json, --csv, --compact, --quiet, --plain,
+			// --select) and piped stdout suppress this line; the JSON envelope
+			// already carries meta.source for those consumers.
+			// SYNC: keep this gate aligned with command_promoted.go.tmpl.
+			if wantsHumanTable(cmd.OutOrStdout(), flags) {
 				var countItems []json.RawMessage
 				_ = json.Unmarshal(data, &countItems)
 				printProvenance(cmd, len(countItems), prov)
 			}
 			// For JSON output, wrap with provenance envelope before passing through flags.
 			// --select wins over --compact when both are set; --compact only runs when
-			// no explicit fields were requested.
-			if flags.asJSON || !isTerminal(cmd.OutOrStdout()) {
+			// no explicit fields were requested. Explicit format flags (--csv, --quiet,
+			// --plain) opt out of the auto-JSON path so piped consumers that asked for
+			// a non-JSON format reach the standard pipeline below.
+			if flags.asJSON || (!isTerminal(cmd.OutOrStdout()) && !flags.csv && !flags.quiet && !flags.plain) {
 				filtered := data
 				if flags.selectFields != "" {
 					filtered = filterFields(filtered, flags.selectFields)
@@ -81,11 +86,11 @@ func newTruthsocialListUserCmd(flags *rootFlags) *cobra.Command {
 					return nil
 				}
 			}
-			return printOutputWithFlags(cmd.OutOrStdout(), data, flags)
+			return printOutputWithFlagsMeta(cmd.OutOrStdout(), data, flags, map[string]any{"source": "live"})
 		},
 	}
 	cmd.Flags().StringVar(&flagHandle, "handle", "", "Truth Social username")
-	cmd.Flags().StringVar(&flagUserId, "user-id", "", "Truth Social user id. Use this for faster response times. Trumps is 107780257626128497. It is the 'id' field in the...")
+	cmd.Flags().StringVar(&flagUserId, "user-id", "", "Truth Social user id. Use this for faster response times. Trumps is 107780257626128497.")
 	cmd.Flags().StringVar(&flagNextMaxId, "next-max-id", "", "Used to paginate to next page")
 	cmd.Flags().BoolVar(&flagTrim, "trim", false, "Set to true for a trimmed down version of the response")
 

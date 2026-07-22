@@ -1,0 +1,310 @@
+{
+  "api_name": "discogs",
+  "novelty_score": 0,
+  "alternatives": [
+    {
+      "name": "discogs-mcp-server",
+      "url": "https://github.com/cswkim/discogs-mcp-server",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 115,
+      "last_updated": "",
+      "command_count": 40,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "agent-discogs",
+      "url": "https://github.com/jmfontaine/agent-discogs",
+      "language": "Python",
+      "install_method": "",
+      "stars": 2,
+      "last_updated": "",
+      "command_count": 12,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "discogs-mcp",
+      "url": "https://github.com/rianvdm/discogs-mcp",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 13,
+      "last_updated": "",
+      "command_count": 15,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "discodos",
+      "url": "https://github.com/JOJ0/discodos",
+      "language": "Python",
+      "install_method": "",
+      "stars": 83,
+      "last_updated": "",
+      "command_count": 20,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "python3-discogs-client",
+      "url": "https://github.com/joalla/discogs_client",
+      "language": "Python",
+      "install_method": "",
+      "stars": 409,
+      "last_updated": "",
+      "command_count": 30,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "go-discogs",
+      "url": "https://github.com/irlndts/go-discogs",
+      "language": "Go",
+      "install_method": "",
+      "stars": 52,
+      "last_updated": "",
+      "command_count": 10,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "discogs-client",
+      "url": "https://github.com/lionralfs/discogs-client",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 39,
+      "last_updated": "",
+      "command_count": 25,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-07-11T13:45:08Z",
+  "novel_features": [
+    {
+      "name": "Wantlist limit-order fills",
+      "command": "fills",
+      "description": "Treat each wantlist entry as a standing limit order and surface the ones now selling at or below the max price you set.",
+      "rationale": "Requires a local max-price per want plus price history the Discogs API doesn't keep, joined against live marketplace lowest-asking.",
+      "example": "discogs-pp-cli fills --agent",
+      "why_it_matters": "Reach for this to answer 'which of my wants are buyable right now' without checking hundreds of listings by hand under the 60/min limit.",
+      "group": "Local price history (the moat)"
+    },
+    {
+      "name": "Portfolio value + history",
+      "command": "portfolio",
+      "description": "Chart your collection's value over time with per-record contribution to the change and cost-basis P\u0026L.",
+      "rationale": "The API returns one value number with no history; only a local snapshot series can show the trend and attribute it to records.",
+      "example": "discogs-pp-cli portfolio --since 90d --agent",
+      "why_it_matters": "Use it when the question is 'is my collection up or down, and because of what' rather than 'what is it worth today'.",
+      "group": "Local price history (the moat)"
+    },
+    {
+      "name": "Undervalued detection",
+      "command": "undervalued",
+      "description": "Flag releases whose current asking price sits below their own trailing/suggested baseline.",
+      "rationale": "The trailing baseline lives only in the local price_snapshots table the CLI accumulates.",
+      "example": "discogs-pp-cli undervalued --scope wantlist --agent",
+      "why_it_matters": "Pick this for market-wide mispricing where no preset limit exists; use 'fills' when the trigger is a limit you set.",
+      "group": "Local price history (the moat)"
+    },
+    {
+      "name": "Condition-matched comps",
+      "command": "comps",
+      "description": "The condition-by-condition price picture for one release, with local snapshot history the API can't provide.",
+      "rationale": "Combines per-condition price_suggestions (which the leading MCP lacks) with locally stored price history.",
+      "example": "discogs-pp-cli comps 249504 --agent",
+      "why_it_matters": "Use it to price or value a single specific release; use 'pressings' to compare different versions of the same album.",
+      "group": "Local price history (the moat)"
+    },
+    {
+      "name": "Fee-aware sell router",
+      "command": "sell-plan",
+      "description": "Rank your inventory or collection by net-after-fee proceeds and liquidity so you know what to sell now.",
+      "rationale": "Joins the fee endpoint, price suggestions, stats, and a local liquidity signal into a ranking no single API call returns.",
+      "example": "discogs-pp-cli sell-plan --source collection --agent",
+      "why_it_matters": "Reach for this to decide what to list this week; use 'comps' to price one release.",
+      "group": "Collector decisioning"
+    },
+    {
+      "name": "Catno/barcode identity spine",
+      "command": "identify",
+      "description": "Resolve a physical record's catalog number or barcode to the exact release and show if you own it, want it, and what it's worth.",
+      "rationale": "Left-joins a search match against local collection and wantlist tables plus live marketplace stats in one answer.",
+      "example": "discogs-pp-cli identify --barcode 0720642442524 --agent",
+      "why_it_matters": "Use it crate-digging in a shop to make a buy/skip call fast; use 'search' for open-ended text queries.",
+      "group": "Collector decisioning"
+    },
+    {
+      "name": "Pressing value ranker",
+      "command": "pressings",
+      "description": "Rank all versions/pressings of a master release by value and liquidity so you know which pressing to buy, want, or sell.",
+      "rationale": "Expands the master/version structure Discogs is built on and joins each version to price and liquidity data locally.",
+      "example": "discogs-pp-cli pressings 96559 --agent",
+      "why_it_matters": "Use it to choose among pressings of an album; use 'comps' for the condition breakdown of one specific pressing.",
+      "group": "Local price history (the moat)"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Wantlist limit-order fills",
+      "command": "fills",
+      "description": "Treat each wantlist entry as a standing limit order and surface the ones now selling at or below the max price you set.",
+      "rationale": "Requires a local max-price per want plus price history the Discogs API doesn't keep, joined against live marketplace lowest-asking.",
+      "example": "discogs-pp-cli fills --agent",
+      "why_it_matters": "Reach for this to answer 'which of my wants are buyable right now' without checking hundreds of listings by hand under the 60/min limit.",
+      "group": "Local price history (the moat)"
+    },
+    {
+      "name": "Portfolio value + history",
+      "command": "portfolio",
+      "description": "Chart your collection's value over time with per-record contribution to the change and cost-basis P\u0026L.",
+      "rationale": "The API returns one value number with no history; only a local snapshot series can show the trend and attribute it to records.",
+      "example": "discogs-pp-cli portfolio --since 90d --agent",
+      "why_it_matters": "Use it when the question is 'is my collection up or down, and because of what' rather than 'what is it worth today'.",
+      "group": "Local price history (the moat)"
+    },
+    {
+      "name": "Undervalued detection",
+      "command": "undervalued",
+      "description": "Flag releases whose current asking price sits below their own trailing/suggested baseline.",
+      "rationale": "The trailing baseline lives only in the local price_snapshots table the CLI accumulates.",
+      "example": "discogs-pp-cli undervalued --scope wantlist --agent",
+      "why_it_matters": "Pick this for market-wide mispricing where no preset limit exists; use 'fills' when the trigger is a limit you set.",
+      "group": "Local price history (the moat)"
+    },
+    {
+      "name": "Condition-matched comps",
+      "command": "comps",
+      "description": "The condition-by-condition price picture for one release, with local snapshot history the API can't provide.",
+      "rationale": "Combines per-condition price_suggestions (which the leading MCP lacks) with locally stored price history.",
+      "example": "discogs-pp-cli comps 249504 --agent",
+      "why_it_matters": "Use it to price or value a single specific release; use 'pressings' to compare different versions of the same album.",
+      "group": "Local price history (the moat)"
+    },
+    {
+      "name": "Fee-aware sell router",
+      "command": "sell-plan",
+      "description": "Rank your inventory or collection by net-after-fee proceeds and liquidity so you know what to sell now.",
+      "rationale": "Joins the fee endpoint, price suggestions, stats, and a local liquidity signal into a ranking no single API call returns.",
+      "example": "discogs-pp-cli sell-plan --source collection --agent",
+      "why_it_matters": "Reach for this to decide what to list this week; use 'comps' to price one release.",
+      "group": "Collector decisioning"
+    },
+    {
+      "name": "Catno/barcode identity spine",
+      "command": "identify",
+      "description": "Resolve a physical record's catalog number or barcode to the exact release and show if you own it, want it, and what it's worth.",
+      "rationale": "Left-joins a search match against local collection and wantlist tables plus live marketplace stats in one answer.",
+      "example": "discogs-pp-cli identify --barcode 0720642442524 --agent",
+      "why_it_matters": "Use it crate-digging in a shop to make a buy/skip call fast; use 'search' for open-ended text queries.",
+      "group": "Collector decisioning"
+    },
+    {
+      "name": "Pressing value ranker",
+      "command": "pressings",
+      "description": "Rank all versions/pressings of a master release by value and liquidity so you know which pressing to buy, want, or sell.",
+      "rationale": "Expands the master/version structure Discogs is built on and joins each version to price and liquidity data locally.",
+      "example": "discogs-pp-cli pressings 96559 --agent",
+      "why_it_matters": "Use it to choose among pressings of an album; use 'comps' for the condition breakdown of one specific pressing.",
+      "group": "Local price history (the moat)"
+    }
+  ],
+  "auth": {
+    "canonical_env_var": "DISCOGS_TOKEN"
+  },
+  "narrative": {
+    "display_name": "Discogs",
+    "headline": "Every Discogs feature — plus a local price-history mirror the API doesn't keep, so you can watch your wantlist like a limit-order book, spot underpriced records, and track your collection's value over time.",
+    "value_prop": "A single Go binary over the full Discogs API — database, collection, wantlist, and marketplace — with an offline SQLite mirror and an MCP server. Because Discogs keeps no price history, this CLI snapshots prices locally, which unlocks fills (wantlist limit orders), undervalued detection, portfolio value over time, and condition-matched comps that no other Discogs tool offers.",
+    "auth_narrative": "Database search and lookups are public. Everything tied to a user — collection, wantlist, marketplace, identity — needs a free personal access token from discogs.com/settings/developers, set as DISCOGS_TOKEN. The client sends it as `Authorization: Discogs token=\u003ctoken\u003e` and always sends a descriptive User-Agent (Discogs returns 403 without one).",
+    "quickstart": [
+      {
+        "command": "discogs-pp-cli doctor --dry-run",
+        "comment": "Confirm config and reachability before anything else."
+      },
+      {
+        "command": "discogs-pp-cli database search \"nevermind\" --artist Nirvana --format Vinyl",
+        "comment": "Public database search — works without a token."
+      },
+      {
+        "command": "discogs-pp-cli identity whoami",
+        "comment": "Confirm your DISCOGS_TOKEN resolves to your account."
+      },
+      {
+        "command": "discogs-pp-cli sync --resources wantlist,collection",
+        "comment": "Populate the local mirror so offline and price features work."
+      },
+      {
+        "command": "discogs-pp-cli fills --agent",
+        "comment": "The flagship: wantlist items now selling at or below your limit."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "403 Forbidden on every request",
+        "fix": "Discogs requires a descriptive User-Agent; the CLI sends one automatically — rebuild if you see this."
+      },
+      {
+        "symptom": "429 / rate limited",
+        "fix": "Discogs allows 60 req/min authenticated. Run `sync` and use offline commands; the client backs off on the X-Discogs-Ratelimit-Remaining header."
+      },
+      {
+        "symptom": "401 Unauthorized on collection/wantlist/marketplace",
+        "fix": "Set DISCOGS_TOKEN (free token at discogs.com/settings/developers). Database search works without one."
+      },
+      {
+        "symptom": "fills or undervalued returns nothing",
+        "fix": "Run `sync` first and let a few price snapshots accumulate; these features read local price history."
+      }
+    ],
+    "when_to_use": "Use this CLI when an agent or script needs to work with Discogs data programmatically: searching the database, managing a collection or wantlist, pricing or listing records on the marketplace, or answering value/deal questions that need price history. It is the right tool when the task benefits from a local mirror, structured JSON output, or repeated queries under the rate limit.",
+    "anti_triggers": [
+      "Fetching cover-art images (Discogs image URLs are Cloudflare-gated and unreliable server-side)",
+      "Multi-user OAuth app authentication (this CLI is single-user personal-token only)",
+      "Editing another user's collection or wantlist (only your own account)",
+      "eBay or Gixen auction sniping (this CLI is Discogs-only)"
+    ],
+    "recipes": [
+      {
+        "title": "Deals on your wantlist",
+        "command": "discogs-pp-cli fills --agent",
+        "explanation": "Lists wantlist items whose lowest marketplace asking has reached the max price you set, with the change since last check."
+      },
+      {
+        "title": "Narrow a verbose release payload",
+        "command": "discogs-pp-cli database release 249504 --agent --select id,title,year,labels.name,formats.descriptions,lowest_price",
+        "explanation": "A Discogs release is tens of KB; dotted --select paths return only the fields you need so an agent doesn't burn context."
+      },
+      {
+        "title": "What to sell this week",
+        "command": "discogs-pp-cli sell-plan --source collection --agent",
+        "explanation": "Ranks your records by net-after-fee proceeds and liquidity."
+      },
+      {
+        "title": "Identify a record in-hand",
+        "command": "discogs-pp-cli identify --barcode 0720642442524 --agent",
+        "explanation": "Resolves the barcode to a release and tells you if you own it, want it, and its current value."
+      },
+      {
+        "title": "Value trend over the last quarter",
+        "command": "discogs-pp-cli portfolio --since 90d --agent",
+        "explanation": "Charts collection value change and the records that drove it, against cost basis."
+      }
+    ],
+    "trigger_phrases": [
+      "check my discogs wantlist for deals",
+      "what records should I sell",
+      "value my vinyl collection",
+      "price suggestions for this release",
+      "identify this pressing by catalog number",
+      "is this record undervalued",
+      "use discogs",
+      "run discogs"
+    ]
+  }
+}

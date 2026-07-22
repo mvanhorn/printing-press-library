@@ -1,0 +1,27 @@
+{
+  "manifest_version": "0.3",
+  "name": "passage-pp-mcp",
+  "display_name": "passage",
+  "version": "1.0.0",
+  "description": "A contemplative daily reading practice — open book APIs as your library, real public-domain passages to sit with, and a reading journal that's yours.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/passage-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/passage-pp-mcp",
+      "args": []
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "slug": "dnsmadeeasy",
+  "cli_name": "dnsmadeeasy-pp-cli",
+  "version": "2026.7.1",
+  "released_at": "2026-07-20T20:36:38Z",
+  "source_commit": "9ca76a5bcc9685177454e2677ea4c5539f4e72d6",
+  "printing_press_version": "4.27.1",
+  "run_id": "20260709-145756-391a5493",
+  "changes": [
+    {
+      "title": "feat(dnsmadeeasy): add dnsmadeeasy",
+      "pr": 1479,
+      "url": "https://github.com/mvanhorn/printing-press-library/pull/1479",
+      "commit": "9ca76a5bcc9685177454e2677ea4c5539f4e72d6"
+    }
+  ]
+}

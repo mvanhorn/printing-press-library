@@ -1,0 +1,55 @@
+{
+  "manifest_version": "0.3",
+  "name": "expensify-pp-mcp",
+  "display_name": "Expensify",
+  "version": "0.0.0",
+  "description": "File expenses and submit reports to Expensify from the command line",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/expensify-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/expensify-pp-mcp",
+      "args": [],
+      "env": {
+        "EXPENSIFY_AUTH_TOKEN": "${user_config.expensify_auth_token}",
+        "EXPENSIFY_PARTNER_USER_ID": "${user_config.expensify_partner_user_id}",
+        "EXPENSIFY_PARTNER_USER_SECRET": "${user_config.expensify_partner_user_secret}"
+      }
+    }
+  },
+  "user_config": {
+    "expensify_auth_token": {
+      "type": "string",
+      "title": "EXPENSIFY_AUTH_TOKEN",
+      "description": "Sets EXPENSIFY_AUTH_TOKEN for the Expensify MCP server. Get a credential from https://www.expensify.com/tools/integrations/.",
+      "sensitive": true,
+      "required": true
+    },
+    "expensify_partner_user_id": {
+      "type": "string",
+      "title": "EXPENSIFY_PARTNER_USER_ID",
+      "description": "Sets EXPENSIFY_PARTNER_USER_ID for the Expensify MCP server. Get a credential from https://www.expensify.com/tools/integrations/.",
+      "sensitive": true,
+      "required": true
+    },
+    "expensify_partner_user_secret": {
+      "type": "string",
+      "title": "EXPENSIFY_PARTNER_USER_SECRET",
+      "description": "Sets EXPENSIFY_PARTNER_USER_SECRET for the Expensify MCP server. Get a credential from https://www.expensify.com/tools/integrations/.",
+      "sensitive": true,
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

@@ -1,0 +1,27 @@
+{
+  "manifest_version": "0.3",
+  "name": "giustizia-amministrativa-pp-mcp",
+  "display_name": "Giustizia Amministrativa",
+  "version": "0.0.0",
+  "description": "La giurisprudenza amministrativa italiana (TAR, Consiglio di Stato) da terminale: ricerca, testo integrale in Markdown, store locale e ricerca offline.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/giustizia-amministrativa-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/giustizia-amministrativa-pp-mcp",
+      "args": []
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

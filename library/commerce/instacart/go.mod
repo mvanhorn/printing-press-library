@@ -1,6 +1,6 @@
 module github.com/mvanhorn/printing-press-library/library/commerce/instacart
 
-go 1.26.3
+go 1.26.5
 
 require (
 	github.com/browserutils/kooky v0.2.2

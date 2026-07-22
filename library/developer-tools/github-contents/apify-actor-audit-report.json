@@ -1,0 +1,9 @@
+{
+  "dir": "\u003ccli-dir\u003e/github-contents-pp-cli",
+  "research_dir": "\u003ccli-dir\u003e/20260710-125244-1a986992",
+  "verdict": "pass",
+  "actors": null,
+  "issues": [
+    "no Apify actor references found, skipping"
+  ]
+}

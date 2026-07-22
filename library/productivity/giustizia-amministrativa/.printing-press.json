@@ -1,0 +1,63 @@
+{
+  "api_name": "giustizia-amministrativa",
+  "api_version": "0.1.0",
+  "auth_type": "none",
+  "category": "productivity",
+  "cli_name": "giustizia-amministrativa-pp-cli",
+  "creator": {
+    "handle": "aborruso",
+    "name": "aborruso"
+  },
+  "description": "La giurisprudenza amministrativa italiana (TAR, Consiglio di Stato) da terminale: ricerca, testo integrale in Markdown, store locale e ricerca offline.",
+  "display_name": "Giustizia Amministrativa",
+  "generated_at": "2026-06-21T10:22:41.954445245Z",
+  "mcp_binary": "giustizia-amministrativa-pp-mcp",
+  "mcp_public_tool_count": 2,
+  "mcp_ready": "full",
+  "mcp_tool_count": 2,
+  "novel_features": [
+    {
+      "name": "Testo integrale in Markdown",
+      "command": "get",
+      "description": "Scarica il testo completo di una sentenza/ordinanza/decreto/parere e lo restituisce in Markdown pulito."
+    },
+    {
+      "name": "Watch \u0026 Diff query salvate",
+      "command": "watch run",
+      "description": "Salva una ricerca e a ogni esecuzione mostra solo i provvedimenti nuovi dall'ultima volta."
+    },
+    {
+      "name": "Corpus export",
+      "command": "corpus build",
+      "description": "Assembla N provvedimenti su un tema in una cartella di Markdown + un CSV manifest (ECLI, sede, data, url)."
+    },
+    {
+      "name": "Grep sui testi integrali",
+      "command": "grep",
+      "description": "Ricerca regex/prossimita' sui testi integrali scaricati localmente, non solo sugli snippet."
+    },
+    {
+      "name": "Estrazione massime",
+      "command": "massime",
+      "description": "Estrae i paragrafi 'principio di diritto'/massima da un corpus in un unico digest."
+    },
+    {
+      "name": "Appeal-chain tracer",
+      "command": "appeal-chain",
+      "description": "Esegue il 'verifica appello' in batch e ricostruisce la catena TAR-\u003eConsiglio di Stato."
+    },
+    {
+      "name": "Statistiche corpus",
+      "command": "stats",
+      "description": "Distribuzione di un tema per sede, sezione, tipo e anno."
+    }
+  ],
+  "owner": "aborruso",
+  "printer": "aborruso",
+  "printer_name": "aborruso",
+  "printing_press_version": "4.24.0",
+  "run_id": "20260621-094103",
+  "schema_version": 1,
+  "spec_checksum": "sha256:1d0b8a43df4f78f8e0876b2ecdd74c81ddfa30e5ac7ce0b0d367a9589bb42854",
+  "spec_format": "internal"
+}

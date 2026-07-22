@@ -1,0 +1,8 @@
+{
+  "dir": "C:/Users/Joey/printing-press/.runstate/joey-69bb3f9f/runs/20260511-221728/working/dataforseo-pp-cli",
+  "workflows": null,
+  "verdict": "workflow-pass",
+  "issues": [
+    "no workflow manifest found, skipping"
+  ]
+}

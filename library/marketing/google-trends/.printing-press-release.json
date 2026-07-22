@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "slug": "google-trends",
+  "cli_name": "google-trends-pp-cli",
+  "version": "2026.7.1",
+  "released_at": "2026-07-18T05:14:12Z",
+  "source_commit": "044ed1a0a074f2e83d45a40e09f2d31c72c05e80",
+  "printing_press_version": "4.28.0",
+  "run_id": "20260713-105453-29114a9d",
+  "changes": [
+    {
+      "title": "feat(google-trends): add google-trends",
+      "pr": 1515,
+      "url": "https://github.com/mvanhorn/printing-press-library/pull/1515",
+      "commit": "044ed1a0a074f2e83d45a40e09f2d31c72c05e80"
+    }
+  ]
+}

@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.1.19
+
+- Multi-name installs run up to 6 CLIs concurrently (same cap and buffered-output pattern as `update`); per-CLI output is replayed in input order and `[k/N]` progress lines on stderr keep long runs live.
+- New install selectors: `--all` (whole catalog) and `--category <cat>` (repeatable). Overlapping selectors dedupe.
+- Go is detected once per invocation instead of once per CLI, so a missing toolchain fails fast with a single message.
+
+## 0.1.17
+
+- Raise the documented direct `go install` floor to Go 1.26.4 so npm installer guidance matches the catalog-wide module enforcement floor.
+
 ## 0.1.16
 
 - Default `install` to a per-user binary directory (`$HOME/.local/bin` on macOS/Linux, `%LOCALAPPDATA%\Programs\PrintingPress\bin` on Windows) instead of Go's `$GOPATH/bin`, so humans, agents, and gateway processes converge on the same install location.

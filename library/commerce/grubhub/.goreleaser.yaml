@@ -1,0 +1,51 @@
+version: 2
+project_name: grubhub-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: grubhub-pp-cli
+    main: ./cmd/grubhub-pp-cli
+    binary: grubhub-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X github.com/mvanhorn/printing-press-library/library/commerce/grubhub/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: grubhub-pp-mcp
+    main: ./cmd/grubhub-pp-mcp
+    binary: grubhub-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X main.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: grubhub-pp-cli
+    repository:
+      owner: vcolombo
+      name: homebrew-tap
+    homepage: "https://github.com/mvanhorn/printing-press-library"
+    description: "Every Grubhub restaurant search, plus a sortable delivery-fee comparison board, a cross-restaurant deal radar"
+    install: |
+      bin.install "grubhub-pp-cli"
+      bin.install "grubhub-pp-mcp"

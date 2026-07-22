@@ -1,0 +1,324 @@
+name: finra
+description: "FINRA API Platform CLI — Query API dataset access across equity, fixed income, registration, and firm data"
+version: "0.1.0"
+category: other
+base_url: "https://api.finra.org"
+health_check_path: "/datasets"
+
+auth:
+  type: oauth2
+  header: "Authorization"
+  format: "Bearer {token}"
+  oauth2_grant: client_credentials
+  token_url: "https://ews.fip.finra.org/fip/rest/ews/oauth2/access_token?grant_type=client_credentials"
+  env_vars:
+    - FINRA_CLIENT_ID
+    - FINRA_CLIENT_SECRET
+
+config:
+  format: toml
+  path: "~/.config/finra-pp-cli/config.toml"
+
+resources:
+  catalog:
+    description: "Discover available FINRA datasets and their capabilities"
+    endpoints:
+      list:
+        method: GET
+        path: "/datasets"
+        description: "List all available datasets, optionally filtered by group or name"
+        example: "  finra-pp-cli catalog --group OTCMARKET"
+        params:
+          - name: group
+            type: string
+            required: false
+            description: "Filter by dataset group (e.g. OTCMARKET, FIXEDINCOMEMARKET, FIRM, REGISTRATION, finra)"
+          - name: name
+            type: string
+            required: false
+            description: "Filter by dataset name within a group"
+        response:
+          type: array
+          item: Dataset
+
+  metadata:
+    description: "Inspect field-level schema and partition fields for a dataset"
+    endpoints:
+      get:
+        method: GET
+        path: "/metadata/group/{group}/name/{name}"
+        description: "Get field list, types, and partition fields for a dataset"
+        example: "  finra-pp-cli metadata OTCMARKET REGSHODAILY"
+        params:
+          - name: group
+            type: string
+            required: true
+            positional: true
+            description: "Dataset group (e.g. OTCMARKET, FIXEDINCOMEMARKET, FIRM, REGISTRATION, finra)"
+          - name: name
+            type: string
+            required: true
+            positional: true
+            description: "Dataset name within the group"
+        response:
+          type: object
+          item: DatasetMetaData
+
+  partitions:
+    description: "List available partition values (typically dates) for incremental sync"
+    endpoints:
+      list:
+        method: GET
+        path: "/partitions/group/{group}/name/{name}"
+        description: "List available partition values for a dataset, used for incremental sync"
+        example: "  finra-pp-cli partitions OTCMARKET REGSHODAILY"
+        params:
+          - name: group
+            type: string
+            required: true
+            positional: true
+            description: "Dataset group"
+          - name: name
+            type: string
+            required: true
+            positional: true
+            description: "Dataset name within the group"
+        response:
+          type: object
+          item: PartitionAvailabilityResponse
+
+  data:
+    description: "Query FINRA dataset records (equity, fixed income, registration, firm, and content datasets)"
+    endpoints:
+      list:
+        method: GET
+        path: "/data/group/{group}/name/{name}"
+        description: "List/filter dataset records via query parameters"
+        example: "  finra-pp-cli data list OTCMARKET REGSHODAILY --limit 100"
+        happy_args: "group=OTCMARKET;name=REGSHODAILY;--limit=10"
+        params:
+          - name: group
+            type: string
+            required: true
+            positional: true
+            description: "Dataset group (e.g. OTCMARKET, FIXEDINCOMEMARKET, FIRM, REGISTRATION, finra) — confirm exact casing via 'catalog'"
+          - name: name
+            type: string
+            required: true
+            positional: true
+            description: "Dataset name within the group — confirm exact spelling via 'catalog'"
+          - name: fields
+            type: string
+            required: false
+            description: "Comma-delimited list of field names to retrieve; default is all fields"
+          - name: sortFields
+            flag_name: sort
+            type: string
+            required: false
+            description: "Comma-delimited sort fields, prefix with - for descending. Requires an EQUAL filter on every partition field (see 'metadata')."
+          - name: offset
+            type: int
+            required: false
+            default: 0
+            description: "Pagination offset (max 500000)"
+          - name: limit
+            type: int
+            required: false
+            default: 1000
+            description: "Max records to return (sync max 5000)"
+          - name: delimiter
+            type: string
+            required: false
+            default: ","
+            description: "Field delimiter for text/plain responses"
+          - name: quoteValues
+            flag_name: quote-values
+            type: bool
+            required: false
+            default: true
+            description: "Quote string values in text/plain responses"
+        response:
+          type: array
+          item: DatasetRecord
+
+      query:
+        method: POST
+        path: "/data/group/{group}/name/{name}"
+        description: "Filter dataset records via a JSON request body (richer filtering than 'data list')"
+        example: "  finra-pp-cli data query OTCMARKET REGSHODAILY --date-range-filters '[{\"fieldName\":\"tradeReportDate\",\"startDate\":\"2026-06-01\",\"endDate\":\"2026-06-30\"}]'"
+        happy_args: "group=OTCMARKET;name=REGSHODAILY;--limit=10"
+        params:
+          - name: group
+            type: string
+            required: true
+            positional: true
+            description: "Dataset group"
+          - name: name
+            type: string
+            required: true
+            positional: true
+            description: "Dataset name within the group"
+        body:
+          properties:
+            fields:
+              type: array
+              description: "Field names to retrieve; default is all fields"
+              items:
+                type: string
+            compareFilters:
+              flag_name: compare-filters
+              type: array
+              description: "JSON array of {fieldName, fieldValue, compareType} objects. compareType is one of EQUAL, NOT_EQUAL, GREATER, LESSER, GTE, LTE."
+              items:
+                type: object
+            dateRangeFilters:
+              flag_name: date-range-filters
+              type: array
+              description: "JSON array of {fieldName, startDate, endDate} objects. Dates are YYYY-MM-DD or YYYY-MM-DD HH:mm:ss.SSS."
+              items:
+                type: object
+            domainFilters:
+              flag_name: domain-filters
+              type: array
+              description: "JSON array of {fieldName, values: [...]} objects"
+              items:
+                type: object
+            orFilters:
+              flag_name: or-filters
+              type: array
+              description: "JSON array of OR-grouped compareFilters/domainFilters objects"
+              items:
+                type: object
+            sortFields:
+              flag_name: sort
+              type: array
+              description: "Sort fields, prefix with - for descending. Requires an EQUAL compareFilter on every partition field."
+              items:
+                type: string
+            limit:
+              type: int
+              description: "Max records to return (sync max 5000, async max 100000)"
+            offset:
+              type: int
+              description: "Pagination offset (max 500000 sync)"
+            quoteValues:
+              flag_name: quote-values
+              type: bool
+              description: "Quote string values in text/plain responses"
+            async:
+              type: bool
+              description: "Run as an async job for bulk extracts (>5000 records); poll via 'async get'"
+        response:
+          type: array
+          item: DatasetRecord
+
+      get:
+        method: GET
+        path: "/data/group/{group}/name/{name}/id/{id}"
+        description: "Get a single dataset record by its primary ID (only for datasets where supportsGetById is true — check via 'catalog')"
+        example: "  finra-pp-cli data get REGISTRATION REGISTRATIONVALIDATIONINDIVIDUAL 1234567"
+        params:
+          - name: group
+            type: string
+            required: true
+            positional: true
+            description: "Dataset group"
+          - name: name
+            type: string
+            required: true
+            positional: true
+            description: "Dataset name within the group"
+          - name: id
+            type: string
+            required: true
+            positional: true
+            description: "Primary ID of the record (e.g. CRD number for registration datasets)"
+        response:
+          type: object
+          item: DatasetRecord
+
+  async:
+    description: "Poll async job status and results for bulk data extracts"
+    endpoints:
+      get:
+        method: GET
+        path: "/async-requests/group/{group}/name/{name}/{requestId}"
+        description: "Poll the status and results of an async data request"
+        example: "  finra-pp-cli async get OTCMARKET REGSHODAILY req-12345"
+        params:
+          - name: group
+            type: string
+            required: true
+            positional: true
+            description: "Dataset group"
+          - name: name
+            type: string
+            required: true
+            positional: true
+            description: "Dataset name within the group"
+          - name: requestId
+            type: string
+            required: true
+            positional: true
+            description: "Async request ID returned when the job was submitted"
+        response:
+          type: object
+          item: DatasetRecord
+
+types:
+  Dataset:
+    fields:
+      - name: group
+        type: string
+        description: "Dataset group/category"
+      - name: name
+        type: string
+        description: "Dataset name within the group"
+      - name: description
+        type: string
+      - name: entitlement
+        type: string
+        description: "Entitlement required to view this dataset"
+      - name: securityLevel
+        type: string
+        description: "PUBLIC, CONF, RCI, or PCI"
+      - name: nativeFormat
+        type: string
+      - name: supportsGetById
+        type: bool
+      - name: supportsQuery
+        type: bool
+      - name: supportsRecordLimit
+        type: bool
+      - name: supportsRecordOffset
+        type: bool
+
+  DatasetMetaData:
+    fields:
+      - name: datasetGroup
+        type: string
+      - name: datasetName
+        type: string
+      - name: description
+        type: string
+      - name: nativeFormat
+        type: string
+      - name: primaryIdField
+        type: string
+      - name: partitionFields
+        type: string
+
+  PartitionAvailabilityResponse:
+    fields:
+      - name: datasetGroup
+        type: string
+      - name: datasetName
+        type: string
+      - name: partitionFields
+        type: string
+
+  DatasetRecord:
+    fields:
+      - name: id
+        type: string
+        description: "Record identifier — actual field set varies per dataset; use 'metadata' to discover the real field list for a given group/name"

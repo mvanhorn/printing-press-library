@@ -45,7 +45,10 @@ func newEventsListCmd(flags *rootFlags) *cobra.Command {
 	var flagIncludeTest string
 	var flagPage string
 	var flagSize string
+	var flagLocale string
+	var flagIncludeLicensedContent string
 	var flagIncludeSpellcheck string
+	var flagAll bool
 
 	cmd := &cobra.Command{
 		Use:         "list",
@@ -54,7 +57,7 @@ func newEventsListCmd(flags *rootFlags) *cobra.Command {
 		Annotations: map[string]string{"pp:endpoint": "events.list", "pp:method": "GET", "pp:path": "/events", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if cmd.Flags().Changed("include-tba") {
-				allowedIncludeTBA := []string{"yes", " no", " only"}
+				allowedIncludeTBA := []string{"yes", "no", "only"}
 				validIncludeTBA := false
 				for _, v := range allowedIncludeTBA {
 					if flagIncludeTBA == v {
@@ -63,11 +66,11 @@ func newEventsListCmd(flags *rootFlags) *cobra.Command {
 					}
 				}
 				if !validIncludeTBA {
-					fmt.Fprintf(os.Stderr, "warning: --%s %q not in allowed set %v\n", "include-tba", flagIncludeTBA, allowedIncludeTBA)
+					return fmt.Errorf("invalid value %q for --%s: must be one of %v", flagIncludeTBA, "include-tba", allowedIncludeTBA)
 				}
 			}
 			if cmd.Flags().Changed("include-tbd") {
-				allowedIncludeTBD := []string{"yes", " no", " only"}
+				allowedIncludeTBD := []string{"yes", "no", "only"}
 				validIncludeTBD := false
 				for _, v := range allowedIncludeTBD {
 					if flagIncludeTBD == v {
@@ -76,7 +79,7 @@ func newEventsListCmd(flags *rootFlags) *cobra.Command {
 					}
 				}
 				if !validIncludeTBD {
-					fmt.Fprintf(os.Stderr, "warning: --%s %q not in allowed set %v\n", "include-tbd", flagIncludeTBD, allowedIncludeTBD)
+					return fmt.Errorf("invalid value %q for --%s: must be one of %v", flagIncludeTBD, "include-tbd", allowedIncludeTBD)
 				}
 			}
 			if cmd.Flags().Changed("unit") {
@@ -89,11 +92,11 @@ func newEventsListCmd(flags *rootFlags) *cobra.Command {
 					}
 				}
 				if !validUnit {
-					fmt.Fprintf(os.Stderr, "warning: --%s %q not in allowed set %v\n", "unit", flagUnit, allowedUnit)
+					return fmt.Errorf("invalid value %q for --%s: must be one of %v", flagUnit, "unit", allowedUnit)
 				}
 			}
 			if cmd.Flags().Changed("source") {
-				allowedSource := []string{"ticketmaster", " universe", " frontgate", " tmr"}
+				allowedSource := []string{"ticketmaster", "universe", "frontgate", "tmr"}
 				validSource := false
 				for _, v := range allowedSource {
 					if flagSource == v {
@@ -102,11 +105,11 @@ func newEventsListCmd(flags *rootFlags) *cobra.Command {
 					}
 				}
 				if !validSource {
-					fmt.Fprintf(os.Stderr, "warning: --%s %q not in allowed set %v\n", "source", flagSource, allowedSource)
+					return fmt.Errorf("invalid value %q for --%s: must be one of %v", flagSource, "source", allowedSource)
 				}
 			}
 			if cmd.Flags().Changed("include-test") {
-				allowedIncludeTest := []string{"yes", " no", " only"}
+				allowedIncludeTest := []string{"yes", "no", "only"}
 				validIncludeTest := false
 				for _, v := range allowedIncludeTest {
 					if flagIncludeTest == v {
@@ -115,11 +118,24 @@ func newEventsListCmd(flags *rootFlags) *cobra.Command {
 					}
 				}
 				if !validIncludeTest {
-					fmt.Fprintf(os.Stderr, "warning: --%s %q not in allowed set %v\n", "include-test", flagIncludeTest, allowedIncludeTest)
+					return fmt.Errorf("invalid value %q for --%s: must be one of %v", flagIncludeTest, "include-test", allowedIncludeTest)
+				}
+			}
+			if cmd.Flags().Changed("include-licensed-content") {
+				allowedIncludeLicensedContent := []string{"yes", "no"}
+				validIncludeLicensedContent := false
+				for _, v := range allowedIncludeLicensedContent {
+					if flagIncludeLicensedContent == v {
+						validIncludeLicensedContent = true
+						break
+					}
+				}
+				if !validIncludeLicensedContent {
+					return fmt.Errorf("invalid value %q for --%s: must be one of %v", flagIncludeLicensedContent, "include-licensed-content", allowedIncludeLicensedContent)
 				}
 			}
 			if cmd.Flags().Changed("include-spellcheck") {
-				allowedIncludeSpellcheck := []string{"yes", " no"}
+				allowedIncludeSpellcheck := []string{"yes", "no"}
 				validIncludeSpellcheck := false
 				for _, v := range allowedIncludeSpellcheck {
 					if flagIncludeSpellcheck == v {
@@ -128,132 +144,71 @@ func newEventsListCmd(flags *rootFlags) *cobra.Command {
 					}
 				}
 				if !validIncludeSpellcheck {
-					fmt.Fprintf(os.Stderr, "warning: --%s %q not in allowed set %v\n", "include-spellcheck", flagIncludeSpellcheck, allowedIncludeSpellcheck)
+					return fmt.Errorf("invalid value %q for --%s: must be one of %v", flagIncludeSpellcheck, "include-spellcheck", allowedIncludeSpellcheck)
 				}
 			}
+			path := "/events"
 			c, err := flags.newClient()
 			if err != nil {
 				return err
 			}
-
-			path := "/events"
-			params := map[string]string{}
-			if flagSort != "" {
-				params["sort"] = fmt.Sprintf("%v", flagSort)
-			}
-			if flagStartDateTime != "" {
-				params["startDateTime"] = fmt.Sprintf("%v", flagStartDateTime)
-			}
-			if flagEndDateTime != "" {
-				params["endDateTime"] = fmt.Sprintf("%v", flagEndDateTime)
-			}
-			if flagOnsaleStartDateTime != "" {
-				params["onsaleStartDateTime"] = fmt.Sprintf("%v", flagOnsaleStartDateTime)
-			}
-			if flagOnsaleOnStartDate != "" {
-				params["onsaleOnStartDate"] = fmt.Sprintf("%v", flagOnsaleOnStartDate)
-			}
-			if flagOnsaleOnAfterStartDate != "" {
-				params["onsaleOnAfterStartDate"] = fmt.Sprintf("%v", flagOnsaleOnAfterStartDate)
-			}
-			if flagOnsaleEndDateTime != "" {
-				params["onsaleEndDateTime"] = fmt.Sprintf("%v", flagOnsaleEndDateTime)
-			}
-			if flagCity != "" {
-				params["city"] = fmt.Sprintf("%v", flagCity)
-			}
-			if flagCountryCode != "" {
-				params["countryCode"] = fmt.Sprintf("%v", flagCountryCode)
-			}
-			if flagStateCode != "" {
-				params["stateCode"] = fmt.Sprintf("%v", flagStateCode)
-			}
-			if flagPostalCode != "" {
-				params["postalCode"] = fmt.Sprintf("%v", flagPostalCode)
-			}
-			if flagVenueId != "" {
-				params["venueId"] = fmt.Sprintf("%v", flagVenueId)
-			}
-			if flagAttractionId != "" {
-				params["attractionId"] = fmt.Sprintf("%v", flagAttractionId)
-			}
-			if flagSegmentId != "" {
-				params["segmentId"] = fmt.Sprintf("%v", flagSegmentId)
-			}
-			if flagSegmentName != "" {
-				params["segmentName"] = fmt.Sprintf("%v", flagSegmentName)
-			}
-			if flagClassificationName != "" {
-				params["classificationName"] = fmt.Sprintf("%v", flagClassificationName)
-			}
-			if flagClassificationId != "" {
-				params["classificationId"] = fmt.Sprintf("%v", flagClassificationId)
-			}
-			if flagMarketId != "" {
-				params["marketId"] = fmt.Sprintf("%v", flagMarketId)
-			}
-			if flagPromoterId != "" {
-				params["promoterId"] = fmt.Sprintf("%v", flagPromoterId)
-			}
-			if flagDmaId != "" {
-				params["dmaId"] = fmt.Sprintf("%v", flagDmaId)
-			}
-			if flagIncludeTBA != "" {
-				params["includeTBA"] = fmt.Sprintf("%v", flagIncludeTBA)
-			}
-			if flagIncludeTBD != "" {
-				params["includeTBD"] = fmt.Sprintf("%v", flagIncludeTBD)
-			}
-			if flagClientVisibility != "" {
-				params["clientVisibility"] = fmt.Sprintf("%v", flagClientVisibility)
-			}
-			if flagLatlong != "" {
-				params["latlong"] = fmt.Sprintf("%v", flagLatlong)
-			}
-			if flagRadius != "" {
-				params["radius"] = fmt.Sprintf("%v", flagRadius)
-			}
-			if flagUnit != "" {
-				params["unit"] = fmt.Sprintf("%v", flagUnit)
-			}
-			if flagGeoPoint != "" {
-				params["geoPoint"] = fmt.Sprintf("%v", flagGeoPoint)
-			}
-			if flagKeyword != "" {
-				params["keyword"] = fmt.Sprintf("%v", flagKeyword)
-			}
-			if flagId != "" {
-				params["id"] = fmt.Sprintf("%v", flagId)
-			}
-			if flagSource != "" {
-				params["source"] = fmt.Sprintf("%v", flagSource)
-			}
-			if flagIncludeTest != "" {
-				params["includeTest"] = fmt.Sprintf("%v", flagIncludeTest)
-			}
-			if flagPage != "" {
-				params["page"] = fmt.Sprintf("%v", flagPage)
-			}
-			if flagSize != "" {
-				params["size"] = fmt.Sprintf("%v", flagSize)
-			}
-			if flagIncludeSpellcheck != "" {
-				params["includeSpellcheck"] = fmt.Sprintf("%v", flagIncludeSpellcheck)
-			}
-			data, prov, err := resolveRead(cmd.Context(), c, flags, "events", false, path, params, nil)
+			data, prov, err := resolvePaginatedReadWithStrategy(cmd.Context(), c, flags, "auto", "events", path, map[string]string{
+				"sort":                   formatCLIParamValue(flagSort),
+				"startDateTime":          formatCLIParamValue(flagStartDateTime),
+				"endDateTime":            formatCLIParamValue(flagEndDateTime),
+				"onsaleStartDateTime":    formatCLIParamValue(flagOnsaleStartDateTime),
+				"onsaleOnStartDate":      formatCLIParamValue(flagOnsaleOnStartDate),
+				"onsaleOnAfterStartDate": formatCLIParamValue(flagOnsaleOnAfterStartDate),
+				"onsaleEndDateTime":      formatCLIParamValue(flagOnsaleEndDateTime),
+				"city":                   formatCLIParamValue(flagCity),
+				"countryCode":            formatCLIParamValue(flagCountryCode),
+				"stateCode":              formatCLIParamValue(flagStateCode),
+				"postalCode":             formatCLIParamValue(flagPostalCode),
+				"venueId":                formatCLIParamValue(flagVenueId),
+				"attractionId":           formatCLIParamValue(flagAttractionId),
+				"segmentId":              formatCLIParamValue(flagSegmentId),
+				"segmentName":            formatCLIParamValue(flagSegmentName),
+				"classificationName":     formatCLIParamValue(flagClassificationName),
+				"classificationId":       formatCLIParamValue(flagClassificationId),
+				"marketId":               formatCLIParamValue(flagMarketId),
+				"promoterId":             formatCLIParamValue(flagPromoterId),
+				"dmaId":                  formatCLIParamValue(flagDmaId),
+				"includeTBA":             formatCLIParamValue(flagIncludeTBA),
+				"includeTBD":             formatCLIParamValue(flagIncludeTBD),
+				"clientVisibility":       formatCLIParamValue(flagClientVisibility),
+				"latlong":                formatCLIParamValue(flagLatlong),
+				"radius":                 formatCLIParamValue(flagRadius),
+				"unit":                   formatCLIParamValue(flagUnit),
+				"geoPoint":               formatCLIParamValue(flagGeoPoint),
+				"keyword":                formatCLIParamValue(flagKeyword),
+				"id":                     formatCLIParamValue(flagId),
+				"source":                 formatCLIParamValue(flagSource),
+				"includeTest":            formatCLIParamValue(flagIncludeTest),
+				"page":                   formatCLIParamValue(flagPage),
+				"size":                   formatCLIParamValue(flagSize),
+				"locale":                 formatCLIParamValue(flagLocale),
+				"includeLicensedContent": formatCLIParamValue(flagIncludeLicensedContent),
+				"includeSpellcheck":      formatCLIParamValue(flagIncludeSpellcheck),
+			}, nil, flagAll, "page", "page", "size", 100, "", "", cmd.ErrOrStderr())
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}
-			// Print provenance to stderr for human-facing output
-			{
+			// Print provenance to stderr for human-facing output only.
+			// Machine-format flags (--json, --csv, --compact, --quiet, --plain,
+			// --select) and piped stdout suppress this line; the JSON envelope
+			// already carries meta.source for those consumers.
+			// SYNC: keep this gate aligned with command_promoted.go.tmpl.
+			if wantsHumanTable(cmd.OutOrStdout(), flags) {
 				var countItems []json.RawMessage
 				_ = json.Unmarshal(data, &countItems)
 				printProvenance(cmd, len(countItems), prov)
 			}
 			// For JSON output, wrap with provenance envelope before passing through flags.
 			// --select wins over --compact when both are set; --compact only runs when
-			// no explicit fields were requested.
-			if flags.asJSON || !isTerminal(cmd.OutOrStdout()) {
+			// no explicit fields were requested. Explicit format flags (--csv, --quiet,
+			// --plain) opt out of the auto-JSON path so piped consumers that asked for
+			// a non-JSON format reach the standard pipeline below.
+			if flags.asJSON || (!isTerminal(cmd.OutOrStdout()) && !flags.csv && !flags.quiet && !flags.plain) {
 				filtered := data
 				if flags.selectFields != "" {
 					filtered = filterFields(filtered, flags.selectFields)
@@ -279,10 +234,10 @@ func newEventsListCmd(flags *rootFlags) *cobra.Command {
 					return nil
 				}
 			}
-			return printOutputWithFlags(cmd.OutOrStdout(), data, flags)
+			return printOutputWithFlagsMeta(cmd.OutOrStdout(), data, flags, map[string]any{"source": "live"})
 		},
 	}
-	cmd.Flags().StringVar(&flagSort, "sort", "relevance,desc", "Sorting order of the search result. Allowable values : 'name,asc', 'name,desc', 'date,asc', 'date,desc',...")
+	cmd.Flags().StringVar(&flagSort, "sort", "relevance,desc", "Sorting order of the search result.")
 	cmd.Flags().StringVar(&flagStartDateTime, "start-date-time", "", "Filter events with a start date after this date")
 	cmd.Flags().StringVar(&flagEndDateTime, "end-date-time", "", "Filter events with a start date before this date")
 	cmd.Flags().StringVar(&flagOnsaleStartDateTime, "onsale-start-date-time", "", "Filter events with onsale start date after this date")
@@ -297,25 +252,28 @@ func newEventsListCmd(flags *rootFlags) *cobra.Command {
 	cmd.Flags().StringVar(&flagAttractionId, "attraction-id", "", "Filter events by attraction id")
 	cmd.Flags().StringVar(&flagSegmentId, "segment-id", "", "Filter events by segment id")
 	cmd.Flags().StringVar(&flagSegmentName, "segment-name", "", "Filter events by segment name")
-	cmd.Flags().StringVar(&flagClassificationName, "classification-name", "\"\"", "Filter events by classification name: name of any segment, genre, sub-genre, type, sub-type")
-	cmd.Flags().StringVar(&flagClassificationId, "classification-id", "\"\"", "Filter events by classification id: id of any segment, genre, sub-genre, type, sub-type")
+	cmd.Flags().StringVar(&flagClassificationName, "classification-name", "", "Filter events by classification name: name of any segment, genre, sub-genre, type, sub-type")
+	cmd.Flags().StringVar(&flagClassificationId, "classification-id", "", "Filter events by classification id: id of any segment, genre, sub-genre, type, sub-type")
 	cmd.Flags().StringVar(&flagMarketId, "market-id", "", "Filter events by market id")
 	cmd.Flags().StringVar(&flagPromoterId, "promoter-id", "", "Filter events by promoter id")
 	cmd.Flags().StringVar(&flagDmaId, "dma-id", "", "Filter events by dma id")
-	cmd.Flags().StringVar(&flagIncludeTBA, "include-tba", "no if date parameter sent, yes otherwise", "True, to include events with date to be announce (TBA) (one of: yes,  no,  only)")
-	cmd.Flags().StringVar(&flagIncludeTBD, "include-tbd", "no if date parameter sent, yes otherwise", "True, to include event with a date to be defined (TBD) (one of: yes,  no,  only)")
+	cmd.Flags().StringVar(&flagIncludeTBA, "include-tba", "", "True, to include events with date to be announce (TBA) (one of: yes, no, only)")
+	cmd.Flags().StringVar(&flagIncludeTBD, "include-tbd", "", "True, to include event with a date to be defined (TBD) (one of: yes, no, only)")
 	cmd.Flags().StringVar(&flagClientVisibility, "client-visibility", "", "Filter events by clientName")
-	cmd.Flags().StringVar(&flagLatlong, "latlong", "", "Filter events by latitude and longitude, this filter is deprecated and maybe removed in a future release, please use...")
+	cmd.Flags().StringVar(&flagLatlong, "latlong", "", "Filter events by latitude and longitude, this filter is deprecated and maybe removed in a future release")
 	cmd.Flags().StringVar(&flagRadius, "radius", "50", "Radius of the area in which we want to search for events.")
 	cmd.Flags().StringVar(&flagUnit, "unit", "miles", "Unit of the radius (one of: miles, km)")
 	cmd.Flags().StringVar(&flagGeoPoint, "geo-point", "", "filter events by geoHash")
 	cmd.Flags().StringVar(&flagKeyword, "keyword", "", "Keyword to search on")
 	cmd.Flags().StringVar(&flagId, "id", "", "Filter entities by its id")
-	cmd.Flags().StringVar(&flagSource, "source", "", "Filter entities by its source name (one of: ticketmaster,  universe,  frontgate,  tmr)")
-	cmd.Flags().StringVar(&flagIncludeTest, "include-test", "no", "True if you want to have entities flag as test in the response. Only, if you only wanted test entities (one of: yes,  no,  only)")
+	cmd.Flags().StringVar(&flagSource, "source", "", "Filter entities by its source name (one of: ticketmaster, universe, frontgate, tmr)")
+	cmd.Flags().StringVar(&flagIncludeTest, "include-test", "no", "True if you want to have entities flag as test in the response. Only, if you only wanted test entities (one of: yes, no, only)")
 	cmd.Flags().StringVar(&flagPage, "page", "0", "Page number")
 	cmd.Flags().StringVar(&flagSize, "size", "20", "Page size of the response")
-	cmd.Flags().StringVar(&flagIncludeSpellcheck, "include-spellcheck", "no", "yes, to include spell check suggestions in the response. (one of: yes,  no)")
+	cmd.Flags().StringVar(&flagLocale, "locale", "en", "The locale in ISO code format. Multiple comma-separated values can be provided.")
+	cmd.Flags().StringVar(&flagIncludeLicensedContent, "include-licensed-content", "no", "Yes if you want to display licensed content (one of: yes, no)")
+	cmd.Flags().StringVar(&flagIncludeSpellcheck, "include-spellcheck", "no", "yes, to include spell check suggestions in the response. (one of: yes, no)")
+	cmd.Flags().BoolVar(&flagAll, "all", false, "Fetch all pages")
 
 	return cmd
 }

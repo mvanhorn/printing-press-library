@@ -114,7 +114,7 @@ func newDashboardCmd(flags *rootFlags) *cobra.Command {
 						return
 					}
 					path := fmt.Sprintf("/%s/%s/scoreboard", sport, league)
-					data, fetchErr := c.Get(path, nil)
+					data, fetchErr := c.Get(cmd.Context(), path, nil)
 					if fetchErr != nil {
 						results[idx] = leagueRow{League: league, Err: fetchErr.Error()}
 						return

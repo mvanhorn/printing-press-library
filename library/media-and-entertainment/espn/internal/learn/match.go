@@ -30,30 +30,47 @@ const (
 const (
 	WarningLowConfidence      = "low_confidence"
 	WarningResourceNotInStore = "resource_not_in_store"
-	// WarningCrossAliasMatch flags hits where the literal entities
-	// don't overlap but the canonicals do (e.g., "49ers" query hit
-	// a "Niners" stored learning via entity_lookups). Surfaces the
-	// resolution path so agents can see when cross-alias fired.
+	// WarningCrossAliasMatch flags a hit whose entity_match verdict was
+	// promoted from Mismatch to Exact because the query and stored row
+	// share a canonical via entity_lookups even though their literal
+	// entities differ.
 	WarningCrossAliasMatch = "cross_alias_match"
 )
 
 // Top-level recall envelope warnings.
 const (
 	TopWarningNoLearningsForQueryFamily = "no_learnings_for_query_family"
-	// WarningAmbiguousAlias fires when a single query entity resolves
-	// to multiple canonicals via entity_lookups (e.g., "Cards" could
-	// be Arizona Cardinals NFL or St. Louis Cardinals MLB). Surfaced
-	// at the envelope level so agents can disambiguate via context
-	// or --debug-mismatches.
-	WarningAmbiguousAlias = "ambiguous_alias"
-	// WarningSimilarShapeDifferentEntity prefixes envelope-level
-	// warnings whose suffix is the canonical name of a stored row
-	// that shares the query's structural shape but resolves to a
-	// different entity. Format: "similar_shape_different_entity:<canonical>".
-	// Surfaces in the default envelope so an agent doesn't read
-	// no_learnings_for_query_family when a structurally-similar row
-	// for a different entity exists.
+	// WarningSimilarShapeDifferentEntity surfaces when stored rows match
+	// the query's structural shape but resolve to a different canonical.
+	// Emitted as `similar_shape_different_entity:<canonical>` (one per
+	// alternative canonical) so the agent sees a similar-shape learning
+	// exists rather than treating the query as a cold start.
 	WarningSimilarShapeDifferentEntity = "similar_shape_different_entity"
+	// WarningAmbiguousAlias surfaces when a single query entity resolves
+	// to multiple canonicals via entity_lookups. Narrow trigger: only
+	// fires for a single entity with multi-canonical resolution; does not
+	// fire for multi-entity queries where each individual entity resolves
+	// unambiguously even if the union spans multiple canonicals.
+	WarningAmbiguousAlias = "ambiguous_alias"
+	// TopWarningLookupRefreshAvailable surfaces when a cold recall
+	// carries a query entity with no entity_lookups row under ANY
+	// source (taught / inferred / synced / seeded). Stateless: no
+	// candidate row or table write backs the warning itself — the text
+	// tells the agent to run `sync`, whose post-sync lookup-refresh
+	// scanner derives rows (source='synced') from already-synced local
+	// data for entities recorded as recall lookup misses. Emitted as
+	// "lookup_refresh_available:<entity> (run sync to refresh entity
+	// lookups)" — one per unresolvable entity — and disappears on its
+	// own once the entity resolves.
+	TopWarningLookupRefreshAvailable = "lookup_refresh_available"
+	// TopWarningCandidatesPresent surfaces exactly when the envelope's
+	// `candidates` array is non-empty: quarantined auto-captured
+	// candidates rode along for this query, each carrying a two-step
+	// byte-exact next_action (try the candidate, then
+	// `learnings confirm <id>`). With nothing open the warning is
+	// absent AND the candidates key is omitted entirely, keeping the
+	// envelope byte-stable for stores with nothing pending.
+	TopWarningCandidatesPresent = "candidates_present"
 )
 
 // Jaccard returns the token-set Jaccard coefficient of two string

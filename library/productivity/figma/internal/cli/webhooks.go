@@ -9,8 +9,11 @@ import (
 
 func newWebhooksCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "webhooks",
-		Short: "Interact with team webhooks as a team admin.",
+		Use:         "webhooks",
+		Short:       "Interact with team webhooks as a team admin.",
+		Hidden:      true,
+		Annotations: map[string]string{"mcp:read-only": "true"},
+		RunE:        parentNoSubcommandRunE(flags),
 	}
 
 	cmd.AddCommand(newWebhooksDeleteCmd(flags))
@@ -19,6 +22,6 @@ func newWebhooksCmd(flags *rootFlags) *cobra.Command {
 	cmd.AddCommand(newWebhooksPostCmd(flags))
 	cmd.AddCommand(newWebhooksPutCmd(flags))
 	cmd.AddCommand(newWebhooksRequestsCmd(flags))
-	cmd.AddCommand(newWebhooksTestCmd(flags))
+	cmd.AddCommand(newNovelWebhooksTestCmd(flags))
 	return cmd
 }

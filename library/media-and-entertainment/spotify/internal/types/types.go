@@ -48,10 +48,6 @@ type AlbumRestrictionObject struct {
 	Reason string `json:"reason"`
 }
 
-type AlbumsGetMultipleResponse struct {
-	Albums json.RawMessage `json:"albums"`
-}
-
 type ArtistDiscographyAlbumObject struct {
 	AlbumGroup           string          `json:"album_group"`
 	AlbumType            string          `json:"album_type"`
@@ -83,10 +79,6 @@ type ArtistObject struct {
 	Uri          string          `json:"uri"`
 }
 
-type ArtistsGetMultipleResponse struct {
-	Artists json.RawMessage `json:"artists"`
-}
-
 type AudioAnalysisObject struct {
 	Bars     json.RawMessage `json:"bars"`
 	Beats    json.RawMessage `json:"beats"`
@@ -95,10 +87,6 @@ type AudioAnalysisObject struct {
 	Segments json.RawMessage `json:"segments"`
 	Tatums   json.RawMessage `json:"tatums"`
 	Track    json.RawMessage `json:"track"`
-}
-
-type AudioFeaturesGetSeveralResponse struct {
-	AudioFeatures json.RawMessage `json:"audio_features"`
 }
 
 type AudioFeaturesObject struct {
@@ -165,10 +153,6 @@ type AudiobookObject struct {
 	TotalChapters    int             `json:"total_chapters"`
 	Type             string          `json:"type"`
 	Uri              string          `json:"uri"`
-}
-
-type AudiobooksGetMultipleResponse struct {
-	Audiobooks json.RawMessage `json:"audiobooks"`
 }
 
 type AuthorObject struct {
@@ -239,10 +223,6 @@ type ChapterObject struct {
 
 type ChapterRestrictionObject struct {
 	Reason string `json:"reason"`
-}
-
-type ChaptersGetSeveralResponse struct {
-	Chapters json.RawMessage `json:"chapters"`
 }
 
 type ContextObject struct {
@@ -386,10 +366,6 @@ type EpisodeRestrictionObject struct {
 	Reason string `json:"reason"`
 }
 
-type EpisodesGetMultipleResponse struct {
-	Episodes json.RawMessage `json:"episodes"`
-}
-
 type ErrorObject struct {
 	Message string `json:"message"`
 	Status  int    `json:"status"`
@@ -441,16 +417,42 @@ type LinkedTrackObject struct {
 	Uri          string `json:"uri"`
 }
 
-type MarketsGetAvailableResponse struct {
-	Markets json.RawMessage `json:"markets"`
-}
-
-type MeGetAUsersAvailableDevicesResponse struct {
-	Devices json.RawMessage `json:"devices"`
-}
-
 type MeGetFollowedResponse struct {
 	Artists json.RawMessage `json:"artists"`
+}
+
+type MeGetQueueItem struct {
+	Album                string          `json:"album"`
+	Artists              json.RawMessage `json:"artists"`
+	AudioPreviewUrl      string          `json:"audio_preview_url"`
+	AvailableMarkets     json.RawMessage `json:"available_markets"`
+	Description          string          `json:"description"`
+	DiscNumber           int             `json:"disc_number"`
+	DurationMs           int             `json:"duration_ms"`
+	Explicit             bool            `json:"explicit"`
+	ExternalIds          string          `json:"external_ids"`
+	ExternalUrls         string          `json:"external_urls"`
+	Href                 string          `json:"href"`
+	HtmlDescription      string          `json:"html_description"`
+	Id                   string          `json:"id"`
+	Images               json.RawMessage `json:"images"`
+	IsExternallyHosted   bool            `json:"is_externally_hosted"`
+	IsLocal              bool            `json:"is_local"`
+	IsPlayable           bool            `json:"is_playable"`
+	Language             string          `json:"language"`
+	Languages            json.RawMessage `json:"languages"`
+	LinkedFrom           string          `json:"linked_from"`
+	Name                 string          `json:"name"`
+	Popularity           int             `json:"popularity"`
+	PreviewUrl           string          `json:"preview_url"`
+	ReleaseDate          string          `json:"release_date"`
+	ReleaseDatePrecision string          `json:"release_date_precision"`
+	Restrictions         string          `json:"restrictions"`
+	ResumePoint          string          `json:"resume_point"`
+	Show                 string          `json:"show"`
+	TrackNumber          int             `json:"track_number"`
+	Type                 string          `json:"type"`
+	Uri                  string          `json:"uri"`
 }
 
 type NarratorObject struct {
@@ -725,17 +727,9 @@ type RecommendationSeedObject struct {
 	Type               string `json:"type"`
 }
 
-type RecommendationsGetGenresResponse struct {
-	Genres json.RawMessage `json:"genres"`
-}
-
 type RecommendationsObject struct {
 	Seeds  json.RawMessage `json:"seeds"`
 	Tracks json.RawMessage `json:"tracks"`
-}
-
-type RelatedArtistsGetAnArtistsResponse struct {
-	Artists json.RawMessage `json:"artists"`
 }
 
 type ResumePointObject struct {
@@ -834,10 +828,6 @@ type ShowObject struct {
 	TotalEpisodes      int             `json:"total_episodes"`
 	Type               string          `json:"type"`
 	Uri                string          `json:"uri"`
-}
-
-type ShowsGetMultipleResponse struct {
-	Shows json.RawMessage `json:"shows"`
 }
 
 type SimplifiedAlbumObject struct {
@@ -1007,10 +997,6 @@ type TimeIntervalObject struct {
 	Start      float64 `json:"start"`
 }
 
-type TopTracksGetAnArtistsResponse struct {
-	Tracks json.RawMessage `json:"tracks"`
-}
-
 type TrackObject struct {
 	Album            string          `json:"album"`
 	Artists          json.RawMessage `json:"artists"`
@@ -1040,10 +1026,6 @@ type TrackRestrictionObject struct {
 
 type TracksAddToPlaylistResponse struct {
 	SnapshotId string `json:"snapshot_id"`
-}
-
-type TracksGetSeveralResponse struct {
-	Tracks json.RawMessage `json:"tracks"`
 }
 
 type TracksRemovePlaylistResponse struct {

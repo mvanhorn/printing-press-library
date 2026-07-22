@@ -1,0 +1,59 @@
+{
+  "schema_version": 2,
+  "generated_at": "2026-07-18T19:56:08.342506Z",
+  "printing_press_version": "4.29.0",
+  "api_name": "epa-echo",
+  "display_name": "Epa Echo",
+  "cli_name": "epa-echo-pp-cli",
+  "creator": {
+    "handle": "Avanderheyde",
+    "name": "avanderheyde"
+  },
+  "owner": "avanderheyde",
+  "printer": "Avanderheyde",
+  "printer_name": "avanderheyde",
+  "spec_path": "spec.yaml",
+  "spec_format": "openapi3",
+  "spec_checksum": "sha256:e6b5ca182f0f2877b21a4c9c40bcd244baa9cb4f7f88b7303c65df28ea487ccd",
+  "run_id": "20260717-002908-3fd3b078",
+  "category": "other",
+  "description": "Resolve EPA-regulated facilities, inspect transparent compliance evidence, and retain change history without opaque scores.",
+  "mcp_binary": "epa-echo-pp-mcp",
+  "mcp_tool_count": 3,
+  "mcp_public_tool_count": 3,
+  "mcp_ready": "full",
+  "api_version": "1.0.0",
+  "auth_type": "none",
+  "novel_features": [
+    {
+      "name": "Explainable facility resolution",
+      "command": "resolve facility",
+      "description": "Rank bounded facility matches while preserving FRS identifiers, addresses, program status fields, and query provenance."
+    },
+    {
+      "name": "Facility dossier change set",
+      "command": "dossier diff",
+      "description": "Compare a live detailed facility report with the prior local snapshot and list changed ECHO sections without assigning a score."
+    },
+    {
+      "name": "Portfolio compliance watch",
+      "command": "watch",
+      "description": "Fetch a bounded CSV portfolio of facility IDs and atomically report changed detailed-report sections since the prior run."
+    },
+    {
+      "name": "Explained nearby scan",
+      "command": "nearby explain",
+      "description": "List facilities within an EPA-supported radius and expose the compliance, inspection, action, and penalty fields behind each concern."
+    },
+    {
+      "name": "Effluent exceedance trend",
+      "command": "effluent trend",
+      "description": "Return ECHO's reported Clean Water Act effluent compliance and exceedance records for one stable facility identifier."
+    },
+    {
+      "name": "Enforcement chain timeline",
+      "command": "enforcement timeline",
+      "description": "Collect dated inspection, violation, formal-action, and enforcement sections from a detailed facility report without causal inference."
+    }
+  ]
+}

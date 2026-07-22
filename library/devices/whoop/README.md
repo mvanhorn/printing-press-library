@@ -1,7 +1,7 @@
 # Whoop CLI
 
 Created by [@gregvanhorn](https://github.com/gregvanhorn) (Greg Van Horn).
-Contributors: [@bobeglz](https://github.com/bobeglz) (Roberto González Grajeda).
+Contributors: [@bobeglz](https://github.com/bobeglz) (Roberto González Grajeda), [@tmchow](https://github.com/tmchow) (Trevin Chow).
 
 ## Install
 
@@ -32,7 +32,7 @@ npx -y @mvanhorn/printing-press-library install whoop --agent claude-code --agen
 
 ### Without Node (Go fallback)
 
-If `npx` isn't available (no Node, offline), install the CLI directly via Go (requires Go 1.26.3 or newer):
+If `npx` isn't available (no Node, offline), install the CLI directly via Go (requires Go 1.26.5 or newer):
 
 ```bash
 go install github.com/mvanhorn/printing-press-library/library/devices/whoop/cmd/whoop-pp-cli@latest

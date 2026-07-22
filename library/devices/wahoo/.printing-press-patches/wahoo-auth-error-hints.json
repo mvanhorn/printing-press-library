@@ -1,0 +1,10 @@
+{
+  "schema_version": 2,
+  "id": "wahoo-auth-error-hints",
+  "applied_at": "2026-06-14",
+  "base_run_id": "20260614-180711-c042d702",
+  "base_printing_press_version": "4.24.0",
+  "summary": "Replace the non-existent 'auth set-token' command in 401/credential error hints with 'auth login'.",
+  "reason": "The generator's auth-error hint template assumes an 'auth set-token' command, but OAuth2 CLIs generate the browser-based 'auth login' instead, so the hint pointed users at a command that does not exist.",
+  "files": ["internal/cli/helpers.go", "internal/client/client.go"]
+}

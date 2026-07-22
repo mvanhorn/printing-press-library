@@ -1,0 +1,60 @@
+specification: API Commons Rate Limits
+specificationVersion: '0.1'
+schema: https://raw.githubusercontent.com/api-evangelist/interface-research/main/schema/api-commons.yml#/$defs/RateLimits
+provider: Wahoo Fitness
+providerId: wahoo
+created: '2026-05-25'
+modified: '2026-05-25'
+reconciled: true
+tags:
+  - Fitness
+  - Cycling
+  - Rate Limiting
+  - Quotas
+description: >-
+  Rate limits for the Wahoo Cloud API. Sandbox apps have tighter limits than
+  production-approved apps. Authentication, token refresh, and file
+  downloads do not count against limits.
+sources:
+  - https://cloud-api.wahooligan.com/
+  - https://developers.wahooligan.com/cloud
+responseCodes:
+  throttled: 429
+  quotaExceeded: 429
+algorithm: fixed-window
+limits:
+  - tier: Sandbox
+    window: 5 minutes
+    requests: 25
+  - tier: Sandbox
+    window: 1 hour
+    requests: 100
+  - tier: Sandbox
+    window: 1 day
+    requests: 250
+  - tier: Production
+    window: 5 minutes
+    requests: 200
+  - tier: Production
+    window: 1 hour
+    requests: 1000
+  - tier: Production
+    window: 1 day
+    requests: 5000
+tokenPolicy:
+  accessTokenTtlSeconds: 7200
+  refreshTokenRotation: single-use
+  perUserActiveTokenCap:
+    effectiveDate: '2026-01-01'
+    unrevokedTokensPerUser: 10
+webhookRetryPolicy:
+  attempts:
+    - delay: 30 minutes
+    - delay: 4 hours
+    - delay: 24 hours
+    - delay: 72 hours
+  successCode: 200
+exclusions:
+  - Authentication endpoints (/oauth/authorize, /oauth/token)
+  - Refresh-token requests
+  - Workout file downloads

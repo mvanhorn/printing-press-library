@@ -1,0 +1,15 @@
+{
+  "schema_version": 2,
+  "id": "catalog-go-1264-vuln-floor",
+  "applied_at": "2026-06-21",
+  "base_run_id": "20260518-135804",
+  "base_printing_press_version": "4.6.1",
+  "summary": "Raise the published CLI Go toolchain floor to 1.26.4 so standard-library vulnerability fixes are enforced by go install.",
+  "reason": "Go 1.26.4 carries fixes for reachable standard-library vulnerabilities reported against earlier 1.26 toolchains; the catalog-wide docs floor must match each module go directive.",
+  "files": [
+    "go.mod",
+    "README.md",
+    "SKILL.md"
+  ],
+  "validated_outcome": "Bulk verification confirmed all direct published CLI go.mod files declare go 1.26.4 or newer after the sweep."
+}

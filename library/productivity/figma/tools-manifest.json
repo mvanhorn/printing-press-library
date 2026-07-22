@@ -1,25 +1,45 @@
 {
   "api_name": "figma",
   "base_url": "https://api.figma.com",
-  "description": "This is the OpenAPI specification for the [Figma REST API](https://developers.figma.com/docs/rest-api/).\n\nNote: we are releasing the OpenAPI specification as a beta given the large surface area and complexity of the REST API. If you notice any inaccuracies with the specification, please [file an issue](https://github.com/figma/rest-api-spec/issues).",
+  "description": "This is the OpenAPI specification for the [Figma REST API](https://developers.figma.com/docs/rest-api/).",
   "mcp_ready": "full",
   "http_transport": "standard",
+  "mcp": {
+    "endpoint_tools": "hidden",
+    "orchestration": "code"
+  },
   "auth": {
-    "type": "bearer_token",
-    "header": "Authorization",
+    "type": "api_key",
+    "header": "X-Figma-Token",
+    "in": "header",
     "env_vars": [
-      "FIGMA_OAUTH2"
+      "FIGMA_ACCESS_TOKEN",
+      "FIGMA_API_TOKEN",
+      "FIGMA_API_KEY"
     ],
     "env_var_specs": [
       {
-        "name": "FIGMA_OAUTH2",
+        "name": "FIGMA_ACCESS_TOKEN",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      },
+      {
+        "name": "FIGMA_API_TOKEN",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      },
+      {
+        "name": "FIGMA_API_KEY",
         "kind": "per_call",
         "required": true,
         "sensitive": true,
         "inferred": true
       }
-    ],
-    "key_url": "https://developers.figma.com/docs/rest-api/"
+    ]
   },
   "required_headers": [],
   "tools": [
@@ -491,7 +511,7 @@
     },
     {
       "name": "files_comments_get",
-      "description": "Gets a list of comments left on the file. Required: file_key. Optional: as_md. Returns the CommentsGetResponse.",
+      "description": "Gets a list of comments left on the file. Required: file_key. Optional: as_md. Returns array of Comment.",
       "method": "GET",
       "path": "/v1/files/{file_key}/comments",
       "params": [
@@ -512,7 +532,7 @@
     },
     {
       "name": "files_comments_get-reactions",
-      "description": "Gets a paginated list of reactions left on the comment. Required: file_key, comment_id. Optional: cursor. Returns the CommentsGetReactionsResponse.",
+      "description": "Gets a paginated list of reactions left on the comment. Required: file_key, comment_id. Optional: cursor. Returns array of Reaction.",
       "method": "GET",
       "path": "/v1/files/{file_key}/comments/{comment_id}/reactions",
       "params": [
@@ -540,7 +560,7 @@
     },
     {
       "name": "files_comments_post",
-      "description": "Posts a new comment on the file. Required: file_key, message. Optional: client_meta, comment_id. Returns the new Comment.",
+      "description": "Posts a new comment on the file. Required: file_key, message. Optional: client_meta, comment_id. Returns array of Reaction.",
       "method": "POST",
       "path": "/v1/files/{file_key}/comments",
       "params": [
@@ -655,7 +675,7 @@
     },
     {
       "name": "files_dev-resources_get",
-      "description": "Get dev resources in a file. Required: file_key. Optional: node_ids. Returns the DevResourcesGetResponse.",
+      "description": "Get dev resources in a file. Required: file_key. Optional: node_ids. Returns array of DevResource.",
       "method": "GET",
       "path": "/v1/files/{file_key}/dev_resources",
       "params": [
@@ -836,7 +856,7 @@
     },
     {
       "name": "files_versions_get-file",
-      "description": "This endpoint fetches the version history of a file, allowing you to see the progression of a file over time. You can then use this information to render a specific version of the file, via another endpoint. Required: file_key. Optional: page_size, before, after. Returns the VersionsGetFileResponse.",
+      "description": "This endpoint fetches the version history of a file, allowing you to see the progression of a file over time. You can then use this information to render a specific version of the file, via another endpoint. Required: file_key. Optional: page_size, before, after. Returns array of Version.",
       "method": "GET",
       "path": "/v1/files/{file_key}/versions",
       "params": [
@@ -1017,7 +1037,7 @@
     },
     {
       "name": "projects_files_get-project",
-      "description": "Get a list of all the Files within the specified project. Required: project_id. Optional: branch_data (default: false). Returns the FilesGetProjectResponse.",
+      "description": "Get a list of all the Files within the specified project. Required: project_id. Optional: branch_data (default: false). Returns array of FilesGetProjectItem.",
       "method": "GET",
       "path": "/v1/projects/{project_id}/files",
       "params": [
@@ -1119,7 +1139,7 @@
     },
     {
       "name": "teams_projects_get-team",
-      "description": "You can use this endpoint to get a list of all the Projects within the specified team. This will only return projects visible to the authenticated user or owner of the developer token. Note: it is not currently possible to programmatically obtain the team id of a user just from a token. To obtain a team id, navigate to a team page of a team you are a part of. The team id will be present in the URL after the word team and before your team name. Required: team_id. Returns the ProjectsGetTeamResponse.",
+      "description": "You can use this endpoint to get a list of all the Projects within the specified team. This will only return projects visible to the authenticated user or owner of the developer token. Note: it is not currently possible to programmatically obtain the team id of a user just from a token. To obtain a team id, navigate to a team page of a team you are a part of. The team id will be present in the URL after the word team and before your team name. Required: team_id. Returns array of Project.",
       "method": "GET",
       "path": "/v1/teams/{team_id}/projects",
       "params": [

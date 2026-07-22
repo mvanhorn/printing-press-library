@@ -17,7 +17,7 @@ import (
 	"github.com/mvanhorn/printing-press-library/library/other/nypl-digital-collections/internal/config"
 )
 
-var version = "1.0.0"
+var version = "2026.7.1"
 
 type rootFlags struct {
 	asJSON     bool

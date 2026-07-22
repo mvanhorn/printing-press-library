@@ -1,6 +1,6 @@
 module github.com/mvanhorn/printing-press-library/library/productivity/etherpad
 
-go 1.25
+go 1.26.5
 
 toolchain go1.26.3
 

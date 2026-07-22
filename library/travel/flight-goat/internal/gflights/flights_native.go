@@ -21,8 +21,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"io"
-	"net/http"
 	"net/url"
 	"strings"
 	"time"
@@ -146,43 +144,23 @@ func searchNativeDirect(ctx context.Context, opts SearchOptions) (*SearchResult,
 	}
 	body := "f.req=" + payload
 
-	req, err := http.NewRequestWithContext(ctx, http.MethodPost, offersEndpoint, strings.NewReader(body))
-	if err != nil {
-		return nil, fmt.Errorf("building request: %w", err)
-	}
-	req.Header.Set("Content-Type", "application/x-www-form-urlencoded;charset=UTF-8")
-	req.Header.Set("User-Agent", chromeUserAgent)
-	req.Header.Set("Accept", "*/*")
-	req.Header.Set("Accept-Language", "en-US,en;q=0.9")
-	req.Header.Set("x-goog-ext-259736195-jspb", googleFlightsCurrencyHeader(currencyCode))
-
-	resp, err := utlsClient().Do(req)
-	if err != nil {
-		return nil, fmt.Errorf("calling shopping endpoint: %w", err)
-	}
-	defer func() { _ = resp.Body.Close() }()
-
-	respBody, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return nil, fmt.Errorf("reading response: %w", err)
-	}
-	if resp.StatusCode != http.StatusOK {
-		snippet := string(respBody)
-		if len(snippet) > 200 {
-			snippet = snippet[:200] + "..."
-		}
-		return nil, fmt.Errorf("shopping endpoint returned HTTP %d: %s", resp.StatusCode, snippet)
-	}
-
 	note := ""
-	flights, err := parseOffersResponse(respBody, currencyCode)
+	var flights []Flight
+	err = retryBlockedRPC(ctx, func() error {
+		respBody, err := postFlightsFrontendRPC(ctx, offersEndpoint, "shopping", body, currencyCode)
+		if err != nil {
+			return err
+		}
+		flights, err = parseOffersResponse(respBody, currencyCode)
+		return err
+	})
 	switch {
 	case errors.Is(err, errShoppingBlocked):
-		// PATCH(amend-2026-06-11): Google gates the RPC for non-interactive
-		// clients (ErrorResponse code 13). Serve the search from the
-		// server-rendered HTML page instead — same inner schema, parsed by
-		// the same row parser. Page prices are per-person already, so the
-		// group-total divide below is intentionally skipped on this path.
+		// PATCH(amend-2026-06-26): Google can intermittently return HTTP 200
+		// with a wrb.fr gRPC code-13 envelope. retryBlockedRPC gives the native
+		// RPC a few chances first; if the BotGuard gate persists, serve the
+		// search from the server-rendered HTML page. Page prices are per-person
+		// already, so the group-total divide below is skipped on this path.
 		flights, note, err = searchViaHTML(ctx, opts, currencyCode)
 		if err != nil {
 			return nil, fmt.Errorf("google flights RPC is blocked and the HTML fallback failed: %w", err)

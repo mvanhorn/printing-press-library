@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "slug": "lightroom-classic",
+  "cli_name": "lightroom-classic-pp-cli",
+  "version": "2026.7.1",
+  "released_at": "2026-07-20T16:21:15Z",
+  "source_commit": "db3099e14fdc8a40ec0ad207dcc28adb71c14a5a",
+  "printing_press_version": "4.29.0",
+  "run_id": "20260719-202653-490adff0",
+  "changes": [
+    {
+      "title": "feat(lightroom-classic): add lightroom-classic",
+      "pr": 1549,
+      "url": "https://github.com/mvanhorn/printing-press-library/pull/1549",
+      "commit": "db3099e14fdc8a40ec0ad207dcc28adb71c14a5a"
+    }
+  ]
+}

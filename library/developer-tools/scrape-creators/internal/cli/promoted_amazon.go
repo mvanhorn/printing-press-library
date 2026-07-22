@@ -16,11 +16,18 @@ func newAmazonPromotedCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:         "amazon",
-		Short:       "Scrapes a creator's Amazon Shop page by URL, returning their storefront profile and product collections. Returns...",
-		Long:        "Shortcut for 'amazon list'. Scrapes a creator's Amazon Shop page by URL, returning their storefront profile and product collections. Returns...",
-		Example:     "  scrape-creators-pp-cli amazon",
-		Annotations: map[string]string{"pp:endpoint": "amazon.list", "mcp:read-only": "true"},
+		Short:       "Scrapes a creator's Amazon Shop page by URL, returning their storefront profile and product collections.",
+		Long:        "Scrapes a creator's Amazon Shop page by URL, returning their storefront profile and product collections.",
+		Example:     "  scrape-creators-pp-cli amazon --url https://www.amazon.com/shop/sydneydelrey",
+		Annotations: map[string]string{"pp:endpoint": "amazon.list", "pp:method": "GET", "pp:path": "/v1/amazon/shop", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
+			// Bare invocation of a command with a required flag/body prints help
+			// instead of pflag's terse "required flag not set" error. Optional-
+			// only reads fall through so a bare call still executes; positional
+			// commands keep their existing usageErr (exit 2 + JSON envelope).
+			if cmd.Flags().NFlag() == 0 && len(args) == 0 && !flags.dryRun {
+				return cmd.Help()
+			}
 			if !cmd.Flags().Changed("url") && !flags.dryRun {
 				return fmt.Errorf("required flag \"%s\" not set", "url")
 			}
@@ -32,18 +39,18 @@ func newAmazonPromotedCmd(flags *rootFlags) *cobra.Command {
 			path := "/v1/amazon/shop"
 			params := map[string]string{}
 			if flagUrl != "" {
-				params["url"] = fmt.Sprintf("%v", flagUrl)
+				params["url"] = formatCLIParamValue(flagUrl)
 			}
-			data, prov, err := resolveRead(cmd.Context(), c, flags, "amazon", false, path, params, nil)
+			data, prov, err := resolveReadWithStrategyAndResponsePath(cmd.Context(), c, flags, "auto", "amazon", true, path, params, nil, "", cmd.ErrOrStderr())
 			if err != nil {
-				return classifyAPIError(err)
+				return classifyAPIError(err, flags)
 			}
-			// Unwrap API response envelopes (e.g. {"status":"success","data":[...]})
-			// so output helpers see the inner data, not the wrapper.
-			data = extractResponseData(data)
-
-			// Print provenance to stderr
-			{
+			// Print provenance to stderr for human-facing output only.
+			// Machine-format flags (--json, --csv, --compact, --quiet, --plain,
+			// --select) and piped stdout suppress this line; the JSON envelope
+			// already carries meta.source for those consumers.
+			// SYNC: keep this gate aligned with command_endpoint.go.tmpl.
+			if wantsHumanTable(cmd.OutOrStdout(), flags) {
 				var countItems []json.RawMessage
 				if json.Unmarshal(data, &countItems) != nil {
 					// Single object, not an array
@@ -51,14 +58,12 @@ func newAmazonPromotedCmd(flags *rootFlags) *cobra.Command {
 				}
 				printProvenance(cmd, len(countItems), prov)
 			}
-			// CSV bypasses JSON pipe path so --csv works when piped
-			if flags.csv {
-				return printOutputWithFlags(cmd.OutOrStdout(), data, flags)
-			}
 			// For JSON output, wrap with provenance envelope. --select wins over
 			// --compact when both are set; --compact only runs when no explicit
-			// fields were requested.
-			if flags.asJSON || !isTerminal(cmd.OutOrStdout()) {
+			// fields were requested. Explicit format flags (--csv, --quiet, --plain)
+			// opt out of the auto-JSON path so piped consumers that asked for a
+			// non-JSON format reach the standard pipeline below.
+			if flags.asJSON || (!isTerminal(cmd.OutOrStdout()) && !flags.csv && !flags.quiet && !flags.plain) {
 				filtered := data
 				if flags.selectFields != "" {
 					filtered = filterFields(filtered, flags.selectFields)
@@ -83,7 +88,7 @@ func newAmazonPromotedCmd(flags *rootFlags) *cobra.Command {
 					return nil
 				}
 			}
-			return printOutputWithFlags(cmd.OutOrStdout(), data, flags)
+			return printOutputWithFlagsMeta(cmd.OutOrStdout(), data, flags, map[string]any{"source": "live"})
 		},
 	}
 	cmd.Flags().StringVar(&flagUrl, "url", "", "URL to Amazon Shop page")

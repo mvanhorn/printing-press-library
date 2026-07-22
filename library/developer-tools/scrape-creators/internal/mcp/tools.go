@@ -5,10 +5,13 @@ package mcp
 
 import (
 	"context"
+	"encoding/base64"
 	"encoding/json"
 	"fmt"
+	"math"
 	"os"
 	"path/filepath"
+	"strconv"
 	"strings"
 	"time"
 
@@ -18,1333 +21,23 @@ import (
 	"github.com/mvanhorn/printing-press-library/library/developer-tools/scrape-creators/internal/client"
 	"github.com/mvanhorn/printing-press-library/library/developer-tools/scrape-creators/internal/cliutil"
 	"github.com/mvanhorn/printing-press-library/library/developer-tools/scrape-creators/internal/config"
+	"github.com/mvanhorn/printing-press-library/library/developer-tools/scrape-creators/internal/mcp/bound"
 	"github.com/mvanhorn/printing-press-library/library/developer-tools/scrape-creators/internal/mcp/cobratree"
 	"github.com/mvanhorn/printing-press-library/library/developer-tools/scrape-creators/internal/store"
 )
 
+const (
+	// MCP hosts can fan out tool calls faster than a human CLI session.
+	// Keep them on the same polite-client limiter path instead of disabling
+	// pacing with rate=0; users can still tune human CLI calls with --rate-limit.
+	defaultMCPRateLimit = 2
+)
+
 // RegisterTools registers all API operations as MCP tools.
 func RegisterTools(s *server.MCPServer) {
-	s.AddTool(
-		mcplib.NewTool("account_list",
-			mcplib.WithDescription("Returns the number of API credits remaining on your Scrape Creators account. The response contains a single creditCount field with your current balance."),
-			mcplib.WithReadOnlyHintAnnotation(true),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("GET", "/v1/account/credit-balance", []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("account_list-getapiusage",
-			mcplib.WithDescription("Returns a paginated list of your API requests, including the endpoint called, status code, credits used, and timestamp. Useful for debugging and monitoring your API usage. Supports filtering by endpoint name and status code. Optional: page, endpoint, statusCode."),
-			mcplib.WithString("page", mcplib.Description("Page number for pagination (max 100)")),
-			mcplib.WithString("endpoint", mcplib.Description("Filter by endpoint name (partial match)")),
-			mcplib.WithString("statusCode", mcplib.Description("Filter by HTTP status code")),
-			mcplib.WithReadOnlyHintAnnotation(true),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("GET", "/v1/account/get-api-usage", []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("account_list-getdailyusagecount",
-			mcplib.WithDescription("Returns aggregated daily usage statistics for the last 30 days, including total credits consumed and number of requests per day."),
-			mcplib.WithReadOnlyHintAnnotation(true),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("GET", "/v1/account/get-daily-usage-count", []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("account_list-getmostusedroutes",
-			mcplib.WithDescription("Returns your top 20 most called API endpoints ranked by call count, along with total credits consumed per endpoint. Defaults to the last 24 hours. Supports custom time ranges up to 1 year. Optional: start_time, end_time."),
-			mcplib.WithString("start_time", mcplib.Description("Start of time range (ISO 8601 format)")),
-			mcplib.WithString("end_time", mcplib.Description("End of time range (ISO 8601 format)")),
-			mcplib.WithReadOnlyHintAnnotation(true),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("GET", "/v1/account/get-most-used-routes", []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("amazon_list",
-			mcplib.WithDescription("Scrapes a creator's Amazon Shop page by URL, returning their storefront profile and product collections. Returns avatar, name, description, socials, and lists with title and itemCount. Also includes trendingPicks with price and discount, curations with title and postCount, and a pageToken for pagination. Required: url."),
-			mcplib.WithString("url", mcplib.Required(), mcplib.Description("URL to Amazon Shop page")),
-			mcplib.WithReadOnlyHintAnnotation(true),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("GET", "/v1/amazon/shop", []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("bluesky_list",
-			mcplib.WithDescription("Fetches a single Bluesky post by URL, returning the post's record text, author info, embed content, replyCount, repostCount, likeCount, and quoteCount. Also includes a replies array with threaded reply posts. Required: url."),
-			mcplib.WithString("url", mcplib.Required(), mcplib.Description("Bluesky post URL")),
-			mcplib.WithReadOnlyHintAnnotation(true),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("GET", "/v1/bluesky/post", []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("bluesky_list-profile",
-			mcplib.WithDescription("Retrieves a Bluesky user's public profile including handle, displayName, avatar, description, followersCount, followsCount, postsCount, createdAt, and verification status. The associated field shows counts for lists, feed generators, and starter packs. Required: handle."),
-			mcplib.WithString("handle", mcplib.Required(), mcplib.Description("Bluesky handle")),
-			mcplib.WithReadOnlyHintAnnotation(true),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("GET", "/v1/bluesky/profile", []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("bluesky_list-user",
-			mcplib.WithDescription("Fetches a paginated feed of posts from a Bluesky user, returning each post's uri, record text, author info, embed content, replyCount, repostCount, likeCount, quoteCount, and indexedAt. Supports pagination via cursor. Use user_id (the 'did') instead of handle for faster response times. Optional: handle, user_id."),
-			mcplib.WithString("handle", mcplib.Description("Bluesky handle")),
-			mcplib.WithString("user_id", mcplib.Description("Bluesky 'did'. (For some reason Bluesky calls their user ids, 'did' for whatever reason)")),
-			mcplib.WithReadOnlyHintAnnotation(true),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("GET", "/v1/bluesky/user/posts", []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("detect-age-gender_list",
-			mcplib.WithDescription("Uses AI to analyze a creator's profile photo and estimate their age and gender. Returns ageRange with low and high bounds, gender, and a confidence score for the gender prediction. The profile photo must contain a clear, visible face for accurate results. Required: url."),
-			mcplib.WithString("url", mcplib.Required(), mcplib.Description("URL to users social profile")),
-			mcplib.WithReadOnlyHintAnnotation(true),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("GET", "/v1/detect-age-gender", []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("facebook_list",
-			mcplib.WithDescription("Retrieves a single public Facebook post or reel by URL. Returns post_id, like_count, comment_count, share_count, view_count, description, creation_time, and author details. For video posts, includes video sd_url, hd_url, thumbnail, and length_in_second. Optionally fetches comments and transcript via get_comments and get_transcript parameters. Required: url."),
-			mcplib.WithString("url", mcplib.Required(), mcplib.Description("The URL of the post to get")),
-			mcplib.WithReadOnlyHintAnnotation(true),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("GET", "/v1/facebook/post", []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("facebook_list-adlibrary",
-			mcplib.WithDescription("Retrieves detailed information about a specific Facebook ad by its ID or URL. Returns adArchiveID, pageName, isActive, startDate, endDate, and a snapshot containing body, images, videos, display_format, link_url, and cta_text. For ads with multiple versions, the ad creative is found in the snapshot.cards array rather than snapshot.body. Optional: id, url, get_transcript (plus 1 more)."),
-			mcplib.WithString("id", mcplib.Description("Facebook Ad Id")),
-			mcplib.WithString("url", mcplib.Description("Facebook Ad URL")),
-			mcplib.WithString("get_transcript", mcplib.Description("Get the transcript of the ad. Only works if the video is under 2 minutes.")),
-			mcplib.WithString("trim", mcplib.Description("Set to true for a trimmed down version of the response")),
-			mcplib.WithReadOnlyHintAnnotation(true),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("GET", "/v1/facebook/adLibrary/ad", []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("facebook_list-adlibrary-2",
-			mcplib.WithDescription("Fetches all ads currently running for a specific company from the Meta Ad Library. Each ad includes ad_archive_id, page_name, is_active, publisher_platform, and a snapshot with body, images, videos, and display_format. Supports filtering by country, media_type, date range, and language with cursor-based pagination. Optional: pageId, companyName, country (plus 8 more)."),
-			mcplib.WithString("pageId", mcplib.Description("The companies ad library page id. You can get this with my Search For Companies Endpoint. Can either use this or...")),
-			mcplib.WithString("companyName", mcplib.Description("The name of the company. Can either use this or pageId")),
-			mcplib.WithString("country", mcplib.Description("This can only be one country. It has to be the 2 letter code for the country. It defaults to ALL.")),
-			mcplib.WithString("status", mcplib.Description("Status of the ad. Defaults to ACTIVE.")),
-			mcplib.WithString("media_type", mcplib.Description("Media type of the ad. Defaults to ALL. Meme refers to ads with image and text. Not sure why they call it meme.")),
-			mcplib.WithString("language", mcplib.Description("Language to filter ads on. Needs to be 2 letter language code, ie EN, ES, FR, etc")),
-			mcplib.WithString("sort_by", mcplib.Description("Sort by impressions (high to low), or Most Recent (relevancy_monthly_grouped). Defaults to impressions.")),
-			mcplib.WithString("start_date", mcplib.Description("Start date to search for. Format: YYYY-MM-DD")),
-			mcplib.WithString("end_date", mcplib.Description("End date to search for. Format: YYYY-MM-DD")),
-			mcplib.WithString("cursor", mcplib.Description("Cursor to paginate through results")),
-			mcplib.WithString("trim", mcplib.Description("Set to true for a trimmed down version of the response")),
-			mcplib.WithReadOnlyHintAnnotation(true),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("GET", "/v1/facebook/adLibrary/company/ads", []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("facebook_list-adlibrary-3",
-			mcplib.WithDescription("Searches the Meta Ad Library by keyword and returns matching ads. Each result includes ad_archive_id, page_name, is_active, publisher_platform, and a snapshot with body text, images, videos, and cta_text. Results cap around 1,500 via GET due to cursor size limits; switch to POST method with body params for larger result sets. Required: query. Optional: sort_by, search_type, ad_type (plus 7 more)."),
-			mcplib.WithString("query", mcplib.Required(), mcplib.Description("Keyword to search for")),
-			mcplib.WithString("sort_by", mcplib.Description("Sort by impressions (high to low), or Most Recent (relevancy_monthly_grouped). Defaults to impressions.")),
-			mcplib.WithString("search_type", mcplib.Description("If you want to search by exact phrase or not")),
-			mcplib.WithString("ad_type", mcplib.Description("Search for all ads or only political and issue ads")),
-			mcplib.WithString("country", mcplib.Description("This can only be one country. It has to be the 2 letter code for the country. It defaults to ALL.")),
-			mcplib.WithString("status", mcplib.Description("Status of the ad. Defaults to ACTIVE.")),
-			mcplib.WithString("media_type", mcplib.Description("Media type of the ad. Defaults to ALL. Meme just means the ad has text and an image. No clue why they call it meme.")),
-			mcplib.WithString("start_date", mcplib.Description("Impressions start date. Needs to be in YYYY-MM-DD format.")),
-			mcplib.WithString("end_date", mcplib.Description("Impressions end date. Needs to be in YYYY-MM-DD format.")),
-			mcplib.WithString("cursor", mcplib.Description("Cursor to paginate through results")),
-			mcplib.WithString("trim", mcplib.Description("Set to true for a trimmed down version of the response")),
-			mcplib.WithReadOnlyHintAnnotation(true),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("GET", "/v1/facebook/adLibrary/search/ads", []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("facebook_list-adlibrary-4",
-			mcplib.WithDescription("Searches for companies by name in the Meta Ad Library and returns their page IDs for use with other ad library endpoints. Each result includes page_id, name, category, likes, verification status, and Instagram details like ig_username and ig_followers. Required: query."),
-			mcplib.WithString("query", mcplib.Required(), mcplib.Description("Keyword to search for")),
-			mcplib.WithReadOnlyHintAnnotation(true),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("GET", "/v1/facebook/adLibrary/search/companies", []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("facebook_list-group",
-			mcplib.WithDescription("Fetches posts from a public Facebook group, limited to 3 posts per page due to API limitations. Each post includes id, text, url, reactionCount, commentCount, publishTime, videoDetails, and topComments. Supports sorting by TOP_POSTS, RECENT_ACTIVITY, CHRONOLOGICAL, or CHRONOLOGICAL_LISTINGS, with cursor-based pagination. Optional: url, group_id, sort_by (plus 1 more)."),
-			mcplib.WithString("url", mcplib.Description("The URL of the group")),
-			mcplib.WithString("group_id", mcplib.Description("The ID of the group")),
-			mcplib.WithString("sort_by", mcplib.Description("How to sort the posts")),
-			mcplib.WithString("cursor", mcplib.Description("The cursor to paginate to the next page")),
-			mcplib.WithReadOnlyHintAnnotation(true),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("GET", "/v1/facebook/group/posts", []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("facebook_list-post",
-			mcplib.WithDescription("Fetches comments from a Facebook post or reel with cursor-based pagination. Each comment includes id, text, created_at, reply_count, reaction_count, and author details with name and profile_picture. Passing a feedback_id instead of a url significantly speeds up the request. Optional: url, feedback_id, cursor."),
-			mcplib.WithString("url", mcplib.Description("Facebook post URL (or reel URL)")),
-			mcplib.WithString("feedback_id", mcplib.Description("Using feedback_id (instead of url) will *really* speed up the request. You can get the feedback_id when you make a...")),
-			mcplib.WithString("cursor", mcplib.Description("Cursor to get more comments. Get 'cursor' from previous response.")),
-			mcplib.WithReadOnlyHintAnnotation(true),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("GET", "/v1/facebook/post/comments", []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("facebook_list-post-2",
-			mcplib.WithDescription("Extracts the transcript text from a Facebook video post or reel. Returns the transcript as a single text string with line breaks. Only works on videos under 2 minutes in length. Required: url."),
-			mcplib.WithString("url", mcplib.Required(), mcplib.Description("Facebook post URL")),
-			mcplib.WithReadOnlyHintAnnotation(true),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("GET", "/v1/facebook/post/transcript", []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("facebook_list-profile",
-			mcplib.WithDescription("Retrieves public Facebook page details including category, address, email, phone, website, services, priceRange, rating, likeCount, and followerCount. Also returns adLibrary status with the page's ad activity and pageId. Optionally includes businessHours when get_business_hours is set to true. Required: url. Optional: get_business_hours."),
-			mcplib.WithString("url", mcplib.Required(), mcplib.Description("Facebook profile URL")),
-			mcplib.WithString("get_business_hours", mcplib.Description("Get the business's hours")),
-			mcplib.WithReadOnlyHintAnnotation(true),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("GET", "/v1/facebook/profile", []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("facebook_list-profile-2",
-			mcplib.WithDescription("Fetches photos from a public Facebook page with pagination support. Each photo includes photo_id, accessibility_caption, viewer_image with uri, height, and width, plus a thumbnail and direct url. Pagination requires passing both next_page_id and cursor from the previous response. Required: url. Optional: next_page_id, cursor."),
-			mcplib.WithString("url", mcplib.Required(), mcplib.Description("Facebook page URL")),
-			mcplib.WithString("next_page_id", mcplib.Description("To paginate through to the next page")),
-			mcplib.WithString("cursor", mcplib.Description("To paginate through to the next page")),
-			mcplib.WithReadOnlyHintAnnotation(true),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("GET", "/v1/facebook/profile/photos", []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("facebook_list-profile-3",
-			mcplib.WithDescription("Returns publicly visible Facebook profile posts, limited to 3 posts per page due to API limitations. Each post includes id, text, url, reactionCount, commentCount, publishTime, videoDetails with sdUrl, hdUrl, and thumbnailUrl, plus topComments. Accepts either a url or pageId parameter, where pageId is faster. Optional: url, pageId, cursor."),
-			mcplib.WithString("url", mcplib.Description("Facebook profile URL")),
-			mcplib.WithString("pageId", mcplib.Description("Facebook profile page id")),
-			mcplib.WithString("cursor", mcplib.Description("To paginate through the posts")),
-			mcplib.WithReadOnlyHintAnnotation(true),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("GET", "/v1/facebook/profile/posts", []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("facebook_list-profile-4",
-			mcplib.WithDescription("Fetches up to 10 reels per request from a public Facebook page. Each reel includes id, url, view_count, description, creation_time, video_url, thumbnail, play_time_in_ms, and music details. Pagination requires passing both next_page_id and cursor from the previous response. Required: url. Optional: next_page_id, cursor."),
-			mcplib.WithString("url", mcplib.Required(), mcplib.Description("Facebook page URL")),
-			mcplib.WithString("next_page_id", mcplib.Description("To paginate through to the next page")),
-			mcplib.WithString("cursor", mcplib.Description("To paginate through to the next page")),
-			mcplib.WithReadOnlyHintAnnotation(true),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("GET", "/v1/facebook/profile/reels", []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("google_list",
-			mcplib.WithDescription("Retrieves detailed information about a specific Google ad including advertiserId, creativeId, format, firstShown, lastShown, and overallImpressions. Returns creativeRegions, regionStats with per-region impression data, and variations with destinationUrl, headline, description, and imageUrl. Text extraction uses OCR, so accuracy may vary. Required: url."),
-			mcplib.WithString("url", mcplib.Required(), mcplib.Description("The url of the ad")),
-			mcplib.WithReadOnlyHintAnnotation(true),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("GET", "/v1/google/ad", []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("google_list-adlibrary",
-			mcplib.WithDescription("Searches the Google Ad Transparency Library for advertisers by name. Returns a list of matching advertisers with their name, advertiser_id, and region, plus a list of associated website domains. Use the returned advertiser_id to look up a company's ads. Required: query."),
-			mcplib.WithString("query", mcplib.Required(), mcplib.Description("The query to search for")),
-			mcplib.WithReadOnlyHintAnnotation(true),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("GET", "/v1/google/adLibrary/advertisers/search", []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("google_list-company",
-			mcplib.WithDescription("Fetches public ads for a company from the Google Ad Transparency Library by domain or advertiser_id. Each ad includes advertiserId, creativeId, format, adUrl, advertiserName, domain, firstShown, and lastShown. Costs 25 credits per request when get_ad_details=true; without it, only advertiserId and creativeId are returned at 1 credit. Optional: domain, advertiser_id, topic (plus 5 more)."),
-			mcplib.WithString("domain", mcplib.Description("The domain of the company")),
-			mcplib.WithString("advertiser_id", mcplib.Description("The advertiser id of the company")),
-			mcplib.WithString("topic", mcplib.Description("The topic to search for. If you search for 'political', you will also need to pass a 'region', like 'US' or 'AU'")),
-			mcplib.WithString("region", mcplib.Description("The region to search for. Defaults to anywhere")),
-			mcplib.WithString("start_date", mcplib.Description("Start date to search for. Format: YYYY-MM-DD")),
-			mcplib.WithString("end_date", mcplib.Description("End date to search for. Format: YYYY-MM-DD")),
-			mcplib.WithString("get_ad_details", mcplib.Description("Set to true to get the ad details. Will cost 25 credits.")),
-			mcplib.WithString("cursor", mcplib.Description("Cursor to paginate through results")),
-			mcplib.WithReadOnlyHintAnnotation(true),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("GET", "/v1/google/company/ads", []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("google_list-search",
-			mcplib.WithDescription("Performs a Google search and returns organic results with url, title, and description for each result. Supports an optional region parameter (2-letter country code) to get localized results from a specific country. Required: query. Optional: region, date_posted, page."),
-			mcplib.WithString("query", mcplib.Required(), mcplib.Description("Search query")),
-			mcplib.WithString("region", mcplib.Description("2 letter country code, ie US, UK, CA, etc This will show results from that country")),
-			mcplib.WithString("date_posted", mcplib.Description("Date posted")),
-			mcplib.WithString("page", mcplib.Description("Page number to retrieve")),
-			mcplib.WithReadOnlyHintAnnotation(true),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("GET", "/v1/google/search", []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("instagram_list",
-			mcplib.WithDescription("Fetches a lightweight Instagram profile summary by user ID, returning username, full name, biography, profile picture URL, verification status, follower count, following count, media count, and account privacy and type. Ideal for quick lookups or enrichment when you already have the numeric user ID. Optional: userId."),
-			mcplib.WithString("userId", mcplib.Description("Instagram user id")),
-			mcplib.WithReadOnlyHintAnnotation(true),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("GET", "/v1/instagram/basic-profile", []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("instagram_list-media",
-			mcplib.WithDescription("Generates an AI-powered speech-to-text transcription for an Instagram video post or reel. The video must be under 2 minutes long. Returns a transcripts array with each item's shortcode and transcribed text; carousel posts produce one transcript per video slide. Expect 10-30 second response times, and null when no speech is detected. Required: url."),
-			mcplib.WithString("url", mcplib.Required(), mcplib.Description("Instagram post or reel URL")),
-			mcplib.WithReadOnlyHintAnnotation(true),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("GET", "/v2/instagram/media/transcript", []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("instagram_list-post",
-			mcplib.WithDescription("Fetches detailed metadata for a single Instagram post or reel by shortcode or URL. Returns caption text, like count, comment count, video URL, video play count, video duration, display images, owner info, tagged users, and carousel sidecar children when applicable. Play counts are Instagram-only views and exclude cross-posted Facebook views. Required: url. Optional: region, trim, download_media."),
-			mcplib.WithString("url", mcplib.Required(), mcplib.Description("Instagram post or reel URL")),
-			mcplib.WithString("region", mcplib.Description("2 letter country code to set the proxy in")),
-			mcplib.WithString("trim", mcplib.Description("Set to true to get a trimmed response")),
-			mcplib.WithString("download_media", mcplib.Description("Set to true to download the video/images and get back permanent Supabase URLs. Costs 10 credits if media is found, 1...")),
-			mcplib.WithReadOnlyHintAnnotation(true),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("GET", "/v1/instagram/post", []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("instagram_list-post-2",
-			mcplib.WithDescription("Retrieves comments on a public Instagram post or reel. Each comment includes the comment text, creation timestamp, and commenter details such as username, user ID, verification status, and profile picture URL. Supports cursor-based pagination to load additional comment pages. Required: url. Optional: cursor."),
-			mcplib.WithString("url", mcplib.Required(), mcplib.Description("The URL of the post or reel to get comments from")),
-			mcplib.WithString("cursor", mcplib.Description("The cursor to get more comments. Get 'cursor' from previous response.")),
-			mcplib.WithReadOnlyHintAnnotation(true),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("GET", "/v2/instagram/post/comments", []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("instagram_list-profile",
-			mcplib.WithDescription("Retrieves comprehensive public Instagram profile information including biography, bio links, follower and following counts, verification status, and profile picture URLs. Also returns recent timeline posts with engagement metrics such as likes, comments, and video view counts, plus a list of related profiles. Useful for account overview, audience analysis, or discovering similar creators. Required: handle. Optional: trim."),
-			mcplib.WithString("handle", mcplib.Required(), mcplib.Description("Instagram handle")),
-			mcplib.WithString("trim", mcplib.Description("Set to true to get a trimmed response")),
-			mcplib.WithReadOnlyHintAnnotation(true),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("GET", "/v1/instagram/profile", []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("instagram_list-reels",
-			mcplib.WithDescription("Searches for Instagram reels matching a keyword or phrase via Google Search, bypassing Instagram's login-gated search. Returns a list of reels with shortcode, caption, thumbnail, video URL, play count, like count, comment count, video duration, owner details, location, and audio attribution info. Play counts are Instagram-only views and exclude cross-posted Facebook views. Supports page-based pagination for browsing additional results. Required: query. Optional: date_posted, page."),
-			mcplib.WithString("query", mcplib.Required(), mcplib.Description("The keyword to search for")),
-			mcplib.WithString("date_posted", mcplib.Description("Date posted")),
-			mcplib.WithString("page", mcplib.Description("The page number to return.")),
-			mcplib.WithReadOnlyHintAnnotation(true),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("GET", "/v2/instagram/reels/search", []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("instagram_list-song",
-			mcplib.WithDescription("DEPRECATED — this endpoint is no longer functional. Instagram removed the public audio pages that this endpoint relied on, so it cannot return data. Do not use this endpoint; there is currently no replacement available. Required: audio_id. Optional: max_id."),
-			mcplib.WithString("audio_id", mcplib.Required(), mcplib.Description("If you're looking for this, it is sometimes called 'audio_cluster_id', or it can be just 'audio_id'.")),
-			mcplib.WithString("max_id", mcplib.Description("How you paginate the results. Pass the max_id from the previous response to get the next set of reels.")),
-			mcplib.WithReadOnlyHintAnnotation(true),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("GET", "/v1/instagram/song/reels", []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("instagram_list-user",
-			mcplib.WithDescription("Returns the raw HTML embed snippet for an Instagram user's profile widget. The response contains a single html string that can be inserted into a webpage to render an embeddable Instagram profile card. Requires the user's handle as input. Required: handle."),
-			mcplib.WithString("handle", mcplib.Required(), mcplib.Description("Instagram handle")),
-			mcplib.WithReadOnlyHintAnnotation(true),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("GET", "/v1/instagram/user/embed", []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("instagram_list-user-2",
-			mcplib.WithDescription("Lists all story highlight albums for an Instagram user. Each highlight includes its ID, title, cover thumbnail URL, and owner info with username and profile picture. Accepts either a user_id or handle; providing user_id yields faster responses. Optional: user_id, handle."),
-			mcplib.WithString("user_id", mcplib.Description("Instagram user id. Use for faster response times.")),
-			mcplib.WithString("handle", mcplib.Description("Instagram handle. Use user_id for faster response times.")),
-			mcplib.WithReadOnlyHintAnnotation(true),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("GET", "/v1/instagram/user/highlights", []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("instagram_list-user-3",
-			mcplib.WithDescription("Returns a paginated list of a user's public Instagram reels (short-form videos). Each reel includes its shortcode, play count, like count, comment count, video versions with download URLs, thumbnail image, and owner info. Note that reel captions are not returned by this endpoint. Play counts are Instagram-only views and exclude cross-posted Facebook views. Supports cursor-based pagination via max_id; providing a user_id instead of a handle yields faster responses. Optional: user_id, handle, max_id (plus 1 more)."),
-			mcplib.WithString("user_id", mcplib.Description("Instagram user id. Use this for faster response times.")),
-			mcplib.WithString("handle", mcplib.Description("Instagram handle. Use user_id for faster response times.")),
-			mcplib.WithString("max_id", mcplib.Description("Max id to get more reels. Get 'max_id' from previous response.")),
-			mcplib.WithString("trim", mcplib.Description("Set to true for a trimmed down version of the response")),
-			mcplib.WithReadOnlyHintAnnotation(true),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("GET", "/v1/instagram/user/reels", []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("instagram_list-user-4",
-			mcplib.WithDescription("Returns a paginated feed of a user's public Instagram posts, including photos, videos, and carousels. Each item includes media type, shortcode, caption text, like count, comment count, play count, video URLs, image URLs, and tagged users. Play counts reflect Instagram-only views and exclude cross-posted Facebook views. Supports cursor-based pagination via next_max_id for scrolling through the full timeline. Required: handle. Optional: next_max_id, trim."),
-			mcplib.WithString("handle", mcplib.Required(), mcplib.Description("Instagram handle")),
-			mcplib.WithString("next_max_id", mcplib.Description("Cursor to get next page of results.")),
-			mcplib.WithString("trim", mcplib.Description("Set to true to get a trimmed response")),
-			mcplib.WithReadOnlyHintAnnotation(true),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("GET", "/v2/instagram/user/posts", []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("instagram_list-user-5",
-			mcplib.WithDescription("Fetches the full contents of a specific Instagram story highlight album by its ID. Returns the highlight's cover image, title, user info, and an items array containing each story with its media type, image or video URLs, dimensions, timestamp, and sticker/interactive element data. Useful for archiving or analyzing individual highlight reels. Optional: id."),
-			mcplib.WithString("id", mcplib.Description("The ID of the highlight to get details for")),
-			mcplib.WithReadOnlyHintAnnotation(true),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("GET", "/v1/instagram/user/highlight/detail", []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("kick_list",
-			mcplib.WithDescription("Fetches detailed data for a Kick clip by URL, including video, metadata, and channel info. Returns clip id, title, clip_url, thumbnail_url, video_url, view_count, likes_count, duration, privacy status, and is_mature flag. Also includes category details (name, slug), creator info (username), and channel info (username, profile_picture). Required: url."),
-			mcplib.WithString("url", mcplib.Required(), mcplib.Description("Kick clip URL")),
-			mcplib.WithReadOnlyHintAnnotation(true),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("GET", "/v1/kick/clip", []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("komi_list",
-			mcplib.WithDescription("Scrapes a Komi page by URL, extracting the creator's profile, social links, and featured content. Returns id, username, avatar, displayName, bio, and social accounts (instagram, tiktok, youtube, twitter, facebook, snapchat). Also includes links, an array of link and product objects each with id, url, title, type, thumbnail, and optional price and currency for products. Required: url."),
-			mcplib.WithString("url", mcplib.Required(), mcplib.Description("URL to Komi page")),
-			mcplib.WithReadOnlyHintAnnotation(true),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("GET", "/v1/komi", []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("linkbio_list",
-			mcplib.WithDescription("Scrapes a Linkbio (lnk.bio) page by URL, extracting the creator's profile and all their links. Returns handle, id, social accounts (instagram, tiktok, youtube, twitter, whatsapp), email, website, and links — an array of link objects each with url and text. Required: url."),
-			mcplib.WithString("url", mcplib.Required(), mcplib.Description("URL to Linkbio (lnk.bio) page")),
-			mcplib.WithReadOnlyHintAnnotation(true),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("GET", "/v1/linkbio", []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("linkedin_list",
-			mcplib.WithDescription("Retrieves detailed information about a specific LinkedIn ad by URL. Returns id, description, headline, adType, advertiser, and targeting with language, location, and audience criteria. Also includes totalImpressions, impressionsByCountry, adDuration, startDate, and endDate. Required: url."),
-			mcplib.WithString("url", mcplib.Required(), mcplib.Description("The url of the ad")),
-			mcplib.WithReadOnlyHintAnnotation(true),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("GET", "/v1/linkedin/ad", []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("linkedin_list-ads",
-			mcplib.WithDescription("Searches the LinkedIn Ad Library by company name, keyword, or companyId with optional country and date filters. Each ad includes id, description, headline, adType, advertiser, targeting details, image or video URLs, totalImpressions, and impressionsByCountry. Supports pagination via paginationToken. Optional: company, keyword, companyId (plus 4 more)."),
-			mcplib.WithString("company", mcplib.Description("The company name to search for. 'Microsoft' for example")),
-			mcplib.WithString("keyword", mcplib.Description("The keyword to search for")),
-			mcplib.WithString("companyId", mcplib.Description("The company id to search for")),
-			mcplib.WithString("countries", mcplib.Description("Comma separated list of countries. Example: US,CA,MX")),
-			mcplib.WithString("startDate", mcplib.Description("Start date to search for. Format: YYYY-MM-DD")),
-			mcplib.WithString("endDate", mcplib.Description("End date to search for. Format: YYYY-MM-DD")),
-			mcplib.WithString("paginationToken", mcplib.Description("Pagination token to paginate through results")),
-			mcplib.WithReadOnlyHintAnnotation(true),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("GET", "/v1/linkedin/ads/search", []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("linkedin_list-company",
-			mcplib.WithDescription("Fetches a LinkedIn company page with details including name, description, logo, cover image, slogan, location, headquarters, employee count (headcount/staff size), website, industry, company type, founded year, specialties, funding rounds with investors, featured employees, recent posts, and similar company pages. Required: url."),
-			mcplib.WithString("url", mcplib.Required(), mcplib.Description("The URL of the LinkedIn company page to get")),
-			mcplib.WithReadOnlyHintAnnotation(true),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("GET", "/v1/linkedin/company", []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("linkedin_list-company-2",
-			mcplib.WithDescription("Retrieves paginated posts from a LinkedIn company page, including each post's URL, ID, publication date, and full text content. Supports page-based pagination up to a maximum of 7 pages due to a LinkedIn platform limitation. Required: url. Optional: page."),
-			mcplib.WithString("url", mcplib.Required(), mcplib.Description("The URL of the LinkedIn company page to get")),
-			mcplib.WithString("page", mcplib.Description("The page number to get")),
-			mcplib.WithReadOnlyHintAnnotation(true),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("GET", "/v1/linkedin/company/posts", []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("linkedin_list-post",
-			mcplib.WithDescription("Fetches a single LinkedIn post or article, returning the title, headline, full description text, author info with follower count, publication date, like count (reactions), comment count, and individual comments. Also includes related articles from the same author in moreArticles. Required: url."),
-			mcplib.WithString("url", mcplib.Required(), mcplib.Description("The URL of the LinkedIn post to get")),
-			mcplib.WithReadOnlyHintAnnotation(true),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("GET", "/v1/linkedin/post", []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("linkedin_list-profile",
-			mcplib.WithDescription("Retrieves a person's public LinkedIn profile data, including their name, photo, location, follower count (followers), about/bio summary, recent posts, work experience, education, articles, activity feed, publications, projects, recommendations, and similar profiles. Only returns publicly available information visible in an incognito browser. Required: url."),
-			mcplib.WithString("url", mcplib.Required(), mcplib.Description("The URL of the LinkedIn profile to get")),
-			mcplib.WithReadOnlyHintAnnotation(true),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("GET", "/v1/linkedin/profile", []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("linkme_list",
-			mcplib.WithDescription("Retrieves a Linkme profile by URL, including identity, social links, and contact details. Returns profile with id, firstName, username, bio, profileVisitCount, profileImage, verifiedAccount, and isAmbassador flag. Also includes infoLinks (email addresses) and webLinks, an array of categorized social platform links (Spotify, Instagram, YouTube, Twitter, Facebook, and more) each with linkValue and faceValue. Required: url."),
-			mcplib.WithString("url", mcplib.Required(), mcplib.Description("Linkme profile URL")),
-			mcplib.WithReadOnlyHintAnnotation(true),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("GET", "/v1/linkme", []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("linktree_list",
-			mcplib.WithDescription("Scrapes a Linktree page by URL, extracting the creator's profile and all their links. Returns id, username, profilePictureUrl, description, verticals, timezone, and links — an array of link objects each with id, type, title, and url. Also includes detected social accounts (instagram, tiktok, spotify, youtube, soundcloud, apple_music) and email_address. Required: url."),
-			mcplib.WithString("url", mcplib.Required(), mcplib.Description("URL to Linktree page")),
-			mcplib.WithReadOnlyHintAnnotation(true),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("GET", "/v1/linktree", []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("pillar_list",
-			mcplib.WithDescription("Scrapes a Pillar page by URL, extracting the creator's profile, social links, and products. Returns id, first_name, last_name, email, location, and social accounts (tiktok, spotify, twitter, youtube, facebook, linkedin, instagram, and more). Also includes links with click counts and products with title, price, description, and image. Required: url."),
-			mcplib.WithString("url", mcplib.Required(), mcplib.Description("URL to Pillar page")),
-			mcplib.WithReadOnlyHintAnnotation(true),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("GET", "/v1/pillar", []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("pinterest_list",
-			mcplib.WithDescription("Fetches a paginated list of pins from a Pinterest board by URL, returning each pin's id, description, title, images, board info, pin_join annotations, and aggregated_pin_data. Supports pagination via cursor and a trim option for lighter responses. Required: url. Optional: cursor, trim."),
-			mcplib.WithString("url", mcplib.Required(), mcplib.Description("The URL of the board to get")),
-			mcplib.WithString("cursor", mcplib.Description("The cursor to get the next page of results")),
-			mcplib.WithString("trim", mcplib.Description("Set to true for a trimmed down version of the response")),
-			mcplib.WithReadOnlyHintAnnotation(true),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("GET", "/v1/pinterest/board", []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("pinterest_list-pin",
-			mcplib.WithDescription("Fetches detailed information about a single Pinterest pin by URL, returning title, description, link, dominantColor, originPinner, pinner, images at multiple resolutions (imageSpec_236x through imageSpec_orig), and pinJoin with visual annotations. Supports a trim option for lighter responses. Required: url. Optional: trim."),
-			mcplib.WithString("url", mcplib.Required(), mcplib.Description("Pinterest pin URL")),
-			mcplib.WithString("trim", mcplib.Description("Set to true for a trimmed down version of the response")),
-			mcplib.WithReadOnlyHintAnnotation(true),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("GET", "/v1/pinterest/pin", []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("pinterest_list-search",
-			mcplib.WithDescription("Searches Pinterest for pins matching a query, returning results with id, url, title, description, images, link, domain, board info, and pinner details. Supports pagination via cursor and a trim option for lighter responses. Required: query. Optional: cursor, trim."),
-			mcplib.WithString("query", mcplib.Required(), mcplib.Description("Search query")),
-			mcplib.WithString("cursor", mcplib.Description("Cursor")),
-			mcplib.WithString("trim", mcplib.Description("Set to true for a trimmed down version of the response")),
-			mcplib.WithReadOnlyHintAnnotation(true),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("GET", "/v1/pinterest/search", []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("pinterest_list-user",
-			mcplib.WithDescription("Fetches a paginated list of boards for a Pinterest user, returning each board's name, url, description, pin_count, follower_count, owner info, cover_images, and created_at. Supports pagination via cursor and a trim option for lighter responses. Required: handle. Optional: trim."),
-			mcplib.WithString("handle", mcplib.Required(), mcplib.Description("The username of the user to get boards for. (e.g. broadstbullycom from https://www.pinterest.com/broadstbullycom/)")),
-			mcplib.WithString("trim", mcplib.Description("Set to true for a trimmed down version of the response")),
-			mcplib.WithReadOnlyHintAnnotation(true),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("GET", "/v1/pinterest/user/boards", []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("reddit_list",
-			mcplib.WithDescription("Retrieves detailed information about a specific Reddit ad by its id. Returns an analysis_summary with headline and media insights, plus the full inspiration_creative object containing id, budget_category, industry, placements, objective, and creative details (headline, body, type, thumbnail_url, created_at, post_url). Also includes profile_info with the advertiser's name. Required: id."),
-			mcplib.WithString("id", mcplib.Required(), mcplib.Description("Ad id")),
-			mcplib.WithReadOnlyHintAnnotation(true),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("GET", "/v1/reddit/ad", []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("reddit_list-ads",
-			mcplib.WithDescription("Searches the Reddit Ad Library for ads matching a query, returning a maximum of 30 results. Each ad includes id, budget_category, industry, placements, objective, and a creative object with headline, body, thumbnail_url, type, created_at, and post_url. Also includes profile_info with the advertiser's name. Supports filtering by industries, budgets, formats, placements, and objectives. Required: query. Optional: industries, budgets, formats (plus 2 more)."),
-			mcplib.WithString("query", mcplib.Required(), mcplib.Description("Search query")),
-			mcplib.WithString("industries", mcplib.Description("Industries to filter by")),
-			mcplib.WithString("budgets", mcplib.Description("Budgets to filter by")),
-			mcplib.WithString("formats", mcplib.Description("Formats to filter by")),
-			mcplib.WithString("placements", mcplib.Description("Placements to filter by")),
-			mcplib.WithString("objectives", mcplib.Description("Objectives to filter by")),
-			mcplib.WithReadOnlyHintAnnotation(true),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("GET", "/v1/reddit/ads/search", []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("reddit_list-post",
-			mcplib.WithDescription("Retrieves comments and post details from a Reddit post by URL. Returns the post with title, author, score, ups, upvote_ratio, num_comments, and created_utc, plus a comments array where each comment includes author, body, body_html, score, created_utc, parent_id, permalink, and nested replies. Supports cursor-based pagination for loading more comments and a trim parameter for lighter responses. Required: url. Optional: cursor, trim."),
-			mcplib.WithString("url", mcplib.Required(), mcplib.Description("Reddit post URL")),
-			mcplib.WithString("cursor", mcplib.Description("Cursor to get more comments, or replies.")),
-			mcplib.WithString("trim", mcplib.Description("Set to true for a trimmed down version of the response")),
-			mcplib.WithReadOnlyHintAnnotation(true),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("GET", "/v1/reddit/post/comments", []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("reddit_list-search",
-			mcplib.WithDescription("Searches across all of Reddit for posts matching a query. Each post includes title, author, selftext, subreddit, score, ups, upvote_ratio, num_comments, created_utc, url, permalink, and is_video. Supports sort (relevance, new, top, comment_count), timeframe filtering, pagination via the after token, and a trim parameter for lighter responses. Required: query. Optional: sort, timeframe, after (plus 1 more)."),
-			mcplib.WithString("query", mcplib.Required(), mcplib.Description("Search query")),
-			mcplib.WithString("sort", mcplib.Description("Sort by")),
-			mcplib.WithString("timeframe", mcplib.Description("Timeframe")),
-			mcplib.WithString("after", mcplib.Description("Used to paginate to next page")),
-			mcplib.WithString("trim", mcplib.Description("Set to true for a trimmed down version of the response")),
-			mcplib.WithReadOnlyHintAnnotation(true),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("GET", "/v1/reddit/search", []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("reddit_list-subreddit",
-			mcplib.WithDescription("Fetches posts from a subreddit with sorting and filtering options. Each post includes title, author, selftext, score, ups, upvote_ratio, num_comments, created_utc, url, permalink, subreddit_subscribers, and is_video. Supports sort (best, hot, new, top, rising), timeframe filtering, pagination via the after token, and a trim parameter for lighter responses. Required: subreddit. Optional: timeframe, sort, after (plus 1 more)."),
-			mcplib.WithString("subreddit", mcplib.Required(), mcplib.Description("Subreddit name")),
-			mcplib.WithString("timeframe", mcplib.Description("Timeframe to get posts from")),
-			mcplib.WithString("sort", mcplib.Description("Sort order")),
-			mcplib.WithString("after", mcplib.Description("After to get more posts. Get 'after' from previous response.")),
-			mcplib.WithString("trim", mcplib.Description("Set to true for a trimmed down version of the response")),
-			mcplib.WithReadOnlyHintAnnotation(true),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("GET", "/v1/reddit/subreddit", []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("reddit_list-subreddit-2",
-			mcplib.WithDescription("Retrieves metadata about a subreddit by name or URL. The subreddit name must be case-sensitive. Returns display_name, description, subscribers, weekly_active_users, weekly_contributions, rules, icon_img, header_img, advertiser_category, submit_text, and created_at. Optional: subreddit, url."),
-			mcplib.WithString("subreddit", mcplib.Description("Subreddit name. MUST be case sensitive. So 'AskReddit' not 'askreddit'.")),
-			mcplib.WithString("url", mcplib.Description("Subreddit URL")),
-			mcplib.WithReadOnlyHintAnnotation(true),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("GET", "/v1/reddit/subreddit/details", []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("reddit_list-subreddit-3",
-			mcplib.WithDescription("Searches within a specific subreddit for posts, comments, and media matching a query. Returns posts with title, votes, num_comments, url, and created_at; comments with author, body, votes, and parent post info; and media with title, media_type, image dimensions, and gallery_count. Supports sort, timeframe filtering, and cursor-based pagination. Required: subreddit. Optional: query, sort, timeframe (plus 1 more)."),
-			mcplib.WithString("subreddit", mcplib.Required(), mcplib.Description("Subreddit name (e.g. 'Fitness', not 'r/Fitness' or a full URL)")),
-			mcplib.WithString("query", mcplib.Description("Search query to find matching content")),
-			mcplib.WithString("sort", mcplib.Description("Sort order. For posts/media: relevance, hot, top, new, comments. For comments: relevance, top, new")),
-			mcplib.WithString("timeframe", mcplib.Description("Timeframe to filter results")),
-			mcplib.WithString("cursor", mcplib.Description("Cursor to get more results. Get 'cursor' from previous response.")),
-			mcplib.WithReadOnlyHintAnnotation(true),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("GET", "/v1/reddit/subreddit/search", []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("snapchat_list",
-			mcplib.WithDescription("Retrieves a Snapchat user's public profile by handle, including identity, stories, and spotlight content. Returns userProfile with username, title, snapcodeImageUrl, subscriberCount, bio, and profilePictureUrl. Also includes highlightStoryMetadata with individual story snaps (mediaUrl, mediaType, thumbnailUrl) and spotlightStoryMetadata with video details and engagement stats (viewCount, shareCount, commentCount). Required: handle."),
-			mcplib.WithString("handle", mcplib.Required(), mcplib.Description("Snapchat username")),
-			mcplib.WithReadOnlyHintAnnotation(true),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("GET", "/v1/snapchat/profile", []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("threads_list",
-			mcplib.WithDescription("Fetches a single Threads post by URL, returning the post's caption, like_count, view_counts, reshare_count, direct_reply_count, image_versions2, and taken_at. Also includes comments and related_posts arrays. Supports a trim option for lighter responses. Required: url. Optional: trim."),
-			mcplib.WithString("url", mcplib.Required(), mcplib.Description("The URL of the post to get")),
-			mcplib.WithString("trim", mcplib.Description("Set to true for a trimmed down version of the response")),
-			mcplib.WithReadOnlyHintAnnotation(true),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("GET", "/v1/threads/post", []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("threads_list-profile",
-			mcplib.WithDescription("Retrieves a Threads user's public profile including username, full_name, biography, profile_pic_url, follower_count, is_verified, bio_links, and hd_profile_pic_versions. Also indicates whether the account is a threads-only user via is_threads_only_user. Required: handle."),
-			mcplib.WithString("handle", mcplib.Required(), mcplib.Description("Threads username")),
-			mcplib.WithReadOnlyHintAnnotation(true),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("GET", "/v1/threads/profile", []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("threads_list-search",
-			mcplib.WithDescription("Searches Threads for posts matching a keyword, returning up to 10 results with caption text, like_count, reshare_count, direct_reply_count, user info, and image_versions2. Supports optional start_date and end_date filters plus a trim option. Only 10 results are returned per request due to public API limitations. Required: query. Optional: start_date, end_date, trim."),
-			mcplib.WithString("query", mcplib.Required(), mcplib.Description("Keyword to search for")),
-			mcplib.WithString("start_date", mcplib.Description("Start date to search for")),
-			mcplib.WithString("end_date", mcplib.Description("End date to search for")),
-			mcplib.WithString("trim", mcplib.Description("Set to true for a trimmed down version of the response")),
-			mcplib.WithReadOnlyHintAnnotation(true),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("GET", "/v1/threads/search", []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("threads_list-search-2",
-			mcplib.WithDescription("Searches for Threads users by username, returning matching profiles with username, full_name, profile_pic_url, is_verified, and pk. Useful for finding user accounts before fetching their profile or posts. Required: query."),
-			mcplib.WithString("query", mcplib.Required(), mcplib.Description("Username to search for")),
-			mcplib.WithReadOnlyHintAnnotation(true),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("GET", "/v1/threads/search/users", []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("threads_list-user",
-			mcplib.WithDescription("Fetches the most recent posts from a Threads user, returning id, caption text, code, like_count, reshare_count, direct_reply_count, repost_count, image_versions2, video_versions, and taken_at. Only the last 20-30 posts are publicly visible. Supports a trim option for lighter responses. Required: handle. Optional: trim."),
-			mcplib.WithString("handle", mcplib.Required(), mcplib.Description("Threads username")),
-			mcplib.WithString("trim", mcplib.Description("Set to true for a trimmed down version of the response")),
-			mcplib.WithReadOnlyHintAnnotation(true),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("GET", "/v1/threads/user/posts", []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("tiktok_list",
-			mcplib.WithDescription("Fetches TikTok's trending/For You feed for a given region — useful for discovering viral content and what's currently popular. Returns `aweme_list`, an array of video objects each with `aweme_id`, `desc` (caption), `statistics` (play_count, digg_count/likes, comment_count, share_count, collect_count), `video` (playback and download URLs, cover), `author` info, and `image_post_info` for photo carousels. Required: region. Optional: trim."),
-			mcplib.WithString("region", mcplib.Required(), mcplib.Description("Where you want the proxy to be. This doesn't mean that you will only see TikToks from this region, you will just see...")),
-			mcplib.WithString("trim", mcplib.Description("Set to true to get a trimmed response.")),
-			mcplib.WithReadOnlyHintAnnotation(true),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("GET", "/v1/tiktok/get-trending-feed", []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("tiktok_list-creators",
-			mcplib.WithDescription("Discovers trending and popular TikTok creators, filterable by follower count range, creator country, and audience country. Returns `creator_list`, an array of creator objects each with `nickname`, `unique_id`, `follower_count`, `likes_count`, `video_views`, `engagement_rate`, and avatar URLs. Sortable by engagement, follower count, or average views. Optional: page, sortBy, followerCount (plus 2 more)."),
-			mcplib.WithString("page", mcplib.Description("Page number")),
-			mcplib.WithString("sortBy", mcplib.Description("Sort creators by engagement, follower count, or average views")),
-			mcplib.WithString("followerCount", mcplib.Description("Filter by follower count range")),
-			mcplib.WithString("creatorCountry", mcplib.Description("Country code of the creator")),
-			mcplib.WithString("audienceCountry", mcplib.Description("Country code of the audience/follower")),
-			mcplib.WithReadOnlyHintAnnotation(true),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("GET", "/v1/tiktok/creators/popular", []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("tiktok_list-hashtags",
-			mcplib.WithDescription("Discovers trending and popular TikTok hashtags, filterable by time period (7/30/120 days) and country. Returns a list of hashtag objects each with `hashtag_name`, `rank`, `trend` data, and related video examples. Useful for identifying viral topics and content trends on TikTok. Optional: period, page, countryCode (plus 2 more)."),
-			mcplib.WithString("period", mcplib.Description("Time period in days (7, 30, or 120)")),
-			mcplib.WithString("page", mcplib.Description("Page number")),
-			mcplib.WithString("countryCode", mcplib.Description("Country code to get popular hashtags from")),
-			mcplib.WithString("newOnBoard", mcplib.Description("Show only newly trending hashtags")),
-			mcplib.WithString("industry", mcplib.Description("Industry to get popular hashtags from.")),
-			mcplib.WithReadOnlyHintAnnotation(true),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("GET", "/v1/tiktok/hashtags/popular", []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("tiktok_list-product",
-			mcplib.WithDescription("Fetches full details for a specific TikTok Shop product by its URL, including stock levels and affiliate videos. Returns `product_info` with `product_base` (title, images, sold_count, price), `skus` (variants with exact `stock` counts), and `product_detail_review` (product_rating, review_count, sample reviews); also returns `shop_info` (shop_name, shop_rating, followers_count) and `related_videos` (affiliate TikToks promoting the product). Related videos are only available in the US region. Required: url. Optional: region."),
-			mcplib.WithString("url", mcplib.Required(), mcplib.Description("The URL of the product to get details for.")),
-			mcplib.WithString("region", mcplib.Description("Region the proxy will be set to so you can access products from that country. Use 2 letter country codes like US,...")),
-			mcplib.WithReadOnlyHintAnnotation(true),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("GET", "/v1/tiktok/product", []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("tiktok_list-profile",
-			mcplib.WithDescription("Fetches public profile data for a TikTok user by their handle — useful for looking up a creator's identity, bio, and account stats. Returns a `user` object (display name, avatar URLs, bio/signature, verification status, bio link) and a `stats` object (followerCount, followingCount, heartCount/total likes, videoCount). This only returns profile metadata, not the user's actual videos or followers list. Required: handle."),
-			mcplib.WithString("handle", mcplib.Required(), mcplib.Description("TikTok handle")),
-			mcplib.WithReadOnlyHintAnnotation(true),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("GET", "/v1/tiktok/profile", []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("tiktok_list-profile-2",
-			mcplib.WithDescription("Fetches videos posted by a TikTok user, sortable by latest or most popular — use this to get a creator's video feed or TikToks. Returns `aweme_list`, an array of video objects each containing `aweme_id`, `desc` (caption), `statistics` (play_count, digg_count/likes, comment_count, share_count, collect_count/saves), and `video` (download URLs, duration, cover image). Paginate with `max_cursor` from the previous response. Required: handle. Optional: user_id, sort_by, max_cursor (plus 2 more)."),
-			mcplib.WithString("handle", mcplib.Required(), mcplib.Description("TikTok handle")),
-			mcplib.WithString("user_id", mcplib.Description("TikTok user id. Use this for faster responses.")),
-			mcplib.WithString("sort_by", mcplib.Description("What to sort by")),
-			mcplib.WithString("max_cursor", mcplib.Description("Cursor to get more videos. Get 'max_cursor' from previous response.")),
-			mcplib.WithString("region", mcplib.Description("Region (Country) you want the proxy in. Defaults to US.")),
-			mcplib.WithString("trim", mcplib.Description("Set to true for a trimmed down version of the response")),
-			mcplib.WithReadOnlyHintAnnotation(true),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("GET", "/v3/tiktok/profile/videos", []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("tiktok_list-search",
-			mcplib.WithDescription("Searches for TikTok videos under a specific hashtag — useful for finding content by topic or trend. Returns `aweme_list`, an array of video objects each with `aweme_id`, `desc` (caption), `statistics` (play_count, digg_count/likes, comment_count, share_count), `video` info, and `author` details. Paginate with `cursor` from the previous response. Required: hashtag. Optional: region, cursor, trim."),
-			mcplib.WithString("hashtag", mcplib.Required(), mcplib.Description("Hashtag to search for (without #)")),
-			mcplib.WithString("region", mcplib.Description("Region the proxy will be set to. Note: this isn't going to grab you all tiktoks from this region, you're just...")),
-			mcplib.WithString("cursor", mcplib.Description("Cursor to get more videos. Get 'cursor' from previous response.")),
-			mcplib.WithString("trim", mcplib.Description("Set to true to get a trimmed response")),
-			mcplib.WithReadOnlyHintAnnotation(true),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("GET", "/v1/tiktok/search/hashtag", []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("tiktok_list-search-2",
-			mcplib.WithDescription("Searches for TikTok videos by keyword or phrase — the general video search across all of TikTok. Returns `search_item_list`, an array of objects each containing `aweme_info` with `aweme_id`, `desc` (caption), `statistics` (play_count, digg_count/likes, comment_count, share_count), `video` info, and `author` details. Paginate with `cursor`. Required: query. Optional: date_posted, sort_by, region (plus 2 more)."),
-			mcplib.WithString("query", mcplib.Required(), mcplib.Description("Keyword to search for")),
-			mcplib.WithString("date_posted", mcplib.Description("Time Frame")),
-			mcplib.WithString("sort_by", mcplib.Description("Sort by")),
-			mcplib.WithString("region", mcplib.Description("Note, this doesn't filter the tiktoks only in a specfic region, it puts the proxy there. Use it in case you want to...")),
-			mcplib.WithString("cursor", mcplib.Description("Cursor to get more videos. Get 'cursor' from previous response.")),
-			mcplib.WithString("trim", mcplib.Description("Set to true to get a trimmed response")),
-			mcplib.WithReadOnlyHintAnnotation(true),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("GET", "/v1/tiktok/search/keyword", []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("tiktok_list-search-3",
-			mcplib.WithDescription("Searches TikTok's 'Top' results by query — returns both videos and photo carousels, unlike keyword search which only returns videos. Returns `items`, an array of objects each with `id`, `desc` (caption), `content_type` (video or photo carousel), `statistics` (play_count, digg_count/likes, comment_count, share_count), `video` info, and `images` for carousels. Paginate with `cursor`. Required: query. Optional: publish_time, sort_by, region (plus 1 more)."),
-			mcplib.WithString("query", mcplib.Required(), mcplib.Description("Keyword to search for")),
-			mcplib.WithString("publish_time", mcplib.Description("Time Frame TikTok was posted")),
-			mcplib.WithString("sort_by", mcplib.Description("Sort by")),
-			mcplib.WithString("region", mcplib.Description("Note, this doesn't filter the tiktoks only in a specfic region, it puts the proxy there. Use it in case you want to...")),
-			mcplib.WithString("cursor", mcplib.Description("Cursor to get more videos. Get 'cursor' from previous response.")),
-			mcplib.WithReadOnlyHintAnnotation(true),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("GET", "/v1/tiktok/search/top", []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("tiktok_list-search-4",
-			mcplib.WithDescription("Searches for TikTok users by keyword or name — useful for finding creators or accounts matching a query. Returns `users`, an array of objects each containing `user_info` (nickname, unique_id, signature/bio, follower_count, following_count, avatar) and associated `items`. Paginate with `cursor` from the previous response. Required: query. Optional: cursor, trim."),
-			mcplib.WithString("query", mcplib.Required(), mcplib.Description("Search query for users")),
-			mcplib.WithString("cursor", mcplib.Description("Cursor to get more users. Get 'cursor' from previous response.")),
-			mcplib.WithString("trim", mcplib.Description("Set to true to get a trimmed response")),
-			mcplib.WithReadOnlyHintAnnotation(true),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("GET", "/v1/tiktok/search/users", []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("tiktok_list-shop",
-			mcplib.WithDescription("Lists all products from a specific TikTok Shop store by its URL. Returns an array of product objects each with `title`, `cover` images, `url`, `price` info, `sold_count`, `review_count`, and `rating`. Paginate with `cursor` from the previous response; filter by region. Required: url. Optional: cursor, region."),
-			mcplib.WithString("url", mcplib.Required(), mcplib.Description("The TikTok Shop store URL.")),
-			mcplib.WithString("cursor", mcplib.Description("Cursor parameter from the previous response to retrieve the next page of products. Omit for the first page.")),
-			mcplib.WithString("region", mcplib.Description("Region to get shop products from. Defaults to US if not provided.")),
-			mcplib.WithReadOnlyHintAnnotation(true),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("GET", "/v1/tiktok/shop/products", []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("tiktok_list-shop-2",
-			mcplib.WithDescription("Searches TikTok Shop for products matching a keyword query. Returns an array of product objects each with `title`, `cover` image, `url` (product page link), `price`, `sold_count`, `review_count`, `rating`, and `shop_name`. Paginate with `page`; filter by region. Required: query. Optional: page, region."),
-			mcplib.WithString("query", mcplib.Required(), mcplib.Description("Term you want to search for")),
-			mcplib.WithString("page", mcplib.Description("Page number to retrieve")),
-			mcplib.WithString("region", mcplib.Description("Region to search shop products in.")),
-			mcplib.WithReadOnlyHintAnnotation(true),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("GET", "/v1/tiktok/shop/search", []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("tiktok_list-shop-3",
-			mcplib.WithDescription("Fetches customer reviews for a TikTok Shop product by URL or product_id. Returns `product_reviews`, an array of review objects each with `rating`, `display_text`, `review_timestamp_fmt`, `review_user` (name, avatar), and `sku_specification` (variant purchased); also returns `total_reviews` count and `rating_distribution`. Paginate with `page`. Optional: url, product_id, region (plus 1 more)."),
-			mcplib.WithString("url", mcplib.Description("The URL of the product (required if product_id is not provided)")),
-			mcplib.WithString("product_id", mcplib.Description("The ID of the product (required if url is not provided)")),
-			mcplib.WithString("region", mcplib.Description("The region of the product. This is *very* important.")),
-			mcplib.WithString("page", mcplib.Description("The page number of the reviews")),
-			mcplib.WithReadOnlyHintAnnotation(true),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("GET", "/v1/tiktok/shop/product/reviews", []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("tiktok_list-song",
-			mcplib.WithDescription("Fetches detailed metadata for a specific TikTok sound or song by its clipId. Returns `music_info` with `title`, `author`, `album`, `duration`, `user_count` (number of videos using this sound), `play_url`, cover art, and artist details. Use the `clipId` from a sound URL or from the popular songs endpoint. Required: clipId."),
-			mcplib.WithString("clipId", mcplib.Required(), mcplib.Description("This is a little confusing because this isn't songId like you'd think. It is the clipId. I guess because you can...")),
-			mcplib.WithReadOnlyHintAnnotation(true),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("GET", "/v1/tiktok/song", []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("tiktok_list-song-2",
-			mcplib.WithDescription("Fetches TikTok videos that use a specific sound or song, identified by its clipId. Returns `aweme_list`, an array of video objects each with `aweme_id`, `desc` (caption), `statistics` (play_count, digg_count/likes, comment_count, share_count), `video` info, and `author` details. Paginate with `cursor` from the previous response. Optional: clipId, cursor."),
-			mcplib.WithString("clipId", mcplib.Description("This is clipId. Can be found on a url like so: https://www.tiktok.com/music/That%27s-Who-I-Praise-7370375686554782506...")),
-			mcplib.WithString("cursor", mcplib.Description("The cursor to get the next page of results.")),
-			mcplib.WithReadOnlyHintAnnotation(true),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("GET", "/v1/tiktok/song/videos", []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("tiktok_list-user",
-			mcplib.WithDescription("Retrieves audience demographic data for a TikTok user, showing where their followers are located by country. Returns `audienceLocations`, an array of objects each containing `country`, `countryCode`, `count`, and `percentage`. Costs 26 credits per request. Required: handle."),
-			mcplib.WithString("handle", mcplib.Required(), mcplib.Description("TikTok handle")),
-			mcplib.WithReadOnlyHintAnnotation(true),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("GET", "/v1/tiktok/user/audience", []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("tiktok_list-user-2",
-			mcplib.WithDescription("Retrieves the follower list of a TikTok account by handle or user_id — useful for seeing who follows a creator or getting subscriber data. Returns `followers`, an array of user objects each with `nickname`, `unique_id`, `uid`, `follower_count`, `following_count`, and avatar URLs; also returns `total` follower count. Paginate with `min_time` from the previous response. Optional: handle, user_id, min_time (plus 1 more)."),
-			mcplib.WithString("handle", mcplib.Description("TikTok handle")),
-			mcplib.WithString("user_id", mcplib.Description("User id. Use this for faster response times.")),
-			mcplib.WithString("min_time", mcplib.Description("Used to paginate. Get 'min_time' from previous response.")),
-			mcplib.WithString("trim", mcplib.Description("Set to true to get a trimmed response")),
-			mcplib.WithReadOnlyHintAnnotation(true),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("GET", "/v1/tiktok/user/followers", []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("tiktok_list-user-3",
-			mcplib.WithDescription("Retrieves the following list — accounts that a TikTok user follows — by their handle. Returns `followings`, an array of user objects each with `nickname`, `unique_id`, `uid`, `follower_count`, `following_count`, `signature`, and avatar URLs; also returns `total` count. Paginate with `min_time` from the previous response. Required: handle. Optional: min_time, trim."),
-			mcplib.WithString("handle", mcplib.Required(), mcplib.Description("TikTok handle")),
-			mcplib.WithString("min_time", mcplib.Description("Used to paginate. Get 'min_time' from previous response.")),
-			mcplib.WithString("trim", mcplib.Description("Set to true to get a trimmed response")),
-			mcplib.WithReadOnlyHintAnnotation(true),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("GET", "/v1/tiktok/user/following", []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("tiktok_list-user-4",
-			mcplib.WithDescription("Checks if a TikTok user is currently live streaming and retrieves their live room details. Returns `liveRoomUserInfo` (nickname, avatar, followerCount, roomId) and `liveRoom` (title, startTime, status, `liveRoomStats` with enterCount and userCount, plus `streamData` with playback URLs in multiple qualities). Required: handle."),
-			mcplib.WithString("handle", mcplib.Required(), mcplib.Description("TikTok handle")),
-			mcplib.WithReadOnlyHintAnnotation(true),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("GET", "/v1/tiktok/user/live", []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("tiktok_list-user-5",
-			mcplib.WithDescription("Fetches products featured in a TikTok user's public showcase — the products a creator promotes on their profile. Returns an array of product objects each with title, price, images, and shop details. Use POST request if pagination is cutting off too early. Just send the query params in the body. Required: handle. Optional: region, cursor."),
-			mcplib.WithString("handle", mcplib.Required(), mcplib.Description("The handle of the user")),
-			mcplib.WithString("region", mcplib.Description("Region to put the proxy in")),
-			mcplib.WithString("cursor", mcplib.Description("The cursor to the next page of products")),
-			mcplib.WithReadOnlyHintAnnotation(true),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("GET", "/v1/tiktok/user/showcase", []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("tiktok_list-video",
-			mcplib.WithDescription("Fetches detailed data for a single TikTok video by URL, including its metadata, engagement stats, and optionally its transcript/captions. Returns `aweme_detail` with `desc` (caption), `statistics` (play_count, digg_count/likes, comment_count, share_count, collect_count), `video` (download URLs including no-watermark), `author` info, and `music` info; also returns `transcript` in WEBVTT format if `get_transcript=true`. Required: url. Optional: get_transcript, region, trim (plus 1 more)."),
-			mcplib.WithString("url", mcplib.Required(), mcplib.Description("TikTok video URL")),
-			mcplib.WithString("get_transcript", mcplib.Description("Get transcript of the video")),
-			mcplib.WithString("region", mcplib.Description("Region of the proxy. Sometimes you'll need to specify the region if you're not getting a response. Commonly for...")),
-			mcplib.WithString("trim", mcplib.Description("Set to true to get a trimmed response")),
-			mcplib.WithString("download_media", mcplib.Description("Set to true to download the video/images and get back permanent Supabase URLs. Costs 10 credits if media is found, 1...")),
-			mcplib.WithReadOnlyHintAnnotation(true),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("GET", "/v2/tiktok/video", []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("tiktok_list-video-2",
-			mcplib.WithDescription("Fetches comments on a TikTok video by URL — useful for reading audience reactions, replies, and engagement. Returns `comments`, an array where each comment includes `text`, `digg_count` (likes), `reply_comment_total`, `create_time`, and a `user` object with the commenter's nickname and unique_id; also returns `total` comment count. Paginate with `cursor` from the previous response. Required: url. Optional: cursor, trim."),
-			mcplib.WithString("url", mcplib.Required(), mcplib.Description("TikTok video URL")),
-			mcplib.WithString("cursor", mcplib.Description("Cursor to get more comments. Get 'cursor' from previous response.")),
-			mcplib.WithString("trim", mcplib.Description("Set to true to get a trimmed response")),
-			mcplib.WithReadOnlyHintAnnotation(true),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("GET", "/v1/tiktok/video/comments", []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("tiktok_list-video-3",
-			mcplib.WithDescription("Extracts the transcript, captions, or subtitles from a TikTok video by URL. Returns `id`, `url`, and `transcript` as a WEBVTT-formatted string with timestamped text segments. Video must be under 2 minutes; costs an additional 10 credits when `use_ai_as_fallback=true`. Required: url. Optional: language, use_ai_as_fallback."),
-			mcplib.WithString("url", mcplib.Required(), mcplib.Description("TikTok video URL")),
-			mcplib.WithString("language", mcplib.Description("Language of the transcript. 2 letter language code, ie 'en', 'es', 'fr', 'de', 'it', 'ja', 'ko', 'zh'")),
-			mcplib.WithString("use_ai_as_fallback", mcplib.Description("Set to 'true' to use AI as a fallback to get the transcript if the transcript is not found. Costs 10 credits to use...")),
-			mcplib.WithReadOnlyHintAnnotation(true),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("GET", "/v1/tiktok/video/transcript", []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("tiktok_list-video-4",
-			mcplib.WithDescription("Fetches replies to a specific TikTok comment by its ID. Returns `comments`, an array of comment objects each with `text`, `user` info, and `create_time`. Paginate with `cursor` from the previous response. Required: comment_id, url. Optional: cursor."),
-			mcplib.WithString("comment_id", mcplib.Required(), mcplib.Description("TikTok comment ID. This is the cid from the comments endpoint.")),
-			mcplib.WithString("url", mcplib.Required(), mcplib.Description("TikTok video URL. This is the url from the comments endpoint.")),
-			mcplib.WithString("cursor", mcplib.Description("Cursor to get more replies. Get 'cursor' from previous response.")),
-			mcplib.WithReadOnlyHintAnnotation(true),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("GET", "/v1/tiktok/video/comment/replies", []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("truthsocial_list",
-			mcplib.WithDescription("Fetches a single Truth Social post by URL, returning text, id, created_at, url, content, account details, media_attachments, card link previews, replies_count, reblogs_count, and favourites_count. Only posts from prominent public figures (e.g., Trump, Vance) are accessible without authentication. Required: url."),
-			mcplib.WithString("url", mcplib.Required(), mcplib.Description("Truth Social post URL")),
-			mcplib.WithReadOnlyHintAnnotation(true),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("GET", "/v1/truthsocial/post", []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("truthsocial_list-profile",
-			mcplib.WithDescription("Retrieves a Truth Social user's public profile including display_name, username, avatar, header, followers_count, following_count, statuses_count, verified status, website, and created_at. Only prominent public figures (e.g., Trump, Vance) are accessible without authentication; most other accounts will not work. Required: handle."),
-			mcplib.WithString("handle", mcplib.Required(), mcplib.Description("Truth Social username")),
-			mcplib.WithReadOnlyHintAnnotation(true),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("GET", "/v1/truthsocial/profile", []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("truthsocial_list-user",
-			mcplib.WithDescription("Fetches a paginated list of posts from a Truth Social user, returning text, id, created_at, url, content, account info, media_attachments, card link previews, replies_count, reblogs_count, and favourites_count. Supports pagination via next_max_id and a trim option for lighter responses. Only prominent public figures (e.g., Trump, Vance) are accessible without authentication. Optional: handle, user_id, next_max_id (plus 1 more)."),
-			mcplib.WithString("handle", mcplib.Description("Truth Social username")),
-			mcplib.WithString("user_id", mcplib.Description("Truth Social user id. Use this for faster response times. Trumps is 107780257626128497. It is the 'id' field in the...")),
-			mcplib.WithString("next_max_id", mcplib.Description("Used to paginate to next page")),
-			mcplib.WithString("trim", mcplib.Description("Set to true for a trimmed down version of the response")),
-			mcplib.WithReadOnlyHintAnnotation(true),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("GET", "/v1/truthsocial/user/posts", []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("twitch_list",
-			mcplib.WithDescription("Fetches detailed data for a Twitch clip by URL, including metadata and direct video URLs. Returns clip id, slug, url, embedURL, title, viewCount, language, durationSeconds, game info, broadcaster details with follower count, thumbnailURL, and videoQualities at multiple resolutions with a signed videoURL for playback. Also includes additional clips from the same broadcaster. Required: url."),
-			mcplib.WithString("url", mcplib.Required(), mcplib.Description("Twitch clip URL")),
-			mcplib.WithReadOnlyHintAnnotation(true),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("GET", "/v1/twitch/clip", []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("twitch_list-profile",
-			mcplib.WithDescription("Retrieves a Twitch user's public profile by handle, including identity, social links, and content. Returns id, handle, displayName, description, followers count, and linked social accounts (instagram, x, tiktok). Also includes allVideos with game info, duration, and view counts, featuredClips with clip metadata and thumbnails, and similarStreamers. Required: handle."),
-			mcplib.WithString("handle", mcplib.Required(), mcplib.Description("Twitch handle")),
-			mcplib.WithReadOnlyHintAnnotation(true),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("GET", "/v1/twitch/profile", []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("twitch_list-user",
-			mcplib.WithDescription("Fetches a list of videos (100 max) for a Twitch user, returning each video's id, slug, url, embedURL, title, viewCount, language, durationSeconds, game info, broadcaster details with follower count, thumbnailURL, and videoQualities at multiple resolutions with a signed videoURL for playback. Supports pagination via cursor and a trim option for lighter responses. Required: handle. Optional: filter_by, sort_by."),
-			mcplib.WithString("handle", mcplib.Required(), mcplib.Description("Twitch handle")),
-			mcplib.WithString("filter_by", mcplib.Description("Filter by")),
-			mcplib.WithString("sort_by", mcplib.Description("Sort by")),
-			mcplib.WithReadOnlyHintAnnotation(true),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("GET", "/v1/twitch/user/videos", []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("twitter_list",
-			mcplib.WithDescription("Retrieves details about a Twitter/X Community by URL. Returns the community name, description, rest_id, join_policy, created_at, member_count, rules, and creator_results with the creator's profile. Also includes members_facepile_results with avatar images of recent members. Required: url."),
-			mcplib.WithString("url", mcplib.Required(), mcplib.Description("Community URL")),
-			mcplib.WithReadOnlyHintAnnotation(true),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("GET", "/v1/twitter/community", []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("twitter_list-community",
-			mcplib.WithDescription("Fetches tweets posted within a Twitter/X Community by URL. Returns an array of tweets, each with id, full_text, view_count, favorite_count, retweet_count, reply_count, bookmark_count, quote_count, created_at, and source. Each tweet includes a user object with the author's name, screen_name, avatar, followers_count, and is_blue_verified status. Required: url."),
-			mcplib.WithString("url", mcplib.Required(), mcplib.Description("Community URL")),
-			mcplib.WithReadOnlyHintAnnotation(true),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("GET", "/v1/twitter/community/tweets", []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("twitter_list-profile",
-			mcplib.WithDescription("Retrieves a Twitter user's profile by handle, including account metadata and statistics. Returns name, screen_name, description, followers_count, friends_count, statuses_count, favourites_count, location, profile_image_url_https, and is_blue_verified. Also includes verification_info, tipjar_settings, highlights_info, and creator_subscriptions_count. Required: handle."),
-			mcplib.WithString("handle", mcplib.Required(), mcplib.Description("Twitter handle")),
-			mcplib.WithReadOnlyHintAnnotation(true),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("GET", "/v1/twitter/profile", []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("twitter_list-tweet",
-			mcplib.WithDescription("Retrieves detailed information about a specific tweet by URL, including the author's profile and engagement metrics. Returns rest_id, full_text, views count, favorite_count, retweet_count, reply_count, bookmark_count, quote_count, created_at, source, and media entities. Supports a trim parameter for a lighter response. Required: url. Optional: trim."),
-			mcplib.WithString("url", mcplib.Required(), mcplib.Description("Tweet URL")),
-			mcplib.WithString("trim", mcplib.Description("Set to true for a trimmed down version of the response")),
-			mcplib.WithReadOnlyHintAnnotation(true),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("GET", "/v1/twitter/tweet", []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("twitter_list-tweet-2",
-			mcplib.WithDescription("Extracts the transcript from a Twitter video tweet using AI-powered transcription. The video must be under 2 minutes long. Returns a success flag and the full transcript text. This endpoint is slower than others due to the AI processing step. Required: url."),
-			mcplib.WithString("url", mcplib.Required(), mcplib.Description("Tweet URL")),
-			mcplib.WithReadOnlyHintAnnotation(true),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("GET", "/v1/twitter/tweet/transcript", []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("twitter_list-usertweets",
-			mcplib.WithDescription("Fetches tweets from a Twitter user's profile by handle. Note: Twitter publicly returns only ~100 of the user's most popular tweets, not chronological or latest. Each tweet includes rest_id, full_text, views count, favorite_count, retweet_count, reply_count, bookmark_count, quote_count, created_at, media entities, and url. Supports a trim parameter for a lighter response. Required: handle. Optional: trim."),
-			mcplib.WithString("handle", mcplib.Required(), mcplib.Description("Twitter handle")),
-			mcplib.WithString("trim", mcplib.Description("Set to true for a trimmed down version of the response")),
-			mcplib.WithReadOnlyHintAnnotation(true),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("GET", "/v1/twitter/user-tweets", []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("youtube_list",
-			mcplib.WithDescription("Retrieves comprehensive YouTube channel profile data including name, avatar images, subscriber count (subscribers), total video and view counts, join date, tags, and linked social accounts like Twitter and Instagram. Accepts a channelId, handle, or full channel URL as input. Returns channel metadata such as country, email, and external store links when available. Optional: channelId, handle, url."),
-			mcplib.WithString("channelId", mcplib.Description("YouTube channel ID. Can pass a channelId, handle or url")),
-			mcplib.WithString("handle", mcplib.Description("YouTube channel handle. Can pass a channelId, handle or url")),
-			mcplib.WithString("url", mcplib.Description("YouTube channel URL. Can pass a channelId, handle or url")),
-			mcplib.WithReadOnlyHintAnnotation(true),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("GET", "/v1/youtube/channel", []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("youtube_list-channel",
-			mcplib.WithDescription("Retrieves a paginated list of short-form videos (Shorts) from a YouTube channel, including each short's title, URL, view count (views), likes, comments, and description. Supports sorting by newest or popular, and use the continuationToken to page through all results. Returns data in the shorts array. Optional: handle, channelId, sort (plus 1 more)."),
-			mcplib.WithString("handle", mcplib.Description("Can pass channelId or handle")),
-			mcplib.WithString("channelId", mcplib.Description("Can pass channelId or handle")),
-			mcplib.WithString("sort", mcplib.Description("Sort by newest or popular")),
-			mcplib.WithString("continuationToken", mcplib.Description("Continuation token to get more videos. Get 'continuationToken' from previous response.")),
-			mcplib.WithReadOnlyHintAnnotation(true),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("GET", "/v1/youtube/channel/shorts", []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("youtube_list-channelvideos",
-			mcplib.WithDescription("Fetches a paginated list of videos uploaded by a YouTube channel, including each video's title, URL, thumbnail, view count (views), publish date, duration, and description. Supports sorting by latest or popular, and use the continuationToken to page through all results. Optionally include extras like like count, comment count, and descriptions for each video. Optional: channelId, handle, sort (plus 2 more)."),
-			mcplib.WithString("channelId", mcplib.Description("YouTube channel ID")),
-			mcplib.WithString("handle", mcplib.Description("YouTube channel handle")),
-			mcplib.WithString("sort", mcplib.Description("Sort by latest or popular")),
-			mcplib.WithString("continuationToken", mcplib.Description("Continuation token to get more videos. Get 'continuationToken' from previous response.")),
-			mcplib.WithString("includeExtras", mcplib.Description("This will get you the like + comment count and the description. To get the full details of the video, use the...")),
-			mcplib.WithReadOnlyHintAnnotation(true),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("GET", "/v1/youtube/channel-videos", []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("youtube_list-communitypost",
-			mcplib.WithDescription("Retrieves the full details of a YouTube community post, including its text content, attached images, like count, publish date, and associated channel info. Also returns a linked video if the post includes one. Required: url."),
-			mcplib.WithString("url", mcplib.Required(), mcplib.Description("The URL of the YouTube community post to get")),
-			mcplib.WithReadOnlyHintAnnotation(true),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("GET", "/v1/youtube/community-post", []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("youtube_list-playlist",
-			mcplib.WithDescription("Retrieves all videos in a YouTube playlist, including the playlist title, owner info, total video count, and each video's title, URL, thumbnail, duration, and channel. Accepts the playlist ID found in the 'list' URL parameter. Required: playlist_id."),
-			mcplib.WithString("playlist_id", mcplib.Required(), mcplib.Description("The ID of the YouTube playlist. In the YouTube URL it will be the 'list' parameter.")),
-			mcplib.WithReadOnlyHintAnnotation(true),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("GET", "/v1/youtube/playlist", []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("youtube_list-search",
-			mcplib.WithDescription("Searches YouTube by keyword query and returns matching videos, channels, playlists, shorts, shelves, and live streams. Each video result includes title, URL, thumbnail, view count (views), publish date, duration, channel info, and badges. Supports filtering by upload date, sorting by relevance or popularity, and paginating with continuationToken. Required: query. Optional: uploadDate, sortBy, type (plus 4 more)."),
-			mcplib.WithString("query", mcplib.Required(), mcplib.Description("Search query")),
-			mcplib.WithString("uploadDate", mcplib.Description("Upload date")),
-			mcplib.WithString("sortBy", mcplib.Description("Sort by")),
-			mcplib.WithString("type", mcplib.Description("Type of content to search for")),
-			mcplib.WithString("duration", mcplib.Description("Duration of the video. Only applies to videos (not shorts).")),
-			mcplib.WithString("region", mcplib.Description("2 letter country code of the country to put the proxy in.")),
-			mcplib.WithString("continuationToken", mcplib.Description("Continuation token to get more videos. Get 'continuationToken' from previous response.")),
-			mcplib.WithString("includeExtras", mcplib.Description("This will get you the like + comment count and the description. To get the full details of the video, use the...")),
-			mcplib.WithReadOnlyHintAnnotation(true),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("GET", "/v1/youtube/search", []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("youtube_list-search-2",
-			mcplib.WithDescription("Searches YouTube for content matching a specific hashtag and returns matching videos with title, URL, thumbnail, view count (views), publish date, duration, and channel info. Supports pagination via continuationToken and filtering to return all content types or only shorts. Required: hashtag. Optional: continuationToken, type."),
-			mcplib.WithString("hashtag", mcplib.Required(), mcplib.Description("Hashtag to search for")),
-			mcplib.WithString("continuationToken", mcplib.Description("Continuation token to get more videos. Get 'continuationToken' from previous response.")),
-			mcplib.WithString("type", mcplib.Description("Search for all types of content or only shorts")),
-			mcplib.WithReadOnlyHintAnnotation(true),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("GET", "/v1/youtube/search/hashtag", []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("youtube_list-shorts",
-			mcplib.WithDescription("Fetches approximately 48 currently trending YouTube Shorts (viral/popular short-form videos) per call, returning each short's title, URL, thumbnail, view count (views), like count (likes), comment count, publish date, channel info, keywords, and duration. Each subsequent call returns a fresh batch of different trending shorts."),
-			mcplib.WithReadOnlyHintAnnotation(true),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("GET", "/v1/youtube/shorts/trending", []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("youtube_list-video",
-			mcplib.WithDescription("Fetches full details for a YouTube video or short, including title, description, thumbnail, view count (views), like count (likes), comment count, publish date, duration, genre, keywords, chapters, collaborators, and available caption tracks (subtitles/captions). Also returns related recommended videos in watchNextVideos and channel info for the uploader. Required: url. Optional: language."),
-			mcplib.WithString("url", mcplib.Required(), mcplib.Description("YouTube video or short URL")),
-			mcplib.WithString("language", mcplib.Description("Preferred response language (mapped to Accept-Language header; not guaranteed due to YouTube localization behavior)....")),
-			mcplib.WithReadOnlyHintAnnotation(true),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("GET", "/v1/youtube/video", []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("youtube_list-video-2",
-			mcplib.WithDescription("Fetches comments and replies from a YouTube video, including each comment's text content, author details, like count, reply count, and publish date. Supports ordering by top or newest, and paginating with continuationToken. Limited to approximately 1,000 top comments or 7,000 newest comments. Required: url. Optional: continuationToken, order."),
-			mcplib.WithString("url", mcplib.Required(), mcplib.Description("YouTube video URL")),
-			mcplib.WithString("continuationToken", mcplib.Description("Continuation token to get more comments. Get 'continuationToken' from previous response.")),
-			mcplib.WithString("order", mcplib.Description("Order of comments")),
-			mcplib.WithReadOnlyHintAnnotation(true),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("GET", "/v1/youtube/video/comments", []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("youtube_list-video-3",
-			mcplib.WithDescription("Retrieves the captions, subtitles, or transcript of a YouTube video or short. Returns both a timestamped transcript array with start/end times and a plain-text version in transcript_only_text. Supports specifying a language code. Note: the video must be under 2 minutes for transcript extraction to work. Required: url. Optional: language."),
-			mcplib.WithString("url", mcplib.Required(), mcplib.Description("YouTube video or short URL")),
-			mcplib.WithString("language", mcplib.Description("2 letter language code, ie 'en', 'es', 'fr' etc. If the transcript is not available in the language you specify, the...")),
-			mcplib.WithReadOnlyHintAnnotation(true),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("GET", "/v1/youtube/video/transcript", []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("youtube_list-video-4",
-			mcplib.WithDescription("Fetches replies to a specific comment on a YouTube video, including each reply's text content, author details (name, channel ID, avatar, verified/creator status), like count, and publish date. Requires a continuationToken obtained from the 'repliesContinuationToken' field on comments returned by the Comments endpoint. Supports paginating through additional replies with the continuationToken returned in each response. Required: continuationToken."),
-			mcplib.WithString("continuationToken", mcplib.Required(), mcplib.Description("Continuation token for the comment replies. Use 'repliesContinuationToken' from the Comments endpoint, or...")),
-			mcplib.WithReadOnlyHintAnnotation(true),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("GET", "/v1/youtube/video/comment/replies", []string{}),
-	)
+	// Code-orchestration mode — the full surface is covered by two tools
+	// (<api>_search + <api>_execute). Endpoint-mirror tools are suppressed.
+	RegisterCodeOrchestrationTools(s)
 	// Search tool — faster than iterating list endpoints for finding specific items
 	s.AddTool(
 		mcplib.NewTool("search",
@@ -1360,7 +53,7 @@ func RegisterTools(s *server.MCPServer) {
 	s.AddTool(
 		mcplib.NewTool("sql",
 			mcplib.WithDescription("Run read-only SQL against local database. Use for ad-hoc analysis, aggregations, and joins across synced resources. Requires sync first."),
-			mcplib.WithString("query", mcplib.Required(), mcplib.Description("SQL query (SELECT only). Tables match resource names.")),
+			mcplib.WithString("query", mcplib.Required(), mcplib.Description("SQL query (SELECT or WITH...SELECT). Synced records live in resources(resource_type, id, data); filter by resource_type and use json_extract on data, e.g. SELECT json_extract(data,'$.name') FROM resources WHERE resource_type='account'.")),
 			mcplib.WithReadOnlyHintAnnotation(true),
 			mcplib.WithDestructiveHintAnnotation(false),
 		),
@@ -1383,8 +76,55 @@ func RegisterTools(s *server.MCPServer) {
 	cobratree.RegisterAll(s, cli.RootCmd(), cobratree.SiblingCLIPath)
 }
 
+type mcpParamBinding struct {
+	PublicName string
+	WireName   string
+	Location   string
+}
+
+type mcpPageConfig struct {
+	CursorParam    string
+	NextCursorPath string
+}
+
+func formatMCPParamValue(v any) string {
+	switch tv := v.(type) {
+	case string:
+		return tv
+	case bool:
+		return strconv.FormatBool(tv)
+	case float64:
+		if math.IsNaN(tv) || math.IsInf(tv, 0) {
+			return strconv.FormatFloat(tv, 'f', -1, 64)
+		}
+		if math.Trunc(tv) == tv && math.Abs(tv) < 1e15 {
+			return strconv.FormatInt(int64(tv), 10)
+		}
+		return strconv.FormatFloat(tv, 'f', -1, 64)
+	case float32:
+		f := float64(tv)
+		if math.IsNaN(f) || math.IsInf(f, 0) {
+			return strconv.FormatFloat(f, 'f', -1, 32)
+		}
+		if math.Trunc(f) == f && math.Abs(f) < 1e15 {
+			return strconv.FormatInt(int64(f), 10)
+		}
+		return strconv.FormatFloat(f, 'f', -1, 32)
+	default:
+		// Composite values (a native []any / map[string]any from an array or
+		// object param) reach this path when bound to a query or path slot;
+		// JSON-encode them so the wire value is valid JSON rather than Go's
+		// "[a b c]" / "map[...]" rendering. Body params never come through
+		// here — they are stored natively in bodyArgs and marshalled there.
+		if b, err := json.Marshal(v); err == nil {
+			return string(b)
+		}
+		return fmt.Sprintf("%v", v)
+	}
+}
+
 // makeAPIHandler creates a generic MCP tool handler for an API endpoint.
-func makeAPIHandler(method, pathTemplate string, positionalParams []string) server.ToolHandlerFunc {
+func makeAPIHandler(method, pathTemplate string, readOnly bool, binaryResponse bool, headerOverrides map[string]string, pageConfig mcpPageConfig, bindings []mcpParamBinding, positionalParams []string) server.ToolHandlerFunc {
 	return func(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.CallToolResult, error) {
 		c, err := newMCPClient()
 		if err != nil {
@@ -1396,44 +136,125 @@ func makeAPIHandler(method, pathTemplate string, positionalParams []string) serv
 		// we rely on here (or an empty map when the payload is something else).
 		args := req.GetArguments()
 
-		// Build path by substituting positional params
+		// positionalParams mixes real URL path params with CLI positional
+		// args that map to query params (e.g. `search <query>` -> ?query=);
+		// the placeholder check below disambiguates them at runtime.
 		path := pathTemplate
+		knownArgs := make(map[string]bool, len(bindings))
+		pathParams := make(map[string]bool, len(positionalParams))
+		params := make(map[string]string)
+		bodyArgs := make(map[string]any)
+		mcpCursor := ""
+		if pageConfig.CursorParam != "" {
+			knownArgs["cursor"] = true
+			if v, ok := args["cursor"]; ok {
+				s, ok := v.(string)
+				if !ok {
+					return mcplib.NewToolResultError("cursor must be an opaque string returned by a previous MCP response"), nil
+				}
+				mcpCursor = s
+				upstreamCursor, err := bound.UpstreamCursor(s)
+				if err != nil {
+					return mcplib.NewToolResultError(err.Error()), nil
+				}
+				if upstreamCursor != "" {
+					params[pageConfig.CursorParam] = upstreamCursor
+				}
+			}
+		}
+		var headers map[string]string
+		if len(headerOverrides) > 0 {
+			headers = make(map[string]string, len(headerOverrides)+1)
+			for k, v := range headerOverrides {
+				headers[k] = v
+			}
+		}
+		if binaryResponse {
+			if headers == nil {
+				headers = map[string]string{}
+			}
+			headers[client.BinaryResponseHeader] = "true"
+		}
+		for _, binding := range bindings {
+			knownArgs[binding.PublicName] = true
+			v, ok := args[binding.PublicName]
+			if !ok {
+				continue
+			}
+			switch binding.Location {
+			case "path":
+				placeholder := "{" + binding.WireName + "}"
+				pathParams[binding.PublicName] = true
+				path = strings.Replace(path, placeholder, formatMCPParamValue(v), 1)
+			case "body":
+				bodyArgs[binding.WireName] = v
+			default:
+				params[binding.WireName] = formatMCPParamValue(v)
+			}
+		}
 		for _, p := range positionalParams {
+			placeholder := "{" + p + "}"
+			if !strings.Contains(pathTemplate, placeholder) {
+				continue
+			}
+			pathParams[p] = true
 			if v, ok := args[p]; ok {
-				path = strings.Replace(path, "{"+p+"}", fmt.Sprintf("%v", v), 1)
+				path = strings.Replace(path, placeholder, formatMCPParamValue(v), 1)
 			}
 		}
 
-		// Collect non-positional params as query params
-		params := make(map[string]string)
 		for k, v := range args {
-			isPositional := false
-			for _, p := range positionalParams {
-				if k == p {
-					isPositional = true
-					break
-				}
+			if pathParams[k] || knownArgs[k] {
+				continue
 			}
-			if !isPositional {
-				params[k] = fmt.Sprintf("%v", v)
+			switch method {
+			case "POST", "PUT", "PATCH":
+				bodyArgs[k] = v
+			default:
+				params[k] = formatMCPParamValue(v)
 			}
 		}
 
 		var data json.RawMessage
 		switch method {
 		case "GET":
-			data, err = c.Get(path, params)
+			if len(headers) > 0 {
+				data, err = c.GetWithHeaders(ctx, path, params, headers)
+				break
+			}
+			data, err = c.Get(ctx, path, params)
 		case "POST":
-			body, _ := json.Marshal(args)
-			data, _, err = c.Post(path, body)
+			if len(headers) > 0 {
+				if readOnly {
+					data, _, err = c.PostQueryWithParamsAndHeaders(ctx, path, params, bodyArgs, headers)
+				} else {
+					data, _, err = c.PostWithParamsAndHeaders(ctx, path, params, bodyArgs, headers)
+				}
+				break
+			}
+			if readOnly {
+				data, _, err = c.PostQueryWithParams(ctx, path, params, bodyArgs)
+			} else {
+				data, _, err = c.PostWithParams(ctx, path, params, bodyArgs)
+			}
 		case "PUT":
-			body, _ := json.Marshal(args)
-			data, _, err = c.Put(path, body)
+			if len(headers) > 0 {
+				data, _, err = c.PutWithParamsAndHeaders(ctx, path, params, bodyArgs, headers)
+				break
+			}
+			data, _, err = c.PutWithParams(ctx, path, params, bodyArgs)
 		case "PATCH":
-			body, _ := json.Marshal(args)
-			data, _, err = c.Patch(path, body)
+			if len(headers) > 0 {
+				data, _, err = c.PatchWithParamsAndHeaders(ctx, path, params, bodyArgs, headers)
+				break
+			}
+			data, _, err = c.PatchWithParams(ctx, path, params, bodyArgs)
 		case "DELETE":
-			data, _, err = c.Delete(path)
+			if len(headers) > 0 {
+				data, _, err = c.DeleteWithParamsAndHeaders(ctx, path, params, headers)
+				break
+			}
+			data, _, err = c.DeleteWithParams(ctx, path, params)
 		default:
 			return mcplib.NewToolResultError("unsupported method: " + method), nil
 		}
@@ -1446,17 +267,20 @@ func makeAPIHandler(method, pathTemplate string, positionalParams []string) serv
 			case strings.Contains(msg, "HTTP 400") && cliutil.LooksLikeAuthError(msg):
 				return mcplib.NewToolResultError("authentication error: " + cliutil.SanitizeErrorBody(msg) +
 					"\nhint: the API rejected the request — this usually means auth is missing or invalid." +
-					"\n      Set your API key: export SCRAPE_CREATORS_API_KEY_AUTH=<your-key>" +
+					"\n      Set your API key with: export SCRAPECREATORS_API_KEY=\"your-token-here\"" +
+					"\n      See API docs: https://scrapecreators.com" +
 					"\n      Run 'scrape-creators-pp-cli doctor' to check auth status."), nil
 			case strings.Contains(msg, "HTTP 401"):
 				return mcplib.NewToolResultError("authentication failed: " + cliutil.SanitizeErrorBody(msg) +
 					"\nhint: check your API key." +
-					"\n      Set it with: export SCRAPE_CREATORS_API_KEY_AUTH=<your-key>" +
+					"\n      Set your API key with: export SCRAPECREATORS_API_KEY=\"your-token-here\"" +
+					"\n      See API docs: https://scrapecreators.com" +
 					"\n      Run 'scrape-creators-pp-cli doctor' to check auth status."), nil
 			case strings.Contains(msg, "HTTP 403"):
 				return mcplib.NewToolResultError("permission denied: " + cliutil.SanitizeErrorBody(msg) +
-					"\nhint: your credentials are valid but lack access to this resource." +
-					"\n      Set it with: export SCRAPE_CREATORS_API_KEY_AUTH=<your-key>" +
+					"\nhint: your credentials are valid but lack access to this resource. Check that they have the required permissions and match the API's expected auth scheme." +
+					"\n      Set your API key with: export SCRAPECREATORS_API_KEY=\"your-token-here\"" +
+					"\n      See API docs: https://scrapecreators.com" +
 					"\n      Run 'scrape-creators-pp-cli doctor' to check auth status."), nil
 			case strings.Contains(msg, "HTTP 404"):
 				if method == "DELETE" {
@@ -1470,49 +294,114 @@ func makeAPIHandler(method, pathTemplate string, positionalParams []string) serv
 			}
 		}
 
-		// For GET responses, wrap bare arrays with count metadata
-		if method == "GET" {
-			trimmed := strings.TrimSpace(string(data))
-			if len(trimmed) > 0 && trimmed[0] == '[' {
-				var items []json.RawMessage
-				if json.Unmarshal(data, &items) == nil {
-					wrapped := map[string]any{
-						"count": len(items),
-						"items": items,
-					}
-					out, _ := json.Marshal(wrapped)
-					return mcplib.NewToolResultText(string(out)), nil
-				}
+		if binaryResponse {
+			encoded := base64.StdEncoding.EncodeToString(data)
+			out, err := json.Marshal(map[string]any{
+				"content_encoding": "base64",
+				"data_base64":      encoded,
+				"byte_count":       len(data),
+			})
+			if err != nil {
+				return mcplib.NewToolResultError(fmt.Sprintf("encoding binary result: %v", err)), nil
 			}
+			if len(out) > bound.MaxBytes {
+				return mcplib.NewToolResultError(fmt.Sprintf("binary response is too large for MCP text output: %d response bytes encode to %d base64 bytes and %d MCP result bytes, exceeding the %d byte budget. Use the companion CLI command with --output <file> to save the payload locally.", len(data), len(encoded), len(out), bound.MaxBytes)), nil
+			}
+			return mcplib.NewToolResultText(string(out)), nil
 		}
-		return mcplib.NewToolResultText(string(data)), nil
+		if pageConfig.CursorParam != "" {
+			return mcpToolPageResultText(method, data, pageConfig, mcpCursor), nil
+		}
+		return mcpToolResultText(method, data), nil
 	}
+}
+
+func mcpToolResultText(method string, data json.RawMessage) *mcplib.CallToolResult {
+	return mcplib.NewToolResultText(bound.EndpointResponse(method, data))
+}
+
+func mcpToolPageResultText(method string, data json.RawMessage, pageConfig mcpPageConfig, cursor string) *mcplib.CallToolResult {
+	return mcplib.NewToolResultText(bound.EndpointPageResponse(method, data, bound.PageOptions{
+		Cursor:         cursor,
+		CursorParam:    pageConfig.CursorParam,
+		NextCursorPath: pageConfig.NextCursorPath,
+	}))
 }
 
 func newMCPClient() (*client.Client, error) {
-	home, _ := os.UserHomeDir()
-	cfgPath := filepath.Join(home, ".config", "scrape-creators-pp-cli", "config.toml")
-	cfg, err := config.Load(cfgPath)
+	cfg, err := newMCPConfig()
+	if err != nil {
+		return nil, err
+	}
+	return newMCPClientFromConfig(cfg), nil
+}
+
+func newMCPConfig() (*config.Config, error) {
+	cfg, err := config.Load("")
 	if err != nil {
 		return nil, fmt.Errorf("loading config: %w", err)
 	}
-	c := client.New(cfg, 30*time.Second, 0)
+	return cfg, nil
+}
+
+func newMCPClientFromConfig(cfg *config.Config) *client.Client {
+	c := client.New(cfg, 60*time.Second, defaultMCPRateLimit)
 	// Agents calling through MCP need fresh data every call. The on-disk
-	// response cache survives across MCP server invocations, so a DELETE/PATCH
-	// followed by a GET would otherwise return the pre-mutation snapshot for up
-	// to the cache TTL. Skip the cache for the MCP path; the interactive CLI
+	// response cache survives across MCP server invocations, so a
+	// DELETE/PATCH followed by a GET would otherwise return the
+	// pre-mutation snapshot for up to the cache TTL. The interactive CLI
 	// constructs its own client and is unaffected.
 	c.NoCache = true
-	return c, nil
+	return c
 }
 
-func dbPath() string {
-	home, _ := os.UserHomeDir()
-	return filepath.Join(home, ".local", "share", "scrape-creators-pp-cli", "data.db")
+func mcpDBPath() (string, error) {
+	dir, err := cliutil.DataDir()
+	if err != nil {
+		return "", err
+	}
+	return filepath.Join(dir, "data.db"), nil
 }
 
-// Note: MCP tools use their own dbPath() because they are in a separate package (main, not cli).
-// The CLI's defaultDBPath() in the cli package uses the same canonical path.
+type mcpStoreStatusKind string
+
+const (
+	mcpStoreStatusEmpty mcpStoreStatusKind = "empty"
+	mcpStoreStatusReady mcpStoreStatusKind = "ready"
+)
+
+func openMCPReadOnlyStore(path string) (*store.Store, *mcplib.CallToolResult) {
+	if _, err := os.Stat(path); err != nil {
+		if os.IsNotExist(err) {
+			return nil, mcplib.NewToolResultError(mcpMissingStoreMessage(path))
+		}
+		return nil, mcplib.NewToolResultError(fmt.Sprintf("checking local data store %s: %v", path, err))
+	}
+	db, err := store.OpenReadOnly(path)
+	if err != nil {
+		return nil, mcplib.NewToolResultError(fmt.Sprintf("opening local data store %s: %v. Run scrape-creators-pp-cli sync to refresh the store, or use live endpoint MCP tools for unsynced data.", path, err))
+	}
+	return db, nil
+}
+
+func mcpMissingStoreMessage(path string) string {
+	return fmt.Sprintf("No local data store found at %s. Run scrape-creators-pp-cli sync before using MCP search/sql, or use live endpoint MCP tools for unsynced data.", path)
+}
+
+func mcpStoreStatus(db *store.Store) (mcpStoreStatusKind, error) {
+	status, err := db.Status()
+	if err != nil {
+		return "", err
+	}
+	if len(status) == 0 {
+		return mcpStoreStatusEmpty, nil
+	}
+	return mcpStoreStatusReady, nil
+}
+
+func mcpEmptyStoreNextStep() string {
+	return "Run scrape-creators-pp-cli sync to populate the local SQLite store before using MCP search/sql."
+}
 
 func handleSearch(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.CallToolResult, error) {
 	args := req.GetArguments()
@@ -1526,9 +415,13 @@ func handleSearch(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.Call
 		limit = int(v)
 	}
 
-	db, err := store.OpenWithContext(ctx, dbPath())
+	path, err := mcpDBPath()
 	if err != nil {
-		return mcplib.NewToolResultError(fmt.Sprintf("opening database: %v", err)), nil
+		return mcplib.NewToolResultError(fmt.Sprintf("resolving database: %v", err)), nil
+	}
+	db, toolErr := openMCPReadOnlyStore(path)
+	if toolErr != nil {
+		return toolErr, nil
 	}
 	defer db.Close()
 
@@ -1536,9 +429,182 @@ func handleSearch(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.Call
 	if err != nil {
 		return mcplib.NewToolResultError(fmt.Sprintf("search failed: %v", err)), nil
 	}
+	storeStatus, err := mcpStoreStatus(db)
+	if err != nil {
+		return mcplib.NewToolResultError(fmt.Sprintf("reading store status: %v", err)), nil
+	}
 
-	data, _ := json.MarshalIndent(results, "", "  ")
-	return mcplib.NewToolResultText(string(data)), nil
+	return toolResultJSON(mcpSearchEnvelope(results, storeStatus))
+}
+
+func mcpSearchEnvelope(results []json.RawMessage, storeStatus mcpStoreStatusKind) map[string]any {
+	if results == nil {
+		results = []json.RawMessage{}
+	}
+	out := map[string]any{
+		"count":        len(results),
+		"results":      results,
+		"store_status": storeStatus,
+		"resumable":    false,
+	}
+	if len(results) == 0 {
+		if storeStatus == mcpStoreStatusEmpty {
+			out["next_step"] = mcpEmptyStoreNextStep()
+		} else {
+			out["next_step"] = "No local search matches. Try a broader query, a lower-specificity FTS expression, or sync again if data may be stale."
+		}
+	}
+	return out
+}
+
+// validateReadOnlyQuery gates the MCP sql tool. The agent contract advertised
+// to the host is ReadOnlyHintAnnotation(true); a false annotation on a
+// mutating tool lets MCP hosts auto-approve writes and is treated as a real
+// bug per the project's agent-native security model.
+//
+// The gate rejects multi-statement input, then applies an allowlist (SELECT or
+// WITH only) AFTER stripping the leading whitespace, line comments, block
+// comments, and semicolons that SQLite itself ignores before parsing. A naive
+// HasPrefix check on a keyword blocklist is bypassable by prefixing the
+// dangerous statement with "/* x */" or "-- x\n"; a naive leading-keyword
+// allowlist is bypassable by appending "; ATTACH DATABASE ...". Combined with
+// the empirical fact that modernc.org/sqlite's mode=ro does NOT block VACUUM
+// INTO (writes a snapshot to a new file) or ATTACH DATABASE (opens a separate
+// writable handle), either bypass produces silent exfiltration to an
+// attacker-chosen path.
+//
+// SELECT and WITH are the only allowed leading keywords. WITH supports
+// SELECT-form CTEs; CTE-wrapped writes ("WITH x AS (...) INSERT ...") are
+// caught by OpenReadOnly's mode=ro one layer down. PRAGMA, ATTACH, VACUUM,
+// and every other DDL/DML keyword fail at this gate before reaching SQLite.
+func validateReadOnlyQuery(query string) error {
+	stripped := stripLeadingSQLNoise(query)
+	if hasTrailingSQLStatement(stripped) {
+		return fmt.Errorf("only a single SELECT or WITH statement is allowed")
+	}
+	upper := strings.ToUpper(stripped)
+	if !strings.HasPrefix(upper, "SELECT") && !strings.HasPrefix(upper, "WITH") {
+		return fmt.Errorf("only SELECT queries are allowed")
+	}
+	return nil
+}
+
+// stripLeadingSQLNoise removes leading whitespace, SQL line comments
+// (-- to end of line), block comments (/* ... */), and statement
+// separators (;) from query. SQLite skips these before parsing the first
+// keyword, so a security gate that does not strip them mismatches what the
+// driver actually executes.
+func stripLeadingSQLNoise(query string) string {
+	for {
+		query = strings.TrimLeft(query, " \t\r\n;")
+		switch {
+		case strings.HasPrefix(query, "--"):
+			if idx := strings.IndexByte(query, '\n'); idx >= 0 {
+				query = query[idx+1:]
+				continue
+			}
+			return ""
+		case strings.HasPrefix(query, "/*"):
+			if idx := strings.Index(query[2:], "*/"); idx >= 0 {
+				query = query[2+idx+2:]
+				continue
+			}
+			return ""
+		default:
+			return query
+		}
+	}
+}
+
+// hasTrailingSQLStatement reports whether query contains a statement
+// terminator followed by more executable SQL. A trailing semicolon is allowed;
+// a second statement is not. Semicolons inside string literals, quoted
+// identifiers, bracket identifiers, and comments are ignored to match SQLite's
+// parser shape closely enough for this security gate.
+func hasTrailingSQLStatement(query string) bool {
+	inSingle := false
+	inDouble := false
+	inBacktick := false
+	inBracket := false
+	inLineComment := false
+	inBlockComment := false
+
+	for i := 0; i < len(query); i++ {
+		ch := query[i]
+		next := byte(0)
+		if i+1 < len(query) {
+			next = query[i+1]
+		}
+
+		switch {
+		case inLineComment:
+			if ch == '\n' {
+				inLineComment = false
+			}
+			continue
+		case inBlockComment:
+			if ch == '*' && next == '/' {
+				inBlockComment = false
+				i++
+			}
+			continue
+		case inSingle:
+			if ch == '\'' {
+				if next == '\'' {
+					i++
+					continue
+				}
+				inSingle = false
+			}
+			continue
+		case inDouble:
+			if ch == '"' {
+				if next == '"' {
+					i++
+					continue
+				}
+				inDouble = false
+			}
+			continue
+		case inBacktick:
+			if ch == '`' {
+				if next == '`' {
+					i++
+					continue
+				}
+				inBacktick = false
+			}
+			continue
+		case inBracket:
+			if ch == ']' {
+				inBracket = false
+			}
+			continue
+		}
+
+		switch {
+		case ch == '-' && next == '-':
+			inLineComment = true
+			i++
+		case ch == '/' && next == '*':
+			inBlockComment = true
+			i++
+		case ch == '\'':
+			inSingle = true
+		case ch == '"':
+			inDouble = true
+		case ch == '`':
+			inBacktick = true
+		case ch == '[':
+			inBracket = true
+		case ch == ';':
+			if stripLeadingSQLNoise(query[i+1:]) != "" {
+				return true
+			}
+			return false
+		}
+	}
+	return false
 }
 
 func handleSQL(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.CallToolResult, error) {
@@ -1548,27 +614,30 @@ func handleSQL(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.CallToo
 		return mcplib.NewToolResultError("query is required"), nil
 	}
 
-	// Block write operations
-	upper := strings.ToUpper(strings.TrimSpace(query))
-	for _, prefix := range []string{"INSERT", "UPDATE", "DELETE", "DROP", "ALTER", "CREATE"} {
-		if strings.HasPrefix(upper, prefix) {
-			return mcplib.NewToolResultError("only SELECT queries are allowed"), nil
-		}
+	if err := validateReadOnlyQuery(query); err != nil {
+		return mcplib.NewToolResultError(err.Error()), nil
 	}
 
-	db, err := store.OpenWithContext(ctx, dbPath())
+	path, err := mcpDBPath()
 	if err != nil {
-		return mcplib.NewToolResultError(fmt.Sprintf("opening database: %v", err)), nil
+		return mcplib.NewToolResultError(fmt.Sprintf("resolving database: %v", err)), nil
+	}
+	db, toolErr := openMCPReadOnlyStore(path)
+	if toolErr != nil {
+		return toolErr, nil
 	}
 	defer db.Close()
 
-	rows, err := db.Query(query)
+	rows, err := db.DB().QueryContext(ctx, query)
 	if err != nil {
-		return mcplib.NewToolResultError(fmt.Sprintf("query failed: %v", err)), nil
+		return mcplib.NewToolResultError(mcpSQLQueryError(err)), nil
 	}
 	defer rows.Close()
 
-	cols, _ := rows.Columns()
+	cols, err := rows.Columns()
+	if err != nil {
+		return mcplib.NewToolResultError(fmt.Sprintf("reading columns: %v", err)), nil
+	}
 	var results []map[string]any
 	for rows.Next() {
 		values := make([]any, len(cols))
@@ -1576,29 +645,101 @@ func handleSQL(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.CallToo
 		for i := range values {
 			ptrs[i] = &values[i]
 		}
-		rows.Scan(ptrs...)
+		if err := rows.Scan(ptrs...); err != nil {
+			return mcplib.NewToolResultError(fmt.Sprintf("scanning row: %v", err)), nil
+		}
 		row := make(map[string]any)
 		for i, col := range cols {
 			row[col] = values[i]
 		}
 		results = append(results, row)
 	}
+	// rows.Next() stops on a mid-iteration error without failing the loop, so
+	// skipping rows.Err() would return a truncated result set as success.
+	if err := rows.Err(); err != nil {
+		return mcplib.NewToolResultError(fmt.Sprintf("reading rows: %v", err)), nil
+	}
+	storeStatus, err := mcpStoreStatus(db)
+	if err != nil {
+		return mcplib.NewToolResultError(fmt.Sprintf("reading store status: %v", err)), nil
+	}
 
-	data, _ := json.MarshalIndent(results, "", "  ")
-	return mcplib.NewToolResultText(string(data)), nil
+	return toolResultJSON(mcpSQLEnvelope(results, cols, storeStatus))
+}
+
+func mcpSQLEnvelope(rows []map[string]any, columns []string, storeStatus mcpStoreStatusKind) map[string]any {
+	if rows == nil {
+		rows = []map[string]any{}
+	}
+	out := map[string]any{
+		"count":        len(rows),
+		"columns":      columns,
+		"rows":         rows,
+		"store_status": storeStatus,
+		"resumable":    false,
+	}
+	if len(rows) == 0 {
+		if storeStatus == mcpStoreStatusEmpty {
+			out["next_step"] = mcpEmptyStoreNextStep()
+		} else {
+			out["next_step"] = "The read-only SQL query returned no rows. Check resource_type filters, json_extract paths, or run sync again if data may be stale."
+		}
+	}
+	return out
+}
+
+func mcpSQLQueryError(err error) string {
+	msg := err.Error()
+	if strings.Contains(strings.ToLower(msg), "no such table") {
+		return fmt.Sprintf("query failed: %v. Synced records live in resources(resource_type, id, data), not one SQL table per resource. Filter by resource_type, for example resource_type='account', and read JSON fields with json_extract(data,'$.field').", err)
+	}
+	return fmt.Sprintf("query failed: %v", err)
+}
+
+// toolResultJSON renders v as the indented JSON body of an MCP text result,
+// surfacing a marshal failure as a tool error instead of empty content.
+func toolResultJSON(v any) (*mcplib.CallToolResult, error) {
+	text, err := bound.JSON(v)
+	if err != nil {
+		return mcplib.NewToolResultError(fmt.Sprintf("encoding result: %v", err)), nil
+	}
+	return mcplib.NewToolResultText(text), nil
 }
 
 func handleContext(_ context.Context, _ mcplib.CallToolRequest) (*mcplib.CallToolResult, error) {
+	paths := map[string]string{}
+	if dir, err := cliutil.ConfigDir(); err == nil {
+		paths["config_dir"] = dir
+	}
+	if dir, err := cliutil.DataDir(); err == nil {
+		paths["data_dir"] = dir
+	}
+	if dir, err := cliutil.StateDir(); err == nil {
+		paths["state_dir"] = dir
+	}
+	if dir, err := cliutil.CacheDir(); err == nil {
+		paths["cache_dir"] = dir
+	}
 	ctx := map[string]any{
 		"api":         "scrape-creators",
-		"description": "The easiest way to scrape public social media data at scale. Extract profiles, posts, videos, comments, and more...",
+		"description": "Every Scrape Creators endpoint across 28 platforms, plus a local store with offline transcript search, cross-platform joins, and ad-library diffing no other Scrape Creators tool ships.",
 		"archetype":   "communication",
-		"tool_count":  114,
+		"tool_count":  164,
+		"paths":       paths,
 		// tool_surface tells agents which surface a capability lives on.
 		"tool_surface": "MCP exposes typed endpoint tools plus a runtime mirror of user-facing CLI commands. Endpoint tools keep typed schemas; command-mirror tools shell out to the companion scrape-creators-pp-cli binary.",
 		"auth": map[string]any{
-			"type":     "api_key",
-			"env_vars": []string{"SCRAPE_CREATORS_API_KEY_AUTH"},
+			"type": "api_key",
+			"env_vars": []map[string]any{
+				{
+					"name":        "SCRAPECREATORS_API_KEY",
+					"kind":        "per_call",
+					"required":    true,
+					"sensitive":   true,
+					"description": "Set to your API credential.",
+				},
+			},
+			"docs_url": "https://scrapecreators.com",
 		},
 		"resources": []map[string]any{
 			{
@@ -1612,6 +753,7 @@ func handleContext(_ context.Context, _ mcplib.CallToolRequest) (*mcplib.CallToo
 				"name":        "amazon",
 				"description": "Manage amazon",
 				"endpoints":   []string{"list"},
+				"syncable":    true,
 				"searchable":  true,
 			},
 			{
@@ -1625,12 +767,20 @@ func handleContext(_ context.Context, _ mcplib.CallToolRequest) (*mcplib.CallToo
 				"name":        "detect-age-gender",
 				"description": "Manage detect age gender",
 				"endpoints":   []string{"list"},
+				"syncable":    true,
 				"searchable":  true,
 			},
 			{
 				"name":        "facebook",
 				"description": "Get public Facebook profiles and posts",
-				"endpoints":   []string{"list", "list-adlibrary", "list-adlibrary-2", "list-adlibrary-3", "list-adlibrary-4", "list-group", "list-post", "list-post-2", "list-profile", "list-profile-2", "list-profile-3", "list-profile-4"},
+				"endpoints":   []string{"list", "list-adlibrary", "list-adlibrary-2", "list-adlibrary-3", "list-adlibrary-4", "list-adlibrary-5", "list-event", "list-events", "list-group", "list-marketplace", "list-marketplace-2", "list-marketplace-3", "list-post", "list-post-2", "list-post-3", "list-post-4", "list-profile", "list-profile-2", "list-profile-3", "list-profile-4", "list-profile-5"},
+				"syncable":    true,
+				"searchable":  true,
+			},
+			{
+				"name":        "github",
+				"description": "Scrape GitHub profiles, repositories, and public activity",
+				"endpoints":   []string{"list", "list-trending", "list-trending-2", "list-user", "list-user-2", "list-user-3", "list-user-4", "list-user-5", "list-user-6", "list-user-7"},
 				"syncable":    true,
 				"searchable":  true,
 			},
@@ -1644,7 +794,7 @@ func handleContext(_ context.Context, _ mcplib.CallToolRequest) (*mcplib.CallToo
 			{
 				"name":        "instagram",
 				"description": "Gets Instagram profiles, posts, and reels",
-				"endpoints":   []string{"list", "list-media", "list-post", "list-post-2", "list-profile", "list-reels", "list-song", "list-user", "list-user-2", "list-user-3", "list-user-4", "list-user-5"},
+				"endpoints":   []string{"list", "list-audio", "list-media", "list-post", "list-post-2", "list-profile", "list-reels", "list-reels-2", "list-search", "list-search-2", "list-user", "list-user-2", "list-user-3", "list-user-4", "list-user-5"},
 				"syncable":    true,
 				"searchable":  true,
 			},
@@ -1652,24 +802,34 @@ func handleContext(_ context.Context, _ mcplib.CallToolRequest) (*mcplib.CallToo
 				"name":        "kick",
 				"description": "Scrape Kick clips",
 				"endpoints":   []string{"list"},
+				"syncable":    true,
 				"searchable":  true,
 			},
 			{
 				"name":        "komi",
 				"description": "Scrape Komi pages",
 				"endpoints":   []string{"list"},
+				"syncable":    true,
+				"searchable":  true,
+			},
+			{
+				"name":        "kwai",
+				"description": "Scrape Kwai profiles, posts, and user feeds",
+				"endpoints":   []string{"list", "list-profile", "list-user"},
+				"syncable":    true,
 				"searchable":  true,
 			},
 			{
 				"name":        "linkbio",
 				"description": "Scrape Linkbio (lnk.bio) pages",
 				"endpoints":   []string{"list"},
+				"syncable":    true,
 				"searchable":  true,
 			},
 			{
 				"name":        "linkedin",
 				"description": "Scrape LinkedIn",
-				"endpoints":   []string{"list", "list-ads", "list-company", "list-company-2", "list-post", "list-profile"},
+				"endpoints":   []string{"list", "list-ads", "list-company", "list-company-2", "list-post", "list-post-2", "list-profile", "list-search"},
 				"syncable":    true,
 				"searchable":  true,
 			},
@@ -1677,18 +837,21 @@ func handleContext(_ context.Context, _ mcplib.CallToolRequest) (*mcplib.CallToo
 				"name":        "linkme",
 				"description": "Get Linkme profile info",
 				"endpoints":   []string{"list"},
+				"syncable":    true,
 				"searchable":  true,
 			},
 			{
 				"name":        "linktree",
 				"description": "Scrape Linktree pages",
 				"endpoints":   []string{"list"},
+				"syncable":    true,
 				"searchable":  true,
 			},
 			{
 				"name":        "pillar",
 				"description": "Scrape Pillar pages",
 				"endpoints":   []string{"list"},
+				"syncable":    true,
 				"searchable":  true,
 			},
 			{
@@ -1701,7 +864,14 @@ func handleContext(_ context.Context, _ mcplib.CallToolRequest) (*mcplib.CallToo
 			{
 				"name":        "reddit",
 				"description": "Scrape Reddit posts and comments",
-				"endpoints":   []string{"list", "list-ads", "list-post", "list-search", "list-subreddit", "list-subreddit-2", "list-subreddit-3"},
+				"endpoints":   []string{"list", "list-post", "list-post-2", "list-subreddit", "list-subreddit-2", "list-subreddit-3"},
+				"syncable":    true,
+				"searchable":  true,
+			},
+			{
+				"name":        "rumble",
+				"description": "Scrape Rumble search, videos, transcripts, and channel videos",
+				"endpoints":   []string{"list", "list-channel", "list-video", "list-video-2", "list-video-3"},
 				"syncable":    true,
 				"searchable":  true,
 			},
@@ -1709,18 +879,34 @@ func handleContext(_ context.Context, _ mcplib.CallToolRequest) (*mcplib.CallToo
 				"name":        "snapchat",
 				"description": "Scrape Snapchat user profiles and thier stories",
 				"endpoints":   []string{"list"},
+				"syncable":    true,
+				"searchable":  true,
+			},
+			{
+				"name":        "soundcloud",
+				"description": "Scrape SoundCloud playlists and tracks",
+				"endpoints":   []string{"list", "list-artist", "list-track"},
+				"syncable":    true,
+				"searchable":  true,
+			},
+			{
+				"name":        "spotify",
+				"description": "Scrape Spotify artists, songs, and albums",
+				"endpoints":   []string{"list", "list-artist", "list-podcast", "list-podcast-2", "list-search", "list-track"},
+				"syncable":    true,
 				"searchable":  true,
 			},
 			{
 				"name":        "threads",
 				"description": "Get Threads posts",
 				"endpoints":   []string{"list", "list-profile", "list-search", "list-search-2", "list-user"},
+				"syncable":    true,
 				"searchable":  true,
 			},
 			{
 				"name":        "tiktok",
 				"description": "Scrape TikTok profiles, videos, and more",
-				"endpoints":   []string{"list", "list-creators", "list-hashtags", "list-product", "list-profile", "list-profile-2", "list-search", "list-search-2", "list-search-3", "list-search-4", "list-shop", "list-shop-2", "list-shop-3", "list-song", "list-song-2", "list-user", "list-user-2", "list-user-3", "list-user-4", "list-user-5", "list-video", "list-video-2", "list-video-3", "list-video-4"},
+				"endpoints":   []string{"list", "list-adlibrary", "list-adlibrary-2", "list-creators", "list-hashtags", "list-live", "list-product", "list-profile", "list-profile-2", "list-profile-3", "list-search", "list-search-2", "list-search-3", "list-search-4", "list-search-5", "list-shop", "list-shop-2", "list-shop-3", "list-song", "list-song-2", "list-user", "list-user-2", "list-user-3", "list-user-4", "list-user-5", "list-video", "list-video-2", "list-video-3", "list-video-4"},
 				"syncable":    true,
 				"searchable":  true,
 			},
@@ -1734,19 +920,21 @@ func handleContext(_ context.Context, _ mcplib.CallToolRequest) (*mcplib.CallToo
 			{
 				"name":        "twitch",
 				"description": "Scrape Twitch clips",
-				"endpoints":   []string{"list", "list-profile", "list-user"},
+				"endpoints":   []string{"list", "list-profile", "list-user", "list-user-2"},
+				"syncable":    true,
 				"searchable":  true,
 			},
 			{
 				"name":        "twitter",
 				"description": "Get Twitter profiles, tweets, followers and more",
 				"endpoints":   []string{"list", "list-community", "list-profile", "list-tweet", "list-tweet-2", "list-usertweets"},
+				"syncable":    true,
 				"searchable":  true,
 			},
 			{
 				"name":        "youtube",
 				"description": "Scrape YouTube channels, videos, and more",
-				"endpoints":   []string{"list", "list-channel", "list-channelvideos", "list-communitypost", "list-playlist", "list-search", "list-search-2", "list-shorts", "list-video", "list-video-2", "list-video-3", "list-video-4"},
+				"endpoints":   []string{"list", "list-channel", "list-channel-2", "list-channel-3", "list-channel-4", "list-channelvideos", "list-communitypost", "list-playlist", "list-search", "list-search-2", "list-shorts", "list-video", "list-video-2", "list-video-3", "list-video-4", "list-video-5"},
 				"syncable":    true,
 				"searchable":  true,
 			},
@@ -1754,6 +942,7 @@ func handleContext(_ context.Context, _ mcplib.CallToolRequest) (*mcplib.CallToo
 		"query_tips": []string{
 			"Pagination uses cursor-based paging. Pass cursor parameter for subsequent pages.",
 			"Control page size with the limit parameter (default 100).",
+			"Use start_date for incremental fetches (filter by modification time).",
 			"Use the sql tool for ad-hoc analysis on synced data. Run sync first to populate the local database.",
 			"Use the search tool for full-text search across all synced resources. Faster than iterating list endpoints.",
 			"Prefer sql/search over repeated API calls when the data is already synced.",
@@ -1761,40 +950,29 @@ func handleContext(_ context.Context, _ mcplib.CallToolRequest) (*mcplib.CallToo
 		// Command-mirror capabilities are exposed through MCP by shelling out
 		// to the companion CLI binary.
 		"command_mirror_capabilities": []map[string]string{
-			{"name": "Cross-platform presence matrix", "command": "creator find", "description": "Given a single handle, see which of 11+ platforms the creator is on, with follower counts side-by-side.", "rationale": "Requires fanning out to every profile endpoint and joining results — no single API call answers this.", "via": "mcp-command-mirror"},
-			{"name": "Trend triangulation across platforms", "command": "trends triangulate", "description": "Snapshot a hashtag or keyword on TikTok, YouTube, Reddit, and Threads in one call to see which platform it's rising...", "rationale": "Joins per-platform search endpoints with a normalized count delta from the local snapshot table. No single endpoint...", "via": "mcp-command-mirror"},
-			{"name": "Transcript full-text search across 5 platforms", "command": "transcripts search", "description": "FTS5-indexed search across all transcripts you've synced — TikTok, YouTube, Instagram, Facebook, and Twitter videos.", "rationale": "Batch-fetches and indexes transcripts locally; the API returns one transcript per call, so...", "via": "mcp-command-mirror"},
-			{"name": "Ad library unified search", "command": "ads search", "description": "Search Facebook, Google, and LinkedIn ad libraries in one query — see every ad a brand is currently running.", "rationale": "Three separate endpoints (`facebook/adLibrary/search/companies`, `google/adLibrary/advertisers/search`,...", "via": "mcp-command-mirror"},
-			{"name": "Engagement spike detector", "command": "content spikes", "description": "Find videos that performed significantly above a creator's average — the ones that actually went viral.", "rationale": "Requires the creator's full content history with view/like counts in the local store to compute the baseline.", "via": "mcp-command-mirror"},
-			{"name": "Multi-creator comparison", "command": "profile compare", "description": "Compare two or more creators side-by-side on follower count, engagement rate, posting cadence, and content volume.", "rationale": "Needs synced profile + content data; a single API call doesn't return comparative stats.", "via": "mcp-command-mirror"},
-			{"name": "Follower growth tracker", "command": "profile track", "description": "Snapshot a creator's follower count daily across every platform; chart their growth trajectory over time.", "rationale": "Daily snapshots in SQLite reveal trends no single API call provides.", "via": "mcp-command-mirror"},
-			{"name": "Content cadence analysis", "command": "content cadence", "description": "See when a creator posts — by day of week and hour — across every platform you've synced for them.", "rationale": "Requires aggregated post timestamps from the local store; the API returns posts but not posting-pattern statistics.", "via": "mcp-command-mirror"},
-			{"name": "Engagement rate ranker", "command": "content analyze", "description": "Rank a creator's synced content by engagement rate (not raw likes) so you see their true best performers.", "rationale": "Computes (likes+comments+shares)/views per item from local data; engagement rate isn't a field the API returns.", "via": "mcp-command-mirror"},
-			{"name": "Trend delta tracker", "command": "trends delta", "description": "Track whether a hashtag is growing or shrinking by comparing video counts across snapshot intervals.", "rationale": "Snapshot table in SQLite + scheduled snapshots; a single API call returns a count, not a trend.", "via": "mcp-command-mirror"},
-			{"name": "Brand ad campaign monitor", "command": "ads monitor", "description": "Snapshot a brand's ads on Facebook, Google, and LinkedIn into SQLite; on rerun, diff new ads vs ones that disappeared.", "rationale": "Requires persistent storage of past ad fingerprints; the API returns a current list but no diff.", "via": "mcp-command-mirror"},
-			{"name": "Link-in-bio universal resolver", "command": "bio resolve", "description": "Paste any linktree.ee, komi.io, pillar.io, linkbio, or linkme URL and get the unified destination list.", "rationale": "Auto-detects the service from the URL and dispatches to the right endpoint; five endpoints unified behind one command.", "via": "mcp-command-mirror"},
-			{"name": "Credit burn rate monitor", "command": "account budget", "description": "See how fast you're spending API credits and how many days remain at current pace, fused with the API's own usage...", "rationale": "Local `usage_log` table + the API's `get-api-usage` and `get-most-used-routes` endpoints; neither alone is...", "via": "mcp-command-mirror"},
+			{"name": "Cross-platform presence matrix", "command": "creator find", "description": "Given one handle, see which of 12 creator platforms the creator is on with follower counts side-by-side.", "rationale": "Fans out to per-platform profile endpoints and joins them into one matrix", "via": "mcp-command-mirror"},
+			{"name": "Multi-creator comparison", "command": "creator compare", "description": "Compare two or more creators side-by-side on follower count, engagement rate, and content volume.", "rationale": "Computes comparative engagement stats from synced profile and content rows in the local store", "via": "mcp-command-mirror"},
+			{"name": "Engagement spike detector", "command": "content spikes", "description": "Surface the videos that performed far above a creator's own baseline — the ones that actually went viral.", "rationale": "Ratios each video against the creator's mean from full local content history; needs the whole corpus", "via": "mcp-command-mirror"},
+			{"name": "Transcript full-text search", "command": "transcripts search", "description": "FTS5 full-text search across every transcript you've synced — YouTube, TikTok, Instagram, Facebook, LinkedIn", "rationale": "Each transcript costs a credit and the API returns one per call with no search", "via": "mcp-command-mirror"},
+			{"name": "Trend triangulation", "command": "trends triangulate", "description": "Snapshot a hashtag or topic across platforms in one call to see which platform it is biggest on.", "rationale": "Fans out per-platform search/trending endpoints and joins a normalized count delta from the local snapshot table", "via": "mcp-command-mirror"},
+			{"name": "Follower growth tracker", "command": "creator track", "description": "Append a follower snapshot per run on a chosen platform, then read the growth trajectory over time.", "rationale": "Builds a time-series the API never returns by persisting dated snapshots to local SQLite.", "via": "mcp-command-mirror"},
+			{"name": "Brand ad campaign monitor", "command": "ads monitor", "description": "Snapshot a brand's live ads across Facebook, TikTok, Google, and LinkedIn ad libraries; on rerun, diff new ads vs.", "rationale": "Unifies four ad-library endpoints into one snapshot table and diffs creatives over time; no tool keeps ad-library memory", "via": "mcp-command-mirror"},
+			{"name": "Credit burn projection", "command": "account budget", "description": "See how fast you're spending API credits and how many days remain at the current pace", "rationale": "Joins the local usage_log table with the API's get-api-usage and get-most-used-routes endpoints to project runway", "via": "mcp-command-mirror"},
 		},
 		"playbook": []map[string]string{
-			{"topic": "Cross-platform presence matrix", "insight": "Requires fanning out to every profile endpoint and joining results — no single API call answers this."},
-			{"topic": "Trend triangulation across platforms", "insight": "Joins per-platform search endpoints with a normalized count delta from the local snapshot table. No single endpoint exposes cross-platform trend velocity."},
-			{"topic": "Transcript full-text search across 5 platforms", "insight": "Batch-fetches and indexes transcripts locally; the API returns one transcript per call, so cross-creator/cross-platform search is only possible after sync."},
-			{"topic": "Ad library unified search", "insight": "Three separate endpoints (`facebook/adLibrary/search/companies`, `google/adLibrary/advertisers/search`, `linkedin/ads/search`) joined and deduplicated by company."},
-			{"topic": "Engagement spike detector", "insight": "Requires the creator's full content history with view/like counts in the local store to compute the baseline."},
-			{"topic": "Multi-creator comparison", "insight": "Needs synced profile + content data; a single API call doesn't return comparative stats."},
-			{"topic": "Follower growth tracker", "insight": "Daily snapshots in SQLite reveal trends no single API call provides."},
-			{"topic": "Content cadence analysis", "insight": "Requires aggregated post timestamps from the local store; the API returns posts but not posting-pattern statistics."},
-			{"topic": "Engagement rate ranker", "insight": "Computes (likes+comments+shares)/views per item from local data; engagement rate isn't a field the API returns."},
-			{"topic": "Trend delta tracker", "insight": "Snapshot table in SQLite + scheduled snapshots; a single API call returns a count, not a trend."},
-			{"topic": "Brand ad campaign monitor", "insight": "Requires persistent storage of past ad fingerprints; the API returns a current list but no diff."},
-			{"topic": "Link-in-bio universal resolver", "insight": "Auto-detects the service from the URL and dispatches to the right endpoint; five endpoints unified behind one command."},
-			{"topic": "Credit burn rate monitor", "insight": "Local `usage_log` table + the API's `get-api-usage` and `get-most-used-routes` endpoints; neither alone is sufficient for projection."},
+			{"topic": "Cross-platform presence matrix", "insight": "Fans out to per-platform profile endpoints and joins them into one matrix; no single API call answers which platforms a creator exists on."},
+			{"topic": "Multi-creator comparison", "insight": "Computes comparative engagement stats from synced profile and content rows in the local store; the API returns raw counts, never a comparison."},
+			{"topic": "Engagement spike detector", "insight": "Ratios each video against the creator's mean from full local content history; needs the whole corpus, not one response page."},
+			{"topic": "Transcript full-text search", "insight": "Each transcript costs a credit and the API returns one per call with no search; the local FTS5 index makes paid transcripts infinitely re-queryable offline."},
+			{"topic": "Trend triangulation", "insight": "Fans out per-platform search/trending endpoints and joins a normalized count delta from the local snapshot table; cross-platform velocity is not exposed by any endpoint."},
+			{"topic": "Follower growth tracker", "insight": "Builds a time-series the API never returns by persisting dated snapshots to local SQLite."},
+			{"topic": "Brand ad campaign monitor", "insight": "Unifies four ad-library endpoints into one snapshot table and diffs creatives over time; no tool keeps ad-library memory, so pulled creatives are otherwise invisible."},
+			{"topic": "Credit burn projection", "insight": "Joins the local usage_log table with the API's get-api-usage and get-most-used-routes endpoints to project runway; the API reports counts, not a projection."},
 			{"topic": "Message search", "insight": "Use the search tool on synced data rather than paginating through message history. Message APIs often have aggressive rate limits."},
 			{"topic": "Channel health", "insight": "When analyzing channel activity, use the channel-health command or sql aggregation on synced messages. Don't iterate individual messages via API."},
 		},
 	}
-	data, _ := json.MarshalIndent(ctx, "", "  ")
-	return mcplib.NewToolResultText(string(data)), nil
+	return toolResultJSON(ctx)
 }
 
 // RegisterNovelFeatureTools is kept as a compatibility no-op for older MCP

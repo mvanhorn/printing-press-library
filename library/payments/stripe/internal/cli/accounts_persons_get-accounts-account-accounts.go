@@ -29,11 +29,13 @@ func newAccountsPersonsGetAccountsAccountAccountsCmd(flags *rootFlags) *cobra.Co
 			}
 
 			path := "/v1/accounts/{account}/persons/{person}"
+
+			// PATCH: Bind path placeholders from Cobra positional args in Use order.
 			path = replacePathParam(path, "account", args[0])
-			if len(args) < 3 {
+			if len(args) < 2 {
 				return usageErr(fmt.Errorf("person is required\nUsage: %s <%s>", cmd.CommandPath(), "person"))
 			}
-			path = replacePathParam(path, "person", args[2])
+			path = replacePathParam(path, "person", args[1])
 			params := map[string]string{}
 			if flagExpand != "" {
 				params["expand"] = fmt.Sprintf("%v", flagExpand)

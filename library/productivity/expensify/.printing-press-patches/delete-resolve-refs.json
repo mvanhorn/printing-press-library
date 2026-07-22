@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "delete-resolve-refs",
+  "applied_at": "2026-06-22",
+  "base_run_id": "20260622-180206",
+  "base_printing_press_version": "4.25.0",
+  "summary": "expense delete auto-resolves the IOU reportID + reportActionID required by /DeleteMoneyRequest from just the transactionID.",
+  "reason": "DeleteMoneyRequest with only transactionID returns jsonCode 200 but deletes nothing; it needs the IOU report action reference.",
+  "files": [
+    "internal/cli/expense_delete.go"
+  ],
+  "validated_outcome": "Reference live delete returned 21 onyx updates and the expense was gone."
+}

@@ -1,0 +1,47 @@
+{
+  "api_name": "us-data",
+  "issue": "https://github.com/mvanhorn/printing-press-library/issues/1189",
+  "sources": [
+    {
+      "name": "BLS Public Data API",
+      "url": "https://www.bls.gov/developers/",
+      "notes": [
+        "Version 1 is public and does not require registration.",
+        "Version 2 requires registration and supports richer/higher-volume access.",
+        "Timeseries API supports GET for single series and POST for multi-series or parameterized requests."
+      ]
+    },
+    {
+      "name": "Census Data API User Guide",
+      "url": "https://www.census.gov/data/developers/guidance/api-user-guide.html",
+      "notes": [
+        "Current Census data queries require an API key.",
+        "Queries use dataset vintages and geography predicates.",
+        "API output is compact JSON unless another output format is requested."
+      ]
+    },
+    {
+      "name": "BEA API",
+      "url": "https://apps.bea.gov/API/signup/",
+      "notes": [
+        "BEA API requests require a registered UserID.",
+        "The API exposes metadata methods and GetData over datasets such as Regional, NIPA, and GDPbyIndustry."
+      ]
+    }
+  ],
+  "selected_commands": [
+    "cpi",
+    "unemployment",
+    "population",
+    "wages",
+    "industry",
+    "compare-regions"
+  ],
+  "non_goals": [
+    "forecasting",
+    "investment advice",
+    "legal advice",
+    "raw endpoint mirror",
+    "statistical modeling beyond source-provided facts"
+  ]
+}

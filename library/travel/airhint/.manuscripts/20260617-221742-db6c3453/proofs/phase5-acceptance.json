@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "api_name": "airhint",
+  "run_id": "20260617-221742-db6c3453",
+  "status": "pass",
+  "level": "full",
+  "matrix_size": 57,
+  "tests_passed": 57,
+  "tests_skipped": 41,
+  "auth_context": {
+    "type": "none"
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "id": "pexels-attribution-csv-flush-error",
+  "applied_at": "2026-06-23",
+  "base_run_id": "20260623-191116",
+  "base_printing_press_version": "4.20.1",
+  "summary": "Flush CSV attribution exports before checking writer errors.",
+  "reason": "A deferred csv.Writer.Flush runs after return values are evaluated, so writeAttributionCSV could return nil even when the final buffered flush failed. Explicitly flushing before w.Error() preserves final-write failures for callers.",
+  "files": [
+    "internal/cli/attribution_export.go"
+  ],
+  "validated_outcome": "go test ./internal/cli/... -count=1; go build ./...; git diff --check"
+}

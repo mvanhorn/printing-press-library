@@ -1,0 +1,16 @@
+info: applied Cloudflare MCP pattern (589 endpoints > 50 threshold): orchestration code, endpoint_tools hidden, transport [stdio,http]. Set mcp.orchestration: endpoint-mirror to opt out.
+WARNING: spec.OwnerName is empty; falling back to slug-shaped Owner ("") for `author:` field. Set `git config user.name` (display name, e.g. "Trevin Chow") to populate this correctly.
+WARNING: spec.Printer is empty; README printer attribution will be omitted. Set `git config github.user` (your GitHub @handle) to populate this correctly before publishing.
+warning: skipping workflow template workflows/comm_health.go.tmpl: reading template workflows/comm_health.go.tmpl: open templates/workflows/comm_health.go.tmpl: file does not exist
+warning: novel feature command "search" maps to existing internal\cli\search.go without expected constructor newNovelSearchCmd; skipping novel stub
+PASS go mod tidy
+PASS ensure safe golang.org/x/net
+PASS govulncheck ./...
+PASS go vet ./...
+PASS go build ./...
+PASS build runnable binary
+PASS 3cx-xapi-pp-cli --help
+PASS 3cx-xapi-pp-cli version
+PASS 3cx-xapi-pp-cli doctor
+Generated 3cx-xapi at C:\Users\richa\printing-press\.runstate\cli-3ad9cc89\runs\20260627-211721-11cc9df1\working\3cx-xapi-pp-cli
+Bundled C:\Users\richa\printing-press\.runstate\cli-3ad9cc89\runs\20260627-211721-11cc9df1\working\3cx-xapi-pp-cli\build\3cx-xapi-pp-mcp-windows-amd64.mcpb

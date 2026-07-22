@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "id": "forgejo-doctor-probe-path",
+  "applied_at": "2026-05-25",
+  "base_run_id": "20260524-172642",
+  "base_printing_press_version": "4.14.0",
+  "summary": "Fix doctor 'reachable (HTTP N at /)' to show actual probe path.",
+  "reason": "Format string hardcoded 'at /' regardless of healthPath variable value.",
+  "files": [
+    "internal/cli/doctor.go"
+  ]
+}

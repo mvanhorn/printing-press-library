@@ -40,6 +40,8 @@ jobs:
         id: verify
         env:
           BASE_REF: ${{ github.base_ref }}
+          BEFORE_SHA: ${{ github.event.before }}
+          EVENT_NAME: ${{ github.event_name }}
         run: |
           set +e
           VERIFIER=".github/scripts/verify-skill/verify_skill.py"
@@ -50,6 +52,34 @@ jobs:
 
           FAIL=0
           CLI_COUNT=0
+          TEST_COUNT=0
+          VERIFIER_TESTS_RUN=0
+
+          run_verifier_tests() {
+            if [ "$VERIFIER_TESTS_RUN" -eq 1 ]; then
+              return
+            fi
+            VERIFIER_TESTS_RUN=1
+            shopt -s nullglob
+            local tests=(.github/scripts/verify-skill/test_*.py)
+            shopt -u nullglob
+            for test in "${tests[@]}"; do
+              TEST_COUNT=$((TEST_COUNT + 1))
+              echo "::group::$test"
+              python3 "$test"
+              RC=$?
+              if [ "$RC" -ne 0 ]; then
+                FAIL=$((FAIL + 1))
+                echo "::error title=verify-skill unit test failed::$test"
+              fi
+              echo "::endgroup::"
+            done
+          }
+
+          check_skill_guard_literals() {
+            local dir="$1"
+            python3 .github/scripts/verify-skill/check_skill_guard_literals.py "$dir/SKILL.md"
+          }
 
           verify_dir() {
             local dir="$1"
@@ -57,6 +87,12 @@ jobs:
             if [ ! -d "$dir/internal/cli" ]; then return; fi
             CLI_COUNT=$((CLI_COUNT + 1))
             echo "::group::$dir"
+            check_skill_guard_literals "$dir"
+            RC=$?
+            if [ "$RC" -ne 0 ]; then
+              FAIL=$((FAIL + 1))
+              echo "::error title=SKILL guard literal check failed::$dir"
+            fi
             python3 "$VERIFIER" --dir "$dir"
             RC=$?
             if [ "$RC" -ne 0 ]; then
@@ -73,27 +109,31 @@ jobs:
           }
 
           FULL_SCAN=0
-          if [ -z "$BASE_REF" ]; then
-            FULL_SCAN=1
-          fi
+          changed_files=()
 
-          if [ "$FULL_SCAN" -eq 0 ]; then
+          if [ -n "$BASE_REF" ]; then
             if git rev-parse --verify "origin/$BASE_REF" >/dev/null 2>&1; then
               mapfile -t changed_files < <(git diff --name-only "origin/$BASE_REF"...HEAD)
             else
               echo "::warning::Could not find origin/$BASE_REF; running full SKILL verification."
               FULL_SCAN=1
-              changed_files=()
+            fi
+          elif [ "$EVENT_NAME" = "push" ] && [ -n "$BEFORE_SHA" ] && [ "$BEFORE_SHA" != "0000000000000000000000000000000000000000" ]; then
+            if git rev-parse --verify "$BEFORE_SHA" >/dev/null 2>&1; then
+              mapfile -t changed_files < <(git diff --name-only "$BEFORE_SHA" HEAD)
+            else
+              echo "::warning::Could not find push before SHA; running full SKILL verification."
+              FULL_SCAN=1
             fi
           else
-            changed_files=()
+            FULL_SCAN=1
           fi
 
           declare -A target_dirs=()
           for file in "${changed_files[@]}"; do
             case "$file" in
               .github/workflows/verify-skills.yml|.github/scripts/verify-skill/*)
-                FULL_SCAN=1
+                run_verifier_tests
                 ;;
               library/*/*/SKILL.md|library/*/*/internal/cli/*)
                 rest="${file#library/}"
@@ -106,12 +146,16 @@ jobs:
           done
 
           if [ "$FULL_SCAN" -eq 1 ]; then
+            run_verifier_tests
             echo "Running verifier against every CLI with a SKILL.md."
             run_all
           else
             if [ "${#target_dirs[@]}" -eq 0 ]; then
               echo "No affected CLI skill directories found."
-              exit 0
+              echo "Verifier test files checked: $TEST_COUNT"
+              echo "CLIs checked: $CLI_COUNT"
+              echo "Failed: $FAIL"
+              exit $FAIL
             fi
 
             while IFS= read -r dir; do
@@ -119,6 +163,7 @@ jobs:
             done < <(printf '%s\n' "${!target_dirs[@]}" | sort)
           fi
 
+          echo "Verifier test files checked: $TEST_COUNT"
           echo "CLIs checked: $CLI_COUNT"
           echo "Failed: $FAIL"
           exit $FAIL

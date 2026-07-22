@@ -2,14 +2,14 @@
 
 **Skip the Airbnb platform fee. Find the host's direct booking site for any Airbnb listing.**
 
-Search Airbnb from the terminal, run cheapest on a listing to extract the host's brand, web-search for their direct booking site, and report the lowest of three prices side-by-side. Cross-platform match, price-drop watchlist, host portfolio analysis, and trip planning all built on a local store that compounds over time.
+Search Airbnb from the terminal, run cheapest on a listing to extract the host's brand, web-search for their direct booking site, and report the lowest of three prices side-by-side. Cross-platform match, price-drop watchlist, host portfolio analysis, and trip planning all built on a local store that compounds over time. Every scrape persists: `airbnb_listing search`/`get`, `cheapest`, `compare`, `plan`, and `watch check` write the listings they fetch into the local SQLite store, and record a dated price snapshot whenever a real price is scraped — so price history and `wishlist diff` accrue from normal use.
 
 > **VRBO is currently disabled.** VRBO's anti-bot protection (Akamai) blocks the scraper, and the previous fallback path returned hardcoded placeholder data with the queried city stamped on top — fake results labeled as if they were real. Every VRBO entry point now returns "vrbo is temporarily disabled — pending Akamai workaround". The VRBO source code stays in tree so re-enabling is a flag flip plus the Akamai workaround. Use this CLI for Airbnb work; expect VRBO to come back in a future release.
 
 > **Renamed from `airbnb-vrbo-pp-cli` to `airbnb-pp-cli`.** Existing users get an automatic one-time state migration on first run (the `~/.airbnb-vrbo-pp-cli` directory is renamed in place to `~/.airbnb-pp-cli`; the same applies to the SQLite cache under `~/.local/share`). `AIRBNB_VRBO_*` env vars are still read but emit a deprecation warning; switch to `AIRBNB_PP_*`. The legacy paths will be dropped in a future release.
 
 Created by [@mvanhorn](https://github.com/mvanhorn) (Matt Van Horn).
-Contributors: [@tmchow](https://github.com/tmchow) (Trevin Chow).
+Contributors: [@tmchow](https://github.com/tmchow) (Trevin Chow), [@bobeglz](https://github.com/bobeglz) (bobe).
 
 ## Install
 
@@ -40,7 +40,7 @@ npx -y @mvanhorn/printing-press-library install airbnb --agent claude-code --age
 
 ### Without Node (Go fallback)
 
-If `npx` isn't available (no Node, offline), install the CLI directly via Go (requires Go 1.26.3 or newer):
+If `npx` isn't available (no Node, offline), install the CLI directly via Go (requires Go 1.26.5 or newer):
 
 ```bash
 go install github.com/mvanhorn/printing-press-library/library/travel/airbnb/cmd/airbnb-pp-cli@latest
@@ -195,12 +195,13 @@ These capabilities aren't available in any other tool for this API.
   ```
 
 ### Local state that compounds
-- **`watch`** — Add saved listings to a watchlist with target prices; daily sync checks for drops; cron-friendly exit codes signal hits.
+- **`watch`** — Add saved listings to a watchlist with target prices; `watch check` re-scrapes each and records a dated price snapshot whenever a real price comes back; cron-friendly exit code 7 signals a genuine drop.
 
-  _Use when a user is shopping a specific listing and waiting for a price drop. Schedule watch check daily; act on exit code 7._
+  _Use when a user is shopping a specific listing and waiting for a price drop. Schedule `watch check` daily; act on exit code 7. A listing whose price is unavailable for the chosen dates is reported under `no_price` and never counts as a hit (no false exit 7). Subcommands: `watch add`, `watch list`, `watch remove`, `watch check`._
 
   ```bash
   airbnb-pp-cli watch add 'https://www.airbnb.com/rooms/37124493' --max-price 350 --checkin 2026-05-16 --checkout 2026-05-19
+  airbnb-pp-cli watch remove 'https://www.airbnb.com/rooms/37124493'   # or: watch remove 37124493
   ```
 - **`host portfolio`** — Given a host or property management company name, list every known listing under them across Airbnb and VRBO.
 
@@ -286,10 +287,23 @@ This CLI is designed for AI agent consumption:
 - **Filterable** - `--select id,name` returns only fields you need
 - **Previewable** - `--dry-run` shows the request without sending
 - **Read-only by default** - this CLI does not create, update, delete, publish, send, or mutate remote resources
-- **Offline-friendly** - sync/search commands can use the local SQLite store when available
+- **Offline-friendly** - the `search` command and `host portfolio`/`wishlist diff` read from the local SQLite store; `sync` refreshes it by re-scraping what the store already knows
 - **Agent-safe by default** - no colors or formatting unless `--human-friendly` is set
 
 Exit codes: `0` success, `2` usage error, `3` not found, `4` auth error, `5` API error, `7` rate limited, `10` config error.
+
+## Sync
+
+Airbnb has no public paginated collection to mirror, so `sync` does not page a remote API. Instead, `sync` (with no `--resources`) **re-scrapes what the store already knows** — every watchlist entry (with its saved dates) and every previously-scraped listing — and persists a fresh dated price snapshot whenever a real price comes back. Seed the store first via `watch add`, `airbnb_listing search`/`get`, or `cheapest`; then schedule `sync` to keep price history current. When the store is empty, `sync` says so honestly (a `sync_warning` with reason `empty_store`) and makes no network calls.
+
+The authenticated Airbnb wishlist sync is a separate, opt-in resource — it requires imported Chrome cookies and is never part of the default run:
+
+```bash
+airbnb-pp-cli auth login --chrome            # one-time: import cookies
+airbnb-pp-cli sync --resources airbnb_wishlist   # auth-gated; without cookies this is an auth error, not a 404
+```
+
+The standalone `wishlist sync` command remains the other auth-gated path to pull wishlists; `wishlist diff` reports the price movement those snapshots accumulate.
 
 ## Freshness
 
@@ -328,7 +342,7 @@ Config file: `~/.config/airbnb-pp-cli/config.toml`
 - **VRBO returns 'Bot or Not?' challenge** — The CLI uses Surf with Chrome TLS impersonation and a warmup pattern by default. If you still see challenges: run airbnb-pp-cli doctor --probe vrbo to verify the warmup is firing; reduce request rate with --rate 0.3 (req/sec).
 - **cheapest returns 'no direct site found'** — Try --search-backend parallel or --search-backend brave for higher-quality results; ensure PARALLEL_API_KEY or BRAVE_SEARCH_API_KEY is set in env.
 - **Airbnb wishlist commands fail with auth error** — Run airbnb-pp-cli auth login --chrome to import your Chrome cookies; airbnb-pp-cli auth status verifies.
-- **watch check exits with code 7 unexpectedly** — Code 7 means at least one watched listing dropped below threshold — that is the success path. Check with airbnb-pp-cli watch list --since 24h.
+- **watch check exits with code 7** — Code 7 means at least one watched listing scraped a real price at or below its threshold — that is the success path. It fires only on a genuine price drop. A listing whose price is unavailable for the chosen dates is reported under `no_price` (reason `no_price_data`) and never triggers exit 7. Check hits with airbnb-pp-cli watch list --since 24h.
 
 ## Discovery Signals
 

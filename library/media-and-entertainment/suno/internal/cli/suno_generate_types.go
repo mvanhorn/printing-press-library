@@ -130,6 +130,7 @@ type generateInput struct {
 	mv           string // wire model key
 	title        string
 	tags         string
+	negativeTags string // styles to exclude; empty -> sent as ""
 	prompt       string // lyrics for custom, description for inspiration
 	instrumental bool
 	personaID    string
@@ -195,7 +196,7 @@ func buildGenerateBody(in generateInput) sunoGenerateBody {
 		GenerationType:        "TEXT",
 		Title:                 alwaysStrPtr(in.title),
 		Tags:                  alwaysStrPtr(in.tags),
-		NegativeTags:          "",
+		NegativeTags:          in.negativeTags,
 		Mv:                    in.mv,
 		Prompt:                in.prompt,
 		MakeInstrumental:      in.instrumental,

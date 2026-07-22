@@ -1,0 +1,16 @@
+# agentcookie.toml: secrets-bus adoption manifest v2
+# See docs/spec-agentcookie-secrets-bus-v2-adoption.md
+schema_version = 2
+name = "pexels-pp-cli"
+display_name = "Pexels"
+description = "Every Pexels photo, video, and collection endpoint — plus a local store that adds quota forecasting, dedup-aware bulk download, and one-shot attribution exports no other Pexels tool has."
+project_kind = "cli"
+
+[secrets.file]
+path = "~/.config/pexels-pp-cli/config.toml"
+
+[sync]
+default = false
+
+[sync.keys]
+PEXELS_API_KEY = true

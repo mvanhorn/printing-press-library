@@ -1,9 +1,8 @@
 // Copyright 2026 horknfbr. Licensed under Apache-2.0. See LICENSE.
 //
 // Bridges the cobra/flags world to internal/captcha: resolves the active
-// profile from --captcha-profile / SUNO_CAPTCHA_PROFILE / config, builds
-// captcha.Options (dedicated user-data-dir + CDP port), and persists the
-// `seeded` flag after a successful solve.
+// profile from --captcha-profile / SUNO_CAPTCHA_PROFILE / config and builds
+// captcha.Options (dedicated user-data-dir + CDP port).
 
 package cli
 
@@ -33,12 +32,12 @@ func captchaProfilesDir() string {
 }
 
 // resolveCaptchaOptions loads config, resolves the profile (env > flag handled
-// by passing env-or-flag), ensures it exists (assigning a port), and returns
-// the Options plus a persist callback to mark the profile seeded.
-func resolveCaptchaOptions(configPath string, interactive bool) (captcha.Options, func() error, error) {
+// by passing env-or-flag), ensures it exists (assigning a port, persisted so the
+// port survives), and returns the Options.
+func resolveCaptchaOptions(configPath string, interactive bool) (captcha.Options, error) {
 	cfg, err := config.Load(configPath)
 	if err != nil {
-		return captcha.Options{}, nil, err
+		return captcha.Options{}, err
 	}
 	sel := captchaProfileFlag
 	if sel == "" {
@@ -51,30 +50,24 @@ func resolveCaptchaOptions(configPath string, interactive bool) (captcha.Options
 	if dir == "" {
 		dir = filepath.Join(captchaProfilesDir(), name)
 	}
-	opts := captcha.Options{
+	if err := cfg.SaveCaptcha(); err != nil {
+		return captcha.Options{}, err
+	}
+	return captcha.Options{
 		Profile:     name,
 		UserDataDir: dir,
 		CDPPort:     prof.CDPPort,
-		Seeded:      prof.Seeded,
 		Interactive: interactive,
-	}
-	persistSeeded := func() error {
-		prof.Seeded = true
-		return cfg.SaveCaptcha()
-	}
-	if err := cfg.SaveCaptcha(); err != nil {
-		return captcha.Options{}, nil, err
-	}
-	return opts, persistSeeded, nil
+	}, nil
 }
 
 // defaultSolver is the production Solver, overridable in tests.
 var defaultSolver captcha.Solver = captcha.New()
 
 // solveCaptchaToken runs the solver for the active profile and returns a fresh
-// token, persisting the seeded flag on success.
+// token.
 func solveCaptchaToken(ctx context.Context, configPath string, interactive bool) (string, error) {
-	opts, persistSeeded, err := resolveCaptchaOptions(configPath, interactive)
+	opts, err := resolveCaptchaOptions(configPath, interactive)
 	if err != nil {
 		return "", err
 	}
@@ -86,6 +79,5 @@ func solveCaptchaToken(ctx context.Context, configPath string, interactive bool)
 		}
 		return "", err
 	}
-	_ = persistSeeded()
 	return tok, nil
 }

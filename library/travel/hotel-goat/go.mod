@@ -1,6 +1,6 @@
 module github.com/mvanhorn/printing-press-library/library/travel/hotel-goat
 
-go 1.26.3
+go 1.26.5
 
 require (
 	github.com/spf13/cobra v1.9.1

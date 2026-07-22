@@ -12,62 +12,39 @@ import (
 )
 
 func newInstagramListReelsCmd(flags *rootFlags) *cobra.Command {
-	var flagQuery string
-	var flagDatePosted string
-	var flagPage string
 
 	cmd := &cobra.Command{
 		Use:         "list-reels",
-		Short:       "Searches for Instagram reels matching a keyword or phrase via Google Search, bypassing Instagram's login-gated...",
+		Short:       "Fetches trending reels from Instagram's public instagram.com/reels page.",
 		Example:     "  scrape-creators-pp-cli instagram list-reels",
-		Annotations: map[string]string{"pp:endpoint": "instagram.list-reels", "mcp:read-only": "true"},
+		Annotations: map[string]string{"pp:endpoint": "instagram.list-reels", "pp:method": "GET", "pp:path": "/v1/instagram/reels/trending", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
-			if !cmd.Flags().Changed("query") && !flags.dryRun {
-				return fmt.Errorf("required flag \"%s\" not set", "query")
-			}
-			if cmd.Flags().Changed("date-posted") {
-				allowedDatePosted := []string{"last-hour", "last-day", "last-week", "last-month", "last-year"}
-				validDatePosted := false
-				for _, v := range allowedDatePosted {
-					if flagDatePosted == v {
-						validDatePosted = true
-						break
-					}
-				}
-				if !validDatePosted {
-					fmt.Fprintf(os.Stderr, "warning: --%s %q not in allowed set %v\n", "date-posted", flagDatePosted, allowedDatePosted)
-				}
-			}
+			path := "/v1/instagram/reels/trending"
 			c, err := flags.newClient()
 			if err != nil {
 				return err
 			}
-
-			path := "/v2/instagram/reels/search"
 			params := map[string]string{}
-			if flagQuery != "" {
-				params["query"] = fmt.Sprintf("%v", flagQuery)
-			}
-			if flagDatePosted != "" {
-				params["date_posted"] = fmt.Sprintf("%v", flagDatePosted)
-			}
-			if flagPage != "" {
-				params["page"] = fmt.Sprintf("%v", flagPage)
-			}
-			data, prov, err := resolveRead(cmd.Context(), c, flags, "instagram", false, path, params, nil)
+			data, prov, err := resolveReadWithStrategyAndResponsePath(cmd.Context(), c, flags, "auto", "instagram", false, path, params, nil, "", cmd.ErrOrStderr())
 			if err != nil {
-				return classifyAPIError(err)
+				return classifyAPIError(err, flags)
 			}
-			// Print provenance to stderr for human-facing output
-			{
+			// Print provenance to stderr for human-facing output only.
+			// Machine-format flags (--json, --csv, --compact, --quiet, --plain,
+			// --select) and piped stdout suppress this line; the JSON envelope
+			// already carries meta.source for those consumers.
+			// SYNC: keep this gate aligned with command_promoted.go.tmpl.
+			if wantsHumanTable(cmd.OutOrStdout(), flags) {
 				var countItems []json.RawMessage
 				_ = json.Unmarshal(data, &countItems)
 				printProvenance(cmd, len(countItems), prov)
 			}
 			// For JSON output, wrap with provenance envelope before passing through flags.
 			// --select wins over --compact when both are set; --compact only runs when
-			// no explicit fields were requested.
-			if flags.asJSON || !isTerminal(cmd.OutOrStdout()) {
+			// no explicit fields were requested. Explicit format flags (--csv, --quiet,
+			// --plain) opt out of the auto-JSON path so piped consumers that asked for
+			// a non-JSON format reach the standard pipeline below.
+			if flags.asJSON || (!isTerminal(cmd.OutOrStdout()) && !flags.csv && !flags.quiet && !flags.plain) {
 				filtered := data
 				if flags.selectFields != "" {
 					filtered = filterFields(filtered, flags.selectFields)
@@ -93,12 +70,9 @@ func newInstagramListReelsCmd(flags *rootFlags) *cobra.Command {
 					return nil
 				}
 			}
-			return printOutputWithFlags(cmd.OutOrStdout(), data, flags)
+			return printOutputWithFlagsMeta(cmd.OutOrStdout(), data, flags, map[string]any{"source": "live"})
 		},
 	}
-	cmd.Flags().StringVar(&flagQuery, "query", "", "The keyword to search for")
-	cmd.Flags().StringVar(&flagDatePosted, "date-posted", "", "Date posted (one of: last-hour, last-day, last-week, last-month, last-year)")
-	cmd.Flags().StringVar(&flagPage, "page", "", "The page number to return.")
 
 	return cmd
 }

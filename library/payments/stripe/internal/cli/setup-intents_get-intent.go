@@ -30,10 +30,12 @@ func newSetupIntentsGetIntentCmd(flags *rootFlags) *cobra.Command {
 			}
 
 			path := "/v1/setup_intents/{intent}"
-			if len(args) < 3 {
+
+			// PATCH: Bind path placeholders from Cobra positional args in Use order.
+			if len(args) < 1 {
 				return usageErr(fmt.Errorf("intent is required\nUsage: %s <%s>", cmd.CommandPath(), "intent"))
 			}
-			path = replacePathParam(path, "intent", args[2])
+			path = replacePathParam(path, "intent", args[0])
 			params := map[string]string{}
 			if flagClientSecret != "" {
 				params["client_secret"] = fmt.Sprintf("%v", flagClientSecret)

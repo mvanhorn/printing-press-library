@@ -90,8 +90,8 @@ func TestAuthErrorHelpers(t *testing.T) {
 		t.Fatal("unexpected auth classification for non-auth message")
 	}
 
-	got := SanitizeErrorBody("token sk-abcdefghi Bearer abc.def key=secretvalue")
-	if got != "token [REDACTED] [REDACTED] [REDACTED]" {
+	got := SanitizeErrorBody("token sk-abcdefghi Bearer abc.def key=secretvalue token=abc.def-ghi")
+	if got != "token [REDACTED] [REDACTED] [REDACTED] [REDACTED]" {
 		t.Fatalf("SanitizeErrorBody redaction = %q", got)
 	}
 }
@@ -676,6 +676,27 @@ func TestAdaptiveLimiter_FloorsAtHalfRPS(t *testing.T) {
 	}
 }
 
+func TestAdaptiveLimiter_DoesNotRaiseSubFloorRateOnRateLimit(t *testing.T) {
+	l := NewAdaptiveLimiter(0.3)
+	startRate := l.Rate()
+	l.OnRateLimit()
+	if got := l.Rate(); got > startRate {
+		t.Errorf("Rate() after OnRateLimit = %v, want <= %v", got, startRate)
+	}
+}
+
+func TestAdaptiveLimiter_DoesNotRampBelowFloorAfterRateLimit(t *testing.T) {
+	l := NewAdaptiveLimiter(0.3)
+	floor := l.Rate()
+	l.OnRateLimit()
+	for i := 0; i < l.rampAfter; i++ {
+		l.OnSuccess()
+	}
+	if got := l.Rate(); got < floor {
+		t.Errorf("Rate() after ramping from rate-limit ceiling = %v, want >= %v", got, floor)
+	}
+}
+
 func TestAdaptiveLimiter_WaitEnforcesPacing(t *testing.T) {
 	l := NewAdaptiveLimiter(10.0)
 	l.Wait()
@@ -749,6 +770,26 @@ func TestRetryAfter_HTTPDate(t *testing.T) {
 	got := RetryAfter(resp)
 	if got < 5*time.Second || got > 8*time.Second {
 		t.Errorf("RetryAfter(http-date 7s ahead) = %v, want ~7s", got)
+	}
+}
+
+func TestRetryAfter_EpochSeconds(t *testing.T) {
+	future := time.Now().Add(7 * time.Second)
+	resp := &http.Response{Header: http.Header{}}
+	resp.Header.Set("Retry-After", fmt.Sprint(future.Unix()))
+	got := RetryAfter(resp)
+	if got < 5*time.Second || got > 8*time.Second {
+		t.Errorf("RetryAfter(epoch seconds 7s ahead) = %v, want ~7s", got)
+	}
+}
+
+func TestRetryAfter_EpochMilliseconds(t *testing.T) {
+	future := time.Now().Add(7 * time.Second)
+	resp := &http.Response{Header: http.Header{}}
+	resp.Header.Set("Retry-After", fmt.Sprint(future.UnixMilli()))
+	got := RetryAfter(resp)
+	if got < 5*time.Second || got > 8*time.Second {
+		t.Errorf("RetryAfter(epoch milliseconds 7s ahead) = %v, want ~7s", got)
 	}
 }
 

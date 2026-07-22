@@ -1,0 +1,211 @@
+{
+  "api_name": "fpi-india",
+  "base_url": "https://www.fpi.nsdl.co.in",
+  "description": "The full history of Foreign Portfolio Investor flows into India, synced locally and queryable offline — something neither NSDL nor CDSL offers today.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "none"
+  },
+  "required_headers": [
+    {
+      "name": "User-Agent",
+      "value": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0 Safari/537.36"
+    }
+  ],
+  "tools": [
+    {
+      "name": "auc_category",
+      "description": "FPI AUC category-wise data. Required: RepID (default: 18).",
+      "method": "GET",
+      "path": "/web/Reports/ReportDetail.aspx",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "RepID",
+          "type": "string",
+          "location": "query",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "auc_country",
+      "description": "FPI AUC country-wise data (top 10 countries). Required: RepID (default: 14).",
+      "method": "GET",
+      "path": "/web/Reports/ReportDetail.aspx",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "RepID",
+          "type": "string",
+          "location": "query",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "cdsl_reports_listing",
+      "description": "Index page listing recent dated FPI snapshot XLS files.",
+      "method": "GET",
+      "path": "/Publications/ForeignPortInvestor.html",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "cdsl_reports_snapshot",
+      "description": "Dated daily FPI snapshot file (date format DDMMYYYY, e.g. 09072026). Required: date.",
+      "method": "GET",
+      "path": "/downloads/Publications/Latest/latest_{date}.xls",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "date",
+          "type": "string",
+          "location": "path",
+          "description": "Snapshot date in DDMMYYYY format",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "limits_list",
+      "description": "Per-ISIN foreign investment limit monitoring data. Required: action (default: GetFilmReport_Detail), uName (default: s). Returns array of FilmLimit.",
+      "method": "POST",
+      "path": "/web/Reports/DefaultAPI_Reports.aspx",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "action",
+          "type": "string",
+          "location": "query",
+          "description": "AJAX action selector",
+          "required": true
+        },
+        {
+          "name": "uName",
+          "type": "string",
+          "location": "body",
+          "description": "Fixed placeholder credential the upstream endpoint expects (no real auth)",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "net_investment_cy",
+      "description": "Calendar-year FPI net-investment series, with monthly breakdown when a specific year is requested. Required: RptType (default: 6). Optional: year, currency.",
+      "method": "GET",
+      "path": "/web/Reports/Yearwise.aspx",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "RptType",
+          "type": "string",
+          "location": "query",
+          "description": "Report type; 6 = calendar year series",
+          "required": true
+        },
+        {
+          "name": "year",
+          "type": "string",
+          "location": "query",
+          "description": "Specific calendar year to drill into for monthly breakdown, e.g. 2024"
+        },
+        {
+          "name": "currency",
+          "wire_name": "CurrVal",
+          "type": "string",
+          "location": "query",
+          "description": "Currency for figures; empty = INR crores, USD = US dollars"
+        }
+      ]
+    },
+    {
+      "name": "net_investment_fy",
+      "description": "Full financial-year FPI net-investment series (1992-93 to present). Required: RptType (default: 5). Optional: currency.",
+      "method": "GET",
+      "path": "/web/Reports/Yearwise.aspx",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "RptType",
+          "type": "string",
+          "location": "query",
+          "description": "Report type; 5 = financial year series",
+          "required": true
+        },
+        {
+          "name": "currency",
+          "wire_name": "CurrVal",
+          "type": "string",
+          "location": "query",
+          "description": "Currency for figures; empty = INR crores, USD = US dollars"
+        }
+      ]
+    },
+    {
+      "name": "net_investment_latest",
+      "description": "Latest fortnight FPI net-investment snapshot.",
+      "method": "GET",
+      "path": "/web/Reports/Latest.aspx",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "net_investment_quarterly",
+      "description": "Quarterly FPI net-investment details (calendar year).",
+      "method": "GET",
+      "path": "/web/Reports/QuarterlyWise.aspx",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "registry_categories",
+      "description": "FPI category-wise registration counts.",
+      "method": "GET",
+      "path": "/web/Reports/FPI_Registration_Data.aspx",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "registry_list",
+      "description": "List of registered FPIs/FIIs.",
+      "method": "GET",
+      "path": "/web/Reports/RegisteredFIISAFPI.aspx",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "registry_pendency",
+      "description": "DDP-wise pendency of FPI applications.",
+      "method": "GET",
+      "path": "/web/StaticReports/DDP_Pendency_Report/DDP_Pendency_Report.htm",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "sector_list",
+      "description": "Fortnightly sector-wise FPI investment activity.",
+      "method": "GET",
+      "path": "/web/Reports/FPI_Fortnightly_Selection.aspx",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "trades_debt",
+      "description": "Trade-wise debt data of FPI.",
+      "method": "GET",
+      "path": "/web/StaticReports/FIITradeWiseDebt/FIITradeWiseDebt.htm",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "trades_equity",
+      "description": "Trade-wise equity data of FPI.",
+      "method": "GET",
+      "path": "/web/StaticReports/FIITradeWise2008/FIITradeWise2008.htm",
+      "no_auth": true,
+      "params": []
+    }
+  ]
+}

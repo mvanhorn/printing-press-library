@@ -1,0 +1,21 @@
+{
+  "id": "greptile-follow-up",
+  "created_at": "2026-06-16T22:20:00Z",
+  "reason": "Address Greptile review findings on the published Supermemory Admin CLI before merge.",
+  "files": [
+    "internal/cli/agent_context.go",
+    "internal/cli/sync.go",
+    "internal/cli/root.go",
+    "internal/cli/promoted_supermemory-recall.go",
+    "internal/cli/root_test.go",
+    "internal/client/client.go",
+    "internal/mcp/cobratree/shellout.go"
+  ],
+  "notes": [
+    "Removed unreachable auth fallback from agent context.",
+    "Emits a structured sync_warning when --latest-only is ignored because --since is set.",
+    "Blocks MCP callers from overriding timeout and rate-limit root flags.",
+    "Sets User-Agent from the CLI runtime version instead of a static API version.",
+    "Preserves explicit --threshold 0.0 in the promoted recall request body."
+  ]
+}

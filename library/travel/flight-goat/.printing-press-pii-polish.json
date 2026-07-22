@@ -1,0 +1,27 @@
+{
+  "timestamp": "2026-07-12T22:25:32.077813Z",
+  "cli_dir": "\u003ccli-dir\u003e/flight-goat-fresh-428",
+  "findings": [
+    {
+      "kind": "email",
+      "file": "README.md",
+      "line": 515,
+      "column": 9,
+      "matched_span": "integrationsales@flightaware.com",
+      "status": "accepted",
+      "category": "api_provider_data",
+      "evidence_context": "FlightAware's publicly-published integration-sales contact for AeroAPI onboarding — a documentation pointer telling users where to request API access, not personal PII. Present verbatim in the published main branch README.md and SKILL.md (flight-goat is an existing published CLI; this is a reprint)."
+    },
+    {
+      "kind": "email",
+      "file": "SKILL.md",
+      "line": 181,
+      "column": 9,
+      "matched_span": "integrationsales@flightaware.com",
+      "status": "accepted",
+      "category": "api_provider_data",
+      "evidence_context": "FlightAware's publicly-published integration-sales contact for AeroAPI onboarding — a documentation pointer telling users where to request API access, not personal PII. Present verbatim in the published main branch README.md and SKILL.md (flight-goat is an existing published CLI; this is a reprint)."
+    }
+  ],
+  "findings_count_before": 2
+}

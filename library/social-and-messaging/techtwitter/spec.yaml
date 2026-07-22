@@ -1,0 +1,421 @@
+name: techtwitter
+description: "Tech Twitter CLI — curated high-signal tech discourse, offline-searchable, with cited agent evidence."
+version: "0.1.0"
+base_url: "https://www.techtwitter.com"
+category: social-and-messaging
+http_transport: standard
+health_check_path: "/llms.txt"
+
+# A browser-shaped User-Agent is mandatory: bare scraper UAs get 403 on every
+# non-machine path (lib/bot-detection.ts). This header clears that filter.
+required_headers:
+  - name: User-Agent
+    value: "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0 Safari/537.36"
+
+auth:
+  type: none
+
+config:
+  format: toml
+  path: "~/.config/techtwitter-pp-cli/config.toml"
+
+resources:
+  tweets:
+    description: "Search and browse the curated tweet stream"
+    endpoints:
+      search:
+        method: GET
+        path: "/api/tweets/search"
+        description: "Search curated tweets by text (relevance-ranked)"
+        params:
+          - name: q
+            type: string
+            required: true
+            description: "Search phrase, e.g. 'agentic coding'"
+          - name: limit
+            type: int
+            required: false
+            description: "Maximum tweets to return"
+        response:
+          type: array
+          item: Tweet
+        response_path: tweets
+
+      latest:
+        method: GET
+        path: "/api/tweets/latest"
+        description: "Get the single most recent curated tweet (with nextTweetId)"
+        response:
+          type: object
+          item: Tweet
+
+      trending:
+        method: GET
+        path: "/api/tweets/trending"
+        description: "Ranked trending curated tweets from the last 7 days"
+        params:
+          - name: limit
+            type: int
+            required: false
+            description: "Maximum tweets to return"
+        response:
+          type: array
+          item: Tweet
+        response_path: tweets
+
+      author:
+        method: GET
+        path: "/api/tweets/author"
+        description: "Curated tweets for a specific author handle"
+        params:
+          - name: handle
+            type: string
+            required: true
+            description: "Author handle without the @, e.g. karpathy"
+          - name: limit
+            type: int
+            required: false
+            description: "Maximum tweets to return"
+          - name: offset
+            type: int
+            required: false
+            description: "Pagination offset"
+        response:
+          type: array
+          item: Tweet
+        response_path: tweets
+
+      topic:
+        method: GET
+        path: "/api/tweets/topic"
+        description: "Curated tweets for a topic slug"
+        params:
+          - name: slug
+            type: string
+            required: true
+            description: "Topic slug, e.g. ai-twitter"
+        response:
+          type: array
+          item: Tweet
+        response_path: tweets
+
+      monthly:
+        method: GET
+        path: "/api/tweets/monthly"
+        description: "Curated tweets for a given month"
+        params:
+          - name: year
+            type: int
+            required: true
+            description: "Four-digit year, e.g. 2026"
+          - name: month
+            type: int
+            required: true
+            description: "Month number 1-12"
+        response:
+          type: array
+          item: Tweet
+        response_path: tweets
+
+      get:
+        method: GET
+        path: "/api/tweets/{id}"
+        description: "Get a single curated tweet by UUID (with prev/next neighbors)"
+        params:
+          - name: id
+            type: string
+            required: true
+            positional: true
+            description: "Tweet UUID"
+        response:
+          type: object
+          item: Tweet
+
+  articles:
+    description: "Long-form articles backed by tweet provenance"
+    endpoints:
+      list:
+        method: GET
+        path: "/api/articles"
+        description: "List long-form articles"
+        params:
+          - name: limit
+            type: int
+            required: false
+            description: "Maximum articles to return"
+          - name: offset
+            type: int
+            required: false
+            description: "Pagination offset"
+        response:
+          type: array
+          item: Article
+        response_path: articles
+
+  profiles:
+    description: "Curated author profiles"
+    endpoints:
+      search:
+        method: GET
+        path: "/api/profiles/search"
+        description: "Search author profiles by name, handle, or bio"
+        params:
+          - name: q
+            type: string
+            required: true
+            description: "Search phrase, e.g. ai"
+        response:
+          type: array
+          item: Author
+        response_path: authors
+
+  newsletters:
+    description: "In-app newsletters (Threads)"
+    endpoints:
+      list:
+        method: GET
+        path: "/api/newsletters"
+        description: "List published in-app newsletters"
+        response:
+          type: array
+          item: Newsletter
+        response_path: newsletters
+
+  command:
+    description: "Command-center signals (hot takes, main character, heatmap, stats, by-date)"
+    endpoints:
+      hot-takes:
+        method: GET
+        path: "/api/command/hot-takes"
+        description: "High-reply, debate-heavy curated tweets"
+        params:
+          - name: limit
+            type: int
+            required: false
+            description: "Maximum tweets to return"
+        response:
+          type: array
+          item: Tweet
+        response_path: tweets
+
+      main-character:
+        method: GET
+        path: "/api/command/main-character"
+        description: "The day's most-engaged authors (main character)"
+        response:
+          type: array
+          item: Author
+        response_path: authors
+
+      heatmap:
+        method: GET
+        path: "/api/command/heatmap"
+        description: "Topic momentum heatmap (keyword, count, engagement)"
+        response:
+          type: array
+          item: Topic
+        response_path: topics
+
+      stats:
+        method: GET
+        path: "/api/command/stats"
+        description: "Corpus index health stats"
+        response:
+          type: object
+          item: Stats
+
+      tweets-by-date:
+        method: GET
+        path: "/api/command/tweets-by-date"
+        description: "Curated tweets for a date (today, yesterday, latest, or YYYY-MM-DD)"
+        params:
+          - name: date
+            type: string
+            required: false
+            description: "today, yesterday, latest, or YYYY-MM-DD"
+          - name: limit
+            type: int
+            required: false
+            description: "Maximum tweets to return (1-50)"
+          - name: topic
+            type: string
+            required: false
+            description: "Optional keyword/topic filter"
+          - name: tz
+            type: string
+            required: false
+            description: "IANA timezone for day boundaries (default UTC)"
+        response:
+          type: array
+          item: Tweet
+        response_path: tweets
+
+  agent:
+    description: "Machine-agent evidence bundles"
+    endpoints:
+      context:
+        method: GET
+        path: "/api/agent/context"
+        description: "Cited evidence bundle for an agent question"
+        params:
+          - name: kind
+            type: string
+            required: false
+            description: "auto, what-changed, launches, arguments, read-list, or narrative-alert"
+            enum: [auto, what-changed, launches, arguments, read-list, narrative-alert]
+          - name: question
+            type: string
+            required: false
+            description: "Natural-language question"
+          - name: q
+            type: string
+            required: false
+            description: "Optional search phrase"
+          - name: topic
+            type: string
+            required: false
+            description: "Optional topic name or slug"
+          - name: window
+            type: string
+            required: false
+            description: "24h, 48h, or 7d"
+            enum: ["24h", "48h", "7d"]
+          - name: limit
+            type: int
+            required: false
+            description: "Evidence rows (default 8, max 20)"
+        response:
+          type: object
+          item: EvidenceBundle
+
+types:
+  Tweet:
+    fields:
+      - name: id
+        type: string
+      - name: tweet_url
+        type: string
+      - name: tweet_text
+        type: string
+      - name: summary
+        type: string
+      - name: author_handle
+        type: string
+      - name: author_name
+        type: string
+      - name: content_type
+        type: string
+      - name: like_count
+        type: int
+      - name: retweet_count
+        type: int
+      - name: comment_count
+        type: int
+      - name: bookmark_count
+        type: int
+      - name: quality_score
+        type: float
+      - name: created_at
+        type: string
+      - name: timestamp
+        type: string
+      - name: slug
+        type: string
+      - name: seo_title
+        type: string
+
+  Article:
+    fields:
+      - name: id
+        type: string
+      - name: tweet_url
+        type: string
+      - name: article_title
+        type: string
+      - name: slug
+        type: string
+      - name: summary
+        type: string
+      - name: author_handle
+        type: string
+      - name: author_name
+        type: string
+      - name: content_type
+        type: string
+      - name: like_count
+        type: int
+      - name: quality_score
+        type: float
+      - name: created_at
+        type: string
+      - name: timestamp
+        type: string
+
+  Author:
+    fields:
+      - name: handle
+        type: string
+      - name: name
+        type: string
+      - name: avatar_url
+        type: string
+      - name: bio
+        type: string
+      - name: follower_count
+        type: int
+      - name: following_count
+        type: int
+      - name: location
+        type: string
+      - name: tweet_count
+        type: int
+      - name: total_engagement
+        type: int
+      - name: most_recent_tweet
+        type: string
+
+  Newsletter:
+    fields:
+      - name: id
+        type: string
+      - name: title
+        type: string
+      - name: subtitle
+        type: string
+      - name: slug
+        type: string
+      - name: published_at
+        type: string
+
+  Topic:
+    fields:
+      - name: keyword
+        type: string
+      - name: slug
+        type: string
+      - name: count
+        type: int
+      - name: engagement
+        type: int
+
+  Stats:
+    fields:
+      - name: tweetsIndexed
+        type: int
+      - name: topicsCount
+        type: int
+      - name: profilesTracked
+        type: int
+
+  EvidenceBundle:
+    fields:
+      - name: kind
+        type: string
+      - name: question
+        type: string
+      - name: query
+        type: string
+      - name: generatedAt
+        type: string
+      - name: window
+        type: string

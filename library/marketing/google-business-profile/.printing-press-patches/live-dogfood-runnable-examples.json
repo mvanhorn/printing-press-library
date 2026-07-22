@@ -1,0 +1,19 @@
+{
+  "schema_version": 2,
+  "id": "live-dogfood-runnable-examples",
+  "applied_at": "2026-07-04",
+  "base_run_id": "20260616-220217",
+  "base_printing_press_version": "4.20.1",
+  "summary": "Add runnable live-dogfood examples for Google Business Profile commands that require query parameters.",
+  "reason": "The generated placeholder examples omitted required Google API parameters, causing Phase 5 live dogfood to fail on valid API 400 responses unrelated to auth or command wiring.",
+  "files": [
+    "internal/cli/promoted_attributes.go",
+    "internal/cli/categories_list.go",
+    "internal/cli/categories_batch-get.go",
+    "internal/cli/chains_search.go",
+    "internal/cli/google_locations_search.go",
+    "internal/cli/auth.go",
+    "internal/cli/root.go"
+  ],
+  "validated_outcome": "Manual live probes passed for categories list, categories batch-get, attributes, chains search, and google-locations search using the replacement example arguments. The canonical interactive OAuth command remains available as auth login; the duplicate root login alias was removed so Phase 5 live dogfood does not treat browser login as a non-interactive runnable API command."
+}

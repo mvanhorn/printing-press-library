@@ -6,6 +6,7 @@ package cli
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/mvanhorn/printing-press-library/library/developer-tools/yeswehack/internal/store"
 	"github.com/spf13/cobra"
 	"net/url"
 	"os"
@@ -15,7 +16,6 @@ import (
 	"sync"
 	"sync/atomic"
 	"time"
-	"github.com/mvanhorn/printing-press-library/library/developer-tools/yeswehack/internal/store"
 )
 
 // syncResult holds the outcome of syncing a single resource.
@@ -292,6 +292,9 @@ func syncResource(c interface {
 
 	cursor := existingCursor
 	pageSize := determinePaginationDefaults()
+	if override, ok := paginationDefaultsForResource(resource); ok {
+		pageSize = override
+	}
 
 	var progressCount int64
 	pagesFetched := 0
@@ -344,6 +347,9 @@ func syncResource(c interface {
 		items, nextCursor, hasMore := extractPageItems(data, pageSize.cursorParam)
 
 		if len(items) == 0 {
+			if isEmptyListEnvelope(data) {
+				break
+			}
 			// Single object response - try to store as-is
 			if err := upsertSingleObject(db, resource, data); err != nil {
 				if !humanFriendly {
@@ -366,6 +372,7 @@ func syncResource(c interface {
 		// "primary_key_unresolved" the first time any single item
 		// fails, and the F4b "stored_count_zero_after_extraction"
 		// probe when extraction succeeded but rows still didn't land.
+		items = prepareSyncItems(resource, items)
 		stored, extractFailures, err := upsertResourceBatch(db, resource, items)
 		if err != nil {
 			if !humanFriendly {
@@ -456,7 +463,7 @@ func syncResource(c interface {
 		lastNextCursor = nextCursor
 
 		// Determine if there are more pages
-		if !hasMore || len(items) < pageSize.limit || nextCursor == "" {
+		if !hasMore || nextCursor == "" {
 			break
 		}
 
@@ -502,6 +509,19 @@ func determinePaginationDefaults() paginationDefaults {
 		cursorParam: "after",
 		limitParam:  "limit",
 		limit:       100,
+	}
+}
+
+func paginationDefaultsForResource(resource string) (paginationDefaults, bool) {
+	switch resource {
+	case "programs", "user", "user-members", "user-revoked-members":
+		return paginationDefaults{cursorParam: "page", limitParam: "resultsPerPage", limit: 100}, true
+	case "hacktivity":
+		return paginationDefaults{cursorParam: "page", limitParam: "resultsPerPage", limit: 100}, true
+	case "events", "ranking":
+		return paginationDefaults{cursorParam: "page", limitParam: "resultsPerPage", limit: 100}, true
+	default:
+		return paginationDefaults{}, false
 	}
 }
 
@@ -562,11 +582,41 @@ func extractPageItems(data json.RawMessage, cursorParam string) ([]json.RawMessa
 	return nil, "", false
 }
 
+func isEmptyListEnvelope(data json.RawMessage) bool {
+	var envelope map[string]json.RawMessage
+	if err := json.Unmarshal(data, &envelope); err != nil {
+		return false
+	}
+	for _, key := range []string{"data", "results", "items", "records", "nodes", "entries"} {
+		raw, ok := envelope[key]
+		if !ok {
+			continue
+		}
+		var items []json.RawMessage
+		if err := json.Unmarshal(raw, &items); err == nil && len(items) == 0 {
+			return true
+		}
+	}
+	return false
+}
+
 // extractPaginationFromEnvelope extracts cursor and has_more from a response envelope.
 func extractPaginationFromEnvelope(envelope map[string]json.RawMessage, cursorParam string) (string, bool) {
 	var hasMore bool
 
 	nextCursor := nextCursorFromLinks(envelope, cursorParam)
+
+	if cursorParam == "page" {
+		if raw, ok := envelope["pagination"]; ok {
+			var pagination struct {
+				Page    int `json:"page"`
+				NBPages int `json:"nb_pages"`
+			}
+			if json.Unmarshal(raw, &pagination) == nil && pagination.Page > 0 && pagination.NBPages > 0 && pagination.Page < pagination.NBPages {
+				return strconv.Itoa(pagination.Page + 1), true
+			}
+		}
+	}
 
 	// Try common cursor field names
 	cursorKeys := []string{
@@ -722,6 +772,33 @@ func upsertResourceBatch(db *store.Store, resource string, items []json.RawMessa
 	return stored, extractFailures, nil
 }
 
+func prepareSyncItems(resource string, items []json.RawMessage) []json.RawMessage {
+	switch resource {
+	case "hunter-access-programs":
+		return annotateHunterAccessProgramItems(items)
+	default:
+		return items
+	}
+}
+
+func annotateHunterAccessProgramItems(items []json.RawMessage) []json.RawMessage {
+	out := make([]json.RawMessage, 0, len(items))
+	for _, item := range items {
+		var row map[string]any
+		if err := json.Unmarshal(item, &row); err != nil {
+			out = append(out, item)
+			continue
+		}
+		addHunterAccessProgramIDs([]map[string]any{row})
+		if encoded, err := json.Marshal(row); err == nil {
+			out = append(out, encoded)
+		} else {
+			out = append(out, item)
+		}
+	}
+	return out
+}
+
 func resolveDiscriminatedResource(resource string, obj map[string]any) string {
 	dispatcher, ok := discriminatorDispatchers[resource]
 	if !ok || dispatcher.Field == "" {
@@ -792,6 +869,7 @@ func defaultSyncResources() []string {
 		"business_units",
 		"events",
 		"hacktivity",
+		"hunter-access-programs",
 		"programs",
 		"ranking",
 		"taxonomies",
@@ -800,6 +878,8 @@ func defaultSyncResources() []string {
 		"user",
 		"user-email-aliases",
 		"user-invitations",
+		"user-members",
+		"user-revoked-members",
 	}
 }
 
@@ -811,6 +891,7 @@ func syncResourcePath(resource string) (string, error) {
 		"business_units":             "/business-units",
 		"events":                     "/events",
 		"hacktivity":                 "/v2/hacktivity",
+		"hunter-access-programs":     "/v2/hunter/access/programs",
 		"programs":                   "/programs",
 		"ranking":                    "/ranking",
 		"taxonomies":                 "/utils/countries",
@@ -819,6 +900,8 @@ func syncResourcePath(resource string) (string, error) {
 		"user":                       "/user/reports",
 		"user-email-aliases":         "/user/email-aliases",
 		"user-invitations":           "/user/invitations",
+		"user-members":               "/user/members",
+		"user-revoked-members":       "/user/members/revoked",
 	}
 	if p, ok := paths[resource]; ok {
 		return p, nil

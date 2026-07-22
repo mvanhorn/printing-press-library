@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "llms-plaintext-endpoints",
+  "applied_at": "2026-07-11",
+  "base_run_id": "pp-pp-local-2026-07-11",
+  "base_printing_press_version": "4.28.0",
+  "summary": "Bypass the JSON resolver for /api/llms/*.txt endpoints; emit the verbatim text body, wrapping as {\"content\": ...} only when --json is set and the output is non-terminal.",
+  "reason": "Two endpoints under /api/llms serve text/plain (agent-configuration.txt + a companion listing). The default JSON guard mangles their bodies; an enum-like override preserves the byte-for-byte response while still offering the JSON envelope for --json consumers.",
+  "files": [
+    "internal/cli/llms_list.go",
+    "internal/cli/llms_list-agenticonstxt.go"
+  ],
+  "validated_outcome": "shipcheck green; 801 passed, 0 failed, 1306 skipped (full live dogfood)."
+}

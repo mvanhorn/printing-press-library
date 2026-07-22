@@ -9,8 +9,11 @@ import (
 
 func newProjectsCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "projects",
-		Short: "Get information about projects and files in teams.",
+		Use:         "projects",
+		Short:       "Get information about projects and files in teams.",
+		Hidden:      true,
+		Annotations: map[string]string{"mcp:read-only": "true"},
+		RunE:        parentNoSubcommandRunE(flags),
 	}
 
 	cmd.AddCommand(newProjectsFilesCmd(flags))

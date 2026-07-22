@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "slug": "sea-airport-parking",
+  "cli_name": "sea-airport-parking-pp-cli",
+  "version": "2026.7.1",
+  "released_at": "2026-07-14T03:57:29Z",
+  "source_commit": "fc428c45363e9e95d69d49a0a714ebf827d3c387",
+  "printing_press_version": "4.28.0",
+  "run_id": "20260713-185103-c898b442",
+  "changes": [
+    {
+      "title": "feat(sea-airport-parking): add sea-airport-parking",
+      "pr": 1516,
+      "url": "https://github.com/mvanhorn/printing-press-library/pull/1516",
+      "commit": "fc428c45363e9e95d69d49a0a714ebf827d3c387"
+    }
+  ]
+}

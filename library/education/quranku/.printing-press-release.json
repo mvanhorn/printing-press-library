@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "slug": "quranku",
+  "cli_name": "quranku-pp-cli",
+  "version": "2026.7.1",
+  "released_at": "2026-07-20T16:45:16Z",
+  "source_commit": "64cfae62fe10fee8d5c4ceef2255f9ad5f4a17de",
+  "printing_press_version": "4.28.0",
+  "run_id": "20260712-015914-1241bf58",
+  "changes": [
+    {
+      "title": "feat(quranku): add quranku",
+      "pr": 1495,
+      "url": "https://github.com/mvanhorn/printing-press-library/pull/1495",
+      "commit": "64cfae62fe10fee8d5c4ceef2255f9ad5f4a17de"
+    }
+  ]
+}

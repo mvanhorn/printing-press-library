@@ -1,0 +1,186 @@
+{
+  "api_name": "shodhganga",
+  "novelty_score": 8,
+  "alternatives": [],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-07-19T01:26:00Z",
+  "novel_features": [
+    {
+      "name": "Offline corpus harvest",
+      "command": "harvest",
+      "description": "Mirror a research area's theses into a local database so you can search and analyze offline without re-hitting the site.",
+      "rationale": "Shodhganga exposes no API and returns HTML only; persisting extracted Dublin Core records locally is the foundation every offline feature builds on.",
+      "example": "shodhganga-pp-cli harvest \"machine learning\" --limit 5",
+      "why_it_matters": "Reach for this first when an agent will run many follow-up queries over the same research area — harvest once, then everything else is instant and offline.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Guide-centric index",
+      "command": "guide",
+      "description": "List every thesis supervised by a given research guide across the harvested corpus.",
+      "rationale": "The web UI has no supervisor-centric view; this requires a local join over stored DC.contributor fields across many theses.",
+      "example": "shodhganga-pp-cli guide \"Ghosh, Sushant G\" --json",
+      "why_it_matters": "Use when mapping a supervisor's body of work or building academic-lineage graphs the site can't produce.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "University research profile",
+      "command": "university stats",
+      "description": "Aggregate a university's theses in the local store into a profile: thesis count, subject spread, and year range.",
+      "rationale": "Requires grouping stored theses by university and subject; no single Shodhganga page provides this rollup.",
+      "example": "shodhganga-pp-cli university stats \"Jamia Millia Islamia\" --json",
+      "why_it_matters": "Use to compare institutions' doctoral output or profile a university's research strengths.",
+      "group": "Corpus analytics"
+    },
+    {
+      "name": "Subject/year trends",
+      "command": "trends",
+      "description": "Show how thesis counts for a subject change over completion year across the harvested corpus.",
+      "rationale": "Requires grouping stored theses by year and subject — no UI page offers time-series over a research area.",
+      "example": "shodhganga-pp-cli trends --subject Physics --json",
+      "why_it_matters": "Use to spot rising or declining research areas in Indian doctoral output.",
+      "group": "Corpus analytics"
+    },
+    {
+      "name": "Similar theses",
+      "command": "similar",
+      "description": "Find theses in the local store that share the most subject keywords with a given thesis.",
+      "rationale": "Requires local subject-overlap scoring across the stored corpus; the site offers no 'related items'.",
+      "example": "shodhganga-pp-cli similar 10603/305247 --json",
+      "why_it_matters": "Use to expand a literature review outward from one relevant thesis.",
+      "group": "Corpus analytics"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Offline corpus harvest",
+      "command": "harvest",
+      "description": "Mirror a research area's theses into a local database so you can search and analyze offline without re-hitting the site.",
+      "rationale": "Shodhganga exposes no API and returns HTML only; persisting extracted Dublin Core records locally is the foundation every offline feature builds on.",
+      "example": "shodhganga-pp-cli harvest \"machine learning\" --limit 5",
+      "why_it_matters": "Reach for this first when an agent will run many follow-up queries over the same research area — harvest once, then everything else is instant and offline.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Guide-centric index",
+      "command": "guide",
+      "description": "List every thesis supervised by a given research guide across the harvested corpus.",
+      "rationale": "The web UI has no supervisor-centric view; this requires a local join over stored DC.contributor fields across many theses.",
+      "example": "shodhganga-pp-cli guide \"Ghosh, Sushant G\" --json",
+      "why_it_matters": "Use when mapping a supervisor's body of work or building academic-lineage graphs the site can't produce.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "University research profile",
+      "command": "university stats",
+      "description": "Aggregate a university's theses in the local store into a profile: thesis count, subject spread, and year range.",
+      "rationale": "Requires grouping stored theses by university and subject; no single Shodhganga page provides this rollup.",
+      "example": "shodhganga-pp-cli university stats \"Jamia Millia Islamia\" --json",
+      "why_it_matters": "Use to compare institutions' doctoral output or profile a university's research strengths.",
+      "group": "Corpus analytics"
+    },
+    {
+      "name": "Subject/year trends",
+      "command": "trends",
+      "description": "Show how thesis counts for a subject change over completion year across the harvested corpus.",
+      "rationale": "Requires grouping stored theses by year and subject — no UI page offers time-series over a research area.",
+      "example": "shodhganga-pp-cli trends --subject Physics --json",
+      "why_it_matters": "Use to spot rising or declining research areas in Indian doctoral output.",
+      "group": "Corpus analytics"
+    },
+    {
+      "name": "Similar theses",
+      "command": "similar",
+      "description": "Find theses in the local store that share the most subject keywords with a given thesis.",
+      "rationale": "Requires local subject-overlap scoring across the stored corpus; the site offers no 'related items'.",
+      "example": "shodhganga-pp-cli similar 10603/305247 --json",
+      "why_it_matters": "Use to expand a literature review outward from one relevant thesis.",
+      "group": "Corpus analytics"
+    }
+  ],
+  "auth": {},
+  "narrative": {
+    "display_name": "Shodhganga",
+    "headline": "Structured, scriptable, agent-native access to India's national reservoir of PhD theses — the machine API Shodhganga never shipped.",
+    "value_prop": "Shodhganga hosts 600,000+ Indian doctoral theses from 900+ universities but exposes no OAI, REST, or OpenSearch API — only HTML. This CLI turns every thesis into a structured Dublin Core record you can search and export as JSON, then mirror a research area into a local database for instant offline analysis with guide-centric indexes, university profiles, and subject trends the web UI can't produce.",
+    "quickstart": [
+      {
+        "command": "shodhganga-pp-cli doctor --dry-run",
+        "comment": "confirm the CLI is wired and the site is reachable before searching"
+      },
+      {
+        "command": "shodhganga-pp-cli thesis search --query \"black hole physics\" --limit 10",
+        "comment": "keyword-search all theses and get structured rows"
+      },
+      {
+        "command": "shodhganga-pp-cli thesis get 305247 --json",
+        "comment": "pull the full Dublin Core metadata record for one thesis (accepts 305247 or 10603/305247)"
+      },
+      {
+        "command": "shodhganga-pp-cli harvest \"machine learning\" --limit 100",
+        "comment": "mirror a research area into the local store for offline analysis"
+      },
+      {
+        "command": "shodhganga-pp-cli guide \"Ghosh, Sushant G\" --json",
+        "comment": "list every thesis a supervisor guided (harvest that area first)"
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "thesis search returns no rows for a topic you expect results for",
+        "fix": "Shodhganga tokenizes loosely; try a broader single-keyword query, or raise --limit"
+      },
+      {
+        "symptom": "guide/similar/trends/university-stats return empty",
+        "fix": "these read the local store — run 'shodhganga-pp-cli harvest \u003cquery\u003e' first to populate it"
+      },
+      {
+        "symptom": "thesis get says handle not found",
+        "fix": "pass the bare number (305247), the full handle (10603/305247), or the hdl.handle.net URI; all are accepted"
+      },
+      {
+        "symptom": "thesis search or harvest hangs or times out",
+        "fix": "Shodhganga's search backend is occasionally overloaded and slow; item lookups (thesis get) stay fast. Retry, lower --limit, or raise --timeout (e.g. --timeout 90s)."
+      }
+    ],
+    "when_to_use": "Use this CLI when an agent or script needs structured metadata about Indian PhD/MPhil theses — literature reviews, supervisor or university research profiles, subject-trend analysis, or building a citable corpus. It is the only programmatic path to Shodhganga, whose web UI returns HTML with no API.",
+    "anti_triggers": [
+      "Downloading full-text thesis PDFs — those are login-gated on Shodhganga and out of scope for this CLI.",
+      "Theses outside India or non-doctoral works — Shodhganga only holds Indian PhD/MPhil ETDs.",
+      "Real-time citation counts or impact metrics — Shodhganga carries no citation data."
+    ],
+    "recipes": [
+      {
+        "title": "Structured metadata for a known thesis",
+        "command": "shodhganga-pp-cli thesis get 305247 --json --select title,researcher,guides,university,keywords",
+        "explanation": "Pull just the fields you need from the full Dublin Core record; deeply nested output narrows cleanly with --select."
+      },
+      {
+        "title": "Harvest a research area for offline analysis",
+        "command": "shodhganga-pp-cli harvest \"quantum computing\" --limit 200",
+        "explanation": "Mirror a topic once; then trends, guide, similar, and 'search --data-source local' all run instantly against the local store."
+      },
+      {
+        "title": "Map a supervisor's students",
+        "command": "shodhganga-pp-cli guide \"Ghosh, Sushant G\" --json",
+        "explanation": "After harvesting the relevant area, list every thesis a research guide supervised."
+      },
+      {
+        "title": "Expand a literature review",
+        "command": "shodhganga-pp-cli similar 305247",
+        "explanation": "Find theses sharing the most subject keywords with a relevant one, ranked by overlap."
+      }
+    ],
+    "trigger_phrases": [
+      "search shodhganga",
+      "find indian phd theses on",
+      "thesis metadata for handle",
+      "theses supervised by",
+      "university research profile",
+      "use shodhganga",
+      "run shodhganga"
+    ]
+  }
+}

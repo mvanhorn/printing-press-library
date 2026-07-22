@@ -1,0 +1,336 @@
+name: pexels
+description: "Pexels stock photos & videos CLI — search, curated feeds, collections, and a local store for offline search, dedup-aware download, quota forecasting, and attribution export."
+version: "0.1.0"
+base_url: "https://api.pexels.com/v1"
+category: media-and-entertainment
+health_check_path: "/curated"
+
+required_headers:
+  - name: User-Agent
+    value: "pexels-pp-cli/0.1 (+https://github.com/mvanhorn/printing-press-library)"
+
+auth:
+  type: api_key
+  header: "Authorization"
+  format: "{token}"          # raw key — Pexels uses NO "Bearer" prefix
+  in: header
+  env_vars:
+    - PEXELS_API_KEY
+
+config:
+  format: toml
+  path: "~/.config/pexels-pp-cli/config.toml"
+
+resources:
+  photos:
+    description: "Search, curate, and fetch Pexels photos"
+    endpoints:
+      search:
+        method: GET
+        path: "/search"
+        description: "Search photos by keyword with orientation/size/color/locale filters"
+        no_auth: true
+        params:
+          - name: query
+            type: string
+            required: true
+            description: "Search keyword, e.g. 'mountain sunrise'"
+          - name: orientation
+            type: string
+            description: "Photo orientation"
+            enum: [landscape, portrait, square]
+          - name: size
+            type: string
+            description: "Minimum photo size: large (24MP), medium (12MP), small (4MP)"
+            enum: [large, medium, small]
+          - name: color
+            type: string
+            description: "Named color (red, orange, yellow, green, turquoise, blue, violet, pink, brown, black, gray, white) OR a hex code like #ffffff"
+          - name: locale
+            type: string
+            description: "Search locale"
+            enum: [en-US, pt-BR, es-ES, ca-ES, de-DE, it-IT, fr-FR, sv-SE, id-ID, pl-PL, ja-JP, zh-TW, zh-CN, ko-KR, th-TH, nl-NL, hu-HU, vi-VN, cs-CZ, da-DK, fi-FI, uk-UA, el-GR, ro-RO, nb-NO, sk-SK, tr-TR, ru-RU]
+          - name: page
+            type: int
+            default: 1
+            description: "Page number (1-based)"
+          - name: per_page
+            type: int
+            default: 15
+            description: "Results per page (max 80)"
+        response:
+          type: array
+          item: Photo
+        response_path: photos
+        pagination:
+          type: offset
+          has_more_field: next_page
+      curated:
+        method: GET
+        path: "/curated"
+        description: "Browse the Pexels editor-curated photo feed (use --random for a random page)"
+        no_auth: true
+        params:
+          - name: page
+            type: int
+            default: 1
+            description: "Page number (1-based)"
+          - name: per_page
+            type: int
+            default: 15
+            description: "Results per page (max 80)"
+        response:
+          type: array
+          item: Photo
+        response_path: photos
+        pagination:
+          type: offset
+          has_more_field: next_page
+      get:
+        method: GET
+        path: "/photos/{id}"
+        description: "Get a single photo by its numeric id"
+        no_auth: true
+        params:
+          - name: id
+            type: int
+            required: true
+            positional: true
+            description: "Numeric photo id"
+        response:
+          type: object
+          item: Photo
+
+  videos:
+    description: "Search, browse popular, and fetch Pexels videos"
+    endpoints:
+      search:
+        method: GET
+        path: "/videos/search"
+        description: "Search videos by keyword with orientation/size/locale filters"
+        no_auth: true
+        params:
+          - name: query
+            type: string
+            required: true
+            description: "Search keyword, e.g. 'ocean waves'"
+          - name: orientation
+            type: string
+            description: "Video orientation"
+            enum: [landscape, portrait, square]
+          - name: size
+            type: string
+            description: "Minimum video size: large (4K), medium (Full HD), small (HD)"
+            enum: [large, medium, small]
+          - name: locale
+            type: string
+            description: "Search locale"
+            enum: [en-US, pt-BR, es-ES, ca-ES, de-DE, it-IT, fr-FR, sv-SE, id-ID, pl-PL, ja-JP, zh-TW, zh-CN, ko-KR, th-TH, nl-NL, hu-HU, vi-VN, cs-CZ, da-DK, fi-FI, uk-UA, el-GR, ro-RO, nb-NO, sk-SK, tr-TR, ru-RU]
+          - name: page
+            type: int
+            default: 1
+            description: "Page number (1-based)"
+          - name: per_page
+            type: int
+            default: 15
+            description: "Results per page (max 80)"
+        response:
+          type: array
+          item: Video
+        response_path: videos
+        pagination:
+          type: offset
+          has_more_field: next_page
+      popular:
+        method: GET
+        path: "/videos/popular"
+        description: "Browse popular videos with optional dimension/duration filters"
+        no_auth: true
+        params:
+          - name: min_width
+            type: int
+            description: "Minimum video width in pixels"
+          - name: min_height
+            type: int
+            description: "Minimum video height in pixels"
+          - name: min_duration
+            type: int
+            description: "Minimum duration in seconds"
+          - name: max_duration
+            type: int
+            description: "Maximum duration in seconds"
+          - name: page
+            type: int
+            default: 1
+            description: "Page number (1-based)"
+          - name: per_page
+            type: int
+            default: 15
+            description: "Results per page (max 80)"
+        response:
+          type: array
+          item: Video
+        response_path: videos
+        pagination:
+          type: offset
+          has_more_field: next_page
+      get:
+        method: GET
+        path: "/videos/videos/{id}"
+        description: "Get a single video by its numeric id"
+        no_auth: true
+        params:
+          - name: id
+            type: int
+            required: true
+            positional: true
+            description: "Numeric video id"
+        response:
+          type: object
+          item: Video
+
+  collections:
+    description: "Browse featured collections, your own collections, and collection media"
+    endpoints:
+      featured:
+        method: GET
+        path: "/collections/featured"
+        description: "List Pexels featured collections"
+        no_auth: true
+        params:
+          - name: page
+            type: int
+            default: 1
+            description: "Page number (1-based)"
+          - name: per_page
+            type: int
+            default: 15
+            description: "Results per page (max 80)"
+        response:
+          type: array
+          item: Collection
+        response_path: collections
+        pagination:
+          type: offset
+          has_more_field: next_page
+      list:
+        method: GET
+        path: "/collections"
+        description: "List the authenticated user's own collections (requires PEXELS_API_KEY)"
+        params:
+          - name: page
+            type: int
+            default: 1
+            description: "Page number (1-based)"
+          - name: per_page
+            type: int
+            default: 15
+            description: "Results per page (max 80)"
+        response:
+          type: array
+          item: Collection
+        response_path: collections
+        pagination:
+          type: offset
+          has_more_field: next_page
+      media:
+        method: GET
+        path: "/collections/{id}"
+        description: "List the media (photos and/or videos) inside a collection"
+        no_auth: true
+        params:
+          - name: id
+            type: string
+            required: true
+            positional: true
+            description: "Collection id (string, e.g. 9mp14cx)"
+          - name: type
+            type: string
+            description: "Filter to a single media type"
+            enum: [photos, videos]
+          - name: sort
+            type: string
+            description: "Sort order"
+            enum: [asc, desc]
+            default: asc
+          - name: page
+            type: int
+            default: 1
+            description: "Page number (1-based)"
+          - name: per_page
+            type: int
+            default: 15
+            description: "Results per page (max 80)"
+        response:
+          type: array
+          item: CollectionMedia
+        response_path: media
+        pagination:
+          type: offset
+          has_more_field: next_page
+
+types:
+  Photo:
+    fields:
+      - name: id
+        type: int
+      - name: width
+        type: int
+      - name: height
+        type: int
+      - name: url
+        type: string
+      - name: photographer
+        type: string
+      - name: photographer_url
+        type: string
+      - name: photographer_id
+        type: int
+      - name: avg_color
+        type: string
+      - name: alt
+        type: string
+      - name: liked
+        type: bool
+  Video:
+    fields:
+      - name: id
+        type: int
+      - name: width
+        type: int
+      - name: height
+        type: int
+      - name: url
+        type: string
+      - name: image
+        type: string
+      - name: duration
+        type: int
+  Collection:
+    fields:
+      - name: id
+        type: string
+      - name: title
+        type: string
+      - name: description
+        type: string
+      - name: private
+        type: bool
+      - name: media_count
+        type: int
+      - name: photos_count
+        type: int
+      - name: videos_count
+        type: int
+  CollectionMedia:
+    fields:
+      - name: id
+        type: int
+      - name: type
+        type: string
+      - name: width
+        type: int
+      - name: height
+        type: int
+      - name: url
+        type: string

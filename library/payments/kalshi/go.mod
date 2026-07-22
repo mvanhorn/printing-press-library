@@ -1,6 +1,8 @@
 module github.com/mvanhorn/printing-press-library/library/payments/kalshi
 
-go 1.26.3
+go 1.26.5
+
+toolchain go1.26.5
 
 require (
 	github.com/pelletier/go-toml/v2 v2.2.4

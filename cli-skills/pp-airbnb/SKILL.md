@@ -34,7 +34,7 @@ This skill drives the `airbnb-pp-cli` binary. **You must verify the CLI is insta
 2. Verify: `airbnb-pp-cli --version`
 3. Ensure the reported install directory is on `$PATH` for the agent/runtime that will invoke this skill.
 
-If the `npx` install fails (no Node, offline, etc.), fall back to a direct Go install (requires Go 1.26.3 or newer):
+If the `npx` install fails (no Node, offline, etc.), fall back to a direct Go install (requires Go 1.26.5 or newer):
 
 ```bash
 go install github.com/mvanhorn/printing-press-library/library/travel/airbnb/cmd/airbnb-pp-cli@latest
@@ -94,12 +94,13 @@ These capabilities aren't available in any other tool for this API.
   ```
 
 ### Local state that compounds
-- **`watch`** — Add saved listings to a watchlist with target prices; daily sync checks for drops; cron-friendly exit codes signal hits.
+- **`watch`** — Add saved listings to a watchlist with target prices; `watch check` re-scrapes each, records a dated price snapshot when a real price comes back, and exits 7 on a genuine drop. Subcommands: `add`, `list`, `remove`, `check`.
 
-  _Use when a user is shopping a specific listing and waiting for a price drop. Schedule watch check daily; act on exit code 7._
+  _Use when a user is shopping a specific listing and waiting for a price drop. Schedule `watch check` daily; act on exit code 7. A listing with no available price for the dates is reported under `no_price` and is never a hit (no false exit 7). Remove with `watch remove <listing-url-or-id>`._
 
   ```bash
   airbnb-pp-cli watch add 'https://www.airbnb.com/rooms/37124493' --max-price 350 --checkin 2026-05-16 --checkout 2026-05-19
+  airbnb-pp-cli watch remove 37124493
   ```
 - **`host portfolio`** — Given a host or property management company name, list every known listing under them across Airbnb and VRBO.
 
@@ -201,9 +202,19 @@ Fans out across Airbnb + VRBO + direct discovery; ranks by total savings.
 
 ```bash
 airbnb-pp-cli watch add 'https://www.airbnb.com/rooms/37124493' --max-price 350 && airbnb-pp-cli watch check
+airbnb-pp-cli watch remove 'https://www.airbnb.com/rooms/37124493'
 ```
 
-Add to watchlist, then check with cron — exits 7 when any drop is under threshold.
+Add to watchlist, then check with cron — exits 7 only when a real scraped price is at or below the threshold. A listing with no available price for the dates is reported under `no_price` (never a hit, never exit 7). `watch remove` accepts the listing URL or the bare id from `watch list`.
+
+### Keep price history current
+
+```bash
+airbnb-pp-cli sync                                 # re-scrapes watchlist + known listings, persists fresh snapshots
+airbnb-pp-cli sync --resources airbnb_wishlist     # auth-gated wishlist sync (needs auth login --chrome)
+```
+
+`sync` re-scrapes what the store already knows (watchlist entries + previously-scraped listings) and writes fresh price snapshots; on an empty store it reports `empty_store` and makes no network calls. The authenticated wishlist sync is opt-in via `--resources airbnb_wishlist`.
 
 ### Find a Vacasa property in Austin and book direct
 

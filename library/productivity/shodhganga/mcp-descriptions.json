@@ -1,0 +1,5 @@
+{
+  "descriptions": {
+    "university_list": "List every university and institutional collection (DSpace community) indexed in Shodhganga. Takes no parameters. Returns each community's display name and its handle id (the NNN in 10603/NNN). Use university_get with a handle to open a specific institution's page, or thesis_search / browse_list to find theses once you know the university you want."
+  }
+}

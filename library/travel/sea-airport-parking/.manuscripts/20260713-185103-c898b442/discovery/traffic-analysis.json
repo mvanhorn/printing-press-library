@@ -1,0 +1,20 @@
+{
+  "reachability": { "mode": "standard_http", "notes": "Anonymous GET bootstraps AWSALB/JSESSIONID/parkingReservationGuid cookies; POST replays cleanly with a normal Chrome UA. No bot wall, no clearance challenge." },
+  "spec_source": "direct-http-capture",
+  "empty_response_shapes": false,
+  "endpoint_clusters": [
+    {
+      "method": "GET", "path": "/book/SEA/Parking", "query": "parkingCmd=collectParkingDetails",
+      "purpose": "bootstrap session cookies + render date form",
+      "response_format": "html", "size_class": "large", "observed_auth": []
+    },
+    {
+      "method": "POST", "path": "/book/SEA/Parking",
+      "purpose": "quote availability+price for entry/exit datetime -> selectProduct HTML with embedded quotes JSON",
+      "params": ["parkingCmd","progressToNextStep","entryDate","entryTime","exitDate","exitTime","promocodes"],
+      "response_format": "html+embedded-json",
+      "embedded_json": ["quotes[]{id,price,originalPrice}","perDatePrices[]{date,price,rollupPrice}","shopProductAvailabilityDetails[] (travel extras)","productIdLegacyCodeJson[]{id,carParkId}"],
+      "size_class": "large", "observed_auth": []
+    }
+  ]
+}

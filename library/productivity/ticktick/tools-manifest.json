@@ -1,0 +1,198 @@
+{
+  "api_name": "ticktick",
+  "base_url": "https://api.ticktick.com/api/v2",
+  "description": "Every TickTick surface — tasks, habits, focus, daily notes — with a corruption-proof daily-note contract and offline analytics no other TickTick tool has.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "api_key",
+    "header": "Cookie",
+    "format": "t={TICKTICK_SESSION_TOKEN}",
+    "in": "header",
+    "env_vars": [
+      "TICKTICK_SESSION_TOKEN"
+    ],
+    "env_var_specs": [
+      {
+        "name": "TICKTICK_SESSION_TOKEN",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    ]
+  },
+  "required_headers": [
+    {
+      "name": "User-Agent",
+      "value": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36"
+    }
+  ],
+  "tools": [
+    {
+      "name": "completed_list",
+      "description": "Completed tasks in a date window. Optional: from, to, limit (default: 100). Returns array of Task.",
+      "method": "GET",
+      "path": "/project/all/completed",
+      "params": [
+        {
+          "name": "from",
+          "type": "string",
+          "location": "query",
+          "description": "Window start (YYYY-MM-DD HH:MM:SS)"
+        },
+        {
+          "name": "to",
+          "type": "string",
+          "location": "query",
+          "description": "Window end (YYYY-MM-DD HH:MM:SS)"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Max completed tasks to return"
+        }
+      ]
+    },
+    {
+      "name": "focus_timeline",
+      "description": "Focus and pomodoro records, most recent first. Optional: to. Returns array of FocusRecord.",
+      "method": "GET",
+      "path": "/pomodoros/timeline",
+      "params": [
+        {
+          "name": "to",
+          "type": "string",
+          "location": "query",
+          "description": "Only records before this timestamp (epoch millis; empty = latest)"
+        }
+      ]
+    },
+    {
+      "name": "habits_checkin",
+      "description": "Upsert habit checkins (batch add/update). Optional: add, update. Returns the new BatchResult.",
+      "method": "POST",
+      "path": "/habitCheckins/batch",
+      "params": [
+        {
+          "name": "add",
+          "type": "array",
+          "location": "body",
+          "description": "Checkin objects to create (JSON array: {habitId, checkinStamp, status, value})"
+        },
+        {
+          "name": "update",
+          "type": "array",
+          "location": "body",
+          "description": "Checkin objects to update (JSON array; carry id + habitId)"
+        }
+      ]
+    },
+    {
+      "name": "habits_checkins",
+      "description": "Query habit checkins after a date stamp. Required: habitIds, afterStamp. Returns the new CheckinMap.",
+      "method": "POST",
+      "path": "/habitCheckins/query",
+      "params": [
+        {
+          "name": "habitIds",
+          "type": "array",
+          "location": "body",
+          "description": "Habit ids to query (JSON array of strings)",
+          "required": true
+        },
+        {
+          "name": "afterStamp",
+          "type": "int",
+          "location": "body",
+          "description": "Date stamp lower bound, YYYYMMDD as integer (e.g. 20260630)",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "habits_list",
+      "description": "List all habits. Returns array of Habit.",
+      "method": "GET",
+      "path": "/habits",
+      "params": []
+    },
+    {
+      "name": "projects_list",
+      "description": "List all projects. Returns array of Project.",
+      "method": "GET",
+      "path": "/projects",
+      "params": []
+    },
+    {
+      "name": "tags_list",
+      "description": "List all tags. Returns array of Tag.",
+      "method": "GET",
+      "path": "/tags",
+      "params": []
+    },
+    {
+      "name": "tasks_batch",
+      "description": "Batch create/update/delete tasks (arrays of task objects; updates must carry id, projectId, etag and must NOT include kind). Optional: add, update, delete. Returns the new BatchResult.",
+      "method": "POST",
+      "path": "/batch/task",
+      "params": [
+        {
+          "name": "add",
+          "type": "array",
+          "location": "body",
+          "description": "Task objects to create (JSON array)"
+        },
+        {
+          "name": "update",
+          "type": "array",
+          "location": "body",
+          "description": "Task objects to update (JSON array; carry id/projectId/etag, never kind)"
+        },
+        {
+          "name": "delete",
+          "type": "array",
+          "location": "body",
+          "description": "Task refs to delete (JSON array of {taskId, projectId})"
+        }
+      ]
+    },
+    {
+      "name": "tasks_get",
+      "description": "Get a single task by id (full JSON incl. kind, etag, childIds). Required: taskId, projectId. Returns the Task.",
+      "method": "GET",
+      "path": "/task/{taskId}",
+      "params": [
+        {
+          "name": "taskId",
+          "type": "string",
+          "location": "path",
+          "description": "Task id",
+          "required": true
+        },
+        {
+          "name": "projectId",
+          "type": "string",
+          "location": "query",
+          "description": "Project id the task belongs to",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "tasks_list",
+      "description": "List all uncompleted tasks (from the V2 sync check). Returns array of Task.",
+      "method": "GET",
+      "path": "/batch/check/0",
+      "params": []
+    },
+    {
+      "name": "user_profile",
+      "description": "Authenticated user profile. Returns the UserProfile.",
+      "method": "GET",
+      "path": "/user/profile",
+      "params": []
+    }
+  ]
+}

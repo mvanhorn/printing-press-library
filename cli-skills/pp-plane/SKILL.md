@@ -45,7 +45,7 @@ On macOS also clear the Gatekeeper quarantine: `xattr -d com.apple.quarantine pl
 npx -y @mvanhorn/printing-press-library install plane --cli-only
 ```
 
-**3. Direct Go install — no Node, but needs Go 1.26.3 or newer:**
+**3. Direct Go install — no Node, but needs Go 1.26.5 or newer:**
 
 ```bash
 go install github.com/mvanhorn/printing-press-library/library/project-management/plane/cmd/plane-pp-cli@latest

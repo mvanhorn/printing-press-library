@@ -4,6 +4,7 @@
 package cli
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"os"
@@ -58,6 +59,7 @@ are automatically chunked into monthly requests.`,
   # Full resync (ignore previous checkpoint)
   espn-pp-cli sync --full`,
 		RunE: func(cmd *cobra.Command, args []string) error {
+			ctx := cmd.Context()
 			c, err := flags.newClient()
 			if err != nil {
 				return err
@@ -79,7 +81,7 @@ are automatically chunked into monthly requests.`,
 				if sport == "" || league == "" {
 					return usageErr(fmt.Errorf("--dates requires --sport and --league (e.g. --sport football --league nfl --dates 20250901-20260209)"))
 				}
-				return syncDatesRange(c, db, sport, league, dates, dbPath)
+				return syncDatesRange(ctx, c, db, sport, league, dates, dbPath)
 			}
 
 			// If no specific resources, sync top-level resources
@@ -137,7 +139,7 @@ are automatically chunked into monthly requests.`,
 				go func() {
 					defer wg.Done()
 					for resource := range work {
-						res := syncResource(c, db, resource, sinceTS, full, maxPages)
+						res := syncResource(ctx, c, db, resource, sinceTS, full, maxPages)
 						results <- res
 					}
 				}()
@@ -197,8 +199,8 @@ are automatically chunked into monthly requests.`,
 
 // syncResource handles the full paginated sync of a single resource.
 // It resumes from the last cursor unless sinceTS or full mode overrides it.
-func syncResource(c interface {
-	Get(string, map[string]string) (json.RawMessage, error)
+func syncResource(ctx context.Context, c interface {
+	Get(context.Context, string, map[string]string) (json.RawMessage, error)
 	RateLimit() float64
 }, db *store.Store, resource, sinceTS string, full bool, maxPages int) syncResult {
 	started := time.Now()
@@ -244,7 +246,7 @@ func syncResource(c interface {
 			params[sinceParam] = effectiveSince
 		}
 
-		data, err := c.Get(path, params)
+		data, err := c.Get(ctx, path, params)
 		if err != nil {
 			if !humanFriendly {
 				fmt.Fprintf(os.Stderr, `{"event":"sync_error","resource":"%s","error":"%s"}`+"\n", resource, strings.ReplaceAll(err.Error(), `"`, `\"`))
@@ -269,7 +271,7 @@ func syncResource(c interface {
 		}
 
 		// Batch upsert all items from this page
-		if err := db.UpsertBatch(resource, items); err != nil {
+		if _, _, err := db.UpsertBatch(resource, items); err != nil {
 			if !humanFriendly {
 				fmt.Fprintf(os.Stderr, `{"event":"sync_error","resource":"%s","error":"%s"}`+"\n", resource, strings.ReplaceAll(err.Error(), `"`, `\"`))
 			}
@@ -572,8 +574,8 @@ func defaultSyncResources() []string {
 
 // syncDatesRange syncs historical scoreboard data for a sport/league across a date range.
 // Large ranges are chunked into monthly requests to stay within ESPN's API limits.
-func syncDatesRange(c interface {
-	Get(string, map[string]string) (json.RawMessage, error)
+func syncDatesRange(ctx context.Context, c interface {
+	Get(context.Context, string, map[string]string) (json.RawMessage, error)
 	RateLimit() float64
 }, db *store.Store, sport, league, dates, dbPath string) error {
 	parts := strings.SplitN(dates, "-", 2)
@@ -617,7 +619,7 @@ func syncDatesRange(c interface {
 			fmt.Fprintf(os.Stderr, "  %s/%s %s: ", sport, league, dateRange)
 		}
 
-		data, fetchErr := c.Get(path, params)
+		data, fetchErr := c.Get(ctx, path, params)
 		if fetchErr != nil {
 			if humanFriendly {
 				fmt.Fprintf(os.Stderr, "error: %v\n", fetchErr)

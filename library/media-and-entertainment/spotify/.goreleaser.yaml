@@ -23,7 +23,7 @@ builds:
     env:
       - CGO_ENABLED=0
     ldflags:
-      - -s -w
+      - -s -w -X main.version={{ .Version }}
     targets:
       - darwin_amd64
       - darwin_arm64
@@ -45,7 +45,7 @@ brews:
       owner: rob-coco
       name: homebrew-tap
     homepage: "https://github.com/mvanhorn/printing-press-library"
-    description: "An agent-native Spotify CLI with a SQLite-backed local library that lets you ask listening-drift questions no other..."
+    description: "You can use Spotify's Web API to discover music and podcasts, manage your Spotify library, control audio playback"
     install: |
       bin.install "spotify-pp-cli"
       bin.install "spotify-pp-mcp"

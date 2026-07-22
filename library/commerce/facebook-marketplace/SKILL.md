@@ -29,7 +29,7 @@ This skill drives the `facebook-marketplace-pp-cli` binary. **You must verify th
 2. Verify: `facebook-marketplace-pp-cli --version`
 3. Ensure the reported install directory is on `$PATH` for the agent/runtime that will invoke this skill.
 
-If the `npx` install fails (no Node, offline, etc.), fall back to a direct Go install (requires Go 1.26.3 or newer):
+If the `npx` install fails (no Node, offline, etc.), fall back to a direct Go install (requires Go 1.26.5 or newer):
 
 ```bash
 go install github.com/mvanhorn/printing-press-library/library/commerce/facebook-marketplace/cmd/facebook-marketplace-pp-cli@latest

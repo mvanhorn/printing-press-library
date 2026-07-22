@@ -2,14 +2,16 @@
   "schema_version": 1,
   "slug": "ebay",
   "cli_name": "ebay-pp-cli",
-  "version": "2026.6.1",
-  "released_at": "2026-06-08T00:00:00Z",
-  "source_commit": "40610a4e649ed7db2f033b1abff765949bbad99d",
+  "version": "2026.7.2",
+  "released_at": "2026-07-08T22:18:26Z",
+  "source_commit": "8d08fedcf337579edd0b8f0f9ec9b7cc67870fb6",
   "printing_press_version": "3.0.1",
   "changes": [
     {
-      "title": "Baseline release metadata added for this published CLI.",
-      "commit": "40610a4e649ed7db2f033b1abff765949bbad99d"
+      "title": "fix(ebay): preserve commerce fields in agent compact output",
+      "pr": 1424,
+      "url": "https://github.com/mvanhorn/printing-press-library/pull/1424",
+      "commit": "8d08fedcf337579edd0b8f0f9ec9b7cc67870fb6"
     }
   ]
 }

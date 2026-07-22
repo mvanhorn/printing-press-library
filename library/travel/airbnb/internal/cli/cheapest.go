@@ -23,7 +23,12 @@ func newCheapestCmd(flags *rootFlags) *cobra.Command {
 			if flags.dryRun {
 				return printJSONFiltered(cmd.OutOrStdout(), dryRunCheapest(target), flags)
 			}
-			out, err := computeCheapest(cmd.Context(), target, cheapestParams{Checkin: checkin, Checkout: checkout, Guests: guests, SearchBackend: backend, MaxDirectResults: maxDirect})
+			// PATCH: open store and pass to computeCheapest for best-effort persistence.
+			db := openScrapeStore(cmd.Context())
+			if db != nil {
+				defer db.Close()
+			}
+			out, err := computeCheapest(cmd.Context(), target, cheapestParams{Checkin: checkin, Checkout: checkout, Guests: guests, SearchBackend: backend, MaxDirectResults: maxDirect, store: db})
 			if err != nil {
 				return classifyAPIError(err)
 			}

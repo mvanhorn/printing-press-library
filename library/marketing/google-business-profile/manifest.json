@@ -1,0 +1,39 @@
+{
+  "manifest_version": "0.3",
+  "name": "google-business-profile-pp-mcp",
+  "display_name": "Google Business Profile",
+  "version": "4.20.1",
+  "description": "Combined CLI for multiple API services",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/google-business-profile-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/google-business-profile-pp-mcp",
+      "args": [],
+      "env": {
+        "GOOGLE_BUSINESS_PROFILE_OAUTH2": "${user_config.google_business_profile_oauth2}"
+      }
+    }
+  },
+  "user_config": {
+    "google_business_profile_oauth2": {
+      "type": "string",
+      "title": "Google Business Profile OAuth2",
+      "description": "Google OAuth2 access token for the Google Business Profile APIs. Prefer `google-business-profile-pp-cli login`; use the env var only when you already have a short-lived access token.",
+      "sensitive": true,
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

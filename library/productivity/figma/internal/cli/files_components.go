@@ -9,8 +9,10 @@ import (
 
 func newFilesComponentsCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "components",
-		Short: "Get information about published components.",
+		Use:         "components",
+		Short:       "Get information about published components.",
+		Annotations: map[string]string{"mcp:read-only": "true"},
+		RunE:        parentNoSubcommandRunE(flags),
 	}
 
 	cmd.AddCommand(newFilesComponentsGetFileCmd(flags))

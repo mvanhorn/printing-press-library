@@ -1,0 +1,2032 @@
+{
+  "api_name": "flight-goat",
+  "base_url": "https://{env}.flightaware.com/aeroapi",
+  "description": "AeroAPI is a simple, query-based API that gives software developers access to a variety of FlightAware's flight data.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "mcp": {
+    "endpoint_tools": "hidden",
+    "orchestration": "code"
+  },
+  "auth": {
+    "type": "api_key",
+    "header": "x-apikey",
+    "in": "header",
+    "env_vars": [
+      "FLIGHT_GOAT_API_KEY"
+    ],
+    "env_var_specs": [
+      {
+        "name": "FLIGHT_GOAT_API_KEY",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    ]
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "aircraft_get-flight-type",
+      "description": "Returns information about an aircraft type, given an ICAO aircraft type designator string. Data returned includes the description, type, manufacturer, engine type, and engine count. Required: type.",
+      "method": "GET",
+      "path": "/aircraft/types/{type}",
+      "params": [
+        {
+          "name": "type",
+          "type": "string",
+          "location": "path",
+          "description": "The ICAO aircraft type designator for the aircraft to fetch information for",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "aircraft_blocked_get-aircraft",
+      "description": "Given an aircraft identification, returns true if the aircraft is blocked from public tracking per request from the owner/operator, false if it is not blocked. Any IATA-like idents will be translated to ICAO before lookup. When marked as blocked, no associated flight information will be visible in AeroAPI. FlightAware can provide aircraft owner/operators with secure access to their blocked flight data by [contacting FlightAware for help](https://www.flightaware.com/about/contact). Required: ident.",
+      "method": "GET",
+      "path": "/aircraft/{ident}/blocked",
+      "params": [
+        {
+          "name": "ident",
+          "type": "string",
+          "location": "path",
+          "description": "The ident or registration of the aircraft",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "aircraft_owner_get-aircraft",
+      "description": "Returns information about the owner of an aircraft, given a flight number or aircraft registration. Data returned includes owner's name, location (typically city and state), and website, if any. Codeshares and alternate idents are automatically searched. Specific owner name information is limited to ownership within the US (sourced by the FAA), Australia, and New Zealand. Note that while this information is updated weekly, there may be a lag in upstream data sources reflecting a change in ownership. Required: ident.",
+      "method": "GET",
+      "path": "/aircraft/{ident}/owner",
+      "params": [
+        {
+          "name": "ident",
+          "type": "string",
+          "location": "path",
+          "description": "The ident or registration of the aircraft",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "airports_get",
+      "description": "Returns information about an airport given an ICAO or LID airport code such as KLAX, KIAH, O07, etc. Data returned includes airport name, city, state (when known), latitude, longitude, and timezone. Required: id.",
+      "method": "GET",
+      "path": "/airports/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "ICAO, IATA or LID ID of destination airport to fetch.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "airports_get-all",
+      "description": "Returns the ICAO identifiers of all known airports. For airports that do not have an ICAO identifier, the FAA LID identifier will be used. Links for further information about each airport are included. Optional: max_pages (default: 1), cursor.",
+      "method": "GET",
+      "path": "/airports",
+      "params": [
+        {
+          "name": "max_pages",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum number of pages to fetch."
+        },
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "Opaque value used to get the next batch of data from a paged collection."
+        }
+      ]
+    },
+    {
+      "name": "airports_get-delays-for-all",
+      "description": "Returns a list of airports with delays. There may be multiple reasons returned per airport if there are multiple types of delays reported at an airport. Note that individual flights can be delayed without there being an airport-wide delay returned by this endpoint. Optional: max_pages (default: 1), cursor.",
+      "method": "GET",
+      "path": "/airports/delays",
+      "params": [
+        {
+          "name": "max_pages",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum number of pages to fetch."
+        },
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "Opaque value used to get the next batch of data from a paged collection."
+        }
+      ]
+    },
+    {
+      "name": "airports_get-nearby",
+      "description": "Returns a list of airports located within a given distance from the given location. Required: latitude, longitude, radius. Optional: only_iap (default: false), max_pages (default: 1), cursor.",
+      "method": "GET",
+      "path": "/airports/nearby",
+      "params": [
+        {
+          "name": "latitude",
+          "type": "float",
+          "location": "query",
+          "description": "The latitude of the point used to search for nearby airports",
+          "required": true
+        },
+        {
+          "name": "longitude",
+          "type": "float",
+          "location": "query",
+          "description": "The longitude of the point used to search for nearby airports",
+          "required": true
+        },
+        {
+          "name": "radius",
+          "type": "int",
+          "location": "query",
+          "description": "The search radius to use for finding nearby airports (statue miles)",
+          "required": true
+        },
+        {
+          "name": "only_iap",
+          "type": "bool",
+          "location": "query",
+          "description": "Return only nearby airports with Instrument Approaches (also limits results to North American airports)"
+        },
+        {
+          "name": "max_pages",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum number of pages to fetch."
+        },
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "Opaque value used to get the next batch of data from a paged collection."
+        }
+      ]
+    },
+    {
+      "name": "airports_canonical_get-airports",
+      "description": "Returns a list of ICAO airport codes corresponding to the given IATA or LID airport code. IATA codes can be identical to some LID codes, so if id_type is specified, only 1 ICAO code will be returned. If no id_type is specified and there are two possible ICAO codes, both will be returned. Required: id. Optional: id_type.",
+      "method": "GET",
+      "path": "/airports/{id}/canonical",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "ICAO, IATA or LID ID of destination airport to fetch.",
+          "required": true
+        },
+        {
+          "name": "id_type",
+          "type": "string",
+          "location": "query",
+          "description": "Type of airport code provided in the id parameter"
+        }
+      ]
+    },
+    {
+      "name": "airports_delays_get-airport",
+      "description": "Returns a list of reason codes for delays at a specific airport. There may be multiple reasons returned if there are multiple types of delays reported at an airport. Note that individual flights may be delayed without there being an airport delay returned by this endpoint. Required: id.",
+      "method": "GET",
+      "path": "/airports/{id}/delays",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "ICAO, IATA or LID ID of destination airport to fetch.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "airports_flights_get-airport",
+      "description": "Returns all recent and upcoming flights departing from or arriving at the specified airport. Filtering/ordering behavior for the optional start and end parameters for each type (`scheduled_departures`, `scheduled_arrivals`, `departures`, `arrivals`) match the behavior in their corresponding endpoints. Required: id. Optional: airline, type, start (plus 3 more).",
+      "method": "GET",
+      "path": "/airports/{id}/flights",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "ICAO, IATA or LID ID of destination airport to fetch.",
+          "required": true
+        },
+        {
+          "name": "airline",
+          "type": "string",
+          "location": "query",
+          "description": "Airline to filter flights by. Do not provide airline if type is provided."
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "location": "query",
+          "description": "Type of flights to return. Do not provide type if airline is provided."
+        },
+        {
+          "name": "start",
+          "type": "string",
+          "location": "query",
+          "description": "The starting date range for flight results."
+        },
+        {
+          "name": "end",
+          "type": "string",
+          "location": "query",
+          "description": "The ending date range for flight results."
+        },
+        {
+          "name": "max_pages",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum number of pages to fetch."
+        },
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "Opaque value used to get the next batch of data from a paged collection."
+        }
+      ]
+    },
+    {
+      "name": "airports_flights_get-airport-arrived",
+      "description": "Returns flights that have arrived at an airport, orderd by `actual_on` descending. The start parameter's default value is 24 hours before the current time. The end parameter's default value is the current time. Required: id. Optional: airline, type, start (plus 3 more).",
+      "method": "GET",
+      "path": "/airports/{id}/flights/arrivals",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "ICAO, IATA or LID ID of destination airport to fetch.",
+          "required": true
+        },
+        {
+          "name": "airline",
+          "type": "string",
+          "location": "query",
+          "description": "Airline to filter flights by. Do not provide airline if type is provided."
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "location": "query",
+          "description": "Type of flights to return. Do not provide type if airline is provided."
+        },
+        {
+          "name": "start",
+          "type": "string",
+          "location": "query",
+          "description": "The starting date range for flight results."
+        },
+        {
+          "name": "end",
+          "type": "string",
+          "location": "query",
+          "description": "The ending date range for flight results."
+        },
+        {
+          "name": "max_pages",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum number of pages to fetch."
+        },
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "Opaque value used to get the next batch of data from a paged collection."
+        }
+      ]
+    },
+    {
+      "name": "airports_flights_get-airport-count",
+      "description": "Returns counts of flights for an airport broken down by flight status. The returned categories are subtly different from what is returned from the `/airports/{id}/flights` endpoints. Specifically, this operation does not include completed flights in its counts, and it does not count cancelled/diverted flights. It also does not strictly bound the time for which scheduled flights are counted, so all future flights that FlightAware knows about are included in the counts. See the response schema and documentation for the airport flights endpoints for more information. Required: id.",
+      "method": "GET",
+      "path": "/airports/{id}/flights/counts",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "ICAO, IATA or LID ID of destination airport to fetch.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "airports_flights_get-airport-departed",
+      "description": "Returns flights that have departed from an airport and not been diverted, ordered by `actual_off` descending. The optional start and end parameters will be compared against `actual_off` to limit the flights returned. The start parameter's default value is 24 hours before the current time. The end parameter's default value is the current time. Required: id. Optional: airline, type, start (plus 3 more).",
+      "method": "GET",
+      "path": "/airports/{id}/flights/departures",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "ICAO, IATA or LID ID of destination airport to fetch.",
+          "required": true
+        },
+        {
+          "name": "airline",
+          "type": "string",
+          "location": "query",
+          "description": "Airline to filter flights by. Do not provide airline if type is provided."
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "location": "query",
+          "description": "Type of flights to return. Do not provide type if airline is provided."
+        },
+        {
+          "name": "start",
+          "type": "string",
+          "location": "query",
+          "description": "The starting date range for flight results."
+        },
+        {
+          "name": "end",
+          "type": "string",
+          "location": "query",
+          "description": "The ending date range for flight results."
+        },
+        {
+          "name": "max_pages",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum number of pages to fetch."
+        },
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "Opaque value used to get the next batch of data from a paged collection."
+        }
+      ]
+    },
+    {
+      "name": "airports_flights_get-airport-scheduled-arrivals",
+      "description": "Returns flights that are expected to arrive at an airport. This can include both undeparted and en route flights. Flights are ordered by `estimated_on` ascending. The optional start and end parameters will be compared against `estimated_on` to limit the flights returned. The start parameter's default value is 48 hours before the current time (this accounts for delayed flights). The end parameter's default value is 24 hours after the current time. Required: id. Optional: airline, type, start (plus 3 more).",
+      "method": "GET",
+      "path": "/airports/{id}/flights/scheduled_arrivals",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "ICAO, IATA or LID ID of destination airport to fetch.",
+          "required": true
+        },
+        {
+          "name": "airline",
+          "type": "string",
+          "location": "query",
+          "description": "Airline to filter flights by. Do not provide airline if type is provided."
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "location": "query",
+          "description": "Type of flights to return. Do not provide type if airline is provided."
+        },
+        {
+          "name": "start",
+          "type": "string",
+          "location": "query",
+          "description": "The starting date range for flight results."
+        },
+        {
+          "name": "end",
+          "type": "string",
+          "location": "query",
+          "description": "The ending date range for flight results."
+        },
+        {
+          "name": "max_pages",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum number of pages to fetch."
+        },
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "Opaque value used to get the next batch of data from a paged collection."
+        }
+      ]
+    },
+    {
+      "name": "airports_flights_get-airport-scheduled-departures",
+      "description": "Returns flights that are scheduled to depart from an airport or have recently been cancelled, ordered by `estimated_off` (or `scheduled_off` if `estimated_off` is missing) ascending. The optional start and end parameters will be compared against `scheduled_off` to limit the flights returned. The start parameter's default value is 2 hours before the current time. The end parameter's default value is 24 hours after the current time. Required: id. Optional: airline, type, start (plus 3 more).",
+      "method": "GET",
+      "path": "/airports/{id}/flights/scheduled_departures",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "ICAO, IATA or LID ID of destination airport to fetch.",
+          "required": true
+        },
+        {
+          "name": "airline",
+          "type": "string",
+          "location": "query",
+          "description": "Airline to filter flights by. Do not provide airline if type is provided."
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "location": "query",
+          "description": "Type of flights to return. Do not provide type if airline is provided."
+        },
+        {
+          "name": "start",
+          "type": "string",
+          "location": "query",
+          "description": "The starting date range for flight results."
+        },
+        {
+          "name": "end",
+          "type": "string",
+          "location": "query",
+          "description": "The ending date range for flight results."
+        },
+        {
+          "name": "max_pages",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum number of pages to fetch."
+        },
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "Opaque value used to get the next batch of data from a paged collection."
+        }
+      ]
+    },
+    {
+      "name": "airports_flights_get-between-airports",
+      "description": "This endpoint is quite similar to the `FindFlight` operator in prior versions of AeroAPI. Results may include both non-stop and one-stop flights. Note that because the returned flights can include multiple legs, the response format differs from most other flight-returning endpoints. If the optional start or end query parameters are not provided start will default to 1 day in the future, while end will default to 7 days in the past relative to the time the query is made. Required: id, dest_id. Optional: type, connection, start (plus 3 more). Returns array of FullFlight.",
+      "method": "GET",
+      "path": "/airports/{id}/flights/to/{dest_id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "ICAO, IATA or LID ID of destination airport to fetch.",
+          "required": true
+        },
+        {
+          "name": "dest_id",
+          "type": "string",
+          "location": "path",
+          "description": "ICAO, IATA or LID ID of destination airport to fetch. [ICAO is highly preferred](/aeroapi/portal/resources#icaoCode) to prevent ambiguity.",
+          "required": true
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "location": "query",
+          "description": "Type of flights to return."
+        },
+        {
+          "name": "connection",
+          "type": "string",
+          "location": "query",
+          "description": "Whether flights should be filtered based on their connection status. If setting start/end date parameters then connection must be set to nonstop, and will default to nonstop if left blank. If start/end are not specified then leaving this blank will result in a mix of nonstop and one-stop flights being returned, with a preference for nonstop flights. One-stop flights are identified with a custom heuristic, which may be incomplete."
+        },
+        {
+          "name": "start",
+          "type": "string",
+          "location": "query",
+          "description": "The starting date range for flight results."
+        },
+        {
+          "name": "end",
+          "type": "string",
+          "location": "query",
+          "description": "The ending date range for flight results."
+        },
+        {
+          "name": "max_pages",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum number of pages to fetch."
+        },
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "Opaque value used to get the next batch of data from a paged collection."
+        }
+      ]
+    },
+    {
+      "name": "airports_nearby_get-airports-near-airport",
+      "description": "Returns a list of airports located within a given distance from the specified airport. Required: id, radius. Optional: only_iap (default: false), max_pages (default: 1), cursor.",
+      "method": "GET",
+      "path": "/airports/{id}/nearby",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "ICAO, IATA or LID ID of destination airport to fetch.",
+          "required": true
+        },
+        {
+          "name": "radius",
+          "type": "int",
+          "location": "query",
+          "description": "The search radius to use for finding nearby airports (statue miles)",
+          "required": true
+        },
+        {
+          "name": "only_iap",
+          "type": "bool",
+          "location": "query",
+          "description": "Return only nearby airports with Instrument Approaches (also limits results to North American airports)"
+        },
+        {
+          "name": "max_pages",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum number of pages to fetch."
+        },
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "Opaque value used to get the next batch of data from a paged collection."
+        }
+      ]
+    },
+    {
+      "name": "airports_routes_get-between-airports",
+      "description": "Returns information about assigned IFR routings between two airports. Required: id, dest_id. Optional: sort_by (default: count), max_file_age (default: 2 weeks), max_pages (default: 1) (plus 1 more).",
+      "method": "GET",
+      "path": "/airports/{id}/routes/{dest_id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "ICAO, IATA or LID ID of destination airport to fetch.",
+          "required": true
+        },
+        {
+          "name": "dest_id",
+          "type": "string",
+          "location": "path",
+          "description": "ICAO, IATA or LID ID of destination airport to fetch. [ICAO is highly preferred](/aeroapi/portal/resources#icaoCode) to prevent ambiguity.",
+          "required": true
+        },
+        {
+          "name": "sort_by",
+          "type": "string",
+          "location": "query",
+          "description": "Field to sort results by. 'count' will sort results by the route filing count (descending). 'last_departure_time' will sort results by the latest scheduled departure time for that route (descending)."
+        },
+        {
+          "name": "max_file_age",
+          "type": "string",
+          "location": "query",
+          "description": "Maximum filed plan age of flights to consider. Can be a value less than or equal to 14 days (2 weeks) OR 1 month OR 1 year."
+        },
+        {
+          "name": "max_pages",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum number of pages to fetch."
+        },
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "Opaque value used to get the next batch of data from a paged collection."
+        }
+      ]
+    },
+    {
+      "name": "airports_weather_get-airport-forecast",
+      "description": "Returns the weather forecast for an airport in the form of a decoded TAF (Terminal Area Forecast). Only a single result is returned. Required: id. Optional: timestamp, return_nearby_weather (default: false).",
+      "method": "GET",
+      "path": "/airports/{id}/weather/forecast",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "ICAO, IATA or LID ID of destination airport to fetch.",
+          "required": true
+        },
+        {
+          "name": "timestamp",
+          "type": "string",
+          "location": "query",
+          "description": "Timestamp from which to begin returning weather data in a 1 day range. Because weather data is returned in reverse chronological order, all returned weather reports will be from before this timestamp. If unspecified, weather is returned starting from now up to or less than the user history limit, normally 14 days."
+        },
+        {
+          "name": "return_nearby_weather",
+          "type": "bool",
+          "location": "query",
+          "description": "If the requested airport does not have a weather conditions report then the weather for the nearest airport within 30 miles will be returned instead."
+        }
+      ]
+    },
+    {
+      "name": "airports_weather_get-airport-observations",
+      "description": "Returns weather for an airport in the form of a decoded METAR, starting from the latest report and working backwards in time as more data is requested. Data is provided in parsed, human-readable, and raw formats. Required: id. Optional: temperature_units (default: Celsius), return_nearby_weather (default: false), timestamp (plus 2 more).",
+      "method": "GET",
+      "path": "/airports/{id}/weather/observations",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "ICAO, IATA or LID ID of destination airport to fetch.",
+          "required": true
+        },
+        {
+          "name": "temperature_units",
+          "type": "string",
+          "location": "query",
+          "description": "Units to use for temperature fields."
+        },
+        {
+          "name": "return_nearby_weather",
+          "type": "bool",
+          "location": "query",
+          "description": "If the requested airport does not have a weather conditions report then the weather for the nearest airport within 30 miles will be returned instead."
+        },
+        {
+          "name": "timestamp",
+          "type": "string",
+          "location": "query",
+          "description": "Timestamp from which to begin returning weather data in a 1 day range. Because weather data is returned in reverse chronological order, all returned weather reports will be from before this timestamp. If unspecified, weather is returned starting from now up to or less than the user history limit, normally 14 days."
+        },
+        {
+          "name": "max_pages",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum number of pages to fetch."
+        },
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "Opaque value used to get the next batch of data from a paged collection."
+        }
+      ]
+    },
+    {
+      "name": "alerts_create",
+      "description": "Create a new AeroAPI flight alert. When the alert is triggered, a callback mechanism will be used to notify the address set via the /alerts/endpoint endpoint. Each callback will be charged as a query and count towards usage for the AeroAPI key that created the alert. If this key is disabled or removed, the alert will no longer be available. If a target_url is provided, then this specific alert will be delivered to that address regardless of the adress set via the /alerts/endpoint endpoint. Required: aircraft_type, destination, end, eta (default: 0), events, ident, origin, start, target_url. Optional: max_weekly.",
+      "method": "POST",
+      "path": "/alerts",
+      "params": [
+        {
+          "name": "aircraft_type",
+          "type": "string",
+          "location": "body",
+          "description": "Aircraft type ICAO code to alert on.",
+          "required": true
+        },
+        {
+          "name": "destination",
+          "type": "string",
+          "location": "body",
+          "description": "Destination airport ICAO, IATA, or LID code to alert on.",
+          "required": true
+        },
+        {
+          "name": "end",
+          "type": "string",
+          "location": "body",
+          "description": "End date of alert (inclusive). Should be in departure airport's timezone.",
+          "required": true
+        },
+        {
+          "name": "eta",
+          "type": "int",
+          "location": "body",
+          "description": "How many minutes before a flight's ETA that an alert should be delivered. Alerts will only be delivered after the flight has been in the air for at least 15 minutes. Set to 0 to disable.",
+          "required": true
+        },
+        {
+          "name": "events-arrival",
+          "wire_name": "events.arrival",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether alerts should be delivered on arrival. FlightAware Global customers will also receive 'taxi stop' Ready To Taxi™ alerts unless they've opted out.",
+          "required": true
+        },
+        {
+          "name": "events-cancelled",
+          "wire_name": "events.cancelled",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether alerts should be delivered on cancellation by the airline",
+          "required": true
+        },
+        {
+          "name": "events-departure",
+          "wire_name": "events.departure",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether alerts should be delivered on departure. FlightAware Global customers will also receive 'power on' and 'taxi start' Ready To Taxi™ alerts unless they've opted out.",
+          "required": true
+        },
+        {
+          "name": "events-diverted",
+          "wire_name": "events.diverted",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether alerts should be delivered on diversion",
+          "required": true
+        },
+        {
+          "name": "events-filed",
+          "wire_name": "events.filed",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether alerts should be delivered on filing",
+          "required": true
+        },
+        {
+          "name": "events-in",
+          "wire_name": "events.in",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether alerts should be delivered when aircraft enters arrival gate",
+          "required": true
+        },
+        {
+          "name": "events-off",
+          "wire_name": "events.off",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether alerts should be delivered when aircraft leaves the runway",
+          "required": true
+        },
+        {
+          "name": "events-on",
+          "wire_name": "events.on",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether alerts should be delivered when aircraft touches down on runway",
+          "required": true
+        },
+        {
+          "name": "events-out",
+          "wire_name": "events.out",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether alerts should be delivered when aircraft leaves departure gate",
+          "required": true
+        },
+        {
+          "name": "ident",
+          "type": "string",
+          "location": "body",
+          "description": "Ident to alert on. This value may be modified based on codeshare resolution. If that occurs, the originally provided ident will be preserved in the user_ident field.",
+          "required": true
+        },
+        {
+          "name": "max_weekly",
+          "type": "int",
+          "location": "body",
+          "description": "Reject the new alert if the estimated number of triggered alerts per week based on historical flight trends would exceed this value. The threshold only considers alerts triggered by this alert config (it is not a total for all previously configured alerts). Check is only applied at alert creation/modification, and does and does not prevent alerts from being delivered even if they exceed the given amount. If your alert request is rejected, consider adding additional filter criteria for the alert creation to further refine the config. If max_weekly is not specified for a standard customer, we default the max_weekly to 1000. For a premium customer, we default the max_weekly to 4000."
+        },
+        {
+          "name": "origin",
+          "type": "string",
+          "location": "body",
+          "description": "Origin airport ICAO, IATA, or LID code to alert on.",
+          "required": true
+        },
+        {
+          "name": "start",
+          "type": "string",
+          "location": "body",
+          "description": "Start date of alert. Should be in departure airport's timezone.",
+          "required": true
+        },
+        {
+          "name": "target_url",
+          "type": "string",
+          "location": "body",
+          "description": "Alert specific URL to deliver to. If null, then the alert will be delivered to the configured account-wide alert URL target.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "alerts_delete",
+      "description": "Deletes specific alert with given ID. Required: id. Destructive.",
+      "method": "DELETE",
+      "path": "/alerts/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "The ID of the alert to fetch or update",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "alerts_delete-endpoint",
+      "description": "Remove the default account-wide URL that will be POSTed to for alerts that are not configured with a specific URL. This means that any alerts that are not configured with a specific URL will not be delivered. Destructive.",
+      "method": "DELETE",
+      "path": "/alerts/endpoint",
+      "params": []
+    },
+    {
+      "name": "alerts_get",
+      "description": "Returns the configuration data for an alert with the specified ID. Required: id.",
+      "method": "GET",
+      "path": "/alerts/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "The ID of the alert to fetch or update",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "alerts_get-all",
+      "description": "Returns all configured alerts for the FlightAware account (this includes alerts configured through other means by the FlightAware user owning the AeroAPI account like FlightAware's website or mobile apps). Optional: max_pages (default: 0), cursor.",
+      "method": "GET",
+      "path": "/alerts",
+      "params": [
+        {
+          "name": "max_pages",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum number of pages to fetch. This is an upper limit and not a guarantee of how many pages will be returned. Defaults to 0, meaning no maximum is set. Set this parameter if your call is timing out (most likely due to a high number of alerts)."
+        },
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "Opaque value used to get the next batch of data from a paged collection."
+        }
+      ]
+    },
+    {
+      "name": "alerts_get-endpoint",
+      "description": "Returns URL that will be POSTed to for alerts that are delivered via AeroAPI.",
+      "method": "GET",
+      "path": "/alerts/endpoint",
+      "params": []
+    },
+    {
+      "name": "alerts_set-endpoint",
+      "description": "Updates the default URL that will be POSTed to for alerts that are delivered via AeroAPI. This sets the account-wide default URL that all alerts will be delivered to unless the specific alert has a different delivery address configured for it. Required: url.",
+      "method": "PUT",
+      "path": "/alerts/endpoint",
+      "params": [
+        {
+          "name": "url",
+          "type": "string",
+          "location": "body",
+          "description": "Default account-wide URL that will be POSTed to for flight alerts.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "alerts_update",
+      "description": "Modifies the configuration for an alert with the specified ID. If a target URL address is provided, then the alert will be delivered to that address even if it is different than the default account-wide address set through the alerts/endpoint endpoint. Updating an alert that was created with a different AeroAPI key is possible, but will not change the AeroAPI key that the alert is associated with for usage. Required: id, aircraft_type, destination, enabled, end, eta (default: 0), events, ident, origin, start, target_url. Optional: max_weekly.",
+      "method": "PUT",
+      "path": "/alerts/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "The ID of the alert to fetch or update",
+          "required": true
+        },
+        {
+          "name": "aircraft_type",
+          "type": "string",
+          "location": "body",
+          "description": "Aircraft type ICAO code to alert on.",
+          "required": true
+        },
+        {
+          "name": "destination",
+          "type": "string",
+          "location": "body",
+          "description": "Destination airport ICAO, IATA, or LID code to alert on.",
+          "required": true
+        },
+        {
+          "name": "enabled",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether alert is enabled.",
+          "required": true
+        },
+        {
+          "name": "end",
+          "type": "string",
+          "location": "body",
+          "description": "End date of alert (inclusive). Should be in departure airport's timezone.",
+          "required": true
+        },
+        {
+          "name": "eta",
+          "type": "int",
+          "location": "body",
+          "description": "How many minutes before a flight's ETA that an alert should be delivered. Alerts will only be delivered after the flight has been in the air for at least 15 minutes. Set to 0 to disable.",
+          "required": true
+        },
+        {
+          "name": "events-arrival",
+          "wire_name": "events.arrival",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether alerts should be delivered on arrival. FlightAware Global customers will also receive 'taxi stop' Ready To Taxi™ alerts unless they've opted out.",
+          "required": true
+        },
+        {
+          "name": "events-cancelled",
+          "wire_name": "events.cancelled",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether alerts should be delivered on cancellation by the airline",
+          "required": true
+        },
+        {
+          "name": "events-departure",
+          "wire_name": "events.departure",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether alerts should be delivered on departure. FlightAware Global customers will also receive 'power on' and 'taxi start' Ready To Taxi™ alerts unless they've opted out.",
+          "required": true
+        },
+        {
+          "name": "events-diverted",
+          "wire_name": "events.diverted",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether alerts should be delivered on diversion",
+          "required": true
+        },
+        {
+          "name": "events-filed",
+          "wire_name": "events.filed",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether alerts should be delivered on filing",
+          "required": true
+        },
+        {
+          "name": "events-in",
+          "wire_name": "events.in",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether alerts should be delivered when aircraft enters arrival gate",
+          "required": true
+        },
+        {
+          "name": "events-off",
+          "wire_name": "events.off",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether alerts should be delivered when aircraft leaves the runway",
+          "required": true
+        },
+        {
+          "name": "events-on",
+          "wire_name": "events.on",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether alerts should be delivered when aircraft touches down on runway",
+          "required": true
+        },
+        {
+          "name": "events-out",
+          "wire_name": "events.out",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether alerts should be delivered when aircraft leaves departure gate",
+          "required": true
+        },
+        {
+          "name": "ident",
+          "type": "string",
+          "location": "body",
+          "description": "Ident to alert on. This value may be modified based on codeshare resolution. If that occurs, the originally provided ident will be preserved in the user_ident field.",
+          "required": true
+        },
+        {
+          "name": "max_weekly",
+          "type": "int",
+          "location": "body",
+          "description": "Reject the new alert if the estimated number of triggered alerts per week based on historical flight trends would exceed this value. The threshold only considers alerts triggered by this alert config (it is not a total for all previously configured alerts). Check is only applied at alert creation/modification, and does and does not prevent alerts from being delivered even if they exceed the given amount. If your alert request is rejected, consider adding additional filter criteria for the alert creation to further refine the config. If max_weekly is not specified for a standard customer, we default the max_weekly to 1000. For a premium customer, we default the max_weekly to 4000."
+        },
+        {
+          "name": "origin",
+          "type": "string",
+          "location": "body",
+          "description": "Origin airport ICAO, IATA, or LID code to alert on.",
+          "required": true
+        },
+        {
+          "name": "start",
+          "type": "string",
+          "location": "body",
+          "description": "Start date of alert. Should be in departure airport's timezone.",
+          "required": true
+        },
+        {
+          "name": "target_url",
+          "type": "string",
+          "location": "body",
+          "description": "Alert specific URL to deliver to. If null, then the alert will be delivered to the configured account-wide alert URL target.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "disruption-counts_get",
+      "description": "Returns flight cancellation/delay counts in the specified time period for a particular airline or airport. Required: id, entity_type (default: airline). Optional: time_period (default: today).",
+      "method": "GET",
+      "path": "/disruption_counts/{entity_type}/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "The ICAO code for the airline or ID for the airport (ICAO, IATA, or LID) for which you are fetching disruption statistics. For airport ID, [ICAO is highly preferred](/aeroapi/portal/resources#icaoCode) to prevent ambiguity.",
+          "required": true
+        },
+        {
+          "name": "entity_type",
+          "type": "string",
+          "location": "path",
+          "description": "The type of entity to get disruption statistics for.",
+          "required": true
+        },
+        {
+          "name": "time_period",
+          "type": "string",
+          "location": "query",
+          "description": "Time period"
+        }
+      ]
+    },
+    {
+      "name": "disruption-counts_get-all",
+      "description": "Returns overall flight cancellation/delay counts in the specified time period for either all airlines or all airports. Required: entity_type (default: airline). Optional: time_period (default: today), max_pages (default: 1), cursor.",
+      "method": "GET",
+      "path": "/disruption_counts/{entity_type}",
+      "params": [
+        {
+          "name": "entity_type",
+          "type": "string",
+          "location": "path",
+          "description": "The type of entity to get disruption statistics for.",
+          "required": true
+        },
+        {
+          "name": "time_period",
+          "type": "string",
+          "location": "query",
+          "description": "Time period"
+        },
+        {
+          "name": "max_pages",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum number of pages to fetch."
+        },
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "Opaque value used to get the next batch of data from a paged collection."
+        }
+      ]
+    },
+    {
+      "name": "flights_get",
+      "description": "Returns the flight info status summary for a registration, ident, or fa_flight_id. If a fa_flight_id is specified then a maximum of 1 flight is returned, unless the flight has been diverted in which case both the original flight and any diversions will be returned with a duplicate fa_flight_id. If a registration or ident is specified, approximately 14 days of recent and scheduled flight information is returned, ordered by `scheduled_out` (or `scheduled_off` if `scheduled_out` is missing) descending. Alternately, specify a start and end parameter to find your flight(s) of interest, including up to 10 days of flight history. Required: ident. Optional: ident_type, start, end (plus 2 more).",
+      "method": "GET",
+      "path": "/flights/{ident}",
+      "params": [
+        {
+          "name": "ident",
+          "type": "string",
+          "location": "path",
+          "description": "The ident, registration, or fa_flight_id to fetch.",
+          "required": true
+        },
+        {
+          "name": "ident_type",
+          "type": "string",
+          "location": "query",
+          "description": "Type of ident provided in the ident parameter."
+        },
+        {
+          "name": "start",
+          "type": "string",
+          "location": "query",
+          "description": "The starting date range for flight results, comparing against flights' `scheduled_out` field (or `scheduled_off` if `scheduled_out` is missing). The format is ISO8601 date or datetime, and the bound is inclusive. Specified start date must be no further than 10 days in the past and 2 days in the future. If not specified, will default to departures starting approximately 11 days in the past. If using date instead of datetime, the time will default to 00:00:00Z."
+        },
+        {
+          "name": "end",
+          "type": "string",
+          "location": "query",
+          "description": "The ending date range for flight results, comparing against flights' `scheduled_out` field (or `scheduled_off` if `scheduled_out` is missing). The format is ISO8601 date or datetime, and the bound is exclusive. Specified end date must be no further than 10 days in the past and 2 days in the future. If not specified, will default to departures starting approximately 2 days in the future. If using date instead of datetime, the time will default to 00:00:00Z."
+        },
+        {
+          "name": "max_pages",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum number of pages to fetch."
+        },
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "Opaque value used to get the next batch of data from a paged collection."
+        }
+      ]
+    },
+    {
+      "name": "flights_get-by-advanced-search",
+      "description": "Returns currently or recently airborne flights based on geospatial search parameters. Query parameters include a latitude/longitude box, aircraft ident with wildcards, type with wildcards, prefix, origin airport, destination airport, origin or destination airport, groundspeed, and altitude. It takes search terms in a single string comprising of {operator key value} elements and returns an array of flight structures. Each search term must be enclosed in curly braces. Multiple search terms can be combined in an implicit boolean 'and' by separating the terms with at least one space. This function only searches flight data representing approximately the last 24 hours. Codeshares and alternate idents are NOT searched when matching against the ident key. The supported operators include (note that operators take different numbers of arguments): * false - results must have the specified boolean key set to a value of false. Example: {false arrived} * true - results must have the specified boolean key set to a value of true. Example: {true lifeguard} * null - results must have the specified key set to a null value. Example: {null waypoints} * notnull - results must have the specified key not set to a null value. Example: {notnull aircraftType} * = - results must have a key that exactly matches the specified value. Example: {= aircraftType C172} * != - results must have a key that must not match the specified value. Example: {!= prefix H} * \u003c - results must have a key that is lexicographically less-than a specified value. Example: {\u003c arrivalTime 1276811040} * \u003e - results must have a key that is lexicographically greater-than a specified value. Example: {\u003e speed 500} * \u003c= - results must have a key that is lexicographically less-than-or-equal-to a specified value. Example: {\u003c= alt 8000} * \u003e= - results must have a key that is lexicographically greater-than-or-equal-to a specified value. * match - results must have a key that matches against a case-insensitive wildcard pattern. Example: {match ident AAL*} * notmatch - results must have a key that does not match against a case-insensitive wildcard pattern. Example: {notmatch aircraftType B76*} * range - results must have a key that is numerically between the two specified values. Example: {range alt 8000 20000} * in - results must have a key that exactly matches one of the specified values. Example: {in orig {KLAX KBUR KSNA KLGB}} * orig_or_dest - results must have either the origin or destination key exactly match one of the specified values. Example: {orig_or_dest {KLAX KBUR KSNA KLGB}} * airline - results will only include airline flight if the argument is 1, or will only include GA flights if the argument is 0. Example: {airline 1} * aircraftType - results must have an aircraftType key that matches one of the specified case-insensitive wildcard patterns. Example: {aircraftType {B76* B77*}} * ident - results must have an ident key that matches one of the specified case-insensitive wildcard patterns. Example: {ident {N123* N456* AAL* UAL*}} * ident_or_reg - results must have an ident key or was known to be operated by an aircraft registration that matches one of the specified case-insensitive wildcard patterns. Example: {ident_or_reg {N123* N456* AAL* UAL*}} The supported key names include (note that not all of these key names are returned in the result structure, and some have slightly different names): * actualDepartureTime - Actual time of departure, or null if not departed yet. UNIX epoch timestamp seconds since 1970 * aircraftType - aircraft type ID (for example: B763) * alt - altitude at last reported position (hundreds of feet or Flight Level) * altChange - altitude change indication (for example: 'C' if climbing, 'D' if descending, and empty if it is level) * arrivalTime - Actual time of arrival, or null if not arrived yet. UNIX epoch timestamp seconds since 1970 * arrived - true if the flight has arrived at its destination. * cancelled - true if the flight has been cancelled. The meaning of cancellation is that the flight is no longer being tracked by FlightAware. There are a number of reasons a flight may be cancelled including cancellation by the airline, but that will not always be the case. * cdt - Controlled Departure Time, set if there is a ground hold on the flight. UNIX epoch timestamp seconds since 1970 * clock - Time of last received position. UNIX epoch timestamp seconds since 1970 * cta - Controlled Time of Arrival, set if there is a ground hold on the flight. UNIX epoch timestamp seconds since 1970 * dest - ICAO airport code of destination (for example: KLAX) * edt - Estimated Departure Time. Epoch timestamp seconds since 1970 * eta - Estimated Time of Arrival. Epoch timestamp seconds since 1970 * fdt - Field Departure Time. UNIX epoch timestamp seconds since 1970 * firstPositionTime - Time when first reported position was received, or 0 if no position has been received yet. Epoch timestamp seconds since 1970 * fixes - intersections and/or VORs along the route (for example: SLS AMERO ARTOM VODIR NOTOS ULAPA ACA NUXCO OLULA PERAS ALIPO UPN GDL KEDMA BRISA CUL PERTI CEN PPE ALTAR ASUTA JLI RONLD LAADY WYVIL OLDEE RAL PDZ ARNES BASET WELLZ CIVET) * fp - unique identifier assigned by FlightAware for this flight, aka fa_flight_id. * gs - ground speed at last reported position, in kts. * heading - direction of travel at last reported position. * hiLat - highest latitude travelled by flight. * hiLon - highest longitude travelled by flight. * ident - flight identifier or registration of aircraft. * lastPositionTime - Time when last reported position was received, or 0 if no position has been received yet. Epoch timestamp seconds since 1970. * lat - latitude of last reported position. * lifeguard - true if a 'lifeguard' rescue flight. * lon - longitude of last reported position. * lowLat - lowest latitude travelled by flight. * lowLon - lowest longitude travelled by flight. * ogta - Original Time of Arrival. UNIX epoch timestamp seconds since 1970 * ogtd - Original Time of Departure. UNIX epoch timestamp seconds since 1970 * orig - ICAO airport code of origin (for example: KIAH) * physClass - physical class (for example: J is jet) * prefix - A one or two character identifier prefix code (common values: G or GG Medevac, L Lifeguard, A Air Taxi, H Heavy, M Medium). * speed - ground speed, in kts. * status - Single letter code for current flight status, can be S Scheduled, F Filed, A Active, Z Completed, or X Cancelled. * updateType - data source of last position (P=projected, O=oceanic, Z=radar, A=ADS-B, M=multilateration, D=datalink, X=surface and near surface (ADS-B and ASDE-X), S=space-based). * waypoints - all of the intersections and VORs comprising the route. Optional: query, max_pages (default: 1), cursor.",
+      "method": "GET",
+      "path": "/flights/search/advanced",
+      "params": [
+        {
+          "name": "query",
+          "type": "string",
+          "location": "query",
+          "description": "Query to search for airborne or recently arrived flights. It should not exceed 1000 bytes in length. Search criteria is only applied to the most recent position for a flight. This function only searches flights within approximately the last 24 hours. The supported operators include (note that operators take different numbers of arguments): * false - results must have the specified boolean key set to a value of false. Example: {false arrived} * true - results must have the specified boolean key set to a value of true. Example: {true lifeguard} * null - results must have the specified key set to a null value. Example: {null waypoints} * notnull - results must have the specified key not set to a null value. Example: {notnull aircraftType} * = - results must have a key that exactly matches the specified value. Example: {= aircraftType C172} * != - results must have a key that must not match the specified value. Example: {!= prefix H} * \u003c - results must have a key that is lexicographically less-than a specified value. Example: {\u003c arrivalTime 1276811040} * \u003e - results must have a key that is lexicographically greater-than a specified value. Example: {\u003e speed 500} * \u003c= - results must have a key that is lexicographically less-than-or-equal-to a specified value. Example: {\u003c= alt 8000} * \u003e= - results must have a key that is lexicographically greater-than-or-equal-to a specified value. * match - results must have a key that matches against a case-insensitive wildcard pattern. Example: {match ident AAL*} * notmatch - results must have a key that does not match against a case-insensitive wildcard pattern. Example: {notmatch aircraftType B76*} * range - results must have a key that is numerically between the two specified values. Example: {range alt 8000 20000} * in - results must have a key that exactly matches one of the specified values. Example: {in orig {KLAX KBUR KSNA KLGB}} * orig_or_dest - results must have either the origin or destination key exactly match one of the specified values. Example: {orig_or_dest {KLAX KBUR KSNA KLGB}} * airline - results will only include airline flight if the argument is 1, or will only include GA flights if the argument is 0. Example: {airline 1} * aircraftType - results must have an aircraftType key that matches one of the specified case-insensitive wildcard patterns. Example: {aircraftType {B76* B77*}} * ident - results must have an ident key that matches one of the specified case-insensitive wildcard patterns. Example: {ident {N123* N456* AAL* UAL*}} * ident_or_reg - results must have an ident key or was known to be operated by an aircraft registration that matches one of the specified case-insensitive wildcard patterns. Example: {ident_or_reg {N123* N456* AAL* UAL*}} The supported key names include (note that not all of these key names are returned in the result structure, and some have slightly different names): * actualDepartureTime - Actual time of departure, or null if not departed yet. UNIX epoch timestamp seconds since 1970 * aircraftType - aircraft type ID (for example: B763) * alt - altitude at last reported position (hundreds of feet or Flight Level) * altChange - altitude change indication (for example: 'C' if climbing, 'D' if descending, and empty if it is level) * arrivalTime - Actual time of arrival, or null if not arrived yet. UNIX epoch timestamp seconds since 1970 * arrived - true if the flight has arrived at its destination. * cancelled - true if the flight has been cancelled. The meaning of cancellation is that the flight is no longer being tracked by FlightAware. There are a number of reasons a flight may be cancelled including cancellation by the airline, but that will not always be the case. * cdt - Controlled Departure Time, set if there is a ground hold on the flight. UNIX epoch timestamp seconds since 1970 * clock - Time of last received position. UNIX epoch timestamp seconds since 1970 * cta - Controlled Time of Arrival, set if there is a ground hold on the flight. UNIX epoch timestamp seconds since 1970 * dest - ICAO airport code of destination (for example: KLAX) * edt - Estimated Departure Time. Epoch timestamp seconds since 1970 * eta - Estimated Time of Arrival. Epoch timestamp seconds since 1970 * fdt - Field Departure Time. UNIX epoch timestamp seconds since 1970 * firstPositionTime - Time when first reported position was received, or 0 if no position has been received yet. Epoch timestamp seconds since 1970 * fixes - intersections and/or VORs along the route (for example: SLS AMERO ARTOM VODIR NOTOS ULAPA ACA NUXCO OLULA PERAS ALIPO UPN GDL KEDMA BRISA CUL PERTI CEN PPE ALTAR ASUTA JLI RONLD LAADY WYVIL OLDEE RAL PDZ ARNES BASET WELLZ CIVET) * fp - unique identifier assigned by FlightAware for this flight, aka fa_flight_id. * gs - ground speed at last reported position, in kts. * heading - direction of travel at last reported position. * hiLat - highest latitude travelled by flight. * hiLon - highest longitude travelled by flight. * ident - flight identifier or registration of aircraft. * lastPositionTime - Time when last reported position was received, or 0 if no position has been received yet. Epoch timestamp seconds since 1970. * lat - latitude of last reported position. * lifeguard - true if a 'lifeguard' rescue flight. * lon - longitude of last reported position. * lowLat - lowest latitude travelled by flight. * lowLon - lowest longitude travelled by flight. * ogta - Original Time of Arrival. UNIX epoch timestamp seconds since 1970 * ogtd - Original Time of Departure. UNIX epoch timestamp seconds since 1970 * orig - ICAO airport code of origin (for example: KIAH) * physClass - physical class (for example: J is jet) * prefix - A one or two character identifier prefix code (common values: G or GG Medevac, L Lifeguard, A Air Taxi, H Heavy, M Medium). * speed - ground speed, in kts. * status - Single letter code for current flight status, can be S Scheduled, F Filed, A Active, Z Completed, or X Cancelled. * updateType - data source of last position (P=projected, O=oceanic, Z=radar, A=ADS-B, M=multilateration, D=datalink, X=surface and near surface (ADS-B and ASDE-X), S=space-based). * waypoints - all of the intersections and VORs comprising the route"
+        },
+        {
+          "name": "max_pages",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum number of pages to fetch."
+        },
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "Opaque value used to get the next batch of data from a paged collection."
+        }
+      ]
+    },
+    {
+      "name": "flights_get-by-position-search",
+      "description": "Returns flight positions based on geospatial search parameters. This allows you to locate flights that have ever flown within a specific a latitude/longitude box, groundspeed, and altitude. It takes search terms in a single string comprising of {operator key value} elements and returns an array of flight structures. Each search term must be enclosed in curly braces. Multiple search terms can be combined in an implicit boolean 'and' by separating the terms with at least one space. This function only searches flight data representing approximately the last 24 hours. The supported operators include (note that operators take different numbers of arguments): * false - results must have the specified boolean key set to a value of false. Example: {false preferred} * true - results must have the specified boolean key set to a value of true. Example: {true preferred} * null - results must have the specified key set to a null value. Example: {null waypoints} * notnull - results must have the specified key not set to a null value. Example: {notnull aircraftType} * = - results must have a key that exactly matches the specified value. Example: {= fp C172} * != - results must have a key that must not match the specified value. Example: {!= prefix H} * \u003c - results must have a key that is lexicographically less-than a specified value. Example: {\u003c arrivalTime 1276811040} * \u003e - results must have a key that is lexicographically greater-than a specified value. Example: {\u003e speed 500} * \u003c= - results must have a key that is lexicographically less-than-or-equal-to a specified value. Example: {\u003c= alt 8000} * \u003e= - results must have a key that is lexicographically greater-than-or-equal-to a specified value. * match - results must have a key that matches against a case-insensitive wildcard pattern. Example: {match ident AAL*} * notmatch - results must have a key that does not match against a case-insensitive wildcard pattern. Example: {notmatch aircraftType B76*} * range - results must have a key that is numerically between the two specified values. Example: {range alt 8000 20000} * in - results must have a key that exactly matches one of the specified values. Example: {in orig {KLAX KBUR KSNA KLGB}} The supported key names include (note that not all of these key names are returned in the result structure, and some have slightly different names): * alt - Altitude, measured in hundreds of feet or Flight Level. * altChange - a one-character code indicating the change in altitude. * cid - a three-character cid code * clock - UNIX epoch timestamp seconds since 1970 * fp - unique identifier assigned by FlightAware for this flight, aka fa_flight_id. * gs - ground speed, measured in kts. * lat - latitude of the reported position. * lon - longitude of the reported position * updateType - source of the last reported position (P=projected, O=oceanic, Z=radar, A=ADS-B, M=multilateration, D=datalink, X=surface and near surface (ADS-B and ASDE-X), S=space-based). Optional: query, unique_flights (default: false), max_pages (default: 1) (plus 1 more).",
+      "method": "GET",
+      "path": "/flights/search/positions",
+      "params": [
+        {
+          "name": "query",
+          "type": "string",
+          "location": "query",
+          "description": "Query to search for flight positions. It should not exceed 1000 bytes in length. Search criteria is applied against all positions of a flight. This function only searches flights within approximately the last 24 hours. The supported operators include (note that operators take different numbers of arguments): * false - results must have the specified boolean key set to a value of false. Example: {false preferred} * true - results must have the specified boolean key set to a value of true. Example: {true preferred} * null - results must have the specified key set to a null value. Example: {null waypoints} * notnull - results must have the specified key not set to a null value. Example: {notnull aircraftType} * = - results must have a key that exactly matches the specified value. Example: {= fp C172} * != - results must have a key that must not match the specified value. Example: {!= prefix H} * \u003c - results must have a key that is lexicographically less-than a specified value. Example: {\u003c arrivalTime 1276811040} * \u003e - results must have a key that is lexicographically greater-than a specified value. Example: {\u003e speed 500} * \u003c= - results must have a key that is lexicographically less-than-or-equal-to a specified value. Example: {\u003c= alt 8000} * \u003e= - results must have a key that is lexicographically greater-than-or-equal-to a specified value. * match - results must have a key that matches against a case-insensitive wildcard pattern. Example: {match ident AAL*} * notmatch - results must have a key that does not match against a case-insensitive wildcard pattern. Example: {notmatch aircraftType B76*} * range - results must have a key that is numerically between the two specified values. Example: {range alt 8000 20000} * in - results must have a key that exactly matches one of the specified values. Example: {in orig {KLAX KBUR KSNA KLGB}} The supported key names include (note that not all of these key names are returned in the result structure, and some have slightly different names): * alt - Altitude, measured in hundreds of feet or Flight Level. * altChange - a one-character code indicating the change in altitude. * altMax - Altitude, measured in hundreds of feet or Flight Level. * cid - a three-character cid code * cidfac - a four-character cidfac code * clock - UNIX epoch timestamp seconds since 1970 * fp - unique identifier assigned by FlightAware for this flight, aka fa_flight_id. * gs - ground speed, measured in kts. * lat - latitude of the reported position. * lon - longitude of the reported position * preferred - boolean indicator of position quality * recvd - UNIX epoch timestamp seconds since 1970 * updateType - source of the last reported position (P=projected, O=oceanic, Z=radar, A=ADS-B, M=multilateration, D=datalink, X=surface and near surface (ADS-B and ASDE-X), S=space-based)"
+        },
+        {
+          "name": "unique_flights",
+          "type": "bool",
+          "location": "query",
+          "description": "Whether to return only a single position per unique fa_flight_id."
+        },
+        {
+          "name": "max_pages",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum number of pages to fetch."
+        },
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "Opaque value used to get the next batch of data from a paged collection."
+        }
+      ]
+    },
+    {
+      "name": "flights_get-by-search",
+      "description": "Search for airborne flights by matching against various parameters including geospatial data. Uses a simplified query syntax compared to /flights/search/advanced. Optional: query, max_pages (default: 1), cursor. Returns array of FlightsGetBySearchItem.",
+      "method": "GET",
+      "path": "/flights/search",
+      "params": [
+        {
+          "name": "query",
+          "type": "string",
+          "location": "query",
+          "description": "Query to search for flights with a simplified syntax (compared to /flights/search/advanced). It should not exceed 1000 bytes in length. Query syntax allows filtering by latitude/longitude box, aircraft ident with wildcards, type with wildcards, prefix, origin airport, destination airport, origin or destination airport, groundspeed, and altitude. It takes search terms in a single string comprising '-key value' pairs. Codeshares and alternate idents are NOT searched when using the -idents clause. Keys include: * `-prefix STRING` * `-type STRING` * `-idents STRING` * `-identOrReg STRING` * `-airline STRING` * `-destination STRING` * `-origin STRING` * `-originOrDestination STRING` * `-aboveAltitude INTEGER` * `-belowAltitude INTEGER` * `-aboveGroundspeed INTEGER` * `-belowGroundspeed INTEGER` * `-latlong 'MINLAT MINLON MAXLAT MAXLON'` * `-filter {ga|airline}`"
+        },
+        {
+          "name": "max_pages",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum number of pages to fetch."
+        },
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "Opaque value used to get the next batch of data from a paged collection."
+        }
+      ]
+    },
+    {
+      "name": "flights_get-count-by-search",
+      "description": "Full search query documentation is available at the /flights/search endpoint. Optional: query. Returns the FlightsGetCountBySearchResponse.",
+      "method": "GET",
+      "path": "/flights/search/count",
+      "params": [
+        {
+          "name": "query",
+          "type": "string",
+          "location": "query",
+          "description": "Query to search for flights with a simplified syntax (compared to /flights/search/advanced). It should not exceed 1000 bytes in length. Query syntax allows filtering by latitude/longitude box, aircraft ident with wildcards, type with wildcards, prefix, origin airport, destination airport, origin or destination airport, groundspeed, and altitude. It takes search terms in a single string comprising '-key value' pairs. Codeshares and alternate idents are NOT searched when using the -idents clause. Keys include: * `-prefix STRING` * `-type STRING` * `-idents STRING` * `-identOrReg STRING` * `-airline STRING` * `-destination STRING` * `-origin STRING` * `-originOrDestination STRING` * `-aboveAltitude INTEGER` * `-belowAltitude INTEGER` * `-aboveGroundspeed INTEGER` * `-belowGroundspeed INTEGER` * `-latlong 'MINLAT MINLON MAXLAT MAXLON'`"
+        }
+      ]
+    },
+    {
+      "name": "flights_canonical_get-flights",
+      "description": "When the ident parameter is a code that could map to multiple other codes, this endpoint returns an array of information about all the possible codes. An optional ident type and country code can be provided to refine ambiguous idents to a single result. The ident type should either be designator or registration to describe the ident being passed in. The country code should represent a country the operator of the flight operates within. Required: ident. Optional: ident_type, country_code.",
+      "method": "GET",
+      "path": "/flights/{ident}/canonical",
+      "params": [
+        {
+          "name": "ident",
+          "type": "string",
+          "location": "path",
+          "description": "The flight designator or aircraft registration",
+          "required": true
+        },
+        {
+          "name": "ident_type",
+          "type": "string",
+          "location": "query",
+          "description": "Type of ident provided in the ident parameter"
+        },
+        {
+          "name": "country_code",
+          "type": "string",
+          "location": "query",
+          "description": "An ISO 3166-1 alpha-2 country code."
+        }
+      ]
+    },
+    {
+      "name": "flights_intents_post-flights-by-ident",
+      "description": "This operation informs FlightAware of an upcoming (or recently departed) flight. This information is used solely by FlightAware for improving the accuracy of flight tracking. This method does not transmit to any ANSP/ATC facility for flight separation or operational services. Access to this endpoint requires special account authorization. The FlightAware account must also be subscribed to FlightAware Global and the specified registration or ident must be on the Global account. Required: ident, aircraft_type, destination, intended_off, intended_on, origin. Optional: airspeed, altitude, route.",
+      "method": "POST",
+      "path": "/flights/{ident}/intents",
+      "params": [
+        {
+          "name": "ident",
+          "type": "string",
+          "location": "path",
+          "description": "The ident or registration of the Flight Intent",
+          "required": true
+        },
+        {
+          "name": "aircraft_type",
+          "type": "string",
+          "location": "body",
+          "description": "Aircraft type ICAO code.",
+          "required": true
+        },
+        {
+          "name": "airspeed",
+          "type": "int",
+          "location": "body",
+          "description": "Cruising airspeed (knots)."
+        },
+        {
+          "name": "altitude",
+          "type": "int",
+          "location": "body",
+          "description": "Cruising altitude (feet)."
+        },
+        {
+          "name": "destination",
+          "type": "string",
+          "location": "body",
+          "description": "Destination airport ICAO code or LID.",
+          "required": true
+        },
+        {
+          "name": "intended_off",
+          "type": "string",
+          "location": "body",
+          "description": "Intended runway departure time of flight. This must be within 2 hours of the actual departure time or the flight intent will be ignored. Time may not be more than 1 hour in the past or 48 hours in the future.",
+          "required": true
+        },
+        {
+          "name": "intended_on",
+          "type": "string",
+          "location": "body",
+          "description": "Intended runway arrival time of flight.",
+          "required": true
+        },
+        {
+          "name": "origin",
+          "type": "string",
+          "location": "body",
+          "description": "Origin airport ICAO code or LID.",
+          "required": true
+        },
+        {
+          "name": "route",
+          "type": "string",
+          "location": "body",
+          "description": "Flight route as a series of space-separate waypoints."
+        }
+      ]
+    },
+    {
+      "name": "flights_map_get-flight",
+      "description": "Returns a flight's track as a base64-encoded image. Image can contain a variety of additional data layers beyond just the track. Data from up to 10 days ago can be obtained. If looking for older data, please use the corresponding historical endpoint. Required: id. Optional: height (default: 480), width (default: 640), layer_on (plus 5 more).",
+      "method": "GET",
+      "path": "/flights/{id}/map",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "The fa_flight_id to fetch.",
+          "required": true
+        },
+        {
+          "name": "height",
+          "type": "int",
+          "location": "query",
+          "description": "Height of requested image (pixels)"
+        },
+        {
+          "name": "width",
+          "type": "int",
+          "location": "query",
+          "description": "Width of requested image (pixels)"
+        },
+        {
+          "name": "layer_on",
+          "type": "array",
+          "location": "query",
+          "description": "List of map layers to enable"
+        },
+        {
+          "name": "layer_off",
+          "type": "array",
+          "location": "query",
+          "description": "List of map layers to disable"
+        },
+        {
+          "name": "show_data_block",
+          "type": "bool",
+          "location": "query",
+          "description": "Whether a textual caption containing the ident, type, heading, altitude, origin, and destination should be displayed by the flight's position."
+        },
+        {
+          "name": "airports_expand_view",
+          "type": "bool",
+          "location": "query",
+          "description": "Whether to force zoom area to ensure origin/destination airports are visible. Enabling this flag forcefully enables the show_airports flag as well."
+        },
+        {
+          "name": "show_airports",
+          "type": "bool",
+          "location": "query",
+          "description": "Whether to show the origin/destination airports for the flight as labeled points on the map."
+        },
+        {
+          "name": "bounding_box",
+          "type": "array",
+          "location": "query",
+          "description": "Manually specify the zoom area of the map using custom bounds. Should be a list of 4 coordinates representing the top, right, bottom, and left sides of the area (in that order)."
+        }
+      ]
+    },
+    {
+      "name": "flights_position_get-flight",
+      "description": "Returns the latest position for a flight. Required: id.",
+      "method": "GET",
+      "path": "/flights/{id}/position",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "The fa_flight_id to fetch.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "flights_route_get-flight",
+      "description": "Returns information about a flight's filed route including coordinates, names, and types of fixes along the route. Not all flight routes can be successfully decoded by this endpoint, particularly if the flight is not entirely within the continental U.S. airspace, since this function only has access to navaids within that area. If data on a waypoint is missing then the type will be listed as 'UNKNOWN'. Data from up to 10 days ago can be obtained. If looking for older data, please use the corresponding historical endpoint. Required: id.",
+      "method": "GET",
+      "path": "/flights/{id}/route",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "The fa_flight_id to fetch.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "flights_track_get-flight",
+      "description": "Returns the track for a flight as an array of positions. Data from up to 10 days ago can be obtained. If looking for older data, please use the corresponding historical endpoint. Required: id. Optional: include_estimated_positions.",
+      "method": "GET",
+      "path": "/flights/{id}/track",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "The fa_flight_id to fetch.",
+          "required": true
+        },
+        {
+          "name": "include_estimated_positions",
+          "type": "bool",
+          "location": "query",
+          "description": "Whether to include estimated positions in the flight track"
+        }
+      ]
+    },
+    {
+      "name": "foresight_get-flight-position-with",
+      "description": "Get flight's current position, including Foresight data. Required: id. Returns the ForesightGetFlightPositionWithResponse.",
+      "method": "GET",
+      "path": "/foresight/flights/{id}/position",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "The fa_flight_id to fetch.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "foresight_get-flight-with",
+      "description": "Returns the flight info status summary for a registration, ident, or fa_flight_id, including all available predicted fields. If a fa_flight_id is specified then a maximum of 1 flight is returned, unless the flight has been diverted in which case both the original flight and any diversions will be returned with a duplicate fa_flight_id. Required: ident. Optional: ident_type, start, end (plus 2 more).",
+      "method": "GET",
+      "path": "/foresight/flights/{ident}",
+      "params": [
+        {
+          "name": "ident",
+          "type": "string",
+          "location": "path",
+          "description": "The ident, registration, or fa_flight_id to fetch.",
+          "required": true
+        },
+        {
+          "name": "ident_type",
+          "type": "string",
+          "location": "query",
+          "description": "Type of ident provided in the ident parameter."
+        },
+        {
+          "name": "start",
+          "type": "string",
+          "location": "query",
+          "description": "The starting date range for flight results, comparing against flights' `scheduled_out` field (or `scheduled_off` if `scheduled_out` is missing). The format is ISO8601 date or datetime, and the bound is inclusive. Specified start date must be no further than 10 days in the past and 2 days in the future. If not specified, will default to departures starting approximately 11 days in the past. If using date instead of datetime, the time will default to 00:00:00Z."
+        },
+        {
+          "name": "end",
+          "type": "string",
+          "location": "query",
+          "description": "The ending date range for flight results, comparing against flights' `scheduled_out` field (or `scheduled_off` if `scheduled_out` is missing). The format is ISO8601 date or datetime, and the bound is exclusive. Specified end date must be no further than 10 days in the past and 2 days in the future. If not specified, will default to departures starting approximately 2 days in the future. If using date instead of datetime, the time will default to 00:00:00Z."
+        },
+        {
+          "name": "max_pages",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum number of pages to fetch."
+        },
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "Opaque value used to get the next batch of data from a paged collection."
+        }
+      ]
+    },
+    {
+      "name": "foresight_get-flights-by-advanced-search-with",
+      "description": "Returns currently or recently airborne flights based on geospatial search parameters. If available, flights' predicted OOOI fields will be set. Optional: query, max_pages (default: 1), cursor.",
+      "method": "GET",
+      "path": "/foresight/flights/search/advanced",
+      "params": [
+        {
+          "name": "query",
+          "type": "string",
+          "location": "query",
+          "description": "Query to search for airborne or recently arrived flights. It should not exceed 1000 bytes in length. Search criteria is only applied to the most recent position for a flight. This function only searches flights within approximately the last 24 hours. The supported operators include (note that operators take different numbers of arguments): * false - results must have the specified boolean key set to a value of false. Example: {false arrived} * true - results must have the specified boolean key set to a value of true. Example: {true lifeguard} * null - results must have the specified key set to a null value. Example: {null waypoints} * notnull - results must have the specified key not set to a null value. Example: {notnull aircraftType} * = - results must have a key that exactly matches the specified value. Example: {= aircraftType C172} * != - results must have a key that must not match the specified value. Example: {!= prefix H} * \u003c - results must have a key that is lexicographically less-than a specified value. Example: {\u003c arrivalTime 1276811040} * \u003e - results must have a key that is lexicographically greater-than a specified value. Example: {\u003e speed 500} * \u003c= - results must have a key that is lexicographically less-than-or-equal-to a specified value. Example: {\u003c= alt 8000} * \u003e= - results must have a key that is lexicographically greater-than-or-equal-to a specified value. * match - results must have a key that matches against a case-insensitive wildcard pattern. Example: {match ident AAL*} * notmatch - results must have a key that does not match against a case-insensitive wildcard pattern. Example: {notmatch aircraftType B76*} * range - results must have a key that is numerically between the two specified values. Example: {range alt 8000 20000} * in - results must have a key that exactly matches one of the specified values. Example: {in orig {KLAX KBUR KSNA KLGB}} * orig_or_dest - results must have either the origin or destination key exactly match one of the specified values. Example: {orig_or_dest {KLAX KBUR KSNA KLGB}} * airline - results will only include airline flight if the argument is 1, or will only include GA flights if the argument is 0. Example: {airline 1} * aircraftType - results must have an aircraftType key that matches one of the specified case-insensitive wildcard patterns. Example: {aircraftType {B76* B77*}} * ident - results must have an ident key that matches one of the specified case-insensitive wildcard patterns. Example: {ident {N123* N456* AAL* UAL*}} * ident_or_reg - results must have an ident key or was known to be operated by an aircraft registration that matches one of the specified case-insensitive wildcard patterns. Example: {ident_or_reg {N123* N456* AAL* UAL*}} The supported key names include (note that not all of these key names are returned in the result structure, and some have slightly different names): * actualDepartureTime - Actual time of departure, or null if not departed yet. UNIX epoch timestamp seconds since 1970 * aircraftType - aircraft type ID (for example: B763) * alt - altitude at last reported position (hundreds of feet or Flight Level) * altChange - altitude change indication (for example: 'C' if climbing, 'D' if descending, and empty if it is level) * arrivalTime - Actual time of arrival, or null if not arrived yet. UNIX epoch timestamp seconds since 1970 * arrived - true if the flight has arrived at its destination. * cancelled - true if the flight has been cancelled. The meaning of cancellation is that the flight is no longer being tracked by FlightAware. There are a number of reasons a flight may be cancelled including cancellation by the airline, but that will not always be the case. * cdt - Controlled Departure Time, set if there is a ground hold on the flight. UNIX epoch timestamp seconds since 1970 * clock - Time of last received position. UNIX epoch timestamp seconds since 1970 * cta - Controlled Time of Arrival, set if there is a ground hold on the flight. UNIX epoch timestamp seconds since 1970 * dest - ICAO airport code of destination (for example: KLAX) * edt - Estimated Departure Time. Epoch timestamp seconds since 1970 * eta - Estimated Time of Arrival. Epoch timestamp seconds since 1970 * fdt - Field Departure Time. UNIX epoch timestamp seconds since 1970 * firstPositionTime - Time when first reported position was received, or 0 if no position has been received yet. Epoch timestamp seconds since 1970 * fixes - intersections and/or VORs along the route (for example: SLS AMERO ARTOM VODIR NOTOS ULAPA ACA NUXCO OLULA PERAS ALIPO UPN GDL KEDMA BRISA CUL PERTI CEN PPE ALTAR ASUTA JLI RONLD LAADY WYVIL OLDEE RAL PDZ ARNES BASET WELLZ CIVET) * fp - unique identifier assigned by FlightAware for this flight, aka fa_flight_id. * gs - ground speed at last reported position, in kts. * heading - direction of travel at last reported position. * hiLat - highest latitude travelled by flight. * hiLon - highest longitude travelled by flight. * ident - flight identifier or registration of aircraft. * lastPositionTime - Time when last reported position was received, or 0 if no position has been received yet. Epoch timestamp seconds since 1970. * lat - latitude of last reported position. * lifeguard - true if a 'lifeguard' rescue flight. * lon - longitude of last reported position. * lowLat - lowest latitude travelled by flight. * lowLon - lowest longitude travelled by flight. * ogta - Original Time of Arrival. UNIX epoch timestamp seconds since 1970 * ogtd - Original Time of Departure. UNIX epoch timestamp seconds since 1970 * orig - ICAO airport code of origin (for example: KIAH) * physClass - physical class (for example: J is jet) * prefix - A one or two character identifier prefix code (common values: G or GG Medevac, L Lifeguard, A Air Taxi, H Heavy, M Medium). * speed - ground speed, in kts. * status - Single letter code for current flight status, can be S Scheduled, F Filed, A Active, Z Completed, or X Cancelled. * updateType - data source of last position (P=projected, O=oceanic, Z=radar, A=ADS-B, M=multilateration, D=datalink, X=surface and near surface (ADS-B and ASDE-X), S=space-based). * waypoints - all of the intersections and VORs comprising the route"
+        },
+        {
+          "name": "max_pages",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum number of pages to fetch."
+        },
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "Opaque value used to get the next batch of data from a paged collection."
+        }
+      ]
+    },
+    {
+      "name": "history_get-aircraft-last-flight",
+      "description": "Returns flight info status summary for an aircraft's last known flight given its registration. The search is limited to flights flown since January 1, 2011. On a successful response, the body will contain a flights array with only 1 element. If a user queries a registration with it's last known flight before January 1, 2011, an empty flights array will be returned. Required: registration.",
+      "method": "GET",
+      "path": "/history/aircraft/{registration}/last_flight",
+      "params": [
+        {
+          "name": "registration",
+          "type": "string",
+          "location": "path",
+          "description": "The registration number of the aircraft to fetch",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "history_get-flight",
+      "description": "Returns historical flight info status summary for a registration, ident, or fa_flight_id. If a fa_flight_id is specified then a maximum of 1 flight is returned, unless the flight has been diverted in which case both the original flight and any diversions will be returned with a duplicate fa_flight_id. If a registraion or ident is specified then a start_date and end_date must be specified. The span between start_date and end_date can be up to 7 days. No more than 40 pages may be requested at once. Data is available from now back to 2011-01-01 00:00:00 UTC. The field `inbound_fa_flight_id` will not be populated by this resource. Required: ident. Optional: ident_type, start, end (plus 2 more).",
+      "method": "GET",
+      "path": "/history/flights/{ident}",
+      "params": [
+        {
+          "name": "ident",
+          "type": "string",
+          "location": "path",
+          "description": "The ident, registration, or fa_flight_id to fetch.",
+          "required": true
+        },
+        {
+          "name": "ident_type",
+          "type": "string",
+          "location": "query",
+          "description": "Type of ident provided in the ident parameter."
+        },
+        {
+          "name": "start",
+          "type": "string",
+          "location": "query",
+          "description": "The starting date range for flight results, comparing against flights' `scheduled_out` field (or `scheduled_off` if `scheduled_out` is missing). The format is ISO8601 date or datetime, and the bound is inclusive. Specified start date must occur on or after 2011-01-01 00:00:00 UTC and cannot be in the future. If using date instead of datetime, the time will default to 00:00:00Z."
+        },
+        {
+          "name": "end",
+          "type": "string",
+          "location": "query",
+          "description": "The ending date range for flight results, comparing against flights' `scheduled_out` field (or `scheduled_off` if `scheduled_out` is missing). The format is ISO8601 date or datetime, and the bound is exclusive. Specified end date must occur after 2011-01-01 00:00:00 UTC and cannot be in the future. If using date instead of datetime, the time will default to 00:00:00Z."
+        },
+        {
+          "name": "max_pages",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum number of pages to fetch."
+        },
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "Opaque value used to get the next batch of data from a paged collection."
+        }
+      ]
+    },
+    {
+      "name": "history_get-flight-map",
+      "description": "Returns a historical flight's track as a base64-encoded image. Image can contain a variety of additional data layers beyond just the track. Data is available from now back to 2011-01-01T00:00:00Z. Required: id. Optional: height (default: 480), width (default: 640), layer_on (plus 5 more).",
+      "method": "GET",
+      "path": "/history/flights/{id}/map",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "The fa_flight_id to fetch",
+          "required": true
+        },
+        {
+          "name": "height",
+          "type": "int",
+          "location": "query",
+          "description": "Height of requested image (pixels)"
+        },
+        {
+          "name": "width",
+          "type": "int",
+          "location": "query",
+          "description": "Width of requested image (pixels)"
+        },
+        {
+          "name": "layer_on",
+          "type": "array",
+          "location": "query",
+          "description": "List of map layers to enable"
+        },
+        {
+          "name": "layer_off",
+          "type": "array",
+          "location": "query",
+          "description": "List of map layers to disable"
+        },
+        {
+          "name": "show_data_block",
+          "type": "bool",
+          "location": "query",
+          "description": "Whether a textual caption containing the ident, type, heading, altitude, origin, and destination should be displayed by the flight's position."
+        },
+        {
+          "name": "airports_expand_view",
+          "type": "bool",
+          "location": "query",
+          "description": "Whether to force zoom area to ensure origin/destination airports are visible. Enabling this flag forcefully enables the show_airports flag as well."
+        },
+        {
+          "name": "show_airports",
+          "type": "bool",
+          "location": "query",
+          "description": "Whether to show the origin/destination airports for the flight as labeled points on the map."
+        },
+        {
+          "name": "bounding_box",
+          "type": "array",
+          "location": "query",
+          "description": "Manually specify the zoom area of the map using custom bounds. Should be a list of 4 coordinates representing the top, right, bottom, and left sides of the area (in that order)."
+        }
+      ]
+    },
+    {
+      "name": "history_get-flight-route",
+      "description": "Returns information about a historical flight's filed route including coordinates, names, and types of fixes along the route. Not all flight routes can be successfully decoded by this endpoint, particularly if the flight is not entirely within the continental U.S. airspace, since this function only has access to navaids within that area. If data on a waypoint is missing then the type will be listed as 'UNKNOWN'. Data is available from now back to 2011-01-01T00:00:00Z. Required: id.",
+      "method": "GET",
+      "path": "/history/flights/{id}/route",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "The fa_flight_id to fetch",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "history_get-flight-track",
+      "description": "Returns the track for a historical flight as an array of positions. Data is available from now back to 2011-01-01T00:00:00Z. Required: id. Optional: include_estimated_positions.",
+      "method": "GET",
+      "path": "/history/flights/{id}/track",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "The fa_flight_id to fetch",
+          "required": true
+        },
+        {
+          "name": "include_estimated_positions",
+          "type": "bool",
+          "location": "query",
+          "description": "Whether to include estimated positions in the flight track"
+        }
+      ]
+    },
+    {
+      "name": "operators_get",
+      "description": "Returns information for an operator such as their name, ICAO/IATA codes, headquarter location, etc. Required: id.",
+      "method": "GET",
+      "path": "/operators/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "The ICAO or IATA identifier for an operator.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "operators_get-all",
+      "description": "Returns list of operator references (ICAO/IATA codes and URLs to access more information). Optional: max_pages (default: 1), cursor.",
+      "method": "GET",
+      "path": "/operators",
+      "params": [
+        {
+          "name": "max_pages",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum number of pages to fetch."
+        },
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "Opaque value used to get the next batch of data from a paged collection."
+        }
+      ]
+    },
+    {
+      "name": "operators_canonical_get-operators",
+      "description": "Returns all possible matches for a given operator code (ICAO or IATA). An optional country code can be provided to refine ambiguous IATA codes to a single result. The country code should represent a country the operator operates within. Required: id. Optional: country_code.",
+      "method": "GET",
+      "path": "/operators/{id}/canonical",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "The ICAO or IATA identifier for an operator.",
+          "required": true
+        },
+        {
+          "name": "country_code",
+          "type": "string",
+          "location": "query",
+          "description": "An ISO 3166-1 alpha-2 country code."
+        }
+      ]
+    },
+    {
+      "name": "operators_flights_get-operator",
+      "description": "Returns all recent and upcoming flights for this operator. Behaviour for optional start and end dates for each type returned (`scheduled`, `arrivals`, `enroute`) match the behaviour in their corresponding endpoints. Required: id. Optional: start, end, max_pages (default: 1) (plus 1 more).",
+      "method": "GET",
+      "path": "/operators/{id}/flights",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "The ICAO or IATA identifier for an operator.",
+          "required": true
+        },
+        {
+          "name": "start",
+          "type": "string",
+          "location": "query",
+          "description": "The starting date range for flight results."
+        },
+        {
+          "name": "end",
+          "type": "string",
+          "location": "query",
+          "description": "The ending date range for flight results."
+        },
+        {
+          "name": "max_pages",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum number of pages to fetch."
+        },
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "Opaque value used to get the next batch of data from a paged collection."
+        }
+      ]
+    },
+    {
+      "name": "operators_flights_get-operator-arrived",
+      "description": "Returns flights for this operator that have departed and subsequently arrived, ordered by `actual_on` descending. The optional start and end parameters will be compared against `actual_on` to limit the flights returned. The start parameter's default value is 24 hours before the current time. The end parameter's default value is the current time. Required: id. Optional: start, end, max_pages (default: 1) (plus 1 more).",
+      "method": "GET",
+      "path": "/operators/{id}/flights/arrivals",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "The ICAO or IATA identifier for an operator.",
+          "required": true
+        },
+        {
+          "name": "start",
+          "type": "string",
+          "location": "query",
+          "description": "The starting date range for flight results."
+        },
+        {
+          "name": "end",
+          "type": "string",
+          "location": "query",
+          "description": "The ending date range for flight results."
+        },
+        {
+          "name": "max_pages",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum number of pages to fetch."
+        },
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "Opaque value used to get the next batch of data from a paged collection."
+        }
+      ]
+    },
+    {
+      "name": "operators_flights_get-operator-count",
+      "description": "Returns counts of both airborne and recently operated flights for operator. Required: id.",
+      "method": "GET",
+      "path": "/operators/{id}/flights/counts",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "The ICAO or IATA identifier for an operator.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "operators_flights_get-operator-enroute",
+      "description": "Returns flights for this operator that have departed and are currently en route, ordered by `estimated_on` ascending. The optional start and end parameters will be compared against `estimated_on` to limit the flights returned. The start parameter's default value is 48 hours before the current time (this accounts for delayed flights). There is no default end bound. Required: id. Optional: start, end, max_pages (default: 1) (plus 1 more).",
+      "method": "GET",
+      "path": "/operators/{id}/flights/enroute",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "The ICAO or IATA identifier for an operator.",
+          "required": true
+        },
+        {
+          "name": "start",
+          "type": "string",
+          "location": "query",
+          "description": "The starting date range for flight results."
+        },
+        {
+          "name": "end",
+          "type": "string",
+          "location": "query",
+          "description": "The ending date range for flight results."
+        },
+        {
+          "name": "max_pages",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum number of pages to fetch."
+        },
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "Opaque value used to get the next batch of data from a paged collection."
+        }
+      ]
+    },
+    {
+      "name": "operators_flights_get-operator-scheduled",
+      "description": "Returns flights for this operator that are scheduled to depart or have recently been cancelled, ordered by `estimated_off` (or `scheduled_off` if `estimated_off` is missing) ascending. The optional start and end parameters will be compared against `scheduled_off` to limit the flights returned. If start is not specified, flights with a `scheduled_off` or cancellation time no further than two hours into the past will be returned. If end is not specified, there is no guaranteed bound for how far in the future scheduled flights will be returned (it will typically be around 48 hours in the future for commercial flights, though). Required: id. Optional: start, end, max_pages (default: 1) (plus 1 more).",
+      "method": "GET",
+      "path": "/operators/{id}/flights/scheduled",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "The ICAO or IATA identifier for an operator.",
+          "required": true
+        },
+        {
+          "name": "start",
+          "type": "string",
+          "location": "query",
+          "description": "The starting date range for flight results."
+        },
+        {
+          "name": "end",
+          "type": "string",
+          "location": "query",
+          "description": "The ending date range for flight results."
+        },
+        {
+          "name": "max_pages",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum number of pages to fetch."
+        },
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "Opaque value used to get the next batch of data from a paged collection."
+        }
+      ]
+    },
+    {
+      "name": "schedules_get-by-date",
+      "description": "Returns scheduled flights that have been published by airlines. These schedules are available for up to three months in the past as well as one year into the future. Required: date_start, date_end. Optional: origin, destination, airline (plus 5 more).",
+      "method": "GET",
+      "path": "/schedules/{date_start}/{date_end}",
+      "params": [
+        {
+          "name": "date_start",
+          "type": "string",
+          "location": "path",
+          "description": "Datetime or date of earliest scheduled flight departure to return. This must be no earlier than 3 months in the past and cannot be more than 3 weeks before date_end. Violating either constraint will result in an error. If using date instead of datetime, then the time will default to 00:00:00Z.",
+          "required": true
+        },
+        {
+          "name": "date_end",
+          "type": "string",
+          "location": "path",
+          "description": "Datetime or date of latest scheduled flight departure to return. This must be no later than 1 year in the future and cannot be more than 3 weeks after date_start. Violating either constraint will result in an error. If using date instead of datetime, then the time will default to 00:00:00Z. Thus, the next day's date should be specified if one day of data is desired when using date instead of datetime.",
+          "required": true
+        },
+        {
+          "name": "origin",
+          "type": "string",
+          "location": "query",
+          "description": "Only return flights with this origin airport. ICAO or IATA airport codes can be provided."
+        },
+        {
+          "name": "destination",
+          "type": "string",
+          "location": "query",
+          "description": "Only return flights with this destination airport. ICAO or IATA airport codes can be provided."
+        },
+        {
+          "name": "airline",
+          "type": "string",
+          "location": "query",
+          "description": "Only return flights flown by this carrier. ICAO or IATA carrier codes can be provided."
+        },
+        {
+          "name": "flight_number",
+          "type": "int",
+          "location": "query",
+          "description": "Only return flights with this flight number."
+        },
+        {
+          "name": "include_codeshares",
+          "type": "bool",
+          "location": "query",
+          "description": "Flag indicating whether ticketing codeshares should be returned as well."
+        },
+        {
+          "name": "include_regional",
+          "type": "bool",
+          "location": "query",
+          "description": "Flag indicating whether regional codeshares should be returned as well."
+        },
+        {
+          "name": "max_pages",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum number of pages to fetch."
+        },
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "Opaque value used to get the next batch of data from a paged collection."
+        }
+      ]
+    }
+  ]
+}

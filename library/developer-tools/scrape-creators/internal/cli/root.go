@@ -5,7 +5,7 @@ package cli
 
 import (
 	"bytes"
-	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"os"
@@ -14,11 +14,13 @@ import (
 	"time"
 
 	"github.com/mvanhorn/printing-press-library/library/developer-tools/scrape-creators/internal/client"
+	"github.com/mvanhorn/printing-press-library/library/developer-tools/scrape-creators/internal/cliutil"
 	"github.com/mvanhorn/printing-press-library/library/developer-tools/scrape-creators/internal/config"
 	"github.com/spf13/cobra"
+	"github.com/spf13/pflag"
 )
 
-var version = "2026.6.1"
+var version = "2026.7.1"
 
 type rootFlags struct {
 	asJSON        bool
@@ -33,10 +35,12 @@ type rootFlags struct {
 	agent         bool
 	selectFields  string
 	configPath    string
+	homePath      string
 	profileName   string
 	deliverSpec   string
 	timeout       time.Duration
 	rateLimit     float64
+	maxAge        time.Duration
 	dataSource    string
 	freshnessMeta any
 
@@ -59,13 +63,23 @@ func Execute() error {
 	rootCmd := newRootCmd(&flags)
 
 	err := rootCmd.Execute()
+	if errors.Is(err, pflag.ErrHelp) {
+		return nil
+	}
 	if err != nil && strings.Contains(err.Error(), "unknown flag") {
 		msg := err.Error()
 		// Extract the flag name from the error message (e.g., "unknown flag: --foob")
 		if idx := strings.Index(msg, "unknown flag: "); idx >= 0 {
 			flagStr := strings.TrimSpace(msg[idx+len("unknown flag: "):])
 			if suggestion := suggestFlag(flagStr, rootCmd); suggestion != "" {
-				return fmt.Errorf("%w\nhint: did you mean --%s?", err, suggestion)
+				// Cobra already printed `Error: unknown flag: --foob` before
+				// returning; the wrap below attaches the hint to err.Error()
+				// for downstream consumers and exit-code classification, but
+				// would never reach stderr now that main.go no longer prints
+				// err. Emit the hint explicitly so the suggestion still
+				// shows up under Cobra's error line.
+				fmt.Fprintf(os.Stderr, "hint: did you mean --%s?\n", suggestion)
+				err = fmt.Errorf("%w\nhint: did you mean --%s?", err, suggestion)
 			}
 		}
 	}
@@ -75,29 +89,74 @@ func Execute() error {
 			return derr
 		}
 	}
+	if err != nil && isCobraUsageError(err) {
+		// Cobra/pflag pre-RunE errors (unknown flag, unknown command,
+		// missing required, etc.) never flow through usageErr() because
+		// they originate inside rootCmd.Execute() before any user RunE
+		// runs. Without this wrap, ExitCode() falls through to the
+		// default and emits 1 — clobbering the conventional code-2 for
+		// usage errors that the helpers.go contract already promises.
+		return usageErr(err)
+	}
 	return err
+}
+
+// isCobraUsageError reports whether err matches one of Cobra/pflag's
+// pre-RunE usage-error shapes. Detection is by message prefix to match
+// the same approach the unknown-flag hint path uses above; neither
+// Cobra nor pflag exports typed sentinels for these.
+//
+// Patterns are anchored to the literal punctuation Cobra and pflag
+// emit so an application's own RunE error that happens to contain the
+// substring "required flag" or "invalid argument" doesn't get
+// misclassified as a usage error.
+//
+// Patterns covered (Cobra v1.x + pflag v1.x as of 2026-05):
+//   - "unknown flag: --foo"                            (pflag)
+//   - "unknown shorthand flag: 'x' in -x"              (pflag)
+//   - "unknown command \"foo\" for ..."                (Cobra)
+//   - "required flag \"foo\" not set"                  (Cobra, single missing)
+//   - "required flag(s) \"foo\" not set"               (Cobra, multiple missing)
+//   - "flag needs an argument: --foo"                  (pflag, missing value)
+//   - "invalid argument \"x\" for \"--y\" flag: ..."   (pflag, parse failure)
+//
+// Cobra emits the singular form ("required flag") when exactly one
+// MarkFlagRequired flag is missing, and the plural form ("required
+// flag(s)") only when multiple are missing on the same command. Both
+// shapes must be anchored to avoid matching app-level errors that
+// happen to mention "required flag" as prose; the trailing space + quote
+// (`required flag "`) is the literal punctuation cobra emits.
+//
+// Returns false for nil err.
+func isCobraUsageError(err error) bool {
+	if err == nil {
+		return false
+	}
+	msg := err.Error()
+	return strings.HasPrefix(msg, "unknown flag") ||
+		strings.HasPrefix(msg, "unknown shorthand flag") ||
+		strings.HasPrefix(msg, "unknown command") ||
+		strings.HasPrefix(msg, `required flag "`) ||
+		strings.HasPrefix(msg, `required flag(s) "`) ||
+		strings.HasPrefix(msg, "flag needs an argument:") ||
+		strings.HasPrefix(msg, `invalid argument "`)
 }
 
 func newRootCmd(flags *rootFlags) *cobra.Command {
 	rootCmd := &cobra.Command{
 		Use:   "scrape-creators-pp-cli",
-		Short: `Scrape Creators CLI — Every Scrape Creators endpoint, plus offline search, cross-platform compounding, and a local store no other Scrape Crea…`,
-		Long: `Scrape Creators CLI — Every Scrape Creators endpoint, plus offline search, cross-platform compounding, and a local store no other Scrape Crea…
+		Short: `Scrape Creators CLI — Every Scrape Creators endpoint across 28 platforms, plus a local store with offline transcript search, cross-platform j…`,
+		Long: `Scrape Creators CLI — Every Scrape Creators endpoint across 28 platforms, plus a local store with offline transcript search, cross-platform j…
 
 Highlights (not in the official API docs):
-  • creator find   Given a single handle, see which of 11+ platforms the creator is on, with follo…
-  • trends triangulate   Snapshot a hashtag or keyword on TikTok, YouTube, Reddit, and Threads in one ca…
-  • transcripts search   FTS5-indexed search across all transcripts you've synced — TikTok, YouTube, Ins…
-  • ads search   Search Facebook, Google, and LinkedIn ad libraries in one query — see every ad …
-  • content spikes   Find videos that performed significantly above a creator's average — the ones t…
-  • profile compare   Compare two or more creators side-by-side on follower count, engagement rate, p…
-  • profile track   Snapshot a creator's follower count daily across every platform; chart their gr…
-  • content cadence   See when a creator posts — by day of week and hour — across every platform you'…
-  • content analyze   Rank a creator's synced content by engagement rate (not raw likes) so you see t…
-  • trends delta   Track whether a hashtag is growing or shrinking by comparing video counts acros…
-  • ads monitor   Snapshot a brand's ads on Facebook, Google, and LinkedIn into SQLite; on rerun,…
-  • bio resolve   Paste any linktree.ee, komi.io, pillar.io, linkbio, or linkme URL and get the u…
-  • account budget   See how fast you're spending API credits and how many days remain at current pa…
+  • creator find   Given one handle, see which of 12 creator platforms the creator is on with follower counts side-by-side.
+  • creator compare   Compare two or more creators side-by-side on follower count, engagement rate, and content volume.
+  • content spikes   Surface the videos that performed far above a creator's own baseline — the ones that actually went viral.
+  • transcripts search   FTS5 full-text search across every transcript you've synced — YouTube, TikTok, Instagram, Facebook, LinkedIn, and Rumble.
+  • trends triangulate   Snapshot a hashtag or topic across platforms in one call to see which platform it is biggest on.
+  • creator track   Append a follower snapshot per run on a chosen platform, then read the growth trajectory over time.
+  • ads monitor   Snapshot a brand's live ads across Facebook, TikTok, Google, and LinkedIn ad libraries; on rerun, diff new ads vs. ones that disappeared.
+  • account budget   See how fast you're spending API credits and how many days remain at the current pace, computed from the API's credit balance and daily usage history.
 
 Agent mode: add --agent to any command for JSON output + non-interactive mode.
 Health check: run 'scrape-creators-pp-cli doctor' to verify auth and connectivity.
@@ -113,7 +172,8 @@ See README.md or the bundled SKILL.md for recipes.`,
 	rootCmd.PersistentFlags().BoolVar(&flags.plain, "plain", false, "Output as plain tab-separated text")
 	rootCmd.PersistentFlags().BoolVar(&flags.quiet, "quiet", false, "Bare output, one value per line")
 	rootCmd.PersistentFlags().StringVar(&flags.configPath, "config", "", "Config file path")
-	rootCmd.PersistentFlags().DurationVar(&flags.timeout, "timeout", 30*time.Second, "Request timeout")
+	rootCmd.PersistentFlags().StringVar(&flags.homePath, "home", "", "Root directory for config, data, state, and cache files")
+	rootCmd.PersistentFlags().DurationVar(&flags.timeout, "timeout", 60*time.Second, "Request timeout")
 	rootCmd.PersistentFlags().BoolVar(&flags.dryRun, "dry-run", false, "Show request without sending")
 	rootCmd.PersistentFlags().BoolVar(&flags.noCache, "no-cache", false, "Bypass response cache")
 	rootCmd.PersistentFlags().BoolVar(&flags.noInput, "no-input", false, "Disable all interactive prompts (for CI/agents)")
@@ -123,11 +183,15 @@ See README.md or the bundled SKILL.md for recipes.`,
 	rootCmd.PersistentFlags().BoolVar(&humanFriendly, "human-friendly", false, "Enable colored output and rich formatting")
 	rootCmd.PersistentFlags().BoolVar(&flags.agent, "agent", false, "Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)")
 	rootCmd.PersistentFlags().StringVar(&flags.dataSource, "data-source", "auto", "Data source for read commands: auto (live with local fallback), live (API only), local (synced data only)")
+	rootCmd.PersistentFlags().DurationVar(&flags.maxAge, "max-age", 30*time.Minute, "Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables")
 	rootCmd.PersistentFlags().StringVar(&flags.profileName, "profile", "", "Apply values from a saved profile (see 'scrape-creators-pp-cli profile list')")
 	rootCmd.PersistentFlags().StringVar(&flags.deliverSpec, "deliver", "", "Route output to a sink: stdout (default), file:<path>, webhook:<url>")
 	rootCmd.PersistentFlags().Float64Var(&flags.rateLimit, "rate-limit", 0, "Max requests per second (0 to disable)")
 
 	rootCmd.PersistentPreRunE = func(cmd *cobra.Command, args []string) error {
+		if _, err := cliutil.SetHomeOverride(flags.homePath); err != nil {
+			return err
+		}
 		if flags.deliverSpec != "" {
 			sink, err := ParseDeliverSink(flags.deliverSpec)
 			if err != nil {
@@ -180,16 +244,19 @@ See README.md or the bundled SKILL.md for recipes.`,
 		}
 		return nil
 	}
-	accountCmd := newAccountCmd(flags)
-	accountCmd.AddCommand(newAccountBudgetCmd(flags))
-	rootCmd.AddCommand(accountCmd)
+	rootCmd.AddCommand(newAccountCmd(flags))
 	rootCmd.AddCommand(newBlueskyCmd(flags))
 	rootCmd.AddCommand(newFacebookCmd(flags))
+	rootCmd.AddCommand(newGithubCmd(flags))
 	rootCmd.AddCommand(newGoogleCmd(flags))
 	rootCmd.AddCommand(newInstagramCmd(flags))
+	rootCmd.AddCommand(newKwaiCmd(flags))
 	rootCmd.AddCommand(newLinkedinCmd(flags))
 	rootCmd.AddCommand(newPinterestCmd(flags))
 	rootCmd.AddCommand(newRedditCmd(flags))
+	rootCmd.AddCommand(newRumbleCmd(flags))
+	rootCmd.AddCommand(newSoundcloudCmd(flags))
+	rootCmd.AddCommand(newSpotifyCmd(flags))
 	rootCmd.AddCommand(newThreadsCmd(flags))
 	rootCmd.AddCommand(newTiktokCmd(flags))
 	rootCmd.AddCommand(newTruthsocialCmd(flags))
@@ -202,13 +269,16 @@ See README.md or the bundled SKILL.md for recipes.`,
 	rootCmd.AddCommand(newProfileCmd(flags))
 	rootCmd.AddCommand(newFeedbackCmd(flags))
 	rootCmd.AddCommand(newWhichCmd(flags))
-	rootCmd.AddCommand(newExportCmd(flags))
-	rootCmd.AddCommand(newImportCmd(flags))
 	rootCmd.AddCommand(newSearchCmd(flags))
 	rootCmd.AddCommand(newSyncCmd(flags))
 	rootCmd.AddCommand(newTailCmd(flags))
 	rootCmd.AddCommand(newAnalyticsCmd(flags))
 	rootCmd.AddCommand(newWorkflowCmd(flags))
+	rootCmd.AddCommand(newNovelAdsCmd(flags))
+	rootCmd.AddCommand(newNovelContentCmd(flags))
+	rootCmd.AddCommand(newNovelCreatorCmd(flags))
+	rootCmd.AddCommand(newNovelTranscriptsCmd(flags))
+	rootCmd.AddCommand(newNovelTrendsCmd(flags))
 	rootCmd.AddCommand(newAPICmd(flags))
 	rootCmd.AddCommand(newAmazonPromotedCmd(flags))
 	rootCmd.AddCommand(newDetectAgeGenderPromotedCmd(flags))
@@ -219,17 +289,7 @@ See README.md or the bundled SKILL.md for recipes.`,
 	rootCmd.AddCommand(newLinktreePromotedCmd(flags))
 	rootCmd.AddCommand(newPillarPromotedCmd(flags))
 	rootCmd.AddCommand(newSnapchatPromotedCmd(flags))
-	rootCmd.AddCommand(newVersionCliCmd())
-
-	// Hand-written transcendence commands. Registered after generator
-	// emits so we can layer cross-platform compounding on top of the
-	// typed endpoint surface.
-	rootCmd.AddCommand(newCreatorCmd(flags))
-	rootCmd.AddCommand(newContentCmd(flags))
-	rootCmd.AddCommand(newTranscriptsCmd(flags))
-	rootCmd.AddCommand(newAdsCmd(flags))
-	rootCmd.AddCommand(newBioCmd(flags))
-	rootCmd.AddCommand(newTrendsCmd(flags))
+	rootCmd.AddCommand(newVersionCmd())
 
 	return rootCmd
 }
@@ -254,9 +314,7 @@ func (f *rootFlags) newClient() (*client.Client, error) {
 }
 
 func (f *rootFlags) printJSON(w *cobra.Command, v any) error {
-	enc := json.NewEncoder(w.OutOrStdout())
-	enc.SetIndent("", "  ")
-	return enc.Encode(v)
+	return printJSONFiltered(w.OutOrStdout(), v, f)
 }
 
 func (f *rootFlags) printTable(w *cobra.Command, headers []string, rows [][]string) error {
@@ -283,14 +341,4 @@ func (f *rootFlags) printTable(w *cobra.Command, headers []string, rows [][]stri
 		fmt.Fprintln(tw, line)
 	}
 	return tw.Flush()
-}
-
-func newVersionCliCmd() *cobra.Command {
-	return &cobra.Command{
-		Use:   "version",
-		Short: "Print version",
-		Run: func(cmd *cobra.Command, args []string) {
-			fmt.Printf("scrape-creators-pp-cli %s\n", version)
-		},
-	}
 }

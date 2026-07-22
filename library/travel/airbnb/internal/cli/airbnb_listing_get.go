@@ -38,6 +38,17 @@ func newAirbnbListingGetCmd(flags *rootFlags) *cobra.Command {
 			if err != nil {
 				return classifyAPIError(err)
 			}
+			// PATCH: best-effort persist the scraped listing and, when a real
+			// price was scraped for these dates, a price snapshot. The
+			// snapshot write is guarded on total > 0 inside
+			// persistPriceSnapshot, so an unavailable SSR price is never
+			// recorded as a $0 total. Store errors never degrade the result.
+			if db := openScrapeStore(cmd.Context()); db != nil {
+				defer db.Close()
+				persistAirbnbListing(db, listing)
+				total, fees := airbnbTotals(listing)
+				persistPriceSnapshot(db, listing.ID, "airbnb", flagCheckin, flagCheckout, total, fees)
+			}
 			return printJSONFiltered(cmd.OutOrStdout(), listing, flags)
 		},
 	}

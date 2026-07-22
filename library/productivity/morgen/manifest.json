@@ -1,0 +1,39 @@
+{
+  "manifest_version": "0.3",
+  "name": "morgen-pp-mcp",
+  "display_name": "Morgen",
+  "version": "4.16.0",
+  "description": "Morgen calendar & tasks API CLI — unified access to calendars, events, tasks, and tags across connected providers",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/morgen-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/morgen-pp-mcp",
+      "args": [],
+      "env": {
+        "MORGEN_API_KEY": "${user_config.morgen_api_key}"
+      }
+    }
+  },
+  "user_config": {
+    "morgen_api_key": {
+      "type": "string",
+      "title": "MORGEN_API_KEY",
+      "description": "Sets MORGEN_API_KEY for the Morgen MCP server.",
+      "sensitive": true,
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

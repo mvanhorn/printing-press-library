@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "slug": "dreaming",
+  "cli_name": "dreaming-pp-cli",
+  "version": "2026.7.1",
+  "released_at": "2026-07-20T19:40:20Z",
+  "source_commit": "f7a99796ef74eabb55d6d76ecc294d2cf56bec9c",
+  "printing_press_version": "4.24.0",
+  "run_id": "20260618T050021Z-649b15eb",
+  "changes": [
+    {
+      "title": "feat(dreaming): add dreaming",
+      "pr": 1442,
+      "url": "https://github.com/mvanhorn/printing-press-library/pull/1442",
+      "commit": "f7a99796ef74eabb55d6d76ecc294d2cf56bec9c"
+    }
+  ]
+}

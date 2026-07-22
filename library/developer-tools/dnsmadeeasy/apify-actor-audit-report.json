@@ -1,0 +1,9 @@
+{
+  "dir": "\u003ccli-dir\u003e/dnsmadeeasy-pp-cli",
+  "research_dir": "\u003ccli-dir\u003e/20260709-145756-391a5493",
+  "verdict": "pass",
+  "actors": null,
+  "issues": [
+    "no Apify actor references found, skipping"
+  ]
+}

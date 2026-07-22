@@ -4,6 +4,7 @@
   "printing_press_version": "4.13.0",
   "api_name": "hotel-goat",
   "display_name": "Google Hotels",
+  "catalog_display_name": "Hotel GOAT",
   "cli_name": "hotel-goat-pp-cli",
   "creator": {
     "handle": "kothari-nikunj",

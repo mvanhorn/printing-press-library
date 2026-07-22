@@ -1,0 +1,300 @@
+name: ticktick
+description: "TickTick CLI — tasks, habits, focus, and corruption-proof daily notes via the V2 API"
+version: "0.1.0"
+base_url: "https://api.ticktick.com/api/v2"
+category: productivity
+health_check_path: "/user/profile"
+required_headers:
+  - name: User-Agent
+    value: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36"
+
+auth:
+  type: api_key
+  header: "Cookie"
+  format: "t={token}"
+  in: header
+  env_vars:
+    - TICKTICK_SESSION_TOKEN
+
+config:
+  format: toml
+  path: "~/.config/ticktick-pp-cli/config.toml"
+
+resources:
+  tasks:
+    description: "Tasks — all uncompleted tasks via the V2 sync surface, single-task get, and batch mutations"
+    endpoints:
+      list:
+        method: GET
+        path: "/batch/check/0"
+        description: "List all uncompleted tasks (from the V2 sync check)"
+        example: "  ticktick-pp-cli tasks list --json --select title,dueDate"
+        response:
+          type: array
+          item: Task
+        response_path: syncTaskBean.update
+      get:
+        method: GET
+        path: "/task/{taskId}"
+        description: "Get a single task by id (full JSON incl. kind, etag, childIds)"
+        params:
+          - name: taskId
+            type: string
+            required: true
+            positional: true
+            description: "Task id"
+          - name: projectId
+            type: string
+            required: true
+            description: "Project id the task belongs to"
+        response:
+          type: object
+          item: Task
+      batch:
+        method: POST
+        path: "/batch/task"
+        description: "Batch create/update/delete tasks (arrays of task objects; updates must carry id, projectId, etag and must NOT include kind)"
+        body:
+          properties:
+            add:
+              type: array
+              description: "Task objects to create (JSON array)"
+              items:
+                type: object
+            update:
+              type: array
+              description: "Task objects to update (JSON array; carry id/projectId/etag, never kind)"
+              items:
+                type: object
+            delete:
+              type: array
+              description: "Task refs to delete (JSON array of {taskId, projectId})"
+              items:
+                type: object
+        response:
+          type: object
+          item: BatchResult
+
+  projects:
+    description: "Projects (lists)"
+    endpoints:
+      list:
+        method: GET
+        path: "/projects"
+        description: "List all projects"
+        response:
+          type: array
+          item: Project
+
+  completed:
+    description: "Completed task history"
+    endpoints:
+      list:
+        method: GET
+        path: "/project/all/completed"
+        description: "Completed tasks in a date window"
+        example: "  ticktick-pp-cli completed list --from \"2026-07-01 00:00:00\" --to \"2026-07-07 23:59:59\" --json"
+        params:
+          - name: from
+            type: string
+            description: "Window start (YYYY-MM-DD HH:MM:SS)"
+          - name: to
+            type: string
+            description: "Window end (YYYY-MM-DD HH:MM:SS)"
+          - name: limit
+            type: int
+            default: 100
+            description: "Max completed tasks to return"
+        response:
+          type: array
+          item: Task
+
+  habits:
+    description: "Habits and habit checkins"
+    endpoints:
+      list:
+        method: GET
+        path: "/habits"
+        description: "List all habits"
+        response:
+          type: array
+          item: Habit
+      checkins:
+        method: POST
+        path: "/habitCheckins/query"
+        description: "Query habit checkins after a date stamp"
+        body:
+          properties:
+            habitIds:
+              type: array
+              required: true
+              description: "Habit ids to query (JSON array of strings)"
+              items:
+                type: string
+            afterStamp:
+              type: int
+              required: true
+              description: "Date stamp lower bound, YYYYMMDD as integer (e.g. 20260630)"
+        response:
+          type: object
+          item: CheckinMap
+      checkin:
+        method: POST
+        path: "/habitCheckins/batch"
+        description: "Upsert habit checkins (batch add/update)"
+        body:
+          properties:
+            add:
+              type: array
+              description: "Checkin objects to create (JSON array: {habitId, checkinStamp, status, value})"
+              items:
+                type: object
+            update:
+              type: array
+              description: "Checkin objects to update (JSON array; carry id + habitId)"
+              items:
+                type: object
+        response:
+          type: object
+          item: BatchResult
+
+  focus:
+    description: "Focus / pomodoro records"
+    endpoints:
+      timeline:
+        method: GET
+        path: "/pomodoros/timeline"
+        description: "Focus and pomodoro records, most recent first"
+        params:
+          - name: to
+            type: string
+            description: "Only records before this timestamp (epoch millis; empty = latest)"
+        response:
+          type: array
+          item: FocusRecord
+
+  tags:
+    description: "Tags"
+    endpoints:
+      list:
+        method: GET
+        path: "/tags"
+        description: "List all tags"
+        response:
+          type: array
+          item: Tag
+
+  user:
+    description: "Account profile"
+    endpoints:
+      profile:
+        method: GET
+        path: "/user/profile"
+        description: "Authenticated user profile"
+        response:
+          type: object
+          item: UserProfile
+
+types:
+  Task:
+    fields:
+      - name: id
+        type: string
+      - name: projectId
+        type: string
+      - name: title
+        type: string
+      - name: content
+        type: string
+      - name: kind
+        type: string
+      - name: status
+        type: int
+      - name: priority
+        type: int
+      - name: startDate
+        type: string
+      - name: dueDate
+        type: string
+      - name: timeZone
+        type: string
+      - name: isAllDay
+        type: bool
+      - name: etag
+        type: string
+      - name: modifiedTime
+        type: string
+      - name: completedTime
+        type: string
+  Project:
+    fields:
+      - name: id
+        type: string
+      - name: name
+        type: string
+      - name: groupId
+        type: string
+      - name: kind
+        type: string
+      - name: closed
+        type: bool
+      - name: sortOrder
+        type: int
+  Habit:
+    fields:
+      - name: id
+        type: string
+      - name: name
+        type: string
+      - name: goal
+        type: float
+      - name: unit
+        type: string
+      - name: status
+        type: int
+      - name: totalCheckIns
+        type: int
+      - name: repeatRule
+        type: string
+  CheckinMap:
+    fields:
+      - name: checkins
+        type: string
+  FocusRecord:
+    fields:
+      - name: id
+        type: string
+      - name: startTime
+        type: string
+      - name: endTime
+        type: string
+      - name: status
+        type: int
+      - name: pauseDuration
+        type: int
+      - name: type
+        type: int
+  Tag:
+    fields:
+      - name: name
+        type: string
+      - name: label
+        type: string
+      - name: color
+        type: string
+      - name: sortOrder
+        type: int
+  UserProfile:
+    fields:
+      - name: username
+        type: string
+      - name: name
+        type: string
+      - name: locale
+        type: string
+  BatchResult:
+    fields:
+      - name: id2etag
+        type: string
+      - name: id2error
+        type: string

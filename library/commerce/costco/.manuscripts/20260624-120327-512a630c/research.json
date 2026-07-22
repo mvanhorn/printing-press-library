@@ -1,0 +1,235 @@
+{
+  "api_name": "costco",
+  "novelty_score": 0,
+  "alternatives": [
+    {
+      "name": "TCRDD",
+      "url": "https://github.com/TechStud/TCRDD",
+      "language": "JavaScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "Costco_Scraping",
+      "url": "https://github.com/dheerajW125/Costco_Scraping",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "costco-importer",
+      "url": "https://github.com/garyhtou/costco-importer",
+      "language": "JavaScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "CostcoWrapped",
+      "url": "https://github.com/GonzaloZiadi/CostcoWrapped",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-06-24T16:25:00Z",
+  "novel_features": [
+    {
+      "name": "History-depth probe",
+      "command": "history-depth",
+      "description": "Discover how far back your Costco receipts actually go, past the website's 2-year UI cap.",
+      "rationale": "The website date picker caps at 2 years, but the API accepts an arbitrary startDate; only stepping the range backward reveals the true server-side floor for your account.",
+      "example": "costco-pp-cli history-depth --json",
+      "why_it_matters": "Reach for this to answer 'can I get receipts older than two years' — it probes the live API boundary instead of trusting the UI.",
+      "group": "Reach past the UI"
+    },
+    {
+      "name": "Spend analytics",
+      "command": "spend",
+      "description": "Roll up your spend by month, warehouse, or department over a date range.",
+      "rationale": "Aggregates across many receipts and line items in one pass; no single Costco API call returns a rollup.",
+      "example": "costco-pp-cli spend --by month --json",
+      "why_it_matters": "Use when an agent needs spend totals or trends the website never computes.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Item price history",
+      "command": "item-history",
+      "description": "Track one item's unit price across every receipt over time.",
+      "rationale": "Correlates the same item across many receipts over time — something no single API response gives you.",
+      "example": "costco-pp-cli item-history \"rotisserie chicken\" --json",
+      "why_it_matters": "Pick this to see whether a recurring buy has crept up in price.",
+      "group": "Spend insight"
+    },
+    {
+      "name": "Instant savings captured",
+      "command": "savings",
+      "description": "Total the instant savings and coupons you captured over a date range.",
+      "rationale": "Sums instantSavings and coupon amounts across receipts; the UI never totals this.",
+      "example": "costco-pp-cli savings --since 2024-01-01 --json",
+      "why_it_matters": "Use to quantify how much Costco deals actually saved you.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Return-window watch",
+      "command": "returns-window",
+      "description": "Flag recently purchased items still inside a return window you set.",
+      "rationale": "Derived from local receipt dates; no API or UI surface lists items by return-eligibility.",
+      "example": "costco-pp-cli returns-window --days 90 --json",
+      "why_it_matters": "Reach for this to find what you can still return before a deadline.",
+      "group": "Local state that compounds"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "History-depth probe",
+      "command": "history-depth",
+      "description": "Discover how far back your Costco receipts actually go, past the website's 2-year UI cap.",
+      "rationale": "The website date picker caps at 2 years, but the API accepts an arbitrary startDate; only stepping the range backward reveals the true server-side floor for your account.",
+      "example": "costco-pp-cli history-depth --json",
+      "why_it_matters": "Reach for this to answer 'can I get receipts older than two years' — it probes the live API boundary instead of trusting the UI.",
+      "group": "Reach past the UI"
+    },
+    {
+      "name": "Spend analytics",
+      "command": "spend",
+      "description": "Roll up your spend by month, warehouse, or department over a date range.",
+      "rationale": "Aggregates across many receipts and line items in one pass; no single Costco API call returns a rollup.",
+      "example": "costco-pp-cli spend --by month --json",
+      "why_it_matters": "Use when an agent needs spend totals or trends the website never computes.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Item price history",
+      "command": "item-history",
+      "description": "Track one item's unit price across every receipt over time.",
+      "rationale": "Correlates the same item across many receipts over time — something no single API response gives you.",
+      "example": "costco-pp-cli item-history \"rotisserie chicken\" --json",
+      "why_it_matters": "Pick this to see whether a recurring buy has crept up in price.",
+      "group": "Spend insight"
+    },
+    {
+      "name": "Instant savings captured",
+      "command": "savings",
+      "description": "Total the instant savings and coupons you captured over a date range.",
+      "rationale": "Sums instantSavings and coupon amounts across receipts; the UI never totals this.",
+      "example": "costco-pp-cli savings --since 2024-01-01 --json",
+      "why_it_matters": "Use to quantify how much Costco deals actually saved you.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Return-window watch",
+      "command": "returns-window",
+      "description": "Flag recently purchased items still inside a return window you set.",
+      "rationale": "Derived from local receipt dates; no API or UI surface lists items by return-eligibility.",
+      "example": "costco-pp-cli returns-window --days 90 --json",
+      "why_it_matters": "Reach for this to find what you can still return before a deadline.",
+      "group": "Local state that compounds"
+    }
+  ],
+  "auth": {
+    "canonical_env_var": "COSTCO_ID_TOKEN"
+  },
+  "narrative": {
+    "display_name": "Costco",
+    "headline": "Your complete Costco receipt history as data — past the website's 2-year wall, in a local database the site never gives you.",
+    "value_prop": "Costco's site shows receipts in 6-month chunks up to 2 years, but the backend serves more. This CLI pulls in-warehouse, gas, and online purchase history over any date range, probes how far back your account actually goes with history-depth, computes spend and item-price-history analytics on the fly, and builds a local SQLite archive (sync) for offline SQL and search.",
+    "auth_narrative": "Costco's receipts API uses a short-lived bearer token (idToken) that your browser stores in localStorage after login. Capture it once from DevTools (localStorage.idToken and localStorage.clientID) and set it with auth set-token; the token expires in minutes, so doctor decodes its expiry and tells you when to refresh. No cookies or password are stored.",
+    "quickstart": [
+      {
+        "command": "costco-pp-cli doctor",
+        "comment": "Check token presence and JWT expiry before anything else"
+      },
+      {
+        "command": "costco-pp-cli history-depth",
+        "comment": "Find how far back the API actually serves your receipts"
+      },
+      {
+        "command": "costco-pp-cli receipts --since 2024-01-01",
+        "comment": "Pull in-warehouse receipts for a date range"
+      },
+      {
+        "command": "costco-pp-cli sync",
+        "comment": "Build the local SQLite archive for offline search and analytics"
+      },
+      {
+        "command": "costco-pp-cli spend --by month",
+        "comment": "Roll up spend the website never computes"
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "401 Invalid credentials",
+        "fix": "Token expired (idToken lives ~15 min). Re-copy localStorage.idToken from DevTools and run 'auth set-token'."
+      },
+      {
+        "symptom": "Empty receipts for a known period",
+        "fix": "Confirm the date range with --since/--until; the API returns the full account history, so widen the range with history-depth."
+      },
+      {
+        "symptom": "doctor says token expired",
+        "fix": "Refresh the idToken from a logged-in costco.com tab and re-run auth set-token."
+      }
+    ],
+    "when_to_use": "Use this CLI when an agent or user needs Costco purchase history as structured data: pulling receipts past the 2-year UI cap, archiving line items locally, computing spend or savings totals, or tracking an item's price over time. It is read-only and member-scoped.",
+    "anti_triggers": [
+      "Do not use this CLI to place or modify Costco orders — it is read-only.",
+      "Do not use it to browse the public product catalog or check prices for items you have not purchased.",
+      "Do not use it for membership signup, returns processing, or any account mutation."
+    ],
+    "recipes": [
+      {
+        "title": "Find your true history floor",
+        "command": "costco-pp-cli history-depth --json",
+        "explanation": "Steps startDate backward and reports the earliest receipt the API will serve for your account."
+      },
+      {
+        "title": "Export receipts to a spreadsheet",
+        "command": "costco-pp-cli receipts --since 2024-01-01 --csv",
+        "explanation": "Flat line-item CSV ready for budgeting tools."
+      },
+      {
+        "title": "Narrow a verbose receipt payload for an agent",
+        "command": "costco-pp-cli receipts --since 2025-01-01 --agent --select transactionDate,warehouseName,total",
+        "explanation": "Receipts list output is a flat array; --select trims each row to just the fields an agent needs."
+      },
+      {
+        "title": "See spend by warehouse",
+        "command": "costco-pp-cli spend --by warehouse --json",
+        "explanation": "Aggregates local receipts into per-warehouse spend totals."
+      },
+      {
+        "title": "What can I still return?",
+        "command": "costco-pp-cli returns-window --days 90 --json",
+        "explanation": "Lists recently bought items still inside a 90-day window from their receipt date."
+      }
+    ],
+    "trigger_phrases": [
+      "get my costco receipts",
+      "how far back do my costco receipts go",
+      "costco spend this year",
+      "costco receipt history past 2 years",
+      "export my costco purchases",
+      "use costco",
+      "run costco"
+    ]
+  }
+}

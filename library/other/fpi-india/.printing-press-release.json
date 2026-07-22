@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "slug": "fpi-india",
+  "cli_name": "fpi-india-pp-cli",
+  "version": "2026.7.1",
+  "released_at": "2026-07-20T16:30:48Z",
+  "source_commit": "e276eadd76ea58a925424300dcf7912463b70674",
+  "printing_press_version": "4.28.0",
+  "run_id": "20260709-234725-b9ef53f7",
+  "changes": [
+    {
+      "title": "feat(fpi-india): add fpi-india",
+      "pr": 1487,
+      "url": "https://github.com/mvanhorn/printing-press-library/pull/1487",
+      "commit": "e276eadd76ea58a925424300dcf7912463b70674"
+    }
+  ]
+}

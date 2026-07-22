@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "slug": "soccer-goat",
+  "cli_name": "soccer-goat-pp-cli",
+  "version": "2026.7.1",
+  "released_at": "2026-07-20T16:25:26Z",
+  "source_commit": "0616fc8aac824a7b2383b19c0e0f979a87912801",
+  "printing_press_version": "4.27.1",
+  "run_id": "20260712-074136",
+  "changes": [
+    {
+      "title": "fix(soccer-goat): survive Transfermarkt source outages (--base-url + failover)",
+      "pr": 1536,
+      "url": "https://github.com/mvanhorn/printing-press-library/pull/1536",
+      "commit": "0616fc8aac824a7b2383b19c0e0f979a87912801"
+    }
+  ]
+}

@@ -1,0 +1,120 @@
+openapi: 3.0.3
+info:
+  title: passage
+  version: 1.0.0
+  description: >
+    A contemplative daily reading practice. Federates open book sources into one
+    local SQLite corpus, keeps your reading log + reflection journal, and serves a
+    real public-domain passage to sit with each day. Open Library is the metadata
+    spine; Gutendex (Project Gutenberg) provides the actual texts.
+  x-cli-description: A contemplative daily reading practice with open book APIs as your library.
+  x-auth-instructions: >
+    No key required. Open Library, Gutendex, and Wikiquote are keyless; Google Books
+    works anonymously. Set GOOGLE_BOOKS_API_KEY only to lift the anonymous rate limit.
+servers:
+  - url: https://openlibrary.org
+    description: Open Library — search + works + authors (the metadata spine)
+paths:
+  /search.json:
+    get:
+      operationId: search
+      summary: Search books across Open Library
+      description: Full-text search over Open Library's catalog. Returns works with title, author, year, cover, and full-text availability.
+      parameters:
+        - name: q
+          in: query
+          required: true
+          schema: {type: string}
+          description: Search query (title, author, subject, or free text)
+        - name: fields
+          in: query
+          schema: {type: string}
+          description: "Comma-separated fields to return (e.g. key,title,author_name,first_publish_year,cover_i,has_fulltext). Use * for all."
+        - name: limit
+          in: query
+          schema: {type: integer}
+          description: Max results (default 20)
+        - name: page
+          in: query
+          schema: {type: integer}
+          description: Page number (1-based)
+        - name: sort
+          in: query
+          schema: {type: string}
+          description: "Sort order (e.g. new, old, rating, editions, readinglog)"
+      responses:
+        '200':
+          description: Search results
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  numFound: {type: integer}
+                  docs:
+                    type: array
+                    items: {$ref: '#/components/schemas/SearchDoc'}
+  /works/{workId}.json:
+    get:
+      operationId: getWork
+      summary: Get a work's detail
+      description: Full metadata for an Open Library work (description, subjects, covers, links).
+      parameters:
+        - name: workId
+          in: path
+          required: true
+          schema: {type: string}
+          description: "Open Library work id, e.g. OL45804W"
+      responses:
+        '200':
+          description: Work detail
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/Work'}
+  /authors/{authorId}.json:
+    get:
+      operationId: getAuthor
+      summary: Get an author's detail
+      description: Biographical metadata for an Open Library author.
+      parameters:
+        - name: authorId
+          in: path
+          required: true
+          schema: {type: string}
+          description: "Open Library author id, e.g. OL23919A"
+      responses:
+        '200':
+          description: Author detail
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/Author'}
+components:
+  schemas:
+    SearchDoc:
+      type: object
+      properties:
+        key: {type: string}
+        title: {type: string}
+        author_name: {type: array, items: {type: string}}
+        first_publish_year: {type: integer}
+        cover_i: {type: integer}
+        has_fulltext: {type: boolean}
+        ebook_access: {type: string}
+        edition_count: {type: integer}
+        ia: {type: array, items: {type: string}}
+    Work:
+      type: object
+      properties:
+        key: {type: string}
+        title: {type: string}
+        description: {}
+        subjects: {type: array, items: {type: string}}
+        covers: {type: array, items: {type: integer}}
+    Author:
+      type: object
+      properties:
+        key: {type: string}
+        name: {type: string}
+        birth_date: {type: string}
+        death_date: {type: string}
+        bio: {}

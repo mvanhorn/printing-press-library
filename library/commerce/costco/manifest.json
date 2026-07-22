@@ -1,0 +1,39 @@
+{
+  "manifest_version": "0.3",
+  "name": "costco-pp-mcp",
+  "display_name": "Costco",
+  "version": "0.0.0",
+  "description": "Your complete Costco receipt history as data — past the website's 2-year wall, in a local database the site never gives you.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/costco-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/costco-pp-mcp",
+      "args": [],
+      "env": {
+        "COSTCO_ID_TOKEN": "${user_config.costco_id_token}"
+      }
+    }
+  },
+  "user_config": {
+    "costco_id_token": {
+      "type": "string",
+      "title": "COSTCO_ID_TOKEN",
+      "description": "Sets COSTCO_ID_TOKEN for the Costco MCP server.",
+      "sensitive": true,
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

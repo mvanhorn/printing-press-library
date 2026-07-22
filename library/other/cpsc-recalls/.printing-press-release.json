@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "slug": "cpsc-recalls",
+  "cli_name": "cpsc-recalls-pp-cli",
+  "version": "2026.7.1",
+  "released_at": "2026-07-20T16:27:43Z",
+  "source_commit": "33a876a101119727e16fcb9f089ad5cec3279888",
+  "printing_press_version": "4.29.0",
+  "run_id": "20260717-002908-7b05abc1",
+  "changes": [
+    {
+      "title": "feat(cpsc-recalls): add cpsc-recalls",
+      "pr": 1542,
+      "url": "https://github.com/mvanhorn/printing-press-library/pull/1542",
+      "commit": "33a876a101119727e16fcb9f089ad5cec3279888"
+    }
+  ]
+}

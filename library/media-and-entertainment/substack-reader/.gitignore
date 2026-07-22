@@ -1,0 +1,20 @@
+# binaries
+/substack
+/substack-pp-cli
+/substack-pp-mcp
+/substack-reader
+/substack-reader-pp-cli
+/substack-reader-pp-mcp
+*-dogfood
+/bin/
+/build/
+# local state
+*.db
+*.db-*
+.cache/
+dogfood-results.json
+workflow-verify-report.json
+publish-live-gate.json
+*.log
+# macOS
+.DS_Store

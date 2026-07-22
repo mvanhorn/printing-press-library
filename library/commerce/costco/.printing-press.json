@@ -1,0 +1,56 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-06-25T10:16:28.532239Z",
+  "printing_press_version": "4.25.0",
+  "api_name": "costco",
+  "display_name": "Costco",
+  "cli_name": "costco-pp-cli",
+  "creator": {
+    "handle": "richie305",
+    "name": "David Richie"
+  },
+  "owner": "richie305",
+  "printer": "richie305",
+  "printer_name": "David Richie",
+  "spec_path": "costco-spec.yaml",
+  "spec_format": "internal",
+  "spec_checksum": "sha256:18a03b1884e8183af78203d4ded75bfd955bca4b7b16fc71b65ae6ed0daa5a59",
+  "run_id": "20260624-120327-512a630c",
+  "category": "commerce",
+  "description": "Your complete Costco receipt history as data — past the website's 2-year wall, in a local database the site never gives you.",
+  "mcp_binary": "costco-pp-mcp",
+  "mcp_tool_count": 1,
+  "mcp_ready": "full",
+  "api_version": "0.1.0",
+  "auth_type": "bearer_token",
+  "auth_env_vars": [
+    "COSTCO_ID_TOKEN"
+  ],
+  "novel_features": [
+    {
+      "name": "History-depth probe",
+      "command": "history-depth",
+      "description": "Discover how far back your Costco receipts actually go, past the website's 2-year UI cap."
+    },
+    {
+      "name": "Spend analytics",
+      "command": "spend",
+      "description": "Roll up your spend by month, warehouse, or department over a date range."
+    },
+    {
+      "name": "Item price history",
+      "command": "item-history",
+      "description": "Track one item's unit price across every receipt over time."
+    },
+    {
+      "name": "Instant savings captured",
+      "command": "savings",
+      "description": "Total the instant savings and coupons you captured over a date range."
+    },
+    {
+      "name": "Return-window watch",
+      "command": "returns-window",
+      "description": "Flag recently purchased items still inside a return window you set."
+    }
+  ]
+}

@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "everbee-dogfood-runnable-examples",
+  "applied_at": "2026-07-12",
+  "base_run_id": "20260711-203553-d9c009c7",
+  "base_printing_press_version": "4.28.0",
+  "summary": "Made teach, teach-pattern, teach-playbook, and playbook amend help examples single-line runnable, corrected their pp:happy-args fixtures, and made teach emit a JSON ack when --json is set even under the silent default.",
+  "reason": "The publish-time full live dogfood gate derives happy-path args from the first parseable Examples line; multi-line backslash-continued examples fed a literal \\ argument (exit 2), teach's fixture named a nonexistent --resources flag, and silent-on-success output failed the json_fidelity probe's non-empty-JSON requirement.",
+  "files": [
+    "internal/cli/teach.go",
+    "internal/cli/teach_playbook.go"
+  ],
+  "validated_outcome": "cli-printing-press dogfood --live --level full: 101 passed / 0 failed (was 9 failed); publish validate all checks PASS."
+}

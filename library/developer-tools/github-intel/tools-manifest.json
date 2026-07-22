@@ -1,0 +1,174 @@
+{
+  "api_name": "github-intel",
+  "base_url": "https://api.github.com",
+  "description": "Public GitHub repository, release, search, and security advisory signals for agent research.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "none"
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "advisories_list-global",
+      "description": "List global security advisories. Optional: ghsa_id, type, cve_id (plus 6 more). Returns array of AdvisoriesListGlobalItem.",
+      "method": "GET",
+      "path": "/advisories",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "ghsa_id",
+          "type": "string",
+          "location": "query",
+          "description": "Ghsa id"
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "location": "query",
+          "description": "Type"
+        },
+        {
+          "name": "cve_id",
+          "type": "string",
+          "location": "query",
+          "description": "Cve id"
+        },
+        {
+          "name": "ecosystem",
+          "type": "string",
+          "location": "query",
+          "description": "Ecosystem"
+        },
+        {
+          "name": "severity",
+          "type": "string",
+          "location": "query",
+          "description": "Severity"
+        },
+        {
+          "name": "affects",
+          "type": "string",
+          "location": "query",
+          "description": "Affects"
+        },
+        {
+          "name": "published",
+          "type": "string",
+          "location": "query",
+          "description": "Published"
+        },
+        {
+          "name": "updated",
+          "type": "string",
+          "location": "query",
+          "description": "Updated"
+        },
+        {
+          "name": "per_page",
+          "type": "int",
+          "location": "query",
+          "description": "Per page"
+        }
+      ]
+    },
+    {
+      "name": "github-current-intelligence-search_repositories",
+      "description": "Search repositories. Required: q. Optional: sort, order, per_page (plus 1 more). Returns the GithubCurrentIntelligenceSearchRepositoriesResponse.",
+      "method": "GET",
+      "path": "/search/repositories",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "q",
+          "type": "string",
+          "location": "query",
+          "description": "Q",
+          "required": true
+        },
+        {
+          "name": "sort",
+          "type": "string",
+          "location": "query",
+          "description": "Sort"
+        },
+        {
+          "name": "order",
+          "type": "string",
+          "location": "query",
+          "description": "Order"
+        },
+        {
+          "name": "per_page",
+          "type": "int",
+          "location": "query",
+          "description": "Per page"
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page"
+        }
+      ]
+    },
+    {
+      "name": "repos_get-repository",
+      "description": "Get repository metadata. Required: owner, repo. Returns the ReposGetRepositoryResponse.",
+      "method": "GET",
+      "path": "/repos/{owner}/{repo}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "owner",
+          "type": "string",
+          "location": "path",
+          "description": "Owner",
+          "required": true
+        },
+        {
+          "name": "repo",
+          "type": "string",
+          "location": "path",
+          "description": "Repo",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "repos_releases_list",
+      "description": "List repository releases. Required: owner, repo. Optional: per_page, page. Returns array of ReleasesListItem.",
+      "method": "GET",
+      "path": "/repos/{owner}/{repo}/releases",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "owner",
+          "type": "string",
+          "location": "path",
+          "description": "Owner",
+          "required": true
+        },
+        {
+          "name": "repo",
+          "type": "string",
+          "location": "path",
+          "description": "Repo",
+          "required": true
+        },
+        {
+          "name": "per_page",
+          "type": "int",
+          "location": "query",
+          "description": "Per page"
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page"
+        }
+      ]
+    }
+  ]
+}

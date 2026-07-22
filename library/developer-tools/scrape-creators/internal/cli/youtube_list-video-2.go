@@ -18,10 +18,16 @@ func newYoutubeListVideo2Cmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:         "list-video-2",
-		Short:       "Fetches comments and replies from a YouTube video, including each comment's text content, author details, like...",
-		Example:     "  scrape-creators-pp-cli youtube list-video-2",
-		Annotations: map[string]string{"pp:endpoint": "youtube.list-video-2", "mcp:read-only": "true"},
+		Short:       "Fetches comments and replies from a YouTube video, including each comment's text content, author details, like count",
+		Example:     "  scrape-creators-pp-cli youtube list-video-2 --url https://www.youtube.com/watch?v=ZpF6IE0rdxA",
+		Annotations: map[string]string{"pp:endpoint": "youtube.list-video-2", "pp:method": "GET", "pp:path": "/v1/youtube/video/comments", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
+			// Bare invocation of a command with required input prints help
+			// instead of pflag's terse "required flag not set" error. Optional-
+			// only read commands fall through so a bare call still executes.
+			if cmd.Flags().NFlag() == 0 && len(args) == 0 && !flags.dryRun {
+				return cmd.Help()
+			}
 			if !cmd.Flags().Changed("url") && !flags.dryRun {
 				return fmt.Errorf("required flag \"%s\" not set", "url")
 			}
@@ -35,39 +41,44 @@ func newYoutubeListVideo2Cmd(flags *rootFlags) *cobra.Command {
 					}
 				}
 				if !validOrder {
-					fmt.Fprintf(os.Stderr, "warning: --%s %q not in allowed set %v\n", "order", flagOrder, allowedOrder)
+					return fmt.Errorf("invalid value %q for --%s: must be one of %v", flagOrder, "order", allowedOrder)
 				}
 			}
+			path := "/v1/youtube/video/comments"
 			c, err := flags.newClient()
 			if err != nil {
 				return err
 			}
-
-			path := "/v1/youtube/video/comments"
 			params := map[string]string{}
 			if flagUrl != "" {
-				params["url"] = fmt.Sprintf("%v", flagUrl)
+				params["url"] = formatCLIParamValue(flagUrl)
 			}
 			if flagContinuationToken != "" {
-				params["continuationToken"] = fmt.Sprintf("%v", flagContinuationToken)
+				params["continuationToken"] = formatCLIParamValue(flagContinuationToken)
 			}
 			if flagOrder != "" {
-				params["order"] = fmt.Sprintf("%v", flagOrder)
+				params["order"] = formatCLIParamValue(flagOrder)
 			}
-			data, prov, err := resolveRead(cmd.Context(), c, flags, "youtube", false, path, params, nil)
+			data, prov, err := resolveReadWithStrategyAndResponsePath(cmd.Context(), c, flags, "auto", "youtube", false, path, params, nil, "", cmd.ErrOrStderr())
 			if err != nil {
-				return classifyAPIError(err)
+				return classifyAPIError(err, flags)
 			}
-			// Print provenance to stderr for human-facing output
-			{
+			// Print provenance to stderr for human-facing output only.
+			// Machine-format flags (--json, --csv, --compact, --quiet, --plain,
+			// --select) and piped stdout suppress this line; the JSON envelope
+			// already carries meta.source for those consumers.
+			// SYNC: keep this gate aligned with command_promoted.go.tmpl.
+			if wantsHumanTable(cmd.OutOrStdout(), flags) {
 				var countItems []json.RawMessage
 				_ = json.Unmarshal(data, &countItems)
 				printProvenance(cmd, len(countItems), prov)
 			}
 			// For JSON output, wrap with provenance envelope before passing through flags.
 			// --select wins over --compact when both are set; --compact only runs when
-			// no explicit fields were requested.
-			if flags.asJSON || !isTerminal(cmd.OutOrStdout()) {
+			// no explicit fields were requested. Explicit format flags (--csv, --quiet,
+			// --plain) opt out of the auto-JSON path so piped consumers that asked for
+			// a non-JSON format reach the standard pipeline below.
+			if flags.asJSON || (!isTerminal(cmd.OutOrStdout()) && !flags.csv && !flags.quiet && !flags.plain) {
 				filtered := data
 				if flags.selectFields != "" {
 					filtered = filterFields(filtered, flags.selectFields)
@@ -93,7 +104,7 @@ func newYoutubeListVideo2Cmd(flags *rootFlags) *cobra.Command {
 					return nil
 				}
 			}
-			return printOutputWithFlags(cmd.OutOrStdout(), data, flags)
+			return printOutputWithFlagsMeta(cmd.OutOrStdout(), data, flags, map[string]any{"source": "live"})
 		},
 	}
 	cmd.Flags().StringVar(&flagUrl, "url", "", "YouTube video URL")

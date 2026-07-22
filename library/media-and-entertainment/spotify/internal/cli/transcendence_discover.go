@@ -14,6 +14,7 @@
 package cli
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"sort"
@@ -170,7 +171,7 @@ func searchArtistsByGenres(c *client.Client, genres []string, followed map[strin
 	}
 	collected := map[string]candidate{}
 	for _, g := range genres {
-		data, err := c.Get("/search", map[string]string{
+		data, err := c.Get(context.Background(), "/search", map[string]string{
 			"q":     fmt.Sprintf("genre:\"%s\"", g),
 			"type":  "artist",
 			"limit": "20",
@@ -254,7 +255,7 @@ playlists become the graph substrate instead.`,
 				return err
 			}
 			// Step 1: get seed artist's name.
-			artistData, err := c.Get("/artists/"+seedID, nil)
+			artistData, err := c.Get(cmd.Context(), "/artists/"+seedID, nil)
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}
@@ -269,7 +270,7 @@ playlists become the graph substrate instead.`,
 			// post-2024-11-27 new-app constraint caps limit at ~10 on
 			// /search (the documented max of 50 returns "Invalid limit"
 			// 400), so we keep this small.
-			searchData, err := c.Get("/search", map[string]string{
+			searchData, err := c.Get(cmd.Context(), "/search", map[string]string{
 				"q":     artist.Name,
 				"type":  "playlist",
 				"limit": "10",
@@ -290,7 +291,7 @@ playlists become the graph substrate instead.`,
 			counts := map[string]int{}
 			names := map[string]string{}
 			for _, pl := range srch.Playlists.Items {
-				items, err := c.Get("/playlists/"+pl.ID+"/tracks", map[string]string{"limit": "10"})
+				items, err := c.Get(cmd.Context(), "/playlists/"+pl.ID+"/tracks", map[string]string{"limit": "10"})
 				if err != nil {
 					continue
 				}
@@ -526,7 +527,7 @@ keeps only releases whose artists share at least one genre with your top
 			if err != nil {
 				return err
 			}
-			data, err := c.Get("/browse/new-releases", map[string]string{"limit": "50"})
+			data, err := c.Get(cmd.Context(), "/browse/new-releases", map[string]string{"limit": "50"})
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}
@@ -619,7 +620,7 @@ func artistGenreMatches(c *client.Client, artistIDs []string, seedGenres map[str
 	if len(seedGenres) == 0 {
 		return nil
 	}
-	data, err := c.Get("/artists", map[string]string{"ids": strings.Join(artistIDs, ",")})
+	data, err := c.Get(context.Background(), "/artists", map[string]string{"ids": strings.Join(artistIDs, ",")})
 	if err != nil {
 		return nil
 	}

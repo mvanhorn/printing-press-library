@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "api_name": "bambu",
+  "run_id": "20260711-063302-c519dd7c",
+  "status": "pass",
+  "level": "full",
+  "matrix_size": 151,
+  "tests_passed": 151,
+  "tests_skipped": 92,
+  "auth_context": {
+    "type": "api_key"
+  }
+}

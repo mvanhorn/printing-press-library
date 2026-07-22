@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/mvanhorn/printing-press-library/library/developer-tools/supabase/internal/client"
 	"github.com/spf13/cobra"
 )
 
@@ -26,14 +27,29 @@ func newProjectsConfigGetAuthServiceCmd(flags *rootFlags) *cobra.Command {
 			if err != nil {
 				return err
 			}
+			if flags.dataSource == "local" {
+				return fmt.Errorf("auth config is live-only because credential-bearing responses must never be persisted locally")
+			}
+			// AuthConfigResponse contains provider secrets, SMTP credentials, and
+			// hook signing material. Bypass both the HTTP cache and the generic
+			// read-through store, then sanitize the response before any output or
+			// delivery code can observe it.
+			c.NoCache = true
 
 			path := "/v1/projects/{ref}/config/auth"
 			path = replacePathParam(path, "ref", args[0])
 			params := map[string]string{}
-			data, prov, err := resolveRead(cmd.Context(), c, flags, "config", false, path, params, nil)
+			data, err := c.GetWithHeaders(path, params, nil)
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}
+			// Reassert the lower-level client boundary here so future command
+			// regeneration cannot accidentally bypass the fail-closed allowlist.
+			data, err = client.SanitizeAuthConfigResponse(data)
+			if err != nil {
+				return fmt.Errorf("sanitizing auth config response: %w", err)
+			}
+			prov := attachFreshness(DataProvenance{Source: "live"}, flags)
 			// Print provenance to stderr for human-facing output
 			{
 				var countItems []json.RawMessage

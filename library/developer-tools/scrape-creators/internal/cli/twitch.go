@@ -9,12 +9,16 @@ import (
 
 func newTwitchCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "twitch",
-		Short: "Scrape Twitch clips",
+		Use:         "twitch",
+		Short:       "Manage twitch command groups",
+		Hidden:      true,
+		Annotations: map[string]string{"mcp:read-only": "true", "pp:typed-exit-codes": "0,2"},
+		RunE:        parentNoSubcommandRunE(flags),
 	}
 
 	cmd.AddCommand(newTwitchListCmd(flags))
 	cmd.AddCommand(newTwitchListProfileCmd(flags))
 	cmd.AddCommand(newTwitchListUserCmd(flags))
+	cmd.AddCommand(newTwitchListUser2Cmd(flags))
 	return cmd
 }

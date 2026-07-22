@@ -2,17 +2,17 @@
   "schema_version": 1,
   "slug": "rechtspraak",
   "cli_name": "rechtspraak-pp-cli",
-  "version": "2026.6.1",
-  "released_at": "2026-06-11T22:28:24Z",
-  "source_commit": "2bb1d2ac38693ebe79e79b28b21ce518ce83d3c9",
+  "version": "2026.7.1",
+  "released_at": "2026-07-08T18:21:21Z",
+  "source_commit": "11d7b4ea752c9c8fb8909037133058eb57560cc0",
   "printing_press_version": "4.22.0",
   "run_id": "20260605-220359",
   "changes": [
     {
-      "title": "feat(rechtspraak): add rechtspraak",
-      "pr": 1061,
-      "url": "https://github.com/mvanhorn/printing-press-library/pull/1061",
-      "commit": "2bb1d2ac38693ebe79e79b28b21ce518ce83d3c9"
+      "title": "fix(catalog): require Go 1.26.5 across published modules",
+      "pr": 1467,
+      "url": "https://github.com/mvanhorn/printing-press-library/pull/1467",
+      "commit": "11d7b4ea752c9c8fb8909037133058eb57560cc0"
     }
   ]
 }

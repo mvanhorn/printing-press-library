@@ -34,6 +34,11 @@ import (
 	_ "modernc.org/sqlite"
 )
 
+const (
+	browserSessionValidationMethod = "GET"
+	browserSessionValidationPath   = "/your-orders/orders"
+)
+
 func newAuthCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "auth",
@@ -1241,7 +1246,7 @@ func browserSessionProofStatusForAuth(cfg *config.Config, authHeader string) (bo
 	if proof.APIName == "amazon-orders" && proof.CookieDomain == domain && proof.ValidationPath == "/gp/your-account/order-history" {
 		return false, "proof was written against an older validation endpoint; re-run amazon-orders-pp-cli auth login --chrome to refresh it"
 	}
-	if proof.APIName != "amazon-orders" || proof.CookieDomain != domain || proof.ValidationPath != "/your-orders/orders" {
+	if proof.APIName != "amazon-orders" || proof.CookieDomain != domain || proof.ValidationPath != browserSessionValidationPath {
 		return false, "proof does not match this CLI"
 	}
 	if authHeader != "" && proof.CredentialFingerprint != fingerprintCredential(authHeader) {
@@ -1254,11 +1259,11 @@ func browserSessionProofStatusForAuth(cfg *config.Config, authHeader string) (bo
 }
 
 func validateAndWriteBrowserSessionProof(cfg *config.Config, flags *rootFlags) error {
-	validationPath := strings.TrimSpace("/your-orders/orders")
+	validationPath := strings.TrimSpace(browserSessionValidationPath)
 	if validationPath == "" {
 		return fmt.Errorf("no browser-session validation endpoint configured in this CLI")
 	}
-	method := strings.ToUpper(strings.TrimSpace("GET"))
+	method := strings.ToUpper(strings.TrimSpace(browserSessionValidationMethod))
 	if method == "" {
 		method = "GET"
 	}
@@ -1273,18 +1278,12 @@ func validateAndWriteBrowserSessionProof(cfg *config.Config, flags *rootFlags) e
 
 	c := client.New(cfg, flags.timeout, flags.rateLimit)
 	c.NoCache = true
-	body, status, err := c.GetWithStatus(validationPath, map[string]string{"timeFilter": "months-3"})
-	if err != nil {
-		return err
-	}
-	if status < 200 || status >= 300 {
+	status, err := validateBrowserSession(c, validationPath)
+	if status != 0 && (status < 200 || status >= 300) {
 		return fmt.Errorf("validation endpoint returned HTTP %d", status)
 	}
-	// A logged-out or expired cookie jar is answered with HTTP 200 and an
-	// Amazon sign-in/claim/challenge page, not a 4xx. Treat that as an invalid
-	// session so we don't write a "valid" proof for an unauthenticated jar.
-	if ierr := parser.AuthInterstitialError(body); ierr != nil {
-		return ierr
+	if err != nil {
+		return err
 	}
 
 	domain, err := cookieDomainFromConfig(cfg)
@@ -1309,6 +1308,26 @@ func validateAndWriteBrowserSessionProof(cfg *config.Config, flags *rootFlags) e
 	}
 	data = append(data, '\n')
 	return writeBrowserSessionProof(cfg, data)
+}
+
+func validateBrowserSession(c *client.Client, validationPath string) (int, error) {
+	body, status, err := c.GetWithStatus(validationPath, map[string]string{"timeFilter": "months-3"})
+	if err != nil {
+		return status, err
+	}
+	if status < 200 || status >= 300 {
+		return status, fmt.Errorf("HTTP %d", status)
+	}
+	// A logged-out or expired cookie jar is answered with HTTP 200 and an
+	// Amazon sign-in/claim/challenge page, not a 4xx. Treat that as an invalid
+	// session so we don't write a "valid" proof for an unauthenticated jar.
+	if ierr := parser.AuthInterstitialError(body); ierr != nil {
+		return status, ierr
+	}
+	if !parser.DetectOrderHistoryPage(body) {
+		return status, fmt.Errorf("validation endpoint did not return an Amazon order-history page")
+	}
+	return status, nil
 }
 
 func validateAndWriteBrowserSessionProofWithRetry(cfg *config.Config, flags *rootFlags, timeout time.Duration) error {

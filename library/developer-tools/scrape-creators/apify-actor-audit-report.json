@@ -1,0 +1,9 @@
+{
+  "dir": "\u003ccli-dir\u003e/scrape-creators-pp-cli",
+  "research_dir": "\u003ccli-dir\u003e/20260629-130731-9b35150a",
+  "verdict": "pass",
+  "actors": null,
+  "issues": [
+    "no Apify actor references found, skipping"
+  ]
+}
