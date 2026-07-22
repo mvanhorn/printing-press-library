@@ -6,8 +6,13 @@ package cli
 
 import (
 	"bytes"
+	"context"
+	"encoding/json"
+	"path/filepath"
 	"strings"
 	"testing"
+
+	"github.com/mvanhorn/printing-press-library/library/other/cfpb-complaints/internal/store"
 )
 
 // TestNovelWatchChangesHelpWires smoke-tests that the watch changes command
@@ -28,6 +33,30 @@ func TestNovelWatchChangesHelpWires(t *testing.T) {
 		if !strings.Contains(help, want) {
 			t.Fatalf("watch changes --help missing %q in output:\n%s", want, help)
 		}
+	}
+}
+
+func TestLoadWatchObservationFallsBackToLegacyKey(t *testing.T) {
+	db, err := store.OpenWithContext(context.Background(), filepath.Join(t.TempDir(), "watch.db"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer db.Close()
+
+	legacyKey := legacyWatchObservationKey("ACME", "", "", "30d")
+	want := json.RawMessage(`{"legacy":{"product":"Credit card","issue":"Fees"}}`)
+	if err := db.Upsert("cfpb-complaint-watch", legacyKey, want); err != nil {
+		t.Fatal(err)
+	}
+	got, baseline, err := loadWatchObservation(db, watchObservationKey("ACME", "", "", "30d", 100), legacyKey)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if baseline {
+		t.Fatal("legacy snapshot was treated as a new baseline")
+	}
+	if string(got) != string(want) {
+		t.Fatalf("snapshot = %s, want %s", got, want)
 	}
 }
 

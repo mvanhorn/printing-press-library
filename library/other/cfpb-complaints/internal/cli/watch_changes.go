@@ -55,12 +55,11 @@ func newNovelWatchChangesCmd(flags *rootFlags) *cobra.Command {
 			}
 			defer db.Close()
 			previous := map[string]map[string]string{}
-			raw, getErr := db.Get("cfpb-complaint-watch", key)
-			baseline := errors.Is(getErr, sql.ErrNoRows)
-			if getErr != nil && !baseline {
-				return getErr
+			raw, baseline, err := loadWatchObservation(db, key, legacyWatchObservationKey(company, product, state, window))
+			if err != nil {
+				return err
 			}
-			if getErr == nil {
+			if !baseline {
 				if err := json.Unmarshal(raw, &previous); err != nil {
 					return err
 				}
@@ -106,6 +105,28 @@ func newNovelWatchChangesCmd(flags *rootFlags) *cobra.Command {
 
 func watchObservationKey(company, product, state, window string, limit int) string {
 	return strings.Join([]string{strings.ToUpper(company), product, strings.ToUpper(state), window, strconv.Itoa(limit)}, "|")
+}
+
+func legacyWatchObservationKey(company, product, state, window string) string {
+	return strings.Join([]string{strings.ToUpper(company), product, strings.ToUpper(state), window}, "|")
+}
+
+func loadWatchObservation(db *store.Store, key, legacyKey string) (json.RawMessage, bool, error) {
+	raw, err := db.Get("cfpb-complaint-watch", key)
+	if err == nil {
+		return raw, false, nil
+	}
+	if !errors.Is(err, sql.ErrNoRows) {
+		return nil, false, err
+	}
+	raw, err = db.Get("cfpb-complaint-watch", legacyKey)
+	if err == nil {
+		return raw, false, nil
+	}
+	if errors.Is(err, sql.ErrNoRows) {
+		return nil, true, nil
+	}
+	return nil, false, err
 }
 
 func sortedKeys(values map[string]bool) []string {
