@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "acris-bbl-source-cap-warning",
+  "applied_at": "2026-07-22",
+  "base_run_id": "20260627-172432-3fcb7c76",
+  "base_printing_press_version": "4.27.0",
+  "summary": "Warn when the BBL legal-record source query reaches its upstream row cap independently of the distinct-document cap.",
+  "reason": "Many legal rows can refer to fewer documents, so a capped source response could previously produce a silently incomplete history without reaching --max-documents.",
+  "files": [
+    "internal/cli/bbl.go",
+    "internal/cli/bbl_test.go"
+  ],
+  "validated_outcome": "The regression case reports a 400-row source cap even when only 12 distinct documents are returned."
+}

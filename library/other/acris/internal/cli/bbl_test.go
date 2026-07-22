@@ -30,3 +30,13 @@ func TestNovelBblHelpWires(t *testing.T) {
 		}
 	}
 }
+
+func TestBBLResultNoteWarnsWhenLegalsCapPrecedesDocumentCap(t *testing.T) {
+	note := bblResultNote(12, false, true, 100, 400)
+	if !strings.Contains(note, "source query reached its 400-row legal-record limit") {
+		t.Fatalf("missing upstream-cap warning: %q", note)
+	}
+	if strings.Contains(note, "results capped at 100 documents") {
+		t.Fatalf("incorrect distinct-document cap warning: %q", note)
+	}
+}

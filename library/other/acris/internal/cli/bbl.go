@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"sort"
 	"strconv"
+	"strings"
 
 	"github.com/mvanhorn/printing-press-library/library/other/acris/internal/cliutil"
 
@@ -75,15 +76,17 @@ func newNovelBblCmd(flags *rootFlags) *cobra.Command {
 				maxDocs = 25
 			}
 
+			legalsLimit := maxDocs * 4
 			legals, err := fetchACRISRows(ctx, c, acrisLegalsPath, map[string]string{
 				"borough": flagBorough,
 				"block":   flagBlock,
 				"lot":     flagLot,
-				"$limit":  strconv.Itoa(maxDocs * 4), // a lot can carry several legal rows per document
+				"$limit":  strconv.Itoa(legalsLimit), // a lot can carry several legal rows per document
 			})
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}
+			legalsCapped := legalsLimit > 0 && len(legals) >= legalsLimit
 
 			ids := distinctDocumentIDs(legals, maxDocs)
 			view := bblView{
@@ -96,7 +99,7 @@ func newNovelBblCmd(flags *rootFlags) *cobra.Command {
 			}
 
 			if len(ids) == 0 {
-				view.Note = "no recorded documents found for this BBL; verify the borough code and that block/lot are not zero-padded"
+				view.Note = bblResultNote(0, false, legalsCapped, maxDocs, legalsLimit)
 				return emitBBLView(cmd, flags, view)
 			}
 
@@ -124,9 +127,7 @@ func newNovelBblCmd(flags *rootFlags) *cobra.Command {
 				return view.Documents[i].RecordedDatetime > view.Documents[j].RecordedDatetime
 			})
 			view.DocumentCount = len(view.Documents)
-			if maxDocs > 0 && len(ids) >= maxDocs {
-				view.Note = fmt.Sprintf("results capped at %d documents; increase --max-documents to see more", maxDocs)
-			}
+			view.Note = bblResultNote(view.DocumentCount, maxDocs > 0 && len(ids) >= maxDocs, legalsCapped, maxDocs, legalsLimit)
 
 			return emitBBLView(cmd, flags, view)
 		},
@@ -136,6 +137,19 @@ func newNovelBblCmd(flags *rootFlags) *cobra.Command {
 	cmd.Flags().StringVar(&flagLot, "lot", "", "Tax lot number (not zero-padded)")
 	cmd.Flags().IntVar(&flagMaxDocuments, "max-documents", 100, "Maximum documents to resolve for the BBL")
 	return cmd
+}
+
+func bblResultNote(documentCount int, documentsCapped, legalsCapped bool, maxDocs, legalsLimit int) string {
+	notes := make([]string, 0, 2)
+	if documentCount == 0 {
+		notes = append(notes, "no recorded documents found for this BBL; verify the borough code and that block/lot are not zero-padded")
+	} else if documentsCapped {
+		notes = append(notes, fmt.Sprintf("results capped at %d documents; increase --max-documents to see more", maxDocs))
+	}
+	if legalsCapped {
+		notes = append(notes, fmt.Sprintf("source query reached its %d-row legal-record limit; document history may be incomplete; increase --max-documents to inspect a wider source window", legalsLimit))
+	}
+	return strings.Join(notes, "; ")
 }
 
 func emitBBLView(cmd *cobra.Command, flags *rootFlags, view bblView) error {
