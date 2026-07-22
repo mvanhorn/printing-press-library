@@ -263,6 +263,9 @@ profile by name when the installed backend supports it.`,
 			if cookies == "" {
 				return authErr(fmt.Errorf("cookie tool returned no cookies for %s", domain))
 			}
+			if err := validateExtractedCookieHeader(cookies); err != nil {
+				return authErr(err)
+			}
 			// Step 4: Save to config
 			if err := cfg.SaveTokens("", "", cookies, "", time.Time{}); err != nil {
 				return configErr(fmt.Errorf("saving cookies: %w", err))
@@ -520,6 +523,9 @@ func refreshStoredBrowserCookies(cfg *config.Config, w io.Writer) error {
 	}
 	if cookies == "" {
 		return fmt.Errorf("no cookies found for %s", domain)
+	}
+	if err := validateExtractedCookieHeader(cookies); err != nil {
+		return err
 	}
 	if err := cfg.SaveTokens("", "", cookies, "", time.Time{}); err != nil {
 		return configErr(fmt.Errorf("saving cookies: %w", err))
@@ -985,6 +991,18 @@ func resolveProfileByName(name string) (string, error) {
 // --- Cookie extraction tools ---
 
 var detectedPycookiecheatCLIPath string
+
+// validateExtractedCookieHeader rejects malformed browser-extractor output
+// before it can be persisted or passed to net/http. In Chrome cookie database
+// schema 24+, stale extractors may leave the binary SHA-256(host_key) prefix
+// attached to each decrypted value. net/http rejects those bytes, and writing
+// invalid UTF-8 into TOML can make the CLI's config unreadable on its next run.
+func validateExtractedCookieHeader(header string) error {
+	if _, err := http.ParseCookie(header); err != nil {
+		return fmt.Errorf("cookie importer returned malformed Cookie header: %w; update the browser extractor (pycookiecheat 0.8.0 or newer); refusing to save credentials", err)
+	}
+	return nil
+}
 
 func runCookieToolProbe(name string, args ...string) error {
 	cmd := exec.Command(name, args...)

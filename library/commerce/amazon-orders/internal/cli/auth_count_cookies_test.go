@@ -134,6 +134,31 @@ func TestCookieDomainFromConfig_InvalidBaseURLSurfacesError(t *testing.T) {
 	}
 }
 
+func TestValidateExtractedCookieHeader(t *testing.T) {
+	tests := []struct {
+		name    string
+		header  string
+		wantErr bool
+	}{
+		{name: "valid", header: "session-id=abc; ubid-main=def"},
+		{name: "empty", header: "", wantErr: true},
+		{name: "missing equals", header: "session-id", wantErr: true},
+		{name: "chrome schema metadata bytes", header: "session-id=\x01\xffbinary", wantErr: true},
+		{name: "newline", header: "session-id=abc\ndef", wantErr: true},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			err := validateExtractedCookieHeader(tt.header)
+			if (err != nil) != tt.wantErr {
+				t.Fatalf("validateExtractedCookieHeader() error = %v, wantErr %v", err, tt.wantErr)
+			}
+			if err != nil && tt.header != "" && strings.Contains(err.Error(), tt.header) {
+				t.Fatal("validation error leaked raw cookie material")
+			}
+		})
+	}
+}
+
 func TestValidateBrowserSessionOrWarnClearsProofAndReturnsFalse(t *testing.T) {
 	cfg := &config.Config{Path: filepath.Join(t.TempDir(), "config.toml")}
 	if err := writeBrowserSessionProof(cfg, []byte("{}\n")); err != nil {

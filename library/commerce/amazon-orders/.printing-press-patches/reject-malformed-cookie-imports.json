@@ -1,0 +1,15 @@
+{
+  "schema_version": 2,
+  "id": "reject-malformed-cookie-imports",
+  "applied_at": "2026-07-22",
+  "base_run_id": "20260510-105710",
+  "base_printing_press_version": "4.2.2",
+  "summary": "Browser-cookie login must reject malformed extractor output before persisting credentials.",
+  "reason": "Chrome cookie database schema 24 prepends a binary SHA-256 host hash to encrypted values. Stale extractors can leave that prefix attached, producing an invalid Cookie header and invalid UTF-8 that makes the saved TOML unreadable on the next invocation.",
+  "files": [
+    "internal/cli/auth.go",
+    "internal/cli/auth_count_cookies_test.go"
+  ],
+  "validated_outcome": "Focused tests cover valid headers, binary schema metadata, malformed pairs, and newlines; live Chrome login succeeds with pycookiecheat 0.8.0.",
+  "upstream_issue": "https://github.com/mvanhorn/cli-printing-press/issues/3706"
+}
