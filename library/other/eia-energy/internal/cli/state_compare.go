@@ -19,6 +19,7 @@ func newNovelStateCompareCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:         "compare",
 		Short:       "Compare explicitly selected state series only when route, data column, frequency, periods, and units align.",
+		Example:     "  eia-energy-pp-cli state compare --states CA,TX --start 2024 --end 2024 --agent",
 		Annotations: map[string]string{"mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if dryRunOK(flags) {

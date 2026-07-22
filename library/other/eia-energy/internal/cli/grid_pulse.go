@@ -18,6 +18,7 @@ func newNovelGridPulseCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:         "pulse",
 		Short:       "Fetch recent balancing-authority measures and show per-type latest values, units, freshness",
+		Example:     "  eia-energy-pp-cli grid pulse --respondent CISO --hours 24 --agent",
 		Annotations: map[string]string{"mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if dryRunOK(flags) {

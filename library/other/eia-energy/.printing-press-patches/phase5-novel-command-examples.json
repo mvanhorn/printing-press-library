@@ -1,0 +1,18 @@
+{
+  "schema_version": 2,
+  "id": "phase5-novel-command-examples",
+  "applied_at": "2026-07-22",
+  "base_run_id": "20260717-002908-cf8254c2",
+  "base_printing_press_version": "4.29.0",
+  "summary": "Give every novel command a runnable Cobra example for help output and automated behavioral discovery.",
+  "reason": "The full Phase 5 matrix treats example-free command help as incomplete and could not proceed to happy-path or JSON checks for six flagship workflows.",
+  "files": [
+    "internal/cli/anomaly.go",
+    "internal/cli/grid_pulse.go",
+    "internal/cli/revisions.go",
+    "internal/cli/spread.go",
+    "internal/cli/state_compare.go",
+    "internal/cli/watch_run.go"
+  ],
+  "validated_outcome": "All six flagship help surfaces include an Examples section and pass help-contract testing."
+}

@@ -23,6 +23,7 @@ func newNovelRevisionsCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:         "revisions",
 		Short:       "Compare a bounded route/facet snapshot with the prior local observation and report changed period-value-unit keys.",
+		Example:     "  eia-energy-pp-cli revisions --route electricity/rto/region-data --facet respondent=CISO --hours 24 --agent",
 		Annotations: map[string]string{"mcp:read-only": "false", "mcp:destructive": "false"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if dryRunOK(flags) {

@@ -21,6 +21,7 @@ func newNovelAnomalyCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:         "anomaly",
 		Short:       "Compute deterministic mean and standard-deviation deviations from exact bounded EIA source rows without forecasting.",
+		Example:     "  eia-energy-pp-cli anomaly --facet respondent=CISO --type D --hours 168 --agent",
 		Annotations: map[string]string{"mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if dryRunOK(flags) {

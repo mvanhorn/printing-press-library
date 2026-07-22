@@ -29,6 +29,7 @@ func newNovelWatchRunCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:         "run",
 		Short:       "Evaluate a bounded JSON rule set once for thresholds, freshness, missing data, and changes while retaining source rows.",
+		Example:     "  eia-energy-pp-cli watch run --rules ./energy-watch-rules.json --agent",
 		Annotations: map[string]string{"mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if dryRunOK(flags) {

@@ -19,6 +19,7 @@ func newNovelSpreadCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:         "spread",
 		Short:       "Align two facet series by period and refuse subtraction when reported units differ.",
+		Example:     "  eia-energy-pp-cli spread --left respondent=CISO --right respondent=ERCO --type D --hours 24 --agent",
 		Annotations: map[string]string{"mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if dryRunOK(flags) {
