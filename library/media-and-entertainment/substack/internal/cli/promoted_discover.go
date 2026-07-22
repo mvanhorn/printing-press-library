@@ -103,6 +103,9 @@ func newDiscoverPromotedCmd(flags *rootFlags) *cobra.Command {
 	cmd.Flags().IntVar(&flagLimit, "limit", 0, "Max results to return")
 
 	// Wire sibling endpoints and sub-resources as subcommands
+	// PATCH(reader-subscriptions-list): moved from root.go loop so the verifier
+	// can resolve discover patterns via naming convention (newDiscoverPatternsCmd).
+	cmd.AddCommand(newDiscoverPatternsCmd(flags))
 
 	return cmd
 }
