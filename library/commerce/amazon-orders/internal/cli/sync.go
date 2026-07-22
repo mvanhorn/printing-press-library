@@ -4,6 +4,7 @@
 package cli
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"github.com/mvanhorn/printing-press-library/library/commerce/amazon-orders/internal/parser"
@@ -26,6 +27,19 @@ type syncResult struct {
 	Err      error
 	Warn     error
 	Duration time.Duration
+}
+
+// rejectHTMLSyncPayload prevents an HTML page from being persisted as JSON.
+// Browser-oriented services can reply with a 200 HTML shell even when a session
+// is valid; storing that shell makes a sync look successful and corrupts local
+// reads later.
+func rejectHTMLSyncPayload(data json.RawMessage) error {
+	trimmed := bytes.TrimSpace(data)
+	lower := strings.ToLower(string(trimmed))
+	if strings.HasPrefix(lower, "<!doctype html") || strings.HasPrefix(lower, "<html") {
+		return fmt.Errorf("received HTML instead of JSON; this endpoint requires an HTML parser or browser-rendered response")
+	}
+	return nil
 }
 
 func newSyncCmd(flags *rootFlags) *cobra.Command {
@@ -343,6 +357,9 @@ func syncResource(c interface {
 			return returnFetchError(err)
 		}
 		if err := parser.AuthInterstitialError(data); err != nil {
+			return returnFetchError(err)
+		}
+		if err := rejectHTMLSyncPayload(data); err != nil {
 			return returnFetchError(err)
 		}
 
