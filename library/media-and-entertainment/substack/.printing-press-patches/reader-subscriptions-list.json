@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "reader-subscriptions-list",
+  "applied_at": "2026-07-22",
+  "base_run_id": "20260531-014452",
+  "base_printing_press_version": "4.19.0",
+  "summary": "Add 'reader subscriptions' command that lists all publications the authenticated user subscribes to as a reader via GET /reader/subscriptions.",
+  "reason": "The spec and generated CLI cover only the writer-side subscriber surface. GET /reader/subscriptions is the global API endpoint that returns the signed-in user's followed/subscribed publications — a distinct reader-side concept with no generated counterpart.",
+  "files": [
+    "internal/cli/reader.go",
+    "internal/cli/reader_subscriptions.go",
+    "internal/cli/root.go"
+  ]
+}

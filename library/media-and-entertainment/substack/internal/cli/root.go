@@ -294,6 +294,8 @@ See README.md or the bundled SKILL.md for recipes.`,
 	rootCmd.AddCommand(newPortfolioCmd(flags))
 	rootCmd.AddCommand(newGrepCmd(flags))
 	rootCmd.AddCommand(newScheduleCmd(flags))
+	// PATCH(reader-subscriptions-list): reader sub-tree for reader-side subscriptions.
+	rootCmd.AddCommand(newReaderCmd(flags))
 	return rootCmd
 }
 
