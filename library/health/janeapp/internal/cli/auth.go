@@ -308,7 +308,7 @@ Alternatively, import an existing browser session:
 			// this path can capture a logged-out session and report success.
 			// Ask the server now, so the failure surfaces here with a fix
 			// instead of as a bare 401 on the user's next command.
-			if err := janeVerifySession(cmd.Context(), clinic.BaseURL, cookies, 30*time.Second); err != nil {
+			if err := janeVerifySession(cmd.Context(), clinic.BaseURL, cookies, flags.timeout); err != nil {
 				if errors.Is(err, errAnonymousSession) {
 					loginURL := strings.TrimSuffix(clinic.BaseURL, "/") + "/account"
 					fmt.Fprintf(w, "\n%s Imported a cookie for %s, but it is not a signed-in session.\n", red("ERROR"), domain)

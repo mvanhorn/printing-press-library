@@ -1,0 +1,15 @@
+{
+  "schema_version": 2,
+  "id": "verify-authenticated-session-on-browser-import",
+  "applied_at": "2026-07-22",
+  "base_run_id": "20260707-170547",
+  "base_printing_press_version": "4.27.1",
+  "summary": "The browser cookie-import login path (auth login --chrome / --cookies-file) must verify the imported session is actually authenticated before saving it, not merely that a cookie named _front_desk_session is present.",
+  "reason": "Jane sets _front_desk_session for logged-out visitors too, and Chrome's on-disk cookie DB lags the live in-memory session, so importing while signed out (or before Chrome flushes a fresh login) stored an anonymous session and printed 'Session saved'. Every later command then 401s with a hint to run the command that just 'succeeded'. A regen must keep janeVerifySession probing /api/v2/appointments (401 for absent/invalid/anonymous, 200 only when signed in) before setClinicSession, and must NOT switch the probe to the HTML /account page, which returns 200 for an invalid cookie by redirecting to /cookies_required. Server errors and transport failures are kept distinct from 'not authenticated' so a 500 or a network blip never tells the user to re-authenticate a working session. The verification honors the global --timeout, consistent with the two-step password path.",
+  "files": [
+    "internal/cli/jane_auth.go",
+    "internal/cli/auth.go",
+    "internal/cli/jane_auth_verify_test.go"
+  ],
+  "validated_outcome": "Against live clinics: importing a stale cookie for a signed-out clinic (leahkangas.janeapp.com) now exits 4 with actionable guidance instead of exiting 0 with 'Session saved'; a signed-in clinic (embophysio.janeapp.com) still imports cleanly and exits 0. Six httptest cases cover authenticated-accepted, anonymous-rejected, empty/whitespace-cookie-rejected, multi-cookie-string-parsed, and 500 / unreachable-host kept distinct from anonymous. go build, go vet, go test (full package suite), and gofmt all pass."
+}
