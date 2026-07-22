@@ -7,6 +7,7 @@ import (
 	"bufio"
 	"bytes"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"github.com/gorilla/websocket"
 	"github.com/mvanhorn/printing-press-library/library/health/janeapp/internal/cliutil"
@@ -300,6 +301,30 @@ Alternatively, import an existing browser session:
 			if err != nil {
 				return err
 			}
+
+			// The cookie exists — but existence is not authentication. Jane
+			// sets _front_desk_session for signed-out visitors too, and
+			// Chrome's on-disk cookie DB lags the live in-memory session, so
+			// this path can capture a logged-out session and report success.
+			// Ask the server now, so the failure surfaces here with a fix
+			// instead of as a bare 401 on the user's next command.
+			if err := janeVerifySession(cmd.Context(), clinic.BaseURL, cookies, 30*time.Second); err != nil {
+				if errors.Is(err, errAnonymousSession) {
+					loginURL := strings.TrimSuffix(clinic.BaseURL, "/") + "/account"
+					fmt.Fprintf(w, "\n%s Imported a cookie for %s, but it is not a signed-in session.\n", red("ERROR"), domain)
+					fmt.Fprintln(w, "")
+					fmt.Fprintln(w, "Jane sets this cookie for logged-out visitors too, and Chrome's")
+					fmt.Fprintln(w, "saved-to-disk copy can lag the session in the live browser window.")
+					fmt.Fprintln(w, "")
+					fmt.Fprintf(w, "Confirm you are signed in here (you should see your name):\n\n  %s\n\n", loginURL)
+					fmt.Fprintln(w, "Then re-run this command. If it still fails, the on-disk cookie is")
+					fmt.Fprintln(w, "stale — export from the live session and import the file instead:")
+					fmt.Fprintf(w, "\n  janeapp-pp-cli auth login --clinic %s --cookies-file <storage-state.json>\n", clinic.Name)
+					return authErr(fmt.Errorf("imported session for %s is not authenticated", domain))
+				}
+				return authErr(err)
+			}
+
 			if err := setClinicSession(clinic.Name, clinic.Username, cookies); err != nil {
 				return configErr(fmt.Errorf("saving session: %w", err))
 			}
