@@ -235,6 +235,10 @@ Custom-domain publications are supported: `auth login --chrome` captures the Cre
 - `substack-pp-cli inbox home` — Authenticated home feed
 - `substack-pp-cli inbox reader-posts` — Posts feed for current user
 
+**reader** — Reader-side commands — subscriptions, following, and reading list
+
+- `substack-pp-cli reader subscriptions` — List all publications you subscribe to as a reader. Flags: `--filter paid|free`, `--cursor`, `--limit`
+
 **notes** — Substack Notes — short-form posts (Substack treats Notes as comments internally)
 
 - `substack-pp-cli notes create` — Post a new Note (POST /comment/feed). Body is ProseMirror JSON.
