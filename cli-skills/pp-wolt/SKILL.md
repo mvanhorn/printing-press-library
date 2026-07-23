@@ -13,7 +13,6 @@ metadata:
       bins:
         - wolt-pp-cli
 ---
-
 <!-- GENERATED FILE — DO NOT EDIT.
      This file is a verbatim mirror of library/food-and-dining/wolt/SKILL.md,
      regenerated post-merge by tools/generate-skills/. Hand-edits here are
@@ -33,7 +32,7 @@ This skill drives the `wolt-pp-cli` binary. **You must verify the CLI is install
 2. Verify: `wolt-pp-cli --version`
 3. Ensure the reported install directory is on `$PATH` for the agent/runtime that will invoke this skill.
 
-If the `npx` install fails (no Node, offline, etc.), fall back to a direct Go install (requires Go 1.26.3 or newer):
+If the `npx` install fails (no Node, offline, etc.), fall back to a direct Go install (requires Go 1.26.5 or newer):
 
 ```bash
 go install github.com/mvanhorn/printing-press-library/library/food-and-dining/wolt/cmd/wolt-pp-cli@latest

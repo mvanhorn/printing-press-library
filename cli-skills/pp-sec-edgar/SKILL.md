@@ -15,7 +15,6 @@ metadata:
         bins: [sec-edgar-pp-cli]
         module: github.com/mvanhorn/printing-press-library/library/developer-tools/sec-edgar/cmd/sec-edgar-pp-cli
 ---
-
 <!-- GENERATED FILE — DO NOT EDIT.
      This file is a verbatim mirror of library/developer-tools/sec-edgar/SKILL.md,
      regenerated post-merge by tools/generate-skills/. Hand-edits here are
@@ -35,7 +34,7 @@ This skill drives the `sec-edgar-pp-cli` binary. **You must verify the CLI is in
 2. Verify: `sec-edgar-pp-cli --version`
 3. Ensure the reported install directory is on `$PATH` for the agent/runtime that will invoke this skill.
 
-If the `npx` install fails (no Node, offline, etc.), fall back to a direct Go install (requires Go 1.26.3 or newer):
+If the `npx` install fails (no Node, offline, etc.), fall back to a direct Go install (requires Go 1.26.5 or newer):
 
 ```bash
 go install github.com/mvanhorn/printing-press-library/library/developer-tools/sec-edgar/cmd/sec-edgar-pp-cli@latest
@@ -115,6 +114,15 @@ These capabilities aren't available in any other tool for this API.
 
   ```bash
   sec-edgar-pp-cli late-filers --since 90d --form 10-K --json
+  ```
+
+### Proxy & ownership
+- **`ownership`** — Resolve a ticker, name, or CIK, find the company's latest DEF 14A proxy statement, fetch the document, and extract the "Security Ownership of Certain Beneficial Owners" section as readable text.
+
+  _The beneficial-ownership table is present under a near-identical heading in every proxy, but reaching it means chaining submissions → document fetch → HTML section extraction that no single SEC endpoint provides. Pick this when an agent needs who-owns-the-company from the proxy itself._
+
+  ```bash
+  sec-edgar-pp-cli ownership MSFT --json
   ```
 
 ## Command Reference

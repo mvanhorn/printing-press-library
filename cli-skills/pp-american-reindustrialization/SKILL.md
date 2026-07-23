@@ -11,7 +11,6 @@ metadata:
       bins:
         - american-reindustrialization-pp-cli
 ---
-
 <!-- GENERATED FILE — DO NOT EDIT.
      This file is a verbatim mirror of library/other/american-reindustrialization/SKILL.md,
      regenerated post-merge by tools/generate-skills/. Hand-edits here are
@@ -31,7 +30,7 @@ This skill drives the `american-reindustrialization-pp-cli` binary. **You must v
 2. Verify: `american-reindustrialization-pp-cli --version`
 3. Ensure the reported install directory is on `$PATH` for the agent/runtime that will invoke this skill.
 
-If the `npx` install fails (no Node, offline, etc.), fall back to a direct Go install (requires Go 1.26.3 or newer):
+If the `npx` install fails (no Node, offline, etc.), fall back to a direct Go install (requires Go 1.26.5 or newer):
 
 ```bash
 go install github.com/mvanhorn/printing-press-library/library/other/american-reindustrialization/cmd/american-reindustrialization-pp-cli@latest

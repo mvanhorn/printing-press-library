@@ -7,7 +7,6 @@ argument-hint: "<command> [args] | install cli|mcp"
 allowed-tools: "Read Bash"
 metadata: '{"openclaw":{"requires":{"bins":["apartments-pp-cli"]},"install":[{"id":"go","kind":"shell","command":"go install github.com/mvanhorn/printing-press-library/library/other/apartments/cmd/apartments-pp-cli@latest","bins":["apartments-pp-cli"],"label":"Install via go install"}]}}'
 ---
-
 <!-- GENERATED FILE — DO NOT EDIT.
      This file is a verbatim mirror of library/other/apartments/SKILL.md,
      regenerated post-merge by tools/generate-skills/. Hand-edits here are
@@ -27,7 +26,7 @@ This skill drives the `apartments-pp-cli` binary. **You must verify the CLI is i
 2. Verify: `apartments-pp-cli --version`
 3. Ensure the reported install directory is on `$PATH` for the agent/runtime that will invoke this skill.
 
-If the `npx` install fails (no Node, offline, etc.), fall back to a direct Go install (requires Go 1.26.3 or newer):
+If the `npx` install fails (no Node, offline, etc.), fall back to a direct Go install (requires Go 1.26.5 or newer):
 
 ```bash
 go install github.com/mvanhorn/printing-press-library/library/other/apartments/cmd/apartments-pp-cli@latest

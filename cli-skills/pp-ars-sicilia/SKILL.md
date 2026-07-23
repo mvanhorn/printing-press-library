@@ -11,7 +11,6 @@ metadata:
       bins:
         - ars-sicilia-pp-cli
 ---
-
 <!-- GENERATED FILE — DO NOT EDIT.
      This file is a verbatim mirror of library/other/ars-sicilia/SKILL.md,
      regenerated post-merge by tools/generate-skills/. Hand-edits here are
@@ -24,20 +23,22 @@ metadata:
 
 This skill drives the `ars-sicilia-pp-cli` binary. **You must verify the CLI is installed before invoking any command from this skill.** If it is missing, install it first:
 
-1. Install via the Printing Press installer. It defaults binaries to `$HOME/.local/bin` on macOS/Linux and `%LOCALAPPDATA%\Programs\PrintingPress\bin` on Windows:
+1. Install via the Printing Press installer:
    ```bash
    npx -y @mvanhorn/printing-press-library install ars-sicilia --cli-only
    ```
 2. Verify: `ars-sicilia-pp-cli --version`
-3. Ensure the reported install directory is on `$PATH` for the agent/runtime that will invoke this skill.
+3. Ensure `$GOPATH/bin` (or `$HOME/go/bin`) is on `$PATH`.
 
-If the `npx` install fails (no Node, offline, etc.), fall back to a direct Go install (requires Go 1.26.3 or newer):
+If the `npx` install fails (no Node, offline, etc.), fall back to a direct Go install (requires Go 1.26.5 or newer):
 
 ```bash
 go install github.com/mvanhorn/printing-press-library/library/other/ars-sicilia/cmd/ars-sicilia-pp-cli@latest
 ```
 
-If `--version` reports "command not found" after install, the runtime cannot see the binary directory on `$PATH`. Do not proceed with skill commands until verification succeeds.
+If `--version` reports "command not found" after install, the install step did not put the binary on `$PATH`. Do not proceed with skill commands until verification succeeds.
+
+Sostituisce le 12 maschere JSP del portale ufficiale con una CLI agent-native. Sync in SQLite locale per query SQL, ricerca full-text cross-archivio, e novel commands come `ddl iter` (timeline completa di un disegno di legge) e `deputato profilo` (tutta l'attività di un parlamentare in un'unica chiamata).
 
 ## When to Use This CLI
 
@@ -57,36 +58,37 @@ These capabilities aren't available in any other tool for this API.
   _Quando un agente deve raccontare 'a che punto sta il DDL X', questa è l'unica chiamata che restituisce la timeline completa senza incollare 5 ricerche manuali._
 
   ```bash
-  ars-sicilia-pp-cli ddl iter 18 1500 --json
+  ars-sicilia-pp-cli ddl iter 18 1153 --json
   ```
-- **`deputato profilo`** — Aggrega in un'unica vista tutti gli atti firmati o pronunciati da un deputato: DDL, interrogazioni, interpellanze, mozioni, ordini del giorno, risoluzioni e interventi in resoconti d'aula.
+- **`deputato profilo`** — Aggrega in un'unica vista tutti gli atti firmati o pronunciati da un deputato: DDL, interrogazioni, interpellanze, mozioni, ordini del giorno, risoluzioni e interventi in resoconti d'aula. `--data` (range `YYYY-MM-DD:YYYY-MM-DD`) filtra per data su tutti i sotto-archivi.
 
   _Sostituisce un workflow di 7 click manuali con un'unica chiamata strutturata: pensata per agenti che rispondono a 'che ha fatto il deputato X?'._
 
   ```bash
-  ars-sicilia-pp-cli deputato profilo "Rossi Mario" --legisl 18 --json --select tipo,data,titolo
+  ars-sicilia-pp-cli deputato profilo "Abbate Ignazio" --legisl 18 --json --select tipo,data,titolo
   ```
 - **`commissione dossier`** — Vista completa su una commissione: convocazioni in calendario, sommari lavori, DDL assegnati e pareri richiesti al Governo regionale.
 
   _Quando segui i lavori di una commissione specifica, questa è l'unica chiamata che dà il quadro completo invece di 3 ricerche separate._
 
   ```bash
-  ars-sicilia-pp-cli commissione dossier 5 --legisl 18 --json
+  ars-sicilia-pp-cli commissione dossier "SESTA" --legisl 18 --json
   ```
 - **`legge cronologia`** — Partendo da una legge regionale promulgata (archivio 201), risale al DDL originario, agli emendamenti citati nei resoconti d'aula e ai pareri di commissione: l'inverso temporale di ddl iter.
 
   _Per ricercatori e giornalisti che partono dalla legge promulgata e vogliono raccontare come ci si è arrivati._
 
   ```bash
-  ars-sicilia-pp-cli legge cronologia 18 5 --json
+  ars-sicilia-pp-cli legge cronologia 18 1 --json
   ```
 
 ### Analytics su campi strutturati
-- **`analytics`** — Identifica i deputati che firmano insieme atti parlamentari, restituendo coppie e cluster con conteggio per analisi di network politico.
+- **`analytics`** — Identifica i deputati che firmano insieme atti parlamentari, restituendo coppie e cluster con conteggio per analisi di network politico. Richiede una **deep sync** dei ddl (`sync --resources ddl --deep`), che estrae i firmatari dalle schede di dettaglio.
 
   _Per ricercatori e giornalisti che analizzano alleanze e dinamiche politiche: niente foglio Excel di trascrizioni manuali._
 
   ```bash
+  ars-sicilia-pp-cli sync --resources ddl --legisl 18 --deep
   ars-sicilia-pp-cli analytics --type ddl --group-by cofirmatari --limit 50 --json
   ```
 - **`analytics`** — Classifica i deputati per numero di interventi nei resoconti d'aula, con range date e legislatura, opzionale conteggio parole.
@@ -98,7 +100,7 @@ These capabilities aren't available in any other tool for this API.
   ```
 
 ### Stato e monitoraggio
-- **`ddl drift`** — Confronta lo stato dell'iter dei DDL nella sync corrente con la precedente e segnala i disegni di legge che si sono mossi nel periodo (passati da commissione ad aula, approvati, ritirati).
+- **`ddl drift`** — Confronta lo stato dell'iter dei DDL nella sync corrente con la precedente e segnala i disegni di legge che si sono mossi nel periodo (passati da commissione ad aula, approvati, ritirati). Richiede due **deep sync** (`sync --resources ddl --deep`) a distanza di tempo: solo la deep sync scrive il campo `iter` confrontato.
 
   _L'RSS shell esistente segnala solo 'nuovi'; per 'mossi' non c'è alternativa. Questo è il segnale che cercavano i journalist che seguono iter politici._
 
@@ -112,6 +114,8 @@ These capabilities aren't available in any other tool for this API.
   ```bash
   ars-sicilia-pp-cli sync stale --json
   ```
+
+  Nota: `sync stale --max-age` ha default `7d` (i dati ARS non cambiano su base oraria); `doctor`'s cache section usa invece una soglia fissa di 6h, non configurabile. Le due soglie divergono di proposito — uno store che `sync stale` giudica fresco può risultare `"status": "stale"` in `doctor`. Un agente che orchestra sync automatico non deve fidarsi solo di `sync stale`: controlla anche `doctor`'s `cache.status` se vuoi il segnale più conservativo.
 
 ## Command Reference
 
@@ -194,10 +198,10 @@ Prima sincronizzazione di tutti gli archivi politici della XVIII legislatura —
 ### Iter completo di un DDL con output narrowing
 
 ```bash
-ars-sicilia-pp-cli ddl iter 18 1500 --json --select fase,data,sede,oratori
+ars-sicilia-pp-cli ddl iter 18 1153 --json --select fase,data,sede,oratori
 ```
 
-Timeline del DDL 1500, mostrando solo i campi essenziali — riduce il payload per agenti.
+Timeline del DDL 1153, mostrando solo i campi essenziali — riduce il payload per agenti.
 
 ### Network di co-firmatari su DDL
 
@@ -218,10 +222,11 @@ Confronta lo stato dell'iter rispetto a una settimana fa — i DDL che si sono m
 ### Top cofirmatari DDL (XVIII legislatura)
 
 ```bash
+ars-sicilia-pp-cli sync --resources ddl --legisl 18 --deep
 ars-sicilia-pp-cli analytics --type ddl --group-by cofirmatari --limit 20 --legisl 18 --json
 ```
 
-Classifica i deputati che firmano più DDL insieme (richiede sync).
+Classifica i deputati che firmano più DDL insieme (richiede una **deep sync** dei ddl: i firmatari stanno solo nelle schede di dettaglio).
 
 ## Auth Setup
 

@@ -15,7 +15,6 @@ metadata:
         bins: [lemonsqueezy-pp-cli]
         module: github.com/mvanhorn/printing-press-library/library/payments/lemonsqueezy/cmd/lemonsqueezy-pp-cli
 ---
-
 <!-- GENERATED FILE — DO NOT EDIT.
      This file is a verbatim mirror of library/payments/lemonsqueezy/SKILL.md,
      regenerated post-merge by tools/generate-skills/. Hand-edits here are
@@ -35,7 +34,7 @@ This skill drives the `lemonsqueezy-pp-cli` binary. **You must verify the CLI is
 2. Verify: `lemonsqueezy-pp-cli --version`
 3. Ensure the reported install directory is on `$PATH` for the agent/runtime that will invoke this skill.
 
-If the `npx` install fails (no Node, offline, etc.), fall back to a direct Go install (requires Go 1.26.3 or newer):
+If the `npx` install fails (no Node, offline, etc.), fall back to a direct Go install (requires Go 1.26.5 or newer):
 
 ```bash
 go install github.com/mvanhorn/printing-press-library/library/payments/lemonsqueezy/cmd/lemonsqueezy-pp-cli@latest
@@ -54,6 +53,38 @@ Do not use this CLI for:
 - Receiving webhook payloads in production — this CLI can replay and audit webhooks, but the actual HTTP server lives in your application.
 - Tax/VAT reporting — Lemon Squeezy is merchant-of-record and ships its own tax docs in the dashboard; this CLI doesn't replicate them.
 - Customer-facing license validation in your desktop app — call the LS license API directly from the app, not via this CLI.
+
+
+## Catalog setup rule (public API limitation)
+
+Do **not** try to create Lemon Squeezy products, variants, or digital files through the public API. Official docs and OPTIONS checks show those catalog resources are list/get only. `import products`, `import variants`, and `import files` intentionally refuse with `resource_read_only` / `operation_not_supported_by_public_api` instead of emitting fake POST dry-runs.
+
+Use these commands instead:
+
+```bash
+# Ask what writes are supported before mutating anything.
+lemonsqueezy-pp-cli capabilities --json
+lemonsqueezy-pp-cli which "create product" --json
+lemonsqueezy-pp-cli which "upload file" --json
+
+# Prepare a dashboard handoff packet for catalog setup.
+lemonsqueezy-pp-cli dashboard handoff product \
+  --name "Juno Home Chief of Staff Starter Kit" \
+  --slug juno-home-chief-of-staff-starter-kit \
+  --sku juno-home-chief-of-staff-starter-kit \
+  --price-usd 149 \
+  --type "digital download" \
+  --redirect-url https://www.littlemight.com/ai-house-manager/thank-you/ \
+  --affiliate-percent 25 \
+  --affiliate-approval "manual approval" \
+  --affiliate-cookie-days 30 \
+  --json
+
+# After the dashboard-created variant exists, create checkout URLs via API.
+lemonsqueezy-pp-cli checkouts create --store-id <STORE_ID> --variant-id <VARIANT_ID> --dry-run --json
+```
+
+Checkout creation is supported by `POST /v1/checkouts` only after you already have a valid store ID and variant ID. Live `checkouts create` validates both before POSTing and returns the checkout URL/ID.
 
 ## Unique Capabilities
 
@@ -123,6 +154,15 @@ These capabilities aren't available in any other tool for this API.
 
 ## Command Reference
 
+**agent-native catalog workflows** — Public API capability discovery and dashboard handoffs
+
+- `lemonsqueezy-pp-cli capabilities` — Show public API list/get/create/update/delete support by resource
+- `lemonsqueezy-pp-cli dashboard` — Dashboard-only Lemon Squeezy workflows and handoff packets
+- `lemonsqueezy-pp-cli dashboard handoff` — Generate dashboard handoff artifacts for unsupported public API writes
+- `lemonsqueezy-pp-cli dashboard handoff product` — Generate exact dashboard fields for a product/variant/file setup handoff
+- `lemonsqueezy-pp-cli import <resource>` — Import JSONL records only for API-writable resources; refuses products/variants/files as read-only
+- `lemonsqueezy-pp-cli which [query]` — Resolve natural-language capability requests, including negative catalog guidance
+
 **affiliates** — Manage affiliates
 
 - `lemonsqueezy-pp-cli affiliates get` — Lemon Squeezy Retrieve an affiliate
@@ -130,7 +170,7 @@ These capabilities aren't available in any other tool for this API.
 
 **checkouts** — Manage checkouts
 
-- `lemonsqueezy-pp-cli checkouts create` — Lemon Squeezy Create a checkout
+- `lemonsqueezy-pp-cli checkouts create` — Create a checkout URL for an existing store/variant; supports safe JSON:API dry-run and live preflight validation
 - `lemonsqueezy-pp-cli checkouts get` — Lemon Squeezy Retrieve a checkout
 - `lemonsqueezy-pp-cli checkouts list` — Lemon Squeezy List all checkouts
 

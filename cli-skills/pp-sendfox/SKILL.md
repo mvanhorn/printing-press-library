@@ -1,7 +1,7 @@
 ---
 name: pp-sendfox
-description: "The only SendFox CLI. Write a newsletter with AI, assign a list, send from one command. Trigger phrases: `send a SendFox newsletter`, `write an email campaign`, `schedule my newsletter`, `check my SendFox stats`, `use sendfox`, `add a contact to SendFox`."
-author: "Dilip"
+description: "Printing Press CLI for SendFox: contacts, lists, campaign reads, audience hygiene, CSV reconciliation, launch plans, signup-form handoffs, webhook packets, and capability checks."
+author: "cathrynlavery"
 license: "Apache-2.0"
 argument-hint: "<command> [args] | install cli|mcp"
 allowed-tools: "Read Bash"
@@ -10,6 +10,10 @@ metadata:
     requires:
       bins:
         - sendfox-pp-cli
+    install:
+      - kind: go
+        bins: [sendfox-pp-cli]
+        module: github.com/mvanhorn/printing-press-library/library/marketing/sendfox/cmd/sendfox-pp-cli
 ---
 <!-- GENERATED FILE — DO NOT EDIT.
      This file is a verbatim mirror of library/marketing/sendfox/SKILL.md,
@@ -23,103 +27,90 @@ metadata:
 
 This skill drives the `sendfox-pp-cli` binary. **You must verify the CLI is installed before invoking any command from this skill.** If it is missing, install it first:
 
-1. Install via the Printing Press installer. It defaults binaries to `$HOME/.local/bin` on macOS/Linux and `%LOCALAPPDATA%\Programs\PrintingPress\bin` on Windows:
+1. Install via the Printing Press installer into a user bin directory:
    ```bash
-   npx -y @mvanhorn/printing-press-library install sendfox --cli-only
+   npx -y @mvanhorn/printing-press-library install sendfox --cli-only --bin-dir ~/.local/bin
    ```
 2. Verify: `sendfox-pp-cli --version`
-3. Ensure the reported install directory is on `$PATH` for the agent/runtime that will invoke this skill.
+3. Ensure `~/.local/bin` is on `$PATH` for the agent/runtime that will invoke this skill.
 
-If the `npx` install fails before this CLI has a public-library category, install Node or use the category-specific Go fallback after publish.
+If the `npx` install fails (no Node, offline, etc.), fall back to a direct Go install (requires Go 1.26.5 or newer). This installs into `$GOPATH/bin` (default `$HOME/go/bin`), so add that directory to `$PATH` instead:
+
+```bash
+go install github.com/mvanhorn/printing-press-library/library/marketing/sendfox/cmd/sendfox-pp-cli@latest
+```
 
 If `--version` reports "command not found" after install, the runtime cannot see the binary directory on `$PATH`. Do not proceed with skill commands until verification succeeds.
 
-This CLI wraps the full SendFox campaign lifecycle in a terminal-native tool. The write command uses Claude to generate your subject line and email body from a plain-English brief, then creates the draft and sends it. Stats, trends, and contact management are all offline-capable after a sync.
+Operate SendFox contacts, lists, campaign reads, audience hygiene, CSV reconciliation, launch checklists, signup-form handoffs, webhook setup packets, and public API capability checks from the terminal.
+## Command Reference
 
-## When to Use This CLI
+**capabilities** — Documented public API support matrix
 
-Use sendfox-pp-cli when an agent or user needs to draft, schedule, or send a SendFox newsletter without opening a browser. Ideal for content creators who want AI-assisted writing and a single-command send workflow.
+- `sendfox-pp-cli capabilities` — Show which SendFox resources support list/get/create/update/delete and where dashboard handoffs are required
+
+**campaigns** — Campaign reads
+
+- `sendfox-pp-cli campaigns get` — Get campaign by ID
+- `sendfox-pp-cli campaigns list` — List campaigns
+
+**contacts** — Contacts and subscription state
+
+- `sendfox-pp-cli contacts create` — Create a contact
+- `sendfox-pp-cli contacts get` — Get a contact by ID
+- `sendfox-pp-cli contacts list` — List contacts or find a contact by email
+- `sendfox-pp-cli contacts onboard` — Create a contact and attach list memberships in one automation-aware flow
+- `sendfox-pp-cli contacts import-csv` — Bulk-create contacts from CSV behind a dry-run/--yes safety gate
+- `sendfox-pp-cli contacts audit-csv` — Validate subscriber CSVs for invalid and duplicate emails before any mutation
+- `sendfox-pp-cli contacts reconcile-csv` — Compare a CSV against live contacts and emit create/skip actions
+
+**forms** — Generate SendFox integration assets
+
+- `sendfox-pp-cli forms generate` — Generate a self-contained HTML signup form and server-proxy handoff
+
+**lists** — Contact lists
+
+- `sendfox-pp-cli lists create` — Create a contact list
+- `sendfox-pp-cli lists get` — Get a contact list by ID
+- `sendfox-pp-cli lists list-lists` — List contact lists
+
+**workflow** — Compound SendFox workflows for agents
+
+- `sendfox-pp-cli workflow account-snapshot` — Summarize account, list, contact, and campaign state
+- `sendfox-pp-cli workflow audience-map` — Map contacts to lists and surface segmentation gaps
+- `sendfox-pp-cli workflow campaign-digest` — Summarize campaign count, status mix, and recency
+- `sendfox-pp-cli workflow hygiene-report` — Find duplicate emails, invalid emails, status mix, and list-membership gaps
+- `sendfox-pp-cli workflow launch-plan` — Generate a safe SendFox list-launch checklist and exact next CLI/dashboard steps
+
+**webhooks** — Generate SendFox webhook/dashboard handoffs
+
+- `sendfox-pp-cli webhooks handoff` — Generate dashboard setup and handler-contract packets for SendFox webhook receivers
+
+**me** — Manage me
+
+- `sendfox-pp-cli me` — Get authenticated user
+
+**unsubscribe** — Manage unsubscribe
+
+- `sendfox-pp-cli unsubscribe` — Unsubscribe a contact by email
+
 
 ## Unique Capabilities
 
-These capabilities aren't available in any other tool for this API.
+Prefer these compound commands before raw endpoint mirrors:
 
-### AI-powered writing
-- **`write`** — Describe a topic in plain English and get a complete, ready-to-send newsletter with subject line, preview text, and full HTML body.
-
-  _Use this when the agent needs to draft and send a newsletter without human copywriting time._
-
-  ```bash
-  sendfox-pp-cli write --topic 'How I grew my newsletter to 5000 subscribers' --list 42 --send
-  ```
-- **`write`** — Get 3 AI-generated subject line options with a rationale for each, then pick one before the draft is created.
-
-  _Use when the agent should let the user choose a subject line before committing to a send._
-
-  ```bash
-  sendfox-pp-cli write --topic 'My favorite tools of 2026' --ab-subjects 3
-  ```
-- **`write`** — Give it a file with one topic per line and it schedules one AI-written newsletter per topic, spaced out over coming weeks.
-
-  _Use when the agent needs to pre-schedule an entire content calendar in one operation._
-
-  ```bash
-  sendfox-pp-cli write --from-topics topics.txt --schedule-weekly --list 42
-  ```
-
-### Local state that compounds
-- **`stats trends`** — See how your open rates, click rates, and unsubscribes have changed over the last N days across all campaigns.
-
-  _Use when the agent needs to assess whether engagement is improving or declining before changing send frequency._
-
-  ```bash
-  sendfox-pp-cli stats trends --days 30 --json
-  ```
-- **`stats funnel`** — A cross-campaign view of sent vs opened vs clicked vs unsubscribed to see your list health at a glance.
-
-  _Use when the agent needs a quick pulse on list engagement before deciding to send or pause._
-
-  ```bash
-  sendfox-pp-cli stats funnel --json
-  ```
-- **`stats best-time`** — Analyzes historical campaign data to identify which days and times correlate with your highest open rates.
-
-  _Use when scheduling a campaign and wanting to optimize the send time based on past performance._
-
-  ```bash
-  sendfox-pp-cli stats best-time
-  ```
-
-## Command Reference
-
-**campaigns** — 
-
-- `sendfox-pp-cli campaigns create` — Create a new campaign draft
-- `sendfox-pp-cli campaigns delete` — Delete a draft campaign (only works on unsent drafts)
-- `sendfox-pp-cli campaigns get` — Get a specific campaign by ID
-- `sendfox-pp-cli campaigns list` — List all campaigns (100 per page)
-- `sendfox-pp-cli campaigns send` — Send a draft campaign immediately (must have at least one list assigned)
-- `sendfox-pp-cli campaigns stats` — Get performance stats for a campaign
-- `sendfox-pp-cli campaigns update` — Update a draft campaign (only works on unsent drafts)
-
-**contacts** — 
-
-- `sendfox-pp-cli contacts create` — Create a new contact
-- `sendfox-pp-cli contacts get` — Get a specific contact by ID
-- `sendfox-pp-cli contacts list` — Get all contacts (paginated)
-- `sendfox-pp-cli contacts remove_from_list` — Remove a contact from a specific list
-- `sendfox-pp-cli contacts unsubscribe` — Unsubscribe a contact by email
-
-**lists** — 
-
-- `sendfox-pp-cli lists create` — Create a new subscriber list
-- `sendfox-pp-cli lists get` — Get a specific list by ID
-- `sendfox-pp-cli lists list` — Get all subscriber lists (paginated)
-
-**me** — 
-
-- `sendfox-pp-cli me` — Get authenticated user info
-
+- `sendfox-pp-cli workflow account-snapshot --agent` — one read-only operating packet across account, lists, contacts, and campaigns.
+- `sendfox-pp-cli workflow audience-map --agent` — list membership map plus contacts without list membership.
+- `sendfox-pp-cli workflow campaign-digest --agent` — campaign status counts and recent campaign rows.
+- `sendfox-pp-cli capabilities --agent` — support matrix that stops agents from inventing unsupported campaign/webhook writes.
+- `sendfox-pp-cli workflow hygiene-report --agent` — live hygiene report for duplicate/invalid emails, contact status mix, and contacts without lists.
+- `sendfox-pp-cli workflow launch-plan --list-id <id> --csv subscribers.csv --agent` — safe launch checklist with exact CLI commands and dashboard-only campaign creation called out explicitly.
+- `sendfox-pp-cli contacts audit-csv --file subscribers.csv --lists <ids> --agent` — validate duplicate/invalid rows before mutation.
+- `sendfox-pp-cli contacts reconcile-csv --file subscribers.csv --lists <ids> --dry-run --agent` — compare CSV rows to live contacts and emit create/skip actions.
+- `sendfox-pp-cli contacts onboard --email <email> --lists <ids> --dry-run --agent` — preview a contact-create request that may trigger list automations; remove `--dry-run` for live execution.
+- `sendfox-pp-cli contacts import-csv --file subscribers.csv --lists <ids> --dry-run --agent` — preview a guarded bulk import; live runs require `--yes` or `--agent`.
+- `sendfox-pp-cli forms generate --list-id <id> --output form.html --agent` — create a signup-form handoff and keep the bearer token server-side.
+- `sendfox-pp-cli webhooks handoff --endpoint <url> --agent` — dashboard setup packet and receiver contract without pretending there is public webhook CRUD.
 
 ### Finding the right command
 
@@ -131,52 +122,15 @@ sendfox-pp-cli which "<capability in your own words>"
 
 `which` resolves a natural-language capability query to the best matching command from this CLI's curated feature index. Exit code `0` means at least one match; exit code `2` means no confident match — fall back to `--help` or use a narrower query.
 
-## Recipes
-
-
-### Write and send a newsletter in one command
-
-```bash
-sendfox-pp-cli write --topic 'How I built my audience in 6 months' --list 42 --send
-```
-
-AI-generates subject, preview text, and HTML body, creates the draft, assigns list 42, and sends immediately.
-
-### Schedule a week of newsletters from a topics file
-
-```bash
-sendfox-pp-cli write --from-topics topics.txt --schedule-weekly --list 42
-```
-
-Reads one topic per line, generates each campaign, and schedules them 7 days apart starting tomorrow.
-
-### Check engagement trends with select fields
-
-```bash
-sendfox-pp-cli stats trends --days 30 --json --select open_rate,click_rate,date
-```
-
-Returns time-series open and click rate data from local SQLite for agent-readable trend analysis.
-
-### Find the best time to send
-
-```bash
-sendfox-pp-cli stats best-time --agent
-```
-
-Analyzes past campaign send times against open rates and returns a ranked list of optimal send windows.
-
-### Clone and remix a past campaign
-
-```bash
-sendfox-pp-cli campaigns clone --id 18 --subject 'Updated: My best tips for 2026'
-```
-
-Copies campaign 18 HTML into a new draft with a fresh subject line, ready to edit and resend.
-
 ## Auth Setup
 
-Run sendfox-pp-cli setup on first use. It walks you through getting a Personal Access Token at sendfox.com/account/oauth, validates it, fetches your subscriber lists, and saves everything to ~/.config/sendfox/config.yaml. Every subsequent command reads from that config.
+Run `sendfox-pp-cli auth setup` for the URL and steps to obtain a token (add `--launch` to open the URL). Then store it:
+
+```bash
+sendfox-pp-cli auth set-token YOUR_TOKEN_HERE
+```
+
+Or set `SENDFOX_API_TOKEN` as an environment variable (`SENDFOX_BEARER_AUTH` remains supported as a compatibility alias).
 
 Run `sendfox-pp-cli doctor` to verify setup.
 
@@ -206,7 +160,7 @@ Commands that read from the local store or the API wrap output in a provenance e
 }
 ```
 
-Parse `.results` for data and `.meta.source` to know whether it's live or local. A human-readable `N results (live)` summary is printed to stderr only when stdout is a terminal — piped/agent consumers get pure JSON on stdout.
+Parse `.results` for data and `.meta.source` to know whether it's live or local. A human-readable `N results (live)` summary is printed to stderr only when stdout is a terminal AND no machine-format flag (`--json`, `--csv`, `--compact`, `--quiet`, `--plain`, `--select`) is set — piped/agent consumers and explicit-format runs get pure JSON on stdout.
 
 ## Agent Feedback
 
@@ -218,7 +172,7 @@ sendfox-pp-cli feedback --stdin < notes.txt
 sendfox-pp-cli feedback list --json --limit 10
 ```
 
-Entries are stored locally at `~/.sendfox-pp-cli/feedback.jsonl`. They are never POSTed unless `SENDFOX_FEEDBACK_ENDPOINT` is set AND either `--send` is passed or `SENDFOX_FEEDBACK_AUTO_SEND=true`. Default behavior is local-only.
+Entries are stored locally at `~/.local/share/sendfox-pp-cli/feedback.jsonl`. They are never POSTed unless `SENDFOX_FEEDBACK_ENDPOINT` is set AND either `--send` is passed or `SENDFOX_FEEDBACK_AUTO_SEND=true`. Default behavior is local-only.
 
 Write what *surprised* you, not a bug report. Short, specific, one line: that is the part that compounds.
 
@@ -270,21 +224,15 @@ Parse `$ARGUMENTS`:
 
 ## MCP Server Installation
 
-Install the MCP binary from this CLI's published public-library entry or pre-built release, then register it:
-
-```bash
-claude mcp add sendfox-pp-mcp -- sendfox-pp-mcp
-```
-
-Verify: `claude mcp list`
-
-To run as an HTTP server instead of stdio, set `SENDFOX_MCP_PORT` (or `MCP_PORT`) before starting:
-
-```bash
-SENDFOX_MCP_PORT=8080 sendfox-pp-mcp
-```
-
-This starts a StreamableHTTP MCP server on the given port, useful for cloud-hosted agents.
+1. Install the MCP server:
+   ```bash
+   go install github.com/mvanhorn/printing-press-library/library/marketing/sendfox/cmd/sendfox-pp-mcp@latest
+   ```
+2. Register with Claude Code:
+   ```bash
+   claude mcp add sendfox-pp-mcp -- sendfox-pp-mcp
+   ```
+3. Verify: `claude mcp list`
 
 ## Direct Use
 

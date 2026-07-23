@@ -15,7 +15,6 @@ metadata:
         bins: [ucp-pp-cli]
         module: github.com/mvanhorn/printing-press-library/library/commerce/ucp/cmd/ucp-pp-cli
 ---
-
 <!-- GENERATED FILE — DO NOT EDIT.
      This file is a verbatim mirror of library/commerce/ucp/SKILL.md,
      regenerated post-merge by tools/generate-skills/. Hand-edits here are
@@ -35,7 +34,7 @@ This skill drives the `ucp-pp-cli` binary. **You must verify the CLI is installe
 2. Verify: `ucp-pp-cli --version`
 3. Ensure the reported install directory is on `$PATH` for the agent/runtime that will invoke this skill.
 
-If the `npx` install fails (no Node, offline, etc.), fall back to a direct Go install (requires Go 1.26.3 or newer):
+If the `npx` install fails (no Node, offline, etc.), fall back to a direct Go install (requires Go 1.26.5 or newer):
 
 ```bash
 go install github.com/mvanhorn/printing-press-library/library/commerce/ucp/cmd/ucp-pp-cli@latest

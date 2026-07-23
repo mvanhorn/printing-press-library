@@ -15,7 +15,6 @@ metadata:
         bins: [x-twitter-pp-cli]
         module: github.com/mvanhorn/printing-press-library/library/social-and-messaging/x-twitter/cmd/x-twitter-pp-cli
 ---
-
 <!-- GENERATED FILE — DO NOT EDIT.
      This file is a verbatim mirror of library/social-and-messaging/x-twitter/SKILL.md,
      regenerated post-merge by tools/generate-skills/. Hand-edits here are
@@ -35,7 +34,7 @@ This skill drives the `x-twitter-pp-cli` binary. **You must verify the CLI is in
 2. Verify: `x-twitter-pp-cli --version`
 3. Ensure the reported install directory is on `$PATH` for the agent/runtime that will invoke this skill.
 
-If the `npx` install fails (no Node, offline, etc.), fall back to a direct Go install (requires Go 1.26.4 or newer). This installs into `$GOPATH/bin` (default `$HOME/go/bin`), so add that directory to `$PATH` instead:
+If the `npx` install fails (no Node, offline, etc.), fall back to a direct Go install (requires Go 1.26.5 or newer). This installs into `$GOPATH/bin` (default `$HOME/go/bin`), so add that directory to `$PATH` instead:
 
 ```bash
 go install github.com/mvanhorn/printing-press-library/library/social-and-messaging/x-twitter/cmd/x-twitter-pp-cli@latest
@@ -150,13 +149,27 @@ These capabilities aren't available in any other tool for this API.
   ```bash
   x-twitter-pp-cli thread compose ./update.md
   ```
-- **`articles-publish-md`** — Parse a markdown file with YAML frontmatter into the Draft.js content_state JSON X's Articles editor accepts; previews by default; --draft saves a draft, --post publishes publicly.
+- **`articles-publish-md`** — Parse a markdown file with YAML frontmatter into the Draft.js content_state JSON X's Articles editor accepts; previews by default; --draft creates a new draft, --update edits an existing draft, --post publishes publicly.
 
-  _The only programmatic way to author a long-form X Article from a document; preview and --draft keep it private until you explicitly --post._
+  _The only programmatic way to author a long-form X Article from a document; preview, --draft, and --update keep it private until you explicitly --post._
+
+  The converter supports paragraphs, `#`/`##` headers (`###` and deeper are downgraded to `##`), lists, blockquotes, fenced code blocks, tables, dividers, image lines (`![alt](path)`), standalone tweet URLs (native embeds), bold/italic/code inline styles (including inside blockquotes), and `[text](url)` inline links, which become real LINK entities (working hyperlinks) in the article. Lines that are HTML comments (`<!-- ... -->`) are stripped and never ship as article text.
 
   ```bash
   x-twitter-pp-cli articles-publish-md ./post.md
+  x-twitter-pp-cli articles-publish-md ./post.md --update 1750000000000000000
   ```
+- **`articles update-md`** — Update an existing X Article draft in place from a markdown file: title (frontmatter), body, links, and new inline images, all in one command. Find the article id via `articles list --agent`.
+
+  _Edit the markdown, re-run one command. No duplicate drafts: the draft keeps its id, so the edit URL and any saved state stay valid._
+
+  ```bash
+  x-twitter-pp-cli articles update-md ./post.md --article-id 1750000000000000000 --agent
+  ```
+
+  **WARNING — body replacement:** `articles update-md` replaces the ENTIRE body of the target draft. Anything added by hand in the X composer that the markdown converter cannot reproduce is destroyed by the update. The command preflights the draft's content_state and refuses when it finds entity types outside the converter's emit set (LINK, MARKDOWN, MEDIA, TWEET, DIVIDER); pass `--replace-unknown-entities` only when you genuinely want to overwrite those artifacts. Markdown-authored content round-trips cleanly; if a draft holds composer-only embeds or other manual artifacts, edit it in the composer instead.
+
+  Draft-only by default: a published article is refused unless you pass `--republish`, which runs Unpublish -> UpdateContent -> Publish (the article is briefly unpublished). Use `--dry-run` to preview the converted payload with no API call.
 
 ## Command Reference
 

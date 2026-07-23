@@ -11,7 +11,6 @@ metadata:
       bins:
         - uk-train-goat-pp-cli
 ---
-
 <!-- GENERATED FILE — DO NOT EDIT.
      This file is a verbatim mirror of library/travel/uk-train-goat/SKILL.md,
      regenerated post-merge by tools/generate-skills/. Hand-edits here are
@@ -156,7 +155,7 @@ Multi-origin fan-out + dotted-path field selection; tight payload for an LLM con
 uk-train-goat-pp-cli why $SERVICE_ID --json
 ```
 
-Composes service detail with NRCC operator alerts so the user sees the reason, not just the delay.
+Surfaces one service's scheduled vs expected times, platform, operator, and calling points, with a plain-prose status line (on time, running late, or cancelled). The delay-reason text and NRCC operator alerts (including strike notices) live on the live board, not the service-detail payload. See `board`/`arrivals`, where `messages[]` carries the alert banners and `delay_reason` carries the cause.
 
 ### Iterative trip planning
 

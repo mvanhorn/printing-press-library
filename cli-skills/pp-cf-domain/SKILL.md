@@ -11,7 +11,6 @@ metadata:
       bins:
         - cf-domain-pp-cli
 ---
-
 <!-- GENERATED FILE — DO NOT EDIT.
      This file is a verbatim mirror of library/cloud/cf-domain/SKILL.md,
      regenerated post-merge by tools/generate-skills/. Hand-edits here are
@@ -31,7 +30,7 @@ This skill drives the `cf-domain-pp-cli` binary. **You must verify the CLI is in
 2. Verify: `cf-domain-pp-cli --version`
 3. Ensure the reported install directory is on `$PATH` for the agent/runtime that will invoke this skill.
 
-If the `npx` install fails (no Node, offline, etc.), fall back to a direct Go install (requires Go 1.26.3 or newer):
+If the `npx` install fails (no Node, offline, etc.), fall back to a direct Go install (requires Go 1.26.5 or newer):
 
 ```bash
 go install github.com/mvanhorn/printing-press-library/library/cloud/cf-domain/cmd/cf-domain-pp-cli@latest
