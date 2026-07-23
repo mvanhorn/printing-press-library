@@ -56,6 +56,54 @@ func TestParseMoney(t *testing.T) {
 	}
 }
 
+// TestIsMissingMoney is the Greptile 4/5 → 5/5 fix: job audit must not treat
+// an explicit $0 total (warranty / free estimate) as "price not recorded".
+func TestIsMissingMoney(t *testing.T) {
+	cases := []struct {
+		input string
+		want  bool
+	}{
+		{"", true},
+		{"   ", true},
+		{"0", false},
+		{"0.00", false},
+		{"450.00", false},
+		{"171.36", false},
+	}
+	for _, tc := range cases {
+		if got := isMissingMoney(flexibleMoney(tc.input)); got != tc.want {
+			t.Errorf("isMissingMoney(%q) = %v, want %v", tc.input, got, tc.want)
+		}
+	}
+}
+
+// TestJobAuditDoesNotFlagZeroPrice ensures the audit predicate used at the
+// call site treats a recorded zero total as present (not a billing gap).
+func TestJobAuditDoesNotFlagZeroPrice(t *testing.T) {
+	// Wire shape confirmed live: JobTotalPrice arrives as JSON number 0.
+	raw := `{"UUID":"FREE01","JobTotalPrice":0,"Phone":"3035550100","Email":"a@b.c","Address":"1 Main","Team":[{"Name":"Tech"}]}`
+	var j wzJob
+	if err := json.Unmarshal([]byte(raw), &j); err != nil {
+		t.Fatalf("unmarshal: %v", err)
+	}
+	if isMissingMoney(j.JobTotalPrice) {
+		t.Fatalf("JobTotalPrice=0 must not be treated as missing; got missing=true (would false-positive warranty/free jobs)")
+	}
+	if parseMoney(j.JobTotalPrice) != 0 {
+		t.Fatalf("parseMoney still returns 0 for free jobs; got %v", parseMoney(j.JobTotalPrice))
+	}
+
+	// Truly missing (null) still flags.
+	rawMissing := `{"UUID":"MISS01","JobTotalPrice":null}`
+	var missing wzJob
+	if err := json.Unmarshal([]byte(rawMissing), &missing); err != nil {
+		t.Fatalf("unmarshal missing: %v", err)
+	}
+	if !isMissingMoney(missing.JobTotalPrice) {
+		t.Fatalf("null JobTotalPrice must be treated as missing")
+	}
+}
+
 func TestWzCommentsUnmarshal(t *testing.T) {
 	cases := []struct {
 		name  string

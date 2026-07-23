@@ -308,6 +308,14 @@ func parseMoney(f flexibleMoney) float64 {
 	return v
 }
 
+// isMissingMoney reports whether a Workiz price field was never recorded
+// (null / empty / whitespace). A present "0" or "0.00" is NOT missing — free
+// warranty and estimate jobs legitimately total zero and must not be treated
+// as billing-blocking gaps (see job audit).
+func isMissingMoney(f flexibleMoney) bool {
+	return strings.TrimSpace(string(f)) == ""
+}
+
 // checkNovelMirror resolves the --db override, stats it, and on a missing
 // mirror prints the standard sync hint plus (for --json/--agent callers) the
 // correctly-shaped empty JSON envelope for this command — `empty` must be

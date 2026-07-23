@@ -65,7 +65,11 @@ func newNovelJobAuditCmd(flags *rootFlags) *cobra.Command {
 				if len(j.Team) == 0 {
 					issues = append(issues, auditIssue{EntityType: "job", EntityID: j.UUID, Issue: "no crew assigned"})
 				}
-				if parseMoney(j.JobTotalPrice) == 0 {
+				// Missing price only — a recorded 0 (warranty, free estimate, promo)
+				// is a legitimate total and must not be flagged as a billing gap.
+				// parseMoney("") and parseMoney("0") both return 0, so emptiness
+				// of the raw field is the only reliable "not recorded" signal.
+				if isMissingMoney(j.JobTotalPrice) {
 					issues = append(issues, auditIssue{EntityType: "job", EntityID: j.UUID, Issue: "no job total price recorded"})
 				}
 			}
