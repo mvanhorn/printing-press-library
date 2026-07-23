@@ -1,0 +1,64 @@
+{
+  "passed": true,
+  "exit_code": 0,
+  "started_at": "2026-07-23T14:28:25Z",
+  "elapsed_ms": 15791,
+  "legs": [
+    {
+      "name": "verify",
+      "exit_code": 0,
+      "passed": true,
+      "started_at": "2026-07-23T14:28:25Z",
+      "elapsed_ms": 6127,
+      "command": "/Users/alderik/Code/projects/cli-printing-press/cli-printing-press verify --dir /Users/alderik/printing-press/.runstate/printing-press-501-7a294ee1/runs/20260723-092049-4f6f6c65/working/lichess-pp-cli --write-manifest /Users/alderik/printing-press/.runstate/printing-press-501-7a294ee1/runs/20260723-092049-4f6f6c65/working/lichess-pp-cli/.printing-press.json --spec /Users/alderik/printing-press/.runstate/printing-press-501-7a294ee1/runs/20260723-092049-4f6f6c65/discovery/lichess-approved-scope.json --fix"
+    },
+    {
+      "name": "validate-narrative",
+      "exit_code": 0,
+      "passed": true,
+      "started_at": "2026-07-23T14:28:31Z",
+      "elapsed_ms": 205,
+      "command": "/Users/alderik/Code/projects/cli-printing-press/cli-printing-press validate-narrative --strict --full-examples --research /Users/alderik/printing-press/.runstate/printing-press-501-7a294ee1/runs/20260723-092049-4f6f6c65/research.json --binary /Users/alderik/printing-press/.runstate/printing-press-501-7a294ee1/runs/20260723-092049-4f6f6c65/working/lichess-pp-cli/lichess-pp-cli"
+    },
+    {
+      "name": "dogfood",
+      "exit_code": 0,
+      "passed": true,
+      "started_at": "2026-07-23T14:28:31Z",
+      "elapsed_ms": 2847,
+      "command": "/Users/alderik/Code/projects/cli-printing-press/cli-printing-press dogfood --dir /Users/alderik/printing-press/.runstate/printing-press-501-7a294ee1/runs/20260723-092049-4f6f6c65/working/lichess-pp-cli --spec /Users/alderik/printing-press/.runstate/printing-press-501-7a294ee1/runs/20260723-092049-4f6f6c65/discovery/lichess-approved-scope.json --research-dir /Users/alderik/printing-press/.runstate/printing-press-501-7a294ee1/runs/20260723-092049-4f6f6c65"
+    },
+    {
+      "name": "workflow-verify",
+      "exit_code": 0,
+      "passed": true,
+      "started_at": "2026-07-23T14:28:34Z",
+      "elapsed_ms": 25,
+      "command": "/Users/alderik/Code/projects/cli-printing-press/cli-printing-press workflow-verify --dir /Users/alderik/printing-press/.runstate/printing-press-501-7a294ee1/runs/20260723-092049-4f6f6c65/working/lichess-pp-cli"
+    },
+    {
+      "name": "apify-audit",
+      "exit_code": 0,
+      "passed": true,
+      "started_at": "2026-07-23T14:28:34Z",
+      "elapsed_ms": 66,
+      "command": "/Users/alderik/Code/projects/cli-printing-press/cli-printing-press apify-audit --dir /Users/alderik/printing-press/.runstate/printing-press-501-7a294ee1/runs/20260723-092049-4f6f6c65/working/lichess-pp-cli --research-dir /Users/alderik/printing-press/.runstate/printing-press-501-7a294ee1/runs/20260723-092049-4f6f6c65"
+    },
+    {
+      "name": "verify-skill",
+      "exit_code": 0,
+      "passed": true,
+      "started_at": "2026-07-23T14:28:34Z",
+      "elapsed_ms": 5658,
+      "command": "/Users/alderik/Code/projects/cli-printing-press/cli-printing-press verify-skill --dir /Users/alderik/printing-press/.runstate/printing-press-501-7a294ee1/runs/20260723-092049-4f6f6c65/working/lichess-pp-cli"
+    },
+    {
+      "name": "scorecard",
+      "exit_code": 0,
+      "passed": true,
+      "started_at": "2026-07-23T14:28:40Z",
+      "elapsed_ms": 859,
+      "command": "/Users/alderik/Code/projects/cli-printing-press/cli-printing-press scorecard --dir /Users/alderik/printing-press/.runstate/printing-press-501-7a294ee1/runs/20260723-092049-4f6f6c65/working/lichess-pp-cli --write-manifest /Users/alderik/printing-press/.runstate/printing-press-501-7a294ee1/runs/20260723-092049-4f6f6c65/working/lichess-pp-cli/.printing-press.json --research-dir /Users/alderik/printing-press/.runstate/printing-press-501-7a294ee1/runs/20260723-092049-4f6f6c65 --spec /Users/alderik/printing-press/.runstate/printing-press-501-7a294ee1/runs/20260723-092049-4f6f6c65/discovery/lichess-approved-scope.json --live-check"
+    }
+  ]
+}

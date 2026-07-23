@@ -1,0 +1,1350 @@
+{
+  "dir": ".",
+  "binary": "/var/folders/yj/fhwt5vj52ps3ntb9vstmjjz40000gn/T/lichess-pp-cli-dogfood-1366447936",
+  "level": "full",
+  "verdict": "FAIL",
+  "matrix_size": 82,
+  "passed": 76,
+  "failed": 6,
+  "skipped": 55,
+  "commands": [
+    "account",
+    "api",
+    "challenge ten",
+    "doctor",
+    "feedback list",
+    "games",
+    "learnings candidates",
+    "learnings confirm",
+    "learnings forget",
+    "learnings list",
+    "learnings purge",
+    "learnings reject",
+    "learnings stats",
+    "loss-patterns",
+    "playbook amend",
+    "playbook list",
+    "player",
+    "profile delete",
+    "profile list",
+    "profile save",
+    "profile show",
+    "profile use",
+    "puzzle dashboard",
+    "puzzle next",
+    "recall",
+    "tail",
+    "teach",
+    "teach-lookup",
+    "teach-pattern",
+    "teach-playbook",
+    "training-brief",
+    "user",
+    "which",
+    "workflow status"
+  ],
+  "tests": [
+    {
+      "command": "account",
+      "kind": "help",
+      "args": [
+        "account",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Public information about the logged in user.\n\nUsage:\n  lichess-pp-cli account [flags]\n\nExamples:\n  lichess-pp-cli account\n\nFlags:\n  -h, --help   help for account\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --no-learn                Disable the teach/recall learning loop for this invocation\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'lichess-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "account",
+      "kind": "happy_path",
+      "args": [
+        "account"
+      ],
+      "status": "fail",
+      "exit_code": 4,
+      "reason": "exit 4",
+      "output_sample": "Error: GET /api/account returned HTTP 401: {\"error\":\"Missing authorization header\"}\nhint: check your token.\n      Run 'lichess-pp-cli auth login' to re-authenticate.\n      Get a key at: https://discord.gg/lichess\n      Run 'lichess-pp-cli doctor' to check auth status.\n"
+    },
+    {
+      "command": "account",
+      "kind": "json_fidelity",
+      "args": [
+        "account",
+        "--json"
+      ],
+      "status": "fail",
+      "exit_code": 4,
+      "reason": "exit 4",
+      "output_sample": "Error: GET /api/account returned HTTP 401: {\"error\":\"Missing authorization header\"}\nhint: check your token.\n      Run 'lichess-pp-cli auth login' to re-authenticate.\n      Get a key at: https://discord.gg/lichess\n      Run 'lichess-pp-cli doctor' to check auth status.\n"
+    },
+    {
+      "command": "account",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "api",
+      "kind": "help",
+      "args": [
+        "api",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Browse and call any API endpoint using the raw interface names.\n\nThe friendly top-level commands cover the most common operations.\nThis command provides access to ALL endpoints for power users and\nagents that need full API coverage.\n\nRun 'api' with no arguments to list all interfaces.\nRun 'api \u003cinterface\u003e' to see that interface's methods.\n\nUsage:\n  lichess-pp-cli api [interface] [flags]\n\nExamples:\n  # List all available interfaces\n  lichess-pp-cli api\n\n  # Show methods for a specific interface\n  lichess-pp-cli api \u003cinterface-name\u003e\n\nFlags:\n  -h, --help   help for api\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --no-learn                Disable the teach/recall learning loop for this invocation\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'lichess-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "api",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [api] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "api",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [api] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "api",
+      "kind": "error_path",
+      "args": [
+        "api",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "Error: interface \"__printing_press_invalid__\" not found. Run 'lichess-pp-cli api' to list all interfaces\n"
+    },
+    {
+      "command": "challenge ten",
+      "kind": "help",
+      "args": [
+        "challenge",
+        "ten",
+        "--help"
+      ],
+      "status": "fail",
+      "reason": "missing Examples section",
+      "output_sample": "Create an explicit 10+0 Lichess challenge for a named player only after --send is supplied.\n\nUsage:\n  lichess-pp-cli challenge ten \u003cusername\u003e [flags]\n\nFlags:\n      --color string   Challenge color: random, white, or black (default \"random\")\n  -h, --help           help for ten\n      --rated          Create a rated challenge when the account and opponent permit it\n      --send           Send the challenge; without this flag the command only prints the request plan\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --no-learn                Disable the teach/recall learning loop for this invocation\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'lichess-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "challenge ten",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "help check failed"
+    },
+    {
+      "command": "challenge ten",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "help check failed"
+    },
+    {
+      "command": "challenge ten",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "help check failed"
+    },
+    {
+      "command": "doctor",
+      "kind": "help",
+      "args": [
+        "doctor",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Check CLI health\n\nUsage:\n  lichess-pp-cli doctor [flags]\n\nExamples:\n  lichess-pp-cli doctor\n  lichess-pp-cli doctor --json\n  lichess-pp-cli doctor --fail-on warn\n  lichess-pp-cli doctor --fail-on stale\n\nFlags:\n      --fail-on string   Exit non-zero for selected health gates. stale: cache freshness plus errors; warn: credential/path warnings plus errors; error: errors only. Default is never.\n  -h, --help             help for doctor\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --no-learn                Disable the teach/recall learning loop for this invocation\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'lichess-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "doctor",
+      "kind": "happy_path",
+      "args": [
+        "doctor"
+      ],
+      "status": "pass",
+      "output_sample": "  OK Config: ok\n  FAIL Auth: not configured\n  FAIL Env Vars: ERROR missing required: LICHESS_OAUTH2\n  OK Verify Mode: normal operation\n  OK API: reachable (HTTP 401 at /)\n  config_path: /var/folders/yj/fhwt5vj52ps3ntb9vstmjjz40000gn/T/printing-press-subprocess-87540921/.config/lichess-pp-cli/config.toml\n  base_url: https://lichess.org\n  credentials_location: none\n  version: 0.0.0-dev\n  hint: lichess-pp-cli login\n  Get a key at: https://discord.gg/lichess\n  Paths:\n    config: /var/folders/yj/fhwt5vj52ps3ntb9vstmjjz40000gn/T/printing-press-subprocess-87540921/.config/lichess-pp-cli (XDG_CONFIG_HOME)\n    data: /var/folders/yj/fhwt5vj52ps3ntb9vstmjjz40000gn/T/printing-press-subprocess-87540921/.local/share/lichess-pp-cli (XDG_DATA_HOME)\n    state: /var/folders/yj/fhwt5vj52ps3ntb9vstmjjz40000gn/T/printing-press-subprocess-87540921/.local/state/lichess-pp-cli (XDG_STATE_HOME)\n    cache: /var/folders/yj/fhwt5vj52ps3ntb9vstmjjz40000gn/T/printing-press-subprocess-87540921/.cache/lichess-pp-cli (XDG_CACHE_HOME)\n"
+    },
+    {
+      "command": "doctor",
+      "kind": "json_fidelity",
+      "args": [
+        "doctor",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"agentcookie\": \"not detected (optional)\",\n  \"api\": \"reachable (HTTP 401 at /)\",\n  \"auth\": \"not configured\",\n  \"auth_hint\": \"lichess-pp-cli login\",\n  \"auth_key_url\": \"https://discord.gg/lichess\",\n  \"base_url\": \"https://lichess.org\",\n  \"config\": \"ok\",\n  \"config_path\": \"/var/folders/yj/fhwt5vj52ps3ntb9vstmjjz40000gn/T/printing-press-subprocess-87540921/.config/lichess-pp-cli/config.toml\",\n  \"credentials_location\": \"none\",\n  \"env_vars\": \"ERROR missing required: LICHESS_OAUTH2\",\n  \"paths\": {\n    \"cache\": {\n      \"dir\": \"/var/folders/yj/fhwt5vj52ps3ntb9vstmjjz40000gn/T/printing-press-subprocess-87540921/.cache/lichess-pp-cli\",\n      \"rung\": \"xdg-env\",\n      \"source\": \"XDG_CACHE_HOME\"\n    },\n    \"config\": {\n      \"dir\": \"/var/folders/yj/fhwt5vj52ps3ntb9vstmjjz40000gn/T/printing-press-subprocess-87540921/.config/lichess-pp-cli\",\n      \"rung\": \"xdg-env\",\n      \"source\": \"XDG_CONFIG_HOME\"\n    },\n    \"data\": {\n      \"dir\": \"/var/folders/yj/fhwt5vj52ps3ntb9vstmjjz40000gn/T/printing-press-subprocess-87540921/.local/share/lichess-pp-cli\",\n      \"rung\": \"xdg-env\",\n      \"source\": \"XDG_DATA_HOME\"\n    },\n    \"state\": {\n      \"dir\": \"/var/folders/yj/fhwt5vj52ps3ntb9vstmjjz40000gn/T/printing-press-subprocess-87540921/.local/state/lichess-pp-cli\",\n      \"rung\": \"xdg-env\",\n      \"source\": \"XDG_STATE_HOME\"\n    },\n    \"status\": \"ok\"\n  },\n  \"verify_mode\": \"normal operation\",\n  \"version\": \"0.0.0-dev\"\n}\n"
+    },
+    {
+      "command": "doctor",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "feedback list",
+      "kind": "help",
+      "args": [
+        "feedback",
+        "list",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "List recent feedback entries\n\nUsage:\n  lichess-pp-cli feedback list [flags]\n\nExamples:\n  lichess-pp-cli feedback list\n  lichess-pp-cli feedback list --limit 5\n  lichess-pp-cli feedback list --json\n\nFlags:\n  -h, --help        help for list\n      --limit int   Maximum number of recent entries to return (default 20)\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --no-learn                Disable the teach/recall learning loop for this invocation\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'lichess-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "feedback list",
+      "kind": "happy_path",
+      "args": [
+        "feedback",
+        "list"
+      ],
+      "status": "pass"
+    },
+    {
+      "command": "feedback list",
+      "kind": "json_fidelity",
+      "args": [
+        "feedback",
+        "list",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "[]\n"
+    },
+    {
+      "command": "feedback list",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "games",
+      "kind": "help",
+      "args": [
+        "games",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Download all games of any user in PGN or [ndjson](#description/streaming-with-nd-json) format.\n\nUsage:\n  lichess-pp-cli games \u003cusername\u003e [flags]\n\nExamples:\n  lichess-pp-cli games example-resource\n\nFlags:\n      --accuracy                                                           Include [accuracy percent](https://lichess.org/page/accuracy) of each player, when available. Only available in JSON.\n      --analysed                                                           [Filter] Only games with or without a computer analysis available\n      --clocks                                                             Include clock status when available. Either as PGN comments: `2.\n      --color string                                                       [Filter] Only games played as this color. (one of: white, black)\n      --division                                                           Plies which mark the beginning of the middlegame and endgame. Only available in JSON\n      --evals                                                              Include analysis evaluations and comments, when available. Either as PGN comments: `12. Bxf6 { [%eval 0.\n      --finished false                                                     Include finished games. Set to false to only get ongoing games. (default true)\n  -h, --help                                                               help for games\n      --last-fen                                                           Include the X-FEN notation of the last position of the game.\n      --literate                                                           Insert textual annotations in the PGN about the opening, analysis variations, mistakes, and game termination.\n      --max int                                                            How many games to download. Leave empty to download all games.\n      --moves                                                              Include the PGN moves. (default true)\n      --ongoing                                                            Ongoing games are delayed by a few seconds ranging from 3 to 60 depending on the time control\n      --opening [Opening 'King's Gambit Accepted, King's Knight Gambit']   Include the opening name. Example: [Opening 'King's Gambit Accepted, King's Knight Gambit']\n      --perf-type string                                                   [Filter] Only games in these speeds or variants. Multiple perf types can be specified, separated by a comma. (one of: ultraBullet, bullet, blitz, rapid, classical, correspondence, chess960, crazyhouse, antichess, atomic, horde, kingOfTheHill, racingKings, threeCheck)\n      --pgn-in-json pgn                                                    Include the full PGN within the JSON response, in a pgn field.\n      --rated true                                                         [Filter] Only rated (true) or casual (`false`) games\n      --since int                                                          Download games played since this timestamp. Defaults to account creation date.\n      --sort string                                                        Sort order of the games. (one of: dateAsc, dateDesc) (default \"dateDesc\")\n      --tags                                                               Include the PGN tags. (default true)\n      --until int                                                          Download games played until this timestamp. Defaults to now.\n      --vs string                                                          [Filter] Only games played against this opponent\n      --with-bookmarked bookmarked: true                                   Add a bookmarked: true JSON field when the logged in user has bookmarked the game.\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, times…[truncated]"
+    },
+    {
+      "command": "games",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [games] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "games",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [games] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "games",
+      "kind": "error_path",
+      "args": [
+        "games",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 3,
+      "output_sample": "Error: GET /api/games/user/__printing_press_invalid__ returned HTTP 404: {\"error\":\"Not found\"}\nhint: resource not found. Run the 'list' command to see available items\n"
+    },
+    {
+      "command": "learnings candidates",
+      "kind": "help",
+      "args": [
+        "learnings",
+        "candidates",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Lists rows from the learn_candidates table: corrections and playbook\nshapes the CLI derived from observed usage. Candidates are quarantined\nuntil an explicit 'learnings confirm \u003cid\u003e' materializes them; they never\nalter command behavior or recall's verified results on their own.\n\nUsage:\n  lichess-pp-cli learnings candidates [flags]\n\nExamples:\n  lichess-pp-cli learnings candidates\n  lichess-pp-cli learnings candidates --class flag_alias\n  lichess-pp-cli learnings candidates --status rejected\n\nFlags:\n      --class string    Filter by class (flag_alias | playbook_candidate)\n      --db string       SQLite database file path (default: resolved data directory data.db)\n  -h, --help            help for candidates\n      --limit int       Maximum rows to return (default: capped)\n      --status string   Filter by status (open | confirmed | rejected | expired; empty for all) (default \"open\")\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --no-learn                Disable the teach/recall learning loop for this invocation\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'lichess-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "learnings candidates",
+      "kind": "happy_path",
+      "args": [
+        "learnings",
+        "candidates"
+      ],
+      "status": "pass",
+      "output_sample": "[]\n"
+    },
+    {
+      "command": "learnings candidates",
+      "kind": "json_fidelity",
+      "args": [
+        "learnings",
+        "candidates",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "[]\n"
+    },
+    {
+      "command": "learnings candidates",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "learnings confirm",
+      "kind": "help",
+      "args": [
+        "learnings",
+        "confirm",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Promotes one open candidate into the verified knowledge tables.\n\nThe full candidate payload is printed before anything is written, so\nthe caller always sees exactly what is being blessed. Materialization\nis per class:\n\n  playbook_candidate  upserts a playbook row for the candidate's query\n                      family (confidence 2, the same floor as a teach)\n  flag_alias          appends a timestamped [amend ...] correction note\n                      to the query family's playbook notes\n\nUsage errors (unknown id, non-open status) exit 2.\n\nUsage:\n  lichess-pp-cli learnings confirm \u003cid\u003e [flags]\n\nExamples:\n  lichess-pp-cli learnings confirm 3\n\nFlags:\n      --db string   SQLite database file path (default: resolved data directory data.db)\n  -h, --help        help for confirm\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --no-learn                Disable the teach/recall learning loop for this invocation\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'lichess-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "learnings confirm",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no id parseable from companion at depth 0"
+    },
+    {
+      "command": "learnings confirm",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "no id parseable from companion at depth 0"
+    },
+    {
+      "command": "learnings confirm",
+      "kind": "error_path",
+      "args": [
+        "learnings",
+        "confirm",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 2,
+      "output_sample": "Error: learnings confirm: invalid candidate id \"__printing_press_invalid__\"\n"
+    },
+    {
+      "command": "learnings forget",
+      "kind": "help",
+      "args": [
+        "learnings",
+        "forget",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Removes rows from the search_learnings table so a bad teach can be\nundone without dropping the whole DB.\n\nRequires at least one of --resource, --action, or --all.\n\nUsage:\n  lichess-pp-cli learnings forget \u003cquery\u003e [flags]\n\nExamples:\n  lichess-pp-cli learnings forget \"\u003cquestion\u003e\" --resource \u003cid\u003e\n  lichess-pp-cli learnings forget \"\u003cquestion\u003e\" --all\n\nFlags:\n      --action string     Delete only rules with this action (boost | hide | alias_of)\n      --all               Delete every rule for the supplied query\n      --db string         SQLite database file path (default: resolved data directory data.db)\n  -h, --help              help for forget\n      --resource string   Delete only the rule for this resource_id\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --no-learn                Disable the teach/recall learning loop for this invocation\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'lichess-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "learnings forget",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"query\" at depth 0"
+    },
+    {
+      "command": "learnings forget",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"query\" at depth 0"
+    },
+    {
+      "command": "learnings forget",
+      "kind": "error_path",
+      "args": [
+        "learnings",
+        "forget",
+        "__printing_press_invalid__",
+        "--json"
+      ],
+      "status": "pass",
+      "exit_code": 2,
+      "output_sample": "Error: learnings forget: forget learnings: pass --resource, --action, or --all\n"
+    },
+    {
+      "command": "learnings list",
+      "kind": "help",
+      "args": [
+        "learnings",
+        "list",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "List recorded search learnings and their stored resource mappings\n\nUsage:\n  lichess-pp-cli learnings list [flags]\n\nExamples:\n  lichess-pp-cli learnings list --agent\n  lichess-pp-cli learnings list --query \"\u003csubstring\u003e\"\n  lichess-pp-cli learnings list --warnings --agent\n\nFlags:\n      --action string        Filter by action (boost | hide | alias_of)\n      --db string            SQLite database file path (default: resolved data directory data.db)\n  -h, --help                 help for list\n      --limit int            Maximum rows to return (default 200)\n      --min-confidence int   Filter by minimum confidence\n      --query string         Filter by normalized query substring\n      --resource string      Filter by resource_id\n      --source string        Filter by source (taught | manual-forget)\n      --warnings             Return teach-time warnings from teach.log instead of stored learning rows\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --no-learn                Disable the teach/recall learning loop for this invocation\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'lichess-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "learnings list",
+      "kind": "happy_path",
+      "args": [
+        "learnings",
+        "list",
+        "--agent"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"local\"\n  },\n  \"results\": []\n}\n"
+    },
+    {
+      "command": "learnings list",
+      "kind": "json_fidelity",
+      "args": [
+        "learnings",
+        "list",
+        "--agent",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"local\"\n  },\n  \"results\": []\n}\n"
+    },
+    {
+      "command": "learnings list",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "learnings purge",
+      "kind": "help",
+      "args": [
+        "learnings",
+        "purge",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Deletes expired and confirmed candidate rows. Materialized artifacts\n(playbook rows, correction notes) are untouched. Rejected rows are kept\nby default because they tombstone their derivation signatures; pass\n--tombstones to remove them too, which re-allows derivation of those\nsignatures. Open rows are never purged.\n\nOpen rows past the unseen TTL are swept to expired first, so a single\npurge also clears stale candidates nobody judged.\n\nUsage:\n  lichess-pp-cli learnings purge [flags]\n\nExamples:\n  lichess-pp-cli learnings purge\n  lichess-pp-cli learnings purge --tombstones\n\nFlags:\n      --db string    SQLite database file path (default: resolved data directory data.db)\n  -h, --help         help for purge\n      --tombstones   Also delete rejected rows (re-allows derivation of their signatures)\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --no-learn                Disable the teach/recall learning loop for this invocation\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'lichess-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "learnings purge",
+      "kind": "happy_path",
+      "args": [
+        "learnings",
+        "purge"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"expired\": 0,\n  \"purged\": 0,\n  \"tombstones\": false\n}\n"
+    },
+    {
+      "command": "learnings purge",
+      "kind": "json_fidelity",
+      "args": [
+        "learnings",
+        "purge",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"expired\": 0,\n  \"purged\": 0,\n  \"tombstones\": false\n}\n"
+    },
+    {
+      "command": "learnings purge",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "learnings reject",
+      "kind": "help",
+      "args": [
+        "learnings",
+        "reject",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Marks a candidate rejected. The rejected row stays as a tombstone on\nits derivation signature: the identical observation never re-derives a\ncandidate, and recall never resurfaces it.\n\nRejecting a CONFIRMED playbook_candidate tombstones the candidate but\nleaves the playbook row in place; repair the guidance with\n'playbook amend' if needed. A confirmed flag_alias cannot be rejected:\nits correction note already lives in the family playbook, so repair the\nguidance with 'playbook amend' instead.\n\nUsage errors (unknown id, no-reject-path candidates) exit 2.\n\nUsage:\n  lichess-pp-cli learnings reject \u003cid\u003e [flags]\n\nExamples:\n  lichess-pp-cli learnings reject 3\n\nFlags:\n      --db string   SQLite database file path (default: resolved data directory data.db)\n  -h, --help        help for reject\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --no-learn                Disable the teach/recall learning loop for this invocation\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'lichess-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "learnings reject",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "list companion previously failed at depth 0 for \"id\""
+    },
+    {
+      "command": "learnings reject",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "list companion previously failed at depth 0 for \"id\""
+    },
+    {
+      "command": "learnings reject",
+      "kind": "error_path",
+      "args": [
+        "learnings",
+        "reject",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 2,
+      "output_sample": "Error: learnings reject: invalid candidate id \"__printing_press_invalid__\"\n"
+    },
+    {
+      "command": "learnings stats",
+      "kind": "help",
+      "args": [
+        "learnings",
+        "stats",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Aggregates the local learn_events table into the loop's headline\nmetrics:\n\n  recall_hit_rate           recall hits / (hits + misses)\n  teach_to_reuse            fraction of taught learnings later seen in a\n                            recall hit (joined by learning row id, with a\n                            query-family fallback for older rows)\n  playbook_resolution_rate  playbook hits not followed by an amend on the\n                            same query family\n  candidates_confirmed/rejected  judgment counts on auto-captured candidates\n\nRates are null until their denominator is non-zero. Everything is\nlocal-only: events never leave this machine.\n\nUsage:\n  lichess-pp-cli learnings stats [flags]\n\nExamples:\n  lichess-pp-cli learnings stats\n  lichess-pp-cli learnings stats --json\n\nFlags:\n      --db string   SQLite database file path (default: resolved data directory data.db)\n  -h, --help        help for stats\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --no-learn                Disable the teach/recall learning loop for this invocation\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'lichess-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "learnings stats",
+      "kind": "happy_path",
+      "args": [
+        "learnings",
+        "stats"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"recall_hit_rate\": null,\n  \"recall_hits\": 0,\n  \"recall_misses\": 0,\n  \"teach_to_reuse\": null,\n  \"taught_rows\": 0,\n  \"reused_rows\": 0,\n  \"playbook_resolution_rate\": null,\n  \"playbook_hits\": 0,\n  \"playbook_hits_amended\": 0,\n  \"candidates_confirmed\": 0,\n  \"candidates_rejected\": 0,\n  \"event_counts\": {},\n  \"events_pruned\": 0\n}\n"
+    },
+    {
+      "command": "learnings stats",
+      "kind": "json_fidelity",
+      "args": [
+        "learnings",
+        "stats",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"recall_hit_rate\": null,\n  \"recall_hits\": 0,\n  \"recall_misses\": 0,\n  \"teach_to_reuse\": null,\n  \"taught_rows\": 0,\n  \"reused_rows\": 0,\n  \"playbook_resolution_rate\": null,\n  \"playbook_hits\": 0,\n  \"playbook_hits_amended\": 0,\n  \"candidates_confirmed\": 0,\n  \"candidates_rejected\": 0,\n  \"event_counts\": {},\n  \"events_pruned\": 0\n}\n"
+    },
+    {
+      "command": "learnings stats",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "loss-patterns",
+      "kind": "help",
+      "args": [
+        "loss-patterns",
+        "--help"
+      ],
+      "status": "fail",
+      "reason": "missing Examples section",
+      "output_sample": "Mechanically group official completed-game judgments by opening, performance, and phase.\n\nUsage:\n  lichess-pp-cli loss-patterns [username] [flags]\n\nFlags:\n  -h, --help      help for loss-patterns\n      --max int   Maximum completed games to inspect (1-50) (default 30)\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --no-learn                Disable the teach/recall learning loop for this invocation\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'lichess-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "loss-patterns",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "help check failed"
+    },
+    {
+      "command": "loss-patterns",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "help check failed"
+    },
+    {
+      "command": "loss-patterns",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "help check failed"
+    },
+    {
+      "command": "playbook amend",
+      "kind": "help",
+      "args": [
+        "playbook",
+        "amend",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Appends a timestamped note to the matching family's playbook notes_text.\nIf no playbook exists for the family yet, creates a notes-only one.\n\nDesigned for agents to fire when their debug-protocol response\nidentifies a concrete correction worth persisting (a workaround, an\nundocumented endpoint shape, a stale field name, observed schema\ndrift). Same fire-and-forget posture as teach: silent on success,\nerrors to teach.log, safe to background with \u0026.\n\nDisabling: pass --no-learn or set LICHESS_NO_LEARN=true.\n\nUsage:\n  lichess-pp-cli playbook amend [flags]\n\nExamples:\n  lichess-pp-cli playbook amend \\\n    --query \"\u003cexact recall query\u003e\" \\\n    --add-note \"summary endpoint envelope: data lives at .results.header, not .header\"\n\nFlags:\n      --add-note string   The note text to append to the family's playbook (required)\n      --db string         Database path (default: standard cache location)\n  -h, --help              help for amend\n      --query string      The exact recall query whose family should be amended (required)\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --no-learn                Disable the teach/recall learning loop for this invocation\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'lichess-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "playbook amend",
+      "kind": "happy_path",
+      "args": [
+        "playbook",
+        "amend",
+        "\\"
+      ],
+      "status": "pass",
+      "exit_code": 2
+    },
+    {
+      "command": "playbook amend",
+      "kind": "json_fidelity",
+      "args": [
+        "playbook",
+        "amend",
+        "\\",
+        "--json"
+      ],
+      "status": "pass",
+      "exit_code": 2
+    },
+    {
+      "command": "playbook amend",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "playbook list",
+      "kind": "help",
+      "args": [
+        "playbook",
+        "list",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "List stored playbooks (query_family, content presence, last observed)\n\nUsage:\n  lichess-pp-cli playbook list [flags]\n\nExamples:\n  lichess-pp-cli playbook list --agent\n\nFlags:\n      --db string   Database path (default: standard cache location)\n  -h, --help        help for list\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --no-learn                Disable the teach/recall learning loop for this invocation\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'lichess-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "playbook list",
+      "kind": "happy_path",
+      "args": [
+        "playbook",
+        "list",
+        "--agent"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"local\"\n  },\n  \"results\": []\n}\n"
+    },
+    {
+      "command": "playbook list",
+      "kind": "json_fidelity",
+      "args": [
+        "playbook",
+        "list",
+        "--agent",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"local\"\n  },\n  \"results\": []\n}\n"
+    },
+    {
+      "command": "playbook list",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "player",
+      "kind": "help",
+      "args": [
+        "player",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Provides autocompletion options for an incomplete username.\n\nUsage:\n  lichess-pp-cli player [flags]\n\nExamples:\n  lichess-pp-cli player --term example-value\n\nFlags:\n      --exists true    If true, only checks if the user exists.\n      --friend term    Returns followed players matching term if any, else returns other players. Requires [OAuth](#tag/OAuth).\n  -h, --help           help for player\n      --names false    - false returns an array of usernames - `true` returns an array of usernames with preferred casing\n      --object false   - false returns an array of usernames - `true` returns an object with matching users\n      --swiss string   Search within a Swiss tournament.\n      --teacher        Only search for players who also have a teacher role.\n      --team string    Search within a team. Use team ID/slug.\n      --term string    The beginning of a username\n      --tour string    Search within a arena tournament. Use tournament ID.\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --no-learn                Disable the teach/recall learning loop for this invocation\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'lichess-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "player",
+      "kind": "happy_path",
+      "args": [
+        "player",
+        "--term",
+        "example-value"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"live\"\n  },\n  \"results\": []\n}\n"
+    },
+    {
+      "command": "player",
+      "kind": "json_fidelity",
+      "args": [
+        "player",
+        "--term",
+        "example-value",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"live\"\n  },\n  \"results\": []\n}\n"
+    },
+    {
+      "command": "player",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "profile delete",
+      "kind": "help",
+      "args": [
+        "profile",
+        "delete",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Remove a profile\n\nUsage:\n  lichess-pp-cli profile delete \u003cname\u003e [flags]\n\nExamples:\n  lichess-pp-cli profile delete my-defaults --yes\n  lichess-pp-cli profile delete old-profile --yes --json\n\nFlags:\n  -h, --help   help for delete\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --no-learn                Disable the teach/recall learning loop for this invocation\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'lichess-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "profile delete",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile delete",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile delete",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "mutating command; error_path would call live API without --dry-run"
+    },
+    {
+      "command": "profile delete",
+      "kind": "error_path_real",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile list",
+      "kind": "help",
+      "args": [
+        "profile",
+        "list",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "List saved profiles\n\nUsage:\n  lichess-pp-cli profile list [flags]\n\nExamples:\n  lichess-pp-cli profile list\n  lichess-pp-cli profile list --json\n\nFlags:\n  -h, --help   help for list\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --no-learn                Disable the teach/recall learning loop for this invocation\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'lichess-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "profile list",
+      "kind": "happy_path",
+      "args": [
+        "profile",
+        "list"
+      ],
+      "status": "pass",
+      "output_sample": "NAME  FIELDS  DESCRIPTION\n"
+    },
+    {
+      "command": "profile list",
+      "kind": "json_fidelity",
+      "args": [
+        "profile",
+        "list",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "[]\n"
+    },
+    {
+      "command": "profile list",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "profile save",
+      "kind": "help",
+      "args": [
+        "profile",
+        "save",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Captures every flag explicitly set on the invocation and stores\nthem under \u003cname\u003e. To update an existing profile, run save again; the\nentry is replaced.\n\nTo avoid creating empty profiles, at least one non-default flag must be\npresent (other than --profile, --config, and --home, which are never\ncaptured: they control profile/config resolution and would never apply).\n\nUsage:\n  lichess-pp-cli profile save \u003cname\u003e [--\u003cflag\u003e \u003cvalue\u003e ...] [flags]\n\nExamples:\n  lichess-pp-cli profile save my-defaults --json --compact\n  lichess-pp-cli profile save tonight-defaults --region US\n\nFlags:\n      --description string   Short description shown in 'profile list'\n  -h, --help                 help for save\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --no-learn                Disable the teach/recall learning loop for this invocation\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'lichess-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "profile save",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile save",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile save",
+      "kind": "error_path",
+      "args": [
+        "profile",
+        "save",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "Error: no non-default flags set - pass at least one flag to save into \"__printing_press_invalid__\"\n"
+    },
+    {
+      "command": "profile show",
+      "kind": "help",
+      "args": [
+        "profile",
+        "show",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Show a profile's values as JSON\n\nUsage:\n  lichess-pp-cli profile show \u003cname\u003e [flags]\n\nExamples:\n  lichess-pp-cli profile show my-defaults\n  lichess-pp-cli profile show tonight-defaults --json\n\nFlags:\n  -h, --help   help for show\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --no-learn                Disable the teach/recall learning loop for this invocation\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'lichess-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "profile show",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile show",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile show",
+      "kind": "error_path",
+      "args": [
+        "profile",
+        "show",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "Error: profile \"__printing_press_invalid__\" not found\n"
+    },
+    {
+      "command": "profile use",
+      "kind": "help",
+      "args": [
+        "profile",
+        "use",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Print the flag values a profile will apply (does not execute anything)\n\nUsage:\n  lichess-pp-cli profile use \u003cname\u003e [flags]\n\nExamples:\n  lichess-pp-cli profile use my-defaults\n  lichess-pp-cli profile use tonight-defaults --json\n\nFlags:\n  -h, --help   help for use\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --no-learn                Disable the teach/recall learning loop for this invocation\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'lichess-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "profile use",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile use",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile use",
+      "kind": "error_path",
+      "args": [
+        "profile",
+        "use",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "Error: profile \"__printing_press_invalid__\" not found\n"
+    },
+    {
+      "command": "puzzle dashboard",
+      "kind": "help",
+      "args": [
+        "puzzle",
+        "dashboard",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Download your [puzzle dashboard](https://lichess.org/training/dashboard/30/dashboard) as JSON.\n\nUsage:\n  lichess-pp-cli puzzle dashboard \u003cdays\u003e [flags]\n\nAliases:\n  dashboard, get\n\nExamples:\n  lichess-pp-cli puzzle dashboard 42\n\nFlags:\n  -h, --help   help for dashboard\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --no-learn                Disable the teach/recall learning loop for this invocation\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'lichess-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "puzzle dashboard",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"days\" at depth 0"
+    },
+    {
+      "command": "puzzle dashboard",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"days\" at depth 0"
+    },
+    {
+      "command": "puzzle dashboard",
+      "kind": "error_path",
+      "args": [
+        "puzzle",
+        "dashboard",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 3,
+      "output_sample": "Error: GET /api/puzzle/dashboard/__printing_press_invalid__ returned HTTP 404: \u003c!DOCTYPE html\u003e\u003chtml lang=\"en-GB\" class=\"dark\"\u003e\u003c!-- Lichess is open source! See https://lichess.org/source --\u003e\u003chead\u003e\u003cmeta charset=\"utf-8\"\u003e\u003cmeta name=\"viewport\" content=\"width=device-width,initial-scale=1,minimum-scale=1,viewport-fit=cover\"\u003e\u003cmeta http-equiv=\"Content-Security-Policy\" content=\"default-src 'self' lichess1.org; connect-src 'self' blob: data: lichess1.org wss://socket0.lichess.org wss://socket3.lichess.org wss://socket1.lichess.org wss://socket4.lichess.org wss://socket2.lichess.org wss://socket5.lichess.org wss://cf-socket0.lichess.org wss://cf-socket1.lichess.org wss://cf-socket2.lichess.org https://explorer.lichess.org https://tablebase.lichess.org; style-src 'self' 'unsafe-inline' lichess1.org; frame-src 'self' lichess1.org www.youtube.com www.youtube-nocookie.com player.twitch.tv player.vimeo.com; worker-src 'self' lichess1.org blob:; img-src 'self' blob: data: *; media-src 'self' blob: lichess1.org; script-src 'nonce-sCTOm3ZaPtJGJJyRSLrQdDqv' 'self' lichess1.org; font-src 'self' lichess1.org; base-uri 'none';\"\u003e\u003cmeta name=\"theme-color\" content=\"#2e2a24\"\u003e\u003ctitle\u003ePage not found • lichess.org\u003c/title\u003e\u003clink data-css-key=\"lib.theme.all\" href=\"https://lichess1.org/assets/css/lib.theme.all.abfd5c07.css\" rel=\"stylesheet\" /\u003e\u003clink data-css-key=\"site\" href=\"https://lichess1.org/assets/css/site.c24840a8.css\" rel=\"stylesheet\" /\u003e\u003clink data-css-key=\"bits.not-found\" href=\"https://lichess1.org/assets/css/bits.not-found.122e67f9.css\" rel=\"stylesheet\" /\u003e\u003cmeta content=\"Free online chess server. Play chess in a clean interface. No registration, no ads, no plugin required. Play chess with the computer, friends or random opponents.\" name=\"description\" /\u003e\u003clink rel=\"mask-icon\" href=\"https://lichess1.org/assets/logo/lichess.svg\" color=\"black\" /\u003e\u003clink rel=\"alternate icon\" type=\"image/png\" href=\"https://lichess1.org/assets/logo/lichess-favicon-64.png\"\u003e\u003clink id=\"favicon\" rel=\"icon\" type=\"image/svg+xml\" href=\"https://lichess1.org/assets/logo/lichess-favicon.svg\"\u003e\u003cmeta name=\"google\" content=\"notranslate\"\u003e\u003clink href=\"/feed.atom\" title=\"Lichess Updates Feed\" type=\"application/atom+xml\" rel=\"alternate\" /\u003e\u003clink rel=\"preload\" href=\"https://lichess1.org/assets/hashed/lichess.2a2cb52f.woff2\" as=\"font\" type=\"font/woff2\" crossorigin\u003e\u003clink rel=\"preload\" href=\"https://lichess1.org/assets/hashed/noto-sans-latin.086bfcad.woff2\" as=\"font\" type=\"font/woff2\" crossorigin\u003e\u003clink rel=\"preload\" href=\"https://lichess1.org/assets/hashed/roboto-latin.20b535fa.woff2\" as=\"font\" type=\"font/woff2\" crossorigin\u003e\u003clink rel=\"preload\" href=\"https://lichess1.org/assets/hashed/lichess-chess.02d5eb8f.woff2\" as=\"font\" type=\"font/woff2\" crossorigin\u003e\u003clink rel=\"preload\" href=\"https://lichess1.org/assets/hashed/brown.d4a5fe34.png\" as=\"image\" fetchpriority=\"high\"\u003e\u003clink rel=\"manifest\" href=\"/manifest.json\"\u003e\u003cscript defer=\"defer\" src=\"https://lichess1.org/assets/hashed/cash.min.6f838d25.js\"\u003e\u003c/script\u003e\u003cscript type=\"module\" src=\"https://lichess1.org/assets/compiled/manifest.113e8ba8.js\"\u003e\u003c/script\u003e\u003cscript type=\"module\" src=\"https://lichess1.org/assets/compiled/i18n/site.en-GB.548717d6f821.js\"\u003e\u003c/script\u003e\u003cscript type=\"module\" src=\"https://lichess1.org/assets/compiled/i18n/timeago.en-GB.c5b087b5c613.js\"\u003e\u003c/script\u003e\u003cscript type=\"module\" src=\"https://lichess1.org/assets/compiled/i18n/preferences.en-GB.dd30ed8f161b.js\"\u003e\u003c/script\u003e\u003cscript type=\"module\" src=\"https://lichess1.org/assets/compiled/site.JLFVGEUJ.js\"\u003e\u003c/script\u003e\u003cscript type=\"module\" src=\"https://lichess1.org/assets/compiled/lib.HTM2KB2T.js\"\u003e\u003c/script\u003e\u003cscript type=\"module\" src=\"https://lichess1.org/assets/compiled/lib.ITZ3NESO.js\"\u003e\u003c/script\u003e\u003cscript type=\"module\" src=\"https://lichess1.org/assets/compiled/lib.MW6M5JE3.js\"\u003e\u003c/script\u003e\u003cscript type=\"module\" src=\"https://lichess1.org/assets/compiled/lib.SK5ZYWBF.js\"\u003e\u003c/script\u003e\u003cscript type=\"module\" src=\"https://lichess1.org/assets/compiled/lib.P2KHB2MX.js\"\u003e\u003c/script\u003e\u003cscript type=\"module\" src=\"https://lichess1.org/assets/compiled/lib.TDTP2LNC.js\"\u003e\u003c/script\u003e\u003cscript type=\"module\" src=\"https://lichess1.org/assets/compiled/lib.NPS…[truncated]"
+    },
+    {
+      "command": "puzzle next",
+      "kind": "help",
+      "args": [
+        "puzzle",
+        "next",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Get a random Lichess puzzle in JSON format. If authenticated, only returns puzzles that the user has never seen before.\n\nUsage:\n  lichess-pp-cli puzzle next [flags]\n\nAliases:\n  next, list\n\nExamples:\n  lichess-pp-cli puzzle next\n\nFlags:\n      --angle string        The theme or opening to filter puzzles with. Available themes are listed in [the lichess source code](https://github.\n      --color string        The color to play. Better left empty to automatically get 50% white. (one of: white, black)\n      --difficulty string   The desired puzzle difficulty, relative to the authenticated user puzzle rating, or 1500 if anonymous. (one of: easiest, easier, normal, harder, hardest)\n  -h, --help                help for next\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --no-learn                Disable the teach/recall learning loop for this invocation\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'lichess-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "puzzle next",
+      "kind": "happy_path",
+      "args": [
+        "puzzle",
+        "next"
+      ],
+      "status": "pass",
+      "output_sample": "{\"meta\":{\"source\":\"live\"},\"results\":{\"game\":{\"clock\":\"3+0\",\"id\":\"OtCfTbQm\",\"perf\":{\"key\":\"blitz\",\"name\":\"\u003credacted\u003e\"},\"pgn\":\"e4 d5 exd5 Qxd5 Nc3 Qd8 d4 e6 Bg5 Nf6 Bxf6 Qxf6 Nf3 Nc6 Ne2 Bb4+ c3 Ba5 Qa4 Bb6 O-O-O O-O h4 Qh6+ Kb1 e5 dxe5 Bf5+ Ka1 Bxf2 Ned4 Nxd4 cxd4 b5 Bxb5 a6 Bc6 Rab8 Ng5 Rb6 Bd5 Rfb8 b3 Be6 Nxe6 fxe6 Bc4 Qf4 Qd7 Qg4 Rdf1 Bxd4+ Kb1 Qe4+ Kc1 Be3+ Kd1 Qxe5\",\"players\":[{\"color\":\"white\",\"id\":\"silentclimber\",\"name\":\"\u003credacted\u003e\",\"rating\":1740},{\"color\":\"black\",\"id\":\"aleksandrsokolovbgt\",\"name\":\"\u003credacted\u003e\",\"rating\":1705}],\"rated\":true},\"puzzle\":{\"id\":\"H7wMT\",\"initialPly\":57,\"plays\":13228,\"rating\":1489,\"solution\":[\"d7f7\",\"g8h8\",\"f7f8\",\"b8f8\",\"f1f8\"],\"themes\":[\"middlegame\",\"long\",\"mateIn3\",\"sacrifice\",\"backRankMate\"]}}}warning: 1/1 puzzle items returned but not cached locally (no extractable ID field; offline lookup against these rows will be incomplete; live queries unaffected)\n"
+    },
+    {
+      "command": "puzzle next",
+      "kind": "json_fidelity",
+      "args": [
+        "puzzle",
+        "next",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\"meta\":{\"source\":\"live\"},\"results\":{\"game\":{\"clock\":\"3+0\",\"id\":\"OtCfTbQm\",\"perf\":{\"key\":\"blitz\",\"name\":\"\u003credacted\u003e\"},\"pgn\":\"e4 d5 exd5 Qxd5 Nc3 Qd8 d4 e6 Bg5 Nf6 Bxf6 Qxf6 Nf3 Nc6 Ne2 Bb4+ c3 Ba5 Qa4 Bb6 O-O-O O-O h4 Qh6+ Kb1 e5 dxe5 Bf5+ Ka1 Bxf2 Ned4 Nxd4 cxd4 b5 Bxb5 a6 Bc6 Rab8 Ng5 Rb6 Bd5 Rfb8 b3 Be6 Nxe6 fxe6 Bc4 Qf4 Qd7 Qg4 Rdf1 Bxd4+ Kb1 Qe4+ Kc1 Be3+ Kd1 Qxe5\",\"players\":[{\"color\":\"white\",\"id\":\"silentclimber\",\"name\":\"\u003credacted\u003e\",\"rating\":1740},{\"color\":\"black\",\"id\":\"aleksandrsokolovbgt\",\"name\":\"\u003credacted\u003e\",\"rating\":1705}],\"rated\":true},\"puzzle\":{\"id\":\"H7wMT\",\"initialPly\":57,\"plays\":13228,\"rating\":1489,\"solution\":[\"d7f7\",\"g8h8\",\"f7f8\",\"b8f8\",\"f1f8\"],\"themes\":[\"middlegame\",\"long\",\"mateIn3\",\"sacrifice\",\"backRankMate\"]}}}warning: 1/1 puzzle items returned but not cached locally (no extractable ID field; offline lookup against these rows will be incomplete; live queries unaffected)\n"
+    },
+    {
+      "command": "puzzle next",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "recall",
+      "kind": "help",
+      "args": [
+        "recall",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Returns prior learnings matching the supplied query by token-set\noverlap (Jaccard \u003e= 0.6) plus entity-aware validation. The LLM should\ncall this FIRST when starting work on a new user question; if\nfound=true AND results[0].entity_match == \"exact\" AND confidence \u003e= 2,\nthe LLM can skip discovery and go straight to live fetch for the\nreturned resource IDs.\n\nEmpty match returns {\"found\": false, \"results\": []} with exit 0 — this\nis an information query, not a not-found error.\n\nDisabling: LICHESS_NO_LEARN=true returns the empty shape even\nwhen learnings exist.\n\nUsage:\n  lichess-pp-cli recall \u003cquery\u003e [flags]\n\nExamples:\n  lichess-pp-cli recall \"\u003cquestion\u003e\" --agent\n  lichess-pp-cli recall \"\u003cquestion\u003e\" --agent --min-confidence 2\n\nFlags:\n      --db string            SQLite database file path (default: resolved data directory data.db)\n      --debug-mismatches     Include cross-entity mismatches in the envelope under mismatches[]\n  -h, --help                 help for recall\n      --limit int            Maximum number of learnings to return (default 10)\n      --min-confidence int   Minimum confidence to include in results (default 1)\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --no-learn                Disable the teach/recall learning loop for this invocation\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'lichess-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "recall",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [recall] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "recall",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [recall] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "recall",
+      "kind": "error_path",
+      "args": [
+        "recall",
+        "__printing_press_invalid__",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"found\": false,\n  \"query\": \"__printing_press_invalid__\",\n  \"normalized\": \"__printing_press_invalid__\",\n  \"query_entities\": [],\n  \"results\": [],\n  \"warnings\": [\n    \"no_learnings_for_query_family\"\n  ]\n}\n"
+    },
+    {
+      "command": "tail",
+      "kind": "help",
+      "args": [
+        "tail",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Tail streams live data changes by polling the API at configurable intervals.\nEvents are emitted as NDJSON to stdout for piping to other tools.\nGracefully shuts down on SIGTERM/SIGINT.\n\nNote: For APIs with WebSocket or SSE support, a future version will use\nnative streaming instead of polling.\n\nUsage:\n  lichess-pp-cli tail [resource] [flags]\n\nExamples:\n  # Tail all changes every 10 seconds\n  lichess-pp-cli tail --interval 10s\n\n  # Tail a specific resource\n  lichess-pp-cli tail messages --interval 5s\n\n  # Pipe to jq for filtering\n  lichess-pp-cli tail events --interval 30s | jq 'select(.type == \"error\")'\n\nFlags:\n      --follow              Keep running (set --follow=false for single poll) (default true)\n  -h, --help                help for tail\n      --interval duration   Poll interval (default 10s)\n      --resource string     Resource type to tail\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --no-learn                Disable the teach/recall learning loop for this invocation\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'lichess-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "tail",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [tail] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "tail",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [tail] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "tail",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no-error-path-probe annotation"
+    },
+    {
+      "command": "teach",
+      "kind": "help",
+      "args": [
+        "teach",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Record one or more \"this query -\u003e this resource\" mappings so the next\nquery that matches surfaces the right resources without re-running discovery.\n\nThis command is designed to be backgrounded by an LLM right before it\nemits the user-facing response: silent on success, errors only to\nthe CLI state directory's teach.log, safe to fire-and-forget.\n\nDisabling: pass --no-learn or set LICHESS_NO_LEARN=true.\n\nUsage:\n  lichess-pp-cli teach [flags]\n\nExamples:\n  lichess-pp-cli teach --query \"\u003cquestion\u003e\" --resource-type \u003ctype\u003e \\\n    --resource \u003cid\u003e --resource \u003cid\u003e \u0026\n\nFlags:\n      --db string                    SQLite database file path (default: resolved data directory data.db)\n  -h, --help                         help for teach\n      --no-validate                  Suppress teach-time resource-shape validation (warnings to teach.log)\n      --notes string                 Optional free-form note recorded in the audit log\n      --playbook-file string         Optional path to a JSON playbook recording the CLI choreography for this query family\n      --playbook-json string         Optional inline JSON playbook (mutually exclusive with --playbook-file; for agents without filesystem access)\n      --playbook-notes string        Optional inline gotchas/workarounds for this query family (stored alongside the playbook)\n      --playbook-notes-file string   Optional path to a markdown file with playbook notes\n      --query string                 User's original natural-language question (required)\n      --quiet                        Silent on success (default true — designed for background invocation) (default true)\n      --resource strings             Resource ID — repeat for multiple (required)\n      --resource-type string         Resource type (required; e.g. matches a row in the local resources table)\n      --venue string                 Optional venue scope tag stored with the learning\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --no-learn                Disable the teach/recall learning loop for this invocation\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'lichess-pp-cli profile list')\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "teach",
+      "kind": "happy_path",
+      "args": [
+        "teach",
+        "--query",
+        "\u003cquestion\u003e",
+        "--resource-type",
+        "\u003ctype\u003e",
+        "\\"
+      ],
+      "status": "pass",
+      "exit_code": 2
+    },
+    {
+      "command": "teach",
+      "kind": "json_fidelity",
+      "args": [
+        "teach",
+        "--query",
+        "\u003cquestion\u003e",
+        "--resource-type",
+        "\u003ctype\u003e",
+        "\\",
+        "--json"
+      ],
+      "status": "pass",
+      "exit_code": 2
+    },
+    {
+      "command": "teach",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "teach-lookup",
+      "kind": "help",
+      "args": [
+        "teach-lookup",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Adds one row to entity_lookups. Used by the recall path's pattern\nengine to substitute values for canonical names at substitution time.\nComputed kinds (lowercase, uppercase, kebab-case, capitalize-first, slug)\ncannot be taught — they are derived from the canonical input.\n\nUsage:\n  lichess-pp-cli teach-lookup [flags]\n\nExamples:\n  lichess-pp-cli teach-lookup --kind country --canonical \"United States\" --value USA\n\nFlags:\n      --canonical string   Canonical entity name (required)\n      --db string          SQLite database file path (default: resolved data directory data.db)\n  -h, --help               help for teach-lookup\n      --kind string        Entity kind, e.g. country, team (required, must not be a computed kind)\n      --value string       Value/alias that should resolve to the canonical (required)\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --no-learn                Disable the teach/recall learning loop for this invocation\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'lichess-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "teach-lookup",
+      "kind": "happy_path",
+      "args": [
+        "teach-lookup",
+        "--kind",
+        "country",
+        "--canonical",
+        "United States",
+        "--value",
+        "USA"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"canonical\": \"United States\",\n  \"kind\": \"country\",\n  \"recorded\": true,\n  \"value\": \"USA\"\n}\n"
+    },
+    {
+      "command": "teach-lookup",
+      "kind": "json_fidelity",
+      "args": [
+        "teach-lookup",
+        "--kind",
+        "country",
+        "--canonical",
+        "United States",
+        "--value",
+        "USA",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"canonical\": \"United States\",\n  \"kind\": \"country\",\n  \"recorded\": true,\n  \"value\": \"USA\"\n}\n"
+    },
+    {
+      "command": "teach-lookup",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "teach-pattern",
+      "kind": "help",
+      "args": [
+        "teach-pattern",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Adds one row to search_patterns. The recall path uses patterns to\nsubstitute live query entities into a resource template, so a pattern\nwith query_template=\"items in {entity}\" and\nresource_template=\"GROUP-{entity:category}\" generalizes one teach into\na whole family.\n\nUsage:\n  lichess-pp-cli teach-pattern [flags]\n\nExamples:\n  lichess-pp-cli teach-pattern \\\n    --query-template \"items in {entity}\" \\\n    --resource-template \"GROUP-{entity:category}\" \\\n    --resource-type \"items\" \\\n    --entity-kind \"category\" \\\n    --strategy substitute\n\nFlags:\n      --db string                  SQLite database file path (default: resolved data directory data.db)\n      --entity-kind string         Entity kind name registered in entity_lookups (required)\n  -h, --help                       help for teach-pattern\n      --query-template string      Query template with {entity} placeholder (required)\n      --resource-template string   Resource template with typed entity slot, e.g. PREFIX-{entity:country} (required)\n      --resource-type string       Resource type for substituted IDs (required)\n      --strategy string            Substitution strategy: substitute | substitute-then-search-prefix (default substitute)\n      --venue string               Optional venue scope tag\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --no-learn                Disable the teach/recall learning loop for this invocation\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'lichess-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "teach-pattern",
+      "kind": "happy_path",
+      "args": [
+        "teach-pattern",
+        "\\"
+      ],
+      "status": "pass",
+      "exit_code": 2,
+      "output_sample": "Error: --query-template is required\n"
+    },
+    {
+      "command": "teach-pattern",
+      "kind": "json_fidelity",
+      "args": [
+        "teach-pattern",
+        "\\",
+        "--json"
+      ],
+      "status": "pass",
+      "exit_code": 2,
+      "output_sample": "Error: --query-template is required\n"
+    },
+    {
+      "command": "teach-pattern",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "teach-playbook",
+      "kind": "help",
+      "args": [
+        "teach-playbook",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Stores a structured CLI command sequence (with entity slots) and/or\nfree-form gotchas/workarounds, keyed on the structural query family.\nThe recall path surfaces this whenever a future query of the same\nfamily fires, so the agent can replay the choreography and read the\nnotes verbatim.\n\nAt least one of --playbook-json/--playbook-file and --notes/--notes-file\nmust be set. --playbook-json takes the playbook body inline so MCP-only\nagents can record playbooks without a file on disk.\n\nUsage:\n  lichess-pp-cli teach-playbook [flags]\n\nExamples:\n  lichess-pp-cli teach-playbook \\\n    --query \"\u003cquestion that anchors the family\u003e\" \\\n    --playbook-file ~/playbooks/recipe.json \\\n    --notes-file ~/playbooks/recipe-notes.md\n\nFlags:\n      --db string              Database path (default: standard cache location)\n  -h, --help                   help for teach-playbook\n      --notes string           Free-text notes (gotchas, workarounds) -- mutually exclusive with --notes-file\n      --notes-file string      Path to a markdown file with the notes\n      --playbook-file string   Path to a JSON file with the playbook (steps, entity_slots, expected_tool_calls)\n      --playbook-json string   Inline playbook JSON (steps, entity_slots, expected_tool_calls) -- mutually exclusive with --playbook-file\n      --query string           Example query that anchors the family (required)\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --no-learn                Disable the teach/recall learning loop for this invocation\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'lichess-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "teach-playbook",
+      "kind": "happy_path",
+      "args": [
+        "teach-playbook",
+        "\\"
+      ],
+      "status": "pass",
+      "exit_code": 2
+    },
+    {
+      "command": "teach-playbook",
+      "kind": "json_fidelity",
+      "args": [
+        "teach-playbook",
+        "\\",
+        "--json"
+      ],
+      "status": "pass",
+      "exit_code": 2
+    },
+    {
+      "command": "teach-playbook",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "training-brief",
+      "kind": "help",
+      "args": [
+        "training-brief",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Choose puzzle practice from official puzzle themes and completed-game loss evidence.\n\nUsage:\n  lichess-pp-cli training-brief [flags]\n\nExamples:\n  lichess-pp-cli training-brief --days 30 --max 30\n\nFlags:\n      --days int   Puzzle-dashboard lookback window in days (default 30)\n  -h, --help       help for training-brief\n      --max int    Maximum completed games to inspect for loss evidence (1-50) (default 30)\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --no-learn                Disable the teach/recall learning loop for this invocation\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'lichess-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "training-brief",
+      "kind": "happy_path",
+      "args": [
+        "training-brief",
+        "--days",
+        "30",
+        "--max",
+        "30"
+      ],
+      "status": "fail",
+      "exit_code": 4,
+      "reason": "exit 4",
+      "output_sample": "Error: GET /api/account returned HTTP 401: {\"error\":\"Missing authorization header\"}\nhint: check your token.\n      Run 'lichess-pp-cli auth login' to re-authenticate.\n      Get a key at: https://discord.gg/lichess\n      Run 'lichess-pp-cli doctor' to check auth status.\n"
+    },
+    {
+      "command": "training-brief",
+      "kind": "json_fidelity",
+      "args": [
+        "training-brief",
+        "--days",
+        "30",
+        "--max",
+        "30",
+        "--json"
+      ],
+      "status": "fail",
+      "exit_code": 4,
+      "reason": "exit 4",
+      "output_sample": "Error: GET /api/account returned HTTP 401: {\"error\":\"Missing authorization header\"}\nhint: check your token.\n      Run 'lichess-pp-cli auth login' to re-authenticate.\n      Get a key at: https://discord.gg/lichess\n      Run 'lichess-pp-cli doctor' to check auth status.\n"
+    },
+    {
+      "command": "training-brief",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "user",
+      "kind": "help",
+      "args": [
+        "user",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Read public data of a user.\n\nUsage:\n  lichess-pp-cli user \u003cusername\u003e [flags]\n\nExamples:\n  lichess-pp-cli user example-resource\n\nFlags:\n      --fide-id    Include public FIDE ID if any\n  -h, --help       help for user\n      --profile    Include user profile data (default true)\n      --rank       Include global lichess ranking for each perf\n      --trophies   Include user trophies\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --no-learn                Disable the teach/recall learning loop for this invocation\n      --plain                   Output as plain tab-separated text\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "user",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [user] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "user",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [user] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "user",
+      "kind": "error_path",
+      "args": [
+        "user",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 3,
+      "output_sample": "Error: GET /api/user/__printing_press_invalid__ returned HTTP 404: {\"error\":\"Not found\"}\nhint: resource not found. Run the 'list' command to see available items\n"
+    },
+    {
+      "command": "which",
+      "kind": "help",
+      "args": [
+        "which",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "which resolves a natural-language capability query (for example, \"search messages\" or \"stale tickets\") to the best matching command from this CLI's curated feature index.\n\nExit codes:\n  0  at least one match found\n  2  no confident match - the query did not score against any indexed capability; fall back to '--help' or 'search' if this CLI has one\n\nUsage:\n  lichess-pp-cli which [query] [flags]\n\nExamples:\n  lichess-pp-cli which \"stale tickets\"\n  lichess-pp-cli which \"bottleneck\"\n  lichess-pp-cli which --limit 1 \"send message\"\n  lichess-pp-cli which                                # list the full capability index\n\nFlags:\n  -h, --help        help for which\n      --limit int   Maximum number of matches to return (default 3)\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --no-learn                Disable the teach/recall learning loop for this invocation\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'lichess-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "which",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [which] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "which",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [which] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "which",
+      "kind": "error_path",
+      "args": [
+        "which",
+        "__printing_press_invalid__",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"matches\": []\n}\n"
+    },
+    {
+      "command": "workflow status",
+      "kind": "help",
+      "args": [
+        "workflow",
+        "status",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Show local archive status and sync state for all resources\n\nUsage:\n  lichess-pp-cli workflow status [flags]\n\nExamples:\n  # Show archive status\n  lichess-pp-cli workflow status\n\n  # Show status as JSON\n  lichess-pp-cli workflow status --json\n\nFlags:\n      --db string   SQLite database file path (default: resolved data directory data.db)\n  -h, --help        help for status\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --home string             Root directory for config, data, state, and cache files\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --no-learn                Disable the teach/recall learning loop for this invocation\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'lichess-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 1m0s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "workflow status",
+      "kind": "happy_path",
+      "args": [
+        "workflow",
+        "status"
+      ],
+      "status": "pass",
+      "output_sample": "No archived data. Add a site-specific sync command to populate the store.\n"
+    },
+    {
+      "command": "workflow status",
+      "kind": "json_fidelity",
+      "args": [
+        "workflow",
+        "status",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{}\n"
+    },
+    {
+      "command": "workflow status",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    }
+  ],
+  "ran_at": "2026-07-23T14:26:26.304237Z"
+}

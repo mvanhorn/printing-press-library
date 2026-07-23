@@ -1,0 +1,9 @@
+{
+  "dir": "\u003ccli-dir\u003e/lichess-pp-cli",
+  "research_dir": "\u003ccli-dir\u003e/20260723-092049-4f6f6c65",
+  "verdict": "pass",
+  "actors": null,
+  "issues": [
+    "no Apify actor references found, skipping"
+  ]
+}

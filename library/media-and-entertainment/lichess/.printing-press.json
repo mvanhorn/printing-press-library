@@ -1,0 +1,66 @@
+{
+  "schema_version": 2,
+  "generated_at": "2026-07-23T14:40:47.341513Z",
+  "printing_press_version": "4.29.0",
+  "api_name": "lichess",
+  "display_name": "Lichess Org Reference",
+  "cli_name": "lichess-pp-cli",
+  "creator": {
+    "handle": "Avanderheyde",
+    "name": "avanderheyde"
+  },
+  "owner": "avanderheyde",
+  "printer": "Avanderheyde",
+  "printer_name": "avanderheyde",
+  "spec_path": "lichess-approved-scope.json",
+  "spec_format": "openapi3",
+  "spec_checksum": "sha256:d7e382e298b735954e46d29d5d54ead680cfb3264b276012661152b457d98514",
+  "run_id": "20260723-092049-4f6f6c65",
+  "category": "media-and-entertainment",
+  "description": "Welcome to the reference for the Lichess API!",
+  "mcp_binary": "lichess-pp-mcp",
+  "mcp_tool_count": 4,
+  "mcp_public_tool_count": 1,
+  "mcp_ready": "full",
+  "api_version": "2.0.153",
+  "auth_type": "bearer_token",
+  "auth_preference": "OAuth2",
+  "auth_env_vars": [
+    "LICHESS_OAUTH2"
+  ],
+  "auth_key_url": "https://lichess.org/account/oauth/token",
+  "novel_features": [
+    {
+      "name": "Ten-minute named challenge",
+      "command": "challenge ten",
+      "description": "Create an explicit 10+0 Lichess challenge for a named player only after --send is supplied."
+    },
+    {
+      "name": "Bounded recurring-loss report",
+      "command": "loss-patterns",
+      "description": "Mechanically group official completed-game judgments by opening, performance, and phase."
+    },
+    {
+      "name": "Evidence-separated training brief",
+      "command": "training-brief",
+      "description": "Combine official puzzle-theme performance with local loss-pattern evidence while preserving the absence of a causal mapping."
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Ten-minute named challenge",
+      "command": "challenge ten",
+      "description": "Create an explicit 10+0 Lichess challenge for a named player only after --send is supplied."
+    },
+    {
+      "name": "Bounded recurring-loss report",
+      "command": "loss-patterns",
+      "description": "Mechanically group official completed-game judgments by opening, performance, and phase."
+    },
+    {
+      "name": "Evidence-separated training brief",
+      "command": "training-brief",
+      "description": "Combine official puzzle-theme performance with local loss-pattern evidence while preserving the absence of a causal mapping."
+    }
+  ]
+}

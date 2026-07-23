@@ -1,0 +1,98 @@
+{
+  "api_name": "lichess",
+  "novelty_score": 9,
+  "alternatives": [
+    {
+      "name": "tamnd/lichess-cli",
+      "url": "https://github.com/tamnd/lichess-cli",
+      "language": "Go",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 2,
+      "has_json_output": true,
+      "has_auth_support": false
+    },
+    {
+      "name": "karayaman/lichess-mcp",
+      "url": "https://github.com/karayaman/lichess-mcp",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 30,
+      "has_json_output": true,
+      "has_auth_support": true
+    }
+  ],
+  "gaps": [
+    "No official endpoint supplies a causal mapping from a game judgment to a puzzle theme; the training brief must keep both evidence streams distinct.",
+    "The official API includes Board and Bot play operations, but they are deliberately out of scope to protect fair play."
+  ],
+  "patterns": [
+    "Bound game exports and serialize requests under the official rate guidance.",
+    "Use only completed games for analysis and retain Lichess-provided judgments instead of adding engine calculations.",
+    "Keep all external writes explicit and token-scoped."
+  ],
+  "recommendation": "proceed",
+  "researched_at": "2026-07-23T09:20:49-04:00",
+  "novel_features": [
+    {
+      "name": "Ten-minute named challenge",
+      "command": "challenge ten",
+      "description": "Create an explicit 10+0 Lichess challenge for a named player only after --send is supplied.",
+      "rationale": "Maps a high-frequency personal workflow to official least-privilege challenge creation."
+    },
+    {
+      "name": "Bounded recurring-loss report",
+      "command": "loss-patterns",
+      "description": "Mechanically group official completed-game judgments by opening, performance, and phase.",
+      "rationale": "Makes existing Lichess analysis useful across a bounded history without live-game or engine assistance."
+    },
+    {
+      "name": "Evidence-separated training brief",
+      "command": "training-brief",
+      "description": "Combine official puzzle-theme performance with local loss-pattern evidence while preserving the absence of a causal mapping.",
+      "rationale": "Turns two official evidence streams into a safe, concrete practice choice."
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Ten-minute named challenge",
+      "command": "challenge ten",
+      "description": "Create an explicit 10+0 Lichess challenge for a named player only after --send is supplied.",
+      "rationale": "Maps a high-frequency personal workflow to official least-privilege challenge creation."
+    },
+    {
+      "name": "Bounded recurring-loss report",
+      "command": "loss-patterns",
+      "description": "Mechanically group official completed-game judgments by opening, performance, and phase.",
+      "rationale": "Makes existing Lichess analysis useful across a bounded history without live-game or engine assistance."
+    },
+    {
+      "name": "Evidence-separated training brief",
+      "command": "training-brief",
+      "description": "Combine official puzzle-theme performance with local loss-pattern evidence while preserving the absence of a causal mapping.",
+      "rationale": "Turns two official evidence streams into a safe, concrete practice choice."
+    }
+  ],
+  "narrative": {
+    "quickstart": [
+      {
+        "command": "lichess-pp-cli user lichess --json"
+      },
+      {
+        "command": "lichess-pp-cli challenge ten a-named-player --dry-run --json"
+      },
+      {
+        "command": "lichess-pp-cli loss-patterns a-named-player --dry-run --json"
+      }
+    ],
+    "recipes": [
+      {
+        "title": "",
+        "command": "lichess-pp-cli training-brief --dry-run --json"
+      }
+    ]
+  }
+}

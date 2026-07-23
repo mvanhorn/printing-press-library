@@ -1,0 +1,19 @@
+{
+  "schema_version": 2,
+  "id": "safety-bounded-workflows",
+  "applied_at": "2026-07-23",
+  "base_run_id": "20260723-092049-4f6f6c65",
+  "base_printing_press_version": "4.29.0",
+  "summary": "Preserve the constrained 10+0 challenge, bounded completed-game review, and single non-causal puzzle follow-up while excluding unsafe generated surfaces.",
+  "reason": "The official specification contains broad challenge, game-export, Board/Bot, and puzzle endpoints that would permit live-game assistance, unbounded export, or mass enumeration outside this CLI's approved safety scope.",
+  "files": [
+    "internal/cli/challenge_ten.go",
+    "internal/cli/loss_patterns.go",
+    "internal/cli/training_brief.go",
+    "internal/cli/root.go",
+    "internal/cli/puzzle.go",
+    "internal/client/client.go",
+    "internal/mcp/tools.go"
+  ],
+  "validated_outcome": "Full shipcheck passed after scope enforcement; the live authenticated matrix remains skipped because no bearer credential was supplied."
+}

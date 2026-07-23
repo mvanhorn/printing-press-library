@@ -1,0 +1,16 @@
+{
+  "api_name": "lichess",
+  "base_url": "https://lichess.org",
+  "description": "Safe, bounded Lichess tools for profile lookup and personal puzzle training.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "mcp": {"endpoint_tools": "visible"},
+  "auth": {"type": "bearer_token", "header": "Authorization", "env_vars": ["LICHESS_OAUTH2"], "key_url": "https://lichess.org/account/oauth/token"},
+  "required_headers": [],
+  "tools": [
+    {"name": "account_me", "description": "Read public profile information for the currently signed-in Lichess account.", "method": "GET", "path": "/api/account", "params": []},
+    {"name": "player_autocomplete", "description": "Find public username completions for a supplied term.", "method": "GET", "path": "/api/player/autocomplete", "no_auth": true, "params": [{"name": "term", "type": "string", "location": "query", "required": true}]},
+    {"name": "puzzle_dashboard", "description": "Read aggregate puzzle-theme results for a bounded lookback window.", "method": "GET", "path": "/api/puzzle/dashboard/{days}", "params": [{"name": "days", "type": "int", "location": "path", "required": true}]},
+    {"name": "user_api_user", "description": "Read a public Lichess user profile by username.", "method": "GET", "path": "/api/user/{username}", "params": [{"name": "username", "type": "string", "location": "path", "required": true}]}
+  ]
+}

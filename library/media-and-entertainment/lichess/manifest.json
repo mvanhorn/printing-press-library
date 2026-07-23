@@ -1,0 +1,39 @@
+{
+  "manifest_version": "0.3",
+  "name": "lichess-pp-mcp",
+  "display_name": "Lichess Org Reference",
+  "version": "2.0.153",
+  "description": "Welcome to the reference for the Lichess API!",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/lichess-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/lichess-pp-mcp",
+      "args": [],
+      "env": {
+        "LICHESS_OAUTH2": "${user_config.lichess_oauth2}"
+      }
+    }
+  },
+  "user_config": {
+    "lichess_oauth2": {
+      "type": "string",
+      "title": "LICHESS_OAUTH2",
+      "description": "Sets LICHESS_OAUTH2 for the Lichess Org Reference MCP server. Get a credential from https://lichess.org/account/oauth/token.",
+      "sensitive": true,
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

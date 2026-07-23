@@ -1,0 +1,123 @@
+{
+  "dir": "/Users/alderik/printing-press/.runstate/printing-press-501-7a294ee1/runs/20260723-092049-4f6f6c65/working/lichess-pp-cli",
+  "spec_path": "/Users/alderik/printing-press/.runstate/printing-press-501-7a294ee1/runs/20260723-092049-4f6f6c65/working/lichess-pp-cli/spec.json",
+  "spec_source": "bundled",
+  "verdict": "FAIL",
+  "path_check": {
+    "tested": 0,
+    "valid": 0,
+    "valid_pct": 0
+  },
+  "auth_check": {
+    "spec_scheme": "bearer token format (expects \"Bearer \" prefix)",
+    "generated_format": "Bearer ",
+    "match": true,
+    "detail": "spec and generated client both use \"Bearer\""
+  },
+  "browser_session_check": {
+    "required": false,
+    "pass": true,
+    "detail": "browser-session auth not required"
+  },
+  "oauth_scope_coverage_check": {
+    "checked": 3,
+    "covered": 3,
+    "detail": "all OAuth-scoped endpoints covered by generated auth scopes"
+  },
+  "dead_flags": {
+    "total": 22,
+    "dead": 1,
+    "items": [
+      "maxAge"
+    ]
+  },
+  "dead_functions": {
+    "total": 68,
+    "dead": 0
+  },
+  "pipeline_check": {
+    "sync_calls_domain": false,
+    "search_calls_domain": false,
+    "domain_tables": 4,
+    "sync_file_emitted": false,
+    "sync_resources_present": false,
+    "detail": "sync Upsert calls not found; search methods not found; 4 domain tables found"
+  },
+  "example_check": {
+    "tested": 10,
+    "with_examples": 8,
+    "valid_examples": 8,
+    "missing": [
+      "login",
+      "training-brief"
+    ],
+    "detail": "8/10 commands have examples"
+  },
+  "wiring_check": {
+    "command_tree": {
+      "defined": 48,
+      "registered": 48
+    },
+    "config_consistency": {
+      "consistent": true
+    },
+    "workflow_completeness": {
+      "skipped": true,
+      "total_steps": 0,
+      "mapped_steps": 0,
+      "detail": "no workflow_verify.yaml found"
+    }
+  },
+  "novel_features_check": {
+    "planned": 3,
+    "found": 3
+  },
+  "mcp_surface_parity": {
+    "state": "runtime_walking",
+    "pass": true,
+    "detail": "MCP surface mirrors the Cobra tree at runtime"
+  },
+  "reimplementation_check": {
+    "checked": 3,
+    "exempted_via_store": 0,
+    "missing_data_source_strategy": [
+      {
+        "command": "challenge ten",
+        "file": "challenge_ten.go",
+        "reason": "missing // pp:data-source \u003cauto|local|live|computed\u003e annotation"
+      },
+      {
+        "command": "loss-patterns",
+        "file": "loss_patterns.go",
+        "reason": "missing // pp:data-source \u003cauto|local|live|computed\u003e annotation"
+      },
+      {
+        "command": "training-brief",
+        "file": "training_brief.go",
+        "reason": "missing // pp:data-source \u003cauto|local|live|computed\u003e annotation"
+      }
+    ]
+  },
+  "source_client_check": {
+    "checked": 0,
+    "skipped": true
+  },
+  "print_json_filtered_check": {
+    "checked": 33
+  },
+  "test_presence": {
+    "checked": 1
+  },
+  "naming_check": {
+    "checked": 33
+  },
+  "sync_param_drop_check": {
+    "checked": 0,
+    "skipped": true
+  },
+  "issues": [
+    "1 dead flags found",
+    "sync uses generic Upsert only",
+    "3/3 novel features missing data-source strategy: challenge ten (challenge_ten.go) — missing // pp:data-source \u003cauto|local|live|computed\u003e annotation; loss-patterns (loss_patterns.go) — missing // pp:data-source \u003cauto|local|live|computed\u003e annotation; training-brief (training_brief.go) — missing // pp:data-source \u003cauto|local|live|computed\u003e annotation"
+  ]
+}
