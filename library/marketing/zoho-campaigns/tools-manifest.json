@@ -1,0 +1,957 @@
+{
+  "api_name": "zoho-campaigns",
+  "base_url": "https://campaigns.zoho.com/api/v1.1",
+  "description": "Every Zoho Campaigns operation, plus report history, offline search, and headless self-refreshing OAuth no other tool has.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "oauth2_refresh",
+    "header": "Authorization",
+    "format": "Zoho-oauthtoken {ZOHO_CAMPAIGNS_CLIENT_ID}",
+    "in": "header",
+    "env_vars": [
+      "ZOHO_CAMPAIGNS_CLIENT_ID",
+      "ZOHO_CAMPAIGNS_CLIENT_SECRET",
+      "ZOHO_CAMPAIGNS_REFRESH_TOKEN"
+    ],
+    "env_var_specs": [
+      {
+        "name": "ZOHO_CAMPAIGNS_CLIENT_ID",
+        "kind": "auth_flow_input",
+        "required": true,
+        "sensitive": false,
+        "description": "OAuth client ID.",
+        "inferred": true
+      },
+      {
+        "name": "ZOHO_CAMPAIGNS_CLIENT_SECRET",
+        "kind": "auth_flow_input",
+        "required": false,
+        "sensitive": true,
+        "description": "OAuth client secret.",
+        "inferred": true
+      },
+      {
+        "name": "ZOHO_CAMPAIGNS_REFRESH_TOKEN",
+        "kind": "auth_flow_input",
+        "required": true,
+        "sensitive": true,
+        "description": "OAuth refresh token.",
+        "inferred": true
+      }
+    ]
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "campaigns_clone",
+      "description": "Clone an existing campaign. Required: campaigninfo. Optional: resfmt (default: JSON).",
+      "method": "POST",
+      "path": "/json/clonecampaign",
+      "params": [
+        {
+          "name": "resfmt",
+          "type": "string",
+          "location": "body",
+          "description": "Response format (JSON)"
+        },
+        {
+          "name": "campaigninfo",
+          "type": "string",
+          "location": "body",
+          "description": "JSON with campaignname, subject, from_name, from_add, reply_to, oldcampaignkey",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "campaigns_create",
+      "description": "Create a campaign (draft) — name, sender, subject, content URL, target lists. Required: campaignname, from_email, subject. Optional: resfmt (default: JSON), from_name, content_url (plus 3 more).",
+      "method": "POST",
+      "path": "/createCampaign",
+      "params": [
+        {
+          "name": "resfmt",
+          "type": "string",
+          "location": "body",
+          "description": "Response format (JSON)"
+        },
+        {
+          "name": "campaignname",
+          "type": "string",
+          "location": "body",
+          "description": "Campaign name",
+          "required": true
+        },
+        {
+          "name": "from_email",
+          "type": "string",
+          "location": "body",
+          "description": "Sender email address (must be a verified sender)",
+          "required": true
+        },
+        {
+          "name": "from_name",
+          "type": "string",
+          "location": "body",
+          "description": "Sender display name"
+        },
+        {
+          "name": "subject",
+          "type": "string",
+          "location": "body",
+          "description": "Email subject line",
+          "required": true
+        },
+        {
+          "name": "content_url",
+          "type": "string",
+          "location": "body",
+          "description": "Public HTML URL for the campaign content"
+        },
+        {
+          "name": "list_details",
+          "type": "string",
+          "location": "body",
+          "description": "UTF-8 encoded JSON mapping listkeys to segments, e.g. {'\u003clistkey\u003e':[]}"
+        },
+        {
+          "name": "segments",
+          "type": "string",
+          "location": "body",
+          "description": "Segment IDs to target, e.g. [segmentid1,segmentid2]"
+        },
+        {
+          "name": "topicId",
+          "type": "string",
+          "location": "body",
+          "description": "Topic ID (mandatory for orgs on updated topic management)"
+        }
+      ]
+    },
+    {
+      "name": "campaigns_delete",
+      "description": "Delete a campaign. Required: campaignkey. Optional: resfmt (default: JSON).",
+      "method": "POST",
+      "path": "/deletecampaign",
+      "params": [
+        {
+          "name": "resfmt",
+          "type": "string",
+          "location": "body",
+          "description": "Response format (JSON)"
+        },
+        {
+          "name": "campaignkey",
+          "type": "string",
+          "location": "body",
+          "description": "Campaign key to delete",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "campaigns_details",
+      "description": "Full campaign configuration — subject, sender, status, lists. Required: campaignkey. Optional: resfmt (default: JSON), campaigntype (default: normal).",
+      "method": "GET",
+      "path": "/getcampaigndetails",
+      "params": [
+        {
+          "name": "resfmt",
+          "type": "string",
+          "location": "query",
+          "description": "Response format (JSON)"
+        },
+        {
+          "name": "campaignkey",
+          "type": "string",
+          "location": "query",
+          "description": "Campaign key (from campaigns list)",
+          "required": true
+        },
+        {
+          "name": "campaigntype",
+          "type": "string",
+          "location": "query",
+          "description": "Campaign type"
+        }
+      ]
+    },
+    {
+      "name": "campaigns_last_report",
+      "description": "Report for the most recently sent campaign — quick health pulse. Optional: resfmt (default: JSON).",
+      "method": "GET",
+      "path": "/getlastcampaignreport",
+      "params": [
+        {
+          "name": "resfmt",
+          "type": "string",
+          "location": "query",
+          "description": "Response format (JSON)"
+        }
+      ]
+    },
+    {
+      "name": "campaigns_list",
+      "description": "List recent campaigns with status filter — the source of campaignkey values. Optional: resfmt (default: JSON), sort, fromindex (default: 1) (plus 2 more). Returns array of Campaign.",
+      "method": "GET",
+      "path": "/recentcampaigns?resfmt=JSON",
+      "params": [
+        {
+          "name": "resfmt",
+          "type": "string",
+          "location": "query",
+          "description": "Response format (JSON)"
+        },
+        {
+          "name": "sort",
+          "type": "string",
+          "location": "query",
+          "description": "Sort direction by campaign time"
+        },
+        {
+          "name": "fromindex",
+          "type": "int",
+          "location": "query",
+          "description": "Pagination start index (1-based)"
+        },
+        {
+          "name": "range",
+          "type": "int",
+          "location": "query",
+          "description": "Number of campaigns to return"
+        },
+        {
+          "name": "status",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by campaign status"
+        }
+      ]
+    },
+    {
+      "name": "campaigns_recipients",
+      "description": "Per-recipient engagement data for a campaign, by action type. Required: campaignkey, action. Optional: resfmt (default: JSON), fromindex (default: 1), range (default: 500).",
+      "method": "GET",
+      "path": "/getcampaignrecipientsdata",
+      "params": [
+        {
+          "name": "resfmt",
+          "type": "string",
+          "location": "query",
+          "description": "Response format (JSON)"
+        },
+        {
+          "name": "campaignkey",
+          "type": "string",
+          "location": "query",
+          "description": "Campaign key (from campaigns list)",
+          "required": true
+        },
+        {
+          "name": "action",
+          "type": "string",
+          "location": "query",
+          "description": "Recipient action type to fetch",
+          "required": true
+        },
+        {
+          "name": "fromindex",
+          "type": "int",
+          "location": "query",
+          "description": "Pagination start index (1-based; undocumented but live-verified — default page is only 20 rows)"
+        },
+        {
+          "name": "range",
+          "type": "int",
+          "location": "query",
+          "description": "Number of recipients to return per page (undocumented but live-verified)"
+        }
+      ]
+    },
+    {
+      "name": "campaigns_report",
+      "description": "Campaign performance report — opens, clicks, bounces, unsubscribes, geo, reach. Required: campaignkey. Optional: resfmt (default: JSON).",
+      "method": "GET",
+      "path": "/campaignreports",
+      "params": [
+        {
+          "name": "resfmt",
+          "type": "string",
+          "location": "query",
+          "description": "Response format (JSON)"
+        },
+        {
+          "name": "campaignkey",
+          "type": "string",
+          "location": "query",
+          "description": "Campaign key (from campaigns list)",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "campaigns_schedule",
+      "description": "Schedule a campaign for a future send time. Required: campaignkey, scheduledate, schedulehour, scheduleminute, am_pm. Optional: resfmt (default: JSON), istimewarp, sendingTZ.",
+      "method": "POST",
+      "path": "/schedulecampaign",
+      "params": [
+        {
+          "name": "resfmt",
+          "type": "string",
+          "location": "body",
+          "description": "Response format (JSON)"
+        },
+        {
+          "name": "campaignkey",
+          "type": "string",
+          "location": "body",
+          "description": "Campaign key of the draft to schedule",
+          "required": true
+        },
+        {
+          "name": "scheduledate",
+          "type": "string",
+          "location": "body",
+          "description": "Send date, mm/dd/yyyy",
+          "required": true
+        },
+        {
+          "name": "schedulehour",
+          "type": "string",
+          "location": "body",
+          "description": "Hour 1-12",
+          "required": true
+        },
+        {
+          "name": "scheduleminute",
+          "type": "string",
+          "location": "body",
+          "description": "Minute 00-55",
+          "required": true
+        },
+        {
+          "name": "am_pm",
+          "type": "string",
+          "location": "body",
+          "description": "AM or PM",
+          "required": true
+        },
+        {
+          "name": "istimewarp",
+          "type": "bool",
+          "location": "body",
+          "description": "Send in each recipient's own time zone"
+        },
+        {
+          "name": "sendingTZ",
+          "type": "string",
+          "location": "body",
+          "description": "Recipient time zone"
+        }
+      ]
+    },
+    {
+      "name": "campaigns_send",
+      "description": "Send a draft campaign now. Required: campaignkey. Optional: resfmt (default: JSON).",
+      "method": "POST",
+      "path": "/sendcampaign",
+      "params": [
+        {
+          "name": "resfmt",
+          "type": "string",
+          "location": "body",
+          "description": "Response format (JSON)"
+        },
+        {
+          "name": "campaignkey",
+          "type": "string",
+          "location": "body",
+          "description": "Campaign key of the draft to send",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "campaigns_sent",
+      "description": "Recently sent campaigns with delivery stats. Required: limit (default: 10). Optional: resfmt (default: JSON).",
+      "method": "GET",
+      "path": "/recentsentcampaigns",
+      "params": [
+        {
+          "name": "resfmt",
+          "type": "string",
+          "location": "query",
+          "description": "Response format (JSON)"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Number of recent sent campaigns to fetch",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "contacts_bulk_add",
+      "description": "Add up to 10 contacts to an existing list by email. Required: listkey, emailids. Optional: resfmt (default: JSON).",
+      "method": "POST",
+      "path": "/addlistsubscribersinbulk",
+      "params": [
+        {
+          "name": "resfmt",
+          "type": "string",
+          "location": "body",
+          "description": "Response format (JSON)"
+        },
+        {
+          "name": "listkey",
+          "type": "string",
+          "location": "body",
+          "description": "List key (from contacts lists)",
+          "required": true
+        },
+        {
+          "name": "emailids",
+          "type": "string",
+          "location": "body",
+          "description": "Up to 10 email addresses, comma-separated",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "contacts_create_list",
+      "description": "Create a new mailing list and add initial contacts. Required: listname. Optional: resfmt (default: JSON), signupform (default: private), mode (default: newlist) (plus 2 more).",
+      "method": "POST",
+      "path": "/addlistandcontacts",
+      "params": [
+        {
+          "name": "resfmt",
+          "type": "string",
+          "location": "body",
+          "description": "Response format (JSON)"
+        },
+        {
+          "name": "listname",
+          "type": "string",
+          "location": "body",
+          "description": "New list name",
+          "required": true
+        },
+        {
+          "name": "signupform",
+          "type": "string",
+          "location": "body",
+          "description": "Signup form visibility"
+        },
+        {
+          "name": "mode",
+          "type": "string",
+          "location": "body",
+          "description": "Creation mode"
+        },
+        {
+          "name": "listdescription",
+          "type": "string",
+          "location": "body",
+          "description": "List description"
+        },
+        {
+          "name": "emailids",
+          "type": "string",
+          "location": "body",
+          "description": "Initial email addresses, comma-separated"
+        }
+      ]
+    },
+    {
+      "name": "contacts_delete_list",
+      "description": "Delete a mailing list. Required: listkey. Optional: resfmt (default: JSON), deletecontacts.",
+      "method": "POST",
+      "path": "/deletemailinglist",
+      "params": [
+        {
+          "name": "resfmt",
+          "type": "string",
+          "location": "body",
+          "description": "Response format (JSON)"
+        },
+        {
+          "name": "listkey",
+          "type": "string",
+          "location": "body",
+          "description": "List key to delete",
+          "required": true
+        },
+        {
+          "name": "deletecontacts",
+          "type": "string",
+          "location": "body",
+          "description": "Also delete the list's contacts"
+        }
+      ]
+    },
+    {
+      "name": "contacts_do_not_mail",
+      "description": "Move a contact to the org-wide Do-Not-Mail registry. Required: contactinfo. Optional: resfmt (default: JSON).",
+      "method": "POST",
+      "path": "/json/contactdonotmail",
+      "params": [
+        {
+          "name": "resfmt",
+          "type": "string",
+          "location": "body",
+          "description": "Response format (JSON)"
+        },
+        {
+          "name": "contactinfo",
+          "type": "string",
+          "location": "body",
+          "description": "JSON contact data, e.g. {'Contact Email':'ann@example.com'}",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "contacts_fields",
+      "description": "Contact field schema — display names and API field names for contactinfo payloads. Optional: type (default: json).",
+      "method": "GET",
+      "path": "/contact/allfields",
+      "params": [
+        {
+          "name": "type",
+          "type": "string",
+          "location": "query",
+          "description": "Response format (json)"
+        }
+      ]
+    },
+    {
+      "name": "contacts_list_details",
+      "description": "Advanced details for one list, including related campaigns. Required: listkey. Optional: resfmt (default: JSON), filtertype, fromindex (plus 1 more).",
+      "method": "GET",
+      "path": "/getlistadvanceddetails?resfmt=JSON",
+      "params": [
+        {
+          "name": "resfmt",
+          "type": "string",
+          "location": "query",
+          "description": "Response format (JSON)"
+        },
+        {
+          "name": "listkey",
+          "type": "string",
+          "location": "query",
+          "description": "List key (from contacts lists)",
+          "required": true
+        },
+        {
+          "name": "filtertype",
+          "type": "string",
+          "location": "query",
+          "description": "Related-campaign filter"
+        },
+        {
+          "name": "fromindex",
+          "type": "int",
+          "location": "query",
+          "description": "Pagination start index"
+        },
+        {
+          "name": "range",
+          "type": "int",
+          "location": "query",
+          "description": "Number of records"
+        }
+      ]
+    },
+    {
+      "name": "contacts_lists",
+      "description": "All mailing lists with listkey, contact/unsub/bounce counts, and owner. Optional: resfmt (default: JSON), sort, fromindex (default: 1) (plus 1 more). Returns array of MailingList.",
+      "method": "GET",
+      "path": "/getmailinglists?resfmt=JSON",
+      "params": [
+        {
+          "name": "resfmt",
+          "type": "string",
+          "location": "query",
+          "description": "Response format (JSON)"
+        },
+        {
+          "name": "sort",
+          "type": "string",
+          "location": "query",
+          "description": "Sort direction"
+        },
+        {
+          "name": "fromindex",
+          "type": "int",
+          "location": "query",
+          "description": "Pagination start index (1-based)"
+        },
+        {
+          "name": "range",
+          "type": "int",
+          "location": "query",
+          "description": "Number of lists to return"
+        }
+      ]
+    },
+    {
+      "name": "contacts_segment_contacts",
+      "description": "Contacts in a list segment. Required: cvid. Optional: resfmt (default: JSON).",
+      "method": "GET",
+      "path": "/getsegmentcontacts",
+      "params": [
+        {
+          "name": "resfmt",
+          "type": "string",
+          "location": "query",
+          "description": "Response format (JSON)"
+        },
+        {
+          "name": "cvid",
+          "type": "string",
+          "location": "query",
+          "description": "Segment ID (cvid, from contacts lists response)",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "contacts_segment_details",
+      "description": "Details of a list segment. Required: listkey, cvid. Optional: resfmt (default: JSON).",
+      "method": "GET",
+      "path": "/getsegmentdetails",
+      "params": [
+        {
+          "name": "resfmt",
+          "type": "string",
+          "location": "query",
+          "description": "Response format (JSON)"
+        },
+        {
+          "name": "listkey",
+          "type": "string",
+          "location": "query",
+          "description": "List key (from contacts lists)",
+          "required": true
+        },
+        {
+          "name": "cvid",
+          "type": "string",
+          "location": "query",
+          "description": "Segment ID (cvid, from contacts lists response)",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "contacts_subscribe",
+      "description": "Subscribe one contact (with custom fields) to a list. Note: Zoho always sends a confirmation email. Required: listkey, contactinfo. Optional: resfmt (default: JSON), source, topic_id.",
+      "method": "POST",
+      "path": "/json/listsubscribe",
+      "params": [
+        {
+          "name": "resfmt",
+          "type": "string",
+          "location": "body",
+          "description": "Response format (JSON)"
+        },
+        {
+          "name": "listkey",
+          "type": "string",
+          "location": "body",
+          "description": "List key (from contacts lists)",
+          "required": true
+        },
+        {
+          "name": "contactinfo",
+          "type": "string",
+          "location": "body",
+          "description": "JSON contact data, e.g. {'Contact Email':'ann@example.com','First Name':'Ann'} — field names from contacts fields",
+          "required": true
+        },
+        {
+          "name": "source",
+          "type": "string",
+          "location": "body",
+          "description": "Contact source label"
+        },
+        {
+          "name": "topic_id",
+          "type": "string",
+          "location": "body",
+          "description": "Topic ID"
+        }
+      ]
+    },
+    {
+      "name": "contacts_subscriber_count",
+      "description": "Subscriber count for a list by status. Required: listkey. Optional: resfmt (default: JSON), status.",
+      "method": "GET",
+      "path": "/listsubscriberscount",
+      "params": [
+        {
+          "name": "resfmt",
+          "type": "string",
+          "location": "query",
+          "description": "Response format (JSON)"
+        },
+        {
+          "name": "listkey",
+          "type": "string",
+          "location": "query",
+          "description": "List key (from contacts lists)",
+          "required": true
+        },
+        {
+          "name": "status",
+          "type": "string",
+          "location": "query",
+          "description": "Status to count"
+        }
+      ]
+    },
+    {
+      "name": "contacts_subscribers",
+      "description": "Subscribers of a list, filtered by status, paginated. Required: listkey. Optional: resfmt (default: JSON), sort, fromindex (default: 1) (plus 2 more). Returns array of Subscriber.",
+      "method": "GET",
+      "path": "/getlistsubscribers?resfmt=JSON",
+      "params": [
+        {
+          "name": "resfmt",
+          "type": "string",
+          "location": "query",
+          "description": "Response format (JSON)"
+        },
+        {
+          "name": "listkey",
+          "type": "string",
+          "location": "query",
+          "description": "List key (from contacts lists)",
+          "required": true
+        },
+        {
+          "name": "sort",
+          "type": "string",
+          "location": "query",
+          "description": "Sort direction"
+        },
+        {
+          "name": "fromindex",
+          "type": "int",
+          "location": "query",
+          "description": "Pagination start index (1-based)"
+        },
+        {
+          "name": "range",
+          "type": "int",
+          "location": "query",
+          "description": "Number of subscribers to return"
+        },
+        {
+          "name": "status",
+          "type": "string",
+          "location": "query",
+          "description": "Subscriber status filter"
+        }
+      ]
+    },
+    {
+      "name": "contacts_unsubscribe",
+      "description": "Unsubscribe a contact from a list. Required: listkey, contactinfo. Optional: resfmt (default: JSON), topic_id.",
+      "method": "POST",
+      "path": "/json/listunsubscribe",
+      "params": [
+        {
+          "name": "resfmt",
+          "type": "string",
+          "location": "body",
+          "description": "Response format (JSON)"
+        },
+        {
+          "name": "listkey",
+          "type": "string",
+          "location": "body",
+          "description": "List key (from contacts lists)",
+          "required": true
+        },
+        {
+          "name": "contactinfo",
+          "type": "string",
+          "location": "body",
+          "description": "JSON contact data, e.g. {'Contact Email':'ann@example.com'}",
+          "required": true
+        },
+        {
+          "name": "topic_id",
+          "type": "string",
+          "location": "body",
+          "description": "Topic ID"
+        }
+      ]
+    },
+    {
+      "name": "contacts_update_list",
+      "description": "Rename a list or change its signup form visibility. Required: listkey, newlistname, signupform. Optional: resfmt (default: JSON).",
+      "method": "POST",
+      "path": "/updatelistdetails",
+      "params": [
+        {
+          "name": "resfmt",
+          "type": "string",
+          "location": "body",
+          "description": "Response format (JSON)"
+        },
+        {
+          "name": "listkey",
+          "type": "string",
+          "location": "body",
+          "description": "List key (from contacts lists)",
+          "required": true
+        },
+        {
+          "name": "newlistname",
+          "type": "string",
+          "location": "body",
+          "description": "New list name",
+          "required": true
+        },
+        {
+          "name": "signupform",
+          "type": "string",
+          "location": "body",
+          "description": "Signup form visibility",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "tags_add",
+      "description": "Create a tag. Required: tagName. Optional: resfmt (default: JSON), tagDesc, color.",
+      "method": "GET",
+      "path": "/tag/add",
+      "params": [
+        {
+          "name": "resfmt",
+          "type": "string",
+          "location": "query",
+          "description": "Response format (JSON)"
+        },
+        {
+          "name": "tagName",
+          "type": "string",
+          "location": "query",
+          "description": "Tag name",
+          "required": true
+        },
+        {
+          "name": "tagDesc",
+          "type": "string",
+          "location": "query",
+          "description": "Tag description"
+        },
+        {
+          "name": "color",
+          "type": "string",
+          "location": "query",
+          "description": "Tag color"
+        }
+      ]
+    },
+    {
+      "name": "tags_associate",
+      "description": "Attach a tag to a contact. Required: tagName, lead_email. Optional: resfmt (default: JSON).",
+      "method": "GET",
+      "path": "/tag/associate",
+      "params": [
+        {
+          "name": "resfmt",
+          "type": "string",
+          "location": "query",
+          "description": "Response format (JSON)"
+        },
+        {
+          "name": "tagName",
+          "type": "string",
+          "location": "query",
+          "description": "Tag name",
+          "required": true
+        },
+        {
+          "name": "lead_email",
+          "type": "string",
+          "location": "query",
+          "description": "Contact email to tag",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "tags_deassociate",
+      "description": "Remove a tag from a contact. Required: tagName, lead_email. Optional: resfmt (default: JSON).",
+      "method": "GET",
+      "path": "/tag/deassociate",
+      "params": [
+        {
+          "name": "resfmt",
+          "type": "string",
+          "location": "query",
+          "description": "Response format (JSON)"
+        },
+        {
+          "name": "tagName",
+          "type": "string",
+          "location": "query",
+          "description": "Tag name",
+          "required": true
+        },
+        {
+          "name": "lead_email",
+          "type": "string",
+          "location": "query",
+          "description": "Contact email to untag",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "tags_delete",
+      "description": "Delete a tag. Required: tagName. Optional: resfmt (default: JSON).",
+      "method": "GET",
+      "path": "/tag/delete",
+      "params": [
+        {
+          "name": "resfmt",
+          "type": "string",
+          "location": "query",
+          "description": "Response format (JSON)"
+        },
+        {
+          "name": "tagName",
+          "type": "string",
+          "location": "query",
+          "description": "Tag name to delete",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "tags_list",
+      "description": "All tags in the org. Optional: resfmt (default: JSON).",
+      "method": "GET",
+      "path": "/tag/getalltags?resfmt=JSON",
+      "params": [
+        {
+          "name": "resfmt",
+          "type": "string",
+          "location": "query",
+          "description": "Response format (JSON)"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,228 @@
+{
+  "api_name": "zoho-campaigns",
+  "novelty_score": 0,
+  "alternatives": [
+    {
+      "name": "keepsuit/laravel-zoho-campaigns",
+      "url": "https://github.com/keepsuit/laravel-zoho-campaigns",
+      "language": "PHP",
+      "install_method": "",
+      "stars": 2,
+      "last_updated": "",
+      "command_count": 12,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "TheWorkflowAcademy/Zoho-Campaigns-API-Subscribe-Contact",
+      "url": "https://github.com/TheWorkflowAcademy/Zoho-Campaigns-API-Subscribe-Contact",
+      "language": "Deluge",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 1,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-07-23T00:00:00Z",
+  "novel_features": [
+    {
+      "name": "Report delta",
+      "command": "delta",
+      "description": "See how one campaign's opens, clicks, bounces, and unsubscribes changed between snapshots — the trajectory Zoho never shows.",
+      "rationale": "Requires time-stamped report snapshots in the local SQLite store; no Zoho endpoint returns historical diffs.",
+      "example": "zoho-campaigns-pp-cli delta 3z44ba67f3e0a1bfdac6 --since 7d --agent",
+      "why_it_matters": "Reach for this when asked whether a campaign's performance is still moving or has plateaued; needs at least two digest-written snapshots in the window — no instant trajectory on a fresh install.",
+      "group": "Report history that compounds"
+    },
+    {
+      "name": "Org digest",
+      "command": "digest",
+      "description": "One-shot rollup of everything sent in a window: aggregate open/click/bounce rates, list totals, and biggest movers.",
+      "rationale": "Aggregates synced campaigns, latest report snapshots, and list counts locally — a dozen rate-limited API calls collapsed into one offline query.",
+      "example": "zoho-campaigns-pp-cli digest --since 30d --agent",
+      "why_it_matters": "The single command to call when refreshing a marketing dashboard or writing a daily brief; --since 24h gives the overnight change feed.",
+      "group": "Report history that compounds"
+    },
+    {
+      "name": "List growth",
+      "command": "growth",
+      "description": "Per-list subscriber, unsubscribe, and bounce trend lines over time — is the list growing or bleeding.",
+      "rationale": "Built from periodic subscriber-count snapshots in the local store; Zoho only exposes current counts.",
+      "example": "zoho-campaigns-pp-cli growth --since 90d --agent",
+      "why_it_matters": "Use for questions about list health over time rather than a point-in-time count; trends appear only after 'digest' has run at least twice over time.",
+      "group": "Report history that compounds"
+    },
+    {
+      "name": "Engagement ranking",
+      "command": "engagement",
+      "description": "Rank contacts by engagement across ALL campaigns — most engaged, or dead weight that never opens.",
+      "rationale": "Joins per-campaign recipient actions across every synced campaign; the API only exposes one campaign at a time.",
+      "example": "zoho-campaigns-pp-cli engagement --top 20 --agent",
+      "why_it_matters": "Answers who the hottest contacts are before outreach, or who to prune, without opening 44 campaign reports.",
+      "group": "Cross-campaign contact intelligence"
+    },
+    {
+      "name": "Bounce audit",
+      "command": "bounce-audit",
+      "description": "Bounced contacts joined to current list membership — deliverability cleanup candidates, pipeable into do-not-mail.",
+      "rationale": "Cross-campaign bounce actions joined to list membership exist only in the local store.",
+      "example": "zoho-campaigns-pp-cli bounce-audit --since 90d --csv",
+      "why_it_matters": "Run after event imports or before big sends to protect sender reputation.",
+      "group": "Cross-campaign contact intelligence"
+    },
+    {
+      "name": "Contact journey",
+      "command": "journey",
+      "description": "One contact's chronological history across every campaign — what they received, opened, and clicked.",
+      "rationale": "The contact-centric inverse of Zoho's per-campaign recipient data; no single API call returns it.",
+      "example": "zoho-campaigns-pp-cli journey ola.nordmann@example.com --agent",
+      "why_it_matters": "Sales-prep lookup before a call: what marketing a contact has actually seen — reads actions cached by 'engagement' or 'bounce-audit', so run one of those first.",
+      "group": "Cross-campaign contact intelligence"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Report delta",
+      "command": "delta",
+      "description": "See how one campaign's opens, clicks, bounces, and unsubscribes changed between snapshots — the trajectory Zoho never shows.",
+      "rationale": "Requires time-stamped report snapshots in the local SQLite store; no Zoho endpoint returns historical diffs.",
+      "example": "zoho-campaigns-pp-cli delta 3z44ba67f3e0a1bfdac6 --since 7d --agent",
+      "why_it_matters": "Reach for this when asked whether a campaign's performance is still moving or has plateaued; needs at least two digest-written snapshots in the window — no instant trajectory on a fresh install.",
+      "group": "Report history that compounds"
+    },
+    {
+      "name": "Org digest",
+      "command": "digest",
+      "description": "One-shot rollup of everything sent in a window: aggregate open/click/bounce rates, list totals, and biggest movers.",
+      "rationale": "Aggregates synced campaigns, latest report snapshots, and list counts locally — a dozen rate-limited API calls collapsed into one offline query.",
+      "example": "zoho-campaigns-pp-cli digest --since 30d --agent",
+      "why_it_matters": "The single command to call when refreshing a marketing dashboard or writing a daily brief; --since 24h gives the overnight change feed.",
+      "group": "Report history that compounds"
+    },
+    {
+      "name": "List growth",
+      "command": "growth",
+      "description": "Per-list subscriber, unsubscribe, and bounce trend lines over time — is the list growing or bleeding.",
+      "rationale": "Built from periodic subscriber-count snapshots in the local store; Zoho only exposes current counts.",
+      "example": "zoho-campaigns-pp-cli growth --since 90d --agent",
+      "why_it_matters": "Use for questions about list health over time rather than a point-in-time count; trends appear only after 'digest' has run at least twice over time.",
+      "group": "Report history that compounds"
+    },
+    {
+      "name": "Engagement ranking",
+      "command": "engagement",
+      "description": "Rank contacts by engagement across ALL campaigns — most engaged, or dead weight that never opens.",
+      "rationale": "Joins per-campaign recipient actions across every synced campaign; the API only exposes one campaign at a time.",
+      "example": "zoho-campaigns-pp-cli engagement --top 20 --agent",
+      "why_it_matters": "Answers who the hottest contacts are before outreach, or who to prune, without opening 44 campaign reports.",
+      "group": "Cross-campaign contact intelligence"
+    },
+    {
+      "name": "Bounce audit",
+      "command": "bounce-audit",
+      "description": "Bounced contacts joined to current list membership — deliverability cleanup candidates, pipeable into do-not-mail.",
+      "rationale": "Cross-campaign bounce actions joined to list membership exist only in the local store.",
+      "example": "zoho-campaigns-pp-cli bounce-audit --since 90d --csv",
+      "why_it_matters": "Run after event imports or before big sends to protect sender reputation.",
+      "group": "Cross-campaign contact intelligence"
+    },
+    {
+      "name": "Contact journey",
+      "command": "journey",
+      "description": "One contact's chronological history across every campaign — what they received, opened, and clicked.",
+      "rationale": "The contact-centric inverse of Zoho's per-campaign recipient data; no single API call returns it.",
+      "example": "zoho-campaigns-pp-cli journey ola.nordmann@example.com --agent",
+      "why_it_matters": "Sales-prep lookup before a call: what marketing a contact has actually seen — reads actions cached by 'engagement' or 'bounce-audit', so run one of those first.",
+      "group": "Cross-campaign contact intelligence"
+    }
+  ],
+  "narrative": {
+    "display_name": "Zoho Campaigns",
+    "headline": "Every Zoho Campaigns operation, plus report history, offline search, and headless self-refreshing OAuth no other tool has.",
+    "value_prop": "The only open-source CLI for Zoho Campaigns. It mirrors campaigns and per-recipient engagement data into local SQLite and tracks mailing-list counts through digest-written snapshots, answering the questions Zoho's current-state UI can't: 'digest' rolls up a whole window for dashboards, 'delta' shows a campaign's trajectory, and 'growth' tracks list health. Self-client OAuth refreshes automatically — built for scheduled, headless, agent-driven runs. (Mailing lists themselves aren't cached offline — a known Zoho listkey quirk; list data lives in the count snapshots.)",
+    "auth_narrative": "Auth is a Zoho self-client (api-console.zoho.com): set ZOHO_CAMPAIGNS_CLIENT_ID, ZOHO_CAMPAIGNS_CLIENT_SECRET, and ZOHO_CAMPAIGNS_REFRESH_TOKEN (or store them via config). Zoho refresh tokens do not expire, so access tokens mint themselves before every call — no browser, no re-consent, no recertification. Scopes needed: ZohoCampaigns.campaign.ALL and ZohoCampaigns.contact.ALL (READ variants suffice for reporting-only use).",
+    "quickstart": [
+      {
+        "command": "zoho-campaigns-pp-cli doctor --dry-run",
+        "comment": "Verify config and credential wiring; run plain 'doctor' for a live reachability check"
+      },
+      {
+        "command": "zoho-campaigns-pp-cli sync --resources campaigns",
+        "comment": "Mirror campaigns for offline search; the report and list-count snapshots that power delta and growth are written by 'digest'"
+      },
+      {
+        "command": "zoho-campaigns-pp-cli digest --since 30d --agent",
+        "comment": "The org-wide rollup: sends, rates, list totals — dashboard-ready JSON"
+      },
+      {
+        "command": "zoho-campaigns-pp-cli campaigns list --status sent --range 10 --agent",
+        "comment": "Recent sent campaigns with their campaignkey values for drill-down"
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "Response says status error with code 1007 or 'Unauthorized request'",
+        "fix": "Refresh token or client secret is wrong, or the account lives on another data center — verify ZOHO_CAMPAIGNS_CLIENT_ID/SECRET/REFRESH_TOKEN and that the org authenticates at accounts.zoho.com"
+      },
+      {
+        "symptom": "Error code 6101 'No campaign available in this view'",
+        "fix": "Not an auth failure — the status filter matched nothing; widen --status to all or raise --range"
+      },
+      {
+        "symptom": "Calls suddenly fail for ~30 minutes",
+        "fix": "Zoho locks the API for 30 minutes after 500 calls in 5 minutes — rely on sync plus local commands (digest, engagement) instead of live loops"
+      },
+      {
+        "symptom": "subscribe returns 'Please give the correct data'",
+        "fix": "contactinfo field names must exactly match the schema from 'contacts fields' (e.g. \"Contact Email\", \"First Name\")"
+      }
+    ],
+    "when_to_use": "Use this CLI whenever an agent needs Zoho Campaigns email-marketing data: campaign performance for dashboards or briefs, mailing-list health, send history, cross-campaign contact engagement, or subscribing/unsubscribing contacts from automations. It is the right choice for scheduled and headless runs because auth self-refreshes without a human. Mind Zoho's rate limit in agent loops: 500 calls per 5 minutes, with a 30-minute lockout when exceeded — prefer synced/local commands (digest, engagement) over live per-campaign loops.",
+    "anti_triggers": [
+      "Zoho CRM records (leads, deals, accounts, the CRM 'Campaigns' module) — that is a different product with different APIs",
+      "Sending one-off transactional email — Campaigns is bulk marketing, not a mail relay",
+      "Authoring or editing campaign HTML content — content work happens in the Zoho Campaigns web UI"
+    ],
+    "recipes": [
+      {
+        "title": "Dashboard rollup",
+        "command": "zoho-campaigns-pp-cli digest --since 30d --agent",
+        "explanation": "Everything sent in 30 days with aggregate rates and list totals, as compact JSON for a dashboard refresh."
+      },
+      {
+        "title": "Campaign trajectory",
+        "command": "zoho-campaigns-pp-cli delta 3z44ba67f3e0a1bfdac6 --since 7d",
+        "explanation": "How the campaign's opens, clicks, and unsubs moved across snapshots — works once 'digest' has run at least twice in the window."
+      },
+      {
+        "title": "Compact campaign list",
+        "command": "zoho-campaigns-pp-cli campaigns list --status sent --agent --select campaign_name,campaign_status,sent_date_string",
+        "explanation": "Narrow the verbose campaign payload to just the fields a report needs."
+      },
+      {
+        "title": "Find the dead weight",
+        "command": "zoho-campaigns-pp-cli engagement --never-opened --agent",
+        "explanation": "Contacts who never opened anything across all synced campaigns — prune candidates."
+      },
+      {
+        "title": "Post-event hygiene",
+        "command": "zoho-campaigns-pp-cli bounce-audit --since 90d --csv",
+        "explanation": "Bounced contacts still on lists after an event import, ready to pipe into do-not-mail."
+      }
+    ],
+    "trigger_phrases": [
+      "campaign performance",
+      "how did the newsletter do",
+      "email open rates",
+      "mailing list growth",
+      "who bounced or unsubscribed",
+      "use zoho-campaigns",
+      "run zoho-campaigns"
+    ]
+  }
+}

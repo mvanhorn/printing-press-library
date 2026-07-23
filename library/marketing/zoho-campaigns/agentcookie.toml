@@ -1,0 +1,18 @@
+# agentcookie.toml: secrets-bus adoption manifest v2
+# See docs/spec-agentcookie-secrets-bus-v2-adoption.md
+schema_version = 2
+name = "zoho-campaigns-pp-cli"
+display_name = "Zoho Campaigns"
+description = "Every Zoho Campaigns operation, plus report history, offline search, and headless self-refreshing OAuth no other tool has."
+project_kind = "cli"
+
+[secrets.file]
+path = "~/.config/zoho-campaigns-pp-cli/config.toml"
+
+[sync]
+default = false
+
+[sync.keys]
+ZOHO_CAMPAIGNS_CLIENT_ID = false
+ZOHO_CAMPAIGNS_CLIENT_SECRET = true
+ZOHO_CAMPAIGNS_REFRESH_TOKEN = true

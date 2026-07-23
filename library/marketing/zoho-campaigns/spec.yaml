@@ -1,0 +1,756 @@
+name: zoho-campaigns
+description: "Zoho Campaigns email marketing API — campaign performance, mailing lists, subscribers, and tags"
+version: "2.0.0"
+base_url: "https://campaigns.zoho.com/api/v1.1"
+category: marketing
+health_check_path: "/recentcampaigns?resfmt=JSON"
+cli_description: "The only CLI for Zoho Campaigns — headless self-refreshing OAuth, an offline SQLite mirror, and report history no Zoho surface can show."
+
+auth:
+  type: oauth2_refresh
+  header: "Authorization"
+  format: "Zoho-oauthtoken {token}"
+  token_url: "https://accounts.zoho.com/oauth/v2/token"
+  scopes: ["ZohoCampaigns.campaign.ALL", "ZohoCampaigns.contact.ALL"]
+  in: header
+
+config:
+  format: toml
+  path: "~/.config/zoho-campaigns-pp-cli/config.toml"
+
+learn:
+  ticker_patterns:
+    - "^3z[0-9a-f]{40,}$"
+    - "^[0-9]{16,19}$"
+  synonyms:
+    "email blast": "campaign"
+    "mailer": "campaign"
+    "open rate": "opens"
+    "click rate": "clicks"
+  entity_lookup_seeds:
+    campaign_status:
+      - canonical: sent
+        aliases: [delivered, sent out]
+      - canonical: drafts
+        aliases: [draft, unsent]
+      - canonical: scheduled
+        aliases: [queued, upcoming]
+      - canonical: inprogress
+        aliases: [sending, in progress]
+
+mcp:
+  transport: [stdio, http]
+
+resources:
+  campaigns:
+    description: "Email campaign operations — list, reports, recipients, and lifecycle"
+    endpoints:
+      list:
+        method: GET
+        path: "/recentcampaigns?resfmt=JSON"
+        description: "List recent campaigns with status filter — the source of campaignkey values"
+        example: "  zoho-campaigns-pp-cli campaigns list --status sent --range 10"
+        happy_args: "--range=5"
+        params:
+          - name: resfmt
+            type: string
+            default: "JSON"
+            description: "Response format (JSON)"
+          - name: sort
+            type: string
+            enum: [asc, desc]
+            description: "Sort direction by campaign time"
+          - name: fromindex
+            type: int
+            default: 1
+            description: "Pagination start index (1-based)"
+          - name: range
+            type: int
+            default: 20
+            description: "Number of campaigns to return"
+          - name: status
+            type: string
+            enum: [all, drafts, scheduled, inprogress, sent, stopped, canceled, tobereviewed, reviewed, paused, intesting]
+            description: "Filter by campaign status"
+        response:
+          type: array
+          item: Campaign
+        response_path: recent_campaigns
+      sent:
+        method: GET
+        path: "/recentsentcampaigns"
+        description: "Recently sent campaigns with delivery stats"
+        happy_args: "--limit=5"
+        params:
+          - name: resfmt
+            type: string
+            default: "JSON"
+            description: "Response format (JSON)"
+          - name: limit
+            type: int
+            required: true
+            default: 10
+            description: "Number of recent sent campaigns to fetch"
+        response:
+          type: object
+      details:
+        method: GET
+        path: "/getcampaigndetails"
+        description: "Full campaign configuration — subject, sender, status, lists"
+        params:
+          - name: resfmt
+            type: string
+            default: "JSON"
+            description: "Response format (JSON)"
+          - name: campaignkey
+            type: string
+            required: true
+            description: "Campaign key (from campaigns list)"
+          - name: campaigntype
+            type: string
+            default: "normal"
+            enum: [normal, abtesting]
+            description: "Campaign type"
+        response:
+          type: object
+      report:
+        method: GET
+        path: "/campaignreports"
+        description: "Campaign performance report — opens, clicks, bounces, unsubscribes, geo, reach"
+        params:
+          - name: resfmt
+            type: string
+            default: "JSON"
+            description: "Response format (JSON)"
+          - name: campaignkey
+            type: string
+            required: true
+            description: "Campaign key (from campaigns list)"
+        response:
+          type: object
+      last_report:
+        method: GET
+        path: "/getlastcampaignreport"
+        description: "Report for the most recently sent campaign — quick health pulse"
+        params:
+          - name: resfmt
+            type: string
+            default: "JSON"
+            description: "Response format (JSON)"
+        response:
+          type: object
+      recipients:
+        method: GET
+        path: "/getcampaignrecipientsdata"
+        description: "Per-recipient engagement data for a campaign, by action type"
+        params:
+          - name: resfmt
+            type: string
+            default: "JSON"
+            description: "Response format (JSON)"
+          - name: campaignkey
+            type: string
+            required: true
+            description: "Campaign key (from campaigns list)"
+          - name: action
+            type: string
+            required: true
+            enum: [sentcontacts, openedcontacts, optoutcontacts, spamcontacts, unopenedcontacts, clickedcontacts, senthardbounce, sentsoftbounce, unsentcontacts]
+            description: "Recipient action type to fetch"
+          - name: fromindex
+            type: int
+            default: 1
+            description: "Pagination start index (1-based; undocumented but live-verified — default page is only 20 rows)"
+          - name: range
+            type: int
+            default: 500
+            description: "Number of recipients to return per page (undocumented but live-verified)"
+        response:
+          type: object
+      create:
+        method: POST
+        path: "/createCampaign"
+        description: "Create a campaign (draft) — name, sender, subject, content URL, target lists"
+        params:
+          - name: resfmt
+            type: string
+            default: "JSON"
+            description: "Response format (JSON)"
+          - name: campaignname
+            type: string
+            required: true
+            description: "Campaign name"
+          - name: from_email
+            type: string
+            required: true
+            format: email
+            description: "Sender email address (must be a verified sender)"
+          - name: from_name
+            type: string
+            description: "Sender display name"
+          - name: subject
+            type: string
+            required: true
+            description: "Email subject line"
+          - name: content_url
+            type: string
+            format: uri
+            description: "Public HTML URL for the campaign content"
+          - name: list_details
+            type: string
+            description: "UTF-8 encoded JSON mapping listkeys to segments, e.g. {\"<listkey>\":[]}"
+          - name: segments
+            type: string
+            description: "Segment IDs to target, e.g. [segmentid1,segmentid2]"
+          - name: topicId
+            type: string
+            description: "Topic ID (mandatory for orgs on updated topic management)"
+        response:
+          type: object
+      send:
+        method: POST
+        path: "/sendcampaign"
+        description: "Send a draft campaign now"
+        params:
+          - name: resfmt
+            type: string
+            default: "JSON"
+            description: "Response format (JSON)"
+          - name: campaignkey
+            type: string
+            required: true
+            description: "Campaign key of the draft to send"
+        response:
+          type: object
+      schedule:
+        method: POST
+        path: "/schedulecampaign"
+        description: "Schedule a campaign for a future send time"
+        params:
+          - name: resfmt
+            type: string
+            default: "JSON"
+            description: "Response format (JSON)"
+          - name: campaignkey
+            type: string
+            required: true
+            description: "Campaign key of the draft to schedule"
+          - name: scheduledate
+            type: string
+            required: true
+            description: "Send date, mm/dd/yyyy"
+          - name: schedulehour
+            type: string
+            required: true
+            description: "Hour 1-12"
+          - name: scheduleminute
+            type: string
+            required: true
+            description: "Minute 00-55"
+          - name: am_pm
+            type: string
+            required: true
+            enum: [am, pm]
+            description: "AM or PM"
+          - name: istimewarp
+            type: bool
+            description: "Send in each recipient's own time zone"
+          - name: sendingTZ
+            type: string
+            description: "Recipient time zone"
+        response:
+          type: object
+      clone:
+        method: POST
+        path: "/json/clonecampaign"
+        description: "Clone an existing campaign"
+        params:
+          - name: resfmt
+            type: string
+            default: "JSON"
+            description: "Response format (JSON)"
+          - name: campaigninfo
+            type: string
+            required: true
+            description: "JSON with campaignname, subject, from_name, from_add, reply_to, oldcampaignkey"
+        response:
+          type: object
+      delete:
+        method: POST
+        path: "/deletecampaign"
+        description: "Delete a campaign"
+        params:
+          - name: resfmt
+            type: string
+            default: "JSON"
+            description: "Response format (JSON)"
+          - name: campaignkey
+            type: string
+            required: true
+            description: "Campaign key to delete"
+        response:
+          type: object
+
+  contacts:
+    description: "Mailing lists, subscribers, segments, and contact fields"
+    endpoints:
+      lists:
+        method: GET
+        path: "/getmailinglists?resfmt=JSON"
+        description: "All mailing lists with listkey, contact/unsub/bounce counts, and owner"
+        example: "  zoho-campaigns-pp-cli contacts lists --range 25"
+        happy_args: "--range=10"
+        params:
+          - name: resfmt
+            type: string
+            default: "JSON"
+            description: "Response format (JSON)"
+          - name: sort
+            type: string
+            enum: [asc, desc]
+            description: "Sort direction"
+          - name: fromindex
+            type: int
+            default: 1
+            description: "Pagination start index (1-based)"
+          - name: range
+            type: int
+            default: 25
+            description: "Number of lists to return"
+        response:
+          type: array
+          item: MailingList
+        response_path: list_of_details
+      list_details:
+        method: GET
+        path: "/getlistadvanceddetails?resfmt=JSON"
+        description: "Advanced details for one list, including related campaigns"
+        params:
+          - name: resfmt
+            type: string
+            default: "JSON"
+            description: "Response format (JSON)"
+          - name: listkey
+            type: string
+            required: true
+            description: "List key (from contacts lists)"
+          - name: filtertype
+            type: string
+            enum: [sentcampaigns, scheduledcampaigns, recentcampaigns]
+            description: "Related-campaign filter"
+          - name: fromindex
+            type: int
+            description: "Pagination start index"
+          - name: range
+            type: int
+            description: "Number of records"
+        response:
+          type: object
+      subscribers:
+        method: GET
+        path: "/getlistsubscribers?resfmt=JSON"
+        description: "Subscribers of a list, filtered by status, paginated"
+        params:
+          - name: resfmt
+            type: string
+            default: "JSON"
+            description: "Response format (JSON)"
+          - name: listkey
+            type: string
+            required: true
+            description: "List key (from contacts lists)"
+          - name: sort
+            type: string
+            enum: [asc, desc]
+            description: "Sort direction"
+          - name: fromindex
+            type: int
+            default: 1
+            description: "Pagination start index (1-based)"
+          - name: range
+            type: int
+            default: 100
+            description: "Number of subscribers to return"
+          - name: status
+            type: string
+            enum: [active, recent, mostrecent, unsub, bounce]
+            description: "Subscriber status filter"
+        response:
+          type: array
+          item: Subscriber
+        response_path: list_of_details
+      subscriber_count:
+        method: GET
+        path: "/listsubscriberscount"
+        description: "Subscriber count for a list by status"
+        params:
+          - name: resfmt
+            type: string
+            default: "JSON"
+            description: "Response format (JSON)"
+          - name: listkey
+            type: string
+            required: true
+            description: "List key (from contacts lists)"
+          - name: status
+            type: string
+            enum: [active, unsub, bounce, spam]
+            description: "Status to count"
+        response:
+          type: object
+      subscribe:
+        method: POST
+        path: "/json/listsubscribe"
+        description: "Subscribe one contact (with custom fields) to a list. Note: Zoho always sends a confirmation email"
+        params:
+          - name: resfmt
+            type: string
+            default: "JSON"
+            description: "Response format (JSON)"
+          - name: listkey
+            type: string
+            required: true
+            description: "List key (from contacts lists)"
+          - name: contactinfo
+            type: string
+            required: true
+            description: "JSON contact data, e.g. {\"Contact Email\":\"ann@example.com\",\"First Name\":\"Ann\"} — field names from contacts fields"
+          - name: source
+            type: string
+            description: "Contact source label"
+          - name: topic_id
+            type: string
+            description: "Topic ID"
+        response:
+          type: object
+      unsubscribe:
+        method: POST
+        path: "/json/listunsubscribe"
+        description: "Unsubscribe a contact from a list"
+        params:
+          - name: resfmt
+            type: string
+            default: "JSON"
+            description: "Response format (JSON)"
+          - name: listkey
+            type: string
+            required: true
+            description: "List key (from contacts lists)"
+          - name: contactinfo
+            type: string
+            required: true
+            description: "JSON contact data, e.g. {\"Contact Email\":\"ann@example.com\"}"
+          - name: topic_id
+            type: string
+            description: "Topic ID"
+        response:
+          type: object
+      do_not_mail:
+        method: POST
+        path: "/json/contactdonotmail"
+        description: "Move a contact to the org-wide Do-Not-Mail registry"
+        params:
+          - name: resfmt
+            type: string
+            default: "JSON"
+            description: "Response format (JSON)"
+          - name: contactinfo
+            type: string
+            required: true
+            description: "JSON contact data, e.g. {\"Contact Email\":\"ann@example.com\"}"
+        response:
+          type: object
+      bulk_add:
+        method: POST
+        path: "/addlistsubscribersinbulk"
+        description: "Add up to 10 contacts to an existing list by email"
+        params:
+          - name: resfmt
+            type: string
+            default: "JSON"
+            description: "Response format (JSON)"
+          - name: listkey
+            type: string
+            required: true
+            description: "List key (from contacts lists)"
+          - name: emailids
+            type: string
+            required: true
+            description: "Up to 10 email addresses, comma-separated"
+        response:
+          type: object
+      create_list:
+        method: POST
+        path: "/addlistandcontacts"
+        description: "Create a new mailing list and add initial contacts"
+        params:
+          - name: resfmt
+            type: string
+            default: "JSON"
+            description: "Response format (JSON)"
+          - name: listname
+            type: string
+            required: true
+            description: "New list name"
+          - name: signupform
+            type: string
+            default: "private"
+            enum: [public, private]
+            description: "Signup form visibility"
+          - name: mode
+            type: string
+            default: "newlist"
+            description: "Creation mode"
+          - name: listdescription
+            type: string
+            description: "List description"
+          - name: emailids
+            type: string
+            description: "Initial email addresses, comma-separated"
+        response:
+          type: object
+      update_list:
+        method: POST
+        path: "/updatelistdetails"
+        description: "Rename a list or change its signup form visibility"
+        params:
+          - name: resfmt
+            type: string
+            default: "JSON"
+            description: "Response format (JSON)"
+          - name: listkey
+            type: string
+            required: true
+            description: "List key (from contacts lists)"
+          - name: newlistname
+            type: string
+            required: true
+            description: "New list name"
+          - name: signupform
+            type: string
+            required: true
+            enum: [public, private]
+            description: "Signup form visibility"
+        response:
+          type: object
+      delete_list:
+        method: POST
+        path: "/deletemailinglist"
+        description: "Delete a mailing list"
+        params:
+          - name: resfmt
+            type: string
+            default: "JSON"
+            description: "Response format (JSON)"
+          - name: listkey
+            type: string
+            required: true
+            description: "List key to delete"
+          - name: deletecontacts
+            type: string
+            enum: ["on", "off"]
+            description: "Also delete the list's contacts"
+        response:
+          type: object
+      fields:
+        method: GET
+        path: "/contact/allfields"
+        description: "Contact field schema — display names and API field names for contactinfo payloads"
+        params:
+          - name: type
+            type: string
+            default: "json"
+            description: "Response format (json)"
+        response:
+          type: object
+      segment_details:
+        method: GET
+        path: "/getsegmentdetails"
+        description: "Details of a list segment"
+        params:
+          - name: resfmt
+            type: string
+            default: "JSON"
+            description: "Response format (JSON)"
+          - name: listkey
+            type: string
+            required: true
+            description: "List key (from contacts lists)"
+          - name: cvid
+            type: string
+            required: true
+            description: "Segment ID (cvid, from contacts lists response)"
+        response:
+          type: object
+      segment_contacts:
+        method: GET
+        path: "/getsegmentcontacts"
+        description: "Contacts in a list segment"
+        params:
+          - name: resfmt
+            type: string
+            default: "JSON"
+            description: "Response format (JSON)"
+          - name: cvid
+            type: string
+            required: true
+            description: "Segment ID (cvid, from contacts lists response)"
+        response:
+          type: object
+
+  tags:
+    description: "Contact tag management"
+    endpoints:
+      list:
+        method: GET
+        path: "/tag/getalltags?resfmt=JSON"
+        description: "All tags in the org"
+        params:
+          - name: resfmt
+            type: string
+            default: "JSON"
+            description: "Response format (JSON)"
+        response:
+          type: object
+      add:
+        method: GET
+        path: "/tag/add"
+        description: "Create a tag"
+        params:
+          - name: resfmt
+            type: string
+            default: "JSON"
+            description: "Response format (JSON)"
+          - name: tagName
+            type: string
+            required: true
+            description: "Tag name"
+          - name: tagDesc
+            type: string
+            description: "Tag description"
+          - name: color
+            type: string
+            description: "Tag color"
+        response:
+          type: object
+      delete:
+        method: GET
+        path: "/tag/delete"
+        description: "Delete a tag"
+        params:
+          - name: resfmt
+            type: string
+            default: "JSON"
+            description: "Response format (JSON)"
+          - name: tagName
+            type: string
+            required: true
+            description: "Tag name to delete"
+        response:
+          type: object
+      associate:
+        method: GET
+        path: "/tag/associate"
+        description: "Attach a tag to a contact"
+        params:
+          - name: resfmt
+            type: string
+            default: "JSON"
+            description: "Response format (JSON)"
+          - name: tagName
+            type: string
+            required: true
+            description: "Tag name"
+          - name: lead_email
+            type: string
+            required: true
+            format: email
+            description: "Contact email to tag"
+        response:
+          type: object
+      deassociate:
+        method: GET
+        path: "/tag/deassociate"
+        description: "Remove a tag from a contact"
+        params:
+          - name: resfmt
+            type: string
+            default: "JSON"
+            description: "Response format (JSON)"
+          - name: tagName
+            type: string
+            required: true
+            description: "Tag name"
+          - name: lead_email
+            type: string
+            required: true
+            format: email
+            description: "Contact email to untag"
+        response:
+          type: object
+
+types:
+  Campaign:
+    fields:
+      - name: campaign_key
+        type: string
+      - name: campaignId
+        type: string
+      - name: campaign_name
+        type: string
+      - name: campaign_status
+        type: string
+      - name: subject
+        type: string
+      - name: from_email
+        type: string
+      - name: reply_to
+        type: string
+      - name: campaigntype
+        type: string
+      - name: sent_date_string
+        type: string
+      - name: sent_time_gmt
+        type: string
+      - name: created_time_gmt
+        type: string
+      - name: updated_time_gmt
+        type: string
+  MailingList:
+    fields:
+      - name: listkey
+        type: string
+      - name: listname
+        type: string
+      - name: noofcontacts
+        type: string
+      - name: noofunsubcnt
+        type: string
+      - name: noofbouncecnt
+        type: string
+      - name: sentcnt
+        type: string
+      - name: owner
+        type: string
+      - name: date
+        type: string
+      - name: created_time_gmt
+        type: string
+      - name: updated_time_gmt
+        type: string
+      - name: issmart
+        type: string
+      - name: is_public
+        type: string
+  Subscriber:
+    fields:
+      - name: contact_email
+        type: string
+      - name: firstname
+        type: string
+      - name: lastname
+        type: string
+      - name: companyname
+        type: string
+      - name: phone
+        type: string

@@ -1,0 +1,11 @@
+{
+  "schema_version": 2,
+  "id": "zoho-campaigns-sync-resfmt-json",
+  "applied_at": "2026-07-23",
+  "base_run_id": "20260722-180349-94ead842",
+  "base_printing_press_version": "4.29.0",
+  "summary": "Embed ?resfmt=JSON in the five sync-eligible endpoint paths so bare 'sync' gets JSON, not XML.",
+  "reason": "The sync engine does not apply spec param defaults, so bare sync received XML and silently parsed 0 records.",
+  "files": ["spec.yaml"],
+  "validated_outcome": "bare 'sync' returns 44 campaigns"
+}

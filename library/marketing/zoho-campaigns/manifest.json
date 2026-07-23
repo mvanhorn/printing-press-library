@@ -1,0 +1,55 @@
+{
+  "manifest_version": "0.3",
+  "name": "zoho-campaigns-pp-mcp",
+  "display_name": "Zoho Campaigns",
+  "version": "2.0.0",
+  "description": "Every Zoho Campaigns operation, plus report history, offline search, and headless self-refreshing OAuth no other tool has.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/zoho-campaigns-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/zoho-campaigns-pp-mcp",
+      "args": [],
+      "env": {
+        "ZOHO_CAMPAIGNS_CLIENT_ID": "${user_config.zoho_campaigns_client_id}",
+        "ZOHO_CAMPAIGNS_CLIENT_SECRET": "${user_config.zoho_campaigns_client_secret}",
+        "ZOHO_CAMPAIGNS_REFRESH_TOKEN": "${user_config.zoho_campaigns_refresh_token}"
+      }
+    }
+  },
+  "user_config": {
+    "zoho_campaigns_client_id": {
+      "type": "string",
+      "title": "ZOHO_CAMPAIGNS_CLIENT_ID",
+      "description": "Sets ZOHO_CAMPAIGNS_CLIENT_ID for the Zoho Campaigns MCP server.",
+      "sensitive": true,
+      "required": true
+    },
+    "zoho_campaigns_client_secret": {
+      "type": "string",
+      "title": "ZOHO_CAMPAIGNS_CLIENT_SECRET",
+      "description": "Sets ZOHO_CAMPAIGNS_CLIENT_SECRET for the Zoho Campaigns MCP server.",
+      "sensitive": true,
+      "required": true
+    },
+    "zoho_campaigns_refresh_token": {
+      "type": "string",
+      "title": "ZOHO_CAMPAIGNS_REFRESH_TOKEN",
+      "description": "Sets ZOHO_CAMPAIGNS_REFRESH_TOKEN for the Zoho Campaigns MCP server.",
+      "sensitive": true,
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

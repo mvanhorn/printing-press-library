@@ -1,0 +1,11 @@
+{
+  "schema_version": 2,
+  "id": "zoho-campaigns-oauth-flow-input-env",
+  "applied_at": "2026-07-23",
+  "base_run_id": "20260722-180349-94ead842",
+  "base_printing_press_version": "4.29.0",
+  "summary": "Promote ZOHO_CAMPAIGNS_CLIENT_ID/SECRET/REFRESH_TOKEN flow-input env vars onto the OAuth client fields the refresh path reads.",
+  "reason": "The generator classifies canonical oauth2_refresh env vars as auth-flow inputs and never maps them to ClientID/ClientSecret/RefreshToken, so env-var-only headless auth 401s out of the box.",
+  "files": ["internal/config/zoho_campaigns_env.go", "internal/config/config.go"],
+  "validated_outcome": "campaigns list --agent succeeds from a sandboxed HOME with only the three env vars set"
+}

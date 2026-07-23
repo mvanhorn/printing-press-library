@@ -1,0 +1,22 @@
+{
+  "timestamp": "2026-07-23T15:37:15.6207746Z",
+  "cli_dir": "\u003ccli-dir\u003e\\zoho-campaigns-pp-cli",
+  "findings": [
+    {
+      "kind": "thin-short",
+      "command": "list",
+      "file": "teach.go",
+      "line": 692,
+      "evidence": "List recorded learnings",
+      "status": "accepted",
+      "note": "DO-NOT-EDIT generated file (learn-loop teach.go template); Short is brief but precise for 'learnings list' and already carries mcp:read-only + examples. Richer default Short needs a generator-template fix; retro candidate."
+    }
+  ],
+  "scorecard_before": {
+    "mcp_description_quality": 10,
+    "captured": "2026-07-23T15:31:10.5133614Z"
+  },
+  "progress": {
+    "last_processed_finding_id": "thin-short|list|teach.go:692"
+  }
+}

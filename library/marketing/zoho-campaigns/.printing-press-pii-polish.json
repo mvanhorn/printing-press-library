@@ -1,0 +1,9 @@
+{
+  "timestamp": "2026-07-23T16:16:10.9504477Z",
+  "cli_dir": "\u003ccli-dir\u003e\\zoho-campaigns",
+  "findings": null,
+  "findings_count_before": 4,
+  "progress": {
+    "last_processed_finding_id": "SKILL.md|101|email|ola.nordmann@example.com"
+  }
+}

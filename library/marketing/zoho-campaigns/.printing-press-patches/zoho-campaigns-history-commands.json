@@ -1,0 +1,11 @@
+{
+  "schema_version": 2,
+  "id": "zoho-campaigns-history-commands",
+  "applied_at": "2026-07-23",
+  "base_run_id": "20260722-180349-94ead842",
+  "base_printing_press_version": "4.29.0",
+  "summary": "Six novel report-history commands (delta, digest, growth, engagement, bounce-audit, journey) plus their shared plumbing and SQLite snapshot/history tables.",
+  "reason": "Transcendence features: local report/list-count snapshots and cross-campaign recipient joins that no Zoho endpoint provides; digest also paginates the 20-row-truncated recipients endpoint via undocumented fromindex/range.",
+  "files": ["internal/cli/delta.go", "internal/cli/digest.go", "internal/cli/growth.go", "internal/cli/engagement.go", "internal/cli/bounce_audit.go", "internal/cli/journey.go", "internal/cli/zoho_history.go", "internal/store/zoho_campaigns_history.go"],
+  "validated_outcome": "All six verified against the live Kontur org; dogfood novel_features_check found 6/6"
+}

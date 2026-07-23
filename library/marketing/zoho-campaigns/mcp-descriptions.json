@@ -1,0 +1,5 @@
+{
+  "descriptions": {
+    "tags_list": "List every contact tag defined in the Zoho Campaigns org. No required parameters. Returns the org's tag collection with the attributes set at creation (tag name, description, color); an org with no tags returns Zoho status code 992 rather than an empty array. Use tags_add to create a tag and tags_associate to attach one to a contact."
+  }
+}

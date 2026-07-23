@@ -1,0 +1,11 @@
+{
+  "schema_version": 2,
+  "id": "zoho-campaigns-windows-cred-acl",
+  "applied_at": "2026-07-23",
+  "base_run_id": "20260722-180349-94ead842",
+  "base_printing_press_version": "4.29.0",
+  "summary": "Restrict credential/private files to an owner-only Windows DACL at write time, and self-heal inherited-ACL copies at read time instead of refusing them.",
+  "reason": "Chmod(0600) is a DACL no-op on NTFS: AtomicWritePrivateFile produced files that VerifyCredsPerms then rejected, and copied credential files inherited broad ACEs causing every command to re-mint a token (OAuth rate-limit storm).",
+  "files": ["internal/cliutil/private_file_windows.go", "internal/cliutil/private_file_unix.go", "internal/cliutil/creds_perms_heal_windows.go", "internal/cliutil/creds_perms_heal_unix.go", "internal/cliutil/paths.go", "internal/cliutil/credentials.go"],
+  "validated_outcome": "A credentials.toml copied into a sandbox HOME (inherited foreign ACEs) loads and serves live data without re-minting; explicit broad grants still refuse"
+}

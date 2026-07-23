@@ -1,0 +1,62 @@
+{
+  "schema_version": 2,
+  "generated_at": "2026-07-23T15:54:05.1861217Z",
+  "printing_press_version": "4.29.0",
+  "api_name": "zoho-campaigns",
+  "display_name": "Zoho Campaigns",
+  "cli_name": "zoho-campaigns-pp-cli",
+  "creator": {
+    "handle": "kentrichardmartin",
+    "name": "Kent Martin"
+  },
+  "owner": "kentrichardmartin",
+  "printer": "kentrichardmartin",
+  "printer_name": "Kent Martin",
+  "spec_format": "internal",
+  "spec_checksum": "sha256:82084c9eff905cc23a183a0dc4878b3c240b8223af3121afaec1e1cee1ad55b2",
+  "run_id": "20260722-180349-94ead842",
+  "category": "marketing",
+  "description": "Every Zoho Campaigns operation, plus report history, offline search, and headless self-refreshing OAuth no other tool has.",
+  "mcp_binary": "zoho-campaigns-pp-mcp",
+  "mcp_tool_count": 30,
+  "mcp_ready": "full",
+  "api_version": "2.0.0",
+  "auth_type": "oauth2_refresh",
+  "auth_env_vars": [
+    "ZOHO_CAMPAIGNS_CLIENT_ID",
+    "ZOHO_CAMPAIGNS_CLIENT_SECRET",
+    "ZOHO_CAMPAIGNS_REFRESH_TOKEN"
+  ],
+  "novel_features": [
+    {
+      "name": "Report delta",
+      "command": "delta",
+      "description": "See how one campaign's opens, clicks, bounces, and unsubscribes changed between snapshots — the trajectory Zoho never shows."
+    },
+    {
+      "name": "Org digest",
+      "command": "digest",
+      "description": "One-shot rollup of everything sent in a window: aggregate open/click/bounce rates, list totals, and biggest movers."
+    },
+    {
+      "name": "List growth",
+      "command": "growth",
+      "description": "Per-list subscriber, unsubscribe, and bounce trend lines over time — is the list growing or bleeding."
+    },
+    {
+      "name": "Engagement ranking",
+      "command": "engagement",
+      "description": "Rank contacts by engagement across ALL campaigns — most engaged, or dead weight that never opens."
+    },
+    {
+      "name": "Bounce audit",
+      "command": "bounce-audit",
+      "description": "Bounced contacts joined to current list membership — deliverability cleanup candidates, pipeable into do-not-mail."
+    },
+    {
+      "name": "Contact journey",
+      "command": "journey",
+      "description": "One contact's chronological history across every campaign — what they received, opened, and clicked."
+    }
+  ]
+}
