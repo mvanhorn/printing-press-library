@@ -9,10 +9,11 @@ import (
 
 func newCompaniesCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:    "companies",
-		Short:  "Everything about your Companies",
-		Hidden: true,
-		RunE:   parentNoSubcommandRunE(flags),
+		Use:         "companies",
+		Short:       "Everything about your Companies",
+		Hidden:      true,
+		Annotations: map[string]string{"mcp:read-only": "true", "pp:typed-exit-codes": "0,2"},
+		RunE:        parentNoSubcommandRunE(flags),
 	}
 
 	cmd.AddCommand(newCompaniesCreateOrUpdateCompanyCmd(flags))

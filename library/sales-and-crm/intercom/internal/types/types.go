@@ -260,6 +260,60 @@ type ConversationsCreateResponse struct {
 	Type           string `json:"type"`
 }
 
+type NewsListItemsItem struct {
+	Body                string          `json:"body"`
+	CoverImageUrl       string          `json:"cover_image_url"`
+	CreatedAt           int             `json:"created_at"`
+	DeliverSilently     bool            `json:"deliver_silently"`
+	Id                  string          `json:"id"`
+	Labels              json.RawMessage `json:"labels"`
+	Name                string          `json:"name"`
+	NewsfeedAssignments json.RawMessage `json:"newsfeed_assignments"`
+	Reactions           json.RawMessage `json:"reactions"`
+	SenderId            int             `json:"sender_id"`
+	State               string          `json:"state"`
+	Title               string          `json:"title"`
+	Type                string          `json:"type"`
+	UpdatedAt           int             `json:"updated_at"`
+	WorkspaceId         string          `json:"workspace_id"`
+}
+
+type NewsListLiveNewsfeedItemsItem struct {
+	Body                string          `json:"body"`
+	CoverImageUrl       string          `json:"cover_image_url"`
+	CreatedAt           int             `json:"created_at"`
+	DeliverSilently     bool            `json:"deliver_silently"`
+	Id                  string          `json:"id"`
+	Labels              json.RawMessage `json:"labels"`
+	Name                string          `json:"name"`
+	NewsfeedAssignments json.RawMessage `json:"newsfeed_assignments"`
+	Reactions           json.RawMessage `json:"reactions"`
+	SenderId            int             `json:"sender_id"`
+	State               string          `json:"state"`
+	Title               string          `json:"title"`
+	Type                string          `json:"type"`
+	UpdatedAt           int             `json:"updated_at"`
+	WorkspaceId         string          `json:"workspace_id"`
+}
+
+type NewsListNewsfeedsItem struct {
+	Body                string          `json:"body"`
+	CoverImageUrl       string          `json:"cover_image_url"`
+	CreatedAt           int             `json:"created_at"`
+	DeliverSilently     bool            `json:"deliver_silently"`
+	Id                  string          `json:"id"`
+	Labels              json.RawMessage `json:"labels"`
+	Name                string          `json:"name"`
+	NewsfeedAssignments json.RawMessage `json:"newsfeed_assignments"`
+	Reactions           json.RawMessage `json:"reactions"`
+	SenderId            int             `json:"sender_id"`
+	State               string          `json:"state"`
+	Title               string          `json:"title"`
+	Type                string          `json:"type"`
+	UpdatedAt           int             `json:"updated_at"`
+	WorkspaceId         string          `json:"workspace_id"`
+}
+
 type activity_log struct {
 	ActivityDescription string          `json:"activity_description"`
 	ActivityType        string          `json:"activity_type"`
@@ -1232,6 +1286,9 @@ type custom_object_instance_list struct {
 }
 
 type customer_request struct {
+	Email          string `json:"email"`
+	IntercomUserId string `json:"intercom_user_id"`
+	UserId         string `json:"user_id"`
 }
 
 type data_attribute struct {
@@ -1380,6 +1437,11 @@ type error struct {
 }
 
 type event_details struct {
+	Action    json.RawMessage `json:"action"`
+	Attribute json.RawMessage `json:"attribute"`
+	Event     json.RawMessage `json:"event"`
+	Value     json.RawMessage `json:"value"`
+	Workflow  json.RawMessage `json:"workflow"`
 }
 
 type external_page struct {

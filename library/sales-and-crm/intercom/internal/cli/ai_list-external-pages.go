@@ -19,14 +19,13 @@ func newAiListExternalPagesCmd(flags *rootFlags) *cobra.Command {
 		Example:     "  intercom-pp-cli ai list-external-pages",
 		Annotations: map[string]string{"pp:endpoint": "ai.list-external-pages", "pp:method": "GET", "pp:path": "/ai/external_pages", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
+			path := "/ai/external_pages"
 			c, err := flags.newClient()
 			if err != nil {
 				return err
 			}
-
-			path := "/ai/external_pages"
 			params := map[string]string{}
-			data, prov, err := resolveRead(cmd.Context(), c, flags, "ai", false, path, params, nil, cmd.ErrOrStderr())
+			data, prov, err := resolveReadWithStrategyAndResponsePath(cmd.Context(), c, flags, "auto", "ai", false, path, params, nil, "data", cmd.ErrOrStderr())
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}
@@ -71,7 +70,7 @@ func newAiListExternalPagesCmd(flags *rootFlags) *cobra.Command {
 					return nil
 				}
 			}
-			return printOutputWithFlags(cmd.OutOrStdout(), data, flags)
+			return printOutputWithFlagsMeta(cmd.OutOrStdout(), data, flags, map[string]any{"source": "live"})
 		},
 	}
 

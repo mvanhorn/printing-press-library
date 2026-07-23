@@ -9,9 +9,10 @@ import (
 
 func newContactsCompaniesCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "companies",
-		Short: "Everything about your Companies",
-		RunE:  parentNoSubcommandRunE(flags),
+		Use:         "companies",
+		Short:       "Everything about your Companies",
+		Annotations: map[string]string{"mcp:read-only": "true", "pp:typed-exit-codes": "0,2"},
+		RunE:        parentNoSubcommandRunE(flags),
 	}
 
 	cmd.AddCommand(newContactsCompaniesAttachContactToAcompanyCmd(flags))

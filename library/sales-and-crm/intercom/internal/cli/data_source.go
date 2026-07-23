@@ -23,6 +23,33 @@ import (
 
 const networkFallbackReason = "api_unreachable"
 
+func unsupportedDataSourceError(strategy, requested string) error {
+	switch strategy {
+	case "local":
+		return fmt.Errorf("no live equivalent for this command (requested %q); use --data-source local or --data-source auto", requested)
+	case "live":
+		return fmt.Errorf("no local data source for this command (requested %q); use --data-source live or --data-source auto", requested)
+	default:
+		return fmt.Errorf("unsupported --data-source %q for strategy %q", requested, strategy)
+	}
+}
+
+func validateDataSourceStrategy(flags *rootFlags, strategy string) error {
+	switch strategy {
+	case "", "auto":
+		return nil
+	case "local":
+		if flags.dataSource == "live" {
+			return unsupportedDataSourceError(strategy, flags.dataSource)
+		}
+	case "live":
+		if flags.dataSource == "local" {
+			return unsupportedDataSourceError(strategy, flags.dataSource)
+		}
+	}
+	return nil
+}
+
 // isNetworkError returns true for errors caused by network connectivity issues
 // (DNS, connection refused, timeout). HTTP 4xx/5xx errors are NOT network errors.
 func isNetworkError(err error) bool {
@@ -51,14 +78,20 @@ func isNetworkError(err error) bool {
 		strings.Contains(msg, "TLS handshake timeout")
 }
 
-// openStoreForRead opens the local SQLite store for reading.
+// openStoreForRead opens the local SQLite store read-only for reading.
 // Returns nil, nil if the database file does not exist (no sync has been run).
+//
+// Read paths open with store.OpenReadOnly: no MkdirAll, no migration loop, and
+// no write lock, so a read concurrent with a sync cannot block on the writer
+// and a read command never runs a schema migration as a side effect. ctx is
+// threaded into OpenReadOnlyContext so a cancelled command (SIGINT, deadline)
+// interrupts the driver-init SQLITE_BUSY retry rather than blocking on it.
 func openStoreForRead(ctx context.Context, cliName string) (*store.Store, error) {
 	dbPath := defaultDBPath(cliName)
 	if _, err := os.Stat(dbPath); os.IsNotExist(err) {
 		return nil, nil
 	}
-	return store.OpenWithContext(ctx, dbPath)
+	return store.OpenReadOnlyContext(ctx, dbPath)
 }
 
 // localProvenance builds a DataProvenance for local data reads.
@@ -98,6 +131,42 @@ func attachFreshness(prov DataProvenance, flags *rootFlags) DataProvenance {
 //     reads on per-endpoint-versioned APIs silently get the wrong response shape
 //     (cal-com retro #334 F1).
 func resolveRead(ctx context.Context, c *client.Client, flags *rootFlags, resourceType string, isList bool, path string, params map[string]string, headers map[string]string, hintWriter io.Writer) (json.RawMessage, DataProvenance, error) {
+	return resolveReadWithResponsePath(ctx, c, flags, resourceType, isList, path, params, headers, "", hintWriter)
+}
+
+func resolveReadWithResponsePath(ctx context.Context, c *client.Client, flags *rootFlags, resourceType string, isList bool, path string, params map[string]string, headers map[string]string, responsePath string, hintWriter io.Writer) (json.RawMessage, DataProvenance, error) {
+	return resolveReadWithStrategyAndResponsePath(ctx, c, flags, "auto", resourceType, isList, path, params, headers, responsePath, hintWriter)
+}
+
+func resolveReadWithStrategy(ctx context.Context, c *client.Client, flags *rootFlags, strategy string, resourceType string, isList bool, path string, params map[string]string, headers map[string]string, hintWriter io.Writer) (json.RawMessage, DataProvenance, error) {
+	return resolveReadWithStrategyAndResponsePath(ctx, c, flags, strategy, resourceType, isList, path, params, headers, "", hintWriter)
+}
+
+func resolveReadWithStrategyAndResponsePath(ctx context.Context, c *client.Client, flags *rootFlags, strategy string, resourceType string, isList bool, path string, params map[string]string, headers map[string]string, responsePath string, hintWriter io.Writer) (json.RawMessage, DataProvenance, error) {
+	return resolveReadWithStrategyResponsePathAndJSONGuard(ctx, c, flags, strategy, resourceType, isList, path, params, headers, responsePath, true, hintWriter)
+}
+
+func resolveReadWithStrategyResponsePathAndJSONGuard(ctx context.Context, c *client.Client, flags *rootFlags, strategy string, resourceType string, isList bool, path string, params map[string]string, headers map[string]string, responsePath string, guardLiveJSON bool, hintWriter io.Writer) (json.RawMessage, DataProvenance, error) {
+	if err := validateDataSourceStrategy(flags, strategy); err != nil {
+		return nil, DataProvenance{}, err
+	}
+	if strategy == "local" {
+		data, prov, err := resolveLocal(ctx, flags, hintWriter, resourceType, isList, path, params, "strategy_local")
+		return data, attachFreshness(prov, flags), err
+	}
+	if strategy == "live" {
+		data, err := c.GetWithHeaders(ctx, path, params, headers)
+		if err != nil {
+			return nil, DataProvenance{}, err
+		}
+		if guardLiveJSON {
+			if err := assertLiveJSONBody(data); err != nil {
+				return nil, DataProvenance{}, err
+			}
+		}
+		data = applyResponsePath(data, responsePath)
+		return data, attachFreshness(DataProvenance{Source: "live"}, flags), nil
+	}
 	switch flags.dataSource {
 	case "local":
 		data, prov, err := resolveLocal(ctx, flags, hintWriter, resourceType, isList, path, params, "user_requested")
@@ -108,11 +177,23 @@ func resolveRead(ctx context.Context, c *client.Client, flags *rootFlags, resour
 		if err != nil {
 			return nil, DataProvenance{}, err
 		}
+		if guardLiveJSON {
+			if err := assertLiveJSONBody(data); err != nil {
+				return nil, DataProvenance{}, err
+			}
+		}
+		data = applyResponsePath(data, responsePath)
 		return data, attachFreshness(DataProvenance{Source: "live"}, flags), nil
 
 	default: // "auto"
 		data, err := c.GetWithHeaders(ctx, path, params, headers)
 		if err == nil {
+			if guardLiveJSON {
+				if err := assertLiveJSONBody(data); err != nil {
+					return nil, DataProvenance{}, err
+				}
+			}
+			data = applyResponsePath(data, responsePath)
 			writeThroughCache(ctx, resourceType, data)
 			return data, attachFreshness(DataProvenance{Source: "live"}, flags), nil
 		}
@@ -133,22 +214,68 @@ func resolveRead(ctx context.Context, c *client.Client, flags *rootFlags, resour
 // or local store. When local, skips pagination and returns all synced data. The
 // headers argument carries per-endpoint required headers; pass nil when the
 // endpoint declares no overrides.
-func resolvePaginatedRead(ctx context.Context, c *client.Client, flags *rootFlags, resourceType string, path string, params map[string]string, headers map[string]string, fetchAll bool, cursorParam, nextCursorPath, hasMoreField string, hintWriter io.Writer) (json.RawMessage, DataProvenance, error) {
+func resolvePaginatedRead(ctx context.Context, c *client.Client, flags *rootFlags, resourceType string, path string, params map[string]string, headers map[string]string, fetchAll bool, cursorParam, paginationType, limitParam string, defaultPageSize int, nextCursorPath, hasMoreField string, hintWriter io.Writer) (json.RawMessage, DataProvenance, error) {
+	return resolvePaginatedReadWithStrategy(ctx, c, flags, "auto", resourceType, path, params, headers, fetchAll, cursorParam, paginationType, limitParam, defaultPageSize, nextCursorPath, hasMoreField, hintWriter)
+}
+
+func resolvePaginatedReadWithStrategy(ctx context.Context, c *client.Client, flags *rootFlags, strategy string, resourceType string, path string, params map[string]string, headers map[string]string, fetchAll bool, cursorParam, paginationType, limitParam string, defaultPageSize int, nextCursorPath, hasMoreField string, hintWriter io.Writer) (json.RawMessage, DataProvenance, error) {
+	return resolvePaginatedReadWithStrategyAndJSONGuard(ctx, c, flags, strategy, resourceType, path, params, headers, fetchAll, cursorParam, paginationType, limitParam, defaultPageSize, nextCursorPath, hasMoreField, true, hintWriter)
+}
+
+func resolvePaginatedReadWithStrategyAndJSONGuard(ctx context.Context, c *client.Client, flags *rootFlags, strategy string, resourceType string, path string, params map[string]string, headers map[string]string, fetchAll bool, cursorParam, paginationType, limitParam string, defaultPageSize int, nextCursorPath, hasMoreField string, guardLiveJSON bool, hintWriter io.Writer) (json.RawMessage, DataProvenance, error) {
+	if err := validateDataSourceStrategy(flags, strategy); err != nil {
+		return nil, DataProvenance{}, err
+	}
+	if strategy == "local" {
+		data, prov, err := resolveLocal(ctx, flags, hintWriter, resourceType, true, path, params, "strategy_local")
+		return data, attachFreshness(prov, flags), err
+	}
+	if strategy == "live" {
+		if !guardLiveJSON && fetchAll {
+			return nil, DataProvenance{}, fmt.Errorf("--all is not supported for live HTML responses; omit --all to extract the current page")
+		}
+		data, err := paginatedGet(ctx, c, path, params, headers, fetchAll, cursorParam, paginationType, limitParam, defaultPageSize, nextCursorPath, hasMoreField)
+		if err != nil {
+			return nil, DataProvenance{}, err
+		}
+		if guardLiveJSON {
+			if err := assertLiveJSONBody(data); err != nil {
+				return nil, DataProvenance{}, err
+			}
+		}
+		return data, attachFreshness(DataProvenance{Source: "live"}, flags), nil
+	}
 	switch flags.dataSource {
 	case "local":
 		data, prov, err := resolveLocal(ctx, flags, hintWriter, resourceType, true, path, params, "user_requested")
 		return data, attachFreshness(prov, flags), err
 
 	case "live":
-		data, err := paginatedGet(ctx, c, path, params, headers, fetchAll, cursorParam, nextCursorPath, hasMoreField)
+		if !guardLiveJSON && fetchAll {
+			return nil, DataProvenance{}, fmt.Errorf("--all is not supported for live HTML responses; omit --all to extract the current page")
+		}
+		data, err := paginatedGet(ctx, c, path, params, headers, fetchAll, cursorParam, paginationType, limitParam, defaultPageSize, nextCursorPath, hasMoreField)
 		if err != nil {
 			return nil, DataProvenance{}, err
+		}
+		if guardLiveJSON {
+			if err := assertLiveJSONBody(data); err != nil {
+				return nil, DataProvenance{}, err
+			}
 		}
 		return data, attachFreshness(DataProvenance{Source: "live"}, flags), nil
 
 	default: // "auto"
-		data, err := paginatedGet(ctx, c, path, params, headers, fetchAll, cursorParam, nextCursorPath, hasMoreField)
+		if !guardLiveJSON && fetchAll {
+			return nil, DataProvenance{}, fmt.Errorf("--all is not supported for live HTML responses; omit --all or use --data-source local")
+		}
+		data, err := paginatedGet(ctx, c, path, params, headers, fetchAll, cursorParam, paginationType, limitParam, defaultPageSize, nextCursorPath, hasMoreField)
 		if err == nil {
+			if guardLiveJSON {
+				if err := assertLiveJSONBody(data); err != nil {
+					return nil, DataProvenance{}, err
+				}
+			}
 			writeThroughCache(ctx, resourceType, data)
 			return data, attachFreshness(DataProvenance{Source: "live"}, flags), nil
 		}
@@ -171,8 +298,11 @@ func resolvePaginatedRead(ctx context.Context, c *client.Client, flags *rootFlag
 // the envelope is treated as a detail object even when one of its
 // wrapper-named fields happens to be an empty array.
 var listEnvelopeMetadataKeys = map[string]bool{
-	// list wrappers themselves
+	// list wrappers themselves — must stay in sync with pageItemKeys
 	"results": true, "data": true, "items": true,
+	"records": true, "nodes": true, "entries": true, "features": true,
+	"Results": true, "Data": true, "Items": true,
+	"Records": true, "Nodes": true, "Entries": true, "Features": true,
 	// pagination cursors / tokens
 	"next_cursor": true, "nextCursor": true,
 	"next_page_token": true, "nextPageToken": true,
@@ -186,12 +316,21 @@ var listEnvelopeMetadataKeys = map[string]bool{
 	"page": true, "page_size": true, "per_page": true,
 	// counts / totals
 	"total": true, "count": true, "size": true, "total_count": true, "totalCount": true,
+	// JSend / common status envelopes
+	"success": true, "status": true, "message": true, "error": true,
+	"errors": true, "Errors": true, "warnings": true, "Warnings": true,
 	// wrapper objects
 	"links": true, "meta": true, "pagination": true,
 	"response_metadata": true, "paging": true,
 	// links shape
 	"next": true, "prev": true, "previous": true, "first": true, "last": true,
 }
+
+var writeThroughListWrapperKeys = []string{
+	"data", "results", "items", "records", "nodes", "entries", "features",
+	"Data", "Results", "Items", "Records", "Nodes", "Entries", "Features",
+}
+var writeThroughNestedEnvelopeKeys = []string{"data", "Data", "result", "Result"}
 
 // writeThroughCache upserts live API results into the local SQLite store so
 // FTS search covers everything the user has looked up — not just explicit syncs.
@@ -212,14 +351,13 @@ func writeThroughCache(ctx context.Context, resourceType string, data json.RawMe
 		// Try object — check for common envelope patterns (results, data, items)
 		var envelope map[string]json.RawMessage
 		if json.Unmarshal(data, &envelope) == nil {
-			for _, key := range []string{"results", "data", "items"} {
-				if raw, ok := envelope[key]; ok {
-					var arr []json.RawMessage
-					if json.Unmarshal(raw, &arr) == nil && len(arr) > 0 {
-						items = arr
-						break
-					}
-				}
+			matchedListEnvelope := false
+			if extracted, ok := extractWriteThroughListItems(envelope); ok {
+				matchedListEnvelope = true
+				items = extracted
+			}
+			if matchedListEnvelope && len(items) == 0 {
+				return
 			}
 			// Single object detail response: let UpsertBatch's existing
 			// resourceIDFieldOverrides mechanism resolve the primary key.
@@ -232,10 +370,10 @@ func writeThroughCache(ctx context.Context, resourceType string, data json.RawMe
 			// A detail object that happens to carry an empty wrapper-named
 			// field alongside real data (e.g. {"id":"order","items":[],
 			// "status":"pending"}) must still cache as a single row.
-			if items == nil && len(envelope) > 0 {
+			if items == nil && !matchedListEnvelope && len(envelope) > 0 {
 				looksLikeListEnvelope := false
 				hasListWrapperArray := false
-				for _, key := range []string{"results", "data", "items"} {
+				for _, key := range writeThroughListWrapperKeys {
 					raw, ok := envelope[key]
 					if !ok {
 						continue
@@ -272,6 +410,101 @@ func writeThroughCache(ctx context.Context, resourceType string, data json.RawMe
 	}
 }
 
+type writeThroughArrayDecoder func(json.RawMessage) ([]json.RawMessage, bool)
+
+func extractWriteThroughListItems(envelope map[string]json.RawMessage) ([]json.RawMessage, bool) {
+	if items, ok := extractWriteThroughListWrapperItems(envelope, decodeWriteThroughNonEmptyArray); ok {
+		return items, true
+	}
+
+	for _, key := range writeThroughNestedEnvelopeKeys {
+		raw, ok := envelope[key]
+		if !ok || isRawJSONNull(raw) {
+			continue
+		}
+		var inner map[string]json.RawMessage
+		if json.Unmarshal(raw, &inner) != nil {
+			continue
+		}
+		if items, ok := extractNestedWriteThroughListItems(inner); ok {
+			return items, true
+		}
+	}
+
+	return extractWriteThroughSingleArraySibling(envelope, decodeWriteThroughNonEmptyArray)
+}
+
+func extractNestedWriteThroughListItems(envelope map[string]json.RawMessage) ([]json.RawMessage, bool) {
+	if items, ok := extractWriteThroughListWrapperItems(envelope, decodeWriteThroughArray); ok {
+		return items, true
+	}
+	return extractWriteThroughSingleArraySibling(envelope, decodeWriteThroughArray)
+}
+
+func extractWriteThroughListWrapperItems(envelope map[string]json.RawMessage, decode writeThroughArrayDecoder) ([]json.RawMessage, bool) {
+	for _, key := range writeThroughListWrapperKeys {
+		raw, ok := envelope[key]
+		if !ok {
+			continue
+		}
+		if items, ok := decode(raw); ok {
+			return items, true
+		}
+	}
+	return nil, false
+}
+
+func extractWriteThroughSingleArraySibling(envelope map[string]json.RawMessage, decode writeThroughArrayDecoder) ([]json.RawMessage, bool) {
+	arrayCount := 0
+	var arrayItems []json.RawMessage
+	for key, raw := range envelope {
+		if listEnvelopeMetadataKeys[key] {
+			continue
+		}
+		if candidate, ok := decode(raw); ok {
+			if !writeThroughArrayItemsAreObjects(candidate) {
+				continue
+			}
+			arrayItems = candidate
+			arrayCount++
+			continue
+		}
+		return nil, false
+	}
+	if arrayCount == 1 {
+		return arrayItems, true
+	}
+	return nil, false
+}
+
+func writeThroughArrayItemsAreObjects(items []json.RawMessage) bool {
+	if len(items) == 0 {
+		return true
+	}
+	var obj map[string]json.RawMessage
+	return json.Unmarshal(items[0], &obj) == nil
+}
+
+func decodeWriteThroughNonEmptyArray(raw json.RawMessage) ([]json.RawMessage, bool) {
+	items, ok := decodeWriteThroughArray(raw)
+	if !ok || len(items) == 0 {
+		return nil, false
+	}
+	return items, true
+}
+
+func decodeWriteThroughArray(raw json.RawMessage) ([]json.RawMessage, bool) {
+	var items []json.RawMessage
+	if json.Unmarshal(raw, &items) != nil || items == nil {
+		return nil, false
+	}
+	return items, true
+}
+
+func isRawJSONNull(raw json.RawMessage) bool {
+	return strings.TrimSpace(string(raw)) == "null"
+}
+
 func writeMutationResponseToStore(ctx context.Context, resourceType string, data json.RawMessage, responsePath string) {
 	items := mutationResponseEntityItems(resourceType, data, responsePath)
 	if len(items) == 0 {
@@ -289,7 +522,7 @@ func writeMutationResponseToStore(ctx context.Context, resourceType string, data
 
 func mutationResponseEntityItems(resourceType string, data json.RawMessage, responsePath string) []json.RawMessage {
 	if responsePath != "" {
-		if pathData, ok := mutationResponseAtPath(data, responsePath); ok {
+		if pathData, ok := responsePayloadAtPath(data, responsePath); ok {
 			data = pathData
 		}
 	}
@@ -353,14 +586,6 @@ func mutationResponsePayload(data json.RawMessage) json.RawMessage {
 	default:
 		return data
 	}
-}
-
-func mutationResponseAtPath(data json.RawMessage, responsePath string) (json.RawMessage, bool) {
-	var root map[string]json.RawMessage
-	if err := json.Unmarshal(data, &root); err != nil {
-		return nil, false
-	}
-	return rawAtPath(root, strings.TrimPrefix(responsePath, "$."))
 }
 
 func mutationResponseHasID(resourceType string, data json.RawMessage) bool {

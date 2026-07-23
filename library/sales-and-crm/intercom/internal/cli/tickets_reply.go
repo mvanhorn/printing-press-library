@@ -9,9 +9,10 @@ import (
 
 func newTicketsReplyCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "reply",
-		Short: "Create reply for tickets",
-		RunE:  parentNoSubcommandRunE(flags),
+		Use:         "reply",
+		Short:       "Create reply for tickets",
+		Annotations: map[string]string{"mcp:read-only": "true", "pp:typed-exit-codes": "0,2"},
+		RunE:        parentNoSubcommandRunE(flags),
 	}
 
 	cmd.AddCommand(newTicketsReplyTicketCmd(flags))

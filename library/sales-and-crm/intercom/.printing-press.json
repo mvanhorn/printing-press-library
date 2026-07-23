@@ -1,7 +1,7 @@
 {
-  "schema_version": 1,
-  "generated_at": "2026-05-25T01:05:10.995888Z",
-  "printing_press_version": "4.14.0",
+  "schema_version": 2,
+  "generated_at": "2026-07-22T22:38:43.273802Z",
+  "printing_press_version": "4.29.0",
   "api_name": "intercom",
   "display_name": "Intercom",
   "cli_name": "intercom-pp-cli",
@@ -9,18 +9,27 @@
     "handle": "rob-coco",
     "name": "Rob Zehner"
   },
+  "contributors": [
+    {
+      "handle": "francobee",
+      "name": "Francis Battikha"
+    }
+  ],
   "owner": "rob-coco",
   "printer": "rob-coco",
   "printer_name": "Rob Zehner",
+  "spec_path": "spec.yaml",
   "spec_format": "openapi3",
   "spec_checksum": "sha256:d78bdca097efa15b4ead664c607a3beda423ce14c57adae605cbe36461136520",
-  "run_id": "20260524-134520",
+  "run_id": "20260723-000115-4f7ce34f",
+  "category": "sales-and-crm",
   "description": "Every Intercom resource as a typed CLI with offline sync and EU/AU regions.",
   "mcp_binary": "intercom-pp-mcp",
   "mcp_tool_count": 133,
   "mcp_ready": "full",
   "api_version": "2.13",
   "auth_type": "bearer_token",
+  "auth_preference": "bearerAuth",
   "auth_env_vars": [
     "INTERCOM_ACCESS_TOKEN"
   ],

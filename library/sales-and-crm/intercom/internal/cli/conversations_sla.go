@@ -25,7 +25,8 @@ type slaRow struct {
 	ClosedCount             int     `json:"closed_count,omitempty"`
 }
 
-func newConversationsSlaCmd(flags *rootFlags) *cobra.Command {
+// pp:data-source local
+func newNovelConversationsSlaCmd(flags *rootFlags) *cobra.Command {
 	var groupBy string
 	var metric string
 	var since string
@@ -82,6 +83,12 @@ func newConversationsSlaCmd(flags *rootFlags) *cobra.Command {
 				return usageErr(err)
 			}
 			sinceEpoch := time.Now().Add(-sinceDur).Unix()
+
+			// Local-only command: computes from the synced store, so reject
+			// --data-source live (auto/local pass through).
+			if err := validateDataSourceStrategy(flags, "local"); err != nil {
+				return err
+			}
 
 			if dbPath == "" {
 				dbPath = defaultDBPath("intercom-pp-cli")
