@@ -234,6 +234,42 @@ func TestResolveNDFGroupNLCOverride(t *testing.T) {
 	}
 }
 
+func TestResolveNDFClusterNLCOverride(t *testing.T) {
+	// An NFO override can also be filed under an FSC cluster ID that the origin
+	// station is a date-valid member of. Adding PAD (3087) to cluster '2000' and
+	// filing the override under that cluster must apply to a PAD→RDG query, the
+	// same way flow-matching expands through clusters.
+	db := seedResolveDB(t)
+	if _, err := db.Exec(
+		`INSERT INTO rjf_clusters(cluster_id,member_nlc,start_date,end_date)
+		 VALUES('2000','3087','20250101','29991231')`); err != nil {
+		t.Fatalf("insert cluster: %v", err)
+	}
+	if _, err := db.Exec(
+		`INSERT INTO rjf_ndf(origin_nlc,dest_nlc,route,ticket_code,pence,restriction_code,start_date,end_date)
+		 VALUES('2000','3149','00735','SDS',1100,'','20250101','29991231')`); err != nil {
+		t.Fatalf("insert ndf: %v", err)
+	}
+
+	fares, err := Resolve(db, "PAD", "RDG", "20260621")
+	if err != nil {
+		t.Fatalf("Resolve: %v", err)
+	}
+
+	var sds00735 *ResolvedFare
+	for i := range fares {
+		if fares[i].TicketCode == "SDS" && fares[i].Route == "00735" {
+			sds00735 = &fares[i]
+		}
+	}
+	if sds00735 == nil {
+		t.Fatal("cluster-NLC NDF override: missing SDS route 00735")
+	}
+	if sds00735.Pence != 1100 {
+		t.Errorf("cluster-NLC NDF override: want SDS route 00735 = 1100 (cluster-filed NDF beats derived 2310), got %d", sds00735.Pence)
+	}
+}
+
 func TestResolveBlankFlowDatesIncluded(t *testing.T) {
 	// parseDate returns "" for blank/short RJFAF date fields. A flow stored with
 	// blank start/end dates is open-ended and must still match, exactly like the
