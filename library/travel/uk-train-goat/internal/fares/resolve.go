@@ -126,18 +126,34 @@ func Resolve(db *sql.DB, fromCRS, toCRS, date string) ([]ResolvedFare, error) {
 		return nil, fmt.Errorf("fares: Resolve: iterate fares: %w", err)
 	}
 
-	// Step 7: NFO direct overrides (rjf_ndf).
-	ndfRows, err := db.Query(`
+	// Step 7: NFO direct overrides (rjf_ndf). Match against the same
+	// group/cluster-expanded location sets as flow-matching (Step 3), so an
+	// override filed under a group or cluster NLC still applies to its member
+	// stations instead of being silently skipped.
+	oList := setToSlice(oSet)
+	dList := setToSlice(dSet)
+	ndfQ := fmt.Sprintf(`
 		SELECT n.route, n.ticket_code, n.pence, n.restriction_code,
 		       tt.description, tt.ticket_type,
 		       COALESCE(r.description, '') AS restriction_desc
 		FROM rjf_ndf n
 		JOIN rjf_ticket_types tt ON tt.code = n.ticket_code
 		LEFT JOIN rjf_restrictions r ON r.code = n.restriction_code AND n.restriction_code != ''
-		WHERE n.origin_nlc = ? AND n.dest_nlc = ?
+		WHERE n.origin_nlc IN (%s) AND n.dest_nlc IN (%s)
 		  AND (n.start_date = '' OR n.start_date <= ?)
 		  AND (n.end_date = '' OR n.end_date >= ?)`,
-		fromNLC, toNLC, date, date)
+		makePlaceholders(len(oList)), makePlaceholders(len(dList)))
+
+	ndfArgs := make([]interface{}, 0, len(oList)+len(dList)+2)
+	for _, v := range oList {
+		ndfArgs = append(ndfArgs, v)
+	}
+	for _, v := range dList {
+		ndfArgs = append(ndfArgs, v)
+	}
+	ndfArgs = append(ndfArgs, date, date)
+
+	ndfRows, err := db.Query(ndfQ, ndfArgs...)
 	if err != nil {
 		return nil, fmt.Errorf("fares: Resolve: query ndf: %w", err)
 	}
@@ -194,6 +210,7 @@ func crsToNLC(db *sql.DB, crs, date string) (string, bool, error) {
 		WHERE crs = ?
 		  AND (start_date = '' OR start_date <= ?)
 		  AND (end_date = '' OR end_date >= ?)
+		ORDER BY nlc
 		LIMIT 1`, crs, date, date).Scan(&nlc)
 	if err == sql.ErrNoRows {
 		return "", false, nil

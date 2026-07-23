@@ -28,5 +28,5 @@
     "SKILL.md",
     ".printing-press-patches/rjfaf-walkup-fares.json"
   ],
-  "validated_outcome": "go test ./... green for the full module including date-filtering regression tests (TestResolveExpiredGroupMembershipExcluded, TestResolveBlankFlowDatesIncluded, TestResolveBlankNDFDatesIncluded) and JSON-tag serialization tests. Live end-to-end smoke against the real RJFAF798 feed (53.8 MB) confirmed sync, offline lookup, and provenance/publish-date reporting. All Greptile review threads on PR #1341 resolved."
+  "validated_outcome": "go test ./... green for the full module including date-filtering regression tests (TestResolveExpiredGroupMembershipExcluded, TestResolveBlankFlowDatesIncluded, TestResolveBlankNDFDatesIncluded), the NDF group-NLC expansion test (TestResolveNDFGroupNLCOverride), and JSON-tag serialization tests. The NDF override step (Step 7) queries the same group/cluster-expanded location sets as flow-matching so overrides filed under a group NLC apply to member stations, and CRS-to-NLC resolution is deterministic (ORDER BY nlc). Live end-to-end smoke against the real RJFAF798 feed (53.8 MB) confirmed sync, offline lookup, and provenance/publish-date reporting. All Greptile review threads on PR #1341 resolved."
 }

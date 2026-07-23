@@ -203,6 +203,37 @@ func TestResolveNDFOverride(t *testing.T) {
 	}
 }
 
+func TestResolveNDFGroupNLCOverride(t *testing.T) {
+	// An NFO override can be filed under a group NLC rather than the member
+	// station's own NLC. PAD (3087) reaches fares only via the London Terminals
+	// group (1072), so an override filed origin_nlc='1072' must apply to a
+	// PAD→RDG query. Querying rjf_ndf with raw station NLCs would miss it.
+	db := seedResolveDB(t)
+	if _, err := db.Exec(
+		`INSERT INTO rjf_ndf(origin_nlc,dest_nlc,route,ticket_code,pence,restriction_code,start_date,end_date)
+		 VALUES('1072','3149','00735','SDS',1200,'','20250101','29991231')`); err != nil {
+		t.Fatalf("insert ndf: %v", err)
+	}
+
+	fares, err := Resolve(db, "PAD", "RDG", "20260621")
+	if err != nil {
+		t.Fatalf("Resolve: %v", err)
+	}
+
+	var sds00735 *ResolvedFare
+	for i := range fares {
+		if fares[i].TicketCode == "SDS" && fares[i].Route == "00735" {
+			sds00735 = &fares[i]
+		}
+	}
+	if sds00735 == nil {
+		t.Fatal("group-NLC NDF override: missing SDS route 00735")
+	}
+	if sds00735.Pence != 1200 {
+		t.Errorf("group-NLC NDF override: want SDS route 00735 = 1200 (group-filed NDF beats derived 2310), got %d", sds00735.Pence)
+	}
+}
+
 func TestResolveBlankFlowDatesIncluded(t *testing.T) {
 	// parseDate returns "" for blank/short RJFAF date fields. A flow stored with
 	// blank start/end dates is open-ended and must still match, exactly like the
