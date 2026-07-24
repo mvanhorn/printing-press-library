@@ -1,0 +1,9 @@
+{
+  "timestamp": "2026-07-24T15:59:19.129062Z",
+  "cli_dir": "\u003ccli-dir\u003e/arcgis-pp-cli",
+  "findings": null,
+  "scorecard_before": {
+    "mcp_description_quality": 10,
+    "captured": "2026-07-24T15:44:30.522808Z"
+  }
+}

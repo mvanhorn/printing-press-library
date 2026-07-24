@@ -1,0 +1,48 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-07-24T16:02:14.888044Z",
+  "printing_press_version": "4.27.0",
+  "api_name": "arcgis",
+  "cli_name": "arcgis-pp-cli",
+  "creator": {
+    "handle": "togorashi45",
+    "name": "togorashi45"
+  },
+  "printer": "togorashi45",
+  "printer_name": "togorashi45",
+  "spec_path": "arcgis-spec.yaml",
+  "run_id": "20260724-091734-c238b4f4",
+  "category": "developer-tools",
+  "novel_features": [
+    {
+      "name": "Point-in-polygon signal binding",
+      "command": "locate",
+      "description": "Bind a coordinate (or a CSV of coordinates) to the containing feature via one intersects query."
+    },
+    {
+      "name": "Service field audit",
+      "command": "audit",
+      "description": "Walk every layer in a service and report which high-value fields (owner, mailing address, homestead, last-sale) each layer exposes."
+    },
+    {
+      "name": "Attribute change detection",
+      "command": "diff",
+      "description": "Re-query a layer and diff a tracked field against the last local sync to surface changes."
+    },
+    {
+      "name": "Bbox tiling for capped layers",
+      "command": "query",
+      "description": "Auto-subdivide the query envelope into quadrants when a layer exceeds the transfer limit and lacks pagination."
+    },
+    {
+      "name": "Server-side stats passthrough",
+      "command": "stats",
+      "description": "Get counts/sums grouped by a field via outStatistics without downloading rows."
+    },
+    {
+      "name": "Offline SQL over synced layers",
+      "command": "sql",
+      "description": "Run SQLite/FTS queries over a synced layer's attributes with no further API calls."
+    }
+  ]
+}

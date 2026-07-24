@@ -1,0 +1,256 @@
+{
+  "api_name": "arcgis",
+  "novelty_score": 0,
+  "alternatives": [
+    {
+      "name": "pyesridump",
+      "url": "https://github.com/openaddresses/pyesridump",
+      "language": "Python",
+      "install_method": "",
+      "stars": 400,
+      "last_updated": "",
+      "command_count": 1,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "esri-dump",
+      "url": "https://github.com/openaddresses/esri-dump",
+      "language": "JavaScript",
+      "install_method": "",
+      "stars": 150,
+      "last_updated": "",
+      "command_count": 1,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "ezesri",
+      "url": "https://github.com/stiles/ezesri",
+      "language": "Python",
+      "install_method": "",
+      "stars": 20,
+      "last_updated": "",
+      "command_count": 3,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "gis_scraper",
+      "url": "https://github.com/MatzFan/gis_scraper",
+      "language": "Ruby",
+      "install_method": "",
+      "stars": 30,
+      "last_updated": "",
+      "command_count": 1,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "esridumpgdf",
+      "url": "https://github.com/wchatx/esridumpgdf",
+      "language": "Python",
+      "install_method": "",
+      "stars": 15,
+      "last_updated": "",
+      "command_count": 1,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-07-24T15:20:45Z",
+  "novel_features": [
+    {
+      "name": "Point-in-polygon signal binding",
+      "command": "locate",
+      "description": "Bind a coordinate (or a CSV of coordinates) to the containing feature via one intersects query.",
+      "rationale": "Only possible because we issue a spatial intersects query and join locally instead of fuzzy address matching.",
+      "example": "arcgis-pp-cli locate https://services.arcgis.com/2gdL2gxYNFY2TOUb/arcgis/rest/services/FEMA_National_Flood_Hazard_Layer/FeatureServer/0 --point -71.46568,42.42269 --fields FLD_ZONE --json",
+      "why_it_matters": "Reach for this to attach a lat/lng distress signal to the exact parcel polygon that contains it.",
+      "group": "Spatial signal binding"
+    },
+    {
+      "name": "Service field audit",
+      "command": "audit",
+      "description": "Walk every layer in a service and report which high-value fields (owner, mailing address, homestead, last-sale) each layer exposes.",
+      "rationale": "Requires walking all layer schemas and comparing them locally, which no single API call returns.",
+      "example": "arcgis-pp-cli audit https://services.arcgis.com/2gdL2gxYNFY2TOUb/arcgis/rest/services/FEMA_National_Flood_Hazard_Layer/FeatureServer --agent",
+      "why_it_matters": "Reach for this to see which distress-signal fields a county actually exposes before building a load.",
+      "group": "Schema intelligence"
+    },
+    {
+      "name": "Attribute change detection",
+      "command": "diff",
+      "description": "Re-query a layer and diff a tracked field against the last local sync to surface changes.",
+      "rationale": "Requires a local SQLite baseline from a prior sync; the API has no change feed.",
+      "example": "arcgis-pp-cli diff https://services.arcgis.com/2gdL2gxYNFY2TOUb/arcgis/rest/services/FEMA_National_Flood_Hazard_Layer/FeatureServer/0 --track FLD_ZONE --where \"OBJECTID\u003c=30\" --agent",
+      "why_it_matters": "Reach for this to catch ownership/value changes between pulls without a deed scraper.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Bbox tiling for capped layers",
+      "command": "query",
+      "description": "Auto-subdivide the query envelope into quadrants when a layer exceeds the transfer limit and lacks pagination.",
+      "rationale": "Recursive local tiling around per-tile counts; incumbents silently truncate these layers.",
+      "example": "arcgis-pp-cli query https://services.arcgis.com/2gdL2gxYNFY2TOUb/arcgis/rest/services/FEMA_National_Flood_Hazard_Layer/FeatureServer/0 --where \"FLD_ZONE='AE'\" --limit 5 --format geojson",
+      "why_it_matters": "Reach for this on large layers that return exceededTransferLimit but do not support resultOffset paging.",
+      "group": "Robust extraction"
+    },
+    {
+      "name": "Server-side stats passthrough",
+      "command": "stats",
+      "description": "Get counts/sums grouped by a field via outStatistics without downloading rows.",
+      "rationale": "Pushes aggregation to the server; combined with local store it beats pull-then-count.",
+      "example": "arcgis-pp-cli stats https://services.arcgis.com/2gdL2gxYNFY2TOUb/arcgis/rest/services/FEMA_National_Flood_Hazard_Layer/FeatureServer/0 --group-by FLD_ZONE --out count --agent",
+      "why_it_matters": "Reach for this for per-category aggregates (parcels per land-use, acreage by owner) without a full pull.",
+      "group": "Robust extraction"
+    },
+    {
+      "name": "Offline SQL over synced layers",
+      "command": "sql",
+      "description": "Run SQLite/FTS queries over a synced layer's attributes with no further API calls.",
+      "rationale": "Only possible because sync mirrors features into a local store.",
+      "example": "arcgis-pp-cli sql \"SELECT json_extract(attributes,'$.FLD_ZONE') AS zone, count(*) c FROM features GROUP BY zone ORDER BY c DESC\"",
+      "why_it_matters": "Reach for this to slice a synced layer locally and compose with jq. Requires a prior sync.",
+      "group": "Local state that compounds"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Point-in-polygon signal binding",
+      "command": "locate",
+      "description": "Bind a coordinate (or a CSV of coordinates) to the containing feature via one intersects query.",
+      "rationale": "Only possible because we issue a spatial intersects query and join locally instead of fuzzy address matching.",
+      "example": "arcgis-pp-cli locate https://services.arcgis.com/2gdL2gxYNFY2TOUb/arcgis/rest/services/FEMA_National_Flood_Hazard_Layer/FeatureServer/0 --point -71.46568,42.42269 --fields FLD_ZONE --json",
+      "why_it_matters": "Reach for this to attach a lat/lng distress signal to the exact parcel polygon that contains it.",
+      "group": "Spatial signal binding"
+    },
+    {
+      "name": "Service field audit",
+      "command": "audit",
+      "description": "Walk every layer in a service and report which high-value fields (owner, mailing address, homestead, last-sale) each layer exposes.",
+      "rationale": "Requires walking all layer schemas and comparing them locally, which no single API call returns.",
+      "example": "arcgis-pp-cli audit https://services.arcgis.com/2gdL2gxYNFY2TOUb/arcgis/rest/services/FEMA_National_Flood_Hazard_Layer/FeatureServer --agent",
+      "why_it_matters": "Reach for this to see which distress-signal fields a county actually exposes before building a load.",
+      "group": "Schema intelligence"
+    },
+    {
+      "name": "Attribute change detection",
+      "command": "diff",
+      "description": "Re-query a layer and diff a tracked field against the last local sync to surface changes.",
+      "rationale": "Requires a local SQLite baseline from a prior sync; the API has no change feed.",
+      "example": "arcgis-pp-cli diff https://services.arcgis.com/2gdL2gxYNFY2TOUb/arcgis/rest/services/FEMA_National_Flood_Hazard_Layer/FeatureServer/0 --track FLD_ZONE --where \"OBJECTID\u003c=30\" --agent",
+      "why_it_matters": "Reach for this to catch ownership/value changes between pulls without a deed scraper.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Bbox tiling for capped layers",
+      "command": "query",
+      "description": "Auto-subdivide the query envelope into quadrants when a layer exceeds the transfer limit and lacks pagination.",
+      "rationale": "Recursive local tiling around per-tile counts; incumbents silently truncate these layers.",
+      "example": "arcgis-pp-cli query https://services.arcgis.com/2gdL2gxYNFY2TOUb/arcgis/rest/services/FEMA_National_Flood_Hazard_Layer/FeatureServer/0 --where \"FLD_ZONE='AE'\" --limit 5 --format geojson",
+      "why_it_matters": "Reach for this on large layers that return exceededTransferLimit but do not support resultOffset paging.",
+      "group": "Robust extraction"
+    },
+    {
+      "name": "Server-side stats passthrough",
+      "command": "stats",
+      "description": "Get counts/sums grouped by a field via outStatistics without downloading rows.",
+      "rationale": "Pushes aggregation to the server; combined with local store it beats pull-then-count.",
+      "example": "arcgis-pp-cli stats https://services.arcgis.com/2gdL2gxYNFY2TOUb/arcgis/rest/services/FEMA_National_Flood_Hazard_Layer/FeatureServer/0 --group-by FLD_ZONE --out count --agent",
+      "why_it_matters": "Reach for this for per-category aggregates (parcels per land-use, acreage by owner) without a full pull.",
+      "group": "Robust extraction"
+    },
+    {
+      "name": "Offline SQL over synced layers",
+      "command": "sql",
+      "description": "Run SQLite/FTS queries over a synced layer's attributes with no further API calls.",
+      "rationale": "Only possible because sync mirrors features into a local store.",
+      "example": "arcgis-pp-cli sql \"SELECT json_extract(attributes,'$.FLD_ZONE') AS zone, count(*) c FROM features GROUP BY zone ORDER BY c DESC\"",
+      "why_it_matters": "Reach for this to slice a synced layer locally and compose with jq. Requires a prior sync.",
+      "group": "Local state that compounds"
+    }
+  ],
+  "auth": {},
+  "narrative": {
+    "display_name": "ArcGIS REST",
+    "headline": "Point it at any ArcGIS FeatureServer or MapServer URL and pull, discover, or spatially bind features, with correct pagination, CSV/GeoJSON output, and a local store no other ArcGIS tool keeps.",
+    "value_prop": "Every incumbent dumps one layer to GeoJSON and stops. This CLI discovers whole service directories, introspects layer schemas, does point-in-polygon signal binding, keeps an offline SQLite mirror you can SQL and diff, and outputs CSV straight into a data loader. Works anonymously against public endpoints; optional ArcGIS token for secured layers.",
+    "quickstart": [
+      {
+        "command": "arcgis-pp-cli doctor --dry-run",
+        "comment": "confirm the CLI is wired before hitting a live server"
+      },
+      {
+        "command": "arcgis-pp-cli fields https://services.arcgis.com/2gdL2gxYNFY2TOUb/arcgis/rest/services/FEMA_National_Flood_Hazard_Layer/FeatureServer/0",
+        "comment": "see a layer's fields, geometry type, and maxRecordCount"
+      },
+      {
+        "command": "arcgis-pp-cli count https://services.arcgis.com/2gdL2gxYNFY2TOUb/arcgis/rest/services/FEMA_National_Flood_Hazard_Layer/FeatureServer/0 --where \"FLD_ZONE='AE'\"",
+        "comment": "how many rows before you pull"
+      },
+      {
+        "command": "arcgis-pp-cli query https://services.arcgis.com/2gdL2gxYNFY2TOUb/arcgis/rest/services/FEMA_National_Flood_Hazard_Layer/FeatureServer/0 --where \"FLD_ZONE='AE'\" --format csv --out zones.csv",
+        "comment": "pull matching features, paginated, to CSV"
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "Only ~1000-2000 rows came back",
+        "fix": "the layer hit maxRecordCount; query paginates automatically — if the server lacks resultOffset support, add --tile"
+      },
+      {
+        "symptom": "exceededTransferLimit true but no pagination",
+        "fix": "add --tile to subdivide the envelope, or --pager oid to force OBJECTID chunking"
+      },
+      {
+        "symptom": "403 or token required",
+        "fix": "the layer is secured; pass --token or set ARCGIS_TOKEN"
+      }
+    ],
+    "when_to_use": "Use this CLI to pull, discover, or spatially query any ArcGIS REST FeatureServer/MapServer — county parcels, code-enforcement, permits, flood zones. It is the right tool when you need correct pagination, CSV/GeoJSON for a data loader, an offline mirror, or point-in-polygon binding of a coordinate to its containing feature.",
+    "anti_triggers": [
+      "Do not use it to render maps or tiles — it extracts and queries data, not imagery.",
+      "Do not use it for non-Esri OGC/WFS endpoints; it speaks the ArcGIS REST query protocol specifically."
+    ],
+    "recipes": [
+      {
+        "title": "Pull matching features to CSV",
+        "command": "arcgis-pp-cli query https://services.arcgis.com/2gdL2gxYNFY2TOUb/arcgis/rest/services/FEMA_National_Flood_Hazard_Layer/FeatureServer/0 --where \"FLD_ZONE='AE'\" --fields FLD_ZONE,SFHA_TF --format csv --out zones.csv",
+        "explanation": "Paginated pull, only the fields you need."
+      },
+      {
+        "title": "Bind a coordinate to its containing polygon",
+        "command": "arcgis-pp-cli locate https://services.arcgis.com/2gdL2gxYNFY2TOUb/arcgis/rest/services/FEMA_National_Flood_Hazard_Layer/FeatureServer/0 --point -71.46568,42.42269 --agent --select features",
+        "explanation": "One intersects query returns the containing feature; --select narrows the response."
+      },
+      {
+        "title": "Audit a service's fields before a load",
+        "command": "arcgis-pp-cli audit https://services.arcgis.com/2gdL2gxYNFY2TOUb/arcgis/rest/services/FEMA_National_Flood_Hazard_Layer/FeatureServer --agent",
+        "explanation": "Reports which high-value fields each layer exposes."
+      },
+      {
+        "title": "Aggregate without a full pull",
+        "command": "arcgis-pp-cli stats https://services.arcgis.com/2gdL2gxYNFY2TOUb/arcgis/rest/services/FEMA_National_Flood_Hazard_Layer/FeatureServer/0 --group-by FLD_ZONE --out count --agent --select features",
+        "explanation": "Server-side group-by counts."
+      },
+      {
+        "title": "Detect changes since last sync",
+        "command": "arcgis-pp-cli diff https://services.arcgis.com/2gdL2gxYNFY2TOUb/arcgis/rest/services/FEMA_National_Flood_Hazard_Layer/FeatureServer/0 --track FLD_ZONE --agent",
+        "explanation": "Diffs a tracked field against the local sync baseline (run sync first)."
+      }
+    ],
+    "trigger_phrases": [
+      "pull an arcgis layer",
+      "dump a featureserver",
+      "discover an arcgis service",
+      "arcgis fields for this layer",
+      "point in polygon parcel",
+      "use arcgis",
+      "run arcgis"
+    ]
+  }
+}

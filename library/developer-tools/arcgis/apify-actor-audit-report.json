@@ -1,0 +1,9 @@
+{
+  "dir": "\u003ccli-dir\u003e/arcgis-pp-cli",
+  "research_dir": "\u003ccli-dir\u003e/20260724-091734-c238b4f4",
+  "verdict": "pass",
+  "actors": null,
+  "issues": [
+    "no Apify actor references found, skipping"
+  ]
+}

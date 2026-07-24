@@ -1,0 +1,1 @@
+GENERATOR-BUG (retro): auth.type:none + env_vars emits undefined authConfigured in doctor.go and routes optional token into authEnvRequiredMissing (ERROR). Fixed in place run 20260724-091734-c238b4f4.

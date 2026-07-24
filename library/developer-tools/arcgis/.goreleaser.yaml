@@ -1,0 +1,51 @@
+version: 2
+project_name: arcgis-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: arcgis-pp-cli
+    main: ./cmd/arcgis-pp-cli
+    binary: arcgis-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X github.com/mvanhorn/printing-press-library/library/developer-tools/arcgis/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: arcgis-pp-mcp
+    main: ./cmd/arcgis-pp-mcp
+    binary: arcgis-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X main.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: arcgis-pp-cli
+    repository:
+      owner: togorashi45
+      name: homebrew-tap
+    homepage: "https://github.com/mvanhorn/printing-press-library"
+    description: "Point it at any ArcGIS FeatureServer or MapServer URL and pull, discover, or spatially bind features — with correct pagination, CSV/GeoJSON output, and a local store no other ArcGIS tool keeps."
+    install: |
+      bin.install "arcgis-pp-cli"
+      bin.install "arcgis-pp-mcp"
