@@ -1,0 +1,16 @@
+# agentcookie.toml: secrets-bus adoption manifest v2
+# See docs/spec-agentcookie-secrets-bus-v2-adoption.md
+schema_version = 2
+name = "movieglu-pp-cli"
+display_name = "Movieglu"
+description = "Docs-derived contract for MovieGlu movie, cinema, showtime, and cinema booking-link discovery."
+project_kind = "cli"
+
+[secrets.file]
+path = "~/.config/movieglu-pp-cli/config.toml"
+
+[sync]
+default = false
+
+[sync.keys]
+MOVIEGLU_CREDENTIALS = true

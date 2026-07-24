@@ -1,0 +1,119 @@
+{
+  "api_name": "movieglu",
+  "novelty_score": 82,
+  "alternatives": [
+    {
+      "name": "AMC Theatres",
+      "url": "",
+      "language": "",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "Regal",
+      "url": "",
+      "language": "",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "Fandango, Cinemark, Atom Tickets",
+      "url": "",
+      "language": "",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [
+    "MovieGlu evaluation credentials were not available, so live Phase 5 dogfood is explicitly skipped.",
+    "The API returns cinema checkout links but does not expose seat selection or payment."
+  ],
+  "patterns": [
+    "cross-chain cinema discovery",
+    "read-only booking handoff",
+    "agent-safe explicit browser launch"
+  ],
+  "recommendation": "ship-with-auth-gated-live-dogfood",
+  "researched_at": "2026-07-24T14:20:00Z",
+  "novel_features": [
+    {
+      "name": "Movie night",
+      "command": "movie-night",
+      "description": "Resolve a film name, rank nearby showtimes, and optionally return the cinema booking handoff.",
+      "rationale": "It turns three MovieGlu calls and dynamic showtime formats into one deterministic agent workflow.",
+      "example": "movieglu-pp-cli movie-night \"Superman\" --after 19:00 --booking-link --agent",
+      "why_it_matters": "Agents can answer the user’s actual movie-night question without manually joining IDs and showtime objects.",
+      "group": "Movie planning"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Movie night",
+      "command": "movie-night",
+      "description": "Resolve a film name, rank nearby showtimes, and optionally return the cinema booking handoff.",
+      "rationale": "It turns three MovieGlu calls and dynamic showtime formats into one deterministic agent workflow.",
+      "example": "movieglu-pp-cli movie-night \"Superman\" --after 19:00 --booking-link --agent",
+      "why_it_matters": "Agents can answer the user’s actual movie-night question without manually joining IDs and showtime objects.",
+      "group": "Movie planning"
+    }
+  ],
+  "auth": {},
+  "narrative": {
+    "display_name": "MovieGlu",
+    "headline": "Cross-chain movie showtimes and safe cinema booking handoffs from one agent-ready CLI.",
+    "value_prop": "Resolve a film by name, rank nearby showtimes, and continue to the cinema website without manually joining film IDs, cinema IDs, dates, and dynamic format objects.",
+    "auth_narrative": "Request MovieGlu evaluation credentials, then configure the API key, client username, authorization value, licensed territory, and optional geolocation.",
+    "quickstart": [
+      {
+        "command": "movieglu-pp-cli movie-night \"Superman\" --date 2026-07-24 --after 19:00 --agent",
+        "comment": "Rank nearby evening showtimes for a film."
+      },
+      {
+        "command": "movieglu-pp-cli movie-night \"Superman\" --date 2026-07-24 --after 19:00 --booking-link --agent",
+        "comment": "Return the cinema checkout handoff without launching it."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "The CLI reports a missing MovieGlu environment variable.",
+        "fix": "Run auth setup and configure every value MovieGlu supplied for the licensed territory."
+      }
+    ],
+    "when_to_use": "Use this CLI to find films, cinemas, and showtimes across MovieGlu coverage and obtain a cinema website booking handoff.",
+    "anti_triggers": [
+      "Do not claim the CLI selected seats or completed payment.",
+      "Do not launch the cinema website unless the user explicitly requested --launch."
+    ],
+    "recipes": [
+      {
+        "title": "Plan an evening movie",
+        "command": "movieglu-pp-cli movie-night \"Superman\" --date 2026-07-24 --after 19:00 --agent",
+        "explanation": "Resolves the film and ranks nearby evening screenings."
+      },
+      {
+        "title": "Continue to cinema checkout",
+        "command": "movieglu-pp-cli movie-night \"Superman\" --date 2026-07-24 --after 19:00 --booking-link --agent",
+        "explanation": "Returns an HTTPS cinema booking URL but leaves seat selection and payment to the user."
+      }
+    ],
+    "trigger_phrases": [
+      "find movie tickets near me",
+      "what cinemas are showing this tonight",
+      "find an IMAX showing",
+      "open the cinema booking page",
+      "use MovieGlu"
+    ]
+  }
+}

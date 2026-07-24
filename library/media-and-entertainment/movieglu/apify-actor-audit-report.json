@@ -1,0 +1,9 @@
+{
+  "dir": "\u003ccli-dir\u003e/movieglu",
+  "research_dir": "\u003ccli-dir\u003e/20260724-143730",
+  "verdict": "pass",
+  "actors": null,
+  "issues": [
+    "no Apify actor references found, skipping"
+  ]
+}

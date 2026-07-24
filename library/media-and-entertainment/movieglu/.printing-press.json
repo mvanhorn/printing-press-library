@@ -1,0 +1,98 @@
+{
+  "schema_version": 2,
+  "generated_at": "2026-07-24T14:37:30.551104Z",
+  "printing_press_version": "4.29.0",
+  "api_name": "movieglu",
+  "display_name": "Movieglu",
+  "cli_name": "movieglu-pp-cli",
+  "creator": {
+    "handle": "Avanderheyde",
+    "name": "Alderik"
+  },
+  "contributors": [],
+  "owner": "Avanderheyde",
+  "printer": "Avanderheyde",
+  "printer_name": "Alderik",
+  "spec_path": "movieglu-openapi.yaml",
+  "spec_format": "openapi3",
+  "spec_source": "docs",
+  "spec_checksum": "sha256:d2726278ddc2039b2012beed21511c27ab815fbe806a55e6119aeed1352227c3",
+  "run_id": "20260724-143730",
+  "category": "media-and-entertainment",
+  "description": "Docs-derived contract for MovieGlu movie, cinema, showtime, and cinema booking-link discovery.",
+  "mcp_binary": "movieglu-pp-mcp",
+  "mcp_tool_count": 6,
+  "mcp_ready": "full",
+  "api_version": "2.00",
+  "auth_type": "api_key",
+  "auth_preference": "MovieGluCredentials",
+  "auth_env_vars": [
+    "MOVIEGLU_CREDENTIALS",
+    "MOVIEGLU_CLIENT",
+    "MOVIEGLU_AUTHORIZATION",
+    "MOVIEGLU_TERRITORY",
+    "MOVIEGLU_GEOLOCATION"
+  ],
+  "auth_env_var_specs": [
+    {
+      "name": "MOVIEGLU_CREDENTIALS",
+      "kind": "api_key",
+      "required": true,
+      "sensitive": true
+    },
+    {
+      "name": "MOVIEGLU_CLIENT",
+      "kind": "client",
+      "required": true,
+      "sensitive": false
+    },
+    {
+      "name": "MOVIEGLU_AUTHORIZATION",
+      "kind": "authorization",
+      "required": true,
+      "sensitive": true
+    },
+    {
+      "name": "MOVIEGLU_TERRITORY",
+      "kind": "territory",
+      "required": true,
+      "sensitive": false
+    },
+    {
+      "name": "MOVIEGLU_GEOLOCATION",
+      "kind": "location",
+      "required": false,
+      "sensitive": true
+    }
+  ],
+  "novel_features": [
+    {
+      "name": "Movie night",
+      "command": "movie-night",
+      "description": "Resolve a film name, rank nearby showtimes, and optionally return the cinema booking handoff."
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Movie night",
+      "command": "movie-night",
+      "description": "Resolve a film name, rank nearby showtimes, and optionally return the cinema booking handoff."
+    }
+  ],
+  "verify": {
+    "mode": "mock",
+    "pass_rate": 97.05882352941177,
+    "passed": 33,
+    "total": 34,
+    "failed": 1,
+    "verdict": "PASS"
+  },
+  "scorecard": {
+    "steinberger": {
+      "percentage": 91,
+      "grade": "A",
+      "total": 91
+    }
+  },
+  "owner_name": "Alderik"
+}

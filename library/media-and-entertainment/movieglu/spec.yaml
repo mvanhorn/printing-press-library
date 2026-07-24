@@ -1,0 +1,353 @@
+openapi: 3.0.3
+info:
+  title: MovieGlu
+  version: "2.00"
+  description: >
+    Docs-derived contract for MovieGlu movie, cinema, showtime, and cinema
+    booking-link discovery. MovieGlu only provides GET requests and does not
+    support seat selection or payment.
+servers:
+  - url: https://api-gate2.movieglu.com
+security:
+  - MovieGluCredentials: []
+components:
+  parameters:
+    Client:
+      name: client
+      in: header
+      required: true
+      schema: {type: string}
+    Territory:
+      name: territory
+      in: header
+      required: true
+      schema:
+        type: string
+        minLength: 2
+        maxLength: 2
+        example: US
+    APIVersion:
+      name: api-version
+      in: header
+      required: true
+      schema:
+        type: string
+        default: v200
+    DeviceDateTime:
+      name: device-datetime
+      in: header
+      required: true
+      description: Local device time in ISO 8601 without a timezone offset.
+      schema:
+        type: string
+        example: "2026-07-24T19:30:00.000"
+    Geolocation:
+      name: geolocation
+      in: header
+      required: true
+      description: Latitude and longitude separated by a semicolon.
+      schema:
+        type: string
+        pattern: '^-?[0-9]+(?:\.[0-9]+)?;-?[0-9]+(?:\.[0-9]+)?$'
+        example: "40.7128;-74.0060"
+    Limit25:
+      name: n
+      in: query
+      required: false
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 25
+        default: 10
+    FilmID:
+      name: film_id
+      in: query
+      required: true
+      schema: {type: integer}
+    CinemaID:
+      name: cinema_id
+      in: query
+      required: true
+      schema: {type: integer}
+    Date:
+      name: date
+      in: query
+      required: true
+      schema:
+        type: string
+        format: date
+  securitySchemes:
+    MovieGluCredentials:
+      type: apiKey
+      in: header
+      name: x-api-key
+  schemas:
+    Status:
+      type: object
+      additionalProperties: true
+      properties:
+        count: {type: integer}
+        state: {type: string, enum: [OK, Error, Warning]}
+        method: {type: string}
+        message: {type: string}
+    Film:
+      type: object
+      additionalProperties: true
+      properties:
+        film_id: {type: integer}
+        imdb_title_id: {type: string}
+        film_name: {type: string}
+        synopsis_long: {type: string}
+        film_trailer: {type: string, format: uri}
+        version_type:
+          type: string
+          enum: [Standard, 3D, IMAX, IMAX3D, Other]
+    Cinema:
+      type: object
+      additionalProperties: true
+      properties:
+        cinema_id: {type: integer}
+        cinema_name: {type: string}
+        address: {type: string}
+        address2: {type: string}
+        city: {type: string}
+        county: {type: string}
+        postcode: {type: string}
+        lat: {type: number}
+        lng: {type: number}
+        distance: {type: number, description: Distance in miles}
+        logo_url: {type: string, format: uri}
+    Time:
+      type: object
+      additionalProperties: true
+      properties:
+        start_time: {type: string, example: "19:30"}
+        end_time: {type: string, example: "22:30"}
+    FilmWithShowings:
+      allOf:
+        - $ref: '#/components/schemas/Film'
+        - type: object
+          additionalProperties: true
+          properties:
+            showings:
+              type: object
+              additionalProperties:
+                type: object
+                additionalProperties: true
+                properties:
+                  film_id: {type: integer}
+                  film_name: {type: string}
+                  times:
+                    type: array
+                    items: {$ref: '#/components/schemas/Time'}
+    CinemaWithShowings:
+      allOf:
+        - $ref: '#/components/schemas/Cinema'
+        - type: object
+          additionalProperties: true
+          properties:
+            showings:
+              type: object
+              additionalProperties:
+                type: object
+                additionalProperties: true
+                properties:
+                  film_id: {type: integer}
+                  film_name: {type: string}
+                  times:
+                    type: array
+                    items: {$ref: '#/components/schemas/Time'}
+paths:
+  /filmsNowShowing/:
+    get:
+      operationId: filmsNowShowing
+      summary: List the top films now showing
+      tags: [films]
+      parameters:
+        - {$ref: '#/components/parameters/Client'}
+        - {$ref: '#/components/parameters/Territory'}
+        - {$ref: '#/components/parameters/APIVersion'}
+        - {$ref: '#/components/parameters/DeviceDateTime'}
+        - {$ref: '#/components/parameters/Limit25'}
+      responses:
+        "200":
+          description: Films ordered by number of showtimes
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+                properties:
+                  films:
+                    type: array
+                    items: {$ref: '#/components/schemas/Film'}
+                  status: {$ref: '#/components/schemas/Status'}
+  /cinemasNearby/:
+    get:
+      operationId: cinemasNearby
+      summary: List cinemas nearest a location
+      tags: [cinemas]
+      parameters:
+        - {$ref: '#/components/parameters/Client'}
+        - {$ref: '#/components/parameters/Territory'}
+        - {$ref: '#/components/parameters/APIVersion'}
+        - {$ref: '#/components/parameters/DeviceDateTime'}
+        - {$ref: '#/components/parameters/Geolocation'}
+        - {$ref: '#/components/parameters/Limit25'}
+      responses:
+        "200":
+          description: Nearby cinemas with showtimes in the next ten days
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+                properties:
+                  cinemas:
+                    type: array
+                    items: {$ref: '#/components/schemas/Cinema'}
+                  status: {$ref: '#/components/schemas/Status'}
+  /cinemaShowTimes/:
+    get:
+      operationId: cinemaShowTimes
+      summary: List a cinema's showtimes for a date
+      tags: [showtimes]
+      parameters:
+        - {$ref: '#/components/parameters/Client'}
+        - {$ref: '#/components/parameters/Territory'}
+        - {$ref: '#/components/parameters/APIVersion'}
+        - {$ref: '#/components/parameters/DeviceDateTime'}
+        - {$ref: '#/components/parameters/CinemaID'}
+        - {$ref: '#/components/parameters/Date'}
+        - name: film_id
+          in: query
+          required: false
+          schema: {type: integer}
+        - name: sort
+          in: query
+          required: false
+          schema: {type: string, enum: [popularity, alphabetical]}
+      responses:
+        "200":
+          description: Films and showtimes at the selected cinema
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+                properties:
+                  cinema: {$ref: '#/components/schemas/Cinema'}
+                  films:
+                    type: array
+                    items: {$ref: '#/components/schemas/FilmWithShowings'}
+                  status: {$ref: '#/components/schemas/Status'}
+  /filmShowTimes/:
+    get:
+      operationId: filmShowTimes
+      summary: List nearby showtimes for a selected film
+      tags: [showtimes]
+      parameters:
+        - {$ref: '#/components/parameters/Client'}
+        - {$ref: '#/components/parameters/Territory'}
+        - {$ref: '#/components/parameters/APIVersion'}
+        - {$ref: '#/components/parameters/DeviceDateTime'}
+        - {$ref: '#/components/parameters/Geolocation'}
+        - {$ref: '#/components/parameters/FilmID'}
+        - {$ref: '#/components/parameters/Date'}
+        - {$ref: '#/components/parameters/Limit25'}
+      responses:
+        "200":
+          description: Nearby cinemas showing the selected film
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+                properties:
+                  film: {$ref: '#/components/schemas/Film'}
+                  cinemas:
+                    type: array
+                    items: {$ref: '#/components/schemas/CinemaWithShowings'}
+                  status: {$ref: '#/components/schemas/Status'}
+  /closestShowing/:
+    get:
+      operationId: closestShowing
+      summary: Find the nearest cinemas showing a film
+      tags: [showtimes]
+      parameters:
+        - {$ref: '#/components/parameters/Client'}
+        - {$ref: '#/components/parameters/Territory'}
+        - {$ref: '#/components/parameters/APIVersion'}
+        - {$ref: '#/components/parameters/DeviceDateTime'}
+        - {$ref: '#/components/parameters/Geolocation'}
+        - {$ref: '#/components/parameters/FilmID'}
+        - name: n
+          in: query
+          required: false
+          schema: {type: integer, minimum: 1, maximum: 20, default: 5}
+      responses:
+        "200":
+          description: Cinemas ordered by distance, including closest date and time
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+                properties:
+                  film_id: {type: integer}
+                  film_name: {type: string}
+                  cinemas:
+                    type: array
+                    items:
+                      allOf:
+                        - {$ref: '#/components/schemas/Cinema'}
+                        - type: object
+                          properties:
+                            date: {type: string, format: date}
+                            time: {type: string}
+                  status: {$ref: '#/components/schemas/Status'}
+  /purchaseConfirmation/:
+    get:
+      operationId: purchaseConfirmation
+      summary: Get the cinema's booking deep link for a showing
+      description: >
+        Returns a cinema website URL, often with film, date, and time
+        preselected. This API does not select seats or process payment.
+      tags: [booking]
+      parameters:
+        - {$ref: '#/components/parameters/Client'}
+        - {$ref: '#/components/parameters/Territory'}
+        - {$ref: '#/components/parameters/APIVersion'}
+        - {$ref: '#/components/parameters/DeviceDateTime'}
+        - {$ref: '#/components/parameters/CinemaID'}
+        - {$ref: '#/components/parameters/FilmID'}
+        - {$ref: '#/components/parameters/Date'}
+        - name: time
+          in: query
+          required: true
+          schema:
+            type: string
+            pattern: '^[0-2][0-9]:[0-5][0-9]$'
+        - name: voucher
+          in: header
+          required: false
+          schema: {type: string}
+      responses:
+        "200":
+          description: Cinema booking URL for the selected showing
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+                properties:
+                  film_id: {type: integer}
+                  film_name: {type: string}
+                  date: {type: string, format: date}
+                  time: {type: string}
+                  cinema_id: {type: integer}
+                  cinema_name: {type: string}
+                  movietickets_affiliate: {type: integer, enum: [0, 1]}
+                  url: {type: string, format: uri}
+                  dl_status: {type: string}
+                  status: {$ref: '#/components/schemas/Status'}

@@ -1,0 +1,68 @@
+{
+  "manifest_version": "0.3",
+  "name": "movieglu-pp-mcp",
+  "display_name": "Movieglu",
+  "version": "4.29.0",
+  "description": "Docs-derived contract for MovieGlu movie, cinema, showtime, and cinema booking-link discovery.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/movieglu-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/movieglu-pp-mcp",
+      "args": [],
+      "env": {
+        "MOVIEGLU_CREDENTIALS": "${user_config.movieglu_credentials}",
+        "MOVIEGLU_CLIENT": "${user_config.movieglu_client}",
+        "MOVIEGLU_AUTHORIZATION": "${user_config.movieglu_authorization}",
+        "MOVIEGLU_TERRITORY": "${user_config.movieglu_territory}",
+        "MOVIEGLU_GEOLOCATION": "${user_config.movieglu_geolocation}"
+      }
+    }
+  },
+  "user_config": {
+    "movieglu_credentials": {
+      "type": "string",
+      "title": "MovieGlu API key",
+      "description": "The x-api-key value from the MovieGlu evaluation-credentials email.",
+      "sensitive": true,
+      "required": true
+    },
+    "movieglu_client": {
+      "type": "string",
+      "title": "MovieGlu client",
+      "description": "The client username from the MovieGlu evaluation-credentials email.",
+      "required": true
+    },
+    "movieglu_authorization": {
+      "type": "string",
+      "title": "MovieGlu authorization",
+      "description": "The authorization value from the MovieGlu evaluation-credentials email.",
+      "sensitive": true,
+      "required": true
+    },
+    "movieglu_territory": {
+      "type": "string",
+      "title": "MovieGlu territory",
+      "description": "Two-letter country code licensed for these credentials, such as US.",
+      "required": true
+    },
+    "movieglu_geolocation": {
+      "type": "string",
+      "title": "MovieGlu geolocation",
+      "description": "Default latitude and longitude separated by a semicolon, such as 40.7128;-74.0060.",
+      "required": false
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

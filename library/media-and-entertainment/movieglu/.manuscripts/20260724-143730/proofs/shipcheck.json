@@ -1,0 +1,64 @@
+{
+  "passed": true,
+  "exit_code": 0,
+  "started_at": "2026-07-24T14:45:14Z",
+  "elapsed_ms": 11854,
+  "legs": [
+    {
+      "name": "verify",
+      "exit_code": 0,
+      "passed": true,
+      "started_at": "2026-07-24T14:45:14Z",
+      "elapsed_ms": 5196,
+      "command": "/Users/alderik/.codex/worktrees/printing-press-ticketmaster/cli-printing-press verify --dir /Users/alderik/printing-press/library/movieglu --write-manifest /Users/alderik/printing-press/library/movieglu/.printing-press.json --spec /Users/alderik/printing-press/library/movieglu/spec.yaml --fix"
+    },
+    {
+      "name": "validate-narrative",
+      "exit_code": 0,
+      "passed": true,
+      "started_at": "2026-07-24T14:45:19Z",
+      "elapsed_ms": 187,
+      "command": "/Users/alderik/.codex/worktrees/printing-press-ticketmaster/cli-printing-press validate-narrative --strict --full-examples --research /Users/alderik/printing-press/library/movieglu/.manuscripts/20260724-143730/research.json --binary /Users/alderik/printing-press/library/movieglu/movieglu-pp-cli"
+    },
+    {
+      "name": "dogfood",
+      "exit_code": 0,
+      "passed": true,
+      "started_at": "2026-07-24T14:45:19Z",
+      "elapsed_ms": 2191,
+      "command": "/Users/alderik/.codex/worktrees/printing-press-ticketmaster/cli-printing-press dogfood --dir /Users/alderik/printing-press/library/movieglu --spec /Users/alderik/printing-press/library/movieglu/spec.yaml --research-dir /Users/alderik/printing-press/library/movieglu/.manuscripts/20260724-143730"
+    },
+    {
+      "name": "workflow-verify",
+      "exit_code": 0,
+      "passed": true,
+      "started_at": "2026-07-24T14:45:21Z",
+      "elapsed_ms": 20,
+      "command": "/Users/alderik/.codex/worktrees/printing-press-ticketmaster/cli-printing-press workflow-verify --dir /Users/alderik/printing-press/library/movieglu"
+    },
+    {
+      "name": "apify-audit",
+      "exit_code": 0,
+      "passed": true,
+      "started_at": "2026-07-24T14:45:21Z",
+      "elapsed_ms": 35,
+      "command": "/Users/alderik/.codex/worktrees/printing-press-ticketmaster/cli-printing-press apify-audit --dir /Users/alderik/printing-press/library/movieglu --research-dir /Users/alderik/printing-press/library/movieglu/.manuscripts/20260724-143730"
+    },
+    {
+      "name": "verify-skill",
+      "exit_code": 0,
+      "passed": true,
+      "started_at": "2026-07-24T14:45:21Z",
+      "elapsed_ms": 3702,
+      "command": "/Users/alderik/.codex/worktrees/printing-press-ticketmaster/cli-printing-press verify-skill --dir /Users/alderik/printing-press/library/movieglu"
+    },
+    {
+      "name": "scorecard",
+      "exit_code": 0,
+      "passed": true,
+      "started_at": "2026-07-24T14:45:25Z",
+      "elapsed_ms": 519,
+      "command": "/Users/alderik/.codex/worktrees/printing-press-ticketmaster/cli-printing-press scorecard --dir /Users/alderik/printing-press/library/movieglu --write-manifest /Users/alderik/printing-press/library/movieglu/.printing-press.json --research-dir /Users/alderik/printing-press/library/movieglu/.manuscripts/20260724-143730 --spec /Users/alderik/printing-press/library/movieglu/spec.yaml"
+    }
+  ]
+}

@@ -1,0 +1,191 @@
+{
+  "api_name": "movieglu",
+  "base_url": "https://api-gate2.movieglu.com",
+  "description": "Docs-derived contract for MovieGlu movie, cinema, showtime, and cinema booking-link discovery.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "api_key",
+    "header": "x-api-key",
+    "in": "header",
+    "env_vars": [
+      "MOVIEGLU_CREDENTIALS"
+    ],
+    "env_var_specs": [
+      {
+        "name": "MOVIEGLU_CREDENTIALS",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    ]
+  },
+  "required_headers": [
+    {
+      "name": "device-datetime",
+      "value": ""
+    },
+    {
+      "name": "client",
+      "value": ""
+    },
+    {
+      "name": "territory",
+      "value": ""
+    },
+    {
+      "name": "api-version",
+      "value": "v200"
+    }
+  ],
+  "tools": [
+    {
+      "name": "cinema-show-times_cinema_show_times",
+      "description": "List a cinema's showtimes for a date. Required: cinema_id, date. Optional: film_id, sort. Returns array of FilmWithShowings.",
+      "method": "GET",
+      "path": "/cinemaShowTimes/",
+      "params": [
+        {
+          "name": "cinema_id",
+          "type": "int",
+          "location": "query",
+          "description": "Cinema id",
+          "required": true
+        },
+        {
+          "name": "date",
+          "type": "string",
+          "location": "query",
+          "description": "Date",
+          "required": true
+        },
+        {
+          "name": "film_id",
+          "type": "int",
+          "location": "query",
+          "description": "Film id"
+        },
+        {
+          "name": "sort",
+          "type": "string",
+          "location": "query",
+          "description": "Sort"
+        }
+      ]
+    },
+    {
+      "name": "cinemas-nearby_cinemas_nearby",
+      "description": "List cinemas nearest a location. Optional: n (default: 10). Returns array of Cinema.",
+      "method": "GET",
+      "path": "/cinemasNearby/",
+      "params": [
+        {
+          "name": "n",
+          "type": "int",
+          "location": "query",
+          "description": "N"
+        }
+      ]
+    },
+    {
+      "name": "closest-showing_closest_showing",
+      "description": "Find the nearest cinemas showing a film. Required: film_id. Optional: n (default: 5). Returns array of ClosestShowingClosestShowingItem.",
+      "method": "GET",
+      "path": "/closestShowing/",
+      "params": [
+        {
+          "name": "film_id",
+          "type": "int",
+          "location": "query",
+          "description": "Film id",
+          "required": true
+        },
+        {
+          "name": "n",
+          "type": "int",
+          "location": "query",
+          "description": "N"
+        }
+      ]
+    },
+    {
+      "name": "film-show-times_film_show_times",
+      "description": "List nearby showtimes for a selected film. Required: film_id, date. Optional: n (default: 10). Returns array of CinemaWithShowings.",
+      "method": "GET",
+      "path": "/filmShowTimes/",
+      "params": [
+        {
+          "name": "film_id",
+          "type": "int",
+          "location": "query",
+          "description": "Film id",
+          "required": true
+        },
+        {
+          "name": "date",
+          "type": "string",
+          "location": "query",
+          "description": "Date",
+          "required": true
+        },
+        {
+          "name": "n",
+          "type": "int",
+          "location": "query",
+          "description": "N"
+        }
+      ]
+    },
+    {
+      "name": "films-now-showing_films_now_showing",
+      "description": "List the top films now showing. Optional: n (default: 10). Returns array of Film.",
+      "method": "GET",
+      "path": "/filmsNowShowing/",
+      "params": [
+        {
+          "name": "n",
+          "type": "int",
+          "location": "query",
+          "description": "N"
+        }
+      ]
+    },
+    {
+      "name": "purchase-confirmation_purchase_confirmation",
+      "description": "Returns a cinema website URL, often with film, date, and time preselected. This API does not select seats or process payment. Required: cinema_id, film_id, date, time.",
+      "method": "GET",
+      "path": "/purchaseConfirmation/",
+      "params": [
+        {
+          "name": "cinema_id",
+          "type": "int",
+          "location": "query",
+          "description": "Cinema id",
+          "required": true
+        },
+        {
+          "name": "film_id",
+          "type": "int",
+          "location": "query",
+          "description": "Film id",
+          "required": true
+        },
+        {
+          "name": "date",
+          "type": "string",
+          "location": "query",
+          "description": "Date",
+          "required": true
+        },
+        {
+          "name": "time",
+          "type": "string",
+          "location": "query",
+          "description": "Time",
+          "required": true
+        }
+      ]
+    }
+  ]
+}

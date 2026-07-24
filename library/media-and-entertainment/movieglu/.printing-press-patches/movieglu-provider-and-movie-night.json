@@ -1,0 +1,18 @@
+{
+  "schema_version": 2,
+  "id": "movieglu-provider-and-movie-night",
+  "applied_at": "2026-07-24",
+  "base_run_id": "20260724-143730",
+  "base_printing_press_version": "4.29.0",
+  "summary": "Preserve MovieGlu's composed required headers and the agent-ready movie-night discovery and safe booking-handoff workflow.",
+  "reason": "MovieGlu requires client, authorization, territory, API version, device time, and location in addition to its API key; the workflow safely joins film discovery, nearby showtimes, and the provider's read-only HTTPS cinema handoff.",
+  "files": [
+    "internal/cli/auth.go",
+    "internal/cli/movieglu_provider.go",
+    "internal/cli/movieglu_provider_test.go",
+    "internal/cli/movie_night.go",
+    "internal/cli/movie_night_test.go",
+    "manifest.json"
+  ],
+  "validated_outcome": "Full shipcheck passed; the end-to-end HTTP fixture proves all three request paths, exact query values, required headers, ranking, and HTTPS handoff."
+}

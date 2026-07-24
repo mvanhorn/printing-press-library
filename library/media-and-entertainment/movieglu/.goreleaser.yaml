@@ -1,0 +1,51 @@
+version: 2
+project_name: movieglu-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: movieglu-pp-cli
+    main: ./cmd/movieglu-pp-cli
+    binary: movieglu-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X github.com/mvanhorn/printing-press-library/library/media-and-entertainment/movieglu/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: movieglu-pp-mcp
+    main: ./cmd/movieglu-pp-mcp
+    binary: movieglu-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X main.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: movieglu-pp-cli
+    repository:
+      owner: avanderheyde
+      name: homebrew-tap
+    homepage: "https://github.com/mvanhorn/printing-press-library"
+    description: "Docs-derived contract for MovieGlu movie, cinema, showtime, and cinema booking-link discovery."
+    install: |
+      bin.install "movieglu-pp-cli"
+      bin.install "movieglu-pp-mcp"
