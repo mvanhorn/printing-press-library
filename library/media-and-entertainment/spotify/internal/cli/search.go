@@ -5,12 +5,26 @@ package cli
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"strings"
 
+	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/spotify/internal/client"
 	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/spotify/internal/store"
 	"github.com/spf13/cobra"
 )
+
+var spotifyLiveSearchTypes = []string{"album", "artist", "playlist", "track", "show", "episode", "audiobook"}
+
+var searchResponsePaths = []string{
+	"artists.items",
+	"tracks.items",
+	"albums.items",
+	"playlists.items",
+	"shows.items",
+	"episodes.items",
+	"audiobooks.items",
+}
 
 // isNilOrEmpty checks whether a JSON search hit is only an empty shell.
 func isNilOrEmpty(raw json.RawMessage) bool {
@@ -55,12 +69,22 @@ func extractSearchResults(data json.RawMessage, responsePaths ...string) []json.
 	if json.Unmarshal(data, &items) == nil {
 		return items
 	}
+	var aggregated []json.RawMessage
+	foundResponsePath := false
 	for _, responsePath := range responsePaths {
 		if pathData, ok := responsePayloadAtPath(data, responsePath); ok {
-			if json.Unmarshal(pathData, &items) == nil {
-				return items
+			foundResponsePath = true
+			// Decode each path into a fresh slice. json.Unmarshal may reuse a
+			// slice's backing array, which would let a later path overwrite
+			// RawMessage headers already appended from an earlier path.
+			var pathItems []json.RawMessage
+			if json.Unmarshal(pathData, &pathItems) == nil {
+				aggregated = append(aggregated, pathItems...)
 			}
 		}
+	}
+	if foundResponsePath {
+		return aggregated
 	}
 	// Try common wrapper paths: data, results, items
 	var wrapped map[string]json.RawMessage
@@ -81,20 +105,21 @@ func newSearchCmd(flags *rootFlags) *cobra.Command {
 	var resourceType string
 	var limit int
 	var dbPath string
-	searchResponsePaths := []string{}
 
 	cmd := &cobra.Command{
 		Use:   "search <query>",
 		Short: "Full-text search across synced data or live API",
-		Long: `Search data using FTS5 full-text search on locally synced data,
-or hit the API's search endpoint when available.
+		Long: `Search Spotify's live catalog or locally synced data.
 
-In auto mode (default): uses the API search endpoint if the API has one,
-otherwise searches local data. Falls back to local on network failure.
-In live mode: uses the API search endpoint only.
-In local mode: searches locally synced data only.`,
-		Example: `  # Search (uses API endpoint if available, local FTS otherwise)
+By default, one live request searches albums, artists, playlists, tracks,
+shows, episodes, and audiobooks. Use --type to narrow the live request.
+The local-only types me and chapters bypass the live API. Auto mode falls
+back to local FTS on a network failure; --data-source local always uses FTS.`,
+		Example: `  # Search every Spotify catalog type in one live request
   spotify-pp-cli search "error timeout"
+
+  # Search only artists
+  spotify-pp-cli search "Miles Davis" --type artist
 
   # Force local search only
   spotify-pp-cli search "status" --data-source local
@@ -108,20 +133,49 @@ In local mode: searches locally synced data only.`,
 				return cmd.Help()
 			}
 			query := args[0]
+			liveType, err := resolveSpotifyLiveSearchType(resourceType)
+			if err != nil {
+				return usageErr(err)
+			}
 			// This API has a search endpoint: GET /search
-			if flags.dataSource != "local" {
+			if flags.dataSource != "local" && !isLocalOnlySearchType(resourceType) {
 				c, err := flags.newClient()
 				if err != nil {
 					return err
 				}
 				data, getErr := c.Get(cmd.Context(), "/search", map[string]string{
-					"q": query,
+					"q":    query,
+					"type": liveType,
 				})
 				if getErr == nil {
 					// Live search succeeded
 					results := extractSearchResults(data, searchResponsePaths...)
 					prov := DataProvenance{Source: "live"}
 					return outputSearchResults(cmd, flags, results, limit, prov)
+				}
+				if strings.Contains(liveType, ",") && isSearchTypeRejection(getErr) {
+					var results []json.RawMessage
+					var excluded []string
+					for _, candidate := range spotifyLiveSearchTypes {
+						typeData, typeErr := c.Get(cmd.Context(), "/search", map[string]string{
+							"q":    query,
+							"type": candidate,
+						})
+						if typeErr != nil {
+							if isSearchTypeRejection(typeErr) {
+								excluded = append(excluded, candidate)
+								continue
+							}
+							return classifyAPIError(typeErr, flags)
+						}
+						results = append(results, extractSearchResults(typeData, searchResponsePaths...)...)
+					}
+					if len(excluded) != len(spotifyLiveSearchTypes) {
+						for _, excludedType := range excluded {
+							fmt.Fprintf(cmd.ErrOrStderr(), "Live search excluded type %s after Spotify rejected it.\n", excludedType)
+						}
+						return outputSearchResults(cmd, flags, results, limit, DataProvenance{Source: "live"})
+					}
 				}
 				// Check if it's a network error for auto-mode fallback
 				if flags.dataSource == "live" || !isNetworkError(getErr) {
@@ -281,6 +335,48 @@ In local mode: searches locally synced data only.`,
 	cmd.Flags().StringVar(&dbPath, "db", "", "SQLite database file path (default: resolved data directory data.db)")
 
 	return cmd
+}
+
+func resolveSpotifyLiveSearchType(resourceType string) (string, error) {
+	normalized := strings.TrimSpace(strings.ToLower(resourceType))
+	switch normalized {
+	case "":
+		return strings.Join(spotifyLiveSearchTypes, ","), nil
+	case "albums":
+		return "album", nil
+	case "artists":
+		return "artist", nil
+	case "playlists":
+		return "playlist", nil
+	case "tracks":
+		return "track", nil
+	case "shows":
+		return "show", nil
+	case "episodes":
+		return "episode", nil
+	case "audiobooks":
+		return "audiobook", nil
+	case "album", "artist", "playlist", "track", "show", "episode", "audiobook":
+		return normalized, nil
+	case "me", "chapters":
+		return "", nil
+	default:
+		return "", fmt.Errorf("invalid --type %q; valid types: album, artist, playlist, track, show, episode, audiobook, me, chapters (plural forms are also accepted)", resourceType)
+	}
+}
+
+func isLocalOnlySearchType(resourceType string) bool {
+	switch strings.TrimSpace(strings.ToLower(resourceType)) {
+	case "me", "chapters":
+		return true
+	default:
+		return false
+	}
+}
+
+func isSearchTypeRejection(err error) bool {
+	var apiErr *client.APIError
+	return errors.As(err, &apiErr) && apiErr.StatusCode >= 400 && apiErr.StatusCode < 500
 }
 
 // outputSearchResults filters, counts, and outputs search results with provenance.
