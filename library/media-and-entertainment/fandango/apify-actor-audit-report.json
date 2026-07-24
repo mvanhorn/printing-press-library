@@ -1,0 +1,9 @@
+{
+  "dir": "\u003ccli-dir\u003e/fandango-fresh",
+  "research_dir": "\u003ccli-dir\u003e/20260724T160445Z-fandango",
+  "verdict": "pass",
+  "actors": null,
+  "issues": [
+    "no Apify actor references found, skipping"
+  ]
+}

@@ -1,0 +1,51 @@
+version: 2
+project_name: fandango-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: fandango-pp-cli
+    main: ./cmd/fandango-pp-cli
+    binary: fandango-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X github.com/mvanhorn/printing-press-library/library/media-and-entertainment/fandango/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: fandango-pp-mcp
+    main: ./cmd/fandango-pp-mcp
+    binary: fandango-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X main.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: fandango-pp-cli
+    repository:
+      owner: avanderheyde
+      name: homebrew-tap
+    homepage: "https://github.com/mvanhorn/printing-press-library"
+    description: "Find and compare official Fandango showtimes, then hand users the licensed purchase link."
+    install: |
+      bin.install "fandango-pp-cli"
+      bin.install "fandango-pp-mcp"

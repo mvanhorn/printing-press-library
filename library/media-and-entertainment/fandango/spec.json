@@ -1,0 +1,1900 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Fandango API",
+    "version": "1.0",
+    "description": "Licensed Fandango Showtimes and Ticketing API via Fabric Origin."
+  },
+  "servers": [
+    {
+      "url": "https://api.origin.fabricdata.com"
+    }
+  ],
+  "paths": {
+    "/Fandango/GeoLocation/ByCity": {
+      "get": {
+        "tags": [
+          "Fandango"
+        ],
+        "summary": "Gets geo-location data for a city.",
+        "description": "",
+        "operationId": "GetFandangoGeoLocationCityGeoLocationByCity_Get",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "name": "Country",
+            "in": "query",
+            "description": "2-Letter country code.",
+            "required": true
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "name": "State",
+            "in": "query",
+            "description": "State code or name.",
+            "required": true
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "name": "City",
+            "in": "query",
+            "description": "Name of city.",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FandangoGeoLocationCity"
+                }
+              }
+            }
+          }
+        },
+        "deprecated": false
+      }
+    },
+    "/Fandango/GeoLocation/ByPostalCode": {
+      "get": {
+        "tags": [
+          "Fandango"
+        ],
+        "summary": "Gets geo-location data for a postal code.",
+        "description": "",
+        "operationId": "GetFandangoGeoLocationPostalCodeGeoLocationByPostalCode_Get",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "name": "Country",
+            "in": "query",
+            "description": "2-Letter country code.",
+            "required": true
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "name": "Postalcode",
+            "in": "query",
+            "description": "Postal code.",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FandangoGeoLocationPostalCode"
+                }
+              }
+            }
+          }
+        },
+        "deprecated": false
+      }
+    },
+    "/Fandango/Movie/display-dates": {
+      "get": {
+        "tags": [
+          "Fandango"
+        ],
+        "summary": "Gets display dates for a movie based on geolocation.",
+        "description": "",
+        "operationId": "GetFandangoMovieDisplayDatesMoviedisplay-dates_Get",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "name": "MovieId",
+            "in": "query",
+            "description": "The ID of the movie.",
+            "required": true
+          },
+          {
+            "schema": {
+              "type": "string",
+              "enum": [
+                "fandangoApi",
+                "fandango",
+                "IVA"
+              ]
+            },
+            "name": "IdProvider",
+            "in": "query",
+            "description": "The provider for the movie ID.",
+            "required": true
+          },
+          {
+            "schema": {
+              "type": "number",
+              "format": "double"
+            },
+            "name": "Latitude",
+            "in": "query",
+            "description": "Latitude of the user's location.",
+            "required": false
+          },
+          {
+            "schema": {
+              "type": "number",
+              "format": "double"
+            },
+            "name": "Longitude",
+            "in": "query",
+            "description": "Longitude of the user's location.",
+            "required": false
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "name": "ZipCode",
+            "in": "query",
+            "description": "Zip code of the user's location.",
+            "required": false
+          },
+          {
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "name": "Radius",
+            "in": "query",
+            "description": "Search radius in miles around the user's location.",
+            "required": false
+          },
+          {
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "name": "StartDateTime",
+            "in": "query",
+            "description": "Start datetime (ISO-8601) for the display date range. Defaults to UTC now.",
+            "required": false
+          },
+          {
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "name": "EndDateTime",
+            "in": "query",
+            "description": "End datetime (ISO-8601) for the display date range. Defaults to no end datetime.",
+            "required": false
+          },
+          {
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "style": "form",
+            "explode": true,
+            "name": "ExcludeTheaterIds",
+            "in": "query",
+            "description": "Comma delimited list of theaters to exclude.",
+            "required": false
+          },
+          {
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "style": "form",
+            "explode": true,
+            "name": "TheaterChainCodes",
+            "in": "query",
+            "description": "Comma delimited list of theater chains to filter.",
+            "required": false
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FandangoDisplayDates"
+                }
+              }
+            }
+          }
+        },
+        "deprecated": false
+      }
+    },
+    "/Fandango/Movie/showtime-groupings": {
+      "get": {
+        "tags": [
+          "Fandango"
+        ],
+        "summary": "Gets movie showtimes grouped by date, theater, format, and amenities.",
+        "description": "",
+        "operationId": "GetFandangoMovieShowtimeGroupingsMovieshowtime-groupings_Get",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "name": "MovieId",
+            "in": "query",
+            "description": "The ID of the movie.",
+            "required": true
+          },
+          {
+            "schema": {
+              "type": "string",
+              "enum": [
+                "fandangoApi",
+                "fandango",
+                "IVA"
+              ]
+            },
+            "name": "IdProvider",
+            "in": "query",
+            "description": "The provider for the movie ID.",
+            "required": true
+          },
+          {
+            "schema": {
+              "type": "number",
+              "format": "double"
+            },
+            "name": "Longitude",
+            "in": "query",
+            "description": "Longitude of the user's location.",
+            "required": false
+          },
+          {
+            "schema": {
+              "type": "number",
+              "format": "double"
+            },
+            "name": "Latitude",
+            "in": "query",
+            "description": "Latitude of the user's location.",
+            "required": false
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "name": "ZipCode",
+            "in": "query",
+            "description": "Zip code of the user's location.",
+            "required": false
+          },
+          {
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "name": "Radius",
+            "in": "query",
+            "description": "Search radius in miles around the user's location.",
+            "required": false
+          },
+          {
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "name": "StartDisplayDate",
+            "in": "query",
+            "description": "Start date for the display date range. Defaults to UTC now.",
+            "required": false
+          },
+          {
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "name": "EndDisplayDate",
+            "in": "query",
+            "description": "End display date. Defaults to start display date.",
+            "required": false
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FandangoShowtimeGroupings"
+                }
+              }
+            }
+          }
+        },
+        "deprecated": false
+      }
+    },
+    "/Fandango/MovieById": {
+      "get": {
+        "tags": [
+          "Fandango"
+        ],
+        "summary": "Gets a movie.",
+        "description": "",
+        "operationId": "GetFandangoMovieByIdMovieById_Get",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "name": "MovieId",
+            "in": "query",
+            "description": "The ID of the movie.",
+            "required": true
+          },
+          {
+            "schema": {
+              "type": "string",
+              "enum": [
+                "fandangoApi",
+                "fandango",
+                "IVA"
+              ]
+            },
+            "name": "IdProvider",
+            "in": "query",
+            "description": "The provider for the movie ID.",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FandangoMovie"
+                }
+              }
+            }
+          }
+        },
+        "deprecated": false
+      }
+    },
+    "/Fandango/Movies": {
+      "get": {
+        "tags": [
+          "Fandango"
+        ],
+        "summary": "Search for movies available.",
+        "description": "",
+        "operationId": "GetFandangoMoviesMovies_Get",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "enum": [
+                "InTheaters",
+                "ComingSoon"
+              ]
+            },
+            "name": "Type",
+            "in": "query",
+            "description": "Specify InTheaters or ComingSoon.",
+            "required": true
+          },
+          {
+            "schema": {
+              "type": "number",
+              "format": "double"
+            },
+            "name": "Latitude",
+            "in": "query",
+            "description": "Latitude of the user's location.",
+            "required": false
+          },
+          {
+            "schema": {
+              "type": "number",
+              "format": "double"
+            },
+            "name": "Longitude",
+            "in": "query",
+            "description": "Longitude of the user's location.",
+            "required": false
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "name": "ZipCode",
+            "in": "query",
+            "description": "Zip code of the user's location.",
+            "required": false
+          },
+          {
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "name": "Radius",
+            "in": "query",
+            "description": "Search radius in miles around the user's location.",
+            "required": false
+          },
+          {
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "name": "Limit",
+            "in": "query",
+            "description": "Number of items to return. Used in pagination.",
+            "required": false
+          },
+          {
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "name": "Offset",
+            "in": "query",
+            "description": "Offset index of the first item to return. Used in pagination..",
+            "required": false
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FandangoMovies"
+                }
+              }
+            }
+          }
+        },
+        "deprecated": false
+      }
+    },
+    "/Fandango/ShowtimeById": {
+      "get": {
+        "tags": [
+          "Fandango"
+        ],
+        "summary": "Get showtime details by showtime id.",
+        "description": "",
+        "operationId": "GetFandangoShowtimeByIdShowtimeById_Get",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "name": "ShowtimeId",
+            "in": "query",
+            "description": "Showtime ID for request.",
+            "required": true
+          },
+          {
+            "schema": {
+              "type": "string",
+              "enum": [
+                "fandangoApi",
+                "fandango"
+              ]
+            },
+            "name": "IdProvider",
+            "in": "query",
+            "description": "The provider for the showtime ID.",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FandangoShowtimeDetails"
+                }
+              }
+            }
+          }
+        },
+        "deprecated": false
+      }
+    },
+    "/Fandango/Showtimes": {
+      "get": {
+        "tags": [
+          "Fandango"
+        ],
+        "summary": "Gets showtimes by geolocation/theater and date.",
+        "description": "",
+        "operationId": "GetFandangoShowtimesShowtimes_Get",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "name": "TheaterId",
+            "in": "query",
+            "description": "The ID of the theater (required if latitude/longitude or zipCode not provided).",
+            "required": false
+          },
+          {
+            "schema": {
+              "type": "string",
+              "enum": [
+                "fandangoApi",
+                "tms"
+              ]
+            },
+            "name": "TheaterIdProvider",
+            "in": "query",
+            "description": "The provider for the theater ID.",
+            "required": false
+          },
+          {
+            "schema": {
+              "type": "number",
+              "format": "double"
+            },
+            "name": "Longitude",
+            "in": "query",
+            "description": "Longitude of the user's location.",
+            "required": false
+          },
+          {
+            "schema": {
+              "type": "number",
+              "format": "double"
+            },
+            "name": "Latitude",
+            "in": "query",
+            "description": "Latitude of the user's location.",
+            "required": false
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "name": "ZipCode",
+            "in": "query",
+            "description": "Zip code of the user's location.",
+            "required": false
+          },
+          {
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "name": "Radius",
+            "in": "query",
+            "description": "Search radius in miles around the user's location.",
+            "required": false
+          },
+          {
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "name": "StartDateTime",
+            "in": "query",
+            "description": "Start datetime (ISO-8601) for the display date range. Defaults to UTC now.",
+            "required": false
+          },
+          {
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "name": "EndDateTime",
+            "in": "query",
+            "description": "End datetime (ISO-8601) for the display date range. Defaults to no end datetime.",
+            "required": false
+          },
+          {
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "name": "StartDisplayDate",
+            "in": "query",
+            "description": "Start date for the display date range. Defaults to UTC now.",
+            "required": false
+          },
+          {
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "name": "EndDisplayDate",
+            "in": "query",
+            "description": "End display date. Defaults to start display date.",
+            "required": false
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "name": "MovieTitle",
+            "in": "query",
+            "description": "Filter showtimes by movie title.",
+            "required": false
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "name": "TheaterName",
+            "in": "query",
+            "description": "Filter showtimes by theater name.",
+            "required": false
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "name": "MovieId",
+            "in": "query",
+            "description": "Filter showtimes by movie ID.",
+            "required": false
+          },
+          {
+            "schema": {
+              "type": "string",
+              "enum": [
+                "fandangoApi",
+                "fandango",
+                "IVA"
+              ]
+            },
+            "name": "MovieIdProvider",
+            "in": "query",
+            "description": "The provider for the movie ID.",
+            "required": false
+          },
+          {
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "style": "form",
+            "explode": true,
+            "name": "AmenityIds",
+            "in": "query",
+            "description": "Filter showtimes by amenity list (comma delimited). Only entries with amenities exactly matching this list are returned.",
+            "required": false
+          },
+          {
+            "schema": {
+              "type": "string",
+              "enum": [
+                "fandangoApi",
+                "fandango"
+              ]
+            },
+            "name": "AmenityIdProvider",
+            "in": "query",
+            "description": "The provider for the amenity ID.",
+            "required": false
+          },
+          {
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "name": "Limit",
+            "in": "query",
+            "description": "Number of items to return. Used in pagination.",
+            "required": false
+          },
+          {
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "name": "Offset",
+            "in": "query",
+            "description": "Offset index of the first item to return. Used in pagination.",
+            "required": false
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FandangoShowtimes"
+                }
+              }
+            }
+          }
+        },
+        "deprecated": false
+      }
+    },
+    "/Fandango/Theater/display-dates": {
+      "get": {
+        "tags": [
+          "Fandango"
+        ],
+        "summary": "Gets display dates for a theater.",
+        "description": "",
+        "operationId": "GetFandangoTheaterDisplayDatesTheaterdisplay-dates_Get",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "name": "TheaterId",
+            "in": "query",
+            "description": "Id of theater.",
+            "required": true
+          },
+          {
+            "schema": {
+              "type": "string",
+              "enum": [
+                "fandangoApi",
+                "tms"
+              ]
+            },
+            "name": "IdProvider",
+            "in": "query",
+            "description": "The provider for the theater ID.",
+            "required": true
+          },
+          {
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "name": "StartDateTime",
+            "in": "query",
+            "description": "Start datetime (ISO-8601) for the display date range. Defaults to UTC now.",
+            "required": false
+          },
+          {
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "name": "EndDateTime",
+            "in": "query",
+            "description": "End datetime (ISO-8601) for the display date range. Defaults to no end datetime.",
+            "required": false
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FandangoDisplayDates"
+                }
+              }
+            }
+          }
+        },
+        "deprecated": false
+      }
+    },
+    "/Fandango/Theater/showtime-groupings": {
+      "get": {
+        "tags": [
+          "Fandango"
+        ],
+        "summary": "Gets theater showtimes grouped by date, movie, format, and amenities.",
+        "description": "",
+        "operationId": "GetFandangoTheaterShowtimeGroupingsTheatershowtime-groupings_Get",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "name": "TheaterId",
+            "in": "query",
+            "description": "Id of theater.",
+            "required": true
+          },
+          {
+            "schema": {
+              "type": "string",
+              "enum": [
+                "fandangoApi",
+                "tms"
+              ]
+            },
+            "name": "IdProvider",
+            "in": "query",
+            "description": "The provider for the theater ID.",
+            "required": true
+          },
+          {
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "name": "StartDisplayDate",
+            "in": "query",
+            "description": "Start date for the display date range. Defaults to UTC now.",
+            "required": false
+          },
+          {
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "name": "EndDisplayDate",
+            "in": "query",
+            "description": "End display date. Defaults to start display date.",
+            "required": false
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FandangoTheaterShowtimeGroupings"
+                }
+              }
+            }
+          }
+        },
+        "deprecated": false
+      }
+    },
+    "/Fandango/TheaterById": {
+      "get": {
+        "tags": [
+          "Fandango"
+        ],
+        "summary": "Gets a theater.",
+        "description": "",
+        "operationId": "GetFandangoTheaterTheaterById_Get",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "name": "TheaterId",
+            "in": "query",
+            "description": "Id of theater.",
+            "required": true
+          },
+          {
+            "schema": {
+              "type": "string",
+              "enum": [
+                "fandangoApi",
+                "tms"
+              ]
+            },
+            "name": "IdProvider",
+            "in": "query",
+            "description": "The provider for the theater ID.",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FandangoTheaterResponse"
+                }
+              }
+            }
+          }
+        },
+        "deprecated": false
+      }
+    },
+    "/Fandango/Theaters": {
+      "get": {
+        "tags": [
+          "Fandango"
+        ],
+        "summary": "Gets theaters close to a geolocation.",
+        "description": "",
+        "operationId": "GetFandangoTheatersTheaters_Get",
+        "parameters": [
+          {
+            "schema": {
+              "type": "number",
+              "format": "double"
+            },
+            "name": "Longitude",
+            "in": "query",
+            "description": "Longitude of the user's location.",
+            "required": false
+          },
+          {
+            "schema": {
+              "type": "number",
+              "format": "double"
+            },
+            "name": "Latitude",
+            "in": "query",
+            "description": "Latitude of the user's location.",
+            "required": false
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "name": "ZipCode",
+            "in": "query",
+            "description": "Zip code of the user's location.",
+            "required": false
+          },
+          {
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "name": "Radius",
+            "in": "query",
+            "description": "Search radius in miles around the user's location.",
+            "required": false
+          },
+          {
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "name": "Limit",
+            "in": "query",
+            "description": "Number of items to return. Used in pagination.",
+            "required": false
+          },
+          {
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "name": "Offset",
+            "in": "query",
+            "description": "Offset index of the first item to return. Used in pagination.",
+            "required": false
+          },
+          {
+            "schema": {
+              "type": "boolean"
+            },
+            "name": "HasShowtimes",
+            "in": "query",
+            "description": "Filter for theaters with or without showtimes. Default (null/not set) is to include both.",
+            "required": false
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FandangoTheaters"
+                }
+              }
+            }
+          }
+        },
+        "deprecated": false
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "subscriptionKey": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "subscription-Key",
+        "x-auth-env-vars": [
+          "FANDANGO_SUBSCRIPTION_KEY"
+        ]
+      }
+    },
+    "schemas": {
+      "FandangoGeoLocationCity": {
+        "title": "FandangoGeoLocationCity",
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/FandangoGeoCity"
+          }
+        },
+        "description": "FandangoGeoLocationCity",
+        "type": "object"
+      },
+      "FandangoGeoCity": {
+        "title": "FandangoGeoCity",
+        "properties": {
+          "country": {
+            "type": "string"
+          },
+          "city": {
+            "type": "string"
+          },
+          "state": {
+            "type": "string"
+          },
+          "latitude": {
+            "type": "number",
+            "format": "double"
+          },
+          "longitude": {
+            "type": "number",
+            "format": "double"
+          },
+          "radius": {
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        "description": "FandangoGeoCity",
+        "type": "object"
+      },
+      "FandangoGeoLocationPostalCode": {
+        "title": "FandangoGeoLocationPostalCode",
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/FandangoGeoPostalCode"
+          }
+        },
+        "description": "FandangoGeoLocationPostalCode",
+        "type": "object"
+      },
+      "FandangoGeoPostalCode": {
+        "title": "FandangoGeoPostalCode",
+        "properties": {
+          "postalCode": {
+            "type": "string"
+          },
+          "country": {
+            "type": "string"
+          },
+          "city": {
+            "type": "string"
+          },
+          "state": {
+            "type": "string"
+          },
+          "latitude": {
+            "type": "number",
+            "format": "double"
+          },
+          "longitude": {
+            "type": "number",
+            "format": "double"
+          },
+          "radius": {
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        "description": "FandangoGeoPostalCode",
+        "type": "object"
+      },
+      "FandangoDisplayDates": {
+        "title": "FandangoDisplayDates",
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/FandangoDisplayDatesData"
+          }
+        },
+        "description": "FandangoDisplayDates",
+        "type": "object"
+      },
+      "FandangoDisplayDatesData": {
+        "title": "FandangoDisplayDatesData",
+        "properties": {
+          "displayDates": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "description": "FandangoDisplayDatesData",
+        "type": "object"
+      },
+      "FandangoShowtimeGroupings": {
+        "title": "FandangoShowtimeGroupings",
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/FandangoShowtimeGroupingsData"
+          }
+        },
+        "description": "FandangoShowtimeGroupings",
+        "type": "object"
+      },
+      "FandangoShowtimeGroupingsData": {
+        "title": "FandangoShowtimeGroupingsData",
+        "properties": {
+          "displayDates": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/FandangoTheaterDisplaydate"
+            }
+          },
+          "movieIds": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/FandangoMovieidGroup"
+            }
+          }
+        },
+        "description": "FandangoShowtimeGroupingsData",
+        "type": "object"
+      },
+      "FandangoTheaterDisplaydate": {
+        "title": "FandangoTheaterDisplaydate",
+        "properties": {
+          "displayDate": {
+            "type": "string"
+          },
+          "theaters": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/FandangoTheaterGroup"
+            }
+          }
+        },
+        "description": "FandangoTheaterDisplaydate",
+        "type": "object"
+      },
+      "FandangoTheaterGroup": {
+        "title": "FandangoTheaterGroup",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "theaterIds": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/FandangoTheaterid"
+            }
+          },
+          "name": {
+            "type": "string"
+          },
+          "chainCode": {
+            "type": "string"
+          },
+          "distance": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "isTicketing": {
+            "type": "boolean"
+          },
+          "movieVariants": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/FandangoMovievariant"
+            }
+          }
+        },
+        "description": "FandangoTheaterGroup",
+        "type": "object"
+      },
+      "FandangoTheaterid": {
+        "title": "FandangoTheaterid",
+        "properties": {
+          "idProvider": {
+            "type": "string"
+          },
+          "value": {
+            "type": "string"
+          }
+        },
+        "description": "FandangoTheaterid",
+        "type": "object"
+      },
+      "FandangoMovievariant": {
+        "title": "FandangoMovievariant",
+        "properties": {
+          "formatId": {
+            "type": "string"
+          },
+          "formatName": {
+            "type": "string"
+          },
+          "movieVariantId": {
+            "type": "string"
+          },
+          "amenityGroups": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/FandangoAmenitygroup"
+            }
+          }
+        },
+        "description": "FandangoMovievariant",
+        "type": "object"
+      },
+      "FandangoAmenitygroup": {
+        "title": "FandangoAmenitygroup",
+        "properties": {
+          "amenities": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/FandangoAmenity"
+            }
+          },
+          "showtimes": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/FandangoShowtime"
+            }
+          }
+        },
+        "description": "FandangoAmenitygroup",
+        "type": "object"
+      },
+      "FandangoAmenity": {
+        "title": "FandangoAmenity",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "shortDescription": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          }
+        },
+        "description": "FandangoAmenity",
+        "type": "object"
+      },
+      "FandangoShowtime": {
+        "title": "FandangoShowtime",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "links": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/FandangoLink"
+            }
+          },
+          "type": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          },
+          "dateTime": {
+            "$ref": "#/components/schemas/FandangoDatetime"
+          }
+        },
+        "description": "FandangoShowtime",
+        "type": "object"
+      },
+      "FandangoLink": {
+        "title": "FandangoLink",
+        "properties": {
+          "rel": {
+            "type": "string"
+          },
+          "href": {
+            "type": "string"
+          }
+        },
+        "description": "FandangoLink",
+        "type": "object"
+      },
+      "FandangoDatetime": {
+        "title": "FandangoDatetime",
+        "properties": {
+          "local": {
+            "type": "string"
+          },
+          "utc": {
+            "type": "string"
+          }
+        },
+        "description": "FandangoDatetime",
+        "type": "object"
+      },
+      "FandangoMovieidGroup": {
+        "title": "FandangoMovieidGroup",
+        "properties": {
+          "idProvider": {
+            "type": "string"
+          },
+          "value": {
+            "type": "string"
+          }
+        },
+        "description": "FandangoMovieidGroup",
+        "type": "object"
+      },
+      "FandangoMovie": {
+        "title": "FandangoMovie",
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/FandangoMovieItem"
+          }
+        },
+        "description": "FandangoMovie",
+        "type": "object"
+      },
+      "FandangoMovieItem": {
+        "title": "FandangoMovieItem",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "movieIds": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/FandangoMovieid"
+            }
+          },
+          "title": {
+            "type": "string"
+          },
+          "mpaaRating": {
+            "type": "string"
+          },
+          "releaseDate": {
+            "type": "string"
+          },
+          "runtime": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "mediumSynopsis": {
+            "type": "string"
+          },
+          "synopsis": {
+            "type": "string"
+          },
+          "poster": {
+            "$ref": "#/components/schemas/FandangoPoster"
+          },
+          "directors": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/FandangoPerson"
+            }
+          },
+          "cast": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/FandangoPerson"
+            }
+          },
+          "genres": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "images": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/FandangoImage"
+            }
+          },
+          "movieVariants": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/FandangoMovievariant"
+            }
+          }
+        },
+        "description": "FandangoMovieItem",
+        "type": "object"
+      },
+      "FandangoMovieid": {
+        "title": "FandangoMovieid",
+        "properties": {
+          "idProvider": {
+            "type": "string"
+          },
+          "value": {
+            "type": "string"
+          }
+        },
+        "description": "FandangoMovieid",
+        "type": "object"
+      },
+      "FandangoPoster": {
+        "title": "FandangoPoster",
+        "properties": {
+          "contentUrl": {
+            "type": "string"
+          },
+          "thumbnailUrl": {
+            "type": "string"
+          }
+        },
+        "description": "FandangoPoster",
+        "type": "object"
+      },
+      "FandangoPerson": {
+        "title": "FandangoPerson",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "IvaPersonId": {
+            "type": "string"
+          }
+        },
+        "description": "FandangoPerson",
+        "type": "object"
+      },
+      "FandangoImage": {
+        "title": "FandangoImage",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "imageUrl": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "copyright": {
+            "type": "string"
+          },
+          "caption": {
+            "type": "string"
+          }
+        },
+        "description": "FandangoImage",
+        "type": "object"
+      },
+      "FandangoMovies": {
+        "title": "FandangoMovies",
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/FandangoMovieData"
+          },
+          "page": {
+            "$ref": "#/components/schemas/FandangoPage"
+          }
+        },
+        "description": "FandangoMovies",
+        "type": "object"
+      },
+      "FandangoMovieData": {
+        "title": "FandangoMovieData",
+        "properties": {
+          "movies": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/FandangoMovieItem"
+            }
+          }
+        },
+        "description": "FandangoMovieData",
+        "type": "object"
+      },
+      "FandangoPage": {
+        "title": "FandangoPage",
+        "properties": {
+          "limit": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "offset": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalCount": {
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        "description": "FandangoPage",
+        "type": "object"
+      },
+      "FandangoShowtimeDetails": {
+        "title": "FandangoShowtimeDetails",
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/FandangoShowtimeDetailsData"
+          }
+        },
+        "description": "FandangoShowtimeDetails",
+        "type": "object"
+      },
+      "FandangoShowtimeDetailsData": {
+        "title": "FandangoShowtimeDetailsData",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string"
+          },
+          "movieId": {
+            "type": "string"
+          },
+          "movieTitle": {
+            "type": "string"
+          },
+          "theaterId": {
+            "type": "string"
+          },
+          "theaterName": {
+            "type": "string"
+          },
+          "theaterChainCode": {
+            "type": "string"
+          },
+          "isTicketing": {
+            "type": "boolean"
+          },
+          "auditoriumId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "distance": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "dateTime": {
+            "$ref": "#/components/schemas/FandangoDatetime"
+          },
+          "displayDate": {
+            "type": "string"
+          },
+          "expired": {
+            "type": "boolean"
+          },
+          "amenities": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/FandangoAmenity"
+            }
+          },
+          "formatName": {
+            "type": "string"
+          },
+          "seatingType": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          }
+        },
+        "description": "FandangoShowtimeDetailsData",
+        "type": "object"
+      },
+      "FandangoShowtimes": {
+        "title": "FandangoShowtimes",
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/FandangoShowtimeItems"
+          },
+          "page": {
+            "$ref": "#/components/schemas/FandangoPage"
+          }
+        },
+        "description": "FandangoShowtimes",
+        "type": "object"
+      },
+      "FandangoShowtimeItems": {
+        "title": "FandangoShowtimeItems",
+        "properties": {
+          "showtimes": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ShowtimeItemDetail"
+            }
+          }
+        },
+        "description": "FandangoShowtimeItems",
+        "type": "object"
+      },
+      "ShowtimeItemDetail": {
+        "title": "ShowtimeItemDetail",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string"
+          },
+          "movieId": {
+            "type": "string"
+          },
+          "movieTitle": {
+            "type": "string"
+          },
+          "theaterId": {
+            "type": "string"
+          },
+          "theaterName": {
+            "type": "string"
+          },
+          "theaterChainCode": {
+            "type": "string"
+          },
+          "isTicketing": {
+            "type": "boolean"
+          },
+          "auditoriumId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "distance": {
+            "type": "number",
+            "format": "double"
+          },
+          "dateTime": {
+            "$ref": "#/components/schemas/FandangoDatetime"
+          },
+          "displayDate": {
+            "type": "string"
+          },
+          "expired": {
+            "type": "boolean"
+          },
+          "amenities": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/FandangoAmenity"
+            }
+          },
+          "formatName": {
+            "type": "string"
+          },
+          "seatingType": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          }
+        },
+        "description": "ShowtimeItemDetail",
+        "type": "object"
+      },
+      "FandangoTheaterShowtimeGroupings": {
+        "title": "FandangoTheaterShowtimeGroupings",
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/FandangoTheaterShowtimeGroupingsData"
+          }
+        },
+        "description": "FandangoTheaterShowtimeGroupings",
+        "type": "object"
+      },
+      "FandangoTheaterShowtimeGroupingsData": {
+        "title": "FandangoTheaterShowtimeGroupingsData",
+        "properties": {
+          "displayDates": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/FandangoMovieDisplaydate"
+            }
+          },
+          "theaterIds": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/FandangoTheaterid"
+            }
+          }
+        },
+        "description": "FandangoTheaterShowtimeGroupingsData",
+        "type": "object"
+      },
+      "FandangoMovieDisplaydate": {
+        "title": "FandangoMovieDisplaydate",
+        "properties": {
+          "displayDate": {
+            "type": "string"
+          },
+          "movies": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/FandangoMovieItem"
+            }
+          }
+        },
+        "description": "FandangoMovieDisplaydate",
+        "type": "object"
+      },
+      "FandangoTheaterResponse": {
+        "title": "FandangoTheaterResponse",
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/FandangoTheater"
+          }
+        },
+        "description": "FandangoTheaterResponse",
+        "type": "object"
+      },
+      "FandangoTheater": {
+        "title": "FandangoTheater",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "theaterIds": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/FandangoTheaterid"
+            }
+          },
+          "address1": {
+            "type": "string"
+          },
+          "city": {
+            "type": "string"
+          },
+          "state": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "zipCode": {
+            "type": "string"
+          },
+          "chainCode": {
+            "type": "string"
+          },
+          "chainName": {
+            "type": "string"
+          },
+          "chainLogoUrl": {
+            "type": "string"
+          },
+          "phone": {
+            "type": "string"
+          },
+          "geo": {
+            "$ref": "#/components/schemas/FandangoGeo"
+          },
+          "distance": {
+            "type": "number",
+            "format": "double"
+          },
+          "isTicketing": {
+            "type": "boolean"
+          },
+          "hasShowtimes": {
+            "type": "boolean"
+          },
+          "amenities": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/FandangoAmenity"
+            }
+          },
+          "link": {
+            "type": "string"
+          }
+        },
+        "description": "FandangoTheater",
+        "type": "object"
+      },
+      "FandangoGeo": {
+        "title": "FandangoGeo",
+        "properties": {
+          "latitude": {
+            "type": "number",
+            "format": "double"
+          },
+          "longitude": {
+            "type": "number",
+            "format": "double"
+          }
+        },
+        "description": "FandangoGeo",
+        "type": "object"
+      },
+      "FandangoTheaters": {
+        "title": "FandangoTheaters",
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/FandangoTheaterItems"
+          },
+          "page": {
+            "$ref": "#/components/schemas/FandangoPage"
+          }
+        },
+        "description": "FandangoTheaters",
+        "type": "object"
+      },
+      "FandangoTheaterItems": {
+        "title": "FandangoTheaterItems",
+        "properties": {
+          "theaters": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/FandangoTheater"
+            }
+          }
+        },
+        "description": "FandangoTheaterItems",
+        "type": "object"
+      }
+    }
+  },
+  "security": [
+    {
+      "subscriptionKey": []
+    }
+  ],
+  "x-learn": {
+    "entity_lookup_seeds": {
+      "id_provider": [
+        {
+          "canonical": "fandangoApi",
+          "aliases": [
+            "fandango api",
+            "fandango"
+          ]
+        },
+        {
+          "canonical": "IVA",
+          "aliases": [
+            "fabric origin",
+            "iva"
+          ]
+        }
+      ]
+    }
+  }
+}

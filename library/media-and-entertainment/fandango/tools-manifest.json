@@ -1,0 +1,557 @@
+{
+  "api_name": "fandango",
+  "base_url": "https://api.origin.fabricdata.com",
+  "description": "Find and compare official Fandango showtimes, then hand users the licensed purchase link.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "api_key",
+    "header": "subscription-Key",
+    "in": "header",
+    "env_vars": [
+      "FANDANGO_SUBSCRIPTION_KEY"
+    ],
+    "env_var_specs": [
+      {
+        "name": "FANDANGO_SUBSCRIPTION_KEY",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    ]
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "fandango_get-geo-location-city-geo-location-by-city-get",
+      "description": "Gets geo-location data for a city. Required: Country, State, City. Returns the FandangoGeoLocationCity.",
+      "method": "GET",
+      "path": "/Fandango/GeoLocation/ByCity",
+      "params": [
+        {
+          "name": "Country",
+          "type": "string",
+          "location": "query",
+          "description": "2-Letter country code.",
+          "required": true
+        },
+        {
+          "name": "State",
+          "type": "string",
+          "location": "query",
+          "description": "State code or name.",
+          "required": true
+        },
+        {
+          "name": "City",
+          "type": "string",
+          "location": "query",
+          "description": "Name of city.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "fandango_get-geo-location-postal-code-geo-location-by-postal-code-get",
+      "description": "Gets geo-location data for a postal code. Required: Country, Postalcode. Returns the FandangoGeoLocationPostalCode.",
+      "method": "GET",
+      "path": "/Fandango/GeoLocation/ByPostalCode",
+      "params": [
+        {
+          "name": "Country",
+          "type": "string",
+          "location": "query",
+          "description": "2-Letter country code.",
+          "required": true
+        },
+        {
+          "name": "Postalcode",
+          "type": "string",
+          "location": "query",
+          "description": "Postal code.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "fandango_get-movie-by-id-movie-by-id-get",
+      "description": "Gets a movie. Required: MovieId, IdProvider. Returns the FandangoMovie.",
+      "method": "GET",
+      "path": "/Fandango/MovieById",
+      "params": [
+        {
+          "name": "MovieId",
+          "type": "string",
+          "location": "query",
+          "description": "The ID of the movie.",
+          "required": true
+        },
+        {
+          "name": "IdProvider",
+          "type": "string",
+          "location": "query",
+          "description": "The provider for the movie ID.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "fandango_get-movie-display-dates-moviedisplay-dates-get",
+      "description": "Gets display dates for a movie based on geolocation. Required: MovieId, IdProvider. Optional: Latitude, Longitude, ZipCode (plus 5 more). Returns the FandangoDisplayDates.",
+      "method": "GET",
+      "path": "/Fandango/Movie/display-dates",
+      "params": [
+        {
+          "name": "MovieId",
+          "type": "string",
+          "location": "query",
+          "description": "The ID of the movie.",
+          "required": true
+        },
+        {
+          "name": "IdProvider",
+          "type": "string",
+          "location": "query",
+          "description": "The provider for the movie ID.",
+          "required": true
+        },
+        {
+          "name": "Latitude",
+          "type": "float",
+          "location": "query",
+          "description": "Latitude of the user's location."
+        },
+        {
+          "name": "Longitude",
+          "type": "float",
+          "location": "query",
+          "description": "Longitude of the user's location."
+        },
+        {
+          "name": "ZipCode",
+          "type": "string",
+          "location": "query",
+          "description": "Zip code of the user's location."
+        },
+        {
+          "name": "Radius",
+          "type": "int",
+          "location": "query",
+          "description": "Search radius in miles around the user's location."
+        },
+        {
+          "name": "StartDateTime",
+          "type": "string",
+          "location": "query",
+          "description": "Start datetime (ISO-8601) for the display date range. Defaults to UTC now."
+        },
+        {
+          "name": "EndDateTime",
+          "type": "string",
+          "location": "query",
+          "description": "End datetime (ISO-8601) for the display date range. Defaults to no end datetime."
+        },
+        {
+          "name": "ExcludeTheaterIds",
+          "type": "array",
+          "location": "query",
+          "description": "Comma delimited list of theaters to exclude."
+        },
+        {
+          "name": "TheaterChainCodes",
+          "type": "array",
+          "location": "query",
+          "description": "Comma delimited list of theater chains to filter."
+        }
+      ]
+    },
+    {
+      "name": "fandango_get-movie-showtime-groupings-movieshowtime-groupings-get",
+      "description": "Gets movie showtimes grouped by date, theater, format, and amenities. Required: MovieId, IdProvider. Optional: Longitude, Latitude, ZipCode (plus 3 more). Returns the FandangoShowtimeGroupings.",
+      "method": "GET",
+      "path": "/Fandango/Movie/showtime-groupings",
+      "params": [
+        {
+          "name": "MovieId",
+          "type": "string",
+          "location": "query",
+          "description": "The ID of the movie.",
+          "required": true
+        },
+        {
+          "name": "IdProvider",
+          "type": "string",
+          "location": "query",
+          "description": "The provider for the movie ID.",
+          "required": true
+        },
+        {
+          "name": "Longitude",
+          "type": "float",
+          "location": "query",
+          "description": "Longitude of the user's location."
+        },
+        {
+          "name": "Latitude",
+          "type": "float",
+          "location": "query",
+          "description": "Latitude of the user's location."
+        },
+        {
+          "name": "ZipCode",
+          "type": "string",
+          "location": "query",
+          "description": "Zip code of the user's location."
+        },
+        {
+          "name": "Radius",
+          "type": "int",
+          "location": "query",
+          "description": "Search radius in miles around the user's location."
+        },
+        {
+          "name": "StartDisplayDate",
+          "type": "string",
+          "location": "query",
+          "description": "Start date for the display date range. Defaults to UTC now."
+        },
+        {
+          "name": "EndDisplayDate",
+          "type": "string",
+          "location": "query",
+          "description": "End display date. Defaults to start display date."
+        }
+      ]
+    },
+    {
+      "name": "fandango_get-movies-movies-get",
+      "description": "Search for movies available. Required: Type. Optional: Latitude, Longitude, ZipCode (plus 3 more). Returns the FandangoMovies.",
+      "method": "GET",
+      "path": "/Fandango/Movies",
+      "params": [
+        {
+          "name": "Type",
+          "type": "string",
+          "location": "query",
+          "description": "Specify InTheaters or ComingSoon.",
+          "required": true
+        },
+        {
+          "name": "Latitude",
+          "type": "float",
+          "location": "query",
+          "description": "Latitude of the user's location."
+        },
+        {
+          "name": "Longitude",
+          "type": "float",
+          "location": "query",
+          "description": "Longitude of the user's location."
+        },
+        {
+          "name": "ZipCode",
+          "type": "string",
+          "location": "query",
+          "description": "Zip code of the user's location."
+        },
+        {
+          "name": "Radius",
+          "type": "int",
+          "location": "query",
+          "description": "Search radius in miles around the user's location."
+        },
+        {
+          "name": "Limit",
+          "type": "int",
+          "location": "query",
+          "description": "Number of items to return. Used in pagination."
+        },
+        {
+          "name": "Offset",
+          "type": "int",
+          "location": "query",
+          "description": "Offset index of the first item to return. Used in pagination.."
+        }
+      ]
+    },
+    {
+      "name": "fandango_get-showtime-by-id-showtime-by-id-get",
+      "description": "Get showtime details by showtime id. Required: ShowtimeId, IdProvider. Returns the FandangoShowtimeDetails.",
+      "method": "GET",
+      "path": "/Fandango/ShowtimeById",
+      "params": [
+        {
+          "name": "ShowtimeId",
+          "type": "string",
+          "location": "query",
+          "description": "Showtime ID for request.",
+          "required": true
+        },
+        {
+          "name": "IdProvider",
+          "type": "string",
+          "location": "query",
+          "description": "The provider for the showtime ID.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "fandango_get-showtimes-showtimes-get",
+      "description": "Gets showtimes by geolocation/theater and date. Optional: TheaterId, TheaterIdProvider, Longitude (plus 15 more). Returns the FandangoShowtimes.",
+      "method": "GET",
+      "path": "/Fandango/Showtimes",
+      "params": [
+        {
+          "name": "TheaterId",
+          "type": "string",
+          "location": "query",
+          "description": "The ID of the theater (required if latitude/longitude or zipCode not provided)."
+        },
+        {
+          "name": "TheaterIdProvider",
+          "type": "string",
+          "location": "query",
+          "description": "The provider for the theater ID."
+        },
+        {
+          "name": "Longitude",
+          "type": "float",
+          "location": "query",
+          "description": "Longitude of the user's location."
+        },
+        {
+          "name": "Latitude",
+          "type": "float",
+          "location": "query",
+          "description": "Latitude of the user's location."
+        },
+        {
+          "name": "ZipCode",
+          "type": "string",
+          "location": "query",
+          "description": "Zip code of the user's location."
+        },
+        {
+          "name": "Radius",
+          "type": "int",
+          "location": "query",
+          "description": "Search radius in miles around the user's location."
+        },
+        {
+          "name": "StartDateTime",
+          "type": "string",
+          "location": "query",
+          "description": "Start datetime (ISO-8601) for the display date range. Defaults to UTC now."
+        },
+        {
+          "name": "EndDateTime",
+          "type": "string",
+          "location": "query",
+          "description": "End datetime (ISO-8601) for the display date range. Defaults to no end datetime."
+        },
+        {
+          "name": "StartDisplayDate",
+          "type": "string",
+          "location": "query",
+          "description": "Start date for the display date range. Defaults to UTC now."
+        },
+        {
+          "name": "EndDisplayDate",
+          "type": "string",
+          "location": "query",
+          "description": "End display date. Defaults to start display date."
+        },
+        {
+          "name": "MovieTitle",
+          "type": "string",
+          "location": "query",
+          "description": "Filter showtimes by movie title."
+        },
+        {
+          "name": "TheaterName",
+          "type": "string",
+          "location": "query",
+          "description": "Filter showtimes by theater name."
+        },
+        {
+          "name": "MovieId",
+          "type": "string",
+          "location": "query",
+          "description": "Filter showtimes by movie ID."
+        },
+        {
+          "name": "MovieIdProvider",
+          "type": "string",
+          "location": "query",
+          "description": "The provider for the movie ID."
+        },
+        {
+          "name": "AmenityIds",
+          "type": "array",
+          "location": "query",
+          "description": "Filter showtimes by amenity list (comma delimited). Only entries with amenities exactly matching this list are returned."
+        },
+        {
+          "name": "AmenityIdProvider",
+          "type": "string",
+          "location": "query",
+          "description": "The provider for the amenity ID."
+        },
+        {
+          "name": "Limit",
+          "type": "int",
+          "location": "query",
+          "description": "Number of items to return. Used in pagination."
+        },
+        {
+          "name": "Offset",
+          "type": "int",
+          "location": "query",
+          "description": "Offset index of the first item to return. Used in pagination."
+        }
+      ]
+    },
+    {
+      "name": "fandango_get-theater-display-dates-theaterdisplay-dates-get",
+      "description": "Gets display dates for a theater. Required: TheaterId, IdProvider. Optional: StartDateTime, EndDateTime. Returns the FandangoDisplayDates.",
+      "method": "GET",
+      "path": "/Fandango/Theater/display-dates",
+      "params": [
+        {
+          "name": "TheaterId",
+          "type": "string",
+          "location": "query",
+          "description": "Id of theater.",
+          "required": true
+        },
+        {
+          "name": "IdProvider",
+          "type": "string",
+          "location": "query",
+          "description": "The provider for the theater ID.",
+          "required": true
+        },
+        {
+          "name": "StartDateTime",
+          "type": "string",
+          "location": "query",
+          "description": "Start datetime (ISO-8601) for the display date range. Defaults to UTC now."
+        },
+        {
+          "name": "EndDateTime",
+          "type": "string",
+          "location": "query",
+          "description": "End datetime (ISO-8601) for the display date range. Defaults to no end datetime."
+        }
+      ]
+    },
+    {
+      "name": "fandango_get-theater-showtime-groupings-theatershowtime-groupings-get",
+      "description": "Gets theater showtimes grouped by date, movie, format, and amenities. Required: TheaterId, IdProvider. Optional: StartDisplayDate, EndDisplayDate. Returns the FandangoTheaterShowtimeGroupings.",
+      "method": "GET",
+      "path": "/Fandango/Theater/showtime-groupings",
+      "params": [
+        {
+          "name": "TheaterId",
+          "type": "string",
+          "location": "query",
+          "description": "Id of theater.",
+          "required": true
+        },
+        {
+          "name": "IdProvider",
+          "type": "string",
+          "location": "query",
+          "description": "The provider for the theater ID.",
+          "required": true
+        },
+        {
+          "name": "StartDisplayDate",
+          "type": "string",
+          "location": "query",
+          "description": "Start date for the display date range. Defaults to UTC now."
+        },
+        {
+          "name": "EndDisplayDate",
+          "type": "string",
+          "location": "query",
+          "description": "End display date. Defaults to start display date."
+        }
+      ]
+    },
+    {
+      "name": "fandango_get-theater-theater-by-id-get",
+      "description": "Gets a theater. Required: TheaterId, IdProvider. Returns the FandangoTheaterResponse.",
+      "method": "GET",
+      "path": "/Fandango/TheaterById",
+      "params": [
+        {
+          "name": "TheaterId",
+          "type": "string",
+          "location": "query",
+          "description": "Id of theater.",
+          "required": true
+        },
+        {
+          "name": "IdProvider",
+          "type": "string",
+          "location": "query",
+          "description": "The provider for the theater ID.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "fandango_get-theaters-theaters-get",
+      "description": "Gets theaters close to a geolocation. Optional: Longitude, Latitude, ZipCode (plus 4 more). Returns the FandangoTheaters.",
+      "method": "GET",
+      "path": "/Fandango/Theaters",
+      "params": [
+        {
+          "name": "Longitude",
+          "type": "float",
+          "location": "query",
+          "description": "Longitude of the user's location."
+        },
+        {
+          "name": "Latitude",
+          "type": "float",
+          "location": "query",
+          "description": "Latitude of the user's location."
+        },
+        {
+          "name": "ZipCode",
+          "type": "string",
+          "location": "query",
+          "description": "Zip code of the user's location."
+        },
+        {
+          "name": "Radius",
+          "type": "int",
+          "location": "query",
+          "description": "Search radius in miles around the user's location."
+        },
+        {
+          "name": "Limit",
+          "type": "int",
+          "location": "query",
+          "description": "Number of items to return. Used in pagination."
+        },
+        {
+          "name": "Offset",
+          "type": "int",
+          "location": "query",
+          "description": "Offset index of the first item to return. Used in pagination."
+        },
+        {
+          "name": "HasShowtimes",
+          "type": "bool",
+          "location": "query",
+          "description": "Filter for theaters with or without showtimes. Default (null/not set) is to include both."
+        }
+      ]
+    }
+  ]
+}

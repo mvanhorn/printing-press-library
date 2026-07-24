@@ -1,0 +1,16 @@
+# agentcookie.toml: secrets-bus adoption manifest v2
+# See docs/spec-agentcookie-secrets-bus-v2-adoption.md
+schema_version = 2
+name = "fandango-pp-cli"
+display_name = "Fandango"
+description = "Find and compare official Fandango showtimes, then hand users the licensed purchase link."
+project_kind = "cli"
+
+[secrets.file]
+path = "~/.config/fandango-pp-cli/config.toml"
+
+[sync]
+default = false
+
+[sync.keys]
+FANDANGO_SUBSCRIPTION_KEY = true

@@ -1,0 +1,69 @@
+{
+  "schema_version": 2,
+  "generated_at": "2026-07-24T16:16:58.647272Z",
+  "printing_press_version": "4.29.0",
+  "api_name": "fandango",
+  "display_name": "Fandango",
+  "cli_name": "fandango-pp-cli",
+  "creator": {
+    "handle": "Avanderheyde",
+    "name": "avanderheyde"
+  },
+  "owner": "avanderheyde",
+  "printer": "Avanderheyde",
+  "printer_name": "avanderheyde",
+  "spec_format": "openapi3",
+  "spec_checksum": "sha256:fea25c76b54227480f9dace337e5fcb29d5907ef49189894e8ab671507bfc093",
+  "run_id": "20260724-161438",
+  "category": "media-and-entertainment",
+  "description": "Find and compare official Fandango showtimes, then hand users the licensed purchase link.",
+  "mcp_binary": "fandango-pp-mcp",
+  "mcp_tool_count": 12,
+  "mcp_ready": "full",
+  "api_version": "1.0",
+  "auth_type": "api_key",
+  "auth_preference": "subscriptionKey",
+  "auth_env_vars": [
+    "PRINTING_PRESS_CLIENT_PROFILE"
+  ],
+  "auth_env_var_specs": [
+    {
+      "name": "PRINTING_PRESS_CLIENT_PROFILE",
+      "kind": "per_call",
+      "required": true,
+      "sensitive": false
+    }
+  ],
+  "novel_features": [
+    {
+      "name": "Movie-night planner",
+      "command": "movie-plan",
+      "description": "Rank practical nearby screenings inside a date and time window and return purchase links."
+    },
+    {
+      "name": "Starting soon",
+      "command": "starting-soon",
+      "description": "Find nearby screenings beginning within an immediate time window."
+    },
+    {
+      "name": "Format finder",
+      "command": "format-find",
+      "description": "Compare a movie's available presentation formats across nearby theaters."
+    },
+    {
+      "name": "Theater comparison",
+      "command": "theater-compare",
+      "description": "Compare theaters by movie coverage, showtime density, operating span, and ticket-link coverage."
+    },
+    {
+      "name": "Movie availability map",
+      "command": "movie-availability",
+      "description": "Show where and when one movie is playing, grouped by theater and display date."
+    },
+    {
+      "name": "Saved-interest showtimes",
+      "command": "watchlist-showtimes",
+      "description": "Match a local movie watchlist against currently bookable nearby showtimes."
+    }
+  ]
+}

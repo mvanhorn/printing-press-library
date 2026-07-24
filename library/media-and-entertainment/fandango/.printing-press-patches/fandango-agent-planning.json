@@ -1,0 +1,19 @@
+{
+  "schema_version": 2,
+  "id": "fandango-agent-planning",
+  "applied_at": "2026-07-24",
+  "base_run_id": "20260724-161438",
+  "base_printing_press_version": "4.29.0",
+  "summary": "Adds six agent-oriented movie planning, comparison, and watchlist commands over licensed Fandango inventory.",
+  "reason": "The official API exposes atomic inventory endpoints but not the cross-entity decisions users ask an agent to make.",
+  "files": [
+    "internal/cli/fandango_planning.go",
+    "internal/cli/movie_plan.go",
+    "internal/cli/starting_soon.go",
+    "internal/cli/format_find.go",
+    "internal/cli/theater_compare.go",
+    "internal/cli/movie_availability.go",
+    "internal/cli/watchlist_showtimes.go"
+  ],
+  "validated_outcome": "All six commands resolve, dry-run safely, pass tests, and survive the seven-leg shipcheck; scorecard 93/100."
+}
