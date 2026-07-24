@@ -918,6 +918,8 @@ var envelopeMetadataArrayKeys = map[string]bool{
 	"warnings": true, "Warnings": true,
 }
 
+const maxNestedListEnvelopeDepth = 32
+
 func extractPaginatedObjectArray(raw json.RawMessage) ([]json.RawMessage, bool) {
 	var items []json.RawMessage
 	// Empty fallback arrays are deliberately ignored: without an object item,
@@ -1149,7 +1151,7 @@ func filterFieldsRec(data json.RawMessage, paths [][]string) json.RawMessage {
 		// json.Unmarshal otherwise accepts into a []json.RawMessage as a
 		// nil slice and would coerce to `[]`.
 		if !matchedAny {
-			if pending, foundArray := filterListEnvelopeFields(obj, paths); foundArray {
+			if pending, foundArray := filterListEnvelopeFields(obj, paths, 0); foundArray {
 				filtered = pending
 			}
 		}
@@ -1160,7 +1162,7 @@ func filterFieldsRec(data json.RawMessage, paths [][]string) json.RawMessage {
 	return data
 }
 
-func filterListEnvelopeFields(obj map[string]json.RawMessage, paths [][]string) (map[string]json.RawMessage, bool) {
+func filterListEnvelopeFields(obj map[string]json.RawMessage, paths [][]string, depth int) (map[string]json.RawMessage, bool) {
 	pending := map[string]json.RawMessage{}
 	foundArray := false
 	for k, v := range obj {
@@ -1174,24 +1176,25 @@ func filterListEnvelopeFields(obj map[string]json.RawMessage, paths [][]string) 
 			pending[k] = filterFieldsRec(v, paths)
 			continue
 		}
-		if k == "_embedded" {
-			if nested, ok := filterNestedListEnvelopeFields(v, paths); ok {
-				foundArray = true
-				pending[k] = nested
-				continue
-			}
+		if nested, ok := filterNestedListEnvelopeFields(v, paths, depth); ok {
+			foundArray = true
+			pending[k] = nested
+			continue
 		}
 		pending[k] = v
 	}
 	return pending, foundArray
 }
 
-func filterNestedListEnvelopeFields(data json.RawMessage, paths [][]string) (json.RawMessage, bool) {
+func filterNestedListEnvelopeFields(data json.RawMessage, paths [][]string, depth int) (json.RawMessage, bool) {
+	if depth >= maxNestedListEnvelopeDepth {
+		return nil, false
+	}
 	var obj map[string]json.RawMessage
 	if err := json.Unmarshal(data, &obj); err != nil {
 		return nil, false
 	}
-	filtered, found := filterListEnvelopeFields(obj, paths)
+	filtered, found := filterListEnvelopeFields(obj, paths, depth+1)
 	if !found {
 		return nil, false
 	}

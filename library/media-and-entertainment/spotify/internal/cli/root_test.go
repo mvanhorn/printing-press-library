@@ -86,6 +86,10 @@ func TestExitCode_UsageError_WrappedAsCode2(t *testing.T) {
 // heads matched the inner record fields, not the wrapper key.
 func TestFilterFields(t *testing.T) {
 	t.Parallel()
+	deepEnvelope := `{"items":[{"id":"a","other":"y"}]}`
+	for i := 0; i <= maxNestedListEnvelopeDepth; i++ {
+		deepEnvelope = `{"nested":` + deepEnvelope + `}`
+	}
 	cases := []struct {
 		name   string
 		input  string
@@ -169,14 +173,32 @@ func TestFilterFields(t *testing.T) {
 			want:   `{"events":[{"id":"e1"}],"speakers":[{"id":"s1"}]}`,
 		},
 		{
-			// Envelope fallback is intentionally one level deep. A nested
-			// object envelope like {"data":{"items":[...]}} surfaces no
-			// array at the outer level, so the fallback does not fire and
-			// the result is the empty-object that flat-no-match would
-			// produce. Pins the boundary so a future deeper-walk change
-			// is an explicit decision, not an accident.
-			name:   "nested object envelope returns empty (one-level only)",
-			input:  `{"data":{"items":[{"id":"a","other":"y"}]}}`,
+			name:   "nested spotify type envelope filters items",
+			input:  `{"artists":{"items":[{"id":"a","name":"x","popularity":9}]}}`,
+			fields: "id,name",
+			want:   `{"artists":{"items":[{"id":"a","name":"x"}]}}`,
+		},
+		{
+			name:   "multiple nested spotify type envelopes filter all items",
+			input:  `{"artists":{"items":[{"id":"a","name":"x","popularity":9}]},"tracks":{"items":[{"id":"t","name":"y","duration_ms":1}]}}`,
+			fields: "id,name",
+			want:   `{"artists":{"items":[{"id":"a","name":"x"}]},"tracks":{"items":[{"id":"t","name":"y"}]}}`,
+		},
+		{
+			name:   "nested object without array returns empty",
+			input:  `{"artists":{"paging":{"cursor":{"after":"a"}}}}`,
+			fields: "id",
+			want:   `{}`,
+		},
+		{
+			name:   "nested HAL embedded envelope still filters items",
+			input:  `{"_embedded":{"items":[{"id":"a","name":"x","other":"y"}]}}`,
+			fields: "id,name",
+			want:   `{"_embedded":{"items":[{"id":"a","name":"x"}]}}`,
+		},
+		{
+			name:   "nested descent stops at depth bound",
+			input:  deepEnvelope,
 			fields: "id",
 			want:   `{}`,
 		},
