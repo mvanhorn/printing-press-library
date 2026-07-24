@@ -9,6 +9,7 @@
   custom-base preservation, and invalid environment rejection passed.
 - Workflow tests: exact current-location path and query, both AMC headers,
   normalization, movie/time/format filtering, distance/time ranking, dry-run,
-  and invalid location arguments passed.
+  invalid location arguments, and a structured HTTP 409 JSON error envelope
+  with exit code 5 passed.
 - Live API dogfood: skipped because no AMC developer credential was available
   in the harness. No fixture or mock response is represented as live evidence.

@@ -5,8 +5,10 @@ package cli
 import (
 	"bytes"
 	"encoding/json"
+	"io"
 	"net/http"
 	"net/http/httptest"
+	"os"
 	"strings"
 	"testing"
 )
@@ -80,5 +82,48 @@ func TestMoviePlanDryRunAndUsageErrors(t *testing.T) {
 	root.SetArgs([]string{"movie-plan", "--theatre", "123", "--latitude", "1", "--longitude", "2"})
 	if err := root.Execute(); err == nil {
 		t.Fatal("conflicting location sources returned nil error")
+	}
+}
+
+func TestMoviePlanAPIErrorEnvelope(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+		http.Error(w, `{"message":"showtime search conflict"}`, http.StatusConflict)
+	}))
+	defer server.Close()
+
+	t.Setenv("AMC_THEATRES_BASE_URL", server.URL)
+	t.Setenv("AMC_THEATRES_VENDOR_KEY", "vendor-key")
+	t.Setenv("AMC_THEATRES_HOME", t.TempDir())
+
+	readPipe, writePipe, err := os.Pipe()
+	if err != nil {
+		t.Fatal(err)
+	}
+	originalStdout := os.Stdout
+	os.Stdout = writePipe
+	defer func() {
+		os.Stdout = originalStdout
+		readPipe.Close()
+	}()
+
+	root := RootCmd()
+	root.SetArgs([]string{"movie-plan", "--theatre", "123", "--date", "2026-07-24", "--json", "--no-cache"})
+	gotErr := root.Execute()
+	if gotErr == nil {
+		t.Fatal("HTTP 409 returned nil error")
+	}
+	if got := ExitCode(gotErr); got != 5 {
+		t.Fatalf("ExitCode = %d, want 5", got)
+	}
+	if err := writePipe.Close(); err != nil {
+		t.Fatal(err)
+	}
+	envelope, err := io.ReadAll(readPipe)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !strings.Contains(string(envelope), `"code":5`) ||
+		!strings.Contains(string(envelope), "showtime search conflict") {
+		t.Fatalf("error envelope = %s", envelope)
 	}
 }
