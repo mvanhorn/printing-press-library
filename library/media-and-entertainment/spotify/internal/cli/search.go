@@ -416,6 +416,13 @@ func outputSearchResults(cmd *cobra.Command, flags *rootFlags, results []json.Ra
 			data = compactFields(data)
 			outputFlags.compact = false
 		}
+		// In agent mode the printer adds the provenance envelope itself, so
+		// wrapping here too would nest two envelopes and let the printer's
+		// assumed "local" label sit above the real source. Hand it the true
+		// provenance and let it wrap once.
+		if agentEnvelopeApplies(&outputFlags) {
+			return printOutputWithFlagsMeta(cmd.OutOrStdout(), data, &outputFlags, provenanceMeta(prov))
+		}
 		wrapped, err := wrapWithProvenance(data, prov)
 		if err != nil {
 			return err

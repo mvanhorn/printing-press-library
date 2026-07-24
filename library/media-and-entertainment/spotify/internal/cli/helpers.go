@@ -1231,6 +1231,38 @@ func camelToKebab(s string) string {
 }
 
 // printOutputWithFlags routes output through the right format based on flags.
+// agentEnvelopeApplies reports whether printOutputWithFlagsMeta will add the
+// agent provenance envelope. Callers that build their own envelope must consult
+// this rather than re-deriving the condition: a caller that wraps unconditionally
+// and then prints through this path emits two nested envelopes, and the outer one
+// carries whatever meta the printer was handed rather than the caller's real
+// provenance.
+func agentEnvelopeApplies(flags *rootFlags) bool {
+	return flags.agent && flags.asJSON && !flags.csv && !flags.plain && !flags.quiet
+}
+
+// provenanceMeta projects a DataProvenance into the agent envelope's meta map,
+// so a caller that already knows the true source does not fall back to the
+// printer's assumed one.
+func provenanceMeta(prov DataProvenance) map[string]any {
+	meta := map[string]any{"source": prov.Source}
+	if prov.SyncedAt != nil {
+		meta["synced_at"] = prov.SyncedAt.UTC().Format(time.RFC3339)
+	}
+	if prov.Reason != "" {
+		meta["reason"] = prov.Reason
+	}
+	if prov.ResourceType != "" {
+		meta["resource_type"] = prov.ResourceType
+	}
+	return meta
+}
+
+// printOutputWithFlags is the provenance-less entry point: callers that have no
+// DataProvenance to report get "local", the conservative label for output the
+// printer cannot attribute to a live call. Callers that DO know their
+// provenance must use printOutputWithFlagsMeta with provenanceMeta instead —
+// this default is an assumption, not a fact about the data.
 func printOutputWithFlags(w io.Writer, data json.RawMessage, flags *rootFlags) error {
 	return printOutputWithFlagsMeta(w, data, flags, map[string]any{"source": "local"})
 }
@@ -1246,7 +1278,7 @@ func printOutputWithFlagsMeta(w io.Writer, data json.RawMessage, flags *rootFlag
 	} else if flags.compact {
 		data = compactFields(data)
 	}
-	if flags.agent && flags.asJSON && !flags.csv && !flags.plain && !flags.quiet {
+	if agentEnvelopeApplies(flags) {
 		wrapped, err := wrapAgentOutput(data, agentMeta)
 		if err != nil {
 			return err

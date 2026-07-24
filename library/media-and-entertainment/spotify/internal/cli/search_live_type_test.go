@@ -192,3 +192,67 @@ func TestSearchLocalDataSourceBypassesLive(t *testing.T) {
 		t.Fatalf("made %d live requests", requests.Load())
 	}
 }
+
+// runSearchTestAgent mirrors runSearchTest but enables agent mode, which is the
+// only path where the printer adds its own provenance envelope.
+func runSearchTestAgent(t *testing.T, dataSource string, handler http.HandlerFunc, args ...string) (string, error) {
+	t.Helper()
+	server := httptest.NewServer(handler)
+	t.Cleanup(server.Close)
+	configPath := filepath.Join(t.TempDir(), "config.toml")
+	if err := os.WriteFile(configPath, []byte(fmt.Sprintf("base_url = %q\naccess_token = \"test-token\"\n", server.URL)), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	flags := &rootFlags{asJSON: true, agent: true, dataSource: dataSource, configPath: configPath}
+	cmd := newSearchCmd(flags)
+	var stdout, stderr bytes.Buffer
+	cmd.SetOut(&stdout)
+	cmd.SetErr(&stderr)
+	cmd.SetArgs(args)
+	err := cmd.Execute()
+	return stdout.String(), err
+}
+
+func TestSearchAgentEmitsSingleEnvelopeWithTrueProvenance(t *testing.T) {
+	stdout, err := runSearchTestAgent(t, "live", func(w http.ResponseWriter, _ *http.Request) {
+		fmt.Fprint(w, `{"artists":{"items":[{"id":"a1","name":"Artist"}]}}`)
+	}, "needle", "--limit", "50")
+	if err != nil {
+		t.Fatal(err)
+	}
+	var envelope struct {
+		Meta    map[string]any    `json:"meta"`
+		Results []json.RawMessage `json:"results"`
+	}
+	if err := json.Unmarshal([]byte(stdout), &envelope); err != nil {
+		t.Fatalf("results is not a flat array — output is double-wrapped: %v\n%s", err, stdout)
+	}
+	if got := envelope.Meta["source"]; got != "live" {
+		t.Fatalf("meta.source = %v, want live\n%s", got, stdout)
+	}
+	if len(envelope.Results) != 1 {
+		t.Fatalf("results = %d, want 1\n%s", len(envelope.Results), stdout)
+	}
+	if strings.Count(stdout, `"meta"`) != 1 {
+		t.Fatalf("expected exactly one meta block, got %d\n%s", strings.Count(stdout, `"meta"`), stdout)
+	}
+}
+
+func TestSearchNonAgentJSONKeepsSingleProvenanceEnvelope(t *testing.T) {
+	stdout, _, err := runSearchTest(t, func(w http.ResponseWriter, _ *http.Request) {
+		fmt.Fprint(w, `{"artists":{"items":[{"id":"a1","name":"Artist"}]}}`)
+	}, "needle", "--limit", "50")
+	if err != nil {
+		t.Fatal(err)
+	}
+	var envelope struct {
+		Meta    map[string]any    `json:"meta"`
+		Results []json.RawMessage `json:"results"`
+	}
+	if err := json.Unmarshal([]byte(stdout), &envelope); err != nil {
+		t.Fatalf("non-agent JSON lost its provenance envelope: %v\n%s", err, stdout)
+	}
+	if got := envelope.Meta["source"]; got != "live" {
+		t.Fatalf("meta.source = %v, want live\n%s", got, stdout)
+	}
+}
