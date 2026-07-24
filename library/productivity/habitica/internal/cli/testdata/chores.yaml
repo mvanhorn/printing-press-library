@@ -1,0 +1,6 @@
+chores:
+  - text: Water the basil
+    notes: Check soil before watering.
+    priority: 1.5
+  - text: Take out recycling
+    type: todo

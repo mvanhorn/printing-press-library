@@ -1,0 +1,63 @@
+{
+  "schema_version": 2,
+  "generated_at": "2026-07-24T12:33:28.130202Z",
+  "printing_press_version": "4.29.0",
+  "api_name": "habitica",
+  "display_name": "Habitica",
+  "cli_name": "habitica-pp-cli",
+  "creator": {
+    "handle": "Avanderheyde",
+    "name": "avanderheyde"
+  },
+  "owner": "avanderheyde",
+  "printer": "Avanderheyde",
+  "printer_name": "avanderheyde",
+  "spec_format": "internal",
+  "spec_checksum": "sha256:0d8c351b88e9bbb42ce7b00d9205cdbb47babd3fb95f0c021782e644787a30c9",
+  "run_id": "20260724-000733-b224cc04",
+  "category": "productivity",
+  "description": "Turn chores into quests, check off workouts, and protect your reward budget from the command line.",
+  "mcp_binary": "habitica-pp-mcp",
+  "mcp_tool_count": 18,
+  "mcp_ready": "full",
+  "api_version": "0.1.0",
+  "auth_type": "api_key",
+  "auth_env_vars": [
+    "PRINTING_PRESS_CLIENT_PROFILE"
+  ],
+  "auth_env_var_specs": [
+    {
+      "name": "PRINTING_PRESS_CLIENT_PROFILE",
+      "kind": "per_call",
+      "required": true,
+      "sensitive": false
+    }
+  ],
+  "novel_features": [
+    {
+      "name": "Daily quest briefing",
+      "command": "today",
+      "description": "Turn today’s dailies, due to-dos, and character state into one actionable quest queue."
+    },
+    {
+      "name": "Structured morning quest plan",
+      "command": "plan chores",
+      "description": "Preview a chore batch as Habitica quests and create it only after an explicit apply confirmation."
+    },
+    {
+      "name": "Reward runway",
+      "command": "reward afford",
+      "description": "Check whether a reward fits current gold while preserving a chosen reserve for later goals."
+    },
+    {
+      "name": "Tag workload report",
+      "command": "tag load",
+      "description": "Compare active, due, overdue, and checklist-blocked work across Habitica tags."
+    },
+    {
+      "name": "Weekly task health",
+      "command": "week review",
+      "description": "Review seven-day overdue, stalled, and completed-task trends from real local snapshots."
+    }
+  ]
+}

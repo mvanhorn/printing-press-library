@@ -1,0 +1,16 @@
+{
+  "schema_version": 2,
+  "id": "habitica-auth-metadata",
+  "applied_at": "2026-07-24",
+  "base_run_id": "20260724-000733-b224cc04",
+  "base_printing_press_version": "4.29.0",
+  "summary": "Expose Habitica's required account UUID and API token across MCP and provenance metadata.",
+  "reason": "Habitica authenticates with x-api-user and x-api-key; generated profile metadata advertised an unrelated client-profile variable and would prevent a correctly configured MCP client.",
+  "files": [
+    ".printing-press.json",
+    "manifest.json",
+    "internal/cli/agent_context.go",
+    "internal/cli/habitica_headers.go"
+  ],
+  "validated_outcome": "The agent context and MCP manifest now require HABITICA_USER_ID and HABITICA_API_TOKEN."
+}

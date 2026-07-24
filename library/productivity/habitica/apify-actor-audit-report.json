@@ -1,0 +1,9 @@
+{
+  "dir": "\u003ccli-dir\u003e/habitica-pp-cli",
+  "research_dir": "\u003ccli-dir\u003e/20260724-000733-b224cc04",
+  "verdict": "pass",
+  "actors": null,
+  "issues": [
+    "no Apify actor references found, skipping"
+  ]
+}

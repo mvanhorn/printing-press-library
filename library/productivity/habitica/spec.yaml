@@ -1,0 +1,219 @@
+name: habitica
+description: "Turn chores into quests, check off workouts, and protect your reward budget."
+version: "0.1.0"
+base_url: "https://habitica.com/api/v3"
+health_check_path: "/status"
+required_headers:
+  - name: "x-client"
+    value: "habitica-pp-cli"
+auth:
+  type: api_key
+  header: "x-api-key"
+  format: "{token}"
+  env_vars: [HABITICA_API_TOKEN]
+config:
+  format: toml
+  path: "~/.config/habitica-pp-cli/config.toml"
+category: productivity
+learn:
+  entity_lookup_seeds:
+    task_type:
+      - canonical: habit
+        aliases: [habit, routine]
+      - canonical: daily
+        aliases: [daily, recurring task]
+      - canonical: todo
+        aliases: [todo, to-do, chore]
+      - canonical: reward
+        aliases: [reward, custom reward]
+  synonyms:
+    "to do": "todo"
+resources:
+  tasks:
+    description: "Manage Habitica habits, dailies, to-dos, rewards, checklists, and task tags"
+    endpoints:
+      list-user:
+        method: GET
+        path: "/tasks/user"
+        description: "List the authenticated user's tasks"
+        params:
+          - name: type
+            type: string
+            description: "Task type: habits, dailys, todos, rewards, or completedTodos"
+          - name: dueDate
+            flag_name: due-date
+            type: string
+            description: "Date used to compute next due times"
+        response: {type: array, item: Task, response_path: data}
+      get:
+        method: GET
+        path: "/tasks/{taskId}"
+        description: "Get a task by ID or alias"
+        params:
+          - name: taskId
+            flag_name: task-id
+            type: string
+            required: true
+            positional: true
+            description: "Task ID or alias"
+        response: {type: object, item: Task, response_path: data}
+      create-user:
+        method: POST
+        path: "/tasks/user"
+        description: "Create a habit, daily, todo, or reward"
+        body:
+          - {name: text, type: string, required: true, description: "Task title"}
+          - {name: type, type: string, required: true, description: "Task type: habit, daily, todo, or reward"}
+          - {name: notes, type: string, description: "Task notes"}
+          - {name: priority, type: float, description: "Task priority"}
+          - {name: date, type: string, description: "Due date for a todo"}
+          - {name: tags, type: array, description: "Tag IDs"}
+        response: {type: object, item: Task, response_path: data}
+      update:
+        method: PUT
+        path: "/tasks/{taskId}"
+        description: "Update a task"
+        params:
+          - {name: taskId, flag_name: task-id, type: string, required: true, positional: true, description: "Task ID or alias"}
+        body:
+          - {name: text, type: string, description: "Updated task title"}
+          - {name: notes, type: string, description: "Updated task notes"}
+          - {name: priority, type: float, description: "Updated task priority"}
+          - {name: date, type: string, description: "Updated due date"}
+        response: {type: object, item: Task, response_path: data}
+      delete:
+        method: DELETE
+        path: "/tasks/{taskId}"
+        description: "Delete a task"
+        params:
+          - {name: taskId, flag_name: task-id, type: string, required: true, positional: true, description: "Task ID or alias"}
+      score:
+        method: POST
+        path: "/tasks/{taskId}/score/{direction}"
+        description: "Score a task up or down"
+        params:
+          - {name: taskId, flag_name: task-id, type: string, required: true, positional: true, description: "Task ID or alias"}
+          - {name: direction, type: string, required: true, positional: true, enum: [up, down], description: "Scoring direction"}
+        response: {type: object, item: Task, response_path: data}
+      add-checklist:
+        method: POST
+        path: "/tasks/{taskId}/checklist"
+        description: "Add an item to a daily or todo checklist"
+        params:
+          - {name: taskId, flag_name: task-id, type: string, required: true, positional: true, description: "Task ID or alias"}
+        body:
+          - {name: text, type: string, required: true, description: "Checklist item text"}
+          - {name: completed, type: bool, description: "Whether the item starts complete"}
+        response: {type: object, item: Task, response_path: data}
+      score-checklist:
+        method: POST
+        path: "/tasks/{taskId}/checklist/{itemId}/score"
+        description: "Toggle a checklist item"
+        params:
+          - {name: taskId, flag_name: task-id, type: string, required: true, positional: true, description: "Task ID or alias"}
+          - {name: itemId, flag_name: item-id, type: string, required: true, positional: true, description: "Checklist item ID"}
+        response: {type: object, item: Task, response_path: data}
+  user:
+    description: "Inspect character state, rewards, inventory, and purchases"
+    endpoints:
+      get:
+        method: GET
+        path: "/user"
+        description: "Get the authenticated user profile and stats"
+        params:
+          - {name: userFields, flag_name: user-fields, type: string, description: "Comma-separated fields to return"}
+        response: {type: object, item: User, response_path: data}
+      buy-list:
+        method: GET
+        path: "/user/inventory/buy"
+        description: "List account-specific equipment available for purchase"
+        response: {type: array, item: Reward, response_path: data}
+      in-app-rewards:
+        method: GET
+        path: "/user/in-app-rewards"
+        description: "List in-app rewards in the user's reward column"
+        response: {type: array, item: Reward, response_path: data}
+      buy:
+        method: POST
+        path: "/user/buy/{key}"
+        description: "Buy an item with gold"
+        params:
+          - {name: key, type: string, required: true, positional: true, description: "Purchasable item key"}
+        response: {type: object, item: User, response_path: data}
+      feed:
+        method: POST
+        path: "/user/feed/{pet}/{food}"
+        description: "Feed a pet"
+        params:
+          - {name: pet, type: string, required: true, positional: true, description: "Pet key"}
+          - {name: food, type: string, required: true, positional: true, description: "Food key"}
+        response: {type: object, item: User, response_path: data}
+      hatch:
+        method: POST
+        path: "/user/hatch/{egg}/{hatchingPotion}"
+        description: "Hatch a pet"
+        params:
+          - {name: egg, type: string, required: true, positional: true, description: "Egg key"}
+          - {name: hatchingPotion, flag_name: hatching-potion, type: string, required: true, positional: true, description: "Hatching potion key"}
+        response: {type: object, item: User, response_path: data}
+      equip:
+        method: POST
+        path: "/user/equip/{type}/{key}"
+        description: "Equip or unequip an item"
+        params:
+          - {name: type, type: string, required: true, positional: true, description: "Equipment type"}
+          - {name: key, type: string, required: true, positional: true, description: "Item key"}
+        response: {type: object, item: User, response_path: data}
+  tags:
+    description: "Manage personal task tags"
+    endpoints:
+      list:
+        method: GET
+        path: "/tags"
+        description: "List personal tags"
+        response: {type: array, item: Tag, response_path: data}
+      create:
+        method: POST
+        path: "/tags"
+        description: "Create a personal tag"
+        body:
+          - {name: name, type: string, required: true, description: "Tag name"}
+        response: {type: object, item: Tag, response_path: data}
+  notifications:
+    description: "Read and acknowledge Habitica notifications"
+    endpoints:
+      list:
+        method: GET
+        path: "/notifications"
+        description: "List notifications"
+        response: {type: array, item: Notification, response_path: data}
+types:
+  Task:
+    fields:
+      - {name: _id, type: string}
+      - {name: text, type: string}
+      - {name: type, type: string}
+      - {name: completed, type: bool}
+      - {name: date, type: string}
+      - {name: priority, type: float}
+      - {name: value, type: float}
+  User:
+    fields:
+      - {name: _id, type: string}
+      - {name: profile, type: object}
+      - {name: stats, type: object}
+      - {name: items, type: object}
+  Reward:
+    fields:
+      - {name: key, type: string}
+      - {name: text, type: string}
+      - {name: value, type: float}
+  Tag:
+    fields:
+      - {name: id, type: string}
+      - {name: name, type: string}
+  Notification:
+    fields:
+      - {name: id, type: string}
+      - {name: type, type: string}
+      - {name: data, type: object}

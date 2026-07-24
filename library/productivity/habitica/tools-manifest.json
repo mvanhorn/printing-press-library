@@ -1,0 +1,387 @@
+{
+  "api_name": "habitica",
+  "base_url": "https://habitica.com/api/v3",
+  "description": "Turn chores into quests, check off workouts, and protect your reward budget from the command line.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "api_key",
+    "header": "x-api-key",
+    "format": "{HABITICA_API_TOKEN}",
+    "env_vars": [
+      "HABITICA_API_TOKEN"
+    ],
+    "env_var_specs": [
+      {
+        "name": "HABITICA_API_TOKEN",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    ]
+  },
+  "required_headers": [
+    {
+      "name": "x-client",
+      "value": "habitica-pp-cli"
+    }
+  ],
+  "tools": [
+    {
+      "name": "notifications_list",
+      "description": "List notifications. Returns array of Notification.",
+      "method": "GET",
+      "path": "/notifications",
+      "params": []
+    },
+    {
+      "name": "tags_create",
+      "description": "Create a personal tag. Required: name. Returns the new Tag.",
+      "method": "POST",
+      "path": "/tags",
+      "params": [
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Tag name",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "tags_list",
+      "description": "List personal tags. Returns array of Tag.",
+      "method": "GET",
+      "path": "/tags",
+      "params": []
+    },
+    {
+      "name": "tasks_add-checklist",
+      "description": "Add an item to a daily or todo checklist. Required: task-id, text. Optional: completed. Returns the new Task.",
+      "method": "POST",
+      "path": "/tasks/{taskId}/checklist",
+      "params": [
+        {
+          "name": "task-id",
+          "wire_name": "taskId",
+          "type": "string",
+          "location": "path",
+          "description": "Task ID or alias",
+          "required": true
+        },
+        {
+          "name": "text",
+          "type": "string",
+          "location": "body",
+          "description": "Checklist item text",
+          "required": true
+        },
+        {
+          "name": "completed",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether the item starts complete"
+        }
+      ]
+    },
+    {
+      "name": "tasks_create-user",
+      "description": "Create a habit, daily, todo, or reward. Required: text, type. Optional: notes, priority, date (plus 1 more). Returns the new Task.",
+      "method": "POST",
+      "path": "/tasks/user",
+      "params": [
+        {
+          "name": "text",
+          "type": "string",
+          "location": "body",
+          "description": "Task title",
+          "required": true
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "location": "body",
+          "description": "Task type: habit, daily, todo, or reward",
+          "required": true
+        },
+        {
+          "name": "notes",
+          "type": "string",
+          "location": "body",
+          "description": "Task notes"
+        },
+        {
+          "name": "priority",
+          "type": "float",
+          "location": "body",
+          "description": "Task priority"
+        },
+        {
+          "name": "date",
+          "type": "string",
+          "location": "body",
+          "description": "Due date for a todo"
+        },
+        {
+          "name": "tags",
+          "type": "array",
+          "location": "body",
+          "description": "Tag IDs"
+        }
+      ]
+    },
+    {
+      "name": "tasks_delete",
+      "description": "Delete a task. Required: task-id. Destructive.",
+      "method": "DELETE",
+      "path": "/tasks/{taskId}",
+      "params": [
+        {
+          "name": "task-id",
+          "wire_name": "taskId",
+          "type": "string",
+          "location": "path",
+          "description": "Task ID or alias",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "tasks_get",
+      "description": "Get a task by ID or alias. Required: task-id. Returns the Task.",
+      "method": "GET",
+      "path": "/tasks/{taskId}",
+      "params": [
+        {
+          "name": "task-id",
+          "wire_name": "taskId",
+          "type": "string",
+          "location": "path",
+          "description": "Task ID or alias",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "tasks_list-user",
+      "description": "List the authenticated user's tasks. Optional: type, due-date. Returns array of Task.",
+      "method": "GET",
+      "path": "/tasks/user",
+      "params": [
+        {
+          "name": "type",
+          "type": "string",
+          "location": "query",
+          "description": "Task type: habits, dailys, todos, rewards, or completedTodos"
+        },
+        {
+          "name": "due-date",
+          "wire_name": "dueDate",
+          "type": "string",
+          "location": "query",
+          "description": "Date used to compute next due times"
+        }
+      ]
+    },
+    {
+      "name": "tasks_score",
+      "description": "Score a task up or down. Required: task-id, direction. Returns the new Task.",
+      "method": "POST",
+      "path": "/tasks/{taskId}/score/{direction}",
+      "params": [
+        {
+          "name": "task-id",
+          "wire_name": "taskId",
+          "type": "string",
+          "location": "path",
+          "description": "Task ID or alias",
+          "required": true
+        },
+        {
+          "name": "direction",
+          "type": "string",
+          "location": "path",
+          "description": "Scoring direction",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "tasks_score-checklist",
+      "description": "Toggle a checklist item. Required: task-id, item-id. Returns the new Task.",
+      "method": "POST",
+      "path": "/tasks/{taskId}/checklist/{itemId}/score",
+      "params": [
+        {
+          "name": "task-id",
+          "wire_name": "taskId",
+          "type": "string",
+          "location": "path",
+          "description": "Task ID or alias",
+          "required": true
+        },
+        {
+          "name": "item-id",
+          "wire_name": "itemId",
+          "type": "string",
+          "location": "path",
+          "description": "Checklist item ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "tasks_update",
+      "description": "Update a task. Required: task-id. Optional: text, notes, priority (plus 1 more). Returns the updated Task.",
+      "method": "PUT",
+      "path": "/tasks/{taskId}",
+      "params": [
+        {
+          "name": "task-id",
+          "wire_name": "taskId",
+          "type": "string",
+          "location": "path",
+          "description": "Task ID or alias",
+          "required": true
+        },
+        {
+          "name": "text",
+          "type": "string",
+          "location": "body",
+          "description": "Updated task title"
+        },
+        {
+          "name": "notes",
+          "type": "string",
+          "location": "body",
+          "description": "Updated task notes"
+        },
+        {
+          "name": "priority",
+          "type": "float",
+          "location": "body",
+          "description": "Updated task priority"
+        },
+        {
+          "name": "date",
+          "type": "string",
+          "location": "body",
+          "description": "Updated due date"
+        }
+      ]
+    },
+    {
+      "name": "user_buy",
+      "description": "Buy an item with gold. Required: key. Returns the new User.",
+      "method": "POST",
+      "path": "/user/buy/{key}",
+      "params": [
+        {
+          "name": "key",
+          "type": "string",
+          "location": "path",
+          "description": "Purchasable item key",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "user_buy-list",
+      "description": "List account-specific equipment available for purchase. Returns array of Reward.",
+      "method": "GET",
+      "path": "/user/inventory/buy",
+      "params": []
+    },
+    {
+      "name": "user_equip",
+      "description": "Equip or unequip an item. Required: type, key. Returns the new User.",
+      "method": "POST",
+      "path": "/user/equip/{type}/{key}",
+      "params": [
+        {
+          "name": "type",
+          "type": "string",
+          "location": "path",
+          "description": "Equipment type",
+          "required": true
+        },
+        {
+          "name": "key",
+          "type": "string",
+          "location": "path",
+          "description": "Item key",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "user_feed",
+      "description": "Feed a pet. Required: pet, food. Returns the new User.",
+      "method": "POST",
+      "path": "/user/feed/{pet}/{food}",
+      "params": [
+        {
+          "name": "pet",
+          "type": "string",
+          "location": "path",
+          "description": "Pet key",
+          "required": true
+        },
+        {
+          "name": "food",
+          "type": "string",
+          "location": "path",
+          "description": "Food key",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "user_get",
+      "description": "Get the authenticated user profile and stats. Optional: user-fields. Returns the User.",
+      "method": "GET",
+      "path": "/user",
+      "params": [
+        {
+          "name": "user-fields",
+          "wire_name": "userFields",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated fields to return"
+        }
+      ]
+    },
+    {
+      "name": "user_hatch",
+      "description": "Hatch a pet. Required: egg, hatching-potion. Returns the new User.",
+      "method": "POST",
+      "path": "/user/hatch/{egg}/{hatchingPotion}",
+      "params": [
+        {
+          "name": "egg",
+          "type": "string",
+          "location": "path",
+          "description": "Egg key",
+          "required": true
+        },
+        {
+          "name": "hatching-potion",
+          "wire_name": "hatchingPotion",
+          "type": "string",
+          "location": "path",
+          "description": "Hatching potion key",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "user_in-app-rewards",
+      "description": "List in-app rewards in the user's reward column. Returns array of Reward.",
+      "method": "GET",
+      "path": "/user/in-app-rewards",
+      "params": []
+    }
+  ]
+}

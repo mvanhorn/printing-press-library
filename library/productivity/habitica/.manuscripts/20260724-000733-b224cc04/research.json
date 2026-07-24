@@ -1,0 +1,198 @@
+{
+  "api_name": "habitica",
+  "novelty_score": 0,
+  "alternatives": [
+    {
+      "name": "Hopla",
+      "url": "https://github.com/melvio/hopla",
+      "language": "Python",
+      "install_method": "",
+      "stars": 20,
+      "last_updated": "",
+      "command_count": 14,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "Habitica MCP Server",
+      "url": "https://github.com/iBreaker/habitica-mcp-server",
+      "language": "JavaScript",
+      "install_method": "",
+      "stars": 17,
+      "last_updated": "",
+      "command_count": 23,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-07-24T04:13:00Z",
+  "novel_features": [
+    {
+      "name": "Daily quest briefing",
+      "command": "today",
+      "description": "Turn today’s dailies, due to-dos, and character state into one actionable quest queue.",
+      "rationale": "Combines live task and character data into one account-specific briefing instead of exposing another single endpoint.",
+      "example": "habitica-pp-cli today --agent --select tasks.text,tasks.type,stats.gp",
+      "why_it_matters": "Use this before planning the day instead of issuing separate task and profile calls.",
+      "group": "Daily ritual"
+    },
+    {
+      "name": "Structured morning quest plan",
+      "command": "plan chores",
+      "description": "Preview a chore batch as Habitica quests and create it only after an explicit apply confirmation.",
+      "rationale": "Safely converts one structured chore plan into multiple real task-create calls with no hidden mutation.",
+      "example": "habitica-pp-cli plan chores --file examples/chores.yaml --dry-run --agent",
+      "why_it_matters": "Use this to turn a prepared chore list into quests while retaining a complete mutation preview.",
+      "group": "Daily ritual"
+    },
+    {
+      "name": "Reward runway",
+      "command": "reward afford",
+      "description": "Check whether a reward fits current gold while preserving a chosen reserve for later goals.",
+      "rationale": "Joins real character gold with account-specific custom reward prices.",
+      "example": "habitica-pp-cli reward afford \"Weekend movie\" --reserve-gp 20 --agent",
+      "why_it_matters": "Use this before spending gold when a generic purchase request cannot explain the tradeoff.",
+      "group": "Reward decisions"
+    },
+    {
+      "name": "Tag workload report",
+      "command": "tag load",
+      "description": "Compare active, due, overdue, and checklist-blocked work across Habitica tags.",
+      "rationale": "Requires live aggregation across task and tag resources, not tag CRUD alone.",
+      "example": "habitica-pp-cli tag load --agent --select tags.name,tags.overdue",
+      "why_it_matters": "Use this to rebalance chores by category rather than scanning individual tasks.",
+      "group": "Workload insight"
+    },
+    {
+      "name": "Weekly task health",
+      "command": "week review",
+      "description": "Review seven-day overdue, stalled, and completed-task trends from real local snapshots.",
+      "rationale": "Only a timestamped local mirror can compare task state over time without inventing history.",
+      "example": "habitica-pp-cli week review --agent --select overdue_delta,completed_delta",
+      "why_it_matters": "Use this in weekly review to see whether the Habitica system is improving or accumulating debt.",
+      "group": "Workload insight"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Daily quest briefing",
+      "command": "today",
+      "description": "Turn today’s dailies, due to-dos, and character state into one actionable quest queue.",
+      "rationale": "Combines live task and character data into one account-specific briefing instead of exposing another single endpoint.",
+      "example": "habitica-pp-cli today --agent --select tasks.text,tasks.type,stats.gp",
+      "why_it_matters": "Use this before planning the day instead of issuing separate task and profile calls.",
+      "group": "Daily ritual"
+    },
+    {
+      "name": "Structured morning quest plan",
+      "command": "plan chores",
+      "description": "Preview a chore batch as Habitica quests and create it only after an explicit apply confirmation.",
+      "rationale": "Safely converts one structured chore plan into multiple real task-create calls with no hidden mutation.",
+      "example": "habitica-pp-cli plan chores --file examples/chores.yaml --dry-run --agent",
+      "why_it_matters": "Use this to turn a prepared chore list into quests while retaining a complete mutation preview.",
+      "group": "Daily ritual"
+    },
+    {
+      "name": "Reward runway",
+      "command": "reward afford",
+      "description": "Check whether a reward fits current gold while preserving a chosen reserve for later goals.",
+      "rationale": "Joins real character gold with account-specific custom reward prices.",
+      "example": "habitica-pp-cli reward afford \"Weekend movie\" --reserve-gp 20 --agent",
+      "why_it_matters": "Use this before spending gold when a generic purchase request cannot explain the tradeoff.",
+      "group": "Reward decisions"
+    },
+    {
+      "name": "Tag workload report",
+      "command": "tag load",
+      "description": "Compare active, due, overdue, and checklist-blocked work across Habitica tags.",
+      "rationale": "Requires live aggregation across task and tag resources, not tag CRUD alone.",
+      "example": "habitica-pp-cli tag load --agent --select tags.name,tags.overdue",
+      "why_it_matters": "Use this to rebalance chores by category rather than scanning individual tasks.",
+      "group": "Workload insight"
+    },
+    {
+      "name": "Weekly task health",
+      "command": "week review",
+      "description": "Review seven-day overdue, stalled, and completed-task trends from real local snapshots.",
+      "rationale": "Only a timestamped local mirror can compare task state over time without inventing history.",
+      "example": "habitica-pp-cli week review --agent --select overdue_delta,completed_delta",
+      "why_it_matters": "Use this in weekly review to see whether the Habitica system is improving or accumulating debt.",
+      "group": "Workload insight"
+    }
+  ],
+  "narrative": {
+    "display_name": "Habitica",
+    "headline": "Turn chores into quests, check off workouts, and protect your reward budget from the command line.",
+    "value_prop": "Habitica CLI covers the official task and game-management API, then layers a preview-first daily workflow on top. Use `today`, `plan chores`, `reward afford`, `tag load`, and `week review` to make account state useful to people and agents without accidental scoring or spending.",
+    "auth_narrative": "Set `HABITICA_USER_ID` and `HABITICA_API_TOKEN` from Habitica Settings → API. The CLI sends them only as the official `x-api-user` and `x-api-key` headers and uses its own `x-client` platform identifier; never place either value in a plan file or command line.",
+    "quickstart": [
+      {
+        "command": "habitica-pp-cli doctor --dry-run",
+        "comment": "Check local configuration without sending a mutation."
+      },
+      {
+        "command": "habitica-pp-cli today --agent --select tasks.text,tasks.type,stats.gp",
+        "comment": "Start the day with a focused quest queue."
+      },
+      {
+        "command": "habitica-pp-cli reward afford \"Weekend movie\" --reserve-gp 20 --agent",
+        "comment": "Decide whether a reward fits the remaining gold budget."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "The API reports missing authentication or client headers.",
+        "fix": "Set HABITICA_USER_ID and HABITICA_API_TOKEN, then run habitica-pp-cli doctor --json."
+      },
+      {
+        "symptom": "A read is rate limited.",
+        "fix": "Wait for the API reset window shown in the error, then retry the bounded command."
+      }
+    ],
+    "when_to_use": "Use this CLI for task and reward workflows in an existing Habitica account, especially when an agent needs structured output and a preview before a mutation. It is suited to a daily quest queue, chore batching, workout/task scoring, and budget-aware rewards.",
+    "anti_triggers": [
+      "Do not use this CLI to infer a user’s health, productivity, or financial condition from Habitica data.",
+      "Do not use this CLI to spend gold, score tasks, or change account state without reviewing the dry-run output and explicitly applying it.",
+      "Do not use this CLI as a replacement for a human decision about account deletion, subscription, or other irreversible account actions."
+    ],
+    "recipes": [
+      {
+        "title": "Build today’s quest queue",
+        "command": "habitica-pp-cli today --agent --select tasks.text,tasks.type,stats.gp",
+        "explanation": "Narrow the daily briefing to the fields an agent needs for planning."
+      },
+      {
+        "title": "Preview chores before creating quests",
+        "command": "habitica-pp-cli plan chores --file examples/chores.yaml --dry-run --agent",
+        "explanation": "Validate the batch without mutating; create it only after reviewing it and rerunning with --apply --yes."
+      },
+      {
+        "title": "Protect weekend reward gold",
+        "command": "habitica-pp-cli reward afford \"Weekend movie\" --reserve-gp 20 --agent",
+        "explanation": "See affordability and the remaining balance before a reward purchase."
+      },
+      {
+        "title": "Rebalance tagged work",
+        "command": "habitica-pp-cli tag load --agent --select tags.name,tags.overdue",
+        "explanation": "Use the live task and tag view to compare category pressure."
+      },
+      {
+        "title": "Review seven-day task health",
+        "command": "habitica-pp-cli week review --agent --select overdue_delta,completed_delta",
+        "explanation": "Run sync before the first review; later local snapshots show whether the backlog is improving."
+      }
+    ],
+    "trigger_phrases": [
+      "turn today’s chores into quests",
+      "check off my workout in Habitica",
+      "can I afford my weekend reward",
+      "show my Habitica task workload",
+      "review my Habitica week",
+      "use Habitica",
+      "run Habitica"
+    ]
+  }
+}
