@@ -5,6 +5,7 @@ package cli
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net/http"
 	"net/http/httptest"
@@ -456,5 +457,55 @@ func TestSearchNonAgentJSONKeepsSingleProvenanceEnvelope(t *testing.T) {
 	}
 	if got := envelope.Meta["source"]; got != "live" {
 		t.Fatalf("meta.source = %v, want live\n%s", got, stdout)
+	}
+}
+
+// runSearchTestWithDataSource mirrors runSearchTest with an explicit data source
+// and a temporary database path, so local-only paths do not touch the real store.
+func runSearchTestWithDataSource(t *testing.T, dataSource string, handler http.HandlerFunc, args ...string) (string, string, error) {
+	t.Helper()
+	server := httptest.NewServer(handler)
+	t.Cleanup(server.Close)
+	dir := t.TempDir()
+	configPath := filepath.Join(dir, "config.toml")
+	if err := os.WriteFile(configPath, []byte(fmt.Sprintf("base_url = %q\naccess_token = \"test-token\"\n", server.URL)), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	flags := &rootFlags{asJSON: true, dataSource: dataSource, configPath: configPath}
+	cmd := newSearchCmd(flags)
+	var stdout, stderr bytes.Buffer
+	cmd.SetOut(&stdout)
+	cmd.SetErr(&stderr)
+	cmd.SetArgs(append(append([]string{}, args...), "--db", filepath.Join(dir, "data.db")))
+	err := cmd.Execute()
+	return stdout.String(), stderr.String(), err
+}
+
+func TestSearchLiveDataSourceRejectsLocalOnlyTypes(t *testing.T) {
+	for _, localOnly := range []string{"me", "chapters"} {
+		t.Run(localOnly, func(t *testing.T) {
+			_, _, err := runSearchTestWithDataSource(t, "live", func(w http.ResponseWriter, _ *http.Request) {
+				t.Fatal("live search must not be attempted for a local-only type")
+			}, "needle", "--type", localOnly)
+			if err == nil {
+				t.Fatal("expected a usage error, got nil")
+			}
+			var cerr *cliError
+			if !errors.As(err, &cerr) || cerr.code != 2 {
+				t.Fatalf("expected exit code 2, got %v", err)
+			}
+			if !strings.Contains(err.Error(), "no live Spotify search") {
+				t.Fatalf("error should name the constraint, got %q", err.Error())
+			}
+		})
+	}
+}
+
+func TestSearchAutoStillFallsBackForLocalOnlyTypes(t *testing.T) {
+	_, _, err := runSearchTestWithDataSource(t, "auto", func(w http.ResponseWriter, _ *http.Request) {
+		t.Fatal("auto must not hit the live API for a local-only type")
+	}, "needle", "--type", "me")
+	if err != nil {
+		t.Fatalf("auto mode should still serve local-only types locally: %v", err)
 	}
 }

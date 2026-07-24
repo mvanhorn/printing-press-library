@@ -136,6 +136,16 @@ back to local FTS on a network failure; --data-source local always uses FTS.`,
 			}
 			query := args[0]
 			// This API has a search endpoint: GET /search
+			// Spotify's /search has no equivalent for the local-only types, so
+			// an explicit --data-source live cannot be honored for them. Say so
+			// instead of quietly serving local data under a flag that promises
+			// the opposite; auto still degrades to local FTS as intended.
+			if flags.dataSource == "live" && isLocalOnlySearchType(resourceType) {
+				return usageErr(fmt.Errorf(
+					"--type %s has no live Spotify search; use --data-source local or auto",
+					strings.TrimSpace(strings.ToLower(resourceType)),
+				))
+			}
 			if flags.dataSource != "local" && !isLocalOnlySearchType(resourceType) {
 				// Resolve/validate the catalog type only for requests that
 				// actually reach the API. The whitelist below covers the seven
