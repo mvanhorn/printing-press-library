@@ -178,6 +178,8 @@ Highlights (not in the official API docs):
   • events residency   Collapse runs of same-name + same-venue events into one row per residency with first_date, last_date, night_count, and id_list — so a 16-night opera season shows as one entry, not 16.
   • events tour   For a given attraction (artist/team/touring show), return every upcoming event sorted by date, with city, venue, on-sale status, and a flag for events going on-sale within 7 days.
   • events on-sale-soon   Local query for events whose public on-sale falls in the next N days, sorted ascending — the canonical 'presale watch' view that no API endpoint provides.
+  • events presales   Query real Ticketmaster presale windows and classify each as upcoming, open, ended, or unknown.
+  • events checkout   Select an official presale or public purchase URL and print it unless --launch is explicitly set.
   • events by-classification   Local join of events × classifications, grouped by segment and genre, with event count and three example events per leaf — the bucketed view newsletter authors and local-scene trackers reach for.
   • events watchlist   Save, list, run, and remove named filter sets (venue IDs, attraction IDs, segments, DMA IDs) that persist across runs in the local SQLite store — the generic primitive any curated 'my venues' workflo…
   • events dedup   Read an event JSON array from stdin or the local store, apply a deduplication strategy (name+venue+date, or tour-leg), and write the deduped stream to stdout — composes with any upstream command.

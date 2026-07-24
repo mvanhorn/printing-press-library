@@ -9,6 +9,12 @@
     "handle": "omarshahine",
     "name": "Omar Shahine"
   },
+  "contributors": [
+    {
+      "handle": "Avanderheyde",
+      "name": "Alderik"
+    }
+  ],
   "owner": "omarshahine",
   "printer": "omarshahine",
   "printer_name": "Omar Shahine",
@@ -81,6 +87,16 @@
       "name": "Price-band distribution",
       "command": "events price-bands",
       "description": "Bucket events by priceRanges.min into \u003c$50 / $50-100 / $100-200 / $200+ bands and report count + sample events per band, grouped by classification."
+    },
+    {
+      "name": "Real presale window planner",
+      "command": "events presales",
+      "description": "Query sales.presales directly, classify each window as upcoming, open, or ended, and filter by how soon it opens."
+    },
+    {
+      "name": "Safe checkout handoff",
+      "command": "events checkout",
+      "description": "Select an open or named official presale URL, fall back to the event purchase page, and require --launch before opening a browser."
     }
   ]
 }

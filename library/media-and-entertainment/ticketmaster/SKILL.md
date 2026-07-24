@@ -103,6 +103,16 @@ These capabilities aren't available in any other tool for this API.
   ```bash
   ticketmaster-pp-cli events on-sale-soon --window 7 --classification rock --json
   ```
+- **`events presales`** — Query Ticketmaster's real `sales.presales[]` windows and classify each as upcoming, open, or ended. Filter by artist, city, venue, classification, and hours until opening.
+
+  ```bash
+  ticketmaster-pp-cli events presales --keyword "The National" --status upcoming --opens-within 48 --json
+  ```
+- **`events checkout`** — Print the best official checkout URL for an event, preferring an open or named presale. Add `--launch` to open it; the command never reserves inventory or buys unattended.
+
+  ```bash
+  ticketmaster-pp-cli events checkout G5diZ9YpV7fJb --presale "Artist Presale"
+  ```
 
 ### Agent-native plumbing
 - **`events dedup`** — Read an event JSON array from stdin or the local store, apply a deduplication strategy (name+venue+date, or tour-leg), and write the deduped stream to stdout — composes with any upstream command.
