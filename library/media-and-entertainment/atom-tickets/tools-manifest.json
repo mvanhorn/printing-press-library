@@ -1,0 +1,440 @@
+{
+  "api_name": "atom-tickets",
+  "base_url": "https://api-beta.atomtickets.com",
+  "description": "Find bookable Atom movie tickets, compare real offers, and hand users the official checkout link.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "api_key",
+    "header": "x-api-key",
+    "in": "header",
+    "env_vars": [
+      "ATOM_TICKETS_API_KEY"
+    ],
+    "env_var_specs": [
+      {
+        "name": "ATOM_TICKETS_API_KEY",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    ]
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "partner_get-production-by-vendor-id",
+      "description": "Get a production by partner vendor ID. Required: vendorProductionId. Optional: circuitId. Returns array of ProductionDetail.",
+      "method": "GET",
+      "path": "/partner/v1/productions/byVendorProductionId/{vendorProductionId}",
+      "params": [
+        {
+          "name": "vendorProductionId",
+          "type": "string",
+          "location": "path",
+          "description": "Vendor production id",
+          "required": true
+        },
+        {
+          "name": "circuitId",
+          "type": "string",
+          "location": "query",
+          "description": "Circuit id"
+        }
+      ]
+    },
+    {
+      "name": "partner_get-production-details-by-ids",
+      "description": "Get production details by IDs. Required: ids. Returns array of ProductionDetail.",
+      "method": "POST",
+      "path": "/partner/v1/production/details/byIds",
+      "params": [
+        {
+          "name": "ids",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Ids",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "partner_get-production-ids-by-venue",
+      "description": "Get production IDs by venue. Required: venueId. Optional: isoStartDate, isoEndDate, localStartDate (plus 2 more). Returns array of string.",
+      "method": "GET",
+      "path": "/partner/v1/production/ids/byVenue/{venueId}",
+      "params": [
+        {
+          "name": "venueId",
+          "type": "string",
+          "location": "path",
+          "description": "Venue id",
+          "required": true
+        },
+        {
+          "name": "isoStartDate",
+          "type": "string",
+          "location": "query",
+          "description": "Iso start date"
+        },
+        {
+          "name": "isoEndDate",
+          "type": "string",
+          "location": "query",
+          "description": "Iso end date"
+        },
+        {
+          "name": "localStartDate",
+          "type": "string",
+          "location": "query",
+          "description": "Local start date"
+        },
+        {
+          "name": "localEndDate",
+          "type": "string",
+          "location": "query",
+          "description": "Local end date"
+        },
+        {
+          "name": "marketplaceId",
+          "type": "string",
+          "location": "query",
+          "description": "Marketplace id"
+        }
+      ]
+    },
+    {
+      "name": "partner_get-showtime-by-vendor-showtime-id",
+      "description": "Get a showtime by vendor showtime ID. Required: venueId, vendorShowtimeId. Optional: circuitId. Returns the ShowtimeDetailsResponse.",
+      "method": "GET",
+      "path": "/partner/v1/venues/{venueId}/showtimes/byVendorShowtimeId/{vendorShowtimeId}",
+      "params": [
+        {
+          "name": "venueId",
+          "type": "string",
+          "location": "path",
+          "description": "Venue id",
+          "required": true
+        },
+        {
+          "name": "vendorShowtimeId",
+          "type": "string",
+          "location": "path",
+          "description": "Vendor showtime id",
+          "required": true
+        },
+        {
+          "name": "circuitId",
+          "type": "string",
+          "location": "query",
+          "description": "Circuit id"
+        }
+      ]
+    },
+    {
+      "name": "partner_get-showtime-by-vendor-venue-and-showtime-ids",
+      "description": "Get a showtime by vendor venue and showtime IDs. Required: vendorVenueId, vendorShowtimeId. Optional: circuitId. Returns the ShowtimeDetailsResponse.",
+      "method": "GET",
+      "path": "/partner/v1/venues/byVendorVenueId/{vendorVenueId}/showtimes/byVendorShowtimeId/{vendorShowtimeId}",
+      "params": [
+        {
+          "name": "vendorVenueId",
+          "type": "string",
+          "location": "path",
+          "description": "Vendor venue id",
+          "required": true
+        },
+        {
+          "name": "vendorShowtimeId",
+          "type": "string",
+          "location": "path",
+          "description": "Vendor showtime id",
+          "required": true
+        },
+        {
+          "name": "circuitId",
+          "type": "string",
+          "location": "query",
+          "description": "Circuit id"
+        }
+      ]
+    },
+    {
+      "name": "partner_get-showtimes-by-ids",
+      "description": "Get showtimes by IDs. Required: ids. Returns the new ShowtimeDetailsResponse.",
+      "method": "POST",
+      "path": "/partner/v1/showtime/details/byIds",
+      "params": [
+        {
+          "name": "ids",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Ids",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "partner_get-showtimes-by-venue",
+      "description": "Get showtimes by venue. Required: venueId. Optional: isoStartDate, isoEndDate, localStartDate (plus 2 more). Returns the ShowtimeDetailsResponse.",
+      "method": "GET",
+      "path": "/partner/v1/showtime/details/byVenue/{venueId}",
+      "params": [
+        {
+          "name": "venueId",
+          "type": "string",
+          "location": "path",
+          "description": "Venue id",
+          "required": true
+        },
+        {
+          "name": "isoStartDate",
+          "type": "string",
+          "location": "query",
+          "description": "Iso start date"
+        },
+        {
+          "name": "isoEndDate",
+          "type": "string",
+          "location": "query",
+          "description": "Iso end date"
+        },
+        {
+          "name": "localStartDate",
+          "type": "string",
+          "location": "query",
+          "description": "Local start date"
+        },
+        {
+          "name": "localEndDate",
+          "type": "string",
+          "location": "query",
+          "description": "Local end date"
+        },
+        {
+          "name": "productionIds",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated production IDs"
+        }
+      ]
+    },
+    {
+      "name": "partner_get-showtimes-for-venues",
+      "description": "Get showtimes for multiple venues. Required: venueIds. Optional: includeProductionDetails, isoDateBounds, localDateBounds. Returns array of ProductionDetail.",
+      "method": "POST",
+      "path": "/partner/v1/showtime/details/forVenues",
+      "params": [
+        {
+          "name": "includeProductionDetails",
+          "type": "bool",
+          "location": "body",
+          "description": "Include production details"
+        },
+        {
+          "name": "iso-date-bounds-iso-end-date",
+          "wire_name": "isoDateBounds.isoEndDate",
+          "type": "string",
+          "location": "body",
+          "description": "Iso end date",
+          "required": true
+        },
+        {
+          "name": "iso-date-bounds-iso-start-date",
+          "wire_name": "isoDateBounds.isoStartDate",
+          "type": "string",
+          "location": "body",
+          "description": "Iso start date",
+          "required": true
+        },
+        {
+          "name": "local-date-bounds-local-end-date",
+          "wire_name": "localDateBounds.localEndDate",
+          "type": "string",
+          "location": "body",
+          "description": "Local end date",
+          "required": true
+        },
+        {
+          "name": "local-date-bounds-local-start-date",
+          "wire_name": "localDateBounds.localStartDate",
+          "type": "string",
+          "location": "body",
+          "description": "Local start date",
+          "required": true
+        },
+        {
+          "name": "venueIds",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Venue ids",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "partner_get-venue-by-vendor-id",
+      "description": "Get a venue by partner vendor ID. Required: vendorVenueId. Optional: circuitId. Returns array of VenueDetail.",
+      "method": "GET",
+      "path": "/partner/v1/venues/byVendorVenueId/{vendorVenueId}",
+      "params": [
+        {
+          "name": "vendorVenueId",
+          "type": "string",
+          "location": "path",
+          "description": "Vendor venue id",
+          "required": true
+        },
+        {
+          "name": "circuitId",
+          "type": "string",
+          "location": "query",
+          "description": "Circuit id"
+        }
+      ]
+    },
+    {
+      "name": "partner_get-venue-details-by-ids",
+      "description": "Get venues by IDs. Required: ids. Optional: location. Returns array of VenueDetail.",
+      "method": "POST",
+      "path": "/partner/v1/venue/details/byIds",
+      "params": [
+        {
+          "name": "ids",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Ids",
+          "required": true
+        },
+        {
+          "name": "location-lat",
+          "wire_name": "location.lat",
+          "type": "float",
+          "location": "body",
+          "description": "Lat",
+          "required": true
+        },
+        {
+          "name": "location-lon",
+          "wire_name": "location.lon",
+          "type": "float",
+          "location": "body",
+          "description": "Lon",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "partner_get-venue-details-by-location",
+      "description": "Get venues by location. Required: lat, lon, radius. Optional: page, pageSize (default: 25). Returns array of VenueDetail.",
+      "method": "GET",
+      "path": "/partner/v1/venue/details/byLocation",
+      "params": [
+        {
+          "name": "lat",
+          "type": "float",
+          "location": "query",
+          "description": "Latitude",
+          "required": true
+        },
+        {
+          "name": "lon",
+          "type": "float",
+          "location": "query",
+          "description": "Longitude",
+          "required": true
+        },
+        {
+          "name": "radius",
+          "type": "float",
+          "location": "query",
+          "description": "Search radius in kilometers, maximum 80",
+          "required": true
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page"
+        },
+        {
+          "name": "pageSize",
+          "type": "int",
+          "location": "query",
+          "description": "Page size"
+        }
+      ]
+    },
+    {
+      "name": "partner_ping",
+      "description": "Verify Partner API connectivity. Returns the PartnerPingResponse.",
+      "method": "GET",
+      "path": "/partner/ping",
+      "params": []
+    },
+    {
+      "name": "partner_search-productions-by-name",
+      "description": "Search productions by name. Required: name. Returns array of ProductionDetail.",
+      "method": "GET",
+      "path": "/partner/v1/production/search/byName",
+      "params": [
+        {
+          "name": "name",
+          "type": "string",
+          "location": "query",
+          "description": "Name",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "partner_search-venues-by-name",
+      "description": "Search venues by name. Required: term, lat, lon, radius. Optional: page, pageSize. Returns array of VenueDetail.",
+      "method": "GET",
+      "path": "/partner/v1/venue/details/search",
+      "params": [
+        {
+          "name": "term",
+          "type": "string",
+          "location": "query",
+          "description": "Term",
+          "required": true
+        },
+        {
+          "name": "lat",
+          "type": "float",
+          "location": "query",
+          "description": "Lat",
+          "required": true
+        },
+        {
+          "name": "lon",
+          "type": "float",
+          "location": "query",
+          "description": "Lon",
+          "required": true
+        },
+        {
+          "name": "radius",
+          "type": "float",
+          "location": "query",
+          "description": "Radius",
+          "required": true
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page"
+        },
+        {
+          "name": "pageSize",
+          "type": "int",
+          "location": "query",
+          "description": "Page size"
+        }
+      ]
+    }
+  ]
+}

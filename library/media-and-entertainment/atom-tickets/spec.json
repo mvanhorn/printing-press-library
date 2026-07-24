@@ -1,0 +1,344 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Atom Tickets Partner API",
+    "version": "1.0.0",
+    "description": "Official Atom Tickets Partner API surface transcribed from developers.atomtickets.com. An approved Partner API key is required."
+  },
+  "servers": [
+    {
+      "url": "https://api-beta.atomtickets.com"
+    }
+  ],
+  "security": [
+    {
+      "ApiKey": []
+    }
+  ],
+  "paths": {
+    "/partner/ping": {
+      "get": {
+        "operationId": "ping",
+        "summary": "Verify Partner API connectivity",
+        "tags": ["health"],
+        "responses": {
+          "200": {
+            "description": "Partner API is reachable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/partner/v1/venue/details/byLocation": {
+      "get": {
+        "operationId": "getVenueDetailsByLocation",
+        "summary": "Get venues by location",
+        "tags": ["venues"],
+        "parameters": [
+          {"name": "lat", "in": "query", "required": true, "schema": {"type": "number", "format": "double"}, "description": "Latitude"},
+          {"name": "lon", "in": "query", "required": true, "schema": {"type": "number", "format": "double"}, "description": "Longitude"},
+          {"name": "radius", "in": "query", "required": true, "schema": {"type": "number", "format": "double", "maximum": 80}, "description": "Search radius in kilometers, maximum 80"},
+          {"name": "page", "in": "query", "schema": {"type": "integer"}},
+          {"name": "pageSize", "in": "query", "schema": {"type": "integer", "default": 25, "maximum": 100}}
+        ],
+        "responses": {"200": {"description": "Venues ordered by distance", "content": {"application/json": {"schema": {"$ref": "#/components/schemas/VenueDetailsResponse"}}}}}
+      }
+    },
+    "/partner/v1/venue/details/byIds": {
+      "post": {
+        "operationId": "getVenueDetailsByIds",
+        "summary": "Get venues by IDs",
+        "tags": ["venues"],
+        "requestBody": {"required": true, "content": {"application/json": {"schema": {"$ref": "#/components/schemas/GetVenueDetailsRequest"}}}},
+        "responses": {"200": {"description": "Venue details", "content": {"application/json": {"schema": {"$ref": "#/components/schemas/VenueDetailsResponse"}}}}}
+      }
+    },
+    "/partner/v1/venue/details/search": {
+      "get": {
+        "operationId": "searchVenuesByName",
+        "summary": "Search venues by name",
+        "tags": ["venues"],
+        "parameters": [
+          {"name": "term", "in": "query", "required": true, "schema": {"type": "string"}},
+          {"name": "lat", "in": "query", "required": true, "schema": {"type": "number", "format": "double"}},
+          {"name": "lon", "in": "query", "required": true, "schema": {"type": "number", "format": "double"}},
+          {"name": "radius", "in": "query", "required": true, "schema": {"type": "number", "format": "double", "maximum": 80}},
+          {"name": "page", "in": "query", "schema": {"type": "integer"}},
+          {"name": "pageSize", "in": "query", "schema": {"type": "integer", "maximum": 100}}
+        ],
+        "responses": {"200": {"description": "Matching venues", "content": {"application/json": {"schema": {"$ref": "#/components/schemas/VenueDetailsResponse"}}}}}
+      }
+    },
+    "/partner/v1/venues/byVendorVenueId/{vendorVenueId}": {
+      "get": {
+        "operationId": "getVenueByVendorId",
+        "summary": "Get a venue by partner vendor ID",
+        "tags": ["venues"],
+        "parameters": [
+          {"name": "vendorVenueId", "in": "path", "required": true, "schema": {"type": "string"}},
+          {"name": "circuitId", "in": "query", "schema": {"type": "string"}}
+        ],
+        "responses": {"200": {"description": "Venue details", "content": {"application/json": {"schema": {"$ref": "#/components/schemas/VenueDetailsResponse"}}}}}
+      }
+    },
+    "/partner/v1/production/ids/byVenue/{venueId}": {
+      "get": {
+        "operationId": "getProductionIdsByVenue",
+        "summary": "Get production IDs by venue",
+        "tags": ["productions"],
+        "parameters": [
+          {"name": "venueId", "in": "path", "required": true, "schema": {"type": "string"}},
+          {"name": "isoStartDate", "in": "query", "schema": {"type": "string", "format": "date-time"}},
+          {"name": "isoEndDate", "in": "query", "schema": {"type": "string", "format": "date-time"}},
+          {"name": "localStartDate", "in": "query", "schema": {"type": "string"}},
+          {"name": "localEndDate", "in": "query", "schema": {"type": "string"}},
+          {"name": "marketplaceId", "in": "query", "schema": {"type": "string"}}
+        ],
+        "responses": {"200": {"description": "Production IDs ordered by Atom Meter", "content": {"application/json": {"schema": {"$ref": "#/components/schemas/ProductionIdsResponse"}}}}}
+      }
+    },
+    "/partner/v1/production/details/byIds": {
+      "post": {
+        "operationId": "getProductionDetailsByIds",
+        "summary": "Get production details by IDs",
+        "tags": ["productions"],
+        "requestBody": {"required": true, "content": {"application/json": {"schema": {"$ref": "#/components/schemas/GetProductionDetailsRequest"}}}},
+        "responses": {"200": {"description": "Production details", "content": {"application/json": {"schema": {"$ref": "#/components/schemas/ProductionDetailsResponse"}}}}}
+      }
+    },
+    "/partner/v1/production/search/byName": {
+      "get": {
+        "operationId": "searchProductionsByName",
+        "summary": "Search productions by name",
+        "tags": ["productions"],
+        "parameters": [{"name": "name", "in": "query", "required": true, "schema": {"type": "string"}}],
+        "responses": {"200": {"description": "Matching productions", "content": {"application/json": {"schema": {"$ref": "#/components/schemas/ProductionDetailsResponse"}}}}}
+      }
+    },
+    "/partner/v1/productions/byVendorProductionId/{vendorProductionId}": {
+      "get": {
+        "operationId": "getProductionByVendorId",
+        "summary": "Get a production by partner vendor ID",
+        "tags": ["productions"],
+        "parameters": [
+          {"name": "vendorProductionId", "in": "path", "required": true, "schema": {"type": "string"}},
+          {"name": "circuitId", "in": "query", "schema": {"type": "string"}}
+        ],
+        "responses": {"200": {"description": "Production details", "content": {"application/json": {"schema": {"$ref": "#/components/schemas/ProductionDetailsResponse"}}}}}
+      }
+    },
+    "/partner/v1/showtime/details/byVenue/{venueId}": {
+      "get": {
+        "operationId": "getShowtimesByVenue",
+        "summary": "Get showtimes by venue",
+        "tags": ["showtimes"],
+        "parameters": [
+          {"name": "venueId", "in": "path", "required": true, "schema": {"type": "string"}},
+          {"name": "isoStartDate", "in": "query", "schema": {"type": "string", "format": "date-time"}},
+          {"name": "isoEndDate", "in": "query", "schema": {"type": "string", "format": "date-time"}},
+          {"name": "localStartDate", "in": "query", "schema": {"type": "string"}},
+          {"name": "localEndDate", "in": "query", "schema": {"type": "string"}},
+          {"name": "productionIds", "in": "query", "schema": {"type": "string"}, "description": "Comma-separated production IDs"}
+        ],
+        "responses": {"200": {"description": "Showtimes, preorder details, and attribute map", "content": {"application/json": {"schema": {"$ref": "#/components/schemas/ShowtimeDetailsResponse"}}}}}
+      }
+    },
+    "/partner/v1/showtime/details/byIds": {
+      "post": {
+        "operationId": "getShowtimesByIds",
+        "summary": "Get showtimes by IDs",
+        "tags": ["showtimes"],
+        "requestBody": {"required": true, "content": {"application/json": {"schema": {"$ref": "#/components/schemas/GetShowtimeDetailsRequest"}}}},
+        "responses": {"200": {"description": "Detailed showtimes with inventory and checkout URLs", "content": {"application/json": {"schema": {"$ref": "#/components/schemas/ShowtimeDetailsResponse"}}}}}
+      }
+    },
+    "/partner/v1/showtime/details/forVenues": {
+      "post": {
+        "operationId": "getShowtimesForVenues",
+        "summary": "Get showtimes for multiple venues",
+        "tags": ["showtimes"],
+        "requestBody": {"required": true, "content": {"application/json": {"schema": {"$ref": "#/components/schemas/GetShowtimesForVenuesRequest"}}}},
+        "responses": {"200": {"description": "Showtimes grouped by venue", "content": {"application/json": {"schema": {"$ref": "#/components/schemas/ShowtimeDetailsForVenuesResponse"}}}}}
+      }
+    },
+    "/partner/v1/venues/{venueId}/showtimes/byVendorShowtimeId/{vendorShowtimeId}": {
+      "get": {
+        "operationId": "getShowtimeByVendorShowtimeId",
+        "summary": "Get a showtime by vendor showtime ID",
+        "tags": ["showtimes"],
+        "parameters": [
+          {"name": "venueId", "in": "path", "required": true, "schema": {"type": "string"}},
+          {"name": "vendorShowtimeId", "in": "path", "required": true, "schema": {"type": "string"}},
+          {"name": "circuitId", "in": "query", "schema": {"type": "string"}}
+        ],
+        "responses": {"200": {"description": "Showtime details", "content": {"application/json": {"schema": {"$ref": "#/components/schemas/ShowtimeDetailsResponse"}}}}}
+      }
+    },
+    "/partner/v1/venues/byVendorVenueId/{vendorVenueId}/showtimes/byVendorShowtimeId/{vendorShowtimeId}": {
+      "get": {
+        "operationId": "getShowtimeByVendorVenueAndShowtimeIds",
+        "summary": "Get a showtime by vendor venue and showtime IDs",
+        "tags": ["showtimes"],
+        "parameters": [
+          {"name": "vendorVenueId", "in": "path", "required": true, "schema": {"type": "string"}},
+          {"name": "vendorShowtimeId", "in": "path", "required": true, "schema": {"type": "string"}},
+          {"name": "circuitId", "in": "query", "schema": {"type": "string"}}
+        ],
+        "responses": {"200": {"description": "Showtime details", "content": {"application/json": {"schema": {"$ref": "#/components/schemas/ShowtimeDetailsResponse"}}}}}
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "ApiKey": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "x-api-key",
+        "description": "Atom Tickets Partner API key"
+      }
+    },
+    "schemas": {
+      "LatLonPair": {
+        "type": "object",
+        "properties": {
+          "lat": {"type": "number", "format": "double"},
+          "lon": {"type": "number", "format": "double"}
+        },
+        "required": ["lat", "lon"]
+      },
+      "GetVenueDetailsRequest": {
+        "type": "object",
+        "properties": {
+          "ids": {"type": "array", "items": {"type": "string"}},
+          "location": {"$ref": "#/components/schemas/LatLonPair"}
+        },
+        "required": ["ids"]
+      },
+      "GetProductionDetailsRequest": {
+        "type": "object",
+        "properties": {"ids": {"type": "array", "items": {"type": "string"}}},
+        "required": ["ids"]
+      },
+      "GetShowtimeDetailsRequest": {
+        "type": "object",
+        "properties": {"ids": {"type": "array", "items": {"type": "string"}}},
+        "required": ["ids"]
+      },
+      "IsoDateBounds": {
+        "type": "object",
+        "properties": {
+          "isoStartDate": {"type": "string", "format": "date-time"},
+          "isoEndDate": {"type": "string", "format": "date-time"}
+        },
+        "required": ["isoStartDate", "isoEndDate"]
+      },
+      "LocalDateBounds": {
+        "type": "object",
+        "properties": {
+          "localStartDate": {"type": "string"},
+          "localEndDate": {"type": "string"}
+        },
+        "required": ["localStartDate", "localEndDate"]
+      },
+      "GetShowtimesForVenuesRequest": {
+        "type": "object",
+        "properties": {
+          "venueIds": {"type": "array", "items": {"type": "string"}},
+          "isoDateBounds": {"$ref": "#/components/schemas/IsoDateBounds"},
+          "localDateBounds": {"$ref": "#/components/schemas/LocalDateBounds"},
+          "includeProductionDetails": {"type": "boolean"}
+        },
+        "required": ["venueIds"]
+      },
+      "VenueDetail": {
+        "type": "object",
+        "additionalProperties": true,
+        "properties": {
+          "id": {"type": "string"},
+          "name": {"type": "string"},
+          "kmDistance": {"type": "number", "format": "double"}
+        }
+      },
+      "ProductionDetail": {
+        "type": "object",
+        "additionalProperties": true,
+        "properties": {
+          "id": {"type": "string"},
+          "name": {"type": "string"},
+          "advisoryRating": {"type": "string"},
+          "runtimeMinutes": {"type": "integer"}
+        }
+      },
+      "Price": {
+        "type": "object",
+        "additionalProperties": true,
+        "properties": {
+          "amount": {"type": "number"},
+          "currency": {"type": "string"}
+        }
+      },
+      "Offer": {
+        "type": "object",
+        "additionalProperties": true,
+        "properties": {
+          "name": {"type": "string"},
+          "price": {"$ref": "#/components/schemas/Price"}
+        }
+      },
+      "ShowtimeDetail": {
+        "type": "object",
+        "additionalProperties": true,
+        "properties": {
+          "id": {"type": "string"},
+          "venueId": {"type": "string"},
+          "productionId": {"type": "string"},
+          "isoStartTime": {"type": "string", "format": "date-time"},
+          "localStartTime": {"type": "string"},
+          "availableInventory": {"type": "integer"},
+          "checkoutUrl": {"type": "string", "format": "uri"},
+          "offers": {"type": "array", "items": {"$ref": "#/components/schemas/Offer"}},
+          "attributes": {"type": "array", "items": {"type": "string"}}
+        }
+      },
+      "VenueDetailsResponse": {
+        "type": "object",
+        "additionalProperties": true,
+        "properties": {"venues": {"type": "array", "items": {"$ref": "#/components/schemas/VenueDetail"}}}
+      },
+      "ProductionIdsResponse": {
+        "type": "object",
+        "additionalProperties": true,
+        "properties": {"productionIds": {"type": "array", "items": {"type": "string"}}}
+      },
+      "ProductionDetailsResponse": {
+        "type": "object",
+        "additionalProperties": true,
+        "properties": {"productions": {"type": "array", "items": {"$ref": "#/components/schemas/ProductionDetail"}}}
+      },
+      "ShowtimeDetailsResponse": {
+        "type": "object",
+        "additionalProperties": true,
+        "properties": {
+          "showtimes": {"type": "array", "items": {"$ref": "#/components/schemas/ShowtimeDetail"}},
+          "attributeMap": {"type": "object", "additionalProperties": {"type": "string"}},
+          "preOrderDetails": {"type": "array", "items": {"type": "object", "additionalProperties": true}}
+        }
+      },
+      "ShowtimeDetailsForVenuesResponse": {
+        "type": "object",
+        "additionalProperties": true,
+        "properties": {
+          "venues": {"type": "object", "additionalProperties": {"$ref": "#/components/schemas/ShowtimeDetailsResponse"}},
+          "productions": {"type": "array", "items": {"$ref": "#/components/schemas/ProductionDetail"}}
+        }
+      }
+    }
+  }
+}

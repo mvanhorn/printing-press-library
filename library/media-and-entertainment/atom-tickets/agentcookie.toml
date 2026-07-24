@@ -1,0 +1,16 @@
+# agentcookie.toml: secrets-bus adoption manifest v2
+# See docs/spec-agentcookie-secrets-bus-v2-adoption.md
+schema_version = 2
+name = "atom-tickets-pp-cli"
+display_name = "Atom Tickets"
+description = "Find bookable Atom movie tickets, compare real offers, and hand users the official checkout link."
+project_kind = "cli"
+
+[secrets.file]
+path = "~/.config/atom-tickets-pp-cli/config.toml"
+
+[sync]
+default = false
+
+[sync.keys]
+ATOM_TICKETS_API_KEY = true
