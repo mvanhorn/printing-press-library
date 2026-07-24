@@ -1,0 +1,42 @@
+{
+  "schema_version": 2,
+  "generated_at": "2026-07-24T02:51:13.862716Z",
+  "printing_press_version": "4.29.0",
+  "api_name": "ti",
+  "display_name": "Texas Instruments",
+  "cli_name": "ti-pp-cli",
+  "creator": {
+    "handle": "arungk",
+    "name": "Arun Gopalakrishnan"
+  },
+  "owner": "arungk",
+  "printer": "arungk",
+  "printer_name": "Arun Gopalakrishnan",
+  "spec_format": "internal",
+  "spec_checksum": "sha256:c94d619fdb4ad1cd1d80aa4231d5a99e0e0cb5dd9f29ae6ff16732f9aa1d1044",
+  "run_id": "20260723-150858-8d1d12be",
+  "category": "devices",
+  "description": "TI part compliance without the portal: anonymous RoHS/REACH per orderable, plus cookie-injected FMD Class-D XML and per-part exemptions.",
+  "mcp_binary": "ti-pp-mcp",
+  "mcp_tool_count": 2,
+  "mcp_public_tool_count": 2,
+  "mcp_ready": "full",
+  "auth_type": "none",
+  "novel_features": [
+    {
+      "name": "One-shot lane bundle",
+      "command": "part compliance",
+      "description": "Get a part's RoHS and REACH verdicts plus the applicable signed TI compliance statement PDFs in one JSON envelope."
+    },
+    {
+      "name": "Cookie-freshness probe",
+      "command": "auth check",
+      "description": "Find out whether the deposited myTI cookie snapshot still works before running a batch of gated extractions."
+    },
+    {
+      "name": "Full evidence ladder",
+      "command": "part evidence",
+      "description": "One command that always returns anonymous verdicts and blanket PDFs, and adds the rich ratings table and Class-D FMD XML when cookies work."
+    }
+  ]
+}

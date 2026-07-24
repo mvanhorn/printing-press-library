@@ -1,0 +1,27 @@
+{
+  "manifest_version": "0.3",
+  "name": "ti-pp-mcp",
+  "display_name": "Texas Instruments",
+  "version": "4.29.0",
+  "description": "TI part compliance without the portal: anonymous RoHS/REACH per orderable, plus cookie-injected FMD Class-D XML and per-part exemptions.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/ti-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/ti-pp-mcp",
+      "args": []
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

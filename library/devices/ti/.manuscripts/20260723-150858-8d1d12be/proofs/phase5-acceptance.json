@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "api_name": "ti",
+  "run_id": "20260723-150858-8d1d12be",
+  "status": "pass",
+  "level": "full",
+  "matrix_size": 6,
+  "tests_passed": 6,
+  "tests_failed": 0,
+  "auth_context": {"type": "cookie", "api_key_available": false, "browser_session_available": true}
+}

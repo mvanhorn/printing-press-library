@@ -1,0 +1,142 @@
+{
+  "api_name": "ti",
+  "novelty_score": 0,
+  "alternatives": [],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-07-23T22:15:00Z",
+  "novel_features": [
+    {
+      "name": "One-shot lane bundle",
+      "command": "part compliance",
+      "description": "Get a part's RoHS and REACH verdicts plus the applicable signed TI compliance statement PDFs in one JSON envelope.",
+      "rationale": "Shaped exactly for the cowork extraction lane's manifest mapping — verdicts and evidence artifacts land together, no second call.",
+      "example": "ti-pp-cli part compliance TUSB320RWBR --json --coc-dir ./evidence",
+      "why_it_matters": "Reach for this when a supplier-extraction run needs verdicts AND evidence documents in a single deterministic call.",
+      "group": "Extraction-lane plumbing"
+    },
+    {
+      "name": "Cookie-freshness probe",
+      "command": "auth check",
+      "description": "Find out whether the deposited myTI cookie snapshot still works before running a batch of gated extractions.",
+      "rationale": "Distinguishes 'cookies went stale' from 'part not found' — the two failure modes look identical mid-extraction otherwise.",
+      "example": "ti-pp-cli auth check --cookies ./ti-cookies.json --json",
+      "why_it_matters": "Run it before any part ratings or part fmd batch; a stale result means trigger a fresh HIL login instead of burning lookups.",
+      "group": "Login-gated access"
+    },
+    {
+      "name": "Full evidence ladder",
+      "command": "part evidence",
+      "description": "One command that always returns anonymous verdicts and blanket PDFs, and adds the rich ratings table and Class-D FMD XML when cookies work.",
+      "rationale": "Degrades honestly: each rung reports its own status, so the caller sees exactly which evidence tier was available.",
+      "example": "ti-pp-cli part evidence TUSB320RWBR --cookies ./ti-cookies.json --out-dir ./evidence --json",
+      "why_it_matters": "Use when you want the most complete evidence available right now without pre-deciding whether login works.",
+      "group": "Extraction-lane plumbing"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "One-shot lane bundle",
+      "command": "part compliance",
+      "description": "Get a part's RoHS and REACH verdicts plus the applicable signed TI compliance statement PDFs in one JSON envelope.",
+      "rationale": "Shaped exactly for the cowork extraction lane's manifest mapping — verdicts and evidence artifacts land together, no second call.",
+      "example": "ti-pp-cli part compliance TUSB320RWBR --json --coc-dir ./evidence",
+      "why_it_matters": "Reach for this when a supplier-extraction run needs verdicts AND evidence documents in a single deterministic call.",
+      "group": "Extraction-lane plumbing"
+    },
+    {
+      "name": "Cookie-freshness probe",
+      "command": "auth check",
+      "description": "Find out whether the deposited myTI cookie snapshot still works before running a batch of gated extractions.",
+      "rationale": "Distinguishes 'cookies went stale' from 'part not found' — the two failure modes look identical mid-extraction otherwise.",
+      "example": "ti-pp-cli auth check --cookies ./ti-cookies.json --json",
+      "why_it_matters": "Run it before any part ratings or part fmd batch; a stale result means trigger a fresh HIL login instead of burning lookups.",
+      "group": "Login-gated access"
+    },
+    {
+      "name": "Full evidence ladder",
+      "command": "part evidence",
+      "description": "One command that always returns anonymous verdicts and blanket PDFs, and adds the rich ratings table and Class-D FMD XML when cookies work.",
+      "rationale": "Degrades honestly: each rung reports its own status, so the caller sees exactly which evidence tier was available.",
+      "example": "ti-pp-cli part evidence TUSB320RWBR --cookies ./ti-cookies.json --out-dir ./evidence --json",
+      "why_it_matters": "Use when you want the most complete evidence available right now without pre-deciding whether login works.",
+      "group": "Extraction-lane plumbing"
+    }
+  ],
+  "narrative": {
+    "display_name": "Texas Instruments",
+    "headline": "TI part compliance without the portal: anonymous RoHS/REACH per orderable, plus cookie-injected FMD Class-D XML and per-part exemptions.",
+    "value_prop": "Reads the compliance facts straight off TI's server-rendered product pages with plain HTTP — no login, no browser. When a myTI cookie snapshot is deposited (via the existing Browserbase human-in-the-loop login), the same CLI unlocks the Environmental Ratings table, per-part RoHS exemptions, and IPC-1752A Class-D FMD XML. It never logs in itself and fails closed when cookies are stale.",
+    "auth_narrative": "Anonymous commands (part compliance, part coc) need no credentials. Login-gated commands (part ratings, part fmd) consume a cookie snapshot captured by a human login in a Browserbase session — pass it via --cookies \u003cfile\u003e. The CLI never performs a login and never sees your password; when cookies are stale it exits with a distinct 'login required' error so the orchestrator can trigger a fresh HIL login.",
+    "quickstart": [
+      {
+        "command": "ti-pp-cli doctor --dry-run",
+        "comment": "Health check — works without any credentials"
+      },
+      {
+        "command": "ti-pp-cli part compliance TUSB320RWBR --json",
+        "comment": "Anonymous RoHS/REACH for one orderable part number"
+      },
+      {
+        "command": "ti-pp-cli part coc --out-dir ./evidence",
+        "comment": "Download TI's signed blanket compliance statement PDFs"
+      },
+      {
+        "command": "ti-pp-cli auth check --cookies ./ti-cookies.json",
+        "comment": "Verify a deposited myTI cookie snapshot before gated lookups"
+      },
+      {
+        "command": "ti-pp-cli part fmd TUSB320RWBR --cookies ./ti-cookies.json --out-dir ./evidence",
+        "comment": "Fetch the IPC-1752A Class-D FMD XML (requires working cookies)"
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "part ratings / part fmd exits with 'login required or cookies stale'",
+        "fix": "Trigger a fresh human login via the Browserbase HIL flow and re-deposit the cookie snapshot; myTI invalidates sessions server-side every few hours."
+      },
+      {
+        "symptom": "part compliance says the orderable was not found on the product page",
+        "fix": "Check the OPN spelling; the CLI resolves the generic (TUSB320RWBR → TUSB320) and matches your OPN against the page's orderables list."
+      }
+    ],
+    "when_to_use": "Use this CLI when an agent needs Texas Instruments part compliance facts: RoHS/REACH status for an orderable part number, TI's signed compliance statement PDFs as evidence, or (with a deposited myTI cookie snapshot) per-part RoHS exemptions, the SVHC sentence, and IPC-1752A Class-D FMD XML. It is the extraction engine behind the cowork agent's lane:cli route for ti.com.",
+    "anti_triggers": [
+      "Do not use for TI datasheets, pricing, inventory, or parametric search — TI's official product API and web store cover those.",
+      "Do not use to log in to myTI — login is always a human-in-the-loop Browserbase flow; this CLI only consumes deposited cookies.",
+      "Do not use for non-TI parts; for McMaster-Carr parts use mcmaster-pp-cli."
+    ],
+    "recipes": [
+      {
+        "title": "Lane extraction bundle",
+        "command": "ti-pp-cli part compliance TUSB320RWBR --json --coc-dir ./evidence",
+        "explanation": "Verdicts plus applicable signed statement PDFs in one JSON envelope, shaped for the extraction lane."
+      },
+      {
+        "title": "Pick out just the verdicts",
+        "command": "ti-pp-cli part compliance TUSB320RWBR --agent --select rohs_compliance,reach_compliance",
+        "explanation": "Narrow the envelope to the two fields the lane maps, saving agent context."
+      },
+      {
+        "title": "Full evidence ladder",
+        "command": "ti-pp-cli part evidence TUSB320RWBR --cookies ./ti-cookies.json --out-dir ./evidence --json",
+        "explanation": "Everything available right now — anonymous rungs always, gated rungs when cookies work, per-rung status either way."
+      },
+      {
+        "title": "Pre-flight a batch",
+        "command": "ti-pp-cli auth check --cookies ./ti-cookies.json --json",
+        "explanation": "Confirm the cookie snapshot is alive before a batch of gated lookups."
+      }
+    ],
+    "trigger_phrases": [
+      "TI part compliance",
+      "TUSB320 rohs status",
+      "texas instruments reach check",
+      "fetch TI FMD xml",
+      "TI rohs exemptions",
+      "use ti-pp-cli",
+      "run ti-pp-cli"
+    ]
+  }
+}

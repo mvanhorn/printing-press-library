@@ -1,0 +1,23 @@
+name: ti
+category: devices
+base_url: https://www.ti.com
+cli_description: "TI part compliance from the terminal: anonymous RoHS/REACH per orderable, and cookie-injected access to Environmental Ratings, RoHS exemptions, and IPC-1752A Class-D FMD XML."
+# learn no-entities escape: TI part numbers are free-form OPNs with no aliasable entity vocabulary; commands take exact OPN arguments.
+auth:
+  type: none
+resources:
+  part:
+    endpoints:
+      page:
+        method: GET
+        path: /product/{generic}
+        no_auth: true
+        response_format: html
+        description: "Server-rendered product page carrying a JSON-LD block with per-orderable rohsCompliant, reachStatus, MSL rating, lead finish, and packaging."
+  literature:
+    endpoints:
+      statement:
+        method: GET
+        path: /lit/pdf/{doc}
+        no_auth: true
+        description: "Signed blanket compliance statement PDFs (szzq088 RoHS, szzq119 RoHS exemptions, szzq087 REACH, szzq077 low-halogen, szzq195 IEC 62474)."

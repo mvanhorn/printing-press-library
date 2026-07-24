@@ -1,0 +1,9 @@
+{
+  "dir": "\u003ccli-dir\u003e/ti-pp-cli",
+  "research_dir": "\u003ccli-dir\u003e/20260723-150858-8d1d12be",
+  "verdict": "pass",
+  "actors": null,
+  "issues": [
+    "no Apify actor references found, skipping"
+  ]
+}

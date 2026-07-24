@@ -1,0 +1,45 @@
+{
+  "api_name": "ti",
+  "base_url": "https://www.ti.com",
+  "description": "TI part compliance without the portal: anonymous RoHS/REACH per orderable, plus cookie-injected FMD Class-D XML and per-part exemptions.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "none"
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "literature_statement",
+      "description": "Signed blanket compliance statement PDFs (szzq088 RoHS, szzq119 RoHS exemptions, szzq087 REACH, szzq077 low-halogen, szzq195 IEC 62474). Required: doc.",
+      "method": "GET",
+      "path": "/lit/pdf/{doc}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "doc",
+          "type": "string",
+          "location": "path",
+          "description": "doc",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "part_page",
+      "description": "Server-rendered product page carrying a JSON-LD block with per-orderable rohsCompliant, reachStatus, MSL rating, lead finish, and packaging. Required: generic.",
+      "method": "GET",
+      "path": "/product/{generic}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "generic",
+          "type": "string",
+          "location": "path",
+          "description": "generic",
+          "required": true
+        }
+      ]
+    }
+  ]
+}
