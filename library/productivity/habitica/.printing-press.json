@@ -59,5 +59,46 @@
       "command": "week review",
       "description": "Review seven-day overdue, stalled, and completed-task trends from real local snapshots."
     }
-  ]
+  ],
+  "novel_features_built": [
+    {
+      "name": "Daily quest briefing",
+      "command": "today",
+      "description": "Turn today’s dailies, due to-dos, and character state into one actionable quest queue."
+    },
+    {
+      "name": "Structured morning quest plan",
+      "command": "plan chores",
+      "description": "Preview a chore batch as Habitica quests and create it only after an explicit apply confirmation."
+    },
+    {
+      "name": "Reward runway",
+      "command": "reward afford",
+      "description": "Check whether a reward fits current gold while preserving a chosen reserve for later goals."
+    },
+    {
+      "name": "Tag workload report",
+      "command": "tag load",
+      "description": "Compare active, due, overdue, and checklist-blocked work across Habitica tags."
+    },
+    {
+      "name": "Weekly task health",
+      "command": "week review",
+      "description": "Review seven-day overdue, stalled, and completed-task trends from real local snapshots."
+    }
+  ],
+  "verify": {
+    "mode": "mock",
+    "pass_rate": 100,
+    "passed": 54,
+    "total": 54,
+    "verdict": "PASS"
+  },
+  "scorecard": {
+    "steinberger": {
+      "percentage": 95,
+      "grade": "A",
+      "total": 95
+    }
+  }
 }
