@@ -80,6 +80,41 @@ func TestSearchPluralAlbumsMapsToAlbum(t *testing.T) {
 	}
 }
 
+// TestSearchPluralTypeMapsToSingular covers every plural->singular mapping
+// resolveSpotifyLiveSearchType performs, not just albums: the singular value
+// it resolves must be what actually reaches the outgoing /search request's
+// `type` query parameter.
+func TestSearchPluralTypeMapsToSingular(t *testing.T) {
+	cases := []struct {
+		plural   string
+		singular string
+	}{
+		{"albums", "album"},
+		{"artists", "artist"},
+		{"playlists", "playlist"},
+		{"tracks", "track"},
+		{"shows", "show"},
+		{"episodes", "episode"},
+		{"audiobooks", "audiobook"},
+	}
+	for _, tc := range cases {
+		tc := tc
+		t.Run(tc.plural, func(t *testing.T) {
+			var gotType string
+			_, _, err := runSearchTest(t, func(w http.ResponseWriter, r *http.Request) {
+				gotType = r.URL.Query().Get("type")
+				fmt.Fprintf(w, `{"%ss":{"items":[]}}`, tc.singular)
+			}, "needle", "--type", tc.plural)
+			if err != nil {
+				t.Fatal(err)
+			}
+			if gotType != tc.singular {
+				t.Fatalf("--type %s: outgoing type=%q, want %q", tc.plural, gotType, tc.singular)
+			}
+		})
+	}
+}
+
 func TestSearchLocalOnlyTypesBypassLive(t *testing.T) {
 	for _, resourceType := range []string{"me", "chapters"} {
 		t.Run(resourceType, func(t *testing.T) {
@@ -180,6 +215,24 @@ func TestSearchDegradesWhenOneTypeIsRejected(t *testing.T) {
 	}
 	if !strings.Contains(stdout, "t1") || !strings.Contains(stderr, "audiobook") {
 		t.Fatalf("stdout=%s stderr=%s", stdout, stderr)
+	}
+}
+
+// TestSearchAllCandidateTypesRejectedIsAnError covers the branch of the
+// per-type fan-out where every candidate type is rejected: the combined
+// request 400s, and so does every subsequent per-type retry. That must
+// surface as a real error, not a silent exit 0 with an empty result set,
+// and (since --data-source defaults to live in runSearchTest) it must not
+// fall through to local FTS either.
+func TestSearchAllCandidateTypesRejectedIsAnError(t *testing.T) {
+	stdout, _, err := runSearchTest(t, func(w http.ResponseWriter, r *http.Request) {
+		http.Error(w, `{"error":"type unavailable in market"}`, http.StatusBadRequest)
+	}, "needle", "--limit", "50")
+	if err == nil {
+		t.Fatalf("expected an error when every candidate type is rejected, got stdout=%s", stdout)
+	}
+	if ExitCode(err) == 0 {
+		t.Fatalf("expected a non-zero exit code, got 0: %v", err)
 	}
 }
 
@@ -435,6 +488,33 @@ func TestSearchAgentEmitsSingleEnvelopeWithTrueProvenance(t *testing.T) {
 	}
 	if len(envelope.Results) != 1 {
 		t.Fatalf("results = %d, want 1\n%s", len(envelope.Results), stdout)
+	}
+	if strings.Count(stdout, `"meta"`) != 1 {
+		t.Fatalf("expected exactly one meta block, got %d\n%s", strings.Count(stdout, `"meta"`), stdout)
+	}
+}
+
+// TestSearchAgentEmitsSingleEnvelopeWithLocalProvenance mirrors
+// TestSearchAgentEmitsSingleEnvelopeWithTrueProvenance from the other
+// direction: the live path is not the only one that can double-wrap the
+// agent envelope. A --data-source local search under --agent must also
+// emit exactly one envelope, with meta.source "local".
+func TestSearchAgentEmitsSingleEnvelopeWithLocalProvenance(t *testing.T) {
+	stdout, err := runSearchTestAgent(t, "local", func(http.ResponseWriter, *http.Request) {
+		t.Fatal("local search must not hit the live API")
+	}, "needle", "--db", filepath.Join(t.TempDir(), "data.db"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	var envelope struct {
+		Meta    map[string]any    `json:"meta"`
+		Results []json.RawMessage `json:"results"`
+	}
+	if err := json.Unmarshal([]byte(stdout), &envelope); err != nil {
+		t.Fatalf("results is not a flat array — output is double-wrapped: %v\n%s", err, stdout)
+	}
+	if got := envelope.Meta["source"]; got != "local" {
+		t.Fatalf("meta.source = %v, want local\n%s", got, stdout)
 	}
 	if strings.Count(stdout, `"meta"`) != 1 {
 		t.Fatalf("expected exactly one meta block, got %d\n%s", strings.Count(stdout, `"meta"`), stdout)

@@ -1011,6 +1011,19 @@ func printJSONFiltered(w io.Writer, v any, flags *rootFlags) error {
 	return printOutputWithFlags(w, json.RawMessage(raw), flags)
 }
 
+// printJSONFilteredMeta is printJSONFiltered for a caller that knows its own
+// provenance. A hand-written command that reports the outcome of a live API
+// call must use this: printJSONFiltered routes through printOutputWithFlags,
+// whose "local" default is an assumption for callers with nothing to report,
+// and stamping that on a live mutation tells an agent the opposite of the truth.
+func printJSONFilteredMeta(w io.Writer, v any, flags *rootFlags, agentMeta map[string]any) error {
+	raw, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+	return printOutputWithFlagsMeta(w, json.RawMessage(raw), flags, agentMeta)
+}
+
 // wrapAgentOutput gives --agent callers one parseable top-level envelope for
 // generated command families that build typed Go values instead of endpoint
 // response bytes. The raw value is preserved under results so --json without

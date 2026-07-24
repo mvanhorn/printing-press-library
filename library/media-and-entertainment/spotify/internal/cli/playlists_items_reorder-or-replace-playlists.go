@@ -209,12 +209,15 @@ func newPlaylistsItemsReorderOrReplacePlaylistsCmd(flags *rootFlags) *cobra.Comm
 			}
 			// Fall-through for mutate paths that did not hit the table or
 			// asJSON branches: --quiet, --csv, --plain, and default terminal
-			// raw output. printOutputWithFlags renders the body, then the
+			// raw output. The body is the response to a live mutation, so it
+			// is printed with source=live rather than through the
+			// provenance-less printer, whose assumed "local" label would
+			// misattribute data that came straight off the API. Then the
 			// typed partial-failure exit fires unless --allow-partial-failure
 			// downgrades it. Without this guard a partial failure would exit
 			// 0 for these output modes — the exact silent-swallow regression
 			// the surrounding patch is preventing for asJSON / piped output.
-			if perr := printOutputWithFlags(cmd.OutOrStdout(), data, flags); perr != nil {
+			if perr := printOutputWithFlagsMeta(cmd.OutOrStdout(), data, flags, map[string]any{"source": "live"}); perr != nil {
 				return perr
 			}
 			if partialFailure != nil && !flags.allowPartialFailure {

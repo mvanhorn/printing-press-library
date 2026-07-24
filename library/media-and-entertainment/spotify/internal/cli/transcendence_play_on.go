@@ -173,12 +173,12 @@ local state.`,
 				// hundreds of milliseconds between list and play.
 				var apiErr *client.APIError
 				if errors.As(err, &apiErr) && apiErr.StatusCode == 404 {
-					if perr := printJSONFiltered(cmd.OutOrStdout(), map[string]any{
+					if perr := printJSONFilteredMeta(cmd.OutOrStdout(), map[string]any{
 						"error":         "device not currently online with Spotify Connect",
 						"device":        match,
 						"hint":          wakeHintFor(match.Type),
 						"available_now": liveDevices,
-					}, flags); perr != nil {
+					}, flags, map[string]any{"source": "live"}); perr != nil {
 						return perr
 					}
 					return &cliError{code: 2, err: fmt.Errorf("device %q not currently online with Spotify Connect", match.Name)}
@@ -186,13 +186,15 @@ local state.`,
 				return classifyAPIError(err, flags)
 			}
 
-			return printJSONFiltered(cmd.OutOrStdout(), map[string]any{
+			// The playback call already went to Spotify, so this outcome is
+			// live data; printJSONFiltered would stamp it "local".
+			return printJSONFilteredMeta(cmd.OutOrStdout(), map[string]any{
 				"played":  true,
 				"device":  match,
 				"status":  statusCode,
 				"context": contextURI,
 				"uris":    body["uris"],
-			}, flags)
+			}, flags, map[string]any{"source": "live"})
 		},
 	}
 	cmd.Flags().StringVar(&urisFlag, "uris", "", "JSON array of Spotify track URIs to play, e.g. '[\"spotify:track:...\"]'")

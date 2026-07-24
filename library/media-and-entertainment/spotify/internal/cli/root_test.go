@@ -4,11 +4,19 @@
 package cli
 
 import (
+	"bytes"
 	"encoding/json"
 	"errors"
 	"fmt"
+	"net/http"
+	"net/http/httptest"
+	"os"
+	"path/filepath"
 	"reflect"
 	"testing"
+	"time"
+
+	"github.com/spf13/cobra"
 )
 
 // TestIsCobraUsageError covers the six pre-RunE error shapes Cobra and
@@ -90,6 +98,16 @@ func TestFilterFields(t *testing.T) {
 	deepEnvelope := `{"items":[{"id":"a","other":"y"}]}`
 	for i := 0; i <= maxNestedListEnvelopeDepth; i++ {
 		deepEnvelope = `{"nested":` + deepEnvelope + `}`
+	}
+	// The successful boundary: exactly maxNestedListEnvelopeDepth levels of
+	// "nested" wrapping (one fewer than deepEnvelope above) must still
+	// resolve -- the depth bound must reject only what is past the limit,
+	// not the limit itself.
+	atBoundEnvelope := `{"items":[{"id":"a","other":"y"}]}`
+	atBoundWant := `{"items":[{"id":"a"}]}`
+	for i := 0; i < maxNestedListEnvelopeDepth; i++ {
+		atBoundEnvelope = `{"nested":` + atBoundEnvelope + `}`
+		atBoundWant = `{"nested":` + atBoundWant + `}`
 	}
 	cases := []struct {
 		name   string
@@ -202,6 +220,12 @@ func TestFilterFields(t *testing.T) {
 			input:  deepEnvelope,
 			fields: "id",
 			want:   `{}`,
+		},
+		{
+			name:   "nested descent succeeds exactly at depth bound",
+			input:  atBoundEnvelope,
+			fields: "id",
+			want:   atBoundWant,
 		},
 	}
 	for _, tc := range cases {
@@ -352,4 +376,98 @@ func TestFilterFields(t *testing.T) {
 			t.Errorf("wrapWithProvenance meta = %v, want %v (provenanceMeta output)", envelope.Meta, wantMeta)
 		}
 	})
+}
+
+// TestSelectOnSingleObjectCommandsReturnsScalarFields covers --select on the
+// four commands that were changed to return the whole resource object
+// instead of a nested artwork array (see the "ReturnsWholeObject" tests in
+// single_object_response_path_test.go: me get-current-users-profile,
+// playlists get, users, browse get-a-category). The nested-descent change in
+// filterFields affects these object-shaped payloads too: an object with
+// scalar fields plus a nested "images" array must project down to the
+// requested scalar fields under --select, not fall back to `{}` (as if no
+// top-level selector matched) and not pass the images array through
+// untouched.
+func TestSelectOnSingleObjectCommandsReturnsScalarFields(t *testing.T) {
+	t.Parallel()
+	// Profile-shaped payload: scalar fields plus a nested array sibling,
+	// the same shape TestCurrentUserProfileReturnsWholeObject exercises
+	// without --select.
+	payload := `{"display_name":"Ada","id":"user-1","country":"IT","images":[{"url":"https://example.com/profile.jpg"}]}`
+
+	cases := []struct {
+		name       string
+		newCommand func(*rootFlags) *cobra.Command
+		args       []string
+	}{
+		{"me get-current-users-profile", newMeGetCurrentUsersProfileCmd, nil},
+		{"playlists get", newPlaylistsGetCmd, []string{"playlist-1"}},
+		{"users", newUsersPromotedCmd, []string{"user-1"}},
+		{"browse get-a-category", newBrowseGetACategoryCmd, []string{"focus"}},
+	}
+
+	for _, tc := range cases {
+		tc := tc
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+
+			server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+				w.Header().Set("Content-Type", "application/json")
+				_, _ = w.Write([]byte(payload))
+			}))
+			defer server.Close()
+
+			configPath := filepath.Join(t.TempDir(), "config.toml")
+			if err := os.WriteFile(configPath, []byte("base_url = \""+server.URL+"\"\n"), 0o600); err != nil {
+				t.Fatalf("write config: %v", err)
+			}
+
+			flags := &rootFlags{
+				asJSON:       true,
+				configPath:   configPath,
+				noCache:      true,
+				timeout:      5 * time.Second,
+				selectFields: "display_name,id",
+			}
+			cmd := tc.newCommand(flags)
+			// newUsersPromotedCmd wires a "playlists" subcommand onto
+			// "users", so executing it standalone (no parent) trips cobra's
+			// legacyArgs subcommand-validity check, which only applies to a
+			// parentless command with children — see
+			// github.com/spf13/cobra@v1.9.1/args.go legacyArgs. Wrapping
+			// every case in a synthetic root command matches how root.go
+			// actually wires these commands and sidesteps that check
+			// uniformly, whether or not the leaf command has children.
+			root := &cobra.Command{Use: "root"}
+			root.AddCommand(cmd)
+			var output bytes.Buffer
+			root.SetOut(&output)
+			root.SetErr(&output)
+			root.SetArgs(append([]string{cmd.Name()}, tc.args...))
+			if err := root.Execute(); err != nil {
+				t.Fatalf("execute command: %v", err)
+			}
+
+			var envelope struct {
+				Results json.RawMessage `json:"results"`
+			}
+			if err := json.Unmarshal(output.Bytes(), &envelope); err != nil {
+				t.Fatalf("decode command output %q: %v", output.String(), err)
+			}
+
+			var got map[string]json.RawMessage
+			if err := json.Unmarshal(envelope.Results, &got); err != nil {
+				t.Fatalf("expected a filtered object, got %s: %v", envelope.Results, err)
+			}
+			if string(got["display_name"]) != `"Ada"` || string(got["id"]) != `"user-1"` {
+				t.Fatalf("--select display_name,id did not return the requested scalar fields, got %s", envelope.Results)
+			}
+			if _, ok := got["images"]; ok {
+				t.Fatalf("--select must not pass the nested images array through untouched, got %s", envelope.Results)
+			}
+			if _, ok := got["country"]; ok {
+				t.Fatalf("--select must not include unrequested fields, got %s", envelope.Results)
+			}
+		})
+	}
 }
