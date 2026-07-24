@@ -1243,7 +1243,11 @@ func agentEnvelopeApplies(flags *rootFlags) bool {
 
 // provenanceMeta projects a DataProvenance into the agent envelope's meta map,
 // so a caller that already knows the true source does not fall back to the
-// printer's assumed one.
+// printer's assumed one. It is the single meta builder: wrapWithProvenance
+// calls it too, so the agent-envelope meta and the provenance-envelope meta
+// cannot drift apart field by field (they already had, over `freshness`).
+// Every field of DataProvenance that is meant to reach the caller belongs
+// here and nowhere else.
 func provenanceMeta(prov DataProvenance) map[string]any {
 	meta := map[string]any{"source": prov.Source}
 	if prov.SyncedAt != nil {
@@ -1254,6 +1258,9 @@ func provenanceMeta(prov DataProvenance) map[string]any {
 	}
 	if prov.ResourceType != "" {
 		meta["resource_type"] = prov.ResourceType
+	}
+	if prov.Freshness != nil {
+		meta["freshness"] = prov.Freshness
 	}
 	return meta
 }
@@ -1443,7 +1450,7 @@ func isCompactScalar(v any) bool {
 // under `--agent`/`--compact` is a silent loss; agents who want to omit them
 // can pass `--select` to specify only the fields they need.
 func compactObjectFields(obj map[string]any) json.RawMessage {
-	if compacted, ok := compactListEnvelopeObject(obj); ok {
+	if compacted, ok := compactListEnvelopeObject(obj, 0); ok {
 		result, _ := json.Marshal(compacted)
 		return result
 	}
@@ -1457,7 +1464,15 @@ func compactObjectFields(obj map[string]any) json.RawMessage {
 	return result
 }
 
-func compactListEnvelopeObject(obj map[string]any) (map[string]any, bool) {
+// compactListEnvelopeObject is the --compact counterpart of
+// filterListEnvelopeFields and must stay in lockstep with it: ANY
+// object-valued sibling is a descent candidate (`{"artists":{"items":[...]}}`,
+// `{"_embedded":{"items":[...]}}`), not just a hardcoded wrapper key, bounded
+// by maxNestedListEnvelopeDepth. The foundArray guard keeps the behavior
+// fail-closed: an object with no array anywhere in reach reports false and the
+// caller falls back to the plain blocklist strip, so descent can never turn
+// into a passthrough of an unrelated payload.
+func compactListEnvelopeObject(obj map[string]any, depth int) (map[string]any, bool) {
 	out := map[string]any{}
 	foundArray := false
 	for k, v := range obj {
@@ -1473,12 +1488,10 @@ func compactListEnvelopeObject(obj map[string]any) (map[string]any, bool) {
 			out[k] = compacted
 			continue
 		}
-		if nested, ok := v.(map[string]any); ok && k == "_embedded" {
-			if compacted, ok := compactListEnvelopeObject(nested); ok {
-				foundArray = true
-				out[k] = compacted
-				continue
-			}
+		if compacted, ok := compactNestedListEnvelopeObject(v, depth); ok {
+			foundArray = true
+			out[k] = compacted
+			continue
 		}
 		out[k] = v
 	}
@@ -1486,6 +1499,20 @@ func compactListEnvelopeObject(obj map[string]any) (map[string]any, bool) {
 		return nil, false
 	}
 	return out, true
+}
+
+// compactNestedListEnvelopeObject descends one level into an object-valued
+// sibling, mirroring filterNestedListEnvelopeFields. It shares the same depth
+// bound so a pathologically nested payload cannot drive unbounded recursion.
+func compactNestedListEnvelopeObject(v any, depth int) (map[string]any, bool) {
+	if depth >= maxNestedListEnvelopeDepth {
+		return nil, false
+	}
+	nested, ok := v.(map[string]any)
+	if !ok {
+		return nil, false
+	}
+	return compactListEnvelopeObject(nested, depth+1)
 }
 
 func compactObjectArrayValue(v any) (any, bool) {
@@ -2173,19 +2200,7 @@ func assertLiveJSONBody(data json.RawMessage) error {
 // (e.g. {"results": [...]}, {"data": [...]}) are unwrapped first so the
 // output shape is the same regardless of the API's wrapper key.
 func wrapWithProvenance(data json.RawMessage, prov DataProvenance) (json.RawMessage, error) {
-	meta := map[string]any{"source": prov.Source}
-	if prov.SyncedAt != nil {
-		meta["synced_at"] = prov.SyncedAt.UTC().Format(time.RFC3339)
-	}
-	if prov.Reason != "" {
-		meta["reason"] = prov.Reason
-	}
-	if prov.ResourceType != "" {
-		meta["resource_type"] = prov.ResourceType
-	}
-	if prov.Freshness != nil {
-		meta["freshness"] = prov.Freshness
-	}
+	meta := provenanceMeta(prov)
 	var results any
 	if json.Valid(data) {
 		results = json.RawMessage(unwrapSingleKeyArray(data))

@@ -7,9 +7,11 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"net/http"
 	"strings"
 
 	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/spotify/internal/client"
+	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/spotify/internal/cliutil"
 	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/spotify/internal/store"
 	"github.com/spf13/cobra"
 )
@@ -133,12 +135,17 @@ back to local FTS on a network failure; --data-source local always uses FTS.`,
 				return cmd.Help()
 			}
 			query := args[0]
-			liveType, err := resolveSpotifyLiveSearchType(resourceType)
-			if err != nil {
-				return usageErr(err)
-			}
 			// This API has a search endpoint: GET /search
 			if flags.dataSource != "local" && !isLocalOnlySearchType(resourceType) {
+				// Resolve/validate the catalog type only for requests that
+				// actually reach the API. The whitelist below covers the seven
+				// types /search accepts; the local FTS index holds every synced
+				// resource type, so --data-source local must keep accepting any
+				// --type string instead of being gated by a live-API concern.
+				liveType, err := resolveSpotifyLiveSearchType(resourceType)
+				if err != nil {
+					return usageErr(err)
+				}
 				c, err := flags.newClient()
 				if err != nil {
 					return err
@@ -156,6 +163,8 @@ back to local FTS on a network failure; --data-source local always uses FTS.`,
 				if strings.Contains(liveType, ",") && isSearchTypeRejection(getErr) {
 					var results []json.RawMessage
 					var excluded []string
+					var abortedType string
+					var fanoutErr error
 					for _, candidate := range spotifyLiveSearchTypes {
 						typeData, typeErr := c.Get(cmd.Context(), "/search", map[string]string{
 							"q":    query,
@@ -166,15 +175,37 @@ back to local FTS on a network failure; --data-source local always uses FTS.`,
 								excluded = append(excluded, candidate)
 								continue
 							}
-							return classifyAPIError(typeErr, flags)
+							// Not a per-type rejection (auth, throttling, 5xx,
+							// network). Stop fanning out, but do not discard the
+							// hits earlier candidates already returned. Hand the
+							// failure to getErr so the network-error check below
+							// still governs the auto-mode local fallback.
+							fanoutErr = typeErr
+							abortedType = candidate
+							getErr = typeErr
+							break
 						}
 						results = append(results, extractSearchResults(typeData, searchResponsePaths...)...)
 					}
-					if len(excluded) != len(spotifyLiveSearchTypes) {
+					// A total rejection (every candidate refused) is still a hard
+					// error, and so is an abort that collected nothing: both fall
+					// through to the error / local-fallback path below rather than
+					// exiting 0 with an empty result set.
+					if len(excluded) != len(spotifyLiveSearchTypes) && (fanoutErr == nil || len(results) > 0) {
 						for _, excludedType := range excluded {
 							fmt.Fprintf(cmd.ErrOrStderr(), "Live search excluded type %s after Spotify rejected it.\n", excludedType)
 						}
-						return outputSearchResults(cmd, flags, results, limit, DataProvenance{Source: "live"})
+						if fanoutErr != nil {
+							fmt.Fprintf(cmd.ErrOrStderr(), "Live search stopped at type %s after a non-type error; returning partial results: %v\n", abortedType, fanoutErr)
+						}
+						// Degradation has to survive into the machine envelope,
+						// not just stderr: meta.reason is the documented signal
+						// that this result set is incomplete, and without it a
+						// degraded response is shape-identical to a complete one.
+						return outputSearchResults(cmd, flags, results, limit, DataProvenance{
+							Source: "live",
+							Reason: degradedLiveSearchReason(excluded, abortedType),
+						})
 					}
 				}
 				// Check if it's a network error for auto-mode fallback
@@ -374,9 +405,34 @@ func isLocalOnlySearchType(resourceType string) bool {
 	}
 }
 
+// isSearchTypeRejection reports whether Spotify refused the *catalog type* of a
+// /search request. Only HTTP 400 carries that meaning. 401, 403, 404 and 429 are
+// auth, permission, missing-resource and throttling failures: replaying them
+// once per candidate type turns one bad request into seven and then reports a
+// transient or auth problem to the user as permanent type unavailability, so
+// they must propagate on the first request instead. The auth-shaped-400 escape
+// mirrors classifyAPIError, which routes those to the auth path rather than
+// treating them as an ordinary bad request.
 func isSearchTypeRejection(err error) bool {
 	var apiErr *client.APIError
-	return errors.As(err, &apiErr) && apiErr.StatusCode >= 400 && apiErr.StatusCode < 500
+	if !errors.As(err, &apiErr) || apiErr.StatusCode != http.StatusBadRequest {
+		return false
+	}
+	return !cliutil.LooksLikeAuthError(apiErr.Error())
+}
+
+// degradedLiveSearchReason renders the DataProvenance.Reason for a partial live
+// search. provenanceMeta surfaces it as meta.reason, which is what makes a
+// degraded JSON envelope distinguishable from a complete one.
+func degradedLiveSearchReason(excluded []string, abortedType string) string {
+	var parts []string
+	if len(excluded) > 0 {
+		parts = append(parts, "excluded types: "+strings.Join(excluded, ", "))
+	}
+	if abortedType != "" {
+		parts = append(parts, "stopped at type: "+abortedType)
+	}
+	return strings.Join(parts, "; ")
 }
 
 // outputSearchResults filters, counts, and outputs search results with provenance.

@@ -10,9 +10,13 @@ import (
 	"net/http/httptest"
 	"os"
 	"path/filepath"
+	"reflect"
 	"strings"
+	"sync"
 	"sync/atomic"
 	"testing"
+
+	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/spotify/internal/cliutil"
 )
 
 func runSearchTest(t *testing.T, handler http.HandlerFunc, args ...string) (string, string, error) {
@@ -175,6 +179,204 @@ func TestSearchDegradesWhenOneTypeIsRejected(t *testing.T) {
 	}
 	if !strings.Contains(stdout, "t1") || !strings.Contains(stderr, "audiobook") {
 		t.Fatalf("stdout=%s stderr=%s", stdout, stderr)
+	}
+}
+
+// typeRecorder collects the distinct `type` values the CLI asked for. Raw
+// request counts are the wrong assertion here: the client transparently retries
+// 429s and 5xx, so one logical per-type call can be several HTTP requests.
+type typeRecorder struct {
+	mu    sync.Mutex
+	types []string
+}
+
+func (r *typeRecorder) record(searchType string) {
+	r.mu.Lock()
+	defer r.mu.Unlock()
+	for _, seen := range r.types {
+		if seen == searchType {
+			return
+		}
+	}
+	r.types = append(r.types, searchType)
+}
+
+func (r *typeRecorder) seen() []string {
+	r.mu.Lock()
+	defer r.mu.Unlock()
+	return append([]string(nil), r.types...)
+}
+
+// disableClientRetries turns off the HTTP client's retry/backoff so error-path
+// tests assert on the CLI's own behavior instead of waiting out the backoff.
+func disableClientRetries(t *testing.T) {
+	t.Helper()
+	t.Setenv(cliutil.DogfoodEnvVar, "1")
+}
+
+// A non-rejection failure part-way through the degraded fan-out must not throw
+// away the hits the earlier candidate types already returned.
+func TestSearchKeepsResultsWhenLaterTypeFailsHard(t *testing.T) {
+	disableClientRetries(t)
+	var recorder typeRecorder
+	stdout, stderr, err := runSearchTest(t, func(w http.ResponseWriter, r *http.Request) {
+		searchType := r.URL.Query().Get("type")
+		recorder.record(searchType)
+		switch {
+		case strings.Contains(searchType, ","):
+			http.Error(w, `{"error":"type unavailable in market"}`, http.StatusBadRequest)
+		case searchType == "album":
+			fmt.Fprint(w, `{"albums":{"items":[{"id":"al1","name":"Album"}]}}`)
+		case searchType == "artist":
+			fmt.Fprint(w, `{"artists":{"items":[{"id":"a1","name":"Artist"}]}}`)
+		case searchType == "playlist":
+			http.Error(w, `{"error":"server exploded"}`, http.StatusInternalServerError)
+		default:
+			http.Error(w, `{"error":"should not be reached"}`, http.StatusTeapot)
+		}
+	}, "needle", "--limit", "50")
+	if err != nil {
+		t.Fatalf("partial results were discarded: %v", err)
+	}
+	for _, id := range []string{"al1", "a1"} {
+		if !strings.Contains(stdout, id) {
+			t.Fatalf("lost result %q collected before the failure: %s", id, stdout)
+		}
+	}
+	// The fan-out stops at the hard failure instead of walking the rest.
+	want := []string{strings.Join(spotifyLiveSearchTypes, ","), "album", "artist", "playlist"}
+	if got := recorder.seen(); !reflect.DeepEqual(got, want) {
+		t.Fatalf("requested types = %v, want %v", got, want)
+	}
+	if !strings.Contains(stderr, "playlist") {
+		t.Fatalf("stderr does not report the aborted type: %s", stderr)
+	}
+}
+
+// --type is validated against the live catalog whitelist only when the request
+// actually reaches the API; local FTS indexes every synced resource type.
+func TestSearchLocalDataSourceAcceptsNonCatalogType(t *testing.T) {
+	for _, resourceType := range []string{"browse", "categories", "recommendations"} {
+		t.Run(resourceType, func(t *testing.T) {
+			flags := &rootFlags{asJSON: true, dataSource: "local"}
+			cmd := newSearchCmd(flags)
+			cmd.SetOut(&bytes.Buffer{})
+			cmd.SetErr(&bytes.Buffer{})
+			cmd.SetArgs([]string{"needle", "--type", resourceType, "--db", filepath.Join(t.TempDir(), "data.db")})
+			if err := cmd.Execute(); err != nil {
+				t.Fatalf("local search rejected --type %q: %v (exit %d)", resourceType, err, ExitCode(err))
+			}
+		})
+	}
+}
+
+// 429 is throttling, not "this catalog type is unavailable": it must propagate
+// on the first request instead of being replayed once per candidate type.
+func TestSearchRateLimitIsNotFannedOut(t *testing.T) {
+	disableClientRetries(t)
+	var recorder typeRecorder
+	_, stderr, err := runSearchTest(t, func(w http.ResponseWriter, r *http.Request) {
+		recorder.record(r.URL.Query().Get("type"))
+		http.Error(w, `{"error":"rate limit exceeded"}`, http.StatusTooManyRequests)
+	}, "needle", "--limit", "50")
+	if err == nil {
+		t.Fatal("429 did not propagate as an error")
+	}
+	want := []string{strings.Join(spotifyLiveSearchTypes, ",")}
+	if got := recorder.seen(); !reflect.DeepEqual(got, want) {
+		t.Fatalf("requested types = %v, want %v (429 must not fan out per type)", got, want)
+	}
+	if strings.Contains(stderr, "excluded type") {
+		t.Fatalf("429 was reported as a permanent type rejection: %s", stderr)
+	}
+}
+
+// 401/403/404 are auth, permission and missing-resource failures — same rule.
+func TestSearchNonRejectionStatusesAreNotFannedOut(t *testing.T) {
+	for _, status := range []int{http.StatusUnauthorized, http.StatusForbidden, http.StatusNotFound} {
+		t.Run(http.StatusText(status), func(t *testing.T) {
+			disableClientRetries(t)
+			var recorder typeRecorder
+			_, _, err := runSearchTest(t, func(w http.ResponseWriter, r *http.Request) {
+				recorder.record(r.URL.Query().Get("type"))
+				http.Error(w, `{"error":"nope"}`, status)
+			}, "needle", "--limit", "50")
+			if err == nil {
+				t.Fatalf("HTTP %d did not propagate as an error", status)
+			}
+			want := []string{strings.Join(spotifyLiveSearchTypes, ",")}
+			if got := recorder.seen(); !reflect.DeepEqual(got, want) {
+				t.Fatalf("requested types = %v, want %v", got, want)
+			}
+		})
+	}
+}
+
+// A degraded result set must be distinguishable from a complete one in the JSON
+// envelope itself, not only on stderr.
+func TestSearchDegradedEnvelopeCarriesReason(t *testing.T) {
+	handler := func(w http.ResponseWriter, r *http.Request) {
+		searchType := r.URL.Query().Get("type")
+		if strings.Contains(searchType, ",") || searchType == "audiobook" {
+			http.Error(w, `{"error":"type unavailable in market"}`, http.StatusBadRequest)
+			return
+		}
+		if searchType == "track" {
+			fmt.Fprint(w, `{"tracks":{"items":[{"id":"t1","name":"Track"}]}}`)
+			return
+		}
+		fmt.Fprintf(w, `{"%ss":{"items":[]}}`, searchType)
+	}
+
+	assertReason := func(t *testing.T, stdout string) {
+		t.Helper()
+		var envelope struct {
+			Meta map[string]any `json:"meta"`
+		}
+		if err := json.Unmarshal([]byte(stdout), &envelope); err != nil {
+			t.Fatalf("invalid envelope: %v\n%s", err, stdout)
+		}
+		reason, _ := envelope.Meta["reason"].(string)
+		if reason == "" {
+			t.Fatalf("degraded envelope has no meta.reason: %s", stdout)
+		}
+		if !strings.Contains(reason, "audiobook") {
+			t.Fatalf("meta.reason does not name the excluded type: %q", reason)
+		}
+	}
+
+	t.Run("json", func(t *testing.T) {
+		stdout, _, err := runSearchTest(t, handler, "needle", "--limit", "50")
+		if err != nil {
+			t.Fatal(err)
+		}
+		assertReason(t, stdout)
+	})
+	t.Run("agent", func(t *testing.T) {
+		stdout, err := runSearchTestAgent(t, "live", handler, "needle", "--limit", "50")
+		if err != nil {
+			t.Fatal(err)
+		}
+		assertReason(t, stdout)
+	})
+}
+
+// A complete live search must NOT carry a degradation reason.
+func TestSearchCompleteEnvelopeHasNoReason(t *testing.T) {
+	stdout, _, err := runSearchTest(t, func(w http.ResponseWriter, _ *http.Request) {
+		fmt.Fprint(w, `{"artists":{"items":[{"id":"a1","name":"Artist"}]}}`)
+	}, "needle", "--limit", "50")
+	if err != nil {
+		t.Fatal(err)
+	}
+	var envelope struct {
+		Meta map[string]any `json:"meta"`
+	}
+	if err := json.Unmarshal([]byte(stdout), &envelope); err != nil {
+		t.Fatal(err)
+	}
+	if _, ok := envelope.Meta["reason"]; ok {
+		t.Fatalf("complete result set claims degradation: %s", stdout)
 	}
 }
 

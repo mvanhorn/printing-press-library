@@ -7,6 +7,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"reflect"
 	"testing"
 )
 
@@ -225,4 +226,130 @@ func TestFilterFields(t *testing.T) {
 			}
 		})
 	}
+
+	// --compact is the structural sibling of --select and must handle the
+	// same envelope shapes: any object-valued sibling is a descent candidate,
+	// bounded by the same maxNestedListEnvelopeDepth. This matters most on
+	// the agent path, where --agent implies --compact. Each case names the
+	// list-item field that proves projection actually ran ("description" is
+	// stripped from list items but not from single objects), so a
+	// passthrough regression cannot pass silently.
+	compactCases := []struct {
+		name  string
+		input string
+		want  string
+	}{
+		{
+			name:  "compact envelope single array sibling",
+			input: `{"items":[{"id":"a","name":"x","description":"long prose"}]}`,
+			want:  `{"items":[{"id":"a","name":"x"}]}`,
+		},
+		{
+			// The divergence this test pins: before the compact path was
+			// generalized, only "_embedded" was a descent candidate, so a
+			// Spotify-shaped {"artists":{"items":[...]}} passed through
+			// whole under --agent while --select handled it correctly.
+			name:  "compact nested spotify type envelope compacts items",
+			input: `{"artists":{"items":[{"id":"a","name":"x","description":"long prose"}]}}`,
+			want:  `{"artists":{"items":[{"id":"a","name":"x"}]}}`,
+		},
+		{
+			name:  "compact multiple nested spotify type envelopes compact all items",
+			input: `{"artists":{"items":[{"id":"a","name":"x","description":"d1"}]},"tracks":{"items":[{"id":"t","name":"y","description":"d2"}]}}`,
+			want:  `{"artists":{"items":[{"id":"a","name":"x"}]},"tracks":{"items":[{"id":"t","name":"y"}]}}`,
+		},
+		{
+			// The formerly hardcoded key must keep working after the
+			// generalization — it is now just one object-valued sibling
+			// among many, not a special case.
+			name:  "compact nested HAL embedded envelope still compacts items",
+			input: `{"_embedded":{"items":[{"id":"a","name":"x","description":"long prose"}]}}`,
+			want:  `{"_embedded":{"items":[{"id":"a","name":"x"}]}}`,
+		},
+		{
+			// Fail-closed: no array anywhere in reach means the envelope
+			// path reports "not an envelope" and the caller falls back to
+			// the plain blocklist strip. Generalized descent must not turn
+			// this into a list projection of unrelated nested objects.
+			name:  "compact flat object with no array falls back to blocklist strip",
+			input: `{"a":1,"b":2,"description":"stripped by the object blocklist"}`,
+			want:  `{"a":1,"b":2}`,
+		},
+		{
+			name:  "compact nested object without array preserved verbatim",
+			input: `{"artists":{"paging":{"cursor":{"after":"a"}}}}`,
+			want:  `{"artists":{"paging":{"cursor":{"after":"a"}}}}`,
+		},
+		{
+			// Same bound as the --select path: past maxNestedListEnvelopeDepth
+			// the descent gives up, the envelope path reports false, and the
+			// blocklist fallback returns the payload untouched.
+			name:  "compact nested descent stops at depth bound",
+			input: deepEnvelope,
+			want:  deepEnvelope,
+		},
+	}
+	for _, tc := range compactCases {
+		tc := tc
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+			got := compactFields(json.RawMessage(tc.input))
+			var gotV, wantV interface{}
+			if err := json.Unmarshal(got, &gotV); err != nil {
+				t.Fatalf("got is invalid json: %v (raw=%s)", err, string(got))
+			}
+			if err := json.Unmarshal([]byte(tc.want), &wantV); err != nil {
+				t.Fatalf("want is invalid json: %v (raw=%s)", err, tc.want)
+			}
+			gotBytes, _ := json.Marshal(gotV)
+			wantBytes, _ := json.Marshal(wantV)
+			if string(gotBytes) != string(wantBytes) {
+				t.Errorf("compactFields(%q) = %s, want %s",
+					tc.input, string(gotBytes), string(wantBytes))
+			}
+		})
+	}
+
+	// provenanceMeta and wrapWithProvenance are the two meta builders on the
+	// agent path. They must project the same DataProvenance identically —
+	// they had already drifted over "freshness", which attachFreshness
+	// populates for every resolveRead* caller. Asserting both against the
+	// same provenance pins them in lockstep.
+	t.Run("provenance meta carries freshness", func(t *testing.T) {
+		t.Parallel()
+		prov := DataProvenance{
+			Source:       "local",
+			Reason:       "user_requested",
+			ResourceType: "tracks",
+			Freshness:    map[string]any{"policy": "cached", "max_age_seconds": float64(300)},
+		}
+		meta := provenanceMeta(prov)
+		gotFreshness, ok := meta["freshness"]
+		if !ok {
+			t.Fatalf("provenanceMeta dropped freshness; meta = %v", meta)
+		}
+		if !reflect.DeepEqual(gotFreshness, prov.Freshness) {
+			t.Errorf("provenanceMeta freshness = %v, want %v", gotFreshness, prov.Freshness)
+		}
+
+		wrapped, err := wrapWithProvenance(json.RawMessage(`{"id":"a"}`), prov)
+		if err != nil {
+			t.Fatalf("wrapWithProvenance: %v", err)
+		}
+		var envelope struct {
+			Meta map[string]any `json:"meta"`
+		}
+		if err := json.Unmarshal(wrapped, &envelope); err != nil {
+			t.Fatalf("wrapWithProvenance produced invalid json: %v (raw=%s)", err, string(wrapped))
+		}
+		// Both builders must emit the same meta for the same provenance.
+		wantMeta := map[string]any{}
+		normalized, _ := json.Marshal(meta)
+		if err := json.Unmarshal(normalized, &wantMeta); err != nil {
+			t.Fatalf("provenanceMeta produced unmarshalable meta: %v", err)
+		}
+		if !reflect.DeepEqual(envelope.Meta, wantMeta) {
+			t.Errorf("wrapWithProvenance meta = %v, want %v (provenanceMeta output)", envelope.Meta, wantMeta)
+		}
+	})
 }
