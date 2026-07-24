@@ -51,7 +51,7 @@ var validRelationTypes = map[string]bool{
 	"finish_before": true,
 }
 
-func newRelationsCmd(flags *rootFlags) *cobra.Command {
+func newNovelRelationsCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "relations",
 		Short: "List, create, and delete work-item relations (blocking, blocked_by, duplicate, relates_to, temporal).",

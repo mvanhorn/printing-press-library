@@ -12,7 +12,7 @@ func newWorkItemsCmd(flags *rootFlags) *cobra.Command {
 		Use:         "work-items",
 		Short:       "**Work Items & Tasks** Create and manage work items like tasks, bugs, features, and user stories.",
 		Hidden:      true,
-		Annotations: map[string]string{"mcp:read-only": "true"},
+		Annotations: map[string]string{"mcp:read-only": "true", "pp:typed-exit-codes": "0,2"},
 		RunE:        parentNoSubcommandRunE(flags),
 	}
 

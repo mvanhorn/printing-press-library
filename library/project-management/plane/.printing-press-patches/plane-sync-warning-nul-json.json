@@ -1,0 +1,25 @@
+{
+  "schema_version": 2,
+  "id": "plane-sync-warning-nul-json",
+  "applied_at": "2026-07-24",
+  "base_run_id": "20260724-124302-67128fc0",
+  "base_printing_press_version": "4.29.0",
+  "summary": "Dependent-resource sync warnings are JSON-marshaled so NUL-composite ids no longer break NDJSON: every hand-assembled sync/reconcile event line now renders data-derived parent and scope ids through a jsonString helper instead of raw %s interpolation.",
+  "reason": "Dependent resources store NUL-composite ids (<uuid>\\x00<parent_uuid>, engine-4.27 shape). sync's hand-assembled NDJSON event lines interpolated those ids raw via fmt.Fprintf %s, so any per-parent sync_warning/sync_anomaly/reconcile event for a nested dependent emitted a literal 0x00 byte inside a JSON string, making the line invalid JSON. Dogfood's json_fidelity check then failed `sync --json` (surfaced once the init fix let dependent syncs reach real parent rows). Event shape and field set are unchanged; only the escaping is corrected (json.Marshal emits the escape form JSON requires).",
+  "files": [
+    "internal/cli/sync.go",
+    "internal/cli/helpers.go"
+  ],
+  "patch_tags": [
+    "PATCH(plane-sync-warning-nul-json) in internal/cli/helpers.go: jsonString helper directly above syncWarningJSON renders a data-derived value as a JSON string literal via json.Marshal (quotes included).",
+    "PATCH(plane-sync-warning-nul-json) in internal/cli/sync.go: dependent/per-parent event emits render parent ids via jsonString: `\"parent\":%s` with jsonString(parent|a.parent|parentID) in the sync_warning arms (pagination_cursor_missing, max_pages_cap_hit, stuck_pagination) and sync_anomaly arms (all_items_failed_id_extraction, primary_key_unresolved, non_json_200_body).",
+    "PATCH(plane-sync-warning-nul-json) in internal/cli/sync.go: reconcile event emits render scope ids via jsonString: `\"scope\":%s` with jsonString(tenantUUID|outcome.scopeVal) in the reconcile, reconcile_error, and reconcile_skipped lines of both the top-level and dependent reconcile paths."
+  ],
+  "novel_files": [
+    "internal/cli/sync_event_json_test.go"
+  ],
+  "validated_outcome": "go build ./... + go vet ./... green. TestJSONStringEscapesNULCompositeIDs proves a warning line carrying a NUL-composite parent id is valid JSON and the id round-trips exactly. Live dogfood gate rerun green after the fix (sync --json json_fidelity passes).",
+  "deferred_to_upstream": [
+    "The same raw-Fprintf emit pattern lives in the generator template that prints sync.go, so every printed CLI with NUL-composite dependent ids inherits the bug; needs a machine fix in cli-printing-press."
+  ]
+}

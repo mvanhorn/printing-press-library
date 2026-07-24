@@ -37,15 +37,28 @@ func newProjectsCreateCmd(flags *rootFlags) *cobra.Command {
 	var stdinBody bool
 
 	cmd := &cobra.Command{
-		Use:         "create",
-		Short:       "Create a new project in the workspace with default states and member assignments.",
+		Use:   "create",
+		Short: "Create a new project in the workspace with default states and member assignments.",
+		// TODO: replace placeholder example values before relying on this for live dogfood.
 		Example:     "  plane-pp-cli projects create --identifier example-value",
 		Annotations: map[string]string{"pp:endpoint": "projects.create", "pp:method": "POST", "pp:path": "/projects/"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			// Bare invocation of a command with required input prints help
 			// instead of pflag's terse "required flag not set" error. Optional-
 			// only read commands fall through so a bare call still executes.
-			if cmd.Flags().NFlag() == 0 && len(args) == 0 && !flags.dryRun {
+			// Machine callers (--json/--agent, which sets asJSON) get a usage
+			// error + exit 2 instead of silent exit-0 help, so an incomplete
+			// invocation is never mistaken for success.
+			if !hasChangedLocalFlags(cmd) && len(args) == 0 && !flags.dryRun {
+				if flags.asJSON {
+					if printErr := printJSONFiltered(cmd.OutOrStdout(), map[string]any{
+						"error": "requires input",
+						"usage": cmd.CommandPath() + " --help",
+					}, flags); printErr != nil {
+						return printErr
+					}
+					return usageErr(fmt.Errorf("%q requires input; run %q for usage", cmd.CommandPath(), cmd.CommandPath()+" --help"))
+				}
 				return cmd.Help()
 			}
 			if !stdinBody {
@@ -56,14 +69,13 @@ func newProjectsCreateCmd(flags *rootFlags) *cobra.Command {
 					return fmt.Errorf("required flag \"%s\" not set", "name")
 				}
 			}
+			path := "/projects/"
 			c, err := flags.newClient()
 			if err != nil {
 				return err
 			}
-
-			path := "/projects/"
 			params := map[string]string{}
-			var body map[string]any
+			var body any
 			if stdinBody {
 				stdinData, err := io.ReadAll(os.Stdin)
 				if err != nil {
@@ -75,69 +87,70 @@ func newProjectsCreateCmd(flags *rootFlags) *cobra.Command {
 				}
 				body = jsonBody
 			} else {
-				body = map[string]any{}
+				bodyMap := map[string]any{}
+				body = bodyMap
 				if bodyArchiveIn != 0 {
-					body["archive_in"] = bodyArchiveIn
+					bodyMap["archive_in"] = bodyArchiveIn
 				}
 				if bodyCloseIn != 0 {
-					body["close_in"] = bodyCloseIn
+					bodyMap["close_in"] = bodyCloseIn
 				}
 				if bodyCoverImage != "" {
-					body["cover_image"] = bodyCoverImage
+					bodyMap["cover_image"] = bodyCoverImage
 				}
 				if cmd.Flags().Changed("cycle-view") {
-					body["cycle_view"] = bodyCycleView
+					bodyMap["cycle_view"] = bodyCycleView
 				}
 				if bodyDefaultAssignee != "" {
-					body["default_assignee"] = bodyDefaultAssignee
+					bodyMap["default_assignee"] = bodyDefaultAssignee
 				}
 				if bodyDescription != "" {
-					body["description"] = bodyDescription
+					bodyMap["description"] = bodyDescription
 				}
 				if bodyEmoji != "" {
-					body["emoji"] = bodyEmoji
+					bodyMap["emoji"] = bodyEmoji
 				}
 				if bodyExternalId != "" {
-					body["external_id"] = bodyExternalId
+					bodyMap["external_id"] = bodyExternalId
 				}
 				if bodyExternalSource != "" {
-					body["external_source"] = bodyExternalSource
+					bodyMap["external_source"] = bodyExternalSource
 				}
 				if cmd.Flags().Changed("guest-view-all-features") {
-					body["guest_view_all_features"] = bodyGuestViewAllFeatures
+					bodyMap["guest_view_all_features"] = bodyGuestViewAllFeatures
 				}
 				if bodyIconProp != "" {
-					body["icon_prop"] = bodyIconProp
+					bodyMap["icon_prop"] = bodyIconProp
 				}
 				if bodyIdentifier != "" {
-					body["identifier"] = bodyIdentifier
+					bodyMap["identifier"] = bodyIdentifier
 				}
 				if cmd.Flags().Changed("intake-view") {
-					body["intake_view"] = bodyIntakeView
+					bodyMap["intake_view"] = bodyIntakeView
 				}
 				if cmd.Flags().Changed("is-issue-type-enabled") {
-					body["is_issue_type_enabled"] = bodyIsIssueTypeEnabled
+					bodyMap["is_issue_type_enabled"] = bodyIsIssueTypeEnabled
 				}
 				if cmd.Flags().Changed("is-time-tracking-enabled") {
-					body["is_time_tracking_enabled"] = bodyIsTimeTrackingEnabled
+					bodyMap["is_time_tracking_enabled"] = bodyIsTimeTrackingEnabled
 				}
 				if cmd.Flags().Changed("issue-views-view") {
-					body["issue_views_view"] = bodyIssueViewsView
+					bodyMap["issue_views_view"] = bodyIssueViewsView
 				}
 				if cmd.Flags().Changed("module-view") {
-					body["module_view"] = bodyModuleView
+					bodyMap["module_view"] = bodyModuleView
 				}
 				if bodyName != "" {
-					body["name"] = bodyName
+					bodyMap["name"] = bodyName
 				}
 				if cmd.Flags().Changed("page-view") {
-					body["page_view"] = bodyPageView
+					bodyMap["page_view"] = bodyPageView
 				}
 				if bodyProjectLead != "" {
-					body["project_lead"] = bodyProjectLead
+					bodyMap["project_lead"] = bodyProjectLead
 				}
 				if bodyTimezone != "" {
-					body["timezone"] = bodyTimezone
+					bodyMap["timezone"] = bodyTimezone
 				}
 			}
 			data, statusCode, err := c.PostWithParams(cmd.Context(), path, params, body)
@@ -207,6 +220,9 @@ func newProjectsCreateCmd(flags *rootFlags) *cobra.Command {
 					"status":   statusCode,
 					"success":  statusCode >= 200 && statusCode < 300 && (partialFailure == nil || flags.allowPartialFailure),
 				}
+				if flags.agent {
+					envelope["meta"] = map[string]any{"source": "live"}
+				}
 				if partialFailure != nil {
 					envelope["partial_failure"] = partialFailure
 				}
@@ -245,7 +261,11 @@ func newProjectsCreateCmd(flags *rootFlags) *cobra.Command {
 				if len(filtered) > 0 {
 					var parsed any
 					if err := json.Unmarshal(filtered, &parsed); err == nil {
-						envelope["data"] = parsed
+						if flags.agent {
+							envelope["results"] = parsed
+						} else {
+							envelope["data"] = parsed
+						}
 					}
 				}
 				envelopeJSON, err := json.Marshal(envelope)

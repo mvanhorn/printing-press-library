@@ -14,24 +14,39 @@ import (
 func newStickiesRetrieveStickyCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:         "retrieve-sticky <pk>",
-		Aliases:     []string{"get"},
-		Short:       "Retrieve a sticky by its ID",
+		Use:     "retrieve-sticky <pk>",
+		Aliases: []string{"get"},
+		Short:   "Retrieve a sticky by its ID",
+		// TODO: replace placeholder example values before relying on this for live dogfood.
 		Example:     "  plane-pp-cli stickies retrieve-sticky example-value",
 		Annotations: map[string]string{"pp:endpoint": "stickies.retrieve-sticky", "pp:method": "GET", "pp:path": "/stickies/{pk}/", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
-				return cmd.Help()
+				// A missing required positional is a usage error in every output
+				// mode (matches command_promoted.go.tmpl). Machine callers
+				// (--json/--agent) also get a JSON error envelope on stdout;
+				// usageErr sets exit 2.
+				if flags.asJSON {
+					if printErr := printJSONFiltered(cmd.OutOrStdout(), map[string]any{
+						"error": "missing required argument",
+						"usage": fmt.Sprintf("%s%s", cmd.CommandPath(), " <pk>"),
+					}, flags); printErr != nil {
+						return printErr
+					}
+				}
+				return usageErr(fmt.Errorf("missing required argument\nUsage: %s%s", cmd.CommandPath(), " <pk>"))
 			}
+			path := "/stickies/{pk}/"
+			if len(args) < 1 || args[0] == "" {
+				return usageErr(fmt.Errorf("pk is required\nUsage: %s <%s>", cmd.CommandPath(), "pk"))
+			}
+			path = replacePathParam(path, "pk", args[0])
 			c, err := flags.newClient()
 			if err != nil {
 				return err
 			}
-
-			path := "/stickies/{pk}/"
-			path = replacePathParam(path, "pk", args[0])
 			params := map[string]string{}
-			data, prov, err := resolveReadWithStrategy(cmd.Context(), c, flags, "auto", "stickies", false, path, params, nil, cmd.ErrOrStderr())
+			data, prov, err := resolveReadWithStrategyAndResponsePath(cmd.Context(), c, flags, "auto", "stickies", false, path, params, nil, "results", cmd.ErrOrStderr())
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}
@@ -76,7 +91,7 @@ func newStickiesRetrieveStickyCmd(flags *rootFlags) *cobra.Command {
 					return nil
 				}
 			}
-			return printOutputWithFlags(cmd.OutOrStdout(), data, flags)
+			return printOutputWithFlagsMeta(cmd.OutOrStdout(), data, flags, map[string]any{"source": "live"})
 		},
 	}
 
