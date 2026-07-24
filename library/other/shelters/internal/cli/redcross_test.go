@@ -35,6 +35,11 @@ func TestParseRedCrossLive(t *testing.T) {
 		if s.Source != "redcross" {
 			t.Errorf("%s: source = %q, want redcross", s.Name, s.Source)
 		}
+		// facility_type is FEMA-coded; the RC active_site_type vocabulary must
+		// never leak into it (fixture rows all carry active_site_type).
+		if s.FacilityType != "" {
+			t.Errorf("%s: facility_type = %q, want empty on RC rows", s.Name, s.FacilityType)
+		}
 		byName[s.Name] = s
 	}
 	// Spokane WA is the row FEMA lacks; it must carry coordinates from geometry.

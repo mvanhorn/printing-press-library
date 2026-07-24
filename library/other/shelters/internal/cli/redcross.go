@@ -115,7 +115,10 @@ func parseRedCross(raw []byte) ([]Shelter, error) {
 		s.Zip = strings.TrimSpace(attrStr(a, "active_zip"))
 		s.CountyParish = attrStr(a, "active_county")
 		s.Status = normCode(attrStr(a, "active_site_status"))
-		s.FacilityType = normCode(attrStr(a, "active_site_type"))
+		// FacilityType is left empty: active_site_type is a Red Cross code
+		// ("Emergency"), and facility_type is a FEMA-coded field — surfacing the
+		// RC value there would mix vocabularies (same reason fillEmptyFrom never
+		// crosses it). Empty means "unknown", which is honest for RC-only rows.
 		s.PetAccommodations = rcPetCode(attrStr(a, "active_site_pet_shelter_type"))
 		s.RedCrossID = rcID(a)
 		// Some RC rows leave city/state/zip blank but carry them in the address
