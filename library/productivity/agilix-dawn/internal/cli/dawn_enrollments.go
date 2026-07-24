@@ -139,11 +139,14 @@ func newEnrollmentGroupListCmd(flags *rootFlags) *cobra.Command {
 			if err != nil {
 				return err
 			}
-			search := fmt.Sprintf(`{"query":"object:%s","sort":[{"name.raw":"asc"}],"limit":1000}`, args[0])
-			_, matches, err := fetchSearch(ctx, c, "group", search)
+			matches, total, err := fetchAllSearch(ctx, c, "group", map[string]any{
+				"query": fmt.Sprintf("object:%s", args[0]),
+				"sort":  []map[string]string{{"name.raw": "asc"}},
+			})
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}
+			warnTruncated(cmd.ErrOrStderr(), "group", len(matches), total)
 			groups := make([]enrollGroup, 0, len(matches))
 			for _, m := range matches {
 				var g enrollGroup

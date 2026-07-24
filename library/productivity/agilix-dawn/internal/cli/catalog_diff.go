@@ -62,11 +62,16 @@ func newNovelCatalogDiffCmd(flags *rootFlags) *cobra.Command {
 			if err != nil {
 				return err
 			}
-			_, matches, err := fetchSearch(ctx, c, "concept",
-				`{"query":"","limit":1000,"include":["id","title","status","price","modified"]}`)
+			matches, total, err := fetchAllSearch(ctx, c, "concept", map[string]any{
+				"query":   "",
+				"include": []string{"id", "title", "status", "price", "modified"},
+			})
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}
+			// A cap-hit here would write a partial snapshot and mis-report
+			// courses beyond the cap as Removed on the next run — warn loudly.
+			warnTruncated(cmd.ErrOrStderr(), "catalog", len(matches), total)
 			current := map[string]catalogEntry{}
 			for _, m := range matches {
 				var e catalogEntry

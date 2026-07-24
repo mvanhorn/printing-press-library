@@ -59,9 +59,14 @@ func newNovelPurchaseReconcileCmd(flags *rootFlags) *cobra.Command {
 			if err != nil {
 				return err
 			}
-			_, purchaseMatches, err := fetchSearch(ctx, c, "purchase", fmt.Sprintf(`{"limit":%d}`, flagLimit))
+			totalPurchases, purchaseMatches, err := fetchSearch(ctx, c, "purchase", fmt.Sprintf(`{"limit":%d}`, flagLimit))
 			if err != nil {
 				return classifyAPIError(err, flags)
+			}
+			if totalPurchases > len(purchaseMatches) {
+				fmt.Fprintf(cmd.ErrOrStderr(),
+					"warning: fetched %d of %d purchases (--limit %d); the reconciliation omits purchases beyond the limit — raise --limit to include them\n",
+					len(purchaseMatches), totalPurchases, flagLimit)
 			}
 			totalUsers, userMatches, err := fetchSearch(ctx, c, "user", fmt.Sprintf(`{"limit":%d}`, flagLimit))
 			if err != nil {
