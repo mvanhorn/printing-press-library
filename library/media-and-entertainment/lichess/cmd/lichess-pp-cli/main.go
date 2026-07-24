@@ -6,7 +6,7 @@ package main
 import (
 	"os"
 
-	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/lichess/internal/cli"
+	"lichess-pp-cli/internal/cli"
 )
 
 func main() {

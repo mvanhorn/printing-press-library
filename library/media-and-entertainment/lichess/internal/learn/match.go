@@ -8,7 +8,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/lichess/internal/learn/entities"
+	"lichess-pp-cli/internal/learn/entities"
 )
 
 // EntityMatch classifies how well a stored learning's resource-side

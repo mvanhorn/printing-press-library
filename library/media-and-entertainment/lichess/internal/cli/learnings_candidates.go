@@ -28,8 +28,8 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/lichess/internal/learn"
-	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/lichess/internal/store"
+	"lichess-pp-cli/internal/learn"
+	"lichess-pp-cli/internal/store"
 )
 
 // registerLearningsCandidateCommands attaches the candidate lifecycle

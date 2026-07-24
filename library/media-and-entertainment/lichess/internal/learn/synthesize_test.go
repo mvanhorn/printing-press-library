@@ -20,8 +20,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/lichess/internal/learn"
-	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/lichess/internal/store"
+	"lichess-pp-cli/internal/learn"
+	"lichess-pp-cli/internal/store"
 )
 
 // synthesisFamily is the query family every scenario teaches under.

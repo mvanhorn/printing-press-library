@@ -8,7 +8,7 @@ import (
 	"net/url"
 	"testing"
 
-	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/lichess/internal/config"
+	"lichess-pp-cli/internal/config"
 )
 
 func TestNDJSONIsNotTreatedAsBinary(t *testing.T) {

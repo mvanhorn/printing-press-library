@@ -11,7 +11,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/lichess/internal/store"
+	"lichess-pp-cli/internal/store"
 )
 
 // writePlaybookFile is a test helper that drops a fixture file at the

@@ -46,4 +46,15 @@ func TestLowestPuzzleThemesReturnsThreeLowestPerformedThemes(t *testing.T) {
 	if got[1].FollowUp != "" || got[2].FollowUp != "" {
 		t.Fatalf("only the lowest theme may have a follow-up: %#v", got)
 	}
+
+	// The report's emitted command is a runtime contract, not display text.
+	// Executing it in dry-run mode catches a removed or renamed follow-up.
+	cmd := RootCmd()
+	cmd.SetArgs([]string{"puzzle", "next", "--angle", got[0].Theme, "--dry-run", "--json"})
+	var out bytes.Buffer
+	cmd.SetOut(&out)
+	cmd.SetErr(&out)
+	if err := cmd.Execute(); err != nil {
+		t.Fatalf("training follow-up %q does not execute: %v", got[0].FollowUp, err)
+	}
 }

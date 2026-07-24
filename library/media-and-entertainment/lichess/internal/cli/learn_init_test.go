@@ -8,8 +8,8 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/lichess/internal/learn"
-	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/lichess/internal/store"
+	"lichess-pp-cli/internal/learn"
+	"lichess-pp-cli/internal/store"
 )
 
 // TestNewLearnConfig_BuildsConfig pins that the emitted init shim

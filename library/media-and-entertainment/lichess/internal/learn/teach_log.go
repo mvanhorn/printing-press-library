@@ -13,7 +13,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/lichess/internal/cliutil"
+	"lichess-pp-cli/internal/cliutil"
 )
 
 // teachLogStateDirName is the per-user state directory name.

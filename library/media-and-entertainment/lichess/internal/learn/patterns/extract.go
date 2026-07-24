@@ -10,7 +10,7 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/lichess/internal/learn/lookups"
+	"lichess-pp-cli/internal/learn/lookups"
 )
 
 // extractWindow caps how many of the most-recently-observed

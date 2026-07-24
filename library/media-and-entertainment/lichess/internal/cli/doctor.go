@@ -10,10 +10,10 @@ import (
 	"os"
 	"strings"
 
-	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/lichess/internal/client"
-	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/lichess/internal/cliutil"
-	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/lichess/internal/config"
 	"github.com/spf13/cobra"
+	"lichess-pp-cli/internal/client"
+	"lichess-pp-cli/internal/cliutil"
+	"lichess-pp-cli/internal/config"
 )
 
 // looksLikeDoctorInterstitial reports whether the response body matches a known

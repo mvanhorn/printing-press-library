@@ -8,7 +8,7 @@ import (
 	"os"
 
 	"github.com/mark3labs/mcp-go/server"
-	mcptools "github.com/mvanhorn/printing-press-library/library/media-and-entertainment/lichess/internal/mcp"
+	mcptools "lichess-pp-cli/internal/mcp"
 )
 
 // version is the printed MCP server's version, overridable at build time via ldflags.

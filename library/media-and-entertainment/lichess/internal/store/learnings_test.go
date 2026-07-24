@@ -8,7 +8,7 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/lichess/internal/store"
+	"lichess-pp-cli/internal/store"
 )
 
 func openLearnings(t *testing.T) *store.Store {

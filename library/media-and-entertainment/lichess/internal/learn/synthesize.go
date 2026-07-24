@@ -10,7 +10,7 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/lichess/internal/store"
+	"lichess-pp-cli/internal/store"
 )
 
 // Teach-time playbook synthesis. When an agent teaches a resource

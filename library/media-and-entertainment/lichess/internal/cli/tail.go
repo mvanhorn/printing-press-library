@@ -12,8 +12,8 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/lichess/internal/cliutil"
 	"github.com/spf13/cobra"
+	"lichess-pp-cli/internal/cliutil"
 )
 
 func newTailCmd(flags *rootFlags) *cobra.Command {

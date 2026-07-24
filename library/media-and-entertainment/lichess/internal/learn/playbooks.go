@@ -13,7 +13,7 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/lichess/internal/learn/entities"
+	"lichess-pp-cli/internal/learn/entities"
 )
 
 // EntityResolver looks up a token in entity_lookups to find its

@@ -1,4 +1,4 @@
-module github.com/mvanhorn/printing-press-library/library/media-and-entertainment/lichess
+module lichess-pp-cli
 
 go 1.26.5
 

@@ -14,7 +14,7 @@ import (
 	"time"
 	"unicode/utf8"
 
-	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/lichess/internal/config"
+	"lichess-pp-cli/internal/config"
 )
 
 func TestTruncateBody(t *testing.T) {

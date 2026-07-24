@@ -811,9 +811,7 @@
         "security": [
           {
             "OAuth2": [
-              "challenge:write",
-              "bot:play",
-              "board:play"
+              "challenge:write"
             ]
           }
         ],
@@ -35528,9 +35526,9 @@
       },
       "challenges-adminChallengeTokens.json": {
         "value": {
-          "bobby": "<REDACTED_LICHESS_TOKEN>_secret",
-          "boris": "<REDACTED_LICHESS_TOKEN>_secret",
-          "mary": "<REDACTED_LICHESS_TOKEN>_secret"
+          "bobby": "lip_bobby_secret",
+          "boris": "lip_boris_secret",
+          "mary": "lip_mary_secret"
         }
       },
       "externalEngine-listExternalEngines.json": {
@@ -35641,16 +35639,16 @@
         }
       },
       "oauth-testMultipleOauthTokens-request.txt": {
-        "value": "<REDACTED_LICHESS_TOKEN>,<REDACTED_LICHESS_TOKEN>\n"
+        "value": "lip_jose,lip_badToken\n"
       },
       "oauth-testMultipleOauthTokens.json": {
         "value": {
-          "<REDACTED_LICHESS_TOKEN>": {
+          "lip_jose": {
             "userId": "jose",
             "scopes": "preference:read,preference:write,email:read,challenge:read,challenge:write,challenge:bulk,study:read,study:write,tournament:write,racer:write,puzzle:read,puzzle:write,team:read,team:write,team:lead,follow:read,follow:write,msg:write,board:play,bot:play,engine:read,engine:write,web:mod",
             "expires": null
           },
-          "<REDACTED_LICHESS_TOKEN>": null
+          "lip_badToken": null
         }
       },
       "openingExplorer-masters.json": {

@@ -12,7 +12,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/lichess/internal/config"
+	"lichess-pp-cli/internal/config"
 )
 
 // recordingRoundTripper counts how many times its RoundTrip method is

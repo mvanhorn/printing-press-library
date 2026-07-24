@@ -23,8 +23,8 @@ import (
 	"os"
 	"sync"
 
-	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/lichess/internal/learn/entities"
-	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/lichess/internal/store"
+	"lichess-pp-cli/internal/learn/entities"
+	"lichess-pp-cli/internal/store"
 )
 
 // newLearnConfig returns the per-CLI entity extractor Config the

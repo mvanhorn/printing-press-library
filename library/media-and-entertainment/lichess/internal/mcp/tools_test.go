@@ -12,9 +12,9 @@ import (
 
 	mcplib "github.com/mark3labs/mcp-go/mcp"
 	"github.com/mark3labs/mcp-go/server"
-	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/lichess/internal/cliutil"
-	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/lichess/internal/mcp/bound"
-	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/lichess/internal/store"
+	"lichess-pp-cli/internal/cliutil"
+	"lichess-pp-cli/internal/mcp/bound"
+	"lichess-pp-cli/internal/store"
 )
 
 func TestMCPPathResolutionMatchesCLIResolverWithHomeEnv(t *testing.T) {

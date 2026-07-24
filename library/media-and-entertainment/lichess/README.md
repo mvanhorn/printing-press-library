@@ -324,7 +324,8 @@ For a list of our [puzzle themes](https://lichess.org/training/themes) with thei
 - **`lichess-pp-cli puzzle dashboard`** - Download your [puzzle dashboard](https://lichess.org/training/dashboard/30/dashboard) as JSON.
 Also includes all puzzle themes played, with aggregated results.
 Allows re-creating the [improvement/strengths](https://lichess.org/training/dashboard/30/improvementAreas) interfaces.
-Use **`lichess-pp-cli training-brief`** for one theme-guided practice follow-up. It does not expose standalone puzzle enumeration.
+- **`lichess-pp-cli puzzle next --angle <theme>`** - Fetch exactly one official puzzle for the selected training theme.
+Use **`lichess-pp-cli training-brief`** for one theme-guided practice follow-up, then run **`lichess-pp-cli puzzle next --angle <theme>`**. The angle is required and the command fetches exactly one puzzle; it provides no paging, batching, or enumeration mode.
 
 ### user
 

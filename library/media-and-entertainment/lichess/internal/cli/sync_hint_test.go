@@ -11,8 +11,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/lichess/internal/store"
 	"github.com/spf13/cobra"
+	"lichess-pp-cli/internal/store"
 )
 
 func newSyncHintTestStore(t *testing.T) *store.Store {

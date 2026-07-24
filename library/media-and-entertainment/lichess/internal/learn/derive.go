@@ -13,7 +13,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/lichess/internal/store"
+	"lichess-pp-cli/internal/store"
 )
 
 // This file owns post-run flag-correction derivation: turning an

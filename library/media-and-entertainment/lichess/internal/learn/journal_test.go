@@ -17,9 +17,9 @@ import (
 	"testing"
 	"time"
 
-	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/lichess/internal/cli"
-	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/lichess/internal/cliutil"
-	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/lichess/internal/learn"
+	"lichess-pp-cli/internal/cli"
+	"lichess-pp-cli/internal/cliutil"
+	"lichess-pp-cli/internal/learn"
 )
 
 // withJournalHome isolates a test in a temp HOME with every journal

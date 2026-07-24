@@ -11,8 +11,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/lichess/internal/learn"
-	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/lichess/internal/store"
+	"lichess-pp-cli/internal/learn"
+	"lichess-pp-cli/internal/store"
 )
 
 // seedCandidate derives one candidate row directly through the store

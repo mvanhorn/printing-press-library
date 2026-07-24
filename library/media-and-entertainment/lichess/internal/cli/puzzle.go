@@ -10,12 +10,13 @@ import (
 func newPuzzleCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:         "puzzle",
-		Short:       "Fetch and solve [puzzles](https://lichess.org/training), view your puzzle history and dashboard.",
+		Short:       "Read puzzle dashboard results and fetch one theme-guided follow-up puzzle.",
 		Hidden:      true,
 		Annotations: map[string]string{"mcp:read-only": "true", "pp:typed-exit-codes": "0,2"},
 		RunE:        parentNoSubcommandRunE(flags),
 	}
 
 	cmd.AddCommand(newPuzzleDashboardCmd(flags))
+	cmd.AddCommand(newPuzzleNextCmd(flags))
 	return cmd
 }

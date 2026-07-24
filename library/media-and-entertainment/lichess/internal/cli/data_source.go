@@ -17,8 +17,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/lichess/internal/client"
-	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/lichess/internal/store"
+	"lichess-pp-cli/internal/client"
+	"lichess-pp-cli/internal/store"
 )
 
 const networkFallbackReason = "api_unreachable"
