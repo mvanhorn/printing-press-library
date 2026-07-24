@@ -206,6 +206,7 @@ Sell-side composer helper operations.
 Marketplace inbox and messaging operations.
 
 - **`facebook-marketplace-pp-cli inbox list`** - Fetch Marketplace inbox overview.
+- **`facebook-marketplace-pp-cli inbox thread`** - Fetch a direct Marketplace/Messenger thread by thread id.
 - **`facebook-marketplace-pp-cli inbox message_seller`** - Send a Marketplace seller message.
 - **`facebook-marketplace-pp-cli inbox seller_threads`** - Fetch Marketplace seller inbox threads.
 - **`facebook-marketplace-pp-cli inbox seller_threads_page`** - Fetch a page of Marketplace seller inbox threads.
