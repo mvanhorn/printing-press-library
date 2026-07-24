@@ -1,0 +1,19 @@
+{
+  "timestamp": "2026-07-18T12:47:01.614953Z",
+  "cli_dir": "\u003ccli-dir\u003e/peekaboo-pp-cli",
+  "findings": [
+    {
+      "kind": "thin-short",
+      "command": "list",
+      "file": "teach.go",
+      "line": 695,
+      "evidence": "List recorded learnings",
+      "status": "accepted",
+      "note": "DO-NOT-EDIT generated file (learn-loop template teach.go); Short 'List recorded learnings' is accurate and brief for the learnings list subcommand. A richer parameter-aware Short must come from a generator-template fix, not a hand-edit that regen would clobber. Retro candidate."
+    }
+  ],
+  "scorecard_before": {
+    "mcp_description_quality": 10,
+    "captured": "2026-07-18T12:23:35.892466Z"
+  }
+}

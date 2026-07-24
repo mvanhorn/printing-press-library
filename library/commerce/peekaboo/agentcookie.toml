@@ -1,0 +1,16 @@
+# agentcookie.toml: secrets-bus adoption manifest v2
+# See docs/spec-agentcookie-secrets-bus-v2-adoption.md
+schema_version = 2
+name = "peekaboo-pp-cli"
+display_name = "Peekaboo"
+description = "Peekaboo Guru deals, discounts, branches, and bank-card offers CLI"
+project_kind = "cli"
+
+[secrets.file]
+path = "~/.config/peekaboo-pp-cli/config.toml"
+
+[sync]
+default = false
+
+[sync.keys]
+PEEKABOO_TOKEN = true

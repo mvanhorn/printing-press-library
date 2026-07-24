@@ -1,0 +1,99 @@
+{
+  "schema_version": 2,
+  "generated_at": "2026-07-24T22:43:43.431689Z",
+  "printing_press_version": "4.29.0",
+  "api_name": "peekaboo",
+  "display_name": "Peekaboo",
+  "cli_name": "peekaboo-pp-cli",
+  "creator": {
+    "handle": "qazmataz",
+    "name": "qazmataz"
+  },
+  "owner": "qazmataz",
+  "printer": "qazmataz",
+  "printer_name": "qazmataz",
+  "spec_format": "internal",
+  "spec_checksum": "sha256:2d72e519e5204fb2c21f97d2b0ef73769a97b0ee51b0f5ec46d828e8a1713d21",
+  "run_id": "20260718-152004-56e085cb",
+  "category": "commerce",
+  "description": "Every Peekaboo deal, branch, and bank-card offer from the terminal — plus city-wide deal ranking, bank-card reverse lookup, and bulk branch map-link export the Peekaboo site has no button for.",
+  "mcp_binary": "peekaboo-pp-mcp",
+  "mcp_tool_count": 9,
+  "mcp_ready": "full",
+  "api_version": "0.1.0",
+  "auth_type": "bearer_token",
+  "auth_env_vars": [
+    "PEEKABOO_TOKEN"
+  ],
+  "novel_features": [
+    {
+      "name": "Branch directions URLs",
+      "command": "directions",
+      "description": "Get a ready-to-open Google Maps directions link for every branch of a restaurant at once."
+    },
+    {
+      "name": "Nearest branch",
+      "command": "nearest",
+      "description": "Find the single closest branch of a restaurant to a city or coordinates, with its directions link."
+    },
+    {
+      "name": "Card to merchants",
+      "command": "wallet",
+      "description": "List every merchant in a city that honors a given bank card's deal (card to merchants)."
+    },
+    {
+      "name": "Top deals ranking",
+      "command": "top-deals",
+      "description": "Rank a city's merchants by discount percentage and return the biggest current discounts."
+    },
+    {
+      "name": "Expiring deals",
+      "command": "expiring",
+      "description": "List deals whose validity window closes within N days."
+    },
+    {
+      "name": "Open now",
+      "command": "open-now",
+      "description": "Keep only merchants with a branch open at the current local time."
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Branch directions URLs",
+      "command": "directions",
+      "description": "Get a ready-to-open Google Maps directions link for every branch of a restaurant at once."
+    },
+    {
+      "name": "Nearest branch",
+      "command": "nearest",
+      "description": "Find the single closest branch of a restaurant to a city or coordinates, with its directions link."
+    },
+    {
+      "name": "Card to merchants",
+      "command": "wallet",
+      "description": "List every merchant in a city that honors a given bank card's deal (card to merchants)."
+    },
+    {
+      "name": "Top deals ranking",
+      "command": "top-deals",
+      "description": "Rank a city's merchants by discount percentage and return the biggest current discounts."
+    },
+    {
+      "name": "Expiring deals",
+      "command": "expiring",
+      "description": "List deals whose validity window closes within N days."
+    },
+    {
+      "name": "Open now",
+      "command": "open-now",
+      "description": "Keep only merchants with a branch open at the current local time."
+    }
+  ],
+  "scorecard": {
+    "steinberger": {
+      "percentage": 89,
+      "grade": "A",
+      "total": 89
+    }
+  }
+}
