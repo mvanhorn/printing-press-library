@@ -23,11 +23,10 @@ func newPlayerPromotedCmd(flags *rootFlags) *cobra.Command {
 	var flagTeacher bool
 
 	cmd := &cobra.Command{
-		Use:   "player",
-		Short: "Provides autocompletion options for an incomplete username.",
-		Long:  "Provides autocompletion options for an incomplete username.",
-		// TODO: replace placeholder example values before relying on this for live dogfood.
-		Example:     "  lichess-pp-cli player --term example-value",
+		Use:         "player",
+		Short:       "Provides autocompletion options for an incomplete username.",
+		Long:        "Provides autocompletion options for an incomplete username.",
+		Example:     "  lichess-pp-cli player --term magnus",
 		Annotations: map[string]string{"pp:endpoint": "player.autocomplete", "pp:method": "GET", "pp:path": "/api/player/autocomplete", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			// Bare invocation of a command with a required flag/body prints help

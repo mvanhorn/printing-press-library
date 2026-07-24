@@ -14,8 +14,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/lichess/internal/cliutil"
 	"github.com/spf13/cobra"
-	"lichess-pp-cli/internal/cliutil"
 )
 
 // FeedbackEntry is one line in the local feedback ledger. Every run of

@@ -13,13 +13,13 @@ import (
 	"text/tabwriter"
 	"time"
 
+	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/lichess/internal/client"
+	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/lichess/internal/cliutil"
+	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/lichess/internal/config"
+	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/lichess/internal/learn"
+	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/lichess/internal/store"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
-	"lichess-pp-cli/internal/client"
-	"lichess-pp-cli/internal/cliutil"
-	"lichess-pp-cli/internal/config"
-	"lichess-pp-cli/internal/learn"
-	"lichess-pp-cli/internal/store"
 )
 
 type rootFlags struct {

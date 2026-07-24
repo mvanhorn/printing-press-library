@@ -15,9 +15,9 @@ import (
 	"strings"
 	"time"
 
-	"lichess-pp-cli/internal/learn/entities"
-	"lichess-pp-cli/internal/learn/lookups"
-	"lichess-pp-cli/internal/learn/patterns"
+	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/lichess/internal/learn/entities"
+	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/lichess/internal/learn/lookups"
+	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/lichess/internal/learn/patterns"
 )
 
 // Default thresholds. Keep in sync with the documented contract in

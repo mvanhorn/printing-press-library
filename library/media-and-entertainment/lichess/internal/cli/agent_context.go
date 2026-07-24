@@ -8,10 +8,10 @@ import (
 	"os"
 	"sort"
 
+	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/lichess/internal/cliutil"
+	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/lichess/internal/learn"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
-	"lichess-pp-cli/internal/cliutil"
-	"lichess-pp-cli/internal/learn"
 )
 
 // agentContextSchemaVersion is bumped on any breaking change to the JSON

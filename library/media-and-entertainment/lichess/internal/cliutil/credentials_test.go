@@ -13,8 +13,8 @@ import (
 	"testing"
 	"time"
 
-	"lichess-pp-cli/internal/cliutil"
-	"lichess-pp-cli/internal/config"
+	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/lichess/internal/cliutil"
+	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/lichess/internal/config"
 )
 
 func resetCredentialEnv(t *testing.T) (home, configPath string) {

@@ -12,6 +12,8 @@
     "internal/cli/training_brief.go",
     "internal/cli/root.go",
     "internal/cli/puzzle.go",
+	"internal/cli/puzzle_next.go",
+	"internal/cli/promoted_player.go",
     "internal/client/client.go",
     "internal/mcp/tools.go"
   ],

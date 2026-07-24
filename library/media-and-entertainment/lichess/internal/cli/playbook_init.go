@@ -31,9 +31,9 @@ import (
 	"strings"
 	"sync"
 
-	"lichess-pp-cli/internal/cli/playbooks"
-	"lichess-pp-cli/internal/learn"
-	"lichess-pp-cli/internal/store"
+	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/lichess/internal/cli/playbooks"
+	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/lichess/internal/learn"
+	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/lichess/internal/store"
 )
 
 // playbookSeedSentinelFamily is the synthetic query_family used to

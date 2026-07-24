@@ -1,6 +1,6 @@
 {
   "schema_version": 2,
-  "generated_at": "2026-07-24T03:52:08.469875Z",
+  "generated_at": "2026-07-24T04:01:32.497622Z",
   "printing_press_version": "4.29.0",
   "api_name": "lichess",
   "display_name": "Lichess Org Reference",
@@ -61,20 +61,5 @@
       "command": "training-brief",
       "description": "Combine official puzzle-theme performance with local loss-pattern evidence while preserving the absence of a causal mapping."
     }
-  ],
-  "verify": {
-    "mode": "mock",
-    "pass_rate": 96.7741935483871,
-    "passed": 30,
-    "total": 31,
-    "failed": 1,
-    "verdict": "WARN"
-  },
-  "scorecard": {
-    "steinberger": {
-      "percentage": 87,
-      "grade": "A",
-      "total": 87
-    }
-  }
+  ]
 }

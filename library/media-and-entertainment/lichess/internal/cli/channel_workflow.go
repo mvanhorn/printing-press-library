@@ -7,8 +7,8 @@ import (
 	"encoding/json"
 	"fmt"
 
+	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/lichess/internal/store"
 	"github.com/spf13/cobra"
-	"lichess-pp-cli/internal/store"
 )
 
 func newWorkflowCmd(flags *rootFlags) *cobra.Command {

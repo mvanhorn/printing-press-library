@@ -13,10 +13,10 @@ import (
 	"sync"
 	"testing"
 
-	"lichess-pp-cli/internal/cliutil"
-	"lichess-pp-cli/internal/learn"
-	"lichess-pp-cli/internal/learn/entities"
-	"lichess-pp-cli/internal/store"
+	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/lichess/internal/cliutil"
+	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/lichess/internal/learn"
+	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/lichess/internal/learn/entities"
+	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/lichess/internal/store"
 )
 
 func unmarshalAgentResults(t *testing.T, stdout string, out any) {

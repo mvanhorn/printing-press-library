@@ -22,9 +22,9 @@ import (
 	"strings"
 	"time"
 
+	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/lichess/internal/cliutil"
+	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/lichess/internal/config"
 	"github.com/spf13/cobra"
-	"lichess-pp-cli/internal/cliutil"
-	"lichess-pp-cli/internal/config"
 )
 
 func newAuthCmd(flags *rootFlags) *cobra.Command {

@@ -10,8 +10,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/lichess/internal/cliutil"
 	"github.com/pelletier/go-toml/v2"
-	"lichess-pp-cli/internal/cliutil"
 )
 
 type Config struct {

@@ -11,7 +11,7 @@ import (
 	"sync"
 	"testing"
 
-	"lichess-pp-cli/internal/cliutil"
+	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/lichess/internal/cliutil"
 )
 
 func withTempHomeForLog(t *testing.T) string {

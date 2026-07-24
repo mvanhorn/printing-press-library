@@ -12,7 +12,7 @@ import (
 	"strings"
 	"time"
 
-	"lichess-pp-cli/internal/learn/lookups"
+	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/lichess/internal/learn/lookups"
 )
 
 // DefaultJaccardMin matches the recall-side floor. Applying the same

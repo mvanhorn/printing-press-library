@@ -27,12 +27,12 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"lichess-pp-cli/internal/cliutil"
-	"lichess-pp-cli/internal/learn"
-	"lichess-pp-cli/internal/learn/entities"
-	"lichess-pp-cli/internal/learn/lookups"
-	"lichess-pp-cli/internal/learn/patterns"
-	"lichess-pp-cli/internal/store"
+	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/lichess/internal/cliutil"
+	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/lichess/internal/learn"
+	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/lichess/internal/learn/entities"
+	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/lichess/internal/learn/lookups"
+	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/lichess/internal/learn/patterns"
+	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/lichess/internal/store"
 )
 
 // noLearnEnvVar is the environment variable that disables the learning

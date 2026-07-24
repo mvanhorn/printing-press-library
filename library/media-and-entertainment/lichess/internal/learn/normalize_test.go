@@ -9,7 +9,7 @@ import (
 	"strings"
 	"testing"
 
-	"lichess-pp-cli/internal/learn/entities"
+	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/lichess/internal/learn/entities"
 )
 
 func testConfig() *entities.Config {
