@@ -100,6 +100,7 @@ Use --dry-run to preview what would be promoted without making API changes.`,
 					// Try the search terms endpoint directly.
 					stData, err = c.Get(cmd.Context(), "/campaigns/"+flagCampaignID+"/adgroups/"+agID+"/searchterms", map[string]string{"limit": "500"})
 					if err != nil {
+						fmt.Fprintf(cmd.ErrOrStderr(), "warning: ad group %s: failed to fetch search terms (report and fallback endpoints both failed): %v\n", agID, err)
 						continue
 					}
 				}
