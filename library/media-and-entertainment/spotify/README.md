@@ -11,6 +11,7 @@ Need help? See our <a href="https://developer.spotify.com/documentation/web-api/
 Learn more at [Spotify](https://github.com/sonallux/spotify-web-api).
 
 Created by [@rob-coco](https://github.com/rob-coco) (Rob Zehner).
+Contributors: [@giuseppebisemi](https://github.com/giuseppebisemi) (Giuseppe Bisemi).
 
 ## Install
 
