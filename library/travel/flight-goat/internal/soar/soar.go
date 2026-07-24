@@ -96,18 +96,32 @@ type Flight struct {
 	Legs       []Leg  `json:"legs"`
 }
 
+// Slice is one flown leg of a multi-city trip: a route on a date. The cabin
+// applies trip-wide, mirroring FlySoar's GUI, which composes multicity
+// searches with a single cabin repeated into every slice.
+type Slice struct {
+	Origin        string `json:"origin"`
+	Destination   string `json:"destination"`
+	DepartureDate string `json:"departure_date"` // YYYY-MM-DD
+}
+
 // SearchQuery echoes the request back in the response envelope. Currency is
 // always USD — FlySoar's anonymous endpoint ignores any requested currency and
 // prices every offer in USD (verified live across US and intra-EU routes), so
 // the CLI deliberately does not expose a currency knob.
 type SearchQuery struct {
+	// For multi-city searches Origin/Destination/DepartureDate carry the trip's
+	// first origin, final destination, and first date (matching the endpoint's
+	// own created-event echo); Slices carries the full leg list.
 	Origin        string `json:"origin"`
 	Destination   string `json:"destination"`
 	DepartureDate string `json:"departure_date"`
 	ReturnDate    string `json:"return_date,omitempty"`
-	CabinClass    string `json:"cabin_class"`
-	Passengers    int    `json:"passengers"`
-	Currency      string `json:"currency"`
+	// Slices echoes the requested legs when the search was multi-city.
+	Slices     []Slice `json:"slices,omitempty"`
+	CabinClass string  `json:"cabin_class"`
+	Passengers int     `json:"passengers"`
+	Currency   string  `json:"currency"`
 	// Stops echoes the allowed stop counts (0 = nonstop, 1, 2, …); empty = any.
 	Stops []int `json:"stops,omitempty"`
 	// Airlines echoes the airline whitelist (IATA codes), empty when unset.
@@ -172,12 +186,17 @@ type SearchOptions struct {
 	// Airlines whitelists marketing carriers by IATA code (e.g. UA, DL).
 	// Empty means no airline filter. Matches FlySoar's ?airlines=DL,UA param.
 	Airlines []string
+	// Slices, when set (>= 2 entries), switches the search to multi-city mode.
+	// Origin/Destination/DepartureDate are ignored and ReturnDate must be empty
+	// (a return leg is just another slice). CabinClass applies to every slice.
+	Slices []Slice
 }
 
 // priceCurrency is the only currency FlySoar's anonymous endpoint returns.
 const priceCurrency = "USD"
 
-// searchPayload is the JSON body POSTed to the stream endpoint.
+// searchPayload is the JSON body POSTed to the stream endpoint for one-way and
+// round-trip searches.
 type searchPayload struct {
 	Origin      string `json:"origin"`
 	Destination string `json:"destination"`
@@ -186,6 +205,25 @@ type searchPayload struct {
 	Cabin       string `json:"cabin"`
 	Currency    string `json:"currency"`
 	Passengers  int    `json:"passengers"`
+}
+
+// multiSearchPayload is the JSON body for a multi-city search. Verified live:
+// the endpoint accepts a bare slices array with no top-level origin/destination
+// (it derives the trip's endpoints itself) and echoes is_multi_city=true in the
+// created event.
+type multiSearchPayload struct {
+	Slices     []payloadSlice `json:"slices"`
+	Cabin      string         `json:"cabin"`
+	Currency   string         `json:"currency"`
+	Passengers int            `json:"passengers"`
+}
+
+// payloadSlice is one requested multi-city leg. The endpoint accepts "date"
+// and echoes it back as departure_date.
+type payloadSlice struct {
+	Origin      string `json:"origin"`
+	Destination string `json:"destination"`
+	Date        string `json:"date"`
 }
 
 // --- raw Duffel-shaped offer decoding ---------------------------------------
@@ -263,11 +301,21 @@ type rawCarrier struct {
 
 // Search runs a FlySoar search and returns normalized, cheapest-first offers.
 func Search(ctx context.Context, opts SearchOptions) (*SearchResult, error) {
-	if strings.TrimSpace(opts.Origin) == "" || strings.TrimSpace(opts.Destination) == "" {
-		return nil, fmt.Errorf("soar: origin and destination are required")
-	}
-	if strings.TrimSpace(opts.DepartureDate) == "" {
-		return nil, fmt.Errorf("soar: departure date is required")
+	multi := len(opts.Slices) > 0
+	if multi {
+		if len(opts.Slices) < 2 {
+			return nil, fmt.Errorf("soar: multi-city needs at least 2 slices; use origin/destination for a one-way")
+		}
+		if strings.TrimSpace(opts.ReturnDate) != "" {
+			return nil, fmt.Errorf("soar: return date cannot be combined with multi-city slices; add the return as its own slice")
+		}
+	} else {
+		if strings.TrimSpace(opts.Origin) == "" || strings.TrimSpace(opts.Destination) == "" {
+			return nil, fmt.Errorf("soar: origin and destination are required")
+		}
+		if strings.TrimSpace(opts.DepartureDate) == "" {
+			return nil, fmt.Errorf("soar: departure date is required")
+		}
 	}
 	if _, ok := ctx.Deadline(); !ok {
 		var cancel context.CancelFunc
@@ -281,24 +329,71 @@ func Search(ctx context.Context, opts SearchOptions) (*SearchResult, error) {
 	// the "Airport alias maintenance" section in AGENTS.md.
 	origin := strings.ToUpper(strings.TrimSpace(opts.Origin))
 	dest := strings.ToUpper(strings.TrimSpace(opts.Destination))
+	depDate := strings.TrimSpace(opts.DepartureDate)
+	var slices []Slice
+	if multi {
+		slices = make([]Slice, len(opts.Slices))
+		for i, s := range opts.Slices {
+			slices[i] = Slice{
+				Origin:        strings.ToUpper(strings.TrimSpace(s.Origin)),
+				Destination:   strings.ToUpper(strings.TrimSpace(s.Destination)),
+				DepartureDate: strings.TrimSpace(s.DepartureDate),
+			}
+			if slices[i].Origin == "" || slices[i].Destination == "" || slices[i].DepartureDate == "" {
+				return nil, fmt.Errorf("soar: slice %d needs origin, destination, and date", i+1)
+			}
+		}
+		// The query echo mirrors the endpoint's created event: first origin,
+		// final destination, first date.
+		origin = slices[0].Origin
+		dest = slices[len(slices)-1].Destination
+		depDate = slices[0].DepartureDate
+	}
 	cabin := normalizeCabin(opts.CabinClass)
 	passengers := opts.Passengers
 	if passengers <= 0 {
 		passengers = 1
 	}
+	stops := normalizeStops(opts.Stops)
+	airlines := normalizeAirlines(opts.Airlines)
 
-	payload := searchPayload{
-		Origin:      origin,
-		Destination: dest,
-		Date:        opts.DepartureDate,
-		ReturnDate:  opts.ReturnDate,
-		Cabin:       cabin,
-		Currency:    priceCurrency,
-		Passengers:  passengers,
+	var body []byte
+	var err error
+	if multi {
+		ps := make([]payloadSlice, len(slices))
+		for i, s := range slices {
+			ps[i] = payloadSlice{Origin: s.Origin, Destination: s.Destination, Date: s.DepartureDate}
+		}
+		body, err = json.Marshal(multiSearchPayload{
+			Slices:     ps,
+			Cabin:      cabin,
+			Currency:   priceCurrency,
+			Passengers: passengers,
+		})
+	} else {
+		body, err = json.Marshal(searchPayload{
+			Origin:      origin,
+			Destination: dest,
+			Date:        opts.DepartureDate,
+			ReturnDate:  opts.ReturnDate,
+			Cabin:       cabin,
+			Currency:    priceCurrency,
+			Passengers:  passengers,
+		})
 	}
-	body, err := json.Marshal(payload)
 	if err != nil {
 		return nil, fmt.Errorf("soar: encoding request: %w", err)
+	}
+
+	// The deep link doubles as the Referer: it reconstructs the site's own
+	// search URL, which FlySoar checks as part of its anonymous-request gating
+	// (both the path-only classic form and the multicity query form are
+	// verified live to pass the gate).
+	deepLink := SearchURL(origin, dest, depDate, opts.ReturnDate, cabin, stops, airlines)
+	referer := refererURL(origin, dest, depDate, opts.ReturnDate)
+	if multi {
+		deepLink = MultiCitySearchURL(slices, cabin, stops, airlines)
+		referer = deepLink
 	}
 
 	req, err := http.NewRequestWithContext(ctx, http.MethodPost, searchURL, bytes.NewReader(body))
@@ -308,7 +403,7 @@ func Search(ctx context.Context, opts SearchOptions) (*SearchResult, error) {
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("Accept", "*/*")
 	req.Header.Set("Origin", baseURL)
-	req.Header.Set("Referer", refererURL(origin, dest, opts.DepartureDate, opts.ReturnDate))
+	req.Header.Set("Referer", referer)
 	req.Header.Set("User-Agent", browserUA)
 
 	resp, err := http.DefaultClient.Do(req)
@@ -329,8 +424,6 @@ func Search(ctx context.Context, opts SearchOptions) (*SearchResult, error) {
 	// Apply the same stop/airline filters the deep link encodes, so the CLI's
 	// results match what opening search_url in the browser would show. FlySoar's
 	// stream endpoint returns the unfiltered set; these are GUI-side filters.
-	stops := normalizeStops(opts.Stops)
-	airlines := normalizeAirlines(opts.Airlines)
 	unfiltered := normalizeOffers(offers, priceCurrency, passengers)
 	flights := filterFlights(unfiltered, stops, airlines)
 	// Cheapest-first, matching the other price backends' default ordering.
@@ -339,7 +432,10 @@ func Search(ctx context.Context, opts SearchOptions) (*SearchResult, error) {
 	})
 
 	tripType := "one_way"
-	if strings.TrimSpace(opts.ReturnDate) != "" {
+	switch {
+	case multi:
+		tripType = "multi_city"
+	case strings.TrimSpace(opts.ReturnDate) != "":
 		tripType = "round_trip"
 	}
 
@@ -351,8 +447,9 @@ func Search(ctx context.Context, opts SearchOptions) (*SearchResult, error) {
 		Query: SearchQuery{
 			Origin:        origin,
 			Destination:   dest,
-			DepartureDate: opts.DepartureDate,
+			DepartureDate: depDate,
 			ReturnDate:    opts.ReturnDate,
+			Slices:        slices,
 			CabinClass:    cabin,
 			Passengers:    passengers,
 			Currency:      priceCurrency,
@@ -361,7 +458,7 @@ func Search(ctx context.Context, opts SearchOptions) (*SearchResult, error) {
 		},
 		Count:     len(flights),
 		Flights:   flights,
-		SearchURL: SearchURL(origin, dest, opts.DepartureDate, opts.ReturnDate, cabin, stops, airlines),
+		SearchURL: deepLink,
 	}
 	res.Booking = buildBookingHandoff(res.Query, res.SearchURL)
 	if len(flights) == 0 {
@@ -413,11 +510,22 @@ func buildBookingHandoff(q SearchQuery, webURL string) BookingHandoff {
 
 // BookingRequest builds a natural-language booking seed the FlySoar agent
 // understands, mirroring how a user phrases it in chat, e.g.
-// "DEN -> SEA on 2026-09-28, first class, 2 passengers".
+// "DEN -> SEA on 2026-09-28, first class, 2 passengers". Multi-city queries
+// render every leg: "multi-city: IAH -> FCO on 2026-09-27, then CAI -> SEA on
+// 2026-10-04, first class".
 func BookingRequest(q SearchQuery) string {
-	b := fmt.Sprintf("%s -> %s on %s", q.Origin, q.Destination, q.DepartureDate)
-	if strings.TrimSpace(q.ReturnDate) != "" {
-		b += ", returning " + q.ReturnDate
+	var b string
+	if len(q.Slices) > 0 {
+		legs := make([]string, len(q.Slices))
+		for i, s := range q.Slices {
+			legs[i] = fmt.Sprintf("%s -> %s on %s", s.Origin, s.Destination, s.DepartureDate)
+		}
+		b = "multi-city: " + strings.Join(legs, ", then ")
+	} else {
+		b = fmt.Sprintf("%s -> %s on %s", q.Origin, q.Destination, q.DepartureDate)
+		if strings.TrimSpace(q.ReturnDate) != "" {
+			b += ", returning " + q.ReturnDate
+		}
 	}
 	if cabin := prettyCabin(q.CabinClass); cabin != "" {
 		b += ", " + cabin
@@ -492,6 +600,41 @@ func SearchURL(origin, dest, depDate, retDate, cabin string, stops []int, airlin
 		q.Set("cabin", c)
 	}
 	q.Set("trip", trip)
+	setFilterParams(q, stops, airlines)
+	return fmt.Sprintf("%s%s?%s", baseURL, flightPath(origin, dest, depDate, retDate), q.Encode())
+}
+
+// MultiCitySearchURL builds the browser deep link for a multi-city search,
+// mirroring FlySoar's GUI URL shape, e.g.
+// https://flysoar.ai/flights/iah/sea/260927/?cabin=first&slices=IAH-FCO-260927-first%3BCAI-SEA-261004-first&trip=multicity .
+// The path carries first origin / final destination / first date; the slices
+// param carries every leg as ORIG-DEST-YYMMDD-<cabin>, ';'-joined (the cabin
+// token repeats because the GUI applies one cabin trip-wide). stops/airlines
+// mirror SearchURL's GUI filter params.
+func MultiCitySearchURL(slices []Slice, cabin string, stops []int, airlines []string) string {
+	if len(slices) == 0 {
+		return baseURL
+	}
+	c := normalizeCabin(cabin)
+	parts := make([]string, len(slices))
+	for i, s := range slices {
+		parts[i] = fmt.Sprintf("%s-%s-%s-%s",
+			strings.ToUpper(strings.TrimSpace(s.Origin)),
+			strings.ToUpper(strings.TrimSpace(s.Destination)),
+			yymmdd(s.DepartureDate), c)
+	}
+	q := url.Values{}
+	q.Set("cabin", c)
+	q.Set("trip", "multicity")
+	q.Set("slices", strings.Join(parts, ";"))
+	setFilterParams(q, stops, airlines)
+	path := flightPath(slices[0].Origin, slices[len(slices)-1].Destination, slices[0].DepartureDate, "")
+	return fmt.Sprintf("%s%s?%s", baseURL, path, q.Encode())
+}
+
+// setFilterParams adds the stops/airlines GUI filter params shared by the
+// one-way/round-trip and multi-city deep links.
+func setFilterParams(q url.Values, stops []int, airlines []string) {
 	if len(stops) > 0 {
 		parts := make([]string, len(stops))
 		for i, s := range stops {
@@ -502,7 +645,6 @@ func SearchURL(origin, dest, depDate, retDate, cabin string, stops []int, airlin
 	if len(airlines) > 0 {
 		q.Set("airlines", strings.Join(airlines, ","))
 	}
-	return fmt.Sprintf("%s%s?%s", baseURL, flightPath(origin, dest, depDate, retDate), q.Encode())
 }
 
 // normalizeStops sorts and de-dupes the allowed stop counts, dropping negatives.

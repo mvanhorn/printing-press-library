@@ -28,7 +28,7 @@ import (
 func newSoarCmd(flags *rootFlags) *cobra.Command {
 	var returnDate, cabin string
 	var passengers int
-	var stopsTokens, airlines []string
+	var stopsTokens, airlines, segmentStrs []string
 
 	cmd := &cobra.Command{
 		Use:         "soar <origin> <destination> <date>",
@@ -39,7 +39,12 @@ date and returns real prices, durations, airlines, and leg details. Its fares
 come from Duffel's aggregated NDC + GDS content, which often differs from what
 Google Flights surfaces, so it's a useful second opinion on price. No API key,
 no auth, just results — plus a deep link to open and book the same search on
-flysoar.ai. Prices are always in USD (FlySoar's anonymous endpoint is USD-only).`,
+flysoar.ai. Prices are always in USD (FlySoar's anonymous endpoint is USD-only).
+
+Multi-city trips use >= 2 repeatable --segment values (the same
+'ORIG>DEST@YYYY-MM-DD' form as the flights command); the positional
+<origin> <destination> <date> become optional and ignored, and --return is
+replaced by adding the final leg as its own segment.`,
 		Example: `  # Cheapest SEA -> DEN on Sep 21
   flight-goat-pp-cli soar SEA DEN 2026-09-21
 
@@ -52,14 +57,21 @@ flysoar.ai. Prices are always in USD (FlySoar's anonymous endpoint is USD-only).
   # Nonstop or one-stop, on Delta or United only
   flight-goat-pp-cli soar DCA IAH 2026-09-23 --class first --stops 0,1 --airlines DL,UA
 
+  # Multi-city in first: IAH -> FCO, then CAI -> SEA a week later
+  flight-goat-pp-cli soar --segment "IAH>FCO@2026-09-27" --segment "CAI>SEA@2026-10-04" --class first
+
   # Two passengers
   flight-goat-pp-cli soar LHR DXB 2026-05-10 --passengers 2`,
-		Args: cobra.ExactArgs(3),
+		Args: func(cmd *cobra.Command, args []string) error {
+			// Multi-city mode (>=2 --segment values) makes the positional
+			// <origin> <destination> <date> optional and ignored, matching the
+			// flights command's contract.
+			if len(segmentStrs) >= 2 {
+				return nil
+			}
+			return cobra.ExactArgs(3)(cmd, args)
+		},
 		RunE: func(cmd *cobra.Command, args []string) error {
-			origin := strings.ToUpper(args[0])
-			destination := strings.ToUpper(args[1])
-			departureDate := args[2]
-
 			stops, err := parseSoarStops(stopsTokens)
 			if err != nil {
 				return err
@@ -69,20 +81,41 @@ flysoar.ai. Prices are always in USD (FlySoar's anonymous endpoint is USD-only).
 			}
 
 			opts := soar.SearchOptions{
-				Origin:        origin,
-				Destination:   destination,
-				DepartureDate: departureDate,
-				ReturnDate:    returnDate,
-				CabinClass:    cabin,
-				Passengers:    passengers,
-				Stops:         stops,
-				Airlines:      airlines,
+				CabinClass: cabin,
+				Passengers: passengers,
+				Stops:      stops,
+				Airlines:   airlines,
+			}
+			if len(segmentStrs) >= 2 {
+				parsed, perr := parseMultiCitySegments(segmentStrs)
+				if perr != nil {
+					return perr
+				}
+				if returnDate != "" {
+					return fmt.Errorf("--return cannot be combined with --segment; add the return leg as its own --segment")
+				}
+				slices := make([]soar.Slice, len(parsed))
+				for i, s := range parsed {
+					slices[i] = soar.Slice{Origin: s.Origin, Destination: s.Destination, DepartureDate: s.DepartureDate}
+				}
+				opts.Slices = slices
+			} else if len(segmentStrs) == 1 {
+				return fmt.Errorf("--segment requires >= 2 values for multi-city; got 1. Use the positional <origin> <destination> <date> form for a one-way search")
+			} else {
+				opts.Origin = strings.ToUpper(args[0])
+				opts.Destination = strings.ToUpper(args[1])
+				opts.DepartureDate = args[2]
+				opts.ReturnDate = returnDate
 			}
 
 			if flags.dryRun {
-				fmt.Fprintf(cmd.OutOrStdout(), "soar.Search(%s -> %s on %s)", opts.Origin, opts.Destination, opts.DepartureDate)
-				if opts.ReturnDate != "" {
-					fmt.Fprintf(cmd.OutOrStdout(), " return=%s", opts.ReturnDate)
+				if len(opts.Slices) > 0 {
+					fmt.Fprintf(cmd.OutOrStdout(), "soar.Search(multi-city %s)", soarSlicesRoute(opts.Slices))
+				} else {
+					fmt.Fprintf(cmd.OutOrStdout(), "soar.Search(%s -> %s on %s)", opts.Origin, opts.Destination, opts.DepartureDate)
+					if opts.ReturnDate != "" {
+						fmt.Fprintf(cmd.OutOrStdout(), " return=%s", opts.ReturnDate)
+					}
 				}
 				if opts.CabinClass != "" {
 					fmt.Fprintf(cmd.OutOrStdout(), " class=%s", strings.ToLower(opts.CabinClass))
@@ -93,8 +126,11 @@ flysoar.ai. Prices are always in USD (FlySoar's anonymous endpoint is USD-only).
 				if len(opts.Airlines) > 0 {
 					fmt.Fprintf(cmd.OutOrStdout(), " airlines=%s", strings.Join(opts.Airlines, ","))
 				}
-				fmt.Fprintf(cmd.OutOrStdout(), "\nurl: %s\n(dry run - no request sent)\n",
-					soar.SearchURL(opts.Origin, opts.Destination, opts.DepartureDate, opts.ReturnDate, opts.CabinClass, opts.Stops, opts.Airlines))
+				dryURL := soar.SearchURL(opts.Origin, opts.Destination, opts.DepartureDate, opts.ReturnDate, opts.CabinClass, opts.Stops, opts.Airlines)
+				if len(opts.Slices) > 0 {
+					dryURL = soar.MultiCitySearchURL(opts.Slices, opts.CabinClass, opts.Stops, opts.Airlines)
+				}
+				fmt.Fprintf(cmd.OutOrStdout(), "\nurl: %s\n(dry run - no request sent)\n", dryURL)
 				return nil
 			}
 
@@ -117,8 +153,12 @@ flysoar.ai. Prices are always in USD (FlySoar's anonymous endpoint is USD-only).
 				return nil
 			}
 
-			fmt.Fprintf(cmd.ErrOrStderr(), "%d flights found for %s -> %s on %s (source: %s)\n",
-				result.Count, opts.Origin, opts.Destination, opts.DepartureDate, result.Source)
+			route := fmt.Sprintf("%s -> %s on %s", result.Query.Origin, result.Query.Destination, result.Query.DepartureDate)
+			if len(result.Query.Slices) > 0 {
+				route = "multi-city " + soarSlicesRoute(result.Query.Slices)
+			}
+			fmt.Fprintf(cmd.ErrOrStderr(), "%d flights found for %s (source: %s)\n",
+				result.Count, route, result.Source)
 			if result.Note != "" {
 				fmt.Fprintf(cmd.ErrOrStderr(), "note: %s\n", result.Note)
 			}
@@ -167,7 +207,18 @@ flysoar.ai. Prices are always in USD (FlySoar's anonymous endpoint is USD-only).
 	cmd.Flags().IntVarP(&passengers, "passengers", "p", 1, "Number of passengers")
 	cmd.Flags().StringSliceVar(&stopsTokens, "stops", nil, "Allowed stop counts (comma list): 0=nonstop, 1, 2. E.g. --stops 0,1")
 	cmd.Flags().StringSliceVarP(&airlines, "airlines", "a", nil, "Whitelist airlines by IATA code (comma list): e.g. --airlines DL,UA")
+	cmd.Flags().StringSliceVar(&segmentStrs, "segment", nil, "Multi-city: repeatable segment in 'ORIG>DEST@YYYY-MM-DD' form. Pass >=2 to trigger multi-city search; positional args become optional and ignored.")
 	return cmd
+}
+
+// soarSlicesRoute renders multi-city slices compactly for status lines and dry
+// runs, e.g. "IAH>FCO@2026-09-27 CAI>SEA@2026-10-04".
+func soarSlicesRoute(slices []soar.Slice) string {
+	parts := make([]string, len(slices))
+	for i, s := range slices {
+		parts[i] = fmt.Sprintf("%s>%s@%s", s.Origin, s.Destination, s.DepartureDate)
+	}
+	return strings.Join(parts, " ")
 }
 
 // parseSoarStops turns --stops tokens into a set of allowed stop counts,
