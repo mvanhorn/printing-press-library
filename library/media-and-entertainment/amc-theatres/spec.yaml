@@ -1,0 +1,160 @@
+openapi: 3.0.3
+info:
+  title: AMC Theatres Showtime API
+  version: "2"
+  description: >
+    Browser-captured docs-derived contract for AMC Theatres Showtime API v2.
+    The official portal exposes this contract through RapiDoc, while direct
+    non-browser retrieval is blocked by Cloudflare.
+  contact:
+    name: AMC Theatres
+    email: developers@amctheatres.com
+servers:
+  - url: https://api.amctheatres.com
+    description: AMC Theatres Production APIs
+  - url: https://api.sandbox-amctheatres.com
+    description: AMC Theatres Sandbox APIs
+security:
+  - VendorKey: []
+components:
+  securitySchemes:
+    VendorKey:
+      type: apiKey
+      in: header
+      name: X-AMC-Vendor-Key
+      description: AMC vendor API key.
+    AuthToken:
+      type: apiKey
+      in: header
+      name: X-AMC-Auth-Token
+      description: Optional authenticated-user token for APIs that require it.
+  schemas:
+    FlexibleResponse:
+      type: object
+      additionalProperties: true
+paths:
+  /v2/theatres/{theatreNumber}/movies/{movieId}/earliest-showtime:
+    get:
+      operationId: GetEarliestShowtimeByTheatre
+      summary: Get a movie's earliest showtime at an AMC theatre
+      description: Retrieves the earliest movie showtime for a theatre number and movie ID.
+      tags: [Showtime]
+      parameters:
+        - name: theatreNumber
+          in: path
+          required: true
+          schema: {type: integer}
+        - name: movieId
+          in: path
+          required: true
+          schema: {type: integer}
+      responses:
+        "200":
+          description: Earliest showtime response
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/FlexibleResponse'}
+  /v2/showtimes/{id}:
+    get:
+      operationId: GetShowtimeById
+      summary: Get an AMC showtime by ID
+      description: Retrieves showtime details for the provided ID.
+      tags: [Showtime]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: {type: integer}
+      responses:
+        "200":
+          description: Showtime details
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/FlexibleResponse'}
+  /v2/theatres/{theatreNumber}/showtimes:
+    get:
+      operationId: GetShowtimesByTheatre
+      summary: List showtimes at an AMC theatre
+      description: Retrieves a paged list of showtimes for a theatre number.
+      tags: [Showtime]
+      parameters:
+        - name: theatreNumber
+          in: path
+          required: true
+          schema: {type: integer}
+        - name: page-number
+          in: query
+          required: false
+          schema: {type: integer, minimum: 1}
+        - name: page-size
+          in: query
+          required: false
+          schema: {type: integer, minimum: 1, maximum: 100}
+      responses:
+        "200":
+          description: Paged theatre showtimes
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/FlexibleResponse'}
+  /v2/theatres/{theatreNumber}/showtimes/{searchDate}:
+    get:
+      operationId: Search
+      summary: Search AMC theatre showtimes by date
+      description: Retrieves a paged list of showtimes for a theatre number and date.
+      tags: [Showtime]
+      parameters:
+        - name: theatreNumber
+          in: path
+          required: true
+          schema: {type: integer}
+        - name: searchDate
+          in: path
+          required: true
+          schema: {type: string, format: date}
+        - name: page-number
+          in: query
+          required: false
+          schema: {type: integer, minimum: 1}
+        - name: page-size
+          in: query
+          required: false
+          schema: {type: integer, minimum: 1, maximum: 100}
+      responses:
+        "200":
+          description: Paged theatre showtimes for the selected date
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/FlexibleResponse'}
+  /v2/showtimes/views/current-location/{searchDate}/{latitude}/{longitude}:
+    get:
+      operationId: SearchByLatLong
+      summary: Search current AMC showtimes near a location
+      description: Retrieves a paged list of showtimes for a date and coordinates.
+      tags: [Showtime]
+      parameters:
+        - name: searchDate
+          in: path
+          required: true
+          schema: {type: string, format: date}
+        - name: latitude
+          in: path
+          required: true
+          schema: {type: number, minimum: -90, maximum: 90}
+        - name: longitude
+          in: path
+          required: true
+          schema: {type: number, minimum: -180, maximum: 180}
+        - name: page-number
+          in: query
+          required: false
+          schema: {type: integer, minimum: 1}
+        - name: page-size
+          in: query
+          required: false
+          schema: {type: integer, minimum: 1, maximum: 100}
+      responses:
+        "200":
+          description: Paged current-location showtimes
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/FlexibleResponse'}

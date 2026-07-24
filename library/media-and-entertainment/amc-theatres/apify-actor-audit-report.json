@@ -1,0 +1,9 @@
+{
+  "dir": "\u003ccli-dir\u003e/amc-theatres",
+  "research_dir": "\u003ccli-dir\u003e/20260724-145901",
+  "verdict": "pass",
+  "actors": null,
+  "issues": [
+    "no Apify actor references found, skipping"
+  ]
+}

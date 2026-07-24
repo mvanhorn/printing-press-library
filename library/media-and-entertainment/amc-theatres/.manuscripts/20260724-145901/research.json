@@ -1,0 +1,112 @@
+{
+  "api_name": "amc-theatres",
+  "novelty_score": 86,
+  "alternatives": [
+    {
+      "name": "AMC website and mobile app",
+      "url": "https://www.amctheatres.com/",
+      "language": "",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": true
+    },
+    {
+      "name": "MovieGlu",
+      "url": "https://developer.movieglu.com/",
+      "language": "",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": true,
+      "has_auth_support": true
+    }
+  ],
+  "gaps": [
+    "AMC developer credentials were not available, so live Phase 5 dogfood is explicitly skipped.",
+    "The official Showtime API contract exposes read operations only; ticket purchase, seat selection, and payment remain outside this CLI."
+  ],
+  "patterns": [
+    "single-chain showtime discovery",
+    "production and sandbox host selection",
+    "read-only agent planning"
+  ],
+  "recommendation": "ship-with-auth-gated-live-dogfood",
+  "researched_at": "2026-07-24T14:45:00Z",
+  "novel_features": [
+    {
+      "name": "Movie plan",
+      "command": "movie-plan",
+      "description": "Find, filter, and rank AMC showtimes by theatre or current location without purchasing tickets.",
+      "rationale": "It turns AMC's low-level showtime reads into one deterministic answer to a movie-night planning request.",
+      "example": "amc-theatres-pp-cli movie-plan \"Dune\" --latitude 40.7128 --longitude -74.0060 --after 18:00 --format IMAX --agent",
+      "why_it_matters": "Agents can return a short ranked set of relevant screenings without inventing purchase capabilities.",
+      "group": "Movie planning"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Movie plan",
+      "command": "movie-plan",
+      "description": "Find, filter, and rank AMC showtimes by theatre or current location without purchasing tickets.",
+      "rationale": "It turns AMC's low-level showtime reads into one deterministic answer to a movie-night planning request.",
+      "example": "amc-theatres-pp-cli movie-plan \"Dune\" --latitude 40.7128 --longitude -74.0060 --after 18:00 --format IMAX --agent",
+      "why_it_matters": "Agents can return a short ranked set of relevant screenings without inventing purchase capabilities.",
+      "group": "Movie planning"
+    }
+  ],
+  "auth": {},
+  "narrative": {
+    "display_name": "AMC Theatres",
+    "headline": "Official AMC showtimes and movie-night planning from an agent-ready CLI.",
+    "value_prop": "Query every documented AMC Showtime API v2 read operation or get a ranked movie plan by theatre or location, with explicit production and sandbox support.",
+    "auth_narrative": "Create an AMC developer application, set its vendor key, optionally set a user authorization token, and choose production or sandbox.",
+    "quickstart": [
+      {
+        "command": "amc-theatres-pp-cli movie-plan \"Dune\" --theatre 1234 --date 2026-07-24 --after 18:00 --agent",
+        "comment": "Rank evening showtimes at one AMC theatre."
+      },
+      {
+        "command": "amc-theatres-pp-cli movie-plan \"Dune\" --latitude 40.7128 --longitude -74.0060 --format IMAX --agent",
+        "comment": "Find nearby IMAX screenings and rank them by distance and start time."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "The API reports that the vendor key is missing or invalid.",
+        "fix": "Run auth setup and export AMC_THEATRES_VENDOR_KEY from the official AMC developer portal."
+      },
+      {
+        "symptom": "A sandbox credential is being sent to production.",
+        "fix": "Set AMC_THEATRES_ENV=sandbox; explicit custom base URLs remain unchanged for tests and controlled deployments."
+      }
+    ],
+    "when_to_use": "Use this CLI to inspect AMC showtimes, find a movie's earliest screening, or prepare a ranked read-only movie plan.",
+    "anti_triggers": [
+      "Do not claim the CLI purchased a ticket, selected a seat, or submitted payment.",
+      "Do not use a production credential against the sandbox or a sandbox credential against production."
+    ],
+    "recipes": [
+      {
+        "title": "Plan a movie at one theatre",
+        "command": "amc-theatres-pp-cli movie-plan \"Dune\" --theatre 1234 --date 2026-07-24 --after 18:00 --agent",
+        "explanation": "Queries dated theatre showtimes, filters the movie and earliest time, and ranks matching screenings."
+      },
+      {
+        "title": "Find nearby premium-format showtimes",
+        "command": "amc-theatres-pp-cli movie-plan \"Dune\" --latitude 40.7128 --longitude -74.0060 --format IMAX --agent",
+        "explanation": "Queries AMC's current-location view and ranks matching premium-format screenings by distance and time."
+      }
+    ],
+    "trigger_phrases": [
+      "what is playing at my AMC tonight",
+      "find AMC showtimes near me",
+      "find an IMAX showing at AMC",
+      "when is the earliest AMC showtime",
+      "use AMC Theatres"
+    ]
+  }
+}

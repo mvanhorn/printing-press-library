@@ -1,0 +1,16 @@
+# agentcookie.toml: secrets-bus adoption manifest v2
+# See docs/spec-agentcookie-secrets-bus-v2-adoption.md
+schema_version = 2
+name = "amc-theatres-pp-cli"
+display_name = "Amc Theatres Showtime"
+description = "Browser-captured docs-derived contract for AMC Theatres Showtime API v2."
+project_kind = "cli"
+
+[secrets.file]
+path = "~/.config/amc-theatres-pp-cli/config.toml"
+
+[sync]
+default = false
+
+[sync.keys]
+AMC_THEATRES_VENDOR_KEY = true
