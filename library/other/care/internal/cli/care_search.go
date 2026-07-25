@@ -176,7 +176,7 @@ func firstInitial(s string) string {
 
 func newCareFindCmd(flags *rootFlags) *cobra.Command {
 	var zip, careType, sortOrder, jobRef string
-	var limit, maxScanPages, minExp, minReviews int
+	var limit, minExp, minReviews int
 	var minRate, maxRate float64
 
 	cmd := &cobra.Command{
@@ -312,7 +312,6 @@ func newCareFindCmd(flags *rootFlags) *cobra.Command {
 	cmd.Flags().StringVar(&careType, "care-type", "SITTER", "care.com careType (SITTER for babysitters/nannies)")
 	cmd.Flags().StringVar(&sortOrder, "sort", "SORT_ORDER_RECOMMENDED_DESCENDING", "care.com search sort order")
 	cmd.Flags().IntVar(&limit, "limit", 10, "maximum caregivers to return")
-	cmd.Flags().IntVar(&maxScanPages, "max-scan-pages", 1, "reserved for pagination")
 	cmd.Flags().IntVar(&minExp, "min-exp", 0, "minimum years of experience")
 	cmd.Flags().IntVar(&minReviews, "min-reviews", 0, "minimum total reviews")
 	cmd.Flags().Float64Var(&minRate, "min-rate", 0, "minimum hourly rate (USD)")
