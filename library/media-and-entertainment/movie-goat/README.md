@@ -172,7 +172,7 @@ These capabilities aren't available in any other tool for this API.
   ```
 - **Remake-aware title resolution** — Every command that takes a title instead of a TMDb id tells you when the title is shared.
 
-  _TMDb orders search by popularity, so `"Sabrina"` lands on the 1995 remake even though the 1954 Wilder original has twice the ratings. When a title has more than one well-rated match, the alternatives print to **stderr** with their TMDb ids; stdout stays pure JSON, so `--agent`, `--select`, and pipes are untouched. Pin one with `--year`, a `"Title (YYYY)"` suffix, or the id._
+  _TMDb orders search by popularity, so `"Sabrina"` lands on the 1995 remake even though the 1954 Wilder original has twice the ratings. When a title has more than one well-rated match the CLI says so on **both** channels: a notice on stderr for humans, and a `meta.ambiguous` record in the JSON for scripts that run with `2>/dev/null`. Pin one with `--year`, a `"Title (YYYY)"` suffix, or the id._
 
   ```bash
   movie-goat-pp-cli ratings "Sabrina" --year 1954 --json
@@ -340,7 +340,27 @@ movie-goat-pp-cli watchlist add "Sabrina" --year 1954
 
 `--year` is available on `ratings`, `marathon`, and `watchlist add`; the inline
 `"Title (YYYY)"` suffix works on every command that accepts a title, including
-the two-positional `versus`. `--quiet` suppresses the stderr notice.
+the two-positional `versus`.
+
+```bash
+# 14. Detect the ambiguity from a script that never reads stderr.
+movie-goat-pp-cli ratings "Sabrina" --agent 2>/dev/null | jq '.meta.ambiguous[0].signal'
+# → "alternative_better_rated"  (TMDb's top pick is not the best-rated match)
+movie-goat-pp-cli ratings "Inception" --agent 2>/dev/null | jq '.meta'
+# → null  (no ambiguity, so no field)
+```
+
+The `meta.ambiguous` record carries the query, the chosen entry, every notable
+alternative (tmdb_id, title, year, vote_count), and a `signal` of
+`alternative_better_rated` or `multiple_exact_matches`. It is a list because one
+command can resolve several titles — `versus` resolves two.
+
+It only appears when the stderr notice fires, so existing parsers see no change
+on unambiguous lookups. `--select` deliberately cannot filter it out (narrowing
+the field list is exactly what would hide it), and `--compact` / `--agent` keep
+it. `--quiet` silences the stderr notice but not the record — though on these
+commands `--quiet` already suppresses stdout entirely, so read the field with
+`--json` instead.
 
 ## Output Formats
 

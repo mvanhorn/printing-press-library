@@ -40,6 +40,12 @@ type rootFlags struct {
 	dataSource    string
 	freshnessMeta any
 
+	// PATCH(title-resolution-must-signal-ambiguity)
+	// ambiguities records every title/name lookup in this invocation that had
+	// more than one plausible match. Machine-owned, like freshnessMeta: the
+	// resolvers append, and the output layer serializes it as meta.ambiguous.
+	ambiguities []ambiguityMeta
+
 	// deliverBuf captures command output when --deliver is set to a
 	// non-stdout sink. Flushed to the sink after Execute returns.
 	deliverBuf  *bytes.Buffer

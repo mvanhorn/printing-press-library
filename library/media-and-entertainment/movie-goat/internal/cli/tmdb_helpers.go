@@ -3,6 +3,7 @@ package cli
 import (
 	"encoding/json"
 	"fmt"
+	"io"
 	"os"
 	"regexp"
 	"strconv"
@@ -362,46 +363,127 @@ func describeResult(r tmdbSearchResult) string {
 	return r.DisplayTitle()
 }
 
-// warnAmbiguousMatch prints a disambiguation notice to stderr when a title or
-// name search had more than one plausible exact match. It never writes to
-// stdout, so the JSON contract (and --agent, --select, and pipes) is untouched;
-// --quiet suppresses it entirely. yearHint is the flag name callers expose, or
-// "" for commands that only accept the inline "(YYYY)" form.
-func warnAmbiguousMatch(flags *rootFlags, kindLabel, query string, matches []tmdbSearchResult, minVotes int, yearHint string) {
-	if flags != nil && flags.quiet {
-		return
+// ambiguousCandidate is one entry in an ambiguity record: enough to identify
+// the title or person and to see why the ranking came out the way it did.
+type ambiguousCandidate struct {
+	TMDBID     int     `json:"tmdb_id"`
+	Title      string  `json:"title"`
+	Year       string  `json:"year,omitempty"`
+	VoteCount  int     `json:"vote_count"`
+	Popularity float64 `json:"popularity,omitempty"`
+	KnownFor   string  `json:"known_for,omitempty"`
+}
+
+// Signals recorded on ambiguityMeta.Signal.
+const (
+	// signalBetterRated means the entry TMDb ranked first is not the one with
+	// the most ratings — the failure mode that made `ratings "Sabrina"` return
+	// the 1995 remake over the 1954 original.
+	signalBetterRated = "alternative_better_rated"
+	// signalMultipleMatches means several plausible entries share the query,
+	// but the chosen one is also the best-rated.
+	signalMultipleMatches = "multiple_exact_matches"
+)
+
+// ambiguityMeta is the machine-readable twin of the stderr notice. It is
+// emitted under meta.ambiguous so a consumer that only reads stdout — a cron
+// job, a scheduled script, anything running with 2>/dev/null — can still tell
+// that the title it asked for resolved to a ranked guess.
+type ambiguityMeta struct {
+	Query        string               `json:"query"`
+	Kind         string               `json:"kind"`
+	MatchCount   int                  `json:"match_count"`
+	Signal       string               `json:"signal"`
+	Chosen       ambiguousCandidate   `json:"chosen"`
+	Alternatives []ambiguousCandidate `json:"alternatives"`
+	Hint         string               `json:"hint"`
+}
+
+// toCandidate projects a search result onto the ambiguity record shape.
+func toCandidate(r tmdbSearchResult) ambiguousCandidate {
+	return ambiguousCandidate{
+		TMDBID:     r.ID,
+		Title:      r.DisplayTitle(),
+		Year:       r.Year(),
+		VoteCount:  r.VoteCount,
+		Popularity: r.Popularity,
+		KnownFor:   r.KnownFor,
 	}
+}
+
+// noteAmbiguity is the single entry point for an ambiguous resolution. It
+// records the ambiguity for the JSON output and, unless --quiet, prints the
+// human notice to stderr.
+//
+// The two channels are deliberately independent: --quiet is about terminal
+// chatter, while the JSON field is a fact about how the result was resolved
+// that a machine consumer needs either way. yearHint is the flag name the
+// calling command exposes, or "" for commands that only accept the inline
+// "(YYYY)" form.
+func noteAmbiguity(flags *rootFlags, kindLabel, query string, matches []tmdbSearchResult, minVotes int, yearHint string) {
 	alts := notableAlternatives(matches, minVotes)
 	if len(alts) == 0 {
 		return
 	}
 	chosen := matches[0]
 
-	fmt.Fprintf(os.Stderr, "warn: %q matches %d %s on TMDb; using id %d — %s.\n",
+	hint := fmt.Sprintf("Disambiguate with a %q suffix or the TMDb id.", "title (YYYY)")
+	if yearHint != "" {
+		hint = fmt.Sprintf("Disambiguate with %s <YYYY>, a %q suffix, or the TMDb id.", yearHint, "title (YYYY)")
+	}
+	signal := signalMultipleMatches
+	if alts[0].VoteCount > chosen.VoteCount {
+		signal = signalBetterRated
+	}
+
+	if flags != nil {
+		rec := ambiguityMeta{
+			Query:      query,
+			Kind:       kindLabel,
+			MatchCount: len(alts) + 1,
+			Signal:     signal,
+			Chosen:     toCandidate(chosen),
+			Hint:       hint,
+		}
+		// The JSON record carries every notable alternative; only the stderr
+		// notice truncates, because a terminal has a reader and a parser
+		// doesn't.
+		for _, r := range alts {
+			rec.Alternatives = append(rec.Alternatives, toCandidate(r))
+		}
+		flags.ambiguities = append(flags.ambiguities, rec)
+	}
+
+	if flags != nil && flags.quiet {
+		return
+	}
+	printAmbiguityNotice(os.Stderr, kindLabel, query, chosen, alts, signal, hint)
+}
+
+// printAmbiguityNotice writes the human-facing disambiguation notice. It only
+// ever writes to the given stderr-like writer — stdout stays reserved for the
+// response document.
+func printAmbiguityNotice(w io.Writer, kindLabel, query string, chosen tmdbSearchResult, alts []tmdbSearchResult, signal, hint string) {
+	fmt.Fprintf(w, "warn: %q matches %d %s on TMDb; using id %d — %s.\n",
 		query, len(alts)+1, kindLabel, chosen.ID, describeResult(chosen))
 	// The trap worth naming out loud: TMDb orders by popularity, so a remake
 	// can outrank a better-rated original.
-	if best := alts[0]; best.VoteCount > chosen.VoteCount {
-		fmt.Fprintf(os.Stderr, "      TMDb ranks it first by popularity, but %s has more ratings (%d vs %d).\n",
-			describeResult(best), best.VoteCount, chosen.VoteCount)
+	if signal == signalBetterRated {
+		fmt.Fprintf(w, "      TMDb ranks it first by popularity, but %s has more ratings (%d vs %d).\n",
+			describeResult(alts[0]), alts[0].VoteCount, chosen.VoteCount)
 	}
-	fmt.Fprintln(os.Stderr, "      Other matches:")
+	fmt.Fprintln(w, "      Other matches:")
 	shown := alts
 	if len(shown) > maxListedAlternatives {
 		shown = shown[:maxListedAlternatives]
 	}
 	for _, r := range shown {
-		fmt.Fprintf(os.Stderr, "        %d  %s\n", r.ID, describeResult(r))
+		fmt.Fprintf(w, "        %d  %s\n", r.ID, describeResult(r))
 	}
 	if rest := len(alts) - len(shown); rest > 0 {
-		fmt.Fprintf(os.Stderr, "        … and %d more\n", rest)
+		fmt.Fprintf(w, "        … and %d more\n", rest)
 	}
-	if yearHint != "" {
-		fmt.Fprintf(os.Stderr, "      Disambiguate with %s <YYYY>, a %q suffix, or the TMDb id.\n",
-			yearHint, "title (YYYY)")
-		return
-	}
-	fmt.Fprintf(os.Stderr, "      Disambiguate with a %q suffix or the TMDb id.\n", "title (YYYY)")
+	fmt.Fprintf(w, "      %s\n", hint)
 }
 
 // searchByTitle is the shared movie/tv title search. year is optional and is
@@ -429,7 +511,7 @@ func searchByTitle(c *client.Client, flags *rootFlags, path, yearParam, kindLabe
 	// A year constraint already narrowed the field; only warn when the caller
 	// gave us nothing to disambiguate with.
 	if year == "" {
-		warnAmbiguousMatch(flags, kindLabel, title, exactTitleMatches(resp.Results, title), notableVoteFloor, yearHint)
+		noteAmbiguity(flags, kindLabel, title, exactTitleMatches(resp.Results, title), notableVoteFloor, yearHint)
 	}
 	r := resp.Results[0]
 	return r.ID, r.DisplayTitle(), nil
@@ -462,7 +544,7 @@ func searchPersonByName(c *client.Client, flags *rootFlags, name string) (*tmdbS
 	if len(resp.Results) == 0 {
 		return nil, fmt.Errorf("no person found for %q", name)
 	}
-	warnAmbiguousMatch(flags, "people", name, exactTitleMatches(resp.Results, name), 0, "")
+	noteAmbiguity(flags, "people", name, exactTitleMatches(resp.Results, name), 0, "")
 	return &resp.Results[0], nil
 }
 

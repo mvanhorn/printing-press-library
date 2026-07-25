@@ -1,6 +1,206 @@
 package cli
 
-import "testing"
+import (
+	"bytes"
+	"encoding/json"
+	"strings"
+	"testing"
+)
+
+// sabrinaMatches mirrors the live TMDb ordering for the query that motivated
+// this fix: the 1995 remake ranks first on popularity, the 1954 original has
+// twice the ratings.
+func sabrinaMatches() []tmdbSearchResult {
+	return []tmdbSearchResult{
+		{ID: 11860, Title: "Sabrina", ReleaseDate: "1995-12-15", VoteCount: 703, Popularity: 3.59},
+		{ID: 6620, Title: "Sabrina", ReleaseDate: "1954-09-22", VoteCount: 1373, Popularity: 4.24},
+		{ID: 503902, Title: "Sabrina", ReleaseDate: "2018-01-01", VoteCount: 194, Popularity: 1.83},
+		{ID: 708143, Title: "Sabrina", ReleaseDate: "2011-01-01", VoteCount: 0},
+	}
+}
+
+func TestNoteAmbiguityRecordsForJSON(t *testing.T) {
+	flags := &rootFlags{}
+	noteAmbiguity(flags, "titles", "Sabrina", sabrinaMatches(), notableVoteFloor, "--year")
+
+	if len(flags.ambiguities) != 1 {
+		t.Fatalf("recorded %d ambiguities, want 1", len(flags.ambiguities))
+	}
+	rec := flags.ambiguities[0]
+	if rec.Query != "Sabrina" || rec.Kind != "titles" {
+		t.Errorf("query/kind = %q/%q, want Sabrina/titles", rec.Query, rec.Kind)
+	}
+	if rec.Signal != signalBetterRated {
+		t.Errorf("signal = %q, want %q — the chosen entry has fewer ratings than an alternative", rec.Signal, signalBetterRated)
+	}
+	if rec.MatchCount != 3 {
+		t.Errorf("match_count = %d, want 3 (chosen + 2 notable alternatives)", rec.MatchCount)
+	}
+	if rec.Chosen.TMDBID != 11860 || rec.Chosen.Year != "1995" || rec.Chosen.VoteCount != 703 {
+		t.Errorf("chosen = %+v, want the 1995 entry with its vote count", rec.Chosen)
+	}
+	if len(rec.Alternatives) != 2 || rec.Alternatives[0].TMDBID != 6620 {
+		t.Fatalf("alternatives = %+v, want 6620 first", rec.Alternatives)
+	}
+	if !strings.Contains(rec.Hint, "--year") {
+		t.Errorf("hint = %q, want it to name the --year flag the command exposes", rec.Hint)
+	}
+}
+
+func TestNoteAmbiguitySilentWhenNoNotableAlternatives(t *testing.T) {
+	flags := &rootFlags{}
+	inception := []tmdbSearchResult{
+		{ID: 27205, Title: "Inception", ReleaseDate: "2010-07-15", VoteCount: 39638},
+		{ID: 1359046, Title: "Inception", ReleaseDate: "1980-01-01", VoteCount: 0},
+	}
+	noteAmbiguity(flags, "titles", "Inception", inception, notableVoteFloor, "--year")
+	if len(flags.ambiguities) != 0 {
+		t.Errorf("recorded %d ambiguities for an unambiguous title, want 0 — the JSON field must not appear when the stderr notice doesn't fire", len(flags.ambiguities))
+	}
+}
+
+func TestNoteAmbiguityQuietStillRecords(t *testing.T) {
+	// --quiet is about terminal chatter; the JSON record is a fact about how
+	// the result was resolved and has a different audience.
+	flags := &rootFlags{quiet: true}
+	noteAmbiguity(flags, "titles", "Sabrina", sabrinaMatches(), notableVoteFloor, "--year")
+	if len(flags.ambiguities) != 1 {
+		t.Fatalf("--quiet suppressed the JSON record (%d recorded), want 1", len(flags.ambiguities))
+	}
+}
+
+func TestNoteAmbiguityHintWithoutYearFlag(t *testing.T) {
+	flags := &rootFlags{}
+	noteAmbiguity(flags, "titles", "Sabrina", sabrinaMatches(), notableVoteFloor, "")
+	hint := flags.ambiguities[0].Hint
+	if strings.Contains(hint, "--year") {
+		t.Errorf("hint = %q, must not offer --year to a command that has no such flag", hint)
+	}
+	if !strings.Contains(hint, "(YYYY)") {
+		t.Errorf("hint = %q, want the inline-year form offered instead", hint)
+	}
+}
+
+func TestNoteAmbiguityPersonSignal(t *testing.T) {
+	flags := &rootFlags{}
+	people := []tmdbSearchResult{
+		{ID: 1405209, Name: "David Jones", Popularity: 0.36, KnownFor: "Visual Effects"},
+		{ID: 52784, Name: "David Jones", Popularity: 0.25, KnownFor: "Acting"},
+	}
+	noteAmbiguity(flags, "people", "David Jones", people, 0, "")
+	if len(flags.ambiguities) != 1 {
+		t.Fatalf("recorded %d ambiguities for namesakes, want 1", len(flags.ambiguities))
+	}
+	rec := flags.ambiguities[0]
+	if rec.Signal != signalMultipleMatches {
+		t.Errorf("signal = %q, want %q — people carry no vote counts to compare", rec.Signal, signalMultipleMatches)
+	}
+	if rec.Chosen.KnownFor != "Visual Effects" || rec.Alternatives[0].KnownFor != "Acting" {
+		t.Errorf("known_for missing from the person record: %+v / %+v", rec.Chosen, rec.Alternatives[0])
+	}
+}
+
+func TestPrintAmbiguityNotice(t *testing.T) {
+	matches := sabrinaMatches()
+	alts := notableAlternatives(matches, notableVoteFloor)
+	var buf bytes.Buffer
+	printAmbiguityNotice(&buf, "titles", "Sabrina", matches[0], alts, signalBetterRated, "Disambiguate with --year <YYYY>.")
+	out := buf.String()
+	for _, want := range []string{"matches 3 titles", "using id 11860", "has more ratings (1373 vs 703)", "6620", "--year"} {
+		if !strings.Contains(out, want) {
+			t.Errorf("notice missing %q:\n%s", want, out)
+		}
+	}
+}
+
+func TestPrintAmbiguityNoticeTruncatesLongLists(t *testing.T) {
+	matches := []tmdbSearchResult{{ID: 1, Title: "Foo", VoteCount: 100}}
+	for i := 0; i < maxListedAlternatives+3; i++ {
+		matches = append(matches, tmdbSearchResult{ID: 100 + i, Title: "Foo", VoteCount: 60})
+	}
+	alts := notableAlternatives(matches, notableVoteFloor)
+	var buf bytes.Buffer
+	printAmbiguityNotice(&buf, "titles", "Foo", matches[0], alts, signalMultipleMatches, "hint")
+	if !strings.Contains(buf.String(), "and 3 more") {
+		t.Errorf("long alternative list not truncated:\n%s", buf.String())
+	}
+}
+
+func TestInjectAmbiguityMeta(t *testing.T) {
+	doc := json.RawMessage(`{"title":"Sabrina","ratings":{"imdb":"6.3"}}`)
+
+	// No recorded ambiguity — the document must come back byte-identical.
+	if got := injectAmbiguityMeta(doc, &rootFlags{}); string(got) != string(doc) {
+		t.Errorf("injected into a clean run: %s", got)
+	}
+	if got := injectAmbiguityMeta(doc, nil); string(got) != string(doc) {
+		t.Errorf("nil flags mutated the document: %s", got)
+	}
+
+	flags := &rootFlags{}
+	noteAmbiguity(flags, "titles", "Sabrina", sabrinaMatches(), notableVoteFloor, "--year")
+
+	var out map[string]json.RawMessage
+	if err := json.Unmarshal(injectAmbiguityMeta(doc, flags), &out); err != nil {
+		t.Fatalf("injected document is not valid JSON: %v", err)
+	}
+	// Additive: pre-existing keys survive untouched.
+	if string(out["title"]) != `"Sabrina"` {
+		t.Errorf("title was altered: %s", out["title"])
+	}
+	if string(out["ratings"]) != `{"imdb":"6.3"}` {
+		t.Errorf("ratings was altered: %s", out["ratings"])
+	}
+	var meta struct {
+		Ambiguous []ambiguityMeta `json:"ambiguous"`
+	}
+	if err := json.Unmarshal(out["meta"], &meta); err != nil {
+		t.Fatalf("meta is not an object: %v", err)
+	}
+	if len(meta.Ambiguous) != 1 || meta.Ambiguous[0].Chosen.TMDBID != 11860 {
+		t.Errorf("meta.ambiguous = %+v", meta.Ambiguous)
+	}
+}
+
+func TestInjectAmbiguityMetaMergesExistingMeta(t *testing.T) {
+	flags := &rootFlags{}
+	noteAmbiguity(flags, "titles", "Sabrina", sabrinaMatches(), notableVoteFloor, "--year")
+
+	// The provenance envelope already owns meta.source — merge, don't clobber.
+	doc := json.RawMessage(`{"results":[],"meta":{"source":"live"}}`)
+	var out struct {
+		Meta struct {
+			Source    string          `json:"source"`
+			Ambiguous []ambiguityMeta `json:"ambiguous"`
+		} `json:"meta"`
+	}
+	if err := json.Unmarshal(injectAmbiguityMeta(doc, flags), &out); err != nil {
+		t.Fatalf("bad JSON: %v", err)
+	}
+	if out.Meta.Source != "live" {
+		t.Errorf("meta.source was clobbered: %q", out.Meta.Source)
+	}
+	if len(out.Meta.Ambiguous) != 1 {
+		t.Errorf("meta.ambiguous missing after merge: %+v", out.Meta)
+	}
+}
+
+func TestInjectAmbiguityMetaLeavesNonObjectsAlone(t *testing.T) {
+	flags := &rootFlags{}
+	noteAmbiguity(flags, "titles", "Sabrina", sabrinaMatches(), notableVoteFloor, "--year")
+
+	for _, doc := range []string{`[{"id":1}]`, `"plain text"`, `not json at all`} {
+		if got := injectAmbiguityMeta(json.RawMessage(doc), flags); string(got) != doc {
+			t.Errorf("injectAmbiguityMeta(%s) = %s, want unchanged — there is no object to add a key to", doc, got)
+		}
+	}
+
+	// A meta field that isn't an object belongs to someone else; don't touch it.
+	weird := `{"title":"x","meta":"already a string"}`
+	if got := injectAmbiguityMeta(json.RawMessage(weird), flags); string(got) != weird {
+		t.Errorf("clobbered a non-object meta: %s", got)
+	}
+}
 
 func TestSplitInlineYear(t *testing.T) {
 	cases := []struct {
