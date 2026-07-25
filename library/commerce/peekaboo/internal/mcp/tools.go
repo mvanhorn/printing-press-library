@@ -9,6 +9,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"math"
+	"net/url"
 	"os"
 	"path/filepath"
 	"strconv"
@@ -153,10 +154,11 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithNumber("lat", mcplib.Required(), mcplib.Description("City latitude")),
 			mcplib.WithNumber("long", mcplib.Required(), mcplib.Description("City longitude")),
 			mcplib.WithString("language", mcplib.Required(), mcplib.Description("Language code")),
+			mcplib.WithReadOnlyHintAnnotation(true),
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("POST", "/v8/entity/detail", false, false, nil, mcpPageConfig{}, []mcpParamBinding{{PublicName: "entity-id", WireName: "entityId", Location: "body"}, {PublicName: "city", WireName: "city", Location: "body"}, {PublicName: "country", WireName: "country", Location: "body"}, {PublicName: "lat", WireName: "lat", Location: "body"}, {PublicName: "long", WireName: "long", Location: "body"}, {PublicName: "language", WireName: "language", Location: "body"}}, []string{}),
+		makeAPIHandler("POST", "/v8/entity/detail", true, false, nil, mcpPageConfig{}, []mcpParamBinding{{PublicName: "entity-id", WireName: "entityId", Location: "body"}, {PublicName: "city", WireName: "city", Location: "body"}, {PublicName: "country", WireName: "country", Location: "body"}, {PublicName: "lat", WireName: "lat", Location: "body"}, {PublicName: "long", WireName: "long", Location: "body"}, {PublicName: "language", WireName: "language", Location: "body"}}, []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("places_list",
@@ -174,11 +176,11 @@ func RegisterTools(s *server.MCPServer) {
 		),
 		makeAPIHandler("POST", "/v8/entities", true, false, nil, mcpPageConfig{}, []mcpParamBinding{{PublicName: "country", WireName: "country", Location: "body"}, {PublicName: "city", WireName: "city", Location: "body"}, {PublicName: "category", WireName: "category", Location: "body"}, {PublicName: "limit", WireName: "limit", Location: "body"}, {PublicName: "offset", WireName: "offset", Location: "body"}, {PublicName: "latitude", WireName: "latitude", Location: "body"}, {PublicName: "longitude", WireName: "longitude", Location: "body"}}, []string{}),
 	)
-	// SQL tool — ad-hoc analysis on synced data without API calls
+	// SQL tool — ad-hoc analysis on persisted live-read data without API calls
 	s.AddTool(
 		mcplib.NewTool("sql",
-			mcplib.WithDescription("Run read-only SQL against local database. Use for ad-hoc analysis, aggregations, and joins across synced resources. Requires sync first."),
-			mcplib.WithString("query", mcplib.Required(), mcplib.Description("SQL query (SELECT or WITH...SELECT). Synced records live in resources(resource_type, id, data); filter by resource_type and use json_extract on data, e.g. SELECT json_extract(data,'$.name') FROM resources WHERE resource_type='amenities'.")),
+			mcplib.WithDescription("Run read-only SQL against the local database. Use for ad-hoc analysis, aggregations, and joins after live endpoint calls have populated records."),
+			mcplib.WithString("query", mcplib.Required(), mcplib.Description("SQL query (SELECT or WITH...SELECT). Persisted records live in resources(resource_type, id, data); filter by resource_type and use json_extract on data, e.g. SELECT json_extract(data,'$.name') FROM resources WHERE resource_type='amenities'.")),
 			mcplib.WithReadOnlyHintAnnotation(true),
 			mcplib.WithDestructiveHintAnnotation(false),
 		),
@@ -252,7 +254,7 @@ func formatMCPParamValue(v any) string {
 // makeAPIHandler creates a generic MCP tool handler for an API endpoint.
 func makeAPIHandler(method, pathTemplate string, readOnly bool, binaryResponse bool, headerOverrides map[string]string, pageConfig mcpPageConfig, bindings []mcpParamBinding, positionalParams []string) server.ToolHandlerFunc {
 	return func(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.CallToolResult, error) {
-		c, err := newMCPClient()
+		c, err := newMCPClient(ctx)
 		if err != nil {
 			return mcplib.NewToolResultError(err.Error()), nil
 		}
@@ -315,7 +317,7 @@ func makeAPIHandler(method, pathTemplate string, readOnly bool, binaryResponse b
 			case "path":
 				placeholder := "{" + binding.WireName + "}"
 				pathParams[binding.PublicName] = true
-				path = strings.Replace(path, placeholder, formatMCPParamValue(v), 1)
+				path = strings.Replace(path, placeholder, url.PathEscape(formatMCPParamValue(v)), 1)
 			case "body":
 				bodyArgs[binding.WireName] = v
 			default:
@@ -329,7 +331,7 @@ func makeAPIHandler(method, pathTemplate string, readOnly bool, binaryResponse b
 			}
 			pathParams[p] = true
 			if v, ok := args[p]; ok {
-				path = strings.Replace(path, placeholder, formatMCPParamValue(v), 1)
+				path = strings.Replace(path, placeholder, url.PathEscape(formatMCPParamValue(v)), 1)
 			}
 		}
 
@@ -455,10 +457,19 @@ func mcpToolPageResultText(method string, data json.RawMessage, pageConfig mcpPa
 	}))
 }
 
-func newMCPClient() (*client.Client, error) {
+func newMCPClient(ctx context.Context) (*client.Client, error) {
 	cfg, err := newMCPConfig()
 	if err != nil {
 		return nil, err
+	}
+	if cfg.AuthHeader() == "" && !cliutil.IsVerifyEnv() {
+		if err := cli.EnsureGuestToken(ctx, "", 60*time.Second); err != nil {
+			return nil, fmt.Errorf("no Peekaboo token configured and guest-token bootstrap failed: %w", err)
+		}
+		cfg, err = newMCPConfig()
+		if err != nil {
+			return nil, err
+		}
 	}
 	return newMCPClientFromConfig(cfg), nil
 }
@@ -506,13 +517,13 @@ func openMCPReadOnlyStore(path string) (*store.Store, *mcplib.CallToolResult) {
 	}
 	db, err := store.OpenReadOnly(path)
 	if err != nil {
-		return nil, mcplib.NewToolResultError(fmt.Sprintf("opening local data store %s: %v. Run peekaboo-pp-cli sync to refresh the store, or use live endpoint MCP tools for unsynced data.", path, err))
+		return nil, mcplib.NewToolResultError(fmt.Sprintf("opening local data store %s: %v. Call a live endpoint MCP tool to fetch data, then retry the SQL query.", path, err))
 	}
 	return db, nil
 }
 
 func mcpMissingStoreMessage(path string) string {
-	return fmt.Sprintf("No local data store found at %s. Run peekaboo-pp-cli sync before using MCP search/sql, or use live endpoint MCP tools for unsynced data.", path)
+	return fmt.Sprintf("No local data store found at %s. Call a live endpoint MCP tool before using SQL; live reads populate the local store when supported.", path)
 }
 
 func mcpStoreStatus(db *store.Store) (mcpStoreStatusKind, error) {
@@ -527,7 +538,7 @@ func mcpStoreStatus(db *store.Store) (mcpStoreStatusKind, error) {
 }
 
 func mcpEmptyStoreNextStep() string {
-	return "Run peekaboo-pp-cli sync to populate the local SQLite store before using MCP search/sql."
+	return "Call a live endpoint MCP tool to populate the local SQLite store before retrying SQL."
 }
 
 // validateReadOnlyQuery gates the MCP sql tool. The agent contract advertised
@@ -755,7 +766,7 @@ func mcpSQLEnvelope(rows []map[string]any, columns []string, storeStatus mcpStor
 		if storeStatus == mcpStoreStatusEmpty {
 			out["next_step"] = mcpEmptyStoreNextStep()
 		} else {
-			out["next_step"] = "The read-only SQL query returned no rows. Check resource_type filters, json_extract paths, or run sync again if data may be stale."
+			out["next_step"] = "The read-only SQL query returned no rows. Check resource_type filters, json_extract paths, or run a live read if local data may be stale."
 		}
 	}
 	return out
@@ -764,7 +775,7 @@ func mcpSQLEnvelope(rows []map[string]any, columns []string, storeStatus mcpStor
 func mcpSQLQueryError(err error) string {
 	msg := err.Error()
 	if strings.Contains(strings.ToLower(msg), "no such table") {
-		return fmt.Sprintf("query failed: %v. Synced records live in resources(resource_type, id, data), not one SQL table per resource. Filter by resource_type, for example resource_type='amenities', and read JSON fields with json_extract(data,'$.field').", err)
+		return fmt.Sprintf("query failed: %v. Persisted records live in resources(resource_type, id, data), not one SQL table per resource. Filter by resource_type, for example resource_type='amenities', and read JSON fields with json_extract(data,'$.field').", err)
 	}
 	return fmt.Sprintf("query failed: %v", err)
 }
@@ -812,9 +823,9 @@ func handleContext(_ context.Context, _ mcplib.CallToolRequest) (*mcplib.CallToo
 				{
 					"name":        "PEEKABOO_TOKEN",
 					"kind":        "per_call",
-					"required":    true,
+					"required":    false,
 					"sensitive":   true,
-					"description": "Set to your API credential.",
+					"description": "Optional override; the MCP server bootstraps Peekaboo's public guest token when omitted.",
 				},
 			},
 		},
@@ -823,62 +834,54 @@ func handleContext(_ context.Context, _ mcplib.CallToolRequest) (*mcplib.CallToo
 				"name":        "amenities",
 				"description": "Amenities offered by a merchant (dine-in, delivery, ...)",
 				"endpoints":   []string{"list"},
-				"searchable":  true,
-				"writable":    true,
+				"writable":    false,
 			},
 			{
 				"name":        "branches",
 				"description": "Physical branches of a merchant, each with coordinates for directions",
 				"endpoints":   []string{"list"},
-				"searchable":  true,
 			},
 			{
 				"name":        "brands",
 				"description": "Brands and bank-card sources offering deals in a city",
 				"endpoints":   []string{"list"},
-				"searchable":  true,
-				"writable":    true,
+				"writable":    false,
 			},
 			{
 				"name":        "cards",
 				"description": "Bank/card sources offering deals at a merchant",
 				"endpoints":   []string{"list"},
-				"searchable":  true,
 			},
 			{
 				"name":        "categories",
 				"description": "Deal categories (Food, Lifestyle, Health, ...)",
 				"endpoints":   []string{"list"},
-				"searchable":  true,
-				"writable":    true,
+				"writable":    false,
 			},
 			{
 				"name":        "deals",
 				"description": "Deals/offers for a merchant (title, discount %, validity)",
 				"endpoints":   []string{"list"},
-				"searchable":  true,
-				"writable":    true,
+				"writable":    false,
 			},
 			{
 				"name":        "locations",
 				"description": "Cities and locations Peekaboo covers (each with coordinates and merchant count)",
 				"endpoints":   []string{"list"},
-				"writable":    true,
+				"writable":    false,
 			},
 			{
 				"name":        "places",
 				"description": "Merchants/places offering deals in a city+category",
 				"endpoints":   []string{"detail", "list"},
-				"searchable":  true,
-				"writable":    true,
+				"writable":    false,
 			},
 		},
 		"query_tips": []string{
 			"Pagination uses cursor-based paging. Pass offset parameter for subsequent pages.",
 			"Control page size with the limit parameter (default 100).",
-			"Use the sql tool for ad-hoc analysis on synced data. Run sync first to populate the local database.",
-			"Use the search tool for full-text search across all synced resources. Faster than iterating list endpoints.",
-			"Prefer sql/search over repeated API calls when the data is already synced.",
+			"Use the sql tool for ad-hoc analysis after live endpoint calls have populated the local database.",
+			"Prefer sql over repeated API calls when the records you need are already local.",
 		},
 		// Command-mirror capabilities are exposed through MCP by shelling out
 		// to the companion CLI binary.
@@ -897,8 +900,7 @@ func handleContext(_ context.Context, _ mcplib.CallToolRequest) (*mcplib.CallToo
 			{"topic": "Top deals ranking", "insight": "Fans out across a city's deal-bearing merchants, collects every deal, and ranks them by discount percentage; no cross-merchant aggregation endpoint exists upstream."},
 			{"topic": "Expiring deals", "insight": "Fans out across a city's merchants, collects their deals, and filters by end-date window; no cross-merchant deals feed exists upstream."},
 			{"topic": "Open now", "insight": "Filters the city's trending merchant listing to those Peekaboo reports open at the current time."},
-			{"topic": "Contact lookup", "insight": "Use search for finding contacts by name/email. List endpoints return unsorted results and require pagination for large datasets."},
-			{"topic": "Activity tracking", "insight": "When checking deal activity, sync first and query locally. CRM APIs often throttle activity-log endpoints heavily."},
+			{"topic": "Deal analysis", "insight": "When comparing deal activity, query the local SQL store after live endpoint reads have populated it."},
 		},
 	}
 	return toolResultJSON(ctx)

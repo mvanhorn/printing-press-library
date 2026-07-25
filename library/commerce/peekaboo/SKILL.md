@@ -24,7 +24,7 @@ This skill drives the `peekaboo-pp-cli` binary. **You must verify the CLI is ins
 
 1. Install via the Printing Press installer. It defaults binaries to `$HOME/.local/bin` on macOS/Linux and `%LOCALAPPDATA%\Programs\PrintingPress\bin` on Windows:
    ```bash
-   npx -y @mvanhorn/printing-press-library install peekaboo --cli-only
+   npx -y @mvanhorn/printing-press install peekaboo --cli-only
    ```
 2. Verify: `peekaboo-pp-cli --version`
 3. Ensure the reported install directory is on `$PATH` for the agent/runtime that will invoke this skill.
@@ -87,7 +87,7 @@ peekaboo-pp-cli which "<capability in your own words>"
 
 ## Auth Setup
 
-Run `peekaboo-pp-cli auth setup` for the URL and steps to obtain a token (add `--launch` to open the URL). Then store it:
+No token is required for the default public guest flow: authenticated commands bootstrap and cache Peekaboo's public guest token automatically. If you need to use your own credential, run `peekaboo-pp-cli auth setup` for the URL and steps, then store it:
 
 ```bash
 peekaboo-pp-cli auth set-token YOUR_TOKEN_HERE
@@ -108,7 +108,7 @@ Add `--agent` to any command. Expands to: `--json --compact --no-input --no-colo
   peekaboo-pp-cli amenities --country example-value --agent --select id,name,status
   ```
 - **Previewable** — `--dry-run` shows the request without sending
-- **Offline-friendly** — sync/search commands can use the local SQLite store when available
+- **Offline-friendly** — previous live reads can be reused from the local SQLite store when available
 - **Non-interactive** — never prompts, every input is a flag
 - **Explicit retries** — use `--idempotent` only when an already-existing create should count as success
 
@@ -158,7 +158,7 @@ This CLI ships a self-capturing learning loop. The CLI does its own bookkeeping:
 
 ### Step 1: `recall` before any discovery
 
-Before list/search/drill commands on a new user question, run:
+Before list/detail/analysis commands on a new user question, run:
 
 ```bash
 peekaboo-pp-cli recall "<user's question>" --agent
@@ -261,7 +261,7 @@ Graceful degradation: if `learnings confirm` is an unknown command, you are driv
 - `similar_shape_different_entity:<canonical>` (top-level): a structurally matching row exists but its canonical entity differs from the live query's. Treated as cold start; the warning carries the conflicting canonical as a hint, but the row is NOT promoted into Results.
 - `ambiguous_alias` (top-level): a single query entity resolved to multiple canonicals (e.g., "Cards" → Arizona Cardinals + St. Louis Cardinals). Surface the ambiguity from context before committing to a resource.
 - `candidates_present` (top-level): the envelope carries a `candidates` section. Handle it via the candidates branch in Step 2 before anything else.
-- `lookup_refresh_available` (top-level): an entity in the query has no lookup row yet, but synced data could provide one. Run `peekaboo-pp-cli sync` to refresh entity lookups.
+- `lookup_refresh_available` (top-level): an entity in the query has no lookup row yet, but local data could provide one. Run a live read command to refresh the local store and entity lookups.
 - Top-level `no_learnings_for_query_family`: the table had no rows above the Jaccard floor. Pure cold start.
 
 ### Step 4: `teach &` after finalizing your response - always

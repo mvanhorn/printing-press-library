@@ -571,16 +571,16 @@ func Recall(ctx context.Context, db *sql.DB, query string, opts Opts) (Result, e
 		result.Warnings = append(result.Warnings, TopWarningNoLearningsForQueryFamily)
 	}
 
-	// Stateless run-sync suggestion: a cold recall whose entities have
-	// no lookup coverage under any source points the agent at `sync` —
-	// the post-sync scanner derives synced lookup rows from local data,
+	// Stateless local-refresh suggestion: a cold recall whose entities have
+	// no lookup coverage under any source points the agent at a live read —
+	// the write-through scanner derives local lookup rows from live data,
 	// healing print-time seed staleness without a reprint. No candidate
 	// row backs this; the warning is recomputed each call and clears on
 	// its own once the entity resolves.
 	if !result.Found {
 		for _, e := range unresolvedEntities {
 			result.Warnings = append(result.Warnings,
-				fmt.Sprintf("%s:%s (run sync to refresh entity lookups)", TopWarningLookupRefreshAvailable, e))
+				fmt.Sprintf("%s:%s (run a live read to refresh entity lookups)", TopWarningLookupRefreshAvailable, e))
 		}
 	}
 

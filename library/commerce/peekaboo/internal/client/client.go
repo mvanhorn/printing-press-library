@@ -167,23 +167,46 @@ func New(cfg *config.Config, timeout time.Duration, rateLimit float64) *Client {
 			// "Moved Permanently" body back to the caller.
 			return errors.New("stopped after 10 redirects")
 		}
-		// Same-host gate mirrors Go's shouldCopyHeaderOnRedirect: a
-		// cross-domain 3xx (open redirect or partner handoff) must not
-		// receive the auth credential, even though we are inside
-		// CheckRedirect where Go's automatic stripping has already run.
-		if req.URL.Host == via[0].URL.Host {
+		previous := via[0].URL
+		if strings.EqualFold(previous.Scheme, "https") && !strings.EqualFold(req.URL.Scheme, "https") {
+			return fmt.Errorf("refusing redirect from HTTPS to %s", req.URL.String())
+		}
+		// Compare the complete origin, not only the host. A same-host HTTPS to
+		// HTTP downgrade is still unsafe, and cross-origin redirects must not
+		// receive custom API-key or cookie headers that net/http does not strip.
+		if sameRedirectOrigin(previous, req.URL) {
 			if h, err := c.authHeader(req.Context()); err == nil && h != "" {
 				req.Header.Set("Authorization", h)
+			} else {
+				req.Header.Del("Authorization")
 			}
 		} else {
-			// Cross-host hop: Go strips standard auth headers (Authorization,
-			// Cookie) but not custom ones, so a custom API-key header would be
-			// forwarded verbatim to the redirect target. Delete it explicitly.
-			req.Header.Del("Authorization")
+			stripSensitiveRedirectHeaders(req)
 		}
 		return nil
 	}
 	return c
+}
+
+func sameRedirectOrigin(a, b *url.URL) bool {
+	if a == nil || b == nil {
+		return false
+	}
+	return strings.EqualFold(a.Scheme, b.Scheme) && strings.EqualFold(a.Host, b.Host)
+}
+
+func stripSensitiveRedirectHeaders(req *http.Request) {
+	if req == nil {
+		return
+	}
+	for key := range req.Header {
+		switch http.CanonicalHeaderKey(key) {
+		case "Accept", "Content-Type", "User-Agent", "Origin":
+			// These headers describe the request but do not carry credentials.
+		default:
+			req.Header.Del(key)
+		}
+	}
 }
 
 // RateLimit returns the current effective rate limit in req/s. Returns 0 if disabled.

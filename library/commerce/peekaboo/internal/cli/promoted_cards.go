@@ -92,7 +92,7 @@ func newCardsPromotedCmd(flags *rootFlags) *cobra.Command {
 			if flagOffset != "" {
 				params["offset"] = formatCLIParamValue(flagOffset)
 			}
-			data, prov, err := resolveReadWithStrategyAndResponsePath(cmd.Context(), c, flags, "auto", "cards", false, path, params, nil, "", cmd.ErrOrStderr())
+			data, prov, err := resolveReadWithStrategyAndResponsePath(cmd.Context(), c, flags, "auto", "cards", true, path, params, nil, "", cmd.ErrOrStderr())
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}

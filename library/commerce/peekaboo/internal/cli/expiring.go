@@ -70,6 +70,9 @@ to catch use-it-or-lose-it offers. Do NOT use it to filter by open-now; use 'ope
 			if err != nil && len(deals) == 0 {
 				return err
 			}
+			if err != nil {
+				fmt.Fprintf(cmd.ErrOrStderr(), "warning: merchant listing incomplete; results computed over the scanned results: %v\n", err)
+			}
 
 			now := time.Now()
 			cutoff := now.Add(within)

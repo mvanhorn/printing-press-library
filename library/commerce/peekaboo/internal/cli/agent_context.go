@@ -121,9 +121,9 @@ func buildAgentContext(rootCmd *cobra.Command) agentContext {
 		{
 			Name:        "PEEKABOO_TOKEN",
 			Kind:        "per_call",
-			Required:    true,
+			Required:    false,
 			Sensitive:   true,
-			Description: "Set to your API credential.",
+			Description: "Optional override; authenticated commands bootstrap Peekaboo's public guest token when omitted.",
 		},
 	}
 	authMode := "bearer_token"

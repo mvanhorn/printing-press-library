@@ -92,7 +92,7 @@ func newBranchesPromotedCmd(flags *rootFlags) *cobra.Command {
 			if flagOffset != "" {
 				params["offset"] = formatCLIParamValue(flagOffset)
 			}
-			data, prov, err := resolveReadWithStrategyAndResponsePath(cmd.Context(), c, flags, "auto", "branches", false, path, params, nil, "branches", cmd.ErrOrStderr())
+			data, prov, err := resolveReadWithStrategyAndResponsePath(cmd.Context(), c, flags, "auto", "branches", true, path, params, nil, "branches", cmd.ErrOrStderr())
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}

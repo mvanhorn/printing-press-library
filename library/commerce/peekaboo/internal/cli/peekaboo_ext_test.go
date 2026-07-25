@@ -4,8 +4,13 @@
 package cli
 
 import (
+	"context"
+	"encoding/json"
 	"math"
+	"net/http"
+	"net/http/httptest"
 	"testing"
+	"time"
 )
 
 func TestExtractGuestToken(t *testing.T) {
@@ -104,5 +109,44 @@ func TestSortDealsByDiscountDesc(t *testing.T) {
 	sortDealsByDiscountDesc(deals)
 	if deals[0].PercentageValue != 50 || deals[1].PercentageValue != 35 || deals[2].PercentageValue != 20 {
 		t.Fatalf("sortDealsByDiscountDesc order wrong: %d,%d,%d", deals[0].PercentageValue, deals[1].PercentageValue, deals[2].PercentageValue)
+	}
+}
+
+func TestListCityEntitiesPreservesPartialPageFailure(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Path != "/v8/entities" {
+			http.NotFound(w, r)
+			return
+		}
+		var body struct {
+			Offset int `json:"offset"`
+		}
+		if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
+			http.Error(w, "invalid request", http.StatusBadRequest)
+			return
+		}
+		if body.Offset == 0 {
+			w.Header().Set("Content-Type", "application/json")
+			_, _ = w.Write([]byte(`{"nextPage":true,"entities":[{"id":7,"name":"First Merchant"}]}`))
+			return
+		}
+		http.Error(w, "page unavailable", http.StatusBadGateway)
+	}))
+	defer server.Close()
+	t.Setenv("PEEKABOO_BASE_URL", server.URL)
+	t.Setenv("PEEKABOO_TOKEN", "test-token")
+	t.Setenv("PEEKABOO_CONFIG_DIR", t.TempDir())
+	t.Setenv("PEEKABOO_DATA_DIR", t.TempDir())
+	t.Setenv("PEEKABOO_CACHE_DIR", t.TempDir())
+
+	entities, scanned, err := listCityEntities(context.Background(), &rootFlags{timeout: time.Second}, pkbLocation{City: "Lahore", Country: "Pakistan"}, 1, 2, 1)
+	if err == nil {
+		t.Fatal("listCityEntities() error = nil, want page failure")
+	}
+	if len(entities) != 1 || entities[0].ID != 7 {
+		t.Fatalf("listCityEntities() entities = %#v, want partial first page", entities)
+	}
+	if scanned != 1 {
+		t.Fatalf("listCityEntities() scanned = %d, want 1", scanned)
 	}
 }

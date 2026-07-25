@@ -39,8 +39,8 @@ func TestHintIfUnsynced_EmptySyncStateWritesHintToStderr(t *testing.T) {
 	if !hintIfUnsynced(cmd, db, "") {
 		t.Fatalf("hintIfUnsynced returned false for empty sync_state")
 	}
-	if got := stderr.String(); !strings.Contains(got, "Run 'peekaboo-pp-cli sync'") {
-		t.Fatalf("stderr = %q, want sync hint", got)
+	if got := stderr.String(); !strings.Contains(got, "Run a live read while online") {
+		t.Fatalf("stderr = %q, want live-read hint", got)
 	}
 }
 
@@ -61,8 +61,8 @@ func TestHintIfStale_BackdatedSyncStateWritesHintToStderr(t *testing.T) {
 		t.Fatalf("hintIfStale returned false for stale sync_state")
 	}
 	got := stderr.String()
-	if !strings.Contains(got, "older than --max-age=30m0s") || !strings.Contains(got, "Run 'peekaboo-pp-cli sync'") {
-		t.Fatalf("stderr = %q, want stale sync hint", got)
+	if !strings.Contains(got, "older than --max-age=30m0s") || !strings.Contains(got, "Run a live read while online") {
+		t.Fatalf("stderr = %q, want stale live-read hint", got)
 	}
 }
 
@@ -97,7 +97,7 @@ func TestHintIfUnsynced_NullTimestampWritesHint(t *testing.T) {
 	if !hintIfUnsynced(cmd, db, "issues") {
 		t.Fatalf("hintIfUnsynced returned false for null last_synced_at")
 	}
-	if got := stderr.String(); !strings.Contains(got, "has not been synced yet") {
+	if got := stderr.String(); !strings.Contains(got, "has no recorded live reads yet") {
 		t.Fatalf("stderr = %q, want unsynced hint", got)
 	}
 }
@@ -169,7 +169,7 @@ func TestHintIfStale_ResourceFilterUsesRequestedResource(t *testing.T) {
 	if !hintIfUnsynced(cmd, db, "comments") {
 		t.Fatalf("hintIfUnsynced returned false for unsynced comments resource")
 	}
-	if got := stderr.String(); !strings.Contains(got, "has not been synced yet") {
+	if got := stderr.String(); !strings.Contains(got, "has no recorded live reads yet") {
 		t.Fatalf("stderr = %q, want unsynced comments hint", got)
 	}
 }

@@ -1803,6 +1803,7 @@ type DataProvenance struct {
 	SyncedAt     *time.Time `json:"synced_at,omitempty"`     // when local data was last synced
 	Reason       string     `json:"reason,omitempty"`        // why local was used: "user_requested", "api_unreachable", "no_search_endpoint"
 	ResourceType string     `json:"resource_type,omitempty"` // which resource type was queried
+	Unscoped     bool       `json:"unscoped,omitempty"`      // local result did not apply endpoint filters
 	Freshness    any        `json:"freshness,omitempty"`     // optional machine-owned freshness metadata for covered command paths
 }
 
@@ -1871,6 +1872,9 @@ func wrapWithProvenance(data json.RawMessage, prov DataProvenance) (json.RawMess
 	}
 	if prov.ResourceType != "" {
 		meta["resource_type"] = prov.ResourceType
+	}
+	if prov.Unscoped {
+		meta["unscoped"] = true
 	}
 	if prov.Freshness != nil {
 		meta["freshness"] = prov.Freshness

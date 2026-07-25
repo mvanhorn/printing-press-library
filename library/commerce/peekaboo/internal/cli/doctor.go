@@ -176,7 +176,7 @@ func newDoctorCmd(flags *rootFlags) *cobra.Command {
 				header := cfg.AuthHeader()
 				if header == "" {
 					report["auth"] = "not configured"
-					report["auth_hint"] = "Set it with: peekaboo-pp-cli auth set-token <token> or export PEEKABOO_TOKEN=\"your-token-here\""
+					report["auth_hint"] = "Authenticated commands bootstrap Peekaboo's public guest token automatically. To override it, use: peekaboo-pp-cli auth set-token <token> or export PEEKABOO_TOKEN=\"your-token-here\""
 				} else {
 					authConfigured = true
 					report["auth"] = "configured"
@@ -200,13 +200,13 @@ func newDoctorCmd(flags *rootFlags) *cobra.Command {
 				}
 				authEnvInfo = append(authEnvInfo, "credentials available from "+authSource)
 			} else {
-				authEnvRequiredMissing = append(authEnvRequiredMissing, "PEEKABOO_TOKEN")
+				authEnvOptionalNames = append(authEnvOptionalNames, "PEEKABOO_TOKEN")
 			}
 			switch {
 			case len(authEnvRequiredMissing) > 0:
 				report["env_vars"] = "ERROR missing required: " + strings.Join(authEnvRequiredMissing, ", ")
-			case len(authEnvOptionalNames) > 1 && !authEnvOptionalSatisfied:
-				report["env_vars"] = "INFO set one of: " + strings.Join(authEnvOptionalNames, " or ")
+			case len(authEnvOptionalNames) > 0 && !authEnvOptionalSatisfied:
+				report["env_vars"] = "INFO optional: set " + strings.Join(authEnvOptionalNames, " or ") + "; public guest-token bootstrap is automatic"
 			case len(authEnvInfo) > 0 && authConfigured:
 				report["env_vars"] = "OK " + strings.Join(authEnvInfo, "; ")
 			case len(authEnvInfo) > 0:

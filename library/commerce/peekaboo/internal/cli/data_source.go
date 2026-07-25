@@ -204,14 +204,83 @@ func resolveReadWithStrategyResponsePathAndJSONGuard(ctx context.Context, c *cli
 		// Network error — try local fallback
 		fallbackData, fallbackProv, fallbackErr := resolveLocal(ctx, flags, hintWriter, resourceType, isList, path, params, networkFallbackReason)
 		if fallbackErr != nil {
-			return nil, DataProvenance{}, fmt.Errorf("API unreachable and no local data. Run 'peekaboo-pp-cli sync' to enable offline access.\n\nOriginal error: %w", err)
+			return nil, DataProvenance{}, fmt.Errorf("API unreachable and no local data. Run a live read while online to populate the local store.\n\nOriginal error: %w", err)
 		}
 		return fallbackData, attachFreshness(fallbackProv, flags), nil
 	}
 }
 
+// resolvePostReadWithStrategy is the body-aware counterpart to resolveRead.
+// Several Peekaboo read endpoints use POST on the wire; they still need the
+// same explicit local/live/auto behavior as GET-backed reads.
+func resolvePostReadWithStrategy(ctx context.Context, c *client.Client, flags *rootFlags, strategy, resourceType, path string, params map[string]string, body any, responsePath string, hintWriter io.Writer) (json.RawMessage, DataProvenance, error) {
+	localParams := params
+	if body != nil {
+		localParams = cloneParamsWithBodyMarker(params)
+	}
+	if err := validateDataSourceStrategy(flags, strategy); err != nil {
+		return nil, DataProvenance{}, err
+	}
+	if strategy == "local" {
+		data, prov, err := resolveLocal(ctx, flags, hintWriter, resourceType, true, path, localParams, "strategy_local")
+		return data, attachFreshness(prov, flags), err
+	}
+	if strategy == "live" {
+		data, _, err := c.PostQueryWithParams(ctx, path, params, body)
+		if err != nil {
+			return nil, DataProvenance{}, err
+		}
+		if err := assertLiveJSONBody(data); err != nil {
+			return nil, DataProvenance{}, err
+		}
+		return applyResponsePath(data, responsePath), attachFreshness(DataProvenance{Source: "live"}, flags), nil
+	}
+
+	switch flags.dataSource {
+	case "local":
+		data, prov, err := resolveLocal(ctx, flags, hintWriter, resourceType, true, path, localParams, "user_requested")
+		return data, attachFreshness(prov, flags), err
+	case "live":
+		data, _, err := c.PostQueryWithParams(ctx, path, params, body)
+		if err != nil {
+			return nil, DataProvenance{}, err
+		}
+		if err := assertLiveJSONBody(data); err != nil {
+			return nil, DataProvenance{}, err
+		}
+		return applyResponsePath(data, responsePath), attachFreshness(DataProvenance{Source: "live"}, flags), nil
+	default: // "auto"
+		data, _, err := c.PostQueryWithParams(ctx, path, params, body)
+		if err == nil {
+			if err := assertLiveJSONBody(data); err != nil {
+				return nil, DataProvenance{}, err
+			}
+			data = applyResponsePath(data, responsePath)
+			writeThroughCache(ctx, resourceType, data)
+			return data, attachFreshness(DataProvenance{Source: "live"}, flags), nil
+		}
+		if !isNetworkError(err) {
+			return nil, DataProvenance{}, err
+		}
+		fallbackData, fallbackProv, fallbackErr := resolveLocal(ctx, flags, hintWriter, resourceType, true, path, localParams, networkFallbackReason)
+		if fallbackErr != nil {
+			return nil, DataProvenance{}, fmt.Errorf("API unreachable and no local data. Run a live read while online to populate the local store.\n\nOriginal error: %w", err)
+		}
+		return fallbackData, attachFreshness(fallbackProv, flags), nil
+	}
+}
+
+func cloneParamsWithBodyMarker(params map[string]string) map[string]string {
+	out := make(map[string]string, len(params)+1)
+	for key, value := range params {
+		out[key] = value
+	}
+	out["__post_body_filters"] = "present"
+	return out
+}
+
 // resolvePaginatedRead dispatches a paginated GET request to either the live API
-// or local store. When local, skips pagination and returns all synced data. The
+// or local store. When local, skips pagination and returns all persisted data. The
 // headers argument carries per-endpoint required headers; pass nil when the
 // endpoint declares no overrides.
 func resolvePaginatedRead(ctx context.Context, c *client.Client, flags *rootFlags, resourceType string, path string, params map[string]string, headers map[string]string, fetchAll bool, cursorParam, paginationType, limitParam string, defaultPageSize int, nextCursorPath, hasMoreField string, hintWriter io.Writer) (json.RawMessage, DataProvenance, error) {
@@ -265,7 +334,7 @@ func resolvePaginatedReadWithStrategy(ctx context.Context, c *client.Client, fla
 		}
 		fallbackData, fallbackProv, fallbackErr := resolveLocal(ctx, flags, hintWriter, resourceType, true, path, params, networkFallbackReason)
 		if fallbackErr != nil {
-			return nil, DataProvenance{}, fmt.Errorf("API unreachable and no local data. Run 'peekaboo-pp-cli sync' to enable offline access.\n\nOriginal error: %w", err)
+			return nil, DataProvenance{}, fmt.Errorf("API unreachable and no local data. Run a live read while online to populate the local store.\n\nOriginal error: %w", err)
 		}
 		return fallbackData, attachFreshness(fallbackProv, flags), nil
 	}
@@ -581,16 +650,16 @@ func mutationResponseHasID(resourceType string, data json.RawMessage) bool {
 }
 
 // resolveLocal reads data from the local SQLite store.
-// Note: local reads return ALL synced data for the resource type. Endpoint-specific
+// Note: local reads return ALL persisted data for the resource type. Endpoint-specific
 // filters (query params, path scoping like /teams/{id}/users) are NOT applied locally.
 // The provenance metadata includes "unscoped":true when params were present but not applied.
 func resolveLocal(ctx context.Context, flags *rootFlags, hintWriter io.Writer, resourceType string, isList bool, path string, params map[string]string, reason string) (json.RawMessage, DataProvenance, error) {
 	db, err := openStoreForRead(ctx, "peekaboo-pp-cli")
 	if err != nil {
-		return nil, DataProvenance{}, fmt.Errorf("opening local database: %w\nRun 'peekaboo-pp-cli sync' first.", err)
+		return nil, DataProvenance{}, fmt.Errorf("opening local database: %w\nRun a live read first to populate the local store.", err)
 	}
 	if db == nil {
-		return nil, DataProvenance{}, fmt.Errorf("no local data. Run 'peekaboo-pp-cli sync' first")
+		return nil, DataProvenance{}, fmt.Errorf("no local data. Run a live read first to populate the local store")
 	}
 	defer db.Close()
 
@@ -602,11 +671,12 @@ func resolveLocal(ctx context.Context, flags *rootFlags, hintWriter io.Writer, r
 
 	// Warn if endpoint had filters that local reads can't reproduce
 	if len(params) > 0 {
+		prov.Unscoped = true
 		fmt.Fprintf(os.Stderr, "warning: local data is unfiltered — endpoint filters are not applied to cached data\n")
 	}
 
 	if isList {
-		raw, err := db.List(resourceType, 0) // 0 = no limit, return all synced data
+		raw, err := db.List(resourceType, 0) // 0 = no limit, return all persisted data
 		if err != nil {
 			return nil, DataProvenance{}, fmt.Errorf("querying local store: %w", err)
 		}
@@ -621,7 +691,7 @@ func resolveLocal(ctx context.Context, flags *rootFlags, hintWriter io.Writer, r
 			items = append(items, r)
 		}
 		if len(items) == 0 {
-			return nil, DataProvenance{}, fmt.Errorf("no local data for %q. Run 'peekaboo-pp-cli sync' first", resourceType)
+			return nil, DataProvenance{}, fmt.Errorf("no local data for %q. Run a live read first to populate the local store", resourceType)
 		}
 		// Marshal []json.RawMessage into a single JSON array
 		data, err := json.Marshal(items)
@@ -638,7 +708,7 @@ func resolveLocal(ctx context.Context, flags *rootFlags, hintWriter io.Writer, r
 	item, err := db.Get(resourceType, id)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			return nil, DataProvenance{}, fmt.Errorf("resource %q with ID %q not found in local store. Run 'peekaboo-pp-cli sync' first", resourceType, id)
+			return nil, DataProvenance{}, fmt.Errorf("resource %q with ID %q not found in local store. Run a live read first to populate the local store", resourceType, id)
 		}
 		return nil, DataProvenance{}, fmt.Errorf("querying local store: %w", err)
 	}

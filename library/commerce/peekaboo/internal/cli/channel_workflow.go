@@ -57,7 +57,7 @@ func newWorkflowStatusCmd(flags *rootFlags) *cobra.Command {
 			}
 
 			if len(status) == 0 {
-				fmt.Fprintln(cmd.OutOrStdout(), "No archived data. Add a site-specific sync command to populate the store.")
+				fmt.Fprintln(cmd.OutOrStdout(), "No archived data. Run a live list or detail command to populate the store.")
 				return nil
 			}
 

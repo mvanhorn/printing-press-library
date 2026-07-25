@@ -56,10 +56,10 @@ const (
 	// carries a query entity with no entity_lookups row under ANY
 	// source (taught / inferred / synced / seeded). Stateless: no
 	// candidate row or table write backs the warning itself — the text
-	// tells the agent to run `sync`, whose post-sync lookup-refresh
-	// scanner derives rows (source='synced') from already-synced local
+	// tells the agent to run a live read, whose write-through lookup-refresh
+	// scanner derives rows from already-local
 	// data for entities recorded as recall lookup misses. Emitted as
-	// "lookup_refresh_available:<entity> (run sync to refresh entity
+	// "lookup_refresh_available:<entity> (run a live read to refresh entity
 	// lookups)" — one per unresolvable entity — and disappears on its
 	// own once the entity resolves.
 	TopWarningLookupRefreshAvailable = "lookup_refresh_available"

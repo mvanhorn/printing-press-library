@@ -55,19 +55,17 @@ const (
 //     `auth`, `completion`, `doctor`, `version`, `feedback`, `profile`,
 //     `which`, `help`.
 //
-// Commands that DO have agent value — `sync` (populates the store that `sql`
-// and `search` query), `stale`/`orphans`/`reconcile`/`load` (store
-// diagnostics), `export`/`import` (data movement), `workflow`
-// (compound operations), `analytics` (aggregations) — must NOT be in this
-// list. Excluding `sync` while exposing `sql` is a broken contract because
-// the typed `sql` tool returns empty results until something populates the
-// store. See AGENTS.md "Agent-Native Surface" for the principle.
+// Commands that DO have agent value — `workflow` (store diagnostics),
+// `export`/`import` (data movement), compound operations, and aggregations —
+// must NOT be in this list. The typed `sql` tool is intentionally read-only
+// and becomes useful after live endpoint calls populate the local store. See
+// AGENTS.md "Agent-Native Surface" for the principle.
 //
 // Adding a new generator-emitted command means deciding which of the two
 // cases above applies. When in doubt, leave it out — the walker registers
 // any user-facing command as a shell-out tool, and the cost of a slightly
-// underused tool is much smaller than the cost of a broken contract like
-// `sql` without `sync`.
+// underused tool is much smaller than the cost of a broken contract that
+// advertises a command which is not shipped.
 var frameworkCommands = map[string]bool{
 	"about":         true,
 	"agent-context": true,

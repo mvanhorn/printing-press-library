@@ -19,9 +19,9 @@ const (
 )
 
 const (
-	endpointListNote    = "Typed MCP endpoint response was bounded for MCP output. Narrow the request with limit, offset, filters, search/sql, or a command-mirror tool with --agent/--compact/--select."
-	endpointPreviewNote = "Typed MCP endpoint response exceeded the tool result budget and was not a recognized list envelope. Narrow the request with filters, search/sql, or a command-mirror tool with --agent/--compact/--select."
-	jsonResultNote      = "MCP JSON result exceeded the tool result budget. Narrow the request with limit, filters, search/sql, or --select/--compact where available."
+	endpointListNote    = "Typed MCP endpoint response was bounded for MCP output. Narrow the request with limit, offset, filters, sql, or a command-mirror tool with --agent/--compact/--select."
+	endpointPreviewNote = "Typed MCP endpoint response exceeded the tool result budget and was not a recognized list envelope. Narrow the request with filters, sql, or a command-mirror tool with --agent/--compact/--select."
+	jsonResultNote      = "MCP JSON result exceeded the tool result budget. Narrow the request with limit, filters, sql, or --select/--compact where available."
 	textResultNote      = "MCP command output exceeded the tool result budget. Rerun with narrower flags, --agent, --compact, --select, or --limit where available."
 )
 

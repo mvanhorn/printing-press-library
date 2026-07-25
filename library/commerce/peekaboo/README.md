@@ -9,26 +9,26 @@ Created by [@qazmataz](https://github.com/qazmataz) (qazmataz).
 The recommended path installs both the `peekaboo-pp-cli` binary and the `pp-peekaboo` agent skill (Claude Code, Codex, Cursor, Gemini CLI, GitHub Copilot, and other agents supported by the upstream [`skills`](https://github.com/vercel-labs/skills) CLI) in one shot:
 
 ```bash
-npx -y @mvanhorn/printing-press-library install peekaboo
+npx -y @mvanhorn/printing-press install peekaboo
 ```
 
 For CLI only (no skill):
 
 ```bash
-npx -y @mvanhorn/printing-press-library install peekaboo --cli-only
+npx -y @mvanhorn/printing-press install peekaboo --cli-only
 ```
 
 For skill only — installs the skill into the same agents as the default command above, but skips the CLI binary (use this to update or reinstall just the skill):
 
 ```bash
-npx -y @mvanhorn/printing-press-library install peekaboo --skill-only
+npx -y @mvanhorn/printing-press install peekaboo --skill-only
 ```
 
 To constrain the skill install to one or more specific agents (repeatable — agent names match the [`skills`](https://github.com/vercel-labs/skills) CLI):
 
 ```bash
-npx -y @mvanhorn/printing-press-library install peekaboo --agent claude-code
-npx -y @mvanhorn/printing-press-library install peekaboo --agent claude-code --agent codex
+npx -y @mvanhorn/printing-press install peekaboo --agent claude-code
+npx -y @mvanhorn/printing-press install peekaboo --agent claude-code --agent codex
 ```
 
 ### Without Node (Go fallback)
@@ -51,7 +51,7 @@ Download a pre-built binary for your platform from the [latest release](https://
 Install the CLI binary first. The installer writes binaries to a per-user managed bin directory by default: `$HOME/.local/bin` on macOS/Linux and `%LOCALAPPDATA%\Programs\PrintingPress\bin` on Windows.
 
 ```bash
-npx -y @mvanhorn/printing-press-library install peekaboo --cli-only
+npx -y @mvanhorn/printing-press install peekaboo --cli-only
 ```
 
 Then install the focused Hermes skill.
@@ -74,7 +74,7 @@ Restart the Hermes session or gateway if the newly installed skill is not visibl
 Install both the CLI binary and the focused OpenClaw skill. The installer defaults binaries to a per-user bin directory (`$HOME/.local/bin` on macOS/Linux, `%LOCALAPPDATA%\Programs\PrintingPress\bin` on Windows):
 
 ```bash
-npx -y @mvanhorn/printing-press-library install peekaboo --agent openclaw
+npx -y @mvanhorn/printing-press install peekaboo --agent openclaw
 ```
 
 Restart the OpenClaw session or gateway if the newly installed skill is not visible immediately.
@@ -87,7 +87,7 @@ To install:
 
 1. Download the `.mcpb` for your platform from the [latest release](https://github.com/mvanhorn/printing-press-library/releases/tag/peekaboo-current).
 2. Double-click the `.mcpb` file. Claude Desktop opens and walks you through the install.
-3. Fill in `PEEKABOO_TOKEN` when Claude Desktop prompts you.
+3. No token is required: the MCP server bootstraps Peekaboo's public guest token automatically. You may provide `PEEKABOO_TOKEN` to override it with your own credential.
 
 Requires Claude Desktop 1.0.0 or later. Pre-built bundles ship for macOS Apple Silicon (`darwin-arm64`) and Windows (`amd64`, `arm64`); for other platforms, use the manual config below.
 
@@ -108,9 +108,7 @@ Add to your Claude Desktop config (`~/Library/Application Support/Claude/claude_
   "mcpServers": {
     "peekaboo": {
       "command": "peekaboo-pp-mcp",
-      "env": {
-        "PEEKABOO_TOKEN": "<your-key>"
-      }
+      "env": {}
     }
   }
 }
@@ -124,9 +122,9 @@ Add to your Claude Desktop config (`~/Library/Application Support/Claude/claude_
 
 See [Install](#install) above.
 
-### 2. Set Up Credentials
+### 2. Optional Credentials
 
-Get your access token from your API provider's developer portal, then store it:
+No credential setup is required for the public guest flow. Authenticated commands bootstrap and cache Peekaboo's public guest token automatically. To use your own credential instead, store it:
 
 ```bash
 peekaboo-pp-cli auth set-token YOUR_TOKEN_HERE
@@ -304,7 +302,7 @@ This CLI is designed for AI agent consumption:
 - **Explicit retries** - add `--idempotent` to create retries when a no-op success is acceptable
 - **Confirmable** - `--yes` for explicit confirmation of destructive actions
 - **Piped input** - write commands can accept structured input when their help lists `--stdin`
-- **Offline-friendly** - sync/search commands can use the local SQLite store when available
+- **Offline-friendly** - previous live reads can be reused from the local SQLite store when available
 - **Agent-safe by default** - no colors or formatting unless `--human-friendly` is set
 
 Exit codes: `0` success, `2` usage error, `3` not found, `4` auth error, `5` API error, `7` rate limited, `10` config error.
@@ -327,7 +325,7 @@ Environment variables:
 
 | Name | Kind | Required | Description |
 | --- | --- | --- | --- |
-| `PEEKABOO_TOKEN` | per_call | Yes | Set to your API credential. |
+| `PEEKABOO_TOKEN` | per_call | No | Optional override; the CLI bootstraps Peekaboo's public guest token when absent. |
 
 ### agentcookie (optional)
 

@@ -41,10 +41,6 @@ func newAmenitiesPromotedCmd(flags *rootFlags) *cobra.Command {
 
 			path := "/v6/entity/amenities"
 			params := map[string]string{}
-			// HasStore + non-GET falls through to a live API call here
-			// rather than through resolveRead (GET-only internally); a
-			// body-aware cached read helper is filed as #425 for when a
-			// second store-backed POST-search consumer ships.
 			bodyMap := map[string]any{}
 			var body any = bodyMap
 			if bodyEntityId != "" {
@@ -59,12 +55,11 @@ func newAmenitiesPromotedCmd(flags *rootFlags) *cobra.Command {
 			if bodyOffset != "" {
 				bodyMap["offset"] = bodyOffset
 			}
-			data, _, err := c.PostQueryWithParams(cmd.Context(), path, params, body)
+			data, prov, err := resolvePostReadWithStrategy(cmd.Context(), c, flags, "auto", "amenities", path, params, body, "", cmd.ErrOrStderr())
 
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}
-			prov := attachFreshness(DataProvenance{Source: "live"}, flags)
 			// Print provenance to stderr for human-facing output only.
 			// Machine-format flags (--json, --csv, --compact, --quiet, --plain,
 			// --select) and piped stdout suppress this line; the JSON envelope

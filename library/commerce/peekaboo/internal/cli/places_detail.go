@@ -86,7 +86,7 @@ func newPlacesDetailCmd(flags *rootFlags) *cobra.Command {
 					bodyMap["language"] = bodyLanguage
 				}
 			}
-			data, statusCode, err := c.PostWithParams(cmd.Context(), path, params, body)
+			data, statusCode, err := c.PostQueryWithParams(cmd.Context(), path, params, body)
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}

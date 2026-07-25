@@ -205,9 +205,6 @@ func FileHasCredentialFields(path string) (bool, error) {
 }
 
 func (c *Config) AuthHeader() string {
-	if c.AuthHeaderVal != "" {
-		return c.AuthHeaderVal
-	}
 	// Env-var token wins over file-stored AccessToken (env > config convention).
 	if c.PeekabooToken != "" {
 		if c.AuthSource == "" {
@@ -217,6 +214,9 @@ func (c *Config) AuthHeader() string {
 			"token":          c.PeekabooToken,
 			"PEEKABOO_TOKEN": c.PeekabooToken,
 		})
+	}
+	if c.AuthHeaderVal != "" {
+		return c.AuthHeaderVal
 	}
 	if c.AccessToken != "" {
 		if c.AuthSource == "" || strings.HasPrefix(c.AuthSource, "env:") {

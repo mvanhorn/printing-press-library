@@ -64,6 +64,9 @@ it to find deals expiring soon; use 'expiring'.`,
 			if err != nil && len(entities) == 0 {
 				return err
 			}
+			if err != nil {
+				fmt.Fprintf(cmd.ErrOrStderr(), "warning: merchant listing incomplete; results computed over the scanned results: %v\n", err)
+			}
 			open := make([]pkbEntity, 0)
 			for _, e := range entities {
 				if e.OpenNow {

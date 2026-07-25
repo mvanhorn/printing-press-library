@@ -112,8 +112,25 @@ func TestMCPRegisterToolsPreservesTypedSpecialTools(t *testing.T) {
 	if !ok {
 		t.Fatalf("typed sql tool missing from registered tools: %#v", tools)
 	}
-	if !strings.Contains(sqlTool.Tool.Description, "Run read-only SQL against local database") {
+	if !strings.Contains(sqlTool.Tool.Description, "Run read-only SQL against the local database") {
 		t.Fatalf("sql tool appears to have been overwritten by command mirror: %q", sqlTool.Tool.Description)
+	}
+	placesDetail, ok := tools["places_detail"]
+	if !ok || placesDetail.Tool.Annotations.ReadOnlyHint == nil || !*placesDetail.Tool.Annotations.ReadOnlyHint {
+		t.Fatal("places_detail must be advertised as read-only")
+	}
+}
+
+func TestMCPClientUsesConfiguredTokenWithoutBootstrap(t *testing.T) {
+	resetMCPPathEnv(t)
+	t.Setenv("PEEKABOO_TOKEN", "configured-token")
+
+	c, err := newMCPClient(context.Background())
+	if err != nil {
+		t.Fatalf("newMCPClient() error = %v", err)
+	}
+	if got := c.Config.AuthHeader(); got != "Bearer configured-token" {
+		t.Fatalf("MCP auth header = %q, want configured token", got)
 	}
 }
 
@@ -130,7 +147,7 @@ func TestMCPSQLMissingStoreIsActionable(t *testing.T) {
 		t.Fatalf("handleSQL missing store IsError = %v, want true", result != nil && result.IsError)
 	}
 	text := mcpTextContent(t, result)
-	for _, want := range []string{"No local data store found", "data.db", "Run", "sync"} {
+	for _, want := range []string{"No local data store found", "data.db", "live endpoint", "SQL"} {
 		if !strings.Contains(text, want) {
 			t.Fatalf("missing-store error %q missing %q", text, want)
 		}
@@ -187,8 +204,8 @@ func TestMCPSQLEmptyStoreReturnsActionableEnvelope(t *testing.T) {
 	if envelope.Resumable {
 		t.Fatalf("empty-store SQL envelope should not claim cursor support: %s", text)
 	}
-	if !strings.Contains(envelope.NextStep, "sync") {
-		t.Fatalf("empty-store SQL next_step should mention sync: %s", text)
+	if !strings.Contains(envelope.NextStep, "live endpoint") {
+		t.Fatalf("empty-store SQL next_step should mention a live endpoint: %s", text)
 	}
 }
 

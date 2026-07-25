@@ -313,8 +313,8 @@ func TestRecall_ColdUnresolvableEntityWarnsRunSyncAndRecordsMiss(t *testing.T) {
 			if !strings.Contains(w, "Zephyrium") {
 				t.Errorf("refresh warning should name the entity; got %q", w)
 			}
-			if !strings.Contains(w, "sync") {
-				t.Errorf("refresh warning text must name running sync; got %q", w)
+			if !strings.Contains(w, "live read") {
+				t.Errorf("refresh warning text must name a live read; got %q", w)
 			}
 		}
 	}

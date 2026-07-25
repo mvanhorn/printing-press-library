@@ -155,6 +155,13 @@ func ensureGuestToken(parent context.Context, flags *rootFlags) error {
 	return nil
 }
 
+// EnsureGuestToken makes the CLI's zero-config guest-token contract available
+// to the companion MCP server. It is intentionally a no-op when credentials
+// already exist, and it keeps verify-mode runs free of live network calls.
+func EnsureGuestToken(ctx context.Context, configPath string, timeout time.Duration) error {
+	return ensureGuestToken(ctx, &rootFlags{configPath: configPath, timeout: timeout})
+}
+
 // authSkipCommands are command path segments that never need the guest token
 // (they are local, public, or metadata commands). For everything else the root
 // pre-run ensures a token so absorbed endpoint commands work zero-config on a
@@ -292,8 +299,8 @@ func resolveEntity(ctx context.Context, flags *rootFlags, merchant string, loc p
 		maxScanPages = 5
 	}
 	entities, _, err := listCityEntities(ctx, flags, loc, category, maxScanPages, 50)
-	if err != nil && len(entities) == 0 {
-		return 0, "", err
+	if err != nil {
+		return 0, "", fmt.Errorf("resolving merchant %q: %w", merchant, err)
 	}
 	want := strings.ToLower(merchant)
 	for _, e := range entities {
@@ -510,11 +517,10 @@ type dealWithMerchant struct {
 // aggregates exclude failures. maxMerchants caps the fan-out width; under live
 // dogfood the caller should curtail it.
 func fanOutCityDeals(ctx context.Context, flags *rootFlags, loc pkbLocation, category, maxScanPages, maxMerchants int) ([]dealWithMerchant, []pkbFetchFailure, int, error) {
-	entities, listed, err := listCityEntities(ctx, flags, loc, category, maxScanPages, 50)
+	entities, _, err := listCityEntities(ctx, flags, loc, category, maxScanPages, 50)
 	if err != nil && len(entities) == 0 {
 		return nil, nil, 0, err
 	}
-	_ = listed
 	if maxMerchants > 0 && len(entities) > maxMerchants {
 		entities = entities[:maxMerchants]
 	}
@@ -562,7 +568,7 @@ func fanOutCityDeals(ctx context.Context, flags *rootFlags, loc pkbLocation, cat
 			out = append(out, dealWithMerchant{pkbDeal: d, MerchantID: e.ID, MerchantName: e.Name})
 		}
 	}
-	return out, failures, attempted, nil
+	return out, failures, attempted, err
 }
 
 // sortDealsByDiscountDesc sorts in place, biggest discount first.

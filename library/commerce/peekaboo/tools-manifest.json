@@ -15,7 +15,7 @@
       {
         "name": "PEEKABOO_TOKEN",
         "kind": "per_call",
-        "required": true,
+        "required": false,
         "sensitive": true,
         "inferred": true
       }
