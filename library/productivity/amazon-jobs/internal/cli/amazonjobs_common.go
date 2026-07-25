@@ -61,6 +61,13 @@ type Job struct {
 	Team                    struct {
 		Label string `json:"label"`
 	} `json:"team"`
+
+	// UpdatedDiverged is computed by this CLI, not returned by the API. It is
+	// true when `updated_time` is dramatically fresher than `posted_date`,
+	// meaning the row was re-indexed or edited rather than newly posted. It is
+	// omitted when false so the common case leaves the payload unchanged.
+	// See updatedDiverged in amazonjobs_dates.go for why this matters.
+	UpdatedDiverged bool `json:"updated_diverged,omitempty"`
 }
 
 // applyURL is the canonical human-facing listing URL for a job.
@@ -140,63 +147,153 @@ func boolFlag(changed bool, val bool) *bool {
 // is_intern null for most roles that are not managers / interns).
 func effectiveBool(p *bool) bool { return p != nil && *p }
 
-// matchesClientFilters applies the facets the .json endpoint ignores as server
-// params. All predicates are NULL-safe.
-func matchesClientFilters(j Job, category, schedule string, wantIntern, wantManager, wantUniversity *bool) bool {
-	if category != "" {
-		cat := strings.ToLower(category)
+// clientFilters bundles the facets the .json endpoint ignores as server params
+// and must therefore be applied locally while scanning pages.
+//
+// This is a struct rather than a positional parameter list because the set has
+// grown past the point where eight positional arguments stay readable at the
+// call site.
+type clientFilters struct {
+	category   string
+	schedule   string
+	intern     *bool
+	manager    *bool
+	university *bool
+
+	// postedCutoff is the inclusive date floor from --posted-within. Zero when
+	// the flag was not set.
+	postedCutoff time.Time
+	// postedWithinRaw is the user's verbatim flag value, kept only so
+	// --dry-run can echo what they typed rather than a normalized duration.
+	postedWithinRaw string
+
+	// descContains and descExcludes are compiled from --description-contains
+	// and --description-not-contains. Nil when the flag was not set.
+	descContains *regexp.Regexp
+	descExcludes *regexp.Regexp
+}
+
+// active reports whether any client-side filter is set.
+func (f clientFilters) active() bool {
+	return f.category != "" || f.schedule != "" ||
+		f.intern != nil || f.manager != nil || f.university != nil ||
+		!f.postedCutoff.IsZero() || f.descContains != nil || f.descExcludes != nil
+}
+
+// descriptionHaystack concatenates the free-text fields --description-contains
+// searches, with HTML stripped.
+//
+// Stripping matters: the raw fields are HTML fragments, so a pattern spanning a
+// <br/> or wrapped in <b> tags would miss against the raw text. find applies
+// cleanJob only to rows that already survived filtering, so the strip has to
+// happen here too rather than relying on the caller.
+func descriptionHaystack(j Job) string {
+	return strings.Join([]string{
+		plainText(j.Description),
+		plainText(j.BasicQualifications),
+		plainText(j.PreferredQualifications),
+	}, "\n")
+}
+
+// matches applies every active filter. All predicates are NULL-safe.
+func (f clientFilters) matches(j Job) bool {
+	if f.category != "" {
+		cat := strings.ToLower(f.category)
 		if !strings.Contains(strings.ToLower(j.JobCategory), cat) &&
 			!strings.Contains(strings.ToLower(j.BusinessCategory), cat) {
 			return false
 		}
 	}
-	if schedule != "" && !strings.EqualFold(strings.TrimSpace(j.JobScheduleType), strings.TrimSpace(schedule)) {
+	if f.schedule != "" && !strings.EqualFold(strings.TrimSpace(j.JobScheduleType), strings.TrimSpace(f.schedule)) {
 		return false
 	}
-	if wantIntern != nil && effectiveBool(j.IsIntern) != *wantIntern {
+	if f.intern != nil && effectiveBool(j.IsIntern) != *f.intern {
 		return false
 	}
-	if wantManager != nil && effectiveBool(j.IsManager) != *wantManager {
+	if f.manager != nil && effectiveBool(j.IsManager) != *f.manager {
 		return false
 	}
-	if wantUniversity != nil && effectiveBool(j.UniversityJob) != *wantUniversity {
+	if f.university != nil && effectiveBool(j.UniversityJob) != *f.university {
 		return false
+	}
+	if !f.postedCutoff.IsZero() {
+		posted, ok := parsePostedDate(j.PostedDate)
+		// A row whose posted_date is missing or unparseable cannot be shown to
+		// be inside the window, so an explicit recency filter excludes it. The
+		// alternative -- passing it through -- would quietly reintroduce the
+		// stale reqs the flag exists to remove.
+		if !ok || posted.Before(f.postedCutoff) {
+			return false
+		}
+	}
+	if f.descContains != nil || f.descExcludes != nil {
+		hay := descriptionHaystack(j)
+		if f.descContains != nil && !f.descContains.MatchString(hay) {
+			return false
+		}
+		if f.descExcludes != nil && f.descExcludes.MatchString(hay) {
+			return false
+		}
 	}
 	return true
 }
 
-// hasClientFilters reports whether any client-side facet filter is active.
-func hasClientFilters(category, schedule string, wantIntern, wantManager, wantUniversity *bool) bool {
-	return category != "" || schedule != "" || wantIntern != nil || wantManager != nil || wantUniversity != nil
-}
-
-// describeClientFilters renders the active client-side filters as a short
-// human-readable list. Used by `find --dry-run` so the preview names the
-// filters that run after the request, which the query string cannot show.
-func describeClientFilters(category, schedule string, wantIntern, wantManager, wantUniversity *bool) string {
+// describe renders the active client-side filters as a short human-readable
+// list. Used by `find --dry-run` so the preview names the filters that run
+// after the request, which the query string cannot show.
+func (f clientFilters) describe() string {
 	parts := []string{}
-	if category != "" {
-		parts = append(parts, fmt.Sprintf("category~%q", category))
+	if f.category != "" {
+		parts = append(parts, fmt.Sprintf("category~%q", f.category))
 	}
-	if schedule != "" {
-		parts = append(parts, fmt.Sprintf("schedule~%q", schedule))
+	if f.schedule != "" {
+		parts = append(parts, fmt.Sprintf("schedule~%q", f.schedule))
 	}
-	for _, f := range []struct {
+	for _, b := range []struct {
 		name string
 		val  *bool
 	}{
-		{"intern", wantIntern},
-		{"manager", wantManager},
-		{"university", wantUniversity},
+		{"intern", f.intern},
+		{"manager", f.manager},
+		{"university", f.university},
 	} {
-		if f.val != nil {
-			parts = append(parts, fmt.Sprintf("%s=%t", f.name, *f.val))
+		if b.val != nil {
+			parts = append(parts, fmt.Sprintf("%s=%t", b.name, *b.val))
 		}
+	}
+	if !f.postedCutoff.IsZero() {
+		parts = append(parts, fmt.Sprintf("posted-within=%s (on or after %s)",
+			f.postedWithinRaw, f.postedCutoff.Format(postedDateLayout)))
+	}
+	if f.descContains != nil {
+		parts = append(parts, fmt.Sprintf("description~%s", f.descContains))
+	}
+	if f.descExcludes != nil {
+		parts = append(parts, fmt.Sprintf("description!~%s", f.descExcludes))
 	}
 	if len(parts) == 0 {
 		return "none"
 	}
 	return strings.Join(parts, ", ")
+}
+
+// compileDescriptionPattern compiles a --description-contains style pattern as
+// a case-insensitive regular expression.
+//
+// Patterns that are not valid regex syntax fall back to a literal match instead
+// of erroring. Real queries here are things like "C++", "Relocation assistance
+// is NOT provided", or "N1" -- ordinary prose that happens to contain regex
+// metacharacters. Failing those with a syntax error would make the common case
+// the broken one, so an unparseable pattern is treated as the literal text the
+// user typed.
+func compileDescriptionPattern(pattern string) (*regexp.Regexp, error) {
+	if strings.TrimSpace(pattern) == "" {
+		return nil, nil
+	}
+	if re, err := regexp.Compile("(?i)" + pattern); err == nil {
+		return re, nil
+	}
+	return regexp.Compile("(?i)" + regexp.QuoteMeta(pattern))
 }
 
 var (

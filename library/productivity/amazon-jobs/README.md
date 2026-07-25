@@ -192,6 +192,32 @@ These capabilities aren't available in any other tool for this API.
   amazon-jobs-pp-cli find "software engineer" --manager=false --intern=false --agent
   ```
 
+### True recency, not the re-index clock
+
+- **`find --posted-within`** — Filter on `posted_date`, the real posting date, with `24h` / `3d` / `2w` style windows.
+
+  Amazon's `updated_time` field looks like a freshness signal and is not one: it tracks the last edit or re-index of any kind. In a 1000-req live sample, **514 reqs were posted more than 14 days ago and every one of them reported an `updated_time` inside 48 hours** — including a req posted in August 2025 still reading "about 21 hours". Anyone sorting or filtering on `updated_time` to "apply the fastest" is reading a re-index clock.
+
+  `find` and `new` now print both dates side by side and mark the rows where they disagree badly with `(edited)`; JSON output carries `"updated_diverged": true` on those rows.
+
+  `posted_date` is day-granular — the API exposes no sub-day posting timestamp — so `--posted-within` is inclusive **by date, not by clock**: `--posted-within 7d` means "posted on or after (today − 7 days)", counting whole dates.
+
+  ```bash
+  amazon-jobs-pp-cli find "program manager" --country GBR --posted-within 7d
+  ```
+
+### Search the fine print
+
+- **`find --description-contains` / `--description-not-contains`** — Case-insensitive regex over `description` + `basic_qualifications` + `preferred_qualifications`, with HTML stripped before matching.
+
+  _This is where the disqualifiers hide: visa/sponsorship language, relocation terms (which cut both ways — "Relocation assistance is NOT provided" vs. "Relocation benefits are offered"), and language requirements like Mandarin or Japanese N1. None of it is a server-side facet._
+
+  Patterns that aren't valid regex syntax are matched literally, so `C++` works as typed.
+
+  ```bash
+  amazon-jobs-pp-cli find "" --country SGP --description-not-contains "without sponsorship"
+  ```
+
 ## Recipes
 
 
@@ -234,6 +260,22 @@ amazon-jobs-pp-cli find "software engineer" --country USA --manager=false --inte
 ```
 
 Client-side NULL-safe filters for fields Amazon can't filter server-side.
+
+### Only reqs actually posted this week
+
+```bash
+amazon-jobs-pp-cli find "program manager" --country GBR --posted-within 7d --max-scan-pages 10
+```
+
+Filters on the true `posted_date`. Rows printed with `(edited)` were posted long ago and merely re-indexed — `updated_time` alone would have made them look brand new.
+
+### Screen out roles that won't sponsor a visa
+
+```bash
+amazon-jobs-pp-cli find "" --country SGP --description-not-contains "without sponsorship" --posted-within 2w --agent
+```
+
+Sponsorship, relocation, and language requirements live only in the description text. Combine the text filter with a recency window to get a shortlist worth applying to; raise `--max-scan-pages` when the match rate is low.
 
 ## Usage
 

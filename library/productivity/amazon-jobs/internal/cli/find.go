@@ -8,8 +8,11 @@ import (
 	"fmt"
 	"io"
 	"strings"
+	"time"
 
 	"github.com/spf13/cobra"
+
+	"github.com/mvanhorn/printing-press-library/library/productivity/amazon-jobs/internal/cliutil"
 )
 
 type findView struct {
@@ -26,14 +29,27 @@ func newNovelFindCmd(flags *rootFlags) *cobra.Command {
 	var category, schedule string
 	var intern, manager, university bool
 	var limit, page, maxScanPages int
+	var postedWithin, descContains, descNotContains string
 
 	cmd := &cobra.Command{
 		Use:   "find [query]",
-		Short: "Search Amazon jobs live, with location and client-side pipeline filters",
+		Short: "Search Amazon jobs live, with location, recency, and text filters",
 		Long: strings.Trim(`
 Search amazon.jobs live by keyword and location, then apply client-side filters
-(--category, --schedule, --intern, --manager, --university) for the facets the
-API cannot filter server-side.
+(--category, --schedule, --intern, --manager, --university, --posted-within,
+--description-contains) for the facets the API cannot filter server-side.
+
+RECENCY: --posted-within filters on posted_date, the true posting date. Note
+that the API's updated_time field is NOT a posting time -- it tracks the last
+edit or re-index of any kind, and amazon.jobs re-indexes its backlog
+continuously. Reqs posted many months ago routinely report an updated_time of
+"about 21 hours". Rows where the two disagree that badly are marked (edited) in
+the human output and carry "updated_diverged": true in JSON. Filter and sort on
+posted_date; treat updated_time as an edit clock only.
+
+posted_date is day-granular -- the API exposes no sub-day posting timestamp --
+so --posted-within is inclusive by date, not by clock: --posted-within 7d means
+"posted on or after (today - 7 days)", counting whole dates.
 
 Use this command for one-off live searches. Use 'stats'/'skills' for aggregation
 over a synced store, and 'new' for reqs unseen since your last sync of a saved
@@ -41,7 +57,10 @@ search.`, "\n"),
 		Example: strings.Trim(`
   amazon-jobs-pp-cli find "software engineer" --country USA --limit 10
   amazon-jobs-pp-cli find "solutions architect" --city Seattle --agent --select title,location,posted_date
-  amazon-jobs-pp-cli find "software engineer" --manager=false --intern=false`, "\n"),
+  amazon-jobs-pp-cli find "software engineer" --manager=false --intern=false
+  amazon-jobs-pp-cli find "program manager" --country GBR --posted-within 7d
+  amazon-jobs-pp-cli find "" --country SGP --description-not-contains "without sponsorship"
+  amazon-jobs-pp-cli find "" --country ARE --description-contains "[Rr]elocation" --posted-within 2w`, "\n"),
 		Annotations: map[string]string{"mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 && cmd.Flags().NFlag() == 0 {
@@ -65,10 +84,40 @@ search.`, "\n"),
 				maxScanPages = 5
 			}
 
-			wantIntern := boolFlag(cmd.Flags().Changed("intern"), intern)
-			wantManager := boolFlag(cmd.Flags().Changed("manager"), manager)
-			wantUniversity := boolFlag(cmd.Flags().Changed("university"), university)
-			clientSide := hasClientFilters(category, schedule, wantIntern, wantManager, wantUniversity)
+			now := time.Now()
+			filters := clientFilters{
+				category:   category,
+				schedule:   schedule,
+				intern:     boolFlag(cmd.Flags().Changed("intern"), intern),
+				manager:    boolFlag(cmd.Flags().Changed("manager"), manager),
+				university: boolFlag(cmd.Flags().Changed("university"), university),
+			}
+
+			if raw := strings.TrimSpace(postedWithin); raw != "" {
+				d, derr := cliutil.ParseDurationLoose(raw)
+				if derr != nil {
+					_ = cmd.Usage()
+					return usageErr(fmt.Errorf("invalid --posted-within %q: use a duration like 24h, 3d, 2w", raw))
+				}
+				if d <= 0 {
+					_ = cmd.Usage()
+					return usageErr(fmt.Errorf("invalid --posted-within %q: must be a positive duration", raw))
+				}
+				filters.postedCutoff = postedWithinCutoff(now, d)
+				filters.postedWithinRaw = raw
+			}
+
+			var perr error
+			if filters.descContains, perr = compileDescriptionPattern(descContains); perr != nil {
+				_ = cmd.Usage()
+				return usageErr(fmt.Errorf("invalid --description-contains %q: %w", descContains, perr))
+			}
+			if filters.descExcludes, perr = compileDescriptionPattern(descNotContains); perr != nil {
+				_ = cmd.Usage()
+				return usageErr(fmt.Errorf("invalid --description-not-contains %q: %w", descNotContains, perr))
+			}
+
+			clientSide := filters.active()
 
 			ctx, cancel := boundCtx(cmd.Context(), flags)
 			defer cancel()
@@ -95,7 +144,7 @@ search.`, "\n"),
 				fmt.Fprintf(out, "would GET %s%s?%s\n", c.BaseURL, searchPath, values.Encode())
 				if clientSide {
 					fmt.Fprintf(out, "then filter client-side (%s), scanning up to %d page(s) for %d match(es)\n",
-						describeClientFilters(category, schedule, wantIntern, wantManager, wantUniversity), maxScanPages, limit)
+						filters.describe(), maxScanPages, limit)
 				} else {
 					fmt.Fprintf(out, "then return up to %d result(s) from that single page\n", limit)
 				}
@@ -124,7 +173,7 @@ search.`, "\n"),
 					if perr != nil {
 						continue
 					}
-					if clientSide && !matchesClientFilters(j, category, schedule, wantIntern, wantManager, wantUniversity) {
+					if clientSide && !filters.matches(j) {
 						continue
 					}
 					matches = append(matches, j)
@@ -151,6 +200,7 @@ search.`, "\n"),
 			for i := range matches {
 				matches[i] = cleanJob(matches[i])
 			}
+			annotateFreshness(matches)
 
 			view := findView{
 				Hits:         totalHits,
@@ -171,11 +221,19 @@ search.`, "\n"),
 					}
 					return
 				}
+				diverged := 0
 				for _, j := range matches {
 					printJobLine(w, j)
+					if j.UpdatedDiverged {
+						diverged++
+					}
 				}
 				fmt.Fprintf(w, "\n%d shown of %d total hits (scanned %d jobs across %d page(s))\n",
 					len(matches), totalHits, scannedJobs, scannedPages)
+				if diverged > 0 {
+					fmt.Fprintf(w, "%d row(s) marked (edited): updated_time is far fresher than posted_date, so the req\n"+
+						"was re-indexed or edited, not newly posted. Use --posted-within for true recency.\n", diverged)
+				}
 			})
 		},
 	}
@@ -192,11 +250,20 @@ search.`, "\n"),
 	cmd.Flags().IntVar(&limit, "limit", 20, "Maximum matching jobs to return")
 	cmd.Flags().IntVar(&page, "page", 1, "Page number (1-based) for server-side paging when no client-side filters are set")
 	cmd.Flags().IntVar(&maxScanPages, "max-scan-pages", 5, "Maximum pages to scan when client-side filters are active")
+	cmd.Flags().StringVar(&postedWithin, "posted-within", "", "Client-side filter on true posted_date (24h, 3d, 2w). Inclusive by date, not by clock")
+	cmd.Flags().StringVar(&descContains, "description-contains", "", "Client-side filter: case-insensitive regex over description + qualifications (falls back to literal match)")
+	cmd.Flags().StringVar(&descNotContains, "description-not-contains", "", "Client-side filter: exclude jobs whose description + qualifications match this pattern")
 
 	return cmd
 }
 
 // printJobLine renders a compact human summary of a job.
+//
+// Both dates are shown because neither alone is honest: posted_date is the real
+// posting date but is day-granular, while updated_time looks precise and fresh
+// yet tracks re-indexing rather than posting. Showing them side by side, with
+// an (edited) marker when they disagree badly, is what stops a months-old req
+// from reading as new. See updatedDiverged in amazonjobs_dates.go.
 func printJobLine(w io.Writer, j Job) {
 	id := j.IDIcims
 	if id == "" {
@@ -213,6 +280,12 @@ func printJobLine(w io.Writer, j Job) {
 	}
 	if j.PostedDate != "" {
 		meta = strings.TrimSpace(meta + "  ·  posted " + j.PostedDate)
+	}
+	if j.UpdatedTime != "" {
+		meta = strings.TrimSpace(meta + "  ·  updated " + j.UpdatedTime + " ago")
+	}
+	if j.UpdatedDiverged {
+		meta = strings.TrimSpace(meta + "  (edited)")
 	}
 	if meta != "" {
 		fmt.Fprintf(w, "            %s\n", meta)

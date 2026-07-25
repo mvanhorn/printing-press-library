@@ -98,6 +98,30 @@ These capabilities aren't available in any other tool for this API.
   amazon-jobs-pp-cli find "software engineer" --manager=false --intern=false --agent
   ```
 
+### True recency: use `posted_date`, never `updated_time`
+
+- **`find --posted-within`** — Filter on the real posting date. Accepts `24h`, `3d`, `7d`, `2w`.
+
+  **This is a correctness trap, not a convenience flag.** `updated_time` is a relative string ("about 21 hours") that tracks the last edit or re-index — not the posting. Measured on 1000 live reqs: 514 were posted more than 14 days ago, and **all 514** reported `updated_time` under 48 hours; the worst case was posted August 2025 and read "about 21 hours". If a user asks for "jobs posted recently" or wants to "apply as fast as possible", filter with `--posted-within` and report `posted_date`. Never present `updated_time` as recency.
+
+  Rows where the two disagree badly (posted >14 days ago, updated <48h) are marked `(edited)` in human output and carry `"updated_diverged": true` in JSON — surface that caveat to the user rather than dropping it.
+
+  `posted_date` is day-granular; the API has no sub-day posting timestamp. `--posted-within 7d` therefore means "posted on or after (today − 7 days)", inclusive by whole date. Do not promise the user hour-level precision on posting time — it does not exist upstream.
+
+  ```bash
+  amazon-jobs-pp-cli find "program manager" --country GBR --posted-within 7d --agent
+  ```
+
+- **`find --description-contains` / `--description-not-contains`** — Case-insensitive regex over `description` + `basic_qualifications` + `preferred_qualifications`, HTML stripped before matching.
+
+  _Reach for this whenever the user's constraint is buried in prose rather than exposed as a facet: visa/sponsorship eligibility, relocation support (check both directions — "Relocation assistance is NOT provided" and "Relocation benefits are offered" both exist), or language requirements (Mandarin, Japanese N1) that silently disqualify._
+
+  Invalid regex falls back to a literal match, so `C++` works as typed. These matches are rare (sponsorship language appears in roughly 16 of 1000 reqs, relocation language in about 2), so raise `--max-scan-pages` when nothing comes back — the "no matching jobs" note tells you how many were scanned.
+
+  ```bash
+  amazon-jobs-pp-cli find "" --country SGP --description-not-contains "without sponsorship" --max-scan-pages 10 --agent
+  ```
+
 ## Command Reference
 
 **postings** — Search Amazon job listings
@@ -157,6 +181,32 @@ amazon-jobs-pp-cli find "software engineer" --country USA --manager=false --inte
 ```
 
 Client-side NULL-safe filters for fields Amazon can't filter server-side.
+
+### Only reqs actually posted this week
+
+```bash
+amazon-jobs-pp-cli find "program manager" --country GBR --posted-within 7d --max-scan-pages 10 --agent
+```
+
+Filters on the true `posted_date`. Any row carrying `"updated_diverged": true` was posted long ago and merely re-indexed — do not describe it to the user as newly posted.
+
+### Screen out roles that won't sponsor a visa
+
+```bash
+amazon-jobs-pp-cli find "" --country SGP --description-not-contains "without sponsorship" --posted-within 2w --max-scan-pages 10 --agent
+```
+
+Sponsorship, relocation, and language constraints exist only in description prose. Combine the text filter with a recency window to build a shortlist worth applying to.
+
+### Sweep several countries for fresh reqs
+
+```bash
+for c in GBR IRL LUX JPN SGP SAU ARE; do
+  amazon-jobs-pp-cli find "" --country "$c" --posted-within 7d --max-scan-pages 10 --agent
+done
+```
+
+The API takes one country per request, so multi-market searches fan out client-side. Pair with `save`/`new` when the sweep should run repeatedly and only report reqs unseen since last time.
 
 ## Auth Setup
 

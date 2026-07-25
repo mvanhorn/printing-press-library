@@ -163,6 +163,7 @@ Create a saved search first with 'save', and list them with 'searches'.`, "\n"),
 			for i := range newJobs {
 				newJobs[i] = cleanJob(newJobs[i])
 			}
+			annotateFreshness(newJobs)
 
 			view := newView{
 				SavedSearch: name,

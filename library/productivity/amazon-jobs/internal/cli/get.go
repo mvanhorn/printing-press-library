@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"io"
 	"strings"
+	"time"
 
 	"github.com/spf13/cobra"
 )
@@ -73,6 +74,7 @@ qualifications.`, "\n"),
 			// Always convert HTML to readable text (raw <br/> and anchors are
 			// never useful); the raw `postings search` endpoint stays faithful.
 			job = cleanJob(job)
+			job.UpdatedDiverged = updatedDiverged(job, time.Now())
 			return emitLiveResult(cmd, flags, job, func(w io.Writer) {
 				printJobDetail(w, job)
 			})
@@ -103,6 +105,15 @@ func printJobDetail(w io.Writer, j Job) {
 	}
 	if j.PostedDate != "" {
 		fmt.Fprintf(w, "posted: %s\n", j.PostedDate)
+	}
+	// updated_time is shown next to posted so the pair can be compared. It is
+	// an edit/re-index clock, not a posting time -- see updatedDiverged.
+	if j.UpdatedTime != "" {
+		fmt.Fprintf(w, "updated: %s ago", j.UpdatedTime)
+		if j.UpdatedDiverged {
+			fmt.Fprintf(w, "  (edited — re-indexed or edited, not newly posted)")
+		}
+		fmt.Fprintln(w)
 	}
 	if url := j.applyURL(); url != "" {
 		fmt.Fprintf(w, "url: %s\n", url)
