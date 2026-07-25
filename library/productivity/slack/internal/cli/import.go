@@ -74,9 +74,17 @@ but do not stop the import.`,
 					continue
 				}
 
-				_, _, err := c.Post(path, body)
+				data, _, err := c.Post(path, body)
 				if err != nil {
 					fmt.Fprintf(os.Stderr, "warning: failed to import record: %v\n", err)
+					failed++
+					continue
+				}
+				// PATCH(amend-2026-07-25: surface Slack ok:false on writes) — the response
+				// was discarded entirely, so a record Slack rejected with HTTP 200 and
+				// {"ok":false,...} was still counted as an import success.
+				if slackErr := checkSlackAPIError(data); slackErr != nil {
+					fmt.Fprintf(os.Stderr, "warning: failed to import record: %v\n", slackErr)
 					failed++
 					continue
 				}

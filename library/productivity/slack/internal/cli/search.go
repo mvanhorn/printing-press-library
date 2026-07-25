@@ -54,6 +54,20 @@ func isNilOrEmpty(raw json.RawMessage) bool {
 	if _, ok := obj["score"]; ok {
 		return false
 	}
+	// PATCH(amend-2026-07-25: recognize Slack message matches) — a search.messages
+	// match carries no title/name/identifier/id at the top level (its channel is a
+	// nested object), so every check above missed and each hit was discarded as
+	// empty. Slack identifies a match by its text/ts/permalink fields.
+	for _, key := range []string{"text", "ts", "permalink"} {
+		if v, ok := obj[key]; ok && v != nil {
+			if s, ok := v.(string); ok && strings.TrimSpace(s) != "" {
+				return false
+			}
+			if _, ok := v.(string); !ok {
+				return false
+			}
+		}
+	}
 	return true
 }
 
@@ -63,6 +77,20 @@ func extractSearchResults(data json.RawMessage) []json.RawMessage {
 	var items []json.RawMessage
 	if json.Unmarshal(data, &items) == nil {
 		return items
+	}
+	// PATCH(amend-2026-07-25: Slack nests search hits under messages.matches) — none
+	// of the generic wrapper keys below match search.messages, whose shape is
+	// {"ok":true,"messages":{"total":N,"matches":[...],"paging":{...}}}. Without this
+	// the whole envelope fell through to the single-item return at the bottom and was
+	// then dropped by isNilOrEmpty, so a query with thousands of hits printed
+	// "No results" and exited 0.
+	var slackSearch struct {
+		Messages struct {
+			Matches []json.RawMessage `json:"matches"`
+		} `json:"messages"`
+	}
+	if json.Unmarshal(data, &slackSearch) == nil && len(slackSearch.Messages.Matches) > 0 {
+		return slackSearch.Messages.Matches
 	}
 	// Try common wrapper paths: data, results, items
 	var wrapped map[string]json.RawMessage
@@ -120,6 +148,15 @@ In local mode: searches locally synced data only.`,
 					"query": query,
 				})
 				if getErr == nil {
+					// PATCH(amend-2026-07-25: surface Slack ok:false in live search) — Slack
+					// answers application errors with HTTP 200 and {"ok":false,"error":...},
+					// which the client reports as success. This path called c.Get directly
+					// instead of resolveRead, so it skipped the checkSlackAPIError that
+					// other read paths already perform, and a failed search rendered as an
+					// empty result set with exit 0.
+					if slackErr := checkSlackAPIError(data); slackErr != nil {
+						return slackErr
+					}
 					// Live search succeeded
 					results := extractSearchResults(data)
 					prov := DataProvenance{Source: "live"}

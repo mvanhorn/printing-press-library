@@ -100,7 +100,7 @@ Source routing (local vs live) is controlled by `--data-source`: `auto` (default
 |---------|--------------|
 | `conversations` | List channels and DMs in the workspace |
 | `users` | List all users in the workspace |
-| `search <query>` | Full-text search across synced messages (or live API with `--data-source live`) |
+| `search <query>` | Live workspace search via `search.messages`. Local mode (`--data-source local`) does not reach synced messages yet — see Known Limitations |
 | `digest` | Daily/weekly activity digest from locally synced data |
 | `health` | Channel health report (activity, engagement, stagnation) |
 | `quiet` | Find dead or low-activity channels |
@@ -113,6 +113,41 @@ Source routing (local vs live) is controlled by `--data-source`: `auto` (default
 | `team` | Access logs (requires admin token) |
 
 Run any command with `--help` for full flag documentation.
+
+## Writing to Slack
+
+Write commands take their fields as flags, and the flags alone are sufficient:
+
+```bash
+slack-pp-cli reactions add --channel C0123456789 --name thumbsup --timestamp 1234567890.123456 --agent
+slack-pp-cli pins add --channel C0123456789 --timestamp 1234567890.123456 --agent
+```
+
+`--stdin` is an alternative to the flags, not a supplement to them — pass the whole body as
+JSON and omit the flags:
+
+```bash
+echo '{"channel":"C0123456789","text":"Hello"}' \
+  | slack-pp-cli messages post_message --stdin --agent
+```
+
+When both are supplied, stdin wins and the flags are ignored. Preview any write with
+`--dry-run` to see the exact body before it is sent.
+
+Slack reports application errors as HTTP 200 with `{"ok":false,"error":"..."}`. These now
+exit non-zero with the Slack error name (and the needed scope for `missing_scope`) instead of
+reporting success.
+
+## Known Limitations
+
+- `search --data-source local` does not return messages. `sync` writes them to the local
+  `messages`/`messages_fts` tables, but the local search path never queries those tables, so
+  it reports no results even when the index holds matches. Use the default (live) mode for
+  message search.
+- `files upload` targets Slack's retired `files.upload` endpoint and fails with
+  `method_deprecated`. There is no file-attachment path yet.
+- `auth test` is not registered on the command tree.
+- `sync --resources channels` fails with `unknown_method`; use `conversations`.
 
 ## Agent Mode
 

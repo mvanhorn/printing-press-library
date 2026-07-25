@@ -22,13 +22,13 @@ func newConversationsSetTopicCmd(flags *rootFlags) *cobra.Command {
 		Short:   "Set the topic for a channel",
 		Example: "  slack-pp-cli conversations set_topic",
 		RunE: func(cmd *cobra.Command, args []string) error {
-			if !cmd.Flags().Changed("channel") && !flags.dryRun {
-				return fmt.Errorf("required flag \"%s\" not set", "channel")
-			}
-			if !cmd.Flags().Changed("topic") && !flags.dryRun {
-				return fmt.Errorf("required flag \"%s\" not set", "topic")
-			}
 			if !stdinBody {
+				if !cmd.Flags().Changed("channel") && !flags.dryRun {
+					return fmt.Errorf("required flag \"%s\" not set", "channel")
+				}
+				if !cmd.Flags().Changed("topic") && !flags.dryRun {
+					return fmt.Errorf("required flag \"%s\" not set", "topic")
+				}
 			}
 			c, err := flags.newClient()
 			if err != nil {
@@ -48,11 +48,27 @@ func newConversationsSetTopicCmd(flags *rootFlags) *cobra.Command {
 				}
 				body = jsonBody
 			} else {
-				body = map[string]any{}
+				// PATCH(amend-2026-07-25: assemble body from flag values) — the generated
+				// else-branch emitted an empty map, so every POST shipped {} upstream.
+				bodyMap := map[string]any{}
+				if flagChannel != "" {
+					bodyMap["channel"] = flagChannel
+				}
+				if flagTopic != "" {
+					bodyMap["topic"] = flagTopic
+				}
+				body = bodyMap
 			}
 			data, statusCode, err := c.Post(path, body)
 			if err != nil {
 				return classifyAPIError(err)
+			}
+			// PATCH(amend-2026-07-25: surface Slack ok:false on writes) — Slack answers
+			// application errors with HTTP 200 and {"ok":false,"error":...}, so the
+			// envelope below reported success:true for a write that never happened.
+			// Reuses the same checkSlackAPIError the read paths already call.
+			if slackErr := checkSlackAPIError(data); slackErr != nil {
+				return slackErr
 			}
 			if wantsHumanTable(cmd.OutOrStdout(), flags) {
 				// Check if response contains an array (directly or wrapped in "data")

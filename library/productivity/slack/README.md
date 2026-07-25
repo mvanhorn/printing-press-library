@@ -343,8 +343,15 @@ slack-pp-cli messages post_message --channel C0123456789 --text "Hello from the 
 # Reply in a thread
 slack-pp-cli messages post_message --channel C0123456789 --text "Thread reply" --thread-ts 1234567890.123456
 
-# Search for messages mentioning a keyword
+# Search the workspace for messages mentioning a keyword (live search)
 slack-pp-cli search "deploy failed"
+
+# Preview the exact request body before sending a write
+slack-pp-cli messages post_message --channel C0123456789 --text "Hello" --dry-run
+
+# Supply a whole request body as JSON instead of flags (stdin replaces the flags)
+echo '{"channel":"C0123456789","text":"Hello"}' \
+  | slack-pp-cli messages post_message --stdin --agent
 
 # Get channel health report after syncing
 slack-pp-cli sync && slack-pp-cli health
@@ -379,6 +386,33 @@ slack-pp-cli conversations create --name "secret-project" --is-private true
 # Look up a user by email
 slack-pp-cli users lookup_by_email --email alice@example.com --json
 ```
+
+## Writing to Slack
+
+Write commands take their fields as flags, and the flags alone are sufficient. `--stdin` is an
+alternative to the flags rather than a supplement — pass the whole body as JSON and omit them:
+
+```bash
+echo '{"channel":"C0123456789","text":"Hello"}' \
+  | slack-pp-cli messages post_message --stdin --agent
+```
+
+When both are supplied, stdin wins and the flags are ignored. Use `--dry-run` on any write to
+inspect the exact request body before it is sent.
+
+Slack reports application errors as HTTP 200 with `{"ok":false,"error":"..."}`. Writes and live
+search now exit non-zero and name the Slack error (including the needed scope for
+`missing_scope`) instead of reporting success.
+
+## Known Limitations
+
+- `search --data-source local` does not return messages. `sync` populates the local
+  `messages`/`messages_fts` tables, but the local search path never queries them, so it reports
+  no results even when the index holds matches. Use the default (live) mode for message search.
+- `files upload` targets Slack's retired `files.upload` endpoint and fails with
+  `method_deprecated`. There is no file-attachment path yet.
+- `auth test` is not registered on the command tree.
+- `sync --resources channels` fails with `unknown_method`; use `conversations` instead.
 
 ## Health Check
 

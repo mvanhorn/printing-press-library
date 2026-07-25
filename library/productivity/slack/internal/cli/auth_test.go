@@ -46,6 +46,13 @@ func newAuthTestCmd(flags *rootFlags) *cobra.Command {
 			if err != nil {
 				return classifyAPIError(err)
 			}
+			// PATCH(amend-2026-07-25: surface Slack ok:false on writes) — Slack answers
+			// application errors with HTTP 200 and {"ok":false,"error":...}, so the
+			// envelope below reported success:true for a write that never happened.
+			// Reuses the same checkSlackAPIError the read paths already call.
+			if slackErr := checkSlackAPIError(data); slackErr != nil {
+				return slackErr
+			}
 			if wantsHumanTable(cmd.OutOrStdout(), flags) {
 				// Check if response contains an array (directly or wrapped in "data")
 				var items []map[string]any

@@ -1,0 +1,57 @@
+{
+  "schema_version": 2,
+  "applied_at": "2026-07-25",
+  "base_run_id": "20260409-073625",
+  "base_printing_press_version": "1.2.1",
+  "id": "slack-ok-false-on-writes-and-search",
+  "summary": "Surface Slack ok:false application errors on writes, imports, and live search.",
+  "reason": "Slack answers application errors with HTTP 200 and {\"ok\":false,\"error\":\"...\"}, and internal/client/client.go has no ok handling on any verb, so the client reports these as success. The CLI layer compensates via checkSlackAPIError, but only on paths that route through resolveRead or the DM helpers. Every POST command called c.Post directly and never checked, so the JSON envelope reported success:true and exit 0 for a write Slack had rejected \u2014 the failure mode in cli-printing-press#790's own reproduction. search's live path likewise called c.Get directly, bypassing resolveRead, which is why a failed search coerced to an empty result set rather than an error. import discarded the response entirely and counted rejected records as imported. All now reuse the existing checkSlackAPIError helper rather than adding a second detector; the prior fix-ok-false-detection patch covered internal/cli/sync.go only and is unchanged by this patch.",
+  "files": [
+    "internal/cli/auth_test.go",
+    "internal/cli/conversations_archive.go",
+    "internal/cli/conversations_create.go",
+    "internal/cli/conversations_invite.go",
+    "internal/cli/conversations_mark.go",
+    "internal/cli/conversations_set_purpose.go",
+    "internal/cli/conversations_set_topic.go",
+    "internal/cli/conversations_unarchive.go",
+    "internal/cli/dnd_end_dnd.go",
+    "internal/cli/dnd_end_snooze.go",
+    "internal/cli/dnd_set_snooze.go",
+    "internal/cli/dnd_team_info.go",
+    "internal/cli/files_delete.go",
+    "internal/cli/files_upload.go",
+    "internal/cli/messages_delete_message.go",
+    "internal/cli/messages_list_scheduled.go",
+    "internal/cli/messages_post_message.go",
+    "internal/cli/messages_schedule_message.go",
+    "internal/cli/messages_update_message.go",
+    "internal/cli/pins_add.go",
+    "internal/cli/pins_remove.go",
+    "internal/cli/reactions_add.go",
+    "internal/cli/reactions_remove.go",
+    "internal/cli/reminders_add.go",
+    "internal/cli/reminders_complete.go",
+    "internal/cli/reminders_delete.go",
+    "internal/cli/stars_add.go",
+    "internal/cli/stars_remove.go",
+    "internal/cli/usergroups_create.go",
+    "internal/cli/usergroups_update.go",
+    "internal/cli/usergroups_users_update.go",
+    "internal/cli/users_profile_set.go",
+    "internal/cli/users_set_presence.go",
+    "internal/cli/import.go",
+    "internal/cli/search.go"
+  ],
+  "validated_outcome": "Table-driven tests cover ok:false plain errors, missing_scope (asserting the needed scope is named in the message), ok:true success, and non-Slack payloads. go vet and go build clean. --dry-run is unaffected because the dry-run payload carries no ok field.",
+  "findings_addressed": [
+    "F4"
+  ],
+  "deferred_to_upstream": [
+    {
+      "feature": "An additive error-classifier seam so 200-with-error-envelope APIs are handled in the client",
+      "reason": "Slack is one of many APIs that signal failure inside a 200 body. Without a generator-level seam, each printed CLI must hand-patch detection at every call site \u2014 this patch touches 35 files to do what one client-level hook would. Tracked upstream as the additive error-classifier seam request."
+    }
+  ],
+  "upstream_issue": "https://github.com/mvanhorn/cli-printing-press/issues/3740"
+}

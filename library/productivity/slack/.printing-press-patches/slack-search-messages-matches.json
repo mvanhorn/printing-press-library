@@ -1,0 +1,24 @@
+{
+  "schema_version": 2,
+  "applied_at": "2026-07-25",
+  "base_run_id": "20260409-073625",
+  "base_printing_press_version": "1.2.1",
+  "id": "slack-search-messages-matches",
+  "summary": "Unwrap Slack's messages.matches search envelope and stop discarding the hits.",
+  "reason": "Two stacked defects made live search a silent wrong answer. extractSearchResults probes the wrapper keys data/results/items/records/entries, but search.messages nests hits at messages.matches, so no probe matched and the whole envelope fell through to the single-item return. outputSearchResults then ran that envelope through isNilOrEmpty, which looks for a top-level title/name/identifier/id, a nested document, or a score \u2014 a Slack envelope has none \u2014 so it was dropped, the slice emptied, and the command printed 'No results' and exited 0 for a query with thousands of matches. A Slack match object is identified by text/ts/permalink, none of which isNilOrEmpty recognized, so unwrapping alone would still have discarded every hit.",
+  "files": [
+    "internal/cli/search.go",
+    "internal/cli/search_amend_test.go"
+  ],
+  "validated_outcome": "Six new unit tests in internal/cli/search_amend_test.go pass: matches unwrap from messages.matches, each survives the isNilOrEmpty filter, the two fixes compose end-to-end, a genuinely empty result set still reads as empty (no false positives), and ok:false envelopes surface as errors.",
+  "findings_addressed": [
+    "F2"
+  ],
+  "deferred_to_upstream": [
+    {
+      "feature": "Per-API search-envelope knowledge in the generated search template",
+      "reason": "The generated extractSearchResults hardcodes a generic wrapper-key list and isNilOrEmpty hardcodes a generic identity-field list; neither can express 'this API nests hits at messages.matches and identifies them by text/ts/permalink'. Any API whose search envelope or result shape falls outside those two lists reproduces this silent-empty failure. Tracked upstream as cli-printing-press#3795, which proposes a spec-declared search response_path plus identity_fields; that declaration would supersede this patch."
+    }
+  ],
+  "upstream_issue": "https://github.com/mvanhorn/cli-printing-press/issues/3795"
+}

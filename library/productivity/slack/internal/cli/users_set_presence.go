@@ -21,10 +21,10 @@ func newUsersSetPresenceCmd(flags *rootFlags) *cobra.Command {
 		Short:   "Set the user's presence status",
 		Example: "  slack-pp-cli users set_presence",
 		RunE: func(cmd *cobra.Command, args []string) error {
-			if !cmd.Flags().Changed("presence") && !flags.dryRun {
-				return fmt.Errorf("required flag \"%s\" not set", "presence")
-			}
 			if !stdinBody {
+				if !cmd.Flags().Changed("presence") && !flags.dryRun {
+					return fmt.Errorf("required flag \"%s\" not set", "presence")
+				}
 			}
 			c, err := flags.newClient()
 			if err != nil {
@@ -44,11 +44,24 @@ func newUsersSetPresenceCmd(flags *rootFlags) *cobra.Command {
 				}
 				body = jsonBody
 			} else {
-				body = map[string]any{}
+				// PATCH(amend-2026-07-25: assemble body from flag values) — the generated
+				// else-branch emitted an empty map, so every POST shipped {} upstream.
+				bodyMap := map[string]any{}
+				if flagPresence != "" {
+					bodyMap["presence"] = flagPresence
+				}
+				body = bodyMap
 			}
 			data, statusCode, err := c.Post(path, body)
 			if err != nil {
 				return classifyAPIError(err)
+			}
+			// PATCH(amend-2026-07-25: surface Slack ok:false on writes) — Slack answers
+			// application errors with HTTP 200 and {"ok":false,"error":...}, so the
+			// envelope below reported success:true for a write that never happened.
+			// Reuses the same checkSlackAPIError the read paths already call.
+			if slackErr := checkSlackAPIError(data); slackErr != nil {
+				return slackErr
 			}
 			if wantsHumanTable(cmd.OutOrStdout(), flags) {
 				// Check if response contains an array (directly or wrapped in "data")

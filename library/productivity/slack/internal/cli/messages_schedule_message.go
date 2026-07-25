@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"strconv"
 
 	"github.com/spf13/cobra"
 )
@@ -23,16 +24,16 @@ func newMessagesScheduleMessageCmd(flags *rootFlags) *cobra.Command {
 		Short:   "Schedule a message for later delivery",
 		Example: "  slack-pp-cli messages schedule_message",
 		RunE: func(cmd *cobra.Command, args []string) error {
-			if !cmd.Flags().Changed("channel") && !flags.dryRun {
-				return fmt.Errorf("required flag \"%s\" not set", "channel")
-			}
-			if !cmd.Flags().Changed("text") && !flags.dryRun {
-				return fmt.Errorf("required flag \"%s\" not set", "text")
-			}
-			if !cmd.Flags().Changed("post-at") && !flags.dryRun {
-				return fmt.Errorf("required flag \"%s\" not set", "post-at")
-			}
 			if !stdinBody {
+				if !cmd.Flags().Changed("channel") && !flags.dryRun {
+					return fmt.Errorf("required flag \"%s\" not set", "channel")
+				}
+				if !cmd.Flags().Changed("text") && !flags.dryRun {
+					return fmt.Errorf("required flag \"%s\" not set", "text")
+				}
+				if !cmd.Flags().Changed("post-at") && !flags.dryRun {
+					return fmt.Errorf("required flag \"%s\" not set", "post-at")
+				}
 			}
 			c, err := flags.newClient()
 			if err != nil {
@@ -52,11 +53,35 @@ func newMessagesScheduleMessageCmd(flags *rootFlags) *cobra.Command {
 				}
 				body = jsonBody
 			} else {
-				body = map[string]any{}
+				// PATCH(amend-2026-07-25: assemble body from flag values) — the generated
+				// else-branch emitted an empty map, so every POST shipped {} upstream.
+				bodyMap := map[string]any{}
+				if flagChannel != "" {
+					bodyMap["channel"] = flagChannel
+				}
+				if flagText != "" {
+					bodyMap["text"] = flagText
+				}
+				if flagPostAt != "" {
+					// post_at is an integer in the Slack API; a JSON string is rejected.
+					parsed, parseErr := strconv.ParseInt(flagPostAt, 10, 64)
+					if parseErr != nil {
+						return fmt.Errorf("--post-at expects an integer, got %q", flagPostAt)
+					}
+					bodyMap["post_at"] = parsed
+				}
+				body = bodyMap
 			}
 			data, statusCode, err := c.Post(path, body)
 			if err != nil {
 				return classifyAPIError(err)
+			}
+			// PATCH(amend-2026-07-25: surface Slack ok:false on writes) — Slack answers
+			// application errors with HTTP 200 and {"ok":false,"error":...}, so the
+			// envelope below reported success:true for a write that never happened.
+			// Reuses the same checkSlackAPIError the read paths already call.
+			if slackErr := checkSlackAPIError(data); slackErr != nil {
+				return slackErr
 			}
 			if wantsHumanTable(cmd.OutOrStdout(), flags) {
 				// Check if response contains an array (directly or wrapped in "data")
