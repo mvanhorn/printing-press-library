@@ -217,6 +217,8 @@ Agents should treat the CLI's path resolver as part of the runtime contract:
   }
   ```
 
+Override the API host with `AMAZON_JOBS_BASE_URL` (or the `base_url` key in `config.toml`) when the default `https://www.amazon.jobs` is not reachable from this machine. If `doctor` reports `cannot resolve host`, the fault is the local resolver, not the API or your arguments: some routers and split-DNS/VPN setups refuse the `amazon.jobs` zone. Do not retry the command or rewrite the query — unresolvable hosts fail fast by design and will keep failing. Confirm with `host amazon.jobs` versus `host amazon.jobs 1.1.1.1`, then switch resolver, drop the VPN, or set `AMAZON_JOBS_BASE_URL`. Use `--dry-run` on `find` to print the exact URL and client-side filters the command would use without sending the request.
+
 Fleet precedence: an inherited per-kind env var overrides an explicit `--home` for that kind. Use `AMAZON_JOBS_HOME` or per-kind vars as durable fleet levers, and use `--home` only for a single invocation. Relocation is not reversible by unsetting env vars; move files manually before clearing `AMAZON_JOBS_HOME`, or `doctor` will not find credentials left under the former root.
 
 ## Automatic learning

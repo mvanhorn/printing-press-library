@@ -170,6 +170,35 @@ func hasClientFilters(category, schedule string, wantIntern, wantManager, wantUn
 	return category != "" || schedule != "" || wantIntern != nil || wantManager != nil || wantUniversity != nil
 }
 
+// describeClientFilters renders the active client-side filters as a short
+// human-readable list. Used by `find --dry-run` so the preview names the
+// filters that run after the request, which the query string cannot show.
+func describeClientFilters(category, schedule string, wantIntern, wantManager, wantUniversity *bool) string {
+	parts := []string{}
+	if category != "" {
+		parts = append(parts, fmt.Sprintf("category~%q", category))
+	}
+	if schedule != "" {
+		parts = append(parts, fmt.Sprintf("schedule~%q", schedule))
+	}
+	for _, f := range []struct {
+		name string
+		val  *bool
+	}{
+		{"intern", wantIntern},
+		{"manager", wantManager},
+		{"university", wantUniversity},
+	} {
+		if f.val != nil {
+			parts = append(parts, fmt.Sprintf("%s=%t", f.name, *f.val))
+		}
+	}
+	if len(parts) == 0 {
+		return "none"
+	}
+	return strings.Join(parts, ", ")
+}
+
 var (
 	htmlBrRe   = regexp.MustCompile(`(?i)<br\s*/?>`)
 	htmlLiRe   = regexp.MustCompile(`(?i)<li\s*/?>`)

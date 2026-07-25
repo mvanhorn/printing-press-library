@@ -16,6 +16,7 @@ import (
 	"github.com/mvanhorn/printing-press-library/library/productivity/amazon-jobs/internal/config"
 	"io"
 	"math"
+	"net"
 	"net/http"
 	"net/url"
 	"os"
@@ -512,6 +513,23 @@ func sleepContext(ctx context.Context, wait time.Duration) error {
 	}
 }
 
+// isPermanentDNSFailure reports whether err is a name-resolution failure that
+// retrying cannot fix. A refused or NXDOMAIN answer for the API host means the
+// resolver gave a definitive "no" — the host will not appear mid-backoff, so
+// the exponential retry schedule only delays the error the user needs to see.
+// Genuinely transient DNS conditions (timeouts, temporary SERVFAIL) still
+// report IsTemporary and stay on the retry path.
+func isPermanentDNSFailure(err error) bool {
+	var dnsErr *net.DNSError
+	if !errors.As(err, &dnsErr) {
+		return false
+	}
+	if dnsErr.IsTimeout || dnsErr.IsTemporary {
+		return false
+	}
+	return dnsErr.IsNotFound || strings.Contains(dnsErr.Err, "no such host")
+}
+
 // do executes an HTTP request. headerOverrides, when non-nil, override global
 // RequiredHeaders for this specific request (used for per-endpoint API versioning).
 func (c *Client) do(ctx context.Context, method, path string, params map[string]string, body any, headerOverrides map[string]string) (json.RawMessage, int, error) {
@@ -662,7 +680,12 @@ func (c *Client) doInternal(ctx context.Context, method, path string, params map
 			// timeout). Back off before retrying — same exponential schedule as
 			// the 5xx path below — so a brief outage does not burn every attempt
 			// in a tight loop. ctx cancellation breaks out of the wait at once.
-			if attempt < maxRetries && canRetryAmbiguousFailure {
+			// PATCH(amend-2026-07-25: don't burn backoff on unresolvable hosts) —
+			// a name that does not resolve will not start resolving 1s, 2s and
+			// 4s later, so the generic transient-failure retry just added 7s of
+			// silence to an error the user has to fix themselves (bad resolver,
+			// offline, typo'd base URL). Fail fast and let the caller see it.
+			if attempt < maxRetries && canRetryAmbiguousFailure && !isPermanentDNSFailure(err) {
 				wait := time.Duration(math.Pow(2, float64(attempt))) * time.Second
 				fmt.Fprintf(os.Stderr, "network error (%v), retrying in %s (attempt %d/%d)\n", c.maskError(err, authHeader), wait, attempt+1, maxRetries)
 				if serr := sleepContext(ctx, wait); serr != nil {

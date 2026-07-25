@@ -298,11 +298,20 @@ See README.md or the bundled SKILL.md for recipes.`,
 	rootCmd.AddCommand(newWhichCmd(flags))
 	rootCmd.AddCommand(newExportCmd(flags))
 	rootCmd.AddCommand(newWorkflowCmd(flags))
+	// PATCH(amend-2026-07-25: re-register hand-authored sync/get/searches) — a
+	// `generate --force` regen rewrote this file and dropped these three
+	// AddCommand lines, orphaning sync.go/get.go/searches.go and making the
+	// local-store workflow (sync -> stats/skills/new) unreachable. The
+	// hand-written data layer these commands belong to is recorded in
+	// .printing-press-patches/amazon-jobs-hand-written-data-layer.json.
 	rootCmd.AddCommand(newNovelFindCmd(flags))
+	rootCmd.AddCommand(newGetCmd(flags))
 	rootCmd.AddCommand(newNovelNewCmd(flags))
 	rootCmd.AddCommand(newNovelSaveCmd(flags))
+	rootCmd.AddCommand(newSearchesCmd(flags))
 	rootCmd.AddCommand(newNovelSkillsCmd(flags))
 	rootCmd.AddCommand(newNovelStatsCmd(flags))
+	rootCmd.AddCommand(newNovelSyncCmd(flags))
 	rootCmd.AddCommand(newAPICmd(flags))
 	rootCmd.AddCommand(newPostingsPromotedCmd(flags))
 	rootCmd.AddCommand(newVersionCmd())

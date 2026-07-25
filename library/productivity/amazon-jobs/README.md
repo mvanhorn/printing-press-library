@@ -361,6 +361,20 @@ Run `amazon-jobs-pp-cli doctor` to see the resolved config, data, state, and cac
 
 Static request headers can be configured under `headers`; per-command header overrides take precedence.
 
+### Overriding the API host
+
+The CLI talks to `https://www.amazon.jobs` by default. Override it with the
+`base_url` key in `config.toml`, or per-invocation with `AMAZON_JOBS_BASE_URL`:
+
+```bash
+AMAZON_JOBS_BASE_URL=https://www.amazon.jobs amazon-jobs-pp-cli doctor
+```
+
+This is the escape hatch when a local resolver, split-DNS setup, or corporate
+proxy will not answer for `www.amazon.jobs` — point the CLI at a mirror or a
+local forwarding proxy without editing config. `doctor` prints the effective
+`base_url`, so it is the fastest way to confirm the override took effect.
+
 ## Troubleshooting
 **Not found errors (exit code 3)**
 - Check the resource ID is correct
@@ -372,6 +386,7 @@ Static request headers can be configured under `headers`; per-command header ove
 - **`new` or `stats` says the local mirror is empty.** — Run `amazon-jobs-pp-cli sync engineer` (or `sync` a saved search) first to populate the store.
 - **Job descriptions are full of <br/> and HTML entities.** — Add --plain to `find`/`get` to strip HTML into readable text.
 - **Broad searches always report about 10000 hits.** — That is Amazon's server-side cap for broad queries; narrow with keyword/location filters, or sync and use `stats` for exact local counts.
+- **`doctor` reports `cannot resolve host "www.amazon.jobs"` and every command fails immediately.** — This is your machine's DNS, not the API. Some home routers and split-DNS/VPN setups refuse the `amazon.jobs` zone; confirm with `host amazon.jobs` versus `host amazon.jobs 1.1.1.1`. Switch to a public resolver (1.1.1.1 or 8.8.8.8), disconnect the VPN, or set `AMAZON_JOBS_BASE_URL` to a reachable host. Unresolvable hosts fail fast by design — the CLI does not retry a name the resolver has already refused.
 
 ---
 

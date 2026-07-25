@@ -47,10 +47,6 @@ search.`, "\n"),
 			if len(args) == 0 && cmd.Flags().NFlag() == 0 {
 				return cmd.Help()
 			}
-			if dryRunOK(flags) {
-				fmt.Fprintln(cmd.OutOrStdout(), "would search amazon.jobs live")
-				return nil
-			}
 			if err := guardDataSource(flags, "live"); err != nil {
 				return err
 			}
@@ -86,6 +82,26 @@ search.`, "\n"),
 			// filtering locally until we collect --limit matches.
 			pageSize := limit
 			startOffset := (page - 1) * limit
+
+			// PATCH(amend-2026-07-25: --dry-run shows the real request) — this
+			// used to print a fixed "would search amazon.jobs live" line before
+			// any flag parsing, so it revealed nothing about the query,
+			// filters, or paging that would actually be sent and could not be
+			// used to check a command before running it. Emitting it here, once
+			// the values are resolved, makes the preview faithful.
+			if dryRunOK(flags) {
+				out := cmd.OutOrStdout()
+				values := buildSearchValues(query, country, state, city, sort, pageSize, startOffset)
+				fmt.Fprintf(out, "would GET %s%s?%s\n", c.BaseURL, searchPath, values.Encode())
+				if clientSide {
+					fmt.Fprintf(out, "then filter client-side (%s), scanning up to %d page(s) for %d match(es)\n",
+						describeClientFilters(category, schedule, wantIntern, wantManager, wantUniversity), maxScanPages, limit)
+				} else {
+					fmt.Fprintf(out, "then return up to %d result(s) from that single page\n", limit)
+				}
+				return nil
+			}
+
 			matches := make([]Job, 0, limit)
 			var totalHits, scannedPages, scannedJobs int
 			scanCapHit := false

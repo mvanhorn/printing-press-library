@@ -7,6 +7,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"net"
 	"strings"
 
 	"github.com/mvanhorn/printing-press-library/library/productivity/amazon-jobs/internal/client"
@@ -211,7 +212,20 @@ func newDoctorCmd(flags *rootFlags) *cobra.Command {
 						// Network-level failure: DNS, connection refused, TLS,
 						// transport init, etc. The transport itself didn't
 						// connect.
-						report["api"] = fmt.Sprintf("unreachable: %s", reachErr)
+						// PATCH(amend-2026-07-25: give name resolution its own
+						// verdict) — a bare "unreachable: ... no such host"
+						// reads as an API outage, so a broken local resolver
+						// sends people hunting for a CLI, auth, or upstream bug
+						// instead of checking their own DNS. Name the failure
+						// and say what to try.
+						var dnsErr *net.DNSError
+						if errors.As(reachErr, &dnsErr) {
+							report["api"] = fmt.Sprintf(
+								"unreachable: cannot resolve host %q (%s) — the network is up but this machine's resolver will not answer for that name, so the API itself may be healthy. Try a public resolver (1.1.1.1 or 8.8.8.8), check VPN/split-DNS settings, or point the CLI at another host with AMAZON_JOBS_BASE_URL.",
+								dnsErr.Name, strings.TrimSpace(dnsErr.Err))
+						} else {
+							report["api"] = fmt.Sprintf("unreachable: %s", reachErr)
+						}
 					}
 
 					// Step 2: Validate credentials with an authenticated probe.

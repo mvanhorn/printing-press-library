@@ -20,7 +20,13 @@ type syncHintState struct {
 	lastSynced time.Time
 }
 
-const syncHintsEnabled = false
+// PATCH(amend-2026-07-25: enable sync hints now that `sync` is registered) —
+// the same regen that dropped the sync/get/searches registrations left this
+// const false, so the generated sync_hint tests asserted behavior the code
+// could never produce (5 failures). Nothing in this CLI calls the helpers yet,
+// so flipping this changes no runtime output; it restores the generated
+// contract and matches the sibling CLI that ships this feature (shodhganga).
+const syncHintsEnabled = true
 
 func maybeEmitSyncHints(cmd *cobra.Command, db *store.Store, resourceType string, maxAge time.Duration) {
 	if !syncHintsEnabled || cmd == nil {
