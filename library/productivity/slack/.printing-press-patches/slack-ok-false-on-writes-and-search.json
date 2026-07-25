@@ -5,7 +5,7 @@
   "base_printing_press_version": "1.2.1",
   "id": "slack-ok-false-on-writes-and-search",
   "summary": "Surface Slack ok:false application errors on writes, imports, and live search.",
-  "reason": "Slack answers application errors with HTTP 200 and {\"ok\":false,\"error\":\"...\"}, and internal/client/client.go has no ok handling on any verb, so the client reports these as success. The CLI layer compensates via checkSlackAPIError, but only on paths that route through resolveRead or the DM helpers. Every POST command called c.Post directly and never checked, so the JSON envelope reported success:true and exit 0 for a write Slack had rejected \u2014 the failure mode in cli-printing-press#790's own reproduction. search's live path likewise called c.Get directly, bypassing resolveRead, which is why a failed search coerced to an empty result set rather than an error. import discarded the response entirely and counted rejected records as imported. All now reuse the existing checkSlackAPIError helper rather than adding a second detector; the prior fix-ok-false-detection patch covered internal/cli/sync.go only and is unchanged by this patch.",
+  "reason": "Slack answers application errors with HTTP 200 and {\"ok\":false,\"error\":\"...\"}, and internal/client/client.go has no ok handling on any verb, so the client reports these as success. The CLI layer compensates via checkSlackAPIError, but only on paths that route through resolveRead or the DM helpers. Every POST command called c.Post directly and never checked, so the JSON envelope reported success:true and exit 0 for a write Slack had rejected — the failure mode in cli-printing-press#790's own reproduction. search's live path likewise called c.Get directly, bypassing resolveRead, which is why a failed search coerced to an empty result set rather than an error. import discarded the response entirely and counted rejected records as imported. All now reuse the existing checkSlackAPIError helper rather than adding a second detector; the prior fix-ok-false-detection patch covered internal/cli/sync.go only and is unchanged by this patch. Follow-up within the same change: checkSlackAPIError returned bare fmt.Errorf values, so ExitCode found no *cliError and fell through to its generic 1. Read paths happened to exit 5 regardless, because they hand the error back to classifyAPIError whose default branch wraps with apiErr; the write and upload paths return it directly and exited 1. That made a rejected write indistinguishable from a usage error for any caller branching on exit codes, against a README that documents 5 as the API-error code. Wrapping both returns in apiErr inside checkSlackAPIError corrects every caller at once rather than editing 35 call sites, and leaves read-path behaviour unchanged since classifyAPIError's re-wrap resolves to the same code.",
   "files": [
     "internal/cli/auth_test.go",
     "internal/cli/conversations_archive.go",
@@ -41,16 +41,17 @@
     "internal/cli/users_profile_set.go",
     "internal/cli/users_set_presence.go",
     "internal/cli/import.go",
-    "internal/cli/search.go"
+    "internal/cli/search.go",
+    "internal/cli/helpers.go"
   ],
-  "validated_outcome": "Table-driven tests cover ok:false plain errors, missing_scope (asserting the needed scope is named in the message), ok:true success, and non-Slack payloads. go vet and go build clean. --dry-run is unaffected because the dry-run payload carries no ok field.",
+  "validated_outcome": "Table-driven tests cover ok:false plain errors, missing_scope (asserting the needed scope is named in the message), ok:true success, and non-Slack payloads. go vet and go build clean. --dry-run is unaffected because the dry-run payload carries no ok field. Exit codes verified against a nonexistent channel after the fix: messages post_message, conversations history, and files upload all exit 5 (previously 1, 5, and 1 respectively); search --data-source live and a valid conversations history still exit 0; the rendered error text is byte-identical.",
   "findings_addressed": [
     "F4"
   ],
   "deferred_to_upstream": [
     {
       "feature": "An additive error-classifier seam so 200-with-error-envelope APIs are handled in the client",
-      "reason": "Slack is one of many APIs that signal failure inside a 200 body. Without a generator-level seam, each printed CLI must hand-patch detection at every call site \u2014 this patch touches 35 files to do what one client-level hook would. Tracked upstream as the additive error-classifier seam request."
+      "reason": "Slack is one of many APIs that signal failure inside a 200 body. Without a generator-level seam, each printed CLI must hand-patch detection at every call site — this patch touches 35 files to do what one client-level hook would. Tracked upstream as the additive error-classifier seam request."
     }
   ],
   "upstream_issue": "https://github.com/mvanhorn/cli-printing-press/issues/3740"

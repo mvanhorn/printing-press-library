@@ -407,10 +407,16 @@ func checkSlackAPIError(data json.RawMessage) error {
 	if resp.OK || resp.Error == "" {
 		return nil
 	}
+	// PATCH(amend-2026-07-25: give ok:false errors the documented exit code) —
+	// these were returned unwrapped, so ExitCode fell through to its generic 1.
+	// Read paths happened to get 5 anyway because they funnel the error back
+	// through classifyAPIError, whose default branch wraps with apiErr; write
+	// paths return it directly and exited 1. Wrapping here makes every caller
+	// agree with the documented table (5 = API error) without touching call sites.
 	if resp.Error == "missing_scope" && resp.Needed != "" {
-		return fmt.Errorf("missing Slack scope: %s\nAdd it in your app's OAuth & Permissions settings at https://api.slack.com/apps and reinstall", resp.Needed)
+		return apiErr(fmt.Errorf("missing Slack scope: %s\nAdd it in your app's OAuth & Permissions settings at https://api.slack.com/apps and reinstall", resp.Needed))
 	}
-	return fmt.Errorf("Slack API error: %s", resp.Error)
+	return apiErr(fmt.Errorf("Slack API error: %s", resp.Error))
 }
 
 func extractResponseData(data json.RawMessage) json.RawMessage {
