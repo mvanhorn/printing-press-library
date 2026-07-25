@@ -1,0 +1,23 @@
+{
+  "schema_version": 2,
+  "id": "title-resolution-must-signal-ambiguity",
+  "applied_at": "2026-07-26",
+  "base_run_id": "20260504-004256",
+  "base_printing_press_version": "3.8.0",
+  "summary": "Resolving a title to a TMDb id is a ranked guess, not a lookup: when several entries share the title, the CLI must name the runners-up on stderr and accept a year to override, never silently take the most popular one.",
+  "reason": "TMDb orders /search/* by current popularity, so a remake outranks a better-rated original — `ratings \"Sabrina\"` returned the 1995 version (703 ratings) over the 1954 Wilder film (1373 ratings) with nothing in stdout, stderr, or the exit code to show a choice had been made. Any regen that restores a bare Results[0] pick reintroduces a wrong answer that reads as a confident one. The notice must stay on stderr so the stdout JSON contract, --agent, --select, and pipes are untouched, and it must be gated on rating counts: TMDb's long tail of unrated same-titled shorts otherwise makes it fire on every lookup, which is the same as not having it.",
+  "files": [
+    "internal/cli/tmdb_helpers.go",
+    "internal/cli/tmdb_helpers_test.go",
+    "internal/cli/ratings.go",
+    "internal/cli/marathon.go",
+    "internal/cli/watchlist.go",
+    "internal/cli/versus.go",
+    "internal/cli/career.go",
+    "internal/cli/collaborators.go",
+    "README.md",
+    "SKILL.md"
+  ],
+  "validated_outcome": "Live TMDb: `ratings \"Sabrina\"` now prints the 1954 and 2018 alternatives on stderr while stdout stays valid --agent JSON; `--year 1954`, `\"Sabrina (1954)\"`, and `versus \"Sabrina (1954)\" \"Sabrina (1995)\"` all resolve to the intended ids; `ratings \"Inception\"`, `\"Fight Club\"`, `\"The Matrix\"`, and `\"Heat\"` stay silent; `--quiet` suppresses the notice. go build/vet/test and the repo verify-skill checks pass.",
+  "findings_addressed": ["F1", "F2"]
+}

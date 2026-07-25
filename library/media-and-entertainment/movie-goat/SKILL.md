@@ -64,6 +64,13 @@ These capabilities aren't available in any other tool for this API.
   ```bash
   movie-goat-pp-cli ratings 550 --json
   ```
+- **Remake-aware title resolution** — Every command that accepts a title instead of a TMDb id says so out loud when the title is shared.
+
+  _TMDb orders search by popularity, so `"Sabrina"` resolves to the 1995 remake even though the 1954 Wilder original is better rated. When a title has more than one well-rated match, the alternatives are listed on **stderr** with their TMDb ids — stdout stays pure JSON, so `--agent`, `--select`, and pipes are unaffected. Pin the one you meant with `--year`, a `"Title (YYYY)"` suffix, or the id._
+
+  ```bash
+  movie-goat-pp-cli ratings "Sabrina" --year 1954 --json
+  ```
 - **`marathon`** — Plan a franchise marathon with watch order, total runtime, and suggested breaks.
 
   _Use when planning an event watch; agent can dump the schedule to share with a group._
@@ -201,6 +208,32 @@ movie-goat-pp-cli versus 27205 87108 --region US --agent
 ```
 
 Aligned compare card for Inception vs. Tenet; ratings, runtime, cast overlap, providers.
+
+### Pin the original, not the remake
+
+```bash
+movie-goat-pp-cli ratings "Sabrina" --year 1954 --agent
+movie-goat-pp-cli ratings "Sabrina (1954)" --agent
+movie-goat-pp-cli versus "Sabrina (1954)" "Sabrina (1995)" --agent
+```
+
+`ratings`, `marathon`, and `watchlist add` take `--year`; every title-taking
+command (including the two-positional `versus`) accepts the inline `"Title (YYYY)"`
+suffix. Without either, the CLI still resolves by TMDb popularity but prints the
+rival ids on stderr:
+
+```
+warn: "Sabrina" matches 3 titles on TMDb; using id 11860 — Sabrina (1995).
+      TMDb ranks it first by popularity, but Sabrina (1954) has more ratings (1373 vs 703).
+      Other matches:
+        6620  Sabrina (1954)
+        503902  Sabrina (2018)
+      Disambiguate with --year <YYYY>, a "title (YYYY)" suffix, or the TMDb id.
+```
+
+Agents parsing stdout are unaffected — the notice only ever goes to stderr, and
+`--quiet` suppresses it. Unrated same-title obscurities never trigger it, so
+`ratings "Inception"` stays silent.
 
 ### Plan a franchise night
 

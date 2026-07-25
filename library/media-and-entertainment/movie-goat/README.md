@@ -7,6 +7,7 @@ Movie Goat unifies the workflows that today require four browser tabs: discovery
 Learn more at [Movie Goat](https://www.themoviedb.org).
 
 Created by [@tmchow](https://github.com/tmchow) (Trevin Chow).
+Contributors: [@giuseppebisemi](https://github.com/giuseppebisemi) (Giuseppe Bisemi).
 
 ## Install
 
@@ -169,6 +170,13 @@ These capabilities aren't available in any other tool for this API.
   ```bash
   movie-goat-pp-cli ratings 550 --json
   ```
+- **Remake-aware title resolution** — Every command that takes a title instead of a TMDb id tells you when the title is shared.
+
+  _TMDb orders search by popularity, so `"Sabrina"` lands on the 1995 remake even though the 1954 Wilder original has twice the ratings. When a title has more than one well-rated match, the alternatives print to **stderr** with their TMDb ids; stdout stays pure JSON, so `--agent`, `--select`, and pipes are untouched. Pin one with `--year`, a `"Title (YYYY)"` suffix, or the id._
+
+  ```bash
+  movie-goat-pp-cli ratings "Sabrina" --year 1954 --json
+  ```
 - **`marathon`** — Plan a franchise marathon with watch order, total runtime, and suggested breaks.
 
   _Use when planning an event watch; agent can dump the schedule to share with a group._
@@ -321,7 +329,18 @@ movie-goat-pp-cli discover movies --with-genres 28,53 --primary-release-date-gte
 
 # 12. Recommendation queue from your watchlist (suggests next-watch picks).
 movie-goat-pp-cli queue --providers netflix,max --region US --limit 10
+
+# 13. Pin the original instead of the remake. Bare "Sabrina" resolves to the 1995
+#     version (TMDb ranks by popularity) and prints the rival ids on stderr.
+movie-goat-pp-cli ratings "Sabrina" --year 1954
+movie-goat-pp-cli ratings "Sabrina (1954)"
+movie-goat-pp-cli versus "Sabrina (1954)" "Sabrina (1995)"
+movie-goat-pp-cli watchlist add "Sabrina" --year 1954
 ```
+
+`--year` is available on `ratings`, `marathon`, and `watchlist add`; the inline
+`"Title (YYYY)"` suffix works on every command that accepts a title, including
+the two-positional `versus`. `--quiet` suppresses the stderr notice.
 
 ## Output Formats
 

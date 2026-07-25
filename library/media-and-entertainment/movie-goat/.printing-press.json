@@ -9,6 +9,12 @@
     "handle": "tmchow",
     "name": "Trevin Chow"
   },
+  "contributors": [
+    {
+      "handle": "giuseppebisemi",
+      "name": "Giuseppe Bisemi"
+    }
+  ],
   "printer": "tmchow",
   "printer_name": "Trevin Chow",
   "spec_format": "internal",
