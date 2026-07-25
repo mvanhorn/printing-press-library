@@ -1,0 +1,78 @@
+{
+  "api_name": "amazon-jobs",
+  "base_url": "https://www.amazon.jobs",
+  "description": "Every Amazon.jobs feature, plus a local job store, new-since diffing, and aggregation Amazon's own site can't do — no login required.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "none"
+  },
+  "required_headers": [
+    {
+      "name": "User-Agent",
+      "value": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0 Safari/537.36"
+    },
+    {
+      "name": "Accept",
+      "value": "application/json"
+    }
+  ],
+  "tools": [
+    {
+      "name": "postings_search",
+      "description": "Search Amazon job listings by keyword, location, and sort order. Optional: base-query, country, state (plus 4 more). Returns array of Job.",
+      "method": "GET",
+      "path": "/en/search.json",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "base-query",
+          "wire_name": "base_query",
+          "type": "string",
+          "location": "query",
+          "description": "Keyword query over title/description/team (also matches an exact numeric job id)"
+        },
+        {
+          "name": "country",
+          "wire_name": "normalized_country_code[]",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by ISO alpha-3 country code (USA, GBR, IND, DEU, JPN, CAN, ...)"
+        },
+        {
+          "name": "state",
+          "wire_name": "normalized_state_name[]",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by full state/region name (Washington, California, Texas, ...)"
+        },
+        {
+          "name": "city",
+          "wire_name": "normalized_city_name[]",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by city name (Seattle, Austin, Arlington, ...)"
+        },
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "Pagination offset"
+        },
+        {
+          "name": "limit",
+          "wire_name": "result_limit",
+          "type": "int",
+          "location": "query",
+          "description": "Results per page (must be \u003e= 1; the API returns 0 hits when this is 0 with filters)"
+        },
+        {
+          "name": "sort",
+          "type": "string",
+          "location": "query",
+          "description": "Sort order: recent (newest first) or relevant (best match)"
+        }
+      ]
+    }
+  ]
+}

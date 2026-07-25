@@ -1,0 +1,27 @@
+{
+  "manifest_version": "0.3",
+  "name": "amazon-jobs-pp-mcp",
+  "display_name": "Amazon Jobs",
+  "version": "0.1.0",
+  "description": "Every Amazon.jobs feature, plus a local job store, new-since diffing, and aggregation Amazon's own site can't do — no login required.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/amazon-jobs-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/amazon-jobs-pp-mcp",
+      "args": []
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

@@ -1,0 +1,9 @@
+{
+  "dir": "\u003ccli-dir\u003e/amazon-jobs-pp-cli",
+  "research_dir": "\u003ccli-dir\u003e/20260725-041142-9944f727",
+  "verdict": "pass",
+  "actors": null,
+  "issues": [
+    "no Apify actor references found, skipping"
+  ]
+}
