@@ -18,8 +18,14 @@
   "deferred_to_upstream": [
     {
       "feature": "Generated HTTP client should not retry permanent DNS failures (NXDOMAIN / refused) on the transient-network backoff schedule.",
-      "reason": "internal/client/client.go is generated framework shared by every printed CLI, so the isPermanentDNSFailure predicate belongs in the client template rather than in this one CLI. Local patch lands first because the defect is user-visible here today; a template fix should supersede it."
+      "reason": "internal/client/client.go is generated framework shared by every printed CLI, so the isPermanentDNSFailure predicate belongs in the client template rather than in this one CLI. Local patch lands first because the defect is user-visible here today; a template fix should supersede it.",
+      "upstream_issue": "https://github.com/mvanhorn/cli-printing-press/issues/3796"
     }
   ],
-  "findings_addressed": ["F5", "F6", "F7", "F8"]
+  "findings_addressed": [
+    "F5",
+    "F6",
+    "F7",
+    "F8"
+  ]
 }
