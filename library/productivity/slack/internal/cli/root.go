@@ -157,6 +157,9 @@ func Execute() error {
 	rootCmd.AddCommand(newTeamPromotedCmd(&flags))
 	rootCmd.AddCommand(newRemindersPromotedCmd(&flags))
 	rootCmd.AddCommand(newPinsPromotedCmd(&flags))
+	// PATCH(amend-2026-07-25: add canvas support) — hand-added resource. The spec
+	// carries no canvas endpoints, so the generator emits nothing for it.
+	rootCmd.AddCommand(newCanvasesCmd(&flags))
 	rootCmd.AddCommand(newVersionCliCmd())
 
 	rootCmd.AddCommand(newProfileCmd(&flags))

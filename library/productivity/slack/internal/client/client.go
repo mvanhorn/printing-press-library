@@ -235,6 +235,66 @@ func (c *Client) PatchWithHeaders(path string, body any, headers map[string]stri
 	return c.do("PATCH", path, nil, body, headers)
 }
 
+// PATCH(amend-2026-07-25: add canvas support) — FetchRaw performs an
+// authenticated GET against an absolute URL and returns the raw body.
+//
+// It exists because some Slack content is served from files.slack.com rather
+// than the API host, as non-JSON, so do()'s path-joining and envelope handling
+// do not apply. Canvas bodies are the case in hand: there is no get-canvas-
+// content endpoint, and files.info's url_private_download serves the document as
+// HTML. The credential IS sent here — in contrast to the external file-upload
+// URL, which carries its own one-time token and must not receive the workspace
+// credential.
+//
+// Deliberately minimal: no caching, no rate limiter, no retry. It fetches one
+// document on demand, and the response is not a JSON envelope any of that
+// machinery understands.
+func (c *Client) FetchRaw(rawURL string) ([]byte, int, error) {
+	parsed, err := url.Parse(rawURL)
+	if err != nil {
+		return nil, 0, fmt.Errorf("parsing URL: %w", err)
+	}
+	if parsed.Scheme != "https" {
+		return nil, 0, fmt.Errorf("refusing to send credentials over %q; https required", parsed.Scheme)
+	}
+	// Only ever send the workspace credential to Slack.
+	host := parsed.Hostname()
+	if host != "slack.com" && !strings.HasSuffix(host, ".slack.com") {
+		return nil, 0, fmt.Errorf("refusing to send credentials to non-Slack host %q", host)
+	}
+
+	req, err := http.NewRequest("GET", rawURL, nil)
+	if err != nil {
+		return nil, 0, err
+	}
+	authHeader, err := c.authHeader()
+	if err != nil {
+		return nil, 0, err
+	}
+	if authHeader != "" {
+		req.Header.Set("Authorization", authHeader)
+	}
+	req.Header.Set("User-Agent", "slack-pp-cli/")
+
+	httpClient := c.HTTPClient
+	if httpClient == nil {
+		httpClient = http.DefaultClient
+	}
+	resp, err := httpClient.Do(req)
+	if err != nil {
+		return nil, 0, err
+	}
+	defer func() { _ = resp.Body.Close() }()
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return nil, resp.StatusCode, err
+	}
+	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
+		return nil, resp.StatusCode, fmt.Errorf("HTTP %d fetching %s: %s", resp.StatusCode, parsed.Path, truncateBody(body))
+	}
+	return body, resp.StatusCode, nil
+}
+
 // do executes an HTTP request. headerOverrides, when non-nil, override global
 // RequiredHeaders for this specific request (used for per-endpoint API versioning).
 func (c *Client) do(method, path string, params map[string]string, body any, headerOverrides map[string]string) (json.RawMessage, int, error) {
