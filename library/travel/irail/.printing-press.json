@@ -1,0 +1,114 @@
+{
+  "schema_version": 2,
+  "generated_at": "2026-07-24T20:32:58.811795Z",
+  "printing_press_version": "4.29.0",
+  "api_name": "irail",
+  "display_name": "iRail",
+  "cli_name": "irail-pp-cli",
+  "creator": {
+    "handle": "olli757",
+    "name": "Olivier"
+  },
+  "owner": "olli757",
+  "printer": "olli757",
+  "printer_name": "Olivier",
+  "spec_format": "internal",
+  "spec_checksum": "sha256:066668a9f5ec55d8815cd0a896881111224edd2f886fa5b620c8a38eee67d559",
+  "run_id": "20260724-212701-ae5b4630",
+  "category": "travel",
+  "description": "Every Belgian rail lookup the existing tools offer, plus transfer-risk, delay history and accessibility data that none of them have.",
+  "mcp_binary": "irail-pp-mcp",
+  "mcp_tool_count": 7,
+  "mcp_public_tool_count": 7,
+  "mcp_ready": "full",
+  "api_version": "0.1.0",
+  "auth_type": "none",
+  "novel_features": [
+    {
+      "name": "Transfer risk under live delay",
+      "command": "transfer-risk",
+      "description": "Tells you whether the transfers in a journey still hold once today's delays are applied."
+    },
+    {
+      "name": "Route punctuality history",
+      "command": "punctuality",
+      "description": "Shows how reliable a train or route has actually been, from delay observations recorded on your machine."
+    },
+    {
+      "name": "Disruptions scoped to one journey",
+      "command": "disruptions route",
+      "description": "Filters the national disruption feed down to the stations your journey actually passes through."
+    },
+    {
+      "name": "Live observation capture",
+      "command": "observe",
+      "description": "Records what the board says right now into local SQLite, building the history other commands read."
+    },
+    {
+      "name": "Latest safe departure",
+      "command": "leave-by",
+      "description": "Answers the last train you can take and still arrive before a deadline, accounting for current delays."
+    },
+    {
+      "name": "Station facilities and accessibility",
+      "command": "stations facilities",
+      "description": "Reports step-free access, elevators, ramps, lockers, bike parking and ticket-desk hours for a station."
+    },
+    {
+      "name": "What changed since last check",
+      "command": "changes",
+      "description": "Reports new delays, cancellations and platform changes since the last time you looked."
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Transfer risk under live delay",
+      "command": "transfer-risk",
+      "description": "Tells you whether the transfers in a journey still hold once today's delays are applied."
+    },
+    {
+      "name": "Route punctuality history",
+      "command": "punctuality",
+      "description": "Shows how reliable a train or route has actually been, from delay observations recorded on your machine."
+    },
+    {
+      "name": "Disruptions scoped to one journey",
+      "command": "disruptions route",
+      "description": "Filters the national disruption feed down to the stations your journey actually passes through."
+    },
+    {
+      "name": "Live observation capture",
+      "command": "observe",
+      "description": "Records what the board says right now into local SQLite, building the history other commands read."
+    },
+    {
+      "name": "Latest safe departure",
+      "command": "leave-by",
+      "description": "Answers the last train you can take and still arrive before a deadline, accounting for current delays."
+    },
+    {
+      "name": "Station facilities and accessibility",
+      "command": "stations facilities",
+      "description": "Reports step-free access, elevators, ramps, lockers, bike parking and ticket-desk hours for a station."
+    },
+    {
+      "name": "What changed since last check",
+      "command": "changes",
+      "description": "Reports new delays, cancellations and platform changes since the last time you looked."
+    }
+  ],
+  "verify": {
+    "mode": "mock",
+    "pass_rate": 100,
+    "passed": 46,
+    "total": 46,
+    "verdict": "PASS"
+  },
+  "scorecard": {
+    "steinberger": {
+      "percentage": 96,
+      "grade": "A",
+      "total": 96
+    }
+  }
+}

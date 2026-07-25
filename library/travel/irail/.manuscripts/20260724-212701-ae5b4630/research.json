@@ -1,0 +1,294 @@
+{
+  "api_name": "irail",
+  "novelty_score": 0,
+  "alternatives": [
+    {
+      "name": "commandtrein",
+      "url": "https://github.com/Kaya-Sem/commandtrein",
+      "language": "Go",
+      "install_method": "",
+      "stars": 21,
+      "last_updated": "",
+      "command_count": 6,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "irail-mcp",
+      "url": "https://github.com/HansF/irail-mcp",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 5,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "iRail",
+      "url": "https://github.com/iRail/iRail",
+      "language": "PHP",
+      "install_method": "",
+      "stars": 134,
+      "last_updated": "",
+      "command_count": 8,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "iRail stations",
+      "url": "https://github.com/iRail/stations",
+      "language": "PHP",
+      "install_method": "",
+      "stars": 32,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-07-24T19:45:00Z",
+  "novel_features": [
+    {
+      "name": "Transfer risk under live delay",
+      "command": "transfer-risk",
+      "description": "Tells you whether the transfers in a journey still hold once today's delays are applied.",
+      "rationale": "Requires joining per-leg live delay from the connections endpoint against official_transfer_time from the open stations dataset, which the API itself never exposes.",
+      "example": "irail-pp-cli transfer-risk --from Oostende --to Hasselt --agent",
+      "why_it_matters": "Reach for this instead of a plain route lookup whenever a journey has a transfer and delays are already in play.",
+      "group": "Live data joined with open datasets"
+    },
+    {
+      "name": "Route punctuality history",
+      "command": "punctuality",
+      "description": "Shows how reliable a train or route has actually been, from delay observations recorded on your machine.",
+      "rationale": "Requires a local observation store; every existing Belgian rail tool is stateless and discards each response after printing it.",
+      "example": "irail-pp-cli punctuality --from Ghent-Sint-Pieters --to Brussels-Central --agent",
+      "why_it_matters": "Use this for questions about the past such as chronic lateness; it never calls the API.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Disruptions scoped to one journey",
+      "command": "disruptions route",
+      "description": "Filters the national disruption feed down to the stations your journey actually passes through.",
+      "rationale": "Requires resolving the stations on a route and matching them against free-text disruption titles, which no tool does and the API cannot do server-side.",
+      "example": "irail-pp-cli disruptions route --from Ghent-Sint-Pieters --to Brussels-Central --agent",
+      "why_it_matters": "Use this when the national list is too noisy to answer whether one specific trip is affected.",
+      "group": "Live data joined with open datasets"
+    },
+    {
+      "name": "Live observation capture",
+      "command": "observe",
+      "description": "Records what the board says right now into local SQLite, building the history other commands read.",
+      "rationale": "Requires a local store; the API offers no historical endpoint and no client keeps observations.",
+      "example": "irail-pp-cli observe --station Brussels-Central",
+      "why_it_matters": "Run this on a schedule; it is what makes punctuality and changes able to answer anything.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Latest safe departure",
+      "command": "leave-by",
+      "description": "Answers the last train you can take and still arrive before a deadline, accounting for current delays.",
+      "rationale": "Requires arrival-based planning plus live delay math and a safety margin, rather than the raw arrival-time query the API provides.",
+      "example": "irail-pp-cli leave-by --from Leuven --to Brussels-Central --arrive-by 09:00 --agent",
+      "why_it_matters": "Use this when the arrival deadline is fixed and the departure time is the unknown.",
+      "group": "Time reasoning done properly"
+    },
+    {
+      "name": "Station facilities and accessibility",
+      "command": "stations facilities",
+      "description": "Reports step-free access, elevators, ramps, lockers, bike parking and ticket-desk hours for a station.",
+      "rationale": "Requires the open facilities dataset, which is published separately and is absent from the API's own station response.",
+      "example": "irail-pp-cli stations facilities --station Ghent-Sint-Pieters --agent",
+      "why_it_matters": "Use this for accessibility and amenity questions that the live rail API simply cannot answer.",
+      "group": "Live data joined with open datasets"
+    },
+    {
+      "name": "What changed since last check",
+      "command": "changes",
+      "description": "Reports new delays, cancellations and platform changes since the last time you looked.",
+      "rationale": "Requires diffing consecutive local observations, including a platform-change flag that is present in live responses but absent from the published docs.",
+      "example": "irail-pp-cli changes --station Brussels-Central --agent",
+      "why_it_matters": "Use this for deltas during a commute rather than re-reading a whole board.",
+      "group": "Local state that compounds"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Transfer risk under live delay",
+      "command": "transfer-risk",
+      "description": "Tells you whether the transfers in a journey still hold once today's delays are applied.",
+      "rationale": "Requires joining per-leg live delay from the connections endpoint against official_transfer_time from the open stations dataset, which the API itself never exposes.",
+      "example": "irail-pp-cli transfer-risk --from Oostende --to Hasselt --agent",
+      "why_it_matters": "Reach for this instead of a plain route lookup whenever a journey has a transfer and delays are already in play.",
+      "group": "Live data joined with open datasets"
+    },
+    {
+      "name": "Route punctuality history",
+      "command": "punctuality",
+      "description": "Shows how reliable a train or route has actually been, from delay observations recorded on your machine.",
+      "rationale": "Requires a local observation store; every existing Belgian rail tool is stateless and discards each response after printing it.",
+      "example": "irail-pp-cli punctuality --from Ghent-Sint-Pieters --to Brussels-Central --agent",
+      "why_it_matters": "Use this for questions about the past such as chronic lateness; it never calls the API.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Disruptions scoped to one journey",
+      "command": "disruptions route",
+      "description": "Filters the national disruption feed down to the stations your journey actually passes through.",
+      "rationale": "Requires resolving the stations on a route and matching them against free-text disruption titles, which no tool does and the API cannot do server-side.",
+      "example": "irail-pp-cli disruptions route --from Ghent-Sint-Pieters --to Brussels-Central --agent",
+      "why_it_matters": "Use this when the national list is too noisy to answer whether one specific trip is affected.",
+      "group": "Live data joined with open datasets"
+    },
+    {
+      "name": "Live observation capture",
+      "command": "observe",
+      "description": "Records what the board says right now into local SQLite, building the history other commands read.",
+      "rationale": "Requires a local store; the API offers no historical endpoint and no client keeps observations.",
+      "example": "irail-pp-cli observe --station Brussels-Central",
+      "why_it_matters": "Run this on a schedule; it is what makes punctuality and changes able to answer anything.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Latest safe departure",
+      "command": "leave-by",
+      "description": "Answers the last train you can take and still arrive before a deadline, accounting for current delays.",
+      "rationale": "Requires arrival-based planning plus live delay math and a safety margin, rather than the raw arrival-time query the API provides.",
+      "example": "irail-pp-cli leave-by --from Leuven --to Brussels-Central --arrive-by 09:00 --agent",
+      "why_it_matters": "Use this when the arrival deadline is fixed and the departure time is the unknown.",
+      "group": "Time reasoning done properly"
+    },
+    {
+      "name": "Station facilities and accessibility",
+      "command": "stations facilities",
+      "description": "Reports step-free access, elevators, ramps, lockers, bike parking and ticket-desk hours for a station.",
+      "rationale": "Requires the open facilities dataset, which is published separately and is absent from the API's own station response.",
+      "example": "irail-pp-cli stations facilities --station Ghent-Sint-Pieters --agent",
+      "why_it_matters": "Use this for accessibility and amenity questions that the live rail API simply cannot answer.",
+      "group": "Live data joined with open datasets"
+    },
+    {
+      "name": "What changed since last check",
+      "command": "changes",
+      "description": "Reports new delays, cancellations and platform changes since the last time you looked.",
+      "rationale": "Requires diffing consecutive local observations, including a platform-change flag that is present in live responses but absent from the published docs.",
+      "example": "irail-pp-cli changes --station Brussels-Central --agent",
+      "why_it_matters": "Use this for deltas during a commute rather than re-reading a whole board.",
+      "group": "Local state that compounds"
+    }
+  ],
+  "narrative": {
+    "display_name": "iRail",
+    "headline": "Every Belgian rail lookup the existing tools offer, plus transfer-risk, delay history and accessibility data that none of them have.",
+    "value_prop": "iRail exposes live NMBS/SNCB departures, journey planning and disruptions for free with no API key. This CLI adds what every other client throws away: it records observations locally so punctuality can answer whether a train is chronically late, joins the open stations dataset so transfer-risk knows the real minimum transfer time at each station, and surfaces station accessibility data the API never returns. The analysis commands emit typed JSON - delays as numbers, cancellations as booleans - while the raw endpoint commands pass iRail's payload through unchanged.",
+    "auth_narrative": "No credentials are required: the iRail API is open and unauthenticated, so every command works immediately after install. Two operational limits matter instead of a key. iRail allows 3 requests per second per IP with 5 burst, returning HTTP 429 beyond that, so this CLI ships an adaptive rate limiter. iRail also blocks source IPs that send no User-Agent without prior warning, so every request carries an identifying User-Agent automatically.",
+    "quickstart": [
+      {
+        "command": "irail-pp-cli doctor --dry-run",
+        "comment": "Confirm the binary works and the API is reachable; no credentials needed"
+      },
+      {
+        "command": "irail-pp-cli sync --resources stations,disruptions",
+        "comment": "Pull the 716-station reference set into local SQLite; board and route are live-only and take no sync"
+      },
+      {
+        "command": "irail-pp-cli board --station Brussels-Central",
+        "comment": "The core lookup: what is leaving right now, with delay and platform"
+      },
+      {
+        "command": "irail-pp-cli route --from Ghent-Sint-Pieters --to Brussels-Central",
+        "comment": "Plan a journey with transfers and per-leg live delay"
+      },
+      {
+        "command": "irail-pp-cli disruptions route --from Ghent-Sint-Pieters --to Brussels-Central",
+        "comment": "Narrow the national disruption feed to just this journey"
+      },
+      {
+        "command": "irail-pp-cli observe --station Brussels-Central",
+        "comment": "Start recording observations so punctuality and changes have history to read"
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "HTTP 429 Too Many Requests",
+        "fix": "iRail allows 3 requests/second per IP plus 5 burst. Reduce concurrency or add --limit to narrow the query; the built-in limiter backs off automatically."
+      },
+      {
+        "symptom": "Requests suddenly fail from your network",
+        "fix": "iRail blocks IPs that send no User-Agent. Do not strip the User-Agent header; if already blocked, contact the iRail team to be unblocked."
+      },
+      {
+        "symptom": "Output is XML instead of JSON",
+        "fix": "The API defaults to xml. This CLI always sends format=json; if you overrode it, drop --format or set --format json."
+      },
+      {
+        "symptom": "train get returns today even though you passed a date",
+        "fix": "Upstream ignores the date parameter on the vehicle endpoint. Use board list with --date to inspect another day."
+      },
+      {
+        "symptom": "HTTP 500 on a date far in the past or future",
+        "fix": "iRail only holds a window around the current date. Query a date close to today."
+      },
+      {
+        "symptom": "punctuality or changes returns nothing",
+        "fix": "Both read local observations. Run irail-pp-cli observe at least twice before expecting results."
+      },
+      {
+        "symptom": "A station name is not recognised",
+        "fix": "Run irail-pp-cli stations search with part of the name; it matches Dutch, French, German and English names plus telegraph codes such as FBMZ."
+      },
+      {
+        "symptom": "delay or canceled compares wrong in jq, e.g. .delay \u003e 300 is always false",
+        "fix": "The raw endpoint commands (board, route, stations, disruptions, train) return iRail's payload verbatim, and iRail encodes every scalar as a string. Cast with (.delay|tonumber), or use the analysis commands (transfer-risk, punctuality, leave-by, changes, observe) which emit typed numbers and booleans."
+      }
+    ],
+    "when_to_use": "Use this CLI for anything involving Belgian passenger rail: when the next train leaves, how to get from one station to another, whether a journey is disrupted, and how reliable a route has been over time. It is the right tool when you need typed, scriptable output rather than a web page, and the only tool that can answer historical punctuality or transfer-risk questions. It also serves accessibility questions about Belgian stations that the live API cannot answer.",
+    "anti_triggers": [
+      "Do not use this CLI to buy tickets, reserve seats or check fares; iRail is a read-only timetable API with no booking surface.",
+      "Do not use it for rail networks outside Belgium; coverage is NMBS/SNCB plus a small number of cross-border stations.",
+      "Do not use it for live vehicle GPS positions; the API reports scheduled and delayed times, not continuous tracking.",
+      "Do not use it to query personal NMBS account data such as subscriptions or order history; that lives behind belgiantrain.be, which this CLI does not touch."
+    ],
+    "recipes": [
+      {
+        "title": "Next departures, narrowed for an agent",
+        "command": "irail-pp-cli board --station Brussels-Central --agent --select vehicle,delay,platform,canceled",
+        "explanation": "A full board is roughly 34 KB of JSON; selecting four fields keeps the response small enough to reason over without burning context."
+      },
+      {
+        "title": "Will my transfer survive today's delays",
+        "command": "irail-pp-cli transfer-risk --from Oostende --to Hasselt --agent",
+        "explanation": "Joins live per-leg delay against each station's official minimum transfer time and flags transfers that no longer hold."
+      },
+      {
+        "title": "Only the disruptions that affect my commute",
+        "command": "irail-pp-cli disruptions route --from Ghent-Sint-Pieters --to Brussels-Central --agent",
+        "explanation": "Filters the national feed, which was 32 entries on a normal day, down to the stations this journey passes through."
+      },
+      {
+        "title": "Last train that still gets me there by nine",
+        "command": "irail-pp-cli leave-by --from Leuven --to Brussels-Central --arrive-by 09:00 --agent",
+        "explanation": "Plans backwards from the deadline and applies current delays plus a safety margin."
+      },
+      {
+        "title": "Is this station step-free",
+        "command": "irail-pp-cli stations facilities --station Ghent-Sint-Pieters --agent",
+        "explanation": "Reads the open facilities dataset for elevators, ramps and wheelchair access, none of which the rail API returns."
+      }
+    ],
+    "trigger_phrases": [
+      "next train from Brussels-Central",
+      "when is my train to Ghent",
+      "is my train delayed",
+      "are there any rail disruptions in Belgium",
+      "plan a train journey from Leuven to Antwerp",
+      "will I make my transfer",
+      "use irail",
+      "run irail"
+    ]
+  }
+}

@@ -1,0 +1,377 @@
+name: irail
+description: "Belgian rail (NMBS/SNCB) live boards, journey planning and disruptions via the iRail open API"
+version: "0.1.0"
+category: travel
+base_url: "https://api.irail.be"
+health_check_path: "/v1/stations?format=json"
+
+# iRail blocks source IPs that send no User-Agent, without prior warning.
+# Docs: "<application name>/<application version> (<website>; <mail>)".
+# Contact is the project URL, deliberately not a personal email.
+required_headers:
+  - name: User-Agent
+    value: "irail-pp-cli/0.1.0 (+https://github.com/mvanhorn/printing-press-library)"
+
+auth:
+  type: none
+
+config:
+  format: toml
+  path: "~/.config/irail-pp-cli/config.toml"
+
+# Cache freshness is deliberately DISABLED. The generated pre-read refresh syncs
+# a resource before serving it, but board/route/train require params (station,
+# from/to, id) that the syncer does not supply, producing HTTP 500/400.
+# Station reference data is refreshed explicitly:
+#   irail-pp-cli sync --resources stations,disruptions
+#
+# format=json is pinned into every path, NOT passed as a param: iRail ignores
+# the Accept header and defaults to XML, and the generated syncer builds its
+# query map from scratch without applying spec param defaults.
+
+learn:
+  # Belgian stations carry 4-language names plus historic telegraph codes.
+  # Canonical matches what the API returns at the default lang=en.
+  # Seeds cover the busiest stations; the synced SQLite FTS resolves all 716.
+  ticker_patterns:
+    - "^be\\.nmbs\\.[a-z0-9]+$"
+    - "^(ic|s|l|p|ec|thi|tgv)[0-9]{1,5}$"
+    - "^[0-9]{7,9}$"
+  synonyms:
+    "day after tomorrow": "overmorgen"
+    "next train": "next departure"
+    "delayed": "delay"
+    "cancelled": "canceled"
+    "step free": "wheelchair"
+  stopwords:
+    - train
+    - station
+    - platform
+  entity_lookup_seeds:
+    station:
+      - canonical: Brussels-South/Brussels-Midi
+        aliases: [brussels-south, bruxelles-midi, brussel-zuid, brussels-midi, midi, zuid, fbmz]
+      - canonical: Brussels-Central
+        aliases: [brussels-central, bruxelles-central, brussel-centraal, centraal, central, fbcl]
+      - canonical: Brussels-North
+        aliases: [brussels-north, bruxelles-nord, brussel-noord, noord, nord, fbn]
+      - canonical: Brussels-Luxemburg/Brussels-Luxembourg
+        aliases: [brussels-luxembourg, bruxelles-luxembourg, brussel-luxemburg, lx]
+      - canonical: Brussels-Schuman
+        aliases: [schuman, bruxelles-schuman, brussel-schuman, fbsm]
+      - canonical: Brussels Airport - Zaventem
+        aliases: [brussels airport, zaventem airport, bru, airport, fbnl]
+      - canonical: Antwerp-Central
+        aliases: [antwerp-central, antwerpen-centraal, anvers-central, antwerpen, antwerp, fn]
+      - canonical: Antwerp-Berchem
+        aliases: [antwerpen-berchem, anvers-berchem, berchem, fcv]
+      - canonical: Ghent-Sint-Pieters
+        aliases: [ghent, gent, gent-sint-pieters, gand-saint-pierre, gand, fgsp]
+      - canonical: Leuven
+        aliases: [louvain, loewen, flv]
+      - canonical: Liège-Guillemins
+        aliases: [liege, luik, luettich, liege-guillemins, luik-guillemins, fl]
+      - canonical: Mechelen
+        aliases: [malines, mecheln, fm]
+      - canonical: Charleroi-Central
+        aliases: [charleroi, charleroi-centraal, fcr]
+      - canonical: Namur
+        aliases: [namen, fnr]
+      - canonical: Bruges
+        aliases: [brugge, bruegge, fr]
+      - canonical: Kortrijk
+        aliases: [courtrai, lk]
+      - canonical: Oostende
+        aliases: [ostend, ostende, fo]
+      - canonical: Schaarbeek/Schaerbeek
+        aliases: [schaarbeek, schaerbeek, fsr]
+      - canonical: Halle
+        aliases: [hal, fh]
+      - canonical: Ottignies
+        aliases: [ottignies, lt]
+      - canonical: Denderleeuw
+        aliases: [denderleeuw, fdd]
+      - canonical: Mortsel
+        aliases: [mortsel, gmo]
+      - canonical: Zaventem
+        aliases: [zaventem, fza]
+      - canonical: Diegem
+        aliases: [diegem, fdg]
+
+resources:
+  stations:
+    description: "Belgian and cross-border stations served by NMBS/SNCB"
+    endpoints:
+      list:
+        method: GET
+        path: "/v1/stations?format=json"
+        description: "List every station iRail knows about (716 incl. cross-border)"
+        example: "  irail-pp-cli stations --lang nl"
+        params:
+          - name: lang
+            type: string
+            default: "en"
+            description: "Language for station and text fields"
+            enum: ["nl", "fr", "en", "de"]
+        response:
+          type: array
+          item: Station
+        response_path: station
+
+  board:
+    description: "Live departure and arrival boards for a station"
+    endpoints:
+      list:
+        method: GET
+        path: "/v1/liveboard?format=json"
+        description: "Live departures (or arrivals) at a station, with delay, platform and occupancy"
+        example: "  irail-pp-cli board --station Ghent-Sint-Pieters --alerts"
+        happy_args: "--station=Brussels-Central"
+        params:
+          - name: station
+            type: string
+            required: true
+            description: "Station name, e.g. Ghent-Sint-Pieters. Do not combine with --station-id"
+          - name: id
+            flag_name: station-id
+            aliases: [id]
+            type: string
+            description: "Station id (BE.NMBS.008892007) instead of a name. Do not combine with --station"
+          - name: arrdep
+            flag_name: board-type
+            aliases: [arrdep]
+            type: string
+            default: "departure"
+            description: "Show the departures board or the arrivals board"
+            enum: ["departure", "arrival"]
+          - name: alerts
+            type: bool
+            default: false
+            description: "Include railworks and service alerts announced for these trains"
+          - name: time
+            type: string
+            description: "Time to query as hhmm (e.g. 1230). Defaults to now in Belgium"
+          - name: date
+            type: string
+            description: "Date to query as ddmmyy (e.g. 300917). Defaults to today in Belgium"
+          - name: lang
+            type: string
+            default: "en"
+            description: "Language for station and text fields"
+            enum: ["nl", "fr", "en", "de"]
+        response:
+          type: array
+          item: Departure
+        response_path: departures.departure
+
+  route:
+    description: "Journey planning between two stations, with transfers and live delay"
+    endpoints:
+      plan:
+        method: GET
+        path: "/v1/connections?format=json"
+        description: "Plan a journey between two stations, including transfers and per-leg delay"
+        example: "  irail-pp-cli route --from Ghent-Sint-Pieters --to Brussels-Central"
+        happy_args: "--from=Brussels-Central;--to=Ghent-Sint-Pieters"
+        params:
+          - name: from
+            type: string
+            required: true
+            description: "Departure station name or id"
+          - name: to
+            type: string
+            required: true
+            description: "Destination station name or id"
+          - name: timesel
+            flag_name: time-basis
+            aliases: [timesel]
+            type: string
+            default: "departure"
+            description: "Whether --time means the departure time or the required arrival time"
+            enum: ["departure", "arrival"]
+          - name: typeOfTransport
+            flag_name: transport
+            type: string
+            default: "automatic"
+            description: "Which services to consider. automatic allows international trains only for cross-border travel"
+            enum: ["automatic", "trains", "nointernationaltrains", "all"]
+          - name: time
+            type: string
+            description: "Time to query as hhmm (e.g. 1230). Defaults to now in Belgium"
+          - name: date
+            type: string
+            description: "Date to query as ddmmyy (e.g. 300917). Defaults to today in Belgium"
+          - name: lang
+            type: string
+            default: "en"
+            description: "Language for station and text fields"
+            enum: ["nl", "fr", "en", "de"]
+        response:
+          type: array
+          item: Connection
+        response_path: connection
+
+  train:
+    description: "Individual trains: full stop trace and physical composition"
+    endpoints:
+      get:
+        method: GET
+        path: "/v1/vehicle?format=json"
+        description: "Every stop of one train with live delay. Note: iRail ignores the date parameter"
+        example: "  irail-pp-cli train get --id BE.NMBS.IC1832 --alerts"
+        happy_args: "--id=BE.NMBS.IC1832"
+        params:
+          - name: id
+            type: string
+            required: true
+            description: "Vehicle id, e.g. BE.NMBS.IC1832 or IC1832"
+          - name: date
+            type: string
+            description: "Date as ddmmyy. Upstream currently ignores this and returns today"
+          - name: alerts
+            type: bool
+            default: false
+            description: "Include railworks and service alerts for this train"
+          - name: lang
+            type: string
+            default: "en"
+            description: "Language for station and text fields"
+            enum: ["nl", "fr", "en", "de"]
+        response:
+          type: object
+          item: Vehicle
+
+      composition:
+        method: GET
+        path: "/v1/composition?format=json"
+        description: "Physical make-up of a train: segments, units, and per-carriage facilities"
+        example: "  irail-pp-cli train composition --id S51507"
+        happy_args: "--id=S51507"
+        params:
+          - name: id
+            type: string
+            required: true
+            description: "Train id, e.g. S51507 or IC1832"
+          - name: data
+            flag_name: fields
+            type: string
+            default: ""
+            description: "Leave empty for iRail's curated stable fields, or 'all' for raw unfiltered NMBS data"
+            enum: ["", "all"]
+          - name: lang
+            type: string
+            default: "en"
+            description: "Language for station and text fields"
+            enum: ["nl", "fr", "en", "de"]
+        response:
+          type: object
+          item: Composition
+        response_path: composition
+
+  disruptions:
+    description: "Network-wide disruptions and planned engineering works"
+    endpoints:
+      list:
+        method: GET
+        path: "/v1/disturbances?format=json"
+        description: "Current disruptions and planned works across the whole network"
+        example: "  irail-pp-cli disruptions --lang nl"
+        params:
+          - name: lineBreakCharacter
+            flag_name: line-break
+            type: string
+            default: ""
+            description: "Sequence to use for line breaks in descriptions. Empty produces continuous text"
+          - name: lang
+            type: string
+            default: "en"
+            description: "Language for station and text fields"
+            enum: ["nl", "fr", "en", "de"]
+        response:
+          type: array
+          item: Disturbance
+        response_path: disturbance
+
+  logs:
+    description: "Recent iRail API request log entries"
+    endpoints:
+      list:
+        method: GET
+        path: "/v1/logs?format=json"
+        description: "Last request log entries. Note: upstream currently returns an empty list; bulk archives live at gtfs.irail.be/logs/"
+        example: "  irail-pp-cli logs"
+        response:
+          type: array
+
+types:
+  Station:
+    fields:
+      - name: id
+        type: string
+      - name: "@id"
+        type: string
+      - name: name
+        type: string
+      - name: standardname
+        type: string
+      - name: locationX
+        type: string
+      - name: locationY
+        type: string
+
+  Departure:
+    fields:
+      - name: id
+        type: string
+      - name: station
+        type: string
+      - name: time
+        type: string
+      - name: delay
+        type: string
+      - name: canceled
+        type: string
+      - name: left
+        type: string
+      - name: isExtra
+        type: string
+      - name: vehicle
+        type: string
+      - name: platform
+        type: string
+      - name: departureConnection
+        type: string
+
+  Connection:
+    fields:
+      - name: id
+        type: string
+      - name: duration
+        type: string
+
+  Vehicle:
+    fields:
+      - name: vehicle
+        type: string
+
+  Composition:
+    fields:
+      - name: segments
+        type: string
+
+  Disturbance:
+    fields:
+      - name: id
+        type: string
+      - name: title
+        type: string
+      - name: description
+        type: string
+      - name: type
+        type: string
+      - name: link
+        type: string
+      - name: timestamp
+        type: string
+      - name: richtext
+        type: string
