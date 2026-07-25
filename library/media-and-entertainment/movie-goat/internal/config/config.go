@@ -24,6 +24,19 @@ type Config struct {
 	ClientSecret  string    `toml:"client_secret"`
 	Path          string    `toml:"-"`
 	TmdbApiKey    string    `toml:"api_key"`
+
+	// PATCH(omdb-key-in-config-like-tmdb: second credential deserves the same
+	// config surface as the first) — OmdbApiKey is the persisted OMDb
+	// credential, mirroring TmdbApiKey. Movie Goat needs two API keys but the
+	// generated config schema only models one, so the second key previously
+	// had no home on disk and could only arrive via the environment.
+	OmdbApiKey string `toml:"omdb_api_key"`
+
+	// omdbEnv holds an OMDB_API_KEY read from the environment. It is
+	// deliberately unexported so toml.Marshal skips it: Load() must not let an
+	// environment-supplied secret leak into config.toml the next time any
+	// unrelated command calls save().
+	omdbEnv string
 }
 
 func Load(configPath string) (*Config, error) {
@@ -56,6 +69,10 @@ func Load(configPath string) (*Config, error) {
 		cfg.AuthSource = "env:TMDB_API_KEY"
 	}
 
+	// PATCH(omdb-key-in-config-like-tmdb) — env wins over the config file, and
+	// is kept out of the marshaled struct so it is never written back to disk.
+	cfg.omdbEnv = strings.TrimSpace(os.Getenv("OMDB_API_KEY"))
+
 	// Base URL override (used by printing-press verify to point at mock/test servers)
 	if v := os.Getenv("MOVIE_GOAT_BASE_URL"); v != "" {
 		cfg.BaseURL = v
@@ -75,6 +92,50 @@ func (c *Config) AuthHeader() string {
 		return ""
 	}
 	return token
+}
+
+// OmdbKey returns the resolved OMDb credential, or "" when none is configured.
+// OMDB_API_KEY takes precedence over the config file so existing environment-
+// based setups keep working unchanged after a key is saved to config.toml.
+//
+// PATCH(omdb-key-in-config-like-tmdb)
+func (c *Config) OmdbKey() string {
+	if c.omdbEnv != "" {
+		return c.omdbEnv
+	}
+	return strings.TrimSpace(c.OmdbApiKey)
+}
+
+// OmdbSource names where OmdbKey() resolved from, for auth status and doctor.
+// Empty string means no OMDb credential is configured.
+//
+// PATCH(omdb-key-in-config-like-tmdb)
+func (c *Config) OmdbSource() string {
+	if c.omdbEnv != "" {
+		return "env:OMDB_API_KEY"
+	}
+	if strings.TrimSpace(c.OmdbApiKey) != "" {
+		return "config:omdb_api_key"
+	}
+	return ""
+}
+
+// SaveOmdbCredential persists the OMDb credential to config.toml, mirroring
+// SaveCredential for the TMDb key.
+//
+// PATCH(omdb-key-in-config-like-tmdb)
+func (c *Config) SaveOmdbCredential(token string) error {
+	c.OmdbApiKey = token
+	return c.save()
+}
+
+// ClearOmdbCredential removes the stored OMDb credential from config.toml. It
+// cannot clear OMDB_API_KEY from the environment; callers should say so.
+//
+// PATCH(omdb-key-in-config-like-tmdb)
+func (c *Config) ClearOmdbCredential() error {
+	c.OmdbApiKey = ""
+	return c.save()
 }
 
 func applyAuthFormat(format string, replacements map[string]string) string {

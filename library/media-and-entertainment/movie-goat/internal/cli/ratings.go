@@ -52,9 +52,10 @@ func newRatingsCmd(flags *rootFlags) *cobra.Command {
 for the IMDb id), and overlay OMDb's IMDb / Rotten Tomatoes / Metacritic ratings
 into a single rating card.
 
-OMDb enrichment is optional: set OMDB_API_KEY in the environment to enable it.
-Without OMDB_API_KEY the IMDb / RT / Metacritic rows render "N/A" but TMDb
-ratings still work.`,
+OMDb enrichment is optional. Enable it with either
+"movie-goat-pp-cli auth set-omdb-token <token>" (saved to config.toml) or the
+OMDB_API_KEY environment variable, which takes precedence. Without a key the
+IMDb / RT / Metacritic rows render "N/A" but TMDb ratings still work.`,
 		Example: `  movie-goat-pp-cli ratings 550
   movie-goat-pp-cli ratings "Fight Club" --json
   movie-goat-pp-cli ratings 1396 --type tv
@@ -133,8 +134,10 @@ ratings still work.`,
 				}
 			}
 
-			// OMDb enrichment — env-only key, graceful degradation when unset.
-			omdbKey := strings.TrimSpace(os.Getenv("OMDB_API_KEY"))
+			// OMDb enrichment — config.toml or OMDB_API_KEY, graceful
+			// degradation when unset.
+			// PATCH(omdb-key-in-config-like-tmdb)
+			omdbKey := flags.omdbAPIKey()
 			if omdbKey != "" && out.IMDbID != "" {
 				res, oerr := omdb.Fetch(out.IMDbID, omdbKey)
 				if oerr != nil && !omdb.IsRateLimit(oerr) {
@@ -202,7 +205,8 @@ ratings still work.`,
 			}
 			if !out.Sources.OMDb && omdbKey == "" {
 				fmt.Fprintln(w, "")
-				fmt.Fprintln(w, "Tip: set OMDB_API_KEY to enable IMDb / Rotten Tomatoes / Metacritic ratings.")
+				fmt.Fprintln(w, "Tip: run 'movie-goat-pp-cli auth set-omdb-token <token>' (or set OMDB_API_KEY)")
+				fmt.Fprintln(w, "     to enable IMDb / Rotten Tomatoes / Metacritic ratings.")
 			}
 			_ = flagRegion // reserved for future region-specific renderings
 			return nil

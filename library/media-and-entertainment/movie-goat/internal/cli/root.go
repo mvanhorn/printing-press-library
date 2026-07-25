@@ -230,6 +230,23 @@ func (f *rootFlags) newClient() (*client.Client, error) {
 	return c, nil
 }
 
+// omdbAPIKey resolves the optional OMDb credential for the enrichment paths in
+// ratings, versus, and career. It returns "" when none is configured, which
+// every caller treats as "skip enrichment" — this must never surface an error.
+//
+// PATCH(omdb-key-in-config-like-tmdb: single resolution point for the second
+// credential) — the call sites previously read os.Getenv("OMDB_API_KEY")
+// directly, which is why config.toml could never hold this key. A config-load
+// failure falls back to the environment so enrichment survives a broken or
+// unreadable config file exactly as it did before.
+func (f *rootFlags) omdbAPIKey() string {
+	cfg, err := config.Load(f.configPath)
+	if err != nil {
+		return strings.TrimSpace(os.Getenv("OMDB_API_KEY"))
+	}
+	return cfg.OmdbKey()
+}
+
 func (f *rootFlags) printJSON(w *cobra.Command, v any) error {
 	enc := json.NewEncoder(w.OutOrStdout())
 	enc.SetIndent("", "  ")
