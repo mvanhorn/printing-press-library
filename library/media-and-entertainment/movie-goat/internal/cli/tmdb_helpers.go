@@ -245,9 +245,14 @@ type tmdbProvider struct {
 }
 
 // PATCH(title-resolution-must-signal-ambiguity: warn + --year/inline-year) —
-// TMDb orders /search/* by popularity, so a title shared by an original and a
-// remake silently resolved to whichever is more popular today. Everything from
-// here to resolveTVID exists to make that choice visible and overridable.
+// /search/* returns results ordered by TMDb's own relevance ranking, which is
+// not exposed as a field and does not track either vote_count or the
+// popularity value in the payload — for "Sabrina" the 1954 original leads the
+// 1995 remake on both (1373 vs 703 ratings, 4.25 vs 3.60 popularity) and is
+// still returned second. So a title shared by an original and a remake
+// silently resolved to whichever the ranker preferred, by a rule we cannot
+// inspect. Everything from here to resolveTVID exists to make that choice
+// visible and overridable.
 
 // inlineYearRe matches a trailing "(YYYY)" qualifier on a title argument, e.g.
 // `Sabrina (1954)`. Only 1800-2999 is accepted so that titles ending in a
@@ -328,8 +333,8 @@ const personPopularityRatio = 0.25
 
 // notableAlternatives filters the non-chosen exact matches down to the ones a
 // user could plausibly have meant: either independently well-rated, or better
-// rated than the entry TMDb's popularity ordering put first. minVotes is 0 for
-// searches with no meaningful vote data (people), which fall back to a
+// rated than the entry TMDb's ranking put first. minVotes is 0 for searches
+// with no meaningful vote data (people), which fall back to a
 // relative-popularity gate instead.
 func notableAlternatives(matches []tmdbSearchResult, minVotes int) []tmdbSearchResult {
 	if len(matches) < 2 {
@@ -364,7 +369,14 @@ func describeResult(r tmdbSearchResult) string {
 }
 
 // ambiguousCandidate is one entry in an ambiguity record: enough to identify
-// the title or person and to see why the ranking came out the way it did.
+// the title or person and to compare it against the entry that was chosen.
+//
+// Popularity is TMDb's own trending score, passed through as reported. It is
+// NOT the order /search/* returned these in — that ranking is proprietary and
+// unexposed, and it disagrees with this field often enough that the "Sabrina"
+// case which motivated this record is one (the 1954 entry leads on popularity
+// and on votes, and still came back second). It is included because it is the
+// only comparable signal for people, who have no vote counts.
 type ambiguousCandidate struct {
 	TMDBID     int     `json:"tmdb_id"`
 	Title      string  `json:"title"`
@@ -376,9 +388,10 @@ type ambiguousCandidate struct {
 
 // Signals recorded on ambiguityMeta.Signal.
 const (
-	// signalBetterRated means the entry TMDb ranked first is not the one with
-	// the most ratings — the failure mode that made `ratings "Sabrina"` return
-	// the 1995 remake over the 1954 original.
+	// signalBetterRated means the entry TMDb's search ranked first is not the
+	// one with the most ratings — the failure mode that made `ratings
+	// "Sabrina"` return the 1995 remake over the 1954 original. The comparison
+	// is on vote_count, the only ranking input we can actually read.
 	signalBetterRated = "alternative_better_rated"
 	// signalMultipleMatches means several plausible entries share the query,
 	// but the chosen one is also the best-rated.
@@ -466,10 +479,10 @@ func noteAmbiguity(flags *rootFlags, kindLabel, query string, matches []tmdbSear
 func printAmbiguityNotice(w io.Writer, kindLabel, query string, chosen tmdbSearchResult, alts []tmdbSearchResult, signal, hint string) {
 	fmt.Fprintf(w, "warn: %q matches %d %s on TMDb; using id %d — %s.\n",
 		query, len(alts)+1, kindLabel, chosen.ID, describeResult(chosen))
-	// The trap worth naming out loud: TMDb orders by popularity, so a remake
-	// can outrank a better-rated original.
+	// The trap worth naming out loud: /search ranks by a relevance score we
+	// cannot see, so a remake can outrank a better-rated original.
 	if signal == signalBetterRated {
-		fmt.Fprintf(w, "      TMDb ranks it first by popularity, but %s has more ratings (%d vs %d).\n",
+		fmt.Fprintf(w, "      TMDb's search relevance put it first, but %s has more ratings (%d vs %d).\n",
 			describeResult(alts[0]), alts[0].VoteCount, chosen.VoteCount)
 	}
 	fmt.Fprintln(w, "      Other matches:")
@@ -488,7 +501,7 @@ func printAmbiguityNotice(w io.Writer, kindLabel, query string, chosen tmdbSearc
 
 // searchByTitle is the shared movie/tv title search. year is optional and is
 // pushed down to TMDb via yearParam rather than post-filtered, so the
-// constraint applies before popularity ordering truncates the page.
+// constraint applies before TMDb's ranking truncates the page.
 func searchByTitle(c *client.Client, flags *rootFlags, path, yearParam, kindLabel, noun, title, year, yearHint string) (int, string, error) {
 	params := map[string]string{"query": title}
 	if year != "" {

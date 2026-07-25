@@ -172,7 +172,7 @@ These capabilities aren't available in any other tool for this API.
   ```
 - **Remake-aware title resolution** — Every command that takes a title instead of a TMDb id tells you when the title is shared.
 
-  _TMDb orders search by popularity, so `"Sabrina"` lands on the 1995 remake even though the 1954 Wilder original has twice the ratings. When a title has more than one well-rated match the CLI says so on **both** channels: a notice on stderr for humans, and a `meta.ambiguous` record in the JSON for scripts that run with `2>/dev/null`. Pin one with `--year`, a `"Title (YYYY)"` suffix, or the id._
+  _TMDb's search ranks by a proprietary relevance score — not the vote count, not the `popularity` field — so `"Sabrina"` lands on the 1995 remake even though the 1954 Wilder original leads on both. When a title has more than one well-rated match the CLI says so on **both** channels: a notice on stderr for humans, and a `meta.ambiguous` record in the JSON for scripts that run with `2>/dev/null`. Pin one with `--year`, a `"Title (YYYY)"` suffix, or the id._
 
   ```bash
   movie-goat-pp-cli ratings "Sabrina" --year 1954 --json
@@ -331,7 +331,7 @@ movie-goat-pp-cli discover movies --with-genres 28,53 --primary-release-date-gte
 movie-goat-pp-cli queue --providers netflix,max --region US --limit 10
 
 # 13. Pin the original instead of the remake. Bare "Sabrina" resolves to the 1995
-#     version (TMDb ranks by popularity) and prints the rival ids on stderr.
+#     version (TMDb's search ranks it first) and prints the rival ids on stderr.
 movie-goat-pp-cli ratings "Sabrina" --year 1954
 movie-goat-pp-cli ratings "Sabrina (1954)"
 movie-goat-pp-cli versus "Sabrina (1954)" "Sabrina (1995)"
@@ -354,6 +354,12 @@ The `meta.ambiguous` record carries the query, the chosen entry, every notable
 alternative (tmdb_id, title, year, vote_count), and a `signal` of
 `alternative_better_rated` or `multiple_exact_matches`. It is a list because one
 command can resolve several titles — `versus` resolves two.
+
+`/search/*` orders results by a relevance score TMDb does not expose, so the top
+result is not necessarily the canonical edition. The `popularity` value in the
+record is TMDb's trending score passed through as-is; it is neither the ordering
+criterion nor what `signal` compares — that is `vote_count`. For "Sabrina" the
+1954 entry leads on both and is still returned second.
 
 It only appears when the stderr notice fires, so existing parsers see no change
 on unambiguous lookups. `--select` deliberately cannot filter it out (narrowing

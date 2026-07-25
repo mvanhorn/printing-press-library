@@ -7,9 +7,11 @@ import (
 	"testing"
 )
 
-// sabrinaMatches mirrors the live TMDb ordering for the query that motivated
-// this fix: the 1995 remake ranks first on popularity, the 1954 original has
-// twice the ratings.
+// sabrinaMatches mirrors the live /search/movie ordering for the query that
+// motivated this fix. Note what the numbers say: the 1954 original leads the
+// 1995 remake on BOTH vote_count (1373 vs 703) and popularity (4.24 vs 3.59),
+// and TMDb still returns it second — the ordering is a relevance ranking we
+// cannot read, not either exposed field.
 func sabrinaMatches() []tmdbSearchResult {
 	return []tmdbSearchResult{
 		{ID: 11860, Title: "Sabrina", ReleaseDate: "1995-12-15", VoteCount: 703, Popularity: 3.59},
@@ -106,10 +108,15 @@ func TestPrintAmbiguityNotice(t *testing.T) {
 	var buf bytes.Buffer
 	printAmbiguityNotice(&buf, "titles", "Sabrina", matches[0], alts, signalBetterRated, "Disambiguate with --year <YYYY>.")
 	out := buf.String()
-	for _, want := range []string{"matches 3 titles", "using id 11860", "has more ratings (1373 vs 703)", "6620", "--year"} {
+	for _, want := range []string{"matches 3 titles", "using id 11860", "search relevance put it first", "has more ratings (1373 vs 703)", "6620", "--year"} {
 		if !strings.Contains(out, want) {
 			t.Errorf("notice missing %q:\n%s", want, out)
 		}
+	}
+	// The notice must not blame the popularity field: in this very case the
+	// chosen entry is the LESS popular one, so the claim would be false.
+	if strings.Contains(out, "by popularity") {
+		t.Errorf("notice attributes the ordering to the popularity field, which the data contradicts:\n%s", out)
 	}
 }
 
@@ -274,8 +281,8 @@ func TestExactTitleMatches(t *testing.T) {
 }
 
 func TestNotableAlternatives(t *testing.T) {
-	// Real TMDb vote counts, 2026-07: the remake outranks the better-rated
-	// original on popularity, and a long tail of unrated entries shares the name.
+	// Real TMDb vote counts, 2026-07: search returned the remake ahead of the
+	// better-rated original, and a long tail of unrated entries shares the name.
 	sabrina := []tmdbSearchResult{
 		{ID: 11860, Title: "Sabrina", ReleaseDate: "1995-12-15", VoteCount: 703},
 		{ID: 6620, Title: "Sabrina", ReleaseDate: "1954-09-22", VoteCount: 1373},

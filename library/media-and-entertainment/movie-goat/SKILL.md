@@ -66,7 +66,7 @@ These capabilities aren't available in any other tool for this API.
   ```
 - **Remake-aware title resolution** — Every command that accepts a title instead of a TMDb id says so out loud when the title is shared.
 
-  _TMDb orders search by popularity, so `"Sabrina"` resolves to the 1995 remake even though the 1954 Wilder original is better rated. When a title has more than one well-rated match, the CLI reports it on **both** channels: a human notice on stderr, and a `meta.ambiguous` record in the JSON on stdout for consumers that never read stderr. Pin the one you meant with `--year`, a `"Title (YYYY)"` suffix, or the id._
+  _TMDb's search ranks by a proprietary relevance score, so `"Sabrina"` resolves to the 1995 remake even though the 1954 Wilder original is better rated. When a title has more than one well-rated match, the CLI reports it on **both** channels: a human notice on stderr, and a `meta.ambiguous` record in the JSON on stdout for consumers that never read stderr. Pin the one you meant with `--year`, a `"Title (YYYY)"` suffix, or the id._
 
   ```bash
   movie-goat-pp-cli ratings "Sabrina" --year 1954 --json
@@ -219,17 +219,23 @@ movie-goat-pp-cli versus "Sabrina (1954)" "Sabrina (1995)" --agent
 
 `ratings`, `marathon`, and `watchlist add` take `--year`; every title-taking
 command (including the two-positional `versus`) accepts the inline `"Title (YYYY)"`
-suffix. Without either, the CLI still resolves by TMDb popularity but prints the
-rival ids on stderr:
+suffix. Without either, the CLI still takes TMDb's top-ranked result but prints
+the rival ids on stderr:
 
 ```
 warn: "Sabrina" matches 3 titles on TMDb; using id 11860 — Sabrina (1995).
-      TMDb ranks it first by popularity, but Sabrina (1954) has more ratings (1373 vs 703).
+      TMDb's search relevance put it first, but Sabrina (1954) has more ratings (1373 vs 703).
       Other matches:
         6620  Sabrina (1954)
         503902  Sabrina (2018)
       Disambiguate with --year <YYYY>, a "title (YYYY)" suffix, or the TMDb id.
 ```
+
+`/search/*` orders results by a relevance score TMDb does not expose. It is not
+the vote count and not the `popularity` field — in this very case the 1954 entry
+leads on both (1373 vs 703 ratings, 4.25 vs 3.60 popularity) and still comes back
+second. That is why the top result can differ from the canonical edition, and why
+the notice compares vote counts: they are the only ranking input you can read.
 
 Unrated same-title obscurities never trigger it, so `ratings "Inception"` stays
 silent.
@@ -260,10 +266,14 @@ movie-goat-pp-cli ratings "Sabrina" --agent 2>/dev/null | jq '.meta.ambiguous'
 ]
 ```
 
-`signal` is `alternative_better_rated` when the entry TMDb ranked first is *not*
-the best-rated one — treat that as "stop and pin an id" — or
+`signal` is `alternative_better_rated` when the entry TMDb's search ranked first
+is *not* the best-rated one — treat that as "stop and pin an id" — or
 `multiple_exact_matches` when the top pick is also the best-rated. `meta.ambiguous`
 is a list because one command can resolve several titles (`versus` resolves two).
+
+`popularity` is TMDb's trending score, passed through as reported. It is *not*
+the order the results came back in, and it is not what the signal compares —
+that is `vote_count`.
 
 Rules worth knowing:
 

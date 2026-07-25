@@ -62,8 +62,9 @@ func newWatchlistAddCmd(flags *rootFlags) *cobra.Command {
 		Short:       "Resolve a title or id and add it to the local watchlist",
 		Long: `Resolve a title or TMDb id and add it to the local SQLite watchlist.
 
-A title shared by several titles resolves to whichever TMDb ranks more popular;
-the alternatives are listed on stderr. Pin the one you meant with --year, a
+A shared title resolves to whichever entry TMDb's search ranked first, which is
+not always the canonical edition; the alternatives are listed on stderr and
+recorded under meta.ambiguous in the JSON. Pin the one you meant with --year, a
 "Title (YYYY)" suffix, or the TMDb id — the watchlist stores the id, so an
 unnoticed mismatch is sticky.`,
 		Example: `  movie-goat-pp-cli watchlist add 27205 --kind movie

@@ -57,9 +57,10 @@ OMDb enrichment is optional: set OMDB_API_KEY in the environment to enable it.
 Without OMDB_API_KEY the IMDb / RT / Metacritic rows render "N/A" but TMDb
 ratings still work.
 
-A title shared by an original and a remake resolves to whichever TMDb ranks more
-popular. When that happens the alternatives are listed on stderr; pin the one you
-meant with --year, a "Title (YYYY)" suffix, or the TMDb id.`,
+A title shared by an original and a remake resolves to whichever TMDb's search
+ranked first, which is not always the canonical edition. When that happens the
+alternatives are listed on stderr and recorded under meta.ambiguous in the JSON;
+pin the one you meant with --year, a "Title (YYYY)" suffix, or the TMDb id.`,
 		Example: `  movie-goat-pp-cli ratings 550
   movie-goat-pp-cli ratings "Fight Club" --json
   movie-goat-pp-cli ratings "Sabrina" --year 1954
