@@ -4,105 +4,216 @@
 package cli
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"io"
+	"mime/multipart"
+	"net/http"
 	"os"
+	"path/filepath"
+	"strconv"
+	"strings"
 
 	"github.com/spf13/cobra"
 )
 
+// PATCH(amend-2026-07-25: migrate to external upload flow) — Slack retired
+// files.upload; it answers method_deprecated regardless of the request body. The
+// replacement is a three-step flow:
+//
+//  1. files.getUploadURLExternal?filename=&length=  -> {upload_url, file_id}
+//  2. POST the raw bytes to upload_url (no Slack credential on this request —
+//     the URL carries its own one-time token, and sending the workspace token to
+//     a non-slack.com host would leak it)
+//  3. files.completeUploadExternal with files=[{id,title}] to register the file
+//     and optionally share it into a conversation.
+//
+// Step 2 does not go through client.do because it targets a different host and
+// must not inherit the Authorization header, so it uses the client's HTTPClient
+// directly.
+
+// uploadURLResponse is step 1's reply.
+type uploadURLResponse struct {
+	OK        bool   `json:"ok"`
+	Error     string `json:"error"`
+	UploadURL string `json:"upload_url"`
+	FileID    string `json:"file_id"`
+}
+
 func newFilesUploadCmd(flags *rootFlags) *cobra.Command {
+	var flagFile string
+	var flagChannel string
 	var flagChannels string
 	var flagContent string
 	var flagFilename string
 	var flagTitle string
 	var flagInitialComment string
-	var stdinBody bool
+	var flagThreadTS string
 
 	cmd := &cobra.Command{
-		Use:     "upload",
-		Short:   "Upload a file to Slack",
-		Example: "  slack-pp-cli files upload",
+		Use:   "upload",
+		Short: "Upload a file to Slack",
+		Long: "Upload a file to Slack using the external upload flow.\n\n" +
+			"Provide either --file (a local path) or --content (inline text). The file is\n" +
+			"registered with Slack and, if --channel is given, shared into that conversation.",
+		Example: "  slack-pp-cli files upload --file ./report.pdf --channel C0123456789 --title \"Q3 report\"\n" +
+			"  slack-pp-cli files upload --content \"hello\" --filename note.txt --channel C0123456789",
 		RunE: func(cmd *cobra.Command, args []string) error {
-			if !stdinBody {
+			// Resolve the payload and its name before touching the network, so
+			// bad input fails without burning an upload URL.
+			var payload []byte
+			var filename string
+
+			switch {
+			case flagFile != "" && flagContent != "":
+				return fmt.Errorf("--file and --content are mutually exclusive")
+			case flagFile != "":
+				b, err := os.ReadFile(flagFile)
+				if err != nil {
+					return fmt.Errorf("reading --file: %w", err)
+				}
+				payload = b
+				filename = flagFilename
+				if filename == "" {
+					filename = filepath.Base(flagFile)
+				}
+			case flagContent != "":
+				payload = []byte(flagContent)
+				filename = flagFilename
+				if filename == "" {
+					return fmt.Errorf("--filename is required when using --content")
+				}
+			default:
+				return fmt.Errorf("one of --file or --content is required")
 			}
+
+			if len(payload) == 0 {
+				return fmt.Errorf("refusing to upload an empty file")
+			}
+
+			// completeUploadExternal shares into a single conversation. The
+			// retired files.upload took a comma-separated --channels list, so
+			// accept it for compatibility but reject the multi-channel case
+			// rather than silently dropping the extras.
+			channel := flagChannel
+			if flagChannels != "" {
+				parts := strings.Split(flagChannels, ",")
+				if len(parts) > 1 {
+					return fmt.Errorf("--channels lists %d channels; the external upload flow shares into one conversation per call. Use --channel, then share the returned file id separately", len(parts))
+				}
+				if channel == "" {
+					channel = strings.TrimSpace(parts[0])
+				}
+			}
+
 			c, err := flags.newClient()
 			if err != nil {
 				return err
 			}
 
-			path := "/files.upload"
-			var body map[string]any
-			if stdinBody {
-				stdinData, err := io.ReadAll(os.Stdin)
+			if c.DryRun {
+				plan := map[string]any{
+					"dry_run": true,
+					"steps": []map[string]any{
+						{"step": 1, "method": "GET", "path": "/files.getUploadURLExternal", "filename": filename, "length": len(payload)},
+						{"step": 2, "method": "POST", "path": "<upload_url from step 1>", "bytes": len(payload), "authenticated": false},
+						{"step": 3, "method": "POST", "path": "/files.completeUploadExternal", "channel_id": channel, "title": flagTitle, "thread_ts": flagThreadTS},
+					},
+				}
+				planJSON, err := json.Marshal(plan)
 				if err != nil {
-					return fmt.Errorf("reading stdin: %w", err)
+					return err
 				}
-				var jsonBody map[string]any
-				if err := json.Unmarshal(stdinData, &jsonBody); err != nil {
-					return fmt.Errorf("parsing stdin JSON: %w", err)
-				}
-				body = jsonBody
-			} else {
-				// PATCH(amend-2026-07-25: assemble body from flag values) — the generated
-				// else-branch emitted an empty map, so every POST shipped {} upstream.
-				bodyMap := map[string]any{}
-				if flagChannels != "" {
-					bodyMap["channels"] = flagChannels
-				}
-				if flagContent != "" {
-					bodyMap["content"] = flagContent
-				}
-				if flagFilename != "" {
-					bodyMap["filename"] = flagFilename
-				}
-				if flagTitle != "" {
-					bodyMap["title"] = flagTitle
-				}
-				if flagInitialComment != "" {
-					bodyMap["initial_comment"] = flagInitialComment
-				}
-				body = bodyMap
+				return printOutput(cmd.OutOrStdout(), json.RawMessage(planJSON), true)
 			}
-			data, statusCode, err := c.Post(path, body)
+
+			// Step 1 — reserve an upload URL.
+			step1, err := c.Get("/files.getUploadURLExternal", map[string]string{
+				"filename": filename,
+				"length":   strconv.Itoa(len(payload)),
+			})
 			if err != nil {
 				return classifyAPIError(err)
 			}
-			// PATCH(amend-2026-07-25: surface Slack ok:false on writes) — Slack answers
-			// application errors with HTTP 200 and {"ok":false,"error":...}, so the
-			// envelope below reported success:true for a write that never happened.
-			// Reuses the same checkSlackAPIError the read paths already call.
+			if slackErr := checkSlackAPIError(step1); slackErr != nil {
+				return slackErr
+			}
+			var reserved uploadURLResponse
+			if err := json.Unmarshal(step1, &reserved); err != nil {
+				return fmt.Errorf("parsing files.getUploadURLExternal response: %w", err)
+			}
+			if reserved.UploadURL == "" || reserved.FileID == "" {
+				return fmt.Errorf("files.getUploadURLExternal returned no upload_url or file_id")
+			}
+
+			// Step 2 — send the bytes to the returned URL. Deliberately not via
+			// client.do: different host, and no Authorization header.
+			var form bytes.Buffer
+			mw := multipart.NewWriter(&form)
+			part, err := mw.CreateFormFile("file", filename)
+			if err != nil {
+				return fmt.Errorf("building upload form: %w", err)
+			}
+			if _, err := part.Write(payload); err != nil {
+				return fmt.Errorf("writing upload form: %w", err)
+			}
+			if err := mw.Close(); err != nil {
+				return fmt.Errorf("closing upload form: %w", err)
+			}
+
+			req, err := http.NewRequestWithContext(cmd.Context(), http.MethodPost, reserved.UploadURL, &form)
+			if err != nil {
+				return fmt.Errorf("building upload request: %w", err)
+			}
+			req.Header.Set("Content-Type", mw.FormDataContentType())
+
+			httpClient := c.HTTPClient
+			if httpClient == nil {
+				httpClient = http.DefaultClient
+			}
+			resp, err := httpClient.Do(req)
+			if err != nil {
+				return fmt.Errorf("uploading file bytes: %w", err)
+			}
+			defer func() { _ = resp.Body.Close() }()
+			uploadBody, err := io.ReadAll(io.LimitReader(resp.Body, 4096))
+			if err != nil {
+				return fmt.Errorf("reading upload response: %w", err)
+			}
+			if resp.StatusCode < 200 || resp.StatusCode >= 300 {
+				return fmt.Errorf("uploading file bytes: HTTP %d: %s", resp.StatusCode, strings.TrimSpace(string(uploadBody)))
+			}
+
+			// Step 3 — register, and share if a channel was given.
+			fileEntry := map[string]any{"id": reserved.FileID}
+			if flagTitle != "" {
+				fileEntry["title"] = flagTitle
+			}
+			completeBody := map[string]any{"files": []map[string]any{fileEntry}}
+			if channel != "" {
+				completeBody["channel_id"] = channel
+			}
+			if flagInitialComment != "" {
+				completeBody["initial_comment"] = flagInitialComment
+			}
+			if flagThreadTS != "" {
+				completeBody["thread_ts"] = flagThreadTS
+			}
+
+			path := "/files.completeUploadExternal"
+			data, statusCode, err := c.Post(path, completeBody)
+			if err != nil {
+				return classifyAPIError(err)
+			}
 			if slackErr := checkSlackAPIError(data); slackErr != nil {
 				return slackErr
 			}
-			if wantsHumanTable(cmd.OutOrStdout(), flags) {
-				// Check if response contains an array (directly or wrapped in "data")
-				var items []map[string]any
-				if json.Unmarshal(data, &items) == nil && len(items) > 0 {
-					if err := printAutoTable(cmd.OutOrStdout(), items); err != nil {
-						fmt.Fprintf(os.Stderr, "warning: table rendering failed, falling back to JSON: %v\n", err)
-					} else {
-						return nil
-					}
-				} else {
-					var wrapped struct {
-						Data []map[string]any `json:"data"`
-					}
-					if json.Unmarshal(data, &wrapped) == nil && len(wrapped.Data) > 0 {
-						if err := printAutoTable(cmd.OutOrStdout(), wrapped.Data); err != nil {
-							fmt.Fprintf(os.Stderr, "warning: table rendering failed, falling back to JSON: %v\n", err)
-						} else {
-							return nil
-						}
-					}
-				}
-			}
+
 			if flags.asJSON || !isTerminal(cmd.OutOrStdout()) {
 				if flags.quiet {
 					return nil
 				}
-				// Apply --compact and --select to the API response before wrapping
 				filtered := data
 				if flags.compact {
 					filtered = compactFields(filtered)
@@ -116,11 +227,7 @@ func newFilesUploadCmd(flags *rootFlags) *cobra.Command {
 					"path":     path,
 					"status":   statusCode,
 					"success":  statusCode >= 200 && statusCode < 300,
-				}
-				if flags.dryRun {
-					envelope["dry_run"] = true
-					envelope["status"] = 0
-					envelope["success"] = false
+					"file_id":  reserved.FileID,
 				}
 				if len(filtered) > 0 {
 					var parsed any
@@ -137,12 +244,14 @@ func newFilesUploadCmd(flags *rootFlags) *cobra.Command {
 			return printOutputWithFlags(cmd.OutOrStdout(), data, flags)
 		},
 	}
-	cmd.Flags().StringVar(&flagChannels, "channels", "", "Comma-separated channel IDs to share the file with")
-	cmd.Flags().StringVar(&flagContent, "content", "", "File content (for text-based files)")
-	cmd.Flags().StringVar(&flagFilename, "filename", "", "Filename")
+	cmd.Flags().StringVar(&flagFile, "file", "", "Path to a local file to upload")
+	cmd.Flags().StringVar(&flagChannel, "channel", "", "Channel or DM ID to share the file into")
+	cmd.Flags().StringVar(&flagChannels, "channels", "", "Deprecated alias for --channel; accepts one channel only")
+	cmd.Flags().StringVar(&flagContent, "content", "", "Inline file content instead of --file (requires --filename)")
+	cmd.Flags().StringVar(&flagFilename, "filename", "", "Filename to register (defaults to the base name of --file)")
 	cmd.Flags().StringVar(&flagTitle, "title", "", "Title of the file")
-	cmd.Flags().StringVar(&flagInitialComment, "initial-comment", "", "Initial comment for the file")
-	cmd.Flags().BoolVar(&stdinBody, "stdin", false, "Read request body as JSON from stdin")
+	cmd.Flags().StringVar(&flagInitialComment, "initial-comment", "", "Message posted alongside the file")
+	cmd.Flags().StringVar(&flagThreadTS, "thread-ts", "", "Thread timestamp to share the file into a thread")
 
 	return cmd
 }

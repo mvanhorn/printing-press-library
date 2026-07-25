@@ -1,0 +1,29 @@
+{
+  "schema_version": 2,
+  "applied_at": "2026-07-25",
+  "base_run_id": "20260409-073625",
+  "base_printing_press_version": "1.2.1",
+  "id": "slack-external-file-upload",
+  "summary": "Migrate `files upload` from Slack's retired files.upload to the three-step external upload flow.",
+  "reason": "The generated command posted to /files.upload, which Slack has retired: the endpoint answers {\"ok\":false,\"error\":\"method_deprecated\"} for every request regardless of body, so `files upload` could not succeed even after the write-body fix in slack-post-body-from-flags. The replacement is a three-step flow that no generated template models: (1) GET files.getUploadURLExternal with filename and length, returning upload_url and file_id; (2) POST the raw bytes to upload_url; (3) POST files.completeUploadExternal with files=[{id,title}] to register the file and optionally share it into a conversation. Step 2 deliberately does not route through client.do, for two reasons: it targets a host other than slack.com, and it must not carry the Authorization header — the returned URL carries its own single-use token, and attaching the workspace credential to a third-party host would leak it. It therefore uses the client's exported HTTPClient directly with a multipart body. The command also gained --file, which it previously lacked entirely: only inline --content was expressible, so uploading an actual file from disk was impossible. --thread-ts was added because completeUploadExternal accepts it, letting a file be shared into a thread. --channels is retained as a deprecated alias for the retired endpoint's comma-separated parameter, but now errors when given more than one channel instead of silently dropping the extras, because completeUploadExternal shares into one conversation per call. Input validation runs before any network call so bad arguments fail without consuming a reserved upload URL, and an empty payload is rejected outright since Slack accepts the reservation but produces an unusable file.",
+  "files": [
+    "internal/cli/files_upload.go"
+  ],
+  "validated_outcome": "Verified end-to-end against a live workspace. The three-step flow was first confirmed by hand (getUploadURLExternal ok:true with file_id and upload_url; multipart POST to upload_url returning HTTP 200; completeUploadExternal ok:true), then through the command: a 77-byte binary PDF and an 18-byte inline --content payload both uploaded and registered with correct names and byte counts, and a --thread-ts upload landed in the target thread with the expected thread_ts. Validation paths each produce a named error: no input, --file with --content, --content without --filename, a multi-channel --channels list, and a nonexistent --file path. --dry-run prints the three planned steps, including that step 2 is unauthenticated, without contacting the API. Slack rejections surface via checkSlackAPIError and exit 5. go build, go vet, gofmt and go test ./internal/cli/ all clean. All test files and messages created during verification were deleted afterwards.",
+  "findings_addressed": [
+    "files-upload-method-deprecated"
+  ],
+  "deferred_to_upstream": [
+    {
+      "feature": "Multi-step upload flows in the generated command template",
+      "reason": "The generator emits one request per command, so an endpoint whose contract is 'reserve a URL, PUT bytes to a foreign host, then confirm' cannot be expressed. It also has no way to mark a step as deliberately unauthenticated, which this flow requires for correctness rather than convenience. Any API using presigned-upload semantics (S3-style, Slack, Google Drive resumable) hits the same wall, so the seam belongs in the template rather than in each CLI.",
+      "upstream_issue": null
+    },
+    {
+      "feature": "Retired-endpoint detection in the spec catalog",
+      "reason": "files.upload was retired upstream, yet the catalog still generated a command for it and no verification step caught that the endpoint returns method_deprecated for every call. A generated CLI can ship a command that cannot ever succeed. A catalog-level liveness or deprecation check would have surfaced this before publish.",
+      "upstream_issue": null
+    }
+  ],
+  "notes": "Cleanup gotcha worth recording: files.delete removes the file but leaves any initial_comment message behind as a standalone message, so tidying up a test upload takes both files.delete and chat.delete. A file posted with no initial_comment does disappear with its file."
+}
