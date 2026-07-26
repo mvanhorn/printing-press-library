@@ -187,10 +187,34 @@ In local mode: searches locally synced data only.`,
 				results, err = db.SearchUsergroups(query, limit)
 			case "files":
 				results, err = db.SearchFiles(query, limit)
+			// PATCH(amend-2026-07-25: query the messages index in local search) —
+			// store.SearchMessages existed and was correct but had zero callers, so
+			// `--type messages` fell through to the generic db.Search and the
+			// all-types branch below only ever queried usergroups and files. sync
+			// populates messages and messages_fts, so the index held matches the CLI
+			// could not reach: "No results" with exit 0 while the FTS table had rows.
+			case "messages":
+				results, err = db.SearchMessages(query, limit)
 			case "":
 				// Search all FTS-enabled tables individually to avoid duplicates.
 				seen := make(map[string]bool)
 				_ = seen // prevent unused error when no FTS tables exist
+				// Messages go first deliberately. outputSearchResults truncates the
+				// aggregate to --limit, so whatever runs first survives that cut, and
+				// messages are what a bare `search <query>` is nearly always after.
+				{
+					partial, searchErr := db.SearchMessages(query, limit)
+					if searchErr != nil {
+						return fmt.Errorf("search messages failed: %w", searchErr)
+					}
+					for _, r := range partial {
+						key := string(r)
+						if !seen[key] {
+							seen[key] = true
+							results = append(results, r)
+						}
+					}
+				}
 				{
 					partial, searchErr := db.SearchUsergroups(query, limit)
 					if searchErr != nil {
