@@ -6,10 +6,18 @@ package cliutil
 import (
 	"bytes"
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
+	"io"
+	"math"
 	"net/http"
 	"net/http/httptest"
+	"os"
+	"os/exec"
+	"path/filepath"
+	"runtime"
+	"strings"
 	"sync"
 	"sync/atomic"
 	"testing"
@@ -894,4 +902,679 @@ func TestBackoff_NegativeAttemptClampsToZero(t *testing.T) {
 	if got := Backoff(-3); got != 1*time.Second {
 		t.Errorf("Backoff(-3) = %v, want 1s (clamped to 0)", got)
 	}
+}
+
+// credsSampleReadPermsToken is an exposed on-disk token value written to the
+// always-present AccessToken slot.
+const credsSampleReadPermsToken = "AT-LIVE-CREDS-FILE-DO-NOT-LEAK"
+
+// isolateCredsHome points DataDir() (hence credentialsPath()) at a throwaway
+// home so the test never reads or writes the developer's real credentials file.
+func isolateCredsHome(t *testing.T) {
+	t.Helper()
+	t.Setenv("HOME", t.TempDir())
+	for _, name := range []string{
+		"ETSY_SELLER_DASHBOARD_DATA_DIR",
+		"ETSY_SELLER_DASHBOARD_HOME",
+		"XDG_DATA_HOME",
+	} {
+		t.Setenv(name, "")
+	}
+	restore, err := SetHomeOverride("")
+	if err != nil {
+		t.Fatalf("reset home override: %v", err)
+	}
+	t.Cleanup(restore)
+}
+
+func runCredsPermsCmd(t *testing.T, name string, args ...string) error {
+	t.Helper()
+	out, err := exec.Command(name, args...).CombinedOutput()
+	if err != nil {
+		t.Logf("%s %v: %v\n%s", name, args, err, out)
+	}
+	return err
+}
+
+// credsLockOwnerOnly restricts p to owner-only access (POSIX 0600 / Windows DACL
+// to the current user). icacls failures skip the test rather than fail it.
+func credsLockOwnerOnly(t *testing.T, p string) {
+	t.Helper()
+	if runtime.GOOS == "windows" {
+		u := os.Getenv("USERNAME")
+		if err := runCredsPermsCmd(t, "icacls", p, "/inheritance:r", "/grant:r", u+":F"); err != nil {
+			t.Skipf("icacls lock failed (environment); skipping perm-sensitive test: %v", err)
+		}
+	} else if err := os.Chmod(p, 0o600); err != nil {
+		t.Fatal(err)
+	}
+}
+
+// credsGrantBroad makes p group/world-accessible (POSIX 0644 / Windows adds a
+// broad BUILTIN\Users allow-ACE by SID, locale-independent). icacls failures skip.
+func credsGrantBroad(t *testing.T, p string) {
+	t.Helper()
+	if runtime.GOOS == "windows" {
+		if err := runCredsPermsCmd(t, "icacls", p, "/grant", "*S-1-5-32-545:R"); err != nil {
+			t.Skipf("icacls grant failed; skipping: %v", err)
+		}
+	} else if err := os.Chmod(p, 0o644); err != nil {
+		t.Fatal(err)
+	}
+}
+
+// TestLoadCredentials_RefusesOverPermissiveFileOnRead: an owner-locked credentials
+// file is a hit (ok=true, token surfaced); broadening it to group/world-readable
+// makes LoadCredentials a SOFT MISS (nil, false, nil) — not trusted, not an error.
+func TestLoadCredentials_RefusesOverPermissiveFileOnRead(t *testing.T) {
+	isolateCredsHome(t)
+
+	if err := SaveCredentials(&Credentials{AccessToken: credsSampleReadPermsToken}); err != nil {
+		t.Fatalf("SaveCredentials() error = %v", err)
+	}
+	path, err := credentialsPath()
+	if err != nil {
+		t.Fatalf("credentialsPath() error = %v", err)
+	}
+
+	// Owner-locked (SaveCredentials writes 0600) → honored: a hit that surfaces
+	// the token from the always-present AccessToken slot.
+	credsLockOwnerOnly(t, path)
+	creds, ok, err := LoadCredentials()
+	if err != nil {
+		t.Fatalf("LoadCredentials() on owner-locked file error = %v", err)
+	}
+	if !ok || creds == nil {
+		t.Fatal("precondition: owner-locked credentials file should be a hit")
+	}
+	if creds.AccessToken != credsSampleReadPermsToken {
+		t.Fatalf("precondition: owner-locked file should load the token, got %q", creds.AccessToken)
+	}
+
+	// Broaden perms → the credentials file holding a live token MUST be refused
+	// on read: a SOFT MISS (the not-found sentinel), never trusted, never an error.
+	credsGrantBroad(t, path)
+	creds, ok, err = LoadCredentials()
+	if err != nil {
+		t.Fatalf("over-permissive credentials file must be a soft miss, got error: %v", err)
+	}
+	if ok {
+		t.Error("over-permissive credentials file must be a miss (ok=false)")
+	}
+	if creds != nil {
+		t.Errorf("over-permissive credentials file must surface no credential, got %+v", creds)
+	}
+}
+
+func TestEvalCredsSecurity(t *testing.T) {
+	const me = "S-1-5-21-1-2-3-1000"
+	cases := []struct {
+		name    string
+		sddl    string
+		wantErr bool
+	}{
+		{"owner-me restrictive DACL", "O:S-1-5-21-1-2-3-1000D:(A;;FA;;;S-1-5-21-1-2-3-1000)", false},
+		{"deny ACE does not grant access", "O:S-1-5-21-1-2-3-1000D:(D;;FR;;;WD)(A;;FA;;;S-1-5-21-1-2-3-1000)", false},
+		{"object-deny ACE does not grant access", "O:S-1-5-21-1-2-3-1000D:(OD;;FR;;;WD)(A;;FA;;;S-1-5-21-1-2-3-1000)", false},
+		{"broad group Everyone", "O:S-1-5-21-1-2-3-1000D:(A;;FA;;;WD)", true},
+		{"broad group Users by SID", "O:S-1-5-21-1-2-3-1000D:(A;;FA;;;S-1-5-32-545)", true},
+		{"foreign owner", "O:S-1-5-21-9-9-9-500D:(A;;FA;;;S-1-5-21-1-2-3-1000)", true},
+		{"foreign named user ACE", "O:S-1-5-21-1-2-3-1000D:(A;;FA;;;S-1-5-21-1-2-3-2000)", true},
+		{"admins owner carve-out", "O:BAD:(A;;FA;;;S-1-5-21-1-2-3-1000)", false},
+		{"null DACL", "O:S-1-5-21-1-2-3-1000D:NO_ACCESS_CONTROL", true},
+		{"unparseable conditional ACE", "O:S-1-5-21-1-2-3-1000D:(XA;;FA;;;S-1-5-21-1-2-3-1000;(Member_of{SID(BA)}))", true},
+		// Captured-real-SDDL pin: the shape GetNamedSecurityInfo emits for an
+		// owner-locked file — G: group field, D:PAI protected-auto-inherit flag,
+		// plus SYSTEM + Administrators ACEs.
+		{"real protected DACL (PAI + SYSTEM/Admins)", "O:S-1-5-21-1-2-3-1000G:S-1-5-21-1-2-3-513D:PAI(A;;FA;;;S-1-5-21-1-2-3-1000)(A;;FA;;;SY)(A;;FA;;;BA)", false},
+	}
+	for _, c := range cases {
+		t.Run(c.name, func(t *testing.T) {
+			err := evalCredsSecurity(c.sddl, me)
+			if (err != nil) != c.wantErr {
+				t.Fatalf("evalCredsSecurity(%q) err=%v want wantErr=%v", c.sddl, err, c.wantErr)
+			}
+		})
+	}
+}
+
+func TestParseDurationLoose(t *testing.T) {
+	t.Parallel()
+
+	cases := []struct {
+		name    string
+		input   string
+		want    time.Duration
+		wantErr bool
+	}{
+		{"days", "7d", 7 * 24 * time.Hour, false},
+		{"thirty days", "30d", 30 * 24 * time.Hour, false},
+		{"two weeks window", "14d", 14 * 24 * time.Hour, false},
+		{"weeks", "4w", 4 * 7 * 24 * time.Hour, false},
+		{"one week", "1w", 7 * 24 * time.Hour, false},
+		{"zero days", "0d", 0, false},
+		{"negative days", "-2d", -2 * 24 * time.Hour, false},
+		{"surrounding spaces", " 7d ", 7 * 24 * time.Hour, false},
+		{"stdlib hours", "24h", 24 * time.Hour, false},
+		{"stdlib minutes", "30m", 30 * time.Minute, false},
+		{"stdlib compound", "1h30m", 90 * time.Minute, false},
+		{"stdlib millis", "500ms", 500 * time.Millisecond, false},
+		{"fractional day falls through to stdlib error", "1.5d", 0, true},
+		{"bare unit", "d", 0, true},
+		{"empty", "", 0, true},
+		{"garbage", "abc", 0, true},
+	}
+
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+			got, err := ParseDurationLoose(tc.input)
+			if tc.wantErr {
+				if err == nil {
+					t.Fatalf("ParseDurationLoose(%q) = %v, want error", tc.input, got)
+				}
+				return
+			}
+			if err != nil {
+				t.Fatalf("ParseDurationLoose(%q) unexpected error: %v", tc.input, err)
+			}
+			if got != tc.want {
+				t.Fatalf("ParseDurationLoose(%q) = %v, want %v", tc.input, got, tc.want)
+			}
+		})
+	}
+}
+
+func TestExtractNumber(t *testing.T) {
+	t.Parallel()
+
+	cases := []struct {
+		name   string
+		input  string
+		key    string
+		wantV  float64
+		wantOk bool
+	}{
+		{"json number", `{"price":1.91}`, "price", 1.91, true},
+		{"json integer", `{"price":42}`, "price", 42, true},
+		{"json zero", `{"price":0}`, "price", 0, true},
+		{"json negative number", `{"price":-3.5}`, "price", -3.5, true},
+		{"string-encoded number", `{"price":"1.91"}`, "price", 1.91, true},
+		{"string-encoded integer", `{"qty":"100"}`, "qty", 100, true},
+		{"string-encoded negative", `{"x":"-3.5"}`, "x", -3.5, true},
+		{"string-encoded exponent", `{"x":"1e2"}`, "x", 100, true},
+		{"null", `{"price":null}`, "price", 0, false},
+		{"missing key", `{}`, "price", 0, false},
+		{"empty string", `{"price":""}`, "price", 0, false},
+		{"unparseable string", `{"price":"abc"}`, "price", 0, false},
+		{"bool true", `{"price":true}`, "price", 0, false},
+		{"object", `{"price":{"a":1}}`, "price", 0, false},
+		{"array", `{"price":[1,2]}`, "price", 0, false},
+	}
+
+	for _, tc := range cases {
+		tc := tc
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+			var probe map[string]json.RawMessage
+			if err := json.Unmarshal([]byte(tc.input), &probe); err != nil {
+				t.Fatalf("unmarshal probe: %v", err)
+			}
+			got, ok := ExtractNumber(probe, tc.key)
+			if ok != tc.wantOk {
+				t.Fatalf("ExtractNumber ok = %v, want %v", ok, tc.wantOk)
+			}
+			if ok && math.Abs(got-tc.wantV) > 1e-9 {
+				t.Fatalf("ExtractNumber value = %v, want %v", got, tc.wantV)
+			}
+		})
+	}
+}
+
+func TestExtractNumber_NilProbe(t *testing.T) {
+	t.Parallel()
+
+	got, ok := ExtractNumber(nil, "anything")
+	if ok || got != 0 {
+		t.Fatalf("ExtractNumber(nil, ...) = (%v, %v), want (0, false)", got, ok)
+	}
+}
+
+func TestExtractInt(t *testing.T) {
+	t.Parallel()
+
+	cases := []struct {
+		name   string
+		input  string
+		key    string
+		wantV  int64
+		wantOk bool
+	}{
+		{"json integer", `{"id":123}`, "id", 123, true},
+		{"json zero", `{"id":0}`, "id", 0, true},
+		{"json negative", `{"id":-5}`, "id", -5, true},
+		{"string-encoded int", `{"id":"123"}`, "id", 123, true},
+		{"string-encoded negative", `{"id":"-5"}`, "id", -5, true},
+		{"null", `{"id":null}`, "id", 0, false},
+		{"missing key", `{}`, "id", 0, false},
+		{"empty string", `{"id":""}`, "id", 0, false},
+		{"unparseable string", `{"id":"abc"}`, "id", 0, false},
+		{"float rejected", `{"id":1.5}`, "id", 0, false},
+		{"float string rejected", `{"id":"1.5"}`, "id", 0, false},
+		{"bool", `{"id":true}`, "id", 0, false},
+	}
+
+	for _, tc := range cases {
+		tc := tc
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+			var probe map[string]json.RawMessage
+			if err := json.Unmarshal([]byte(tc.input), &probe); err != nil {
+				t.Fatalf("unmarshal probe: %v", err)
+			}
+			got, ok := ExtractInt(probe, tc.key)
+			if ok != tc.wantOk {
+				t.Fatalf("ExtractInt ok = %v, want %v", ok, tc.wantOk)
+			}
+			if ok && got != tc.wantV {
+				t.Fatalf("ExtractInt value = %v, want %v", got, tc.wantV)
+			}
+		})
+	}
+}
+
+func TestExtractInt_NilProbe(t *testing.T) {
+	t.Parallel()
+
+	got, ok := ExtractInt(nil, "anything")
+	if ok || got != 0 {
+		t.Fatalf("ExtractInt(nil, ...) = (%v, %v), want (0, false)", got, ok)
+	}
+}
+
+func TestLooksLikeJWT(t *testing.T) {
+	t.Parallel()
+
+	// realAuth0RS256 is a realistically-sized RS256 token (header ~64 chars,
+	// payload ~430 chars, signature ~344 chars). Synthetic — not a credential.
+	realAuth0RS256 := "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6ImFvNi1PYzAyQlZHTF9GbnBDeE5JMiJ9." +
+		strings.Repeat("a", 430) + "." + strings.Repeat("b", 344)
+
+	// Exact boundary fixtures. The floor is 150 chars total; these straddle it.
+	//   atFloor149: h×36 + "." + p×72 + "." + s×39 = 36+1+72+1+39 = 149 — must reject.
+	//   atFloor150: h×36 + "." + p×72 + "." + s×40 = 36+1+72+1+40 = 150 — must accept.
+	// A constant change (150 -> 155) or an off-by-one (< vs <=) would flip one
+	// of these and trip the test.
+	atFloor149 := strings.Repeat("h", 36) + "." + strings.Repeat("p", 72) + "." + strings.Repeat("s", 39)
+	atFloor150 := strings.Repeat("h", 36) + "." + strings.Repeat("p", 72) + "." + strings.Repeat("s", 40)
+
+	// minimalHS256 is a realistic minimum-sized JWT (~158 chars). The exact
+	// boundary cases above test the floor; this case exists so a regression
+	// that breaks normal-sized small JWTs surfaces independently.
+	minimalHS256 := strings.Repeat("h", 36) + "." + strings.Repeat("p", 80) + "." + strings.Repeat("s", 40)
+
+	// Factor75 false-positive — Cloudflare-shaped cookie value with 3
+	// base64url segments and 31 chars total. The original looksLikeJWT
+	// heuristic accepted this; the length-floored shape check rejects it.
+	cfCookieShaped := "01KRPVRYA2SNQT9BAGD6984WAG_.tt.1"
+
+	cases := []struct {
+		name string
+		in   string
+		want bool
+	}{
+		{"real Auth0 RS256 token", realAuth0RS256, true},
+		{"exactly at 150-char floor", atFloor150, true},
+		{"realistic minimum HS256", minimalHS256, true},
+		{"with Bearer prefix", "Bearer " + realAuth0RS256, true},
+
+		{"exactly one char under floor (149)", atFloor149, false},
+		{"factor75 Cloudflare cookie", cfCookieShaped, false},
+		{"empty string", "", false},
+		{"whitespace only", "   \t\n", false},
+		{"single segment", strings.Repeat("a", 200), false},
+		{"two segments", strings.Repeat("a", 100) + "." + strings.Repeat("b", 100), false},
+		{"four segments", "aaa.bbb.ccc.ddd", false},
+		{"empty middle segment", strings.Repeat("a", 80) + ".." + strings.Repeat("b", 80), false},
+		{"header segment too short", "aaa." + strings.Repeat("p", 80) + "." + strings.Repeat("s", 80), false},
+		{"invalid charset", strings.Repeat("a", 60) + ".pay!load." + strings.Repeat("s", 80), false},
+	}
+
+	for _, tc := range cases {
+		tc := tc
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+			got := LooksLikeJWT(tc.in)
+			if got != tc.want {
+				t.Fatalf("LooksLikeJWT(%q) = %v, want %v", tc.in, got, tc.want)
+			}
+		})
+	}
+}
+
+func TestFindJWTInCookieJar(t *testing.T) {
+	t.Parallel()
+
+	realJWT := "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6ImFvNi1PYzAyQlZHTF9GbnBDeE5JMiJ9." +
+		strings.Repeat("a", 430) + "." + strings.Repeat("b", 344)
+
+	cases := []struct {
+		name string
+		jar  string
+		want string
+	}{
+		{
+			name: "JWT alongside CF tracking cookies",
+			jar:  "__cf_bm=01KRPVRYA2SNQT9BAGD6984WAG_.tt.1; auth_token=" + realJWT + "; csrf=abc123",
+			want: realJWT,
+		},
+		{
+			// A cookie whose value carries the Authorization wire form
+			// ("Bearer eyJ...") must not double-prefix downstream. The
+			// returned value should be the bare token so callers building
+			// an Authorization header always prepend "Bearer " exactly once.
+			name: "cookie value carries Bearer prefix",
+			jar:  "auth=Bearer " + realJWT + "; csrf=abc",
+			want: realJWT,
+		},
+		{
+			name: "no JWT, only short shaped cookies",
+			jar:  "__cf_bm=01KRPVRYA2SNQT9BAGD6984WAG_.tt.1; _ga=GA1.1.123.456",
+			want: "",
+		},
+		{
+			name: "empty jar",
+			jar:  "",
+			want: "",
+		},
+		{
+			name: "single JWT cookie",
+			jar:  "token=" + realJWT,
+			want: realJWT,
+		},
+		{
+			name: "malformed cookie without equals",
+			jar:  "notacookie; " + realJWT,
+			want: "",
+		},
+	}
+
+	for _, tc := range cases {
+		tc := tc
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+			got := FindJWTInCookieJar(tc.jar)
+			if got != tc.want {
+				t.Fatalf("FindJWTInCookieJar(...) returned %d-char string; want %d-char", len(got), len(tc.want))
+			}
+		})
+	}
+}
+
+func TestParseODataDate(t *testing.T) {
+	t.Parallel()
+
+	wantMS := time.UnixMilli(1715731200000).UTC()
+
+	t.Run("date literal to UTC", func(t *testing.T) {
+		t.Parallel()
+		got, ok := ParseODataDate("/Date(1715731200000)/")
+		if !ok {
+			t.Fatal("expected ok=true for /Date(ms)/ literal")
+		}
+		if !got.Equal(wantMS) || got.Location() != time.UTC {
+			t.Fatalf("got %v, want %v (UTC)", got, wantMS)
+		}
+	})
+
+	t.Run("date literal with timezone offset", func(t *testing.T) {
+		t.Parallel()
+		got, ok := ParseODataDate("/Date(1715731200000-0500)/")
+		if !ok || !got.Equal(wantMS) {
+			t.Fatalf("offset literal: got %v ok=%v, want %v", got, ok, wantMS)
+		}
+	})
+
+	t.Run("rfc3339 fallback", func(t *testing.T) {
+		t.Parallel()
+		want, _ := time.Parse(time.RFC3339, "2026-05-17T12:34:56Z")
+		got, ok := ParseODataDate("2026-05-17T12:34:56Z")
+		if !ok || !got.Equal(want) {
+			t.Fatalf("rfc3339: got %v ok=%v, want %v", got, ok, want)
+		}
+	})
+
+	t.Run("rfc3339 non-UTC offset normalised to UTC", func(t *testing.T) {
+		t.Parallel()
+		got, ok := ParseODataDate("2026-05-17T12:34:56+05:30")
+		if !ok {
+			t.Fatal("expected ok=true for RFC3339 with non-UTC offset")
+		}
+		if got.Location() != time.UTC {
+			t.Fatalf("expected UTC location, got %v", got.Location())
+		}
+	})
+
+	t.Run("garbage returns zero and false", func(t *testing.T) {
+		t.Parallel()
+		got, ok := ParseODataDate("not-a-date")
+		if ok || !got.IsZero() {
+			t.Fatalf("garbage: got %v ok=%v, want zero+false", got, ok)
+		}
+	})
+}
+
+func resetPathEnv(t *testing.T) string {
+	t.Helper()
+	home := t.TempDir()
+	t.Setenv("HOME", home)
+	for _, name := range []string{
+		envPrefix + "_CONFIG_DIR",
+		envPrefix + "_DATA_DIR",
+		envPrefix + "_STATE_DIR",
+		envPrefix + "_CACHE_DIR",
+		envPrefix + "_HOME",
+		"XDG_CONFIG_HOME",
+		"XDG_DATA_HOME",
+		"XDG_STATE_HOME",
+		"XDG_CACHE_HOME",
+	} {
+		t.Setenv(name, "")
+	}
+	restore, err := SetHomeOverride("")
+	if err != nil {
+		t.Fatalf("reset home override: %v", err)
+	}
+	t.Cleanup(restore)
+	return home
+}
+
+func TestKindDirDefaultsMatchLegacyLayout(t *testing.T) {
+	home := resetPathEnv(t)
+
+	tests := []struct {
+		kind PathKind
+		want string
+	}{
+		{PathKindConfig, filepath.Join(home, ".config", appName)},
+		{PathKindData, filepath.Join(home, ".local", "share", appName)},
+		{PathKindState, filepath.Join(home, ".local", "state", appName)},
+		{PathKindCache, filepath.Join(home, ".cache", appName)},
+	}
+	for _, tt := range tests {
+		got, err := KindDir(tt.kind)
+		if err != nil {
+			t.Fatalf("KindDir(%s) error = %v", kindName(tt.kind), err)
+		}
+		if got != tt.want {
+			t.Fatalf("KindDir(%s) = %q, want %q", kindName(tt.kind), got, tt.want)
+		}
+	}
+}
+
+func TestKindDirHomeEnvUsesFlatKindLayout(t *testing.T) {
+	resetPathEnv(t)
+	root := filepath.Join(t.TempDir(), "persist")
+	t.Setenv(envPrefix+"_HOME", root)
+
+	tests := map[PathKind]string{
+		PathKindConfig: filepath.Join(root, "config"),
+		PathKindData:   filepath.Join(root, "data"),
+		PathKindState:  filepath.Join(root, "state"),
+		PathKindCache:  filepath.Join(root, "cache"),
+	}
+	for kind, want := range tests {
+		got, err := KindDir(kind)
+		if err != nil {
+			t.Fatalf("KindDir(%s) error = %v", kindName(kind), err)
+		}
+		if got != want {
+			t.Fatalf("KindDir(%s) = %q, want %q", kindName(kind), got, want)
+		}
+	}
+}
+
+func TestKindDirPerKindEnvBeatsHomeEnv(t *testing.T) {
+	resetPathEnv(t)
+	root := filepath.Join(t.TempDir(), "root")
+	data := filepath.Join(t.TempDir(), "secure-data")
+	t.Setenv(envPrefix+"_HOME", root)
+	t.Setenv(envPrefix+"_DATA_DIR", data)
+
+	got, err := DataDir()
+	if err != nil {
+		t.Fatalf("DataDir() error = %v", err)
+	}
+	if got != data {
+		t.Fatalf("DataDir() = %q, want literal per-kind dir %q", got, data)
+	}
+	configDir, err := ConfigDir()
+	if err != nil {
+		t.Fatalf("ConfigDir() error = %v", err)
+	}
+	if want := filepath.Join(root, "config"); configDir != want {
+		t.Fatalf("ConfigDir() = %q, want %q", configDir, want)
+	}
+}
+
+func TestKindDirXDGAddsAppName(t *testing.T) {
+	resetPathEnv(t)
+	xdg := filepath.Join(t.TempDir(), "xdg-data")
+	t.Setenv("XDG_DATA_HOME", xdg)
+
+	got, err := DataDir()
+	if err != nil {
+		t.Fatalf("DataDir() error = %v", err)
+	}
+	if want := filepath.Join(xdg, appName); got != want {
+		t.Fatalf("DataDir() = %q, want %q", got, want)
+	}
+}
+
+func TestKindDirDataPrecedencePairs(t *testing.T) {
+	home := resetPathEnv(t)
+	perKind := filepath.Join(t.TempDir(), "per-kind")
+	flagHome := filepath.Join(t.TempDir(), "flag-home")
+	envHome := filepath.Join(t.TempDir(), "env-home")
+	xdg := filepath.Join(t.TempDir(), "xdg")
+	t.Setenv(envPrefix+"_DATA_DIR", perKind)
+	t.Setenv(envPrefix+"_HOME", envHome)
+	t.Setenv("XDG_DATA_HOME", xdg)
+	restore, err := SetHomeOverride(flagHome)
+	if err != nil {
+		t.Fatalf("SetHomeOverride() error = %v", err)
+	}
+	defer restore()
+
+	assertDataDir(t, perKind)
+	t.Setenv(envPrefix+"_DATA_DIR", "")
+	assertDataDir(t, filepath.Join(flagHome, "data"))
+	restore()
+	assertDataDir(t, filepath.Join(envHome, "data"))
+	t.Setenv(envPrefix+"_HOME", "")
+	assertDataDir(t, filepath.Join(xdg, appName))
+	t.Setenv("XDG_DATA_HOME", "")
+	assertDataDir(t, filepath.Join(home, ".local", "share", appName))
+}
+
+func TestKindDirRelativeOverridesWarnAndFallThrough(t *testing.T) {
+	home := resetPathEnv(t)
+	t.Setenv(envPrefix+"_HOME", "relative/home")
+	t.Setenv("XDG_DATA_HOME", "relative/xdg")
+
+	stderr := captureStderr(t, func() {
+		got, err := DataDir()
+		if err != nil {
+			t.Fatalf("DataDir() error = %v", err)
+		}
+		if want := filepath.Join(home, ".local", "share", appName); got != want {
+			t.Fatalf("DataDir() = %q, want %q", got, want)
+		}
+	})
+	for _, want := range []string{envPrefix + "_HOME", "relative/home", "XDG_DATA_HOME", "relative/xdg"} {
+		if !strings.Contains(stderr, want) {
+			t.Fatalf("stderr %q does not mention %q", stderr, want)
+		}
+	}
+}
+
+func TestSetHomeOverrideRejectsRelative(t *testing.T) {
+	resetPathEnv(t)
+	if _, err := SetHomeOverride("../elsewhere"); err == nil || !strings.Contains(err.Error(), "--home") {
+		t.Fatalf("SetHomeOverride(relative) error = %v, want --home absolute-path error", err)
+	}
+}
+
+func TestSetHomeOverrideRejectsRegularFile(t *testing.T) {
+	resetPathEnv(t)
+	path := filepath.Join(t.TempDir(), "not-a-dir")
+	if err := os.WriteFile(path, []byte("file"), 0o600); err != nil {
+		t.Fatalf("write file: %v", err)
+	}
+	if _, err := SetHomeOverride(path); err == nil || !strings.Contains(err.Error(), "not a directory") {
+		t.Fatalf("SetHomeOverride(file) error = %v, want not-a-directory error", err)
+	}
+}
+
+func TestSetHomeOverrideExpandsTildeAndCleans(t *testing.T) {
+	home := resetPathEnv(t)
+	restore, err := SetHomeOverride("~/state/../root")
+	if err != nil {
+		t.Fatalf("SetHomeOverride() error = %v", err)
+	}
+	defer restore()
+	got, err := CacheDir()
+	if err != nil {
+		t.Fatalf("CacheDir() error = %v", err)
+	}
+	if want := filepath.Join(home, "root", "cache"); got != want {
+		t.Fatalf("CacheDir() = %q, want %q", got, want)
+	}
+}
+
+func assertDataDir(t *testing.T, want string) {
+	t.Helper()
+	got, err := DataDir()
+	if err != nil {
+		t.Fatalf("DataDir() error = %v", err)
+	}
+	if got != want {
+		t.Fatalf("DataDir() = %q, want %q", got, want)
+	}
+}
+
+func captureStderr(t *testing.T, fn func()) string {
+	t.Helper()
+	old := os.Stderr
+	r, w, err := os.Pipe()
+	if err != nil {
+		t.Fatalf("pipe: %v", err)
+	}
+	os.Stderr = w
+	fn()
+	_ = w.Close()
+	os.Stderr = old
+	var buf bytes.Buffer
+	_, _ = io.Copy(&buf, r)
+	return buf.String()
 }
