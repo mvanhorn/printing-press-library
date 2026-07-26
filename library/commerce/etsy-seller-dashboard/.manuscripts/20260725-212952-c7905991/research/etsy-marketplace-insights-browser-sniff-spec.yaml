@@ -1,0 +1,793 @@
+name: etsy-marketplace-insights
+description: Discovered API spec for etsy
+version: 0.1.0
+base_url: https://www.etsy.com
+spec_source: sniffed
+auth:
+    type: none
+    header: ""
+    format: ""
+    env_vars: []
+auth_warnings:
+    - 'rejected auth candidate "key" from body: request body field'
+    - 'rejected auth candidate "keyword" from body: search input'
+    - 'rejected auth candidate "query" from query: search input'
+    - 'rejected auth candidate "search_trigger" from query: search input'
+config:
+    format: toml
+    path: ~/.config/etsy-marketplace-insights-pp-cli/config.toml
+resources:
+    ajax:
+        description: Operations on chat-start
+        endpoints:
+            create_chat_start:
+                method: POST
+                path: /api/v3/ajax/member/support-chatbot/conversation/chat-start
+                description: POST /api/v3/ajax/member/support-chatbot/conversation/chat-start
+                params:
+                    - name: email
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                      format: email
+                    - name: jwt_token
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: sierra_agent_token
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: sierra_interface_strings
+                      type: object
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields:
+                        - name: agent_disabled_message
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: agent_joined_message
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: agent_left_message
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: agent_transfer_queue_next_message
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: agent_transfer_queue_size_message
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: agent_transfer_waiting_message
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: average_wait_time
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: bot_name
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: conversation_ended_message
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: custom_greeting
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: disclosure
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: end_conversation_menu_label
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: error_message
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: estimated_wait_time
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: get_help_button_label
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: here_to_help_header
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: input_placeholder
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: new_chat_button_label
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: no_conversations_subheader
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: print_transcript_menu_label
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: survey_negative_feedback
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: survey_neutral_feedback
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: survey_positive_feedback
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: survey_prompt
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                    - name: user_id
+                      type: integer
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: vendor
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body:
+                    - name: convo_ingress_type
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: convo_start_pathname
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                request_content_type: application/json
+                response:
+                    type: object
+                    item: ChatStart
+                pagination: null
+                observed_auth:
+                    - x-csrf-token
+            create_enqueue:
+                method: POST
+                path: /api/v3/ajax/shop/{shop_id}/marketplace-insights/llm-exploratory-keywords/search/enqueue
+                description: POST /api/v3/ajax/shop/{shop_id}/marketplace-insights/llm-exploratory-keywords/search/enqueue
+                params:
+                    - name: shop_id
+                      type: string
+                      required: true
+                      positional: true
+                      default: null
+                      description: The shop_id path segment
+                      fields: []
+                body:
+                    - name: keyword
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                request_content_type: application/json
+                response:
+                    type: object
+                    item: Enqueue
+                pagination: null
+                observed_auth:
+                    - x-csrf-token
+            create_statsd:
+                method: POST
+                path: /api/v3/ajax/public/statsd
+                description: POST /api/v3/ajax/public/statsd
+                params: []
+                body: []
+                response:
+                    type: object
+                    item: statsd
+                pagination: null
+            create_view:
+                method: POST
+                path: /api/v3/ajax/member/notices/view
+                description: POST /api/v3/ajax/member/notices/view
+                params: []
+                body:
+                    - name: key
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                request_content_type: application/json
+                response:
+                    type: object
+                    item: view
+                pagination: null
+                observed_auth:
+                    - x-csrf-token
+            get_data:
+                method: GET
+                path: /api/v3/ajax/bespoke/shop/{shop_id}/marketplace-insights/data
+                description: GET /api/v3/ajax/bespoke/shop/{shop_id}/marketplace-insights/data
+                params:
+                    - name: shop_id
+                      type: string
+                      required: true
+                      positional: true
+                      default: null
+                      description: The shop_id path segment
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: data
+                pagination: null
+            get_nav_badge_counts:
+                method: GET
+                path: /api/v3/ajax/shop/{shop_id}/manager/nav-badge-counts
+                description: GET /api/v3/ajax/shop/{shop_id}/manager/nav-badge-counts
+                params:
+                    - name: shop_id
+                      type: string
+                      required: true
+                      positional: true
+                      default: null
+                      description: The shop_id path segment
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: NavBadgeCount
+                pagination: null
+            get_saved_search_terms:
+                method: GET
+                path: /api/v3/ajax/shop/{shop_id}/marketplace-insights/saved-search-terms
+                description: GET /api/v3/ajax/shop/{shop_id}/marketplace-insights/saved-search-terms
+                params:
+                    - name: shop_id
+                      type: string
+                      required: true
+                      positional: true
+                      default: null
+                      description: The shop_id path segment
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: SavedSearchTerm
+                pagination: null
+            get_trending_categories:
+                method: GET
+                path: /api/v3/ajax/shop/{shop_id}/marketplace-insights/trending-categories
+                description: GET /api/v3/ajax/shop/{shop_id}/marketplace-insights/trending-categories
+                params:
+                    - name: shop_id
+                      type: string
+                      required: true
+                      positional: true
+                      default: null
+                      description: The shop_id path segment
+                      fields: []
+                body: []
+                response:
+                    type: array
+                    item: TrendingCategory
+                pagination: null
+            get_trending_search_terms_v2:
+                method: GET
+                path: /api/v3/ajax/bespoke/shop/{shop_id}/marketplace-insights/trending-search-terms-v2
+                description: GET /api/v3/ajax/bespoke/shop/{shop_id}/marketplace-insights/trending-search-terms-v2
+                params:
+                    - name: shop_id
+                      type: string
+                      required: true
+                      positional: true
+                      default: null
+                      description: The shop_id path segment
+                      fields: []
+                    - name: taxonomy_id
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: array
+                    item: TrendingSearchTermsV2SearchTerm
+                pagination: null
+                response_path: searchTerms
+    include:
+        description: Operations on tags.js
+        endpoints:
+            create_tags.js:
+                method: POST
+                path: /include/tags.js
+                description: POST /include/tags.js
+                params:
+                    - name: cookie
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: status
+                      type: integer
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body:
+                    - name: Referer
+                      type: string
+                      required: true
+                      positional: false
+                      default: https%3A%2F%2Fwww.etsy.com%2Fyour%2Fshops%2Fme%2Fmarketplace-insights
+                      description: ""
+                      fields: []
+                    - name: cid
+                      type: string
+                      required: true
+                      positional: false
+                      default: vUn6qYRnJLh8SYM_lYovgsczf01kZwcXxHGHr_A7i1PPjEaPWeKJxPw1W1Rv3goxite4truDeGDTO3pCLrJ6QsAruRVV0CfbI2WMNZIwyVkGnPrfdwtKuuIFsvFqj21K
+                      description: ""
+                      fields: []
+                    - name: ddk
+                      type: string
+                      required: true
+                      positional: false
+                      default: D013AA612AB2224D03B2318D0F5B19
+                      description: ""
+                      fields: []
+                    - name: ddv
+                      type: string
+                      required: true
+                      positional: false
+                      default: 5.9.0
+                      description: ""
+                      fields: []
+                    - name: eventCounters
+                      type: string
+                      required: true
+                      positional: false
+                      default: '{"mousemove":1,"pointermove":1,"click":2,"scroll":1,"touchstart":0,"touchend":0,"touchmove":0,"keydown":0,"keyup":0}'
+                      description: ""
+                      fields: []
+                    - name: jsType
+                      type: string
+                      required: true
+                      positional: false
+                      default: le
+                      description: ""
+                      fields: []
+                    - name: jspl
+                      type: string
+                      required: true
+                      positional: false
+                      default: CBnmzzYYCkZxG5w8EICH_0GZa5Lm64Mny6H1FziwVYhQCUxCyCCXdRo_CQtGrRP_tUyua6l0HZEjfFzNWUBYqIQ_sLTy-CRpa-2o6YslUTHQH_916181oz8wl5cPYs2BZ9cZMaX4st4A5e2VnVM-mwjPD6oJAMC154lfl25JxGbM8H-LOmn0EsfZfy3vfCuJSB1FPw-wdQowdnKcW_hmnfpnQMfYZPH5GlgP_8wBrOAP738UnEEosb6LSHkiUI7pU9jVnr4_knJh7k23ccus06yYTwTSkugImECTI_OaM6xod48nIBlje5xiCyl68d5EN-zECBGRiDKAi5Nip_jIcA3bjLrnJiifVoNlYE7-Oha6n4i4B22RrfuC3zg6lmggZcqNQ_qIxriSl1SX8hvmHiRAna3CU4sgx-JjSRyaHHJcwHBr2Vz-DLKaiPD8f5SOcI-UOeKTS__oWnsF9XSRKxlHfVUhBNH22Y9-ux6_Z16FC1_uptp9CYK6gEBvFg1CVs5xnXt2i836J2wPThuKTYtOFaTXSt7jArKzukuFLulceMlW_grNN4tZwTZIbDdRyMq-ntCnEeSFD9KWmtSEsioaanC5dd9T0T7M4sQP9eNdR4w7yw-fvGrQtzIl7MZjcHg8xp6BK8C_WeRpCyiAGJfomI_x7z1rO32cQ75tuV4D47uLP4YW2qx0yrmkk7vEdQj5gKIJfTk6iXHnEUTlgJNlo5uasLNsMPwmOhVFSHPYXt5V0ENtu4MSSzeVrUAaP0J54jjs5AMkiT9eCnGWELBV15G6HXs69k1eI5B4v2K8MulYUaAIorfNqtfIDRaup5IsAjYPRFxx_A0YZcZ9OCudKy_Z13D6IfHJs9Qfvqr8y8Ze9hA2OsnX87XV1TjjRB9xuwMS0ysW2dxHtDI3QkalsdQ-WQlwn9RJHlRb_eWNHqcaSOc7XCT45kT46aKfQ5MeiGu4t1T988wNj8WqE7fzcmsMvJLDvDFgErY4pC-Cc4Da6bci9pT9BOH_3TfExq9G7_7HdsA-W-REMJp35QkpsFMYPgEvbIVejFKr8-JoKI8-rhoh3e-ERsrFw0la6XMt0P1HU5r7kAYAitnW0WJHkXt3yUszvLjz9smRPviQeXJUbYhXmZOgOPoYEe-yhSkNgsoVSUcVdTqhLxhB6qbOKu5HQk15Js8QNSsVLnpIOINbRu_MxL0TB0-9hRgdXzHZZ5t9dgFfE0Wi95S_TBq48BAhyLrB7RvoioAlBoyv9HUQsXp3kL2_wabGNzL92dZ439F08ac5PSrBP3Bo-jS0tCxjd3eM_yezEqDYq2Nl1bisDJCWoA1ZTKXMQV3JcXjepE1WUHtqv0CW58W4HNPJQ64Ii2LefhcmTtb9cgrfElFNpPQV13EBChN5PRCm8BgO3LiPzyq4Q9kgshu85N-IlLAFar6-qORf3HPVtRBfEJ6btBuNTrpitWXZvxtRVf3gBJ2MnzXpihgtWv03Ufn0bgu8aMtKuFgYzl_lJ3JrKV3_nggQ1XUCZBCNwxyx9XLOA8WlxP8BueJviyowjFSuHbnBYgs9Mb8bm4vc-hDpCZWHsu8v9vwyXy956ZySWr_lO7X24u4SAEDZoeVpli0zm1XhN9OGuC2v4l-8kAegnCY-vmrtHsTm2Dim9GCwnKJD6g25lu8QFoqyylg2QLOEIo7yK1JRu_sW7ZZxBIdWjXZ2rqOt-BZE0aKdQT8ykoS5FhN1N4VC-gXpfjgD9uyYVxIakHZDwQ3QjteXkpsuzMIBq4o65Tkb9PphkIEsZqBiNcgx1UX2VfCOI-DwoFG8xKXKKl0lEPeSryQpoRPaZzCsOasb76R3GVi8ynJLRZOiZomfJJJR_c-XjUgNImtNIpE-KPEwyvuOHIZi3XIdibDF4wGa_XTLW6McEZSNBsPdRb09ofVTuJzpHprhnksKwmrJINQPu1TGMCCI5HxsbZDhFUXmLxU5yqkgHwHEBBXcqlDUeiOgeNVU600dSMUfhpy8gusZhq23BngiH25Xa4MBrN5jVzMEztCccgBCl3Fj975D_k2Vkdc_Xr8dboPlrUJkZyHPbqFbILnlq7kU0MIMA4CId2QGa_coEOFmVDlXHiwsdo12N9gwiGngFFsmqliyOh7XI1hKXlUWI53p0tOG__cMYUSq_BjXn5wB738DbgLuE-FP0wK2cmRj9KKS3Dvbh1Sa7iAhRmGmo1wu0dbvzaf-XlZ6nt1wLhocZoH7ZWMYHaRi7587vECPWs_FtO-PuztSDKkfjv2ZB1JDykqYvDP7Lzw3Ht6z1nVImrWxBiWpZLG0wdIsZXqBtEMSXYz23bVTqbQnFa8ebYJ-qEKV0liV5PrSe2fk4f-IIWtvXynAX4fLuuBoD41-eAU77BKfxxsw1fcFZnMII3xo9gUYo3rj8zIxWclwXHI2oKN_ZpE2xRPFof7AFBzIRInkQgxHrQb-O2l5j_3FgpcbCObni2IpvqSye1igPW2SB6SxWbhJatN61qVzzJNoMHL4g9zJC3hI0TLQi0tFvP2qGuA-j8RmPdcQXMb9Dhd3ZkSaKk_n3UrShvKNeuORjBP7h_3VhHYB_Z6a_XB046HxgThwSBdJprYdMCQ0HgFQVBfBYts2JHQeid4rFgUN7-6Lzq1VdaTINxvws-o9Wo-zZ8KlMHVz2PJMcqzeFdWdM1F3odjJ_Etb85WHzwKa2xi0qc93GDaJatmsLLNr930f5iUR5WtGbukenP9ITR-R6tdkwgCBi31nJb02aDmIDMaESA6TM_eXRBwDj-3oPG-88pexAghVuDGcPiAdZjo3i8vfDvqBkzDWLzJ0cEf7bJ6K_lhGYInPT_qudLQyEsMHMDD_kctcoyG4FGm8IsNQS3TjW6qgEesyPw6t5MB7KIFJ7bZum5t8fxdWUBYggpEiRXKr_envt_-G_wC3tzhMKvNb9GWHtAcbYRjxCEATb9xVaFARbM1QACYPoc30ZoUZR7sgFN5qTjQBrZPXnq7zLQIrPrRZlOHdd_YWOai_FZhxvqh3vampb8J8Cw-MmO9K-O_fND6andYGsTrb-17R7-roBvEBV63pw5SVpTHs0LnpI9wnVrGjcNJ37rMS3Gx_udtUmYqXhFcV8klPZJipVd4aBjxOhWfbP43GOIzWnTN0bpgOqojMs3CqB_k0Mf8XKcSFd1qSc4DUQ7XO6UpFlYt3TOwGdsXyME3bCy5zN7kHHRHq02ksaOhjVG9d7b-C49Qi0QzOYHMu7EL2vUT4yzDVGPfq8EtbCMxau8VNog2SmoWXyAWSMX6K7CjnLcHAKR1_CiA2CJ9BV4AvfBQqKaHUgAVxD3lnxfLMw8HgFJzieirHJUEAcgGc6cz7HGtgvmScOp1zo2UdzKzfDxR8_XUaz_rT2P6v61ODsauKLoNiFxarIw1CK8qwXEI2R7V69P3yAyCPMy6VvUyyd4muPtg0xg20cEPEhCKarjDtQ4xc5J_0Qyz84hwgZuIVygXt-SHkCk8s_q2fP3ZGOs-7ZxMW4iGSBsg26ZmJcY8QUKpV2AeTxopaSdmrEoW5P-yn0GDMjFGMGUMPIAQOhZCJfalyS1RPERUWPRjWNVThhpQtgki5SIbbR16k17UdiPpxoEwL49_tMlQRThLbN9eCtTMEuU4NmsqNvp9BJAWLU58HAkOWc4Qtwn_d23Lb5ZPraKceV28WLC3H-piQbP2_Tmc71D8zJEgbhQWjDRPxvSf9TY-cxH87sGV9z5KZL8W1Bqre53JbZ4bX_z33HFLFMu9Z6LVJH_e54SPrc5xJleOxiN1clCpuRo4av5sgy2iPg5200zccz-d2eJQZMGfuQ44NOz9kMTzmgmRqEjiFzjrdpDQxlQ34vCtvQro2xzPThipuTVo70RmHdb07vVrb3vwR6oMsL16dBZ9w1eetg2MRqZ8aB9_bZXfjlPLziWQFJZcdP9K3XSQ7aZ_tUWSYNR2Wcmx-FVTXKacM-R41oFptpREUmgasx_F-fxw_VdP2VjsSrfujAuBJGZrjLLwoejnkzjoJtqbxrJzlVGg5cGHsH-yA7cEnSxvnzbaWqwA-wSu1qgUZrueamz1jfctVGAKtICcVhM4m_TMtDLcnJ1_-EUvuxadDWBlhw-LaYufX5yRc_9JI_wQLk5XVdfSvX90x5VuEZp-dBVQador3GB-ldGa_ZS___WW9ohHe0iNKHyrtx_-TIUzmlZBf8mksFwWIOVc1g6wne5lVerJOrjU0W6exzPLdYCcPtkAodRRolmTEhGMzLBPrik27NcE9PMscYoSAyMPRgq8kuxoRsEyORxxJCocAjD8PHRL9KVEy2OTebhG-ZyZAOx_B559m-TuxCw3c2oNS4cWz5TITXnoZOXfS_7ml01ZILSgD0Z_ATWLv0n9iEB-P5Q66-6TwFD0Sk-PUT-dVoDMTj7edrbldKmOl-9iqMrV3t9_Me5R5TcijUl2iaCbcyAMTEtEC48t9qXXgGXYTRfk5R8xDo07ilzzaA8OVyzQ0EwIJ9efLNupGIfdGpGZOpLd9xCx16oUOGnues9sXKICwLInPf8SsbElHzhICi28oF0K-_0UnLP6YZXSsuFG6mmIMQXXcEF_o2SGXmMT0-yEvsxqzRxKl-Qxh3oU85WQ7iNun6H71cNasmnHT_hCk9kE_jt-fyP9gTYey_B1w1RsqmuB158Ukf82iHXkSgKiOUgz4a1y337wqFi3aDZBdsIQjrkMegrUC0uE6W8OMNl3D4M1w0JonpOOCHTvHR3ZpPGouSpnyLtHiYlcihBKW7phS8j0RokOL69Lwq4peYFoJM2x8FNSQwa9aMjRQNvGWX5CS26c-JNFJ11JQG9Kpz4A1R3V3xCdHT3-6-qnoHDlQWjCfaAjKQ9H3UL0rkio6aIt5rQbXZRQqCQgz-SursI9SVi13vtyujkvwcMhCep_AIVnA3vOu1luMB16E5H-kT_YrpbpMi3U-4QCbuSiP5UeIgb9IKTD_VXqCIlLNf9T6mHrpXo1mECb_LXM0aBXI_x4jTrlBQYHNJiiCW-NI_5L8xNBxlTO3yDA4_vY6223qitlmcW3fEHNyfo9X5dx-axXSA92b6EKREY7EX6IH0uWVIIZ57nkpBWyWGFa4kg_43_N73m5CkBegNNFOnTUHZYZYNMT2ClWOUqjy6fPunguMUExPIZiWVGVJlRgfV-ZAyVMBMSA7rur2CQrjo6MGmQN1r3RsZRUaLhs3I7cCOaNjyepyV4fsbPAYcj9WA6MNJDrvLi-DWnel3iCO0uR0g1dYxFvW9GIHZIDbEsJFCW_BGAr-0GXZV9Pi02P9S5e1n5RZov7DvRrGUUyeGHvBerEzS58qFX4H5nBhxijsdWJd0XtaJczu4X3mna6tQdM7ppdFQkJiTbTht1-ODqEoSosTOMLfwlXjwPvUBQjzZ27k-cywWPnKMnv3uk-drZDFIiKv1ePId-R0Oct6hdJZWheyOHrfMAZeAXHNeYwbM1vj5SJKnwVnQRWmF8ngRhrx22qt7l0XUnElGyzkIDlqUU4Pxxy6IFIE_izEsS-mJ0Kd8w-V06aRyyz7X8Q6BXA97phA_O52V9icieFikwJwvXT5_2xCNqhr-o0vyoNgD25cLXUrtZEtrFFd-8xYi9zbBjTSSYjB_SFwMGW7Kwz5DYWqIB--g4XMHGQZNu9nQreYR8B1sDKWSrxYlboi-uGSzriOrxibshQEM4gaaRGHt6io5Q-EtGSSvFLC3eqmvTszBfmrM3V0ZlRlrOzbk7JJFU_s_o5R9nCCafcnZ8OaKdouVwPbnQGNnPT5RqfdFj0lsYzwIl9NSUN-NmEPB7tXVv5-gmlfL3fj09g-Demk8z28GSre0svfmpo7A7PHqLsd4xN9dJY75vv2IPW6pPDXCqzVvK14QYO_Q3w7zuw4hJuha1NqO52nKJ76wMs3VpPJw5TVC8XjhF61UTzNOFr5ncIb9Z3ecC_FS_7XYaHlWBgbImyiUUDiJsCtV7ZJXhFLHmI55Rx-YZ6RuTSKWZLCIN7bqumsLxteOu-VoKtFS7pMgDQibhs882p-MskO5jBWIkVnuYp-vhyaX4973gLZGoRI7S3w9jtxbMT7GRzTRATrZclsR75hn4RNWcsjgc7PrZcFzIN7Hdbkf0Pgy5UWAbrah__yqojlgNedquhQTEqV4y-kls4DWJfTG1LVzUKTIGIZF401GOJzEsiJQxk3u-jeuZ4Gyu7q6d2gD6TjY1dtkVQu5IxfgnC_SD0PgP7a-JEgtQB82MaGScRXFcDc5QdS2Ow3O5_SgX4Fw2RtOp0RXM6WcpEMxL7AQm5pf-WADCMmfwOdROJYVvFZwI8b2iAKU5L3QcaNoTfO1VfDG-5lTchzDxy46TVySTCk7jlb083bMwIUDYyrkMMiN5CF033eNNPhRs7YKhdBML7DWgdlWk319Vh5JnITTImz6pLC9PfqoexI9sQU1U44t36Ckp_HMNyl01Jmn8zodsD0ecBfF0pM-phHGlF2Ek80QDnG2U6PTcuEmFQ__Ilevz1dG8A3szH8DpD5k8LAy0g3KAVaK62nUSOWj2q1O8akF7K2NpfVScgPjg_xmUQK-VF6tyFfp5eGCNls4CqgnuyaW2XHydwFEjChhi-LKjNqPQ-9lOhJ65lNgoSXokFu4R767YDdagt-tzp3n0UfuSlvKg12kknR2jdAyaNDGxSo25-JoWUKjyUZ814N4qrby5aMTdNt8e9U1AGtxOj-prut2naIrrcGNe9kVwBY4aEq2zyp7SheoKCEl1BHvVrWW8
+                      description: ""
+                      fields: []
+                    - name: request
+                      type: string
+                      required: true
+                      positional: false
+                      default: '%2Fyour%2Fshops%2Fme%2Fmarketplace-insights'
+                      description: ""
+                      fields: []
+                    - name: responsePage
+                      type: string
+                      required: true
+                      positional: false
+                      default: origin
+                      description: ""
+                      fields: []
+                request_content_type: application/x-www-form-urlencoded
+                response:
+                    type: object
+                    item: TagsJ
+                pagination: null
+    paula:
+        description: Operations on polyfill.min.js
+        endpoints:
+            list_polyfill.min.js:
+                method: GET
+                path: /paula/v3/polyfill.min.js
+                description: GET /paula/v3/polyfill.min.js
+                params:
+                    - name: etsy-v
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: features
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: flags
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: polyfill.min.js
+                pagination: null
+    your:
+        description: Operations on search
+        endpoints:
+            list_marketplace_insights:
+                method: GET
+                path: /your/shops/me/marketplace-insights
+                description: Fetch structured links from /your/shops/me/marketplace-insights
+                params: []
+                body: []
+                response:
+                    type: object
+                    item: html
+                response_format: html
+                html_extract:
+                    mode: page
+                    limit: 50
+                pagination: null
+            list_search:
+                method: GET
+                path: /your/shops/me/marketplace-insights/search
+                description: Fetch structured links from /your/shops/me/marketplace-insights/search
+                params:
+                    - name: query
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: search_trigger
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: html
+                response_format: html
+                html_extract:
+                    mode: page
+                    limit: 50
+                pagination: null
+types:
+    CachedData:
+        fields:
+            - name: lookupFailed
+              type: bool
+            - name: results
+              type: '[]ref:Result'
+            - name: resultsPerPage
+              type: integer
+            - name: totalResultsCount
+              type: integer
+    ChatStart:
+        fields:
+            - name: email
+              type: string
+              format: email
+            - name: jwt_token
+              type: string
+            - name: sierra_agent_token
+              type: string
+            - name: sierra_interface_strings
+              type: ref:SierraInterfaceStrings
+            - name: user_id
+              type: integer
+            - name: vendor
+              type: string
+    Counts:
+        fields:
+            - name: appstoreV2
+              type: integer
+            - name: content-compliance
+              type: integer
+            - name: customer-service
+              type: integer
+            - name: dashboard
+              type: integer
+            - name: finances
+              type: integer
+            - name: finances.accepted-payments
+              type: integer
+            - name: finances.monthly-statements
+              type: integer
+            - name: finances.payment-account
+              type: integer
+            - name: finances.quickbooks
+              type: integer
+            - name: finances.taxpayer-id
+              type: integer
+            - name: finances.turbotax
+              type: integer
+            - name: finances.xero
+              type: integer
+            - name: inventory
+              type: integer
+            - name: marketing
+              type: integer
+            - name: marketing.etsy-ads
+              type: integer
+            - name: marketing.offsite-ads
+              type: integer
+            - name: marketing.sales-discounts
+              type: integer
+            - name: marketing.share-and-save
+              type: integer
+            - name: marketing.social-media
+              type: integer
+            - name: messages
+              type: integer
+            - name: orders
+              type: integer
+            - name: search-dashboard
+              type: integer
+            - name: search-header
+              type: integer
+            - name: settings
+              type: integer
+            - name: settings.facebook-shops
+              type: integer
+            - name: settings.grace_management_nav_title
+              type: integer
+            - name: settings.info
+              type: integer
+            - name: settings.options
+              type: integer
+            - name: settings.partners
+              type: integer
+            - name: settings.shipping-settings
+              type: integer
+            - name: settings.shop-policies
+              type: integer
+            - name: settings.storefront-settings
+              type: integer
+            - name: settings.translations
+              type: integer
+            - name: shop_analytics
+              type: integer
+            - name: stats
+              type: integer
+            - name: stats.marketplace-insights
+              type: integer
+            - name: stats.shop_analytics
+              type: integer
+            - name: support
+              type: integer
+            - name: support.contact-us
+              type: integer
+            - name: support.etsy-help-center
+              type: integer
+            - name: support.ip-infringement
+              type: integer
+            - name: support.seller-forums
+              type: integer
+            - name: support.seller-handbook
+              type: integer
+            - name: support.shipping-costs
+              type: integer
+            - name: support.site-policies
+              type: integer
+    Enqueue:
+        fields:
+            - name: cachedData
+              type: ref:CachedData
+    NavBadgeCount:
+        fields:
+            - name: counts
+              type: ref:Counts
+    Result:
+        fields:
+            - name: avgTotalListings
+              type: integer
+            - name: searchTerm
+              type: string
+            - name: searchVolume
+              type: integer
+    SavedSearchTerm:
+        fields:
+            - name: results
+              type: array
+            - name: resultsPerPage
+              type: integer
+            - name: totalResultsCount
+              type: integer
+    SierraInterfaceStrings:
+        fields:
+            - name: agent_disabled_message
+              type: string
+            - name: agent_joined_message
+              type: string
+            - name: agent_left_message
+              type: string
+            - name: agent_transfer_queue_next_message
+              type: string
+            - name: agent_transfer_queue_size_message
+              type: string
+            - name: agent_transfer_waiting_message
+              type: string
+            - name: average_wait_time
+              type: string
+            - name: bot_name
+              type: string
+            - name: conversation_ended_message
+              type: string
+            - name: custom_greeting
+              type: string
+            - name: disclosure
+              type: string
+            - name: end_conversation_menu_label
+              type: string
+            - name: error_message
+              type: string
+            - name: estimated_wait_time
+              type: string
+            - name: get_help_button_label
+              type: string
+            - name: here_to_help_header
+              type: string
+            - name: input_placeholder
+              type: string
+            - name: new_chat_button_label
+              type: string
+            - name: no_conversations_subheader
+              type: string
+            - name: print_transcript_menu_label
+              type: string
+            - name: survey_negative_feedback
+              type: string
+            - name: survey_neutral_feedback
+              type: string
+            - name: survey_positive_feedback
+              type: string
+            - name: survey_prompt
+              type: string
+    TagsJ:
+        fields:
+            - name: cookie
+              type: string
+            - name: status
+              type: integer
+    TrendingCategory:
+        fields:
+            - name: taxonomyCategorySlug
+              type: string
+            - name: taxonomyId
+              type: integer
+    TrendingSearchTermsV2SearchTerm:
+        fields:
+            - name: imageUrl
+              type: string
+              format: url
+            - name: searchTerm
+              type: string
+            - name: searchVolume
+              type: integer

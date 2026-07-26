@@ -1,0 +1,65 @@
+{
+  "schema_version": 2,
+  "generated_at": "2026-07-26T10:22:46.00333Z",
+  "printing_press_version": "4.29.0",
+  "api_name": "etsy-seller-dashboard",
+  "display_name": "Etsy Seller Dashboard",
+  "cli_name": "etsy-seller-dashboard-pp-cli",
+  "creator": {
+    "handle": "horknfbr",
+    "name": "horknfbr"
+  },
+  "owner": "horknfbr",
+  "printer": "horknfbr",
+  "printer_name": "horknfbr",
+  "spec_format": "internal",
+  "spec_checksum": "sha256:4b4da857a76cbdc03cbefbd34aa6e2fa55282148310c682bc568c9727641c4f9",
+  "run_id": "20260725-212952-c7905991",
+  "category": "commerce",
+  "description": "First-party Etsy demand and marketing evidence, reconciled locally.",
+  "mcp_binary": "etsy-seller-dashboard-pp-mcp",
+  "mcp_tool_count": 12,
+  "mcp_ready": "partial",
+  "api_version": "0.1.0",
+  "auth_type": "cookie",
+  "auth_env_vars": [
+    "ETSY_COOKIE"
+  ],
+  "novel_features": [
+    {
+      "name": "Listing action queue",
+      "command": "listing action-queue",
+      "description": "Rank listing-level research and marketing review actions from all four synchronized Etsy surfaces."
+    },
+    {
+      "name": "Economics reconciliation",
+      "command": "economics reconcile",
+      "description": "Reconcile onsite spend, offsite fees, attributed revenue, and promotion observations without inventing net profit."
+    },
+    {
+      "name": "Observed promotion lift",
+      "command": "promotion observed-lift",
+      "description": "Compare one promotion window with an equal-length prior window across promotion, onsite-ad, and offsite observations."
+    },
+    {
+      "name": "Acquisition channel gap",
+      "command": "acquisition channel-gap",
+      "description": "Find listings whose separately labeled onsite and offsite efficiency signals diverge."
+    },
+    {
+      "name": "Research-quota allocation",
+      "command": "quota allocate",
+      "description": "Prioritize scarce Marketplace Insights searches where stale demand evidence affects the most consequential listing decisions."
+    },
+    {
+      "name": "Visibility-performance gap",
+      "command": "listing visibility-gap",
+      "description": "Compare explicit listing-keyword visibility observations with onsite and offsite performance without fabricating keyword revenue."
+    },
+    {
+      "name": "Cross-surface anomalies",
+      "command": "growth anomalies",
+      "description": "Detect deterministic weekly outliers and coincident movements across all four synchronized surfaces."
+    }
+  ]
+}

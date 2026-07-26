@@ -1,0 +1,16 @@
+# agentcookie.toml: secrets-bus adoption manifest v2
+# See docs/spec-agentcookie-secrets-bus-v2-adoption.md
+schema_version = 2
+name = "etsy-seller-dashboard-pp-cli"
+display_name = "Etsy Seller Dashboard"
+description = "Read-only Etsy Shop Manager demand, advertising, offsite attribution, and promotion intelligence"
+project_kind = "cli"
+
+[secrets.file]
+path = "~/.config/etsy-seller-dashboard-pp-cli/config.toml"
+
+[sync]
+default = false
+
+[sync.keys]
+ETSY_COOKIE = true

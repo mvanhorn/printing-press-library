@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "api_name": "etsy-seller-dashboard",
+  "run_id": "20260725-212952-c7905991",
+  "status": "pass",
+  "level": "full",
+  "matrix_size": 106,
+  "tests_passed": 106,
+  "tests_skipped": 71,
+  "auth_context": {
+    "type": "cookie",
+    "api_key_available": true
+  }
+}

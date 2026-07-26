@@ -1,0 +1,38 @@
+{
+  "manifest_version": "0.3",
+  "name": "etsy-seller-dashboard-pp-mcp",
+  "display_name": "Etsy Seller Dashboard",
+  "version": "0.1.0",
+  "description": "Read-only Etsy Shop Manager demand, advertising, offsite attribution, and promotion intelligence",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/etsy-seller-dashboard-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/etsy-seller-dashboard-pp-mcp",
+      "args": [],
+      "env": {
+        "ETSY_COOKIE": "${user_config.etsy_cookie}"
+      }
+    }
+  },
+  "user_config": {
+    "etsy_cookie": {
+      "type": "string",
+      "title": "ETSY_COOKIE",
+      "description": "Optional. Sets ETSY_COOKIE for the Etsy Seller Dashboard MCP server.",
+      "sensitive": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

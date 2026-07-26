@@ -1,0 +1,592 @@
+name: etsy-seller-dashboard
+description: Read-only Etsy Shop Manager demand, advertising, offsite attribution, and promotion intelligence
+version: 0.1.0
+base_url: https://www.etsy.com
+health_check_path: /your/shops/me/marketplace-insights
+category: ecommerce
+spec_source: browser-sniffed
+http_transport: browser-chrome
+
+required_headers:
+  - name: Accept
+    value: application/json, text/html;q=0.9
+
+auth:
+  type: cookie
+  header: Cookie
+  format: "Cookie {token}"
+  cookie_domain: etsy.com
+  cookies:
+    - session-key-apex
+    - session-key-www
+    - datadome
+    - uaid
+  login_url: https://www.etsy.com/signin
+  env_vars:
+    - ETSY_COOKIE
+  in: cookie
+
+auth_warnings:
+  - Etsy Shop Manager requires an authenticated seller session and may require DataDome browser clearance.
+  - Keep session cookies local and out of shell history; prefer the press-auth companion flow.
+  - This contract contains read-only operations only.
+
+config:
+  format: toml
+  path: ~/.config/etsy-seller-dashboard-pp-cli/config.toml
+
+resources:
+  marketplace-insights:
+    description: Research first-party Etsy search demand, competition, trends, and saved terms
+    endpoints:
+      overview:
+        method: GET
+        path: /your/shops/me/marketplace-insights
+        description: Fetch the authenticated Marketplace Insights dashboard
+        params: []
+        body: []
+        response:
+          type: object
+          item: DashboardPage
+        response_format: html
+        html_extract:
+          mode: page
+          limit: 50
+      search:
+        method: GET
+        path: /your/shops/me/marketplace-insights/search
+        description: Run an authenticated Marketplace Insights search
+        params:
+          - name: query
+            type: string
+            required: true
+            positional: true
+            description: Keyword phrase to research
+            fields: []
+          - name: search_trigger
+            flag_name: search-trigger
+            type: string
+            required: false
+            positional: false
+            description: Optional Etsy search trigger value
+            fields: []
+        body: []
+        response:
+          type: object
+          item: DashboardPage
+        response_format: html
+        html_extract:
+          mode: page
+          limit: 50
+      data:
+        method: GET
+        path: /api/v3/ajax/bespoke/shop/{shop_id}/marketplace-insights/data
+        description: Fetch the current Marketplace Insights data payload
+        params:
+          - name: shop_id
+            flag_name: shop-id
+            type: string
+            required: true
+            positional: true
+            description: Etsy shop identifier
+            fields: []
+        body: []
+        response:
+          type: object
+          item: MarketplaceInsightsData
+      trending-categories:
+        method: GET
+        path: /api/v3/ajax/shop/{shop_id}/marketplace-insights/trending-categories
+        description: List trending Etsy marketplace categories
+        params:
+          - name: shop_id
+            flag_name: shop-id
+            type: string
+            required: true
+            positional: true
+            description: Etsy shop identifier
+            fields: []
+        body: []
+        response:
+          type: array
+          item: TrendingCategory
+      trending-terms:
+        method: GET
+        path: /api/v3/ajax/bespoke/shop/{shop_id}/marketplace-insights/trending-search-terms-v2
+        description: List trending Etsy search terms
+        params:
+          - name: shop_id
+            flag_name: shop-id
+            type: string
+            required: true
+            positional: true
+            description: Etsy shop identifier
+            fields: []
+          - name: taxonomy_id
+            flag_name: taxonomy-id
+            type: int
+            required: false
+            positional: false
+            description: Optional Etsy taxonomy identifier
+            fields: []
+        body: []
+        response:
+          type: array
+          item: TrendingTerm
+        response_path: searchTerms
+      saved-searches:
+        method: GET
+        path: /api/v3/ajax/shop/{shop_id}/marketplace-insights/saved-search-terms
+        description: List saved Marketplace Insights search terms
+        params:
+          - name: shop_id
+            flag_name: shop-id
+            type: string
+            required: true
+            positional: true
+            description: Etsy shop identifier
+            fields: []
+        body: []
+        response:
+          type: object
+          item: SavedSearchTerms
+
+  ads:
+    description: Review read-only Etsy Ads listing and account performance
+    endpoints:
+      listings:
+        method: GET
+        path: /api/v3/ajax/shop/{shop_id}/prolist/stats/listings
+        description: List Etsy Ads performance by listing
+        params:
+          - name: shop_id
+            flag_name: shop-id
+            type: string
+            required: true
+            positional: true
+            description: Etsy shop identifier
+            fields: []
+          - name: is_promoted
+            flag_name: advertised
+            type: bool
+            required: false
+            positional: false
+            description: Filter by advertised state
+            fields: []
+          - name: sort_type
+            flag_name: sort
+            type: string
+            required: false
+            positional: false
+            description: Etsy Ads sort metric
+            fields: []
+          - name: sort_order
+            flag_name: order
+            type: string
+            required: false
+            positional: false
+            description: Sort order
+            fields: []
+            enum: [asc, desc]
+          - name: offset
+            type: int
+            required: false
+            positional: false
+            default: 0
+            description: Result offset
+            fields: []
+          - name: limit
+            type: int
+            required: false
+            positional: false
+            default: 25
+            description: Maximum listings
+            fields: []
+        body: []
+        response:
+          type: array
+          item: AdsListingPerformance
+        response_path: listings
+
+  offsite-ads:
+    description: Review read-only Offsite Ads attribution, traffic, channels, listings, and fees
+    endpoints:
+      summary:
+        method: GET
+        path: /api/v3/ajax/shop/{shop_id}/offsite-ads-stats
+        description: Fetch Offsite Ads attributed revenue, fees, orders, and new buyers
+        params:
+          - name: shop_id
+            flag_name: shop-id
+            type: string
+            required: true
+            positional: true
+            description: Etsy shop identifier
+            fields: []
+          - name: start_date
+            flag_name: start-date
+            type: string
+            required: false
+            positional: false
+            description: Inclusive start date
+            fields: []
+          - name: end_date
+            flag_name: end-date
+            type: string
+            required: false
+            positional: false
+            description: Inclusive end date
+            fields: []
+          - name: period
+            type: string
+            required: false
+            positional: false
+            description: Etsy period preset
+            fields: []
+        body: []
+        response:
+          type: object
+          item: OffsiteAdsSummary
+      traffic:
+        method: GET
+        path: /api/v3/ajax/shop/{shop_id}/offsite-ads-data/ad-traffic
+        description: Fetch Offsite Ads click series and an optional comparison period
+        params:
+          - name: shop_id
+            flag_name: shop-id
+            type: string
+            required: true
+            positional: true
+            description: Etsy shop identifier
+            fields: []
+          - name: start_date
+            flag_name: start-date
+            type: string
+            required: false
+            positional: false
+            description: Inclusive start date
+            fields: []
+          - name: end_date
+            flag_name: end-date
+            type: string
+            required: false
+            positional: false
+            description: Inclusive end date
+            fields: []
+          - name: comparison_start_date
+            flag_name: comparison-start-date
+            type: string
+            required: false
+            positional: false
+            description: Comparison start date
+            fields: []
+          - name: comparison_end_date
+            flag_name: comparison-end-date
+            type: string
+            required: false
+            positional: false
+            description: Comparison end date
+            fields: []
+        body: []
+        response:
+          type: array
+          item: OffsiteTrafficPoint
+      channels:
+        method: GET
+        path: /api/v3/ajax/shop/{shop_id}/offsite-ads-data/channel-performance
+        description: List Offsite Ads click performance by external channel
+        params:
+          - name: shop_id
+            flag_name: shop-id
+            type: string
+            required: true
+            positional: true
+            description: Etsy shop identifier
+            fields: []
+          - name: start_date
+            flag_name: start-date
+            type: string
+            required: false
+            positional: false
+            description: Inclusive start date
+            fields: []
+          - name: end_date
+            flag_name: end-date
+            type: string
+            required: false
+            positional: false
+            description: Inclusive end date
+            fields: []
+        body: []
+        response:
+          type: array
+          item: OffsiteChannelPerformance
+        response_path: list
+      listings:
+        method: GET
+        path: /api/v3/ajax/shop/{shop_id}/offsite-ads-data/listing-performance
+        description: List Offsite Ads clicks, orders, and attributed revenue by listing
+        params:
+          - name: shop_id
+            flag_name: shop-id
+            type: string
+            required: true
+            positional: true
+            description: Etsy shop identifier
+            fields: []
+          - name: start_date
+            flag_name: start-date
+            type: string
+            required: false
+            positional: false
+            description: Inclusive start date
+            fields: []
+          - name: end_date
+            flag_name: end-date
+            type: string
+            required: false
+            positional: false
+            description: Inclusive end date
+            fields: []
+        body: []
+        response:
+          type: array
+          item: OffsiteListingPerformance
+
+  promotions:
+    description: Review read-only Etsy sales, promo codes, bundles, and targeted offers
+    endpoints:
+      list:
+        method: GET
+        path: /api/v3/ajax/bespoke/shop/{shop_id}/sales-coupons/combined
+        description: List promotions and available revenue statistics
+        params:
+          - name: shop_id
+            flag_name: shop-id
+            type: string
+            required: true
+            positional: true
+            description: Etsy shop identifier
+            fields: []
+          - name: date_range_preference
+            flag_name: date-range
+            type: string
+            required: false
+            positional: false
+            description: Etsy date-range preset
+            fields: []
+          - name: specific_dates
+            flag_name: specific-dates
+            type: string
+            required: false
+            positional: false
+            description: Etsy-specific date range encoding
+            fields: []
+        body: []
+        response:
+          type: array
+          item: Promotion
+        response_path: promotions
+
+types:
+  DashboardPage:
+    fields:
+      - name: title
+        type: string
+      - name: text
+        type: string
+      - name: links
+        type: array
+
+  MarketplaceInsightsData:
+    fields:
+      - name: keyword
+        type: string
+      - name: searches
+        type: int
+      - name: listingCount
+        type: int
+      - name: quotaRemaining
+        type: int
+      - name: relatedSearchTerms
+        type: array
+      - name: listings
+        type: array
+
+  TrendingCategory:
+    fields:
+      - name: taxonomyCategorySlug
+        type: string
+      - name: taxonomyId
+        type: int
+
+  TrendingTerm:
+    fields:
+      - name: imageUrl
+        type: string
+      - name: searchTerm
+        type: string
+      - name: searchVolume
+        type: int
+
+  SavedSearchTerms:
+    fields:
+      - name: results
+        type: array
+      - name: resultsPerPage
+        type: int
+      - name: totalResultsCount
+        type: int
+
+  AdsListingPerformance:
+    fields:
+      - name: listing
+        type: ref:AdsListing
+      - name: totalStats
+        type: ref:AdsTotalStats
+
+  AdsListing:
+    fields:
+      - name: listingId
+        type: int
+      - name: title
+        type: string
+      - name: tags
+        type: array
+      - name: sectionName
+        type: string
+      - name: state
+        type: string
+      - name: isPromoted
+        type: bool
+      - name: priceInt
+        type: int
+      - name: currencyCode
+        type: string
+
+  AdsTotalStats:
+    fields:
+      - name: impressionCount
+        type: int
+      - name: clickCount
+        type: int
+      - name: clickRate
+        type: float
+      - name: conversions
+        type: int
+      - name: spentTotal
+        type: int
+      - name: revenue
+        type: int
+      - name: roas
+        type: float
+
+  OffsiteTrafficPoint:
+    fields:
+      - name: timestamp
+        type: int
+      - name: clickCount
+        type: int
+
+  OffsiteChannelPerformance:
+    fields:
+      - name: channel
+        type: string
+      - name: clicks
+        type: int
+      - name: percent
+        type: int
+
+  OffsiteListingPerformance:
+    fields:
+      - name: listingId
+        type: int
+      - name: listingTitle
+        type: string
+      - name: listingUrl
+        type: string
+      - name: imageUrl
+        type: string
+      - name: clicksCount
+        type: int
+      - name: ordersCount
+        type: int
+      - name: revenue
+        type: int
+      - name: revenueFormatted
+        type: string
+
+  OffsiteAdsSummary:
+    fields:
+      - name: totalRevenue
+        type: string
+      - name: directRevenue
+        type: string
+      - name: indirectRevenue
+        type: string
+      - name: fees
+        type: string
+      - name: indirectFees
+        type: string
+      - name: orders
+        type: string
+      - name: indirectOrders
+        type: string
+      - name: newBuyers
+        type: string
+      - name: indirectNewBuyers
+        type: string
+      - name: showIndirectSection
+        type: bool
+
+  Promotion:
+    fields:
+      - name: promotion_id
+        type: int
+      - name: promotion_name
+        type: string
+      - name: promotion_type
+        type: int
+      - name: promotion_subtype
+        type: int
+      - name: sale_type
+        type: string
+      - name: start_date
+        type: int
+      - name: end_date
+        type: int
+      - name: currency_code
+        type: string
+      - name: discount_value
+        type: string
+      - name: reward_percent_discount_on_order
+        type: int
+      - name: reward_fixed_discount_on_order
+        type: int
+      - name: reward_set_listing_ids
+        type: array
+      - name: condition_min_num_order_items
+        type: int
+      - name: condition_min_total_order_price
+        type: int
+      - name: promotion_max_total_redemptions
+        type: int
+      - name: coupon_url
+        type: string
+      - name: grants_buyer_targeted_offers
+        type: bool
+      - name: targeted_offer
+        type: ref:TargetedOffer
+
+  TargetedOffer:
+    fields:
+      - name: promotion_id
+        type: int
+      - name: coupon_name
+        type: string
+      - name: is_active
+        type: bool
+      - name: current_month_send_count
+        type: int
+      - name: last_30_days_send_count
+        type: int
