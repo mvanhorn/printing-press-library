@@ -1,0 +1,227 @@
+{
+  "features": [
+    {
+      "type": "Feature",
+      "geometry": {
+        "coordinates": [
+          -118.4463597,
+          33.9728142
+        ],
+        "type": "Point"
+      },
+      "properties": {
+        "distance_km": 20.81,
+        "name": "(unnamed)",
+        "osm:building": "yes",
+        "osm:man_made": "lighthouse",
+        "osm_id": 867289743,
+        "osm_type": "way",
+        "url": "https://www.openstreetmap.org/way/867289743"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "coordinates": [
+          -118.1941072,
+          33.7602383
+        ],
+        "type": "Point"
+      },
+      "properties": {
+        "distance_km": 32.94,
+        "name": "Lions Lighthouse",
+        "osm:building": "service",
+        "osm:height": "20",
+        "osm:man_made": "lighthouse",
+        "osm:official_name": "Lions Lighthouse for Sight",
+        "osm:wikidata": "Q108292860",
+        "osm:wikimedia_commons": "Category:Lions Lighthouse (Long Beach, California)",
+        "osm:wikipedia": "en:Lions Lighthouse",
+        "osm_id": 1054968664,
+        "osm_type": "way",
+        "url": "https://www.openstreetmap.org/way/1054968664"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "coordinates": [
+          -118.1868787,
+          33.7232263
+        ],
+        "type": "Point"
+      },
+      "properties": {
+        "distance_km": 37.11,
+        "name": "Long Beach Light",
+        "osm:height": "13",
+        "osm:image": "File:USCGlongbeachRobot.JPG",
+        "osm:man_made": "lighthouse",
+        "osm:owner": "United States Coast Guard",
+        "osm:seamark:fog_signal:category": "horn",
+        "osm:seamark:fog_signal:period": "30",
+        "osm:seamark:landmark:category": "tower",
+        "osm:seamark:light:character": "Fl",
+        "osm:seamark:light:colour": "white",
+        "osm:seamark:light:height": "15.2",
+        "osm:seamark:light:period": "5",
+        "osm:seamark:light:range": "20",
+        "osm:seamark:light:sequence": "00.5+(04.5)",
+        "osm:seamark:name": "Long Beach Light",
+        "osm:seamark:reference": "USCG 125; USCG 3012",
+        "osm:seamark:type": "landmark",
+        "osm:wikidata": "Q6672305",
+        "osm:wikipedia": "en:Long Beach Light",
+        "osm_id": 566859523,
+        "osm_type": "node",
+        "url": "https://www.openstreetmap.org/node/566859523"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "coordinates": [
+          -118.2516154,
+          33.7085521
+        ],
+        "type": "Point"
+      },
+      "properties": {
+        "distance_km": 38.39,
+        "name": "Los Angeles Light",
+        "osm:alt_name": "Angels Gate Light;Los Angeles Harbor Light",
+        "osm:building": "yes",
+        "osm:layer": "1",
+        "osm:man_made": "lighthouse",
+        "osm:seamark:fog_signal:category": "horn",
+        "osm:seamark:fog_signal:period": "30",
+        "osm:seamark:landmark:category": "tower",
+        "osm:seamark:landmark:colour": "white",
+        "osm:seamark:light:character": "Fl",
+        "osm:seamark:light:colour": "green",
+        "osm:seamark:light:height": "22.2",
+        "osm:seamark:light:period": "15",
+        "osm:seamark:light:range": "19",
+        "osm:seamark:name": "Los Angeles Light",
+        "osm:seamark:reference": "USCG 135;USCG 3110",
+        "osm:seamark:type": "landmark",
+        "osm:wikidata": "Q12061372",
+        "osm:wikipedia": "en:Los Angeles Harbor Light",
+        "osm_id": 1312710274,
+        "osm_type": "way",
+        "url": "https://www.openstreetmap.org/way/1312710274"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "coordinates": [
+          -118.2516146,
+          33.7085476
+        ],
+        "type": "Point"
+      },
+      "properties": {
+        "distance_km": 38.39,
+        "name": "Los Angeles Harbor Light Station",
+        "osm:building": "yes",
+        "osm:heritage": "2",
+        "osm:heritage:operator": "nrhp",
+        "osm:heritage:website": "https://www.nps.gov/subjects/nationalregister/index.htm",
+        "osm:historic": "lighthouse",
+        "osm:man_made": "lighthouse",
+        "osm:nrhp:criteria": "(A), (C)",
+        "osm:nrhp:inscription_date": "1980-10-14",
+        "osm:operator": "U.S. Coast Guard",
+        "osm:protection_title": "U.S. Coast Guard",
+        "osm:ref:nrhp": "80000810",
+        "osm:source_ref": "https://catalog.archives.gov/id/123859281",
+        "osm:start_date": "1913",
+        "osm:type": "multipolygon",
+        "osm_id": 17996894,
+        "osm_type": "relation",
+        "url": "https://www.openstreetmap.org/relation/17996894"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "coordinates": [
+          -118.2936951,
+          33.7054421
+        ],
+        "type": "Point"
+      },
+      "properties": {
+        "distance_km": 39.01,
+        "name": "Point Fermin Lighthouse",
+        "osm:building": "yes",
+        "osm:ele": "49.5",
+        "osm:height": "14.4",
+        "osm:heritage": "2",
+        "osm:heritage:operator": "nrhp",
+        "osm:heritage:website": "https://www.nps.gov/subjects/nationalregister/index.htm",
+        "osm:historic": "lighthouse",
+        "osm:lacounty:ain": "7469030901",
+        "osm:lacounty:bld_id": "472341715304",
+        "osm:man_made": "lighthouse",
+        "osm:note": "Lighthouse is historical. The present-day aid to navigation is a beacon just to the south near the edge of the cliff.",
+        "osm:nrhp:criteria": "(A), (C)",
+        "osm:nrhp:inscription_date": "1972-06-13",
+        "osm:protection_title": "Los Angeles City Parks",
+        "osm:ref:nrhp": "72000234",
+        "osm:source_ref": "https://catalog.archives.gov/id/123859420",
+        "osm:start_date": "1874",
+        "osm:website": "https://sanpedro.com/san-pedro-area-points-interest/point-fermin-lighthouse/",
+        "osm:wikidata": "Q7208023",
+        "osm:wikipedia": "en:Point Fermin Light",
+        "osm_id": 407334756,
+        "osm_type": "way",
+        "url": "https://www.openstreetmap.org/way/407334756"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "coordinates": [
+          -117.918243,
+          33.8136141
+        ],
+        "type": "Point"
+      },
+      "properties": {
+        "distance_km": 40.11,
+        "name": "(unnamed)",
+        "osm:building": "yes",
+        "osm:height": "3",
+        "osm:layer": "1",
+        "osm:man_made": "lighthouse",
+        "osm:old_name": "Lighthouse Ticket Booth",
+        "osm_id": 121785377,
+        "osm_type": "way",
+        "url": "https://www.openstreetmap.org/way/121785377"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "coordinates": [
+          -117.9221675,
+          33.8062704
+        ],
+        "type": "Point"
+      },
+      "properties": {
+        "distance_km": 40.4,
+        "name": "(unnamed)",
+        "osm:building:part": "yes",
+        "osm:man_made": "lighthouse",
+        "osm_id": 122630776,
+        "osm_type": "way",
+        "url": "https://www.openstreetmap.org/way/122630776"
+      }
+    }
+  ],
+  "type": "FeatureCollection"
+}

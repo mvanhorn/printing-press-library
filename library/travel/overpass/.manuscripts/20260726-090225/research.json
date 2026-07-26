@@ -1,0 +1,228 @@
+{
+  "api_name": "overpass",
+  "novelty_score": 0,
+  "alternatives": [
+    {
+      "name": "overpass-turbo",
+      "url": "https://github.com/tyrasd/overpass-turbo",
+      "language": "JavaScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 1,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "overpy",
+      "url": "https://github.com/DinoTools/python-overpy",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 4,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "osmnx",
+      "url": "https://github.com/gboeing/osmnx",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 8,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "overpass-api-python-wrapper",
+      "url": "https://github.com/mvexel/overpass-api-python-wrapper",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 3,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-07-26T16:02:00Z",
+  "novel_features": [
+    {
+      "name": "Find photographic subjects near a place",
+      "command": "near",
+      "description": "Finds things worth photographing near a place — water towers, lighthouses, brutalist buildings, piers, viewpoints — by name rather than by OpenStreetMap tag.",
+      "rationale": "Overpass takes a query language, not a subject. This maps photographic vocabulary onto the correct tag combinations, builds valid Overpass QL, and retries across mirrors when one is overloaded.",
+      "example": "overpass-pp-cli near --at \"Los Angeles\" --type water_tower --radius 25km",
+      "why_it_matters": "Reach for this whenever someone wants to know what is worth shooting around a place, without needing to know OpenStreetMap tagging.",
+      "group": "Subjects without the query language"
+    },
+    {
+      "name": "Browse the subject taxonomy",
+      "command": "types",
+      "description": "Lists every subject type the CLI knows how to find, with the OpenStreetMap tags behind each one.",
+      "rationale": "The curated mapping from photographic vocabulary to OSM tags is the actual product; showing it makes the tool inspectable rather than magic.",
+      "example": "overpass-pp-cli types --group architecture",
+      "why_it_matters": "Reach for this to see what can be searched before running near, or to check what tags a subject type actually resolves to.",
+      "group": "Subjects without the query language"
+    },
+    {
+      "name": "Subjects along a drive",
+      "command": "route",
+      "description": "Finds subjects inside a corridor between two places, so a drive can be planned around what is worth stopping for.",
+      "rationale": "Requires building a bounding corridor from two geocoded points and querying inside it. Overpass has no notion of a route; every wrapper leaves this to the caller.",
+      "example": "overpass-pp-cli route --from \"Los Angeles\" --to \"Salton Sea\" --type water_tower --corridor 15km",
+      "why_it_matters": "Reach for this when planning a drive or day trip and the question is what to stop for on the way.",
+      "group": "Subjects without the query language"
+    },
+    {
+      "name": "Export to GeoJSON",
+      "command": "geojson",
+      "description": "Writes results as GeoJSON for opening in a map, a Leaflet page, or any GIS tool.",
+      "rationale": "Overpass returns its own element format with centers split across fields; converting it to standard GeoJSON is left to every caller.",
+      "example": "overpass-pp-cli geojson --at \"Los Angeles\" --type viewpoint --radius 10km",
+      "why_it_matters": "Reach for this when the result needs to end up on a map rather than in a terminal.",
+      "group": "Subjects without the query language"
+    },
+    {
+      "name": "Mirror health",
+      "command": "mirrors",
+      "description": "Shows which Overpass mirrors are currently answering and how many rate-limit slots each has free.",
+      "rationale": "Public Overpass instances fall over under load independently; on 2026-07-26 three of four mirrors refused the same query while one served it. Knowing which is healthy is the difference between a working query and a mystery failure.",
+      "example": "overpass-pp-cli mirrors",
+      "why_it_matters": "Reach for this when queries are failing or slow, before assuming the query itself is wrong.",
+      "group": "Surviving a flaky public API"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Find photographic subjects near a place",
+      "command": "near",
+      "description": "Finds things worth photographing near a place — water towers, lighthouses, brutalist buildings, piers, viewpoints — by name rather than by OpenStreetMap tag.",
+      "rationale": "Overpass takes a query language, not a subject. This maps photographic vocabulary onto the correct tag combinations, builds valid Overpass QL, and retries across mirrors when one is overloaded.",
+      "example": "overpass-pp-cli near --at \"Los Angeles\" --type water_tower --radius 25km",
+      "why_it_matters": "Reach for this whenever someone wants to know what is worth shooting around a place, without needing to know OpenStreetMap tagging.",
+      "group": "Subjects without the query language"
+    },
+    {
+      "name": "Browse the subject taxonomy",
+      "command": "types",
+      "description": "Lists every subject type the CLI knows how to find, with the OpenStreetMap tags behind each one.",
+      "rationale": "The curated mapping from photographic vocabulary to OSM tags is the actual product; showing it makes the tool inspectable rather than magic.",
+      "example": "overpass-pp-cli types --group architecture",
+      "why_it_matters": "Reach for this to see what can be searched before running near, or to check what tags a subject type actually resolves to.",
+      "group": "Subjects without the query language"
+    },
+    {
+      "name": "Subjects along a drive",
+      "command": "route",
+      "description": "Finds subjects inside a corridor between two places, so a drive can be planned around what is worth stopping for.",
+      "rationale": "Requires building a bounding corridor from two geocoded points and querying inside it. Overpass has no notion of a route; every wrapper leaves this to the caller.",
+      "example": "overpass-pp-cli route --from \"Los Angeles\" --to \"Salton Sea\" --type water_tower --corridor 15km",
+      "why_it_matters": "Reach for this when planning a drive or day trip and the question is what to stop for on the way.",
+      "group": "Subjects without the query language"
+    },
+    {
+      "name": "Export to GeoJSON",
+      "command": "geojson",
+      "description": "Writes results as GeoJSON for opening in a map, a Leaflet page, or any GIS tool.",
+      "rationale": "Overpass returns its own element format with centers split across fields; converting it to standard GeoJSON is left to every caller.",
+      "example": "overpass-pp-cli geojson --at \"Los Angeles\" --type viewpoint --radius 10km",
+      "why_it_matters": "Reach for this when the result needs to end up on a map rather than in a terminal.",
+      "group": "Subjects without the query language"
+    },
+    {
+      "name": "Mirror health",
+      "command": "mirrors",
+      "description": "Shows which Overpass mirrors are currently answering and how many rate-limit slots each has free.",
+      "rationale": "Public Overpass instances fall over under load independently; on 2026-07-26 three of four mirrors refused the same query while one served it. Knowing which is healthy is the difference between a working query and a mystery failure.",
+      "example": "overpass-pp-cli mirrors",
+      "why_it_matters": "Reach for this when queries are failing or slow, before assuming the query itself is wrong.",
+      "group": "Surviving a flaky public API"
+    }
+  ],
+  "narrative": {
+    "display_name": "Overpass",
+    "headline": "Find things worth photographing by name instead of by OpenStreetMap tag, with automatic failover across Overpass mirrors.",
+    "value_prop": "Overpass is a query language wearing a REST costume, and its public mirrors fall over independently under load. This maps photographic vocabulary — water towers, lighthouses, brutalist buildings, piers, observatories — onto the right tag combinations, builds valid Overpass QL, retries across mirrors, caches results locally, and exports GeoJSON.",
+    "auth_narrative": "No credential at all. Both Overpass and Nominatim are keyless; they only require a descriptive User-Agent, which this CLI sends. Nominatim permits about one request per second and Overpass allocates a small number of concurrent slots per mirror, so the CLI paces itself and fails over rather than hammering one host.",
+    "quickstart": [
+      {
+        "command": "overpass-pp-cli types",
+        "comment": "See what subjects can be found before searching for one."
+      },
+      {
+        "command": "overpass-pp-cli near --at \"Los Angeles\" --type water_tower --radius 25km",
+        "comment": "The core query: subjects by name near a place."
+      },
+      {
+        "command": "overpass-pp-cli mirrors",
+        "comment": "Check which Overpass instances are healthy if a query is slow."
+      },
+      {
+        "command": "overpass-pp-cli geojson --at \"Los Angeles\" --type viewpoint --radius 10km --out spots.geojson",
+        "comment": "Put the results on a map."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "runtime error: Dispatcher_Client::request_read_and_idx::timeout",
+        "fix": "That mirror is overloaded, not your query. The CLI already retries across mirrors; run `overpass-pp-cli mirrors` to see which are healthy, or raise --timeout."
+      },
+      {
+        "symptom": "No results for a subject you know exists",
+        "fix": "OpenStreetMap coverage is uneven and volunteer-contributed. Run `overpass-pp-cli types` to see the exact tags being queried, and widen --radius."
+      },
+      {
+        "symptom": "Geocoding a place name returns the wrong country",
+        "fix": "Nominatim orders by relevance worldwide. Add a region to the query (\"San Pedro, CA\") or pass --country us."
+      },
+      {
+        "symptom": "Queries are slow",
+        "fix": "Overpass allocates a couple of concurrent slots per mirror and large radii are expensive. Narrow --radius, or let the local cache serve a repeat query."
+      }
+    ],
+    "when_to_use": "Use this when the task is finding physical things in the world worth going to look at — structures, viewpoints, industrial or architectural subjects — near a place or along a route. It also exposes raw Overpass QL for queries the curated taxonomy does not cover.",
+    "recipes": [
+      {
+        "title": "What is worth shooting near here",
+        "command": "overpass-pp-cli near --at \"Los Angeles\" --type water_tower --radius 25km",
+        "explanation": "Maps the subject name to OSM tags, builds the query, and retries across mirrors."
+      },
+      {
+        "title": "See the tags behind a subject",
+        "command": "overpass-pp-cli types --group industrial",
+        "explanation": "Shows exactly which OpenStreetMap tags each subject type resolves to, so the search is inspectable."
+      },
+      {
+        "title": "Plan a drive around subjects",
+        "command": "overpass-pp-cli route --from \"Los Angeles\" --to \"Palm Springs\" --type water_tower --corridor 12km",
+        "explanation": "Builds a corridor between the two points and finds subjects inside it."
+      },
+      {
+        "title": "Narrow a verbose result payload",
+        "command": "overpass-pp-cli near --at \"Los Angeles\" --type viewpoint --radius 20km --agent --select subjects.name,subjects.latitude,subjects.longitude",
+        "explanation": "Overpass elements carry every OSM tag; --select with dotted paths returns only the fields needed."
+      },
+      {
+        "title": "Export for a map",
+        "command": "overpass-pp-cli geojson --at \"Los Angeles\" --type viewpoint --radius 10km --out spots.geojson",
+        "explanation": "Converts Overpass elements, whose coordinates live in different fields for nodes and ways, into standard GeoJSON."
+      }
+    ],
+    "trigger_phrases": [
+      "what is worth photographing near",
+      "find water towers near me",
+      "brutalist buildings in",
+      "viewpoints around",
+      "what should I shoot on the drive to",
+      "search openstreetmap for",
+      "use subject",
+      "run subject"
+    ]
+  }
+}

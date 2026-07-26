@@ -1,0 +1,9 @@
+{
+  "dir": "\u003ccli-dir\u003e/overpass",
+  "research_dir": "\u003ccli-dir\u003e/20260726-090225",
+  "verdict": "pass",
+  "actors": null,
+  "issues": [
+    "no Apify actor references found, skipping"
+  ]
+}

@@ -1,0 +1,27 @@
+{
+  "manifest_version": "0.3",
+  "name": "overpass-pp-mcp",
+  "display_name": "Overpass",
+  "version": "4.29.0",
+  "description": "Find things worth photographing by name instead of by OpenStreetMap tag, with automatic failover across Overpass mirrors.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/overpass-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/overpass-pp-mcp",
+      "args": []
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

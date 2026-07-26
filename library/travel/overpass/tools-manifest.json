@@ -1,0 +1,71 @@
+{
+  "api_name": "overpass",
+  "base_url": "https://overpass-api.de",
+  "description": "Find things worth photographing by name instead of by OpenStreetMap tag, with automatic failover across Overpass mirrors.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "none"
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "geocoding_search",
+      "description": "Resolve a free-text place name to coordinates using OpenStreetMap's Nominatim geocoder. Required: q, the place name (e.g. 'San Pedro, CA'). Optional: countrycodes to restrict matches to ISO-3166 alpha-2 codes (e.g. 'us,ca'), limit for how many matches to return (default 5), and format (json, jsonv2, or geojson; default json). Returns an array of matches ordered by worldwide relevance, each with lat, lon, a display name, and a bounding box. Keyless, but Nominatim permits only about one request per second. Prefer the `near` and `route` commands when the goal is finding subjects — they geocode internally. Call this first when a place name is ambiguous, then pass the chosen lat/lon to overpass_query.",
+      "method": "GET",
+      "path": "/search",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "q",
+          "type": "string",
+          "location": "query",
+          "description": "Free-text place name, e.g. 'San Pedro, CA'",
+          "required": true
+        },
+        {
+          "name": "format",
+          "type": "string",
+          "location": "query",
+          "description": "Response format"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum matches to return"
+        },
+        {
+          "name": "countrycodes",
+          "type": "string",
+          "location": "query",
+          "description": "Restrict to ISO-3166 alpha-2 codes, comma separated, e.g. us,ca"
+        }
+      ]
+    },
+    {
+      "name": "overpass_query",
+      "description": "Run a raw Overpass QL program against OpenStreetMap and return the matching elements. Required: data, a complete Overpass QL program (e.g. '[out:json][timeout:25];nwr(around:5000,34.05,-118.24)['man_made'='water_tower'];out center 5;'). Returns the Overpass JSON envelope with an elements array; ways and relations carry a center point when the program ends in `out center`. This is the escape hatch for queries the curated subject taxonomy does not cover — prefer the `near`, `route`, and `geojson` commands for ordinary use, since they build correct QL, fail over across mirrors, and cache results. Call geocoding_search first if you have a place name rather than coordinates. Note that Overpass signals overload with an HTTP 200 carrying an HTML page rather than an error status.",
+      "method": "GET",
+      "path": "/api/interpreter",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "data",
+          "type": "string",
+          "location": "query",
+          "description": "An Overpass QL program, e.g. [out:json][timeout:25];nwr(around:5000,34.05,-118.24)['man_made'='water_tower'];out center;",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "overpass_status",
+      "description": "Report one Overpass mirror's current rate-limit budget and running queries. Takes no parameters. Returns plain text, not JSON: the announced endpoint, the rate limit, how many query slots are free right now, and any queries currently running. Useful for checking whether a mirror has capacity before sending an expensive query. Prefer the `mirrors` command when the question is which host to use — it probes every mirror in the failover list concurrently and returns a comparable table; this tool reports on the single configured endpoint.",
+      "method": "GET",
+      "path": "/api/status",
+      "no_auth": true,
+      "params": []
+    }
+  ]
+}

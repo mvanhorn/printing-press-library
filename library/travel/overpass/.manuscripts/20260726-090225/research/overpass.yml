@@ -1,0 +1,71 @@
+openapi: 3.0.0
+info:
+  title: Overpass
+  version: "0.7"
+  description: >-
+    The OpenStreetMap query API. One endpoint driven by Overpass QL, plus the
+    Nominatim geocoder for turning place names into coordinates. Both are
+    keyless. Verified live against four public mirrors on 2026-07-26.
+  contact:
+    name: Overpass API
+    url: https://wiki.openstreetmap.org/wiki/Overpass_API
+  license:
+    name: Open Database License (ODbL)
+    url: https://www.openstreetmap.org/copyright
+security: []
+paths:
+  /api/interpreter:
+    servers: [{url: "https://overpass-api.de"}]
+    get:
+      x-pp-resource: overpass
+      operationId: overpassQuery
+      summary: Run a raw Overpass QL query against OpenStreetMap
+      description: >-
+        The escape hatch. Accepts Overpass QL directly for queries the curated
+        subject taxonomy does not cover. Prefer the `near` command for ordinary
+        use; it builds correct QL, retries across mirrors, and caches results.
+      parameters:
+        - name: data
+          in: query
+          required: true
+          description: >-
+            An Overpass QL program, e.g.
+            [out:json][timeout:25];nwr(around:5000,34.05,-118.24)["man_made"="water_tower"];out center;
+          schema:
+            type: string
+            example: '[out:json][timeout:25];nwr(around:5000,34.05,-118.24)["man_made"="water_tower"];out center 5;'
+      responses:
+        "200":
+          description: Query results
+          content: {application/json: {schema: {type: object}}}
+  /api/status:
+    servers: [{url: "https://overpass-api.de"}]
+    get:
+      x-pp-resource: overpass
+      operationId: overpassStatus
+      summary: Show a mirror's current rate-limit slots and running queries
+      description: >-
+        Returns plain text, not JSON. Useful for seeing whether a mirror has
+        free slots before sending a large query.
+      responses:
+        "200":
+          description: Status text
+          content: {text/plain: {schema: {type: string}}}
+  /search:
+    servers: [{url: "https://nominatim.openstreetmap.org"}]
+    get:
+      x-pp-resource: geocoding
+      operationId: geocodingSearch
+      summary: Resolve a place name to coordinates via Nominatim
+      description: >-
+        Keyless, but Nominatim requires a descriptive User-Agent and permits
+        roughly one request per second.
+      parameters:
+        - {name: q, in: query, required: true, description: "Free-text place name, e.g. \"San Pedro, CA\"", schema: {type: string, example: "San Pedro, CA"}}
+        - {name: format, in: query, description: "Response format", schema: {type: string, enum: [json, jsonv2, geojson], default: json}}
+        - {name: limit, in: query, description: "Maximum matches to return", schema: {type: integer, default: 5}}
+        - {name: countrycodes, in: query, description: "Restrict to ISO-3166 alpha-2 codes, comma separated, e.g. us,ca", schema: {type: string}}
+      responses:
+        "200":
+          description: Matching places
+          content: {application/json: {schema: {type: array, items: {type: object}}}}
