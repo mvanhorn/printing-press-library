@@ -153,6 +153,7 @@ sqlite3 -json "$HOME/.local/share/whoop-pp-cli/data.db" "
     json_extract(data,'$.score.stage_summary.disturbance_count') as disturbance_count
   from activity
   where json_extract(data,'$.score.stage_summary.total_in_bed_time_milli') is not null
+    and score_state = 'SCORED'
     and coalesce(nap, json_extract(data,'$.nap'), 0) = 0
   order by \"end\" desc
   limit 1;
@@ -161,7 +162,7 @@ sqlite3 -json "$HOME/.local/share/whoop-pp-cli/data.db" "
 
 Treat `total_light_sleep_time_milli + total_slow_wave_sleep_time_milli + total_rem_sleep_time_milli` as total asleep time. Convert `start` and `end` to the user's local timezone when summarizing; use `timezone_offset` from the record if present.
 
-Only fall back to `whoop-pp-cli activity get-sleep-collection --limit 5 --data-source live --agent` when the local query returns no rows, the database is missing, or the latest local row is not scored.
+Only fall back to `whoop-pp-cli activity get-sleep-collection --limit 5 --data-source live --agent` when the local query returns no rows or the database is missing.
 
 ## Agent Feedback
 
