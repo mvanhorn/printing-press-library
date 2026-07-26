@@ -1,0 +1,1127 @@
+{
+  "dir": "/Users/rajiv.lokare/printing-press/.runstate/pp-ffeb431e/runs/20260726-221427/working/flipkart-pp-cli",
+  "binary": "/Users/rajiv.lokare/printing-press/.runstate/pp-ffeb431e/runs/20260726-221427/working/flipkart-pp-cli/flipkart-pp-cli",
+  "level": "full",
+  "verdict": "FAIL",
+  "matrix_size": 65,
+  "passed": 64,
+  "failed": 1,
+  "skipped": 53,
+  "commands": [
+    "analytics",
+    "api",
+    "catalog diff",
+    "compare",
+    "deals category",
+    "doctor",
+    "feed category",
+    "feed delta",
+    "feed digest",
+    "feed product",
+    "feed search",
+    "feedback list",
+    "import",
+    "offers best-card",
+    "product get",
+    "product offers",
+    "profile delete",
+    "profile list",
+    "profile save",
+    "profile show",
+    "profile use",
+    "sync",
+    "tail",
+    "watch add",
+    "watch check",
+    "watch digest",
+    "which",
+    "workflow archive",
+    "workflow status"
+  ],
+  "tests": [
+    {
+      "command": "analytics",
+      "kind": "help",
+      "args": [
+        "analytics",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Analyze locally synced data with count, group-by, and summary operations.\nData must be synced first with the sync command.\n\nUsage:\n  flipkart-pp-cli analytics [flags]\n\nExamples:\n  # Count records by type\n  flipkart-pp-cli analytics --type messages\n\n  # Group by a field\n  flipkart-pp-cli analytics --type messages --group-by author_id\n\n  # Top 10 most frequent values\n  flipkart-pp-cli analytics --type messages --group-by channel_id --limit 10 --json\n\nFlags:\n      --db string         Database path\n      --group-by string   Field to group by\n  -h, --help              help for analytics\n      --limit int         Max groups to show (default 25)\n      --type string       Resource type to analyze\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'flipkart-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 30s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "analytics",
+      "kind": "happy_path",
+      "args": [
+        "analytics",
+        "--type",
+        "messages"
+      ],
+      "status": "pass",
+      "output_sample": "messages: 0 records\n"
+    },
+    {
+      "command": "analytics",
+      "kind": "json_fidelity",
+      "args": [
+        "analytics",
+        "--type",
+        "messages",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"count\": 0,\n  \"resource_type\": \"messages\"\n}\n"
+    },
+    {
+      "command": "analytics",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "api",
+      "kind": "help",
+      "args": [
+        "api",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Browse and call any API endpoint using the raw interface names.\n\nThe friendly top-level commands cover the most common operations.\nThis command provides access to ALL endpoints for power users and\nagents that need full API coverage.\n\nRun 'api' with no arguments to list all interfaces.\nRun 'api \u003cinterface\u003e' to see that interface's methods.\n\nUsage:\n  flipkart-pp-cli api [interface] [flags]\n\nExamples:\n  # List all available interfaces\n  flipkart-pp-cli api\n\n  # Show methods for a specific interface\n  flipkart-pp-cli api \u003cinterface-name\u003e\n\nFlags:\n  -h, --help   help for api\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'flipkart-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 30s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "api",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [api] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "api",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [api] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "api",
+      "kind": "error_path",
+      "args": [
+        "api",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "Error: interface \"__printing_press_invalid__\" not found. Run 'flipkart-pp-cli api' to list all interfaces\n"
+    },
+    {
+      "command": "catalog diff",
+      "kind": "help",
+      "args": [
+        "catalog",
+        "diff",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Re-runs the given search query live and compares the ordered result list\nagainst the most recent snapshot stored locally for this exact query\nstring. Honest limitation: this diff is title/URL/position-only — Flipkart's\nsearch results page carries no price data to diff against.\n\nUsage:\n  flipkart-pp-cli catalog diff \u003cquery\u003e [flags]\n\nExamples:\n  flipkart-pp-cli catalog diff \"wireless earbuds\"\n\nFlags:\n  -h, --help   help for diff\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'flipkart-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 30s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "catalog diff",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"query\" at depth 0"
+    },
+    {
+      "command": "catalog diff",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"query\" at depth 0"
+    },
+    {
+      "command": "catalog diff",
+      "kind": "error_path",
+      "args": [
+        "catalog",
+        "diff",
+        "__printing_press_invalid__",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"items\": [\n    {\n      \"position\": 1,\n      \"product_id\": \"PILHHUF4P8N9QEGT\",\n      \"title\": \"Vionexa VIO_706 Printing Blocks\",\n      \"url\": \"https://www.flipkart.com/vionexa-vio-706-printing-blocks/p/itm180c3598449c9?pid=PILHHUF4P8N9QEGT\"\n    },\n    {\n      \"position\": 2,\n      \"product_id\": \"PILHHXWAHUZU55SH\",\n      \"title\": \"Vionexa VIO1130 Printing Blocks\",\n      \"url\": \"https://www.flipkart.com/vionexa-vio1130-printing-blocks/p/itm0a4bf4af0ba73?pid=PILHHXWAHUZU55SH\"\n    },\n    {\n      \"position\": 3,\n      \"product_id\": \"PILHHXWASXPGGU2G\",\n      \"title\": \"Vionexa VIO1166 Printing Blocks\",\n      \"url\": \"https://www.flipkart.com/vionexa-vio1166-printing-blocks/p/itmfa3a4844560b2?pid=PILHHXWASXPGGU2G\"\n    },\n    {\n      \"position\": 4,\n      \"product_id\": \"PILHHUF4GEYNSNTG\",\n      \"title\": \"Vionexa VIO_722 Printing Blocks\",\n      \"url\": \"https://www.flipkart.com/vionexa-vio-722-printing-blocks/p/itm1bc4b804a1ed8?pid=PILHHUF4GEYNSNTG\"\n    },\n    {\n      \"position\": 5,\n      \"product_id\": \"PILHHUF4SXS4HKZT\",\n      \"title\": \"Vionexa VIO_712 Printing Blocks\",\n      \"url\": \"https://www.flipkart.com/vionexa-vio-712-printing-blocks/p/itme019a4402bd2f?pid=PILHHUF4SXS4HKZT\"\n    },\n    {\n      \"position\": 6,\n      \"product_id\": \"PILHPF8XCJ9RXBAR\",\n      \"title\": \"Reniq K-7 200 Printing Blocks\",\n      \"url\": \"https://www.flipkart.com/reniq-k-7-200-printing-blocks/p/itmf35d68db08990?pid=PILHPF8XCJ9RXBAR\"\n    },\n    {\n      \"position\": 7,\n      \"product_id\": \"PILHHJF8Y4P6G8CD\",\n      \"title\": \"ITSY Bitsy Hand Carved Wooden Printing Block Flora Star 3inch Dia 1pc Printing Blocks\",\n      \"url\": \"https://www.flipkart.com/itsy-bitsy-hand-carved-wooden-printing-block-flora-star-3inch-dia-1pc-blocks/p/itm65ce226f0c78f?pid=PILHHJF8Y4P6G8CD\"\n    },\n    {\n      \"position\": 8,\n      \"product_id\": \"PILHKQYPBTQXKTTY\",\n      \"title\": \"As Woodenblock ASWB127 Printing Blocks\",\n      \"url\": \"https://www.flipkart.com/woodenblock-aswb127-printing-blocks/p/itm2ed147ce746e8?pid=PILHKQYPBTQXKTTY\"\n    },\n    {\n      \"position\": 9,\n      \"product_id\": \"PILHFP4MB84SNGZQ\",\n      \"title\": \"HandCarved IK-BLK-SET5-202 Printing Blocks\",\n      \"url\": \"https://www.flipkart.com/handcarved-ik-blk-set5-202-printing-blocks/p/itmbc0933f955d40?pid=PILHFP4MB84SNGZQ\"\n    },\n    {\n      \"position\": 10,\n      \"product_id\": \"PILGWFNMFPSBGYKM\",\n      \"title\": \"jaipurkala D00102 Printing Blocks\",\n      \"url\": \"https://www.flipkart.com/jaipurkala-d00102-printing-blocks/p/itm3d0cd52a802f6?pid=PILGWFNMFPSBGYKM\"\n    },\n    {\n      \"position\": 11,\n      \"product_id\": \"SFFH9E2YHZYJFKHP\",\n      \"title\": \"ARVAN Men Slides\",\n      \"url\": \"https://www.flipkart.com/arvan-men-slides/p/itmc4023f78799d2?pid=SFFH9E2YHZYJFKHP\"\n    },\n    {\n      \"position\": 12,\n      \"product_id\": \"SFFH9E2YY9HCJ7XH\",\n      \"title\": \"ARVAN Men Slides\",\n      \"url\": \"https://www.flipkart.com/arvan-men-slides/p/itm187210ce39c2e?pid=SFFH9E2YY9HCJ7XH\"\n    },\n    {\n      \"position\": 13,\n      \"product_id\": \"PILHFP4MDSZEN7YB\",\n      \"title\": \"HandCarved IK-BLK-SET5-224 Printing Blocks\",\n      \"url\": \"https://www.flipkart.com/handcarved-ik-blk-set5-224-printing-blocks/p/itm1427c05299325?pid=PILHFP4MDSZEN7YB\"\n    },\n    {\n      \"position\": 14,\n      \"product_id\": \"PILH7RGFYHCUWN5D\",\n      \"title\": \"Radiant handicrafts M1404 Printing Blocks\",\n      \"url\": \"https://www.flipkart.com/radiant-handicrafts-m1404-printing-blocks/p/itm6c7a2e9018f90?pid=PILH7RGFYHCUWN5D\"\n    },\n    {\n      \"position\": 15,\n      \"product_id\": \"PILHYVRBGZYXQDFP\",\n      \"title\": \"jaipurkala Wooden printing block 312 Printing Blocks\",\n      \"url\": \"https://www.flipkart.com/jaipurkala-wooden-printing-block-312-blocks/p/itm0fb7d6dbb3c96?pid=PILHYVRBGZYXQDFP\"\n    },\n    {\n      \"position\": 16,\n      \"product_id\": \"PILHFP4MMX8GRVXW\",\n      \"title\": \"HandCarved IK-BLK-SET5-276 Printing Blocks\",\n      \"url\": \"https://www.flipkart.com/handcarved-ik-blk-set5-276-printing-blocks/p/itm9e8fdc6681ea7?pid=PILHFP4MMX8GRVXW\"\n    },\n    {\n      \"position\": 17,\n      \"product_id\": \"SFFH6JYUXUTCNAWX\",\n      \"title\": \"Chupps Men Arc Orthopaedic Ultra Soft Cushion…[truncated]"
+    },
+    {
+      "command": "compare",
+      "kind": "help",
+      "args": [
+        "compare",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Fetches each given product URL and renders a side-by-side comparison. Discount percentage is only shown when a prior 'product offers' run has resolved it for that product locally — otherwise it's left blank rather than guessed.\n\nUsage:\n  flipkart-pp-cli compare \u003curl1\u003e \u003curl2\u003e [url3...] [flags]\n\nExamples:\n  flipkart-pp-cli compare \"https://www.flipkart.com/oppo-a3x-8-gb-ram-128-gb-storage-lake-green/p/itmc050065f36601?pid=MOBH4ZCFEQZFQBFB\" \"https://www.flipkart.com/samsung-galaxy-m06-5g-mint-green-128-gb/p/itmc0501a8c1f5e5?pid=MOBH8QSVDVBRZFNJ\"\n\nFlags:\n  -h, --help   help for compare\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'flipkart-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 30s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "compare",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [compare] has fewer segments than placeholders (2)"
+    },
+    {
+      "command": "compare",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [compare] has fewer segments than placeholders (2)"
+    },
+    {
+      "command": "compare",
+      "kind": "error_path",
+      "args": [
+        "compare",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 2,
+      "output_sample": "Error: compare requires at least 2 product URLs, got 1\nUsage: flipkart-pp-cli compare \u003curl1\u003e \u003curl2\u003e [url3...]\n"
+    },
+    {
+      "command": "deals category",
+      "kind": "help",
+      "args": [
+        "deals",
+        "category",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Calls the official Affiliate Category Feed API, filters to products whose\ndiscountPercentage is at or above --min-discount, and stores matches in the\nlocal generic resources table (resource type \"products\") so they stay\nqueryable afterward via 'analytics --type products'.\n\nRequires FLIPKART_AFFILIATE_ID and FLIPKART_AFFILIATE_TOKEN (or pass\n--tracking-id to override the tracking ID).\n\nUsage:\n  flipkart-pp-cli deals category \u003ccategory\u003e --min-discount \u003cn\u003e [flags]\n\nExamples:\n  flipkart-pp-cli deals category mobiles --min-discount 30\n\nFlags:\n  -h, --help                 help for category\n      --min-discount float   Minimum discount percentage to keep (required)\n      --tracking-id string   Affiliate tracking ID override (defaults to FLIPKART_AFFILIATE_ID)\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'flipkart-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 30s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "deals category",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [deals category] has fewer segments than placeholders (2)"
+    },
+    {
+      "command": "deals category",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [deals category] has fewer segments than placeholders (2)"
+    },
+    {
+      "command": "deals category",
+      "kind": "error_path",
+      "args": [
+        "deals",
+        "category",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 2,
+      "output_sample": "Error: --min-discount is required\nUsage: flipkart-pp-cli deals category \u003ccategory\u003e --min-discount \u003cn\u003e\n"
+    },
+    {
+      "command": "doctor",
+      "kind": "help",
+      "args": [
+        "doctor",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Check CLI health\n\nUsage:\n  flipkart-pp-cli doctor [flags]\n\nExamples:\n  flipkart-pp-cli doctor\n  flipkart-pp-cli doctor --json\n  flipkart-pp-cli doctor --fail-on warn\n\nFlags:\n      --fail-on string   Exit non-zero when a health level is reached: stale, error. Default is never.\n  -h, --help             help for doctor\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'flipkart-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 30s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "doctor",
+      "kind": "happy_path",
+      "args": [
+        "doctor"
+      ],
+      "status": "pass",
+      "output_sample": "  OK Config: ok\n  OK Auth: not required\n  OK API: reachable\n  config_path: /var/folders/8j/n5zp5mb117d70zzdlvm03gpc0000gq/T/printing-press-subprocess-4011002963/.config/flipkart-pp-cli/config.json\n  base_url: https://www.flipkart.com\n  version: 1.0.0\n  INFO Cache: unknown\n    db_path: /var/folders/8j/n5zp5mb117d70zzdlvm03gpc0000gq/T/printing-press-subprocess-4011002963/.local/share/flipkart-pp-cli/data.db\n    schema_version: 2\n    db_bytes: 114688\n    stale_after: 6h0m0s\n    hint: sync_state is empty; run 'flipkart-pp-cli sync' to hydrate.\n"
+    },
+    {
+      "command": "doctor",
+      "kind": "json_fidelity",
+      "args": [
+        "doctor",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"api\": \"reachable\",\n  \"auth\": \"not required\",\n  \"base_url\": \"https://www.flipkart.com\",\n  \"cache\": {\n    \"db_bytes\": 114688,\n    \"db_path\": \"/var/folders/8j/n5zp5mb117d70zzdlvm03gpc0000gq/T/printing-press-subprocess-4011002963/.local/share/flipkart-pp-cli/data.db\",\n    \"hint\": \"sync_state is empty; run 'flipkart-pp-cli sync' to hydrate.\",\n    \"resources\": null,\n    \"schema_version\": 2,\n    \"stale_after\": \"6h0m0s\",\n    \"status\": \"unknown\"\n  },\n  \"config\": \"ok\",\n  \"config_path\": \"/var/folders/8j/n5zp5mb117d70zzdlvm03gpc0000gq/T/printing-press-subprocess-4011002963/.config/flipkart-pp-cli/config.json\",\n  \"tier_env_vars\": {\n    \"affiliate\": \"0/1 set\"\n  },\n  \"version\": \"1.0.0\"\n}\n"
+    },
+    {
+      "command": "doctor",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "feed category",
+      "kind": "help",
+      "args": [
+        "feed",
+        "category",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Fetch the product feed for one category via the official Affiliate API.\n\nUsage:\n  flipkart-pp-cli feed category \u003ctracking_id\u003e \u003ccategory\u003e [flags]\n\nExamples:\n  flipkart-pp-cli feed category 550e8400-e29b-41d4-a716-446655440000 example-value\n\nFlags:\n  -h, --help       help for category\n      --in-stock   Filter to only in-stock products\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'flipkart-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 30s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "feed category",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [feed category] has fewer segments than placeholders (2)"
+    },
+    {
+      "command": "feed category",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [feed category] has fewer segments than placeholders (2)"
+    },
+    {
+      "command": "feed category",
+      "kind": "error_path",
+      "args": [
+        "feed",
+        "category",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 2,
+      "output_sample": "Error: category is required\nUsage: flipkart-pp-cli feed category \u003ccategory\u003e\n"
+    },
+    {
+      "command": "feed delta",
+      "kind": "help",
+      "args": [
+        "feed",
+        "delta",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Fetch only products changed since a given feed version via the official Affiliate API.\n\nUsage:\n  flipkart-pp-cli feed delta \u003ctracking_id\u003e \u003ccategory\u003e \u003cfrom_version\u003e [flags]\n\nExamples:\n  flipkart-pp-cli feed delta 550e8400-e29b-41d4-a716-446655440000 example-value example-value\n\nFlags:\n  -h, --help   help for delta\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'flipkart-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 30s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "feed delta",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [feed delta] has fewer segments than placeholders (3)"
+    },
+    {
+      "command": "feed delta",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [feed delta] has fewer segments than placeholders (3)"
+    },
+    {
+      "command": "feed delta",
+      "kind": "error_path",
+      "args": [
+        "feed",
+        "delta",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 2,
+      "output_sample": "Error: category is required\nUsage: flipkart-pp-cli feed delta \u003ccategory\u003e\n"
+    },
+    {
+      "command": "feed digest",
+      "kind": "help",
+      "args": [
+        "feed",
+        "digest",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Calls the official Affiliate Delta Feed API for a category using the\nlast fromVersion this CLI remembers for it (starting at \"1\" the first\ntime), ranks returned products by |discountPercentage| descending, and\nupdates the stored cursor so the next run only sees what's new.\n\nRequires FLIPKART_AFFILIATE_ID and FLIPKART_AFFILIATE_TOKEN (or pass\n--tracking-id to override the tracking ID).\n\nUsage:\n  flipkart-pp-cli feed digest \u003ccategory\u003e [flags]\n\nExamples:\n  flipkart-pp-cli feed digest mobiles\n\nFlags:\n  -h, --help                 help for digest\n      --tracking-id string   Affiliate tracking ID override (defaults to FLIPKART_AFFILIATE_ID)\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'flipkart-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 30s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "feed digest",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"category\" at depth 0"
+    },
+    {
+      "command": "feed digest",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"category\" at depth 0"
+    },
+    {
+      "command": "feed digest",
+      "kind": "error_path",
+      "args": [
+        "feed",
+        "digest",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 4,
+      "output_sample": "Error: feed digest requires both FLIPKART_AFFILIATE_ID and FLIPKART_AFFILIATE_TOKEN to be set (or pass --tracking-id for the ID)\n"
+    },
+    {
+      "command": "feed product",
+      "kind": "help",
+      "args": [
+        "feed",
+        "product",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Look up a single product by Flipkart product ID via the Affiliate API.\n\nUsage:\n  flipkart-pp-cli feed product \u003cid\u003e [flags]\n\nExamples:\n  flipkart-pp-cli feed product 550e8400-e29b-41d4-a716-446655440000\n\nFlags:\n  -h, --help   help for product\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'flipkart-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 30s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "feed product",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no id parseable from companion at depth 0"
+    },
+    {
+      "command": "feed product",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "no id parseable from companion at depth 0"
+    },
+    {
+      "command": "feed product",
+      "kind": "error_path",
+      "args": [
+        "feed",
+        "product",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 4,
+      "output_sample": "Error: GET /1.0/product.json returned HTTP 401: Invalid Headers\nhint: check your API credentials.\n      See API docs: https://www.flipkart.com\n      Run 'flipkart-pp-cli doctor' to check auth status.\n"
+    },
+    {
+      "command": "feed search",
+      "kind": "help",
+      "args": [
+        "feed",
+        "search",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Search the Affiliate API catalog by keyword.\n\nUsage:\n  flipkart-pp-cli feed search \u003cquery\u003e [flags]\n\nExamples:\n  flipkart-pp-cli feed search example-value\n\nFlags:\n  -h, --help               help for search\n      --result-count int   Number of results to return (max 20) (default 10)\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'flipkart-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 30s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "feed search",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"query\" at depth 0"
+    },
+    {
+      "command": "feed search",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"query\" at depth 0"
+    },
+    {
+      "command": "feed search",
+      "kind": "error_path",
+      "args": [
+        "feed",
+        "search",
+        "__printing_press_invalid__",
+        "--json"
+      ],
+      "status": "pass",
+      "exit_code": 4,
+      "output_sample": "Error: GET /1.0/search.json returned HTTP 401: Invalid Headers\nhint: check your API credentials.\n      See API docs: https://www.flipkart.com\n      Run 'flipkart-pp-cli doctor' to check auth status.\n"
+    },
+    {
+      "command": "feedback list",
+      "kind": "help",
+      "args": [
+        "feedback",
+        "list",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "List recent feedback entries\n\nUsage:\n  flipkart-pp-cli feedback list [flags]\n\nExamples:\n  flipkart-pp-cli feedback list\n  flipkart-pp-cli feedback list --limit 5\n  flipkart-pp-cli feedback list --json\n\nFlags:\n  -h, --help        help for list\n      --limit int   Maximum number of recent entries to return (default 20)\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'flipkart-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 30s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "feedback list",
+      "kind": "happy_path",
+      "args": [
+        "feedback",
+        "list"
+      ],
+      "status": "pass"
+    },
+    {
+      "command": "feedback list",
+      "kind": "json_fidelity",
+      "args": [
+        "feedback",
+        "list",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "[]\n"
+    },
+    {
+      "command": "feedback list",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "import",
+      "kind": "help",
+      "args": [
+        "import",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Import data from a JSONL file by issuing POST requests for each record.\nEach line must be a valid JSON object. Failed records are logged to stderr\nbut do not stop the import.\n\nUsage:\n  flipkart-pp-cli import \u003cresource\u003e [flags]\n\nExamples:\n  # Import from a JSONL file\n  flipkart-pp-cli import \u003cresource\u003e --input data.jsonl\n\n  # Dry-run to preview without sending\n  flipkart-pp-cli import \u003cresource\u003e --input data.jsonl --dry-run\n\n  # Import from stdin\n  cat data.jsonl | flipkart-pp-cli import \u003cresource\u003e --input -\n\nFlags:\n      --batch-size int   Records per batch (future: batch API support) (default 1)\n      --dry-run          Preview import without sending requests\n  -h, --help             help for import\n  -i, --input string     Input JSONL file path (use - for stdin)\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'flipkart-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 30s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "import",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [import] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "import",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [import] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "import",
+      "kind": "error_path",
+      "args": [
+        "import",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 2,
+      "output_sample": "Error: required flag(s) \"input\" not set\n"
+    },
+    {
+      "command": "offers best-card",
+      "kind": "help",
+      "args": [
+        "offers",
+        "best-card",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Resolves fresh bank/card offers for each given product URL, then aggregates total savings per card/description across just this set — useful when deciding which of your cards to use across a multi-item cart.\n\nUsage:\n  flipkart-pp-cli offers best-card \u003curl1\u003e \u003curl2\u003e [url3...] [flags]\n\nExamples:\n  flipkart-pp-cli offers best-card \"https://www.flipkart.com/oppo-a3x-8-gb-ram-128-gb-storage-lake-green/p/itmc050065f36601?pid=MOBH4ZCFEQZFQBFB\" \"https://www.flipkart.com/samsung-galaxy-m06-5g-mint-green-128-gb/p/itmc0501a8c1f5e5?pid=MOBH8QSVDVBRZFNJ\"\n\nFlags:\n  -h, --help   help for best-card\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'flipkart-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 30s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "offers best-card",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [offers best-card] has fewer segments than placeholders (2)"
+    },
+    {
+      "command": "offers best-card",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [offers best-card] has fewer segments than placeholders (2)"
+    },
+    {
+      "command": "offers best-card",
+      "kind": "error_path",
+      "args": [
+        "offers",
+        "best-card",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 2,
+      "output_sample": "Error: offers best-card requires at least 2 product URLs, got 1\nUsage: flipkart-pp-cli offers best-card \u003curl1\u003e \u003curl2\u003e [url3...]\n"
+    },
+    {
+      "command": "product get",
+      "kind": "help",
+      "args": [
+        "product",
+        "get",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Fetches the given Flipkart product URL, extracts title/brand/price/rating/availability from the page's schema.org JSON-LD, stores a snapshot locally, and appends a price-history row.\n\nUsage:\n  flipkart-pp-cli product get \u003cproduct-url\u003e [flags]\n\nExamples:\n  flipkart-pp-cli product get \"https://www.flipkart.com/oppo-a3x-8-gb-ram-128-gb-storage-lake-green/p/itmc050065f36601?pid=MOBH4ZCFEQZFQBFB\"\n\nFlags:\n  -h, --help   help for get\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'flipkart-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 30s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "product get",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"product-url\" at depth 0"
+    },
+    {
+      "command": "product get",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"product-url\" at depth 0"
+    },
+    {
+      "command": "product get",
+      "kind": "error_path",
+      "args": [
+        "product",
+        "get",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 2,
+      "output_sample": "Error: product URL \"__printing_press_invalid__\" has no ?pid=... query parameter; pass the full URL as shown in `catalog` search results\n"
+    },
+    {
+      "command": "product offers",
+      "kind": "help",
+      "args": [
+        "product",
+        "offers",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Fetches the given Flipkart product URL and extracts MRP, discount percentage,\nand bank/card offers from the rendered page (none of these appear in the\npage's schema.org JSON-LD, so they're parsed from visible page text).\n\nUsage:\n  flipkart-pp-cli product offers \u003cproduct-url\u003e [flags]\n\nExamples:\n  flipkart-pp-cli product offers \"https://www.flipkart.com/oppo-a3x-8-gb-ram-128-gb-storage-lake-green/p/itmc050065f36601?pid=MOBH4ZCFEQZFQBFB\"\n\nFlags:\n  -h, --help   help for offers\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'flipkart-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 30s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "product offers",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"product-url\" at depth 0"
+    },
+    {
+      "command": "product offers",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"product-url\" at depth 0"
+    },
+    {
+      "command": "product offers",
+      "kind": "error_path",
+      "args": [
+        "product",
+        "offers",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 2,
+      "output_sample": "Error: product URL \"__printing_press_invalid__\" has no ?pid=... query parameter; pass the full URL as shown in `catalog` search results\n"
+    },
+    {
+      "command": "profile delete",
+      "kind": "help",
+      "args": [
+        "profile",
+        "delete",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Remove a profile\n\nUsage:\n  flipkart-pp-cli profile delete \u003cname\u003e [flags]\n\nExamples:\n  flipkart-pp-cli profile delete my-defaults --yes\n  flipkart-pp-cli profile delete old-profile --yes --json\n\nFlags:\n  -h, --help   help for delete\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'flipkart-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 30s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "profile delete",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile delete",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile delete",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "mutating command; error_path would call live API without --dry-run"
+    },
+    {
+      "command": "profile delete",
+      "kind": "error_path_real",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile list",
+      "kind": "help",
+      "args": [
+        "profile",
+        "list",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "List saved profiles\n\nUsage:\n  flipkart-pp-cli profile list [flags]\n\nExamples:\n  flipkart-pp-cli profile list\n  flipkart-pp-cli profile list --json\n\nFlags:\n  -h, --help   help for list\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'flipkart-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 30s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "profile list",
+      "kind": "happy_path",
+      "args": [
+        "profile",
+        "list"
+      ],
+      "status": "pass",
+      "output_sample": "NAME  FIELDS  DESCRIPTION\n"
+    },
+    {
+      "command": "profile list",
+      "kind": "json_fidelity",
+      "args": [
+        "profile",
+        "list",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "[]\n"
+    },
+    {
+      "command": "profile list",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "profile save",
+      "kind": "help",
+      "args": [
+        "profile",
+        "save",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Captures every flag explicitly set on the invocation and stores\nthem under \u003cname\u003e. To update an existing profile, run save again; the\nentry is replaced.\n\nTo avoid creating empty profiles, at least one non-default flag must be\npresent (other than --profile and --config).\n\nUsage:\n  flipkart-pp-cli profile save \u003cname\u003e [--\u003cflag\u003e \u003cvalue\u003e ...] [flags]\n\nExamples:\n  flipkart-pp-cli profile save my-defaults --json --compact\n  flipkart-pp-cli profile save tonight-defaults --region US\n\nFlags:\n      --description string   Short description shown in 'profile list'\n  -h, --help                 help for save\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'flipkart-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 30s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "profile save",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile save",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile save",
+      "kind": "error_path",
+      "args": [
+        "profile",
+        "save",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "Error: no non-default flags set - pass at least one flag to save into \"__printing_press_invalid__\"\n"
+    },
+    {
+      "command": "profile show",
+      "kind": "help",
+      "args": [
+        "profile",
+        "show",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Show a profile's values as JSON\n\nUsage:\n  flipkart-pp-cli profile show \u003cname\u003e [flags]\n\nExamples:\n  flipkart-pp-cli profile show my-defaults\n  flipkart-pp-cli profile show tonight-defaults --json\n\nFlags:\n  -h, --help   help for show\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'flipkart-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 30s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "profile show",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile show",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile show",
+      "kind": "error_path",
+      "args": [
+        "profile",
+        "show",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "Error: profile \"__printing_press_invalid__\" not found\n"
+    },
+    {
+      "command": "profile use",
+      "kind": "help",
+      "args": [
+        "profile",
+        "use",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Print the flag values a profile will apply (does not execute anything)\n\nUsage:\n  flipkart-pp-cli profile use \u003cname\u003e [flags]\n\nExamples:\n  flipkart-pp-cli profile use my-defaults\n  flipkart-pp-cli profile use tonight-defaults --json\n\nFlags:\n  -h, --help   help for use\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'flipkart-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 30s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "profile use",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile use",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile use",
+      "kind": "error_path",
+      "args": [
+        "profile",
+        "use",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "Error: profile \"__printing_press_invalid__\" not found\n"
+    },
+    {
+      "command": "sync",
+      "kind": "help",
+      "args": [
+        "sync",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Sync data from the API into a local SQLite database. Supports resumable\nincremental sync (only fetches new data since last sync) and full resync.\nOnce synced, use the 'search' command for instant full-text search.\n\nExit codes \u0026 warnings:\n  Resources the API denies access to (HTTP 403, or HTTP 400 with an\n  access-policy body) are reported as warnings rather than failing the\n  run. In --json mode each is emitted as a {\"event\":\"sync_warning\",...}\n  line carrying status, reason, and message fields, and a final\n  {\"event\":\"sync_summary\",...} aggregates the run.\n\n  Exit 0 when at least one resource synced and no resource flagged in\n  the spec as critical (x-critical: true) failed; non-critical failures\n  emit {\"event\":\"sync_warning\",\"reason\":\"exit_policy_default_changed\",\n  ...} so callers can detect that a partial failure was tolerated. Pass\n  --strict to exit non-zero on any per-resource failure. Exit is always\n  non-zero when every selected resource failed, regardless of --strict.\n\nResource scoping:\n  --resources runs the named top-level resources, plus any parent-keyed\n  dependent whose own name is listed OR whose parent table is listed.\n  Naming a parent therefore cascades to its dependents (so \"sync this\n  parent and its children\" works without listing every nested resource\n  by hand). There is no flag today to suppress the cascade for a named\n  parent. To run a dependent without re-syncing its parent, list only\n  the dependent by name; the parent table must already be populated\n  from a prior sync.\n\nUsage:\n  flipkart-pp-cli sync [flags]\n\nExamples:\n  # Sync all resources\n  flipkart-pp-cli sync\n\n  # Sync specific resources only\n  flipkart-pp-cli sync --resources channels,messages\n\n  # Full resync (ignore previous checkpoint)\n  flipkart-pp-cli sync --full\n\n  # Incremental sync: only records from the last 7 days\n  flipkart-pp-cli sync --since 7d\n\n  # Parallel sync with 8 workers\n  flipkart-pp-cli sync --concurrency 8\n\n  # Latest-only: refresh head of each resource, no historical backfill\n  flipkart-pp-cli sync --latest-only\n\nFlags:\n      --concurrency int              Number of parallel sync workers (default 4)\n      --db string                    Database path (default: ~/.local/share/flipkart-pp-cli/data.db)\n      --full                         Full resync (ignore previous checkpoint)\n      --global-param stringArray     Extra query param to inject into every sync request including dependent path-scoped calls (repeatable, key=value). Use when an API requires a scope on every call regardless of path nesting.\n  -h, --help                         help for sync\n      --latest-only                  Refresh head of each resource only; clears resume cursor and caps pages at 1. Mutually exclusive with --since (--since wins).\n      --max-pages int                Maximum pages to fetch per resource (0 = unlimited; cap-hit emits a sync_warning event) (default 100)\n      --param stringArray            Extra query param to inject into flat-list sync requests (repeatable, key=value). Skipped on path-scoped dependent requests so a top-level scope like workspace=\u003cid\u003e does not double up on /parents/\u003cid\u003e/children calls. Use --global-param to inject everywhere. Avoid pagination keys (limit/since/cursor) — overriding them corrupts resume state.\n      --resource-param stringArray   Per-resource extra query param (repeatable, resource:key=value). Wins over --param and --global-param when keys conflict.\n      --resources strings            Comma-separated resource types to sync. Naming a parent also runs its parent-keyed dependents (see Long help for scoping).\n      --since string                 Incremental sync duration (e.g. 7d, 24h, 1w, 30m)\n      --strict                       Exit non-zero on any per-resource failure (default: only critical failures or all-resource failure exit non-zero).\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a …[truncated]"
+    },
+    {
+      "command": "sync",
+      "kind": "happy_path",
+      "args": [
+        "sync"
+      ],
+      "status": "pass",
+      "output_sample": "{\"event\":\"sync_start\",\"resource\":\"catalog\"}\n{\"event\":\"sync_start\",\"resource\":\"feed\"}\n{\"event\":\"sync_error\",\"resource\":\"feed\",\"status\":401,\"method\":\"GET\",\"path\":\"/1.0/search.json\",\"body\":\"Invalid Headers\",\"error\":\"GET /1.0/search.json returned HTTP 401: Invalid Headers\"}\n{\"event\":\"sync_complete\",\"resource\":\"catalog\",\"total\":1,\"duration_ms\":1752}\n{\"event\":\"sync_summary\",\"total_records\":1,\"resources\":2,\"success\":1,\"warned\":0,\"errored\":1,\"duration_ms\":1753}\n{\"event\":\"sync_warning\",\"reason\":\"exit_policy_default_changed\",\"errored\":1,\"message\":\"1 resource(s) failed but exit code is 0 because the new default treats non-critical failures as warnings. Pass --strict to restore the old behavior, or annotate critical resources with x-critical: true. See CHANGELOG.\"}\n"
+    },
+    {
+      "command": "sync",
+      "kind": "json_fidelity",
+      "args": [
+        "sync",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\"event\":\"sync_start\",\"resource\":\"catalog\"}\n{\"event\":\"sync_start\",\"resource\":\"feed\"}\n{\"event\":\"sync_warning\",\"resource\":\"catalog\",\"reason\":\"resource_not_incremental\",\"message\":\"endpoint does not declare a temporal filter parameter; incremental sync has no effect for this resource\"}\n{\"event\":\"sync_complete\",\"resource\":\"catalog\",\"total\":1,\"duration_ms\":552}\n{\"event\":\"sync_error\",\"resource\":\"feed\",\"status\":401,\"method\":\"GET\",\"path\":\"/1.0/search.json\",\"body\":\"Invalid Headers\",\"error\":\"GET /1.0/search.json returned HTTP 401: Invalid Headers\"}\n{\"event\":\"sync_summary\",\"total_records\":1,\"resources\":2,\"success\":1,\"warned\":0,\"errored\":1,\"duration_ms\":1150}\n{\"event\":\"sync_warning\",\"reason\":\"exit_policy_default_changed\",\"errored\":1,\"message\":\"1 resource(s) failed but exit code is 0 because the new default treats non-critical failures as warnings. Pass --strict to restore the old behavior, or annotate critical resources with x-critical: true. See CHANGELOG.\"}\n"
+    },
+    {
+      "command": "sync",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "tail",
+      "kind": "help",
+      "args": [
+        "tail",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Tail streams live data changes by polling the API at configurable intervals.\nEvents are emitted as NDJSON to stdout for piping to other tools.\nGracefully shuts down on SIGTERM/SIGINT.\n\nNote: For APIs with WebSocket or SSE support, a future version will use\nnative streaming instead of polling.\n\nUsage:\n  flipkart-pp-cli tail [resource] [flags]\n\nExamples:\n  # Tail all changes every 10 seconds\n  flipkart-pp-cli tail --interval 10s\n\n  # Tail a specific resource\n  flipkart-pp-cli tail messages --interval 5s\n\n  # Pipe to jq for filtering\n  flipkart-pp-cli tail events --interval 30s | jq 'select(.type == \"error\")'\n\nFlags:\n      --follow              Keep running (set --follow=false for single poll) (default true)\n  -h, --help                help for tail\n      --interval duration   Poll interval (default 10s)\n      --resource string     Resource type to tail\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'flipkart-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 30s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "tail",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [tail] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "tail",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [tail] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "tail",
+      "kind": "error_path",
+      "args": [
+        "tail",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": -1,
+      "output_sample": "Tailing __printing_press_invalid__ every 10s (Ctrl+C to stop)\nwarning: initial fetch failed: GET /__printing_press_invalid__ returned HTTP 404: \u003c!DOCTYPE html\u003e\n\u003chtml\u003e\n\n\u003chead\u003e\n    \u003ctitle\u003eOnline Shopping India Mobile, Cameras, Lifestyle \u0026 more Online @ Flipkart.com\u003c/title\u003e\n    \u003cmeta http-equiv=\"X-UA-Compatible\" content=\"IE=edge\"\u003e\n    \u003cmeta name=\"viewport\" content=\"width=device-width,minimum-scale=1,user-scalable=no\"\u003e\n    \u003cstyle type=\"text/css\"\u003e\n        html,\n        body {\n            font-family: Roboto, Arial, sans-serif;\n            height: 100%;\n            margin: 0;\n        }\n\n        .button {\n            background-color: #2874f0;\n            color: #fff;\n            padding: 10px 20px;\n            text-align: center;\n            box-shadow: 0 2px 4px 0 rgba(0, 0, 0, .2);\n            cursor: pointer;\n            font-size: 16px;\n            margin-top: 25px;\n            border-radius: 2px;\n            text-decoration: none;\n        }\n    \u003c/style\u003e\n\u003c/head\u003e\n\n\u003cbody\u003e\n    \u003cdiv style=\"background-color:#2874f0; height:78px; text-align:center;\"\u003e\n        \u003cdiv style=\"width: 100%; margin: 0 auto; padding-top: 2px; text-align:left;\"\u003e\n            \u003cdiv style=\"margin-top: 15px; text-align: center\"\u003e\n                \u003cimg width=\"149\" src=\"http://img1a.flixcart.com/www/linchpin/fk-cp-zion/img/fk-logo_9fddff.png\" style=\"border: none;\" /\u003e\n            \u003c/div\u003e\n        \u003c/div\u003e\n    \u003c/div\u003e\n    \u003cdiv style=\"text-align: center; font-size: 14px; padding: 20px;\"\u003e\n\n        \u003cdiv\u003e\n            \u003cimg style=\"width: 450px; max-width: 100%;\" src=\"https://img1a.flixcart.com/www/linchpin/fk-cp-zion/img/error-500_f9bbb4.png\"\n                id=\"IMG_3\" alt='' /\u003e\n            \u003cdiv style=\"font-size: 1.3em; padding-top: 10px; margin-bottom: 35px\"\u003eUnfortunately the page you are looking\n                for has been moved or deleted\u003c/div\u003e\n            \u003ca href=\"/\" class=\"button\"\u003eGO TO HOMEPAGE\u003c/a\u003e\n        \u003c/div\u003e\n    \u003c/div\u003e\n\n\u003c/body\u003e\n\n\u003c/html\u003e\nwarning: poll failed: GET /__printing_press_invalid__ returned HTTP 404: \u003c!DOCTYPE html\u003e\n\u003chtml\u003e\n\n\u003chead\u003e\n    \u003ctitle\u003eOnline Shopping India Mobile, Cameras, Lifestyle \u0026 more Online @ Flipkart.com\u003c/title\u003e\n    \u003cmeta http-equiv=\"X-UA-Compatible\" content=\"IE=edge\"\u003e\n    \u003cmeta name=\"viewport\" content=\"width=device-width,minimum-scale=1,user-scalable=no\"\u003e\n    \u003cstyle type=\"text/css\"\u003e\n        html,\n        body {\n            font-family: Roboto, Arial, sans-serif;\n            height: 100%;\n            margin: 0;\n        }\n\n        .button {\n            background-color: #2874f0;\n            color: #fff;\n            padding: 10px 20px;\n            text-align: center;\n            box-shadow: 0 2px 4px 0 rgba(0, 0, 0, .2);\n            cursor: pointer;\n            font-size: 16px;\n            margin-top: 25px;\n            border-radius: 2px;\n            text-decoration: none;\n        }\n    \u003c/style\u003e\n\u003c/head\u003e\n\n\u003cbody\u003e\n    \u003cdiv style=\"background-color:#2874f0; height:78px; text-align:center;\"\u003e\n        \u003cdiv style=\"width: 100%; margin: 0 auto; padding-top: 2px; text-align:left;\"\u003e\n            \u003cdiv style=\"margin-top: 15px; text-align: center\"\u003e\n                \u003cimg width=\"149\" src=\"http://img1a.flixcart.com/www/linchpin/fk-cp-zion/img/fk-logo_9fddff.png\" style=\"border: none;\" /\u003e\n            \u003c/div\u003e\n        \u003c/div\u003e\n    \u003c/div\u003e\n    \u003cdiv style=\"text-align: center; font-size: 14px; padding: 20px;\"\u003e\n\n        \u003cdiv\u003e\n            \u003cimg style=\"width: 450px; max-width: 100%;\" src=\"https://img1a.flixcart.com/www/linchpin/fk-cp-zion/img/error-500_f9bbb4.png\"\n                id=\"IMG_3\" alt='' /\u003e\n            \u003cdiv style=\"font-size: 1.3em; padding-top: 10px; margin-bottom: 35px\"\u003eUnfortunately the page you are looking\n                for has been moved or deleted\u003c/div\u003e\n            \u003ca href=\"/\" class=\"button\"\u003eGO TO HOMEPAGE\u003c/a\u003e\n        \u003c/div\u003e\n    \u003c/div\u003e\n\n\u003c/body\u003e\n\n\u003c/html\u003e\nwarning: poll failed: GET /__printing_press_invalid__ returned HTTP 404: \u003c!DOCTYPE html\u003e\n\u003chtml\u003e\n\n\u003chead\u003e\n    \u003ctitle\u003eOnline Shopping India Mobile, Cameras, Lifestyle \u0026 more Online @ Flipkart.com\u003c/title\u003e\n    \u003cmeta http-equiv=\"X-UA-Compatible\" content=\"IE=edge\"\u003e\n    \u003cmeta name=\"viewport\" content=\"width=device-width,mini…[truncated]"
+    },
+    {
+      "command": "watch add",
+      "kind": "help",
+      "args": [
+        "watch",
+        "add",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Records a product URL and a price threshold locally. Use `watch check` to re-fetch current prices and `watch digest` to see what changed.\n\nUsage:\n  flipkart-pp-cli watch add \u003cproduct-url\u003e [flags]\n\nExamples:\n  flipkart-pp-cli watch add \"https://www.flipkart.com/oppo-a3x-8-gb-ram-128-gb-storage-lake-green/p/itmc050065f36601?pid=MOBH4ZCFEQZFQBFB\" --threshold 15999\n\nFlags:\n  -h, --help              help for add\n      --threshold float   Alert threshold price (required)\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'flipkart-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 30s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "watch add",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"product-url\" at depth 0"
+    },
+    {
+      "command": "watch add",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"product-url\" at depth 0"
+    },
+    {
+      "command": "watch add",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "mutating command; error_path would call live API without --dry-run"
+    },
+    {
+      "command": "watch add",
+      "kind": "error_path_real",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"product-url\" at depth 0"
+    },
+    {
+      "command": "watch check",
+      "kind": "help",
+      "args": [
+        "watch",
+        "check",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Re-fetch current prices for every watched product and flag any at or below threshold.\n\nUsage:\n  flipkart-pp-cli watch check [flags]\n\nExamples:\n  flipkart-pp-cli watch check\n\nFlags:\n  -h, --help   help for check\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'flipkart-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 30s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "watch check",
+      "kind": "happy_path",
+      "args": [
+        "watch",
+        "check"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"message\": \"no watches configured yet. Run 'watch add \\u003cproduct-url\\u003e --threshold \\u003cprice\\u003e' first.\",\n  \"status\": \"no_watches\"\n}\n"
+    },
+    {
+      "command": "watch check",
+      "kind": "json_fidelity",
+      "args": [
+        "watch",
+        "check",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"message\": \"no watches configured yet. Run 'watch add \\u003cproduct-url\\u003e --threshold \\u003cprice\\u003e' first.\",\n  \"status\": \"no_watches\"\n}\n"
+    },
+    {
+      "command": "watch check",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "watch digest",
+      "kind": "help",
+      "args": [
+        "watch",
+        "digest",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Compares the two most recent price observations for every watched product and reports price deltas and threshold crossings. Reads only local data — run 'watch check' first to refresh prices.\n\nUsage:\n  flipkart-pp-cli watch digest [flags]\n\nExamples:\n  flipkart-pp-cli watch digest\n\nFlags:\n  -h, --help   help for digest\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'flipkart-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 30s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "watch digest",
+      "kind": "happy_path",
+      "args": [
+        "watch",
+        "digest"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"message\": \"no watches configured yet. Run 'watch add \\u003cproduct-url\\u003e --threshold \\u003cprice\\u003e' first.\",\n  \"status\": \"no_watches\"\n}\n"
+    },
+    {
+      "command": "watch digest",
+      "kind": "json_fidelity",
+      "args": [
+        "watch",
+        "digest",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"message\": \"no watches configured yet. Run 'watch add \\u003cproduct-url\\u003e --threshold \\u003cprice\\u003e' first.\",\n  \"status\": \"no_watches\"\n}\n"
+    },
+    {
+      "command": "watch digest",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "which",
+      "kind": "help",
+      "args": [
+        "which",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "which resolves a natural-language capability query (for example, \"search messages\" or \"stale tickets\") to the best matching command from this CLI's curated feature index.\n\nExit codes:\n  0  at least one match found\n  2  no confident match - the query did not score against any indexed capability; fall back to '--help' or 'search' if this CLI has one\n\nUsage:\n  flipkart-pp-cli which [query] [flags]\n\nExamples:\n  flipkart-pp-cli which \"stale tickets\"\n  flipkart-pp-cli which \"bottleneck\"\n  flipkart-pp-cli which --limit 1 \"send message\"\n  flipkart-pp-cli which                                # list the full capability index\n\nFlags:\n  -h, --help        help for which\n      --limit int   Maximum number of matches to return (default 3)\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'flipkart-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 30s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "which",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [which] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "which",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [which] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "which",
+      "kind": "error_path",
+      "args": [
+        "which",
+        "__printing_press_invalid__",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"matches\": []\n}\n"
+    },
+    {
+      "command": "workflow archive",
+      "kind": "help",
+      "args": [
+        "workflow",
+        "archive",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Archive fetches all syncable resources from the API and stores them in a\nlocal SQLite database. Supports incremental sync (only new data since last run)\nand full resync. After archiving, use 'search' for instant full-text search.\n\nUsage:\n  flipkart-pp-cli workflow archive [flags]\n\nExamples:\n  # Archive all resources\n  flipkart-pp-cli workflow archive\n\n  # Full re-archive (ignore previous sync state)\n  flipkart-pp-cli workflow archive --full\n\nFlags:\n      --db string   Database path (default: ~/.local/share/flipkart-pp-cli/data.db)\n      --full        Full re-archive (ignore previous sync state)\n  -h, --help        help for archive\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'flipkart-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 30s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "workflow archive",
+      "kind": "happy_path",
+      "args": [
+        "workflow",
+        "archive"
+      ],
+      "status": "pass",
+      "output_sample": "{\"event\":\"sync_start\",\"resource\":\"catalog\"}\n{\"event\":\"sync_warning\",\"resource\":\"catalog\",\"reason\":\"resource_not_incremental\",\"message\":\"endpoint does not declare a temporal filter parameter; incremental sync has no effect for this resource\"}\n{\"event\":\"sync_complete\",\"resource\":\"catalog\",\"total\":1,\"duration_ms\":699}\n{\"event\":\"sync_start\",\"resource\":\"feed\"}\n{\"event\":\"sync_error\",\"resource\":\"feed\",\"status\":401,\"method\":\"GET\",\"path\":\"/1.0/search.json\",\"body\":\"Invalid Headers\",\"error\":\"GET /1.0/search.json returned HTTP 401: Invalid Headers\"}\nArchived 1 items across 2 resources to /var/folders/8j/n5zp5mb117d70zzdlvm03gpc0000gq/T/printing-press-subprocess-4011002963/.local/share/flipkart-pp-cli/data.db\n  catalog: 1 synced\n  feed: error: fetching feed: GET /1.0/search.json returned HTTP 401: Invalid Headers\n"
+    },
+    {
+      "command": "workflow archive",
+      "kind": "json_fidelity",
+      "args": [
+        "workflow",
+        "archive",
+        "--json"
+      ],
+      "status": "fail",
+      "reason": "invalid JSON",
+      "output_sample": "{\"event\":\"sync_start\",\"resource\":\"catalog\"}\n{\"event\":\"sync_warning\",\"resource\":\"catalog\",\"reason\":\"resource_not_incremental\",\"message\":\"endpoint does not declare a temporal filter parameter; incremental sync has no effect for this resource\"}\n{\"event\":\"sync_complete\",\"resource\":\"catalog\",\"total\":1,\"duration_ms\":706}\n{\"event\":\"sync_start\",\"resource\":\"feed\"}\n{\"event\":\"sync_error\",\"resource\":\"feed\",\"status\":401,\"method\":\"GET\",\"path\":\"/1.0/search.json\",\"body\":\"Invalid Headers\",\"error\":\"GET /1.0/search.json returned HTTP 401: Invalid Headers\"}\n{\n  \"resources_synced\": 2,\n  \"store_path\": \"/var/folders/8j/n5zp5mb117d70zzdlvm03gpc0000gq/T/printing-press-subprocess-4011002963/.local/share/flipkart-pp-cli/data.db\",\n  \"timestamp\": \"2026-07-26T17:47:18Z\",\n  \"total_items\": 1\n}\n  catalog: 1 synced\n  feed: error: fetching feed: GET /1.0/search.json returned HTTP 401: Invalid Headers\n"
+    },
+    {
+      "command": "workflow archive",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "workflow status",
+      "kind": "help",
+      "args": [
+        "workflow",
+        "status",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Show local archive status and sync state for all resources\n\nUsage:\n  flipkart-pp-cli workflow status [flags]\n\nExamples:\n  # Show archive status\n  flipkart-pp-cli workflow status\n\n  # Show status as JSON\n  flipkart-pp-cli workflow status --json\n\nFlags:\n      --db string   Database path\n  -h, --help        help for status\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --json                    Output as JSON\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'flipkart-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable, default 2 for sniffed APIs) (default 2)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 30s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "workflow status",
+      "kind": "happy_path",
+      "args": [
+        "workflow",
+        "status"
+      ],
+      "status": "pass",
+      "output_sample": "Archive Status:\n  catalog                        1 items\n\n  Total: 1 items\n  Store: /var/folders/8j/n5zp5mb117d70zzdlvm03gpc0000gq/T/printing-press-subprocess-4011002963/.local/share/flipkart-pp-cli/data.db\n"
+    },
+    {
+      "command": "workflow status",
+      "kind": "json_fidelity",
+      "args": [
+        "workflow",
+        "status",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"catalog\": 1\n}\n"
+    },
+    {
+      "command": "workflow status",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    }
+  ],
+  "ran_at": "2026-07-26T17:46:40.200264Z"
+}
+Error: live dogfood failed: 1/65 tests failed
+live dogfood failed: 1/65 tests failed

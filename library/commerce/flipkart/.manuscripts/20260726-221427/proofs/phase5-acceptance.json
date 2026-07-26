@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "api_name": "flipkart",
+  "cli_name": "flipkart-pp-cli",
+  "run_id": "20260726-221427",
+  "status": "fail",
+  "level": "full",
+  "matrix_size": 65,
+  "tests_total": 65,
+  "tests_passed": 64,
+  "tests_skipped": 0,
+  "tests_failed": 1,
+  "completed_at": "2026-07-26T17:47:18Z",
+  "summary": "64/65 live mechanical checks passed. The 1 failure is `sync` attempting to sync the optional 'feed' (Affiliate API) resource with no FLIPKART_AFFILIATE_ID/FLIPKART_AFFILIATE_TOKEN configured (no affiliate account was available in this session to test the credentialed path) — verified by hand that `sync` actually exits 0 and reports this as a non-fatal warning ('exit_policy_default_changed': non-critical resource failures are warnings, not hard failures), so the dogfood harness's classification of this as a failed test is stricter than the CLI's actual (correct) runtime contract. All no-auth flagship commands (catalog search, product get, product offers, compare, watch add/check/digest, catalog diff, offers best-card) were independently hand-verified against live Flipkart data with correct output. feed digest and deals category (the two commands that require affiliate credentials) correctly return an actionable error naming both required env vars when credentials are absent — this could not be tested against the real credentialed path in this session.",
+  "auth_context": {
+    "type": "none",
+    "api_key_available": false,
+    "browser_session_available": false
+  }
+}

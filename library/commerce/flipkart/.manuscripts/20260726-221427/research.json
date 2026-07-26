@@ -1,0 +1,268 @@
+{
+  "api_name": "flipkart",
+  "novelty_score": 0,
+  "alternatives": [
+    {
+      "name": "flipkart-scraper (dvishal485, Rust)",
+      "url": "https://github.com/dvishal485/flipkart-scraper",
+      "language": "Rust",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 2,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "flipkart-scraper (mdvenukumar)",
+      "url": "https://github.com/mdvenukumar/flipkart-scraper",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 1,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "flipkart-scraper (atharao)",
+      "url": "https://github.com/atharao/flipkart-scraper",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 1,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "Web_Scraping_Flipkart_Product_Data",
+      "url": "https://github.com/Sunil-nith/Web_Scraping_Flipkart_Product_Data",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 1,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "Flipkart-Price-Tracker (muhammedashharps)",
+      "url": "https://github.com/muhammedashharps/Flipkart-Price-Tracker",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 1,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "PriceTrackerBot (nuhmanpk)",
+      "url": "https://github.com/nuhmanpk/PriceTrackerBot",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 1,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "flipkart-affiliate-client",
+      "url": "https://www.npmjs.com/package/flipkart-affiliate-client",
+      "language": "JavaScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 4,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-07-26T22:14:27Z",
+  "novel_features": [
+    {
+      "name": "Watchlist Digest",
+      "command": "watch digest",
+      "description": "See everything that changed across your whole watchlist since you last checked — price drops, new offers, stock changes — in one command.",
+      "rationale": "Flipkart has no server-side watchlist or change-digest; this only exists because every watched product's price history is persisted locally.",
+      "example": "flipkart-pp-cli watch digest --json",
+      "why_it_matters": "Reach for this instead of re-checking N product pages by hand — it answers 'what changed' in one call.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Multi-Product Compare",
+      "command": "compare",
+      "description": "Line up 2 or more products side by side — price, rating, discount, key specs — in one table instead of copy-pasting across tabs.",
+      "rationale": "Requires fetching N product-detail records and computing a unified diff — no single Flipkart page or API call does this.",
+      "example": "flipkart-pp-cli compare \"https://www.flipkart.com/oppo-a3x-8-gb-ram-128-gb-storage-lake-green/p/itmc050065f36601?pid=MOBH4ZCFEQZFQBFB\" \"https://www.flipkart.com/samsung-galaxy-m06-5g-mint-green-128-gb/p/itmc0501a8c1f5e5?pid=MOBH8QSVDVBRZFNJ\" --json",
+      "why_it_matters": "Use when deciding between a shortlist of similar products rather than fetching each individually.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Feed Digest With Auto Cursor",
+      "command": "feed digest",
+      "description": "Pull the official Delta Feed API without manually tracking the last fromVersion — the CLI remembers it — and see deltas ranked by discount-percentage change.",
+      "rationale": "The raw Delta Feed API requires manual version bookkeeping and returns unranked deltas; this persists the cursor locally and ranks the output.",
+      "example": "flipkart-pp-cli feed digest electronics --json",
+      "why_it_matters": "Use for a weekly affiliate-catalog refresh instead of hand-tracking version numbers across runs.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Saved-Search Diff",
+      "command": "catalog diff",
+      "description": "Re-run a saved search and see exactly what's new, removed, or price-changed since the last time you ran it.",
+      "rationale": "Diffs two timestamped snapshots of the same query stored locally — a temporal join the live search endpoint cannot express in one call.",
+      "example": "flipkart-pp-cli catalog diff \"wireless earbuds\" --json",
+      "why_it_matters": "Use to track a category of interest over time without hand-comparing result pages.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Category Deal Scanner",
+      "command": "deals category",
+      "description": "Scan an entire category for products above a discount threshold, and keep the results queryable offline afterward.",
+      "rationale": "Persists category matches locally so the scan compounds into a reusable local dataset instead of a one-shot filtered print.",
+      "example": "flipkart-pp-cli deals category electronics --min-discount 40 --json",
+      "why_it_matters": "Use during sale windows to shortlist deals once, then re-query them offline without re-hitting the API.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Best-Card Arbitrage",
+      "command": "offers best-card",
+      "description": "Across a set of products you're considering, find the single bank card that maximizes your total stacked savings.",
+      "rationale": "Aggregates the local offers table across a product set — a computation no per-product offer listing performs.",
+      "example": "flipkart-pp-cli offers best-card \"https://www.flipkart.com/oppo-a3x-8-gb-ram-128-gb-storage-lake-green/p/itmc050065f36601?pid=MOBH4ZCFEQZFQBFB\" \"https://www.flipkart.com/samsung-galaxy-m06-5g-mint-green-128-gb/p/itmc0501a8c1f5e5?pid=MOBH8QSVDVBRZFNJ\" --json",
+      "why_it_matters": "Use before checkout when weighing which of your cards to use across a multi-item cart.",
+      "group": "Local state that compounds"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Watchlist Digest",
+      "command": "watch digest",
+      "description": "See everything that changed across your whole watchlist since you last checked — price drops, new offers, stock changes — in one command.",
+      "rationale": "Flipkart has no server-side watchlist or change-digest; this only exists because every watched product's price history is persisted locally.",
+      "example": "flipkart-pp-cli watch digest --json",
+      "why_it_matters": "Reach for this instead of re-checking N product pages by hand — it answers 'what changed' in one call.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Multi-Product Compare",
+      "command": "compare",
+      "description": "Line up 2 or more products side by side — price, rating, discount, key specs — in one table instead of copy-pasting across tabs.",
+      "rationale": "Requires fetching N product-detail records and computing a unified diff — no single Flipkart page or API call does this.",
+      "example": "flipkart-pp-cli compare \"https://www.flipkart.com/oppo-a3x-8-gb-ram-128-gb-storage-lake-green/p/itmc050065f36601?pid=MOBH4ZCFEQZFQBFB\" \"https://www.flipkart.com/samsung-galaxy-m06-5g-mint-green-128-gb/p/itmc0501a8c1f5e5?pid=MOBH8QSVDVBRZFNJ\" --json",
+      "why_it_matters": "Use when deciding between a shortlist of similar products rather than fetching each individually.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Feed Digest With Auto Cursor",
+      "command": "feed digest",
+      "description": "Pull the official Delta Feed API without manually tracking the last fromVersion — the CLI remembers it — and see deltas ranked by discount-percentage change.",
+      "rationale": "The raw Delta Feed API requires manual version bookkeeping and returns unranked deltas; this persists the cursor locally and ranks the output.",
+      "example": "flipkart-pp-cli feed digest electronics --json",
+      "why_it_matters": "Use for a weekly affiliate-catalog refresh instead of hand-tracking version numbers across runs.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Saved-Search Diff",
+      "command": "catalog diff",
+      "description": "Re-run a saved search and see exactly what's new, removed, or price-changed since the last time you ran it.",
+      "rationale": "Diffs two timestamped snapshots of the same query stored locally — a temporal join the live search endpoint cannot express in one call.",
+      "example": "flipkart-pp-cli catalog diff \"wireless earbuds\" --json",
+      "why_it_matters": "Use to track a category of interest over time without hand-comparing result pages.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Category Deal Scanner",
+      "command": "deals category",
+      "description": "Scan an entire category for products above a discount threshold, and keep the results queryable offline afterward.",
+      "rationale": "Persists category matches locally so the scan compounds into a reusable local dataset instead of a one-shot filtered print.",
+      "example": "flipkart-pp-cli deals category electronics --min-discount 40 --json",
+      "why_it_matters": "Use during sale windows to shortlist deals once, then re-query them offline without re-hitting the API.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Best-Card Arbitrage",
+      "command": "offers best-card",
+      "description": "Across a set of products you're considering, find the single bank card that maximizes your total stacked savings.",
+      "rationale": "Aggregates the local offers table across a product set — a computation no per-product offer listing performs.",
+      "example": "flipkart-pp-cli offers best-card \"https://www.flipkart.com/oppo-a3x-8-gb-ram-128-gb-storage-lake-green/p/itmc050065f36601?pid=MOBH4ZCFEQZFQBFB\" \"https://www.flipkart.com/samsung-galaxy-m06-5g-mint-green-128-gb/p/itmc0501a8c1f5e5?pid=MOBH8QSVDVBRZFNJ\" --json",
+      "why_it_matters": "Use before checkout when weighing which of your cards to use across a multi-item cart.",
+      "group": "Local state that compounds"
+    }
+  ],
+  "narrative": {
+    "display_name": "Flipkart",
+    "headline": "Every Flipkart scraper's features, plus a local price-history and deal-tracking layer no single-shot script can offer.",
+    "value_prop": "Search, product detail, and the official Affiliate API in one consistent schema — with local SQLite turning every fetch into price history, watchlist digests, and cross-product deal arbitrage.",
+    "auth_narrative": "No login required for search and product lookup — the CLI replays browser-sniffed direct-HTTP requests against the public site. Users with an approved Flipkart Affiliate account can additionally set FLIPKART_AFFILIATE_ID and FLIPKART_AFFILIATE_TOKEN to unlock the official category/delta feed endpoints.",
+    "quickstart": [
+      {
+        "command": "flipkart-pp-cli catalog \"wireless earbuds\" --page 1",
+        "comment": "Start with a keyword search — no auth needed."
+      },
+      {
+        "command": "flipkart-pp-cli product get \u003cproduct-url\u003e",
+        "comment": "Pull full detail on one result; this also records a price-history snapshot."
+      },
+      {
+        "command": "flipkart-pp-cli watch add \u003cproduct-url\u003e --threshold 1999",
+        "comment": "Track a product so future syncs build a price history."
+      },
+      {
+        "command": "flipkart-pp-cli sync",
+        "comment": "Refresh watched products and update local price history."
+      },
+      {
+        "command": "flipkart-pp-cli watch digest",
+        "comment": "See everything that changed across your watchlist since last check."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "search or product get returns an HTTP 403 or empty result",
+        "fix": "Flipkart's anti-bot detection may be triggering; run 'flipkart-pp-cli doctor' to check transport health, and retry after a short delay."
+      },
+      {
+        "symptom": "feed/delta feed commands fail with an auth error",
+        "fix": "Set FLIPKART_AFFILIATE_ID and FLIPKART_AFFILIATE_TOKEN — these require an approved Flipkart Affiliate account, separate from normal search/product commands."
+      }
+    ],
+    "when_to_use": "Reach for this CLI when comparison-shopping on Flipkart, tracking prices toward a target before a sale, or running an affiliate catalog refresh. Not for personal order history or account management — Flipkart exposes no API for that.",
+    "recipes": [
+      {
+        "title": "Track a product toward a target price",
+        "command": "flipkart-pp-cli watch add \u003curl\u003e --threshold 25000 \u0026\u0026 flipkart-pp-cli sync \u0026\u0026 flipkart-pp-cli watch digest",
+        "explanation": "Adds a watch, refreshes it, then shows what changed — the core price-tracking loop."
+      },
+      {
+        "title": "Compare a shortlist before buying",
+        "command": "flipkart-pp-cli compare \u003curl1\u003e \u003curl2\u003e \u003curl3\u003e --json --select products.title,products.price,products.rating",
+        "explanation": "Narrows a side-by-side compare to just the fields that matter, keeping agent context small."
+      },
+      {
+        "title": "Find the best card for a multi-item cart",
+        "command": "flipkart-pp-cli offers best-card \u003curl1\u003e \u003curl2\u003e",
+        "explanation": "Aggregates bank/card offers across items to surface the single card with the highest total stacked savings."
+      },
+      {
+        "title": "Weekly affiliate catalog refresh",
+        "command": "flipkart-pp-cli feed digest electronics --json",
+        "explanation": "Pulls only what changed since the last run, ranked by discount-percentage change, without manual version tracking."
+      }
+    ],
+    "trigger_phrases": [
+      "find me the best price on Flipkart",
+      "track this Flipkart product's price",
+      "compare these Flipkart products",
+      "check Flipkart deals in electronics",
+      "use flipkart-cli",
+      "run flipkart-pp-cli"
+    ]
+  }
+}

@@ -1,0 +1,45 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-07-26T22:14:27Z",
+  "printing_press_version": "4.9.0",
+  "api_name": "flipkart",
+  "cli_name": "flipkart-pp-cli",
+  "printer": "urbanlotusai",
+  "printer_name": "Rajiv Lokare",
+  "run_id": "20260726-221427",
+  "category": "commerce",
+  "description": "Search, track prices, and compare products on Flipkart from the terminal.",
+  "novel_features": [
+    {
+      "name": "Watchlist Digest",
+      "command": "watch digest",
+      "description": "See everything that changed across your whole watchlist since you last checked — price drops, new offers, stock changes — in one command."
+    },
+    {
+      "name": "Multi-Product Compare",
+      "command": "compare",
+      "description": "Line up 2 or more products side by side — price, rating, discount, key specs — in one table instead of copy-pasting across tabs."
+    },
+    {
+      "name": "Feed Digest With Auto Cursor",
+      "command": "feed digest",
+      "description": "Pull the official Delta Feed API without manually tracking the last fromVersion — the CLI remembers it — and see deltas ranked by discount-percentage change."
+    },
+    {
+      "name": "Saved-Search Diff",
+      "command": "catalog diff",
+      "description": "Re-run a saved search and see exactly what's new, removed, or price-changed since the last time you ran it."
+    },
+    {
+      "name": "Category Deal Scanner",
+      "command": "deals category",
+      "description": "Scan an entire category for products above a discount threshold, and keep the results queryable offline afterward."
+    },
+    {
+      "name": "Best-Card Arbitrage",
+      "command": "offers best-card",
+      "description": "Across a set of products you're considering, find the single bank card that maximizes your total stacked savings."
+    }
+  ],
+  "spec_source": "sniffed"
+}
