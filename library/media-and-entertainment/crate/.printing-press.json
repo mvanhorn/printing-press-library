@@ -1,0 +1,61 @@
+{
+  "schema_version": 2,
+  "generated_at": "2026-07-26T15:58:52.094123Z",
+  "printing_press_version": "4.29.0",
+  "api_name": "crate",
+  "display_name": "Discogs",
+  "cli_name": "crate-pp-cli",
+  "creator": {
+    "handle": "justinwfu",
+    "name": "justinwfu"
+  },
+  "owner": "justinwfu",
+  "printer": "justinwfu",
+  "printer_name": "justinwfu",
+  "spec_path": "discogs.yml",
+  "spec_format": "openapi3",
+  "spec_checksum": "sha256:4b109bce2ad6c2d5d018544c826664b17cd0a892790d78eda3d5a33f2972912b",
+  "run_id": "20260726-083711",
+  "category": "media-and-entertainment",
+  "description": "Your record collection as a local database: pick tonight's record, subtract your shelf from a crate-digging search, and price your wantlist without a token.",
+  "mcp_binary": "crate-pp-mcp",
+  "mcp_tool_count": 16,
+  "mcp_public_tool_count": 16,
+  "mcp_ready": "full",
+  "api_version": "2.0",
+  "auth_type": "none",
+  "endpoint_template_vars": [
+    "artist_id",
+    "folder_id",
+    "label_id",
+    "master_id",
+    "username"
+  ],
+  "novel_features": [
+    {
+      "name": "Pick tonight's record",
+      "command": "spin",
+      "description": "Chooses a record off your own shelf to play tonight, with filters for genre, decade, or label, and says why it picked that one."
+    },
+    {
+      "name": "Crate-dig before the shop",
+      "command": "dig",
+      "description": "Given a label, genre, style, or year, lists records matching it that you do NOT already own."
+    },
+    {
+      "name": "Collection price floor",
+      "command": "floor",
+      "description": "Totals the lowest current asking price across your collection, stated explicitly as a floor rather than an appraisal."
+    },
+    {
+      "name": "Wantlist deal check",
+      "command": "deals",
+      "description": "Cross-references your wantlist against current marketplace listings to show which wanted records are cheap and available right now."
+    },
+    {
+      "name": "Shelf shape",
+      "command": "shelf",
+      "description": "Breaks your collection down by decade, genre, style, label, and format to show what you actually collect."
+    }
+  ]
+}

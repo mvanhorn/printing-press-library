@@ -1,0 +1,66 @@
+{
+  "manifest_version": "0.3",
+  "name": "crate-pp-mcp",
+  "display_name": "Discogs",
+  "version": "4.29.0",
+  "description": "Your record collection as a local database: pick tonight's record, subtract your shelf from a crate-digging search, and price your wantlist without a token.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/crate-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/crate-pp-mcp",
+      "args": [],
+      "env": {
+        "CRATE_ARTIST_ID": "${user_config.crate_artist_id}",
+        "CRATE_FOLDER_ID": "${user_config.crate_folder_id}",
+        "CRATE_LABEL_ID": "${user_config.crate_label_id}",
+        "CRATE_MASTER_ID": "${user_config.crate_master_id}",
+        "CRATE_USERNAME": "${user_config.crate_username}"
+      }
+    }
+  },
+  "user_config": {
+    "crate_artist_id": {
+      "type": "string",
+      "title": "CRATE_ARTIST_ID",
+      "description": "Sets CRATE_ARTIST_ID for the endpoint template variable {artist_id}.",
+      "required": true
+    },
+    "crate_folder_id": {
+      "type": "string",
+      "title": "CRATE_FOLDER_ID",
+      "description": "Sets CRATE_FOLDER_ID for the endpoint template variable {folder_id}.",
+      "required": true
+    },
+    "crate_label_id": {
+      "type": "string",
+      "title": "CRATE_LABEL_ID",
+      "description": "Sets CRATE_LABEL_ID for the endpoint template variable {label_id}.",
+      "required": true
+    },
+    "crate_master_id": {
+      "type": "string",
+      "title": "CRATE_MASTER_ID",
+      "description": "Sets CRATE_MASTER_ID for the endpoint template variable {master_id}.",
+      "required": true
+    },
+    "crate_username": {
+      "type": "string",
+      "title": "CRATE_USERNAME",
+      "description": "Sets CRATE_USERNAME for the endpoint template variable {username}.",
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

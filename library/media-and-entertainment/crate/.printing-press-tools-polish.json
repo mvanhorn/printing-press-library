@@ -1,0 +1,22 @@
+{
+  "timestamp": "2026-07-26T18:51:25.106699Z",
+  "cli_dir": "\u003ccli-dir\u003e/crate",
+  "findings": [
+    {
+      "kind": "thin-short",
+      "command": "list",
+      "file": "teach.go",
+      "line": 692,
+      "evidence": "List recorded learnings",
+      "status": "accepted",
+      "note": "DO-NOT-EDIT generated file (internal/cli/teach.go, learnings-framework command); a hand-edit here is wiped on the next regen. The Short is also brief-but-precise for its scope. Needs a generator-template fix to name the --query/--warnings/--min-confidence filters."
+    }
+  ],
+  "scorecard_before": {
+    "mcp_description_quality": 10,
+    "captured": "2026-07-26T18:40:07.138214Z"
+  },
+  "progress": {
+    "last_processed_finding_id": "thin-short:list:teach.go:692"
+  }
+}

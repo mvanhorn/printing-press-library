@@ -1,0 +1,232 @@
+{
+  "api_name": "crate",
+  "novelty_score": 0,
+  "alternatives": [
+    {
+      "name": "discogs-client (python)",
+      "url": "https://github.com/joalla/discogs_client",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 12,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "disconnect",
+      "url": "https://github.com/bartve/disconnect",
+      "language": "JavaScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 10,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "discogs-mcp-server",
+      "url": "https://github.com/cswkim/discogs-mcp-server",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 8,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "go-discogs",
+      "url": "https://github.com/irlndts/go-discogs",
+      "language": "Go",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 7,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-07-26T15:37:00Z",
+  "novel_features": [
+    {
+      "name": "Pick tonight's record",
+      "command": "spin",
+      "description": "Chooses a record off your own shelf to play tonight, with filters for genre, decade, or label, and says why it picked that one.",
+      "rationale": "Runs against the locally synced collection, so it can weight by what you have not rated or played recently. A stateless API wrapper has no memory of your shelf to choose from.",
+      "example": "crate-pp-cli spin --user example --genre Rock",
+      "why_it_matters": "Reach for this when someone wants something to listen to from records they already own, rather than a recommendation to buy.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Crate-dig before the shop",
+      "command": "dig",
+      "description": "Given a label, genre, style, or year, lists records matching it that you do NOT already own.",
+      "rationale": "A set difference between a live Discogs query and your synced collection. Neither the API nor any wrapper can subtract your shelf from a search result.",
+      "example": "crate-pp-cli dig --user example --label \"Blue Note\" --limit 10",
+      "why_it_matters": "Reach for this before someone goes record shopping, or when they ask what to look for from a label or genre.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Collection price floor",
+      "command": "floor",
+      "description": "Totals the lowest current asking price across your collection, stated explicitly as a floor rather than an appraisal.",
+      "rationale": "Discogs' own valuation endpoint requires a token; this reconstructs a floor keylessly from per-release marketplace stats, caching results so the 25-per-minute limit is survivable.",
+      "example": "crate-pp-cli floor --user example --limit 5",
+      "why_it_matters": "Reach for this when someone asks what their records are worth, but report it as a floor on asking prices, never as a valuation.",
+      "group": "Honest pricing"
+    },
+    {
+      "name": "Wantlist deal check",
+      "command": "deals",
+      "description": "Cross-references your wantlist against current marketplace listings to show which wanted records are cheap and available right now.",
+      "rationale": "Joins two endpoints against personal state. The wantlist alone says what you want; marketplace stats alone say what things cost. Only the join answers what to buy today.",
+      "example": "crate-pp-cli deals --user <username> --under 20 --limit 3",
+      "why_it_matters": "Reach for this when someone asks what to buy now, or wants their wantlist prioritised by price and availability.",
+      "group": "Honest pricing"
+    },
+    {
+      "name": "Shelf shape",
+      "command": "shelf",
+      "description": "Breaks your collection down by decade, genre, style, label, and format to show what you actually collect.",
+      "rationale": "Aggregations over the full local collection. The API returns one page at a time and computes nothing across pages.",
+      "example": "crate-pp-cli shelf --user example --by decade",
+      "why_it_matters": "Reach for this for questions about collecting patterns, blind spots, or how a collection has changed over time.",
+      "group": "Local state that compounds"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Pick tonight's record",
+      "command": "spin",
+      "description": "Chooses a record off your own shelf to play tonight, with filters for genre, decade, or label, and says why it picked that one.",
+      "rationale": "Runs against the locally synced collection, so it can weight by what you have not rated or played recently. A stateless API wrapper has no memory of your shelf to choose from.",
+      "example": "crate-pp-cli spin --user example --genre Rock",
+      "why_it_matters": "Reach for this when someone wants something to listen to from records they already own, rather than a recommendation to buy.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Crate-dig before the shop",
+      "command": "dig",
+      "description": "Given a label, genre, style, or year, lists records matching it that you do NOT already own.",
+      "rationale": "A set difference between a live Discogs query and your synced collection. Neither the API nor any wrapper can subtract your shelf from a search result.",
+      "example": "crate-pp-cli dig --user example --label \"Blue Note\" --limit 10",
+      "why_it_matters": "Reach for this before someone goes record shopping, or when they ask what to look for from a label or genre.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Collection price floor",
+      "command": "floor",
+      "description": "Totals the lowest current asking price across your collection, stated explicitly as a floor rather than an appraisal.",
+      "rationale": "Discogs' own valuation endpoint requires a token; this reconstructs a floor keylessly from per-release marketplace stats, caching results so the 25-per-minute limit is survivable.",
+      "example": "crate-pp-cli floor --user example --limit 5",
+      "why_it_matters": "Reach for this when someone asks what their records are worth, but report it as a floor on asking prices, never as a valuation.",
+      "group": "Honest pricing"
+    },
+    {
+      "name": "Wantlist deal check",
+      "command": "deals",
+      "description": "Cross-references your wantlist against current marketplace listings to show which wanted records are cheap and available right now.",
+      "rationale": "Joins two endpoints against personal state. The wantlist alone says what you want; marketplace stats alone say what things cost. Only the join answers what to buy today.",
+      "example": "crate-pp-cli deals --user <username> --under 20 --limit 3",
+      "why_it_matters": "Reach for this when someone asks what to buy now, or wants their wantlist prioritised by price and availability.",
+      "group": "Honest pricing"
+    },
+    {
+      "name": "Shelf shape",
+      "command": "shelf",
+      "description": "Breaks your collection down by decade, genre, style, label, and format to show what you actually collect.",
+      "rationale": "Aggregations over the full local collection. The API returns one page at a time and computes nothing across pages.",
+      "example": "crate-pp-cli shelf --user example --by decade",
+      "why_it_matters": "Reach for this for questions about collecting patterns, blind spots, or how a collection has changed over time.",
+      "group": "Local state that compounds"
+    }
+  ],
+  "narrative": {
+    "display_name": "Discogs",
+    "headline": "Your record collection as a local database: pick tonight's record, subtract your shelf from a crate-digging search, and price your wantlist without a token.",
+    "value_prop": "Syncs a Discogs collection and wantlist into local SQLite, then answers the questions the API cannot: what to play tonight, what to look for from a label you already collect, which wanted records are cheap right now, and what your shelf actually looks like by decade and genre. Database reads, public collections, and marketplace prices all work with no credential at all.",
+    "auth_narrative": "No credential is needed for database search, public collections and wantlists, or marketplace stats — that is the whole default path, rate limited to 25 requests per minute. A free personal access token from discogs.com/settings/developers raises the limit to 60 per minute and unlocks private collections and Discogs' own price suggestions. Set it as DISCOGS_TOKEN.",
+    "quickstart": [
+      {
+        "command": "crate-pp-cli shelf-sync --user example",
+        "comment": "Mirror a public collection and wantlist into local SQLite. No token needed."
+      },
+      {
+        "command": "crate-pp-cli shelf --user example --by decade",
+        "comment": "See what the collection actually is, before asking it anything."
+      },
+      {
+        "command": "crate-pp-cli spin --user example --genre Rock",
+        "comment": "Pick something to play tonight, with the reason shown."
+      },
+      {
+        "command": "crate-pp-cli dig --user example --label \"Blue Note\" --limit 10",
+        "comment": "What that label pressed that you do not already own."
+      },
+      {
+        "command": "crate-pp-cli deals --user <username> --under 20 --limit 5",
+        "comment": "Wanted records that are cheap and for sale right now."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "HTTP 429, or commands slowing to a crawl",
+        "fix": "Unauthenticated requests are capped at 25 per minute. Set DISCOGS_TOKEN for 60 per minute, or use --limit to price fewer records per run; cached prices are reused."
+      },
+      {
+        "symptom": "Collection or wantlist returns 404",
+        "fix": "The username does not exist. Discogs usernames are case-sensitive and the docs' placeholder names are not real accounts."
+      },
+      {
+        "symptom": "Collection returns 403",
+        "fix": "That user's collection is private. Only the owner's own token can read it; set DISCOGS_TOKEN."
+      },
+      {
+        "symptom": "floor reports fewer records than the collection holds",
+        "fix": "Pricing is rate limited, so floor prices a bounded number of records per run and says how many it covered. Re-run to extend coverage; results are cached."
+      }
+    ],
+    "when_to_use": "Use this for anything involving a specific person's record collection or wantlist — what to play, what to buy, what is missing, what it is worth. It also covers the full Discogs database (search, releases, masters, artists, labels) when a task just needs discography facts.",
+    "recipes": [
+      {
+        "title": "Sync then pick a record",
+        "command": "crate-pp-cli shelf-sync --user example \u0026\u0026 crate-pp-cli spin --user example",
+        "explanation": "One sync populates the local store; spin then runs offline against it."
+      },
+      {
+        "title": "Dig a label you already collect",
+        "command": "crate-pp-cli dig --user example --label \"Blue Note\" --year 1960-1969 --limit 15",
+        "explanation": "Searches the label's catalogue and removes everything already on your shelf."
+      },
+      {
+        "title": "Narrow a verbose search payload",
+        "command": "crate-pp-cli database search \"blue note\" --type release --agent --select results.title,results.year,results.label",
+        "explanation": "A Discogs search page runs to tens of KB; --select with dotted paths returns only the fields needed."
+      },
+      {
+        "title": "Price the wantlist",
+        "command": "crate-pp-cli deals --user <username> --under 25 --json --limit 5",
+        "explanation": "Returns wanted records currently for sale below the threshold, as JSON for scripting."
+      },
+      {
+        "title": "Shape of the shelf",
+        "command": "crate-pp-cli shelf --user example --by label --limit 15",
+        "explanation": "The labels that actually dominate the collection, counted across every page."
+      }
+    ],
+    "trigger_phrases": [
+      "what record should I play",
+      "what should I buy from my wantlist",
+      "what is my record collection worth",
+      "what am I missing from this label",
+      "what does my vinyl collection look like",
+      "search discogs",
+      "use crate",
+      "run crate"
+    ]
+  }
+}

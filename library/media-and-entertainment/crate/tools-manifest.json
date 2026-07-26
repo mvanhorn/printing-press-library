@@ -1,0 +1,478 @@
+{
+  "api_name": "crate",
+  "base_url": "https://api.discogs.com",
+  "description": "Your record collection as a local database: pick tonight's record, subtract your shelf from a crate-digging search, and price your wantlist without a token.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "none"
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "artists_get",
+      "description": "Get an artist. Required: artist_id. Returns the ArtistsGetResponse.",
+      "method": "GET",
+      "path": "/artists/{artist_id}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "artist_id",
+          "type": "int",
+          "location": "path",
+          "description": "Discogs artist id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "artists_releases",
+      "description": "List an artist's discography. Required: artist_id. Optional: sort, sort_order, per_page (default: 50) (plus 1 more). Returns the ArtistsReleasesResponse.",
+      "method": "GET",
+      "path": "/artists/{artist_id}/releases",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "artist_id",
+          "type": "int",
+          "location": "path",
+          "description": "Discogs artist id",
+          "required": true
+        },
+        {
+          "name": "sort",
+          "type": "string",
+          "location": "query",
+          "description": "Sort field"
+        },
+        {
+          "name": "sort_order",
+          "type": "string",
+          "location": "query",
+          "description": "Sort direction"
+        },
+        {
+          "name": "per_page",
+          "type": "int",
+          "location": "query",
+          "description": "Results per page, up to 100"
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page number, 1-based"
+        }
+      ]
+    },
+    {
+      "name": "collection_folders",
+      "description": "List the folders in a user's Discogs collection. Required: username. Returns the folder array, each with id, name, and count; folder 0 is the special 'All' folder holding every record. Works without a token when the collection is public. Call this first to discover folder ids, then pass one to collection_releases.",
+      "method": "GET",
+      "path": "/users/{username}/collection/folders",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "username",
+          "type": "string",
+          "location": "path",
+          "description": "Discogs username",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "collection_releases",
+      "description": "List the records inside one folder of a user's collection. Required: username, folder_id (use 0 for every record in the collection). Optional: sort, sort_order, per_page (max 100), page. Returns a paginated releases array with each record's release id, title, artists, year, labels, and formats. Works without a token when the collection is public.",
+      "method": "GET",
+      "path": "/users/{username}/collection/folders/{folder_id}/releases",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "username",
+          "type": "string",
+          "location": "path",
+          "description": "Discogs username",
+          "required": true
+        },
+        {
+          "name": "folder_id",
+          "type": "int",
+          "location": "path",
+          "description": "Folder id; 0 means every record in the collection",
+          "required": true
+        },
+        {
+          "name": "sort",
+          "type": "string",
+          "location": "query",
+          "description": "Sort field"
+        },
+        {
+          "name": "sort_order",
+          "type": "string",
+          "location": "query",
+          "description": "Sort direction"
+        },
+        {
+          "name": "per_page",
+          "type": "int",
+          "location": "query",
+          "description": "Results per page, up to 100"
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page number, 1-based"
+        }
+      ]
+    },
+    {
+      "name": "database_search",
+      "description": "Search the Discogs database for releases, masters, artists, or labels — the main discovery endpoint. All parameters are optional: q (free text), type (release/master/artist/label), artist, label, genre, style, country, year, format, catno, barcode, plus per_page and page. Returns a paginated results array with each match's id, type, title, year, label, format, and thumbnail. Use this to find records matching a crate-digging brief; use releases_get or masters_get when you already have an id.",
+      "method": "GET",
+      "path": "/database/search",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "q",
+          "type": "string",
+          "location": "query",
+          "description": "Free-text query across titles and artists"
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "location": "query",
+          "description": "Restrict to one entity type"
+        },
+        {
+          "name": "title",
+          "type": "string",
+          "location": "query",
+          "description": "Match on combined artist and title"
+        },
+        {
+          "name": "release_title",
+          "type": "string",
+          "location": "query",
+          "description": "Match on the release title alone"
+        },
+        {
+          "name": "artist",
+          "type": "string",
+          "location": "query",
+          "description": "Artist name"
+        },
+        {
+          "name": "label",
+          "type": "string",
+          "location": "query",
+          "description": "Record label name, e.g. Blue Note"
+        },
+        {
+          "name": "genre",
+          "type": "string",
+          "location": "query",
+          "description": "Top-level genre, e.g. Jazz, Electronic, Rock"
+        },
+        {
+          "name": "style",
+          "type": "string",
+          "location": "query",
+          "description": "Finer style, e.g. Hard Bop, Ambient, Post Punk"
+        },
+        {
+          "name": "country",
+          "type": "string",
+          "location": "query",
+          "description": "Country of release, e.g. US, UK, Japan"
+        },
+        {
+          "name": "year",
+          "type": "string",
+          "location": "query",
+          "description": "Release year, or a range like 1960-1969"
+        },
+        {
+          "name": "format",
+          "type": "string",
+          "location": "query",
+          "description": "Physical format, e.g. Vinyl, LP, Album, 7'"
+        },
+        {
+          "name": "catno",
+          "type": "string",
+          "location": "query",
+          "description": "Catalogue number printed on the sleeve or label"
+        },
+        {
+          "name": "barcode",
+          "type": "string",
+          "location": "query",
+          "description": "Barcode, useful for scanning a record in a shop"
+        },
+        {
+          "name": "track",
+          "type": "string",
+          "location": "query",
+          "description": "Track title"
+        },
+        {
+          "name": "per_page",
+          "type": "int",
+          "location": "query",
+          "description": "Results per page, up to 100"
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page number, 1-based"
+        }
+      ]
+    },
+    {
+      "name": "identity_get",
+      "description": "Show which Discogs account the current token belongs to. Returns the IdentityGetResponse.",
+      "method": "GET",
+      "path": "/oauth/identity",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "labels_get",
+      "description": "Get a record label. Required: label_id. Returns the LabelsGetResponse.",
+      "method": "GET",
+      "path": "/labels/{label_id}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "label_id",
+          "type": "int",
+          "location": "path",
+          "description": "Discogs label id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "labels_releases",
+      "description": "List a label's catalogue. Required: label_id. Optional: per_page (default: 50), page (default: 1). Returns the LabelsReleasesResponse.",
+      "method": "GET",
+      "path": "/labels/{label_id}/releases",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "label_id",
+          "type": "int",
+          "location": "path",
+          "description": "Discogs label id",
+          "required": true
+        },
+        {
+          "name": "per_page",
+          "type": "int",
+          "location": "query",
+          "description": "Results per page, up to 100"
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page number, 1-based"
+        }
+      ]
+    },
+    {
+      "name": "marketplace_price-suggestions",
+      "description": "Suggested prices by media condition (requires a token). Required: release_id. Returns the MarketplacePriceSuggestionsResponse.",
+      "method": "GET",
+      "path": "/marketplace/price_suggestions/{release_id}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "release_id",
+          "type": "int",
+          "location": "path",
+          "description": "Discogs release id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "marketplace_stats",
+      "description": "Get the current lowest asking price and the number of copies for sale for one release. Required: release_id. Optional: curr_abbr (currency, e.g. USD, GBP, EUR). Returns num_for_sale, lowest_price, and blocked_from_sale. Keyless — no token needed. Note this is the lowest price a seller is currently ASKING, not a sale price and not an appraisal; use marketplace_price-suggestions (token required) for condition-graded guidance.",
+      "method": "GET",
+      "path": "/marketplace/stats/{release_id}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "release_id",
+          "type": "int",
+          "location": "path",
+          "description": "Discogs release id",
+          "required": true
+        },
+        {
+          "name": "curr_abbr",
+          "type": "string",
+          "location": "query",
+          "description": "Currency for the price, e.g. USD, GBP, EUR"
+        }
+      ]
+    },
+    {
+      "name": "masters_get",
+      "description": "Get a master record, the abstract work behind all its pressings. Required: master_id. Returns the MastersGetResponse.",
+      "method": "GET",
+      "path": "/masters/{master_id}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "master_id",
+          "type": "int",
+          "location": "path",
+          "description": "Discogs master id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "masters_versions",
+      "description": "List every pressing of a master, for comparing issues and countries. Required: master_id. Optional: country, format, label (plus 2 more). Returns the MastersVersionsResponse.",
+      "method": "GET",
+      "path": "/masters/{master_id}/versions",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "master_id",
+          "type": "int",
+          "location": "path",
+          "description": "Discogs master id",
+          "required": true
+        },
+        {
+          "name": "country",
+          "type": "string",
+          "location": "query",
+          "description": "Filter versions by country of release"
+        },
+        {
+          "name": "format",
+          "type": "string",
+          "location": "query",
+          "description": "Filter versions by format"
+        },
+        {
+          "name": "label",
+          "type": "string",
+          "location": "query",
+          "description": "Filter versions by label"
+        },
+        {
+          "name": "per_page",
+          "type": "int",
+          "location": "query",
+          "description": "Results per page, up to 100"
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page number, 1-based"
+        }
+      ]
+    },
+    {
+      "name": "releases_get",
+      "description": "Get one specific pressing of a record. Required: release_id. Optional: curr_abbr. Returns the ReleasesGetResponse.",
+      "method": "GET",
+      "path": "/releases/{release_id}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "release_id",
+          "type": "int",
+          "location": "path",
+          "description": "Discogs release id, identifying one specific pressing",
+          "required": true
+        },
+        {
+          "name": "curr_abbr",
+          "type": "string",
+          "location": "query",
+          "description": "Currency for any prices, e.g. USD, GBP, EUR"
+        }
+      ]
+    },
+    {
+      "name": "releases_rating",
+      "description": "Get a user's rating for a release. Required: release_id, username. Returns the ReleasesRatingResponse.",
+      "method": "GET",
+      "path": "/releases/{release_id}/rating/{username}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "release_id",
+          "type": "int",
+          "location": "path",
+          "description": "Discogs release id",
+          "required": true
+        },
+        {
+          "name": "username",
+          "type": "string",
+          "location": "path",
+          "description": "Discogs username",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "users_get",
+      "description": "Get a user profile. Required: username. Returns the UsersGetResponse.",
+      "method": "GET",
+      "path": "/users/{username}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "username",
+          "type": "string",
+          "location": "path",
+          "description": "Discogs username",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "wantlist_get",
+      "description": "List the records on a user's Discogs wantlist. Required: username. Optional: per_page (max 100), page. Returns a paginated wants array with each record's release id, title, artists, year, and the note and rating the user attached. Works without a token when the wantlist is public. Pair with marketplace_stats to price the wantlist.",
+      "method": "GET",
+      "path": "/users/{username}/wants",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "username",
+          "type": "string",
+          "location": "path",
+          "description": "Discogs username",
+          "required": true
+        },
+        {
+          "name": "per_page",
+          "type": "int",
+          "location": "query",
+          "description": "Results per page, up to 100"
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page number, 1-based"
+        }
+      ]
+    }
+  ]
+}
