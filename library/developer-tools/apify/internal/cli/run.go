@@ -16,8 +16,10 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"math"
 	"net/url"
 	"os"
+	"strconv"
 	"strings"
 	"time"
 
@@ -70,9 +72,9 @@ against the local store and emits only items not seen in prior runs.
 
 Cost projection from local history (p50/p90) prints before every run unless
 --no-projection or --agent is set. With --max-cost, refuses to start if the
-projection exceeds the budget, and — when combined with --wait — aborts the
-run mid-flight once its reported cost exceeds the cap. The live cap protects
-the first run of an Actor, which has no cached history to project from.
+projection exceeds the budget and passes the cap to Apify as
+maxTotalChargeUsd. With --wait, a live watchdog also aborts the run once its
+reported cost exceeds the cap.
 
 Examples:
   apify-pp-cli run apidojo/twitter-scraper-lite --input @q.json --only-new --format markdown
@@ -92,6 +94,10 @@ Examples:
 				return cmd.Help()
 			}
 			actor := args[0]
+			maxTotalCharge, err := formatMaxTotalCharge(maxCost)
+			if err != nil {
+				return usageErr(err)
+			}
 
 			// --only-new can only diff items once the run has produced a
 			// dataset, which requires waiting for terminal status. Without
@@ -142,18 +148,17 @@ Examples:
 								proj.P50USD, maxCost))
 						}
 						if !cost.CanEnforce(proj, maxCost) {
-							// PATCH(amend: no cached history means no pre-flight
-							// projection, but the --wait poll loop now enforces
-							// --max-cost live by aborting on cost overrun. Only
-							// warn about an uncapped run when --wait is absent.)
+							// PATCH(amend: the native maxTotalChargeUsd request
+							// cap protects first runs without cached history.
+							// Keep the local watchdog as defense in depth.)
 							if wait {
 								fmt.Fprintf(cmd.ErrOrStderr(),
-									"NOTE: no prior runs of %q are cached, so --max-cost $%.2f can't be projected up front; it will be enforced live during --wait (the run is aborted once its reported cost exceeds the cap)\n",
+									"NOTE: no cached runs exist for %q. Projection unavailable for --max-cost $%.2f. Apify will enforce the native charge cap. The live watchdog adds another stop during --wait.\n",
 									actor, maxCost)
 							} else {
 								fmt.Fprintf(cmd.ErrOrStderr(),
-									"WARNING: --max-cost $%.2f cannot be enforced — no prior runs of %q are cached and --wait is not set, so there is no live cost watchdog; the run will proceed uncapped. Add --wait to enable the live cap.\n",
-									maxCost, actor)
+									"NOTE: no cached runs exist for %q. Projection unavailable for --max-cost $%.2f. Apify will enforce the native charge cap.\n",
+									actor, maxCost)
 							}
 						}
 					}
@@ -195,6 +200,11 @@ Examples:
 			}
 			if webhookOverride != "" {
 				params["webhooks"] = webhookOverride
+			}
+			if maxTotalCharge != "" {
+				// PATCH(amend: let Apify enforce the budget before polling can
+				// observe an overrun. The local watchdog remains a fallback.)
+				params["maxTotalChargeUsd"] = maxTotalCharge
 			}
 			if wait {
 				// PATCH(amend: cap the server-side `waitForFinish` block so the
@@ -306,7 +316,7 @@ Examples:
 	cmd.Flags().IntVar(&memoryMB, "memory", 0, "Override memory allocation (MB)")
 	cmd.Flags().BoolVar(&onlyNew, "only-new", false, "Emit only items not seen in prior runs of this Actor (requires --wait + SUCCEEDED)")
 	cmd.Flags().StringVar(&format, "format", "json", "Output format: json | markdown | raw")
-	cmd.Flags().Float64Var(&maxCost, "max-cost", 0, "Cap run cost (USD): refuse to start if the p50 projection exceeds it; with --wait, also abort mid-run once reported cost exceeds it")
+	cmd.Flags().Float64Var(&maxCost, "max-cost", 0, "Cap run cost (USD): enforce through Apify, reject excessive projections, and add a live watchdog with --wait")
 	cmd.Flags().BoolVar(&noProjection, "no-projection", false, "Skip cost projection output")
 	cmd.Flags().StringVar(&preset, "preset", "", "Load saved input from a preset (overridden by --input)")
 	cmd.Flags().StringVar(&buildTag, "build", "", "Actor build tag (e.g. latest, beta, 0.1.5)")
@@ -316,6 +326,16 @@ Examples:
 }
 
 // --- run plumbing ---
+
+func formatMaxTotalCharge(maxCost float64) (string, error) {
+	if maxCost < 0 || math.IsNaN(maxCost) || math.IsInf(maxCost, 0) {
+		return "", fmt.Errorf("invalid --max-cost. Use a finite non-negative amount")
+	}
+	if maxCost == 0 {
+		return "", nil
+	}
+	return strconv.FormatFloat(maxCost, 'f', -1, 64), nil
+}
 
 type RunData struct {
 	ID               string    `json:"id"`

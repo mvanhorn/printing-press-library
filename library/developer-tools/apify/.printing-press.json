@@ -9,6 +9,12 @@
     "handle": "kjmagnan1s",
     "name": "Kevin Magnan"
   },
+  "contributors": [
+    {
+      "handle": "kriptoburak",
+      "name": "Burak Bayır"
+    }
+  ],
   "owner": "kevin-magnan",
   "printer": "kjmagnan1s",
   "printer_name": "Kevin Magnan",
@@ -59,7 +65,7 @@
     {
       "name": "Cost budget enforcement",
       "command": "run --max-cost",
-      "description": "Pre-flight cost projection from local p50/p90 of past runs for the same Actor; aborts run if projection exceeds budget."
+      "description": "Enforce Apify's native charge cap, reject excessive local p50 projections, and add a live watchdog during waiting."
     },
     {
       "name": "Input presets",

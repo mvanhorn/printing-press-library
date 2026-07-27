@@ -140,7 +140,7 @@ Highlights (not in the official API docs):
   • digest   Render a markdown digest from local store: dedupe by URL + title-similarity, rank by engagement+recency+novelty, fill a Go template.
   • workflow run   Run a YAML-declared workflow that chains run → normalize → novelty → digest → publish across multiple Actors.
   • schedules apply   Declarative cron + Actor input bundle with terraform-style plan/apply/diff against the live Apify schedule API.
-  • run --max-cost   Pre-flight cost projection from local p50/p90 of past runs for the same Actor; aborts run if projection exceeds budget.
+  • run --max-cost   Apply Apify's native charge cap, reject excessive local projections, and add a live watchdog with --wait.
   • preset save   Capture known-good Actor input JSON from a prior run and replay with overrides.
   • ab run   Run the same input through two competing Actors, normalize via unified schema, report cost-per-novel-item and overlap percentage.
   • digest --offline   Run queries and template renders against the local SQLite copy of past datasets without hitting the API.
