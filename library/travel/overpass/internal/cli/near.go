@@ -59,6 +59,13 @@ common mistake, silently loses most large structures.
 			if err != nil {
 				return usageErr(err)
 			}
+			// Before ANY network work — geocoding included. The failure this
+			// exists for is a silently-accepted radius burning two minutes of
+			// retries; a caution printed after the geocode has already paid
+			// part of that cost. stderr, so --json/--agent stdout stays clean.
+			if w := subjects.LargeRadiusWarning(radiusM); w != "" {
+				fmt.Fprintf(cmd.ErrOrStderr(), "note: %s\n", w)
+			}
 			ctx, cancel := boundCtx(cmd.Context(), flags)
 			defer cancel()
 
@@ -77,7 +84,7 @@ common mistake, silently loses most large structures.
 				return err
 			}
 			if flags.asJSON {
-				return flags.printJSON(cmd, map[string]any{
+				return flags.printJSONLive(cmd, map[string]any{
 					"type": ty.Name, "tags": ty.Tags, "origin": origin,
 					"radius_m": radiusM, "subjects": subs,
 					"mirror_attempts": attempts, "note": ty.Note,
@@ -128,6 +135,13 @@ origin, with that distance on each feature as distance_km.
 			if err != nil {
 				return usageErr(err)
 			}
+			// Before ANY network work — geocoding included. The failure this
+			// exists for is a silently-accepted radius burning two minutes of
+			// retries; a caution printed after the geocode has already paid
+			// part of that cost. stderr, so --json/--agent stdout stays clean.
+			if w := subjects.LargeRadiusWarning(radiusM); w != "" {
+				fmt.Fprintf(cmd.ErrOrStderr(), "note: %s\n", w)
+			}
 			ctx, cancel := boundCtx(cmd.Context(), flags)
 			defer cancel()
 
@@ -160,7 +174,7 @@ origin, with that distance on each feature as distance_km.
 			if flags.asJSON {
 				// --json must emit JSON even when the payload went to a file;
 				// a prose confirmation line breaks any caller parsing stdout.
-				return flags.printJSON(cmd, map[string]any{
+				return flags.printJSONLive(cmd, map[string]any{
 					"written": outPth, "count": len(subs), "type": ty.Name,
 				})
 			}

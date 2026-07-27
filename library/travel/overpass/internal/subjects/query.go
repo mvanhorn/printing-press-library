@@ -19,6 +19,39 @@ type Area struct {
 	BBoxes []BBox
 }
 
+// LargeRadiusWarnM is where public Overpass starts refusing common types.
+//
+// 🔴 Deliberately a WARNING THRESHOLD, not a ceiling. What decides whether a
+// big radius survives is the density of the TYPE, not the radius. Measured
+// from Santa Monica, 2026-07-26:
+//
+//	lighthouse   644 km  -> 80 results in 37 s        (sparse: fine)
+//	observatory  644 km  -> 87 results in 17 s        (sparse: fine)
+//	water_tower  150 km  -> 164 results in 11 s
+//	water_tower  300 km  -> every mirror 504 after 92 s
+//	ruins / silo / windmill at 644 km -> all dead
+//
+// Refusing on radius alone would block the lighthouse query that worked. So
+// the CLI warns and sends. The cost of staying silent is the failure this came
+// from: the flag is accepted, two minutes of retries burn across three
+// mirrors, and nothing in the error mentions the radius.
+const LargeRadiusWarnM = 200_000
+
+// LargeRadiusWarning returns a caution for an ambitious radius, or "" when
+// there is nothing to say. Returned rather than printed so the decision to
+// warn is testable and the I/O stays at the CLI layer.
+func LargeRadiusWarning(radiusM float64) string {
+	if radiusM <= LargeRadiusWarnM {
+		return ""
+	}
+	return fmt.Sprintf(
+		"radius %.0f km is large for public Overpass. Dense types "+
+			"(water_tower, ruins, windmill) usually time out above ~%.0f km; "+
+			"sparse ones (lighthouse, observatory) often survive. "+
+			"If every mirror refuses, tile the area into smaller searches.",
+		radiusM/1000, float64(LargeRadiusWarnM)/1000)
+}
+
 // BBox is a geographic bounding box.
 type BBox struct {
 	South, West, North, East float64

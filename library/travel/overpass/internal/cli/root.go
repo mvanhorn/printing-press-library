@@ -5,6 +5,7 @@ package cli
 
 import (
 	"bytes"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
@@ -185,8 +186,8 @@ func isCobraUsageError(err error) bool {
 func newRootCmd(flags *rootFlags) *cobra.Command {
 	rootCmd := &cobra.Command{
 		Use:   "overpass-pp-cli",
-		Short: `Subject CLI — Find things worth photographing by name instead of by OpenStreetMap tag, with automatic failover across Overpass…`,
-		Long: `Subject CLI — Find things worth photographing by name instead of by OpenStreetMap tag, with automatic failover across Overpass mirrors.
+		Short: `Overpass CLI — Find things worth photographing by name instead of by OpenStreetMap tag, with automatic failover across Overpass…`,
+		Long: `Overpass CLI — Find things worth photographing by name instead of by OpenStreetMap tag, with automatic failover across Overpass mirrors.
 
 Highlights (not in the official API docs):
   • near   Finds things worth photographing near a place — water towers, lighthouses, brutalist buildings, piers, viewpoints — by name rather than by OpenStreetMap tag.
@@ -570,6 +571,27 @@ func (f *rootFlags) newClient() (*client.Client, error) {
 
 func (f *rootFlags) printJSON(w *cobra.Command, v any) error {
 	return printJSONFiltered(w.OutOrStdout(), v, f)
+}
+
+// printJSONLive is printJSON for commands that answered from the network.
+//
+// printJSONFiltered stamps the agent envelope `"source": "local"` by default,
+// which is right for a command reading the compiled-in taxonomy or the local
+// store and wrong for every command that just queried Overpass. `near` was
+// emitting a payload whose meta said "local" beside a `mirror_attempts` array
+// showing a live HTTP 200 — self-contradictory inside one response, and an
+// agent keying off meta.source concludes it was handed a cache and may re-ask
+// or distrust fresh data.
+//
+// The file-level `pp:data-source live` annotation on near.go, route.go and
+// mirrors.go already declared the intent; nothing enforced it.
+func (f *rootFlags) printJSONLive(w *cobra.Command, v any) error {
+	raw, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+	return printOutputWithFlagsMeta(w.OutOrStdout(), json.RawMessage(raw), f,
+		map[string]any{"source": "live"})
 }
 
 func (f *rootFlags) printTable(w *cobra.Command, headers []string, rows [][]string) error {

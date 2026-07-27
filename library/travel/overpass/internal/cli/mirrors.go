@@ -48,7 +48,7 @@ host costs the answer a few seconds rather than a minute.
 			statuses := runner.CheckMirrors(ctx)
 
 			if flags.asJSON {
-				return flags.printJSON(cmd, map[string]any{"mirrors": statuses})
+				return flags.printJSONLive(cmd, map[string]any{"mirrors": statuses})
 			}
 			rows := make([][]string, 0, len(statuses))
 			var healthy int

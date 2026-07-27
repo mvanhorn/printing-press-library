@@ -384,3 +384,33 @@ func TestGeoJSONDoesNotHTMLEscapeNames(t *testing.T) {
 		t.Fatalf("output is not valid JSON: %v", err)
 	}
 }
+
+// A large radius warns rather than being refused. What decides whether a big
+// search survives is the density of the TYPE, not the radius: lighthouse at
+// 644 km answered in 37 s while water_tower at 300 km had every mirror time
+// out. Refusing on radius alone would block the query that worked.
+func TestLargeRadiusWarning(t *testing.T) {
+	if w := LargeRadiusWarning(40_000); w != "" {
+		t.Fatalf("40 km should be silent, got %q", w)
+	}
+	if w := LargeRadiusWarning(LargeRadiusWarnM); w != "" {
+		t.Fatalf("exactly at the threshold should be silent, got %q", w)
+	}
+	w := LargeRadiusWarning(644_000)
+	if w == "" {
+		t.Fatal("644 km should warn")
+	}
+	for _, want := range []string{"644 km", "200 km", "tile"} {
+		if !strings.Contains(w, want) {
+			t.Errorf("warning should mention %q, got %q", want, w)
+		}
+	}
+	// A large radius must still BUILD a query — warning, not ceiling.
+	ty, err := Lookup("lighthouse")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, err := BuildQuery(ty, Area{Lat: 34.02, Lon: -118.49, RadiusM: 644_000}, 90, 0); err != nil {
+		t.Fatalf("644 km must still build a query, got %v", err)
+	}
+}

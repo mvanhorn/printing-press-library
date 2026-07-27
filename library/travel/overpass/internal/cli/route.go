@@ -116,7 +116,7 @@ judge that — check it before committing to a detour.
 			sort.SliceStable(stops, func(i, j int) bool { return stops[i].AlongKM < stops[j].AlongKM })
 
 			if flags.asJSON {
-				return flags.printJSON(cmd, map[string]any{
+				return flags.printJSONLive(cmd, map[string]any{
 					"type": ty.Name, "from": start, "to": end,
 					"route_km": total, "corridor_m": padM, "bboxes": boxes,
 					"stops": stops, "mirror_attempts": attempts,
