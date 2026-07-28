@@ -308,8 +308,7 @@ One YAML-declared chain across Twitter + Reddit + HN + News scrapers; emits a si
 ### Xquik Tweet research
 
 Use [Xquik's X Tweet Scraper](https://apify.com/xquik/x-tweet-scraper)
-for tweet URLs, IDs, searches, profile timelines, and lists. Also collect
-articles, replies, quotes, threads, retweeters, and best-effort favoriters.
+for tweet search, timelines, threads, replies, quotes, and engagement.
 
 Create `xquik-tweets.json`:
 
@@ -318,10 +317,7 @@ Create `xquik-tweets.json`:
   "searchTerms": ["from:OpenAI API", "#AI lang:en"],
   "maxItems": 100,
   "maxItemsPerTarget": 50,
-  "outputVariant": "rich",
-  "outputPreset": "flat",
-  "fieldStyle": "camelCase",
-  "includeSearchTerms": true
+  "outputVariant": "rich"
 }
 ```
 
@@ -329,15 +325,12 @@ Create `xquik-tweets.json`:
 apify-pp run xquik/x-tweet-scraper --input @xquik-tweets.json --max-cost 0.50 --wait --agent
 ```
 
-Choose `legacy`, `rich`, or `raw` output. Choose nested or flat records.
-`maxItems` caps the whole run across all search terms.
-`maxItemsPerTarget` balances explicit multi-target modes.
+`maxItems` caps the run. `maxItemsPerTarget` balances explicit targets.
 
 ### Xquik audience research
 
 Use [Xquik's X Follower Scraper](https://apify.com/xquik/x-follower-scraper)
-for followers, following, and verified followers. It also handles list
-members, list followers, and community members.
+for followers, following, verified followers, lists, and communities.
 
 Create `xquik-followers.json`:
 
@@ -357,13 +350,11 @@ Create `xquik-followers.json`:
 apify-pp run xquik/x-follower-scraper --input @xquik-followers.json --max-cost 0.50 --wait --agent
 ```
 
-Choose `compact`, `full`, or `raw` output. Keep target metadata for
-multi-target runs. Use merge deduplication for audience overlap.
+Keep target metadata for multi-target runs. Use merge deduplication for audience overlap.
 `maxItemsPerTarget` optionally balances results across targets.
 
-Check each Actor's live Store pricing and input schema before a paid run.
-Choose a suitable `--max-cost`. The CLI passes it to Apify as
-`maxTotalChargeUsd`. With `--wait`, the local watchdog adds another stop.
+Check each Actor's live Store schema and pricing before a paid run.
+The CLI passes `--max-cost` as `maxTotalChargeUsd`. `--wait` adds a watchdog.
 
 Xquik is an independent third-party service. Not affiliated with X Corp. "Twitter" and "X" are trademarks of X Corp.
 

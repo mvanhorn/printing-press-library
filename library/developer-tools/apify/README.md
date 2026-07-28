@@ -149,58 +149,22 @@ apify-pp digest --topic AI --since 24h --template default --agent
 
 ## Xquik X Actors
 
-Use [Xquik's X Tweet Scraper](https://apify.com/xquik/x-tweet-scraper) for
-tweet URLs, IDs, searches, profile timelines, and lists. Also collect
-articles, replies, quotes, threads, retweeters, and best-effort favoriters.
-It supports `legacy`, `rich`, and `raw` output. Choose nested or flat
-records and the required field style.
-
-```json
-{
-  "searchTerms": ["from:OpenAI API", "#AI lang:en"],
-  "maxItems": 100,
-  "maxItemsPerTarget": 50,
-  "outputVariant": "rich",
-  "outputPreset": "flat",
-  "fieldStyle": "camelCase",
-  "includeSearchTerms": true
-}
-```
+Use [Xquik's X Tweet Scraper](https://apify.com/xquik/x-tweet-scraper)
+for tweet search, timelines, threads, replies, and engagement. Use
+[Xquik's X Follower Scraper](https://apify.com/xquik/x-follower-scraper)
+for followers, lists, communities, and audience overlap.
 
 ```bash
 apify-pp run xquik/x-tweet-scraper --input @xquik-tweets.json --max-cost 0.50 --wait --agent
-```
-
-`maxItems` caps the whole run across all search terms.
-`maxItemsPerTarget` balances explicit multi-target modes.
-
-Use [Xquik's X Follower Scraper](https://apify.com/xquik/x-follower-scraper)
-for followers, following, and verified followers. It also handles list
-members, list followers, and community members. It supports `compact`,
-`full`, and `raw` output. Keep target metadata for multi-target runs.
-Use merge deduplication for audience overlap.
-
-```json
-{
-  "twitterHandles": ["OpenAI", "AnthropicAI"],
-  "relations": ["followers", "verified_followers"],
-  "maxItems": 100,
-  "maxItemsPerTarget": 50,
-  "outputMode": "compact",
-  "includeTargetMetadata": true,
-  "dedupeMode": "merge"
-}
-```
-
-```bash
 apify-pp run xquik/x-follower-scraper --input @xquik-followers.json --max-cost 0.50 --wait --agent
 ```
 
-`maxItemsPerTarget` optionally balances results across targets.
+Create inputs from each Actor's live Store schema. Bound multi-target runs
+with `maxItems` and `maxItemsPerTarget`. Keep target metadata and merge
+deduplication when comparing audiences.
 
-Check each Actor's live Store pricing and input schema before a paid run.
-Choose a suitable `--max-cost`. The CLI passes it to Apify as
-`maxTotalChargeUsd`. With `--wait`, the local watchdog adds another stop.
+Check live pricing before each paid run. Choose a suitable `--max-cost`.
+The CLI sends `maxTotalChargeUsd` to Apify. `--wait` adds a local watchdog.
 
 Xquik is an independent third-party service. Not affiliated with X Corp. "Twitter" and "X" are trademarks of X Corp.
 
