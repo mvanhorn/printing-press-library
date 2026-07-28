@@ -1,0 +1,47 @@
+{
+  "manifest_version": "0.3",
+  "name": "woocommerce-pp-mcp",
+  "display_name": "WooCommerce",
+  "version": "0.1.0",
+  "description": "The only WooCommerce CLI with a local database - so it answers the compound questions the Reports API cannot, and reads any store on the internet without credentials.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/woocommerce-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/woocommerce-pp-mcp",
+      "args": [],
+      "env": {
+        "WOOCOMMERCE_CONSUMER_KEY": "${user_config.woocommerce_consumer_key}",
+        "WOOCOMMERCE_CONSUMER_SECRET": "${user_config.woocommerce_consumer_secret}"
+      }
+    }
+  },
+  "user_config": {
+    "woocommerce_consumer_key": {
+      "type": "string",
+      "title": "WOOCOMMERCE_CONSUMER_KEY",
+      "description": "Sets WOOCOMMERCE_CONSUMER_KEY for the WooCommerce MCP server.",
+      "sensitive": true,
+      "required": true
+    },
+    "woocommerce_consumer_secret": {
+      "type": "string",
+      "title": "WOOCOMMERCE_CONSUMER_SECRET",
+      "description": "Sets WOOCOMMERCE_CONSUMER_SECRET for the WooCommerce MCP server.",
+      "sensitive": true,
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

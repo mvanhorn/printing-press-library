@@ -1,0 +1,15 @@
+{
+  "timestamp": "2026-07-21T14:43:54.847427Z",
+  "cli_dir": "\u003ccli-dir\u003e/woocommerce-pp-cli",
+  "findings": [
+    {
+      "kind": "thin-short",
+      "command": "list",
+      "file": "teach.go",
+      "line": 692,
+      "evidence": "List recorded learnings",
+      "status": "accepted",
+      "note": "DO-NOT-EDIT generated learn-loop command; the concise label is accurate, and richer defaults belong in the generator template"
+    }
+  ]
+}

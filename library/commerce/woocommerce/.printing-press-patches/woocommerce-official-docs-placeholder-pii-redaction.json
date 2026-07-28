@@ -1,0 +1,11 @@
+{
+  "schema_version": 2,
+  "date": "2026-07-28",
+  "base_run_id": "20260720-234424-510e5f56",
+  "base_printing_press_version": "4.29.0",
+  "files": [
+    ".manuscripts/20260720-234424-510e5f56/research/woo-official-docs.html"
+  ],
+  "reason": "The official WooCommerce documentation capture included generic phone and email placeholders that the mandatory public-package PII scan treats as personal data.",
+  "validated_outcome": "Replaced 40 phone placeholders and 2 email placeholders with explicit redaction markers before public packaging."
+}

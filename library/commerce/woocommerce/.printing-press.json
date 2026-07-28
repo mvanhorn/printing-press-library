@@ -1,0 +1,128 @@
+{
+  "schema_version": 2,
+  "generated_at": "2026-07-21T14:49:51.037581Z",
+  "printing_press_version": "4.29.0",
+  "api_name": "woocommerce",
+  "display_name": "WooCommerce",
+  "cli_name": "woocommerce-pp-cli",
+  "creator": {
+    "handle": "bobeglz",
+    "name": "bobe"
+  },
+  "owner": "bobeglz",
+  "printer": "bobeglz",
+  "printer_name": "bobe",
+  "spec_format": "internal",
+  "spec_checksum": "sha256:4842503ac3822f1740da21606cf5584bc8c7cabecfff0ab69f8aaaad4ea6130e",
+  "run_id": "20260720-234424-510e5f56",
+  "category": "commerce",
+  "description": "The only WooCommerce CLI with a local database - so it answers the compound questions the Reports API cannot, and reads any store on the internet without credentials.",
+  "mcp_binary": "woocommerce-pp-mcp",
+  "mcp_tool_count": 166,
+  "mcp_public_tool_count": 11,
+  "mcp_ready": "full",
+  "api_version": "0.1.0",
+  "auth_type": "api_key",
+  "auth_env_vars": [
+    "WOOCOMMERCE_CONSUMER_KEY",
+    "WOOCOMMERCE_CONSUMER_SECRET"
+  ],
+  "novel_features": [
+    {
+      "name": "Order triage",
+      "command": "orders triage",
+      "description": "Splits the order queue into actionable buckets and flags payment gateways whose failure rate is climbing."
+    },
+    {
+      "name": "Stock velocity and reorder list",
+      "command": "stock velocity",
+      "description": "Units sold per day per variation divided into current stock, producing days-of-cover and a reorder list sorted by stockout date."
+    },
+    {
+      "name": "Revenue decomposition",
+      "command": "revenue explain",
+      "description": "Breaks a revenue change between two periods into order-count, basket-size, per-product, refund, and coupon contributions."
+    },
+    {
+      "name": "Refund rate by product",
+      "command": "refund-rate",
+      "description": "Refunded units over sold units for every product and variation, so return-prone items surface by rate rather than raw count."
+    },
+    {
+      "name": "Customer lifetime value and cohorts",
+      "command": "customers ltv",
+      "description": "Per-customer lifetime value and order count, plus repeat-purchase retention bucketed by first-order month."
+    },
+    {
+      "name": "Catalog completeness audit",
+      "command": "catalog audit",
+      "description": "Deterministic scan for publishable defects: missing images, empty descriptions, absent SKUs, zero prices, and unpriced or stockless variations."
+    },
+    {
+      "name": "Public catalog snapshot",
+      "command": "catalog watch",
+      "description": "Records a timestamped price, sale, and stock snapshot of any public WooCommerce store, with no credentials of any kind."
+    },
+    {
+      "name": "Catalog diff",
+      "command": "catalog diff",
+      "description": "Compares two recorded snapshots to report added and delisted products, price moves with magnitude, sale windows, and stock flips."
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Order triage",
+      "command": "orders triage",
+      "description": "Splits the order queue into actionable buckets and flags payment gateways whose failure rate is climbing."
+    },
+    {
+      "name": "Stock velocity and reorder list",
+      "command": "stock velocity",
+      "description": "Units sold per day per variation divided into current stock, producing days-of-cover and a reorder list sorted by stockout date."
+    },
+    {
+      "name": "Revenue decomposition",
+      "command": "revenue explain",
+      "description": "Breaks a revenue change between two periods into order-count, basket-size, per-product, refund, and coupon contributions."
+    },
+    {
+      "name": "Refund rate by product",
+      "command": "refund-rate",
+      "description": "Refunded units over sold units for every product and variation, so return-prone items surface by rate rather than raw count."
+    },
+    {
+      "name": "Customer lifetime value and cohorts",
+      "command": "customers ltv",
+      "description": "Per-customer lifetime value and order count, plus repeat-purchase retention bucketed by first-order month."
+    },
+    {
+      "name": "Catalog completeness audit",
+      "command": "catalog audit",
+      "description": "Deterministic scan for publishable defects: missing images, empty descriptions, absent SKUs, zero prices, and unpriced or stockless variations."
+    },
+    {
+      "name": "Public catalog snapshot",
+      "command": "catalog watch",
+      "description": "Records a timestamped price, sale, and stock snapshot of any public WooCommerce store, with no credentials of any kind."
+    },
+    {
+      "name": "Catalog diff",
+      "command": "catalog diff",
+      "description": "Compares two recorded snapshots to report added and delisted products, price moves with magnitude, sale windows, and stock flips."
+    }
+  ],
+  "verify": {
+    "mode": "mock",
+    "pass_rate": 100,
+    "passed": 38,
+    "total": 38,
+    "verdict": "PASS"
+  },
+  "scorecard": {
+    "steinberger": {
+      "percentage": 95,
+      "grade": "A",
+      "total": 95
+    }
+  }
+}

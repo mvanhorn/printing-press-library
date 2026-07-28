@@ -1,0 +1,51 @@
+version: 2
+project_name: woocommerce-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: woocommerce-pp-cli
+    main: ./cmd/woocommerce-pp-cli
+    binary: woocommerce-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X github.com/mvanhorn/printing-press-library/library/commerce/woocommerce/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: woocommerce-pp-mcp
+    main: ./cmd/woocommerce-pp-mcp
+    binary: woocommerce-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X main.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: woocommerce-pp-cli
+    repository:
+      owner: bobeglz
+      name: homebrew-tap
+    homepage: "https://github.com/mvanhorn/printing-press-library"
+    description: "The only WooCommerce CLI with a local database - so it answers the compound questions the Reports API cannot, and reads any store on the internet without credentials."
+    install: |
+      bin.install "woocommerce-pp-cli"
+      bin.install "woocommerce-pp-mcp"

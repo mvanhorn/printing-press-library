@@ -1,0 +1,33 @@
+{
+  "descriptions": {
+    "catalog-taxonomy_category": "Retrieve a public Store API product category by numeric id. Returns the category object, including its name, slug, and product count when supplied by the store. Prefer catalog-taxonomy_categories when you need to browse valid ids.",
+    "orders_email-templates": "List the email action templates available for the order identified by id. Returns the templates exposed for that specific order; call orders_get first when you need to confirm the order id.",
+    "orders_get-receipt": "Retrieve an existing receipt for the order identified by id. Returns the receipt payload when WooCommerce has generated one; a missing receipt is distinct from a missing order, and this route is version or feature dependent.",
+    "orders_invoice": "Retrieve the invoice payload for the order identified by id when the store exposes this optional route. Returns the invoice resource; availability depends on the WooCommerce version and installed extensions.",
+    "orders_statuses": "List the order statuses registered by the store. Returns the status identifiers and labels used to filter orders or choose a valid status for an update.",
+    "products_related": "Retrieve products related to the product identified by id when the store exposes this optional route. Returns the related product collection; availability depends on the WooCommerce version and installed extensions.",
+    "settings_batch": "Apply a batch request to WooCommerce settings. Provide the batch payload accepted by the target store; returns per-operation results. This endpoint mutates settings and is intended for coordinated bulk changes.",
+    "settings_get": "Retrieve one WooCommerce setting identified by group_id and id. Optional: group. Returns the setting object; use settings_get-group when you need to browse every setting in a group first.",
+    "settings_list": "List the top-level WooCommerce settings groups. Returns an array of groups and their identifiers; use settings_get-group to inspect the settings within one group.",
+    "shipping-zone-locations_list": "List the locations assigned to the shipping zone identified by id. Returns the zone's country, state, continent, or postcode location rules as an array.",
+    "shipping-zone-methods_get": "Retrieve one shipping method instance by required zone_id and instance_id. Returns the method's enabled state, order, title, and configuration when supplied by the store.",
+    "shipping-zones_create": "Create a shipping zone. Required: name. Optional: order. Returns the new zone object and its generated id, which is required before assigning locations or shipping methods.",
+    "shipping-zones_get": "Retrieve one shipping zone by required id. Returns the zone object; use shipping-zones_list when you need to discover valid zone ids.",
+    "shipping-zones_list": "List every shipping zone configured in WooCommerce. Returns an array of zone ids, names, and sort order values for use with location and method commands.",
+    "shipping-zones_update": "Update the shipping zone identified by id. Optional changes: name and order. Returns the updated zone object; use the dedicated location and method tools for those subresources.",
+    "store-data_continents": "List continents from WooCommerce's reference data. Returns an array of continent codes, names, and nested country data for validating addresses and shipping configuration.",
+    "store-data_countries": "List countries from WooCommerce's reference data. Returns an array of country codes, names, and state data for validating addresses and shipping configuration.",
+    "store-data_country": "Retrieve WooCommerce reference data for the country identified by location code. Returns the country name, code, and available states when supplied by the store.",
+    "store-data_currencies": "List currencies recognized by WooCommerce. Returns an array of currency codes, names, symbols, and formatting metadata.",
+    "store-data_current-currency": "Retrieve the store's active WooCommerce currency. Returns its code, name, symbol, decimal precision, and formatting metadata when supplied by the store.",
+    "store-data_list": "List the WooCommerce reference-data collections available under the data API. Returns collection identifiers that can be queried through the country, currency, and continent tools.",
+    "system-status_get": "Retrieve the WooCommerce system status report. Optional: context (default: view). Returns environment, database, theme, plugin, and configuration diagnostics exposed by the store.",
+    "system-status_get-tool": "Retrieve one WooCommerce system-status tool by required id. Returns the tool's metadata and current state; use the system-status tools list to discover valid ids.",
+    "tags_batch": "Apply bulk create, update, or delete operations to product tags. Optional tag fields include name, slug, and description. Returns per-operation results for the submitted batch.",
+    "tags_create": "Create a product tag. Required: name. Optional: slug and description. Returns the new tag object and generated id for later product assignment or updates.",
+    "tags_get": "Retrieve one product tag by required id. Optional: context (default: view). Returns the tag object; use tags_list when you need to search or discover ids.",
+    "tax-classes_create": "Create a WooCommerce tax class. Required: name. Returns the created tax-class resource, including the slug used by products and tax-rate rules.",
+    "tax-classes_get": "Retrieve one WooCommerce tax class by required slug. Returns the tax-class resource; use the tax-classes list operation to discover valid slugs.",
+    "taxes_get": "Retrieve one WooCommerce tax rate by required id. Optional: context (default: view). Returns the rate's jurisdiction, priority, compound, shipping, and class settings."
+  }
+}

@@ -1,0 +1,446 @@
+### Introduction
+
+WooCommerce (WC) 2.6+ is fully integrated with the WordPress REST API. This allows WC data to be created, read, updated, and deleted using requests in JSON format and using WordPress REST API Authentication methods and standard HTTP verbs which are understood by most HTTP clients.
+
+The current WP REST API integration version is v3 which takes a first-order position in endpoints. 
+
+The following table shows API versions present in each major version of WooCommerce:
+
+API Version
+WC Version
+WP Version
+Documentation
+
+ | v3
+ | 3.5.x or later
+ | 4.4 or later
+ | -
+
+ | v2
+ | 3.0.x or later
+ | 4.4 or later
+ | v2 docs
+
+ | v1
+ | 2.6.x or later
+ | 4.4 or later
+ | v1 docs
+
+Prior to 2.6, WooCommerce had a REST API separate from WordPress which is now known as the legacy API. You can find the documentation for the legacy API separately.
+
+API Version
+WC Version
+WP Version
+Documentation
+
+ | Legacy v3
+ | 2.4.x or later
+ | 4.1 or later
+ | Legacy v3 docs
+
+ | Legacy v2
+ | 2.2.x or later
+ | 4.1 or later
+ | Legacy v2 docs
+
+ | Legacy v1
+ | 2.1.x or later
+ | 4.1 or later
+ | Legacy v1 docs
+
+### Requirements
+
+To use the latest version of the REST API you must be using:
+
+- WooCommerce 3.5+.
+
+- WordPress 4.4+.
+
+- Pretty permalinks in Settings > Permalinks so that the custom endpoints are supported. Default permalinks will not work.
+
+- You may access the API over either HTTP or HTTPS, but HTTPS is recommended where possible.
+
+If you use ModSecurity and see 501 Method Not Implemented errors, see this issue for details.
+
+ Please note that you are not required to install the WP REST API (WP API) plugin.
+
+### Request/Response Format
+
+The default response format is JSON. Requests with a message-body use plain JSON to set or update resource attributes. Successful requests will return a 200 OK HTTP status.
+
+Some general information about responses:
+
+- Dates are returned in ISO8601 format: YYYY-MM-DDTHH:MM:SS
+
+- Resource IDs are returned as integers.
+
+- Any decimal monetary amount, such as prices or totals, will be returned as strings with two decimal places.
+
+- Other amounts, such as item counts, are returned as integers.
+
+- Blank fields are generally included as null or emtpy string instead of being omitted.
+
+### JSONP Support
+
+The WP REST API supports JSONP by default. JSONP responses use the application/javascript content-type. You can specify the callback using the ?_jsonp parameter for GET requests to have the response wrapped in a JSON function:
+
+ 
+ GET
+ 
+
+### /wp-json/wc/v3?_jsonp=callback
+
+ 
+
+ [code] 
+ [code] 
+ [code] 
+ [code] 
+ [code] 
+
+Response:
+
+ [code] 
+
+### Errors
+
+Occasionally you might encounter errors when accessing the REST API. There are four possible types:
+
+Error Code
+Error Type
+
+ | 400 Bad Request
+ | Invalid request, e.g. using an unsupported HTTP method
+
+ | 401 Unauthorized
+ | Authentication or permission error, e.g. incorrect API keys
+
+ | 404 Not Found
+ | Requests to resources that don't exist or are missing
+
+ | 500 Internal Server Error
+ | Server error
+
+WP REST API error example:
+
+ [code] 
+
+WooCommerce REST API error example:
+
+ [code] 
+
+Errors return both an appropriate HTTP status code and response object which contains a code, message and data attribute.
+
+### Parameters
+
+Almost all endpoints accept optional parameters which can be passed as a HTTP query string parameter, e.g. GET /orders?status=completed. All parameters are documented along each endpoint.
+
+### Pagination
+
+Requests that return multiple items will be paginated to 10 items by default. This default can be changed by the site administrator by changing the posts_per_page option. Alternatively the items per page can be specified with the ?per_page parameter:
+
+GET /orders?per_page=15
+
+You can specify further pages with the ?page parameter:
+
+GET /orders?page=2
+
+You may also specify the offset from the first resource using the ?offset parameter:
+
+GET /orders?offset=5
+
+Page number is 1-based and omitting the ?page parameter will return the first page.
+
+The total number of resources and pages are always included in the X-WP-Total and X-WP-TotalPages HTTP headers.
+
+### Link Header
+
+Pagination info is included in the Link Header. It's recommended that you follow these values instead of building your own URLs where possible.
+
+ [code] 
+
+The possible rel values are:
+
+Value
+Description
+
+ | next
+ | Shows the URL of the immediate next page of results.
+
+ | last
+ | Shows the URL of the last page of results.
+
+ | first
+ | Shows the URL of the first page of results.
+
+ | prev
+ | Shows the URL of the immediate previous page of results.
+
+### Libraries and Tools
+
+### Official libraries
+
+- JavaScript Library
+
+- PHP Library
+
+- Python Library
+
+- Ruby Library
+
+ [code] 
+ [code] 
+ [code] 
+ [code] 
+
+ Use the tabs in the top-right corner of this page to see how to install and use each library.
+
+### Third party libraries
+
+- Java Library
+
+- .NET Library
+
+- Android Library
+
+ Note that we don't offer support for third party libraries, so if you have questions about how use any of this libraries you should contact the respective authors.
+
+### Tools
+
+Some useful tools you can use to access the API include:
+
+- Insomnia - Cross-platform GraphQL and REST client, available for Mac, Windows, and Linux.
+
+- Postman - Cross-platform REST client, available for Mac, Windows, and Linux.
+
+- RequestBin - Allows you test webhooks.
+
+- Hookbin - Another tool to test webhooks.
+
+### Learn more
+
+Learn more about the REST API checking the official WordPress REST API documentation.
+
+### Authentication
+
+WooCommerce includes two ways to authenticate with the WP REST API. It is also possible to authenticate using any WP REST API authentication plugin or method.
+
+### REST API keys
+
+Pre-generated keys can be used to authenticate use of the REST API endpoints. New keys can be generated either through the WordPress admin interface or they can be auto-generated through an endpoint.
+
+### Generating API keys in the WordPress admin interface
+
+To create or manage keys for a specific WordPress user, go to WooCommerce > Settings > Advanced > REST API.
+
+Note: Keys/Apps was found at WooCommerce > Settings > API > Key/Apps prior to WooCommerce 3.4.
+
+Click the "Add Key" button. In the next screen, add a description and select the WordPress user you would like to generate the key for. Use of the REST API with the generated keys will conform to that user's WordPress roles and capabilities.
+
+Choose the level of access for this REST API key, which can be Read access, Write access or Read/Write access. Then click the "Generate API Key" button and WooCommerce will generate REST API keys for the selected user.
+
+Now that keys have been generated, you should see two new keys, a QRCode, and a Revoke API Key button. These two keys are your Consumer Key and Consumer Secret.
+
+If the WordPress user associated with an API key is deleted, the API key will cease to function. API keys are not transferred to other users.
+
+### Auto generating API keys using our Application Authentication Endpoint
+
+This endpoint can be used by any APP to allow users to generate API keys for your APP. This makes integration with WooCommerce API easier because the user only needs to grant access to your APP via a URL. After being redirected back to your APP, the API keys will be sent back in a separate POST request.
+
+The following image illustrates how this works:
+
+ This endpoint works exclusively for users to generate API keys and facilitate integration between the WooCommerce REST API and an application. In no way is this endpoint intended to be used as login method for customers.
+
+### URL parameters
+
+Parameter
+Type
+Description
+
+ | app_name
+ | string
+ | Your APP name mandatory
+
+ | scope
+ | string
+ | Level of access. Available: read, write and read_write mandatory
+
+ | user_id
+ | string
+ | User ID in your APP. For your internal reference, used when the user is redirected back to your APP. NOT THE USER ID IN WOOCOMMERCE mandatory
+
+ | return_url
+ | string
+ | URL the user will be redirected to after authentication mandatory
+
+ | callback_url
+ | string
+ | URL that will receive the generated API key. Note: this URL should be over HTTPS mandatory
+
+### Creating an authentication endpoint URL
+
+You must use the /wc-auth/v1/authorize endpoint and pass the above parameters as a query string.
+
+Example of how to build an authentication URL:
+
+ [code] 
+ [code] 
+ [code] 
+ [code] 
+ [code] 
+
+Example of JSON posted with the API Keys
+
+ [code] 
+
+Example of the screen that the user will see:
+
+### Notes
+
+- While redirecting the user using return_url, you are also sent success and user_id parameters as query strings.
+
+- success sends 0 if the user denied, or 1 if authenticated successfully.
+
+- Use user_id to identify the user when redirected back to the (return_url) and also remember to save the API Keys when your callback_url is posted to after auth.
+
+- The auth endpoint will send the API Keys in JSON format to the callback_url, so it's important to remember that some languages such as PHP will not display it inside the $_POST global variable, in PHP you can access it using $HTTP_RAW_POST_DATA (for old PHP versions) or file_get_contents('php://input');.
+
+- The URL generated must have all query string values encoded.
+
+### Authentication over HTTPS
+
+You may use HTTP Basic Auth by providing the REST API Consumer Key as the username and the REST API Consumer Secret as the password.
+
+HTTP Basic Auth example
+
+ [code] 
+ [code] 
+ [code] 
+ [code] 
+ [code] 
+
+Occasionally some servers may not parse the Authorization header correctly (if you see a "Consumer key is missing" error when authenticating over SSL, you have a server issue). In this case, you may provide the consumer key/secret as query string parameters instead.
+
+Example for servers that not properly parse the Authorization header:
+
+ [code] 
+ [code] 
+ [code] 
+ [code] 
+ [code] 
+
+### Authentication over HTTP
+
+You must use OAuth 1.0a "one-legged" authentication to ensure REST API credentials cannot be intercepted by an attacker. Typically you will use any standard OAuth 1.0a library in the language of your choice to handle the authentication, or generate the necessary parameters by following the following instructions.
+
+### Creating a signature
+
+### Collect the request method and URL
+
+First you need to determine the HTTP method you will be using for the request, and the URL of the request.
+
+The HTTP method will be GET in our case.
+
+The Request URL will be the endpoint you are posting to, e.g. http://www.example.com/wp-json/wc/v3/orders.
+
+### Collect parameters
+
+Collect and normalize your parameters. This includes all oauth_* parameters except for the oauth_signature itself.
+
+These values need to be encoded into a single string which will be used later on. The process to build the string is very specific:
+
+- Percent encode every key and value that will be signed.
+
+- Sort the list of parameters alphabetically by encoded key.
+
+- For each key/value pair:
+
+- Append the encoded key to the output string.
+
+- Append the = character to the output string.
+
+- Append the encoded value to the output string.
+
+- If there are more key/value pairs remaining, append a & character to the output string.
+
+When percent encoding in PHP for example, you would use rawurlencode().
+
+When sorting parameters in PHP for example, you would use uksort( $params, 'strcmp' ).
+
+Parameters example:
+
+ [code] 
+
+### Create the signature base string
+
+The above values collected so far must be joined to make a single string, from which the signature will be generated. This is called the signature base string in the OAuth specification.
+
+To encode the HTTP method, request URL, and parameter string into a single string:
+
+- Set the output string equal to the uppercase HTTP Method.
+
+- Append the & character to the output string.
+
+- Percent encode the URL and append it to the output string.
+
+- Append the & character to the output string.
+
+- Percent encode the parameter string and append it to the output string.
+
+Example signature base string:
+
+ [code] 
+
+### Generate the signature
+
+Generate the signature using the signature base string and your consumer secret key with a & character with the HMAC-SHA1 hashing algorithm.
+
+In PHP you can use the hash_hmac function.
+
+HMAC-SHA1 or HMAC-SHA256 are the only accepted hash algorithms.
+
+If you are having trouble generating a correct signature, you'll want to review the string you are signing for encoding errors. The authentication source can also be helpful in understanding how to properly generate the signature.
+
+### OAuth tips
+
+- The OAuth parameters may be added as query string parameters or included in the Authorization header.
+
+- Note there is no reliable cross-platform way to get the raw request headers in WordPress, so query string should be more reliable in some cases.
+
+- The required parameters are: oauth_consumer_key, oauth_timestamp, oauth_nonce, oauth_signature, and oauth_signature_method. oauth_version is not required and should be omitted.
+
+- The OAuth nonce can be any randomly generated 32 character (recommended) string that is unique to the consumer key.
+
+- The OAuth timestamp should be the unix timestamp at the time of the request. The REST API will deny any requests that include a timestamp outside of a 15 minute window to prevent replay attacks.
+
+- You must use the store URL provided by the index when forming the base string used for the signature, as this is what the server will use. (e.g. if the store URL includes a www sub-domain, you should use it for requests)
+
+- Note that the request body is not signed as per the OAuth spec.
+
+- If including parameters in your request, it saves a lot of trouble if you can order your items alphabetically.
+
+- Authorization header is supported starting WooCommerce 3.0.
+
+### Index
+
+By default, the API provides information about all available endpoints on the site. Authentication is not required to access the API index.
+
+### HTTP request
+
+ 
+ GET
+ 
+
+### /wp-json/wc/v3
+
+ 
+
+ [code] 
+ [code] 
+ [code] 
+ [code] 
+ [code] 
+
+JSON response example:
+
+ [code]

@@ -1,0 +1,17 @@
+# agentcookie.toml: secrets-bus adoption manifest v2
+# See docs/spec-agentcookie-secrets-bus-v2-adoption.md
+schema_version = 2
+name = "woocommerce-pp-cli"
+display_name = "WooCommerce"
+description = "The only WooCommerce CLI with a local database - so it answers the compound questions the Reports API cannot, and reads any store on the internet without credentials."
+project_kind = "cli"
+
+[secrets.file]
+path = "~/.config/woocommerce-pp-cli/config.toml"
+
+[sync]
+default = false
+
+[sync.keys]
+WOOCOMMERCE_CONSUMER_KEY = true
+WOOCOMMERCE_CONSUMER_SECRET = true

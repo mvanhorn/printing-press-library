@@ -1,0 +1,6 @@
+{
+  "run_id": "20260720-234424-510e5f56",
+  "decision": "skip-silent",
+  "reason": "spec-complete: same rationale as the browser-sniff gate. crowd-sniff mines npm SDKs and GitHub code to infer endpoints; the live route index already enumerates every route the server registers, so mining cannot exceed it. Community SDK surveys confirmed no tool references endpoints outside the captured set.",
+  "asked_at": "2026-07-21T05:57:42Z"
+}

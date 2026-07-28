@@ -1,0 +1,9 @@
+{
+  "dir": "\u003ccli-dir\u003e/woocommerce",
+  "research_dir": "\u003ccli-dir\u003e/20260720-234424-510e5f56",
+  "verdict": "pass",
+  "actors": null,
+  "issues": [
+    "no Apify actor references found, skipping"
+  ]
+}
