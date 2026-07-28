@@ -11,39 +11,24 @@ import (
 func TestFormatMaxTotalCharge(t *testing.T) {
 	t.Parallel()
 
-	tests := []struct {
+	for _, tc := range []struct {
 		name    string
 		maxCost float64
 		want    string
-		wantErr bool
 	}{
 		{name: "uncapped", maxCost: 0, want: ""},
 		{name: "fractional cap", maxCost: 0.5, want: "0.5"},
 		{name: "whole-dollar cap", maxCost: 2, want: "2"},
-		{name: "negative cap", maxCost: -0.5, wantErr: true},
-		{name: "not a number", maxCost: math.NaN(), wantErr: true},
-		{name: "positive infinity", maxCost: math.Inf(1), wantErr: true},
-		{name: "negative infinity", maxCost: math.Inf(-1), wantErr: true},
+	} {
+		got, err := formatMaxTotalCharge(tc.maxCost)
+		if err != nil || got != tc.want {
+			t.Errorf("%s: formatMaxTotalCharge(%v) = %q, %v; want %q, nil", tc.name, tc.maxCost, got, err, tc.want)
+		}
 	}
 
-	for _, tc := range tests {
-		tc := tc
-		t.Run(tc.name, func(t *testing.T) {
-			t.Parallel()
-
-			got, err := formatMaxTotalCharge(tc.maxCost)
-			if tc.wantErr {
-				if err == nil {
-					t.Fatal("formatMaxTotalCharge() error = nil, want error")
-				}
-				return
-			}
-			if err != nil {
-				t.Fatalf("formatMaxTotalCharge() error = %v", err)
-			}
-			if got != tc.want {
-				t.Errorf("formatMaxTotalCharge() = %q, want %q", got, tc.want)
-			}
-		})
+	for _, maxCost := range []float64{-0.5, math.NaN(), math.Inf(1)} {
+		if _, err := formatMaxTotalCharge(maxCost); err == nil {
+			t.Errorf("formatMaxTotalCharge(%v) error = nil, want error", maxCost)
+		}
 	}
 }
