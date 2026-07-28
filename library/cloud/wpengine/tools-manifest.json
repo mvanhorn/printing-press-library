@@ -1,0 +1,1769 @@
+{
+  "api_name": "wpengine",
+  "base_url": "https://api.wpengineapi.com/v1",
+  "description": "Every WP Engine Hosting Platform API operation, plus a local fleet mirror that answers cross-account audit questions the portal cannot.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "mcp": {
+    "endpoint_tools": "hidden",
+    "orchestration": "code"
+  },
+  "auth": {
+    "type": "api_key",
+    "header": "Authorization",
+    "format": "Basic {WP_ENGINE_API_USERNAME}:{WP_ENGINE_API_PASSWORD}",
+    "env_vars": [
+      "WP_ENGINE_API_USERNAME",
+      "WP_ENGINE_API_PASSWORD"
+    ],
+    "env_var_specs": [
+      {
+        "name": "WP_ENGINE_API_USERNAME",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": false,
+        "inferred": true
+      },
+      {
+        "name": "WP_ENGINE_API_PASSWORD",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    ],
+    "key_url": "https://my.wpengine.com/api_access"
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "accounts_get",
+      "description": "Returns a single Account. Required: account_id.",
+      "method": "GET",
+      "path": "/accounts/{account_id}",
+      "params": [
+        {
+          "name": "account_id",
+          "type": "string",
+          "location": "path",
+          "description": "ID of account",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "accounts_list",
+      "description": "Use this to list your WP Engine accounts. Optional: limit (default: 100), offset (default: 0). Returns array of Account.",
+      "method": "GET",
+      "path": "/accounts",
+      "params": [
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "(Optional) The number of records to return"
+        },
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "(Optional) The first record of the result set to be retrieved"
+        }
+      ]
+    },
+    {
+      "name": "accounts_account-users_create",
+      "description": "Create a new account user. Required: account_id, user. Returns the new AccountUsersCreateResponse.",
+      "method": "POST",
+      "path": "/accounts/{account_id}/account_users",
+      "params": [
+        {
+          "name": "account_id",
+          "type": "string",
+          "location": "path",
+          "description": "ID of account",
+          "required": true
+        },
+        {
+          "name": "user-account-id",
+          "wire_name": "user.account_id",
+          "type": "string",
+          "location": "body",
+          "description": "The account ID",
+          "required": true
+        },
+        {
+          "name": "user-email",
+          "wire_name": "user.email",
+          "type": "string",
+          "location": "body",
+          "description": "Email",
+          "required": true
+        },
+        {
+          "name": "user-first-name",
+          "wire_name": "user.first_name",
+          "type": "string",
+          "location": "body",
+          "description": "First name",
+          "required": true
+        },
+        {
+          "name": "user-install-ids",
+          "wire_name": "user.install_ids",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Install ids"
+        },
+        {
+          "name": "user-last-name",
+          "wire_name": "user.last_name",
+          "type": "string",
+          "location": "body",
+          "description": "Last name",
+          "required": true
+        },
+        {
+          "name": "user-roles",
+          "wire_name": "user.roles",
+          "type": "string",
+          "location": "body",
+          "description": "choose from 'owner', 'full,billing', 'full', 'partial,billing', and 'partial'",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "accounts_account-users_delete",
+      "description": "This will remove the association this user has to this account. This delete is permanent and there is no confirmation prompt. Required: account_id, user_id. Destructive.",
+      "method": "DELETE",
+      "path": "/accounts/{account_id}/account_users/{user_id}",
+      "params": [
+        {
+          "name": "account_id",
+          "type": "string",
+          "location": "path",
+          "description": "ID of account",
+          "required": true
+        },
+        {
+          "name": "user_id",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the user",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "accounts_account-users_get",
+      "description": "Returns a single account user. Required: account_id, user_id.",
+      "method": "GET",
+      "path": "/accounts/{account_id}/account_users/{user_id}",
+      "params": [
+        {
+          "name": "account_id",
+          "type": "string",
+          "location": "path",
+          "description": "ID of account",
+          "required": true
+        },
+        {
+          "name": "user_id",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the user",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "accounts_account-users_list",
+      "description": "List your account users. Required: account_id. Returns array of AccountUser.",
+      "method": "GET",
+      "path": "/accounts/{account_id}/account_users",
+      "params": [
+        {
+          "name": "account_id",
+          "type": "string",
+          "location": "path",
+          "description": "ID of account",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "accounts_account-users_update",
+      "description": "Update an account user. Required: account_id, user_id, roles. Optional: install_ids. Returns the updated AccountUsersUpdateResponse.",
+      "method": "PATCH",
+      "path": "/accounts/{account_id}/account_users/{user_id}",
+      "params": [
+        {
+          "name": "account_id",
+          "type": "string",
+          "location": "path",
+          "description": "ID of account",
+          "required": true
+        },
+        {
+          "name": "user_id",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the user",
+          "required": true
+        },
+        {
+          "name": "install_ids",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "Install ids"
+        },
+        {
+          "name": "roles",
+          "type": "string",
+          "location": "body",
+          "description": "choose from 'owner', 'full,billing', 'full', 'partial,billing', and 'partial'",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "accounts_limits_get-accounts",
+      "description": "Fetch account limits such as visitors, storage (GB) and bandwidth (GB) to compare against your current usage. Required: account_id. Returns the AccountLimits.",
+      "method": "GET",
+      "path": "/accounts/{account_id}/limits",
+      "params": [
+        {
+          "name": "account_id",
+          "type": "string",
+          "location": "path",
+          "description": "ID of account",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "accounts_site-transfers_list-account",
+      "description": "Returns a paginated list of site transfers initiated from the given account. Requires Owner or Full with Billing access.",
+      "method": "GET",
+      "path": "/accounts/{account_id}/site_transfers",
+      "params": [
+        {
+          "name": "account_id",
+          "type": "string",
+          "location": "path",
+          "description": "ID of account",
+          "required": true
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "(Optional) The number of records to return"
+        },
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "(Optional) The first record of the result set to be retrieved"
+        }
+      ]
+    },
+    {
+      "name": "accounts_usage_create",
+      "description": "Triggers an asynchronous job to recalculate the disk usage of installs associated with a specific account. This endpoint initiates the refresh process and returns immediately with a success status. **It does not return the updated usage data.** To check the status of the job and view the new data once it's available, you must poll the `GET /accounts/{account_id}/usage` endpoint. A successful request will populate the `account_storage_refresh_expected_time` attribute in that endpoint's response, indicating when the data is expected to be fresh. Multiple requests for the same environment will result in a single recalculation. Required: account_id.",
+      "method": "POST",
+      "path": "/accounts/{account_id}/usage/refresh_disk_usage",
+      "params": [
+        {
+          "name": "account_id",
+          "type": "string",
+          "location": "path",
+          "description": "The unique identifier (UUID) of the account.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "accounts_usage_get-account-insights",
+      "description": "Get detailed usage insights for the specified account across different environment types and site types. The default response is a summary of the last 30 days. The optional `first_date` and `last_date` arguments can be specified to retrieve insights over a custom date range. Both arguments must be provided and the range cannot exceed 31 days. Required: account_id. Optional: first_date, last_date. Returns the AccountUsageInsights.",
+      "method": "GET",
+      "path": "/accounts/{account_id}/usage/insights",
+      "params": [
+        {
+          "name": "account_id",
+          "type": "string",
+          "location": "path",
+          "description": "ID of account",
+          "required": true
+        },
+        {
+          "name": "first_date",
+          "type": "string",
+          "location": "query",
+          "description": "The start date for the requested metrics range (inclusive)."
+        },
+        {
+          "name": "last_date",
+          "type": "string",
+          "location": "query",
+          "description": "The end date for the requested metrics range (inclusive)."
+        }
+      ]
+    },
+    {
+      "name": "accounts_usage_get-account-metrics",
+      "description": "Get usage metrics for all environments in an account. If the optional `first_date` and `last_date` arguments are omitted, the response will include metrics for the last 30 days. Required: account_id. Optional: first_date, last_date, limit (default: 100) (plus 1 more). Returns array of EnvironmentMetrics.",
+      "method": "GET",
+      "path": "/accounts/{account_id}/usage",
+      "params": [
+        {
+          "name": "account_id",
+          "type": "string",
+          "location": "path",
+          "description": "ID of account",
+          "required": true
+        },
+        {
+          "name": "first_date",
+          "type": "string",
+          "location": "query",
+          "description": "The start date for the requested metrics range (inclusive)."
+        },
+        {
+          "name": "last_date",
+          "type": "string",
+          "location": "query",
+          "description": "The end date for the requested metrics range (inclusive)."
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "The maximum number of environments to return. A maximum of 1000 environments can be requested per page"
+        },
+        {
+          "name": "offset",
+          "type": "string",
+          "location": "query",
+          "description": "String-encoded offset for pagination. The next_page_token from the response can be used to paginate accordingly."
+        }
+      ]
+    },
+    {
+      "name": "accounts_usage_get-account-summary",
+      "description": "Get the usage summary over a time period for the specificied account. The default response is a summary of the last 30 days. The optional `first_date` and `last_date` arguments can be specified to retrieve a summary over a custom date range. Both arguments must be provided and the range cannot exceed 31 days. Required: account_id. Optional: first_date, last_date. Returns the UsageMetricsRollup.",
+      "method": "GET",
+      "path": "/accounts/{account_id}/usage/summary",
+      "params": [
+        {
+          "name": "account_id",
+          "type": "string",
+          "location": "path",
+          "description": "ID of account",
+          "required": true
+        },
+        {
+          "name": "first_date",
+          "type": "string",
+          "location": "query",
+          "description": "The start date for the requested metrics range (inclusive)."
+        },
+        {
+          "name": "last_date",
+          "type": "string",
+          "location": "query",
+          "description": "The end date for the requested metrics range (inclusive)."
+        }
+      ]
+    },
+    {
+      "name": "install-copy_copy-install",
+      "description": "Copy the full file system and database from one WordPress installation to another. Required: destination_environment_id, source_environment_id. Optional: custom_options, notification_emails.",
+      "method": "POST",
+      "path": "/install_copy",
+      "params": [
+        {
+          "name": "custom-options-db-tables",
+          "wire_name": "custom_options.db_tables",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "A list of tables to include in the copy. If unspecified, the full database will be copied. Cannot specifiy tables if `include_db` is `false`."
+        },
+        {
+          "name": "custom-options-include-db",
+          "wire_name": "custom_options.include_db",
+          "type": "bool",
+          "location": "body",
+          "description": "Should the database be included in the copy. True means include the database. Default is true."
+        },
+        {
+          "name": "custom-options-include-files",
+          "wire_name": "custom_options.include_files",
+          "type": "bool",
+          "location": "body",
+          "description": "Should files be included in the copy. True means include files. Default is true."
+        },
+        {
+          "name": "destination_environment_id",
+          "type": "string",
+          "location": "body",
+          "description": "The ID of the environment to copy to",
+          "required": true
+        },
+        {
+          "name": "notification_emails",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "An array of email addresses to notify when the copy is complete"
+        },
+        {
+          "name": "source_environment_id",
+          "type": "string",
+          "location": "body",
+          "description": "The ID of the environment to copy from",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "installs_create",
+      "description": "Create a new WordPress installation. Required: account_id, name. Optional: environment, site_id. Returns array of string.",
+      "method": "POST",
+      "path": "/installs",
+      "params": [
+        {
+          "name": "account_id",
+          "type": "string",
+          "location": "body",
+          "description": "The ID of the account that the install will belong to",
+          "required": true
+        },
+        {
+          "name": "environment",
+          "type": "string",
+          "location": "body",
+          "description": "The site environment that the install will fill"
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "The name of the install",
+          "required": true
+        },
+        {
+          "name": "site_id",
+          "type": "string",
+          "location": "body",
+          "description": "The ID of the site that the install will belong to"
+        }
+      ]
+    },
+    {
+      "name": "installs_delete",
+      "description": "This will delete the install, The delete is permanent and there is no confirmation prompt. Required: install_id. Destructive.",
+      "method": "DELETE",
+      "path": "/installs/{install_id}",
+      "params": [
+        {
+          "name": "install_id",
+          "type": "string",
+          "location": "path",
+          "description": "ID of install",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "installs_get",
+      "description": "Returns a single Install. Required: install_id.",
+      "method": "GET",
+      "path": "/installs/{install_id}",
+      "params": [
+        {
+          "name": "install_id",
+          "type": "string",
+          "location": "path",
+          "description": "ID of install",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "installs_list",
+      "description": "List your WordPress installations. Optional: limit (default: 100), offset (default: 0), account_id. Returns array of Installation.",
+      "method": "GET",
+      "path": "/installs",
+      "params": [
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "(Optional) The number of records to return"
+        },
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "(Optional) The first record of the result set to be retrieved"
+        },
+        {
+          "name": "account_id",
+          "type": "string",
+          "location": "query",
+          "description": "(Optional) The uuid of an account"
+        }
+      ]
+    },
+    {
+      "name": "installs_update",
+      "description": "Update a WordPress installation. Required: install_id. Optional: environment, site_id. Returns array of string.",
+      "method": "PATCH",
+      "path": "/installs/{install_id}",
+      "params": [
+        {
+          "name": "install_id",
+          "type": "string",
+          "location": "path",
+          "description": "The install ID",
+          "required": true
+        },
+        {
+          "name": "environment",
+          "type": "string",
+          "location": "body",
+          "description": "Environment"
+        },
+        {
+          "name": "site_id",
+          "type": "string",
+          "location": "body",
+          "description": "The site ID"
+        }
+      ]
+    },
+    {
+      "name": "installs_archives_create",
+      "description": "Creates a downloadable zip archive from a backup point. Archive will contain full backup data. Required: install_id, backup_id, notification_emails.",
+      "method": "POST",
+      "path": "/installs/{install_id}/archives",
+      "params": [
+        {
+          "name": "install_id",
+          "type": "string",
+          "location": "path",
+          "description": "ID of install",
+          "required": true
+        },
+        {
+          "name": "backup_id",
+          "type": "string",
+          "location": "body",
+          "description": "ID of the backup to create an archive from",
+          "required": true
+        },
+        {
+          "name": "notification_emails",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "The email address(es) that will receive an email once the archive is created",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "installs_archives_list",
+      "description": "Retrieves a paginated list of archives for a WordPress installation. Archives create downloadable zip files from backups. Required: install_id. Optional: limit (default: 100), offset (default: 0). Returns array of Archive.",
+      "method": "GET",
+      "path": "/installs/{install_id}/archives",
+      "params": [
+        {
+          "name": "install_id",
+          "type": "string",
+          "location": "path",
+          "description": "ID of install",
+          "required": true
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "(Optional) The number of records to return"
+        },
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "(Optional) The first record of the result set to be retrieved"
+        }
+      ]
+    },
+    {
+      "name": "installs_backups_create",
+      "description": "Requests a new backup of a WordPress installation. Required: install_id, description, notification_emails. Returns the new Backup.",
+      "method": "POST",
+      "path": "/installs/{install_id}/backups",
+      "params": [
+        {
+          "name": "install_id",
+          "type": "string",
+          "location": "path",
+          "description": "ID of install",
+          "required": true
+        },
+        {
+          "name": "description",
+          "type": "string",
+          "location": "body",
+          "description": "A description of this backup.",
+          "required": true
+        },
+        {
+          "name": "notification_emails",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "The email address(es) that will receive an email once the backup has completed.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "installs_backups_list",
+      "description": "Returns a paginated list of backups for the specified WordPress installation, in all states (`requested`, `in_progress`, `completed`, `aborted`). Required: install_id. Optional: limit (default: 100), offset (default: 0).",
+      "method": "GET",
+      "path": "/installs/{install_id}/backups",
+      "params": [
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "(Optional) The number of records to return"
+        },
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "(Optional) The first record of the result set to be retrieved"
+        },
+        {
+          "name": "install_id",
+          "type": "string",
+          "location": "path",
+          "description": "ID of install",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "installs_backups_restore",
+      "description": "Initiates a restore operation from a specific backup. This will restore the WordPress installation to the state captured in the specified backup. Required: install_id, backup_id, notification_emails. Optional: create_checkpoint (default: true), restore_database (default: true).",
+      "method": "POST",
+      "path": "/installs/{install_id}/backups/{backup_id}/restore",
+      "params": [
+        {
+          "name": "install_id",
+          "type": "string",
+          "location": "path",
+          "description": "ID of install",
+          "required": true
+        },
+        {
+          "name": "backup_id",
+          "type": "string",
+          "location": "path",
+          "description": "ID of backup to restore from",
+          "required": true
+        },
+        {
+          "name": "create_checkpoint",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether to create a checkpoint before restoring."
+        },
+        {
+          "name": "notification_emails",
+          "type": "string_csv_array",
+          "location": "body",
+          "description": "The email address(es) that will receive an email once the restore has completed.",
+          "required": true
+        },
+        {
+          "name": "restore_database",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether to restore the database from the backup."
+        }
+      ]
+    },
+    {
+      "name": "installs_backups_show",
+      "description": "Retrieves the status of a backup of a WordPress installation. Possible statuses include - `requested` - `in_progress` - `completed` - `aborted` `initiated` has been deprecated for `in_progress`. Required: install_id, backup_id. Returns the Backup.",
+      "method": "GET",
+      "path": "/installs/{install_id}/backups/{backup_id}",
+      "params": [
+        {
+          "name": "install_id",
+          "type": "string",
+          "location": "path",
+          "description": "ID of install",
+          "required": true
+        },
+        {
+          "name": "backup_id",
+          "type": "string",
+          "location": "path",
+          "description": "ID of backup",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "installs_domains_check-status",
+      "description": "Submit a status report for a domain. Returns a `report_id` that can be used to check the domain's status. Required: install_id, domain_id.",
+      "method": "POST",
+      "path": "/installs/{install_id}/domains/{domain_id}/check_status",
+      "params": [
+        {
+          "name": "install_id",
+          "type": "string",
+          "location": "path",
+          "description": "ID of install",
+          "required": true
+        },
+        {
+          "name": "domain_id",
+          "type": "string",
+          "location": "path",
+          "description": "ID of domain",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "installs_domains_create",
+      "description": "Adds a domain or redirect to a specific install and optionally sets it as the primary domain. For domain verification, see the [Adding and Verifying Domains](https://developers.wpengine.com/docs/managed-hosting-platform/api/guides/adding-and-verifying-domains) guide. Required: install_id, name. Optional: primary, redirect_to. Returns array of DomainsCreateItem.",
+      "method": "POST",
+      "path": "/installs/{install_id}/domains",
+      "params": [
+        {
+          "name": "install_id",
+          "type": "string",
+          "location": "path",
+          "description": "ID of install",
+          "required": true
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Name",
+          "required": true
+        },
+        {
+          "name": "primary",
+          "type": "bool",
+          "location": "body",
+          "description": "Primary"
+        },
+        {
+          "name": "redirect_to",
+          "type": "string",
+          "location": "body",
+          "description": "Redirect to"
+        }
+      ]
+    },
+    {
+      "name": "installs_domains_create-bulk",
+      "description": "Adds multiple domains and redirects to a specific install. Required: install_id, domains. Returns the new DomainOrRedirect.",
+      "method": "POST",
+      "path": "/installs/{install_id}/domains/bulk",
+      "params": [
+        {
+          "name": "install_id",
+          "type": "string",
+          "location": "path",
+          "description": "ID of install",
+          "required": true
+        },
+        {
+          "name": "domains",
+          "type": "array",
+          "location": "body",
+          "description": "Domains",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "installs_domains_create-certificate-order",
+      "description": "Submits a request for a Let's Encrypt Certificate for a given domain on an install. This is for domains on the legacy network. Required: install_id, domain_id, email_address, family_name, given_name, region_code. Optional: city, phone, state.",
+      "method": "POST",
+      "path": "/installs/{install_id}/domains/{domain_id}/ssl_certificate",
+      "params": [
+        {
+          "name": "install_id",
+          "type": "string",
+          "location": "path",
+          "description": "ID of install",
+          "required": true
+        },
+        {
+          "name": "domain_id",
+          "type": "string",
+          "location": "path",
+          "description": "ID of domain",
+          "required": true
+        },
+        {
+          "name": "city",
+          "type": "string",
+          "location": "body",
+          "description": "The certificate's city/locality"
+        },
+        {
+          "name": "email_address",
+          "type": "string",
+          "location": "body",
+          "description": "The certificate's holder's email address",
+          "required": true
+        },
+        {
+          "name": "family_name",
+          "type": "string",
+          "location": "body",
+          "description": "The certificate holder's last / family name",
+          "required": true
+        },
+        {
+          "name": "given_name",
+          "type": "string",
+          "location": "body",
+          "description": "The certificate holder's first / given name",
+          "required": true
+        },
+        {
+          "name": "phone",
+          "type": "string",
+          "location": "body",
+          "description": "The certificate holder's phone number"
+        },
+        {
+          "name": "region_code",
+          "type": "string",
+          "location": "body",
+          "description": "The two-letter ISO 3166-1 alpha-2 code for the certificate's country",
+          "required": true
+        },
+        {
+          "name": "state",
+          "type": "string",
+          "location": "body",
+          "description": "The certificate's state/region"
+        }
+      ]
+    },
+    {
+      "name": "installs_domains_create-sharing-link",
+      "description": "Generates a shareable Entri Connect URL that can be sent to anyone with Domain Registry access to complete DNS configuration. When a user opens the URL, they'll be asked to sign into their Domain Registry and complete DNS verification and configuration to point the domain to WP Engine. The domain must be on the Advanced Network (AN) or Global Edge Security (GES) network type. Each call generates a new share link. There is no idempotency token, so you should treat the returned URL as the artifact and re-share it rather than regenerate to avoid creating orphan share links. Required: install_id, domain_id. Returns the new SharingLink.",
+      "method": "POST",
+      "path": "/installs/{install_id}/domains/{domain_id}/sharing_link",
+      "params": [
+        {
+          "name": "install_id",
+          "type": "string",
+          "location": "path",
+          "description": "ID of install",
+          "required": true
+        },
+        {
+          "name": "domain_id",
+          "type": "string",
+          "location": "path",
+          "description": "ID of domain",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "installs_domains_delete",
+      "description": "Delete a specific domain for an install. Required: install_id, domain_id. Destructive.",
+      "method": "DELETE",
+      "path": "/installs/{install_id}/domains/{domain_id}",
+      "params": [
+        {
+          "name": "install_id",
+          "type": "string",
+          "location": "path",
+          "description": "ID of install",
+          "required": true
+        },
+        {
+          "name": "domain_id",
+          "type": "string",
+          "location": "path",
+          "description": "ID of domain",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "installs_domains_get",
+      "description": "Returns specific domain for an install. Required: install_id, domain_id.",
+      "method": "GET",
+      "path": "/installs/{install_id}/domains/{domain_id}",
+      "params": [
+        {
+          "name": "install_id",
+          "type": "string",
+          "location": "path",
+          "description": "ID of install",
+          "required": true
+        },
+        {
+          "name": "domain_id",
+          "type": "string",
+          "location": "path",
+          "description": "ID of domain",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "installs_domains_get-certificate",
+      "description": "Returns certificate information for a given domain on an install. Required: install_id, domain_id.",
+      "method": "GET",
+      "path": "/installs/{install_id}/domains/{domain_id}/ssl_certificate",
+      "params": [
+        {
+          "name": "install_id",
+          "type": "string",
+          "location": "path",
+          "description": "ID of install",
+          "required": true
+        },
+        {
+          "name": "domain_id",
+          "type": "string",
+          "location": "path",
+          "description": "ID of domain",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "installs_domains_get-report-status",
+      "description": "Fetches a status report for a specific domain. Accepts a `report_id`. Required: install_id, report_id. Returns the DomainsGetReportStatusResponse.",
+      "method": "GET",
+      "path": "/installs/{install_id}/domains/check_status/{report_id}",
+      "params": [
+        {
+          "name": "install_id",
+          "type": "string",
+          "location": "path",
+          "description": "Install id",
+          "required": true
+        },
+        {
+          "name": "report_id",
+          "type": "string",
+          "location": "path",
+          "description": "Report id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "installs_domains_list",
+      "description": "Get the domains for an install by install id. Required: install_id. Optional: limit (default: 100), offset (default: 0). Returns array of Domain.",
+      "method": "GET",
+      "path": "/installs/{install_id}/domains",
+      "params": [
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "(Optional) The number of records to return"
+        },
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "(Optional) The first record of the result set to be retrieved"
+        },
+        {
+          "name": "install_id",
+          "type": "string",
+          "location": "path",
+          "description": "ID of install",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "installs_domains_update",
+      "description": "Updates an existing domain for an install. Cannot set a duplicate, wildcard, or redirected domain as the primary. For domain verification, see the [Adding and Verifying Domains](https://developers.wpengine.com/docs/managed-hosting-platform/api/guides/adding-and-verifying-domains) guide. Required: install_id, domain_id. Optional: primary, redirect_to, secure_all_urls. Returns array of DomainsUpdateItem.",
+      "method": "PATCH",
+      "path": "/installs/{install_id}/domains/{domain_id}",
+      "params": [
+        {
+          "name": "install_id",
+          "type": "string",
+          "location": "path",
+          "description": "The install ID",
+          "required": true
+        },
+        {
+          "name": "domain_id",
+          "type": "string",
+          "location": "path",
+          "description": "ID of domain",
+          "required": true
+        },
+        {
+          "name": "primary",
+          "type": "bool",
+          "location": "body",
+          "description": "Primary"
+        },
+        {
+          "name": "redirect_to",
+          "type": "string",
+          "location": "body",
+          "description": "Redirect to"
+        },
+        {
+          "name": "secure_all_urls",
+          "type": "bool",
+          "location": "body",
+          "description": "Secure all urls"
+        }
+      ]
+    },
+    {
+      "name": "installs_domains_verify-txt-record",
+      "description": "Triggers verification of the TXT record for a domain to confirm ownership. Required: install_id, domain_id. Returns the new DomainVerification.",
+      "method": "POST",
+      "path": "/installs/{install_id}/domains/{domain_id}/verification",
+      "params": [
+        {
+          "name": "install_id",
+          "type": "string",
+          "location": "path",
+          "description": "ID of install",
+          "required": true
+        },
+        {
+          "name": "domain_id",
+          "type": "string",
+          "location": "path",
+          "description": "ID of domain",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "installs_offload-settings_get",
+      "description": "Returns the offload settings configuration for a specific install. Required: install_id.",
+      "method": "GET",
+      "path": "/installs/{install_id}/offload_settings/files",
+      "params": [
+        {
+          "name": "install_id",
+          "type": "string",
+          "location": "path",
+          "description": "ID of install",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "installs_offload-settings_get-large-fsvalidation-file",
+      "description": "Returns the validation filename and contents necessary to configure an S3 bucket for LargeFS. Required: install_id.",
+      "method": "GET",
+      "path": "/installs/{install_id}/offload_settings/largefs_validation_file",
+      "params": [
+        {
+          "name": "install_id",
+          "type": "string",
+          "location": "path",
+          "description": "ID of install",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "installs_offload-settings_patch",
+      "description": "Partially updates the offload settings configuration for a specific install. Required: install_id. Optional: largefs_settings. Partial update.",
+      "method": "PATCH",
+      "path": "/installs/{install_id}/offload_settings/files",
+      "params": [
+        {
+          "name": "install_id",
+          "type": "string",
+          "location": "path",
+          "description": "ID of install",
+          "required": true
+        },
+        {
+          "name": "largefs-settings-bucket",
+          "wire_name": "largefs_settings.bucket",
+          "type": "string",
+          "location": "body",
+          "description": "Bucket"
+        },
+        {
+          "name": "largefs-settings-bucket-region",
+          "wire_name": "largefs_settings.bucket_region",
+          "type": "string",
+          "location": "body",
+          "description": "Bucket region"
+        },
+        {
+          "name": "largefs-settings-cloud",
+          "wire_name": "largefs_settings.cloud",
+          "type": "string",
+          "location": "body",
+          "description": "Cloud"
+        },
+        {
+          "name": "largefs-settings-path-settings",
+          "wire_name": "largefs_settings.path_settings",
+          "type": "array",
+          "location": "body",
+          "description": "Path settings"
+        }
+      ]
+    },
+    {
+      "name": "installs_offload-settings_update",
+      "description": "Updates the offload settings configuration for a specific install. Required: install_id. Optional: largefs_settings.",
+      "method": "POST",
+      "path": "/installs/{install_id}/offload_settings/files",
+      "params": [
+        {
+          "name": "install_id",
+          "type": "string",
+          "location": "path",
+          "description": "ID of install",
+          "required": true
+        },
+        {
+          "name": "largefs-settings-bucket",
+          "wire_name": "largefs_settings.bucket",
+          "type": "string",
+          "location": "body",
+          "description": "Bucket"
+        },
+        {
+          "name": "largefs-settings-bucket-region",
+          "wire_name": "largefs_settings.bucket_region",
+          "type": "string",
+          "location": "body",
+          "description": "Bucket region"
+        },
+        {
+          "name": "largefs-settings-cloud",
+          "wire_name": "largefs_settings.cloud",
+          "type": "string",
+          "location": "body",
+          "description": "Cloud"
+        },
+        {
+          "name": "largefs-settings-path-settings",
+          "wire_name": "largefs_settings.path_settings",
+          "type": "array",
+          "location": "body",
+          "description": "Path settings"
+        }
+      ]
+    },
+    {
+      "name": "installs_purge-cache_purge_cache",
+      "description": "This will purge the specified cache associated with the install. Allowed types: - 'object' - 'page' - 'cdn' - 'all'. Required: install_id, type.",
+      "method": "POST",
+      "path": "/installs/{install_id}/purge_cache",
+      "params": [
+        {
+          "name": "install_id",
+          "type": "string",
+          "location": "path",
+          "description": "ID of install",
+          "required": true
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "location": "body",
+          "description": "Type",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "installs_ssl-certificates_get-install-certificates",
+      "description": "Returns a list of SSL certificates for a given install. If no certificates exist, returns 404 with a specific error message. Required: install_id. Optional: limit (default: 100), offset (default: 0).",
+      "method": "GET",
+      "path": "/installs/{install_id}/ssl_certificates",
+      "params": [
+        {
+          "name": "install_id",
+          "type": "string",
+          "location": "path",
+          "description": "ID of install",
+          "required": true
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "(Optional) The number of records to return"
+        },
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "(Optional) The first record of the result set to be retrieved"
+        }
+      ]
+    },
+    {
+      "name": "installs_ssl-certificates_import-third-party",
+      "description": "Imports a third-party PEM formatted SSL certificate and key for an install. Required: install_id, certificate, private_key. Returns the new ThirdPartySuccessfulImportResponse.",
+      "method": "POST",
+      "path": "/installs/{install_id}/ssl_certificates/third_party",
+      "params": [
+        {
+          "name": "install_id",
+          "type": "string",
+          "location": "path",
+          "description": "ID of install",
+          "required": true
+        },
+        {
+          "name": "certificate",
+          "type": "string",
+          "location": "body",
+          "description": "Base64 encoded PEM certificate chain including the end-entity certificate and all intermediate CA certificates",
+          "required": true
+        },
+        {
+          "name": "private_key",
+          "type": "string",
+          "location": "body",
+          "description": "The corresponding base64 encoded PEM private key",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "installs_usage_get-install-metrics",
+      "description": "Get a list of daily usage metrics related to this install. If the optional `first_date` and `last_date` arguments are omitted, the response will include metrics for the last 30 days. For days where there are no storage metrics, they will be artificially filled with the last known storage metrics. Required: install_id. Optional: first_date, last_date. Returns array of DailyUsageMetrics.",
+      "method": "GET",
+      "path": "/installs/{install_id}/usage",
+      "params": [
+        {
+          "name": "install_id",
+          "type": "string",
+          "location": "path",
+          "description": "The UUID of the install.",
+          "required": true
+        },
+        {
+          "name": "first_date",
+          "type": "string",
+          "location": "query",
+          "description": "The start date for the requested metrics range (inclusive)."
+        },
+        {
+          "name": "last_date",
+          "type": "string",
+          "location": "query",
+          "description": "The end date for the requested metrics range (inclusive)."
+        }
+      ]
+    },
+    {
+      "name": "installs_usage_refresh-environment-disk",
+      "description": "Triggers an asynchronous job to recalculate the disk usage for the given WordPress site environment. This endpoint initiates the refresh process and returns immediately with a success status. **It does not return the updated usage data.** To check the status of the job and view the new data once it's available, you must poll for daily usage metrics at `GET /installs/{install_id}/usage`. The estimated time of completion can be viewed in daily usage metrics as the `storage_refresh_expected_time` field. If the field is `null`, the job has already completed. The last time storage was refreshed can be viewed in the `storage_update_time` field of daily usage metrics. Multiple requests for the same environment will result in a single recalculation. Required: install_id.",
+      "method": "POST",
+      "path": "/installs/{install_id}/usage/refresh_disk_usage",
+      "params": [
+        {
+          "name": "install_id",
+          "type": "string",
+          "location": "path",
+          "description": "The UUID of the install.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "site-reports_create-schedule",
+      "description": "Creates a scheduled report for a site.",
+      "method": "POST",
+      "path": "/site_reports/schedules",
+      "params": [
+        {
+          "name": "frequency-unit",
+          "wire_name": "frequency.unit",
+          "type": "string",
+          "location": "body",
+          "description": "Frequency unit. 'DAYS' for weekly or biweekly reports, 'MONTHLY' for monthly reports.",
+          "required": true
+        },
+        {
+          "name": "frequency-value",
+          "wire_name": "frequency.value",
+          "type": "int",
+          "location": "body",
+          "description": "Frequency value. For DAYS, value is 7 or 14. For MONTHLY, value is the day of the month (1-31).",
+          "required": true
+        },
+        {
+          "name": "next_scheduled_date",
+          "type": "string",
+          "location": "body",
+          "description": "ISO 8601 datetime for the first report generation"
+        },
+        {
+          "name": "recipients",
+          "type": "array",
+          "location": "body",
+          "description": "List of recipients for the scheduled report",
+          "required": true
+        },
+        {
+          "name": "sections",
+          "type": "array",
+          "location": "body",
+          "description": "Sections to include in the report. Valid section names depend on the template (e.g. `cover`, `overview`, `usage`, `themes`). Use `GET /site_reports/templates` to discover available sections for a given template."
+        },
+        {
+          "name": "site_id",
+          "type": "string",
+          "location": "body",
+          "description": "ID of the site to schedule reports for",
+          "required": true
+        },
+        {
+          "name": "template_uuid",
+          "type": "string",
+          "location": "body",
+          "description": "UUID of the report template to use"
+        },
+        {
+          "name": "title",
+          "type": "string",
+          "location": "body",
+          "description": "Title for the scheduled report",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "site-reports_delete-schedule",
+      "description": "Deletes a report schedule by its ID. Required: schedule_id. Destructive.",
+      "method": "DELETE",
+      "path": "/site_reports/schedules/{schedule_id}",
+      "params": [
+        {
+          "name": "schedule_id",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the schedule to delete",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "site-reports_get",
+      "description": "Returns a list of generated site reports for a particular site. Required: site_id.",
+      "method": "GET",
+      "path": "/site_reports",
+      "params": [
+        {
+          "name": "site_id",
+          "type": "string",
+          "location": "query",
+          "description": "Filter reports by site ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "site-reports_get-schedules",
+      "description": "Reports can be scheduled to run monthly, weekly, or every two weeks. This endpoint returns all active report schedules for a given site, allowing you to manage and monitor when reports are generated automatically.",
+      "method": "GET",
+      "path": "/site_reports/schedules",
+      "params": [
+        {
+          "name": "site_id",
+          "type": "string",
+          "location": "query",
+          "description": "Filter schedules by site ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "site-reports_get-sections",
+      "description": "Returns the available sections for a site report.",
+      "method": "GET",
+      "path": "/site_reports/sections",
+      "params": []
+    },
+    {
+      "name": "site-reports_list-templates",
+      "description": "Returns a list of report templates available for Site Reports.",
+      "method": "GET",
+      "path": "/site_reports/templates",
+      "params": [
+        {
+          "name": "account_id",
+          "type": "string",
+          "location": "query",
+          "description": "Account ID to filter templates. This parameter is required.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "site-reports_update-schedule",
+      "description": "Updates an existing report schedule.",
+      "method": "PATCH",
+      "path": "/site_reports/schedules/{schedule_id}",
+      "params": [
+        {
+          "name": "schedule_id",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the schedule to update",
+          "required": true
+        },
+        {
+          "name": "frequency-unit",
+          "wire_name": "frequency.unit",
+          "type": "string",
+          "location": "body",
+          "description": "Frequency unit. 'DAYS' for weekly or biweekly reports, 'MONTHLY' for monthly reports.",
+          "required": true
+        },
+        {
+          "name": "frequency-value",
+          "wire_name": "frequency.value",
+          "type": "int",
+          "location": "body",
+          "description": "Frequency value. For DAYS, value is 7 or 14. For MONTHLY, value is the day of the month (1-31).",
+          "required": true
+        },
+        {
+          "name": "next_scheduled_date",
+          "type": "string",
+          "location": "body",
+          "description": "ISO 8601 datetime for the next report generation"
+        },
+        {
+          "name": "recipients",
+          "type": "array",
+          "location": "body",
+          "description": "List of recipients for the report"
+        },
+        {
+          "name": "sections",
+          "type": "array",
+          "location": "body",
+          "description": "Sections to include in the report. Valid section names depend on the template (e.g. `cover`, `overview`, `usage`, `themes`). Use `GET /site_reports/templates` to discover available sections for a given template."
+        },
+        {
+          "name": "template_uuid",
+          "type": "string",
+          "location": "body",
+          "description": "UUID of the report template to use"
+        },
+        {
+          "name": "title",
+          "type": "string",
+          "location": "body",
+          "description": "Title for the scheduled report"
+        }
+      ]
+    },
+    {
+      "name": "sites_create",
+      "description": "Create a new site. Required: account_id, name. Returns the new Site.",
+      "method": "POST",
+      "path": "/sites",
+      "params": [
+        {
+          "name": "account_id",
+          "type": "string",
+          "location": "body",
+          "description": "The account ID",
+          "required": true
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Name",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "sites_delete",
+      "description": "This will delete the site and any installs associated with this site. This delete is permanent and there is no confirmation prompt. Required: site_id. Destructive.",
+      "method": "DELETE",
+      "path": "/sites/{site_id}",
+      "params": [
+        {
+          "name": "site_id",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the site to delete *(For accounts with sites enabled)*",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "sites_get",
+      "description": "Returns a single site. Required: site_id.",
+      "method": "GET",
+      "path": "/sites/{site_id}",
+      "params": [
+        {
+          "name": "site_id",
+          "type": "string",
+          "location": "path",
+          "description": "The site ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "sites_list",
+      "description": "List your sites. Optional: limit (default: 100), offset (default: 0), account_id. Returns array of Site.",
+      "method": "GET",
+      "path": "/sites",
+      "params": [
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "(Optional) The number of records to return"
+        },
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "(Optional) The first record of the result set to be retrieved"
+        },
+        {
+          "name": "account_id",
+          "type": "string",
+          "location": "query",
+          "description": "(Optional) The uuid of an account"
+        }
+      ]
+    },
+    {
+      "name": "sites_update",
+      "description": "Change a site name. Required: site_id. Optional: name. Returns the updated Site.",
+      "method": "PATCH",
+      "path": "/sites/{site_id}",
+      "params": [
+        {
+          "name": "site_id",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the site to change the name of *(For accounts with sites enabled)*",
+          "required": true
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "The new site name"
+        }
+      ]
+    },
+    {
+      "name": "sites_site-transfers_cancel",
+      "description": "Cancels a site transfer. Only transfers that have not yet started can be cancelled; a transfer that has already started will return `409 Conflict`. Required: site_id, transfer_id. Destructive.",
+      "method": "DELETE",
+      "path": "/sites/{site_id}/site_transfers/{transfer_id}",
+      "params": [
+        {
+          "name": "site_id",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the site",
+          "required": true
+        },
+        {
+          "name": "transfer_id",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the site transfer to cancel",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "sites_site-transfers_create",
+      "description": "Requests a transfer of the given site to a destination account. The transfer is accepted asynchronously and will initially have a `pending` or `scheduled` status.",
+      "method": "POST",
+      "path": "/sites/{site_id}/site_transfers",
+      "params": [
+        {
+          "name": "site_id",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the site to transfer",
+          "required": true
+        },
+        {
+          "name": "destination_account_id",
+          "type": "string",
+          "location": "body",
+          "description": "UUID of the destination account",
+          "required": true
+        },
+        {
+          "name": "maintenance_mode",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether to enable maintenance mode on the site during the transfer"
+        },
+        {
+          "name": "scheduled_time",
+          "type": "string",
+          "location": "body",
+          "description": "RFC 3339 datetime at which to execute the transfer. Must be between 1 hour and 7 days in the future. Example: '2026-06-01T14:30:00Z'"
+        }
+      ]
+    },
+    {
+      "name": "sites_site-transfers_get",
+      "description": "Returns a single site transfer for the given site. Required: site_id, transfer_id.",
+      "method": "GET",
+      "path": "/sites/{site_id}/site_transfers/{transfer_id}",
+      "params": [
+        {
+          "name": "site_id",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the site",
+          "required": true
+        },
+        {
+          "name": "transfer_id",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the site transfer",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "sites_site-transfers_list",
+      "description": "Returns a paginated list of transfers associated with the given site. Requires Owner or Full with Billing access. Required: site_id. Optional: limit (default: 100), offset (default: 0).",
+      "method": "GET",
+      "path": "/sites/{site_id}/site_transfers",
+      "params": [
+        {
+          "name": "site_id",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the site",
+          "required": true
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "(Optional) The number of records to return"
+        },
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "(Optional) The first record of the result set to be retrieved"
+        }
+      ]
+    },
+    {
+      "name": "ssh-keys_create",
+      "description": "Use this to add a new SSH key to WP Engine. Required: public_key. Returns the new SshKey.",
+      "method": "POST",
+      "path": "/ssh_keys",
+      "params": [
+        {
+          "name": "public_key",
+          "type": "string",
+          "location": "body",
+          "description": "Public key",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "ssh-keys_delete",
+      "description": "This will delete the SSH key. Required: ssh_key_id. Destructive.",
+      "method": "DELETE",
+      "path": "/ssh_keys/{ssh_key_id}",
+      "params": [
+        {
+          "name": "ssh_key_id",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the SSH key to delete",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "ssh-keys_list",
+      "description": "Use this to list the SSH keys that you've added to WP Engine. Optional: limit (default: 100), offset (default: 0). Returns array of SshKey.",
+      "method": "GET",
+      "path": "/ssh_keys",
+      "params": [
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "(Optional) The number of records to return"
+        },
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "(Optional) The first record of the result set to be retrieved"
+        }
+      ]
+    },
+    {
+      "name": "status_status",
+      "description": "This endpoint will report the system status and any outages that might be occurring. Returns the Status.",
+      "method": "GET",
+      "path": "/status",
+      "params": []
+    },
+    {
+      "name": "swagger_swagger",
+      "description": "This will output the current swagger specification.",
+      "method": "GET",
+      "path": "/swagger",
+      "params": []
+    },
+    {
+      "name": "user_get-current",
+      "description": "Returns the currently authenticated user.",
+      "method": "GET",
+      "path": "/user",
+      "params": []
+    }
+  ]
+}

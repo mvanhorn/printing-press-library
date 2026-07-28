@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "id": "wpengine-basic-auth-pair-test-fixtures",
+  "applied_at": "2026-07-28",
+  "base_run_id": "20260720-233949-d42ec029",
+  "base_printing_press_version": "4.29.0",
+  "summary": "Credential precedence tests must exercise WP Engine's complete Basic-auth username/password pair and isolate the credentials store.",
+  "reason": "Single-token fixtures cannot produce a valid Basic Authorization header, and ambient credentials can overwrite explicit permission-test fixtures.",
+  "files": [
+    "internal/cliutil/credentials_test.go",
+    "internal/config/config_perms_test.go"
+  ],
+  "validated_outcome": "go test ./... passes with pair-aware fixtures and an isolated test data directory."
+}

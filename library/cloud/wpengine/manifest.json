@@ -1,0 +1,47 @@
+{
+  "manifest_version": "0.3",
+  "name": "wpengine-pp-mcp",
+  "display_name": "WP Engine",
+  "version": "1.21.2",
+  "description": "Every WP Engine Hosting Platform API operation, plus a local fleet mirror that answers cross-account audit questions the portal cannot.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/wpengine-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/wpengine-pp-mcp",
+      "args": [],
+      "env": {
+        "WP_ENGINE_API_PASSWORD": "${user_config.wp_engine_api_password}",
+        "WP_ENGINE_API_USERNAME": "${user_config.wp_engine_api_username}"
+      }
+    }
+  },
+  "user_config": {
+    "wp_engine_api_password": {
+      "type": "string",
+      "title": "WP_ENGINE_API_PASSWORD",
+      "description": "Sets WP_ENGINE_API_PASSWORD for the WP Engine MCP server. Get a credential from https://my.wpengine.com/api_access.",
+      "sensitive": true,
+      "required": true
+    },
+    "wp_engine_api_username": {
+      "type": "string",
+      "title": "WP_ENGINE_API_USERNAME",
+      "description": "Sets WP_ENGINE_API_USERNAME for the WP Engine MCP server. Get a credential from https://my.wpengine.com/api_access.",
+      "sensitive": true,
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

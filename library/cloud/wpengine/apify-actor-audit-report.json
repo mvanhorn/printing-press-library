@@ -1,0 +1,9 @@
+{
+  "dir": "\u003ccli-dir\u003e/wpengine-pp-cli",
+  "research_dir": "\u003ccli-dir\u003e/20260720-233949-d42ec029",
+  "verdict": "pass",
+  "actors": null,
+  "issues": [
+    "no Apify actor references found, skipping"
+  ]
+}

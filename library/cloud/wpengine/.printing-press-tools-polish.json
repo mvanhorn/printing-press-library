@@ -1,0 +1,15 @@
+{
+  "timestamp": "2026-07-21T13:20:56.523669Z",
+  "cli_dir": "\u003ccli-dir\u003e/wpengine-pp-cli",
+  "findings": [
+    {
+      "kind": "thin-short",
+      "command": "list",
+      "file": "teach.go",
+      "line": 692,
+      "evidence": "List recorded learnings",
+      "status": "accepted",
+      "note": "Generator-owned learn-loop surface ('learnings list'); the Short is accurate and self-explanatory for agents, and a hand-edit in generated teach.go would drift on the next regen"
+    }
+  ]
+}

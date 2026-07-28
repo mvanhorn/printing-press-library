@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "api_name": "wpengine",
+  "run_id": "20260720-233949-d42ec029",
+  "status": "pass",
+  "level": "full",
+  "matrix_size": 279,
+  "tests_passed": 279,
+  "tests_skipped": 175,
+  "auth_context": {
+    "type": "api_key"
+  }
+}

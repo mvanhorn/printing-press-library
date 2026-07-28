@@ -1,0 +1,69 @@
+{
+  "schema_version": 2,
+  "generated_at": "2026-07-21T13:25:11.120677Z",
+  "printing_press_version": "4.29.0",
+  "api_name": "wpengine",
+  "display_name": "WP Engine",
+  "cli_name": "wpengine-pp-cli",
+  "creator": {
+    "handle": "bobeglz",
+    "name": "bobe"
+  },
+  "owner": "bobeglz",
+  "printer": "bobeglz",
+  "printer_name": "bobe",
+  "spec_path": "wpengine-swagger.json",
+  "spec_format": "openapi3",
+  "spec_checksum": "sha256:4a962931c3dca3cd84dae76f14adf80dcb457430d59d9bba3b22ea609dd6e1ed",
+  "run_id": "20260720-233949-d42ec029",
+  "category": "cloud",
+  "description": "Every WP Engine Hosting Platform API operation, plus a local fleet mirror that answers cross-account audit questions the portal cannot.",
+  "mcp_binary": "wpengine-pp-mcp",
+  "mcp_tool_count": 68,
+  "mcp_ready": "full",
+  "api_version": "1.21.2",
+  "auth_type": "api_key",
+  "auth_preference": "basicAuth",
+  "auth_env_vars": [
+    "WP_ENGINE_API_USERNAME",
+    "WP_ENGINE_API_PASSWORD"
+  ],
+  "auth_key_url": "https://my.wpengine.com/api_access",
+  "novel_features": [
+    {
+      "name": "Cert expiry audit",
+      "command": "audit certs",
+      "description": "See every SSL certificate across your whole fleet sorted by days to expiry, before a client site goes insecure."
+    },
+    {
+      "name": "Backup staleness audit",
+      "command": "audit backups",
+      "description": "Find production installs whose latest completed backup is older than a threshold you set."
+    },
+    {
+      "name": "Version drift audit",
+      "command": "audit versions",
+      "description": "Fleet-wide PHP and WordPress version distribution with outlier filters, plus per-site environment drift detection."
+    },
+    {
+      "name": "Deploy guard",
+      "command": "guard",
+      "description": "Gate a deploy: create a checkpoint backup, wait until it completes, then optionally purge cache, with CI-friendly exit codes."
+    },
+    {
+      "name": "Overage projection",
+      "command": "audit usage",
+      "description": "Project month-end billable visits and storage against account limits and flag accounts trending over."
+    },
+    {
+      "name": "Domain health audit",
+      "command": "audit domains",
+      "description": "One list of everything blocked across launches: unverified domains, domains without cert coverage, dangling redirects."
+    },
+    {
+      "name": "Reverse domain lookup",
+      "command": "whois",
+      "description": "Resolve any domain name to the install, site, and account that serve it, plus cert and redirect status."
+    }
+  ]
+}
