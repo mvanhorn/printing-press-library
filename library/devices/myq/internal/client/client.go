@@ -216,7 +216,7 @@ func (c *Client) fillAccounts(ctx context.Context) error {
 }
 
 func (c *Client) apiRequestWithRetry(ctx context.Context, req *http.Request, target any) error {
-	if err := c.apiRequest(ctx, req, target); err == ErrNotLoggedIn {
+	if err := c.apiRequest(ctx, req, target); errors.Is(err, ErrNotLoggedIn) {
 		if err := c.Login(ctx); err != nil {
 			return err
 		}
@@ -293,8 +293,8 @@ func (e *errorResponse) Error() string {
 }
 
 func isStatus(err error, code int) bool {
-	e, ok := err.(*errorResponse)
-	return ok && e.StatusCode == code
+	var responseErr *errorResponse
+	return errors.As(err, &responseErr) && responseErr.StatusCode == code
 }
 
 func drain(rc io.ReadCloser) {
