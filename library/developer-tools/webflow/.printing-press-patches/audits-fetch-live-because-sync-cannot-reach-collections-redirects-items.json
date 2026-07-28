@@ -1,0 +1,21 @@
+{
+  "schema_version": 2,
+  "id": "audits-fetch-live-because-sync-cannot-reach-collections-redirects-items",
+  "applied_at": "2026-07-28",
+  "base_run_id": "20260728-073020-15799c7c",
+  "base_printing_press_version": "4.29.0",
+  "summary": "The seven audit commands must not assume the local mirror holds collections, redirects, or CMS items; they fall back to scoped API reads and degrade to a shaped empty result with an actionable note when the credential is missing.",
+  "reason": "Generated sync in this Press version cannot reach `collections`, `redirects`, or an unqualified `items` (each fails with '1 resource(s) failed to sync'; `items` additionally requires WEBFLOW_COLLECTION_ID and covers one collection per run). Without the live fallback, `redirects audit` could never audit anything, `collections completeness` could never detect required-field gaps, and `overview` reported 0 unpublished items while `publish preview` reported the real count on the same mirror. A regen must re-check whether the sync enumeration has grown before reverting these commands to mirror-only reads.",
+  "files": [
+    "internal/cli/webflow_localq.go",
+    "internal/cli/seo_audit.go",
+    "internal/cli/drift.go",
+    "internal/cli/publish_preview.go",
+    "internal/cli/items_bulk_set.go",
+    "internal/cli/collections_completeness.go",
+    "internal/cli/redirects_audit.go",
+    "internal/cli/overview.go"
+  ],
+  "validated_outcome": "With no valid credential every audit exits 0 with its own object-shaped JSON and a note naming WEBFLOW_API_TOKEN; shipcheck sample-output probe 7/7, scorecard 94/100.",
+  "upstream_issue": ""
+}

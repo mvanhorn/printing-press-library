@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "id": "api-token-must-reach-the-authorization-header",
+  "applied_at": "2026-07-28",
+  "base_run_id": "20260728-073020-15799c7c",
+  "base_printing_press_version": "4.29.0",
+  "summary": "Config.AuthHeader must return the api-token credential, not only the OAuth2 access token; without that branch the CLI reports auth as configured and sends every request anonymously.",
+  "reason": "This spec declares both an OAuth2 scheme and a bearer apiKey scheme. The generator emits a per-API token field for the latter and populates it from the documented env var, records it in AuthSource and CredentialSource, and counts it in hasCredentialFields, but AuthHeader only checked AuthHeaderVal and AccessToken. The result was a CLI whose doctor reported success while the API answered 401 for every call: the same credential returned 403 through curl and 401 through the CLI, which is the signature of a missing header rather than a rejected one. Any regen against a dual-scheme spec must re-check this before the CLI is considered usable at all.",
+  "files": ["internal/config/config.go"],
+  "validated_outcome": "After the fix doctor reports Auth: configured and live commands return data; the live matrix went from unusable to 328 passing against a real site.",
+  "upstream_issue": ""
+}
