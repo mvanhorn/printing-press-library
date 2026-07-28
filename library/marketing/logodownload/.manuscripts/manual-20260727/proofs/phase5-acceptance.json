@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "api_name": "logodownload",
+  "run_id": "manual-20260727",
+  "status": "pass",
+  "level": "quick",
+  "matrix_size": 4,
+  "tests_passed": 4,
+  "auth_context": {
+    "type": "none"
+  }
+}

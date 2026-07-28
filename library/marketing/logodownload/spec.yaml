@@ -1,0 +1,56 @@
+name: logodownload
+display_name: "LogoDownload"
+description: "Search public logo entries on logodownload.org and return page URLs plus preview image URLs."
+version: "2026.07"
+source: public-web
+auth:
+  type: none
+config:
+  format: none
+mcp:
+  transport: []
+  orchestration: none
+resources:
+  logos:
+    description: "Public logo search and image preview/download helpers"
+    endpoints:
+      search:
+        method: GET
+        path: /search
+        description: "Search logodownload.org for logo pages by term"
+        response:
+          type: array
+          item: LogoResult
+      preview:
+        method: POST
+        path: /preview
+        description: "Generate a monochrome terminal preview for returned image_url values"
+        response:
+          type: object
+          item: PreviewResult
+      download:
+        method: POST
+        path: /download
+        description: "Download selected returned image_url values to a local directory"
+        response:
+          type: array
+          item: LogoResult
+types:
+  LogoResult:
+    fields:
+      - name: title
+        type: string
+      - name: url
+        type: string
+      - name: image_url
+        type: string
+      - name: download_path
+        type: string
+  PreviewResult:
+    fields:
+      - name: title
+        type: string
+      - name: image_url
+        type: string
+      - name: terminal_preview
+        type: string

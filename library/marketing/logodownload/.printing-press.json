@@ -1,0 +1,44 @@
+{
+  "schema_version": 2,
+  "generated_at": "2026-07-27T00:00:00Z",
+  "printing_press_version": "4.29.0",
+  "api_name": "logodownload",
+  "display_name": "LogoDownload",
+  "cli_name": "logodownload-pp-cli",
+  "creator": {
+    "handle": "joabbandeira",
+    "name": "Joao Bandeira"
+  },
+  "owner": "joabbandeira",
+  "printer": "joabbandeira",
+  "printer_name": "Joao Bandeira",
+  "spec_path": "spec.yaml",
+  "spec_format": "public-web",
+  "spec_checksum": "sha256:6fb21a223f43682bfcd2075aef64ef92bc640d0afc5226ec7c274c1311f7b5cb",
+  "run_id": "manual-20260727",
+  "category": "marketing",
+  "description": "Search public logo entries on logodownload.org and return page URLs plus preview image URLs.",
+  "mcp_binary": "",
+  "mcp_tool_count": 0,
+  "mcp_public_tool_count": 0,
+  "mcp_ready": "",
+  "api_version": "2026.07",
+  "auth_type": "none",
+  "novel_features": [
+    {
+      "name": "Logo search by brand term",
+      "command": "logodownload-pp-cli <term>",
+      "description": "Search logodownload.org public results and return agent-friendly JSON with title, page URL, and image_url."
+    },
+    {
+      "name": "Terminal preview",
+      "command": "logodownload-pp-cli <term> --preview",
+      "description": "Print a monochrome Braille preview of returned image_url values directly in the terminal."
+    },
+    {
+      "name": "Selected image download",
+      "command": "logodownload-pp-cli <term> --download first|all|N",
+      "description": "Download one or more returned image_url values to the local filesystem only when requested."
+    }
+  ]
+}

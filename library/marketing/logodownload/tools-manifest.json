@@ -1,0 +1,100 @@
+{
+  "api_name": "logodownload",
+  "base_url": "https://logodownload.org",
+  "description": "Search public logo entries on logodownload.org and return page URLs plus preview image URLs.",
+  "mcp_ready": "none",
+  "http_transport": "none",
+  "mcp": {
+    "endpoint_tools": "none",
+    "orchestration": "none"
+  },
+  "auth": {
+    "type": "none"
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "search_logos",
+      "description": "Search logodownload.org by company or brand term and return LogoResult JSON.",
+      "method": "CLI",
+      "path": "logodownload-pp-cli <term>",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "term",
+          "type": "string",
+          "location": "query",
+          "required": true,
+          "description": "Company or brand search term."
+        }
+      ]
+    },
+    {
+      "name": "terminal_preview_logos",
+      "description": "Print a compact monochrome horizontal preview of returned image_url values directly in the terminal.",
+      "method": "CLI",
+      "path": "logodownload-pp-cli <term> --preview [--preview-h N] [--preview-w N] [--preview-limit N]",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "term",
+          "type": "string",
+          "location": "query",
+          "required": true,
+          "description": "Company or brand search term."
+        },
+        {
+          "name": "preview_h",
+          "type": "integer",
+          "location": "query",
+          "required": false,
+          "description": "Terminal rows per logo preview."
+        },
+        {
+          "name": "preview_w",
+          "type": "integer",
+          "location": "query",
+          "required": false,
+          "description": "Terminal columns per logo preview."
+        },
+        {
+          "name": "preview_limit",
+          "type": "integer",
+          "location": "query",
+          "required": false,
+          "description": "Maximum result previews printed."
+        }
+      ]
+    },
+    {
+      "name": "download_logo_image",
+      "description": "Download one or more selected image_url values to a local directory.",
+      "method": "CLI",
+      "path": "logodownload-pp-cli <term> --download first|all|N [--output-dir DIR]",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "term",
+          "type": "string",
+          "location": "query",
+          "required": true,
+          "description": "Company or brand search term."
+        },
+        {
+          "name": "download",
+          "type": "string",
+          "location": "query",
+          "required": true,
+          "description": "Selection to download: first, all, or a 1-based result index."
+        },
+        {
+          "name": "output_dir",
+          "type": "string",
+          "location": "query",
+          "required": false,
+          "description": "Directory where image files are written."
+        }
+      ]
+    }
+  ]
+}

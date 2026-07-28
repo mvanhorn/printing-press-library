@@ -1,0 +1,25 @@
+name: logodownload-local-verify
+description: Local verification plan before Printing Press publication.
+commands:
+  - name: gofmt
+    run: gofmt -w cmd/logodownload-pp-cli/main.go internal/logodownload/*.go
+  - name: tidy
+    run: go mod tidy
+  - name: test
+    run: go test ./...
+  - name: vet
+    run: go vet ./...
+  - name: build
+    run: go build ./cmd/logodownload-pp-cli
+  - name: govulncheck
+    run: govulncheck ./...
+  - name: help
+    run: go run ./cmd/logodownload-pp-cli --help
+  - name: version
+    run: go run ./cmd/logodownload-pp-cli --version
+  - name: search
+    run: go run ./cmd/logodownload-pp-cli nike
+  - name: preview
+    run: go run ./cmd/logodownload-pp-cli "Bradesco Logo" --preview --preview-h 6 --preview-w 20 --preview-limit 2
+  - name: download
+    run: go run ./cmd/logodownload-pp-cli "Banco Inter" --download first --output-dir /tmp/logodownload-verify

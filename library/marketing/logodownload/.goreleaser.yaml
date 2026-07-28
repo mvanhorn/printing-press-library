@@ -1,0 +1,40 @@
+version: 2
+
+project_name: logodownload-pp-cli
+
+before:
+  hooks:
+    - go mod tidy
+
+builds:
+  - id: logodownload-pp-cli
+    main: ./cmd/logodownload-pp-cli
+    binary: logodownload-pp-cli
+    env:
+      - CGO_ENABLED=0
+    goos:
+      - darwin
+      - linux
+      - windows
+    goarch:
+      - amd64
+      - arm64
+
+archives:
+  - id: default
+    ids:
+      - logodownload-pp-cli
+    name_template: >-
+      {{ .ProjectName }}_
+      {{- .Version }}_
+      {{- .Os }}_
+      {{- .Arch }}
+
+checksum:
+  name_template: checksums.txt
+
+snapshot:
+  version_template: "{{ incpatch .Version }}-next"
+
+changelog:
+  disable: true
