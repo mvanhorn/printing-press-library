@@ -65,7 +65,7 @@
     {
       "name": "Cost budget enforcement",
       "command": "run --max-cost",
-      "description": "Enforce Apify's native charge cap, reject excessive local p50 projections, and add a live watchdog during waiting."
+      "description": "Pre-flight cost projection from local p50/p90 of past runs for the same Actor; aborts run if projection exceeds budget."
     },
     {
       "name": "Input presets",

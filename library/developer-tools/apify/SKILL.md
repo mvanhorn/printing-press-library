@@ -72,7 +72,7 @@ These capabilities aren't available in any other tool for this API.
   ```bash
   apify-pp cost report --since 30d --group-by actor,schedule --json
   ```
-- **`run --max-cost`:** Native Apify charge cap plus a local p50/p90 projection. With `--wait`, a live watchdog adds another stop.
+- **`run --max-cost`** — Pre-flight cost projection from local p50/p90 of past runs for the same Actor; aborts run if projection exceeds budget.
 
   _Use this on any long-tail or untrusted Actor to fail-closed on cost rather than learning about it on the invoice._
 
@@ -354,7 +354,7 @@ Keep target metadata for multi-target runs. Use merge deduplication for audience
 `maxItemsPerTarget` optionally balances results across targets.
 
 Check each Actor's live Store schema and pricing before a paid run.
-The CLI passes `--max-cost` as `maxTotalChargeUsd`. `--wait` adds a watchdog.
+The CLI projects from local history. `--wait` adds a live watchdog.
 
 Xquik is an independent third-party service. Not affiliated with X Corp. "Twitter" and "X" are trademarks of X Corp.
 

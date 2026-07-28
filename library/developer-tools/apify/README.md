@@ -133,7 +133,7 @@ apify-pp doctor
 # Find an Actor in the public store.
 apify-pp store search 'twitter scraper' --json --select name,username,stats.totalUsers7Days
 
-# Run Xquik's Tweet Scraper with a server-side charge cap.
+# Run Xquik's Tweet Scraper with a live cost watchdog.
 apify-pp run xquik/x-tweet-scraper --input @xquik-tweets.json --max-cost 0.50 --wait --json
 
 # Pull items from the run's default dataset.
@@ -164,7 +164,7 @@ with `maxItems` and `maxItemsPerTarget`. Keep target metadata and merge
 deduplication when comparing audiences.
 
 Check live pricing before each paid run. Choose a suitable `--max-cost`.
-The CLI sends `maxTotalChargeUsd` to Apify. `--wait` adds a local watchdog.
+The CLI projects from local history. `--wait` adds a live watchdog.
 
 Xquik is an independent third-party service. Not affiliated with X Corp. "Twitter" and "X" are trademarks of X Corp.
 
@@ -203,7 +203,7 @@ These capabilities aren't available in any other tool for this API.
   ```bash
   apify-pp cost report --since 30d --group-by actor,schedule --json
   ```
-- **`run --max-cost`:** Native Apify charge cap plus a local p50/p90 projection. With `--wait`, a live watchdog adds another stop.
+- **`run --max-cost`** — Pre-flight cost projection from local p50/p90 of past runs for the same Actor; aborts run if projection exceeds budget.
 
   _Use this on any long-tail or untrusted Actor to fail-closed on cost rather than learning about it on the invoice._
 
